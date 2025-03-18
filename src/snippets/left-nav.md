@@ -1,4 +1,0 @@
-- [Home](/)
-- [About](/about/)
-  - [Team](/team/)
-- [Contact](/contact/)
