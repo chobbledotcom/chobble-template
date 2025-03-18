@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+yarn eleventy --serve &
+ELEVENTY_PID=$!
+sass --watch src/_scss:_site/css --style compressed &
+SASS_PID=$!
+cleanup_serve() {
+  echo "Cleaning up serve processes..."
+  kill $ELEVENTY_PID 2>/dev/null
+  wait $ELEVENTY_PID 2>/dev/null
+  kill $SASS_PID 2>/dev/null
+  wait $SASS_PID 2>/dev/null
+}
+trap cleanup_serve EXIT INT TERM
+wait -n
+cleanup_serve
+trap - EXIT INT TERM
