@@ -11,6 +11,7 @@ let
       dependencies = {
         "@11ty/eleventy" = "^3.0.0";
         "@11ty/eleventy-img" = "^6.0.0";
+        "@11ty/eleventy-navigation" = "^0.3.5";
         "@11ty/eleventy-plugin-rss" = "^2.0.2";
         "@11ty/eleventy-plugin-syntaxhighlight" = "^5.0.0";
         "@zachleat/heading-anchors" = "^1.0.1";

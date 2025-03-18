@@ -7,11 +7,25 @@
     {% if description -%}
     <meta name="description" content="{{ description }}" />
     {% endif -%}
+    <link rel="stylesheet" href="/css/mvp.css" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html" />
     <link rel="canonical" href="{{ site.url }}{{ page.url }}" />
   </head>
   <body {%- if css_class %} class="{{ css_class }}" {%- endif -%}>
-    <article>{{ content }}</article>
+    <header>{% renderSnippet "header" %}</header>
+    <main>
+      <nav>
+        {% assign navItems = collections.all | eleventyNavigation %}
+        {% if eleventyNavigation and eleventyNavigation.key %}
+          {{ navItems | toNavigation: eleventyNavigation.key }}
+        {% else %}
+          {{ navItems | toNavigation }}
+        {% endif %}
+      </nav>
+      <article class="content">{{ content }}</article>
+      <article class="right">{% renderSnippet "right-content" %}</article>
+    </main>
+    <footer>{% renderSnippet "footer-content" %}</footer>
   </body>
 </html>

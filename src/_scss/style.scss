@@ -1,1 +1,96 @@
 @use "sass:color";
+
+:root {
+  --color-bg: #205781;
+  --color-bg-secondary: #4f959d;
+  --color-bg-main: #f6f8d5;
+  --color-link: #4f959d;
+  --color-secondary: #98d2c0;
+  --color-secondary-accent: #4f959d;
+  --color-text: #205781;
+}
+
+body {
+  padding: 1rem;
+}
+
+header {
+  margin-top: 4rem;
+}
+
+header,
+main,
+footer {
+  background: var(--color-bg-secondary);
+}
+
+nav {
+  background: var(--color-bg-main);
+  padding: 1rem 0.5rem;
+  border-radius: 10px;
+}
+
+article {
+  background: var(--color-bg-main);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .right {
+    margin-top: 4rem;
+  }
+}
+
+@media (min-width: 769px) {
+  main {
+    display: flex;
+    gap: 1rem;
+    min-height: 30rem;
+    nav {
+      width: 200px;
+      margin: 0;
+      align-items: start;
+      ul {
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+      }
+    }
+    .content {
+      flex-grow: 1;
+    }
+    .right {
+      width: 300px;
+      h3 {
+        text-align: center;
+      }
+    }
+  }
+}
+
+footer {
+  text-align: center;
+}
+
+nav {
+  flex-wrap: wrap;
+  ul li {
+    width: calc(100% - 1em);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    ul {
+      display: flex;
+      gap: 1rem;
+      border: none;
+      box-shadow: none;
+      display: block;
+      position: static;
+      background: none;
+    }
+  }
+  a.active {
+    color: var(--color-secondary);
+  }
+}
