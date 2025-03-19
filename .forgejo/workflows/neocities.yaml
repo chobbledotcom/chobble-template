@@ -1,0 +1,41 @@
+name: Build and Deploy to Neocities
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  NIX_PATH: nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos
+  NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
+
+jobs:
+  build:
+    runs-on: native
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Nix store
+        uses: actions/cache@v3
+        with:
+          path: /nix/store
+          key: nix-${{ hashFiles('**/*.nix') }}
+          restore-keys: |
+            nix-
+
+      - name: Build
+        id: build
+        run: |
+          BUILD_PATH=$(nix-build)
+          DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
+          mkdir -p "$DEPLOY_PATH"
+          cp -r "$BUILD_PATH"/* "$DEPLOY_PATH"/
+
+      - name: Deploy to neocities
+        uses: bcomnes/deploy-to-neocities@v3
+        with:
+          api_key: ${{ secrets.NEOCITIES_API_KEY }}
+          cleanup: true
+          neocities_supporter: true
+          preview_before_deploy: false
+          dist_dir: dist
