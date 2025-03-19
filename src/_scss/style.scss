@@ -8,6 +8,8 @@
   --color-secondary: #98d2c0;
   --color-secondary-accent: #4f959d;
   --color-text: #205781;
+  --border-radius: 0 25px 0 25px;
+  --border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 * {
@@ -51,15 +53,19 @@ h6 {
 
 header {
   background: var(--color-bg-secondary);
+  border-radius: var(--border-radius);
+  border: var(--border);
   margin-top: 1rem;
-  border-radius: 5px;
   position: relative;
   color: var(--color-bg-main);
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+
   h1 {
     z-index: 2;
     position: relative;
   }
+
   img.banner {
     position: absolute;
     top: 0;
@@ -73,14 +79,27 @@ header {
 
 main {
   padding: 3rem 0 2rem;
+  .content {
+    img {
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      border-radius: var(--border-radius);
+    }
+  }
 }
 
 footer {
   background: var(--color-bg-secondary);
   color: var(--color-bg-main);
+  border-radius: var(--border-radius);
+  border: var(--border);
   margin-bottom: 1rem;
-  border-radius: 5px;
   text-align: center;
+
+  a {
+    color: var(--color-bg-main);
+  }
 
   .socials {
     display: flex;
@@ -111,7 +130,8 @@ footer {
 nav,
 article {
   background: var(--color-bg-main);
-  border-radius: 5px;
+  border-radius: var(--border-radius);
+  border: var(--border);
   padding: 1rem;
   margin-bottom: 2rem;
 }
