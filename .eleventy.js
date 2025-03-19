@@ -14,7 +14,7 @@ module.exports = async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
     formats: ["webp", "jpeg"],
-    widths: [200, 400],
+    widths: [400, 600, 900, 1200],
     htmlOptions: {
       imgAttributes: {
         loading: "lazy",
