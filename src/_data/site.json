@@ -1,5 +1,13 @@
 {
   "name": "Example Site",
   "formspark_id": "",
-  "url": "https://example.com"
+  "botpoison_public_key": "",
+  "url": "https://example.com",
+  "socials": {
+    "facebook": "https://example.com",
+    "instagram": "https://example.com",
+    "tiktok": "https://example.com",
+    "google": "https://example.com",
+    "whatsapp": "https://example.com"
+  }
 }

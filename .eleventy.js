@@ -48,14 +48,8 @@ module.exports = async function (eleventyConfig) {
 
   eleventyConfig.addShortcode("renderSnippet", function (name) {
     const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
-
-    try {
-      const content = fs.readFileSync(snippetPath, "utf8");
-      return md.render(content);
-    } catch (e) {
-      console.error(`Error rendering snippet ${name}: ${e.message}`);
-      return `<!-- Error rendering snippet ${name} -->`;
-    }
+    const content = fs.readFileSync(snippetPath, "utf8");
+    return md.render(content);
   });
 
   return {

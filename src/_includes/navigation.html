@@ -1,0 +1,6 @@
+{% assign navItems = collections.all | eleventyNavigation %}
+{% if eleventyNavigation and eleventyNavigation.key %}
+  {{ navItems | toNavigation: eleventyNavigation.key }}
+{% else %}
+  {{ navItems | toNavigation: navigationParent }}
+{% endif %}

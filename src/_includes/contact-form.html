@@ -1,0 +1,57 @@
+<form
+  id="contact-form"
+  class="contact-form"
+  action="https://submit-form.com/{{ site.formspark_id }}"
+  data-botpoison-public-key="{{ site.botpoison_public_key }}"
+>
+  <input type="hidden" name="_redirect" value="{{ site.url }}/thank-you" />
+  <input type="hidden" name="_email.template.footer" value="false" />
+  <input
+    type="hidden"
+    name="_email.from"
+    value="{{ site.name }} contact form"
+  />
+  <input
+    type="hidden"
+    name="_email.subject"
+    value="New message from {{ site.name }} website contact form"
+  />
+  <label for="name">
+    Name
+    <input
+      type="text"
+      id="name"
+      name="name"
+      placeholder="Your name"
+      required=""
+    />
+  </label>
+  <label for="email">
+    Email
+    <input
+      type="email"
+      id="email"
+      name="email"
+      placeholder="Your email address"
+    />
+  </label>
+  <label for="phone">
+    Phone
+    <input
+      type="text"
+      id="phone"
+      name="phone"
+      placeholder="Your phone number"
+    />
+  </label>
+  <label for="message">
+    Message
+    <textarea
+      id="message"
+      name="message"
+      placeholder="Your message"
+      required=""
+    ></textarea>
+  </label>
+  <button type="submit" class="btn primary-btn">Send Enquiry</button>
+</form>

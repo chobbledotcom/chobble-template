@@ -168,7 +168,7 @@ nav ul li {
 }
 
 /* Nav Dropdown */
-nav ul li:hover ul {
+/* nav ul li:hover ul {
   display: block;
 }
 
@@ -189,7 +189,6 @@ nav ul li ul {
 }
 
 nav ul li ul::before {
-  /* fill gap above to make mousing over them easier */
   content: "";
   position: absolute;
   left: 0;
@@ -203,7 +202,6 @@ nav ul li ul li a {
   display: block;
 }
 
-/* Nav for Mobile */
 @media (max-width: 768px) {
   nav {
     flex-wrap: wrap;
@@ -220,6 +218,7 @@ nav ul li ul li a {
     position: static;
   }
 }
+*/
 
 /* Typography */
 code,

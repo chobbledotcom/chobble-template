@@ -1,0 +1,12 @@
+<ul>
+  {%- for post in posts limit: limit -%}
+  <li>
+    <a href="{{ post.url }}">
+      {{ post.data.title | escape }}
+    </a>
+    <br />
+    <strong>{{ post.date | date: "%b %-d, %Y" }}:</strong>
+    {{ post.data.subtitle | escape }}
+  </li>
+  {%- endfor -%}
+</ul>

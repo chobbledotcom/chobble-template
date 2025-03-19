@@ -1,0 +1,13 @@
+<ul class="socials">
+  {% for social in site.socials %}
+    <a
+      href="{{ social[1] }}"
+      title="{{ site.name }} on {{ social[0] }}"
+    >
+      <img
+        src="/assets/icons/{{ social[0] }}.svg"
+        alt="{{ social[0] }} logo"
+      />
+    </a>
+  {% endfor %}
+</ul>
