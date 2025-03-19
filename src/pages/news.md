@@ -1,10 +1,15 @@
 ---
-meta_title: News
+header_image: placeholder.jpg
+header_text: News
 meta_description:
-layout: news.html
+meta_title: News
+
+layout: news-archive.html
 eleventyNavigation:
   key: News
   parent: About
 ---
 
-# News
+## Congue Ipsum
+
+Integer feugiat iaculis augue, in hendrerit sapien dapibus et. Mauris vitae est auctor, pellentesque nisl.

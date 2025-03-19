@@ -1,9 +1,11 @@
 ---
-meta_title: Thank You
+header_image: placeholder.jpg
+header_text: Thank You
 meta_description:
+meta_title: Thank You
 navigationParent: Contact
 ---
 
-# Thank You
+## Thank You
 
 Your message has been sent - we will be in touch.

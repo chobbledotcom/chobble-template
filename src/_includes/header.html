@@ -1,0 +1,10 @@
+<header>
+  <h1>{{ header_text | escape }}</h1>
+  {% if header_image %}
+    <img
+      alt=""
+      class="banner"
+      src="/assets/banners/{{ header_image | escape }}"
+    />
+  {% endif %}
+</header>

@@ -3,3 +3,10 @@ layout: base.html
 ---
 
 {{ content }}
+
+<hr />
+
+<h3>Latest Posts</h3>
+
+{%- assign limit = 2 -%}
+{% include "news-post-list.html" %}

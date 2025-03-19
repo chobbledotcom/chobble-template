@@ -1,0 +1,24 @@
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{ meta_title }}</title>
+{% if meta_description -%}
+  <meta name="description" content="{{ description }}" />
+{% endif -%}
+<link rel="stylesheet" href="/css/mvp.css" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html" />
+<link rel="canonical" href="{{ site.url }}{{ page.url }}" />
+<script
+  type="module"
+  async=""
+  src="/assets/js/lib/turbo.es2017-esm.min.js"
+></script>
+{% if layout == "contact.html" %}
+  <script
+    async
+    src="/assets/js/lib/botpoison-0.1.30.js"
+    type="text/javascript"
+  ></script>
+{% endif %}
+</head>

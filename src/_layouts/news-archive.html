@@ -4,7 +4,5 @@ layout: base.html
 
 {{ content }}
 
-{%- assign posts = collections.news | reverse -%}
 {%- assign limit = 9999 -%}
-
 {% include "news-post-list.html" %}
