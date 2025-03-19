@@ -9,6 +9,7 @@ layout: home.html
 permalink: /
 eleventyNavigation:
   key: Home
+  order: 0
 # And here
 ---
 

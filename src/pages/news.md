@@ -7,7 +7,7 @@ meta_title: News
 layout: news-archive.html
 eleventyNavigation:
   key: News
-  parent: About
+  order: 3
 ---
 
 ## Congue Ipsum
