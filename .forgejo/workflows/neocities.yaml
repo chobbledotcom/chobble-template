@@ -38,4 +38,4 @@ jobs:
           cleanup: true
           neocities_supporter: true
           preview_before_deploy: false
-          dist_dir: "$GITHUB_WORKSPACE/dist"
+          dist_dir: dist
