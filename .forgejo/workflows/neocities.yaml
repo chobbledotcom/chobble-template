@@ -26,9 +26,9 @@ jobs:
       - name: Build
         id: build
         run: |
-          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom --out-link "$GITHUB_WORKSPACE/dist"
-          # DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
-          # mkdir -p "$DEPLOY_PATH"
+          DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
+          mkdir -p "$DEPLOY_PATH"
+          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom --out-link "DEPLOY_PATH"
           # cp -r result/* "$DEPLOY_PATH"/          
 
       - name: Deploy to neocities
@@ -38,4 +38,4 @@ jobs:
           cleanup: true
           neocities_supporter: true
           preview_before_deploy: false
-          dist_dir: dist
+          dist_dir: "$GITHUB_WORKSPACE/dist"
