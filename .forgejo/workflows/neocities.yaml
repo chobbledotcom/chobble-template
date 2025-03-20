@@ -26,10 +26,7 @@ jobs:
       - name: Build
         id: build
         run: |
-          BUILD_PATH=$(nix-fast-build --skip-cached --flake "flake.nix#.")
-          DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
-          mkdir -p "$DEPLOY_PATH"
-          cp -r "$BUILD_PATH"/* "$DEPLOY_PATH"/
+          nix-fast-build --skip-cached --flake "flake.nix#." --no-link --no-nom --copy-to "$GITHUB_WORKSPACE/dist"
 
       - name: Deploy to neocities
         uses: bcomnes/deploy-to-neocities@v3
