@@ -139,7 +139,10 @@ article {
   // border: var(--border);
   padding: 1rem;
   margin-bottom: 2rem;
-  background: linear-gradient(#f6f8d5, #f6f8d5) padding-box, linear-gradient(125deg, #94ddaa, transparent 20rem) border-box, linear-gradient(to bottom, white, transparent) border-box;
+  background:
+    linear-gradient(#f6f8d5, #f6f8d5) padding-box,
+    linear-gradient(125deg, #94ddaa, transparent 20rem) border-box,
+    linear-gradient(to bottom, white, transparent) border-box;
   border: 3px solid transparent;
 }
 
@@ -175,13 +178,13 @@ nav {
     grid-template-areas:
       "nav content"
       "nav right";
-    gap: 1rem;
+    gap: 0 1rem;
     min-height: 30rem;
-    padding: 1rem 0 0 0;
+    padding: 1rem 0 0;
     nav {
       grid-area: nav;
       align-items: start;
-      margin: 0;
+      margin: 0 0 1rem;
       ul {
         display: flex;
         gap: 1rem;
@@ -190,12 +193,12 @@ nav {
     }
     .content {
       grid-area: content;
-      margin: 0;
+      margin: 0 0 1rem;
       padding-bottom: 2rem;
     }
     .right {
       grid-area: right;
-      margin: 0;
+      margin: 0 0 1rem;
       h3 {
         text-align: center;
       }
