@@ -28,8 +28,8 @@ jobs:
         run: |
           DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
           mkdir -p "$DEPLOY_PATH"
-          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom --copy-to "$DEPLOY_PATH"
-          # cp -r result/* "$DEPLOY_PATH"/          
+          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom
+          cp -r result/* "$DEPLOY_PATH"/          
 
       - name: Deploy to neocities
         uses: bcomnes/deploy-to-neocities@v3
