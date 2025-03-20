@@ -26,7 +26,7 @@ jobs:
       - name: Build
         id: build
         run: |
-          BUILD_PATH=$(nix-fast-build --skip-cached --flake ".#defaultPackage.x86_64-linux.site" --no-nom)
+          BUILD_PATH=$(nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom)
           DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
           mkdir -p "$DEPLOY_PATH"
           cp -r "$BUILD_PATH"/* "$DEPLOY_PATH"/
