@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+find _site -name "*.html" -exec tidy --wrap 80 --indent auto --indent-spaces 2  --wrap 80 --quiet yes --tidy-mark no -modify {} \;

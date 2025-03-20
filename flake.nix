@@ -20,6 +20,7 @@
         };
 
         commonBuildInputs = with pkgs; [
+          html-tidy
           sass
           yarn
         ];
@@ -37,6 +38,7 @@
           buildPhase = ''
             sass --update src/_scss:_site/css --style compressed
             yarn --offline eleventy
+            find _site -name "*.html" -exec tidy --wrap 80 --indent auto --indent-spaces 2  --wrap 80 --quiet yes --tidy-mark no -modify {} \;
           '';
 
           installPhase = ''cp -r _site $out'';
@@ -64,6 +66,7 @@
           "build"
           "serve"
           "dryrun"
+          "tidy_html"
         ];
 
         scriptPackages = builtins.listToAttrs (
@@ -89,9 +92,14 @@
               ln -sf ${packageJSON} package.json
               ln -sf ${nodeModules}/node_modules .
               echo "Development environment ready!"
-              echo "Run 'serve' to start development server"
-              echo "Run 'build' to build the site in the _site directory"
-              echo "Run 'dryrun' to do a dry run"
+              echo ""
+              echo "Run:"
+              echo " - 'serve' to start development server"
+              echo " - 'build' to build the site in the _site directory"
+              echo " - 'dryrun' to do a dry run"
+              echo " - 'tidy_html' to tidy the html in _site"
+              echo ""
+              git pull
             '';
           };
         };
