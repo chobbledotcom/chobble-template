@@ -15,20 +15,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache Nix store
-        uses: actions/cache@v3
-        with:
-          path: /nix/store
-          key: nix-${{ hashFiles('**/*.nix') }}
-          restore-keys: |
-            nix-
-
       - name: Build
         id: build
         run: |
           DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
           mkdir -p "$DEPLOY_PATH"
-          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom
+          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom --out-link result
+          ls -la
+          ls -la result || echo "No result found"
           cp -r result/* "$DEPLOY_PATH"/          
 
       - name: Deploy to neocities
