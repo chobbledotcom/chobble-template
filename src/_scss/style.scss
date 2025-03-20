@@ -97,6 +97,7 @@ footer {
   border: var(--border);
   margin-bottom: 1rem;
   text-align: center;
+  padding: 1rem;
 
   a {
     color: var(--color-bg-main);
@@ -105,24 +106,26 @@ footer {
   .socials {
     list-style-type: none;
     padding: 0;
-    margin: 0 auto 2rem;
     display: flex;
     gap: 0.5rem;
     justify-content: center;
-    a {
-      img {
-        width: 3rem;
-        height: auto;
-        filter: invert(99%) sepia(47%) saturate(588%) hue-rotate(9deg)
-          brightness(108%) contrast(95%);
-        transition: all 0.3s ease-in-out;
-      }
-      &:hover {
+    li {
+      padding: 0;
+      a {
         img {
-          transform: scale(120%);
-          text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+          width: 3rem;
+          height: auto;
           filter: invert(99%) sepia(47%) saturate(588%) hue-rotate(9deg)
-            brightness(108%) contrast(95%) drop-shadow(0px 0px 3px #fff);
+            brightness(108%) contrast(95%);
+          transition: all 0.3s ease-in-out;
+        }
+        &:hover {
+          img {
+            transform: scale(120%);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            filter: invert(99%) sepia(47%) saturate(588%) hue-rotate(9deg)
+              brightness(108%) contrast(95%) drop-shadow(0px 0px 3px #fff);
+          }
         }
       }
     }
