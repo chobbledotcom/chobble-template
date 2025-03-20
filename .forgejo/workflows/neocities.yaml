@@ -26,7 +26,7 @@ jobs:
       - name: Build
         id: build
         run: |
-          nix-fast-build --skip-cached --flake "flake.nix#.x86_64-linux" --no-link --no-nom --copy-to "$GITHUB_WORKSPACE/dist"
+          nix-fast-build --skip-cached --flake ".#x86_64-linux" --no-link --no-nom --copy-to "$GITHUB_WORKSPACE/dist"
 
       - name: Deploy to neocities
         uses: bcomnes/deploy-to-neocities@v3
