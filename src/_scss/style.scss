@@ -103,10 +103,11 @@ footer {
   }
 
   .socials {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 auto 2rem;
     display: flex;
     gap: 0.5rem;
-    padding: 0;
-    margin-bottom: 1rem;
     justify-content: center;
     a {
       img {
