@@ -131,11 +131,13 @@ footer {
 
 nav,
 article {
-  background: var(--color-bg-main);
+  // background: var(--color-bg-main);
   border-radius: var(--outer-border-radius);
-  border: var(--border);
+  // border: var(--border);
   padding: 1rem;
   margin-bottom: 2rem;
+  background: linear-gradient(#f6f8d5, #f6f8d5) padding-box, linear-gradient(125deg, #94ddaa, transparent 20rem) border-box, linear-gradient(to bottom, white, transparent) border-box;
+  border: 3px solid transparent;
 }
 
 nav {
