@@ -1,0 +1,18 @@
+{%- assign reviews = collections.review | reverse -%}
+{%- for review in reviews limit: limit -%}
+  <blockquote>
+    {{- review.content -}}
+    <footer>
+      {%- if review.data.url -%}
+        <a
+          href="{{ review.data.url }}"
+          rel="nofollow"
+        >
+          {{- review.data.name -}}
+        </a>
+      {%- else -%}
+        {{- review.data.name -}}
+      {%- endif -%}
+    </footer>
+  </blockquote>
+{%- endfor -%}

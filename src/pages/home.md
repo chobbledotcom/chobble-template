@@ -20,7 +20,7 @@ You can check out the source code for this template [here](https://git.chobble.c
 - An [Eleventy](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/.eleventy.js) site.
 - Using [mvp.css](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/src/_scss/mvp.scss)
 - Built with Nix and [Forgejo Actions](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/.forgejo/workflows/neocities.yaml)
-- Hosted on Neocities
+- Hosted on [Neocities](https://neocities.org/site/chobble-example)
 - Formspark & Botpoison [contact form](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/src/_includes/contact-form.html)
 - News system
 - Social media links
