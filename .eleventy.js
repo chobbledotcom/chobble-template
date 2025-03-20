@@ -13,8 +13,9 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");
 
   eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
-    formats: ["webp", "jpeg"],
+    formats: ["webp", "jpeg", "svg"],
     widths: [400, 600, 900, 1200],
+    svgShortCircuit: true,
     htmlOptions: {
       imgAttributes: {
         loading: "lazy",
