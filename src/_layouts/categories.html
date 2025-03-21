@@ -1,0 +1,18 @@
+---
+layout: base.html
+---
+
+<h1>{{- title -}}</h1>
+
+{{- content -}}
+
+{%- assign show_subcategories = true -%}
+{%- assign show_product_count = true -%}
+
+<ul class="categories-list">
+  {%- for category in collections.categories -%}
+    {%- unless category.data.parent -%}
+      {%- include "category-list-item.html" -%}
+    {%- endunless -%}
+  {%- endfor -%}
+</ul>

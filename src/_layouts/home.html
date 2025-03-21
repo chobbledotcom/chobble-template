@@ -10,3 +10,15 @@ layout: base.html
 
 {%- assign limit = 2 -%}
 {% include "news-post-list.html" %}
+
+<h3>Product Categories</h3>
+
+<ul>
+  {% assign categories = collections.categories | getFeaturedCategories %}
+  {% for category in categories limit: 3 %}
+    {% assign show_subcategories = true %}
+    {% assign show_product_count = false %}
+    {% assign show_button = true %}
+    {% include "category-list-item.html" %}
+  {% endfor %}
+</ul>

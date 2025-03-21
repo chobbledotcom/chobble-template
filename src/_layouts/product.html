@@ -1,0 +1,46 @@
+---
+layout: base.html
+---
+
+{% if featured_image %}
+  <img src="/assets/images/{{ featured_image }}" alt="{{ title }}">
+{% endif %}
+
+<h1>{{ title }}</h1>
+
+<p>{{ price | default: "Price not available" }}</p>
+
+{%- if categories.size > 0 -%}
+  <ul class="product-categories">
+    <li><strong>Categories:</strong></li>
+    {%- for slug in categories -%}
+      {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
+      {%- if category -%}
+        <a href="{{ category.url }}/">
+          {{ category.data.title }}
+        </a>{%- unless forloop.last -%}, {%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}
+
+{{ content }}
+
+{%- if features -%}
+  <h2>Features</h2>
+  <ul class="product-features">
+    {%- for feature in features -%}
+      <li>{{ feature }}</li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}
+
+{%- if specs -%}
+  <h2>Specifications</h2>
+  <dl class="product-specs">
+    {%- for spec in specs -%}
+      <dt>{{ spec.name }}</dt>
+      <dd>{{ spec.value }}</dd>
+    {%- endfor -%}
+  </dl>
+{%- endif -%}

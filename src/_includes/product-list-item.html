@@ -1,0 +1,20 @@
+<a href="{{ product.url }}">
+  {% if product.data.featured_image %}
+    <img
+      src="/assets/images/{{ product.data.featured_image }}"
+      alt="{{ product.data.title }}"
+    />
+  {% endif %}
+
+  <h3>
+    {{ product.data.title }}
+  </h3>
+
+  {% if product.data.price %}
+    <p>{{ product.data.price }}</p>
+  {% endif %}
+
+  {%- if product.data.short_description -%}
+    <p>{{ product.data.short_description }}</p>
+  {%- endif -%}
+</a>

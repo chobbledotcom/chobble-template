@@ -53,6 +53,20 @@ module.exports = async function (eleventyConfig) {
     return md.render(content);
   });
 
+  eleventyConfig.addFilter(
+    "getProductsByCategory",
+    function (products, categorySlug) {
+      return products.filter((product) => {
+        if (!product.data.categories) return false;
+        return product.data.categories.includes(categorySlug);
+      });
+    },
+  );
+
+  eleventyConfig.addFilter("getFeaturedCategories", (categories) =>
+    categories.filter((c) => c.data.featured),
+  );
+
   return {
     dir: {
       input: "src",
