@@ -1,4 +1,5 @@
 {
   "layout": "category.html",
-  "tags": "categories"
+  "tags": "categories",
+  "navigationParent": "Products"
 }
