@@ -2,10 +2,12 @@
 layout: base.html
 ---
 
-<img
-  src="/assets/images/{{ featured_image }}"
-  alt="{{ title }}"
-/>
+{% if featured_image %}
+  <img
+    src="/assets/images/{{ featured_image }}"
+    alt="{{ title }}"
+  />
+{% endif %}
 
 <h1>{{ title }}</h1>
 
@@ -21,29 +23,25 @@ layout: base.html
 {% assign categories = collections.categories %}
 {% assign categories = categories | where: "data.parent", page.fileSlug %}
 
+{{ content }}
+
 {% if childCategories.size > 0 %}
-  <section>
-    <h2>Subcategories</h2>
-    <ul class="category-subcategories">
-      {% for category in childCategories %}
-        {% assign show_subcategories = true %}
-        {% assign show_product_count = false %}
-        {% include "category-list-item.html" %}
-      {% endfor %}
-    </ul>
-  </section>
+  <h2>Subcategories</h2>
+  <ul class="items">
+    {% for category in childCategories %}
+      {% assign show_subcategories = true %}
+      {% assign show_product_count = false %}
+      {% include "category-list-item.html" %}
+    {% endfor %}
+  </ul>
 {% endif %}
 
 {% assign products = collections.products | getProductsByCategory: page.fileSlug %}
 {% if products.size > 0 %}
-  <section>
-    <h2>Products</h2>
-    <ul class="category-products">
-      {% for product in products %}
-        {% include "product-list-item.html" %}
-      {% endfor %}
-    </ul>
-  </section>
+  <h2>Products</h2>
+  <ul class="items">
+    {% for product in products %}
+      {% include "product-list-item.html" %}
+    {% endfor %}
+  </ul>
 {% endif %}
-
-{{ content }}

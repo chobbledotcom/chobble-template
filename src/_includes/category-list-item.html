@@ -1,40 +1,44 @@
-<a href="{{ category.url }}">
-  {% if category.data.featured_image %}
-    <img
-      src="/assets/images/{{ category.data.featured_image }}"
-      alt=""
-    >
-  {% endif %}
-  <h3>{{ category.data.title }}</h3>
-  {%- if category.data.description -%}
-    <p>{{ category.data.description }}</p>
-  {%- endif -%}
-</a>
+<li>
+  <a href="{{ category.url }}">
+    {% if category.data.featured_image %}
+      <img
+        src="/assets/images/{{ category.data.featured_image }}"
+        alt=""
+      >
+    {% endif %}
+    <h3>{{ category.data.title }}</h3>
+    {%- if category.data.description -%}
+      <p>{{ category.data.description }}</p>
+    {%- endif -%}
+  </a>
 
-{%- if show_subcategories -%}
-  {%- assign subCategories = collections.categories | where: "data.parent", category.fileSlug -%}
-  {%- if subCategories.size > 0 -%}
-    <h3>Subcategories:</h3>
-    <ul class="subcategory-list">
-      {%- for subCategory in subCategories limit:4 -%}
-        <li>
-          <a href="{{ subCategory.url }}">
-            <img
-              src="/assets/images/{{ subCategory.data.featured_image }}"
-              alt=""
-            />
-            {{ subCategory.data.title }}
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
+  {%- if show_subcategories -%}
+    {%- assign subCategories = collections.categories | where: "data.parent", category.fileSlug -%}
+    {%- if subCategories.size > 0 -%}
+      <h3>Subcategories:</h3>
+      <ul class="items">
+        {%- for subCategory in subCategories limit:4 -%}
+          <li>
+            <a href="{{ subCategory.url }}">
+              {% if subCategory.data.featured_image %}
+                <img
+                  src="/assets/images/{{ subCategory.data.featured_image }}"
+                  alt=""
+                />
+              {% endif %}
+              {{ subCategory.data.title }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
   {%- endif -%}
-{%- endif -%}
 
-{%- if show_product_count -%}
-  {%- assign categoryProducts = collections.products | getProductsByCategory: category.fileSlug -%}
-  <p>
-    {{ categoryProducts.size }}
-    product{%- if categoryProducts.size != 1 -%}s{%- endif -%}
-  </p>
-{%- endif -%}
+  {%- if show_product_count -%}
+    {%- assign categoryProducts = collections.products | getProductsByCategory: category.fileSlug -%}
+    <p>
+      {{ categoryProducts.size }}
+      product{%- if categoryProducts.size != 1 -%}s{%- endif -%}
+    </p>
+  {%- endif -%}
+</li>

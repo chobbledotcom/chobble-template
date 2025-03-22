@@ -9,7 +9,7 @@ layout: base.html
 {%- assign show_subcategories = true -%}
 {%- assign show_product_count = true -%}
 
-<ul class="categories-list">
+<ul class="categories">
   {%- for category in collections.categories -%}
     {%- unless category.data.parent -%}
       {%- include "category-list-item.html" -%}
