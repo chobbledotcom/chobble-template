@@ -7,10 +7,16 @@
       >
     {% endif %}
     <h3>{{ category.data.title }}</h3>
-    {%- if category.data.description -%}
-      <p>{{ category.data.description }}</p>
-    {%- endif -%}
   </a>
+
+  <p>
+    <a href="{{ category.url }}">
+      {{ category.data.title }}:
+    </a>
+    {% if category.data.description -%}
+      {{ category.data.description }}
+    {%- endif -%}
+  </p>
 
   {%- if show_subcategories -%}
     {%- assign subCategories = collections.categories | where: "data.parent", category.fileSlug -%}
