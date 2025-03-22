@@ -83,6 +83,8 @@ body > header {
 
 main {
   padding: 3rem 0 2rem; /* mobile only */
+  width: var(--width-content);
+  max-width: 100%;
   .content {
     img {
       display: block;
