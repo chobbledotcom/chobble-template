@@ -1,7 +1,7 @@
 ---
 header_image: placeholder.jpg
 header_text: Example
-meta_description:
+meta_description: Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities
 meta_title: Home
 
 layout: home.html
@@ -15,7 +15,7 @@ eleventyNavigation:
 
 **By [Chobble.com](https://chobble.com).**
 
-You can check out the source code for this template [here](https://git.chobble.com/chobble/three-column-layout-site).
+You can check out [the source code for this template](https://git.chobble.com/chobble/three-column-layout-site).
 
 - An [Eleventy](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/.eleventy.js) site.
 - Using [mvp.css](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/src/_scss/mvp.scss)
