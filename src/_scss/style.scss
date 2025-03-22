@@ -11,6 +11,7 @@
   --outer-border-radius: 0 25px 0 25px;
   --border: 2px solid rgba(255, 255, 255, 0.2);
   --width-content: 1300px;
+  --line-height: 1.8;
 }
 
 * {
@@ -285,5 +286,21 @@ nav {
   & > * {
     width: 14rem;
     max-width: 100%;
+  }
+}
+
+dl {
+  dt {
+    font-weight: bold;
+  }
+}
+
+body {
+  &.product {
+    .content {
+      h2 {
+        margin-top: 3rem;
+      }
+    }
   }
 }
