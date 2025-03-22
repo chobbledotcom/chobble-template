@@ -2,7 +2,7 @@
 title: Mini Gizmo with Local Image
 short_description: This gizmo uses a local image file path
 price: £99.99
-featured_image: placeholder.jpg
+featured_image: placeholder-wide-2.jpg
 categories:
   - gizmos
 specs:

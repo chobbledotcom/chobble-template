@@ -254,10 +254,11 @@ ul.categories {
   gap: 4rem;
 
   & > li {
-    a {
+    & > a {
       position: relative;
       aspect-ratio: 2;
       padding: 0;
+      display: block;
       h3 {
         position: absolute;
         bottom: 0;
@@ -288,6 +289,48 @@ ul.items {
   & > * {
     width: 14rem;
     max-width: 100%;
+  }
+}
+
+ul.image-gallery {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+  li {
+    max-width: 10rem;
+    a {
+      display: block;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--outer-border-radius);
+      transition: all 0.3s ease-in;
+      img {
+        object-fit: cover;
+        transition: all 0.3s ease-in;
+      }
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 3px rgba(0, 0, 0, 0.2);
+        img {
+          transform: scale(1.2);
+        }
+      }
+    }
+    figcaption {
+      font-weight: bold;
+      color: var(--color-bg-main);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 0 0 0 25px;
+    }
   }
 }
 

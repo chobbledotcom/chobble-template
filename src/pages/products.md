@@ -8,4 +8,6 @@ eleventyNavigation:
   key: Products
 ---
 
-{{ content }}
+# Our Products
+
+Suspendisse sit amet gravida turpis, ac tincidunt ex. Etiam ac justo elit. Donec libero ex, egestas et tempor non, egestas hendrerit neque.

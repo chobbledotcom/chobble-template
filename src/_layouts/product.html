@@ -4,6 +4,27 @@ layout: base.html
 
 <h1>{{ title }}</h1>
 
+{%- if gallery -%}
+  <h2>Gallery</h2>
+  <ul class="image-gallery">
+    {%- for image in gallery -%}
+      <li>
+        <a href="/assets/images/{{ image[1] }}">
+          <figure>
+            <img
+              src="/assets/images/{{ image[1] }}"
+              alt="{{- image[0] | escape -}}"
+            >
+            <figcaption>
+              {{- image[0] | escape -}}
+            </figcaption>
+          </figure>
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}
+
 <p>{{ price | default: "Price not available" }}</p>
 
 {%- if categories.size > 0 -%}
