@@ -2,7 +2,7 @@
 
 :root {
   --color-bg: #205781;
-  --color-bg-secondary: #006B80;
+  --color-bg-secondary: #006b80;
   --color-bg-main: #f6f8d5;
   --color-link: #4f959d;
   --color-secondary: #98d2c0;
@@ -245,7 +245,7 @@ nav {
   }
 }
 
-.categories {
+ul.categories {
   display: flex;
   list-style-type: none;
   margin: 0;
@@ -277,7 +277,7 @@ nav {
   }
 }
 
-.items {
+ul.items {
   display: flex;
   list-style-type: none;
   margin: 0;
