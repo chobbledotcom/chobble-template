@@ -8,7 +8,7 @@ layout: home.html
 permalink: /
 eleventyNavigation:
   key: Home
-  order: 0
+  order: 1
 ---
 
 ## Nulla ut porttitor diam, nec auctor justo.

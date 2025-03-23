@@ -5,7 +5,7 @@ meta_description:
 meta_title: About
 eleventyNavigation:
   key: About
-  order: 1
+  order: 2
 ---
 
 ## Integer feugiat iaculis augue

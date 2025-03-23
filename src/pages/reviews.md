@@ -6,6 +6,7 @@ meta_title: Reviews
 layout: reviews.html
 eleventyNavigation:
   key: Reviews
+  order: 4
 ---
 
 ## Sed in eros velit

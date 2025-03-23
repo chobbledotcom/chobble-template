@@ -7,7 +7,7 @@ meta_title: Contact
 layout: contact.html
 eleventyNavigation:
   key: Contact
-  order: 4
+  order: 5
 ---
 
 ## Cras ut eleifend quam.
