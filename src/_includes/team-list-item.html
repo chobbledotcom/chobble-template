@@ -1,0 +1,29 @@
+{%- capture image -%}
+  {%- if person.data.image -%}
+    <img
+      src="/assets/images/{{ person.data.image | url }}"
+      alt="{{ person.data.title }}"
+    />
+  {%- endif -%}
+{%- endcapture -%}
+<li class="
+  {%- if image -%}
+    has-image
+  {%- endif -%}
+">
+  {%- if person.url -%}
+    <a class="image" href="{{ person.url }}">
+      {{- image -}}
+    </a>
+    <a href="{{ person.url }}">
+      {{- person.data.title -}}
+    </a>
+  {%- else -%}
+    {{- image -}}
+    {{- person.data.title -}}
+  {%- endif -%}
+  {%- if person.data.snippet -%}
+    <br>
+    {{- person.data.snippet -}}
+  {%- endif -%}
+</li>

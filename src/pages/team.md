@@ -3,6 +3,7 @@ header_image: placeholder.jpg
 header_text: Example Team
 meta_description:
 meta_title: Team
+layout: team.html
 eleventyNavigation:
   key: Team
   parent: About

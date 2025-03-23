@@ -1,0 +1,20 @@
+<ul class="image-gallery">
+  {%- for image in gallery -%}
+    {%- capture url -%}
+      /products/{{ page.fileSlug }}/{{ image[0] | slugify }}/#image
+    {%- endcapture -%}
+    <li>
+      <a href="{{ url }}">
+        <figure>
+          <img
+            src="/assets/images/{{ image[1] }}"
+            alt="{{- image[0] -}}"
+          >
+          <figcaption>
+            {{- image[0] -}}
+          </figcaption>
+        </figure>
+      </a>
+    </li>
+  {%- endfor -%}
+</ul>

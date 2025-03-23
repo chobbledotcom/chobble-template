@@ -6,23 +6,7 @@ layout: base.html
 
 {%- if gallery.size > 0 -%}
   <h2>Gallery</h2>
-  <ul class="image-gallery">
-    {%- for image in gallery -%}
-      <li>
-        <a href="/products/{{ page.fileSlug }}/{{ image[0] | slugify }}/">
-          <figure>
-            <img
-              src="/assets/images/{{ image[1] }}"
-              alt="{{- image[0] | escape -}}"
-            >
-            <figcaption>
-              {{- image[0] | escape -}}
-            </figcaption>
-          </figure>
-        </a>
-      </li>
-    {%- endfor -%}
-  </ul>
+  {% include "gallery.html" %}
 {%- endif -%}
 
 <p>{{ price | default: "Price not available" }}</p>

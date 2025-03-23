@@ -1,0 +1,11 @@
+---
+layout: base.html
+---
+
+{{ content }}
+
+<ul class="team">
+  {%- for person in collections.team -%}
+    {%- include "team-list-item.html" -%}
+  {%- endfor -%}
+</ul>
