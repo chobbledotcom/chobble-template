@@ -341,11 +341,50 @@ dl {
 }
 
 body {
-  &.product {
+  &.product,
+  &.gallery-pages {
     .content {
       h2 {
         margin-top: 3rem;
       }
+    }
+  }
+}
+
+// Gallery single image page styles
+.gallery-single-image {
+  max-width: 100%;
+  margin: 2rem 0;
+
+  figure {
+    margin: 0;
+  }
+
+  img.full-size-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  figcaption {
+    text-align: center;
+    margin-top: 1rem;
+    font-style: italic;
+  }
+}
+
+.gallery-navigation {
+  margin: 2rem 0;
+
+  a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 3px;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 }

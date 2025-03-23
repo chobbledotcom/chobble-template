@@ -5,6 +5,7 @@ price: £99.99
 featured_image: placeholder-wide-2.jpg
 categories:
   - gizmos
+gallery: []
 specs:
   - name: Material
     value: Crystalized Flubber

@@ -1,0 +1,20 @@
+---
+layout: base.html
+---
+
+<h1>
+  {{ page.header_text | escape }}
+</h1>
+
+<h2>
+  <a href="/products/{{ page.productSlug }}/">
+    Gallery
+  </a>
+  &rsaquo;
+  {{ page.imageName | escape }}
+</h2>
+
+<img
+  src="/assets/images/{{ page.imageSrc }}"
+  alt="{{ page.imageName | escape }}"
+/>

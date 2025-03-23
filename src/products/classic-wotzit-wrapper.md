@@ -6,6 +6,7 @@ featured_image: placeholder-wide-1.jpg
 categories:
   - premium-wotzits
   - wotzits
+gallery: []
 specs:
   - name: Material
     value: 98% Cloud Fiber, 2% Flex Membrane

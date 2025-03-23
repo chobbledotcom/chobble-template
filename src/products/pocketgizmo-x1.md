@@ -6,6 +6,7 @@ featured_image: placeholder-wide-3.jpg
 categories:
   - pocket-gizmos
   - gizmos
+gallery: []
 specs:
   - name: Display
     value: 6.5" Dimensional Screen

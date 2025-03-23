@@ -6,6 +6,7 @@ module.exports = async function (eleventyConfig) {
   const path = await import("path");
   const fastglob = await import("fast-glob");
   const fs = await import("fs");
+
   const fg = fastglob.default;
   const markdownIt = await import("markdown-it");
   const images = fg.sync(["src/images/*.jpg"]);
@@ -75,7 +76,7 @@ module.exports = async function (eleventyConfig) {
       layouts: "_layouts",
       data: "_data",
     },
-    templateFormats: ["liquid", "md", "njk"],
+    templateFormats: ["liquid", "md", "njk", "html"],
     htmlTemplateEngine: "liquid",
     markdownTemplateEngine: "liquid",
   };

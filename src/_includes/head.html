@@ -1,7 +1,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{{ meta_title }}</title>
+<title>{{ meta_title | default: page.meta_title | escape }}</title>
 {% if meta_description -%}
   <meta name="description" content="{{ meta_description }}" />
 {% endif -%}

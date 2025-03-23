@@ -1,10 +1,18 @@
+{%- capture text -%}
+  {{ header_text | default: page.header_text | escape }}
+{%- endcapture -%}
+
+{%- capture image -%}
+  {{ header_image | default: page.header_image | escape }}
+{%- endcapture -%}
+
 <header>
-  <h1>{{ header_text | escape }}</h1>
-  {% if header_image %}
+  <h1>{{ text }}</h1>
+  {% if image.size > 0 %}
     <img
       alt=""
       class="banner"
-      src="/assets/images/{{ header_image | escape }}"
+      src="/assets/images/{{ image | escape }}"
     />
   {% endif %}
 </header>

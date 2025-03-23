@@ -4,12 +4,12 @@ layout: base.html
 
 <h1>{{ title }}</h1>
 
-{%- if gallery -%}
+{%- if gallery.size > 0 -%}
   <h2>Gallery</h2>
   <ul class="image-gallery">
     {%- for image in gallery -%}
       <li>
-        <a href="/assets/images/{{ image[1] }}">
+        <a href="/products/{{ page.fileSlug }}/{{ image[0] | slugify }}/">
           <figure>
             <img
               src="/assets/images/{{ image[1] }}"
