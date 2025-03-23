@@ -1,6 +1,8 @@
 <nav>
   {% assign navItems = collections.all | eleventyNavigation %}
-  {% if eleventyNavigation and eleventyNavigation.key %}
+  {% if page and page.navigationParent %}
+    {{ navItems | toNavigation: page.navigationParent }}
+  {% elsif eleventyNavigation and eleventyNavigation.key %}
     {{ navItems | toNavigation: eleventyNavigation.key }}
   {% else %}
     {{ navItems | toNavigation: navigationParent }}

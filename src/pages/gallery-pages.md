@@ -1,5 +1,5 @@
 ---
-layout: gallery-pages.html
+layout: product-gallery.html
 pagination:
   data: galleryPages
   size: 1

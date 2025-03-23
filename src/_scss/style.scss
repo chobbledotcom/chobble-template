@@ -227,7 +227,7 @@ nav {
 }
 
 .contact-form {
-  max-width: 350px;
+  max-width: var(--width-card-medium);
   margin: 4rem auto 0;
   padding: 1rem;
   min-width: min-content;
@@ -380,7 +380,7 @@ dl {
 
 body {
   &.product,
-  &.gallery-pages {
+  &.product-gallery {
     #content {
       h2 {
         margin-top: 3rem;

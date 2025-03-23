@@ -1,7 +1,15 @@
 module.exports = async function (eleventyConfig) {
-  const { eleventyImageTransformPlugin } = await import("@11ty/eleventy-img");
-  const eleventyNavigationPlugin = require("@11ty/eleventy-navigation");
-  const EleventyNavigation = require("@11ty/eleventy-navigation/eleventy-navigation");
+  eleventyConfig.addWatchTarget("./src/**/*");
+
+  eleventyConfig.addPassthroughCopy("src/assets");
+  eleventyConfig.addPassthroughCopy("src/images");
+  eleventyConfig.addPassthroughCopy({
+    "src/assets/favicon/*": "/",
+  });
+
+  eleventyConfig.addCollection("images", (collection) => {
+    return images.map((i) => i.split("/")[2]).reverse();
+  });
 
   const path = await import("path");
   const fastglob = await import("fast-glob");
@@ -11,8 +19,13 @@ module.exports = async function (eleventyConfig) {
   const markdownIt = await import("markdown-it");
   const images = fg.sync(["src/images/*.jpg"]);
 
-  eleventyConfig.addWatchTarget("./src/**/*");
+  const nav = require("@11ty/eleventy-navigation");
+  eleventyConfig.addPlugin(nav);
 
+  const rss = require("@11ty/eleventy-plugin-rss");
+  eleventyConfig.addPlugin(rss);
+
+  const { eleventyImageTransformPlugin } = await import("@11ty/eleventy-img");
   eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
     formats: ["webp", "jpeg", "svg"],
     widths: [400, 600, 900, 1200, "auto"],
@@ -26,22 +39,12 @@ module.exports = async function (eleventyConfig) {
     },
   });
 
-  eleventyConfig.addPlugin(eleventyNavigationPlugin);
+  const EleventyNavigation = require("@11ty/eleventy-navigation/eleventy-navigation");
   eleventyConfig.addFilter("toNavigation", function (collection, activeKey) {
     return EleventyNavigation.toHtml.call(eleventyConfig, collection, {
       activeAnchorClass: "active",
       activeKey: activeKey,
     });
-  });
-
-  eleventyConfig.addPassthroughCopy("src/assets");
-  eleventyConfig.addPassthroughCopy("src/images");
-  eleventyConfig.addPassthroughCopy({
-    "src/assets/favicon/*": "/",
-  });
-
-  eleventyConfig.addCollection("images", (collection) => {
-    return images.map((i) => i.split("/")[2]).reverse();
   });
 
   const md = new markdownIt.default({

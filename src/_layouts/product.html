@@ -4,6 +4,10 @@ layout: base.html
 
 <h1>{{ title }}</h1>
 
+{%- if short_description -%}
+  <h2>{{ short_description }}</h2>
+{%- endif -%}
+
 {%- if gallery.size > 0 -%}
   <h2>Gallery</h2>
   {% include "gallery.html" %}
@@ -45,3 +49,7 @@ layout: base.html
     {%- endfor -%}
   </dl>
 {%- endif -%}
+
+<h2>Get in Touch<h2>
+
+{% include "contact-form.html" %}
