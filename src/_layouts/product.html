@@ -9,12 +9,12 @@ layout: base.html
   {% include "gallery.html" %}
 {%- endif -%}
 
-<p>{{ price | default: "Price not available" }}</p>
+<h2>About</h2>
 
 {%- if categories.size > 0 -%}
-  <ul class="product-categories">
-    <li><strong>Categories:</strong></li>
-    {%- for slug in categories -%}
+  <p>
+    <strong>Categories:</strong>
+    {% for slug in categories -%}
       {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
       {%- if category -%}
         <a href="{{ category.url }}/">
@@ -22,7 +22,7 @@ layout: base.html
         </a>{%- unless forloop.last -%}, {% endunless -%}
       {%- endif -%}
     {%- endfor -%}
-  </ul>
+  </p>
 {%- endif -%}
 
 {{ content }}

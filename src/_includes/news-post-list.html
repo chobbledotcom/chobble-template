@@ -1,5 +1,5 @@
 {%- assign posts = collections.news | reverse -%}
-<ul>
+<ul class="news-posts">
   {%- for post in posts limit: limit -%}
   <li>
     <a href="{{ post.url }}">

@@ -85,7 +85,7 @@ main {
   padding: 3rem 0 2rem; /* mobile only */
   width: var(--width-content);
   max-width: 100%;
-  .content {
+  #content {
     img {
       display: block;
       margin: 0 auto;
@@ -200,7 +200,7 @@ nav {
         flex-direction: column;
       }
     }
-    .content {
+    #content {
       grid-area: content;
       margin: 0 0 1rem;
       padding-bottom: 2rem;
@@ -301,7 +301,10 @@ ul.image-gallery {
   flex-wrap: wrap;
   gap: 1rem;
   li {
-    max-width: 10rem;
+    width: calc((100% - 2rem) / 3);
+    @media (min-width: 769px) {
+      width: calc((100% - 3rem) / 4);
+    }
     a {
       display: block;
       position: relative;
@@ -360,6 +363,15 @@ ul.team {
   }
 }
 
+ul.news-posts {
+  list-style-type: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
 dl {
   dt {
     font-weight: bold;
@@ -369,7 +381,7 @@ dl {
 body {
   &.product,
   &.gallery-pages {
-    .content {
+    #content {
       h2 {
         margin-top: 3rem;
       }

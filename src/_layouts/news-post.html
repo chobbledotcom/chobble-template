@@ -2,7 +2,11 @@
 layout: base.html
 ---
 
-<h2>{{ subtitle | escape }}</h2>
+<h2>
+  <a href="/news/">News</a>
+  &rsaquo;
+  {{ subtitle | escape }}
+</h2>
 <p>
   <em>{{ page.date | date: "%b %-d, %Y" }}</em>
 </p>
