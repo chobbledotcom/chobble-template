@@ -1,31 +1,51 @@
 module.exports = async function (eleventyConfig) {
-  eleventyConfig.addWatchTarget("./src/**/*");
-
-  eleventyConfig.addPassthroughCopy("src/assets");
-  eleventyConfig.addPassthroughCopy("src/images");
-  eleventyConfig.addPassthroughCopy({
-    "src/assets/favicon/*": "/",
-  });
-
-  eleventyConfig.addCollection("images", (collection) => {
-    return images.map((i) => i.split("/")[2]).reverse();
-  });
-
-  const path = await import("path");
   const fastglob = await import("fast-glob");
-  const fs = await import("fs");
-
   const fg = fastglob.default;
-  const markdownIt = await import("markdown-it");
+  const fs = await import("fs");
   const images = fg.sync(["src/images/*.jpg"]);
-
+  const markdownIt = await import("markdown-it");
+  const md = new markdownIt.default({ html: true });
   const nav = require("@11ty/eleventy-navigation");
+  const navUtil = require("@11ty/eleventy-navigation/eleventy-navigation");
+  const path = await import("path");
+  const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
+  const { eleventyImageTransformPlugin } = await import("@11ty/eleventy-img");
+
+  eleventyConfig.addWatchTarget("./src/**/*");
+  eleventyConfig
+    .addPassthroughCopy("src/assets")
+    .addPassthroughCopy("src/images")
+    .addPassthroughCopy({
+      "src/assets/favicon/*": "/",
+    });
+
   eleventyConfig.addPlugin(nav);
 
-  const rss = require("@11ty/eleventy-plugin-rss");
-  eleventyConfig.addPlugin(rss);
+  eleventyConfig.addPlugin(feedPlugin, {
+    type: "atom",
+    outputPath: "/feed/feed.xml",
+    stylesheet: "/assets/pretty-atom-feed.xsl",
+    templateData: {
+      eleventyNavigation: {
+        key: "Feed",
+        order: 4,
+      },
+    },
+    collection: {
+      name: "news",
+      limit: 20,
+    },
+    metadata: {
+      language: "en",
+      title: "example.com",
+      subtitle: "",
+      base: "https://example.com/",
+      author: {
+        name: "Example",
+      },
+    },
+  });
 
-  const { eleventyImageTransformPlugin } = await import("@11ty/eleventy-img");
   eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
     formats: ["webp", "jpeg", "svg"],
     widths: [400, 600, 900, 1200, "auto"],
@@ -39,22 +59,15 @@ module.exports = async function (eleventyConfig) {
     },
   });
 
-  const EleventyNavigation = require("@11ty/eleventy-navigation/eleventy-navigation");
+  eleventyConfig.addCollection("images", (collection) => {
+    return images.map((i) => i.split("/")[2]).reverse();
+  });
+
   eleventyConfig.addFilter("toNavigation", function (collection, activeKey) {
-    return EleventyNavigation.toHtml.call(eleventyConfig, collection, {
+    return navUtil.toHtml.call(eleventyConfig, collection, {
       activeAnchorClass: "active",
       activeKey: activeKey,
     });
-  });
-
-  const md = new markdownIt.default({
-    html: true,
-  });
-
-  eleventyConfig.addShortcode("renderSnippet", function (name) {
-    const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
-    const content = fs.readFileSync(snippetPath, "utf8");
-    return md.render(content);
   });
 
   eleventyConfig.addFilter(
@@ -70,6 +83,12 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.addFilter("getFeaturedCategories", (categories) =>
     categories.filter((c) => c.data.featured),
   );
+
+  eleventyConfig.addShortcode("renderSnippet", function (name) {
+    const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
+    const content = fs.readFileSync(snippetPath, "utf8");
+    return md.render(content);
+  });
 
   return {
     dir: {

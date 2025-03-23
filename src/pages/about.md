@@ -10,7 +10,7 @@ eleventyNavigation:
 
 ## Integer feugiat iaculis augue
 
-![Placeholder](/assets/images/placeholder.jpg)
+![Placeholder](/images/placeholder.jpg)
 
 In hendrerit sapien dapibus et. Mauris vitae est auctor, pellentesque nisl a, congue ipsum. Curabitur suscipit sem massa, vel eleifend purus accumsan vitae. Nulla ut porttitor diam, nec auctor justo. In vitae augue vitae sapien iaculis tincidunt.
 

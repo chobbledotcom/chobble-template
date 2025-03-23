@@ -17,4 +17,4 @@ features:
   - Self-cleaning surface
 ---
 
-This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /assets/images/ directory.
+This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /images/ directory.
