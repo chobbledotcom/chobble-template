@@ -504,15 +504,14 @@ body {
    & > ul {
       position: fixed;
       background: var(--color-bg);
-      top: 0;
-      right: -100%;
-      /* Start off-screen */
-      height: 100vh;
+      top: 3rem;
+      right: -100%; /* Start off-screen */
+      bottom: 0;
       width: 70%;
+      overflow-x: scroll;
       max-width: 300px;
       flex-direction: column;
-      gap: 2rem;
-      padding: 6rem 2rem 2rem;
+      padding: 1rem;
       transition: right 0.3s ease-in-out;
   
       .toggle-label {
