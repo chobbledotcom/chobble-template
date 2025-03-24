@@ -9,5 +9,6 @@
     "tiktok": "https://example.com",
     "google": "https://example.com",
     "whatsapp": "https://example.com"
-  }
+  },
+  "sticky_mobile_nav": true
 }
