@@ -81,7 +81,7 @@ module.exports = async function (eleventyConfig) {
   );
 
   eleventyConfig.addFilter("getFeaturedCategories", (categories) =>
-    categories.filter((c) => c.data.featured),
+    categories?.filter((c) => c.data.featured) || [],
   );
 
   eleventyConfig.addShortcode("renderSnippet", function (name) {
