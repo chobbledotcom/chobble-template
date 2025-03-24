@@ -501,7 +501,7 @@ body {
      }
    }
  
-   ul {
+   & > ul {
       position: fixed;
       background: var(--color-bg);
       top: 0;
