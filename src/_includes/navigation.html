@@ -1,10 +1,27 @@
-<nav>
-  {% assign navItems = collections.all | eleventyNavigation %}
-  {% if page and page.navigationParent %}
-    {{ navItems | toNavigation: page.navigationParent }}
-  {% elsif eleventyNavigation and eleventyNavigation.key %}
-    {{ navItems | toNavigation: eleventyNavigation.key }}
-  {% else %}
-    {{ navItems | toNavigation: navigationParent }}
-  {% endif %}
+<nav
+  {%- if site.sticky_mobile_nav %}
+    class="sticky-mobile"
+  {%- endif -%}
+>
+  {%- if site.sticky_mobile_nav -%}
+    <input
+      type="checkbox"
+      id="nav-toggle"
+      class="toggle"
+    >
+    <label
+      for="nav-toggle"
+      class="toggle-label"
+    >
+      <span></span>
+    </label>
+  {%- endif -%}
+  {%- assign navItems = collections.all | eleventyNavigation -%}
+  {%- if page and page.navigationParent -%}
+    {{ navItems | toNavigation: page.navigationParent -}}
+  {%- elsif eleventyNavigation and eleventyNavigation.key -%}
+    {{- navItems | toNavigation: eleventyNavigation.key -}}
+  {%- else -%}
+    {{- navItems | toNavigation: navigationParent -}}
+  {%- endif -%}
 </nav>

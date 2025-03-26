@@ -81,7 +81,7 @@ module.exports = async function (eleventyConfig) {
   );
 
   eleventyConfig.addFilter("getFeaturedCategories", (categories) =>
-    categories.filter((c) => c.data.featured),
+    categories?.filter((c) => c.data.featured) || [],
   );
 
   eleventyConfig.addFilter("pageUrl", (collection, tag, slug) => {

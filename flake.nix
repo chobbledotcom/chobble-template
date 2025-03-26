@@ -38,7 +38,7 @@
           buildPhase = ''
             sass --update src/_scss:_site/css --style compressed
             yarn --offline eleventy
-            find _site -name "*.html" -exec tidy --wrap 80 --indent auto --indent-spaces 2  --wrap 80 --quiet yes --tidy-mark no -modify {} \;
+            find _site -name "*.html" -exec tidy --wrap 80 --indent auto --indent-spaces 2  --wrap 80 --quiet yes --tidy-mark no --drop-empty-elements no -modify {} \;
           '';
 
           installPhase = ''cp -r _site $out'';
