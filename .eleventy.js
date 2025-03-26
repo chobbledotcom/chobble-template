@@ -23,13 +23,14 @@ module.exports = async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(feedPlugin, {
     type: "atom",
-    outputPath: "/feed/feed.xml",
+    outputPath: "/feed.xml",
     stylesheet: "/assets/pretty-atom-feed.xsl",
     templateData: {
-      eleventyNavigation: {
-        key: "Feed",
-        order: 4,
-      },
+      // eleventyNavigation: {
+      //   key: "Feed",
+      //   parent: "News",
+      //   order: 4,
+      // },
     },
     collection: {
       name: "news",
@@ -80,8 +81,9 @@ module.exports = async function (eleventyConfig) {
     },
   );
 
-  eleventyConfig.addFilter("getFeaturedCategories", (categories) =>
-    categories?.filter((c) => c.data.featured) || [],
+  eleventyConfig.addFilter(
+    "getFeaturedCategories",
+    (categories) => categories?.filter((c) => c.data.featured) || [],
   );
 
   eleventyConfig.addFilter("pageUrl", (collection, tag, slug) => {
