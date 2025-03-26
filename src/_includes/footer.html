@@ -1,7 +1,11 @@
 <footer>
   {%- include "footer-socials.html" -%}
   {%- renderSnippet "footer-content" -%}
-  {%- if layout == "home.html" -%}
+  {%- if site.url == "https://example.chobble.com" -%}
+    <p>
+      <strong>This template is <a href="https://git.chobble.com/chobble/chobble-template">Open Source</a>. If you want me to make you a website based on it, hit me up at <a href="https://chobble.com">Chobble.com</a>.
+    </p>
+  {%- elsif layout == "home.html" -%}
     <p>
       <a
         href="https://chobble.com"

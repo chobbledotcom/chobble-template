@@ -1,6 +1,6 @@
 ---
 header_image: placeholder.jpg
-header_text: Example
+header_text: Example Website
 meta_description: Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities
 meta_title: Home
 
@@ -11,18 +11,18 @@ eleventyNavigation:
   order: 1
 ---
 
-## Nulla ut porttitor diam, nec auctor justo.
+## This is an example website
 
-**By [Chobble.com](https://chobble.com).**
+**It was made by Stef at [Chobble.com](https://chobble.com).** If you'd like a website just like it, [get in touch](/contact/)! I charge a flat hourly fee and will give you the full source code for all work I do.
 
-You can check out [the source code for this template](https://git.chobble.com/chobble/three-column-layout-site).
+You can check out [the source code for this template]({{ site.template_repo_url }}) - it's:
 
-- An [Eleventy](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/.eleventy.js) site.
-- Using [mvp.css](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/src/_scss/mvp.scss)
-- Built with Nix and [Forgejo Actions](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/.forgejo/workflows/neocities.yaml)
+- An [Eleventy]({{ site.template_repo_url }}/src/branch/main/.eleventy.js) site
+- Using [mvp.css]({{ site.template_repo_url }}/src/branch/main/src/\_scss/mvp.scss) and semantic HTML
+- Built with Nix and [Forgejo Actions]({{ site.template_repo_url }}/src/branch/main/.forgejo/workflows/neocities.yaml)
 - Hosted on [Neocities](https://neocities.org/site/chobble-example)
-- Formspark & Botpoison [contact form](https://git.chobble.com/chobble/three-column-layout-site/src/branch/main/src/_includes/contact-form.html)
-- News system
-- Social media links
-
-In vitae augue vitae sapien iaculis tincidunt. Etiam non erat ut purus vestibulum finibus vitae id dui. In nibh dolor, vehicula eu eros sit amet, laoreet viverra sapien.
+- With a Formspark & Botpoison spam-protected [contact form]({{ site.template_repo_url }}/src/branch/main/src/\_includes/contact-form.html)
+- Using [Turbo](https://turbo.hotwired.dev/) for instant page loads
+- With a [news system]({{ site.template_repo_url }}/src/branch/main/src/\_includes/news-post-list.html)
+- And [products]({{ site.template_repo_url }}/chobble/chobble-template/src/branch/main/src/products) with [galleries]({{ site.template_repo_url }}/src/branch/main/src/\_includes/gallery.html)
+- And social media links in the footer
