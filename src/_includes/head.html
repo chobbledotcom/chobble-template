@@ -28,4 +28,7 @@
     href="/feed/feed.xml"
     title="News" />
 {%- endif -%}
+{%- if no_index -%}
+  <meta name="robots" value="noindex,nofollow" />
+{%- endif -%}
 </head>

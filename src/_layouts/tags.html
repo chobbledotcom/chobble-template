@@ -1,0 +1,16 @@
+---
+layout: base.html
+---
+
+{{- content -}}
+
+{%- assign tags = collections.all | tags -%}
+<ul class="tags">
+  {%- for tag in tags -%}
+    <li>
+      <a href="/tags/{{- tag -}}/">
+        {{- tag -}}
+      </a>
+    </li>
+  {%- endfor -%}
+</ul>

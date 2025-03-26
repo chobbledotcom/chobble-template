@@ -5,14 +5,13 @@ pagination:
   alias: tag
   filter:
     - all
-    - page
-    - news
-    - categories
-    - products
 permalink: /tags/{{ tag }}/
 layout: tag.html
+navigationParent: Tags
 eleventyComputed:
-  title: 'Pages Tagged "{{ tag | replace: ''-'', '' '' }}"'
-  header_text: 'Pages Tagged "{{ tag | replace: ''-'', '' '' }}"'
-  meta_title: 'Pages Tagged "{{ tag | replace: ''-'', '' '' }}"'
+  title: 'Tagged "{{ tag | replace: ''-'', '' '' }}"'
+  header_text: 'Tagged "{{ tag | replace: ''-'', '' '' }}"'
+  meta_title: 'Tagged "{{ tag | replace: ''-'', '' '' }}"'
 ---
+
+## Tagged "{{ tag }}"

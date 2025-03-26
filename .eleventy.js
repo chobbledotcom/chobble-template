@@ -92,6 +92,14 @@ module.exports = async function (eleventyConfig) {
     ).url;
   });
 
+  eleventyConfig.addFilter("tags", (collection) => {
+    const allTags = collection
+      .filter((page) => page.url && !page.data.no_index)
+      .flatMap((page) => page.data.tags || [])
+      .filter((tag) => tag && tag.trim() !== "");
+    return [...new Set(allTags)].sort();
+  });
+
   eleventyConfig.addShortcode("renderSnippet", function (name) {
     const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
     const content = fs.readFileSync(snippetPath, "utf8");
