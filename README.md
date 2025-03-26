@@ -2,7 +2,16 @@
 
 This template should let you get started with the Eleventy static site builder on NixOS / Nix, really easily.
 
-Featuring Nix'y features like:
+Featuring common business website features like:
+
+- News
+- Reviews
+- Products
+- Galleries
+- A contact form
+- Heading images
+
+And Nix'y features like:
 
 - [direnv](https://direnv.net/) support via `flake.nix` - run `direnv allow`
 - or run `nix develop` if you don't have direnv
