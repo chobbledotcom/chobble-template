@@ -8,17 +8,19 @@ layout: base.html
 
 <h3>Latest Posts</h3>
 
-{%- assign limit = 2 -%}
-{% include "news-post-list.html" %}
+{% include "news-post-list.html", limit: 2 %}
+
+<hr />
 
 <h3>Product Categories</h3>
 
-<ul>
-  {% assign categories = collections.categories | getFeaturedCategories %}
-  {% for category in categories limit: 3 %}
-    {% assign show_subcategories = true %}
-    {% assign show_product_count = false %}
-    {% assign show_button = true %}
-    {% include "category-list-item.html" %}
-  {% endfor %}
+{%- assign show_subcategories = true -%}
+{%- assign show_product_count = false -%}
+{%- assign show_button = true -%}
+
+<ul class="categories">
+  {%- assign categories = collections.categories | getFeaturedCategories -%}
+  {%- for category in categories limit: 3 -%}
+    {%- include "category-list-item.html" -%}
+  {%- endfor -%}
 </ul>

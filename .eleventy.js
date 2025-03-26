@@ -84,6 +84,12 @@ module.exports = async function (eleventyConfig) {
     categories.filter((c) => c.data.featured),
   );
 
+  eleventyConfig.addFilter("pageUrl", (collection, tag, slug) => {
+    return collection.find(
+      (item) => item.data.tags?.includes(tag) && item.fileSlug === slug,
+    ).url;
+  });
+
   eleventyConfig.addShortcode("renderSnippet", function (name) {
     const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
     const content = fs.readFileSync(snippetPath, "utf8");

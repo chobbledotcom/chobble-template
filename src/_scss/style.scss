@@ -387,6 +387,13 @@ body {
       }
     }
   }
+  &.team-member {
+    #content {
+      img {
+        width: 50%;
+      }
+    }
+  }
 }
 
 // Gallery single image page styles
