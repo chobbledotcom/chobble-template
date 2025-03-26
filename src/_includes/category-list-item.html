@@ -19,7 +19,7 @@
   </p>
 
   {%- if show_subcategories -%}
-    {%- assign subCategories = collections.categories | where: "data.parent", category.fileSlug -%}
+    {%- assign subCategories = collections.category | where: "data.parent", category.fileSlug -%}
     {%- if subCategories.size > 0 -%}
       <h3>Subcategories:</h3>
       <ul class="items">
@@ -41,7 +41,7 @@
   {%- endif -%}
 
   {%- if show_product_count -%}
-    {%- assign categoryProducts = collections.products | getProductsByCategory: category.fileSlug -%}
+    {%- assign categoryProducts = collections.product | getProductsByCategory: category.fileSlug -%}
     <p>
       {{ categoryProducts.size }}
       product{%- if categoryProducts.size != 1 -%}s{%- endif -%}

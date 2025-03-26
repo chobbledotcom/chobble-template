@@ -10,7 +10,7 @@ layout: base.html
   {% include "news-post-list.html", limit: 2 %}
 {%- endif -%}
 
-{%- if collections.categories.size > 0 -%}
+{%- if collections.category.size > 0 -%}
   <hr />
 
   <h3>Product Categories</h3>
@@ -20,7 +20,7 @@ layout: base.html
   {%- assign show_button = true -%}
 
   <ul class="categories">
-    {%- assign categories = collections.categories | getFeaturedCategories -%}
+    {%- assign categories = collections.category | getFeaturedCategories -%}
     {%- for category in categories limit: 3 -%}
       {%- include "category-list-item.html" -%}
     {%- endfor -%}

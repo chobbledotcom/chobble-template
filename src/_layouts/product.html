@@ -19,7 +19,7 @@ layout: base.html
   <p>
     <strong>Categories:</strong>
     {% for slug in categories -%}
-      {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
+      {%- assign category = collections.category | where: "fileSlug", slug | first -%}
       {%- if category -%}
         <a href="{{ category.url }}/">
           {{ category.data.title }}

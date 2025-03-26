@@ -5,7 +5,7 @@ layout: base.html
 <h1>{{ title }}</h1>
 
 {% if parent %}
-  {% assign parentCategory = collections.categories | where: "fileSlug", parent | first %}
+  {% assign parentCategory = collections.category | where: "fileSlug", parent | first %}
   {% if parentCategory %}
     <a href="{{ parentCategory.url }}/">
       Back to {{ parentCategory.data.title }}
@@ -13,7 +13,7 @@ layout: base.html
   {% endif %}
 {% endif %}
 
-{% assign categories = collections.categories %}
+{% assign categories = collections.category %}
 {% assign categories = categories | where: "data.parent", page.fileSlug %}
 
 {{ content }}
@@ -29,7 +29,7 @@ layout: base.html
   </ul>
 {% endif %}
 
-{% assign products = collections.products | getProductsByCategory: page.fileSlug %}
+{% assign products = collections.product | getProductsByCategory: page.fileSlug %}
 {% if products.size > 0 %}
   <h2>Products</h2>
   <ul class="items">
