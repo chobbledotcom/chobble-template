@@ -1,9 +1,9 @@
 # The Chobble Template
 
-**See this template in action at:
+**See this template in action at:**
 
-- [example.chobble.com](https://example.chobble.com)**
-- [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com)**
+- [example.chobble.com](https://example.chobble.com)
+- [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com)
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
 
