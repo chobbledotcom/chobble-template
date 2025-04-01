@@ -2,4 +2,4 @@
 
 - Phone: [0161 123 4567](tel:01611234567)
 - Email: [hello@example.com](mailto:hello@example.com)
-- Facebook: [@MyPage]({{ site.socials.Facebook }})
+- Facebook: [@MyPage](/)
