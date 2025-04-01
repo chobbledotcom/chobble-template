@@ -1,7 +1,12 @@
 <!doctype html>
 <html lang="en">
 {%- include "head.html" -%}
-<body class="{{- layout | replace: ".html", "" -}}">
+<body class="
+  {{- layout | replace: ".html", "" }}
+  {% if site.sticky_mobile_nav -%}
+    sticky-mobile-nav
+  {%- endif -%}
+">
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}

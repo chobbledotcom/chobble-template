@@ -446,96 +446,103 @@ body {
 }
 
 @media (max-width: 768px) {
-  nav.sticky-mobile {
-    position: fixed;
-    top: 0;
-    left: 0;
-    border-radius: 0;
-    width: 100%;
-    z-index: 1000;
-    background: var(--color-bg);
-    padding: 0.5rem;
-    height: 3rem;
+  html:has(body.sticky-mobile-nav) {
+    scroll-padding-top: 5rem;
+  }
+  body.sticky-mobile-nav {
+    padding-top: 5rem;
 
-    .toggle {
-      display: none;
-      &:checked ~ ul {
-        right: 0;
-      }
-      &:checked ~ .toggle-label span {
-        background: transparent;
-        &::before {
-          transform: rotate(45deg);
-          top: 0;
-        }
-        &::after {
-          transform: rotate(-45deg);
-          top: 0;
-        }
-      }
-    }
-
-    .toggle-label {
-      display: block !important;
-      position: absolute !important;
-      right: 1rem !important;
-      top: 50% !important;
-      transform: translateY(-50%);
-      z-index: 1000;
-      height: 24px;
-      width: 30px;
-      cursor: pointer;
-
-      span,
-      span::before,
-      span::after {
-        display: block;
-        background: white;
-        height: 2px;
-        width: 30px;
-        position: absolute;
-        transition: all 0.3s ease;
-      }
-
-      span {
-        top: 11px;
-
-        &::before,
-        &::after {
-          content: "";
-        }
-
-        &::before {
-          top: -8px;
-        }
-
-        &::after {
-          top: 8px;
-        }
-      }
-    }
-
-    & > ul {
+    nav {
       position: fixed;
+      top: 0;
+      left: 0;
+      border-radius: 0;
+      width: 100%;
+      z-index: 1000;
       background: var(--color-bg);
-      top: 3rem;
-      right: -100%; /* Start off-screen */
-      bottom: 0;
-      width: 70%;
-      overflow-x: scroll;
-      max-width: 300px;
-      flex-direction: column;
-      padding: 1rem;
-      transition: right 0.3s ease-in-out;
-
-      .toggle-label {
-        display: block;
+      padding: 0.5rem;
+      height: 3rem;
+  
+      .toggle {
+        display: none;
+        &:checked ~ ul {
+          right: 0;
+        }
+        &:checked ~ .toggle-label span {
+          background: transparent;
+          &::before {
+            transform: rotate(45deg);
+            top: 0;
+          }
+          &::after {
+            transform: rotate(-45deg);
+            top: 0;
+          }
+        }
       }
-
-      li {
-        text-align: right;
-        a {
-          color: white;
+  
+      .toggle-label {
+        display: block !important;
+        position: absolute !important;
+        right: 1rem !important;
+        top: 50% !important;
+        transform: translateY(-50%);
+        z-index: 1000;
+        height: 24px;
+        width: 30px;
+        cursor: pointer;
+  
+        span,
+        span::before,
+        span::after {
+          display: block;
+          background: white;
+          height: 2px;
+          width: 30px;
+          position: absolute;
+          transition: all 0.3s ease;
+        }
+  
+        span {
+          top: 11px;
+  
+          &::before,
+          &::after {
+            content: "";
+          }
+  
+          &::before {
+            top: -8px;
+          }
+  
+          &::after {
+            top: 8px;
+          }
+        }
+      }
+  
+      & > ul {
+        position: fixed;
+        background: var(--color-bg);
+        top: 3rem;
+        right: -100%; /* Start off-screen */
+        bottom: 0;
+        width: 70%;
+        overflow-x: scroll;
+        max-width: 300px;
+        flex-direction: column;
+        padding: 1rem;
+        transition: right 0.3s ease-in-out;
+  
+        .toggle-label {
+          display: block;
+        }
+  
+        li {
+          text-align: right;
+          a {
+            color: white;
+          }
         }
       }
     }
