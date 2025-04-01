@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-yarn eleventy --serve --incremental &
+yarn eleventy --serve --incremental --quiet &
 ELEVENTY_PID=$!
 sass --watch src/_scss:_site/css --style compressed &
 SASS_PID=$!
