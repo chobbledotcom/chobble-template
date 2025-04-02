@@ -1,5 +1,7 @@
 # The Chobble Template
 
+**⚠️ Don't forget to change the Formspark and Botpoison info in `_site/data.json`!! ⚠️**
+
 **See this template in action at:**
 
 - [example.chobble.com](https://example.chobble.com)
@@ -7,7 +9,7 @@
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
 
-This template should let you get started with the Eleventy static site builder on NixOS / Nix, really easily.
+This should let you get started with the Eleventy static site builder on NixOS / Nix, really easily.
 
 Featuring common business website features like:
 
@@ -15,7 +17,7 @@ Featuring common business website features like:
 - Reviews
 - Products
 - Galleries
-- A contact form
+- A contact form using Formspark and Botpoison
 - Heading images
 
 And Nix'y features like:
