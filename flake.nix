@@ -1,8 +1,9 @@
 {
   inputs = {
     nixpkgs.url = "nixpkgs";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils/11707dc2f618dd54ca8739b309ec4fc024de578b?narHash=sha256-l0KFg5HjrsfsO/JpG%2Br7fRrqm12kzFHyUHqHCVpMMbI%3D";
   };
+
   outputs =
     {
       self,
@@ -12,51 +13,27 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        pkgs = import nixpkgs { inherit system; };
         nodeDeps = import ./node-deps.nix { inherit pkgs; };
         inherit (nodeDeps) packageJSON nodeModules;
 
-        pkgs = import nixpkgs {
-          inherit system;
-        };
-
-        commonBuildInputs = with pkgs; [
+        deps = with pkgs; [
           html-tidy
           sass
           yarn
         ];
 
-        site = pkgs.stdenv.mkDerivation {
-          name = "eleventy-site";
-          src = ./.;
-          buildInputs = commonBuildInputs ++ [ nodeModules ];
-
-          configurePhase = ''
-            ln -sf ${packageJSON} package.json
-            ln -sf ${nodeModules}/node_modules .
-          '';
-
-          buildPhase = ''
-            "${mkScript "build"}/bin/build"
-            "${mkScript "tidy_html"}/bin/tidy_html"
-          '';
-
-          installPhase = ''cp -r _site $out'';
-
-          # Fix potential permissions issues
-          dontFixup = true;
-        };
-
         mkScript =
           name:
-          (pkgs.writeScriptBin name (builtins.readFile ./bin/${name})).overrideAttrs (old: {
-            buildCommand = "${old.buildCommand}\n patchShebangs $out";
-          });
-
-        mkPackage =
-          name:
+          let
+            base = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
+            patched = base.overrideAttrs (old: {
+              buildCommand = "${old.buildCommand}\n patchShebangs $out";
+            });
+          in
           pkgs.symlinkJoin {
             inherit name;
-            paths = [ (mkScript name) ] ++ commonBuildInputs;
+            paths = [ patched ] ++ deps;
             buildInputs = [ pkgs.makeWrapper ];
             postBuild = "wrapProgram $out/bin/${name} --prefix PATH : $out/bin";
           };
@@ -68,35 +45,59 @@
           "tidy_html"
         ];
 
-        scriptPackages = builtins.listToAttrs (
+        scriptPkgs = builtins.listToAttrs (
           map (name: {
             inherit name;
-            value = mkPackage name;
+            value = mkScript name;
           }) scripts
         );
+
+        site = pkgs.stdenv.mkDerivation {
+          name = "eleventy-site";
+          src = ./.;
+          buildInputs = deps ++ [ nodeModules ];
+
+          configurePhase = ''
+            ln -sf ${packageJSON} package.json
+            ln -sf ${nodeModules}/node_modules .
+          '';
+
+          buildPhase = ''
+            ${mkScript "build"}/bin/build
+            ${mkScript "tidy_html"}/bin/tidy_html
+          '';
+
+          installPhase = ''
+            cp -r _site $out
+          '';
+
+          dontFixup = true;
+        };
       in
       rec {
         defaultPackage = packages.site;
-        packages = scriptPackages // {
+
+        packages = scriptPkgs // {
           inherit site;
         };
 
         devShells = rec {
           default = dev;
+
           dev = pkgs.mkShell {
-            buildInputs = commonBuildInputs ++ (map (name: mkPackage name) scripts);
+            buildInputs = deps ++ (builtins.attrValues scriptPkgs);
+
             shellHook = ''
-              rm -rf node_modules
-              rm -rf package.json
+              rm -rf node_modules package.json
               ln -sf ${packageJSON} package.json
               ln -sf ${nodeModules}/node_modules .
               echo "Development environment ready!"
               echo ""
-              echo "Run:"
-              echo " - 'serve' to start development server"
-              echo " - 'build' to build the site in the _site directory"
-              echo " - 'dryrun' to do a dry run"
-              echo " - 'tidy_html' to tidy the html in _site"
+              echo "Available commands:"
+              echo " - 'serve'     - Start development server"
+              echo " - 'build'     - Build the site in the _site directory"
+              echo " - 'dryrun'    - Perform a dry run build"
+              echo " - 'tidy_html' - Format HTML files in _site"
               echo ""
               git pull
             '';
