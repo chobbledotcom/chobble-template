@@ -2,4 +2,4 @@
 
 rm -rf _site
 sass --update src/_scss:_site/css --style expanded
-yarn eleventy
+yarn --offline eleventy
