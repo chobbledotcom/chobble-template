@@ -14,7 +14,7 @@ jobs:
       - uses: "DeterminateSystems/nix-installer-action@main"
       - uses: "DeterminateSystems/flakehub-push@main"
         with:
-          name: "chobble-mirror/chobble-template"
+          name: "chobbledotcom/chobble-template"
           rolling: true
           visibility: "public"
           include-output-paths: true
