@@ -15,6 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Update site.json with secrets
+        run: |
+          sed -i 's/"formspark_id": "[^"]*"/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/site.json
+          sed -i 's/"botpoison_public_key": "[^"]*"/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/site.json
+
       - name: Build
         id: build
         run: |
