@@ -22,7 +22,6 @@
 
           deps = with pkgs; [
             html-tidy
-            jq
             sass
             yarn
           ];
