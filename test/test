@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+nix flake update
+nix build
+rm flake.lock
