@@ -68,6 +68,8 @@
 
             buildPhase = ''
               cp -r ${nodeModules}/node_modules .
+              chmod -R +w ./node_modules
+
               ${mkScript "build"}/bin/build
               ${mkScript "tidy_html"}/bin/tidy_html
             '';
@@ -122,6 +124,7 @@
             shellHook = ''
               rm -rf node_modules
               cp -r ${nodeModules}/node_modules .
+              chmod -R +w ./node_modules
 
               echo "Development environment ready!"
               echo ""
