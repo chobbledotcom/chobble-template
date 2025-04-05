@@ -33,7 +33,7 @@ And Eleventy features like:
 - Canonical URLs
 - A directory to store favicon cruft
 - A `_data/site.json` metadata store
-- An `collection.images` collection of the files in `src/images`
+- A `collection.images` collection of the files in `src/images`
 
 ## Changing Packages
 
