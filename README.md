@@ -1,6 +1,6 @@
 # The Chobble Template
 
-**⚠️ Don't forget to change the Formspark and Botpoison info in `_site/data.json`!! ⚠️**
+**⚠️ Don't forget to change the Formspark and Botpoison info in `_site/data.json`!! ⚠️ or in your Forgejo repository's secrets**
 
 **See this template in action at:**
 
