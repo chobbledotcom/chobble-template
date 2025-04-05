@@ -34,7 +34,7 @@ jobs:
           dist_dir: dist
 
       - name: Deploy to Pico.sh
-        uses: picosh/pgs-action@v3
+        uses: picosh/pgs-action@v4
         with:
           user: chobble
           key: ${{ secrets.PICO_PRIVATE_KEY }}
