@@ -66,11 +66,8 @@
             src = ./.;
             buildInputs = deps ++ [ nodeModules ];
 
-            configurePhase = ''
-              ln -sf ${nodeModules}/node_modules .
-            '';
-
             buildPhase = ''
+              cp -r ${nodeModules}/node_modules .
               ${mkScript "build"}/bin/build
               ${mkScript "tidy_html"}/bin/tidy_html
             '';
@@ -123,6 +120,9 @@
             buildInputs = deps ++ (builtins.attrValues scriptPkgs);
 
             shellHook = ''
+              rm -rf node_modules
+              cp -r ${nodeModules}/node_modules .
+
               echo "Development environment ready!"
               echo ""
               echo "Available commands:"
