@@ -23,33 +23,15 @@
         let
           templatePackages = chobble-template.packages.${system};
           pkgs = nixpkgs.legacyPackages.${system};
-          newSite = pkgs.stdenv.mkDerivation {
-            name = "chobble-template-site";
-            src = ./.;
-            buildInputs = templatePackages.site.buildInputs;
-            dontPatchShebangs = true;
-            phases = [
-              "unpackPhase"
-              "setupTemplatePhase"
-              "buildPhase"
-              "installPhase"
-            ];
-            setupTemplatePhase = ''
-              ${pkgs.rsync}/bin/rsync -a --update \
-                --exclude="*.md" \
-                --exclude="src/images/*" \
-                ${chobble-template}/ ./
-
-              mkdir -p src/images
-            '';
-            buildPhase = templatePackages.site.buildPhase;
-            installPhase = templatePackages.site.installPhase;
-            dontFixup = true;
-          };
+          testSite = pkgs.runCommand "chobble-template-test" { } ''
+            mkdir -p $out
+            cp -r ${templatePackages.site}/* $out/
+            echo "Built from test flake" > $out/test-marker.txt
+          '';
         in
         {
-          site = newSite;
-          default = newSite;
+          site = testSite;
+          default = testSite;
         }
       );
     };

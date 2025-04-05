@@ -67,6 +67,12 @@
             buildInputs = deps ++ [ nodeModules ];
 
             buildPhase = ''
+              mkdir -p $TMPDIR/build_dir
+              cd $TMPDIR/build_dir
+
+              cp -r $src/* .
+              cp $src/.eleventy.js .
+
               cp -r ${nodeModules}/node_modules .
               chmod -R +w ./node_modules
 
@@ -75,7 +81,8 @@
             '';
 
             installPhase = ''
-              cp -r _site $out
+              mkdir -p $out
+              cp -r $TMPDIR/build_dir/_site/* $out/
             '';
 
             dontFixup = true;
@@ -98,9 +105,9 @@
         system:
         let
           u = mkUtils system;
-          inherit (u) scriptPkgs site;
+          inherit (u) scriptPkgs site nodeModules;
         in
-        scriptPkgs // { inherit site; }
+        scriptPkgs // { inherit site nodeModules; }
       );
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
