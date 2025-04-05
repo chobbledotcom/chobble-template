@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+cd test
 nix flake update
 nix build
 rm flake.lock

@@ -51,6 +51,7 @@
             "build"
             "serve"
             "dryrun"
+            "test_flake"
             "tidy_html"
           ];
 
@@ -136,10 +137,11 @@
               echo "Development environment ready!"
               echo ""
               echo "Available commands:"
-              echo " - 'serve'     - Start development server"
-              echo " - 'build'     - Build the site in the _site directory"
-              echo " - 'dryrun'    - Perform a dry run build"
-              echo " - 'tidy_html' - Format HTML files in _site"
+              echo " - 'serve'      - Start development server"
+              echo " - 'build'      - Build the site in the _site directory"
+              echo " - 'dryrun'     - Perform a dry run build"
+              echo " - 'tidy_html'  - Format HTML files in _site"
+              echo " - 'test_flake' - Test building a site using flake.nix"
               echo ""
               git pull
             '';
