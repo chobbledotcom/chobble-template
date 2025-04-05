@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs.url = "nixpkgs";
     chobble-template = {
-      url = "path:../";
+      url = "../";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -21,17 +21,35 @@
       packages = forAllSystems (
         system:
         let
-          templatePackages = chobble-template.packages.${system};
           pkgs = nixpkgs.legacyPackages.${system};
-          testSite = pkgs.runCommand "chobble-template-test" { } ''
+          sourcePrep = pkgs.runCommand "chobble-template-source" { } ''
             mkdir -p $out
-            cp -r ${templatePackages.site}/* $out/
-            echo "Built from test flake" > $out/test-marker.txt
+            ${pkgs.rsync}/bin/rsync \
+              --delete \
+              --recursive \
+              --exclude="/test" \
+              --exclude="*.md" \
+              "${chobble-template}/" $out/
+
+            ${pkgs.rsync}/bin/rsync \
+              --recursive \
+              --include="*.jpg,*.jpeg,*.webp,*.png,*.md" \
+              "${self}/" $out/src/
           '';
+
+          finalBuild =
+            let
+              importedFlake = import "${sourcePrep}/flake.nix";
+              outputs = importedFlake.outputs {
+                self = sourcePrep;
+                nixpkgs = nixpkgs;
+              };
+            in
+            outputs.packages.${system}.site;
         in
         {
-          site = testSite;
-          default = testSite;
+          site = finalBuild;
+          default = finalBuild;
         }
       );
     };
