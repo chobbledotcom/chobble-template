@@ -123,8 +123,6 @@
             buildInputs = deps ++ (builtins.attrValues scriptPkgs);
 
             shellHook = ''
-              rm -rf node_modules
-              ln -sf ${nodeModules}/node_modules .
               echo "Development environment ready!"
               echo ""
               echo "Available commands:"
