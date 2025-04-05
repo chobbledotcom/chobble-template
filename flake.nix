@@ -17,8 +17,14 @@
         system:
         let
           pkgs = import nixpkgs { inherit system; };
-          nodeDeps = import ./node-deps.nix { inherit pkgs; };
-          inherit (nodeDeps) packageJSON nodeModules;
+
+          nodeModules = pkgs.mkYarnModules {
+            pname = "chobble-template-dependencies";
+            version = "1.0.0";
+            packageJSON = ./package.json;
+            yarnLock = ./yarn.lock;
+            yarnFlags = [ "--frozen-lockfile" ];
+          };
 
           deps = with pkgs; [
             html-tidy
@@ -56,12 +62,11 @@
           );
 
           site = pkgs.stdenv.mkDerivation {
-            name = "eleventy-site";
+            name = "chobble-template";
             src = ./.;
             buildInputs = deps ++ [ nodeModules ];
 
             configurePhase = ''
-              ln -sf ${packageJSON} package.json
               ln -sf ${nodeModules}/node_modules .
             '';
 
@@ -86,7 +91,7 @@
             scriptPkgs
             site
             ;
-          inherit packageJSON nodeModules;
+          inherit nodeModules;
         };
     in
     {
@@ -109,7 +114,6 @@
             pkgs
             deps
             scriptPkgs
-            packageJSON
             nodeModules
             ;
         in
@@ -119,8 +123,7 @@
             buildInputs = deps ++ (builtins.attrValues scriptPkgs);
 
             shellHook = ''
-              rm -rf node_modules package.json
-              ln -sf ${packageJSON} package.json
+              rm -rf node_modules
               ln -sf ${nodeModules}/node_modules .
               echo "Development environment ready!"
               echo ""
