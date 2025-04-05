@@ -5,7 +5,7 @@
 **See this template in action at:**
 
 - [example.chobble.com](https://example.chobble.com) (hosted on Neocities)
-- [example-pgs.chobble.com](https://example.chobble.com) (hosted on [Pico.sh](https://pico.sh/pgs))
+- [example-pgs.chobble.com](https://example-pgs.chobble.com) (hosted on [Pico.sh](https://pico.sh/pgs))
 - [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com) (example builder site)
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
