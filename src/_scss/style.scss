@@ -169,20 +169,6 @@ nav {
   .toggle {
     display: none;
   }
-  ul,
-  ul li {
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  ul li ul {
-    padding-left: 1rem;
-    font-size: 1rem;
-  }
   a {
     &.active {
       color: var(--color-secondary);
@@ -191,25 +177,36 @@ nav {
 }
 
 @media (min-width: 769px) {
+  body {
+    &.left-nav {
+      main {
+        grid-template-columns: 10rem 1fr;
+        grid-template-rows: 1fr min-content;
+        grid-template-areas:
+          "nav content"
+          "nav right";
+        @media (min-width: 1000px) {
+          grid-template-columns: 13rem 1fr 16rem;
+          grid-template-areas: "nav content right";
+        }
+      }
+    }
+    &.horizontal-nav {
+      main {
+        grid-template-areas:
+          "nav nav"
+          "content right";
+      }
+    }
+  }
+
   main {
     display: grid;
-    grid-template-columns: 10rem 1fr;
-    grid-template-rows: 1fr min-content;
-    grid-template-areas:
-      "nav content"
-      "nav right";
     gap: 0 1rem;
     min-height: 30rem;
     padding: 1rem 0 0;
     nav {
       grid-area: nav;
-      align-items: start;
-      margin: 0 0 1rem;
-      ul {
-        display: flex;
-        gap: 1rem;
-        flex-direction: column;
-      }
     }
     #content {
       grid-area: content;
@@ -227,13 +224,6 @@ nav {
         padding: 0;
       }
     }
-  }
-}
-
-@media (min-width: 1000px) {
-  main {
-    grid-template-columns: 13rem 1fr 16rem;
-    grid-template-areas: "nav content right";
   }
 }
 
@@ -441,110 +431,6 @@ body {
 
     &:hover {
       text-decoration: underline;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  html:has(body.sticky-mobile-nav) {
-    scroll-padding-top: 5rem;
-  }
-  body.sticky-mobile-nav {
-    padding-top: 5rem;
-
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      border-radius: 0;
-      width: 100%;
-      z-index: 1000;
-      background: var(--color-bg);
-      padding: 0.5rem;
-      height: 3rem;
-  
-      .toggle {
-        display: none;
-        &:checked ~ ul {
-          right: 0;
-        }
-        &:checked ~ .toggle-label span {
-          background: transparent;
-          &::before {
-            transform: rotate(45deg);
-            top: 0;
-          }
-          &::after {
-            transform: rotate(-45deg);
-            top: 0;
-          }
-        }
-      }
-  
-      .toggle-label {
-        display: block !important;
-        position: absolute !important;
-        right: 1rem !important;
-        top: 50% !important;
-        transform: translateY(-50%);
-        z-index: 1000;
-        height: 24px;
-        width: 30px;
-        cursor: pointer;
-  
-        span,
-        span::before,
-        span::after {
-          display: block;
-          background: white;
-          height: 2px;
-          width: 30px;
-          position: absolute;
-          transition: all 0.3s ease;
-        }
-  
-        span {
-          top: 11px;
-  
-          &::before,
-          &::after {
-            content: "";
-          }
-  
-          &::before {
-            top: -8px;
-          }
-  
-          &::after {
-            top: 8px;
-          }
-        }
-      }
-  
-      & > ul {
-        position: fixed;
-        background: var(--color-bg);
-        top: 3rem;
-        right: -100%; /* Start off-screen */
-        bottom: 0;
-        width: 70%;
-        overflow-x: scroll;
-        max-width: 300px;
-        flex-direction: column;
-        padding: 1rem;
-        transition: right 0.3s ease-in-out;
-  
-        .toggle-label {
-          display: block;
-        }
-  
-        li {
-          text-align: right;
-          a {
-            color: white;
-          }
-        }
-      }
     }
   }
 }

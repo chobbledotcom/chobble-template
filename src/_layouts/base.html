@@ -3,9 +3,14 @@
 {%- include "head.html" -%}
 <body class="
   {{- layout | replace: ".html", "" }}
-  {% if site.sticky_mobile_nav -%}
+  {% if site.sticky_mobile_nav %}
     sticky-mobile-nav
-  {%- endif -%}
+  {% endif %}
+  {% if site.horizontal_nav %}
+    horizontal-nav
+  {% else %}
+    left-nav
+  {% endif %}
 ">
   {%- include "header.html" -%}
   <main>

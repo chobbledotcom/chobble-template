@@ -12,5 +12,6 @@
     "RSS": "/feed.xml"
   },
   "sticky_mobile_nav": true,
+  "horizontal_nav": true,
   "template_repo_url": "https://git.chobble.com/chobble/chobble-template"
 }
