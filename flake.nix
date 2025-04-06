@@ -108,7 +108,11 @@
           u = mkUtils system;
           inherit (u) scriptPkgs site nodeModules;
         in
-        scriptPkgs // { inherit site nodeModules; }
+        {
+          site = site;
+          inherit (scriptPkgs) build serve dryrun test_flake tidy_html;
+          inherit nodeModules;
+        }
       );
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
