@@ -1,0 +1,41 @@
+{
+  "nodes": {
+    "chobble-template": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 0,
+        "narHash": "sha256-fWlK2T2AH/ruNQPjX7o1/FUCa+y5xwPciU7Q6+1c8g4=",
+        "path": "/nix/store/wnn2207wzz54ri82kplh4jwpzmmxlgm2-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "/nix/store/wnn2207wzz54ri82kplh4jwpzmmxlgm2-source",
+        "type": "path"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 0,
+        "narHash": "sha256-s1KLDALEeqy+ttrvqV3jx9mBZEvmthQErTVOAzbjHZs=",
+        "path": "/nix/store/hvs4if4zly4mp0fhbh86vh208x6fs8fg-source",
+        "type": "path"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "chobble-template": "chobble-template",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
