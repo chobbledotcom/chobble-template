@@ -100,7 +100,12 @@ module.exports = async function (eleventyConfig) {
     return [...new Set(allTags)].sort();
   });
 
-  eleventyConfig.addShortcode("renderSnippet", function (name) {
+  eleventyConfig.addFilter("file_exists", (name) => {
+    const snippetPath = path.join(process.cwd(), name);
+    return fs.existsSync(snippetPath);
+  });
+
+  eleventyConfig.addShortcode("render_snippet", (name) => {
     const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
     if (!fs.existsSync(snippetPath)) return "";
     const content = fs.readFileSync(snippetPath, "utf8");
