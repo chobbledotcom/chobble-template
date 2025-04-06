@@ -134,6 +134,9 @@ nav {
 }
 
 @media (min-width: 769px) {
+  .toggle-label {
+    display: none !important;
+  }
   body {
     &.left-nav {
       nav {
@@ -167,11 +170,12 @@ nav {
         ul {
           padding: 0;
           margin: 0;
+          display: flex;
+          justify-content: center;
+          gap: 2rem;
           li {
-            display: inline-block;
-            margin: 0 0.5rem;
-            position: relative;
             text-align: left;
+            position: relative;
             /* Nav Dropdown */
             &:hover ul {
               display: block;
