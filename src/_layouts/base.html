@@ -18,9 +18,11 @@
     <article id="content">
       {{- content -}}
     </article>
-    <article class="right">
-      {%- render_snippet "right-content" -%}
-    </article>
+    {%- if "src/snippets/right-content.md" | file_exists -%}
+      <article class="right">
+        {%- render_snippet "right-content" -%}
+      </article>
+    {%- endif -%}
   </main>
   {%- include "footer.html" -%}
 </body>
