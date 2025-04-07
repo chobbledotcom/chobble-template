@@ -32,9 +32,5 @@ layout: base.html
 {% assign products = collections.product | getProductsByCategory: page.fileSlug %}
 {% if products.size > 0 %}
   <h2>Products</h2>
-  <ul class="items">
-    {% for product in products %}
-      {% include "product-list-item.html" %}
-    {% endfor %}
-  </ul>
+  {% include "products-list.html" %}
 {% endif %}
