@@ -87,9 +87,11 @@ module.exports = async function (eleventyConfig) {
   );
 
   eleventyConfig.addFilter("pageUrl", (collection, tag, slug) => {
-    return collection.find(
+    const result = collection.find(
       (item) => item.data.tags?.includes(tag) && item.fileSlug === slug,
-    ).url;
+    );
+    if (!result) throw new Error(`Couldn't find URL for ${tag} / ${slug}`);
+    return result.url;
   });
 
   eleventyConfig.addFilter("tags", (collection) => {
