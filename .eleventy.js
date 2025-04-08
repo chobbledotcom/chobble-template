@@ -51,8 +51,6 @@ module.exports = async function (eleventyConfig) {
     formats: ["webp", "jpeg", "svg"],
     widths: [240, 480, 900, 1300, "auto"],
     svgShortCircuit: true,
-    outputDir: ".cache",
-    urlPath: "/img/",
     htmlOptions: {
       imgAttributes: {
         loading: "lazy",
@@ -62,9 +60,13 @@ module.exports = async function (eleventyConfig) {
     },
   };
 
-  eleventyConfig.on("eleventy.after", () => {
-    fs.cpSync(".cache/", "_site/img/", { recursive: true });
-  });
+  if (process.env.ELEVENTY_RUN_MODE === "build") {
+    imageOptions.outputDir = ".cache";
+    imageOptions.urlPath = "/img/";
+    eleventyConfig.on("eleventy.after", () => {
+      fs.cpSync(".cache/", "_site/img/", { recursive: true });
+    });
+  }
 
   eleventyConfig.addPlugin(eleventyImageTransformPlugin, imageOptions);
 
