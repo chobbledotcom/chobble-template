@@ -23,7 +23,7 @@
             version = "1.0.0";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
-            yarnFlags = [ "--frozen-lockfile" ];
+            yarnFlags = [ "--frozen-lockfile" "--cache-folder" "$HOME/.yarn-cache" ];
           };
 
           deps = with pkgs; [
