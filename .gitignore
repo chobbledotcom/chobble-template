@@ -140,6 +140,8 @@ result-*
 # Built site
 _site
 .sass-cache
+.image-cache/*.jpeg
+.image-cache/*.webp
 
 # ---> Direnv
 .direnv
