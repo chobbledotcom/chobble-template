@@ -23,7 +23,9 @@
             version = "1.0.0";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
-            yarnFlags = [ "--frozen-lockfile" "--cache-folder" "/tmp/yarn-cache" ];
+            yarnFlags = [
+              "--frozen-lockfile"
+            ];
           };
 
           deps = with pkgs; [
@@ -110,7 +112,13 @@
         in
         {
           site = site;
-          inherit (scriptPkgs) build serve dryrun test_flake tidy_html;
+          inherit (scriptPkgs)
+            build
+            serve
+            dryrun
+            test_flake
+            tidy_html
+            ;
           inherit nodeModules;
         }
       );
