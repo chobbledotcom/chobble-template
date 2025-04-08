@@ -19,6 +19,9 @@ layout: base.html
 </h2>
 
 <img
+  {%- if site.products.gallery_image_widths -%}
+    eleventy:widths="{{ site.products.gallery_image_widths }}"
+  {%- endif -%}
   src="/images/{{ page.imageSrc }}"
   alt="{{ page.imageName | escape }}"
 />
