@@ -9,6 +9,9 @@
           <img
             src="/images/{{ image[1] }}"
             alt="{{- image[0] -}}"
+            {%- if site.products.gallery_image_widths -%}
+              eleventy:widths="{{ site.products.gallery_image_widths }}"
+            {%- endif -%}
           >
           <figcaption>
             {{- image[0] -}}
