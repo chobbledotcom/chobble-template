@@ -40,3 +40,8 @@ jobs:
       #     key: ${{ secrets.PICO_PRIVATE_KEY }}
       #     src: "./dist/"
       #     project: "template"
+
+      - name: Fix output permissions for cleanup
+        run: |
+          find "$DEPLOY_PATH" -type d -exec chmod 755 {} \;
+          find "$DEPLOY_PATH" -type f -exec chmod 644 {} \;
