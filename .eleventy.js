@@ -48,7 +48,7 @@ module.exports = async function (eleventyConfig) {
   });
 
   eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
-    formats: ["webp", "jpeg", "svg"],
+    formats: ["webp", "jpeg"],
     widths: [240, 480, 900, 1300, "auto"],
     svgShortCircuit: true,
     outputDir: ".image-cache",

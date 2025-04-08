@@ -74,6 +74,7 @@
               cd $TMPDIR/build_dir
 
               cp -r $src/* .
+              cp -r $src/.image-cache .
               cp $src/.eleventy.js .
 
               cp -r ${nodeModules}/node_modules .
