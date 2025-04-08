@@ -1,19 +1,21 @@
 <ul class="socials">
-  {% for social in site.socials %}
-    <li>
-      <a
-        target="_blank"
-        href="{{ social[1] }}"
-        title="{{ site.name }} on {{ social[0] }}"
-      >
-        <img
-          eleventy:ignore
-          width="48"
-          height="48"
-          src="/assets/icons/{{ social[0] | downcase }}.svg"
-          alt="{{ social[0] }} logo"
-        />
-      </a>
-    </li>
-  {% endfor %}
+  {%- for social in site.socials -%}
+    {%- if social[1] -%}
+      <li>
+        <a
+          target="_blank"
+          href="{{ social[1] }}"
+          title="{{ site.name }} on {{ social[0] }}"
+        >
+          <img
+            eleventy:ignore
+            width="48"
+            height="48"
+            src="/assets/icons/{{ social[0] | downcase }}.svg"
+            alt="{{ social[0] }} logo"
+          />
+        </a>
+      </li>
+    {%- endif -%}
+  {%- endfor -%}
 </ul>
