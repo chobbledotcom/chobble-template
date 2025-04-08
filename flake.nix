@@ -85,6 +85,7 @@
 
             installPhase = ''
               mkdir -p $out
+              cp -r $TMPDIR/build_dir/.cache $out/
               cp -r $TMPDIR/build_dir/_site/* $out/
             '';
 

@@ -47,7 +47,7 @@ module.exports = async function (eleventyConfig) {
     },
   });
 
-  eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+  let imageOptions = {
     formats: ["webp", "jpeg", "svg"],
     widths: [240, 480, 640, 900, 1200, "auto"],
     svgShortCircuit: true,
@@ -58,7 +58,16 @@ module.exports = async function (eleventyConfig) {
       },
       pictureAttributes: {},
     },
+  };
+
+  imageOptions.outputDir = ".cache/@11ty/img/";
+  imageOptions.urlPath = "/img/built/";
+
+  eleventyConfig.on("eleventy.after", () => {
+    fs.cpSync(".cache/@11ty/img/", "_site/img/built/", { recursive: true });
   });
+
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin, imageOptions);
 
   eleventyConfig.addCollection("images", (collection) => {
     return images.map((i) => i.split("/")[2]).reverse();

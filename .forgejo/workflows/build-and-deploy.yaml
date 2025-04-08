@@ -1,4 +1,4 @@
-name: Build and Deploy to Bunny.net
+name: Build and Deploy to Neocities
 
 on:
   push:
