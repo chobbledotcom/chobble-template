@@ -2,9 +2,9 @@
   <a href="{{ product.url }}">
     {% if product.data.featured_image %}
       <img
-        {%- if site.products.product_thumb_widths %}
+        {% if site.products.product_thumb_widths %}
           eleventy:widths="{{ site.products.product_thumb_widths }}"
-        {%- endif -%}
+        {%- endif %}
         src="/images/{{ product.data.featured_image }}"
         alt="{{ product.data.title }}"
       />
