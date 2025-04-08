@@ -20,7 +20,7 @@
 
           nodeModules = pkgs.mkYarnModules {
             pname = "chobble-template-dependencies";
-            version = "1.0.0";
+            version = "1.0.1";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
             yarnFlags = [
