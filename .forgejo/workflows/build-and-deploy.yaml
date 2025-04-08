@@ -1,4 +1,4 @@
-name: Build and Deploy to Neocities.org and Pico.sh
+name: Build and Deploy to Bunny.net
 
 on:
   push:
