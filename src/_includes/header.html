@@ -10,9 +10,9 @@
   <h1>{{ text }}</h1>
   {% if image.size > 0 %}
     <img
-      {%- if site.products.header_image_widths %}
+      {% if site.products.header_image_widths %}
         eleventy:widths="{{ site.products.header_image_widths }}"
-      {%- endif -%}
+      {% endif %}
       alt=""
       class="banner"
       src="/images/{{ image | escape }}"
