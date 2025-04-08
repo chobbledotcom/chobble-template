@@ -43,5 +43,5 @@ jobs:
 
       - name: Fix output permissions for cleanup
         run: |
-          find "$DEPLOY_PATH" -type d -exec chmod 755 {} \;
-          find "$DEPLOY_PATH" -type f -exec chmod 644 {} \;
+          find "$GITHUB_WORKSPACE/dist" -type d -exec chmod 755 {} \;
+          find "$GITHUB_WORKSPACE/dist" -type f -exec chmod 644 {} \;
