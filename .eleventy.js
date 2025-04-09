@@ -51,7 +51,7 @@ module.exports = async function (eleventyConfig) {
     formats: ["webp", "jpeg"],
     widths: [240, 480, 900, 1300, "auto"],
     svgShortCircuit: true,
-    outputDir: "./.image-cache/",
+    outputDir: ".image-cache",
     urlPath: "/img/",
     htmlOptions: {
       imgAttributes: {
