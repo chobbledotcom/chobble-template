@@ -75,6 +75,7 @@
 
               cp -r $src/* .
               cp -r $src/.image-cache .
+              chmod -R a+rwX .image-cache
               cp $src/.eleventy.js .
 
               cp -r ${nodeModules}/node_modules .
