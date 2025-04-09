@@ -32,14 +32,15 @@ module.exports = async () => {
         strict: true,
       });
 
-      productName = frontMatter.match(/title: (.*)/)[1].trim();
+      let productName = frontMatter.match(/title: (.*)/)[1].trim();
+
+      let shortDescription = frontMatter.match(/short_description: (.*)/);
+      shortDescription = shortDescription ? shortDescription[1].trim() : null;
 
       galleryPages.push({
         productSlug,
         header_text: productName,
-        short_description: frontMatter
-          .match(/short_description: (.*)/)[1]
-          .trim(),
+        short_description: shortDescription,
         meta_title: `${productName} > ${imageName}`,
         header_image: frontMatter.match(/featured_image: (.*)/)[1].trim(),
         imageName,
