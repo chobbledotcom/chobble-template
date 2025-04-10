@@ -9,6 +9,7 @@
   --color-secondary-accent: #4f959d;
   --color-text: #205781;
   --outer-border-radius: 0 25px 0 25px;
+  --outer-border-radius-small: 0 10px 0 10px;
   --border: 2px solid rgba(255, 255, 255, 0.2);
   --width-content: 1300px;
   --line-height: 1.8;
@@ -85,7 +86,7 @@ main {
   padding: 3rem 0 2rem; /* mobile only */
   width: var(--width-content);
   max-width: 100%;
-  #content {
+  .content {
     img {
       display: block;
       margin: 0 auto;
@@ -193,6 +194,7 @@ nav {
     }
     &.horizontal-nav {
       main {
+        grid-template-columns: 1fr 16rem;
         grid-template-areas:
           "nav nav"
           "content right";
@@ -208,7 +210,7 @@ nav {
     nav {
       grid-area: nav;
     }
-    #content {
+    .content {
       grid-area: content;
       margin: 0 0 1rem;
       padding-bottom: 2rem;
@@ -297,6 +299,27 @@ ul.items {
   }
 }
 
+body {
+  &.one-column {
+    .gallery-container {
+      @media (min-width: 900px) {
+        float: right;
+        max-width: 400px;
+        margin: 0 0 2rem 2rem;
+      }
+    }
+  }
+  &.two-columns {
+    .gallery-container {
+      @media (min-width: 1200px) {
+        float: right;
+        max-width: 500px;
+        margin: 0 0 2rem 2rem;
+      }
+    }
+  }
+}
+
 ul.image-gallery {
   display: flex;
   list-style-type: none;
@@ -304,21 +327,27 @@ ul.image-gallery {
   padding: 0;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.5rem;
   li {
-    width: calc((100% - 2rem) / 3);
+    width: calc((100% - 1rem) / 3);
+    margin: 0;
+    padding: 0;
     @media (min-width: 769px) {
-      width: calc((100% - 3rem) / 4);
+      width: calc((100% - 1.5rem) / 4);
+    }
+    @media (min-width: 900px) {
+      width: calc((100% - 2rem) / 5);
     }
     a {
       display: block;
       position: relative;
       overflow: hidden;
-      border-radius: var(--outer-border-radius);
+      border-radius: var(--outer-border-radius-small);
       transition: all 0.3s ease-in;
       img {
         object-fit: cover;
         transition: all 0.3s ease-in;
+        border-radius: var(--outer-border-radius-small);
       }
       &:hover {
         transform: translateY(-5px);
@@ -386,14 +415,14 @@ dl {
 body {
   &.product,
   &.product-gallery {
-    #content {
+    .content {
       h2 {
         margin-top: 3rem;
       }
     }
   }
   &.team-member {
-    #content {
+    .content {
       img {
         width: 50%;
       }

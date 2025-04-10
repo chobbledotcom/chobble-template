@@ -11,11 +11,16 @@
   {% else %}
     left-nav
   {% endif %}
+  {% if "src/snippets/right-content.md" | file_exists -%}
+    two-columns
+  {% else -%}
+    one-column
+  {% endif %}
 ">
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
-    <article id="content">
+    <article class="content" id="content">
       {{- content -}}
     </article>
     {%- if "src/snippets/right-content.md" | file_exists -%}
