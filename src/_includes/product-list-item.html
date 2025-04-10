@@ -1,11 +1,11 @@
 <li>
   <a href="{{ product.url }}#content">
-    {% if product.data.featured_image %}
+    {% if product.data.header_image %}
       <img
         {% if site.products.product_thumb_widths %}
           eleventy:widths="{{ site.products.product_thumb_widths }}"
         {%- endif %}
-        src="/images/{{ product.data.featured_image }}"
+        src="/images/{{ product.data.header_image }}"
         alt="{{ product.data.title }}"
       />
     {% endif %}

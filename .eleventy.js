@@ -65,8 +65,38 @@ module.exports = async function (eleventyConfig) {
     fs.cpSync(".image-cache/", "_site/img/", { recursive: true });
   });
 
-  eleventyConfig.addCollection("images", (collection) => {
+  eleventyConfig.addCollection("images", (_) => {
     return images.map((i) => i.split("/")[2]).reverse();
+  });
+
+  eleventyConfig.addCollection("categories", (collectionApi) => {
+    const categories = collectionApi.getFilteredByTag("category");
+
+    if (!categories || categories.length == 0) return [];
+
+    const categoryImages = {};
+    categories.forEach((category) => {
+      categoryImages[category.fileSlug] = [category.data.header_image, -1];
+    });
+    const products = collectionApi.getFilteredByTag("product");
+
+    products.forEach((product) => {
+      const order = product.data.order || 0;
+      const productCategories = product.data.categories || [];
+      const image = product.data.header_image;
+      productCategories.forEach((category) => {
+        if (
+          image &&
+          (!categoryImages[category] || categoryImages[category][1] < order)
+        )
+          categoryImages[category] = [image, order];
+      });
+    });
+    const imageCategories = categories.map((category) => {
+      category.data.header_image = categoryImages[category.fileSlug]?.[0];
+      return category;
+    });
+    return imageCategories;
   });
 
   eleventyConfig.addFilter("toNavigation", function (collection, activeKey) {

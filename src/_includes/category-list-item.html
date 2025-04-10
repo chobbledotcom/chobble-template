@@ -1,11 +1,11 @@
 <li>
   <a href="{{ category.url }}#content">
-    {% if category.data.featured_image %}
+    {% if category.data.header_image %}
       <img
         {% if site.products.category_thumb_widths %}
           eleventy:widths="{{ site.products.category_thumb_widths }}"
         {% endif %}
-        src="/images/{{ category.data.featured_image }}"
+        src="/images/{{ category.data.header_image }}"
         alt=""
       >
     {% endif %}
@@ -22,16 +22,16 @@
   </p>
 
   {%- if show_subcategories -%}
-    {%- assign subCategories = collections.category | where: "data.parent", category.fileSlug -%}
+    {%- assign subCategories = collections.categories | where: "data.parent", category.fileSlug -%}
     {%- if subCategories.size > 0 -%}
       <h3>Subcategories:</h3>
       <ul class="items">
         {%- for subCategory in subCategories limit:4 -%}
           <li>
             <a href="{{ subCategory.url }}">
-              {% if subCategory.data.featured_image %}
+              {% if subCategory.data.header_image %}
                 <img
-                  src="/images/{{ subCategory.data.featured_image }}"
+                  src="/images/{{ subCategory.data.header_image }}"
                   alt=""
                 />
               {% endif %}

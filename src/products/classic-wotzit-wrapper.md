@@ -2,7 +2,7 @@
 title: Classic Wotzit Wrapper
 short_description: Timeless structured wrapper for formal occasions
 price: £149.99
-featured_image: placeholder-wide-1.jpg
+header_image: placeholder-wide-1.jpg
 categories:
   - premium-wotzits
   - wotzits

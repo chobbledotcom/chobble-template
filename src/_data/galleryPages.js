@@ -42,7 +42,7 @@ module.exports = async () => {
         header_text: productName,
         short_description: shortDescription,
         meta_title: `${productName} > ${imageName}`,
-        header_image: frontMatter.match(/featured_image: (.*)/)[1].trim(),
+        header_image: frontMatter.match(/header_image: (.*)/)[1].trim(),
         imageName,
         imageSrc: imageSrc.trim(),
         imageSlug,

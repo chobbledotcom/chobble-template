@@ -5,7 +5,7 @@ layout: base.html
 <h1>{{ title }}</h1>
 
 {% if parent %}
-  {% assign parentCategory = collections.category | where: "fileSlug", parent | first %}
+  {% assign parentCategory = collections.categories | where: "fileSlug", parent | first %}
   {% if parentCategory %}
     <a href="{{ parentCategory.url }}/">
       Back to {{ parentCategory.data.title }}
@@ -13,15 +13,15 @@ layout: base.html
   {% endif %}
 {% endif %}
 
-{% assign categories = collections.category %}
-{% assign categories = categories | where: "data.parent", page.fileSlug %}
-
 {{ content }}
 
-{% if childCategories.size > 0 %}
+{% assign categories = collections.categories %}
+{% assign categories = categories | where: "data.parent", page.fileSlug %}
+
+{% if categories.size > 0 %}
   <h2>Subcategories</h2>
   <ul class="items">
-    {% for category in childCategories %}
+    {% for category in categories %}
       {% assign show_subcategories = true %}
       {% assign show_product_count = false %}
       {% include "category-list-item.html" %}
