@@ -6,12 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: nixos-latest
+    runs-on: chobble
     steps:
-      - name: Install Node
-        run: |
-          nix-env -iA nixpkgs.nodejs_20
-
       - name: Checkout
         uses: actions/checkout@v4
 
