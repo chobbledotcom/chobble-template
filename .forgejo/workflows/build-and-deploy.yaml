@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Install Node
         run: |
-          nix-env -iA node
+          nix-env -iA nixos.nodejs_23
 
       - name: Checkout
         uses: actions/checkout@v4
