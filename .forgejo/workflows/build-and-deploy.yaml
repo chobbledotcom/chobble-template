@@ -8,6 +8,10 @@ jobs:
   build:
     runs-on: nixos-latest
     steps:
+      - name: Install Node
+        run: |
+          nix-env -iA node
+
       - name: Checkout
         uses: actions/checkout@v4
 
