@@ -2,56 +2,56 @@
 layout: base.html
 ---
 
-<h1>{{ title }}</h1>
+<div class="title">
+  <h1>{{ title }}</h1>
+  {%- if short_description -%}
+    <h2>{{ short_description }}</h2>
+  {%- endif -%}
+</div>
 
-{%- if short_description -%}
-  <h2>{{ short_description }}</h2>
-{%- endif -%}
+<div class="gallery">
+  <h2>Gallery</h2>
+  {% include "gallery.html" %}
+</div>
+<div class="description">
+  <h2>About</h2>
 
-{%- if gallery.size > 0 -%}
-  <div class="gallery-container">
-    <h2>Gallery</h2>
-    {% include "gallery.html" %}
-  </div>
-{%- endif -%}
+  {%- if categories.size > 0 -%}
+    <p>
+      <strong>Categories:</strong>
+      {% for slug in categories -%}
+        {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
+        {%- if category -%}
+          <a href="{{ category.url }}/">
+            {{ category.data.title }}
+          </a>{%- unless forloop.last -%}, {% endunless -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </p>
+  {%- endif -%}
 
-<h2>About</h2>
+  {{ content }}
 
-{%- if categories.size > 0 -%}
-  <p>
-    <strong>Categories:</strong>
-    {% for slug in categories -%}
-      {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
-      {%- if category -%}
-        <a href="{{ category.url }}/">
-          {{ category.data.title }}
-        </a>{%- unless forloop.last -%}, {% endunless -%}
-      {%- endif -%}
-    {%- endfor -%}
-  </p>
-{%- endif -%}
+  {%- if features -%}
+    <h2>Features</h2>
+    <ul class="product-features">
+      {%- for feature in features -%}
+        <li>{{ feature }}</li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
 
-{{ content }}
-
-{%- if features -%}
-  <h2>Features</h2>
-  <ul class="product-features">
-    {%- for feature in features -%}
-      <li>{{ feature }}</li>
-    {%- endfor -%}
-  </ul>
-{%- endif -%}
-
-{%- if specs -%}
-  <h2>Specifications</h2>
-  <dl class="product-specs">
-    {%- for spec in specs -%}
-      <dt>{{ spec.name }}</dt>
-      <dd>{{ spec.value }}</dd>
-    {%- endfor -%}
-  </dl>
-{%- endif -%}
-
-<h2>Get in Touch</h2>
-
-{% include "contact-form.html" %}
+  {%- if specs -%}
+    <h2>Specifications</h2>
+    <dl class="product-specs">
+      {%- for spec in specs -%}
+        <dt>{{ spec.name }}</dt>
+        <dd>{{ spec.value }}</dd>
+      {%- endfor -%}
+    </dl>
+  {%- endif -%}
+</div>
+<div class="contact">
+  <h2>Get in Touch</h2>
+  {% include "contact-form.html" %}
+</div>
