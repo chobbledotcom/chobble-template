@@ -13,9 +13,6 @@
   </a>
 
   <p>
-    <a href="{{ category.url }}">
-      {{ category.data.title }}:
-    </a>
     {% if category.data.description -%}
       {{ category.data.description }}
     {%- endif -%}
@@ -26,18 +23,8 @@
     {%- if subCategories.size > 0 -%}
       <h3>Subcategories:</h3>
       <ul class="items">
-        {%- for subCategory in subCategories limit:4 -%}
-          <li>
-            <a href="{{ subCategory.url }}">
-              {% if subCategory.data.header_image %}
-                <img
-                  src="/images/{{ subCategory.data.header_image }}"
-                  alt=""
-                />
-              {% endif %}
-              {{ subCategory.data.title }}
-            </a>
-          </li>
+        {%- for category in subCategories limit:4 -%}
+          {%- include "category-list-item.html" -%}
         {%- endfor -%}
       </ul>
     {%- endif -%}

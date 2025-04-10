@@ -1,25 +1,26 @@
 <li>
-  <a href="{{ product.url }}#content">
-    {% if product.data.header_image %}
+  <a href="{{- product.url -}}#content">
+    {%- if product.data.header_image -%}
       <img
         {% if site.products.product_thumb_widths %}
-          eleventy:widths="{{ site.products.product_thumb_widths }}"
+          eleventy:widths="{{- site.products.product_thumb_widths -}}"
         {%- endif %}
-        src="/images/{{ product.data.header_image }}"
-        alt="{{ product.data.title }}"
+        src="/images/{{- product.data.header_image -}}"
+        alt="{{- product.data.title -}}"
       />
-    {% endif %}
-
-    <h3>
-      {{ product.data.title }}
-    </h3>
-
-    {% if product.data.price %}
-      <p>{{ product.data.price }}</p>
-    {% endif %}
-
-    {%- if product.data.short_description -%}
-      <p>{{ product.data.short_description }}</p>
     {%- endif -%}
   </a>
+  <h3>
+    <a href="{{- product.url -}}#content">
+      {{- product.data.title -}}
+    </a>
+  </h3>
+
+  {%- if product.data.price -%}
+    <p>{{- product.data.price -}}</p>
+  {%- endif -%}
+
+  {%- if product.data.short_description -%}
+    <p>{{- product.data.short_description -}}</p>
+  {%- endif -%}
 </li>

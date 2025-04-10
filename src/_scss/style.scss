@@ -282,7 +282,7 @@ ul.categories {
 ul.items {
   display: flex;
   list-style-type: none;
-  margin: 0;
+  margin: 0 0 2rem;
   padding: 0;
   flex-direction: row;
   flex-wrap: wrap;
@@ -290,6 +290,10 @@ ul.items {
   & > * {
     width: 14rem;
     max-width: 100%;
+  }
+  h3,
+  p {
+    margin-bottom: 0;
   }
 }
 
