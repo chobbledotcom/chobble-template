@@ -24,4 +24,10 @@ layout: base.html
   {% endif %}
   src="/images/{{ page.imageSrc }}"
   alt="{{ page.imageName | escape }}"
+  {% if page.image_base64 %}
+    style="
+      background-image: url('{{ page.image_base64 }}');
+      aspect-ratio: {{ page.image_aspect_ratio }};
+    "
+  {% endif %}
 />

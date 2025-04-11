@@ -10,23 +10,7 @@ module.exports = async function (eleventyConfig) {
   const path = await import("path");
   const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
   const { eleventyImageTransformPlugin } = await import("@11ty/eleventy-img");
-
-  const thumbnailPath = path.join(
-    process.cwd(),
-    "src/_data/image_thumbnails.json",
-  );
-  const imageThumbnails = fs.existsSync(thumbnailPath)
-    ? JSON.parse(fs.readFileSync(thumbnailPath, "utf8"))
-    : {};
-
-  const addThumbnailData = (item, image) => {
-    const thumb = imageThumbnails[image];
-    if (thumb) {
-      item.data.thumbnail_base64 = thumb.base64;
-      item.data.thumbnail_aspect_ratio = thumb.aspect_ratio;
-    }
-    return item;
-  };
+  const { getThumbnailData } = require("./src/_lib/thumbnails");
 
   eleventyConfig.addWatchTarget("./src/**/*");
   eleventyConfig
@@ -112,7 +96,12 @@ module.exports = async function (eleventyConfig) {
 
     return categories.map((category) => {
       category.data.header_image = categoryImages[category.fileSlug]?.[0];
-      return addThumbnailData(category, category.data.header_image);
+      const thumbnailData = getThumbnailData(category.data.header_image);
+      if (thumbnailData) {
+        category.data.thumbnail_base64 = thumbnailData.base64;
+        category.data.thumbnail_aspect_ratio = thumbnailData.aspect_ratio;
+      }
+      return category;
     });
   });
 
@@ -120,7 +109,12 @@ module.exports = async function (eleventyConfig) {
     let products = collectionApi.getFilteredByTag("product");
 
     products = products.map((product) => {
-      return addThumbnailData(product, product.data.header_image);
+      const thumbnailData = getThumbnailData(product.data.header_image);
+      if (thumbnailData) {
+        product.data.thumbnail_base64 = thumbnailData.base64;
+        product.data.thumbnail_aspect_ratio = thumbnailData.aspect_ratio;
+      }
+      return product;
     });
 
     return products.map((product) => {
@@ -128,7 +122,12 @@ module.exports = async function (eleventyConfig) {
       if (gallery) {
         product.data.gallery = Object.entries(product.data.gallery).map(
           (image) => {
-            let imageObj = addThumbnailData({ data: {} }, image[1]);
+            const thumbnailData = getThumbnailData(image[1]);
+            let imageObj = { data: {} };
+            if (thumbnailData) {
+              imageObj.data.thumbnail_base64 = thumbnailData.base64;
+              imageObj.data.thumbnail_aspect_ratio = thumbnailData.aspect_ratio;
+            }
             return Object.assign(imageObj, {
               alt: image[0],
               filename: image[1],

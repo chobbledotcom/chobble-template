@@ -1,16 +1,12 @@
 <ul id="gallery" class="image-gallery">
   {%- for image in gallery -%}
     {%- capture url -%}
-      /products/{{ page.fileSlug }}/{{ image[0] | slugify }}/#content
+      /products/{{ page.fileSlug }}/{{ image.alt | slugify }}/#content
     {%- endcapture -%}
     <li>
       <a
         href="{{ url }}"
         class="image-link"
-        style="
-          background-image: url('{{ image.data.thumbnail_base64 }}');
-          aspect-ratio: {{ image.data.thumbnail_aspect_ratio }};
-        "
       >
         <figure>
           <img
@@ -19,6 +15,10 @@
             {% if site.products.gallery_thumb_widths %}
               eleventy:widths="{{ site.products.gallery_thumb_widths }}"
             {% endif -%}
+            style="
+              background-image: url('{{ image.data.thumbnail_base64 }}');
+              aspect-ratio: {{ image.data.thumbnail_aspect_ratio }};
+            "
           >
           <figcaption>
             {{- image.alt -}}

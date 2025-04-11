@@ -79,6 +79,8 @@ body > header {
     height: 100%;
     object-fit: cover;
     z-index: 1;
+    background-size: cover;
+    color: transparent;
   }
 }
 
@@ -94,6 +96,8 @@ main {
       max-width: 100%;
       height: auto;
       border-radius: var(--outer-border-radius);
+      background-size: cover;
+      color: transparent;
     }
   }
 }
@@ -195,6 +199,7 @@ nav {
     &.horizontal-nav {
       main {
         grid-template-columns: 1fr 16rem;
+        grid-template-rows: min-content;
         grid-template-areas:
           "nav nav"
           "content right";
@@ -297,14 +302,6 @@ ul.items {
   p {
     margin-bottom: 0;
   }
-}
-
-a.image-link {
-  color: transparent;
-  display: block;
-  position: relative;
-  background-size: 100% 100%;
-  border-radius: var(--outer-border-radius-small);
 }
 
 body.product {

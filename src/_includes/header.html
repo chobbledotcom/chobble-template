@@ -1,21 +1,16 @@
-{%- capture text -%}
-  {{ header_text | default: page.header_text | escape }}
-{%- endcapture -%}
-
-{%- capture image -%}
-  {{ header_image | default: page.header_image | escape }}
-{%- endcapture -%}
-
 <header>
-  <h1>{{ text }}</h1>
-  {% if image.size > 0 %}
+  <h1>{{ header_text | default: page.header_text }}</h1>
+  {% if header_image or page.header_image %}
     <img
       {% if site.products.header_image_widths %}
         eleventy:widths="{{ site.products.header_image_widths }}"
       {% endif %}
+      {% if thumbnail_base64 or page.thumbnail_base64 %}
+        style="background-image: url('{{ thumbnail_base64 | default: page.thumbnail_base64 }}');"
+      {% endif %}
       alt=""
       class="banner"
-      src="/images/{{ image | escape }}"
+      src="/images/{{ header_image | default: page.header_image | escape }}"
     />
   {% endif %}
 </header>
