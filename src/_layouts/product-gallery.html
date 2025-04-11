@@ -18,16 +18,4 @@ layout: base.html
   {{ page.imageName | escape }}
 </h2>
 
-<img
-  {% if site.products.gallery_image_widths %}
-    eleventy:widths="{{ site.products.gallery_image_widths }}"
-  {% endif %}
-  src="/images/{{ page.imageSrc }}"
-  alt="{{ page.imageName | escape }}"
-  {% if page.image_base64 %}
-    style="
-      background-image: url('{{ page.image_base64 }}');
-      aspect-ratio: {{ page.image_aspect_ratio }};
-    "
-  {% endif %}
-/>
+{% image page.imageSrc, page.imageName, site.products.gallery_image_widths %}

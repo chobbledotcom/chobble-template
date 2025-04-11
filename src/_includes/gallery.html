@@ -9,17 +9,7 @@
         class="image-link"
       >
         <figure>
-          <img
-            src="/images/{{ image.filename }}"
-            alt="{{- image.alt -}}"
-            {% if site.products.gallery_thumb_widths %}
-              eleventy:widths="{{ site.products.gallery_thumb_widths }}"
-            {% endif -%}
-            style="
-              background-image: url('{{ image.data.thumbnail_base64 }}');
-              aspect-ratio: {{ image.data.thumbnail_aspect_ratio }};
-            "
-          >
+          {% image image.filename, image.alt, site.products.gallery_thumb_widths %}
           <figcaption>
             {{- image.alt -}}
           </figcaption>

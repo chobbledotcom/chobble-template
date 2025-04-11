@@ -38,7 +38,7 @@ module.exports = async () => {
 			let shortDescription = frontMatter.match(/short_description: (.*)/);
 			shortDescription = shortDescription ? shortDescription[1].trim() : null;
 
-			const galleryPage = {
+			galleryPages.push({
 				productSlug,
 				header_text: productName,
 				short_description: shortDescription,
@@ -49,21 +49,7 @@ module.exports = async () => {
 				imageSlug,
 				url: `/products/${productSlug}/${imageSlug}.html`,
 				navigationParent: "Products",
-			};
-
-			const headerThumb = getThumbnailData(galleryPage.header_image);
-			if (headerThumb) {
-				galleryPage.thumbnail_base64 = headerThumb.base64;
-				galleryPage.thumbnail_aspect_ratio = headerThumb.aspect_ratio;
-			}
-
-			const imageThumb = getThumbnailData(galleryPage.imageSrc);
-			if (imageThumb) {
-				galleryPage.image_base64 = imageThumb.base64;
-				galleryPage.image_aspect_ratio = imageThumb.aspect_ratio;
-			}
-
-			galleryPages.push(galleryPage);
+			});
 		});
 	});
 
