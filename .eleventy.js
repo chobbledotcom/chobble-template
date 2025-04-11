@@ -11,6 +11,23 @@ module.exports = async function (eleventyConfig) {
   const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
   const { eleventyImageTransformPlugin } = await import("@11ty/eleventy-img");
 
+  const thumbnailPath = path.join(
+    process.cwd(),
+    "src/_data/image_thumbnails.json",
+  );
+  const imageThumbnails = fs.existsSync(thumbnailPath)
+    ? JSON.parse(fs.readFileSync(thumbnailPath, "utf8"))
+    : {};
+
+  const addThumbnailData = (item, image) => {
+    const thumb = imageThumbnails[image];
+    if (thumb) {
+      item.data.thumbnail_base64 = thumb.base64;
+      item.data.thumbnail_aspect_ratio = thumb.aspect_ratio;
+    }
+    return item;
+  };
+
   eleventyConfig.addWatchTarget("./src/**/*");
   eleventyConfig
     .addPassthroughCopy("src/assets")
@@ -92,11 +109,35 @@ module.exports = async function (eleventyConfig) {
           categoryImages[category] = [image, order];
       });
     });
-    const imageCategories = categories.map((category) => {
+
+    return categories.map((category) => {
       category.data.header_image = categoryImages[category.fileSlug]?.[0];
-      return category;
+      return addThumbnailData(category, category.data.header_image);
     });
-    return imageCategories;
+  });
+
+  eleventyConfig.addCollection("products", (collectionApi) => {
+    let products = collectionApi.getFilteredByTag("product");
+
+    products = products.map((product) => {
+      return addThumbnailData(product, product.data.header_image);
+    });
+
+    return products.map((product) => {
+      const gallery = product.data.gallery;
+      if (gallery) {
+        product.data.gallery = Object.entries(product.data.gallery).map(
+          (image) => {
+            let imageObj = addThumbnailData({ data: {} }, image[1]);
+            return Object.assign(imageObj, {
+              alt: image[0],
+              filename: image[1],
+            });
+          },
+        );
+      }
+      return product;
+    });
   });
 
   eleventyConfig.addFilter("toNavigation", function (collection, activeKey) {

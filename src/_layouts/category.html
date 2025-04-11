@@ -29,7 +29,7 @@ layout: base.html
   </ul>
 {% endif %}
 
-{% assign products = collections.product | getProductsByCategory: page.fileSlug %}
+{% assign products = collections.products | getProductsByCategory: page.fileSlug %}
 {% if products.size > 0 %}
   <h2>Products</h2>
   {% include "products-list.html" %}

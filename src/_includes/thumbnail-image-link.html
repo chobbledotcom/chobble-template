@@ -1,0 +1,28 @@
+<a
+  class="
+    image-link
+  "
+  href="{{ item.url }}#content"
+  {% if item.data.thumbnail_base64 %}
+    style="
+      background-image: url('{{ item.data.thumbnail_base64 }}');
+      aspect-ratio: {{ item.data.thumbnail_aspect_ratio }};
+    "
+  {% endif %}
+>
+  {% if item.data.header_image %}
+    <img
+      {% if widths %}
+        eleventy:widths="{{ widths }}"
+      {% endif %}
+      src="/images/{{ item.data.header_image }}"
+      alt="{{ item.data.title }}"
+    />
+  {% endif %}
+</a>
+
+<h3>
+  <a href="{{- item.url -}}#content">
+    {{- item.data.title -}}
+  </a>
+</h3>

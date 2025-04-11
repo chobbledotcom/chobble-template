@@ -1,20 +1,7 @@
 <li>
-  <a class="image-link" href="{{- product.url -}}#content">
-    {%- if product.data.header_image -%}
-      <img
-        {% if site.products.product_thumb_widths %}
-          eleventy:widths="{{- site.products.product_thumb_widths -}}"
-        {%- endif %}
-        src="/images/{{- product.data.header_image -}}"
-        alt="{{- product.data.title -}}"
-      />
-    {%- endif -%}
-  </a>
-  <h3>
-    <a href="{{- product.url -}}#content">
-      {{- product.data.title -}}
-    </a>
-  </h3>
+  {% assign item = product %}
+  {% assign widths = site.products.product_thumb_widths %}
+  {% include "thumbnail-image-link.html" %}
 
   {%- if product.data.price -%}
     <p>{{- product.data.price -}}</p>

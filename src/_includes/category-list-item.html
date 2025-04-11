@@ -1,16 +1,7 @@
 <li>
-  <a class="image-link" href="{{ category.url }}#content">
-    {% if category.data.header_image %}
-      <img
-        {% if site.products.category_thumb_widths %}
-          eleventy:widths="{{ site.products.category_thumb_widths }}"
-        {% endif %}
-        src="/images/{{ category.data.header_image }}"
-        alt=""
-      >
-    {% endif %}
-    <h3>{{ category.data.title }}</h3>
-  </a>
+  {% assign item = category %}
+  {% assign widths = site.products.category_thumb_widths %}
+  {% include "thumbnail-image-link.html" %}
 
   <p>
     {% if category.data.description -%}
@@ -31,7 +22,7 @@
   {%- endif -%}
 
   {%- if show_product_count -%}
-    {%- assign categoryProducts = collections.product | getProductsByCategory: category.fileSlug -%}
+    {%- assign categoryProducts = collections.products | getProductsByCategory: category.fileSlug -%}
     <p>
       {{ categoryProducts.size }}
       product{%- if categoryProducts.size != 1 -%}s{%- endif -%}

@@ -51,6 +51,7 @@
 
           scripts = [
             "build"
+            "generate_thumbs"
             "serve"
             "dryrun"
             "test_flake"
@@ -81,6 +82,7 @@
               cp -r ${nodeModules}/node_modules .
               chmod -R +w ./node_modules
 
+              ${mkScript "generate_thumbs"}/bin/generate_thumbs
               ${mkScript "build"}/bin/build
               ${mkScript "tidy_html"}/bin/tidy_html
             '';
