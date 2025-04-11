@@ -302,6 +302,7 @@ ul.items {
 a.image-link {
   color: transparent;
   display: block;
+  position: relative;
   background-size: 100% 100%;
   border-radius: var(--outer-border-radius-small);
 }
