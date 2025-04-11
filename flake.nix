@@ -32,6 +32,8 @@
             html-tidy
             sass
             yarn
+            python3
+            python3Packages.pillow
           ];
 
           mkScript =
@@ -82,7 +84,11 @@
               cp -r ${nodeModules}/node_modules .
               chmod -R +w ./node_modules
 
-              ${mkScript "generate_thumbs"}/bin/generate_thumbs
+              mkdir -p src/_data
+              chmod -R +w src/_data
+
+              python3 $src/bin/generate_thumbs
+
               ${mkScript "build"}/bin/build
               ${mkScript "tidy_html"}/bin/tidy_html
             '';
@@ -119,6 +125,7 @@
           site = site;
           inherit (scriptPkgs)
             build
+            generate_thumbs
             serve
             dryrun
             test_flake
