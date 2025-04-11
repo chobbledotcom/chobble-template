@@ -11,4 +11,5 @@ find _site \
   --tidy-mark no \
   --drop-empty-elements no \
   --warn-proprietary-attributes no \
+  --new-pre-tags "textarea" \
   -modify {} \;
