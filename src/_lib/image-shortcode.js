@@ -10,8 +10,14 @@ async function imageShortcode(
 ) {
 	const thumbnailData = getThumbnailData(imageName);
 
+	if (!widths) {
+		widths = [240, 480, 900, 1300, "auto"];
+	} else {
+		widths = widths.split(",");
+	}
+
 	const options = {
-		widths: widths || [240, 480, 900, 1300, "auto"],
+		widths: widths,
 		formats: ["webp", "jpeg"],
 		outputDir: ".image-cache",
 		urlPath: "/img/",
