@@ -29,6 +29,7 @@
           };
 
           deps = with pkgs; [
+            biome
             html-tidy
             sass
             yarn
@@ -54,6 +55,7 @@
           scripts = [
             "build"
             "generate_thumbs"
+            "lint"
             "serve"
             "dryrun"
             "test_flake"
@@ -126,6 +128,7 @@
           inherit (scriptPkgs)
             build
             generate_thumbs
+            lint
             serve
             dryrun
             test_flake
@@ -166,6 +169,7 @@
               echo " - 'dryrun'     - Perform a dry run build"
               echo " - 'tidy_html'  - Format HTML files in _site"
               echo " - 'test_flake' - Test building a site using flake.nix"
+              echo " - 'lint'       - Lint all files in src using Biome"
               echo ""
               git pull
             '';

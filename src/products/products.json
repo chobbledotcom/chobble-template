@@ -1,5 +1,5 @@
 {
-  "layout": "product.html",
-  "tags": "product",
-  "navigationParent": "Products"
+	"layout": "product.html",
+	"tags": "product",
+	"navigationParent": "Products"
 }

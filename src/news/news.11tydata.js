@@ -1,5 +1,5 @@
 module.exports = {
-  eleventyComputed: {
-    title: (data) => data.header_text || data.title,
-  },
+	eleventyComputed: {
+		title: (data) => data.header_text || data.title,
+	},
 };

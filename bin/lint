@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+biome \
+  format \
+  --write \
+  --no-errors-on-unmatched \
+  --files-ignore-unknown=true \
+  "./src"
