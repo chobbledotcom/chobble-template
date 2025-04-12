@@ -4,7 +4,7 @@
   {%- endif -%}
 ">
   {%- if person.url -%}
-    <a class="image" href="{{ person.url }}">
+    <a class="image-link" href="{{ person.url }}">
       {%- if person.data.image -%}
         {% image person.data.image, person.data.title, "240,480,640" %}
       {%- endif -%}
