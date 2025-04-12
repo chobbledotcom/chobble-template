@@ -19,13 +19,13 @@ jobs:
       - name: Build
         id: build
         run: |
-          sass --update src/_scss:_site/css --style expanded
-          yarn --offline eleventy
-          mv _site dist
-          # DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
-          # mkdir -p "$DEPLOY_PATH"
-          # nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom
-          # cp -r result-/_site/* "$DEPLOY_PATH"/
+          # sass --update src/_scss:_site/css --style expanded
+          # yarn --offline eleventy
+          # mv _site dist
+          DEPLOY_PATH="$GITHUB_WORKSPACE/dist"
+          mkdir -p "$DEPLOY_PATH"
+          nix-fast-build --skip-cached --flake ".#packages.x86_64-linux.site" --no-nom
+          cp -r result-/_site/* "$DEPLOY_PATH"/
 
       - name: Deploy to neocities
         uses: bcomnes/deploy-to-neocities@v3
