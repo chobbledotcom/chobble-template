@@ -52,15 +52,7 @@
               postBuild = "wrapProgram $out/bin/${name} --prefix PATH : $out/bin";
             };
 
-          scripts = [
-            "build"
-            "generate_thumbs"
-            "lint"
-            "serve"
-            "dryrun"
-            "test_flake"
-            "tidy_html"
-          ];
+          scripts = builtins.attrNames (builtins.readDir ./bin);
 
           scriptPkgs = builtins.listToAttrs (
             map (name: {
