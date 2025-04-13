@@ -16,10 +16,9 @@
         pkgs: with pkgs; [
           biome # linting
           html-tidy # post-build tidying
+          imagemagick # thumbs
           sass # styles
           yarn # eleventy
-          python3 # image thumbs
-          python3Packages.pillow # ditto
         ];
 
       mkUtils =

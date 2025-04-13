@@ -1,79 +1,45 @@
-#!/usr/bin/env python3
-import os
-import json
-import base64
-from io import BytesIO
-from PIL import Image, ImageFilter
-from pathlib import Path
+#!/bin/bash
 
-# Use current working directory for paths when executed via nix
-REPO_ROOT = os.getcwd()
-IMAGES_DIR = os.path.join(REPO_ROOT, 'src/images')
-OUTPUT_FILE = os.path.join(REPO_ROOT, 'src/_data', 'image_thumbnails.json')
+REPO_ROOT=$(pwd)
+IMAGES_DIR="$REPO_ROOT/src/images"
+OUTPUT_FILE="$REPO_ROOT/src/_data/image_thumbnails.json"
 
-def generate_lqip_thumbnail(image_path):
-    """Generate a base64 encoded Low Quality Image Placeholder and extract aspect ratio."""
-    try:
-        # Open the image
-        img = Image.open(image_path)
-        
-        # Get original dimensions for aspect ratio
-        width, height = img.size
-        aspect_ratio = f"{width}/{height}"
-        
-        # Create a small thumbnail (16x16)
-        img.thumbnail((16, 16), Image.Resampling.LANCZOS)
+echo "{" > $OUTPUT_FILE
 
-        # Apply slight blur to reduce artifacts
-        img = img.filter(ImageFilter.GaussianBlur(radius=0.5))
+count=0
+total=$(find $IMAGES_DIR -name "*.jpg" | wc -l)
 
-        # Convert to WebP format with minimal quality
-        buffer = BytesIO()
-        img.save(buffer, format="WEBP", quality=30)
-        buffer.seek(0)
+for img in $IMAGES_DIR/*.jpg; do
+  filename=$(basename "$img")
+  count=$((count+1))
+  
+  dimensions=$(identify -format "%w/%h" "$img")
+  
+  # Create a tiny thumbnail with aggressive optimization
+  # 1. Small size (10x10 pixels)
+  # 2. Very low quality (10)
+  # 3. Apply stronger blur
+  # 4. Use WebP format for better compression
+  # 5. Strip all metadata
+  # 6. Dither to reduce colors
+  base64_img=$(magick "$img" -resize 16x16 -blur 0x1 -quality 10 -strip -dither FloydSteinberg -colors 8 webp:- | base64 -w 0)
+  
+  # Add to JSON
+  echo "  \"$filename\": {" >> $OUTPUT_FILE
+  echo "    \"base64\": \"data:image/webp;base64,$base64_img\"," >> $OUTPUT_FILE
+  echo "    \"aspect_ratio\": \"$dimensions\"" >> $OUTPUT_FILE
+  
+  # Add comma if not the last item
+  if [ $count -lt $total ]; then
+    echo "  }," >> $OUTPUT_FILE
+  else
+    echo "  }" >> $OUTPUT_FILE
+  fi
+  
+  echo "Processed: $filename"
+done
 
-        # Encode to base64
-        base64_data = base64.b64encode(buffer.read()).decode('utf-8')
-        base64_string = f"data:image/webp;base64,{base64_data}"
+echo "}" >> $OUTPUT_FILE
 
-        # Return both the base64 string and aspect ratio
-        return {
-            "base64": base64_string,
-            "aspect_ratio": aspect_ratio
-        }
-    except Exception as e:
-        print(f"Error processing {image_path}: {e}")
-        return None
-
-def main():
-    # Get all image files from the images directory
-    image_files = list(Path(IMAGES_DIR).glob('*.jpg'))
-    print(f"Found {len(image_files)} image files to process")
-
-    # Dictionary to store image_id -> thumbnail data mapping
-    thumbnails = {}
-
-    # Process each image
-    for image_path in image_files:
-        # Image ID is the full filename including extension
-        image_id = image_path.name
-
-        # Generate and store the thumbnail data
-        thumbnail_data = generate_lqip_thumbnail(image_path)
-        if thumbnail_data:
-            thumbnails[image_id] = thumbnail_data
-            print(f"Processed: {image_id}")
-
-    # Create _data directory if it doesn't exist
-    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-
-    # Save the thumbnails to a JSON file
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        json.dump(thumbnails, f, ensure_ascii=False, indent=2)
-
-    print(f"\nProcessing complete:")
-    print(f"- Generated {len(thumbnails)} thumbnails")
-    print(f"- Output saved to: {OUTPUT_FILE}")
-
-if __name__ == "__main__":
-    main()
+echo "Processing complete: Generated $count thumbnails"
+echo "Output saved to: $OUTPUT_FILE"
