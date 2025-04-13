@@ -121,26 +121,19 @@
       );
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
-
       devShells = forAllSystems (
         system:
         let
-          u = mkUtils system;
-          inherit (u)
-            pkgs
-            deps
-            scriptPkgs
-            nodeModules
-            ;
+          pkgsFor = mkUtils system;
         in
         rec {
           default = dev;
-          dev = pkgs.mkShell {
-            buildInputs = deps ++ (builtins.attrValues scriptPkgs);
+          dev = pkgsFor.pkgs.mkShell {
+            buildInputs = pkgsFor.deps ++ (builtins.attrValues pkgsFor.scriptPkgs);
 
             shellHook = ''
               rm -rf node_modules
-              cp -r ${nodeModules}/node_modules .
+              cp -r ${pkgsFor.nodeModules}/node_modules .
               chmod -R +w ./node_modules
 
               echo "Development environment ready!"
@@ -158,5 +151,6 @@
           };
         }
       );
+
     };
 }
