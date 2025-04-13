@@ -38,7 +38,11 @@ async function imageShortcode(
 	}
 
 	if (thumbnailData) {
-		imageAttributes.style = `background-image: url('${thumbnailData.base64}'); aspect-ratio: ${thumbnailData.aspect_ratio};`;
+		imageAttributes.style = `
+		  background-size: cover;
+		  background-image: url('${thumbnailData.base64}');
+		  aspect-ratio: ${thumbnailData.aspect_ratio};
+		`;
 	}
 
 	return Image.generateHTML(metadata, imageAttributes);

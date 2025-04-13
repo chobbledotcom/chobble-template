@@ -14,6 +14,7 @@ function addThumbnailBackgrounds(content) {
 		const imageName = src.replace("/images/", "");
 		const thumbnailData = getThumbnailData(imageName);
 		if (!thumbnailData) return;
+		img.style.backgroundSize = "cover";
 		img.style.backgroundImage = `url('${thumbnailData.base64}')`;
 		img.style.aspectRatio = thumbnailData.aspect_ratio;
 	});
