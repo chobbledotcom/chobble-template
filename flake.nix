@@ -89,8 +89,8 @@
 
             installPhase = ''
               mkdir -p $out
-              cp -r $TMPDIR/build_dir/_site $out/
-              cp -r $TMPDIR/build_dir/.image-cache $out/
+              mv $TMPDIR/build_dir/_site $out/
+              mv $TMPDIR/build_dir/.image-cache $out/
             '';
 
             dontFixup = true;
@@ -112,22 +112,12 @@
       packages = forAllSystems (
         system:
         let
-          u = mkUtils system;
-          inherit (u) scriptPkgs site nodeModules;
+          pkgsFor = mkUtils system;
         in
-        {
-          site = site;
-          inherit (scriptPkgs)
-            build
-            generate_thumbs
-            lint
-            serve
-            dryrun
-            test_flake
-            tidy_html
-            ;
-          inherit nodeModules;
-        }
+        (with pkgsFor; {
+          inherit site nodeModules;
+        })
+        // pkgsFor.scriptPkgs
       );
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
