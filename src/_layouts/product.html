@@ -9,10 +9,13 @@ layout: base.html
   {%- endif -%}
 </div>
 
-<div class="gallery">
-  <h2>Gallery</h2>
-  {% include "gallery.html" %}
-</div>
+{%- if gallery and gallery.size > 0 -%}
+  <div class="gallery">
+    <h2>Gallery</h2>
+    {% include "gallery.html" %}
+  </div>
+{%- endif -%}
+
 <div class="description">
   <h2>About</h2>
 
