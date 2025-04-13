@@ -83,8 +83,8 @@
 
               python3 $src/bin/generate_thumbs
 
-              ${mkScript "build"}/bin/build
-              ${mkScript "tidy_html"}/bin/tidy_html
+              ${scriptPkgs.build}/bin/build
+              ${scriptPkgs.tidy_html}/bin/tidy_html
             '';
 
             installPhase = ''
