@@ -16,7 +16,7 @@
         pkgs: with pkgs; [
           biome # linting
           html-tidy # post-build tidying
-          imagemagick # thumbs
+          libwebp # thumbs
           sass # styles
           yarn # eleventy
         ];

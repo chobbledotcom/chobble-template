@@ -3,9 +3,35 @@
 REPO_ROOT=$(pwd)
 IMAGES_DIR="$REPO_ROOT/src/images"
 OUTPUT_FILE="$REPO_ROOT/src/_data/image_thumbnails.json"
+TEMP_DIR="/tmp/thumbs_$$"  # Use process ID to avoid conflicts
 
+# Create temp directory and output directory
+mkdir -p "$TEMP_DIR"
+mkdir -p "$(dirname "$OUTPUT_FILE")"
+
+# Ensure temp directory is removed on exit
+trap 'rm -rf "$TEMP_DIR"' EXIT
+
+# Function to extract dimensions from JPEG header
+extract_jpeg_dimensions() {
+  local file="$1"
+  # Use 'file' command to get image dimensions
+  # Example output: "JPEG image data, JFIF standard 1.01, resolution (DPI), density 72x72, segment length 16, baseline, precision 8, 1920x1080, components 3"
+  local info=$(file "$file")
+  
+  # Extract dimensions using regex
+  if [[ $info =~ ([0-9]+)x([0-9]+) ]]; then
+    echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
+  else
+    # Default if we can't extract dimensions
+    echo "1/1"
+  fi
+}
+
+# Start JSON file
 echo "{" > $OUTPUT_FILE
 
+# Counter for handling trailing commas
 count=0
 total=$(find $IMAGES_DIR -name "*.jpg" | wc -l)
 
@@ -13,16 +39,22 @@ for img in $IMAGES_DIR/*.jpg; do
   filename=$(basename "$img")
   count=$((count+1))
   
-  dimensions=$(identify -format "%w/%h" "$img")
+  # Get image dimensions
+  dimensions=$(extract_jpeg_dimensions "$img")
   
-  # Create a tiny thumbnail with aggressive optimization
-  # 1. Small size (10x10 pixels)
-  # 2. Very low quality (10)
-  # 3. Apply stronger blur
-  # 4. Use WebP format for better compression
-  # 5. Strip all metadata
-  # 6. Dither to reduce colors
-  base64_img=$(magick "$img" -resize 16x16 -blur 0x1 -quality 10 -strip -dither FloydSteinberg -colors 8 webp:- | base64 -w 0)
+  # Create WebP thumbnail using cwebp
+  temp_webp="$TEMP_DIR/${filename%.*}.webp"
+  
+  # Use cwebp with aggressive settings:
+  # - Tiny size (8x8)
+  # - Low quality (10)
+  # - Use strong filter
+  # - Use sharp YUV
+  # - Quiet mode to suppress output
+  cwebp -quiet -resize 16 0 -q 10 -f 60 -strong -sharp_yuv "$img" -o "$temp_webp"
+  
+  # Convert to base64
+  base64_img=$(base64 -w 0 "$temp_webp")
   
   # Add to JSON
   echo "  \"$filename\": {" >> $OUTPUT_FILE
@@ -39,6 +71,7 @@ for img in $IMAGES_DIR/*.jpg; do
   echo "Processed: $filename"
 done
 
+# Close JSON file
 echo "}" >> $OUTPUT_FILE
 
 echo "Processing complete: Generated $count thumbnails"
