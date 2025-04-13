@@ -82,8 +82,7 @@
               mkdir -p src/_data
               chmod -R +w src/_data
 
-              python3 $src/bin/generate_thumbs
-
+              ${scriptPkgs.generate_thumbs}/bin/generate_thumbs
               ${scriptPkgs.build}/bin/build
               ${scriptPkgs.tidy_html}/bin/tidy_html
             '';
