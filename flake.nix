@@ -14,21 +14,19 @@
 
       makeDeps =
         pkgs: with pkgs; [
-          biome
-          html-tidy
-          sass
-          yarn
-          python3
-          python3Packages.pillow
+          biome # linting
+          html-tidy # post-build tidying
+          sass # styles
+          yarn # eleventy
+          python3 # image thumbs
+          python3Packages.pillow # ditto
         ];
 
       mkUtils =
         system:
         let
           pkgs = import nixpkgs { inherit system; };
-
           deps = makeDeps pkgs;
-
           nodeModules = pkgs.mkYarnModules {
             pname = "chobble-template-dependencies";
             version = "1.0.1";
@@ -51,7 +49,9 @@
               inherit name;
               paths = [ patched ] ++ deps;
               buildInputs = [ pkgs.makeWrapper ];
-              postBuild = "wrapProgram $out/bin/${name} --prefix PATH : $out/bin";
+              postBuild = ''
+                wrapProgram $out/bin/${name} --prefix PATH : $out/bin
+              '';
             };
 
           scripts = builtins.attrNames (builtins.readDir ./bin);
@@ -137,17 +137,20 @@
               rm -rf node_modules
               cp -r ${pkgsFor.nodeModules}/node_modules .
               chmod -R +w ./node_modules
+              cat <<EOF
 
-              echo "Development environment ready!"
-              echo ""
-              echo "Available commands:"
-              echo " - 'serve'      - Start development server"
-              echo " - 'build'      - Build the site in the _site directory"
-              echo " - 'dryrun'     - Perform a dry run build"
-              echo " - 'tidy_html'  - Format HTML files in _site"
-              echo " - 'test_flake' - Test building a site using flake.nix"
-              echo " - 'lint'       - Lint all files in src using Biome"
-              echo ""
+              Development environment ready!
+
+              Available commands:
+               - 'serve'      - Start development server
+               - 'build'      - Build the site in the _site directory
+               - 'dryrun'     - Perform a dry run build
+               - 'tidy_html'  - Format HTML files in _site
+               - 'test_flake' - Test building a site using flake.nix
+               - 'lint'       - Lint all files in src using Biome
+
+              EOF
+
               git pull
             '';
           };
