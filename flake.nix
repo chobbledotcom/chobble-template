@@ -10,13 +10,24 @@
         "x86_64-linux"
         # "aarch64-linux"
       ];
-
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
+
+      makeDeps =
+        pkgs: with pkgs; [
+          biome
+          html-tidy
+          sass
+          yarn
+          python3
+          python3Packages.pillow
+        ];
 
       mkUtils =
         system:
         let
           pkgs = import nixpkgs { inherit system; };
+
+          deps = makeDeps pkgs;
 
           nodeModules = pkgs.mkYarnModules {
             pname = "chobble-template-dependencies";
@@ -27,15 +38,6 @@
               "--frozen-lockfile"
             ];
           };
-
-          deps = with pkgs; [
-            biome
-            html-tidy
-            sass
-            yarn
-            python3
-            python3Packages.pillow
-          ];
 
           mkScript =
             name:
@@ -104,8 +106,8 @@
             scripts
             scriptPkgs
             site
+            nodeModules
             ;
-          inherit nodeModules;
         };
     in
     {
@@ -151,6 +153,5 @@
           };
         }
       );
-
     };
 }
