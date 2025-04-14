@@ -33,7 +33,7 @@ async function imageShortcode(
     decoding: "async",
   };
 
-  const wrapperClasses = ["img-wrapper"];
+  const wrapperClasses = ["image-wrapper"];
   if (classes && classes.trim()) {
     imageAttributes.class = classes;
     wrapperClasses.push(classes);

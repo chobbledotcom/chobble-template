@@ -87,7 +87,8 @@ main {
   width: var(--width-content);
   max-width: 100%;
   .content {
-    img {
+    img,
+    .image-wrapper {
       display: block;
       margin: 0 auto;
       width: 100%;
@@ -104,7 +105,7 @@ img {
   position: relative;
 }
 
-.img-wrapper {
+.image-wrapper {
   position: relative;
   display: block;
   background-size: cover;
@@ -436,7 +437,7 @@ ul.team {
       padding-left: 11rem;
       min-height: 10rem;
       position: relative;
-      .image {
+      .image-link {
         position: absolute;
         width: 10rem;
         left: 0;
