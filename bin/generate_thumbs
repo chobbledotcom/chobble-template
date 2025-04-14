@@ -19,8 +19,9 @@ extract_jpeg_dimensions() {
   if [[ $info =~ ([0-9]+)x([0-9]+) ]]; then
     echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
   else
-    # Default if we can't extract dimensions
-    echo "1/1"
+    echo "ERROR: Could not extract image dimensions from: $file" >&2
+    echo "File output: $info" >&2
+    exit 1
   fi
 }
 
