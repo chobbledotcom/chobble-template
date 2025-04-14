@@ -38,10 +38,10 @@ for img in $IMAGES_DIR/*.jpg; do
   temp_webp="$TEMP_DIR/${filename%.*}.webp"
 
   # Use cwebp with aggressive settings:
-  # - Tiny size (16px wide)
-  # - Low quality (10)
+  # - Tiny size (32px wide)
+  # - Low quality (20)
   # - Quiet mode to suppress output
-  cwebp -quiet -resize 16 0 -q 10 "$img" -o "$temp_webp"
+  cwebp -quiet -resize 32 0 -q 20 "$img" -o "$temp_webp"
 
   base64_img=$(base64 -w 0 "$temp_webp")
 
