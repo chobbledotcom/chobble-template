@@ -8,8 +8,9 @@
         href="{{ url }}"
         class="image-link"
       >
+        <!-- once sizes="auto" is supported by Firefox, switch to that -->
         <figure>
-          {% image image.filename, image.alt, site.products.gallery_thumb_widths %}
+          {% image image.filename, image.alt, site.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
           <figcaption>
             {{- image.alt -}}
           </figcaption>
