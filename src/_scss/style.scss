@@ -71,7 +71,7 @@ body > header {
     position: relative;
   }
 
-  img.banner {
+  .banner {
     position: absolute;
     top: 0;
     left: 0;
@@ -101,8 +101,17 @@ main {
 img {
   background-size: cover !important;
   color: transparent;
+  position: relative;
 }
 
+.img-wrapper {
+  position: relative;
+  display: block;
+  background-size: cover;
+  background-position: center;
+  background-image: var(--img-thumbnail);
+  aspect-ratio: var(--img-aspect-ratio);
+}
 
 body > footer {
   background: var(--color-bg-secondary);

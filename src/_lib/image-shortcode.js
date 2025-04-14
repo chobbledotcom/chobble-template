@@ -33,19 +33,28 @@ async function imageShortcode(
     decoding: "async",
   };
 
+  const wrapperClasses = ["img-wrapper"];
   if (classes && classes.trim()) {
     imageAttributes.class = classes;
+    wrapperClasses.push(classes);
   }
 
+  const imgHtml = Image.generateHTML(metadata, imageAttributes);
+
+  let styleAttrs = "";
   if (thumbnailData) {
-    imageAttributes.style = `
-		  background-size: cover;
-		  background-image: url('${thumbnailData.base64}');
-		  aspect-ratio: ${thumbnailData.aspect_ratio};
-		`;
+    styleAttrs = `
+      style="
+        --img-thumbnail: url('${thumbnailData.base64}');
+        --img-aspect-ratio: ${thumbnailData.aspect_ratio};
+      "
+    `;
   }
 
-  return Image.generateHTML(metadata, imageAttributes);
+  return `<div
+    ${styleAttrs}
+    class="${wrapperClasses.join(" ")}"
+  >${imgHtml}</div>`;
 }
 
 module.exports = { imageShortcode };
