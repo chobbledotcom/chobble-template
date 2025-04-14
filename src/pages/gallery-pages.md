@@ -4,6 +4,6 @@ pagination:
   data: galleryPages
   size: 1
   alias: page
-permalink: "/products/{{ page.productSlug }}/{{ page.imageName | slug }}/index.html"
+permalink: "/{{ strings.product_permalink_dir }}/{{ page.productSlug }}/{{ page.imageName | slug }}/index.html"
 eleventyExcludeFromCollections: true
 ---

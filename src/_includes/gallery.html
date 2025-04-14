@@ -1,7 +1,7 @@
 <ul id="gallery" class="image-gallery">
   {%- for image in gallery -%}
     {%- capture url -%}
-      /products/{{ page.fileSlug }}/{{ image.alt | slugify }}/#content
+      /{{ strings.product_permalink_dir }}/{{ page.fileSlug }}/{{ image.alt | slugify }}/#content
     {%- endcapture -%}
     <li>
       <a

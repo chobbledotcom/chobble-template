@@ -20,6 +20,7 @@ Featuring common business website features like:
 - Galleries
 - A contact form using Formspark and Botpoison
 - Heading images
+- Customisable strings
 
 And Nix'y features like:
 
@@ -35,27 +36,5 @@ And Eleventy features like:
 - A directory to store favicon cruft
 - A `_data/site.json` metadata store
 - A `collection.images` collection of the files in `src/images`
-
-## Changing Packages
-
-If you want to change the packages in `packages.json`, here's the steps:
-
-- Remove all `nodeModules` lines from `node-deps.nix` and `flake.nix`
-- Use `direnv reload` or `nix develop` to get a dev shell
-- Add the new packages to `node-deps.nix` and run `direnv reload` to re-build `packages.json`
-- Run `yarn -l` to create a new `yard.lock`
-- Re-add the `nodeModule` lines to `node-deps.nix` and `flake.nix`
-
-## Upgrading Packages
-
-This is a little fiddlier:
-
-- Remove all `nodeModules` lines from `node-deps.nix` and `flake.nix`
-- Copy the generated `package.json` to your clipboard
-- Delete `package.json` to remove the symbolic link
-- Paste your clipbard back into a new `package.json`
-- Run `yarn upgrade` to create a new `yarn.lock` and update `package.json`
-- Copy those new version numbers from `package.json` to `node-deps.nix`
-- Re-add the `nodeModule` lines to `node-deps.nix` and `flake.nix`
 
 ..I do intend to make those steps simpler some day. If you've got ideas of how I could, please contact me!
