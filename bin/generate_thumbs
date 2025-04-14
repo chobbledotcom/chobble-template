@@ -12,11 +12,9 @@ trap 'rm -rf "$TEMP_DIR"' EXIT
 
 extract_jpeg_dimensions() {
   local file="$1"
-  # Example output: "JPEG image data, JFIF standard 1.01, resolution (DPI), density 72x72, segment length 16, baseline, precision 8, 1920x1080, components 3"
   local info=$(file "$file")
 
-  # Extract dimensions using regex - look for ", dimensions, " pattern
-  if [[ $info =~ ,\s*([0-9]+)x([0-9]+),\s* ]]; then
+  if [[ $info =~ \,\ ([0-9]+)x([0-9]+), ]]; then
     echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
   else
     echo "ERROR: Could not extract image dimensions from: $file" >&2
