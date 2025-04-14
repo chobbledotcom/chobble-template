@@ -17,16 +17,10 @@ layout: base.html
 
 {% assign categories = collections.categories %}
 {% assign categories = categories | where: "data.parent", page.fileSlug %}
-
 {% if categories.size > 0 %}
   <h2>Subcategories</h2>
-  <ul class="items">
-    {% for category in categories %}
-      {% assign show_subcategories = true %}
-      {% assign show_product_count = false %}
-      {% include "category-list-item.html" %}
-    {% endfor %}
-  </ul>
+  {% assign show_subcategories = true %}
+  {% include "categories-list.html" %}
 {% endif %}
 
 {% assign products = collections.products | getProductsByCategory: page.fileSlug %}

@@ -1,16 +1,10 @@
 ---
+# Lists all of the root categories
 layout: base.html
 ---
 
 {{- content -}}
 
 {%- assign show_subcategories = true -%}
-{%- assign show_product_count = false -%}
-
-<ul class="categories">
-  {%- for category in collections.categories -%}
-    {%- unless category.data.parent -%}
-      {%- include "category-list-item.html" -%}
-    {%- endunless -%}
-  {%- endfor -%}
-</ul>
+{%- assign categories = collections.categories | where_exp: "item", "item.data.parent == nil" -%}
+{%- include "categories-list.html" -%}
