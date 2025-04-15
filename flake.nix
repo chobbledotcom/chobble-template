@@ -16,7 +16,6 @@
         pkgs: with pkgs; [
           biome # linting
           html-tidy # post-build tidying
-          libwebp # thumbs
           sass # styles
           yarn # eleventy
         ];
@@ -82,7 +81,6 @@
               mkdir -p src/_data
               chmod -R +w src/_data
 
-              ${scriptPkgs.generate_thumbs}/bin/generate_thumbs
               ${scriptPkgs.build}/bin/build
               ${scriptPkgs.tidy_html}/bin/tidy_html
             '';
