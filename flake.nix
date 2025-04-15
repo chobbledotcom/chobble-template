@@ -80,7 +80,6 @@
               chmod -R +w src/_data
 
               ${scriptPkgs.build}/bin/build
-              ${scriptPkgs.tidy_html}/bin/tidy_html
             '';
 
             installPhase = ''
@@ -139,7 +138,6 @@
                - 'serve'      - Start development server
                - 'build'      - Build the site in the _site directory
                - 'dryrun'     - Perform a dry run build
-               - 'tidy_html'  - Format HTML files in _site
                - 'test_flake' - Test building a site using flake.nix
                - 'lint'       - Lint all files in src using Biome
 
