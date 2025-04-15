@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: chobble # node:latest but with eleventy etc preinstalled: https://git.chobble.com/chobble/docker-image
+    runs-on: chobble # node:latest but with 11ty, Yarn etc preinstalled: https://git.chobble.com/chobble/docker-image
     steps:
       - name: Checkout
         uses: https://git.chobble.com/mirrored/checkout@v4
@@ -16,9 +16,9 @@ jobs:
           sed -i 's/"formspark_id": null/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/site.json
           sed -i 's/"botpoison_public_key": null/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/site.json
 
-      - name: Build with Node
+      - name: Build with Yarn
         run: |
-          npx @11ty/eleventy
+          yarn eleventy
 
       - name: Deploy to neocities
         uses: https://git.chobble.com/mirrored/deploy-to-neocities@v3
