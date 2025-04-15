@@ -9,7 +9,7 @@ jobs:
     runs-on: native # chobble
     steps:
       - name: Checkout
-        uses: https://git.chobble.com/mirrored/actions/checkout@v4
+        uses: https://git.chobble.com/mirrored/checkout@v4
 
       - name: Update site.json with secrets
         run: |
