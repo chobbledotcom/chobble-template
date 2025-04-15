@@ -100,6 +100,16 @@ async function transformImages(content) {
     }),
   );
 
+  // Fix invalid HTML where divs are the sole child of paragraph tags
+  const paragraphs = dom.window.document.querySelectorAll("p");
+  paragraphs.forEach((p) => {
+    if (p.childNodes.length === 1 && p.firstChild.nodeName === "DIV") {
+      const div = p.firstChild;
+      p.parentNode.insertBefore(div, p);
+      p.parentNode.removeChild(p);
+    }
+  });
+
   return dom.serialize();
 }
 

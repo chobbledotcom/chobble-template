@@ -15,7 +15,6 @@
       makeDeps =
         pkgs: with pkgs; [
           biome # linting
-          html-tidy # post-build tidying
           yarn # eleventy
         ];
 

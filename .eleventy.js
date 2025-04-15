@@ -9,6 +9,7 @@ module.exports = async function (eleventyConfig) {
   const navUtil = require("@11ty/eleventy-navigation/eleventy-navigation");
   const sass = require("sass");
   const path = await import("path");
+  const prettier = require("prettier");
   const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
   const { transformImages, imageShortcode } = require("./src/_lib/image");
 
@@ -165,6 +166,18 @@ module.exports = async function (eleventyConfig) {
         return sass.compileString(inputContent).css;
       };
     },
+  });
+
+  eleventyConfig.addTransform("prettier", function (content, outputPath) {
+    const extname = outputPath ? path.extname(outputPath) : ".html";
+    if (extname !== ".html") return content;
+    const parser = extname.replace(/^./, "");
+    try {
+      return prettier.format(content, { parser });
+    } catch {
+      console.log(`Failed to format ${outputPath}`);
+      return content;
+    }
   });
 
   return {
