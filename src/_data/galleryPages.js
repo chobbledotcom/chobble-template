@@ -4,8 +4,6 @@ module.exports = async () => {
   const path = require("path");
   const fs = require("fs");
   const slugify = require("slugify");
-  const { getThumbnailData } = require("../_lib/thumbnails");
-
   const productFiles = glob.sync("src/products/*.md");
 
   productFiles.forEach((productPath) => {
