@@ -7,6 +7,7 @@ module.exports = async function (eleventyConfig) {
   const md = new markdownIt.default({ html: true });
   const nav = require("@11ty/eleventy-navigation");
   const navUtil = require("@11ty/eleventy-navigation/eleventy-navigation");
+  const sass = require("sass");
   const path = await import("path");
   const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
   const { transformImages, imageShortcode } = require("./src/_lib/image");
@@ -154,6 +155,16 @@ module.exports = async function (eleventyConfig) {
     if (!fs.existsSync(snippetPath)) return "";
     const content = fs.readFileSync(snippetPath, "utf8");
     return md.render(content);
+  });
+
+  eleventyConfig.addTemplateFormats("scss");
+  eleventyConfig.addExtension("scss", {
+    outputFileExtension: "css",
+    compile: async function (inputContent) {
+      return async (data) => {
+        return sass.compileString(inputContent).css;
+      };
+    },
   });
 
   return {

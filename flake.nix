@@ -16,7 +16,6 @@
         pkgs: with pkgs; [
           biome # linting
           html-tidy # post-build tidying
-          sass # styles
           yarn # eleventy
         ];
 
