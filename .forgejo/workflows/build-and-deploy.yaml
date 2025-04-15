@@ -9,7 +9,7 @@ jobs:
     runs-on: native # chobble
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: https://git.chobble.com/mirrored/actions/checkout@v4
 
       - name: Update site.json with secrets
         run: |
@@ -28,7 +28,7 @@ jobs:
           cp -r result-/_site/* "$DEPLOY_PATH"/
 
       - name: Deploy to neocities
-        uses: bcomnes/deploy-to-neocities@v3
+        uses: https://git.chobble.com/mirrored/deploy-to-neocities@v3
         with:
           api_key: ${{ secrets.NEOCITIES_API_KEY }}
           cleanup: true
