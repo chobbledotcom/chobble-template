@@ -19,7 +19,6 @@ jobs:
       - name: Build
         id: build
         run: |
-          # sass --update src/_scss:_site/css --style expanded
           # yarn --offline eleventy
           # mv _site dist
           DEPLOY_PATH="$GITHUB_WORKSPACE/dist"

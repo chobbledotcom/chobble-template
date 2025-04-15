@@ -18,7 +18,7 @@ eleventyNavigation:
 You can check out [the source code for this template]({{ site.template_repo_url }}) - it's:
 
 - An [Eleventy]({{ site.template_repo_url }}/src/branch/main/.eleventy.js) site
-- Using [mvp.css]({{ site.template_repo_url }}/src/branch/main/src/\_scss/mvp.scss) and semantic HTML
+- Using [mvp.css]({{ site.template_repo_url }}/src/branch/main/src/css/mvp.scss) and semantic HTML
 - Built with Nix and [Forgejo Actions]({{ site.template_repo_url }}/src/branch/main/.forgejo/workflows/neocities.yaml)
 - Hosted on [Neocities](https://neocities.org/site/chobble-example)
 - With a Formspark & Botpoison spam-protected [contact form]({{ site.template_repo_url }}/src/branch/main/src/\_includes/contact-form.html)
