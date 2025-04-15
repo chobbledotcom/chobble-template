@@ -18,7 +18,7 @@ jobs:
 
       - name: Build with Yarn
         run: |
-          yarn dlx @11ty/eleventy
+          yarn exec eleventy
 
       - name: Deploy to neocities
         uses: https://git.chobble.com/mirrored/deploy-to-neocities@v3
