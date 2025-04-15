@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 rm -rf _site
-yarn eleventy --serve --incremental --quiet
+npx @11ty/eleventy --serve --incremental --quiet

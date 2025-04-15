@@ -15,7 +15,7 @@
       makeDeps =
         pkgs: with pkgs; [
           biome # linting
-          yarn-berry # eleventy
+          nodejs_23
         ];
 
       mkUtils =
