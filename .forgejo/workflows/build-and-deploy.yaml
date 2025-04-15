@@ -18,6 +18,7 @@ jobs:
 
       - name: Build with Yarn
         run: |
+          corepack enable
           yarn dlx -p @11ty/eleventy eleventy
 
       - name: Deploy to neocities
