@@ -18,7 +18,6 @@ jobs:
 
       - name: Build with Node
         run: |
-          cd combined
           npx @11ty/eleventy
 
       - name: Deploy to neocities
