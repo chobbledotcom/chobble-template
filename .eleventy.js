@@ -1,14 +1,14 @@
-module.exports = async function (eleventyConfig) {
-  const fastglob = await import("fast-glob");
-  const fg = fastglob.default;
-  const fs = await import("fs");
+module.exports = function (eleventyConfig) {
+  const fastglob = require("fast-glob");
+  const fg = fastglob;
+  const fs = require("fs");
   const images = fg.sync(["src/images/*.jpg"]);
-  const markdownIt = await import("markdown-it");
-  const md = new markdownIt.default({ html: true });
+  const markdownIt = require("markdown-it");
+  const md = new markdownIt({ html: true });
   const nav = require("@11ty/eleventy-navigation");
   const navUtil = require("@11ty/eleventy-navigation/eleventy-navigation");
   const sass = require("sass");
-  const path = await import("path");
+  const path = require("path");
   const prettier = require("prettier");
   const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
   const { transformImages, imageShortcode } = require("./src/_lib/image");
@@ -161,8 +161,8 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.addTemplateFormats("scss");
   eleventyConfig.addExtension("scss", {
     outputFileExtension: "css",
-    compile: async function (inputContent) {
-      return async (data) => {
+    compile: function (inputContent) {
+      return function (data) {
         return sass.compileString(inputContent).css;
       };
     },
