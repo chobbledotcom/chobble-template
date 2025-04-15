@@ -1,6 +1,6 @@
 {
-  "layout": "product.html",
-  "tags": "product",
-  "navigationParent": "Products",
-  "permalink": "{% if strings.product_permalink_dir %}{{ strings.product_permalink_dir }}{% else %}products{% endif %}/{{ page.fileSlug }}/"
+	"layout": "product.html",
+	"tags": "product",
+	"navigationParent": "Products",
+	"permalink": "{% if strings.product_permalink_dir %}{{ strings.product_permalink_dir }}{% else %}products{% endif %}/{{ page.fileSlug }}/"
 }

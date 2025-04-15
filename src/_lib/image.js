@@ -1,98 +1,110 @@
 const { getThumbnailData } = require("./thumbnails.js");
 const Image = require("@11ty/eleventy-img");
 const { JSDOM } = require("jsdom");
+const fs = require("fs");
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_OPTIONS = {
-  formats: ["webp", "jpeg"],
-  outputDir: ".image-cache",
-  urlPath: "/img/",
-  svgShortCircuit: true,
+	formats: ["webp", "jpeg"],
+	outputDir: ".image-cache",
+	urlPath: "/img/",
+	svgShortCircuit: true,
 };
 
 async function processAndWrapImage(
-  imageName,
-  alt,
-  classes,
-  sizes = "100vw",
-  widths = null,
-  returnElement = false,
+	imageName,
+	alt,
+	classes,
+	sizes = "100vw",
+	widths = null,
+	returnElement = false,
 ) {
-  if (typeof widths === "string") {
-    widths = widths.split(",");
-  }
+	if (typeof widths === "string") {
+		widths = widths.split(",");
+	}
 
-  const div = new JSDOM().window.document.createElement("div");
-  div.classList.add("img-wrapper");
-  if (classes) div.classList.add(...classes);
+	const div = new JSDOM().window.document.createElement("div");
+	div.classList.add("image-wrapper");
+	if (classes) div.classList.add(classes);
 
-  const thumbnailData = getThumbnailData(imageName);
-  div.style.setProperty("--img-thumbnail", `url('${thumbnailData.base64}')`);
-  div.style.setProperty("--img-aspect-ratio", thumbnailData.aspect_ratio);
+	const image = await Image(`src/images/${imageName}`, {
+		...DEFAULT_OPTIONS,
+		widths: widths || DEFAULT_WIDTHS,
+	});
 
-  const metadata = await Image(`src/images/${imageName}`, {
-    ...DEFAULT_OPTIONS,
-    widths: widths || DEFAULT_WIDTHS,
-  });
+	const thumbnail = await Image(`src/images/${imageName}`, {
+		...DEFAULT_OPTIONS,
+		widths: [32],
+		formats: ["webp"],
+	});
+	const thumbPath = thumbnail.webp[0].outputPath;
+	const aspectRatio = `${thumbnail.webp[0].width}/${thumbnail.webp[0].height}`;
+	const base64 = fs.readFileSync(thumbPath).toString("base64");
 
-  const imageAttributes = {
-    alt,
-    sizes,
-    loading: "lazy",
-    decoding: "async",
-  };
-  if (classes && classes.trim()) imageAttributes.class = classes;
-  div.innerHTML = Image.generateHTML(metadata, imageAttributes);
+	div.style.setProperty(
+		"--img-thumbnail",
+		`url('data:image/webp;base64,${base64}')`,
+	);
+	div.style.setProperty("--img-aspect-ratio", aspectRatio);
 
-  return returnElement ? div : div.outerHTML;
+	const imageAttributes = {
+		alt,
+		sizes,
+		loading: "lazy",
+		decoding: "async",
+	};
+	if (classes && classes.trim()) imageAttributes.class = classes;
+	div.innerHTML = Image.generateHTML(image, imageAttributes);
+
+	return returnElement ? div : div.outerHTML;
 }
 
 async function imageShortcode(
-  imageName,
-  alt,
-  widths,
-  classes = "",
-  sizes = "100vw",
+	imageName,
+	alt,
+	widths,
+	classes = "",
+	sizes = "100vw",
 ) {
-  return await processAndWrapImage(
-    imageName,
-    alt,
-    classes,
-    sizes,
-    widths,
-    false,
-  );
+	return await processAndWrapImage(
+		imageName,
+		alt,
+		classes,
+		sizes,
+		widths,
+		false,
+	);
 }
 
 async function transformImages(content) {
-  if (!content || !content.includes("<img")) return content;
+	if (!content || !content.includes("<img")) return content;
 
-  const dom = new JSDOM(content);
-  const images = dom.window.document.querySelectorAll('img[src^="/images/"]');
+	const dom = new JSDOM(content);
+	const images = dom.window.document.querySelectorAll('img[src^="/images/"]');
 
-  if (images.length === 0) return content;
+	if (images.length === 0) return content;
 
-  await Promise.all(
-    Array.from(images).map(async (img) => {
-      if (img.parentNode.classList.contains("img-wrapper")) return;
-      img.parentNode.replaceChild(
-        await processAndWrapImage(
-          img.getAttribute("src").replace("/images/", ""),
-          img.getAttribute("alt") || "",
-          img.getAttribute("class") || "",
-          img.getAttribute("sizes") || "100vw",
-          img.getAttribute("widths") || "",
-          true,
-        ),
-        img,
-      );
-    }),
-  );
+	await Promise.all(
+		Array.from(images).map(async (img) => {
+			if (img.parentNode.classList.contains("image-wrapper")) return;
+			img.parentNode.replaceChild(
+				await processAndWrapImage(
+					img.getAttribute("src").replace("/images/", ""),
+					img.getAttribute("alt") || "",
+					img.getAttribute("class") || "",
+					img.getAttribute("sizes") || "100vw",
+					img.getAttribute("widths") || "",
+					true,
+				),
+				img,
+			);
+		}),
+	);
 
-  return dom.serialize();
+	return dom.serialize();
 }
 
 module.exports = {
-  imageShortcode,
-  transformImages,
+	imageShortcode,
+	transformImages,
 };

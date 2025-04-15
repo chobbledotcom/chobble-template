@@ -8,10 +8,10 @@ const baseStrings = require("./strings-base.json");
 
 let userStrings = {};
 try {
-  userStrings = require("./strings.json");
+	userStrings = require("./strings.json");
 } catch (e) {}
 
 module.exports = {
-  ...baseStrings,
-  ...userStrings,
+	...baseStrings,
+	...userStrings,
 };
