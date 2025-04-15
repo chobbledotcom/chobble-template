@@ -18,6 +18,7 @@ jobs:
 
       - name: Build with Yarn
         run: |
+          yarn add @11ty/eleventy
           yarn exec eleventy
 
       - name: Deploy to neocities
