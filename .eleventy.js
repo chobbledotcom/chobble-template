@@ -151,6 +151,11 @@ module.exports = function (eleventyConfig) {
     return fs.existsSync(snippetPath);
   });
 
+  eleventyConfig.addFilter("file_missing", (name) => {
+    const snippetPath = path.join(process.cwd(), name);
+    return !fs.existsSync(snippetPath);
+  });
+
   eleventyConfig.addShortcode("render_snippet", (name) => {
     const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
     if (!fs.existsSync(snippetPath)) return "";

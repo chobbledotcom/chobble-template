@@ -470,6 +470,15 @@ body {
       }
     }
   }
+  &.product {
+    .current-image {
+      margin-bottom: 1rem;
+    }
+
+    .gallery-full-size-images {
+      display: none;
+    }
+  }
 }
 
 // Gallery single image page styles

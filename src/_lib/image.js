@@ -11,6 +11,7 @@ const DEFAULT_OPTIONS = {
 };
 
 async function processAndWrapImage(
+  logName,
   imageName,
   alt,
   classes,
@@ -26,10 +27,16 @@ async function processAndWrapImage(
   div.classList.add("image-wrapper");
   if (classes) div.classList.add(classes);
 
-  const image = await Image(`src/images/${imageName}`, {
-    ...DEFAULT_OPTIONS,
-    widths: widths || DEFAULT_WIDTHS,
-  });
+  let image;
+  try {
+    image = await Image(`src/images/${imageName}`, {
+      ...DEFAULT_OPTIONS,
+      widths: widths || DEFAULT_WIDTHS,
+    });
+  } catch {
+    console.log(`ERROR: Couldn't process ${imageName}, ${logName}`);
+    return div;
+  }
 
   const thumbnail = await Image(`src/images/${imageName}`, {
     ...DEFAULT_OPTIONS,
@@ -66,6 +73,7 @@ async function imageShortcode(
   sizes = "100vw",
 ) {
   return await processAndWrapImage(
+    `imageShortcode: ${imageName}`,
     imageName,
     alt,
     classes,
@@ -88,6 +96,7 @@ async function transformImages(content) {
       if (img.parentNode.classList.contains("image-wrapper")) return;
       img.parentNode.replaceChild(
         await processAndWrapImage(
+          `transformImages: ${img}`,
           img.getAttribute("src").replace("/images/", ""),
           img.getAttribute("alt") || "",
           img.getAttribute("class") || "",
