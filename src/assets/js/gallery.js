@@ -1,17 +1,30 @@
 (() => {
-  document.addEventListener("DOMContentLoaded", () => {
-    const gallerySwitcherLinks = document.querySelectorAll(".gallery-switcher");
-    const currentImage = document.querySelector(".current-image");
-    if (!currentImage) return;
-    gallerySwitcherLinks.forEach((el) => {
-      el.addEventListener("click", (event) => {
-        const imageLink = event.target.closest(".image-link");
+  const initGallery = () => {
+    const gallery = document.getElementById('gallery');
+    const currentImage = document.querySelector('.current-image');
+    
+    if (!gallery || !currentImage) return;
+    
+    gallery.addEventListener('click', (event) => {
+      const imageLink = event.target.closest('.image-link');
+      
+      if (imageLink) {
         event.preventDefault();
-        const index = imageLink.getAttribute("data-index");
+        
+        const index = imageLink.getAttribute('data-index');
         const fullImage = document.querySelector(`.full-image-${index}`);
-        currentImage.innerHTML = fullImage.innerHTML;
-        currentImage.scrollIntoView({ behavior: "smooth" });
-      });
+        
+        if (fullImage) {
+          currentImage.innerHTML = fullImage.innerHTML;
+          currentImage.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     });
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGallery);
+  } else {
+    initGallery();
+  }
 })();
