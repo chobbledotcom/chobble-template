@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 rm -rf _site
-yarn dlx -p @11ty/eleventy eleventy
+npx @11ty/eleventy
