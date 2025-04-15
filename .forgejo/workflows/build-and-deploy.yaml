@@ -16,9 +16,9 @@ jobs:
           sed -i 's/"formspark_id": null/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/site.json
           sed -i 's/"botpoison_public_key": null/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/site.json
 
-      - name: Build with Yarn
+      - name: Build with Node
         run: |
-          yarn dlx -p @11ty/eleventy eleventy
+          npx @11ty/eleventy
 
       - name: Deploy to neocities
         uses: https://git.chobble.com/mirrored/deploy-to-neocities@v3
