@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-yarn eleventy --dryrun --quiet
+npx @11ty/eleventy --dryrun --quiet
