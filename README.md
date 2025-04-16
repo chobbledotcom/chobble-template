@@ -7,6 +7,7 @@
 - [example.chobble.com](https://example.chobble.com) (hosted on Neocities)
 - [example-pgs.chobble.com](https://example-pgs.chobble.com) (hosted on [Pico.sh](https://pico.sh/pgs))
 - [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com) (example builder site)
+- [example-bunny.chobble.com](https://example-bunny.chobble.com) (example builder site, hosted on Bunny.net)
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
 
@@ -21,6 +22,7 @@ Featuring common business website features like:
 - A contact form using Formspark and Botpoison
 - Heading images
 - Customisable strings
+- Responsive images with `srcset` and [base64 low quality placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/)
 
 And Nix'y features like:
 
@@ -36,5 +38,3 @@ And Eleventy features like:
 - A directory to store favicon cruft
 - A `_data/site.json` metadata store
 - A `collection.images` collection of the files in `src/images`
-
-..I do intend to make those steps simpler some day. If you've got ideas of how I could, please contact me!
