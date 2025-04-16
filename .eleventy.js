@@ -1,19 +1,18 @@
-import fastglob from "fast-glob";
-import fs from "fs";
-import markdownIt from "markdown-it";
-import nav from "@11ty/eleventy-navigation";
-import navUtil from "@11ty/eleventy-navigation/eleventy-navigation.js";
-import sass from "sass";
-import path from "path";
-import prettier from "prettier";
-import { feedPlugin } from "@11ty/eleventy-plugin-rss";
-import { transformImages, imageShortcode } from "./src/_lib/image.js";
+module.exports = async function (eleventyConfig) {
+	const fastglob = require("fast-glob");
+	const fg = fastglob;
+	const fs = require("fs");
+	const images = fg.sync(["src/images/*.jpg"]);
+	const markdownIt = require("markdown-it");
+	const md = new markdownIt({ html: true });
+	const nav = require("@11ty/eleventy-navigation");
+	const navUtil = require("@11ty/eleventy-navigation/eleventy-navigation");
+	const sass = require("sass");
+	const path = require("path");
+	const prettier = require("prettier");
+	const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
+	const { transformImages, imageShortcode } = require("./src/_lib/image");
 
-const fg = fastglob;
-const images = fg.sync(["src/images/*.jpg"]);
-const md = new markdownIt({ html: true });
-
-export default async function (eleventyConfig) {
 	eleventyConfig.addWatchTarget("./src/**/*");
 	eleventyConfig
 		.addPassthroughCopy("src/assets")
@@ -198,4 +197,4 @@ export default async function (eleventyConfig) {
 		htmlTemplateEngine: "liquid",
 		markdownTemplateEngine: "liquid",
 	};
-}
+};
