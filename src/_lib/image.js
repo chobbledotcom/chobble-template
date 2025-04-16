@@ -1,6 +1,6 @@
-const Image = require("@11ty/eleventy-img");
-const { JSDOM } = require("jsdom");
-const fs = require("fs");
+import Image from "@11ty/eleventy-img";
+import { JSDOM } from "jsdom";
+import fs from "fs";
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_OPTIONS = {
@@ -122,7 +122,7 @@ async function transformImages(content) {
   return dom.serialize();
 }
 
-module.exports = {
+export {
   imageShortcode,
   transformImages,
 };
