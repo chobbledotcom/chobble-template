@@ -29,14 +29,6 @@ jobs:
           preview_before_deploy: false
           dist_dir: _site
 
-      # - name: Deploy to Pico.sh
-      #   uses: picosh/pgs-action@v4
-      #   with:
-      #     user: chobble
-      #     key: ${{ secrets.PICO_PRIVATE_KEY }}
-      #     src: "./_site/"
-      #     project: "template"
-
       - name: Clean up site
         run: |
           rm -rf _site
