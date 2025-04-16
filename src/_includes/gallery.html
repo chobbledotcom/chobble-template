@@ -6,7 +6,7 @@
   <div class="gallery-full-size-images">
     {%- for image in gallery -%}
       <div class="full-image-{{ forloop.index }}">
-        {% image image.filename, image.alt, site.products.gallery_image_widths, "", "100vw" %}
+        {% image image.filename, image.alt, site.products.gallery_image_widths, "fade-in", "100vw" %}
       </div>
     {% endfor %}
   </div>
