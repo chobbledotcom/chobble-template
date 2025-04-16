@@ -1,6 +1,6 @@
-import EleventyImage from "@11ty/eleventy-img/img.js";
-import { JSDOM } from "jsdom";
-import { readFileSync } from "fs";
+const Image = require("@11ty/eleventy-img");
+const { JSDOM } = require("jsdom");
+const fs = require("fs");
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_OPTIONS = {
@@ -23,20 +23,17 @@ async function processAndWrapImage({
     widths = widths.split(",");
   }
 
-  const {
-    window: { document },
-  } = new JSDOM();
-
+  const { window: { document } } = new JSDOM();
   const div = document.createElement("div");
   div.classList.add("image-wrapper");
   if (classes) div.classList.add(classes);
 
-  const image = await EleventyImage(`src/images/${imageName}`, {
+  const image = await Image(`src/images/${imageName}`, {
     ...DEFAULT_OPTIONS,
     widths: widths || DEFAULT_WIDTHS,
   });
 
-  const thumbnails = await EleventyImage(`src/images/${imageName}`, {
+  const thumbnails = await Image(`src/images/${imageName}`, {
     ...DEFAULT_OPTIONS,
     widths: [32],
     formats: ["webp"],
@@ -44,7 +41,7 @@ async function processAndWrapImage({
 
   const [thumbnail] = thumbnails.webp;
 
-  const base64 = readFileSync(thumbnail.outputPath).toString("base64");
+  const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
   const base64Url = `url('data:image/webp;base64,${base64}')`;
 
   const aspectRatio = `${thumbnail.width}/${thumbnail.height}`;
@@ -58,9 +55,9 @@ async function processAndWrapImage({
     loading: "lazy",
     decoding: "async",
   };
-
+  
   if (classes && classes.trim()) imageAttributes.class = classes;
-  div.innerHTML = EleventyImage.generateHTML(image, imageAttributes);
+  div.innerHTML = Image.generateHTML(image, imageAttributes);
 
   return returnElement ? div : div.outerHTML;
 }
@@ -86,10 +83,7 @@ async function imageShortcode(
 async function transformImages(content) {
   if (!content || !content.includes("<img")) return content;
 
-  const {
-    window: { document },
-  } = new JSDOM(content);
-
+  const { window: { document } } = new JSDOM(content);
   const images = document.querySelectorAll('img[src^="/images/"]');
 
   if (images.length === 0) return content;
@@ -97,7 +91,7 @@ async function transformImages(content) {
   await Promise.all(
     Array.from(images).map(async (img) => {
       if (img.parentNode.classList.contains("image-wrapper")) return;
-
+      
       const { parentNode } = img;
       parentNode.replaceChild(
         await processAndWrapImage({
@@ -127,4 +121,7 @@ async function transformImages(content) {
   return new JSDOM(document.documentElement.outerHTML).serialize();
 }
 
-export { imageShortcode, transformImages };
+module.exports = {
+  imageShortcode,
+  transformImages,
+};

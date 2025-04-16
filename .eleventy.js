@@ -11,7 +11,7 @@ module.exports = async function (eleventyConfig) {
   const path = require("path");
   const prettier = require("prettier");
   const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
-  const { transformImages, imageShortcode } = require("./src/_lib/image.mjs");
+  const { transformImages, imageShortcode } = require("./src/_lib/image");
 
   eleventyConfig.addWatchTarget("./src/**/*");
   eleventyConfig
