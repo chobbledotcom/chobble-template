@@ -1,4 +1,4 @@
-import EleventyImage from "@11ty/eleventy-img";
+import EleventyImage from "@11ty/eleventy-img/img.js";
 import { JSDOM } from "jsdom";
 import { readFileSync } from "fs";
 
