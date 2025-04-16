@@ -31,4 +31,7 @@ jobs:
 
       - name: Clean up site
         run: |
-          rm -rf _site
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
