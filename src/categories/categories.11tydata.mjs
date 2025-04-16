@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	eleventyComputed: {
 		eleventyNavigation: (data) => {
 			if (data.parent != null) return false;
