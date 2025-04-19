@@ -25,7 +25,7 @@
           deps = makeDeps pkgs;
           nodeModules = pkgs.mkYarnModules {
             pname = "chobble-template-dependencies";
-            version = "1.0.1";
+            version = "1.0.0";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
             yarnFlags = [
@@ -73,8 +73,7 @@
               chmod -R a+rwX .image-cache
               cp $src/.eleventy.js .
 
-              cp -r ${nodeModules}/node_modules .
-              chmod -R +w ./node_modules
+              ln -s ${nodeModules}/node_modules node_modules
 
               mkdir -p src/_data
               chmod -R +w src/_data
@@ -128,8 +127,7 @@
 
             shellHook = ''
               rm -rf node_modules
-              cp -r ${pkgsFor.nodeModules}/node_modules .
-              chmod -R +w ./node_modules
+              ln -s ${pkgsFor.nodeModules}/node_modules node_modules
               cat <<EOF
 
               Development environment ready!
