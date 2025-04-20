@@ -3,18 +3,18 @@
     nixpkgs.url = "nixpkgs";
   };
 
-  outputs =
-    { self, nixpkgs }:
+  outputs = { self, nixpkgs }:
     let
       systems = [ "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-
-      mkSystemTools =
-        system:
+    in
+    {
+      packages = forAllSystems (system:
         let
-          pkgs = import nixpkgs { inherit system; };
-          deps = with pkgs; [
-            biome # linting
+          pkgs = import nixpkgs { system = system; };
+          
+          dependencies = with pkgs; [
+            biome
             nodejs_23
           ];
 
@@ -26,30 +26,29 @@
             yarnFlags = [ "--frozen-lockfile" ];
           };
 
-          mkScript =
-            name:
+          makeScript = name:
             let
-              base = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
-              patched = base.overrideAttrs (old: {
+              baseScript = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
+              patchedScript = baseScript.overrideAttrs (old: {
                 buildCommand = "${old.buildCommand}\n patchShebangs $out";
               });
             in
             pkgs.symlinkJoin {
-              inherit name;
-              paths = [ patched ] ++ deps;
+              name = name;
+              paths = [ patchedScript ] ++ dependencies;
               buildInputs = [ pkgs.makeWrapper ];
               postBuild = ''
                 wrapProgram $out/bin/${name} --prefix PATH : $out/bin
               '';
             };
 
-          scripts = builtins.attrNames (builtins.readDir ./bin);
-          scriptPkgs = nixpkgs.lib.genAttrs scripts mkScript;
+          scriptNames = builtins.attrNames (builtins.readDir ./bin);
+          scriptPackages = nixpkgs.lib.genAttrs scriptNames makeScript;
 
-          site = pkgs.stdenv.mkDerivation {
+          sitePackage = pkgs.stdenv.mkDerivation {
             name = "chobble-template";
             src = ./.;
-            buildInputs = deps ++ [ nodeModules ];
+            buildInputs = dependencies ++ [ nodeModules ];
 
             buildPhase = ''
               mkdir -p $TMPDIR/build_dir
@@ -65,7 +64,7 @@
               mkdir -p src/_data
               chmod -R +w src/_data
 
-              ${scriptPkgs.build}/bin/build
+              ${scriptPackages.build}/bin/build
             '';
 
             installPhase = ''
@@ -76,42 +75,62 @@
 
             dontFixup = true;
           };
+
+          allPackages = { 
+            site = sitePackage;
+            nodeModules = nodeModules;
+          } // scriptPackages;
         in
-        {
-          inherit
-            pkgs
-            deps
-            nodeModules
-            scripts
-            scriptPkgs
-            site
-            ;
-        };
-    in
-    {
-      packages = forAllSystems (
-        system:
-        let
-          tools = mkSystemTools system;
-        in
-        { inherit (tools) site nodeModules; } // tools.scriptPkgs
+        allPackages
       );
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
 
-      devShells = forAllSystems (
-        system:
+      devShells = forAllSystems (system:
         let
-          tools = mkSystemTools system;
+          pkgs = import nixpkgs { system = system; };
+          
+          dependencies = with pkgs; [
+            biome
+            nodejs_23
+          ];
+
+          nodeModules = pkgs.mkYarnModules {
+            pname = "chobble-template-dependencies";
+            version = "1.0.0";
+            packageJSON = ./package.json;
+            yarnLock = ./yarn.lock;
+            yarnFlags = [ "--frozen-lockfile" ];
+          };
+
+          makeScript = name:
+            let
+              baseScript = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
+              patchedScript = baseScript.overrideAttrs (old: {
+                buildCommand = "${old.buildCommand}\n patchShebangs $out";
+              });
+            in
+            pkgs.symlinkJoin {
+              name = name;
+              paths = [ patchedScript ] ++ dependencies;
+              buildInputs = [ pkgs.makeWrapper ];
+              postBuild = ''
+                wrapProgram $out/bin/${name} --prefix PATH : $out/bin
+              '';
+            };
+
+          scriptNames = builtins.attrNames (builtins.readDir ./bin);
+          scriptPackages = nixpkgs.lib.genAttrs scriptNames makeScript;
+          
+          scriptPackageList = builtins.attrValues scriptPackages;
         in
-        rec {
-          default = dev;
-          dev = tools.pkgs.mkShell {
-            buildInputs = tools.deps ++ (builtins.attrValues tools.scriptPkgs);
+        {
+          default = pkgs.mkShell {
+            buildInputs = dependencies ++ scriptPackageList;
 
             shellHook = ''
               rm -rf node_modules
-              ln -s ${tools.nodeModules}/node_modules node_modules
+              ln -s ${nodeModules}/node_modules node_modules
               cat <<EOF
 
               Development environment ready!
