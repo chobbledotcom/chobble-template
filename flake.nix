@@ -6,31 +6,24 @@
   outputs =
     { self, nixpkgs }:
     let
-      systems = [
-        "x86_64-linux"
-        # "aarch64-linux"
-      ];
-      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
+      systems = [ "x86_64-linux" ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
 
-      makeDeps =
-        pkgs: with pkgs; [
-          biome # linting
-          nodejs_23
-        ];
-
-      mkUtils =
+      mkSystemTools =
         system:
         let
           pkgs = import nixpkgs { inherit system; };
-          deps = makeDeps pkgs;
+          deps = with pkgs; [
+            biome # linting
+            nodejs_23
+          ];
+
           nodeModules = pkgs.mkYarnModules {
             pname = "chobble-template-dependencies";
             version = "1.0.0";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
-            yarnFlags = [
-              "--frozen-lockfile"
-            ];
+            yarnFlags = [ "--frozen-lockfile" ];
           };
 
           mkScript =
@@ -51,13 +44,7 @@
             };
 
           scripts = builtins.attrNames (builtins.readDir ./bin);
-
-          scriptPkgs = builtins.listToAttrs (
-            map (name: {
-              inherit name;
-              value = mkScript name;
-            }) scripts
-          );
+          scriptPkgs = nixpkgs.lib.genAttrs scripts mkScript;
 
           site = pkgs.stdenv.mkDerivation {
             name = "chobble-template";
@@ -94,11 +81,10 @@
           inherit
             pkgs
             deps
-            mkScript
+            nodeModules
             scripts
             scriptPkgs
             site
-            nodeModules
             ;
         };
     in
@@ -106,28 +92,26 @@
       packages = forAllSystems (
         system:
         let
-          pkgsFor = mkUtils system;
+          tools = mkSystemTools system;
         in
-        (with pkgsFor; {
-          inherit site nodeModules;
-        })
-        // pkgsFor.scriptPkgs
+        { inherit (tools) site nodeModules; } // tools.scriptPkgs
       );
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
+
       devShells = forAllSystems (
         system:
         let
-          pkgsFor = mkUtils system;
+          tools = mkSystemTools system;
         in
         rec {
           default = dev;
-          dev = pkgsFor.pkgs.mkShell {
-            buildInputs = pkgsFor.deps ++ (builtins.attrValues pkgsFor.scriptPkgs);
+          dev = tools.pkgs.mkShell {
+            buildInputs = tools.deps ++ (builtins.attrValues tools.scriptPkgs);
 
             shellHook = ''
               rm -rf node_modules
-              ln -s ${pkgsFor.nodeModules}/node_modules node_modules
+              ln -s ${tools.nodeModules}/node_modules node_modules
               cat <<EOF
 
               Development environment ready!
