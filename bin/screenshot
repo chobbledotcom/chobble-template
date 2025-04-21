@@ -1,0 +1,42 @@
+#!/usr/bin/env nix-shell
+#! nix-shell -i bash -p chromium
+
+BASE_URL="http://localhost:8080"
+OUTPUT_DIR="screenshots"
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 <path> [output-filename]"
+  exit 1
+fi
+
+PATH_TO_SCREENSHOT="$1"
+FULL_URL="${BASE_URL}${PATH_TO_SCREENSHOT}"
+PAGE_NAME=$(echo $PATH_TO_SCREENSHOT | sed 's/\//-/g' | sed 's/^-//')
+if [ "$PAGE_NAME" = "" ]; then
+  PAGE_NAME="home"
+fi
+OUTPUT_FILE="${2:-${OUTPUT_DIR}/${PAGE_NAME}}"
+# Add .png extension if not present
+if [[ "$OUTPUT_FILE" != *.png ]]; then
+  OUTPUT_FILE="${OUTPUT_FILE}.png"
+fi
+
+# Create output directory if it doesn't exist
+mkdir -p "$(dirname "$OUTPUT_FILE")"
+
+echo "Taking screenshot of $FULL_URL"
+echo "Saving to $OUTPUT_FILE"
+
+chromium \
+  --headless \
+  --disable-gpu \
+  --screenshot="$OUTPUT_FILE" \
+  --window-size=1280,4000 \
+  --hide-scrollbars \
+  --default-background-color=FFFFFF \
+  --virtual-time-budget=5000 \
+  --run-all-compositor-stages-before-draw \
+  --capture-screenshot \
+  "$FULL_URL"
+
+echo "Screenshot saved to $OUTPUT_FILE"
