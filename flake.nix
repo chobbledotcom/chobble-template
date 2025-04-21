@@ -3,30 +3,31 @@
     nixpkgs.url = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs =
+    { self, nixpkgs }:
     let
       systems = [ "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
     in
     {
-      packages = forAllSystems (system:
+      packages = forAllSystems (
+        system:
         let
           pkgs = import nixpkgs { system = system; };
-          
-          dependencies = with pkgs; [
-            biome
-            nodejs_23
-          ];
-
+          dependencies = with pkgs; [ nodejs_23 ];
           nodeModules = pkgs.mkYarnModules {
             pname = "chobble-template-dependencies";
             version = "1.0.0";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
-            yarnFlags = [ "--frozen-lockfile" ];
+            yarnFlags = [
+              "--frozen-lockfile"
+              "--ignore-platform"
+            ];
           };
 
-          makeScript = name:
+          makeScript =
+            name:
             let
               baseScript = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
               patchedScript = baseScript.overrideAttrs (old: {
@@ -76,7 +77,7 @@
             dontFixup = true;
           };
 
-          allPackages = { 
+          allPackages = {
             site = sitePackage;
             nodeModules = nodeModules;
           } // scriptPackages;
@@ -86,10 +87,11 @@
 
       defaultPackage = forAllSystems (system: self.packages.${system}.site);
 
-      devShells = forAllSystems (system:
+      devShells = forAllSystems (
+        system:
         let
           pkgs = import nixpkgs { system = system; };
-          
+
           dependencies = with pkgs; [
             biome
             nodejs_23
@@ -100,10 +102,15 @@
             version = "1.0.0";
             packageJSON = ./package.json;
             yarnLock = ./yarn.lock;
-            yarnFlags = [ "--frozen-lockfile" ];
+            yarnFlags = [
+              "--frozen-lockfile"
+              "--ignore-platform"
+              "--ignore-optional"
+            ];
           };
 
-          makeScript = name:
+          makeScript =
+            name:
             let
               baseScript = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
               patchedScript = baseScript.overrideAttrs (old: {
@@ -121,7 +128,7 @@
 
           scriptNames = builtins.attrNames (builtins.readDir ./bin);
           scriptPackages = nixpkgs.lib.genAttrs scriptNames makeScript;
-          
+
           scriptPackageList = builtins.attrValues scriptPackages;
         in
         {
