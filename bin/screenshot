@@ -21,6 +21,8 @@ if [[ "$OUTPUT_FILE" != *.png ]]; then
   OUTPUT_FILE="${OUTPUT_FILE}.png"
 fi
 
+rm "$OUTPUT_FILE"
+
 # Create output directory if it doesn't exist
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
