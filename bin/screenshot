@@ -30,13 +30,28 @@ echo "Saving to $OUTPUT_FILE"
 chromium \
   --headless \
   --disable-gpu \
+  --no-sandbox \
   --screenshot="$OUTPUT_FILE" \
   --window-size=1280,4000 \
   --hide-scrollbars \
   --default-background-color=FFFFFF \
   --virtual-time-budget=5000 \
   --run-all-compositor-stages-before-draw \
-  --capture-screenshot \
-  "$FULL_URL"
+  "$FULL_URL" \
+  --remote-debugging-port=9222 2>/dev/null &
+CHROME_PID=$!
+
+# Wait for the screenshot to be created and reach its final size
+while ! [ -f "$OUTPUT_FILE" ]; do sleep 0.1; done
+PREV_SIZE=0
+CURRENT_SIZE=$(stat -c%s "$OUTPUT_FILE" 2>/dev/null || echo 0)
+while [ $CURRENT_SIZE -ne $PREV_SIZE ]; do
+  PREV_SIZE=$CURRENT_SIZE
+  sleep 0.5
+  CURRENT_SIZE=$(stat -c%s "$OUTPUT_FILE" 2>/dev/null || echo 0)
+done
+
+# Kill the Chromium process
+kill $CHROME_PID 2>/dev/null || true
 
 echo "Screenshot saved to $OUTPUT_FILE"
