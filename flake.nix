@@ -105,7 +105,6 @@
             yarnFlags = [
               "--frozen-lockfile"
               "--ignore-platform"
-              "--ignore-optional"
             ];
           };
 
