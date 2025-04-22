@@ -15,15 +15,17 @@
         let
           pkgs = import nixpkgs { system = system; };
           dependencies = with pkgs; [ nodejs_23 ];
-          nodeModules = pkgs.mkYarnModules {
+          nodeModules = pkgs.buildNpmPackage {
             pname = "chobble-template-dependencies";
             version = "1.0.0";
-            packageJSON = ./package.json;
-            yarnLock = ./yarn.lock;
-            yarnFlags = [
-              "--frozen-lockfile"
-              "--ignore-platform"
-            ];
+            src = pkgs.runCommand "source" {} ''
+              mkdir -p $out
+              cp ${./package.json} $out/package.json
+              cp ${./package-lock.json} $out/package-lock.json
+            '';
+            npmDepsHash = "sha256-ABBMwg/ezTYiC4aWrxYAb53/3PqSvnf00/9p7zB3tvQ=";
+            installPhase = "mkdir -p $out && cp -r node_modules $out/";
+            dontNpmBuild = true;
           };
 
           makeScript =
@@ -97,15 +99,17 @@
             nodejs_23
           ];
 
-          nodeModules = pkgs.mkYarnModules {
+          nodeModules = pkgs.buildNpmPackage {
             pname = "chobble-template-dependencies";
             version = "1.0.0";
-            packageJSON = ./package.json;
-            yarnLock = ./yarn.lock;
-            yarnFlags = [
-              "--frozen-lockfile"
-              "--ignore-platform"
-            ];
+            src = pkgs.runCommand "source" {} ''
+              mkdir -p $out
+              cp ${./package.json} $out/package.json
+              cp ${./package-lock.json} $out/package-lock.json
+            '';
+            npmDepsHash = "sha256-ABBMwg/ezTYiC4aWrxYAb53/3PqSvnf00/9p7zB3tvQ=";
+            installPhase = "mkdir -p $out && cp -r node_modules $out/";
+            dontNpmBuild = true;
           };
 
           makeScript =
