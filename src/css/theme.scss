@@ -57,12 +57,8 @@ header {
   border: none;
   background: var(--color-bg-secondary);
   box-shadow: var(--box-shadow);
-  overflow: hidden;
   
   h1 {
-    text-transform: uppercase;
-    position: relative;
-    display: inline-block;
     text-align: center;
     font-weight: 700;
     font-family: 'Playfair Display', Georgia, serif;
@@ -81,16 +77,10 @@ nav {
   border-bottom: 1px solid #{$gold};
   border-top: 1px solid #{$gold};
   text-align: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   
   a {
     font-family: 'Montserrat', Arial, sans-serif;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
     font-weight: 500;
-    position: relative;
     
     &:hover {
       color: #{$gold};
@@ -99,7 +89,6 @@ nav {
     &.active {
       color: #{$gold};
       text-decoration: underline;
-      font-weight: 600;
     }
   }
 }
@@ -108,7 +97,6 @@ article {
   background: #{$dark-gray};
   border: 1px solid rgba(212, 175, 55, 0.1);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  position: relative;
   
   p {
     color: #{$platinum};
@@ -125,9 +113,7 @@ article {
   }
 }
 
-input[type="text"],
-input[type="password"],
-input[type="email"],
+input,
 textarea {
   background: #{$dark-gray};
   border: 1px solid rgba(212, 175, 55, 0.3);
@@ -139,8 +125,7 @@ textarea {
   }
 }
 
-button, 
-input[type="submit"] {
+button {
   background: linear-gradient(135deg, #{$gold-dark} 0%, #{$gold} 100%);
   border: none;
   color: #{$black};
@@ -156,8 +141,7 @@ input[type="submit"] {
 footer {
   background: #{$black};
   border: none;
-  position: relative;
-  
+
   p {
     color: #{$platinum};
     opacity: 0.8;
@@ -165,26 +149,16 @@ footer {
   
   a {
     color: #{$gold};
-    position: relative;
-    display: inline-block;
-    
-    &:hover {
+   &:hover {
       color: #{$gold-light};
     }
   }
   
   ul {
-    list-style-type: none;
-    display: flex;
-    justify-content: center;
-    
-    li {
+  li {
       a {
         background: rgba(212, 175, 55, 0.1);
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         transition: all 0.3s ease;
         
         img {
