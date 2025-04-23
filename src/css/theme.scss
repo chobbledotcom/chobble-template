@@ -11,133 +11,112 @@ $platinum: #e5e4e2;
 $off-white: #f5f5f5;
 
 :root {
-  --color-bg: #{$charcoal} !important;
-  --color-bg-secondary: #{$black} !important;
-  --color-bg-main: #{$dark-gray} !important;
-  --color-text: #{$platinum} !important;
-  --color-text-secondary: #{$platinum} !important;
-  --color-link: #{$gold} !important;
-  --color-secondary: #{$gold-light} !important;
-  --color-secondary-accent: #{$gold-dark} !important;
+  --color-bg: #{$charcoal};
+  --color-bg-secondary: #{$black};
+  --color-bg-main: #{$dark-gray};
+  --color-text: #{$platinum};
+  --color-text-secondary: #{$platinum};
+  --color-link: #{$gold};
+  --color-secondary: #{$gold-light};
+  --color-secondary-accent: #{$gold-dark};
   
-  --outer-border-radius: 0 !important;
-  --outer-border-radius-small: 0 !important;
-  --border: 1px solid #{$gold} !important;
-  --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+  --outer-border-radius: 0;
+  --outer-border-radius-small: 0;
+  --border: 1px solid #{$gold};
+  --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   
-  --font-family-heading: 'Playfair Display', Georgia, serif !important;
-  --font-family-body: 'Montserrat', Arial, sans-serif !important;
+  --font-family-heading: 'Playfair Display', Georgia, serif;
+  --font-family-body: 'Montserrat', Arial, sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #{$black} 0%, #{$charcoal} 100%) !important;
-  color: var(--color-text) !important;
-  padding: 0 !important;
-  font-family: var(--font-family-body) !important;
-  font-weight: 300 !important;
-  letter-spacing: 0.3px !important;
+  background: linear-gradient(135deg, #{$black} 0%, #{$charcoal} 100%);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-weight: 300;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-family-heading) !important;
-  letter-spacing: 1px !important;
-  color: #{$gold} !important;
-  margin-bottom: 1rem !important;
-  font-weight: 500 !important;
-  border-bottom: 1px solid #{$gold-dark} !important;
-  padding-bottom: 0.5rem !important;
+  font-family: var(--font-family-heading);
+  color: #{$gold};
+  font-weight: 500;
+  border-bottom: 1px solid #{$gold-dark};
 }
 
 a {
-  color: #{$gold} !important;
-  text-decoration: none !important;
-  transition: all 0.3s ease !important;
+  color: #{$gold};
+  text-decoration: none;
+  transition: all 0.3s ease;
   
   &:hover {
-    color: #{$gold-light} !important;
+    color: #{$gold-light};
   }
 }
 
 header {
-  border: none !important;
-  background: var(--color-bg-secondary) !important;
-  box-shadow: var(--box-shadow) !important;
-  overflow: hidden !important;
-  margin-top: 0 !important;
+  border: none;
+  background: var(--color-bg-secondary);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
   
   h1 {
-    text-transform: uppercase !important;
-    letter-spacing: 3px !important;
-    font-size: 2.5rem !important;
-    position: relative !important;
-    display: inline-block !important;
-    text-align: center !important;
-    font-weight: 700 !important;
-    font-family: 'Playfair Display', Georgia, serif !important;
-    border-bottom: none !important;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    font-weight: 700;
+    font-family: 'Playfair Display', Georgia, serif;
+    border-bottom: none;
   }
   
   img {
-    filter: brightness(0.7) saturate(1.2) !important;
+    filter: brightness(0.7) saturate(1.2);
   }
 }
 
 nav {
-  background: #{$black} !important;
-  border: none !important;
-  box-shadow: var(--box-shadow) !important;
-  margin-bottom: 1.5rem !important;
-  border-bottom: 1px solid #{$gold} !important;
-  border-top: 1px solid #{$gold} !important;
-  padding: 0.5rem !important;
-  text-align: center !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: center !important;
-  gap: 0.5rem 1rem !important;
+  background: #{$black};
+  border: none;
+  box-shadow: var(--box-shadow);
+  border-bottom: 1px solid #{$gold};
+  border-top: 1px solid #{$gold};
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   
   a {
-    font-family: 'Montserrat', Arial, sans-serif !important;
-    transition: all 0.3s ease !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    font-size: 0.8rem !important;
-    font-weight: 500 !important;
-    padding: 0.4rem 0.5rem !important;
-    position: relative !important;
+    font-family: 'Montserrat', Arial, sans-serif;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: 500;
+    position: relative;
     
     &:hover {
-      color: #{$gold} !important;
+      color: #{$gold};
     }
     
     &.active {
-      color: #{$gold} !important;
-      text-decoration: underline !important;
-      font-weight: 600 !important;
+      color: #{$gold};
+      text-decoration: underline;
+      font-weight: 600;
     }
   }
 }
 
-main {
-  padding: 1rem !important;
-}
-
 article {
-  background: #{$dark-gray} !important;
-  border: 1px solid rgba(212, 175, 55, 0.1) !important;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
-  padding: 1.5rem !important;
-  margin-bottom: 1rem !important;
-  position: relative !important;
+  background: #{$dark-gray};
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
   
   p {
-    color: #{$platinum} !important;
-    line-height: 1.7 !important;
+    color: #{$platinum};
   }
   
   ul, ol {
     li {
-      color: #{$platinum} !important;
+      color: #{$platinum};
       
       &::marker {
         color: #{$gold};
@@ -150,86 +129,75 @@ input[type="text"],
 input[type="password"],
 input[type="email"],
 textarea {
-  background: #{$dark-gray} !important;
-  border: 1px solid rgba(212, 175, 55, 0.3) !important;
-  color: #{$platinum} !important;
+  background: #{$dark-gray};
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #{$platinum};
   
   &:focus {
-    border-color: #{$gold} !important;
-    box-shadow: 0 0 5px rgba(212, 175, 55, 0.5) !important;
+    border-color: #{$gold};
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
   }
 }
 
 button, 
 input[type="submit"] {
-  background: linear-gradient(135deg, #{$gold-dark} 0%, #{$gold} 100%) !important;
-  border: none !important;
-  color: #{$black} !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1px !important;
-  transition: all 0.3s ease !important;
+  background: linear-gradient(135deg, #{$gold-dark} 0%, #{$gold} 100%);
+  border: none;
+  color: #{$black};
+  text-transform: uppercase;
+  transition: all 0.3s ease;
   
   &:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   }
 }
 
 footer {
-  background: #{$black} !important;
-  border: none !important;
-  position: relative !important;
-  padding: 2rem 1rem !important;
+  background: #{$black};
+  border: none;
+  position: relative;
   
   p {
-    color: #{$platinum} !important;
-    opacity: 0.8 !important;
-    font-size: 0.9rem !important;
+    color: #{$platinum};
+    opacity: 0.8;
   }
   
   a {
-    color: #{$gold} !important;
-    position: relative !important;
-    display: inline-block !important;
+    color: #{$gold};
+    position: relative;
+    display: inline-block;
     
     &:hover {
-      color: #{$gold-light} !important;
+      color: #{$gold-light};
     }
   }
   
   ul {
-    list-style-type: none !important;
-    padding: 0 !important;
-    display: flex !important;
-    gap: 0.5rem !important;
-    justify-content: center !important;
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
     
     li {
-      padding: 0 !important;
-      
       a {
-        background: rgba(212, 175, 55, 0.1) !important;
-        border-radius: 50% !important;
-        width: 40px !important;
-        height: 40px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: all 0.3s ease !important;
+        background: rgba(212, 175, 55, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
         
         img {
-          filter: invert(83%) sepia(32%) saturate(1102%) hue-rotate(359deg) brightness(107%) contrast(96%) !important;
-          transition: all 0.3s ease !important;
-          width: 20px !important;
-          height: 20px !important;
+          filter: invert(83%) sepia(32%) saturate(1102%) hue-rotate(359deg) brightness(107%) contrast(96%);
+          transition: all 0.3s ease;
         }
         
         &:hover {
-          background: rgba(212, 175, 55, 0.2) !important;
-          transform: translateY(-5px) !important;
+          background: rgba(212, 175, 55, 0.2);
+          transform: translateY(-5px);
           
           img {
-            filter: invert(83%) sepia(79%) saturate(503%) hue-rotate(358deg) brightness(104%) contrast(94%) !important;
+            filter: invert(83%) sepia(79%) saturate(503%) hue-rotate(358deg) brightness(104%) contrast(94%);
           }
         }
       }
@@ -238,24 +206,19 @@ footer {
 }
 
 * {
-  scrollbar-width: thin !important;
-  scrollbar-color: #{$gold-dark} #{$dark-gray} !important;
-  
-  &::-webkit-scrollbar {
-    width: 8px !important;
-    height: 8px !important;
-  }
+  scrollbar-width: thin;
+  scrollbar-color: #{$gold-dark} #{$dark-gray};
   
   &::-webkit-scrollbar-track {
-    background: #{$dark-gray} !important;
+    background: #{$dark-gray};
   }
   
   &::-webkit-scrollbar-thumb {
-    background-color: #{$gold-dark} !important;
-    border-radius: 4px !important;
+    background-color: #{$gold-dark};
+    border-radius: 4px;
     
     &:hover {
-      background-color: #{$gold} !important;
+      background-color: #{$gold};
     }
   }
 }
