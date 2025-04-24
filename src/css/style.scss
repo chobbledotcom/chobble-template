@@ -275,39 +275,6 @@ nav {
   }
 }
 
-ul.categories {
-  display: flex;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  flex-direction: column;
-  gap: 4rem;
-
-  & > li {
-    & > a {
-      position: relative;
-      aspect-ratio: 2;
-      padding: 0;
-      display: block;
-      h3 {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        padding: 0.5rem;
-        border-radius: 0 0 0 25px;
-        margin: 0;
-        text-align: right;
-        color: var(--color-bg-main);
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 1);
-        font-size: 5rem;
-        line-height: 5rem;
-        background: rgba(0, 0, 0, 0.5);
-      }
-    }
-  }
-}
-
 ul.items {
   display: flex;
   list-style-type: none;

@@ -5,6 +5,4 @@ layout: base.html
 
 {{- content -}}
 
-{%- assign show_subcategories = true -%}
-{%- assign categories = collections.categories | where_exp: "item", "item.data.parent == nil" -%}
 {%- include "categories-list.html" -%}

@@ -19,7 +19,6 @@ layout: base.html
 {% assign categories = categories | where: "data.parent", page.fileSlug %}
 {% if categories.size > 0 %}
   <h2>Subcategories</h2>
-  {% assign show_subcategories = true %}
   {% include "categories-list.html" %}
 {% endif %}
 

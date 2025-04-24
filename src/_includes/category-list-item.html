@@ -3,19 +3,7 @@
   {% assign widths = site.products.category_thumb_widths %}
   {% include "thumbnail-image-link.html" %}
 
-  <p>
-    {% if category.data.description -%}
-      {{ category.data.description }}
-    {%- endif -%}
-  </p>
-
-  {%- if show_subcategories -%}
-    {%- assign subCategories = collections.categories | where: "data.parent", category.fileSlug -%}
-    {%- if subCategories.size > 0 -%}
-      <h3>Subcategories:</h3>
-      {%- assign show_subcategories = false -%}
-      {%- assign categories = subCategories | slice: 0, 4 -%}
-      {%- include "categories-list.html" -%}
-    {%- endif -%}
+  {% if category.data.description -%}
+    <p>{{- category.data.description -}}</p>
   {%- endif -%}
 </li>
