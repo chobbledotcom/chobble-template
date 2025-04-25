@@ -7,7 +7,7 @@ categories:
   - premium-wotzits
   - wotzits
 gallery:
-  Front: placeholder-square-7.jpg
+  Front: /images/placeholder-square-7.jpg
   Back: placeholder-square-6.jpg
   Side: placeholder-square-5.jpg
   Underside: placeholder-square-4.jpg

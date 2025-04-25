@@ -1,36 +1,30 @@
-{%- if "src/pages/gallery-pages.smd" | file_missing -%}
-  <div class="current-image">
-    {% assign first_image = gallery[0] %}
-    {% image first_image.filename, first_image.alt, site.products.gallery_image_widths, "", "100vw" %}
-  </div>
-  <div class="gallery-full-size-images">
-    {%- for image in gallery -%}
-      <div class="full-image-{{ forloop.index }}">
-        {% image image.filename, image.alt, site.products.gallery_image_widths, "fade-in", "100vw" %}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+<div class="current-image">
+  {% assign first_image = gallery[0] %}
+  {% image first_image.filename, first_image.alt, site.products.gallery_image_widths, "", "100vw" %}
+</div>
+
+<div aria-hidden="true" class="gallery-full-size-images">
+  {%- for image in gallery -%}
+    <div class="full-image-{{ forloop.index }}">
+      {% image image.filename, image.alt, site.products.gallery_image_widths, "fade-in", "100vw" %}
+    </div>
+  {% endfor %}
+</div>
 
 <ul id="gallery" class="image-gallery">
   {%- for image in gallery -%}
     <li>
-      {%- if "src/pages/gallery-pages.smd" | file_missing -%}
-        <a
-          href="/images/{{ image.filename }}"
-          data-index="{{ forloop.index }}"
-          class="image-link gallery-switcher"
-        >
-      {% else %}
-        {%- capture url -%}
-          /{{ strings.product_permalink_dir }}/{{ page.fileSlug }}/{{ image.alt | slugify }}/#content
-        {%- endcapture -%}
-        <a
-          href="{{ url }}"
-          data-index="{{ forloop.index }}"
-          class="image-link gallery-switcher"
-        >
-      {% endif %}
+      <a
+        href="
+          {%- if image.filename[0] == "/" -%}
+            {{- image.filename -}}
+          {%- else -%}
+            /images/{{ image.filename -}}
+          {%- endif -%}
+        "
+        data-index="{{ forloop.index }}"
+        class="image-link gallery-switcher"
+      >
         <!-- once sizes="auto" is supported by Firefox, switch to that -->
         <figure>
           {% image image.filename, "", site.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
