@@ -30,7 +30,8 @@ async function processAndWrapImage({
   div.classList.add("image-wrapper");
   if (classes) div.classList.add(classes);
 
-  let path = imageName.indexOf("/") == 0 ? imageName : `/images/${imageName}`;
+  let path =
+    imageName.toString().indexOf("/") == 0 ? imageName : `/images/${imageName}`;
 
   const image = await Image(`src/${path}`, {
     ...DEFAULT_OPTIONS,

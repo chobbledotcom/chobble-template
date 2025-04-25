@@ -1,30 +1,36 @@
 (() => {
-	const initGallery = () => {
-		const gallery = document.getElementById("gallery");
-		const currentImage = document.querySelector(".current-image");
+  let gallery, currentImage;
 
-		if (!gallery || !currentImage) return;
+  const loadImage = (event) => {
+    const imageLink = event.target.closest(".image-link");
+    if (!imageLink) return;
 
-		gallery.addEventListener("click", (event) => {
-			const imageLink = event.target.closest(".image-link");
+    event.preventDefault();
 
-			if (imageLink) {
-				event.preventDefault();
+    const index = imageLink.getAttribute("data-index");
+    const fullImage = document.querySelector(`.full-image-${index}`);
 
-				const index = imageLink.getAttribute("data-index");
-				const fullImage = document.querySelector(`.full-image-${index}`);
+    if (!fullImage) return;
 
-				if (fullImage) {
-					currentImage.innerHTML = fullImage.innerHTML;
-					currentImage.scrollIntoView({ behavior: "smooth" });
-				}
-			}
-		});
-	};
+    currentImage.innerHTML = fullImage.innerHTML;
+    currentImage.scrollIntoView({ behavior: "smooth" });
+  };
 
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", initGallery);
-	} else {
-		initGallery();
-	}
+  const initGallery = () => {
+    gallery = document.getElementById("gallery");
+    currentImage = document.querySelector(".current-image");
+
+    if (!gallery || !currentImage) return;
+
+    gallery.removeEventListener("click", loadImage);
+    gallery.addEventListener("click", loadImage);
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGallery);
+  } else {
+    initGallery();
+  }
+
+  document.addEventListener("turbo:load", initGallery);
 })();
