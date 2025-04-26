@@ -1,9 +1,9 @@
-{%- if site.formspark_id -%}
+{%- if site.formspark_id and site.formspark_id != "" -%}
   <form
     id="contact-form"
     class="contact-form"
     action="https://submit-form.com/{{ site.formspark_id }}"
-    {% if site.botpoison_public_key !=  -%}
+    {% if site.botpoison_public_key and site.botpoison_public_key != "" -%}
       data-botpoison-public-key="{{ site.botpoison_public_key }}"
     {%- endif -%}
   >

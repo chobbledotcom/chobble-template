@@ -18,7 +18,7 @@
   async=""
   src="/assets/js/lib/turbo.es2017-esm.min.js"
 ></script>
-{%- if layout == "contact.html" and site.botpoison_public_key -%}
+{%- if layout == "contact.html" and site.botpoison_public_key and site.botpoison_public_key != "" -%}
   <script
     async
     src="/assets/js/lib/botpoison-0.1.30.js"
