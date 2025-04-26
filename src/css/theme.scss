@@ -1,4 +1,4 @@
-@import url('https://fonts.bunny.net/css?family=playfair-display:400,500,600,700|montserrat:300,400,500,600&display=swap');
+@import url("https://fonts.bunny.net/css?family=playfair-display:400,500,600,700|montserrat:300,400,500,600&display=swap");
 
 $black: #000000;
 $charcoal: #0c0c14;
@@ -19,14 +19,14 @@ $off-white: #f5f5f5;
   --color-link: #{$gold};
   --color-secondary: #{$gold-light};
   --color-secondary-accent: #{$gold-dark};
-  
+
   --outer-border-radius: 0;
   --outer-border-radius-small: 0;
   --border: 1px solid #{$gold};
   --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-  
-  --font-family-heading: 'Playfair Display', Georgia, serif;
-  --font-family-body: 'Montserrat', Arial, sans-serif;
+
+  --font-family-heading: "Playfair Display", Georgia, serif;
+  --font-family-body: "Montserrat", Arial, sans-serif;
 }
 
 body {
@@ -36,7 +36,12 @@ body {
   font-weight: 300;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-family-heading);
   color: #{$gold};
   font-weight: 500;
@@ -44,12 +49,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: #{$gold};
+  color: #{$gold} !important;
   text-decoration: none;
   transition: all 0.3s ease;
-  
+
   &:hover {
-    color: #{$gold-light};
+    color: #{$gold-light} !important;
   }
 }
 
@@ -57,14 +62,14 @@ header {
   border: none;
   background: var(--color-bg-secondary);
   box-shadow: var(--box-shadow);
-  
+
   h1 {
     text-align: center;
     font-weight: 700;
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: "Playfair Display", Georgia, serif;
     border-bottom: none;
   }
-  
+
   img {
     filter: brightness(0.7) saturate(1.2);
   }
@@ -77,15 +82,15 @@ nav {
   border-bottom: 1px solid #{$gold};
   border-top: 1px solid #{$gold};
   text-align: center;
-  
+
   a {
-    font-family: 'Montserrat', Arial, sans-serif;
+    font-family: "Montserrat", Arial, sans-serif;
     font-weight: 500;
-    
+
     &:hover {
       color: #{$gold};
     }
-    
+
     &.active {
       color: #{$gold};
       text-decoration: underline;
@@ -97,15 +102,16 @@ article {
   background: #{$dark-gray};
   border: 1px solid rgba(212, 175, 55, 0.1);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  
+
   p {
     color: #{$platinum};
   }
-  
-  ul, ol {
+
+  ul,
+  ol {
     li {
       color: #{$platinum};
-      
+
       &::marker {
         color: #{$gold};
       }
@@ -118,7 +124,7 @@ textarea {
   background: #{$dark-gray};
   border: 1px solid rgba(212, 175, 55, 0.3);
   color: #{$platinum};
-  
+
   &:focus {
     border-color: #{$gold};
     box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
@@ -131,7 +137,7 @@ button {
   color: #{$black};
   text-transform: uppercase;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -146,32 +152,34 @@ footer {
     color: #{$platinum};
     opacity: 0.8;
   }
-  
+
   a {
     color: #{$gold};
-   &:hover {
+    &:hover {
       color: #{$gold-light};
     }
   }
-  
+
   ul {
-  li {
+    li {
       a {
         background: rgba(212, 175, 55, 0.1);
         border-radius: 50%;
         transition: all 0.3s ease;
-        
+
         img {
-          filter: invert(83%) sepia(32%) saturate(1102%) hue-rotate(359deg) brightness(107%) contrast(96%);
+          filter: invert(83%) sepia(32%) saturate(1102%) hue-rotate(359deg)
+            brightness(107%) contrast(96%);
           transition: all 0.3s ease;
         }
-        
+
         &:hover {
           background: rgba(212, 175, 55, 0.2);
           transform: translateY(-5px);
-          
+
           img {
-            filter: invert(83%) sepia(79%) saturate(503%) hue-rotate(358deg) brightness(104%) contrast(94%);
+            filter: invert(83%) sepia(79%) saturate(503%) hue-rotate(358deg)
+              brightness(104%) contrast(94%);
           }
         }
       }
@@ -182,18 +190,17 @@ footer {
 * {
   scrollbar-width: thin;
   scrollbar-color: #{$gold-dark} #{$dark-gray};
-  
+
   &::-webkit-scrollbar-track {
     background: #{$dark-gray};
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background-color: #{$gold-dark};
     border-radius: 4px;
-    
+
     &:hover {
       background-color: #{$gold};
     }
   }
 }
-

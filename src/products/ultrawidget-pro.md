@@ -7,13 +7,13 @@ categories:
   - premium-widgets
   - widgets
 gallery:
-  Front: placeholder-square-7.jpg
-  Back: placeholder-square-6.jpg
-  Side: placeholder-square-5.jpg
-  Underside: placeholder-square-4.jpg
-  In use: placeholder-square-3.jpg
-  Not in use: placeholder-square-2.jpg
-  Invisible: placeholder-square-1.jpg
+  - placeholder-square-7.jpg
+  - placeholder-square-6.jpg
+  - placeholder-square-5.jpg
+  - placeholder-square-4.jpg
+  - placeholder-square-3.jpg
+  - placeholder-square-2.jpg
+  - placeholder-square-1.jpg
 specs:
   - name: Display
     value: 14" Holographic

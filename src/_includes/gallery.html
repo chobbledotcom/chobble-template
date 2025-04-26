@@ -28,9 +28,9 @@
         <!-- once sizes="auto" is supported by Firefox, switch to that -->
         <figure>
           {% image image.filename, "", site.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
-          <figcaption>
-            {{- image.alt -}}
-          </figcaption>
+          {%- if image.alt != "" -%}
+            <figcaption>{{- image.alt -}}</figcaption>
+          {%- endif -%}
         </figure>
       </a>
     </li>

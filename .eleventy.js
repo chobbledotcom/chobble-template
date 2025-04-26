@@ -90,21 +90,27 @@ module.exports = async function (eleventyConfig) {
     });
   });
 
+  const addGallery = (item) => {
+    const gallery = item.data.gallery;
+    if (gallery) {
+      item.data.gallery = Object.entries(item.data.gallery).map((image) => {
+        let alt = image[0];
+        // if the alt is just an integer (ie galleries is an array of
+        // filenames and it's the index) then set it to an empty string
+        if (parseInt(alt).toString() === alt) alt = "";
+        return {
+          alt: alt,
+          filename: image[1],
+        };
+      });
+    }
+    return item;
+  };
+
   eleventyConfig.addCollection("products", (collectionApi) => {
     let products = collectionApi.getFilteredByTag("product");
     return products.map((product) => {
-      const gallery = product.data.gallery;
-      if (gallery) {
-        product.data.gallery = Object.entries(product.data.gallery).map(
-          (image) => {
-            return {
-              alt: image[0],
-              filename: image[1],
-            };
-          },
-        );
-      }
-      return product;
+      return addGallery(product);
     });
   });
 
