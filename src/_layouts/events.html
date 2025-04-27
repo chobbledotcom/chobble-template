@@ -1,0 +1,48 @@
+---
+layout: base.html
+---
+
+{{ content }}
+
+<h2>Upcoming Events</h2>
+
+{% assign now = 'now' | date: '%Y-%m-%d' %}
+{% assign upcoming_events = collections.events | sort: "data.event_date" %}
+{% assign filtered_upcoming = '' | split: '' %}
+
+{% for event in upcoming_events %}
+  {% assign event_date = event.data.event_date | date: '%Y-%m-%d' %}
+  {% if event_date >= now %}
+    {% assign filtered_upcoming = filtered_upcoming | push: event %}
+  {% endif %}
+{% endfor %}
+
+{% if filtered_upcoming.size > 0 %}
+  {% for event in filtered_upcoming %}
+    {% include "event-list-item.html" %}
+  {% endfor %}
+{% else %}
+  <p>No upcoming events scheduled. Check back soon!</p>
+{% endif %}
+
+<hr>
+
+<h2>Past Events</h2>
+
+{% assign past_events = upcoming_events | reverse %}
+{% assign filtered_past = '' | split: '' %}
+
+{% for event in past_events %}
+  {% assign event_date = event.data.event_date | date: '%Y-%m-%d' %}
+  {% if event_date < now %}
+    {% assign filtered_past = filtered_past | push: event %}
+  {% endif %}
+{% endfor %}
+
+{% if filtered_past.size > 0 %}
+  {% for event in filtered_past %}
+    {% include "event-list-item.html" %}
+  {% endfor %}
+{% else %}
+  <p>No past events to display.</p>
+{% endif %}
