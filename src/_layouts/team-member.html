@@ -10,4 +10,8 @@ layout: base.html
   {{ title | escape }}
 </h2>
 
+{%- if image -%}
+  {%- image image, "", "", "", "100vw" -%}
+{%- endif -%}
+
 {{ content }}
