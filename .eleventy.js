@@ -172,9 +172,14 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.addTemplateFormats("scss");
   eleventyConfig.addExtension("scss", {
     outputFileExtension: "css",
-    compile: function (inputContent) {
+    compile: function (inputContent, inputPath) {
+      // Get the directory of the input file for relative imports
+      const dir = path.dirname(inputPath);
+      
       return function (data) {
-        return sass.compileString(inputContent).css;
+        return sass.compileString(inputContent, {
+          loadPaths: [dir]
+        }).css;
       };
     },
   });

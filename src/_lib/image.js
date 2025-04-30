@@ -51,6 +51,7 @@ async function processAndWrapImage({
 
   const aspectRatio = `${thumbnail.width}/${thumbnail.height}`;
 
+  div.style.setProperty("background-size", "cover");
   div.style.setProperty("background-image", base64Url);
   div.style.setProperty("aspect-ratio", aspectRatio);
 
