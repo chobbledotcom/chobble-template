@@ -209,6 +209,6 @@ footer {
   color: var(--color-secondary);
   button {
     color: var(--color-link);
-    border-color: var(--color-secondary);
+    border: 2px solid var(--color-secondary-accent);
   }
 }
