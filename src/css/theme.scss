@@ -144,14 +144,10 @@ button {
   }
 }
 
-main > footer {
+body > footer {
   background: #{$black};
+  color: #{$platinum};
   border: none;
-
-  p {
-    color: #{$platinum};
-    opacity: 0.8;
-  }
 
   a {
     color: #{$gold};
