@@ -1,0 +1,9 @@
+{%- if stripe_buy_button_id and site.stripe_publishable_key -%}
+  <h2>Buy With Stripe</h2>
+  <div class="stripe-button">
+    <stripe-buy-button
+      buy-button-id="{{ stripe_buy_button_id }}"
+      publishable-key="{{ site.stripe_publishable_key }}"
+    ></stripe-buy-button>
+  </div>
+{%- endif -%}

@@ -9,11 +9,20 @@
 <link rel="stylesheet" href="/css/bundle.css" />
 <link rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html" />
 <link rel="canonical" href="{{ site.url }}{{ page.url }}" />
+
 <script
   type="module"
   async=""
   src="/assets/js/lib/turbo.es2017-esm.min.js"
 ></script>
+
+{%- if stripe_buy_button_id and site.stripe_publishable_key -%}
+  <script
+    async
+    src="https://js.stripe.com/v3/buy-button.js"
+  ></script>
+{%- endif -%}
+
 {%- if layout == "contact.html" and site.botpoison_public_key and site.botpoison_public_key != "" -%}
   <script
     async
@@ -37,7 +46,9 @@
     href="/feed.xml"
     title="News" />
 {%- endif -%}
+
 {%- if no_index -%}
   <meta name="robots" value="noindex,nofollow" />
 {%- endif -%}
+
 </head>

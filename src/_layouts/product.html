@@ -17,6 +17,8 @@ layout: base.html
 {%- endif -%}
 
 <div class="description">
+  {%- include "stripe-buy-button.html" -%}
+
   <h2>About</h2>
 
   {%- if categories.size > 0 -%}
