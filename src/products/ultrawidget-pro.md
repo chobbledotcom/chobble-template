@@ -1,7 +1,7 @@
 ---
 title: UltraWidget Pro
 short_description: Lightweight, powerful widget for professionals
-price: £1299.99
+price: 1299.99
 header_image: placeholder-wide-4.jpg
 categories:
   - premium-widgets

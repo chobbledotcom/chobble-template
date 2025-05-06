@@ -18,6 +18,13 @@ layout: base.html
 
 <div class="description">
   {%- include "stripe-buy-button.html" -%}
+  {%- if price -%}
+    <h2>Price</h2>
+    <p>
+      <strong>{% include "price.html" %}</strong>
+    </p>
+    {%- render_snippet "after-price" -%}
+  {%- endif -%}
 
   <h2>About</h2>
 

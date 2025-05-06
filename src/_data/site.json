@@ -15,6 +15,7 @@
   "horizontal_nav": true,
   "template_repo_url": "https://git.chobble.com/chobble/chobble-template",
   "stripe_publishable_key": null,
+  "currency_code": "£",
   "products": {
     "product_thumb_widths": "224",
     "category_thumb_widths": "224"
