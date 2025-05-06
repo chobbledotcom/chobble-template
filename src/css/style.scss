@@ -1,20 +1,5 @@
 @use "sass:color";
 
-:root {
-  --color-bg: #205781;
-  --color-bg-secondary: #006b80;
-  --color-bg-main: #f6f8d5;
-  --color-link: #4f959d;
-  --color-secondary: #98d2c0;
-  --color-secondary-accent: #4f959d;
-  --color-text: #205781;
-  --outer-border-radius: 0 25px 0 25px;
-  --outer-border-radius-small: 0 10px 0 10px;
-  --border: 2px solid rgba(255, 255, 255, 0.2);
-  --width-content: 1300px;
-  --line-height: 1.8;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -56,7 +41,7 @@ h6 {
 
 body > header {
   background: var(--color-bg-secondary);
-  border-radius: var(--outer-border-radius);
+  border-radius: var(--border-radius);
   border: var(--border);
   margin-top: 1rem;
   width: var(--width-content);
@@ -103,7 +88,7 @@ main {
       width: 100%;
       max-width: 100%;
       height: auto;
-      border-radius: var(--outer-border-radius-small);
+      border-radius: var(--border-radius-small);
     }
     img.fade-in {
       animation: 0.1s linear fade-in 0s 1;
@@ -127,7 +112,7 @@ img {
 body > footer {
   background: var(--color-bg-secondary);
   color: var(--color-bg-main);
-  border-radius: var(--outer-border-radius);
+  border-radius: var(--border-radius);
   border: var(--border);
   width: var(--width-content);
   max-width: 100%;
@@ -178,7 +163,7 @@ body > footer {
 nav,
 article {
   // background: var(--color-bg-main);
-  border-radius: var(--outer-border-radius);
+  border-radius: var(--border-radius);
   // border: var(--border);
   padding: 1rem;
   margin-bottom: 2rem;
@@ -369,12 +354,12 @@ ul.image-gallery {
       display: block;
       position: relative;
       overflow: hidden;
-      border-radius: var(--outer-border-radius-small);
+      border-radius: var(--border-radius-small);
       transition: all 0.3s ease-in;
       img {
         object-fit: cover;
         transition: all 0.3s ease-in;
-        border-radius: var(--outer-border-radius-small);
+        border-radius: var(--border-radius-small);
       }
       &:hover {
         transform: translateY(-5px);
@@ -393,7 +378,7 @@ ul.image-gallery {
       right: 0;
       padding: 0.5rem;
       background: rgba(0, 0, 0, 0.4);
-      border-radius: var(--outer-border-radius-small);
+      border-radius: var(--border-radius-small);
     }
   }
 }

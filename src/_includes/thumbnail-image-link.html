@@ -1,10 +1,9 @@
 {%- if item.data.header_image -%}
-  {%- capture sizes -%}{{ sizes | default: "100vw" }}{%- endcapture -%}
   <a
     class="image-link"
     href="{{ item.url }}#content"
   >
-    {%- image item.data.header_image, item.data.title, widths, sizes -%}
+    {%- image item.data.header_image, item.data.title, widths, "", sizes -%}
   </a>
 {%- endif -%}
 

@@ -1,6 +1,7 @@
 <li>
   {% assign item = category %}
   {% assign widths = site.products.category_thumb_widths %}
+  {% assign sizes = site.products.category_thumb_sizes %}
   {% include "thumbnail-image-link.html" %}
 
   {% if category.data.description -%}
