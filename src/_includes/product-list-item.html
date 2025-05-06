@@ -3,8 +3,9 @@
   {% assign widths = site.products.product_thumb_widths %}
   {% include "thumbnail-image-link.html" %}
 
-  {% assign price = product.data.price %}
-  {% include "price.html" %}
+  {%- if product.data.price -%}
+    <p>{{- product.data.price -}}</p>
+  {%- endif -%}
 
   {%- if product.data.short_description -%}
     <p>{{- product.data.short_description -}}</p>
