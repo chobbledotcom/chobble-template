@@ -13,7 +13,11 @@
     if (!fullImage) return;
 
     currentImage.innerHTML = fullImage.innerHTML;
-    currentImage.scrollIntoView({ behavior: "smooth" });
+    
+    const rect = currentImage.getBoundingClientRect();
+    if (Math.abs(rect.top) > 50) {
+      currentImage.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const initGallery = () => {
