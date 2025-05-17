@@ -23,6 +23,7 @@ module.exports = async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(nav);
 
+  const site = require("./src/_data/site.json");
   eleventyConfig.addPlugin(feedPlugin, {
     type: "atom",
     outputPath: "/feed.xml",
@@ -34,11 +35,11 @@ module.exports = async function (eleventyConfig) {
     },
     metadata: {
       language: "en",
-      title: "example.com",
+      title: site.name,
       subtitle: "",
-      base: "https://example.com/",
+      base: site.url,
       author: {
-        name: "Example",
+        name: site.name,
       },
     },
   });
@@ -175,10 +176,10 @@ module.exports = async function (eleventyConfig) {
     compile: function (inputContent, inputPath) {
       // Get the directory of the input file for relative imports
       const dir = path.dirname(inputPath);
-      
+
       return function (data) {
         return sass.compileString(inputContent, {
-          loadPaths: [dir]
+          loadPaths: [dir],
         }).css;
       };
     },
