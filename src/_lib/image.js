@@ -19,7 +19,10 @@ async function processAndWrapImage({
 	widths = null,
 	returnElement = false,
 	aspectRatio = null,
+	loading = null,
 }) {
+	loading ||= "lazy";
+
 	if (typeof widths === "string") {
 		widths = widths.split(",");
 	}
@@ -55,7 +58,7 @@ async function processAndWrapImage({
 	const imageAttributes = {
 		alt,
 		sizes,
-		loading: "lazy",
+		loading: loading,
 		decoding: "async",
 	};
 
@@ -103,6 +106,7 @@ async function imageShortcode(
 	classes = null,
 	sizes = null,
 	aspectRatio = null,
+	loading = null,
 ) {
 	return await processAndWrapImage({
 		logName: `imageShortcode: ${imageName}`,
@@ -112,6 +116,7 @@ async function imageShortcode(
 		sizes,
 		widths,
 		aspectRatio,
+		loading,
 		returnElement: false,
 	});
 }
@@ -146,6 +151,7 @@ async function transformImages(content) {
 					sizes: img.getAttribute("sizes") || "100vw",
 					widths: img.getAttribute("widths") || "",
 					aspectRatio: aspectRatio,
+					loading: null,
 					returnElement: true,
 				}),
 				img,
