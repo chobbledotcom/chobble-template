@@ -1,13 +1,105 @@
 const Image = require("@11ty/eleventy-img");
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
+const sharp = require("sharp");
 
-const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
-const DEFAULT_OPTIONS = {
-	formats: ["webp", "jpeg"],
-	outputDir: ".image-cache",
-	urlPath: "/img/",
-	svgShortCircuit: true,
+const U = {
+	DEFAULT_OPTIONS: {
+		formats: ["webp", "jpeg"],
+		outputDir: ".image-cache",
+		urlPath: "/img/",
+		svgShortCircuit: true,
+	},
+	DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
+	makeImagePromise: (imageOrPath, widths) => {
+		return Image(imageOrPath, {
+			...U.DEFAULT_OPTIONS,
+			widths: widths,
+		});
+	},
+	makeThumbnail: async (path) => {
+		const thumbnails = await Image(path, {
+			...U.DEFAULT_OPTIONS,
+			widths: [32],
+			formats: ["webp"],
+		});
+		const [thumbnail] = thumbnails.webp;
+		const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
+		return `url('data:image/webp;base64,${base64}')`;
+	},
+	getAspectRatio: (aspectRatio, metadata) => {
+		if (aspectRatio) return aspectRatio;
+		var gcd = function gcd(a, b) {
+			return b ? gcd(b, a % b) : a;
+		};
+		gcd = gcd(metadata.width, metadata.height);
+		return `${metadata.width / gcd}/${metadata.height / gcd}`;
+	},
+	cropImage: async (aspectRatio, sharpImage, metadata) => {
+		if (aspectRatio == null) return null;
+
+		// aspectRatio is a string like "16/9"
+		const dimensions = aspectRatio.split("/").map((s) => parseFloat(s));
+		const aspectFraction = dimensions[0] / dimensions[1];
+		const width = metadata.width;
+		const height = Math.round(width / aspectFraction);
+
+		return sharpImage.resize(width, height, { fit: "cover" }).toBuffer();
+	},
+	makeDiv: async (classes, thumbPromise, imageAspectRatio) => {
+		const {
+			window: { document },
+		} = new JSDOM();
+
+		const div = document.createElement("div");
+		div.classList.add("image-wrapper");
+		if (classes) div.classList.add(classes);
+
+		div.style.setProperty("background-size", "cover");
+		div.style.setProperty("background-image", await thumbPromise);
+		div.style.setProperty("aspect-ratio", imageAspectRatio);
+
+		return div;
+	},
+	getHtmlAttributes: (alt, sizes, loading, classes) => {
+		const attributes = {
+			alt: alt,
+			sizes: sizes,
+			loading: loading,
+			decoding: "async",
+		};
+		return classes && classes.trim()
+			? {
+					...attributes,
+					classes,
+				}
+			: attributes;
+	},
+	getWidths: (widths) => {
+		if (typeof widths === "string") {
+			widths = widths.split(",");
+		}
+		return widths || U.DEFAULT_WIDTHS;
+	},
+	getPath: (imageName) => {
+		return imageName.toString().indexOf("/") == 0
+			? `./src${imageName}`
+			: `./src/images/${imageName}`;
+	},
+	getDefault: (value, defaultString) => {
+		return value == null || value == "" ? defaultString : value;
+	},
+	makeImageHtml: async (imagePromise, alt, sizes, loading, classes) => {
+		return Image.generateHTML(
+			await imagePromise,
+			U.getHtmlAttributes(
+				alt,
+				U.getDefault(sizes, "100vw"),
+				U.getDefault(loading, "lazy"),
+				classes,
+			),
+		);
+	},
 };
 
 async function processAndWrapImage({
@@ -15,164 +107,112 @@ async function processAndWrapImage({
 	imageName,
 	alt,
 	classes,
-	sizes = "100vw",
+	sizes = null,
 	widths = null,
 	returnElement = false,
 	aspectRatio = null,
 	loading = null,
 }) {
-	loading ||= "lazy";
+	const path = U.getPath(imageName);
+	const thumbPromise = U.makeThumbnail(path);
+	const sharpImage = sharp(path);
+	const metadata = await sharpImage.metadata();
+	const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
+	const croppedImageOrNull = await U.cropImage(
+		aspectRatio,
+		sharpImage,
+		metadata,
+	);
+	const imageOrPath = croppedImageOrNull || path;
 
-	if (typeof widths === "string") {
-		widths = widths.split(",");
-	}
+	const imagePromise = U.makeImagePromise(imageOrPath, U.getWidths(widths));
 
-	const {
-		window: { document },
-	} = new JSDOM();
-	const div = document.createElement("div");
-	div.classList.add("image-wrapper");
-	if (classes) div.classList.add(classes);
-
-	let path =
-		imageName.toString().indexOf("/") == 0
-			? `./src${imageName}`
-			: `./src/images/${imageName}`;
-
-	let imageOrPath = path;
-	if (aspectRatio) {
-		imageOrPath = await cropImage(path, aspectRatio);
-	}
-
-	const image = await Image(imageOrPath, {
-		...DEFAULT_OPTIONS,
-		widths: widths || DEFAULT_WIDTHS,
-	});
-
-	div.style.setProperty("background-size", "cover");
-
-	const thumb = makeThumbnail(path);
-	div.style.setProperty("background-image", thumb[0]);
-	div.style.setProperty("aspect-ratio", thumb[1]);
-
-	const imageAttributes = {
+	const div = await U.makeDiv(classes, thumbPromise, imageAspectRatio);
+	div.innerHTML = await U.makeImageHtml(
+		imagePromise,
 		alt,
 		sizes,
-		loading: loading,
-		decoding: "async",
-	};
-
-	if (classes && classes.trim()) imageAttributes.class = classes;
-	div.innerHTML = Image.generateHTML(image, imageAttributes);
+		loading,
+		classes,
+	);
 
 	return returnElement ? div : div.outerHTML;
 }
 
-const makeThumbnail = async (path) => {
-	const thumbnails = await Image(path, {
-		...DEFAULT_OPTIONS,
-		widths: [32],
-		formats: ["webp"],
-	});
-
-	const [thumbnail] = thumbnails.webp;
-
-	const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
-
-	const roundedAspectRatio = `${thumbnail.width}/${thumbnail.height}`;
-
-	return [`url('data:image/webp;base64,${base64}')`, roundedAspectRatio];
-};
-
-const cropImage = async (path, aspectRatio) => {
-	// aspectRatio is a string like "16/9"
-	const sharp = require("sharp");
-	const dimensions = aspectRatio.split("/").map((s) => parseFloat(s));
-	const aspectFraction = dimensions[0] / dimensions[1];
-
-	const image = sharp(path);
-
-	const metadata = await image.metadata();
-	const width = metadata.width;
-	const height = Math.round(width / aspectFraction);
-
-	return image.resize(width, height, { fit: "cover" }).toBuffer();
-};
-
-async function imageShortcode(
-	imageName,
-	alt,
-	widths,
-	classes = null,
-	sizes = null,
-	aspectRatio = null,
-	loading = null,
-) {
-	return await processAndWrapImage({
-		logName: `imageShortcode: ${imageName}`,
+module.exports = {
+	imageShortcode: async (
 		imageName,
 		alt,
-		classes,
-		sizes,
 		widths,
-		aspectRatio,
-		loading,
-		returnElement: false,
-	});
-}
+		classes = null,
+		sizes = null,
+		aspectRatio = null,
+		loading = null,
+	) => {
+		return await processAndWrapImage({
+			logName: `imageShortcode: ${imageName}`,
+			imageName,
+			alt,
+			classes,
+			sizes,
+			widths,
+			aspectRatio,
+			loading,
+			returnElement: false,
+		});
+	},
+	transformImages: async (content) => {
+		if (!content || !content.includes("<img")) return content;
 
-async function transformImages(content) {
-	if (!content || !content.includes("<img")) return content;
+		const {
+			window: { document },
+		} = new JSDOM(content);
+		const images = document.querySelectorAll('img[src^="/images/"]');
 
-	const {
-		window: { document },
-	} = new JSDOM(content);
-	const images = document.querySelectorAll('img[src^="/images/"]');
+		if (images.length === 0) return content;
 
-	if (images.length === 0) return content;
+		await Promise.all(
+			Array.from(images).map(async (img) => {
+				if (img.parentNode.classList.contains("image-wrapper")) return;
 
-	await Promise.all(
-		Array.from(images).map(async (img) => {
-			if (img.parentNode.classList.contains("image-wrapper")) return;
+				const aspectRatio = extractAspectRatio(img);
 
-			let aspectRatio = null;
-			if (img.hasAttribute("eleventy:aspectRatio")) {
-				aspectRatio = img.getAttribute("eleventy:aspectRatio");
-				img.removeAttribute("eleventy:aspectRatio");
+				const { parentNode } = img;
+				parentNode.replaceChild(
+					await processAndWrapImage({
+						logName: `transformImages: ${img}`,
+						imageName: img.getAttribute("src"),
+						alt: img.getAttribute("alt") || "",
+						classes: img.getAttribute("class") || "",
+						sizes: img.getAttribute("sizes") || "100vw",
+						widths: img.getAttribute("widths") || "",
+						aspectRatio: aspectRatio,
+						loading: null,
+						returnElement: true,
+					}),
+					img,
+				);
+			}),
+		);
+
+		// Fix invalid HTML where divs are the sole child of paragraph tags
+		const paragraphs = document.querySelectorAll("p");
+		paragraphs.forEach((p) => {
+			if (p.childNodes.length === 1 && p.firstChild.nodeName === "DIV") {
+				const { parentNode, firstChild } = p;
+				parentNode.insertBefore(firstChild, p);
+				parentNode.removeChild(p);
 			}
+		});
 
-			const { parentNode } = img;
-			parentNode.replaceChild(
-				await processAndWrapImage({
-					logName: `transformImages: ${img}`,
-					imageName: img.getAttribute("src"),
-					alt: img.getAttribute("alt") || "",
-					classes: img.getAttribute("class") || "",
-					sizes: img.getAttribute("sizes") || "100vw",
-					widths: img.getAttribute("widths") || "",
-					aspectRatio: aspectRatio,
-					loading: null,
-					returnElement: true,
-				}),
-				img,
-			);
-		}),
-	);
+		return new JSDOM(document.documentElement.outerHTML).serialize();
 
-	// Fix invalid HTML where divs are the sole child of paragraph tags
-	const paragraphs = document.querySelectorAll("p");
-	paragraphs.forEach((p) => {
-		if (p.childNodes.length === 1 && p.firstChild.nodeName === "DIV") {
-			const { parentNode, firstChild } = p;
-			parentNode.insertBefore(firstChild, p);
-			parentNode.removeChild(p);
+		function extractAspectRatio(img) {
+			if (img.hasAttribute("eleventy:aspectRatio")) {
+				img.removeAttribute("eleventy:aspectRatio");
+				return img.getAttribute("eleventy:aspectRatio");
+			}
+			return null;
 		}
-	});
-
-	return new JSDOM(document.documentElement.outerHTML).serialize();
-}
-
-module.exports = {
-	imageShortcode,
-	transformImages,
+	},
 };

@@ -1,18 +1,18 @@
 {
-  "name": "Example Site",
-  "formspark_id": null,
-  "botpoison_public_key": null,
-  "url": "https://example.chobble.com",
-  "webhost": "bunny",
-  "socials": {
-    "Facebook": "https://example.chobble.com",
-    "Instagram": "https://example.chobble.com",
-    "TikTok": "https://example.chobble.com",
-    "Google": "https://example.chobble.com",
-    "WhatsApp": "https://example.chobble.com",
-    "RSS": "/feed.xml"
-  },
-  "template_repo_url": "https://git.chobble.com/chobble/chobble-template",
-  "stripe_publishable_key": null,
-  "products": {}
+	"name": "Example Site",
+	"formspark_id": null,
+	"botpoison_public_key": null,
+	"url": "https://example.chobble.com",
+	"webhost": "bunny",
+	"socials": {
+		"Facebook": "https://example.chobble.com",
+		"Instagram": "https://example.chobble.com",
+		"TikTok": "https://example.chobble.com",
+		"Google": "https://example.chobble.com",
+		"WhatsApp": "https://example.chobble.com",
+		"RSS": "/feed.xml"
+	},
+	"template_repo_url": "https://git.chobble.com/chobble/chobble-template",
+	"stripe_publishable_key": null,
+	"products": {}
 }
