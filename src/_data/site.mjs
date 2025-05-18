@@ -4,6 +4,8 @@ const require = createRequire(import.meta.url);
 const DEFAULTS = {
   sticky_mobile_nav: true,
   horizontal_nav: true,
+  homepage_news: true, // if there is any
+  homepage_products: true, // if there are any
 };
 
 const DEFAULT_PRODUCT_DATA = {

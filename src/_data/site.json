@@ -3,6 +3,7 @@
   "formspark_id": null,
   "botpoison_public_key": null,
   "url": "https://example.chobble.com",
+  "webhost": "bunny",
   "socials": {
     "Facebook": "https://example.chobble.com",
     "Instagram": "https://example.chobble.com",

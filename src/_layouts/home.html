@@ -4,14 +4,14 @@ layout: base.html
 
 {{ content }}
 
-{%- if collections.news.size > 0 -%}
+{%- if site.homepage_news and collections.news.size > 0 -%}
   <hr />
   <h3>Latest Posts</h3>
   {% include "news-post-list.html", limit: 2 %}
 {%- endif -%}
 
 {%- assign categories = collections.categories | getFeaturedCategories -%}
-{%- if categories.size > 0 -%}
+{%- if site.homepage_products and categories.size > 0 -%}
   <hr>
   <h3>Product Categories</h3>
   {%- include "categories-list.html" -%}
