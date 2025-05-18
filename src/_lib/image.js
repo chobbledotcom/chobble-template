@@ -11,6 +11,7 @@ const U = {
     svgShortCircuit: true,
   },
   DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
+  DEFAULT_SIZE: "auto",
   ASPECT_RATIO_ATTRIBUTE: "eleventy:aspectRatio",
   makeImagePromise: (imageOrPath, widths) => {
     return Image(imageOrPath, {
@@ -95,7 +96,7 @@ const U = {
       await imagePromise,
       U.getHtmlAttributes(
         alt,
-        U.getDefault(sizes, "100vw"),
+        U.getDefault(sizes, U.DEFAULT_SIZE),
         U.getDefault(loading, "lazy"),
         classes,
       ),
@@ -186,10 +187,10 @@ module.exports = {
           await processAndWrapImage({
             logName: `transformImages: ${img}`,
             imageName: img.getAttribute("src"),
-            alt: img.getAttribute("alt") || "",
-            classes: img.getAttribute("class") || "",
-            sizes: img.getAttribute("sizes") || "100vw",
-            widths: img.getAttribute("widths") || "",
+            alt: img.getAttribute("alt"),
+            classes: img.getAttribute("class"),
+            sizes: img.getAttribute("sizes"),
+            widths: img.getAttribute("widths"),
             aspectRatio: aspectRatio,
             loading: null,
             returnElement: true,
