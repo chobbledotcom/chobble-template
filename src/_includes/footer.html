@@ -1,4 +1,9 @@
 <footer>
   {%- include "footer-socials.html" -%}
   {%- render_snippet "footer-content" -%}
+  {%- if site.chobble_link and layout == "home.html" -%}
+    <p>
+      site by <a href="{{ site.chobble_link }}">chobble.com</a>
+    </p>
+  {%- endif -%}
 </footer>
