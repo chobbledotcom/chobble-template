@@ -4,6 +4,6 @@
     {% capture image -%}
       {{ header_image | default: page.header_image }}
     {%- endcapture %}
-    {% image image, "", site.products.header_image_widths, "banner" %}
+    {% image image, "", site.products.header_image_widths, "banner", null, "3.5/1" %}
   {% endif %}
 </header>

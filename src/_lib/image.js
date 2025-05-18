@@ -4,132 +4,169 @@ const fs = require("fs");
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_OPTIONS = {
-  formats: ["webp", "jpeg"],
-  outputDir: ".image-cache",
-  urlPath: "/img/",
-  svgShortCircuit: true,
+	formats: ["webp", "jpeg"],
+	outputDir: ".image-cache",
+	urlPath: "/img/",
+	svgShortCircuit: true,
 };
 
 async function processAndWrapImage({
-  logName,
-  imageName,
-  alt,
-  classes,
-  sizes = "100vw",
-  widths = null,
-  returnElement = false,
+	logName,
+	imageName,
+	alt,
+	classes,
+	sizes = "100vw",
+	widths = null,
+	returnElement = false,
+	aspectRatio = null,
 }) {
-  if (typeof widths === "string") {
-    widths = widths.split(",");
-  }
+	if (typeof widths === "string") {
+		widths = widths.split(",");
+	}
 
-  const {
-    window: { document },
-  } = new JSDOM();
-  const div = document.createElement("div");
-  div.classList.add("image-wrapper");
-  if (classes) div.classList.add(classes);
+	const {
+		window: { document },
+	} = new JSDOM();
+	const div = document.createElement("div");
+	div.classList.add("image-wrapper");
+	if (classes) div.classList.add(classes);
 
-  let path =
-    imageName.toString().indexOf("/") == 0 ? imageName : `/images/${imageName}`;
+	let path =
+		imageName.toString().indexOf("/") == 0
+			? `./src${imageName}`
+			: `./src/images/${imageName}`;
 
-  const image = await Image(`src/${path}`, {
-    ...DEFAULT_OPTIONS,
-    widths: widths || DEFAULT_WIDTHS,
-  });
+	let imageOrPath = path;
+	if (aspectRatio) {
+		imageOrPath = await cropImage(path, aspectRatio);
+	}
 
-  const thumbnails = await Image(`src/${path}`, {
-    ...DEFAULT_OPTIONS,
-    widths: [32],
-    formats: ["webp"],
-  });
+	const image = await Image(imageOrPath, {
+		...DEFAULT_OPTIONS,
+		widths: widths || DEFAULT_WIDTHS,
+	});
 
-  const [thumbnail] = thumbnails.webp;
+	div.style.setProperty("background-size", "cover");
 
-  const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
-  const base64Url = `url('data:image/webp;base64,${base64}')`;
+	const thumb = makeThumbnail(path);
+	div.style.setProperty("background-image", thumb[0]);
+	div.style.setProperty("aspect-ratio", thumb[1]);
 
-  const aspectRatio = `${thumbnail.width}/${thumbnail.height}`;
+	const imageAttributes = {
+		alt,
+		sizes,
+		loading: "lazy",
+		decoding: "async",
+	};
 
-  div.style.setProperty("background-size", "cover");
-  div.style.setProperty("background-image", base64Url);
-  div.style.setProperty("aspect-ratio", aspectRatio);
+	if (classes && classes.trim()) imageAttributes.class = classes;
+	div.innerHTML = Image.generateHTML(image, imageAttributes);
 
-  const imageAttributes = {
-    alt,
-    sizes,
-    loading: "lazy",
-    decoding: "async",
-  };
-
-  if (classes && classes.trim()) imageAttributes.class = classes;
-  div.innerHTML = Image.generateHTML(image, imageAttributes);
-
-  return returnElement ? div : div.outerHTML;
+	return returnElement ? div : div.outerHTML;
 }
 
+const makeThumbnail = async (path) => {
+	const thumbnails = await Image(path, {
+		...DEFAULT_OPTIONS,
+		widths: [32],
+		formats: ["webp"],
+	});
+
+	const [thumbnail] = thumbnails.webp;
+
+	const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
+
+	const roundedAspectRatio = `${thumbnail.width}/${thumbnail.height}`;
+
+	return [`url('data:image/webp;base64,${base64}')`, roundedAspectRatio];
+};
+
+const cropImage = async (path, aspectRatio) => {
+	// aspectRatio is a string like "16/9"
+	const sharp = require("sharp");
+	const dimensions = aspectRatio.split("/").map((s) => parseFloat(s));
+	const aspectFraction = dimensions[0] / dimensions[1];
+
+	const image = sharp(path);
+
+	const metadata = await image.metadata();
+	const width = metadata.width;
+	const height = Math.round(width / aspectFraction);
+
+	return image.resize(width, height, { fit: "cover" }).toBuffer();
+};
+
 async function imageShortcode(
-  imageName,
-  alt,
-  widths,
-  classes = "",
-  sizes = "100vw",
+	imageName,
+	alt,
+	widths,
+	classes = null,
+	sizes = null,
+	aspectRatio = null,
 ) {
-  return await processAndWrapImage({
-    logName: `imageShortcode: ${imageName}`,
-    imageName,
-    alt,
-    classes,
-    sizes,
-    widths,
-    returnElement: false,
-  });
+	return await processAndWrapImage({
+		logName: `imageShortcode: ${imageName}`,
+		imageName,
+		alt,
+		classes,
+		sizes,
+		widths,
+		aspectRatio,
+		returnElement: false,
+	});
 }
 
 async function transformImages(content) {
-  if (!content || !content.includes("<img")) return content;
+	if (!content || !content.includes("<img")) return content;
 
-  const {
-    window: { document },
-  } = new JSDOM(content);
-  const images = document.querySelectorAll('img[src^="/images/"]');
+	const {
+		window: { document },
+	} = new JSDOM(content);
+	const images = document.querySelectorAll('img[src^="/images/"]');
 
-  if (images.length === 0) return content;
+	if (images.length === 0) return content;
 
-  await Promise.all(
-    Array.from(images).map(async (img) => {
-      if (img.parentNode.classList.contains("image-wrapper")) return;
+	await Promise.all(
+		Array.from(images).map(async (img) => {
+			if (img.parentNode.classList.contains("image-wrapper")) return;
 
-      const { parentNode } = img;
-      parentNode.replaceChild(
-        await processAndWrapImage({
-          logName: `transformImages: ${img}`,
-          imageName: img.getAttribute("src"),
-          alt: img.getAttribute("alt") || "",
-          classes: img.getAttribute("class") || "",
-          sizes: img.getAttribute("sizes") || "100vw",
-          widths: img.getAttribute("widths") || "",
-          returnElement: true,
-        }),
-        img,
-      );
-    }),
-  );
+			let aspectRatio = null;
+			if (img.hasAttribute("eleventy:aspectRatio")) {
+				aspectRatio = img.getAttribute("eleventy:aspectRatio");
+				img.removeAttribute("eleventy:aspectRatio");
+			}
 
-  // Fix invalid HTML where divs are the sole child of paragraph tags
-  const paragraphs = document.querySelectorAll("p");
-  paragraphs.forEach((p) => {
-    if (p.childNodes.length === 1 && p.firstChild.nodeName === "DIV") {
-      const { parentNode, firstChild } = p;
-      parentNode.insertBefore(firstChild, p);
-      parentNode.removeChild(p);
-    }
-  });
+			const { parentNode } = img;
+			parentNode.replaceChild(
+				await processAndWrapImage({
+					logName: `transformImages: ${img}`,
+					imageName: img.getAttribute("src"),
+					alt: img.getAttribute("alt") || "",
+					classes: img.getAttribute("class") || "",
+					sizes: img.getAttribute("sizes") || "100vw",
+					widths: img.getAttribute("widths") || "",
+					aspectRatio: aspectRatio,
+					returnElement: true,
+				}),
+				img,
+			);
+		}),
+	);
 
-  return new JSDOM(document.documentElement.outerHTML).serialize();
+	// Fix invalid HTML where divs are the sole child of paragraph tags
+	const paragraphs = document.querySelectorAll("p");
+	paragraphs.forEach((p) => {
+		if (p.childNodes.length === 1 && p.firstChild.nodeName === "DIV") {
+			const { parentNode, firstChild } = p;
+			parentNode.insertBefore(firstChild, p);
+			parentNode.removeChild(p);
+		}
+	});
+
+	return new JSDOM(document.documentElement.outerHTML).serialize();
 }
 
 module.exports = {
-  imageShortcode,
-  transformImages,
+	imageShortcode,
+	transformImages,
 };
