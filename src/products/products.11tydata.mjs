@@ -1,3 +1,5 @@
+import strings from "../_data/strings.js";
+
 export default {
 	eleventyComputed: {
 		categories: (data) => {
@@ -8,5 +10,10 @@ export default {
 				return category.split(".")[0];
 			});
 		},
+		navigationParent: () => strings.product_name,
+		permalink: (data) => {
+			const dir = strings.product_permalink_dir || "products";
+			return `${dir}/${data.page.fileSlug}/`;
+		}
 	},
 };
