@@ -17,10 +17,8 @@ module.exports = async function (eleventyConfig) {
 	eleventyConfig
 		.addPassthroughCopy("src/assets")
 		.addPassthroughCopy("src/images")
-		.addPassthroughCopy({
-			"src/assets/favicon/*": "/",
-			"src/news/images/*": "/images/",
-		});
+		.addPassthroughCopy({ "src/assets/favicon/*": "/" })
+		.addPassthroughCopy({ "src/news/images/*": "/images/" });
 
 	eleventyConfig.addPlugin(nav);
 
