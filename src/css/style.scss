@@ -285,6 +285,7 @@ a.image-link {
 body.product {
   .content {
     display: grid;
+    gap: 4rem;
     grid-template-areas:
       "title"
       "gallery"
@@ -306,6 +307,7 @@ body.product {
   @media (min-width: 900px) {
     &.one-column {
       .content {
+        gap: 4rem 2rem;
         grid-template-areas:
           "title title"
           "gallery description"
@@ -321,15 +323,13 @@ body.product {
   @media (min-width: 1100px) {
     &.two-columns {
       .content {
+        gap: 4rem 2rem;
         grid-template-areas:
           "title title"
           "gallery description"
           "contact description";
         grid-template-columns: 400px 1fr;
         grid-template-rows: min-content min-content 1fr;
-      }
-      .description {
-        padding: 0 0 1rem 1rem;
       }
     }
   }
