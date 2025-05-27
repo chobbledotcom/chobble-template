@@ -306,6 +306,9 @@ body.product {
     }
     .contact {
       grid-area: contact;
+      .contact-form {
+        margin-top: 0;
+      }
     }
   }
   @media (min-width: 900px) {
