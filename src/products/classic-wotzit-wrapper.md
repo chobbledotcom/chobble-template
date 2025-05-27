@@ -29,6 +29,7 @@ features:
   - Three internal compartments
   - Four external access points
   - Available in azure, obsidian, and silver
+etsy_url: https://example.com
 ---
 
 This classic Wotzit Wrapper combines timeless style with modern flexibility. The regular adaptation provides a clean outline without restricting movement, while the premium cloud fiber blend offers breathability with just the right amount of flexibility.

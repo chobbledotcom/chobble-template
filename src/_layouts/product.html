@@ -35,6 +35,8 @@ layout: base.html
     </p>
   {%- endif -%}
 
+  {%- include "etsy-buy-button.html" -%}
+
   {{ content }}
 
   {%- if features -%}
@@ -54,6 +56,9 @@ layout: base.html
         <dd>{{ spec.value }}</dd>
       {%- endfor -%}
     </dl>
+
+    {%- include "etsy-buy-button.html" -%}
+
   {%- endif -%}
 </div>
 <div class="contact">
