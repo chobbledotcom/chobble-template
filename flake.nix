@@ -48,15 +48,55 @@
           scriptNames = builtins.attrNames (builtins.readDir ./bin);
         in
         nixpkgs.lib.genAttrs scriptNames makeScript;
+        
+      # Function to set up the common environment for a system
+      makeEnvForSystem = system:
+        let
+          pkgs = import nixpkgs { system = system; };
+          
+          # Default dependencies for packages
+          defaultDependencies = with pkgs; [ nodejs_23 ];
+          
+          # Extended dependencies for development
+          devDependencies = defaultDependencies ++ (with pkgs; [ biome ]);
+          
+          # Create node modules for this system
+          nodeModules = makeNodeModules pkgs;
+        in
+        {
+          inherit pkgs nodeModules;
+          
+          # For packages
+          packageEnv = {
+            inherit pkgs nodeModules;
+            dependencies = defaultDependencies;
+            scriptPackages = makeScriptPackages { 
+              inherit pkgs; 
+              dependencies = defaultDependencies; 
+            };
+          };
+          
+          # For dev shells
+          devEnv = {
+            inherit pkgs nodeModules;
+            dependencies = devDependencies;
+            scriptPackages = makeScriptPackages { 
+              inherit pkgs; 
+              dependencies = devDependencies; 
+            };
+            scriptPackageList = builtins.attrValues (makeScriptPackages { 
+              inherit pkgs; 
+              dependencies = devDependencies;
+            });
+          };
+        };
     in
     {
       packages = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs { system = system; };
-          dependencies = with pkgs; [ nodejs_23 ];
-          nodeModules = makeNodeModules pkgs;
-          scriptPackages = makeScriptPackages { inherit pkgs dependencies; };
+          env = makeEnvForSystem system;
+          inherit (env.packageEnv) pkgs dependencies nodeModules scriptPackages;
 
           sitePackage = pkgs.stdenv.mkDerivation {
             name = "chobble-template";
@@ -102,17 +142,8 @@
       devShells = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs { system = system; };
-
-          dependencies = with pkgs; [
-            biome
-            nodejs_23
-          ];
-
-          nodeModules = makeNodeModules pkgs;
-          scriptPackages = makeScriptPackages { inherit pkgs dependencies; };
-
-          scriptPackageList = builtins.attrValues scriptPackages;
+          env = makeEnvForSystem system;
+          inherit (env.devEnv) pkgs dependencies nodeModules scriptPackages scriptPackageList;
         in
         {
           default = pkgs.mkShell {
