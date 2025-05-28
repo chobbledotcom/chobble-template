@@ -162,12 +162,27 @@ module.exports = async function (eleventyConfig) {
 		return !fs.existsSync(snippetPath);
 	});
 
-	eleventyConfig.addShortcode("render_snippet", (name, defaultString = "") => {
-		const snippetPath = path.join(process.cwd(), "src/snippets", `${name}.md`);
+	// Extract the render_snippet function for testing purposes
+	const renderSnippet = (name, defaultString = "", baseDir = process.cwd(), mdRenderer = md) => {
+		const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
 		if (!fs.existsSync(snippetPath)) return defaultString;
 		const content = fs.readFileSync(snippetPath, "utf8");
-		return md.render(content);
-	});
+		
+		// Extract only the body content, excluding frontmatter
+		// Check if content has frontmatter (starts with --- and has another --- later)
+		const hasFrontmatter = /^---\n[\s\S]*?\n---/.test(content);
+		const bodyContent = hasFrontmatter 
+			? content.replace(/^---\n[\s\S]*?\n---\n?/, '') 
+			: content;
+			
+		return mdRenderer.render(bodyContent);
+	};
+	
+	// Add as a shortcode
+	eleventyConfig.addShortcode("render_snippet", renderSnippet);
+	
+	// Export for testing
+	module.exports.renderSnippet = renderSnippet;
 
 	eleventyConfig.addTemplateFormats("scss");
 	eleventyConfig.addExtension("scss", {

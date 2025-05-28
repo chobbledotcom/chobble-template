@@ -8,6 +8,9 @@
     let
       systems = [ "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+
+      # Shared configuration values
+      npmDepsHash = "sha256-hx4IjiYjWvESZzDgVLPcx2GPMhWWWmMRB7SU9wBjqNk=";
     in
     {
       packages = forAllSystems (
@@ -18,12 +21,12 @@
           nodeModules = pkgs.buildNpmPackage {
             pname = "chobble-template-dependencies";
             version = "1.0.0";
-            src = pkgs.runCommand "source" {} ''
+            src = pkgs.runCommand "source" { } ''
               mkdir -p $out
               cp ${./package.json} $out/package.json
               cp ${./package-lock.json} $out/package-lock.json
             '';
-            npmDepsHash = "sha256-ABBMwg/ezTYiC4aWrxYAb53/3PqSvnf00/9p7zB3tvQ=";
+            inherit npmDepsHash;
             installPhase = "mkdir -p $out && cp -r node_modules $out/";
             dontNpmBuild = true;
           };
@@ -102,12 +105,12 @@
           nodeModules = pkgs.buildNpmPackage {
             pname = "chobble-template-dependencies";
             version = "1.0.0";
-            src = pkgs.runCommand "source" {} ''
+            src = pkgs.runCommand "source" { } ''
               mkdir -p $out
               cp ${./package.json} $out/package.json
               cp ${./package-lock.json} $out/package-lock.json
             '';
-            npmDepsHash = "sha256-ABBMwg/ezTYiC4aWrxYAb53/3PqSvnf00/9p7zB3tvQ=";
+            inherit npmDepsHash;
             installPhase = "mkdir -p $out && cp -r node_modules $out/";
             dontNpmBuild = true;
           };
@@ -150,6 +153,7 @@
                - 'build'      - Build the site in the _site directory
                - 'dryrun'     - Perform a dry run build
                - 'test_flake' - Test building a site using flake.nix
+               - 'test'       - Run all JavaScript tests
                - 'lint'       - Lint all files in src using Biome
 
               EOF
