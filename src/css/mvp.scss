@@ -193,9 +193,11 @@ sup {
   top: -2px;
 }
 
-a:hover {
-  text-decoration: underline;
-  /* filter: brightness(var(--hover-brightness)); */
+a {
+  color: var(--color-link);
+  &:hover {
+    color: var(--color-link-hover);
+  }
 }
 
 a:active {
