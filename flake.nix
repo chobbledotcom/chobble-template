@@ -153,7 +153,7 @@
                - 'build'      - Build the site in the _site directory
                - 'dryrun'     - Perform a dry run build
                - 'test_flake' - Test building a site using flake.nix
-               - 'test'       - Run all JavaScript tests
+               - 'test_js'    - Run all JavaScript tests
                - 'lint'       - Lint all files in src using Biome
 
               EOF
