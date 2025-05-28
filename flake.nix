@@ -11,26 +11,24 @@
 
       # Shared configuration values
       npmDepsHash = "sha256-hx4IjiYjWvESZzDgVLPcx2GPMhWWWmMRB7SU9wBjqNk=";
-    in
-    {
-      packages = forAllSystems (
-        system:
+      
+      # Function to create nodeModules for a given pkgs
+      makeNodeModules = pkgs: pkgs.buildNpmPackage {
+        pname = "chobble-template-dependencies";
+        version = "1.0.0";
+        src = pkgs.runCommand "source" { } ''
+          mkdir -p $out
+          cp ${./package.json} $out/package.json
+          cp ${./package-lock.json} $out/package-lock.json
+        '';
+        inherit npmDepsHash;
+        installPhase = "mkdir -p $out && cp -r node_modules $out/";
+        dontNpmBuild = true;
+      };
+      
+      # Function to create script packages
+      makeScriptPackages = { pkgs, dependencies }: 
         let
-          pkgs = import nixpkgs { system = system; };
-          dependencies = with pkgs; [ nodejs_23 ];
-          nodeModules = pkgs.buildNpmPackage {
-            pname = "chobble-template-dependencies";
-            version = "1.0.0";
-            src = pkgs.runCommand "source" { } ''
-              mkdir -p $out
-              cp ${./package.json} $out/package.json
-              cp ${./package-lock.json} $out/package-lock.json
-            '';
-            inherit npmDepsHash;
-            installPhase = "mkdir -p $out && cp -r node_modules $out/";
-            dontNpmBuild = true;
-          };
-
           makeScript =
             name:
             let
@@ -47,9 +45,18 @@
                 wrapProgram $out/bin/${name} --prefix PATH : $out/bin
               '';
             };
-
           scriptNames = builtins.attrNames (builtins.readDir ./bin);
-          scriptPackages = nixpkgs.lib.genAttrs scriptNames makeScript;
+        in
+        nixpkgs.lib.genAttrs scriptNames makeScript;
+    in
+    {
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { system = system; };
+          dependencies = with pkgs; [ nodejs_23 ];
+          nodeModules = makeNodeModules pkgs;
+          scriptPackages = makeScriptPackages { inherit pkgs dependencies; };
 
           sitePackage = pkgs.stdenv.mkDerivation {
             name = "chobble-template";
@@ -102,38 +109,8 @@
             nodejs_23
           ];
 
-          nodeModules = pkgs.buildNpmPackage {
-            pname = "chobble-template-dependencies";
-            version = "1.0.0";
-            src = pkgs.runCommand "source" { } ''
-              mkdir -p $out
-              cp ${./package.json} $out/package.json
-              cp ${./package-lock.json} $out/package-lock.json
-            '';
-            inherit npmDepsHash;
-            installPhase = "mkdir -p $out && cp -r node_modules $out/";
-            dontNpmBuild = true;
-          };
-
-          makeScript =
-            name:
-            let
-              baseScript = pkgs.writeScriptBin name (builtins.readFile ./bin/${name});
-              patchedScript = baseScript.overrideAttrs (old: {
-                buildCommand = "${old.buildCommand}\n patchShebangs $out";
-              });
-            in
-            pkgs.symlinkJoin {
-              name = name;
-              paths = [ patchedScript ] ++ dependencies;
-              buildInputs = [ pkgs.makeWrapper ];
-              postBuild = ''
-                wrapProgram $out/bin/${name} --prefix PATH : $out/bin
-              '';
-            };
-
-          scriptNames = builtins.attrNames (builtins.readDir ./bin);
-          scriptPackages = nixpkgs.lib.genAttrs scriptNames makeScript;
+          nodeModules = makeNodeModules pkgs;
+          scriptPackages = makeScriptPackages { inherit pkgs dependencies; };
 
           scriptPackageList = builtins.attrValues scriptPackages;
         in
