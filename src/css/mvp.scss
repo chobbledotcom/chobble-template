@@ -64,9 +64,10 @@ section {
   justify-content: var(--justify-important);
 }
 
-section img,
-article img {
+img,
+.image-wrapper {
   max-width: 100%;
+  height: auto;
 }
 
 section pre {
