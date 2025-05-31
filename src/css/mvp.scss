@@ -28,7 +28,7 @@ html {
 /* Layout */
 article aside {
   background: var(--color-secondary-accent);
-  border-left: 4px solid var(--color-secondary);
+  border-left: var(--border);
   padding: 0.01rem 0.8rem;
 }
 
@@ -75,7 +75,7 @@ section pre {
 }
 
 section aside {
-  border: 1px solid var(--color-bg-secondary);
+  border: var(--border);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow) var(--color-shadow);
   margin: 1rem;
@@ -242,13 +242,13 @@ a strong,
 button,
 input[type="submit"] {
   background-color: var(--color-link);
-  border: 2px solid var(--color-link);
+  border: var(--border);
   color: var(--color-bg);
 }
 
 a em,
 a i {
-  border: 2px solid var(--color-link);
+  border: var(--border);
   border-radius: var(--border-radius);
   color: var(--color-link);
   display: inline-block;
@@ -288,7 +288,7 @@ input[type="submit"][disabled]:hover {
 }
 
 form {
-  border: 1px solid var(--color-bg-secondary);
+  border: var(--border);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow) var(--color-shadow);
   display: block;
@@ -332,7 +332,7 @@ input[type="range"] {
 input,
 select,
 textarea {
-  border: 1px solid var(--color-bg-secondary);
+  border: var(--border);
   border-radius: var(--border-radius);
   margin-bottom: 1rem;
   padding: 0.4rem 0.8rem;
@@ -362,8 +362,8 @@ dialog {
   margin: auto;
   padding-block: 0;
   padding-inline: 20px;
-  border: 1px solid var(--color-bg-secondary);
-  border-radius: 0.5rem;
+  border: var(--border);
+  border-radius: var(--border-radius);
   overscroll-behavior: contain;
   scroll-behavior: smooth;
   scrollbar-width: none; /* Hide scrollbar for Firefox */
@@ -413,7 +413,7 @@ dialog hr {
 
 /* Tables */
 table {
-  border: 1px solid var(--color-bg-secondary);
+  border: var(--border);
   border-radius: var(--border-radius);
   border-spacing: 0;
   display: inline-block;
