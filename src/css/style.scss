@@ -267,12 +267,15 @@ input[type="submit"] {
   background-color: var(--form-button-bg-color);
   border: var(--form-button-border);
   color: var(--form-button-text-color);
+  text-decoration: none;
+
   &:hover,
   &:active {
     background-color: var(--form-button-hover-bg-color);
     border: var(--form-button-hover-border);
     color: var(--form-button-hover-text-color);
   }
+
   &:disabled {
     background: var(--color-bg-secondary);
     border-color: var(--color-bg-secondary);
