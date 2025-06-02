@@ -6,11 +6,13 @@
   --color-text: #111111;
   --color-link: var(--color-text);
 
-  --font-family-heading: "Nimbus Mono PS", "Courier New", monospace;
-  --font-family-body:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-family-heading: system-ui, sans-serif;
+  --font-family-body: system-ui, sans-serif;
   --line-height: 1.5;
+
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+  --link-decoration-style: solid;
 
   --border-radius: 3px;
   --border: 2px solid var(--color-text);
@@ -164,8 +166,11 @@ sup {
 
 a {
   color: var(--color-link);
+  text-decoration: var(--link-decoration);
+  text-decoration-style: var(--link-decoration-style);
   &:hover {
     color: var(--color-link-hover);
+    text-decoration: var(--link-decoration-hover);
   }
 }
 
@@ -255,6 +260,7 @@ input,
 select,
 textarea {
   border-radius: var(--border-radius);
+  font-family: var(--font-family-body);
   margin-bottom: 1rem;
   padding: 0.4rem 0.8rem;
   background-color: var(--form-input-bg-color);

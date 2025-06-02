@@ -67,17 +67,16 @@
 
     extractCssVarsFromTheme(themeContent) {
       const cssVars = new Set();
-      const rootBlock = themeContent.match(/:root\s*{([^}]*)}/s);
 
-      if (rootBlock && rootBlock[1]) {
-        const declarations = rootBlock[1].split(";");
-        declarations.forEach((declaration) => {
-          const match = declaration.match(/\s*(--[a-zA-Z0-9-]+)\s*:/);
-          if (match && match[1]) {
-            cssVars.add(match[1]);
-          }
+      themeContent
+        .match(/:root\s*{([^}]*)}/s)?.[1]
+        ?.split(";")
+        .map((line) => line.match(/^\s*(--[a-zA-Z0-9-]+)\s*\:\s(.+)$/))
+        .filter((regex) => regex)
+        .forEach((regex) => {
+          cssVars.add(regex[1]);
+          document.documentElement.style.setProperty(regex[1], regex[2]);
         });
-      }
 
       return cssVars;
     },
@@ -85,6 +84,7 @@
     initControlValues() {
       this.initColorControls();
       this.initTextControls();
+      this.initSelectControls();
       this.initNumberControls();
       this.initBorderControls();
     },
@@ -94,7 +94,7 @@
         .querySelectorAll('input[type="checkbox"][data-target]')
         .forEach((checkbox) => {
           const targetIds = checkbox.dataset.target.split(",");
-          const varName = `--${checkbox.id}`;
+          const varName = `--${checkbox.id.replace(/\-enabled$/, "")}`;
           const isEnabled = cssVars.has(varName);
 
           checkbox.checked = isEnabled;
@@ -161,9 +161,13 @@
       document
         .querySelectorAll('input[type="color"][data-var]')
         .forEach((input) => {
-          input.value = getComputedStyle(document.documentElement)
+          const value = getComputedStyle(document.documentElement)
             .getPropertyValue(input.dataset.var)
             .trim();
+
+          console.log(input.dataset.var, value);
+
+          input.value = value;
           input.addEventListener("input", () => this.updateThemeFromControls());
         });
     },
@@ -178,7 +182,14 @@
           input.addEventListener("input", () => this.updateThemeFromControls());
         });
     },
-
+    initSelectControls() {
+      document.querySelectorAll("select[data-var]").forEach((input) => {
+        input.value = getComputedStyle(document.documentElement)
+          .getPropertyValue(input.dataset.var)
+          .trim();
+        input.addEventListener("input", () => this.updateThemeFromControls());
+      });
+    },
     initNumberControls() {
       document
         .querySelectorAll('input[type="number"][data-var]')
@@ -326,8 +337,8 @@
 
       inputs.forEach((input) => {
         const varName = input.dataset.var;
-        const value =
-          input.id == "border-radius" ? `${input.value}px` : input.value;
+        let value = input.value;
+        if (input.id == "border-radius") value = `${value}px`;
         document.documentElement.style.setProperty(varName, value);
         themeText += `  ${varName}: ${value};\n`;
       });

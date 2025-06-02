@@ -75,26 +75,44 @@ layout: base.html
   </div>
 
   <div id="fonts-tab" class="tab-content">
-    <h2>Typography</h2>
+    <h2>Fonts / Text</h2>
     <div class="grid">
-      <div>
-        <label for="bunny-fonts" class="no-checkbox">Bunny Fonts Import</label>
-        <input type="text" id="bunny-fonts" placeholder="space-grotesk:400,500,600,700">
-        <small>Format: font-name-a:weights|font-name-b:400,700</small>
-      </div>
-      {% include "form/text.html",
+      {% include "form/select.html",
         id: "font-family-heading",
-        label: "Heading Font"
+        label: "Heading Font",
+        options: fonts
       %}
-      {% include "form/text.html",
+      {% include "form/select.html",
         id: "font-family-body",
-        label: "Body Font"
+        label: "Body Font",
+        options: fonts
       %}
       {% include "form/number.html",
         id: "line-height",
         label: "Line Height",
         step: "0.1"
       %}
+      {% include "form/select.html",
+        id: "link-decoration",
+        label: "Link Decoration",
+        options: text-decoration
+      %}
+      {% include "form/select.html",
+        id: "link-decoration-hover",
+        label: "Link Decoration (hover)",
+        options: text-decoration
+      %}
+      {% include "form/select.html",
+        id: "link-decoration-style",
+        label: "Link Decoration Style",
+        options: line-styles
+      %}
+    </div>
+    <div>
+      <br>
+      <label for="bunny-fonts" class="no-checkbox">Bunny Fonts Import</label>
+      <input type="text" id="bunny-fonts" placeholder="space-grotesk:400,500,600,700">
+      <small>Format: font-name-a:weights|font-name-b:400,700</small>
     </div>
   </div>
 
@@ -318,10 +336,6 @@ layout: base.html
   list-style: none;
   padding: 0;
   margin-bottom: 2rem;
-}
-
-.tab-link {
-  text-decoration: none;
 }
 
 .tab-link.active {
