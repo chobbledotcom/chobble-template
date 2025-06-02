@@ -62,6 +62,10 @@ layout: base.html
   {%- endif -%}
 </div>
 <div class="contact">
-  <h2>Get in Touch</h2>
-  {% include "contact-form.html" %}
+  {%- if "src/snippets/product-contact.md" | file_exists -%}
+    {%- render_snippet "product-contact" -%}
+  {%- else -%}
+    <h2>Get in Touch</h2>
+    {% include "contact-form.html" %}
+  {%- endif -%}
 </div>
