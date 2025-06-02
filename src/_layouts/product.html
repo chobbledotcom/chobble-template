@@ -28,7 +28,7 @@ layout: base.html
         {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
         {%- if category -%}
           <a href="{{ category.url }}">
-            {{ category.data.title }}
+            {{- category.data.title -}}
           </a>{%- unless forloop.last -%}, {% endunless -%}
         {%- endif -%}
       {%- endfor -%}
