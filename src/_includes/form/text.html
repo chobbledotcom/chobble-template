@@ -1,0 +1,25 @@
+<div>
+  <label for="{{ id }}">
+    <input
+      type="checkbox"
+      id="{{ id }}-enabled"
+      data-target="{{ id }}"
+    >
+    {{ label }}
+  </label>
+  <input
+    type="text"
+    id="{{ id }}"
+    data-var="--{{ id }}"
+    {% if placeholder %}
+      placeholder="{{ placeholder }}"
+    {% endif %}
+    {% if readonly %}
+      readonly
+    {% endif %}
+    disabled
+  >
+  {% if help %}
+    <small>{{ help }}</small>
+  {% endif %}
+</div>

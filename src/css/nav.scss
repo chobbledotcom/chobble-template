@@ -9,8 +9,10 @@ nav {
   }
   a {
     font-weight: normal;
+    color: var(--nav-link-color);
     &.active {
       font-weight: bold;
+      color: var(--nav-link-active-color);
     }
   }
 }
@@ -29,7 +31,7 @@ nav {
       border-radius: 0;
       width: 100%;
       z-index: 1000;
-      background: var(--color-bg);
+      background: var(--nav-bg-color);
       padding: 0.5rem;
       height: 3rem;
 
@@ -66,7 +68,7 @@ nav {
         span::before,
         span::after {
           display: block;
-          background: white;
+          background: var(--nav-text-color);
           height: 2px;
           width: 30px;
           position: absolute;
@@ -93,7 +95,7 @@ nav {
 
       & > ul {
         position: fixed;
-        background: var(--color-bg);
+        background: var(--nav-bg-color);
         top: 0;
         right: -100%; /* Start off-screen */
         bottom: 0;
@@ -181,8 +183,8 @@ nav {
               display: block;
             }
             ul {
-              background: var(--color-bg);
-              border: var(--border);
+              background: var(--nav-bg-color);
+              border: var(--nav-border);
               border-radius: var(--border-radius);
               box-shadow: var(--box-shadow) var(--color-shadow);
               display: none;
@@ -195,9 +197,6 @@ nav {
               width: auto;
               z-index: 1;
               box-shadow: none;
-              a {
-                color: var(--color-bg-main);
-              }
               &::before {
                 content: "";
                 position: absolute;

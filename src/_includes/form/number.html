@@ -1,0 +1,17 @@
+<div>
+  <label for="{{ id }}">
+    <input
+      type="checkbox"
+      id="{{ id }}-enabled"
+      data-target="{{ id }}"
+    >
+    {{ label }}
+  </label>
+  <input
+    type="number"
+    id="{{ id }}"
+    data-var="{{ var }}"
+    step="{{ step }}"
+    disabled
+  >
+</div>

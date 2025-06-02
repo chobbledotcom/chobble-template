@@ -1,0 +1,33 @@
+<div>
+  <label for="{{ width_id }}">
+    <input
+      type="checkbox"
+      id="{{ output_id }}-enabled"
+      data-target="border-{{output_id}},{{ width_id }},{{ style_id }},{{ color_id }}"
+    >
+    {{ label }}
+  </label>
+  <div class="border-controls" id="border-{{output_id}}">
+    <div class="border-width">
+      <input
+        type="number"
+        id="{{ width_id }}"
+        min="0"
+        value="1"
+        disabled
+      > <span>px</span>
+    </div>
+    <div class="border-style">
+      <select id="{{ style_id }}" disabled>
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
+        <option value="double">Double</option>
+      </select>
+    </div>
+    <div class="border-color">
+      <input type="color" id="{{ color_id }}" disabled>
+    </div>
+  </div>
+  <input type="hidden" id="{{ output_id }}" data-var="{{ var }}">
+</div>

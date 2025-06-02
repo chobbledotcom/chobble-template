@@ -2,151 +2,287 @@
 layout: base.html
 ---
 
-<h1>Theme Editor</h1>
+<div class="editor-tabs">
+  <ul>
+    <li><a href="#" class="tab-link active" data-tab="default">Defaults</a></li>
+    <li><a href="#" class="tab-link" data-tab="fonts">Fonts</a></li>
+    <li><a href="#" class="tab-link" data-tab="header">Header</a></li>
+    <li><a href="#" class="tab-link" data-tab="nav">Navigation</a></li>
+    <li><a href="#" class="tab-link" data-tab="main">Main Content</a></li>
+    <li><a href="#" class="tab-link" data-tab="form">Forms</a></li>
+  </ul>
+</div>
 
-<section>
-  <form id="theme-editor-form">
+<form id="theme-editor-form">
+  <div id="default-tab" class="tab-content active">
     <h2>Colors</h2>
     <div class="grid">
-      <div>
-        <label for="color-bg">Background</label>
-        <input type="color" id="color-bg" data-var="--color-bg">
-      </div>
-      <div>
-        <label for="color-bg-main">Main Background</label>
-        <input type="color" id="color-bg-main" data-var="--color-bg-main">
-      </div>
-      <div>
-        <label for="color-bg-secondary">Secondary Background</label>
-        <input type="color" id="color-bg-secondary" data-var="--color-bg-secondary">
-      </div>
-      <div>
-        <label for="color-text">Text Color</label>
-        <input type="color" id="color-text" data-var="--color-text">
-      </div>
-      <div>
-        <label for="color-text-secondary">Secondary Text Color</label>
-        <input type="color" id="color-text-secondary" data-var="--color-text-secondary">
-      </div>
-      <div>
-        <label for="color-link">Link Color</label>
-        <input type="color" id="color-link" data-var="--color-link">
-      </div>
-      <div>
-        <label for="color-secondary">Secondary Color</label>
-        <input type="color" id="color-secondary" data-var="--color-secondary">
-      </div>
-      <div>
-        <label for="color-secondary-accent">Secondary Accent Color</label>
-        <input type="color" id="color-secondary-accent" data-var="--color-secondary-accent">
-      </div>
+      {% include "form/color.html",
+        id: "color-bg",
+        label: "Background"
+      %}
+      {% include "form/color.html",
+        id: "color-text",
+        label: "Text Color"
+      %}
+      {% include "form/color.html",
+        id: "color-link",
+        label: "Link Color"
+      %}
+      {% include "form/color.html",
+        id: "color-bg-secondary",
+        label: "Secondary Background"
+      %}
     </div>
-    
+
+    <h2>Layout</h2>
+    <div class="grid">
+      {% include "form/number.html",
+        id: "border-radius",
+        label: "Border Radius"
+      %}
+
+      {% include "form/border.html",
+        width_id: "border-width",
+        style_id: "border-style",
+        color_id: "border-color",
+        output_id: "border",
+        label: "Border",
+        var: "--border"
+      %}
+
+      {% include "form/text.html",
+        id: "box-shadow",
+        label: "Box Shadow"
+      %}
+      {% include "form/text.html",
+        id: "width-content",
+        label: "Content Width"
+      %}
+      {% include "form/text.html",
+        id: "width-card",
+        label: "Card Width"
+      %}
+      {% include "form/text.html",
+        id: "width-card-medium",
+        label: "Medium Card Width"
+      %}
+      {% include "form/text.html",
+        id: "width-card-wide",
+        label: "Wide Card Width"
+      %}
+    </div>
+
+    <h2>Effects</h2>
+    <div class="grid">
+      {% include "form/number.html",
+        id: "active-brightness",
+        label: "Active Brightness",
+        step: "0.05"
+      %}
+      {% include "form/number.html",
+        id: "hover-brightness",
+        label: "Hover Brightness",
+        step: "0.05"
+      %}
+    </div>
+  </div>
+
+  <div id="fonts-tab" class="tab-content">
     <h2>Typography</h2>
     <div class="grid">
       <div>
-        <label for="bunny-fonts">Bunny Fonts Import</label>
+        <label for="bunny-fonts" class="no-checkbox">Bunny Fonts Import</label>
         <input type="text" id="bunny-fonts" placeholder="space-grotesk:400,500,600,700">
-        <small>Format: font-name:weights (comma-separated for multiple fonts)</small>
+        <small>Format: font-name-a:weights|font-name-b:400,700</small>
       </div>
-      <div>
-        <label for="font-family-heading">Heading Font</label>
-        <input type="text" id="font-family-heading" data-var="--font-family-heading">
-      </div>
-      <div>
-        <label for="font-family-body">Body Font</label>
-        <input type="text" id="font-family-body" data-var="--font-family-body">
-      </div>
-      <div>
-        <label for="line-height">Line Height</label>
-        <input type="number" id="line-height" data-var="--line-height" step="0.1">
-      </div>
+      {% include "form/text.html",
+        id: "font-family-heading",
+        label: "Heading Font"
+      %}
+      {% include "form/text.html",
+        id: "font-family-body",
+        label: "Body Font"
+      %}
+      {% include "form/number.html",
+        id: "line-height",
+        label: "Line Height",
+        step: "0.1"
+      %}
     </div>
-    
-    <h2>Layout</h2>
-    <div class="grid">
-      <div>
-        <label for="border-radius">Border Radius</label>
-        <input type="text" id="border-radius" data-var="--border-radius">
-      </div>
-      <div>
-        <label for="border-width">Border Width</label>
-        <input type="text" id="border-width" placeholder="1px">
-      </div>
-      <div>
-        <label for="border-style">Border Style</label>
-        <select id="border-style">
-          <option value="solid">Solid</option>
-          <option value="dashed">Dashed</option>
-          <option value="dotted">Dotted</option>
-          <option value="double">Double</option>
-        </select>
-      </div>
-      <div>
-        <label for="border-color">Border Color</label>
-        <input type="color" id="border-color">
-      </div>
-      <div>
-        <label for="border">Border</label>
-        <input type="text" id="border" data-var="--border" readonly>
-        <small>Computed from the settings above</small>
-      </div>
-      <div>
-        <label for="box-shadow">Box Shadow</label>
-        <input type="text" id="box-shadow" data-var="--box-shadow">
-      </div>
-      <div>
-        <label for="width-content">Content Width</label>
-        <input type="text" id="width-content" data-var="--width-content">
-      </div>
-      <div>
-        <label for="width-card">Card Width</label>
-        <input type="text" id="width-card" data-var="--width-card">
-      </div>
-      <div>
-        <label for="width-card-medium">Medium Card Width</label>
-        <input type="text" id="width-card-medium" data-var="--width-card-medium">
-      </div>
-      <div>
-        <label for="width-card-wide">Wide Card Width</label>
-        <input type="text" id="width-card-wide" data-var="--width-card-wide">
-      </div>
-    </div>
-    
-    <h2>Effects</h2>
-    <div class="grid">
-      <div>
-        <label for="active-brightness">Active Brightness</label>
-        <input type="number" id="active-brightness" data-var="--active-brightness" step="0.05">
-      </div>
-      <div>
-        <label for="hover-brightness">Hover Brightness</label>
-        <input type="number" id="hover-brightness" data-var="--hover-brightness" step="0.05">
-      </div>
-    </div>
-  </form>
-</section>
+  </div>
 
-<section>
-  <h2>Generated Theme</h2>
-  <textarea id="theme-output" rows="20" readonly style="width: 100%; font-family: monospace;"></textarea>
-  <button id="download-theme">Download Theme</button>
-</section>
+  <div id="header-tab" class="tab-content">
+    <h2>Header Styling</h2>
+    <div class="grid">
+      {% include "form/color.html",
+        id: "header-bg-color",
+        label: "Background Color"
+      %}
+      {% include "form/color.html",
+        id: "header-text-color",
+        label: "Text Color"
+      %}
+
+      {% include "form/border.html",
+        width_id: "header-border-width",
+        style_id: "header-border-style",
+        color_id: "header-border-color",
+        output_id: "header-border",
+        label: "Header Border",
+        var: "--header-border"
+      %}
+
+      {% include "form/text.html",
+        id: "header-font-family",
+        label: "Header Font"
+      %}
+    </div>
+  </div>
+
+  <div id="nav-tab" class="tab-content">
+    <h2>Navigation Styling</h2>
+    <div class="grid">
+      {% include "form/color.html",
+        id: "nav-bg-color",
+        label: "Background Color"
+      %}
+      {% include "form/color.html",
+        id: "nav-text-color",
+        label: "Text Color"
+      %}
+      {% include "form/color.html",
+        id: "nav-link-color",
+        label: "Link Color"
+      %}
+      {% include "form/color.html",
+        id: "nav-link-active-color",
+        label: "Active Link Color"
+      %}
+
+      {% include "form/border.html",
+        width_id: "nav-border-width",
+        style_id: "nav-border-style",
+        color_id: "nav-border-color",
+        output_id: "nav-border",
+        label: "Nav Border",
+        var: "--nav-border"
+      %}
+    </div>
+  </div>
+
+  <div id="main-tab" class="tab-content">
+    <h2>Main Content Styling</h2>
+    <div class="grid">
+      {% include "form/color.html",
+        id: "main-bg-color",
+        label: "Background Color"
+      %}
+      {% include "form/color.html",
+        id: "main-text-color",
+        label: "Text Color"
+      %}
+
+      {% include "form/border.html",
+        width_id: "main-border-width",
+        style_id: "main-border-style",
+        color_id: "main-border-color",
+        output_id: "main-border",
+        label: "Main Border",
+        var: "--main-border"
+      %}
+    </div>
+  </div>
+
+  <div id="form-tab" class="tab-content">
+    <h2>Form Styling</h2>
+    <div class="grid">
+      {% include "form/color.html",
+        id: "form-bg-color",
+        label: "Form Background"
+      %}
+      {% include "form/color.html",
+        id: "form-text-color",
+        label: "Form Text Color"
+      %}
+
+      {% include "form/border.html",
+        width_id: "form-border-width",
+        style_id: "form-border-style",
+        color_id: "form-border-color",
+        output_id: "form-border",
+        label: "Form Border",
+        var: "--form-border"
+      %}
+
+      <h3>Form Inputs</h3>
+      {% include "form/color.html",
+        id: "form-input-bg-color",
+        label: "Input Background"
+      %}
+      {% include "form/color.html",
+        id: "form-input-text-color",
+        label: "Input Text Color"
+      %}
+
+      <h3>Form Buttons</h3>
+      {% include "form/color.html",
+        id: "form-button-bg-color",
+        label: "Button Background"
+      %}
+      {% include "form/color.html",
+        id: "form-button-text-color",
+        label: "Button Text Color"
+      %}
+
+      {% include "form/border.html",
+        width_id: "form-button-border-width",
+        style_id: "form-button-border-style",
+        color_id: "form-button-border-color",
+        output_id: "form-button-border",
+        label: "Button Border",
+        var: "--form-button-border"
+      %}
+
+      <h3>Form Button Hover</h3>
+      {% include "form/color.html",
+        id: "form-button-hover-bg-color",
+        label: "Button Hover Background"
+      %}
+      {% include "form/color.html",
+        id: "form-button-hover-text-color",
+        label: "Button Hover Text Color"
+      %}
+
+      {% include "form/border.html",
+        width_id: "form-button-hover-border-width",
+        style_id: "form-button-hover-border-style",
+        color_id: "form-button-hover-border-color",
+        output_id: "form-button-hover-border",
+        label: "Button Hover Border",
+        var: "--form-button-hover-border"
+      %}
+    </div>
+  </div>
+</form>
+
+<h2>Theme</h2>
+<textarea
+  id="theme-output"
+  rows="20"
+  style="width: 100%; font-family: monospace;"
+></textarea>
+
+<button
+  class="button"
+  id="download-theme"
+>Download Theme</button>
 
 <style>
 #theme-editor-form .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
-}
-
-#theme-editor-form div > div {
-  margin-bottom: 1rem;
-}
-
-#theme-editor-form label {
-  display: block;
-  margin-bottom: 0.5rem;
 }
 
 #theme-editor-form small {
@@ -160,8 +296,82 @@ layout: base.html
   width: 100%;
 }
 
+.border-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.border-width {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.border-width input {
+  width: 4rem;
+}
+
+.border-style select {
+  min-width: 5rem;
+}
+
+.border-color input {
+  min-width: 2.5rem;
+  height: 2.5rem;
+}
+
 #theme-output {
   margin: 1rem 0;
+}
+
+.editor-tabs ul {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2rem;
+}
+
+.tab-link {
+  text-decoration: none;
+}
+
+.tab-link.active {
+  font-weight: bold;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Checkbox Styles */
+#theme-editor-form label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+
+#theme-editor-form input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+#theme-editor-form input:disabled,
+#theme-editor-form select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#theme-editor-form label.no-checkbox {
+  display: block;
 }
 </style>
 

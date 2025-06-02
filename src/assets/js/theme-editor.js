@@ -1,173 +1,374 @@
-(function() {
-  const form = document.getElementById('theme-editor-form')
-  const inputs = form.querySelectorAll('input')
-  const selects = form.querySelectorAll('select')
-  const output = document.getElementById('theme-output')
-  const downloadBtn = document.getElementById('download-theme')
-  const bunnyFontsInput = document.getElementById('bunny-fonts')
-  
-  // Border-specific elements
-  const borderWidthInput = document.getElementById('border-width')
-  const borderStyleSelect = document.getElementById('border-style')
-  const borderColorInput = document.getElementById('border-color')
-  const borderOutput = document.getElementById('border')
-  
-  function initInputs() {
-    inputs.forEach(input => {
-      if (input.id === 'bunny-fonts' || input.id === 'border-width' || 
-          input.id === 'border-color' || input.id === 'border') return
-      
-      const varName = input.dataset.var
-      if (!varName) return
-      
-      const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
-      
-      if (input.type === 'color') {
-        input.value = rgbToHex(value)
+(function () {
+  const ThemeEditor = {
+    componentTypes: ["default", "header", "nav", "main", "form"],
+
+    elements: {
+      form: document.getElementById("theme-editor-form"),
+      output: document.getElementById("theme-output"),
+      downloadBtn: document.getElementById("download-theme"),
+      bunnyFontsInput: document.getElementById("bunny-fonts"),
+      tabLinks: document.querySelectorAll(".tab-link"),
+      tabContents: document.querySelectorAll(".tab-content"),
+    },
+
+    init() {
+      this.initTabNavigation();
+      this.loadThemeScss();
+      this.setupEventListeners();
+    },
+
+    initTabNavigation() {
+      this.elements.tabLinks.forEach((tabLink) => {
+        tabLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.elements.tabLinks.forEach((link) =>
+            link.classList.remove("active"),
+          );
+          this.elements.tabContents.forEach((content) =>
+            content.classList.remove("active"),
+          );
+          tabLink.classList.add("active");
+          const tabId = tabLink.dataset.tab;
+          document.getElementById(`${tabId}-tab`).classList.add("active");
+        });
+      });
+    },
+
+    loadThemeScss() {
+      fetch("/css/theme.css")
+        .then((response) => response.text())
+        .then((content) => {
+          this.elements.output.value = content;
+          this.initControlsFromTheme(content);
+        })
+        .catch((error) => {
+          console.error("Error loading theme.scss:", error);
+          this.elements.output.value = ":root {\n}\n";
+          this.initControlsFromTheme(":root {\n}\n");
+        });
+    },
+
+    initControlsFromTheme(themeContent) {
+      const cssVars = this.extractCssVarsFromTheme(themeContent);
+
+      const fontImportMatch = themeContent.match(
+        /@import url\("https:\/\/fonts\.bunny\.net\/css\?family=([^&"]+)/,
+      );
+      if (fontImportMatch && fontImportMatch[1]) {
+        this.elements.bunnyFontsInput.value = fontImportMatch[1];
+        this.updateLiveFont(fontImportMatch[1]);
+      }
+
+      this.initControlValues();
+      this.initCheckboxControls(cssVars);
+
+      this.elements.output.addEventListener("input", () => {
+        this.updateControlsFromTextarea();
+      });
+    },
+
+    extractCssVarsFromTheme(themeContent) {
+      const cssVars = new Set();
+      const rootBlock = themeContent.match(/:root\s*{([^}]*)}/s);
+
+      if (rootBlock && rootBlock[1]) {
+        const declarations = rootBlock[1].split(";");
+        declarations.forEach((declaration) => {
+          const match = declaration.match(/\s*(--[a-zA-Z0-9-]+)\s*:/);
+          if (match && match[1]) {
+            cssVars.add(match[1]);
+          }
+        });
+      }
+
+      return cssVars;
+    },
+
+    initControlValues() {
+      this.initColorControls();
+      this.initTextControls();
+      this.initNumberControls();
+      this.initBorderControls();
+    },
+
+    initCheckboxControls(cssVars) {
+      document
+        .querySelectorAll('input[type="checkbox"][data-target]')
+        .forEach((checkbox) => {
+          const targetIds = checkbox.dataset.target.split(",");
+          const varName = `--${checkbox.id}`;
+          const isEnabled = cssVars.has(varName);
+
+          checkbox.checked = isEnabled;
+          targetIds.forEach((id) => toggleCheckbox(id, isEnabled));
+
+          checkbox.addEventListener("change", () => {
+            targetIds.forEach((id) => toggleCheckbox(id, checkbox.checked));
+            this.updateThemeFromControls();
+          });
+        });
+
+      function toggleCheckbox(id, checked) {
+        const target = document.getElementById(id);
+        if (checked) {
+          target.disabled = false;
+          target.style.removeProperty("display");
+        } else {
+          target.disabled = true;
+          target.style.display = "none";
+          document.documentElement.style.removeProperty(`--${id}`);
+        }
+      }
+    },
+
+    updateControlsFromTextarea() {
+      const themeContent = this.elements.output.value;
+      const cssVars = this.extractCssVarsFromTheme(themeContent);
+
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach((checkbox) => {
+        if (!checkbox.dataset.var) return;
+
+        const varName = checkbox.dataset.var;
+        const isEnabled = cssVars.has(varName);
+
+        if (checkbox.checked !== isEnabled) {
+          checkbox.checked = isEnabled;
+
+          if (!isEnabled && varName) {
+            document.documentElement.style.removeProperty(varName);
+          }
+
+          if (checkbox.dataset.target) {
+            checkbox.dataset.target
+              .split(",")
+              .forEach((id) => toggleCheckbox(id, isEnabled));
+          }
+        }
+      });
+
+      const fontImportMatch = themeContent.match(
+        /@import url\("https:\/\/fonts\.bunny\.net\/css\?family=([^&"]+)/,
+      );
+      if (fontImportMatch && fontImportMatch[1]) {
+        this.elements.bunnyFontsInput.value = fontImportMatch[1];
+        this.updateLiveFont(fontImportMatch[1]);
       } else {
-        input.value = value
+        this.elements.bunnyFontsInput.value = "";
       }
-      
-      input.addEventListener('input', updateTheme)
-    })
-    
-    selects.forEach(select => {
-      select.addEventListener('change', updateTheme)
-    })
-    
-    // Extract font name from existing heading font family
-    const headingFont = getComputedStyle(document.documentElement).getPropertyValue('--font-family-heading').trim()
-    const fontMatch = headingFont.match(/"([^"]+)"/i)
-    if (fontMatch && fontMatch[1]) {
-      // Default to space-grotesk with weights if we find it in the current font
-      if (fontMatch[1].toLowerCase().includes('space grotesk')) {
-        bunnyFontsInput.value = 'space-grotesk:400,500,600,700'
+    },
+
+    initColorControls() {
+      document
+        .querySelectorAll('input[type="color"][data-var]')
+        .forEach((input) => {
+          input.value = getComputedStyle(document.documentElement)
+            .getPropertyValue(input.dataset.var)
+            .trim();
+          input.addEventListener("input", () => this.updateThemeFromControls());
+        });
+    },
+
+    initTextControls() {
+      Array.from(document.querySelectorAll('input[type="text"][data-var]'))
+        .filter((input) => !input.id.includes("border"))
+        .forEach((input) => {
+          input.value = getComputedStyle(document.documentElement)
+            .getPropertyValue(input.dataset.var)
+            .trim();
+          input.addEventListener("input", () => this.updateThemeFromControls());
+        });
+    },
+
+    initNumberControls() {
+      document
+        .querySelectorAll('input[type="number"][data-var]')
+        .forEach((input) => {
+          input.value = parseFloat(
+            getComputedStyle(document.documentElement)
+              .getPropertyValue(input.dataset.var)
+              .trim(),
+          );
+          input.addEventListener("input", () => this.updateThemeFromControls());
+        });
+    },
+
+    initBorderControls() {
+      this.componentTypes.forEach((type) => {
+        const prefix = type === "default" ? "" : `${type}-`;
+
+        const widthInput = document.getElementById(`${prefix}border-width`);
+        const styleSelect = document.getElementById(`${prefix}border-style`);
+        const colorInput = document.getElementById(`${prefix}border-color`);
+        const outputInput = document.getElementById(`${prefix}border`);
+
+        if (!widthInput || !styleSelect || !colorInput || !outputInput) return;
+
+        const cssVar = outputInput.dataset.var;
+        let currentBorderValue = getComputedStyle(document.documentElement)
+          .getPropertyValue(cssVar)
+          .trim();
+
+        this.setupBorderControl(
+          currentBorderValue,
+          widthInput,
+          styleSelect,
+          colorInput,
+          outputInput,
+          cssVar,
+        );
+
+        widthInput.addEventListener("input", () =>
+          this.updateBorder(
+            widthInput,
+            styleSelect,
+            colorInput,
+            outputInput,
+            cssVar,
+          ),
+        );
+
+        styleSelect.addEventListener("change", () =>
+          this.updateBorder(
+            widthInput,
+            styleSelect,
+            colorInput,
+            outputInput,
+            cssVar,
+          ),
+        );
+
+        colorInput.addEventListener("input", () =>
+          this.updateBorder(
+            widthInput,
+            styleSelect,
+            colorInput,
+            outputInput,
+            cssVar,
+          ),
+        );
+      });
+    },
+
+    setupBorderControl(
+      borderValue,
+      widthInput,
+      styleSelect,
+      colorInput,
+      outputInput,
+      cssVar,
+    ) {
+      const borderParts = borderValue.match(/(\d+)px\s+(\w+)\s+(.+)/);
+
+      if (borderParts && borderParts.length === 4) {
+        widthInput.value = parseInt(borderParts[1], 10);
+        styleSelect.value = borderParts[2];
+
+        if (borderParts[3].startsWith("#")) {
+          colorInput.value = borderParts[3];
+        }
       }
-    }
-    
-    // Set up border controls
-    const currentBorder = getComputedStyle(document.documentElement).getPropertyValue('--border').trim()
-    const borderParts = currentBorder.match(/(\d+\w+)\s+(\w+)\s+(.+)/)
-    
-    if (borderParts && borderParts.length === 4) {
-      borderWidthInput.value = borderParts[1]
-      borderStyleSelect.value = borderParts[2]
-      if (borderParts[3].startsWith('#')) {
-        borderColorInput.value = borderParts[3]
-      } else if (borderParts[3].startsWith('rgb')) {
-        borderColorInput.value = rgbToHex(borderParts[3])
-      } else {
-        // It's a variable like #{$gold}, we can't parse it easily
-        // Just use the gold color as default
-        borderColorInput.value = '#d4af37'
+
+      outputInput.value = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
+    },
+
+    updateBorder(widthInput, styleSelect, colorInput, outputInput, cssVar) {
+      const borderValue = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
+      outputInput.value = borderValue;
+      document.documentElement.style.setProperty(cssVar, borderValue);
+      this.updateThemeFromControls();
+    },
+
+    setupEventListeners() {
+      this.elements.downloadBtn.addEventListener("click", () =>
+        this.downloadTheme(),
+      );
+
+      this.elements.bunnyFontsInput.addEventListener("input", () =>
+        this.updateThemeFromControls(),
+      );
+    },
+
+    updateThemeFromControls() {
+      const activeVars = new Set();
+      const bunnyFonts = this.elements.bunnyFontsInput.value.trim();
+
+      let themeText = "";
+      if (bunnyFonts) {
+        themeText += `@import url("https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap");\n\n`;
+        this.updateLiveFont(bunnyFonts);
       }
-    } else {
-      // Default values
-      borderWidthInput.value = '1px'
-      borderStyleSelect.value = 'solid'
-      borderColorInput.value = '#d4af37'
-    }
-    
-    borderOutput.value = `${borderWidthInput.value} ${borderStyleSelect.value} ${borderColorInput.value}`
-    
-    // Add event listeners for border components
-    borderWidthInput.addEventListener('input', updateBorder)
-    borderStyleSelect.addEventListener('change', updateBorder)
-    borderColorInput.addEventListener('input', updateBorder)
-    
-    bunnyFontsInput.addEventListener('input', updateTheme)
-    
-    updateTheme()
-  }
-  
-  function updateBorder() {
-    const borderValue = `${borderWidthInput.value} ${borderStyleSelect.value} ${borderColorInput.value}`
-    borderOutput.value = borderValue
-    document.documentElement.style.setProperty('--border', borderValue)
-    updateTheme()
-  }
-  
-  function rgbToHex(rgb) {
-    if (rgb.startsWith('#')) return rgb
-    
-    const rgbValues = rgb.match(/\d+/g)
-    if (!rgbValues || rgbValues.length < 3) return '#000000'
-    
-    const r = parseInt(rgbValues[0])
-    const g = parseInt(rgbValues[1])
-    const b = parseInt(rgbValues[2])
-    
-    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
-  }
-  
-  function updateTheme() {
-    let themeText = ''
-    
-    // Add Bunny Fonts import if specified
-    const bunnyFonts = bunnyFontsInput.value.trim()
-    if (bunnyFonts) {
-      themeText += `@import url("https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap");\n\n`
-      
-      // Update the live page with the font import
-      const existingLinkEl = document.querySelector('link[data-bunny-fonts]')
+
+      themeText += ":root {\n";
+
+      const inputs = Array.from(
+        this.elements.form.querySelectorAll("[data-var]"),
+      ).filter((input) => {
+        const checkboxId = input.id + "-enabled";
+        const checkbox = document.getElementById(checkboxId);
+
+        if (!checkbox && input.id.includes("border")) {
+          const borderCheckboxId =
+            input.id
+              .replace("border-width", "border")
+              .replace("border-style", "border")
+              .replace("border-color", "border") + "-enabled";
+          const borderCheckbox = document.getElementById(borderCheckboxId);
+          return !borderCheckbox || borderCheckbox.checked;
+        }
+
+        return !checkbox || checkbox.checked;
+      });
+
+      inputs.forEach((input) => {
+        const varName = input.dataset.var;
+        if (!varName) return;
+
+        const value = input.value;
+        document.documentElement.style.setProperty(varName, value);
+        themeText += `  ${varName}: ${value};\n`;
+        activeVars.add(varName);
+      });
+
+      themeText += "}\n";
+      this.elements.output.value = themeText;
+    },
+
+    updateLiveFont(bunnyFonts) {
+      const existingLinkEl = document.querySelector("link[data-bunny-fonts]");
+      const fontUrl = `https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap`;
+
       if (existingLinkEl) {
-        existingLinkEl.href = `https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap`
+        existingLinkEl.href = fontUrl;
       } else {
-        const linkEl = document.createElement('link')
-        linkEl.rel = 'stylesheet'
-        linkEl.href = `https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap`
-        linkEl.setAttribute('data-bunny-fonts', 'true')
-        document.head.appendChild(linkEl)
+        const linkEl = document.createElement("link");
+        linkEl.rel = "stylesheet";
+        linkEl.href = fontUrl;
+        linkEl.setAttribute("data-bunny-fonts", "true");
+        document.head.appendChild(linkEl);
       }
-    }
-    
-    themeText += '$black: #000000;\n'
-    themeText += '$charcoal: #0c0c14;\n'
-    themeText += '$dark-gray: #171720;\n'
-    themeText += '$medium-gray: #222230;\n'
-    themeText += '$gold: #d4af37;\n'
-    themeText += '$gold-light: #f8e9a1;\n'
-    themeText += '$gold-dark: #9a7d0a;\n'
-    themeText += '$platinum: #e5e4e2;\n'
-    themeText += '$off-white: #f5f5f5;\n\n'
-    
-    themeText += ':root {\n'
-    
-    // Add border variable (specially handled)
-    themeText += `  --border: ${borderOutput.value};\n`
-    
-    inputs.forEach(input => {
-      const varName = input.dataset.var
-      if (!varName || varName === '--border') return
-      
-      const value = input.value
-      
-      document.documentElement.style.setProperty(varName, value)
-      themeText += `  ${varName}: ${value};\n`
-    })
-    
-    themeText += '}\n'
-    output.value = themeText
-  }
-  
-  function downloadTheme() {
-    const content = output.value
-    const blob = new Blob([content], { type: 'text/css' })
-    const url = URL.createObjectURL(blob)
-    
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'theme.scss'
-    document.body.appendChild(a)
-    a.click()
-    
-    setTimeout(() => {
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }, 100)
-  }
-  
-  downloadBtn.addEventListener('click', downloadTheme)
-  
-  document.addEventListener('DOMContentLoaded', initInputs)
-})()
+    },
+
+    downloadTheme() {
+      const content = this.elements.output.value;
+      const blob = new Blob([content], { type: "text/css" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "theme.scss";
+      document.body.appendChild(a);
+      a.click();
+
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    },
+  };
+
+  document.addEventListener("DOMContentLoaded", () =>
+    ThemeEditor.init.call(ThemeEditor),
+  );
+})();

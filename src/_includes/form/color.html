@@ -1,0 +1,16 @@
+<div>
+  <label for="{{ id }}">
+    <input
+      type="checkbox"
+      id="{{ id }}-enabled"
+      data-target="{{ id }}"
+    >
+    {{ label }}
+  </label>
+  <input
+    type="color"
+    id="{{ id }}"
+    data-var="--{{ id }}"
+    disabled
+  >
+</div>
