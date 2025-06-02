@@ -24,9 +24,6 @@
   --width-card-medium: 460px;
   --width-card-wide: 800px;
 
-  --active-brightness: 0.85;
-  --hover-brightness: 1.2;
-
   --header-bg-color: var(--color-bg-secondary);
   --header-text-color: var(--color-text);
   --header-border: var(--border);
@@ -42,18 +39,21 @@
   --main-text-color: var(--color-text);
   --main-border: var(--border);
 
-  /* Form specific styles with fallbacks */
   --form-bg-color: var(--color-bg);
   --form-text-color: var(--color-text);
   --form-border: var(--border);
+
   --form-input-bg-color: var(--color-bg);
   --form-input-text-color: var(--color-text);
-  --form-button-bg-color: var(--color-link);
-  --form-button-text-color: var(--color-bg);
-  --form-button-border: var(--border);
-  --form-button-hover-bg-color: var(--color-text);
-  --form-button-hover-text-color: var(--color-bg);
-  --form-button-hover-border: 1px solid var(--color-text);
+  --form-input-border: var(--border);
+
+  --form-button-bg-color: var(--color-bg);
+  --form-button-text-color: var(--color-link);
+  --form-button-border: 2px solid var(--color-link);
+
+  --form-button-hover-bg-color: var(--color-bg);
+  --form-button-hover-text-color: var(--color-link);
+  --form-button-hover-border: var(--form-button-border);
 }
 
 /* MVP.css v1.17.2 - https://github.com/andybrewer/mvp */
@@ -142,6 +142,7 @@ main header {
 
 header {
   text-align: var(--justify-important);
+  box-shadow: var(--box-shadow);
 }
 
 header a b,
@@ -237,10 +238,6 @@ a {
   }
 }
 
-a:active {
-  filter: brightness(var(--active-brightness));
-}
-
 a b,
 a em,
 a i,
@@ -256,43 +253,31 @@ input[type="submit"] {
   padding: 1rem 2rem;
 }
 
-button,
-input[type="submit"] {
-  font-family: var(--font-family-body);
-}
-
-button:hover,
-input[type="submit"]:hover {
-  cursor: pointer;
-  filter: brightness(var(--hover-brightness));
-}
-
-button:active,
-input[type="submit"]:active {
-  filter: brightness(var(--active-brightness));
-}
-
 a b,
-a strong,
-button,
-input[type="submit"] {
+a strong {
   background-color: var(--color-link);
   border: var(--border);
   color: var(--color-bg);
 }
 
-form button,
-form input[type="submit"] {
+button,
+.button,
+input[type="submit"] {
+  font-family: var(--font-family-body);
   background-color: var(--form-button-bg-color);
   border: var(--form-button-border);
   color: var(--form-button-text-color);
-}
-
-form button:hover,
-form input[type="submit"]:hover {
-  background-color: var(--form-button-hover-bg-color);
-  border: var(--form-button-hover-border);
-  color: var(--form-button-hover-text-color);
+  &:hover,
+  &:active {
+    background-color: var(--form-button-hover-bg-color);
+    border: var(--form-button-hover-border);
+    color: var(--form-button-hover-text-color);
+  }
+  &:disabled {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-bg-secondary);
+    cursor: not-allowed;
+  }
 }
 
 a em,
@@ -315,17 +300,6 @@ figure img {
 }
 
 /* Forms */
-button:disabled,
-input:disabled {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-bg-secondary);
-  cursor: not-allowed;
-}
-
-button[disabled]:hover,
-input[type="submit"][disabled]:hover {
-  filter: none;
-}
 
 form {
   border: var(--form-border);
@@ -338,11 +312,10 @@ form {
   text-align: var(--justify-normal);
   background: var(--form-bg-color);
   color: var(--form-text-color);
-}
-
-form header {
-  margin: 1.5rem 0;
-  padding: 1.5rem 0;
+  header {
+    margin: 1.5rem 0;
+    padding: 1.5rem 0;
+  }
 }
 
 input,
@@ -374,12 +347,12 @@ input[type="range"] {
 input,
 select,
 textarea {
-  border: var(--form-border);
   border-radius: var(--border-radius);
   margin-bottom: 1rem;
   padding: 0.4rem 0.8rem;
   background-color: var(--form-input-bg-color);
   color: var(--form-input-text-color);
+  border: var(--form-input-border);
 }
 
 input[type="text"],
@@ -592,7 +565,7 @@ body > header {
   h1 {
     z-index: 2;
     position: relative;
-    font-family: var(--header-font-family, var(--font-family-heading));
+    font-family: var(--font-family-heading);
   }
 
   .banner {
@@ -654,6 +627,7 @@ body > footer {
   border-radius: var(--border-radius);
   border: var(--border);
   width: var(--width-content);
+  box-shadow: var(--box-shadow);
   max-width: 100%;
   margin-bottom: 1rem;
   text-align: center;
@@ -706,14 +680,18 @@ article {
   background: var(--main-bg-color);
   border: var(--main-border);
   color: var(--main-text-color);
+  box-shadow: var(--box-shadow);
 }
 
 nav {
   border-radius: var(--border-radius);
+  border: var(--nav-border);
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
   padding: 1rem;
   margin-bottom: 2rem;
   background: var(--nav-bg-color);
-  border: var(--nav-border);
   flex-wrap: wrap;
   font-size: 1.2rem;
   color: var(--nav-text-color);
@@ -761,6 +739,7 @@ nav {
     min-height: 30rem;
     padding: 1rem 0 0;
     nav {
+      border: var(--nav-border);
       grid-area: nav;
     }
     .content {
@@ -791,27 +770,11 @@ nav {
   color: var(--form-text-color);
   border: var(--form-border);
   border-radius: var(--border-radius);
-
-  button {
-    background: var(--form-button-bg-color);
-    color: var(--form-button-text-color);
-    border: var(--form-button-border);
-
-    &:hover {
-      background: var(--form-button-hover-bg-color);
-      color: var(--form-button-hover-text-color);
-      border: var(--form-button-hover-border);
-    }
-  }
-
   input[type="text"],
   input[type="password"],
   input[type="email"],
   textarea {
     width: 100%;
-    background-color: var(--form-input-bg-color);
-    color: var(--form-input-text-color);
-    border: var(--form-border);
   }
 }
 

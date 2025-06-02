@@ -1,4 +1,5 @@
 nav {
+  box-shadow: var(--box-shadow);
   ul {
     list-style-type: none;
     padding: 0;
@@ -186,7 +187,7 @@ nav {
               background: var(--nav-bg-color);
               border: var(--nav-border);
               border-radius: var(--border-radius);
-              box-shadow: var(--box-shadow) var(--color-shadow);
+              box-shadow: var(--box-shadow);
               display: none;
               height: auto;
               left: -2px;

@@ -72,20 +72,6 @@ layout: base.html
         label: "Wide Card Width"
       %}
     </div>
-
-    <h2>Effects</h2>
-    <div class="grid">
-      {% include "form/number.html",
-        id: "active-brightness",
-        label: "Active Brightness",
-        step: "0.05"
-      %}
-      {% include "form/number.html",
-        id: "hover-brightness",
-        label: "Hover Brightness",
-        step: "0.05"
-      %}
-    </div>
   </div>
 
   <div id="fonts-tab" class="tab-content">
@@ -149,7 +135,7 @@ layout: base.html
       %}
       {% include "form/color.html",
         id: "nav-text-color",
-        label: "Text Color"
+        label: "Mobile Menu Color"
       %}
       {% include "form/color.html",
         id: "nav-link-color",

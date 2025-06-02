@@ -1,7 +1,5 @@
 (function () {
   const ThemeEditor = {
-    componentTypes: ["default", "header", "nav", "main", "form"],
-
     elements: {
       form: document.getElementById("theme-editor-form"),
       output: document.getElementById("theme-output"),
@@ -195,15 +193,21 @@
     },
 
     initBorderControls() {
-      this.componentTypes.forEach((type) => {
+      [
+        "default",
+        "header",
+        "nav",
+        "main",
+        "form",
+        "form-button",
+        "form-button-hover",
+      ].forEach((type) => {
         const prefix = type === "default" ? "" : `${type}-`;
 
         const widthInput = document.getElementById(`${prefix}border-width`);
         const styleSelect = document.getElementById(`${prefix}border-style`);
         const colorInput = document.getElementById(`${prefix}border-color`);
         const outputInput = document.getElementById(`${prefix}border`);
-
-        if (!widthInput || !styleSelect || !colorInput || !outputInput) return;
 
         const cssVar = outputInput.dataset.var;
         let currentBorderValue = getComputedStyle(document.documentElement)
@@ -291,7 +295,6 @@
     },
 
     updateThemeFromControls() {
-      const activeVars = new Set();
       const bunnyFonts = this.elements.bunnyFontsInput.value.trim();
 
       let themeText = "";
@@ -323,12 +326,10 @@
 
       inputs.forEach((input) => {
         const varName = input.dataset.var;
-        if (!varName) return;
-
-        const value = input.value;
+        const value =
+          input.id == "border-radius" ? `${input.value}px` : input.value;
         document.documentElement.style.setProperty(varName, value);
         themeText += `  ${varName}: ${value};\n`;
-        activeVars.add(varName);
       });
 
       themeText += "}\n";
