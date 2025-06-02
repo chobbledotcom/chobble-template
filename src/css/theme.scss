@@ -1,8 +1,16 @@
 :root {
-  --color-bg: #d0bad8;
-  --color-bg-secondary: #c061cb;
-  --border-radius: 10px;
-  --border: 2px solid #613583;
-  --box-shadow: 0 10px 20px rgba(255, 255, 255, 0.4);
-  --header-bg-color: #9141ac;
+  --color-bg: #241f31;
+  --color-text: #9a9996;
+  --color-link: #f6f5f4;
+  --border: 2px solid #58648c;
+  --box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.3);
+  --font-family-heading:
+    ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+    "DejaVu Sans Mono", monospace;
+  --font-family-body: Optima, Candara, "Noto Sans", source-sans-pro, sans-serif;
+  --link-decoration: underline;
+  --link-decoration-hover: underline;
+  --link-decoration-style: dashed;
+  --form-button-border: 2px solid #58648c;
+  --form-button-hover-border: 2px solid #ffffff;
 }
