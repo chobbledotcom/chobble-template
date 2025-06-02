@@ -1,14 +1,12 @@
 @use "sass:color";
 
-@import url("https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700&display=swap");
-
 :root {
   --color-bg: #efefef;
   --color-bg-secondary: var(--color-bg);
   --color-text: #111111;
   --color-link: var(--color-text);
 
-  --font-family-heading: "Space Grotesk", "Helvetica Neue", sans-serif;
+  --font-family-heading: "Nimbus Mono PS", "Courier New", monospace;
   --font-family-body:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -60,18 +58,9 @@
 
 html {
   scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
+  @media (prefers-reduced-motion: reduce) {
     scroll-behavior: auto;
   }
-}
-
-/* Layout */
-article aside {
-  border-left: var(--border);
-  padding: 0.01rem 0.8rem;
 }
 
 body {
@@ -100,33 +89,10 @@ hr {
   width: 100%;
 }
 
-section {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: var(--justify-important);
-}
-
 img,
 .image-wrapper {
   max-width: 100%;
   height: auto;
-}
-
-section pre {
-  overflow: auto;
-}
-
-section aside {
-  border: var(--border);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow) var(--color-shadow);
-  margin: 1rem;
-  padding: 1.25rem;
-  width: var(--width-card);
-}
-
-section aside:hover {
-  box-shadow: var(--box-shadow) var(--color-bg-secondary);
 }
 
 [hidden] {
@@ -138,28 +104,6 @@ article header,
 div header,
 main header {
   padding-top: 0;
-}
-
-header {
-  text-align: var(--justify-important);
-  box-shadow: var(--box-shadow);
-}
-
-header a b,
-header a em,
-header a i,
-header a strong {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-header nav img {
-  margin: 1rem 0;
-}
-
-section header {
-  padding-top: 0;
-  width: 100%;
 }
 
 /* Typography */
@@ -175,22 +119,10 @@ samp {
 
 details {
   margin: 1.3rem 0;
-}
-
-details summary {
-  font-weight: bold;
-  cursor: pointer;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-family-heading);
-  line-height: var(--line-height);
-  text-wrap: balance;
+  summary {
+    font-weight: bold;
+    cursor: pointer;
+  }
 }
 
 mark {
@@ -212,14 +144,13 @@ pre {
   margin: 1rem 0;
   max-width: var(--width-card-wide);
   padding: 1rem 0;
-}
-
-pre code,
-pre samp {
-  display: block;
-  max-width: var(--width-card-wide);
-  padding: 0.5rem 2rem;
-  white-space: pre-wrap;
+  code,
+  samp {
+    display: block;
+    max-width: var(--width-card-wide);
+    padding: 0.5rem 2rem;
+    white-space: pre-wrap;
+  }
 }
 
 sup {
@@ -238,38 +169,23 @@ a {
   }
 }
 
-a b,
-a em,
-a i,
-a strong,
-button,
-input[type="submit"] {
-  border-radius: var(--border-radius);
-  display: inline-block;
-  font-size: medium;
-  font-weight: bold;
-  line-height: var(--line-height);
-  margin: 0.5rem 0;
-  padding: 1rem 2rem;
-}
-
-a b,
-a strong {
-  background-color: var(--color-link);
-  border: var(--border);
-  color: var(--color-bg);
-}
-
 button,
 .button,
 input[type="submit"] {
+  border-radius: var(--border-radius);
   font-family: var(--font-family-body);
   background-color: var(--form-button-bg-color);
   border: var(--form-button-border);
   color: var(--form-button-text-color);
-  text-decoration: none;
-  display: block;
+  line-height: var(--line-height);
+  display: inline-block;
+  font-size: medium;
+  font-weight: bold;
+  margin: 0.5rem 0;
   width: fit-content;
+  padding: 1rem 2rem;
+  text-decoration: none;
+  cursor: pointer;
 
   &:hover,
   &:active {
@@ -285,26 +201,13 @@ input[type="submit"] {
   }
 }
 
-a em,
-a i {
-  border: var(--border);
-  border-radius: var(--border-radius);
-  color: var(--color-link);
-  display: inline-block;
-  padding: 1rem 2rem;
-}
-
-/* Images */
 figure {
   margin: 0;
   padding: 0;
+  img {
+    max-width: 100%;
+  }
 }
-
-figure img {
-  max-width: 100%;
-}
-
-/* Forms */
 
 form {
   border: var(--form-border);
@@ -335,14 +238,13 @@ textarea {
 input[type="checkbox"],
 input[type="radio"] {
   display: inline-block;
-}
-
-input[type="checkbox"] + label,
-input[type="radio"] + label {
-  display: inline-block;
-  font-weight: normal;
-  position: relative;
-  top: 1px;
+  + label,
+  + label {
+    display: inline-block;
+    font-weight: normal;
+    position: relative;
+    top: 1px;
+  }
 }
 
 input[type="range"] {
@@ -377,7 +279,6 @@ label {
   margin-bottom: 0.2rem;
 }
 
-/* Popups */
 dialog {
   max-width: 90%;
   max-height: 85dvh;
@@ -392,29 +293,25 @@ dialog {
   -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
   scrollbar-color: transparent transparent;
   animation: bottom-to-top 0.25s ease-in-out forwards;
-}
-
-dialog::-webkit-scrollbar {
-  width: 0;
-  display: none;
-}
-
-dialog::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-dialog::-webkit-scrollbar-thumb {
-  background-color: transparent;
-}
-
-@media (min-width: 650px) {
-  dialog {
+  @media (min-width: 650px) {
     max-width: 39rem;
   }
-}
-
-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
+  hr {
+    margin-block: 1rem;
+  }
+  &::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
 
 @keyframes bottom-to-top {
@@ -429,11 +326,6 @@ dialog::backdrop {
   }
 }
 
-dialog hr {
-  margin-block: 1rem;
-}
-
-/* Tables */
 table {
   border: var(--border);
   border-radius: var(--border-radius);
@@ -443,42 +335,38 @@ table {
   overflow-x: auto;
   padding: 0;
   white-space: nowrap;
+  td,
+  th,
+  tr {
+    padding: 0.4rem 0.8rem;
+    text-align: var(--justify-important);
+  }
+
+  thead {
+    background-color: var(--color-table);
+    border-collapse: collapse;
+    border-radius: var(--border-radius);
+    color: var(--color-bg);
+    margin: 0;
+    padding: 0;
+
+    tr:first-child th:first-child {
+      border-top-left-radius: var(--border-radius);
+    }
+    tr:first-child th:last-child {
+      border-top-right-radius: var(--border-radius);
+    }
+  }
+  thead th:first-child,
+  tr td:first-child {
+    text-align: var(--justify-normal);
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--color-accent);
+  }
 }
 
-table td,
-table th,
-table tr {
-  padding: 0.4rem 0.8rem;
-  text-align: var(--justify-important);
-}
-
-table thead {
-  background-color: var(--color-table);
-  border-collapse: collapse;
-  border-radius: var(--border-radius);
-  color: var(--color-bg);
-  margin: 0;
-  padding: 0;
-}
-
-table thead tr:first-child th:first-child {
-  border-top-left-radius: var(--border-radius);
-}
-
-table thead tr:first-child th:last-child {
-  border-top-right-radius: var(--border-radius);
-}
-
-table thead th:first-child,
-table tr td:first-child {
-  text-align: var(--justify-normal);
-}
-
-table tr:nth-child(even) {
-  background-color: var(--color-accent);
-}
-
-/* Quotes */
 blockquote {
   display: block;
   font-size: x-large;
@@ -487,16 +375,14 @@ blockquote {
   max-width: var(--width-card-medium);
   padding: 1.5rem 1rem;
   text-align: var(--justify-important);
+  footer {
+    display: block;
+    font-size: small;
+    line-height: var(--line-height);
+    padding: 1.5rem 0;
+  }
 }
 
-blockquote footer {
-  display: block;
-  font-size: small;
-  line-height: var(--line-height);
-  padding: 1.5rem 0;
-}
-
-/* Scrollbars */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar) transparent;
@@ -531,13 +417,10 @@ h4,
 h5,
 h6,
 nav {
-  font-family:
-    Menlo,
-    Consolas,
-    Monaco,
-    Liberation Mono,
-    Lucida Console,
-    monospace;
+  font-family: var(--font-family-heading);
+  font-weight: normal;
+  line-height: var(--line-height);
+  text-wrap: balance;
 }
 
 h1 {
@@ -559,12 +442,15 @@ body > header {
   background: var(--header-bg-color);
   border-radius: var(--border-radius);
   border: var(--header-border);
-  margin-top: 1rem;
+  box-shadow: var(--box-shadow);
+  color: var(--header-text-color);
+  text-align: var(--justify-important);
+  text-shadow: var(--header-text-shadow);
   width: var(--width-content);
+
+  margin-top: 1rem;
   max-width: 100%;
   position: relative;
-  color: var(--header-text-color);
-  text-shadow: var(--header-text-shadow);
   overflow: hidden;
 
   h1 {
@@ -780,10 +666,6 @@ nav {
   margin: 4rem auto 0;
   padding: 1rem;
   min-width: min-content;
-  background: var(--form-bg-color);
-  color: var(--form-text-color);
-  border: var(--form-border);
-  border-radius: var(--border-radius);
   input[type="text"],
   input[type="password"],
   input[type="email"],
