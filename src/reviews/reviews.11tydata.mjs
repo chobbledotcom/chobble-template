@@ -5,8 +5,9 @@ export default {
     products: (data) => {
       const products = data.products || [];
       return products.map((product) => {
-        // ditto
-        return product.split(".")[0];
+        // convert to just the file slug
+        const pathParts = product.split(".")[0].split("/");
+        return pathParts[pathParts.length - 1];
       });
     },
   },

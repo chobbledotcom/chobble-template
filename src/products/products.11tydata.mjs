@@ -5,9 +5,9 @@ export default {
     categories: (data) => {
       const categories = data.categories || [];
       return categories.map((category) => {
-        // allow categories to be named like "example.md" - which is how
-        // pagescms.org identifies them
-        return category.split(".")[0];
+        // convert to just the file slug
+        const pathParts = category.split(".")[0].split("/");
+        return pathParts[pathParts.length - 1];
       });
     },
     navigationParent: () => strings.product_name,
