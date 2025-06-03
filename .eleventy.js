@@ -132,6 +132,16 @@ module.exports = async function (eleventyConfig) {
   );
 
   eleventyConfig.addFilter(
+    "getReviewsByProduct",
+    function (reviews, productSlug) {
+      return reviews.filter((review) => {
+        if (!review.data.products) return false;
+        return review.data.products.includes(productSlug);
+      });
+    },
+  );
+
+  eleventyConfig.addFilter(
     "getFeaturedCategories",
     (categories) => categories?.filter((c) => c.data.featured) || [],
   );

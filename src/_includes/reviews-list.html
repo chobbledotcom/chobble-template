@@ -1,5 +1,4 @@
-{%- assign reviews = collections.review | reverse -%}
-{%- for review in reviews limit: limit -%}
+{%- for review in reviews -%}
   <blockquote>
     {{- review.content -}}
     <footer>

@@ -40,6 +40,7 @@ layout: base.html
   {{ content }}
 
   {%- if features -%}
+    <hr>
     <h2>Features</h2>
     <ul class="product-features">
       {%- for feature in features -%}
@@ -49,6 +50,7 @@ layout: base.html
   {%- endif -%}
 
   {%- if specs -%}
+    <hr>
     <h2>Specifications</h2>
     <dl class="product-specs">
       {%- for spec in specs -%}
@@ -56,10 +58,16 @@ layout: base.html
         <dd>{{ spec.value }}</dd>
       {%- endfor -%}
     </dl>
-
-    {%- include "etsy-buy-button.html" -%}
-
   {%- endif -%}
+
+  {% assign reviews = collections.review | default: [] | getReviewsByProduct: page.fileSlug %}
+  {%- if reviews.size > 0 -%}
+    <hr>
+    <h2>Reviews</h2>
+    {% include "reviews-list.html" %}
+  {%- endif -%}
+
+  {%- include "etsy-buy-button.html" -%}
 </div>
 <div class="contact">
   {%- if "src/snippets/product-contact.md" | file_exists -%}

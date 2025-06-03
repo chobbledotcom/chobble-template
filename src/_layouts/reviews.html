@@ -4,5 +4,5 @@ layout: base.html
 
 {{ content }}
 
-{%- assign limit = 9999 -%}
+{%- assign reviews = collections.review | reverse -%}
 {% include "reviews-list.html" %}

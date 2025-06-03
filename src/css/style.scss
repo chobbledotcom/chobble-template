@@ -477,10 +477,12 @@ header {
     .header-centered-dark & {
       text-align: center;
       padding: 0.5rem 2rem;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
       width: fit-content;
       margin: 0 auto;
       border: var(--header-border);
+      border-color: var(--header-text-color);
     }
   }
 
