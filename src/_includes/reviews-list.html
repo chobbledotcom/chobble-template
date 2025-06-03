@@ -12,6 +12,17 @@
       {%- else -%}
         {{- review.data.name -}}
       {%- endif -%}
+
+      {%- if product_links and review.data.products.size > 0 -%}
+        <br>
+        {% for slug in review.data.products -%}
+          {% assign product = collections.products | where: "fileSlug", slug | first -%}
+          <a href="{{ product.url }}">
+            {{- product.data.title -}}
+          </a>{%- unless forloop.last -%}, {% endunless -%}
+        {%- endfor -%}
+      {%- endif %}
+
     </footer>
   </blockquote>
 {%- endfor -%}

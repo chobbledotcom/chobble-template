@@ -26,11 +26,9 @@ layout: base.html
       <strong>Categories:</strong>
       {% for slug in categories -%}
         {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
-        {%- if category -%}
-          <a href="{{ category.url }}">
-            {{- category.data.title -}}
-          </a>{%- unless forloop.last -%}, {% endunless -%}
-        {%- endif -%}
+        <a href="{{ category.url }}">
+          {{- category.data.title -}}
+        </a>{%- unless forloop.last -%}, {% endunless -%}
       {%- endfor -%}
     </p>
   {%- endif -%}
