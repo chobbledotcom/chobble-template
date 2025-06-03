@@ -2,23 +2,23 @@
   <label>
     <input
       type="checkbox"
-      id="{{ output_id }}-enabled"
-      data-target="border-{{output_id}},{{ width_id }},{{ style_id }},{{ color_id }}"
+      id="{{ id }}-enabled"
+      data-target="border-{{id}},{{ id }}-width,{{ id }}-style,{{ id }}-color"
     >
     {{ label }}
   </label>
-  <div class="border-controls" id="border-{{output_id}}">
+  <div class="border-controls" id="border-{{id}}">
     <div class="border-width">
       <input
         type="number"
-        id="{{ width_id }}"
+        id="{{ id }}-width"
         min="0"
         value="1"
         disabled
       > <span>px</span>
     </div>
     <div class="border-style">
-      <select id="{{ style_id }}" disabled>
+      <select id="{{ id }}-style" disabled>
         <option value="solid">Solid</option>
         <option value="dashed">Dashed</option>
         <option value="dotted">Dotted</option>
@@ -26,8 +26,8 @@
       </select>
     </div>
     <div class="border-color">
-      <input type="color" id="{{ color_id }}" disabled>
+      <input type="color" id="{{ id }}-color" disabled>
     </div>
   </div>
-  <input type="hidden" id="{{ output_id }}" data-var="{{ var }}">
+  <input type="hidden" id="{{ id }}" data-var="--{{ id }}">
 </div>

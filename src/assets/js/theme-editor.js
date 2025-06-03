@@ -1,28 +1,37 @@
 (function () {
-  const ThemeEditor = {
-    elements: {
-      form: document.getElementById("theme-editor-form"),
-      output: document.getElementById("theme-output"),
-      downloadBtn: document.getElementById("download-theme"),
-      bunnyFontsInput: document.getElementById("bunny-fonts"),
-      tabLinks: document.querySelectorAll(".tab-link"),
-      tabContents: document.querySelectorAll(".tab-content"),
-    },
+  let ELEMENTS = null;
 
+  const ThemeEditor = {
     init() {
+      if (ELEMENTS) return;
+
+      ELEMENTS = {
+        form: document.getElementById("theme-editor-form"),
+        output: document.getElementById("theme-output"),
+        downloadBtn: document.getElementById("download-theme"),
+        tabLinks: document.querySelectorAll(".tab-link"),
+        tabContents: document.querySelectorAll(".tab-content"),
+      };
+
       this.initTabNavigation();
-      this.loadThemeScss();
+      this.initControlsFromTheme();
       this.setupEventListeners();
     },
 
+    formEl: (id) => {
+      return ELEMENTS.form.querySelector(`#${id}`);
+    },
+
+    formQuery(selector) {
+      return ELEMENTS.form.querySelectorAll(selector);
+    },
+
     initTabNavigation() {
-      this.elements.tabLinks.forEach((tabLink) => {
+      ELEMENTS.tabLinks.forEach((tabLink) => {
         tabLink.addEventListener("click", (e) => {
           e.preventDefault();
-          this.elements.tabLinks.forEach((link) =>
-            link.classList.remove("active"),
-          );
-          this.elements.tabContents.forEach((content) =>
+          ELEMENTS.tabLinks.forEach((link) => link.classList.remove("active"));
+          ELEMENTS.tabContents.forEach((content) =>
             content.classList.remove("active"),
           );
           tabLink.classList.add("active");
@@ -32,40 +41,15 @@
       });
     },
 
-    loadThemeScss() {
-      fetch("/css/theme.css")
-        .then((response) => response.text())
-        .then((content) => {
-          this.elements.output.value = content;
-          this.initControlsFromTheme(content);
-        })
-        .catch((error) => {
-          console.error("Error loading theme.scss:", error);
-          this.elements.output.value = ":root {\n}\n";
-          this.initControlsFromTheme(":root {\n}\n");
-        });
-    },
-
-    initControlsFromTheme(themeContent) {
-      const cssVars = this.extractCssVarsFromTheme(themeContent);
-
-      const fontImportMatch = themeContent.match(
-        /@import url\("https:\/\/fonts\.bunny\.net\/css\?family=([^&"]+)/,
-      );
-      if (fontImportMatch && fontImportMatch[1]) {
-        this.elements.bunnyFontsInput.value = fontImportMatch[1];
-        this.updateLiveFont(fontImportMatch[1]);
-      }
+    initControlsFromTheme() {
+      const cssVars = this.extractCssVarsFromTheme();
 
       this.initControlValues();
       this.initCheckboxControls(cssVars);
-
-      this.elements.output.addEventListener("input", () => {
-        this.updateControlsFromTextarea();
-      });
     },
 
-    extractCssVarsFromTheme(themeContent) {
+    extractCssVarsFromTheme() {
+      const themeContent = ELEMENTS.output.value;
       const cssVars = new Set();
 
       themeContent
@@ -78,6 +62,12 @@
           document.documentElement.style.setProperty(regex[1], regex[2]);
         });
 
+      themeContent
+        .match(/\/\* body_classes: (.+) \*\//)?.[1]
+        ?.split(",")
+        ?.map((s) => s.trim())
+        ?.forEach((cssClass) => cssVars.add(cssClass));
+
       return cssVars;
     },
 
@@ -85,8 +75,21 @@
       this.initColorControls();
       this.initTextControls();
       this.initSelectControls();
+      this.initSelectClassControls();
       this.initNumberControls();
       this.initBorderControls();
+    },
+
+    toggleCheckbox(id, checked) {
+      const target = this.formEl(id);
+      if (checked) {
+        target.disabled = false;
+        target.style.removeProperty("display");
+      } else {
+        target.disabled = true;
+        target.style.display = "none";
+        document.documentElement.style.removeProperty(`--${id}`);
+      }
     },
 
     initCheckboxControls(cssVars) {
@@ -94,36 +97,38 @@
         .querySelectorAll('input[type="checkbox"][data-target]')
         .forEach((checkbox) => {
           const targetIds = checkbox.dataset.target.split(",");
-          const varName = `--${checkbox.id.replace(/\-enabled$/, "")}`;
-          const isEnabled = cssVars.has(varName);
+          const id = checkbox.id.replace(/\-enabled$/, "");
+          let isEnabled = cssVars.has(`--${id}`);
+
+          this.formEl(`${id}[data-class]`)
+            ?.querySelectorAll("option")
+            .forEach((opt) => {
+              console.log(opt.value);
+              console.log(document.body.classList);
+              console.log(document.body.classList.contains(opt.value));
+              if (
+                opt.value != "" &&
+                document.body.classList.contains(opt.value)
+              )
+                isEnabled = true;
+            });
 
           checkbox.checked = isEnabled;
-          targetIds.forEach((id) => toggleCheckbox(id, isEnabled));
+          targetIds.forEach((id) => this.toggleCheckbox(id, isEnabled));
 
           checkbox.addEventListener("change", () => {
-            targetIds.forEach((id) => toggleCheckbox(id, checkbox.checked));
+            targetIds.forEach((id) =>
+              this.toggleCheckbox(id, checkbox.checked),
+            );
             this.updateThemeFromControls();
           });
         });
-
-      function toggleCheckbox(id, checked) {
-        const target = document.getElementById(id);
-        if (checked) {
-          target.disabled = false;
-          target.style.removeProperty("display");
-        } else {
-          target.disabled = true;
-          target.style.display = "none";
-          document.documentElement.style.removeProperty(`--${id}`);
-        }
-      }
     },
 
     updateControlsFromTextarea() {
-      const themeContent = this.elements.output.value;
-      const cssVars = this.extractCssVarsFromTheme(themeContent);
+      const cssVars = this.extractCssVarsFromTheme();
 
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      const checkboxes = this.formQuery('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox) => {
         if (!checkbox.dataset.var) return;
@@ -141,66 +146,51 @@
           if (checkbox.dataset.target) {
             checkbox.dataset.target
               .split(",")
-              .forEach((id) => toggleCheckbox(id, isEnabled));
+              .forEach((id) => this.toggleCheckbox(id, isEnabled));
           }
         }
       });
+    },
 
-      const fontImportMatch = themeContent.match(
-        /@import url\("https:\/\/fonts\.bunny\.net\/css\?family=([^&"]+)/,
-      );
-      if (fontImportMatch && fontImportMatch[1]) {
-        this.elements.bunnyFontsInput.value = fontImportMatch[1];
-        this.updateLiveFont(fontImportMatch[1]);
-      } else {
-        this.elements.bunnyFontsInput.value = "";
-      }
+    initCssVarInput(input) {
+      input.value = getComputedStyle(document.documentElement)
+        .getPropertyValue(input.dataset.var)
+        .trim();
+      input.addEventListener("input", () => this.updateThemeFromControls());
     },
 
     initColorControls() {
-      document
-        .querySelectorAll('input[type="color"][data-var]')
-        .forEach((input) => {
-          const value = getComputedStyle(document.documentElement)
-            .getPropertyValue(input.dataset.var)
-            .trim();
-
-          console.log(input.dataset.var, value);
-
-          input.value = value;
-          input.addEventListener("input", () => this.updateThemeFromControls());
-        });
+      this.formQuery('input[type="color"][data-var]').forEach((input) =>
+        this.initCssVarInput(input),
+      );
     },
 
     initTextControls() {
-      Array.from(document.querySelectorAll('input[type="text"][data-var]'))
+      Array.from(this.formQuery('input[type="text"][data-var]'))
         .filter((input) => !input.id.includes("border"))
-        .forEach((input) => {
-          input.value = getComputedStyle(document.documentElement)
-            .getPropertyValue(input.dataset.var)
-            .trim();
-          input.addEventListener("input", () => this.updateThemeFromControls());
-        });
+        .forEach((input) => this.initCssVarInput(input));
     },
+
     initSelectControls() {
-      document.querySelectorAll("select[data-var]").forEach((input) => {
-        input.value = getComputedStyle(document.documentElement)
-          .getPropertyValue(input.dataset.var)
-          .trim();
+      this.formQuery("select[data-var]").forEach((input) =>
+        this.initCssVarInput(input),
+      );
+    },
+
+    initSelectClassControls() {
+      this.formQuery("select[data-class]").forEach((input) => {
+        input.querySelectorAll("option").forEach((o) => {
+          if (document.body.classList.contains(o.value)) input.value = o.value;
+        });
         input.addEventListener("input", () => this.updateThemeFromControls());
       });
     },
+
     initNumberControls() {
-      document
-        .querySelectorAll('input[type="number"][data-var]')
-        .forEach((input) => {
-          input.value = parseFloat(
-            getComputedStyle(document.documentElement)
-              .getPropertyValue(input.dataset.var)
-              .trim(),
-          );
-          input.addEventListener("input", () => this.updateThemeFromControls());
-        });
+      this.formQuery('input[type="number"][data-var]').forEach((input) => {
+        this.initCssVarInput(input);
+        input.value = parseFloat(input.value) || 0;
+      });
     },
 
     initBorderControls() {
@@ -214,14 +204,13 @@
         "form-button-hover",
       ].forEach((type) => {
         const prefix = type === "default" ? "" : `${type}-`;
-
-        const widthInput = document.getElementById(`${prefix}border-width`);
-        const styleSelect = document.getElementById(`${prefix}border-style`);
-        const colorInput = document.getElementById(`${prefix}border-color`);
-        const outputInput = document.getElementById(`${prefix}border`);
-
+        const widthInput = this.formEl(`${prefix}border-width`);
+        const styleSelect = this.formEl(`${prefix}border-style`);
+        const colorInput = this.formEl(`${prefix}border-color`);
+        const outputInput = this.formEl(`${prefix}border`);
         const cssVar = outputInput.dataset.var;
-        let currentBorderValue = getComputedStyle(document.documentElement)
+
+        const currentBorderValue = getComputedStyle(document.documentElement)
           .getPropertyValue(cssVar)
           .trim();
 
@@ -234,35 +223,19 @@
           cssVar,
         );
 
-        widthInput.addEventListener("input", () =>
+        const updateBorder = () => {
           this.updateBorder(
             widthInput,
             styleSelect,
             colorInput,
             outputInput,
             cssVar,
-          ),
-        );
+          );
+        };
 
-        styleSelect.addEventListener("change", () =>
-          this.updateBorder(
-            widthInput,
-            styleSelect,
-            colorInput,
-            outputInput,
-            cssVar,
-          ),
-        );
-
-        colorInput.addEventListener("input", () =>
-          this.updateBorder(
-            widthInput,
-            styleSelect,
-            colorInput,
-            outputInput,
-            cssVar,
-          ),
-        );
+        widthInput.addEventListener("input", updateBorder);
+        styleSelect.addEventListener("change", updateBorder);
+        colorInput.addEventListener("input", updateBorder);
       });
     },
 
@@ -279,10 +252,7 @@
       if (borderParts && borderParts.length === 4) {
         widthInput.value = parseInt(borderParts[1], 10);
         styleSelect.value = borderParts[2];
-
-        if (borderParts[3].startsWith("#")) {
-          colorInput.value = borderParts[3];
-        }
+        if (borderParts[3].startsWith("#")) colorInput.value = borderParts[3];
       }
 
       outputInput.value = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
@@ -296,74 +266,53 @@
     },
 
     setupEventListeners() {
-      this.elements.downloadBtn.addEventListener("click", () =>
+      ELEMENTS.downloadBtn.addEventListener("click", () =>
         this.downloadTheme(),
       );
-
-      this.elements.bunnyFontsInput.addEventListener("input", () =>
-        this.updateThemeFromControls(),
-      );
+      ELEMENTS.output.addEventListener("input", () => {
+        this.updateControlsFromTextarea();
+      });
     },
 
     updateThemeFromControls() {
-      const bunnyFonts = this.elements.bunnyFontsInput.value.trim();
-
-      let themeText = "";
-      if (bunnyFonts) {
-        themeText += `@import url("https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap");\n\n`;
-        this.updateLiveFont(bunnyFonts);
-      }
-
-      themeText += ":root {\n";
-
-      const inputs = Array.from(
-        this.elements.form.querySelectorAll("[data-var]"),
-      ).filter((input) => {
-        const checkboxId = input.id + "-enabled";
-        const checkbox = document.getElementById(checkboxId);
-
-        if (!checkbox && input.id.includes("border")) {
-          const borderCheckboxId =
-            input.id
-              .replace("border-width", "border")
-              .replace("border-style", "border")
-              .replace("border-color", "border") + "-enabled";
-          const borderCheckbox = document.getElementById(borderCheckboxId);
-          return !borderCheckbox || borderCheckbox.checked;
-        }
-
-        return !checkbox || checkbox.checked;
-      });
-
-      inputs.forEach((input) => {
-        const varName = input.dataset.var;
-        let value = input.value;
-        if (input.id == "border-radius") value = `${value}px`;
-        document.documentElement.style.setProperty(varName, value);
-        themeText += `  ${varName}: ${value};\n`;
-      });
+      let themeText = ":root {\n";
+      Array.from(this.formQuery("[data-var]"))
+        .filter((input) => {
+          const checkbox = this.formEl(input.id + "-enabled");
+          return !checkbox || checkbox.checked;
+        })
+        .forEach((el) => {
+          const value = el.id == "border-radius" ? `${el.value}px` : el.value;
+          document.documentElement.style.setProperty(`--${el.id}`, value);
+          themeText += `  --${el.id}: ${value};\n`;
+        });
 
       themeText += "}\n";
-      this.elements.output.value = themeText;
-    },
 
-    updateLiveFont(bunnyFonts) {
-      const existingLinkEl = document.querySelector("link[data-bunny-fonts]");
-      const fontUrl = `https://fonts.bunny.net/css?family=${bunnyFonts}&display=swap`;
+      let bodyClasses = [];
+      this.formQuery("[data-class]").forEach((el) => {
+        const checkbox = this.formEl(el.id + "-enabled");
+        const enabled = !checkbox || checkbox.checked;
+        const values = Array.from(el.querySelectorAll("option"))
+          .map((o) => o.value)
+          .filter((v) => v != "");
+        const value = el.value;
+        values.forEach((value) => {
+          const enabled = value == el.value;
+          document.body.classList.toggle(value, enabled);
+          if (enabled) bodyClasses.push(value);
+        });
+      });
 
-      if (existingLinkEl) {
-        existingLinkEl.href = fontUrl;
-      } else {
-        const linkEl = document.createElement("link");
-        linkEl.rel = "stylesheet";
-        linkEl.href = fontUrl;
-        linkEl.setAttribute("data-bunny-fonts", "true");
-        document.head.appendChild(linkEl);
+      if (bodyClasses.length > 0) {
+        themeText += `\n\n/* body_classes: ${bodyClasses.join(", ")} */`;
       }
+
+      ELEMENTS.output.value = themeText;
     },
 
     downloadTheme() {
-      const content = this.elements.output.value;
+      const content = ELEMENTS.output.value;
       const blob = new Blob([content], { type: "text/css" });
       const url = URL.createObjectURL(blob);
 
@@ -380,7 +329,15 @@
     },
   };
 
-  document.addEventListener("DOMContentLoaded", () =>
-    ThemeEditor.init.call(ThemeEditor),
-  );
+  function init() {
+    ThemeEditor.init.call(ThemeEditor);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+  document.addEventListener("turbo:load", init);
 })();

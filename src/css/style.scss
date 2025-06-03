@@ -27,7 +27,6 @@
   --header-bg-color: var(--color-bg-secondary);
   --header-text-color: var(--color-text);
   --header-border: var(--border);
-  --header-font-family: var(--font-family-heading);
 
   --nav-bg-color: var(--color-bg-secondary);
   --nav-text-color: var(--color-text);
@@ -37,6 +36,7 @@
 
   --main-bg-color: var(--color-bg-secondary);
   --main-text-color: var(--color-text);
+  --main-heading-color: var(--color-text);
   --main-border: var(--border);
 
   --form-bg-color: var(--color-bg);
@@ -427,6 +427,13 @@ nav {
   font-weight: normal;
   line-height: var(--line-height);
   text-wrap: balance;
+
+  main & {
+    color: var(--main-heading-color);
+    .headings-centered & {
+      text-align: center;
+    }
+  }
 }
 
 h1 {
@@ -444,7 +451,7 @@ h6 {
   font-size: 1rem;
 }
 
-body > header {
+header {
   background: var(--header-bg-color);
   border-radius: var(--border-radius);
   border: var(--header-border);
@@ -463,6 +470,18 @@ body > header {
     z-index: 2;
     position: relative;
     font-family: var(--font-family-heading);
+
+    .header-centered & {
+      text-align: center;
+    }
+    .header-centered-dark & {
+      text-align: center;
+      padding: 0.5rem 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      width: fit-content;
+      margin: 0 auto;
+      border: var(--header-border);
+    }
   }
 
   .banner {
