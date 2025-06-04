@@ -1,14 +1,14 @@
 [
-  {
-    "label": "None",
-    "value": ""
-  },
-  {
-    "label": "Centered",
-    "value": "header-centered"
-  },
-  {
-    "label": "Centered With Dark Tint & Border",
-    "value": "header-centered-dark"
-  }
+	{
+		"label": "None",
+		"value": ""
+	},
+	{
+		"label": "Centered",
+		"value": "header-centered"
+	},
+	{
+		"label": "Centered With Dark Tint & Border",
+		"value": "header-centered-dark"
+	}
 ]

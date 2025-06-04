@@ -1,4 +1,4 @@
 [
-  { "label": "None", "value": "none" },
-  { "label": "Underline", "value": "underline" }
+	{ "label": "None", "value": "none" },
+	{ "label": "Underline", "value": "underline" }
 ]

@@ -1,6 +1,6 @@
 [
-  { "label": "Solid", "value": "solid" },
-  { "label": "Dashed", "value": "dashed" },
-  { "label": "Dotted", "value": "dotted" },
-  { "label": "Wavy", "value": "wavy" }
+	{ "label": "Solid", "value": "solid" },
+	{ "label": "Dashed", "value": "dashed" },
+	{ "label": "Dotted", "value": "dotted" },
+	{ "label": "Wavy", "value": "wavy" }
 ]

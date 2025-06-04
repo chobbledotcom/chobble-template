@@ -1,0 +1,227 @@
+const assert = require('assert');
+const { createTestRunner } = require('./test-utils');
+
+const {
+  findImageFiles,
+  createImagesCollection,
+  copyImageCache,
+  createImageTransform,
+  configureImages,
+} = require('../src/_lib/image');
+
+const mockEleventyConfig = {
+  addAsyncShortcode: function(name, fn) {
+    this.shortcodes = this.shortcodes || {};
+    this.shortcodes[name] = fn;
+  },
+  addTransform: function(name, fn) {
+    this.transforms = this.transforms || {};
+    this.transforms[name] = fn;
+  },
+  addCollection: function(name, fn) {
+    this.collections = this.collections || {};
+    this.collections[name] = fn;
+  },
+  on: function(event, fn) {
+    this.events = this.events || {};
+    this.events[event] = fn;
+  }
+};
+
+const testCases = [
+  {
+    name: 'findImageFiles-default-pattern',
+    description: 'Finds image files with default pattern',
+    test: () => {
+      // We can't test actual file finding without setup, but we can test the function exists
+      assert.strictEqual(typeof findImageFiles, 'function', "Should be a function");
+      
+      const result = findImageFiles([]); // Empty pattern
+      assert(Array.isArray(result), "Should return an array");
+    }
+  },
+  {
+    name: 'findImageFiles-custom-pattern',
+    description: 'Accepts custom file patterns',
+    test: () => {
+      const customPattern = ["test/fixtures/*.png"];
+      const result = findImageFiles(customPattern);
+      
+      assert(Array.isArray(result), "Should return an array for custom pattern");
+    }
+  },
+  {
+    name: 'createImagesCollection-basic',
+    description: 'Creates image collection from file list',
+    test: () => {
+      const imageFiles = [
+        "src/images/photo1.jpg",
+        "src/images/photo2.jpg",
+        "src/images/banner.jpg"
+      ];
+      
+      const result = createImagesCollection(imageFiles);
+      
+      assert.deepStrictEqual(result, [
+        "banner.jpg",
+        "photo2.jpg", 
+        "photo1.jpg"
+      ], "Should extract filenames and reverse order");
+    }
+  },
+  {
+    name: 'createImagesCollection-empty',
+    description: 'Handles empty image file list',
+    test: () => {
+      const result = createImagesCollection([]);
+      
+      assert.deepStrictEqual(result, [], "Should return empty array for empty input");
+    }
+  },
+  {
+    name: 'createImagesCollection-different-paths',
+    description: 'Handles different path structures',
+    test: () => {
+      const imageFiles = [
+        "assets/imgs/test.jpg",
+        "public/photos/vacation.jpg"
+      ];
+      
+      const result = createImagesCollection(imageFiles);
+      
+      assert.deepStrictEqual(result, [
+        "vacation.jpg",
+        "test.jpg"
+      ], "Should extract filename regardless of path structure");
+    }
+  },
+  {
+    name: 'copyImageCache-function-exists',
+    description: 'copyImageCache function exists and is callable',
+    test: () => {
+      assert.strictEqual(typeof copyImageCache, 'function', "Should be a function");
+      
+      // Test that it doesn't throw when called (even if .image-cache doesn't exist)
+      assert.doesNotThrow(() => {
+        copyImageCache();
+      }, "Should not throw when called");
+    }
+  },
+  {
+    name: 'createImageTransform-basic',
+    description: 'Creates image transform function',
+    test: () => {
+      const transform = createImageTransform();
+      
+      assert.strictEqual(typeof transform, 'function', "Should return a function");
+    }
+  },
+  {
+    name: 'createImageTransform-non-html-passthrough',
+    description: 'Transform passes through non-HTML files',
+    test: async () => {
+      const transform = createImageTransform();
+      
+      const cssContent = 'body { margin: 0; }';
+      const cssPath = '/test/style.css';
+      
+      const result = await transform(cssContent, cssPath);
+      
+      assert.strictEqual(result, cssContent, "Should pass through CSS files unchanged");
+    }
+  },
+  {
+    name: 'createImageTransform-no-output-path',
+    description: 'Transform handles missing output path',
+    test: async () => {
+      const transform = createImageTransform();
+      
+      const content = '<p>Test content</p>';
+      
+      const result = await transform(content, null);
+      
+      assert.strictEqual(result, content, "Should pass through content when no output path");
+    }
+  },
+  {
+    name: 'configureImages-basic',
+    description: 'Configures all image functionality in Eleventy',
+    test: () => {
+      const mockConfig = { ...mockEleventyConfig };
+      
+      configureImages(mockConfig);
+      
+      // Verify shortcode
+      assert(mockConfig.shortcodes.image, "Should add image shortcode");
+      assert.strictEqual(typeof mockConfig.shortcodes.image, 'function', "Should add function shortcode");
+      
+      // Verify transform
+      assert(mockConfig.transforms.processImages, "Should add processImages transform");
+      assert.strictEqual(typeof mockConfig.transforms.processImages, 'function', "Should add function transform");
+      
+      // Verify collection
+      assert(mockConfig.collections.images, "Should add images collection");
+      assert.strictEqual(typeof mockConfig.collections.images, 'function', "Should add function collection");
+      
+      // Verify event handler
+      assert(mockConfig.events['eleventy.after'], "Should add eleventy.after event handler");
+      assert.strictEqual(typeof mockConfig.events['eleventy.after'], 'function', "Should add function event handler");
+    }
+  },
+  {
+    name: 'configureImages-collection-function',
+    description: 'Images collection function works correctly',
+    test: () => {
+      const mockConfig = { ...mockEleventyConfig };
+      
+      configureImages(mockConfig);
+      
+      const collectionFn = mockConfig.collections.images;
+      const result = collectionFn();
+      
+      assert(Array.isArray(result), "Collection function should return an array");
+    }
+  },
+  {
+    name: 'image-functions-pure',
+    description: 'Image utility functions should be pure',
+    test: () => {
+      const originalFiles = ["src/images/test1.jpg", "src/images/test2.jpg"];
+      const filesCopy = [...originalFiles];
+      
+      const result1 = createImagesCollection(filesCopy);
+      const result2 = createImagesCollection(filesCopy);
+      
+      // Verify inputs unchanged
+      assert.deepStrictEqual(filesCopy, originalFiles, "Should not modify input array");
+      
+      // Verify consistent results
+      assert.deepStrictEqual(result1, result2, "Should produce consistent results");
+      
+      // Verify results are new arrays
+      assert.notStrictEqual(result1, result2, "Should create new result arrays");
+    }
+  },
+  {
+    name: 'image-module-integration',
+    description: 'All image functions work together correctly',
+    test: () => {
+      // Test the workflow: find files -> create collection -> configure
+      const mockFiles = ["src/images/a.jpg", "src/images/b.jpg"];
+      const collection = createImagesCollection(mockFiles);
+      
+      assert.deepStrictEqual(collection, ["b.jpg", "a.jpg"], "Should process files correctly");
+      
+      const mockConfig = { ...mockEleventyConfig };
+      configureImages(mockConfig);
+      
+      // Verify all components are configured
+      assert(mockConfig.shortcodes.image, "Should configure shortcode");
+      assert(mockConfig.transforms.processImages, "Should configure transform");
+      assert(mockConfig.collections.images, "Should configure collection");
+      assert(mockConfig.events['eleventy.after'], "Should configure event handler");
+    }
+  }
+];
+
+module.exports = createTestRunner('image', testCases);

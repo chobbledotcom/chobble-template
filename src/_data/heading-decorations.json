@@ -1,10 +1,10 @@
 [
-  {
-    "label": "None",
-    "value": ""
-  },
-  {
-    "label": "Centered",
-    "value": "headings-centered"
-  }
+	{
+		"label": "None",
+		"value": ""
+	},
+	{
+		"label": "Centered",
+		"value": "headings-centered"
+	}
 ]
