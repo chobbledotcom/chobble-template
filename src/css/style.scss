@@ -466,6 +466,17 @@ header {
   position: relative;
   overflow: hidden;
 
+  .desktop-image {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+  .mobile-image {
+    @media (min-width: 769px) {
+      display: none;
+    }
+  }
+
   h1 {
     z-index: 2;
     position: relative;
