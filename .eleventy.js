@@ -3,6 +3,7 @@ module.exports = async function (eleventyConfig) {
 	const { configureFeed } = require("./src/_lib/feed");
 	const { configureFileUtils } = require("./src/_lib/file-utils");
 	const { configureImages } = require("./src/_lib/image");
+	const { configureMenus } = require("./src/_lib/menus");
 	const { configureNavigation } = require("./src/_lib/navigation");
 	const { configurePrettier } = require("./src/_lib/prettier");
 	const { configureProducts } = require("./src/_lib/products");
@@ -21,6 +22,7 @@ module.exports = async function (eleventyConfig) {
 	configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
 	configureImages(eleventyConfig);
+	configureMenus(eleventyConfig);
 	configureNavigation(eleventyConfig);
 	configurePrettier(eleventyConfig);
 	configureProducts(eleventyConfig);

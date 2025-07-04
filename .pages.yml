@@ -1,0 +1,152 @@
+media:
+  input: images
+  output: /images
+  extensions: [jpg, jpeg]
+content:
+  - name: pages
+    label: Pages
+    path: pages
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    view:
+      fields: [permalink, name, meta_title, header_text]
+      primary: name
+      sort: [order, name]
+    fields:
+      - { name: header_image, type: image, label: Header Image }
+      - { name: header_text, type: string, label: Header Text }
+      - { name: meta_description, type: string, label: Meta Description }
+      - { name: meta_title, type: string, label: Meta Title }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - name: eleventyNavigation
+        label: Navigation
+        type: object
+        fields:
+          - { name: key, type: string }
+          - { name: parent, type: string }
+          - { name: order, type: number }
+          - { name: url, type: string }
+      - { name: layout, type: string }
+      - { name: permalink, type: string }
+  - name: news
+    label: News
+    path: news
+    type: collection
+    subfolders: false
+    fields:
+      - { name: header_image, type: image, label: Header Image }
+      - { name: title, type: string, label: Title }
+      - { name: date, label: Date, type: date }
+      - { name: meta_description, type: string, label: Meta Description }
+      - { name: meta_title, type: string, label: Meta Title }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+  - name: products
+    label: Products
+    path: products
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    fields:
+      - { name: header_image, type: image, label: Header Image }
+      - { name: title, type: string, label: Title }
+      - name: categories
+        label: Categories
+        type: reference
+        options:
+          collection: categories
+          multiple: true
+          search: "title"
+          value: "{name}"
+          label: "{title}"
+      - { name: price, label: Price, type: string }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: features, type: string, label: Features, list: true }
+      - name: specs
+        label: Specs
+        type: object
+        list: true
+        fields:
+          - name: name
+            label: Name
+            type: string
+          - name: value
+            label: Value
+            type: string
+      - name: gallery
+        type: image
+        label: Gallery
+        options: { multiple: true }
+      - { name: header_text, type: string, label: Header Text }
+      - { name: meta_description, type: string, label: Meta Description }
+      - { name: meta_title, type: string, label: Meta Title }
+      - { name: subtitle, type: string, label: Subtitle }
+  - name: categories
+    label: Categories
+    path: categories
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    fields:
+      - { name: title, type: string, label: Title }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: featured, label: Featured, type: boolean }
+      - { name: header_image, type: image, label: Header Image }
+      - { name: header_text, type: string, label: Header Text }
+      - { name: meta_description, type: string, label: Meta Description }
+      - { name: meta_title, type: string, label: Meta Title }
+      - { name: subtitle, type: string, label: Subtitle }
+  - name: team
+    label: Team
+    path: team
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    fields:
+      - { name: title, type: string, label: Name }
+      - { name: snippet, type: string, label: Role }
+      - { name: image, type: image, label: Profile Image }
+      - { name: header_image, type: image, label: Header Image }
+      - {
+          name: body,
+          label: Biography,
+          type: code,
+          options: { language: markdown },
+        }
+  - name: reviews
+    label: Reviews
+    path: reviews
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    fields:
+      - { name: name, type: string, label: Client Name }
+      - { name: project, type: string, label: Project Type }
+      - {
+          name: body,
+          label: Review Content,
+          type: code,
+          options: { language: markdown },
+        }
+  - name: events
+    label: Events
+    path: events
+    type: collection
+    subfolders: false
+    filename: "{event_date}-{primary}.md"
+    view:
+      fields: [title, event_date, event_location]
+      primary: title
+      sort: [event_date]
+    fields:
+      - { name: header_image, type: image, label: Header Image }
+      - { name: title, type: string, label: Title }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: event_date, label: Event Date, type: date }
+      - { name: event_location, type: string, label: Event Location }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: header_text, type: string, label: Header Text }
+      - { name: meta_title, type: string, label: Meta Title }
+      - { name: meta_description, type: string, label: Meta Description }

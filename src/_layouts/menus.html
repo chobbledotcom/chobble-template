@@ -1,0 +1,10 @@
+---
+layout: base.html
+---
+
+{{- content -}}
+
+{%- assign menus = collections.menu | sort: "data.order" -%}
+{%- if menus.size > 0 -%}
+  {%- include "menus-list.html" -%}
+{%- endif -%}

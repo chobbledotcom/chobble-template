@@ -1,0 +1,10 @@
+<li>
+  {% assign item = menu %}
+  {% assign widths = site.products.category_thumb_widths %}
+  {% assign sizes = site.products.category_thumb_sizes %}
+  {% include "thumbnail-image-link.html" %}
+
+  {% if menu.data.description -%}
+    <p>{{- menu.data.description -}}</p>
+  {%- endif -%}
+</li>
