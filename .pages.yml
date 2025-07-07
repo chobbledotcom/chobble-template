@@ -1,12 +1,12 @@
 media:
-  input: images
+  input: src/images
   output: /images
-  path: images
+  path: src/images
   categories: [image]
 content:
   - name: pages
     label: Pages
-    path: pages
+    path: src/pages
     type: collection
     subfolders: false
     view:
@@ -32,7 +32,7 @@ content:
       - { name: permalink, type: string }
   - name: news
     label: News
-    path: news
+    path: src/news
     type: collection
     subfolders: false
     fields:
@@ -46,7 +46,7 @@ content:
       - { name: meta_title, type: string, label: Meta Title }
   - name: products
     label: Products
-    path: products
+    path: src/products
     type: collection
     subfolders: false
     fields:
@@ -75,7 +75,7 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
   - name: categories
     label: Categories
-    path: categories
+    path: src/categories
     type: collection
     subfolders: false
     filename: "{primary}.md"
@@ -90,7 +90,7 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
   - name: team
     label: Team
-    path: team
+    path: src/team
     type: collection
     subfolders: false
     filename: "{primary}.md"
@@ -107,7 +107,7 @@ content:
         }
   - name: reviews
     label: Reviews
-    path: reviews
+    path: src/reviews
     type: collection
     subfolders: false
     fields:
@@ -125,7 +125,7 @@ content:
           label: "{title}"
   - name: events
     label: Events
-    path: events
+    path: src/events
     type: collection
     subfolders: false
     filename: "{event_date}-{primary}.md"
@@ -146,7 +146,7 @@ content:
 
   - name: snippets
     label: Snippets
-    path: snippets
+    path: src/snippets
     type: collection
     subfolders: false
     filename: '{primary}.md'
@@ -156,7 +156,7 @@ content:
 
   - name: menus
     label: Menus
-    path: menus
+    path: src/menus
     type: collection
     subfolders: false
     fields:
@@ -170,7 +170,7 @@ content:
 
   - name: menu-categories
     label: Menu Categories
-    path: menu-categories
+    path: src/menu-categories
     type: collection
     subfolders: false
     fields:
@@ -189,7 +189,7 @@ content:
 
   - name: menu-items
     label: Menu Items
-    path: menu-items
+    path: src/menu-items
     type: collection
     subfolders: false
     fields:
