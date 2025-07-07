@@ -41,6 +41,9 @@ jobs:
           npm ci
           npx @11ty/eleventy
 
+      - name: Format with Prettier
+        run: npm run format
+
       - name: Check formatting with Prettier
         run: npm run format:check
 
