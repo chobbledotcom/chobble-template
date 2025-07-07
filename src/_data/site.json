@@ -5,10 +5,12 @@
 	"url": "https://example.chobble.com",
 	"webhost": "bunny",
 	"socials": {
-		"Facebook": "https://example.chobble.com",
+		"Github": "https://github.com/chobble-mirror/chobble-template",
+		"Forgejo": "https://git.chobble.com/chobble/chobble-template",
+		"Facebook": "https://www.facebook.com/profile.php?id=61571286130366",
 		"Instagram": "https://example.chobble.com",
 		"TikTok": "https://example.chobble.com",
-		"Google": "https://example.chobble.com",
+		"Google": "https://maps.app.goo.gl/kNqgHRNaMgPDp7Mo8",
 		"WhatsApp": "https://example.chobble.com",
 		"RSS": "/feed.xml"
 	},
