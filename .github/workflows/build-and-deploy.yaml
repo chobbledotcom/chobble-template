@@ -1,0 +1,38 @@
+name: Build and Deploy to Neocities
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: chobble # node:latest but with 11ty, Yarn etc preinstalled: https://git.chobble.com/chobble/docker-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update site.json with secrets
+        run: |
+          sed -i 's/"formspark_id": null/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/site.json
+          sed -i 's/"botpoison_public_key": null/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/site.json
+
+      - name: Build with Node
+        run: |
+          npm install
+          npx @11ty/eleventy
+
+      - name: Deploy to neocities
+        uses: bcomnes/deploy-to-neocities@v3
+        with:
+          api_key: ${{ secrets.NEOCITIES_API_KEY }}
+          cleanup: true
+          neocities_supporter: true
+          preview_before_deploy: false
+          dist_dir: _site
+
+      - name: Clean up site
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
