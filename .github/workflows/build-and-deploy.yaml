@@ -4,12 +4,32 @@ on:
   push:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
-    runs-on: chobble # node:latest but with 11ty, Yarn etc preinstalled: https://git.chobble.com/chobble/docker-image
+    name: Build Site
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            .image-cache
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Update site.json with secrets
         run: |
@@ -18,8 +38,27 @@ jobs:
 
       - name: Build with Node
         run: |
-          npm install
+          npm ci
           npx @11ty/eleventy
+
+      - name: Upload built site
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-site
+          path: _site/
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Neocities
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Download built site
+        uses: actions/download-artifact@v4
+        with:
+          name: built-site
+          path: _site
 
       - name: Deploy to neocities
         uses: bcomnes/deploy-to-neocities@v3
@@ -29,10 +68,3 @@ jobs:
           neocities_supporter: true
           preview_before_deploy: false
           dist_dir: _site
-
-      - name: Clean up site
-        run: |
-          ls -la ./
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-          ls -la ./
