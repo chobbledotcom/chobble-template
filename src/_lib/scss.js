@@ -6,16 +6,20 @@ const createScssCompiler = (inputContent, inputPath) => {
 	const dir = path.dirname(inputPath);
 
 	return function (data) {
-		if (inputPath.endsWith('bundle.scss')) {
+		if (inputPath.endsWith("bundle.scss")) {
 			const scssFiles = getScssFiles();
 			const dynamicImports = scssFiles
-				.filter(file => !inputContent.includes(`@use "${file}";`))
-				.map(file => `@use "${file}";`).join('\n');
+				.filter((file) => !inputContent.includes(`@use "${file}";`))
+				.map((file) => `@use "${file}";`)
+				.join("\n");
 			if (dynamicImports) {
-				inputContent = inputContent.replace('@use "theme";', `${dynamicImports}\n@use "theme";`);
+				inputContent = inputContent.replace(
+					'@use "theme";',
+					`${dynamicImports}\n@use "theme";`,
+				);
 			}
 		}
-		
+
 		return sass.compileString(inputContent, {
 			loadPaths: [dir],
 		}).css;
