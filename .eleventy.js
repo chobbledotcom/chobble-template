@@ -8,6 +8,7 @@ module.exports = async function (eleventyConfig) {
 	const { configurePrettier } = require("./src/_lib/prettier");
 	const { configureProducts } = require("./src/_lib/products");
 	const { configureScss } = require("./src/_lib/scss");
+	const { configureScssFiles } = require("./src/_lib/scssFiles");
 	const { configureTags } = require("./src/_lib/tags");
 
 	eleventyConfig.addWatchTarget("./src/**/*");
@@ -27,6 +28,7 @@ module.exports = async function (eleventyConfig) {
 	configurePrettier(eleventyConfig);
 	configureProducts(eleventyConfig);
 	configureScss(eleventyConfig);
+	configureScssFiles(eleventyConfig);
 	configureTags(eleventyConfig);
 
 	return {

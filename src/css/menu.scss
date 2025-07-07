@@ -1,0 +1,28 @@
+.menu-items {
+  margin-bottom: 3rem;
+  list-style: none;
+  padding: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    .name {
+      grid-column: 1;
+      text-align: left;
+    }
+
+    .price {
+      grid-column: 2;
+      text-align: right;
+    }
+
+    .description {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}

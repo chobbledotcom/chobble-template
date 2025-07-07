@@ -10,26 +10,11 @@ layout: base.html
 
 {%- assign menu_categories = collections.menu_category | getCategoriesByMenu: page.fileSlug | sort: "data.order" -%}
 {%- if menu_categories.size > 0 -%}
-  {%- comment -%} Collect all unique dietary keys from menu items {%- endcomment -%}
-  {%- assign all_dietary_keys = "" | split: "" -%}
-  {%- for category in menu_categories -%}
-    {%- assign items = collections.menu_item | getItemsByCategory: category.fileSlug -%}
-    {%- for item in items -%}
-      {%- for key in item.data.dietaryKeys -%}
-        {%- assign key_string = key.symbol | append: "|" | append: key.label -%}
-        {%- unless all_dietary_keys contains key_string -%}
-          {%- assign all_dietary_keys = all_dietary_keys | push: key_string -%}
-        {%- endunless -%}
-      {%- endfor -%}
-    {%- endfor -%}
-  {%- endfor -%}
-  
-  {%- if all_dietary_keys.size > 0 -%}
+  {%- if allDietaryKeys.size > 0 -%}
     <p>
-      {%- for key_string in all_dietary_keys -%}
-        {%- assign key_parts = key_string | split: "|" -%}
-        {%- if forloop.index > 1 -%}, {%- endif -%}
-        <strong>({{ key_parts[0] }})</strong> - {{ key_parts[1] }}
+      {%- for key in allDietaryKeys -%}
+        {%- if forloop.index > 1 -%}, {% endif -%}
+        <strong>({{ key.symbol }})</strong> - {{ key.label }}
       {%- endfor -%}
     </p>
   {%- endif -%}
@@ -44,15 +29,19 @@ layout: base.html
       <ul class="menu-items">
         {%- for item in items -%}
           <li>
-            <strong>{{ item.data.name }}</strong>
-            {%- for key in item.data.dietaryKeys -%}
-              <span>({{ key.symbol }})</span>
-            {%- endfor -%}
+            <span class="name">
+              <strong>{{ item.data.name }}</strong>
+              {%- for key in item.data.dietaryKeys %}
+                <span>({{ key.symbol }})</span>
+              {%- endfor -%}
+            </span>
             <span class="price">
               {{ item.data.price }}
             </span>
             {%- if item.data.description -%}
-              <br>{{ item.data.description }}
+              <p class="description">
+                {{ item.data.description }}
+              </p>
             {%- endif -%}
           </li>
         {%- endfor -%}

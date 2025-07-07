@@ -11,6 +11,9 @@
   {%- else -%}
     <link rel="stylesheet" href="/css/nav.css" />
     <link rel="stylesheet" href="/css/style.css" />
+    {%- for file in scssFiles -%}
+      <link rel="stylesheet" href="/css/{{ file }}.css" />
+    {%- endfor -%}
     {%- if layout != "theme-editor.html" -%}
       <link rel="stylesheet" href="/css/theme.css" />
     {%- endif -%}
