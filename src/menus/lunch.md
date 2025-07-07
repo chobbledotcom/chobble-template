@@ -1,7 +1,7 @@
 ---
 title: Lunch Menu
 order: 3
-header_image: /images/placeholder-wide-2.jpg
+header_image: /images/lunch.jpg
 description: Quick and tasty vegan lunch options.
 meta_title: Lunch Menu
 meta_description: Quick and tasty vegan lunch options
