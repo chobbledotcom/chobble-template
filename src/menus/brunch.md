@@ -1,6 +1,7 @@
 ---
 title: Weekend Brunch
 order: 1
+header_image: /images/breakfast.jpg
 description: Delicious plant-based brunch every weekend.
 meta_title: Weekend Brunch Menu
 meta_description: Delicious plant-based brunch served every weekend
