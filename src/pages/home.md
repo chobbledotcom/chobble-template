@@ -11,7 +11,7 @@ eleventyNavigation:
   order: 1
 ---
 
-## This site is using the [Chobble Template](https://git.chobble.com/chobble/chobble-template)
+## This site is using the [Chobble Template](https://chobble.com/services/chobble-template/)
 
 **It was made by Stef at [Chobble.com](https://chobble.com).** If you'd like a website just like it, clone this repo or [get in touch](/contact/)! I charge a flat hourly fee and will give you the full source code for all work I do.
 
