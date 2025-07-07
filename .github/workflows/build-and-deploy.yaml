@@ -41,6 +41,9 @@ jobs:
           npm ci
           npx @11ty/eleventy
 
+      - name: Check formatting with Prettier
+        run: npm run format:check
+
       - name: Upload built site
         uses: actions/upload-artifact@v4
         with:

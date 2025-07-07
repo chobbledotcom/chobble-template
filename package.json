@@ -2,6 +2,12 @@
 	"name": "chobble-template",
 	"version": "1.0.0",
 	"type": "commonjs",
+	"scripts": {
+		"build": "eleventy",
+		"serve": "eleventy --serve",
+		"format": "prettier --write _site/**/*.html",
+		"format:check": "prettier --check _site/**/*.html"
+	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
 		"@11ty/eleventy-img": "^6.0.0",
