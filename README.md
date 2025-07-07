@@ -18,11 +18,14 @@ Featuring common business website features like:
 - News
 - Reviews
 - Products
+- Categories
 - Galleries
-- A contact form using Formspark and Botpoison
+- Team members
+- Menus
+- A contact form using [Formspark](https://formspark.io/) and [Botpoison](https://botpoison.com/)
 - Heading images
 - Customisable strings
-- Responsive images with `srcset` and [base64 low quality placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/)
+- Responsive images with `srcset`, [base64 low quality placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/), optional custom cropping
 
 And Nix'y features like:
 
@@ -38,3 +41,12 @@ And Eleventy features like:
 - A directory to store favicon cruft
 - A `_data/site.json` metadata store
 - A `collection.images` collection of the files in `src/images`
+
+And quality of life features like:
+
+- Linting with [Biome](https://biomejs.dev/)
+- Tidy HTML output from [Prettier](https://prettier.io)
+- CSS bundling (but not in dev)
+- Instant page navigation from [Turbo](https://turbo.hotwired.dev/)
+
+**Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**

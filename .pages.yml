@@ -1,31 +1,31 @@
 media:
   input: images
   output: /images
-  extensions: [jpg, jpeg]
+  path: images
+  categories: [image]
 content:
   - name: pages
     label: Pages
     path: pages
     type: collection
     subfolders: false
-    filename: "{primary}.md"
     view:
       fields: [permalink, name, meta_title, header_text]
       primary: name
       sort: [order, name]
     fields:
+      - { name: title, type: string, label: Title }
       - { name: header_image, type: image, label: Header Image }
       - { name: header_text, type: string, label: Header Text }
-      - { name: meta_description, type: string, label: Meta Description }
-      - { name: meta_title, type: string, label: Meta Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: meta_description, type: string, label: Meta Description }
+      - { name: meta_title, type: string, label: Meta Title }
       - name: eleventyNavigation
         label: Navigation
         type: object
         fields:
           - { name: key, type: string }
-          - { name: parent, type: string }
           - { name: order, type: number }
           - { name: url, type: string }
       - { name: layout, type: string }
@@ -36,22 +36,22 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: header_image, type: image, label: Header Image }
       - { name: title, type: string, label: Title }
+      - { name: header_image, type: image, label: Header Image }
       - { name: date, label: Date, type: date }
-      - { name: meta_description, type: string, label: Meta Description }
-      - { name: meta_title, type: string, label: Meta Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: header_text, type: string, label: Header Text }
+      - { name: meta_description, type: string, label: Meta Description }
+      - { name: meta_title, type: string, label: Meta Title }
   - name: products
     label: Products
     path: products
     type: collection
     subfolders: false
-    filename: "{primary}.md"
     fields:
-      - { name: header_image, type: image, label: Header Image }
       - { name: title, type: string, label: Title }
+      - { name: header_image, type: image, label: Header Image }
       - name: categories
         label: Categories
         type: reference
@@ -59,22 +59,12 @@ content:
           collection: categories
           multiple: true
           search: "title"
-          value: "{name}"
+          value: "{path}"
           label: "{title}"
       - { name: price, label: Price, type: string }
+      - { name: etsy_url, label: Etsy URL, type: string }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: features, type: string, label: Features, list: true }
-      - name: specs
-        label: Specs
-        type: object
-        list: true
-        fields:
-          - name: name
-            label: Name
-            type: string
-          - name: value
-            label: Value
-            type: string
       - name: gallery
         type: image
         label: Gallery
@@ -120,16 +110,19 @@ content:
     path: reviews
     type: collection
     subfolders: false
-    filename: "{primary}.md"
     fields:
-      - { name: name, type: string, label: Client Name }
-      - { name: project, type: string, label: Project Type }
-      - {
-          name: body,
-          label: Review Content,
-          type: code,
-          options: { language: markdown },
-        }
+      - { name: name, type: string, label: Name }
+      - { name: url, type: string, label: URL }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - name: products
+        label: Products
+        type: reference
+        options:
+          collection: products
+          multiple: true
+          search: "title"
+          value: "{path}"
+          label: "{title}"
   - name: events
     label: Events
     path: events
@@ -150,3 +143,68 @@ content:
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_title, type: string, label: Meta Title }
       - { name: meta_description, type: string, label: Meta Description }
+
+  - name: snippets
+    label: Snippets
+    path: snippets
+    type: collection
+    subfolders: false
+    filename: '{primary}.md'
+    fields:
+      - { name: name, type: string, label: Name }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+
+  - name: menus
+    label: Menus
+    path: menus
+    type: collection
+    subfolders: false
+    fields:
+      - { name: title, type: string, label: Title }
+      - { name: order, type: number, label: Order }
+      - { name: header_image, type: image, label: Header Image }
+      - { name: description, type: string, label: Description }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: meta_title, type: string, label: Meta Title }
+      - { name: meta_description, type: string, label: Meta Description }
+
+  - name: menu-categories
+    label: Menu Categories
+    path: menu-categories
+    type: collection
+    subfolders: false
+    fields:
+      - { name: name, type: string, label: Name }
+      - { name: order, type: number, label: Order }
+      - name: menus
+        label: Menus
+        type: reference
+        options:
+          collection: menus
+          multiple: true
+          search: "title"
+          value: "{path}"
+          label: "{title}"
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+
+  - name: menu-items
+    label: Menu Items
+    path: menu-items
+    type: collection
+    subfolders: false
+    fields:
+      - { name: name, type: string, label: Name }
+      - { name: price, type: string, label: Price }
+      - { name: is_vegan, type: boolean, label: Is Vegan }
+      - { name: is_gluten_free, type: boolean, label: Is Gluten Free }
+      - name: menu_categories
+        label: Menu Categories
+        type: reference
+        options:
+          collection: menu-categories
+          multiple: true
+          search: "name"
+          value: "{path}"
+          label: "{name}"
+      - { name: description, type: string, label: Description }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
