@@ -561,7 +561,6 @@ img {
 
 body > footer {
   background: var(--color-bg-secondary);
-  color: var(--color-bg);
   border-radius: var(--border-radius);
   border: var(--border);
   width: var(--width-content);
@@ -570,10 +569,6 @@ body > footer {
   margin-bottom: 1rem;
   text-align: center;
   padding: 1rem;
-
-  a {
-    color: var(--color-bg);
-  }
 
   p {
     max-width: 30rem;
