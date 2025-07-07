@@ -723,6 +723,9 @@ ul.items {
   p {
     margin-bottom: 0;
   }
+  .image-link img {
+    object-fit: cover;
+  }
 }
 
 a.image-link {
