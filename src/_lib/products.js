@@ -25,7 +25,9 @@ const getProductsByCategory = (products, categorySlug) =>
 	products.filter((product) => product.data.categories?.includes(categorySlug));
 
 const getReviewsByProduct = (reviews, productSlug) =>
-	reviews.filter((review) => review.data.products?.includes(productSlug));
+	(reviews || []).filter((review) =>
+		review.data.products?.includes(productSlug),
+	);
 
 const configureProducts = (eleventyConfig) => {
 	eleventyConfig.addCollection("products", createProductsCollection);
