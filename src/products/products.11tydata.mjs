@@ -1,14 +1,11 @@
 import strings from "../_data/strings.js";
+import { normaliseSlug } from "../_lib/slug-utils.js";
 
 export default {
 	eleventyComputed: {
 		categories: (data) => {
 			const categories = data.categories || [];
-			return categories.map((category) => {
-				// convert to just the file slug
-				const pathParts = category.split(".")[0].split("/");
-				return pathParts[pathParts.length - 1];
-			});
+			return categories.map(normaliseSlug);
 		},
 		navigationParent: () => strings.product_name,
 		permalink: (data) => {

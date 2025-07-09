@@ -1,3 +1,5 @@
+import { normaliseSlug } from "../_lib/slug-utils.js";
+
 export default {
 	eleventyComputed: {
 		dietaryKeys: (data) => {
@@ -15,6 +17,10 @@ export default {
 			}
 
 			return keys;
+		},
+		menu_categories: (data) => {
+			const categories = data.menu_categories || [];
+			return categories.map(normaliseSlug);
 		},
 	},
 };
