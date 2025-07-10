@@ -1,6 +1,6 @@
 const sass = require("sass");
 const path = require("path");
-const { getScssFiles } = require("./scssFiles");
+const { getScssFiles } = require("./scss-files");
 
 const createScssCompiler = (inputContent, inputPath) => {
 	const dir = path.dirname(inputPath);

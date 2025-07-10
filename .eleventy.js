@@ -7,7 +7,7 @@ module.exports = async function (eleventyConfig) {
 	const { configureNavigation } = require("./src/_lib/navigation");
 	const { configureProducts } = require("./src/_lib/products");
 	const { configureScss } = require("./src/_lib/scss");
-	const { configureScssFiles } = require("./src/_lib/scssFiles");
+	const { configureScssFiles } = require("./src/_lib/scss-files");
 	const { configureTags } = require("./src/_lib/tags");
 
 	eleventyConfig.addWatchTarget("./src/**/*");

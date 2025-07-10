@@ -1,0 +1,15 @@
+{%- if site.map_embed_src and site.map_embed_src != "" -%}
+  <div class="map-embed">
+    <iframe
+      credentialless
+      title="Embedded map for {{ site.name }}"
+      class="embed-responsive-item"
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      referrerpolicy="no-referrer"
+      src="{{ site.map_embed_src }}"
+    >
+    </iframe>
+  </div>
+{%- endif -%}
