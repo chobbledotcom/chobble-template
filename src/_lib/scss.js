@@ -35,6 +35,7 @@ const configureScss = (eleventyConfig) => {
 	eleventyConfig.addTemplateFormats("scss");
 	eleventyConfig.addExtension("scss", {
 		outputFileExtension: "css",
+		useLayouts: false,
 		compile: function (inputContent, inputPath) {
 			return createScssCompiler(inputContent, inputPath);
 		},
