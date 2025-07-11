@@ -1,4 +1,5 @@
 {
 	"product_name": "Products",
-	"product_permalink_dir": "products"
+	"product_permalink_dir": "products",
+	"menus_name": "Menus"
 }

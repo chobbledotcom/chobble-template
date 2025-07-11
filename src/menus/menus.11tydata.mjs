@@ -3,7 +3,7 @@ export default {
 		eleventyNavigation: (data) => {
 			return {
 				key: data.title,
-				parent: "Menus",
+				parent: data.strings.menus_name,
 				order: data.order || 0,
 			};
 		},
