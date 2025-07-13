@@ -10,9 +10,9 @@ content:
     type: collection
     subfolders: false
     view:
-      fields: [permalink, name, meta_title, header_text]
-      primary: name
-      sort: [order, name]
+      fields: [permalink, meta_title, header_text]
+      primary: header_text
+      sort: [header_text]
     fields:
       - { name: header_image, type: image, label: Header Image }
       - { name: header_text, type: string, label: Header Text }
