@@ -11,7 +11,7 @@
 
 **Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
 
-**💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/
+**💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/)
 
 This should let you get started with the Eleventy static site builder on NixOS / Nix, really easily.
 
