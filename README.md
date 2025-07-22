@@ -9,7 +9,9 @@
 - [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com) (example builder site)
 - [example-bunny.chobble.com](https://example-bunny.chobble.com) (example builder site, hosted on Bunny.net)
 
-**Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
+**Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
+
+**💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/
 
 This should let you get started with the Eleventy static site builder on NixOS / Nix, really easily.
 
