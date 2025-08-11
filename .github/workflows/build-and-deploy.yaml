@@ -31,10 +31,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Update site.json with secrets
+      - name: Update config.json with secrets
         run: |
-          sed -i 's/"formspark_id": null/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/site.json
-          sed -i 's/"botpoison_public_key": null/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/site.json
+          sed -i 's/"formspark_id": null/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/config.json
+          sed -i 's/"botpoison_public_key": null/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/config.json
 
       - name: Build with Node
         run: |
