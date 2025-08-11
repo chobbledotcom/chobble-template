@@ -1,0 +1,395 @@
+{%- comment -%}
+  Schema.org structured data - Enhanced with optional fields
+{%- endcomment -%}
+
+{%- comment -%}
+  Set default image if one exists
+{%- endcomment -%}
+{%- assign default_image = null -%}
+{%- if header_image -%}
+  {%- capture default_image -%}{{ site.url }}/images/{{ header_image }}{%- endcapture -%}
+{%- elsif gallery and gallery[0] -%}
+  {%- capture default_image -%}{{ site.url }}/images/{{ gallery[0] }}{%- endcapture -%}
+{%- elsif site.image -%}
+  {%- capture default_image -%}{{ site.url }}{{ site.image }}{%- endcapture -%}
+{%- elsif site.logo -%}
+  {%- capture default_image -%}{{ site.url }}{{ site.logo }}{%- endcapture -%}
+{%- else -%}
+  {%- capture default_image -%}{{ site.url }}/images/logo.png{%- endcapture -%}
+{%- endif -%}
+
+{%- comment -%}
+  Build logo URL
+{%- endcomment -%}
+{%- if site.logo -%}
+  {%- capture logo_url -%}{{ site.url }}{{ site.logo }}{%- endcapture -%}
+{%- else -%}
+  {%- capture logo_url -%}{{ site.url }}/images/logo.png{%- endcapture -%}
+{%- endif -%}
+
+{%- comment -%}
+  Determine schema type based on layout
+{%- endcomment -%}
+{%- assign schema_type = "page" -%}
+{%- if layout == "product.html" -%}
+  {%- assign schema_type = "product" -%}
+{%- elsif layout == "news-post.html" -%}
+  {%- assign schema_type = "post" -%}
+{%- elsif layout == "home.html" -%}
+  {%- assign schema_type = "website" -%}
+{%- elsif layout == "contact.html" -%}
+  {%- assign schema_type = "organization" -%}
+{%- endif -%}
+
+{%- comment -%}
+  Generate JSON-LD script based on page type
+{%- endcomment -%}
+{%- if schema_type == "product" -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ title | escape }}",
+    "description": "{{ short_description | default: meta_description | escape }}",
+    "image": "{{ default_image }}",
+    "brand": {
+      "@type": "Brand",
+      "name": "{{ site.name | escape }}"
+    }
+    {%- if price -%},
+    "offers": {
+      "@type": "Offer",
+      "url": "{{ site.url }}{{ page.url }}",
+      "priceCurrency": "{{ site.currenciesAccepted | default: 'GBP' }}",
+      "price": "{{ price | replace: '£', '' | replace: '€', '' | replace: '$', '' | replace: ',', '' }}",
+      "availability": "https://schema.org/InStock"
+      {%- if site.priceRange -%},
+      "priceValidUntil": "{{ 'now' | date: '%s' | plus: 31536000 | date: '%Y-%m-%d' }}"
+      {%- endif -%}
+    }
+    {%- endif -%}
+    {%- if specs and specs.size > 0 -%},
+    "additionalProperty": [
+      {%- for spec in specs -%}
+      {
+        "@type": "PropertyValue",
+        "name": "{{ spec.name | escape }}",
+        "value": "{{ spec.value | escape }}"
+      }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+    {%- endif -%}
+    {%- if site.aggregateRating -%},
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "{{ site.aggregateRating.ratingValue }}",
+      "reviewCount": "{{ site.aggregateRating.reviewCount }}"
+    }
+    {%- endif -%}
+  }
+  </script>
+{%- elsif schema_type == "post" -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{ title | escape }}",
+    "description": "{{ meta_description | default: short_description | escape }}",
+    "url": "{{ site.url }}{{ page.url }}",
+    "datePublished": "{{ page.date | date: '%Y-%m-%d' }}",
+    "dateModified": "{{ page.date | date: '%Y-%m-%d' }}",
+    "image": "{{ default_image }}",
+    "author": {
+      "@type": "{% if site.founder %}Person{% else %}Organization{% endif %}",
+      "name": "{{ site.founder.name | default: site.name | escape }}"
+      {%- if site.founder.jobTitle -%},
+      "jobTitle": "{{ site.founder.jobTitle | escape }}"
+      {%- endif -%}
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.name | escape }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ logo_url }}"
+      }
+      {%- if site.email -%},
+      "email": "{{ site.email | escape }}"
+      {%- endif -%}
+    }
+    {%- if site.keywords -%},
+    "keywords": "{{ site.keywords | escape }}"
+    {%- endif -%}
+  }
+  </script>
+{%- elsif schema_type == "organization" -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "{{ site.name | escape }}",
+    "url": "{{ site.url }}",
+    "logo": "{{ logo_url }}",
+    "image": "{{ default_image }}",
+    "description": "{{ site.description | escape }}"
+    {%- if site.slogan -%},
+    "slogan": "{{ site.slogan | escape }}"
+    {%- endif -%}
+    {%- if site.email -%},
+    "email": "{{ site.email | escape }}"
+    {%- endif -%}
+    {%- if site.telephone -%},
+    "telephone": "{{ site.telephone | escape }}"
+    {%- endif -%}
+    {%- if site.address -%},
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ site.address.streetAddress | escape }}",
+      "addressLocality": "{{ site.address.addressLocality | escape }}",
+      "addressRegion": "{{ site.address.addressRegion | escape }}",
+      "postalCode": "{{ site.address.postalCode | escape }}",
+      "addressCountry": "{{ site.address.addressCountry | escape }}"
+    }
+    {%- endif -%}
+    {%- if site.geo -%},
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "{{ site.geo.latitude }}",
+      "longitude": "{{ site.geo.longitude }}"
+    }
+    {%- endif -%}
+    {%- if site.priceRange -%},
+    "priceRange": "{{ site.priceRange | escape }}"
+    {%- endif -%}
+    {%- if site.servesCuisine -%},
+    "servesCuisine": "{{ site.servesCuisine | escape }}"
+    {%- endif -%}
+    {%- if site.currenciesAccepted -%},
+    "currenciesAccepted": "{{ site.currenciesAccepted | escape }}"
+    {%- endif -%}
+    {%- if site.paymentAccepted -%},
+    "paymentAccepted": "{{ site.paymentAccepted | escape }}"
+    {%- endif -%}
+    {%- if site.areaServed -%},
+    "areaServed": "{{ site.areaServed | escape }}"
+    {%- endif -%}
+    {%- if config.map_embed_src -%},
+    "hasMap": "{{ config.map_embed_src | escape }}"
+    {%- endif -%}
+    {%- if site.opening_times and site.opening_times.size > 0 -%},
+    "openingHoursSpecification": [
+      {%- for hours in site.opening_times -%}
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "{{ hours.day }}",
+        "opens": "{{ hours.hours }}"
+      }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+    {%- endif -%}
+    {%- if site.socials -%},
+    "sameAs": [
+      {%- assign social_urls = "" | split: "" -%}
+      {%- for social in site.socials -%}
+        {%- unless social[0] == "RSS" -%}
+          {%- assign social_urls = social_urls | push: social[1] -%}
+        {%- endunless -%}
+      {%- endfor -%}
+      {%- for url in social_urls -%}
+      "{{ url }}"{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+    {%- endif -%}
+    {%- if site.aggregateRating -%},
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "{{ site.aggregateRating.ratingValue }}",
+      "reviewCount": "{{ site.aggregateRating.reviewCount }}"
+    }
+    {%- endif -%}
+    {%- if site.award -%},
+    "award": "{{ site.award | escape }}"
+    {%- endif -%}
+  }
+  </script>
+{%- elsif schema_type == "website" -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ site.name | escape }}",
+    "url": "{{ site.url }}",
+    "description": "{{ site.description | escape }}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.name | escape }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ logo_url }}"
+      }
+    }
+    {%- if site.keywords -%},
+    "keywords": "{{ site.keywords | escape }}"
+    {%- endif -%}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "{{ site.name | escape }}",
+    "url": "{{ site.url }}",
+    "logo": "{{ logo_url }}"
+    {%- if site.description -%},
+    "description": "{{ site.description | escape }}"
+    {%- endif -%}
+    {%- if site.slogan -%},
+    "slogan": "{{ site.slogan | escape }}"
+    {%- endif -%}
+    {%- if site.email -%},
+    "email": "{{ site.email | escape }}"
+    {%- endif -%}
+    {%- if site.telephone -%},
+    "telephone": "{{ site.telephone | escape }}"
+    {%- endif -%}
+    {%- if site.address -%},
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ site.address.streetAddress | escape }}",
+      "addressLocality": "{{ site.address.addressLocality | escape }}",
+      "addressRegion": "{{ site.address.addressRegion | escape }}",
+      "postalCode": "{{ site.address.postalCode | escape }}",
+      "addressCountry": "{{ site.address.addressCountry | escape }}"
+    }
+    {%- endif -%}
+    {%- if site.foundingDate -%},
+    "foundingDate": "{{ site.foundingDate | escape }}"
+    {%- endif -%}
+    {%- if site.founder -%},
+    "founder": {
+      "@type": "Person",
+      "name": "{{ site.founder.name | escape }}"
+      {%- if site.founder.jobTitle -%},
+      "jobTitle": "{{ site.founder.jobTitle | escape }}"
+      {%- endif -%}
+    }
+    {%- endif -%}
+    {%- if site.numberOfEmployees -%},
+    "numberOfEmployees": "{{ site.numberOfEmployees | escape }}"
+    {%- endif -%}
+    {%- if site.vatID -%},
+    "vatID": "{{ site.vatID | escape }}"
+    {%- endif -%}
+    {%- if site.taxID -%},
+    "taxID": "{{ site.taxID | escape }}"
+    {%- endif -%}
+    {%- if site.naics -%},
+    "naics": "{{ site.naics | escape }}"
+    {%- endif -%}
+    {%- if site.isicV4 -%},
+    "isicV4": "{{ site.isicV4 | escape }}"
+    {%- endif -%}
+    {%- if site.areaServed -%},
+    "areaServed": "{{ site.areaServed | escape }}"
+    {%- endif -%}
+    {%- if site.socials -%},
+    "sameAs": [
+      {%- assign social_urls = "" | split: "" -%}
+      {%- for social in site.socials -%}
+        {%- unless social[0] == "RSS" -%}
+          {%- assign social_urls = social_urls | push: social[1] -%}
+        {%- endunless -%}
+      {%- endfor -%}
+      {%- for url in social_urls -%}
+      "{{ url }}"{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+    {%- endif -%}
+    {%- if site.aggregateRating -%},
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "{{ site.aggregateRating.ratingValue }}",
+      "reviewCount": "{{ site.aggregateRating.reviewCount }}"
+    }
+    {%- endif -%}
+    {%- if site.award -%},
+    "award": "{{ site.award | escape }}"
+    {%- endif -%}
+  }
+  </script>
+{%- else -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "{{ title | default: meta_title | escape }}",
+    "description": "{{ meta_description | default: short_description | default: site.description | escape }}",
+    "url": "{{ site.url }}{{ page.url }}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.name | escape }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ logo_url }}"
+      }
+    }
+    {%- if site.keywords -%},
+    "keywords": "{{ site.keywords | escape }}"
+    {%- endif -%}
+  }
+  </script>
+{%- endif -%}
+
+{%- comment -%}
+  Add BreadcrumbList for all non-home pages
+{%- endcomment -%}
+{%- unless layout == "home.html" -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url }}"
+      }
+      {%- if layout == "product.html" -%},
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Products",
+        "item": "{{ site.url }}/products/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ title | escape }}",
+        "item": "{{ site.url }}{{ page.url }}"
+      }
+      {%- elsif layout == "news-post.html" -%},
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "News",
+        "item": "{{ site.url }}/news/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ title | escape }}",
+        "item": "{{ site.url }}{{ page.url }}"
+      }
+      {%- else -%},
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{{ title | default: meta_title | escape }}",
+        "item": "{{ site.url }}{{ page.url }}"
+      }
+      {%- endif -%}
+    ]
+  }
+  </script>
+{%- endunless -%}
