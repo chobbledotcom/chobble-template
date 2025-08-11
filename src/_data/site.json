@@ -17,5 +17,14 @@
 	"template_repo_url": "https://git.chobble.com/chobble/chobble-template",
 	"stripe_publishable_key": null,
 	"map_embed_src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9498.055583067766!2d-2.2730144540268484!3d53.47714715252345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487bb1e7815c44db%3A0x417132a42bd93ef6!2sScience%20and%20Industry%20Museum!5e0!3m2!1sen!2suk!4v1752151609498!5m2!1sen!2suk",
+	"opening_times": {
+		"Monday": "9:00am - 5:00pm",
+		"Tuesday": "9:00am - 5:00pm",
+		"Wednesday": "9:00am - 5:00pm",
+		"Thursday": "9:00am - 5:00pm",
+		"Friday": "9:00am - 5:00pm",
+		"Saturday": "10:00am - 4:00pm",
+		"Sunday": "Closed"
+	},
 	"products": {}
 }
