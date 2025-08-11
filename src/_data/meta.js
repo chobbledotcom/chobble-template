@@ -1,4 +1,3 @@
-// Default metadata for schema.org structured data
 module.exports = {
   site: {
     name: "Example Site",

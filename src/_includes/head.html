@@ -63,14 +63,6 @@
     <meta name="robots" value="noindex,nofollow" />
   {%- endif -%}
 
-  {%- comment -%}
-    Schema.org structured data using eleventy-plugin-schema
-    The plugin expects the meta object directly, not as a JSON string
-  {%- endcomment -%}
-  
-  {%- comment -%}
-    Determine schema type based on layout
-  {%- endcomment -%}
   {%- assign schemaType = "page" -%}
   {%- if layout == "product.html" -%}
     {%- assign schemaType = "product" -%}
