@@ -1,10 +1,10 @@
-{%- if site.formspark_id and site.formspark_id != "" -%}
+{%- if config.formspark_id and config.formspark_id != "" -%}
   <form
     id="contact-form"
     class="contact-form"
-    action="https://submit-form.com/{{ site.formspark_id }}"
-    {% if site.botpoison_public_key and site.botpoison_public_key != "" -%}
-      data-botpoison-public-key="{{ site.botpoison_public_key }}"
+    action="https://submit-form.com/{{ config.formspark_id }}"
+    {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
+      data-botpoison-public-key="{{ config.botpoison_public_key }}"
     {%- endif -%}
   >
     <input type="hidden" name="_redirect" value="{{ site.url }}/thank-you" />
@@ -75,6 +75,6 @@
   <hr>
   <h3>Formspark ID Missing</h3>
   <p>
-    You need to add a Formspark form ID to <code>src/_data/site.json</code>
+    You need to add a Formspark form ID to <code>src/_data/config.json</code>
   </p>
 {%- endif -%}

@@ -1,4 +1,4 @@
-{%- if site.map_embed_src and site.map_embed_src != "" -%}
+{%- if config.map_embed_src and config.map_embed_src != "" -%}
   <div class="map-embed">
     <iframe
       credentialless
@@ -8,7 +8,7 @@
       sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
       allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
       referrerpolicy="no-referrer"
-      src="{{ site.map_embed_src }}"
+      src="{{ config.map_embed_src }}"
     >
     </iframe>
   </div>
