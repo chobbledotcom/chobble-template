@@ -3,38 +3,6 @@
 	"url": "https://example.chobble.com",
 	"webhost": "bunny",
 	"description": "Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities",
-	"logo": "/images/logo.png",
-	"image": "/images/placeholder.jpg",
-	"email": "info@example.com",
-	"telephone": "+44 1234 567890",
-	"address": {
-		"streetAddress": "123 Example Street",
-		"addressLocality": "London",
-		"addressRegion": "Greater London",
-		"postalCode": "SW1A 1AA",
-		"addressCountry": "GB"
-	},
-	"geo": {
-		"latitude": "51.5074",
-		"longitude": "-0.1278"
-	},
-	"priceRange": "££",
-	"servesCuisine": "British",
-	"currenciesAccepted": "GBP",
-	"paymentAccepted": "Cash, Credit Card, Debit Card",
-	"areaServed": "London",
-	"foundingDate": "2020",
-	"founder": {
-		"name": "John Smith",
-		"jobTitle": "Founder & CEO"
-	},
-	"numberOfEmployees": "10-50",
-	"slogan": "Your trusted local business",
-	"vatID": "GB123456789",
-	"taxID": "12-3456789",
-	"naics": "541511",
-	"isicV4": "6201",
-	"keywords": "web development, design, eleventy, static sites",
 	"socials": {
 		"Github": "https://github.com/chobble-mirror/chobble-template",
 		"Forgejo": "https://git.chobble.com/chobble/chobble-template",
@@ -49,10 +17,5 @@
 		{ "day": "Monday - Friday", "hours": "9am - 5pm" },
 		{ "day": "Saturday", "hours": "10am - 2pm" },
 		{ "day": "Sunday", "hours": "Closed" }
-	],
-	"aggregateRating": {
-		"ratingValue": "4.8",
-		"reviewCount": "127"
-	},
-	"award": "Best Local Business 2023"
+	]
 }
