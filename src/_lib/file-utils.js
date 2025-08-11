@@ -49,9 +49,28 @@ const configureFileUtils = (eleventyConfig) => {
 
 	eleventyConfig.addFilter("file_missing", (name) => fileMissing(name));
 
-	eleventyConfig.addShortcode("render_snippet", (name, defaultString) =>
-		renderSnippet(name, defaultString, process.cwd(), mdRenderer),
-	);
+	eleventyConfig.addShortcode("render_snippet", (name, defaultString) => {
+		// Special handling for opening-times snippet
+		if (name === "opening-times") {
+			const siteData = require("../src/_data/site.json");
+			const openingTimes = siteData.opening_times || [];
+			
+			if (openingTimes.length === 0) {
+				return defaultString || "";
+			}
+			
+			let html = '<ul class="opening-times">\n';
+			for (const item of openingTimes) {
+				html += `  <li><strong>${item.day}:</strong> ${item.hours}</li>\n`;
+			}
+			html += '</ul>';
+			
+			return html;
+		}
+		
+		// Default snippet handling
+		return renderSnippet(name, defaultString, process.cwd(), mdRenderer);
+	});
 
 	eleventyConfig.addShortcode("read_file", (relativePath) =>
 		readFileContent(relativePath),
