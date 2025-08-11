@@ -2,6 +2,7 @@
 	"name": "Example Site",
 	"url": "https://example.chobble.com",
 	"webhost": "bunny",
+	"description": "Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities",
 	"socials": {
 		"Github": "https://github.com/chobble-mirror/chobble-template",
 		"Forgejo": "https://git.chobble.com/chobble/chobble-template",

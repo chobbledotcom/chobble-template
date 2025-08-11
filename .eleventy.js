@@ -10,6 +10,7 @@ module.exports = async function (eleventyConfig) {
 	const { configureScss } = require("./src/_lib/scss");
 	const { configureScssFiles } = require("./src/_lib/scss-files");
 	const { configureTags } = require("./src/_lib/tags");
+	const schemaPlugin = require("@quasibit/eleventy-plugin-schema");
 
 	eleventyConfig.addWatchTarget("./src/**/*");
 
@@ -18,6 +19,9 @@ module.exports = async function (eleventyConfig) {
 		.addPassthroughCopy("src/images")
 		.addPassthroughCopy("src/news/images")
 		.addPassthroughCopy({ "src/assets/favicon/*": "/" });
+
+	// Configure schema plugin
+	eleventyConfig.addPlugin(schemaPlugin);
 
 	configureCategories(eleventyConfig);
 	configureFeed(eleventyConfig);

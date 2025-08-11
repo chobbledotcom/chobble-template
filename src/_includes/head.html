@@ -63,5 +63,18 @@
     <meta name="robots" value="noindex,nofollow" />
   {%- endif -%}
 
+  {%- assign schemaType = "page" -%}
+  {%- if layout == "product.html" -%}
+    {%- assign schemaType = "product" -%}
+  {%- elsif layout == "news-post.html" -%}
+    {%- assign schemaType = "post" -%}
+  {%- elsif layout == "home.html" -%}
+    {%- assign schemaType = "website" -%}
+  {%- elsif layout == "contact.html" -%}
+    {%- assign schemaType = "organization" -%}
+  {%- endif -%}
+  
+  {% jsonLdScript meta, schemaType, tags %}
+
   {%- include "head-scripts.html" -%}
 </head>
