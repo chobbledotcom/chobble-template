@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const markdownIt = require("markdown-it");
+const { getOpeningTimesHtml } = require("./opening-times");
 
 const createMarkdownRenderer = (options = { html: true }) =>
 	new markdownIt(options);
@@ -37,7 +38,13 @@ const renderSnippet = (
 	if (!fs.existsSync(snippetPath)) return defaultString;
 
 	const content = fs.readFileSync(snippetPath, "utf8");
-	const bodyContent = extractBodyFromMarkdown(content);
+	let bodyContent = extractBodyFromMarkdown(content);
+
+	// Preprocess liquid shortcodes
+	if (bodyContent.includes("{% opening_times %}")) {
+		const openingHtml = getOpeningTimesHtml();
+		bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
+	}
 
 	return mdRenderer.render(bodyContent);
 };
