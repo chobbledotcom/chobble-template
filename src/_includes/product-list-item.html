@@ -1,7 +1,7 @@
 <li>
   {% assign item = product %}
-  {% assign widths = site.products.product_thumb_widths %}
-  {% assign sizes = site.products.product_thumb_sizes %}
+  {% assign widths = config.products.product_thumb_widths %}
+  {% assign sizes = config.products.product_thumb_sizes %}
   {% include "thumbnail-image-link.html" %}
 
   {%- if product.data.price -%}

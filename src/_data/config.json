@@ -1,0 +1,21 @@
+{
+	"formspark_id": null,
+	"botpoison_public_key": null,
+	"map_embed_src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2431.2954464296904!2d-1.2032307733227652!3d52.45567657204444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487743002764416f%3A0x3eb906f30ed57a7!2shouse%20of%20desserts!5e0!3m2!1sen!2suk!4v1752220590310!5m2!1sen!2suk",
+	"sticky_mobile_nav": true,
+	"horizontal_nav": false,
+	"homepage_products": false,
+	"homepage_news": true,
+	"template_repo_url": "https://git.chobble.com/chobble/chobble-client",
+	"chobble_link": "https://chobble.com/examples/house-of-desserts/",
+	"stripe_publishable_key": null,
+	"products": {
+		"product_thumb_widths": "240,480,640",
+		"product_thumb_sizes": "224px",
+		"category_thumb_widths": "900,1300",
+		"category_thumb_sizes": "224px",
+		"gallery_thumb_widths": "240,480",
+		"gallery_image_widths": "900,1300",
+		"header_image_widths": "640,900,1300"
+	}
+}

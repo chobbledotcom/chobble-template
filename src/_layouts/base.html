@@ -3,10 +3,10 @@
 {%- include "head.html" -%}
 <body class="
   {{- layout | replace: ".html", "" }}
-  {% if site.sticky_mobile_nav %}
+  {% if config.sticky_mobile_nav %}
     sticky-mobile-nav
   {% endif %}
-  {% if site.horizontal_nav %}
+  {% if config.horizontal_nav %}
     horizontal-nav
   {% else %}
     left-nav
