@@ -4,7 +4,7 @@ layout: base.html
 
 {{ content }}
 
-{% unless categorisedEvents.hasOnlyRegular %}
+{% if categorisedEvents.regular.size == 0 %}
   <h2>Upcoming Events</h2>
   
   {% if categorisedEvents.upcoming.size > 0 %}
@@ -14,21 +14,7 @@ layout: base.html
   {% else %}
     <p>No upcoming events scheduled. Check back soon!</p>
   {% endif %}
-{% endunless %}
-
-{% if categorisedEvents.regular.size > 0 %}
-  {% unless categorisedEvents.hasOnlyRegular %}
-    <hr>
-  {% endunless %}
   
-  <h2>Regular Events</h2>
-  
-  {% for event in categorisedEvents.regular %}
-    {% include "event-list-item.html" %}
-  {% endfor %}
-{% endif %}
-
-{% unless categorisedEvents.hasOnlyRegular %}
   <hr>
   
   <h2>Past Events</h2>
@@ -40,4 +26,20 @@ layout: base.html
   {% else %}
     <p>No past events to display.</p>
   {% endif %}
-{% endunless %}
+{% else %}
+  <h2>Regular Events</h2>
+  
+  {% for event in categorisedEvents.regular %}
+    {% include "event-list-item.html" %}
+  {% endfor %}
+  
+  {% if categorisedEvents.past.size > 0 %}
+    <hr>
+    
+    <h2>Past Events</h2>
+    
+    {% for event in categorisedEvents.past %}
+      {% include "event-list-item.html" %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
