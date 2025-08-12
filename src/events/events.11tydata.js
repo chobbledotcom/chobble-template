@@ -8,7 +8,7 @@ module.exports = {
       if (data.collections && data.collections.events) {
         return categoriseEvents(data.collections.events);
       }
-      return { upcoming: [], past: [], regular: [], hasOnlyRegular: false };
+      return { upcoming: [], past: [], regular: [], show: { upcoming: true, regular: false, past: false } };
     }
   }
 };

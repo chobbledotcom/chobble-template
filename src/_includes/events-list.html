@@ -1,0 +1,7 @@
+{% if events.size > 0 %}
+  {% for event in events %}
+    {% include "event-list-item.html" %}
+  {% endfor %}
+{% elsif empty_message %}
+  <p>{{ empty_message }}</p>
+{% endif %}

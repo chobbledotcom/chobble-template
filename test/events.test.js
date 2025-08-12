@@ -10,12 +10,14 @@ const testCases = [
     test: () => {
       const result = categoriseEvents([]);
       
-      assert.deepStrictEqual(result, {
-        upcoming: [],
-        past: [],
-        regular: [],
-        hasOnlyRegular: false
-      }, "Should return empty arrays for empty input");
+      assert.deepStrictEqual(result.upcoming, [], "Should have empty upcoming array");
+      assert.deepStrictEqual(result.past, [], "Should have empty past array");
+      assert.deepStrictEqual(result.regular, [], "Should have empty regular array");
+      assert.deepStrictEqual(result.show, {
+        upcoming: true,
+        regular: false,
+        past: false
+      }, "Should show upcoming section only when no events");
     }
   },
   {
@@ -39,7 +41,11 @@ const testCases = [
       assert.strictEqual(result.upcoming.length, 1, "Should have one upcoming event");
       assert.strictEqual(result.past.length, 0, "Should have no past events");
       assert.strictEqual(result.regular.length, 0, "Should have no regular events");
-      assert.strictEqual(result.hasOnlyRegular, false, "hasOnlyRegular should be false");
+      assert.deepStrictEqual(result.show, {
+        upcoming: true,
+        regular: false,
+        past: false
+      }, "Should show upcoming section only");
     }
   },
   {
@@ -63,7 +69,11 @@ const testCases = [
       assert.strictEqual(result.upcoming.length, 0, "Should have no upcoming events");
       assert.strictEqual(result.past.length, 1, "Should have one past event");
       assert.strictEqual(result.regular.length, 0, "Should have no regular events");
-      assert.strictEqual(result.hasOnlyRegular, false, "hasOnlyRegular should be false");
+      assert.deepStrictEqual(result.show, {
+        upcoming: true,
+        regular: false,
+        past: true
+      }, "Should show upcoming and past sections");
     }
   },
   {
@@ -112,7 +122,11 @@ const testCases = [
       assert.strictEqual(result.upcoming.length, 0, "Should have no upcoming events");
       assert.strictEqual(result.past.length, 0, "Should have no past events");
       assert.strictEqual(result.regular.length, 2, "Should have two regular events");
-      assert.strictEqual(result.hasOnlyRegular, true, "hasOnlyRegular should be true");
+      assert.deepStrictEqual(result.show, {
+        upcoming: false,
+        regular: true,
+        past: false
+      }, "Should show regular section only when only regular events");
     }
   },
   {
@@ -151,7 +165,11 @@ const testCases = [
       assert.strictEqual(result.upcoming.length, 1, "Should have one upcoming event");
       assert.strictEqual(result.past.length, 1, "Should have one past event");
       assert.strictEqual(result.regular.length, 1, "Should have one regular event");
-      assert.strictEqual(result.hasOnlyRegular, false, "hasOnlyRegular should be false");
+      assert.deepStrictEqual(result.show, {
+        upcoming: false,
+        regular: true,
+        past: true
+      }, "Should show regular and past when there are regular events");
     }
   },
   {
@@ -316,6 +334,117 @@ const testCases = [
       assert.strictEqual(result.regular.length, 2, "Should have two regular events");
       assert.strictEqual(result.regular[0].data.title, undefined, "First event should have no title");
       assert.strictEqual(result.regular[1].data.title, 'Named Event', "Second event should be Named Event");
+    }
+  },
+  {
+    name: 'show-logic-no-events',
+    description: 'Show logic with no events shows upcoming only',
+    test: () => {
+      const result = categoriseEvents([]);
+      
+      assert.strictEqual(result.show.upcoming, true, "Should show upcoming when no events");
+      assert.strictEqual(result.show.regular, false, "Should not show regular when no events");
+      assert.strictEqual(result.show.past, false, "Should not show past when no events");
+    }
+  },
+  {
+    name: 'show-logic-upcoming-only',
+    description: 'Show logic with only upcoming events',
+    test: () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      
+      const events = [{
+        data: {
+          title: 'Future Event',
+          event_date: futureDate.toISOString().split('T')[0]
+        }
+      }];
+      
+      const result = categoriseEvents(events);
+      
+      assert.strictEqual(result.show.upcoming, true, "Should show upcoming");
+      assert.strictEqual(result.show.regular, false, "Should not show regular");
+      assert.strictEqual(result.show.past, false, "Should not show past when no past events");
+    }
+  },
+  {
+    name: 'show-logic-with-regular',
+    description: 'Show logic hides upcoming when regular events exist',
+    test: () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      
+      const events = [
+        {
+          data: {
+            title: 'Future Event',
+            event_date: futureDate.toISOString().split('T')[0]
+          }
+        },
+        {
+          data: {
+            title: 'Weekly Meeting',
+            recurring_date: 'Every Monday'
+          }
+        }
+      ];
+      
+      const result = categoriseEvents(events);
+      
+      assert.strictEqual(result.show.upcoming, false, "Should not show upcoming when regular events exist");
+      assert.strictEqual(result.show.regular, true, "Should show regular");
+      assert.strictEqual(result.show.past, false, "Should not show past when no past events");
+    }
+  },
+  {
+    name: 'show-logic-past-with-regular',
+    description: 'Show logic shows past events when regular events exist',
+    test: () => {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 30);
+      
+      const events = [
+        {
+          data: {
+            title: 'Past Event',
+            event_date: pastDate.toISOString().split('T')[0]
+          }
+        },
+        {
+          data: {
+            title: 'Weekly Meeting',
+            recurring_date: 'Every Monday'
+          }
+        }
+      ];
+      
+      const result = categoriseEvents(events);
+      
+      assert.strictEqual(result.show.upcoming, false, "Should not show upcoming when regular events exist");
+      assert.strictEqual(result.show.regular, true, "Should show regular");
+      assert.strictEqual(result.show.past, true, "Should show past when there are past events and regular events");
+    }
+  },
+  {
+    name: 'show-logic-past-without-regular',
+    description: 'Show logic shows past events even without regular events',
+    test: () => {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 30);
+      
+      const events = [{
+        data: {
+          title: 'Past Event',
+          event_date: pastDate.toISOString().split('T')[0]
+        }
+      }];
+      
+      const result = categoriseEvents(events);
+      
+      assert.strictEqual(result.show.upcoming, true, "Should show upcoming when no regular events");
+      assert.strictEqual(result.show.regular, false, "Should not show regular");
+      assert.strictEqual(result.show.past, true, "Should show past when there are past events");
     }
   }
 ];

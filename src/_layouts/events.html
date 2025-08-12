@@ -4,42 +4,20 @@ layout: base.html
 
 {{ content }}
 
-{% if categorisedEvents.regular.size == 0 %}
+{% if categorisedEvents.show.upcoming %}
   <h2>Upcoming Events</h2>
-  
-  {% if categorisedEvents.upcoming.size > 0 %}
-    {% for event in categorisedEvents.upcoming %}
-      {% include "event-list-item.html" %}
-    {% endfor %}
-  {% else %}
-    <p>No upcoming events scheduled. Check back soon!</p>
-  {% endif %}
-  
-  <hr>
-  
-  <h2>Past Events</h2>
-  
-  {% if categorisedEvents.past.size > 0 %}
-    {% for event in categorisedEvents.past %}
-      {% include "event-list-item.html" %}
-    {% endfor %}
-  {% else %}
-    <p>No past events to display.</p>
-  {% endif %}
-{% else %}
+  {% include "events-list.html", events: categorisedEvents.upcoming, empty_message: "No upcoming events scheduled. Check back soon!" %}
+{% endif %}
+
+{% if categorisedEvents.show.regular %}
   <h2>Regular Events</h2>
-  
-  {% for event in categorisedEvents.regular %}
-    {% include "event-list-item.html" %}
-  {% endfor %}
-  
-  {% if categorisedEvents.past.size > 0 %}
+  {% include "events-list.html", events: categorisedEvents.regular %}
+{% endif %}
+
+{% if categorisedEvents.show.past %}
+  {% if categorisedEvents.show.upcoming or categorisedEvents.show.regular %}
     <hr>
-    
-    <h2>Past Events</h2>
-    
-    {% for event in categorisedEvents.past %}
-      {% include "event-list-item.html" %}
-    {% endfor %}
   {% endif %}
+  <h2>Past Events</h2>
+  {% include "events-list.html", events: categorisedEvents.past, empty_message: "No past events to display." %}
 {% endif %}

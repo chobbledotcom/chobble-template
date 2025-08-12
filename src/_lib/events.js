@@ -39,11 +39,18 @@ function categoriseEvents(events) {
     return titleA.localeCompare(titleB);
   });
   
+  const hasRegular = regular.length > 0;
+  const hasPast = past.length > 0;
+  
   return {
     upcoming,
     past,
     regular,
-    hasOnlyRegular: regular.length > 0 && upcoming.length === 0 && past.length === 0
+    show: {
+      upcoming: !hasRegular,
+      regular: hasRegular,
+      past: hasPast
+    }
   };
 }
 
