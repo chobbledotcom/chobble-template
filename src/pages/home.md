@@ -19,7 +19,7 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 
 - An [Eleventy]({{ config.template_repo_url }}/src/branch/main/.eleventy.js) site
 - Using [mvp.css]({{ config.template_repo_url }}/src/branch/main/src/css/mvp.scss) and semantic HTML
-- Built with Nix and [Forgejo Actions]({{ config.template_repo_url }}/src/branch/main/.forgejo/workflows/neocities.yaml)
+- Built with Node and [Github Actions]({{ config.template_repo_url }}/src/branch/main/.github/workflows/build-and-deploy.yaml)
 - Hosted on [Neocities](https://neocities.org/site/chobble-example)
 - With a Formspark & Botpoison spam-protected [contact form]({{ config.template_repo_url }}/src/branch/main/src/\_includes/contact-form.html)
 - Using [Turbo](https://turbo.hotwired.dev/) for instant page loads
