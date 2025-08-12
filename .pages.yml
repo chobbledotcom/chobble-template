@@ -39,6 +39,43 @@ content:
           - { name: WhatsApp, type: string, label: WhatsApp }
           - { name: RSS, type: string, label: RSS }
       - { name: map_embed_src, type: string, label: Map Embed URL }
+  - name: meta
+    label: Meta Configuration
+    type: file
+    path: src/_data/meta.json
+    fields:
+      - { name: language, type: string, label: Language Code, default: "en-GB" }
+      - name: organization
+        label: Organization
+        type: object
+        fields:
+          - { name: description, type: string, label: Organization Description }
+          - { name: legalName, type: string, label: Legal Name }
+          - { name: foundingDate, type: string, label: Founding Date }
+          - name: founders
+            label: Founders
+            type: object
+            list: true
+            fields:
+              - { name: name, type: string, label: Name }
+          - name: address
+            label: Address
+            type: object
+            fields:
+              - { name: streetAddress, type: string, label: Street Address }
+              - { name: addressLocality, type: string, label: City }
+              - { name: addressRegion, type: string, label: Region/State }
+              - { name: postalCode, type: string, label: Postal Code }
+              - { name: addressCountry, type: string, label: Country Code }
+          - name: contactPoint
+            label: Contact Points
+            type: object
+            list: true
+            fields:
+              - { name: telephone, type: string, label: Telephone }
+              - { name: contactType, type: string, label: Contact Type }
+              - { name: areaServed, type: string, label: Area Served }
+              - { name: availableLanguage, type: string, label: Available Languages, list: true }
   - name: pages
     label: Pages
     path: src/pages
