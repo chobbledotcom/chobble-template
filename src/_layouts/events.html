@@ -4,45 +4,49 @@ layout: base.html
 
 {{ content }}
 
-<h2>Upcoming Events</h2>
+{% comment %}
+  Using JS-based categorization from events.11tydata.js
+  The categorizedEvents object contains:
+  - upcoming: array of upcoming events
+  - past: array of past events  
+  - regular: array of recurring events
+  - hasOnlyRegular: boolean indicating if all events are recurring
+{% endcomment %}
 
-{% assign now = 'now' | date: '%Y-%m-%d' %}
-{% assign upcoming_events = collections.events | sort: "data.event_date" %}
-{% assign filtered_upcoming = '' | split: '' %}
-
-{% for event in upcoming_events %}
-  {% assign event_date = event.data.event_date | date: '%Y-%m-%d' %}
-  {% if event_date >= now %}
-    {% assign filtered_upcoming = filtered_upcoming | push: event %}
+{% unless categorizedEvents.hasOnlyRegular %}
+  <h2>Upcoming Events</h2>
+  
+  {% if categorizedEvents.upcoming.size > 0 %}
+    {% for event in categorizedEvents.upcoming %}
+      {% include "event-list-item.html" %}
+    {% endfor %}
+  {% else %}
+    <p>No upcoming events scheduled. Check back soon!</p>
   {% endif %}
-{% endfor %}
+{% endunless %}
 
-{% if filtered_upcoming.size > 0 %}
-  {% for event in filtered_upcoming %}
+{% if categorizedEvents.regular.size > 0 %}
+  {% unless categorizedEvents.hasOnlyRegular %}
+    <hr>
+  {% endunless %}
+  
+  <h2>Regular Events</h2>
+  
+  {% for event in categorizedEvents.regular %}
     {% include "event-list-item.html" %}
   {% endfor %}
-{% else %}
-  <p>No upcoming events scheduled. Check back soon!</p>
 {% endif %}
 
-<hr>
-
-<h2>Past Events</h2>
-
-{% assign past_events = upcoming_events | reverse %}
-{% assign filtered_past = '' | split: '' %}
-
-{% for event in past_events %}
-  {% assign event_date = event.data.event_date | date: '%Y-%m-%d' %}
-  {% if event_date < now %}
-    {% assign filtered_past = filtered_past | push: event %}
+{% unless categorizedEvents.hasOnlyRegular %}
+  <hr>
+  
+  <h2>Past Events</h2>
+  
+  {% if categorizedEvents.past.size > 0 %}
+    {% for event in categorizedEvents.past %}
+      {% include "event-list-item.html" %}
+    {% endfor %}
+  {% else %}
+    <p>No past events to display.</p>
   {% endif %}
-{% endfor %}
-
-{% if filtered_past.size > 0 %}
-  {% for event in filtered_past %}
-    {% include "event-list-item.html" %}
-  {% endfor %}
-{% else %}
-  <p>No past events to display.</p>
-{% endif %}
+{% endunless %}
