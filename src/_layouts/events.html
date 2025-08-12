@@ -4,20 +4,11 @@ layout: base.html
 
 {{ content }}
 
-{% comment %}
-  Using JS-based categorization from events.11tydata.js
-  The categorizedEvents object contains:
-  - upcoming: array of upcoming events
-  - past: array of past events  
-  - regular: array of recurring events
-  - hasOnlyRegular: boolean indicating if all events are recurring
-{% endcomment %}
-
-{% unless categorizedEvents.hasOnlyRegular %}
+{% unless categorisedEvents.hasOnlyRegular %}
   <h2>Upcoming Events</h2>
   
-  {% if categorizedEvents.upcoming.size > 0 %}
-    {% for event in categorizedEvents.upcoming %}
+  {% if categorisedEvents.upcoming.size > 0 %}
+    {% for event in categorisedEvents.upcoming %}
       {% include "event-list-item.html" %}
     {% endfor %}
   {% else %}
@@ -25,25 +16,25 @@ layout: base.html
   {% endif %}
 {% endunless %}
 
-{% if categorizedEvents.regular.size > 0 %}
-  {% unless categorizedEvents.hasOnlyRegular %}
+{% if categorisedEvents.regular.size > 0 %}
+  {% unless categorisedEvents.hasOnlyRegular %}
     <hr>
   {% endunless %}
   
   <h2>Regular Events</h2>
   
-  {% for event in categorizedEvents.regular %}
+  {% for event in categorisedEvents.regular %}
     {% include "event-list-item.html" %}
   {% endfor %}
 {% endif %}
 
-{% unless categorizedEvents.hasOnlyRegular %}
+{% unless categorisedEvents.hasOnlyRegular %}
   <hr>
   
   <h2>Past Events</h2>
   
-  {% if categorizedEvents.past.size > 0 %}
-    {% for event in categorizedEvents.past %}
+  {% if categorisedEvents.past.size > 0 %}
+    {% for event in categorisedEvents.past %}
       {% include "event-list-item.html" %}
     {% endfor %}
   {% else %}

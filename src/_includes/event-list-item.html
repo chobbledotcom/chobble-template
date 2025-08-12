@@ -4,10 +4,12 @@
 <p>
   <em>
     {% if event.data.recurring_date %}
-      {{ event.data.recurring_date }}{% if event.data.event_location %} - {{ event.data.event_location }}{% endif %}
+      {{ event.data.recurring_date }}
     {% elsif event.data.event_date %}
-      {{ event.data.event_date | date: "%b %-d, %Y" }}{% if event.data.event_location %} - {{ event.data.event_location }}{% endif %}
-    {% elsif event.data.event_location %}
+      {{ event.data.event_date | date: "%b %-d, %Y" }}
+    {% endif %}
+    {% if event.data.event_location %}
+      {% if event.data.recurring_date or event.data.event_date %} - {% endif %}
       {{ event.data.event_location }}
     {% endif %}
   </em>

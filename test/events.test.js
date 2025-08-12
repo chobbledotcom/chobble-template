@@ -1,14 +1,14 @@
 const assert = require('assert');
 const { createTestRunner } = require('./test-utils');
 
-const { categorizeEvents } = require('../src/_lib/events');
+const { categoriseEvents } = require('../src/_lib/events');
 
 const testCases = [
   {
-    name: 'categorizeEvents-empty-array',
+    name: 'categoriseEvents-empty-array',
     description: 'Handles empty events array',
     test: () => {
-      const result = categorizeEvents([]);
+      const result = categoriseEvents([]);
       
       assert.deepStrictEqual(result, {
         upcoming: [],
@@ -19,7 +19,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-upcoming-only',
+    name: 'categoriseEvents-upcoming-only',
     description: 'Categorizes future events as upcoming',
     test: () => {
       const futureDate = new Date();
@@ -34,7 +34,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming.length, 1, "Should have one upcoming event");
       assert.strictEqual(result.past.length, 0, "Should have no past events");
@@ -43,7 +43,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-past-only',
+    name: 'categoriseEvents-past-only',
     description: 'Categorizes past events correctly',
     test: () => {
       const pastDate = new Date();
@@ -58,7 +58,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming.length, 0, "Should have no upcoming events");
       assert.strictEqual(result.past.length, 1, "Should have one past event");
@@ -67,7 +67,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-today-as-upcoming',
+    name: 'categoriseEvents-today-as-upcoming',
     description: 'Events today are categorized as upcoming',
     test: () => {
       const today = new Date();
@@ -81,7 +81,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming.length, 1, "Today's event should be upcoming");
       assert.strictEqual(result.past.length, 0, "Should have no past events");
@@ -89,7 +89,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-recurring-only',
+    name: 'categoriseEvents-recurring-only',
     description: 'Categorizes recurring events correctly',
     test: () => {
       const events = [
@@ -107,7 +107,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming.length, 0, "Should have no upcoming events");
       assert.strictEqual(result.past.length, 0, "Should have no past events");
@@ -116,7 +116,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-mixed-events',
+    name: 'categoriseEvents-mixed-events',
     description: 'Handles mix of upcoming, past, and recurring events',
     test: () => {
       const futureDate = new Date();
@@ -146,7 +146,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming.length, 1, "Should have one upcoming event");
       assert.strictEqual(result.past.length, 1, "Should have one past event");
@@ -155,7 +155,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-upcoming-sort-order',
+    name: 'categoriseEvents-upcoming-sort-order',
     description: 'Sorts upcoming events by date (earliest first)',
     test: () => {
       const date1 = new Date();
@@ -188,7 +188,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming[0].data.title, 'Earliest Event', "First should be earliest");
       assert.strictEqual(result.upcoming[1].data.title, 'Middle Event', "Second should be middle");
@@ -196,7 +196,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-past-sort-order',
+    name: 'categoriseEvents-past-sort-order',
     description: 'Sorts past events by date (most recent first)',
     test: () => {
       const date1 = new Date();
@@ -229,7 +229,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.past[0].data.title, 'Most Recent Event', "First should be most recent");
       assert.strictEqual(result.past[1].data.title, 'Middle Event', "Second should be middle");
@@ -237,7 +237,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-regular-alphabetical-sort',
+    name: 'categoriseEvents-regular-alphabetical-sort',
     description: 'Sorts regular events alphabetically by title',
     test: () => {
       const events = [
@@ -261,7 +261,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.regular[0].data.title, 'Book Club', "First should be Book Club");
       assert.strictEqual(result.regular[1].data.title, 'Monthly Meeting', "Second should be Monthly Meeting");
@@ -269,7 +269,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-prefers-recurring-over-fixed',
+    name: 'categoriseEvents-prefers-recurring-over-fixed',
     description: 'If event has both recurring_date and event_date, recurring takes precedence',
     test: () => {
       const futureDate = new Date();
@@ -285,7 +285,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.upcoming.length, 0, "Should have no upcoming events");
       assert.strictEqual(result.past.length, 0, "Should have no past events");
@@ -294,7 +294,7 @@ const testCases = [
     }
   },
   {
-    name: 'categorizeEvents-handles-missing-title',
+    name: 'categoriseEvents-handles-missing-title',
     description: 'Handles events without titles gracefully',
     test: () => {
       const events = [
@@ -311,7 +311,7 @@ const testCases = [
         }
       ];
       
-      const result = categorizeEvents(events);
+      const result = categoriseEvents(events);
       
       assert.strictEqual(result.regular.length, 2, "Should have two regular events");
       assert.strictEqual(result.regular[0].data.title, undefined, "First event should have no title");
