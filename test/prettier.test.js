@@ -19,12 +19,12 @@ const testCases = [
   {
     name: 'createPrettierTransform-html-only',
     description: 'Transform only processes HTML files',
-    test: () => {
+    asyncTest: async () => {
       const transform = createPrettierTransform();
       
       const cssContent = 'body{margin:0;}';
       const cssPath = '/test/style.css';
-      const cssResult = transform(cssContent, cssPath);
+      const cssResult = await transform(cssContent, cssPath);
       
       if (cssResult !== cssContent) {
         throw new Error('Should pass through CSS files unchanged');
@@ -32,7 +32,7 @@ const testCases = [
       
       const jsContent = 'const x=1;';
       const jsPath = '/test/script.js';
-      const jsResult = transform(jsContent, jsPath);
+      const jsResult = await transform(jsContent, jsPath);
       
       if (jsResult !== jsContent) {
         throw new Error('Should pass through JS files unchanged');
@@ -42,13 +42,13 @@ const testCases = [
   {
     name: 'createPrettierTransform-html-processing',
     description: 'Transform attempts to process HTML files',
-    test: () => {
+    asyncTest: async () => {
       const transform = createPrettierTransform();
       
       const htmlContent = '<div><p>Hello</p></div>';
       const htmlPath = '/test/file.html';
       
-      const result = transform(htmlContent, htmlPath);
+      const result = await transform(htmlContent, htmlPath);
       
       if (typeof result !== 'string') {
         throw new Error('Should return a string');
@@ -59,12 +59,12 @@ const testCases = [
   {
     name: 'createPrettierTransform-no-output-path',
     description: 'Handles missing output path by defaulting to HTML',
-    test: () => {
+    asyncTest: async () => {
       const transform = createPrettierTransform();
       
       const htmlContent = '<div><p>Hello</p></div>';
       
-      const result = transform(htmlContent, null);
+      const result = await transform(htmlContent, null);
       
       if (typeof result !== 'string') {
         throw new Error('Should return a string when no path provided');
@@ -86,14 +86,14 @@ const testCases = [
   {
     name: 'createPrettierTransform-error-handling',
     description: 'Returns original content when formatting fails',
-    test: () => {
+    asyncTest: async () => {
       const transform = createPrettierTransform();
       
       // Use content that might cause prettier to fail
       const problematicContent = '<div><p>Test content</p></div>';
       const htmlPath = '/test/file.html';
       
-      const result = transform(problematicContent, htmlPath);
+      const result = await transform(problematicContent, htmlPath);
       
       if (typeof result !== 'string') {
         throw new Error('Should return a string even if formatting fails');

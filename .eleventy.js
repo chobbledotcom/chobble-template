@@ -6,6 +6,7 @@ module.exports = async function (eleventyConfig) {
 	const { configureMenus } = require("./src/_lib/menus");
 	const { configureNavigation } = require("./src/_lib/navigation");
 	const { configureOpeningTimes } = require("./src/_lib/opening-times");
+	const { configurePrettier } = require("./src/_lib/prettier");
 	const { configureProducts } = require("./src/_lib/products");
 	const { configureScss } = require("./src/_lib/scss");
 	const { configureScssFiles } = require("./src/_lib/scss-files");
@@ -30,6 +31,7 @@ module.exports = async function (eleventyConfig) {
 	configureMenus(eleventyConfig);
 	configureNavigation(eleventyConfig);
 	configureOpeningTimes(eleventyConfig);
+	configurePrettier(eleventyConfig);
 	configureProducts(eleventyConfig);
 	configureScss(eleventyConfig);
 	configureScssFiles(eleventyConfig);
