@@ -1,10 +1,10 @@
 ---
 header_image: placeholder-wide-1.jpg
-title: Product Launch Event
-meta_description: Our annual product launch showcasing new widgets
-meta_title: Product Launch Event
-subtitle: Past Event - Product Launch
-event_date: 2023-10-15
+title: Product Launch Meetup
+meta_description: Our monthly product launch showcasing new widgets
+meta_title: Product Launch Meetup
+subtitle: Monthly new product announcements!
+recurring_date: Every 3rd Monday at 7 PM
 event_location: Downtown Conference Center
 ---
 

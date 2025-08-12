@@ -154,16 +154,17 @@ content:
     path: src/events
     type: collection
     subfolders: false
-    filename: "{event_date}-{primary}.md"
+    filename: "{primary}.md"
     view:
-      fields: [title, event_date, event_location]
+      fields: [title, event_date, recurring_date, event_location]
       primary: title
-      sort: [event_date]
+      sort: [title]
     fields:
       - { name: header_image, type: image, label: Header Image }
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: event_date, label: Event Date, type: date }
+      - { name: event_date, label: Event Date, type: date, required: false }
+      - { name: recurring_date, type: string, label: Recurring Date (e.g. "Every Friday at 2 PM"), required: false }
       - { name: event_location, type: string, label: Event Location }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: header_text, type: string, label: Header Text }

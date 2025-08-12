@@ -2,5 +2,15 @@
   <a href="{{ event.url }}">{{ event.data.title }}</a>
 </h3>
 <p>
-  <em>{{ event.data.event_date | date: "%b %-d, %Y" }} - {{ event.data.event_location }}</em>
+  <em>
+    {% if event.data.recurring_date %}
+      {{ event.data.recurring_date }}
+    {% elsif event.data.event_date %}
+      {{ event.data.event_date | date: "%b %-d, %Y" }}
+    {% endif %}
+    {% if event.data.event_location %}
+      {% if event.data.recurring_date or event.data.event_date %} - {% endif %}
+      {{ event.data.event_location }}
+    {% endif %}
+  </em>
 </p>
