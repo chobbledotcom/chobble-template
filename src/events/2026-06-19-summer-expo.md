@@ -3,7 +3,7 @@ header_image: placeholder-wide-2.jpg
 title: Summer Expo
 subtitle: Exclusive deals aplenty!
 meta_description: Join us for our upcoming Summer Expo with exclusive deals
-event_date: 2025-06-20
+event_date: 2026-06-19
 event_location: City Exhibition Hall
 ---
 
