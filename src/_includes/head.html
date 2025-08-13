@@ -64,8 +64,10 @@
   {%- endif -%}
 
   {%- assign schemaType = "page" -%}
-  {%- if layout == "product.html" -%}
+  {%- if layout == "item.html" and tags and tags contains "product" -%}
     {%- assign schemaType = "product" -%}
+  {%- elsif layout == "item.html" and tags and tags contains "event" -%}
+    {%- assign schemaType = "event" -%}
   {%- elsif layout == "news-post.html" -%}
     {%- assign schemaType = "post" -%}
   {%- elsif layout == "home.html" -%}

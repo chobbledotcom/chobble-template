@@ -47,17 +47,30 @@
         placeholder="Your phone number"
       />
     </label>
-    {%- if layout == "product.html" -%}
-      <label for="product">
-        Product
-        <textarea
-          id="product"
-          name="product"
-          required=""
-          rows="6"
-          placeholder="{{- title -}}"
-        >{{- title -}}</textarea>
-      </label>
+    {%- if layout == "item.html" -%}
+      {%- if tags and tags contains "product" -%}
+        <label for="product">
+          Product
+          <textarea
+            id="product"
+            name="product"
+            required=""
+            rows="6"
+            placeholder="{{- title -}}"
+          >{{- title -}}</textarea>
+        </label>
+      {%- else -%}
+        <label for="event">
+          Event
+          <textarea
+            id="event"
+            name="event"
+            required=""
+            rows="6"
+            placeholder="{{- title -}}"
+          >{{- title -}}</textarea>
+        </label>
+      {%- endif -%}
     {%- endif -%}
     <label for="message">
       Message
