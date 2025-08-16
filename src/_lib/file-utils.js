@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const markdownIt = require("markdown-it");
 const { getOpeningTimesHtml } = require("./opening-times");
+const { getRecurringEventsHtml } = require("./recurring-events");
 
 const createMarkdownRenderer = (options = { html: true }) =>
 	new markdownIt(options);
@@ -44,6 +45,11 @@ const renderSnippet = (
 	if (bodyContent.includes("{% opening_times %}")) {
 		const openingHtml = getOpeningTimesHtml();
 		bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
+	}
+	
+	if (bodyContent.includes("{% recurring_events %}")) {
+		const recurringHtml = getRecurringEventsHtml();
+		bodyContent = bodyContent.replace("{% recurring_events %}", recurringHtml);
 	}
 
 	return mdRenderer.render(bodyContent);
