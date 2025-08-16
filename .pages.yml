@@ -224,6 +224,7 @@ content:
       - { name: show_products, type: boolean, label: Show Products Section, default: true }
       - { name: show_menus, type: boolean, label: Show Menus Section, default: true }
       - { name: show_news, type: boolean, label: Show News Section, default: true }
+      - { name: show_recurring_events, type: boolean, label: Show Recurring Events, default: true }
       
   - name: site
     label: Site Configuration
