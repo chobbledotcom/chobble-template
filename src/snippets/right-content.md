@@ -4,7 +4,7 @@
 
 ---
 
-### Regular {{ strings.event_name }}
+### Regular Events
 
 {% recurring_events %}
 

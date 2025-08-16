@@ -11,6 +11,6 @@ eleventyNavigation:
   order: 4
 ---
 
-## Our {{ strings.event_name }}
+## Our Events
 
-Looking to connect with us in person? Check out our upcoming {{ strings.event_name | downcase }} or browse our past {{ strings.event_name | downcase }} to see what you missed.
+Looking to connect with us in person? Check out our upcoming events or browse our past events to see what you missed.
