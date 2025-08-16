@@ -73,6 +73,12 @@ layout: base.html
 
   {{ content }}
 
+  {%- if maps_embed_src and maps_embed_src != "" -%}
+    <hr>
+    <h2>Location</h2>
+    {% include "map-embed.html" %}
+  {%- endif -%}
+
   {%- if features -%}
     <hr>
     <h2>Features</h2>
