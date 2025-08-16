@@ -1,5 +1,7 @@
 {
 	"product_name": "Products",
 	"product_permalink_dir": "products",
-	"menus_name": "Menus"
+	"menus_name": "Menus",
+	"event_name": "Events",
+	"event_permalink_dir": "events"
 }

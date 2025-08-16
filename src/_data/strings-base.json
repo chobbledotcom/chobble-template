@@ -1,4 +1,6 @@
 {
 	"product_name": "Products",
-	"product_permalink_dir": "products"
+	"product_permalink_dir": "products",
+	"event_name": "Events",
+	"event_permalink_dir": "events"
 }
