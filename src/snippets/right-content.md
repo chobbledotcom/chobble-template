@@ -4,6 +4,12 @@
 
 ---
 
+### Regular Events
+
+{% recurring_events %}
+
+---
+
 ### Contact
 
 - Phone: [0161 123 4567](tel:01611234567)

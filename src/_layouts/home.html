@@ -23,3 +23,11 @@ layout: base.html
   {%- render_snippet "homepage-categories-header", "<h3>Product Categories</h3>" -%}
   {%- include "categories-list.html" -%}
 {%- endif -%}
+
+{%- comment -%} Check for recurring events {%- endcomment -%}
+{%- assign recurring_events = collections.events | where: "data.recurring_date" -%}
+{%- if homepage.show_recurring_events and recurring_events.size > 0 -%}
+  <hr>
+  {%- render_snippet "homepage-events-header", "<h3>Regular Events</h3>" -%}
+  {% include "recurring-events-list.html" %}
+{%- endif -%}
