@@ -1,4 +1,4 @@
-{%- assign embed_src = maps_embed_src | default: config.map_embed_src -%}
+{%- assign embed_src = map_embed_src | default: config.map_embed_src -%}
 {%- if embed_src and embed_src != "" -%}
   <div class="map-embed">
     <iframe
