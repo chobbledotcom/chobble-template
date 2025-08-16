@@ -1,16 +1,20 @@
 <h3>
   <a href="{{ event.url }}">{{ event.data.title }}</a>
 </h3>
-<p>
-  <em>
+{% if event.data.subtitle %}
+<p>{{ event.data.subtitle }}</p>
+{% endif %}
+<ul>
+  {% if event.data.event_location %}
+  <li><strong>Location:</strong> {{ event.data.event_location }}</li>
+  {% endif %}
+  {% if event.data.recurring_date or event.data.event_date %}
+  <li><strong>Date:</strong> 
     {% if event.data.recurring_date %}
       {{ event.data.recurring_date }}
     {% elsif event.data.event_date %}
       {{ event.data.event_date | date: "%b %-d, %Y" }}
     {% endif %}
-    {% if event.data.event_location %}
-      {% if event.data.recurring_date or event.data.event_date %} - {% endif %}
-      {{ event.data.event_location }}
-    {% endif %}
-  </em>
-</p>
+  </li>
+  {% endif %}
+</ul>
