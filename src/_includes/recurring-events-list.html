@@ -4,7 +4,7 @@
   {%- for event in recurring_events -%}
     {%- assign event_data = event.data -%}
     <li>
-      <strong>{{ event_data.title }}</strong><br>
+      <strong><a href="{{ event.url }}">{{ event_data.title }}</a></strong><br>
       <span class="event-time">{{ event_data.recurring_date }}</span>
       {%- if event_data.event_location -%}
         <br><span class="event-location">{{ event_data.event_location }}</span>

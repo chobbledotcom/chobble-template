@@ -6,8 +6,13 @@ const renderRecurringEvents = (events) => {
 	let html = '<ul class="recurring-events">\n';
 	for (const event of events) {
 		const eventData = event.data || event;
+		const url = event.url || eventData.url;
 		html += `  <li>\n`;
-		html += `    <strong>${eventData.title}</strong><br>\n`;
+		if (url) {
+			html += `    <strong><a href="${url}">${eventData.title}</a></strong><br>\n`;
+		} else {
+			html += `    <strong>${eventData.title}</strong><br>\n`;
+		}
 		html += `    <span class="event-time">${eventData.recurring_date}</span>`;
 		if (eventData.event_location) {
 			html += `<br>\n    <span class="event-location">${eventData.event_location}</span>`;
@@ -63,7 +68,14 @@ const getRecurringEventsHtml = () => {
 				
 				// Check if this is a recurring event
 				if (data.recurring_date) {
+					// Generate URL from filename
+					// Remove .md extension and any date prefix (YYYY-MM-DD-)
+					let slug = file.replace('.md', '');
+					slug = slug.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+					const url = `/events/${slug}/`;
+					
 					recurringEvents.push({
+						url: url,
 						data: {
 							title: data.title,
 							recurring_date: data.recurring_date,
