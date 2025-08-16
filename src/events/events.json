@@ -1,6 +1,4 @@
 {
 	"layout": "item.html",
-	"permalink": "/events/{{ page.fileSlug }}/index.html",
-	"tags": ["events", "event"],
-	"navigationParent": "Events"
+	"tags": ["events", "event"]
 }
