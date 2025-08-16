@@ -10,7 +10,7 @@
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
       # Shared configuration values
-      npmDepsHash = "sha256-hx4IjiYjWvESZzDgVLPcx2GPMhWWWmMRB7SU9wBjqNk=";
+      npmDepsHash = "sha256-0m0jAenTkzqqRJBdh0kG04WB7Q5P94OSHbgvrBbtVXI=";
 
       # Function to create nodeModules for a given pkgs
       makeNodeModules =
@@ -138,7 +138,8 @@
           allPackages = {
             site = sitePackage;
             nodeModules = nodeModules;
-          } // scriptPackages;
+          }
+          // scriptPackages;
         in
         allPackages
       );
