@@ -3,6 +3,10 @@ media:
   output: /images
   path: src/images
   categories: [image]
+settings:
+  hide: true
+  content:
+    merge: true
 content:
 
   - name: pages
