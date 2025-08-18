@@ -336,7 +336,7 @@ table {
   border: var(--border);
   border-radius: var(--border-radius);
   border-spacing: 0;
-  display: inline-block;
+  margin: 1rem auto;
   max-width: 100%;
   overflow-x: auto;
   padding: 0;
@@ -349,10 +349,9 @@ table {
   }
 
   thead {
-    background-color: var(--color-table);
+    background-color: var(--color-bg);
     border-collapse: collapse;
     border-radius: var(--border-radius);
-    color: var(--color-bg);
     margin: 0;
     padding: 0;
 
@@ -531,12 +530,17 @@ main {
   width: var(--width-content);
   max-width: 100%;
   .content {
+    h3,
+    h4,
+    h5 {
+      margin-top: 3rem;
+    }
     img,
     .image-wrapper {
       display: block;
       margin: 0 auto;
       width: 100%;
-      max-width: 100%;
+      max-width: 695px;
       height: auto;
       border-radius: var(--border-radius-small);
     }
