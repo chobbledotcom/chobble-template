@@ -1,17 +1,16 @@
 ---
-header_image: placeholder.jpg
+header_image: /images/hacker-pexels-cottonbro-8721342.jpg
 header_text: Setup Instructions
 subtitle: Complete guide to creating your website with the Chobble Template
-meta_description: Step-by-step instructions for setting up, customising, and deploying your website using the Chobble Template
+meta_description: Step-by-step instructions for setting up, customising, and
+  deploying your website using the Chobble Template
 meta_title: Setup Instructions | Chobble Template
-
 layout: page.html
 permalink: /instructions/
 eleventyNavigation:
   key: Instructions
   order: 2
 ---
-
 ## Chobble Template Instructions
 
 You can use this template to get a fully-featured website up-and-running without needing to write a single line of code, with a built-in Content Management System courtesy of [PagesCMS](https://pagescms.org), and flexible support for products, news, team members, events, menus, and more!
