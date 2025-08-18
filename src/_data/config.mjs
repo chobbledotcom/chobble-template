@@ -9,7 +9,7 @@ const DEFAULTS = {
 	formspark_id: null,
 	botpoison_public_key: null,
 	stripe_publishable_key: null,
-	template_repo_url: "https://git.chobble.com/chobble/chobble-template",
+	template_repo_url: "https://github.com/chobbledotcom/chobble-template",
 	chobble_link: null,
 	map_embed_src: null,
 };

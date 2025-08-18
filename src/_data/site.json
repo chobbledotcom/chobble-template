@@ -4,7 +4,7 @@
 	"webhost": "bunny",
 	"description": "Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities",
 	"socials": {
-		"Github": "https://github.com/chobble-mirror/chobble-template",
+		"Github": "https://github.com/chobbledotcom/chobble-template",
 		"Forgejo": "https://git.chobble.com/chobble/chobble-template",
 		"Facebook": "https://www.facebook.com/profile.php?id=61571286130366",
 		"Instagram": "https://example.chobble.com",
