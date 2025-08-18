@@ -41,7 +41,7 @@ const recurringEventsShortcode = function(eleventyConfig) {
 
 const configureRecurringEvents = (eleventyConfig) => {
 	// Add the shortcode that can be used in templates
-	eleventyConfig.addShortcode("recurring_events", recurringEventsShortcode);
+	eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
 	
 	// Also add a filter version for more flexibility
 	eleventyConfig.addFilter("format_recurring_events", renderRecurringEvents);
