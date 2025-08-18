@@ -141,8 +141,8 @@ Understanding the file structure can help advanced users make direct edits:
 │   ├── news/           # Blog posts
 │   ├── products/       # Product pages
 │   ├── events/         # Event listings
-│   └── ...             # Other content types              #
-├── _site/ Built output (auto-generated)
+│   └── ...             # Other content types
+├── _site/              # Built output (auto-generated)
 ├── .eleventy.js        # Eleventy configuration
 ├── .pages.yml          # PagesCMS configuration
 └── package.json        # Dependencies
