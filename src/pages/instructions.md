@@ -176,10 +176,9 @@ Understanding the file structure can help advanced users make direct edits:
 
 ### Analytics
 
-Add analytics by editing `src/_includes/base.html`:
+To add analytics, override the `src/_includes/head-scripts.html` file with your tracking code.
 
-- Insert tracking code before `</head>`
-- Popular options: Plausible, Fathom, SimpleAnalytics
+[Chobble customers](https://chobble.com) get Goatcounter included as standard.
 
 ### Support & Resources
 
