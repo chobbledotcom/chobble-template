@@ -160,6 +160,8 @@ const copyImageCache = () => {
 const createImageTransform = () => {
 	return async (content, outputPath) => {
 		if (!outputPath || !outputPath.endsWith(".html")) return content;
+		// Skip image processing for feeds - content is already processed
+		if (outputPath.includes("/feed.")) return content;
 		return await transformImages(content);
 	};
 };

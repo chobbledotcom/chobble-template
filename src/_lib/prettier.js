@@ -6,6 +6,11 @@ function createPrettierTransform(options = {}) {
       return content;
     }
     
+    // Skip prettier for feeds - they don't need HTML formatting
+    if (outputPath && outputPath.includes('/feed.')) {
+      return content;
+    }
+    
     return await prettier.format(content, {
       parser: 'html',
       ...options
