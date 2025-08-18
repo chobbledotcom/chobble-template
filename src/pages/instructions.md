@@ -9,7 +9,7 @@ layout: page.html
 permalink: /instructions/
 eleventyNavigation:
   key: Instructions
-  order: 20
+  order: 2
 ---
 
 ## Chobble Template Instructions
