@@ -1,15 +1,15 @@
 ---
 header_image: placeholder-wide-1.jpg
-title: Product Launch Meetup
+title: Chobble Template Launch Party
 meta_description: Our monthly product launch showcasing new widgets
 meta_title: Product Launch Meetup
-subtitle: Monthly new product announcements!
-recurring_date: Every 3rd Monday at 7 PM
-event_location: Downtown Conference Center
+subtitle: The internet will never be the same again
+event_location: Fulchester Arena, UK
+event_date: 1970-01-01
 ---
+We're pround to announce the launch of the Chobble Template, at Fulchester Arena, on the 1st January 1970. A turnout of around 200,000 is expected, bringing an estimated £20bn to the local economy and creating 300 permanent jobs.
 
-We hosted our annual product launch event showcasing our latest widget innovations. Attendees enjoyed demonstrations of our newest models and networking opportunities with industry professionals.
+Attendees can expect an action-packed day involving thrilling Github Actions, PagesCMS editing, and the meticulous checking-over of text for typos.
 
-> The highlight was our unveiling of the UltraWidget Pro, which received enthusiastic response from all participants.
+**If you'd like a Chobble Template website for your business, you can clone this site using the instructions [here](/instructions/), or [contact me (Chobble)](https://chobble.com/contact/) and I can build a site for you!**
 
-Thank you to everyone who attended and made this event a success. Check out our products page to see the items we showcased.
