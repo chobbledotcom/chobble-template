@@ -21,11 +21,11 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 - With [a theme editor](/theme-editor/) you can test live!
 - Edited via the easy and free [PagesCMS](http://pagescms.org) editor
 - With built-in layouts for [pages](/instructions/), [news posts](/news/), [products](/products/), [menus](/menus/), and [events](/events/)
-- It's based on [Eleventy]({{ config.template_repo_url }}/src/branch/main/.eleventy.js)
-- And uses [mvp.css]({{ config.template_repo_url }}/src/branch/main/src/css/mvp.scss) with minimal-ish semantic HTML
-- It's built with Node and [Github Actions]({{ config.template_repo_url }}/src/branch/main/.github/workflows/build-and-deploy.yml)
+- It's based on [Eleventy]({{ config.template_repo_url }}/blob/main/.eleventy.js)
+- With minimal-ish semantic-ish HTML and CSS, based on [MVP.css](https://andybrewer.github.io/mvp/)
+- It's built with Node and [Github Actions]({{ config.template_repo_url }}/blob/main/.github/workflows/build-and-deploy.yaml)
 - It's hosted on [Neocities](https://neocities.org/site/chobble-example) but could be easily adapted for Bunny (or anywhere else)
-- With a Formspark & Botpoison spam-protected [contact form]({{ config.template_repo_url }}/src/branch/main/src/\_includes/contact-form.html)
+- With a Formspark & Botpoison spam-protected [contact form]({{ config.template_repo_url }}/blob/main/src/\_includes/contact-form.html)
 - Using [Turbo](https://turbo.hotwired.dev/) for instant page loads
 - With social media links in the footer
 - And customisable snippets to use wherever
