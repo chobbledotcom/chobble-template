@@ -2,7 +2,7 @@
 header_text: Events
 header_image: /images/party.jpg
 meta_description: Check out our upcoming and past events
-meta_title: Events
+meta_title: Events Listing Website | Chobble Template
 permalink: /events/
 layout: events.html
 eleventyNavigation:
