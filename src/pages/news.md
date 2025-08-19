@@ -10,6 +10,8 @@ eleventyNavigation:
   order: 3
 ---
 
-## Congue Ipsum
+## Chobble Template News
 
-Integer feugiat iaculis augue, in hendrerit sapien dapibus et. Mauris vitae est auctor, pellentesque nisl.
+On a real website this is where you'd list your news posts - saving your visitors from needing to click through to your [Facebook]({{ site.socials.Facebook }}) or [Mastodon]({{ site.socials.Mastodon }}) pages to learn about what you've been up to.
+
+Your news posts are also pulled through to the [RSS Feed](/feed.xml), which also looks tidy and explains what RSS is - pretty neat, no?
