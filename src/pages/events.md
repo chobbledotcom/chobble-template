@@ -11,4 +11,6 @@ eleventyNavigation:
 ---
 ## Our Events
 
-Looking to connect with us in person? Check out our upcoming events or browse our past events to see what you missed.
+If this was a real website you could list your events here! The system supports fixed date and recurring events, and will organise them into "Regular", "Past" and "Recurring" lists below.
+
+You can add galleries to events, and each one includes an optional contact form and map embed, too.
