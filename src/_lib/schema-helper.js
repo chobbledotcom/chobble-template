@@ -46,7 +46,7 @@ function buildProductMeta(data) {
 
 	if (data.price) {
 		meta.offers = {
-			price: data.price.replace(/[£€$,]/g, ""),
+			price: data.price.toString().replace(/[£€$,]/g, ""),
 		};
 	}
 
