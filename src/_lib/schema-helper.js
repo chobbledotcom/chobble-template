@@ -86,7 +86,7 @@ function buildOrganizationMeta(data) {
 	return meta;
 }
 
-export {
+module.exports = {
 	buildImageUrl,
 	buildBaseMeta,
 	buildProductMeta,

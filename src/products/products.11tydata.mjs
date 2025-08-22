@@ -1,6 +1,6 @@
 import strings from "../_data/strings.js";
 import { normaliseSlug } from "../_lib/slug-utils.js";
-import { buildProductMeta } from "../_lib/schema-helper.js";
+import { buildProductMeta } from "../_lib/schema-helper.mjs";
 
 export default {
 	eleventyComputed: {
