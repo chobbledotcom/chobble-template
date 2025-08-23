@@ -1,4 +1,4 @@
-function categoriseEvents(events) {
+export function categoriseEvents(events) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   
@@ -53,7 +53,3 @@ function categoriseEvents(events) {
     }
   };
 }
-
-module.exports = {
-  categoriseEvents
-};

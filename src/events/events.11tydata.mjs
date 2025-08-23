@@ -1,8 +1,8 @@
-const { buildBaseMeta } = require('../_lib/schema-helper');
-const { categoriseEvents } = require('../_lib/events');
-const strings = require('../_data/strings.js');
+import { buildBaseMeta } from '../_lib/schema-helper.mjs';
+import { categoriseEvents } from '../_lib/events.mjs';
+import strings from '../_data/strings.js';
 
-module.exports = {
+export default {
   eleventyComputed: {
     meta: data => buildBaseMeta(data),
     navigationParent: () => strings.event_name,

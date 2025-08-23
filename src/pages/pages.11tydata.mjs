@@ -1,7 +1,7 @@
-const { buildBaseMeta, buildOrganizationMeta } = require('../_lib/schema-helper');
-const { categoriseEvents } = require('../_lib/events');
+import { buildBaseMeta, buildOrganizationMeta } from '../_lib/schema-helper.mjs';
+import { categoriseEvents } from '../_lib/events.mjs';
 
-module.exports = {
+export default {
   eleventyComputed: {
     meta: data => {
       if (data.layout === "contact.html") {
