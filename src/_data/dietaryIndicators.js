@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	vegan: {
 		symbol: "VE",
 		label: "Vegan",

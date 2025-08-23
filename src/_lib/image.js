@@ -1,7 +1,7 @@
-const Image = require("@11ty/eleventy-img");
-const { JSDOM } = require("jsdom");
-const fs = require("fs");
-const sharp = require("sharp");
+import Image from "@11ty/eleventy-img";
+import { JSDOM } from "jsdom";
+import fs from "fs";
+import sharp from "sharp";
 
 const U = {
 	DEFAULT_OPTIONS: {
@@ -141,7 +141,7 @@ async function processAndWrapImage({
 	return returnElement ? div : div.outerHTML;
 }
 
-const fastglob = require("fast-glob");
+import fastglob from "fast-glob";
 
 const findImageFiles = (pattern = ["src/images/*.jpg"]) => {
 	return fastglob.sync(pattern);
@@ -258,7 +258,7 @@ const transformImages = async (content) => {
 	return new JSDOM(document.documentElement.outerHTML).serialize();
 };
 
-module.exports = {
+export {
 	findImageFiles,
 	createImagesCollection,
 	copyImageCache,

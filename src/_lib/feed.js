@@ -1,4 +1,4 @@
-const { feedPlugin } = require("@11ty/eleventy-plugin-rss");
+import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 
 const createFeedConfiguration = (siteData) => ({
 	type: "atom",
@@ -20,14 +20,14 @@ const createFeedConfiguration = (siteData) => ({
 	},
 });
 
-const configureFeed = (eleventyConfig) => {
-	const siteData = require("../_data/site.json");
-	const feedConfig = createFeedConfiguration(siteData);
+const configureFeed = async (eleventyConfig) => {
+	const siteData = await import("../_data/site.json", { with: { type: "json" } });
+	const feedConfig = createFeedConfiguration(siteData.default);
 	eleventyConfig.addPlugin(feedPlugin, feedConfig);
 	return feedConfig;
 };
 
-module.exports = {
+export {
 	createFeedConfiguration,
 	configureFeed,
 };

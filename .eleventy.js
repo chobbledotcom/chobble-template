@@ -16,28 +16,26 @@ import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
 export default async function (eleventyConfig) {
 	eleventyConfig.addWatchTarget("./src/**/*");
-
+	eleventyConfig.setLayoutsDirectory("_layouts");
 	eleventyConfig
 		.addPassthroughCopy("src/assets")
 		.addPassthroughCopy("src/images")
 		.addPassthroughCopy("src/news/images")
 		.addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
-	// Configure schema plugin
 	eleventyConfig.addPlugin(schemaPlugin);
 
-	// Configure layout aliases for easier layout references
-	configureLayoutAliases(eleventyConfig);
+	// configureLayoutAliases(eleventyConfig);
 
 	configureCategories(eleventyConfig);
 	await configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
 	configureImages(eleventyConfig);
 	configureMenus(eleventyConfig);
-	configureNavigation(eleventyConfig);
-	configureOpeningTimes(eleventyConfig);
+	await configureNavigation(eleventyConfig);
+	await configureOpeningTimes(eleventyConfig);
 	configurePrettier(eleventyConfig);
-	configureRecurringEvents(eleventyConfig);
+	await configureRecurringEvents(eleventyConfig);
 	configureProducts(eleventyConfig);
 	configureScss(eleventyConfig);
 	configureScssFiles(eleventyConfig);

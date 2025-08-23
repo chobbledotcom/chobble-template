@@ -1,3 +1,1 @@
-module.exports = (function () {
-	return process.env.ELEVENTY_RUN_MODE === "build";
-})();
+export default process.env.ELEVENTY_RUN_MODE === "build";

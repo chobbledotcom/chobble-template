@@ -1,6 +1,7 @@
 {
 	"name": "chobble-template",
 	"version": "1.0.0",
+	"type": "module",
 	"scripts": {
 		"build": "eleventy",
 		"serve": "eleventy --serve",

@@ -37,7 +37,7 @@ const configureProducts = (eleventyConfig) => {
 	eleventyConfig.addFilter("getReviewsByProduct", getReviewsByProduct);
 };
 
-module.exports = {
+export {
 	processGallery,
 	addGallery,
 	createProductsCollection,

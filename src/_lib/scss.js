@@ -1,6 +1,6 @@
-const sass = require("sass");
-const path = require("path");
-const { getScssFiles } = require("./scss-files");
+import sass from "sass";
+import path from "path";
+import { getScssFiles } from "./scss-files.js";
 
 const createScssCompiler = (inputContent, inputPath) => {
 	const dir = path.dirname(inputPath);
@@ -42,7 +42,7 @@ const configureScss = (eleventyConfig) => {
 	});
 };
 
-module.exports = {
+export {
 	createScssCompiler,
 	compileScss,
 	configureScss,

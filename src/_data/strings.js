@@ -4,14 +4,20 @@
  * Usage in templates: {{ strings.product_name }}
  */
 
-const baseStrings = require("./strings-base.json");
+import baseStrings from "./strings-base.json" with { type: "json" };
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let userStrings = {};
 try {
-	userStrings = require("./strings.json");
+	const userStringsPath = join(__dirname, "./strings.json");
+	userStrings = JSON.parse(readFileSync(userStringsPath, "utf-8"));
 } catch (e) {}
 
-module.exports = {
+export default {
 	...baseStrings,
 	...userStrings,
 };

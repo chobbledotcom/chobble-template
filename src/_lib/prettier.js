@@ -1,4 +1,4 @@
-const prettier = require('prettier');
+import prettier from 'prettier';
 
 function createPrettierTransform(options = {}) {
   return async function prettierTransform(content, outputPath) {
@@ -22,7 +22,7 @@ function configurePrettier(eleventyConfig, options = {}) {
   eleventyConfig.addTransform('prettier', createPrettierTransform(options));
 }
 
-module.exports = {
+export {
   createPrettierTransform,
   configurePrettier
 };

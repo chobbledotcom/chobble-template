@@ -1,4 +1,4 @@
-const navUtil = require("@11ty/eleventy-navigation/eleventy-navigation");
+import navUtil from "@11ty/eleventy-navigation/eleventy-navigation.js";
 
 const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
 	navUtil.toHtml.call(eleventyConfig, collection, {
@@ -14,9 +14,9 @@ const findPageUrl = (collection, tag, slug) => {
 	return result.url;
 };
 
-const configureNavigation = (eleventyConfig) => {
-	const nav = require("@11ty/eleventy-navigation");
-	eleventyConfig.addPlugin(nav);
+const configureNavigation = async (eleventyConfig) => {
+	const nav = await import("@11ty/eleventy-navigation");
+	eleventyConfig.addPlugin(nav.default);
 
 	eleventyConfig.addFilter(
 		"toNavigation",
@@ -25,7 +25,7 @@ const configureNavigation = (eleventyConfig) => {
 	eleventyConfig.addFilter("pageUrl", findPageUrl);
 };
 
-module.exports = {
+export {
 	createNavigationFilter,
 	findPageUrl,
 	configureNavigation,

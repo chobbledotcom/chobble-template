@@ -48,23 +48,23 @@ const configureRecurringEvents = (eleventyConfig) => {
 };
 
 // Function to get recurring events HTML for direct use in file-utils
-const getRecurringEventsHtml = () => {
-	const fs = require('fs');
-	const path = require('path');
-	const matter = require('gray-matter');
+const getRecurringEventsHtml = async () => {
+	const fs = await import('fs');
+	const path = await import('path');
+	const matter = await import('gray-matter');
 	
 	// Read all event files from the events directory
-	const eventsDir = path.join(process.cwd(), 'src/events');
+	const eventsDir = path.default.join(process.cwd(), 'src/events');
 	const recurringEvents = [];
 	
 	try {
-		const files = fs.readdirSync(eventsDir);
+		const files = fs.default.readdirSync(eventsDir);
 		
 		for (const file of files) {
 			if (file.endsWith('.md')) {
-				const filePath = path.join(eventsDir, file);
-				const content = fs.readFileSync(filePath, 'utf8');
-				const { data } = matter(content);
+				const filePath = path.default.join(eventsDir, file);
+				const content = fs.default.readFileSync(filePath, 'utf8');
+				const { data } = matter.default(content);
 				
 				// Check if this is a recurring event
 				if (data.recurring_date) {
@@ -100,7 +100,7 @@ const getRecurringEventsHtml = () => {
 	}
 };
 
-module.exports = {
+export {
 	configureRecurringEvents,
 	renderRecurringEvents,
 	getRecurringEventsHtml,

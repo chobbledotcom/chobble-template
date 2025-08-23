@@ -13,7 +13,7 @@ const configureTags = (eleventyConfig) => {
 	eleventyConfig.addFilter("tags", extractTags);
 };
 
-module.exports = {
+export {
 	extractTags,
 	configureTags,
 };

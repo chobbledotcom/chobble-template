@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const markdownIt = require("markdown-it");
-const { getOpeningTimesHtml } = require("./opening-times");
-const { getRecurringEventsHtml } = require("./recurring-events");
+import fs from "fs";
+import path from "path";
+import markdownIt from "markdown-it";
+import { getOpeningTimesHtml } from "./opening-times.js";
+import { getRecurringEventsHtml } from "./recurring-events.js";
 
 const createMarkdownRenderer = (options = { html: true }) =>
 	new markdownIt(options);
@@ -71,7 +71,7 @@ const configureFileUtils = (eleventyConfig) => {
 	);
 };
 
-module.exports = {
+export {
 	createMarkdownRenderer,
 	fileExists,
 	fileMissing,

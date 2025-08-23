@@ -13,6 +13,6 @@ const normaliseSlug = (reference) => {
 	return pathParts[pathParts.length - 1];
 };
 
-module.exports = {
+export {
 	normaliseSlug,
 };

@@ -12,9 +12,9 @@ const renderOpeningTimes = (openingTimes) => {
 	return html;
 };
 
-const getOpeningTimesHtml = () => {
-	const siteData = require("../_data/site.json");
-	const openingTimes = siteData.opening_times || [];
+const getOpeningTimesHtml = async () => {
+	const siteData = await import("../_data/site.json", { with: { type: "json" } });
+	const openingTimes = siteData.default.opening_times || [];
 	return renderOpeningTimes(openingTimes);
 };
 
@@ -24,7 +24,7 @@ const configureOpeningTimes = (eleventyConfig) => {
 	eleventyConfig.addFilter("format_opening_times", renderOpeningTimes);
 };
 
-module.exports = {
+export {
 	configureOpeningTimes,
 	getOpeningTimesHtml,
 };
