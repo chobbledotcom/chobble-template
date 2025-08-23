@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+{%- include "head.html" -%}
+<body class="
+  {{- layout | replace: ".html", "" }}
+  {% if config.sticky_mobile_nav %}
+    sticky-mobile-nav
+  {% endif %}
+  {% if config.horizontal_nav %}
+    horizontal-nav
+  {% else %}
+    left-nav
+  {% endif %}
+  {% if "src/snippets/right-content.md" | file_exists -%}
+    two-columns
+  {% else -%}
+    one-column
+  {% endif %}
+  {% for class in body-classes %}
+   {{ class }}
+  {% endfor %}
+">
+  {%- include "header.html" -%}
+  <main>
+    {%- include "navigation.html" -%}
+    <article class="content" id="content">
+      {{- content -}}
+    </article>
+    {%- if "src/snippets/right-content.md" | file_exists -%}
+      <article class="right">
+        {%- render_snippet "right-content" -%}
+      </article>
+    {%- endif -%}
+  </main>
+  {%- include "footer.html" -%}
+  {%- include "theme-switcher.html" -%}
+</body>
+</html>

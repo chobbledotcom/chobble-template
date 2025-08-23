@@ -1,0 +1,117 @@
+---
+layout: base
+---
+
+<div class="title">
+  <h1>{{ title }}</h1>
+  {%- if short_description -%}
+    <h2>{{ short_description }}</h2>
+  {%- elsif subtitle -%}
+    <h2>{{ subtitle }}</h2>
+  {%- endif -%}
+  
+  {%- if event_date or event_location -%}
+    <ul>
+      {%- if event_date -%}
+        <li>
+          <em>
+            Date:
+            <strong>{{ event_date | date: "%b %-d, %Y" }}</strong>
+          </em>
+        </li>
+      {%- endif -%}
+      {%- if event_location -%}
+        <li>
+          <em>
+            Location:
+            <strong>{{ event_location }}</strong>
+          </em>
+        </li>
+      {%- endif -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{%- if gallery and gallery.size > 0 -%}
+  <div class="gallery">
+    <h2>Gallery</h2>
+    {% include "gallery.html" %}
+  </div>
+{%- endif -%}
+
+<div class="description">
+  {%- if tags and tags contains "product" -%}
+    {%- include "stripe-buy-button.html" -%}
+  {%- endif -%}
+
+  <h2>About</h2>
+
+  {%- if categories.size > 0 -%}
+    <p>
+      <strong>Categories:</strong>
+      {% for slug in categories -%}
+        {%- assign category = collections.categories | where: "fileSlug", slug | first -%}
+        <a href="{{ category.url }}">
+          {{- category.data.title -}}
+        </a>{%- unless forloop.last -%}, {% endunless -%}
+      {%- endfor -%}
+    </p>
+  {%- endif -%}
+  
+  {%- if event_categories and event_categories.size > 0 -%}
+    <p>
+      <strong>Event Type:</strong>
+      {% for cat in event_categories -%}
+        {{ cat }}{%- unless forloop.last -%}, {% endunless -%}
+      {%- endfor -%}
+    </p>
+  {%- endif -%}
+
+  {%- if tags and tags contains "product" -%}
+    {%- include "etsy-buy-button.html" -%}
+  {%- endif -%}
+
+  {{ content }}
+
+  {%- if map_embed_src and map_embed_src != "" -%}
+    <hr>
+    <h2>Location</h2>
+    {% include "map-embed.html" %}
+  {%- endif -%}
+
+  {%- if features -%}
+    <hr>
+    <h2>Features</h2>
+    <ul class="product-features">
+      {%- for feature in features -%}
+        <li>{{ feature }}</li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  {%- if specs -%}
+    <hr>
+    <h2>Specifications</h2>
+    <dl class="product-specs">
+      {%- for spec in specs -%}
+        <dt>{{ spec.name }}</dt>
+        <dd>{{ spec.value }}</dd>
+      {%- endfor -%}
+    </dl>
+  {%- endif -%}
+
+  {%- if tags and tags contains "product" -%}
+    {% assign reviews = collections.review | default: [] | getReviewsByProduct: page.fileSlug %}
+    {%- if reviews.size > 0 -%}
+      <hr>
+      <h2>Reviews</h2>
+      {% include "reviews-list.html" %}
+    {%- endif -%}
+
+    {%- include "etsy-buy-button.html" -%}
+  {%- endif -%}
+</div>
+<div class="contact">
+  <h2>Get in Touch</h2>
+  {% include "contact-form.html" %}
+</div>

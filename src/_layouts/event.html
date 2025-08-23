@@ -1,0 +1,31 @@
+---
+layout: base
+---
+
+<h2>
+  <a href="/events/">Events</a>
+  &rsaquo;
+  {{ title | escape }}
+</h2>
+
+<ul>
+  {% if subtitle %}
+    <li>
+      <strong>{{ subtitle | escape }}</strong>
+    </li>
+  {% endif %}
+  <li>
+    <em>
+      Date:
+      <strong>{{ event_date | date: "%b %-d, %Y" }}</strong>
+    </em>
+  </li>
+  <li>
+    <em>
+      Location:
+      <strong>{{ event_location }}</strong>
+    </em>
+  </li>
+</ul>
+
+{{ content }}
