@@ -24,7 +24,7 @@ const createProductsCollection = (collectionApi) => {
 };
 
 const getProductsByCategory = (products, categorySlug) => {
-	if (!products || !Array.isArray(products)) return [];
+	if (!products) return [];
 	return products.filter((product) => product.data.categories?.includes(categorySlug));
 };
 

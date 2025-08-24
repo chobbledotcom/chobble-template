@@ -7,7 +7,7 @@ const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
 	});
 
 const findPageUrl = (collection, tag, slug) => {
-	if (!collection || !Array.isArray(collection)) {
+	if (!collection) {
 		console.warn(`findPageUrl: No collection provided for ${tag}/${slug}`);
 		return '#';
 	}

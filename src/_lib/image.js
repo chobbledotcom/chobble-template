@@ -148,7 +148,7 @@ const findImageFiles = (pattern = ["src/images/*.jpg"]) => {
 };
 
 const createImagesCollection = (imageFiles) => {
-	if (!imageFiles || !Array.isArray(imageFiles)) return [];
+	if (!imageFiles) return [];
 	return imageFiles.map((i) => i.split("/")[2]).reverse();
 };
 

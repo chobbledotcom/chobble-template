@@ -1,5 +1,5 @@
 const extractTags = (collection) => {
-	if (!collection || !Array.isArray(collection)) return [];
+	if (!collection) return [];
 	
 	const allTags = collection
 		.filter((page) => page.url && !page.data?.no_index)

@@ -1,10 +1,10 @@
 const getCategoriesByMenu = (categories, menuSlug) => {
-	if (!categories || !Array.isArray(categories)) return [];
+	if (!categories) return [];
 	return categories.filter((category) => category.data.menus?.includes(menuSlug));
 };
 
 const getItemsByCategory = (items, categorySlug) => {
-	if (!items || !Array.isArray(items)) return [];
+	if (!items) return [];
 	// Handle both single category (legacy) and multiple categories
 	return items.filter((item) => {
 		if (item.data.menu_categories) {
