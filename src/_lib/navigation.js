@@ -7,10 +7,17 @@ const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
 	});
 
 const findPageUrl = (collection, tag, slug) => {
+	if (!collection) {
+		console.warn(`findPageUrl: No collection provided for ${tag}/${slug}`);
+		return '#';
+	}
 	const result = collection.find(
 		(item) => item.data?.tags?.includes(tag) && item.fileSlug === slug,
 	);
-	if (!result) throw new Error(`Couldn't find URL for ${tag} / ${slug}`);
+	if (!result) {
+		console.warn(`Couldn't find URL for ${tag}/${slug}`);
+		return '#';
+	}
 	return result.url;
 };
 

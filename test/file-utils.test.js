@@ -72,8 +72,18 @@ const testCases = [
     name: 'fileExists-default-cwd',
     description: 'Uses process.cwd() as default base directory',
     test: () => {
-      const result = fileExists('package.json');
-      expectTrue(result, "Should find package.json in project root");
+      // Create a temp file in current working directory to test
+      withTempFile('default-cwd', 'test-file.txt', 'content', (tempDir, filePath) => {
+        // Change to temp dir and test without specifying baseDir
+        const originalCwd = process.cwd();
+        try {
+          process.chdir(tempDir);
+          const result = fileExists('test-file.txt');
+          expectTrue(result, "Should find file using process.cwd() as base");
+        } finally {
+          process.chdir(originalCwd);
+        }
+      });
     }
   },
   {

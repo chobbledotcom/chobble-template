@@ -6,7 +6,8 @@
 		"build": "eleventy",
 		"serve": "eleventy --serve",
 		"format": "prettier --write _site/**/*.html",
-		"format:check": "prettier --check _site/**/*.html"
+		"format:check": "prettier --check _site/**/*.html",
+		"test": "node test/run-all-tests.js"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
