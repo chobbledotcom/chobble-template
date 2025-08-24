@@ -1,4 +1,7 @@
 const buildCategoryImageMap = (categories, products) => {
+	if (!categories || !Array.isArray(categories)) categories = [];
+	if (!products || !Array.isArray(products)) products = [];
+	
 	const initialMapping = categories.reduce(
 		(acc, category) => ({
 			...acc,
@@ -28,6 +31,7 @@ const buildCategoryImageMap = (categories, products) => {
 };
 
 const assignCategoryImages = (categories, categoryImages) => {
+	if (!categories || !Array.isArray(categories)) return [];
 	// NOTE: This function mutates category objects directly rather than using
 	// functional programming patterns (like spread operators) because Eleventy
 	// template objects have special getters and internal state. Using spread

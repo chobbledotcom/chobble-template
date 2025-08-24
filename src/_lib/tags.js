@@ -1,4 +1,6 @@
 const extractTags = (collection) => {
+	if (!collection || !Array.isArray(collection)) return [];
+	
 	const allTags = collection
 		.filter((page) => page.url && !page.data?.no_index)
 		.flatMap((page) => page.data?.tags || [])

@@ -18,11 +18,15 @@ const addGallery = (item) => {
 	return item;
 };
 
-const createProductsCollection = (collectionApi) =>
-	collectionApi.getFilteredByTag("product").map(addGallery);
+const createProductsCollection = (collectionApi) => {
+	const products = collectionApi.getFilteredByTag("product") || [];
+	return products.map(addGallery);
+};
 
-const getProductsByCategory = (products, categorySlug) =>
-	products.filter((product) => product.data.categories?.includes(categorySlug));
+const getProductsByCategory = (products, categorySlug) => {
+	if (!products || !Array.isArray(products)) return [];
+	return products.filter((product) => product.data.categories?.includes(categorySlug));
+};
 
 const getReviewsByProduct = (reviews, productSlug) =>
 	(reviews || []).filter((review) =>

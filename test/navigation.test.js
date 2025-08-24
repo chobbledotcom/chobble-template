@@ -115,7 +115,7 @@ const testCases = [
   },
   {
     name: 'findPageUrl-not-found',
-    description: 'Throws error when page not found',
+    description: 'Returns # when page not found',
     test: () => {
       const collection = [
         {
@@ -125,11 +125,8 @@ const testCases = [
         }
       ];
       
-      expectThrows(
-        () => findPageUrl(collection, 'post', 'nonexistent'),
-        /Couldn't find URL for post \/ nonexistent/,
-        "Should throw error with descriptive message"
-      );
+      const result = findPageUrl(collection, 'post', 'nonexistent');
+      expectStrictEqual(result, '#', "Should return # for missing pages");
     }
   },
   {
@@ -272,13 +269,10 @@ const testCases = [
     description: 'Handles edge cases gracefully',
     test: () => {
       // Empty collection
-      expectThrows(
-        () => findPageUrl([], 'post', 'test'),
-        /Couldn't find URL/,
-        "Should handle empty collection"
-      );
+      const result1 = findPageUrl([], 'post', 'test');
+      expectStrictEqual(result1, '#', "Should return # for empty collection");
       
-      // Collection with undefined data - should not find a match and throw
+      // Collection with undefined data - should not find a match and return #
       const collectionWithUndefined = [
         {
           fileSlug: 'test',
@@ -287,11 +281,15 @@ const testCases = [
         }
       ];
       
-      expectThrows(
-        () => findPageUrl(collectionWithUndefined, 'post', 'test'),
-        /Couldn't find URL/,
-        "Should handle items with undefined data"
-      );
+      const result2 = findPageUrl(collectionWithUndefined, 'post', 'test');
+      expectStrictEqual(result2, '#', "Should return # for items with undefined data");
+      
+      // Null/undefined collection
+      const result3 = findPageUrl(null, 'post', 'test');
+      expectStrictEqual(result3, '#', "Should return # for null collection");
+      
+      const result4 = findPageUrl(undefined, 'post', 'test');
+      expectStrictEqual(result4, '#', "Should return # for undefined collection");
     }
   }
 ];

@@ -171,4 +171,4 @@ const testLibModules = () => {
   return testCases;
 };
 
-createTestRunner('build-missing-folders-simple', testLibModules());
+createTestRunner('missing-folders-lib', testLibModules());

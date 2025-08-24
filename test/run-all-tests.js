@@ -3,10 +3,11 @@
 import { execSync } from 'child_process';
 import { readdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const rootDir = resolve(__dirname, '..');
 
 async function runAllTests() {
   console.log('=== Running All Tests ===\n');
@@ -30,7 +31,7 @@ async function runAllTests() {
       try {
         execSync(`node ${testPath}`, {
           stdio: 'inherit',
-          cwd: __dirname
+          cwd: rootDir
         });
         passed++;
         console.log(`✅ ${testFile} passed`);
