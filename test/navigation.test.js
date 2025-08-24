@@ -1,16 +1,16 @@
-const {
+import {
   createMockEleventyConfig,
   createTestRunner,
   expectStrictEqual,
   expectFunctionType,
   expectThrows,
-} = require('./test-utils');
+} from './test-utils.js';
 
-const {
+import {
   createNavigationFilter,
   findPageUrl,
   configureNavigation,
-} = require('../src/_lib/navigation');
+} from '../src/_lib/navigation.js';
 
 const testCases = [
   {
@@ -198,7 +198,7 @@ const testCases = [
   {
     name: 'configureNavigation-basic',
     description: 'Configures navigation filters in Eleventy',
-    test: () => {
+    asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
       const mockNavUtil = {
         toHtml: {
@@ -206,7 +206,7 @@ const testCases = [
         }
       };
       
-      configureNavigation(mockConfig);
+      await configureNavigation(mockConfig);
       
       expectFunctionType(mockConfig.filters, 'toNavigation', "Should add toNavigation filter");
       expectFunctionType(mockConfig.filters, 'pageUrl', "Should add pageUrl filter");
@@ -217,7 +217,7 @@ const testCases = [
   {
     name: 'configureNavigation-filters-work',
     description: 'Configured filters work correctly',
-    test: () => {
+    asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
       const mockNavUtil = {
         toHtml: {
@@ -225,7 +225,7 @@ const testCases = [
         }
       };
       
-      configureNavigation(mockConfig);
+      await configureNavigation(mockConfig);
       
       // Test toNavigation filter
       const navResult = mockConfig.filters.toNavigation([], 'home');
@@ -296,4 +296,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('navigation', testCases);
+export default createTestRunner('navigation', testCases);

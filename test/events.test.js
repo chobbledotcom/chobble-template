@@ -1,7 +1,7 @@
-const assert = require('assert');
-const { createTestRunner } = require('./test-utils');
+import assert from 'assert';
+import { createTestRunner } from './test-utils.js';
 
-const { categoriseEvents } = require('../src/_lib/events');
+import { categoriseEvents } from '../src/_lib/events.mjs';
 
 const testCases = [
   {
@@ -449,4 +449,4 @@ const testCases = [
   }
 ];
 
-createTestRunner('events', testCases);
+export default createTestRunner('events', testCases);

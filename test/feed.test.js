@@ -1,11 +1,11 @@
-const {
+import {
   createMockEleventyConfig,
   createTestRunner,
   expectStrictEqual,
   expectDeepEqual,
-} = require('./test-utils');
+} from './test-utils.js';
 
-const { createFeedConfiguration, configureFeed } = require('../src/_lib/feed');
+import { createFeedConfiguration, configureFeed } from '../src/_lib/feed.js';
 
 const mockSiteData = {
   name: "Test Site",
@@ -72,10 +72,10 @@ const testCases = [
   {
     name: 'configureFeed-basic',
     description: 'Configures feed plugin with eleventy config',
-    test: () => {
+    asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
       
-      const result = configureFeed(mockConfig);
+      const result = await configureFeed(mockConfig);
       
       expectStrictEqual(mockConfig.pluginCalls.length, 1, "Should call addPlugin once");
       
@@ -92,10 +92,10 @@ const testCases = [
   {
     name: 'configureFeed-returns-config',
     description: 'Returns the configuration object for chaining',
-    test: () => {
+    asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
       
-      const result = configureFeed(mockConfig);
+      const result = await configureFeed(mockConfig);
       
       expectStrictEqual(typeof result, 'object', "Should return configuration object");
       expectStrictEqual(result.type, 'atom', "Should return atom feed configuration");
@@ -119,4 +119,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('feed', testCases);
+export default createTestRunner('feed', testCases);

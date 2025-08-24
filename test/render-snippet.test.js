@@ -1,7 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const assert = require('assert');
-const markdownIt = require('markdown-it');
+import fs from 'fs';
+import path from 'path';
+import assert from 'assert';
+import markdownIt from 'markdown-it';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const md = new markdownIt({ html: true });
 
 // Test suite configuration
@@ -68,7 +74,9 @@ const mockConfig = {
   addWatchTarget: () => {},
   addPassthroughCopy: () => mockConfig,
   addPlugin: () => {},
-  addAsyncShortcode: () => {},
+  addAsyncShortcode: (name, fn) => {
+    mockConfig[name] = fn;
+  },
   addTransform: () => {},
   on: () => {},
   addCollection: () => {},
@@ -78,6 +86,8 @@ const mockConfig = {
   },
   addTemplateFormats: () => {},
   addExtension: () => {},
+  setLayoutsDirectory: () => {},
+  addGlobalData: () => {},
   render_snippet: null
 };
 
@@ -105,7 +115,8 @@ async function runTests() {
 
     try {
       // Import and initialize the eleventy config with our mock
-      const eleventyConfig = require('../.eleventy.js');
+      const eleventyConfigModule = await import('../.eleventy.js');
+      const eleventyConfig = eleventyConfigModule.default;
       await eleventyConfig(mockConfig);
 
       console.log(`=== Running ${TEST_NAME} tests ===`);
@@ -115,7 +126,7 @@ async function runTests() {
         const testId = `${TEST_NAME}/${testCase.name}`;
         const defaultValue = testCase.defaultValue || '';
         
-        let result = mockConfig.render_snippet(testCase.name, defaultValue);
+        let result = await mockConfig.render_snippet(testCase.name, defaultValue);
         let expected;
         
         if (testCase.name === 'non-existent') {

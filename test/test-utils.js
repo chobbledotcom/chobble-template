@@ -1,6 +1,11 @@
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
+import assert from 'assert';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const createMockEleventyConfig = () => ({
   addPlugin: function(plugin, config) {
@@ -19,6 +24,10 @@ const createMockEleventyConfig = () => ({
     this.shortcodes = this.shortcodes || {};
     this.shortcodes[name] = fn;
   },
+  addAsyncShortcode: function(name, fn) {
+    this.asyncShortcodes = this.asyncShortcodes || {};
+    this.asyncShortcodes[name] = fn;
+  },
   addTemplateFormats: function(format) {
     this.templateFormats = this.templateFormats || [];
     this.templateFormats.push(format);
@@ -26,6 +35,17 @@ const createMockEleventyConfig = () => ({
   addExtension: function(ext, config) {
     this.extensions = this.extensions || {};
     this.extensions[ext] = config;
+  },
+  setLayoutsDirectory: function(dir) {
+    this.layoutsDirectory = dir;
+  },
+  addWatchTarget: function(target) {
+    this.watchTargets = this.watchTargets || [];
+    this.watchTargets.push(target);
+  },
+  addPassthroughCopy: function(path) {
+    this.passthroughCopies = this.passthroughCopies || [];
+    this.passthroughCopies.push(path);
   }
 });
 
@@ -124,6 +144,7 @@ const expectFunctionType = (obj, property, message) => {
     // When property is undefined, we're checking if obj itself is a function
     assert.strictEqual(typeof obj, 'function', message || `Should be a function`);
   } else {
+    assert.strictEqual(obj !== undefined && obj !== null, true, message || `Object should exist to check ${property}`);
     assert.strictEqual(typeof obj[property], 'function', message || `${property} should be a function`);
   }
 };
@@ -156,7 +177,7 @@ const expectThrows = (fn, errorMatcher, message) => {
   assert.throws(fn, errorMatcher, message);
 };
 
-module.exports = {
+export {
   assert,
   fs,
   path,

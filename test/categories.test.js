@@ -1,13 +1,13 @@
-const assert = require('assert');
-const { createTestRunner } = require('./test-utils');
+import assert from 'assert';
+import { createTestRunner } from './test-utils.js';
 
-const {
+import {
   buildCategoryImageMap,
   assignCategoryImages,
   createCategoriesCollection,
   getFeaturedCategories,
   configureCategories,
-} = require('../src/_lib/categories');
+} from '../src/_lib/categories.js';
 
 const mockEleventyConfig = {
   addCollection: function(name, fn) {
@@ -531,4 +531,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('categories', testCases);
+export default createTestRunner('categories', testCases);

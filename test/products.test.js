@@ -1,19 +1,19 @@
-const {
+import {
   createMockEleventyConfig,
   createTestRunner,
   expectStrictEqual,
   expectDeepEqual,
   expectFunctionType,
-} = require('./test-utils');
+} from './test-utils.js';
 
-const {
+import {
   processGallery,
   addGallery,
   createProductsCollection,
   getProductsByCategory,
   getReviewsByProduct,
   configureProducts,
-} = require('../src/_lib/products');
+} from '../src/_lib/products.js';
 
 const testCases = [
   {
@@ -267,4 +267,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('products', testCases);
+export default createTestRunner('products', testCases);

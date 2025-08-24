@@ -1,4 +1,4 @@
-const {
+import {
   createMockEleventyConfig,
   createTestRunner,
   withTempDir,
@@ -11,9 +11,10 @@ const {
   expectFunctionType,
   expectTrue,
   expectFalse,
-} = require('./test-utils');
+  fs
+} from './test-utils.js';
 
-const {
+import {
   createMarkdownRenderer,
   fileExists,
   fileMissing,
@@ -21,7 +22,7 @@ const {
   extractBodyFromMarkdown,
   renderSnippet,
   configureFileUtils,
-} = require('../src/_lib/file-utils');
+} from '../src/_lib/file-utils.js';
 
 const testCases = [
   {
@@ -176,7 +177,7 @@ title: Test
 World`;
       
       try {
-        const fs = require('fs');
+        // fs already imported from test-utils
         fs.writeFileSync(snippetsDir + '/test.md', content);
         
         const result = await renderSnippet('test', 'default', tempDir);
@@ -206,7 +207,7 @@ World`;
       const content = '# Hello\n\nWorld';
       
       try {
-        const fs = require('fs');
+        // fs already imported from test-utils
         fs.writeFileSync(snippetsDir + '/test.md', content);
         
         const customRenderer = createMarkdownRenderer({ html: false });
@@ -227,7 +228,7 @@ World`;
       
       expectFunctionType(mockConfig.filters, 'file_exists', "Should add file_exists filter");
       expectFunctionType(mockConfig.filters, 'file_missing', "Should add file_missing filter");
-      expectFunctionType(mockConfig.shortcodes, 'render_snippet', "Should add render_snippet shortcode");
+      expectFunctionType(mockConfig.asyncShortcodes, 'render_snippet', "Should add render_snippet async shortcode");
       expectFunctionType(mockConfig.shortcodes, 'read_file', "Should add read_file shortcode");
     }
   },
@@ -259,7 +260,7 @@ World`;
           const readResult = mockConfig.shortcodes.read_file('test.txt');
           expectStrictEqual(readResult, content, "read_file shortcode should work");
           
-          const snippetResult = await mockConfig.shortcodes.render_snippet('nonexistent', 'default');
+          const snippetResult = await mockConfig.asyncShortcodes.render_snippet('nonexistent', 'default');
           expectStrictEqual(snippetResult, 'default', "render_snippet shortcode should work");
         });
       });
@@ -284,4 +285,4 @@ World`;
   }
 ];
 
-module.exports = createTestRunner('file-utils', testCases);
+export default createTestRunner('file-utils', testCases);

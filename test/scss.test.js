@@ -1,4 +1,4 @@
-const {
+import {
   createMockEleventyConfig,
   createTestRunner,
   expectStrictEqual,
@@ -6,13 +6,13 @@ const {
   expectArrayLength,
   expectTrue,
   expectFalse,
-} = require('./test-utils');
+} from './test-utils.js';
 
-const {
+import {
   createScssCompiler,
   compileScss,
   configureScss,
-} = require('../src/_lib/scss');
+} from '../src/_lib/scss.js';
 
 const testCases = [
   {
@@ -184,4 +184,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('scss', testCases);
+export default createTestRunner('scss', testCases);

@@ -1,13 +1,13 @@
-const assert = require('assert');
-const { createTestRunner } = require('./test-utils');
+import assert from 'assert';
+import { createTestRunner } from './test-utils.js';
 
-const {
+import {
   findImageFiles,
   createImagesCollection,
   copyImageCache,
   createImageTransform,
   configureImages,
-} = require('../src/_lib/image');
+} from '../src/_lib/image.js';
 
 const mockEleventyConfig = {
   addAsyncShortcode: function(name, fn) {
@@ -224,4 +224,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('image', testCases);
+export default createTestRunner('image', testCases);

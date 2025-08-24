@@ -1,8 +1,8 @@
-const { createTestRunner } = require('./test-utils');
-const {
+import { createTestRunner } from './test-utils.js';
+import {
   createPrettierTransform,
   configurePrettier,
-} = require('../src/_lib/prettier');
+} from '../src/_lib/prettier.js';
 
 const testCases = [
   {
@@ -163,4 +163,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('prettier', testCases);
+export default createTestRunner('prettier', testCases);

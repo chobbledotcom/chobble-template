@@ -1,16 +1,16 @@
-const {
+import {
   createMockEleventyConfig,
   createTestRunner,
   expectStrictEqual,
   expectDeepEqual,
   expectFunctionType,
   expectArrayLength,
-} = require('./test-utils');
+} from './test-utils.js';
 
-const {
+import {
   extractTags,
   configureTags,
-} = require('../src/_lib/tags');
+} from '../src/_lib/tags.js';
 
 const testCases = [
   {
@@ -323,4 +323,4 @@ const testCases = [
   }
 ];
 
-module.exports = createTestRunner('tags', testCases);
+export default createTestRunner('tags', testCases);
