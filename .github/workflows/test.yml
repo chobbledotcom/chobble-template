@@ -32,4 +32,4 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: ./bin/test
+        run: ./bin/test_js
