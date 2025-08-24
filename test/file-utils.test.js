@@ -166,7 +166,7 @@ Content with malformed frontmatter`;
   {
     name: 'renderSnippet-exists',
     description: 'Renders existing snippet file',
-    test: () => {
+    test: async () => {
       const { tempDir, snippetsDir } = createTempSnippetsDir('renderSnippet');
       const content = `---
 title: Test
@@ -179,7 +179,7 @@ World`;
         const fs = require('fs');
         fs.writeFileSync(snippetsDir + '/test.md', content);
         
-        const result = renderSnippet('test', 'default', tempDir);
+        const result = await renderSnippet('test', 'default', tempDir);
         expectTrue(result.includes('<h1>'), "Should render markdown to HTML");
         expectTrue(result.includes('Hello'), "Should include content");
         expectFalse(result.includes('title: Test'), "Should not include frontmatter");
@@ -191,9 +191,9 @@ World`;
   {
     name: 'renderSnippet-missing',
     description: 'Returns default string for missing snippet',
-    test: () => {
-      withTempDir('renderSnippet-missing', (tempDir) => {
-        const result = renderSnippet('nonexistent', 'Default content', tempDir);
+    test: async () => {
+      withTempDir('renderSnippet-missing', async (tempDir) => {
+        const result = await renderSnippet('nonexistent', 'Default content', tempDir);
         expectStrictEqual(result, 'Default content', "Should return default string for missing snippet");
       });
     }
@@ -201,7 +201,7 @@ World`;
   {
     name: 'renderSnippet-custom-renderer',
     description: 'Uses custom markdown renderer',
-    test: () => {
+    test: async () => {
       const { tempDir, snippetsDir } = createTempSnippetsDir('renderSnippet-custom');
       const content = '# Hello\n\nWorld';
       
@@ -210,7 +210,7 @@ World`;
         fs.writeFileSync(snippetsDir + '/test.md', content);
         
         const customRenderer = createMarkdownRenderer({ html: false });
-        const result = renderSnippet('test', 'default', tempDir, customRenderer);
+        const result = await renderSnippet('test', 'default', tempDir, customRenderer);
         expectTrue(result.includes('<h1>'), "Should render with custom renderer");
       } finally {
         cleanupTempDir(tempDir);
@@ -248,18 +248,18 @@ World`;
   {
     name: 'configureFileUtils-shortcodes-work',
     description: 'Configured shortcodes work correctly',
-    test: () => {
+    test: async () => {
       const content = 'Test content';
       
-      withTempFile('shortcodes', 'test.txt', content, (tempDir) => {
+      withTempFile('shortcodes', 'test.txt', content, async (tempDir) => {
         const mockConfig = createMockEleventyConfig();
         configureFileUtils(mockConfig);
         
-        withMockedCwd(tempDir, () => {
+        await withMockedCwd(tempDir, async () => {
           const readResult = mockConfig.shortcodes.read_file('test.txt');
           expectStrictEqual(readResult, content, "read_file shortcode should work");
           
-          const snippetResult = mockConfig.shortcodes.render_snippet('nonexistent', 'default');
+          const snippetResult = await mockConfig.shortcodes.render_snippet('nonexistent', 'default');
           expectStrictEqual(snippetResult, 'default', "render_snippet shortcode should work");
         });
       });

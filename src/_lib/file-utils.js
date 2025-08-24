@@ -28,7 +28,7 @@ const extractBodyFromMarkdown = (content) => {
 		: content;
 };
 
-const renderSnippet = (
+const renderSnippet = async (
 	name,
 	defaultString = "",
 	baseDir = process.cwd(),
@@ -43,12 +43,12 @@ const renderSnippet = (
 
 	// Preprocess liquid shortcodes
 	if (bodyContent.includes("{% opening_times %}")) {
-		const openingHtml = getOpeningTimesHtml();
+		const openingHtml = await getOpeningTimesHtml();
 		bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
 	}
 	
 	if (bodyContent.includes("{% recurring_events %}")) {
-		const recurringHtml = getRecurringEventsHtml();
+		const recurringHtml = await getRecurringEventsHtml();
 		bodyContent = bodyContent.replace("{% recurring_events %}", recurringHtml);
 	}
 
@@ -62,8 +62,8 @@ const configureFileUtils = (eleventyConfig) => {
 
 	eleventyConfig.addFilter("file_missing", (name) => fileMissing(name));
 
-	eleventyConfig.addShortcode("render_snippet", (name, defaultString) =>
-		renderSnippet(name, defaultString, process.cwd(), mdRenderer),
+	eleventyConfig.addAsyncShortcode("render_snippet", async (name, defaultString) =>
+		await renderSnippet(name, defaultString, process.cwd(), mdRenderer),
 	);
 
 	eleventyConfig.addShortcode("read_file", (relativePath) =>
