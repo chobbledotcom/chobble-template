@@ -1,7 +1,17 @@
-import { buildBaseMeta } from '../_lib/schema-helper.mjs';
+import { buildBaseMeta } from "../_lib/schema-helper.mjs";
+import strings from "../_data/strings.js";
 
 export default {
-  eleventyComputed: {
-    meta: data => buildBaseMeta(data)
-  }
+	eleventyComputed: {
+		navigationParent: () => strings.product_name,
+		eleventyNavigation: (data) => {
+			if (data.parent != null) return false;
+			return {
+				key: data.title,
+				parent: strings.product_name,
+				order: data.link_order || 0,
+			};
+		},
+		meta: (data) => buildBaseMeta(data),
+	},
 };
