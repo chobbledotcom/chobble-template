@@ -1,6 +1,7 @@
 import { configureCategories } from "./src/_lib/categories.js";
 import { configureFeed } from "./src/_lib/feed.js";
 import { configureFileUtils } from "./src/_lib/file-utils.js";
+import { configureICal } from "./src/_lib/ical.mjs";
 import { configureImages } from "./src/_lib/image.js";
 import { configureLayoutAliases } from "./src/_lib/layout-aliases.mjs";
 import { configureMenus } from "./src/_lib/menus.js";
@@ -30,6 +31,7 @@ export default async function (eleventyConfig) {
 	configureCategories(eleventyConfig);
 	await configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
+	configureICal(eleventyConfig);
 	configureImages(eleventyConfig);
 	configureMenus(eleventyConfig);
 	await configureNavigation(eleventyConfig);
