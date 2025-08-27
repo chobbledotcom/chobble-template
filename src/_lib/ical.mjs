@@ -1,5 +1,6 @@
 import ical from 'ical-generator';
 import site from '../_data/site.json' with { type: 'json' };
+import config from '../_data/config.json' with { type: 'json' };
 
 export function generateICalForEvent(event) {
   // Only generate iCal for one-off events (not recurring)
@@ -8,10 +9,11 @@ export function generateICalForEvent(event) {
   }
 
   const siteName = site.name;
+  const timezone = config.timezone || 'Europe/London';
   const calendar = ical({
     prodId: `//${siteName}//Event Calendar//EN`,
     name: siteName,
-    timezone: 'UTC'
+    timezone: timezone
   });
 
   const eventDate = new Date(event.data.event_date);
