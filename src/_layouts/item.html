@@ -10,7 +10,7 @@ layout: base
     <h2>{{ subtitle }}</h2>
   {%- endif -%}
   
-  {%- if event_date or event_location -%}
+  {%- if event_date or recurring_date or event_location -%}
     <ul>
       {%- if event_date -%}
         <li>
@@ -20,12 +20,25 @@ layout: base
           </em>
         </li>
       {%- endif -%}
+      {%- if recurring_date -%}
+        <li>
+          <em>
+            Schedule:
+            <strong>{{ recurring_date }}</strong>
+          </em>
+        </li>
+      {%- endif -%}
       {%- if event_location -%}
         <li>
           <em>
             Location:
             <strong>{{ event_location }}</strong>
           </em>
+        </li>
+      {%- endif -%}
+      {%- if event_date and recurring_date == nil -%}
+        <li>
+          <a href="{{ page.url | replace: '/index.html', '' }}.ics" download>📅 Download to Calendar (.ics)</a>
         </li>
       {%- endif -%}
     </ul>

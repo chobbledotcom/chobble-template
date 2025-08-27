@@ -1,0 +1,9 @@
+---
+pagination:
+  data: collections.oneOffEvents
+  size: 1
+  alias: event
+eleventyExcludeFromCollections: true
+permalink: "/events/{{ event.page.fileSlug }}.ics"
+---
+{{ event | generateICal }}
