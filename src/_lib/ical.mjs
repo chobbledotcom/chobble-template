@@ -1,18 +1,16 @@
 import ical from 'ical-generator';
-import path from 'path';
-import strings from '../_data/strings.js';
 import site from '../_data/site.json' with { type: 'json' };
 
 export function generateICalForEvent(event) {
   // Only generate iCal for one-off events (not recurring)
-  if (!event.data.event_date || event.data.recurring_date) {
+  if (!event.data.ical_url) {
     return null;
   }
 
-  const siteName = site.name || 'Event Calendar';
+  const siteName = site.name;
   const calendar = ical({
     prodId: `//${siteName}//Event Calendar//EN`,
-    name: strings.business_name || 'Events',
+    name: siteName,
     timezone: 'UTC'
   });
 
@@ -28,7 +26,7 @@ export function generateICalForEvent(event) {
     summary: event.data.title,
     description: event.data.subtitle || event.data.meta_description || '',
     location: event.data.event_location || '',
-    url: `${site.url || strings.domain}${event.url}`
+    url: `${site.url}${event.url}`
   });
 
   return calendar.toString();

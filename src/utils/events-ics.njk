@@ -1,9 +1,20 @@
----
-pagination:
-  data: collections.oneOffEvents
-  size: 1
-  alias: event
-eleventyExcludeFromCollections: true
-permalink: "/events/{{ event.page.fileSlug }}.ics"
+---js
+{
+  pagination: {
+    data: "collections.oneOffEvents",
+    size: 1,
+    alias: "event"
+  },
+  eleventyExcludeFromCollections: true,
+  eleventyComputed: {
+    permalink: (data) => {
+      if (data.event) {
+        // Use the ical_url from the event data which already has the correct path
+        return data.event.data.ical_url;
+      }
+      return false;
+    }
+  }
+}
 ---
 {{ event | generateICal }}

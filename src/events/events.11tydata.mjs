@@ -7,13 +7,13 @@ export default {
     meta: data => buildBaseMeta(data),
     navigationParent: () => strings.event_name,
     permalink: (data) => {
-      const dir = strings.event_permalink_dir || "events";
+      const dir = strings.event_permalink_dir;
       return `/${dir}/${data.page.fileSlug}/`;
     },
     ical_url: (data) => {
       // Only provide iCal URL for one-off events
       if (data.event_date && !data.recurring_date) {
-        const dir = strings.event_permalink_dir || "events";
+        const dir = strings.event_permalink_dir;
         return `/${dir}/${data.page.fileSlug}.ics`;
       }
       return null;
