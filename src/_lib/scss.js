@@ -21,24 +21,8 @@ const createScssCompiler = (inputContent, inputPath) => {
 			}
 		}
 		
-		// Handle theme-switcher-compiled.scss
-		if (inputPath.endsWith("theme-switcher-compiled.scss")) {
-			inputContent = generateThemeSwitcherContent();
-		}
-		
-		// Handle theme-switcher.scss - inject compiled themes
-		if (inputPath.endsWith("theme-switcher.scss")) {
-			const compiledThemes = generateThemeSwitcherContent();
-			// Replace the @use statement with the actual compiled content
-			inputContent = inputContent.replace(
-				"@use 'theme-switcher-compiled';",
-				compiledThemes
-			);
-		}
-		
-		// Also handle when theme-switcher is imported/used in bundle.scss
-		if (inputPath.endsWith("bundle.scss") && inputContent.includes('@use "theme-switcher"')) {
-			// We need to append the compiled themes after processing
+		// Inject compiled themes into bundle.scss
+		if (inputPath.endsWith("bundle.scss")) {
 			const compiledThemes = generateThemeSwitcherContent();
 			inputContent = inputContent + "\n\n" + compiledThemes;
 		}

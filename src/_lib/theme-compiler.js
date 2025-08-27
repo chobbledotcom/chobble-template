@@ -50,22 +50,25 @@ const generateThemeSwitcherContent = () => {
 
 `;
   
-  // Generate theme CSS rules
-  themes.forEach((theme, index) => {
+  // Generate theme CSS rules using theme names as identifiers
+  themes.forEach((theme) => {
     const variables = extractRootVariables(theme.content);
-    // Use index + 1 since we want to start from 1 (0 is reserved for default theme)
-    output += `html[data-theme="${index + 1}"] {${variables}}\n\n`;
+    output += `html[data-theme="${theme.name}"] {${variables}}\n\n`;
   });
   
-  // Generate theme metadata as CSS custom properties
+  // Generate theme list as CSS custom property for JavaScript access
   output += `// Theme metadata for JavaScript access\n`;
   output += `:root {\n`;
-  output += `  --theme-count: ${themes.length + 1};\n`; // +1 for default theme
-  output += `  --theme-0-name: "Default";\n`;
   
-  themes.forEach((theme, index) => {
+  // Create a list of all available themes (including default)
+  const themeList = ['default', ...themes.map(t => t.name)];
+  output += `  --theme-list: "${themeList.join(',')}";\n`;
+  
+  // Also include display names
+  output += `  --theme-default-name: "Default";\n`;
+  themes.forEach((theme) => {
     const displayName = toDisplayName(theme.name);
-    output += `  --theme-${index + 1}-name: "${displayName}";\n`;
+    output += `  --theme-${theme.name}-name: "${displayName}";\n`;
   });
   
   output += `}\n`;

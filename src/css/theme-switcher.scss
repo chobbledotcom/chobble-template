@@ -1,8 +1,5 @@
-// Import compiled theme definitions
-// The theme-switcher-compiled.scss file is automatically generated during build
-// from the individual theme-*.scss files, wrapping each theme's :root variables
-// with the appropriate html[data-theme="N"] selector
-@use 'theme-switcher-compiled';
+// Theme switcher button styles
+// Theme definitions are automatically injected into bundle.scss during build
 
 #theme-switcher-button {
   position: fixed;
@@ -41,5 +38,3 @@
     font-size: 20px;
   }
 }
-
-// Theme metadata is auto-generated in theme-switcher-compiled.scss

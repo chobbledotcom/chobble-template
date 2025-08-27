@@ -3,33 +3,39 @@
     return window.location.pathname.includes('/theme-editor/');
   }
 
-  function getThemeCount() {
+  function getThemeList() {
     const computed = getComputedStyle(document.documentElement);
-    return parseInt(computed.getPropertyValue('--theme-count').trim(), 10) || 6;
+    const themeListStr = computed.getPropertyValue('--theme-list').trim();
+    if (themeListStr) {
+      // Remove quotes and split by comma
+      return themeListStr.replace(/['"]/g, '').split(',');
+    }
+    // Fallback to a default list if CSS variable not found
+    return ['default'];
   }
 
-  function getThemeName(themeId) {
+  function getThemeDisplayName(themeName) {
     const computed = getComputedStyle(document.documentElement);
-    const name = computed.getPropertyValue(`--theme-${themeId}-name`).trim();
-    return name ? name.replace(/['"]/g, '') : `Theme ${themeId}`;
+    const displayName = computed.getPropertyValue(`--theme-${themeName}-name`).trim();
+    return displayName ? displayName.replace(/['"]/g, '') : themeName;
   }
 
-  function getCurrentThemeId() {
-    const stored = localStorage.getItem('theme_id');
-    return stored ? parseInt(stored, 10) : 0;
+  function getCurrentTheme() {
+    const stored = localStorage.getItem('theme_name');
+    return stored || 'default';
   }
 
-  function setThemeId(id) {
-    localStorage.setItem('theme_id', id.toString());
+  function setCurrentTheme(themeName) {
+    localStorage.setItem('theme_name', themeName);
   }
 
   const themeFonts = {
-    2: 'princess-sofia:400',  // Floral
-    3: 'share-tech-mono:400', // Hacker
-    5: 'orbitron:600'         // Neon
+    'floral': 'princess-sofia:400',
+    'hacker': 'share-tech-mono:400',
+    'neon': 'orbitron:600'
   };
 
-  function loadFontForTheme(themeId) {
+  function loadFontForTheme(themeName) {
     const fontLinkId = 'theme-font-link';
     let fontLink = document.getElementById(fontLinkId);
     
@@ -39,38 +45,41 @@
     }
     
     // Add font link if theme has a custom font
-    if (themeFonts[themeId]) {
+    if (themeFonts[themeName]) {
       fontLink = document.createElement('link');
       fontLink.id = fontLinkId;
       fontLink.rel = 'stylesheet';
-      fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeId]}`;
+      fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeName]}`;
       document.head.appendChild(fontLink);
     }
   }
 
-  function applyTheme(themeId) {
-    if (themeId === 0) {
+  function applyTheme(themeName) {
+    if (themeName === 'default') {
       document.documentElement.removeAttribute('data-theme');
     } else {
-      document.documentElement.setAttribute('data-theme', themeId.toString());
+      document.documentElement.setAttribute('data-theme', themeName);
     }
-    loadFontForTheme(themeId);
+    loadFontForTheme(themeName);
   }
 
   function cycleTheme() {
-    const themeCount = getThemeCount();
-    const currentId = getCurrentThemeId();
-    const nextId = currentId >= themeCount - 1 ? 0 : currentId + 1;
-    setThemeId(nextId);
-    applyTheme(nextId);
-    updateButtonText(nextId);
+    const themes = getThemeList();
+    const currentTheme = getCurrentTheme();
+    const currentIndex = themes.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    const nextTheme = themes[nextIndex];
+    
+    setCurrentTheme(nextTheme);
+    applyTheme(nextTheme);
+    updateButtonText(nextTheme);
   }
 
-  function updateButtonText(themeId) {
+  function updateButtonText(themeName) {
     const button = document.getElementById('theme-switcher-button');
     if (button) {
-      const themeName = getThemeName(themeId);
-      button.setAttribute('aria-label', `Current theme: ${themeName}. Click to switch theme`);
+      const displayName = getThemeDisplayName(themeName);
+      button.setAttribute('aria-label', `Current theme: ${displayName}. Click to switch theme`);
     }
   }
 
@@ -81,14 +90,14 @@
     if (isThemeEditorPage()) {
       // Hide button and reset theme on theme-editor page
       button.style.display = 'none';
-      setThemeId(0);
-      applyTheme(0);
+      setCurrentTheme('default');
+      applyTheme('default');
     } else {
       // Show button on other pages
       button.style.display = '';
-      const currentThemeId = getCurrentThemeId();
-      applyTheme(currentThemeId);
-      updateButtonText(currentThemeId);
+      const currentTheme = getCurrentTheme();
+      applyTheme(currentTheme);
+      updateButtonText(currentTheme);
     }
   }
 
@@ -100,6 +109,32 @@
       button.addEventListener('click', cycleTheme);
     }
   }
+
+  // Migrate old integer-based theme storage to new name-based system
+  function migrateOldThemeStorage() {
+    const oldThemeId = localStorage.getItem('theme_id');
+    if (oldThemeId !== null) {
+      // Map old IDs to new theme names based on old alphabetical order
+      const oldMapping = {
+        '0': 'default',
+        '1': '90s-computer',
+        '2': 'floral',
+        '3': 'hacker',
+        '4': 'monochrome',
+        '5': 'neon',
+        '6': 'ocean',
+        '7': 'old-mac',
+        '8': 'rainbow',
+        '9': 'sunset'
+      };
+      const newThemeName = oldMapping[oldThemeId] || 'default';
+      setCurrentTheme(newThemeName);
+      localStorage.removeItem('theme_id'); // Clean up old storage
+    }
+  }
+
+  // Run migration on load
+  migrateOldThemeStorage();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initThemeSwitcher);
