@@ -8,6 +8,7 @@ const createScssCompiler = (inputContent, inputPath) => {
 
 	return function (data) {
 		if (inputPath.endsWith("bundle.scss")) {
+			// Add dynamic imports for SCSS files
 			const scssFiles = getScssFiles();
 			const dynamicImports = scssFiles
 				.filter((file) => !inputContent.includes(`@use "${file}";`))
@@ -19,10 +20,8 @@ const createScssCompiler = (inputContent, inputPath) => {
 					`${dynamicImports}\n@use "theme";`,
 				);
 			}
-		}
-		
-		// Inject compiled themes into bundle.scss
-		if (inputPath.endsWith("bundle.scss")) {
+			
+			// Inject compiled themes
 			const compiledThemes = generateThemeSwitcherContent();
 			inputContent = inputContent + "\n\n" + compiledThemes;
 		}
