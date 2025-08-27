@@ -76,28 +76,6 @@ const generateThemeSwitcherContent = () => {
   return output;
 };
 
-// Configure the theme compiler for Eleventy
-const configureThemeCompiler = (eleventyConfig) => {
-  // Add a filter to get theme data for use in templates
-  eleventyConfig.addFilter("getThemes", () => {
-    const themes = getThemeFiles(); // Already sorted alphabetically
-    
-    return themes.map((theme, index) => ({
-      ...theme,
-      index: index + 1, // Start from 1 (0 is reserved for default theme)
-      displayName: toDisplayName(theme.name)
-    }));
-  });
-  
-  // Add shortcode to inject compiled themes
-  eleventyConfig.addShortcode("compiledThemes", () => {
-    return generateThemeSwitcherContent();
-  });
-  
-  // Add a filter to get theme count
-  eleventyConfig.addFilter("getThemeCount", () => {
-    return getThemeFiles().length + 1; // +1 for the default theme
-  });
-};
-
-export { configureThemeCompiler, generateThemeSwitcherContent };
+// We only export generateThemeSwitcherContent now since it's the only function
+// that's actually used (by scss.js to inject themes into bundle.scss)
+export { generateThemeSwitcherContent };

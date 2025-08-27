@@ -12,7 +12,6 @@ import { configureProducts } from "./src/_lib/products.js";
 import { configureScss } from "./src/_lib/scss.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
 import { configureTags } from "./src/_lib/tags.js";
-import { configureThemeCompiler } from "./src/_lib/theme-compiler.js";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
 export default async function (eleventyConfig) {
@@ -41,7 +40,6 @@ export default async function (eleventyConfig) {
 	configureScss(eleventyConfig);
 	configureScssFiles(eleventyConfig);
 	configureTags(eleventyConfig);
-	configureThemeCompiler(eleventyConfig);
 
 	return {
 		dir: {
