@@ -1,6 +1,7 @@
 import sass from "sass";
 import path from "path";
 import { getScssFiles } from "./scss-files.js";
+import { generateThemeSwitcherContent } from "./theme-compiler.js";
 
 const createScssCompiler = (inputContent, inputPath) => {
 	const dir = path.dirname(inputPath);
@@ -18,6 +19,11 @@ const createScssCompiler = (inputContent, inputPath) => {
 					`${dynamicImports}\n@use "theme";`,
 				);
 			}
+		}
+		
+		// Handle theme-switcher-compiled.scss
+		if (inputPath.endsWith("theme-switcher-compiled.scss")) {
+			inputContent = generateThemeSwitcherContent();
 		}
 
 		return sass.compileString(inputContent, {

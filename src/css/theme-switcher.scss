@@ -1,3 +1,9 @@
+// Import compiled theme definitions
+// The theme-switcher-compiled.scss file is automatically generated during build
+// from the individual theme-*.scss files, wrapping each theme's :root variables
+// with the appropriate html[data-theme="N"] selector
+@use 'theme-switcher-compiled';
+
 #theme-switcher-button {
   position: fixed;
   bottom: 20px;
@@ -35,17 +41,6 @@
     font-size: 20px;
   }
 }
-
-// Import individual theme files
-@import 'theme-neon';
-@import 'theme-ocean';
-@import 'theme-old-mac';
-@import 'theme-sunset';
-@import 'theme-monochrome';
-@import 'theme-hacker';
-@import 'theme-floral';
-@import 'theme-90s-computer';
-@import 'theme-rainbow';
 
 // Store theme metadata as CSS custom properties for JS to read
 :root {
