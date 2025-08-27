@@ -110,32 +110,6 @@
     }
   }
 
-  // Migrate old integer-based theme storage to new name-based system
-  function migrateOldThemeStorage() {
-    const oldThemeId = localStorage.getItem('theme_id');
-    if (oldThemeId !== null) {
-      // Map old IDs to new theme names based on old alphabetical order
-      const oldMapping = {
-        '0': 'default',
-        '1': '90s-computer',
-        '2': 'floral',
-        '3': 'hacker',
-        '4': 'monochrome',
-        '5': 'neon',
-        '6': 'ocean',
-        '7': 'old-mac',
-        '8': 'rainbow',
-        '9': 'sunset'
-      };
-      const newThemeName = oldMapping[oldThemeId] || 'default';
-      setCurrentTheme(newThemeName);
-      localStorage.removeItem('theme_id'); // Clean up old storage
-    }
-  }
-
-  // Run migration on load
-  migrateOldThemeStorage();
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initThemeSwitcher);
   } else {
