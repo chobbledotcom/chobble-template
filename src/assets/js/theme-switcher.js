@@ -24,9 +24,9 @@
   }
 
   const themeFonts = {
-    1: 'orbitron:600',
-    6: 'share-tech-mono:400',
-    7: 'princess-sofia:400'
+    2: 'princess-sofia:400',  // Floral
+    3: 'share-tech-mono:400', // Hacker
+    5: 'orbitron:600'         // Neon
   };
 
   function loadFontForTheme(themeId) {

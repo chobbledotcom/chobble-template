@@ -42,17 +42,4 @@
   }
 }
 
-// Store theme metadata as CSS custom properties for JS to read
-:root {
-  --theme-count: 10;
-  --theme-0-name: "Default";
-  --theme-1-name: "Neon";
-  --theme-2-name: "Ocean";
-  --theme-3-name: "Old Mac";
-  --theme-4-name: "Sunset";
-  --theme-5-name: "Monochrome";
-  --theme-6-name: "Hacker";
-  --theme-7-name: "Floral";
-  --theme-8-name: "90s Computer";
-  --theme-9-name: "Rainbow";
-}
+// Theme metadata is auto-generated in theme-switcher-compiled.scss

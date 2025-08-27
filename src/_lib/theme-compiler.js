@@ -11,12 +11,13 @@ const getThemeFiles = () => {
   const files = fs.readdirSync(themesDir);
   
   const themes = files
-    .filter(file => file.startsWith("theme-") && file !== "theme-switcher.scss" && file.endsWith(".scss"))
+    .filter(file => file.startsWith("theme-") && file !== "theme-switcher.scss" && file !== "theme-switcher-compiled.scss" && file.endsWith(".scss"))
     .map(file => {
       const name = file.replace("theme-", "").replace(".scss", "");
       const content = fs.readFileSync(path.join(themesDir, file), "utf8");
       return { name, file, content };
-    });
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
   
   return themes;
 };
@@ -31,22 +32,17 @@ const extractRootVariables = (content) => {
   return rootMatch[1];
 };
 
+// Convert theme name to display name (e.g., "90s-computer" -> "90s Computer")
+const toDisplayName = (name) => {
+  return name
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 // Generate compiled theme CSS for theme-switcher
 const generateThemeSwitcherContent = () => {
-  const themes = getThemeFiles();
-  
-  // Map theme names to their index
-  const themeMapping = {
-    "neon": 1,
-    "ocean": 2,
-    "old-mac": 3,
-    "sunset": 4,
-    "monochrome": 5,
-    "hacker": 6,
-    "floral": 7,
-    "90s-computer": 8,
-    "rainbow": 9
-  };
+  const themes = getThemeFiles(); // Already sorted alphabetically
   
   let output = `// Auto-generated theme definitions for theme switcher
 // Generated from individual theme-*.scss files
@@ -54,13 +50,25 @@ const generateThemeSwitcherContent = () => {
 
 `;
   
-  themes.forEach(theme => {
-    const index = themeMapping[theme.name];
-    if (index) {
-      const variables = extractRootVariables(theme.content);
-      output += `html[data-theme="${index}"] {${variables}}\n\n`;
-    }
+  // Generate theme CSS rules
+  themes.forEach((theme, index) => {
+    const variables = extractRootVariables(theme.content);
+    // Use index + 1 since we want to start from 1 (0 is reserved for default theme)
+    output += `html[data-theme="${index + 1}"] {${variables}}\n\n`;
   });
+  
+  // Generate theme metadata as CSS custom properties
+  output += `// Theme metadata for JavaScript access\n`;
+  output += `:root {\n`;
+  output += `  --theme-count: ${themes.length + 1};\n`; // +1 for default theme
+  output += `  --theme-0-name: "Default";\n`;
+  
+  themes.forEach((theme, index) => {
+    const displayName = toDisplayName(theme.name);
+    output += `  --theme-${index + 1}-name: "${displayName}";\n`;
+  });
+  
+  output += `}\n`;
   
   return output;
 };
@@ -69,28 +77,23 @@ const generateThemeSwitcherContent = () => {
 const configureThemeCompiler = (eleventyConfig) => {
   // Add a filter to get theme data for use in templates
   eleventyConfig.addFilter("getThemes", () => {
-    const themes = getThemeFiles();
-    const themeMapping = {
-      "neon": { index: 1, displayName: "Neon" },
-      "ocean": { index: 2, displayName: "Ocean" },
-      "old-mac": { index: 3, displayName: "Old Mac" },
-      "sunset": { index: 4, displayName: "Sunset" },
-      "monochrome": { index: 5, displayName: "Monochrome" },
-      "hacker": { index: 6, displayName: "Hacker" },
-      "floral": { index: 7, displayName: "Floral" },
-      "90s-computer": { index: 8, displayName: "90s Computer" },
-      "rainbow": { index: 9, displayName: "Rainbow" }
-    };
+    const themes = getThemeFiles(); // Already sorted alphabetically
     
-    return themes.map(theme => ({
+    return themes.map((theme, index) => ({
       ...theme,
-      ...themeMapping[theme.name]
-    })).filter(t => t.index);
+      index: index + 1, // Start from 1 (0 is reserved for default theme)
+      displayName: toDisplayName(theme.name)
+    }));
   });
   
   // Add shortcode to inject compiled themes
   eleventyConfig.addShortcode("compiledThemes", () => {
     return generateThemeSwitcherContent();
+  });
+  
+  // Add a filter to get theme count
+  eleventyConfig.addFilter("getThemeCount", () => {
+    return getThemeFiles().length + 1; // +1 for the default theme
   });
 };
 
