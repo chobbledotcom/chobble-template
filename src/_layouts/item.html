@@ -38,7 +38,7 @@ layout: base
       {%- endif -%}
       {%- if event_date and recurring_date == nil -%}
         <li>
-          <a href="{{ page.url | replace: '/index.html', '' }}.ics" download>📅 Download to Calendar (.ics)</a>
+          <a href="{{ page.url | replace: '/index.html', '' | replace: '/$', '' }}.ics" download>📅 Download to Calendar (.ics)</a>
         </li>
       {%- endif -%}
     </ul>

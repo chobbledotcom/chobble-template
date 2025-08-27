@@ -1,6 +1,7 @@
 import ical from 'ical-generator';
 import path from 'path';
 import strings from '../_data/strings.js';
+import site from '../_data/site.json' with { type: 'json' };
 
 export function generateICalForEvent(event) {
   // Only generate iCal for one-off events (not recurring)
@@ -8,30 +9,26 @@ export function generateICalForEvent(event) {
     return null;
   }
 
+  const siteName = site.name || 'Event Calendar';
   const calendar = ical({
-    prodId: '//Terragon Labs//Event Calendar//EN',
+    prodId: `//${siteName}//Event Calendar//EN`,
     name: strings.business_name || 'Events',
     timezone: 'UTC'
   });
 
   const eventDate = new Date(event.data.event_date);
   
-  // Create a full day event
+  // Create a full day event without end date (single day event)
   const startDate = new Date(eventDate);
   startDate.setHours(0, 0, 0, 0);
-  
-  const endDate = new Date(eventDate);
-  endDate.setDate(endDate.getDate() + 1);
-  endDate.setHours(0, 0, 0, 0);
 
   const calendarEvent = calendar.createEvent({
     start: startDate,
-    end: endDate,
     allDay: true,
     summary: event.data.title,
     description: event.data.subtitle || event.data.meta_description || '',
     location: event.data.event_location || '',
-    url: event.url ? `${strings.domain || ''}${event.url}` : undefined
+    url: `${site.url || strings.domain}${event.url}`
   });
 
   return calendar.toString();
