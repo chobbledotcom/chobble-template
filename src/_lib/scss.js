@@ -1,12 +1,14 @@
 import sass from "sass";
 import path from "path";
 import { getScssFiles } from "./scss-files.js";
+import { generateThemeSwitcherContent } from "./theme-compiler.js";
 
 const createScssCompiler = (inputContent, inputPath) => {
 	const dir = path.dirname(inputPath);
 
 	return function (data) {
 		if (inputPath.endsWith("bundle.scss")) {
+			// Add dynamic imports for SCSS files
 			const scssFiles = getScssFiles();
 			const dynamicImports = scssFiles
 				.filter((file) => !inputContent.includes(`@use "${file}";`))
@@ -18,6 +20,10 @@ const createScssCompiler = (inputContent, inputPath) => {
 					`${dynamicImports}\n@use "theme";`,
 				);
 			}
+			
+			// Inject compiled themes
+			const compiledThemes = generateThemeSwitcherContent();
+			inputContent = inputContent + "\n\n" + compiledThemes;
 		}
 
 		return sass.compileString(inputContent, {
