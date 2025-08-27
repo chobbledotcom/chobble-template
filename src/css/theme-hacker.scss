@@ -1,0 +1,24 @@
+// Hacker Theme - Matrix/Hacker green on black
+html[data-theme="6"] {
+  // Colors - Matrix/Hacker green on black
+  --color-bg: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-text: #00ff00;
+  --color-link: #00ff00;
+  --header-text-color: #00ff00;
+  
+  // Borders - Blocky, no curves
+  --border: 2px solid #00ff00;
+  --border-radius: 0;
+  --box-shadow: 0 0 10px #00ff00;
+  --form-button-border: 2px solid #00ff00;
+  --form-button-hover-border: 2px solid #33ff33;
+  
+  // Fonts - Terminal/monospace feel
+  --font-family-heading: "Share Tech Mono", "Lucida Console", "Courier New", monospace;
+  --font-family-body: "Share Tech Mono", "Lucida Console", "Courier New", monospace;
+  --line-height: 1.2;
+  --link-decoration: none;
+  --link-decoration-hover: underline;
+  --link-decoration-style: solid;
+}
