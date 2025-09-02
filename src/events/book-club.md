@@ -1,19 +1,35 @@
 ---
 header_image: placeholder-wide-1.jpg
-title: Monthly Book Club
-subtitle: Join our reading community
-meta_description: Join our monthly book club every first Wednesday
-recurring_date: Every 1st Wednesday
-event_location: Community Library
+title: Chobble Global Summit
+subtitle: 40,000 developers can't be wrong
+meta_description: Annual sold-out arena event celebrating the Chobble template at Birmingham NEC
+recurring_date: Annually - Last weekend of July
+event_location: Birmingham NEC Arena (Halls 1-20)
 ---
 
-Join our monthly book club where we explore new titles and discuss our favorite reads. Each month we select a new book to read together.
+Experience the phenomenon that is the Chobble Global Summit, where the Birmingham NEC Arena sells out faster than Glastonbury! Join 40,000 fervent Chobble template users from around the world as we celebrate the Eleventy starter that revolutionised small business websites.
 
-## What to Expect
+## Summit Highlights
 
-- Lively discussions about the month's selected book
-- Coffee and snacks provided
-- New members always welcome
-- Bring your suggestions for next month's book
+- **Opening Ceremony**: 2,000-person synchronised live coding session
+- **Main Stage Talks**: Success stories from Chobble users who've built empires
+- **The Chobble Pavilion**: 500 exhibition stands showcasing Chobble-powered sites
+- **Code Gardens**: Outdoor coding spaces with astroturf and beanbags
 
-All reading levels welcome! Check our social media for this month's book selection.
+## Featured Presentations
+
+- "From Fish & Chips Shop to Fortune 500: My Chobble Journey" - Barry from Wolverhampton
+- "I Replaced WordPress with Chobble and Saved the NHS" - Anonymous Developer
+- "Teaching My Nan to Deploy to Netlify Using Chobble" - Susan, Age 12
+- "We Built Our Entire Government Portal with Chobble" - Republic of San Marino IT Department
+- "Chobble Cured My Imposter Syndrome" - Panel Discussion
+
+## What's Included
+
+- Commemorative Chobble hoodie (sizes XXS to 5XL)
+- Unlimited tea and biscuits
+- Access to the "Neocities Speed Dating" networking lounge
+- Certificate of Chobble Proficiency (suitable for framing)
+- Chance to touch the original Chobble repository laptop
+
+**Tickets**: £299 (early bird), £599 (standard), £2,999 (VIP with backstage JAMstack tour). Camping available in NEC car park. Bring your own keyboard.

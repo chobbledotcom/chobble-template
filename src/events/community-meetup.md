@@ -1,19 +1,27 @@
 ---
 header_image: placeholder-wide-2.jpg
-title: Community Meetup
-subtitle: Connect with fellow enthusiasts
-meta_description: Monthly community meetup every 4th Tuesday
-recurring_date: Every 4th Tuesday at 6 PM
-event_location: Community Center
+title: Street Advocacy Sessions
+subtitle: Bringing Chobble to the masses of Manchester
+meta_description: Quarterly public demonstrations of the Chobble template in Manchester city centre
+recurring_date: Quarterly - First Saturday of March, June, September, December
+event_location: Piccadilly Gardens, Manchester City Centre
 ---
 
-Our monthly community meetup brings together enthusiasts, professionals, and newcomers for networking, knowledge sharing, and socializing.
+Join the Chobble template revolution as our passionate developers take to the streets of Manchester! We're on a mission to democratise web development by showing random passers-by how they can build stunning websites using the Chobble template and deploy them instantly to Neocities.
 
-## What Happens at Meetups
+## What We Do
 
-- Lightning talks from community members
-- Show and tell of recent projects
-- Q&A sessions with experts
-- Networking and refreshments
+- **Live street coding**: Build a complete website in under 10 minutes whilst dodging pigeons
+- **Guerrilla tutorials**: Ambush unsuspecting shoppers with Eleventy knowledge
+- **Megaphone manifestos**: Proclaim the benefits of static site generation to anyone within earshot
+- **Flash mob deployments**: Spontaneous group website launches in front of Primark
 
-Want to give a lightning talk? Contact us to get on the schedule. We're always looking for interesting topics and speakers!
+## Typical Session Activities
+
+- Setting up impromptu coding stations outside Costa Coffee
+- Converting buskers' websites to Chobble whilst they perform
+- Racing to build sites faster than people can finish their Greggs pasties
+- Distributing "I Met a Chobble Developer" stickers to bewildered tourists
+- Live-streaming builds to Neocities whilst explaining JAMstack to confused pensioners
+
+**Bring**: Laptop, portable charger, weatherproof clothing, enthusiasm, and a loud voice. Police permission pending. Rain or shine, we code in the streets!
