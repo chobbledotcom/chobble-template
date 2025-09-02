@@ -26,10 +26,10 @@ Join the Chobble template revolution as our passionate developers take to the st
 
 ## Celebrity Testimonials
 
-**8 Ace** says: "I used Chobble to build the website for my artisanal craft beer range '8 Ace Ales'! Wizard prangs and top hole template - it handles my online orders faster than a Spitfire at full throttle, what!"
+**8 Ace** says: "I used Chobble to build a website for my craft beer business. It's quite good and works well."
 
-**Roger Mellie** enthuses: "Bollocks! This Chobble thing is the dog's bollocks! I knocked up my acting portfolio website after a heavy night at the Dog and Trumpet. Now casting directors can see all my work from 'Roger Mellie's Profanisaurus' to my Hamlet at the Fulchester Playhouse!"
+**Roger Mellie** enthuses: "The Chobble template helped me create my professional portfolio. Very useful for my acting career."
 
-**Billy the Fish** adds: "When I'm not scoring overhead kicks, I'm managing Fulchester United's website with Chobble. The whole team site - fixtures, results, player stats - all built in one afternoon! Even our goalkeeper Tommy Brown (who's got no hands) can update it!"
+**Billy the Fish** adds: "Our football team uses Chobble for the club website. It's easy to update match results and team information."
 
 **Bring**: Laptop, portable charger, weatherproof clothing, enthusiasm, and a loud voice. Police permission pending. Rain or shine, we code in the streets!
