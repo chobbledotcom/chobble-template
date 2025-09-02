@@ -2,12 +2,12 @@
 header_image: placeholder-wide-1.jpg
 title: Chobble Global Summit
 subtitle: 40,000 developers can't be wrong
-meta_description: Annual sold-out arena event celebrating the Chobble template at Birmingham NEC
+meta_description: Annual sold-out arena event celebrating the Chobble template at Fulchester Arena
 recurring_date: Annually - Last weekend of July
-event_location: Birmingham NEC Arena (Halls 1-20)
+event_location: Fulchester Arena (All Halls)
 ---
 
-Experience the phenomenon that is the Chobble Global Summit, where the Birmingham NEC Arena sells out faster than Glastonbury! Join 40,000 fervent Chobble template users from around the world as we celebrate the Eleventy starter that revolutionised small business websites.
+Experience the phenomenon that is the Chobble Global Summit, where Fulchester Arena sells out faster than Glastonbury! Join 40,000 fervent Chobble template users from around the world as we celebrate the Eleventy starter that revolutionised small business websites.
 
 ## Summit Highlights
 
@@ -32,4 +32,4 @@ Experience the phenomenon that is the Chobble Global Summit, where the Birmingha
 - Certificate of Chobble Proficiency (suitable for framing)
 - Chance to touch the original Chobble repository laptop
 
-**Tickets**: £299 (early bird), £599 (standard), £2,999 (VIP with backstage JAMstack tour). Camping available in NEC car park. Bring your own keyboard.
+**Tickets**: £299 (early bird), £599 (standard), £2,999 (VIP with backstage JAMstack tour). Camping available in Fulchester Arena car park. Bring your own keyboard.
