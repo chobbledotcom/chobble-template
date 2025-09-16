@@ -11,6 +11,7 @@
   {% endfor %}
 </div>
 
+{%- if gallery.size > 1 -%}
 <ul id="gallery" class="image-gallery">
   {%- for image in gallery -%}
     <li>
@@ -36,3 +37,4 @@
     </li>
   {%- endfor -%}
 </ul>
+{%- endif -%}
