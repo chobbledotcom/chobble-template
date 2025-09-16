@@ -3,8 +3,8 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "eleventy",
-		"serve": "eleventy --serve",
+		"build": "rm -rf _site && eleventy",
+		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
 		"format": "prettier --write _site/**/*.html",
 		"format:check": "prettier --check _site/**/*.html",
 		"test": "node test/run-all-tests.js"

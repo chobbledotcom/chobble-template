@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-# Run all tests via npm script for better reporting
-npm test

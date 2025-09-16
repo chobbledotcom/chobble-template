@@ -1,12 +1,14 @@
 {
   inputs.nixpkgs.url = "nixpkgs";
 
-  outputs = { nixpkgs, ... }:
+  outputs =
+    { nixpkgs, ... }:
     let
       forAllSystems = nixpkgs.lib.genAttrs [ "x86_64-linux" ];
     in
     {
-      devShells = forAllSystems (system:
+      devShells = forAllSystems (
+        system:
         let
           pkgs = import nixpkgs { inherit system; };
         in
@@ -20,9 +22,11 @@
               Development environment ready!
 
               Available commands:
-               - 'npm run serve'   # Start development server
-               - 'npm run build'   # Build the site in the _site directory
-               - 'lint'            # Lint all files using Biome
+               - 'npm run serve'   # Clean & start dev server with incremental builds
+               - 'npm run build'   # Clean & build the site in ./_site
+               - 'npm test'        # Run JavaScript tests
+               - 'lint'            # Format code with Biome (Nix-only)
+               - 'screenshot'      # Take website screenshots (Nix-only)
 
               EOF
 

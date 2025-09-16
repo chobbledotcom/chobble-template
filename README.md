@@ -33,9 +33,8 @@ And Nix'y features like:
 
 - [direnv](https://direnv.net/) support via `flake.nix` - run `direnv allow`
 - or run `nix develop` if you don't have direnv
-- `nix-build` support using `flake-compat`
-- `serve` shell script to run Eleventy and SASS locally
-- `build` shell script to build the site into `_site`
+- `lint` shell script to format code with Biome (requires Nix)
+- `screenshot` shell script to take website screenshots (requires Nix)
 
 And Eleventy features like:
 
