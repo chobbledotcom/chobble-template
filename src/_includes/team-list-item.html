@@ -1,13 +1,12 @@
 <li class="{%- if person.data.image -%} has-image {%- endif -%}">
-  {%- if person.url -%}
+  {%- if person.url and person.data.image-%}
   <a class="image-link" href="{{ person.url }}#content">
-    {%- if person.data.image -%} {% image person.data.image, person.data.title,
-    "240,480,640" %} {%- endif -%}
+    {% image person.data.image, person.data.title, "240,480,640" %}
   </a>
   <a href="{{ person.url }}#content"> {{- person.data.title -}} </a>
-  {%- else -%} {%- if person.data.image -%} {% image person.data.image,
-  person.data.title, "240,480,640" %} {%- endif -%} {{- person.data.title -}}
-  {%- endif -%} {%- if person.data.snippet -%}
+  {%- elsif person.data.image -%} {% image person.data.image, person.data.title,
+  "240,480,640" %} {%- endif -%} {{- person.data.title -}} {%- if
+  person.data.snippet -%}
   <br />
   {{- person.data.snippet -}} {%- endif -%}
 </li>
