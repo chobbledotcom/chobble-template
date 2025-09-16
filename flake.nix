@@ -1,45 +1,18 @@
 {
-  inputs = {
-    nixpkgs.url = "nixpkgs";
-  };
+  inputs.nixpkgs.url = "nixpkgs";
 
-  outputs =
-    { self, nixpkgs }:
+  outputs = { nixpkgs, ... }:
     let
-      systems = [ "x86_64-linux" ];
-      forAllSystems = nixpkgs.lib.genAttrs systems;
-
-      makeEnvForSystem =
-        system:
-        let
-          pkgs = import nixpkgs { system = system; };
-
-          devDependencies = with pkgs; [
-            nodejs_23
-            biome
-          ];
-        in
-        {
-          inherit pkgs;
-          devEnv = {
-            inherit pkgs;
-            dependencies = devDependencies;
-          };
-        };
+      forAllSystems = nixpkgs.lib.genAttrs [ "x86_64-linux" ];
     in
     {
-      devShells = forAllSystems (
-        system:
+      devShells = forAllSystems (system:
         let
-          env = makeEnvForSystem system;
-          inherit (env.devEnv)
-            pkgs
-            dependencies
-            ;
+          pkgs = import nixpkgs { inherit system; };
         in
         {
           default = pkgs.mkShell {
-            buildInputs = dependencies;
+            packages = with pkgs; [ nodejs_24 ];
 
             shellHook = ''
               cat <<EOF
