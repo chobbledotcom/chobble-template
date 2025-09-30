@@ -7,8 +7,9 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default function () {
-	const metaData = require("./meta.json");
-	const siteData = require("./site.json");
+	// Deep clone to prevent mutations from affecting cached require data
+	const metaData = structuredClone(require("./meta.json"));
+	const siteData = structuredClone(require("./site.json"));
 	
 	// Check if logo.png exists
 	const logoPath = path.join(__dirname, "../images/logo.png");
@@ -48,12 +49,12 @@ export default function () {
 			}),
 			description: metaData.organization?.description || siteData.description,
 			foundingDate: metaData.organization?.foundingDate,
-			founders: metaData.organization?.founders,
+			founders: metaData.organization?.founders ? JSON.parse(JSON.stringify(metaData.organization.founders)) : undefined,
 			address: metaData.organization?.address,
-			contactPoint: metaData.organization?.contactPoint,
+			contactPoint: metaData.organization?.contactPoint ? JSON.parse(JSON.stringify(metaData.organization.contactPoint)) : undefined,
 			sameAs: sameAs
 		}
 	};
-	
+
 	return meta;
 }
