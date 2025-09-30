@@ -49,12 +49,28 @@ export default function () {
 			}),
 			description: metaData.organization?.description || siteData.description,
 			foundingDate: metaData.organization?.foundingDate,
-			founders: metaData.organization?.founders ? JSON.parse(JSON.stringify(metaData.organization.founders)) : undefined,
+			founders: (() => {
+				const original = metaData.organization?.founders;
+				fs.appendFileSync('/tmp/meta-debug.log', `ORIGINAL founders length: ${original?.length}\n`);
+				fs.appendFileSync('/tmp/meta-debug.log', `ORIGINAL founders: ${JSON.stringify(original)}\n`);
+				const cloned = original ? JSON.parse(JSON.stringify(original)) : undefined;
+				fs.appendFileSync('/tmp/meta-debug.log', `CLONED founders length: ${cloned?.length}\n`);
+				return cloned;
+			})(),
 			address: metaData.organization?.address,
 			contactPoint: metaData.organization?.contactPoint ? JSON.parse(JSON.stringify(metaData.organization.contactPoint)) : undefined,
 			sameAs: sameAs
 		}
 	};
+
+	fs.appendFileSync('/tmp/meta-return.log', `RETURNING: founders.length = ${meta.organization.founders?.length}\n`);
+	fs.appendFileSync('/tmp/meta-return.log', `RETURNING: founders = ${JSON.stringify(meta.organization.founders)}\n`);
+
+	// Add a check after a tiny delay to see if it gets mutated
+	setTimeout(() => {
+		fs.appendFileSync('/tmp/meta-mutation.log', `AFTER DELAY: founders.length = ${meta.organization.founders?.length}\n`);
+		fs.appendFileSync('/tmp/meta-mutation.log', `AFTER DELAY: founders = ${JSON.stringify(meta.organization.founders)}\n`);
+	}, 100);
 
 	return meta;
 }
