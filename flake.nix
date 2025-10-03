@@ -17,6 +17,7 @@
             packages = with pkgs; [ nodejs_24 ];
 
             shellHook = ''
+              [ ! -d node_modules ] && npm install
               cat <<EOF
 
               Development environment ready!
