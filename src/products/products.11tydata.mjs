@@ -8,6 +8,15 @@ export default {
 			const categories = data.categories || [];
 			return categories.map(normaliseSlug);
 		},
+		gallery: (data) => {
+			if (data.gallery) {
+				return data.gallery;
+			}
+			if (data.header_image) {
+				return [data.header_image];
+			}
+			return undefined;
+		},
 		navigationParent: () => strings.product_name,
 		permalink: (data) => {
 			const dir = strings.product_permalink_dir || "products";
