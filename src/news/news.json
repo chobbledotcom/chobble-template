@@ -1,6 +1,5 @@
 {
 	"layout": "news-post.html",
-	"permalink": "/news/{{ page.fileSlug }}/index.html",
 	"tags": "news",
 	"navigationParent": "News"
 }
