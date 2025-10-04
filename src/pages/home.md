@@ -1,7 +1,7 @@
 ---
 header_image: placeholder.jpg
 header_text: Example Website
-meta_description: Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities
+meta_description: Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities or Bunny.net
 meta_title: Chobble Template | Eleventy Starter | AGPLv3
 
 layout: home.html
@@ -24,7 +24,7 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 - It's based on [Eleventy]({{ config.template_repo_url }}/blob/main/.eleventy.js)
 - With minimal-ish semantic-ish HTML and CSS, based on [MVP.css](https://andybrewer.github.io/mvp/)
 - It's built with Node and [Github Actions]({{ config.template_repo_url }}/blob/main/.github/workflows/build-and-deploy.yaml)
-- It's hosted on [Neocities](https://neocities.org/site/chobble-example) but could be easily adapted for Bunny (or anywhere else)
+- It's hosted on [Neocities](https://neocities.org/site/chobble-example) and [Bunny.net](https://chobble-example.b-cdn.net/), and can be adapted for any static host
 - With a Formspark & Botpoison spam-protected [contact form]({{ config.template_repo_url }}/blob/main/src/\_includes/contact-form.html)
 - Using [Turbo](https://turbo.hotwired.dev/) for instant page loads
 - With social media links in the footer
