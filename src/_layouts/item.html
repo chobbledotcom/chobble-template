@@ -47,7 +47,9 @@ layout: base
 
 {%- if gallery and gallery.size > 0 -%}
   <div class="gallery">
-    <h2>Gallery</h2>
+    {%- if gallery.size > 1 -%}
+      <h2>Gallery</h2>
+    {%- endif -%}
     {% include "gallery.html" %}
   </div>
 {%- endif -%}
