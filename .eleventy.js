@@ -1,3 +1,4 @@
+import { configureCacheBuster } from "./src/_lib/cache-buster.js";
 import { configureCategories } from "./src/_lib/categories.js";
 import { configureFeed } from "./src/_lib/feed.js";
 import { configureFileUtils } from "./src/_lib/file-utils.js";
@@ -28,6 +29,7 @@ export default async function (eleventyConfig) {
 
 	// configureLayoutAliases(eleventyConfig);
 
+	configureCacheBuster(eleventyConfig);
 	configureCategories(eleventyConfig);
 	await configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
