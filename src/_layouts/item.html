@@ -94,7 +94,7 @@ layout: base
     {% include "map-embed.html" %}
   {%- endif -%}
 
-  {%- if features -%}
+  {%- if features and features.size > 0 -%}
     <hr>
     <h2>Features</h2>
     <ul class="product-features">
