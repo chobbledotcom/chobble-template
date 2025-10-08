@@ -59,7 +59,9 @@ layout: base
     {%- include "stripe-buy-button.html" -%}
   {%- endif -%}
 
-  <h2>About</h2>
+  {%- if strings.item_about_heading and strings.item_about_heading != "" -%}
+    <h2>{{ strings.item_about_heading }}</h2>
+  {%- endif -%}
 
   {%- if categories.size > 0 -%}
     <p>

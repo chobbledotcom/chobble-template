@@ -3,5 +3,6 @@
 	"product_permalink_dir": "products",
 	"event_name": "Events",
 	"event_permalink_dir": "events",
-	"news_permalink_dir": "news"
+	"news_permalink_dir": "news",
+	"item_about_heading": "About"
 }
