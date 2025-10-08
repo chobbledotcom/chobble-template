@@ -14,7 +14,28 @@ layout: base
 {%- if homepage.show_news and collections.news.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-news-header", "<h3>Latest Posts</h3>" -%}
-  {% include "news-post-list.html", limit: 2 %}
+
+  {%- comment -%} Check if all news posts have images {%- endcomment -%}
+  {%- assign all_have_images = true -%}
+  {%- for post in collections.news -%}
+    {%- unless post.data.header_image -%}
+      {%- assign all_have_images = false -%}
+      {%- break -%}
+    {%- endunless -%}
+  {%- endfor -%}
+
+  {%- if all_have_images -%}
+    {%- comment -%} Use item layout when all posts have images {%- endcomment -%}
+    {%- assign posts = collections.news | reverse -%}
+    <ul class="items-list">
+      {%- for post in posts limit: 2 -%}
+        {% include "news-list-item.html" %}
+      {%- endfor -%}
+    </ul>
+  {%- else -%}
+    {%- comment -%} Use text list when some posts lack images {%- endcomment -%}
+    {% include "news-post-list.html", limit: 2 %}
+  {%- endif -%}
 {%- endif -%}
 
 {%- assign categories = collections.categories | getFeaturedCategories -%}
