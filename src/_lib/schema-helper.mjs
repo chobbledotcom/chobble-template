@@ -22,9 +22,12 @@ function buildBaseMeta(data) {
 		description: data.meta_description || data.short_description,
 	};
 
+	const autoHeaderImage = data.config?.autoHeaderImage ?? true;
+	const galleryFallback = autoHeaderImage && data.gallery?.[0];
+
 	let imageSource =
 		data.header_image ||
-		(data.gallery && data.gallery[0]) ||
+		galleryFallback ||
 		data.image ||
 		null;
 
