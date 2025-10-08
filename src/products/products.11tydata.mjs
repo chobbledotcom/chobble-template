@@ -17,6 +17,21 @@ export default {
 			}
 			return undefined;
 		},
+		header_image: (data) => {
+			if (data.header_image) {
+				return data.header_image;
+			}
+			const autoHeaderImage = data.config?.autoHeaderImage ?? true;
+			if (autoHeaderImage && data.gallery) {
+				if (Array.isArray(data.gallery)) {
+					const firstImage = data.gallery[0];
+					return typeof firstImage === 'string' ? firstImage : firstImage?.filename;
+				}
+				const firstEntry = Object.values(data.gallery)[0];
+				return firstEntry;
+			}
+			return undefined;
+		},
 		navigationParent: () => strings.product_name,
 		permalink: (data) => {
 			const dir = strings.product_permalink_dir || "products";
