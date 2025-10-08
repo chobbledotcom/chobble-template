@@ -25,7 +25,13 @@ const createProductsCollection = (collectionApi) => {
 
 const getProductsByCategory = (products, categorySlug) => {
 	if (!products) return [];
-	return products.filter((product) => product.data.categories?.includes(categorySlug));
+	return products
+		.filter((product) => product.data.categories?.includes(categorySlug))
+		.sort((a, b) => {
+			const orderDiff = (a.data.order || 0) - (b.data.order || 0);
+			if (orderDiff !== 0) return orderDiff;
+			return (a.data.name || '').localeCompare(b.data.name || '');
+		});
 };
 
 const getReviewsByProduct = (reviews, productSlug) =>
