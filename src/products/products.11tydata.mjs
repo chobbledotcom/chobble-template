@@ -17,6 +17,16 @@ export default {
 			}
 			return undefined;
 		},
+		header_image: (data) => {
+			if (data.header_image) {
+				return data.header_image;
+			}
+			const autoHeaderImage = data.config?.autoHeaderImage ?? true;
+			if (autoHeaderImage && data.gallery) {
+				return Array.isArray(data.gallery) ? data.gallery[0] : Object.values(data.gallery)[0];
+			}
+			return undefined;
+		},
 		navigationParent: () => strings.product_name,
 		permalink: (data) => {
 			const dir = strings.product_permalink_dir || "products";
