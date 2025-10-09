@@ -23,12 +23,7 @@ export default {
 			}
 			const autoHeaderImage = data.config?.autoHeaderImage ?? true;
 			if (autoHeaderImage && data.gallery) {
-				if (Array.isArray(data.gallery)) {
-					const firstImage = data.gallery[0];
-					return typeof firstImage === 'string' ? firstImage : firstImage?.filename;
-				}
-				const firstEntry = Object.values(data.gallery)[0];
-				return firstEntry;
+				return Array.isArray(data.gallery) ? data.gallery[0] : Object.values(data.gallery)[0];
 			}
 			return undefined;
 		},
