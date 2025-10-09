@@ -23,7 +23,12 @@ function buildBaseMeta(data) {
 	};
 
 	const autoHeaderImage = data.config?.autoHeaderImage ?? true;
-	const galleryFallback = autoHeaderImage && data.gallery?.[0];
+	let galleryFallback = null;
+	if (autoHeaderImage && data.gallery) {
+		galleryFallback = Array.isArray(data.gallery)
+			? data.gallery[0]
+			: Object.values(data.gallery)[0];
+	}
 
 	let imageSource =
 		data.header_image ||
