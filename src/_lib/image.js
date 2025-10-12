@@ -213,7 +213,9 @@ const imageShortcode = async (
 			returnElement: false,
 		});
 	} catch (error) {
-		console.error(`Invalid image path: ${imageName}`);
+		console.error(
+			`processAndWrapImage: Invalid image path: ${JSON.stringify(imageName)}`,
+		);
 		return "";
 	}
 };

@@ -1,12 +1,12 @@
 <div class="current-image">
   {% assign first_image = gallery[0] %}
-  {% image first_image.filename, first_image.alt, config.products.gallery_image_widths, "", "100vw" %}
+  {% image first_image, "", config.products.gallery_image_widths, "", "100vw" %}
 </div>
 
 <div aria-hidden="true" class="gallery-full-size-images">
   {%- for image in gallery -%}
     <div class="full-image-{{ forloop.index }}">
-      {% image image.filename, image.alt, config.products.gallery_image_widths, "fade-in", "100vw" %}
+      {% image image, "", config.products.gallery_image_widths, "fade-in", "100vw" %}
     </div>
   {% endfor %}
 </div>
@@ -17,10 +17,10 @@
     <li>
       <a
         href="
-          {%- if image.filename[0] == "/" -%}
-            {{- image.filename -}}
+          {%- if image[0] == "/" -%}
+            {{- image -}}
           {%- else -%}
-            /images/{{ image.filename -}}
+            /images/{{ image -}}
           {%- endif -%}
         "
         data-index="{{ forloop.index }}"
@@ -28,10 +28,7 @@
       >
         <!-- once sizes="auto" is supported by Firefox, switch to that -->
         <figure>
-          {% image image.filename, "", config.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
-          {%- if image.alt != "" -%}
-            <figcaption>{{- image.alt -}}</figcaption>
-          {%- endif -%}
+          {% image image, "", config.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
         </figure>
       </a>
     </li>
