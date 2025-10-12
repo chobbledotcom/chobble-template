@@ -1,6 +1,6 @@
-{%- assign image_path = item.data.header_image -%} {%- if !image_path -%} {%- if
+{%- assign image_path = item.data.header_image -%} {%- unless image_path -%} {%- if
 item.data.gallery and item.data.gallery.size > 0 -%} {%- assign image_path =
-item.data.gallery[0] -%} {%- endif -%} {%- endif -%} {%- if image_path -%}
+item.data.gallery[0] -%} {%- endif -%} {%- endunless -%} {%- if image_path -%}
 <a class="image-link" href="{{ item.url }}#content">
   {%- image image_path, item.data.title, widths, "", sizes -%}
 </a>
