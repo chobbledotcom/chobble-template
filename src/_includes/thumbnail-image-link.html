@@ -1,12 +1,8 @@
-{%- assign image = item.data.header_image -%}
-{%- if image == blank -%}
-  {%- if item.data.gallery and item.data.gallery.size > 0 -%}
-    {%- assign image = item.data.gallery[0] -%}
-  {%- endif -%}
-{%- endif -%}
-{%- if image -%}
+{%- assign image_path = item.data.header_image -%} {%- if !image_path -%} {%- if
+item.data.gallery and item.data.gallery.size > 0 -%} {%- assign image_path =
+item.data.gallery[0] -%} {%- endif -%} {%- endif -%} {%- if image_path -%}
 <a class="image-link" href="{{ item.url }}#content">
-  {%- image image, item.data.title, widths, "", sizes -%}
+  {%- image image_path, item.data.title, widths, "", sizes -%}
 </a>
 {%- endif -%}
 
