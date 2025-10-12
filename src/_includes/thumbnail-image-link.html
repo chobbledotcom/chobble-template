@@ -1,14 +1,11 @@
-{%- if item.data.header_image -%}
-  <a
-    class="image-link"
-    href="{{ item.url }}#content"
-  >
-    {%- image item.data.header_image, item.data.title, widths, "", sizes -%}
-  </a>
+{%- assign image = item.data.header_image -%} {%- if image == blank -%} {%- if
+item.data.gallery and item.data.gallery.size > 0 -%} {%- assign image =
+item.data.gallery[0] -%} {%- endif -%} {%- endif -%} {%- if image -%}
+<a class="image-link" href="{{ item.url }}#content">
+  {%- image image, item.data.title, widths, "", sizes -%}
+</a>
 {%- endif -%}
 
 <h3>
-  <a href="{{- item.url -}}#content">
-    {{- item.data.title -}}
-  </a>
+  <a href="{{- item.url -}}#content"> {{- item.data.title -}} </a>
 </h3>
