@@ -20,18 +20,24 @@ const U = {
 		});
 	},
 	makeThumbnail: async (path) => {
-		const thumbnails = await Image(path, {
-			...U.DEFAULT_OPTIONS,
-			widths: [32],
-			formats: ["webp"],
-		});
+		let thumbnails;
+		try {
+			thumbnails = await Image(path, {
+				...U.DEFAULT_OPTIONS,
+				widths: [32],
+				formats: ["webp"],
+			});
+		} catch (error) {
+			console.error(`Invalid image path: ${JSON.stringify(path)}`);
+			return null;
+		}
 		const [thumbnail] = thumbnails.webp;
 		const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
 		return `url('data:image/webp;base64,${base64}')`;
 	},
 	getAspectRatio: (aspectRatio, metadata) => {
 		if (aspectRatio) return aspectRatio;
-		var gcd = function gcd(a, b) {
+		let gcd = function gcd(a, b) {
 			return b ? gcd(b, a % b) : a;
 		};
 		gcd = gcd(metadata.width, metadata.height);
@@ -41,7 +47,7 @@ const U = {
 		if (aspectRatio == null) return null;
 
 		// aspectRatio is a string like "16/9"
-		const dimensions = aspectRatio.split("/").map((s) => parseFloat(s));
+		const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
 		const aspectFraction = dimensions[0] / dimensions[1];
 		const width = metadata.width;
 		const height = Math.round(width / aspectFraction);
@@ -194,17 +200,22 @@ const imageShortcode = async (
 	aspectRatio = null,
 	loading = null,
 ) => {
-	return await processAndWrapImage({
-		logName: `imageShortcode: ${imageName}`,
-		imageName,
-		alt,
-		classes,
-		sizes,
-		widths,
-		aspectRatio,
-		loading,
-		returnElement: false,
-	});
+	try {
+		return await processAndWrapImage({
+			logName: `imageShortcode: ${imageName}`,
+			imageName,
+			alt,
+			classes,
+			sizes,
+			widths,
+			aspectRatio,
+			loading,
+			returnElement: false,
+		});
+	} catch (error) {
+		console.error(`Invalid image path: ${imageName}`);
+		return "";
+	}
 };
 
 const transformImages = async (content) => {

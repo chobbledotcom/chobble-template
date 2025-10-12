@@ -30,7 +30,7 @@ const getProductsByCategory = (products, categorySlug) => {
 		.sort((a, b) => {
 			const orderDiff = (a.data.order || 0) - (b.data.order || 0);
 			if (orderDiff !== 0) return orderDiff;
-			return (a.data.name || '').localeCompare(b.data.name || '');
+			return (a.data.name || "").localeCompare(b.data.name || "");
 		});
 };
 
