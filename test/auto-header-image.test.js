@@ -3,6 +3,7 @@ import { buildBaseMeta } from "../src/_lib/schema-helper.mjs";
 
 // Import the products data file to test the computed header_image property
 import productsData from "../src/products/products.11tydata.mjs";
+import { processGallery } from "../src/_lib/products.js";
 
 const computeHeaderImage = productsData.eleventyComputed.header_image;
 
@@ -27,8 +28,6 @@ const testCases = [
         );
       }
     },
-  },
-
   },
   {
     name: "autoHeaderImage-explicit-header-overrides",
@@ -118,10 +117,10 @@ const testCases = [
     test: () => {
       const data = {
         config: { autoHeaderImage: true },
-        gallery: {
+        gallery: processGallery({
           "Front View": "front.jpg",
           "Back View": "back.jpg",
-        },
+        }),
       };
 
       const result = computeHeaderImage(data);
@@ -138,9 +137,9 @@ const testCases = [
     test: () => {
       const data = {
         config: { autoHeaderImage: false },
-        gallery: {
+        gallery: processGallery({
           "Alt Text": "image.jpg",
-        },
+        }),
       };
 
       const result = computeHeaderImage(data);
