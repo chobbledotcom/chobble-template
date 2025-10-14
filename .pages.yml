@@ -302,7 +302,7 @@ content:
     type: file
     path: src/_data/alt-tags.json
     fields:
-      - name: _array
+      - name: images
         type: object
         list: true
         fields:

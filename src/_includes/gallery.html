@@ -1,7 +1,7 @@
 <div class="current-image">
   {% assign first_image = gallery[0] %}
   {%- assign image_filename = first_image | split: "/" | last -%}
-  {%- assign alt_tag_entry = alt-tags | where: "path", image_filename | first -%}
+  {%- assign alt_tag_entry = alt-tags.images | where: "path", image_filename | first -%}
   {%- assign alt_text = alt_tag_entry.alt | default: "" -%}
   {% image first_image, alt_text, config.products.gallery_image_widths, "", "100vw" %}
 </div>
@@ -9,7 +9,7 @@
 <div aria-hidden="true" class="gallery-full-size-images">
   {%- for image in gallery -%}
     {%- assign image_filename = image | split: "/" | last -%}
-    {%- assign alt_tag_entry = alt-tags | where: "path", image_filename | first -%}
+    {%- assign alt_tag_entry = alt-tags.images | where: "path", image_filename | first -%}
     {%- assign alt_text = alt_tag_entry.alt | default: "" -%}
     <div class="full-image-{{ forloop.index }}">
       {% image image, alt_text, config.products.gallery_image_widths, "fade-in", "100vw" %}
@@ -21,7 +21,7 @@
 <ul id="gallery" class="image-gallery">
   {%- for image in gallery -%}
     {%- assign image_filename = image | split: "/" | last -%}
-    {%- assign alt_tag_entry = alt-tags | where: "path", image_filename | first -%}
+    {%- assign alt_tag_entry = alt-tags.images | where: "path", image_filename | first -%}
     {%- assign alt_text = alt_tag_entry.alt | default: "" -%}
     <li>
       <a
