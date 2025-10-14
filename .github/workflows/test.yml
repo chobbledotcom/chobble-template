@@ -35,10 +35,16 @@ jobs:
 
       - name: Notify on failure
         if: failure()
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
         run: |
+          if [ -z "$NTFY_URL" ]; then
+            echo "::error::NTFY_URL secret is not configured"
+            exit 1
+          fi
           curl \
             -d "Build failed: ${{ github.repository }} @ ${{ github.ref_name }}" \
             -H "Title: Build Failure" \
             -H "Priority: high" \
             -H "Tags: warning,github" \
-            ${{ secrets.NTFY_URL }}
+            "$NTFY_URL"
