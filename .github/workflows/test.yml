@@ -34,7 +34,7 @@ jobs:
         run: npm test
 
       - name: Notify on failure
-        if: failure()
+        if: failure() && secrets.NTFY_URL != ''
         run: |
           curl -d "Build failed: ${{ github.repository }} @ ${{ github.ref_name }}" \
                -H "Title: Build Failure" \
