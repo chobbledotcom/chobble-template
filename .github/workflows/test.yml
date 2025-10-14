@@ -32,3 +32,12 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl -d "Build failed: ${{ github.repository }} @ ${{ github.ref_name }}" \
+               -H "Title: Build Failure" \
+               -H "Priority: high" \
+               -H "Tags: warning,github" \
+               "${{ secrets.NTFY_URL }}"
