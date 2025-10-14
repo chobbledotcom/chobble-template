@@ -1,12 +1,18 @@
 <div class="current-image">
   {% assign first_image = gallery[0] %}
-  {% image first_image, "", config.products.gallery_image_widths, "", "100vw" %}
+  {%- assign image_filename = first_image | split: "/" | last -%}
+  {%- assign alt_tag_entry = alt-tags | where: "path", image_filename | first -%}
+  {%- assign alt_text = alt_tag_entry.alt | default: "" -%}
+  {% image first_image, alt_text, config.products.gallery_image_widths, "", "100vw" %}
 </div>
 
 <div aria-hidden="true" class="gallery-full-size-images">
   {%- for image in gallery -%}
+    {%- assign image_filename = image | split: "/" | last -%}
+    {%- assign alt_tag_entry = alt-tags | where: "path", image_filename | first -%}
+    {%- assign alt_text = alt_tag_entry.alt | default: "" -%}
     <div class="full-image-{{ forloop.index }}">
-      {% image image, "", config.products.gallery_image_widths, "fade-in", "100vw" %}
+      {% image image, alt_text, config.products.gallery_image_widths, "fade-in", "100vw" %}
     </div>
   {% endfor %}
 </div>
@@ -14,6 +20,9 @@
 {%- if gallery.size > 1 -%}
 <ul id="gallery" class="image-gallery">
   {%- for image in gallery -%}
+    {%- assign image_filename = image | split: "/" | last -%}
+    {%- assign alt_tag_entry = alt-tags | where: "path", image_filename | first -%}
+    {%- assign alt_text = alt_tag_entry.alt | default: "" -%}
     <li>
       <a
         href="
@@ -28,7 +37,7 @@
       >
         <!-- once sizes="auto" is supported by Firefox, switch to that -->
         <figure>
-          {% image image, "", config.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
+          {% image image, alt_text, config.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
         </figure>
       </a>
     </li>

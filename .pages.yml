@@ -296,3 +296,15 @@ content:
               - { name: contactType, type: string, label: Contact Type }
               - { name: areaServed, type: string, label: Area Served }
               - { name: availableLanguage, type: string, label: Available Languages, list: true }
+
+  - name: alt-tags
+    label: Image Alt Tags
+    type: file
+    path: src/_data/alt-tags.json
+    fields:
+      - name: _array
+        type: object
+        list: true
+        fields:
+          - { name: path, type: image, label: Image }
+          - { name: alt, type: string, label: Alt Text }

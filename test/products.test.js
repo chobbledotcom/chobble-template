@@ -34,7 +34,7 @@ const testCases = [
   },
   {
     name: "processGallery-object",
-    description: "Processes gallery object correctly",
+    description: "Converts object galleries to arrays of filenames",
     test: () => {
       const input = {
         0: "image1.jpg",

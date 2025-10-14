@@ -111,9 +111,9 @@ const testCases = [
     },
   },
   {
-    name: "computed-header-image-object-enabled",
+    name: "computed-header-image-multiple-images-enabled",
     description:
-      "Computed header_image property uses first gallery image (object) when enabled",
+      "Computed header_image property uses first gallery image from array when enabled",
     test: () => {
       const data = {
         config: { autoHeaderImage: true },
@@ -131,9 +131,9 @@ const testCases = [
     },
   },
   {
-    name: "computed-header-image-object-disabled",
+    name: "computed-header-image-multiple-images-disabled",
     description:
-      "Computed header_image property does not use gallery (object) when disabled",
+      "Computed header_image property does not use gallery when disabled",
     test: () => {
       const data = {
         config: { autoHeaderImage: false },
