@@ -37,43 +37,19 @@ const testCases = [
     description: "Processes gallery object correctly",
     test: () => {
       const input = {
-        "Custom Alt Text": "image1.jpg",
-        0: "image2.jpg",
-        1: "image3.jpg",
-        "Another Alt": "image4.jpg",
+        0: "image1.jpg",
+        1: "image2.jpg",
+        2: "image3.jpg",
+        3: "image4.jpg",
       };
 
       const result = processGallery(input);
 
       expectStrictEqual(result.length, 4, "Should return 4 items");
-
-      const customAltItem = result.find(
-        (item) => item.filename === "image1.jpg",
-      );
       expectDeepEqual(
-        customAltItem,
-        { alt: "Custom Alt Text", filename: "image1.jpg" },
-        "Should preserve custom alt text",
-      );
-
-      const integerKeyItems = result.filter((item) =>
-        ["image2.jpg", "image3.jpg"].includes(item.filename),
-      );
-      integerKeyItems.forEach((item) => {
-        expectStrictEqual(
-          item.alt,
-          "",
-          "Integer string keys should become empty alt text",
-        );
-      });
-
-      const anotherAltItem = result.find(
-        (item) => item.filename === "image4.jpg",
-      );
-      expectDeepEqual(
-        anotherAltItem,
-        { alt: "Another Alt", filename: "image4.jpg" },
-        "Should preserve another custom alt text",
+        result,
+        ["image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg"],
+        "Should convert object to array of filenames",
       );
     },
   },
