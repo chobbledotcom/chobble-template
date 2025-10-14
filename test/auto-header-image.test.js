@@ -28,8 +28,6 @@ const testCases = [
       }
     },
   },
-
-  },
   {
     name: "autoHeaderImage-explicit-header-overrides",
     description:
@@ -112,16 +110,13 @@ const testCases = [
     },
   },
   {
-    name: "computed-header-image-object-enabled",
+    name: "computed-header-image-multiple-images-enabled",
     description:
-      "Computed header_image property uses first gallery image (object) when enabled",
+      "Computed header_image property uses first gallery image from array when enabled",
     test: () => {
       const data = {
         config: { autoHeaderImage: true },
-        gallery: {
-          "Front View": "front.jpg",
-          "Back View": "back.jpg",
-        },
+        gallery: ["front.jpg", "back.jpg", "side.jpg"],
       };
 
       const result = computeHeaderImage(data);
@@ -132,15 +127,13 @@ const testCases = [
     },
   },
   {
-    name: "computed-header-image-object-disabled",
+    name: "computed-header-image-multiple-images-disabled",
     description:
-      "Computed header_image property does not use gallery (object) when disabled",
+      "Computed header_image property does not use gallery when disabled",
     test: () => {
       const data = {
         config: { autoHeaderImage: false },
-        gallery: {
-          "Alt Text": "image.jpg",
-        },
+        gallery: ["image1.jpg", "image2.jpg"],
       };
 
       const result = computeHeaderImage(data);
