@@ -1,7 +1,7 @@
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
   if (Array.isArray(gallery)) return gallery;
-  return gallery;
+  return Object.values(gallery);
 };
 
 const addGallery = (item) => {

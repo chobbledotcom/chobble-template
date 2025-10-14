@@ -34,21 +34,22 @@ const testCases = [
   },
   {
     name: "processGallery-object",
-    description: "Returns object galleries unchanged (simplified behavior)",
+    description: "Converts object galleries to arrays of filenames",
     test: () => {
       const input = {
-        "Custom Alt Text": "image1.jpg",
-        0: "image2.jpg",
-        1: "image3.jpg",
-        "Another Alt": "image4.jpg",
+        0: "image1.jpg",
+        1: "image2.jpg",
+        2: "image3.jpg",
+        3: "image4.jpg",
       };
 
       const result = processGallery(input);
 
+      expectStrictEqual(result.length, 4, "Should return 4 items");
       expectDeepEqual(
         result,
-        input,
-        "Should return object unchanged (alt tags now in separate file)",
+        ["image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg"],
+        "Should convert object to array of filenames",
       );
     },
   },
