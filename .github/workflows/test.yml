@@ -35,8 +35,10 @@ jobs:
 
       - name: Notify on failure
         if: failure()
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
         run: |
-          if [ -z "${{ secrets.NTFY_URL }}" ]; then
+          if [ -z "$NTFY_URL" ]; then
             echo "Error: NTFY_URL secret is not set"
             exit 1
           fi
@@ -44,4 +46,4 @@ jobs:
                -H "Title: Build Failure" \
                -H "Priority: high" \
                -H "Tags: warning,github" \
-               "${{ secrets.NTFY_URL }}"
+               "$NTFY_URL"
