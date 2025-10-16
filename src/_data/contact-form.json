@@ -1,0 +1,39 @@
+{
+  "fields": [
+    {
+      "id": "name",
+      "name": "name",
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Your name",
+      "required": true
+    },
+    {
+      "id": "email",
+      "name": "email",
+      "type": "email",
+      "label": "Email",
+      "placeholder": "Your email address",
+      "required": false
+    },
+    {
+      "id": "phone",
+      "name": "phone",
+      "type": "text",
+      "label": "Phone",
+      "placeholder": "Your phone number",
+      "required": false
+    },
+    {
+      "id": "message",
+      "name": "message",
+      "type": "textarea",
+      "label": "Message",
+      "placeholder": "Your message",
+      "required": true,
+      "rows": 6
+    }
+  ],
+  "submitButtonText": "Send Enquiry",
+  "redirectUrl": "/thank-you"
+}
