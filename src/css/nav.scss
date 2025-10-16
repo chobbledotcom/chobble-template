@@ -124,10 +124,6 @@ nav {
           display: flex;
           flex-direction: column;
           gap: 1rem;
-          /* Hide Service Areas submenu on mobile */
-          &:has(> a[href="/service-areas/"]) ul {
-            display: none;
-          }
           ul {
             display: flex;
             flex-direction: column;
@@ -214,19 +210,6 @@ nav {
               li,
               li a {
                 display: block;
-              }
-              /* 3-column layout for Service Areas dropdown */
-              &:has(li a[href*="/pages/"]) {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                white-space: normal;
-                width: auto;
-                min-width: 600px;
-                padding: 1rem;
-                gap: 1rem;
-                li {
-                  display: block;
-                }
               }
             }
           }
