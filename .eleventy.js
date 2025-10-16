@@ -1,5 +1,6 @@
 import { configureCacheBuster } from "./src/_lib/cache-buster.js";
 import { configureCategories } from "./src/_lib/categories.js";
+import { configureExternalLinks } from "./src/_lib/external-links.js";
 import { configureFeed } from "./src/_lib/feed.js";
 import { configureFileUtils } from "./src/_lib/file-utils.js";
 import { configureICal } from "./src/_lib/ical.mjs";
@@ -31,6 +32,7 @@ export default async function (eleventyConfig) {
 
 	configureCacheBuster(eleventyConfig);
 	configureCategories(eleventyConfig);
+	configureExternalLinks(eleventyConfig);
 	await configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
 	configureICal(eleventyConfig);

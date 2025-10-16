@@ -7,6 +7,7 @@ const DEFAULTS = {
 	homepage_news: true,
 	homepage_products: true,
 	autoHeaderImage: true,
+	externalLinksTargetBlank: false,
 	formspark_id: null,
 	botpoison_public_key: null,
 	stripe_publishable_key: null,

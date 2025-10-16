@@ -36,6 +36,10 @@ const createMockEleventyConfig = () => ({
     this.extensions = this.extensions || {};
     this.extensions[ext] = config;
   },
+  addTransform: function(name, fn) {
+    this.transforms = this.transforms || {};
+    this.transforms[name] = fn;
+  },
   setLayoutsDirectory: function(dir) {
     this.layoutsDirectory = dir;
   },
