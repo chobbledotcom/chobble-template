@@ -19,70 +19,37 @@
       name="_email.subject"
       value="New message from {{ site.name }} website contact form"
     />
-    <label for="name">
-      Name
-      <input
-        type="text"
-        id="name"
-        name="name"
-        placeholder="Your name"
-        required=""
-      />
-    </label>
-    <label for="email">
-      Email
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="Your email address"
-      />
-    </label>
-    <label for="phone">
-      Phone
-      <input
-        type="text"
-        id="phone"
-        name="phone"
-        placeholder="Your phone number"
-      />
-    </label>
-    {%- if layout == "item.html" -%}
-      {%- if tags and tags contains "product" -%}
-        <label for="product">
-          Product
-          <textarea
-            id="product"
-            name="product"
-            required=""
-            rows="6"
-            placeholder="{{- title -}}"
-          >{{- title -}}</textarea>
-        </label>
-      {%- else -%}
-        <label for="event">
-          Event
-          <textarea
-            id="event"
-            name="event"
-            required=""
-            rows="6"
-            placeholder="{{- title -}}"
-          >{{- title -}}</textarea>
+    {%- for field in contactForm.fields -%}
+      {%- assign shouldShow = true -%}
+      {%- if field.showOn -%}
+        {%- unless tags contains field.showOn -%}
+          {%- assign shouldShow = false -%}
+        {%- endunless -%}
+      {%- endif -%}
+      {%- if shouldShow -%}
+        <label for="{{ field.name }}">
+          {{ field.label }}
+          {%- if field.type == "textarea" -%}
+            <textarea
+              id="{{ field.name }}"
+              name="{{ field.name }}"
+              {%- if field.required %} required{%- endif %}
+              rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
+              placeholder="{% if field.showOn %}{{ title }}{% else %}{{ field.placeholder }}{% endif %}"
+            >{% if field.showOn %}{{ title }}{% endif %}</textarea>
+          {%- else -%}
+            <input
+              type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
+              id="{{ field.name }}"
+              name="{{ field.name }}"
+              placeholder="{{ field.placeholder }}"
+              {%- if field.required %} required{%- endif %}
+            />
+          {%- endif -%}
         </label>
       {%- endif -%}
-    {%- endif -%}
-    <label for="message">
-      Message
-      <textarea
-        id="message"
-        name="message"
-        placeholder="Your message"
-        required=""
-        rows="6"
-      ></textarea>
-    </label>
-    <button type="submit" class="btn primary-btn">Send Enquiry</button>
+    {%- endfor -%}
+    <button type="submit" class="btn primary-btn">{{ contactForm.submitButtonText }}</button>
   </form>
 {%- else -%}
   <hr>
