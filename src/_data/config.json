@@ -6,6 +6,7 @@
 	"horizontal_nav": true,
 	"enable_theme_switcher": true,
 	"autoHeaderImage": true,
+	"externalLinksTargetBlank": false,
 	"template_repo_url": "https://github.com/chobbledotcom/chobble-template",
 	"chobble_link": "https://chobble.com/services/chobble-template/",
 	"stripe_publishable_key": null,
