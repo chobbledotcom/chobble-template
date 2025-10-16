@@ -32,7 +32,7 @@ export default async function (eleventyConfig) {
 
 	configureCacheBuster(eleventyConfig);
 	configureCategories(eleventyConfig);
-	configureExternalLinks(eleventyConfig);
+	await configureExternalLinks(eleventyConfig);
 	await configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
 	configureICal(eleventyConfig);

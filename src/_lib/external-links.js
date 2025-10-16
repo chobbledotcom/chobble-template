@@ -1,4 +1,5 @@
 import {JSDOM} from "jsdom";
+import configModule from "../_data/config.mjs";
 
 const isExternalUrl = (url) => {
 	if (!url || typeof url !== "string") {
@@ -51,7 +52,7 @@ const transformExternalLinks = (content, config) => {
 	return new JSDOM(document.documentElement.outerHTML).serialize();
 };
 
-const createExternalLinksTransform = (eleventyConfig) => {
+const createExternalLinksTransform = (config) => {
 	return (content, outputPath) => {
 		if (!outputPath || !outputPath.endsWith(".html")) {
 			return content;
@@ -61,21 +62,18 @@ const createExternalLinksTransform = (eleventyConfig) => {
 			return content;
 		}
 
-		const config = eleventyConfig.globalData?.config;
 		return transformExternalLinks(content, config);
 	};
 };
 
-const configureExternalLinks = (eleventyConfig) => {
+const configureExternalLinks = async (eleventyConfig) => {
+	const config = await configModule();
+
 	eleventyConfig.addFilter("externalLinkAttrs", (url) => {
-		const config = eleventyConfig.globalData?.config;
 		return externalLinkFilter(url, config);
 	});
 
-	eleventyConfig.addTransform(
-		"externalLinks",
-		createExternalLinksTransform(eleventyConfig),
-	);
+	eleventyConfig.addTransform("externalLinks", createExternalLinksTransform(config));
 };
 
 export {
