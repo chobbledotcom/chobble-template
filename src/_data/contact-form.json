@@ -1,31 +1,23 @@
 {
   "fields": [
     {
-      "id": "name",
       "name": "name",
-      "type": "text",
       "label": "Name",
       "placeholder": "Your name",
       "required": true
     },
     {
-      "id": "email",
       "name": "email",
       "type": "email",
       "label": "Email",
-      "placeholder": "Your email address",
-      "required": false
+      "placeholder": "Your email address"
     },
     {
-      "id": "phone",
       "name": "phone",
-      "type": "text",
       "label": "Phone",
-      "placeholder": "Your phone number",
-      "required": false
+      "placeholder": "Your phone number"
     },
     {
-      "id": "message",
       "name": "message",
       "type": "textarea",
       "label": "Message",
@@ -34,6 +26,5 @@
       "rows": 6
     }
   ],
-  "submitButtonText": "Send Enquiry",
-  "redirectUrl": "/thank-you"
+  "submitButtonText": "Send Enquiry"
 }

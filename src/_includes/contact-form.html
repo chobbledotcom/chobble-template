@@ -7,7 +7,7 @@
       data-botpoison-public-key="{{ config.botpoison_public_key }}"
     {%- endif -%}
   >
-    <input type="hidden" name="_redirect" value="{{ site.url }}{{ contactForm.redirectUrl }}" />
+    <input type="hidden" name="_redirect" value="{{ site.url }}/thank-you" />
     <input type="hidden" name="_email.template.footer" value="false" />
     <input
       type="hidden"
@@ -20,11 +20,11 @@
       value="New message from {{ site.name }} website contact form"
     />
     {%- for field in contactForm.fields -%}
-      <label for="{{ field.id }}">
+      <label for="{{ field.name }}">
         {{ field.label }}
         {%- if field.type == "textarea" -%}
           <textarea
-            id="{{ field.id }}"
+            id="{{ field.name }}"
             name="{{ field.name }}"
             {%- if field.required %} required{%- endif %}
             rows="{{ field.rows or 6 }}"
@@ -32,8 +32,8 @@
           ></textarea>
         {%- else -%}
           <input
-            type="{{ field.type }}"
-            id="{{ field.id }}"
+            type="{{ field.type or "text" }}"
+            id="{{ field.name }}"
             name="{{ field.name }}"
             placeholder="{{ field.placeholder }}"
             {%- if field.required %} required{%- endif %}
