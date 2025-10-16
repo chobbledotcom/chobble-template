@@ -27,12 +27,12 @@
             id="{{ field.name }}"
             name="{{ field.name }}"
             {%- if field.required %} required{%- endif %}
-            rows="{{ field.rows or 6 }}"
+            rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
             placeholder="{{ field.placeholder }}"
           ></textarea>
         {%- else -%}
           <input
-            type="{{ field.type or "text" }}"
+            type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
             id="{{ field.name }}"
             name="{{ field.name }}"
             placeholder="{{ field.placeholder }}"
