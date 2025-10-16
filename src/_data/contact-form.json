@@ -18,6 +18,22 @@
       "placeholder": "Your phone number"
     },
     {
+      "name": "product",
+      "type": "textarea",
+      "label": "Product",
+      "required": true,
+      "rows": 6,
+      "showOn": "product"
+    },
+    {
+      "name": "event",
+      "type": "textarea",
+      "label": "Event",
+      "required": true,
+      "rows": 6,
+      "showOn": "event"
+    },
+    {
       "name": "message",
       "type": "textarea",
       "label": "Message",
