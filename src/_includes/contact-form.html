@@ -20,16 +20,11 @@
       value="New message from {{ site.name }} website contact form"
     />
     {%- for field in contactForm.fields -%}
+      {%- assign shouldShow = true -%}
       {%- if field.showOn -%}
-        {%- if field.showOn == "product" and tags contains "product" -%}
-          {%- assign shouldShow = true -%}
-        {%- elsif field.showOn == "event" and event_date or recurring_date or event_location -%}
-          {%- assign shouldShow = true -%}
-        {%- else -%}
+        {%- unless tags contains field.showOn -%}
           {%- assign shouldShow = false -%}
-        {%- endif -%}
-      {%- else -%}
-        {%- assign shouldShow = true -%}
+        {%- endunless -%}
       {%- endif -%}
       {%- if shouldShow -%}
         <label for="{{ field.name }}">
