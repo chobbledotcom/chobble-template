@@ -31,6 +31,10 @@ const U = {
 			console.error(`Invalid image path: ${JSON.stringify(path)}`);
 			return null;
 		}
+		if (!thumbnails) {
+			console.error(`Invalid thumbnail for path: ${JSON.stringify(path)}`);
+			return null;
+		}
 		const [thumbnail] = thumbnails.webp;
 		const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
 		return `url('data:image/webp;base64,${base64}')`;
