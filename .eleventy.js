@@ -9,7 +9,6 @@ import { configureLayoutAliases } from "./src/_lib/layout-aliases.mjs";
 import { configureMenus } from "./src/_lib/menus.js";
 import { configureNavigation } from "./src/_lib/navigation.js";
 import { configureOpeningTimes } from "./src/_lib/opening-times.js";
-import { configurePrettier } from "./src/_lib/prettier.js";
 import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
 import { configureProducts } from "./src/_lib/products.js";
 import { configureScss } from "./src/_lib/scss.js";
@@ -40,7 +39,6 @@ export default async function (eleventyConfig) {
 	configureMenus(eleventyConfig);
 	await configureNavigation(eleventyConfig);
 	await configureOpeningTimes(eleventyConfig);
-	configurePrettier(eleventyConfig);
 	await configureRecurringEvents(eleventyConfig);
 	configureProducts(eleventyConfig);
 	configureScss(eleventyConfig);
