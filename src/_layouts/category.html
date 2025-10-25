@@ -2,7 +2,11 @@
 layout: base
 ---
 
-<h1>{{ title }}</h1>
+{% assign products = collections.products | getProductsByCategory: page.fileSlug %}
+
+{% if products.size > 0 %}
+  <h1>{{ title }}</h1>
+{% endif %}
 
 {% if parent %}
   {% assign parentCategory = collections.categories | where: "fileSlug", parent | first %}
@@ -22,7 +26,6 @@ layout: base
   {% include "categories-list.html" %}
 {% endif %}
 
-{% assign products = collections.products | getProductsByCategory: page.fileSlug %}
 {% if products.size > 0 %}
   <h2>{{ strings.product_name }}</h2>
   {% include "products-list.html" %}
