@@ -3,7 +3,19 @@
   {%- render_snippet "footer-content" -%}
   {%- if config.chobble_link and layout == "home.html" -%}
     <p>
-      site by <a href="{{ config.chobble_link }}">chobble.com</a>
+      <a
+        href="https://github.com/chobbledotcom/chobble-template"
+        rel="nofollow"
+        target="_blank"
+      >
+        template
+      </a>
+      by
+      <a
+        href="{{ config.chobble_link }}"
+        rel="nofollow"
+        target="_blank"
+      >chobble.com</a>
     </p>
   {%- endif -%}
 </footer>

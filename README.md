@@ -1,6 +1,6 @@
 # The Chobble Template
 
-**⚠️ Don't forget to change the Formspark and Botpoison info in `_site/data.json`!! ⚠️ or in your Forgejo repository's secrets**
+**⚠️ Don't forget to change the Formspark and Botpoison info in `_site/data.json`!! ⚠️ or in your repository's action's secrets**
 
 **See this template in action at:**
 
@@ -9,6 +9,7 @@
 - [southportorganics.co.uk](https://www.southportorganics.co.uk)
 - [house-of-desserts.co.uk](https://www.house-of-desserts.co.uk)
 - [ukegroupnorth.com](https://www.ukegroupnorth.com)
+- [myalarmsecurity.co.uk](https://www.myalarmsecurity.co.uk)
 
 **Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
 
@@ -16,20 +17,24 @@
 
 This should let you get started with the Eleventy static site builder, really easily.
 
+The Github action is set to deploy to both Neocities and Bunny.net - you'll need to edit that.
+
 Featuring common business website features like:
 
-- News
+- News posts
 - Reviews
-- Products
-- Categories
-- Galleries
-- Team members
+- Events (one-off and recurring)
+- Products (with linked reviews)
+- Categories (with linked products)
+- Galleries (on products and events)
+- Team member profiles
 - Menus
 - A contact form using [Formspark](https://formspark.io/) and [Botpoison](https://botpoison.com/)
 - Heading images
 - Customisable strings
 - Responsive images with `srcset`, [base64 low quality placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/), optional custom cropping
 - Github actions to deploy to Bunny and Neocities
+- Sitemap and pretty blog feed
 
 And Nix'y features like:
 
