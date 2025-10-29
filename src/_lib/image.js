@@ -68,7 +68,9 @@ const U = {
 		if (classes) div.classList.add(classes);
 
 		div.style.setProperty("background-size", "cover");
-		div.style.setProperty("background-image", await thumbPromise);
+		if (thumbPromise !== null) {
+			div.style.setProperty("background-image", await thumbPromise);
+		}
 		div.style.setProperty("aspect-ratio", imageAspectRatio);
 
 		return div;
@@ -126,9 +128,16 @@ async function processAndWrapImage({
 	loading = null,
 }) {
 	const path = U.getPath(imageName);
-	const thumbPromise = U.makeThumbnail(path);
 	const sharpImage = sharp(path);
 	const metadata = await sharpImage.metadata();
+
+	// Check if we should skip base64 placeholder for SVG or images under 5KB
+	const isSvg = metadata.format === 'svg';
+	const fileSize = fs.statSync(path).size;
+	const isUnder5KB = fileSize < 5 * 1024;
+	const shouldSkipPlaceholder = isSvg || isUnder5KB;
+
+	const thumbPromise = shouldSkipPlaceholder ? null : U.makeThumbnail(path);
 	const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
 	const croppedImageOrNull = await U.cropImage(
 		aspectRatio,
