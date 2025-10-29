@@ -22,13 +22,7 @@ function buildBaseMeta(data) {
     description: data.meta_description || data.short_description,
   };
 
-  const autoHeaderImage = data.config?.autoHeaderImage ?? true;
-  let galleryFallback = null;
-  if (autoHeaderImage && data.gallery) {
-    galleryFallback = data.gallery[0];
-  }
-
-  let imageSource = data.header_image || galleryFallback || data.image || null;
+  let imageSource = data.header_image || data.image || null;
 
   if (imageSource) {
     const imageUrl = buildImageUrl(imageSource, data.site.url);
