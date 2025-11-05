@@ -49,35 +49,7 @@ function buildProductMeta(data) {
       price: data.price.toString().replace(/[£€$,]/g, ""),
       priceCurrency: "GBP",
       availability: "https://schema.org/InStock",
-      priceValidUntil: validUntil.toISOString().split("T")[0],
-      shippingDetails: {
-        shippingRate: {
-          value: "0",
-          currency: "GBP"
-        },
-        shippingDestination: {
-          addressCountry: "GB"
-        },
-        deliveryTime: {
-          handlingTime: {
-            minValue: 1,
-            maxValue: 2,
-            unitCode: "DAY"
-          },
-          transitTime: {
-            minValue: 2,
-            maxValue: 5,
-            unitCode: "DAY"
-          }
-        }
-      },
-      hasMerchantReturnPolicy: {
-        applicableCountry: "GB",
-        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 30,
-        returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn"
-      }
+      priceValidUntil: validUntil.toISOString().split("T")[0]
     };
   }
 
