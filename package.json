@@ -7,7 +7,8 @@
 		"build:check": "npm run build && npm run format:check",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
 		"format:check": "prettier --check _site/**/*.html",
-		"test": "node test/run-all-tests.js"
+		"test": "node test/run-all-tests.js",
+		"postinstall": "patch-package"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
@@ -22,5 +23,8 @@
 		"jsdom": "^26.1.0",
 		"prettier": "^3.5.3",
 		"sass": "^1.86.3"
+	},
+	"devDependencies": {
+		"patch-package": "^8.0.1"
 	}
 }

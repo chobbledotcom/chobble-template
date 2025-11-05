@@ -41,9 +41,77 @@ function buildProductMeta(data) {
   meta.brand = data.site.name;
 
   if (data.price) {
+    // Calculate priceValidUntil (1 year from now)
+    const validUntil = new Date();
+    validUntil.setFullYear(validUntil.getFullYear() + 1);
+
     meta.offers = {
       price: data.price.toString().replace(/[£€$,]/g, ""),
+      priceCurrency: "GBP",
+      availability: "https://schema.org/InStock",
+      priceValidUntil: validUntil.toISOString().split("T")[0],
+      shippingDetails: {
+        shippingRate: {
+          value: "0",
+          currency: "GBP"
+        },
+        shippingDestination: {
+          addressCountry: "GB"
+        },
+        deliveryTime: {
+          handlingTime: {
+            minValue: 1,
+            maxValue: 2,
+            unitCode: "DAY"
+          },
+          transitTime: {
+            minValue: 2,
+            maxValue: 5,
+            unitCode: "DAY"
+          }
+        }
+      },
+      hasMerchantReturnPolicy: {
+        applicableCountry: "GB",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn"
+      }
     };
+  }
+
+  // Add reviews if available
+  if (data.collections && data.collections.reviews) {
+    const productSlug = data.page.fileSlug;
+    const productReviews = data.collections.reviews.filter(
+      review => review.data.products?.includes(productSlug)
+    );
+
+    if (productReviews.length > 0) {
+      meta.reviews = productReviews.map(review => ({
+        author: {
+          name: review.data.name
+        },
+        reviewBody: review.templateContent || "",
+        reviewRating: {
+          ratingValue: review.data.rating || 5,
+          bestRating: 5
+        },
+        datePublished: review.date ? review.date.toISOString().split("T")[0] : undefined
+      }));
+
+      // Calculate aggregate rating
+      const ratings = productReviews.map(r => r.data.rating || 5);
+      const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+
+      meta.rating = {
+        ratingValue: avgRating.toFixed(1),
+        reviewCount: productReviews.length,
+        bestRating: 5,
+        worstRating: 1
+      };
+    }
   }
 
   return meta;
