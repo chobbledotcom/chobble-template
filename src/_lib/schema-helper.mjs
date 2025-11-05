@@ -63,18 +63,12 @@ function buildProductMeta(data) {
     if (productReviews.length > 0) {
       meta.reviews = productReviews.map(review => {
         const reviewData = {
-          author: {
-            name: review.data.name
-          },
-          reviewBody: review.templateContent || "",
-          reviewRating: {
-            ratingValue: review.data.rating || 5,
-            bestRating: 5
-          }
+          author: review.data.name,
+          rating: review.data.rating || 5
         };
 
         if (review.date) {
-          reviewData.datePublished = review.date.toISOString().split("T")[0];
+          reviewData.date = review.date.toISOString().split("T")[0];
         }
 
         return reviewData;
