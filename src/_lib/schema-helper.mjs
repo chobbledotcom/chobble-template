@@ -61,17 +61,24 @@ function buildProductMeta(data) {
     );
 
     if (productReviews.length > 0) {
-      meta.reviews = productReviews.map(review => ({
-        author: {
-          name: review.data.name
-        },
-        reviewBody: review.templateContent || "",
-        reviewRating: {
-          ratingValue: review.data.rating || 5,
-          bestRating: 5
-        },
-        datePublished: review.date ? review.date.toISOString().split("T")[0] : undefined
-      }));
+      meta.reviews = productReviews.map(review => {
+        const reviewData = {
+          author: {
+            name: review.data.name
+          },
+          reviewBody: review.templateContent || "",
+          reviewRating: {
+            ratingValue: review.data.rating || 5,
+            bestRating: 5
+          }
+        };
+
+        if (review.date) {
+          reviewData.datePublished = review.date.toISOString().split("T")[0];
+        }
+
+        return reviewData;
+      });
 
       // Calculate aggregate rating
       const ratings = productReviews.map(r => r.data.rating || 5);
