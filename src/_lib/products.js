@@ -20,6 +20,10 @@ const createProductsCollection = (collectionApi) => {
   return products.map(addGallery);
 };
 
+const createReviewsCollection = (collectionApi) => {
+  return collectionApi.getFilteredByTag("review") || [];
+};
+
 const getProductsByCategory = (products, categorySlug) => {
   if (!products) return [];
   return products
@@ -38,6 +42,7 @@ const getReviewsByProduct = (reviews, productSlug) =>
 
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
+  eleventyConfig.addCollection("reviews", createReviewsCollection);
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
 
@@ -48,6 +53,7 @@ export {
   processGallery,
   addGallery,
   createProductsCollection,
+  createReviewsCollection,
   getProductsByCategory,
   getReviewsByProduct,
   configureProducts,
