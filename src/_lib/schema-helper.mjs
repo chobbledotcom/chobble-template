@@ -41,9 +41,56 @@ function buildProductMeta(data) {
   meta.brand = data.site.name;
 
   if (data.price) {
+    // Calculate priceValidUntil (1 year from now)
+    const validUntil = new Date();
+    validUntil.setFullYear(validUntil.getFullYear() + 1);
+
     meta.offers = {
       price: data.price.toString().replace(/[£€$,]/g, ""),
+      priceCurrency: "GBP",
+      availability: "https://schema.org/InStock",
+      priceValidUntil: validUntil.toISOString().split("T")[0]
     };
+  }
+
+  // Add reviews if available
+  if (data.collections && data.collections.reviews) {
+    const productSlug = data.page.fileSlug;
+    const productReviews = data.collections.reviews.filter(
+      review => review.data.products?.includes(productSlug)
+    );
+
+    if (productReviews.length > 0) {
+      meta.reviews = productReviews.map(review => {
+        const reviewData = {
+          author: {
+            name: review.data.name
+          },
+          reviewBody: review.templateContent || "",
+          reviewRating: {
+            ratingValue: review.data.rating || 5,
+            bestRating: 5
+          }
+        };
+
+        if (review.date) {
+          reviewData.datePublished = review.date.toISOString().split("T")[0];
+        }
+
+        return reviewData;
+      });
+
+      // Calculate aggregate rating
+      const ratings = productReviews.map(r => r.data.rating || 5);
+      const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+
+      meta.rating = {
+        ratingValue: avgRating.toFixed(1),
+        reviewCount: productReviews.length,
+        bestRating: 5,
+        worstRating: 1
+      };
+    }
   }
 
   return meta;
