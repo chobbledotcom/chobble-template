@@ -1,5 +1,6 @@
 ---
 title: Open Source
+featured: true
 description: Built with free and open source tools
 ---
 
