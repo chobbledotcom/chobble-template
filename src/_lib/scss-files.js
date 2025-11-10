@@ -18,6 +18,7 @@ const getScssFiles = () => {
 		menu:
 			fs.existsSync(menuItemsPath) &&
 			fs.readdirSync(menuItemsPath).filter((f) => f.endsWith(".md")).length > 0,
+		"theme-switcher": !!config.enable_theme_switcher,
 	};
 
 	return Object.keys(includes).filter((key) => includes[key]);
