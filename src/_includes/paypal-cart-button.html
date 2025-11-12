@@ -1,0 +1,5 @@
+<button class="add-to-cart paypal-cart-button"
+        data-name="{{ include.product.title }}"
+        data-price="{{ include.product.price | replace: '£', '' | replace: ',', '' }}">
+  Add to Cart
+</button>

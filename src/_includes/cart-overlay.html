@@ -1,0 +1,23 @@
+<div id="cart-overlay" class="cart-overlay" data-paypal-email="{{ config.paypal_email }}">
+  <div class="cart-container">
+    <div class="cart-header">
+      <h2>Shopping Cart</h2>
+      <button class="cart-close" aria-label="Close cart">&times;</button>
+    </div>
+
+    <div class="cart-body">
+      <div class="cart-empty" style="display: block;">
+        <p>Your cart is empty</p>
+      </div>
+      <div class="cart-items"></div>
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span class="cart-total-label">Total:</span>
+        <span class="cart-total-amount">£0.00</span>
+      </div>
+      <button class="cart-checkout" disabled>Checkout with PayPal</button>
+    </div>
+  </div>
+</div>
