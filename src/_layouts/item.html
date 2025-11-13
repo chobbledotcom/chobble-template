@@ -60,8 +60,7 @@ layout: base
     {%- if config.paypal_email and price -%}
       <h2>Buy Now</h2>
       <div class="paypal-button">
-        {%- assign include_product = page -%}
-        {%- include "paypal-cart-button.html", product: include_product -%}
+        {%- include "paypal-cart-button.html" -%}
       </div>
     {%- endif -%}
   {%- endif -%}

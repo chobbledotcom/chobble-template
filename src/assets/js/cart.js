@@ -69,8 +69,12 @@ class PayPalCart {
         const itemName = button.dataset.name;
         const unitPrice = parseFloat(button.dataset.price);
 
+        console.log('Add to cart clicked:', { itemName, unitPrice, button });
+
         if (itemName && !isNaN(unitPrice)) {
           this.addItem(itemName, unitPrice);
+        } else {
+          console.error('Invalid item data:', { itemName, unitPrice });
         }
       }
     });
@@ -172,6 +176,13 @@ class PayPalCart {
     if (badge) {
       badge.textContent = count;
       badge.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    // Toggle cart icon visibility
+    if (count > 0) {
+      this.cartIcon.classList.add('has-items');
+    } else {
+      this.cartIcon.classList.remove('has-items');
     }
   }
 
