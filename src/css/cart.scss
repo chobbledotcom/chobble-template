@@ -1,4 +1,5 @@
 // PayPal Shopping Cart Styles
+// Minimal styles that extend the existing theme
 
 // Floating cart icon
 .cart-icon {
@@ -7,29 +8,13 @@
   left: 2rem;
   width: 3.5rem;
   height: 3.5rem;
-  background: var(--accent-color);
-  color: var(--bg-color);
-  border: none;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   display: none;
-  align-items: center;
-  justify-content: center;
   z-index: 999;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &.has-items {
     display: flex;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  &:active {
-    transform: scale(0.95);
   }
 
   svg {
@@ -41,8 +26,6 @@
     position: absolute;
     top: -0.25rem;
     right: -0.25rem;
-    background: var(--highlight-color);
-    color: var(--bg-color);
     font-size: 0.75rem;
     font-weight: bold;
     min-width: 1.25rem;
@@ -68,10 +51,7 @@
 // Cart overlay (full-page fixed)
 .cart-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
   display: none;
@@ -85,16 +65,16 @@
 }
 
 .cart-container {
-  background: var(--bg-color);
-  color: var(--text-color);
-  border: 2px solid var(--border-color);
-  border-radius: 0.5rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: var(--border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   max-width: 40rem;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .cart-header {
@@ -102,11 +82,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: var(--border);
 
   h2 {
     margin: 0;
-    font-size: 1.5rem;
   }
 
   .cart-close {
@@ -115,18 +94,10 @@
     font-size: 2rem;
     line-height: 1;
     cursor: pointer;
-    color: var(--text-color);
     padding: 0;
+    margin: 0;
     width: 2rem;
     height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: var(--accent-color);
-    }
   }
 }
 
@@ -140,12 +111,6 @@
 .cart-empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: var(--text-color-muted);
-
-  p {
-    margin: 0;
-    font-size: 1.125rem;
-  }
 }
 
 .cart-items {
@@ -155,8 +120,8 @@
 }
 
 .cart-item {
-  border: 2px solid var(--border-color);
-  border-radius: 0.375rem;
+  border: var(--border);
+  border-radius: var(--border-radius);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -176,11 +141,6 @@
     font-weight: bold;
     margin-bottom: 0.25rem;
   }
-
-  .cart-item-price {
-    color: var(--text-color-muted);
-    font-size: 0.875rem;
-  }
 }
 
 .cart-item-controls {
@@ -194,41 +154,18 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border: 2px solid var(--border-color);
-  border-radius: 0.375rem;
-  padding: 0.25rem;
 
   .qty-btn {
-    background: var(--accent-color);
-    color: var(--bg-color);
-    border: none;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    font-size: 1.125rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    &:active {
-      opacity: 0.6;
-    }
+    padding: 0.25rem 0.75rem;
+    margin: 0;
+    min-width: 2rem;
   }
 
   .qty-input {
     width: 3rem;
     text-align: center;
-    border: none;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 1rem;
-    padding: 0.25rem;
+    margin: 0;
+    padding: 0.4rem;
 
     // Hide spinner arrows
     &::-webkit-inner-spin-button,
@@ -244,24 +181,13 @@
 }
 
 .cart-item-remove {
-  background: transparent;
-  color: var(--accent-color);
-  border: 2px solid var(--accent-color);
+  margin: 0;
   padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: background 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    background: var(--accent-color);
-    color: var(--bg-color);
-  }
 }
 
 .cart-footer {
   padding: 1.5rem;
-  border-top: 2px solid var(--border-color);
+  border-top: var(--border);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -273,61 +199,11 @@
   align-items: center;
   font-size: 1.25rem;
   font-weight: bold;
-
-  .cart-total-label {
-    color: var(--text-color);
-  }
-
-  .cart-total-amount {
-    color: var(--accent-color);
-  }
 }
 
 .cart-checkout {
-  background: var(--accent-color);
-  color: var(--bg-color);
-  border: none;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  font-size: 1.125rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-
-  &:hover:not(:disabled) {
-    opacity: 0.9;
-  }
-
-  &:active:not(:disabled) {
-    opacity: 0.8;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-// Add to cart button
-.paypal-cart-button {
-  background: var(--accent-color);
-  color: var(--bg-color);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  display: inline-block;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:active {
-    opacity: 0.8;
-  }
+  width: 100%;
+  margin: 0;
 }
 
 // Mobile adjustments
