@@ -59,9 +59,7 @@ layout: base
     {%- include "stripe-buy-button.html" -%}
     {%- if config.paypal_email and price -%}
       <h2>Buy Now</h2>
-      <div class="paypal-button">
-        {%- include "paypal-cart-button.html" -%}
-      </div>
+      {%- include "paypal-cart-button.html" -%}
     {%- endif -%}
   {%- endif -%}
 
