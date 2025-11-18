@@ -57,7 +57,7 @@ layout: base
 <div class="description">
   {%- if tags and tags contains "product" -%}
     {%- include "stripe-buy-button.html" -%}
-    {%- if config.paypal_email and price -%}
+    {%- if config.paypal_email and price and price != "" -%}
       <h2>Buy Now</h2>
       {%- include "paypal-cart-button.html" -%}
     {%- endif -%}
