@@ -40,6 +40,13 @@
     ></script>
   {% endif %}
 
+  {%- if config.paypal_email -%}
+    <script
+      type="module"
+      src="/assets/js/cart.js"
+    ></script>
+  {%- endif -%}
+
   {%- if collections.news.size > 0 -%}
     <link
       rel="alternate"
