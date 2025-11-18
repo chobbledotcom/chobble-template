@@ -9,7 +9,7 @@
 	"template_repo_url": "https://github.com/chobbledotcom/chobble-template",
 	"chobble_link": "https://chobble.com/services/chobble-template/",
 	"stripe_publishable_key": null,
-	"paypal_email": "a1d4ad79-9f6d-44a1-a5fb-e204caf4975c@4wrd.cc",
+	"paypal_email": null,
 	"products": {
 		"product_thumb_widths": "240,480,640",
 		"product_thumb_sizes": "224px",
