@@ -1,0 +1,37 @@
+{%- if options and options.size > 0 -%} {%- if options.size == 1 -%} {%- assign
+option = options.first -%}
+<button
+  class="add-to-cart paypal-button"
+  data-name="{{ title }}"
+  data-option="{{ option.name }}"
+  data-price="{{ option.unit_price }}"
+  data-max-quantity="{{ option.max_quantity }}"
+>
+  Add to Cart - £{{ option.unit_price }}
+</button>
+
+{%- else -%}
+<div class="product-options-wrapper">
+  <select class="product-options-select">
+    <option value="" disabled selected>Please select option</option>
+    {%- for option in options -%}
+    <option
+      value="{{ forloop.index0 }}"
+      data-price="{{ option.unit_price }}"
+      data-name="{{ option.name }}"
+      data-max-quantity="{{ option.max_quantity }}"
+    >
+      {{- option.name }} - £{{ option.unit_price -}}
+    </option>
+    {%- endfor -%}
+  </select>
+
+  <button
+    class="add-to-cart paypal-button product-option-button"
+    data-name="{{ title }}"
+    disabled
+  >
+    Add to Cart
+  </button>
+</div>
+{%- endif -%} {%- endif -%}

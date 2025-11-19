@@ -3,7 +3,7 @@
 
 class PayPalCart {
   constructor() {
-    this.storageKey = 'paypal_cart';
+    this.storageKey = "paypal_cart";
     this.cartOverlay = null;
     this.cartIcon = null;
     this.init();
@@ -11,19 +11,19 @@ class PayPalCart {
 
   init() {
     // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.setup());
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => this.setup());
     } else {
       this.setup();
     }
   }
 
   setup() {
-    this.cartOverlay = document.getElementById('cart-overlay');
-    this.cartIcon = document.getElementById('cart-icon');
+    this.cartOverlay = document.getElementById("cart-overlay");
+    this.cartIcon = document.getElementById("cart-icon");
 
     if (!this.cartOverlay || !this.cartIcon) {
-      console.error('Cart elements not found');
+      console.error("Cart elements not found");
       return;
     }
 
@@ -37,51 +37,96 @@ class PayPalCart {
 
   setupEventListeners() {
     // Cart icon click - open cart
-    this.cartIcon.addEventListener('click', (e) => {
+    this.cartIcon.addEventListener("click", (e) => {
       e.preventDefault();
       this.openCart();
     });
 
     // Close cart button
-    const closeBtn = this.cartOverlay.querySelector('.cart-close');
+    const closeBtn = this.cartOverlay.querySelector(".cart-close");
     if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.closeCart());
+      closeBtn.addEventListener("click", () => this.closeCart());
     }
 
     // Close cart when clicking overlay background
-    this.cartOverlay.addEventListener('click', (e) => {
+    this.cartOverlay.addEventListener("click", (e) => {
       if (e.target === this.cartOverlay) {
         this.closeCart();
       }
     });
 
     // Checkout button
-    const checkoutBtn = this.cartOverlay.querySelector('.cart-checkout');
+    const checkoutBtn = this.cartOverlay.querySelector(".cart-checkout");
     if (checkoutBtn) {
-      checkoutBtn.addEventListener('click', () => this.checkout());
+      checkoutBtn.addEventListener("click", () => this.checkout());
     }
 
+    // Product option select change
+    document.addEventListener("change", (e) => {
+      if (e.target.classList.contains("product-options-select")) {
+        const select = e.target;
+        const selectedOption = select.options[select.selectedIndex];
+        const button = select.parentElement.querySelector(
+          ".product-option-button",
+        );
+
+        if (button && selectedOption && selectedOption.value) {
+          button.disabled = false;
+          button.dataset.option = selectedOption.dataset.name;
+          button.dataset.price = selectedOption.dataset.price;
+          button.dataset.maxQuantity = selectedOption.dataset.maxQuantity;
+          button.textContent = `Add to Cart - £${selectedOption.dataset.price}`;
+        }
+      }
+    });
+
     // Add to cart buttons
-    document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('add-to-cart')) {
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-to-cart")) {
         e.preventDefault();
         const button = e.target;
+
+        // For multi-option products, check if option is selected
+        if (button.classList.contains("product-option-button")) {
+          const select = button.parentElement.querySelector(
+            ".product-options-select",
+          );
+          if (select && !select.value) {
+            alert("Please select an option");
+            return;
+          }
+        }
+
         const itemName = button.dataset.name;
+        const optionName = button.dataset.option || "";
         const unitPrice = parseFloat(button.dataset.price);
+        const maxQuantity = button.dataset.maxQuantity
+          ? parseInt(button.dataset.maxQuantity)
+          : null;
 
-        console.log('Add to cart clicked:', { itemName, unitPrice, button });
+        // Build full item name including option if present
+        const fullItemName = optionName
+          ? `${itemName} - ${optionName}`
+          : itemName;
 
-        if (itemName && !isNaN(unitPrice)) {
-          this.addItem(itemName, unitPrice);
+        console.log("Add to cart clicked:", {
+          fullItemName,
+          unitPrice,
+          maxQuantity,
+          button,
+        });
+
+        if (fullItemName && !isNaN(unitPrice)) {
+          this.addItem(fullItemName, unitPrice, 1, maxQuantity);
         } else {
-          console.error('Invalid item data:', { itemName, unitPrice });
+          console.error("Invalid item data:", { fullItemName, unitPrice });
         }
       }
     });
 
     // Escape key to close cart
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.cartOverlay.classList.contains('active')) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.cartOverlay.classList.contains("active")) {
         this.closeCart();
       }
     });
@@ -93,7 +138,7 @@ class PayPalCart {
       const cart = localStorage.getItem(this.storageKey);
       return cart ? JSON.parse(cart) : [];
     } catch (e) {
-      console.error('Error reading cart:', e);
+      console.error("Error reading cart:", e);
       return [];
     }
   }
@@ -103,22 +148,34 @@ class PayPalCart {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(cart));
     } catch (e) {
-      console.error('Error saving cart:', e);
+      console.error("Error saving cart:", e);
     }
   }
 
   // Add item to cart
-  addItem(itemName, unitPrice, quantity = 1) {
+  addItem(itemName, unitPrice, quantity = 1, maxQuantity = null) {
     const cart = this.getCart();
-    const existingItem = cart.find(item => item.item_name === itemName);
+    const existingItem = cart.find((item) => item.item_name === itemName);
 
     if (existingItem) {
-      existingItem.quantity += quantity;
+      const newQuantity = existingItem.quantity + quantity;
+      // Check if max_quantity would be exceeded
+      if (maxQuantity && newQuantity > maxQuantity) {
+        alert(`The maximum quantity for this item is ${maxQuantity}`);
+        existingItem.quantity = maxQuantity;
+      } else {
+        existingItem.quantity = newQuantity;
+      }
+      // Update max_quantity if provided (in case it changed)
+      if (maxQuantity !== null) {
+        existingItem.max_quantity = maxQuantity;
+      }
     } else {
       cart.push({
         item_name: itemName,
         unit_price: unitPrice,
-        quantity: quantity
+        quantity: quantity,
+        max_quantity: maxQuantity,
       });
     }
 
@@ -133,7 +190,7 @@ class PayPalCart {
   // Remove item from cart
   removeItem(itemName) {
     let cart = this.getCart();
-    cart = cart.filter(item => item.item_name !== itemName);
+    cart = cart.filter((item) => item.item_name !== itemName);
     this.saveCart(cart);
     this.updateCartDisplay();
     this.updateCartCount();
@@ -142,13 +199,19 @@ class PayPalCart {
   // Update item quantity
   updateQuantity(itemName, quantity) {
     const cart = this.getCart();
-    const item = cart.find(item => item.item_name === itemName);
+    const item = cart.find((item) => item.item_name === itemName);
 
     if (item) {
       if (quantity <= 0) {
         this.removeItem(itemName);
       } else {
-        item.quantity = quantity;
+        // Check if max_quantity would be exceeded
+        if (item.max_quantity && quantity > item.max_quantity) {
+          alert(`The maximum quantity for this item is ${item.max_quantity}`);
+          item.quantity = item.max_quantity;
+        } else {
+          item.quantity = quantity;
+        }
         this.saveCart(cart);
         this.updateCartDisplay();
         this.updateCartCount();
@@ -159,7 +222,10 @@ class PayPalCart {
   // Calculate cart total
   getCartTotal() {
     const cart = this.getCart();
-    return cart.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
+    return cart.reduce(
+      (total, item) => total + item.unit_price * item.quantity,
+      0,
+    );
   }
 
   // Get total item count
@@ -171,40 +237,42 @@ class PayPalCart {
   // Update cart count badge
   updateCartCount() {
     const count = this.getItemCount();
-    const badge = this.cartIcon.querySelector('.cart-count');
+    const badge = this.cartIcon.querySelector(".cart-count");
 
     if (badge) {
       badge.textContent = count;
-      badge.style.display = count > 0 ? 'block' : 'none';
+      badge.style.display = count > 0 ? "block" : "none";
     }
 
-    // Toggle cart icon visibility
+    // Toggle cart icon visibility based on item count
     if (count > 0) {
-      this.cartIcon.classList.add('has-items');
+      this.cartIcon.style.display = "flex";
     } else {
-      this.cartIcon.classList.remove('has-items');
+      this.cartIcon.style.display = "none";
     }
   }
 
   // Update cart display in overlay
   updateCartDisplay() {
     const cart = this.getCart();
-    const cartItems = this.cartOverlay.querySelector('.cart-items');
-    const cartEmpty = this.cartOverlay.querySelector('.cart-empty');
-    const cartTotal = this.cartOverlay.querySelector('.cart-total-amount');
-    const checkoutBtn = this.cartOverlay.querySelector('.cart-checkout');
+    const cartItems = this.cartOverlay.querySelector(".cart-items");
+    const cartEmpty = this.cartOverlay.querySelector(".cart-empty");
+    const cartTotal = this.cartOverlay.querySelector(".cart-total-amount");
+    const checkoutBtn = this.cartOverlay.querySelector(".cart-checkout");
 
     if (!cartItems) return;
 
     if (cart.length === 0) {
-      cartItems.innerHTML = '';
-      if (cartEmpty) cartEmpty.style.display = 'block';
+      cartItems.innerHTML = "";
+      if (cartEmpty) cartEmpty.style.display = "block";
       if (checkoutBtn) checkoutBtn.disabled = true;
     } else {
-      if (cartEmpty) cartEmpty.style.display = 'none';
+      if (cartEmpty) cartEmpty.style.display = "none";
       if (checkoutBtn) checkoutBtn.disabled = false;
 
-      cartItems.innerHTML = cart.map(item => `
+      cartItems.innerHTML = cart
+        .map(
+          (item) => `
         <div class="cart-item" data-name="${this.escapeHtml(item.item_name)}">
           <div class="cart-item-info">
             <div class="cart-item-name">${this.escapeHtml(item.item_name)}</div>
@@ -214,37 +282,40 @@ class PayPalCart {
             <div class="cart-item-quantity">
               <button class="qty-btn qty-decrease" data-name="${this.escapeHtml(item.item_name)}">−</button>
               <input type="number" class="qty-input" value="${item.quantity}" min="1"
+                     ${item.max_quantity ? `max="${item.max_quantity}"` : ""}
                      data-name="${this.escapeHtml(item.item_name)}">
               <button class="qty-btn qty-increase" data-name="${this.escapeHtml(item.item_name)}">+</button>
             </div>
             <button class="cart-item-remove" data-name="${this.escapeHtml(item.item_name)}">Remove</button>
           </div>
         </div>
-      `).join('');
+      `,
+        )
+        .join("");
 
       // Add event listeners for quantity controls
-      cartItems.querySelectorAll('.qty-decrease').forEach(btn => {
-        btn.addEventListener('click', () => {
+      cartItems.querySelectorAll(".qty-decrease").forEach((btn) => {
+        btn.addEventListener("click", () => {
           const itemName = btn.dataset.name;
-          const item = cart.find(i => i.item_name === itemName);
+          const item = cart.find((i) => i.item_name === itemName);
           if (item) {
             this.updateQuantity(itemName, item.quantity - 1);
           }
         });
       });
 
-      cartItems.querySelectorAll('.qty-increase').forEach(btn => {
-        btn.addEventListener('click', () => {
+      cartItems.querySelectorAll(".qty-increase").forEach((btn) => {
+        btn.addEventListener("click", () => {
           const itemName = btn.dataset.name;
-          const item = cart.find(i => i.item_name === itemName);
+          const item = cart.find((i) => i.item_name === itemName);
           if (item) {
             this.updateQuantity(itemName, item.quantity + 1);
           }
         });
       });
 
-      cartItems.querySelectorAll('.qty-input').forEach(input => {
-        input.addEventListener('change', () => {
+      cartItems.querySelectorAll(".qty-input").forEach((input) => {
+        input.addEventListener("change", () => {
           const itemName = input.dataset.name;
           const quantity = parseInt(input.value);
           if (!isNaN(quantity)) {
@@ -253,8 +324,8 @@ class PayPalCart {
         });
       });
 
-      cartItems.querySelectorAll('.cart-item-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
+      cartItems.querySelectorAll(".cart-item-remove").forEach((btn) => {
+        btn.addEventListener("click", () => {
           this.removeItem(btn.dataset.name);
         });
       });
@@ -268,21 +339,21 @@ class PayPalCart {
 
   // Open cart overlay
   openCart() {
-    this.cartOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    this.cartOverlay.classList.add("active");
+    document.body.style.overflow = "hidden";
   }
 
   // Close cart overlay
   closeCart() {
-    this.cartOverlay.classList.remove('active');
-    document.body.style.overflow = '';
+    this.cartOverlay.classList.remove("active");
+    document.body.style.overflow = "";
   }
 
   // Show "added to cart" feedback
   showAddedFeedback() {
-    this.cartIcon.classList.add('cart-bounce');
+    this.cartIcon.classList.add("cart-bounce");
     setTimeout(() => {
-      this.cartIcon.classList.remove('cart-bounce');
+      this.cartIcon.classList.remove("cart-bounce");
     }, 600);
   }
 
@@ -293,18 +364,18 @@ class PayPalCart {
 
     const paypalEmail = this.cartOverlay.dataset.paypalEmail;
     if (!paypalEmail) {
-      alert('PayPal email not configured');
+      alert("PayPal email not configured");
       return;
     }
 
     // Build PayPal checkout URL
-    const baseUrl = 'https://www.paypal.com/cgi-bin/webscr';
+    const baseUrl = "https://www.paypal.com/cgi-bin/webscr";
     const params = new URLSearchParams();
 
-    params.append('cmd', '_cart');
-    params.append('upload', '1');
-    params.append('business', paypalEmail);
-    params.append('currency_code', 'GBP'); // You can make this configurable
+    params.append("cmd", "_cart");
+    params.append("upload", "1");
+    params.append("business", paypalEmail);
+    params.append("currency_code", "GBP"); // You can make this configurable
 
     // Add each cart item
     cart.forEach((item, index) => {
@@ -325,7 +396,7 @@ class PayPalCart {
 
   // Helper: Escape HTML
   escapeHtml(text) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
   }

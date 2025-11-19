@@ -8,7 +8,6 @@ settings:
   content:
     merge: true
 content:
-
   - name: pages
     label: Pages
     path: src/pages
@@ -34,7 +33,7 @@ content:
           - { name: url, type: string }
       - { name: layout, type: string }
       - { name: permalink, type: string }
-      
+
   - name: news
     label: News
     path: src/news
@@ -49,7 +48,7 @@ content:
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_description, type: string, label: Meta Description }
       - { name: meta_title, type: string, label: Meta Title }
-      
+
   - name: products
     label: Products
     path: src/products
@@ -67,7 +66,24 @@ content:
           search: "title"
           value: "{path}"
           label: "{title}"
-      - { name: price, label: Price, type: string }
+      - name: options
+        label: Product Options
+        type: object
+        list: true
+        fields:
+          - { name: name, type: string, label: Option Name, required: true }
+          - {
+              name: max_quantity,
+              type: number,
+              label: Max Quantity,
+              default: 10,
+            }
+          - {
+              name: unit_price,
+              type: number,
+              label: Unit Price (£),
+              required: true,
+            }
       - { name: etsy_url, label: Etsy URL, type: string }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: features, type: string, label: Features, list: true }
@@ -79,7 +95,7 @@ content:
       - { name: meta_description, type: string, label: Meta Description }
       - { name: meta_title, type: string, label: Meta Title }
       - { name: subtitle, type: string, label: Subtitle }
-      
+
   - name: categories
     label: Categories
     path: src/categories
@@ -95,7 +111,7 @@ content:
       - { name: meta_description, type: string, label: Meta Description }
       - { name: meta_title, type: string, label: Meta Title }
       - { name: subtitle, type: string, label: Subtitle }
-      
+
   - name: team
     label: Team
     path: src/team
@@ -113,7 +129,7 @@ content:
           type: code,
           options: { language: markdown },
         }
-        
+
   - name: reviews
     label: Reviews
     path: src/reviews
@@ -132,7 +148,7 @@ content:
           search: "title"
           value: "{path}"
           label: "{title}"
-        
+
   - name: events
     label: Events
     path: src/events
@@ -148,9 +164,19 @@ content:
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: event_date, label: Event Date, type: date, required: false }
-      - { name: recurring_date, type: string, label: Recurring Date (e.g. "Every Friday at 2 PM"), required: false }
+      - {
+          name: recurring_date,
+          type: string,
+          label: Recurring Date (e.g. "Every Friday at 2 PM"),
+          required: false,
+        }
       - { name: event_location, type: string, label: Event Location }
-      - { name: map_embed_src, type: string, label: Map Embed URL, required: false }
+      - {
+          name: map_embed_src,
+          type: string,
+          label: Map Embed URL,
+          required: false,
+        }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_title, type: string, label: Meta Title }
@@ -161,7 +187,7 @@ content:
     path: src/snippets
     type: collection
     subfolders: false
-    filename: '{primary}.md'
+    filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
       - { name: body, label: Body, type: code, options: { language: markdown } }
@@ -220,17 +246,37 @@ content:
           label: "{name}"
       - { name: description, type: string, label: Description }
       - { name: body, label: Body, type: code, options: { language: markdown } }
-  
+
   - name: homepage
     label: Homepage Settings
     type: file
     path: src/_data/homepage.json
     fields:
-      - { name: show_products, type: boolean, label: Show Products Section, default: true }
-      - { name: show_menus, type: boolean, label: Show Menus Section, default: true }
-      - { name: show_news, type: boolean, label: Show News Section, default: true }
-      - { name: show_recurring_events, type: boolean, label: Show Recurring Events, default: true }
-      
+      - {
+          name: show_products,
+          type: boolean,
+          label: Show Products Section,
+          default: true,
+        }
+      - {
+          name: show_menus,
+          type: boolean,
+          label: Show Menus Section,
+          default: true,
+        }
+      - {
+          name: show_news,
+          type: boolean,
+          label: Show News Section,
+          default: true,
+        }
+      - {
+          name: show_recurring_events,
+          type: boolean,
+          label: Show Recurring Events,
+          default: true,
+        }
+
   - name: site
     label: Site Configuration
     type: file
@@ -258,7 +304,7 @@ content:
           - { name: WhatsApp, type: string, label: WhatsApp }
           - { name: RSS, type: string, label: RSS }
       - { name: map_embed_src, type: string, label: Map Embed URL }
-      
+
   - name: meta
     label: Meta Configuration
     type: file
@@ -295,7 +341,12 @@ content:
               - { name: telephone, type: string, label: Telephone }
               - { name: contactType, type: string, label: Contact Type }
               - { name: areaServed, type: string, label: Area Served }
-              - { name: availableLanguage, type: string, label: Available Languages, list: true }
+              - {
+                  name: availableLanguage,
+                  type: string,
+                  label: Available Languages,
+                  list: true,
+                }
 
   - name: alt-tags
     label: Image Alt Tags
