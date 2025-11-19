@@ -12,7 +12,7 @@
       <span></span>
     </label>
   {%- endif -%}
-  {%- assign navItems = collections.all | eleventyNavigation -%}
+  {%- assign navItems = collections.navigationLinks | eleventyNavigation -%}
   {%- if page and page.navigationParent -%}
     {{ navItems | toNavigation: page.navigationParent -}}
   {%- elsif eleventyNavigation and eleventyNavigation.key -%}

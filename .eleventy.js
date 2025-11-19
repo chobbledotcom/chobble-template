@@ -1,3 +1,5 @@
+import schemaPlugin from "@quasibit/eleventy-plugin-schema";
+
 import { configureCacheBuster } from "./src/_lib/cache-buster.js";
 import { configureCategories } from "./src/_lib/categories.js";
 import { configureExternalLinks } from "./src/_lib/external-links.js";
@@ -14,7 +16,6 @@ import { configureProducts } from "./src/_lib/products.js";
 import { configureScss } from "./src/_lib/scss.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
 import { configureTags } from "./src/_lib/tags.js";
-import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
 export default async function (eleventyConfig) {
 	eleventyConfig.addWatchTarget("./src/**/*");
@@ -31,6 +32,7 @@ export default async function (eleventyConfig) {
 
 	configureCacheBuster(eleventyConfig);
 	configureCategories(eleventyConfig);
+	configureLayoutAliases(eleventyConfig);
 	await configureExternalLinks(eleventyConfig);
 	await configureFeed(eleventyConfig);
 	configureFileUtils(eleventyConfig);
@@ -38,8 +40,8 @@ export default async function (eleventyConfig) {
 	configureImages(eleventyConfig);
 	configureMenus(eleventyConfig);
 	await configureNavigation(eleventyConfig);
-	await configureOpeningTimes(eleventyConfig);
-	await configureRecurringEvents(eleventyConfig);
+	configureOpeningTimes(eleventyConfig);
+	configureRecurringEvents(eleventyConfig);
 	configureProducts(eleventyConfig);
 	configureScss(eleventyConfig);
 	configureScssFiles(eleventyConfig);
