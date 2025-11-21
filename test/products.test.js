@@ -10,6 +10,8 @@ import {
   processGallery,
   addGallery,
   createProductsCollection,
+  createReviewsCollection,
+  createVisibleReviewsCollection,
   getProductsByCategory,
   getReviewsByProduct,
   configureProducts,
@@ -280,6 +282,105 @@ const testCases = [
     },
   },
   {
+    name: "createReviewsCollection-basic",
+    description: "Creates reviews collection from API",
+    test: () => {
+      const mockReviews = [
+        { data: { name: "Review 1", rating: 5 } },
+        { data: { name: "Review 2", rating: 4 } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          expectStrictEqual(tag, "review", "Should filter by review tag");
+          return mockReviews;
+        },
+      };
+
+      const result = createReviewsCollection(mockCollectionApi);
+
+      expectStrictEqual(result.length, 2, "Should return all reviews");
+      expectStrictEqual(
+        result[0].data.name,
+        "Review 1",
+        "Should include first review",
+      );
+      expectStrictEqual(
+        result[1].data.name,
+        "Review 2",
+        "Should include second review",
+      );
+    },
+  },
+  {
+    name: "createVisibleReviewsCollection-basic",
+    description: "Creates visible reviews collection excluding hidden reviews",
+    test: () => {
+      const mockReviews = [
+        { data: { name: "Review 1", rating: 5 } },
+        { data: { name: "Review 2", rating: 4, hidden: true } },
+        { data: { name: "Review 3", rating: 5 } },
+        { data: { name: "Review 4", rating: 3, hidden: true } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          expectStrictEqual(tag, "review", "Should filter by review tag");
+          return mockReviews;
+        },
+      };
+
+      const result = createVisibleReviewsCollection(mockCollectionApi);
+
+      expectStrictEqual(result.length, 2, "Should return only visible reviews");
+      expectStrictEqual(
+        result[0].data.name,
+        "Review 1",
+        "Should include first visible review",
+      );
+      expectStrictEqual(
+        result[1].data.name,
+        "Review 3",
+        "Should include second visible review",
+      );
+    },
+  },
+  {
+    name: "createVisibleReviewsCollection-no-hidden",
+    description: "Returns all reviews when none are hidden",
+    test: () => {
+      const mockReviews = [
+        { data: { name: "Review 1", rating: 5 } },
+        { data: { name: "Review 2", rating: 4 } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          expectStrictEqual(tag, "review", "Should filter by review tag");
+          return mockReviews;
+        },
+      };
+
+      const result = createVisibleReviewsCollection(mockCollectionApi);
+
+      expectStrictEqual(
+        result.length,
+        2,
+        "Should return all reviews when none are hidden",
+      );
+      expectStrictEqual(
+        result[0].data.name,
+        "Review 1",
+        "Should include first review",
+      );
+      expectStrictEqual(
+        result[1].data.name,
+        "Review 2",
+        "Should include second review",
+      );
+    },
+  },
+  {
     name: "configureProducts-basic",
     description: "Configures products collection and filters",
     test: () => {
@@ -291,6 +392,16 @@ const testCases = [
         mockConfig.collections,
         "products",
         "Should add products collection",
+      );
+      expectFunctionType(
+        mockConfig.collections,
+        "reviews",
+        "Should add reviews collection",
+      );
+      expectFunctionType(
+        mockConfig.collections,
+        "visibleReviews",
+        "Should add visibleReviews collection",
       );
       expectFunctionType(
         mockConfig.filters,
