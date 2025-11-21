@@ -24,6 +24,11 @@ const createReviewsCollection = (collectionApi) => {
   return collectionApi.getFilteredByTag("review") || [];
 };
 
+const createVisibleReviewsCollection = (collectionApi) => {
+  const reviews = collectionApi.getFilteredByTag("review") || [];
+  return reviews.filter((review) => review.data.hidden !== true);
+};
+
 const getProductsByCategory = (products, categorySlug) => {
   if (!products) return [];
   return products
@@ -43,6 +48,10 @@ const getReviewsByProduct = (reviews, productSlug) =>
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("reviews", createReviewsCollection);
+  eleventyConfig.addCollection(
+    "visibleReviews",
+    createVisibleReviewsCollection,
+  );
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
 
@@ -54,6 +63,7 @@ export {
   addGallery,
   createProductsCollection,
   createReviewsCollection,
+  createVisibleReviewsCollection,
   getProductsByCategory,
   getReviewsByProduct,
   configureProducts,

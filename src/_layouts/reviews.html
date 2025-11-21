@@ -4,6 +4,6 @@ layout: base
 
 {{ content }}
 
-{%- assign reviews = collections.review | reverse -%}
+{%- assign reviews = collections.visibleReviews | reverse -%}
 {%- assign product_links = true -%}
 {% include "reviews-list.html" %}
