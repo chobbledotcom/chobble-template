@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import assert from 'assert';
-import markdownIt from 'markdown-it';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import fs from "fs";
+import path from "path";
+import assert from "assert";
+import markdownIt from "markdown-it";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,48 +11,48 @@ const __dirname = dirname(__filename);
 const md = new markdownIt({ html: true });
 
 // Test suite configuration
-const TEST_NAME = 'render_snippet';
-const testDir = path.join(__dirname, 'test-snippets');
-const snippetsDir = path.join(testDir, 'src/snippets');
+const TEST_NAME = "render_snippet";
+const testDir = path.join(__dirname, "test-snippets");
+const snippetsDir = path.join(testDir, "src/snippets");
 
 // Test case definitions
 const testCases = [
   {
-    name: 'with-frontmatter',
-    description: 'Snippet with frontmatter',
+    name: "with-frontmatter",
+    description: "Snippet with frontmatter",
     content: `---
 title: Test Title
 layout: page
 ---
 # Heading
 Content after frontmatter`,
-    expectedResult: '# Heading\nContent after frontmatter',
+    expectedResult: "# Heading\nContent after frontmatter",
   },
   {
-    name: 'without-frontmatter',
-    description: 'Snippet without frontmatter',
+    name: "without-frontmatter",
+    description: "Snippet without frontmatter",
     content: `# Heading Only
 This is content without any frontmatter`,
     expectedResult: null, // null means use the original content
   },
   {
-    name: 'empty',
-    description: 'Empty snippet',
-    content: '',
-    expectedResult: '',
+    name: "empty",
+    description: "Empty snippet",
+    content: "",
+    expectedResult: "",
   },
   {
-    name: 'only-frontmatter',
-    description: 'Snippet with only frontmatter',
+    name: "only-frontmatter",
+    description: "Snippet with only frontmatter",
     content: `---
 title: Only Frontmatter
 layout: page
 ---`,
-    expectedResult: '',
+    expectedResult: "",
   },
   {
-    name: 'malformed-frontmatter',
-    description: 'Snippet with malformed frontmatter',
+    name: "malformed-frontmatter",
+    description: "Snippet with malformed frontmatter",
     content: `---
 title: Malformed
 layout: page
@@ -61,11 +61,11 @@ Content with malformed frontmatter`,
     expectedResult: null, // null means use the original content
   },
   {
-    name: 'non-existent',
-    description: 'Non-existent snippet file',
+    name: "non-existent",
+    description: "Non-existent snippet file",
     content: null, // No file will be created
-    defaultValue: 'Default content',
-    expectedResult: 'Default content',
+    defaultValue: "Default content",
+    expectedResult: "Default content",
   },
 ];
 
@@ -88,7 +88,8 @@ const mockConfig = {
   addExtension: () => {},
   setLayoutsDirectory: () => {},
   addGlobalData: () => {},
-  render_snippet: null
+  addLayoutAlias: () => {},
+  render_snippet: null,
 };
 
 // Setup and run tests
@@ -103,9 +104,12 @@ async function runTests() {
     }
 
     // Create test files
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       if (testCase.content !== null) {
-        fs.writeFileSync(path.join(snippetsDir, `${testCase.name}.md`), testCase.content);
+        fs.writeFileSync(
+          path.join(snippetsDir, `${testCase.name}.md`),
+          testCase.content,
+        );
       }
     });
 
@@ -115,7 +119,7 @@ async function runTests() {
 
     try {
       // Import and initialize the eleventy config with our mock
-      const eleventyConfigModule = await import('../.eleventy.js');
+      const eleventyConfigModule = await import("../.eleventy.js");
       const eleventyConfig = eleventyConfigModule.default;
       await eleventyConfig(mockConfig);
 
@@ -124,22 +128,32 @@ async function runTests() {
       // Run each test case
       for (const testCase of testCases) {
         const testId = `${TEST_NAME}/${testCase.name}`;
-        const defaultValue = testCase.defaultValue || '';
-        
-        let result = await mockConfig.render_snippet(testCase.name, defaultValue);
+        const defaultValue = testCase.defaultValue || "";
+
+        let result = await mockConfig.render_snippet(
+          testCase.name,
+          defaultValue,
+        );
         let expected;
-        
-        if (testCase.name === 'non-existent') {
+
+        if (testCase.name === "non-existent") {
           // For non-existent files, the default string is returned directly without markdown rendering
           expected = defaultValue;
         } else if (testCase.expectedResult === null) {
           // Use original content if expectedResult is null
           expected = md.render(testCase.content);
         } else {
-          expected = testCase.expectedResult === '' ? md.render('') : md.render(testCase.expectedResult);
+          expected =
+            testCase.expectedResult === ""
+              ? md.render("")
+              : md.render(testCase.expectedResult);
         }
-        
-        assert.strictEqual(result, expected, `${testId} failed: ${testCase.description}`);
+
+        assert.strictEqual(
+          result,
+          expected,
+          `${testId} failed: ${testCase.description}`,
+        );
         console.log(`✅ PASS: ${testId} - ${testCase.description}`);
       }
 
