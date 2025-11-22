@@ -185,6 +185,7 @@ class PayPalCart {
 
     // Show feedback
     this.showAddedFeedback();
+    console.log("Item added to cart, updated display and count");
   }
 
   // Remove item from cart
@@ -247,8 +248,10 @@ class PayPalCart {
     // Toggle cart icon visibility based on item count
     if (count > 0) {
       this.cartIcon.style.display = "flex";
+      console.log("Cart icon shown - items in cart:", count);
     } else {
       this.cartIcon.style.display = "none";
+      console.log("Cart icon hidden - no items in cart");
     }
   }
 

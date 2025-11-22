@@ -1,7 +1,16 @@
 ---
 title: Ultra Compact Doodah X5
 short_description: Pocket-sized doodah with maximum efficiency
-price: £79.99
+options:
+  - name: Basic
+    max_quantity: 25
+    unit_price: 79.99
+  - name: Plus
+    max_quantity: 15
+    unit_price: 99.99
+  - name: Pro
+    max_quantity: 10
+    unit_price: 129.99
 header_image: placeholder-wide-3.jpg
 categories:
   - compact-doodahs

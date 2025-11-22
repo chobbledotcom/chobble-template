@@ -1,7 +1,16 @@
 ---
 title: Pocket Doodah Mini
 short_description: Ultra-portable doodah for everyday carry
-price: £49.99
+options:
+  - name: Basic
+    max_quantity: 30
+    unit_price: 49.99
+  - name: Color Pack
+    max_quantity: 20
+    unit_price: 69.99
+  - name: Premium
+    max_quantity: 15
+    unit_price: 89.99
 header_image: placeholder-wide-2.jpg
 categories:
   - compact-doodahs

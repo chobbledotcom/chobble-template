@@ -1,7 +1,16 @@
 ---
 title: Doodah Pro Enterprise Edition
 short_description: Industrial-grade doodah for commercial applications
-price: £449.99
+options:
+  - name: Basic
+    max_quantity: 20
+    unit_price: 449.99
+  - name: Professional
+    max_quantity: 10
+    unit_price: 599.99
+  - name: Enterprise Plus
+    max_quantity: 5
+    unit_price: 899.99
 header_image: placeholder-wide-1.jpg
 categories:
   - professional-doodahs

@@ -1,7 +1,16 @@
 ---
 title: SmarThingy Home Hub
 short_description: Central command center for your smart thingy ecosystem
-price: £399.99
+options:
+  - name: Starter
+    max_quantity: 20
+    unit_price: 399.99
+  - name: Advanced
+    max_quantity: 12
+    unit_price: 549.99
+  - name: Premium
+    max_quantity: 8
+    unit_price: 799.99
 header_image: placeholder-wide-1.jpg
 categories:
   - smart-thingies

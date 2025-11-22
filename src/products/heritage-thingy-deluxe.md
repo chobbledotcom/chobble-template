@@ -1,7 +1,16 @@
 ---
 title: Heritage Thingy Deluxe
 short_description: Handcrafted classic thingy with timeless appeal
-price: £189.99
+options:
+  - name: Standard
+    max_quantity: 10
+    unit_price: 189.99
+  - name: Engraved
+    max_quantity: 5
+    unit_price: 229.99
+  - name: Collector's Edition
+    max_quantity: 3
+    unit_price: 299.99
 header_image: placeholder-wide-5.jpg
 categories:
   - classic-thingies

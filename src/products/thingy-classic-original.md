@@ -1,7 +1,16 @@
 ---
 title: Thingy Classic Original
 short_description: The original thingy design that started it all
-price: £129.99
+options:
+  - name: Standard
+    max_quantity: 15
+    unit_price: 129.99
+  - name: Vintage Box
+    max_quantity: 10
+    unit_price: 159.99
+  - name: Collector's Edition
+    max_quantity: 5
+    unit_price: 249.99
 header_image: placeholder-wide-3.jpg
 categories:
   - classic-thingies

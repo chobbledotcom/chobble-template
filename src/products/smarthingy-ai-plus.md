@@ -1,7 +1,16 @@
 ---
 title: SmarThingy AI Plus
 short_description: Next-generation AI-powered thingy with cloud connectivity
-price: £299.99
+options:
+  - name: Standard
+    max_quantity: 15
+    unit_price: 299.99
+  - name: Pro
+    max_quantity: 8
+    unit_price: 399.99
+  - name: Max
+    max_quantity: 5
+    unit_price: 549.99
 header_image: placeholder-wide-4.jpg
 categories:
   - smart-thingies

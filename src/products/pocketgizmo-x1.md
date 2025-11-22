@@ -1,7 +1,16 @@
 ---
 title: PocketGizmo X1
 short_description: Premium pocket gizmo with advanced vision system
-price: £799.99
+options:
+  - name: Standard
+    max_quantity: 12
+    unit_price: 799.99
+  - name: Pro
+    max_quantity: 8
+    unit_price: 999.99
+  - name: Max
+    max_quantity: 4
+    unit_price: 1299.99
 header_image: placeholder-wide-3.jpg
 categories:
   - pocket-widgets
