@@ -27,12 +27,36 @@ class PayPalCart {
       return;
     }
 
+    // Reset product option selects on page load
+    this.resetProductSelects();
+
     // Set up event listeners
     this.setupEventListeners();
 
     // Update cart display
     this.updateCartDisplay();
     this.updateCartCount();
+  }
+
+  resetProductSelects() {
+    // Reset all product option selects to default "Please select option"
+    const selects = document.querySelectorAll(".product-options-select");
+    selects.forEach((select) => {
+      // Reset to first option (index 0, which is "Please select option")
+      select.selectedIndex = 0;
+
+      // Also disable the associated button
+      const button = select.parentElement.querySelector(
+        ".product-option-button",
+      );
+      if (button) {
+        button.disabled = true;
+        button.dataset.option = "";
+        button.dataset.price = "";
+        button.dataset.maxQuantity = "";
+        button.textContent = "Add to Cart";
+      }
+    });
   }
 
   setupEventListeners() {
