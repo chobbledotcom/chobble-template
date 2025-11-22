@@ -1,15 +1,36 @@
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ meta_title | default: page.meta_title | escape }}</title>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    {{- meta_title | default: page.meta_title | escape -}}
+  </title>
+
   {%- if meta_description -%}
-    <meta name="description" content="{{ meta_description }}" />
+    <meta
+      name="description"
+      content="{{ meta_description }}"
+    >
   {%- endif -%}
 
-  <link rel="stylesheet" href="{{ '/css/bundle.css' | cacheBust }}" />
+  <link
+    rel="stylesheet"
+    href="{{ '/css/bundle.css' | cacheBust }}"
+  >
 
-  <link rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html" />
-  <link rel="canonical" href="{{ site.url }}{{ page.url }}" />
+  <link
+    rel="license"
+    href="https://www.gnu.org/licenses/gpl-3.0.en.html"
+  >
+
+  <link
+    rel="canonical"
+    href="{{ site.url }}{{ page.url }}"
+  >
 
   <script
     type="module"
@@ -35,7 +56,7 @@
   {%- if gallery and gallery.size > 0 -%}
     <script
       async
-      src="/assets/js/gallery.js"
+      src="{{ '/assets/js/gallery.js' | cacheBust }}"
       type="text/javascript"
     ></script>
   {% endif %}
@@ -43,7 +64,7 @@
   {%- if config.paypal_email -%}
     <script
       type="module"
-      src="/assets/js/cart.js"
+      src="{{ '/assets/js/cart.js' | cacheBust }}"
     ></script>
   {%- endif -%}
 
@@ -52,11 +73,15 @@
       rel="alternate"
       type="application/atom+xml"
       href="/feed.xml"
-      title="News" />
+      title="News"
+    >
   {%- endif -%}
 
   {%- if no_index -%}
-    <meta name="robots" value="noindex,nofollow" />
+    <meta
+      name="robots"
+      value="noindex,nofollow"
+    >
   {%- endif -%}
 
   {%- assign schemaType = "page" -%}
@@ -71,7 +96,7 @@
   {%- elsif layout == "contact.html" -%}
     {%- assign schemaType = "organization" -%}
   {%- endif -%}
-  
+
   {% jsonLdScript meta, schemaType, tags %}
 
   {%- include "head-scripts.html" -%}
