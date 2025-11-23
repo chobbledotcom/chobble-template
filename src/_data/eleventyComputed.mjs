@@ -5,8 +5,14 @@ const require = createRequire(import.meta.url);
 
 function isValidImage(imagePath) {
   if (!imagePath || imagePath.trim() === "") return false;
-  const fullPath = join(process.cwd(), "src", "images", imagePath);
-  return existsSync(fullPath);
+  const filename = imagePath.split("/").pop();
+  const fullPath = join(process.cwd(), "src", "images", filename);
+  if (existsSync(fullPath)) {
+    return true;
+  } else {
+    console.warn(`Warning: Image file not found: ${fullPath}`);
+    return false;
+  }
 }
 
 export default {
