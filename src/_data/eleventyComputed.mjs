@@ -7,5 +7,11 @@ export default {
   description: (data) => data.snippet || data.meta_description || "",
   contactForm: () => require("./contact-form.json"),
   thumbnail: (data) =>
-    data.thumbnail || (data.gallery && data.gallery[0]) || data.header_image,
+    data.thumbnail && data.thumbnail.trim() !== ""
+      ? data.thumbnail
+      : data.gallery && data.gallery[0] && data.gallery[0].trim() !== ""
+        ? data.gallery[0]
+        : data.header_image && data.header_image.trim() !== ""
+          ? data.header_image
+          : null,
 };
