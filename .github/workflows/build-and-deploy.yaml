@@ -39,6 +39,7 @@ jobs:
       - name: Build Site
         run: |
           npm ci
+          npm run build
 
       - name: Upload built site
         uses: actions/upload-artifact@v4
