@@ -1,4 +1,4 @@
-import {JSDOM} from "jsdom";
+import { JSDOM } from "jsdom";
 import configModule from "../_data/config.mjs";
 
 const isExternalUrl = (url) => {
@@ -35,9 +35,10 @@ const transformExternalLinks = (content, config) => {
 		return content;
 	}
 
+	const dom = new JSDOM(content);
 	const {
-		window: {document},
-	} = new JSDOM(content);
+		window: { document },
+	} = dom;
 
 	const links = document.querySelectorAll("a[href]");
 
@@ -49,7 +50,7 @@ const transformExternalLinks = (content, config) => {
 		}
 	});
 
-	return new JSDOM(document.documentElement.outerHTML).serialize();
+	return dom.serialize();
 };
 
 const createExternalLinksTransform = (config) => {
@@ -73,7 +74,10 @@ const configureExternalLinks = async (eleventyConfig) => {
 		return externalLinkFilter(url, config);
 	});
 
-	eleventyConfig.addTransform("externalLinks", createExternalLinksTransform(config));
+	eleventyConfig.addTransform(
+		"externalLinks",
+		createExternalLinksTransform(config),
+	);
 };
 
 export {

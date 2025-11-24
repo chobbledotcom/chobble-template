@@ -132,7 +132,7 @@ async function processAndWrapImage({
 	const metadata = await sharpImage.metadata();
 
 	// Check if we should skip base64 placeholder for SVG or images under 5KB
-	const isSvg = metadata.format === 'svg';
+	const isSvg = metadata.format === "svg";
 	const fileSize = fs.statSync(path).size;
 	const isUnder5KB = fileSize < 5 * 1024;
 	const shouldSkipPlaceholder = isSvg || isUnder5KB;
@@ -236,9 +236,10 @@ const imageShortcode = async (
 const transformImages = async (content) => {
 	if (!content || !content.includes("<img")) return content;
 
+	const dom = new JSDOM(content);
 	const {
 		window: { document },
-	} = new JSDOM(content);
+	} = dom;
 	const images = document.querySelectorAll('img[src^="/images/"]');
 
 	if (images.length === 0) return content;
@@ -282,7 +283,7 @@ const transformImages = async (content) => {
 		parentNode.removeChild(p);
 	});
 
-	return new JSDOM(document.documentElement.outerHTML).serialize();
+	return dom.serialize();
 };
 
 export {
