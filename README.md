@@ -53,7 +53,6 @@ And Eleventy features like:
 And quality of life features like:
 
 - Linting with [Biome](https://biomejs.dev/)
-- Tidy HTML output from [Prettier](https://prettier.io)
 - CSS bundling (but not in dev)
 - Instant page navigation from [Turbo](https://turbo.hotwired.dev/)
 
