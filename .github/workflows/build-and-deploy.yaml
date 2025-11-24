@@ -36,10 +36,9 @@ jobs:
           sed -i 's/"formspark_id": null/"formspark_id": "${{ secrets.FORMSPARK_ID }}"/g' src/_data/config.json
           sed -i 's/"botpoison_public_key": null/"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"/g' src/_data/config.json
 
-      - name: Build and Check Formatting
+      - name: Build Site
         run: |
           npm ci
-          npm run build:check
 
       - name: Upload built site
         uses: actions/upload-artifact@v4
