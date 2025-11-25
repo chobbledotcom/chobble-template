@@ -412,6 +412,10 @@ class PayPalCart {
       params.append(`quantity_${itemNum}`, item.quantity);
     });
 
+    // Add return URL for after payment completion
+    const returnUrl = `${window.location.origin}/order-complete/`;
+    params.append("return", returnUrl);
+
     // Redirect to PayPal
     window.location.href = `${baseUrl}?${params.toString()}`;
   }
