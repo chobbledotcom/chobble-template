@@ -404,12 +404,68 @@ class ShoppingCart {
     }, 600);
   }
 
-  // Checkout with PayPal - redirect to PayPal
-  checkoutWithPayPal() {
+  // Get checkout API URL if configured
+  getCheckoutApiUrl() {
+    return this.cartOverlay.dataset.checkoutApiUrl || null;
+  }
+
+  // Checkout with PayPal
+  async checkoutWithPayPal() {
     const cart = this.getCart();
     if (cart.length === 0) return;
 
+    const checkoutApiUrl = this.getCheckoutApiUrl();
+
+    // If backend is configured, use PayPal Orders API
+    if (checkoutApiUrl) {
+      await this.checkoutWithPayPalBackend(checkoutApiUrl);
+    } else {
+      // Fall back to static URL redirect (no backend needed)
+      this.checkoutWithPayPalStatic();
+    }
+  }
+
+  // PayPal checkout via backend API
+  async checkoutWithPayPalBackend(apiUrl) {
+    const cart = this.getCart();
+
+    try {
+      const response = await fetch(`${apiUrl}/api/paypal/create-order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart: cart,
+          success_url: window.location.origin + "/checkout-success/",
+          cancel_url: window.location.origin + window.location.pathname,
+        }),
+      });
+
+      if (response.ok) {
+        const order = await response.json();
+        if (order.url) {
+          window.location.href = order.url;
+        } else {
+          throw new Error("No approval URL returned");
+        }
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create PayPal order");
+      }
+    } catch (error) {
+      console.error("PayPal backend checkout failed:", error);
+      // Fall back to static method
+      console.log("Falling back to static PayPal checkout");
+      this.checkoutWithPayPalStatic();
+    }
+  }
+
+  // PayPal checkout via static URL redirect (no backend)
+  checkoutWithPayPalStatic() {
+    const cart = this.getCart();
     const paypalEmail = this.cartOverlay.dataset.paypalEmail;
+
     if (!paypalEmail) {
       alert("PayPal is not configured");
       return;
@@ -422,7 +478,7 @@ class ShoppingCart {
     params.append("cmd", "_cart");
     params.append("upload", "1");
     params.append("business", paypalEmail);
-    params.append("currency_code", "GBP"); // You can make this configurable
+    params.append("currency_code", "GBP");
 
     // Add each cart item
     cart.forEach((item, index) => {
@@ -436,12 +492,14 @@ class ShoppingCart {
     window.location.href = `${baseUrl}?${params.toString()}`;
   }
 
-  // Checkout with Stripe - redirect to Stripe Checkout
+  // Checkout with Stripe - requires backend
   async checkoutWithStripe() {
     const cart = this.getCart();
     if (cart.length === 0) return;
 
     const stripeKey = this.cartOverlay.dataset.stripeKey;
+    const checkoutApiUrl = this.getCheckoutApiUrl();
+
     if (!stripeKey) {
       alert("Stripe is not configured");
       return;
@@ -457,57 +515,53 @@ class ShoppingCart {
       return;
     }
 
-    // Build line items description for Stripe
-    const cartDescription = cart
-      .map((item) => `${item.item_name} x${item.quantity}`)
-      .join(", ");
-
-    const totalAmount = Math.round(this.getCartTotal() * 100); // Stripe expects amount in pence/cents
-
-    try {
-      // Use Stripe Checkout in payment mode
-      // For client-side only, we'll use the payment link approach
-      // or redirect to a Stripe-hosted payment page
-
-      const response = await fetch(
-        this.cartOverlay.dataset.stripeCheckoutUrl ||
-          "/api/create-checkout-session",
-        {
+    // Try backend checkout first
+    if (checkoutApiUrl) {
+      try {
+        const response = await fetch(`${checkoutApiUrl}/api/stripe/create-session`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             cart: cart,
-            total: totalAmount,
-            description: cartDescription,
             success_url: window.location.origin + "/checkout-success/",
             cancel_url: window.location.origin + window.location.pathname,
           }),
-        },
-      );
-
-      if (response.ok) {
-        const session = await response.json();
-        // Redirect to Stripe Checkout
-        const result = await this.stripe.redirectToCheckout({
-          sessionId: session.id,
         });
 
-        if (result.error) {
-          alert(result.error.message);
+        if (response.ok) {
+          const session = await response.json();
+
+          // Prefer direct URL redirect if available
+          if (session.url) {
+            window.location.href = session.url;
+            return;
+          }
+
+          // Fall back to Stripe.js redirect
+          if (session.id) {
+            const result = await this.stripe.redirectToCheckout({
+              sessionId: session.id,
+            });
+
+            if (result.error) {
+              alert(result.error.message);
+            }
+            return;
+          }
+        } else {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to create Stripe session");
         }
-      } else {
-        // Fallback: If no backend endpoint, show instructions
-        this.showStripePaymentLinkFallback();
+      } catch (error) {
+        console.error("Stripe backend checkout failed:", error);
+        // Fall through to fallback
       }
-    } catch (error) {
-      console.log(
-        "Stripe checkout endpoint not available, using fallback:",
-        error,
-      );
-      this.showStripePaymentLinkFallback();
     }
+
+    // Fallback: Payment Link or error message
+    this.showStripePaymentLinkFallback();
   }
 
   // Fallback for Stripe when no backend is available
@@ -516,9 +570,8 @@ class ShoppingCart {
 
     if (paymentLink) {
       // If a payment link is configured, redirect to it
-      // Payment links can accept prefilled data via URL params
       const cart = this.getCart();
-      const clientRef = btoa(JSON.stringify(cart)).slice(0, 200); // Base64 encode cart as reference
+      const clientRef = btoa(JSON.stringify(cart)).slice(0, 200);
 
       const url = new URL(paymentLink);
       url.searchParams.set("client_reference_id", clientRef);
