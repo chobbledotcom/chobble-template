@@ -1,5 +1,5 @@
-// PayPal Shopping Cart Styles
-// Minimal styles that extend the existing theme
+// Shopping Cart Styles
+// Supports PayPal and Stripe checkout options
 
 // Floating cart icon
 .cart-icon {
@@ -196,9 +196,60 @@
   font-weight: bold;
 }
 
+// Checkout buttons container
+.cart-checkout-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .cart-checkout {
   width: 100%;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  .payment-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+}
+
+// PayPal button styling
+.cart-checkout-paypal {
+  background-color: #0070ba;
+  border-color: #0070ba;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background-color: #005ea6;
+    border-color: #005ea6;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Stripe/Card button styling
+.cart-checkout-stripe {
+  background-color: #635bff;
+  border-color: #635bff;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 // Mobile adjustments

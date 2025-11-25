@@ -1,11 +1,13 @@
-// PayPal Shopping Cart
+// Shopping Cart
 // Manages cart state in localStorage and provides cart functionality
+// Supports both PayPal and Stripe checkout
 
-class PayPalCart {
+class ShoppingCart {
   constructor() {
-    this.storageKey = "paypal_cart";
+    this.storageKey = "shopping_cart";
     this.cartOverlay = null;
     this.cartIcon = null;
+    this.stripe = null;
     this.init();
   }
 
@@ -27,6 +29,9 @@ class PayPalCart {
       return;
     }
 
+    // Initialize Stripe if configured
+    this.initStripe();
+
     // Reset product option selects on page load
     this.resetProductSelects();
 
@@ -36,6 +41,13 @@ class PayPalCart {
     // Update cart display
     this.updateCartDisplay();
     this.updateCartCount();
+  }
+
+  initStripe() {
+    const stripeKey = this.cartOverlay.dataset.stripeKey;
+    if (stripeKey && typeof Stripe !== "undefined") {
+      this.stripe = Stripe(stripeKey);
+    }
   }
 
   resetProductSelects() {
@@ -79,10 +91,16 @@ class PayPalCart {
       }
     });
 
-    // Checkout button
-    const checkoutBtn = this.cartOverlay.querySelector(".cart-checkout");
-    if (checkoutBtn) {
-      checkoutBtn.addEventListener("click", () => this.checkout());
+    // PayPal checkout button
+    const paypalBtn = this.cartOverlay.querySelector(".cart-checkout-paypal");
+    if (paypalBtn) {
+      paypalBtn.addEventListener("click", () => this.checkoutWithPayPal());
+    }
+
+    // Stripe checkout button
+    const stripeBtn = this.cartOverlay.querySelector(".cart-checkout-stripe");
+    if (stripeBtn) {
+      stripeBtn.addEventListener("click", () => this.checkoutWithStripe());
     }
 
     // Product option select change
@@ -285,17 +303,19 @@ class PayPalCart {
     const cartItems = this.cartOverlay.querySelector(".cart-items");
     const cartEmpty = this.cartOverlay.querySelector(".cart-empty");
     const cartTotal = this.cartOverlay.querySelector(".cart-total-amount");
-    const checkoutBtn = this.cartOverlay.querySelector(".cart-checkout");
+    const checkoutBtns = this.cartOverlay.querySelectorAll(
+      ".cart-checkout-paypal, .cart-checkout-stripe",
+    );
 
     if (!cartItems) return;
 
     if (cart.length === 0) {
       cartItems.innerHTML = "";
       if (cartEmpty) cartEmpty.style.display = "block";
-      if (checkoutBtn) checkoutBtn.disabled = true;
+      checkoutBtns.forEach((btn) => (btn.disabled = true));
     } else {
       if (cartEmpty) cartEmpty.style.display = "none";
-      if (checkoutBtn) checkoutBtn.disabled = false;
+      checkoutBtns.forEach((btn) => (btn.disabled = false));
 
       cartItems.innerHTML = cart
         .map(
@@ -384,14 +404,14 @@ class PayPalCart {
     }, 600);
   }
 
-  // Checkout - redirect to PayPal
-  checkout() {
+  // Checkout with PayPal - redirect to PayPal
+  checkoutWithPayPal() {
     const cart = this.getCart();
     if (cart.length === 0) return;
 
     const paypalEmail = this.cartOverlay.dataset.paypalEmail;
     if (!paypalEmail) {
-      alert("PayPal email not configured");
+      alert("PayPal is not configured");
       return;
     }
 
@@ -416,6 +436,107 @@ class PayPalCart {
     window.location.href = `${baseUrl}?${params.toString()}`;
   }
 
+  // Checkout with Stripe - redirect to Stripe Checkout
+  async checkoutWithStripe() {
+    const cart = this.getCart();
+    if (cart.length === 0) return;
+
+    const stripeKey = this.cartOverlay.dataset.stripeKey;
+    if (!stripeKey) {
+      alert("Stripe is not configured");
+      return;
+    }
+
+    // Initialize Stripe if not already done
+    if (!this.stripe && typeof Stripe !== "undefined") {
+      this.stripe = Stripe(stripeKey);
+    }
+
+    if (!this.stripe) {
+      alert("Stripe could not be loaded. Please try again.");
+      return;
+    }
+
+    // Build line items description for Stripe
+    const cartDescription = cart
+      .map((item) => `${item.item_name} x${item.quantity}`)
+      .join(", ");
+
+    const totalAmount = Math.round(this.getCartTotal() * 100); // Stripe expects amount in pence/cents
+
+    try {
+      // Use Stripe Checkout in payment mode
+      // For client-side only, we'll use the payment link approach
+      // or redirect to a Stripe-hosted payment page
+
+      const response = await fetch(
+        this.cartOverlay.dataset.stripeCheckoutUrl ||
+          "/api/create-checkout-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cart: cart,
+            total: totalAmount,
+            description: cartDescription,
+            success_url: window.location.origin + "/checkout-success/",
+            cancel_url: window.location.origin + window.location.pathname,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const session = await response.json();
+        // Redirect to Stripe Checkout
+        const result = await this.stripe.redirectToCheckout({
+          sessionId: session.id,
+        });
+
+        if (result.error) {
+          alert(result.error.message);
+        }
+      } else {
+        // Fallback: If no backend endpoint, show instructions
+        this.showStripePaymentLinkFallback();
+      }
+    } catch (error) {
+      console.log(
+        "Stripe checkout endpoint not available, using fallback:",
+        error,
+      );
+      this.showStripePaymentLinkFallback();
+    }
+  }
+
+  // Fallback for Stripe when no backend is available
+  showStripePaymentLinkFallback() {
+    const paymentLink = this.cartOverlay.dataset.stripePaymentLink;
+
+    if (paymentLink) {
+      // If a payment link is configured, redirect to it
+      // Payment links can accept prefilled data via URL params
+      const cart = this.getCart();
+      const clientRef = btoa(JSON.stringify(cart)).slice(0, 200); // Base64 encode cart as reference
+
+      const url = new URL(paymentLink);
+      url.searchParams.set("client_reference_id", clientRef);
+
+      window.location.href = url.toString();
+    } else {
+      // Show a message explaining the limitation
+      const total = this.formatPrice(this.getCartTotal());
+      const cartSummary = this.getCart()
+        .map((item) => `${item.item_name} x${item.quantity}`)
+        .join("\n");
+
+      alert(
+        `Stripe Checkout requires server configuration.\n\nYour cart total: ${total}\n\nItems:\n${cartSummary}\n\nPlease contact the site owner to complete your purchase.`,
+      );
+    }
+  }
+
   // Helper: Format price
   formatPrice(price) {
     return `£${price.toFixed(2)}`;
@@ -427,10 +548,17 @@ class PayPalCart {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  // Clear cart (useful after successful checkout)
+  clearCart() {
+    this.saveCart([]);
+    this.updateCartDisplay();
+    this.updateCartCount();
+  }
 }
 
 // Initialize cart when module loads
-const cart = new PayPalCart();
+const cart = new ShoppingCart();
 
 // Export for use in other modules if needed
 export default cart;

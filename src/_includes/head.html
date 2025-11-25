@@ -61,7 +61,10 @@
     ></script>
   {% endif %}
 
-  {%- if config.paypal_email -%}
+  {%- if config.paypal_email or config.stripe_publishable_key or config.stripe_payment_link -%}
+    {%- if config.stripe_publishable_key -%}
+      <script async src="https://js.stripe.com/v3/"></script>
+    {%- endif -%}
     <script
       type="module"
       src="{{ '/assets/js/cart.js' | cacheBust }}"
