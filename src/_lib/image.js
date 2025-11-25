@@ -127,6 +127,26 @@ async function processAndWrapImage({
 	aspectRatio = null,
 	loading = null,
 }) {
+	// Handle external URLs - just return a simple img tag without processing
+	const imageNameStr = imageName.toString();
+	if (
+		imageNameStr.startsWith("http://") ||
+		imageNameStr.startsWith("https://")
+	) {
+		const {
+			window: { document },
+		} = new JSDOM();
+
+		const img = document.createElement("img");
+		img.setAttribute("src", imageNameStr);
+		img.setAttribute("alt", alt || "");
+		img.setAttribute("loading", loading || "lazy");
+		img.setAttribute("decoding", "async");
+		if (classes) img.setAttribute("class", classes);
+
+		return returnElement ? img : img.outerHTML;
+	}
+
 	const path = U.getPath(imageName);
 	const sharpImage = sharp(path);
 	const metadata = await sharpImage.metadata();
