@@ -70,8 +70,12 @@ In your site's `config.json`, set:
 
 ```json
 {
-  "checkout_api_url": "https://your-backend-url.com"
+  "checkout_api_url": "https://your-backend-url.com",
+  "stripe_publishable_key": "pk_...",
+  "paypal_email": "you@example.com"
 }
 ```
 
-The cart will automatically use the backend for Stripe (required) and optionally for PayPal (falls back to static URL redirect if not configured).
+**Checkout behavior:**
+- **Stripe**: Requires the backend (`checkout_api_url` must be set)
+- **PayPal**: Uses backend if `checkout_api_url` is set, otherwise falls back to client-side URL redirect (works with just `paypal_email`)

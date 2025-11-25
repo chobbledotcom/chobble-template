@@ -10,7 +10,6 @@
 	"chobble_link": "https://chobble.com/services/chobble-template/",
 	"checkout_api_url": null,
 	"stripe_publishable_key": null,
-	"stripe_payment_link": null,
 	"paypal_email": "example@chobble.com",
 	"products": {
 		"product_thumb_widths": "240,480,640",

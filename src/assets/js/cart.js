@@ -505,6 +505,11 @@ class ShoppingCart {
       return;
     }
 
+    if (!checkoutApiUrl) {
+      alert("Stripe checkout requires the checkout backend to be configured");
+      return;
+    }
+
     // Initialize Stripe if not already done
     if (!this.stripe && typeof Stripe !== "undefined") {
       this.stripe = Stripe(stripeKey);
@@ -515,78 +520,46 @@ class ShoppingCart {
       return;
     }
 
-    // Try backend checkout first
-    if (checkoutApiUrl) {
-      try {
-        const response = await fetch(`${checkoutApiUrl}/api/stripe/create-session`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            cart: cart,
-            success_url: window.location.origin + "/checkout-success/",
-            cancel_url: window.location.origin + window.location.pathname,
-          }),
-        });
+    try {
+      const response = await fetch(`${checkoutApiUrl}/api/stripe/create-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart: cart,
+          success_url: window.location.origin + "/checkout-success/",
+          cancel_url: window.location.origin + window.location.pathname,
+        }),
+      });
 
-        if (response.ok) {
-          const session = await response.json();
+      if (response.ok) {
+        const session = await response.json();
 
-          // Prefer direct URL redirect if available
-          if (session.url) {
-            window.location.href = session.url;
-            return;
-          }
-
-          // Fall back to Stripe.js redirect
-          if (session.id) {
-            const result = await this.stripe.redirectToCheckout({
-              sessionId: session.id,
-            });
-
-            if (result.error) {
-              alert(result.error.message);
-            }
-            return;
-          }
-        } else {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to create Stripe session");
+        // Prefer direct URL redirect if available
+        if (session.url) {
+          window.location.href = session.url;
+          return;
         }
-      } catch (error) {
-        console.error("Stripe backend checkout failed:", error);
-        // Fall through to fallback
+
+        // Fall back to Stripe.js redirect
+        if (session.id) {
+          const result = await this.stripe.redirectToCheckout({
+            sessionId: session.id,
+          });
+
+          if (result.error) {
+            alert(result.error.message);
+          }
+          return;
+        }
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create Stripe session");
       }
-    }
-
-    // Fallback: Payment Link or error message
-    this.showStripePaymentLinkFallback();
-  }
-
-  // Fallback for Stripe when no backend is available
-  showStripePaymentLinkFallback() {
-    const paymentLink = this.cartOverlay.dataset.stripePaymentLink;
-
-    if (paymentLink) {
-      // If a payment link is configured, redirect to it
-      const cart = this.getCart();
-      const clientRef = btoa(JSON.stringify(cart)).slice(0, 200);
-
-      const url = new URL(paymentLink);
-      url.searchParams.set("client_reference_id", clientRef);
-
-      window.location.href = url.toString();
-    } else {
-      // Show a message explaining the limitation
-      const total = this.formatPrice(this.getCartTotal());
-      const cartSummary = this.getCart()
-        .map((item) => `${item.item_name} x${item.quantity}`)
-        .join("\n");
-
-      alert(
-        `Stripe Checkout requires server configuration.\n\nYour cart total: ${total}\n\nItems:\n${cartSummary}\n\nPlease contact the site owner to complete your purchase.`,
-      );
+    } catch (error) {
+      console.error("Stripe checkout failed:", error);
+      alert("Failed to start checkout. Please try again.");
     }
   }
 
