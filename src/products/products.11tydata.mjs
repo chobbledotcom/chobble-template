@@ -19,6 +19,7 @@ export default {
 		},
 		navigationParent: () => strings.product_name,
 		permalink: (data) => {
+			if (data.permalink) return data.permalink;
 			const dir = strings.product_permalink_dir || "products";
 			return `${dir}/${data.page.fileSlug}/`;
 		},
