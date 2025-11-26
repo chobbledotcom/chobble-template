@@ -8,6 +8,7 @@ class ShoppingCart {
     this.cartOverlay = null;
     this.cartIcon = null;
     this.stripe = null;
+    this.documentListenersAttached = false;
     this.init();
   }
 
@@ -18,6 +19,10 @@ class ShoppingCart {
     } else {
       this.setup();
     }
+
+    // Re-setup on Turbo navigation (Turbo replaces body content, so we need
+    // to re-query DOM elements and re-attach element-specific listeners)
+    document.addEventListener("turbo:load", () => this.setup());
   }
 
   setup() {
@@ -72,6 +77,9 @@ class ShoppingCart {
   }
 
   setupEventListeners() {
+    // Element-specific listeners (need to re-attach after Turbo navigation
+    // since Turbo replaces the body and these elements are recreated)
+
     // Cart icon click - open cart
     this.cartIcon.addEventListener("click", (e) => {
       e.preventDefault();
@@ -102,6 +110,13 @@ class ShoppingCart {
     if (stripeBtn) {
       stripeBtn.addEventListener("click", () => this.checkoutWithStripe());
     }
+
+    // Document-level listeners using event delegation
+    // Only attach these once since document persists across Turbo navigations
+    if (this.documentListenersAttached) {
+      return;
+    }
+    this.documentListenersAttached = true;
 
     // Product option select change
     document.addEventListener("change", (e) => {
