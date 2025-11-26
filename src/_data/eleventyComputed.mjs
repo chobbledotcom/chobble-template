@@ -7,8 +7,9 @@ function isValidImage(imagePath) {
 	if (!imagePath || imagePath.trim() === "") return false;
 	if (imagePath.indexOf("http") === 0) return true;
 
-	const filename = imagePath.split("/").pop();
-	const fullPath = join(process.cwd(), "src", "images", filename);
+	// Remove leading slash and use the full path structure
+	const relativePath = imagePath.replace(/^\//, "");
+	const fullPath = join(process.cwd(), "src", relativePath);
 
 	if (existsSync(fullPath)) return true;
 
