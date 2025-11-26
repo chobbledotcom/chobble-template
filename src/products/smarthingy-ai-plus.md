@@ -2,6 +2,9 @@
 title: SmarThingy AI Plus
 short_description: Next-generation AI-powered thingy with cloud connectivity
 options:
+  - name: Micro
+    max_quantity: 1
+    unit_price: 0.1
   - name: Standard
     max_quantity: 15
     unit_price: 299.99
@@ -43,7 +46,6 @@ features:
   - Mobile app control
   - Automatic software updates
 ---
-
 Welcome to the future with the SmarThingy AI Plus – where artificial intelligence meets everyday convenience. This revolutionary smart thingy learns your patterns, anticipates your needs, and seamlessly integrates with your digital life.
 
 Powered by our custom quad-core AI processor, the SmarThingy AI Plus processes complex algorithms in real-time, providing intelligent responses and predictive suggestions. The vibrant 4.3" OLED touchscreen offers an intuitive interface, while voice control and gesture recognition provide hands-free operation when needed.
