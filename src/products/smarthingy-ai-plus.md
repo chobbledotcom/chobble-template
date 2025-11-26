@@ -11,18 +11,18 @@ options:
   - name: Max
     max_quantity: 5
     unit_price: 549.99
-header_image: placeholder-wide-4.jpg
+header_image: images/placeholder-wide-4.jpg
 categories:
   - smart-thingies
   - thingies
 gallery:
-  Front Display: placeholder-square-7.jpg
-  Touch Interface: placeholder-square-6.jpg
-  Side View: placeholder-square-5.jpg
-  Wireless Charging: placeholder-square-4.jpg
-  App Control: placeholder-square-3.jpg
-  Voice Assistant: placeholder-square-2.jpg
-  Night Mode: placeholder-square-1.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-1.jpg
 specs:
   - name: Processor
     value: Quad-core AI chip

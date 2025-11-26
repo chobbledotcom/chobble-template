@@ -11,18 +11,18 @@ options:
   - name: Max
     max_quantity: 4
     unit_price: 1299.99
-header_image: placeholder-wide-3.jpg
+header_image: images/placeholder-wide-3.jpg
 categories:
   - pocket-widgets
   - widgets
 gallery:
-  Front: placeholder-square-7.jpg
-  Back: placeholder-square-6.jpg
-  Side: placeholder-square-5.jpg
-  Underside: placeholder-square-4.jpg
-  In use: placeholder-square-3.jpg
-  Not in use: placeholder-square-2.jpg
-  Invisible: placeholder-square-1.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-1.jpg
 specs:
   - name: Display
     value: 6.5" Dimensional Screen

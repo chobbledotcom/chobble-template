@@ -1,5 +1,5 @@
 ---
-header_image: placeholder.jpg
+header_image: images/placeholder.jpg
 header_text: Thank You
 meta_description:
 meta_title: Thank You

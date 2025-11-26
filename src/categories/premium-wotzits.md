@@ -1,7 +1,7 @@
 ---
 title: Premium Wotzits
 description: Wotzits designed for optimal performance
-header_image: placeholder-wide-3.jpg
+header_image: images/placeholder-wide-3.jpg
 parent: wotzits
 ---
 

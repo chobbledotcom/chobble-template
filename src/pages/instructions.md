@@ -1,5 +1,5 @@
 ---
-header_image: /images/hacker-pexels-cottonbro-8721342.jpg
+header_image: images/hacker-pexels-cottonbro-8721342.jpg
 header_text: Setup Instructions
 subtitle: Complete guide to creating your website with the Chobble Template
 meta_description: Step-by-step instructions for setting up, customising, and

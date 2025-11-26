@@ -11,18 +11,18 @@ options:
   - name: Premium
     max_quantity: 15
     unit_price: 89.99
-header_image: placeholder-wide-2.jpg
+header_image: images/placeholder-wide-2.jpg
 categories:
   - compact-doodahs
   - doodahs
 gallery:
-  In Hand: placeholder-square-3.jpg
-  Size Comparison: placeholder-square-4.jpg
-  Keychain Attachment: placeholder-square-5.jpg
-  LED Indicator: placeholder-square-6.jpg
-  Clip Detail: placeholder-square-7.jpg
-  Color Options: placeholder-square-1.jpg
-  Travel Case: placeholder-square-2.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-1.jpg
+  - images/placeholder-square-2.jpg
 specs:
   - name: Dimensions
     value: 3.5cm x 2.5cm x 1cm

@@ -11,18 +11,18 @@ options:
   - name: Ultimate
     max_quantity: 2
     unit_price: 2299.99
-header_image: placeholder-wide-4.jpg
+header_image: images/placeholder-wide-4.jpg
 categories:
   - /categories/premium-widgets.md
   - widgets
 gallery:
-  - placeholder-square-7.jpg
-  - placeholder-square-6.jpg
-  - placeholder-square-5.jpg
-  - placeholder-square-4.jpg
-  - placeholder-square-3.jpg
-  - placeholder-square-2.jpg
-  - placeholder-square-1.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-1.jpg
 specs:
   - name: Display
     value: 14" Holographic

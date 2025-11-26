@@ -96,9 +96,14 @@ const U = {
 		return widths || U.DEFAULT_WIDTHS;
 	},
 	getPath: (imageName) => {
-		return imageName.toString().indexOf("/") == 0
-			? `./src${imageName}`
-			: `./src/images/${imageName}`;
+		const name = imageName.toString();
+		if (name.startsWith("/")) {
+			return `./src${name}`;
+		}
+		if (name.startsWith("images/")) {
+			return `./src/${name}`;
+		}
+		return `./src/images/${name}`;
 	},
 	getDefault: (value, defaultString) => {
 		return value == null || value == "" ? defaultString : value;

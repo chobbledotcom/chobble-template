@@ -11,18 +11,18 @@ options:
   - name: Pro
     max_quantity: 10
     unit_price: 129.99
-header_image: placeholder-wide-3.jpg
+header_image: images/placeholder-wide-3.jpg
 categories:
   - compact-doodahs
   - doodahs
 gallery:
-  Front: placeholder-square-1.jpg
-  Back: placeholder-square-2.jpg
-  Side: placeholder-square-3.jpg
-  Top View: placeholder-square-4.jpg
-  In Action: placeholder-square-5.jpg
-  Folded: placeholder-square-6.jpg
-  Extended: placeholder-square-7.jpg
+  - images/placeholder-square-1.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-7.jpg
 specs:
   - name: Dimensions
     value: 5cm x 3cm x 1.5cm (folded)

@@ -11,18 +11,18 @@ options:
   - name: Enterprise Plus
     max_quantity: 5
     unit_price: 899.99
-header_image: placeholder-wide-1.jpg
+header_image: images/placeholder-wide-1.jpg
 categories:
   - professional-doodahs
   - doodahs
 gallery:
-  Main Unit: placeholder-square-2.jpg
-  Control Panel: placeholder-square-3.jpg
-  Side Profile: placeholder-square-4.jpg
-  Rear Ports: placeholder-square-5.jpg
-  In Operation: placeholder-square-6.jpg
-  Safety Features: placeholder-square-7.jpg
-  Mounting Options: placeholder-square-1.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-1.jpg
 specs:
   - name: Dimensions
     value: 45cm x 30cm x 15cm

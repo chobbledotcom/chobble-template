@@ -11,18 +11,18 @@ options:
   - name: Collector's Edition
     max_quantity: 3
     unit_price: 299.99
-header_image: placeholder-wide-5.jpg
+header_image: images/placeholder-wide-5.jpg
 categories:
   - classic-thingies
   - thingies
 gallery:
-  Full View: placeholder-square-4.jpg
-  Detail Work: placeholder-square-5.jpg
-  Classic Finish: placeholder-square-6.jpg
-  Brass Accents: placeholder-square-7.jpg
-  Leather Grip: placeholder-square-1.jpg
-  Engraving: placeholder-square-2.jpg
-  Gift Box: placeholder-square-3.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-1.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-3.jpg
 specs:
   - name: Construction
     value: Solid hardwood with brass fittings

@@ -1,5 +1,5 @@
 ---
-header_image: placeholder.jpg
+header_image: images/placeholder.jpg
 header_text: Reviews
 meta_description:
 meta_title: Reviews

@@ -1,5 +1,5 @@
 ---
-header_image: /images/menu.jpg
+header_image: images/menu.jpg
 header_text: Our Menus
 meta_description: Browse our delicious vegan menus
 meta_title: Menus

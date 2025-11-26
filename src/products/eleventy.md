@@ -1,7 +1,7 @@
 ---
 title: Eleventy
 short_description: The Chobble Template is built with the Eleventy static site generator
-header_image: placeholder-wide-3.jpg
+header_image: images/placeholder-wide-3.jpg
 categories:
   - open-source
 features:

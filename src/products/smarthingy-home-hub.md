@@ -11,18 +11,18 @@ options:
   - name: Premium
     max_quantity: 8
     unit_price: 799.99
-header_image: placeholder-wide-1.jpg
+header_image: images/placeholder-wide-1.jpg
 categories:
   - smart-thingies
   - thingies
 gallery:
-  Hub Display: placeholder-square-5.jpg
-  Wall Mount: placeholder-square-6.jpg
-  Touch Controls: placeholder-square-7.jpg
-  Multi-Device: placeholder-square-1.jpg
-  Night View: placeholder-square-2.jpg
-  App Dashboard: placeholder-square-3.jpg
-  Voice Control: placeholder-square-4.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-1.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-4.jpg
 specs:
   - name: Display
     value: 10.1" HD touchscreen

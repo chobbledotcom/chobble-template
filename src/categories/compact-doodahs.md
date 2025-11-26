@@ -1,7 +1,7 @@
 ---
 title: Compact Doodahs
 description: Space-saving doodahs with maximum functionality
-header_image: placeholder-wide-1.jpg
+header_image: images/placeholder-wide-1.jpg
 parent: doodahs
 ---
 

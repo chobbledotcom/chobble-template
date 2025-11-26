@@ -11,18 +11,18 @@ options:
   - name: Collector's Edition
     max_quantity: 5
     unit_price: 249.99
-header_image: placeholder-wide-3.jpg
+header_image: images/placeholder-wide-3.jpg
 categories:
   - classic-thingies
   - thingies
 gallery:
-  Classic Design: placeholder-square-2.jpg
-  Vintage Box: placeholder-square-3.jpg
-  Manual Controls: placeholder-square-4.jpg
-  Chrome Details: placeholder-square-5.jpg
-  Original Logo: placeholder-square-6.jpg
-  Certificate: placeholder-square-7.jpg
-  Collectors Edition: placeholder-square-1.jpg
+  - images/placeholder-square-2.jpg
+  - images/placeholder-square-3.jpg
+  - images/placeholder-square-4.jpg
+  - images/placeholder-square-5.jpg
+  - images/placeholder-square-6.jpg
+  - images/placeholder-square-7.jpg
+  - images/placeholder-square-1.jpg
 specs:
   - name: Model
     value: Original 1970 Design Reissue
