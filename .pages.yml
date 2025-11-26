@@ -1,5 +1,5 @@
 media:
-  input: src/images
+  input: /images
   output: /images
   path: src/images
   categories: [image]
