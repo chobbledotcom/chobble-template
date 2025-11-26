@@ -159,12 +159,13 @@ const testLibModules = () => {
     asyncTest: async () => {
       const { configureFeed } = await import('../src/_lib/feed.js');
       const mockConfig = createMockEleventyConfig();
-      
+
       // Should not throw when configuring
       await configureFeed(mockConfig);
-      
-      // Check that plugin was added
-      expectTrue(mockConfig.pluginCalls !== undefined, 'Should have plugin calls');
+
+      // Check that RSS date filters were added
+      expectTrue(mockConfig.filters.dateToRfc3339 !== undefined, 'Should add dateToRfc3339 filter');
+      expectTrue(mockConfig.filters.dateToRfc822 !== undefined, 'Should add dateToRfc822 filter');
     }
   });
   

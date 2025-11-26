@@ -1,0 +1,32 @@
+---js
+{
+  eleventyExcludeFromCollections: true,
+  permalink: "/feed.xml",
+  layout: false,
+  metadata: {
+    language: "en"
+  }
+}
+---
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="/assets/pretty-atom-feed.xsl" type="text/xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ metadata.language }}">
+  <title>{{ site.name }}</title>
+  <subtitle>{{ site.description }}</subtitle>
+  <link href="{{ site.url }}/feed.xml" rel="self" />
+  <link href="{{ site.url }}" />
+  <updated>{{ collections.news | getNewestCollectionItemDate | dateToRfc3339 }}</updated>
+  <id>{{ site.url }}/</id>
+  <author>
+    <name>{{ site.name }}</name>
+  </author>
+  {%- for post in collections.news reversed limit: 20 %}
+  <entry>
+    <title>{{ post.data.title }}</title>
+    <link href="{{ site.url }}{{ post.url }}" />
+    <updated>{{ post.date | dateToRfc3339 }}</updated>
+    <id>{{ site.url }}{{ post.url }}</id>
+    <content type="html"><![CDATA[{{ post.content }}]]></content>
+  </entry>
+  {%- endfor %}
+</feed>

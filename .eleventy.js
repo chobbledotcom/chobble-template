@@ -57,7 +57,7 @@ export default async function (eleventyConfig) {
       layouts: "_layouts",
       data: "_data",
     },
-    templateFormats: ["liquid", "md", "njk", "html"],
+    templateFormats: ["liquid", "md", "html"],
     htmlTemplateEngine: "liquid",
     markdownTemplateEngine: "liquid",
   };

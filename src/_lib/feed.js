@@ -1,33 +1,18 @@
-import { feedPlugin } from "@11ty/eleventy-plugin-rss";
-
-const createFeedConfiguration = (siteData) => ({
-	type: "atom",
-	outputPath: "/feed.xml",
-	stylesheet: "/assets/pretty-atom-feed.xsl",
-	templateData: {},
-	collection: {
-		name: "news",
-		limit: 20,
-	},
-	metadata: {
-		language: "en",
-		title: siteData.name,
-		subtitle: "",
-		base: siteData.url,
-		author: {
-			name: siteData.name,
-		},
-	},
-});
+import {
+	dateToRfc3339,
+	dateToRfc822,
+	getNewestCollectionItemDate,
+	absoluteUrl,
+} from "@11ty/eleventy-plugin-rss";
 
 const configureFeed = async (eleventyConfig) => {
-	const siteData = await import("../_data/site.json", { with: { type: "json" } });
-	const feedConfig = createFeedConfiguration(siteData.default);
-	eleventyConfig.addPlugin(feedPlugin, feedConfig);
-	return feedConfig;
+	// Add RSS date filters as universal filters (works with Liquid)
+	eleventyConfig.addFilter("dateToRfc3339", dateToRfc3339);
+	eleventyConfig.addFilter("dateToRfc822", dateToRfc822);
+	eleventyConfig.addFilter("getNewestCollectionItemDate", getNewestCollectionItemDate);
+	eleventyConfig.addFilter("absoluteUrl", absoluteUrl);
 };
 
 export {
-	createFeedConfiguration,
 	configureFeed,
 };
