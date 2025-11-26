@@ -1,4 +1,10 @@
-<div id="cart-overlay" class="cart-overlay" data-paypal-email="{{ config.paypal_email }}">
+<div
+  id="cart-overlay"
+  class="cart-overlay"
+  data-paypal-email="{{ config.paypal_email }}"
+  data-stripe-key="{{ config.stripe_publishable_key }}"
+  data-checkout-api-url="{{ config.checkout_api_url }}"
+>
   <section class="cart-container">
     <header class="cart-header">
       <h2>Shopping Cart</h2>
@@ -17,7 +23,25 @@
         <strong>Total:</strong>
         <strong class="cart-total-amount">£0.00</strong>
       </p>
-      <button class="cart-checkout" disabled>Checkout with PayPal</button>
+      <div class="cart-checkout-buttons">
+        {%- if config.paypal_email -%}
+          <button class="cart-checkout cart-checkout-paypal" disabled>
+            <svg class="payment-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 2.296A.776.776 0 0 1 5.71 1.6h6.957c2.624 0 4.484.516 5.53 1.533.976.95 1.35 2.324 1.114 4.083-.028.21-.064.434-.108.672-.586 3.43-2.7 5.256-5.96 5.742a8.88 8.88 0 0 1-1.494.114H9.85a.776.776 0 0 0-.766.664l-.782 4.929z"/>
+              <path d="M18.27 7.468c-.042.312-.096.63-.16.955-.845 4.328-3.583 5.817-7.132 5.817H9.21a.875.875 0 0 0-.864.74l-.895 5.67-.254 1.607a.458.458 0 0 0 .452.528h3.173a.765.765 0 0 0 .756-.647l.031-.162.599-3.79.038-.209a.765.765 0 0 1 .756-.648h.476c3.085 0 5.5-1.252 6.205-4.875.295-1.513.142-2.777-.637-3.666a3.04 3.04 0 0 0-.776-.72z"/>
+            </svg>
+            PayPal
+          </button>
+        {%- endif -%}
+        {%- if config.stripe_publishable_key -%}
+          <button class="cart-checkout cart-checkout-stripe" disabled>
+            <svg class="payment-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
+            </svg>
+            Card
+          </button>
+        {%- endif -%}
+      </div>
     </footer>
   </section>
 </div>

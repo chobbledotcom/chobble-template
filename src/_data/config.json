@@ -8,6 +8,7 @@
 	"externalLinksTargetBlank": false,
 	"template_repo_url": "https://github.com/chobbledotcom/chobble-template",
 	"chobble_link": "https://chobble.com/services/chobble-template/",
+	"checkout_api_url": null,
 	"stripe_publishable_key": null,
 	"paypal_email": "example@chobble.com",
 	"products": {
