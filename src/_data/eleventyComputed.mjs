@@ -13,8 +13,7 @@ function isValidImage(imagePath) {
 
 	if (existsSync(fullPath)) return true;
 
-	console.warn(`Warning: Image file not found: ${fullPath}`);
-	return false;
+	throw new Error(`Image file not found: ${fullPath}`);
 }
 
 export default {
