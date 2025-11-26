@@ -435,11 +435,7 @@ class ShoppingCart {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          cart: cart,
-          success_url: window.location.origin + "/checkout-success/",
-          cancel_url: window.location.origin + window.location.pathname,
-        }),
+        body: JSON.stringify({ cart }),
       });
 
       if (response.ok) {
@@ -526,11 +522,7 @@ class ShoppingCart {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          cart: cart,
-          success_url: window.location.origin + "/checkout-success/",
-          cancel_url: window.location.origin + window.location.pathname,
-        }),
+        body: JSON.stringify({ cart }),
       });
 
       if (response.ok) {

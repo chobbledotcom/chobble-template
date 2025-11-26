@@ -3,12 +3,13 @@
  * Supports both Stripe and PayPal checkout sessions
  *
  * Environment variables:
+ *   SITE_URL             - The single allowed origin (e.g., https://example.com)
  *   STRIPE_SECRET_KEY    - Stripe secret key (sk_live_... or sk_test_...)
  *   PAYPAL_CLIENT_ID     - PayPal REST API client ID
  *   PAYPAL_SECRET        - PayPal REST API secret
  *   PAYPAL_SANDBOX       - Set to "true" for sandbox mode (default: false)
- *   ALLOWED_ORIGINS      - Comma-separated list of allowed origins for CORS
  *   CURRENCY             - Currency code (default: GBP)
+ *   BRAND_NAME           - Brand name shown on PayPal checkout
  *   PORT                 - Server port (default: 3000)
  */
 
@@ -19,24 +20,26 @@ const app = express();
 
 // Configuration
 const PORT = process.env.PORT || 3000;
+const SITE_URL = process.env.SITE_URL;
 const CURRENCY = process.env.CURRENCY || "GBP";
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim())
-  : ["*"];
 const PAYPAL_BASE_URL = process.env.PAYPAL_SANDBOX === "true"
   ? "https://api-m.sandbox.paypal.com"
   : "https://api-m.paypal.com";
 
-// CORS configuration
+// Validate required config
+if (!SITE_URL) {
+  console.error("ERROR: SITE_URL environment variable is required");
+  process.exit(1);
+}
+
+// Normalize SITE_URL (remove trailing slash)
+const normalizedSiteUrl = SITE_URL.replace(/\/$/, "");
+
+// CORS - only allow the configured site
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (ALLOWED_ORIGINS.includes("*") || ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: normalizedSiteUrl,
+    methods: ["GET", "POST"],
   })
 );
 
@@ -46,6 +49,7 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
+    site: normalizedSiteUrl,
     stripe: !!process.env.STRIPE_SECRET_KEY,
     paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET),
   });
@@ -64,7 +68,7 @@ app.post("/api/stripe/create-session", async (req, res) => {
     const Stripe = require("stripe");
     const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-    const { cart, success_url, cancel_url } = req.body;
+    const { cart } = req.body;
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
       return res.status(400).json({ error: "Cart is empty or invalid" });
@@ -80,8 +84,8 @@ app.post("/api/stripe/create-session", async (req, res) => {
         },
         quantity: item.quantity,
       })),
-      success_url: success_url || `${req.headers.origin}/checkout-success/`,
-      cancel_url: cancel_url || `${req.headers.origin}/`,
+      success_url: `${normalizedSiteUrl}/checkout-success/`,
+      cancel_url: `${normalizedSiteUrl}/`,
     });
 
     res.json({ id: session.id, url: session.url });
@@ -135,7 +139,7 @@ app.post("/api/paypal/create-order", async (req, res) => {
       return res.status(500).json({ error: "PayPal not configured" });
     }
 
-    const { cart, success_url, cancel_url } = req.body;
+    const { cart } = req.body;
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
       return res.status(400).json({ error: "Cart is empty or invalid" });
@@ -173,8 +177,8 @@ app.post("/api/paypal/create-order", async (req, res) => {
         },
       ],
       application_context: {
-        return_url: success_url || `${req.headers.origin}/checkout-success/`,
-        cancel_url: cancel_url || `${req.headers.origin}/`,
+        return_url: `${normalizedSiteUrl}/checkout-success/`,
+        cancel_url: `${normalizedSiteUrl}/`,
         user_action: "PAY_NOW",
         brand_name: process.env.BRAND_NAME || "Shop",
       },
@@ -214,8 +218,8 @@ app.post("/api/paypal/create-order", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Checkout backend running on port ${PORT}`);
+  console.log(`  Site URL: ${normalizedSiteUrl}`);
   console.log(`  Stripe: ${process.env.STRIPE_SECRET_KEY ? "configured" : "not configured"}`);
   console.log(`  PayPal: ${process.env.PAYPAL_CLIENT_ID ? "configured" : "not configured"}`);
   console.log(`  Currency: ${CURRENCY}`);
-  console.log(`  Allowed origins: ${ALLOWED_ORIGINS.join(", ")}`);
 });

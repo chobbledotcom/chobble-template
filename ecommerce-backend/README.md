@@ -14,18 +14,18 @@ Minimal stateless backend for Stripe and PayPal checkout sessions. Perfect for h
 
 | Variable | Required | Description |
 |----------|----------|-------------|
+| `SITE_URL` | **Yes** | Your site URL (e.g., `https://example.com`) - used for CORS and redirect URLs |
 | `STRIPE_SECRET_KEY` | For Stripe | Your Stripe secret key (`sk_live_...` or `sk_test_...`) |
 | `PAYPAL_CLIENT_ID` | For PayPal | PayPal REST API client ID |
 | `PAYPAL_SECRET` | For PayPal | PayPal REST API secret |
 | `PAYPAL_SANDBOX` | No | Set to `true` for PayPal sandbox mode |
-| `ALLOWED_ORIGINS` | No | Comma-separated allowed origins for CORS (default: `*`) |
 | `CURRENCY` | No | Currency code (default: `GBP`) |
 | `BRAND_NAME` | No | Brand name shown on PayPal checkout |
 | `PORT` | No | Server port (default: `3000`) |
 
 ## Request Format
 
-Both endpoints accept the same payload:
+Both endpoints accept a cart array:
 
 ```json
 {
@@ -35,9 +35,7 @@ Both endpoints accept the same payload:
       "unit_price": 29.99,
       "quantity": 2
     }
-  ],
-  "success_url": "https://yoursite.com/checkout-success/",
-  "cancel_url": "https://yoursite.com/"
+  ]
 }
 ```
 
@@ -50,6 +48,12 @@ Both endpoints accept the same payload:
 }
 ```
 
+## Security
+
+- CORS only allows requests from `SITE_URL`
+- Redirect URLs are hardcoded to `SITE_URL` (not client-controlled)
+- No wildcard origins - backend won't start without `SITE_URL`
+
 ## Docker
 
 Build and run:
@@ -57,10 +61,10 @@ Build and run:
 ```bash
 docker build -t checkout-backend .
 docker run -p 3000:3000 \
+  -e SITE_URL=https://yoursite.com \
   -e STRIPE_SECRET_KEY=sk_test_... \
   -e PAYPAL_CLIENT_ID=... \
   -e PAYPAL_SECRET=... \
-  -e ALLOWED_ORIGINS=https://yoursite.com \
   checkout-backend
 ```
 
