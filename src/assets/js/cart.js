@@ -450,10 +450,8 @@ class ShoppingCart {
         throw new Error(error.error || "Failed to create PayPal order");
       }
     } catch (error) {
-      console.error("PayPal backend checkout failed:", error);
-      // Fall back to static method
-      console.log("Falling back to static PayPal checkout");
-      this.checkoutWithPayPalStatic();
+      console.error("PayPal checkout failed:", error);
+      alert("Failed to start checkout. Please try again.");
     }
   }
 
