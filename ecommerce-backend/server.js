@@ -3,14 +3,13 @@
  * Supports both Stripe and PayPal checkout sessions
  *
  * Environment variables:
- *   SITE_URL             - The single allowed origin (e.g., https://example.com)
+ *   SITE_HOST            - Your site's domain (e.g., example.com)
  *   STRIPE_SECRET_KEY    - Stripe secret key (sk_live_... or sk_test_...)
  *   PAYPAL_CLIENT_ID     - PayPal REST API client ID
  *   PAYPAL_SECRET        - PayPal REST API secret
  *   PAYPAL_SANDBOX       - Set to "true" for sandbox mode (default: false)
  *   CURRENCY             - Currency code (default: GBP)
  *   BRAND_NAME           - Brand name shown on PayPal checkout
- *   PORT                 - Server port (default: 3000)
  */
 
 const express = require("express");
@@ -19,26 +18,30 @@ const cors = require("cors");
 const app = express();
 
 // Configuration
-const PORT = process.env.PORT || 3000;
-const SITE_URL = process.env.SITE_URL;
+const SITE_HOST = process.env.SITE_HOST;
 const CURRENCY = process.env.CURRENCY || "GBP";
 const PAYPAL_BASE_URL = process.env.PAYPAL_SANDBOX === "true"
   ? "https://api-m.sandbox.paypal.com"
   : "https://api-m.paypal.com";
 
+const BRAND_NAME = process.env.BRAND_NAME;
+
 // Validate required config
-if (!SITE_URL) {
-  console.error("ERROR: SITE_URL environment variable is required");
+if (!SITE_HOST) {
+  console.error("ERROR: SITE_HOST environment variable is required");
+  process.exit(1);
+}
+if (!BRAND_NAME) {
+  console.error("ERROR: BRAND_NAME environment variable is required");
   process.exit(1);
 }
 
-// Normalize SITE_URL (remove trailing slash)
-const normalizedSiteUrl = SITE_URL.replace(/\/$/, "");
+const SITE_ORIGIN = `https://${SITE_HOST}`;
 
 // CORS - only allow the configured site
 app.use(
   cors({
-    origin: normalizedSiteUrl,
+    origin: SITE_ORIGIN,
     methods: ["GET", "POST"],
   })
 );
@@ -49,7 +52,7 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
-    site: normalizedSiteUrl,
+    host: SITE_HOST,
     stripe: !!process.env.STRIPE_SECRET_KEY,
     paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET),
   });
@@ -84,8 +87,8 @@ app.post("/api/stripe/create-session", async (req, res) => {
         },
         quantity: item.quantity,
       })),
-      success_url: `${normalizedSiteUrl}/checkout-success/`,
-      cancel_url: `${normalizedSiteUrl}/`,
+      success_url: `${SITE_ORIGIN}/checkout-success/`,
+      cancel_url: `${SITE_ORIGIN}/`,
     });
 
     res.json({ id: session.id, url: session.url });
@@ -177,10 +180,10 @@ app.post("/api/paypal/create-order", async (req, res) => {
         },
       ],
       application_context: {
-        return_url: `${normalizedSiteUrl}/checkout-success/`,
-        cancel_url: `${normalizedSiteUrl}/`,
+        return_url: `${SITE_ORIGIN}/checkout-success/`,
+        cancel_url: `${SITE_ORIGIN}/`,
         user_action: "PAY_NOW",
-        brand_name: process.env.BRAND_NAME || "Shop",
+        brand_name: BRAND_NAME,
       },
     };
 
@@ -216,9 +219,9 @@ app.post("/api/paypal/create-order", async (req, res) => {
 // START SERVER
 // ============================================
 
-app.listen(PORT, () => {
-  console.log(`Checkout backend running on port ${PORT}`);
-  console.log(`  Site URL: ${normalizedSiteUrl}`);
+app.listen(3000, () => {
+  console.log(`Checkout backend running on port 3000`);
+  console.log(`  Site: ${SITE_ORIGIN}`);
   console.log(`  Stripe: ${process.env.STRIPE_SECRET_KEY ? "configured" : "not configured"}`);
   console.log(`  PayPal: ${process.env.PAYPAL_CLIENT_ID ? "configured" : "not configured"}`);
   console.log(`  Currency: ${CURRENCY}`);
