@@ -7,8 +7,8 @@ function isValidImage(imagePath) {
 	if (!imagePath || imagePath.trim() === "") return false;
 	if (imagePath.indexOf("http") === 0) return true;
 
-	// Remove leading slash and use the full path structure
-	const relativePath = imagePath.replace(/^\//, "");
+	// Remove leading slash and strip "src/" prefix if present
+	const relativePath = imagePath.replace(/^\//, "").replace(/^src\//, "");
 	const fullPath = join(process.cwd(), "src", relativePath);
 
 	if (existsSync(fullPath)) return true;

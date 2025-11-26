@@ -100,6 +100,9 @@ const U = {
 		if (name.startsWith("/")) {
 			return `./src${name}`;
 		}
+		if (name.startsWith("src/")) {
+			return `./${name}`;
+		}
 		if (name.startsWith("images/")) {
 			return `./src/${name}`;
 		}
