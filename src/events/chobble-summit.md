@@ -1,5 +1,5 @@
 ---
-header_image: images/placeholder-wide-1.jpg
+header_image: src/images/placeholder-wide-1.jpg
 title: Chobble Global Summit
 subtitle: 40,000 developers can't be wrong
 meta_description: Annual sold-out arena event celebrating the Chobble template at Fulchester Arena

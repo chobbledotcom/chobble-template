@@ -2,7 +2,7 @@
 title: John Doe
 snippet: Suspendisse eleifend dolor non sagittis pharetra
 image: placeholder-square-4.jpg
-header_image: images/placeholder-wide-2.jpg
+header_image: src/images/placeholder-wide-2.jpg
 ---
 
 > "Faucibus at hendrerit ut, vestibulum pretium turpis."

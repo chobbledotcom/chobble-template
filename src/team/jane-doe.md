@@ -2,7 +2,7 @@
 title: Jane Doe
 snippet: Quisque eros velit, faucibus at hendrerit
 image: placeholder-square-3.jpg
-header_image: images/placeholder-wide-3.jpg
+header_image: src/images/placeholder-wide-3.jpg
 ---
 
 > "Pellentesque dapibus est vitae ligula sollicitudin sodales."

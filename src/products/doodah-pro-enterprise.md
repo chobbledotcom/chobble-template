@@ -11,18 +11,18 @@ options:
   - name: Enterprise Plus
     max_quantity: 5
     unit_price: 899.99
-header_image: images/placeholder-wide-1.jpg
+header_image: src/images/placeholder-wide-1.jpg
 categories:
   - professional-doodahs
   - doodahs
 gallery:
-  - images/placeholder-square-2.jpg
-  - images/placeholder-square-3.jpg
-  - images/placeholder-square-4.jpg
-  - images/placeholder-square-5.jpg
-  - images/placeholder-square-6.jpg
-  - images/placeholder-square-7.jpg
-  - images/placeholder-square-1.jpg
+  - src/images/placeholder-square-2.jpg
+  - src/images/placeholder-square-3.jpg
+  - src/images/placeholder-square-4.jpg
+  - src/images/placeholder-square-5.jpg
+  - src/images/placeholder-square-6.jpg
+  - src/images/placeholder-square-7.jpg
+  - src/images/placeholder-square-1.jpg
 specs:
   - name: Dimensions
     value: 45cm x 30cm x 15cm

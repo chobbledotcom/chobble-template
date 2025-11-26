@@ -1,7 +1,7 @@
 ---
 title: Pocket Widgets
 description: Portable widgets with advanced functionality capabilities
-header_image: images/placeholder-wide-1.jpg
+header_image: src/images/placeholder-wide-1.jpg
 parent: widgets
 ---
 

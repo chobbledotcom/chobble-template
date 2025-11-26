@@ -1,6 +1,6 @@
 ---
 header_text: Events
-header_image: images/party.jpg
+header_image: src/images/party.jpg
 meta_description: Check out our upcoming and past events
 meta_title: Events Listing Website | Chobble Template
 permalink: /events/
