@@ -2,119 +2,102 @@ import {
   createMockEleventyConfig,
   createTestRunner,
   expectStrictEqual,
-  expectDeepEqual,
+  expectTrue,
 } from './test-utils.js';
 
-import { createFeedConfiguration, configureFeed } from '../src/_lib/feed.js';
-
-const mockSiteData = {
-  name: "Test Site",
-  url: "https://test.example.com"
-};
+import { configureFeed } from '../src/_lib/feed.js';
 
 const testCases = [
   {
-    name: 'createFeedConfiguration-basic',
-    description: 'Creates feed configuration with basic site data',
-    test: () => {
-      const config = createFeedConfiguration(mockSiteData);
-      
-      expectStrictEqual(config.type, "atom", "Should set type to atom");
-      expectStrictEqual(config.outputPath, "/feed.xml", "Should set output path");
-      expectStrictEqual(config.stylesheet, "/assets/pretty-atom-feed.xsl", "Should set stylesheet path");
-      expectDeepEqual(config.templateData, {}, "Should set empty template data");
-      expectDeepEqual(config.collection, { name: "news", limit: 20 }, "Should set collection config");
-      
-      const expectedMetadata = {
-        language: "en",
-        title: mockSiteData.name,
-        subtitle: "",
-        base: mockSiteData.url,
-        author: {
-          name: mockSiteData.name,
-        },
-      };
-      expectDeepEqual(config.metadata, expectedMetadata, "Should set metadata correctly");
-    }
-  },
-  {
-    name: 'createFeedConfiguration-different-site',
-    description: 'Creates feed configuration with different site data',
-    test: () => {
-      const differentSite = {
-        name: "Different Site Name",
-        url: "https://different.example.org"
-      };
-      
-      const config = createFeedConfiguration(differentSite);
-      
-      expectStrictEqual(config.metadata.title, differentSite.name, "Should use provided site name");
-      expectStrictEqual(config.metadata.base, differentSite.url, "Should use provided site url");
-      expectStrictEqual(config.metadata.author.name, differentSite.name, "Should use site name as author");
-    }
-  },
-  {
-    name: 'createFeedConfiguration-immutable',
-    description: 'Function should be pure and not modify input',
-    test: () => {
-      const originalSiteData = {
-        name: "Original Site",
-        url: "https://original.example.com"
-      };
-      const siteDataCopy = { ...originalSiteData };
-      
-      const config = createFeedConfiguration(siteDataCopy);
-      
-      expectDeepEqual(siteDataCopy, originalSiteData, "Should not modify input site data");
-      expectStrictEqual(config !== siteDataCopy, true, "Should return new object");
-    }
-  },
-  {
-    name: 'configureFeed-basic',
-    description: 'Configures feed plugin with eleventy config',
+    name: 'configureFeed-loads-html-base-plugin',
+    description: 'Loads HTML Base plugin for URL transformations',
     asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
-      
-      const result = await configureFeed(mockConfig);
-      
-      expectStrictEqual(mockConfig.pluginCalls.length, 1, "Should call addPlugin once");
-      
-      const pluginCall = mockConfig.pluginCalls[0];
-      expectStrictEqual(typeof pluginCall.plugin, 'function', "Should pass feed plugin function");
-      
-      // The function now loads site data internally, so we can't easily test the exact config
-      // But we can verify it returns a valid configuration object
-      expectStrictEqual(typeof result, 'object', "Should return configuration object");
-      expectStrictEqual(typeof result.type, 'string', "Should have type property");
-      expectStrictEqual(typeof result.outputPath, 'string', "Should have outputPath property");
+
+      await configureFeed(mockConfig);
+
+      // Should load the HTML Base plugin
+      expectTrue(mockConfig.pluginCalls.length >= 1, "Should call addPlugin at least once");
     }
   },
   {
-    name: 'configureFeed-returns-config',
-    description: 'Returns the configuration object for chaining',
+    name: 'configureFeed-adds-filters',
+    description: 'Configures RSS date filters with eleventy config',
     asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
-      
-      const result = await configureFeed(mockConfig);
-      
-      expectStrictEqual(typeof result, 'object', "Should return configuration object");
-      expectStrictEqual(result.type, 'atom', "Should return atom feed configuration");
-      expectStrictEqual(result.outputPath, '/feed.xml', "Should return correct output path");
+
+      await configureFeed(mockConfig);
+
+      // Should add the RSS date filters
+      expectTrue(mockConfig.filters.dateToRfc3339 !== undefined, "Should add dateToRfc3339 filter");
+      expectTrue(mockConfig.filters.dateToRfc822 !== undefined, "Should add dateToRfc822 filter");
+      expectTrue(mockConfig.filters.getNewestCollectionItemDate !== undefined, "Should add getNewestCollectionItemDate filter");
+      expectTrue(mockConfig.filters.absoluteUrl !== undefined, "Should add absoluteUrl filter");
     }
   },
   {
-    name: 'feed-constants-immutable',
-    description: 'Feed configuration constants should be consistent',
-    test: () => {
-      const config1 = createFeedConfiguration(mockSiteData);
-      const config2 = createFeedConfiguration(mockSiteData);
-      
-      expectStrictEqual(config1.type, config2.type, "Type should be consistent");
-      expectStrictEqual(config1.outputPath, config2.outputPath, "Output path should be consistent");
-      expectStrictEqual(config1.stylesheet, config2.stylesheet, "Stylesheet should be consistent");
-      expectDeepEqual(config1.collection, config2.collection, "Collection config should be consistent");
-      expectStrictEqual(config1.metadata.language, config2.metadata.language, "Language should be consistent");
-      expectStrictEqual(config1.metadata.subtitle, config2.metadata.subtitle, "Subtitle should be consistent");
+    name: 'configureFeed-dateToRfc3339-filter',
+    description: 'dateToRfc3339 filter formats dates correctly',
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      await configureFeed(mockConfig);
+
+      const dateFilter = mockConfig.filters.dateToRfc3339;
+      const testDate = new Date('2024-01-15T12:30:00Z');
+      const result = dateFilter(testDate);
+
+      expectStrictEqual(result, '2024-01-15T12:30:00Z', "Should format date to RFC3339");
+    }
+  },
+  {
+    name: 'configureFeed-dateToRfc822-filter',
+    description: 'dateToRfc822 filter formats dates correctly',
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      await configureFeed(mockConfig);
+
+      const dateFilter = mockConfig.filters.dateToRfc822;
+      const testDate = new Date('2024-01-15T12:30:00Z');
+      const result = dateFilter(testDate);
+
+      // RFC822 format: Mon, 15 Jan 2024 12:30:00 +0000
+      expectTrue(result.includes('15 Jan 2024'), "Should format date to RFC822");
+      expectTrue(result.includes('12:30:00'), "Should include time in RFC822 format");
+    }
+  },
+  {
+    name: 'configureFeed-getNewestCollectionItemDate-filter',
+    description: 'getNewestCollectionItemDate filter finds newest date',
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      await configureFeed(mockConfig);
+
+      const newestFilter = mockConfig.filters.getNewestCollectionItemDate;
+      const collection = [
+        { date: new Date('2024-01-01') },
+        { date: new Date('2024-06-15') },
+        { date: new Date('2024-03-10') },
+      ];
+      const result = newestFilter(collection);
+
+      expectStrictEqual(result.getTime(), new Date('2024-06-15').getTime(), "Should return newest date");
+    }
+  },
+  {
+    name: 'configureFeed-absoluteUrl-filter',
+    description: 'absoluteUrl filter creates absolute URLs',
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      await configureFeed(mockConfig);
+
+      const absoluteUrlFilter = mockConfig.filters.absoluteUrl;
+      const result = absoluteUrlFilter('/path/to/page/', 'https://example.com');
+
+      expectStrictEqual(result, 'https://example.com/path/to/page/', "Should create absolute URL");
     }
   }
 ];
