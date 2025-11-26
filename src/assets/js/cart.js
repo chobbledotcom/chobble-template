@@ -3,6 +3,9 @@
 // Supports both PayPal and Stripe checkout
 
 class ShoppingCart {
+  // Minimum checkout amount in pounds (Stripe requires at least 30p)
+  static MINIMUM_CHECKOUT_AMOUNT = 0.3;
+
   constructor() {
     this.storageKey = "shopping_cart";
     this.cartOverlay = null;
@@ -318,19 +321,40 @@ class ShoppingCart {
     const cartItems = this.cartOverlay.querySelector(".cart-items");
     const cartEmpty = this.cartOverlay.querySelector(".cart-empty");
     const cartTotal = this.cartOverlay.querySelector(".cart-total-amount");
-    const checkoutBtns = this.cartOverlay.querySelectorAll(
-      ".cart-checkout-paypal, .cart-checkout-stripe",
-    );
+    const paypalBtn = this.cartOverlay.querySelector(".cart-checkout-paypal");
+    const stripeBtn = this.cartOverlay.querySelector(".cart-checkout-stripe");
+    const minimumMessage = this.cartOverlay.querySelector(".cart-minimum-message");
 
     if (!cartItems) return;
+
+    const total = this.getCartTotal();
+    const isBelowMinimum = total <= ShoppingCart.MINIMUM_CHECKOUT_AMOUNT;
 
     if (cart.length === 0) {
       cartItems.innerHTML = "";
       if (cartEmpty) cartEmpty.style.display = "block";
-      checkoutBtns.forEach((btn) => (btn.disabled = true));
+      if (paypalBtn) paypalBtn.disabled = true;
+      if (stripeBtn) {
+        stripeBtn.disabled = true;
+        stripeBtn.style.display = "";
+      }
+      if (minimumMessage) minimumMessage.style.display = "none";
     } else {
       if (cartEmpty) cartEmpty.style.display = "none";
-      checkoutBtns.forEach((btn) => (btn.disabled = false));
+      if (paypalBtn) paypalBtn.disabled = false;
+
+      // Hide Stripe button and show message if below minimum checkout amount
+      if (stripeBtn) {
+        if (isBelowMinimum) {
+          stripeBtn.style.display = "none";
+        } else {
+          stripeBtn.style.display = "";
+          stripeBtn.disabled = false;
+        }
+      }
+      if (minimumMessage) {
+        minimumMessage.style.display = isBelowMinimum ? "block" : "none";
+      }
 
       cartItems.innerHTML = cart
         .map(
