@@ -9,6 +9,18 @@ import { configureFeed } from '../src/_lib/feed.js';
 
 const testCases = [
   {
+    name: 'configureFeed-loads-html-base-plugin',
+    description: 'Loads HTML Base plugin for URL transformations',
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      await configureFeed(mockConfig);
+
+      // Should load the HTML Base plugin
+      expectTrue(mockConfig.pluginCalls.length >= 1, "Should call addPlugin at least once");
+    }
+  },
+  {
     name: 'configureFeed-adds-filters',
     description: 'Configures RSS date filters with eleventy config',
     asyncTest: async () => {

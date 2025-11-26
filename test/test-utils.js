@@ -20,6 +20,10 @@ const createMockEleventyConfig = () => ({
     this.filters = this.filters || {};
     this.filters[name] = fn;
   },
+  addAsyncFilter: function(name, fn) {
+    this.asyncFilters = this.asyncFilters || {};
+    this.asyncFilters[name] = fn;
+  },
   addShortcode: function(name, fn) {
     this.shortcodes = this.shortcodes || {};
     this.shortcodes[name] = fn;
@@ -50,7 +54,25 @@ const createMockEleventyConfig = () => ({
   addPassthroughCopy: function(path) {
     this.passthroughCopies = this.passthroughCopies || [];
     this.passthroughCopies.push(path);
-  }
+  },
+  resolvePlugin: function(pluginName) {
+    // Return a mock plugin function that does nothing
+    return function mockPlugin(config, options) {
+      // Mock HTML Base plugin - adds filters that tests might need
+      if (pluginName === '@11ty/eleventy/html-base-plugin') {
+        config.addFilter('htmlBaseUrl', (url, base) => {
+          if (base && url && !url.startsWith('http')) {
+            return base + url;
+          }
+          return url;
+        });
+        config.addAsyncFilter('transformWithHtmlBase', async (content, base) => {
+          return content; // Just return content unchanged in tests
+        });
+      }
+    };
+  },
+  pathPrefix: '/'
 });
 
 const createTempDir = (testName, suffix = '') => {

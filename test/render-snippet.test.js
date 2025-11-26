@@ -81,6 +81,7 @@ const mockConfig = {
   on: () => {},
   addCollection: () => {},
   addFilter: () => {},
+  addAsyncFilter: () => {},
   addShortcode: (name, fn) => {
     mockConfig[name] = fn;
   },
@@ -90,6 +91,11 @@ const mockConfig = {
   addGlobalData: () => {},
   addLayoutAlias: () => {},
   render_snippet: null,
+  resolvePlugin: (pluginName) => {
+    // Return a mock plugin function
+    return function mockPlugin() {};
+  },
+  pathPrefix: '/',
 };
 
 // Setup and run tests

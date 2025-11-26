@@ -21,12 +21,13 @@
     <name>{{ site.name }}</name>
   </author>
   {%- for post in collections.news reversed limit: 20 %}
+  {%- assign absolutePostUrl = post.url | htmlBaseUrl: site.url %}
   <entry>
     <title>{{ post.data.title }}</title>
-    <link href="{{ site.url }}{{ post.url }}" />
+    <link href="{{ absolutePostUrl }}" />
     <updated>{{ post.date | dateToRfc3339 }}</updated>
-    <id>{{ site.url }}{{ post.url }}</id>
-    <content type="html"><![CDATA[{{ post.content }}]]></content>
+    <id>{{ absolutePostUrl }}</id>
+    <content type="html"><![CDATA[{{ post.content | transformWithHtmlBase: site.url, post.url }}]]></content>
   </entry>
   {%- endfor %}
 </feed>
