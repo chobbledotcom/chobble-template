@@ -641,6 +641,15 @@ nav {
 
 @media (min-width: 769px) {
   body {
+    &.left-nav.one-column {
+      main {
+        grid-template-columns: 10rem 1fr;
+        grid-template-areas: "nav content";
+        @media (min-width: 1000px) {
+          grid-template-columns: 13rem 1fr;
+        }
+      }
+    }
     &.left-nav.two-columns {
       main {
         grid-template-columns: 10rem 1fr;
