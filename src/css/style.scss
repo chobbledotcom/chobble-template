@@ -768,8 +768,9 @@ body.item {
         grid-template-areas:
           "title title"
           "gallery description"
-          "contact description";
-        "faqsfaqs"grid-template-columns: 450px 1fr;
+          "contact description"
+          "faqs faqs";
+        grid-template-columns: 450px 1fr;
         grid-template-rows: min-content min-content 1fr;
       }
     }
