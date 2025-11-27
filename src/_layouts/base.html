@@ -25,6 +25,7 @@
     {%- include "navigation.html" -%}
     <article class="content" id="content">
       {{- content -}}
+      {%- include "faq.html" -%}
     </article>
     {%- if "src/snippets/right-content.md" | file_exists -%}
       <article class="right">

@@ -9,6 +9,10 @@ permalink: /
 eleventyNavigation:
   key: Home
   order: 1
+faqs:
+  - question: How do I get started?
+    answer: Clone the repo and run npm install, then npm start.
+    order: 1
 ---
 
 ## This site is using the [Chobble Template](https://chobble.com/services/chobble-template/)

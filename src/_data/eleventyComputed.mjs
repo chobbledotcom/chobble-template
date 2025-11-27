@@ -29,4 +29,8 @@ export default {
 				: isValidImage(data.header_image)
 					? data.header_image
 					: null,
+	faqs: (data) =>
+		Array.isArray(data.faqs)
+			? [...data.faqs].sort((a, b) => (a.order || 0) - (b.order || 0))
+			: [],
 };

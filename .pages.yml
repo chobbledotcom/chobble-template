@@ -33,6 +33,14 @@ content:
           - { name: url, type: string }
       - { name: layout, type: string }
       - { name: permalink, type: string }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - { name: question, type: string, label: Question, required: true }
+          - { name: answer, type: string, label: Answer, required: true }
+          - { name: order, type: number, label: Order }
 
   - name: news
     label: News
@@ -96,6 +104,14 @@ content:
       - { name: meta_description, type: string, label: Meta Description }
       - { name: meta_title, type: string, label: Meta Title }
       - { name: subtitle, type: string, label: Subtitle }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - { name: question, type: string, label: Question, required: true }
+          - { name: answer, type: string, label: Answer, required: true }
+          - { name: order, type: number, label: Order }
 
   - name: categories
     label: Categories
@@ -113,6 +129,14 @@ content:
       - { name: meta_description, type: string, label: Meta Description }
       - { name: meta_title, type: string, label: Meta Title }
       - { name: subtitle, type: string, label: Subtitle }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - { name: question, type: string, label: Question, required: true }
+          - { name: answer, type: string, label: Answer, required: true }
+          - { name: order, type: number, label: Order }
 
   - name: team
     label: Team

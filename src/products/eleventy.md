@@ -4,6 +4,13 @@ short_description: The Chobble Template is built with the Eleventy static site g
 header_image: src/images/placeholder-wide-3.jpg
 categories:
   - open-source
+faqs:
+  - question: Is Eleventy free to use?
+    answer: Yes, Eleventy is open source and completely free.
+    order: 1
+  - question: Do I need to know JavaScript?
+    answer: Basic knowledge helps, but you can build sites with just Markdown.
+    order: 2
 features:
   - Open source static site generator
   - Markdown-based content files
