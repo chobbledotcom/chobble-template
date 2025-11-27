@@ -641,7 +641,7 @@ nav {
 
 @media (min-width: 769px) {
   body {
-    &.left-nav {
+    &.left-nav.two-columns {
       main {
         grid-template-columns: 10rem 1fr;
         grid-template-rows: 1fr min-content;
