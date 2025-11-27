@@ -1,6 +1,7 @@
 ---
 title: UltraWidget Pro
 short_description: Lightweight, powerful widget for professionals
+featured: true
 options:
   - name: Professional
     max_quantity: 10

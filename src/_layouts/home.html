@@ -45,6 +45,13 @@ layout: base
   {%- include "categories-list.html" -%}
 {%- endif -%}
 
+{%- assign products = collections.products | getFeaturedProducts -%}
+{%- if homepage.show_featured_products and products.size > 0 -%}
+  <hr>
+  {%- render_snippet "homepage-products-header", "<h3>Featured Products</h3>" -%}
+  {%- include "products-list.html" -%}
+{%- endif -%}
+
 {%- comment -%} Check for recurring events {%- endcomment -%}
 {%- assign recurring_events = collections.events | where: "data.recurring_date" -%}
 {%- if homepage.show_recurring_events and recurring_events.size > 0 -%}

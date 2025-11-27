@@ -1,5 +1,6 @@
 {
 	"show_products": true,
+	"show_featured_products": true,
 	"show_menus": true,
 	"show_news": true,
 	"show_recurring_events": true
