@@ -13,7 +13,7 @@ function buildImageUrl(imageInput, siteUrl) {
 }
 
 function buildBaseMeta(data) {
-	const baseMeta = data.meta || {};
+	const baseMeta = data.metaComputed || {};
 
 	const meta = {
 		...baseMeta,
@@ -120,8 +120,8 @@ function buildPostMeta(data) {
 function buildOrganizationMeta(data) {
 	const meta = buildBaseMeta(data);
 
-	if (data.meta && data.meta.organization) {
-		meta.organization = data.meta.organization;
+	if (data.metaComputed && data.metaComputed.organization) {
+		meta.organization = data.metaComputed.organization;
 	}
 
 	return meta;
