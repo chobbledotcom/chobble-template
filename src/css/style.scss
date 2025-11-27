@@ -760,6 +760,9 @@ body.item {
         margin-top: 0;
       }
     }
+    .faqs {
+      grid-area: faqs;
+    }
   }
   @media (min-width: 900px) {
     &.one-column {
