@@ -739,7 +739,8 @@ body.item {
       "title"
       "gallery"
       "description"
-      "contact";
+      "contact"
+      "faqs";
     .title {
       grid-area: title;
       h1 {
@@ -768,7 +769,7 @@ body.item {
           "title title"
           "gallery description"
           "contact description";
-        grid-template-columns: 450px 1fr;
+        "faqsfaqs"grid-template-columns: 450px 1fr;
         grid-template-rows: min-content min-content 1fr;
       }
     }
@@ -780,7 +781,8 @@ body.item {
         grid-template-areas:
           "title title"
           "gallery description"
-          "contact description";
+          "contact description"
+          "faqs faqs";
         grid-template-columns: 400px 1fr;
         grid-template-rows: min-content min-content 1fr;
       }
