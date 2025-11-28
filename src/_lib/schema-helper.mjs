@@ -128,7 +128,7 @@ function buildOrganizationMeta(data) {
 }
 
 export {
-	buildImageUrl,
+	
 	buildBaseMeta,
 	buildProductMeta,
 	buildPostMeta,

@@ -321,5 +321,5 @@ export {
 	createImageTransform,
 	configureImages,
 	imageShortcode,
-	transformImages,
+	
 };

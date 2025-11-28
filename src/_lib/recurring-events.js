@@ -102,6 +102,6 @@ const getRecurringEventsHtml = async () => {
 
 export {
 	configureRecurringEvents,
-	renderRecurringEvents,
+	
 	getRecurringEventsHtml,
 };

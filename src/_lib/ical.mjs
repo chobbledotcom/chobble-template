@@ -2,7 +2,7 @@ import ical from 'ical-generator';
 import site from '../_data/site.json' with { type: 'json' };
 import config from '../_data/config.json' with { type: 'json' };
 
-export function generateICalForEvent(event) {
+function generateICalForEvent(event) {
   // Only generate iCal for one-off events (not recurring)
   if (!event.data.ical_url) {
     return null;
