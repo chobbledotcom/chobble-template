@@ -5,7 +5,11 @@
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "node test/run-all-tests.js"
+		"test": "node test/run-all-tests.js",
+		"cpd": "jscpd"
+	},
+	"devDependencies": {
+		"jscpd": "^4.0.5"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
