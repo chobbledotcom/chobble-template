@@ -18,5 +18,9 @@
 		"sharp",
 		"gray-matter"
 	],
+	"ignoreExportsUsedInFile": true,
+	"rules": {
+		"exports": "off"
+	},
 	"eleventy": false
 }

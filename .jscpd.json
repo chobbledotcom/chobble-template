@@ -1,0 +1,19 @@
+{
+	"threshold": 1,
+	"reporters": ["console"],
+	"ignore": [
+		"**/node_modules/**",
+		"**/_site/**",
+		"**/src/assets/js/lib/**",
+		"**/*.min.js",
+		"**/package-lock.json",
+		"**/ecommerce-backend/**",
+		"**/test/**"
+	],
+	"format": ["javascript", "json"],
+	"absolute": false,
+	"gitignore": true,
+	"minLines": 3,
+	"minTokens": 25,
+	"path": ["src/_lib", "src/_data", "src/assets/js", ".eleventy.js"]
+}

@@ -99,7 +99,7 @@
     </div>
 
     <script>
-        document.getElementById('validate').addEventListener('click', function() {
+        document.getElementById('validate').addEventListener('click', () => {
             const sizesValue = document.getElementById('sizes').value.trim();
             const widthsValue = document.getElementById('widths').value.trim();
 
@@ -282,13 +282,13 @@
                     const parts = calcContent.split(/([+-])/);
                     
                     if (parts.length >= 3) {
-                        let percentPart = parts[0].trim();
+                        const percentPart = parts[0].trim();
                         if (percentPart.endsWith('%')) {
                             const percentage = parseFloat(percentPart);
                             const percentValue = (percentage / 100) * viewportWidth;
                             
                             const operator = parts[1].trim();
-                            let secondPart = parts[2].trim();
+                            const secondPart = parts[2].trim();
                             let secondValue = 0;
                             
                             // Handle different units for the second part

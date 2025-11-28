@@ -11,54 +11,54 @@ import { configureLayoutAliases } from "./src/_lib/layout-aliases.mjs";
 import { configureMenus } from "./src/_lib/menus.js";
 import { configureNavigation } from "./src/_lib/navigation.js";
 import { configureOpeningTimes } from "./src/_lib/opening-times.js";
-import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
 import { configureProducts } from "./src/_lib/products.js";
-import { configureScss } from "./src/_lib/scss.js";
+import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
+import { configureScss } from "./src/_lib/scss.js";
 import { configureTags } from "./src/_lib/tags.js";
 import { configureUnusedImages } from "./src/_lib/unused-images.js";
 
 export default async function (eleventyConfig) {
-	eleventyConfig.addWatchTarget("./src/**/*");
-	eleventyConfig.setLayoutsDirectory("_layouts");
-	eleventyConfig
-		.addPassthroughCopy("src/assets")
-		.addPassthroughCopy("src/images")
-		.addPassthroughCopy("src/news/images")
-		.addPassthroughCopy({ "src/assets/favicon/*": "/" });
+  eleventyConfig.addWatchTarget("./src/**/*");
+  eleventyConfig.setLayoutsDirectory("_layouts");
+  eleventyConfig
+    .addPassthroughCopy("src/assets")
+    .addPassthroughCopy("src/images")
+    .addPassthroughCopy("src/news/images")
+    .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
-	eleventyConfig.addPlugin(schemaPlugin);
+  eleventyConfig.addPlugin(schemaPlugin);
 
-	// configureLayoutAliases(eleventyConfig);
+  // configureLayoutAliases(eleventyConfig);
 
-	configureCacheBuster(eleventyConfig);
-	configureCategories(eleventyConfig);
-	configureLayoutAliases(eleventyConfig);
-	await configureExternalLinks(eleventyConfig);
-	await configureFeed(eleventyConfig);
-	configureFileUtils(eleventyConfig);
-	configureICal(eleventyConfig);
-	configureImages(eleventyConfig);
-	configureMenus(eleventyConfig);
-	await configureNavigation(eleventyConfig);
-	configureOpeningTimes(eleventyConfig);
-	configureRecurringEvents(eleventyConfig);
-	configureProducts(eleventyConfig);
-	configureScss(eleventyConfig);
-	configureScssFiles(eleventyConfig);
-	configureTags(eleventyConfig);
-	configureUnusedImages(eleventyConfig);
+  configureCacheBuster(eleventyConfig);
+  configureCategories(eleventyConfig);
+  configureLayoutAliases(eleventyConfig);
+  await configureExternalLinks(eleventyConfig);
+  await configureFeed(eleventyConfig);
+  configureFileUtils(eleventyConfig);
+  configureICal(eleventyConfig);
+  configureImages(eleventyConfig);
+  configureMenus(eleventyConfig);
+  await configureNavigation(eleventyConfig);
+  configureOpeningTimes(eleventyConfig);
+  configureRecurringEvents(eleventyConfig);
+  configureProducts(eleventyConfig);
+  configureScss(eleventyConfig);
+  configureScssFiles(eleventyConfig);
+  configureTags(eleventyConfig);
+  configureUnusedImages(eleventyConfig);
 
-	return {
-		dir: {
-			input: "src",
-			output: "_site",
-			includes: "_includes",
-			layouts: "_layouts",
-			data: "_data",
-		},
-		templateFormats: ["liquid", "md", "html"],
-		htmlTemplateEngine: "liquid",
-		markdownTemplateEngine: "liquid",
-	};
+  return {
+    dir: {
+      input: "src",
+      output: "_site",
+      includes: "_includes",
+      layouts: "_layouts",
+      data: "_data",
+    },
+    templateFormats: ["liquid", "md", "html"],
+    htmlTemplateEngine: "liquid",
+    markdownTemplateEngine: "liquid",
+  };
 }
