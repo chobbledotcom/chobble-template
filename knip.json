@@ -1,0 +1,22 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"entry": [
+		".eleventy.js",
+		"test/**/*.js",
+		"src/_data/**/*.{js,mjs}",
+		"src/**/*.11tydata.mjs"
+	],
+	"project": ["**/*.{js,mjs}"],
+	"ignore": [
+		"src/assets/js/**",
+		"ecommerce-backend/**",
+		"_site/**"
+	],
+	"ignoreDependencies": [
+		"@zachleat/heading-anchors",
+		"markdown-it",
+		"sharp",
+		"gray-matter"
+	],
+	"eleventy": false
+}
