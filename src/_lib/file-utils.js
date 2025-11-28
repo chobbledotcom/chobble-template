@@ -46,7 +46,7 @@ const renderSnippet = async (
 		const openingHtml = await getOpeningTimesHtml();
 		bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
 	}
-	
+
 	if (bodyContent.includes("{% recurring_events %}")) {
 		const recurringHtml = await getRecurringEventsHtml();
 		bodyContent = bodyContent.replace("{% recurring_events %}", recurringHtml);
@@ -62,8 +62,10 @@ const configureFileUtils = (eleventyConfig) => {
 
 	eleventyConfig.addFilter("file_missing", (name) => fileMissing(name));
 
-	eleventyConfig.addAsyncShortcode("render_snippet", async (name, defaultString) =>
-		await renderSnippet(name, defaultString, process.cwd(), mdRenderer),
+	eleventyConfig.addAsyncShortcode(
+		"render_snippet",
+		async (name, defaultString) =>
+			await renderSnippet(name, defaultString, process.cwd(), mdRenderer),
 	);
 
 	eleventyConfig.addShortcode("read_file", (relativePath) =>

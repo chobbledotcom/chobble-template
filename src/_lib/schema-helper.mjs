@@ -128,7 +128,6 @@ function buildOrganizationMeta(data) {
 }
 
 export {
-	
 	buildBaseMeta,
 	buildProductMeta,
 	buildPostMeta,

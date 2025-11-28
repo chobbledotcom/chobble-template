@@ -7,9 +7,10 @@
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
 		"test": "node test/run-all-tests.js",
 		"knip": "knip",
-		"knip:fix": "knip --fix"
+		"knip:fix": "knip --fix && biome format --write"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "^1.9.0",
 		"knip": "^5.38.0"
 	},
 	"dependencies": {
