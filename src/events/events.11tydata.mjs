@@ -1,6 +1,6 @@
-import { buildBaseMeta } from "../_lib/schema-helper.mjs";
-import { categoriseEvents } from "../_lib/events.mjs";
 import strings from "../_data/strings.js";
+import { categoriseEvents } from "../_lib/events.mjs";
+import { buildBaseMeta } from "../_lib/schema-helper.mjs";
 
 export default {
 	eleventyComputed: {

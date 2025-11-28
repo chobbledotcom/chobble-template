@@ -1,5 +1,5 @@
-import sass from "sass";
 import path from "path";
+import sass from "sass";
 import { getScssFiles } from "./scss-files.js";
 import { generateThemeSwitcherContent } from "./theme-compiler.js";
 

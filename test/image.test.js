@@ -1,14 +1,13 @@
 import assert from "assert";
-import { createTestRunner } from "./test-utils.js";
-
 import {
-	findImageFiles,
-	createImagesCollection,
-	copyImageCache,
-	createImageTransform,
 	configureImages,
+	copyImageCache,
+	createImagesCollection,
+	createImageTransform,
+	findImageFiles,
 	imageShortcode,
 } from "../src/_lib/image.js";
+import { createTestRunner } from "./test-utils.js";
 
 const mockEleventyConfig = {
 	addAsyncShortcode: function (name, fn) {

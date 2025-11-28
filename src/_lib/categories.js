@@ -1,7 +1,7 @@
 const buildCategoryImageMap = (categories, products) => {
 	if (!categories) categories = [];
 	if (!products) products = [];
-	
+
 	const initialMapping = categories.reduce(
 		(acc, category) => ({
 			...acc,

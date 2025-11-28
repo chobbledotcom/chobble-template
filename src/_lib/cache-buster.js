@@ -1,7 +1,7 @@
 const BUILD_TIMESTAMP = Math.floor(Date.now() / 1000);
 
 export function configureCacheBuster(eleventyConfig) {
-	eleventyConfig.addFilter("cacheBust", function (url) {
+	eleventyConfig.addFilter("cacheBust", (url) => {
 		const isProduction = process.env.ELEVENTY_RUN_MODE === "build";
 
 		if (!isProduction) {

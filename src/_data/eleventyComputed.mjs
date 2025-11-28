@@ -1,6 +1,7 @@
-import { createRequire } from "module";
 import { existsSync } from "fs";
+import { createRequire } from "module";
 import { join } from "path";
+
 const require = createRequire(import.meta.url);
 
 function isValidImage(imagePath) {

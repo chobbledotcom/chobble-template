@@ -15,10 +15,5 @@
 	"gitignore": true,
 	"minLines": 3,
 	"minTokens": 25,
-	"path": [
-		"src/_lib",
-		"src/_data",
-		"src/assets/js",
-		".eleventy.js"
-	]
+	"path": ["src/_lib", "src/_data", "src/assets/js", ".eleventy.js"]
 }

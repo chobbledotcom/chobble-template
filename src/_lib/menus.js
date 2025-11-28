@@ -1,6 +1,8 @@
 const getCategoriesByMenu = (categories, menuSlug) => {
 	if (!categories) return [];
-	return categories.filter((category) => category.data.menus?.includes(menuSlug));
+	return categories.filter((category) =>
+		category.data.menus?.includes(menuSlug),
+	);
 };
 
 const getItemsByCategory = (items, categorySlug) => {

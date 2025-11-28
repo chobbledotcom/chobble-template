@@ -4,10 +4,10 @@
  * Usage in templates: {{ strings.product_name }}
  */
 
-import baseStrings from "./strings-base.json" with { type: "json" };
 import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+import baseStrings from "./strings-base.json" with { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

@@ -1,4 +1,4 @@
-(function () {
+(() => {
 	let ELEMENTS = null;
 
 	const ThemeEditor = {
@@ -55,7 +55,7 @@
 			themeContent
 				.match(/:root\s*{([^}]*)}/s)?.[1]
 				?.split(";")
-				.map((line) => line.match(/^\s*(--[a-zA-Z0-9-]+)\s*\:\s(.+)$/))
+				.map((line) => line.match(/^\s*(--[a-zA-Z0-9-]+)\s*:\s(.+)$/))
 				.filter((regex) => regex)
 				.forEach((regex) => {
 					cssVars.add(regex[1]);
@@ -97,7 +97,7 @@
 				.querySelectorAll('input[type="checkbox"][data-target]')
 				.forEach((checkbox) => {
 					const targetIds = checkbox.dataset.target.split(",");
-					const id = checkbox.id.replace(/\-enabled$/, "");
+					const id = checkbox.id.replace(/-enabled$/, "");
 					let isEnabled = cssVars.has(`--${id}`);
 
 					this.formEl(`${id}[data-class]`)
@@ -289,7 +289,7 @@
 
 			themeText += "}\n";
 
-			let bodyClasses = [];
+			const bodyClasses = [];
 			this.formQuery("[data-class]").forEach((el) => {
 				const checkbox = this.formEl(el.id + "-enabled");
 				const enabled = !checkbox || checkbox.checked;

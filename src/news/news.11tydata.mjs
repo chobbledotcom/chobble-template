@@ -1,5 +1,5 @@
-import { buildPostMeta } from "../_lib/schema-helper.mjs";
 import strings from "../_data/strings.js";
+import { buildPostMeta } from "../_lib/schema-helper.mjs";
 
 export default {
 	eleventyComputed: {

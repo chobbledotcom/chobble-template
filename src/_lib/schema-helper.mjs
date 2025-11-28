@@ -22,7 +22,7 @@ function buildBaseMeta(data) {
 		description: data.meta_description || data.short_description,
 	};
 
-	let imageSource = data.header_image || data.image || null;
+	const imageSource = data.header_image || data.image || null;
 
 	if (imageSource) {
 		const imageUrl = buildImageUrl(imageSource, data.site.url);

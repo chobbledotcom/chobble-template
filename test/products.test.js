@@ -1,22 +1,21 @@
 import {
-	createMockEleventyConfig,
-	createTestRunner,
-	expectStrictEqual,
-	expectDeepEqual,
-	expectFunctionType,
-} from "./test-utils.js";
-
-import {
-	processGallery,
 	addGallery,
+	configureProducts,
 	createProductsCollection,
 	createReviewsCollection,
 	createVisibleReviewsCollection,
+	getFeaturedProducts,
 	getProductsByCategory,
 	getReviewsByProduct,
-	getFeaturedProducts,
-	configureProducts,
+	processGallery,
 } from "../src/_lib/products.js";
+import {
+	createMockEleventyConfig,
+	createTestRunner,
+	expectDeepEqual,
+	expectFunctionType,
+	expectStrictEqual,
+} from "./test-utils.js";
 
 const testCases = [
 	{

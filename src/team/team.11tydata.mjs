@@ -1,7 +1,7 @@
-import { buildBaseMeta } from '../_lib/schema-helper.mjs';
+import { buildBaseMeta } from "../_lib/schema-helper.mjs";
 
 export default {
-  eleventyComputed: {
-    meta: data => buildBaseMeta(data)
-  }
+	eleventyComputed: {
+		meta: (data) => buildBaseMeta(data),
+	},
 };

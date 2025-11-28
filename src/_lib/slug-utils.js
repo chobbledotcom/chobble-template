@@ -13,6 +13,4 @@ const normaliseSlug = (reference) => {
 	return pathParts[pathParts.length - 1];
 };
 
-export {
-	normaliseSlug,
-};
+export { normaliseSlug };

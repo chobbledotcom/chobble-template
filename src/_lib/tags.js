@@ -1,6 +1,6 @@
 const extractTags = (collection) => {
 	if (!collection) return [];
-	
+
 	const allTags = collection
 		.filter((page) => page.url && !page.data?.no_index)
 		.flatMap((page) => page.data?.tags || [])
@@ -15,7 +15,4 @@ const configureTags = (eleventyConfig) => {
 	eleventyConfig.addFilter("tags", extractTags);
 };
 
-export {
-	extractTags,
-	configureTags,
-};
+export { extractTags, configureTags };
