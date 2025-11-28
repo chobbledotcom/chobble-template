@@ -1,3 +1,11 @@
+const sortEventsByTitle = (events) => {
+	events.sort((a, b) => {
+		const titleA = a.data?.title || '';
+		const titleB = b.data?.title || '';
+		return titleA.localeCompare(titleB);
+	});
+};
+
 const renderRecurringEvents = (events) => {
 	if (!events || events.length === 0) {
 		return '';
@@ -29,13 +37,8 @@ const recurringEventsShortcode = function(eleventyConfig) {
 	const events = this.ctx?.collections?.events || this.collections?.events || [];
 	const recurringEvents = events.filter(event => event.data?.recurring_date);
 	
-	// Sort by title for consistent display
-	recurringEvents.sort((a, b) => {
-		const titleA = a.data?.title || '';
-		const titleB = b.data?.title || '';
-		return titleA.localeCompare(titleB);
-	});
-	
+	sortEventsByTitle(recurringEvents);
+
 	return renderRecurringEvents(recurringEvents);
 };
 

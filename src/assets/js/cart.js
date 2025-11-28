@@ -380,25 +380,19 @@ class ShoppingCart {
         .join("");
 
       // Add event listeners for quantity controls
-      cartItems.querySelectorAll(".qty-decrease").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const itemName = btn.dataset.name;
-          const item = cart.find((i) => i.item_name === itemName);
-          if (item) {
-            this.updateQuantity(itemName, item.quantity - 1);
-          }
+      const addQtyHandler = (selector, delta) => {
+        cartItems.querySelectorAll(selector).forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const itemName = btn.dataset.name;
+            const item = cart.find((i) => i.item_name === itemName);
+            if (item) {
+              this.updateQuantity(itemName, item.quantity + delta);
+            }
+          });
         });
-      });
-
-      cartItems.querySelectorAll(".qty-increase").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const itemName = btn.dataset.name;
-          const item = cart.find((i) => i.item_name === itemName);
-          if (item) {
-            this.updateQuantity(itemName, item.quantity + 1);
-          }
-        });
-      });
+      };
+      addQtyHandler(".qty-decrease", -1);
+      addQtyHandler(".qty-increase", 1);
 
       cartItems.querySelectorAll(".qty-input").forEach((input) => {
         input.addEventListener("change", () => {
