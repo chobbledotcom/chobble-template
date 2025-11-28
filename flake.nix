@@ -14,7 +14,7 @@
         in
         {
           default = pkgs.mkShell {
-            packages = with pkgs; [ nodejs_24 ];
+            packages = with pkgs; [ nodejs_24 biome ];
 
             shellHook = ''
               [ ! -d node_modules ] && npm install

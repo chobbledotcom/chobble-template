@@ -18,6 +18,7 @@
 		"sharp",
 		"gray-matter"
 	],
+	"ignoreBinaries": ["biome"],
 	"ignoreExportsUsedInFile": true,
 	"rules": {
 		"exports": "off"

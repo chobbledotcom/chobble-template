@@ -1,8 +1,8 @@
 import assert from "assert";
 import fs from "fs";
+import markdownIt from "markdown-it";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import markdownIt from "markdown-it";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

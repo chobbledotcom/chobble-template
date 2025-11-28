@@ -8,15 +8,15 @@
 		"test": "node test/run-all-tests.js",
 		"cpd": "jscpd",
 		"knip": "knip",
-		"knip:fix": "knip --fix && biome format --write",
+		"knip:fix": "knip --fix",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
-		"precommit": "npm run lint && npm run cpd && npm run knip && npm test"
+		"precommit": "run-s lint:fix cpd knip:fix test"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.0",
 		"jscpd": "^4.0.5",
-		"knip": "^5.38.0"
+		"knip": "^5.38.0",
+		"npm-run-all2": "^8.0.4"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",

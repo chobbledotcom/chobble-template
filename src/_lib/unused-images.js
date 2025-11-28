@@ -1,6 +1,6 @@
+import fastglob from "fast-glob";
 import fs from "fs";
 import path from "path";
-import fastglob from "fast-glob";
 
 export function configureUnusedImages(eleventyConfig) {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
