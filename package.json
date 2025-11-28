@@ -5,14 +5,19 @@
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "node test/run-all-tests.js"
+		"test": "node test/run-all-tests.js",
+		"knip": "knip",
+		"knip:fix": "knip --fix && biome format --write"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.0",
+		"knip": "^5.38.0"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
 		"@11ty/eleventy-img": "^6.0.0",
 		"@11ty/eleventy-navigation": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^2.0.2",
-		"@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
 		"@quasibit/eleventy-plugin-schema": "^1.11.1",
 		"@zachleat/heading-anchors": "^1.0.1",
 		"fast-glob": "^3.3.2",

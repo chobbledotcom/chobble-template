@@ -1,3 +1,20 @@
 {
-	"files": {}
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"files": {
+		"include": ["**/*.js", "**/*.mjs"],
+		"ignore": [
+			"_site/**",
+			"node_modules/**",
+			"ecommerce-backend/**",
+			"src/assets/js/lib/**",
+			".image-cache/**"
+		]
+	},
+	"formatter": {
+		"indentStyle": "tab",
+		"indentWidth": 2
+	},
+	"linter": {
+		"enabled": false
+	}
 }
