@@ -7,7 +7,8 @@
 			"node_modules/**",
 			"ecommerce-backend/**",
 			"src/assets/js/lib/**",
-			".image-cache/**"
+			".image-cache/**",
+			"**/*.html"
 		]
 	},
 	"formatter": {
