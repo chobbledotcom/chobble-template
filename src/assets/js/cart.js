@@ -458,18 +458,22 @@ class ShoppingCart {
     }
   }
 
+  // Helper to POST cart data to an API endpoint
+  async postCartToApi(url) {
+    const cart = this.getCart();
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ cart }),
+    });
+  }
+
   // PayPal checkout via backend API
   async checkoutWithPayPalBackend(apiUrl) {
-    const cart = this.getCart();
-
     try {
-      const response = await fetch(`${apiUrl}/api/paypal/create-order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cart }),
-      });
+      const response = await this.postCartToApi(`${apiUrl}/api/paypal/create-order`);
 
       if (response.ok) {
         const order = await response.json();
@@ -552,13 +556,7 @@ class ShoppingCart {
     }
 
     try {
-      const response = await fetch(`${checkoutApiUrl}/api/stripe/create-session`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cart }),
-      });
+      const response = await this.postCartToApi(`${checkoutApiUrl}/api/stripe/create-session`);
 
       if (response.ok) {
         const session = await response.json();

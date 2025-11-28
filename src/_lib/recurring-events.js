@@ -89,13 +89,8 @@ const getRecurringEventsHtml = async () => {
 			}
 		}
 		
-		// Sort by title for consistent display
-		recurringEvents.sort((a, b) => {
-			const titleA = a.data?.title || '';
-			const titleB = b.data?.title || '';
-			return titleA.localeCompare(titleB);
-		});
-		
+		sortEventsByTitle(recurringEvents);
+
 		return renderRecurringEvents(recurringEvents);
 	} catch (err) {
 		console.error('Error reading events:', err);
