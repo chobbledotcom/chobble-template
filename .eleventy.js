@@ -19,46 +19,46 @@ import { configureTags } from "./src/_lib/tags.js";
 import { configureUnusedImages } from "./src/_lib/unused-images.js";
 
 export default async function (eleventyConfig) {
-	eleventyConfig.addWatchTarget("./src/**/*");
-	eleventyConfig.setLayoutsDirectory("_layouts");
-	eleventyConfig
-		.addPassthroughCopy("src/assets")
-		.addPassthroughCopy("src/images")
-		.addPassthroughCopy("src/news/images")
-		.addPassthroughCopy({ "src/assets/favicon/*": "/" });
+  eleventyConfig.addWatchTarget("./src/**/*");
+  eleventyConfig.setLayoutsDirectory("_layouts");
+  eleventyConfig
+    .addPassthroughCopy("src/assets")
+    .addPassthroughCopy("src/images")
+    .addPassthroughCopy("src/news/images")
+    .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
-	eleventyConfig.addPlugin(schemaPlugin);
+  eleventyConfig.addPlugin(schemaPlugin);
 
-	// configureLayoutAliases(eleventyConfig);
+  // configureLayoutAliases(eleventyConfig);
 
-	configureCacheBuster(eleventyConfig);
-	configureCategories(eleventyConfig);
-	configureLayoutAliases(eleventyConfig);
-	await configureExternalLinks(eleventyConfig);
-	await configureFeed(eleventyConfig);
-	configureFileUtils(eleventyConfig);
-	configureICal(eleventyConfig);
-	configureImages(eleventyConfig);
-	configureMenus(eleventyConfig);
-	await configureNavigation(eleventyConfig);
-	configureOpeningTimes(eleventyConfig);
-	configureRecurringEvents(eleventyConfig);
-	configureProducts(eleventyConfig);
-	configureScss(eleventyConfig);
-	configureScssFiles(eleventyConfig);
-	configureTags(eleventyConfig);
-	configureUnusedImages(eleventyConfig);
+  configureCacheBuster(eleventyConfig);
+  configureCategories(eleventyConfig);
+  configureLayoutAliases(eleventyConfig);
+  await configureExternalLinks(eleventyConfig);
+  await configureFeed(eleventyConfig);
+  configureFileUtils(eleventyConfig);
+  configureICal(eleventyConfig);
+  configureImages(eleventyConfig);
+  configureMenus(eleventyConfig);
+  await configureNavigation(eleventyConfig);
+  configureOpeningTimes(eleventyConfig);
+  configureRecurringEvents(eleventyConfig);
+  configureProducts(eleventyConfig);
+  configureScss(eleventyConfig);
+  configureScssFiles(eleventyConfig);
+  configureTags(eleventyConfig);
+  configureUnusedImages(eleventyConfig);
 
-	return {
-		dir: {
-			input: "src",
-			output: "_site",
-			includes: "_includes",
-			layouts: "_layouts",
-			data: "_data",
-		},
-		templateFormats: ["liquid", "md", "html"],
-		htmlTemplateEngine: "liquid",
-		markdownTemplateEngine: "liquid",
-	};
+  return {
+    dir: {
+      input: "src",
+      output: "_site",
+      includes: "_includes",
+      layouts: "_layouts",
+      data: "_data",
+    },
+    templateFormats: ["liquid", "md", "html"],
+    htmlTemplateEngine: "liquid",
+    markdownTemplateEngine: "liquid",
+  };
 }

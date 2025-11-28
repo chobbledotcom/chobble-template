@@ -13,11 +13,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let userStrings = {};
 try {
-	const userStringsPath = join(__dirname, "./strings.json");
-	userStrings = JSON.parse(readFileSync(userStringsPath, "utf-8"));
+  const userStringsPath = join(__dirname, "./strings.json");
+  userStrings = JSON.parse(readFileSync(userStringsPath, "utf-8"));
 } catch (e) {}
 
 export default {
-	...baseStrings,
-	...userStrings,
+  ...baseStrings,
+  ...userStrings,
 };
