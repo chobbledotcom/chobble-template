@@ -17,6 +17,7 @@ import { configureScss } from "./src/_lib/scss.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
 import { configureTags } from "./src/_lib/tags.js";
 import { configureUnusedImages } from "./src/_lib/unused-images.js";
+import { configureEsbuild } from "./src/_lib/esbuild.js";
 
 export default async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");
@@ -48,6 +49,7 @@ export default async function (eleventyConfig) {
   configureScssFiles(eleventyConfig);
   configureTags(eleventyConfig);
   configureUnusedImages(eleventyConfig);
+  configureEsbuild(eleventyConfig);
 
   return {
     dir: {
