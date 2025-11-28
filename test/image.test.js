@@ -2,8 +2,8 @@ import assert from "assert";
 import {
 	configureImages,
 	copyImageCache,
-	createImagesCollection,
 	createImageTransform,
+	createImagesCollection,
 	findImageFiles,
 	imageShortcode,
 } from "../src/_lib/image.js";

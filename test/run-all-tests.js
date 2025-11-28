@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { execSync } from "child_process";
-import { readdir } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
+import { readdir } from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

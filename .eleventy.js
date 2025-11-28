@@ -13,8 +13,8 @@ import { configureNavigation } from "./src/_lib/navigation.js";
 import { configureOpeningTimes } from "./src/_lib/opening-times.js";
 import { configureProducts } from "./src/_lib/products.js";
 import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
-import { configureScss } from "./src/_lib/scss.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
+import { configureScss } from "./src/_lib/scss.js";
 import { configureTags } from "./src/_lib/tags.js";
 import { configureUnusedImages } from "./src/_lib/unused-images.js";
 

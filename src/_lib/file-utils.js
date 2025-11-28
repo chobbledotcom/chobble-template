@@ -1,6 +1,6 @@
 import fs from "fs";
-import markdownIt from "markdown-it";
 import path from "path";
+import markdownIt from "markdown-it";
 import { getOpeningTimesHtml } from "./opening-times.js";
 import { getRecurringEventsHtml } from "./recurring-events.js";
 

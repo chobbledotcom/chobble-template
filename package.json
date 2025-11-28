@@ -8,7 +8,10 @@
 		"test": "node test/run-all-tests.js",
 		"cpd": "jscpd",
 		"knip": "knip",
-		"knip:fix": "knip --fix && biome format --write"
+		"knip:fix": "knip --fix && biome format --write",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"precommit": "npm run lint && npm run cpd && npm run knip && npm test"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",

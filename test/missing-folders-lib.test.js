@@ -1,12 +1,12 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import {
+	fs,
+	path,
 	createMockEleventyConfig,
 	createTestRunner,
 	expectFalse,
 	expectTrue,
-	fs,
-	path,
 } from "./test-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);

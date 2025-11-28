@@ -8,6 +8,7 @@ import {
 	renderSnippet,
 } from "../src/_lib/file-utils.js";
 import {
+	fs,
 	cleanupTempDir,
 	createMockEleventyConfig,
 	createTempSnippetsDir,
@@ -17,7 +18,6 @@ import {
 	expectFunctionType,
 	expectStrictEqual,
 	expectTrue,
-	fs,
 	withMockedCwd,
 	withTempDir,
 	withTempFile,

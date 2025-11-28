@@ -1,5 +1,5 @@
-import Image from "@11ty/eleventy-img";
 import fs from "fs";
+import Image from "@11ty/eleventy-img";
 import { JSDOM } from "jsdom";
 import sharp from "sharp";
 
