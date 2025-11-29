@@ -2,6 +2,9 @@
 	"name": "chobble-template",
 	"version": "1.0.0",
 	"type": "module",
+	"pnpm": {
+		"minimumReleaseAge": "10080"
+	},
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
