@@ -21,8 +21,8 @@ jobs:
 
       - name: Build with Node
         run: |
-          npm install
-          npx @11ty/eleventy
+          pnpm install
+          pnpm exec eleventy
 
       - name: Deploy to neocities
         # uses: bcomnes/deploy-to-neocities@v3
