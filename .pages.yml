@@ -56,6 +56,10 @@ content:
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_description, type: string, label: Meta Description }
       - { name: meta_title, type: string, label: Meta Title }
+      - name: gallery
+        type: image
+        label: Gallery
+        options: { multiple: true }
 
   - name: products
     label: Products
