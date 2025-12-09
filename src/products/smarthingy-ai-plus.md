@@ -1,6 +1,6 @@
 ---
 title: SmarThingy AI Plus
-short_description: Next-generation AI-powered thingy with cloud connectivity
+subtitle: Next-generation AI-powered thingy with cloud connectivity
 keywords:
   - smart home
   - ai powered

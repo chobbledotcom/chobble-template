@@ -5,9 +5,7 @@ layout: base
 
 <div class="title">
   <h1>{{ title }}</h1>
-  {%- if short_description -%}
-    <h2>{{ short_description }}</h2>
-  {%- elsif subtitle -%}
+  {%- if subtitle -%}
     <h2>{{ subtitle }}</h2>
   {%- endif -%}
   {%- if event_date or recurring_date or event_location -%}

@@ -1,6 +1,6 @@
 ---
 title: Widgets
-description: Innovative widgets for home and business use
+subtitle: Innovative widgets for home and business use
 featured: true
 header_image: src/images/placeholder-wide-4.jpg
 ---

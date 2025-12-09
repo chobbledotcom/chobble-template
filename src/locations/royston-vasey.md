@@ -1,7 +1,19 @@
 ---
 title: Royston Vasey
+thumbnail: /images/placeholder-square-3.jpg
+subtitle: A local service for local people
 meta_title: "Local Services in Royston Vasey - A Local Shop for Local People"
 meta_description: "Serving the fine local people of Royston Vasey. We're a local business for local people. There's nothing for you here. Call us today."
+faqs:
+  - question: Are you a local business?
+    answer: Yes, we're a local business for local people. We've been serving Royston Vasey for many years.
+    order: 1
+  - question: Do you serve areas outside Royston Vasey?
+    answer: We primarily serve local people in Royston Vasey, but we can discuss requirements for nearby areas on a case-by-case basis.
+    order: 2
+  - question: What makes your service special for Royston Vasey?
+    answer: We understand the unique needs of this community. We're reliable, we're local, and we keep things just the way they should be.
+    order: 3
 ---
 
 # Welcome to Royston Vasey

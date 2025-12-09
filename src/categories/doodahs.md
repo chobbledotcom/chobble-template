@@ -1,6 +1,6 @@
 ---
 title: Doodahs
-description: Innovative doodahs for modern lifestyles
+subtitle: Innovative doodahs for modern lifestyles
 featured: true
 header_image: src/images/placeholder-wide-2.jpg
 ---

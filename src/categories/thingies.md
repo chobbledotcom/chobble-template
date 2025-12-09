@@ -1,6 +1,6 @@
 ---
 title: Thingies
-description: Versatile thingies for every occasion
+subtitle: Versatile thingies for every occasion
 featured: true
 header_image: src/images/placeholder-wide-3.jpg
 ---

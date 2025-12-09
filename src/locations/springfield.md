@@ -1,7 +1,19 @@
 ---
 title: Springfield
+thumbnail: /images/placeholder-square-1.jpg
+subtitle: Serving the nuclear-powered community
 meta_title: "Services in Springfield - Your Local Provider"
 meta_description: "Serving Springfield and all its diverse neighborhoods. From Downtown to the suburbs, we're here to help. Excellent service guaranteed."
+faqs:
+  - question: What areas of Springfield do you cover?
+    answer: We cover all of Springfield including Downtown, Evergreen Terrace, Springfield Heights, and all residential neighborhoods near the Power Plant.
+    order: 1
+  - question: How quickly can you respond to requests in Springfield?
+    answer: We typically respond to Springfield requests within 24 hours, with same-day service available for urgent needs.
+    order: 2
+  - question: Do you offer free quotes for Springfield residents?
+    answer: Yes! All quotes for Springfield residents are completely free with no obligation.
+    order: 3
 ---
 
 # Services in Springfield

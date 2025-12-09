@@ -1,6 +1,6 @@
 ---
 title: Pocket Doodah Mini
-short_description: Ultra-portable doodah for everyday carry
+subtitle: Ultra-portable doodah for everyday carry
 options:
   - name: Basic
     max_quantity: 30

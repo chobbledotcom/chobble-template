@@ -1,6 +1,6 @@
 ---
 title: Ultra Compact Doodah X5
-short_description: Pocket-sized doodah with maximum efficiency
+subtitle: Pocket-sized doodah with maximum efficiency
 options:
   - name: Basic
     max_quantity: 25

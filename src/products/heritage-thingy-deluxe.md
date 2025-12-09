@@ -1,6 +1,6 @@
 ---
 title: Heritage Thingy Deluxe
-short_description: Handcrafted classic thingy with timeless appeal
+subtitle: Handcrafted classic thingy with timeless appeal
 options:
   - name: Standard
     max_quantity: 10

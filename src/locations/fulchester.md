@@ -1,7 +1,19 @@
 ---
 title: Fulchester
+thumbnail: /images/placeholder-square-2.jpg
+subtitle: Home of Fulchester United
 meta_title: "Services in Fulchester - Home of the Fulchester United FC"
 meta_description: "Proudly serving Fulchester and surrounding areas. From the streets where Billy the Fish plays to the corners of this great town. Contact us today."
+faqs:
+  - question: Do you provide services near the Fulchester United stadium?
+    answer: Absolutely! We cover the entire Fulchester area including the stadium district and all surrounding neighborhoods.
+    order: 1
+  - question: What are your hours of operation in Fulchester?
+    answer: We operate Monday to Saturday, 8am to 6pm, with emergency services available outside these hours.
+    order: 2
+  - question: Can I get a same-day appointment in Fulchester?
+    answer: Yes, same-day appointments are often available. Give us a call to check current availability.
+    order: 3
 ---
 
 # Services in Fulchester

@@ -4,9 +4,5 @@ layout: base
 
 {{- content -}}
 
-<ul class="items">
-  {%- for location in collections.location -%}
-    {%- assign item = location -%}
-    {%- include "location-list-item.html" -%}
-  {%- endfor -%}
-</ul>
+{%- assign locations = collections.location -%}
+{%- include "slider.html", key: "locations", items: locations -%}

@@ -1,6 +1,6 @@
 ---
 title: UltraWidget Pro
-short_description: Lightweight, powerful widget for professionals
+subtitle: Lightweight, powerful widget for professionals
 featured: true
 keywords:
   - professional

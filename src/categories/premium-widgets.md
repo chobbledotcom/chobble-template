@@ -1,6 +1,6 @@
 ---
 title: Premium Widgets
-description: Advanced widgets for creation and entertainment
+subtitle: Advanced widgets for creation and entertainment
 parent: widgets
 faqs:
   - question: What makes a widget premium?

@@ -15,7 +15,6 @@ layout: base
   <hr />
   {%- render_snippet "homepage-news-header", "<h3>Latest Posts</h3>" -%}
 
-  {%- comment -%} Check if all news posts have images {%- endcomment -%}
   {%- assign all_have_images = true -%}
   {%- for post in collections.news -%}
     {%- unless post.data.header_image -%}
@@ -25,11 +24,9 @@ layout: base
   {%- endfor -%}
 
   {%- if all_have_images -%}
-    {%- comment -%} Use item layout when all posts have images {%- endcomment -%}
     {%- assign posts = collections.news | reverse | slice: 0, 2 -%}
-    {%- include "slider.html", slider_key: "homepage_news", items: posts, item_template: "news-list-item.html", item_var: "post" -%}
+    {%- include "slider.html", key: "homepage_news", items: posts -%}
   {%- else -%}
-    {%- comment -%} Use text list when some posts lack images {%- endcomment -%}
     {% include "news-post-list.html", limit: 2 %}
   {%- endif -%}
 {%- endif -%}
@@ -48,7 +45,6 @@ layout: base
   {%- include "products-list.html" -%}
 {%- endif -%}
 
-{%- comment -%} Check for recurring events {%- endcomment -%}
 {%- assign recurring_events = collections.events | where: "data.recurring_date" -%}
 {%- if homepage.show_recurring_events and recurring_events.size > 0 -%}
   <hr>

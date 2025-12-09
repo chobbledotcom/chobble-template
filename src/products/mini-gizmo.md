@@ -1,6 +1,6 @@
 ---
 title: Mini Gizmo with Local Image
-short_description: This gizmo uses a local image file path
+subtitle: This gizmo uses a local image file path
 keywords:
   - portable
   - colorful

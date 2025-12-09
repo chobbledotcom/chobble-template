@@ -1,6 +1,6 @@
 ---
 title: Doodah Pro Enterprise Edition
-short_description: Industrial-grade doodah for commercial applications
+subtitle: Industrial-grade doodah for commercial applications
 options:
   - name: Basic
     max_quantity: 20

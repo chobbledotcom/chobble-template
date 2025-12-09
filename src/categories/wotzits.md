@@ -1,6 +1,6 @@
 ---
 title: Wotzits
-description: Wotzits for all users and purposes
+subtitle: Wotzits for all users and purposes
 featured: true
 header_image: src/images/placeholder-wide-5.jpg
 ---

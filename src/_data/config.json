@@ -15,11 +15,10 @@
 	"homepage_categories_slider_enabled": false,
 	"homepage_menus_slider_enabled": false,
 	"homepage_news_slider_enabled": false,
+	"locations_slider_enabled": false,
 	"products": {
-		"product_thumb_widths": "240,480,640",
-		"product_thumb_sizes": "224px",
-		"category_thumb_widths": "900,1300",
-		"category_thumb_sizes": "224px",
+		"item_widths": "240,480,640",
+		"item_sizes": "224px",
 		"gallery_thumb_widths": "240,480",
 		"gallery_image_widths": "900,1300",
 		"header_image_widths": "640,900,1300"

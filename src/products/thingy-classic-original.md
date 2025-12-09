@@ -1,6 +1,6 @@
 ---
 title: Thingy Classic Original
-short_description: The original thingy design that started it all
+subtitle: The original thingy design that started it all
 options:
   - name: Standard
     max_quantity: 15

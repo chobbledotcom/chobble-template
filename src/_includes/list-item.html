@@ -1,0 +1,15 @@
+<li>
+  {% include "thumbnail-image-link.html" %}
+
+  {%- if item.data.price -%}
+    <p>{{- item.data.price -}}</p>
+  {%- endif -%}
+
+  {%- if item.data.date -%}
+    <p><strong>{{ item.data.date | date: "%b %-d, %Y" }}</strong></p>
+  {%- endif -%}
+
+  {%- if item.data.subtitle -%}
+    <p>{{- item.data.subtitle -}}</p>
+  {%- endif -%}
+</li>

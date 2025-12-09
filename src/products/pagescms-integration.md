@@ -1,6 +1,6 @@
 ---
 title: PagesCMS Integration
-short_description: Integrates with the free and customisable PagesCMS editor
+subtitle: Integrates with the free and customisable PagesCMS editor
 header_image: src/images/placeholder-wide-2.jpg
 categories:
   - open-source

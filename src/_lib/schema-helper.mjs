@@ -19,7 +19,7 @@ function buildBaseMeta(data) {
     ...baseMeta,
     url: `${data.site.url}${data.page.url}`,
     title: data.title || data.meta_title || "Untitled",
-    description: data.meta_description || data.short_description,
+    description: data.meta_description || data.subtitle,
   };
 
   const imageSource = data.header_image || data.image || null;

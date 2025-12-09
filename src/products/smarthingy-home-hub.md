@@ -1,6 +1,6 @@
 ---
 title: SmarThingy Home Hub
-short_description: Central command center for your smart thingy ecosystem
+subtitle: Central command center for your smart thingy ecosystem
 options:
   - name: Starter
     max_quantity: 20
