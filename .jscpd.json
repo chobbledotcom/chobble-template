@@ -14,6 +14,6 @@
 	"absolute": false,
 	"gitignore": true,
 	"minLines": 3,
-	"minTokens": 25,
+	"minTokens": 50,
 	"path": ["src/_lib", "src/_data", "src/assets/js", ".eleventy.js"]
 }

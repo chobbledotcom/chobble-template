@@ -1,8 +1,12 @@
 import fs from "fs";
 import markdownIt from "markdown-it";
 import path from "path";
+import { fileURLToPath } from "url";
 import { getOpeningTimesHtml } from "./opening-times.js";
 import { getRecurringEventsHtml } from "./recurring-events.js";
+
+const getDirname = (importMetaUrl) =>
+  path.dirname(fileURLToPath(importMetaUrl));
 
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
@@ -74,6 +78,7 @@ const configureFileUtils = (eleventyConfig) => {
 };
 
 export {
+  getDirname,
   createMarkdownRenderer,
   fileExists,
   fileMissing,
