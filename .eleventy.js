@@ -1,4 +1,5 @@
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
+import fg from "fast-glob";
 
 import { configureCacheBuster } from "./src/_lib/cache-buster.js";
 import { configureCategories } from "./src/_lib/categories.js";
@@ -29,6 +30,28 @@ export default async function (eleventyConfig) {
     .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
   eleventyConfig.addPlugin(schemaPlugin);
+
+  // Limit news posts to 10 when running serve (development mode)
+  const isServeMode = process.argv.includes("--serve");
+
+  if (isServeMode) {
+    const ignoredPosts = fg
+      .sync("./src/news/**/*.md", { stats: true })
+      // Sort by descending date (newest first).
+      .sort((a, b) => b.stats.birthtimeMs - a.stats.birthtimeMs)
+      .splice(10);
+
+    if (ignoredPosts.length > 0) {
+      console.log(
+        `🗑️  Trimming ${ignoredPosts.length} news posts in serve mode (keeping latest 10)`,
+      );
+      ignoredPosts.forEach((p) => eleventyConfig.ignores.add(p.path));
+    } else {
+      console.log("📰 Not trimming news posts - 10 or fewer posts found");
+    }
+  } else {
+    console.log("🏗️  Build mode - including all news posts");
+  }
 
   // configureLayoutAliases(eleventyConfig);
 
