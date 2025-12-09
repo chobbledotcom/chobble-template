@@ -19,42 +19,9 @@
       name="_email.subject"
       value="New message from {{ site.name }} website contact form"
     />
-    {%- for field in contactForm.fields -%}
-      {%- assign shouldShow = true -%}
-      {%- if field.showOn -%}
-        {%- unless tags contains field.showOn -%}
-          {%- assign shouldShow = false -%}
-        {%- endunless -%}
-      {%- endif -%}
-      {%- if shouldShow -%}
-        <label for="{{ field.name }}">
-          {{ field.label }}
-          {%- if field.type == "textarea" -%}
-            <textarea
-              id="{{ field.name }}"
-              name="{{ field.name }}"
-              {%- if field.required %} required{%- endif %}
-              rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
-              placeholder="{% if field.showOn %}{{ title }}{% else %}{{ field.placeholder }}{% endif %}"
-            >{% if field.showOn %}{{ title }}{% endif %}</textarea>
-          {%- else -%}
-            <input
-              type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
-              id="{{ field.name }}"
-              name="{{ field.name }}"
-              placeholder="{{ field.placeholder }}"
-              {%- if field.required %} required{%- endif %}
-            />
-          {%- endif -%}
-        </label>
-      {%- endif -%}
-    {%- endfor -%}
+    {%- include "form-fields.html" -%}
     <button type="submit" class="btn primary-btn">{{ contactForm.submitButtonText }}</button>
   </form>
 {%- else -%}
-  <hr>
-  <h3>Formspark ID Missing</h3>
-  <p>
-    You need to add a Formspark form ID to <code>src/_data/config.json</code>
-  </p>
+  {%- include "formspark-missing.html" -%}
 {%- endif -%}

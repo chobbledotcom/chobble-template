@@ -14,6 +14,7 @@ const DEFAULTS = {
   template_repo_url: "https://github.com/chobbledotcom/chobble-template",
   chobble_link: null,
   map_embed_src: null,
+  has_cart_enquiry_form: false,
 };
 
 const DEFAULT_PRODUCT_DATA = {

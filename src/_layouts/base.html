@@ -35,7 +35,9 @@
   </main>
   {%- include "footer.html" -%}
   {%- include "theme-switcher.html" -%}
-  {%- if config.paypal_email or config.stripe_publishable_key -%}
+  {%- if config.has_cart_enquiry_form -%}
+    {%- include "cart-icon-enquiry.html" -%}
+  {%- elsif config.paypal_email or config.stripe_publishable_key -%}
     {%- include "cart-icon.html" -%}
     {%- include "cart-overlay.html" -%}
   {%- endif -%}

@@ -12,6 +12,7 @@ class ShoppingCart {
     this.cartIcon = null;
     this.stripe = null;
     this.documentListenersAttached = false;
+    this.isEnquiryMode = false;
     this.init();
   }
 
@@ -32,13 +33,24 @@ class ShoppingCart {
     this.cartOverlay = document.getElementById("cart-overlay");
     this.cartIcon = document.getElementById("cart-icon");
 
-    if (!this.cartOverlay || !this.cartIcon) {
-      console.error("Cart elements not found");
+    // Check if we're in enquiry mode (no overlay, just redirect to /quote/)
+    this.isEnquiryMode = this.cartIcon?.dataset.enquiryMode === "true";
+
+    if (!this.cartIcon) {
+      console.error("Cart icon not found");
       return;
     }
 
-    // Initialize Stripe if configured
-    this.initStripe();
+    // In enquiry mode, we don't need the cart overlay
+    if (!this.isEnquiryMode && !this.cartOverlay) {
+      console.error("Cart overlay not found");
+      return;
+    }
+
+    // Initialize Stripe if configured (not needed in enquiry mode)
+    if (!this.isEnquiryMode) {
+      this.initStripe();
+    }
 
     // Reset product option selects on page load
     this.resetProductSelects();
@@ -46,8 +58,10 @@ class ShoppingCart {
     // Set up event listeners
     this.setupEventListeners();
 
-    // Update cart display
-    this.updateCartDisplay();
+    // Update cart display (only if not in enquiry mode)
+    if (!this.isEnquiryMode) {
+      this.updateCartDisplay();
+    }
     this.updateCartCount();
   }
 
@@ -83,35 +97,42 @@ class ShoppingCart {
     // Element-specific listeners (need to re-attach after Turbo navigation
     // since Turbo replaces the body and these elements are recreated)
 
-    // Cart icon click - open cart
+    // Cart icon click - open cart or navigate to quote page
     this.cartIcon.addEventListener("click", (e) => {
       e.preventDefault();
-      this.openCart();
-    });
-
-    // Close cart button
-    const closeBtn = this.cartOverlay.querySelector(".cart-close");
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => this.closeCart());
-    }
-
-    // Close cart when clicking overlay background
-    this.cartOverlay.addEventListener("click", (e) => {
-      if (e.target === this.cartOverlay) {
-        this.closeCart();
+      if (this.isEnquiryMode) {
+        window.location.href = "/quote/";
+      } else {
+        this.openCart();
       }
     });
 
-    // PayPal checkout button
-    const paypalBtn = this.cartOverlay.querySelector(".cart-checkout-paypal");
-    if (paypalBtn) {
-      paypalBtn.addEventListener("click", () => this.checkoutWithPayPal());
-    }
+    // Overlay-specific listeners (skip in enquiry mode)
+    if (!this.isEnquiryMode && this.cartOverlay) {
+      // Close cart button
+      const closeBtn = this.cartOverlay.querySelector(".cart-close");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => this.closeCart());
+      }
 
-    // Stripe checkout button
-    const stripeBtn = this.cartOverlay.querySelector(".cart-checkout-stripe");
-    if (stripeBtn) {
-      stripeBtn.addEventListener("click", () => this.checkoutWithStripe());
+      // Close cart when clicking overlay background
+      this.cartOverlay.addEventListener("click", (e) => {
+        if (e.target === this.cartOverlay) {
+          this.closeCart();
+        }
+      });
+
+      // PayPal checkout button
+      const paypalBtn = this.cartOverlay.querySelector(".cart-checkout-paypal");
+      if (paypalBtn) {
+        paypalBtn.addEventListener("click", () => this.checkoutWithPayPal());
+      }
+
+      // Stripe checkout button
+      const stripeBtn = this.cartOverlay.querySelector(".cart-checkout-stripe");
+      if (stripeBtn) {
+        stripeBtn.addEventListener("click", () => this.checkoutWithStripe());
+      }
     }
 
     // Document-level listeners using event delegation
@@ -184,12 +205,17 @@ class ShoppingCart {
       }
     });
 
-    // Escape key to close cart
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && this.cartOverlay.classList.contains("active")) {
-        this.closeCart();
-      }
-    });
+    // Escape key to close cart (not needed in enquiry mode)
+    if (!this.isEnquiryMode) {
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          this.cartOverlay?.classList.contains("active")
+        ) {
+          this.closeCart();
+        }
+      });
+    }
   }
 
   // Get cart items from localStorage

@@ -1,0 +1,42 @@
+---
+layout: base
+---
+
+{{ content }}
+
+{%- if config.formspark_id and config.formspark_id != "" -%}
+  <form
+    id="quote-checkout-form"
+    class="contact-form"
+    action="https://submit-form.com/{{ config.formspark_id }}"
+    {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
+      data-botpoison-public-key="{{ config.botpoison_public_key }}"
+    {%- endif -%}
+  >
+    <input type="hidden" name="_redirect" value="{{ site.url }}/quote-complete/" />
+    <input type="hidden" name="_email.template.footer" value="false" />
+    <input
+      type="hidden"
+      name="_email.from"
+      value="{{ site.name }} quote request"
+    />
+    <input
+      type="hidden"
+      name="_email.subject"
+      value="New quote request from {{ site.name }}"
+    />
+    <input type="hidden" id="cart-items" name="cart_items" value="" />
+
+    {%- assign skipShowOn = true -%}
+    {%- include "form-fields.html", skipShowOn: skipShowOn -%}
+
+    <div id="cart-summary" class="quote-checkout-summary">
+      <h3>Items in your quote request:</h3>
+      <div class="quote-checkout-items"></div>
+    </div>
+
+    <button type="submit" class="btn primary-btn">{{ contactForm.submitButtonText | default: "Send Enquiry" }}</button>
+  </form>
+{%- else -%}
+  {%- include "formspark-missing.html" -%}
+{%- endif -%}

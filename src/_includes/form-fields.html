@@ -1,0 +1,39 @@
+{%- comment -%}
+Renders form fields from contactForm.fields
+Parameters:
+  - skipShowOn: if true, skip fields with showOn (for quote checkout)
+{%- endcomment -%}
+{%- for field in contactForm.fields -%}
+  {%- assign shouldShow = true -%}
+  {%- if field.showOn -%}
+    {%- if skipShowOn -%}
+      {%- assign shouldShow = false -%}
+    {%- else -%}
+      {%- unless tags contains field.showOn -%}
+        {%- assign shouldShow = false -%}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- if shouldShow -%}
+    <label for="{{ field.name }}">
+      {{ field.label }}
+      {%- if field.type == "textarea" -%}
+        <textarea
+          id="{{ field.name }}"
+          name="{{ field.name }}"
+          {%- if field.required %} required{%- endif %}
+          rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
+          placeholder="{% if field.showOn %}{{ title }}{% else %}{{ field.placeholder }}{% endif %}"
+        >{% if field.showOn %}{{ title }}{% endif %}</textarea>
+      {%- else -%}
+        <input
+          type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
+          id="{{ field.name }}"
+          name="{{ field.name }}"
+          placeholder="{{ field.placeholder }}"
+          {%- if field.required %} required{%- endif %}
+        />
+      {%- endif -%}
+    </label>
+  {%- endif -%}
+{%- endfor -%}
