@@ -86,8 +86,7 @@ html:has(dialog.cart-overlay[open]) {
 
   // Form wrapper for method="dialog" close button
   form {
-    margin: 0;
-    padding: 0;
+    display: contents;
   }
 
   .cart-close {
