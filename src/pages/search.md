@@ -8,4 +8,4 @@ eleventyNavigation:
   order: -1
 header_text: Search Products
 ---
-Find products by keyword.
+# Search Products
