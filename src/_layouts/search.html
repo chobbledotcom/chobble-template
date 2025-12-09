@@ -1,0 +1,26 @@
+---
+layout: base.html
+---
+
+{{ content }}
+
+<form id="search-form" action="/search/" method="get">
+  <label for="keyword">Search for products:</label>
+  <input
+    list="keywords"
+    id="keyword"
+    name="q"
+    placeholder="Type to search..."
+    autocomplete="off"
+  >
+  <datalist id="keywords">
+    {%- for keyword in collections.searchKeywords -%}
+      <option value="{{ keyword }}">
+    {%- endfor -%}
+  </datalist>
+  <button type="submit">Search</button>
+  <p id="search-error">Please select a keyword from the list.</p>
+</form>
+
+<link rel="stylesheet" href="{{ '/css/search.css' | cacheBust }}">
+<script src="{{ '/assets/js/search.js' | cacheBust }}"></script>

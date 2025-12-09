@@ -1,0 +1,14 @@
+{%- assign sorted_areas = collections.location | sort: "data.eleventyNavigation.key" -%}
+{%- assign filtered_areas = "" | split: "" -%}
+{%- for area in sorted_areas -%}
+  {%- unless area.url == page.url -%}
+    {%- assign filtered_areas = filtered_areas | push: area -%}
+  {%- endunless -%}
+{%- endfor -%}
+
+{{ prefix }} {% for area in filtered_areas -%}
+<a href="{{ area.url }}#content">
+  {{- area.data.eleventyNavigation.key -}}
+</a>
+{%- unless forloop.last -%}{% if forloop.index == forloop.length | minus: 1 %} and {% else %},{% endif %}{% endunless -%}
+{%- endfor %}{{ suffix }}

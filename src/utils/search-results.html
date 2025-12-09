@@ -1,0 +1,25 @@
+---js
+{
+  pagination: {
+    data: "collections.searchKeywords",
+    size: 1,
+    alias: "keyword",
+    addAllPagesToCollections: false,
+  },
+  permalink: "search/{{ keyword | slugify }}/",
+  eleventyExcludeFromCollections: true,
+  layout: "base.html",
+  no_index: true,
+}
+---
+<h1>Search results for "{{ keyword }}"</h1>
+
+{% assign products = collections.products | getProductsByKeyword: keyword %}
+
+{% if products.size > 0 %}
+  {% include "products-list.html" %}
+{% else %}
+  <p>No products found matching "{{ keyword }}".</p>
+{% endif %}
+
+<p><a href="/search/">Back to search</a></p>

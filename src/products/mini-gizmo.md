@@ -1,6 +1,10 @@
 ---
 title: Mini Gizmo with Local Image
 short_description: This gizmo uses a local image file path
+keywords:
+  - portable
+  - colorful
+  - self cleaning
 options:
   - name: Standard
     max_quantity: 10

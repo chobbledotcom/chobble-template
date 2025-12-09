@@ -1,6 +1,10 @@
 ---
 title: Classic Wotzit Wrapper
 short_description: Timeless structured wrapper for formal occasions
+keywords:
+  - formal
+  - self cleaning
+  - classic
 options:
   - name: Regular
     max_quantity: 10
