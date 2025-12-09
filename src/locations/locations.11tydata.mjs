@@ -1,15 +1,10 @@
 import strings from "../_data/strings.js";
-import { buildBaseMeta } from "../_lib/schema-helper.mjs";
+import { buildPermalink } from "../_lib/slug-utils.js";
 
 export default {
   eleventyComputed: {
-    meta: (data) => buildBaseMeta(data),
     navigationParent: () => strings.location_name,
-    permalink: (data) => {
-      if (data.permalink) return data.permalink;
-      const dir = strings.location_permalink_dir;
-      return `/${dir}/${data.page.fileSlug}/`;
-    },
+    permalink: (data) => buildPermalink(data, strings.location_permalink_dir),
     eleventyNavigation: (data) => {
       if (data.eleventyNavigation) return data.eleventyNavigation;
       return {

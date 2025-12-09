@@ -3,11 +3,7 @@ layout: base
 ---
 
 {% capture border %}form/border.html{% endcapture %}
-{% capture color %}form/color.html{% endcapture %}
-{% capture number %}form/number.html{% endcapture %}
-{% capture select %}form/select.html{% endcapture %}
-{% capture select-class %}form/select-class.html{% endcapture %}
-{% capture text %}form/text.html{% endcapture %}
+{% capture field %}form/field.html{% endcapture %}
 
 <div class="editor-tabs">
   <ul>
@@ -24,53 +20,53 @@ layout: base
   <div id="default-tab" class="tab-content active">
     <h2>Colours</h2>
     <div class="grid">
-      {% include color, id: "color-bg", label: "Background" %}
-      {% include color, id: "color-text", label: "Text" %}
-      {% include color, id: "color-link", label: "Links" %}
-      {% include color, id: "color-bg-secondary", label: "Alt Background" %}
+      {% include field, type: "color", id: "color-bg", label: "Background" %}
+      {% include field, type: "color", id: "color-text", label: "Text" %}
+      {% include field, type: "color", id: "color-link", label: "Links" %}
+      {% include field, type: "color", id: "color-bg-secondary", label: "Alt Background" %}
     </div>
 
     <h2>Layout</h2>
     <div class="grid">
-      {% include number, id: "border-radius", label: "Border Radius" %}
+      {% include field, type: "number", id: "border-radius", label: "Border Radius" %}
       {% include border, id: "border", label: "Border" %}
-      {% include text, id: "box-shadow", label: "Box Shadow" %}
-      {% include text, id: "width-content", label: "Content Width" %}
-      {% include text, id: "width-card", label: "Card Width" %}
-      {% include text, id: "width-card-medium", label: "Medium Card Width" %}
-      {% include text, id: "width-card-wide", label: "Wide Card Width" %}
+      {% include field, type: "text", id: "box-shadow", label: "Box Shadow" %}
+      {% include field, type: "text", id: "width-content", label: "Content Width" %}
+      {% include field, type: "text", id: "width-card", label: "Card Width" %}
+      {% include field, type: "text", id: "width-card-medium", label: "Medium Card Width" %}
+      {% include field, type: "text", id: "width-card-wide", label: "Wide Card Width" %}
     </div>
   </div>
 
   <div id="fonts-tab" class="tab-content">
     <h2>Fonts / Text</h2>
     <div class="grid">
-      {% include select, id: "font-family-heading", label: "Headings", options: fonts %}
-      {% include select, id: "font-family-body", label: "Body", options: fonts %}
-      {% include number, id: "line-height", label: "Line Height", step: "0.1" %}
-      {% include select, id: "link-decoration", label: "Link Decoration", options: text-decoration %}
-      {% include select, id: "link-decoration-hover", label: "Link Decoration (hover)", options: text-decoration %}
-      {% include select, id: "link-decoration-style", label: "Link Decoration Style", options: line-styles %}
+      {% include field, type: "select", id: "font-family-heading", label: "Headings", options: fonts %}
+      {% include field, type: "select", id: "font-family-body", label: "Body", options: fonts %}
+      {% include field, type: "number", id: "line-height", label: "Line Height", step: "0.1" %}
+      {% include field, type: "select", id: "link-decoration", label: "Link Decoration", options: text-decoration %}
+      {% include field, type: "select", id: "link-decoration-hover", label: "Link Decoration (hover)", options: text-decoration %}
+      {% include field, type: "select", id: "link-decoration-style", label: "Link Decoration Style", options: line-styles %}
     </div>
   </div>
 
   <div id="header-tab" class="tab-content">
     <h2>Header Styling</h2>
     <div class="grid">
-      {% include color, id: "header-bg-color", label: "Background" %}
-      {% include color, id: "header-text-color", label: "Text" %}
+      {% include field, type: "color", id: "header-bg-color", label: "Background" %}
+      {% include field, type: "color", id: "header-text-color", label: "Text" %}
       {% include border, id: "header-border", label: "Border" %}
-      {% include select-class, id: "header-decoration", label: "Decoration", options: header-decorations %}
+      {% include field, type: "select-class", id: "header-decoration", label: "Decoration", options: header-decorations %}
     </div>
   </div>
 
   <div id="nav-tab" class="tab-content">
     <h2>Navigation Styling</h2>
     <div class="grid">
-      {% include color, id: "nav-bg-color", label: "Background Colour" %}
-      {% include color, id: "nav-text-color", label: "Mobile Menu Colour" %}
-      {% include color, id: "nav-link-color", label: "Link Colour" %}
-      {% include color, id: "nav-link-active-color", label: "Active Link Colour" %}
+      {% include field, type: "color", id: "nav-bg-color", label: "Background Colour" %}
+      {% include field, type: "color", id: "nav-text-color", label: "Mobile Menu Colour" %}
+      {% include field, type: "color", id: "nav-link-color", label: "Link Colour" %}
+      {% include field, type: "color", id: "nav-link-active-color", label: "Active Link Colour" %}
       {% include border, id: "nav-border", label: "Nav Border" %}
     </div>
   </div>
@@ -78,10 +74,10 @@ layout: base
   <div id="main-tab" class="tab-content">
     <h2>Main Content</h2>
     <div class="grid">
-      {% include color, id: "main-bg-color", label: "Background" %}
-      {% include color, id: "main-text-color", label: "Text" %}
-      {% include color, id: "main-heading-color", label: "Headings" %}
-      {% include select-class, id: "main-heading-decoration", label: "Heading Decoration", options: heading-decorations %}
+      {% include field, type: "color", id: "main-bg-color", label: "Background" %}
+      {% include field, type: "color", id: "main-text-color", label: "Text" %}
+      {% include field, type: "color", id: "main-heading-color", label: "Headings" %}
+      {% include field, type: "select-class", id: "main-heading-decoration", label: "Heading Decoration", options: heading-decorations %}
       {% include border, id: "main-border", label: "Border" %}
     </div>
   </div>
@@ -89,24 +85,24 @@ layout: base
   <div id="form-tab" class="tab-content">
     <h2>Form Styling</h2>
     <div class="grid">
-      {% include color, id: "form-bg-color", label: "Form Background" %}
+      {% include field, type: "color", id: "form-bg-color", label: "Form Background" %}
 
-      {% include color, id: "form-text-color", label: "Form Text Colour" %}
+      {% include field, type: "color", id: "form-text-color", label: "Form Text Colour" %}
       {% include border, id: "form-border", label: "Form Border" %}
 
       <h3>Form Inputs</h3>
-      {% include color, id: "form-input-bg-color", label: "Input Background" %}
-      {% include color, id: "form-input-text-color", label: "Input Text Colour" %}
+      {% include field, type: "color", id: "form-input-bg-color", label: "Input Background" %}
+      {% include field, type: "color", id: "form-input-text-color", label: "Input Text Colour" %}
 
       <h3>Form Buttons</h3>
-      {% include color, id: "form-button-bg-color", label: "Button Background" %}
-      {% include color, id: "form-button-text-color", label: "Button Text Colour" %}
+      {% include field, type: "color", id: "form-button-bg-color", label: "Button Background" %}
+      {% include field, type: "color", id: "form-button-text-color", label: "Button Text Colour" %}
 
       {% include border, id: "form-button-border", label: "Button Border" %}
 
       <h3>Form Button Hover</h3>
-      {% include color, id: "form-button-hover-bg-color", label: "Button Hover Background" %}
-      {% include color, id: "form-button-hover-text-color", label: "Button Hover Text Colour" %}
+      {% include field, type: "color", id: "form-button-hover-bg-color", label: "Button Hover Background" %}
+      {% include field, type: "color", id: "form-button-hover-text-color", label: "Button Hover Text Colour" %}
 
       {% include border, id: "form-button-hover-border", label: "Button Hover Border" %}
     </div>

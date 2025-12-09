@@ -1,0 +1,36 @@
+<div>
+  <label>
+    <input
+      type="checkbox"
+      id="{{ id }}-enabled"
+      data-target="{{ id }}"
+    >
+    {{ label }}
+  </label>
+  {% if type == "select" or type == "select-class" %}
+  <select
+    id="{{ id }}"
+    {% if type == "select-class" %}data-class="true"{% else %}data-var="--{{ id }}"{% endif %}
+    disabled
+  >
+    {% for option in options %}
+      <option value="{{ option.value | escape }}">
+        {{- option.label -}}
+      </option>
+    {% endfor %}
+  </select>
+  {% else %}
+  <input
+    type="{{ type | default: 'text' }}"
+    id="{{ id }}"
+    data-var="--{{ id }}"
+    {% if step %}step="{{ step }}"{% endif %}
+    {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+    {% if readonly %}readonly{% endif %}
+    disabled
+  >
+  {% endif %}
+  {% if help %}
+    <small>{{ help }}</small>
+  {% endif %}
+</div>

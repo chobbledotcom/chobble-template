@@ -1,16 +1,11 @@
 import strings from "../_data/strings.js";
 import { categoriseEvents } from "../_lib/events.mjs";
-import { buildBaseMeta } from "../_lib/schema-helper.mjs";
+import { buildPermalink } from "../_lib/slug-utils.js";
 
 export default {
   eleventyComputed: {
-    meta: (data) => buildBaseMeta(data),
     navigationParent: () => strings.event_name,
-    permalink: (data) => {
-      if (data.permalink) return data.permalink;
-      const dir = strings.event_permalink_dir;
-      return `/${dir}/${data.page.fileSlug}/`;
-    },
+    permalink: (data) => buildPermalink(data, strings.event_permalink_dir),
     ical_url: (data) => {
       // Only provide iCal URL for one-off events
       if (data.event_date && !data.recurring_date) {

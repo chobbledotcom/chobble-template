@@ -1,5 +1,4 @@
 import strings from "../_data/strings.js";
-import { buildBaseMeta } from "../_lib/schema-helper.mjs";
 
 export default {
   eleventyComputed: {
@@ -13,6 +12,5 @@ export default {
         order: data.link_order || 0,
       };
     },
-    meta: (data) => buildBaseMeta(data),
   },
 };

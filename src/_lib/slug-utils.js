@@ -13,4 +13,11 @@ const normaliseSlug = (reference) => {
   return pathParts[pathParts.length - 1];
 };
 
-export { normaliseSlug };
+// Build a permalink for a collection item
+// Returns existing permalink if set, otherwise builds from dir + fileSlug
+const buildPermalink = (data, dir) => {
+  if (data.permalink) return data.permalink;
+  return `/${dir}/${data.page.fileSlug}/`;
+};
+
+export { normaliseSlug, buildPermalink };

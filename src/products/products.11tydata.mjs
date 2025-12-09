@@ -1,6 +1,5 @@
 import strings from "../_data/strings.js";
-import { buildProductMeta } from "../_lib/schema-helper.mjs";
-import { normaliseSlug } from "../_lib/slug-utils.js";
+import { normaliseSlug, buildPermalink } from "../_lib/slug-utils.js";
 
 export default {
   eleventyComputed: {
@@ -18,11 +17,7 @@ export default {
       return undefined;
     },
     navigationParent: () => strings.product_name,
-    permalink: (data) => {
-      if (data.permalink) return data.permalink;
-      const dir = strings.product_permalink_dir || "products";
-      return `${dir}/${data.page.fileSlug}/`;
-    },
-    meta: (data) => buildProductMeta(data),
+    permalink: (data) =>
+      buildPermalink(data, strings.product_permalink_dir || "products"),
   },
 };

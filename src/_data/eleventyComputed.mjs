@@ -1,6 +1,12 @@
 import { existsSync } from "fs";
 import { createRequire } from "module";
 import { join } from "path";
+import {
+  buildBaseMeta,
+  buildProductMeta,
+  buildPostMeta,
+  buildOrganizationMeta,
+} from "../_lib/schema-helper.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -15,6 +21,11 @@ function isValidImage(imagePath) {
   if (existsSync(fullPath)) return true;
 
   throw new Error(`Image file not found: ${fullPath}`);
+}
+
+function hasTag(data, tag) {
+  const tags = data.tags || [];
+  return Array.isArray(tags) ? tags.includes(tag) : tags === tag;
 }
 
 export default {
@@ -34,4 +45,10 @@ export default {
     Array.isArray(data.faqs)
       ? [...data.faqs].sort((a, b) => (a.order || 0) - (b.order || 0))
       : [],
+  meta: (data) => {
+    if (hasTag(data, "product")) return buildProductMeta(data);
+    if (hasTag(data, "news")) return buildPostMeta(data);
+    if (data.layout === "contact.html") return buildOrganizationMeta(data);
+    return buildBaseMeta(data);
+  },
 };
