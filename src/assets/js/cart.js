@@ -109,14 +109,11 @@ class ShoppingCart {
 
     // Overlay-specific listeners (skip in enquiry mode)
     if (!this.isEnquiryMode && this.cartOverlay) {
-      // Close cart button
-      const closeBtn = this.cartOverlay.querySelector(".cart-close");
-      if (closeBtn) {
-        closeBtn.addEventListener("click", () => this.closeCart());
-      }
-
-      // Close cart when clicking overlay background
+      // Light dismiss: close cart when clicking on the backdrop
+      // The dialog element receives click events that pass through the backdrop
       this.cartOverlay.addEventListener("click", (e) => {
+        // If the click target is the dialog itself (not its children),
+        // it means the click was on the backdrop area
         if (e.target === this.cartOverlay) {
           this.closeCart();
         }
@@ -205,17 +202,7 @@ class ShoppingCart {
       }
     });
 
-    // Escape key to close cart (not needed in enquiry mode)
-    if (!this.isEnquiryMode) {
-      document.addEventListener("keydown", (e) => {
-        if (
-          e.key === "Escape" &&
-          this.cartOverlay?.classList.contains("active")
-        ) {
-          this.closeCart();
-        }
-      });
-    }
+    // Note: Escape key handling is automatic with <dialog> element
   }
 
   // Get cart items from localStorage
@@ -447,14 +434,12 @@ class ShoppingCart {
 
   // Open cart overlay
   openCart() {
-    this.cartOverlay.classList.add("active");
-    document.body.style.overflow = "hidden";
+    this.cartOverlay.showModal();
   }
 
   // Close cart overlay
   closeCart() {
-    this.cartOverlay.classList.remove("active");
-    document.body.style.overflow = "";
+    this.cartOverlay.close();
   }
 
   // Show "added to cart" feedback

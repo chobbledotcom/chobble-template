@@ -40,33 +40,34 @@
   animation: cartBounce 0.6s ease;
 }
 
-// Cart overlay (full-page fixed)
-.cart-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-
-  &.active {
-    display: flex;
-  }
-}
-
-.cart-container {
+// Cart overlay using native <dialog> element
+// Provides built-in modal behavior, Escape key handling, and focus management
+dialog.cart-overlay {
+  // Dialog box styling (replaces .cart-container)
   background: var(--color-bg);
   color: var(--color-text);
   border: var(--border);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   max-width: 40rem;
-  width: 100%;
+  width: calc(100% - 2rem);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  padding: 0;
+  margin: auto;
+
+  // Backdrop styling (replaces manual overlay background)
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+// Scroll lock when modal is open (CSS-only, no JS needed)
+html:has(dialog.cart-overlay[open]) {
+  overflow: hidden;
+  // Keep scrollbar width to prevent layout shift
+  scrollbar-gutter: stable;
 }
 
 .cart-header {
@@ -81,6 +82,12 @@
 
   h2 {
     margin: 0;
+  }
+
+  // Form wrapper for method="dialog" close button
+  form {
+    margin: 0;
+    padding: 0;
   }
 
   .cart-close {
@@ -259,7 +266,8 @@
     left: 1rem;
   }
 
-  .cart-container {
+  dialog.cart-overlay {
+    width: 100%;
     max-width: 100%;
     max-height: 100vh;
     border-radius: 0;

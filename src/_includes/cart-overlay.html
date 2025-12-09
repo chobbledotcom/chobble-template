@@ -1,15 +1,16 @@
-<div
+<dialog
   id="cart-overlay"
   class="cart-overlay"
   data-paypal-email="{{ config.paypal_email }}"
   data-stripe-key="{{ config.stripe_publishable_key }}"
   data-checkout-api-url="{{ config.checkout_api_url }}"
 >
-  <section class="cart-container">
-    <header class="cart-header">
-      <h2>Shopping Cart</h2>
+  <header class="cart-header">
+    <h2>Shopping Cart</h2>
+    <form method="dialog">
       <button class="cart-close" aria-label="Close cart">&times;</button>
-    </header>
+    </form>
+  </header>
 
     <section class="cart-body">
       <div class="cart-empty" style="display: block;">
@@ -46,5 +47,4 @@
         {%- endif -%}
       </div>
     </footer>
-  </section>
-</div>
+</dialog>
