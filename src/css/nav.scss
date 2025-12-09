@@ -9,10 +9,9 @@ nav {
     }
   }
   a {
-    font-weight: normal;
     color: var(--nav-link-color);
-    &.active {
-      font-weight: bold;
+    &.active,
+    &:has(+ ul a.active) {
       color: var(--nav-link-active-color);
     }
   }
