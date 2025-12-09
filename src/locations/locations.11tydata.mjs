@@ -20,6 +20,7 @@ export default {
     },
     eleventyNavigation: (data) => {
       if (data.eleventyNavigation) return data.eleventyNavigation;
+      if (data.parentLocation) return undefined;
       return {
         key: data.title,
         parent: strings.location_name,
