@@ -1,5 +1,1 @@
-<ul class="items">
-  {%- for product in products -%}
-    {%- include "product-list-item.html" -%}
-  {%- endfor -%}
-</ul>
+{%- include "slider.html", slider_key: "homepage_products", items: products, item_template: "product-list-item.html", item_var: "product" -%}

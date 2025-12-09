@@ -1,0 +1,48 @@
+// Slider component styles
+// Horizontal scrollable container with CSS snap
+
+ul.items.slider {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem; // Space for scrollbar
+
+  // Respect reduced motion preference
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
+
+  & > * {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}
+
+// Slider container and navigation
+.slider-container {
+  // Hide nav when content fits (no overflow)
+  &:not(:has(.slider:is(.overflowing))) .slider-nav {
+    display: none;
+  }
+}
+
+.slider-nav {
+  text-align: center;
+  margin: 0.5rem 0 0;
+
+  a {
+    cursor: pointer;
+    
+    &[disabled] {
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: default;
+    }
+  }
+
+  .slider-nav-divider {
+    margin: 0 0.5rem;
+  }
+}

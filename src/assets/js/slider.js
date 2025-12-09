@@ -1,0 +1,64 @@
+// Slider navigation - minimal JS for scroll buttons
+(function () {
+  function initSliders() {
+    document.querySelectorAll(".slider-container").forEach((container) => {
+      const slider = container.querySelector(".slider");
+      const prevBtn = container.querySelector(".slider-prev");
+      const nextBtn = container.querySelector(".slider-next");
+
+      if (!slider || !prevBtn || !nextBtn) return;
+
+      // Get scroll amount (width of first item + gap)
+      const getScrollAmount = () => {
+        const firstItem = slider.querySelector("li");
+        if (!firstItem) return 240;
+        const style = getComputedStyle(slider);
+        const gap = parseFloat(style.gap) || 16;
+        return firstItem.offsetWidth + gap;
+      };
+
+      // Check if slider overflows and update button states
+      const updateState = () => {
+        const overflows = slider.scrollWidth > slider.clientWidth;
+        slider.classList.toggle("overflowing", overflows);
+
+        const atStart = slider.scrollLeft <= 0;
+        const atEnd =
+          slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 1;
+
+        prevBtn.toggleAttribute("disabled", atStart);
+        nextBtn.toggleAttribute("disabled", atEnd);
+      };
+
+      // Scroll handlers
+      prevBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        slider.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
+      });
+
+      nextBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        slider.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+      });
+
+      // Update state on scroll and resize
+      slider.addEventListener("scroll", updateState, { passive: true });
+      window.addEventListener("resize", updateState, { passive: true });
+
+      // Initial state
+      updateState();
+    });
+  }
+
+  // Support Turbo page loads
+  if (typeof Turbo !== "undefined") {
+    document.addEventListener("turbo:load", initSliders);
+  } else {
+    document.addEventListener("DOMContentLoaded", initSliders);
+  }
+
+  // Also run immediately if DOM is already ready
+  if (document.readyState !== "loading") {
+    initSliders();
+  }
+})();

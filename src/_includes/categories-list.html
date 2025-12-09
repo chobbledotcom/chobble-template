@@ -1,5 +1,1 @@
-<ul class="items">
-  {%- for category in categories -%}
-    {%- include "category-list-item.html" -%}
-  {%- endfor -%}
-</ul>
+{%- include "slider.html", slider_key: "homepage_categories", items: categories, item_template: "category-list-item.html", item_var: "category" -%}

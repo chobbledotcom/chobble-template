@@ -26,12 +26,8 @@ layout: base
 
   {%- if all_have_images -%}
     {%- comment -%} Use item layout when all posts have images {%- endcomment -%}
-    {%- assign posts = collections.news | reverse -%}
-    <ul class="items">
-      {%- for post in posts limit: 2 -%}
-        {% include "news-list-item.html" %}
-      {%- endfor -%}
-    </ul>
+    {%- assign posts = collections.news | reverse | slice: 0, 2 -%}
+    {%- include "slider.html", slider_key: "homepage_news", items: posts, item_template: "news-list-item.html", item_var: "post" -%}
   {%- else -%}
     {%- comment -%} Use text list when some posts lack images {%- endcomment -%}
     {% include "news-post-list.html", limit: 2 %}

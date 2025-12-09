@@ -1,5 +1,1 @@
-<ul class="items">
-  {%- for menu in menus -%}
-    {%- include "menu-list-item.html" -%}
-  {%- endfor -%}
-</ul>
+{%- include "slider.html", slider_key: "homepage_menus", items: menus, item_template: "menu-list-item.html", item_var: "menu" -%}

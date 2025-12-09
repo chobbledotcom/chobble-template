@@ -1,0 +1,53 @@
+{%- comment -%}
+  Generic slider wrapper component.
+  
+  Usage:
+    {% include "slider.html", slider_key: "homepage_products", items: products, item_template: "product-list-item.html", item_var: "product" %}
+  
+  Parameters:
+    - slider_key: The config key prefix (e.g., "homepage_products" looks for config.homepage_products_slider_enabled)
+    - items: The collection of items to loop through
+    - item_template: The include template to render for each item
+    - item_var: The variable name to use when passing each item to the template (e.g., "product", "category")
+  
+  Config options (in config.json):
+    - {slider_key}_slider_enabled: boolean - whether to enable slider mode
+{%- endcomment -%}
+
+{%- assign slider_enabled_key = slider_key | append: "_slider_enabled" -%}
+{%- assign slider_enabled = config[slider_enabled_key] -%}
+
+{%- if slider_enabled -%}
+<div class="slider-container">
+  <ul class="items slider">
+{%- else -%}
+<ul class="items">
+{%- endif -%}
+  {%- for item in items -%}
+    {%- case item_var -%}
+      {%- when "product" -%}
+        {%- assign product = item -%}
+      {%- when "category" -%}
+        {%- assign category = item -%}
+      {%- when "post" -%}
+        {%- assign post = item -%}
+      {%- when "location" -%}
+        {%- assign location = item -%}
+      {%- when "event" -%}
+        {%- assign event = item -%}
+      {%- when "menu" -%}
+        {%- assign menu = item -%}
+      {%- when "review" -%}
+        {%- assign review = item -%}
+    {%- endcase -%}
+    {%- include item_template -%}
+  {%- endfor -%}
+</ul>
+{%- if slider_enabled -%}
+  <p class="slider-nav">
+    <a href="#" class="slider-prev" aria-label="Previous">left</a>
+    <span class="slider-nav-divider">|</span>
+    <a href="#" class="slider-next" aria-label="Next">right</a>
+  </p>
+</div>
+{%- endif -%}
