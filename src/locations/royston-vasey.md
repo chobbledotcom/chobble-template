@@ -2,6 +2,9 @@
 title: Royston Vasey
 thumbnail: /images/placeholder-square-3.jpg
 subtitle: A local service for local people
+categories:
+  - thingies
+  - doodahs
 meta_title: "Local Services in Royston Vasey - A Local Shop for Local People"
 meta_description: "Serving the fine local people of Royston Vasey. We're a local business for local people. There's nothing for you here. Call us today."
 faqs:

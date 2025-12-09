@@ -2,6 +2,9 @@
 title: Springfield
 thumbnail: /images/placeholder-square-1.jpg
 subtitle: Serving the nuclear-powered community
+categories:
+  - open-source
+  - premium-widgets
 meta_title: "Services in Springfield - Your Local Provider"
 meta_description: "Serving Springfield and all its diverse neighborhoods. From Downtown to the suburbs, we're here to help. Excellent service guaranteed."
 faqs:

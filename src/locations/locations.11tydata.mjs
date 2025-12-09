@@ -1,10 +1,23 @@
 import strings from "../_data/strings.js";
-import { buildPermalink } from "../_lib/slug-utils.js";
+
+const locationDir = strings.location_permalink_dir || "locations";
 
 export default {
   eleventyComputed: {
     navigationParent: () => strings.location_name,
-    permalink: (data) => buildPermalink(data, strings.location_permalink_dir),
+    parentLocation: (data) => {
+      const regex = new RegExp(`/${locationDir}/([^/]+)/[^/]+\\.md$`);
+      const match = data.page.inputPath.match(regex);
+      return match ? match[1] : null;
+    },
+    permalink: (data) => {
+      if (data.permalink) return data.permalink;
+      const parent = data.parentLocation;
+      if (parent) {
+        return `/${locationDir}/${parent}/${data.page.fileSlug}/`;
+      }
+      return `/${locationDir}/${data.page.fileSlug}/`;
+    },
     eleventyNavigation: (data) => {
       if (data.eleventyNavigation) return data.eleventyNavigation;
       return {

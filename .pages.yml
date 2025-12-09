@@ -237,6 +237,15 @@ content:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: subtitle, type: string, label: Subtitle }
+      - name: categories
+        label: Categories
+        type: reference
+        options:
+          collection: categories
+          multiple: true
+          search: "title"
+          value: "{path}"
+          label: "{title}"
       - { name: meta_title, type: string, label: Meta Title }
       - { name: meta_description, type: string, label: Meta Description }
       - { name: body, label: Body, type: code, options: { language: markdown } }

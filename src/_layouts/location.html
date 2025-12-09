@@ -1,0 +1,45 @@
+---
+layout: base
+---
+
+{{ content }}
+
+{%- assign locationSlug = page.fileSlug -%}
+{%- assign services = collections.location | where: "data.parentLocation", locationSlug -%}
+
+{%- if services.size > 0 -%}
+  <h2>Our Services in {{ title }}</h2>
+  {%- include "slider.html", key: "locations", items: services -%}
+{%- endif -%}
+
+{%- if categories.size > 0 -%}
+  {%- assign locationProducts = "" | split: "" -%}
+  {%- for category in categories -%}
+    {%- assign categoryProducts = collections.products | getProductsByCategory: category -%}
+    {%- for product in categoryProducts -%}
+      {%- unless locationProducts contains product -%}
+        {%- assign locationProducts = locationProducts | push: product -%}
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endfor -%}
+
+  {%- if locationProducts.size > 0 -%}
+    <h2>{{ strings.product_name }} in {{ title }}</h2>
+    {%- include "slider.html", key: "products", items: locationProducts -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if parentLocation -%}
+  {%- assign siblingServices = collections.location | where: "data.parentLocation", parentLocation -%}
+  {%- assign otherServices = "" | split: "" -%}
+  {%- for service in siblingServices -%}
+    {%- unless service.url == page.url -%}
+      {%- assign otherServices = otherServices | push: service -%}
+    {%- endunless -%}
+  {%- endfor -%}
+
+  {%- if otherServices.size > 0 -%}
+    <h2>Other Services</h2>
+    {%- include "slider.html", key: "locations", items: otherServices -%}
+  {%- endif -%}
+{%- endif -%}

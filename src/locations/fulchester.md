@@ -2,6 +2,9 @@
 title: Fulchester
 thumbnail: /images/placeholder-square-2.jpg
 subtitle: Home of Fulchester United
+categories:
+  - widgets
+  - wotzits
 meta_title: "Services in Fulchester - Home of the Fulchester United FC"
 meta_description: "Proudly serving Fulchester and surrounding areas. From the streets where Billy the Fish plays to the corners of this great town. Contact us today."
 faqs:
