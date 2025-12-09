@@ -23,12 +23,12 @@
 		"npm-run-all2": "^8.0.4"
 	},
 	"dependencies": {
+		"@botpoison/browser": "^0.1.30",
+		"@hotwired/turbo": "^8.0.12",
 		"@11ty/eleventy": "^3.0.0",
 		"@11ty/eleventy-img": "^6.0.0",
 		"@11ty/eleventy-navigation": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^2.0.2",
-		"@botpoison/browser": "^0.1.30",
-		"@hotwired/turbo": "^8.0.20",
 		"@quasibit/eleventy-plugin-schema": "^1.11.1",
 		"@zachleat/heading-anchors": "^1.0.1",
 		"fast-glob": "^3.3.2",

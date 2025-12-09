@@ -24,7 +24,7 @@ importers:
         specifier: ^0.1.30
         version: 0.1.30
       '@hotwired/turbo':
-        specifier: ^8.0.20
+        specifier: ^8.0.12
         version: 8.0.20
       '@quasibit/eleventy-plugin-schema':
         specifier: ^1.11.1

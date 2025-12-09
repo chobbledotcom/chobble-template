@@ -6,4 +6,5 @@ import "@hotwired/turbo";
 
 // Botpoison for form spam protection (loaded globally)
 import Botpoison from "@botpoison/browser";
+
 window.Botpoison = Botpoison;
