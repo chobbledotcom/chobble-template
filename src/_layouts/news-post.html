@@ -9,6 +9,12 @@ layout: base
 </h2>
 <p>
   <em>{{ page.date | date: "%b %-d, %Y" }}</em>
+  {%- if authorSlug -%}
+    {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
+    {%- if authorData -%}
+      &middot; <a href="{{ authorData.url }}">{{ authorData.data.title }}</a>
+    {%- endif -%}
+  {%- endif -%}
 </p>
 
 {{ content }}

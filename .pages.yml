@@ -51,6 +51,15 @@ content:
       - { name: title, type: string, label: Title }
       - { name: header_image, type: image, label: Header Image }
       - { name: date, label: Date, type: date }
+      - name: author
+        label: Author
+        type: reference
+        options:
+          collection: team
+          multiple: false
+          search: "title"
+          value: "{path}"
+          label: "{title}"
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: header_text, type: string, label: Header Text }
