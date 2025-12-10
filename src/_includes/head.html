@@ -55,6 +55,14 @@
     ></script>
   {%- endif -%}
 
+  {%- if layout == "stripe-checkout.html" -%}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script
+      async
+      src="{{ '/assets/js/stripe-checkout.js' | cacheBust }}"
+    ></script>
+  {%- endif -%}
+
   {%- if gallery and gallery.size > 0 -%}
     <script
       async
@@ -64,9 +72,6 @@
   {% endif %}
 
   {%- if config.has_cart_enquiry_form or config.paypal_email or config.stripe_publishable_key -%}
-    {%- if config.stripe_publishable_key and config.has_cart_enquiry_form != true -%}
-      <script async src="https://js.stripe.com/v3/"></script>
-    {%- endif -%}
     <script
       type="module"
       src="{{ '/assets/js/cart.js' | cacheBust }}"

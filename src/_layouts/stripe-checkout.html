@@ -1,0 +1,11 @@
+---
+layout: base
+---
+
+<div
+  class="stripe-checkout-page"
+  data-stripe-key="{{ config.stripe_publishable_key }}"
+  data-checkout-api-url="{{ config.checkout_api_url }}"
+>
+  <p id="status-message">Checking cart...</p>
+</div>
