@@ -18,7 +18,6 @@
 	"locations_slider_enabled": false,
 	"products": {
 		"item_widths": "240,480,640",
-		"item_sizes": "auto",
 		"gallery_thumb_widths": "240,480",
 		"gallery_image_widths": "900,1300",
 		"header_image_widths": "640,900,1300"
