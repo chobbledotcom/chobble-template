@@ -1,3 +1,7 @@
+@use "theme-defaults" with (
+  $scroll-fade-selectors: ".items > li"
+);
+
 :root {
   --color-bg: #241f31;
   --color-text: #9a9996;
@@ -12,8 +16,5 @@
   --form-button-border: 2px solid #58648c;
   --form-button-hover-border: 2px solid #ffffff;
 }
-
-// Scroll fade-in: elements that fade in as they scroll into view
-$scroll-fade-selectors: ".items > li";
 
 /* body_classes: header-centered-dark */
