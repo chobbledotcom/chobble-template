@@ -1,0 +1,33 @@
+// Scroll Fade-In Effect
+// Logic and styles for scroll-based fade-in animations.
+// Configuration is done in theme.scss via $scroll-fade-selectors
+
+@use "theme";
+
+@if theme.$scroll-fade-selectors {
+  // Export selectors to CSS custom property for JavaScript to read
+  :root {
+    --scroll-fade-selectors: "#{theme.$scroll-fade-selectors}";
+  }
+
+  // Apply initial hidden state and transition to all configured selectors
+  #{theme.$scroll-fade-selectors} {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+
+    &.scroll-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // Respect reduced motion preferences
+  @media (prefers-reduced-motion: reduce) {
+    #{theme.$scroll-fade-selectors} {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
