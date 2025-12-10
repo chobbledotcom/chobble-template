@@ -5,12 +5,15 @@ options:
   - name: Basic
     max_quantity: 25
     unit_price: 79.99
+    sku: 5ZZQKU
   - name: Plus
     max_quantity: 15
     unit_price: 99.99
+    sku: 9CATG6
   - name: Pro
     max_quantity: 10
     unit_price: 129.99
+    sku: JIC8QT
 header_image: src/images/placeholder-wide-3.jpg
 categories:
   - compact-doodahs

@@ -5,12 +5,15 @@ options:
   - name: Standard
     max_quantity: 15
     unit_price: 129.99
+    sku: PMDHQZ
   - name: Vintage Box
     max_quantity: 10
     unit_price: 159.99
+    sku: M0M4D0
   - name: Collector's Edition
     max_quantity: 5
     unit_price: 249.99
+    sku: ABC31H
 header_image: src/images/placeholder-wide-3.jpg
 categories:
   - classic-thingies
