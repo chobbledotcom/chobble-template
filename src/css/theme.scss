@@ -13,44 +13,8 @@
   --form-button-hover-border: 2px solid #ffffff;
 }
 
-// ============================================
-// SCROLL FADE-IN EFFECT
-// ============================================
-// List your selectors here - these elements will fade in as they scroll into view.
-// This is the ONLY place you need to configure which elements get the effect.
+// Scroll fade-in: elements that fade in as they scroll into view
 // Examples: ".item-grid article", ".content-area > section", ".features li"
-
 $scroll-fade-selectors: null;
-
-// Uncomment and customize the line below to enable scroll fade-in:
-// $scroll-fade-selectors: ".item-grid article", ".some-other-selector";
-
-@if $scroll-fade-selectors {
-  // Export selectors to CSS custom property for JavaScript to read
-  :root {
-    --scroll-fade-selectors: "#{$scroll-fade-selectors}";
-  }
-
-  // Apply initial hidden state and transition to all configured selectors
-  #{$scroll-fade-selectors} {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-
-    &.scroll-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  // Respect reduced motion preferences
-  @media (prefers-reduced-motion: reduce) {
-    #{$scroll-fade-selectors} {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-  }
-}
 
 /* body_classes: header-centered-dark */
