@@ -14,7 +14,7 @@ Minimal stateless backend for Stripe and PayPal checkout sessions. Perfect for D
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `SITE_HOST` | **Yes** | Your site's domain (e.g., `example.com`) |
+| `SITE_HOST` | **Yes** | Your site's domain(s), comma-separated (e.g., `example.com` or `example.com,shop.example.com`) |
 | `BRAND_NAME` | **Yes** | Brand name shown on checkout pages |
 | `STRIPE_SECRET_KEY` | For Stripe | Stripe secret key (`sk_live_...` or `sk_test_...`) |
 | `PAYPAL_CLIENT_ID` | For PayPal | PayPal REST API client ID |
@@ -34,8 +34,9 @@ Minimal stateless backend for Stripe and PayPal checkout sessions. Perfect for D
 
 ## Security
 
-- CORS only allows `https://{SITE_HOST}`
-- Redirect URLs use `SITE_HOST` (server-controlled)
+- CORS only allows configured origins (`https://{SITE_HOST}` for each host)
+- Redirect URLs use the request's origin (validated against allowed hosts)
+- SKU prices are cached per-origin (1 minute TTL)
 - Backend won't start without `SITE_HOST`
 
 ## Docker
@@ -43,7 +44,7 @@ Minimal stateless backend for Stripe and PayPal checkout sessions. Perfect for D
 ```bash
 docker build -t checkout-backend .
 docker run -p 3000:3000 \
-  -e SITE_HOST=example.com \
+  -e SITE_HOST=example.com,shop.example.com \
   -e BRAND_NAME="My Shop" \
   -e STRIPE_SECRET_KEY=sk_test_... \
   -e PAYPAL_CLIENT_ID=... \

@@ -7,8 +7,8 @@
  */
 
 import fs from "fs";
-import path from "path";
 import matter from "gray-matter";
+import path from "path";
 
 const PRODUCTS_DIR = "src/products";
 const SKU_LENGTH = 6;

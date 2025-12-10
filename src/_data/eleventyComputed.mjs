@@ -3,9 +3,9 @@ import { createRequire } from "module";
 import { join } from "path";
 import {
   buildBaseMeta,
-  buildProductMeta,
-  buildPostMeta,
   buildOrganizationMeta,
+  buildPostMeta,
+  buildProductMeta,
 } from "../_lib/schema-helper.mjs";
 
 const require = createRequire(import.meta.url);

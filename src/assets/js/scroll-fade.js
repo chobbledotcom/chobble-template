@@ -9,7 +9,7 @@
   function initScrollFade() {
     // Read selectors from CSS custom property (set in theme.scss)
     const selectorsValue = getComputedStyle(
-      document.documentElement
+      document.documentElement,
     ).getPropertyValue("--scroll-fade-selectors");
 
     if (!selectorsValue || selectorsValue.trim() === "") {
@@ -51,7 +51,7 @@
         root: null, // viewport
         rootMargin: "0px 0px -50px 0px", // Trigger slightly before fully in view
         threshold: 0.1, // 10% visible
-      }
+      },
     );
 
     // Observe all elements

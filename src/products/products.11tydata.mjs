@@ -1,5 +1,5 @@
 import strings from "../_data/strings.js";
-import { normaliseSlug, buildPermalink } from "../_lib/slug-utils.js";
+import { buildPermalink, normaliseSlug } from "../_lib/slug-utils.js";
 
 export default {
   eleventyComputed: {

@@ -3,7 +3,7 @@
  * Supports both Stripe and PayPal checkout sessions
  *
  * Environment variables:
- *   SITE_HOST            - Your site's domain (e.g., example.com)
+ *   SITE_HOST            - Your site's domain(s) (e.g., example.com or example.com,shop.example.com)
  *   STRIPE_SECRET_KEY    - Stripe secret key (sk_live_... or sk_test_...)
  *   PAYPAL_CLIENT_ID     - PayPal REST API client ID
  *   PAYPAL_SECRET        - PayPal REST API secret
@@ -37,12 +37,25 @@ if (!BRAND_NAME) {
   process.exit(1);
 }
 
-const SITE_ORIGIN = `https://${SITE_HOST}`;
+// Parse comma-separated hosts into array of origins
+const SITE_HOSTS = SITE_HOST.split(",")
+  .map((h) => h.trim())
+  .filter(Boolean);
+const ALLOWED_ORIGINS = SITE_HOSTS.map((host) => `https://${host}`);
 
-// CORS - only allow the configured site
+// CORS - allow all configured sites dynamically
 app.use(
   cors({
-    origin: SITE_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like server-to-server or curl)
+      if (!origin) {
+        return callback(null, true);
+      }
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, origin);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST"],
   }),
 );
@@ -53,7 +66,7 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
-    host: SITE_HOST,
+    hosts: SITE_HOSTS,
     stripe: !!process.env.STRIPE_SECRET_KEY,
     paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET),
   });
@@ -63,26 +76,29 @@ app.get("/health", (req, res) => {
 // SKU PRICE VALIDATION
 // ============================================
 
-// Cache for SKU prices (refreshed periodically)
-let skuPricesCache = null;
-let skuPricesCacheExpiry = 0;
+// Cache for SKU prices per origin (refreshed periodically)
+const skuPricesCache = new Map(); // origin -> { data, expiry }
 const SKU_CACHE_TTL = 60000; // 1 minute cache
 
-async function getSkuPrices() {
+async function getSkuPrices(origin) {
+  const cached = skuPricesCache.get(origin);
+
   // Return cached data if still valid
-  if (skuPricesCache && Date.now() < skuPricesCacheExpiry) {
-    return skuPricesCache;
+  if (cached && Date.now() < cached.expiry) {
+    return cached.data;
   }
 
-  const response = await fetch(`${SITE_ORIGIN}/api/sku_prices.json`);
+  const response = await fetch(`${origin}/api/sku_prices.json`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch SKU prices: ${response.status}`);
+    throw new Error(
+      `Failed to fetch SKU prices from ${origin}: ${response.status}`,
+    );
   }
 
-  skuPricesCache = await response.json();
-  skuPricesCacheExpiry = Date.now() + SKU_CACHE_TTL;
+  const data = await response.json();
+  skuPricesCache.set(origin, { data, expiry: Date.now() + SKU_CACHE_TTL });
 
-  return skuPricesCache;
+  return data;
 }
 
 /**
@@ -90,8 +106,8 @@ async function getSkuPrices() {
  * Expects items as [{ sku, quantity }, ...]
  * Returns { valid: true, cart: [...], total: number } or { valid: false, errors: [...] }
  */
-async function validateCart(items) {
-  const skuPrices = await getSkuPrices();
+async function validateCart(items, origin) {
+  const skuPrices = await getSkuPrices(origin);
   const errors = [];
   const cart = [];
 
@@ -139,29 +155,47 @@ async function validateCart(items) {
 
 /**
  * Middleware to validate items from request body
- * Attaches validated cart and total to req if valid
+ * Attaches validated cart, total, and origin to req if valid
  */
 async function validateItemsMiddleware(req, res, next) {
   const { items } = req.body;
+  const origin = req.get("origin");
+
+  if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+    console.log(
+      `[${new Date().toISOString()}] Rejected request - invalid origin`,
+    );
+    return res.status(403).json({ error: "Invalid or missing origin" });
+  }
 
   if (!items || !Array.isArray(items) || items.length === 0) {
+    console.log(`[${new Date().toISOString()}] ${origin} - empty cart`);
     return res.status(400).json({ error: "Items array is empty or invalid" });
   }
 
   try {
-    const validation = await validateCart(items);
+    const validation = await validateCart(items, origin);
     if (!validation.valid) {
+      console.log(
+        `[${new Date().toISOString()}] ${origin} - cart validation failed`,
+      );
       return res.status(400).json({
         error: "Cart validation failed",
         details: validation.errors,
       });
     }
 
+    console.log(
+      `[${new Date().toISOString()}] ${origin} - cart validated (${items.length} items)`,
+    );
     req.validatedCart = validation.cart;
     req.cartTotal = validation.total;
+    req.siteOrigin = origin;
     next();
   } catch (error) {
-    console.error("Validation error:", error.message);
+    console.error(
+      `[${new Date().toISOString()}] ${origin} - validation error: ${error.message}`,
+    );
     res.status(500).json({ error: error.message });
   }
 }
@@ -192,13 +226,18 @@ app.post(
           },
           quantity: item.quantity,
         })),
-        success_url: `${SITE_ORIGIN}/checkout-success/`,
-        cancel_url: `${SITE_ORIGIN}/`,
+        success_url: `${req.siteOrigin}/checkout-success/`,
+        cancel_url: `${req.siteOrigin}/`,
       });
 
+      console.log(
+        `[${new Date().toISOString()}] ${req.siteOrigin} - Stripe session created`,
+      );
       res.json({ id: session.id, url: session.url });
     } catch (error) {
-      console.error("Stripe error:", error.message);
+      console.error(
+        `[${new Date().toISOString()}] ${req.siteOrigin} - Stripe error: ${error.message}`,
+      );
       res.status(500).json({ error: error.message });
     }
   },
@@ -276,8 +315,8 @@ app.post(
           },
         ],
         application_context: {
-          return_url: `${SITE_ORIGIN}/checkout-success/`,
-          cancel_url: `${SITE_ORIGIN}/`,
+          return_url: `${req.siteOrigin}/checkout-success/`,
+          cancel_url: `${req.siteOrigin}/`,
           user_action: "PAY_NOW",
           brand_name: BRAND_NAME,
         },
@@ -294,19 +333,27 @@ app.post(
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("PayPal order error:", errorData);
+        console.error(
+          `[${new Date().toISOString()}] ${req.siteOrigin} - PayPal order error:`,
+          errorData,
+        );
         throw new Error(`PayPal order failed: ${response.status}`);
       }
 
       const order = await response.json();
       const approveLink = order.links.find((l) => l.rel === "approve");
 
+      console.log(
+        `[${new Date().toISOString()}] ${req.siteOrigin} - PayPal order created`,
+      );
       res.json({
         id: order.id,
         url: approveLink ? approveLink.href : null,
       });
     } catch (error) {
-      console.error("PayPal error:", error.message);
+      console.error(
+        `[${new Date().toISOString()}] ${req.siteOrigin} - PayPal error: ${error.message}`,
+      );
       res.status(500).json({ error: error.message });
     }
   },
@@ -316,14 +363,22 @@ app.post(
 // START SERVER
 // ============================================
 
-app.listen(3000, () => {
-  console.log(`Checkout backend running on port 3000`);
-  console.log(`  Site: ${SITE_ORIGIN}`);
-  console.log(
-    `  Stripe: ${process.env.STRIPE_SECRET_KEY ? "configured" : "not configured"}`,
-  );
-  console.log(
-    `  PayPal: ${process.env.PAYPAL_CLIENT_ID ? "configured" : "not configured"}`,
-  );
-  console.log(`  Currency: ${CURRENCY}`);
-});
+// Export for testing
+module.exports = { app, skuPricesCache, ALLOWED_ORIGINS };
+
+// Only start server if run directly (not imported for tests)
+if (require.main === module) {
+  app.listen(3000, () => {
+    console.log(
+      `[${new Date().toISOString()}] Checkout backend running on port 3000`,
+    );
+    console.log(`  Sites: ${SITE_HOSTS.join(", ")}`);
+    console.log(
+      `  Stripe: ${process.env.STRIPE_SECRET_KEY ? "configured" : "not configured"}`,
+    );
+    console.log(
+      `  PayPal: ${process.env.PAYPAL_CLIENT_ID ? "configured" : "not configured"}`,
+    );
+    console.log(`  Currency: ${CURRENCY}`);
+  });
+}
