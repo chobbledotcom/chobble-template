@@ -14,7 +14,6 @@
 }
 
 // Scroll fade-in: elements that fade in as they scroll into view
-// Examples: ".item-grid article", ".content-area > section", ".features li"
-$scroll-fade-selectors: null;
+$scroll-fade-selectors: ".items > li";
 
 /* body_classes: header-centered-dark */
