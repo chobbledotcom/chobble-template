@@ -1,6 +1,7 @@
-import { execSync } from "child_process";
+import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import fg from "fast-glob";
 import strings from "../src/_data/strings.js";
 import baseStrings from "../src/_data/strings-base.json" with { type: "json" };
 import {
@@ -13,32 +14,35 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const srcDir = join(__dirname, "../src");
 
 /**
- * Find all strings.X usages in the codebase using ripgrep
+ * Find all strings.X usages in the codebase using Node.js
  */
 const findStringsUsage = () => {
   // File extensions to ignore (from imports like "./strings.js")
   const ignoreKeys = new Set(["js", "json", "test", "mjs"]);
 
-  try {
-    const result = execSync(
-      `rg -o "strings\\.[a-z_]+" "${srcDir}" --no-filename --no-line-number`,
-      { encoding: "utf-8" },
-    );
-    const matches = result.trim().split("\n");
-    const keys = new Set(
-      matches
-        .map((match) => {
-          // Extract just the key after "strings."
-          const m = match.match(/strings\.([a-z_]+)/);
-          return m ? m[1] : null;
-        })
-        .filter((key) => key && !ignoreKeys.has(key)),
-    );
-    return Array.from(keys);
-  } catch (e) {
-    // rg returns exit code 1 if no matches found
-    return [];
+  // Find all template/source files
+  const files = fg.sync("**/*.{html,md,js,mjs,liquid,njk}", {
+    cwd: srcDir,
+    absolute: true,
+  });
+
+  const keys = new Set();
+  const regex = /strings\.([a-z_]+)/g;
+
+  for (const file of files) {
+    const content = fs.readFileSync(file, "utf-8");
+    let match;
+    while ((match = regex.exec(content)) !== null) {
+      const key = match[1];
+      if (!ignoreKeys.has(key)) {
+        keys.add(key);
+      }
+    }
+    // Reset regex lastIndex for next file (since we're using /g flag)
+    regex.lastIndex = 0;
   }
+
+  return Array.from(keys);
 };
 
 createTestRunner("strings", [
