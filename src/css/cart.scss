@@ -52,10 +52,14 @@ dialog.cart-overlay {
   max-width: 40rem;
   width: calc(100% - 2rem);
   max-height: 90vh;
-  display: flex;
-  flex-direction: column;
   padding: 0;
   margin: auto;
+
+  // Only show as flex when dialog is open (preserves native dialog hidden behavior)
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
 
   // Backdrop styling (replaces manual overlay background)
   &::backdrop {
