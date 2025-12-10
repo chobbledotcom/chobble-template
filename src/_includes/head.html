@@ -43,6 +43,11 @@
     src="{{ '/assets/js/slider.js' | cacheBust }}"
   ></script>
 
+  <script
+    async
+    src="{{ '/assets/js/scroll-fade.js' | cacheBust }}"
+  ></script>
+
   {%- if stripe_buy_button_id and config.stripe_publishable_key -%}
     <script
       async
