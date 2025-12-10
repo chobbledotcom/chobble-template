@@ -17,7 +17,6 @@ export default {
       return undefined;
     },
     navigationParent: () => strings.product_name,
-    permalink: (data) =>
-      buildPermalink(data, strings.product_permalink_dir || "products"),
+    permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
   },
 };

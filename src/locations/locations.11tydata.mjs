@@ -1,6 +1,6 @@
 import strings from "../_data/strings.js";
 
-const locationDir = strings.location_permalink_dir || "locations";
+const locationDir = strings.location_permalink_dir;
 
 export default {
   eleventyComputed: {
