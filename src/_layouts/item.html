@@ -55,7 +55,7 @@ layout: base
 <div class="description">
   {%- if tags and tags contains "product" -%}
     {%- include "stripe-buy-button.html" -%}
-    {%- if options and options.size > 0 and (config.paypal_email or config.stripe_publishable_key) -%}
+    {%- if (options and options.size > 0) and (config.paypal_email or config.stripe_publishable_key) -%}
       <h2>Buy Now</h2>
       {%- include "product-options.html" -%}
     {%- endif -%}
