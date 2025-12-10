@@ -3,14 +3,14 @@
 <div class="current-image">
   {% assign image = gallery[0] %}
   {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-  {% image image, alt_text, config.products.gallery_image_widths, "", "100vw" %}
+  {% image image, alt_text, config.products.gallery_image_widths %}
 </div>
 
 <div aria-hidden="true" class="gallery-full-size-images">
   {%- for image in gallery -%}
     {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
     <div class="full-image-{{ forloop.index }}">
-      {% image image, alt_text, config.products.gallery_image_widths, "fade-in", "100vw" %}
+      {% image image, alt_text, config.products.gallery_image_widths, "fade-in" %}
     </div>
   {% endfor %}
 </div>
@@ -31,9 +31,8 @@
         data-index="{{ forloop.index }}"
         class="image-link gallery-switcher"
       >
-        <!-- once sizes="auto" is supported by Firefox, switch to that -->
         <figure>
-          {% image image, alt_text, config.products.gallery_thumb_widths, "", "(max-width: 798px) 33vw, 25vw" %}
+          {% image image, alt_text, config.products.gallery_thumb_widths %}
         </figure>
       </a>
     </li>
