@@ -55,6 +55,14 @@
     ></script>
   {%- endif -%}
 
+  {%- if layout == "stripe-checkout.html" -%}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script
+      async
+      src="{{ '/assets/js/stripe-checkout.js' | cacheBust }}"
+    ></script>
+  {%- endif -%}
+
   {%- if gallery and gallery.size > 0 -%}
     <script
       async

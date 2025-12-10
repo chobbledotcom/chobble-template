@@ -1,0 +1,18 @@
+.stripe-checkout-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+
+  p {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+
+  .error {
+    color: #c41e3a;
+  }
+}
