@@ -1,4 +1,4 @@
-@forward "theme-defaults" with (
+@use "theme-defaults" with (
   $scroll-fade-selectors: ".items > li"
 );
 
