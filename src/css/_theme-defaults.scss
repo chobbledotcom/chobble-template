@@ -1,0 +1,8 @@
+// Default values for optional theme variables
+// Theme files should @forward this file with their overrides:
+//   @forward "theme-defaults" with ($scroll-fade-selectors: ".my-selector");
+//
+// If a theme doesn't need scroll-fade, just @forward without overrides:
+//   @forward "theme-defaults";
+
+$scroll-fade-selectors: null !default;

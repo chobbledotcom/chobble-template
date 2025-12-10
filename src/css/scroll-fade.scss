@@ -1,6 +1,7 @@
 // Scroll Fade-In Effect
 // Logic and styles for scroll-based fade-in animations.
-// Configuration is done in theme.scss via $scroll-fade-selectors
+// Configuration is done in theme.scss via @forward "theme-defaults" with ($scroll-fade-selectors: "...")
+// If $scroll-fade-selectors is null (the default), no styles are applied.
 
 @use "theme";
 
