@@ -48,6 +48,39 @@ const getReviewsByProduct = (reviews, productSlug) =>
 const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];
 
+/**
+ * Creates a collection of all SKUs with their pricing data for the API
+ * Returns an object mapping SKU -> { name, unit_price, max_quantity }
+ */
+const createApiSkusCollection = (collectionApi) => {
+  const products = collectionApi.getFilteredByTag("product") || [];
+  const skus = {};
+
+  for (const product of products) {
+    const options = product.data.options;
+    if (!options) continue;
+
+    const productTitle = product.data.title || "";
+
+    for (const option of options) {
+      if (option.sku && option.unit_price !== undefined) {
+        // Build full name: "Product Title - Option Name" or just "Product Title"
+        const name = option.name
+          ? `${productTitle} - ${option.name}`
+          : productTitle;
+
+        skus[option.sku] = {
+          name,
+          unit_price: option.unit_price,
+          max_quantity: option.max_quantity ?? null,
+        };
+      }
+    }
+  }
+
+  return skus;
+};
+
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("reviews", createReviewsCollection);
@@ -55,6 +88,7 @@ const configureProducts = (eleventyConfig) => {
     "visibleReviews",
     createVisibleReviewsCollection,
   );
+  eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
 
@@ -69,6 +103,7 @@ export {
   createProductsCollection,
   createReviewsCollection,
   createVisibleReviewsCollection,
+  createApiSkusCollection,
   getProductsByCategory,
   getReviewsByProduct,
   getFeaturedProducts,

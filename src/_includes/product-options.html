@@ -6,6 +6,7 @@ option = options.first -%}
   data-option="{{ option.name }}"
   data-price="{{ option.unit_price }}"
   data-max-quantity="{{ option.max_quantity }}"
+  data-sku="{{ option.sku }}"
 >
   Add to Cart - £{{ option.unit_price }}
 </button>
@@ -20,6 +21,7 @@ option = options.first -%}
       data-price="{{ option.unit_price }}"
       data-name="{{ option.name }}"
       data-max-quantity="{{ option.max_quantity }}"
+      data-sku="{{ option.sku }}"
     >
       {{- option.name }} - £{{ option.unit_price -}}
     </option>

@@ -153,6 +153,7 @@ class ShoppingCart {
           button.dataset.option = selectedOption.dataset.name;
           button.dataset.price = selectedOption.dataset.price;
           button.dataset.maxQuantity = selectedOption.dataset.maxQuantity;
+          button.dataset.sku = selectedOption.dataset.sku;
           button.textContent = `Add to Cart - £${selectedOption.dataset.price}`;
         }
       }
@@ -181,6 +182,7 @@ class ShoppingCart {
         const maxQuantity = button.dataset.maxQuantity
           ? parseInt(button.dataset.maxQuantity)
           : null;
+        const sku = button.dataset.sku || null;
 
         // Build full item name including option if present
         const fullItemName = optionName
@@ -191,11 +193,12 @@ class ShoppingCart {
           fullItemName,
           unitPrice,
           maxQuantity,
+          sku,
           button,
         });
 
         if (fullItemName && !isNaN(unitPrice)) {
-          this.addItem(fullItemName, unitPrice, 1, maxQuantity);
+          this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku);
         } else {
           console.error("Invalid item data:", { fullItemName, unitPrice });
         }
@@ -226,7 +229,7 @@ class ShoppingCart {
   }
 
   // Add item to cart
-  addItem(itemName, unitPrice, quantity = 1, maxQuantity = null) {
+  addItem(itemName, unitPrice, quantity = 1, maxQuantity = null, sku = null) {
     const cart = this.getCart();
     const existingItem = cart.find((item) => item.item_name === itemName);
 
@@ -243,12 +246,17 @@ class ShoppingCart {
       if (maxQuantity !== null) {
         existingItem.max_quantity = maxQuantity;
       }
+      // Update SKU if provided
+      if (sku !== null) {
+        existingItem.sku = sku;
+      }
     } else {
       cart.push({
         item_name: itemName,
         unit_price: unitPrice,
         quantity: quantity,
         max_quantity: maxQuantity,
+        sku: sku,
       });
     }
 
@@ -483,10 +491,23 @@ class ShoppingCart {
     });
   }
 
+  // Helper to POST minimal cart data (sku + quantity only) for validated checkout
+  async postCartSkusToApi(url) {
+    const cart = this.getCart();
+    const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ items }),
+    });
+  }
+
   // PayPal checkout via backend API
   async checkoutWithPayPalBackend(apiUrl) {
     try {
-      const response = await this.postCartToApi(
+      const response = await this.postCartSkusToApi(
         `${apiUrl}/api/paypal/create-order`,
       );
 
@@ -571,7 +592,7 @@ class ShoppingCart {
     }
 
     try {
-      const response = await this.postCartToApi(
+      const response = await this.postCartSkusToApi(
         `${checkoutApiUrl}/api/stripe/create-session`,
       );
 
