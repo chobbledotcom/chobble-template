@@ -22,6 +22,6 @@ layout: base
 {% if gallery %}
   {% for image in gallery %}
     {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-    {% image image, alt_text, config.products.gallery_image_widths, "", "100vw" %}
+    {% image image, alt_text, config.products.gallery_image_widths, "", "auto" %}
   {% endfor %}
 {% endif %}

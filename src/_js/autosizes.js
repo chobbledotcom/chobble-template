@@ -1,8 +1,6 @@
 // Autosizes polyfill for browsers that don't support sizes="auto"
 // Source: https://github.com/Shopify/autosizes/blob/main/src/autosizes.js
 //
-// MIT License
-//
 // Copyright 2025, Shopify Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
