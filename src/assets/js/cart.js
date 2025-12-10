@@ -2,12 +2,20 @@
 // Manages cart state in localStorage and provides cart functionality
 // Supports both PayPal and Stripe checkout
 
+import {
+  escapeHtml,
+  formatPrice,
+  getCart,
+  getItemCount,
+  removeItem,
+  saveCart,
+} from "./cart-utils.js";
+
 class ShoppingCart {
   // Minimum checkout amount in pounds (Stripe requires at least 30p)
   static MINIMUM_CHECKOUT_AMOUNT = 0.3;
 
   constructor() {
-    this.storageKey = "shopping_cart";
     this.cartOverlay = null;
     this.cartIcon = null;
     this.documentListenersAttached = false;
@@ -195,29 +203,9 @@ class ShoppingCart {
     // Note: Escape key handling is automatic with <dialog> element
   }
 
-  // Get cart items from localStorage
-  getCart() {
-    try {
-      const cart = localStorage.getItem(this.storageKey);
-      return cart ? JSON.parse(cart) : [];
-    } catch (e) {
-      console.error("Error reading cart:", e);
-      return [];
-    }
-  }
-
-  // Save cart to localStorage
-  saveCart(cart) {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(cart));
-    } catch (e) {
-      console.error("Error saving cart:", e);
-    }
-  }
-
   // Add item to cart
   addItem(itemName, unitPrice, quantity = 1, maxQuantity = null, sku = null) {
-    const cart = this.getCart();
+    const cart = getCart();
     const existingItem = cart.find((item) => item.item_name === itemName);
 
     if (existingItem) {
@@ -247,7 +235,7 @@ class ShoppingCart {
       });
     }
 
-    this.saveCart(cart);
+    saveCart(cart);
     this.updateCartDisplay();
     this.updateCartCount();
 
@@ -256,23 +244,16 @@ class ShoppingCart {
     console.log("Item added to cart, updated display and count");
   }
 
-  // Remove item from cart
-  removeItem(itemName) {
-    let cart = this.getCart();
-    cart = cart.filter((item) => item.item_name !== itemName);
-    this.saveCart(cart);
-    this.updateCartDisplay();
-    this.updateCartCount();
-  }
-
   // Update item quantity
   updateQuantity(itemName, quantity) {
-    const cart = this.getCart();
+    const cart = getCart();
     const item = cart.find((item) => item.item_name === itemName);
 
     if (item) {
       if (quantity <= 0) {
-        this.removeItem(itemName);
+        removeItem(itemName);
+        this.updateCartDisplay();
+        this.updateCartCount();
       } else {
         // Check if max_quantity would be exceeded
         if (item.max_quantity && quantity > item.max_quantity) {
@@ -281,7 +262,7 @@ class ShoppingCart {
         } else {
           item.quantity = quantity;
         }
-        this.saveCart(cart);
+        saveCart(cart);
         this.updateCartDisplay();
         this.updateCartCount();
       }
@@ -290,22 +271,16 @@ class ShoppingCart {
 
   // Calculate cart total
   getCartTotal() {
-    const cart = this.getCart();
+    const cart = getCart();
     return cart.reduce(
       (total, item) => total + item.unit_price * item.quantity,
       0,
     );
   }
 
-  // Get total item count
-  getItemCount() {
-    const cart = this.getCart();
-    return cart.reduce((count, item) => count + item.quantity, 0);
-  }
-
   // Update cart count badge
   updateCartCount() {
-    const count = this.getItemCount();
+    const count = getItemCount();
     const badge = this.cartIcon.querySelector(".cart-count");
 
     if (badge) {
@@ -325,7 +300,7 @@ class ShoppingCart {
 
   // Update cart display in overlay
   updateCartDisplay() {
-    const cart = this.getCart();
+    const cart = getCart();
     const cartItems = this.cartOverlay.querySelector(".cart-items");
     const cartEmpty = this.cartOverlay.querySelector(".cart-empty");
     const cartTotal = this.cartOverlay.querySelector(".cart-total-amount");
@@ -369,20 +344,20 @@ class ShoppingCart {
       cartItems.innerHTML = cart
         .map(
           (item) => `
-        <div class="cart-item" data-name="${this.escapeHtml(item.item_name)}">
+        <div class="cart-item" data-name="${escapeHtml(item.item_name)}">
           <div class="cart-item-info">
-            <div class="cart-item-name">${this.escapeHtml(item.item_name)}</div>
-            <div class="cart-item-price">${this.formatPrice(item.unit_price)}</div>
+            <div class="cart-item-name">${escapeHtml(item.item_name)}</div>
+            <div class="cart-item-price">${formatPrice(item.unit_price)}</div>
           </div>
           <div class="cart-item-controls">
             <div class="cart-item-quantity">
-              <button class="qty-btn qty-decrease" data-name="${this.escapeHtml(item.item_name)}">−</button>
+              <button class="qty-btn qty-decrease" data-name="${escapeHtml(item.item_name)}">−</button>
               <input type="number" class="qty-input" value="${item.quantity}" min="1"
                      ${item.max_quantity ? `max="${item.max_quantity}"` : ""}
-                     data-name="${this.escapeHtml(item.item_name)}">
-              <button class="qty-btn qty-increase" data-name="${this.escapeHtml(item.item_name)}">+</button>
+                     data-name="${escapeHtml(item.item_name)}">
+              <button class="qty-btn qty-increase" data-name="${escapeHtml(item.item_name)}">+</button>
             </div>
-            <button class="cart-item-remove" data-name="${this.escapeHtml(item.item_name)}">Remove</button>
+            <button class="cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
           </div>
         </div>
       `,
@@ -416,14 +391,16 @@ class ShoppingCart {
 
       cartItems.querySelectorAll(".cart-item-remove").forEach((btn) => {
         btn.addEventListener("click", () => {
-          this.removeItem(btn.dataset.name);
+          removeItem(btn.dataset.name);
+          this.updateCartDisplay();
+          this.updateCartCount();
         });
       });
     }
 
     // Update total
     if (cartTotal) {
-      cartTotal.textContent = this.formatPrice(this.getCartTotal());
+      cartTotal.textContent = formatPrice(this.getCartTotal());
     }
   }
 
@@ -452,7 +429,7 @@ class ShoppingCart {
 
   // Checkout with PayPal
   async checkoutWithPayPal() {
-    const cart = this.getCart();
+    const cart = getCart();
     if (cart.length === 0) return;
 
     const checkoutApiUrl = this.getCheckoutApiUrl();
@@ -468,7 +445,7 @@ class ShoppingCart {
 
   // Helper to POST cart data to an API endpoint
   async postCartToApi(url) {
-    const cart = this.getCart();
+    const cart = getCart();
     return fetch(url, {
       method: "POST",
       headers: {
@@ -480,7 +457,7 @@ class ShoppingCart {
 
   // Helper to POST minimal cart data (sku + quantity only) for validated checkout
   async postCartSkusToApi(url) {
-    const cart = this.getCart();
+    const cart = getCart();
     const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
     return fetch(url, {
       method: "POST",
@@ -517,7 +494,7 @@ class ShoppingCart {
 
   // PayPal checkout via static URL redirect (no backend)
   checkoutWithPayPalStatic() {
-    const cart = this.getCart();
+    const cart = getCart();
     const paypalEmail = this.cartOverlay.dataset.paypalEmail;
 
     if (!paypalEmail) {
@@ -552,7 +529,7 @@ class ShoppingCart {
 
   // Checkout with Stripe - redirects to dedicated checkout page
   checkoutWithStripe() {
-    const cart = this.getCart();
+    const cart = getCart();
     if (cart.length === 0) return;
 
     // Redirect to dedicated Stripe checkout page
@@ -560,21 +537,9 @@ class ShoppingCart {
     window.location.href = "/stripe-checkout/";
   }
 
-  // Helper: Format price
-  formatPrice(price) {
-    return `£${price.toFixed(2)}`;
-  }
-
-  // Helper: Escape HTML
-  escapeHtml(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
   // Clear cart (useful after successful checkout)
   clearCart() {
-    this.saveCart([]);
+    saveCart([]);
     this.updateCartDisplay();
     this.updateCartCount();
   }

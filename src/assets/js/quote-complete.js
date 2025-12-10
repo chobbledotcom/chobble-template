@@ -1,10 +1,10 @@
 // Quote complete page
 // Clears cart after successful quote submission
 
-(function () {
-  localStorage.removeItem("shopping_cart");
-  var cartIcon = document.getElementById("cart-icon");
-  if (cartIcon) {
-    cartIcon.style.display = "none";
-  }
-})();
+import { STORAGE_KEY } from "./cart-utils.js";
+
+localStorage.removeItem(STORAGE_KEY);
+const cartIcon = document.getElementById("cart-icon");
+if (cartIcon) {
+  cartIcon.style.display = "none";
+}
