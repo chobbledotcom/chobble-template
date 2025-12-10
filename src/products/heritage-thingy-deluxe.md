@@ -5,12 +5,15 @@ options:
   - name: Standard
     max_quantity: 10
     unit_price: 189.99
+    sku: XMDOR9
   - name: Engraved
     max_quantity: 5
     unit_price: 229.99
+    sku: ELI7GD
   - name: Collector's Edition
     max_quantity: 3
     unit_price: 299.99
+    sku: 051DPR
 header_image: src/images/placeholder-wide-5.jpg
 categories:
   - classic-thingies
@@ -41,7 +44,7 @@ features:
   - Brass hardware and detailing
   - Custom engraving available
   - Includes presentation box
-etsy_url: https://etsy.com/example
+etsy_url: 'https://etsy.com/example'
 ---
 
 The Heritage Thingy Deluxe celebrates the golden age of craftsmanship with its meticulously handcrafted design and premium materials. Each unit is individually crafted by skilled artisans using time-honored techniques passed down through generations.

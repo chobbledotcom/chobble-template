@@ -5,12 +5,15 @@ options:
   - name: Starter
     max_quantity: 20
     unit_price: 399.99
+    sku: JQVE6T
   - name: Advanced
     max_quantity: 12
     unit_price: 549.99
+    sku: N0JI6D
   - name: Premium
     max_quantity: 8
     unit_price: 799.99
+    sku: JTYGPQ
 header_image: src/images/placeholder-wide-1.jpg
 categories:
   - smart-thingies
@@ -27,13 +30,13 @@ specs:
   - name: Display
     value: 10.1" HD touchscreen
   - name: Connectivity
-    value: Wi-Fi 6E, Zigbee, Z-Wave, Matter
+    value: 'Wi-Fi 6E, Zigbee, Z-Wave, Matter'
   - name: Processor
     value: Octa-core with neural engine
   - name: Storage
     value: 128GB with cloud expansion
   - name: Compatibility
-    value: Works with 10,000+ smart devices
+    value: 'Works with 10,000+ smart devices'
 features:
   - Controls unlimited smart thingies
   - Advanced automation routines
@@ -42,7 +45,7 @@ features:
   - Whole-home voice control
   - Local processing for privacy
   - Automatic device discovery
-stripe_url: https://buy.stripe.com/example
+stripe_url: 'https://buy.stripe.com/example'
 ---
 
 Transform your home into a unified smart ecosystem with the SmarThingy Home Hub. This powerful central command center brings together all your smart thingies and compatible devices under one intuitive interface.

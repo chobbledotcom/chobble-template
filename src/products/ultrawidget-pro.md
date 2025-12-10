@@ -1,6 +1,6 @@
 ---
 title: UltraWidget Pro
-subtitle: Lightweight, powerful widget for professionals
+subtitle: 'Lightweight, powerful widget for professionals'
 featured: true
 keywords:
   - professional
@@ -10,12 +10,15 @@ options:
   - name: Professional
     max_quantity: 10
     unit_price: 1299.99
+    sku: C3W2RR
   - name: Enterprise
     max_quantity: 5
     unit_price: 1699.99
+    sku: AYG9C8
   - name: Ultimate
     max_quantity: 2
     unit_price: 2299.99
+    sku: EVL68A
 header_image: src/images/placeholder-wide-4.jpg
 categories:
   - /categories/premium-widgets.md

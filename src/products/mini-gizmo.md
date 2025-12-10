@@ -9,6 +9,7 @@ options:
   - name: Standard
     max_quantity: 10
     unit_price: 99.99
+    sku: D2V3BE
 header_image: src/images/placeholder-wide-2.jpg
 categories:
   - gizmos

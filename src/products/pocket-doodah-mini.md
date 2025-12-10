@@ -5,12 +5,15 @@ options:
   - name: Basic
     max_quantity: 30
     unit_price: 49.99
+    sku: 9DCUED
   - name: Color Pack
     max_quantity: 20
     unit_price: 69.99
+    sku: RA2QLS
   - name: Premium
     max_quantity: 15
     unit_price: 89.99
+    sku: XD61SP
 header_image: src/images/placeholder-wide-2.jpg
 categories:
   - compact-doodahs
@@ -33,7 +36,7 @@ specs:
   - name: Runtime
     value: 48 hours per charge
   - name: Colors
-    value: Midnight, Pearl, Rose Gold, Forest
+    value: 'Midnight, Pearl, Rose Gold, Forest'
 features:
   - Keychain compatible
   - One-button operation

@@ -1,0 +1,61 @@
+name: Add SKUs to Products
+
+on:
+  push:
+    paths:
+      - "src/products/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  add-skus:
+    name: Add Missing SKUs
+    runs-on: ubuntu-latest
+    env:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Add SKUs to products
+        run: node src/_lib/add-skus.js
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src/products/
+          git commit -m "Add SKUs to product options"
+          git push
+
+      - name: Trigger build workflow
+        if: steps.changes.outputs.has_changes == 'true' && env.PAT_TOKEN != ''
+        run: gh workflow run build-and-deploy.yaml
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}

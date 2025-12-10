@@ -9,15 +9,19 @@ options:
   - name: Micro
     max_quantity: 1
     unit_price: 1
+    sku: A9POLH
   - name: Standard
     max_quantity: 15
     unit_price: 299.99
+    sku: SMCKVI
   - name: Pro
     max_quantity: 8
     unit_price: 399.99
+    sku: 63S71Q
   - name: Max
     max_quantity: 5
     unit_price: 549.99
+    sku: NAPHY8
 header_image: /images/placeholder-wide-4.jpg
 categories:
   - smart-thingies
@@ -34,7 +38,7 @@ specs:
   - name: Processor
     value: Quad-core AI chip
   - name: Connectivity
-    value: Wi-Fi 6, Bluetooth 5.3, 5G
+    value: 'Wi-Fi 6, Bluetooth 5.3, 5G'
   - name: Display
     value: 4.3" OLED touchscreen
   - name: Battery

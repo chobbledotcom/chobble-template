@@ -5,12 +5,15 @@ options:
   - name: Basic
     max_quantity: 20
     unit_price: 449.99
+    sku: DCU4N9
   - name: Professional
     max_quantity: 10
     unit_price: 599.99
+    sku: DPBDAB
   - name: Enterprise Plus
     max_quantity: 5
     unit_price: 899.99
+    sku: 0GLVXN
 header_image: src/images/placeholder-wide-1.jpg
 categories:
   - professional-doodahs
@@ -31,9 +34,9 @@ specs:
   - name: Power Requirements
     value: 240V AC / 50-60Hz
   - name: Operating Temperature
-    value: -20°C to +85°C
+    value: '-20°C to +85°C'
   - name: Certifications
-    value: CE, FCC, ISO 9001
+    value: 'CE, FCC, ISO 9001'
 features:
   - Heavy-duty reinforced chassis
   - Redundant safety systems
@@ -41,7 +44,7 @@ features:
   - Hot-swappable components
   - 24/7 continuous operation rated
   - Advanced diagnostic system
-stripe_url: https://buy.stripe.com/example
+stripe_url: 'https://buy.stripe.com/example'
 ---
 
 The Doodah Pro Enterprise Edition sets the standard for commercial and industrial doodah applications. Built to withstand the most demanding environments, this professional-grade unit delivers unmatched reliability and performance.

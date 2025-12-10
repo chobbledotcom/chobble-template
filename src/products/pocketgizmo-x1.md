@@ -6,12 +6,15 @@ options:
   - name: Standard
     max_quantity: 12
     unit_price: 799.99
+    sku: 59CYDH
   - name: Pro
     max_quantity: 8
     unit_price: 999.99
+    sku: 8DHATZ
   - name: Max
     max_quantity: 4
     unit_price: 1299.99
+    sku: T482OL
 header_image: src/images/placeholder-wide-3.jpg
 categories:
   - pocket-widgets
