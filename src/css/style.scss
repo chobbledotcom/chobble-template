@@ -641,17 +641,15 @@ nav {
 
 @media (min-width: 769px) {
   body {
-    &.left-nav.one-column {
-      main {
+    &.left-nav {
+      &.one-column main {
         grid-template-columns: 10rem 1fr;
         grid-template-areas: "nav content";
         @media (min-width: 1000px) {
           grid-template-columns: 13rem 1fr;
         }
       }
-    }
-    &.left-nav.two-columns {
-      main {
+      &.two-columns main {
         grid-template-columns: 10rem 1fr;
         grid-template-rows: 1fr min-content;
         grid-template-areas:
@@ -664,7 +662,14 @@ nav {
       }
     }
     &.horizontal-nav {
-      main {
+      &.one-column main {
+        grid-template-columns: 1fr 16rem;
+        grid-template-rows: min-content;
+        grid-template-areas:
+          "nav"
+          "content";
+      }
+      &.two-columns main {
         grid-template-columns: 1fr 16rem;
         grid-template-rows: min-content;
         grid-template-areas:
