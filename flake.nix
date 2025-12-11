@@ -1,16 +1,16 @@
 {
-  inputs.nixpkgs.url = "nixpkgs";
+  inputs = { };
 
   outputs =
-    { nixpkgs, ... }:
+    { ... }:
     let
-      forAllSystems = nixpkgs.lib.genAttrs [ "x86_64-linux" ];
+      forAllSystems = f: { x86_64-linux = f "x86_64-linux"; };
     in
     {
       devShells = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = import <nixpkgs> { inherit system; };
         in
         {
           default = pkgs.mkShell {
