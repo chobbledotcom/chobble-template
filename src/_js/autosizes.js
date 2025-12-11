@@ -52,6 +52,7 @@
   const attributes = ["src", "srcset"];
   const prefix = "data-auto-sizes-";
   let didFirstContentfulPaintRun = false;
+  let initialized = false;
 
   function getSizesValueFromElement(elem) {
     const width = elem ? Math.round(elem.getBoundingClientRect().width) : 0;
@@ -163,24 +164,50 @@
     }
   });
 
-  // Start observing the document
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["sizes", "loading"],
-  });
-
-  // Prevent the load of any existing images when the polyfill loads.
-  preventNonAutoImageLoad(
-    document.querySelectorAll('img[sizes^="auto"][loading="lazy"]'),
-  );
-
-  new PerformanceObserver((entries, observer) => {
-    entries.getEntriesByName("first-contentful-paint").forEach(() => {
+  function initAutosizes() {
+    // On Turbo navigations, FCP has already happened, so process images directly
+    if (initialized) {
       didFirstContentfulPaintRun = true;
-      setTimeout(restoreImageAttributes, 0);
-      observer.disconnect();
+      const images = document.querySelectorAll(
+        'img[sizes^="auto"][loading="lazy"]',
+      );
+      for (const img of images) {
+        calculateAndSetSizes(img);
+      }
+      return;
+    }
+
+    initialized = true;
+
+    // Start observing the document
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["sizes", "loading"],
     });
-  }).observe({ type: "paint", buffered: true });
+
+    // Prevent the load of any existing images when the polyfill loads.
+    preventNonAutoImageLoad(
+      document.querySelectorAll('img[sizes^="auto"][loading="lazy"]'),
+    );
+
+    new PerformanceObserver((entries, perfObserver) => {
+      entries.getEntriesByName("first-contentful-paint").forEach(() => {
+        didFirstContentfulPaintRun = true;
+        setTimeout(restoreImageAttributes, 0);
+        perfObserver.disconnect();
+      });
+    }).observe({ type: "paint", buffered: true });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAutosizes);
+  } else {
+    initAutosizes();
+  }
+
+  // Re-initialize on Turbo navigation (for SPA-like page transitions)
+  document.addEventListener("turbo:load", initAutosizes);
 })();
