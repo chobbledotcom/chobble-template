@@ -1,4 +1,4 @@
-import { categoriseEvents } from "../_lib/events.mjs";
+import { categoriseEvents } from "../_lib/events.js";
 
 export default {
   eleventyComputed: {

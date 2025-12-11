@@ -3,12 +3,13 @@ import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 import { configureCacheBuster } from "./src/_lib/cache-buster.js";
 import { configureCategories } from "./src/_lib/categories.js";
 import { configureEsbuild } from "./src/_lib/esbuild.js";
+import { configureEvents } from "./src/_lib/events.js";
 import { configureExternalLinks } from "./src/_lib/external-links.js";
 import { configureFeed } from "./src/_lib/feed.js";
 import { configureFileUtils } from "./src/_lib/file-utils.js";
-import { configureICal } from "./src/_lib/ical.mjs";
+import { configureICal } from "./src/_lib/ical.js";
 import { configureImages } from "./src/_lib/image.js";
-import { configureLayoutAliases } from "./src/_lib/layout-aliases.mjs";
+import { configureLayoutAliases } from "./src/_lib/layout-aliases.js";
 import { configureLimitCollections } from "./src/_lib/limit-collections.js";
 import { configureMenus } from "./src/_lib/menus.js";
 import { configureNavigation } from "./src/_lib/navigation.js";
@@ -54,6 +55,7 @@ export default async function (eleventyConfig) {
   configureSearch(eleventyConfig);
   configureTags(eleventyConfig);
   configureUnusedImages(eleventyConfig);
+  configureEvents(eleventyConfig);
   configureEsbuild(eleventyConfig);
 
   return {

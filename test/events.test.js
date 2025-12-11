@@ -1,5 +1,9 @@
 import assert from "assert";
-import { categoriseEvents, getFeaturedEvents } from "../src/_lib/events.mjs";
+import {
+  categoriseEvents,
+  configureEvents,
+  getFeaturedEvents,
+} from "../src/_lib/events.js";
 import {
   createEvent,
   createFutureDate,
@@ -504,6 +508,31 @@ const testCases = [
         getFeaturedEvents(undefined),
         [],
         "Should return empty array for undefined",
+      );
+    },
+  },
+  {
+    name: "configureEvents-registers-filter",
+    description: "Registers getFeaturedEvents as an Eleventy filter",
+    test: () => {
+      const mockConfig = {
+        filters: {},
+        addFilter(name, fn) {
+          this.filters[name] = fn;
+        },
+      };
+
+      configureEvents(mockConfig);
+
+      assert.strictEqual(
+        "getFeaturedEvents" in mockConfig.filters,
+        true,
+        "Should add getFeaturedEvents filter",
+      );
+      assert.strictEqual(
+        mockConfig.filters.getFeaturedEvents,
+        getFeaturedEvents,
+        "Should use correct filter function",
       );
     },
   },

@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom";
-import configModule from "../_data/config.mjs";
+import configModule from "../_data/config.js";
 
 const isExternalUrl = (url) => {
   if (!url || typeof url !== "string") {

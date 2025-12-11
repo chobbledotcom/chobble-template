@@ -56,4 +56,8 @@ export function categoriseEvents(events) {
   };
 }
 
-export { getFeaturedEvents };
+const configureEvents = (eleventyConfig) => {
+  eleventyConfig.addFilter("getFeaturedEvents", getFeaturedEvents);
+};
+
+export { configureEvents, getFeaturedEvents };

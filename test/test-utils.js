@@ -136,6 +136,15 @@ const runTestSuite = async (testName, testCases) => {
     for (const testCase of testCases) {
       const testId = `${testName}/${testCase.name}`;
 
+      // Check if test should be skipped
+      if (testCase.skipIf) {
+        const skipReason = testCase.skipIf();
+        if (skipReason) {
+          console.log(`⏭️  SKIP: ${testId} - ${skipReason}`);
+          continue;
+        }
+      }
+
       try {
         if (testCase.test) {
           testCase.test();

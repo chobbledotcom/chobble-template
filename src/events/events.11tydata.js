@@ -1,5 +1,5 @@
 import strings from "../_data/strings.js";
-import { categoriseEvents } from "../_lib/events.mjs";
+import { categoriseEvents } from "../_lib/events.js";
 import { buildPermalink } from "../_lib/slug-utils.js";
 
 export default {

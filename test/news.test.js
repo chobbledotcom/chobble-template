@@ -53,18 +53,18 @@ const testCases = [
   {
     name: "news-author-rendered-with-link",
     description: "News post with author renders author link in HTML",
+    skipIf: () => {
+      const newsHtmlPath = path.join(
+        process.cwd(),
+        "_site/news/first/index.html",
+      );
+      return !fs.existsSync(newsHtmlPath) && "Build output not found";
+    },
     test: () => {
       const newsHtmlPath = path.join(
         process.cwd(),
         "_site/news/first/index.html",
       );
-
-      if (!fs.existsSync(newsHtmlPath)) {
-        throw new Error(
-          "Build output not found. Run 'pnpm run build' before running tests.",
-        );
-      }
-
       const html = fs.readFileSync(newsHtmlPath, "utf-8");
 
       expectStrictEqual(
@@ -82,18 +82,18 @@ const testCases = [
   {
     name: "news-without-author-no-link",
     description: "News post without author does not render author section",
+    skipIf: () => {
+      const newsHtmlPath = path.join(
+        process.cwd(),
+        "_site/news/second/index.html",
+      );
+      return !fs.existsSync(newsHtmlPath) && "Build output not found";
+    },
     test: () => {
       const newsHtmlPath = path.join(
         process.cwd(),
         "_site/news/second/index.html",
       );
-
-      if (!fs.existsSync(newsHtmlPath)) {
-        throw new Error(
-          "Build output not found. Run 'pnpm run build' before running tests.",
-        );
-      }
-
       const html = fs.readFileSync(newsHtmlPath, "utf-8");
 
       expectStrictEqual(

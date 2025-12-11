@@ -6,7 +6,7 @@ import {
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
-} from "../_lib/schema-helper.mjs";
+} from "../_lib/schema-helper.js";
 
 const require = createRequire(import.meta.url);
 
