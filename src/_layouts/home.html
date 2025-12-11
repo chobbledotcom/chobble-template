@@ -25,7 +25,7 @@ layout: base
 
   {%- if all_have_images -%}
     {%- assign posts = collections.news | reverse | slice: 0, 2 -%}
-    {%- include "slider.html", key: "homepage_news", items: posts -%}
+    {%- include "items.html", items: posts, horizontal: true -%}
   {%- else -%}
     {% include "news-post-list.html", limit: 2 %}
   {%- endif -%}

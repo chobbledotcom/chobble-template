@@ -1,9 +1,6 @@
-{%- assign slider_enabled_key = key | append: "_slider_enabled" -%}
-{%- assign slider_enabled = config[slider_enabled_key] -%}
-
 {%- assign widths = config.products.item_widths -%}
 
-{%- if slider_enabled -%}
+{%- if horizontal -%}
 <div class="slider-container">
   <ul class="items slider">
 {%- else -%}
@@ -13,7 +10,7 @@
     {%- include "list-item.html" -%}
   {%- endfor -%}
 </ul>
-{%- if slider_enabled -%}
+{%- if horizontal -%}
   <p class="slider-nav">
     <a href="#" class="slider-prev" aria-label="Previous">left</a>
     <span class="slider-nav-divider">|</span>

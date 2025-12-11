@@ -11,11 +11,6 @@
 	"checkout_api_url": null,
 	"stripe_publishable_key": null,
 	"paypal_email": "example@chobble.com",
-	"homepage_products_slider_enabled": false,
-	"homepage_categories_slider_enabled": false,
-	"homepage_menus_slider_enabled": false,
-	"homepage_news_slider_enabled": false,
-	"locations_slider_enabled": false,
 	"products": {
 		"item_widths": "240,480,640",
 		"gallery_thumb_widths": "240,480",

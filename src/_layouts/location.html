@@ -9,7 +9,7 @@ layout: base
 
 {%- if services.size > 0 -%}
   <h2>Our Services in {{ title }}</h2>
-  {%- include "slider.html", key: "locations", items: services -%}
+  {%- include "items.html", items: services -%}
 {%- endif -%}
 
 {%- if categories.size > 0 -%}
@@ -25,7 +25,7 @@ layout: base
 
   {%- if locationProducts.size > 0 -%}
     <h2>{{ strings.product_name }} in {{ title }}</h2>
-    {%- include "slider.html", key: "products", items: locationProducts -%}
+    {%- include "items.html", items: locationProducts -%}
   {%- endif -%}
 {%- endif -%}
 
@@ -40,6 +40,6 @@ layout: base
 
   {%- if otherServices.size > 0 -%}
     <h2>Other Services</h2>
-    {%- include "slider.html", key: "locations", items: otherServices -%}
+    {%- include "items.html", items: otherServices -%}
   {%- endif -%}
 {%- endif -%}
