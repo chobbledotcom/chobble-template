@@ -9,6 +9,7 @@ import { configureFeed } from "./src/_lib/feed.js";
 import { configureFileUtils } from "./src/_lib/file-utils.js";
 import { configureICal } from "./src/_lib/ical.js";
 import { configureImages } from "./src/_lib/image.js";
+import { configureInlineAsset } from "./src/_lib/inline-asset.js";
 import { configureLayoutAliases } from "./src/_lib/layout-aliases.js";
 import { configureLimitCollections } from "./src/_lib/limit-collections.js";
 import { configureMenus } from "./src/_lib/menus.js";
@@ -45,6 +46,7 @@ export default async function (eleventyConfig) {
   configureFileUtils(eleventyConfig);
   configureICal(eleventyConfig);
   configureImages(eleventyConfig);
+  configureInlineAsset(eleventyConfig);
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);
   configureOpeningTimes(eleventyConfig);

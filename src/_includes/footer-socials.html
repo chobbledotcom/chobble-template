@@ -7,13 +7,9 @@
           title="{{ site.name }} on {{ social[0] }}"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="{{ social[0] }}"
         >
-          <img
-            width="48"
-            height="48"
-            src="/assets/icons/{{ social[0] | downcase }}.svg"
-            alt="{{ social[0] }} logo"
-          />
+          {{ "icons/" | append: social[0] | downcase | append: ".svg" | inline_asset }}
         </a>
       </li>
     {%- endif -%}
