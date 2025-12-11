@@ -150,6 +150,7 @@ async function processAndWrapImage({
     img.setAttribute("alt", alt || "");
     img.setAttribute("loading", loading || "lazy");
     img.setAttribute("decoding", "async");
+    img.setAttribute("sizes", "auto");
     if (classes) img.setAttribute("class", classes);
 
     return returnElement ? img : img.outerHTML;
