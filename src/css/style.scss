@@ -670,8 +670,7 @@ nav {
           "content";
       }
       &.two-columns main {
-        grid-template-columns: 1fr 16rem;
-        grid-template-rows: min-content;
+        grid-template-columns: 1fr;
         grid-template-areas:
           "nav nav"
           "content right";
