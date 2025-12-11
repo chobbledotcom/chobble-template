@@ -1,5 +1,5 @@
 import assert from "assert";
-import { categoriseEvents } from "../src/_lib/events.mjs";
+import { categoriseEvents, getFeaturedEvents } from "../src/_lib/events.mjs";
 import {
   createEvent,
   createFutureDate,
@@ -444,6 +444,66 @@ const testCases = [
         result.show.past,
         true,
         "Should show past when there are past events",
+      );
+    },
+  },
+  {
+    name: "getFeaturedEvents-basic",
+    description: "Filters events by featured flag",
+    test: () => {
+      const events = [
+        { data: { title: "Event 1", featured: true } },
+        { data: { title: "Event 2", featured: false } },
+        { data: { title: "Event 3", featured: true } },
+        { data: { title: "Event 4" } },
+      ];
+
+      const result = getFeaturedEvents(events);
+
+      assert.strictEqual(result.length, 2, "Should return 2 featured events");
+      assert.strictEqual(
+        result[0].data.title,
+        "Event 1",
+        "Should include first featured event",
+      );
+      assert.strictEqual(
+        result[1].data.title,
+        "Event 3",
+        "Should include second featured event",
+      );
+    },
+  },
+  {
+    name: "getFeaturedEvents-empty",
+    description: "Returns empty array when no events are featured",
+    test: () => {
+      const events = [
+        { data: { title: "Event 1", featured: false } },
+        { data: { title: "Event 2" } },
+      ];
+
+      const result = getFeaturedEvents(events);
+
+      assert.strictEqual(
+        result.length,
+        0,
+        "Should return no events when none are featured",
+      );
+    },
+  },
+  {
+    name: "getFeaturedEvents-null",
+    description: "Handles null/undefined events array",
+    test: () => {
+      assert.deepStrictEqual(
+        getFeaturedEvents(null),
+        [],
+        "Should return empty array for null",
+      );
+      assert.deepStrictEqual(
+        getFeaturedEvents(undefined),
+        [],
+        "Should return empty array for undefined",
       );
     },
   },

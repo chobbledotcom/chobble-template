@@ -6,6 +6,9 @@ const sortByEventDate = (events, descending = false) => {
   });
 };
 
+const getFeaturedEvents = (events) =>
+  events?.filter((e) => e.data.featured) || [];
+
 export function categoriseEvents(events) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
@@ -52,3 +55,5 @@ export function categoriseEvents(events) {
     },
   };
 }
+
+export { getFeaturedEvents };
