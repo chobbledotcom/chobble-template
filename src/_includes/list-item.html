@@ -1,8 +1,16 @@
 <li>
-  {% include "thumbnail-image-link.html" %}
+  {%- if item.data.thumbnail -%}
+    <a class="image-link" href="{{ item.url }}#content">
+      {%- image item.data.thumbnail, item.data.title, widths -%}
+    </a>
+  {%- endif -%}
+
+  <h3>
+    <a href="{{- item.url -}}#content">{{ item.data.title }}</a>
+  </h3>
 
   {%- if item.data.price -%}
-    <p>{{- item.data.price -}}</p>
+    <p>{{ item.data.price }}</p>
   {%- endif -%}
 
   {%- if item.data.date -%}
@@ -10,6 +18,6 @@
   {%- endif -%}
 
   {%- if item.data.subtitle -%}
-    <p>{{- item.data.subtitle -}}</p>
+    <p>{{ item.data.subtitle }}</p>
   {%- endif -%}
 </li>

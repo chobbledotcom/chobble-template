@@ -1,9 +1,0 @@
-{%- if item.data.thumbnail -%}
-<a class="image-link" href="{{ item.url }}#content">
-  {%- image item.data.thumbnail, item.data.title, widths -%}
-</a>
-{%- endif -%}
-
-<h3>
-  <a href="{{- item.url -}}#content"> {{- item.data.title -}} </a>
-</h3>
