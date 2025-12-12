@@ -9,7 +9,6 @@ options:
   - name: Standard
     max_quantity: 10
     unit_price: 99.99
-    sku: 7BCL8P
 header_image: /images/placeholder-wide-2.jpg
 gallery:
   - /images/placeholder-square-7.jpg
@@ -28,5 +27,7 @@ features:
   - Colorful blinking lights
   - Makes whooshing sounds
   - Self-cleaning surface
+categories:
+  - src/categories/compact-doodahs.md
 ---
 This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /images/ directory.
