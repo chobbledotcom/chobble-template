@@ -21,6 +21,8 @@
         </a>{%- unless forloop.last -%}, {% endunless -%}
       {%- endfor -%}
     {%- endif %}
-
+    {%- if review.data.thumbnail -%}
+      <img src="{{ review.data.thumbnail }}" alt="" class="reviewer-avatar" width="80" height="80" loading="lazy">
+    {%- endif -%}
   </footer>
 </blockquote>

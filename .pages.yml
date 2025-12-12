@@ -23,7 +23,12 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
       - name: eleventyNavigation
         label: Navigation
         type: object
@@ -64,7 +69,12 @@ content:
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
       - name: gallery
         type: image
         label: Gallery
@@ -124,7 +134,12 @@ content:
         options: { multiple: true }
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
       - { name: subtitle, type: string, label: Subtitle }
       - name: faqs
         label: FAQs
@@ -149,7 +164,12 @@ content:
       - { name: header_image, type: image, label: Header Image }
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
       - { name: subtitle, type: string, label: Subtitle }
       - name: faqs
         label: FAQs
@@ -187,6 +207,8 @@ content:
     fields:
       - { name: name, type: string, label: Name }
       - { name: url, type: string, label: URL }
+      - { name: rating, type: number, label: Rating, required: true }
+      - { name: thumbnail, type: image, label: Reviewer Photo }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - name: products
         label: Products
@@ -230,7 +252,12 @@ content:
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: header_text, type: string, label: Header Text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
 
   - name: locations
     label: Locations
@@ -256,7 +283,12 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - name: faqs
         label: FAQs
@@ -290,7 +322,12 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - { name: meta_description, type: string, label: Meta Description, maxlength: 155 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
 
   - name: menu-categories
     label: Menu Categories
