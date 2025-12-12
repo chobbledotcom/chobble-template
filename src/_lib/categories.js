@@ -1,36 +1,43 @@
-const buildCategoryImageMap = (categories, products) => {
+const buildCategoryPropertyMap = (categories, products, propertyName) => {
   if (!categories) categories = [];
   if (!products) products = [];
 
   const initialMapping = categories.reduce(
     (acc, category) => ({
       ...acc,
-      [category.fileSlug]: [category.data.header_image, -1],
+      [category.fileSlug]: [category.data[propertyName], -1],
     }),
     {},
   );
 
-  const productImageEntries = products
-    .filter((product) => product.data.header_image)
+  const productEntries = products
+    .filter((product) => product.data[propertyName])
     .flatMap((product) => {
       return (product.data.categories || []).map((slug) => {
         return {
           categorySlug: slug,
-          image: product.data.header_image,
+          value: product.data[propertyName],
           order: product.data.order || 0,
         };
       });
     });
 
-  return productImageEntries.reduce((acc, { categorySlug, image, order }) => {
+  return productEntries.reduce((acc, { categorySlug, value, order }) => {
     const currentEntry = acc[categorySlug];
     const shouldOverride = !currentEntry || currentEntry[1] < order;
 
-    return shouldOverride ? { ...acc, [categorySlug]: [image, order] } : acc;
+    return shouldOverride ? { ...acc, [categorySlug]: [value, order] } : acc;
   }, initialMapping);
 };
 
-const assignCategoryImages = (categories, categoryImages) => {
+const buildCategoryImageMap = (categories, products) =>
+  buildCategoryPropertyMap(categories, products, "header_image");
+
+const assignCategoryImages = (
+  categories,
+  categoryImages,
+  categoryThumbnails = {},
+) => {
   if (!categories) return [];
   // NOTE: This function mutates category objects directly rather than using
   // functional programming patterns (like spread operators) because Eleventy
@@ -38,6 +45,8 @@ const assignCategoryImages = (categories, categoryImages) => {
   // operators triggers premature access to templateContent, causing errors.
   return categories.map((category) => {
     category.data.header_image = categoryImages[category.fileSlug]?.[0];
+    const thumbnail = categoryThumbnails[category.fileSlug]?.[0];
+    if (thumbnail) category.data.thumbnail = thumbnail;
     return category;
   });
 };
@@ -49,8 +58,13 @@ const createCategoriesCollection = (collectionApi) => {
 
   const products = collectionApi.getFilteredByTag("product");
   const categoryImages = buildCategoryImageMap(categories, products);
+  const categoryThumbnails = buildCategoryPropertyMap(
+    categories,
+    products,
+    "thumbnail",
+  );
 
-  return assignCategoryImages(categories, categoryImages);
+  return assignCategoryImages(categories, categoryImages, categoryThumbnails);
 };
 
 const getFeaturedCategories = (categories) =>
@@ -62,6 +76,7 @@ const configureCategories = (eleventyConfig) => {
 };
 
 export {
+  buildCategoryPropertyMap,
   buildCategoryImageMap,
   assignCategoryImages,
   createCategoriesCollection,
