@@ -7,5 +7,5 @@ layout: base.html
 
 {%- assign categories = collections.categories | getFeaturedCategories -%}
 {%- if categories.size > 0 -%}
-  {%- include "categories-list.html" -%}
+  {%- include "items.html", items: categories -%}
 {%- endif -%}

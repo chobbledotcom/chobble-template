@@ -20,4 +20,18 @@
   {%- if item.data.subtitle -%}
     <p>{{ item.data.subtitle }}</p>
   {%- endif -%}
+
+  {%- if item.data.event_location -%}
+    <p><strong>Location:</strong> {{ item.data.event_location }}</p>
+  {%- endif -%}
+
+  {%- if item.data.recurring_date or item.data.event_date -%}
+    <p><strong>Date:</strong>
+      {%- if item.data.recurring_date -%}
+        {{ item.data.recurring_date }}
+      {%- elsif item.data.event_date -%}
+        {{ item.data.event_date | date: "%b %-d, %Y" }}
+      {%- endif -%}
+    </p>
+  {%- endif -%}
 </li>

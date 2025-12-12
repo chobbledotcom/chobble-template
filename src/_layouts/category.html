@@ -23,10 +23,10 @@ layout: base
 {% assign categories = categories | where: "data.parent", page.fileSlug %}
 {% if categories.size > 0 %}
   <h2>Subcategories</h2>
-  {% include "categories-list.html" %}
+  {%- include "items.html", items: categories -%}
 {% endif %}
 
 {% if products.size > 0 %}
   <h2>{{ strings.product_name }}</h2>
-  {% include "products-list.html" %}
+  {%- include "items.html", items: products -%}
 {% endif %}

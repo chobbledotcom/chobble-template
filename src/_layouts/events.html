@@ -6,12 +6,16 @@ layout: base
 
 {% if categorisedEvents.show.upcoming %}
   <h2>Upcoming {{ strings.event_name }}</h2>
-  {% include "events-list.html", events: categorisedEvents.upcoming, empty_message: "No upcoming {{ strings.event_name | downcase }} scheduled. Check back soon!" %}
+  {% if categorisedEvents.upcoming.size > 0 %}
+    {%- include "items.html", items: categorisedEvents.upcoming -%}
+  {% else %}
+    <p>No upcoming {{ strings.event_name | downcase }} scheduled. Check back soon!</p>
+  {% endif %}
 {% endif %}
 
 {% if categorisedEvents.show.regular %}
   <h2>Regular {{ strings.event_name }}</h2>
-  {% include "events-list.html", events: categorisedEvents.regular %}
+  {%- include "items.html", items: categorisedEvents.regular -%}
 {% endif %}
 
 {% if categorisedEvents.show.past %}
@@ -19,5 +23,9 @@ layout: base
     <hr>
   {% endif %}
   <h2>Past {{ strings.event_name }}</h2>
-  {% include "events-list.html", events: categorisedEvents.past, empty_message: "No past {{ strings.event_name | downcase }} to display." %}
+  {% if categorisedEvents.past.size > 0 %}
+    {%- include "items.html", items: categorisedEvents.past -%}
+  {% else %}
+    <p>No past {{ strings.event_name | downcase }} to display.</p>
+  {% endif %}
 {% endif %}

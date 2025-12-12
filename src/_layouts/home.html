@@ -8,7 +8,7 @@ layout: base
 {%- if homepage.show_menus and menus.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-menus-header", "<h3>Our Menus</h3>" -%}
-  {% include "menus-list.html" %}
+  {%- include "items.html", items: menus, horizontal: true -%}
 {%- endif -%}
 
 {%- if homepage.show_news and collections.news.size > 0 -%}
@@ -35,14 +35,14 @@ layout: base
 {%- if homepage.show_products and categories.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-categories-header", "<h3>Product Categories</h3>" -%}
-  {%- include "categories-list.html" -%}
+  {%- include "items.html", items: categories, horizontal: true -%}
 {%- endif -%}
 
 {%- assign products = collections.products | getFeaturedProducts -%}
 {%- if homepage.show_featured_products and products.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-products-header", "<h3>Featured Products</h3>" -%}
-  {%- include "products-list.html" -%}
+  {%- include "items.html", items: products, horizontal: true -%}
 {%- endif -%}
 
 {%- assign recurring_events = collections.events | where: "data.recurring_date" -%}

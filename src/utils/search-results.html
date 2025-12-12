@@ -18,7 +18,7 @@
 {% assign products = collections.products | getProductsByKeyword: keyword %}
 
 {% if products.size > 0 %}
-  {% include "products-list.html" %}
+  {%- include "items.html", items: products -%}
 {% else %}
   <p>No products found matching "{{ keyword }}".</p>
 {% endif %}
