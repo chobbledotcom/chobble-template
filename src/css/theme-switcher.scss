@@ -1,6 +1,8 @@
 // Theme switcher button styles
 // Theme definitions are automatically injected into bundle.scss during build
 
+@use "breakpoints";
+
 #theme-switcher-button {
   position: fixed;
   bottom: 20px;
@@ -30,7 +32,7 @@
     transform: scale(0.95);
   }
 
-  @media (max-width: 768px) {
+  @include breakpoints.down("md") {
     bottom: 15px;
     right: 15px;
     width: 45px;

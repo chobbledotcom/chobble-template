@@ -1,3 +1,5 @@
+@use "breakpoints";
+
 nav {
   box-shadow: var(--box-shadow);
   ul {
@@ -17,7 +19,7 @@ nav {
   }
 }
 
-@media (max-width: 768px) {
+@include breakpoints.down("md") {
   html:has(body.sticky-mobile-nav) {
     scroll-padding-top: 5rem;
   }
@@ -135,7 +137,7 @@ nav {
   }
 }
 
-@media (min-width: 769px) {
+@include breakpoints.up("md") {
   .toggle-label {
     display: none !important;
   }

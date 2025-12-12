@@ -4,6 +4,7 @@
 // If $scroll-fade-selectors is null (the default), no styles are applied.
 
 @use "theme-defaults" as defaults;
+@use "breakpoints";
 
 @if defaults.$scroll-fade-selectors {
   // Export selectors to CSS custom property for JavaScript to read
@@ -24,7 +25,7 @@
   }
 
   // Respect reduced motion preferences
-  @media (prefers-reduced-motion: reduce) {
+  @include breakpoints.reduced-motion {
     #{defaults.$scroll-fade-selectors} {
       opacity: 1;
       transform: none;

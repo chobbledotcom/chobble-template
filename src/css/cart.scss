@@ -1,6 +1,8 @@
 // Shopping Cart Styles
 // Supports PayPal and Stripe checkout options
 
+@use "breakpoints";
+
 // Floating cart icon
 .cart-icon {
   position: fixed;
@@ -132,7 +134,7 @@ html:has(dialog.cart-overlay[open]) {
   flex-direction: column;
   gap: 0.75rem;
 
-  @media (min-width: 768px) {
+  @include breakpoints.up("md") {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -263,7 +265,7 @@ html:has(dialog.cart-overlay[open]) {
 }
 
 // Mobile adjustments
-@media (max-width: 767px) {
+@include breakpoints.down("md") {
   .cart-icon {
     bottom: 1rem;
     left: 1rem;
