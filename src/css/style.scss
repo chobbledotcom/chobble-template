@@ -663,14 +663,14 @@ nav {
     }
     &.horizontal-nav {
       &.one-column main {
-        grid-template-columns: 1fr 16rem;
+        grid-template-columns: 1fr;
         grid-template-rows: min-content;
         grid-template-areas:
           "nav"
           "content";
       }
       &.two-columns main {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 16rem;
         grid-template-areas:
           "nav nav"
           "content right";
