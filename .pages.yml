@@ -88,6 +88,15 @@ content:
           search: "title"
           value: "{path}"
           label: "{title}"
+      - name: events
+        label: Events
+        type: reference
+        options:
+          collection: events
+          multiple: true
+          search: "title"
+          value: "{path}"
+          label: "{title}"
       - name: options
         label: Product Options
         type: object

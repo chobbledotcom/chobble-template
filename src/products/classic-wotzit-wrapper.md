@@ -22,6 +22,8 @@ header_image: src/images/placeholder-wide-1.jpg
 categories:
   - premium-wotzits
   - wotzits
+events:
+  - chobble-summit
 gallery:
   - src/images/placeholder-square-7.jpg
   - src/images/placeholder-square-6.jpg

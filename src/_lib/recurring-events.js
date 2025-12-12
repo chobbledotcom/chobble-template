@@ -1,10 +1,4 @@
-const sortEventsByTitle = (events) => {
-  events.sort((a, b) => {
-    const titleA = a.data?.title || "";
-    const titleB = b.data?.title || "";
-    return titleA.localeCompare(titleB);
-  });
-};
+import { sortByOrderThenTitle } from "./sorting.js";
 
 const renderRecurringEvents = (events) => {
   if (!events || events.length === 0) {
@@ -38,7 +32,7 @@ const recurringEventsShortcode = function (eleventyConfig) {
     this.ctx?.collections?.events || this.collections?.events || [];
   const recurringEvents = events.filter((event) => event.data?.recurring_date);
 
-  sortEventsByTitle(recurringEvents);
+  recurringEvents.sort(sortByOrderThenTitle);
 
   return renderRecurringEvents(recurringEvents);
 };
@@ -90,7 +84,7 @@ const getRecurringEventsHtml = async () => {
       }
     }
 
-    sortEventsByTitle(recurringEvents);
+    recurringEvents.sort(sortByOrderThenTitle);
 
     return renderRecurringEvents(recurringEvents);
   } catch (err) {

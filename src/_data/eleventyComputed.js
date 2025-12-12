@@ -41,10 +41,7 @@ export default {
         : isValidImage(data.header_image)
           ? data.header_image
           : null,
-  faqs: (data) =>
-    Array.isArray(data.faqs)
-      ? [...data.faqs].sort((a, b) => (a.order || 0) - (b.order || 0))
-      : [],
+  faqs: (data) => (Array.isArray(data.faqs) ? data.faqs : []),
   meta: (data) => {
     if (hasTag(data, "product")) return buildProductMeta(data);
     if (hasTag(data, "news")) return buildPostMeta(data);

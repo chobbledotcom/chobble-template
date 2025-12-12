@@ -1,3 +1,5 @@
+import { sortByOrderThenTitle } from "./sorting.js";
+
 const sortByEventDate = (events, descending = false) => {
   events.sort((a, b) => {
     const dateA = new Date(a.data.event_date);
@@ -35,11 +37,7 @@ export function categoriseEvents(events) {
   sortByEventDate(upcoming);
   sortByEventDate(past, true);
 
-  regular.sort((a, b) => {
-    const titleA = a.data.title || "";
-    const titleB = b.data.title || "";
-    return titleA.localeCompare(titleB);
-  });
+  regular.sort(sortByOrderThenTitle);
 
   const hasRegular = regular.length > 0;
   const hasPast = past.length > 0;

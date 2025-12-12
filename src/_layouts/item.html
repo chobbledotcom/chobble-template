@@ -121,6 +121,15 @@ layout: base
     {%- include "etsy-buy-button.html" -%}
   {%- endif -%}
 </div>
+{%- if tags and tags contains "event" -%}
+  {% assign eventProducts = collections.products | getProductsByEvent: page.fileSlug %}
+  {%- if eventProducts.size > 0 -%}
+    <div class="event-products">
+      <h2>{{ strings.product_name }}</h2>
+      {%- include "items.html", items: eventProducts -%}
+    </div>
+  {%- endif -%}
+{%- endif -%}
 <div class="contact">
   <h2>Get in Touch</h2>
   {% include "contact-form.html" %}

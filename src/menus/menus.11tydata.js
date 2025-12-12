@@ -1,3 +1,5 @@
+import { sortByOrderThenTitle } from "../_lib/sorting.js";
+
 export default {
   eleventyComputed: {
     eleventyNavigation: (data) => {
@@ -10,7 +12,7 @@ export default {
     allDietaryKeys: (data) => {
       const menuCategories = (data.collections.menu_category || [])
         .filter((cat) => cat.data.menus?.includes(data.page.fileSlug))
-        .sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+        .sort(sortByOrderThenTitle);
 
       const allItems = menuCategories.flatMap((category) =>
         (data.collections.menu_item || []).filter((item) =>

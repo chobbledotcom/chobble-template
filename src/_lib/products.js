@@ -1,3 +1,5 @@
+import { sortByOrderThenTitle } from "./sorting.js";
+
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
   if (Array.isArray(gallery)) return gallery;
@@ -33,11 +35,14 @@ const getProductsByCategory = (products, categorySlug) => {
   if (!products) return [];
   return products
     .filter((product) => product.data.categories?.includes(categorySlug))
-    .sort((a, b) => {
-      const orderDiff = (a.data.order || 0) - (b.data.order || 0);
-      if (orderDiff !== 0) return orderDiff;
-      return (a.data.name || "").localeCompare(b.data.name || "");
-    });
+    .sort(sortByOrderThenTitle);
+};
+
+const getProductsByEvent = (products, eventSlug) => {
+  if (!products) return [];
+  return products
+    .filter((product) => product.data.events?.includes(eventSlug))
+    .sort(sortByOrderThenTitle);
 };
 
 const getReviewsByProduct = (reviews, productSlug) =>
@@ -92,6 +97,8 @@ const configureProducts = (eleventyConfig) => {
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
 
+  eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
+
   eleventyConfig.addFilter("getReviewsByProduct", getReviewsByProduct);
 
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
@@ -105,6 +112,7 @@ export {
   createVisibleReviewsCollection,
   createApiSkusCollection,
   getProductsByCategory,
+  getProductsByEvent,
   getReviewsByProduct,
   getFeaturedProducts,
   configureProducts,

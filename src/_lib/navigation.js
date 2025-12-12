@@ -37,15 +37,10 @@ const configureNavigation = async (eleventyConfig) => {
       .getAll()
       .filter((item) => item.data.eleventyNavigation)
       .sort((a, b) => {
-        const orderA = a.data.eleventyNavigation.order || 999;
-        const orderB = b.data.eleventyNavigation.order || 999;
+        const orderA = a.data.eleventyNavigation.order ?? 999;
+        const orderB = b.data.eleventyNavigation.order ?? 999;
+        if (orderA !== orderB) return orderA - orderB;
 
-        // First sort by order
-        if (orderA !== orderB) {
-          return orderA - orderB;
-        }
-
-        // Then sort by title (key)
         const titleA = a.data.eleventyNavigation.key || a.data.title || "";
         const titleB = b.data.eleventyNavigation.key || b.data.title || "";
         return titleA.localeCompare(titleB);
