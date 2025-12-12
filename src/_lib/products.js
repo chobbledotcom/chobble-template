@@ -31,6 +31,17 @@ const createVisibleReviewsCollection = (collectionApi) => {
   return reviews.filter((review) => review.data.hidden !== true);
 };
 
+const createLatestReviewsCollection = (collectionApi, limit = 3) => {
+  const reviews = collectionApi.getFilteredByTag("review") || [];
+  const visibleReviews = reviews.filter(
+    (review) => review.data.hidden !== true,
+  );
+  // Sort by date descending (newest first) and take the limit
+  return visibleReviews
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, limit);
+};
+
 const getProductsByCategory = (products, categorySlug) => {
   if (!products) return [];
   return products
@@ -52,6 +63,13 @@ const getReviewsByProduct = (reviews, productSlug) =>
 
 const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];
+
+const getLatestReviews = (reviews, limit = 3) => {
+  if (!reviews) return [];
+  return reviews
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, limit);
+};
 
 /**
  * Creates a collection of all SKUs with their pricing data for the API
@@ -93,6 +111,9 @@ const configureProducts = (eleventyConfig) => {
     "visibleReviews",
     createVisibleReviewsCollection,
   );
+  eleventyConfig.addCollection("latestReviews", (collectionApi) =>
+    createLatestReviewsCollection(collectionApi),
+  );
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
@@ -102,6 +123,8 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getReviewsByProduct", getReviewsByProduct);
 
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
+
+  eleventyConfig.addFilter("getLatestReviews", getLatestReviews);
 };
 
 export {
@@ -110,10 +133,12 @@ export {
   createProductsCollection,
   createReviewsCollection,
   createVisibleReviewsCollection,
+  createLatestReviewsCollection,
   createApiSkusCollection,
   getProductsByCategory,
   getProductsByEvent,
   getReviewsByProduct,
   getFeaturedProducts,
+  getLatestReviews,
   configureProducts,
 };

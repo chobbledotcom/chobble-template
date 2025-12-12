@@ -51,3 +51,10 @@ layout: base
   {%- render_snippet "homepage-events-header", "<h3>Regular Events</h3>" -%}
   {% include "recurring-events-list.html" %}
 {%- endif -%}
+
+{%- assign latest_reviews = collections.visibleReviews | getLatestReviews: homepage.reviews_limit -%}
+{%- if homepage.show_reviews and latest_reviews.size > 0 -%}
+  <hr>
+  {%- render_snippet "homepage-reviews-header", "<h3>Recent Reviews</h3>" -%}
+  {%- include "reviews-list.html", reviews: latest_reviews, product_links: true -%}
+{%- endif -%}
