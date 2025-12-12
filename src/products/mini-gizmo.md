@@ -9,6 +9,7 @@ options:
   - name: Standard
     max_quantity: 10
     unit_price: 99.99
+    sku: MH6D2J
 header_image: /images/placeholder-wide-2.jpg
 gallery:
   - /images/placeholder-square-7.jpg
