@@ -10,6 +10,7 @@ import {
   removeItem,
   saveCart,
 } from "./cart-utils.js";
+import { onReady } from "./on-ready.js";
 
 class ShoppingCart {
   // Minimum checkout amount in pounds (Stripe requires at least 30p)
@@ -24,16 +25,9 @@ class ShoppingCart {
   }
 
   init() {
-    // Wait for DOM to be ready
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => this.setup());
-    } else {
-      this.setup();
-    }
-
-    // Re-setup on Turbo navigation (Turbo replaces body content, so we need
-    // to re-query DOM elements and re-attach element-specific listeners)
-    document.addEventListener("turbo:load", () => this.setup());
+    // Setup on DOM ready and Turbo navigation (Turbo replaces body content,
+    // so we need to re-query DOM elements and re-attach element-specific listeners)
+    onReady(() => this.setup());
   }
 
   setup() {

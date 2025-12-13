@@ -20,8 +20,12 @@ function showError(message) {
 }
 
 async function checkout() {
-  const statusMessage = document.getElementById("status-message");
   const main = document.querySelector(".stripe-checkout-page");
+
+  // Only run on stripe-checkout page
+  if (!main) return;
+
+  const statusMessage = document.getElementById("status-message");
   const stripeKey = main.dataset.stripeKey;
   const checkoutApiUrl = main.dataset.checkoutApiUrl;
 

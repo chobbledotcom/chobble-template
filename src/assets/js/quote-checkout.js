@@ -2,6 +2,7 @@
 // Populates form with cart items and displays summary
 
 import { escapeHtml, formatPrice, getCart } from "./cart-utils.js";
+import { onReady } from "./on-ready.js";
 
 function populateForm() {
   const cart = getCart();
@@ -42,9 +43,4 @@ function populateForm() {
     .join("");
 }
 
-// Initial population
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", populateForm);
-} else {
-  populateForm();
-}
+onReady(populateForm);

@@ -1,64 +1,73 @@
 // Slider navigation - minimal JS for scroll buttons
-(function () {
-  function initSliders() {
-    document.querySelectorAll(".slider-container").forEach((container) => {
-      const slider = container.querySelector(".slider");
-      const prevBtn = container.querySelector(".slider-prev");
-      const nextBtn = container.querySelector(".slider-next");
+import { onReady } from "./on-ready.js";
 
-      if (!slider || !prevBtn || !nextBtn) return;
+function initSliders() {
+  document.querySelectorAll(".slider-container").forEach((container) => {
+    const slider = container.querySelector(".slider");
+    const prevBtn = container.querySelector(".slider-prev");
+    const nextBtn = container.querySelector(".slider-next");
 
-      // Get scroll amount (width of first item + gap)
-      const getScrollAmount = () => {
-        const firstItem = slider.querySelector("li");
-        if (!firstItem) return 240;
-        const style = getComputedStyle(slider);
-        const gap = parseFloat(style.gap) || 16;
-        return firstItem.offsetWidth + gap;
-      };
+    if (!slider || !prevBtn || !nextBtn) return;
 
-      // Check if slider overflows and update button states
-      const updateState = () => {
-        const overflows = slider.scrollWidth > slider.clientWidth;
-        slider.classList.toggle("overflowing", overflows);
+    // Skip if already initialized
+    if (slider.dataset.sliderInit) return;
+    slider.dataset.sliderInit = "true";
 
-        const atStart = slider.scrollLeft <= 0;
-        const atEnd =
-          slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 1;
+    // Get scroll amount (width of first item + gap)
+    const getScrollAmount = () => {
+      const firstItem = slider.querySelector("li");
+      if (!firstItem) return 240;
+      const style = getComputedStyle(slider);
+      const gap = parseFloat(style.gap) || 16;
+      return firstItem.offsetWidth + gap;
+    };
 
-        prevBtn.toggleAttribute("disabled", atStart);
-        nextBtn.toggleAttribute("disabled", atEnd);
-      };
+    // Check if slider overflows and update button states
+    const updateState = () => {
+      const overflows = slider.scrollWidth > slider.clientWidth;
+      slider.classList.toggle("overflowing", overflows);
 
-      // Scroll handlers
-      prevBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        slider.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
-      });
+      const atStart = slider.scrollLeft <= 0;
+      const atEnd =
+        slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 1;
 
-      nextBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        slider.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
-      });
+      prevBtn.toggleAttribute("disabled", atStart);
+      nextBtn.toggleAttribute("disabled", atEnd);
+    };
 
-      // Update state on scroll and resize
-      slider.addEventListener("scroll", updateState, { passive: true });
-      window.addEventListener("resize", updateState, { passive: true });
+    // Store updateState for later recalculation
+    slider._updateSliderState = updateState;
 
-      // Initial state
-      updateState();
+    // Scroll handlers
+    prevBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      slider.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
     });
-  }
 
-  // Support Turbo page loads
-  if (typeof Turbo !== "undefined") {
-    document.addEventListener("turbo:load", initSliders);
-  } else {
-    document.addEventListener("DOMContentLoaded", initSliders);
-  }
+    nextBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      slider.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+    });
 
-  // Also run immediately if DOM is already ready
-  if (document.readyState !== "loading") {
-    initSliders();
-  }
-})();
+    // Update state on scroll and resize
+    slider.addEventListener("scroll", updateState, { passive: true });
+    window.addEventListener("resize", updateState, { passive: true });
+
+    // Initial state
+    updateState();
+  });
+}
+
+// Re-calculate button visibility for all sliders
+function updateAllSliders() {
+  document.querySelectorAll(".slider").forEach((slider) => {
+    if (slider._updateSliderState) {
+      slider._updateSliderState();
+    }
+  });
+}
+
+onReady(initSliders);
+
+// Recalculate button visibility on Turbo render (e.g. cache restoration)
+document.addEventListener("turbo:render", updateAllSliders);

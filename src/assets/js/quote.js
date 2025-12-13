@@ -8,6 +8,7 @@ import {
   getItemCount,
   removeItem,
 } from "./cart-utils.js";
+import { onReady } from "./on-ready.js";
 
 function updateCartIcon() {
   const count = getItemCount();
@@ -64,9 +65,4 @@ function renderCart() {
   }
 }
 
-// Initial render
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", renderCart);
-} else {
-  renderCart();
-}
+onReady(renderCart);

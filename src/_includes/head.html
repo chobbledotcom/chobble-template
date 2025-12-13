@@ -34,18 +34,7 @@
 
   <script
     type="module"
-    async=""
-    src="/assets/js/lib/bundle.js"
-  ></script>
-
-  <script
-    async
-    src="{{ '/assets/js/slider.js' | cacheBust }}"
-  ></script>
-
-  <script
-    async
-    src="{{ '/assets/js/scroll-fade.js' | cacheBust }}"
+    src="{{ '/assets/js/bundle.js' | cacheBust }}"
   ></script>
 
   {%- if stripe_buy_button_id and config.stripe_publishable_key -%}
@@ -57,40 +46,6 @@
 
   {%- if layout == "stripe-checkout.html" -%}
     <script src="https://js.stripe.com/v3/"></script>
-    <script
-      async
-      src="{{ '/assets/js/stripe-checkout.js' | cacheBust }}"
-    ></script>
-  {%- endif -%}
-
-  {%- if gallery and gallery.size > 0 -%}
-    <script
-      async
-      src="{{ '/assets/js/gallery.js' | cacheBust }}"
-      type="text/javascript"
-    ></script>
-  {% endif %}
-
-  {%- if config.has_cart_enquiry_form or config.paypal_email or config.stripe_publishable_key -%}
-    <script
-      type="module"
-      src="{{ '/assets/js/cart.js' | cacheBust }}"
-    ></script>
-  {%- endif -%}
-
-  {%- if config.has_cart_enquiry_form -%}
-    <script
-      type="module"
-      src="{{ '/assets/js/quote.js' | cacheBust }}"
-    ></script>
-    <script
-      type="module"
-      src="{{ '/assets/js/quote-checkout.js' | cacheBust }}"
-    ></script>
-    <script
-      type="module"
-      src="{{ '/assets/js/quote-complete.js' | cacheBust }}"
-    ></script>
   {%- endif -%}
 
   {%- if collections.news.size > 0 -%}

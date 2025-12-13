@@ -1,4 +1,6 @@
-(function () {
+import { onReady } from "./on-ready.js";
+
+function initSearch() {
   var form = document.getElementById("search-form");
   if (!form) return;
 
@@ -33,4 +35,6 @@
       input.focus();
     }
   });
-})();
+}
+
+onReady(initSearch);

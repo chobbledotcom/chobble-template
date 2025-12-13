@@ -1,40 +1,34 @@
-(() => {
-  let gallery, currentImage;
+import { onReady } from "./on-ready.js";
 
-  const loadImage = (event) => {
-    const imageLink = event.target.closest(".image-link");
-    if (!imageLink) return;
+let gallery, currentImage;
 
-    event.preventDefault();
+const loadImage = (event) => {
+  const imageLink = event.target.closest(".image-link");
+  if (!imageLink) return;
 
-    const index = imageLink.getAttribute("data-index");
-    const fullImage = document.querySelector(`.full-image-${index}`);
+  event.preventDefault();
 
-    if (!fullImage) return;
+  const index = imageLink.getAttribute("data-index");
+  const fullImage = document.querySelector(`.full-image-${index}`);
 
-    currentImage.innerHTML = fullImage.innerHTML;
+  if (!fullImage) return;
 
-    const rect = currentImage.getBoundingClientRect();
-    if (Math.abs(rect.top) > 50) {
-      currentImage.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  currentImage.innerHTML = fullImage.innerHTML;
 
-  const initGallery = () => {
-    gallery = document.getElementById("gallery");
-    currentImage = document.querySelector(".current-image");
-
-    if (!gallery || !currentImage) return;
-
-    gallery.removeEventListener("click", loadImage);
-    gallery.addEventListener("click", loadImage);
-  };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initGallery);
-  } else {
-    initGallery();
+  const rect = currentImage.getBoundingClientRect();
+  if (Math.abs(rect.top) > 50) {
+    currentImage.scrollIntoView({ behavior: "smooth" });
   }
+};
 
-  document.addEventListener("turbo:load", initGallery);
-})();
+const initGallery = () => {
+  gallery = document.getElementById("gallery");
+  currentImage = document.querySelector(".current-image");
+
+  if (!gallery || !currentImage) return;
+
+  gallery.removeEventListener("click", loadImage);
+  gallery.addEventListener("click", loadImage);
+};
+
+onReady(initGallery);
