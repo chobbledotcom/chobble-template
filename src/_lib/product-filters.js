@@ -266,8 +266,8 @@ const buildFilterUIData = (filterData, currentFilters, validPages) => {
     delete withoutThis[key];
     const removePath = filterToPath(withoutThis);
     const removeUrl = removePath
-      ? `${baseUrl}/search/${removePath}/`
-      : `${baseUrl}/`;
+      ? `${baseUrl}/search/${removePath}/#content`
+      : `${baseUrl}/#content`;
 
     return {
       key: display[key],
@@ -292,7 +292,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages) => {
             return null;
           }
 
-          const url = `${baseUrl}/search/${path}/`;
+          const url = `${baseUrl}/search/${path}/#content`;
           return { value: display[value], url, active: isActive };
         })
         .filter(Boolean);
@@ -312,7 +312,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages) => {
     hasFilters: groups.length > 0,
     hasActiveFilters,
     activeFilters,
-    clearAllUrl: `${baseUrl}/`,
+    clearAllUrl: `${baseUrl}/#content`,
     groups,
   };
 };
