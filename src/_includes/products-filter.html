@@ -2,7 +2,7 @@
 {%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters, collections.filteredProductPages -%}
 
 {%- if filterUI.hasFilters -%}
-<nav class="products-filter" aria-label="Product filters">
+<div class="products-filter">
   {%- if filterUI.hasActiveFilters -%}
   <ul class="filter-active">
     {%- for filter in filterUI.activeFilters -%}
@@ -33,6 +33,6 @@
     </li>
     {%- endfor -%}
   </ul>
-</nav>
+</div>
 {%- endif -%}
 {%- endif -%}
