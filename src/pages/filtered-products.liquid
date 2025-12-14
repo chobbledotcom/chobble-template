@@ -1,0 +1,23 @@
+---
+pagination:
+  data: collections.filteredProductPages
+  size: 1
+  alias: filterPage
+permalink: "/{{ strings.product_permalink_dir }}/search/{{ filterPage.path }}/"
+layout: filtered-products
+eleventyExcludeFromCollections: true
+---
+{%- assign products = filterPage.products -%}
+{%- assign currentFilters = filterPage.filters -%}
+
+<h1>{{ strings.product_name }}</h1>
+
+{%- assign filterDesc = "" -%}
+{%- for filter in currentFilters -%}
+  {%- if filterDesc != "" -%}
+    {%- assign filterDesc = filterDesc | append: ", " -%}
+  {%- endif -%}
+  {%- assign filterDesc = filterDesc | append: filter[0] | capitalize | append: ": " | append: filter[1] -%}
+{%- endfor -%}
+
+<p>Showing {{ filterPage.count }} product{%- if filterPage.count != 1 -%}s{%- endif -%} matching: {{ filterDesc }}</p>

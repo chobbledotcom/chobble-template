@@ -1,6 +1,10 @@
 ---
 title: SmarThingy AI Plus
 subtitle: Next-generation AI-powered thingy with cloud connectivity
+filter_attributes:
+  - "Size: standard"
+  - "Type: smart"
+  - "Price: midrange"
 keywords:
   - smart home
   - ai powered

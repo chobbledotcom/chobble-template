@@ -3,6 +3,8 @@
 layout: base.html
 ---
 
+{%- include "products-filter.html" -%}
+
 {{- content -}}
 
 {%- assign categories = collections.categories | getFeaturedCategories -%}

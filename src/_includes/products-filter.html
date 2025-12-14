@@ -1,0 +1,103 @@
+{%- if config.has_products_filter -%}
+{%- assign allAttributes = collections.filterAttributes -%}
+{%- assign hasAttributes = false -%}
+{%- for attr in allAttributes -%}
+  {%- assign hasAttributes = true -%}
+  {%- break -%}
+{%- endfor -%}
+
+{%- if hasAttributes -%}
+<nav class="products-filter" aria-label="Product filters">
+  {%- if currentFilters -%}
+  <div class="filter-active">
+    <span class="filter-active-label">Active filters:</span>
+    {%- for filter in currentFilters -%}
+    <span class="filter-tag">
+      <span class="filter-key">{{ filter[0] }}:</span>
+      <span class="filter-value">{{ filter[1] }}</span>
+      {%- comment -%} Build path without this filter {%- endcomment -%}
+      {%- assign newFilters = "" -%}
+      {%- for f in currentFilters -%}
+        {%- unless f[0] == filter[0] -%}
+          {%- if newFilters != "" -%}
+            {%- assign newFilters = newFilters | append: "/" -%}
+          {%- endif -%}
+          {%- assign newFilters = newFilters | append: f[0] | append: "/" | append: f[1] -%}
+        {%- endunless -%}
+      {%- endfor -%}
+      {%- if newFilters == "" -%}
+      <a href="/{{ strings.product_permalink_dir }}/" class="filter-remove" aria-label="Remove {{ filter[0] }} filter">&times;</a>
+      {%- else -%}
+      <a href="/{{ strings.product_permalink_dir }}/search/{{ newFilters }}/" class="filter-remove" aria-label="Remove {{ filter[0] }} filter">&times;</a>
+      {%- endif -%}
+    </span>
+    {%- endfor -%}
+    <a href="/{{ strings.product_permalink_dir }}/" class="filter-clear">Clear all</a>
+  </div>
+  {%- endif -%}
+
+  <div class="filter-groups">
+    {%- for attrGroup in allAttributes -%}
+    {%- assign attrName = attrGroup[0] -%}
+    {%- assign attrValues = attrGroup[1] -%}
+    {%- assign currentValue = nil -%}
+    {%- if currentFilters -%}
+      {%- for f in currentFilters -%}
+        {%- if f[0] == attrName -%}
+          {%- assign currentValue = f[1] -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+    <div class="filter-group">
+      <span class="filter-group-label">{{ attrName | capitalize }}:</span>
+      <ul class="filter-options">
+        {%- for value in attrValues -%}
+        {%- assign isActive = false -%}
+        {%- if currentValue == value -%}
+          {%- assign isActive = true -%}
+        {%- endif -%}
+
+        {%- comment -%} Build the new filter path {%- endcomment -%}
+        {%- assign newPath = "" -%}
+        {%- assign addedCurrent = false -%}
+        {%- if currentFilters -%}
+          {%- for f in currentFilters -%}
+            {%- if f[0] == attrName -%}
+              {%- continue -%}
+            {%- endif -%}
+            {%- if f[0] > attrName and addedCurrent == false -%}
+              {%- if newPath != "" -%}
+                {%- assign newPath = newPath | append: "/" -%}
+              {%- endif -%}
+              {%- assign newPath = newPath | append: attrName | append: "/" | append: value -%}
+              {%- assign addedCurrent = true -%}
+            {%- endif -%}
+            {%- if newPath != "" -%}
+              {%- assign newPath = newPath | append: "/" -%}
+            {%- endif -%}
+            {%- assign newPath = newPath | append: f[0] | append: "/" | append: f[1] -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- unless addedCurrent -%}
+          {%- if newPath != "" -%}
+            {%- assign newPath = newPath | append: "/" -%}
+          {%- endif -%}
+          {%- assign newPath = newPath | append: attrName | append: "/" | append: value -%}
+        {%- endunless -%}
+
+        <li>
+          {%- if isActive -%}
+          <span class="filter-option active">{{ value }}</span>
+          {%- else -%}
+          <a href="/{{ strings.product_permalink_dir }}/search/{{ newPath }}/" class="filter-option">{{ value }}</a>
+          {%- endif -%}
+        </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+    {%- endfor -%}
+  </div>
+</nav>
+{%- endif -%}
+{%- endif -%}
