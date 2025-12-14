@@ -4,8 +4,7 @@
 		".eleventy.js",
 		"test/**/*.js",
 		"src/_data/**/*.{js,mjs}",
-		"src/**/*.11tydata.mjs",
-		"src/_js/**/*.js"
+		"src/**/*.11tydata.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
@@ -14,9 +13,11 @@
 		"_site/**"
 	],
 	"ignoreDependencies": [
-		"@zachleat/heading-anchors"
+		"@zachleat/heading-anchors",
+		"@botpoison/browser",
+		"@hotwired/turbo"
 	],
-	"ignoreBinaries": ["biome"],
+	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
 	"rules": {
 		"exports": "off"
