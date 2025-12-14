@@ -6,7 +6,7 @@ meta_title: Team
 layout: team.html
 eleventyNavigation:
   key: Team
-  parent: About
+  parent: Contact
 ---
 
 ## Quisque viverra
