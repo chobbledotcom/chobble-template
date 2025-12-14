@@ -11,18 +11,7 @@ header_text: Search Results
 ---
 {%- assign products = filterPage.products -%}
 {%- assign currentFilters = filterPage.filters -%}
-{%- assign displayLookup = collections.filterAttributes.displayLookup -%}
 
 <h1>{{ strings.product_name }}</h1>
 
-{%- assign filterDesc = "" -%}
-{%- for filter in currentFilters -%}
-  {%- if filterDesc != "" -%}
-    {%- assign filterDesc = filterDesc | append: ", " -%}
-  {%- endif -%}
-  {%- assign keyDisplay = displayLookup[filter[0]] | default: filter[0] -%}
-  {%- assign valueDisplay = displayLookup[filter[1]] | default: filter[1] -%}
-  {%- assign filterDesc = filterDesc | append: keyDisplay | append: ": " | append: valueDisplay -%}
-{%- endfor -%}
-
-<p>Showing {{ filterPage.count }} product{%- if filterPage.count != 1 -%}s{%- endif -%} matching: {{ filterDesc }}</p>
+<p>Showing {{ filterPage.count }} product{%- if filterPage.count != 1 -%}s{%- endif -%} matching: {{ filterPage.filterDescription }}</p>

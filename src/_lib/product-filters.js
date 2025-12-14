@@ -181,17 +181,29 @@ const generateFilterCombinations = (products) => {
 };
 
 /**
+ * Build a filter description string from filters using display lookup
+ * { size: "compact", type: "pro" } => "Size: compact, Type: pro"
+ */
+const buildFilterDescription = (filters, displayLookup) => {
+  return Object.entries(filters)
+    .map(([key, value]) => `${displayLookup[key]}: ${displayLookup[value]}`)
+    .join(", ");
+};
+
+/**
  * Create collection of filtered product pages
  */
 const createFilteredProductPagesCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("product") || [];
   const combinations = generateFilterCombinations(products);
+  const displayLookup = buildDisplayLookup(products);
 
   return combinations.map((combo) => ({
     filters: combo.filters,
     path: combo.path,
     count: combo.count,
     products: getProductsByFilters(products, combo.filters),
+    filterDescription: buildFilterDescription(combo.filters, displayLookup),
   }));
 };
 
@@ -236,16 +248,14 @@ const configureProductFilters = (eleventyConfig) => {
  * @returns {Object} Complete UI data ready for simple template loops
  */
 const buildFilterUIData = (filterData, currentFilters, validPages) => {
-  const allAttributes = filterData?.attributes || {};
-  const display = filterData?.displayLookup || {};
+  const allAttributes = filterData.attributes;
+  const display = filterData.displayLookup;
 
   if (Object.keys(allAttributes).length === 0) {
     return { hasFilters: false };
   }
 
-  // Build set of valid paths for quick lookup
-  const validPaths = new Set((validPages || []).map((p) => p.path));
-
+  const validPaths = new Set(validPages.map((p) => p.path));
   const baseUrl = `/${strings.product_permalink_dir}`;
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
@@ -260,8 +270,8 @@ const buildFilterUIData = (filterData, currentFilters, validPages) => {
       : `${baseUrl}/`;
 
     return {
-      key: display[key] || key,
-      value: display[value] || value,
+      key: display[key],
+      value: display[value],
       removeUrl,
     };
   });
@@ -283,7 +293,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages) => {
           }
 
           const url = `${baseUrl}/search/${path}/`;
-          return { value: display[value] || value, url, active: isActive };
+          return { value: display[value], url, active: isActive };
         })
         .filter(Boolean);
 
@@ -292,7 +302,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages) => {
 
       return {
         name: attrName,
-        label: display[attrName] || attrName,
+        label: display[attrName],
         options,
       };
     })
