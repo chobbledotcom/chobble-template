@@ -52,6 +52,13 @@ layout: base
   {% include "recurring-events-list.html" %}
 {%- endif -%}
 
+{%- assign featured_properties = collections.properties | getFeaturedProperties -%}
+{%- if homepage.show_featured_properties and featured_properties.size > 0 -%}
+  <hr>
+  {%- render_snippet "homepage-properties-header", "<h3>Featured Properties</h3>" -%}
+  {%- include "items.html", items: featured_properties, horizontal: true -%}
+{%- endif -%}
+
 {%- assign latest_reviews = collections.visibleReviews | getLatestReviews: homepage.reviews_limit -%}
 {%- if homepage.show_reviews and latest_reviews.size > 0 -%}
   <hr>

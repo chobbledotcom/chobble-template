@@ -7,5 +7,7 @@
 	"news_permalink_dir": "news",
 	"location_name": "Locations",
 	"location_permalink_dir": "locations",
+	"property_name": "Properties",
+	"property_permalink_dir": "properties",
 	"item_about_heading": "About"
 }

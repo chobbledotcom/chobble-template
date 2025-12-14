@@ -5,6 +5,4 @@ layout: base
 {{- content -}}
 
 {%- assign menus = collections.menu | sort: "data.order" -%}
-{%- if menus.size > 0 -%}
-  {%- include "items.html", items: menus -%}
-{%- endif -%}
+{%- include "items.html", items: menus -%}

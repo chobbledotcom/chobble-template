@@ -29,6 +29,12 @@ layout: base
   {%- endif -%}
 {%- endif -%}
 
+{%- assign locationProperties = collections.properties | getPropertiesByLocation: locationSlug -%}
+{%- if locationProperties.size > 0 -%}
+  <h2>{{ strings.property_name }} in {{ title }}</h2>
+  {%- include "items.html", items: locationProperties -%}
+{%- endif -%}
+
 {%- if parentLocation -%}
   {%- assign siblingServices = collections.location | where: "data.parentLocation", parentLocation -%}
   {%- assign otherServices = "" | split: "" -%}

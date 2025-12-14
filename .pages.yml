@@ -299,6 +299,58 @@ content:
           - { name: answer, type: string, label: Answer, required: true }
           - { name: order, type: number, label: Order }
 
+  - name: properties
+    label: Properties
+    path: src/properties
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    view:
+      fields: [title, subtitle, bedrooms, sleeps]
+      primary: title
+      sort: [title]
+    fields:
+      - { name: title, type: string, label: Title }
+      - { name: subtitle, type: string, label: Subtitle }
+      - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: header_image, type: image, label: Header Image }
+      - { name: featured, type: boolean, label: Featured }
+      - { name: formspark_id, type: string, label: Formspark ID }
+      - name: locations
+        label: Locations
+        type: reference
+        options:
+          collection: locations
+          multiple: true
+          search: "title"
+          value: "{path}"
+          label: "{title}"
+      - { name: bedrooms, type: number, label: Bedrooms }
+      - { name: bathrooms, type: number, label: Bathrooms }
+      - { name: sleeps, type: number, label: Sleeps }
+      - { name: price_per_night, type: number, label: Price Per Night }
+      - { name: features, type: string, label: Features, list: true }
+      - name: gallery
+        type: image
+        label: Gallery
+        options: { multiple: true }
+      - { name: body, label: Body, type: code, options: { language: markdown } }
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
+      - {
+          name: meta_description,
+          type: string,
+          label: Meta Description,
+          maxlength: 155,
+        }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - { name: question, type: string, label: Question, required: true }
+          - { name: answer, type: string, label: Answer, required: true }
+          - { name: order, type: number, label: Order }
+
   - name: snippets
     label: Snippets
     path: src/snippets

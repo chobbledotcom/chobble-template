@@ -16,6 +16,7 @@ import { configureMenus } from "./src/_lib/menus.js";
 import { configureNavigation } from "./src/_lib/navigation.js";
 import { configureOpeningTimes } from "./src/_lib/opening-times.js";
 import { configureProducts } from "./src/_lib/products.js";
+import { configureProperties } from "./src/_lib/properties.js";
 import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
 import { configureScss } from "./src/_lib/scss.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
@@ -52,6 +53,7 @@ export default async function (eleventyConfig) {
   configureOpeningTimes(eleventyConfig);
   configureRecurringEvents(eleventyConfig);
   configureProducts(eleventyConfig);
+  configureProperties(eleventyConfig);
   configureScss(eleventyConfig);
   configureScssFiles(eleventyConfig);
   configureSearch(eleventyConfig);

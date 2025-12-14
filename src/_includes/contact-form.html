@@ -1,8 +1,9 @@
-{%- if config.formspark_id and config.formspark_id != "" -%}
+{%- assign form_id = formspark_id | default: config.formspark_id -%}
+{%- if form_id and form_id != "" -%}
   <form
     id="contact-form"
     class="contact-form"
-    action="https://submit-form.com/{{ config.formspark_id }}"
+    action="https://submit-form.com/{{ form_id }}"
     {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
       data-botpoison-public-key="{{ config.botpoison_public_key }}"
     {%- endif -%}

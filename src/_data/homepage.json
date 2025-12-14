@@ -5,5 +5,6 @@
 	"show_news": true,
 	"show_recurring_events": true,
 	"show_reviews": true,
-	"reviews_limit": 3
+	"reviews_limit": 3,
+	"show_featured_properties": true
 }

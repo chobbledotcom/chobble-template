@@ -1,0 +1,8 @@
+---
+layout: base.html
+---
+
+{{- content -}}
+
+{%- assign properties = collections.properties -%}
+{%- include "items.html", items: properties -%}
