@@ -722,18 +722,7 @@ nav {
 }
 
 .form-missing-notice {
-  background: var(--colour-light);
-  border: 1px solid var(--colour-mid);
-  border-radius: 4px;
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: var(--colour-dark);
-  code {
-    background: var(--colour-white);
-    padding: 0.1em 0.3em;
-    border-radius: 3px;
-    font-size: 0.85em;
-  }
+  font-style: italic;
 }
 
 ul.items {
