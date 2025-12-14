@@ -1,8 +1,9 @@
 .products-filter {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: var(--color-background-alt, #f5f5f5);
-  border-radius: 4px;
+  background: var(--color-bg);
+  border: var(--border);
+  border-radius: var(--border-radius);
 
   .filter-active {
     display: flex;
@@ -11,12 +12,11 @@
     gap: 0.5rem;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border, #ddd);
+    border-bottom: var(--border);
   }
 
   .filter-active-label {
     font-weight: bold;
-    margin-right: 0.25rem;
   }
 
   .filter-tag {
@@ -24,9 +24,9 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background: var(--color-primary, #333);
-    color: var(--color-primary-contrast, #fff);
-    border-radius: 3px;
+    background: var(--color-link);
+    color: var(--color-bg);
+    border-radius: var(--border-radius);
     font-size: 0.875rem;
   }
 
@@ -41,18 +41,13 @@
     width: 1.25rem;
     height: 1.25rem;
     margin-left: 0.25rem;
-    background: var(--color-primary-contrast, #fff);
-    color: var(--color-primary, #333);
+    background: var(--color-bg);
+    color: var(--color-link);
     border-radius: 50%;
     text-decoration: none;
     font-weight: bold;
     font-size: 0.75rem;
     line-height: 1;
-
-    &:hover {
-      background: var(--color-danger, #dc3545);
-      color: #fff;
-    }
   }
 
   .filter-clear {
@@ -89,23 +84,15 @@
   .filter-option {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border: 1px solid var(--color-border, #ddd);
-    border-radius: 3px;
+    border: var(--border);
+    border-radius: var(--border-radius);
     text-decoration: none;
     font-size: 0.875rem;
     text-transform: capitalize;
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: var(--color-primary, #333);
-      color: var(--color-primary-contrast, #fff);
-      border-color: var(--color-primary, #333);
-    }
 
     &.active {
-      background: var(--color-primary, #333);
-      color: var(--color-primary-contrast, #fff);
-      border-color: var(--color-primary, #333);
+      background: var(--color-link);
+      color: var(--color-bg);
       cursor: default;
     }
   }

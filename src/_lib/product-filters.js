@@ -216,12 +216,16 @@ const configureProductFilters = (eleventyConfig) => {
  * Build pre-computed filter UI data for templates
  * @param {Object} allAttributes - { size: ["compact", "large"], price: ["budget"] }
  * @param {Object} currentFilters - { size: "compact" } or null/undefined
+ * @param {Array} validPages - Array of { path: "..." } objects for pages that exist
  * @returns {Object} Complete UI data ready for simple template loops
  */
-const buildFilterUIData = (allAttributes, currentFilters) => {
+const buildFilterUIData = (allAttributes, currentFilters, validPages) => {
   if (!allAttributes || Object.keys(allAttributes).length === 0) {
     return { hasFilters: false };
   }
+
+  // Build set of valid paths for quick lookup
+  const validPaths = new Set((validPages || []).map((p) => p.path));
 
   const baseUrl = `/${strings.product_permalink_dir}`;
   const filters = currentFilters || {};
@@ -243,34 +247,40 @@ const buildFilterUIData = (allAttributes, currentFilters) => {
     };
   });
 
-  // Build filter groups with options
-  const groups = Object.entries(allAttributes).map(([attrName, attrValues]) => {
-    const currentValue = filters[attrName];
+  // Build filter groups with options (only include options that lead to valid pages)
+  const groups = Object.entries(allAttributes)
+    .map(([attrName, attrValues]) => {
+      const currentValue = filters[attrName];
 
-    const options = attrValues.map((value) => {
-      const isActive = currentValue === value;
+      const options = attrValues
+        .map((value) => {
+          const isActive = currentValue === value;
+          const newFilters = { ...filters, [attrName]: value };
+          const path = filterToPath(newFilters);
 
-      // Build URL for this option: replace current attr value with this one
-      const newFilters = { ...filters, [attrName]: value };
-      const path = filterToPath(newFilters);
-      const url = `${baseUrl}/search/${path}/`;
+          // Only include if this path exists (has products)
+          if (!isActive && !validPaths.has(path)) {
+            return null;
+          }
+
+          const url = `${baseUrl}/search/${path}/`;
+          return { value, url, active: isActive };
+        })
+        .filter(Boolean);
+
+      // Only include group if it has options
+      if (options.length === 0) return null;
 
       return {
-        value,
-        url,
-        active: isActive,
+        name: attrName,
+        label: attrName.charAt(0).toUpperCase() + attrName.slice(1),
+        options,
       };
-    });
-
-    return {
-      name: attrName,
-      label: attrName.charAt(0).toUpperCase() + attrName.slice(1),
-      options,
-    };
-  });
+    })
+    .filter(Boolean);
 
   return {
-    hasFilters: true,
+    hasFilters: groups.length > 0,
     hasActiveFilters,
     activeFilters,
     clearAllUrl: `${baseUrl}/`,

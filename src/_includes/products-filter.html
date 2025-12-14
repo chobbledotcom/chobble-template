@@ -1,5 +1,5 @@
 {%- if config.has_products_filter -%}
-{%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters -%}
+{%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters, collections.filteredProductPages -%}
 
 {%- if filterUI.hasFilters -%}
 <nav class="products-filter" aria-label="Product filters">
