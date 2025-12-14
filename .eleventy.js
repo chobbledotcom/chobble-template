@@ -12,6 +12,7 @@ import { configureImages } from "./src/_lib/image.js";
 import { configureInlineAsset } from "./src/_lib/inline-asset.js";
 import { configureLayoutAliases } from "./src/_lib/layout-aliases.js";
 import { configureLimitCollections } from "./src/_lib/limit-collections.js";
+import { configureLocations } from "./src/_lib/locations.js";
 import { configureMenus } from "./src/_lib/menus.js";
 import { configureNavigation } from "./src/_lib/navigation.js";
 import { configureOpeningTimes } from "./src/_lib/opening-times.js";
@@ -48,6 +49,7 @@ export default async function (eleventyConfig) {
   configureICal(eleventyConfig);
   configureImages(eleventyConfig);
   configureInlineAsset(eleventyConfig);
+  configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);
   configureOpeningTimes(eleventyConfig);
