@@ -1,6 +1,5 @@
 {%- if config.has_products_filter -%}
-{%- assign baseUrl = "/" | append: strings.product_permalink_dir -%}
-{%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters, baseUrl -%}
+{%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters -%}
 
 {%- if filterUI.hasFilters -%}
 <nav class="products-filter" aria-label="Product filters">

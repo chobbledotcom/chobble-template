@@ -1,4 +1,5 @@
 import { sortByOrderThenTitle } from "./sorting.js";
+import strings from "../_data/strings.js";
 
 /**
  * Parse filter attributes from product data
@@ -15,7 +16,10 @@ const parseFilterAttributes = (filterAttributes) => {
     if (colonIndex === -1) continue;
 
     const key = attr.slice(0, colonIndex).trim().toLowerCase();
-    const value = attr.slice(colonIndex + 1).trim().toLowerCase();
+    const value = attr
+      .slice(colonIndex + 1)
+      .trim()
+      .toLowerCase();
     if (key && value) {
       parsed[key] = value;
     }
@@ -212,14 +216,14 @@ const configureProductFilters = (eleventyConfig) => {
  * Build pre-computed filter UI data for templates
  * @param {Object} allAttributes - { size: ["compact", "large"], price: ["budget"] }
  * @param {Object} currentFilters - { size: "compact" } or null/undefined
- * @param {string} baseUrl - "/products"
  * @returns {Object} Complete UI data ready for simple template loops
  */
-const buildFilterUIData = (allAttributes, currentFilters, baseUrl) => {
+const buildFilterUIData = (allAttributes, currentFilters) => {
   if (!allAttributes || Object.keys(allAttributes).length === 0) {
     return { hasFilters: false };
   }
 
+  const baseUrl = `/${strings.product_permalink_dir}`;
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 
@@ -228,7 +232,9 @@ const buildFilterUIData = (allAttributes, currentFilters, baseUrl) => {
     const withoutThis = { ...filters };
     delete withoutThis[key];
     const removePath = filterToPath(withoutThis);
-    const removeUrl = removePath ? `${baseUrl}/search/${removePath}/` : `${baseUrl}/`;
+    const removeUrl = removePath
+      ? `${baseUrl}/search/${removePath}/`
+      : `${baseUrl}/`;
 
     return {
       key,
