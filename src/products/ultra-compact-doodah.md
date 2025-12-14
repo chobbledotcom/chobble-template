@@ -1,6 +1,13 @@
 ---
 title: Ultra Compact Doodah X5
 subtitle: Pocket-sized doodah with maximum efficiency
+filter_attributes:
+  - name: Size
+    value: compact
+  - name: Type
+    value: pro
+  - name: Price
+    value: midrange
 options:
   - name: Basic
     max_quantity: 25

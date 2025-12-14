@@ -2,6 +2,13 @@
 title: UltraWidget Pro
 subtitle: 'Lightweight, powerful widget for professionals'
 featured: true
+filter_attributes:
+  - name: Size
+    value: standard
+  - name: Type
+    value: pro
+  - name: Price
+    value: premium
 keywords:
   - professional
   - portable

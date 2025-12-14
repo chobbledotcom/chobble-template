@@ -15,6 +15,7 @@ const DEFAULTS = {
   chobble_link: null,
   map_embed_src: null,
   has_cart_enquiry_form: false,
+  has_products_filter: false,
 };
 
 const DEFAULT_PRODUCT_DATA = {
