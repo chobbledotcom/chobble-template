@@ -92,6 +92,11 @@
       ) {
         continue;
       }
+      // Skip remote images (http/https URLs) - only process local images
+      const src = img.getAttribute("src") || "";
+      if (src.startsWith("http://") || src.startsWith("https://")) {
+        continue;
+      }
       if (!didFirstContentfulPaintRun) {
         for (const attribute of attributes) {
           if (img.hasAttribute(attribute)) {
