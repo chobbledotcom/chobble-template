@@ -67,13 +67,19 @@ const testCases = [
       );
       const html = fs.readFileSync(newsHtmlPath, "utf-8");
 
+      // Extract just the #content section to avoid matching nav/sidebar links
+      const contentMatch = html.match(
+        /<article[^>]*id="content"[^>]*>([\s\S]*?)<\/article>/,
+      );
+      const contentHtml = contentMatch ? contentMatch[1] : "";
+
       expectStrictEqual(
-        html.includes('href="/team/jane-doe/"'),
+        contentHtml.includes('href="/team/jane-doe/"'),
         true,
         "Should include link to author's team page",
       );
       expectStrictEqual(
-        html.includes("Jane Doe"),
+        contentHtml.includes("Jane Doe"),
         true,
         "Should include author's name",
       );
@@ -96,8 +102,14 @@ const testCases = [
       );
       const html = fs.readFileSync(newsHtmlPath, "utf-8");
 
+      // Extract just the #content section to avoid matching nav/sidebar links
+      const contentMatch = html.match(
+        /<article[^>]*id="content"[^>]*>([\s\S]*?)<\/article>/,
+      );
+      const contentHtml = contentMatch ? contentMatch[1] : "";
+
       expectStrictEqual(
-        html.includes('href="/team/'),
+        contentHtml.includes('href="/team/'),
         false,
         "Should not include author link when no author is set",
       );
