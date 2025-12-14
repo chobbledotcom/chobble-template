@@ -6,9 +6,12 @@ pagination:
 permalink: "/{{ strings.product_permalink_dir }}/search/{{ filterPage.path }}/"
 layout: filtered-products
 eleventyExcludeFromCollections: true
+meta_title: Search Results
+header_text: Search Results
 ---
 {%- assign products = filterPage.products -%}
 {%- assign currentFilters = filterPage.filters -%}
+{%- assign displayLookup = collections.filterAttributes.displayLookup -%}
 
 <h1>{{ strings.product_name }}</h1>
 
@@ -17,7 +20,9 @@ eleventyExcludeFromCollections: true
   {%- if filterDesc != "" -%}
     {%- assign filterDesc = filterDesc | append: ", " -%}
   {%- endif -%}
-  {%- assign filterDesc = filterDesc | append: filter[0] | capitalize | append: ": " | append: filter[1] -%}
+  {%- assign keyDisplay = displayLookup[filter[0]] | default: filter[0] -%}
+  {%- assign valueDisplay = displayLookup[filter[1]] | default: filter[1] -%}
+  {%- assign filterDesc = filterDesc | append: keyDisplay | append: ": " | append: valueDisplay -%}
 {%- endfor -%}
 
 <p>Showing {{ filterPage.count }} product{%- if filterPage.count != 1 -%}s{%- endif -%} matching: {{ filterDesc }}</p>

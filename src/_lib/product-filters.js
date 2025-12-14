@@ -55,6 +55,38 @@ const getAllFilterAttributes = (products) => {
 };
 
 /**
+ * Build a lookup map from lowercase keys/values to original capitalization
+ * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
+ */
+const buildDisplayLookup = (products) => {
+  if (!products) return {};
+
+  const lookup = {};
+
+  for (const product of products) {
+    const filterAttrs = product.data?.filter_attributes;
+    if (!filterAttrs || !Array.isArray(filterAttrs)) continue;
+
+    for (const attr of filterAttrs) {
+      if (typeof attr !== "string") continue;
+      const colonIndex = attr.indexOf(":");
+      if (colonIndex === -1) continue;
+
+      const originalKey = attr.slice(0, colonIndex).trim();
+      const originalValue = attr.slice(colonIndex + 1).trim();
+      const lowerKey = originalKey.toLowerCase();
+      const lowerValue = originalValue.toLowerCase();
+
+      // Store original capitalization (first one wins)
+      if (!lookup[lowerKey]) lookup[lowerKey] = originalKey;
+      if (!lookup[lowerValue]) lookup[lowerValue] = originalValue;
+    }
+  }
+
+  return lookup;
+};
+
+/**
  * Convert filter object to URL path segment
  * { size: "small", capacity: "3" } => "capacity/3/size/small"
  * Keys are sorted alphabetically
@@ -183,11 +215,14 @@ const createFilteredProductPagesCollection = (collectionApi) => {
 };
 
 /**
- * Create collection of all filter attributes with values
+ * Create collection of filter data (attributes + display lookup combined)
  */
 const createFilterAttributesCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("product") || [];
-  return getAllFilterAttributes(products);
+  return {
+    attributes: getAllFilterAttributes(products),
+    displayLookup: buildDisplayLookup(products),
+  };
 };
 
 /**
@@ -214,13 +249,16 @@ const configureProductFilters = (eleventyConfig) => {
 
 /**
  * Build pre-computed filter UI data for templates
- * @param {Object} allAttributes - { size: ["compact", "large"], price: ["budget"] }
+ * @param {Object} filterData - { attributes: {...}, displayLookup: {...} }
  * @param {Object} currentFilters - { size: "compact" } or null/undefined
  * @param {Array} validPages - Array of { path: "..." } objects for pages that exist
  * @returns {Object} Complete UI data ready for simple template loops
  */
-const buildFilterUIData = (allAttributes, currentFilters, validPages) => {
-  if (!allAttributes || Object.keys(allAttributes).length === 0) {
+const buildFilterUIData = (filterData, currentFilters, validPages) => {
+  const allAttributes = filterData?.attributes || {};
+  const display = filterData?.displayLookup || {};
+
+  if (Object.keys(allAttributes).length === 0) {
     return { hasFilters: false };
   }
 
@@ -241,8 +279,8 @@ const buildFilterUIData = (allAttributes, currentFilters, validPages) => {
       : `${baseUrl}/`;
 
     return {
-      key,
-      value,
+      key: display[key] || key,
+      value: display[value] || value,
       removeUrl,
     };
   });
@@ -264,7 +302,7 @@ const buildFilterUIData = (allAttributes, currentFilters, validPages) => {
           }
 
           const url = `${baseUrl}/search/${path}/`;
-          return { value, url, active: isActive };
+          return { value: display[value] || value, url, active: isActive };
         })
         .filter(Boolean);
 
@@ -273,7 +311,7 @@ const buildFilterUIData = (allAttributes, currentFilters, validPages) => {
 
       return {
         name: attrName,
-        label: attrName.charAt(0).toUpperCase() + attrName.slice(1),
+        label: display[attrName] || attrName,
         options,
       };
     })
@@ -291,6 +329,7 @@ const buildFilterUIData = (allAttributes, currentFilters, validPages) => {
 export {
   parseFilterAttributes,
   getAllFilterAttributes,
+  buildDisplayLookup,
   filterToPath,
   pathToFilter,
   productMatchesFilters,
