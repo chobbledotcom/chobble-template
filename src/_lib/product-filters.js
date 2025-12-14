@@ -2,6 +2,11 @@ import { sortByOrderThenTitle } from "./sorting.js";
 import strings from "../_data/strings.js";
 
 /**
+ * Normalize a string for comparison: lowercase, strip spaces and special chars
+ */
+const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/**
  * Parse filter attributes from product data
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
@@ -106,6 +111,7 @@ const pathToFilter = (path) => {
 
 /**
  * Check if a product matches the given filters
+ * Uses normalized comparison (lowercase, no special chars/spaces)
  */
 const productMatchesFilters = (product, filters) => {
   if (!filters || Object.keys(filters).length === 0) return true;
@@ -113,7 +119,7 @@ const productMatchesFilters = (product, filters) => {
   const productAttrs = parseFilterAttributes(product.data.filter_attributes);
 
   for (const [key, value] of Object.entries(filters)) {
-    if (productAttrs[key] !== value) {
+    if (normalize(productAttrs[key] || "") !== normalize(value)) {
       return false;
     }
   }
