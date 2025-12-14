@@ -46,15 +46,13 @@
   }
 
   .filter-groups {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-
     > li {
-      display: flex;
+      display: inline-flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.25rem 0.5rem;
+      margin-right: 1rem;
+      margin-bottom: 0.25rem;
 
       > span {
         font-weight: bold;
