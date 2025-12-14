@@ -4,37 +4,35 @@
 {%- if filterUI.hasFilters -%}
 <nav class="products-filter" aria-label="Product filters">
   {%- if filterUI.hasActiveFilters -%}
-  <div class="filter-active">
-    <span class="filter-active-label">Active filters:</span>
+  <ul class="filter-active">
     {%- for filter in filterUI.activeFilters -%}
-    <span class="filter-tag">
-      <span class="filter-key">{{ filter.key }}:</span>
-      <span class="filter-value">{{ filter.value }}</span>
-      <a href="{{ filter.removeUrl }}" class="filter-remove" aria-label="Remove {{ filter.key }} filter">&times;</a>
-    </span>
+    <li>
+      <span>{{ filter.key }}: {{ filter.value }}</span>
+      <a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter">&times;</a>
+    </li>
     {%- endfor -%}
-    <a href="{{ filterUI.clearAllUrl }}" class="filter-clear">Clear all</a>
-  </div>
+    <li><a href="{{ filterUI.clearAllUrl }}">Clear all</a></li>
+  </ul>
   {%- endif -%}
 
-  <div class="filter-groups">
+  <ul class="filter-groups">
     {%- for group in filterUI.groups -%}
-    <div class="filter-group">
-      <span class="filter-group-label">{{ group.label }}:</span>
-      <ul class="filter-options">
+    <li>
+      <span>{{ group.label }}</span>
+      <ul>
         {%- for option in group.options -%}
-        <li>
+        <li{% if option.active %} class="active"{% endif %}>
           {%- if option.active -%}
-          <span class="filter-option active">{{ option.value }}</span>
+          <span>{{ option.value }}</span>
           {%- else -%}
-          <a href="{{ option.url }}" class="filter-option">{{ option.value }}</a>
+          <a href="{{ option.url }}">{{ option.value }}</a>
           {%- endif -%}
         </li>
         {%- endfor -%}
       </ul>
-    </div>
+    </li>
     {%- endfor -%}
-  </div>
+  </ul>
 </nav>
 {%- endif -%}
 {%- endif -%}
