@@ -208,6 +208,41 @@ const createFilteredProductPagesCollection = (collectionApi) => {
 };
 
 /**
+ * Generate redirects for incomplete filter paths (key without value)
+ * e.g., /products/search/size/ redirects to /products/search/
+ */
+const createFilterRedirectsCollection = (collectionApi) => {
+  const products = collectionApi.getFilteredByTag("product") || [];
+  const allAttributes = getAllFilterAttributes(products);
+  const attributeKeys = Object.keys(allAttributes);
+  const baseUrl = `/${strings.product_permalink_dir}/search`;
+
+  const redirects = new Set();
+
+  // For each attribute key, create a redirect from /search/key/ to /search/
+  for (const key of attributeKeys) {
+    redirects.add(JSON.stringify({ from: `${baseUrl}/${key}/`, to: `${baseUrl}/#content` }));
+  }
+
+  // For each valid filter combination, create redirects for incomplete paths
+  const combinations = generateFilterCombinations(products);
+  for (const combo of combinations) {
+    const segments = combo.path.split("/");
+    // segments are [key1, val1, key2, val2, ...]
+    // Create redirect for path + next key (without value)
+    for (const key of attributeKeys) {
+      if (!combo.filters[key]) {
+        const incompletePath = `${baseUrl}/${combo.path}/${key}/`;
+        const redirectTo = `${baseUrl}/${combo.path}/#content`;
+        redirects.add(JSON.stringify({ from: incompletePath, to: redirectTo }));
+      }
+    }
+  }
+
+  return Array.from(redirects).map((r) => JSON.parse(r));
+};
+
+/**
  * Create collection of filter data (attributes + display lookup combined)
  */
 const createFilterAttributesCollection = (collectionApi) => {
@@ -225,6 +260,11 @@ const configureProductFilters = (eleventyConfig) => {
   eleventyConfig.addCollection(
     "filteredProductPages",
     createFilteredProductPagesCollection,
+  );
+
+  eleventyConfig.addCollection(
+    "filterRedirects",
+    createFilterRedirectsCollection,
   );
 
   eleventyConfig.addCollection(
@@ -327,6 +367,7 @@ export {
   getProductsByFilters,
   generateFilterCombinations,
   createFilteredProductPagesCollection,
+  createFilterRedirectsCollection,
   createFilterAttributesCollection,
   buildFilterUIData,
   configureProductFilters,
