@@ -205,6 +205,71 @@ const configureProductFilters = (eleventyConfig) => {
   eleventyConfig.addFilter("filterToPath", filterToPath);
   eleventyConfig.addFilter("pathToFilter", pathToFilter);
   eleventyConfig.addFilter("parseFilterAttributes", parseFilterAttributes);
+  eleventyConfig.addFilter("buildFilterUIData", buildFilterUIData);
+};
+
+/**
+ * Build pre-computed filter UI data for templates
+ * @param {Object} allAttributes - { size: ["compact", "large"], price: ["budget"] }
+ * @param {Object} currentFilters - { size: "compact" } or null/undefined
+ * @param {string} baseUrl - "/products"
+ * @returns {Object} Complete UI data ready for simple template loops
+ */
+const buildFilterUIData = (allAttributes, currentFilters, baseUrl) => {
+  if (!allAttributes || Object.keys(allAttributes).length === 0) {
+    return { hasFilters: false };
+  }
+
+  const filters = currentFilters || {};
+  const hasActiveFilters = Object.keys(filters).length > 0;
+
+  // Build active filters with remove URLs
+  const activeFilters = Object.entries(filters).map(([key, value]) => {
+    const withoutThis = { ...filters };
+    delete withoutThis[key];
+    const removePath = filterToPath(withoutThis);
+    const removeUrl = removePath ? `${baseUrl}/search/${removePath}/` : `${baseUrl}/`;
+
+    return {
+      key,
+      value,
+      removeUrl,
+    };
+  });
+
+  // Build filter groups with options
+  const groups = Object.entries(allAttributes).map(([attrName, attrValues]) => {
+    const currentValue = filters[attrName];
+
+    const options = attrValues.map((value) => {
+      const isActive = currentValue === value;
+
+      // Build URL for this option: replace current attr value with this one
+      const newFilters = { ...filters, [attrName]: value };
+      const path = filterToPath(newFilters);
+      const url = `${baseUrl}/search/${path}/`;
+
+      return {
+        value,
+        url,
+        active: isActive,
+      };
+    });
+
+    return {
+      name: attrName,
+      label: attrName.charAt(0).toUpperCase() + attrName.slice(1),
+      options,
+    };
+  });
+
+  return {
+    hasFilters: true,
+    hasActiveFilters,
+    activeFilters,
+    clearAllUrl: `${baseUrl}/`,
+    groups,
+  };
 };
 
 export {
@@ -217,5 +282,6 @@ export {
   generateFilterCombinations,
   createFilteredProductPagesCollection,
   createFilterAttributesCollection,
+  buildFilterUIData,
   configureProductFilters,
 };
