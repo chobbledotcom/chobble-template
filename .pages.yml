@@ -128,6 +128,13 @@ content:
       - { name: etsy_url, label: Etsy URL, type: string }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: features, type: string, label: Features, list: true }
+      - name: filter_attributes
+        label: Filter Attributes
+        type: object
+        list: true
+        fields:
+          - { name: name, type: string, label: Name, required: true }
+          - { name: value, type: string, label: Value, required: true }
       - name: gallery
         type: image
         label: Gallery

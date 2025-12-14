@@ -2,9 +2,12 @@
 title: Pocket Doodah Mini
 subtitle: Ultra-portable doodah for everyday carry
 filter_attributes:
-  - "Size: compact"
-  - "Type: classic"
-  - "Price: budget"
+  - name: Size
+    value: compact
+  - name: Type
+    value: classic
+  - name: Price
+    value: budget
 options:
   - name: Basic
     max_quantity: 30

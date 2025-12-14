@@ -2,9 +2,12 @@
 title: Mini Gizmo with Local Image
 subtitle: This gizmo uses a local image file path
 filter_attributes:
-  - "Size: compact"
-  - "Type: classic"
-  - "Price: budget"
+  - name: Size
+    value: compact
+  - name: Type
+    value: classic
+  - name: Price
+    value: budget
 keywords:
   - portable
   - colorful

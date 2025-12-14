@@ -2,9 +2,12 @@
 title: Heritage Thingy Deluxe
 subtitle: Handcrafted classic thingy with timeless appeal
 filter_attributes:
-  - "Size: standard"
-  - "Type: classic"
-  - "Price: midrange"
+  - name: Size
+    value: standard
+  - name: Type
+    value: classic
+  - name: Price
+    value: midrange
 options:
   - name: Standard
     max_quantity: 10

@@ -3,26 +3,17 @@ import strings from "../_data/strings.js";
 
 /**
  * Parse filter attributes from product data
- * Expects format: ["Size: small", "Capacity: 3"]
+ * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
  */
 const parseFilterAttributes = (filterAttributes) => {
-  if (!filterAttributes || !Array.isArray(filterAttributes)) return {};
+  if (!filterAttributes) return {};
 
   const parsed = {};
   for (const attr of filterAttributes) {
-    if (typeof attr !== "string") continue;
-    const colonIndex = attr.indexOf(":");
-    if (colonIndex === -1) continue;
-
-    const key = attr.slice(0, colonIndex).trim().toLowerCase();
-    const value = attr
-      .slice(colonIndex + 1)
-      .trim()
-      .toLowerCase();
-    if (key && value) {
-      parsed[key] = value;
-    }
+    const key = attr.name.trim().toLowerCase();
+    const value = attr.value.trim().toLowerCase();
+    parsed[key] = value;
   }
   return parsed;
 };
@@ -32,12 +23,10 @@ const parseFilterAttributes = (filterAttributes) => {
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
  */
 const getAllFilterAttributes = (products) => {
-  if (!products) return {};
-
   const attributeMap = {};
 
   for (const product of products) {
-    const attrs = parseFilterAttributes(product.data?.filter_attributes);
+    const attrs = parseFilterAttributes(product.data.filter_attributes);
     for (const [key, value] of Object.entries(attrs)) {
       if (!attributeMap[key]) {
         attributeMap[key] = new Set();
@@ -59,27 +48,19 @@ const getAllFilterAttributes = (products) => {
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
  */
 const buildDisplayLookup = (products) => {
-  if (!products) return {};
-
   const lookup = {};
 
   for (const product of products) {
-    const filterAttrs = product.data?.filter_attributes;
-    if (!filterAttrs || !Array.isArray(filterAttrs)) continue;
+    const filterAttrs = product.data.filter_attributes;
+    if (!filterAttrs) continue;
 
     for (const attr of filterAttrs) {
-      if (typeof attr !== "string") continue;
-      const colonIndex = attr.indexOf(":");
-      if (colonIndex === -1) continue;
-
-      const originalKey = attr.slice(0, colonIndex).trim();
-      const originalValue = attr.slice(colonIndex + 1).trim();
-      const lowerKey = originalKey.toLowerCase();
-      const lowerValue = originalValue.toLowerCase();
+      const lowerKey = attr.name.trim().toLowerCase();
+      const lowerValue = attr.value.trim().toLowerCase();
 
       // Store original capitalization (first one wins)
-      if (!lookup[lowerKey]) lookup[lowerKey] = originalKey;
-      if (!lookup[lowerValue]) lookup[lowerValue] = originalValue;
+      if (!lookup[lowerKey]) lookup[lowerKey] = attr.name.trim();
+      if (!lookup[lowerValue]) lookup[lowerValue] = attr.value.trim();
     }
   }
 
@@ -129,7 +110,7 @@ const pathToFilter = (path) => {
 const productMatchesFilters = (product, filters) => {
   if (!filters || Object.keys(filters).length === 0) return true;
 
-  const productAttrs = parseFilterAttributes(product.data?.filter_attributes);
+  const productAttrs = parseFilterAttributes(product.data.filter_attributes);
 
   for (const [key, value] of Object.entries(filters)) {
     if (productAttrs[key] !== value) {

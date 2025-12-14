@@ -2,9 +2,12 @@
 title: SmarThingy Home Hub
 subtitle: Central command center for your smart thingy ecosystem
 filter_attributes:
-  - "Size: large"
-  - "Type: smart"
-  - "Price: premium"
+  - name: Size
+    value: large
+  - name: Type
+    value: smart
+  - name: Price
+    value: premium
 options:
   - name: Starter
     max_quantity: 20
