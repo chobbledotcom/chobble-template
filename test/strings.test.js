@@ -1,7 +1,7 @@
+import fg from "fast-glob";
 import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import fg from "fast-glob";
 import strings from "../src/_data/strings.js";
 import baseStrings from "../src/_data/strings-base.json" with { type: "json" };
 import {

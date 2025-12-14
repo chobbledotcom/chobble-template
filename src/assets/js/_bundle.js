@@ -3,6 +3,7 @@
 // NPM dependencies
 import "@hotwired/turbo";
 import Botpoison from "@botpoison/browser";
+
 window.Botpoison = Botpoison;
 
 // Site JS

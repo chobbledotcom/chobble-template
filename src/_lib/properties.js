@@ -1,5 +1,5 @@
-import { sortByOrderThenTitle } from "./sorting.js";
 import { addGallery } from "./products.js";
+import { sortByOrderThenTitle } from "./sorting.js";
 
 const createPropertiesCollection = (collectionApi) => {
   const properties = collectionApi.getFilteredByTag("property") || [];
