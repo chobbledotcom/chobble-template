@@ -14,4 +14,4 @@ header_text: Search Results
 
 <h1>{{ strings.product_name }}</h1>
 
-<p>Showing {{ filterPage.count }} product{%- if filterPage.count != 1 -%}s{%- endif -%} matching: {{ filterPage.filterDescription }}</p>
+<p>Showing {{ filterPage.count }} product{% if filterPage.count != 1 %}s{% endif %} matching: {{ filterPage.filterDescription }}</p>
