@@ -5,7 +5,7 @@ header_image: src/images/placeholder-wide-1.jpg
 locations:
   - springfield
 featured: true
-formspark_id: seaside-cottage-form-id
+formspark_id: XQsfp8ZmP
 
 bedrooms: 2
 bathrooms: 1
