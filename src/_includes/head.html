@@ -77,5 +77,7 @@
     {%- assign schemaType = "organization" -%}
   {%- endif -%}
 
+  {% jsonLdScript metaComputed, schemaType, tags %}
+
   {%- include "head-scripts.html" -%}
 </head>
