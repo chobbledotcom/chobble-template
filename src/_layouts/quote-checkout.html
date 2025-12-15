@@ -4,11 +4,17 @@ layout: base
 
 {{ content }}
 
-{%- if config.formspark_id and config.formspark_id != "" -%}
+{%- assign form_target = config.contact_form_target -%}
+{%- unless form_target and form_target != "" -%}
+  {%- if config.formspark_id and config.formspark_id != "" -%}
+    {%- assign form_target = "https://submit-form.com/" | append: config.formspark_id -%}
+  {%- endif -%}
+{%- endunless -%}
+{%- if form_target and form_target != "" -%}
   <form
     id="quote-checkout-form"
     class="contact-form"
-    action="https://submit-form.com/{{ config.formspark_id }}"
+    action="{{ form_target }}"
     {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
       data-botpoison-public-key="{{ config.botpoison_public_key }}"
     {%- endif -%}

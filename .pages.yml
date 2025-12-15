@@ -322,7 +322,6 @@ content:
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: header_image, type: image, label: Header Image }
       - { name: featured, type: boolean, label: Featured }
-      - { name: formspark_id, type: string, label: Formspark ID }
       - name: locations
         label: Locations
         type: reference

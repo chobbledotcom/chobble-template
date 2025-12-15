@@ -1,10 +1,15 @@
-{%- assign form_id = formspark_id | default: config.formspark_id -%}
+{%- assign form_target = config.contact_form_target -%}
+{%- unless form_target and form_target != "" -%}
+  {%- if config.formspark_id and config.formspark_id != "" -%}
+    {%- assign form_target = "https://submit-form.com/" | append: config.formspark_id -%}
+  {%- endif -%}
+{%- endunless -%}
 <noscript><p>JavaScript is required to submit this form.</p></noscript>
-{%- if form_id and form_id != "" -%}
+{%- if form_target and form_target != "" -%}
   <form
     id="contact-form"
     class="contact-form"
-    action="https://submit-form.com/{{ form_id }}"
+    action="{{ form_target }}"
     {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
       data-botpoison-public-key="{{ config.botpoison_public_key }}"
     {%- endif -%}
