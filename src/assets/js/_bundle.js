@@ -23,3 +23,6 @@ import "./quote-complete.js";
 
 // Stripe checkout (standalone page)
 import "./stripe-checkout.js";
+
+// Availability calendar for properties
+import "./availability-calendar.js";

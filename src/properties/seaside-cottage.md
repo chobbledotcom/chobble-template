@@ -5,6 +5,7 @@ header_image: src/images/placeholder-wide-1.jpg
 locations:
   - springfield
 featured: true
+unavailability_api_url: https://auto.chobble.com/webhooks/flows/a4a86b7d-173a-43e7-8fc4-51c9c4d84a10/sync
 
 filter_attributes:
   - name: Bedrooms

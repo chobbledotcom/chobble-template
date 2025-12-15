@@ -8,6 +8,13 @@ layout: base
   {%- if subtitle -%}
     <h2>{{ subtitle }}</h2>
   {%- endif -%}
+  {%- if unavailability_api_url -%}
+    <p>
+      <button class="check-availability" data-api-url="{{ unavailability_api_url }}">
+        Check Availability
+      </button>
+    </p>
+  {%- endif -%}
   {%- if event_date or recurring_date or event_location -%}
     <ul>
       {%- if event_date -%}
