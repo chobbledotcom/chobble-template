@@ -6,6 +6,14 @@ locations:
   - springfield
 featured: true
 
+filter_attributes:
+  - name: Bedrooms
+    value: "2"
+  - name: Type
+    value: Cottage
+  - name: Pet Friendly
+    value: "Yes"
+
 bedrooms: 2
 bathrooms: 1
 sleeps: 4

@@ -6,6 +6,14 @@ locations:
   - royston-vasey
 featured: true
 
+filter_attributes:
+  - name: Bedrooms
+    value: "4"
+  - name: Type
+    value: Lodge
+  - name: Pet Friendly
+    value: "No"
+
 bedrooms: 4
 bathrooms: 2
 sleeps: 8

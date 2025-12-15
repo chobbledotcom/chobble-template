@@ -5,6 +5,14 @@ header_image: src/images/placeholder-wide-3.jpg
 locations:
   - fulchester
 
+filter_attributes:
+  - name: Bedrooms
+    value: "1"
+  - name: Type
+    value: Apartment
+  - name: Pet Friendly
+    value: "No"
+
 bedrooms: 1
 bathrooms: 1
 sleeps: 2
