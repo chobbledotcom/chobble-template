@@ -1,6 +1,6 @@
 # The Chobble Template
 
-**⚠️ Don't forget to change the Formspark and Botpoison info in `_site/data.json`!! ⚠️ or in your repository's action's secrets**
+**⚠️ Don't forget to change the Formspark and Botpoison info in `_data/config.json` or in your repository's action secrets ⚠️**
 
 **See this template in action at:**
 
@@ -16,45 +16,90 @@
 
 **💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/)
 
-This should let you get started with the Eleventy static site builder, really easily.
+An Eleventy starter for business websites. The GitHub action deploys to both Neocities and Bunny.net - you'll need to edit that for your setup.
 
-The Github action is set to deploy to both Neocities and Bunny.net - you'll need to edit that.
+## Content Types
 
-Featuring common business website features like:
+- **Products** - galleries, options with SKUs, FAQs, specifications, features lists, linked reviews with ratings
+- **Categories** - product groupings with inherited thumbnails
+- **Events** - one-off and recurring schedules, iCal feed generation
+- **News** - blog posts with Atom feed
+- **Menus** - categories, items, pricing, dietary indicators (vegan, gluten-free, etc.)
+- **Locations** - multi-site support with sub-locations
+- **Properties** - for holiday lets, linked to locations
+- **Reviews** - linked to products, aggregate ratings
+- **Team** - member profiles
+- **Snippets** - reusable content blocks
 
-- News posts
-- Reviews
-- Events (one-off and recurring)
-- Products (with linked reviews)
-- Categories (with linked products)
-- Galleries (on products and events)
-- Team member profiles
-- Menus
-- A contact form using [Formspark](https://formspark.io/) and [Botpoison](https://botpoison.com/)
-- Heading images
-- Customisable strings
-- Responsive images with `srcset`, [base64 low quality placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/), optional custom cropping
-- Github actions to deploy to Bunny and Neocities
-- Sitemap and pretty blog feed
+## Shopping Cart & Payments
 
-And Nix'y features like:
+- LocalStorage-based cart with quantity limits
+- Stripe Checkout and PayPal integration
+- Quote/enquiry mode (submit cart as request instead of payment)
+- Optional Express.js backend in `ecommerce-backend/` with Docker support
+- Auto-generated SKUs via GitHub Action
 
-- [direnv](https://direnv.net/) support via `flake.nix` - run `direnv allow`
-- or run `nix develop` if you don't have direnv
-- `lint` shell script to format code with Biome (requires Nix)
-- `screenshot` shell script to take website screenshots (requires Nix)
+## Theming
 
-And Eleventy features like:
+- 10 pre-built themes: Default, Neon, 90s Computer, Floral, Hacker, Monochrome, Ocean, Old Mac, Rainbow, Sunset
+- Per-page theme overrides
+- Visual theme editor at `/theme-editor/` with export
+- CSS custom properties for colours, fonts, borders, layout
+- SCSS support
+- Bunny Fonts integration
 
+## Images
+
+- Responsive images with `srcset` via `eleventy-img`
+- [Base64 LQIP placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/)
+- Gallery component with thumbnail navigation and full-size overlay
+- Custom aspect ratio cropping
+
+## Forms
+
+- [Formspark](https://formspark.io/) for delivery
+- [Botpoison](https://botpoison.com/) spam protection
+- JSON-configured fields
+
+## SEO & Structured Data
+
+- Schema.org markup for products (with reviews/ratings), events, FAQs, organisation
 - Canonical URLs
-- A directory to store favicon cruft
-- A `_data/site.json` metadata store
-- A `collection.images` collection of the files in `src/images`
+- Sitemap
+- Atom feed with XSL stylesheet
+- Meta descriptions, noindex support
 
-And quality of life features like:
+## Navigation & Layout
 
-- Linting with [Biome](https://biomejs.dev/)
-- CSS bundling (but not in dev)
-- Instant page navigation from [Turbo](https://turbo.hotwired.dev/)
+- Horizontal or left sidebar navigation
+- Sticky mobile nav option
+- Two-column layout with sidebar
+- Slider component for horizontal scrolling
+- Scroll-fade animations (respects `prefers-reduced-motion`)
+
+## Development
+
+- [Nix flakes](https://nixos.wiki/wiki/Flakes) with [direnv](https://direnv.net/) support
+- `bin/lint` - format with Biome
+- `bin/screenshot` - automated screenshots
+- [Biome](https://biomejs.dev/) linting
+- [jscpd](https://github.com/kucherenko/jscpd) duplicate detection
+- [Knip](https://knip.dev/) unused code detection
+- 17+ test files with custom runner
+- [Turbo](https://turbo.hotwired.dev/) for instant page navigation
+
+## Deployment
+
+- GitHub Actions workflow for Neocities and Bunny.net
+- Forgejo Actions support
+- PagesCMS integration for no-code editing
+- Docker support for ecommerce backend
+
+## Configuration
+
+- `_data/config.json` - Formspark, Botpoison, Stripe, PayPal, map embed, nav options
+- `_data/site.json` - name, URL, description, social links (14 platforms), opening hours
+- `_data/meta.json` - language, organisation details for schema.org
+- `_data/strings.json` - customisable labels and permalink directories
 
 **Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
