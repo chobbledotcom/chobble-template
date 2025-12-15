@@ -4,7 +4,6 @@ subtitle: Modern 1-bedroom apartment in the heart of town
 header_image: src/images/placeholder-wide-3.jpg
 locations:
   - fulchester
-formspark_id: XQsfp8ZmP
 
 filter_attributes:
   - name: Bedrooms

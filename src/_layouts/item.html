@@ -130,21 +130,7 @@ layout: base
     </div>
   {%- endif -%}
 {%- endif -%}
-{%- if tags contains "property" -%}
-  {%- if formspark_id and formspark_id != "" -%}
-    <div class="contact">
-      <h2>Get in Touch</h2>
-      {% include "contact-form.html" %}
-    </div>
-  {%- else -%}
-    <div class="contact">
-      <p class="form-missing-notice">
-        Contact form hidden: no Formspark ID configured for this property.
-        Add <code>formspark_id</code> to this property's front matter to enable the contact form.
-      </p>
-    </div>
-  {%- endif -%}
-{%- elsif config.formspark_id and config.formspark_id != "" -%}
+{%- if config.form_target and config.form_target != "" -%}
   <div class="contact">
     <h2>Get in Touch</h2>
     {% include "contact-form.html" %}

@@ -8,6 +8,7 @@ const DEFAULTS = {
   homepage_news: true,
   homepage_products: true,
   externalLinksTargetBlank: false,
+  contact_form_target: null,
   formspark_id: null,
   botpoison_public_key: null,
   stripe_publishable_key: null,
@@ -36,10 +37,22 @@ function getProducts(configData) {
   return nonNulls;
 }
 
+function getFormTarget(configData) {
+  if (configData.contact_form_target) {
+    return configData.contact_form_target;
+  }
+  if (configData.formspark_id) {
+    return `https://submit-form.com/${configData.formspark_id}`;
+  }
+  return null;
+}
+
 export default function () {
   const configData = require("./config.json");
   const products = Object.assign(DEFAULT_PRODUCT_DATA, getProducts(configData));
-  return Object.assign(DEFAULTS, configData, {
+  const merged = Object.assign(DEFAULTS, configData, {
     products: products,
   });
+  merged.form_target = getFormTarget(merged);
+  return merged;
 }
