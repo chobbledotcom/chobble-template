@@ -130,6 +130,7 @@ html:has(dialog.availability-calendar[open]) {
   dialog.availability-calendar {
     width: 100%;
     max-width: 100%;
+    height: 100vh;
     max-height: 100vh;
     border-radius: 0;
   }
