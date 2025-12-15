@@ -1,38 +1,4 @@
 {%- if config.has_products_filter -%}
 {%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters, collections.filteredProductPages -%}
-
-{%- if filterUI.hasFilters -%}
-<div class="products-filter">
-  {%- if filterUI.hasActiveFilters -%}
-  <ul class="filter-active">
-    {%- for filter in filterUI.activeFilters -%}
-    <li>
-      <span>{{ filter.key }}: {{ filter.value }}</span>
-      <a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter">&times;</a>
-    </li>
-    {%- endfor -%}
-    <li><a href="{{ filterUI.clearAllUrl }}">Clear all</a></li>
-  </ul>
-  {%- endif -%}
-
-  <ul class="filter-groups">
-    {%- for group in filterUI.groups -%}
-    <li>
-      <span>{{ group.label }}</span>
-      <ul>
-        {%- for option in group.options -%}
-        <li{% if option.active %} class="active"{% endif %}>
-          {%- if option.active -%}
-          <span>{{ option.value }}</span>
-          {%- else -%}
-          <a href="{{ option.url }}">{{ option.value }}</a>
-          {%- endif -%}
-        </li>
-        {%- endfor -%}
-      </ul>
-    </li>
-    {%- endfor -%}
-  </ul>
-</div>
-{%- endif -%}
+{%- include "item-filter.html", filterUI: filterUI -%}
 {%- endif -%}
