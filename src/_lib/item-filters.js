@@ -1,3 +1,4 @@
+import slugify from "@sindresorhus/slugify";
 import { sortByOrderThenTitle } from "./sorting.js";
 
 /**
@@ -20,8 +21,8 @@ const parseFilterAttributes = (filterAttributes) => {
 
   const parsed = {};
   for (const attr of filterAttributes) {
-    const key = attr.name.trim().toLowerCase();
-    const value = attr.value.trim().toLowerCase();
+    const key = slugify(attr.name.trim());
+    const value = slugify(attr.value.trim());
     parsed[key] = value;
   }
   return parsed;
@@ -64,12 +65,12 @@ const buildDisplayLookup = (items) => {
     if (!filterAttrs) continue;
 
     for (const attr of filterAttrs) {
-      const lowerKey = attr.name.trim().toLowerCase();
-      const lowerValue = attr.value.trim().toLowerCase();
+      const slugKey = slugify(attr.name.trim());
+      const slugValue = slugify(attr.value.trim());
 
       // Store original capitalization (first one wins)
-      if (!lookup[lowerKey]) lookup[lowerKey] = attr.name.trim();
-      if (!lookup[lowerValue]) lookup[lowerValue] = attr.value.trim();
+      if (!lookup[slugKey]) lookup[slugKey] = attr.name.trim();
+      if (!lookup[slugValue]) lookup[slugValue] = attr.value.trim();
     }
   }
 
