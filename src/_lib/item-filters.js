@@ -286,7 +286,8 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
  * @param {string} options.uiDataFilterName - Name for the buildFilterUIData filter
  */
 const createFilterConfig = (options) => {
-  const { tag, permalinkDir, itemsKey, collections, uiDataFilterName } = options;
+  const { tag, permalinkDir, itemsKey, collections, uiDataFilterName } =
+    options;
   const baseUrl = `/${permalinkDir}`;
 
   const createFilteredPagesCollection = (collectionApi) => {
@@ -350,12 +351,23 @@ const createFilterConfig = (options) => {
   };
 
   const configure = (eleventyConfig) => {
-    eleventyConfig.addCollection(collections.pages, createFilteredPagesCollection);
-    eleventyConfig.addCollection(collections.redirects, createRedirectsCollection);
-    eleventyConfig.addCollection(collections.attributes, createAttributesCollection);
+    eleventyConfig.addCollection(
+      collections.pages,
+      createFilteredPagesCollection,
+    );
+    eleventyConfig.addCollection(
+      collections.redirects,
+      createRedirectsCollection,
+    );
+    eleventyConfig.addCollection(
+      collections.attributes,
+      createAttributesCollection,
+    );
 
-    eleventyConfig.addFilter(uiDataFilterName, (filterData, currentFilters, validPages) =>
-      buildFilterUIData(filterData, currentFilters, validPages, baseUrl),
+    eleventyConfig.addFilter(
+      uiDataFilterName,
+      (filterData, currentFilters, validPages) =>
+        buildFilterUIData(filterData, currentFilters, validPages, baseUrl),
     );
   };
 
