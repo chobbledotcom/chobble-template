@@ -1,3 +1,5 @@
+import { memoize } from "./memoize.js";
+
 const normaliseCategory = (category) => {
   if (!category) return "";
   // Handle full paths like "/categories/premium-widgets.md"
@@ -6,46 +8,52 @@ const normaliseCategory = (category) => {
   return normalised.replace(/-/g, " ");
 };
 
-const getAllKeywords = (products) => {
-  if (!products) return [];
-
-  const keywordSet = new Set();
+// Build a memoized reverse index: keyword -> [products]
+// This avoids repeated nested loops when searching by keyword
+const buildProductKeywordMap = memoize((products) => {
+  const keywordProducts = new Map();
 
   for (const product of products) {
+    const productKeywords = new Set();
+
+    // Add explicit keywords
     const keywords = product.data?.keywords;
     if (keywords) {
-      for (const keyword of keywords) {
-        keywordSet.add(keyword);
+      for (const kw of keywords) {
+        productKeywords.add(kw);
       }
     }
 
+    // Add normalized categories as keywords
     const categories = product.data?.categories;
     if (categories) {
-      for (const category of categories) {
-        keywordSet.add(normaliseCategory(category));
+      for (const cat of categories) {
+        productKeywords.add(normaliseCategory(cat));
       }
+    }
+
+    // Build reverse index
+    for (const kw of productKeywords) {
+      if (!keywordProducts.has(kw)) {
+        keywordProducts.set(kw, []);
+      }
+      keywordProducts.get(kw).push(product);
     }
   }
 
-  return Array.from(keywordSet).sort();
+  return keywordProducts;
+});
+
+const getAllKeywords = (products) => {
+  if (!products) return [];
+  const map = buildProductKeywordMap(products);
+  return Array.from(map.keys()).sort();
 };
 
 const getProductsByKeyword = (products, keyword) => {
   if (!products || !keyword) return [];
-
-  return products.filter((product) => {
-    const keywords = product.data?.keywords;
-    if (keywords?.includes(keyword)) return true;
-
-    const categories = product.data?.categories;
-    if (categories) {
-      for (const category of categories) {
-        if (normaliseCategory(category) === keyword) return true;
-      }
-    }
-
-    return false;
-  });
+  const map = buildProductKeywordMap(products);
+  return map.get(keyword) || [];
 };
 
 const createSearchKeywordsCollection = (collectionApi) => {

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { memoize } from "./memoize.js";
 
 const ALLOWED_SVG_EXTENSIONS = [".svg"];
 const ALLOWED_IMAGE_EXTENSIONS = [".webp", ".jpeg", ".jpg", ".png", ".gif"];
@@ -84,7 +85,5 @@ export function inlineAsset(assetPath, baseDir = process.cwd()) {
  * @param {object} eleventyConfig - Eleventy configuration object
  */
 export function configureInlineAsset(eleventyConfig) {
-  eleventyConfig.addFilter("inline_asset", (assetPath) => {
-    return inlineAsset(assetPath);
-  });
+  eleventyConfig.addFilter("inline_asset", memoize(inlineAsset));
 }

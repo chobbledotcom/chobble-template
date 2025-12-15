@@ -1,4 +1,5 @@
 import slugify from "@sindresorhus/slugify";
+import { memoize } from "./memoize.js";
 import { sortByOrderThenTitle } from "./sorting.js";
 
 /**
@@ -32,7 +33,7 @@ const parseFilterAttributes = (filterAttributes) => {
  * Build a map of all filter attributes and their possible values
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
  */
-const getAllFilterAttributes = (items) => {
+const getAllFilterAttributes = memoize((items) => {
   const attributeMap = {};
 
   for (const item of items) {
@@ -51,13 +52,13 @@ const getAllFilterAttributes = (items) => {
     result[key] = Array.from(attributeMap[key]).sort();
   }
   return result;
-};
+});
 
 /**
  * Build a lookup map from lowercase keys/values to original capitalization
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
  */
-const buildDisplayLookup = (items) => {
+const buildDisplayLookup = memoize((items) => {
   const lookup = {};
 
   for (const item of items) {
@@ -75,7 +76,7 @@ const buildDisplayLookup = (items) => {
   }
 
   return lookup;
-};
+});
 
 /**
  * Convert filter object to URL path segment
@@ -149,7 +150,7 @@ const getItemsByFilters = (items, filters) => {
  * Generate all filter combinations that have matching items
  * Returns array of { filters: {...}, path: "...", count: N }
  */
-const generateFilterCombinations = (items) => {
+const generateFilterCombinations = memoize((items) => {
   if (!items) return [];
 
   const allAttributes = getAllFilterAttributes(items);
@@ -188,7 +189,7 @@ const generateFilterCombinations = (items) => {
   generateCombos({}, 0);
 
   return combinations;
-};
+});
 
 /**
  * Build a filter description string from filters using display lookup

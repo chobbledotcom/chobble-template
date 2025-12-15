@@ -1,4 +1,15 @@
+import { memoize } from "./memoize.js";
 import { sortByOrderThenTitle } from "./sorting.js";
+
+// Cache key for functions with (array, string) signature
+// Uses array reference identity (via default behavior) + string value
+const cacheKeyArrayAndSlug = (args) => {
+  // First arg is array (identity-based by memoize default), second is slug
+  // We combine array length as a sanity check with the slug
+  const arr = args[0];
+  const slug = args[1];
+  return `${arr?.length || 0}:${slug}`;
+};
 
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
@@ -42,24 +53,33 @@ const createLatestReviewsCollection = (collectionApi, limit = 3) => {
     .slice(0, limit);
 };
 
-const getProductsByCategory = (products, categorySlug) => {
-  if (!products) return [];
-  return products
-    .filter((product) => product.data.categories?.includes(categorySlug))
-    .sort(sortByOrderThenTitle);
-};
+const getProductsByCategory = memoize(
+  (products, categorySlug) => {
+    if (!products) return [];
+    return products
+      .filter((product) => product.data.categories?.includes(categorySlug))
+      .sort(sortByOrderThenTitle);
+  },
+  { cacheKey: cacheKeyArrayAndSlug },
+);
 
-const getProductsByEvent = (products, eventSlug) => {
-  if (!products) return [];
-  return products
-    .filter((product) => product.data.events?.includes(eventSlug))
-    .sort(sortByOrderThenTitle);
-};
+const getProductsByEvent = memoize(
+  (products, eventSlug) => {
+    if (!products) return [];
+    return products
+      .filter((product) => product.data.events?.includes(eventSlug))
+      .sort(sortByOrderThenTitle);
+  },
+  { cacheKey: cacheKeyArrayAndSlug },
+);
 
-const getReviewsByProduct = (reviews, productSlug) =>
-  (reviews || []).filter((review) =>
-    review.data.products?.includes(productSlug),
-  );
+const getReviewsByProduct = memoize(
+  (reviews, productSlug) =>
+    (reviews || []).filter((review) =>
+      review.data.products?.includes(productSlug),
+    ),
+  { cacheKey: cacheKeyArrayAndSlug },
+);
 
 const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];

@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { getDirname } from "./file-utils.js";
+import { memoize } from "./memoize.js";
 
 const __dirname = getDirname(import.meta.url);
 
-const getScssFiles = () => {
+const getScssFiles = memoize(() => {
   const menuItemsPath = path.join(__dirname, "../menu-items");
   const configPath = path.join(__dirname, "../_data/config.json");
 
@@ -21,7 +22,7 @@ const getScssFiles = () => {
   };
 
   return Object.keys(includes).filter((key) => includes[key]);
-};
+});
 
 const configureScssFiles = (eleventyConfig) => {
   eleventyConfig.addGlobalData("scssFiles", getScssFiles());

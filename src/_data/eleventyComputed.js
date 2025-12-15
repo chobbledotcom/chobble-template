@@ -1,6 +1,7 @@
 import { existsSync } from "fs";
 import { createRequire } from "module";
 import { join } from "path";
+import { memoize } from "../_lib/memoize.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,
@@ -10,6 +11,9 @@ import {
 
 const require = createRequire(import.meta.url);
 
+// Memoize the file existence check since the same images are checked repeatedly
+const checkImageExists = memoize((fullPath) => existsSync(fullPath));
+
 function isValidImage(imagePath) {
   if (!imagePath || imagePath.trim() === "") return false;
   if (imagePath.indexOf("http") === 0) return true;
@@ -18,7 +22,7 @@ function isValidImage(imagePath) {
   const relativePath = imagePath.replace(/^\//, "").replace(/^src\//, "");
   const fullPath = join(process.cwd(), "src", relativePath);
 
-  if (existsSync(fullPath)) return true;
+  if (checkImageExists(fullPath)) return true;
 
   throw new Error(`Image file not found: ${fullPath}`);
 }

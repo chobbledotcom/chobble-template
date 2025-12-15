@@ -1,3 +1,4 @@
+import { memoize } from "./memoize.js";
 import { sortByOrderThenTitle } from "./sorting.js";
 
 const renderRecurringEvents = (events) => {
@@ -37,16 +38,9 @@ const recurringEventsShortcode = function (eleventyConfig) {
   return renderRecurringEvents(recurringEvents);
 };
 
-const configureRecurringEvents = (eleventyConfig) => {
-  // Add the shortcode that can be used in templates
-  eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
-
-  // Also add a filter version for more flexibility
-  eleventyConfig.addFilter("format_recurring_events", renderRecurringEvents);
-};
-
 // Function to get recurring events HTML for direct use in file-utils
-const getRecurringEventsHtml = async () => {
+// Memoized at module level so all importers share the same cache
+const getRecurringEventsHtml = memoize(async () => {
   const fs = await import("fs");
   const path = await import("path");
   const matter = await import("gray-matter");
@@ -91,6 +85,14 @@ const getRecurringEventsHtml = async () => {
     console.error("Error reading events:", err);
     return "";
   }
+});
+
+const configureRecurringEvents = (eleventyConfig) => {
+  // Add the shortcode that can be used in templates
+  eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
+
+  // Also add a filter version for more flexibility
+  eleventyConfig.addFilter("format_recurring_events", renderRecurringEvents);
 };
 
 export {

@@ -1,3 +1,5 @@
+import { memoize } from "./memoize.js";
+
 const renderOpeningTimes = (openingTimes) => {
   if (!openingTimes || openingTimes.length === 0) {
     return "";
@@ -12,13 +14,13 @@ const renderOpeningTimes = (openingTimes) => {
   return html;
 };
 
-const getOpeningTimesHtml = async () => {
+const getOpeningTimesHtml = memoize(async () => {
   const siteData = await import("../_data/site.json", {
     with: { type: "json" },
   });
   const openingTimes = siteData.default.opening_times || [];
   return renderOpeningTimes(openingTimes);
-};
+});
 
 const configureOpeningTimes = (eleventyConfig) => {
   eleventyConfig.addShortcode("opening_times", getOpeningTimesHtml);

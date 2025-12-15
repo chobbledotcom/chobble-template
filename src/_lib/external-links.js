@@ -35,6 +35,11 @@ const transformExternalLinks = (content, config) => {
     return content;
   }
 
+  // Fast check: skip JSDOM if no external links present
+  if (!content.includes("http://") && !content.includes("https://")) {
+    return content;
+  }
+
   const dom = new JSDOM(content);
   const {
     window: { document },

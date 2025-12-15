@@ -1,10 +1,2 @@
 {%- assign image_filename = image | split: "/" | last -%}
-{%- assign alt_tag_entry = "" -%}
-{%- for entry in alt-tags.images -%}
-  {%- assign entry_filename = entry.path | split: "/" | last -%}
-  {%- if entry_filename == image_filename -%}
-    {%- assign alt_tag_entry = entry -%}
-    {%- break -%}
-  {%- endif -%}
-{%- endfor -%}
-{{- alt_tag_entry.alt | default: "" -}}
+{{- altTagsLookup[image_filename] | default: "" -}}

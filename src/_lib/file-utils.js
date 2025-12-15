@@ -2,8 +2,11 @@ import fs from "fs";
 import markdownIt from "markdown-it";
 import path from "path";
 import { fileURLToPath } from "url";
+import { memoize } from "./memoize.js";
 import { getOpeningTimesHtml } from "./opening-times.js";
 import { getRecurringEventsHtml } from "./recurring-events.js";
+
+const cacheKeyFromArgs = (args) => args.join(",");
 
 const getDirname = (importMetaUrl) =>
   path.dirname(fileURLToPath(importMetaUrl));
@@ -11,19 +14,25 @@ const getDirname = (importMetaUrl) =>
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
 
-const fileExists = (relativePath, baseDir = process.cwd()) => {
-  const fullPath = path.join(baseDir, relativePath);
-  return fs.existsSync(fullPath);
-};
+const fileExists = memoize(
+  (relativePath, baseDir = process.cwd()) => {
+    const fullPath = path.join(baseDir, relativePath);
+    return fs.existsSync(fullPath);
+  },
+  { cacheKey: cacheKeyFromArgs },
+);
 
 const fileMissing = (relativePath, baseDir = process.cwd()) =>
   !fileExists(relativePath, baseDir);
 
-const readFileContent = (relativePath, baseDir = process.cwd()) => {
-  const fullPath = path.join(baseDir, relativePath);
-  if (!fs.existsSync(fullPath)) return "";
-  return fs.readFileSync(fullPath, "utf8");
-};
+const readFileContent = memoize(
+  (relativePath, baseDir = process.cwd()) => {
+    const fullPath = path.join(baseDir, relativePath);
+    if (!fs.existsSync(fullPath)) return "";
+    return fs.readFileSync(fullPath, "utf8");
+  },
+  { cacheKey: cacheKeyFromArgs },
+);
 
 const extractBodyFromMarkdown = (content) => {
   const hasFrontmatter = /^---\n[\s\S]*?\n---/.test(content);
@@ -32,32 +41,35 @@ const extractBodyFromMarkdown = (content) => {
     : content;
 };
 
-const renderSnippet = async (
-  name,
-  defaultString = "",
-  baseDir = process.cwd(),
-  mdRenderer = createMarkdownRenderer(),
-) => {
-  const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
+const renderSnippet = memoize(
+  async (
+    name,
+    defaultString = "",
+    baseDir = process.cwd(),
+    mdRenderer = createMarkdownRenderer(),
+  ) => {
+    const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
 
-  if (!fs.existsSync(snippetPath)) return defaultString;
+    if (!fs.existsSync(snippetPath)) return defaultString;
 
-  const content = fs.readFileSync(snippetPath, "utf8");
-  let bodyContent = extractBodyFromMarkdown(content);
+    const content = fs.readFileSync(snippetPath, "utf8");
+    let bodyContent = extractBodyFromMarkdown(content);
 
-  // Preprocess liquid shortcodes
-  if (bodyContent.includes("{% opening_times %}")) {
-    const openingHtml = await getOpeningTimesHtml();
-    bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
-  }
+    // Preprocess liquid shortcodes
+    if (bodyContent.includes("{% opening_times %}")) {
+      const openingHtml = await getOpeningTimesHtml();
+      bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
+    }
 
-  if (bodyContent.includes("{% recurring_events %}")) {
-    const recurringHtml = await getRecurringEventsHtml();
-    bodyContent = bodyContent.replace("{% recurring_events %}", recurringHtml);
-  }
+    if (bodyContent.includes("{% recurring_events %}")) {
+      const recurringHtml = await getRecurringEventsHtml();
+      bodyContent = bodyContent.replace("{% recurring_events %}", recurringHtml);
+    }
 
-  return mdRenderer.render(bodyContent);
-};
+    return mdRenderer.render(bodyContent);
+  },
+  { cacheKey: cacheKeyFromArgs },
+);
 
 const configureFileUtils = (eleventyConfig) => {
   const mdRenderer = createMarkdownRenderer();

@@ -1,3 +1,4 @@
+import { memoize } from "./memoize.js";
 import { sortByOrderThenTitle } from "./sorting.js";
 
 const sortByEventDate = (events, descending = false) => {
@@ -11,7 +12,8 @@ const sortByEventDate = (events, descending = false) => {
 const getFeaturedEvents = (events) =>
   events?.filter((e) => e.data.featured) || [];
 
-export function categoriseEvents(events) {
+// Memoized since the same events array is categorised multiple times during build
+export const categoriseEvents = memoize(function (events) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
@@ -52,7 +54,7 @@ export function categoriseEvents(events) {
       past: hasPast,
     },
   };
-}
+});
 
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeaturedEvents", getFeaturedEvents);

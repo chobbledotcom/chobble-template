@@ -2,6 +2,7 @@ import Image from "@11ty/eleventy-img";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import sharp from "sharp";
+import { memoize } from "./memoize.js";
 
 const U = {
   DEFAULT_OPTIONS: {
@@ -19,7 +20,7 @@ const U = {
       widths: widths,
     });
   },
-  makeThumbnail: async (path) => {
+  makeThumbnail: memoize(async (path) => {
     let thumbnails;
     try {
       thumbnails = await Image(path, {
@@ -38,7 +39,7 @@ const U = {
     const [thumbnail] = thumbnails.webp;
     const base64 = fs.readFileSync(thumbnail.outputPath).toString("base64");
     return `url('data:image/webp;base64,${base64}')`;
-  },
+  }),
   getAspectRatio: (aspectRatio, metadata) => {
     if (aspectRatio) return aspectRatio;
     let gcd = function gcd(a, b) {
@@ -58,22 +59,20 @@ const U = {
 
     return sharpImage.resize(width, height, { fit: "cover" }).toBuffer();
   },
-  makeDiv: async (classes, thumbPromise, imageAspectRatio) => {
-    const {
-      window: { document },
-    } = new JSDOM();
+  // Build div HTML string directly instead of using JSDOM (much faster)
+  makeDivHtml: async (classes, thumbPromise, imageAspectRatio, innerHTML) => {
+    const classAttr = classes
+      ? `class="image-wrapper ${classes}"`
+      : 'class="image-wrapper"';
 
-    const div = document.createElement("div");
-    div.classList.add("image-wrapper");
-    if (classes) div.classList.add(classes);
-
-    div.style.setProperty("background-size", "cover");
+    const styles = ["background-size: cover"];
     if (thumbPromise !== null) {
-      div.style.setProperty("background-image", await thumbPromise);
+      const bgImage = await thumbPromise;
+      if (bgImage) styles.push(`background-image: ${bgImage}`);
     }
-    div.style.setProperty("aspect-ratio", imageAspectRatio);
+    styles.push(`aspect-ratio: ${imageAspectRatio}`);
 
-    return div;
+    return `<div ${classAttr} style="${styles.join("; ")}">${innerHTML}</div>`;
   },
   getHtmlAttributes: (alt, sizes, loading, classes) => {
     const attributes = {
@@ -95,6 +94,13 @@ const U = {
     }
     return widths || U.DEFAULT_WIDTHS;
   },
+  // Memoize sharp metadata reads (just the metadata, not the sharp instance)
+  getMetadata: memoize(async (path) => {
+    const sharpImage = sharp(path);
+    return await sharpImage.metadata();
+  }),
+  // Memoize file size checks
+  getFileSize: memoize((path) => fs.statSync(path).size),
   getPath: (imageName) => {
     const name = imageName.toString();
     if (name.startsWith("/")) {
@@ -124,6 +130,9 @@ const U = {
   },
 };
 
+// Cache for processAndWrapImage results (HTML strings only, not elements)
+const imageHtmlCache = new Map();
+
 async function processAndWrapImage({
   logName,
   imageName,
@@ -134,35 +143,60 @@ async function processAndWrapImage({
   returnElement = false,
   aspectRatio = null,
   loading = null,
+  document = null, // Optional: reuse existing JSDOM document
 }) {
+  // Create cache key from params that affect the output HTML
+  const cacheKey = JSON.stringify({
+    imageName: imageName?.toString(),
+    alt,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+    loading,
+  });
+
+  // Use cache for HTML output, or when we have a document to create element from cached HTML
+  if (imageHtmlCache.has(cacheKey)) {
+    const cachedHtml = imageHtmlCache.get(cacheKey);
+    if (!returnElement) {
+      return cachedHtml;
+    }
+    // Convert cached HTML to element using provided document
+    if (document) {
+      const template = document.createElement("template");
+      template.innerHTML = cachedHtml;
+      return template.content.firstChild;
+    }
+  }
   // Handle external URLs - just return a simple img tag without processing
   const imageNameStr = imageName.toString();
   if (
     imageNameStr.startsWith("http://") ||
     imageNameStr.startsWith("https://")
   ) {
-    const {
-      window: { document },
-    } = new JSDOM();
+    const classAttr = classes ? ` class="${classes}"` : "";
+    const html = `<img src="${imageNameStr}" alt="${alt || ""}" loading="${loading || "lazy"}" decoding="async" sizes="auto"${classAttr}>`;
 
-    const img = document.createElement("img");
-    img.setAttribute("src", imageNameStr);
-    img.setAttribute("alt", alt || "");
-    img.setAttribute("loading", loading || "lazy");
-    img.setAttribute("decoding", "async");
-    img.setAttribute("sizes", "auto");
-    if (classes) img.setAttribute("class", classes);
-
-    return returnElement ? img : img.outerHTML;
+    if (returnElement) {
+      if (document) {
+        const template = document.createElement("template");
+        template.innerHTML = html;
+        return template.content.firstChild;
+      }
+      const { window: { document: doc } } = new JSDOM(`<body>${html}</body>`);
+      return doc.body.firstChild;
+    }
+    return html;
   }
 
   const path = U.getPath(imageName);
   const sharpImage = sharp(path);
-  const metadata = await sharpImage.metadata();
+  const metadata = await U.getMetadata(path);
 
   // Check if we should skip base64 placeholder for SVG or images under 5KB
   const isSvg = metadata.format === "svg";
-  const fileSize = fs.statSync(path).size;
+  const fileSize = U.getFileSize(path);
   const isUnder5KB = fileSize < 5 * 1024;
   const shouldSkipPlaceholder = isSvg || isUnder5KB;
 
@@ -177,8 +211,7 @@ async function processAndWrapImage({
 
   const imagePromise = U.makeImagePromise(imageOrPath, U.getWidths(widths));
 
-  const div = await U.makeDiv(classes, thumbPromise, imageAspectRatio);
-  div.innerHTML = await U.makeImageHtml(
+  const innerHTML = await U.makeImageHtml(
     imagePromise,
     alt,
     sizes,
@@ -186,7 +219,21 @@ async function processAndWrapImage({
     classes,
   );
 
-  return returnElement ? div : div.outerHTML;
+  const html = await U.makeDivHtml(classes, thumbPromise, imageAspectRatio, innerHTML);
+  imageHtmlCache.set(cacheKey, html);
+
+  if (returnElement) {
+    // Convert HTML to element using provided document or create minimal JSDOM
+    if (document) {
+      const template = document.createElement("template");
+      template.innerHTML = html;
+      return template.content.firstChild;
+    }
+    const { window: { document: doc } } = new JSDOM(`<body>${html}</body>`);
+    return doc.body.firstChild;
+  }
+
+  return html;
 }
 
 import fastglob from "fast-glob";
@@ -263,7 +310,9 @@ const imageShortcode = async (
 };
 
 const transformImages = async (content) => {
+  // Fast string checks before expensive JSDOM parsing
   if (!content || !content.includes("<img")) return content;
+  if (!content.includes('src="/images/')) return content;
 
   const dom = new JSDOM(content);
   const {
@@ -294,6 +343,7 @@ const transformImages = async (content) => {
           aspectRatio: aspectRatio,
           loading: null,
           returnElement: true,
+          document: document, // Reuse existing JSDOM document
         }),
         img,
       );

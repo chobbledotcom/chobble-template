@@ -47,12 +47,19 @@ function getFormTarget(configData) {
   return null;
 }
 
+// Cache the config so it's only computed once
+let cachedConfig = null;
+
 export default function () {
+  if (cachedConfig) return cachedConfig;
+
   const configData = require("./config.json");
   const products = Object.assign(DEFAULT_PRODUCT_DATA, getProducts(configData));
   const merged = Object.assign(DEFAULTS, configData, {
     products: products,
   });
   merged.form_target = getFormTarget(merged);
+
+  cachedConfig = merged;
   return merged;
 }

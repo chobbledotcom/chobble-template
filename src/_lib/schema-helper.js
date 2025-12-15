@@ -1,3 +1,5 @@
+import { getReviewsByProduct } from "./products.js";
+
 function buildImageUrl(imageInput, siteUrl) {
   if (!imageInput) return null;
 
@@ -57,11 +59,12 @@ function buildProductMeta(data) {
     };
   }
 
-  // Add reviews if available
+  // Add reviews if available (uses memoized getReviewsByProduct)
   if (data.collections && data.collections.reviews) {
     const productSlug = data.page.fileSlug;
-    const productReviews = data.collections.reviews.filter((review) =>
-      review.data.products?.includes(productSlug),
+    const productReviews = getReviewsByProduct(
+      data.collections.reviews,
+      productSlug,
     );
 
     if (productReviews.length > 0) {

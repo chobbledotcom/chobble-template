@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
 import { getDirname } from "./file-utils.js";
+import { memoize } from "./memoize.js";
 
 const __dirname = getDirname(import.meta.url);
 
 // Get all theme files and their names
-const getThemeFiles = () => {
+const getThemeFiles = memoize(() => {
   const themesDir = path.join(__dirname, "../css");
   const files = fs.readdirSync(themesDir);
 
@@ -25,7 +26,7 @@ const getThemeFiles = () => {
     .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
 
   return themes;
-};
+});
 
 // Extract CSS variables from :root block
 const extractRootVariables = (content) => {
@@ -46,7 +47,7 @@ const toDisplayName = (name) => {
 };
 
 // Generate compiled theme CSS for theme-switcher
-const generateThemeSwitcherContent = () => {
+const generateThemeSwitcherContent = memoize(() => {
   const themes = getThemeFiles(); // Already sorted alphabetically
 
   let output = `// Auto-generated theme definitions for theme switcher
@@ -79,7 +80,7 @@ const generateThemeSwitcherContent = () => {
   output += `}\n`;
 
   return output;
-};
+});
 
 // We only export generateThemeSwitcherContent now since it's the only function
 // that's actually used (by scss.js to inject themes into bundle.scss)
