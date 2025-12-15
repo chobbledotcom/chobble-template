@@ -24,7 +24,13 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 - It's AGPLv3 licensed
 - With [a theme editor](/theme-editor/) you can test live!
 - Edited via the easy and free [PagesCMS](http://pagescms.org) editor
-- With built-in layouts for [pages](/instructions/), [news posts](/news/), [products](/products/), [menus](/menus/), and [events](/events/)
+- With built-in layouts for [pages](/instructions/), [news posts](/news/), [products](/products/), [categories](/products/), [menus](/menus/), [events](/events/), [locations](/locations/), [properties](/properties/), [reviews](/reviews/), and [team members](/team/)
+- E-commerce with PayPal and Stripe integration, plus a [Node.js checkout backend]({{ config.template_repo_url }}/blob/main/ecommerce-backend/)
+- Restaurant menus with dietary indicators, menu categories, and multiple menus
+- Holiday let properties with per-property enquiry forms and location filtering
+- Responsive image processing with WebP conversion and lazy loading
+- RSS feed, sitemap, and JSON-LD schema markup for SEO
+- ICS calendar downloads for events
 - It's based on [Eleventy]({{ config.template_repo_url }}/blob/main/.eleventy.js)
 - With minimal-ish semantic-ish HTML and CSS, based on [MVP.css](https://andybrewer.github.io/mvp/)
 - It's built with Node and [Github Actions]({{ config.template_repo_url }}/blob/main/.github/workflows/build-and-deploy.yaml)
