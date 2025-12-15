@@ -7,6 +7,14 @@ locations:
 featured: true
 formspark_id: XQsfp8ZmP
 
+filter_attributes:
+  - name: Bedrooms
+    value: "4"
+  - name: Type
+    value: Lodge
+  - name: Pet Friendly
+    value: "No"
+
 bedrooms: 4
 bathrooms: 2
 sleeps: 8

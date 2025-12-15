@@ -19,6 +19,7 @@ import { configureOpeningTimes } from "./src/_lib/opening-times.js";
 import { configureProductFilters } from "./src/_lib/product-filters.js";
 import { configureProducts } from "./src/_lib/products.js";
 import { configureProperties } from "./src/_lib/properties.js";
+import { configurePropertyFilters } from "./src/_lib/property-filters.js";
 import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
 import { configureScss } from "./src/_lib/scss.js";
 import { configureScssFiles } from "./src/_lib/scss-files.js";
@@ -58,6 +59,7 @@ export default async function (eleventyConfig) {
   configureProductFilters(eleventyConfig);
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
+  configurePropertyFilters(eleventyConfig);
   configureScss(eleventyConfig);
   configureScssFiles(eleventyConfig);
   configureSearch(eleventyConfig);
