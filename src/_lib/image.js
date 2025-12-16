@@ -1,6 +1,7 @@
 import Image from "@11ty/eleventy-img";
 import fs from "fs";
 import { JSDOM } from "jsdom";
+import path from "path";
 import sharp from "sharp";
 import { memoize } from "./memoize.js";
 
@@ -10,6 +11,11 @@ const U = {
     outputDir: ".image-cache",
     urlPath: "/img/",
     svgShortCircuit: true,
+    filenameFormat: (id, src, width, format) => {
+      // Extract the original filename without extension
+      const basename = path.basename(src, path.extname(src));
+      return `${basename}-${width}.${format}`;
+    },
   },
   DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
   DEFAULT_SIZE: "auto",
