@@ -214,7 +214,7 @@ content:
     fields:
       - { name: name, type: string, label: Name }
       - { name: url, type: string, label: URL }
-      - { name: rating, type: number, label: Rating, required: true }
+      - { name: rating, type: number, label: Rating }
       - { name: thumbnail, type: image, label: Reviewer Photo }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - name: products
