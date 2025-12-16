@@ -12,7 +12,12 @@ const U = {
     urlPath: "/img/",
     svgShortCircuit: true,
     filenameFormat: (id, src, width, format) => {
-      // Extract the original filename without extension
+      // For cropped images (Buffers), just use the hash-based id
+      if (Buffer.isBuffer(src)) {
+        return `${id}-${width}.${format}`;
+      }
+      
+      // For non-cropped images (file paths), use the original filename
       const basename = path.basename(src, path.extname(src));
       return `${basename}-${width}.${format}`;
     },
@@ -311,6 +316,7 @@ const imageShortcode = async (
     console.error(
       `processAndWrapImage: Invalid image path: ${JSON.stringify(imageName)}`,
     );
+    console.error(`Error details: ${error.message}`);
     return "";
   }
 };
