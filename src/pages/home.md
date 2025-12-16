@@ -25,19 +25,32 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 - With [a theme editor](/theme-editor/) you can test live!
 - Edited via the easy and free [PagesCMS](http://pagescms.org) editor
 - With built-in layouts for [pages](/instructions/), [news posts](/news/), [products](/products/), [categories](/products/), [menus](/menus/), [events](/events/), [locations](/locations/), [properties](/properties/), [reviews](/reviews/), and [team members](/team/)
-- E-commerce with PayPal and Stripe integration, plus a [Node.js checkout backend]({{ config.template_repo_url }}/blob/main/ecommerce-backend/)
-- Restaurant menus with dietary indicators, menu categories, and multiple menus
-- Holiday let properties with per-property enquiry forms and location filtering
-- Responsive image processing with WebP conversion and lazy loading
-- RSS feed, sitemap, and JSON-LD schema markup for SEO
-- ICS calendar downloads for events
 - It's based on [Eleventy]({{ config.template_repo_url }}/blob/main/.eleventy.js)
 - With minimal-ish semantic-ish HTML and CSS, based on [MVP.css](https://andybrewer.github.io/mvp/)
+- And the occasional bit of progressive enhancement with VanillaJS
 - It's built with Node and [Github Actions]({{ config.template_repo_url }}/blob/main/.github/workflows/build-and-deploy.yaml)
 - It's hosted on [Neocities](https://neocities.org/site/chobble-example) and [Bunny.net](https://chobble-example.b-cdn.net/), and can be adapted for any static host
 - With a Formspark & Botpoison spam-protected [contact form]({{ config.template_repo_url }}/blob/main/src/\_includes/contact-form.html)
 - Using [Turbo](https://turbo.hotwired.dev/) for instant page loads
 - With social media links in the footer
 - And customisable snippets to use wherever
+- And a pretty RSS feed and a Sitemap
+- And JSON-LD schema markup for SEO
+- And ICS calendar downloads for events
+- And loads more detailed below!
 
-The example comes pre-loaded with Markdown files in each collection (per-folder) - just delete the files you don't need, and the site will adjust its menus to suit.
+### E-Commerce
+
+You can use this template to create a simple e-commerce website powered by Stripe or PayPal, with an optional minimal [Node.js checkout backend]({{ config.template_repo_url }}/blob/main/ecommerce-backend/) if you want to handle actual proper Stripe checkouts rather than buttons. The cart system is basic - but will be improved.
+
+### Restaurants
+
+If you run a restaurant or cafe you can display your menus with dietary indicators, menu categories, and multiple menus
+
+### Filtering & Search
+
+The template pre-generates filter and search results pages to create a dynamic-feeling process powered by static pages
+
+## Getting started
+
+The example comes pre-loaded with Markdown files in each collection (per-folder) - just delete the files you don't need, and the site will adjust its navigation to suit.
