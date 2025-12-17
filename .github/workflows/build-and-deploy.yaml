@@ -32,8 +32,9 @@ jobs:
           path: |
             node_modules
             .image-cache
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}-images-${{ hashFiles('src/images/**/*') }}
           restore-keys: |
+            ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}-images-
             ${{ runner.os }}-pnpm-
 
       - name: Update config.json with secrets

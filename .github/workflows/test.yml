@@ -27,7 +27,6 @@ jobs:
         with:
           path: |
             node_modules
-            .image-cache
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
