@@ -16,26 +16,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: latest
 
-      - name: Restore cache
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+          cache: 'pnpm'
+
+      - name: Restore image cache
         uses: actions/cache@v4
         with:
-          path: |
-            node_modules
-            .image-cache
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}-images-${{ hashFiles('src/images/**/*') }}
+          path: .image-cache
+          key: ${{ runner.os }}-images-${{ hashFiles('src/images/**/*') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}-images-
-            ${{ runner.os }}-pnpm-
+            ${{ runner.os }}-images-
 
       - name: Update config.json with secrets
         run: |
