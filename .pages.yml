@@ -270,7 +270,7 @@ content:
     label: Locations
     path: src/locations
     type: collection
-    subfolders: false
+    subfolders: true
     filename: "{primary}.md"
     view:
       fields: [title, subtitle]
