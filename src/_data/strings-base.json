@@ -9,5 +9,7 @@
 	"location_permalink_dir": "locations",
 	"property_name": "Properties",
 	"property_permalink_dir": "properties",
-	"item_about_heading": "About"
+	"item_about_heading": "About",
+	"guide_name": "Guide",
+	"guide_permalink_dir": "guide"
 }
