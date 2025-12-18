@@ -1,5 +1,8 @@
-{%- if options and options.size > 0 -%} {%- if options.size == 1 -%} {%- assign
-option = options.first -%}
+{%- if options and options.size > 0 -%}
+{%- if config.paypal_email or config.stripe_publishable_key -%}
+<h2>Buy Now</h2>
+{%- if options.size == 1 -%}
+{%- assign option = options.first -%}
 <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
 <button
   class="add-to-cart paypal-button"
@@ -37,4 +40,6 @@ option = options.first -%}
     Add to Cart
   </button>
 </div>
-{%- endif -%} {%- endif -%}
+{%- endif -%}
+{%- endif -%}
+{%- endif -%}

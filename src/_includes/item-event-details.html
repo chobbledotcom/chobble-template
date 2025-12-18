@@ -1,0 +1,33 @@
+{%- if event_date or recurring_date or event_location -%}
+  <ul>
+    {%- if event_date -%}
+      <li>
+        <em>
+          Date:
+          <strong>{{ event_date | date: "%b %-d, %Y" }}</strong>
+        </em>
+      </li>
+    {%- endif -%}
+    {%- if recurring_date -%}
+      <li>
+        <em>
+          Schedule:
+          <strong>{{ recurring_date }}</strong>
+        </em>
+      </li>
+    {%- endif -%}
+    {%- if event_location -%}
+      <li>
+        <em>
+          Location:
+          <strong>{{ event_location }}</strong>
+        </em>
+      </li>
+    {%- endif -%}
+    {%- if ical_url -%}
+      <li>
+        <a href="{{ ical_url }}" download>📅 Download to Calendar (.ics)</a>
+      </li>
+    {%- endif -%}
+  </ul>
+{%- endif -%}

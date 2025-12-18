@@ -1,0 +1,8 @@
+{%- if tags and tags contains "product" -%}
+  {% assign reviews = collections.review | default: [] | getReviewsByProduct: page.fileSlug %}
+  {%- if reviews.size > 0 -%}
+    <h2>Reviews</h2>
+    {% include "reviews-list.html" %}
+  {%- endif -%}
+  {%- include "etsy-buy-button.html" -%}
+{%- endif -%}
