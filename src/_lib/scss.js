@@ -45,6 +45,10 @@ const configureScss = (eleventyConfig) => {
     outputFileExtension: "css",
     useLayouts: false,
     compile: (inputContent, inputPath) => {
+      // Only compile bundle.scss, skip all other scss files
+      if (!inputPath.endsWith("bundle.scss")) {
+        return () => undefined;
+      }
       return createScssCompiler(inputContent, inputPath);
     },
   });
