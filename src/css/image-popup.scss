@@ -1,0 +1,51 @@
+// Image Popup Styles
+// Fullscreen lightbox for gallery images
+
+@use "breakpoints";
+
+dialog.image-popup {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: auto;
+  width: calc(100% - 1rem);
+  height: calc(100% - 1rem);
+  max-width: none;
+  max-height: none;
+
+  @include breakpoints.up("md") {
+    width: calc(100% - 2rem);
+    height: calc(100% - 2rem);
+  }
+
+  &[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.9);
+    cursor: pointer;
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    cursor: pointer;
+  }
+}
+
+// Scroll lock when popup is open
+html:has(dialog.image-popup[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+// Make current image clickable
+.current-image {
+  cursor: zoom-in;
+}
