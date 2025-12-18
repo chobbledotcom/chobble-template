@@ -24,6 +24,7 @@ const loadImage = (event) => {
 const openPopup = () => {
   const imageWrapper = currentImage.querySelector(".image-wrapper");
   imagePopup.innerHTML = imageWrapper.outerHTML;
+  imagePopup.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
   imagePopup.showModal();
 };
 

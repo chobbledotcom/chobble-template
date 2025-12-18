@@ -6,6 +6,7 @@
 dialog.image-popup {
   background: transparent;
   border: none;
+  outline: none;
   padding: 0;
   margin: auto;
   width: calc(100% - 1rem);
@@ -25,7 +26,7 @@ dialog.image-popup {
   }
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.6);
     cursor: pointer;
   }
 
