@@ -1,0 +1,1164 @@
+{
+  "places": [
+    {
+      "id": 1996121,
+      "title": "Cumbrian Heavy Horses",
+      "description": "",
+      "category": "horse_riding",
+      "categoryLabel": "Horse riding",
+      "location": {
+        "lat": 54.2594264,
+        "lng": -3.2746339
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.2594264,-3.2746339",
+      "icon": "icons/touchstay/horse_riding.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/horse_riding.svg?v=4"
+    },
+    {
+      "id": 1993539,
+      "title": "Dales Bike Centre",
+      "description": "",
+      "category": "bike_rental",
+      "categoryLabel": "Bike rentals",
+      "location": {
+        "lat": 54.3848575,
+        "lng": -1.930550099999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3848575,-1.930550099999999",
+      "icon": "icons/touchstay/bike_rental.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/bike_rental.svg?v=4"
+    },
+    {
+      "id": 1993536,
+      "title": "Dales Countryside Museum",
+      "description": "",
+      "category": "museums",
+      "categoryLabel": "Museums",
+      "location": {
+        "lat": 54.30457719999999,
+        "lng": -2.1922861
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.30457719999999,-2.1922861",
+      "icon": "icons/touchstay/museums.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/museums.svg?v=4"
+    },
+    {
+      "id": 1994844,
+      "title": "Ingleborough Cave",
+      "description": "",
+      "category": "entertainment_and_activities",
+      "categoryLabel": "Entertainment and activities",
+      "location": {
+        "lat": 54.1351971,
+        "lng": -2.3774873
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.1351971,-2.3774873",
+      "icon": "icons/touchstay/entertainment_and_activities.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/entertainment_and_activities.svg?v=4"
+    },
+    {
+      "id": 1997315,
+      "title": "Kendal Leisure Centre",
+      "description": "",
+      "category": "fitness_exercise",
+      "categoryLabel": "Fitness/excercise",
+      "location": {
+        "lat": 54.3154275,
+        "lng": -2.7385858
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3154275,-2.7385858",
+      "icon": "icons/touchstay/fitness_exercise.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/fitness_exercise.svg?v=4"
+    },
+    {
+      "id": 1993534,
+      "title": "Morecambe Beach",
+      "description": "<p>A dog friendly beach is also available at Morecombe at Marine Road East, Morecombe LA4 5AH. </p>",
+      "category": "beaches",
+      "categoryLabel": "Beaches",
+      "location": {
+        "lat": 54.0742867,
+        "lng": -2.8654257
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.0742867,-2.8654257",
+      "icon": "icons/touchstay/beaches.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/beaches.svg?v=4"
+    },
+    {
+      "id": 1993538,
+      "title": "Sedbergh Golf Club",
+      "description": "",
+      "category": "entertainment_and_activities",
+      "categoryLabel": "Entertainment and activities",
+      "location": {
+        "lat": 54.3116339,
+        "lng": -2.536720599999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3116339,-2.536720599999999",
+      "icon": "icons/touchstay/entertainment_and_activities.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/entertainment_and_activities.svg?v=4"
+    },
+    {
+      "id": 1993535,
+      "title": "Sedbergh School Swimming Pool",
+      "description": "",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.3207432,
+        "lng": -2.5281173
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3207432,-2.5281173",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1993504,
+      "title": "Sedbergh Tourist Information",
+      "description": "",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.32390760000001,
+        "lng": -2.5252587
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32390760000001,-2.5252587",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1993549,
+      "title": "Wensleydale Creamery Visitor Centre",
+      "description": "",
+      "category": "souvenirs",
+      "categoryLabel": "Souvenirs",
+      "location": {
+        "lat": 54.3018763,
+        "lng": -2.2009213
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3018763,-2.2009213",
+      "icon": "icons/touchstay/souvenirs.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/souvenirs.svg?v=4"
+    },
+    {
+      "id": 1994843,
+      "title": "White Scar Cave",
+      "description": "",
+      "category": "entertainment_and_activities",
+      "categoryLabel": "Entertainment and activities",
+      "location": {
+        "lat": 54.1656094,
+        "lng": -2.441763399999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.1656094,-2.441763399999999",
+      "icon": "icons/touchstay/entertainment_and_activities.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/entertainment_and_activities.svg?v=4"
+    },
+    {
+      "id": 1993433,
+      "title": "Garsdale Train Station, Garsdale Head",
+      "description": "",
+      "category": "train",
+      "categoryLabel": "Train station",
+      "location": {
+        "lat": 54.32142619999999,
+        "lng": -2.3262689
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32142619999999,-2.3262689",
+      "icon": "icons/touchstay/train.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/train.svg?v=4"
+    },
+    {
+      "id": 1993503,
+      "title": "On Time Taxis Sedbergh",
+      "description": "",
+      "category": "taxi",
+      "categoryLabel": "Taxi rank",
+      "location": {
+        "lat": 54.3225667,
+        "lng": -2.5215408
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3225667,-2.5215408",
+      "icon": "icons/touchstay/taxi.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/taxi.svg?v=4"
+    },
+    {
+      "id": 1993426,
+      "title": "Powells Fruit Merchants",
+      "description": "<p>Great greengrocers</p>",
+      "category": "grocery_shopping",
+      "categoryLabel": "Grocery shopping",
+      "location": {
+        "lat": 54.32378989999999,
+        "lng": -2.5270354
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32378989999999,-2.5270354",
+      "icon": "icons/touchstay/grocery_shopping.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/grocery_shopping.svg?v=4"
+    },
+    {
+      "id": 1993545,
+      "title": "SPAR Hawes",
+      "description": "",
+      "category": "grocery_shopping",
+      "categoryLabel": "Grocery shopping",
+      "location": {
+        "lat": 54.30400119999999,
+        "lng": -2.1987646
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.30400119999999,-2.1987646",
+      "icon": "icons/touchstay/grocery_shopping.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/grocery_shopping.svg?v=4"
+    },
+    {
+      "id": 1993422,
+      "title": "SPAR Sedbergh",
+      "description": "",
+      "category": "grocery_shopping",
+      "categoryLabel": "Grocery shopping",
+      "location": {
+        "lat": 54.3229223,
+        "lng": -2.5348778
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3229223,-2.5348778",
+      "icon": "icons/touchstay/grocery_shopping.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/grocery_shopping.svg?v=4"
+    },
+    {
+      "id": 1997322,
+      "title": "Market Square Kirkby Lonsdale",
+      "description": "",
+      "category": "events",
+      "categoryLabel": "Events",
+      "location": {
+        "lat": 54.2019454,
+        "lng": -2.5966415
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.2019454,-2.5966415",
+      "icon": "icons/touchstay/events.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/events.svg?v=4"
+    },
+    {
+      "id": 1997319,
+      "title": "Sedbergh market",
+      "description": "<p>Farmers Market every Wednesday 8.30am to 12.30pm </p>\n<p>Artisan Market Saturday once a month during summer months (keep an eye out)</p>\n<p> </p>",
+      "category": "farm_shop_market",
+      "categoryLabel": "Farm shop/farmers market",
+      "location": {
+        "lat": 54.3241276,
+        "lng": -2.5255781
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3241276,-2.5255781",
+      "icon": "icons/touchstay/farm_shop_market.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/farm_shop_market.svg?v=4"
+    },
+    {
+      "id": 1997320,
+      "title": "The Market House Hawes",
+      "description": "<p>Indoor market first Saturday every month</p>",
+      "category": "events",
+      "categoryLabel": "Events",
+      "location": {
+        "lat": 54.30396030000001,
+        "lng": -2.1991693
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.30396030000001,-2.1991693",
+      "icon": "icons/touchstay/events.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/events.svg?v=4"
+    },
+    {
+      "id": 1993449,
+      "title": "The Black Bull Inn",
+      "description": "<p>Dog friendly pub restaurant. </p>\n<p class=\"\">'At The Black Bull in Sedbergh you’ll find an exciting and unique menu,</p>\n<p class=\"\">designed with influences taken from Japanese and German cuisine'</p>",
+      "category": "gastro_pub",
+      "categoryLabel": "Gastropubs",
+      "location": {
+        "lat": 54.323758,
+        "lng": -2.527537
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.323758,-2.527537",
+      "icon": "icons/touchstay/gastro_pub.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/gastro_pub.svg?v=4"
+    },
+    {
+      "id": 1993447,
+      "title": "The Dalesman Country Inn",
+      "description": "<p>Pub restaurant. No site parking. Not dog friendly</p>",
+      "category": "gastro_pub",
+      "categoryLabel": "Gastropubs",
+      "location": {
+        "lat": 54.32362289999999,
+        "lng": -2.52893
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32362289999999,-2.52893",
+      "icon": "icons/touchstay/gastro_pub.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/gastro_pub.svg?v=4"
+    },
+    {
+      "id": 1993443,
+      "title": "The Green Dragon Inn",
+      "description": "<p>Excellent old pub/restaurant. Fronts on to Hardraw force waterfall. Parking on site. Dog Friendly</p>",
+      "category": "gastro_pub",
+      "categoryLabel": "Gastropubs",
+      "location": {
+        "lat": 54.3164451,
+        "lng": -2.2048897
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3164451,-2.2048897",
+      "icon": "icons/touchstay/gastro_pub.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/gastro_pub.svg?v=4"
+    },
+    {
+      "id": 1993441,
+      "title": "The White Hart Inn, Hawes",
+      "description": "<p>Excellent pub/restaurant and very dog friendly. Park in town and walk to venue</p>",
+      "category": "gastro_pub",
+      "categoryLabel": "Gastropubs",
+      "location": {
+        "lat": 54.3038883,
+        "lng": -2.1969692
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3038883,-2.1969692",
+      "icon": "icons/touchstay/gastro_pub.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/gastro_pub.svg?v=4"
+    },
+    {
+      "id": 1993516,
+      "title": "Sedbergh Pizza",
+      "description": "",
+      "category": "take_out",
+      "categoryLabel": "Take out/away",
+      "location": {
+        "lat": 54.3237306,
+        "lng": -2.527827
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3237306,-2.527827",
+      "icon": "icons/touchstay/take_out.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/take_out.svg?v=4"
+    },
+    {
+      "id": 1997648,
+      "title": "Spice Essence Indian Cuisine",
+      "description": "",
+      "category": "take_out",
+      "categoryLabel": "Take out/away",
+      "location": {
+        "lat": 54.20251450000001,
+        "lng": -2.5973246
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.20251450000001,-2.5973246",
+      "icon": "icons/touchstay/take_out.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/take_out.svg?v=4"
+    },
+    {
+      "id": 1993501,
+      "title": "The Chippie",
+      "description": "<p>Best you'll find around</p>",
+      "category": "take_out",
+      "categoryLabel": "Take out/away",
+      "location": {
+        "lat": 54.3041307,
+        "lng": -2.2001064
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3041307,-2.2001064",
+      "icon": "icons/touchstay/take_out.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/take_out.svg?v=4"
+    },
+    {
+      "id": 1993499,
+      "title": "The Haddock Paddock",
+      "description": "",
+      "category": "take_out",
+      "categoryLabel": "Take out/away",
+      "location": {
+        "lat": 54.32370470000001,
+        "lng": -2.5264444
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32370470000001,-2.5264444",
+      "icon": "icons/touchstay/take_out.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/take_out.svg?v=4"
+    },
+    {
+      "id": 1997638,
+      "title": "Voujon Indian Restaurant",
+      "description": "",
+      "category": "take_out",
+      "categoryLabel": "Take out/away",
+      "location": {
+        "lat": 54.3041548,
+        "lng": -2.1986047
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3041548,-2.1986047",
+      "icon": "icons/touchstay/take_out.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/take_out.svg?v=4"
+    },
+    {
+      "id": 1997652,
+      "title": "Water Lily Chinese Kirkby Lonsdale",
+      "description": "",
+      "category": "take_out",
+      "categoryLabel": "Take out/away",
+      "location": {
+        "lat": 54.20167889999999,
+        "lng": -2.596790399999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.20167889999999,-2.596790399999999",
+      "icon": "icons/touchstay/take_out.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/take_out.svg?v=4"
+    },
+    {
+      "id": 1994818,
+      "title": "Caffè Curva",
+      "description": "",
+      "category": "coffee_shop",
+      "categoryLabel": "Coffee shops",
+      "location": {
+        "lat": 54.3040181,
+        "lng": -2.1975851
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3040181,-2.1975851",
+      "icon": "icons/touchstay/coffee_shop.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/coffee_shop.svg?v=4"
+    },
+    {
+      "id": 1993543,
+      "title": "Smatt's Duo",
+      "description": "",
+      "category": "coffee_shop",
+      "categoryLabel": "Coffee shops",
+      "location": {
+        "lat": 54.3237111,
+        "lng": -2.5282517
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3237111,-2.5282517",
+      "icon": "icons/touchstay/coffee_shop.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/coffee_shop.svg?v=4"
+    },
+    {
+      "id": 1993541,
+      "title": "The Gun Dog coffee shop",
+      "description": "",
+      "category": "coffee_shop",
+      "categoryLabel": "Coffee shops",
+      "location": {
+        "lat": 54.3236675,
+        "lng": -2.5267582
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3236675,-2.5267582",
+      "icon": "icons/touchstay/coffee_shop.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/coffee_shop.svg?v=4"
+    },
+    {
+      "id": 1994819,
+      "title": "Cross Keys Temperance Inn",
+      "description": "",
+      "category": "coffee_shop",
+      "categoryLabel": "Coffee shops",
+      "location": {
+        "lat": 54.3665639,
+        "lng": -2.466433299999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3665639,-2.466433299999999",
+      "icon": "icons/touchstay/coffee_shop.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/coffee_shop.svg?v=4"
+    },
+    {
+      "id": 1993523,
+      "title": "Sleepy Elephant, Sedbergh",
+      "description": "",
+      "category": "retail_therapy",
+      "categoryLabel": "Retail shops/stores",
+      "location": {
+        "lat": 54.32359099999999,
+        "lng": -2.5274949
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32359099999999,-2.5274949",
+      "icon": "icons/touchstay/retail_therapy.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/retail_therapy.svg?v=4"
+    },
+    {
+      "id": 1993527,
+      "title": "Three Peaks Outdoor Leisure, Hawes",
+      "description": "",
+      "category": "retail_therapy",
+      "categoryLabel": "Retail shops/stores",
+      "location": {
+        "lat": 54.30360100000001,
+        "lng": -2.1950954
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.30360100000001,-2.1950954",
+      "icon": "icons/touchstay/retail_therapy.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/retail_therapy.svg?v=4"
+    },
+    {
+      "id": 1993436,
+      "title": "NatWest Kirkby Lonsdale",
+      "description": "",
+      "category": "bank",
+      "categoryLabel": "Bank",
+      "location": {
+        "lat": 54.2027031,
+        "lng": -2.596856499999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.2027031,-2.596856499999999",
+      "icon": "icons/touchstay/bank.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/bank.svg?v=4"
+    },
+    {
+      "id": 1993425,
+      "title": "The Meat Hook Sedbergh",
+      "description": "<p>Butchers</p>",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.32330100000001,
+        "lng": -2.5279464
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32330100000001,-2.5279464",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1993530,
+      "title": "Joss Lane Car Park Sedbergh",
+      "description": "",
+      "category": "electric_charging_station",
+      "categoryLabel": "Electric charging point",
+      "location": {
+        "lat": 54.3241276,
+        "lng": -2.5255781
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3241276,-2.5255781",
+      "icon": "icons/touchstay/electric_charging_station.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/electric_charging_station.svg?v=4"
+    },
+    {
+      "id": 1997316,
+      "title": "Barclays ATM, Hawes",
+      "description": "",
+      "category": "bank",
+      "categoryLabel": "Bank",
+      "location": {
+        "lat": 54.3041047,
+        "lng": -2.1977889
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3041047,-2.1977889",
+      "icon": "icons/touchstay/bank.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/bank.svg?v=4"
+    },
+    {
+      "id": 1993439,
+      "title": "NatWest ATM, Sedbergh",
+      "description": "",
+      "category": "bank",
+      "categoryLabel": "Bank",
+      "location": {
+        "lat": 54.3238335,
+        "lng": -2.526768
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3238335,-2.526768",
+      "icon": "icons/touchstay/bank.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/bank.svg?v=4"
+    },
+    {
+      "id": 1993438,
+      "title": "SPAR Sedbergh",
+      "description": "",
+      "category": "grocery_shopping",
+      "categoryLabel": "Grocery shopping",
+      "location": {
+        "lat": 54.3229223,
+        "lng": -2.5348778
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3229223,-2.5348778",
+      "icon": "icons/touchstay/grocery_shopping.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/grocery_shopping.svg?v=4"
+    },
+    {
+      "id": 1997215,
+      "title": "Central Dales Pharmacy, Hawes",
+      "description": "",
+      "category": "pharmacy",
+      "categoryLabel": "Pharmacy",
+      "location": {
+        "lat": 54.3038433,
+        "lng": -2.197702199999999
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3038433,-2.197702199999999",
+      "icon": "icons/touchstay/pharmacy.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/pharmacy.svg?v=4"
+    },
+    {
+      "id": 1993506,
+      "title": "Royal Lancaster Infirmary, Lancaster",
+      "description": "<p>The Royal Lancaster Infirmary (RLI) has a range of 'general hospital' services, including a full Accident &amp; Emergency Department, Critical Care unit and Consultant led beds. RLI also provides a range of planned care including outpatients, diagnostics, therapies, day-case and inpatient surgery. </p>",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.0424766,
+        "lng": -2.8000969
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.0424766,-2.8000969",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1993505,
+      "title": "Westmorland General Hospital, Kendal",
+      "description": "<p>This houses an Urgent Treatment Centre. Use this department if you need urgent medical attention, but it's not a life-threatening situation.</p>",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.30653299999999,
+        "lng": -2.732387
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.30653299999999,-2.732387",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1993424,
+      "title": "DT Close, Sedbergh",
+      "description": "",
+      "category": "gas_station",
+      "categoryLabel": "Gas/petrol station",
+      "location": {
+        "lat": 54.3204295,
+        "lng": -2.5418975
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3204295,-2.5418975",
+      "icon": "icons/touchstay/gas_station.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/gas_station.svg?v=4"
+    },
+    {
+      "id": 1993514,
+      "title": "Collinge Opticians, Hawes",
+      "description": "",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.203159,
+        "lng": -2.5974359
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.203159,-2.5974359",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1993423,
+      "title": "DT Close, Sedbergh",
+      "description": "",
+      "category": "vehicle_repair",
+      "categoryLabel": "Vehicle/auto repair",
+      "location": {
+        "lat": 54.3204295,
+        "lng": -2.5418975
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3204295,-2.5418975",
+      "icon": "icons/touchstay/vehicle_repair.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/vehicle_repair.svg?v=4"
+    },
+    {
+      "id": 1993440,
+      "title": "Dalehead Garage, Hawes",
+      "description": "<p>Community owned petrol station</p>",
+      "category": "gas_station",
+      "categoryLabel": "Gas/petrol station",
+      "location": {
+        "lat": 54.3040043,
+        "lng": -2.2018213
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3040043,-2.2018213",
+      "icon": "icons/touchstay/gas_station.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/gas_station.svg?v=4"
+    },
+    {
+      "id": 1993431,
+      "title": "Sedbergh Post Office",
+      "description": "",
+      "category": "bank",
+      "categoryLabel": "Bank",
+      "location": {
+        "lat": 54.3236216,
+        "lng": -2.5287826
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3236216,-2.5287826",
+      "icon": "icons/touchstay/bank.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/bank.svg?v=4"
+    },
+    {
+      "id": 1993517,
+      "title": "Bainbridge Vets, Askrigg",
+      "description": "",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.3131294,
+        "lng": -2.0891938
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3131294,-2.0891938",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1997895,
+      "title": "Farm Gate Vets",
+      "description": "",
+      "category": "other",
+      "categoryLabel": "Other",
+      "location": {
+        "lat": 54.3233585,
+        "lng": -2.5233229
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.3233585,-2.5233229",
+      "icon": "icons/touchstay/other.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/other.svg?v=4"
+    },
+    {
+      "id": 1994822,
+      "title": "Vodafone",
+      "description": "",
+      "category": "retail_therapy",
+      "categoryLabel": "Retail shops/stores",
+      "location": {
+        "lat": 54.32894199999999,
+        "lng": -2.746979000000001
+      },
+      "directionsUrl": "https://www.google.com/maps/dir//54.32894199999999,-2.746979000000001",
+      "icon": "icons/touchstay/retail_therapy.svg",
+      "iconUrl": "https://hub.touchstay.com/static/pins/retail_therapy.svg?v=4"
+    }
+  ],
+  "categories": [
+    {
+      "type": "adventure_activities",
+      "label": "Adventure activities",
+      "icon": null
+    },
+    {
+      "type": "airport",
+      "label": "Airport",
+      "icon": null
+    },
+    {
+      "type": "art_gallery",
+      "label": "Art galleries",
+      "icon": null
+    },
+    {
+      "type": "arts_and_culture",
+      "label": "Arts and culture",
+      "icon": null
+    },
+    {
+      "type": "b_and_b",
+      "label": "B&B",
+      "icon": null
+    },
+    {
+      "type": "bank",
+      "label": "Bank",
+      "icon": null
+    },
+    {
+      "type": "bars_and_nightlife",
+      "label": "Bars and nightlife",
+      "icon": null
+    },
+    {
+      "type": "beaches",
+      "label": "Beaches",
+      "icon": null
+    },
+    {
+      "type": "bike_rental",
+      "label": "Bike rentals",
+      "icon": null
+    },
+    {
+      "type": "boating",
+      "label": "Boating",
+      "icon": null
+    },
+    {
+      "type": "brewery_pub",
+      "label": "Brewery/pub",
+      "icon": null
+    },
+    {
+      "type": "bus_tram_metro",
+      "label": "Bus/tram/metro",
+      "icon": null
+    },
+    {
+      "type": "camping",
+      "label": "Camping",
+      "icon": null
+    },
+    {
+      "type": "car_hire",
+      "label": "Car Hire",
+      "icon": null
+    },
+    {
+      "type": "casino",
+      "label": "Casinos",
+      "icon": null
+    },
+    {
+      "type": "castle",
+      "label": "Castles",
+      "icon": null
+    },
+    {
+      "type": "coffee_shop",
+      "label": "Coffee shops",
+      "icon": "icons/touchstay/coffee_shop.svg"
+    },
+    {
+      "type": "cycle_route",
+      "label": "Cycle route",
+      "icon": null
+    },
+    {
+      "type": "distillery",
+      "label": "Distilleries",
+      "icon": null
+    },
+    {
+      "type": "diving",
+      "label": "Diving",
+      "icon": null
+    },
+    {
+      "type": "electric_charging_station",
+      "label": "Electric charging point",
+      "icon": null
+    },
+    {
+      "type": "entertainment_and_activities",
+      "label": "Entertainment and activities",
+      "icon": null
+    },
+    {
+      "type": "events",
+      "label": "Events",
+      "icon": null
+    },
+    {
+      "type": "farm_shop_market",
+      "label": "Farm shop/farmers market",
+      "icon": null
+    },
+    {
+      "type": "festival",
+      "label": "Festivals",
+      "icon": null
+    },
+    {
+      "type": "fishing",
+      "label": "Fishing",
+      "icon": null
+    },
+    {
+      "type": "fitness_exercise",
+      "label": "Fitness/excercise",
+      "icon": null
+    },
+    {
+      "type": "gas_station",
+      "label": "Gas/petrol station",
+      "icon": null
+    },
+    {
+      "type": "gastro_pub",
+      "label": "Gastropubs",
+      "icon": null
+    },
+    {
+      "type": "getting_around",
+      "label": "Getting around",
+      "icon": null
+    },
+    {
+      "type": "glamping",
+      "label": "Glamping",
+      "icon": null
+    },
+    {
+      "type": "golfing",
+      "label": "Golfing",
+      "icon": null
+    },
+    {
+      "type": "grocery_shopping",
+      "label": "Grocery shopping",
+      "icon": null
+    },
+    {
+      "type": "hairdresser",
+      "label": "Hairdresser",
+      "icon": null
+    },
+    {
+      "type": "hiking",
+      "label": "Hiking",
+      "icon": "icons/touchstay/hiking.svg"
+    },
+    {
+      "type": "historic_house",
+      "label": "Historic houses/stately homes",
+      "icon": null
+    },
+    {
+      "type": "historic_town",
+      "label": "Historic town",
+      "icon": null
+    },
+    {
+      "type": "horse_riding",
+      "label": "Horse riding",
+      "icon": null
+    },
+    {
+      "type": "hotel",
+      "label": "Hotel",
+      "icon": null
+    },
+    {
+      "type": "kayaking",
+      "label": "Kayaking",
+      "icon": null
+    },
+    {
+      "type": "key_collection",
+      "label": "Key collection point",
+      "icon": "icons/touchstay/key_collection.svg"
+    },
+    {
+      "type": "laundromat",
+      "label": "Laundromat/launderette",
+      "icon": null
+    },
+    {
+      "type": "live_music",
+      "label": "Live music",
+      "icon": null
+    },
+    {
+      "type": "luggage_storage",
+      "label": "Luggage storage",
+      "icon": "icons/touchstay/luggage_storage.svg"
+    },
+    {
+      "type": "medical_facilities",
+      "label": "Medical facility",
+      "icon": null
+    },
+    {
+      "type": "mtb_trails",
+      "label": "MTB trails",
+      "icon": null
+    },
+    {
+      "type": "museums",
+      "label": "Museums",
+      "icon": null
+    },
+    {
+      "type": "nature_reserve",
+      "label": "Nature reserve",
+      "icon": null
+    },
+    {
+      "type": "other",
+      "label": "Other",
+      "icon": null
+    },
+    {
+      "type": "our_office",
+      "label": "Our office",
+      "icon": null
+    },
+    {
+      "type": "parking",
+      "label": "Parking",
+      "icon": null
+    },
+    {
+      "type": "parks_and_nature",
+      "label": "Parks and nature",
+      "icon": null
+    },
+    {
+      "type": "pet_friendly_amenities",
+      "label": "Pet friendly amenities",
+      "icon": null
+    },
+    {
+      "type": "pharmacy",
+      "label": "Pharmacy",
+      "icon": null
+    },
+    {
+      "type": "place_of_worship",
+      "label": "Place of worship",
+      "icon": null
+    },
+    {
+      "type": "places_to_stay",
+      "label": "Places to stay",
+      "icon": null
+    },
+    {
+      "type": "police",
+      "label": "Police",
+      "icon": null
+    },
+    {
+      "type": "port",
+      "label": "Port/harbour",
+      "icon": null
+    },
+    {
+      "type": "real_estate",
+      "label": "Real estate",
+      "icon": null
+    },
+    {
+      "type": "recycling_point",
+      "label": "Recycling point",
+      "icon": null
+    },
+    {
+      "type": "resort_amenities",
+      "label": "Resort amenities",
+      "icon": null
+    },
+    {
+      "type": "restaurants",
+      "label": "Restaurants",
+      "icon": "icons/touchstay/restaurants.svg"
+    },
+    {
+      "type": "retail_therapy",
+      "label": "Retail shops/stores",
+      "icon": null
+    },
+    {
+      "type": "rubbish_point",
+      "label": "Rubbish/trash point",
+      "icon": null
+    },
+    {
+      "type": "safari_park",
+      "label": "Safari park/zoo",
+      "icon": null
+    },
+    {
+      "type": "scenic_gardens",
+      "label": "Scenic gardens",
+      "icon": null
+    },
+    {
+      "type": "sightseeing",
+      "label": "Sightseeing",
+      "icon": "icons/touchstay/sightseeing.svg"
+    },
+    {
+      "type": "ski_slope_gondola",
+      "label": "Ski slope/gondola",
+      "icon": null
+    },
+    {
+      "type": "ski_rental",
+      "label": "Ski rental",
+      "icon": null
+    },
+    {
+      "type": "souvenirs",
+      "label": "Souvenirs",
+      "icon": null
+    },
+    {
+      "type": "spa_beauty",
+      "label": "Spa/beauty",
+      "icon": null
+    },
+    {
+      "type": "sports_events",
+      "label": "Sports events",
+      "icon": null
+    },
+    {
+      "type": "sweet_treats",
+      "label": "Sweet treats",
+      "icon": null
+    },
+    {
+      "type": "swimming",
+      "label": "Swimming",
+      "icon": "icons/touchstay/swimming.svg"
+    },
+    {
+      "type": "take_out",
+      "label": "Take out/away",
+      "icon": null
+    },
+    {
+      "type": "taxi",
+      "label": "Taxi rank",
+      "icon": "icons/touchstay/taxi.svg"
+    },
+    {
+      "type": "theme_park",
+      "label": "Theme parks",
+      "icon": null
+    },
+    {
+      "type": "tourist_information",
+      "label": "Tourist information",
+      "icon": null
+    },
+    {
+      "type": "train",
+      "label": "Train station",
+      "icon": "icons/touchstay/train.svg"
+    },
+    {
+      "type": "university",
+      "label": "University",
+      "icon": null
+    },
+    {
+      "type": "vacation_rental",
+      "label": "Vacation/holiday rental",
+      "icon": "icons/touchstay/vacation_rental.svg"
+    },
+    {
+      "type": "vehicle_repair",
+      "label": "Vehicle/auto repair",
+      "icon": null
+    },
+    {
+      "type": "vet",
+      "label": "Vet",
+      "icon": null
+    },
+    {
+      "type": "vineyard",
+      "label": "Winery/vineyard",
+      "icon": null
+    },
+    {
+      "type": "warning",
+      "label": "Warning",
+      "icon": null
+    },
+    {
+      "type": "watersports",
+      "label": "Watersports",
+      "icon": null
+    }
+  ]
+}

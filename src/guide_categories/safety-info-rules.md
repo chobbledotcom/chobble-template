@@ -2,7 +2,7 @@
 title: "Safety Info & Rules"
 subtitle: "Safety Info & Rules information and guides"
 order: 8
-icon: icons/github.svg
+icon: icons/touchstay/sightseeing.svg
 ---
 
 # Safety Info & Rules

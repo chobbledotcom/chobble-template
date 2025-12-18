@@ -2,7 +2,7 @@
 title: Book Again
 subtitle: Book Again information and guides
 order: 10
-icon: icons/github.svg
+icon: icons/touchstay/sightseeing.svg
 ---
 
 # Book Again

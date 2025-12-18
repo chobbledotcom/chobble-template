@@ -2,7 +2,7 @@
 title: WiFi / Internet/Mobile details
 subtitle: WiFi / Internet/Mobile details information and guides
 order: 7
-icon: icons/email.svg
+icon: icons/touchstay/coffee_shop.svg
 ---
 
 # WiFi / Internet/Mobile details

@@ -2,7 +2,7 @@
 title: Before You Leave Home
 subtitle: Before You Leave Home information and guides
 order: 3
-icon: icons/email.svg
+icon: icons/touchstay/luggage_storage.svg
 ---
 
 # Before You Leave Home
