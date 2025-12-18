@@ -1,11 +1,3 @@
-const createGuideCategoriesCollection = (collectionApi) => {
-  return collectionApi.getFilteredByTag("guide_category");
-};
-
-const createGuidePagesCollection = (collectionApi) => {
-  return collectionApi.getFilteredByTag("guide_page");
-};
-
 const getGuidePagesByCategory = (guidePages, categorySlug) => {
   if (!guidePages || !categorySlug) return [];
   return guidePages.filter(
@@ -14,17 +6,13 @@ const getGuidePagesByCategory = (guidePages, categorySlug) => {
 };
 
 const configureGuides = (eleventyConfig) => {
-  eleventyConfig.addCollection(
-    "guide_categories",
-    createGuideCategoriesCollection,
+  eleventyConfig.addCollection("guide_categories", (collectionApi) =>
+    collectionApi.getFilteredByTag("guide_category"),
   );
-  eleventyConfig.addCollection("guide_pages", createGuidePagesCollection);
+  eleventyConfig.addCollection("guide_pages", (collectionApi) =>
+    collectionApi.getFilteredByTag("guide_page"),
+  );
   eleventyConfig.addFilter("getGuidePagesByCategory", getGuidePagesByCategory);
 };
 
-export {
-  createGuideCategoriesCollection,
-  createGuidePagesCollection,
-  getGuidePagesByCategory,
-  configureGuides,
-};
+export { configureGuides };
