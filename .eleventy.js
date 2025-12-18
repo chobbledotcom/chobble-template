@@ -11,7 +11,6 @@ import { configureICal } from "./src/_lib/ical.js";
 import { configureImages } from "./src/_lib/image.js";
 import { configureInlineAsset } from "./src/_lib/inline-asset.js";
 import { configureLayoutAliases } from "./src/_lib/layout-aliases.js";
-import { configureLimitCollections } from "./src/_lib/limit-collections.js";
 import { configureLocations } from "./src/_lib/locations.js";
 import { configureMenus } from "./src/_lib/menus.js";
 import { configureNavigation } from "./src/_lib/navigation.js";
@@ -37,8 +36,6 @@ export default async function (eleventyConfig) {
     .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
   eleventyConfig.addPlugin(schemaPlugin);
-
-  configureLimitCollections(eleventyConfig);
 
   // configureLayoutAliases(eleventyConfig);
 
