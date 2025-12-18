@@ -7,6 +7,7 @@ import { configureEvents } from "./src/_lib/events.js";
 import { configureExternalLinks } from "./src/_lib/external-links.js";
 import { configureFeed } from "./src/_lib/feed.js";
 import { configureFileUtils } from "./src/_lib/file-utils.js";
+import { configureGuides } from "./src/_lib/guides.js";
 import { configureICal } from "./src/_lib/ical.js";
 import { configureImages } from "./src/_lib/image.js";
 import { configureInlineAsset } from "./src/_lib/inline-asset.js";
@@ -45,6 +46,7 @@ export default async function (eleventyConfig) {
   await configureExternalLinks(eleventyConfig);
   await configureFeed(eleventyConfig);
   configureFileUtils(eleventyConfig);
+  configureGuides(eleventyConfig);
   configureICal(eleventyConfig);
   configureImages(eleventyConfig);
   configureInlineAsset(eleventyConfig);

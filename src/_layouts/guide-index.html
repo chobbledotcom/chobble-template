@@ -1,0 +1,21 @@
+---
+layout: base
+---
+
+<h1>{{ title }}</h1>
+
+{{ content }}
+
+{% if collections.guide_categories.size > 0 %}
+  <h2>Categories</h2>
+  <ul>
+    {%- for category in collections.guide_categories -%}
+      <li>
+        <a href="{{ category.url }}">{{ category.data.title }}</a>
+        {%- if category.data.subtitle -%}
+          <p>{{ category.data.subtitle }}</p>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+{% endif %}

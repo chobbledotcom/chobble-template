@@ -20,4 +20,11 @@ const buildPermalink = (data, dir) => {
   return `/${dir}/${data.page.fileSlug}/`;
 };
 
-export { normaliseSlug, buildPermalink };
+// Build a permalink for guide pages: /guide/category-slug/page-slug/
+const buildGuidePagePermalink = (data, dir) => {
+  if (data.permalink) return data.permalink;
+  const category = normaliseSlug(data.guide_category) || "uncategorized";
+  return `/${dir}/${category}/${data.page.fileSlug}/`;
+};
+
+export { normaliseSlug, buildPermalink, buildGuidePagePermalink };
