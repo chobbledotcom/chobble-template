@@ -160,7 +160,7 @@ const testCases = [
 
       const scssExtension = mockConfig.extensions.scss;
       const inputContent = "$color: green; .test { color: $color; }";
-      const inputPath = "/project/test.scss";
+      const inputPath = "/project/bundle.scss";
 
       const compileFn = scssExtension.compile(inputContent, inputPath);
       expectFunctionType(
@@ -189,7 +189,7 @@ const testCases = [
       configureScss(mockConfig);
 
       const scssExtension = mockConfig.extensions.scss;
-      const inputPath = "/project/src/css/main.scss";
+      const inputPath = "/project/src/css/bundle.scss";
       const inputContent = ".test { color: blue; }";
 
       const compileFn = scssExtension.compile(inputContent, inputPath);
