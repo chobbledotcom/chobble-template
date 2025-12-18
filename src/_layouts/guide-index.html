@@ -3,3 +3,20 @@ layout: base
 ---
 
 {{ content }}
+
+{% if collections.guide_categories.size > 0 %}
+<ul id="guide-categories">
+  {%- for category in collections.guide_categories -%}
+  <li>
+    {%- if category.data.icon -%}
+    {{ category.data.icon | inline_asset }}
+    {%- endif -%}
+    <a href="{{ category.url }}#content">{{ category.data.title }}</a>
+    {%- if category.data.subtitle -%}
+    <p>{{ category.data.subtitle }}</p>
+    {%- endif -%}
+  </li>
+  {%- endfor -%}
+</ul>
+{% endif %}
+

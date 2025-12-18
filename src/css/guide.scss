@@ -1,0 +1,15 @@
+ul#guide-categories {
+  padding: 0;
+  list-style-type: none;
+  li {
+    padding-left: 6rem;
+    position: relative;
+    svg {
+      position: absolute;
+      top: 0;
+      width: 4rem;
+      height: 4rem;
+      left: 0;
+    }
+  }
+}
