@@ -21,49 +21,14 @@ const loadImage = (event) => {
   }
 };
 
-const openPopup = (event) => {
-  if (!imagePopup) return;
-
-  // Find the largest image src from srcset
-  const picture = currentImage.querySelector("picture");
-  if (!picture) return;
-
-  const img = picture.querySelector("img");
-  if (!img) return;
-
-  // Get srcset and find the largest image
-  const sources = picture.querySelectorAll("source");
-  let largestSrc = img.src;
-  let largestWidth = 0;
-
-  sources.forEach((source) => {
-    const srcset = source.getAttribute("srcset");
-    if (!srcset) return;
-
-    // Parse srcset to find largest image
-    srcset.split(",").forEach((entry) => {
-      const parts = entry.trim().split(/\s+/);
-      if (parts.length >= 2) {
-        const width = parseInt(parts[1], 10);
-        if (width > largestWidth) {
-          largestWidth = width;
-          largestSrc = parts[0];
-        }
-      }
-    });
-  });
-
-  const popupImg = imagePopup.querySelector("img");
-  popupImg.src = largestSrc;
-  popupImg.alt = img.alt || "";
-
+const openPopup = () => {
+  const imageWrapper = currentImage.querySelector(".image-wrapper");
+  imagePopup.innerHTML = imageWrapper.outerHTML;
   imagePopup.showModal();
 };
 
 const closePopup = () => {
-  if (imagePopup) {
-    imagePopup.close();
-  }
+  imagePopup.close();
 };
 
 const initGallery = () => {
@@ -71,17 +36,17 @@ const initGallery = () => {
   currentImage = document.querySelector(".current-image");
   imagePopup = document.getElementById("image-popup");
 
-  if (!gallery || !currentImage) return;
+  // Thumbnail gallery switching (only if multiple images)
+  if (gallery && currentImage) {
+    gallery.removeEventListener("click", loadImage);
+    gallery.addEventListener("click", loadImage);
+  }
 
-  gallery.removeEventListener("click", loadImage);
-  gallery.addEventListener("click", loadImage);
-
-  // Image popup functionality
+  // Image popup (works even with single image)
   if (currentImage && imagePopup) {
     currentImage.removeEventListener("click", openPopup);
     currentImage.addEventListener("click", openPopup);
 
-    // Close on backdrop or image click
     imagePopup.removeEventListener("click", closePopup);
     imagePopup.addEventListener("click", closePopup);
   }
