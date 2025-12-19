@@ -101,14 +101,12 @@ const getProductRating = (reviews, productSlug) => {
   if (ratingsWithValues.length === 0) return null;
   const avg =
     ratingsWithValues.reduce((a, b) => a + b, 0) / ratingsWithValues.length;
-  return Math.round(avg * 2) / 2; // Round to nearest 0.5
+  return Math.ceil(avg);
 };
 
 const ratingToStars = (rating) => {
   if (rating == null) return "";
-  const fullStars = Math.floor(rating);
-  const hasHalf = rating % 1 !== 0;
-  return "⭐️".repeat(fullStars) + (hasHalf ? "½" : "");
+  return "⭐️".repeat(rating);
 };
 
 /**
