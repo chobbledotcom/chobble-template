@@ -750,65 +750,63 @@ a.image-link {
   display: block;
 }
 
-body.item {
-  .content {
-    display: grid;
-    gap: 4rem;
-    grid-template-areas:
-      "title"
-      "gallery"
-      "description"
-      "contact"
-      "faqs";
-    .title {
-      grid-area: title;
-      h1 {
-        margin: 0;
-        padding: 0;
-      }
-    }
-    .gallery {
-      grid-area: gallery;
-    }
-    .description {
-      grid-area: description;
-    }
-    .contact {
-      grid-area: contact;
-      .contact-form {
-        margin-top: 0;
-      }
-    }
-    .faqs {
-      grid-area: faqs;
+#item {
+  display: grid;
+  gap: 4rem;
+  grid-template-areas:
+    "title"
+    "gallery"
+    "description"
+    "contact"
+    "faqs";
+  .title {
+    grid-area: title;
+    h1 {
+      margin: 0;
+      padding: 0;
     }
   }
-  @include breakpoints.up("lg") {
-    &.one-column {
-      .content {
-        gap: 2rem;
-        grid-template-areas:
-          "title title"
-          "gallery description"
-          "contact description"
-          "faqs faqs";
-        grid-template-columns: 450px 1fr;
-        grid-template-rows: min-content min-content 1fr;
-      }
+  .gallery {
+    grid-area: gallery;
+  }
+  .description {
+    grid-area: description;
+  }
+  .contact {
+    grid-area: contact;
+    .contact-form {
+      margin-top: 0;
     }
   }
-  @include breakpoints.up("xl") {
-    &.two-columns {
-      .content {
-        gap: 2rem;
-        grid-template-areas:
-          "title title"
-          "gallery description"
-          "contact description"
-          "faqs faqs";
-        grid-template-columns: 400px 1fr;
-        grid-template-rows: min-content min-content 1fr;
-      }
+  .faqs {
+    grid-area: faqs;
+  }
+}
+@include breakpoints.up("lg") {
+  body.one-column {
+    #item {
+      gap: 2rem;
+      grid-template-areas:
+        "title title"
+        "gallery description"
+        "contact description"
+        "faqs faqs";
+      grid-template-columns: 450px 1fr;
+      grid-template-rows: min-content min-content 1fr;
+    }
+  }
+}
+@include breakpoints.up("xl") {
+  body.two-columns {
+    #item {
+      gap: 2rem;
+      grid-template-areas:
+        "title title"
+        "gallery description"
+        "contact description"
+        "faqs faqs";
+      grid-template-columns: 400px 1fr;
+      grid-template-rows: min-content min-content 1fr;
     }
   }
 }
