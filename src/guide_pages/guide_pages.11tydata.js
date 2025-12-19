@@ -1,5 +1,5 @@
-import strings from "../_data/strings.js";
-import { normaliseSlug } from "../_lib/slug-utils.js";
+import strings from "#data/strings.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 
 const buildPermalink = (data) => {
   if (data.permalink) return data.permalink;

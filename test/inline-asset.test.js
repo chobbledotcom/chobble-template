@@ -5,7 +5,7 @@ import {
   isAllowedExtension,
   isImageFile,
   isSvgFile,
-} from "../src/_lib/inline-asset.js";
+} from "#media/inline-asset.js";
 import {
   cleanupTempDir,
   createMockEleventyConfig,

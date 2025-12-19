@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
-import { sortByOrderThenTitle } from "../src/_lib/sorting.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 describe("sortByOrderThenTitle", () => {
   it("sorts by order first", () => {

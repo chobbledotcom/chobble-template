@@ -1,4 +1,4 @@
-import { configureFeed } from "../src/_lib/feed.js";
+import { configureFeed } from "#eleventy/feed.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

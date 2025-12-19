@@ -1,4 +1,4 @@
-import { memoize } from "./memoize.js";
+import { memoize } from "#utils/memoize.js";
 
 // Build memoized reverse index: menuSlug -> [categories]
 const buildMenuCategoryMap = memoize((categories) => {
@@ -25,7 +25,8 @@ const buildCategoryItemMap = memoize((items) => {
 
   for (const item of items) {
     // Get categories from either menu_categories array or single menu_category
-    const categories = item.data.menu_categories || 
+    const categories =
+      item.data.menu_categories ||
       (item.data.menu_category ? [item.data.menu_category] : []);
 
     for (const categorySlug of categories) {

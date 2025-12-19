@@ -2,9 +2,9 @@ import fs from "fs";
 import markdownIt from "markdown-it";
 import path from "path";
 import { fileURLToPath } from "url";
-import { memoize } from "./memoize.js";
-import { getOpeningTimesHtml } from "./opening-times.js";
-import { getRecurringEventsHtml } from "./recurring-events.js";
+import { memoize } from "#utils/memoize.js";
+import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
+import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 
 const cacheKeyFromArgs = (args) => args.join(",");
 
@@ -63,7 +63,10 @@ const renderSnippet = memoize(
 
     if (bodyContent.includes("{% recurring_events %}")) {
       const recurringHtml = await getRecurringEventsHtml();
-      bodyContent = bodyContent.replace("{% recurring_events %}", recurringHtml);
+      bodyContent = bodyContent.replace(
+        "{% recurring_events %}",
+        recurringHtml,
+      );
     }
 
     return mdRenderer.render(bodyContent);

@@ -1,6 +1,6 @@
 import slugify from "@sindresorhus/slugify";
-import { memoize } from "./memoize.js";
-import { sortByOrderThenTitle } from "./sorting.js";
+import { memoize } from "#utils/memoize.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 /**
  * Generic filtering library for items with filter_attributes

@@ -3,7 +3,7 @@ import {
   createSearchKeywordsCollection,
   getAllKeywords,
   getProductsByKeyword,
-} from "../src/_lib/search.js";
+} from "#collections/search.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

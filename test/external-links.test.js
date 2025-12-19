@@ -5,7 +5,7 @@ import {
   getExternalLinkAttributes,
   isExternalUrl,
   transformExternalLinks,
-} from "../src/_lib/external-links.js";
+} from "#eleventy/external-links.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

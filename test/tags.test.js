@@ -1,4 +1,4 @@
-import { configureTags, extractTags } from "../src/_lib/tags.js";
+import { configureTags, extractTags } from "#collections/tags.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

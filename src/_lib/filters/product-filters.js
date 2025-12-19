@@ -1,5 +1,5 @@
-import strings from "../_data/strings.js";
-import { createFilterConfig } from "./item-filters.js";
+import strings from "#data/strings.js";
+import { createFilterConfig } from "#filters/item-filters.js";
 
 const { configure: configureProductFilters } = createFilterConfig({
   tag: "product",

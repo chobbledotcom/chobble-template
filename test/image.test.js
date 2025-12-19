@@ -6,7 +6,7 @@ import {
   createImageTransform,
   findImageFiles,
   imageShortcode,
-} from "../src/_lib/image.js";
+} from "#media/image.js";
 import { createTestRunner } from "./test-utils.js";
 
 const mockEleventyConfig = {

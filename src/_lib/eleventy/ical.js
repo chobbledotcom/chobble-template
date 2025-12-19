@@ -1,6 +1,6 @@
 import ical from "ical-generator";
-import config from "../_data/config.json" with { type: "json" };
-import site from "../_data/site.json" with { type: "json" };
+import config from "#data/config.json" with { type: "json" };
+import site from "#data/site.json" with { type: "json" };
 
 export function generateICalForEvent(event) {
   // Only generate iCal for one-off events (not recurring)

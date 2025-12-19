@@ -1,4 +1,4 @@
-import { normaliseSlug } from "../_lib/slug-utils.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 
 export default {
   eleventyComputed: {

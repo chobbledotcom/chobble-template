@@ -2,7 +2,7 @@ import {
   configureNavigation,
   createNavigationFilter,
   findPageUrl,
-} from "../src/_lib/navigation.js";
+} from "#collections/navigation.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

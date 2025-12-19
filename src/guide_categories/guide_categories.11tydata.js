@@ -1,5 +1,5 @@
-import strings from "../_data/strings.js";
-import { buildPermalink } from "../_lib/slug-utils.js";
+import strings from "#data/strings.js";
+import { buildPermalink } from "#utils/slug-utils.js";
 
 export default {
   eleventyComputed: {

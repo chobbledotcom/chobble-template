@@ -1,8 +1,4 @@
-import {
-  compileScss,
-  configureScss,
-  createScssCompiler,
-} from "../src/_lib/scss.js";
+import { compileScss, configureScss, createScssCompiler } from "#build/scss.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

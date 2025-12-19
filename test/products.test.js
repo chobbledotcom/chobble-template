@@ -8,7 +8,7 @@ import {
   getProductsByCategory,
   getReviewsByProduct,
   processGallery,
-} from "../src/_lib/products.js";
+} from "#collections/products.js";
 import {
   createMockEleventyConfig,
   createTestRunner,

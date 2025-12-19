@@ -1,4 +1,4 @@
-import { memoize } from "./memoize.js";
+import { memoize } from "#utils/memoize.js";
 
 const renderOpeningTimes = (openingTimes) => {
   if (!openingTimes || openingTimes.length === 0) {
@@ -15,7 +15,7 @@ const renderOpeningTimes = (openingTimes) => {
 };
 
 const getOpeningTimesHtml = memoize(async () => {
-  const siteData = await import("../_data/site.json", {
+  const siteData = await import("#data/site.json", {
     with: { type: "json" },
   });
   const openingTimes = siteData.default.opening_times || [];

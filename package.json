@@ -2,6 +2,16 @@
 	"name": "chobble-template",
 	"version": "1.0.0",
 	"type": "module",
+	"imports": {
+		"#data/*": "./src/_data/*",
+		"#lib/*": "./src/_lib/*",
+		"#collections/*": "./src/_lib/collections/*",
+		"#filters/*": "./src/_lib/filters/*",
+		"#eleventy/*": "./src/_lib/eleventy/*",
+		"#build/*": "./src/_lib/build/*",
+		"#media/*": "./src/_lib/media/*",
+		"#utils/*": "./src/_lib/utils/*"
+	},
 	"pnpm": {
 		"minimumReleaseAge": "10080"
 	},

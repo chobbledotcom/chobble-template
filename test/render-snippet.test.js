@@ -107,6 +107,11 @@ async function runTests() {
     if (!fs.existsSync(snippetsDir)) {
       fs.mkdirSync(snippetsDir, { recursive: true });
     }
+    // Create _layouts directory (required by layout-aliases.js)
+    const layoutsDir = path.join(testDir, "src/_layouts");
+    if (!fs.existsSync(layoutsDir)) {
+      fs.mkdirSync(layoutsDir, { recursive: true });
+    }
 
     // Create test files
     testCases.forEach((testCase) => {

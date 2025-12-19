@@ -1,4 +1,4 @@
-import { getReviewsByProduct } from "./products.js";
+import { getReviewsByProduct } from "#collections/products.js";
 
 function buildImageUrl(imageInput, siteUrl) {
   if (!imageInput) return null;

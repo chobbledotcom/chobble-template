@@ -1,7 +1,7 @@
 import path from "path";
 import sass from "sass";
-import { getScssFiles } from "./scss-files.js";
-import { generateThemeSwitcherContent } from "./theme-compiler.js";
+import { getScssFiles } from "#build/scss-files.js";
+import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);

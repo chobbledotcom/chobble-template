@@ -1,4 +1,4 @@
-import strings from "../_data/strings.js";
+import strings from "#data/strings.js";
 
 export default {
   eleventyComputed: {

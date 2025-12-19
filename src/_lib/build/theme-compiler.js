@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { getDirname } from "./file-utils.js";
-import { memoize } from "./memoize.js";
+import { getDirname } from "#eleventy/file-utils.js";
+import { memoize } from "#utils/memoize.js";
 
 const __dirname = getDirname(import.meta.url);
 

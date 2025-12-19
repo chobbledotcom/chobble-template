@@ -6,7 +6,7 @@ import {
   fileMissing,
   readFileContent,
   renderSnippet,
-} from "../src/_lib/file-utils.js";
+} from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
   createMockEleventyConfig,

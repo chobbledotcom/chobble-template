@@ -1,31 +1,40 @@
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
-import { configureCacheBuster } from "./src/_lib/cache-buster.js";
-import { configureCategories } from "./src/_lib/categories.js";
-import { configureEsbuild } from "./src/_lib/esbuild.js";
-import { configureEvents } from "./src/_lib/events.js";
-import { configureExternalLinks } from "./src/_lib/external-links.js";
-import { configureFeed } from "./src/_lib/feed.js";
-import { configureFileUtils } from "./src/_lib/file-utils.js";
-import { configureGuides } from "./src/_lib/guides.js";
-import { configureICal } from "./src/_lib/ical.js";
-import { configureImages } from "./src/_lib/image.js";
-import { configureInlineAsset } from "./src/_lib/inline-asset.js";
-import { configureLayoutAliases } from "./src/_lib/layout-aliases.js";
-import { configureLocations } from "./src/_lib/locations.js";
-import { configureMenus } from "./src/_lib/menus.js";
-import { configureNavigation } from "./src/_lib/navigation.js";
-import { configureOpeningTimes } from "./src/_lib/opening-times.js";
-import { configureProductFilters } from "./src/_lib/product-filters.js";
-import { configureProducts } from "./src/_lib/products.js";
-import { configureProperties } from "./src/_lib/properties.js";
-import { configurePropertyFilters } from "./src/_lib/property-filters.js";
-import { configureRecurringEvents } from "./src/_lib/recurring-events.js";
-import { configureScss } from "./src/_lib/scss.js";
-import { configureScssFiles } from "./src/_lib/scss-files.js";
-import { configureSearch } from "./src/_lib/search.js";
-import { configureTags } from "./src/_lib/tags.js";
-import { configureUnusedImages } from "./src/_lib/unused-images.js";
+// Build tools
+import { configureEsbuild } from "#build/esbuild.js";
+import { configureScss } from "#build/scss.js";
+import { configureScssFiles } from "#build/scss-files.js";
+
+// Collections
+import { configureCategories } from "#collections/categories.js";
+import { configureEvents } from "#collections/events.js";
+import { configureGuides } from "#collections/guides.js";
+import { configureLocations } from "#collections/locations.js";
+import { configureMenus } from "#collections/menus.js";
+import { configureNavigation } from "#collections/navigation.js";
+import { configureProducts } from "#collections/products.js";
+import { configureProperties } from "#collections/properties.js";
+import { configureSearch } from "#collections/search.js";
+import { configureTags } from "#collections/tags.js";
+
+// Eleventy plugins
+import { configureCacheBuster } from "#eleventy/cache-buster.js";
+import { configureExternalLinks } from "#eleventy/external-links.js";
+import { configureFeed } from "#eleventy/feed.js";
+import { configureFileUtils } from "#eleventy/file-utils.js";
+import { configureICal } from "#eleventy/ical.js";
+import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
+import { configureOpeningTimes } from "#eleventy/opening-times.js";
+import { configureRecurringEvents } from "#eleventy/recurring-events.js";
+
+// Filters
+import { configureProductFilters } from "#filters/product-filters.js";
+import { configurePropertyFilters } from "#filters/property-filters.js";
+
+// Media
+import { configureImages } from "#media/image.js";
+import { configureInlineAsset } from "#media/inline-asset.js";
+import { configureUnusedImages } from "#media/unused-images.js";
 
 export default async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");

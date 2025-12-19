@@ -1,4 +1,4 @@
-import { memoize } from "./memoize.js";
+import { memoize } from "#utils/memoize.js";
 
 const normaliseCategory = (category) => {
   if (!category) return "";

@@ -5,7 +5,7 @@ import {
   configureCategories,
   createCategoriesCollection,
   getFeaturedCategories,
-} from "../src/_lib/categories.js";
+} from "#collections/categories.js";
 import { createTestRunner } from "./test-utils.js";
 
 const mockEleventyConfig = {

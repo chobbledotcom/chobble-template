@@ -1,5 +1,5 @@
-import { memoize } from "./memoize.js";
-import { sortByOrderThenTitle } from "./sorting.js";
+import { memoize } from "#utils/memoize.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 // Cache key for functions with (array, string) signature
 // Uses array reference identity (via default behavior) + string value

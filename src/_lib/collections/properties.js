@@ -1,6 +1,6 @@
-import { memoize } from "./memoize.js";
-import { addGallery } from "./products.js";
-import { sortByOrderThenTitle } from "./sorting.js";
+import { memoize } from "#utils/memoize.js";
+import { addGallery } from "#collections/products.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 // Cache key for functions with (array, string) signature
 const cacheKeyArrayAndSlug = (args) => {

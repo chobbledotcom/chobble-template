@@ -3,7 +3,7 @@ import fs from "fs";
 import { JSDOM } from "jsdom";
 import path from "path";
 import sharp from "sharp";
-import { memoize } from "./memoize.js";
+import { memoize } from "#utils/memoize.js";
 
 const U = {
   DEFAULT_OPTIONS: {
@@ -16,7 +16,7 @@ const U = {
       if (Buffer.isBuffer(src)) {
         return `${id}-${width}.${format}`;
       }
-      
+
       // For non-cropped images (file paths), use the original filename
       const basename = path.basename(src, path.extname(src));
       return `${basename}-${width}.${format}`;
@@ -195,7 +195,9 @@ async function processAndWrapImage({
         template.innerHTML = html;
         return template.content.firstChild;
       }
-      const { window: { document: doc } } = new JSDOM(`<body>${html}</body>`);
+      const {
+        window: { document: doc },
+      } = new JSDOM(`<body>${html}</body>`);
       return doc.body.firstChild;
     }
     return html;
@@ -230,7 +232,12 @@ async function processAndWrapImage({
     classes,
   );
 
-  const html = await U.makeDivHtml(classes, thumbPromise, imageAspectRatio, innerHTML);
+  const html = await U.makeDivHtml(
+    classes,
+    thumbPromise,
+    imageAspectRatio,
+    innerHTML,
+  );
   imageHtmlCache.set(cacheKey, html);
 
   if (returnElement) {
@@ -240,7 +247,9 @@ async function processAndWrapImage({
       template.innerHTML = html;
       return template.content.firstChild;
     }
-    const { window: { document: doc } } = new JSDOM(`<body>${html}</body>`);
+    const {
+      window: { document: doc },
+    } = new JSDOM(`<body>${html}</body>`);
     return doc.body.firstChild;
   }
 

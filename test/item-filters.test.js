@@ -9,7 +9,7 @@ import {
   generateFilterCombinations,
   buildFilterDescription,
   buildFilterUIData,
-} from "../src/_lib/item-filters.js";
+} from "#filters/item-filters.js";
 import {
   createTestRunner,
   expectDeepEqual,

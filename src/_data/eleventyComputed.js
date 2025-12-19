@@ -1,13 +1,13 @@
 import { existsSync } from "fs";
 import { createRequire } from "module";
 import { join } from "path";
-import { memoize } from "../_lib/memoize.js";
+import { memoize } from "#utils/memoize.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
-} from "../_lib/schema-helper.js";
+} from "#utils/schema-helper.js";
 
 const require = createRequire(import.meta.url);
 

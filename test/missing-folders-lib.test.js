@@ -1,17 +1,15 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { configureCategories } from "#collections/categories.js";
+import { configureMenus } from "#collections/menus.js";
+import { configureNavigation } from "#collections/navigation.js";
+import { configureProducts } from "#collections/products.js";
+import { configureTags } from "#collections/tags.js";
+import { configureFeed } from "#eleventy/feed.js";
+import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
-  expectFalse,
   expectTrue,
-  fs,
-  path,
 } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = path.resolve(__dirname, "..");
 
 // Test that lib modules handle missing folders gracefully
 const testLibModules = () => {
@@ -21,8 +19,7 @@ const testLibModules = () => {
   testCases.push({
     name: "categories-handles-empty-collections",
     description: "Categories module handles empty collections",
-    asyncTest: async () => {
-      const { configureCategories } = await import("../src/_lib/categories.js");
+    test: () => {
       const mockConfig = createMockEleventyConfig();
 
       // Should not throw when configuring
@@ -50,8 +47,7 @@ const testLibModules = () => {
   testCases.push({
     name: "menus-handles-missing-data",
     description: "Menus module handles missing menu data",
-    asyncTest: async () => {
-      const { configureMenus } = await import("../src/_lib/menus.js");
+    test: () => {
       const mockConfig = createMockEleventyConfig();
 
       configureMenus(mockConfig);
@@ -92,8 +88,7 @@ const testLibModules = () => {
   testCases.push({
     name: "products-handles-empty-collections",
     description: "Products module handles empty collections",
-    asyncTest: async () => {
-      const { configureProducts } = await import("../src/_lib/products.js");
+    test: () => {
       const mockConfig = createMockEleventyConfig();
 
       configureProducts(mockConfig);
@@ -119,8 +114,7 @@ const testLibModules = () => {
   testCases.push({
     name: "tags-handles-empty-collections",
     description: "Tags module handles empty collections",
-    asyncTest: async () => {
-      const { configureTags } = await import("../src/_lib/tags.js");
+    test: () => {
       const mockConfig = createMockEleventyConfig();
 
       configureTags(mockConfig);
@@ -147,14 +141,11 @@ const testLibModules = () => {
   testCases.push({
     name: "events-handles-missing-files",
     description: "Recurring events handles missing event files",
-    asyncTest: async () => {
-      const { configureRecurringEvents } = await import(
-        "../src/_lib/recurring-events.js"
-      );
+    test: () => {
       const mockConfig = createMockEleventyConfig();
 
       // Should not throw when configuring
-      await configureRecurringEvents(mockConfig);
+      configureRecurringEvents(mockConfig);
 
       // Test filter with empty data
       const emptyEvents = [];
@@ -170,10 +161,9 @@ const testLibModules = () => {
     name: "navigation-handles-missing-pages",
     description: "Navigation module handles missing pages",
     asyncTest: async () => {
-      const { configureNavigation } = await import("../src/_lib/navigation.js");
       const mockConfig = createMockEleventyConfig();
 
-      // Should not throw when configuring
+      // Should not throw when configuring (async due to plugin loading)
       await configureNavigation(mockConfig);
 
       // Check that plugin was added
@@ -189,10 +179,9 @@ const testLibModules = () => {
     name: "feed-handles-missing-posts",
     description: "Feed module handles missing posts",
     asyncTest: async () => {
-      const { configureFeed } = await import("../src/_lib/feed.js");
       const mockConfig = createMockEleventyConfig();
 
-      // Should not throw when configuring
+      // Should not throw when configuring (async due to plugin loading)
       await configureFeed(mockConfig);
 
       // Check that RSS date filters were added

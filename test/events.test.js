@@ -3,7 +3,7 @@ import {
   categoriseEvents,
   configureEvents,
   getFeaturedEvents,
-} from "../src/_lib/events.js";
+} from "#collections/events.js";
 import {
   createEvent,
   createFutureDate,

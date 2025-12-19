@@ -1,4 +1,4 @@
-import { sortByOrderThenTitle } from "../_lib/sorting.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {

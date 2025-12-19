@@ -1,4 +1,4 @@
-import { normaliseSlug } from "../src/_lib/slug-utils.js";
+import { normaliseSlug } from "#utils/slug-utils.js";
 import { createTestRunner, expectStrictEqual, fs, path } from "./test-utils.js";
 
 const testCases = [

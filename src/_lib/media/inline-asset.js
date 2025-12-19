@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { memoize } from "./memoize.js";
+import { memoize } from "#utils/memoize.js";
 
 const ALLOWED_SVG_EXTENSIONS = [".svg"];
 const ALLOWED_IMAGE_EXTENSIONS = [".webp", ".jpeg", ".jpg", ".png", ".gif"];

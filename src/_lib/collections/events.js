@@ -1,5 +1,5 @@
-import { memoize } from "./memoize.js";
-import { sortByOrderThenTitle } from "./sorting.js";
+import { memoize } from "#utils/memoize.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 const sortByEventDate = (events, descending = false) => {
   events.sort((a, b) => {
