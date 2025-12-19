@@ -91,6 +91,26 @@ const getLatestReviews = (reviews, limit = 3) => {
     .slice(0, limit);
 };
 
+const getProductRating = (reviews, productSlug) => {
+  const productReviews = (reviews || []).filter((review) =>
+    review.data.products?.includes(productSlug),
+  );
+  const ratingsWithValues = productReviews
+    .map((r) => r.data.rating)
+    .filter((r) => r != null && !isNaN(r));
+  if (ratingsWithValues.length === 0) return null;
+  const avg =
+    ratingsWithValues.reduce((a, b) => a + b, 0) / ratingsWithValues.length;
+  return Math.round(avg * 2) / 2; // Round to nearest 0.5
+};
+
+const ratingToStars = (rating) => {
+  if (rating == null) return "";
+  const fullStars = Math.floor(rating);
+  const hasHalf = rating % 1 !== 0;
+  return "⭐️".repeat(fullStars) + (hasHalf ? "½" : "");
+};
+
 /**
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
@@ -145,6 +165,10 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 
   eleventyConfig.addFilter("getLatestReviews", getLatestReviews);
+
+  eleventyConfig.addFilter("getProductRating", getProductRating);
+
+  eleventyConfig.addFilter("ratingToStars", ratingToStars);
 };
 
 export {
@@ -160,5 +184,7 @@ export {
   getReviewsByProduct,
   getFeaturedProducts,
   getLatestReviews,
+  getProductRating,
+  ratingToStars,
   configureProducts,
 };
