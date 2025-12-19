@@ -11,6 +11,26 @@ faqs:
   - question: Do I need to know JavaScript?
     answer: Basic knowledge helps, but you can build sites with just Markdown.
     order: 2
+tabs:
+  - title: Installation
+    body: |
+      To install Eleventy, run the following command:
+
+      ```bash
+      npm install @11ty/eleventy
+      ```
+
+      Make sure you have Node.js installed first.
+  - title: Configuration
+    body: |
+      Create an `.eleventy.js` file in your project root to configure Eleventy.
+
+      You can customise input/output directories, add plugins, and define custom filters.
+  - title: Resources
+    body: |
+      - [Official Documentation](https://www.11ty.dev/docs/)
+      - [Starter Projects](https://www.11ty.dev/docs/starter/)
+      - [Community Discord](https://www.11ty.dev/blog/discord/)
 features:
   - Open source static site generator
   - Markdown-based content files

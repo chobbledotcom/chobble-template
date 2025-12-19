@@ -12,6 +12,7 @@ import "./gallery.js";
 import "./scroll-fade.js";
 import "./search.js";
 import "./slider.js";
+import "./tabs.js";
 import "./theme-editor.js";
 import "./theme-switcher.js";
 

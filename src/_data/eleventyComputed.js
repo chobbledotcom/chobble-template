@@ -46,6 +46,7 @@ export default {
           ? data.header_image
           : null,
   faqs: (data) => (Array.isArray(data.faqs) ? data.faqs : []),
+  tabs: (data) => (Array.isArray(data.tabs) ? data.tabs : []),
   meta: (data) => {
     if (hasTag(data, "product")) return buildProductMeta(data);
     if (hasTag(data, "news")) return buildPostMeta(data);

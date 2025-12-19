@@ -1,3 +1,4 @@
+import { RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
 // Build tools
@@ -46,6 +47,7 @@ export default async function (eleventyConfig) {
     .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
   eleventyConfig.addPlugin(schemaPlugin);
+  eleventyConfig.addPlugin(RenderPlugin);
 
   // configureLayoutAliases(eleventyConfig);
 

@@ -1,0 +1,22 @@
+{%- if tabs.size > 0 -%}
+  <section id="tabs">
+    <ul>
+      {%- for tab in tabs -%}
+        <li class="tab">
+          <a
+            href="#tab-{{ forloop.index }}"
+            data-turbo="false"
+          >
+            {{- tab.title -}}
+          </a>
+        </li>
+        <li
+          class="body"
+          id="tab-{{ forloop.index }}"
+        >
+          {{- tab.body | renderContent: "md" -}}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </section>
+{%- endif -%}

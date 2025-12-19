@@ -1,0 +1,32 @@
+#tabs > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, auto));
+  list-style-type: none;
+  gap: 0.5rem;
+  padding: 0;
+  height: 15rem;
+  position: relative;
+
+  .tab {
+    grid-row: 1;
+    padding: 0.5rem 1rem;
+    &:hover {
+      background: var(--color-bg-secondary);
+    }
+  }
+  .body {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    height: calc(100% - 3rem);
+    display: none;
+    overflow-y: scroll;
+    &:target {
+      display: block;
+    }
+  }
+  &:not(:has(.body:target)) .body:nth-of-type(2) {
+    display: block;
+  }
+}
