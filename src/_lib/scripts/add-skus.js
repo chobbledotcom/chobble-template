@@ -3,7 +3,7 @@
  * Script to add unique SKUs to product options that are missing them.
  * SKUs are 6-character random alphanumeric strings.
  *
- * Usage: node src/_lib/add-skus.js [--dry-run]
+ * Usage: node src/_lib/scripts/add-skus.js [--dry-run]
  */
 
 import fs from "fs";
