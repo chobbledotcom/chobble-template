@@ -346,13 +346,22 @@ dialog {
   }
 }
 
+.scrollable-table {
+  overflow-x: auto;
+  margin: 1.5rem auto;
+  max-width: 100%;
+
+  > table {
+    margin: 0;
+  }
+}
+
 table {
   border: var(--border);
   border-radius: var(--border-radius);
   border-spacing: 0;
   margin: 1.5rem auto;
   max-width: 100%;
-  overflow-x: auto;
   padding: 0;
   white-space: nowrap;
   td,
