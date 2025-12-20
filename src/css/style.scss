@@ -88,7 +88,7 @@ hr {
   background-color: var(--color-bg-secondary);
   border: none;
   height: 1px;
-  margin: 4rem 0;
+  margin: 2.5rem 0;
   width: 100%;
 }
 
@@ -121,10 +121,11 @@ samp {
 }
 
 details {
-  margin: 1.3rem 0;
+  margin: 1.5rem 0;
   summary {
     font-weight: bold;
     cursor: pointer;
+    padding: 0.25rem 0;
   }
 }
 
@@ -134,11 +135,11 @@ mark {
 
 ol li,
 ul li {
-  padding: 0.2rem 0;
+  padding: 0.35rem 0;
 }
 
 p {
-  margin: 0.75rem 0;
+  margin: 1rem 0;
   padding: 0;
   width: 100%;
 }
@@ -222,7 +223,7 @@ form {
   display: block;
   max-width: var(--width-card-wide);
   min-width: var(--width-card);
-  padding: 1.5rem;
+  padding: 2rem;
   text-align: var(--justify-normal);
   background: var(--form-bg-color);
   color: var(--form-text-color);
@@ -263,7 +264,7 @@ textarea {
   border-radius: var(--border-radius);
   font-family: var(--font-family-body);
   margin-bottom: 1rem;
-  padding: 0.4rem 0.8rem;
+  padding: 0.6rem 0.8rem;
   background-color: var(--form-input-bg-color);
   color: var(--form-input-text-color);
   border: var(--form-input-border);
@@ -283,7 +284,7 @@ textarea[readonly] {
 
 label {
   font-weight: bold;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.5rem;
 }
 
 dialog {
@@ -337,7 +338,7 @@ table {
   border: var(--border);
   border-radius: var(--border-radius);
   border-spacing: 0;
-  margin: 1rem auto;
+  margin: 1.5rem auto;
   max-width: 100%;
   overflow-x: auto;
   padding: 0;
@@ -345,7 +346,7 @@ table {
   td,
   th,
   tr {
-    padding: 0.4rem 0.8rem;
+    padding: 0.6rem 1rem;
     text-align: var(--justify-important);
   }
 
@@ -377,9 +378,9 @@ blockquote {
   display: block;
   font-size: x-large;
   line-height: var(--line-height);
-  margin: 1rem auto;
+  margin: 1.5rem auto;
   max-width: var(--width-card-medium);
-  padding: 1.5rem 1rem;
+  padding: 1.75rem 1.5rem;
   text-align: var(--justify-important);
   footer {
     display: block;
@@ -438,17 +439,24 @@ nav {
 
 h1 {
   font-size: 2rem;
+  margin-top: 1.5rem;
 }
 h2 {
   font-size: 1.4rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
 }
 h3 {
   font-size: 1.2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 h4,
 h5,
 h6 {
   font-size: 1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 header {
@@ -608,7 +616,7 @@ body > footer {
 
 article {
   border-radius: var(--border-radius);
-  padding: 1rem;
+  padding: 1.5rem;
   margin-bottom: 2rem;
   background: var(--main-bg-color);
   border: var(--main-border);
@@ -622,7 +630,7 @@ nav {
   border-top: 0;
   border-left: 0;
   border-right: 0;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   margin-bottom: 2rem;
   background: var(--nav-bg-color);
   flex-wrap: wrap;
@@ -732,7 +740,7 @@ ul.items {
   padding: 0;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.25rem;
   & > * {
     width: 14rem;
     max-width: 100%;
