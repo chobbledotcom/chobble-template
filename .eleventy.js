@@ -27,6 +27,7 @@ import { configureICal } from "#eleventy/ical.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
+import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
 
 // Filters
 import { configureProductFilters } from "#filters/product-filters.js";
@@ -66,6 +67,7 @@ export default async function (eleventyConfig) {
   await configureNavigation(eleventyConfig);
   configureOpeningTimes(eleventyConfig);
   configureRecurringEvents(eleventyConfig);
+  configureResponsiveTables(eleventyConfig);
   configureProductFilters(eleventyConfig);
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
