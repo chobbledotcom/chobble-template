@@ -5,6 +5,13 @@
   navigation: auto;
 }
 
+// Exclude fixed position elements from transition to prevent "popping"
+nav,
+.cart-icon,
+#theme-switcher-button {
+  view-transition-name: none;
+}
+
 // Default crossfade animation for the page content
 ::view-transition-old(root) {
   animation: fade-out 0.15s ease-out forwards;
