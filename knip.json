@@ -4,7 +4,8 @@
 		".eleventy.js",
 		"test/**/*.js",
 		"src/_data/**/*.{js,mjs}",
-		"src/**/*.11tydata.js"
+		"src/**/*.11tydata.js",
+		"src/_lib/scripts/**/*.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [

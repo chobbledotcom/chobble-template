@@ -22,6 +22,7 @@
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
+		"alias-lint": "node src/_lib/scripts/alias-linter.js",
 		"lint": "npx @biomejs/biome check .",
 		"lint:fix": "npx @biomejs/biome check --write .",
 		"precommit": "run-s lint:fix cpd knip:fix test"
