@@ -98,109 +98,59 @@ function extractFunctions(content, filePath) {
   const functions = [];
   const lines = content.split("\n");
 
-  // Patterns for function definitions
-  const patterns = [
-    // const foo = (args) => expression;
-    // const foo = (args) => { return expression; };
-    {
-      regex:
-        /^(?:export\s+)?const\s+(\w+)\s*=\s*(?:\([^)]*\)|[\w,\s{}[\]]+)\s*=>\s*(.+)$/,
-      type: "arrow",
-    },
-    // const foo = function(args) { ... }
-    {
-      regex: /^(?:export\s+)?const\s+(\w+)\s*=\s*function\s*\([^)]*\)\s*\{/,
-      type: "function-expr",
-    },
-    // function foo(args) { ... }
-    {
-      regex: /^(?:export\s+)?function\s+(\w+)\s*\([^)]*\)\s*\{/,
-      type: "function-decl",
-    },
-    // const foo = memoize((args) => ..., options)
-    {
-      regex:
-        /^(?:export\s+)?const\s+(\w+)\s*=\s*memoize\s*\(\s*(?:\([^)]*\)|[\w,\s{}[\]]+)\s*=>\s*/,
-      type: "memoized",
-    },
-  ];
-
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     const lineNum = i + 1;
 
-    for (const pattern of patterns) {
-      const match = line.match(pattern.regex);
-      if (match) {
-        const name = match[1];
-        let body = "";
-        let endLine = i;
+    // Match: const name = (...) => or const name = function(...)
+    const arrowMatch = line.match(
+      /^(?:export\s+)?const\s+(\w+)\s*=\s*(?:\([^)]*\)|[\w,\s{}[\]]+)\s*=>\s*(.*)$/,
+    );
+    const funcExprMatch = line.match(
+      /^(?:export\s+)?const\s+(\w+)\s*=\s*function\s*\([^)]*\)\s*\{(.*)$/,
+    );
+    const funcDeclMatch = line.match(
+      /^(?:export\s+)?function\s+(\w+)\s*\([^)]*\)\s*\{(.*)$/,
+    );
+    const memoizedMatch = line.match(
+      /^(?:export\s+)?const\s+(\w+)\s*=\s*memoize\s*\(/,
+    );
 
-        if (pattern.type === "arrow") {
-          // For arrow functions, the body is in match[2]
-          body = match[2];
-          // Handle multiline arrow functions
-          if (body.startsWith("{")) {
-            // Find closing brace
-            let braceCount = 1;
-            let j = i;
-            let fullBody = line;
+    let name = null;
+    let body = null;
 
-            // Check if closing brace is on the same line
-            for (let k = body.indexOf("{") + 1; k < body.length; k++) {
-              if (body[k] === "{") braceCount++;
-              if (body[k] === "}") braceCount--;
-              if (braceCount === 0) break;
-            }
+    if (memoizedMatch) {
+      // Skip memoized functions - they're usually complex
+      name = memoizedMatch[1];
+      body = "MEMOIZED";
+    } else if (arrowMatch) {
+      name = arrowMatch[1];
+      const remainder = arrowMatch[2];
 
-            if (braceCount > 0) {
-              // Multiline - skip for simplicity (not a single-line alias)
-              body = "MULTILINE";
-            }
-          }
-        } else if (
-          pattern.type === "function-expr" ||
-          pattern.type === "function-decl"
-        ) {
-          // For function declarations, check if it's a single-line body
-          let braceCount = 1;
-          let j = i;
-          let inBody = false;
-          let fullBody = [];
-
-          // Find the body between braces
-          for (let k = line.indexOf("{") + 1; k < line.length; k++) {
-            if (line[k] === "{") braceCount++;
-            if (line[k] === "}") braceCount--;
-            if (braceCount === 0) {
-              body = line.substring(line.indexOf("{") + 1, k).trim();
-              break;
-            }
-          }
-
-          if (braceCount > 0) {
-            // Multiline function
-            body = "MULTILINE";
-          }
-        } else if (pattern.type === "memoized") {
-          // Memoized functions are usually complex, skip
-          body = "MEMOIZED";
-        }
-
-        // Determine if this is an alias (single call to another function)
-        const aliasInfo = detectAlias(body, name);
-
-        functions.push({
-          name,
-          line: lineNum,
-          body: body.substring(0, 100), // Truncate for display
-          isAlias: aliasInfo.isAlias,
-          aliasTarget: aliasInfo.target,
-          file: filePath,
-        });
-
-        break; // Only match one pattern per line
+      if (remainder.startsWith("{")) {
+        // Block body arrow function - extract full body
+        body = extractBlockBody(lines, i, line.indexOf("{"));
+      } else {
+        // Expression body - remainder is the body
+        body = remainder.replace(/;$/, "").trim();
       }
+    } else if (funcExprMatch || funcDeclMatch) {
+      const match = funcExprMatch || funcDeclMatch;
+      name = match[1];
+      // Extract the block body
+      body = extractBlockBody(lines, i, line.indexOf("{"));
+    }
+
+    if (name && body) {
+      const aliasInfo = detectAlias(body, name);
+      functions.push({
+        name,
+        line: lineNum,
+        body: body.substring(0, 100),
+        isAlias: aliasInfo.isAlias,
+        aliasTarget: aliasInfo.target,
+        file: filePath,
+      });
     }
   }
 
@@ -208,10 +158,79 @@ function extractFunctions(content, filePath) {
 }
 
 /**
+ * Extract the body of a block (between { and }) starting at a given line/position
+ * Returns the body content or "COMPLEX" if not a simple single-statement body
+ */
+function extractBlockBody(lines, startLineIdx, bracePos) {
+  let braceCount = 1;
+  let bodyLines = [];
+  const startLine = lines[startLineIdx];
+
+  // Start after the opening brace
+  let firstPart = startLine.substring(bracePos + 1);
+
+  // Check if closing brace is on same line
+  for (let k = 0; k < firstPart.length; k++) {
+    if (firstPart[k] === "{") braceCount++;
+    if (firstPart[k] === "}") {
+      braceCount--;
+      if (braceCount === 0) {
+        // Single line body
+        return firstPart.substring(0, k).trim();
+      }
+    }
+  }
+
+  bodyLines.push(firstPart);
+
+  // Continue to subsequent lines
+  for (let j = startLineIdx + 1; j < lines.length && braceCount > 0; j++) {
+    const currentLine = lines[j];
+    for (let k = 0; k < currentLine.length; k++) {
+      if (currentLine[k] === "{") braceCount++;
+      if (currentLine[k] === "}") {
+        braceCount--;
+        if (braceCount === 0) {
+          bodyLines.push(currentLine.substring(0, k));
+          break;
+        }
+      }
+    }
+    if (braceCount > 0) {
+      bodyLines.push(currentLine);
+    }
+  }
+
+  // Join and clean up the body
+  const fullBody = bodyLines.join(" ").trim();
+
+  // Check if it's a simple single return statement
+  const returnMatch = fullBody.match(/^\s*return\s+(.+?)\s*;?\s*$/);
+  if (returnMatch) {
+    return returnMatch[1];
+  }
+
+  // Check for other simple single statements
+  const singleStatement = fullBody.replace(/\s+/g, " ").trim();
+  if (!singleStatement.includes(";") || singleStatement.endsWith(";")) {
+    // Could be a simple expression
+    const cleanedStatement = singleStatement.replace(/;$/, "").trim();
+    // If it doesn't have control flow, it might be simple
+    if (
+      !cleanedStatement.match(/\b(if|for|while|switch|try|const|let|var)\b/)
+    ) {
+      return cleanedStatement;
+    }
+  }
+
+  return "COMPLEX";
+}
+
+/**
  * Detect if a function body is just an alias to another function
  */
 function detectAlias(body, funcName) {
-  if (!body || body === "MULTILINE" || body === "MEMOIZED") {
+  if (!body || body === "COMPLEX" || body === "MEMOIZED") {
     return { isAlias: false, target: null };
   }
 
