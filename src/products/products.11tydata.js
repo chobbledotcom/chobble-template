@@ -1,21 +1,11 @@
+import { computeGallery } from "#collections/products.js";
 import strings from "#data/strings.js";
 import { buildPermalink, normaliseSlug } from "#utils/slug-utils.js";
 
 export default {
   eleventyComputed: {
-    categories: (data) => {
-      const categories = data.categories || [];
-      return categories.map(normaliseSlug);
-    },
-    gallery: (data) => {
-      if (data.gallery) {
-        return data.gallery;
-      }
-      if (data.header_image) {
-        return [data.header_image];
-      }
-      return undefined;
-    },
+    categories: (data) => (data.categories || []).map(normaliseSlug),
+    gallery: computeGallery,
     navigationParent: () => strings.product_name,
     permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
   },

@@ -5,23 +5,10 @@ import {
   escapeHtml,
   formatPrice,
   getCart,
-  getItemCount,
   removeItem,
+  updateCartIcon,
 } from "./cart-utils.js";
 import { onReady } from "./on-ready.js";
-
-function updateCartIcon() {
-  const count = getItemCount();
-  const cartIcon = document.getElementById("cart-icon");
-  if (cartIcon) {
-    const badge = cartIcon.querySelector(".cart-count");
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "block" : "none";
-    }
-    cartIcon.style.display = count > 0 ? "flex" : "none";
-  }
-}
 
 function renderCart() {
   const cart = getCart();

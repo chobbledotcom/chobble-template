@@ -1,8 +1,6 @@
 const getGuidePagesByCategory = (guidePages, categorySlug) => {
   if (!guidePages || !categorySlug) return [];
-  return guidePages.filter(
-    (page) => page.data.guide_category === categorySlug,
-  );
+  return guidePages.filter((page) => page.data.guide_category === categorySlug);
 };
 
 const configureGuides = (eleventyConfig) => {

@@ -6,9 +6,9 @@ import {
   escapeHtml,
   formatPrice,
   getCart,
-  getItemCount,
   removeItem,
   saveCart,
+  updateCartIcon,
 } from "./cart-utils.js";
 import { onReady } from "./on-ready.js";
 
@@ -18,7 +18,6 @@ class ShoppingCart {
 
   constructor() {
     this.cartOverlay = null;
-    this.cartIcon = null;
     this.documentListenersAttached = false;
     this.isEnquiryMode = false;
     this.init();
@@ -32,19 +31,14 @@ class ShoppingCart {
 
   setup() {
     this.cartOverlay = document.getElementById("cart-overlay");
-    this.cartIcon = document.getElementById("cart-icon");
 
-    // Check if we're in enquiry mode (no overlay, just redirect to /quote/)
-    this.isEnquiryMode = this.cartIcon?.dataset.enquiryMode === "true";
-
-    if (!this.cartIcon) {
-      console.error("Cart icon not found");
-      return;
-    }
+    // Check if we're in enquiry mode (any cart icon has enquiry mode set)
+    const cartIcon = document.querySelector(".cart-icon");
+    this.isEnquiryMode = cartIcon?.dataset.enquiryMode === "true";
 
     // In enquiry mode, we don't need the cart overlay
     if (!this.isEnquiryMode && !this.cartOverlay) {
-      console.error("Cart overlay not found");
+      // No cart functionality on this page
       return;
     }
 
@@ -83,19 +77,6 @@ class ShoppingCart {
   }
 
   setupEventListeners() {
-    // Element-specific listeners (need to re-attach after Turbo navigation
-    // since Turbo replaces the body and these elements are recreated)
-
-    // Cart icon click - open cart or navigate to quote page
-    this.cartIcon.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (this.isEnquiryMode) {
-        window.location.href = "/quote/";
-      } else {
-        this.openCart();
-      }
-    });
-
     // Overlay-specific listeners (skip in enquiry mode)
     if (!this.isEnquiryMode && this.cartOverlay) {
       // Light dismiss: close cart when clicking on the backdrop
@@ -148,8 +129,20 @@ class ShoppingCart {
       }
     });
 
-    // Add to cart buttons
+    // Click handler using event delegation for add-to-cart and cart icon
     document.addEventListener("click", (e) => {
+      // Cart icon click - open cart or navigate to quote page
+      if (e.target.closest(".cart-icon")) {
+        e.preventDefault();
+        if (this.isEnquiryMode) {
+          window.location.href = "/quote/";
+        } else {
+          this.openCart();
+        }
+        return;
+      }
+
+      // Add to cart button click
       if (e.target.classList.contains("add-to-cart")) {
         e.preventDefault();
         const button = e.target;
@@ -274,22 +267,7 @@ class ShoppingCart {
 
   // Update cart count badge
   updateCartCount() {
-    const count = getItemCount();
-    const badge = this.cartIcon.querySelector(".cart-count");
-
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "block" : "none";
-    }
-
-    // Toggle cart icon visibility based on item count
-    if (count > 0) {
-      this.cartIcon.style.display = "flex";
-      console.log("Cart icon shown - items in cart:", count);
-    } else {
-      this.cartIcon.style.display = "none";
-      console.log("Cart icon hidden - no items in cart");
-    }
+    updateCartIcon();
   }
 
   // Update cart display in overlay
@@ -410,10 +388,10 @@ class ShoppingCart {
 
   // Show "added to cart" feedback
   showAddedFeedback() {
-    this.cartIcon.classList.add("cart-bounce");
-    setTimeout(() => {
-      this.cartIcon.classList.remove("cart-bounce");
-    }, 600);
+    document.querySelectorAll(".cart-icon").forEach((icon) => {
+      icon.classList.add("cart-bounce");
+      setTimeout(() => icon.classList.remove("cart-bounce"), 600);
+    });
   }
 
   // Get checkout API URL if configured

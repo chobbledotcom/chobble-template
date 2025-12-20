@@ -1,20 +1,17 @@
-import { memoize } from "#utils/memoize.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
-
-// Cache key for functions with (array, string) signature
-// Uses array reference identity (via default behavior) + string value
-const cacheKeyArrayAndSlug = (args) => {
-  // First arg is array (identity-based by memoize default), second is slug
-  // We combine array length as a sanity check with the slug
-  const arr = args[0];
-  const slug = args[1];
-  return `${arr?.length || 0}:${slug}`;
-};
+import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
+import { getLatestItems, sortByOrderThenTitle } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
   if (Array.isArray(gallery)) return gallery;
   return Object.values(gallery);
+};
+
+// Compute gallery array from gallery or header_image (for eleventyComputed)
+const computeGallery = (data) => {
+  if (data.gallery) return data.gallery;
+  if (data.header_image) return [data.header_image];
+  return undefined;
 };
 
 const addGallery = (item) => {
@@ -47,10 +44,7 @@ const createLatestReviewsCollection = (collectionApi, limit = 3) => {
   const visibleReviews = reviews.filter(
     (review) => review.data.hidden !== true,
   );
-  // Sort by date descending (newest first) and take the limit
-  return visibleReviews
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, limit);
+  return getLatestItems(visibleReviews, limit);
 };
 
 const getProductsByCategory = memoize(
@@ -83,13 +77,6 @@ const getReviewsByProduct = memoize(
 
 const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];
-
-const getLatestReviews = (reviews, limit = 3) => {
-  if (!reviews) return [];
-  return reviews
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, limit);
-};
 
 const getProductRating = (reviews, productSlug) => {
   const productReviews = (reviews || []).filter((review) =>
@@ -162,7 +149,7 @@ const configureProducts = (eleventyConfig) => {
 
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 
-  eleventyConfig.addFilter("getLatestReviews", getLatestReviews);
+  eleventyConfig.addFilter("getLatestReviews", getLatestItems);
 
   eleventyConfig.addFilter("getProductRating", getProductRating);
 
@@ -171,6 +158,7 @@ const configureProducts = (eleventyConfig) => {
 
 export {
   processGallery,
+  computeGallery,
   addGallery,
   createProductsCollection,
   createReviewsCollection,
@@ -181,7 +169,6 @@ export {
   getProductsByEvent,
   getReviewsByProduct,
   getFeaturedProducts,
-  getLatestReviews,
   getProductRating,
   ratingToStars,
   configureProducts,

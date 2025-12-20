@@ -2,9 +2,9 @@ import fs from "fs";
 import markdownIt from "markdown-it";
 import path from "path";
 import { fileURLToPath } from "url";
-import { memoize } from "#utils/memoize.js";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
+import { memoize } from "#utils/memoize.js";
 
 const cacheKeyFromArgs = (args) => args.join(",");
 
