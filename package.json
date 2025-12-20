@@ -22,9 +22,10 @@
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
+		"knip:prod": "knip --config knip-production.json",
 		"lint": "npx @biomejs/biome check .",
 		"lint:fix": "npx @biomejs/biome check --write .",
-		"precommit": "run-s lint:fix cpd knip:fix test"
+		"precommit": "run-s lint:fix cpd knip:fix knip:prod test"
 	},
 	"devDependencies": {
 		"esbuild": "^0.27.0",
