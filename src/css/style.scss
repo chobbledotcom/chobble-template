@@ -81,7 +81,13 @@ header,
 main {
   margin: 0 auto;
   max-width: var(--width-content);
-  padding: 3rem 1rem;
+  padding: 2rem 0.75rem;
+  @include breakpoints.up("sm") {
+    padding: 2.5rem 1rem;
+  }
+  @include breakpoints.up("md") {
+    padding: 3rem 1.5rem;
+  }
 }
 
 hr {
@@ -223,10 +229,16 @@ form {
   display: block;
   max-width: var(--width-card-wide);
   min-width: var(--width-card);
-  padding: 2rem;
+  padding: 1.25rem;
   text-align: var(--justify-normal);
   background: var(--form-bg-color);
   color: var(--form-text-color);
+  @include breakpoints.up("sm") {
+    padding: 1.5rem;
+  }
+  @include breakpoints.up("md") {
+    padding: 2rem;
+  }
   header {
     margin: 1.5rem 0;
     padding: 1.5rem 0;
@@ -414,7 +426,13 @@ blockquote {
 }
 
 body {
-  padding: 1rem;
+  padding: 0.5rem;
+  @include breakpoints.up("sm") {
+    padding: 0.75rem;
+  }
+  @include breakpoints.up("md") {
+    padding: 1rem;
+  }
 }
 
 h1,
@@ -616,12 +634,18 @@ body > footer {
 
 article {
   border-radius: var(--border-radius);
-  padding: 1.5rem;
+  padding: 1rem;
   margin-bottom: 2rem;
   background: var(--main-bg-color);
   border: var(--main-border);
   color: var(--main-text-color);
   box-shadow: var(--box-shadow);
+  @include breakpoints.up("sm") {
+    padding: 1.25rem;
+  }
+  @include breakpoints.up("md") {
+    padding: 1.5rem;
+  }
 }
 
 nav {
@@ -630,12 +654,15 @@ nav {
   border-top: 0;
   border-left: 0;
   border-right: 0;
-  padding: 1.25rem 1rem;
+  padding: 1rem 0.75rem;
   margin-bottom: 2rem;
   background: var(--nav-bg-color);
   flex-wrap: wrap;
   font-size: 1.2rem;
   color: var(--nav-text-color);
+  @include breakpoints.up("sm") {
+    padding: 1.25rem 1rem;
+  }
   .toggle-label,
   .toggle {
     display: none;
