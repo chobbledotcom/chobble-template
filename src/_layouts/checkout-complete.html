@@ -7,9 +7,8 @@ layout: page
 <script>
   (function() {
     localStorage.removeItem('shopping_cart');
-    var cartIcon = document.getElementById('cart-icon');
-    if (cartIcon) {
-      cartIcon.style.display = 'none';
-    }
+    document.querySelectorAll('.cart-icon').forEach(function(icon) {
+      icon.style.display = 'none';
+    });
   })();
 </script>

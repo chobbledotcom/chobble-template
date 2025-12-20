@@ -1,17 +1,7 @@
 // Stripe Checkout Page
 // Handles the redirect flow: checks cart and redirects to Stripe or homepage
 
-const STORAGE_KEY = "shopping_cart";
-
-function getCart() {
-  try {
-    const cart = localStorage.getItem(STORAGE_KEY);
-    return cart ? JSON.parse(cart) : [];
-  } catch (e) {
-    console.error("Error reading cart:", e);
-    return [];
-  }
-}
+import { getCart } from "./cart-utils.js";
 
 function showError(message) {
   const statusMessage = document.getElementById("status-message");

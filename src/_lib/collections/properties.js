@@ -1,13 +1,6 @@
-import { memoize } from "#utils/memoize.js";
 import { addGallery } from "#collections/products.js";
+import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
 import { sortByOrderThenTitle } from "#utils/sorting.js";
-
-// Cache key for functions with (array, string) signature
-const cacheKeyArrayAndSlug = (args) => {
-  const arr = args[0];
-  const slug = args[1];
-  return `${arr?.length || 0}:${slug}`;
-};
 
 const createPropertiesCollection = (collectionApi) => {
   const properties = collectionApi.getFilteredByTag("property") || [];

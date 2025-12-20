@@ -1,14 +1,14 @@
 import {
-  parseFilterAttributes,
   buildDisplayLookup,
-  filterToPath,
-  pathToFilter,
-  getAllFilterAttributes,
-  itemMatchesFilters,
-  getItemsByFilters,
-  generateFilterCombinations,
   buildFilterDescription,
   buildFilterUIData,
+  filterToPath,
+  generateFilterCombinations,
+  getAllFilterAttributes,
+  getItemsByFilters,
+  itemMatchesFilters,
+  parseFilterAttributes,
+  pathToFilter,
 } from "#filters/item-filters.js";
 import {
   createTestRunner,

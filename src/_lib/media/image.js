@@ -5,6 +5,19 @@ import path from "path";
 import sharp from "sharp";
 import { memoize } from "#utils/memoize.js";
 
+// Helper to convert HTML string to DOM element
+const htmlToElement = (html, document = null) => {
+  if (document) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    return template.content.firstChild;
+  }
+  const {
+    window: { document: doc },
+  } = new JSDOM(`<body>${html}</body>`);
+  return doc.body.firstChild;
+};
+
 const U = {
   DEFAULT_OPTIONS: {
     formats: ["webp", "jpeg"],
@@ -189,18 +202,7 @@ async function processAndWrapImage({
     const classAttr = classes ? ` class="${classes}"` : "";
     const html = `<img src="${imageNameStr}" alt="${alt || ""}" loading="${loading || "lazy"}" decoding="async" sizes="auto"${classAttr}>`;
 
-    if (returnElement) {
-      if (document) {
-        const template = document.createElement("template");
-        template.innerHTML = html;
-        return template.content.firstChild;
-      }
-      const {
-        window: { document: doc },
-      } = new JSDOM(`<body>${html}</body>`);
-      return doc.body.firstChild;
-    }
-    return html;
+    return returnElement ? htmlToElement(html, document) : html;
   }
 
   const path = U.getPath(imageName);
@@ -240,20 +242,7 @@ async function processAndWrapImage({
   );
   imageHtmlCache.set(cacheKey, html);
 
-  if (returnElement) {
-    // Convert HTML to element using provided document or create minimal JSDOM
-    if (document) {
-      const template = document.createElement("template");
-      template.innerHTML = html;
-      return template.content.firstChild;
-    }
-    const {
-      window: { document: doc },
-    } = new JSDOM(`<body>${html}</body>`);
-    return doc.body.firstChild;
-  }
-
-  return html;
+  return returnElement ? htmlToElement(html, document) : html;
 }
 
 import fastglob from "fast-glob";

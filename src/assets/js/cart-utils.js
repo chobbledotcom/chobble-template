@@ -41,3 +41,15 @@ export function getItemCount() {
   const cart = getCart();
   return cart.reduce((count, item) => count + item.quantity, 0);
 }
+
+export function updateCartIcon() {
+  const count = getItemCount();
+  document.querySelectorAll(".cart-icon").forEach((icon) => {
+    icon.style.display = count > 0 ? "flex" : "none";
+    const badge = icon.querySelector(".cart-count");
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? "block" : "none";
+    }
+  });
+}

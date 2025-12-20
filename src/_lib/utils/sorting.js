@@ -14,4 +14,16 @@ const sortByOrderThenTitle = (a, b) => {
   return titleA.localeCompare(titleB);
 };
 
-export { sortByOrderThenTitle };
+/**
+ * Comparator for sorting by date descending (newest first).
+ * Assumes items have a .date property.
+ */
+const sortByDateDescending = (a, b) => new Date(b.date) - new Date(a.date);
+
+/**
+ * Get the most recent items from an array, sorted by date descending.
+ */
+const getLatestItems = (items, limit = 3) =>
+  (items || []).sort(sortByDateDescending).slice(0, limit);
+
+export { sortByOrderThenTitle, sortByDateDescending, getLatestItems };
