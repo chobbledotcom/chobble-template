@@ -1,12 +1,10 @@
 ---
 title: John Doe
-snippet: Suspendisse eleifend dolor non sagittis pharetra
+snippet: This is a team member page in the template
 image: placeholder-square-4.jpg
 header_image: src/images/placeholder-wide-2.jpg
 ---
 
-> "Faucibus at hendrerit ut, vestibulum pretium turpis."
+> "You can add a quote from the team member here."
 
-Suspendisse eleifend dolor non sagittis pharetra. Vivamus efficitur magna at ex ullamcorper, eu cursus massa imperdiet. Quisque eros velit, faucibus at hendrerit ut, vestibulum pretium turpis.
-
-**Aliquam placerat, tellus quis pulvinar convallis.**
+This is a team member page. Each team member has a title, image, and biography. The snippet field provides a summary that appears in team listings. You can add contact details, social links, and any other information about the person here.

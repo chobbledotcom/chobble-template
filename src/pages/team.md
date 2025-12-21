@@ -9,8 +9,6 @@ eleventyNavigation:
   parent: Contact
 ---
 
-## Quisque viverra
+## Meet the Team
 
-Ut purus et scelerisque.
-
-Nulla non lacus finibus, viverra leo id, ornare orci. Quisque sit amet fermentum magna, in finibus est. In tristique viverra consectetur. Aliquam lacinia, nulla ac interdum consequat, quam ante semper dui, non maximus metus sapien efficitur felis.
+This page lists all team members. Each member has their own page with a photo, biography, and contact information. Team member files are stored in the team folder and can include links to social media profiles.

@@ -12,4 +12,4 @@ eleventyNavigation:
 
 # Our Products
 
-Suspendisse sit amet gravida turpis, ac tincidunt ex. Etiam ac justo elit. Donec libero ex, egestas et tempor non, egestas hendrerit neque.
+Products are organised into categories which you can browse below. Each product can belong to one or more categories, and can include images, specifications, pricing, and purchase options. You can filter products by category or use the search function to find what you need.

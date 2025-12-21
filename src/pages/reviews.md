@@ -9,6 +9,6 @@ eleventyNavigation:
   order: 4
 ---
 
-## Sed in eros velit
+## Customer Feedback
 
-In in ante nec ante interdum consectetur. Sed finibus enim eget nulla euismod tincidunt et ac sapien. Aenean commodo, ligula sit amet imperdiet vehicula, felis dolor convallis nulla, at venenatis nisl ipsum convallis dolor.
+This page displays reviews submitted by customers. Each review includes a star rating, the reviewer's name, and their comments. Reviews can be linked to products and are stored as markdown files in the reviews folder.

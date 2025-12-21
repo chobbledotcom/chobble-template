@@ -1,12 +1,10 @@
 ---
 title: Jane Doe
-snippet: Quisque eros velit, faucibus at hendrerit
+snippet: This is another team member page in the template
 image: placeholder-square-3.jpg
 header_image: src/images/placeholder-wide-3.jpg
 ---
 
-> "Pellentesque dapibus est vitae ligula sollicitudin sodales."
+> "You can add a quote from the team member here."
 
-Suspendisse eleifend dolor non sagittis pharetra. Vivamus efficitur magna at ex ullamcorper, eu cursus massa imperdiet. Quisque eros velit, faucibus at hendrerit ut, vestibulum pretium turpis.
-
-**Aliquam placerat, tellus quis pulvinar convallis.**
+This is a team member page. The layout matches the other team members to maintain consistency across the site. You can customise the header image, profile photo, and content for each person. Team members appear on the team listing page and can be linked from other pages.
