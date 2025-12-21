@@ -3,7 +3,6 @@ import {
   configureProducts,
   createProductsCollection,
   createReviewsCollection,
-  createVisibleReviewsCollection,
   getFeaturedProducts,
   getProductsByCategory,
   getReviewsByProduct,
@@ -234,13 +233,13 @@ const testCases = [
   },
   {
     name: "getReviewsByProduct-basic",
-    description: "Filters reviews by product",
+    description: "Filters reviews by product and sorts newest first",
     test: () => {
       const reviews = [
-        { data: { title: "Review 1", products: ["product-a", "product-b"] } },
-        { data: { title: "Review 2", products: ["product-c"] } },
-        { data: { title: "Review 3", products: ["product-a"] } },
-        { data: { title: "Review 4" } },
+        { data: { title: "Review 1", products: ["product-a", "product-b"] }, date: new Date("2024-01-01") },
+        { data: { title: "Review 2", products: ["product-c"] }, date: new Date("2024-01-02") },
+        { data: { title: "Review 3", products: ["product-a"] }, date: new Date("2024-01-03") },
+        { data: { title: "Review 4" }, date: new Date("2024-01-04") },
       ];
 
       const result = getReviewsByProduct(reviews, "product-a");
@@ -252,13 +251,13 @@ const testCases = [
       );
       expectStrictEqual(
         result[0].data.title,
-        "Review 1",
-        "Should include first review",
+        "Review 3",
+        "Should have newest review first",
       );
       expectStrictEqual(
         result[1].data.title,
-        "Review 3",
-        "Should include third review",
+        "Review 1",
+        "Should have older review second",
       );
     },
   },
@@ -283,11 +282,13 @@ const testCases = [
   },
   {
     name: "createReviewsCollection-basic",
-    description: "Creates reviews collection from API",
+    description: "Creates reviews collection excluding hidden and sorted newest first",
     test: () => {
       const mockReviews = [
-        { data: { name: "Review 1", rating: 5 } },
-        { data: { name: "Review 2", rating: 4 } },
+        { data: { name: "Review 1", rating: 5 }, date: new Date("2024-01-01") },
+        { data: { name: "Review 2", rating: 4, hidden: true }, date: new Date("2024-01-02") },
+        { data: { name: "Review 3", rating: 5 }, date: new Date("2024-01-03") },
+        { data: { name: "Review 4", rating: 3, hidden: true }, date: new Date("2024-01-04") },
       ];
 
       const mockCollectionApi = {
@@ -299,59 +300,27 @@ const testCases = [
 
       const result = createReviewsCollection(mockCollectionApi);
 
-      expectStrictEqual(result.length, 2, "Should return all reviews");
-      expectStrictEqual(
-        result[0].data.name,
-        "Review 1",
-        "Should include first review",
-      );
-      expectStrictEqual(
-        result[1].data.name,
-        "Review 2",
-        "Should include second review",
-      );
-    },
-  },
-  {
-    name: "createVisibleReviewsCollection-basic",
-    description: "Creates visible reviews collection excluding hidden reviews",
-    test: () => {
-      const mockReviews = [
-        { data: { name: "Review 1", rating: 5 } },
-        { data: { name: "Review 2", rating: 4, hidden: true } },
-        { data: { name: "Review 3", rating: 5 } },
-        { data: { name: "Review 4", rating: 3, hidden: true } },
-      ];
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          expectStrictEqual(tag, "review", "Should filter by review tag");
-          return mockReviews;
-        },
-      };
-
-      const result = createVisibleReviewsCollection(mockCollectionApi);
-
       expectStrictEqual(result.length, 2, "Should return only visible reviews");
       expectStrictEqual(
         result[0].data.name,
-        "Review 1",
-        "Should include first visible review",
+        "Review 3",
+        "Should have newest review first",
       );
       expectStrictEqual(
         result[1].data.name,
-        "Review 3",
-        "Should include second visible review",
+        "Review 1",
+        "Should have older review second",
       );
     },
   },
   {
-    name: "createVisibleReviewsCollection-no-hidden",
-    description: "Returns all reviews when none are hidden",
+    name: "createReviewsCollection-no-hidden",
+    description: "Returns all reviews when none are hidden, sorted newest first",
     test: () => {
       const mockReviews = [
-        { data: { name: "Review 1", rating: 5 } },
-        { data: { name: "Review 2", rating: 4 } },
+        { data: { name: "Review 1", rating: 5 }, date: new Date("2024-01-01") },
+        { data: { name: "Review 2", rating: 4 }, date: new Date("2024-01-03") },
+        { data: { name: "Review 3", rating: 3 }, date: new Date("2024-01-02") },
       ];
 
       const mockCollectionApi = {
@@ -361,22 +330,27 @@ const testCases = [
         },
       };
 
-      const result = createVisibleReviewsCollection(mockCollectionApi);
+      const result = createReviewsCollection(mockCollectionApi);
 
       expectStrictEqual(
         result.length,
-        2,
+        3,
         "Should return all reviews when none are hidden",
       );
       expectStrictEqual(
         result[0].data.name,
-        "Review 1",
-        "Should include first review",
+        "Review 2",
+        "Should have newest review first (2024-01-03)",
       );
       expectStrictEqual(
         result[1].data.name,
-        "Review 2",
-        "Should include second review",
+        "Review 3",
+        "Should have middle review second (2024-01-02)",
+      );
+      expectStrictEqual(
+        result[2].data.name,
+        "Review 1",
+        "Should have oldest review last (2024-01-01)",
       );
     },
   },
@@ -397,11 +371,6 @@ const testCases = [
         mockConfig.collections,
         "reviews",
         "Should add reviews collection",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "visibleReviews",
-        "Should add visibleReviews collection",
       );
       expectFunctionType(
         mockConfig.filters,
@@ -500,15 +469,17 @@ const testCases = [
     name: "filter-functions-immutable",
     description: "Filter functions should be pure and not modify inputs",
     test: () => {
+      const testDate = new Date("2024-01-01");
       const originalProducts = [
         { data: { title: "Product 1", categories: ["widgets"] } },
       ];
       const originalReviews = [
-        { data: { title: "Review 1", products: ["product-1"] } },
+        { data: { title: "Review 1", products: ["product-1"] }, date: testDate },
       ];
 
-      const productsCopy = JSON.parse(JSON.stringify(originalProducts));
-      const reviewsCopy = JSON.parse(JSON.stringify(originalReviews));
+      // Create copies that preserve Date objects
+      const productsCopy = structuredClone(originalProducts);
+      const reviewsCopy = structuredClone(originalReviews);
 
       getProductsByCategory(productsCopy, "widgets");
       getReviewsByProduct(reviewsCopy, "product-1");

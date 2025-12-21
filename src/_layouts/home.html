@@ -59,7 +59,7 @@ layout: base
   {%- include "items.html", items: featured_properties, horizontal: true -%}
 {%- endif -%}
 
-{%- assign latest_reviews = collections.visibleReviews | getLatestReviews: homepage.reviews_limit -%}
+{%- assign latest_reviews = collections.reviews | slice: 0, homepage.reviews_limit -%}
 {%- if homepage.show_reviews and latest_reviews.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-reviews-header", "<h3>Recent Reviews</h3>" -%}

@@ -1,6 +1,6 @@
 {%- if tags and tags contains "product" -%}
-  {% assign reviews = collections.review | default: [] | getReviewsByProduct: page.fileSlug %}
-  {% assign rating = collections.review | default: [] | getProductRating: page.fileSlug %}
+  {% assign reviews = collections.reviews | getReviewsByProduct: page.fileSlug %}
+  {% assign rating = collections.reviews | getProductRating: page.fileSlug %}
   {%- if rating -%}
     <p id="reviews-count"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
   {%- endif -%}

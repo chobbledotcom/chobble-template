@@ -1,5 +1,4 @@
-import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
-import { getLatestItems, sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortByDateDescending, sortByOrderThenTitle } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
@@ -31,55 +30,36 @@ const createProductsCollection = (collectionApi) => {
 };
 
 const createReviewsCollection = (collectionApi) => {
-  return collectionApi.getFilteredByTag("review") || [];
-};
-
-const createVisibleReviewsCollection = (collectionApi) => {
   const reviews = collectionApi.getFilteredByTag("review") || [];
-  return reviews.filter((review) => review.data.hidden !== true);
+  return reviews
+    .filter((review) => review.data.hidden !== true)
+    .sort(sortByDateDescending);
 };
 
-const createLatestReviewsCollection = (collectionApi, limit = 3) => {
-  const reviews = collectionApi.getFilteredByTag("review") || [];
-  const visibleReviews = reviews.filter(
-    (review) => review.data.hidden !== true,
-  );
-  return getLatestItems(visibleReviews, limit);
+const getProductsByCategory = (products, categorySlug) => {
+  if (!products) return [];
+  return products
+    .filter((product) => product.data.categories?.includes(categorySlug))
+    .sort(sortByOrderThenTitle);
 };
 
-const getProductsByCategory = memoize(
-  (products, categorySlug) => {
-    if (!products) return [];
-    return products
-      .filter((product) => product.data.categories?.includes(categorySlug))
-      .sort(sortByOrderThenTitle);
-  },
-  { cacheKey: cacheKeyArrayAndSlug },
-);
+const getProductsByEvent = (products, eventSlug) => {
+  if (!products) return [];
+  return products
+    .filter((product) => product.data.events?.includes(eventSlug))
+    .sort(sortByOrderThenTitle);
+};
 
-const getProductsByEvent = memoize(
-  (products, eventSlug) => {
-    if (!products) return [];
-    return products
-      .filter((product) => product.data.events?.includes(eventSlug))
-      .sort(sortByOrderThenTitle);
-  },
-  { cacheKey: cacheKeyArrayAndSlug },
-);
-
-const getReviewsByProduct = memoize(
-  (reviews, productSlug) =>
-    (reviews || []).filter((review) =>
-      review.data.products?.includes(productSlug),
-    ),
-  { cacheKey: cacheKeyArrayAndSlug },
-);
+const getReviewsByProduct = (reviews, productSlug) =>
+  reviews
+    .filter((review) => review.data.products?.includes(productSlug))
+    .sort(sortByDateDescending);
 
 const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];
 
 const getProductRating = (reviews, productSlug) => {
-  const productReviews = (reviews || []).filter((review) =>
+  const productReviews = reviews.filter((review) =>
     review.data.products?.includes(productSlug),
   );
   const ratingsWithValues = productReviews
@@ -132,27 +112,13 @@ const createApiSkusCollection = (collectionApi) => {
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("reviews", createReviewsCollection);
-  eleventyConfig.addCollection(
-    "visibleReviews",
-    createVisibleReviewsCollection,
-  );
-  eleventyConfig.addCollection("latestReviews", (collectionApi) =>
-    createLatestReviewsCollection(collectionApi),
-  );
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
-
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
-
   eleventyConfig.addFilter("getReviewsByProduct", getReviewsByProduct);
-
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
-
-  eleventyConfig.addFilter("getLatestReviews", getLatestItems);
-
   eleventyConfig.addFilter("getProductRating", getProductRating);
-
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
 };
 
@@ -162,8 +128,6 @@ export {
   addGallery,
   createProductsCollection,
   createReviewsCollection,
-  createVisibleReviewsCollection,
-  createLatestReviewsCollection,
   createApiSkusCollection,
   getProductsByCategory,
   getProductsByEvent,
