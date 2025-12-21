@@ -9,6 +9,8 @@ eleventyNavigation:
   order: 4
 ---
 
-## Sed in eros velit
+## Customer Feedback
 
-In in ante nec ante interdum consectetur. Sed finibus enim eget nulla euismod tincidunt et ac sapien. Aenean commodo, ligula sit amet imperdiet vehicula, felis dolor convallis nulla, at venenatis nisl ipsum convallis dolor.
+Reviews are files in the reviews folder. The filename starts with a date so they sort by time. Each review has the person's name. You can also add a link to their website, a star rating from one to five, a photo of them, and which products the review is about.
+
+Reviews do not get their own pages. They show up here and on product pages. The site works out the average star rating for each product. If you set hidden to true on a review, it will not show up anywhere.
