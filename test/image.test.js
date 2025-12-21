@@ -22,6 +22,10 @@ const mockEleventyConfig = {
     this.collections = this.collections || {};
     this.collections[name] = fn;
   },
+  addPlugin: function (plugin) {
+    this.plugins = this.plugins || [];
+    this.plugins.push(plugin);
+  },
   on: function (event, fn) {
     this.events = this.events || {};
     this.events[event] = fn;

@@ -1,9 +1,13 @@
-import Image from "@11ty/eleventy-img";
+import Image, {
+  eleventyImageOnRequestDuringServePlugin,
+} from "@11ty/eleventy-img";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import path from "path";
 import sharp from "sharp";
 import { memoize } from "#utils/memoize.js";
+
+const isServeMode = () => process.env.ELEVENTY_RUN_MODE === "serve";
 
 // Helper to convert HTML string to DOM element
 const htmlToElement = (html, document = null) => {
@@ -42,6 +46,7 @@ const U = {
     return Image(imageOrPath, {
       ...U.DEFAULT_OPTIONS,
       widths: widths,
+      transformOnRequest: isServeMode(),
     });
   },
   makeThumbnail: memoize(async (path) => {
@@ -273,6 +278,9 @@ const createImageTransform = () => {
 
 const configureImages = (eleventyConfig) => {
   const imageFiles = findImageFiles();
+
+  // Add dev server middleware for on-request image transforms
+  eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
   // Add shortcode
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
