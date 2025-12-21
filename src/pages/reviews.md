@@ -11,6 +11,6 @@ eleventyNavigation:
 
 ## Customer Feedback
 
-Reviews are stored as markdown files in the reviews folder with a date prefix in the filename for sorting. Each review has a name field for the reviewer and can include a URL to link their name, a rating from one to five stars, a thumbnail for their avatar, and a list of product slugs to associate the review with products.
+Reviews are files in the reviews folder. The filename starts with a date so they sort by time. Each review has the person's name. You can also add a link to their website, a star rating from one to five, a photo of them, and which products the review is about.
 
-Reviews do not generate their own pages. They appear here on the reviews listing and on the product pages they are linked to. The system calculates an average rating for each product from its linked reviews and displays this as stars. Reviews with hidden set to true in their frontmatter are excluded from the collection.
+Reviews do not get their own pages. They show up here and on product pages. The site works out the average star rating for each product. If you set hidden to true on a review, it will not show up anywhere.

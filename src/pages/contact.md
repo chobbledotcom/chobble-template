@@ -16,8 +16,8 @@ eleventyNavigation:
 
 ## Get in Touch
 
-The contact form on this page is configured through contact-form.json, which defines the fields, labels, and validation rules. Form submissions are sent to Formspark when a formspark_id is set in config.json, or to a custom endpoint if contact_form_target is specified. Spam protection is handled by Botpoison when a public key is configured.
+The contact form is set up in contact-form.json. This file says what fields to show and what labels to use. When someone fills in the form, it gets sent to Formspark or to another address you choose. You can turn on Botpoison to stop spam.
 
-Form fields can be set to appear only on certain page types using the showOn property. This allows product pages to show a product-specific message field while event pages show an event enquiry field. The opening hours displayed above are pulled from site.json and rendered using the opening_times shortcode.
+Some fields can show only on some pages. For example, you can have one message box on product pages and a different one on event pages. The opening hours above come from site.json.
 
 **If you're looking for my real contact details check out my site at [chobble.com/contact](https://chobble.com/contact/)**
