@@ -76,8 +76,15 @@ export function inlineAsset(assetPath, baseDir = process.cwd()) {
     return fs.readFileSync(fullPath, "utf-8");
   }
 
-  // For images, return base64 data URI (to be implemented later)
-  throw new Error("Image inlining not yet implemented");
+  if (isImageFile(assetPath)) {
+    const imageBuffer = fs.readFileSync(fullPath);
+    const base64 = imageBuffer.toString("base64");
+    const ext = path.extname(assetPath).toLowerCase().slice(1);
+    const mimeType = ext === "jpg" ? "jpeg" : ext;
+    return `data:image/${mimeType};base64,${base64}`;
+  }
+
+  throw new Error(`Unsupported file type: ${assetPath}`);
 }
 
 /**

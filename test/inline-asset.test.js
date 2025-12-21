@@ -259,6 +259,115 @@ const testCases = [
       );
     },
   },
+  {
+    name: "inlineAsset-png",
+    description: "Inlines PNG file as base64 data URI",
+    test: () => {
+      const tempDir = createTempDir("inline-asset-png");
+      const assetsDir = path.join(tempDir, "src", "assets");
+      fs.mkdirSync(assetsDir, { recursive: true });
+
+      // Create a minimal valid 1x1 PNG (smallest valid PNG possible)
+      const pngBuffer = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+        0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xde, 0x00, 0x00, 0x00,
+        0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xff, 0xff, 0x3f,
+        0x00, 0x05, 0xfe, 0x02, 0xfe, 0xdc, 0xcc, 0x59, 0xe7, 0x00, 0x00, 0x00,
+        0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+      ]);
+      fs.writeFileSync(path.join(assetsDir, "test.png"), pngBuffer);
+
+      try {
+        const result = inlineAsset("test.png", tempDir);
+        expectTrue(
+          result.startsWith("data:image/png;base64,"),
+          "Should start with PNG data URI prefix",
+        );
+        const base64Part = result.replace("data:image/png;base64,", "");
+        const decoded = Buffer.from(base64Part, "base64");
+        expectTrue(
+          decoded.equals(pngBuffer),
+          "Decoded base64 should match original",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "inlineAsset-jpg",
+    description: "Inlines JPG file with correct MIME type (jpeg)",
+    test: () => {
+      const tempDir = createTempDir("inline-asset-jpg");
+      const assetsDir = path.join(tempDir, "src", "assets");
+      fs.mkdirSync(assetsDir, { recursive: true });
+
+      // Create a minimal JPEG header (not valid but enough for testing)
+      const jpgBuffer = Buffer.from([
+        0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
+      ]);
+      fs.writeFileSync(path.join(assetsDir, "test.jpg"), jpgBuffer);
+
+      try {
+        const result = inlineAsset("test.jpg", tempDir);
+        expectTrue(
+          result.startsWith("data:image/jpeg;base64,"),
+          "Should use 'jpeg' not 'jpg' as MIME type",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "inlineAsset-webp",
+    description: "Inlines WebP file as base64 data URI",
+    test: () => {
+      const tempDir = createTempDir("inline-asset-webp");
+      const assetsDir = path.join(tempDir, "src", "assets");
+      fs.mkdirSync(assetsDir, { recursive: true });
+
+      // Create minimal WebP header
+      const webpBuffer = Buffer.from([
+        0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
+      ]);
+      fs.writeFileSync(path.join(assetsDir, "test.webp"), webpBuffer);
+
+      try {
+        const result = inlineAsset("test.webp", tempDir);
+        expectTrue(
+          result.startsWith("data:image/webp;base64,"),
+          "Should start with WebP data URI prefix",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "inlineAsset-gif",
+    description: "Inlines GIF file as base64 data URI",
+    test: () => {
+      const tempDir = createTempDir("inline-asset-gif");
+      const assetsDir = path.join(tempDir, "src", "assets");
+      fs.mkdirSync(assetsDir, { recursive: true });
+
+      // GIF89a header
+      const gifBuffer = Buffer.from([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]);
+      fs.writeFileSync(path.join(assetsDir, "test.gif"), gifBuffer);
+
+      try {
+        const result = inlineAsset("test.gif", tempDir);
+        expectTrue(
+          result.startsWith("data:image/gif;base64,"),
+          "Should start with GIF data URI prefix",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
 ];
 
 export default createTestRunner("inline-asset", testCases);
