@@ -4,7 +4,6 @@ import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 // Build tools
 import { configureEsbuild } from "#build/esbuild.js";
 import { configureScss } from "#build/scss.js";
-import { configureScssFiles } from "#build/scss-files.js";
 
 // Collections
 import { configureCategories } from "#collections/categories.js";
@@ -73,7 +72,6 @@ export default async function (eleventyConfig) {
   configureProperties(eleventyConfig);
   configurePropertyFilters(eleventyConfig);
   configureScss(eleventyConfig);
-  configureScssFiles(eleventyConfig);
   configureSearch(eleventyConfig);
   configureTags(eleventyConfig);
   configureUnusedImages(eleventyConfig);

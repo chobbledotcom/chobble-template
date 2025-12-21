@@ -53,8 +53,7 @@ export function configureProducts(eleventyConfig) {
 #### `build/`
 Build-time tooling that runs during the Eleventy build process:
 - `esbuild.js` - JavaScript bundling
-- `scss.js` - SCSS compilation with dynamic imports
-- `scss-files.js` - Determines which optional SCSS files to include
+- `scss.js` - SCSS compilation
 - `theme-compiler.js` - Compiles theme SCSS files for theme-switcher
 
 #### `collections/`

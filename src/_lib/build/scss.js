@@ -1,28 +1,24 @@
+import fs from "fs";
 import path from "path";
 import sass from "sass";
-import { getScssFiles } from "#build/scss-files.js";
+import { getDirname } from "#eleventy/file-utils.js";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
+
+const __dirname = getDirname(import.meta.url);
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
 
   return (data) => {
     if (inputPath.endsWith("bundle.scss")) {
-      // Add dynamic imports for SCSS files
-      const scssFiles = getScssFiles();
-      const dynamicImports = scssFiles
-        .filter((file) => !inputContent.includes(`@use "${file}";`))
-        .map((file) => `@use "${file}";`)
-        .join("\n");
-      if (dynamicImports) {
-        inputContent = inputContent.replace(
-          '@use "theme";',
-          `${dynamicImports}\n@use "theme";`,
-        );
+      // Inject compiled themes only if theme-switcher is enabled
+      const configPath = path.join(__dirname, "../_data/config.json");
+      let config = {};
+      if (fs.existsSync(configPath)) {
+        config = JSON.parse(fs.readFileSync(configPath, "utf8"));
       }
 
-      // Inject compiled themes only if theme-switcher is enabled
-      if (scssFiles.includes("theme-switcher")) {
+      if (config.enable_theme_switcher) {
         const compiledThemes = generateThemeSwitcherContent();
         inputContent = inputContent + "\n\n" + compiledThemes;
       }
