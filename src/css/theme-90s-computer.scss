@@ -1,27 +1,28 @@
 // 90s Computer Theme - Windows 95/98 teal and gray
 :root {
-  // Layout
   --width-content: 950px;
-  
-  // Colors - Windows 95/98 teal and gray
-  --color-bg: #008080;
-  --color-bg-secondary: #c0c0c0;
+
+  --color-bg: #c0c0c0;
   --color-text: #000000;
   --color-link: #0000ff;
-  --header-text-color: #ffffff;
-  
-  // Borders - Classic Windows 3D beveled look
+  --color-link-hover: #ff0000;
+
   --border: 2px outset #c0c0c0;
   --border-radius: 0;
   --box-shadow: inset -1px -1px #000000, inset 1px 1px #ffffff;
-  --form-button-border: 2px outset #c0c0c0;
-  --form-button-hover-border: 2px inset #c0c0c0;
-  
-  // Fonts - Classic Windows system fonts
+
   --font-family-heading: "MS Sans Serif", "Chicago", sans-serif;
   --font-family-body: "MS Sans Serif", "Chicago", sans-serif;
   --line-height: 1.3;
   --link-decoration: underline;
   --link-decoration-hover: underline;
   --link-decoration-style: solid;
+}
+
+body {
+  background: #008080;
+}
+
+header {
+  --color-text: #ffffff;
 }

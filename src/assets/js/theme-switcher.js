@@ -9,7 +9,8 @@ function getThemeList() {
   const themeListStr = computed.getPropertyValue("--theme-list").trim();
   if (themeListStr) {
     // Remove quotes and split by comma
-    return themeListStr.replace(/['"]/g, "").split(",");
+    const themes = themeListStr.replace(/['"]/g, "").split(",");
+    return themes;
   }
   // Fallback to a default list if CSS variable not found
   return ["default"];
@@ -89,10 +90,9 @@ function updateButtonText(themeName) {
   }
 }
 
-function handleThemeEditorPage() {
+function initThemeSwitcher() {
   const button = document.getElementById("theme-switcher-button");
   if (!button) return;
-
   if (isThemeEditorPage()) {
     // Hide button and reset theme on theme-editor page
     button.style.display = "none";
@@ -104,14 +104,6 @@ function handleThemeEditorPage() {
     const currentTheme = getCurrentTheme();
     applyTheme(currentTheme);
     updateButtonText(currentTheme);
-  }
-}
-
-function initThemeSwitcher() {
-  handleThemeEditorPage();
-
-  const button = document.getElementById("theme-switcher-button");
-  if (button && !isThemeEditorPage()) {
     button.addEventListener("click", cycleTheme);
   }
 }

@@ -11,10 +11,10 @@ nav {
     }
   }
   a {
-    color: var(--nav-link-color);
+    color: var(--color-link);
     &.active,
     &:has(+ ul a.active) {
-      color: var(--nav-link-active-color);
+      color: var(--color-text);
     }
   }
 }
@@ -33,7 +33,7 @@ nav {
       border-radius: 0;
       width: 100%;
       z-index: 1000;
-      background: var(--nav-bg-color);
+      background: var(--color-bg);
       padding: 0.5rem;
       height: 3rem;
 
@@ -70,7 +70,7 @@ nav {
         span::before,
         span::after {
           display: block;
-          background: var(--nav-text-color);
+          background: var(--color-text);
           height: 2px;
           width: 30px;
           position: absolute;
@@ -97,7 +97,7 @@ nav {
 
       & > ul {
         position: fixed;
-        background: var(--nav-bg-color);
+        background: var(--color-bg);
         top: 0;
         right: -100%; /* Start off-screen */
         bottom: 0;
@@ -186,8 +186,8 @@ nav {
               display: block;
             }
             ul {
-              background: var(--nav-bg-color);
-              border: var(--nav-border);
+              background: var(--color-bg);
+              border: var(--border);
               border-radius: var(--border-radius);
               box-shadow: var(--box-shadow);
               display: none;

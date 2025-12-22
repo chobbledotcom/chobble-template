@@ -1,10 +1,7 @@
-import fs from "fs";
 import path from "path";
 import sass from "sass";
-import { getDirname } from "#eleventy/file-utils.js";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
-
-const __dirname = getDirname(import.meta.url);
+import config from "#data/config.json" with { type: "json" };
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
@@ -12,12 +9,6 @@ const createScssCompiler = (inputContent, inputPath) => {
   return (data) => {
     if (inputPath.endsWith("bundle.scss")) {
       // Inject compiled themes only if theme-switcher is enabled
-      const configPath = path.join(__dirname, "../_data/config.json");
-      let config = {};
-      if (fs.existsSync(configPath)) {
-        config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-      }
-
       if (config.enable_theme_switcher) {
         const compiledThemes = generateThemeSwitcherContent();
         inputContent = inputContent + "\n\n" + compiledThemes;

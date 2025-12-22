@@ -327,7 +327,8 @@ html:has(dialog.cart-overlay[open]) {
 }
 
 .quote-cart-item-qty {
-  color: var(--color-text-muted, #666);
+  color: var(--color-text);
+  opacity: 0.6;
 }
 
 .quote-cart-item-price {
@@ -349,7 +350,7 @@ html:has(dialog.cart-overlay[open]) {
   padding: 1rem;
   border: var(--border);
   border-radius: var(--border-radius);
-  background: var(--color-bg-alt, #f9f9f9);
+  background: var(--color-accent);
 
   h3 {
     margin: 0 0 1rem 0;
@@ -367,7 +368,7 @@ html:has(dialog.cart-overlay[open]) {
   display: flex;
   gap: 1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--color-border, #ddd);
+  border-bottom: var(--border);
 
   &:last-child {
     border-bottom: none;
@@ -379,7 +380,8 @@ html:has(dialog.cart-overlay[open]) {
 }
 
 .quote-checkout-item-qty {
-  color: var(--color-text-muted, #666);
+  color: var(--color-text);
+  opacity: 0.6;
 }
 
 .quote-checkout-item-price {

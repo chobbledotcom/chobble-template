@@ -1,27 +1,24 @@
 // Old Mac Theme - Classic Mac OS 9 platinum/aqua
 :root {
-  // Layout
   --width-content: 900px;
-  
-  // Colors - Classic Mac OS 9 platinum/aqua
+
   --color-bg: #dddddd;
-  --color-bg-secondary: #eeeeee;
   --color-text: #000000;
   --color-link: #0000ee;
-  --header-text-color: #000000;
-  
-  // Borders - Classic Mac rounded rect style
+  --color-link-hover: #551a8b;
+
   --border: 1px solid #000000;
   --border-radius: 4px;
   --box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  --form-button-border: 1px solid #000000;
-  --form-button-hover-border: 2px solid #000000;
-  
-  // Fonts - Classic Mac system fonts
+
   --font-family-heading: Chicago, Charcoal, sans-serif;
   --font-family-body: Geneva, sans-serif;
   --line-height: 1.4;
   --link-decoration: underline;
   --link-decoration-hover: underline;
   --link-decoration-style: solid;
+}
+
+body {
+  background: #eeeeee;
 }

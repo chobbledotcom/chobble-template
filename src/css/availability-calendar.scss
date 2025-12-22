@@ -101,7 +101,8 @@ html:has(dialog.availability-calendar[open]) {
   font-weight: bold;
   padding: 0.25rem;
   font-size: 0.75rem;
-  color: var(--color-text-muted, #666);
+  color: var(--color-text);
+  opacity: 0.6;
 }
 
 .calendar-day {
@@ -114,7 +115,7 @@ html:has(dialog.availability-calendar[open]) {
 
   &.today {
     font-weight: bold;
-    outline: 2px solid var(--color-link, currentColor);
+    outline: 2px solid var(--color-link);
     outline-offset: -2px;
   }
 

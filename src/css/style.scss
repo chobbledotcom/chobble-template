@@ -3,9 +3,10 @@
 
 :root {
   --color-bg: #efefef;
-  --color-bg-secondary: var(--color-bg);
   --color-text: #111111;
   --color-link: var(--color-text);
+  --color-link-hover: var(--color-link);
+  --color-accent: var(--color-bg);
 
   --font-family-heading: system-ui, sans-serif;
   --font-family-body: system-ui, sans-serif;
@@ -16,45 +17,18 @@
   --link-decoration-style: solid;
 
   --border-radius: 3px;
+  --border-radius-small: 2px;
   --border: 2px solid var(--color-text);
 
   --box-shadow: none;
+
+  --justify-normal: left;
+  --justify-important: center;
 
   --width-content: 1300px;
   --width-card: 285px;
   --width-card-medium: 460px;
   --width-card-wide: 800px;
-
-  --header-bg-color: var(--color-bg-secondary);
-  --header-text-color: var(--color-text);
-  --header-border: var(--border);
-
-  --nav-bg-color: var(--color-bg-secondary);
-  --nav-text-color: var(--color-text);
-  --nav-link-color: var(--color-link);
-  --nav-link-active-color: var(--color-text);
-  --nav-border: var(--border);
-
-  --main-bg-color: var(--color-bg-secondary);
-  --main-text-color: var(--color-text);
-  --main-heading-color: var(--color-text);
-  --main-border: var(--border);
-
-  --form-bg-color: var(--color-bg);
-  --form-text-color: var(--color-text);
-  --form-border: var(--border);
-
-  --form-input-bg-color: var(--color-bg);
-  --form-input-text-color: var(--color-text);
-  --form-input-border: var(--border);
-
-  --form-button-bg-color: var(--color-bg);
-  --form-button-text-color: var(--color-link);
-  --form-button-border: 2px solid var(--color-link);
-
-  --form-button-hover-bg-color: var(--color-bg);
-  --form-button-hover-text-color: var(--color-link);
-  --form-button-hover-border: var(--form-button-border);
 }
 
 /* MVP.css v1.17.2 - https://github.com/andybrewer/mvp */
@@ -91,7 +65,7 @@ main {
 }
 
 hr {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg);
   border: none;
   height: 1px;
   margin: 2.5rem 0;
@@ -118,7 +92,7 @@ main header {
 /* Typography */
 code,
 samp {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg);
   border-radius: var(--border-radius);
   color: var(--color-text);
   display: inline-block;
@@ -176,20 +150,23 @@ a {
   color: var(--color-link);
   text-decoration: var(--link-decoration);
   text-decoration-style: var(--link-decoration-style);
-  &:hover {
+  &:hover,
+  &:active {
     color: var(--color-link-hover);
     text-decoration: var(--link-decoration-hover);
   }
 }
+
+
 
 button,
 .button,
 input[type="submit"] {
   border-radius: var(--border-radius);
   font-family: var(--font-family-body);
-  background-color: var(--form-button-bg-color);
-  border: var(--form-button-border);
-  color: var(--form-button-text-color);
+  background-color: var(--color-bg);
+  border: var(--border);
+  color: var(--color-link);
   line-height: var(--line-height);
   display: inline-block;
   font-size: medium;
@@ -202,14 +179,14 @@ input[type="submit"] {
 
   &:hover,
   &:active {
-    background-color: var(--form-button-hover-bg-color);
-    border: var(--form-button-hover-border);
-    color: var(--form-button-hover-text-color);
+    background-color: var(--color-bg);
+    border: var(--border);
+    color: var(--color-link-hover);
   }
 
   &:disabled {
-    background: var(--color-bg-secondary);
-    border-color: var(--color-bg-secondary);
+    background: var(--color-bg);
+    border-color: var(--color-bg);
     cursor: not-allowed;
   }
 }
@@ -223,16 +200,16 @@ figure {
 }
 
 form {
-  border: var(--form-border);
+  border: var(--border);
   border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow) var(--color-shadow);
+  box-shadow: var(--box-shadow);
   display: block;
   max-width: var(--width-card-wide);
   min-width: var(--width-card);
   padding: 1.25rem;
   text-align: var(--justify-normal);
-  background: var(--form-bg-color);
-  color: var(--form-text-color);
+  background: var(--color-bg);
+  color: var(--color-text);
   @include breakpoints.up("sm") {
     padding: 1.5rem;
   }
@@ -277,9 +254,9 @@ textarea {
   font-family: var(--font-family-body);
   margin-bottom: 1rem;
   padding: 0.6rem 0.8rem;
-  background-color: var(--form-input-bg-color);
-  color: var(--form-input-text-color);
-  border: var(--form-input-border);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: var(--border);
 }
 
 input[type="text"],
@@ -291,7 +268,7 @@ textarea {
 
 input[readonly],
 textarea[readonly] {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg);
 }
 
 label {
@@ -413,7 +390,7 @@ blockquote {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-scrollbar) transparent;
+  scrollbar-color: var(--color-text) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -426,7 +403,7 @@ blockquote {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: var(--color-scrollbar);
+  background-color: var(--color-text);
   border-radius: 10px;
 }
 
@@ -457,7 +434,7 @@ nav {
   text-wrap: balance;
 
   main & {
-    color: var(--main-heading-color);
+    color: var(--color-text);
     .headings-centered & {
       text-align: center;
     }
@@ -487,13 +464,12 @@ h6 {
 }
 
 header {
-  background: var(--header-bg-color);
+  background: var(--color-bg);
   border-radius: var(--border-radius);
-  border: var(--header-border);
+  border: var(--border);
   box-shadow: var(--box-shadow);
-  color: var(--header-text-color);
+  color: var(--color-text);
   text-align: var(--justify-important);
-  text-shadow: var(--header-text-shadow);
   width: var(--width-content);
 
   margin-top: 1rem;
@@ -527,8 +503,8 @@ header {
       backdrop-filter: blur(3px);
       width: fit-content;
       margin: 0 auto;
-      border: var(--header-border);
-      border-color: var(--header-text-color);
+      border: var(--border);
+      border-color: var(--color-text);
     }
   }
 
@@ -595,7 +571,7 @@ img {
 }
 
 body > footer {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg);
   border-radius: var(--border-radius);
   border: var(--border);
   width: var(--width-content);
@@ -645,9 +621,9 @@ article {
   border-radius: var(--border-radius);
   padding: 1rem;
   margin-bottom: 2rem;
-  background: var(--main-bg-color);
-  border: var(--main-border);
-  color: var(--main-text-color);
+  background: var(--color-bg);
+  border: var(--border);
+  color: var(--color-text);
   box-shadow: var(--box-shadow);
   @include breakpoints.up("sm") {
     padding: 1.25rem;
@@ -659,16 +635,16 @@ article {
 
 nav {
   border-radius: var(--border-radius);
-  border: var(--nav-border);
+  border: var(--border);
   border-top: 0;
   border-left: 0;
   border-right: 0;
   padding: 1rem 0.75rem;
   margin-bottom: 2rem;
-  background: var(--nav-bg-color);
+  background: var(--color-bg);
   flex-wrap: wrap;
   font-size: 1.2rem;
-  color: var(--nav-text-color);
+  color: var(--color-text);
   @include breakpoints.up("sm") {
     padding: 1.25rem 1rem;
   }
@@ -677,9 +653,9 @@ nav {
     display: none;
   }
   a {
-    color: var(--nav-link-color);
+    color: var(--color-link);
     &.active {
-      color: var(--nav-link-active-color);
+      color: var(--color-text);
     }
   }
 }
@@ -729,7 +705,7 @@ nav {
     min-height: 30rem;
     padding: 1rem 0 0;
     nav {
-      border: var(--nav-border);
+      border: var(--border);
       grid-area: nav;
     }
     .content {
@@ -1037,7 +1013,7 @@ body {
 
   &:hover {
     transform: scale(1.1);
-    border: var(--form-button-hover-border);
+    border: var(--border);
   }
 
   &:active {

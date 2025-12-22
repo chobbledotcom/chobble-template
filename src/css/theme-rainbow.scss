@@ -1,56 +1,62 @@
 // Rainbow Theme - Different color for each section
 :root {
-  // Layout
   --width-content: 1200px;
-  
-  // Rainbow Colors - Different color for each section
+
   --color-bg: #fff;
-  --color-bg-secondary: #f0f0f0;
   --color-text: #333;
   --color-link: #ff00ff;
-  
-  // Header - Red/Orange
-  --header-bg-color: #ff6b6b;
-  --header-text-color: #ffffff;
-  --header-border: 3px solid #ff4444;
-  
-  // Navigation - Yellow/Gold
-  --nav-bg-color: #ffd93d;
-  --nav-text-color: #333;
-  --nav-link-color: #8b4513;
-  --nav-link-active-color: #ff6b6b;
-  --nav-border: 3px solid #ffb700;
-  
-  // Main Content - Green
-  --main-bg-color: #6bcf7f;
-  --main-text-color: #1a4d2e;
-  --main-heading-color: #0d2818;
-  --main-border: 3px solid #4a9d5f;
-  
-  // Forms - Blue/Purple
-  --form-bg-color: #a8e6cf;
-  --form-text-color: #333;
-  --form-border: 3px solid #7fcdbb;
-  --form-input-bg-color: #ffffff;
-  --form-input-text-color: #333;
-  --form-input-border: 2px solid #7fcdbb;
-  --form-button-bg-color: #b19cd9;
-  --form-button-text-color: #ffffff;
-  --form-button-border: 3px solid #9370db;
-  --form-button-hover-bg-color: #9370db;
-  --form-button-hover-text-color: #ffffff;
-  --form-button-hover-border: 3px solid #7b68ee;
-  
-  // General borders and styling
+  --color-link-hover: #ff66ff;
+
   --border: 3px solid #ff6b6b;
   --border-radius: 15px;
   --box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-  
-  // Fonts - Playful
+
   --font-family-heading: "Comic Sans MS", "Marker Felt", fantasy;
   --font-family-body: "Trebuchet MS", Verdana, sans-serif;
   --line-height: 1.6;
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: wavy;
+}
+
+body {
+  background: #f0f0f0;
+}
+
+// Scoped color overrides for different sections
+header {
+  --color-bg: #ff6b6b;
+  --color-text: #ffffff;
+  --border: 3px solid #ff4444;
+}
+
+nav {
+  --color-bg: #ffd93d;
+  --color-text: #333;
+  --color-link: #8b4513;
+  --border: 3px solid #ffb700;
+}
+
+article {
+  --color-bg: #6bcf7f;
+  --color-text: #1a4d2e;
+  --border: 3px solid #4a9d5f;
+}
+
+form {
+  --color-bg: #a8e6cf;
+  --color-text: #333;
+  --color-link: #9370db;
+  --color-link-hover: #7b68ee;
+  --border: 3px solid #7fcdbb;
+}
+
+button,
+.button,
+input[type="submit"] {
+  --color-bg: #b19cd9;
+  --color-text: #ffffff;
+  --color-link: #ffffff;
+  --color-link-hover: #ffffff;
+  --border: 3px solid #9370db;
 }

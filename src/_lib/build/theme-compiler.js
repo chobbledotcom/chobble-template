@@ -1,13 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { getDirname } from "#eleventy/file-utils.js";
 import { memoize } from "#utils/memoize.js";
-
-const __dirname = getDirname(import.meta.url);
 
 // Get all theme files and their names
 const getThemeFiles = memoize(() => {
-  const themesDir = path.join(__dirname, "../css");
+  const themesDir = path.resolve("src/css");
   const files = fs.readdirSync(themesDir);
 
   const themes = files

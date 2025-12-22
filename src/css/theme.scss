@@ -6,15 +6,21 @@
   --color-bg: #241f31;
   --color-text: #9a9996;
   --color-link: #f6f5f4;
+  --color-link-hover: #ffffff;
   --border: 2px solid #58648c;
   --box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.3);
   --font-family-body: Optima, Candara, "Noto Sans", source-sans-pro, sans-serif;
   --link-decoration: underline;
   --link-decoration-hover: underline;
   --link-decoration-style: dashed;
-  --header-text-color: #ffffff;
-  --form-button-border: 2px solid #58648c;
-  --form-button-hover-border: 2px solid #ffffff;
+}
+
+body {
+  background: #241f31;
+}
+
+header {
+  --color-text: #ffffff;
 }
 
 /* body_classes: header-centered-dark */

@@ -1,27 +1,24 @@
 // Floral Theme - Pink and pastel
 :root {
-  // Layout
   --width-content: 1000px;
-  
-  // Colors - Pink and pastel
+
   --color-bg: #ffe0f0;
-  --color-bg-secondary: #ffc0e0;
   --color-text: #d1006c;
   --color-link: #ff69b4;
-  --header-text-color: #ff1493;
-  
-  // Borders - Soft and rounded
+  --color-link-hover: #ff1493;
+
   --border: 3px solid #ffb6c1;
   --border-radius: 25px;
   --box-shadow: 5px 5px 15px rgba(255, 182, 193, 0.5);
-  --form-button-border: 3px solid #ffb6c1;
-  --form-button-hover-border: 3px solid #ff69b4;
-  
-  // Fonts - Decorative headings with elegant serif body
+
   --font-family-heading: "Princess Sofia", "Brush Script MT", cursive;
   --font-family-body: Georgia, "Times New Roman", serif;
   --line-height: 1.6;
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: wavy;
+}
+
+body {
+  background: #ffc0e0;
 }

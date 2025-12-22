@@ -1,24 +1,26 @@
 // Ocean Theme - Deep blue with aqua accents
 :root {
-  // Colors
   --color-bg: #001f3f;
-  --color-bg-secondary: #002a55;
   --color-text: #7fdbff;
   --color-link: #39cccc;
-  --header-text-color: #ffffff;
-  
-  // Borders
+  --color-link-hover: #7fdbff;
+
   --border: 2px solid #0074d9;
   --border-radius: 0;
   --box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.4);
-  --form-button-border: 2px solid #0074d9;
-  --form-button-hover-border: 2px solid #39cccc;
-  
-  // Fonts
+
   --font-family-heading: "Courier New", monospace;
   --font-family-body: "Courier New", monospace;
   --line-height: 1.8;
   --link-decoration: underline;
   --link-decoration-hover: none;
   --link-decoration-style: wavy;
+}
+
+body {
+  background: #002a55;
+}
+
+header {
+  --color-text: #ffffff;
 }

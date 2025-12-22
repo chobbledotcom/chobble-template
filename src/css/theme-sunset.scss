@@ -1,24 +1,22 @@
 // Sunset Theme - Purple and orange sunset palette
 :root {
-  // Colors
   --color-bg: #3d1e6d;
-  --color-bg-secondary: #4d2d7d;
   --color-text: #f4a261;
   --color-link: #e76f51;
-  --header-text-color: #f4a261;
-  
-  // Borders
+  --color-link-hover: #f4a261;
+
   --border: 3px solid #8843f2;
   --border-radius: 15px;
   --box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
-  --form-button-border: 3px solid #8843f2;
-  --form-button-hover-border: 3px solid #e76f51;
-  
-  // Fonts
+
   --font-family-heading: Impact, sans-serif;
   --font-family-body: Arial, sans-serif;
   --line-height: 1.5;
   --link-decoration: none;
   --link-decoration-hover: underline;
   --link-decoration-style: double;
+}
+
+body {
+  background: #4d2d7d;
 }
