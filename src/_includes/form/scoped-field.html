@@ -1,0 +1,10 @@
+<div>
+  <label class="no-checkbox">{{ label }}</label>
+  <input
+    type="{{ type | default: 'color' }}"
+    id="{{ scope }}-{{ id }}"
+    data-var="--{{ id }}"
+    data-scope="{{ scope }}"
+    {% if step %}step="{{ step }}"{% endif %}
+  >
+</div>

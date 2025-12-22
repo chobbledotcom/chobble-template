@@ -1,0 +1,26 @@
+<div>
+  <label class="no-checkbox">{{ label }}</label>
+  <div class="border-controls">
+    <div class="border-width">
+      <input
+        type="number"
+        id="{{ scope }}-border-width"
+        data-scope="{{ scope }}"
+        min="0"
+        value="2"
+      > <span>px</span>
+    </div>
+    <div class="border-style">
+      <select id="{{ scope }}-border-style" data-scope="{{ scope }}">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
+        <option value="double">Double</option>
+      </select>
+    </div>
+    <div class="border-color">
+      <input type="color" id="{{ scope }}-border-color" data-scope="{{ scope }}">
+    </div>
+  </div>
+  <input type="hidden" id="{{ scope }}-border" data-var="--border" data-scope="{{ scope }}">
+</div>
