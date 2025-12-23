@@ -488,11 +488,11 @@ const testCases = [
       const result = buildFilterDescription(filters, displayLookup);
 
       expectTrue(
-        result.includes("Pet Friendly: Yes"),
+        result.includes("Pet Friendly: <strong>Yes</strong>"),
         "Should use display values for pet-friendly",
       );
       expectTrue(
-        result.includes("Type: Cottage"),
+        result.includes("Type: <strong>Cottage</strong>"),
         "Should use display values for type",
       );
     },
