@@ -1,3 +1,55 @@
+@use "breakpoints";
+
+.filtered-items {
+  .filter-spinner {
+    display: block;
+    margin: 16px auto;
+    opacity: 0;
+    animation: spinner-fade 0.5s ease-out forwards, spinner-rotate 1s linear infinite;
+  }
+
+  .filtered-content {
+    opacity: 0;
+    pointer-events: none;
+    animation: content-fade 0.3s ease-out 0.5s forwards;
+  }
+
+  @include breakpoints.reduced-motion {
+    .filter-spinner {
+      display: none;
+    }
+
+    .filtered-content {
+      opacity: 1;
+      pointer-events: auto;
+      animation: none;
+    }
+  }
+}
+
+@keyframes spinner-fade {
+  0% { opacity: 0; }
+  40% { opacity: 1; }
+  60% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes spinner-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes content-fade {
+  from {
+    opacity: 0;
+    pointer-events: none;
+  }
+  to {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .item-filter {
   margin-bottom: 1.5rem;
   padding: 1rem;
