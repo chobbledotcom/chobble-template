@@ -109,21 +109,6 @@ details {
   }
 }
 
-mark {
-  padding: 0.1rem;
-}
-
-ol li,
-ul li {
-  padding: 0.35rem 0;
-}
-
-p {
-  margin: 1rem 0;
-  padding: 0;
-  width: 100%;
-}
-
 pre {
   margin: 1rem 0;
   max-width: var(--width-card-wide);
@@ -156,8 +141,6 @@ a {
     text-decoration: var(--link-decoration-hover);
   }
 }
-
-
 
 button,
 .button,
