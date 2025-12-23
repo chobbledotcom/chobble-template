@@ -8,9 +8,10 @@
     animation: spinner-fade 0.5s ease-out forwards, spinner-rotate 1s linear infinite;
   }
 
-  .items {
+  .filtered-content {
     opacity: 0;
-    animation: items-fade 0.3s ease-out 0.5s forwards;
+    pointer-events: none;
+    animation: content-fade 0.3s ease-out 0.5s forwards;
   }
 
   @include breakpoints.reduced-motion {
@@ -18,8 +19,9 @@
       display: none;
     }
 
-    .items {
+    .filtered-content {
       opacity: 1;
+      pointer-events: auto;
       animation: none;
     }
   }
@@ -37,9 +39,15 @@
   to { transform: rotate(360deg); }
 }
 
-@keyframes items-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes content-fade {
+  from {
+    opacity: 0;
+    pointer-events: none;
+  }
+  to {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .item-filter {
