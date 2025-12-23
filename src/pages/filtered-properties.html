@@ -9,9 +9,15 @@ eleventyExcludeFromCollections: true
 meta_title: Search Results
 header_text: Search Results
 ---
+
 {%- assign properties = filterPage.properties -%}
 {%- assign currentFilters = filterPage.filters -%}
 
 <h1>{{ strings.property_name }}</h1>
 
-<p>Showing {{ filterPage.count }} propert{% if filterPage.count == 1 %}y{% else %}ies{% endif %} matching: {{ filterPage.filterDescription }}</p>
+<p>
+  Showing
+  <strong>{{ filterPage.count }}</strong>
+  propert{% if filterPage.count == 1 %}y{% else %}ies{% endif %}
+  matching: {{ filterPage.filterDescription }}
+</p>

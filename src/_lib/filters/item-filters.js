@@ -197,7 +197,10 @@ const generateFilterCombinations = memoize((items) => {
  */
 const buildFilterDescription = (filters, displayLookup) => {
   return Object.entries(filters)
-    .map(([key, value]) => `${displayLookup[key]}: ${displayLookup[value]}`)
+    .map(
+      ([key, value]) =>
+        `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`,
+    )
     .join(", ");
 };
 
