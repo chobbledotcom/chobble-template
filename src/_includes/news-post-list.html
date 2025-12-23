@@ -2,10 +2,12 @@
 <ul class="news-posts">
   {%- for post in posts limit: limit -%}
   <li>
-    <a href="{{ post.url }}#content"> {{ post.data.header_text | escape }} </a>
-    <br />
     <strong>{{ post.date | date: "%b %-d, %Y" }}:</strong>
-    {{ post.data.subtitle | escape }}
+    <a href="{{ post.url }}#content"> {{ post.data.header_text | escape }} </a>
+    {% if post.data.subtitle and post.data.subtitle != "" %}
+      <br />
+      {{ post.data.subtitle | escape }}
+    {% endif %}
   </li>
   {%- endfor -%}
 </ul>
