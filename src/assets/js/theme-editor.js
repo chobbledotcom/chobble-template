@@ -387,29 +387,27 @@ const ThemeEditor = {
 
   collectScopeVars(scope) {
     const vars = {};
-    const defaultBg = getComputedStyle(document.documentElement)
-      .getPropertyValue("--color-bg")
-      .trim();
+    const docStyle = getComputedStyle(document.documentElement);
 
-    // Color inputs for this scope
+    // Color inputs for this scope - compare against global value for same var
     this.formQuery(`input[type="color"][data-scope="${scope}"]`).forEach(
       (input) => {
         const varName = input.dataset.var;
         const value = input.value;
-        if (shouldIncludeScopedVar(value, defaultBg)) {
+        // Get the global value for this same variable
+        const globalValue = docStyle.getPropertyValue(varName).trim();
+        // Include if different from global (even if it's #000000 = black)
+        if (shouldIncludeScopedVar(value, globalValue)) {
           vars[varName] = value;
         }
       },
     );
 
-    // Border for this scope
+    // Border for this scope - include if different from global border
     const borderOutput = this.formEl(`${scope}-border`);
     if (borderOutput && borderOutput.value) {
-      const globalBorder = getComputedStyle(document.documentElement)
-        .getPropertyValue("--border")
-        .trim();
-      // Only include if different from global
-      if (borderOutput.value !== globalBorder) {
+      const globalBorder = docStyle.getPropertyValue("--border").trim();
+      if (shouldIncludeScopedVar(borderOutput.value, globalBorder)) {
         vars["--border"] = borderOutput.value;
       }
     }

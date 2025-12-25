@@ -132,31 +132,38 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
 }
 
 /**
- * Check if a scoped variable should be included (differs from default)
+ * Check if a scoped color value should be included
+ * Include the value if:
+ * - It's not empty
+ * - It differs from the global value for the SAME variable
+ *
+ * This means if header's --color-bg equals global --color-bg, we skip it (no override).
+ * But if header's --color-bg is #000000 and global --color-bg is #ffffff, we include it.
+ *
  * @param {string} value - The scoped value
- * @param {string} defaultValue - The default/global value
+ * @param {string} globalValue - The global value for this same variable
  * @returns {boolean}
  */
-export function shouldIncludeScopedVar(value, defaultValue) {
-  // Don't include if value is empty, black (#000000), or same as default
+export function shouldIncludeScopedVar(value, globalValue) {
+  // Don't include if value is empty
   if (!value) return false;
-  if (value === "#000000") return false;
-  if (value === defaultValue) return false;
+  // Don't include if same as global (no override needed)
+  if (value === globalValue) return false;
   return true;
 }
 
 /**
- * Collect scope variables from form data, filtering out defaults
+ * Collect scope variables from form data, filtering out values that match global
  * @param {Object} scopeFormData - Form values for this scope { varName: value }
- * @param {Object} globalDefaults - Global default values { varName: value }
- * @returns {Object} - Filtered scope variables
+ * @param {Object} globalValues - Global values for comparison { varName: value }
+ * @returns {Object} - Filtered scope variables (only those differing from global)
  */
-export function collectScopeVarsFromFormData(scopeFormData, globalDefaults) {
+export function collectScopeVarsFromFormData(scopeFormData, globalValues = {}) {
   const vars = {};
 
   Object.entries(scopeFormData).forEach(([varName, value]) => {
-    const defaultValue = globalDefaults[varName];
-    if (shouldIncludeScopedVar(value, defaultValue)) {
+    const globalValue = globalValues[varName];
+    if (shouldIncludeScopedVar(value, globalValue)) {
       vars[varName] = value;
     }
   });

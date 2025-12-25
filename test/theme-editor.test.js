@@ -283,28 +283,24 @@ nav {
     },
   },
 
-  // shouldIncludeScopedVar tests
+  // shouldIncludeScopedVar tests - compares against global value for same var
   {
-    name: "shouldIncludeScopedVar-different-values",
-    description: "Returns true when value differs from default",
+    name: "shouldIncludeScopedVar-different-from-global",
+    description: "Returns true when value differs from global",
     test: () => {
+      // Different colors should be included
       expectTrue(shouldIncludeScopedVar("#ff0000", "#ffffff"));
-      expectTrue(shouldIncludeScopedVar("#123456", "#000000"));
+      expectTrue(shouldIncludeScopedVar("#000000", "#ffffff")); // Black is valid!
+      expectTrue(shouldIncludeScopedVar("#ffffff", "#000000"));
     },
   },
   {
-    name: "shouldIncludeScopedVar-same-values",
-    description: "Returns false when value equals default",
+    name: "shouldIncludeScopedVar-same-as-global",
+    description: "Returns false when value equals global (no override needed)",
     test: () => {
       expectFalse(shouldIncludeScopedVar("#ffffff", "#ffffff"));
+      expectFalse(shouldIncludeScopedVar("#000000", "#000000"));
       expectFalse(shouldIncludeScopedVar("2px solid #333", "2px solid #333"));
-    },
-  },
-  {
-    name: "shouldIncludeScopedVar-black-value",
-    description: "Returns false for #000000 (unset color picker)",
-    test: () => {
-      expectFalse(shouldIncludeScopedVar("#000000", "#ffffff"));
     },
   },
   {
@@ -314,6 +310,16 @@ nav {
       expectFalse(shouldIncludeScopedVar("", "#ffffff"));
       expectFalse(shouldIncludeScopedVar(null, "#ffffff"));
       expectFalse(shouldIncludeScopedVar(undefined, "#ffffff"));
+    },
+  },
+  {
+    name: "shouldIncludeScopedVar-no-global",
+    description: "Returns true when no global value exists",
+    test: () => {
+      // If there's no global value, include any non-empty value
+      expectTrue(shouldIncludeScopedVar("#ff0000", undefined));
+      expectTrue(shouldIncludeScopedVar("#000000", undefined));
+      expectTrue(shouldIncludeScopedVar("#ffffff", ""));
     },
   },
 
@@ -340,15 +346,33 @@ nav {
     },
   },
   {
-    name: "collectScopeVarsFromFormData-filters-black",
-    description: "Filters out #000000 values (unset color picker)",
+    name: "collectScopeVarsFromFormData-includes-black-when-different",
+    description: "Includes #000000 when it differs from global (black is valid)",
     test: () => {
       const formData = {
-        "--color-bg": "#000000",
-        "--color-text": "#ff0000",
+        "--color-bg": "#000000", // User chose black
+        "--color-text": "#ff0000", // User chose red
       };
-      const defaults = { "--color-bg": "#ffffff", "--color-text": "#000000" };
-      const result = collectScopeVarsFromFormData(formData, defaults);
+      const globals = { "--color-bg": "#ffffff", "--color-text": "#000000" };
+      const result = collectScopeVarsFromFormData(formData, globals);
+      // Both should be included because they differ from their globals
+      expectDeepEqual(result, {
+        "--color-bg": "#000000", // Different from global #ffffff
+        "--color-text": "#ff0000", // Different from global #000000
+      });
+    },
+  },
+  {
+    name: "collectScopeVarsFromFormData-excludes-same-as-global",
+    description: "Excludes values that match their global counterpart",
+    test: () => {
+      const formData = {
+        "--color-bg": "#ffffff", // Same as global
+        "--color-text": "#ff0000", // Different from global
+      };
+      const globals = { "--color-bg": "#ffffff", "--color-text": "#000000" };
+      const result = collectScopeVarsFromFormData(formData, globals);
+      // Only color-text should be included (color-bg matches global)
       expectDeepEqual(result, { "--color-text": "#ff0000" });
     },
   },
@@ -552,4 +576,355 @@ header {
   },
 ];
 
-createTestRunner("theme-editor", testCases);
+// Comprehensive form data to CSS output tests
+const formDataTestCases = [
+  // Test: All global inputs should appear in :root
+  {
+    name: "global-colors-appear-in-root",
+    description: "Global color inputs should appear in :root block",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+        "--color-link": "#0000ff",
+        "--color-link-hover": "#ff0000",
+      };
+      const result = generateThemeCss(globalVars, {}, []);
+
+      expectTrue(result.includes(":root {"));
+      expectTrue(result.includes("--color-bg: #ffffff;"));
+      expectTrue(result.includes("--color-text: #000000;"));
+      expectTrue(result.includes("--color-link: #0000ff;"));
+      expectTrue(result.includes("--color-link-hover: #ff0000;"));
+    },
+  },
+  {
+    name: "global-layout-vars-appear-in-root",
+    description: "Global layout inputs should appear in :root block",
+    test: () => {
+      const globalVars = {
+        "--border-radius": "5px",
+        "--border": "2px solid #333333",
+        "--box-shadow": "10px 10px 0 rgba(0,0,0,0.3)",
+        "--width-content": "1200px",
+        "--width-card": "300px",
+        "--width-card-medium": "500px",
+        "--width-card-wide": "900px",
+      };
+      const result = generateThemeCss(globalVars, {}, []);
+
+      expectTrue(result.includes("--border-radius: 5px;"));
+      expectTrue(result.includes("--border: 2px solid #333333;"));
+      expectTrue(result.includes("--box-shadow: 10px 10px 0 rgba(0,0,0,0.3);"));
+      expectTrue(result.includes("--width-content: 1200px;"));
+    },
+  },
+  {
+    name: "global-font-vars-appear-in-root",
+    description: "Global font inputs should appear in :root block",
+    test: () => {
+      const globalVars = {
+        "--font-family-heading": "Georgia, serif",
+        "--font-family-body": "Arial, sans-serif",
+        "--line-height": "1.6",
+        "--link-decoration": "underline",
+        "--link-decoration-hover": "none",
+        "--link-decoration-style": "dashed",
+      };
+      const result = generateThemeCss(globalVars, {}, []);
+
+      expectTrue(result.includes("--font-family-heading: Georgia, serif;"));
+      expectTrue(result.includes("--font-family-body: Arial, sans-serif;"));
+      expectTrue(result.includes("--line-height: 1.6;"));
+      expectTrue(result.includes("--link-decoration: underline;"));
+    },
+  },
+
+  // Test: Each scope's inputs should generate correct scoped block
+  {
+    name: "header-scope-generates-header-block",
+    description: "Header scoped inputs should generate header {} block",
+    test: () => {
+      const scopeVars = {
+        header: {
+          "--color-bg": "#ff0000",
+          "--color-text": "#ffffff",
+          "--color-link": "#00ff00",
+          "--color-link-hover": "#0000ff",
+          "--border": "3px solid #000",
+        },
+      };
+      const result = generateThemeCss({}, scopeVars, []);
+
+      expectTrue(result.includes("header {"));
+      expectTrue(result.includes("--color-bg: #ff0000;"));
+      expectTrue(result.includes("--color-text: #ffffff;"));
+      expectTrue(result.includes("--color-link: #00ff00;"));
+      expectTrue(result.includes("--color-link-hover: #0000ff;"));
+      expectTrue(result.includes("--border: 3px solid #000;"));
+    },
+  },
+  {
+    name: "nav-scope-generates-nav-block",
+    description: "Nav scoped inputs should generate nav {} block",
+    test: () => {
+      const scopeVars = {
+        nav: {
+          "--color-bg": "#333333",
+          "--color-text": "#cccccc",
+          "--color-link": "#00ffff",
+          "--color-link-hover": "#ffffff",
+          "--border": "1px solid #666",
+        },
+      };
+      const result = generateThemeCss({}, scopeVars, []);
+
+      expectTrue(result.includes("nav {"), "Should have nav block");
+      expectTrue(
+        result.includes("--color-bg: #333333;"),
+        "Should have nav color-bg",
+      );
+      expectTrue(
+        result.includes("--color-text: #cccccc;"),
+        "Should have nav color-text",
+      );
+      expectTrue(
+        result.includes("--color-link: #00ffff;"),
+        "Should have nav color-link",
+      );
+      expectTrue(
+        result.includes("--color-link-hover: #ffffff;"),
+        "Should have nav color-link-hover",
+      );
+    },
+  },
+  {
+    name: "article-scope-generates-article-block",
+    description: "Article scoped inputs should generate article {} block",
+    test: () => {
+      const scopeVars = {
+        article: {
+          "--color-bg": "#f5f5f5",
+          "--color-text": "#222222",
+        },
+      };
+      const result = generateThemeCss({}, scopeVars, []);
+
+      expectTrue(result.includes("article {"));
+      expectTrue(result.includes("--color-bg: #f5f5f5;"));
+      expectTrue(result.includes("--color-text: #222222;"));
+    },
+  },
+  {
+    name: "form-scope-generates-form-block",
+    description: "Form scoped inputs should generate form {} block",
+    test: () => {
+      const scopeVars = {
+        form: {
+          "--color-bg": "#eeeeee",
+          "--border": "2px dashed #999",
+        },
+      };
+      const result = generateThemeCss({}, scopeVars, []);
+
+      expectTrue(result.includes("form {"));
+      expectTrue(result.includes("--color-bg: #eeeeee;"));
+      expectTrue(result.includes("--border: 2px dashed #999;"));
+    },
+  },
+  {
+    name: "button-scope-generates-button-block",
+    description: "Button scoped inputs should generate button selector block",
+    test: () => {
+      const scopeVars = {
+        button: {
+          "--color-bg": "#007bff",
+          "--color-link": "#ffffff",
+        },
+      };
+      const result = generateThemeCss({}, scopeVars, []);
+
+      expectTrue(result.includes("button,"));
+      expectTrue(result.includes(".button,"));
+      expectTrue(result.includes('input[type="submit"]'));
+      expectTrue(result.includes("--color-bg: #007bff;"));
+      expectTrue(result.includes("--color-link: #ffffff;"));
+    },
+  },
+
+  // Test: All scopes together
+  {
+    name: "all-scopes-together",
+    description: "All scopes can be set simultaneously",
+    test: () => {
+      const globalVars = { "--color-bg": "#ffffff" };
+      const scopeVars = {
+        header: { "--color-text": "#111" },
+        nav: { "--color-link": "#222" },
+        article: { "--color-bg": "#333" },
+        form: { "--border": "1px solid #444" },
+        button: { "--color-bg": "#555" },
+      };
+      const result = generateThemeCss(globalVars, scopeVars, []);
+
+      expectTrue(result.includes(":root {"));
+      expectTrue(result.includes("header {"));
+      expectTrue(result.includes("nav {"));
+      expectTrue(result.includes("article {"));
+      expectTrue(result.includes("form {"));
+      expectTrue(result.includes("button,"));
+    },
+  },
+
+  // Test: shouldIncludeScopedVar compares against correct global
+  {
+    name: "scoped-var-compared-to-its-own-global",
+    description:
+      "Scoped vars should be compared against the global value for the SAME variable",
+    test: () => {
+      // If nav's --color-link is #ffffff and global --color-link is #000000,
+      // it should be included because it differs from its own global
+      expectTrue(
+        shouldIncludeScopedVar("#ffffff", "#000000"),
+        "#ffffff should be included (different from global --color-link)",
+      );
+
+      // If nav's --color-link is #ffffff and global --color-link is also #ffffff,
+      // it should NOT be included (no override needed)
+      expectFalse(
+        shouldIncludeScopedVar("#ffffff", "#ffffff"),
+        "#ffffff should NOT be included (same as global --color-link)",
+      );
+
+      // Black (#000000) IS a valid color choice
+      expectTrue(
+        shouldIncludeScopedVar("#000000", "#ffffff"),
+        "#000000 should be included when global is different",
+      );
+    },
+  },
+  {
+    name: "each-scoped-var-should-be-independent",
+    description:
+      "Each scoped variable should be evaluated independently, not against a single default",
+    test: () => {
+      // This test documents the expected behavior:
+      // If I set nav's --color-link to #ff0000, it should appear in output
+      // regardless of what --color-bg is set to
+
+      const scopeVars = {
+        nav: {
+          "--color-link": "#ff0000", // Different from any default
+        },
+      };
+      const result = generateThemeCss({}, scopeVars, []);
+
+      expectTrue(
+        result.includes("nav {"),
+        "nav block should appear when nav vars are set",
+      );
+      expectTrue(
+        result.includes("--color-link: #ff0000;"),
+        "color-link should appear in nav block",
+      );
+    },
+  },
+
+  // Test: collectScopeVarsFromFormData behavior
+  {
+    name: "collectScopeVarsFromFormData-independent-vars",
+    description:
+      "Each variable should only be filtered if it matches ITS OWN default",
+    test: () => {
+      // Simulate form data where user set specific values
+      const formData = {
+        "--color-bg": "#ff0000", // User set this
+        "--color-text": "#00ff00", // User set this
+        "--color-link": "#0000ff", // User set this
+      };
+
+      // Each variable's own default
+      const defaults = {
+        "--color-bg": "#ffffff", // bg default
+        "--color-text": "#000000", // text default
+        "--color-link": "#000000", // link default
+      };
+
+      const result = collectScopeVarsFromFormData(formData, defaults);
+
+      // All should be included since none match their OWN default
+      expectTrue(
+        result["--color-bg"] === "#ff0000",
+        "color-bg should be included",
+      );
+      expectTrue(
+        result["--color-text"] === "#00ff00",
+        "color-text should be included",
+      );
+      expectTrue(
+        result["--color-link"] === "#0000ff",
+        "color-link should be included",
+      );
+    },
+  },
+
+  // Document all expected form inputs
+  {
+    name: "document-all-global-inputs",
+    description: "Documents all expected global (non-scoped) inputs",
+    test: () => {
+      // This test documents what inputs exist and should work
+      const expectedGlobalInputs = [
+        // Colors tab
+        "color-bg",
+        "color-text",
+        "color-link",
+        "color-link-hover",
+        // Layout tab
+        "border-radius",
+        "border", // composite: border-width, border-style, border-color
+        "box-shadow",
+        "width-content",
+        "width-card",
+        "width-card-medium",
+        "width-card-wide",
+        // Fonts tab
+        "font-family-heading",
+        "font-family-body",
+        "line-height",
+        "link-decoration",
+        "link-decoration-hover",
+        "link-decoration-style",
+      ];
+
+      // Just verify the list is complete (17 global inputs)
+      expectStrictEqual(expectedGlobalInputs.length, 17);
+    },
+  },
+  {
+    name: "document-all-scoped-inputs",
+    description: "Documents all expected scoped inputs per scope",
+    test: () => {
+      // Each scope has these inputs:
+      const inputsPerScope = [
+        "color-bg",
+        "color-text",
+        "color-link",
+        "color-link-hover",
+        "border", // composite
+      ];
+
+      // 5 scopes × 5 inputs = 25 scoped inputs
+      expectStrictEqual(SCOPES.length, 5);
+      expectStrictEqual(inputsPerScope.length, 5);
+
+      // Total scoped inputs: 25
+      // Plus 2 select-class inputs (header-decoration, main-heading-decoration)
+    },
+  },
+];
+
+// Combine all test cases
+const allTestCases = [...testCases, ...formDataTestCases];
+
+createTestRunner("theme-editor", allTestCases);
