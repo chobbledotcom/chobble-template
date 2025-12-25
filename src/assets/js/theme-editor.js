@@ -1,17 +1,22 @@
 import { onReady } from "./on-ready.js";
+import {
+  SCOPES,
+  SCOPE_SELECTORS,
+  parseThemeContent,
+  parseBorderValue,
+  generateThemeCss,
+  shouldIncludeScopedVar,
+} from "./theme-editor-lib.js";
 
 let ELEMENTS = null;
 
-// Scopes that support local CSS variable overrides
-const SCOPES = ["header", "nav", "article", "form", "button"];
-
-// The button selector needs special handling for CSS output
-const SCOPE_SELECTORS = {
+// DOM selectors for applying scoped variables
+const SCOPE_DOM_SELECTORS = {
   header: "header",
   nav: "nav",
   article: "article",
   form: "form",
-  button: 'button,\n.button,\ninput[type="submit"]',
+  button: "button, .button, input[type='submit']",
 };
 
 const ThemeEditor = {
@@ -62,17 +67,18 @@ const ThemeEditor = {
   },
 
   initControlsFromTheme() {
-    const parsed = this.parseThemeContent();
+    const parsed = parseThemeContent(ELEMENTS.output.value);
 
     // Initialize global :root variables
     this.initGlobalControls(parsed.root);
 
-    // Initialize scoped controls
+    // Initialize scoped controls - ALWAYS init all scopes to attach event listeners
     SCOPES.forEach((scope) => {
-      if (parsed.scopes[scope]) {
-        this.initScopedControls(scope, parsed.scopes[scope]);
-      }
+      this.initScopedControls(scope, parsed.scopes[scope] || {});
     });
+
+    // Apply initial scoped values to DOM for live preview
+    this.applyScopedValuesToDOM(parsed.scopes);
 
     // Initialize body classes
     if (parsed.bodyClasses.length > 0) {
@@ -88,55 +94,6 @@ const ThemeEditor = {
     this.initCheckboxControls(parsed.root);
   },
 
-  parseThemeContent() {
-    const themeContent = ELEMENTS.output.value;
-    const result = {
-      root: {},
-      scopes: {},
-      bodyClasses: [],
-    };
-
-    // Parse :root block
-    const rootMatch = themeContent.match(/:root\s*\{([^}]*)\}/s);
-    if (rootMatch) {
-      result.root = this.parseCssBlock(rootMatch[1]);
-    }
-
-    // Parse scoped blocks (header, nav, article, form, button)
-    SCOPES.forEach((scope) => {
-      // Handle button which might be multi-line selector
-      let pattern;
-      if (scope === "button") {
-        pattern = /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/;
-      } else {
-        pattern = new RegExp(`${scope}\\s*\\{([^}]*)\\}`, "s");
-      }
-      const match = themeContent.match(pattern);
-      if (match) {
-        result.scopes[scope] = this.parseCssBlock(match[1]);
-      }
-    });
-
-    // Parse body_classes comment
-    const classesMatch = themeContent.match(/\/\* body_classes: (.+) \*\//);
-    if (classesMatch) {
-      result.bodyClasses = classesMatch[1].split(",").map((s) => s.trim());
-    }
-
-    return result;
-  },
-
-  parseCssBlock(cssText) {
-    const vars = {};
-    cssText.split(";").forEach((line) => {
-      const match = line.match(/^\s*(--[a-zA-Z0-9-]+)\s*:\s*(.+?)\s*$/);
-      if (match) {
-        vars[match[1]] = match[2];
-      }
-    });
-    return vars;
-  },
-
   initGlobalControls(rootVars) {
     // Apply variables to document and initialize controls
     Object.entries(rootVars).forEach(([varName, value]) => {
@@ -150,17 +107,18 @@ const ThemeEditor = {
         if (rootVars[varName]) {
           input.value = rootVars[varName];
         } else {
-          input.value = getComputedStyle(document.documentElement)
-            .getPropertyValue(varName)
-            .trim();
+          input.value =
+            getComputedStyle(document.documentElement)
+              .getPropertyValue(varName)
+              .trim() || "#000000";
         }
         input.addEventListener("input", () => this.updateThemeFromControls());
       },
     );
 
     // Initialize text controls
-    this.formQuery('input[type="text"][data-var]:not([data-scope])')
-      .forEach((input) => {
+    this.formQuery('input[type="text"][data-var]:not([data-scope])').forEach(
+      (input) => {
         if (input.id.includes("border")) return; // Skip border hidden inputs
         const varName = input.dataset.var;
         if (rootVars[varName]) {
@@ -171,7 +129,8 @@ const ThemeEditor = {
             .trim();
         }
         input.addEventListener("input", () => this.updateThemeFromControls());
-      });
+      },
+    );
 
     // Initialize select controls
     this.formQuery("select[data-var]:not([data-scope])").forEach((input) => {
@@ -214,17 +173,13 @@ const ThemeEditor = {
         if (scopeVars[varName]) {
           input.value = scopeVars[varName];
         }
+        // ALWAYS add event listener, even if no initial value
         input.addEventListener("input", () => this.updateThemeFromControls());
       },
     );
 
     // Initialize border for this scope
-    if (scopeVars["--border"]) {
-      this.initScopedBorderControl(scope, scopeVars["--border"]);
-    } else {
-      // Just add event listeners
-      this.initScopedBorderControl(scope, null);
-    }
+    this.initScopedBorderControl(scope, scopeVars["--border"]);
   },
 
   initBorderControl(prefix, borderValue) {
@@ -236,23 +191,22 @@ const ThemeEditor = {
 
     if (!widthInput || !styleSelect || !colorInput) return;
 
-    if (borderValue) {
-      const borderParts = borderValue.match(/(\d+)px\s+(\w+)\s+(.+)/);
-      if (borderParts && borderParts.length === 4) {
-        widthInput.value = parseInt(borderParts[1], 10);
-        styleSelect.value = borderParts[2];
-        if (borderParts[3].startsWith("#")) colorInput.value = borderParts[3];
-      }
+    const parsed = parseBorderValue(borderValue);
+    if (parsed) {
+      widthInput.value = parsed.width;
+      styleSelect.value = parsed.style;
+      if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
     } else {
       // Get from computed style
       const computed = getComputedStyle(document.documentElement)
         .getPropertyValue("--border")
         .trim();
-      const borderParts = computed.match(/(\d+)px\s+(\w+)\s+(.+)/);
-      if (borderParts && borderParts.length === 4) {
-        widthInput.value = parseInt(borderParts[1], 10);
-        styleSelect.value = borderParts[2];
-        if (borderParts[3].startsWith("#")) colorInput.value = borderParts[3];
+      const computedParsed = parseBorderValue(computed);
+      if (computedParsed) {
+        widthInput.value = computedParsed.width;
+        styleSelect.value = computedParsed.style;
+        if (computedParsed.color.startsWith("#"))
+          colorInput.value = computedParsed.color;
       }
     }
 
@@ -280,13 +234,11 @@ const ThemeEditor = {
 
     if (!widthInput || !styleSelect || !colorInput) return;
 
-    if (borderValue) {
-      const borderParts = borderValue.match(/(\d+)px\s+(\w+)\s+(.+)/);
-      if (borderParts && borderParts.length === 4) {
-        widthInput.value = parseInt(borderParts[1], 10);
-        styleSelect.value = borderParts[2];
-        if (borderParts[3].startsWith("#")) colorInput.value = borderParts[3];
-      }
+    const parsed = parseBorderValue(borderValue);
+    if (parsed) {
+      widthInput.value = parsed.width;
+      styleSelect.value = parsed.style;
+      if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
     }
 
     if (outputInput) {
@@ -361,10 +313,34 @@ const ThemeEditor = {
     });
   },
 
-  updateThemeFromControls() {
-    let themeText = ":root {\n";
+  /**
+   * Apply scoped CSS variables to DOM elements for live preview
+   */
+  applyScopedValuesToDOM(scopeVars) {
+    SCOPES.forEach((scope) => {
+      const selector = SCOPE_DOM_SELECTORS[scope];
+      const elements = document.querySelectorAll(selector);
+      const vars = scopeVars[scope] || {};
 
+      elements.forEach((el) => {
+        // Clear previous scoped values
+        ["--color-bg", "--color-text", "--color-link", "--color-link-hover", "--border"].forEach(
+          (varName) => {
+            el.style.removeProperty(varName);
+          },
+        );
+
+        // Apply new scoped values
+        Object.entries(vars).forEach(([varName, value]) => {
+          el.style.setProperty(varName, value);
+        });
+      });
+    });
+  },
+
+  updateThemeFromControls() {
     // Collect global :root variables
+    const globalVars = {};
     Array.from(this.formQuery("[data-var]:not([data-scope])"))
       .filter((input) => {
         const checkbox = this.formEl(input.id + "-enabled");
@@ -372,24 +348,22 @@ const ThemeEditor = {
       })
       .forEach((el) => {
         const value = el.id === "border-radius" ? `${el.value}px` : el.value;
-        document.documentElement.style.setProperty(`--${el.id}`, value);
-        themeText += `  --${el.id}: ${value};\n`;
+        const varName = `--${el.id}`;
+        document.documentElement.style.setProperty(varName, value);
+        globalVars[varName] = value;
       });
 
-    themeText += "}\n";
-
-    // Generate scoped blocks
+    // Collect scoped variables
+    const scopeVars = {};
     SCOPES.forEach((scope) => {
-      const scopeVars = this.collectScopeVars(scope);
-      if (Object.keys(scopeVars).length > 0) {
-        const selector = SCOPE_SELECTORS[scope];
-        themeText += `\n${selector} {\n`;
-        Object.entries(scopeVars).forEach(([varName, value]) => {
-          themeText += `  ${varName}: ${value};\n`;
-        });
-        themeText += "}\n";
+      const vars = this.collectScopeVars(scope);
+      if (Object.keys(vars).length > 0) {
+        scopeVars[scope] = vars;
       }
     });
+
+    // Apply scoped variables to DOM for live preview
+    this.applyScopedValuesToDOM(scopeVars);
 
     // Handle body classes
     const bodyClasses = [];
@@ -400,16 +374,14 @@ const ThemeEditor = {
         .map((o) => o.value)
         .filter((v) => v !== "");
       values.forEach((value) => {
-        const isActive = value === el.value;
+        const isActive = value === el.value && enabled;
         document.body.classList.toggle(value, isActive);
         if (isActive) bodyClasses.push(value);
       });
     });
 
-    if (bodyClasses.length > 0) {
-      themeText += `\n/* body_classes: ${bodyClasses.join(", ")} */`;
-    }
-
+    // Generate CSS
+    const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
     ELEMENTS.output.value = themeText;
   },
 
@@ -424,8 +396,7 @@ const ThemeEditor = {
       (input) => {
         const varName = input.dataset.var;
         const value = input.value;
-        // Only include if different from the default (non-black/non-white colors indicate intentional override)
-        if (value && value !== "#000000" && value !== defaultBg) {
+        if (shouldIncludeScopedVar(value, defaultBg)) {
           vars[varName] = value;
         }
       },
