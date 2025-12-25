@@ -16,6 +16,15 @@ import {
   shouldIncludeScopedVar,
   collectScopeVarsFromFormData,
 } from "../src/assets/js/theme-editor-lib.js";
+import {
+  GLOBAL_INPUTS,
+  SCOPED_INPUTS,
+  SCOPE_DEFINITIONS,
+  getScopes,
+  getScopedInputIds,
+  getScopedVarNames,
+} from "../src/assets/js/theme-editor-config.js";
+import { JSDOM } from "jsdom";
 
 const testCases = [
   // parseCssBlock tests
@@ -1019,7 +1028,723 @@ const formDataTestCases = [
   },
 ];
 
+// JSDOM-based DOM manipulation tests
+
+/**
+ * Generate form HTML from config
+ */
+function generateFormHtml() {
+  let html = "";
+
+  // Generate global color inputs
+  Object.entries(GLOBAL_INPUTS).forEach(([id, config]) => {
+    if (config.type === "color") {
+      html += `<input type="color" id="${id}" data-var="--${id}">\n`;
+    }
+  });
+
+  // Generate scoped inputs for each scope
+  getScopes().forEach((scope) => {
+    Object.entries(SCOPED_INPUTS).forEach(([id, config]) => {
+      if (config.type === "color") {
+        html += `<input type="color" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
+      } else if (config.type === "border") {
+        html += `<input type="hidden" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
+      }
+    });
+  });
+
+  return html;
+}
+
+/**
+ * Create a mock theme editor DOM environment
+ * Uses config to generate all form inputs
+ */
+function createMockDOM(themeContent = "") {
+  const formInputsHtml = generateFormHtml();
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><style>:root { --color-bg: #ffffff; --color-text: #333333; --color-link: #0066cc; --color-link-hover: #004499; --border: 2px solid #000000; }</style></head>
+<body>
+  <form id="theme-editor-form">
+    ${formInputsHtml}
+  </form>
+  <textarea id="theme-output">${themeContent}</textarea>
+  <button id="download-theme">Download</button>
+  <div class="tab-link active" data-tab="default"></div>
+  <div class="tab-content active" id="default-tab"></div>
+</body>
+</html>`;
+
+  const dom = new JSDOM(html, { runScripts: "dangerously" });
+  return dom;
+}
+
+const jsdomTestCases = [
+  {
+    name: "jsdom-color-input-default-is-black",
+    description: "Browser color inputs default to #000000 (documenting the problem)",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+
+      // Color inputs in browsers default to #000000 if not set
+      const colorInput = document.getElementById("header-color-bg");
+      expectStrictEqual(
+        colorInput.value,
+        "#000000",
+        "Unset color input should default to #000000 (browser behavior)",
+      );
+    },
+  },
+  {
+    name: "jsdom-scoped-inputs-exist-for-all-scopes",
+    description: "Scoped inputs exist for header, nav, article scopes",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+
+      // Verify scoped inputs exist
+      ["header", "nav", "article"].forEach((scope) => {
+        const input = document.getElementById(`${scope}-color-bg`);
+        expectTrue(input !== null, `${scope}-color-bg input should exist`);
+        expectStrictEqual(
+          input.dataset.scope,
+          scope,
+          `${scope}-color-bg should have data-scope="${scope}"`,
+        );
+        expectStrictEqual(
+          input.dataset.var,
+          "--color-bg",
+          `${scope}-color-bg should have data-var="--color-bg"`,
+        );
+      });
+    },
+  },
+  {
+    name: "jsdom-can-set-input-values",
+    description: "Can programmatically set input values (simulating initialization)",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+
+      const input = document.getElementById("header-color-bg");
+
+      // Before: default black
+      expectStrictEqual(input.value, "#000000");
+
+      // Simulate what initScopedControls should do
+      input.value = "#ffffff";
+
+      // After: set to global value
+      expectStrictEqual(input.value, "#ffffff");
+    },
+  },
+  {
+    name: "jsdom-querySelectorAll-finds-scoped-inputs",
+    description: "Can query scoped inputs by data-scope attribute",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const headerInputs = form.querySelectorAll(
+        'input[type="color"][data-scope="header"]',
+      );
+      expectStrictEqual(headerInputs.length, 4, "Should find 4 header color inputs");
+
+      const navInputs = form.querySelectorAll(
+        'input[type="color"][data-scope="nav"]',
+      );
+      expectStrictEqual(navInputs.length, 4, "Should find 4 nav color inputs");
+    },
+  },
+  {
+    name: "jsdom-simulate-initialization-to-global-values",
+    description: "Simulates the fix: initialize scoped inputs to global values",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      // Simulate global values (what getComputedStyle would return)
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Simulate what initScopedControls SHOULD do
+      const scopeInputs = form.querySelectorAll(
+        'input[type="color"][data-scope="header"]',
+      );
+
+      scopeInputs.forEach((input) => {
+        const varName = input.dataset.var;
+        const globalValue = globalValues[varName];
+        if (globalValue && globalValue.startsWith("#")) {
+          input.value = globalValue;
+        }
+      });
+
+      // Verify all inputs are now set to global values
+      expectStrictEqual(
+        document.getElementById("header-color-bg").value,
+        "#ffffff",
+        "header-color-bg should be initialized to global value",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-text").value,
+        "#333333",
+        "header-color-text should be initialized to global value",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-link").value,
+        "#0066cc",
+        "header-color-link should be initialized to global value",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-link-hover").value,
+        "#004499",
+        "header-color-link-hover should be initialized to global value",
+      );
+    },
+  },
+  {
+    name: "jsdom-collect-scope-vars-after-initialization",
+    description:
+      "After proper initialization, unchanged inputs should not pollute output",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Initialize all scoped inputs to global values (the fix)
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          const globalValue = globalValues[varName];
+          if (globalValue) input.value = globalValue;
+        });
+
+      // User changes only --color-link to red
+      document.getElementById("header-color-link").value = "#ff0000";
+
+      // Now collect scope vars (simulating collectScopeVars)
+      const collectedVars = {};
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          const value = input.value;
+          const globalValue = globalValues[varName];
+          if (shouldIncludeScopedVar(value, globalValue)) {
+            collectedVars[varName] = value;
+          }
+        });
+
+      // Only the user-changed value should appear
+      expectDeepEqual(
+        collectedVars,
+        { "--color-link": "#ff0000" },
+        "Only user-changed value should be collected",
+      );
+    },
+  },
+  {
+    name: "jsdom-bug-without-initialization",
+    description:
+      "Without initialization, browser default #000000 pollutes output",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // BUG: Do NOT initialize inputs (they stay at browser default #000000)
+      // User changes only --color-link to red
+      document.getElementById("header-color-link").value = "#ff0000";
+
+      // Collect scope vars
+      const collectedVars = {};
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          const value = input.value;
+          const globalValue = globalValues[varName];
+          if (shouldIncludeScopedVar(value, globalValue)) {
+            collectedVars[varName] = value;
+          }
+        });
+
+      // BUG: All inputs appear because #000000 differs from all global values
+      expectStrictEqual(
+        Object.keys(collectedVars).length,
+        4,
+        "Bug: all 4 inputs collected because #000000 differs from globals",
+      );
+      expectStrictEqual(
+        collectedVars["--color-bg"],
+        "#000000",
+        "Bug: #000000 pollutes output",
+      );
+      expectStrictEqual(
+        collectedVars["--color-text"],
+        "#000000",
+        "Bug: #000000 pollutes output",
+      );
+    },
+  },
+  {
+    name: "jsdom-parsed-theme-overrides-global",
+    description: "Parsed theme values should override global initialization",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+      };
+
+      // Theme has a custom header color
+      const parsedScopeVars = {
+        "--color-bg": "#ff0000", // Theme sets header bg to red
+      };
+
+      // Initialize: use parsed value if exists, otherwise global
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          if (parsedScopeVars[varName]) {
+            input.value = parsedScopeVars[varName];
+          } else {
+            const globalValue = globalValues[varName];
+            if (globalValue) input.value = globalValue;
+          }
+        });
+
+      // Verify
+      expectStrictEqual(
+        document.getElementById("header-color-bg").value,
+        "#ff0000",
+        "Should use parsed theme value",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-text").value,
+        "#333333",
+        "Should use global value when not in theme",
+      );
+    },
+  },
+];
+
+// Programmatic tests generated from config
+const configDrivenTestCases = [
+  {
+    name: "config-generates-all-global-color-inputs",
+    description: "All global color inputs from config are rendered in DOM",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+
+      const globalColorInputs = Object.entries(GLOBAL_INPUTS)
+        .filter(([, config]) => config.type === "color")
+        .map(([id]) => id);
+
+      globalColorInputs.forEach((id) => {
+        const input = document.getElementById(id);
+        expectTrue(input !== null, `Global color input '${id}' should exist`);
+        expectStrictEqual(
+          input.type,
+          "color",
+          `'${id}' should be a color input`,
+        );
+        expectStrictEqual(
+          input.dataset.var,
+          `--${id}`,
+          `'${id}' should have data-var="--${id}"`,
+        );
+      });
+    },
+  },
+  {
+    name: "config-generates-all-scoped-color-inputs",
+    description: "All scoped color inputs from config are rendered for each scope",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+
+      const scopedColorInputIds = Object.entries(SCOPED_INPUTS)
+        .filter(([, config]) => config.type === "color")
+        .map(([id]) => id);
+
+      getScopes().forEach((scope) => {
+        scopedColorInputIds.forEach((id) => {
+          const fullId = `${scope}-${id}`;
+          const input = document.getElementById(fullId);
+          expectTrue(
+            input !== null,
+            `Scoped color input '${fullId}' should exist`,
+          );
+          expectStrictEqual(
+            input.type,
+            "color",
+            `'${fullId}' should be a color input`,
+          );
+          expectStrictEqual(
+            input.dataset.var,
+            `--${id}`,
+            `'${fullId}' should have data-var="--${id}"`,
+          );
+          expectStrictEqual(
+            input.dataset.scope,
+            scope,
+            `'${fullId}' should have data-scope="${scope}"`,
+          );
+        });
+      });
+    },
+  },
+  {
+    name: "config-all-scoped-color-inputs-default-to-black",
+    description: "All scoped color inputs default to #000000 before initialization",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+
+      const scopedColorInputIds = Object.entries(SCOPED_INPUTS)
+        .filter(([, config]) => config.type === "color")
+        .map(([id]) => id);
+
+      getScopes().forEach((scope) => {
+        scopedColorInputIds.forEach((id) => {
+          const fullId = `${scope}-${id}`;
+          const input = document.getElementById(fullId);
+          expectStrictEqual(
+            input.value,
+            "#000000",
+            `'${fullId}' should default to #000000 (browser default)`,
+          );
+        });
+      });
+    },
+  },
+  {
+    name: "config-all-scoped-color-inputs-can-be-initialized",
+    description: "All scoped color inputs can be initialized to global values",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      // Mock global values for all color variables
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Initialize all scopes
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = globalValues[varName];
+            if (globalValue) {
+              input.value = globalValue;
+            }
+          });
+      });
+
+      // Verify all were initialized
+      getScopes().forEach((scope) => {
+        Object.entries(SCOPED_INPUTS)
+          .filter(([, config]) => config.type === "color")
+          .forEach(([id]) => {
+            const fullId = `${scope}-${id}`;
+            const input = document.getElementById(fullId);
+            const expectedValue = globalValues[`--${id}`];
+            if (expectedValue) {
+              expectStrictEqual(
+                input.value,
+                expectedValue,
+                `'${fullId}' should be initialized to ${expectedValue}`,
+              );
+            }
+          });
+      });
+    },
+  },
+  {
+    name: "config-each-scoped-input-can-be-changed-independently",
+    description: "Changing one scoped input doesn't affect others",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Initialize all inputs to global values
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = globalValues[varName];
+            if (globalValue) input.value = globalValue;
+          });
+      });
+
+      // Change only header's color-bg
+      document.getElementById("header-color-bg").value = "#ff0000";
+
+      // Verify only header-color-bg changed
+      expectStrictEqual(
+        document.getElementById("header-color-bg").value,
+        "#ff0000",
+        "header-color-bg should be changed",
+      );
+
+      // All other header inputs should still have global values
+      expectStrictEqual(
+        document.getElementById("header-color-text").value,
+        "#333333",
+        "header-color-text should be unchanged",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-link").value,
+        "#0066cc",
+        "header-color-link should be unchanged",
+      );
+
+      // Other scopes should be unaffected
+      expectStrictEqual(
+        document.getElementById("nav-color-bg").value,
+        "#ffffff",
+        "nav-color-bg should be unchanged",
+      );
+    },
+  },
+  {
+    name: "config-only-changed-inputs-appear-in-collected-vars",
+    description: "Only inputs that differ from global appear in collected vars",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Initialize all scopes to global values
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = globalValues[varName];
+            if (globalValue) input.value = globalValue;
+          });
+      });
+
+      // Change specific values in different scopes
+      document.getElementById("header-color-bg").value = "#ff0000";
+      document.getElementById("nav-color-link").value = "#00ff00";
+      document.getElementById("article-color-text").value = "#0000ff";
+
+      // Collect vars for each scope
+      const collectedByScope = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            const globalValue = globalValues[varName];
+            if (shouldIncludeScopedVar(value, globalValue)) {
+              vars[varName] = value;
+            }
+          });
+        collectedByScope[scope] = vars;
+      });
+
+      // Verify only changed values appear
+      expectDeepEqual(
+        collectedByScope.header,
+        { "--color-bg": "#ff0000" },
+        "Header should only have color-bg override",
+      );
+      expectDeepEqual(
+        collectedByScope.nav,
+        { "--color-link": "#00ff00" },
+        "Nav should only have color-link override",
+      );
+      expectDeepEqual(
+        collectedByScope.article,
+        { "--color-text": "#0000ff" },
+        "Article should only have color-text override",
+      );
+      expectDeepEqual(
+        collectedByScope.form,
+        {},
+        "Form should have no overrides (unchanged)",
+      );
+      expectDeepEqual(
+        collectedByScope.button,
+        {},
+        "Button should have no overrides (unchanged)",
+      );
+    },
+  },
+  {
+    name: "config-generates-expected-css-from-collected-vars",
+    description: "Collected vars generate correct CSS output",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Initialize and change some values
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = globalValues[varName];
+            if (globalValue) input.value = globalValue;
+          });
+      });
+
+      document.getElementById("header-color-text").value = "#ffffff";
+      document.getElementById("button-color-bg").value = "#007bff";
+
+      // Collect scope vars
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            const globalValue = globalValues[varName];
+            if (shouldIncludeScopedVar(value, globalValue)) {
+              vars[varName] = value;
+            }
+          });
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // Generate CSS
+      const css = generateThemeCss(globalValues, scopeVars, []);
+
+      // Verify output
+      expectTrue(css.includes(":root {"), "Should have :root block");
+      expectTrue(css.includes("header {"), "Should have header block");
+      expectTrue(css.includes("--color-text: #ffffff;"), "Should have header text color");
+      expectTrue(css.includes("button,"), "Should have button selector");
+      expectTrue(css.includes("--color-bg: #007bff;"), "Should have button bg color");
+      expectFalse(css.includes("nav {"), "Should NOT have nav block (unchanged)");
+      expectFalse(css.includes("article {"), "Should NOT have article block (unchanged)");
+      expectFalse(css.includes("form {"), "Should NOT have form block (unchanged)");
+    },
+  },
+  {
+    name: "config-scopes-count-matches-expected",
+    description: "Number of scopes matches between config and lib",
+    test: () => {
+      expectStrictEqual(
+        getScopes().length,
+        SCOPES.length,
+        "Config scopes should match lib SCOPES",
+      );
+      expectDeepEqual(
+        getScopes(),
+        SCOPES,
+        "Config scopes should be identical to lib SCOPES",
+      );
+    },
+  },
+  {
+    name: "config-total-color-inputs-count",
+    description: "Total number of color inputs matches expected",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalColorCount = Object.values(GLOBAL_INPUTS).filter(
+        (c) => c.type === "color",
+      ).length;
+
+      const scopedColorCount = Object.values(SCOPED_INPUTS).filter(
+        (c) => c.type === "color",
+      ).length;
+
+      const scopeCount = getScopes().length;
+
+      const expectedTotal = globalColorCount + scopedColorCount * scopeCount;
+      const actualTotal = form.querySelectorAll('input[type="color"]').length;
+
+      expectStrictEqual(
+        actualTotal,
+        expectedTotal,
+        `Should have ${expectedTotal} color inputs (${globalColorCount} global + ${scopedColorCount} × ${scopeCount} scopes)`,
+      );
+    },
+  },
+];
+
 // Combine all test cases
-const allTestCases = [...testCases, ...formDataTestCases];
+const allTestCases = [
+  ...testCases,
+  ...formDataTestCases,
+  ...jsdomTestCases,
+  ...configDrivenTestCases,
+];
 
 createTestRunner("theme-editor", allTestCases);

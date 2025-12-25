@@ -4,7 +4,7 @@ layout: base
 
 {% capture border %}form/border.html{% endcapture %}
 {% capture field %}form/field.html{% endcapture %}
-{% capture scoped %}form/scoped-field.html{% endcapture %}
+{% capture scopedColors %}form/scoped-colors.html{% endcapture %}
 {% capture scopedBorder %}form/scoped-border.html{% endcapture %}
 
 <div class="editor-tabs">
@@ -56,10 +56,7 @@ layout: base
     <h2>Header Overrides</h2>
     <p>Override default styles for the header section.</p>
     <div class="grid">
-      {% include scoped, scope: "header", id: "color-bg", label: "Background" %}
-      {% include scoped, scope: "header", id: "color-text", label: "Text" %}
-      {% include scoped, scope: "header", id: "color-link", label: "Links" %}
-      {% include scoped, scope: "header", id: "color-link-hover", label: "Link Hover" %}
+      {% include scopedColors, scope: "header" %}
       {% include scopedBorder, scope: "header", label: "Border" %}
     </div>
     <h3>Decoration</h3>
@@ -72,10 +69,7 @@ layout: base
     <h2>Navigation Overrides</h2>
     <p>Override default styles for the navigation.</p>
     <div class="grid">
-      {% include scoped, scope: "nav", id: "color-bg", label: "Background" %}
-      {% include scoped, scope: "nav", id: "color-text", label: "Text" %}
-      {% include scoped, scope: "nav", id: "color-link", label: "Links" %}
-      {% include scoped, scope: "nav", id: "color-link-hover", label: "Link Hover" %}
+      {% include scopedColors, scope: "nav" %}
       {% include scopedBorder, scope: "nav", label: "Border" %}
     </div>
   </div>
@@ -84,10 +78,7 @@ layout: base
     <h2>Article/Main Content Overrides</h2>
     <p>Override default styles for article sections.</p>
     <div class="grid">
-      {% include scoped, scope: "article", id: "color-bg", label: "Background" %}
-      {% include scoped, scope: "article", id: "color-text", label: "Text" %}
-      {% include scoped, scope: "article", id: "color-link", label: "Links" %}
-      {% include scoped, scope: "article", id: "color-link-hover", label: "Link Hover" %}
+      {% include scopedColors, scope: "article" %}
       {% include scopedBorder, scope: "article", label: "Border" %}
     </div>
     <h3>Heading Decoration</h3>
@@ -100,20 +91,14 @@ layout: base
     <h2>Form Overrides</h2>
     <p>Override default styles for forms.</p>
     <div class="grid">
-      {% include scoped, scope: "form", id: "color-bg", label: "Background" %}
-      {% include scoped, scope: "form", id: "color-text", label: "Text" %}
-      {% include scoped, scope: "form", id: "color-link", label: "Links" %}
-      {% include scoped, scope: "form", id: "color-link-hover", label: "Link Hover" %}
+      {% include scopedColors, scope: "form" %}
       {% include scopedBorder, scope: "form", label: "Border" %}
     </div>
 
     <h3>Button Overrides</h3>
     <p>Override default styles for buttons.</p>
     <div class="grid">
-      {% include scoped, scope: "button", id: "color-bg", label: "Background" %}
-      {% include scoped, scope: "button", id: "color-text", label: "Text" %}
-      {% include scoped, scope: "button", id: "color-link", label: "Link Color" %}
-      {% include scoped, scope: "button", id: "color-link-hover", label: "Hover Color" %}
+      {% include scopedColors, scope: "button" %}
       {% include scopedBorder, scope: "button", label: "Border" %}
     </div>
   </div>
