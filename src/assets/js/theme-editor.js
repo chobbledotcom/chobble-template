@@ -166,14 +166,25 @@ const ThemeEditor = {
   },
 
   initScopedControls(scope, scopeVars) {
+    const docStyle = getComputedStyle(document.documentElement);
+
     // Initialize color controls for this scope
+    // IMPORTANT: Must initialize to global values, not browser default #000000
+    // Otherwise unchanged inputs pollute output (see test: browser-default-black-should-not-pollute-output)
     this.formQuery(`input[type="color"][data-scope="${scope}"]`).forEach(
       (input) => {
         const varName = input.dataset.var;
         if (scopeVars[varName]) {
+          // Use value from parsed theme
           input.value = scopeVars[varName];
+        } else {
+          // Initialize to GLOBAL value so unchanged inputs don't pollute output
+          // Browser color inputs default to #000000 which would differ from global
+          const globalValue = docStyle.getPropertyValue(varName).trim();
+          if (globalValue && globalValue.startsWith("#")) {
+            input.value = globalValue;
+          }
         }
-        // ALWAYS add event listener, even if no initial value
         input.addEventListener("input", () => this.updateThemeFromControls());
       },
     );

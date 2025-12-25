@@ -868,6 +868,101 @@ const formDataTestCases = [
     },
   },
 
+  // Bug: Unset color inputs should not pollute output
+  {
+    name: "unset-inputs-should-not-appear-in-output",
+    description:
+      "Color inputs that haven't been changed should not appear in CSS output",
+    test: () => {
+      // Scenario: User only changes nav's --color-link to red
+      // The other nav inputs (--color-bg, --color-text, --color-link-hover)
+      // should NOT appear in the output
+
+      // Simulate: only --color-link was changed, others are at their "unset" state
+      // In the browser, unset color inputs default to #000000
+      // But we should NOT include #000000 just because it differs from global
+
+      // The fix: scoped inputs should be initialized to their global values
+      // So unchanged inputs match global → excluded from output
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // User only changed --color-link to red
+      // Other inputs should be initialized to global values (not #000000!)
+      const scopeFormData = {
+        "--color-bg": "#ffffff", // Same as global (initialized to global)
+        "--color-text": "#333333", // Same as global (initialized to global)
+        "--color-link": "#ff0000", // USER CHANGED THIS
+        "--color-link-hover": "#004499", // Same as global (initialized to global)
+      };
+
+      const result = collectScopeVarsFromFormData(scopeFormData, globalValues);
+
+      // Only the changed value should appear
+      expectDeepEqual(
+        result,
+        { "--color-link": "#ff0000" },
+        "Only the user-changed value should appear in output",
+      );
+    },
+  },
+  {
+    name: "browser-default-black-should-not-pollute-output",
+    description:
+      "If inputs are incorrectly initialized to #000000, they would pollute output",
+    test: () => {
+      // This test documents the BUG we're fixing:
+      // Browser color inputs default to #000000 when not set
+      // If we don't initialize them to global values, they'll all appear in output
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+      };
+
+      // BAD: Inputs left at browser default #000000
+      const badFormData = {
+        "--color-bg": "#000000", // Browser default, NOT user choice
+        "--color-text": "#000000", // Browser default, NOT user choice
+        "--color-link": "#ff0000", // User changed this
+      };
+
+      const badResult = collectScopeVarsFromFormData(badFormData, globalValues);
+
+      // This would incorrectly include --color-bg and --color-text
+      // because #000000 differs from their global values
+      expectTrue(
+        Object.keys(badResult).length === 3,
+        "Bug: all 3 values included because #000000 differs from global",
+      );
+
+      // GOOD: Inputs initialized to global values
+      const goodFormData = {
+        "--color-bg": "#ffffff", // Initialized to global
+        "--color-text": "#333333", // Initialized to global
+        "--color-link": "#ff0000", // User changed this
+      };
+
+      const goodResult = collectScopeVarsFromFormData(
+        goodFormData,
+        globalValues,
+      );
+
+      // Only the changed value appears
+      expectDeepEqual(
+        goodResult,
+        { "--color-link": "#ff0000" },
+        "Only user-changed value should appear",
+      );
+    },
+  },
+
   // Document all expected form inputs
   {
     name: "document-all-global-inputs",
