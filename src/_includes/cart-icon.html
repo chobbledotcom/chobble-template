@@ -1,17 +1,8 @@
-{%- if config.cart_mode == "quote" -%}
 <button
   class="cart-icon"
-  aria-label="View quote cart"
-  style="display: none"
-  data-enquiry-mode="true"
->
-{%- else -%}
-<button
-  class="cart-icon"
-  aria-label="View shopping cart"
+  aria-label="View cart"
   style="display: none"
 >
-{%- endif -%}
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -29,6 +20,6 @@
       d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
     ></path>
   </svg>
-  <span>{% if config.cart_mode == "quote" %}View Quote{% else %}View Cart{% endif %}</span>
+  <span>View cart</span>
   <span class="cart-count" style="display: none">0</span>
 </button>

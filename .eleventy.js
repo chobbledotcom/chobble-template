@@ -23,6 +23,7 @@ import { configureExternalLinks } from "#eleventy/external-links.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";
 import { configureICal } from "#eleventy/ical.js";
+import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
@@ -60,6 +61,7 @@ export default async function (eleventyConfig) {
   configureGuides(eleventyConfig);
   configureICal(eleventyConfig);
   configureImages(eleventyConfig);
+  configureJsConfig(eleventyConfig);
   configureInlineAsset(eleventyConfig);
   configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);

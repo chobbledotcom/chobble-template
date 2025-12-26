@@ -10,6 +10,7 @@ import {
   saveCart,
   updateCartIcon,
 } from "./cart-utils.js";
+import Config from "./config.js";
 import { onReady } from "./on-ready.js";
 
 class ShoppingCart {
@@ -31,23 +32,20 @@ class ShoppingCart {
 
   setup() {
     console.log("[cart.js] setup() called");
+
+    // Check cart mode from config
+    this.isEnquiryMode = Config.cart_mode === "quote";
     this.cartOverlay = document.getElementById("cart-overlay");
 
-    // Check if we're in enquiry mode (any cart icon has enquiry mode set)
-    const cartIcon = document.querySelector(".cart-icon");
-    this.isEnquiryMode = cartIcon?.dataset.enquiryMode === "true";
-
     console.log("[cart.js] setup() state:", {
-      cartOverlay: !!this.cartOverlay,
-      cartIcon: !!cartIcon,
+      cart_mode: Config.cart_mode,
       isEnquiryMode: this.isEnquiryMode,
-      enquiryModeAttr: cartIcon?.dataset.enquiryMode,
+      cartOverlay: !!this.cartOverlay,
     });
 
-    // In enquiry mode, we don't need the cart overlay
-    if (!this.isEnquiryMode && !this.cartOverlay) {
-      // No cart functionality on this page
-      console.log("[cart.js] setup() bailing early - no cart overlay and not enquiry mode");
+    // No cart functionality if cart_mode is not set
+    if (!Config.cart_mode) {
+      console.log("[cart.js] setup() bailing early - no cart_mode configured");
       return;
     }
 
@@ -438,7 +436,7 @@ class ShoppingCart {
 
   // Get checkout API URL if configured
   getCheckoutApiUrl() {
-    return this.cartOverlay.dataset.checkoutApiUrl || null;
+    return Config.checkout_api_url;
   }
 
   // Checkout with PayPal

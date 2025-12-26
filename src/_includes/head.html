@@ -32,6 +32,8 @@
     href="{{ site.url }}{{ page.url }}"
   >
 
+  {% jsConfigScript %}
+
   <script
     type="module"
     src="{{ '/assets/js/bundle.js' | cacheBust }}"
