@@ -246,7 +246,17 @@ const ThemeEditor = {
 
     if (!widthInput || !styleSelect || !colorInput) return;
 
-    const parsed = parseBorderValue(borderValue);
+    // Parse the scoped border value from theme, or fall back to global
+    // This ensures unchanged borders don't pollute output (same as color inputs)
+    let parsed = parseBorderValue(borderValue);
+    if (!parsed) {
+      // No scoped border in theme - initialize to global value
+      const globalBorder = getComputedStyle(document.documentElement)
+        .getPropertyValue("--border")
+        .trim();
+      parsed = parseBorderValue(globalBorder);
+    }
+
     if (parsed) {
       widthInput.value = parsed.width;
       styleSelect.value = parsed.style;

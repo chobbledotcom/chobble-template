@@ -1710,6 +1710,113 @@ const jsdomTestCases = [
       );
     },
   },
+  {
+    name: "jsdom-scoped-border-initialized-to-global",
+    description:
+      "Scoped border inputs should initialize to global value, not pollute output",
+    test: () => {
+      const dom = createRealisticMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalBorder = "2px solid #58648c";
+
+      // Simulate initScopedBorderControl behavior:
+      // When no scoped border in theme, initialize to global value
+      getScopes().forEach((scope) => {
+        const widthInput = document.getElementById(`${scope}-border-width`);
+        const styleSelect = document.getElementById(`${scope}-border-style`);
+        const colorInput = document.getElementById(`${scope}-border-color`);
+        const outputInput = document.getElementById(`${scope}-border`);
+
+        if (widthInput && styleSelect && colorInput && outputInput) {
+          // Parse global border and set sub-inputs
+          const match = globalBorder.match(/(\d+)px\s+(\w+)\s+(.+)/);
+          if (match) {
+            widthInput.value = match[1];
+            styleSelect.value = match[2];
+            colorInput.value = match[3];
+            outputInput.value = globalBorder;
+          }
+        }
+      });
+
+      // Now collect scope vars - borders should match global and be excluded
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        const borderOutput = document.getElementById(`${scope}-border`);
+        if (borderOutput && borderOutput.value) {
+          // Compare against global
+          if (shouldIncludeScopedVar(borderOutput.value, globalBorder)) {
+            vars["--border"] = borderOutput.value;
+          }
+        }
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // No scopes should have borders (they all match global)
+      expectStrictEqual(
+        Object.keys(scopeVars).length,
+        0,
+        "No scoped borders should be collected when they match global",
+      );
+    },
+  },
+  {
+    name: "jsdom-scoped-border-only-included-when-different",
+    description: "Scoped border only appears in output when different from global",
+    test: () => {
+      const dom = createRealisticMockDOM();
+      const { document } = dom.window;
+
+      const globalBorder = "2px solid #58648c";
+      const customBorder = "3px dashed #ff0000";
+
+      // Initialize all scopes to global
+      getScopes().forEach((scope) => {
+        const outputInput = document.getElementById(`${scope}-border`);
+        if (outputInput) {
+          outputInput.value = globalBorder;
+        }
+      });
+
+      // Change only header border
+      const headerBorder = document.getElementById("header-border");
+      if (headerBorder) {
+        headerBorder.value = customBorder;
+      }
+
+      // Collect scope vars
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        const borderOutput = document.getElementById(`${scope}-border`);
+        if (borderOutput && borderOutput.value) {
+          if (shouldIncludeScopedVar(borderOutput.value, globalBorder)) {
+            vars["--border"] = borderOutput.value;
+          }
+        }
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // Only header should have a border
+      expectStrictEqual(
+        Object.keys(scopeVars).length,
+        1,
+        "Only one scope should have a border",
+      );
+      expectStrictEqual(
+        scopeVars.header["--border"],
+        customBorder,
+        "Header border should be the custom value",
+      );
+    },
+  },
 ];
 
 // Programmatic tests generated from config
