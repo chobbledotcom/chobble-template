@@ -13,7 +13,7 @@ layout: base
       data-botpoison-public-key="{{ config.botpoison_public_key }}"
     {%- endif -%}
   >
-    <input type="hidden" name="_redirect" value="{{ site.url }}/quote-complete/" />
+    <input type="hidden" name="_redirect" value="{{ "/quote-complete/" | canonicalUrl }}" />
     <input type="hidden" name="_email.template.footer" value="false" />
     <input
       type="hidden"
