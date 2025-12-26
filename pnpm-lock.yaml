@@ -47,6 +47,9 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
+      liquidjs:
+        specifier: ^10.21.0
+        version: 10.24.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
