@@ -1,5 +1,5 @@
 {%- if options and options.size > 0 -%}
-  {%- if config.paypal_email or config.stripe_publishable_key or config.has_cart_enquiry_form -%}
+  {%- if config.cart_mode -%}
   <h2>Buy Now</h2>
   {%- if options.size == 1 -%}
     {%- assign option = options.first -%}
