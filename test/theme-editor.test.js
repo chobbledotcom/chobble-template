@@ -801,6 +801,140 @@ input[type="submit"] {
 // Bug regression tests
 // ============================================
 
+const exactOutputTests = [
+  {
+    name: "exact-output-global-only",
+    description: "CSS output matches exactly when only global values are set",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+      };
+      const scopeVars = {};
+      const bodyClasses = [];
+
+      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
+
+      const expected = `:root {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+}
+`;
+      expectStrictEqual(css, expected, "CSS should match exactly");
+    },
+  },
+  {
+    name: "exact-output-with-one-scope",
+    description: "CSS output matches exactly with one scope override",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+      };
+      const scopeVars = {
+        header: { "--color-text": "#ffffff" },
+      };
+      const bodyClasses = [];
+
+      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
+
+      const expected = `:root {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+}
+
+header {
+  --color-text: #ffffff;
+}
+`;
+      expectStrictEqual(css, expected, "CSS should match exactly");
+    },
+  },
+  {
+    name: "exact-output-with-body-classes",
+    description: "CSS output matches exactly with body classes",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+      };
+      const scopeVars = {};
+      const bodyClasses = ["header-centered-dark", "main-boxed"];
+
+      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
+
+      const expected = `:root {
+  --color-bg: #ffffff;
+}
+
+/* body_classes: header-centered-dark, main-boxed */`;
+      expectStrictEqual(css, expected, "CSS should match exactly");
+    },
+  },
+  {
+    name: "exact-output-with-button-scope",
+    description: "CSS output has correct multi-line button selector",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+      };
+      const scopeVars = {
+        button: { "--color-bg": "#007bff" },
+      };
+      const bodyClasses = [];
+
+      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
+
+      const expected = `:root {
+  --color-bg: #ffffff;
+}
+
+button,
+.button,
+input[type="submit"] {
+  --color-bg: #007bff;
+}
+`;
+      expectStrictEqual(css, expected, "CSS should match exactly");
+    },
+  },
+  {
+    name: "exact-output-full-theme",
+    description: "Full theme CSS output matches exactly",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#241f31",
+        "--color-text": "#9a9996",
+        "--color-link": "#f6f5f4",
+      };
+      const scopeVars = {
+        header: { "--color-bg": "#3d3846", "--color-text": "#ffffff" },
+        nav: { "--color-link": "#ffcc00" },
+      };
+      const bodyClasses = ["header-centered-dark"];
+
+      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
+
+      const expected = `:root {
+  --color-bg: #241f31;
+  --color-text: #9a9996;
+  --color-link: #f6f5f4;
+}
+
+header {
+  --color-bg: #3d3846;
+  --color-text: #ffffff;
+}
+
+nav {
+  --color-link: #ffcc00;
+}
+
+/* body_classes: header-centered-dark */`;
+      expectStrictEqual(css, expected, "CSS should match exactly");
+    },
+  },
+];
+
 const bugRegressionTests = [
   {
     name: "bug-changing-global-should-not-create-scope-overrides",
@@ -904,22 +1038,18 @@ const bugRegressionTests = [
       // Generate CSS
       const css = generateThemeCss(newGlobalVars, scopeVars, []);
 
-      // With the fix: these scopes should NOT appear in the output
-      expectFalse(
-        css.includes("nav {"),
-        "nav should NOT appear - user did not change nav colors",
-      );
-      expectFalse(
-        css.includes("article {"),
-        "article should NOT appear - user did not change article colors",
-      );
-      expectFalse(
-        css.includes("form {"),
-        "form should NOT appear - user did not change form colors",
-      );
-      expectFalse(
-        css.includes("--color-text: #9a9996"),
-        "Old global value should NOT appear as scope override",
+      // With the fix: output should be EXACTLY this - no scope overrides
+      const expected = `:root {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-link: #0066cc;
+  --color-link-hover: #004499;
+}
+`;
+      expectStrictEqual(
+        css,
+        expected,
+        "Output should contain only :root, no scope overrides",
       );
     },
   },
@@ -936,6 +1066,7 @@ const allTestCases = [
   ...configTests,
   ...roundTripTests,
   ...e2eTests,
+  ...exactOutputTests,
   ...bugRegressionTests,
 ];
 
