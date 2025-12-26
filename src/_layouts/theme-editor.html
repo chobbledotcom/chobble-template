@@ -207,6 +207,22 @@ layout: base
 #theme-editor-form label.no-checkbox {
   display: block;
 }
+
+/* Mobile styles */
+@media screen and (max-width: 650px) {
+  .editor-tabs ul {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  #theme-editor-form .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .border-controls {
+    flex-wrap: wrap;
+  }
+}
 </style>
 
 {{ content }}
