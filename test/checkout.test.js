@@ -243,12 +243,24 @@ const testCases = [
   },
   {
     name: "cart-utils-getCart-handles-corrupt-data",
-    description: "getCart returns empty array for corrupt JSON",
+    description: "getCart warns and returns empty array for corrupt JSON",
     test: () => {
       withMockStorage((storage) => {
         storage.setItem(STORAGE_KEY, "not valid json {{{");
-        const cart = getCart();
-        assert.deepStrictEqual(cart, []);
+        const warnings = [];
+        const originalWarn = console.warn;
+        console.warn = (...args) => warnings.push(args);
+        try {
+          const cart = getCart();
+          assert.deepStrictEqual(cart, []);
+          assert.strictEqual(warnings.length, 1, "Expected one warning to be logged");
+          assert.ok(
+            warnings[0][0].includes("parse error"),
+            "Warning should mention parse error"
+          );
+        } finally {
+          console.warn = originalWarn;
+        }
       });
     },
   },

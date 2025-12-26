@@ -14,7 +14,7 @@ export function getCart() {
     console.log("[cart-utils.js] getCart() parsed:", parsed);
     return parsed;
   } catch (e) {
-    console.log("[cart-utils.js] getCart() parse error, returning empty array");
+    console.warn("[cart-utils.js] getCart() parse error:", e.message);
     return [];
   }
 }
