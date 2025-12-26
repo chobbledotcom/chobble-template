@@ -29,7 +29,7 @@ export function generateICalForEvent(event) {
     summary: event.data.title,
     description: event.data.subtitle || event.data.meta_description || "",
     location: event.data.event_location || "",
-    url: canonicalUrl(site.url, event.url),
+    url: canonicalUrl(event.url),
   });
 
   return calendar.toString();
