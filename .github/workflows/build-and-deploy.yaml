@@ -61,15 +61,18 @@ jobs:
     name: Deploy to Neocities
     needs: [build, test]
     runs-on: ubuntu-latest
-    if: ${{ secrets.NEOCITIES_API_KEY != '' }}
+    env:
+      NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
     steps:
       - name: Download built site
+        if: ${{ env.NEOCITIES_API_KEY != '' }}
         uses: actions/download-artifact@v4
         with:
           name: built-site
           path: _site
 
       - name: Deploy to neocities
+        if: ${{ env.NEOCITIES_API_KEY != '' }}
         uses: bcomnes/deploy-to-neocities@v3
         with:
           api_key: ${{ secrets.NEOCITIES_API_KEY }}
@@ -82,15 +85,18 @@ jobs:
     name: Deploy to Bunny CDN
     needs: [build, test]
     runs-on: ubuntu-latest
-    if: ${{ secrets.BUNNY_ACCESS_KEY != '' }}
+    env:
+      BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
     steps:
       - name: Download built site
+        if: ${{ env.BUNNY_ACCESS_KEY != '' }}
         uses: actions/download-artifact@v4
         with:
           name: built-site
           path: _site
 
       - name: Deploy to Bunny
+        if: ${{ env.BUNNY_ACCESS_KEY != '' }}
         uses: R-J-dev/bunny-deploy@v2.0.6
         with:
           access-key: ${{ secrets.BUNNY_ACCESS_KEY }}
