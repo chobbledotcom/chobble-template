@@ -358,6 +358,8 @@ html:has(dialog.cart-overlay[open]) {
 .quote-cart-actions {
   margin-top: 1.5rem;
   text-align: center;
+  overflow: hidden;
+  animation: slideInFade 0.4s ease-out forwards;
 }
 
 // Quote checkout summary styles
