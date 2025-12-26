@@ -1,14 +1,7 @@
 // Unified page initialization helper
 // Runs callback on initial page load and on Turbo navigation
+// turbo:load fires on both initial page load and navigation, so we only need that
 
 export function onReady(callback) {
-  // Initial page load
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", callback);
-  } else {
-    callback();
-  }
-
-  // Turbo navigation
   document.addEventListener("turbo:load", callback);
 }

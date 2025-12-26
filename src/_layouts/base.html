@@ -32,11 +32,11 @@
   </main>
   {%- include "footer.html" -%}
   {%- include "theme-switcher.html" -%}
-  {%- if config.cart_mode == "quote" -%}
-    {%- include "cart-icon-enquiry.html" -%}
-  {%- elsif config.cart_mode == "paypal" or config.cart_mode == "stripe" -%}
+  {%- if config.cart_mode -%}
     {%- include "cart-icon.html" -%}
-    {%- include "cart-overlay.html" -%}
+    {%- if config.cart_mode == "paypal" or config.cart_mode == "stripe" -%}
+      {%- include "cart-overlay.html" -%}
+    {%- endif -%}
   {%- endif -%}
   {%- include "availability-calendar.html" -%}
   {%- include "image-popup.html" -%}

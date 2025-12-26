@@ -64,19 +64,14 @@ const createCheckoutPage = async (options = {}) => {
     paypal_email: paypalEmail,
   };
 
-  // For quote mode, use the enquiry cart icon (no overlay)
-  // This matches the real base.html template behavior
-  let cartIcon;
+  // cart-icon.html is now smart and handles quote mode automatically
+  const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
+    config,
+  });
+
+  // Only include cart overlay for paypal/stripe modes (not quote mode)
   let cartOverlay = "";
-  if (cartMode === "quote") {
-    cartIcon = await renderTemplate("src/_includes/cart-icon-enquiry.html", {
-      config,
-    });
-    // No cart overlay in quote mode
-  } else {
-    cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
-      config,
-    });
+  if (cartMode !== "quote") {
     cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", {
       config,
     });
@@ -1355,7 +1350,7 @@ const testCases = [
       // Render templates for quote mode
       const config = { cart_mode: "quote" };
       const cartIcon = await renderTemplate(
-        "src/_includes/cart-icon-enquiry.html",
+        "src/_includes/cart-icon.html",
         { config },
       );
       const productOptionsHtml = await renderTemplate(
