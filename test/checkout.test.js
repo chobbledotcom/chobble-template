@@ -957,14 +957,13 @@ const testCases = [
       withMockStorage(() => {
         saveCart([]);
 
-        // Simulate updateCartDisplay for empty cart
         const doc = dom.window.document;
         const cartEmpty = doc.querySelector(".cart-empty");
         const cartItems = doc.querySelector(".cart-items");
 
-        // When cart is empty, cart-empty should be visible
-        if (cartEmpty) cartEmpty.style.display = "block";
-        if (cartItems) cartItems.innerHTML = "";
+        // Simulate updateCartDisplay for empty cart
+        cartEmpty.style.display = "block";
+        cartItems.innerHTML = "";
 
         assert.strictEqual(cartEmpty.style.display, "block");
         assert.strictEqual(cartItems.innerHTML, "");
@@ -985,19 +984,16 @@ const testCases = [
 
         const cart = getCart();
         const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
-        const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
+
+        assert.ok(total <= MINIMUM_CHECKOUT_AMOUNT, "Test setup: total should be below minimum");
 
         const doc = dom.window.document;
         const stripeBtn = doc.querySelector(".cart-checkout-stripe");
         const minimumMessage = doc.querySelector(".cart-minimum-message");
 
-        // Simulate updateCartDisplay behavior
-        if (stripeBtn && isBelowMinimum) {
-          stripeBtn.style.display = "none";
-        }
-        if (minimumMessage) {
-          minimumMessage.style.display = isBelowMinimum ? "block" : "none";
-        }
+        // Simulate updateCartDisplay behavior for below-minimum cart
+        stripeBtn.style.display = "none";
+        minimumMessage.style.display = "block";
 
         assert.strictEqual(stripeBtn.style.display, "none", "Stripe button should be hidden");
         assert.strictEqual(minimumMessage.style.display, "block", "Minimum message should show");
@@ -1018,20 +1014,17 @@ const testCases = [
 
         const cart = getCart();
         const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
-        const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
+
+        assert.ok(total > MINIMUM_CHECKOUT_AMOUNT, "Test setup: total should be above minimum");
 
         const doc = dom.window.document;
         const stripeBtn = doc.querySelector(".cart-checkout-stripe");
         const minimumMessage = doc.querySelector(".cart-minimum-message");
 
-        // Simulate updateCartDisplay behavior
-        if (stripeBtn && !isBelowMinimum) {
-          stripeBtn.style.display = "";
-          stripeBtn.disabled = false;
-        }
-        if (minimumMessage) {
-          minimumMessage.style.display = isBelowMinimum ? "block" : "none";
-        }
+        // Simulate updateCartDisplay behavior for above-minimum cart
+        stripeBtn.style.display = "";
+        stripeBtn.disabled = false;
+        minimumMessage.style.display = "none";
 
         assert.notStrictEqual(stripeBtn.style.display, "none", "Stripe button should be visible");
         assert.strictEqual(minimumMessage.style.display, "none", "Minimum message should be hidden");
@@ -1054,8 +1047,8 @@ const testCases = [
         const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
         // Simulate updateCartDisplay for empty cart
-        if (stripeBtn) stripeBtn.disabled = true;
-        if (paypalBtn) paypalBtn.disabled = true;
+        stripeBtn.disabled = true;
+        paypalBtn.disabled = true;
 
         assert.strictEqual(stripeBtn.disabled, true, "Stripe button should be disabled");
         assert.strictEqual(paypalBtn.disabled, true, "PayPal button should be disabled");
@@ -1219,14 +1212,13 @@ const testCases = [
       select.selectedIndex = 1; // Select "Small"
       const selectedOption = select.options[select.selectedIndex];
 
-      if (selectedOption && selectedOption.value) {
-        button.disabled = false;
-        button.dataset.option = selectedOption.dataset.name;
-        button.dataset.price = selectedOption.dataset.price;
-        button.dataset.sku = selectedOption.dataset.sku;
-        button.dataset.maxQuantity = selectedOption.dataset.maxQuantity;
-        button.textContent = `Add to Cart - £${selectedOption.dataset.price}`;
-      }
+      // Apply the selection to button (simulating cart.js change handler)
+      button.disabled = false;
+      button.dataset.option = selectedOption.dataset.name;
+      button.dataset.price = selectedOption.dataset.price;
+      button.dataset.sku = selectedOption.dataset.sku;
+      button.dataset.maxQuantity = selectedOption.dataset.maxQuantity;
+      button.textContent = `Add to Cart - £${selectedOption.dataset.price}`;
 
       assert.strictEqual(button.disabled, false, "Button should be enabled");
       assert.strictEqual(button.dataset.option, "Small");
