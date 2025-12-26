@@ -272,6 +272,9 @@ class ShoppingCart {
 
   // Update cart display in overlay
   updateCartDisplay() {
+    // Skip if no cart overlay (e.g., in quote/enquiry mode)
+    if (!this.cartOverlay) return;
+
     const cart = getCart();
     const cartItems = this.cartOverlay.querySelector(".cart-items");
     const cartEmpty = this.cartOverlay.querySelector(".cart-empty");

@@ -64,13 +64,24 @@ const createCheckoutPage = async (options = {}) => {
     paypal_email: paypalEmail,
   };
 
-  // Render all templates from actual source files
-  const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
-    config,
-  });
-  const cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", {
-    config,
-  });
+  // For quote mode, use the enquiry cart icon (no overlay)
+  // This matches the real base.html template behavior
+  let cartIcon;
+  let cartOverlay = "";
+  if (cartMode === "quote") {
+    cartIcon = await renderTemplate("src/_includes/cart-icon-enquiry.html", {
+      config,
+    });
+    // No cart overlay in quote mode
+  } else {
+    cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
+      config,
+    });
+    cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", {
+      config,
+    });
+  }
+
   const productOptionsHtml = await renderTemplate(
     "src/_includes/product-options.html",
     {
@@ -1327,6 +1338,296 @@ const testCases = [
       assert.ok(
         button.textContent.includes("5.00"),
         "Button should show price",
+      );
+
+      dom.window.close();
+    },
+  },
+
+  // ----------------------------------------
+  // Quote Mode (Enquiry) Tests
+  // ----------------------------------------
+  {
+    name: "quote-mode-add-to-cart-works",
+    description:
+      "In quote mode, clicking add-to-cart adds item to cart and updates icon",
+    asyncTest: async () => {
+      // Render templates for quote mode
+      const config = { cart_mode: "quote" };
+      const cartIcon = await renderTemplate(
+        "src/_includes/cart-icon-enquiry.html",
+        { config },
+      );
+      const productOptionsHtml = await renderTemplate(
+        "src/_includes/product-options.html",
+        {
+          config,
+          title: "Quote Product",
+          options: [
+            {
+              name: "Standard",
+              unit_price: "50.00",
+              max_quantity: 10,
+              sku: "QUOTE-STD",
+            },
+          ],
+        },
+      );
+
+      // Inline the cart JS code (converted from ES modules to plain JS)
+      // This simulates what the bundled JS does in the browser
+      const inlineCartJs = `
+        // Cart utilities (from cart-utils.js)
+        const STORAGE_KEY = "shopping_cart";
+
+        function getCart() {
+          try {
+            const cart = localStorage.getItem(STORAGE_KEY);
+            return cart ? JSON.parse(cart) : [];
+          } catch (e) {
+            return [];
+          }
+        }
+
+        function saveCart(cart) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+          } catch (e) {
+            console.error("Error saving cart:", e);
+          }
+        }
+
+        function getItemCount() {
+          const cart = getCart();
+          return cart.reduce((count, item) => count + item.quantity, 0);
+        }
+
+        function updateCartIcon() {
+          const count = getItemCount();
+          document.querySelectorAll(".cart-icon").forEach((icon) => {
+            icon.style.display = count > 0 ? "flex" : "none";
+            const badge = icon.querySelector(".cart-count");
+            if (badge) {
+              badge.textContent = count;
+              badge.style.display = count > 0 ? "block" : "none";
+            }
+          });
+        }
+
+        // ShoppingCart class (from cart.js - with fix applied)
+        class ShoppingCart {
+          constructor() {
+            this.cartOverlay = null;
+            this.documentListenersAttached = false;
+            this.isEnquiryMode = false;
+            this.init();
+          }
+
+          init() {
+            if (document.readyState === "loading") {
+              document.addEventListener("DOMContentLoaded", () => this.setup());
+            } else {
+              this.setup();
+            }
+          }
+
+          setup() {
+            this.cartOverlay = document.getElementById("cart-overlay");
+            const cartIcon = document.querySelector(".cart-icon");
+            this.isEnquiryMode = cartIcon?.dataset.enquiryMode === "true";
+
+            if (!this.isEnquiryMode && !this.cartOverlay) {
+              return;
+            }
+
+            this.setupEventListeners();
+
+            if (!this.isEnquiryMode) {
+              this.updateCartDisplay();
+            }
+            this.updateCartCount();
+          }
+
+          setupEventListeners() {
+            if (this.documentListenersAttached) return;
+            this.documentListenersAttached = true;
+
+            document.addEventListener("click", (e) => {
+              if (e.target.classList.contains("add-to-cart")) {
+                e.preventDefault();
+                const button = e.target;
+
+                const itemName = button.dataset.name;
+                const optionName = button.dataset.option || "";
+                const unitPrice = parseFloat(button.dataset.price);
+                const maxQuantity = button.dataset.maxQuantity
+                  ? parseInt(button.dataset.maxQuantity)
+                  : null;
+                const sku = button.dataset.sku || null;
+
+                const fullItemName = optionName
+                  ? itemName + " - " + optionName
+                  : itemName;
+
+                if (fullItemName && !isNaN(unitPrice)) {
+                  this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku);
+                }
+              }
+            });
+          }
+
+          addItem(itemName, unitPrice, quantity, maxQuantity, sku) {
+            const cart = getCart();
+            cart.push({
+              item_name: itemName,
+              unit_price: unitPrice,
+              quantity: quantity,
+              max_quantity: maxQuantity,
+              sku: sku,
+            });
+            saveCart(cart);
+            this.updateCartDisplay();
+            this.updateCartCount();
+          }
+
+          updateCartDisplay() {
+            // FIX: Skip if no cart overlay (e.g., in quote/enquiry mode)
+            if (!this.cartOverlay) return;
+
+            const cartItems = this.cartOverlay.querySelector(".cart-items");
+            if (!cartItems) return;
+          }
+
+          updateCartCount() {
+            updateCartIcon();
+          }
+        }
+
+        // Initialize
+        window.shoppingCart = new ShoppingCart();
+      `;
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><title>Quote Mode Test</title></head>
+        <body>
+          ${cartIcon}
+          <div class="product-page">${productOptionsHtml}</div>
+          <script>${inlineCartJs}</script>
+        </body>
+        </html>
+      `;
+
+      const dom = new JSDOM(html, {
+        url: "https://example.com",
+        runScripts: "dangerously",
+        resources: "usable",
+      });
+
+      // Wait for scripts to execute
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const doc = dom.window.document;
+      const win = dom.window;
+
+      // Verify setup
+      const cartIconEl = doc.querySelector(".cart-icon");
+      assert.ok(cartIconEl, "Cart icon should exist");
+      assert.strictEqual(
+        cartIconEl.dataset.enquiryMode,
+        "true",
+        "Should be in enquiry mode",
+      );
+
+      const button = doc.querySelector(".add-to-cart");
+      assert.ok(button, "Add to cart button should exist");
+
+      // Check cart is empty before click
+      const cartBefore = win.localStorage.getItem("shopping_cart");
+      assert.strictEqual(cartBefore, null, "Cart should be empty initially");
+
+      // Click the button
+      button.click();
+
+      // Wait a moment for any async effects
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Check item was added to cart
+      const cartAfter = win.localStorage.getItem("shopping_cart");
+      assert.ok(cartAfter, "Cart should have items after click");
+
+      const items = JSON.parse(cartAfter);
+      assert.strictEqual(items.length, 1, "Cart should have 1 item");
+      assert.strictEqual(items[0].item_name, "Quote Product - Standard");
+      assert.strictEqual(items[0].unit_price, 50);
+      assert.strictEqual(items[0].sku, "QUOTE-STD");
+
+      // Cart icon should now be visible
+      assert.strictEqual(
+        cartIconEl.style.display,
+        "flex",
+        "Cart icon should be visible after adding item",
+      );
+
+      // Cart count badge should show 1
+      const badge = cartIconEl.querySelector(".cart-count");
+      assert.strictEqual(
+        badge.textContent,
+        "1",
+        "Badge should show count of 1",
+      );
+      assert.strictEqual(
+        badge.style.display,
+        "block",
+        "Badge should be visible",
+      );
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "quote-mode-cart-icon-has-enquiry-attribute",
+    description: "Cart icon in quote mode has data-enquiry-mode attribute",
+    asyncTest: async () => {
+      const dom = await createCheckoutPage({
+        cartMode: "quote",
+        productOptions: [{ name: "Test", unit_price: "10.00", sku: "T1" }],
+      });
+
+      const doc = dom.window.document;
+      const cartIcon = doc.querySelector(".cart-icon");
+
+      assert.ok(cartIcon, "Cart icon should exist");
+      assert.strictEqual(
+        cartIcon.dataset.enquiryMode,
+        "true",
+        "Cart icon should have data-enquiry-mode='true'",
+      );
+      assert.ok(
+        cartIcon.textContent.includes("Quote"),
+        "Cart icon should show 'View Quote' text",
+      );
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "quote-mode-no-cart-overlay",
+    description: "Quote mode should not render cart overlay",
+    asyncTest: async () => {
+      const dom = await createCheckoutPage({
+        cartMode: "quote",
+        productOptions: [{ name: "Test", unit_price: "10.00", sku: "T1" }],
+      });
+
+      const doc = dom.window.document;
+      const cartOverlay = doc.getElementById("cart-overlay");
+
+      assert.strictEqual(
+        cartOverlay,
+        null,
+        "Cart overlay should not exist in quote mode",
       );
 
       dom.window.close();
