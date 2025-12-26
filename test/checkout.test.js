@@ -49,6 +49,7 @@ const createCheckoutPage = async (options = {}) => {
     stripeKey = "pk_test_123",
     checkoutApiUrl = "https://api.example.com",
     paypalEmail = "test@example.com",
+    cartMode = stripeKey ? "stripe" : paypalEmail ? "paypal" : null,
     includeStripeCheckoutPage = false,
     // Product options for testing add-to-cart
     productTitle = "Test Product",
@@ -59,6 +60,7 @@ const createCheckoutPage = async (options = {}) => {
   } = options;
 
   const config = {
+    cart_mode: cartMode,
     stripe_publishable_key: stripeKey,
     checkout_api_url: checkoutApiUrl,
     paypal_email: paypalEmail,
@@ -283,7 +285,7 @@ const testCases = [
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         stripeKey: "pk_test_abc",
-        paypalEmail: "pay@example.com",
+        cartMode: "stripe",
         checkoutApiUrl: "https://api.test.com",
       });
 
@@ -295,24 +297,23 @@ const testCases = [
       assert.ok(overlay.querySelector(".cart-empty"), "Should have cart-empty message");
       assert.ok(overlay.querySelector(".cart-total-amount"), "Should have total display");
       assert.ok(overlay.querySelector(".cart-checkout-stripe"), "Should have Stripe button");
-      assert.ok(overlay.querySelector(".cart-checkout-paypal"), "Should have PayPal button");
       assert.ok(overlay.querySelector(".cart-minimum-message"), "Should have minimum message");
 
       // Verify data attributes from template
       assert.strictEqual(overlay.dataset.stripeKey, "pk_test_abc");
-      assert.strictEqual(overlay.dataset.paypalEmail, "pay@example.com");
       assert.strictEqual(overlay.dataset.checkoutApiUrl, "https://api.test.com");
 
       dom.window.close();
     },
   },
   {
-    name: "template-cart-overlay-no-stripe",
-    description: "Cart overlay hides Stripe button when not configured",
+    name: "template-cart-overlay-paypal-mode",
+    description: "Cart overlay shows PayPal button when cart_mode is paypal",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
-        stripeKey: null, // No Stripe key (null, not empty string)
+        cartMode: "paypal",
         paypalEmail: "pay@example.com",
+        checkoutApiUrl: "https://api.example.com",
       });
 
       const doc = dom.window.document;
@@ -326,12 +327,13 @@ const testCases = [
     },
   },
   {
-    name: "template-cart-overlay-no-paypal",
-    description: "Cart overlay hides PayPal button when not configured",
+    name: "template-cart-overlay-stripe-mode",
+    description: "Cart overlay shows Stripe button when cart_mode is stripe",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
+        cartMode: "stripe",
         stripeKey: "pk_test_123",
-        paypalEmail: null, // No PayPal (null, not empty string)
+        checkoutApiUrl: "https://api.example.com",
       });
 
       const doc = dom.window.document;
@@ -461,6 +463,7 @@ const testCases = [
     description: "Product options template renders nothing when no payment configured",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
+        cartMode: null,
         stripeKey: null,
         paypalEmail: null,
         productOptions: [
@@ -655,41 +658,6 @@ const testCases = [
       }
 
       assert.strictEqual(locationTracker.wasRedirectedTo("paypal.com"), true);
-    },
-  },
-  {
-    name: "paypal-static-url-building",
-    description: "Static PayPal checkout builds correct URL with cart items",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([
-          { item_name: "Product One", unit_price: 15.0, quantity: 2 },
-          { item_name: "Product Two", unit_price: 25.99, quantity: 1 },
-        ]);
-
-        const cart = getCart();
-
-        // Matches cart.js checkoutWithPayPalStatic()
-        const params = new URLSearchParams();
-        params.append("cmd", "_cart");
-        params.append("upload", "1");
-        params.append("business", "test@example.com");
-        params.append("currency_code", "GBP");
-
-        cart.forEach((item, index) => {
-          const itemNum = index + 1;
-          params.append(`item_name_${itemNum}`, item.item_name);
-          params.append(`amount_${itemNum}`, item.unit_price.toFixed(2));
-          params.append(`quantity_${itemNum}`, item.quantity);
-        });
-
-        const url = `https://www.paypal.com/cgi-bin/webscr?${params.toString()}`;
-
-        assert.ok(url.includes("item_name_1=Product+One"));
-        assert.ok(url.includes("amount_1=15.00"));
-        assert.ok(url.includes("quantity_1=2"));
-        assert.ok(url.includes("item_name_2=Product+Two"));
-      });
     },
   },
 
@@ -1035,23 +1003,24 @@ const testCases = [
   },
   {
     name: "cart-ui-buttons-disabled-when-empty",
-    description: "Checkout buttons are disabled when cart is empty",
+    description: "Checkout button is disabled when cart is empty",
     asyncTest: async () => {
-      const dom = await createCheckoutPage();
+      const dom = await createCheckoutPage({
+        cartMode: "stripe",
+        stripeKey: "pk_test_123",
+        checkoutApiUrl: "https://api.example.com",
+      });
 
       withMockStorage(() => {
         saveCart([]);
 
         const doc = dom.window.document;
         const stripeBtn = doc.querySelector(".cart-checkout-stripe");
-        const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
         // Simulate updateCartDisplay for empty cart
         stripeBtn.disabled = true;
-        paypalBtn.disabled = true;
 
         assert.strictEqual(stripeBtn.disabled, true, "Stripe button should be disabled");
-        assert.strictEqual(paypalBtn.disabled, true, "PayPal button should be disabled");
       });
 
       dom.window.close();
@@ -1229,57 +1198,6 @@ const testCases = [
     },
   },
 
-  // ----------------------------------------
-  // PayPal Static Checkout Edge Cases
-  // ----------------------------------------
-  {
-    name: "paypal-static-includes-return-url",
-    description: "Static PayPal checkout includes return URL",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([{ item_name: "Product", unit_price: 10.0, quantity: 1 }]);
-
-        const cart = getCart();
-        const params = new URLSearchParams();
-        params.append("cmd", "_cart");
-        params.append("upload", "1");
-        params.append("business", "test@example.com");
-        params.append("currency_code", "GBP");
-
-        cart.forEach((item, index) => {
-          const itemNum = index + 1;
-          params.append(`item_name_${itemNum}`, item.item_name);
-          params.append(`amount_${itemNum}`, item.unit_price.toFixed(2));
-          params.append(`quantity_${itemNum}`, item.quantity);
-        });
-
-        // Add return URL
-        const returnUrl = "https://example.com/order-complete/";
-        params.append("return", returnUrl);
-
-        const url = `https://www.paypal.com/cgi-bin/webscr?${params.toString()}`;
-
-        assert.ok(url.includes("return="), "URL should include return parameter");
-        assert.ok(url.includes("order-complete"), "Return URL should point to order complete page");
-      });
-    },
-  },
-  {
-    name: "paypal-static-uses-gbp-currency",
-    description: "Static PayPal checkout uses GBP currency",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([{ item_name: "Product", unit_price: 10.0, quantity: 1 }]);
-
-        const params = new URLSearchParams();
-        params.append("currency_code", "GBP");
-
-        const url = `https://www.paypal.com/cgi-bin/webscr?${params.toString()}`;
-
-        assert.ok(url.includes("currency_code=GBP"));
-      });
-    },
-  },
 ];
 
 export default createTestRunner("checkout", testCases);

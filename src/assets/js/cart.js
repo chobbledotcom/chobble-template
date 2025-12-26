@@ -405,14 +405,7 @@ class ShoppingCart {
     if (cart.length === 0) return;
 
     const checkoutApiUrl = this.getCheckoutApiUrl();
-
-    // If backend is configured, use PayPal Orders API
-    if (checkoutApiUrl) {
-      await this.checkoutWithPayPalBackend(checkoutApiUrl);
-    } else {
-      // Fall back to static URL redirect (no backend needed)
-      this.checkoutWithPayPalStatic();
-    }
+    await this.checkoutWithPayPalBackend(checkoutApiUrl);
   }
 
   // Helper to POST cart data to an API endpoint
@@ -462,41 +455,6 @@ class ShoppingCart {
       console.error("PayPal checkout failed:", error);
       alert("Failed to start checkout. Please try again.");
     }
-  }
-
-  // PayPal checkout via static URL redirect (no backend)
-  checkoutWithPayPalStatic() {
-    const cart = getCart();
-    const paypalEmail = this.cartOverlay.dataset.paypalEmail;
-
-    if (!paypalEmail) {
-      alert("PayPal is not configured");
-      return;
-    }
-
-    // Build PayPal checkout URL
-    const baseUrl = "https://www.paypal.com/cgi-bin/webscr";
-    const params = new URLSearchParams();
-
-    params.append("cmd", "_cart");
-    params.append("upload", "1");
-    params.append("business", paypalEmail);
-    params.append("currency_code", "GBP");
-
-    // Add each cart item
-    cart.forEach((item, index) => {
-      const itemNum = index + 1;
-      params.append(`item_name_${itemNum}`, item.item_name);
-      params.append(`amount_${itemNum}`, item.unit_price.toFixed(2));
-      params.append(`quantity_${itemNum}`, item.quantity);
-    });
-
-    // Add return URL for after payment completion
-    const returnUrl = `${window.location.origin}/order-complete/`;
-    params.append("return", returnUrl);
-
-    // Redirect to PayPal
-    window.location.href = `${baseUrl}?${params.toString()}`;
   }
 
   // Checkout with Stripe - redirects to dedicated checkout page

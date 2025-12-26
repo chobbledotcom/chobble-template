@@ -15,9 +15,47 @@ const DEFAULTS = {
   template_repo_url: "https://github.com/chobbledotcom/chobble-template",
   chobble_link: null,
   map_embed_src: null,
-  has_cart_enquiry_form: false,
+  cart_mode: null,
   has_products_filter: false,
 };
+
+const VALID_CART_MODES = ["paypal", "stripe", "quote"];
+
+function validateCartConfig(config) {
+  const { cart_mode, paypal_email, stripe_publishable_key, checkout_api_url, form_target } = config;
+
+  if (!cart_mode) return;
+
+  if (!VALID_CART_MODES.includes(cart_mode)) {
+    throw new Error(
+      `Invalid cart_mode: "${cart_mode}". Must be one of: ${VALID_CART_MODES.join(", ")}, or null/omitted for no cart.`
+    );
+  }
+
+  if (cart_mode === "paypal") {
+    if (!paypal_email) {
+      throw new Error('cart_mode is "paypal" but paypal_email is not set in config.json');
+    }
+    if (!checkout_api_url) {
+      throw new Error('cart_mode is "paypal" but checkout_api_url is not set in config.json');
+    }
+  }
+
+  if (cart_mode === "stripe") {
+    if (!stripe_publishable_key) {
+      throw new Error('cart_mode is "stripe" but stripe_publishable_key is not set in config.json');
+    }
+    if (!checkout_api_url) {
+      throw new Error('cart_mode is "stripe" but checkout_api_url is not set in config.json');
+    }
+  }
+
+  if (cart_mode === "quote") {
+    if (!form_target) {
+      throw new Error('cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json');
+    }
+  }
+}
 
 const DEFAULT_PRODUCT_DATA = {
   item_widths: "240,480,640",
@@ -59,6 +97,8 @@ export default function () {
     products: products,
   });
   merged.form_target = getFormTarget(merged);
+
+  validateCartConfig(merged);
 
   cachedConfig = merged;
   return merged;

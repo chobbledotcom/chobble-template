@@ -32,9 +32,9 @@
   </main>
   {%- include "footer.html" -%}
   {%- include "theme-switcher.html" -%}
-  {%- if config.has_cart_enquiry_form -%}
+  {%- if config.cart_mode == "quote" -%}
     {%- include "cart-icon-enquiry.html" -%}
-  {%- elsif config.paypal_email or config.stripe_publishable_key -%}
+  {%- elsif config.cart_mode == "paypal" or config.cart_mode == "stripe" -%}
     {%- include "cart-icon.html" -%}
     {%- include "cart-overlay.html" -%}
   {%- endif -%}
