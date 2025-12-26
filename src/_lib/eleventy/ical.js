@@ -1,6 +1,7 @@
 import ical from "ical-generator";
 import config from "#data/config.json" with { type: "json" };
 import site from "#data/site.json" with { type: "json" };
+import { canonicalUrl } from "#utils/canonical-url.js";
 
 export function generateICalForEvent(event) {
   // Only generate iCal for one-off events (not recurring)
@@ -28,7 +29,7 @@ export function generateICalForEvent(event) {
     summary: event.data.title,
     description: event.data.subtitle || event.data.meta_description || "",
     location: event.data.event_location || "",
-    url: `${site.url}${event.url}`,
+    url: canonicalUrl(site.url, event.url),
   });
 
   return calendar.toString();

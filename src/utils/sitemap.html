@@ -8,7 +8,7 @@ eleventyExcludeFromCollections: true
   {%- for page in collections.all -%}
     {%- if page.data.no_index != true and page.url -%}
       {%- unless page.url contains "." -%}
-         <url><loc>{{ site.url }}{{ page.url | url }}</loc></url>
+         <url><loc>{{ page.url | canonicalUrl }}</loc></url>
       {%- endunless -%}
     {%- endif -%}
   {%- endfor -%}

@@ -1,4 +1,5 @@
 import { getReviewsByProduct } from "#collections/products.js";
+import { canonicalUrl } from "#utils/canonical-url.js";
 
 function buildImageUrl(imageInput, siteUrl) {
   if (!imageInput) return null;
@@ -19,7 +20,7 @@ function buildBaseMeta(data) {
 
   const meta = {
     ...baseMeta,
-    url: `${data.site.url}${data.page.url}`,
+    url: canonicalUrl(data.site.url, data.page.url),
     title: data.title || data.meta_title || "Untitled",
     description: data.meta_description || data.subtitle,
   };
