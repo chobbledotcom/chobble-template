@@ -798,6 +798,134 @@ input[type="submit"] {
 ];
 
 // ============================================
+// Bug regression tests
+// ============================================
+
+const bugRegressionTests = [
+  {
+    name: "bug-changing-global-should-not-create-scope-overrides",
+    description:
+      "Changing a global value should not cause unchanged scoped inputs to appear as overrides",
+    test: () => {
+      // This tests the bug: user loads theme with --color-text: #9a9996,
+      // then changes global text color to #000000.
+      // The scoped inputs (nav, article, form) were initialized to #9a9996
+      // but should NOT appear in output since user never changed them.
+      //
+      // THE FIX: When global changes, cascade the change to scoped inputs
+      // that were "following" the old global value.
+
+      const originalTheme = `
+:root {
+  --color-bg: #ffffff;
+  --color-text: #9a9996;
+  --color-link: #0066cc;
+  --color-link-hover: #004499;
+}
+`;
+      const dom = createMockDOM(originalTheme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+      const parsed = parseThemeContent(originalTheme);
+
+      // Step 1: Initialize scoped inputs to global values (simulating page load)
+      const oldGlobalVars = { ...parsed.root };
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = parsed.root[varName];
+            if (globalValue?.startsWith("#")) {
+              input.value = globalValue;
+            }
+          });
+      });
+
+      // Verify scoped inputs are initialized to old global value
+      expectStrictEqual(
+        document.getElementById("nav-color-text").value,
+        "#9a9996",
+      );
+
+      // Step 2: User changes the GLOBAL text color to a new value
+      const newGlobalTextColor = "#000000";
+      document.getElementById("color-text").value = newGlobalTextColor;
+
+      // Step 3: Update the global vars (simulating what updateThemeFromControls does)
+      const newGlobalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": newGlobalTextColor, // NEW value
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Step 4: CASCADE global changes to scoped inputs (THE FIX)
+      // For each scoped input, if it equals the OLD global value, update to NEW global value
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const oldGlobal = oldGlobalVars[varName];
+            const newGlobal = newGlobalVars[varName];
+            // If scoped input was following old global, update to new global
+            if (oldGlobal && newGlobal && input.value === oldGlobal) {
+              input.value = newGlobal;
+            }
+          });
+      });
+
+      // Verify cascade worked - scoped inputs now have new global value
+      expectStrictEqual(
+        document.getElementById("nav-color-text").value,
+        "#000000",
+      );
+
+      // Step 5: Collect scope vars - now scoped inputs match new global
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            const globalValue = newGlobalVars[varName];
+            if (shouldIncludeScopedVar(value, globalValue)) {
+              vars[varName] = value;
+            }
+          });
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // Generate CSS
+      const css = generateThemeCss(newGlobalVars, scopeVars, []);
+
+      // With the fix: these scopes should NOT appear in the output
+      expectFalse(
+        css.includes("nav {"),
+        "nav should NOT appear - user did not change nav colors",
+      );
+      expectFalse(
+        css.includes("article {"),
+        "article should NOT appear - user did not change article colors",
+      );
+      expectFalse(
+        css.includes("form {"),
+        "form should NOT appear - user did not change form colors",
+      );
+      expectFalse(
+        css.includes("--color-text: #9a9996"),
+        "Old global value should NOT appear as scope override",
+      );
+    },
+  },
+];
+
+// ============================================
 // Combine and run all tests
 // ============================================
 
@@ -808,6 +936,7 @@ const allTestCases = [
   ...configTests,
   ...roundTripTests,
   ...e2eTests,
+  ...bugRegressionTests,
 ];
 
 createTestRunner("theme-editor", allTestCases);

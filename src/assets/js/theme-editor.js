@@ -361,6 +361,15 @@ const ThemeEditor = {
   },
 
   updateThemeFromControls() {
+    const docStyle = getComputedStyle(document.documentElement);
+
+    // Capture OLD global values before updating (for cascading to scoped inputs)
+    const oldGlobalVars = {};
+    this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
+      const varName = `--${el.id}`;
+      oldGlobalVars[varName] = docStyle.getPropertyValue(varName).trim();
+    });
+
     // Collect global :root variables
     const globalVars = {};
     Array.from(this.formQuery("[data-var]:not([data-scope])"))
@@ -374,6 +383,10 @@ const ThemeEditor = {
         document.documentElement.style.setProperty(varName, value);
         globalVars[varName] = value;
       });
+
+    // Cascade global changes to scoped inputs that were "following" the old global value
+    // This prevents unchanged scoped inputs from appearing as overrides when global changes
+    this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
     // Collect scoped variables
     const scopeVars = {};
@@ -405,6 +418,52 @@ const ThemeEditor = {
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
     ELEMENTS.output.value = themeText;
+  },
+
+  /**
+   * Cascade global value changes to scoped inputs that were "following" the old global value.
+   * This prevents unchanged scoped inputs from appearing as overrides when global changes.
+   */
+  cascadeGlobalChangesToScopes(oldGlobalVars, newGlobalVars) {
+    SCOPES.forEach((scope) => {
+      // Color inputs
+      this.formQuery(
+        `input[type="color"][data-var][data-scope="${scope}"]`,
+      ).forEach((input) => {
+        const varName = input.dataset.var;
+        const oldGlobal = oldGlobalVars[varName];
+        const newGlobal = newGlobalVars[varName];
+
+        // If this scoped input was showing the old global value, update it to the new global
+        if (oldGlobal && newGlobal && input.value === oldGlobal) {
+          input.value = newGlobal;
+        }
+      });
+
+      // Border inputs
+      const borderOutput = this.formEl(`${scope}-border`);
+      if (borderOutput) {
+        const oldGlobalBorder = oldGlobalVars["--border"];
+        const newGlobalBorder = newGlobalVars["--border"];
+        if (
+          oldGlobalBorder &&
+          newGlobalBorder &&
+          borderOutput.value === oldGlobalBorder
+        ) {
+          // Update border component inputs too
+          const widthInput = this.formEl(`${scope}-border-width`);
+          const styleSelect = this.formEl(`${scope}-border-style`);
+          const colorInput = this.formEl(`${scope}-border-color`);
+          const parsed = parseBorderValue(newGlobalBorder);
+          if (parsed && widthInput && styleSelect && colorInput) {
+            widthInput.value = parsed.width;
+            styleSelect.value = parsed.style;
+            if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
+          }
+          borderOutput.value = newGlobalBorder;
+        }
+      }
+    });
   },
 
   collectScopeVars(scope) {
