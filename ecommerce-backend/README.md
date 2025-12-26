@@ -54,13 +54,22 @@ docker run -p 3000:3000 \
 
 ## Frontend Config
 
+In your site's `config.json`:
+
 ```json
 {
-  "checkout_api_url": "https://checkout.example.com",
-  "stripe_publishable_key": "pk_...",
-  "paypal_email": "you@example.com"
+  "cart_mode": "stripe",
+  "checkout_api_url": "https://checkout.example.com/api/stripe/create-session"
 }
 ```
 
-- **Stripe**: Requires backend
-- **PayPal**: Uses backend if configured, otherwise client-side redirect
+Or for PayPal:
+
+```json
+{
+  "cart_mode": "paypal",
+  "checkout_api_url": "https://checkout.example.com/api/paypal/create-order"
+}
+```
+
+The `checkout_api_url` should be the full URL to the checkout endpoint.

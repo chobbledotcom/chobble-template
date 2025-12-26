@@ -1,6 +1,11 @@
 import { createRequire } from "module";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const DEFAULTS = {
   sticky_mobile_nav: true,
@@ -11,7 +16,6 @@ const DEFAULTS = {
   contact_form_target: null,
   formspark_id: null,
   botpoison_public_key: null,
-  stripe_publishable_key: null,
   template_repo_url: "https://github.com/chobbledotcom/chobble-template",
   chobble_link: null,
   map_embed_src: null,
@@ -21,38 +25,80 @@ const DEFAULTS = {
 
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];
 
+function validatePageFrontmatter(filename, requiredLayout, requiredPermalink) {
+  const pagePath = path.join(__dirname, "..", "pages", filename);
+
+  if (!fs.existsSync(pagePath)) {
+    throw new Error(
+      `cart_mode is "stripe" but src/pages/${filename} does not exist`,
+    );
+  }
+
+  const content = fs.readFileSync(pagePath, "utf-8");
+  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+
+  if (!frontmatterMatch) {
+    throw new Error(
+      `cart_mode is "stripe" but src/pages/${filename} has no frontmatter`,
+    );
+  }
+
+  const frontmatter = frontmatterMatch[1];
+
+  if (!frontmatter.includes(`layout: ${requiredLayout}`)) {
+    throw new Error(
+      `cart_mode is "stripe" but src/pages/${filename} does not use layout: ${requiredLayout}`,
+    );
+  }
+
+  if (!frontmatter.includes(`permalink: ${requiredPermalink}`)) {
+    throw new Error(
+      `cart_mode is "stripe" but src/pages/${filename} does not have permalink: ${requiredPermalink}`,
+    );
+  }
+}
+
+function validateStripePages() {
+  validatePageFrontmatter(
+    "stripe-checkout.md",
+    "stripe-checkout.html",
+    "/stripe-checkout/",
+  );
+  validatePageFrontmatter(
+    "order-complete.md",
+    "checkout-complete.html",
+    "/order-complete/",
+  );
+}
+
 function validateCartConfig(config) {
-  const { cart_mode, paypal_email, stripe_publishable_key, checkout_api_url, form_target } = config;
+  const { cart_mode, checkout_api_url, form_target } = config;
 
   if (!cart_mode) return;
 
   if (!VALID_CART_MODES.includes(cart_mode)) {
     throw new Error(
-      `Invalid cart_mode: "${cart_mode}". Must be one of: ${VALID_CART_MODES.join(", ")}, or null/omitted for no cart.`
+      `Invalid cart_mode: "${cart_mode}". Must be one of: ${VALID_CART_MODES.join(", ")}, or null/omitted for no cart.`,
     );
   }
 
-  if (cart_mode === "paypal") {
-    if (!paypal_email) {
-      throw new Error('cart_mode is "paypal" but paypal_email is not set in config.json');
-    }
+  if (cart_mode === "paypal" || cart_mode === "stripe") {
     if (!checkout_api_url) {
-      throw new Error('cart_mode is "paypal" but checkout_api_url is not set in config.json');
+      throw new Error(
+        `cart_mode is "${cart_mode}" but checkout_api_url is not set in config.json`,
+      );
     }
   }
 
   if (cart_mode === "stripe") {
-    if (!stripe_publishable_key) {
-      throw new Error('cart_mode is "stripe" but stripe_publishable_key is not set in config.json');
-    }
-    if (!checkout_api_url) {
-      throw new Error('cart_mode is "stripe" but checkout_api_url is not set in config.json');
-    }
+    validateStripePages();
   }
 
   if (cart_mode === "quote") {
     if (!form_target) {
-      throw new Error('cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json');
+      throw new Error(
+        'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
+      );
     }
   }
 }

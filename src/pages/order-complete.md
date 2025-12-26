@@ -4,7 +4,7 @@ header_text: Thank You for Your Order
 meta_description: Thank you for your order
 meta_title: Order Complete
 no_index: true
-permalink: /checkout-success/
+permalink: /order-complete/
 layout: checkout-complete.html
 ---
 Your payment has been received. Thank you for your order!

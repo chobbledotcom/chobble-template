@@ -16,7 +16,6 @@ async function checkout() {
   if (!main) return;
 
   const statusMessage = document.getElementById("status-message");
-  const stripeKey = main.dataset.stripeKey;
   const checkoutApiUrl = main.dataset.checkoutApiUrl;
 
   const cart = getCart();
@@ -29,11 +28,6 @@ async function checkout() {
   }
 
   // Check configuration
-  if (!stripeKey) {
-    showError("Stripe is not configured");
-    return;
-  }
-
   if (!checkoutApiUrl) {
     showError("Checkout backend is not configured");
     return;
@@ -46,36 +40,19 @@ async function checkout() {
     const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
 
     // Create Stripe session via backend
-    const response = await fetch(
-      `${checkoutApiUrl}/api/stripe/create-session`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ items }),
+    const response = await fetch(checkoutApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ items }),
+    });
 
     if (response.ok) {
       const session = await response.json();
 
-      // Prefer direct URL redirect if available
       if (session.url) {
         window.location.href = session.url;
-        return;
-      }
-
-      // Fall back to Stripe.js redirect
-      if (session.id) {
-        const stripe = Stripe(stripeKey);
-        const result = await stripe.redirectToCheckout({
-          sessionId: session.id,
-        });
-
-        if (result.error) {
-          showError(result.error.message);
-        }
         return;
       }
 

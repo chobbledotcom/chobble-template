@@ -37,17 +37,6 @@
     src="{{ '/assets/js/bundle.js' | cacheBust }}"
   ></script>
 
-  {%- if stripe_buy_button_id and config.stripe_publishable_key -%}
-    <script
-      async
-      src="https://js.stripe.com/v3/buy-button.js"
-    ></script>
-  {%- endif -%}
-
-  {%- if layout == "stripe-checkout.html" -%}
-    <script src="https://js.stripe.com/v3/"></script>
-  {%- endif -%}
-
   {%- if collections.news.size > 0 -%}
     <link
       rel="alternate"

@@ -46,10 +46,9 @@ const renderTemplate = async (templatePath, data = {}) => {
 // Create a complete page with cart overlay from real templates
 const createCheckoutPage = async (options = {}) => {
   const {
-    stripeKey = "pk_test_123",
     checkoutApiUrl = "https://api.example.com",
     paypalEmail = "test@example.com",
-    cartMode = stripeKey ? "stripe" : paypalEmail ? "paypal" : null,
+    cartMode = "stripe",
     includeStripeCheckoutPage = false,
     // Product options for testing add-to-cart
     productTitle = "Test Product",
@@ -61,24 +60,33 @@ const createCheckoutPage = async (options = {}) => {
 
   const config = {
     cart_mode: cartMode,
-    stripe_publishable_key: stripeKey,
     checkout_api_url: checkoutApiUrl,
     paypal_email: paypalEmail,
   };
 
   // Render all templates from actual source files
-  const cartIcon = await renderTemplate("src/_includes/cart-icon.html", { config });
-  const cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", { config });
-  const productOptionsHtml = await renderTemplate("src/_includes/product-options.html", {
+  const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
     config,
-    title: productTitle,
-    options: productOptions,
   });
+  const cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", {
+    config,
+  });
+  const productOptionsHtml = await renderTemplate(
+    "src/_includes/product-options.html",
+    {
+      config,
+      title: productTitle,
+      options: productOptions,
+    },
+  );
 
   // Render stripe checkout page if needed
   let stripeCheckoutPage = "";
   if (includeStripeCheckoutPage) {
-    stripeCheckoutPage = await renderTemplate("src/_layouts/stripe-checkout.html", { config });
+    stripeCheckoutPage = await renderTemplate(
+      "src/_layouts/stripe-checkout.html",
+      { config },
+    );
     // Remove the frontmatter/layout wrapper - just get the content
     stripeCheckoutPage = stripeCheckoutPage.replace(/^---[\s\S]*?---\s*/, "");
   }
@@ -284,7 +292,6 @@ const testCases = [
     description: "Cart overlay template renders with all required elements",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
-        stripeKey: "pk_test_abc",
         cartMode: "stripe",
         checkoutApiUrl: "https://api.test.com",
       });
@@ -293,15 +300,32 @@ const testCases = [
       const overlay = doc.getElementById("cart-overlay");
 
       assert.ok(overlay, "Cart overlay should exist");
-      assert.ok(overlay.querySelector(".cart-items"), "Should have cart-items container");
-      assert.ok(overlay.querySelector(".cart-empty"), "Should have cart-empty message");
-      assert.ok(overlay.querySelector(".cart-total-amount"), "Should have total display");
-      assert.ok(overlay.querySelector(".cart-checkout-stripe"), "Should have Stripe button");
-      assert.ok(overlay.querySelector(".cart-minimum-message"), "Should have minimum message");
+      assert.ok(
+        overlay.querySelector(".cart-items"),
+        "Should have cart-items container",
+      );
+      assert.ok(
+        overlay.querySelector(".cart-empty"),
+        "Should have cart-empty message",
+      );
+      assert.ok(
+        overlay.querySelector(".cart-total-amount"),
+        "Should have total display",
+      );
+      assert.ok(
+        overlay.querySelector(".cart-checkout-stripe"),
+        "Should have Stripe button",
+      );
+      assert.ok(
+        overlay.querySelector(".cart-minimum-message"),
+        "Should have minimum message",
+      );
 
       // Verify data attributes from template
-      assert.strictEqual(overlay.dataset.stripeKey, "pk_test_abc");
-      assert.strictEqual(overlay.dataset.checkoutApiUrl, "https://api.test.com");
+      assert.strictEqual(
+        overlay.dataset.checkoutApiUrl,
+        "https://api.test.com",
+      );
 
       dom.window.close();
     },
@@ -332,7 +356,6 @@ const testCases = [
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         cartMode: "stripe",
-        stripeKey: "pk_test_123",
         checkoutApiUrl: "https://api.example.com",
       });
 
@@ -352,7 +375,6 @@ const testCases = [
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         includeStripeCheckoutPage: true,
-        stripeKey: "pk_live_xyz",
         checkoutApiUrl: "https://checkout.api.com",
       });
 
@@ -360,12 +382,17 @@ const testCases = [
       const page = doc.querySelector(".stripe-checkout-page");
 
       assert.ok(page, "Stripe checkout page should exist");
-      assert.strictEqual(page.dataset.stripeKey, "pk_live_xyz");
-      assert.strictEqual(page.dataset.checkoutApiUrl, "https://checkout.api.com");
+      assert.strictEqual(
+        page.dataset.checkoutApiUrl,
+        "https://checkout.api.com",
+      );
 
       const status = doc.getElementById("status-message");
       assert.ok(status, "Status message element should exist");
-      assert.ok(status.textContent.includes("Checking cart"), "Should show initial status");
+      assert.ok(
+        status.textContent.includes("Checking cart"),
+        "Should show initial status",
+      );
 
       dom.window.close();
     },
@@ -381,7 +408,10 @@ const testCases = [
 
       assert.ok(cartIcon, "Cart icon should exist");
       assert.ok(cartIcon.querySelector("svg"), "Should have SVG icon");
-      assert.ok(cartIcon.querySelector(".cart-count"), "Should have cart count badge");
+      assert.ok(
+        cartIcon.querySelector(".cart-count"),
+        "Should have cart count badge",
+      );
       assert.strictEqual(
         cartIcon.style.display,
         "none",
@@ -398,7 +428,12 @@ const testCases = [
       const dom = await createCheckoutPage({
         productTitle: "My Product",
         productOptions: [
-          { name: "Standard", unit_price: "19.99", max_quantity: 10, sku: "STD-001" },
+          {
+            name: "Standard",
+            unit_price: "19.99",
+            max_quantity: 10,
+            sku: "STD-001",
+          },
         ],
       });
 
@@ -411,11 +446,18 @@ const testCases = [
       assert.strictEqual(button.dataset.price, "19.99");
       assert.strictEqual(button.dataset.sku, "STD-001");
       assert.strictEqual(button.dataset.maxQuantity, "10");
-      assert.ok(button.textContent.includes("19.99"), "Button should show price");
+      assert.ok(
+        button.textContent.includes("19.99"),
+        "Button should show price",
+      );
 
       // Should NOT have a select (single option = direct button)
       const select = doc.querySelector(".product-options-select");
-      assert.strictEqual(select, null, "Should not have select for single option");
+      assert.strictEqual(
+        select,
+        null,
+        "Should not have select for single option",
+      );
 
       dom.window.close();
     },
@@ -439,15 +481,26 @@ const testCases = [
 
       assert.ok(select, "Select should exist for multiple options");
       assert.ok(button, "Add to cart button should exist");
-      assert.strictEqual(button.disabled, true, "Button should be disabled initially");
+      assert.strictEqual(
+        button.disabled,
+        true,
+        "Button should be disabled initially",
+      );
       assert.strictEqual(button.dataset.name, "Variable Product");
 
       // Check options
       const options = select.querySelectorAll("option");
-      assert.strictEqual(options.length, 4, "Should have 4 options (1 placeholder + 3 choices)");
+      assert.strictEqual(
+        options.length,
+        4,
+        "Should have 4 options (1 placeholder + 3 choices)",
+      );
 
       // First option is placeholder
-      assert.ok(options[0].disabled, "First option should be disabled placeholder");
+      assert.ok(
+        options[0].disabled,
+        "First option should be disabled placeholder",
+      );
 
       // Check second option (Small)
       assert.strictEqual(options[1].dataset.name, "Small");
@@ -460,23 +513,29 @@ const testCases = [
   },
   {
     name: "template-product-options-no-payment-configured",
-    description: "Product options template renders nothing when no payment configured",
+    description:
+      "Product options template renders nothing when no payment configured",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         cartMode: null,
-        stripeKey: null,
         paypalEmail: null,
-        productOptions: [
-          { name: "Test", unit_price: "10.00", sku: "TEST" },
-        ],
+        productOptions: [{ name: "Test", unit_price: "10.00", sku: "TEST" }],
       });
 
       const doc = dom.window.document;
       const button = doc.querySelector(".add-to-cart");
       const select = doc.querySelector(".product-options-select");
 
-      assert.strictEqual(button, null, "Should not render add-to-cart when no payment");
-      assert.strictEqual(select, null, "Should not render select when no payment");
+      assert.strictEqual(
+        button,
+        null,
+        "Should not render add-to-cart when no payment",
+      );
+      assert.strictEqual(
+        select,
+        null,
+        "Should not render select when no payment",
+      );
 
       dom.window.close();
     },
@@ -511,8 +570,19 @@ const testCases = [
     test: () => {
       withMockStorage(() => {
         saveCart([
-          { item_name: "Product A", unit_price: 99.99, quantity: 2, sku: "SKU-A", max_quantity: 10 },
-          { item_name: "Product B", unit_price: 49.99, quantity: 1, sku: "SKU-B" },
+          {
+            item_name: "Product A",
+            unit_price: 99.99,
+            quantity: 2,
+            sku: "SKU-A",
+            max_quantity: 10,
+          },
+          {
+            item_name: "Product B",
+            unit_price: 49.99,
+            quantity: 1,
+            sku: "SKU-B",
+          },
         ]);
 
         // This matches stripe-checkout.js:46
@@ -534,7 +604,9 @@ const testCases = [
     description: "Successful Stripe session creation redirects to Stripe URL",
     asyncTest: async () => {
       const redirected = await withMockStorage(async () => {
-        saveCart([{ item_name: "Widget", unit_price: 15, quantity: 1, sku: "W1" }]);
+        saveCart([
+          { item_name: "Widget", unit_price: 15, quantity: 1, sku: "W1" },
+        ]);
 
         const mockFetch = createMockFetch({
           "/api/stripe/create-session": {
@@ -595,42 +667,6 @@ const testCases = [
       assert.strictEqual(error.error, "Invalid SKU: FAKE-SKU");
     },
   },
-  {
-    name: "stripe-checkout-fallback-to-stripe-js",
-    description: "Falls back to Stripe.js redirectToCheckout when no URL returned",
-    asyncTest: async () => {
-      const mockFetch = createMockFetch({
-        "/api/stripe/create-session": {
-          ok: true,
-          data: { id: "cs_test_456" }, // No URL
-        },
-      });
-
-      let stripeRedirectCalled = false;
-      const mockStripe = {
-        redirectToCheckout: async ({ sessionId }) => {
-          stripeRedirectCalled = true;
-          assert.strictEqual(sessionId, "cs_test_456");
-          return { error: null };
-        },
-      };
-
-      const response = await mockFetch(
-        "https://api.example.com/api/stripe/create-session",
-        { method: "POST", body: JSON.stringify({ items: [] }) },
-      );
-
-      const session = await response.json();
-
-      // Simulate stripe-checkout.js fallback (lines 70-79)
-      if (!session.url && session.id) {
-        await mockStripe.redirectToCheckout({ sessionId: session.id });
-      }
-
-      assert.strictEqual(stripeRedirectCalled, true);
-    },
-  },
-
   // ----------------------------------------
   // PayPal Checkout Tests
   // ----------------------------------------
@@ -690,7 +726,13 @@ const testCases = [
       const mockStorage = createMockLocalStorage();
 
       // Simulate ShoppingCart.addItem() logic
-      const addItem = (itemName, unitPrice, quantity = 1, maxQuantity = null, sku = null) => {
+      const addItem = (
+        itemName,
+        unitPrice,
+        quantity = 1,
+        maxQuantity = null,
+        sku = null,
+      ) => {
         const cartData = mockStorage.getItem("chobble_cart");
         const cart = cartData ? JSON.parse(cartData) : [];
         const existingItem = cart.find((item) => item.item_name === itemName);
@@ -738,7 +780,13 @@ const testCases = [
       const mockStorage = createMockLocalStorage();
 
       // Simulate addItem
-      const addItem = (itemName, unitPrice, quantity = 1, maxQuantity = null, sku = null) => {
+      const addItem = (
+        itemName,
+        unitPrice,
+        quantity = 1,
+        maxQuantity = null,
+        sku = null,
+      ) => {
         const cartData = mockStorage.getItem("chobble_cart");
         const cart = cartData ? JSON.parse(cartData) : [];
         const existingItem = cart.find((item) => item.item_name === itemName);
@@ -746,15 +794,21 @@ const testCases = [
         if (existingItem) {
           existingItem.quantity += quantity;
         } else {
-          cart.push({ item_name: itemName, unit_price: unitPrice, quantity, max_quantity: maxQuantity, sku });
+          cart.push({
+            item_name: itemName,
+            unit_price: unitPrice,
+            quantity,
+            max_quantity: maxQuantity,
+            sku,
+          });
         }
         mockStorage.setItem("chobble_cart", JSON.stringify(cart));
         return cart;
       };
 
       // Add item twice
-      addItem("Widget", 10.00, 1);
-      const cart = addItem("Widget", 10.00, 2);
+      addItem("Widget", 10.0, 1);
+      const cart = addItem("Widget", 10.0, 2);
 
       assert.strictEqual(cart.length, 1, "Should still be 1 item");
       assert.strictEqual(cart[0].quantity, 3, "Quantity should be 3");
@@ -770,7 +824,12 @@ const testCases = [
       const mockStorage = createMockLocalStorage();
 
       // Simulate addItem with max_quantity enforcement
-      const addItem = (itemName, unitPrice, quantity = 1, maxQuantity = null) => {
+      const addItem = (
+        itemName,
+        unitPrice,
+        quantity = 1,
+        maxQuantity = null,
+      ) => {
         const cartData = mockStorage.getItem("chobble_cart");
         const cart = cartData ? JSON.parse(cartData) : [];
         const existingItem = cart.find((item) => item.item_name === itemName);
@@ -784,17 +843,26 @@ const testCases = [
           }
           if (maxQuantity !== null) existingItem.max_quantity = maxQuantity;
         } else {
-          cart.push({ item_name: itemName, unit_price: unitPrice, quantity, max_quantity: maxQuantity });
+          cart.push({
+            item_name: itemName,
+            unit_price: unitPrice,
+            quantity,
+            max_quantity: maxQuantity,
+          });
         }
         mockStorage.setItem("chobble_cart", JSON.stringify(cart));
         return cart;
       };
 
       // Add item with max of 3, then try to add 5 more
-      addItem("Limited Item", 20.00, 2, 3);
-      const cart = addItem("Limited Item", 20.00, 5, 3);
+      addItem("Limited Item", 20.0, 2, 3);
+      const cart = addItem("Limited Item", 20.0, 5, 3);
 
-      assert.strictEqual(cart[0].quantity, 3, "Should be capped at max_quantity");
+      assert.strictEqual(
+        cart[0].quantity,
+        3,
+        "Should be capped at max_quantity",
+      );
 
       dom.window.close();
     },
@@ -862,7 +930,14 @@ const testCases = [
     description: "updateQuantity caps at max_quantity",
     test: () => {
       withMockStorage(() => {
-        saveCart([{ item_name: "Limited", unit_price: 10, quantity: 2, max_quantity: 5 }]);
+        saveCart([
+          {
+            item_name: "Limited",
+            unit_price: 10,
+            quantity: 2,
+            max_quantity: 5,
+          },
+        ]);
 
         // Simulate updateQuantity with max enforcement
         const cart = getCart();
@@ -876,7 +951,11 @@ const testCases = [
         saveCart(cart);
 
         const updated = getCart();
-        assert.strictEqual(updated[0].quantity, 5, "Should cap at max_quantity");
+        assert.strictEqual(
+          updated[0].quantity,
+          5,
+          "Should cap at max_quantity",
+        );
       });
     },
   },
@@ -886,14 +965,17 @@ const testCases = [
     test: () => {
       withMockStorage(() => {
         saveCart([
-          { item_name: "A", unit_price: 10.00, quantity: 2 },
-          { item_name: "B", unit_price: 5.50, quantity: 3 },
+          { item_name: "A", unit_price: 10.0, quantity: 2 },
+          { item_name: "B", unit_price: 5.5, quantity: 3 },
           { item_name: "C", unit_price: 7.25, quantity: 1 },
         ]);
 
         // Simulate getCartTotal
         const cart = getCart();
-        const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+        const total = cart.reduce(
+          (sum, item) => sum + item.unit_price * item.quantity,
+          0,
+        );
 
         // (10 * 2) + (5.5 * 3) + (7.25 * 1) = 20 + 16.5 + 7.25 = 43.75
         assert.strictEqual(total, 43.75);
@@ -907,7 +989,10 @@ const testCases = [
       withMockStorage(() => {
         saveCart([]);
         const cart = getCart();
-        const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+        const total = cart.reduce(
+          (sum, item) => sum + item.unit_price * item.quantity,
+          0,
+        );
         assert.strictEqual(total, 0);
       });
     },
@@ -945,15 +1030,21 @@ const testCases = [
     description: "Stripe button hidden when total is below 30p minimum",
     asyncTest: async () => {
       const dom = await createCheckoutPage();
-      const MINIMUM_CHECKOUT_AMOUNT = 0.30;
+      const MINIMUM_CHECKOUT_AMOUNT = 0.3;
 
       withMockStorage(() => {
         saveCart([{ item_name: "Cheap", unit_price: 0.25, quantity: 1 }]);
 
         const cart = getCart();
-        const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+        const total = cart.reduce(
+          (sum, item) => sum + item.unit_price * item.quantity,
+          0,
+        );
 
-        assert.ok(total <= MINIMUM_CHECKOUT_AMOUNT, "Test setup: total should be below minimum");
+        assert.ok(
+          total <= MINIMUM_CHECKOUT_AMOUNT,
+          "Test setup: total should be below minimum",
+        );
 
         const doc = dom.window.document;
         const stripeBtn = doc.querySelector(".cart-checkout-stripe");
@@ -963,8 +1054,16 @@ const testCases = [
         stripeBtn.style.display = "none";
         minimumMessage.style.display = "block";
 
-        assert.strictEqual(stripeBtn.style.display, "none", "Stripe button should be hidden");
-        assert.strictEqual(minimumMessage.style.display, "block", "Minimum message should show");
+        assert.strictEqual(
+          stripeBtn.style.display,
+          "none",
+          "Stripe button should be hidden",
+        );
+        assert.strictEqual(
+          minimumMessage.style.display,
+          "block",
+          "Minimum message should show",
+        );
       });
 
       dom.window.close();
@@ -975,15 +1074,21 @@ const testCases = [
     description: "Stripe button visible when total is above 30p minimum",
     asyncTest: async () => {
       const dom = await createCheckoutPage();
-      const MINIMUM_CHECKOUT_AMOUNT = 0.30;
+      const MINIMUM_CHECKOUT_AMOUNT = 0.3;
 
       withMockStorage(() => {
-        saveCart([{ item_name: "Normal", unit_price: 5.00, quantity: 1 }]);
+        saveCart([{ item_name: "Normal", unit_price: 5.0, quantity: 1 }]);
 
         const cart = getCart();
-        const total = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+        const total = cart.reduce(
+          (sum, item) => sum + item.unit_price * item.quantity,
+          0,
+        );
 
-        assert.ok(total > MINIMUM_CHECKOUT_AMOUNT, "Test setup: total should be above minimum");
+        assert.ok(
+          total > MINIMUM_CHECKOUT_AMOUNT,
+          "Test setup: total should be above minimum",
+        );
 
         const doc = dom.window.document;
         const stripeBtn = doc.querySelector(".cart-checkout-stripe");
@@ -994,8 +1099,16 @@ const testCases = [
         stripeBtn.disabled = false;
         minimumMessage.style.display = "none";
 
-        assert.notStrictEqual(stripeBtn.style.display, "none", "Stripe button should be visible");
-        assert.strictEqual(minimumMessage.style.display, "none", "Minimum message should be hidden");
+        assert.notStrictEqual(
+          stripeBtn.style.display,
+          "none",
+          "Stripe button should be visible",
+        );
+        assert.strictEqual(
+          minimumMessage.style.display,
+          "none",
+          "Minimum message should be hidden",
+        );
       });
 
       dom.window.close();
@@ -1007,7 +1120,6 @@ const testCases = [
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         cartMode: "stripe",
-        stripeKey: "pk_test_123",
         checkoutApiUrl: "https://api.example.com",
       });
 
@@ -1020,7 +1132,11 @@ const testCases = [
         // Simulate updateCartDisplay for empty cart
         stripeBtn.disabled = true;
 
-        assert.strictEqual(stripeBtn.disabled, true, "Stripe button should be disabled");
+        assert.strictEqual(
+          stripeBtn.disabled,
+          true,
+          "Stripe button should be disabled",
+        );
       });
 
       dom.window.close();
@@ -1037,7 +1153,12 @@ const testCases = [
       const dom = await createCheckoutPage({
         productTitle: "My Product",
         productOptions: [
-          { name: "Standard", unit_price: "25.00", max_quantity: 10, sku: "PROD-STD" },
+          {
+            name: "Standard",
+            unit_price: "25.00",
+            max_quantity: 10,
+            sku: "PROD-STD",
+          },
         ],
       });
 
@@ -1104,7 +1225,11 @@ const testCases = [
       const doc = dom.window.document;
       const button = doc.querySelector(".product-option-button");
 
-      assert.strictEqual(button.disabled, true, "Button should be disabled initially");
+      assert.strictEqual(
+        button.disabled,
+        true,
+        "Button should be disabled initially",
+      );
 
       dom.window.close();
     },
@@ -1125,8 +1250,15 @@ const testCases = [
       const firstOption = select.options[0];
 
       assert.ok(firstOption.disabled, "First option should be disabled");
-      assert.strictEqual(firstOption.value, "", "First option should have empty value");
-      assert.ok(firstOption.selected, "First option should be selected by default");
+      assert.strictEqual(
+        firstOption.value,
+        "",
+        "First option should have empty value",
+      );
+      assert.ok(
+        firstOption.selected,
+        "First option should be selected by default",
+      );
 
       dom.window.close();
     },
@@ -1192,12 +1324,14 @@ const testCases = [
       assert.strictEqual(button.disabled, false, "Button should be enabled");
       assert.strictEqual(button.dataset.option, "Small");
       assert.strictEqual(button.dataset.price, "5.00");
-      assert.ok(button.textContent.includes("5.00"), "Button should show price");
+      assert.ok(
+        button.textContent.includes("5.00"),
+        "Button should show price",
+      );
 
       dom.window.close();
     },
   },
-
 ];
 
 export default createTestRunner("checkout", testCases);

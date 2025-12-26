@@ -13,8 +13,6 @@
 	"chobble_link": "https://chobble.com/services/chobble-template/",
 	"cart_mode": null,
 	"checkout_api_url": null,
-	"stripe_publishable_key": null,
-	"paypal_email": null,
 	"products": {
 		"item_widths": "240,480,640",
 		"gallery_thumb_widths": "240,480",

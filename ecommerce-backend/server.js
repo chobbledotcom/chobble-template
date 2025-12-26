@@ -226,7 +226,7 @@ app.post(
           },
           quantity: item.quantity,
         })),
-        success_url: `${req.siteOrigin}/checkout-success/`,
+        success_url: `${req.siteOrigin}/order-complete/`,
         cancel_url: `${req.siteOrigin}/`,
       });
 
@@ -315,7 +315,7 @@ app.post(
           },
         ],
         application_context: {
-          return_url: `${req.siteOrigin}/checkout-success/`,
+          return_url: `${req.siteOrigin}/order-complete/`,
           cancel_url: `${req.siteOrigin}/`,
           user_action: "PAY_NOW",
           brand_name: BRAND_NAME,

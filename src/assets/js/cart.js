@@ -436,9 +436,7 @@ class ShoppingCart {
   // PayPal checkout via backend API
   async checkoutWithPayPalBackend(apiUrl) {
     try {
-      const response = await this.postCartSkusToApi(
-        `${apiUrl}/api/paypal/create-order`,
-      );
+      const response = await this.postCartSkusToApi(apiUrl);
 
       if (response.ok) {
         const order = await response.json();

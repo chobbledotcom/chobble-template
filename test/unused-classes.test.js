@@ -1,0 +1,484 @@
+// Unused CSS Classes and IDs Test
+// Detects HTML classes and IDs that are never referenced in SCSS or JS files
+// This helps identify dead code and potential cleanup opportunities
+
+import { readdirSync, readFileSync, statSync } from "fs";
+import { join } from "path";
+import { createTestRunner, expectTrue } from "./test-utils.js";
+
+// ============================================
+// File Discovery
+// ============================================
+
+const getAllFiles = (dir, pattern) => {
+  const files = [];
+  const items = readdirSync(dir);
+
+  for (const item of items) {
+    const fullPath = join(dir, item);
+    const stat = statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      files.push(...getAllFiles(fullPath, pattern));
+    } else if (pattern.test(item)) {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
+};
+
+// ============================================
+// Class/ID Extraction from HTML
+// ============================================
+
+const extractClassesFromHtml = (content) => {
+  const classes = new Set();
+
+  // Match class="..." attributes (handles multiline)
+  const classAttrRegex = /class="([^"]*)"/g;
+  let match;
+
+  while ((match = classAttrRegex.exec(content)) !== null) {
+    const classValue = match[1];
+
+    // Remove Liquid/Nunjucks tags and extract remaining class names
+    const cleaned = classValue
+      // Remove {% ... %} blocks
+      .replace(/\{%-?\s*[\s\S]*?-?%\}/g, " ")
+      // Remove {{ ... }} interpolations
+      .replace(/\{\{[\s\S]*?\}\}/g, " ")
+      // Normalize whitespace
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // Split by whitespace and add non-empty class names
+    cleaned.split(" ").forEach((cls) => {
+      if (cls && !cls.includes("{") && !cls.includes("}")) {
+        classes.add(cls);
+      }
+    });
+  }
+
+  return classes;
+};
+
+const extractIdsFromHtml = (content) => {
+  const ids = new Set();
+
+  // Match id="..." attributes
+  const idAttrRegex = /id="([^"]*)"/g;
+  let match;
+
+  while ((match = idAttrRegex.exec(content)) !== null) {
+    const idValue = match[1];
+
+    // Skip dynamic IDs with Liquid/Nunjucks interpolation
+    if (idValue.includes("{{") || idValue.includes("{%")) {
+      continue;
+    }
+
+    if (idValue.trim()) {
+      ids.add(idValue.trim());
+    }
+  }
+
+  return ids;
+};
+
+// ============================================
+// Class/ID Extraction from JavaScript
+// ============================================
+
+const extractClassesFromJs = (content) => {
+  const classes = new Set();
+
+  // Match class="..." in template literals
+  const templateClassRegex = /class="([^"$]+)"/g;
+  let match;
+
+  while ((match = templateClassRegex.exec(content)) !== null) {
+    match[1].split(" ").forEach((cls) => {
+      if (cls.trim()) {
+        classes.add(cls.trim());
+      }
+    });
+  }
+
+  // Match classList.add/remove/toggle("className")
+  const classListRegex = /\.classList\.(add|remove|toggle)\("([^"]+)"/g;
+  while ((match = classListRegex.exec(content)) !== null) {
+    match[2].split(" ").forEach((cls) => {
+      if (cls.trim()) {
+        classes.add(cls.trim());
+      }
+    });
+  }
+
+  // Match string concatenation for classes: classes += " past"
+  const classConcat = /classes\s*\+=\s*["']([^"']+)["']/g;
+  while ((match = classConcat.exec(content)) !== null) {
+    match[1].split(" ").forEach((cls) => {
+      if (cls.trim()) {
+        classes.add(cls.trim());
+      }
+    });
+  }
+
+  // Match initial class assignment: let classes = "calendar-day"
+  const classAssign = /(?:let|const|var)\s+classes\s*=\s*["']([^"']+)["']/g;
+  while ((match = classAssign.exec(content)) !== null) {
+    match[1].split(" ").forEach((cls) => {
+      if (cls.trim()) {
+        classes.add(cls.trim());
+      }
+    });
+  }
+
+  return classes;
+};
+
+// ============================================
+// Reference Detection in SCSS
+// ============================================
+
+const findClassReferencesInScss = (content, className) => {
+  // Escape special regex characters in class name
+  const escaped = className.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  // Match .className in selectors (with word boundary or valid selector chars after)
+  // This handles: .class, .class:hover, .class.other, .class[attr], .class>child, etc.
+  const patterns = [new RegExp(`\\.${escaped}(?=[\\s,:{\\[>+~.)#]|$)`, "m")];
+
+  return patterns.some((pattern) => pattern.test(content));
+};
+
+const findIdReferencesInScss = (content, idName) => {
+  const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  // Match #idName in selectors
+  const pattern = new RegExp(`#${escaped}(?=[\\s,:{\\[>+~.#]|$)`, "m");
+
+  return pattern.test(content);
+};
+
+// ============================================
+// Reference Detection in JavaScript
+// ============================================
+
+const findClassReferencesInJs = (content, className) => {
+  const escaped = className.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const patterns = [
+    // querySelector/querySelectorAll with class
+    new RegExp(`querySelector(?:All)?\\s*\\([^)]*\\.${escaped}[^)]*\\)`),
+    // getElementsByClassName
+    new RegExp(`getElementsByClassName\\s*\\(\\s*["']${escaped}["']`),
+    // classList operations
+    new RegExp(
+      `classList\\.(add|remove|toggle|contains)\\(\\s*["']${escaped}["']`,
+    ),
+    // Class in template literal HTML
+    new RegExp(`class=["'][^"']*\\b${escaped}\\b[^"']*["']`),
+    // String containing class name (for dynamic class building)
+    new RegExp(`["']\\s*${escaped}\\s*["']`),
+    // closest() with class selector
+    new RegExp(`closest\\s*\\([^)]*\\.${escaped}[^)]*\\)`),
+  ];
+
+  return patterns.some((pattern) => pattern.test(content));
+};
+
+const findIdReferencesInJs = (content, idName) => {
+  const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const patterns = [
+    // getElementById
+    new RegExp(`getElementById\\s*\\(\\s*["']${escaped}["']`),
+    // querySelector with ID
+    new RegExp(`querySelector(?:All)?\\s*\\([^)]*#${escaped}[^)]*\\)`),
+    // ID in template literal HTML
+    new RegExp(`id=["']${escaped}["']`),
+  ];
+
+  return patterns.some((pattern) => pattern.test(content));
+};
+
+// ============================================
+// Main Analysis Functions
+// ============================================
+
+const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
+  const allClasses = new Map(); // class -> [files where defined]
+  const allIds = new Map(); // id -> [files where defined]
+
+  // Extract from HTML files
+  for (const file of htmlFiles) {
+    const content = readFileSync(file, "utf-8");
+    const classes = extractClassesFromHtml(content);
+    const ids = extractIdsFromHtml(content);
+
+    for (const cls of classes) {
+      if (!allClasses.has(cls)) {
+        allClasses.set(cls, []);
+      }
+      allClasses.get(cls).push(file);
+    }
+
+    for (const id of ids) {
+      if (!allIds.has(id)) {
+        allIds.set(id, []);
+      }
+      allIds.get(id).push(file);
+    }
+  }
+
+  // Extract from JS files (dynamically created HTML)
+  for (const file of jsFiles) {
+    const content = readFileSync(file, "utf-8");
+    const classes = extractClassesFromJs(content);
+
+    for (const cls of classes) {
+      if (!allClasses.has(cls)) {
+        allClasses.set(cls, []);
+      }
+      allClasses.get(cls).push(file);
+    }
+  }
+
+  return { allClasses, allIds };
+};
+
+const findUnusedClassesAndIds = (allClasses, allIds, scssFiles, jsFiles) => {
+  // Load all SCSS and JS content
+  const scssContent = scssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+  const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+
+  const unusedClasses = [];
+  const unusedIds = [];
+
+  // Check each class
+  for (const [className, definedIn] of allClasses) {
+    const inScss = findClassReferencesInScss(scssContent, className);
+    const inJs = findClassReferencesInJs(jsContent, className);
+
+    if (!inScss && !inJs) {
+      unusedClasses.push({ name: className, definedIn });
+    }
+  }
+
+  // Check each ID
+  for (const [idName, definedIn] of allIds) {
+    const inScss = findIdReferencesInScss(scssContent, idName);
+    const inJs = findIdReferencesInJs(jsContent, idName);
+
+    if (!inScss && !inJs) {
+      unusedIds.push({ name: idName, definedIn });
+    }
+  }
+
+  return { unusedClasses, unusedIds };
+};
+
+// ============================================
+// Test Cases
+// ============================================
+
+const testCases = [
+  {
+    name: "extract-classes-from-html",
+    description: "Extracts class names from HTML class attributes",
+    test: () => {
+      const html = `
+        <div class="foo bar">
+          <span class="baz"></span>
+        </div>
+      `;
+      const classes = extractClassesFromHtml(html);
+      expectTrue(classes.has("foo"), "Should extract 'foo'");
+      expectTrue(classes.has("bar"), "Should extract 'bar'");
+      expectTrue(classes.has("baz"), "Should extract 'baz'");
+    },
+  },
+  {
+    name: "extract-classes-with-liquid",
+    description: "Handles Liquid/Nunjucks in class attributes",
+    test: () => {
+      const html = `
+        <div class="static {% if x %}conditional{% endif %}">
+        <span class="{{ variable }} another"></span>
+      `;
+      const classes = extractClassesFromHtml(html);
+      expectTrue(classes.has("static"), "Should extract static class");
+      expectTrue(classes.has("another"), "Should extract 'another'");
+      // Conditional and variable classes are stripped
+    },
+  },
+  {
+    name: "extract-ids-from-html",
+    description: "Extracts ID names from HTML id attributes",
+    test: () => {
+      const html = `
+        <div id="main-content">
+          <span id="sidebar"></span>
+        </div>
+      `;
+      const ids = extractIdsFromHtml(html);
+      expectTrue(ids.has("main-content"), "Should extract 'main-content'");
+      expectTrue(ids.has("sidebar"), "Should extract 'sidebar'");
+    },
+  },
+  {
+    name: "extract-classes-from-js",
+    description: "Extracts classes from JS template literals",
+    test: () => {
+      const js = `
+        const html = \`<div class="cart-item">
+          <span class="item-name item-bold"></span>
+        </div>\`;
+        icon.classList.add("active");
+        let classes = "base-class";
+        classes += " extra";
+      `;
+      const classes = extractClassesFromJs(js);
+      expectTrue(classes.has("cart-item"), "Should extract 'cart-item'");
+      expectTrue(classes.has("item-name"), "Should extract 'item-name'");
+      expectTrue(
+        classes.has("active"),
+        "Should extract 'active' from classList",
+      );
+      expectTrue(classes.has("base-class"), "Should extract from assignment");
+      expectTrue(classes.has("extra"), "Should extract from concatenation");
+    },
+  },
+  {
+    name: "find-class-references-in-scss",
+    description: "Finds class selectors in SCSS content",
+    test: () => {
+      const scss = `
+        .cart-item { color: red; }
+        .cart-item:hover { color: blue; }
+        .cart-item.active { font-weight: bold; }
+        .unused-class { display: none; }
+      `;
+      expectTrue(
+        findClassReferencesInScss(scss, "cart-item"),
+        "Should find .cart-item",
+      );
+      expectTrue(
+        findClassReferencesInScss(scss, "active"),
+        "Should find .active",
+      );
+      expectTrue(
+        !findClassReferencesInScss(scss, "nonexistent"),
+        "Should not find nonexistent class",
+      );
+    },
+  },
+  {
+    name: "find-class-references-in-js",
+    description: "Finds class references in JS content",
+    test: () => {
+      const js = `
+        document.querySelector(".cart-item");
+        element.classList.contains("active");
+        const html = \`<div class="dynamic"></div>\`;
+      `;
+      expectTrue(
+        findClassReferencesInJs(js, "cart-item"),
+        "Should find in querySelector",
+      );
+      expectTrue(
+        findClassReferencesInJs(js, "active"),
+        "Should find in classList",
+      );
+      expectTrue(
+        findClassReferencesInJs(js, "dynamic"),
+        "Should find in template",
+      );
+    },
+  },
+  {
+    name: "find-id-references",
+    description: "Finds ID references in SCSS and JS",
+    test: () => {
+      const scss = "#main-nav { display: flex; }";
+      const js = `document.getElementById("sidebar");`;
+
+      expectTrue(
+        findIdReferencesInScss(scss, "main-nav"),
+        "Should find #main-nav in SCSS",
+      );
+      expectTrue(
+        findIdReferencesInJs(js, "sidebar"),
+        "Should find getElementById",
+      );
+    },
+  },
+  {
+    name: "detect-unused-classes-in-project",
+    description: "Scans project files and reports unused classes/IDs",
+    test: () => {
+      // Collect all HTML, SCSS, and JS files
+      const srcDir = "src";
+
+      const htmlFiles = [
+        ...getAllFiles(join(srcDir, "_includes"), /\.html$/),
+        ...getAllFiles(join(srcDir, "_layouts"), /\.html$/),
+      ];
+
+      const scssFiles = getAllFiles(join(srcDir, "css"), /\.scss$/);
+      const jsFiles = getAllFiles(join(srcDir, "assets/js"), /\.js$/);
+
+      // Collect all classes and IDs defined in HTML and JS
+      const { allClasses, allIds } = collectAllClassesAndIds(
+        htmlFiles,
+        jsFiles,
+      );
+
+      // Find unused ones
+      const { unusedClasses, unusedIds } = findUnusedClassesAndIds(
+        allClasses,
+        allIds,
+        scssFiles,
+        jsFiles,
+      );
+
+      // Report results
+      const totalClasses = allClasses.size;
+      const totalIds = allIds.size;
+
+      console.log(`\n  📊 Analysis Results:`);
+      console.log(`     Total classes found: ${totalClasses}`);
+      console.log(`     Total IDs found: ${totalIds}`);
+      console.log(`     Unused classes: ${unusedClasses.length}`);
+      console.log(`     Unused IDs: ${unusedIds.length}`);
+
+      if (unusedClasses.length > 0) {
+        console.log(`\n  ⚠️  Unused Classes:`);
+        for (const { name, definedIn } of unusedClasses.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        )) {
+          const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
+          console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
+        }
+      }
+
+      if (unusedIds.length > 0) {
+        console.log(`\n  ⚠️  Unused IDs:`);
+        for (const { name, definedIn } of unusedIds.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        )) {
+          const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
+          console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
+        }
+      }
+
+      // For now, just warn - don't fail the test
+      // TODO: Change to expectTrue(unusedClasses.length === 0) when ready to enforce
+      expectTrue(true, "Analysis completed (warnings only for now)");
+    },
+  },
+];
+
+export default createTestRunner("unused-classes", testCases);
