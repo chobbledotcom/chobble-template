@@ -50,6 +50,12 @@ const createCheckoutPage = async (options = {}) => {
     checkoutApiUrl = "https://api.example.com",
     paypalEmail = "test@example.com",
     includeStripeCheckoutPage = false,
+    // Product options for testing add-to-cart
+    productTitle = "Test Product",
+    productOptions = [
+      { name: "Small", unit_price: "5.00", max_quantity: 5, sku: "SKU-S" },
+      { name: "Large", unit_price: "10.00", max_quantity: 3, sku: "SKU-L" },
+    ],
   } = options;
 
   const config = {
@@ -58,8 +64,14 @@ const createCheckoutPage = async (options = {}) => {
     paypal_email: paypalEmail,
   };
 
-  // Render the actual cart overlay template
+  // Render all templates from actual source files
+  const cartIcon = await renderTemplate("src/_includes/cart-icon.html", { config });
   const cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", { config });
+  const productOptionsHtml = await renderTemplate("src/_includes/product-options.html", {
+    config,
+    title: productTitle,
+    options: productOptions,
+  });
 
   // Render stripe checkout page if needed
   let stripeCheckoutPage = "";
@@ -69,39 +81,21 @@ const createCheckoutPage = async (options = {}) => {
     stripeCheckoutPage = stripeCheckoutPage.replace(/^---[\s\S]*?---\s*/, "");
   }
 
-  // Build complete HTML page
+  // Build complete HTML page using real templates
   const html = `
     <!DOCTYPE html>
     <html>
     <head><title>Checkout Test</title></head>
     <body>
-      <a href="#" class="cart-icon" style="display: none">
-        <span class="cart-count">0</span>
-      </a>
+      ${cartIcon}
 
       ${cartOverlay}
 
       ${stripeCheckoutPage}
 
-      <!-- Product page elements for add-to-cart testing -->
+      <!-- Product page with real product-options template -->
       <div class="product-page">
-        <button class="add-to-cart"
-                data-name="Test Product"
-                data-price="9.99"
-                data-sku="SKU123"
-                data-max-quantity="10">
-          Add to Cart - £9.99
-        </button>
-
-        <select class="product-options-select">
-          <option value="">Please select option</option>
-          <option value="small" data-name="Small" data-price="5.00" data-sku="SKU-S" data-max-quantity="5">Small - £5.00</option>
-          <option value="large" data-name="Large" data-price="10.00" data-sku="SKU-L" data-max-quantity="3">Large - £10.00</option>
-        </select>
-        <button class="add-to-cart product-option-button" disabled
-                data-name="Variable Product">
-          Add to Cart
-        </button>
+        ${productOptionsHtml}
       </div>
     </body>
     </html>
@@ -370,6 +364,116 @@ const testCases = [
       const status = doc.getElementById("status-message");
       assert.ok(status, "Status message element should exist");
       assert.ok(status.textContent.includes("Checking cart"), "Should show initial status");
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "template-cart-icon-renders",
+    description: "Cart icon template renders with required elements",
+    asyncTest: async () => {
+      const dom = await createCheckoutPage();
+
+      const doc = dom.window.document;
+      const cartIcon = doc.querySelector(".cart-icon");
+
+      assert.ok(cartIcon, "Cart icon should exist");
+      assert.ok(cartIcon.querySelector("svg"), "Should have SVG icon");
+      assert.ok(cartIcon.querySelector(".cart-count"), "Should have cart count badge");
+      assert.strictEqual(
+        cartIcon.style.display,
+        "none",
+        "Cart icon should be hidden initially",
+      );
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "template-product-options-single-renders",
+    description: "Product options template renders single option as button",
+    asyncTest: async () => {
+      const dom = await createCheckoutPage({
+        productTitle: "My Product",
+        productOptions: [
+          { name: "Standard", unit_price: "19.99", max_quantity: 10, sku: "STD-001" },
+        ],
+      });
+
+      const doc = dom.window.document;
+      const button = doc.querySelector(".add-to-cart");
+
+      assert.ok(button, "Add to cart button should exist");
+      assert.strictEqual(button.dataset.name, "My Product");
+      assert.strictEqual(button.dataset.option, "Standard");
+      assert.strictEqual(button.dataset.price, "19.99");
+      assert.strictEqual(button.dataset.sku, "STD-001");
+      assert.strictEqual(button.dataset.maxQuantity, "10");
+      assert.ok(button.textContent.includes("19.99"), "Button should show price");
+
+      // Should NOT have a select (single option = direct button)
+      const select = doc.querySelector(".product-options-select");
+      assert.strictEqual(select, null, "Should not have select for single option");
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "template-product-options-multiple-renders",
+    description: "Product options template renders multiple options as select",
+    asyncTest: async () => {
+      const dom = await createCheckoutPage({
+        productTitle: "Variable Product",
+        productOptions: [
+          { name: "Small", unit_price: "5.00", max_quantity: 5, sku: "VAR-S" },
+          { name: "Medium", unit_price: "7.50", max_quantity: 3, sku: "VAR-M" },
+          { name: "Large", unit_price: "10.00", max_quantity: 2, sku: "VAR-L" },
+        ],
+      });
+
+      const doc = dom.window.document;
+      const select = doc.querySelector(".product-options-select");
+      const button = doc.querySelector(".product-option-button");
+
+      assert.ok(select, "Select should exist for multiple options");
+      assert.ok(button, "Add to cart button should exist");
+      assert.strictEqual(button.disabled, true, "Button should be disabled initially");
+      assert.strictEqual(button.dataset.name, "Variable Product");
+
+      // Check options
+      const options = select.querySelectorAll("option");
+      assert.strictEqual(options.length, 4, "Should have 4 options (1 placeholder + 3 choices)");
+
+      // First option is placeholder
+      assert.ok(options[0].disabled, "First option should be disabled placeholder");
+
+      // Check second option (Small)
+      assert.strictEqual(options[1].dataset.name, "Small");
+      assert.strictEqual(options[1].dataset.price, "5.00");
+      assert.strictEqual(options[1].dataset.sku, "VAR-S");
+      assert.strictEqual(options[1].dataset.maxQuantity, "5");
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "template-product-options-no-payment-configured",
+    description: "Product options template renders nothing when no payment configured",
+    asyncTest: async () => {
+      const dom = await createCheckoutPage({
+        stripeKey: null,
+        paypalEmail: null,
+        productOptions: [
+          { name: "Test", unit_price: "10.00", sku: "TEST" },
+        ],
+      });
+
+      const doc = dom.window.document;
+      const button = doc.querySelector(".add-to-cart");
+      const select = doc.querySelector(".product-options-select");
+
+      assert.strictEqual(button, null, "Should not render add-to-cart when no payment");
+      assert.strictEqual(select, null, "Should not render select when no payment");
 
       dom.window.close();
     },
