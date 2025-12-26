@@ -364,10 +364,13 @@ const ThemeEditor = {
     const docStyle = getComputedStyle(document.documentElement);
 
     // Capture OLD global values before updating (for cascading to scoped inputs)
+    // Use INPUT values, not computed styles, to ensure format matches scoped inputs
     const oldGlobalVars = {};
     this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
       const varName = `--${el.id}`;
-      oldGlobalVars[varName] = docStyle.getPropertyValue(varName).trim();
+      // Use the same format transformation as when building newGlobalVars
+      const value = el.id === "border-radius" ? `${el.value}px` : el.value;
+      oldGlobalVars[varName] = value;
     });
 
     // Collect global :root variables

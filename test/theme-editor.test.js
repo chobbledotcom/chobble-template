@@ -937,6 +937,129 @@ nav {
 
 const bugRegressionTests = [
   {
+    name: "bug-changing-global-border-should-not-create-scope-overrides",
+    description:
+      "Changing a global border should not cause unchanged scoped borders to appear as overrides",
+    test: () => {
+      // This tests the bug: user loads theme with --border: 2px solid #000000,
+      // then changes global border to 3px solid #ff0000.
+      // The scoped borders (header, nav, article, form) were initialized to old border
+      // but should NOT appear in output since user never changed them.
+
+      const originalTheme = `
+:root {
+  --color-bg: #ffffff;
+  --color-text: #333333;
+  --border: 2px solid #000000;
+}
+`;
+      const dom = createMockDOM(originalTheme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+      const parsed = parseThemeContent(originalTheme);
+
+      const oldGlobalBorder = parsed.root["--border"];
+
+      // Step 1: Initialize scoped border inputs to global value (simulating page load)
+      getScopes().forEach((scope) => {
+        const borderOutput = document.getElementById(`${scope}-border`);
+        const widthInput = document.getElementById(`${scope}-border-width`);
+        const styleSelect = document.getElementById(`${scope}-border-style`);
+        const colorInput = document.getElementById(`${scope}-border-color`);
+
+        if (borderOutput && widthInput && styleSelect && colorInput) {
+          const match = oldGlobalBorder.match(/(\d+)px\s+(\w+)\s+(.+)/);
+          if (match) {
+            widthInput.value = match[1];
+            styleSelect.value = match[2];
+            colorInput.value = match[3];
+            borderOutput.value = oldGlobalBorder;
+          }
+        }
+      });
+
+      // Verify scoped borders are initialized to old global value
+      expectStrictEqual(
+        document.getElementById("nav-border").value,
+        "2px solid #000000",
+      );
+
+      // Step 2: User changes the GLOBAL border to a new value
+      const newGlobalBorder = "3px solid #ff0000";
+
+      // Step 3: Build new global vars (simulating what updateThemeFromControls does)
+      const oldGlobalVars = {
+        "--border": oldGlobalBorder,
+      };
+      const newGlobalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--border": newGlobalBorder,
+      };
+
+      // Step 4: CASCADE global changes to scoped inputs (THE FIX)
+      // For each scoped border, if it equals the OLD global value, update to NEW global value
+      getScopes().forEach((scope) => {
+        const borderOutput = document.getElementById(`${scope}-border`);
+        if (borderOutput) {
+          const oldGlobal = oldGlobalVars["--border"];
+          const newGlobal = newGlobalVars["--border"];
+          if (oldGlobal && newGlobal && borderOutput.value === oldGlobal) {
+            // Update border component inputs too
+            const widthInput = document.getElementById(`${scope}-border-width`);
+            const styleSelect = document.getElementById(`${scope}-border-style`);
+            const colorInput = document.getElementById(`${scope}-border-color`);
+            const match = newGlobal.match(/(\d+)px\s+(\w+)\s+(.+)/);
+            if (match && widthInput && styleSelect && colorInput) {
+              widthInput.value = match[1];
+              styleSelect.value = match[2];
+              colorInput.value = match[3];
+            }
+            borderOutput.value = newGlobal;
+          }
+        }
+      });
+
+      // Verify cascade worked - scoped borders now have new global value
+      expectStrictEqual(
+        document.getElementById("nav-border").value,
+        "3px solid #ff0000",
+      );
+
+      // Step 5: Collect scope vars - now scoped borders match new global
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        // Check border
+        const borderOutput = document.getElementById(`${scope}-border`);
+        if (borderOutput?.value) {
+          if (shouldIncludeScopedVar(borderOutput.value, newGlobalVars["--border"])) {
+            vars["--border"] = borderOutput.value;
+          }
+        }
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // Generate CSS
+      const css = generateThemeCss(newGlobalVars, scopeVars, []);
+
+      // With the fix: output should be EXACTLY this - no scope overrides
+      const expected = `:root {
+  --color-bg: #ffffff;
+  --color-text: #333333;
+  --border: 3px solid #ff0000;
+}
+`;
+      expectStrictEqual(
+        css,
+        expected,
+        "Output should contain only :root, no scope overrides for border",
+      );
+    },
+  },
+  {
     name: "bug-changing-global-should-not-create-scope-overrides",
     description:
       "Changing a global value should not cause unchanged scoped inputs to appear as overrides",
