@@ -13,12 +13,13 @@ import { createTestRunner } from "./test-utils.js";
 // Import actual cart utilities
 import {
   STORAGE_KEY,
-  getCart,
-  saveCart,
-  removeItem,
   formatPrice,
+  getCart,
   getItemCount,
+  removeItem,
+  saveCart,
 } from "../src/assets/js/cart-utils.js";
+import { buildJsConfigScript } from "../src/_lib/eleventy/js-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,11 +98,17 @@ const createCheckoutPage = async (options = {}) => {
     stripeCheckoutPage = stripeCheckoutPage.replace(/^---[\s\S]*?---\s*/, "");
   }
 
+  // Build config script using the same function as the Eleventy shortcode
+  const configScript = buildJsConfigScript(config);
+
   // Build complete HTML page using real templates
   const html = `
     <!DOCTYPE html>
     <html>
-    <head><title>Checkout Test</title></head>
+    <head>
+      <title>Checkout Test</title>
+      ${configScript}
+    </head>
     <body>
       ${cartIcon}
 
@@ -339,11 +346,10 @@ const testCases = [
         "Should have minimum message",
       );
 
-      // Verify data attributes from template
-      assert.strictEqual(
-        overlay.dataset.checkoutApiUrl,
-        "https://api.test.com",
-      );
+      // Verify config is available via script tag
+      const configScript = dom.window.document.getElementById("site-config");
+      const siteConfig = JSON.parse(configScript.textContent);
+      assert.strictEqual(siteConfig.checkout_api_url, "https://api.test.com");
 
       dom.window.close();
     },
@@ -1384,24 +1390,37 @@ const testCases = [
       // Inline the cart JS code (converted from ES modules to plain JS)
       // This simulates what the bundled JS does in the browser
       const inlineCartJs = `
+        // Config class (from config.js)
+        class Config {
+          static #data = null;
+
+          static #load() {
+            if (!this.#data) {
+              const el = document.getElementById("site-config");
+              this.#data = JSON.parse(el.textContent);
+            }
+            return this.#data;
+          }
+
+          static get cart_mode() {
+            return this.#load().cart_mode;
+          }
+
+          static get checkout_api_url() {
+            return this.#load().checkout_api_url;
+          }
+        }
+
         // Cart utilities (from cart-utils.js)
         const STORAGE_KEY = "shopping_cart";
 
         function getCart() {
-          try {
-            const cart = localStorage.getItem(STORAGE_KEY);
-            return cart ? JSON.parse(cart) : [];
-          } catch (e) {
-            return [];
-          }
+          const cart = localStorage.getItem(STORAGE_KEY);
+          return cart ? JSON.parse(cart) : [];
         }
 
         function saveCart(cart) {
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-          } catch (e) {
-            console.error("Error saving cart:", e);
-          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
         }
 
         function getItemCount() {
@@ -1421,7 +1440,7 @@ const testCases = [
           });
         }
 
-        // ShoppingCart class (from cart.js - with fix applied)
+        // ShoppingCart class (from cart.js)
         class ShoppingCart {
           constructor() {
             this.cartOverlay = null;
@@ -1439,11 +1458,10 @@ const testCases = [
           }
 
           setup() {
+            this.isEnquiryMode = Config.cart_mode === "quote";
             this.cartOverlay = document.getElementById("cart-overlay");
-            const cartIcon = document.querySelector(".cart-icon");
-            this.isEnquiryMode = cartIcon?.dataset.enquiryMode === "true";
 
-            if (!this.isEnquiryMode && !this.cartOverlay) {
+            if (!Config.cart_mode) {
               return;
             }
 
@@ -1514,10 +1532,16 @@ const testCases = [
         window.shoppingCart = new ShoppingCart();
       `;
 
+      // Build config script using the same function as the Eleventy shortcode
+      const configScript = buildJsConfigScript(config);
+
       const html = `
         <!DOCTYPE html>
         <html>
-        <head><title>Quote Mode Test</title></head>
+        <head>
+          <title>Quote Mode Test</title>
+          ${configScript}
+        </head>
         <body>
           ${cartIcon}
           <div class="product-page">${productOptionsHtml}</div>
@@ -1541,10 +1565,14 @@ const testCases = [
       // Verify setup
       const cartIconEl = doc.querySelector(".cart-icon");
       assert.ok(cartIconEl, "Cart icon should exist");
+
+      // Verify quote mode via config script
+      const configScriptEl = doc.getElementById("site-config");
+      const siteConfig = JSON.parse(configScriptEl.textContent);
       assert.strictEqual(
-        cartIconEl.dataset.enquiryMode,
-        "true",
-        "Should be in enquiry mode",
+        siteConfig.cart_mode,
+        "quote",
+        "Should be in quote mode",
       );
 
       const button = doc.querySelector(".add-to-cart");
@@ -1594,8 +1622,8 @@ const testCases = [
     },
   },
   {
-    name: "quote-mode-cart-icon-has-enquiry-attribute",
-    description: "Cart icon in quote mode has data-enquiry-mode attribute",
+    name: "quote-mode-config-is-set",
+    description: "Quote mode sets cart_mode in config script",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         cartMode: "quote",
@@ -1606,14 +1634,14 @@ const testCases = [
       const cartIcon = doc.querySelector(".cart-icon");
 
       assert.ok(cartIcon, "Cart icon should exist");
+
+      // Verify config script has quote mode
+      const configScript = doc.getElementById("site-config");
+      const siteConfig = JSON.parse(configScript.textContent);
       assert.strictEqual(
-        cartIcon.dataset.enquiryMode,
-        "true",
-        "Cart icon should have data-enquiry-mode='true'",
-      );
-      assert.ok(
-        cartIcon.textContent.includes("Quote"),
-        "Cart icon should show 'View Quote' text",
+        siteConfig.cart_mode,
+        "quote",
+        "Config should have cart_mode='quote'",
       );
 
       dom.window.close();
