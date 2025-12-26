@@ -1,0 +1,108 @@
+@use "breakpoints";
+
+.theme-editor {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  small {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  #bunny-fonts {
+    width: 100%;
+  }
+
+  .border-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .border-width {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    input {
+      width: 4rem;
+    }
+  }
+
+  .border-style select {
+    min-width: 5rem;
+  }
+
+  .border-color input {
+    min-width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  #theme-output {
+    margin: 1rem 0;
+  }
+
+  .editor-tabs ul {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+
+  .tab-link.active {
+    font-weight: bold;
+  }
+
+  .tab-content {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+
+    &.no-checkbox {
+      display: block;
+    }
+  }
+
+  input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+  }
+
+  input:disabled,
+  select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @include breakpoints.down("sm") {
+    .editor-tabs ul {
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .border-controls {
+      flex-wrap: wrap;
+    }
+  }
+}

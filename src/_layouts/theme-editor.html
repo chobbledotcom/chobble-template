@@ -7,6 +7,7 @@ layout: base
 {% capture scopedColors %}form/scoped-colors.html{% endcapture %}
 {% capture scopedBorder %}form/scoped-border.html{% endcapture %}
 
+<div class="theme-editor">
 <div class="editor-tabs">
   <ul>
     <li><a href="#" class="tab-link active" data-tab="default">Defaults</a></li>
@@ -115,114 +116,6 @@ layout: base
   class="button"
   id="download-theme"
 >Download Theme</button>
-
-<style>
-#theme-editor-form .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-#theme-editor-form small {
-  display: block;
-  margin-top: 0.25rem;
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-#bunny-fonts {
-  width: 100%;
-}
-
-.border-controls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.border-width {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.border-width input {
-  width: 4rem;
-}
-
-.border-style select {
-  min-width: 5rem;
-}
-
-.border-color input {
-  min-width: 2.5rem;
-  height: 2.5rem;
-}
-
-#theme-output {
-  margin: 1rem 0;
-}
-
-.editor-tabs ul {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin-bottom: 2rem;
-}
-
-.tab-link.active {
-  font-weight: bold;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-}
-
-/* Checkbox Styles */
-#theme-editor-form label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-  cursor: pointer;
-}
-
-#theme-editor-form input[type="checkbox"] {
-  margin: 0;
-  cursor: pointer;
-}
-
-#theme-editor-form input:disabled,
-#theme-editor-form select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-#theme-editor-form label.no-checkbox {
-  display: block;
-}
-
-/* Mobile styles */
-@media screen and (max-width: 650px) {
-  .editor-tabs ul {
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-  }
-
-  #theme-editor-form .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .border-controls {
-    flex-wrap: wrap;
-  }
-}
-</style>
+</div>
 
 {{ content }}
