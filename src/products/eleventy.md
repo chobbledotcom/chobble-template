@@ -17,7 +17,7 @@ tabs:
       To install Eleventy, run the following command:
 
       ```bash
-      npm install @11ty/eleventy
+      pnpm add @11ty/eleventy
       ```
 
       Make sure you have Node.js installed first.
