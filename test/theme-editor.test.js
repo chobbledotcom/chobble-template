@@ -1031,7 +1031,7 @@ const formDataTestCases = [
 // JSDOM-based DOM manipulation tests
 
 /**
- * Generate form HTML from config
+ * Generate form HTML from config - matches real HTML structure
  */
 function generateFormHtml() {
   let html = "";
@@ -1058,11 +1058,130 @@ function generateFormHtml() {
 }
 
 /**
+ * Generate form HTML that includes border sub-inputs (matching real HTML)
+ * This version matches the FIXED scoped-border.html template where
+ * border sub-inputs don't have data-scope.
+ */
+function generateRealisticFormHtml() {
+  let html = "";
+
+  // Generate global color inputs
+  Object.entries(GLOBAL_INPUTS).forEach(([id, config]) => {
+    if (config.type === "color") {
+      html += `<input type="color" id="${id}" data-var="--${id}">\n`;
+    }
+  });
+
+  // Generate scoped inputs for each scope
+  getScopes().forEach((scope) => {
+    Object.entries(SCOPED_INPUTS).forEach(([id, config]) => {
+      if (config.type === "color") {
+        html += `<input type="color" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
+      } else if (config.type === "border") {
+        // Border sub-inputs (matching FIXED scoped-border.html structure)
+        // These do NOT have data-scope - only IDs for JS to find them
+        html += `<input type="number" id="${scope}-border-width">\n`;
+        html += `<select id="${scope}-border-style"></select>\n`;
+        html += `<input type="color" id="${scope}-border-color">\n`;
+        // Only the hidden border input has data-var and data-scope
+        html += `<input type="hidden" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
+      }
+    });
+  });
+
+  return html;
+}
+
+/**
+ * Generate BUGGY form HTML for regression testing
+ * This simulates the old bug where border sub-inputs had data-scope but no data-var.
+ */
+function generateBuggyFormHtml() {
+  let html = "";
+
+  // Generate global color inputs
+  Object.entries(GLOBAL_INPUTS).forEach(([id, config]) => {
+    if (config.type === "color") {
+      html += `<input type="color" id="${id}" data-var="--${id}">\n`;
+    }
+  });
+
+  // Generate scoped inputs for each scope
+  getScopes().forEach((scope) => {
+    Object.entries(SCOPED_INPUTS).forEach(([id, config]) => {
+      if (config.type === "color") {
+        html += `<input type="color" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
+      } else if (config.type === "border") {
+        // OLD BUGGY pattern: border sub-inputs had data-scope but NO data-var
+        html += `<input type="number" id="${scope}-border-width" data-scope="${scope}">\n`;
+        html += `<select id="${scope}-border-style" data-scope="${scope}"></select>\n`;
+        html += `<input type="color" id="${scope}-border-color" data-scope="${scope}">\n`;
+        html += `<input type="hidden" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
+      }
+    });
+  });
+
+  return html;
+}
+
+/**
  * Create a mock theme editor DOM environment
  * Uses config to generate all form inputs
  */
 function createMockDOM(themeContent = "") {
   const formInputsHtml = generateFormHtml();
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><style>:root { --color-bg: #ffffff; --color-text: #333333; --color-link: #0066cc; --color-link-hover: #004499; --border: 2px solid #000000; }</style></head>
+<body>
+  <form id="theme-editor-form">
+    ${formInputsHtml}
+  </form>
+  <textarea id="theme-output">${themeContent}</textarea>
+  <button id="download-theme">Download</button>
+  <div class="tab-link active" data-tab="default"></div>
+  <div class="tab-content active" id="default-tab"></div>
+</body>
+</html>`;
+
+  const dom = new JSDOM(html, { runScripts: "dangerously" });
+  return dom;
+}
+
+/**
+ * Create a mock DOM with realistic HTML including border sub-inputs
+ * This matches the actual (fixed) HTML structure
+ */
+function createRealisticMockDOM(themeContent = "") {
+  const formInputsHtml = generateRealisticFormHtml();
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><style>:root { --color-bg: #ffffff; --color-text: #333333; --color-link: #0066cc; --color-link-hover: #004499; --border: 2px solid #000000; }</style></head>
+<body>
+  <form id="theme-editor-form">
+    ${formInputsHtml}
+  </form>
+  <textarea id="theme-output">${themeContent}</textarea>
+  <button id="download-theme">Download</button>
+  <div class="tab-link active" data-tab="default"></div>
+  <div class="tab-content active" id="default-tab"></div>
+</body>
+</html>`;
+
+  const dom = new JSDOM(html, { runScripts: "dangerously" });
+  return dom;
+}
+
+/**
+ * Create a mock DOM with the OLD BUGGY HTML structure for regression testing.
+ * This simulates the bug where border sub-inputs had data-scope but no data-var.
+ */
+function createBuggyMockDOM(themeContent = "") {
+  const formInputsHtml = generateBuggyFormHtml();
 
   const html = `
 <!DOCTYPE html>
@@ -1355,6 +1474,239 @@ const jsdomTestCases = [
         document.getElementById("header-color-text").value,
         "#333333",
         "Should use global value when not in theme",
+      );
+    },
+  },
+  // Tests for fixed HTML - border sub-inputs no longer have data-scope
+  {
+    name: "jsdom-fixed-form-border-color-has-no-data-scope",
+    description: "Fixed form: border-color inputs don't have data-scope attribute",
+    test: () => {
+      const dom = createRealisticMockDOM();
+      const { document } = dom.window;
+
+      // Should have border-color inputs for each scope
+      getScopes().forEach((scope) => {
+        const borderColorInput = document.getElementById(`${scope}-border-color`);
+        expectTrue(
+          borderColorInput !== null,
+          `${scope}-border-color input should exist`,
+        );
+        // In fixed version, border-color inputs do NOT have data-scope
+        expectStrictEqual(
+          borderColorInput.dataset.scope,
+          undefined,
+          `${scope}-border-color should NOT have data-scope (fixed)`,
+        );
+        expectStrictEqual(
+          borderColorInput.dataset.var,
+          undefined,
+          `${scope}-border-color should NOT have data-var`,
+        );
+      });
+    },
+  },
+  {
+    name: "jsdom-fixed-query-only-finds-color-vars",
+    description: "Fixed form: query for scoped color inputs only finds CSS var inputs",
+    test: () => {
+      const dom = createRealisticMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      // With fixed HTML, this query only finds the 4 color variable inputs
+      const headerColorInputs = form.querySelectorAll(
+        'input[type="color"][data-scope="header"]',
+      );
+
+      // Should find only 4 inputs (border-color no longer has data-scope)
+      expectStrictEqual(
+        headerColorInputs.length,
+        4,
+        "Query finds only 4 color inputs (border-color excluded)",
+      );
+
+      // All should have data-var
+      headerColorInputs.forEach((input) => {
+        expectTrue(
+          input.dataset.var !== undefined,
+          `Input ${input.id} should have data-var`,
+        );
+      });
+    },
+  },
+  // Tests using BUGGY HTML to document the old bug (regression tests)
+  {
+    name: "jsdom-buggy-html-has-border-color-with-scope",
+    description: "Buggy HTML: border-color inputs incorrectly have data-scope (old bug)",
+    test: () => {
+      const dom = createBuggyMockDOM();
+      const { document } = dom.window;
+
+      // In buggy version, border-color inputs incorrectly have data-scope
+      getScopes().forEach((scope) => {
+        const borderColorInput = document.getElementById(`${scope}-border-color`);
+        expectStrictEqual(
+          borderColorInput.dataset.scope,
+          scope,
+          `Buggy: ${scope}-border-color has data-scope`,
+        );
+        expectStrictEqual(
+          borderColorInput.dataset.var,
+          undefined,
+          `Buggy: ${scope}-border-color has no data-var`,
+        );
+      });
+    },
+  },
+  {
+    name: "jsdom-buggy-query-finds-border-color-inputs",
+    description:
+      "Buggy HTML: query for color inputs with data-scope finds border-color inputs too",
+    test: () => {
+      const dom = createBuggyMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      // This is the buggy query - it finds border-color inputs too
+      const headerColorInputs = form.querySelectorAll(
+        'input[type="color"][data-scope="header"]',
+      );
+
+      // With buggy HTML, this finds 5 inputs (4 color vars + 1 border-color)
+      expectStrictEqual(
+        headerColorInputs.length,
+        5,
+        "Buggy query finds 5 color inputs including border-color",
+      );
+
+      // Check that one of them has undefined data-var
+      let foundUndefined = false;
+      headerColorInputs.forEach((input) => {
+        if (input.dataset.var === undefined) {
+          foundUndefined = true;
+        }
+      });
+      expectTrue(
+        foundUndefined,
+        "Buggy query finds an input without data-var (border-color)",
+      );
+    },
+  },
+  {
+    name: "jsdom-no-undefined-keys-in-collected-vars",
+    description:
+      "Collected scope vars should never have undefined keys (regression test)",
+    test: () => {
+      const dom = createRealisticMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Simulate collectScopeVars with the CORRECT query (includes [data-var])
+      const collectedVars = {};
+      form
+        .querySelectorAll('input[type="color"][data-var][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          const value = input.value;
+          const globalValue = globalValues[varName];
+          if (shouldIncludeScopedVar(value, globalValue)) {
+            collectedVars[varName] = value;
+          }
+        });
+
+      // Verify no undefined keys
+      Object.keys(collectedVars).forEach((key) => {
+        expectTrue(
+          key !== "undefined" && key !== undefined,
+          `Key should not be undefined, got: ${key}`,
+        );
+      });
+    },
+  },
+  {
+    name: "jsdom-buggy-collect-produces-undefined-key",
+    description:
+      "Buggy HTML + buggy query: produces undefined key (documenting the old bug)",
+    test: () => {
+      // Use BUGGY form to test the old bug
+      const dom = createBuggyMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+        "--color-link": "#0066cc",
+        "--color-link-hover": "#004499",
+      };
+
+      // Simulate the BUGGY collectScopeVars (without [data-var] in query)
+      const collectedVars = {};
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var; // This can be undefined!
+          const value = input.value;
+          const globalValue = globalValues[varName];
+          if (shouldIncludeScopedVar(value, globalValue)) {
+            collectedVars[varName] = value;
+          }
+        });
+
+      // BUG: This produces an undefined key
+      expectTrue(
+        collectedVars["undefined"] !== undefined ||
+          Object.keys(collectedVars).includes("undefined"),
+        "Buggy HTML + query produces undefined key",
+      );
+    },
+  },
+  {
+    name: "jsdom-generated-css-has-no-undefined",
+    description: "Generated CSS should never contain 'undefined'",
+    test: () => {
+      const dom = createRealisticMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const globalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#333333",
+      };
+
+      // Collect scope vars using FIXED query
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-var][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            if (shouldIncludeScopedVar(value, globalVars[varName])) {
+              vars[varName] = value;
+            }
+          });
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // Generate CSS
+      const css = generateThemeCss(globalVars, scopeVars, []);
+
+      // Verify no undefined in output
+      expectFalse(
+        css.includes("undefined"),
+        "Generated CSS should not contain 'undefined'",
       );
     },
   },

@@ -171,7 +171,8 @@ const ThemeEditor = {
     // Initialize color controls for this scope
     // IMPORTANT: Must initialize to global values, not browser default #000000
     // Otherwise unchanged inputs pollute output (see test: browser-default-black-should-not-pollute-output)
-    this.formQuery(`input[type="color"][data-scope="${scope}"]`).forEach(
+    // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
+    this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`).forEach(
       (input) => {
         const varName = input.dataset.var;
         if (scopeVars[varName]) {
@@ -401,7 +402,8 @@ const ThemeEditor = {
     const docStyle = getComputedStyle(document.documentElement);
 
     // Color inputs for this scope - compare against global value for same var
-    this.formQuery(`input[type="color"][data-scope="${scope}"]`).forEach(
+    // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
+    this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`).forEach(
       (input) => {
         const varName = input.dataset.var;
         const value = input.value;

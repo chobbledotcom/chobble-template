@@ -5,13 +5,12 @@
       <input
         type="number"
         id="{{ scope }}-border-width"
-        data-scope="{{ scope }}"
         min="0"
         value="2"
       > <span>px</span>
     </div>
     <div class="border-style">
-      <select id="{{ scope }}-border-style" data-scope="{{ scope }}">
+      <select id="{{ scope }}-border-style">
         <option value="solid">Solid</option>
         <option value="dashed">Dashed</option>
         <option value="dotted">Dotted</option>
@@ -19,7 +18,7 @@
       </select>
     </div>
     <div class="border-color">
-      <input type="color" id="{{ scope }}-border-color" data-scope="{{ scope }}">
+      <input type="color" id="{{ scope }}-border-color">
     </div>
   </div>
   <input type="hidden" id="{{ scope }}-border" data-var="--border" data-scope="{{ scope }}">
