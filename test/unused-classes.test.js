@@ -35,26 +35,31 @@ const getAllFiles = (dir, pattern) => {
 const extractClassesFromHtml = (content) => {
   const classes = new Set();
 
-  // Match class="..." attributes (handles multiline)
+  // First, remove all Liquid/Nunjucks blocks from the content
+  // This handles nested quotes within {{ }} and {% %} blocks
+  let cleanedContent = content
+    // Remove {{ ... }} blocks (handles nested quotes)
+    .replace(/\{\{-?[\s\S]*?-?\}\}/g, " ")
+    // Remove {% ... %} blocks (handles nested quotes)
+    .replace(/\{%-?[\s\S]*?-?%\}/g, " ");
+
+  // Now match class="..." attributes (handles multiline)
   const classAttrRegex = /class="([^"]*)"/g;
   let match;
 
-  while ((match = classAttrRegex.exec(content)) !== null) {
-    const classValue = match[1];
-
-    // Remove Liquid/Nunjucks tags and extract remaining class names
-    const cleaned = classValue
-      // Remove {% ... %} blocks
-      .replace(/\{%-?\s*[\s\S]*?-?%\}/g, " ")
-      // Remove {{ ... }} interpolations
-      .replace(/\{\{[\s\S]*?\}\}/g, " ")
+  while ((match = classAttrRegex.exec(cleanedContent)) !== null) {
+    const classValue = match[1]
       // Normalize whitespace
       .replace(/\s+/g, " ")
       .trim();
 
-    // Split by whitespace and add non-empty class names
-    cleaned.split(" ").forEach((cls) => {
-      if (cls && !cls.includes("{") && !cls.includes("}")) {
+    // Split by whitespace and add valid class names only
+    // Valid CSS class names: start with letter, underscore, or hyphen,
+    // followed by letters, digits, underscores, or hyphens
+    const validClassRegex = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
+
+    classValue.split(" ").forEach((cls) => {
+      if (cls && validClassRegex.test(cls)) {
         classes.add(cls);
       }
     });
