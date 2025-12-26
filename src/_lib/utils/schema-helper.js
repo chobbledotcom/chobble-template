@@ -20,7 +20,7 @@ function buildBaseMeta(data) {
 
   const meta = {
     ...baseMeta,
-    url: canonicalUrl(data.site.url, data.page.url),
+    url: canonicalUrl(data.page.url),
     title: data.title || data.meta_title || "Untitled",
     description: data.meta_description || data.subtitle,
   };
