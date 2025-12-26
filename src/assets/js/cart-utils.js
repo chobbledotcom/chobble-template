@@ -6,9 +6,17 @@ export const STORAGE_KEY = "shopping_cart";
 export function getCart() {
   const cart = localStorage.getItem(STORAGE_KEY);
   console.log("[cart-utils.js] getCart() raw:", cart);
-  const parsed = cart ? JSON.parse(cart) : [];
-  console.log("[cart-utils.js] getCart() parsed:", parsed);
-  return parsed;
+  if (!cart) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(cart);
+    console.log("[cart-utils.js] getCart() parsed:", parsed);
+    return parsed;
+  } catch (e) {
+    console.warn("[cart-utils.js] getCart() parse error:", e.message);
+    return [];
+  }
 }
 
 export function saveCart(cart) {
