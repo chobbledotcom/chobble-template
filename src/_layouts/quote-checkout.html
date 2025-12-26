@@ -35,7 +35,7 @@ layout: base
       <div class="quote-checkout-items"></div>
     </div>
 
-    <button type="submit" class="btn primary-btn">{{ contactForm.submitButtonText | default: "Send Enquiry" }}</button>
+    <button type="submit" class="button">{{ contactForm.submitButtonText | default: "Send Enquiry" }}</button>
   </form>
 {%- else -%}
   {%- include "formspark-missing.html" -%}

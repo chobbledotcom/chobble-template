@@ -35,7 +35,7 @@ function renderCart() {
             <span class="quote-cart-item-name">${escapeHtml(item.item_name)}</span>
             <span class="quote-cart-item-price">${formatPrice(item.unit_price)}</span>
           </div>
-          <button class="quote-cart-item-remove btn" data-name="${escapeHtml(item.item_name)}">Remove</button>
+          <button class="quote-cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
         </div>
       `,
       )

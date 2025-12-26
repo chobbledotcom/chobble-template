@@ -21,7 +21,7 @@
       value="New message from {{ site.name }} website contact form"
     />
     {%- include "form-fields.html" -%}
-    <button type="submit" class="btn primary-btn">{{ contactForm.submitButtonText }}</button>
+    <button type="submit">{{ contactForm.submitButtonText }}</button>
   </form>
 {%- else -%}
   {%- include "formspark-missing.html" -%}
