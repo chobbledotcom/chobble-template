@@ -9,6 +9,7 @@ import {
 } from "./theme-editor-lib.js";
 
 let ELEMENTS = null;
+let PREVIOUS_GLOBAL_VARS = null;  // Stored for cascade comparison
 
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
@@ -92,6 +93,24 @@ const ThemeEditor = {
 
     // Set up checkbox controls for global variables
     this.initCheckboxControls(parsed.root);
+
+    // Capture initial global values for cascade comparison
+    // This must happen AFTER all controls are initialized
+    PREVIOUS_GLOBAL_VARS = this.captureCurrentGlobalVars();
+  },
+
+  /**
+   * Capture current global variable values from inputs
+   * Used for cascade comparison when globals change
+   */
+  captureCurrentGlobalVars() {
+    const vars = {};
+    this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
+      const varName = `--${el.id}`;
+      const value = el.id === "border-radius" ? `${el.value}px` : el.value;
+      vars[varName] = value;
+    });
+    return vars;
   },
 
   initGlobalControls(rootVars) {
@@ -363,12 +382,10 @@ const ThemeEditor = {
   updateThemeFromControls() {
     const docStyle = getComputedStyle(document.documentElement);
 
-    // Capture OLD global values before updating (for cascading to scoped inputs)
-    const oldGlobalVars = {};
-    this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
-      const varName = `--${el.id}`;
-      oldGlobalVars[varName] = docStyle.getPropertyValue(varName).trim();
-    });
+    // Use stored PREVIOUS_GLOBAL_VARS for cascade comparison
+    // We can't capture "old" values here because border inputs are already updated
+    // by their event handlers before this method is called
+    const oldGlobalVars = PREVIOUS_GLOBAL_VARS || {};
 
     // Collect global :root variables
     const globalVars = {};
@@ -387,6 +404,9 @@ const ThemeEditor = {
     // Cascade global changes to scoped inputs that were "following" the old global value
     // This prevents unchanged scoped inputs from appearing as overrides when global changes
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
+
+    // Store current global values for next cascade comparison
+    PREVIOUS_GLOBAL_VARS = { ...globalVars };
 
     // Collect scoped variables
     const scopeVars = {};
