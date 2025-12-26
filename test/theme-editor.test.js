@@ -1739,12 +1739,599 @@ const configDrivenTestCases = [
   },
 ];
 
+// End-to-end tests: paste theme → parse → set inputs → modify → generate
+const e2eTestCases = [
+  {
+    name: "e2e-paste-theme-with-scoped-values",
+    description: "Pasting a theme with scoped values sets inputs correctly",
+    test: () => {
+      const theme = `
+:root {
+  --color-bg: #ffffff;
+  --color-text: #333333;
+  --color-link: #0066cc;
+  --color-link-hover: #004499;
+}
+
+header {
+  --color-bg: #ff0000;
+  --color-text: #ffffff;
+}
+
+nav {
+  --color-link: #00ff00;
+}
+`;
+      const dom = createMockDOM(theme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      // Parse the theme
+      const parsed = parseThemeContent(theme);
+
+      // Simulate initControlsFromTheme: set global values first
+      Object.entries(parsed.root).forEach(([varName, value]) => {
+        const id = varName.replace("--", "");
+        const input = document.getElementById(id);
+        if (input && input.type === "color" && value.startsWith("#")) {
+          input.value = value;
+        }
+      });
+
+      // Simulate initScopedControls for each scope
+      getScopes().forEach((scope) => {
+        const scopeVars = parsed.scopes[scope] || {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            if (scopeVars[varName]) {
+              // Use parsed scope value
+              input.value = scopeVars[varName];
+            } else {
+              // Fall back to global value
+              const globalValue = parsed.root[varName];
+              if (globalValue && globalValue.startsWith("#")) {
+                input.value = globalValue;
+              }
+            }
+          });
+      });
+
+      // Verify global inputs
+      expectStrictEqual(
+        document.getElementById("color-bg").value,
+        "#ffffff",
+        "Global color-bg should be set from :root",
+      );
+      expectStrictEqual(
+        document.getElementById("color-text").value,
+        "#333333",
+        "Global color-text should be set from :root",
+      );
+
+      // Verify header scope (has overrides)
+      expectStrictEqual(
+        document.getElementById("header-color-bg").value,
+        "#ff0000",
+        "Header color-bg should be set from header scope",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-text").value,
+        "#ffffff",
+        "Header color-text should be set from header scope",
+      );
+      expectStrictEqual(
+        document.getElementById("header-color-link").value,
+        "#0066cc",
+        "Header color-link should fall back to global",
+      );
+
+      // Verify nav scope (has one override)
+      expectStrictEqual(
+        document.getElementById("nav-color-link").value,
+        "#00ff00",
+        "Nav color-link should be set from nav scope",
+      );
+      expectStrictEqual(
+        document.getElementById("nav-color-bg").value,
+        "#ffffff",
+        "Nav color-bg should fall back to global",
+      );
+
+      // Verify article scope (no overrides, all global)
+      expectStrictEqual(
+        document.getElementById("article-color-bg").value,
+        "#ffffff",
+        "Article color-bg should fall back to global",
+      );
+    },
+  },
+  {
+    name: "e2e-paste-minimal-theme",
+    description: "Pasting a theme with only :root sets all scoped inputs to global values",
+    test: () => {
+      const theme = `
+:root {
+  --color-bg: #241f31;
+  --color-text: #9a9996;
+  --color-link: #f6f5f4;
+  --color-link-hover: #ffffff;
+}
+`;
+      const dom = createMockDOM(theme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const parsed = parseThemeContent(theme);
+
+      // Initialize all scoped inputs to global values
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = parsed.root[varName];
+            if (globalValue && globalValue.startsWith("#")) {
+              input.value = globalValue;
+            }
+          });
+      });
+
+      // All scoped inputs should have global values
+      getScopes().forEach((scope) => {
+        expectStrictEqual(
+          document.getElementById(`${scope}-color-bg`).value,
+          "#241f31",
+          `${scope}-color-bg should be global value`,
+        );
+        expectStrictEqual(
+          document.getElementById(`${scope}-color-text`).value,
+          "#9a9996",
+          `${scope}-color-text should be global value`,
+        );
+      });
+    },
+  },
+  {
+    name: "e2e-paste-then-modify-then-generate",
+    description: "Full round-trip: paste theme, modify values, generate new CSS",
+    test: () => {
+      const originalTheme = `
+:root {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-link: #0000ff;
+  --color-link-hover: #0000cc;
+}
+
+header {
+  --color-bg: #333333;
+}
+`;
+      const dom = createMockDOM(originalTheme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const parsed = parseThemeContent(originalTheme);
+
+      // Step 1: Initialize inputs from parsed theme
+      getScopes().forEach((scope) => {
+        const scopeVars = parsed.scopes[scope] || {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            if (scopeVars[varName]) {
+              input.value = scopeVars[varName];
+            } else {
+              const globalValue = parsed.root[varName];
+              if (globalValue && globalValue.startsWith("#")) {
+                input.value = globalValue;
+              }
+            }
+          });
+      });
+
+      // Verify initial state
+      expectStrictEqual(
+        document.getElementById("header-color-bg").value,
+        "#333333",
+        "Header bg should be from parsed theme",
+      );
+
+      // Step 2: User modifies values
+      document.getElementById("header-color-bg").value = "#ff0000"; // Change header bg
+      document.getElementById("nav-color-link").value = "#00ff00"; // Add nav override
+
+      // Step 3: Collect scope vars (comparing to global)
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            const globalValue = parsed.root[varName];
+            if (shouldIncludeScopedVar(value, globalValue)) {
+              vars[varName] = value;
+            }
+          });
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // Step 4: Generate new CSS
+      const newCss = generateThemeCss(parsed.root, scopeVars, []);
+
+      // Verify generated CSS
+      expectTrue(newCss.includes(":root {"), "Should have :root block");
+      expectTrue(newCss.includes("header {"), "Should have header block");
+      expectTrue(
+        newCss.includes("--color-bg: #ff0000"),
+        "Header should have new red bg",
+      );
+      expectTrue(newCss.includes("nav {"), "Should have nav block");
+      expectTrue(
+        newCss.includes("--color-link: #00ff00"),
+        "Nav should have green link",
+      );
+      expectFalse(
+        newCss.includes("article {"),
+        "Article should not appear (unchanged)",
+      );
+    },
+  },
+  {
+    name: "e2e-paste-theme-with-button-scope",
+    description: "Pasting a theme with button scope handles multi-selector correctly",
+    test: () => {
+      const theme = `
+:root {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-link: #0000ff;
+  --color-link-hover: #0000cc;
+}
+
+button,
+.button,
+input[type="submit"] {
+  --color-bg: #007bff;
+  --color-text: #ffffff;
+}
+`;
+      const dom = createMockDOM(theme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const parsed = parseThemeContent(theme);
+
+      // Verify button scope was parsed
+      expectTrue(
+        parsed.scopes.button !== undefined,
+        "Button scope should be parsed",
+      );
+      expectStrictEqual(
+        parsed.scopes.button["--color-bg"],
+        "#007bff",
+        "Button bg should be parsed",
+      );
+
+      // Initialize inputs
+      const scopeVars = parsed.scopes.button || {};
+      form
+        .querySelectorAll('input[type="color"][data-scope="button"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          if (scopeVars[varName]) {
+            input.value = scopeVars[varName];
+          } else {
+            const globalValue = parsed.root[varName];
+            if (globalValue && globalValue.startsWith("#")) {
+              input.value = globalValue;
+            }
+          }
+        });
+
+      // Verify button inputs
+      expectStrictEqual(
+        document.getElementById("button-color-bg").value,
+        "#007bff",
+        "Button color-bg should be set from parsed theme",
+      );
+      expectStrictEqual(
+        document.getElementById("button-color-text").value,
+        "#ffffff",
+        "Button color-text should be set from parsed theme",
+      );
+      expectStrictEqual(
+        document.getElementById("button-color-link").value,
+        "#0000ff",
+        "Button color-link should fall back to global",
+      );
+    },
+  },
+  {
+    name: "e2e-paste-theme-with-body-classes",
+    description: "Pasting a theme with body_classes parses them correctly",
+    test: () => {
+      const theme = `
+:root {
+  --color-bg: #ffffff;
+}
+
+/* body_classes: header-centered-dark, headings-underlined */
+`;
+      const parsed = parseThemeContent(theme);
+
+      expectDeepEqual(
+        parsed.bodyClasses,
+        ["header-centered-dark", "headings-underlined"],
+        "Body classes should be parsed from comment",
+      );
+    },
+  },
+  {
+    name: "e2e-round-trip-preserves-all-values",
+    description: "Parse → set inputs → collect → generate preserves all values",
+    test: () => {
+      const originalTheme = `
+:root {
+  --color-bg: #241f31;
+  --color-text: #9a9996;
+  --color-link: #f6f5f4;
+  --color-link-hover: #ffffff;
+}
+
+header {
+  --color-bg: #3d3846;
+  --color-text: #ffffff;
+}
+
+nav {
+  --color-bg: #1a1a1a;
+  --color-link: #ffcc00;
+}
+
+button,
+.button,
+input[type="submit"] {
+  --color-bg: #62a0ea;
+  --color-text: #000000;
+}
+
+/* body_classes: header-centered-dark */
+`;
+      const dom = createMockDOM(originalTheme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const parsed = parseThemeContent(originalTheme);
+
+      // Initialize all inputs from parsed theme
+      getScopes().forEach((scope) => {
+        const scopeVars = parsed.scopes[scope] || {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            if (scopeVars[varName]) {
+              input.value = scopeVars[varName];
+            } else {
+              const globalValue = parsed.root[varName];
+              if (globalValue && globalValue.startsWith("#")) {
+                input.value = globalValue;
+              }
+            }
+          });
+      });
+
+      // Collect scope vars (without modification)
+      const collectedScopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            const globalValue = parsed.root[varName];
+            if (shouldIncludeScopedVar(value, globalValue)) {
+              vars[varName] = value;
+            }
+          });
+        if (Object.keys(vars).length > 0) {
+          collectedScopeVars[scope] = vars;
+        }
+      });
+
+      // Generate new CSS
+      const generatedCss = generateThemeCss(
+        parsed.root,
+        collectedScopeVars,
+        parsed.bodyClasses,
+      );
+
+      // Re-parse the generated CSS
+      const reparsed = parseThemeContent(generatedCss);
+
+      // Verify round-trip preserves values
+      expectDeepEqual(reparsed.root, parsed.root, "Root vars should match");
+      expectDeepEqual(
+        reparsed.scopes.header,
+        parsed.scopes.header,
+        "Header scope should match",
+      );
+      expectDeepEqual(
+        reparsed.scopes.nav,
+        parsed.scopes.nav,
+        "Nav scope should match",
+      );
+      expectDeepEqual(
+        reparsed.scopes.button,
+        parsed.scopes.button,
+        "Button scope should match",
+      );
+      expectDeepEqual(
+        reparsed.bodyClasses,
+        parsed.bodyClasses,
+        "Body classes should match",
+      );
+    },
+  },
+  {
+    name: "e2e-paste-empty-theme",
+    description: "Pasting an empty theme initializes to defaults",
+    test: () => {
+      const theme = "";
+      const parsed = parseThemeContent(theme);
+
+      expectDeepEqual(parsed.root, {}, "Root should be empty");
+      expectDeepEqual(parsed.scopes, {}, "Scopes should be empty");
+      expectDeepEqual(parsed.bodyClasses, [], "Body classes should be empty");
+    },
+  },
+  {
+    name: "e2e-change-global-affects-unchanged-scopes",
+    description: "Changing a global value should only appear in :root, not scopes",
+    test: () => {
+      const dom = createMockDOM();
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      // Set initial global values
+      const globalValues = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+        "--color-link": "#0000ff",
+        "--color-link-hover": "#0000cc",
+      };
+
+      // Initialize all scoped inputs to global values
+      getScopes().forEach((scope) => {
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const globalValue = globalValues[varName];
+            if (globalValue) input.value = globalValue;
+          });
+      });
+
+      // Now "change" the global value (in real app, user would change the global input)
+      const newGlobalValues = { ...globalValues, "--color-bg": "#ff0000" };
+
+      // Collect scope vars using NEW global values for comparison
+      const scopeVars = {};
+      getScopes().forEach((scope) => {
+        const vars = {};
+        form
+          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
+          .forEach((input) => {
+            const varName = input.dataset.var;
+            const value = input.value;
+            // Compare against the NEW global value
+            const globalValue = newGlobalValues[varName];
+            if (shouldIncludeScopedVar(value, globalValue)) {
+              vars[varName] = value;
+            }
+          });
+        if (Object.keys(vars).length > 0) {
+          scopeVars[scope] = vars;
+        }
+      });
+
+      // All scopes should now have --color-bg override (they still have old #ffffff)
+      // This documents expected behavior: if global changes, scopes retain their values
+      getScopes().forEach((scope) => {
+        expectTrue(
+          scopeVars[scope] && scopeVars[scope]["--color-bg"] === "#ffffff",
+          `${scope} should have --color-bg override when global changed`,
+        );
+      });
+    },
+  },
+  {
+    name: "e2e-scoped-black-is-preserved",
+    description: "If a scope intentionally uses #000000, it should be preserved",
+    test: () => {
+      const theme = `
+:root {
+  --color-bg: #ffffff;
+  --color-text: #333333;
+}
+
+header {
+  --color-bg: #000000;
+  --color-text: #ffffff;
+}
+`;
+      const dom = createMockDOM(theme);
+      const { document } = dom.window;
+      const form = document.getElementById("theme-editor-form");
+
+      const parsed = parseThemeContent(theme);
+
+      // Initialize header inputs
+      const headerVars = parsed.scopes.header || {};
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          if (headerVars[varName]) {
+            input.value = headerVars[varName];
+          } else {
+            const globalValue = parsed.root[varName];
+            if (globalValue && globalValue.startsWith("#")) {
+              input.value = globalValue;
+            }
+          }
+        });
+
+      // Verify black was set
+      expectStrictEqual(
+        document.getElementById("header-color-bg").value,
+        "#000000",
+        "Header should have black background",
+      );
+
+      // Collect and verify black is included in output
+      const collectedVars = {};
+      form
+        .querySelectorAll('input[type="color"][data-scope="header"]')
+        .forEach((input) => {
+          const varName = input.dataset.var;
+          const value = input.value;
+          const globalValue = parsed.root[varName];
+          if (shouldIncludeScopedVar(value, globalValue)) {
+            collectedVars[varName] = value;
+          }
+        });
+
+      expectStrictEqual(
+        collectedVars["--color-bg"],
+        "#000000",
+        "Black should be preserved in output",
+      );
+      expectStrictEqual(
+        collectedVars["--color-text"],
+        "#ffffff",
+        "White text should be preserved in output",
+      );
+    },
+  },
+];
+
 // Combine all test cases
 const allTestCases = [
   ...testCases,
   ...formDataTestCases,
   ...jsdomTestCases,
   ...configDrivenTestCases,
+  ...e2eTestCases,
 ];
 
 createTestRunner("theme-editor", allTestCases);
