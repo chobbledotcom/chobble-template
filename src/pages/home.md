@@ -11,7 +11,7 @@ eleventyNavigation:
   order: 1
 faqs:
   - question: How do I get started?
-    answer: Clone the repo and run npm install, then npm start.
+    answer: Clone the repo and run pnpm install, then pnpm start.
     order: 1
 ---
 

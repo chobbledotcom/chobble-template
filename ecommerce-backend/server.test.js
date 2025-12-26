@@ -1,6 +1,6 @@
 /**
  * End-to-end tests for the ecommerce backend
- * Run with: npm test
+ * Run with: pnpm test
  */
 
 const http = require("http");
