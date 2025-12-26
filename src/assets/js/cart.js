@@ -196,8 +196,8 @@ class ShoppingCart {
           rawPrice: button.dataset.price,
         });
 
-        // Build full item name including option if present
-        const fullItemName = optionName
+        // Build full item name including option if present (avoid "Name - Name" duplication)
+        const fullItemName = optionName && optionName !== itemName
           ? `${itemName} - ${optionName}`
           : itemName;
 
