@@ -25,12 +25,17 @@ const DEFAULTS = {
 
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];
 
-function validatePageFrontmatter(filename, requiredLayout, requiredPermalink) {
+function validatePageFrontmatter(
+  filename,
+  requiredLayout,
+  requiredPermalink,
+  cartMode,
+) {
   const pagePath = path.join(__dirname, "..", "pages", filename);
 
   if (!fs.existsSync(pagePath)) {
     throw new Error(
-      `cart_mode is "stripe" but src/pages/${filename} does not exist`,
+      `cart_mode is "${cartMode}" but src/pages/${filename} does not exist`,
     );
   }
 
@@ -39,7 +44,7 @@ function validatePageFrontmatter(filename, requiredLayout, requiredPermalink) {
 
   if (!frontmatterMatch) {
     throw new Error(
-      `cart_mode is "stripe" but src/pages/${filename} has no frontmatter`,
+      `cart_mode is "${cartMode}" but src/pages/${filename} has no frontmatter`,
     );
   }
 
@@ -47,13 +52,13 @@ function validatePageFrontmatter(filename, requiredLayout, requiredPermalink) {
 
   if (!frontmatter.includes(`layout: ${requiredLayout}`)) {
     throw new Error(
-      `cart_mode is "stripe" but src/pages/${filename} does not use layout: ${requiredLayout}`,
+      `cart_mode is "${cartMode}" but src/pages/${filename} does not use layout: ${requiredLayout}`,
     );
   }
 
   if (!frontmatter.includes(`permalink: ${requiredPermalink}`)) {
     throw new Error(
-      `cart_mode is "stripe" but src/pages/${filename} does not have permalink: ${requiredPermalink}`,
+      `cart_mode is "${cartMode}" but src/pages/${filename} does not have permalink: ${requiredPermalink}`,
     );
   }
 }
@@ -63,11 +68,22 @@ function validateStripePages() {
     "stripe-checkout.md",
     "stripe-checkout.html",
     "/stripe-checkout/",
+    "stripe",
   );
   validatePageFrontmatter(
     "order-complete.md",
     "checkout-complete.html",
     "/order-complete/",
+    "stripe",
+  );
+}
+
+function validateQuotePages() {
+  validatePageFrontmatter(
+    "checkout.md",
+    "quote-checkout.html",
+    "/checkout/",
+    "quote",
   );
 }
 
@@ -100,6 +116,7 @@ function validateCartConfig(config) {
         'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
       );
     }
+    validateQuotePages();
   }
 }
 
