@@ -27,3 +27,6 @@ import "./stripe-checkout.js";
 
 // Availability calendar for properties
 import "./availability-calendar.js";
+
+// Property shuffle for consistent random ordering
+import "./shuffle-properties.js";
