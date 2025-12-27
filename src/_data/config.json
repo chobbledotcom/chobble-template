@@ -19,5 +19,6 @@
 		"gallery_image_widths": "900,1300,1800",
 		"header_image_widths": "640,900,1300"
 	},
-	"timezone": "Europe/London"
+	"timezone": "Europe/London",
+	"reviews_truncate_limit": 10
 }

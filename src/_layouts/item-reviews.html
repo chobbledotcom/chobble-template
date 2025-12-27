@@ -1,0 +1,19 @@
+---
+layout: base
+---
+
+<section id="item">
+  <div class="title">
+    {% include "item-title.html" %}
+  </div>
+
+  {% include "item-gallery.html" %}
+
+  <div class="description">
+    {% assign reviews = collections.reviews | getReviewsByProduct: item.fileSlug %}
+    {%- if reviews.size > 0 -%}
+      <h2 id="reviews">Reviews</h2>
+      {% include "reviews-list.html" %}
+    {%- endif -%}
+  </div>
+</div>
