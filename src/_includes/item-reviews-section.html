@@ -2,7 +2,14 @@
   {% assign reviews = collections.reviews | getReviewsByProduct: page.fileSlug %}
   {%- if reviews.size > 0 -%}
     <h2 id="reviews">Reviews</h2>
-    {% include "reviews-list.html" %}
+    {% assign limit = config.reviews_truncate_limit %}
+    {%- if limit != -1 and reviews.size > limit -%}
+      {% assign reviews = reviews | slice: 0, limit %}
+      {% include "reviews-list.html" %}
+      <p><a href="{{ page.url }}reviews/">See all reviews</a></p>
+    {%- else -%}
+      {% include "reviews-list.html" %}
+    {%- endif -%}
   {%- endif -%}
   {%- include "etsy-buy-button.html" -%}
 {%- endif -%}
