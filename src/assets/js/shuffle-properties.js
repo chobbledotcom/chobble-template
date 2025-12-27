@@ -6,12 +6,11 @@ import { onReady } from "./on-ready.js";
 const STORAGE_KEY = "property_order_seed";
 const EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-// Seeded random number generator
-// Returns a function that produces the same sequence of 0-1 values for a given seed
+// Seeded random: same seed = same sequence of numbers
 function seededRandom(seed) {
   return function () {
-    seed = (seed * 1103515245 + 12345) % 2147483648;
-    return seed / 2147483648;
+    seed = (seed * 13 + 17) % 1000;
+    return seed / 1000;
   };
 }
 
