@@ -47,7 +47,6 @@
 		"ical-generator": "^9.0.0",
 		"jsdom": "^26.1.0",
 		"json-to-pdf": "^0.1.2",
-		"liquidjs": "^10.21.0",
 		"markdown-it": "^14.1.0",
 		"memoize": "^10.2.0",
 		"sass": "^1.86.3",

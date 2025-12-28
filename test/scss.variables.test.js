@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import fg from "fast-glob";
+
 const { globSync } = fg;
 
 /**

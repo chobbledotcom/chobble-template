@@ -140,7 +140,11 @@ class ShoppingCart {
 
     // Click handler using event delegation for add-to-cart and cart icon
     document.addEventListener("click", (e) => {
-      console.log("[cart.js] Click event:", e.target.tagName, e.target.className);
+      console.log(
+        "[cart.js] Click event:",
+        e.target.tagName,
+        e.target.className,
+      );
 
       // Cart icon click - open cart or navigate to quote page
       if (e.target.closest(".cart-icon")) {
@@ -167,11 +171,18 @@ class ShoppingCart {
 
         // For multi-option products, check if option is selected
         if (button.classList.contains("product-option-button")) {
-          console.log("[cart.js] This is a product-option-button, checking select...");
+          console.log(
+            "[cart.js] This is a product-option-button, checking select...",
+          );
           const select = button.parentElement.querySelector(
             ".product-options-select",
           );
-          console.log("[cart.js] Select element:", select, "value:", select?.value);
+          console.log(
+            "[cart.js] Select element:",
+            select,
+            "value:",
+            select?.value,
+          );
           if (select && !select.value) {
             console.log("[cart.js] No option selected, showing alert");
             alert("Please select an option");
@@ -197,9 +208,10 @@ class ShoppingCart {
         });
 
         // Build full item name including option if present (avoid "Name - Name" duplication)
-        const fullItemName = optionName && optionName !== itemName
-          ? `${itemName} - ${optionName}`
-          : itemName;
+        const fullItemName =
+          optionName && optionName !== itemName
+            ? `${itemName} - ${optionName}`
+            : itemName;
 
         console.log("[cart.js] Add to cart clicked:", {
           fullItemName,
@@ -213,7 +225,10 @@ class ShoppingCart {
           console.log("[cart.js] Calling addItem...");
           this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku);
         } else {
-          console.error("[cart.js] Invalid item data:", { fullItemName, unitPrice });
+          console.error("[cart.js] Invalid item data:", {
+            fullItemName,
+            unitPrice,
+          });
         }
       }
     });
@@ -223,7 +238,13 @@ class ShoppingCart {
 
   // Add item to cart
   addItem(itemName, unitPrice, quantity = 1, maxQuantity = null, sku = null) {
-    console.log("[cart.js] addItem() called:", { itemName, unitPrice, quantity, maxQuantity, sku });
+    console.log("[cart.js] addItem() called:", {
+      itemName,
+      unitPrice,
+      quantity,
+      maxQuantity,
+      sku,
+    });
     const cart = getCart();
     console.log("[cart.js] Current cart:", cart);
     const existingItem = cart.find((item) => item.item_name === itemName);

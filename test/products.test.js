@@ -236,9 +236,18 @@ const testCases = [
     description: "Filters reviews by product and sorts newest first",
     test: () => {
       const reviews = [
-        { data: { title: "Review 1", products: ["product-a", "product-b"] }, date: new Date("2024-01-01") },
-        { data: { title: "Review 2", products: ["product-c"] }, date: new Date("2024-01-02") },
-        { data: { title: "Review 3", products: ["product-a"] }, date: new Date("2024-01-03") },
+        {
+          data: { title: "Review 1", products: ["product-a", "product-b"] },
+          date: new Date("2024-01-01"),
+        },
+        {
+          data: { title: "Review 2", products: ["product-c"] },
+          date: new Date("2024-01-02"),
+        },
+        {
+          data: { title: "Review 3", products: ["product-a"] },
+          date: new Date("2024-01-03"),
+        },
         { data: { title: "Review 4" }, date: new Date("2024-01-04") },
       ];
 
@@ -282,13 +291,20 @@ const testCases = [
   },
   {
     name: "createReviewsCollection-basic",
-    description: "Creates reviews collection excluding hidden and sorted newest first",
+    description:
+      "Creates reviews collection excluding hidden and sorted newest first",
     test: () => {
       const mockReviews = [
         { data: { name: "Review 1", rating: 5 }, date: new Date("2024-01-01") },
-        { data: { name: "Review 2", rating: 4, hidden: true }, date: new Date("2024-01-02") },
+        {
+          data: { name: "Review 2", rating: 4, hidden: true },
+          date: new Date("2024-01-02"),
+        },
         { data: { name: "Review 3", rating: 5 }, date: new Date("2024-01-03") },
-        { data: { name: "Review 4", rating: 3, hidden: true }, date: new Date("2024-01-04") },
+        {
+          data: { name: "Review 4", rating: 3, hidden: true },
+          date: new Date("2024-01-04"),
+        },
       ];
 
       const mockCollectionApi = {
@@ -315,7 +331,8 @@ const testCases = [
   },
   {
     name: "createReviewsCollection-no-hidden",
-    description: "Returns all reviews when none are hidden, sorted newest first",
+    description:
+      "Returns all reviews when none are hidden, sorted newest first",
     test: () => {
       const mockReviews = [
         { data: { name: "Review 1", rating: 5 }, date: new Date("2024-01-01") },
@@ -474,7 +491,10 @@ const testCases = [
         { data: { title: "Product 1", categories: ["widgets"] } },
       ];
       const originalReviews = [
-        { data: { title: "Review 1", products: ["product-1"] }, date: testDate },
+        {
+          data: { title: "Review 1", products: ["product-1"] },
+          date: testDate,
+        },
       ];
 
       // Create copies that preserve Date objects

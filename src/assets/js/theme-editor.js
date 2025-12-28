@@ -1,15 +1,15 @@
 import { onReady } from "./on-ready.js";
 import {
-  SCOPES,
-  SCOPE_SELECTORS,
-  parseThemeContent,
-  parseBorderValue,
   generateThemeCss,
+  parseBorderValue,
+  parseThemeContent,
+  SCOPE_SELECTORS,
+  SCOPES,
   shouldIncludeScopedVar,
 } from "./theme-editor-lib.js";
 
 let ELEMENTS = null;
-let PREVIOUS_GLOBAL_VARS = null;  // Stored for cascade comparison
+let PREVIOUS_GLOBAL_VARS = null; // Stored for cascade comparison
 
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
@@ -191,23 +191,23 @@ const ThemeEditor = {
     // IMPORTANT: Must initialize to global values, not browser default #000000
     // Otherwise unchanged inputs pollute output (see test: browser-default-black-should-not-pollute-output)
     // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
-    this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`).forEach(
-      (input) => {
-        const varName = input.dataset.var;
-        if (scopeVars[varName]) {
-          // Use value from parsed theme
-          input.value = scopeVars[varName];
-        } else {
-          // Initialize to GLOBAL value so unchanged inputs don't pollute output
-          // Browser color inputs default to #000000 which would differ from global
-          const globalValue = docStyle.getPropertyValue(varName).trim();
-          if (globalValue && globalValue.startsWith("#")) {
-            input.value = globalValue;
-          }
+    this.formQuery(
+      `input[type="color"][data-var][data-scope="${scope}"]`,
+    ).forEach((input) => {
+      const varName = input.dataset.var;
+      if (scopeVars[varName]) {
+        // Use value from parsed theme
+        input.value = scopeVars[varName];
+      } else {
+        // Initialize to GLOBAL value so unchanged inputs don't pollute output
+        // Browser color inputs default to #000000 which would differ from global
+        const globalValue = docStyle.getPropertyValue(varName).trim();
+        if (globalValue && globalValue.startsWith("#")) {
+          input.value = globalValue;
         }
-        input.addEventListener("input", () => this.updateThemeFromControls());
-      },
-    );
+      }
+      input.addEventListener("input", () => this.updateThemeFromControls());
+    });
 
     // Initialize border for this scope
     this.initScopedBorderControl(scope, scopeVars["--border"]);
@@ -365,11 +365,15 @@ const ThemeEditor = {
 
       elements.forEach((el) => {
         // Clear previous scoped values
-        ["--color-bg", "--color-text", "--color-link", "--color-link-hover", "--border"].forEach(
-          (varName) => {
-            el.style.removeProperty(varName);
-          },
-        );
+        [
+          "--color-bg",
+          "--color-text",
+          "--color-link",
+          "--color-link-hover",
+          "--border",
+        ].forEach((varName) => {
+          el.style.removeProperty(varName);
+        });
 
         // Apply new scoped values
         Object.entries(vars).forEach(([varName, value]) => {
@@ -492,18 +496,18 @@ const ThemeEditor = {
 
     // Color inputs for this scope - compare against global value for same var
     // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
-    this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`).forEach(
-      (input) => {
-        const varName = input.dataset.var;
-        const value = input.value;
-        // Get the global value for this same variable
-        const globalValue = docStyle.getPropertyValue(varName).trim();
-        // Include if different from global (even if it's #000000 = black)
-        if (shouldIncludeScopedVar(value, globalValue)) {
-          vars[varName] = value;
-        }
-      },
-    );
+    this.formQuery(
+      `input[type="color"][data-var][data-scope="${scope}"]`,
+    ).forEach((input) => {
+      const varName = input.dataset.var;
+      const value = input.value;
+      // Get the global value for this same variable
+      const globalValue = docStyle.getPropertyValue(varName).trim();
+      // Include if different from global (even if it's #000000 = black)
+      if (shouldIncludeScopedVar(value, globalValue)) {
+        vars[varName] = value;
+      }
+    });
 
     // Border for this scope - include if different from global border
     const borderOutput = this.formEl(`${scope}-border`);

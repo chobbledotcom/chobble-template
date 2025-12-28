@@ -1,8 +1,8 @@
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import slugify from "@sindresorhus/slugify";
 import { renderPdfTemplate } from "json-to-pdf";
 import site from "#data/site.json" with { type: "json" };
+import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
@@ -214,9 +214,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
     return null;
   }
 
-  // Filename: "business-name-menu-slug.pdf"
-  const businessSlug = slugify(site.name);
-  const filename = `${businessSlug}-${menu.fileSlug}.pdf`;
+  const filename = buildPdfFilename(site.name, menu.fileSlug);
   const outputPath = `${outputDir}/menus/${menu.fileSlug}/${filename}`;
   const dir = dirname(outputPath);
 

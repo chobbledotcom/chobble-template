@@ -1,26 +1,26 @@
+import { JSDOM } from "jsdom";
+import {
+  GLOBAL_INPUTS,
+  getScopes,
+  SCOPED_INPUTS,
+} from "../src/assets/js/theme-editor-config.js";
+import {
+  collectScopeVarsFromFormData,
+  generateThemeCss,
+  parseBorderValue,
+  parseCssBlock,
+  parseThemeContent,
+  SCOPE_SELECTORS,
+  SCOPES,
+  shouldIncludeScopedVar,
+} from "../src/assets/js/theme-editor-lib.js";
 import {
   createTestRunner,
   expectDeepEqual,
+  expectFalse,
   expectStrictEqual,
   expectTrue,
-  expectFalse,
 } from "./test-utils.js";
-import {
-  SCOPES,
-  SCOPE_SELECTORS,
-  parseCssBlock,
-  parseThemeContent,
-  parseBorderValue,
-  generateThemeCss,
-  shouldIncludeScopedVar,
-  collectScopeVarsFromFormData,
-} from "../src/assets/js/theme-editor-lib.js";
-import {
-  GLOBAL_INPUTS,
-  SCOPED_INPUTS,
-  getScopes,
-} from "../src/assets/js/theme-editor-config.js";
-import { JSDOM } from "jsdom";
 
 // ============================================
 // Unit Tests - Core parsing functions
@@ -1007,7 +1007,9 @@ const bugRegressionTests = [
           if (oldGlobal && newGlobal && borderOutput.value === oldGlobal) {
             // Update border component inputs too
             const widthInput = document.getElementById(`${scope}-border-width`);
-            const styleSelect = document.getElementById(`${scope}-border-style`);
+            const styleSelect = document.getElementById(
+              `${scope}-border-style`,
+            );
             const colorInput = document.getElementById(`${scope}-border-color`);
             const match = newGlobal.match(/(\d+)px\s+(\w+)\s+(.+)/);
             if (match && widthInput && styleSelect && colorInput) {
@@ -1033,7 +1035,12 @@ const bugRegressionTests = [
         // Check border
         const borderOutput = document.getElementById(`${scope}-border`);
         if (borderOutput?.value) {
-          if (shouldIncludeScopedVar(borderOutput.value, newGlobalVars["--border"])) {
+          if (
+            shouldIncludeScopedVar(
+              borderOutput.value,
+              newGlobalVars["--border"],
+            )
+          ) {
             vars["--border"] = borderOutput.value;
           }
         }
