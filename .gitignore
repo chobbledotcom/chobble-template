@@ -135,6 +135,7 @@ result-*
 # ---> Eleventy
 # Built site
 _site
+.profile
 .sass-cache
 .image-cache/*.jpeg
 .image-cache/*.webp

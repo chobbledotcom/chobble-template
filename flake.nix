@@ -22,6 +22,9 @@
 
             shellHook = ''
               [ ! -d node_modules ] && pnpm install
+
+              export PATH="$PWD/bin:$PATH"
+
               cat <<EOF
 
               Development environment ready!
@@ -32,9 +35,11 @@
                - 'pnpm test'       # Run JavaScript tests
                - 'lint'            # Format code with Biome (Nix-only)
                - 'screenshot'      # Take website screenshots (Nix-only)
+               - 'profile'         # Profile build for performance bottlenecks
 
               EOF
 
+              pnpm install
               git pull
             '';
           };

@@ -319,32 +319,24 @@ const createFilterConfig = (options) => {
     const attributeKeys = Object.keys(allAttributes);
     const searchBaseUrl = `${baseUrl}/search`;
 
-    const redirects = new Set();
+    // Simple from→to mapping (each 'from' can only have one 'to')
+    const redirects = {};
 
     for (const key of attributeKeys) {
-      redirects.add(
-        JSON.stringify({
-          from: `${searchBaseUrl}/${key}/`,
-          to: `${searchBaseUrl}/#content`,
-        }),
-      );
+      redirects[`${searchBaseUrl}/${key}/`] = `${searchBaseUrl}/#content`;
     }
 
     const combinations = generateFilterCombinations(items);
     for (const combo of combinations) {
       for (const key of attributeKeys) {
         if (!combo.filters[key]) {
-          redirects.add(
-            JSON.stringify({
-              from: `${searchBaseUrl}/${combo.path}/${key}/`,
-              to: `${searchBaseUrl}/${combo.path}/#content`,
-            }),
-          );
+          redirects[`${searchBaseUrl}/${combo.path}/${key}/`] =
+            `${searchBaseUrl}/${combo.path}/#content`;
         }
       }
     }
 
-    return Array.from(redirects).map((r) => JSON.parse(r));
+    return Object.entries(redirects).map(([from, to]) => ({ from, to }));
   };
 
   const createAttributesCollection = (collectionApi) => {
