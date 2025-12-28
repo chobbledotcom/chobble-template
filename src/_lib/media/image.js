@@ -83,11 +83,10 @@ const U = {
       .update(`${sourcePath}:${aspectRatio}`)
       .digest("hex")
       .slice(0, 8);
-    const ext = path.extname(sourcePath);
-    const basename = path.basename(sourcePath, ext);
+    const basename = path.basename(sourcePath, path.extname(sourcePath));
     const cachedPath = path.join(
       CROP_CACHE_DIR,
-      `${basename}-crop-${hash}${ext}`,
+      `${basename}-crop-${hash}.jpeg`,
     );
 
     // Return cached path if it exists

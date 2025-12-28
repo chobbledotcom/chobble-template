@@ -139,8 +139,6 @@ _site
 .sass-cache
 .image-cache/*.jpeg
 .image-cache/*.webp
-.image-cache/*-crop-*.jpg
-.image-cache/*-crop-*.png
 
 # ---> Direnv
 .direnv
