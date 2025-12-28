@@ -8,7 +8,7 @@ import path from "path";
 import sharp from "sharp";
 import { memoize } from "#utils/memoize.js";
 
-const CROP_CACHE_DIR = ".crop-cache";
+const CROP_CACHE_DIR = ".image-cache";
 
 const isServeMode = () => process.env.ELEVENTY_RUN_MODE === "serve";
 
