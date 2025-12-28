@@ -1,6 +1,8 @@
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import slugify from "@sindresorhus/slugify";
 import { renderPdfTemplate } from "json-to-pdf";
+import site from "#data/site.json" with { type: "json" };
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
@@ -45,11 +47,18 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
     ...new Map(allDietaryKeys.map((key) => [key.symbol, key])).values(),
   ];
 
+  // Pre-join dietary keys as a string since json-to-pdf doesn't support @last
+  const dietaryKeyString = uniqueDietaryKeys
+    .map((k) => `(${k.symbol}) ${k.label}`)
+    .join(", ");
+
   return {
-    title: menu.data.title,
+    businessName: site.name,
+    menuTitle: menu.data.title,
     subtitle: menu.data.subtitle || "",
     categories: pdfCategories,
-    dietaryKey: uniqueDietaryKeys.map((k) => `(${k.symbol}) ${k.label}`),
+    dietaryKeyString,
+    hasDietaryKeys: uniqueDietaryKeys.length > 0,
   };
 }
 
@@ -59,8 +68,14 @@ function createMenuPdfTemplate() {
     pageMargins: [40, 40, 40, 40],
     content: [
       {
-        text: "{{title}}",
-        style: "title",
+        text: "{{businessName}}",
+        style: "businessName",
+        alignment: "center",
+        margin: [0, 0, 0, 5],
+      },
+      {
+        text: "{{menuTitle}}",
+        style: "menuTitle",
         alignment: "center",
         margin: [0, 0, 0, 5],
       },
@@ -122,22 +137,24 @@ function createMenuPdfTemplate() {
         ],
       },
       {
-        "{{#if dietaryKey.length}}": {
+        "{{#if hasDietaryKeys}}": {
           text: [
             { text: "Dietary Key: ", style: "dietaryKeyLabel" },
-            {
-              text: "{{#each dietaryKey:dk}}{{dk}}{{#unless @last}}, {{/unless}}{{/each}}",
-              style: "dietaryKeyText",
-            },
+            { text: "{{dietaryKeyString}}", style: "dietaryKeyText" },
           ],
           margin: [0, 25, 0, 0],
         },
       },
     ],
     styles: {
-      title: {
+      businessName: {
         fontSize: 24,
         bold: true,
+      },
+      menuTitle: {
+        fontSize: 18,
+        bold: true,
+        color: "#333333",
       },
       subtitle: {
         fontSize: 12,
@@ -197,7 +214,10 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
     return null;
   }
 
-  const outputPath = `${outputDir}/menus/${menu.fileSlug}/menu.pdf`;
+  // Filename: "business-name - menu-slug.pdf"
+  const businessSlug = slugify(site.name);
+  const filename = `${businessSlug} - ${menu.fileSlug}.pdf`;
+  const outputPath = `${outputDir}/menus/${menu.fileSlug}/${filename}`;
   const dir = dirname(outputPath);
 
   if (!existsSync(dir)) {
