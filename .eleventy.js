@@ -12,7 +12,7 @@ import { configureGuides } from "#collections/guides.js";
 import { configureLocations } from "#collections/locations.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
-import { configureProducts, addGallery } from "#collections/products.js";
+import { configureProducts } from "#collections/products.js";
 import { configureProperties } from "#collections/properties.js";
 import { configureReviews } from "#collections/reviews.js";
 import { configureSearch } from "#collections/search.js";
@@ -77,7 +77,7 @@ export default async function (eleventyConfig) {
   configureProductFilters(eleventyConfig);
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
-  configureReviews(eleventyConfig, { addGalleryFn: addGallery });
+  configureReviews(eleventyConfig);
   configurePropertyFilters(eleventyConfig);
   configureScss(eleventyConfig);
   configureSearch(eleventyConfig);

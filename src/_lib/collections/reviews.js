@@ -1,5 +1,4 @@
 import { sortByDateDescending } from "#utils/sorting.js";
-import config from "#data/config.js";
 
 /**
  * Creates the main reviews collection.
@@ -52,7 +51,7 @@ const countReviews = (reviews, slug, field = "products") =>
   reviews.filter((review) => review.data[field]?.includes(slug)).length;
 
 /**
- * Helper to count reviews for a product (backward compatibility)
+ * Count reviews for a product
  */
 const countProductReviews = (reviews, productSlug) =>
   countReviews(reviews, productSlug, "products");
@@ -78,7 +77,7 @@ const getRating = (reviews, slug, field = "products") => {
 };
 
 /**
- * Get product rating (backward compatibility wrapper)
+ * Get product rating
  */
 const getProductRating = (reviews, productSlug) =>
   getRating(reviews, productSlug, "products");
@@ -104,75 +103,12 @@ const ratingToStars = (rating) => {
 };
 
 /**
- * Creates a collection of products that have enough reviews
- * to warrant a separate reviews page (more than reviews_truncate_limit)
+ * Configure reviews collection and filters for Eleventy
  */
-const createProductsWithReviewsPageCollection = (
-  collectionApi,
-  addGalleryFn,
-) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
-  const reviews = collectionApi.getFilteredByTag("review") || [];
-  const visibleReviews = reviews.filter((r) => r.data.hidden !== true);
-  const limit = config().reviews_truncate_limit;
-
-  // If limit is -1, no truncation occurs so no separate page needed
-  if (limit === -1) return [];
-
-  return products
-    .map(addGalleryFn)
-    .filter(
-      (product) => countProductReviews(visibleReviews, product.fileSlug) > limit,
-    );
-};
-
-/**
- * Creates a collection of redirect data for products that don't have
- * enough reviews for a separate page (reviews <= reviews_truncate_limit)
- */
-const createProductReviewsRedirectsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
-  const reviews = collectionApi.getFilteredByTag("review") || [];
-  const visibleReviews = reviews.filter((r) => r.data.hidden !== true);
-  const limit = config().reviews_truncate_limit;
-
-  // If limit is -1, no truncation occurs so all products need redirects
-  if (limit === -1) {
-    return products.map((product) => ({
-      product,
-      fileSlug: product.fileSlug,
-    }));
-  }
-
-  return products
-    .filter(
-      (product) =>
-        countProductReviews(visibleReviews, product.fileSlug) <= limit,
-    )
-    .map((product) => ({
-      product,
-      fileSlug: product.fileSlug,
-    }));
-};
-
-/**
- * Configure reviews collections and filters for Eleventy
- */
-const configureReviews = (eleventyConfig, { addGalleryFn } = {}) => {
+const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
 
-  if (addGalleryFn) {
-    eleventyConfig.addCollection("productsWithReviewsPage", (collectionApi) =>
-      createProductsWithReviewsPageCollection(collectionApi, addGalleryFn),
-    );
-  }
-
-  eleventyConfig.addCollection(
-    "productReviewsRedirects",
-    createProductReviewsRedirectsCollection,
-  );
-
-  // Product review filters (backward compatibility)
+  // Product review filters
   eleventyConfig.addFilter("getReviewsByProduct", getReviewsByProduct);
   eleventyConfig.addFilter("getProductRating", getProductRating);
 
@@ -202,7 +138,5 @@ export {
   getCategoryRating,
   getPropertyRating,
   ratingToStars,
-  createProductsWithReviewsPageCollection,
-  createProductReviewsRedirectsCollection,
   configureReviews,
 };

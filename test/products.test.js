@@ -243,6 +243,16 @@ const testCases = [
         "Should add products collection",
       );
       expectFunctionType(
+        mockConfig.collections,
+        "productsWithReviewsPage",
+        "Should add productsWithReviewsPage collection",
+      );
+      expectFunctionType(
+        mockConfig.collections,
+        "productReviewsRedirects",
+        "Should add productReviewsRedirects collection",
+      );
+      expectFunctionType(
         mockConfig.filters,
         "getProductsByCategory",
         "Should add getProductsByCategory filter",

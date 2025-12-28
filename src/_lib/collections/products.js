@@ -1,4 +1,6 @@
 import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { countProductReviews } from "#collections/reviews.js";
+import config from "#data/config.js";
 
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
@@ -79,9 +81,72 @@ const createApiSkusCollection = (collectionApi) => {
   return skus;
 };
 
+/**
+ * Get visible reviews from collection API
+ */
+const getVisibleReviews = (collectionApi) => {
+  const reviews = collectionApi.getFilteredByTag("review") || [];
+  return reviews.filter((r) => r.data.hidden !== true);
+};
+
+/**
+ * Creates a collection of products that have enough reviews
+ * to warrant a separate reviews page (more than reviews_truncate_limit)
+ */
+const createProductsWithReviewsPageCollection = (collectionApi) => {
+  const products = collectionApi.getFilteredByTag("product") || [];
+  const visibleReviews = getVisibleReviews(collectionApi);
+  const limit = config().reviews_truncate_limit;
+
+  // If limit is -1, no truncation occurs so no separate page needed
+  if (limit === -1) return [];
+
+  return products
+    .map(addGallery)
+    .filter(
+      (product) => countProductReviews(visibleReviews, product.fileSlug) > limit,
+    );
+};
+
+/**
+ * Creates a collection of redirect data for products that don't have
+ * enough reviews for a separate page (reviews <= reviews_truncate_limit)
+ */
+const createProductReviewsRedirectsCollection = (collectionApi) => {
+  const products = collectionApi.getFilteredByTag("product") || [];
+  const visibleReviews = getVisibleReviews(collectionApi);
+  const limit = config().reviews_truncate_limit;
+
+  // If limit is -1, no truncation occurs so all products need redirects
+  if (limit === -1) {
+    return products.map((product) => ({
+      product,
+      fileSlug: product.fileSlug,
+    }));
+  }
+
+  return products
+    .filter(
+      (product) =>
+        countProductReviews(visibleReviews, product.fileSlug) <= limit,
+    )
+    .map((product) => ({
+      product,
+      fileSlug: product.fileSlug,
+    }));
+};
+
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
+  eleventyConfig.addCollection(
+    "productsWithReviewsPage",
+    createProductsWithReviewsPageCollection,
+  );
+  eleventyConfig.addCollection(
+    "productReviewsRedirects",
+    createProductReviewsRedirectsCollection,
+  );
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
@@ -94,6 +159,8 @@ export {
   addGallery,
   createProductsCollection,
   createApiSkusCollection,
+  createProductsWithReviewsPageCollection,
+  createProductReviewsRedirectsCollection,
   getProductsByCategory,
   getProductsByEvent,
   getFeaturedProducts,

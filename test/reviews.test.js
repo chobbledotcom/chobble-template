@@ -447,24 +447,13 @@ const testCases = [
     description: "Configures reviews collection and filters",
     test: () => {
       const mockConfig = createMockEleventyConfig();
-      const mockAddGallery = (item) => item;
 
-      configureReviews(mockConfig, { addGalleryFn: mockAddGallery });
+      configureReviews(mockConfig);
 
       expectFunctionType(
         mockConfig.collections,
         "reviews",
         "Should add reviews collection",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "productsWithReviewsPage",
-        "Should add productsWithReviewsPage collection",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "productReviewsRedirects",
-        "Should add productReviewsRedirects collection",
       );
       expectFunctionType(
         mockConfig.filters,
