@@ -6,6 +6,8 @@ layout: base
 
 {{ content }}
 
+<p><a href="menu.pdf" download>Download PDF Menu</a></p>
+
 <hr>
 
 {%- assign menu_categories = collections.menu_category | getCategoriesByMenu: page.fileSlug | sort: "data.order" -%}
