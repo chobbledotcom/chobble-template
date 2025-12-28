@@ -1,7 +1,12 @@
+import slugify from "@sindresorhus/slugify";
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {
+    pdfFilename: (data) => {
+      const businessSlug = slugify(data.site.name);
+      return `${businessSlug}-${data.page.fileSlug}.pdf`;
+    },
     eleventyNavigation: (data) => {
       return {
         key: data.title,

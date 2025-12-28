@@ -6,9 +6,6 @@ layout: base
 
 {{ content }}
 
-{%- assign pdf_filename = site.name | slugify | append: "-" | append: page.fileSlug | append: ".pdf" -%}
-<p><a href="{{ pdf_filename }}" download>Download PDF Menu</a></p>
-
 <hr>
 
 {%- assign menu_categories = collections.menu_category | getCategoriesByMenu: page.fileSlug | sort: "data.order" -%}
@@ -51,4 +48,11 @@ layout: base
       </ul>
     {%- endif -%}
   {%- endfor -%}
+
+  <p class="pdf-download">
+    <a href="{{ pdfFilename }}" download>
+      {{ "icons/pdf.svg" | inline_asset }}
+      <span>Download PDF</span>
+    </a>
+  </p>
 {%- endif -%}
