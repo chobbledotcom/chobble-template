@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import Image, {
   eleventyImageOnRequestDuringServePlugin,
 } from "@11ty/eleventy-img";
@@ -6,6 +7,8 @@ import { JSDOM } from "jsdom";
 import path from "path";
 import sharp from "sharp";
 import { memoize } from "#utils/memoize.js";
+
+const CROP_CACHE_DIR = ".image-cache";
 
 const isServeMode = () => process.env.ELEVENTY_RUN_MODE === "serve";
 
@@ -29,12 +32,6 @@ const U = {
     urlPath: "/img/",
     svgShortCircuit: true,
     filenameFormat: (id, src, width, format) => {
-      // For cropped images (Buffers), just use the hash-based id
-      if (Buffer.isBuffer(src)) {
-        return `${id}-${width}.${format}`;
-      }
-
-      // For non-cropped images (file paths), use the original filename
       const basename = path.basename(src, path.extname(src));
       return `${basename}-${width}.${format}`;
     },
@@ -42,8 +39,8 @@ const U = {
   DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
   DEFAULT_SIZE: "auto",
   ASPECT_RATIO_ATTRIBUTE: "eleventy:aspectRatio",
-  makeImagePromise: (imageOrPath, widths) => {
-    return Image(imageOrPath, {
+  makeImagePromise: (path, widths) => {
+    return Image(path, {
       ...U.DEFAULT_OPTIONS,
       widths: widths,
       transformOnRequest: isServeMode(),
@@ -77,8 +74,25 @@ const U = {
     gcd = gcd(metadata.width, metadata.height);
     return `${metadata.width / gcd}/${metadata.height / gcd}`;
   },
-  cropImage: async (aspectRatio, sharpImage, metadata) => {
+  cropImage: async (aspectRatio, sourcePath, metadata) => {
     if (aspectRatio == null) return null;
+
+    // Generate deterministic cache path based on source path and aspect ratio
+    const hash = crypto
+      .createHash("md5")
+      .update(`${sourcePath}:${aspectRatio}`)
+      .digest("hex")
+      .slice(0, 8);
+    const basename = path.basename(sourcePath, path.extname(sourcePath));
+    const cachedPath = path.join(
+      CROP_CACHE_DIR,
+      `${basename}-crop-${hash}.jpeg`,
+    );
+
+    // Return cached path if it exists
+    if (fs.existsSync(cachedPath)) {
+      return cachedPath;
+    }
 
     // aspectRatio is a string like "16/9"
     const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
@@ -86,7 +100,15 @@ const U = {
     const width = metadata.width;
     const height = Math.round(width / aspectFraction);
 
-    return sharpImage.resize(width, height, { fit: "cover" }).toBuffer();
+    // Ensure cache directory exists
+    fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
+
+    // Crop and save to cache
+    await sharp(sourcePath)
+      .resize(width, height, { fit: "cover" })
+      .toFile(cachedPath);
+
+    return cachedPath;
   },
   // Build div HTML string directly instead of using JSDOM (much faster)
   makeDivHtml: async (classes, thumbPromise, imageAspectRatio, innerHTML) => {
@@ -210,26 +232,23 @@ async function processAndWrapImage({
     return returnElement ? htmlToElement(html, document) : html;
   }
 
-  const path = U.getPath(imageName);
-  const sharpImage = sharp(path);
-  const metadata = await U.getMetadata(path);
+  const imagePath = U.getPath(imageName);
+  const metadata = await U.getMetadata(imagePath);
 
   // Check if we should skip base64 placeholder for SVG or images under 5KB
   const isSvg = metadata.format === "svg";
-  const fileSize = U.getFileSize(path);
+  const fileSize = U.getFileSize(imagePath);
   const isUnder5KB = fileSize < 5 * 1024;
   const shouldSkipPlaceholder = isSvg || isUnder5KB;
 
-  const thumbPromise = shouldSkipPlaceholder ? null : U.makeThumbnail(path);
+  const thumbPromise = shouldSkipPlaceholder
+    ? null
+    : U.makeThumbnail(imagePath);
   const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
-  const croppedImageOrNull = await U.cropImage(
-    aspectRatio,
-    sharpImage,
-    metadata,
-  );
-  const imageOrPath = croppedImageOrNull || path;
+  const croppedPathOrNull = await U.cropImage(aspectRatio, imagePath, metadata);
+  const finalPath = croppedPathOrNull || imagePath;
 
-  const imagePromise = U.makeImagePromise(imageOrPath, U.getWidths(widths));
+  const imagePromise = U.makeImagePromise(finalPath, U.getWidths(widths));
 
   const innerHTML = await U.makeImageHtml(
     imagePromise,
