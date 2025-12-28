@@ -1,4 +1,4 @@
-import { getReviewsByProduct } from "#collections/products.js";
+import { getReviewsByProduct } from "#collections/reviews.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 
 function buildImageUrl(imageInput, siteUrl) {
