@@ -147,6 +147,62 @@ const getItemsByFilters = (items, filters) => {
 };
 
 /**
+ * Build a map of normalized filter attributes for all items (for fast lookups)
+ * Keys and values are pre-normalized for O(1) comparison
+ * Returns: Map<item, { size: "small", capacity: "3" }>
+ */
+const buildItemAttributeMap = (items) => {
+  const map = new Map();
+  for (const item of items) {
+    const attrs = parseFilterAttributes(item.data.filter_attributes);
+    const normalizedAttrs = {};
+    for (const [key, value] of Object.entries(attrs)) {
+      normalizedAttrs[normalize(key)] = normalize(value);
+    }
+    map.set(item, normalizedAttrs);
+  }
+  return map;
+};
+
+/**
+ * Check if an item matches filters using pre-normalized attributes
+ * Expects itemAttrs to already be normalized
+ */
+const itemMatchesFiltersWithMap = (itemAttrs, normalizedFilters) => {
+  for (const [key, value] of Object.entries(normalizedFilters)) {
+    if (itemAttrs[key] !== value) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Normalize filter keys and values for comparison
+ */
+const normalizeFilters = (filters) => {
+  const normalized = {};
+  for (const [key, value] of Object.entries(filters)) {
+    normalized[normalize(key)] = normalize(value);
+  }
+  return normalized;
+};
+
+/**
+ * Count items matching filters using pre-built attribute map
+ */
+const countMatchingItems = (items, itemAttrMap, filters) => {
+  const normalizedFilters = normalizeFilters(filters);
+  let count = 0;
+  for (const item of items) {
+    if (itemMatchesFiltersWithMap(itemAttrMap.get(item), normalizedFilters)) {
+      count++;
+    }
+  }
+  return count;
+};
+
+/**
  * Generate all filter combinations that have matching items
  * Returns array of { filters: {...}, path: "...", count: N }
  */
@@ -157,6 +213,9 @@ const generateFilterCombinations = memoize((items) => {
   const attributeKeys = Object.keys(allAttributes);
 
   if (attributeKeys.length === 0) return [];
+
+  // Pre-build attribute map for all items (single pass)
+  const itemAttrMap = buildItemAttributeMap(items);
 
   const combinations = [];
   const seen = new Set();
@@ -170,13 +229,13 @@ const generateFilterCombinations = memoize((items) => {
         const path = filterToPath(newFilters);
 
         if (!seen.has(path)) {
-          const matchingItems = getItemsByFilters(items, newFilters);
-          if (matchingItems.length > 0) {
+          const matchCount = countMatchingItems(items, itemAttrMap, newFilters);
+          if (matchCount > 0) {
             seen.add(path);
             combinations.push({
               filters: newFilters,
               path,
-              count: matchingItems.length,
+              count: matchCount,
             });
             // Recurse to add more filters from the next keys
             generateCombos(newFilters, i + 1);
