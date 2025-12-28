@@ -214,9 +214,9 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
     return null;
   }
 
-  // Filename: "business-name - menu-slug.pdf"
+  // Filename: "business-name-menu-slug.pdf"
   const businessSlug = slugify(site.name);
-  const filename = `${businessSlug} - ${menu.fileSlug}.pdf`;
+  const filename = `${businessSlug}-${menu.fileSlug}.pdf`;
   const outputPath = `${outputDir}/menus/${menu.fileSlug}/${filename}`;
   const dir = dirname(outputPath);
 

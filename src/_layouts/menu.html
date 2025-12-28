@@ -6,7 +6,7 @@ layout: base
 
 {{ content }}
 
-{%- assign pdf_filename = site.name | slugify | append: " - " | append: page.fileSlug | append: ".pdf" -%}
+{%- assign pdf_filename = site.name | slugify | append: "-" | append: page.fileSlug | append: ".pdf" -%}
 <p><a href="{{ pdf_filename }}" download>Download PDF Menu</a></p>
 
 <hr>
