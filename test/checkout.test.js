@@ -4,22 +4,22 @@
 
 import assert from "assert";
 import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
-import { createTestRunner } from "./test-utils.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { buildJsConfigScript } from "../src/_lib/eleventy/js-config.js";
 
 // Import actual cart utilities
 import {
-  STORAGE_KEY,
   formatPrice,
   getCart,
   getItemCount,
   removeItem,
+  STORAGE_KEY,
   saveCart,
 } from "../src/assets/js/cart-utils.js";
-import { buildJsConfigScript } from "../src/_lib/eleventy/js-config.js";
+import { createTestRunner } from "./test-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -260,10 +260,14 @@ const testCases = [
         try {
           const cart = getCart();
           assert.deepStrictEqual(cart, []);
-          assert.strictEqual(warnings.length, 1, "Expected one warning to be logged");
+          assert.strictEqual(
+            warnings.length,
+            1,
+            "Expected one warning to be logged",
+          );
           assert.ok(
             warnings[0][0].includes("parse error"),
-            "Warning should mention parse error"
+            "Warning should mention parse error",
           );
         } finally {
           console.warn = originalWarn;
@@ -1367,10 +1371,9 @@ const testCases = [
     asyncTest: async () => {
       // Render templates for quote mode
       const config = { cart_mode: "quote" };
-      const cartIcon = await renderTemplate(
-        "src/_includes/cart-icon.html",
-        { config },
-      );
+      const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
+        config,
+      });
       const productOptionsHtml = await renderTemplate(
         "src/_includes/product-options.html",
         {

@@ -48,4 +48,11 @@ layout: base
       </ul>
     {%- endif -%}
   {%- endfor -%}
+
+  <p class="pdf-download">
+    <a href="{{ pdfFilename }}" download>
+      {{ "icons/pdf.svg" | inline_asset }}
+      <span>Download PDF</span>
+    </a>
+  </p>
 {%- endif -%}

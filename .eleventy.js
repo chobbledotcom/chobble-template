@@ -27,6 +27,7 @@ import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
+import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
 
@@ -63,6 +64,7 @@ export default async function (eleventyConfig) {
   configureGuides(eleventyConfig);
   configureICal(eleventyConfig);
   configureImages(eleventyConfig);
+  configurePdf(eleventyConfig);
   configureJsConfig(eleventyConfig);
   configureInlineAsset(eleventyConfig);
   configureLocations(eleventyConfig);

@@ -1,15 +1,12 @@
-import {
-  buildJsConfigScript,
-  configureJsConfig,
-} from "#eleventy/js-config.js";
 import getConfig from "#data/config.js";
+import { buildJsConfigScript, configureJsConfig } from "#eleventy/js-config.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
+  expectFalse,
   expectFunctionType,
   expectStrictEqual,
   expectTrue,
-  expectFalse,
 } from "./test-utils.js";
 
 const testCases = [
@@ -193,9 +190,7 @@ const testCases = [
       const result = shortcodeFn.call({});
 
       // Parse the JSON from the result
-      const jsonMatch = result.match(
-        /<script[^>]*>(.*)<\/script>/,
-      );
+      const jsonMatch = result.match(/<script[^>]*>(.*)<\/script>/);
       expectTrue(jsonMatch !== null, "Should contain JSON");
 
       const parsed = JSON.parse(jsonMatch[1]);

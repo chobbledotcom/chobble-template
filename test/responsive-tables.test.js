@@ -133,7 +133,11 @@ const testCases = [
         cssContent,
         "style.css",
       );
-      expectStrictEqual(result, cssContent, "Should not process non-HTML files");
+      expectStrictEqual(
+        result,
+        cssContent,
+        "Should not process non-HTML files",
+      );
     },
   },
   {

@@ -1,7 +1,9 @@
+import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {
+    pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
     eleventyNavigation: (data) => {
       return {
         key: data.title,

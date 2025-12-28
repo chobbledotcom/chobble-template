@@ -53,7 +53,10 @@ export function updateCartIcon() {
   const icons = document.querySelectorAll(".cart-icon");
   console.log("[cart-utils.js] Found cart-icon elements:", icons.length);
   icons.forEach((icon, i) => {
-    console.log(`[cart-utils.js] Cart icon ${i}: setting display to`, count > 0 ? "flex" : "none");
+    console.log(
+      `[cart-utils.js] Cart icon ${i}: setting display to`,
+      count > 0 ? "flex" : "none",
+    );
     icon.style.display = count > 0 ? "flex" : "none";
     const badge = icon.querySelector(".cart-count");
     if (badge) {
