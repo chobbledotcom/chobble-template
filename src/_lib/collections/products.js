@@ -1,15 +1,5 @@
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
-// Re-export review functions for backward compatibility
-export {
-  createReviewsCollection,
-  getReviewsByProduct,
-  getProductRating,
-  ratingToStars,
-  createProductsWithReviewsPageCollection,
-  createProductReviewsRedirectsCollection,
-} from "#collections/reviews.js";
-
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
   if (Array.isArray(gallery)) return gallery;
