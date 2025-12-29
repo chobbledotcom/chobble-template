@@ -10,8 +10,8 @@ body.property {
     display: grid;
     gap: 2rem;
     grid-template-areas:
-      "gallery"
       "title"
+      "gallery"
       "description"
       "contact"
       "faqs";
@@ -39,8 +39,8 @@ body.property {
     @include breakpoints.up("lg") {
       gap: 2rem;
       grid-template-areas:
+        "title title"
         "gallery gallery"
-        "title description"
         "contact description"
         "faqs faqs";
       grid-template-columns: 300px 1fr;
