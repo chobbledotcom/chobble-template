@@ -1,0 +1,16 @@
+{%- if gallery and gallery.size > 0 -%}
+<div class="property-gallery">
+  {% include "gallery-current-image.html" %}
+  {% include "gallery-full-size-images.html" %}
+
+  {%- if gallery.size > 1 -%}
+  <div class="slider-container property-thumbnails">
+    {% include "gallery-thumbnails.html", class: "slider" %}
+    <p class="slider-nav" aria-hidden="true">
+      <a href="#" class="slider-prev">&larr;</a>
+      <a href="#" class="slider-next">&rarr;</a>
+    </p>
+  </div>
+  {%- endif -%}
+</div>
+{%- endif -%}

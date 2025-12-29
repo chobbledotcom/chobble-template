@@ -1,0 +1,8 @@
+<div aria-hidden="true" class="gallery-full-size-images">
+  {%- for image in gallery -%}
+    {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+    <div class="full-image-{{ forloop.index }}">
+      {% image image, alt_text, config.products.gallery_image_widths, "fade-in" %}
+    </div>
+  {% endfor %}
+</div>
