@@ -1,65 +1,20 @@
 // Availability Calendar Styles
-// Reuses dialog patterns from cart.scss
+// Uses shared dialog mixins
 
 @use "breakpoints";
+@use "dialog";
 
-// Dialog - reuses same patterns as cart overlay
+// Dialog - uses shared dialog patterns
 dialog.availability-calendar {
-  background: var(--color-bg);
-  color: var(--color-text);
-  border: var(--border);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  max-width: 50rem;
-  width: calc(100% - 2rem);
-  max-height: 90vh;
-  padding: 0;
-  margin: auto;
+  @include dialog.dialog-box(50rem);
 
-  &[open] {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &::backdrop {
-    background: rgba(0, 0, 0, 0.85);
+  // Custom header padding
+  > header {
+    padding: 1.5rem;
   }
 }
 
-// Scroll lock when modal is open
-html:has(dialog.availability-calendar[open]) {
-  overflow: hidden;
-  scrollbar-gutter: stable;
-}
-
-// Header - matches cart header pattern
-.availability-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: var(--border);
-
-  h2 {
-    margin: 0;
-  }
-
-  form {
-    display: contents;
-  }
-
-  .availability-close {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    width: 2rem;
-    height: 2rem;
-  }
-}
+@include dialog.dialog-scroll-lock("dialog.availability-calendar");
 
 // Content area
 .calendar-content {
@@ -129,14 +84,11 @@ html:has(dialog.availability-calendar[open]) {
 // Mobile adjustments
 @include breakpoints.down("md") {
   dialog.availability-calendar {
-    width: 100%;
-    max-width: 100%;
+    @include dialog.dialog-mobile-fullscreen;
     height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
   }
 
-  .availability-header,
+  dialog.availability-calendar > header,
   .calendar-content {
     padding: 1rem;
   }

@@ -15,7 +15,8 @@
 	"ignoreDependencies": [
 		"@zachleat/heading-anchors",
 		"@botpoison/browser",
-		"@hotwired/turbo"
+		"@hotwired/turbo",
+		"liquidjs"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
