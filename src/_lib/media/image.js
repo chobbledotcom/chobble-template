@@ -12,6 +12,29 @@ const CROP_CACHE_DIR = ".image-cache";
 
 const isServeMode = () => process.env.ELEVENTY_RUN_MODE === "serve";
 
+const generateCropHash = (sourcePath, aspectRatio) => {
+  return crypto
+    .createHash("md5")
+    .update(`${sourcePath}:${aspectRatio}`)
+    .digest("hex")
+    .slice(0, 8);
+};
+
+const buildCropCachePath = (sourcePath, aspectRatio) => {
+  const hash = generateCropHash(sourcePath, aspectRatio);
+  const basename = path.basename(sourcePath, path.extname(sourcePath));
+  return path.join(CROP_CACHE_DIR, `${basename}-crop-${hash}.jpeg`);
+};
+
+const parseCropDimensions = (aspectRatio, metadata) => {
+  const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
+  const aspectFraction = dimensions[0] / dimensions[1];
+  return {
+    width: metadata.width,
+    height: Math.round(metadata.width / aspectFraction),
+  };
+};
+
 // Helper to convert HTML string to DOM element
 const htmlToElement = (html, document = null) => {
   if (document) {
@@ -77,36 +100,12 @@ const U = {
   cropImage: async (aspectRatio, sourcePath, metadata) => {
     if (aspectRatio == null) return null;
 
-    // Generate deterministic cache path based on source path and aspect ratio
-    const hash = crypto
-      .createHash("md5")
-      .update(`${sourcePath}:${aspectRatio}`)
-      .digest("hex")
-      .slice(0, 8);
-    const basename = path.basename(sourcePath, path.extname(sourcePath));
-    const cachedPath = path.join(
-      CROP_CACHE_DIR,
-      `${basename}-crop-${hash}.jpeg`,
-    );
+    const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
+    if (fs.existsSync(cachedPath)) return cachedPath;
 
-    // Return cached path if it exists
-    if (fs.existsSync(cachedPath)) {
-      return cachedPath;
-    }
-
-    // aspectRatio is a string like "16/9"
-    const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
-    const aspectFraction = dimensions[0] / dimensions[1];
-    const width = metadata.width;
-    const height = Math.round(width / aspectFraction);
-
-    // Ensure cache directory exists
+    const { width, height } = parseCropDimensions(aspectRatio, metadata);
     fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-
-    // Crop and save to cache
-    await sharp(sourcePath)
-      .resize(width, height, { fit: "cover" })
-      .toFile(cachedPath);
+    await sharp(sourcePath).resize(width, height, { fit: "cover" }).toFile(cachedPath);
 
     return cachedPath;
   },
