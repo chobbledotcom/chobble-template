@@ -4,4 +4,10 @@
   {%- if rating -%}
     <p id="reviews-count"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
   {%- endif -%}
+{%- elsif tags and tags contains "property" -%}
+  {% assign reviews = collections.reviews | getReviewsByProperty: page.fileSlug %}
+  {% assign rating = collections.reviews | getPropertyRating: page.fileSlug %}
+  {%- if rating -%}
+    <p id="reviews-count"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
+  {%- endif -%}
 {%- endif -%}
