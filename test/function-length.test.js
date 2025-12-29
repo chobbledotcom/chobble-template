@@ -10,6 +10,10 @@ const rootDir = resolve(__dirname, "..");
 const MAX_LINES = 50;
 const PREFERRED_LINES = 30;
 
+// Directories to skip when scanning for JS files
+const SKIP_DIRS = new Set(["node_modules", "_site", "test"]);
+const SKIP_PATHS = new Set(["src/assets/js"]);
+
 // Functions that are intentionally long (e.g., complex templates, data builders)
 // These are baseline exceptions - new long functions should be refactored
 const IGNORED_FUNCTIONS = new Set([
@@ -19,6 +23,28 @@ const IGNORED_FUNCTIONS = new Set([
   "buildFilterUIData", // Complex filter UI data structure builder
   "buildProductMeta", // Schema.org metadata with many optional fields
 ]);
+
+const shouldSkipDir = (name, filePath) => {
+  if (name.startsWith(".")) return true;
+  if (SKIP_DIRS.has(name)) return true;
+  if (SKIP_PATHS.has(path.relative(rootDir, filePath))) return true;
+  return false;
+};
+
+const getJsFiles = (dir, files = []) => {
+  for (const name of fs.readdirSync(dir)) {
+    const filePath = path.join(dir, name);
+
+    if (fs.statSync(filePath).isDirectory()) {
+      if (!shouldSkipDir(name, filePath)) {
+        getJsFiles(filePath, files);
+      }
+    } else if (name.endsWith(".js")) {
+      files.push(filePath);
+    }
+  }
+  return files;
+};
 
 /**
  * Extract all function definitions from JavaScript source code.
@@ -144,41 +170,6 @@ const extractFunctions = (source) => {
   }
 
   return functions;
-};
-
-/**
- * Recursively get all JavaScript files from a directory.
- * Skips test files and bundled browser JS which have different constraints.
- */
-const getJsFiles = (dir, fileList = []) => {
-  const files = fs.readdirSync(dir);
-
-  for (const file of files) {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-
-    if (stat.isDirectory()) {
-      // Skip node_modules, _site, test, assets/js, and hidden directories
-      // assets/js is bundled browser code with different patterns
-      if (
-        !file.startsWith(".") &&
-        file !== "node_modules" &&
-        file !== "_site" &&
-        file !== "test"
-      ) {
-        // Skip src/assets/js specifically
-        const relative = path.relative(rootDir, filePath);
-        if (relative === "src/assets/js") {
-          continue;
-        }
-        getJsFiles(filePath, fileList);
-      }
-    } else if (file.endsWith(".js")) {
-      fileList.push(filePath);
-    }
-  }
-
-  return fileList;
 };
 
 /**
