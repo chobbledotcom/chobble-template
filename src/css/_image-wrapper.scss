@@ -13,5 +13,6 @@ img,
   overflow: hidden;
   img {
     backdrop-filter: blur(10px);
+    background-color: transparent;
   }
 }
