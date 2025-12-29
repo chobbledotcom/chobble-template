@@ -5,8 +5,8 @@
 @use "breakpoints";
 
 // Layout adjustments for property gallery pages
-body.property-gallery-layout {
-  #item.property-layout {
+body.property {
+  #item {
     display: grid;
     gap: 2rem;
     grid-template-areas:
