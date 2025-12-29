@@ -4,12 +4,7 @@
 {% include "gallery-full-size-images.html" %}
 
 {%- if gallery.size > 1 -%}
-<ul id="gallery" class="image-gallery">
-  {%- for image in gallery -%}
-    {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-    {% include "gallery-thumbnail.html" %}
-  {%- endfor -%}
-</ul>
+{% include "gallery-thumbnails.html" %}
 {%- endif -%}
 
 {%- endif -%}

@@ -5,12 +5,7 @@
 
   {%- if gallery.size > 1 -%}
   <div class="slider-container property-thumbnails">
-    <ul id="gallery" class="image-gallery slider">
-      {%- for image in gallery -%}
-        {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-        {% include "gallery-thumbnail.html" %}
-      {%- endfor -%}
-    </ul>
+    {% include "gallery-thumbnails.html", class: "slider" %}
     <p class="slider-nav" aria-hidden="true">
       <a href="#" class="slider-prev">&larr;</a>
       <a href="#" class="slider-next">&rarr;</a>
