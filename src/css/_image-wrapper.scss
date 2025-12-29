@@ -1,0 +1,17 @@
+img,
+.image-wrapper {
+  max-width: 100%;
+  height: auto;
+}
+
+.image-wrapper {
+  position: relative;
+  display: block;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+  img {
+    backdrop-filter: blur(10px);
+  }
+}

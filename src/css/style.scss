@@ -71,12 +71,6 @@ hr {
   margin: 2.5rem 0;
 }
 
-img,
-.image-wrapper {
-  max-width: 100%;
-  height: auto;
-}
-
 [hidden] {
   display: none;
 }
@@ -529,13 +523,6 @@ img {
   }
 }
 
-.image-wrapper {
-  position: relative;
-  display: block;
-  background-size: cover;
-  background-position: center;
-}
-
 body > footer {
   background: var(--color-bg);
   border-radius: var(--border-radius);
@@ -913,7 +900,6 @@ body {
         width: 100%;
         max-width: 695px;
         height: auto;
-        border-radius: var(--border-radius-small);
       }
     }
   }
