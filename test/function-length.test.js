@@ -7,8 +7,8 @@ const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
 
 // Configuration
-const MAX_LINES = 50;
-const PREFERRED_LINES = 30;
+const MAX_LINES = 30;
+const PREFERRED_LINES = 20;
 
 // Directories to skip when scanning for JS files
 const SKIP_DIRS = new Set(["node_modules", "_site", "test"]);
