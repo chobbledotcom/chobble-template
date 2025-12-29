@@ -1,9 +1,3 @@
-{%- assign reviewsField = nil -%}
-{%- if tags and tags contains "product" -%}
-  {%- assign reviewsField = "products" -%}
-{%- elsif tags and tags contains "property" -%}
-  {%- assign reviewsField = "properties" -%}
-{%- endif -%}
 {%- if reviewsField -%}
   {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, reviewsField %}
   {% assign rating = collections.reviews | getRating: page.fileSlug, reviewsField %}
