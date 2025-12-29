@@ -21,7 +21,6 @@ const IGNORED_FUNCTIONS = new Set([
   "buildMenuPdfData", // PDF data structure with many fields
   "createFilterConfig", // Factory that creates multiple collection handlers
   "buildFilterUIData", // Complex filter UI data structure builder
-  "buildProductMeta", // Schema.org metadata with many optional fields
 ]);
 
 const shouldSkipDir = (name, filePath) => {
