@@ -1,0 +1,70 @@
+// Shared Dialog Mixins
+// Common patterns for modal dialogs (cart, availability calendar, etc.)
+
+// Base dialog box styling
+@mixin dialog-box($max-width: 40rem) {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: var(--border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: $max-width;
+  width: calc(100% - 2rem);
+  max-height: 90vh;
+  padding: 0;
+  margin: auto;
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+// Scroll lock when dialog is open
+@mixin dialog-scroll-lock($selector) {
+  html:has(#{$selector}[open]) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+}
+
+// Close button styling
+@mixin dialog-close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 2rem;
+  height: 2rem;
+}
+
+// Dialog header layout
+@mixin dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: var(--border);
+
+  h2 {
+    margin: 0;
+  }
+
+  form {
+    display: contents;
+  }
+}
+
+// Full-screen mobile dialog
+@mixin dialog-mobile-fullscreen {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100vh;
+  border-radius: 0;
+}
