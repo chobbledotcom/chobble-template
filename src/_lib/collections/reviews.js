@@ -121,6 +121,7 @@ const configureReviews = (eleventyConfig) => {
   eleventyConfig.addFilter("getPropertyRating", getPropertyRating);
 
   // Generic filters
+  eleventyConfig.addFilter("getReviewsFor", getReviewsFor);
   eleventyConfig.addFilter("getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
 };

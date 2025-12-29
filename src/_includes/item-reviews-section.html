@@ -1,5 +1,11 @@
+{%- assign reviewsField = nil -%}
 {%- if tags and tags contains "product" -%}
-  {% assign reviews = collections.reviews | getReviewsByProduct: page.fileSlug %}
+  {%- assign reviewsField = "products" -%}
+{%- elsif tags and tags contains "property" -%}
+  {%- assign reviewsField = "properties" -%}
+{%- endif -%}
+{%- if reviewsField -%}
+  {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, reviewsField %}
   {%- if reviews.size > 0 -%}
     <h2 id="reviews">Reviews</h2>
     {% assign limit = config.reviews_truncate_limit %}
@@ -11,18 +17,7 @@
       {% include "reviews-list.html" %}
     {%- endif -%}
   {%- endif -%}
-  {%- include "etsy-buy-button.html" -%}
-{%- elsif tags and tags contains "property" -%}
-  {% assign reviews = collections.reviews | getReviewsByProperty: page.fileSlug %}
-  {%- if reviews.size > 0 -%}
-    <h2 id="reviews">Reviews</h2>
-    {% assign limit = config.reviews_truncate_limit %}
-    {%- if limit != -1 and reviews.size > limit -%}
-      {% assign reviews = reviews | slice: 0, limit %}
-      {% include "reviews-list.html" %}
-      <p><a href="{{ page.url }}reviews/">See all reviews</a></p>
-    {%- else -%}
-      {% include "reviews-list.html" %}
-    {%- endif -%}
+  {%- if tags contains "product" -%}
+    {%- include "etsy-buy-button.html" -%}
   {%- endif -%}
 {%- endif -%}
