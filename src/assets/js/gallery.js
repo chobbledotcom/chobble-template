@@ -1,5 +1,13 @@
 import { onReady } from "./on-ready.js";
 
+const SVG_PREV = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <polyline points="15 18 9 12 15 6"></polyline>
+</svg>`;
+
+const SVG_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <polyline points="9 18 15 12 9 6"></polyline>
+</svg>`;
+
 let gallery, currentImage, imagePopup;
 let currentPopupIndex = 1;
 let totalImages = 0;
@@ -18,7 +26,7 @@ const showImageByIndex = (index) => {
   const fullImage = document.querySelector(`.full-image-${index}`);
   if (!fullImage) return;
 
-  currentImage.innerHTML = fullImage.innerHTML;
+  currentImage.innerHTML = fullImage.outerHTML;
   currentPopupIndex = index;
 
   const rect = currentImage.getBoundingClientRect();
@@ -28,12 +36,10 @@ const showImageByIndex = (index) => {
 };
 
 const getPopupContent = (index) => {
-  const fullImage = document.querySelector(`.full-image-${index}`);
-  if (!fullImage) return "";
-
-  const imageWrapper = fullImage.querySelector(".image-wrapper");
+  const imageWrapper = document.querySelector(
+    `.full-image-${index} .image-wrapper`,
+  );
   if (!imageWrapper) return "";
-
   return imageWrapper.outerHTML;
 };
 
@@ -42,18 +48,15 @@ const updatePopupImage = (index) => {
   if (!content) return;
 
   currentPopupIndex = index;
-  const popupImage = imagePopup.querySelector(".popup-image");
-  if (popupImage) {
-    popupImage.innerHTML = content;
-    popupImage.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
-  }
 
-  // Update button visibility
-  const prevBtn = imagePopup.querySelector(".popup-nav-prev");
-  const nextBtn = imagePopup.querySelector(".popup-nav-next");
-  if (prevBtn) prevBtn.style.visibility = index <= 1 ? "hidden" : "visible";
-  if (nextBtn)
-    nextBtn.style.visibility = index >= totalImages ? "hidden" : "visible";
+  const image = imagePopup.querySelector(".image-wrapper");
+  image.outerHTML = content;
+  image.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
+
+  const prev = imagePopup.querySelector(".popup-nav-prev");
+  const next = imagePopup.querySelector(".popup-nav-next");
+  if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
+  if (next) next.style.visibility = index >= totalImages ? "hidden" : "visible";
 };
 
 const navigatePopup = (direction) => {
@@ -64,25 +67,28 @@ const navigatePopup = (direction) => {
 };
 
 const openPopup = () => {
-  const imageWrapper = currentImage.querySelector(".image-wrapper");
+  const image = currentImage.querySelector(".image-wrapper");
 
-  // Build popup content with navigation
   const prevHidden = currentPopupIndex <= 1 ? 'style="visibility: hidden"' : "";
   const nextHidden =
     currentPopupIndex >= totalImages ? 'style="visibility: hidden"' : "";
 
   imagePopup.innerHTML = `
-    ${totalImages > 1 ? `<button type="button" class="popup-nav popup-nav-prev" ${prevHidden} aria-label="Previous image">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-    </button>` : ""}
-    <div class="popup-image">${imageWrapper.outerHTML}</div>
-    ${totalImages > 1 ? `<button type="button" class="popup-nav popup-nav-next" ${nextHidden} aria-label="Next image">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
-    </button>` : ""}
+    ${
+      totalImages > 1
+        ? `<button type="button" class="popup-nav popup-nav-prev" ${prevHidden} aria-label="Previous image">
+      ${SVG_PREV}
+    </button>`
+        : ""
+    }
+    ${image.outerHTML}
+    ${
+      totalImages > 1
+        ? `<button type="button" class="popup-nav popup-nav-next" ${nextHidden} aria-label="Next image">
+      ${SVG_NEXT}
+    </button>`
+        : ""
+    }
   `;
 
   imagePopup.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
