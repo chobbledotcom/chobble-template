@@ -1,8 +1,5 @@
 import { addGallery } from "#collections/products.js";
-import {
-  createItemsWithReviewsPageCollection,
-  createItemReviewsRedirectsCollection,
-} from "#collections/reviews.js";
+import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
 import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
@@ -24,31 +21,21 @@ const getPropertiesByLocation = memoize(
 const getFeaturedProperties = (properties) =>
   properties?.filter((p) => p.data.featured) || [];
 
-// Use generic factory functions from reviews.js
-const createPropertiesWithReviewsPageCollection =
-  createItemsWithReviewsPageCollection("property", "properties", addGallery);
-
-const createPropertyReviewsRedirectsCollection =
-  createItemReviewsRedirectsCollection("property", "properties");
+const propertiesWithReviewsPage = withReviewsPage("property", "properties", addGallery);
+const propertyReviewsRedirects = reviewsRedirects("property", "properties");
 
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", createPropertiesCollection);
-  eleventyConfig.addCollection(
-    "propertiesWithReviewsPage",
-    createPropertiesWithReviewsPageCollection,
-  );
-  eleventyConfig.addCollection(
-    "propertyReviewsRedirects",
-    createPropertyReviewsRedirectsCollection,
-  );
+  eleventyConfig.addCollection("propertiesWithReviewsPage", propertiesWithReviewsPage);
+  eleventyConfig.addCollection("propertyReviewsRedirects", propertyReviewsRedirects);
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
   eleventyConfig.addFilter("getFeaturedProperties", getFeaturedProperties);
 };
 
 export {
   createPropertiesCollection,
-  createPropertiesWithReviewsPageCollection,
-  createPropertyReviewsRedirectsCollection,
+  propertiesWithReviewsPage,
+  propertyReviewsRedirects,
   getPropertiesByLocation,
   getFeaturedProperties,
   configureProperties,

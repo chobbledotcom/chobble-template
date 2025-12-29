@@ -1,7 +1,4 @@
-import {
-  createItemsWithReviewsPageCollection,
-  createItemReviewsRedirectsCollection,
-} from "#collections/reviews.js";
+import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
 import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
@@ -83,24 +80,14 @@ const createApiSkusCollection = (collectionApi) => {
   return skus;
 };
 
-// Use generic factory functions from reviews.js
-const createProductsWithReviewsPageCollection =
-  createItemsWithReviewsPageCollection("product", "products", addGallery);
-
-const createProductReviewsRedirectsCollection =
-  createItemReviewsRedirectsCollection("product", "products");
+const productsWithReviewsPage = withReviewsPage("product", "products", addGallery);
+const productReviewsRedirects = reviewsRedirects("product", "products");
 
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
-  eleventyConfig.addCollection(
-    "productsWithReviewsPage",
-    createProductsWithReviewsPageCollection,
-  );
-  eleventyConfig.addCollection(
-    "productReviewsRedirects",
-    createProductReviewsRedirectsCollection,
-  );
+  eleventyConfig.addCollection("productsWithReviewsPage", productsWithReviewsPage);
+  eleventyConfig.addCollection("productReviewsRedirects", productReviewsRedirects);
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
@@ -113,8 +100,8 @@ export {
   addGallery,
   createProductsCollection,
   createApiSkusCollection,
-  createProductsWithReviewsPageCollection,
-  createProductReviewsRedirectsCollection,
+  productsWithReviewsPage,
+  productReviewsRedirects,
   getProductsByCategory,
   getProductsByEvent,
   getFeaturedProducts,
