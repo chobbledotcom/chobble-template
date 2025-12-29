@@ -1,8 +1,5 @@
 import { sortByOrderThenTitle } from "#utils/sorting.js";
-import {
-  countProductReviews,
-  createReviewsCollection,
-} from "#collections/reviews.js";
+import { countReviews, createReviewsCollection } from "#collections/reviews.js";
 import config from "#data/config.js";
 
 const processGallery = (gallery) => {
@@ -99,7 +96,8 @@ const createProductsWithReviewsPageCollection = (collectionApi) => {
   return products
     .map(addGallery)
     .filter(
-      (product) => countProductReviews(visibleReviews, product.fileSlug) > limit,
+      (product) =>
+        countReviews(visibleReviews, product.fileSlug, "products") > limit,
     );
 };
 
@@ -123,7 +121,7 @@ const createProductReviewsRedirectsCollection = (collectionApi) => {
   return products
     .filter(
       (product) =>
-        countProductReviews(visibleReviews, product.fileSlug) <= limit,
+        countReviews(visibleReviews, product.fileSlug, "products") <= limit,
     )
     .map((product) => ({
       product,

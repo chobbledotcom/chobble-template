@@ -24,46 +24,22 @@ const getReviewsFor = (reviews, slug, field) =>
     .sort(sortByDateDescending);
 
 /**
- * Get reviews for a specific product
- */
-const getReviewsByProduct = (reviews, productSlug) =>
-  getReviewsFor(reviews, productSlug, "products");
-
-/**
- * Get reviews for a specific category
- */
-const getReviewsByCategory = (reviews, categorySlug) =>
-  getReviewsFor(reviews, categorySlug, "categories");
-
-/**
- * Get reviews for a specific property
- */
-const getReviewsByProperty = (reviews, propertySlug) =>
-  getReviewsFor(reviews, propertySlug, "properties");
-
-/**
  * Count reviews for a specific item
  * @param {Array} reviews - Array of review objects
  * @param {string} slug - The slug to count reviews for
- * @param {string} field - The field to check (defaults to 'products')
+ * @param {string} field - The field to check
  */
-const countReviews = (reviews, slug, field = "products") =>
+const countReviews = (reviews, slug, field) =>
   reviews.filter((review) => review.data[field]?.includes(slug)).length;
-
-/**
- * Count reviews for a product
- */
-const countProductReviews = (reviews, productSlug) =>
-  countReviews(reviews, productSlug, "products");
 
 /**
  * Calculate average rating for reviews matching a specific item
  * @param {Array} reviews - Array of review objects
  * @param {string} slug - The slug to calculate rating for
- * @param {string} field - The field to check (defaults to 'products')
+ * @param {string} field - The field to check
  * @returns {number|null} Ceiling of average rating, or null if no ratings
  */
-const getRating = (reviews, slug, field = "products") => {
+const getRating = (reviews, slug, field) => {
   const matchingReviews = reviews.filter((review) =>
     review.data[field]?.includes(slug),
   );
@@ -75,24 +51,6 @@ const getRating = (reviews, slug, field = "products") => {
     ratingsWithValues.reduce((a, b) => a + b, 0) / ratingsWithValues.length;
   return Math.ceil(avg);
 };
-
-/**
- * Get product rating
- */
-const getProductRating = (reviews, productSlug) =>
-  getRating(reviews, productSlug, "products");
-
-/**
- * Get category rating
- */
-const getCategoryRating = (reviews, categorySlug) =>
-  getRating(reviews, categorySlug, "categories");
-
-/**
- * Get property rating
- */
-const getPropertyRating = (reviews, propertySlug) =>
-  getRating(reviews, propertySlug, "properties");
 
 /**
  * Convert numeric rating to star emojis
@@ -107,20 +65,6 @@ const ratingToStars = (rating) => {
  */
 const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
-
-  // Product review filters
-  eleventyConfig.addFilter("getReviewsByProduct", getReviewsByProduct);
-  eleventyConfig.addFilter("getProductRating", getProductRating);
-
-  // Category review filters
-  eleventyConfig.addFilter("getReviewsByCategory", getReviewsByCategory);
-  eleventyConfig.addFilter("getCategoryRating", getCategoryRating);
-
-  // Property review filters
-  eleventyConfig.addFilter("getReviewsByProperty", getReviewsByProperty);
-  eleventyConfig.addFilter("getPropertyRating", getPropertyRating);
-
-  // Generic filters
   eleventyConfig.addFilter("getReviewsFor", getReviewsFor);
   eleventyConfig.addFilter("getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
@@ -129,15 +73,8 @@ const configureReviews = (eleventyConfig) => {
 export {
   createReviewsCollection,
   getReviewsFor,
-  getReviewsByProduct,
-  getReviewsByCategory,
-  getReviewsByProperty,
   countReviews,
-  countProductReviews,
   getRating,
-  getProductRating,
-  getCategoryRating,
-  getPropertyRating,
   ratingToStars,
   configureReviews,
 };

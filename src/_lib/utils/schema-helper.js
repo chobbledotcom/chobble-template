@@ -1,4 +1,4 @@
-import { getReviewsByProduct } from "#collections/reviews.js";
+import { getReviewsFor } from "#collections/reviews.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 
 function buildImageUrl(imageInput, siteUrl) {
@@ -60,12 +60,13 @@ function buildProductMeta(data) {
     };
   }
 
-  // Add reviews if available (uses memoized getReviewsByProduct)
-  if (data.collections && data.collections.reviews) {
-    const productSlug = data.page.fileSlug;
-    const productReviews = getReviewsByProduct(
+  // Add reviews if available
+  if (data.collections && data.collections.reviews && data.reviewsField) {
+    const itemSlug = data.page.fileSlug;
+    const productReviews = getReviewsFor(
       data.collections.reviews,
-      productSlug,
+      itemSlug,
+      data.reviewsField,
     );
 
     if (productReviews.length > 0) {

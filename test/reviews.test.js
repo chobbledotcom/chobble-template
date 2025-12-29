@@ -1,15 +1,8 @@
 import {
   configureReviews,
-  countProductReviews,
   countReviews,
   createReviewsCollection,
-  getCategoryRating,
-  getProductRating,
-  getPropertyRating,
   getRating,
-  getReviewsByCategory,
-  getReviewsByProduct,
-  getReviewsByProperty,
   getReviewsFor,
   ratingToStars,
 } from "#collections/reviews.js";
@@ -105,8 +98,8 @@ const testCases = [
     },
   },
   {
-    name: "getReviewsByProduct-basic",
-    description: "Filters reviews by product and sorts newest first",
+    name: "getReviewsFor-products",
+    description: "Filters reviews by products field and sorts newest first",
     test: () => {
       const reviews = [
         {
@@ -124,7 +117,7 @@ const testCases = [
         { data: { title: "Review 4" }, date: new Date("2024-01-04") },
       ];
 
-      const result = getReviewsByProduct(reviews, "product-a");
+      const result = getReviewsFor(reviews, "product-a", "products");
 
       expectStrictEqual(
         result.length,
@@ -144,8 +137,8 @@ const testCases = [
     },
   },
   {
-    name: "getReviewsByProduct-no-products",
-    description: "Handles reviews without products",
+    name: "getReviewsFor-no-matches",
+    description: "Handles reviews without matching field",
     test: () => {
       const reviews = [
         { data: { title: "Review 1" } },
@@ -153,18 +146,18 @@ const testCases = [
         { data: { title: "Review 3", products: [] } },
       ];
 
-      const result = getReviewsByProduct(reviews, "product-a");
+      const result = getReviewsFor(reviews, "product-a", "products");
 
       expectStrictEqual(
         result.length,
         0,
-        "Should return no reviews when none have matching products",
+        "Should return no reviews when none have matching field",
       );
     },
   },
   {
-    name: "getReviewsByCategory-basic",
-    description: "Filters reviews by category and sorts newest first",
+    name: "getReviewsFor-categories",
+    description: "Filters reviews by categories field",
     test: () => {
       const reviews = [
         {
@@ -181,7 +174,7 @@ const testCases = [
         },
       ];
 
-      const result = getReviewsByCategory(reviews, "category-a");
+      const result = getReviewsFor(reviews, "category-a", "categories");
 
       expectStrictEqual(
         result.length,
@@ -196,8 +189,8 @@ const testCases = [
     },
   },
   {
-    name: "getReviewsByProperty-basic",
-    description: "Filters reviews by property and sorts newest first",
+    name: "getReviewsFor-properties",
+    description: "Filters reviews by properties field",
     test: () => {
       const reviews = [
         {
@@ -214,7 +207,7 @@ const testCases = [
         },
       ];
 
-      const result = getReviewsByProperty(reviews, "property-a");
+      const result = getReviewsFor(reviews, "property-a", "properties");
 
       expectStrictEqual(
         result.length,
@@ -229,7 +222,7 @@ const testCases = [
     },
   },
   {
-    name: "getReviewsFor-generic",
+    name: "getReviewsFor-custom-field",
     description: "Generic function works with any field",
     test: () => {
       const reviews = [
@@ -254,7 +247,7 @@ const testCases = [
     },
   },
   {
-    name: "countReviews-generic",
+    name: "countReviews-basic",
     description: "Counts reviews for any field type",
     test: () => {
       const reviews = [
@@ -270,6 +263,16 @@ const testCases = [
         "Should count 2 reviews for product-a",
       );
       expectStrictEqual(
+        countReviews(reviews, "product-b", "products"),
+        1,
+        "Should count 1 review for product-b",
+      );
+      expectStrictEqual(
+        countReviews(reviews, "product-d", "products"),
+        0,
+        "Should count 0 reviews for non-existent product",
+      );
+      expectStrictEqual(
         countReviews(reviews, "category-a", "categories"),
         1,
         "Should count 1 review for category-a",
@@ -277,34 +280,7 @@ const testCases = [
     },
   },
   {
-    name: "countProductReviews-basic",
-    description: "Counts product reviews correctly",
-    test: () => {
-      const reviews = [
-        { data: { products: ["product-a", "product-b"] } },
-        { data: { products: ["product-a"] } },
-        { data: { products: ["product-c"] } },
-      ];
-
-      expectStrictEqual(
-        countProductReviews(reviews, "product-a"),
-        2,
-        "Should count 2 reviews for product-a",
-      );
-      expectStrictEqual(
-        countProductReviews(reviews, "product-b"),
-        1,
-        "Should count 1 review for product-b",
-      );
-      expectStrictEqual(
-        countProductReviews(reviews, "product-d"),
-        0,
-        "Should count 0 reviews for non-existent product",
-      );
-    },
-  },
-  {
-    name: "getRating-generic",
+    name: "getRating-basic",
     description: "Calculates rating for any field type",
     test: () => {
       const reviews = [
@@ -326,24 +302,23 @@ const testCases = [
     },
   },
   {
-    name: "getProductRating-basic",
-    description: "Calculates product rating correctly",
+    name: "getRating-ceiling",
+    description: "Returns ceiling of average rating",
     test: () => {
       const reviews = [
         { data: { products: ["product-a"], rating: 5 } },
         { data: { products: ["product-a"], rating: 4 } },
-        { data: { products: ["product-b"], rating: 3 } },
       ];
 
       expectStrictEqual(
-        getProductRating(reviews, "product-a"),
+        getRating(reviews, "product-a", "products"),
         5,
         "Should calculate ceiling of average (4.5 -> 5)",
       );
     },
   },
   {
-    name: "getProductRating-no-ratings",
+    name: "getRating-no-ratings",
     description: "Returns null when no ratings exist",
     test: () => {
       const reviews = [
@@ -352,56 +327,22 @@ const testCases = [
       ];
 
       expectStrictEqual(
-        getProductRating(reviews, "product-a"),
+        getRating(reviews, "product-a", "products"),
         null,
         "Should return null when no valid ratings",
       );
     },
   },
   {
-    name: "getProductRating-no-matching-products",
-    description: "Returns null when no matching products",
+    name: "getRating-no-matches",
+    description: "Returns null when no matching items",
     test: () => {
-      const reviews = [
-        { data: { products: ["product-b"], rating: 5 } },
-      ];
+      const reviews = [{ data: { products: ["product-b"], rating: 5 } }];
 
       expectStrictEqual(
-        getProductRating(reviews, "product-a"),
+        getRating(reviews, "product-a", "products"),
         null,
         "Should return null for non-existent product",
-      );
-    },
-  },
-  {
-    name: "getCategoryRating-basic",
-    description: "Calculates category rating correctly",
-    test: () => {
-      const reviews = [
-        { data: { categories: ["category-a"], rating: 4 } },
-        { data: { categories: ["category-a"], rating: 5 } },
-      ];
-
-      expectStrictEqual(
-        getCategoryRating(reviews, "category-a"),
-        5,
-        "Should calculate ceiling of average (4.5 -> 5)",
-      );
-    },
-  },
-  {
-    name: "getPropertyRating-basic",
-    description: "Calculates property rating correctly",
-    test: () => {
-      const reviews = [
-        { data: { properties: ["property-a"], rating: 3 } },
-        { data: { properties: ["property-a"], rating: 4 } },
-      ];
-
-      expectStrictEqual(
-        getPropertyRating(reviews, "property-a"),
-        4,
-        "Should calculate ceiling of average (3.5 -> 4)",
       );
     },
   },
@@ -457,33 +398,8 @@ const testCases = [
       );
       expectFunctionType(
         mockConfig.filters,
-        "getReviewsByProduct",
-        "Should add getReviewsByProduct filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getProductRating",
-        "Should add getProductRating filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getReviewsByCategory",
-        "Should add getReviewsByCategory filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getCategoryRating",
-        "Should add getCategoryRating filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getReviewsByProperty",
-        "Should add getReviewsByProperty filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getPropertyRating",
-        "Should add getPropertyRating filter",
+        "getReviewsFor",
+        "Should add getReviewsFor filter",
       );
       expectFunctionType(
         mockConfig.filters,
@@ -511,12 +427,12 @@ const testCases = [
 
       const reviewsCopy = structuredClone(originalReviews);
 
-      getReviewsByProduct(reviewsCopy, "product-1");
+      getReviewsFor(reviewsCopy, "product-1", "products");
 
       expectDeepEqual(
         reviewsCopy,
         originalReviews,
-        "getReviewsByProduct should not modify input",
+        "getReviewsFor should not modify input",
       );
     },
   },
