@@ -7,19 +7,14 @@
 // Dialog - uses shared dialog patterns
 dialog.availability-calendar {
   @include dialog.dialog-box(50rem);
+
+  // Custom header padding
+  > header {
+    padding: 1.5rem;
+  }
 }
 
 @include dialog.dialog-scroll-lock("dialog.availability-calendar");
-
-// Header - uses shared dialog header pattern
-.availability-header {
-  @include dialog.dialog-header;
-  padding: 1.5rem;
-
-  .availability-close {
-    @include dialog.dialog-close-button;
-  }
-}
 
 // Content area
 .calendar-content {
@@ -93,7 +88,7 @@ dialog.availability-calendar {
     height: 100vh;
   }
 
-  .availability-header,
+  dialog.availability-calendar > header,
   .calendar-content {
     padding: 1rem;
   }

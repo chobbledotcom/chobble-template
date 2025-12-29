@@ -47,21 +47,17 @@
 // Provides built-in modal behavior, Escape key handling, and focus management
 dialog.cart-overlay {
   @include dialog.dialog-box(40rem);
+
+  // Custom header padding for cart
+  > header {
+    padding: 2rem 1rem;
+    border: 0;
+    margin: 0;
+    box-shadow: none;
+  }
 }
 
 @include dialog.dialog-scroll-lock("dialog.cart-overlay");
-
-.cart-header {
-  @include dialog.dialog-header;
-  padding: 2rem 1rem;
-  border: 0;
-  margin: 0;
-  box-shadow: none;
-
-  .cart-close {
-    @include dialog.dialog-close-button;
-  }
-}
 
 .cart-body {
   flex: 1;
@@ -228,9 +224,12 @@ dialog.cart-overlay {
 
   dialog.cart-overlay {
     @include dialog.dialog-mobile-fullscreen;
+
+    > header {
+      padding: 1rem;
+    }
   }
 
-  .cart-header,
   .cart-body,
   .cart-footer {
     padding: 1rem;

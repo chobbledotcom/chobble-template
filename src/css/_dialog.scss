@@ -1,7 +1,16 @@
-// Shared Dialog Mixins
+// Shared Dialog Styles
 // Common patterns for modal dialogs (cart, availability calendar, etc.)
+//
+// Usage: Dialogs should use semantic HTML structure:
+//   <dialog class="my-dialog">
+//     <header>
+//       <h2>Title</h2>
+//       <form method="dialog"><button class="close">&times;</button></form>
+//     </header>
+//     <div class="content">...</div>
+//   </dialog>
 
-// Base dialog box styling
+// Base dialog box styling - includes header and close button
 @mixin dialog-box($max-width: 40rem) {
   background: var(--color-bg);
   color: var(--color-text);
@@ -22,6 +31,36 @@
   &::backdrop {
     background: rgba(0, 0, 0, 0.85);
   }
+
+  // Header styling - targets semantic <header> element
+  > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--border);
+
+    h2 {
+      margin: 0;
+    }
+
+    // Form wrapper for method="dialog" close button
+    form {
+      display: contents;
+    }
+
+    // Generic close button class
+    .close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      width: 2rem;
+      height: 2rem;
+    }
+  }
 }
 
 // Scroll lock when dialog is open
@@ -29,35 +68,6 @@
   html:has(#{$selector}[open]) {
     overflow: hidden;
     scrollbar-gutter: stable;
-  }
-}
-
-// Close button styling
-@mixin dialog-close-button {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  width: 2rem;
-  height: 2rem;
-}
-
-// Dialog header layout
-@mixin dialog-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: var(--border);
-
-  h2 {
-    margin: 0;
-  }
-
-  form {
-    display: contents;
   }
 }
 
