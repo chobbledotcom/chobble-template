@@ -20,7 +20,6 @@ const IGNORED_FUNCTIONS = new Set([
   "createMenuPdfTemplate", // PDF template with many HTML sections
   "buildMenuPdfData", // PDF data structure with many fields
   "buildFilterUIData", // Complex filter UI data structure builder
-  "createFilterConfig", // Cohesive factory with nested collection builders
 ]);
 
 const shouldSkipDir = (name, filePath) => {
@@ -47,60 +46,49 @@ const getJsFiles = (dir, files = []) => {
 
 /**
  * Extract all function definitions from JavaScript source code.
+ * Uses a stack to properly handle nested functions.
  * Returns an array of { name, startLine, endLine, lineCount }.
  */
 const extractFunctions = (source) => {
   const functions = [];
   const lines = source.split("\n");
+  const stack = []; // Stack of { name, startLine, braceDepth }
 
-  // Track brace depth to find function boundaries
-  let currentFunction = null;
-  let braceDepth = 0;
+  let globalBraceDepth = 0;
   let inString = false;
   let stringChar = null;
   let inTemplate = false;
-  let templateDepth = 0;
-  let inComment = false;
   let inMultilineComment = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const lineNum = i + 1;
 
-    // Check for function start patterns (only when not inside a function or at depth 0/1)
-    if (!currentFunction || braceDepth <= 1) {
-      // Named function declaration: function name(
-      const funcDeclMatch = line.match(
-        /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/,
-      );
-      // Arrow function assigned to const/let/var: const name = (...) =>
-      const arrowMatch = line.match(
-        /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>/,
-      );
-      // Method in object/class: name( or name: function(
-      const methodMatch = line.match(
-        /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/,
-      );
-      // Object method: name: function( or name: (
-      const objMethodMatch = line.match(
-        /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/,
-      );
+    // Check for function start patterns
+    const funcDeclMatch = line.match(
+      /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/,
+    );
+    const arrowMatch = line.match(
+      /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>/,
+    );
+    const methodMatch = line.match(
+      /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/,
+    );
+    const objMethodMatch = line.match(
+      /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/,
+    );
 
-      const match = funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
+    const match = funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
 
-      if (match && !currentFunction) {
-        currentFunction = {
-          name: match[1],
-          startLine: lineNum,
-          endLine: null,
-          lineCount: 0,
-        };
-        // Reset brace depth for this function
-        braceDepth = 0;
-      }
+    if (match) {
+      stack.push({
+        name: match[1],
+        startLine: lineNum,
+        openBraceDepth: null, // Will be set when we see the opening brace
+      });
     }
 
-    // Count braces (simplified - doesn't handle all edge cases but good enough)
+    // Process characters for brace counting
     for (let j = 0; j < line.length; j++) {
       const char = line[j];
       const prevChar = j > 0 ? line[j - 1] : "";
@@ -108,9 +96,7 @@ const extractFunctions = (source) => {
 
       // Handle comments
       if (!inString && !inTemplate) {
-        if (char === "/" && nextChar === "/" && !inMultilineComment) {
-          break; // Rest of line is comment
-        }
+        if (char === "/" && nextChar === "/" && !inMultilineComment) break;
         if (char === "/" && nextChar === "*" && !inMultilineComment) {
           inMultilineComment = true;
           j++;
@@ -122,7 +108,6 @@ const extractFunctions = (source) => {
           continue;
         }
       }
-
       if (inMultilineComment) continue;
 
       // Handle strings
@@ -139,13 +124,7 @@ const extractFunctions = (source) => {
 
       // Handle template literals
       if (char === "`" && prevChar !== "\\") {
-        if (!inTemplate) {
-          inTemplate = true;
-          templateDepth = 1;
-        } else {
-          inTemplate = false;
-          templateDepth = 0;
-        }
+        inTemplate = !inTemplate;
         continue;
       }
 
@@ -153,22 +132,55 @@ const extractFunctions = (source) => {
 
       // Count braces
       if (char === "{") {
-        braceDepth++;
-      } else if (char === "}") {
-        braceDepth--;
-
-        if (currentFunction && braceDepth === 0) {
-          currentFunction.endLine = lineNum;
-          currentFunction.lineCount =
-            currentFunction.endLine - currentFunction.startLine + 1;
-          functions.push(currentFunction);
-          currentFunction = null;
+        globalBraceDepth++;
+        // Record opening brace depth for pending functions
+        for (const item of stack) {
+          if (item.openBraceDepth === null) {
+            item.openBraceDepth = globalBraceDepth;
+          }
         }
+      } else if (char === "}") {
+        // Check if this closes any function on the stack
+        for (let k = stack.length - 1; k >= 0; k--) {
+          if (stack[k].openBraceDepth === globalBraceDepth) {
+            const completed = stack.splice(k, 1)[0];
+            functions.push({
+              name: completed.name,
+              startLine: completed.startLine,
+              endLine: lineNum,
+              lineCount: lineNum - completed.startLine + 1,
+            });
+            break;
+          }
+        }
+        globalBraceDepth--;
       }
     }
   }
 
   return functions;
+};
+
+/**
+ * Calculate "own lines" for each function by subtracting nested function lines.
+ * A nested function is one that starts and ends within another function's range.
+ */
+const calculateOwnLines = (functions) => {
+  return functions.map((func) => {
+    const nestedLines = functions
+      .filter(
+        (other) =>
+          other !== func &&
+          other.startLine > func.startLine &&
+          other.endLine < func.endLine,
+      )
+      .reduce((sum, nested) => sum + nested.lineCount, 0);
+
+    return {
+      ...func,
+      ownLines: func.lineCount - nestedLines,
+    };
+  });
 };
 
 /**
@@ -181,13 +193,13 @@ const analyzeFunctionLengths = () => {
 
   for (const filePath of jsFiles) {
     const source = fs.readFileSync(filePath, "utf-8");
-    const functions = extractFunctions(source);
+    const functions = calculateOwnLines(extractFunctions(source));
 
     for (const func of functions) {
-      if (func.lineCount > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name)) {
+      if (func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name)) {
         violations.push({
           name: func.name,
-          lineCount: func.lineCount,
+          lineCount: func.ownLines,
           file: path.relative(rootDir, filePath),
           startLine: func.startLine,
         });
