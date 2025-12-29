@@ -1,6 +1,9 @@
 const createInitialMapping = (categories, propertyName) =>
   (categories || []).reduce(
-    (acc, category) => ({ ...acc, [category.fileSlug]: [category.data[propertyName], -1] }),
+    (acc, category) => ({
+      ...acc,
+      [category.fileSlug]: [category.data[propertyName], -1],
+    }),
     {},
   );
 

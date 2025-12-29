@@ -42,15 +42,34 @@ const extractFrontmatter = (pagePath, filename, cartMode) => {
   return match[1];
 };
 
-function validatePageFrontmatter(filename, requiredLayout, requiredPermalink, cartMode) {
-  const frontmatter = extractFrontmatter(getPagePath(filename), filename, cartMode);
+const checkFrontmatterField = (
+  frontmatter,
+  field,
+  value,
+  cartMode,
+  filename,
+) => {
+  if (!frontmatter.includes(`${field}: ${value}`)) {
+    throw new Error(
+      cartModeError(cartMode, filename, `does not have ${field}: ${value}`),
+    );
+  }
+};
 
-  if (!frontmatter.includes(`layout: ${requiredLayout}`)) {
-    throw new Error(cartModeError(cartMode, filename, `does not use layout: ${requiredLayout}`));
-  }
-  if (!frontmatter.includes(`permalink: ${requiredPermalink}`)) {
-    throw new Error(cartModeError(cartMode, filename, `does not have permalink: ${requiredPermalink}`));
-  }
+function validatePageFrontmatter(filename, layout, permalink, cartMode) {
+  const frontmatter = extractFrontmatter(
+    getPagePath(filename),
+    filename,
+    cartMode,
+  );
+  checkFrontmatterField(frontmatter, "layout", layout, cartMode, filename);
+  checkFrontmatterField(
+    frontmatter,
+    "permalink",
+    permalink,
+    cartMode,
+    filename,
+  );
 }
 
 function validateStripePages() {

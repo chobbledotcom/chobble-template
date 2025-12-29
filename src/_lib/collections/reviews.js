@@ -77,37 +77,37 @@ const withReviewsPage =
     return items
       .map(processItem)
       .filter(
-        (item) => countReviews(visibleReviews, item.fileSlug, reviewsField) > limit,
+        (item) =>
+          countReviews(visibleReviews, item.fileSlug, reviewsField) > limit,
       );
   };
 
 /**
  * Factory: redirect data for items without enough reviews for a separate page
  */
-const reviewsRedirects =
-  (tag, reviewsField) => (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
-    const visibleReviews = createReviewsCollection(collectionApi);
-    const limit = config().reviews_truncate_limit;
+const reviewsRedirects = (tag, reviewsField) => (collectionApi) => {
+  const items = collectionApi.getFilteredByTag(tag) || [];
+  const visibleReviews = createReviewsCollection(collectionApi);
+  const limit = config().reviews_truncate_limit;
 
-    // If limit is -1, no truncation occurs so all items need redirects
-    if (limit === -1) {
-      return items.map((item) => ({
-        item,
-        fileSlug: item.fileSlug,
-      }));
-    }
+  // If limit is -1, no truncation occurs so all items need redirects
+  if (limit === -1) {
+    return items.map((item) => ({
+      item,
+      fileSlug: item.fileSlug,
+    }));
+  }
 
-    return items
-      .filter(
-        (item) =>
-          countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
-      )
-      .map((item) => ({
-        item,
-        fileSlug: item.fileSlug,
-      }));
-  };
+  return items
+    .filter(
+      (item) =>
+        countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
+    )
+    .map((item) => ({
+      item,
+      fileSlug: item.fileSlug,
+    }));
+};
 
 /**
  * Configure reviews collection and filters for Eleventy

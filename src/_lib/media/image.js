@@ -105,7 +105,9 @@ const U = {
 
     const { width, height } = parseCropDimensions(aspectRatio, metadata);
     fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-    await sharp(sourcePath).resize(width, height, { fit: "cover" }).toFile(cachedPath);
+    await sharp(sourcePath)
+      .resize(width, height, { fit: "cover" })
+      .toFile(cachedPath);
 
     return cachedPath;
   },

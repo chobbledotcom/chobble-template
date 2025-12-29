@@ -1,6 +1,6 @@
-import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -116,9 +116,7 @@ const analyzeNamingConventions = () => {
           };
         }
         violations[identifier].occurrences++;
-        violations[identifier].files.add(
-          path.relative(rootDir, filePath)
-        );
+        violations[identifier].files.add(path.relative(rootDir, filePath));
       }
     }
   }
@@ -150,7 +148,7 @@ const formatViolations = (violations) => {
 
   for (const [identifier, data] of entries) {
     lines.push(
-      `  ${identifier} (${data.wordCount} words, ${data.occurrences}x)`
+      `  ${identifier} (${data.wordCount} words, ${data.occurrences}x)`,
     );
     for (const file of data.files) {
       lines.push(`    └─ ${file}`);
@@ -176,8 +174,14 @@ const testCases = [
     test: () => {
       expectTrue(countCamelCaseWords("get") === 1, "get = 1 word");
       expectTrue(countCamelCaseWords("getUser") === 2, "getUser = 2 words");
-      expectTrue(countCamelCaseWords("getUserById") === 4, "getUserById = 4 words");
-      expectTrue(countCamelCaseWords("getActiveUserById") === 5, "getActiveUserById = 5 words");
+      expectTrue(
+        countCamelCaseWords("getUserById") === 4,
+        "getUserById = 4 words",
+      );
+      expectTrue(
+        countCamelCaseWords("getActiveUserById") === 5,
+        "getActiveUserById = 5 words",
+      );
     },
   },
   {
@@ -185,10 +189,22 @@ const testCases = [
     description: "countCamelCaseWords treats acronyms as single words",
     test: () => {
       // Acronyms count as one word
-      expectTrue(countCamelCaseWords("parseURL") === 2, "parseURL = 2 words (parse+URL)");
-      expectTrue(countCamelCaseWords("fileURLToPath") === 4, "fileURLToPath = 4 words (file+URL+To+Path)");
-      expectTrue(countCamelCaseWords("innerHTML") === 2, "innerHTML = 2 words (inner+HTML)");
-      expectTrue(countCamelCaseWords("xmlHTTPRequest") === 3, "xmlHTTPRequest = 3 words (xml+HTTP+Request)");
+      expectTrue(
+        countCamelCaseWords("parseURL") === 2,
+        "parseURL = 2 words (parse+URL)",
+      );
+      expectTrue(
+        countCamelCaseWords("fileURLToPath") === 4,
+        "fileURLToPath = 4 words (file+URL+To+Path)",
+      );
+      expectTrue(
+        countCamelCaseWords("innerHTML") === 2,
+        "innerHTML = 2 words (inner+HTML)",
+      );
+      expectTrue(
+        countCamelCaseWords("xmlHTTPRequest") === 3,
+        "xmlHTTPRequest = 3 words (xml+HTTP+Request)",
+      );
       // Single word
       expectTrue(countCamelCaseWords("parse") === 1, "parse = 1 word");
       expectTrue(countCamelCaseWords("URL") === 1, "URL = 1 word");
@@ -196,7 +212,8 @@ const testCases = [
   },
   {
     name: "extract-identifiers",
-    description: "extractCamelCaseIdentifiers extracts camelCase names from source",
+    description:
+      "extractCamelCaseIdentifiers extracts camelCase names from source",
     test: () => {
       const source = `
         const userName = "test";
@@ -206,21 +223,34 @@ const testCases = [
       `;
       const identifiers = extractCamelCaseIdentifiers(source);
       expectTrue(identifiers.includes("userName"), "Should find userName");
-      expectTrue(identifiers.includes("getUserById"), "Should find getUserById");
-      expectTrue(identifiers.includes("someFunction"), "Should find someFunction");
+      expectTrue(
+        identifiers.includes("getUserById"),
+        "Should find getUserById",
+      );
+      expectTrue(
+        identifiers.includes("someFunction"),
+        "Should find someFunction",
+      );
     },
   },
   {
     name: "ignore-strings",
-    description: "extractCamelCaseIdentifiers ignores identifiers inside strings",
+    description:
+      "extractCamelCaseIdentifiers ignores identifiers inside strings",
     test: () => {
       const source = `
         const msg = "getUserById is the function name";
         const func = regularName;
       `;
       const identifiers = extractCamelCaseIdentifiers(source);
-      expectTrue(!identifiers.includes("getUserById"), "Should not find getUserById from string");
-      expectTrue(identifiers.includes("regularName"), "Should find regularName");
+      expectTrue(
+        !identifiers.includes("getUserById"),
+        "Should not find getUserById from string",
+      );
+      expectTrue(
+        identifiers.includes("regularName"),
+        "Should find regularName",
+      );
     },
   },
   {
@@ -230,7 +260,7 @@ const testCases = [
       if (violationCount > 0) {
         console.warn(
           `⚠️  Warning: ${violationCount} identifier(s) exceed ${MAX_WORDS} words. ` +
-          `See list above.`
+            `See list above.`,
         );
       }
     },
