@@ -348,16 +348,38 @@ const imageShortcode = async (
 
 /**
  * Fix invalid HTML where divs are the sole child of paragraph tags.
- * Moves the div out of the paragraph and removes the empty p tag.
  */
 const fixDivsInParagraphs = (document) => {
-  const paragraphs = Array.from(document.querySelectorAll("p"));
-  paragraphs
+  Array.from(document.querySelectorAll("p"))
     .filter((p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV")
     .forEach((p) => {
       p.parentNode.insertBefore(p.firstChild, p);
       p.parentNode.removeChild(p);
     });
+};
+
+const extractImageOptions = (img, document) => {
+  const aspectRatio = img.getAttribute(U.ASPECT_RATIO_ATTRIBUTE);
+  if (aspectRatio) img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
+
+  return {
+    logName: `transformImages: ${img}`,
+    imageName: img.getAttribute("src"),
+    alt: img.getAttribute("alt"),
+    classes: img.getAttribute("class"),
+    sizes: img.getAttribute("sizes"),
+    widths: img.getAttribute("widths"),
+    aspectRatio,
+    loading: null,
+    returnElement: true,
+    document,
+  };
+};
+
+const processImageElement = async (img, document) => {
+  if (img.parentNode.classList.contains("image-wrapper")) return;
+  const wrapped = await processAndWrapImage(extractImageOptions(img, document));
+  img.parentNode.replaceChild(wrapped, img);
 };
 
 const transformImages = async (content) => {
@@ -371,28 +393,7 @@ const transformImages = async (content) => {
   if (images.length === 0) return content;
 
   await Promise.all(
-    Array.from(images).map(async (img) => {
-      if (img.parentNode.classList.contains("image-wrapper")) return;
-
-      const aspectRatio = img.getAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-      if (aspectRatio) img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-
-      img.parentNode.replaceChild(
-        await processAndWrapImage({
-          logName: `transformImages: ${img}`,
-          imageName: img.getAttribute("src"),
-          alt: img.getAttribute("alt"),
-          classes: img.getAttribute("class"),
-          sizes: img.getAttribute("sizes"),
-          widths: img.getAttribute("widths"),
-          aspectRatio,
-          loading: null,
-          returnElement: true,
-          document,
-        }),
-        img,
-      );
-    }),
+    Array.from(images).map((img) => processImageElement(img, document)),
   );
 
   fixDivsInParagraphs(document);
