@@ -288,7 +288,9 @@ dialog {
     background-color: transparent;
   }
   &::backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    cursor: pointer;
   }
 }
 
