@@ -20,6 +20,7 @@ const IGNORED_FUNCTIONS = new Set([
   "createMenuPdfTemplate", // PDF template with many HTML sections
   "buildMenuPdfData", // PDF data structure with many fields
   "buildFilterUIData", // Complex filter UI data structure builder
+  "createFilterConfig", // Cohesive factory with nested collection builders
 ]);
 
 const shouldSkipDir = (name, filePath) => {

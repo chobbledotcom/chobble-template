@@ -340,47 +340,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   };
 };
 
-const createPagesCollectionFn = (tag, itemsKey) => (collectionApi) => {
-  const items = collectionApi.getFilteredByTag(tag) || [];
-  const combinations = generateFilterCombinations(items);
-  const displayLookup = buildDisplayLookup(items);
-
-  return combinations.map((combo) => {
-    const matchedItems = getItemsByFilters(items, combo.filters);
-    return {
-      filters: combo.filters,
-      path: combo.path,
-      count: combo.count,
-      items: matchedItems,
-      [itemsKey]: matchedItems,
-      filterDescription: buildFilterDescription(combo.filters, displayLookup),
-    };
-  });
-};
-
-const createRedirectsCollectionFn = (tag, baseUrl) => (collectionApi) => {
-  const items = collectionApi.getFilteredByTag(tag) || [];
-  const attrKeys = Object.keys(getAllFilterAttributes(items));
-  const searchUrl = `${baseUrl}/search`;
-
-  const redirects = {};
-
-  for (const key of attrKeys) {
-    redirects[`${searchUrl}/${key}/`] = `${searchUrl}/#content`;
-  }
-
-  for (const combo of generateFilterCombinations(items)) {
-    for (const key of attrKeys) {
-      if (!combo.filters[key]) {
-        redirects[`${searchUrl}/${combo.path}/${key}/`] =
-          `${searchUrl}/${combo.path}/#content`;
-      }
-    }
-  }
-
-  return Object.entries(redirects).map(([from, to]) => ({ from, to }));
-};
-
 /**
  * Create a filter system for a specific item type
  */
@@ -389,23 +348,58 @@ const createFilterConfig = (options) => {
     options;
   const baseUrl = `/${permalinkDir}`;
 
-  const configure = (eleventyConfig) => {
-    eleventyConfig.addCollection(
-      collections.pages,
-      createPagesCollectionFn(tag, itemsKey),
-    );
-    eleventyConfig.addCollection(
-      collections.redirects,
-      createRedirectsCollectionFn(tag, baseUrl),
-    );
-    eleventyConfig.addCollection(collections.attributes, (collectionApi) => {
-      const items = collectionApi.getFilteredByTag(tag) || [];
+  const pagesCollection = (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const combinations = generateFilterCombinations(items);
+    const displayLookup = buildDisplayLookup(items);
+
+    return combinations.map((combo) => {
+      const matchedItems = getItemsByFilters(items, combo.filters);
       return {
-        attributes: getAllFilterAttributes(items),
-        displayLookup: buildDisplayLookup(items),
+        filters: combo.filters,
+        path: combo.path,
+        count: combo.count,
+        items: matchedItems,
+        [itemsKey]: matchedItems,
+        filterDescription: buildFilterDescription(combo.filters, displayLookup),
       };
     });
+  };
 
+  const redirectsCollection = (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const attrKeys = Object.keys(getAllFilterAttributes(items));
+    const searchUrl = `${baseUrl}/search`;
+    const redirects = {};
+
+    for (const key of attrKeys) {
+      redirects[`${searchUrl}/${key}/`] = `${searchUrl}/#content`;
+    }
+
+    for (const combo of generateFilterCombinations(items)) {
+      for (const key of attrKeys) {
+        if (!combo.filters[key]) {
+          redirects[`${searchUrl}/${combo.path}/${key}/`] =
+            `${searchUrl}/${combo.path}/#content`;
+        }
+      }
+    }
+
+    return Object.entries(redirects).map(([from, to]) => ({ from, to }));
+  };
+
+  const attributesCollection = (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    return {
+      attributes: getAllFilterAttributes(items),
+      displayLookup: buildDisplayLookup(items),
+    };
+  };
+
+  const configure = (eleventyConfig) => {
+    eleventyConfig.addCollection(collections.pages, pagesCollection);
+    eleventyConfig.addCollection(collections.redirects, redirectsCollection);
+    eleventyConfig.addCollection(collections.attributes, attributesCollection);
     eleventyConfig.addFilter(uiDataFilterName, (filterData, filters, pages) =>
       buildFilterUIData(filterData, filters, pages, baseUrl),
     );
