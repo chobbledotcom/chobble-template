@@ -340,6 +340,55 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   };
 };
 
+const createPagesCollectionFn = (tag, itemsKey) => (collectionApi) => {
+  const items = collectionApi.getFilteredByTag(tag) || [];
+  const combinations = generateFilterCombinations(items);
+  const displayLookup = buildDisplayLookup(items);
+
+  return combinations.map((combo) => {
+    const matchedItems = getItemsByFilters(items, combo.filters);
+    return {
+      filters: combo.filters,
+      path: combo.path,
+      count: combo.count,
+      items: matchedItems,
+      [itemsKey]: matchedItems,
+      filterDescription: buildFilterDescription(combo.filters, displayLookup),
+    };
+  });
+};
+
+const createRedirectsCollectionFn = (tag, baseUrl) => (collectionApi) => {
+  const items = collectionApi.getFilteredByTag(tag) || [];
+  const attrKeys = Object.keys(getAllFilterAttributes(items));
+  const searchUrl = `${baseUrl}/search`;
+
+  const redirects = {};
+
+  for (const key of attrKeys) {
+    redirects[`${searchUrl}/${key}/`] = `${searchUrl}/#content`;
+  }
+
+  for (const combo of generateFilterCombinations(items)) {
+    for (const key of attrKeys) {
+      if (!combo.filters[key]) {
+        redirects[`${searchUrl}/${combo.path}/${key}/`] =
+          `${searchUrl}/${combo.path}/#content`;
+      }
+    }
+  }
+
+  return Object.entries(redirects).map(([from, to]) => ({ from, to }));
+};
+
+const createAttributesCollectionFn = (tag) => (collectionApi) => {
+  const items = collectionApi.getFilteredByTag(tag) || [];
+  return {
+    attributes: getAllFilterAttributes(items),
+    displayLookup: buildDisplayLookup(items),
+  };
+};
+
 /**
  * Create a filter system for a specific item type
  * @param {Object} options - Configuration options
@@ -354,76 +403,22 @@ const createFilterConfig = (options) => {
     options;
   const baseUrl = `/${permalinkDir}`;
 
-  const createFilteredPagesCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
-    const combinations = generateFilterCombinations(items);
-    const displayLookup = buildDisplayLookup(items);
-
-    return combinations.map((combo) => {
-      const matchedItems = getItemsByFilters(items, combo.filters);
-      return {
-        filters: combo.filters,
-        path: combo.path,
-        count: combo.count,
-        items: matchedItems,
-        [itemsKey]: matchedItems,
-        filterDescription: buildFilterDescription(combo.filters, displayLookup),
-      };
-    });
-  };
-
-  const createRedirectsCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
-    const allAttributes = getAllFilterAttributes(items);
-    const attributeKeys = Object.keys(allAttributes);
-    const searchBaseUrl = `${baseUrl}/search`;
-
-    // Simple from→to mapping (each 'from' can only have one 'to')
-    const redirects = {};
-
-    for (const key of attributeKeys) {
-      redirects[`${searchBaseUrl}/${key}/`] = `${searchBaseUrl}/#content`;
-    }
-
-    const combinations = generateFilterCombinations(items);
-    for (const combo of combinations) {
-      for (const key of attributeKeys) {
-        if (!combo.filters[key]) {
-          redirects[`${searchBaseUrl}/${combo.path}/${key}/`] =
-            `${searchBaseUrl}/${combo.path}/#content`;
-        }
-      }
-    }
-
-    return Object.entries(redirects).map(([from, to]) => ({ from, to }));
-  };
-
-  const createAttributesCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
-    return {
-      attributes: getAllFilterAttributes(items),
-      displayLookup: buildDisplayLookup(items),
-    };
-  };
-
   const configure = (eleventyConfig) => {
     eleventyConfig.addCollection(
       collections.pages,
-      createFilteredPagesCollection,
+      createPagesCollectionFn(tag, itemsKey),
     );
     eleventyConfig.addCollection(
       collections.redirects,
-      createRedirectsCollection,
+      createRedirectsCollectionFn(tag, baseUrl),
     );
     eleventyConfig.addCollection(
       collections.attributes,
-      createAttributesCollection,
+      createAttributesCollectionFn(tag),
     );
 
-    eleventyConfig.addFilter(
-      uiDataFilterName,
-      (filterData, currentFilters, validPages) =>
-        buildFilterUIData(filterData, currentFilters, validPages, baseUrl),
+    eleventyConfig.addFilter(uiDataFilterName, (filterData, filters, pages) =>
+      buildFilterUIData(filterData, filters, pages, baseUrl),
     );
   };
 

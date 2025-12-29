@@ -19,7 +19,6 @@ const SKIP_PATHS = new Set(["src/assets/js"]);
 const IGNORED_FUNCTIONS = new Set([
   "createMenuPdfTemplate", // PDF template with many HTML sections
   "buildMenuPdfData", // PDF data structure with many fields
-  "createFilterConfig", // Factory that creates multiple collection handlers
   "buildFilterUIData", // Complex filter UI data structure builder
 ]);
 
