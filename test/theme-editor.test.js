@@ -5,7 +5,7 @@ import {
   SCOPED_INPUTS,
 } from "../src/assets/js/theme-editor-config.js";
 import {
-  collectScopeVarsFromFormData,
+  filterScopeVars,
   generateThemeCss,
   parseBorderValue,
   parseCssBlock,
@@ -201,7 +201,7 @@ const scopeFilterTests = [
     },
   },
   {
-    name: "collectScopeVarsFromFormData-filters-correctly",
+    name: "filterScopeVars-filters-correctly",
     description: "Only includes values that differ from global",
     test: () => {
       const formData = {
@@ -214,7 +214,7 @@ const scopeFilterTests = [
         "--color-text": "#ffffff",
         "--color-link": "#000000",
       };
-      const result = collectScopeVarsFromFormData(formData, globals);
+      const result = filterScopeVars(formData, globals);
 
       expectDeepEqual(result, {
         "--color-bg": "#ff0000",

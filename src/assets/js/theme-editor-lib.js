@@ -158,7 +158,7 @@ export function shouldIncludeScopedVar(value, globalValue) {
  * @param {Object} globalValues - Global values for comparison { varName: value }
  * @returns {Object} - Filtered scope variables (only those differing from global)
  */
-export function collectScopeVarsFromFormData(scopeFormData, globalValues = {}) {
+export function filterScopeVars(scopeFormData, globalValues = {}) {
   const vars = {};
 
   Object.entries(scopeFormData).forEach(([varName, value]) => {

@@ -1,6 +1,6 @@
 import { addGallery } from "#collections/products.js";
 import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
-import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
+import { arraySlugKey, memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
 const createPropertiesCollection = (collectionApi) => {
@@ -15,7 +15,7 @@ const getPropertiesByLocation = memoize(
       .filter((property) => property.data.locations?.includes(locationSlug))
       .sort(sortItems);
   },
-  { cacheKey: cacheKeyArrayAndSlug },
+  { cacheKey: arraySlugKey },
 );
 
 const getFeaturedProperties = (properties) =>

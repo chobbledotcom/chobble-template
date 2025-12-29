@@ -5,7 +5,7 @@ layout: base
 
 {{ content }}
 
-{% assign guide_pages = collections.guide_pages | getGuidePagesByCategory: page.fileSlug %}
+{% assign guide_pages = collections.guide_pages | guidesByCategory: page.fileSlug %}
 {% if guide_pages.size > 0 %}
   <ul>
     {%- for guide_page in guide_pages -%}
