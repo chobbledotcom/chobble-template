@@ -1,6 +1,6 @@
-import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -235,7 +235,9 @@ const formatViolations = (violations) => {
   lines.push(`Preferred maximum: ${PREFERRED_LINES} lines`);
   lines.push(`Hard limit: ${MAX_LINES} lines`);
   lines.push("");
-  lines.push("Consider refactoring long functions into smaller, focused units.");
+  lines.push(
+    "Consider refactoring long functions into smaller, focused units.",
+  );
 
   return lines.join("\n");
 };

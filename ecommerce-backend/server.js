@@ -64,7 +64,9 @@ app.use(express.json());
 
 // Logging helper
 const logRequest = (origin, message) => {
-  console.log(`[${new Date().toISOString()}] ${origin || "unknown"} - ${message}`);
+  console.log(
+    `[${new Date().toISOString()}] ${origin || "unknown"} - ${message}`,
+  );
 };
 
 // Health check endpoint
@@ -159,7 +161,8 @@ async function validateCart(items, origin) {
 }
 
 const isValidOrigin = (origin) => origin && ALLOWED_ORIGINS.includes(origin);
-const isValidItems = (items) => items && Array.isArray(items) && items.length > 0;
+const isValidItems = (items) =>
+  items && Array.isArray(items) && items.length > 0;
 
 /**
  * Middleware to validate items from request body
@@ -183,7 +186,9 @@ async function validateItemsMiddleware(req, res, next) {
     const validation = await validateCart(items, origin);
     if (!validation.valid) {
       logRequest(origin, "cart validation failed");
-      return res.status(400).json({ error: "Cart validation failed", details: validation.errors });
+      return res
+        .status(400)
+        .json({ error: "Cart validation failed", details: validation.errors });
     }
 
     logRequest(origin, `cart validated (${items.length} items)`);

@@ -1,4 +1,4 @@
-import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
+import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
@@ -80,14 +80,24 @@ const createApiSkusCollection = (collectionApi) => {
   return skus;
 };
 
-const productsWithReviewsPage = withReviewsPage("product", "products", addGallery);
+const productsWithReviewsPage = withReviewsPage(
+  "product",
+  "products",
+  addGallery,
+);
 const productReviewsRedirects = reviewsRedirects("product", "products");
 
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
-  eleventyConfig.addCollection("productsWithReviewsPage", productsWithReviewsPage);
-  eleventyConfig.addCollection("productReviewsRedirects", productReviewsRedirects);
+  eleventyConfig.addCollection(
+    "productsWithReviewsPage",
+    productsWithReviewsPage,
+  );
+  eleventyConfig.addCollection(
+    "productReviewsRedirects",
+    productReviewsRedirects,
+  );
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
