@@ -10,32 +10,27 @@ const rootDir = resolve(__dirname, "..");
 const MAX_WORDS = 4;
 const PREFERRED_WORDS = 3;
 
-// External APIs and built-ins we can't control
+// External APIs we can't control (only those exceeding 4 words)
 const IGNORED_IDENTIFIERS = new Set([
-  // Node.js APIs
-  "fileURLToPath",
-  "encodeURIComponent",
-  "decodeURIComponent",
-  "toISOString",
-  // Browser DOM APIs
-  "innerHTML",
-  "outerHTML",
-  "createObjectURL",
-  "revokeObjectURL",
-  // External library APIs (Eleventy)
-  "eleventyImageOnRequestDuringServePlugin",
-  "getNewestCollectionItemDate",
+  // Eleventy plugin APIs
+  "eleventyImageOnRequestDuringServePlugin", // 7 words
+  "getNewestCollectionItemDate", // 5 words
 ]);
 
 /**
  * Count the number of "words" in a camelCase string.
- * Words are segments separated by capital letters.
+ * A word is: initial lowercase segment, or capital followed by lowercase(s).
+ * Acronyms (consecutive capitals like URL, DOM) count as ONE word.
  * e.g., "getUserById" = 4 words: get, User, By, Id
+ * e.g., "parseURL" = 2 words: parse, URL
+ * e.g., "fileURLToPath" = 4 words: file, URL, To, Path
  */
 const countCamelCaseWords = (str) => {
-  // Match lowercase start + subsequent capitalized segments
-  const words = str.match(/^[a-z]+|[A-Z][a-z]*/g);
-  return words ? words.length : 0;
+  // Split on camelCase boundaries:
+  // - between lowercase and uppercase: fileURL -> file|URL
+  // - between acronym and next word: URLTo -> URL|To
+  const words = str.split(/(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/);
+  return words.length;
 };
 
 /**
@@ -186,14 +181,17 @@ const testCases = [
     },
   },
   {
-    name: "count-words-edge-cases",
-    description: "countCamelCaseWords handles edge cases",
+    name: "count-words-acronyms",
+    description: "countCamelCaseWords treats acronyms as single words",
     test: () => {
-      // Acronyms at end count as one word each letter
-      expectTrue(countCamelCaseWords("parseURL") === 4, "parseURL = 4 words (parse+U+R+L)");
-      expectTrue(countCamelCaseWords("fileURLToPath") === 6, "fileURLToPath = 6 words");
+      // Acronyms count as one word
+      expectTrue(countCamelCaseWords("parseURL") === 2, "parseURL = 2 words (parse+URL)");
+      expectTrue(countCamelCaseWords("fileURLToPath") === 4, "fileURLToPath = 4 words (file+URL+To+Path)");
+      expectTrue(countCamelCaseWords("innerHTML") === 2, "innerHTML = 2 words (inner+HTML)");
+      expectTrue(countCamelCaseWords("xmlHTTPRequest") === 3, "xmlHTTPRequest = 3 words (xml+HTTP+Request)");
       // Single word
       expectTrue(countCamelCaseWords("parse") === 1, "parse = 1 word");
+      expectTrue(countCamelCaseWords("URL") === 1, "URL = 1 word");
     },
   },
   {
