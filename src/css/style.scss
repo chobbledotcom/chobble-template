@@ -520,30 +520,13 @@ header {
   }
 }
 
-main {
-  padding: 3rem 0 2rem; /* mobile only */
-  width: var(--width-content);
-  max-width: 100%;
-  .content {
-    img,
-    .image-wrapper {
-      display: block;
-      margin: 0 auto;
-      width: 100%;
-      max-width: 695px;
-      height: auto;
-      border-radius: var(--border-radius-small);
-    }
-    img.fade-in {
-      animation: 0.1s linear fade-in 0s 1;
-    }
-  }
-}
-
 img {
   background-size: cover !important;
   color: transparent;
   position: relative;
+  &.fade-in {
+    animation: 0.1s linear fade-in 0s 1;
+  }
 }
 
 .image-wrapper {
@@ -921,6 +904,25 @@ body {
       display: none;
     }
   }
+  &.page {
+    .content {
+      img,
+      .image-wrapper {
+        display: block;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 695px;
+        height: auto;
+        border-radius: var(--border-radius-small);
+      }
+    }
+  }
+}
+
+main {
+  padding: 3rem 0 2rem; /* mobile only */
+  width: var(--width-content);
+  max-width: 100%;
 }
 
 // Gallery single image page styles
