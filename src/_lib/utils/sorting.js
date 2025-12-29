@@ -2,7 +2,7 @@
  * Comparator for sorting by order then by title/name.
  * Default behavior assumes items have item.data.order and item.data.title/name.
  */
-const sortByOrderThenTitle = (a, b) => {
+const sortItems = (a, b) => {
   const orderA = a.data?.order ?? 0;
   const orderB = b.data?.order ?? 0;
 
@@ -26,4 +26,4 @@ const sortByDateDescending = (a, b) => new Date(b.date) - new Date(a.date);
 const getLatestItems = (items, limit = 3) =>
   (items || []).sort(sortByDateDescending).slice(0, limit);
 
-export { sortByOrderThenTitle, sortByDateDescending, getLatestItems };
+export { sortItems, sortByDateDescending, getLatestItems };

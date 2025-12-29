@@ -3,14 +3,14 @@ import { dirname } from "node:path";
 import { renderPdfTemplate } from "json-to-pdf";
 import site from "#data/site.json" with { type: "json" };
 import { buildPdfFilename } from "#utils/slug-utils.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
   const menuSlug = menu.fileSlug;
 
   const categories = (menuCategories || [])
     .filter((cat) => cat.data.menus?.includes(menuSlug))
-    .sort(sortByOrderThenTitle);
+    .sort(sortItems);
 
   const pdfCategories = categories.map((category) => {
     const items = (menuItems || [])

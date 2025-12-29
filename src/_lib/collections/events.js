@@ -1,5 +1,5 @@
 import { memoize } from "#utils/memoize.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 const sortByEventDate = (events, descending = false) => {
   events.sort((a, b) => {
@@ -39,7 +39,7 @@ export const categoriseEvents = memoize(function (events) {
   sortByEventDate(upcoming);
   sortByEventDate(past, true);
 
-  regular.sort(sortByOrderThenTitle);
+  regular.sort(sortItems);
 
   const hasRegular = regular.length > 0;
   const hasPast = past.length > 0;

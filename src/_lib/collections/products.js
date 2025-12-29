@@ -1,5 +1,5 @@
 import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
   if (!gallery) return gallery;
@@ -34,14 +34,14 @@ const getProductsByCategory = (products, categorySlug) => {
   if (!products) return [];
   return products
     .filter((product) => product.data.categories?.includes(categorySlug))
-    .sort(sortByOrderThenTitle);
+    .sort(sortItems);
 };
 
 const getProductsByEvent = (products, eventSlug) => {
   if (!products) return [];
   return products
     .filter((product) => product.data.events?.includes(eventSlug))
-    .sort(sortByOrderThenTitle);
+    .sort(sortItems);
 };
 
 const getFeaturedProducts = (products) =>
