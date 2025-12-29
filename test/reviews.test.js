@@ -362,9 +362,7 @@ const testCases = [
     name: "getProductRating-no-matching-products",
     description: "Returns null when no matching products",
     test: () => {
-      const reviews = [
-        { data: { products: ["product-b"], rating: 5 } },
-      ];
+      const reviews = [{ data: { products: ["product-b"], rating: 5 } }];
 
       expectStrictEqual(
         getProductRating(reviews, "product-a"),
