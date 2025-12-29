@@ -79,7 +79,7 @@ const ThemeEditor = {
     });
 
     // Apply initial scoped values to DOM for live preview
-    this.applyScopedValuesToDOM(parsed.scopes);
+    this.applyScopes(parsed.scopes);
 
     // Initialize body classes
     if (parsed.bodyClasses.length > 0) {
@@ -323,7 +323,7 @@ const ThemeEditor = {
   /**
    * Apply scoped CSS variables to DOM elements for live preview
    */
-  applyScopedValuesToDOM(scopeVars) {
+  applyScopes(scopeVars) {
     SCOPES.forEach((scope) => {
       const selector = SCOPE_DOM_SELECTORS[scope];
       const elements = document.querySelectorAll(selector);
@@ -388,7 +388,7 @@ const ThemeEditor = {
     });
 
     // Apply scoped variables to DOM for live preview
-    this.applyScopedValuesToDOM(scopeVars);
+    this.applyScopes(scopeVars);
 
     // Handle body classes
     const bodyClasses = [];
