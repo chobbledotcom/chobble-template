@@ -1,4 +1,5 @@
 import { addGallery } from "#collections/products.js";
+import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
 import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -20,14 +21,21 @@ const getPropertiesByLocation = memoize(
 const getFeaturedProperties = (properties) =>
   properties?.filter((p) => p.data.featured) || [];
 
+const propertiesWithReviewsPage = withReviewsPage("property", "properties", addGallery);
+const propertyReviewsRedirects = reviewsRedirects("property", "properties");
+
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", createPropertiesCollection);
+  eleventyConfig.addCollection("propertiesWithReviewsPage", propertiesWithReviewsPage);
+  eleventyConfig.addCollection("propertyReviewsRedirects", propertyReviewsRedirects);
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
   eleventyConfig.addFilter("getFeaturedProperties", getFeaturedProperties);
 };
 
 export {
   createPropertiesCollection,
+  propertiesWithReviewsPage,
+  propertyReviewsRedirects,
   getPropertiesByLocation,
   getFeaturedProperties,
   configureProperties,

@@ -1,3 +1,4 @@
+import config from "#data/config.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 /**
@@ -61,6 +62,54 @@ const ratingToStars = (rating) => {
 };
 
 /**
+ * Factory: items with enough reviews for a separate /reviews page
+ */
+const withReviewsPage =
+  (tag, reviewsField, processItem = (item) => item) =>
+  (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const visibleReviews = createReviewsCollection(collectionApi);
+    const limit = config().reviews_truncate_limit;
+
+    // If limit is -1, no truncation occurs so no separate page needed
+    if (limit === -1) return [];
+
+    return items
+      .map(processItem)
+      .filter(
+        (item) => countReviews(visibleReviews, item.fileSlug, reviewsField) > limit,
+      );
+  };
+
+/**
+ * Factory: redirect data for items without enough reviews for a separate page
+ */
+const reviewsRedirects =
+  (tag, reviewsField) => (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const visibleReviews = createReviewsCollection(collectionApi);
+    const limit = config().reviews_truncate_limit;
+
+    // If limit is -1, no truncation occurs so all items need redirects
+    if (limit === -1) {
+      return items.map((item) => ({
+        item,
+        fileSlug: item.fileSlug,
+      }));
+    }
+
+    return items
+      .filter(
+        (item) =>
+          countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
+      )
+      .map((item) => ({
+        item,
+        fileSlug: item.fileSlug,
+      }));
+  };
+
+/**
  * Configure reviews collection and filters for Eleventy
  */
 const configureReviews = (eleventyConfig) => {
@@ -76,5 +125,7 @@ export {
   countReviews,
   getRating,
   ratingToStars,
+  withReviewsPage,
+  reviewsRedirects,
   configureReviews,
 };

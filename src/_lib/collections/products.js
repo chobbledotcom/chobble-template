@@ -1,5 +1,4 @@
-import { countReviews, createReviewsCollection } from "#collections/reviews.js";
-import config from "#data/config.js";
+import { withReviewsPage, reviewsRedirects } from "#collections/reviews.js";
 import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
@@ -81,65 +80,14 @@ const createApiSkusCollection = (collectionApi) => {
   return skus;
 };
 
-/**
- * Creates a collection of products that have enough reviews
- * to warrant a separate reviews page (more than reviews_truncate_limit)
- */
-const createProductsWithReviewsPageCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
-  const visibleReviews = createReviewsCollection(collectionApi);
-  const limit = config().reviews_truncate_limit;
-
-  // If limit is -1, no truncation occurs so no separate page needed
-  if (limit === -1) return [];
-
-  return products
-    .map(addGallery)
-    .filter(
-      (product) =>
-        countReviews(visibleReviews, product.fileSlug, "products") > limit,
-    );
-};
-
-/**
- * Creates a collection of redirect data for products that don't have
- * enough reviews for a separate page (reviews <= reviews_truncate_limit)
- */
-const createProductReviewsRedirectsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
-  const visibleReviews = createReviewsCollection(collectionApi);
-  const limit = config().reviews_truncate_limit;
-
-  // If limit is -1, no truncation occurs so all products need redirects
-  if (limit === -1) {
-    return products.map((product) => ({
-      product,
-      fileSlug: product.fileSlug,
-    }));
-  }
-
-  return products
-    .filter(
-      (product) =>
-        countReviews(visibleReviews, product.fileSlug, "products") <= limit,
-    )
-    .map((product) => ({
-      product,
-      fileSlug: product.fileSlug,
-    }));
-};
+const productsWithReviewsPage = withReviewsPage("product", "products", addGallery);
+const productReviewsRedirects = reviewsRedirects("product", "products");
 
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
-  eleventyConfig.addCollection(
-    "productsWithReviewsPage",
-    createProductsWithReviewsPageCollection,
-  );
-  eleventyConfig.addCollection(
-    "productReviewsRedirects",
-    createProductReviewsRedirectsCollection,
-  );
+  eleventyConfig.addCollection("productsWithReviewsPage", productsWithReviewsPage);
+  eleventyConfig.addCollection("productReviewsRedirects", productReviewsRedirects);
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
@@ -152,8 +100,8 @@ export {
   addGallery,
   createProductsCollection,
   createApiSkusCollection,
-  createProductsWithReviewsPageCollection,
-  createProductReviewsRedirectsCollection,
+  productsWithReviewsPage,
+  productReviewsRedirects,
   getProductsByCategory,
   getProductsByEvent,
   getFeaturedProducts,
