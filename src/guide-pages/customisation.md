@@ -1,7 +1,7 @@
 ---
 title: Customisation
 subtitle: Tailoring the template to your needs
-guide_category: advanced-topics
+guide-category: advanced-topics
 order: 1
 faqs:
   - question: Can I change the colour scheme?

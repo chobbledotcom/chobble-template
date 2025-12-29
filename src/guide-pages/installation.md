@@ -1,7 +1,7 @@
 ---
 title: Installation
 subtitle: How to install and set up your environment
-guide_category: getting-started
+guide-category: getting-started
 order: 1
 faqs:
   - question: What are the system requirements?

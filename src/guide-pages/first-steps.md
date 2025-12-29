@@ -1,7 +1,7 @@
 ---
 title: First Steps
 subtitle: Your first actions after installation
-guide_category: getting-started
+guide-category: getting-started
 order: 2
 faqs:
   - question: Where do I start?

@@ -4,8 +4,8 @@ layout: base
 
 <h1>{{ title }}</h1>
 
-{% if guide_category %}
-  {% assign category = collections.guide_categories | where: "fileSlug", guide_category | first %}
+{% if guide-category %}
+  {% assign category = collections.guide-categories | where: "fileSlug", guide-category | first %}
   {% if category %}
     <p><a href="{{ category.url }}">Back to {{ category.data.title }}</a></p>
   {% endif %}
