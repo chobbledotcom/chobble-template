@@ -18,6 +18,7 @@ layout: base
 {% endif %}
 
 {{ content }}
+{%- include "faq.html" -%}
 
 {% assign categories = collections.categories %}
 {% assign categories = categories | where: "data.parent", page.fileSlug %}

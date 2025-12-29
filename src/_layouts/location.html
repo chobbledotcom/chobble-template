@@ -3,6 +3,7 @@ layout: base
 ---
 
 {{ content }}
+{%- include "faq.html" -%}
 
 {%- assign locationSlug = page.fileSlug -%}
 {%- assign services = collections.location | where: "data.parentLocation", locationSlug -%}
