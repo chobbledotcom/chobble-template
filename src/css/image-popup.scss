@@ -36,6 +36,13 @@ dialog.image-popup {
 
   .image-wrapper {
     height: 100%;
+    height: -webkit-fill-availble;
+    height: -moz-available;
+    height: stretch;
+    width: 100%;
+    width: -webkit-fill-availble;
+    width: -moz-available;
+    width: stretch;
     cursor: pointer;
   }
 
