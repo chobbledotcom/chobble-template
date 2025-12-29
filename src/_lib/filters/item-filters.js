@@ -381,22 +381,8 @@ const createRedirectsCollectionFn = (tag, baseUrl) => (collectionApi) => {
   return Object.entries(redirects).map(([from, to]) => ({ from, to }));
 };
 
-const createAttributesCollectionFn = (tag) => (collectionApi) => {
-  const items = collectionApi.getFilteredByTag(tag) || [];
-  return {
-    attributes: getAllFilterAttributes(items),
-    displayLookup: buildDisplayLookup(items),
-  };
-};
-
 /**
  * Create a filter system for a specific item type
- * @param {Object} options - Configuration options
- * @param {string} options.tag - The tag used to identify items (e.g., "product", "property")
- * @param {string} options.permalinkDir - The permalink directory (e.g., "products", "properties")
- * @param {string} options.itemsKey - Key name for items in page data (e.g., "products", "properties")
- * @param {Object} options.collections - Collection names { pages, redirects, attributes }
- * @param {string} options.uiDataFilterName - Name for the buildFilterUIData filter
  */
 const createFilterConfig = (options) => {
   const { tag, permalinkDir, itemsKey, collections, uiDataFilterName } =
@@ -412,10 +398,13 @@ const createFilterConfig = (options) => {
       collections.redirects,
       createRedirectsCollectionFn(tag, baseUrl),
     );
-    eleventyConfig.addCollection(
-      collections.attributes,
-      createAttributesCollectionFn(tag),
-    );
+    eleventyConfig.addCollection(collections.attributes, (collectionApi) => {
+      const items = collectionApi.getFilteredByTag(tag) || [];
+      return {
+        attributes: getAllFilterAttributes(items),
+        displayLookup: buildDisplayLookup(items),
+      };
+    });
 
     eleventyConfig.addFilter(uiDataFilterName, (filterData, filters, pages) =>
       buildFilterUIData(filterData, filters, pages, baseUrl),
