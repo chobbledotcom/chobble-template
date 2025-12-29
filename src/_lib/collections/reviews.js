@@ -1,3 +1,4 @@
+import config from "#data/config.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 /**
@@ -61,6 +62,63 @@ const ratingToStars = (rating) => {
 };
 
 /**
+ * Generic factory to create a collection of items that have enough reviews
+ * to warrant a separate reviews page (more than reviews_truncate_limit)
+ * @param {string} tag - The tag to filter items by (e.g., 'product', 'property')
+ * @param {string} reviewsField - The field name in reviews (e.g., 'products', 'properties')
+ * @param {Function} processItem - Optional function to process each item (e.g., addGallery)
+ * @returns {Function} Collection creator function for Eleventy
+ */
+const createItemsWithReviewsPageCollection =
+  (tag, reviewsField, processItem = (item) => item) =>
+  (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const visibleReviews = createReviewsCollection(collectionApi);
+    const limit = config().reviews_truncate_limit;
+
+    // If limit is -1, no truncation occurs so no separate page needed
+    if (limit === -1) return [];
+
+    return items
+      .map(processItem)
+      .filter(
+        (item) => countReviews(visibleReviews, item.fileSlug, reviewsField) > limit,
+      );
+  };
+
+/**
+ * Generic factory to create a collection of redirect data for items that don't have
+ * enough reviews for a separate page (reviews <= reviews_truncate_limit)
+ * @param {string} tag - The tag to filter items by (e.g., 'product', 'property')
+ * @param {string} reviewsField - The field name in reviews (e.g., 'products', 'properties')
+ * @returns {Function} Collection creator function for Eleventy
+ */
+const createItemReviewsRedirectsCollection =
+  (tag, reviewsField) => (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const visibleReviews = createReviewsCollection(collectionApi);
+    const limit = config().reviews_truncate_limit;
+
+    // If limit is -1, no truncation occurs so all items need redirects
+    if (limit === -1) {
+      return items.map((item) => ({
+        item,
+        fileSlug: item.fileSlug,
+      }));
+    }
+
+    return items
+      .filter(
+        (item) =>
+          countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
+      )
+      .map((item) => ({
+        item,
+        fileSlug: item.fileSlug,
+      }));
+  };
+
+/**
  * Configure reviews collection and filters for Eleventy
  */
 const configureReviews = (eleventyConfig) => {
@@ -76,5 +134,7 @@ export {
   countReviews,
   getRating,
   ratingToStars,
+  createItemsWithReviewsPageCollection,
+  createItemReviewsRedirectsCollection,
   configureReviews,
 };

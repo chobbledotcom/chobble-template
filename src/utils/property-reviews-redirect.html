@@ -1,0 +1,10 @@
+---
+pagination:
+  data: collections.propertyReviewsRedirects
+  size: 1
+  alias: redirect
+permalink: "/{{ strings.property_permalink_dir }}/{{ redirect.fileSlug }}/reviews/index.html"
+eleventyExcludeFromCollections: true
+---
+{%- assign redirect_url = "/" | append: strings.property_permalink_dir | append: "/" | append: redirect.fileSlug | append: "/" -%}
+{%- include "redirect-page.html" -%}
