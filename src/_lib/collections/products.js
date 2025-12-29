@@ -1,6 +1,6 @@
-import { sortByOrderThenTitle } from "#utils/sorting.js";
 import { countReviews, createReviewsCollection } from "#collections/reviews.js";
 import config from "#data/config.js";
+import { sortByOrderThenTitle } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
   if (!gallery) return gallery;

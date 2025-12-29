@@ -2,6 +2,7 @@
 // Supports PayPal and Stripe checkout options
 
 @use "breakpoints";
+@use "dialog";
 
 // Floating cart icon
 .cart-icon {
@@ -45,68 +46,18 @@
 // Cart overlay using native <dialog> element
 // Provides built-in modal behavior, Escape key handling, and focus management
 dialog.cart-overlay {
-  // Dialog box styling (replaces .cart-container)
-  background: var(--color-bg);
-  color: var(--color-text);
-  border: var(--border);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  max-width: 40rem;
-  width: calc(100% - 2rem);
-  max-height: 90vh;
-  padding: 0;
-  margin: auto;
+  @include dialog.dialog-box(40rem);
 
-  // Only show as flex when dialog is open (preserves native dialog hidden behavior)
-  &[open] {
-    display: flex;
-    flex-direction: column;
-  }
-
-  // Backdrop styling (replaces manual overlay background)
-  &::backdrop {
-    background: rgba(0, 0, 0, 0.85);
-  }
-}
-
-// Scroll lock when modal is open (CSS-only, no JS needed)
-html:has(dialog.cart-overlay[open]) {
-  overflow: hidden;
-  // Keep scrollbar width to prevent layout shift
-  scrollbar-gutter: stable;
-}
-
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2rem 1rem;
-  border: 0;
-  margin: 0;
-  box-shadow: none;
-  border-bottom: var(--border);
-
-  h2 {
+  // Custom header padding for cart
+  > header {
+    padding: 2rem 1rem;
+    border: 0;
     margin: 0;
-  }
-
-  // Form wrapper for method="dialog" close button
-  form {
-    display: contents;
-  }
-
-  .cart-close {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    width: 2rem;
-    height: 2rem;
+    box-shadow: none;
   }
 }
+
+@include dialog.dialog-scroll-lock("dialog.cart-overlay");
 
 .cart-body {
   flex: 1;
@@ -272,13 +223,13 @@ html:has(dialog.cart-overlay[open]) {
   }
 
   dialog.cart-overlay {
-    width: 100%;
-    max-width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
+    @include dialog.dialog-mobile-fullscreen;
+
+    > header {
+      padding: 1rem;
+    }
   }
 
-  .cart-header,
   .cart-body,
   .cart-footer {
     padding: 1rem;

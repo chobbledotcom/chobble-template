@@ -210,11 +210,18 @@ const ThemeEditor = {
     });
 
     // Initialize border for this scope
-    this.initScopedBorderControl(scope, scopeVars["--border"]);
+    this.initBorderControl(scope, scopeVars["--border"]);
   },
 
-  initBorderControl(prefix, borderValue) {
-    const idPrefix = prefix ? `${prefix}-` : "";
+  /**
+   * Initialize border controls for global or scoped borders
+   * @param {string} scope - Empty string for global, or scope name (e.g., "header")
+   * @param {string} borderValue - The border value from the theme
+   */
+  initBorderControl(scope, borderValue) {
+    const idPrefix = scope ? `${scope}-` : "";
+    const isGlobal = !scope;
+
     const widthInput = this.formEl(`${idPrefix}border-width`);
     const styleSelect = this.formEl(`${idPrefix}border-style`);
     const colorInput = this.formEl(`${idPrefix}border-color`);
@@ -222,54 +229,9 @@ const ThemeEditor = {
 
     if (!widthInput || !styleSelect || !colorInput) return;
 
-    const parsed = parseBorderValue(borderValue);
-    if (parsed) {
-      widthInput.value = parsed.width;
-      styleSelect.value = parsed.style;
-      if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
-    } else {
-      // Get from computed style
-      const computed = getComputedStyle(document.documentElement)
-        .getPropertyValue("--border")
-        .trim();
-      const computedParsed = parseBorderValue(computed);
-      if (computedParsed) {
-        widthInput.value = computedParsed.width;
-        styleSelect.value = computedParsed.style;
-        if (computedParsed.color.startsWith("#"))
-          colorInput.value = computedParsed.color;
-      }
-    }
-
-    if (outputInput) {
-      outputInput.value = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
-    }
-
-    const updateBorder = () => {
-      const borderVal = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
-      if (outputInput) outputInput.value = borderVal;
-      document.documentElement.style.setProperty("--border", borderVal);
-      this.updateThemeFromControls();
-    };
-
-    widthInput.addEventListener("input", updateBorder);
-    styleSelect.addEventListener("change", updateBorder);
-    colorInput.addEventListener("input", updateBorder);
-  },
-
-  initScopedBorderControl(scope, borderValue) {
-    const widthInput = this.formEl(`${scope}-border-width`);
-    const styleSelect = this.formEl(`${scope}-border-style`);
-    const colorInput = this.formEl(`${scope}-border-color`);
-    const outputInput = this.formEl(`${scope}-border`);
-
-    if (!widthInput || !styleSelect || !colorInput) return;
-
-    // Parse the scoped border value from theme, or fall back to global
-    // This ensures unchanged borders don't pollute output (same as color inputs)
+    // Parse provided value or fall back to global computed value
     let parsed = parseBorderValue(borderValue);
     if (!parsed) {
-      // No scoped border in theme - initialize to global value
       const globalBorder = getComputedStyle(document.documentElement)
         .getPropertyValue("--border")
         .trim();
@@ -289,6 +251,10 @@ const ThemeEditor = {
     const updateBorder = () => {
       const borderVal = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
       if (outputInput) outputInput.value = borderVal;
+      // Only apply to document root for global border
+      if (isGlobal) {
+        document.documentElement.style.setProperty("--border", borderVal);
+      }
       this.updateThemeFromControls();
     };
 

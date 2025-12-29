@@ -1,0 +1,6 @@
+<ul id="gallery" class="image-gallery {{ class }}">
+  {%- for image in gallery -%}
+    {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
+    {% include "gallery-thumbnail.html" %}
+  {%- endfor -%}
+</ul>
