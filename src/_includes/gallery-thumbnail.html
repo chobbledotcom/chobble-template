@@ -1,0 +1,17 @@
+<li>
+  <a
+    href="
+      {%- if image[0] == "/" -%}
+        {{- image -}}
+      {%- else -%}
+        /images/{{ image -}}
+      {%- endif -%}
+    "
+    data-index="{{ forloop.index }}"
+    class="image-link gallery-switcher"
+  >
+    <figure>
+      {% image image, alt_text, config.products.gallery_thumb_widths %}
+    </figure>
+  </a>
+</li>

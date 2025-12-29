@@ -1,42 +1,14 @@
 {%- if gallery and gallery.size > 0 -%}
 <div class="property-gallery">
-  <div class="current-image">
-    {% assign image = gallery[0] %}
-    {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-    {% image image, alt_text, config.products.gallery_image_widths %}
-  </div>
-
-  <div aria-hidden="true" class="gallery-full-size-images">
-    {%- for image in gallery -%}
-      {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-      <div class="full-image-{{ forloop.index }}">
-        {% image image, alt_text, config.products.gallery_image_widths, "fade-in" %}
-      </div>
-    {% endfor %}
-  </div>
+  {% include "gallery-current-image.html" %}
+  {% include "gallery-full-size-images.html" %}
 
   {%- if gallery.size > 1 -%}
   <div class="slider-container property-thumbnails">
     <ul id="gallery" class="image-gallery slider">
       {%- for image in gallery -%}
         {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-        <li>
-          <a
-            href="
-              {%- if image[0] == "/" -%}
-                {{- image -}}
-              {%- else -%}
-                /images/{{ image -}}
-              {%- endif -%}
-            "
-            data-index="{{ forloop.index }}"
-            class="image-link gallery-switcher"
-          >
-            <figure>
-              {% image image, alt_text, config.products.gallery_thumb_widths %}
-            </figure>
-          </a>
-        </li>
+        {% include "gallery-thumbnail.html" %}
       {%- endfor -%}
     </ul>
     <p class="slider-nav" aria-hidden="true">
