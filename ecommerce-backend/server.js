@@ -62,6 +62,11 @@ app.use(
 
 app.use(express.json());
 
+// Logging helper
+const logRequest = (origin, message) => {
+  console.log(`[${new Date().toISOString()}] ${origin || "unknown"} - ${message}`);
+};
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({
@@ -153,6 +158,9 @@ async function validateCart(items, origin) {
   return { valid: true, cart, total };
 }
 
+const isValidOrigin = (origin) => origin && ALLOWED_ORIGINS.includes(origin);
+const isValidItems = (items) => items && Array.isArray(items) && items.length > 0;
+
 /**
  * Middleware to validate items from request body
  * Attaches validated cart, total, and origin to req if valid
@@ -161,41 +169,30 @@ async function validateItemsMiddleware(req, res, next) {
   const { items } = req.body;
   const origin = req.get("origin");
 
-  if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
-    console.log(
-      `[${new Date().toISOString()}] Rejected request - invalid origin`,
-    );
+  if (!isValidOrigin(origin)) {
+    logRequest(origin, "rejected - invalid origin");
     return res.status(403).json({ error: "Invalid or missing origin" });
   }
 
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    console.log(`[${new Date().toISOString()}] ${origin} - empty cart`);
+  if (!isValidItems(items)) {
+    logRequest(origin, "empty cart");
     return res.status(400).json({ error: "Items array is empty or invalid" });
   }
 
   try {
     const validation = await validateCart(items, origin);
     if (!validation.valid) {
-      console.log(
-        `[${new Date().toISOString()}] ${origin} - cart validation failed`,
-      );
-      return res.status(400).json({
-        error: "Cart validation failed",
-        details: validation.errors,
-      });
+      logRequest(origin, "cart validation failed");
+      return res.status(400).json({ error: "Cart validation failed", details: validation.errors });
     }
 
-    console.log(
-      `[${new Date().toISOString()}] ${origin} - cart validated (${items.length} items)`,
-    );
+    logRequest(origin, `cart validated (${items.length} items)`);
     req.validatedCart = validation.cart;
     req.cartTotal = validation.total;
     req.siteOrigin = origin;
     next();
   } catch (error) {
-    console.error(
-      `[${new Date().toISOString()}] ${origin} - validation error: ${error.message}`,
-    );
+    logRequest(origin, `validation error: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 }

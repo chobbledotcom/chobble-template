@@ -1,6 +1,8 @@
 import { getReviewsFor } from "#collections/reviews.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 
+const toDateString = (date) => date.toISOString().split("T")[0];
+
 function buildImageUrl(imageInput, siteUrl) {
   if (!imageInput) return null;
 
@@ -41,58 +43,60 @@ function buildBaseMeta(data) {
   return meta;
 }
 
+function buildOffers(price) {
+  const validUntil = new Date();
+  validUntil.setFullYear(validUntil.getFullYear() + 1);
+
+  return {
+    price: price.toString().replace(/[£€$,]/g, ""),
+    priceCurrency: "GBP",
+    availability: "https://schema.org/InStock",
+    priceValidUntil: toDateString(validUntil),
+  };
+}
+
+function formatReview(review) {
+  const reviewData = {
+    author: review.data.name,
+    rating: review.data.rating || 5,
+  };
+  if (review.date) {
+    reviewData.date = toDateString(review.date);
+  }
+  return reviewData;
+}
+
+function buildRating(reviews) {
+  const ratings = reviews.map((r) => r.data.rating || 5);
+  const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+
+  return {
+    ratingValue: avg.toFixed(1),
+    reviewCount: reviews.length,
+    bestRating: 5,
+    worstRating: 1,
+  };
+}
+
 function buildProductMeta(data) {
   const meta = buildBaseMeta(data);
-
   meta.name = data.title;
   meta.brand = data.site.name;
 
   if (data.price) {
-    // Calculate priceValidUntil (1 year from now)
-    const validUntil = new Date();
-    validUntil.setFullYear(validUntil.getFullYear() + 1);
-
-    meta.offers = {
-      price: data.price.toString().replace(/[£€$,]/g, ""),
-      priceCurrency: "GBP",
-      availability: "https://schema.org/InStock",
-      priceValidUntil: validUntil.toISOString().split("T")[0],
-    };
+    meta.offers = buildOffers(data.price);
   }
 
-  // Add reviews if available
-  if (data.collections && data.collections.reviews && data.reviewsField) {
-    const itemSlug = data.page.fileSlug;
-    const productReviews = getReviewsFor(
+  if (data.collections?.reviews && data.reviewsField) {
+    const reviews = getReviewsFor(
       data.collections.reviews,
-      itemSlug,
+      data.page.fileSlug,
       data.reviewsField,
     );
 
-    if (productReviews.length > 0) {
-      meta.reviews = productReviews.map((review) => {
-        const reviewData = {
-          author: review.data.name,
-          rating: review.data.rating || 5,
-        };
-
-        if (review.date) {
-          reviewData.date = review.date.toISOString().split("T")[0];
-        }
-
-        return reviewData;
-      });
-
-      // Calculate aggregate rating
-      const ratings = productReviews.map((r) => r.data.rating || 5);
-      const avgRating = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-
-      meta.rating = {
-        ratingValue: avgRating.toFixed(1),
-        reviewCount: productReviews.length,
-        bestRating: 5,
-        worstRating: 1,
-      };
+    if (reviews.length > 0) {
+      meta.reviews = reviews.map(formatReview);
+      meta.rating = buildRating(reviews);
     }
   }
 
@@ -103,7 +107,7 @@ function buildPostMeta(data) {
   const meta = buildBaseMeta(data);
 
   if (data.page.date) {
-    meta.datePublished = data.page.date.toISOString().split("T")[0];
+    meta.datePublished = toDateString(data.page.date);
   }
 
   meta.author = {

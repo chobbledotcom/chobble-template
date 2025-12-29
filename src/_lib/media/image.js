@@ -12,6 +12,29 @@ const CROP_CACHE_DIR = ".image-cache";
 
 const isServeMode = () => process.env.ELEVENTY_RUN_MODE === "serve";
 
+const generateCropHash = (sourcePath, aspectRatio) => {
+  return crypto
+    .createHash("md5")
+    .update(`${sourcePath}:${aspectRatio}`)
+    .digest("hex")
+    .slice(0, 8);
+};
+
+const buildCropCachePath = (sourcePath, aspectRatio) => {
+  const hash = generateCropHash(sourcePath, aspectRatio);
+  const basename = path.basename(sourcePath, path.extname(sourcePath));
+  return path.join(CROP_CACHE_DIR, `${basename}-crop-${hash}.jpeg`);
+};
+
+const parseCropDimensions = (aspectRatio, metadata) => {
+  const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
+  const aspectFraction = dimensions[0] / dimensions[1];
+  return {
+    width: metadata.width,
+    height: Math.round(metadata.width / aspectFraction),
+  };
+};
+
 // Helper to convert HTML string to DOM element
 const htmlToElement = (html, document = null) => {
   if (document) {
@@ -77,36 +100,12 @@ const U = {
   cropImage: async (aspectRatio, sourcePath, metadata) => {
     if (aspectRatio == null) return null;
 
-    // Generate deterministic cache path based on source path and aspect ratio
-    const hash = crypto
-      .createHash("md5")
-      .update(`${sourcePath}:${aspectRatio}`)
-      .digest("hex")
-      .slice(0, 8);
-    const basename = path.basename(sourcePath, path.extname(sourcePath));
-    const cachedPath = path.join(
-      CROP_CACHE_DIR,
-      `${basename}-crop-${hash}.jpeg`,
-    );
+    const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
+    if (fs.existsSync(cachedPath)) return cachedPath;
 
-    // Return cached path if it exists
-    if (fs.existsSync(cachedPath)) {
-      return cachedPath;
-    }
-
-    // aspectRatio is a string like "16/9"
-    const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
-    const aspectFraction = dimensions[0] / dimensions[1];
-    const width = metadata.width;
-    const height = Math.round(width / aspectFraction);
-
-    // Ensure cache directory exists
+    const { width, height } = parseCropDimensions(aspectRatio, metadata);
     fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-
-    // Crop and save to cache
-    await sharp(sourcePath)
-      .resize(width, height, { fit: "cover" })
-      .toFile(cachedPath);
+    await sharp(sourcePath).resize(width, height, { fit: "cover" }).toFile(cachedPath);
 
     return cachedPath;
   },
@@ -346,59 +345,57 @@ const imageShortcode = async (
   }
 };
 
+/**
+ * Fix invalid HTML where divs are the sole child of paragraph tags.
+ */
+const fixDivsInParagraphs = (document) => {
+  Array.from(document.querySelectorAll("p"))
+    .filter((p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV")
+    .forEach((p) => {
+      p.parentNode.insertBefore(p.firstChild, p);
+      p.parentNode.removeChild(p);
+    });
+};
+
+const extractImageOptions = (img, document) => {
+  const aspectRatio = img.getAttribute(U.ASPECT_RATIO_ATTRIBUTE);
+  if (aspectRatio) img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
+
+  return {
+    logName: `transformImages: ${img}`,
+    imageName: img.getAttribute("src"),
+    alt: img.getAttribute("alt"),
+    classes: img.getAttribute("class"),
+    sizes: img.getAttribute("sizes"),
+    widths: img.getAttribute("widths"),
+    aspectRatio,
+    loading: null,
+    returnElement: true,
+    document,
+  };
+};
+
+const processImageElement = async (img, document) => {
+  if (img.parentNode.classList.contains("image-wrapper")) return;
+  const wrapped = await processAndWrapImage(extractImageOptions(img, document));
+  img.parentNode.replaceChild(wrapped, img);
+};
+
 const transformImages = async (content) => {
-  // Fast string checks before expensive JSDOM parsing
   if (!content || !content.includes("<img")) return content;
   if (!content.includes('src="/images/')) return content;
 
   const dom = new JSDOM(content);
-  const {
-    window: { document },
-  } = dom;
+  const { document } = dom.window;
   const images = document.querySelectorAll('img[src^="/images/"]');
 
   if (images.length === 0) return content;
 
   await Promise.all(
-    Array.from(images).map(async (img) => {
-      if (img.parentNode.classList.contains("image-wrapper")) return;
-
-      const aspectRatio = img.getAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-      if (aspectRatio) {
-        img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-      }
-
-      const { parentNode } = img;
-      parentNode.replaceChild(
-        await processAndWrapImage({
-          logName: `transformImages: ${img}`,
-          imageName: img.getAttribute("src"),
-          alt: img.getAttribute("alt"),
-          classes: img.getAttribute("class"),
-          sizes: img.getAttribute("sizes"),
-          widths: img.getAttribute("widths"),
-          aspectRatio: aspectRatio,
-          loading: null,
-          returnElement: true,
-          document: document, // Reuse existing JSDOM document
-        }),
-        img,
-      );
-    }),
+    Array.from(images).map((img) => processImageElement(img, document)),
   );
 
-  // Fix invalid HTML where divs are the sole child of paragraph tags
-  const paragraphs = Array.from(document.querySelectorAll("p"));
-  const paragraphsToFix = paragraphs.filter(
-    (p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV",
-  );
-
-  paragraphsToFix.forEach((p) => {
-    const { parentNode, firstChild } = p;
-    parentNode.insertBefore(firstChild, p);
-    parentNode.removeChild(p);
-  });
-
+  fixDivsInParagraphs(document);
   return dom.serialize();
 };
 

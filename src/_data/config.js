@@ -25,41 +25,31 @@ const DEFAULTS = {
 
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];
 
-function validatePageFrontmatter(
-  filename,
-  requiredLayout,
-  requiredPermalink,
-  cartMode,
-) {
-  const pagePath = path.join(__dirname, "..", "pages", filename);
+const cartModeError = (cartMode, filename, issue) =>
+  `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
 
+const getPagePath = (filename) => path.join(__dirname, "..", "pages", filename);
+
+const extractFrontmatter = (pagePath, filename, cartMode) => {
   if (!fs.existsSync(pagePath)) {
-    throw new Error(
-      `cart_mode is "${cartMode}" but src/pages/${filename} does not exist`,
-    );
+    throw new Error(cartModeError(cartMode, filename, "does not exist"));
   }
-
   const content = fs.readFileSync(pagePath, "utf-8");
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-
-  if (!frontmatterMatch) {
-    throw new Error(
-      `cart_mode is "${cartMode}" but src/pages/${filename} has no frontmatter`,
-    );
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) {
+    throw new Error(cartModeError(cartMode, filename, "has no frontmatter"));
   }
+  return match[1];
+};
 
-  const frontmatter = frontmatterMatch[1];
+function validatePageFrontmatter(filename, requiredLayout, requiredPermalink, cartMode) {
+  const frontmatter = extractFrontmatter(getPagePath(filename), filename, cartMode);
 
   if (!frontmatter.includes(`layout: ${requiredLayout}`)) {
-    throw new Error(
-      `cart_mode is "${cartMode}" but src/pages/${filename} does not use layout: ${requiredLayout}`,
-    );
+    throw new Error(cartModeError(cartMode, filename, `does not use layout: ${requiredLayout}`));
   }
-
   if (!frontmatter.includes(`permalink: ${requiredPermalink}`)) {
-    throw new Error(
-      `cart_mode is "${cartMode}" but src/pages/${filename} does not have permalink: ${requiredPermalink}`,
-    );
+    throw new Error(cartModeError(cartMode, filename, `does not have permalink: ${requiredPermalink}`));
   }
 }
 

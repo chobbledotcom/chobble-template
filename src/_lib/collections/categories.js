@@ -1,31 +1,27 @@
-const buildCategoryPropertyMap = (categories, products, propertyName) => {
-  if (!categories) categories = [];
-  if (!products) products = [];
-
-  const initialMapping = categories.reduce(
-    (acc, category) => ({
-      ...acc,
-      [category.fileSlug]: [category.data[propertyName], -1],
-    }),
+const createInitialMapping = (categories, propertyName) =>
+  (categories || []).reduce(
+    (acc, category) => ({ ...acc, [category.fileSlug]: [category.data[propertyName], -1] }),
     {},
   );
 
-  const productEntries = products
+const extractProductEntries = (products, propertyName) =>
+  (products || [])
     .filter((product) => product.data[propertyName])
-    .flatMap((product) => {
-      return (product.data.categories || []).map((slug) => {
-        return {
-          categorySlug: slug,
-          value: product.data[propertyName],
-          order: product.data.order || 0,
-        };
-      });
-    });
+    .flatMap((product) =>
+      (product.data.categories || []).map((slug) => ({
+        categorySlug: slug,
+        value: product.data[propertyName],
+        order: product.data.order || 0,
+      })),
+    );
+
+const buildCategoryPropertyMap = (categories, products, propertyName) => {
+  const initialMapping = createInitialMapping(categories, propertyName);
+  const productEntries = extractProductEntries(products, propertyName);
 
   return productEntries.reduce((acc, { categorySlug, value, order }) => {
     const currentEntry = acc[categorySlug];
     const shouldOverride = !currentEntry || currentEntry[1] < order;
-
     return shouldOverride ? { ...acc, [categorySlug]: [value, order] } : acc;
   }, initialMapping);
 };
