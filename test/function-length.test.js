@@ -18,7 +18,6 @@ const IGNORED_FUNCTIONS = new Set([
   "createFilterConfig", // Factory that creates multiple collection handlers
   "buildFilterUIData", // Complex filter UI data structure builder
   "buildProductMeta", // Schema.org metadata with many optional fields
-  "transformImages", // Image pipeline with multiple transformation steps
 ]);
 
 /**

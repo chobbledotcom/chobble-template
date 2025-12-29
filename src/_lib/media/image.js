@@ -346,15 +346,26 @@ const imageShortcode = async (
   }
 };
 
+/**
+ * Fix invalid HTML where divs are the sole child of paragraph tags.
+ * Moves the div out of the paragraph and removes the empty p tag.
+ */
+const fixDivsInParagraphs = (document) => {
+  const paragraphs = Array.from(document.querySelectorAll("p"));
+  paragraphs
+    .filter((p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV")
+    .forEach((p) => {
+      p.parentNode.insertBefore(p.firstChild, p);
+      p.parentNode.removeChild(p);
+    });
+};
+
 const transformImages = async (content) => {
-  // Fast string checks before expensive JSDOM parsing
   if (!content || !content.includes("<img")) return content;
   if (!content.includes('src="/images/')) return content;
 
   const dom = new JSDOM(content);
-  const {
-    window: { document },
-  } = dom;
+  const { document } = dom.window;
   const images = document.querySelectorAll('img[src^="/images/"]');
 
   if (images.length === 0) return content;
@@ -364,12 +375,9 @@ const transformImages = async (content) => {
       if (img.parentNode.classList.contains("image-wrapper")) return;
 
       const aspectRatio = img.getAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-      if (aspectRatio) {
-        img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-      }
+      if (aspectRatio) img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
 
-      const { parentNode } = img;
-      parentNode.replaceChild(
+      img.parentNode.replaceChild(
         await processAndWrapImage({
           logName: `transformImages: ${img}`,
           imageName: img.getAttribute("src"),
@@ -377,28 +385,17 @@ const transformImages = async (content) => {
           classes: img.getAttribute("class"),
           sizes: img.getAttribute("sizes"),
           widths: img.getAttribute("widths"),
-          aspectRatio: aspectRatio,
+          aspectRatio,
           loading: null,
           returnElement: true,
-          document: document, // Reuse existing JSDOM document
+          document,
         }),
         img,
       );
     }),
   );
 
-  // Fix invalid HTML where divs are the sole child of paragraph tags
-  const paragraphs = Array.from(document.querySelectorAll("p"));
-  const paragraphsToFix = paragraphs.filter(
-    (p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV",
-  );
-
-  paragraphsToFix.forEach((p) => {
-    const { parentNode, firstChild } = p;
-    parentNode.insertBefore(firstChild, p);
-    parentNode.removeChild(p);
-  });
-
+  fixDivsInParagraphs(document);
   return dom.serialize();
 };
 
