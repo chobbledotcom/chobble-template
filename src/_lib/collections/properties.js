@@ -1,6 +1,6 @@
 import { addGallery } from "#collections/products.js";
 import { cacheKeyArrayAndSlug, memoize } from "#utils/memoize.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 const createPropertiesCollection = (collectionApi) => {
   const properties = collectionApi.getFilteredByTag("property") || [];
@@ -12,7 +12,7 @@ const getPropertiesByLocation = memoize(
     if (!properties || !locationSlug) return [];
     return properties
       .filter((property) => property.data.locations?.includes(locationSlug))
-      .sort(sortByOrderThenTitle);
+      .sort(sortItems);
   },
   { cacheKey: cacheKeyArrayAndSlug },
 );

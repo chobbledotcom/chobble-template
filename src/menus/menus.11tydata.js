@@ -1,5 +1,5 @@
 import { buildPdfFilename } from "#utils/slug-utils.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {
@@ -14,7 +14,7 @@ export default {
     allDietaryKeys: (data) => {
       const menuCategories = (data.collections.menu_category || [])
         .filter((cat) => cat.data.menus?.includes(data.page.fileSlug))
-        .sort(sortByOrderThenTitle);
+        .sort(sortItems);
 
       const allItems = menuCategories.flatMap((category) =>
         (data.collections.menu_item || []).filter((item) =>

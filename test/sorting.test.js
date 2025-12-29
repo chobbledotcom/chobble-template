@@ -1,15 +1,15 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
-describe("sortByOrderThenTitle", () => {
+describe("sortItems", () => {
   it("sorts by order first", () => {
     const items = [
       { data: { order: 2, title: "A" } },
       { data: { order: 1, title: "B" } },
       { data: { order: 3, title: "C" } },
     ];
-    const sorted = [...items].sort(sortByOrderThenTitle);
+    const sorted = [...items].sort(sortItems);
     assert.deepStrictEqual(
       sorted.map((i) => i.data.title),
       ["B", "A", "C"],
@@ -22,7 +22,7 @@ describe("sortByOrderThenTitle", () => {
       { data: { order: 1, title: "Apple" } },
       { data: { order: 1, title: "Mango" } },
     ];
-    const sorted = [...items].sort(sortByOrderThenTitle);
+    const sorted = [...items].sort(sortItems);
     assert.deepStrictEqual(
       sorted.map((i) => i.data.title),
       ["Apple", "Mango", "Zebra"],
@@ -35,7 +35,7 @@ describe("sortByOrderThenTitle", () => {
       { data: { title: "A" } },
       { data: { order: -1, title: "C" } },
     ];
-    const sorted = [...items].sort(sortByOrderThenTitle);
+    const sorted = [...items].sort(sortItems);
     assert.deepStrictEqual(
       sorted.map((i) => i.data.title),
       ["C", "A", "B"],
@@ -47,7 +47,7 @@ describe("sortByOrderThenTitle", () => {
       { data: { order: 1, name: "Zebra" } },
       { data: { order: 1, name: "Apple" } },
     ];
-    const sorted = [...items].sort(sortByOrderThenTitle);
+    const sorted = [...items].sort(sortItems);
     assert.deepStrictEqual(
       sorted.map((i) => i.data.name),
       ["Apple", "Zebra"],
@@ -57,7 +57,7 @@ describe("sortByOrderThenTitle", () => {
   it("handles missing data gracefully", () => {
     const items = [{ data: { order: 1, title: "B" } }, { data: {} }, {}];
     // Should not throw
-    const sorted = [...items].sort(sortByOrderThenTitle);
+    const sorted = [...items].sort(sortItems);
     assert.strictEqual(sorted.length, 3);
     // Items with order 0 (missing) come before order 1
     assert.strictEqual(sorted[2].data?.title, "B");

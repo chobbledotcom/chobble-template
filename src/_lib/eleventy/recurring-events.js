@@ -1,5 +1,5 @@
 import { memoize } from "#utils/memoize.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 const renderRecurringEvents = (events) => {
   if (!events || events.length === 0) {
@@ -33,7 +33,7 @@ const recurringEventsShortcode = function (eleventyConfig) {
     this.ctx?.collections?.events || this.collections?.events || [];
   const recurringEvents = events.filter((event) => event.data?.recurring_date);
 
-  recurringEvents.sort(sortByOrderThenTitle);
+  recurringEvents.sort(sortItems);
 
   return renderRecurringEvents(recurringEvents);
 };
@@ -78,7 +78,7 @@ const getRecurringEventsHtml = memoize(async () => {
       }
     }
 
-    recurringEvents.sort(sortByOrderThenTitle);
+    recurringEvents.sort(sortItems);
 
     return renderRecurringEvents(recurringEvents);
   } catch (err) {

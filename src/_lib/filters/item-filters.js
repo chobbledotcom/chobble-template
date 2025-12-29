@@ -1,6 +1,6 @@
 import slugify from "@sindresorhus/slugify";
 import { memoize } from "#utils/memoize.js";
-import { sortByOrderThenTitle } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 /**
  * Generic filtering library for items with filter_attributes
@@ -138,12 +138,12 @@ const itemMatchesFilters = (item, filters) => {
 const getItemsByFilters = (items, filters) => {
   if (!items) return [];
   if (!filters || Object.keys(filters).length === 0) {
-    return items.slice().sort(sortByOrderThenTitle);
+    return items.slice().sort(sortItems);
   }
 
   return items
     .filter((item) => itemMatchesFilters(item, filters))
-    .sort(sortByOrderThenTitle);
+    .sort(sortItems);
 };
 
 /**
