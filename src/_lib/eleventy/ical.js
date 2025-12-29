@@ -3,7 +3,7 @@ import config from "#data/config.json" with { type: "json" };
 import site from "#data/site.json" with { type: "json" };
 import { canonicalUrl } from "#utils/canonical-url.js";
 
-export function generateICalForEvent(event) {
+export function eventIcal(event) {
   // Only generate iCal for one-off events (not recurring)
   if (!event.data.ical_url) {
     return null;
@@ -37,7 +37,7 @@ export function generateICalForEvent(event) {
 
 export function configureICal(eleventyConfig) {
   // Add a filter to generate iCal content
-  eleventyConfig.addFilter("generateICal", generateICalForEvent);
+  eleventyConfig.addFilter("eventIcal", eventIcal);
 
   // Add collection of one-off events
   eleventyConfig.addCollection("oneOffEvents", (collectionApi) =>

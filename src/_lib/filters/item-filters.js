@@ -168,7 +168,7 @@ const buildItemAttributeMap = (items) => {
  * Check if an item matches filters using pre-normalized attributes
  * Expects itemAttrs to already be normalized
  */
-const itemMatchesFiltersWithMap = (itemAttrs, normalizedFilters) => {
+const attrsMatch = (itemAttrs, normalizedFilters) => {
   for (const [key, value] of Object.entries(normalizedFilters)) {
     if (itemAttrs[key] !== value) {
       return false;
@@ -195,7 +195,7 @@ const countMatchingItems = (items, itemAttrMap, filters) => {
   const normalizedFilters = normalizeFilters(filters);
   let count = 0;
   for (const item of items) {
-    if (itemMatchesFiltersWithMap(itemAttrMap.get(item), normalizedFilters)) {
+    if (attrsMatch(itemAttrMap.get(item), normalizedFilters)) {
       count++;
     }
   }

@@ -251,7 +251,7 @@ app.post(
 let paypalToken = null;
 let paypalTokenExpiry = 0;
 
-async function getPayPalAccessToken() {
+async function getPaypalToken() {
   // Return cached token if still valid (with 60s buffer)
   if (paypalToken && Date.now() < paypalTokenExpiry - 60000) {
     return paypalToken;
@@ -290,7 +290,7 @@ app.post(
         return res.status(500).json({ error: "PayPal not configured" });
       }
 
-      const accessToken = await getPayPalAccessToken();
+      const accessToken = await getPaypalToken();
       const itemTotal = req.cartTotal.toFixed(2);
 
       const orderPayload = {

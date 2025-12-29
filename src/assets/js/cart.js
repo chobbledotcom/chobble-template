@@ -466,7 +466,7 @@ class ShoppingCart {
     if (cart.length === 0) return;
 
     const checkoutApiUrl = this.getCheckoutApiUrl();
-    await this.checkoutWithPayPalBackend(checkoutApiUrl);
+    await this.paypalCheckout(checkoutApiUrl);
   }
 
   // Helper to POST cart data to an API endpoint
@@ -482,7 +482,7 @@ class ShoppingCart {
   }
 
   // Helper to POST minimal cart data (sku + quantity only) for validated checkout
-  async postCartSkusToApi(url) {
+  async postSkus(url) {
     const cart = getCart();
     const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
     return fetch(url, {
@@ -495,9 +495,9 @@ class ShoppingCart {
   }
 
   // PayPal checkout via backend API
-  async checkoutWithPayPalBackend(apiUrl) {
+  async paypalCheckout(apiUrl) {
     try {
-      const response = await this.postCartSkusToApi(apiUrl);
+      const response = await this.postSkus(apiUrl);
 
       if (response.ok) {
         const order = await response.json();

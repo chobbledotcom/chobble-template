@@ -51,10 +51,10 @@
 
   const attributes = ["src", "srcset"];
   const prefix = "data-auto-sizes-";
-  let didFirstContentfulPaintRun = false;
+  let fcpDone = false;
   let initialized = false;
 
-  function getSizesValueFromElement(elem) {
+  function elemWidth(elem) {
     const width = elem ? Math.round(elem.getBoundingClientRect().width) : 0;
     if (width <= 0) {
       return null;
@@ -67,10 +67,10 @@
     // Calculate the displayed width of the image
     // getBoundingClientRect() forces layout, but this is running right after FCP,
     // so hopefully the DOM is not dirty.
-    let sizes = getSizesValueFromElement(img);
+    let sizes = elemWidth(img);
     if (!sizes) {
       // If we get no width for the image, use the parent's width
-      sizes = getSizesValueFromElement(img.parentElement);
+      sizes = elemWidth(img.parentElement);
     }
     if (sizes) {
       img.sizes = sizes;
@@ -79,7 +79,7 @@
 
   // Store the original src and srcset attributes, and remove them to prevent loading before
   // we've calculated the sizes attribute
-  function preventNonAutoImageLoad(images) {
+  function deferImages(images) {
     for (const img of images) {
       if (img.complete) {
         // Don't do any of this if the image is already loaded
@@ -97,7 +97,7 @@
       if (src.startsWith("http://") || src.startsWith("https://")) {
         continue;
       }
-      if (!didFirstContentfulPaintRun) {
+      if (!fcpDone) {
         for (const attribute of attributes) {
           if (img.hasAttribute(attribute)) {
             // Store original src and srcset
@@ -165,14 +165,14 @@
     }
 
     if (newImages.length > 0) {
-      preventNonAutoImageLoad(newImages);
+      deferImages(newImages);
     }
   });
 
   function initAutosizes() {
     // On Turbo navigations, FCP has already happened, so process images directly
     if (initialized) {
-      didFirstContentfulPaintRun = true;
+      fcpDone = true;
       const images = document.querySelectorAll(
         'img[sizes^="auto"][loading="lazy"]',
       );
@@ -193,13 +193,13 @@
     });
 
     // Prevent the load of any existing images when the polyfill loads.
-    preventNonAutoImageLoad(
+    deferImages(
       document.querySelectorAll('img[sizes^="auto"][loading="lazy"]'),
     );
 
     new PerformanceObserver((entries, perfObserver) => {
       entries.getEntriesByName("first-contentful-paint").forEach(() => {
-        didFirstContentfulPaintRun = true;
+        fcpDone = true;
         setTimeout(restoreImageAttributes, 0);
         perfObserver.disconnect();
       });
