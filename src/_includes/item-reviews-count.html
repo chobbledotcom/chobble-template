@@ -1,6 +1,6 @@
-{%- if tags and tags contains "product" -%}
-  {% assign reviews = collections.reviews | getReviewsByProduct: page.fileSlug %}
-  {% assign rating = collections.reviews | getProductRating: page.fileSlug %}
+{%- if reviewsField -%}
+  {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, reviewsField %}
+  {% assign rating = collections.reviews | getRating: page.fileSlug, reviewsField %}
   {%- if rating -%}
     <p id="reviews-count"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
   {%- endif -%}
