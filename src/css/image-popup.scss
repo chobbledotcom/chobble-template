@@ -25,6 +25,15 @@ dialog.image-popup {
     justify-content: center;
   }
 
+  .popup-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 100%;
+    min-width: 0;
+  }
+
   .image-wrapper {
     max-width: 100%;
     max-height: 100%;
@@ -37,6 +46,59 @@ dialog.image-popup {
     width: auto;
     height: auto;
     object-fit: contain;
+  }
+
+  .popup-nav {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: background-color 0.2s;
+
+    @include breakpoints.up("md") {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+
+      @include breakpoints.up("md") {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+
+  .popup-nav-prev {
+    margin-right: 0.5rem;
+
+    @include breakpoints.up("md") {
+      margin-right: 1rem;
+    }
+  }
+
+  .popup-nav-next {
+    margin-left: 0.5rem;
+
+    @include breakpoints.up("md") {
+      margin-left: 1rem;
+    }
   }
 }
 
