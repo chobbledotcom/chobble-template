@@ -51,6 +51,8 @@ specs:
     value: Integrated Rainbow Projector
   - name: Power Cell
     value: Up to 12 hours
+  - name: Has dongle
+    value: "No"
 features:
   - Ultra-thin design (0.6")
   - Glow-in-the-dark control panel

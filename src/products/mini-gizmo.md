@@ -31,6 +31,8 @@ specs:
     value: Crystalized Flubber
   - name: Weight
     value: 1.2 kg
+  - name: Has dongle
+    value: "Yes"
 features:
   - Colorful blinking lights
   - Makes whooshing sounds
