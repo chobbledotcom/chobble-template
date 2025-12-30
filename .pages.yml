@@ -156,6 +156,13 @@ content:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
           - { name: order, type: number, label: Order }
+      - name: specs
+        label: Specifications
+        type: object
+        list: true
+        fields:
+          - { name: name, type: string, label: Name, required: true }
+          - { name: value, type: string, label: Value, required: true }
       - name: tabs
         label: Tabs
         type: object
