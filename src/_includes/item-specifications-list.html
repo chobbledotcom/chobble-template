@@ -2,8 +2,7 @@
   <h2>Specifications</h2>
   <dl class="product-specs">
     {%- for spec in specs -%}
-      {%- assign normalizedName = spec.name | downcase | strip -%}
-      {%- assign iconFile = specs_icons[normalizedName] -%}
+      {%- assign iconFile = spec.name | spec_icon -%}
       <dt>
         {%- if iconFile -%}
           <span class="spec-icon">{{ "icons/" | append: iconFile | inline_asset }}</span>
