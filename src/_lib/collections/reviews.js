@@ -100,6 +100,7 @@ const hashString = (str) => {
 const getInitials = (name) => {
   if (!name) return "?";
   const trimmed = name.trim();
+  if (!trimmed) return "?";
   if (trimmed.length <= 2) return trimmed.toUpperCase();
   const words = trimmed.split(/\s+/).filter(Boolean);
   if (words.length === 1) return words[0].charAt(0).toUpperCase();
@@ -113,7 +114,7 @@ const getInitials = (name) => {
 const reviewerAvatar = (name) => {
   const color = AVATAR_COLORS[hashString(name || "") % AVATAR_COLORS.length];
   const initials = getInitials(name);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="${color}"/><text x="40" y="40" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui,sans-serif" font-size="32" font-weight="bold">${initials}</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="${color}"/><text x="20" y="20" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="bold">${initials}</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 

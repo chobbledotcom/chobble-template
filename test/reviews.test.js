@@ -399,6 +399,11 @@ const testCases = [
         "AC",
         "Should return first and last initials for three-word name",
       );
+      expectStrictEqual(
+        getInitials("Mary Jane Watson Parker"),
+        "MP",
+        "Should use first and last word for four-word name",
+      );
     },
   },
   {
@@ -409,6 +414,11 @@ const testCases = [
         getInitials("Madonna"),
         "M",
         "Should return M for single name",
+      );
+      expectStrictEqual(
+        getInitials("Cher"),
+        "C",
+        "Should return C for Cher",
       );
     },
   },
@@ -422,6 +432,7 @@ const testCases = [
         "Should return JS unchanged",
       );
       expectStrictEqual(getInitials("A"), "A", "Should return A unchanged");
+      expectStrictEqual(getInitials("ab"), "AB", "Should uppercase ab to AB");
     },
   },
   {
@@ -445,6 +456,127 @@ const testCases = [
         getInitials("  John   Smith  "),
         "JS",
         "Should handle extra whitespace",
+      );
+      expectStrictEqual(
+        getInitials("   "),
+        "?",
+        "Should return ? for only whitespace",
+      );
+      expectStrictEqual(
+        getInitials("\t\n"),
+        "?",
+        "Should return ? for tabs and newlines",
+      );
+    },
+  },
+  {
+    name: "getInitials-lowercase",
+    description: "Uppercases lowercase initials",
+    test: () => {
+      expectStrictEqual(
+        getInitials("john smith"),
+        "JS",
+        "Should uppercase lowercase names",
+      );
+      expectStrictEqual(
+        getInitials("mary jane"),
+        "MJ",
+        "Should uppercase mary jane to MJ",
+      );
+    },
+  },
+  {
+    name: "getInitials-mixed-case",
+    description: "Handles mixed case names correctly",
+    test: () => {
+      expectStrictEqual(
+        getInitials("jOHN sMITH"),
+        "JS",
+        "Should handle inverted case",
+      );
+      expectStrictEqual(
+        getInitials("McDonald"),
+        "M",
+        "Should return M for McDonald",
+      );
+    },
+  },
+  {
+    name: "getInitials-hyphenated-names",
+    description: "Treats hyphenated parts as single words",
+    test: () => {
+      expectStrictEqual(
+        getInitials("Mary-Jane Watson"),
+        "MW",
+        "Should treat Mary-Jane as one word",
+      );
+      expectStrictEqual(
+        getInitials("Jean-Claude Van Damme"),
+        "JD",
+        "Should return JD for Jean-Claude Van Damme",
+      );
+    },
+  },
+  {
+    name: "getInitials-apostrophe-names",
+    description: "Handles names with apostrophes",
+    test: () => {
+      expectStrictEqual(
+        getInitials("O'Brien"),
+        "O",
+        "Should return O for O'Brien",
+      );
+      expectStrictEqual(
+        getInitials("Shaquille O'Neal"),
+        "SO",
+        "Should return SO for Shaquille O'Neal",
+      );
+      expectStrictEqual(
+        getInitials("D'Angelo Russell"),
+        "DR",
+        "Should return DR for D'Angelo Russell",
+      );
+    },
+  },
+  {
+    name: "getInitials-accented-characters",
+    description: "Handles accented and unicode characters",
+    test: () => {
+      expectStrictEqual(
+        getInitials("José García"),
+        "JG",
+        "Should handle accented characters",
+      );
+      expectStrictEqual(
+        getInitials("Müller Schmidt"),
+        "MS",
+        "Should handle umlauts",
+      );
+      expectStrictEqual(
+        getInitials("Björk"),
+        "B",
+        "Should return B for Björk",
+      );
+    },
+  },
+  {
+    name: "getInitials-numbers-in-name",
+    description: "Handles names containing numbers",
+    test: () => {
+      expectStrictEqual(
+        getInitials("John Smith III"),
+        "JI",
+        "Should use III as last word",
+      );
+      expectStrictEqual(
+        getInitials("R2D2"),
+        "R",
+        "Should return first char for single-word alphanumeric",
+      );
+      expectStrictEqual(
+        getInitials("C3"),
+        "C3",
+        "Should return 2-char alphanumeric unchanged",
       );
     },
   },
