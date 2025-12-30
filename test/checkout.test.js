@@ -57,6 +57,7 @@ const createCheckoutPage = async (options = {}) => {
       { name: "Small", unit_price: "5.00", max_quantity: 5, sku: "SKU-S" },
       { name: "Large", unit_price: "10.00", max_quantity: 3, sku: "SKU-L" },
     ],
+    productSpecs = null,
   } = options;
 
   const config = {
@@ -64,6 +65,21 @@ const createCheckoutPage = async (options = {}) => {
     checkout_api_url: checkoutApiUrl,
     paypal_email: paypalEmail,
   };
+
+  // Compute cart_attributes like products.11tydata.js does
+  const cart_attributes =
+    productOptions && productOptions.length > 0
+      ? JSON.stringify({
+          name: productTitle,
+          options: productOptions.map((opt) => ({
+            name: opt.name,
+            unit_price: parseFloat(opt.unit_price),
+            max_quantity: opt.max_quantity || null,
+            sku: opt.sku || null,
+          })),
+          specs: productSpecs,
+        }).replace(/"/g, "&quot;")
+      : null;
 
   // cart-icon.html is now smart and handles quote mode automatically
   const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
@@ -84,6 +100,7 @@ const createCheckoutPage = async (options = {}) => {
       config,
       title: productTitle,
       options: productOptions,
+      cart_attributes,
     },
   );
 
@@ -469,11 +486,14 @@ const testCases = [
       const button = doc.querySelector(".add-to-cart");
 
       assert.ok(button, "Add to cart button should exist");
-      assert.strictEqual(button.dataset.name, "My Product");
-      assert.strictEqual(button.dataset.option, "Standard");
-      assert.strictEqual(button.dataset.price, "19.99");
-      assert.strictEqual(button.dataset.sku, "STD-001");
-      assert.strictEqual(button.dataset.maxQuantity, "10");
+
+      // Parse the consolidated data-item attribute
+      const itemData = JSON.parse(button.dataset.item);
+      assert.strictEqual(itemData.name, "My Product");
+      assert.strictEqual(itemData.options[0].name, "Standard");
+      assert.strictEqual(itemData.options[0].unit_price, 19.99);
+      assert.strictEqual(itemData.options[0].sku, "STD-001");
+      assert.strictEqual(itemData.options[0].max_quantity, 10);
       assert.ok(
         button.textContent.includes("19.99"),
         "Button should show price",
@@ -514,9 +534,13 @@ const testCases = [
         true,
         "Button should be disabled initially",
       );
-      assert.strictEqual(button.dataset.name, "Variable Product");
 
-      // Check options
+      // Parse the consolidated data-item attribute
+      const itemData = JSON.parse(button.dataset.item);
+      assert.strictEqual(itemData.name, "Variable Product");
+      assert.strictEqual(itemData.options.length, 3);
+
+      // Check options in select (values are indices now)
       const options = select.querySelectorAll("option");
       assert.strictEqual(
         options.length,
@@ -530,11 +554,16 @@ const testCases = [
         "First option should be disabled placeholder",
       );
 
-      // Check second option (Small)
-      assert.strictEqual(options[1].dataset.name, "Small");
-      assert.strictEqual(options[1].dataset.price, "5.00");
-      assert.strictEqual(options[1].dataset.sku, "VAR-S");
-      assert.strictEqual(options[1].dataset.maxQuantity, "5");
+      // Check second option (Small) - now just value index
+      assert.strictEqual(options[1].value, "0");
+      assert.ok(options[1].textContent.includes("Small"));
+      assert.ok(options[1].textContent.includes("5.00"));
+
+      // Verify the data is in itemData
+      assert.strictEqual(itemData.options[0].name, "Small");
+      assert.strictEqual(itemData.options[0].unit_price, 5.0);
+      assert.strictEqual(itemData.options[0].sku, "VAR-S");
+      assert.strictEqual(itemData.options[0].max_quantity, 5);
 
       dom.window.close();
     },
@@ -545,12 +574,26 @@ const testCases = [
       "List item cart button renders Add to Cart for single option products",
     asyncTest: async () => {
       const config = { cart_mode: "stripe" };
+      const options = [
+        { name: "Standard", unit_price: 29.99, max_quantity: 5, sku: "TP1" },
+      ];
+      // Compute cart_attributes like products.11tydata.js does
+      const cart_attributes = JSON.stringify({
+        name: "Test Product",
+        options: options.map((opt) => ({
+          name: opt.name,
+          unit_price: opt.unit_price,
+          max_quantity: opt.max_quantity || null,
+          sku: opt.sku || null,
+        })),
+        specs: null,
+      }).replace(/"/g, "&quot;");
+
       const item = {
         data: {
           title: "Test Product",
-          options: [
-            { name: "Standard", unit_price: 29.99, max_quantity: 5, sku: "TP1" },
-          ],
+          options,
+          cart_attributes,
         },
         url: "/products/test-product/",
       };
@@ -565,11 +608,14 @@ const testCases = [
       const button = doc.querySelector(".add-to-cart");
 
       assert.ok(button, "Add to cart button should exist");
-      assert.strictEqual(button.dataset.name, "Test Product");
-      assert.strictEqual(button.dataset.option, "Standard");
-      assert.strictEqual(button.dataset.price, "29.99");
-      assert.strictEqual(button.dataset.maxQuantity, "5");
-      assert.strictEqual(button.dataset.sku, "TP1");
+
+      // Parse the consolidated data-item attribute
+      const itemData = JSON.parse(button.dataset.item);
+      assert.strictEqual(itemData.name, "Test Product");
+      assert.strictEqual(itemData.options[0].name, "Standard");
+      assert.strictEqual(itemData.options[0].unit_price, 29.99);
+      assert.strictEqual(itemData.options[0].max_quantity, 5);
+      assert.strictEqual(itemData.options[0].sku, "TP1");
       dom.window.close();
     },
   },
@@ -579,13 +625,27 @@ const testCases = [
       "List item cart button shows Select Options link for multi-option products",
     asyncTest: async () => {
       const config = { cart_mode: "stripe" };
+      const options = [
+        { name: "Small", unit_price: 19.99, sku: "VP-S" },
+        { name: "Large", unit_price: 29.99, sku: "VP-L" },
+      ];
+      // Compute cart_attributes like products.11tydata.js does
+      const cart_attributes = JSON.stringify({
+        name: "Variable Product",
+        options: options.map((opt) => ({
+          name: opt.name,
+          unit_price: opt.unit_price,
+          max_quantity: opt.max_quantity || null,
+          sku: opt.sku || null,
+        })),
+        specs: null,
+      }).replace(/"/g, "&quot;");
+
       const item = {
         data: {
           title: "Variable Product",
-          options: [
-            { name: "Small", unit_price: 19.99, sku: "VP-S" },
-            { name: "Large", unit_price: 29.99, sku: "VP-L" },
-          ],
+          options,
+          cart_attributes,
         },
         url: "/products/variable-product/",
       };
@@ -1318,11 +1378,14 @@ const testCases = [
       const button = doc.querySelector(".add-to-cart");
 
       assert.ok(button, "Button should exist");
-      assert.strictEqual(button.dataset.name, "My Product");
-      assert.strictEqual(button.dataset.option, "Standard");
-      assert.strictEqual(button.dataset.price, "25.00");
-      assert.strictEqual(button.dataset.maxQuantity, "10");
-      assert.strictEqual(button.dataset.sku, "PROD-STD");
+
+      // Parse the consolidated data-item attribute
+      const itemData = JSON.parse(button.dataset.item);
+      assert.strictEqual(itemData.name, "My Product");
+      assert.strictEqual(itemData.options[0].name, "Standard");
+      assert.strictEqual(itemData.options[0].unit_price, 25.0);
+      assert.strictEqual(itemData.options[0].max_quantity, 10);
+      assert.strictEqual(itemData.options[0].sku, "PROD-STD");
 
       dom.window.close();
     },
@@ -1351,7 +1414,10 @@ const testCases = [
 
       const doc = dom.window.document;
       const button = doc.querySelector(".add-to-cart");
-      const price = parseFloat(button.dataset.price);
+
+      // Parse from consolidated data-item attribute
+      const itemData = JSON.parse(button.dataset.item);
+      const price = itemData.options[0].unit_price;
 
       assert.strictEqual(price, 19.99);
       assert.strictEqual(typeof price, "number");
@@ -1417,7 +1483,7 @@ const testCases = [
   },
   {
     name: "multi-option-select-options-have-data",
-    description: "Select options contain price, sku, and max_quantity data",
+    description: "Select options have index values and button has consolidated data",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         productOptions: [
@@ -1428,20 +1494,28 @@ const testCases = [
 
       const doc = dom.window.document;
       const select = doc.querySelector(".product-options-select");
+      const button = doc.querySelector(".product-option-button");
 
-      // Skip placeholder (index 0)
+      // Skip placeholder (index 0) - options now have index values
       const smallOption = select.options[1];
       const largeOption = select.options[2];
 
-      assert.strictEqual(smallOption.dataset.name, "Small");
-      assert.strictEqual(smallOption.dataset.price, "5.00");
-      assert.strictEqual(smallOption.dataset.sku, "SKU-S");
-      assert.strictEqual(smallOption.dataset.maxQuantity, "10");
+      assert.strictEqual(smallOption.value, "0");
+      assert.ok(smallOption.textContent.includes("Small"));
+      assert.strictEqual(largeOption.value, "1");
+      assert.ok(largeOption.textContent.includes("Large"));
 
-      assert.strictEqual(largeOption.dataset.name, "Large");
-      assert.strictEqual(largeOption.dataset.price, "10.00");
-      assert.strictEqual(largeOption.dataset.sku, "SKU-L");
-      assert.strictEqual(largeOption.dataset.maxQuantity, "5");
+      // All data is now in the button's data-item attribute
+      const itemData = JSON.parse(button.dataset.item);
+      assert.strictEqual(itemData.options[0].name, "Small");
+      assert.strictEqual(itemData.options[0].unit_price, 5.0);
+      assert.strictEqual(itemData.options[0].sku, "SKU-S");
+      assert.strictEqual(itemData.options[0].max_quantity, 10);
+
+      assert.strictEqual(itemData.options[1].name, "Large");
+      assert.strictEqual(itemData.options[1].unit_price, 10.0);
+      assert.strictEqual(itemData.options[1].sku, "SKU-L");
+      assert.strictEqual(itemData.options[1].max_quantity, 5);
 
       dom.window.close();
     },
@@ -1461,23 +1535,23 @@ const testCases = [
       const select = doc.querySelector(".product-options-select");
       const button = doc.querySelector(".product-option-button");
 
+      // Get item data from button
+      const itemData = JSON.parse(button.dataset.item);
+
       // Simulate selecting an option (matches cart.js change handler)
-      select.selectedIndex = 1; // Select "Small"
-      const selectedOption = select.options[select.selectedIndex];
+      select.selectedIndex = 1; // Select "Small" (index 0 in options array)
+      const optionIndex = parseInt(select.options[select.selectedIndex].value);
+      const option = itemData.options[optionIndex];
 
       // Apply the selection to button (simulating cart.js change handler)
       button.disabled = false;
-      button.dataset.option = selectedOption.dataset.name;
-      button.dataset.price = selectedOption.dataset.price;
-      button.dataset.sku = selectedOption.dataset.sku;
-      button.dataset.maxQuantity = selectedOption.dataset.maxQuantity;
-      button.textContent = `Add to Cart - £${selectedOption.dataset.price}`;
+      button.textContent = `Add to Cart - £${option.unit_price}`;
 
       assert.strictEqual(button.disabled, false, "Button should be enabled");
-      assert.strictEqual(button.dataset.option, "Small");
-      assert.strictEqual(button.dataset.price, "5.00");
+      assert.strictEqual(option.name, "Small");
+      assert.strictEqual(option.unit_price, 5.0);
       assert.ok(
-        button.textContent.includes("5.00"),
+        button.textContent.includes("5"),
         "Button should show price",
       );
 
@@ -1498,19 +1572,34 @@ const testCases = [
       const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
         config,
       });
+
+      const options = [
+        {
+          name: "Standard",
+          unit_price: "50.00",
+          max_quantity: 10,
+          sku: "QUOTE-STD",
+        },
+      ];
+      // Compute cart_attributes like products.11tydata.js does
+      const cart_attributes = JSON.stringify({
+        name: "Quote Product",
+        options: options.map((opt) => ({
+          name: opt.name,
+          unit_price: parseFloat(opt.unit_price),
+          max_quantity: opt.max_quantity || null,
+          sku: opt.sku || null,
+        })),
+        specs: null,
+      }).replace(/"/g, "&quot;");
+
       const productOptionsHtml = await renderTemplate(
         "src/_includes/product-options.html",
         {
           config,
           title: "Quote Product",
-          options: [
-            {
-              name: "Standard",
-              unit_price: "50.00",
-              max_quantity: 10,
-              sku: "QUOTE-STD",
-            },
-          ],
+          options,
+          cart_attributes,
         },
       );
 
@@ -1609,15 +1698,17 @@ const testCases = [
                 e.preventDefault();
                 const button = e.target;
 
-                const itemName = button.dataset.name;
-                const optionName = button.dataset.option || "";
-                const unitPrice = parseFloat(button.dataset.price);
-                const maxQuantity = button.dataset.maxQuantity
-                  ? parseInt(button.dataset.maxQuantity)
-                  : null;
-                const sku = button.dataset.sku || null;
+                // Parse the consolidated data-item attribute
+                const itemData = JSON.parse(button.dataset.item);
+                const option = itemData.options[0]; // Single option for this test
 
-                const fullItemName = optionName
+                const itemName = itemData.name;
+                const optionName = option.name;
+                const unitPrice = option.unit_price;
+                const maxQuantity = option.max_quantity;
+                const sku = option.sku;
+
+                const fullItemName = optionName && optionName !== itemName
                   ? itemName + " - " + optionName
                   : itemName;
 

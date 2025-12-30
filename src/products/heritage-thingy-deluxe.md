@@ -51,7 +51,6 @@ features:
   - Brass hardware and detailing
   - Custom engraving available
   - Includes presentation box
-etsy_url: 'https://etsy.com/example'
 ---
 
 The Heritage Thingy Deluxe celebrates the golden age of craftsmanship with its meticulously handcrafted design and premium materials. Each unit is individually crafted by skilled artisans using time-honored techniques passed down through generations.

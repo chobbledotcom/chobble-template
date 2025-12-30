@@ -1,36 +1,25 @@
-{%- if config.cart_mode and options and options.size > 0 -%}
+{%- if config.cart_mode and cart_attributes -%}
   {%- if options.size == 1 -%}
-    {%- assign option = options.first -%}
     <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
     <button
       class="add-to-cart paypal-button"
-      data-name="{{ title }}"
-      data-option="{{ option.name }}"
-      data-price="{{ option.unit_price }}"
-      data-max-quantity="{{ option.max_quantity }}"
-      data-sku="{{ option.sku }}"
+      data-item="{{ cart_attributes }}"
     >
-      Add to Cart - £{{ option.unit_price }}
+      Add to Cart - £{{ options.first.unit_price }}
     </button>
   {%- else -%}
     <div class="product-options-wrapper">
       <select class="product-options-select">
         <option value="" disabled selected>Please select option</option>
         {%- for option in options -%}
-        <option
-          value="{{ forloop.index0 }}"
-          data-price="{{ option.unit_price }}"
-          data-name="{{ option.name }}"
-          data-max-quantity="{{ option.max_quantity }}"
-          data-sku="{{ option.sku }}"
-        >
+        <option value="{{ forloop.index0 }}">
           {{- option.name }} - £{{ option.unit_price -}}
         </option>
         {%- endfor -%}
       </select>
       <button
         class="add-to-cart paypal-button product-option-button"
-        data-name="{{ title }}"
+        data-item="{{ cart_attributes }}"
         disabled
       >
         Add to Cart
