@@ -124,3 +124,12 @@ export function attachQuantityHandlers(container, onUpdate) {
     });
   });
 }
+
+export function attachRemoveHandlers(container, selector, onRemove) {
+  container.querySelectorAll(selector).forEach((btn) => {
+    btn.addEventListener("click", () => {
+      removeItem(btn.dataset.name);
+      onRemove();
+    });
+  });
+}

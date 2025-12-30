@@ -3,6 +3,8 @@
 // Supports both PayPal and Stripe checkout
 
 import {
+  attachQuantityHandlers,
+  attachRemoveHandlers,
   escapeHtml,
   formatPrice,
   getCart,
@@ -392,37 +394,13 @@ class ShoppingCart {
         )
         .join("");
 
-      // Add event listeners for quantity controls
-      const addQtyHandler = (selector, delta) => {
-        cartItems.querySelectorAll(selector).forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const itemName = btn.dataset.name;
-            const item = cart.find((i) => i.item_name === itemName);
-            if (item) {
-              this.updateQuantity(itemName, item.quantity + delta);
-            }
-          });
-        });
-      };
-      addQtyHandler(".qty-decrease", -1);
-      addQtyHandler(".qty-increase", 1);
-
-      cartItems.querySelectorAll(".qty-input").forEach((input) => {
-        input.addEventListener("change", () => {
-          const itemName = input.dataset.name;
-          const quantity = parseInt(input.value);
-          if (!isNaN(quantity)) {
-            this.updateQuantity(itemName, quantity);
-          }
-        });
-      });
-
-      cartItems.querySelectorAll(".cart-item-remove").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          removeItem(btn.dataset.name);
-          this.updateCartDisplay();
-          this.updateCartCount();
-        });
+      // Add event listeners using shared utilities
+      attachQuantityHandlers(cartItems, (name, qty) =>
+        this.updateQuantity(name, qty),
+      );
+      attachRemoveHandlers(cartItems, ".cart-item-remove", () => {
+        this.updateCartDisplay();
+        this.updateCartCount();
       });
     }
 

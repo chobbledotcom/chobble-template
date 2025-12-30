@@ -3,10 +3,10 @@
 
 import {
   attachQuantityHandlers,
+  attachRemoveHandlers,
   escapeHtml,
   formatPrice,
   getCart,
-  removeItem,
   renderQuantityControls,
   updateCartIcon,
   updateItemQuantity,
@@ -53,16 +53,11 @@ function renderCart() {
       )
       .join("");
 
-    // Attach quantity handlers using shared utility
+    // Attach handlers using shared utilities
     attachQuantityHandlers(itemsEl, handleQuantityUpdate);
-
-    // Attach remove handlers
-    itemsEl.querySelectorAll(".quote-cart-item-remove").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        removeItem(btn.dataset.name);
-        renderCart();
-        updateCartIcon();
-      });
+    attachRemoveHandlers(itemsEl, ".quote-cart-item-remove", () => {
+      renderCart();
+      updateCartIcon();
     });
   }
 }
