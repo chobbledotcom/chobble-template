@@ -1,0 +1,17 @@
+{%- if config.cart_mode and item.data.options and item.data.options.size > 0 -%}
+  {%- if item.data.options.size == 1 -%}
+    {%- assign option = item.data.options.first -%}
+    <button
+      class="add-to-cart"
+      data-name="{{ item.data.title }}"
+      data-option="{{ option.name }}"
+      data-price="{{ option.unit_price }}"
+      data-max-quantity="{{ option.max_quantity }}"
+      data-sku="{{ option.sku }}"
+    >
+      Add to Cart - £{{ option.unit_price }}
+    </button>
+  {%- else -%}
+    <a href="{{ item.url }}#content" class="button">Select Options</a>
+  {%- endif -%}
+{%- endif -%}
