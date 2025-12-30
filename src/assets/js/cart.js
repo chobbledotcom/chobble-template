@@ -7,6 +7,7 @@ import {
   formatPrice,
   getCart,
   removeItem,
+  renderQuantityControls,
   saveCart,
   updateCartIcon,
 } from "./cart-utils.js";
@@ -383,13 +384,7 @@ class ShoppingCart {
             <div class="cart-item-price">${formatPrice(item.unit_price)}</div>
           </div>
           <div class="cart-item-controls">
-            <div class="cart-item-quantity">
-              <button class="qty-btn qty-decrease" data-name="${escapeHtml(item.item_name)}">−</button>
-              <input type="number" class="qty-input" value="${item.quantity}" min="1"
-                     ${item.max_quantity ? `max="${item.max_quantity}"` : ""}
-                     data-name="${escapeHtml(item.item_name)}">
-              <button class="qty-btn qty-increase" data-name="${escapeHtml(item.item_name)}">+</button>
-            </div>
+            ${renderQuantityControls(item)}
             <button class="cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
           </div>
         </div>
