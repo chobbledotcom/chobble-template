@@ -557,7 +557,7 @@ const testCases = [
 
       const html = await renderTemplate(
         "src/_includes/list-item-cart-button.html",
-        { config, item, show_cart_buttons: true },
+        { config, item },
       );
 
       const dom = new JSDOM(`<div>${html}</div>`);
@@ -597,7 +597,7 @@ const testCases = [
 
       const html = await renderTemplate(
         "src/_includes/list-item-cart-button.html",
-        { config, item, show_cart_buttons: true },
+        { config, item },
       );
 
       const dom = new JSDOM(`<div>${html}</div>`);
@@ -658,7 +658,7 @@ const testCases = [
 
       const html = await renderTemplate(
         "src/_includes/list-item-cart-button.html",
-        { config, item, show_cart_buttons: true },
+        { config, item },
       );
 
       assert.strictEqual(

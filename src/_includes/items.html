@@ -1,6 +1,5 @@
 {%- if items.size > 0 -%}
 {%- assign widths = config.products.item_widths -%}
-{%- assign show_cart_buttons = cart_mode -%}
 
 {%- if horizontal -%}
 <div class="slider-container">
@@ -9,7 +8,7 @@
 <ul class="items">
 {%- endif -%}
   {%- for item in items -%}
-    {%- include "list-item.html", show_cart_buttons: show_cart_buttons -%}
+    {%- include "list-item.html" -%}
   {%- endfor -%}
 </ul>
 {%- if horizontal -%}
