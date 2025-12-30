@@ -2,12 +2,19 @@
 <ul class="news-posts">
   {%- for post in posts limit: limit -%}
   <li>
-    <strong>{{ post.date | date: "%b %-d, %Y" }}:</strong>
-    <a href="{{ post.url }}#content"> {{ post.data.header_text | escape }} </a>
-    {% if post.data.subtitle and post.data.subtitle != "" %}
-      <br />
-      {{ post.data.subtitle | escape }}
-    {% endif %}
+    {%- if post.data.thumbnail -%}
+      <a class="thumbnail" href="{{ post.url }}#content">
+        {%- image post.data.thumbnail, post.data.title, "200, 300, 400" -%}
+      </a>
+    {%- endif -%}
+    <div class="details">
+      <strong>{{ post.date | date: "%b %-d, %Y" }}:</strong>
+      <a href="{{ post.url }}#content"> {{ post.data.header_text | escape }} </a>
+      {% if post.data.subtitle and post.data.subtitle != "" %}
+        <br />
+        {{ post.data.subtitle | escape }}
+      {% endif %}
+    </div>
   </li>
   {%- endfor -%}
 </ul>
