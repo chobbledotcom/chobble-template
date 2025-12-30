@@ -65,3 +65,71 @@ export function updateCartIcon() {
     }
   });
 }
+
+export function updateItemQuantity(itemName, quantity) {
+  const cart = getCart();
+  const item = cart.find((i) => i.item_name === itemName);
+
+  if (!item) return false;
+
+  if (quantity <= 0) {
+    removeItem(itemName);
+  } else {
+    if (item.max_quantity && quantity > item.max_quantity) {
+      alert(`The maximum quantity for this item is ${item.max_quantity}`);
+      item.quantity = item.max_quantity;
+    } else {
+      item.quantity = quantity;
+    }
+    saveCart(cart);
+  }
+  return true;
+}
+
+export function renderQuantityControls(item) {
+  return `
+    <div class="cart-item-quantity">
+      <button class="qty-btn qty-decrease" data-name="${escapeHtml(item.item_name)}">−</button>
+      <input type="number" class="qty-input" value="${item.quantity}" min="1"
+             ${item.max_quantity ? `max="${item.max_quantity}"` : ""}
+             data-name="${escapeHtml(item.item_name)}">
+      <button class="qty-btn qty-increase" data-name="${escapeHtml(item.item_name)}">+</button>
+    </div>`;
+}
+
+export function attachQuantityHandlers(container, onUpdate) {
+  const cart = getCart();
+
+  const addQtyHandler = (selector, delta) => {
+    container.querySelectorAll(selector).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const itemName = btn.dataset.name;
+        const item = cart.find((i) => i.item_name === itemName);
+        if (item) {
+          onUpdate(itemName, item.quantity + delta);
+        }
+      });
+    });
+  };
+  addQtyHandler(".qty-decrease", -1);
+  addQtyHandler(".qty-increase", 1);
+
+  container.querySelectorAll(".qty-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const itemName = input.dataset.name;
+      const quantity = parseInt(input.value);
+      if (!isNaN(quantity)) {
+        onUpdate(itemName, quantity);
+      }
+    });
+  });
+}
+
+export function attachRemoveHandlers(container, selector, onRemove) {
+  container.querySelectorAll(selector).forEach((btn) => {
+    btn.addEventListener("click", () => {
+      removeItem(btn.dataset.name);
+      onRemove();
+    });
+  });
+}

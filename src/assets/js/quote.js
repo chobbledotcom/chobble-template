@@ -1,14 +1,23 @@
 // Quote page cart display
-// Shows cart items with remove buttons (no quantity adjustment)
+// Shows cart items with quantity controls and remove buttons
 
 import {
+  attachQuantityHandlers,
+  attachRemoveHandlers,
   escapeHtml,
   formatPrice,
   getCart,
-  removeItem,
+  renderQuantityControls,
   updateCartIcon,
+  updateItemQuantity,
 } from "./cart-utils.js";
 import { onReady } from "./on-ready.js";
+
+function handleQuantityUpdate(itemName, quantity) {
+  updateItemQuantity(itemName, quantity);
+  renderCart();
+  updateCartIcon();
+}
 
 function renderCart() {
   const cart = getCart();
@@ -35,19 +44,20 @@ function renderCart() {
             <span class="quote-cart-item-name">${escapeHtml(item.item_name)}</span>
             <span class="quote-cart-item-price">${formatPrice(item.unit_price)}</span>
           </div>
-          <button class="quote-cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
+          <div class="quote-cart-item-controls">
+            ${renderQuantityControls(item)}
+            <button class="quote-cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
+          </div>
         </div>
       `,
       )
       .join("");
 
-    // Attach remove handlers
-    itemsEl.querySelectorAll(".quote-cart-item-remove").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        removeItem(btn.dataset.name);
-        renderCart();
-        updateCartIcon();
-      });
+    // Attach handlers using shared utilities
+    attachQuantityHandlers(itemsEl, handleQuantityUpdate);
+    attachRemoveHandlers(itemsEl, ".quote-cart-item-remove", () => {
+      renderCart();
+      updateCartIcon();
     });
   }
 }
