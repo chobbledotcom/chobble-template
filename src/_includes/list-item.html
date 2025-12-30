@@ -1,36 +1,23 @@
 <li>
-  {%- if item.data.thumbnail -%}
-    <a class="image-link" href="{{ item.url }}#content">
-      {%- image item.data.thumbnail, item.data.title, widths -%}
-    </a>
-  {%- endif -%}
-
-  <h3>
-    <a href="{{- item.url -}}#content">{{ item.data.title }}</a>
-  </h3>
-
-  {%- if item.data.price -%}
-    <p>{{ item.data.price }}</p>
-  {%- endif -%}
-
-  {%- if item.data.date -%}
-    <p><strong>{{ item.data.date | date: "%b %-d, %Y" }}</strong></p>
-  {%- endif -%}
-
-  {%- if item.data.subtitle -%}
-    <p>{{ item.data.subtitle }}</p>
-  {%- endif -%}
-
-  {%- if item.data.event_location -%}
-    <p><strong>Location:</strong> {{ item.data.event_location }}</p>
-  {%- endif -%}
-
-  {%- if item.data.recurring_date or item.data.event_date -%}
-    <p>
-      <strong>Date:</strong>
-      {{ item.data.recurring_date | default: item.data.event_date | date: "%b %-d, %Y" }}
-    </p>
-  {%- endif -%}
-
-  {%- include "list-item-cart-button.html" -%}
+  {%- assign fields = config | getListItemFields -%}
+  {%- for field in fields -%}
+    {%- case field -%}
+      {%- when "thumbnail" -%}
+        {%- include "list-item-thumbnail.html" -%}
+      {%- when "link" -%}
+        {%- include "list-item-link.html" -%}
+      {%- when "price" -%}
+        {%- include "list-item-price.html" -%}
+      {%- when "date" -%}
+        {%- include "list-item-date.html" -%}
+      {%- when "subtitle" -%}
+        {%- include "list-item-subtitle.html" -%}
+      {%- when "location" -%}
+        {%- include "list-item-location.html" -%}
+      {%- when "event-date" -%}
+        {%- include "list-item-event-date.html" -%}
+      {%- when "cart-button" -%}
+        {%- include "list-item-cart-button.html" -%}
+    {%- endcase -%}
+  {%- endfor -%}
 </li>

@@ -1,0 +1,6 @@
+{%- if item.data.recurring_date or item.data.event_date -%}
+  <p>
+    <strong>Date:</strong>
+    {{ item.data.recurring_date | default: item.data.event_date | date: "%b %-d, %Y" }}
+  </p>
+{%- endif -%}

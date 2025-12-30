@@ -21,6 +21,7 @@ const DEFAULTS = {
   map_embed_src: null,
   cart_mode: null,
   has_products_filter: false,
+  list_item_fields: null, // null uses default: thumbnail, link, price, date, subtitle, location, event-date, cart-button
 };
 
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];
