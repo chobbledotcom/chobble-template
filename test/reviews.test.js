@@ -2,9 +2,11 @@ import {
   configureReviews,
   countReviews,
   createReviewsCollection,
+  getInitials,
   getRating,
   getReviewsFor,
   ratingToStars,
+  reviewerAvatar,
 } from "#collections/reviews.js";
 import {
   createMockEleventyConfig,
@@ -384,6 +386,112 @@ const testCases = [
     },
   },
   {
+    name: "getInitials-full-name",
+    description: "Extracts first and last initials from full name",
+    test: () => {
+      expectStrictEqual(
+        getInitials("John Smith"),
+        "JS",
+        "Should return JS for John Smith",
+      );
+      expectStrictEqual(
+        getInitials("Alice Bob Carol"),
+        "AC",
+        "Should return first and last initials for three-word name",
+      );
+    },
+  },
+  {
+    name: "getInitials-single-name",
+    description: "Returns single initial for single word name",
+    test: () => {
+      expectStrictEqual(
+        getInitials("Madonna"),
+        "M",
+        "Should return M for single name",
+      );
+    },
+  },
+  {
+    name: "getInitials-already-initials",
+    description: "Returns name unchanged if already 2 chars or less",
+    test: () => {
+      expectStrictEqual(
+        getInitials("JS"),
+        "JS",
+        "Should return JS unchanged",
+      );
+      expectStrictEqual(getInitials("A"), "A", "Should return A unchanged");
+    },
+  },
+  {
+    name: "getInitials-empty-null",
+    description: "Handles empty/null names gracefully",
+    test: () => {
+      expectStrictEqual(getInitials(""), "?", "Should return ? for empty");
+      expectStrictEqual(getInitials(null), "?", "Should return ? for null");
+      expectStrictEqual(
+        getInitials(undefined),
+        "?",
+        "Should return ? for undefined",
+      );
+    },
+  },
+  {
+    name: "getInitials-whitespace",
+    description: "Handles extra whitespace in names",
+    test: () => {
+      expectStrictEqual(
+        getInitials("  John   Smith  "),
+        "JS",
+        "Should handle extra whitespace",
+      );
+    },
+  },
+  {
+    name: "reviewerAvatar-returns-data-uri",
+    description: "Returns a valid SVG data URI",
+    test: () => {
+      const result = reviewerAvatar("John Smith");
+      expectStrictEqual(
+        result.startsWith("data:image/svg+xml,"),
+        true,
+        "Should return data URI",
+      );
+      expectStrictEqual(
+        result.includes("JS"),
+        true,
+        "Should include initials in SVG",
+      );
+    },
+  },
+  {
+    name: "reviewerAvatar-consistent-color",
+    description: "Returns same color for same name",
+    test: () => {
+      const result1 = reviewerAvatar("John Smith");
+      const result2 = reviewerAvatar("John Smith");
+      expectStrictEqual(
+        result1,
+        result2,
+        "Same name should produce same avatar",
+      );
+    },
+  },
+  {
+    name: "reviewerAvatar-different-colors",
+    description: "Returns different colors for different names",
+    test: () => {
+      const result1 = reviewerAvatar("John Smith");
+      const result2 = reviewerAvatar("Jane Doe");
+      expectStrictEqual(
+        result1 !== result2,
+        true,
+        "Different names should produce different avatars",
+      );
+    },
+  },
+  {
     name: "configureReviews-basic",
     description: "Configures reviews collection and filters",
     test: () => {
@@ -410,6 +518,11 @@ const testCases = [
         mockConfig.filters,
         "ratingToStars",
         "Should add ratingToStars filter",
+      );
+      expectFunctionType(
+        mockConfig.filters,
+        "reviewerAvatar",
+        "Should add reviewerAvatar filter",
       );
     },
   },
