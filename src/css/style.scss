@@ -362,6 +362,13 @@ blockquote {
     font-size: small;
     line-height: var(--line-height);
     padding: 1.5rem 0;
+    .reviewer-avatar {
+      display: block;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin: 1rem auto 0;
+    }
   }
 }
 

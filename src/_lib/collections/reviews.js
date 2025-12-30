@@ -62,6 +62,63 @@ const ratingToStars = (rating) => {
 };
 
 /**
+ * Predefined list of slightly dark colors for avatar backgrounds
+ * These ensure good contrast with white text
+ */
+const AVATAR_COLORS = [
+  "#5C6BC0", // Indigo
+  "#7E57C2", // Deep Purple
+  "#AB47BC", // Purple
+  "#EC407A", // Pink
+  "#EF5350", // Red
+  "#FF7043", // Deep Orange
+  "#8D6E63", // Brown
+  "#78909C", // Blue Grey
+  "#26A69A", // Teal
+  "#66BB6A", // Green
+  "#9CCC65", // Light Green
+  "#42A5F5", // Blue
+];
+
+/**
+ * Simple string hash function for consistent color selection
+ */
+const hashString = (str) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+};
+
+/**
+ * Extract initials from a name
+ * Handles: "John Smith" -> "JS", "JS" -> "JS", "John" -> "J"
+ */
+const getInitials = (name) => {
+  if (!name) return "?";
+  const trimmed = name.trim();
+  if (!trimmed) return "?";
+  if (trimmed.length <= 2) return trimmed.toUpperCase();
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  if (words.length === 1) return words[0].charAt(0).toUpperCase();
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+};
+
+/**
+ * Generate an SVG data URI for a reviewer avatar
+ * Uses the name to pick a consistent color and display initials
+ */
+const reviewerAvatar = (name) => {
+  const color = AVATAR_COLORS[hashString(name || "") % AVATAR_COLORS.length];
+  const initials = getInitials(name);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="${color}"/><text x="20" y="20" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="bold">${initials}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
+/**
  * Factory: items with enough reviews for a separate /reviews page
  */
 const withReviewsPage =
@@ -117,6 +174,7 @@ const configureReviews = (eleventyConfig) => {
   eleventyConfig.addFilter("getReviewsFor", getReviewsFor);
   eleventyConfig.addFilter("getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
+  eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);
 };
 
 export {
@@ -125,6 +183,8 @@ export {
   countReviews,
   getRating,
   ratingToStars,
+  getInitials,
+  reviewerAvatar,
   withReviewsPage,
   reviewsRedirects,
   configureReviews,
