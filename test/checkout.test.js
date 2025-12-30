@@ -570,11 +570,6 @@ const testCases = [
       assert.strictEqual(button.dataset.price, "29.99");
       assert.strictEqual(button.dataset.maxQuantity, "5");
       assert.strictEqual(button.dataset.sku, "TP1");
-      assert.ok(
-        button.textContent.includes("29.99"),
-        "Button should show price",
-      );
-
       dom.window.close();
     },
   },
@@ -1481,6 +1476,11 @@ const testCases = [
       assert.strictEqual(button.disabled, false, "Button should be enabled");
       assert.strictEqual(button.dataset.option, "Small");
       assert.strictEqual(button.dataset.price, "5.00");
+      assert.ok(
+        button.textContent.includes("5.00"),
+        "Button should show price",
+      );
+
       dom.window.close();
     },
   },
