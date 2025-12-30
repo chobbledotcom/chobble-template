@@ -17,17 +17,15 @@ layout: base
   {% endif %}
 {% endif %}
 
-{{ content }}
-{%- include "faq.html" -%}
-
-{% assign categories = collections.categories %}
-{% assign categories = categories | where: "data.parent", page.fileSlug %}
-{% if categories.size > 0 %}
-  <h2>Subcategories</h2>
-  {%- include "items.html", items: categories -%}
-{% endif %}
-
-{% if products.size > 0 %}
-  <h2>{{ strings.product_name }}</h2>
-  {%- include "items.html", items: products -%}
-{% endif %}
+{%- for section in categoryOrder -%}
+  {%- case section -%}
+    {%- when "content" -%}
+      {%- include "category-content.html" -%}
+    {%- when "faqs" -%}
+      {%- include "category-faqs.html" -%}
+    {%- when "subcategories" -%}
+      {%- include "category-subcategories.html" -%}
+    {%- when "products" -%}
+      {%- include "category-products.html" -%}
+  {%- endcase -%}
+{%- endfor -%}
