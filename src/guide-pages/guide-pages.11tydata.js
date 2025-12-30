@@ -3,13 +3,13 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 
 const buildPermalink = (data) => {
   if (data.permalink) return data.permalink;
-  const category = normaliseSlug(data.guide_category) || "uncategorized";
+  const category = normaliseSlug(data["guide-category"]) || "uncategorized";
   return `/${strings.guide_permalink_dir}/${category}/${data.page.fileSlug}/`;
 };
 
 export default {
   eleventyComputed: {
-    guide_category: (data) => normaliseSlug(data.guide_category),
+    "guide-category": (data) => normaliseSlug(data["guide-category"]),
     navigationParent: () => strings.guide_name,
     permalink: buildPermalink,
   },
