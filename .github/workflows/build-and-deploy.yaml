@@ -39,6 +39,7 @@ jobs:
           sed -i 's|"botpoison_public_key": null|"botpoison_public_key": "${{ secrets.BOTPOISON_PUBLIC_KEY }}"|g' src/_data/config.json
           sed -i 's|"checkout_api_url": null|"checkout_api_url": "${{ secrets.CHECKOUT_API_URL }}"|g' src/_data/config.json
           sed -i 's|"stripe_publishable_key": null|"stripe_publishable_key": "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"|g' src/_data/config.json
+          sed -i 's|"cart_mode": null|"cart_mode": "${{ secrets.CART_MODE }}"|g' src/_data/config.json
 
       - name: Build Site
         run: |
