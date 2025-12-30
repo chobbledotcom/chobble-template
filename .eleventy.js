@@ -36,7 +36,6 @@ import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
 // Filters
 import { configureProductFilters } from "#filters/product-filters.js";
 import { configurePropertyFilters } from "#filters/property-filters.js";
-import { configureSpecFilters } from "#filters/spec-filters.js";
 
 // Media
 import { configureImages } from "#media/image.js";
@@ -78,7 +77,6 @@ export default async function (eleventyConfig) {
   configureResponsiveTables(eleventyConfig);
   configureProductFilters(eleventyConfig);
   configureProducts(eleventyConfig);
-  configureSpecFilters(eleventyConfig);
   configureProperties(eleventyConfig);
   configureReviews(eleventyConfig);
   configurePropertyFilters(eleventyConfig);

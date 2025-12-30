@@ -2,13 +2,7 @@
   <h2>Specifications</h2>
   <dl class="product-specs">
     {%- for spec in specs -%}
-      {%- assign iconFile = spec.name | spec_icon -%}
-      <dt>
-        {%- if iconFile -%}
-          {{ "icons/" | append: iconFile | inline_asset }}
-        {%- endif -%}
-        {{ spec.name }}
-      </dt>
+      <dt>{{ spec.icon }}{{ spec.name }}</dt>
       <dd>{{ spec.value }}</dd>
     {%- endfor -%}
   </dl>

@@ -1,19 +1,35 @@
 import specsIcons from "#data/specs_icons.json" with { type: "json" };
+import { inlineAsset } from "#media/inline-asset.js";
 
 /**
- * Get the icon filename for a spec name
+ * Get the icon SVG content for a spec name
  * Normalizes the spec name (lowercase, trimmed) before lookup
  * @param {string} specName - The spec name to look up
- * @returns {string|null} - The icon filename or null if not found
+ * @returns {string} - The icon SVG content or empty string if not found
  */
-const specIcon = (specName) => {
-	if (!specName) return null;
+const getSpecIcon = (specName) => {
+	if (!specName) return "";
 	const normalized = specName.toLowerCase().trim();
-	return specsIcons[normalized] || null;
+	const iconFile = specsIcons[normalized];
+	if (!iconFile) return "";
+	try {
+		return inlineAsset(`icons/${iconFile}`);
+	} catch {
+		return "";
+	}
 };
 
-const configureSpecFilters = (eleventyConfig) => {
-	eleventyConfig.addFilter("spec_icon", specIcon);
+/**
+ * Transform specs array to include icon content
+ * @param {Object} data - Eleventy data object
+ * @returns {Array|undefined} - Specs array with icon property added
+ */
+const computeSpecs = (data) => {
+	if (!data.specs) return undefined;
+	return data.specs.map((spec) => ({
+		...spec,
+		icon: getSpecIcon(spec.name),
+	}));
 };
 
-export { specIcon, configureSpecFilters };
+export { getSpecIcon, computeSpecs };
