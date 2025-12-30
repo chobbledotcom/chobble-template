@@ -1,4 +1,4 @@
-import listItemFields from "../src/_data/list-item-fields.js";
+import listItemFields from "../src/_data/listItemFields.js";
 import { createTestRunner, expectDeepEqual } from "./test-utils.js";
 
 const DEFAULT_FIELDS = [
