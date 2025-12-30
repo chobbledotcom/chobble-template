@@ -31,4 +31,8 @@
       {{ item.data.recurring_date | default: item.data.event_date | date: "%b %-d, %Y" }}
     </p>
   {%- endif -%}
+
+  {%- if show_cart_buttons -%}
+    {%- include "list-item-cart-button.html" -%}
+  {%- endif -%}
 </li>

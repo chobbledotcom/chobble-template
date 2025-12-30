@@ -540,6 +540,135 @@ const testCases = [
     },
   },
   {
+    name: "template-list-item-cart-button-single-option",
+    description:
+      "List item cart button renders Add to Cart for single option products",
+    asyncTest: async () => {
+      const config = { cart_mode: "stripe" };
+      const item = {
+        data: {
+          title: "Test Product",
+          options: [
+            { name: "Standard", unit_price: 29.99, max_quantity: 5, sku: "TP1" },
+          ],
+        },
+        url: "/products/test-product/",
+      };
+
+      const html = await renderTemplate(
+        "src/_includes/list-item-cart-button.html",
+        { config, item },
+      );
+
+      const dom = new JSDOM(`<div>${html}</div>`);
+      const doc = dom.window.document;
+      const button = doc.querySelector(".add-to-cart");
+
+      assert.ok(button, "Add to cart button should exist");
+      assert.strictEqual(button.dataset.name, "Test Product");
+      assert.strictEqual(button.dataset.option, "Standard");
+      assert.strictEqual(button.dataset.price, "29.99");
+      assert.strictEqual(button.dataset.maxQuantity, "5");
+      assert.strictEqual(button.dataset.sku, "TP1");
+      assert.ok(
+        button.textContent.includes("29.99"),
+        "Button should show price",
+      );
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "template-list-item-cart-button-multi-option",
+    description:
+      "List item cart button shows Select Options link for multi-option products",
+    asyncTest: async () => {
+      const config = { cart_mode: "stripe" };
+      const item = {
+        data: {
+          title: "Variable Product",
+          options: [
+            { name: "Small", unit_price: 19.99, sku: "VP-S" },
+            { name: "Large", unit_price: 29.99, sku: "VP-L" },
+          ],
+        },
+        url: "/products/variable-product/",
+      };
+
+      const html = await renderTemplate(
+        "src/_includes/list-item-cart-button.html",
+        { config, item },
+      );
+
+      const dom = new JSDOM(`<div>${html}</div>`);
+      const doc = dom.window.document;
+      const button = doc.querySelector(".add-to-cart");
+      const link = doc.querySelector("a.button");
+
+      assert.strictEqual(button, null, "Should not have direct add-to-cart");
+      assert.ok(link, "Should have Select Options link");
+      assert.ok(
+        link.href.includes("/products/variable-product/"),
+        "Link should go to product page",
+      );
+      assert.ok(
+        link.textContent.includes("Select Options"),
+        "Link should say Select Options",
+      );
+
+      dom.window.close();
+    },
+  },
+  {
+    name: "template-list-item-cart-button-no-cart-mode",
+    description: "List item cart button renders nothing when cart_mode is null",
+    asyncTest: async () => {
+      const config = { cart_mode: null };
+      const item = {
+        data: {
+          title: "Test Product",
+          options: [{ name: "Standard", unit_price: 29.99, sku: "TP1" }],
+        },
+        url: "/products/test-product/",
+      };
+
+      const html = await renderTemplate(
+        "src/_includes/list-item-cart-button.html",
+        { config, item },
+      );
+
+      assert.strictEqual(
+        html.trim(),
+        "",
+        "Should render nothing without cart_mode",
+      );
+    },
+  },
+  {
+    name: "template-list-item-cart-button-no-options",
+    description: "List item cart button renders nothing for items without options",
+    asyncTest: async () => {
+      const config = { cart_mode: "stripe" };
+      const item = {
+        data: {
+          title: "Blog Post",
+        },
+        url: "/news/blog-post/",
+      };
+
+      const html = await renderTemplate(
+        "src/_includes/list-item-cart-button.html",
+        { config, item },
+      );
+
+      assert.strictEqual(
+        html.trim(),
+        "",
+        "Should render nothing for items without options",
+      );
+    },
+  },
+  {
     name: "template-product-options-no-payment-configured",
     description:
       "Product options template renders nothing when no payment configured",
