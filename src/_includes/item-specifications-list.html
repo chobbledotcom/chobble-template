@@ -5,7 +5,7 @@
       {%- assign iconFile = spec.name | spec_icon -%}
       <dt>
         {%- if iconFile -%}
-          <span class="spec-icon">{{ "icons/" | append: iconFile | inline_asset }}</span>
+          {{ "icons/" | append: iconFile | inline_asset }}
         {%- endif -%}
         {{ spec.name }}
       </dt>
