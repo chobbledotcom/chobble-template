@@ -2,6 +2,7 @@
 	"name": "chobble-template",
 	"version": "1.0.0",
 	"type": "module",
+	"packageManager": "pnpm@10",
 	"imports": {
 		"#data/*": "./src/_data/*",
 		"#lib/*": "./src/_lib/*",
