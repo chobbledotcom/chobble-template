@@ -8,9 +8,7 @@
       data-price="{{ option.unit_price }}"
       data-max-quantity="{{ option.max_quantity }}"
       data-sku="{{ option.sku }}"
-    >
-      Add to Cart - £{{ option.unit_price }}
-    </button>
+    >Add to Cart</button>
   {%- else -%}
     <a href="{{ item.url }}#content" class="button">Select Options</a>
   {%- endif -%}
