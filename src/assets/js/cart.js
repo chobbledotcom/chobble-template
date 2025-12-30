@@ -197,6 +197,14 @@ class ShoppingCart {
           ? parseInt(button.dataset.maxQuantity)
           : null;
         const sku = button.dataset.sku || null;
+        let specs = null;
+        if (button.dataset.specs) {
+          try {
+            specs = JSON.parse(button.dataset.specs);
+          } catch (e) {
+            console.warn("[cart.js] Failed to parse specs:", e.message);
+          }
+        }
 
         console.log("[cart.js] Button data attributes:", {
           itemName,
@@ -204,6 +212,7 @@ class ShoppingCart {
           unitPrice,
           maxQuantity,
           sku,
+          specs,
           rawPrice: button.dataset.price,
         });
 
@@ -223,7 +232,7 @@ class ShoppingCart {
 
         if (fullItemName && !isNaN(unitPrice)) {
           console.log("[cart.js] Calling addItem...");
-          this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku);
+          this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku, specs);
         } else {
           console.error("[cart.js] Invalid item data:", {
             fullItemName,
@@ -237,13 +246,21 @@ class ShoppingCart {
   }
 
   // Add item to cart
-  addItem(itemName, unitPrice, quantity = 1, maxQuantity = null, sku = null) {
+  addItem(
+    itemName,
+    unitPrice,
+    quantity = 1,
+    maxQuantity = null,
+    sku = null,
+    specs = null,
+  ) {
     console.log("[cart.js] addItem() called:", {
       itemName,
       unitPrice,
       quantity,
       maxQuantity,
       sku,
+      specs,
     });
     const cart = getCart();
     console.log("[cart.js] Current cart:", cart);
@@ -273,6 +290,7 @@ class ShoppingCart {
         quantity: quantity,
         max_quantity: maxQuantity,
         sku: sku,
+        specs: specs,
       });
     }
 

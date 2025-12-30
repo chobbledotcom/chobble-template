@@ -28,17 +28,22 @@ function renderCart() {
     actionsEl.style.display = "block";
 
     itemsEl.innerHTML = cart
-      .map(
-        (item) => `
+      .map((item) => {
+        const specsHtml =
+          item.specs && item.specs.length > 0
+            ? `<p class="quote-cart-item-specs">${item.specs.map((s) => `${escapeHtml(s.name)}: ${escapeHtml(s.value)}`).join(", ")}</p>`
+            : "";
+        return `
         <div class="quote-cart-item" data-name="${escapeHtml(item.item_name)}">
           <div class="quote-cart-item-info">
             <span class="quote-cart-item-name">${escapeHtml(item.item_name)}</span>
             <span class="quote-cart-item-price">${formatPrice(item.unit_price)}</span>
           </div>
+          ${specsHtml}
           <button class="quote-cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
         </div>
-      `,
-      )
+      `;
+      })
       .join("");
 
     // Attach remove handlers

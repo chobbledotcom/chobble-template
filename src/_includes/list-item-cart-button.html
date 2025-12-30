@@ -1,4 +1,5 @@
 {%- if config.cart_mode and item.data.options and item.data.options.size > 0 -%}
+  {%- assign specs_json = item.data.specs | json | replace: '"', '&quot;' -%}
   {%- if item.data.options.size == 1 -%}
     {%- assign option = item.data.options.first -%}
     <button
@@ -8,6 +9,7 @@
       data-price="{{ option.unit_price }}"
       data-max-quantity="{{ option.max_quantity }}"
       data-sku="{{ option.sku }}"
+      data-specs="{{ specs_json }}"
     >Add to Cart</button>
   {%- else -%}
     <a href="{{ item.url }}#content" class="button">Select Options</a>
