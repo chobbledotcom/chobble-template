@@ -870,31 +870,21 @@ ul.news-posts {
     @include breakpoints.up("sm") {
       display: flex;
       gap: 1rem;
-    }
 
-    .thumbnail {
-      display: block;
-      flex-shrink: 0;
-      width: 200px;
-      margin-bottom: 0.5rem;
-
-      @include breakpoints.up("sm") {
-        margin-bottom: 0;
+      .thumbnail {
+        flex-shrink: 0;
+        width: 200px;
       }
 
-      @include breakpoints.up("lg") {
+      .details {
+        flex: 1;
+      }
+    }
+
+    @include breakpoints.up("lg") {
+      .thumbnail {
         width: 300px;
       }
-
-      img {
-        display: block;
-        width: 100%;
-        height: auto;
-      }
-    }
-
-    .details {
-      flex: 1;
     }
   }
 }
