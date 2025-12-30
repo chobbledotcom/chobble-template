@@ -8,7 +8,7 @@ layout: base
 {%- if homepage.show_menus and menus.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-menus-header", "<h3>Our Menus</h3>" -%}
-  {%- include "items.html", items: menus, horizontal: true -%}
+  {%- include "items.html", items: menus -%}
 {%- endif -%}
 
 {%- if homepage.show_news and collections.news.size > 0 -%}
@@ -25,7 +25,7 @@ layout: base
 
   {%- if all_have_images -%}
     {%- assign posts = collections.news | reverse | slice: 0, 2 -%}
-    {%- include "items.html", items: posts, horizontal: true -%}
+    {%- include "items.html", items: posts -%}
   {%- else -%}
     {% include "news-post-list.html", limit: 2 %}
   {%- endif -%}
@@ -35,14 +35,14 @@ layout: base
 {%- if homepage.show_products and categories.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-categories-header", "<h3>Product Categories</h3>" -%}
-  {%- include "items.html", items: categories, horizontal: true -%}
+  {%- include "items.html", items: categories -%}
 {%- endif -%}
 
 {%- assign products = collections.products | getFeaturedProducts -%}
 {%- if homepage.show_featured_products and products.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-products-header", "<h3>Featured Products</h3>" -%}
-  {%- include "items.html", items: products, horizontal: true -%}
+  {%- include "items.html", items: products -%}
 {%- endif -%}
 
 {%- assign recurring_events = collections.events | where: "data.recurring_date" -%}
@@ -56,7 +56,7 @@ layout: base
 {%- if homepage.show_featured_properties and featured_properties.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-properties-header", "<h3>Featured Properties</h3>" -%}
-  {%- include "items.html", items: featured_properties, horizontal: true -%}
+  {%- include "items.html", items: featured_properties -%}
 {%- endif -%}
 
 {%- assign latest_reviews = collections.reviews | slice: 0, homepage.reviews_limit -%}

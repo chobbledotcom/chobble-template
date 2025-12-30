@@ -1,6 +1,5 @@
 <li>
-  {%- assign fields = config | getListItemFields -%}
-  {%- for field in fields -%}
+  {%- for field in listItemFields -%}
     {%- case field -%}
       {%- when "thumbnail" -%}
         {%- include "list-item-thumbnail.html" -%}

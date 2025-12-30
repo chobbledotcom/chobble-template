@@ -27,7 +27,7 @@ import { configureFileUtils } from "#eleventy/file-utils.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
-import { configureListItemFields } from "#eleventy/list-item-fields.js";
+
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
@@ -60,7 +60,6 @@ export default async function (eleventyConfig) {
   configureCanonicalUrl(eleventyConfig);
   configureCategories(eleventyConfig);
   configureLayoutAliases(eleventyConfig);
-  configureListItemFields(eleventyConfig);
   await configureExternalLinks(eleventyConfig);
   await configureFeed(eleventyConfig);
   configureFileUtils(eleventyConfig);
