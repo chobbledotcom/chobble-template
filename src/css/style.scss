@@ -872,6 +872,28 @@ ul.news-posts {
   display: flex;
   gap: 1rem;
   flex-direction: column;
+
+  li {
+    @include breakpoints.up("sm") {
+      display: flex;
+      gap: 1rem;
+
+      .thumbnail {
+        flex-shrink: 0;
+        width: 200px;
+      }
+
+      .details {
+        flex: 1;
+      }
+    }
+
+    @include breakpoints.up("lg") {
+      .thumbnail {
+        width: 300px;
+      }
+    }
+  }
 }
 
 dl {
