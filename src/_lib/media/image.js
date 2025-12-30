@@ -112,7 +112,7 @@ const U = {
     return cachedPath;
   },
   // Build div HTML string directly instead of using JSDOM (much faster)
-  makeDivHtml: async (classes, thumbPromise, imageAspectRatio, innerHTML) => {
+  makeDivHtml: async (classes, thumbPromise, imageAspectRatio, maxWidth, innerHTML) => {
     const classAttr = classes
       ? `class="image-wrapper ${classes}"`
       : 'class="image-wrapper"';
@@ -123,6 +123,7 @@ const U = {
       if (bgImage) styles.push(`background-image: ${bgImage}`);
     }
     styles.push(`aspect-ratio: ${imageAspectRatio}`);
+    if (maxWidth) styles.push(`max-width: ${maxWidth}px`);
 
     return `<div ${classAttr} style="${styles.join("; ")}">${innerHTML}</div>`;
   },
@@ -263,6 +264,7 @@ async function processAndWrapImage({
     classes,
     thumbPromise,
     imageAspectRatio,
+    metadata.width,
     innerHTML,
   );
   imageHtmlCache.set(cacheKey, html);
