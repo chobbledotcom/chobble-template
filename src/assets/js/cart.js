@@ -75,9 +75,6 @@ class ShoppingCart {
       );
       if (button) {
         button.disabled = true;
-        button.dataset.option = "";
-        button.dataset.price = "";
-        button.dataset.maxQuantity = "";
         button.textContent = "Add to Cart";
       }
     });
@@ -127,13 +124,20 @@ class ShoppingCart {
           ".product-option-button",
         );
 
-        if (button && selectedOption && selectedOption.value) {
-          button.disabled = false;
-          button.dataset.option = selectedOption.dataset.name;
-          button.dataset.price = selectedOption.dataset.price;
-          button.dataset.maxQuantity = selectedOption.dataset.maxQuantity;
-          button.dataset.sku = selectedOption.dataset.sku;
-          button.textContent = `Add to Cart - £${selectedOption.dataset.price}`;
+        if (button && selectedOption && selectedOption.value !== "") {
+          // Parse the item data to get the selected option's price
+          try {
+            const itemData = JSON.parse(button.dataset.item);
+            const optionIndex = parseInt(selectedOption.value);
+            const option = itemData.options[optionIndex];
+            button.disabled = false;
+            button.textContent = `Add to Cart - £${option.unit_price}`;
+          } catch (err) {
+            console.error("[cart.js] Failed to parse item data:", err.message);
+            alert("Error loading product options. Please refresh the page.");
+            button.disabled = false;
+            button.textContent = "Add to Cart";
+          }
         }
       }
     });
@@ -169,7 +173,18 @@ class ShoppingCart {
         e.preventDefault();
         const button = e.target;
 
-        // For multi-option products, check if option is selected
+        // Parse the item data
+        let itemData;
+        try {
+          itemData = JSON.parse(button.dataset.item);
+        } catch (err) {
+          console.error("[cart.js] Failed to parse item data:", err.message);
+          alert("Error adding item to cart. Please refresh the page.");
+          return;
+        }
+
+        // Determine which option to use
+        let optionIndex = 0;
         if (button.classList.contains("product-option-button")) {
           console.log(
             "[cart.js] This is a product-option-button, checking select...",
@@ -183,37 +198,29 @@ class ShoppingCart {
             "value:",
             select?.value,
           );
-          if (select && !select.value) {
+          if (select && select.value === "") {
             console.log("[cart.js] No option selected, showing alert");
             alert("Please select an option");
             return;
           }
+          optionIndex = parseInt(select.value);
         }
 
-        const itemName = button.dataset.name;
-        const optionName = button.dataset.option || "";
-        const unitPrice = parseFloat(button.dataset.price);
-        const maxQuantity = button.dataset.maxQuantity
-          ? parseInt(button.dataset.maxQuantity)
-          : null;
-        const sku = button.dataset.sku || null;
-        let specs = null;
-        if (button.dataset.specs) {
-          try {
-            specs = JSON.parse(button.dataset.specs);
-          } catch (e) {
-            console.warn("[cart.js] Failed to parse specs:", e.message);
-          }
-        }
+        const option = itemData.options[optionIndex];
+        const itemName = itemData.name;
+        const optionName = option.name;
+        const unitPrice = option.unit_price;
+        const maxQuantity = option.max_quantity || null;
+        const sku = option.sku || null;
+        const specs = itemData.specs || null;
 
-        console.log("[cart.js] Button data attributes:", {
+        console.log("[cart.js] Parsed item data:", {
           itemName,
           optionName,
           unitPrice,
           maxQuantity,
           sku,
           specs,
-          rawPrice: button.dataset.price,
         });
 
         // Build full item name including option if present (avoid "Name - Name" duplication)
@@ -227,7 +234,6 @@ class ShoppingCart {
           unitPrice,
           maxQuantity,
           sku,
-          button,
         });
 
         if (fullItemName && !isNaN(unitPrice)) {
