@@ -250,12 +250,12 @@ app.post(
 // ============================================
 
 // Cache PayPal access token
-const paypalCache = { token: null, expiry: 0 };
+let state = { token: null, expiry: 0 };
 
 async function getPaypalToken() {
   // Return cached token if still valid (with 60s buffer)
-  if (paypalCache.token && Date.now() < paypalCache.expiry - 60000) {
-    return paypalCache.token;
+  if (state.token && Date.now() < state.expiry - 60000) {
+    return state.token;
   }
 
   const auth = Buffer.from(
@@ -276,10 +276,10 @@ async function getPaypalToken() {
   }
 
   const data = await response.json();
-  paypalCache.token = data.access_token;
-  paypalCache.expiry = Date.now() + data.expires_in * 1000;
+  state.token = data.access_token;
+  state.expiry = Date.now() + data.expires_in * 1000;
 
-  return paypalCache.token;
+  return state.token;
 }
 
 app.post(
