@@ -113,6 +113,12 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/cache-buster.test.js:97",
   "test/cache-buster.test.js:120",
   "test/cache-buster.test.js:147",
+
+  // test/cpd.test.js - running external tool and capturing exit code
+  "test/cpd.test.js:12",
+
+  // test/knip.test.js - running external tool and capturing exit code
+  "test/knip.test.js:12",
 ]);
 
 // ============================================
