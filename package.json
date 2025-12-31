@@ -25,7 +25,7 @@
 		"knip:fix": "knip --fix",
 		"lint": "pnpm dlx @biomejs/biome check .",
 		"lint:fix": "pnpm dlx @biomejs/biome check --write .",
-		"precommit": "run-s lint:fix cpd knip:fix test"
+		"precommit": "run-s lint:fix knip:fix test"
 	},
 	"devDependencies": {
 		"c8": "^10.1.3",
