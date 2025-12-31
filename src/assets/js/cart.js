@@ -34,21 +34,12 @@ class ShoppingCart {
   }
 
   setup() {
-    console.log("[cart.js] setup() called");
-
     // Check cart mode from config
     this.isEnquiryMode = Config.cart_mode === "quote";
     this.cartOverlay = document.getElementById("cart-overlay");
 
-    console.log("[cart.js] setup() state:", {
-      cart_mode: Config.cart_mode,
-      isEnquiryMode: this.isEnquiryMode,
-      cartOverlay: !!this.cartOverlay,
-    });
-
     // No cart functionality if cart_mode is not set
     if (!Config.cart_mode) {
-      console.log("[cart.js] setup() bailing early - no cart_mode configured");
       return;
     }
 
@@ -112,11 +103,9 @@ class ShoppingCart {
     // Document-level listeners using event delegation
     // Only attach these once since document persists across Turbo navigations
     if (this.documentListenersAttached) {
-      console.log("[cart.js] Document listeners already attached, skipping");
       return;
     }
     this.documentListenersAttached = true;
-    console.log("[cart.js] Attaching document-level event listeners");
 
     // Product option select change
     document.addEventListener("change", (e) => {
@@ -147,18 +136,10 @@ class ShoppingCart {
 
     // Click handler using event delegation for add-to-cart and cart icon
     document.addEventListener("click", (e) => {
-      console.log(
-        "[cart.js] Click event:",
-        e.target.tagName,
-        e.target.className,
-      );
-
       // Cart icon click - open cart or navigate to quote page
       if (e.target.closest(".cart-icon")) {
-        console.log("[cart.js] Cart icon clicked");
         e.preventDefault();
         if (this.isEnquiryMode) {
-          console.log("[cart.js] Navigating to quote page");
           window.location.href = "/quote/";
         } else {
           this.openCart();
@@ -167,12 +148,7 @@ class ShoppingCart {
       }
 
       // Add to cart button click
-      console.log("[cart.js] Checking for add-to-cart class:", {
-        hasClass: e.target.classList.contains("add-to-cart"),
-        classList: Array.from(e.target.classList),
-      });
       if (e.target.classList.contains("add-to-cart")) {
-        console.log("[cart.js] add-to-cart button clicked!");
         e.preventDefault();
         const button = e.target;
 
@@ -189,20 +165,10 @@ class ShoppingCart {
         // Determine which option to use
         let optionIndex = 0;
         if (button.classList.contains("product-option-button")) {
-          console.log(
-            "[cart.js] This is a product-option-button, checking select...",
-          );
           const select = button.parentElement.querySelector(
             ".product-options-select",
           );
-          console.log(
-            "[cart.js] Select element:",
-            select,
-            "value:",
-            select?.value,
-          );
           if (select && select.value === "") {
-            console.log("[cart.js] No option selected, showing alert");
             alert("Please select an option");
             return;
           }
@@ -217,36 +183,16 @@ class ShoppingCart {
         const sku = option.sku || null;
         const specs = itemData.specs || null;
 
-        console.log("[cart.js] Parsed item data:", {
-          itemName,
-          optionName,
-          unitPrice,
-          maxQuantity,
-          sku,
-          specs,
-        });
-
         // Build full item name including option if present (avoid "Name - Name" duplication)
         const fullItemName =
           optionName && optionName !== itemName
             ? `${itemName} - ${optionName}`
             : itemName;
 
-        console.log("[cart.js] Add to cart clicked:", {
-          fullItemName,
-          unitPrice,
-          maxQuantity,
-          sku,
-        });
-
         if (fullItemName && !isNaN(unitPrice)) {
-          console.log("[cart.js] Calling addItem...");
           this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku, specs);
         } else {
-          console.error("[cart.js] Invalid item data:", {
-            fullItemName,
-            unitPrice,
-          });
+          console.error("[cart] Invalid item data:", fullItemName, unitPrice);
         }
       }
     });
@@ -263,16 +209,7 @@ class ShoppingCart {
     sku = null,
     specs = null,
   ) {
-    console.log("[cart.js] addItem() called:", {
-      itemName,
-      unitPrice,
-      quantity,
-      maxQuantity,
-      sku,
-      specs,
-    });
     const cart = getCart();
-    console.log("[cart.js] Current cart:", cart);
     const existingItem = cart.find((item) => item.item_name === itemName);
 
     if (existingItem) {
@@ -303,17 +240,10 @@ class ShoppingCart {
       });
     }
 
-    console.log("[cart.js] Saving cart:", cart);
     saveCart(cart);
-    console.log("[cart.js] Cart saved, calling updateCartDisplay...");
     this.updateCartDisplay();
-    console.log("[cart.js] Calling updateCartCount...");
     this.updateCartCount();
-
-    // Show feedback
-    console.log("[cart.js] Calling showAddedFeedback...");
     this.showAddedFeedback();
-    console.log("[cart.js] Item added to cart, all updates complete");
   }
 
   // Update item quantity

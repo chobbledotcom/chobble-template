@@ -120,6 +120,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "analyzeTryCatchUsage",
+  // console-log.test.js - analysis helpers
+  "findConsoleLogUsage",
+  "analyzeConsoleLogUsage",
   // banned-comments.test.js - analysis helpers
   "findTodoFixme",
   "analyzeTodoFixme",
