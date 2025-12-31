@@ -9,8 +9,8 @@ import {
 } from "./theme-editor-lib.js";
 
 let state = {
-  ELEMENTS: null,
-  PREVIOUS_GLOBAL_VARS: null, // Stored for cascade comparison
+  elements: null,
+  previousGlobals: null, // Stored for cascade comparison
 };
 
 // DOM selectors for applying scoped variables
@@ -31,9 +31,9 @@ const ThemeEditor = {
     if (!form || !output) return;
 
     // Skip if already initialized
-    if (state.ELEMENTS) return;
+    if (state.elements) return;
 
-    state.ELEMENTS = {
+    state.elements = {
       form,
       output,
       downloadBtn: document.getElementById("download-theme"),
@@ -47,21 +47,21 @@ const ThemeEditor = {
   },
 
   formEl(id) {
-    return state.ELEMENTS.form.querySelector(`#${id}`);
+    return state.elements.form.querySelector(`#${id}`);
   },
 
   formQuery(selector) {
-    return state.ELEMENTS.form.querySelectorAll(selector);
+    return state.elements.form.querySelectorAll(selector);
   },
 
   initTabNavigation() {
-    state.ELEMENTS.tabLinks.forEach((tabLink) => {
+    state.elements.tabLinks.forEach((tabLink) => {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
-        state.ELEMENTS.tabLinks.forEach((link) =>
+        state.elements.tabLinks.forEach((link) =>
           link.classList.remove("active"),
         );
-        state.ELEMENTS.tabContents.forEach((content) =>
+        state.elements.tabContents.forEach((content) =>
           content.classList.remove("active"),
         );
         tabLink.classList.add("active");
@@ -72,7 +72,7 @@ const ThemeEditor = {
   },
 
   initControlsFromTheme() {
-    const parsed = parseThemeContent(state.ELEMENTS.output.value);
+    const parsed = parseThemeContent(state.elements.output.value);
 
     // Initialize global :root variables
     this.initGlobalControls(parsed.root);
@@ -100,7 +100,7 @@ const ThemeEditor = {
 
     // Capture initial global values for cascade comparison
     // This must happen AFTER all controls are initialized
-    state.PREVIOUS_GLOBAL_VARS = this.captureCurrentGlobalVars();
+    state.previousGlobals = this.captureCurrentGlobalVars();
   },
 
   /**
@@ -318,10 +318,10 @@ const ThemeEditor = {
   },
 
   setupEventListeners() {
-    state.ELEMENTS.downloadBtn.addEventListener("click", () =>
+    state.elements.downloadBtn.addEventListener("click", () =>
       this.downloadTheme(),
     );
-    state.ELEMENTS.output.addEventListener("input", () => {
+    state.elements.output.addEventListener("input", () => {
       this.initControlsFromTheme();
     });
   },
@@ -358,10 +358,10 @@ const ThemeEditor = {
   updateThemeFromControls() {
     const docStyle = getComputedStyle(document.documentElement);
 
-    // Use stored state.PREVIOUS_GLOBAL_VARS for cascade comparison
+    // Use stored state.previousGlobals for cascade comparison
     // We can't capture "old" values here because border inputs are already updated
     // by their event handlers before this method is called
-    const oldGlobalVars = state.PREVIOUS_GLOBAL_VARS || {};
+    const oldGlobalVars = state.previousGlobals || {};
 
     // Collect global :root variables
     const globalVars = {};
@@ -382,7 +382,7 @@ const ThemeEditor = {
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
     // Store current global values for next cascade comparison
-    state.PREVIOUS_GLOBAL_VARS = { ...globalVars };
+    state.previousGlobals = { ...globalVars };
 
     // Collect scoped variables
     const scopeVars = {};
@@ -413,7 +413,7 @@ const ThemeEditor = {
 
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
-    state.ELEMENTS.output.value = themeText;
+    state.elements.output.value = themeText;
   },
 
   /**
@@ -494,7 +494,7 @@ const ThemeEditor = {
   },
 
   downloadTheme() {
-    const content = state.ELEMENTS.output.value;
+    const content = state.elements.output.value;
     const blob = new Blob([content], { type: "text/css" });
     const url = URL.createObjectURL(blob);
 
