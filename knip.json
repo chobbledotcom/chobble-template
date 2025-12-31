@@ -16,7 +16,8 @@
 		"@zachleat/heading-anchors",
 		"@botpoison/browser",
 		"@hotwired/turbo",
-		"liquidjs"
+		"liquidjs",
+		"c8"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
