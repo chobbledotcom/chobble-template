@@ -1,4 +1,4 @@
-import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
+import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, SRC_JS_FILES, SRC_HTML_FILES, SRC_SCSS_FILES, TEST_FILES } from "./test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -222,6 +222,16 @@ const analyzeTestFiles = () => {
 };
 
 const testCases = [
+  {
+    name: "file-lists-populated",
+    description: "Pre-computed file lists contain files",
+    test: () => {
+      expectTrue(SRC_JS_FILES.length > 0, `SRC_JS_FILES should not be empty (found ${SRC_JS_FILES.length})`);
+      expectTrue(SRC_HTML_FILES.length > 0, `SRC_HTML_FILES should not be empty (found ${SRC_HTML_FILES.length})`);
+      expectTrue(SRC_SCSS_FILES.length > 0, `SRC_SCSS_FILES should not be empty (found ${SRC_SCSS_FILES.length})`);
+      expectTrue(TEST_FILES.length > 0, `TEST_FILES should not be empty (found ${TEST_FILES.length})`);
+    },
+  },
   {
     name: "no-production-code-in-tests",
     description: "Test files should not contain production logic - only test and import real code",
