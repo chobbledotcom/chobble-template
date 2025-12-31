@@ -50,12 +50,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
 
-  // test/test-utils.js - test utilities with cleanup
-  "test/test-utils.js:145",
-  "test/test-utils.js:162",
-  "test/test-utils.js:170",
-  "test/test-utils.js:176",
-
   // test/scss.test.js - SCSS compilation tests
   "test/scss.test.js:42",
   "test/scss.test.js:208",
