@@ -7,6 +7,8 @@ import {
   getReviewsFor,
   ratingToStars,
   reviewerAvatar,
+  reviewsRedirects,
+  withReviewsPage,
 } from "#collections/reviews.js";
 import {
   createMockEleventyConfig,
@@ -666,6 +668,226 @@ const testCases = [
         reviewsCopy,
         originalReviews,
         "getReviewsFor should not modify input",
+      );
+    },
+  },
+  {
+    name: "withReviewsPage-filters-by-review-count",
+    description: "Returns only items exceeding the truncate limit",
+    test: () => {
+      // 11 reviews for product-a (above limit of 10), 10 for product-b (at limit)
+      const reviews = [];
+      for (let i = 0; i < 11; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
+        });
+      }
+      for (let i = 0; i < 10; i++) {
+        reviews.push({
+          data: { products: ["product-b"], rating: 4 },
+          date: new Date(`2024-02-${String(i + 1).padStart(2, "0")}`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+        { fileSlug: "product-b", data: { title: "Product B" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      const factory = withReviewsPage("product", "products");
+      const result = factory(mockCollectionApi);
+
+      // Only product-a (11 reviews) should be included, not product-b (10 reviews)
+      // This tests the boundary: > limit, not >= limit
+      expectStrictEqual(result.length, 1, "Should return only items > limit");
+      expectStrictEqual(
+        result[0].fileSlug,
+        "product-a",
+        "Should include product-a (11 > 10)",
+      );
+    },
+  },
+  {
+    name: "withReviewsPage-applies-processItem",
+    description: "Transforms items through the optional processItem callback",
+    test: () => {
+      const reviews = [];
+      for (let i = 0; i < 15; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      const processItem = (item) => ({ ...item, transformed: true });
+      const factory = withReviewsPage("product", "products", processItem);
+      const result = factory(mockCollectionApi);
+
+      expectStrictEqual(result.length, 1, "Should return transformed item");
+      expectStrictEqual(
+        result[0].transformed,
+        true,
+        "Should apply processItem transformation",
+      );
+    },
+  },
+  {
+    name: "reviewsRedirects-returns-items-at-or-below-limit",
+    description: "Returns redirect data for items not needing separate pages",
+    test: () => {
+      // 10 reviews for product-a (at limit), 11 for product-b (above limit)
+      const reviews = [];
+      for (let i = 0; i < 10; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
+        });
+      }
+      for (let i = 0; i < 11; i++) {
+        reviews.push({
+          data: { products: ["product-b"], rating: 4 },
+          date: new Date(`2024-02-${String(i + 1).padStart(2, "0")}`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+        { fileSlug: "product-b", data: { title: "Product B" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      const factory = reviewsRedirects("product", "products");
+      const result = factory(mockCollectionApi);
+
+      // Only product-a (10 reviews) should get redirect, not product-b (11 reviews)
+      // This tests the boundary: <= limit, not < limit
+      expectStrictEqual(result.length, 1, "Should return only items <= limit");
+      expectStrictEqual(
+        result[0].fileSlug,
+        "product-a",
+        "Should include product-a (10 <= 10)",
+      );
+      // Verify the return structure includes the item reference
+      expectStrictEqual(
+        result[0].item.fileSlug,
+        "product-a",
+        "Should include original item in return structure",
+      );
+    },
+  },
+  {
+    name: "withReviewsPage-limit-negative-one-returns-empty",
+    description: "Returns empty array when limit is -1 (no pagination)",
+    test: () => {
+      const reviews = [];
+      for (let i = 0; i < 100; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-01`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      // Pass -1 as limitOverride to test the "no pagination" branch
+      const factory = withReviewsPage(
+        "product",
+        "products",
+        (item) => item,
+        -1,
+      );
+      const result = factory(mockCollectionApi);
+
+      // Even with 100 reviews, limit=-1 means no separate pages
+      expectStrictEqual(
+        result.length,
+        0,
+        "Should return empty when limit is -1",
+      );
+    },
+  },
+  {
+    name: "reviewsRedirects-limit-negative-one-returns-all",
+    description: "Returns all items when limit is -1 (no pagination)",
+    test: () => {
+      const reviews = [];
+      for (let i = 0; i < 100; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-01`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+        { fileSlug: "product-b", data: { title: "Product B" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      // Pass -1 as limitOverride to test the "all redirects" branch
+      const factory = reviewsRedirects("product", "products", -1);
+      const result = factory(mockCollectionApi);
+
+      // All items get redirects when limit=-1
+      expectStrictEqual(
+        result.length,
+        2,
+        "Should return all items when limit is -1",
+      );
+      expectStrictEqual(
+        result[0].fileSlug,
+        "product-a",
+        "Should include product-a",
+      );
+      expectStrictEqual(
+        result[1].fileSlug,
+        "product-b",
+        "Should include product-b",
       );
     },
   },
