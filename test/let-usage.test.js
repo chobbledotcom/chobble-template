@@ -30,6 +30,8 @@ const ALLOWED_PATTERNS = [
   /^let\s+storedCollections\s*=\s*null/, // pdf.js state
   /^let\s+fontLink\s*=/, // theme-switcher.js - reassigned
   /^let\s+(fcpDone|initialized)\s*=/, // autosizes.js state flags
+  /^let\s+(paypalToken|paypalTokenExpiry)\s*=/, // server.js PayPal token cache
+  /^let\s+(passed|failed)\s*=\s*0/, // run-all-tests.js test counters
 ];
 
 const shouldSkipDir = (name) => {
