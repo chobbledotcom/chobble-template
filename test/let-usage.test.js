@@ -1,4 +1,4 @@
-import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
+import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
@@ -17,6 +17,7 @@ const ALLOWED_PATTERNS = [
   /^let\s+currentPopupIndex\s*=/, // gallery.js state
   // Closure state shared between callbacks - let is clearer than const wrapper
   /^let\s+storedCollections\s*=\s*null/, // pdf.js
+  /^let\s+paypalToken(Expiry)?\s*=/, // server.js PayPal token cache
 ];
 
 /**
@@ -67,7 +68,8 @@ const analyzeLetUsage = () => {
   const violations = [];
   const warnings = [];
 
-  for (const relativePath of SRC_JS_FILES) {
+  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES];
+  for (const relativePath of allJsFiles) {
     // Skip allowed files entirely
     if (ALLOWED_FILES.has(relativePath)) continue;
 

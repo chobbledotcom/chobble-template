@@ -76,6 +76,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractClassesFromHtml",
   "extractIdsFromHtml",
   "extractClassesFromJs",
+  "findIdReferencesInHtml",
   "findClassReferencesInScss",
   "findIdReferencesInScss",
   "findClassReferencesInJs",
@@ -96,6 +97,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "test",
   // naming-conventions.test.js - test fixture string
   "getUserById",
+  // memoize.test.js - test fixtures for memoize behavior
+  "expensiveFn",
+  "filterFn",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious

@@ -126,6 +126,23 @@ const extractClassesFromJs = (content) => {
 };
 
 // ============================================
+// Reference Detection in HTML
+// ============================================
+
+const findIdReferencesInHtml = (content, idName) => {
+  const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const patterns = [
+    // href="#id" or href="/path/#id" anchor links
+    new RegExp(`href=["'][^"']*#${escaped}["']`),
+    // for="id" label associations
+    new RegExp(`for=["']${escaped}["']`),
+  ];
+
+  return patterns.some((pattern) => pattern.test(content));
+};
+
+// ============================================
 // Reference Detection in SCSS
 // ============================================
 
@@ -188,7 +205,24 @@ const findIdReferencesInJs = (content, idName) => {
     new RegExp(`id=["']${escaped}["']`),
   ];
 
-  return patterns.some((pattern) => pattern.test(content));
+  if (patterns.some((pattern) => pattern.test(content))) {
+    return true;
+  }
+
+  // Check for dynamic ID construction in template literals
+  // e.g., getElementById(`${tabId}-tab`) where idName is "fonts-tab"
+  // Match patterns like: getElementById(`${...}-suffix`)
+  if (idName.includes("-")) {
+    const suffix = idName.split("-").pop(); // e.g., "tab" from "fonts-tab"
+    const dynamicPattern = new RegExp(
+      `getElementById\\s*\\(\\s*\`\\$\\{[^}]+\\}-${suffix}\`\\s*\\)`,
+    );
+    if (dynamicPattern.test(content)) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 // ============================================
@@ -236,10 +270,11 @@ const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
   return { allClasses, allIds };
 };
 
-const findUnusedClassesAndIds = (allClasses, allIds, scssFiles, jsFiles) => {
-  // Load all SCSS and JS content
+const findUnusedClassesAndIds = (allClasses, allIds, scssFiles, jsFiles, htmlFiles) => {
+  // Load all SCSS, JS, and HTML content
   const scssContent = scssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
   const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+  const htmlContent = htmlFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
 
   const unusedClasses = [];
   const unusedIds = [];
@@ -258,8 +293,9 @@ const findUnusedClassesAndIds = (allClasses, allIds, scssFiles, jsFiles) => {
   for (const [idName, definedIn] of allIds) {
     const inScss = findIdReferencesInScss(scssContent, idName);
     const inJs = findIdReferencesInJs(jsContent, idName);
+    const inHtml = findIdReferencesInHtml(htmlContent, idName);
 
-    if (!inScss && !inJs) {
+    if (!inScss && !inJs && !inHtml) {
       unusedIds.push({ name: idName, definedIn });
     }
   }
@@ -423,6 +459,7 @@ const testCases = [
         allIds,
         scssFiles,
         jsFiles,
+        htmlFiles,
       );
 
       // Report results
@@ -459,6 +496,12 @@ const testCases = [
       expectTrue(
         unusedClasses.length === 0,
         `Found ${unusedClasses.length} unused CSS classes`,
+      );
+
+      // Fail the test if there are unused IDs
+      expectTrue(
+        unusedIds.length === 0,
+        `Found ${unusedIds.length} unused IDs`,
       );
     },
   },

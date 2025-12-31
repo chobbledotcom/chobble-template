@@ -15,4 +15,4 @@ const configureGuides = (eleventyConfig) => {
   eleventyConfig.addFilter("guidesByCategory", guidesByCategory);
 };
 
-export { configureGuides };
+export { guidesByCategory, configureGuides };
