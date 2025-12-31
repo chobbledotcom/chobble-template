@@ -40,10 +40,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/availability-calendar.js - fetch error handling
   "src/assets/js/availability-calendar.js:132",
 
-  // src/assets/js/cart.js - localStorage and fetch handling
-  "src/assets/js/cart.js:132",
-  "src/assets/js/cart.js:181",
-  "src/assets/js/cart.js:496",
+  // src/assets/js/cart.js - JSON parsing and fetch handling
+  "src/assets/js/cart.js:121",
+  "src/assets/js/cart.js:157",
+  "src/assets/js/cart.js:426",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
@@ -62,7 +62,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/assets/js/cart-utils.js:12",
+  "src/assets/js/cart-utils.js:11",
 
   // test/checkout.test.js - checkout flow tests
   "test/checkout.test.js:235",
@@ -91,4 +91,33 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/knip.test.js:12",
 ]);
 
-export { ALLOWED_MUTABLE_VAR_FILES, ALLOWED_LET_PATTERNS, ALLOWED_TRY_CATCHES };
+// ============================================
+// .then() usage exceptions
+// ============================================
+
+const ALLOWED_THEN_USAGE = new Set([
+  // src/assets/js/availability-calendar.js - fetch chain
+  "src/assets/js/availability-calendar.js:133",
+]);
+
+// ============================================
+// console.log exceptions
+// ============================================
+
+// Files allowed to use console.log (CLI scripts, tools, etc.)
+// Production code should use console.error for user-facing error messages
+const ALLOWED_CONSOLE_LOG_FILES = new Set([
+  "src/_lib/scripts/add-skus.js", // CLI script - needs stdout output
+  "src/_lib/media/unused-images.js", // CLI script - reports unused images
+  "src/_lib/eleventy/pdf.js", // Build-time logging
+  "ecommerce-backend/server.js", // Server startup messages
+  "bin/profile", // CLI profiling tool
+]);
+
+export {
+  ALLOWED_MUTABLE_VAR_FILES,
+  ALLOWED_LET_PATTERNS,
+  ALLOWED_TRY_CATCHES,
+  ALLOWED_THEN_USAGE,
+  ALLOWED_CONSOLE_LOG_FILES,
+};

@@ -5,24 +5,19 @@ export const STORAGE_KEY = "shopping_cart";
 
 export function getCart() {
   const cart = localStorage.getItem(STORAGE_KEY);
-  console.log("[cart-utils.js] getCart() raw:", cart);
   if (!cart) {
     return [];
   }
   try {
-    const parsed = JSON.parse(cart);
-    console.log("[cart-utils.js] getCart() parsed:", parsed);
-    return parsed;
+    return JSON.parse(cart);
   } catch (e) {
-    console.warn("[cart-utils.js] getCart() parse error:", e.message);
+    console.error("[cart-utils] Failed to parse cart:", e.message);
     return [];
   }
 }
 
 export function saveCart(cart) {
-  console.log("[cart-utils.js] saveCart() called with:", cart);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-  console.log("[cart-utils.js] saveCart() complete");
 }
 
 export function escapeHtml(text) {
@@ -48,14 +43,8 @@ export function getItemCount() {
 
 export function updateCartIcon() {
   const count = getItemCount();
-  console.log("[cart-utils.js] updateCartIcon() count:", count);
   const icons = document.querySelectorAll(".cart-icon");
-  console.log("[cart-utils.js] Found cart-icon elements:", icons.length);
-  icons.forEach((icon, i) => {
-    console.log(
-      `[cart-utils.js] Cart icon ${i}: setting display to`,
-      count > 0 ? "flex" : "none",
-    );
+  icons.forEach((icon) => {
     icon.style.display = count > 0 ? "flex" : "none";
     const badge = icon.querySelector(".cart-count");
     if (badge) {
