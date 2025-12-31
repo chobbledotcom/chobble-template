@@ -1,7 +1,7 @@
 {%- if tags and tags contains "event" -%}
   {% assign eventProducts = collections.products | getProductsByEvent: page.fileSlug %}
   {%- if eventProducts.size > 0 -%}
-    <div class="event-products">
+    <div>
       <h2>{{ strings.product_name }}</h2>
       {%- include "items.html", items: eventProducts -%}
     </div>

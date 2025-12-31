@@ -13,15 +13,15 @@ const renderRecurringEvents = (events) => {
       ? `<strong><a href="${url}">${eventData.title}</a></strong>`
       : `<strong>${eventData.title}</strong>`;
     const locationHtml = eventData.event_location
-      ? `<br>\n    <span class="event-location">${eventData.event_location}</span>`
+      ? `<br>\n    ${eventData.event_location}`
       : "";
     return `  <li>
     ${titleHtml}<br>
-    <span class="event-time">${eventData.recurring_date}</span>${locationHtml}
+    ${eventData.recurring_date}${locationHtml}
   </li>`;
   });
 
-  return `<ul class="recurring-events">\n${items.join("\n")}\n</ul>`;
+  return `<ul>\n${items.join("\n")}\n</ul>`;
 };
 
 const recurringEventsShortcode = function (eleventyConfig) {
