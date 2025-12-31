@@ -16,8 +16,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
   /^let\s+currentPopupIndex\s*=/, // gallery.js state
   /^let\s+storedCollections\s*=\s*null/, // pdf.js state
-  /^let\s+(fcpDone|initialized)\s*=/, // autosizes.js state flags
-  /^let\s+(paypalToken|paypalTokenExpiry)\s*=/, // server.js PayPal token cache
 ];
 
 /**
