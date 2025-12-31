@@ -19,7 +19,7 @@
 		"liquidjs",
 		"c8"
 	],
-	"ignoreBinaries": [],
+	"ignoreBinaries": ["biome"],
 	"ignoreExportsUsedInFile": true,
 	"rules": {},
 	"eleventy": false
