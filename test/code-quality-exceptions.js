@@ -18,8 +18,6 @@ const ALLOWED_MUTABLE_VAR_FILES = new Set([
 const ALLOWED_LET_PATTERNS = [
   // Module-level state that must be mutable
   /^let\s+(ELEMENTS|PREVIOUS_GLOBAL_VARS)\s*=\s*null/, // theme-editor.js state
-  /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
-  /^let\s+currentPopupIndex\s*=/, // gallery.js state
   // Closure state shared between callbacks - let is clearer than const wrapper
   /^let\s+state\s*=/, // mutable state shared between callbacks
 ];

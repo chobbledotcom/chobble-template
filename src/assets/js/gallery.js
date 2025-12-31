@@ -8,8 +8,12 @@ const SVG_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
   <polyline points="9 18 15 12 9 6"></polyline>
 </svg>`;
 
-let gallery, currentImage, imagePopup;
-let currentPopupIndex = 1;
+let state = {
+  gallery: null,
+  currentImage: null,
+  imagePopup: null,
+  currentPopupIndex: 1,
+};
 
 const getTotalImages = () =>
   document.querySelectorAll('[class^="full-image-"]').length;
@@ -28,12 +32,12 @@ const showImageByIndex = (index) => {
   const fullImage = document.querySelector(`.full-image-${index}`);
   if (!fullImage) return;
 
-  currentImage.innerHTML = fullImage.outerHTML;
-  currentPopupIndex = index;
+  state.currentImage.innerHTML = fullImage.outerHTML;
+  state.currentPopupIndex = index;
 
-  const rect = currentImage.getBoundingClientRect();
+  const rect = state.currentImage.getBoundingClientRect();
   if (Math.abs(rect.top) > 50) {
-    currentImage.scrollIntoView({ behavior: "smooth" });
+    state.currentImage.scrollIntoView({ behavior: "smooth" });
   }
 };
 
@@ -49,35 +53,36 @@ const updatePopupImage = (index) => {
   const content = getPopupContent(index);
   if (!content) return;
 
-  currentPopupIndex = index;
+  state.currentPopupIndex = index;
 
-  const image = imagePopup.querySelector(".image-wrapper");
+  const image = state.imagePopup.querySelector(".image-wrapper");
   image.outerHTML = content;
   image.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
 
-  const prev = imagePopup.querySelector(".popup-nav-prev");
-  const next = imagePopup.querySelector(".popup-nav-next");
+  const prev = state.imagePopup.querySelector(".popup-nav-prev");
+  const next = state.imagePopup.querySelector(".popup-nav-next");
   if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
   if (next)
     next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
 };
 
 const navigatePopup = (direction) => {
-  const newIndex = currentPopupIndex + direction;
+  const newIndex = state.currentPopupIndex + direction;
   if (newIndex >= 1 && newIndex <= getTotalImages()) {
     updatePopupImage(newIndex);
   }
 };
 
 const openPopup = () => {
-  const image = currentImage.querySelector(".image-wrapper");
+  const image = state.currentImage.querySelector(".image-wrapper");
 
   const totalImages = getTotalImages();
-  const prevHidden = currentPopupIndex <= 1 ? 'style="visibility: hidden"' : "";
+  const prevHidden =
+    state.currentPopupIndex <= 1 ? 'style="visibility: hidden"' : "";
   const nextHidden =
-    currentPopupIndex >= totalImages ? 'style="visibility: hidden"' : "";
+    state.currentPopupIndex >= totalImages ? 'style="visibility: hidden"' : "";
 
-  imagePopup.innerHTML = `
+  state.imagePopup.innerHTML = `
     ${
       totalImages > 1
         ? `<button type="button" class="popup-nav popup-nav-prev" ${prevHidden} aria-label="Previous image">
@@ -95,8 +100,10 @@ const openPopup = () => {
     }
   `;
 
-  imagePopup.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
-  imagePopup.showModal();
+  state.imagePopup
+    .querySelectorAll("[sizes]")
+    .forEach((el) => (el.sizes = "100vw"));
+  state.imagePopup.showModal();
 };
 
 const handlePopupClick = (event) => {
@@ -113,11 +120,11 @@ const handlePopupClick = (event) => {
   }
 
   // Close popup when clicking elsewhere (image or backdrop)
-  imagePopup.close();
+  state.imagePopup.close();
 };
 
 const handleKeydown = (event) => {
-  if (!imagePopup.open || getTotalImages() <= 1) return;
+  if (!state.imagePopup.open || getTotalImages() <= 1) return;
 
   if (event.key === "ArrowLeft") {
     event.preventDefault();
@@ -129,23 +136,23 @@ const handleKeydown = (event) => {
 };
 
 const initGallery = () => {
-  gallery = document.getElementById("gallery");
-  currentImage = document.querySelector(".current-image");
-  imagePopup = document.getElementById("image-popup");
+  state.gallery = document.getElementById("gallery");
+  state.currentImage = document.querySelector(".current-image");
+  state.imagePopup = document.getElementById("image-popup");
 
   // Thumbnail gallery switching (only if multiple images)
-  if (gallery && currentImage) {
-    gallery.removeEventListener("click", loadImage);
-    gallery.addEventListener("click", loadImage);
+  if (state.gallery && state.currentImage) {
+    state.gallery.removeEventListener("click", loadImage);
+    state.gallery.addEventListener("click", loadImage);
   }
 
   // Image popup (works even with single image)
-  if (currentImage && imagePopup) {
-    currentImage.removeEventListener("click", openPopup);
-    currentImage.addEventListener("click", openPopup);
+  if (state.currentImage && state.imagePopup) {
+    state.currentImage.removeEventListener("click", openPopup);
+    state.currentImage.addEventListener("click", openPopup);
 
-    imagePopup.removeEventListener("click", handlePopupClick);
-    imagePopup.addEventListener("click", handlePopupClick);
+    state.imagePopup.removeEventListener("click", handlePopupClick);
+    state.imagePopup.addEventListener("click", handlePopupClick);
 
     document.removeEventListener("keydown", handleKeydown);
     document.addEventListener("keydown", handleKeydown);
