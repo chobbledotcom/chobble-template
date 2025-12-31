@@ -51,8 +51,7 @@
 
   const attributes = ["src", "srcset"];
   const prefix = "data-auto-sizes-";
-  let fcpDone = false;
-  let initialized = false;
+  const state = { fcpDone: false, initialized: false };
 
   function elemWidth(elem) {
     const width = elem ? Math.round(elem.getBoundingClientRect().width) : 0;
@@ -67,11 +66,7 @@
     // Calculate the displayed width of the image
     // getBoundingClientRect() forces layout, but this is running right after FCP,
     // so hopefully the DOM is not dirty.
-    let sizes = elemWidth(img);
-    if (!sizes) {
-      // If we get no width for the image, use the parent's width
-      sizes = elemWidth(img.parentElement);
-    }
+    const sizes = elemWidth(img) ?? elemWidth(img.parentElement);
     if (sizes) {
       img.sizes = sizes;
     }
@@ -97,7 +92,7 @@
       if (src.startsWith("http://") || src.startsWith("https://")) {
         continue;
       }
-      if (!fcpDone) {
+      if (!state.fcpDone) {
         for (const attribute of attributes) {
           if (img.hasAttribute(attribute)) {
             // Store original src and srcset
@@ -171,8 +166,8 @@
 
   function initAutosizes() {
     // On Turbo navigations, FCP has already happened, so process images directly
-    if (initialized) {
-      fcpDone = true;
+    if (state.initialized) {
+      state.fcpDone = true;
       const images = document.querySelectorAll(
         'img[sizes^="auto"][loading="lazy"]',
       );
@@ -182,7 +177,7 @@
       return;
     }
 
-    initialized = true;
+    state.initialized = true;
 
     // Start observing the document
     observer.observe(document.documentElement, {
@@ -199,7 +194,7 @@
 
     new PerformanceObserver((entries, perfObserver) => {
       entries.getEntriesByName("first-contentful-paint").forEach(() => {
-        fcpDone = true;
+        state.fcpDone = true;
         setTimeout(restoreImageAttributes, 0);
         perfObserver.disconnect();
       });

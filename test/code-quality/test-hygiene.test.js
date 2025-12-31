@@ -140,6 +140,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findHardcodedUrls",
   "analyzeHardcodedUrls",
   "isAllowedLine",
+  // autosizes.test.js - helper to inject PerformanceObserver mock
+  "createPerformanceObserverScript",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious

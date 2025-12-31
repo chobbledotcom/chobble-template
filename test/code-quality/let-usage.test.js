@@ -1,7 +1,4 @@
-import {
-  ALLOWED_LET_PATTERNS,
-  ALLOWED_MUTABLE_VAR_FILES,
-} from "#test/code-quality/code-quality-exceptions.js";
+import { ALLOWED_LET_PATTERNS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
@@ -75,23 +72,6 @@ const analyzeMutableVarUsage = () => {
   ].filter((f) => f !== "test/code-quality/let-usage.test.js");
 
   for (const relativePath of allJsFiles) {
-    // Skip fully allowed files
-    if (ALLOWED_MUTABLE_VAR_FILES.has(relativePath)) {
-      // Still count them for reporting
-      const fullPath = path.join(rootDir, relativePath);
-      const source = fs.readFileSync(fullPath, "utf-8");
-      const declarations = findMutableVarDeclarations(source);
-      for (const decl of declarations) {
-        varAllowed.push({
-          file: relativePath,
-          line: decl.lineNumber,
-          code: decl.line,
-          keyword: decl.keyword,
-        });
-      }
-      continue;
-    }
-
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const declarations = findMutableVarDeclarations(source);
@@ -189,9 +169,7 @@ const d = "not a declaration";
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log(
-          "\n  To fix: refactor to const, or add file to ALLOWED_MUTABLE_VAR_FILES in code-quality-exceptions.js\n",
-        );
+        console.log("\n  To fix: refactor to const\n");
       }
 
       expectTrue(

@@ -6,13 +6,8 @@
  */
 
 // ============================================
-// var/let exceptions
+// let exceptions (specific patterns only - no file-level exceptions)
 // ============================================
-
-// Files allowed to use var or let freely (third-party, legacy)
-const ALLOWED_MUTABLE_VAR_FILES = new Set([
-  "src/assets/js/autosizes.js", // Third-party polyfill
-]);
 
 // Specific let patterns that are intentionally allowed (module-level state)
 const ALLOWED_LET_PATTERNS = [
@@ -107,7 +102,6 @@ const ALLOWED_CONSOLE_LOG_FILES = new Set([
 ]);
 
 export {
-  ALLOWED_MUTABLE_VAR_FILES,
   ALLOWED_LET_PATTERNS,
   ALLOWED_TRY_CATCHES,
   ALLOWED_THEN_USAGE,
