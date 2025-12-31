@@ -43,10 +43,7 @@ function loadFontForTheme(themeName) {
   const fontLinkId = "theme-font-link";
 
   // Remove existing font link if present
-  const existingFontLink = document.getElementById(fontLinkId);
-  if (existingFontLink) {
-    existingFontLink.remove();
-  }
+  document.getElementById(fontLinkId)?.remove();
 
   // Add font link if theme has a custom font
   if (themeFonts[themeName]) {
