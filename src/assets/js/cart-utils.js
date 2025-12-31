@@ -36,8 +36,7 @@ export function formatPrice(price) {
 }
 
 export function removeItem(itemName) {
-  let cart = getCart();
-  cart = cart.filter((item) => item.item_name !== itemName);
+  const cart = getCart().filter((item) => item.item_name !== itemName);
   saveCart(cart);
   return cart;
 }

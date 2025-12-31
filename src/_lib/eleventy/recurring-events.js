@@ -62,8 +62,7 @@ const getRecurringEventsHtml = memoize(async () => {
         if (data.recurring_date) {
           // Generate URL from filename
           // Remove .md extension and any date prefix (YYYY-MM-DD-)
-          let slug = file.replace(".md", "");
-          slug = slug.replace(/^\d{4}-\d{2}-\d{2}-/, "");
+          const slug = file.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
           const url = `/events/${slug}/`;
 
           recurringEvents.push({
