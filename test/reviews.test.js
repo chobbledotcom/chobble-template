@@ -415,22 +415,14 @@ const testCases = [
         "M",
         "Should return M for single name",
       );
-      expectStrictEqual(
-        getInitials("Cher"),
-        "C",
-        "Should return C for Cher",
-      );
+      expectStrictEqual(getInitials("Cher"), "C", "Should return C for Cher");
     },
   },
   {
     name: "getInitials-already-initials",
     description: "Returns name unchanged if already 2 chars or less",
     test: () => {
-      expectStrictEqual(
-        getInitials("JS"),
-        "JS",
-        "Should return JS unchanged",
-      );
+      expectStrictEqual(getInitials("JS"), "JS", "Should return JS unchanged");
       expectStrictEqual(getInitials("A"), "A", "Should return A unchanged");
       expectStrictEqual(getInitials("ab"), "AB", "Should uppercase ab to AB");
     },
@@ -552,11 +544,7 @@ const testCases = [
         "MS",
         "Should handle umlauts",
       );
-      expectStrictEqual(
-        getInitials("Björk"),
-        "B",
-        "Should return B for Björk",
-      );
+      expectStrictEqual(getInitials("Björk"), "B", "Should return B for Björk");
     },
   },
   {

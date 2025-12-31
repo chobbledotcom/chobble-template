@@ -1,9 +1,9 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
 import {
-  normaliseSlug,
-  buildPermalink,
   buildPdfFilename,
+  buildPermalink,
+  normaliseSlug,
 } from "#utils/slug-utils.js";
 
 describe("normaliseSlug", () => {
@@ -45,7 +45,10 @@ describe("buildPermalink", () => {
 
   it("builds permalink from dir and fileSlug when no permalink set", () => {
     const data = { page: { fileSlug: "my-product" } };
-    assert.strictEqual(buildPermalink(data, "products"), "/products/my-product/");
+    assert.strictEqual(
+      buildPermalink(data, "products"),
+      "/products/my-product/",
+    );
   });
 
   it("builds permalink for different directories", () => {
