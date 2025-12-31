@@ -14,18 +14,11 @@ function validateSiteUrl(url) {
     throw new Error(`site.json 'url' must not end with a slash: ${url}`);
   }
 
-  try {
-    const parsed = new URL(url);
-    if (!["http:", "https:"].includes(parsed.protocol)) {
-      throw new Error(
-        `site.json 'url' must use http or https protocol, got: ${url}`,
-      );
-    }
-  } catch (e) {
-    if (e.code === "ERR_INVALID_URL") {
-      throw new Error(`site.json 'url' is not a valid URL: ${url}`);
-    }
-    throw e;
+  const parsed = new URL(url);
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    throw new Error(
+      `site.json 'url' must use http or https protocol, got: ${url}`,
+    );
   }
 }
 
