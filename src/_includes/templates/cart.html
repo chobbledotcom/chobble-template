@@ -5,11 +5,7 @@
       <div class="cart-item-price"></div>
     </div>
     <div class="cart-item-controls">
-      <div class="cart-item-quantity">
-        <button class="qty-btn qty-decrease" data-name="">−</button>
-        <input type="number" class="qty-input" value="1" min="1" data-name="">
-        <button class="qty-btn qty-increase" data-name="">+</button>
-      </div>
+      {% include "templates/quantity-controls.html" %}
       <button class="cart-item-remove" data-name="">Remove</button>
     </div>
   </div>
@@ -23,11 +19,7 @@
     </div>
     <p class="quote-cart-item-specs"></p>
     <div class="quote-cart-item-controls">
-      <div class="cart-item-quantity">
-        <button class="qty-btn qty-decrease" data-name="">−</button>
-        <input type="number" class="qty-input" value="1" min="1" data-name="">
-        <button class="qty-btn qty-increase" data-name="">+</button>
-      </div>
+      {% include "templates/quantity-controls.html" %}
       <button class="quote-cart-item-remove" data-name="">Remove</button>
     </div>
   </div>

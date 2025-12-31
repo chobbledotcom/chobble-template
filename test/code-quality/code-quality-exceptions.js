@@ -22,7 +22,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   "src/assets/js/availability-calendar.js:132",
 
   // src/assets/js/cart.js - PayPal checkout fetch handling
-  "src/assets/js/cart.js:224",
+  "src/assets/js/cart.js:225",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",

@@ -12,12 +12,10 @@ import { Liquid } from "liquidjs";
 import {
   attachQuantityHandlers,
   attachRemoveHandlers,
-  escapeHtml,
   formatPrice,
   getCart,
   getItemCount,
   removeItem,
-  renderQuantityControls,
   STORAGE_KEY,
   saveCart,
   updateCartIcon,
@@ -335,30 +333,6 @@ const testCases = [
     },
   },
   {
-    name: "cart-utils-escapeHtml-basic",
-    description: "escapeHtml escapes HTML special characters",
-    asyncTest: async () => {
-      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-      global.document = dom.window.document;
-      try {
-        assert.strictEqual(
-          escapeHtml("<script>alert('xss')</script>"),
-          "&lt;script&gt;alert('xss')&lt;/script&gt;",
-        );
-        assert.strictEqual(
-          escapeHtml("Hello & Goodbye"),
-          "Hello &amp; Goodbye",
-        );
-        // Note: innerHTML doesn't escape quotes, only < > and &
-        assert.strictEqual(escapeHtml('"quoted"'), '"quoted"');
-        assert.strictEqual(escapeHtml("normal text"), "normal text");
-      } finally {
-        delete global.document;
-        dom.window.close();
-      }
-    },
-  },
-  {
     name: "cart-utils-updateCartIcon-shows-icon",
     description: "updateCartIcon shows cart icon when items in cart",
     asyncTest: async () => {
@@ -523,107 +497,6 @@ const testCases = [
           "Should return false for non-existent item",
         );
       });
-    },
-  },
-  {
-    name: "cart-utils-renderQuantityControls-basic",
-    description: "renderQuantityControls generates correct HTML structure",
-    asyncTest: async () => {
-      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-      global.document = dom.window.document;
-      try {
-        const item = { item_name: "Widget", quantity: 3 };
-        const html = renderQuantityControls(item);
-
-        // Parse the HTML to verify structure
-        const container = dom.window.document.createElement("div");
-        container.innerHTML = html;
-
-        const qtyDiv = container.querySelector(".cart-item-quantity");
-        assert.ok(qtyDiv, "Should have cart-item-quantity container");
-
-        const decreaseBtn = container.querySelector(".qty-decrease");
-        assert.ok(decreaseBtn, "Should have decrease button");
-        assert.strictEqual(
-          decreaseBtn.dataset.name,
-          "Widget",
-          "Decrease button should have data-name",
-        );
-
-        const increaseBtn = container.querySelector(".qty-increase");
-        assert.ok(increaseBtn, "Should have increase button");
-        assert.strictEqual(
-          increaseBtn.dataset.name,
-          "Widget",
-          "Increase button should have data-name",
-        );
-
-        const input = container.querySelector(".qty-input");
-        assert.ok(input, "Should have quantity input");
-        assert.strictEqual(
-          input.value,
-          "3",
-          "Input should have quantity value",
-        );
-        assert.strictEqual(
-          input.dataset.name,
-          "Widget",
-          "Input should have data-name",
-        );
-      } finally {
-        delete global.document;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-renderQuantityControls-max-quantity",
-    description:
-      "renderQuantityControls includes max attribute when max_quantity set",
-    asyncTest: async () => {
-      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-      global.document = dom.window.document;
-      try {
-        const item = { item_name: "Limited", quantity: 2, max_quantity: 5 };
-        const html = renderQuantityControls(item);
-
-        const container = dom.window.document.createElement("div");
-        container.innerHTML = html;
-
-        const input = container.querySelector(".qty-input");
-        assert.strictEqual(
-          input.getAttribute("max"),
-          "5",
-          "Input should have max attribute",
-        );
-      } finally {
-        delete global.document;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-renderQuantityControls-escapes-html",
-    description: "renderQuantityControls escapes HTML in item names",
-    asyncTest: async () => {
-      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-      global.document = dom.window.document;
-      try {
-        const item = { item_name: "<script>xss</script>", quantity: 1 };
-        const html = renderQuantityControls(item);
-
-        assert.ok(
-          !html.includes("<script>xss</script>"),
-          "Should escape HTML in item name",
-        );
-        assert.ok(
-          html.includes("&lt;script&gt;"),
-          "Should contain escaped HTML",
-        );
-      } finally {
-        delete global.document;
-        dom.window.close();
-      }
     },
   },
   {

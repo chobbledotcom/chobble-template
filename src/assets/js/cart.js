@@ -13,7 +13,7 @@ import {
 } from "#assets/cart-utils.js";
 import Config from "#assets/config.js";
 import { onReady } from "#assets/on-ready.js";
-import { getTemplate } from "#assets/template.js";
+import { getTemplate, populateQuantityControls } from "#assets/template.js";
 
 // Constants
 const CART_OVERLAY_ID = "cart-overlay";
@@ -77,23 +77,13 @@ const closeCart = () => {
 // Render a single cart item using template
 const renderCartItem = (item) => {
   const template = getTemplate("cart-item-template");
-  const name = item.item_name;
 
-  template.querySelector(".cart-item").dataset.name = name;
-  template.querySelector(".cart-item-name").textContent = name;
+  template.querySelector(".cart-item").dataset.name = item.item_name;
+  template.querySelector(".cart-item-name").textContent = item.item_name;
   template.querySelector(".cart-item-price").textContent = formatPrice(
     item.unit_price,
   );
-
-  template.querySelectorAll("[data-name]").forEach((el) => {
-    el.dataset.name = name;
-  });
-
-  const input = template.querySelector(".qty-input");
-  input.value = item.quantity;
-  if (item.max_quantity) {
-    input.max = item.max_quantity;
-  }
+  populateQuantityControls(template, item);
 
   return template;
 };

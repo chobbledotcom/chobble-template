@@ -144,6 +144,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createPerformanceObserverScript",
   // unused-classes.test.js - helper to add classes from string
   "addClasses",
+  // html-in-js.test.js - analysis helpers
+  "isCommentLine",
+  "extractStringContent",
+  "containsHtml",
+  "findHtmlInJs",
+  "analyzeHtmlInJs",
 ]);
 
 /**

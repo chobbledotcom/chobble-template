@@ -10,7 +10,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
-import { getTemplate } from "#assets/template.js";
+import { getTemplate, populateQuantityControls } from "#assets/template.js";
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);
@@ -20,10 +20,9 @@ function handleQuantityUpdate(itemName, quantity) {
 
 function renderQuoteItem(item) {
   const template = getTemplate("quote-cart-item-template");
-  const name = item.item_name;
 
-  template.querySelector(".quote-cart-item").dataset.name = name;
-  template.querySelector(".quote-cart-item-name").textContent = name;
+  template.querySelector(".quote-cart-item").dataset.name = item.item_name;
+  template.querySelector(".quote-cart-item-name").textContent = item.item_name;
   template.querySelector(".quote-cart-item-price").textContent = formatPrice(
     item.unit_price,
   );
@@ -37,15 +36,7 @@ function renderQuoteItem(item) {
     specsEl.remove();
   }
 
-  template.querySelectorAll("[data-name]").forEach((el) => {
-    el.dataset.name = name;
-  });
-
-  const input = template.querySelector(".qty-input");
-  input.value = item.quantity;
-  if (item.max_quantity) {
-    input.max = item.max_quantity;
-  }
+  populateQuantityControls(template, item);
 
   return template;
 }
