@@ -15,7 +15,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+(ELEMENTS|PREVIOUS_GLOBAL_VARS)\s*=\s*null/, // theme-editor.js state
   /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
   /^let\s+currentPopupIndex\s*=/, // gallery.js state
-  /^let\s+(userStrings|userIcons)\s*=\s*\{\}/, // Try/catch assignment pattern
   /^let\s+storedCollections\s*=\s*null/, // pdf.js state
   /^let\s+(fcpDone|initialized)\s*=/, // autosizes.js state flags
   /^let\s+(paypalToken|paypalTokenExpiry)\s*=/, // server.js PayPal token cache
@@ -124,8 +123,8 @@ let d, e, f;
     test: () => {
       const allowedLines = [
         "let ELEMENTS = null;",
-        "let userStrings = {};",
         "let gallery, currentImage, imagePopup;",
+        "let storedCollections = null;",
       ];
       for (const line of allowedLines) {
         expectTrue(
