@@ -1,11 +1,8 @@
-import { createTestRunner, expectTrue, fs, path, rootDir, getFiles } from "./test-utils.js";
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
 
 // Configuration
 const MAX_LINES = 30;
 const PREFERRED_LINES = 20;
-
-// Pattern: JS files in src/_lib (excludes test files and assets/js)
-const SOURCE_JS_PATTERN = /^src\/_lib\/.*\.js$/;
 
 // Functions that are intentionally long (e.g., complex templates, data builders)
 // These are baseline exceptions - new long functions should be refactored
@@ -160,10 +157,9 @@ const calculateOwnLines = (functions) => {
  * Returns an object with violations.
  */
 const analyzeFunctionLengths = () => {
-  const jsFiles = getFiles(SOURCE_JS_PATTERN);
   const violations = [];
 
-  for (const relativePath of jsFiles) {
+  for (const relativePath of SRC_JS_FILES) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const functions = calculateOwnLines(extractFunctions(source));

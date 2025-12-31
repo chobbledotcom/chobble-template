@@ -13,19 +13,6 @@ const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site"]);
 /**
  * Get all files matching a pattern from the project root.
  * Returns relative paths from root that match the regex.
- *
- * @param {RegExp} pattern - Regex to match against relative file paths
- * @returns {string[]} Array of matching relative paths
- *
- * @example
- * // Get all JS files in src/_lib
- * getFiles(/^src\/_lib\/.*\.js$/)
- *
- * // Get all test files
- * getFiles(/^test\/.*\.test\.js$/)
- *
- * // Get all JS files except in assets
- * getFiles(/^src\/(?!assets).*\.js$/)
  */
 const getFiles = (pattern) => {
   const results = [];
@@ -48,6 +35,12 @@ const getFiles = (pattern) => {
   walk(rootDir);
   return results;
 };
+
+// Pre-computed file lists for common test patterns
+const SRC_JS_FILES = getFiles(/^src\/.*\.js$/);
+const SRC_HTML_FILES = getFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
+const SRC_SCSS_FILES = getFiles(/^src\/css\/.*\.scss$/);
+const TEST_FILES = getFiles(/^test\/.*\.test\.js$/);
 
 const createMockEleventyConfig = () => ({
   addPlugin: function (plugin, config) {
@@ -369,6 +362,10 @@ export {
   path,
   rootDir,
   getFiles,
+  SRC_JS_FILES,
+  SRC_HTML_FILES,
+  SRC_SCSS_FILES,
+  TEST_FILES,
   createMockEleventyConfig,
   createTempDir,
   createTempFile,

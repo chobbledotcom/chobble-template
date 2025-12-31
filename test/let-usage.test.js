@@ -1,10 +1,7 @@
-import { createTestRunner, expectTrue, fs, path, rootDir, getFiles } from "./test-utils.js";
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
-
-// Pattern: JS files in src (excludes test files)
-const SOURCE_JS_PATTERN = /^src\/.*(?<!\.test)\.js$/;
 
 // Files that are allowed to use let (third-party, legacy, or special cases)
 const ALLOWED_FILES = new Set([
@@ -71,11 +68,10 @@ const isAllowedLet = (line) => {
  * Analyze all JS files and find let usage
  */
 const analyzeLetUsage = () => {
-  const jsFiles = getFiles(SOURCE_JS_PATTERN);
   const violations = [];
   const warnings = [];
 
-  for (const relativePath of jsFiles) {
+  for (const relativePath of SRC_JS_FILES) {
     // Skip allowed files entirely
     if (ALLOWED_FILES.has(relativePath)) continue;
 

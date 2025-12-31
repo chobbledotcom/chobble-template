@@ -1,4 +1,4 @@
-import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, getFiles } from "./test-utils.js";
+import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -176,13 +176,12 @@ const isTestHelper = (source, funcName, startLine, lineCount) => {
 };
 
 /**
- * Get all source function names from _lib directory
+ * Get all source function names from src directory
  */
 const getSourceFunctionNames = () => {
   const names = new Set();
-  const libFiles = getFiles(/^src\/_lib\/.*\.js$/);
 
-  for (const relativePath of libFiles) {
+  for (const relativePath of SRC_JS_FILES) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const funcs = extractFunctionDefinitions(source);
@@ -199,9 +198,8 @@ const getSourceFunctionNames = () => {
  */
 const analyzeTestFiles = () => {
   const issues = [];
-  const testFiles = getFiles(/^test\/.*\.test\.js$/);
 
-  for (const relativePath of testFiles) {
+  for (const relativePath of TEST_FILES) {
     const fileName = path.basename(relativePath);
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");

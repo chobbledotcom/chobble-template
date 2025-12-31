@@ -2,10 +2,13 @@
 // Detects HTML classes and IDs that are never referenced in SCSS or JS files
 // This helps identify dead code and potential cleanup opportunities
 
-import { createTestRunner, expectTrue, fs, path, rootDir, getFiles } from "./test-utils.js";
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_HTML_FILES, SRC_SCSS_FILES, getFiles } from "./test-utils.js";
 
 const { readFileSync } = fs;
 const { join } = path;
+
+// Asset JS files need a separate pattern (not in the standard SRC_JS_FILES)
+const ASSET_JS_FILES = getFiles(/^src\/assets\/js\/.*\.js$/);
 
 // ============================================
 // Class/ID Extraction from HTML
@@ -403,13 +406,10 @@ const testCases = [
     name: "detect-unused-classes-in-project",
     description: "Scans project files and reports unused classes/IDs",
     test: () => {
-      // Collect all HTML, SCSS, and JS files using patterns
-      const htmlFiles = getFiles(/^src\/(_includes|_layouts)\/.*\.html$/)
-        .map((f) => join(rootDir, f));
-      const scssFiles = getFiles(/^src\/css\/.*\.scss$/)
-        .map((f) => join(rootDir, f));
-      const jsFiles = getFiles(/^src\/assets\/js\/.*\.js$/)
-        .map((f) => join(rootDir, f));
+      // Use pre-computed file lists
+      const htmlFiles = SRC_HTML_FILES.map((f) => join(rootDir, f));
+      const scssFiles = SRC_SCSS_FILES.map((f) => join(rootDir, f));
+      const jsFiles = ASSET_JS_FILES.map((f) => join(rootDir, f));
 
       // Collect all classes and IDs defined in HTML and JS
       const { allClasses, allIds } = collectAllClassesAndIds(

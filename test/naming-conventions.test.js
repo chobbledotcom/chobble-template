@@ -1,11 +1,8 @@
-import { createTestRunner, expectTrue, fs, path, rootDir, getFiles } from "./test-utils.js";
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
 
 // Configuration
 const MAX_WORDS = 4;
 const PREFERRED_WORDS = 3;
-
-// Pattern: JS files in src (excludes test files)
-const SOURCE_JS_PATTERN = /^src\/.*\.js$/;
 
 // External APIs we can't control (only those exceeding 4 words)
 const IGNORED_IDENTIFIERS = new Set([
@@ -65,10 +62,9 @@ const extractCamelCaseIdentifiers = (source) => {
  * Returns an object with violations and their occurrence counts.
  */
 const analyzeNamingConventions = () => {
-  const jsFiles = getFiles(SOURCE_JS_PATTERN);
   const violations = {};
 
-  for (const relativePath of jsFiles) {
+  for (const relativePath of SRC_JS_FILES) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const identifiers = extractCamelCaseIdentifiers(source);
