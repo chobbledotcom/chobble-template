@@ -19,7 +19,7 @@
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "eleventy --quiet && c8 --lines 74 --functions 73 --branches 90 node test/run-all-tests.js",
+		"test": "eleventy --quiet && c8 --lines 74 --functions 74 --branches 91 node test/run-all-tests.js",
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
