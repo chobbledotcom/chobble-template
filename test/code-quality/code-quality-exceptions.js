@@ -43,4 +43,40 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/knip.test.js:16",
 ]);
 
-export { ALLOWED_TRY_CATCHES };
+// ============================================
+// HTML in JavaScript exceptions
+// ============================================
+
+// Files that are allowed to contain HTML in JavaScript template literals.
+// These should be refactored over time to use external templates.
+const ALLOWED_HTML_IN_JS = new Set([
+  // Client-side JS - cart/checkout rendering
+  "src/assets/js/cart.js",
+  "src/assets/js/cart-utils.js",
+  "src/assets/js/quote.js",
+  "src/assets/js/quote-checkout.js",
+
+  // Client-side JS - gallery with SVG icons
+  "src/assets/js/gallery.js",
+
+  // Client-side JS - calendar display
+  "src/assets/js/availability-calendar.js",
+
+  // Server-side Eleventy plugins generating HTML
+  "src/_lib/eleventy/area-list.js",
+  "src/_lib/eleventy/opening-times.js",
+  "src/_lib/eleventy/recurring-events.js",
+  "src/_lib/eleventy/js-config.js",
+  "src/_lib/eleventy/responsive-tables.js",
+
+  // Media utilities with HTML generation
+  "src/_lib/media/image.js",
+
+  // Collections with embedded HTML/SVG
+  "src/_lib/collections/reviews.js",
+
+  // Filters with HTML formatting
+  "src/_lib/filters/item-filters.js",
+]);
+
+export { ALLOWED_TRY_CATCHES, ALLOWED_HTML_IN_JS };
