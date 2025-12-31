@@ -1,5 +1,13 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
 import { ALLOWED_CONSOLE_LOG_FILES } from "#test/code-quality/code-quality-exceptions.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+} from "#test/test-utils.js";
 
 /**
  * Find all console.log usages in a file
@@ -38,8 +46,9 @@ const analyzeConsoleLogUsage = () => {
   const allowed = [];
 
   // Only check source files, not test files
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES]
-    .filter((f) => !f.includes(".test.js"));
+  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES].filter(
+    (f) => !f.includes(".test.js"),
+  );
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -85,29 +94,36 @@ console.log("another one");
       const results = findConsoleLogUsage(source);
       expectTrue(
         results.length === 2,
-        `Expected 2 console.log usages, found ${results.length}`
+        `Expected 2 console.log usages, found ${results.length}`,
       );
     },
   },
   {
     name: "no-console-log-in-production-code",
-    description: "No console.log outside whitelisted files (use console.error for errors)",
+    description:
+      "No console.log outside whitelisted files (use console.error for errors)",
     test: () => {
       const { violations } = analyzeConsoleLogUsage();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted console.log usages:`);
+        console.log(
+          `\n  Found ${violations.length} non-whitelisted console.log usages:`,
+        );
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: remove debug logs, use console.error for errors,");
-        console.log("  or add file to ALLOWED_CONSOLE_LOG_FILES in code-quality-exceptions.js\n");
+        console.log(
+          "\n  To fix: remove debug logs, use console.error for errors,",
+        );
+        console.log(
+          "  or add file to ALLOWED_CONSOLE_LOG_FILES in code-quality-exceptions.js\n",
+        );
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted console.log usages. See list above.`
+        `Found ${violations.length} non-whitelisted console.log usages. See list above.`,
       );
     },
   },

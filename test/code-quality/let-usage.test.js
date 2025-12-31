@@ -151,7 +151,10 @@ const d = "not a declaration";
     name: "allowed-let-patterns-work",
     description: "Allowed patterns correctly match exempted let usage",
     test: () => {
-      const allowedLines = ["let ELEMENTS = null;", "let state = null;"];
+      const allowedLines = [
+        "let gallery, currentImage, imagePopup;",
+        "let state = null;",
+      ];
       for (const line of allowedLines) {
         expectTrue(
           isAllowedLetPattern(line),

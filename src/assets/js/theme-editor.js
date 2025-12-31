@@ -8,8 +8,13 @@ import {
   shouldIncludeScopedVar,
 } from "#assets/theme-editor-lib.js";
 
-let ELEMENTS = null;
-let PREVIOUS_GLOBAL_VARS = null; // Stored for cascade comparison
+let state = null; // Previous global vars for cascade comparison
+
+const ELEMENT_IDS = {
+  form: "theme-editor-form",
+  output: "theme-output",
+  download: "download-theme",
+};
 
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
@@ -21,23 +26,16 @@ const SCOPE_DOM_SELECTORS = {
 };
 
 const ThemeEditor = {
-  init() {
-    const form = document.getElementById("theme-editor-form");
-    const output = document.getElementById("theme-output");
+  initialized: false,
 
+  init() {
     // Only run on theme-editor page
-    if (!form || !output) return;
+    if (!document.getElementById(ELEMENT_IDS.form)) return;
+    if (!document.getElementById(ELEMENT_IDS.output)) return;
 
     // Skip if already initialized
-    if (ELEMENTS) return;
-
-    ELEMENTS = {
-      form,
-      output,
-      downloadBtn: document.getElementById("download-theme"),
-      tabLinks: document.querySelectorAll(".tab-link"),
-      tabContents: document.querySelectorAll(".tab-content"),
-    };
+    if (this.initialized) return;
+    this.initialized = true;
 
     this.initTabNavigation();
     this.initControlsFromTheme();
@@ -45,30 +43,35 @@ const ThemeEditor = {
   },
 
   formEl(id) {
-    return ELEMENTS.form.querySelector(`#${id}`);
+    return document.querySelector(`#${ELEMENT_IDS.form} #${id}`);
   },
 
   formQuery(selector) {
-    return ELEMENTS.form.querySelectorAll(selector);
+    return document.querySelectorAll(`#${ELEMENT_IDS.form} ${selector}`);
   },
 
   initTabNavigation() {
-    ELEMENTS.tabLinks.forEach((tabLink) => {
+    document.querySelectorAll(".tab-link").forEach((tabLink) => {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
-        ELEMENTS.tabLinks.forEach((link) => link.classList.remove("active"));
-        ELEMENTS.tabContents.forEach((content) =>
-          content.classList.remove("active"),
-        );
+        document
+          .querySelectorAll(".tab-link")
+          .forEach((link) => link.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
         tabLink.classList.add("active");
-        const tabId = tabLink.dataset.tab;
-        document.getElementById(`${tabId}-tab`).classList.add("active");
+        document
+          .getElementById(`${tabLink.dataset.tab}-tab`)
+          .classList.add("active");
       });
     });
   },
 
   initControlsFromTheme() {
-    const parsed = parseThemeContent(ELEMENTS.output.value);
+    const parsed = parseThemeContent(
+      document.getElementById(ELEMENT_IDS.output).value,
+    );
 
     // Initialize global :root variables
     this.initGlobalControls(parsed.root);
@@ -96,14 +99,10 @@ const ThemeEditor = {
 
     // Capture initial global values for cascade comparison
     // This must happen AFTER all controls are initialized
-    PREVIOUS_GLOBAL_VARS = this.captureCurrentGlobalVars();
+    state = this.captureGlobals();
   },
 
-  /**
-   * Capture current global variable values from inputs
-   * Used for cascade comparison when globals change
-   */
-  captureCurrentGlobalVars() {
+  captureGlobals() {
     const vars = {};
     this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
       const varName = `--${el.id}`;
@@ -314,10 +313,12 @@ const ThemeEditor = {
   },
 
   setupEventListeners() {
-    ELEMENTS.downloadBtn.addEventListener("click", () => this.downloadTheme());
-    ELEMENTS.output.addEventListener("input", () => {
-      this.initControlsFromTheme();
-    });
+    document
+      .getElementById(ELEMENT_IDS.download)
+      .addEventListener("click", () => this.downloadTheme());
+    document
+      .getElementById(ELEMENT_IDS.output)
+      .addEventListener("input", () => this.initControlsFromTheme());
   },
 
   /**
@@ -352,10 +353,7 @@ const ThemeEditor = {
   updateThemeFromControls() {
     const docStyle = getComputedStyle(document.documentElement);
 
-    // Use stored PREVIOUS_GLOBAL_VARS for cascade comparison
-    // We can't capture "old" values here because border inputs are already updated
-    // by their event handlers before this method is called
-    const oldGlobalVars = PREVIOUS_GLOBAL_VARS || {};
+    const oldGlobalVars = state || {};
 
     // Collect global :root variables
     const globalVars = {};
@@ -376,7 +374,7 @@ const ThemeEditor = {
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
     // Store current global values for next cascade comparison
-    PREVIOUS_GLOBAL_VARS = { ...globalVars };
+    state = { ...globalVars };
 
     // Collect scoped variables
     const scopeVars = {};
@@ -407,7 +405,7 @@ const ThemeEditor = {
 
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
-    ELEMENTS.output.value = themeText;
+    document.getElementById(ELEMENT_IDS.output).value = themeText;
   },
 
   /**
@@ -488,7 +486,7 @@ const ThemeEditor = {
   },
 
   downloadTheme() {
-    const content = ELEMENTS.output.value;
+    const content = document.getElementById(ELEMENT_IDS.output).value;
     const blob = new Blob([content], { type: "text/css" });
     const url = URL.createObjectURL(blob);
 

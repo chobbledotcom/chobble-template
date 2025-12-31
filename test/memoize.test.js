@@ -1,9 +1,9 @@
-import { arraySlugKey, memoize } from "#utils/memoize.js";
 import {
   createTestRunner,
   expectFunctionType,
   expectStrictEqual,
 } from "#test/test-utils.js";
+import { arraySlugKey, memoize } from "#utils/memoize.js";
 
 const testCases = [
   {
