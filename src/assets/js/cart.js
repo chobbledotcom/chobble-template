@@ -120,12 +120,11 @@ class ShoppingCart {
           // Parse the item data to get the selected option's price
           try {
             const itemData = JSON.parse(button.dataset.item);
-            const optionIndex = parseInt(selectedOption.value);
+            const optionIndex = parseInt(selectedOption.value, 10);
             const option = itemData.options[optionIndex];
             button.disabled = false;
             button.textContent = `Add to Cart - £${option.unit_price}`;
-          } catch (err) {
-            console.error("[cart.js] Failed to parse item data:", err.message);
+          } catch (_err) {
             alert("Error loading product options. Please refresh the page.");
             button.disabled = false;
             button.textContent = "Add to Cart";
@@ -156,8 +155,7 @@ class ShoppingCart {
         let itemData;
         try {
           itemData = JSON.parse(button.dataset.item);
-        } catch (err) {
-          console.error("[cart.js] Failed to parse item data:", err.message);
+        } catch (_err) {
           alert("Error adding item to cart. Please refresh the page.");
           return;
         }
@@ -172,7 +170,7 @@ class ShoppingCart {
             alert("Please select an option");
             return;
           }
-          optionIndex = parseInt(select.value);
+          optionIndex = parseInt(select.value, 10);
         }
 
         const option = itemData.options[optionIndex];
@@ -189,10 +187,9 @@ class ShoppingCart {
             ? `${itemName} - ${optionName}`
             : itemName;
 
-        if (fullItemName && !isNaN(unitPrice)) {
+        if (fullItemName && !Number.isNaN(unitPrice)) {
           this.addItem(fullItemName, unitPrice, 1, maxQuantity, sku, specs);
         } else {
-          console.error("[cart] Invalid item data:", fullItemName, unitPrice);
         }
       }
     });
@@ -437,8 +434,7 @@ class ShoppingCart {
         const error = await response.json();
         throw new Error(error.error || "Failed to create PayPal order");
       }
-    } catch (error) {
-      console.error("PayPal checkout failed:", error);
+    } catch (_error) {
       alert("Failed to start checkout. Please try again.");
     }
   }

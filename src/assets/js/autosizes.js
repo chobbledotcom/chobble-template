@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-(function () {
+(() => {
   // Check if the browser already supports sizes="auto"
   // We're using UA sniffing here, as there's no way to detect browser
   // support without a forced layout, which would make things slower for everyone.

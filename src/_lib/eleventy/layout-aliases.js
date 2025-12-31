@@ -1,5 +1,5 @@
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 
 export function configureLayoutAliases(eleventyConfig) {
   const layoutsDir = join(process.cwd(), "src/_layouts");

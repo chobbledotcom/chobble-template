@@ -23,7 +23,7 @@ export function eventIcal(event) {
   const startDate = new Date(eventDate);
   startDate.setHours(0, 0, 0, 0);
 
-  const calendarEvent = calendar.createEvent({
+  const _calendarEvent = calendar.createEvent({
     start: startDate,
     allDay: true,
     summary: event.data.title,

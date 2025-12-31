@@ -446,7 +446,8 @@ const testCases = [
   // and verify the complete behavior in a single comprehensive test
   {
     name: "getRecurringEventsHtml-comprehensive",
-    description: "Returns properly formatted HTML for recurring events from the filesystem",
+    description:
+      "Returns properly formatted HTML for recurring events from the filesystem",
     asyncTest: async () => {
       const result = await getRecurringEventsHtml();
 
@@ -455,13 +456,17 @@ const testCases = [
 
       // The project has real recurring events in src/events
       // street-advocacy.md and lunar-networking.md both have recurring_date
-      expectTrue(result.length > 0, "Should return non-empty HTML for existing recurring events");
+      expectTrue(
+        result.length > 0,
+        "Should return non-empty HTML for existing recurring events",
+      );
       expectTrue(result.includes("<ul>"), "Should contain ul element");
       expectTrue(result.includes("<li>"), "Should contain li elements");
 
       // Check for known recurring events from the project
       expectTrue(
-        result.includes("Street Advocacy Sessions") || result.includes("Lunar Networking"),
+        result.includes("Street Advocacy Sessions") ||
+          result.includes("Lunar Networking"),
         "Should include recurring event titles",
       );
 
@@ -476,7 +481,10 @@ const testCases = [
       for (const link of links) {
         const href = link.getAttribute("href");
         expectTrue(href.startsWith("/"), "Links should start with /");
-        expectTrue(href.includes("events/"), "Links should include events/ path");
+        expectTrue(
+          href.includes("events/"),
+          "Links should include events/ path",
+        );
       }
 
       // Known recurring dates from the events
@@ -488,25 +496,35 @@ const testCases = [
 
       // Known locations from the events
       const hasLocation =
-        result.includes("Fulchester") || result.includes("Moon") || result.includes("Tranquility");
+        result.includes("Fulchester") ||
+        result.includes("Moon") ||
+        result.includes("Tranquility");
       expectTrue(hasLocation, "Should include event locations");
     },
   },
   {
     name: "getRecurringEventsHtml-filters-non-recurring-events",
-    description: "Only includes events with recurring_date field, not one-time events",
+    description:
+      "Only includes events with recurring_date field, not one-time events",
     asyncTest: async () => {
       const result = await getRecurringEventsHtml();
 
       // The project has both recurring and non-recurring events
       // Non-recurring events like "product-launch" and "summer-expo" should not appear
       // They have event_date but not recurring_date
-      expectTrue(!result.includes("Product Launch"), "Should not include one-time events");
-      expectTrue(!result.includes("Summer Expo"), "Should not include events without recurring_date");
+      expectTrue(
+        !result.includes("Product Launch"),
+        "Should not include one-time events",
+      );
+      expectTrue(
+        !result.includes("Summer Expo"),
+        "Should not include events without recurring_date",
+      );
 
       // But recurring events should be present
       expectTrue(
-        result.includes("Street Advocacy") || result.includes("Lunar Networking"),
+        result.includes("Street Advocacy") ||
+          result.includes("Lunar Networking"),
         "Should include recurring events",
       );
     },

@@ -8,7 +8,6 @@ import {
   createTestRunner,
   expectFunctionType,
   expectStrictEqual,
-  expectThrows,
 } from "#test/test-utils.js";
 
 const testCases = [
@@ -17,9 +16,9 @@ const testCases = [
     description: "Creates navigation filter function",
     test: () => {
       const mockEleventyConfig = {};
-      const mockNavUtil = {
+      const _mockNavUtil = {
         toHtml: {
-          call: (context, collection, options) => {
+          call: (context, _collection, options) => {
             expectStrictEqual(
               context,
               mockEleventyConfig,
@@ -61,9 +60,9 @@ const testCases = [
       ];
 
       const mockEleventyConfig = {};
-      const mockNavUtil = {
+      const _mockNavUtil = {
         toHtml: {
-          call: (context, collection, options) => {
+          call: (_context, collection, _options) => {
             expectStrictEqual(
               collection,
               mockCollection,
@@ -233,7 +232,7 @@ const testCases = [
     description: "Configures navigation filters in Eleventy",
     asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
-      const mockNavUtil = {
+      const _mockNavUtil = {
         toHtml: {
           call: () => "<nav>test</nav>",
         },
@@ -264,7 +263,7 @@ const testCases = [
     description: "Configured filters work correctly",
     asyncTest: async () => {
       const mockConfig = createMockEleventyConfig();
-      const mockNavUtil = {
+      const _mockNavUtil = {
         toHtml: {
           call: () => "<nav>Working</nav>",
         },

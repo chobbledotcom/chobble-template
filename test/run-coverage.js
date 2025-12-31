@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { spawnSync } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,7 +16,7 @@ function readLimits() {
 }
 
 function writeLimits(limits) {
-  const content = JSON.stringify(limits, null, "\t") + "\n";
+  const content = `${JSON.stringify(limits, null, "\t")}\n`;
   writeFileSync(configPath, content, "utf-8");
 }
 

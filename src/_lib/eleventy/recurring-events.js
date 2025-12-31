@@ -25,7 +25,7 @@ const renderRecurringEvents = (events) => {
   return `<ul>\n${items.join("\n")}\n</ul>`;
 };
 
-const recurringEventsShortcode = function (eleventyConfig) {
+const _recurringEventsShortcode = function (_eleventyConfig) {
   // Access the events collection through Eleventy's collection API
   const events =
     this.ctx?.collections?.events || this.collections?.events || [];
@@ -39,8 +39,8 @@ const recurringEventsShortcode = function (eleventyConfig) {
 // Function to get recurring events HTML for direct use in file-utils
 // Memoized at module level so all importers share the same cache
 const getRecurringEventsHtml = memoize(async () => {
-  const fs = await import("fs");
-  const path = await import("path");
+  const fs = await import("node:fs");
+  const path = await import("node:path");
   const matter = await import("gray-matter");
 
   // Read all event files from the events directory

@@ -15,7 +15,7 @@ export default {
       return null;
     },
     categorisedEvents: (data) => {
-      if (data.collections && data.collections.events) {
+      if (data.collections?.events) {
         return categoriseEvents(data.collections.events);
       }
       return {

@@ -132,6 +132,7 @@ const testCases = [
     name: "detect-hardcoded-events-url",
     description: "Detects hardcoded /events/ URL pattern",
     test: () => {
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
       const source = "const url = `/events/${slug}/`;";
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(results.length === 1, "Should detect hardcoded /events/ URL");
@@ -153,6 +154,7 @@ const testCases = [
     name: "allow-comments",
     description: "Allows hardcoded URLs in comments",
     test: () => {
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
       const source = "// Example: `/events/${slug}/`";
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(results.length === 0, "Should allow URLs in comments");
@@ -171,8 +173,7 @@ const testCases = [
     name: "allow-strings-config-usage",
     description: "Allows URL construction using strings config",
     test: () => {
-      const source =
-        "const url = `/${strings.event_permalink_dir}/${fileSlug}/`;";
+      const source = `const url = \`/\${strings.event_permalink_dir}/\${fileSlug}/\`;`;
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(
         results.length === 0,

@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
   "files": {
-    "includes": ["**/*.js", "**/*.mjs", "!.direnv/**"],
+    "includes": ["**/*.js", "**/*.mjs", "!.direnv", "!_site", "!coverage"],
     "ignoreUnknown": true
   },
   "formatter": {
@@ -9,6 +9,35 @@
     "indentWidth": 2
   },
   "linter": {
-    "enabled": false
-  }
+    "enabled": true,
+    "rules": {
+      "style": {
+        "useConst": "error"
+      },
+      "suspicious": {
+        "noVar": "error",
+        "noDoubleEquals": "error",
+        "noConsole": "error"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "src/_lib/scripts/add-skus.js",
+        "src/_lib/media/unused-images.js",
+        "src/_lib/eleventy/pdf.js",
+        "ecommerce-backend/server.js",
+        "bin/profile",
+        "test/**/*.js"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ]
 }

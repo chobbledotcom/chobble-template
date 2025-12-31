@@ -8,7 +8,7 @@ const SVG_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
   <polyline points="9 18 15 12 9 6"></polyline>
 </svg>`;
 
-let state = {
+const state = {
   gallery: null,
   currentImage: null,
   imagePopup: null,
@@ -57,7 +57,9 @@ const updatePopupImage = (index) => {
 
   const image = state.imagePopup.querySelector(".image-wrapper");
   image.outerHTML = content;
-  image.querySelectorAll("[sizes]").forEach((el) => (el.sizes = "100vw"));
+  for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
+    el.sizes = "100vw";
+  }
 
   const prev = state.imagePopup.querySelector(".popup-nav-prev");
   const next = state.imagePopup.querySelector(".popup-nav-next");
@@ -100,9 +102,9 @@ const openPopup = () => {
     }
   `;
 
-  state.imagePopup
-    .querySelectorAll("[sizes]")
-    .forEach((el) => (el.sizes = "100vw"));
+  for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
+    el.sizes = "100vw";
+  }
   state.imagePopup.showModal();
 };
 

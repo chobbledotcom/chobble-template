@@ -1,7 +1,7 @@
+import fs from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import fg from "fast-glob";
-import fs from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
 import {
@@ -31,15 +31,12 @@ const findStringsUsage = () => {
 
   for (const file of files) {
     const content = fs.readFileSync(file, "utf-8");
-    let match;
-    while ((match = regex.exec(content)) !== null) {
+    for (const match of content.matchAll(regex)) {
       const key = match[1];
       if (!ignoreKeys.has(key)) {
         keys.add(key);
       }
     }
-    // Reset regex lastIndex for next file (since we're using /g flag)
-    regex.lastIndex = 0;
   }
 
   return Array.from(keys);

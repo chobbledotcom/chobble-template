@@ -1,10 +1,10 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import Image, {
   eleventyImageOnRequestDuringServePlugin,
 } from "@11ty/eleventy-img";
-import crypto from "crypto";
-import fs from "fs";
 import { JSDOM } from "jsdom";
-import path from "path";
 import sharp from "sharp";
 import { memoize } from "#utils/memoize.js";
 
@@ -54,7 +54,7 @@ const U = {
     outputDir: ".image-cache",
     urlPath: "/img/",
     svgShortCircuit: true,
-    filenameFormat: (id, src, width, format) => {
+    filenameFormat: (_id, src, width, format) => {
       const basename = path.basename(src, path.extname(src));
       return `${basename}-${width}.${format}`;
     },
@@ -77,12 +77,10 @@ const U = {
         widths: [32],
         formats: ["webp"],
       });
-    } catch (error) {
-      console.error(`Invalid image path: ${JSON.stringify(path)}`);
+    } catch (_error) {
       return null;
     }
     if (!thumbnails) {
-      console.error(`Invalid thumbnail for path: ${JSON.stringify(path)}`);
       return null;
     }
     const [thumbnail] = thumbnails.webp;
@@ -140,7 +138,7 @@ const U = {
       loading: loading,
       decoding: "async",
     };
-    return classes && classes.trim()
+    return classes?.trim()
       ? {
           ...attributes,
           classes,
@@ -195,7 +193,7 @@ const U = {
 const imageHtmlCache = new Map();
 
 async function processAndWrapImage({
-  logName,
+  logName: _logName,
   imageName,
   alt,
   classes,
@@ -348,11 +346,7 @@ const imageShortcode = async (
       loading,
       returnElement: false,
     });
-  } catch (error) {
-    console.error(
-      `processAndWrapImage: Invalid image path: ${JSON.stringify(imageName)}`,
-    );
-    console.error(`Error details: ${error.message}`);
+  } catch (_error) {
     return "";
   }
 };

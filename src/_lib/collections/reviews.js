@@ -46,7 +46,7 @@ const getRating = (reviews, slug, field) => {
   );
   const ratingsWithValues = matchingReviews
     .map((r) => r.data.rating)
-    .filter((r) => r !== null && r !== undefined && !isNaN(r));
+    .filter((r) => r !== null && r !== undefined && !Number.isNaN(r));
   if (ratingsWithValues.length === 0) return null;
   const avg =
     ratingsWithValues.reduce((a, b) => a + b, 0) / ratingsWithValues.length;

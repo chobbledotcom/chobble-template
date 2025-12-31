@@ -3,7 +3,6 @@ import {
   generateThemeCss,
   parseBorderValue,
   parseThemeContent,
-  SCOPE_SELECTORS,
   SCOPES,
   shouldIncludeScopedVar,
 } from "#assets/theme-editor-lib.js";
@@ -54,12 +53,12 @@ const ThemeEditor = {
     document.querySelectorAll(".tab-link").forEach((tabLink) => {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
-        document
-          .querySelectorAll(".tab-link")
-          .forEach((link) => link.classList.remove("active"));
-        document
-          .querySelectorAll(".tab-content")
-          .forEach((content) => content.classList.remove("active"));
+        for (const link of document.querySelectorAll(".tab-link")) {
+          link.classList.remove("active");
+        }
+        for (const content of document.querySelectorAll(".tab-content")) {
+          content.classList.remove("active");
+        }
         tabLink.classList.add("active");
         document
           .getElementById(`${tabLink.dataset.tab}-tab`)
@@ -201,7 +200,7 @@ const ThemeEditor = {
         // Initialize to GLOBAL value so unchanged inputs don't pollute output
         // Browser color inputs default to #000000 which would differ from global
         const globalValue = docStyle.getPropertyValue(varName).trim();
-        if (globalValue && globalValue.startsWith("#")) {
+        if (globalValue?.startsWith("#")) {
           input.value = globalValue;
         }
       }
@@ -288,12 +287,14 @@ const ThemeEditor = {
           });
 
         checkbox.checked = isEnabled;
-        targetIds.forEach((tid) => this.toggleCheckbox(tid, isEnabled));
+        for (const tid of targetIds) {
+          this.toggleCheckbox(tid, isEnabled);
+        }
 
         checkbox.addEventListener("change", () => {
-          targetIds.forEach((tid) =>
-            this.toggleCheckbox(tid, checkbox.checked),
-          );
+          for (const tid of targetIds) {
+            this.toggleCheckbox(tid, checkbox.checked);
+          }
           this.updateThemeFromControls();
         });
       });
@@ -351,7 +352,7 @@ const ThemeEditor = {
   },
 
   updateThemeFromControls() {
-    const docStyle = getComputedStyle(document.documentElement);
+    const _docStyle = getComputedStyle(document.documentElement);
 
     const oldGlobalVars = state || {};
 
@@ -359,7 +360,7 @@ const ThemeEditor = {
     const globalVars = {};
     Array.from(this.formQuery("[data-var]:not([data-scope])"))
       .filter((input) => {
-        const checkbox = this.formEl(input.id + "-enabled");
+        const checkbox = this.formEl(`${input.id}-enabled`);
         return !checkbox || checkbox.checked;
       })
       .forEach((el) => {
@@ -391,7 +392,7 @@ const ThemeEditor = {
     // Handle body classes
     const bodyClasses = [];
     this.formQuery("[data-class]").forEach((el) => {
-      const checkbox = this.formEl(el.id + "-enabled");
+      const checkbox = this.formEl(`${el.id}-enabled`);
       const enabled = !checkbox || checkbox.checked;
       const values = Array.from(el.querySelectorAll("option"))
         .map((o) => o.value)
@@ -475,7 +476,7 @@ const ThemeEditor = {
 
     // Border for this scope - include if different from global border
     const borderOutput = this.formEl(`${scope}-border`);
-    if (borderOutput && borderOutput.value) {
+    if (borderOutput?.value) {
       const globalBorder = docStyle.getPropertyValue("--border").trim();
       if (shouldIncludeScopedVar(borderOutput.value, globalBorder)) {
         vars["--border"] = borderOutput.value;

@@ -118,11 +118,11 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
   });
 
   // Join CSS blocks with blank lines, each block ends with }
-  const cssOutput = cssBlocks.join("\n\n") + "\n";
+  const cssOutput = `${cssBlocks.join("\n\n")}\n`;
 
   // Add body classes comment (no trailing newline)
   if (bodyClasses && bodyClasses.length > 0) {
-    return cssOutput + `\n/* body_classes: ${bodyClasses.join(", ")} */`;
+    return `${cssOutput}\n/* body_classes: ${bodyClasses.join(", ")} */`;
   }
 
   return cssOutput;

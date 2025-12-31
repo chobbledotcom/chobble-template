@@ -17,7 +17,7 @@ export function buildJsConfigScript(config) {
 }
 
 export function configureJsConfig(eleventyConfig) {
-  eleventyConfig.addShortcode("jsConfigScript", function () {
+  eleventyConfig.addShortcode("jsConfigScript", () => {
     // Import config directly rather than relying on template context
     // which may not be reliably available in all build contexts
     const config = getConfig();

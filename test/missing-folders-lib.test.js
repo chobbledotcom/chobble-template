@@ -124,7 +124,7 @@ const testLibModules = () => {
         getAll: () => [],
       };
 
-      if (mockConfig.collections && mockConfig.collections.tagList) {
+      if (mockConfig.collections?.tagList) {
         const result = mockConfig.collections.tagList(mockCollectionApi);
         expectTrue(Array.isArray(result), "Should return an array");
       } else {

@@ -1,8 +1,8 @@
-import assert from "assert";
-import fs from "fs";
+import assert from "node:assert";
+import fs from "node:fs";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import markdownIt from "markdown-it";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -90,7 +90,7 @@ const mockConfig = {
   addGlobalData: () => {},
   addLayoutAlias: () => {},
   render_snippet: null,
-  resolvePlugin: (pluginName) => {
+  resolvePlugin: (_pluginName) => {
     // Return a mock plugin function
     return function mockPlugin() {};
   },

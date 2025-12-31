@@ -28,7 +28,7 @@ const extractClassesFromHtml = (content) => {
 
   // First, remove all Liquid/Nunjucks blocks from the content
   // This handles nested quotes within {{ }} and {% %} blocks
-  let cleanedContent = content
+  const cleanedContent = content
     // Remove {{ ... }} blocks (handles nested quotes)
     .replace(/\{\{-?[\s\S]*?-?\}\}/g, " ")
     // Remove {% ... %} blocks (handles nested quotes)
@@ -36,24 +36,15 @@ const extractClassesFromHtml = (content) => {
 
   // Now match class="..." attributes (handles multiline)
   const classAttrRegex = /class="([^"]*)"/g;
-  let match;
+  const validClassRegex = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
 
-  while ((match = classAttrRegex.exec(cleanedContent)) !== null) {
-    const classValue = match[1]
-      // Normalize whitespace
-      .replace(/\s+/g, " ")
-      .trim();
-
-    // Split by whitespace and add valid class names only
-    // Valid CSS class names: start with letter, underscore, or hyphen,
-    // followed by letters, digits, underscores, or hyphens
-    const validClassRegex = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
-
-    classValue.split(" ").forEach((cls) => {
+  for (const match of cleanedContent.matchAll(classAttrRegex)) {
+    const classValue = match[1].replace(/\s+/g, " ").trim();
+    for (const cls of classValue.split(" ")) {
       if (cls && validClassRegex.test(cls)) {
         classes.add(cls);
       }
-    });
+    }
   }
 
   return classes;
@@ -61,12 +52,9 @@ const extractClassesFromHtml = (content) => {
 
 const extractIdsFromHtml = (content) => {
   const ids = new Set();
-
-  // Match id="..." attributes
   const idAttrRegex = /id="([^"]*)"/g;
-  let match;
 
-  while ((match = idAttrRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(idAttrRegex)) {
     const idValue = match[1];
 
     // Skip dynamic IDs with Liquid/Nunjucks interpolation
@@ -89,46 +77,36 @@ const extractIdsFromHtml = (content) => {
 const extractClassesFromJs = (content) => {
   const classes = new Set();
 
-  // Match class="..." in template literals
-  const templateClassRegex = /class="([^"$]+)"/g;
-  let match;
-
-  while ((match = templateClassRegex.exec(content)) !== null) {
-    match[1].split(" ").forEach((cls) => {
+  const addClasses = (str) => {
+    for (const cls of str.split(" ")) {
       if (cls.trim()) {
         classes.add(cls.trim());
       }
-    });
+    }
+  };
+
+  // Match class="..." in template literals
+  for (const match of content.matchAll(/class="([^"$]+)"/g)) {
+    addClasses(match[1]);
   }
 
   // Match classList.add/remove/toggle("className")
-  const classListRegex = /\.classList\.(add|remove|toggle)\("([^"]+)"/g;
-  while ((match = classListRegex.exec(content)) !== null) {
-    match[2].split(" ").forEach((cls) => {
-      if (cls.trim()) {
-        classes.add(cls.trim());
-      }
-    });
+  for (const match of content.matchAll(
+    /\.classList\.(add|remove|toggle)\("([^"]+)"/g,
+  )) {
+    addClasses(match[2]);
   }
 
   // Match string concatenation for classes: classes += " past"
-  const classConcat = /classes\s*\+=\s*["']([^"']+)["']/g;
-  while ((match = classConcat.exec(content)) !== null) {
-    match[1].split(" ").forEach((cls) => {
-      if (cls.trim()) {
-        classes.add(cls.trim());
-      }
-    });
+  for (const match of content.matchAll(/classes\s*\+=\s*["']([^"']+)["']/g)) {
+    addClasses(match[1]);
   }
 
   // Match initial class assignment: let classes = "calendar-day"
-  const classAssign = /(?:let|const|var)\s+classes\s*=\s*["']([^"']+)["']/g;
-  while ((match = classAssign.exec(content)) !== null) {
-    match[1].split(" ").forEach((cls) => {
-      if (cls.trim()) {
-        classes.add(cls.trim());
-      }
-    });
+  for (const match of content.matchAll(
+    /(?:let|const|var)\s+classes\s*=\s*["']([^"']+)["']/g,
+  )) {
+    addClasses(match[1]);
   }
 
   return classes;

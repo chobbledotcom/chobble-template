@@ -955,7 +955,7 @@ const bugRegressionTests = [
 `;
       const dom = createMockDOM(originalTheme);
       const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
+      const _form = document.getElementById("theme-editor-form");
       const parsed = parseThemeContent(originalTheme);
 
       const oldGlobalBorder = parsed.root["--border"];

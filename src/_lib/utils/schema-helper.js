@@ -129,7 +129,7 @@ function buildPostMeta(data) {
 function buildOrganizationMeta(data) {
   const meta = buildBaseMeta(data);
 
-  if (data.metaComputed && data.metaComputed.organization) {
+  if (data.metaComputed?.organization) {
     meta.organization = data.metaComputed.organization;
   }
 

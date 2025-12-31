@@ -9,7 +9,7 @@ import {
 
 // Configuration
 const MAX_WORDS = 4;
-const PREFERRED_WORDS = 3;
+const _PREFERRED_WORDS = 3;
 
 // External APIs we can't control (only those exceeding 4 words)
 const IGNORED_IDENTIFIERS = new Set([
@@ -56,8 +56,7 @@ const extractCamelCaseIdentifiers = (source) => {
   // This catches: variableNames, functionNames, methodNames
   const camelCasePattern = /\b([a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*)\b/g;
 
-  let match;
-  while ((match = camelCasePattern.exec(noComments)) !== null) {
+  for (const match of noComments.matchAll(camelCasePattern)) {
     identifiers.add(match[1]);
   }
 
@@ -136,7 +135,7 @@ const violationCount = Object.keys(violations).length;
 
 // Log violations for visibility
 if (violationCount > 0) {
-  console.log("\n" + formatViolations(violations) + "\n");
+  console.log(`\n${formatViolations(violations)}\n`);
 }
 
 const testCases = [

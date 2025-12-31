@@ -70,7 +70,7 @@ const logRequest = (origin, message) => {
 };
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({
     status: "ok",
     hosts: SITE_HOSTS,
@@ -250,7 +250,7 @@ app.post(
 // ============================================
 
 // Cache PayPal access token
-let state = { token: null, expiry: 0 };
+const state = { token: null, expiry: 0 };
 
 async function getPaypalToken() {
   // Return cached token if still valid (with 60s buffer)

@@ -3,8 +3,8 @@
  * Run with: pnpm test
  */
 
-const http = require("http");
-const assert = require("assert");
+const http = require("node:http");
+const assert = require("node:assert");
 
 // Set required env vars before importing server
 process.env.SITE_HOST = "site1.example.com,site2.example.com";
@@ -63,7 +63,9 @@ async function fetch(url, options = {}) {
 
     const req = http.request(reqOptions, (res) => {
       let data = "";
-      res.on("data", (chunk) => (data += chunk));
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
       res.on("end", () => {
         resolve({
           status: res.statusCode,
@@ -110,10 +112,6 @@ async function setup() {
   await new Promise((resolve) => {
     server = app.listen(SERVER_PORT, resolve);
   });
-
-  console.log(`Test server running on port ${SERVER_PORT}`);
-  console.log(`Mock SKU server 1 on port ${MOCK_SKU_PORT_1}`);
-  console.log(`Mock SKU server 2 on port ${MOCK_SKU_PORT_2}`);
 }
 
 async function teardown() {
@@ -359,28 +357,21 @@ const tests = [
 // ============================================
 
 async function runTests() {
-  console.log("\n=== Running ecommerce-backend tests ===\n");
-
   await setup();
 
-  let passed = 0;
+  let _passed = 0;
   let failed = 0;
 
   for (const test of tests) {
     try {
       await test.run();
-      console.log(`  PASS: ${test.name}`);
-      passed++;
-    } catch (error) {
-      console.error(`  FAIL: ${test.name}`);
-      console.error(`        ${error.message}`);
+      _passed++;
+    } catch (_error) {
       failed++;
     }
   }
 
   await teardown();
-
-  console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`);
 
   if (failed > 0) {
     process.exit(1);

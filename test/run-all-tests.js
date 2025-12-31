@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { spawnSync } from "child_process";
-import { readdir, stat } from "fs/promises";
-import { dirname, join, relative, resolve } from "path";
-import { fileURLToPath } from "url";
+import { spawnSync } from "node:child_process";
+import { readdir, stat } from "node:fs/promises";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -120,12 +120,12 @@ async function runAllTests() {
     );
 
     if (failedTests.length > 0) {
-      console.log("\n" + "=".repeat(50));
+      console.log(`\n${"=".repeat(50)}`);
       console.log("FAILURES");
       console.log("=".repeat(50));
       for (const { file, stdout, stderr } of failedTests) {
         console.log(`\n❌ ${file}`);
-        const output = (stdout + "\n" + stderr)
+        const output = `${stdout}\n${stderr}`
           .replace(/__TEST_RESULTS__:\d+:\d+\n?/, "")
           .trim();
         if (output) {
@@ -134,7 +134,7 @@ async function runAllTests() {
       }
     }
   } else {
-    console.log("\n" + "=".repeat(50));
+    console.log(`\n${"=".repeat(50)}`);
     console.log("TEST SUMMARY");
     console.log("=".repeat(50));
     console.log(`✅ Files: ${filesPassed}/${testFiles.length}`);
@@ -145,7 +145,9 @@ async function runAllTests() {
 
     if (failedTests.length > 0) {
       console.log("\nFailed files:");
-      failedTests.forEach(({ file }) => console.log(`  - ${file}`));
+      for (const { file } of failedTests) {
+        console.log(`  - ${file}`);
+      }
     }
   }
 

@@ -142,10 +142,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "isAllowedLine",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
+  // unused-classes.test.js - helper to add classes from string
+  "addClasses",
 ]);
-
-// Maximum lines for a function in a test file before it's suspicious
-const MAX_TEST_HELPER_LINES = 15;
 
 /**
  * Extract function definitions from source code.
@@ -192,51 +191,6 @@ const extractFunctionDefinitions = (source) => {
   }
 
   return functions;
-};
-
-/**
- * Check if a function body contains test-related code.
- * Returns true if it looks like a test helper (uses assertions, mocks, etc.)
- */
-const isTestHelper = (source, funcName, startLine, lineCount) => {
-  const lines = source
-    .split("\n")
-    .slice(startLine - 1, startLine - 1 + lineCount);
-  const funcBody = lines.join("\n");
-
-  // Test-related keywords that indicate this is test code
-  const testKeywords = [
-    "assert",
-    "expect",
-    "mock",
-    "stub",
-    "spy",
-    "test",
-    "describe",
-    "it(",
-    "beforeEach",
-    "afterEach",
-    "JSDOM",
-    "createMock",
-  ];
-
-  return testKeywords.some((keyword) => funcBody.includes(keyword));
-};
-
-/**
- * Get all source function names from src directory
- */
-const getSourceFunctionNames = () => {
-  const names = new Set();
-
-  for (const relativePath of SRC_JS_FILES) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const funcs = extractFunctionDefinitions(source);
-    funcs.forEach((f) => names.add(f.name));
-  }
-
-  return names;
 };
 
 /**

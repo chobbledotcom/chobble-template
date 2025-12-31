@@ -6,9 +6,9 @@
  * Usage: node src/_lib/scripts/add-skus.js [--dry-run]
  */
 
-import fs from "fs";
+import fs from "node:fs";
+import path from "node:path";
 import matter from "gray-matter";
-import path from "path";
 
 const PRODUCTS_DIR = "src/products";
 const SKU_LENGTH = 6;

@@ -2,12 +2,12 @@
 // Tests the complete checkout flow with mocked Stripe API
 // Uses actual cart-utils.js and renders real Liquid templates
 
-import assert from "assert";
-import fs from "fs";
+import assert from "node:assert";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
-import path from "path";
-import { fileURLToPath } from "url";
 // Import actual cart utilities
 import {
   attachQuantityHandlers,
@@ -1592,7 +1592,7 @@ const testCases = [
         ]);
 
         // Simulate updateQuantity to 0 (which triggers removeItem)
-        const cart = getCart();
+        const _cart = getCart();
         const newQuantity = 0;
         if (newQuantity <= 0) {
           removeItem("Remove");
@@ -2008,7 +2008,10 @@ const testCases = [
 
       // Simulate selecting an option (matches cart.js change handler)
       select.selectedIndex = 1; // Select "Small" (index 0 in options array)
-      const optionIndex = parseInt(select.options[select.selectedIndex].value);
+      const optionIndex = parseInt(
+        select.options[select.selectedIndex].value,
+        10,
+      );
       const option = itemData.options[optionIndex];
 
       // Apply the selection to button (simulating cart.js change handler)
