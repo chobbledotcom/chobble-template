@@ -193,13 +193,9 @@ const normalizeFilters = (filters) => {
  */
 const countMatchingItems = (items, itemAttrMap, filters) => {
   const normalizedFilters = normalizeFilters(filters);
-  let count = 0;
-  for (const item of items) {
-    if (attrsMatch(itemAttrMap.get(item), normalizedFilters)) {
-      count++;
-    }
-  }
-  return count;
+  return items.filter((item) =>
+    attrsMatch(itemAttrMap.get(item), normalizedFilters)
+  ).length;
 };
 
 /**
