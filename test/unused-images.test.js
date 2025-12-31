@@ -33,7 +33,9 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
@@ -56,7 +58,9 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
@@ -81,7 +85,9 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
@@ -118,11 +124,15 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
-        logs.some((log) => log.includes("All images in /src/images/ are being used")),
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
         "Should report all images are used",
       );
 
@@ -152,7 +162,9 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       const logOutput = logs.join("\n");
@@ -161,10 +173,7 @@ const testCases = [
         logOutput.includes("Unused Images Report"),
         "Should show unused images report",
       );
-      expectTrue(
-        logOutput.includes("unused.png"),
-        "Should list unused.png",
-      );
+      expectTrue(logOutput.includes("unused.png"), "Should list unused.png");
       expectTrue(
         logOutput.includes("also-unused.gif"),
         "Should list also-unused.gif",
@@ -179,7 +188,8 @@ const testCases = [
   },
   {
     name: "various-image-extensions",
-    description: "Detects images with various extensions (jpg, jpeg, png, gif, webp, svg)",
+    description:
+      "Detects images with various extensions (jpg, jpeg, png, gif, webp, svg)",
     asyncTest: async () => {
       const tempDir = createTempDir("unused-images-extensions");
       const imagesDir = path.join(tempDir, "images");
@@ -198,7 +208,9 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       const logOutput = logs.join("\n");
@@ -234,11 +246,15 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
-        logs.some((log) => log.includes("All images in /src/images/ are being used")),
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
         "Should find image reference in nested markdown",
       );
 
@@ -265,11 +281,15 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
-        logs.some((log) => log.includes("All images in /src/images/ are being used")),
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
         "Should detect image reference by filename alone",
       );
 
@@ -304,11 +324,15 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       expectTrue(
-        logs.some((log) => log.includes("All images in /src/images/ are being used")),
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
         "Should count image as used even with multiple references",
       );
 
@@ -330,7 +354,9 @@ const testCases = [
       configureUnusedImages(mockConfig);
 
       const logs = await captureConsoleLogAsync(async () => {
-        await mockConfig.eventHandlers["eleventy.after"]({ dir: { input: tempDir } });
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
       });
 
       const logOutput = logs.join("\n");
