@@ -134,6 +134,17 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findHardcodedUrls",
   "analyzeHardcodedUrls",
   "isAllowedLine",
+  // autosizes.test.js - JSDOM test helpers
+  "createMockBrowserEnv",
+  "createImage",
+  "executeAutosizesScript",
+  // autosizes.test.js - functions inside template string (polyfill code being tested)
+  "polyfillAutoSizes",
+  "elemWidth",
+  "calculateAndSetSizes",
+  "deferImages",
+  "restoreImageAttributes",
+  "initAutosizes",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious
