@@ -1,4 +1,4 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
+import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
@@ -67,7 +67,7 @@ const analyzeLetUsage = () => {
   const violations = [];
   const warnings = [];
 
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES];
+  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES];
   for (const relativePath of allJsFiles) {
     // Skip allowed files entirely
     if (ALLOWED_FILES.has(relativePath)) continue;
