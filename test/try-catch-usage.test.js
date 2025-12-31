@@ -83,11 +83,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/_lib/eleventy/recurring-events.js - date parsing
   "src/_lib/eleventy/recurring-events.js:49",
 
-  // src/_lib/utils/canonical-url.js - URL parsing
+  // src/_lib/utils/canonical-url.js - URL parsing from user-edited site.json config
+  // Needed: new URL() can throw ERR_INVALID_URL for malformed config values.
+  // The try/catch converts cryptic Node errors into user-friendly messages.
   "src/_lib/utils/canonical-url.js:17",
-
-  // src/_lib/filters/spec-filters.js - spec filtering
-  "src/_lib/filters/spec-filters.js:15",
 ]);
 
 /**
