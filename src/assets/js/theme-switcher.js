@@ -41,16 +41,13 @@ const themeFonts = {
 
 function loadFontForTheme(themeName) {
   const fontLinkId = "theme-font-link";
-  let fontLink = document.getElementById(fontLinkId);
 
   // Remove existing font link if present
-  if (fontLink) {
-    fontLink.remove();
-  }
+  document.getElementById(fontLinkId)?.remove();
 
   // Add font link if theme has a custom font
   if (themeFonts[themeName]) {
-    fontLink = document.createElement("link");
+    const fontLink = document.createElement("link");
     fontLink.id = fontLinkId;
     fontLink.rel = "stylesheet";
     fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeName]}`;
