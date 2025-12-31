@@ -26,4 +26,11 @@ const buildPermalink = (data, dir) => {
 const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
-export { normaliseSlug, buildPermalink, buildPdfFilename };
+// Convert a slug to title case (e.g., "90s-computer" -> "90s Computer")
+const slugToTitle = (slug) =>
+  slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+export { normaliseSlug, buildPermalink, buildPdfFilename, slugToTitle };
