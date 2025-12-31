@@ -91,6 +91,10 @@ const createMockEleventyConfig = () => ({
     this.passthroughCopies = this.passthroughCopies || [];
     this.passthroughCopies.push(path);
   },
+  on: function (eventName, handler) {
+    this.eventHandlers = this.eventHandlers || {};
+    this.eventHandlers[eventName] = handler;
+  },
   resolvePlugin: (pluginName) => {
     // Return a mock plugin function that does nothing
     return function mockPlugin(config, options) {
@@ -113,6 +117,25 @@ const createMockEleventyConfig = () => ({
   },
   pathPrefix: "/",
 });
+
+// Console capture utilities for testing output
+const captureConsoleLog = (fn) => {
+  const logs = [];
+  const originalLog = console.log;
+  console.log = (...args) => logs.push(args.join(" "));
+  fn();
+  console.log = originalLog;
+  return logs;
+};
+
+const captureConsoleLogAsync = async (fn) => {
+  const logs = [];
+  const originalLog = console.log;
+  console.log = (...args) => logs.push(args.join(" "));
+  await fn();
+  console.log = originalLog;
+  return logs;
+};
 
 const createTempDir = (testName, suffix = "") => {
   const dirName = `temp-${testName}${suffix ? "-" + suffix : ""}`;
@@ -387,6 +410,8 @@ export {
   SRC_SCSS_FILES,
   TEST_FILES,
   createMockEleventyConfig,
+  captureConsoleLog,
+  captureConsoleLogAsync,
   createTempDir,
   createTempFile,
   createTempSnippetsDir,

@@ -32,7 +32,7 @@ function runCoverage() {
     "--branches",
     String(limits.branches),
     "--reporter=text",
-    "--reporter=json",
+    "--reporter=json-summary",
     "--report-dir=coverage",
     "node",
     "test/run-all-tests.js",
