@@ -24,7 +24,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+(ELEMENTS|PREVIOUS_GLOBAL_VARS)\s*=\s*null/, // theme-editor.js state
   /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
   /^let\s+currentPopupIndex\s*=/, // gallery.js state
-  /^let\s+totalImages\s*=/, // gallery.js state
   /^let\s+(cachedConfig|cachedSite)\s*=\s*null/, // Caching pattern
   /^let\s+(userStrings|userIcons)\s*=\s*\{\}/, // Try/catch assignment pattern
   /^let\s+storedCollections\s*=\s*null/, // pdf.js state

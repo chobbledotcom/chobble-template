@@ -10,7 +10,9 @@ const SVG_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 
 let gallery, currentImage, imagePopup;
 let currentPopupIndex = 1;
-let totalImages = 0;
+
+const getTotalImages = () =>
+  document.querySelectorAll('[class^="full-image-"]').length;
 
 const loadImage = (event) => {
   const imageLink = event.target.closest(".image-link");
@@ -56,12 +58,13 @@ const updatePopupImage = (index) => {
   const prev = imagePopup.querySelector(".popup-nav-prev");
   const next = imagePopup.querySelector(".popup-nav-next");
   if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
-  if (next) next.style.visibility = index >= totalImages ? "hidden" : "visible";
+  if (next)
+    next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
 };
 
 const navigatePopup = (direction) => {
   const newIndex = currentPopupIndex + direction;
-  if (newIndex >= 1 && newIndex <= totalImages) {
+  if (newIndex >= 1 && newIndex <= getTotalImages()) {
     updatePopupImage(newIndex);
   }
 };
@@ -69,6 +72,7 @@ const navigatePopup = (direction) => {
 const openPopup = () => {
   const image = currentImage.querySelector(".image-wrapper");
 
+  const totalImages = getTotalImages();
   const prevHidden = currentPopupIndex <= 1 ? 'style="visibility: hidden"' : "";
   const nextHidden =
     currentPopupIndex >= totalImages ? 'style="visibility: hidden"' : "";
@@ -113,7 +117,7 @@ const handlePopupClick = (event) => {
 };
 
 const handleKeydown = (event) => {
-  if (!imagePopup.open || totalImages <= 1) return;
+  if (!imagePopup.open || getTotalImages() <= 1) return;
 
   if (event.key === "ArrowLeft") {
     event.preventDefault();
@@ -128,10 +132,6 @@ const initGallery = () => {
   gallery = document.getElementById("gallery");
   currentImage = document.querySelector(".current-image");
   imagePopup = document.getElementById("image-popup");
-
-  // Count total images
-  const fullImages = document.querySelectorAll('[class^="full-image-"]');
-  totalImages = fullImages.length;
 
   // Thumbnail gallery switching (only if multiple images)
   if (gallery && currentImage) {
