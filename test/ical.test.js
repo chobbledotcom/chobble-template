@@ -5,7 +5,7 @@ import {
   expectFunctionType,
   expectStrictEqual,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   // eventIcal - returns null when no ical_url

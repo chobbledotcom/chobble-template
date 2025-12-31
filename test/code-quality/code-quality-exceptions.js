@@ -39,10 +39,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/availability-calendar.js - fetch error handling
   "src/assets/js/availability-calendar.js:132",
 
-  // src/assets/js/cart.js - localStorage and fetch handling
-  "src/assets/js/cart.js:132",
-  "src/assets/js/cart.js:181",
-  "src/assets/js/cart.js:496",
+  // src/assets/js/cart.js - JSON parsing and fetch handling
+  "src/assets/js/cart.js:121",
+  "src/assets/js/cart.js:157",
+  "src/assets/js/cart.js:426",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
@@ -51,32 +51,25 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
 
-  // test/scss.test.js - SCSS compilation tests
-  "test/scss.test.js:42",
-  "test/scss.test.js:208",
-
-  // test/navigation.test.js - navigation tests
-  "test/navigation.test.js:80",
-
   // src/assets/js/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/assets/js/cart-utils.js:12",
+  "src/assets/js/cart-utils.js:11",
 
   // test/checkout.test.js - checkout flow tests
-  "test/checkout.test.js:235",
-  "test/checkout.test.js:283",
-  "test/checkout.test.js:344",
-  "test/checkout.test.js:378",
-  "test/checkout.test.js:420",
-  "test/checkout.test.js:486",
-  "test/checkout.test.js:535",
-  "test/checkout.test.js:587",
-  "test/checkout.test.js:612",
-  "test/checkout.test.js:647",
-  "test/checkout.test.js:687",
-  "test/checkout.test.js:725",
-  "test/checkout.test.js:764",
+  "test/checkout.test.js:234",
+  "test/checkout.test.js:282",
+  "test/checkout.test.js:343",
+  "test/checkout.test.js:377",
+  "test/checkout.test.js:419",
+  "test/checkout.test.js:485",
+  "test/checkout.test.js:534",
+  "test/checkout.test.js:586",
+  "test/checkout.test.js:611",
+  "test/checkout.test.js:646",
+  "test/checkout.test.js:686",
+  "test/checkout.test.js:724",
+  "test/checkout.test.js:763",
 
   // test/file-utils.test.js - file utility tests
   "test/file-utils.test.js:85",
@@ -84,10 +77,39 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/file-utils.test.js:265",
 
   // test/cpd.test.js - running external tool and capturing exit code
-  "test/cpd.test.js:12",
+  "test/cpd.test.js:16",
 
   // test/knip.test.js - running external tool and capturing exit code
-  "test/knip.test.js:12",
+  "test/knip.test.js:16",
 ]);
 
-export { ALLOWED_MUTABLE_VAR_FILES, ALLOWED_LET_PATTERNS, ALLOWED_TRY_CATCHES };
+// ============================================
+// .then() usage exceptions
+// ============================================
+
+const ALLOWED_THEN_USAGE = new Set([
+  // src/assets/js/availability-calendar.js - fetch chain
+  "src/assets/js/availability-calendar.js:133",
+]);
+
+// ============================================
+// console.log exceptions
+// ============================================
+
+// Files allowed to use console.log (CLI scripts, tools, etc.)
+// Production code should use console.error for user-facing error messages
+const ALLOWED_CONSOLE_LOG_FILES = new Set([
+  "src/_lib/scripts/add-skus.js", // CLI script - needs stdout output
+  "src/_lib/media/unused-images.js", // CLI script - reports unused images
+  "src/_lib/eleventy/pdf.js", // Build-time logging
+  "ecommerce-backend/server.js", // Server startup messages
+  "bin/profile", // CLI profiling tool
+]);
+
+export {
+  ALLOWED_MUTABLE_VAR_FILES,
+  ALLOWED_LET_PATTERNS,
+  ALLOWED_TRY_CATCHES,
+  ALLOWED_THEN_USAGE,
+  ALLOWED_CONSOLE_LOG_FILES,
+};

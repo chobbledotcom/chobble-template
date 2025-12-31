@@ -1,5 +1,9 @@
 import { execSync } from "child_process";
-import { createTestRunner, expectStrictEqual, rootDir } from "./test-utils.js";
+import {
+  createTestRunner,
+  expectStrictEqual,
+  rootDir,
+} from "#test/test-utils.js";
 
 const testCases = [
   {

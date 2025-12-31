@@ -3,7 +3,7 @@ import {
   GLOBAL_INPUTS,
   getScopes,
   SCOPED_INPUTS,
-} from "../src/assets/js/theme-editor-config.js";
+} from "#assets/theme-editor-config.js";
 import {
   filterScopeVars,
   generateThemeCss,
@@ -13,14 +13,14 @@ import {
   SCOPE_SELECTORS,
   SCOPES,
   shouldIncludeScopedVar,
-} from "../src/assets/js/theme-editor-lib.js";
+} from "#assets/theme-editor-lib.js";
 import {
   createTestRunner,
   expectDeepEqual,
   expectFalse,
   expectStrictEqual,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 // ============================================
 // Unit Tests - Core parsing functions

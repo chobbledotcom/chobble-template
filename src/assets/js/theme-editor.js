@@ -1,4 +1,4 @@
-import { onReady } from "./on-ready.js";
+import { onReady } from "#assets/on-ready.js";
 import {
   generateThemeCss,
   parseBorderValue,
@@ -6,7 +6,7 @@ import {
   SCOPE_SELECTORS,
   SCOPES,
   shouldIncludeScopedVar,
-} from "./theme-editor-lib.js";
+} from "#assets/theme-editor-lib.js";
 
 let state = null; // Previous global vars for cascade comparison
 

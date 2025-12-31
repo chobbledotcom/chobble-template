@@ -7,7 +7,7 @@ import {
   rootDir,
   SRC_JS_FILES,
   TEST_FILES,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 /**
  * Find all .then() calls in a file

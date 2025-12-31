@@ -8,8 +8,6 @@ import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { buildJsConfigScript } from "../src/_lib/eleventy/js-config.js";
-
 // Import actual cart utilities
 import {
   attachQuantityHandlers,
@@ -24,8 +22,9 @@ import {
   saveCart,
   updateCartIcon,
   updateItemQuantity,
-} from "../src/assets/js/cart-utils.js";
-import { createTestRunner } from "./test-utils.js";
+} from "#assets/cart-utils.js";
+import { buildJsConfigScript } from "#eleventy/js-config.js";
+import { createTestRunner } from "#test/test-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -273,27 +272,27 @@ const testCases = [
   },
   {
     name: "cart-utils-getCart-handles-corrupt-data",
-    description: "getCart warns and returns empty array for corrupt JSON",
+    description: "getCart logs error and returns empty array for corrupt JSON",
     test: () => {
       withMockStorage((storage) => {
         storage.setItem(STORAGE_KEY, "not valid json {{{");
-        const warnings = [];
-        const originalWarn = console.warn;
-        console.warn = (...args) => warnings.push(args);
+        const errors = [];
+        const originalError = console.error;
+        console.error = (...args) => errors.push(args);
         try {
           const cart = getCart();
           assert.deepStrictEqual(cart, []);
           assert.strictEqual(
-            warnings.length,
+            errors.length,
             1,
-            "Expected one warning to be logged",
+            "Expected one error to be logged",
           );
           assert.ok(
-            warnings[0][0].includes("parse error"),
-            "Warning should mention parse error",
+            errors[0][0].includes("Failed to parse"),
+            "Error should mention failed to parse",
           );
         } finally {
-          console.warn = originalWarn;
+          console.error = originalError;
         }
       });
     },

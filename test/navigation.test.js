@@ -9,7 +9,7 @@ import {
   expectFunctionType,
   expectStrictEqual,
   expectThrows,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   {
@@ -77,20 +77,9 @@ const testCases = [
       const filter = createNavigationFilter(mockEleventyConfig);
       // Just test that it handles collections without throwing, since real navUtil
       // requires collection to be processed by eleventyNavigation filter first
-      try {
-        filter([], "home"); // Empty collection should work
-        expectStrictEqual(
-          true,
-          true,
-          "Should handle collections without error",
-        );
-      } catch (error) {
-        expectStrictEqual(
-          false,
-          true,
-          `Should not throw error: ${error.message}`,
-        );
-      }
+      // If this throws, the test will fail - no need to catch
+      filter([], "home"); // Empty collection should work
+      expectStrictEqual(true, true, "Should handle collections without error");
     },
   },
   {
