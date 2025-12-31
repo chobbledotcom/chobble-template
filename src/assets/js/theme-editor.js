@@ -8,8 +8,10 @@ import {
   shouldIncludeScopedVar,
 } from "./theme-editor-lib.js";
 
-let ELEMENTS = null;
-let PREVIOUS_GLOBAL_VARS = null; // Stored for cascade comparison
+let state = {
+  ELEMENTS: null,
+  PREVIOUS_GLOBAL_VARS: null, // Stored for cascade comparison
+};
 
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
@@ -29,9 +31,9 @@ const ThemeEditor = {
     if (!form || !output) return;
 
     // Skip if already initialized
-    if (ELEMENTS) return;
+    if (state.ELEMENTS) return;
 
-    ELEMENTS = {
+    state.ELEMENTS = {
       form,
       output,
       downloadBtn: document.getElementById("download-theme"),
@@ -45,19 +47,21 @@ const ThemeEditor = {
   },
 
   formEl(id) {
-    return ELEMENTS.form.querySelector(`#${id}`);
+    return state.ELEMENTS.form.querySelector(`#${id}`);
   },
 
   formQuery(selector) {
-    return ELEMENTS.form.querySelectorAll(selector);
+    return state.ELEMENTS.form.querySelectorAll(selector);
   },
 
   initTabNavigation() {
-    ELEMENTS.tabLinks.forEach((tabLink) => {
+    state.ELEMENTS.tabLinks.forEach((tabLink) => {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
-        ELEMENTS.tabLinks.forEach((link) => link.classList.remove("active"));
-        ELEMENTS.tabContents.forEach((content) =>
+        state.ELEMENTS.tabLinks.forEach((link) =>
+          link.classList.remove("active"),
+        );
+        state.ELEMENTS.tabContents.forEach((content) =>
           content.classList.remove("active"),
         );
         tabLink.classList.add("active");
@@ -68,7 +72,7 @@ const ThemeEditor = {
   },
 
   initControlsFromTheme() {
-    const parsed = parseThemeContent(ELEMENTS.output.value);
+    const parsed = parseThemeContent(state.ELEMENTS.output.value);
 
     // Initialize global :root variables
     this.initGlobalControls(parsed.root);
@@ -96,7 +100,7 @@ const ThemeEditor = {
 
     // Capture initial global values for cascade comparison
     // This must happen AFTER all controls are initialized
-    PREVIOUS_GLOBAL_VARS = this.captureCurrentGlobalVars();
+    state.PREVIOUS_GLOBAL_VARS = this.captureCurrentGlobalVars();
   },
 
   /**
@@ -314,8 +318,10 @@ const ThemeEditor = {
   },
 
   setupEventListeners() {
-    ELEMENTS.downloadBtn.addEventListener("click", () => this.downloadTheme());
-    ELEMENTS.output.addEventListener("input", () => {
+    state.ELEMENTS.downloadBtn.addEventListener("click", () =>
+      this.downloadTheme(),
+    );
+    state.ELEMENTS.output.addEventListener("input", () => {
       this.initControlsFromTheme();
     });
   },
@@ -352,10 +358,10 @@ const ThemeEditor = {
   updateThemeFromControls() {
     const docStyle = getComputedStyle(document.documentElement);
 
-    // Use stored PREVIOUS_GLOBAL_VARS for cascade comparison
+    // Use stored state.PREVIOUS_GLOBAL_VARS for cascade comparison
     // We can't capture "old" values here because border inputs are already updated
     // by their event handlers before this method is called
-    const oldGlobalVars = PREVIOUS_GLOBAL_VARS || {};
+    const oldGlobalVars = state.PREVIOUS_GLOBAL_VARS || {};
 
     // Collect global :root variables
     const globalVars = {};
@@ -376,7 +382,7 @@ const ThemeEditor = {
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
     // Store current global values for next cascade comparison
-    PREVIOUS_GLOBAL_VARS = { ...globalVars };
+    state.PREVIOUS_GLOBAL_VARS = { ...globalVars };
 
     // Collect scoped variables
     const scopeVars = {};
@@ -407,7 +413,7 @@ const ThemeEditor = {
 
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
-    ELEMENTS.output.value = themeText;
+    state.ELEMENTS.output.value = themeText;
   },
 
   /**
@@ -488,7 +494,7 @@ const ThemeEditor = {
   },
 
   downloadTheme() {
-    const content = ELEMENTS.output.value;
+    const content = state.ELEMENTS.output.value;
     const blob = new Blob([content], { type: "text/css" });
     const url = URL.createObjectURL(blob);
 

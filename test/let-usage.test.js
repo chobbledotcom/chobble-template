@@ -152,7 +152,6 @@ const d = "not a declaration";
     description: "Allowed patterns correctly match exempted let usage",
     test: () => {
       const allowedLines = [
-        "let ELEMENTS = null;",
         "let gallery, currentImage, imagePopup;",
         "let state = null;",
       ];
