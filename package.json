@@ -30,6 +30,7 @@
 	"devDependencies": {
 		"esbuild": "^0.27.0",
 		"jscpd": "^4.0.5",
+		"jsdom": "^27.4.0",
 		"knip": "^5.38.0",
 		"npm-run-all2": "^8.0.4"
 	},
@@ -46,7 +47,6 @@
 		"fast-glob": "^3.3.2",
 		"gray-matter": "^4.0.3",
 		"ical-generator": "^9.0.0",
-		"jsdom": "^26.1.0",
 		"json-to-pdf": "^0.1.2",
 		"liquidjs": "^10.24.0",
 		"markdown-it": "^14.1.0",
