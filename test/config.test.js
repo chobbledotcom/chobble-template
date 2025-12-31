@@ -9,7 +9,7 @@ import {
   getProducts,
   VALID_CART_MODES,
   validateCartConfig,
-} from "#data/config.js";
+} from "#config/helpers.js";
 import {
   cleanupTempDir,
   createTempDir,
@@ -453,6 +453,51 @@ Content here`;
       // Should not throw
       validateCartConfig(config);
       expectTrue(true, "Should not throw for valid paypal config");
+    },
+  },
+
+  // Integration test: verify config data file exports default function
+  {
+    name: "config-data-file-exports-function",
+    description: "config.js data file exports a default function for Eleventy",
+    test: async () => {
+      const configModule = await import("#data/config.js");
+      expectStrictEqual(
+        typeof configModule.default,
+        "function",
+        "config.js should export a default function",
+      );
+      // Verify it only has default export (no named exports that would break Eleventy)
+      const exportNames = Object.keys(configModule);
+      expectStrictEqual(
+        exportNames.length,
+        1,
+        "config.js should only have default export to work with Eleventy data cascade",
+      );
+      expectStrictEqual(
+        exportNames[0],
+        "default",
+        "config.js export should be named 'default'",
+      );
+    },
+  },
+  {
+    name: "config-data-file-returns-form-target",
+    description:
+      "config.js returns computed form_target when formspark_id is set",
+    test: () => {
+      // Test that getFormTarget properly computes form_target
+      // This ensures the config data file will return form_target to templates
+      const configWithFormspark = {
+        formspark_id: "abc123",
+        contact_form_target: null,
+      };
+      const result = getFormTarget(configWithFormspark);
+      expectStrictEqual(
+        result,
+        "https://submit-form.com/abc123",
+        "form_target should be computed from formspark_id",
+      );
     },
   },
 ];

@@ -7,6 +7,7 @@
 		"#data/*": "./src/_data/*",
 		"#lib/*": "./src/_lib/*",
 		"#collections/*": "./src/_lib/collections/*",
+		"#config/*": "./src/_lib/config/*",
 		"#filters/*": "./src/_lib/filters/*",
 		"#eleventy/*": "./src/_lib/eleventy/*",
 		"#build/*": "./src/_lib/build/*",

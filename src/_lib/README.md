@@ -8,6 +8,7 @@ This directory contains all JavaScript modules for the Eleventy build system, or
 _lib/
 ├── build/          # Build tooling (esbuild, SCSS compilation)
 ├── collections/    # Domain collections (products, events, etc.)
+├── config/         # Configuration helpers (used by data files)
 ├── eleventy/       # Eleventy-specific plugins and config helpers
 ├── filters/        # URL-based filtering system for products/properties
 ├── media/          # Image processing and asset handling
@@ -29,10 +30,11 @@ import config from "#data/config.json" with { type: "json" };
 Available aliases:
 - `#data/*` - `./src/_data/*`
 - `#lib/*` - `./src/_lib/*`
-- `#collections/*` - `./src/_lib/collections/*`
-- `#filters/*` - `./src/_lib/filters/*`
-- `#eleventy/*` - `./src/_lib/eleventy/*`
 - `#build/*` - `./src/_lib/build/*`
+- `#collections/*` - `./src/_lib/collections/*`
+- `#config/*` - `./src/_lib/config/*`
+- `#eleventy/*` - `./src/_lib/eleventy/*`
+- `#filters/*` - `./src/_lib/filters/*`
 - `#media/*` - `./src/_lib/media/*`
 - `#utils/*` - `./src/_lib/utils/*`
 
@@ -68,6 +70,10 @@ Domain-specific collections and their associated filters:
 - `navigation.js` - Site navigation
 - `search.js` - Product keyword search
 - `tags.js` - Tag extraction
+
+#### `config/`
+Configuration helpers separated from data files (required because Eleventy data files cannot have named exports):
+- `helpers.js` - Config defaults, validation, and form_target computation
 
 #### `eleventy/`
 Eleventy-specific configuration helpers:
