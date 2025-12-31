@@ -240,10 +240,10 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
 }
 
 export function configurePdf(eleventyConfig) {
-  const state = { collections: null };
+  let storedCollections = null;
 
   eleventyConfig.addCollection("_pdfMenuData", (collectionApi) => {
-    state.collections = {
+    storedCollections = {
       menus: collectionApi.getFilteredByTag("menu"),
       menuCategories: collectionApi.getFilteredByTag("menu_category"),
       menuItems: collectionApi.getFilteredByTag("menu_item"),
@@ -252,12 +252,12 @@ export function configurePdf(eleventyConfig) {
   });
 
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    if (!state.collections) {
+    if (!storedCollections) {
       console.log("No menu collections found, skipping PDF generation");
       return;
     }
 
-    const { menus, menuCategories, menuItems } = state.collections;
+    const { menus, menuCategories, menuItems } = storedCollections;
 
     if (!menus || menus.length === 0) {
       console.log("No menus found, skipping PDF generation");

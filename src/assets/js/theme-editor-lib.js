@@ -51,13 +51,11 @@ export function parseThemeContent(themeContent) {
 
   // Parse scoped blocks (header, nav, article, form, button)
   SCOPES.forEach((scope) => {
-    let pattern;
-    if (scope === "button") {
-      // Handle button which might be multi-line selector
-      pattern = /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/;
-    } else {
-      pattern = new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
-    }
+    // Button has a multi-line selector, other scopes use a simple pattern
+    const pattern =
+      scope === "button"
+        ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
+        : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
     const match = themeContent.match(pattern);
     if (match) {
       result.scopes[scope] = parseCssBlock(match[1]);
