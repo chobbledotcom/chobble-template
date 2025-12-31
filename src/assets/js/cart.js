@@ -20,9 +20,8 @@ import { onReady } from "#assets/on-ready.js";
 const CART_OVERLAY_ID = "cart-overlay";
 const MINIMUM_CHECKOUT_AMOUNT = 0.3; // Stripe requires at least 30p
 
-// Module state
-let documentListenersAttached = false;
-let isEnquiryMode = false;
+// Helper to check if we're in enquiry/quote mode
+const isEnquiryMode = () => Config.cart_mode === "quote";
 
 // Helper to get cart overlay element fresh each time
 const getCartOverlay = () => document.getElementById(CART_OVERLAY_ID);
@@ -78,6 +77,40 @@ const closeCart = () => {
   }
 };
 
+// Render a single cart item as HTML
+const renderCartItem = (item) => `
+  <div class="cart-item" data-name="${escapeHtml(item.item_name)}">
+    <div class="cart-item-info">
+      <div class="cart-item-name">${escapeHtml(item.item_name)}</div>
+      <div class="cart-item-price">${formatPrice(item.unit_price)}</div>
+    </div>
+    <div class="cart-item-controls">
+      ${renderQuantityControls(item)}
+      <button class="cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
+    </div>
+  </div>
+`;
+
+// Update checkout button states based on cart total
+const updateCheckoutButtons = (cartOverlay, total) => {
+  const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
+  const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
+  const minimumMessage = cartOverlay.querySelector(".cart-minimum-message");
+  const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
+
+  if (paypalBtn) paypalBtn.disabled = total === 0;
+
+  if (stripeBtn) {
+    stripeBtn.style.display = isBelowMinimum ? "none" : "";
+    stripeBtn.disabled = isBelowMinimum;
+  }
+
+  if (minimumMessage) {
+    minimumMessage.style.display =
+      isBelowMinimum && total > 0 ? "block" : "none";
+  }
+};
+
 // Update cart display in overlay
 const updateCartDisplay = () => {
   const cartOverlay = getCartOverlay();
@@ -87,57 +120,16 @@ const updateCartDisplay = () => {
   const cartItems = cartOverlay.querySelector(".cart-items");
   const cartEmpty = cartOverlay.querySelector(".cart-empty");
   const cartTotal = cartOverlay.querySelector(".cart-total-amount");
-  const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
-  const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
-  const minimumMessage = cartOverlay.querySelector(".cart-minimum-message");
 
   if (!cartItems) return;
 
   const total = getCartTotal();
-  const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
+  const isEmpty = cart.length === 0;
 
-  if (cart.length === 0) {
-    cartItems.innerHTML = "";
-    if (cartEmpty) cartEmpty.style.display = "block";
-    if (paypalBtn) paypalBtn.disabled = true;
-    if (stripeBtn) {
-      stripeBtn.disabled = true;
-      stripeBtn.style.display = "";
-    }
-    if (minimumMessage) minimumMessage.style.display = "none";
-  } else {
-    if (cartEmpty) cartEmpty.style.display = "none";
-    if (paypalBtn) paypalBtn.disabled = false;
+  cartItems.innerHTML = isEmpty ? "" : cart.map(renderCartItem).join("");
+  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
 
-    if (stripeBtn) {
-      if (isBelowMinimum) {
-        stripeBtn.style.display = "none";
-      } else {
-        stripeBtn.style.display = "";
-        stripeBtn.disabled = false;
-      }
-    }
-    if (minimumMessage) {
-      minimumMessage.style.display = isBelowMinimum ? "block" : "none";
-    }
-
-    cartItems.innerHTML = cart
-      .map(
-        (item) => `
-        <div class="cart-item" data-name="${escapeHtml(item.item_name)}">
-          <div class="cart-item-info">
-            <div class="cart-item-name">${escapeHtml(item.item_name)}</div>
-            <div class="cart-item-price">${formatPrice(item.unit_price)}</div>
-          </div>
-          <div class="cart-item-controls">
-            ${renderQuantityControls(item)}
-            <button class="cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
-          </div>
-        </div>
-      `,
-      )
-      .join("");
-
+  if (!isEmpty) {
     attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
     attachRemoveHandlers(cartItems, ".cart-item-remove", () => {
       updateCartDisplay();
@@ -145,9 +137,8 @@ const updateCartDisplay = () => {
     });
   }
 
-  if (cartTotal) {
-    cartTotal.textContent = formatPrice(getCartTotal());
-  }
+  updateCheckoutButtons(cartOverlay, total);
+  if (cartTotal) cartTotal.textContent = formatPrice(total);
 };
 
 // Update item quantity
@@ -275,123 +266,120 @@ const clearCart = () => {
   updateCartCount();
 };
 
-// Set up event listeners
-const setupEventListeners = () => {
-  const cartOverlay = getCartOverlay();
+// Get the selected option index from a product button
+const getOptionIndex = (button) =>
+  button.classList.contains("product-option-button")
+    ? parseInt(
+        button.parentElement.querySelector(".product-options-select").value,
+        10,
+      )
+    : 0;
 
-  // Overlay-specific listeners (skip in enquiry mode)
-  if (!isEnquiryMode && cartOverlay) {
-    cartOverlay.addEventListener("click", (e) => {
-      if (e.target === cartOverlay) {
-        closeCart();
-      }
-    });
+// Build full item name from base name and option
+const buildFullItemName = (itemName, optionName) =>
+  optionName && optionName !== itemName
+    ? `${itemName} - ${optionName}`
+    : itemName;
 
-    const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
-    if (paypalBtn) {
-      paypalBtn.addEventListener("click", () => checkoutWithPayPal());
-    }
+// Handle product option select change - update button text with price
+const handleOptionChange = (e) => {
+  if (!e.target.classList.contains("product-options-select")) return;
 
-    const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
-    if (stripeBtn) {
-      stripeBtn.addEventListener("click", () => checkoutWithStripe());
-    }
+  const select = e.target;
+  const selectedOption = select.options[select.selectedIndex];
+  const button = select.parentElement.querySelector(".product-option-button");
+
+  if (button && selectedOption && selectedOption.value !== "") {
+    const itemData = JSON.parse(button.dataset.item);
+    const option = itemData.options[parseInt(selectedOption.value, 10)];
+    button.disabled = false;
+    button.textContent = `Add to Cart - £${option.unit_price}`;
   }
+};
 
-  // Document-level listeners using event delegation
-  // Only attach these once since document persists across Turbo navigations
-  if (documentListenersAttached) {
-    return;
+// Handle cart icon click - open cart or navigate to quote page
+const handleCartIconClick = (e) => {
+  if (!e.target.closest(".cart-icon")) return false;
+
+  e.preventDefault();
+  if (isEnquiryMode()) {
+    window.location.href = "/quote/";
+  } else {
+    openCart();
   }
-  documentListenersAttached = true;
+  return true;
+};
 
-  // Product option select change
-  document.addEventListener("change", (e) => {
-    if (e.target.classList.contains("product-options-select")) {
-      const select = e.target;
-      const selectedOption = select.options[select.selectedIndex];
-      const button = select.parentElement.querySelector(
-        ".product-option-button",
-      );
+// Handle add to cart button click
+const handleAddToCart = (e) => {
+  if (!e.target.classList.contains("add-to-cart")) return;
 
-      if (button && selectedOption && selectedOption.value !== "") {
-        try {
-          const itemData = JSON.parse(button.dataset.item);
-          const optionIndex = parseInt(selectedOption.value, 10);
-          const option = itemData.options[optionIndex];
-          button.disabled = false;
-          button.textContent = `Add to Cart - £${option.unit_price}`;
-        } catch (_err) {
-          alert("Error loading product options. Please refresh the page.");
-          button.disabled = false;
-          button.textContent = "Add to Cart";
-        }
-      }
-    }
-  });
+  e.preventDefault();
+  const button = e.target;
 
-  // Click handler using event delegation for add-to-cart and cart icon
-  document.addEventListener("click", (e) => {
-    // Cart icon click - open cart or navigate to quote page
-    if (e.target.closest(".cart-icon")) {
-      e.preventDefault();
-      if (isEnquiryMode) {
-        window.location.href = "/quote/";
-      } else {
-        openCart();
-      }
+  // For product options, validate selection first
+  if (button.classList.contains("product-option-button")) {
+    const select = button.parentElement.querySelector(
+      ".product-options-select",
+    );
+    if (select && select.value === "") {
+      alert("Please select an option");
       return;
     }
+  }
 
-    // Add to cart button click
-    if (e.target.classList.contains("add-to-cart")) {
-      e.preventDefault();
-      const button = e.target;
+  const itemData = JSON.parse(button.dataset.item);
+  const option = itemData.options[getOptionIndex(button)];
+  const fullItemName = buildFullItemName(itemData.name, option.name);
 
-      let itemData;
-      try {
-        itemData = JSON.parse(button.dataset.item);
-      } catch (_err) {
-        alert("Error adding item to cart. Please refresh the page.");
-        return;
-      }
+  if (fullItemName && !Number.isNaN(option.unit_price)) {
+    addItem(
+      fullItemName,
+      option.unit_price,
+      1,
+      option.max_quantity || null,
+      option.sku || null,
+      itemData.specs || null,
+    );
+  }
+};
 
-      let optionIndex = 0;
-      if (button.classList.contains("product-option-button")) {
-        const select = button.parentElement.querySelector(
-          ".product-options-select",
-        );
-        if (select && select.value === "") {
-          alert("Please select an option");
-          return;
-        }
-        optionIndex = parseInt(select.value, 10);
-      }
+// Set up cart overlay listeners (checkout buttons, backdrop click)
+const setupOverlayListeners = () => {
+  const cartOverlay = getCartOverlay();
+  if (isEnquiryMode() || !cartOverlay) return;
 
-      const option = itemData.options[optionIndex];
-      const itemName = itemData.name;
-      const optionName = option.name;
-      const unitPrice = option.unit_price;
-      const maxQuantity = option.max_quantity || null;
-      const sku = option.sku || null;
-      const specs = itemData.specs || null;
-
-      const fullItemName =
-        optionName && optionName !== itemName
-          ? `${itemName} - ${optionName}`
-          : itemName;
-
-      if (fullItemName && !Number.isNaN(unitPrice)) {
-        addItem(fullItemName, unitPrice, 1, maxQuantity, sku, specs);
-      }
-    }
+  cartOverlay.addEventListener("click", (e) => {
+    if (e.target === cartOverlay) closeCart();
   });
+
+  const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
+  if (paypalBtn) paypalBtn.addEventListener("click", checkoutWithPayPal);
+
+  const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
+  if (stripeBtn) stripeBtn.addEventListener("click", checkoutWithStripe);
+};
+
+// Set up document-level event listeners (only once)
+const setupDocumentListeners = () => {
+  if (document.documentElement.dataset.cartListenersAttached) return;
+  document.documentElement.dataset.cartListenersAttached = "true";
+
+  document.addEventListener("change", handleOptionChange);
+  document.addEventListener("click", (e) => {
+    if (handleCartIconClick(e)) return;
+    handleAddToCart(e);
+  });
+};
+
+// Set up all event listeners
+const setupEventListeners = () => {
+  setupOverlayListeners();
+  setupDocumentListeners();
 };
 
 // Setup cart on page load
 const setup = () => {
-  isEnquiryMode = Config.cart_mode === "quote";
-
   // No cart functionality if cart_mode is not set
   if (!Config.cart_mode) {
     return;
@@ -400,7 +388,7 @@ const setup = () => {
   resetProductSelects();
   setupEventListeners();
 
-  if (!isEnquiryMode) {
+  if (!isEnquiryMode()) {
     updateCartDisplay();
   }
   updateCartCount();

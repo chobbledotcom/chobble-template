@@ -21,10 +21,8 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/availability-calendar.js - fetch error handling
   "src/assets/js/availability-calendar.js:132",
 
-  // src/assets/js/cart.js - JSON parsing and fetch handling
-  "src/assets/js/cart.js:235",
-  "src/assets/js/cart.js:318",
-  "src/assets/js/cart.js:352",
+  // src/assets/js/cart.js - PayPal checkout fetch handling
+  "src/assets/js/cart.js:226",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
