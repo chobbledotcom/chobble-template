@@ -72,7 +72,7 @@ const analyzeMutableVarUsage = () => {
     ...SRC_JS_FILES,
     ...ECOMMERCE_JS_FILES,
     ...TEST_FILES,
-  ].filter((f) => f !== "test/let-usage.test.js");
+  ].filter((f) => f !== "test/code-quality/let-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     // Skip fully allowed files

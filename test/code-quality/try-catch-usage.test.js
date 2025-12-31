@@ -51,7 +51,7 @@ const analyzeTryCatchUsage = () => {
     ...SRC_JS_FILES,
     ...ECOMMERCE_JS_FILES,
     ...TEST_FILES,
-  ].filter((f) => f !== "test/try-catch-usage.test.js");
+  ].filter((f) => f !== "test/code-quality/try-catch-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);

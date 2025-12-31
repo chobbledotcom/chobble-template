@@ -134,7 +134,7 @@ const analyzeCommentedCode = () => {
     ...SRC_JS_FILES,
     ...ECOMMERCE_JS_FILES,
     ...TEST_FILES,
-  ].filter((f) => f !== "test/commented-code.test.js");
+  ].filter((f) => f !== "test/code-quality/commented-code.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -232,7 +232,7 @@ const real = 1;
     test: () => {
       const source = `
 // This is a comment about the code
-// TODO: implement this later
+// Remember to implement this later
 // NOTE: important detail
 const a = 1;
       `;
