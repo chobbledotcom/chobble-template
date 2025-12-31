@@ -22,9 +22,9 @@ const ALLOWED_TRY_CATCHES = new Set([
   "src/assets/js/availability-calendar.js:132",
 
   // src/assets/js/cart.js - JSON parsing and fetch handling
-  "src/assets/js/cart.js:121",
-  "src/assets/js/cart.js:156",
-  "src/assets/js/cart.js:423",
+  "src/assets/js/cart.js:235",
+  "src/assets/js/cart.js:318",
+  "src/assets/js/cart.js:352",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",

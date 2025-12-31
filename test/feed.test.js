@@ -51,7 +51,10 @@ const testCases = [
       const content = fs.readFileSync(feedPath, "utf-8");
 
       expectTrue(content.includes("<entry>"), "Should have entry elements");
-      expectTrue(content.includes("</entry>"), "Should have closing entry tags");
+      expectTrue(
+        content.includes("</entry>"),
+        "Should have closing entry tags",
+      );
     },
   },
   {
