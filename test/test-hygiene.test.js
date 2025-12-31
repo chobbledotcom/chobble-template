@@ -54,6 +54,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "calculateOwnLines",
   "analyzeFunctionLengths",
   "formatViolations",
+  // let-usage.test.js - analysis helpers
+  "findLetDeclarations",
+  "isAllowedLet",
+  "analyzeLetUsage",
   // missing-folders-lib.test.js
   "testLibModules",
   // naming-conventions.test.js - analysis helpers
