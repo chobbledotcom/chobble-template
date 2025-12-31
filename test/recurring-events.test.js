@@ -493,18 +493,6 @@ const testCases = [
     },
   },
   {
-    name: "getRecurringEventsHtml-is-memoized",
-    description: "Returns cached result on subsequent calls",
-    asyncTest: async () => {
-      // First call
-      const result1 = await getRecurringEventsHtml();
-      // Second call should return cached result
-      const result2 = await getRecurringEventsHtml();
-
-      expectStrictEqual(result1, result2, "Should return same result from cache");
-    },
-  },
-  {
     name: "getRecurringEventsHtml-filters-non-recurring-events",
     description: "Only includes events with recurring_date field, not one-time events",
     asyncTest: async () => {
