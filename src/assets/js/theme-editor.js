@@ -10,6 +10,12 @@ import {
 
 let state = null; // Previous global vars for cascade comparison
 
+const ELEMENT_IDS = {
+  form: "theme-editor-form",
+  output: "theme-output",
+  download: "download-theme",
+};
+
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
   header: "header",
@@ -24,8 +30,8 @@ const ThemeEditor = {
 
   init() {
     // Only run on theme-editor page
-    if (!document.getElementById("theme-editor-form")) return;
-    if (!document.getElementById("theme-output")) return;
+    if (!document.getElementById(ELEMENT_IDS.form)) return;
+    if (!document.getElementById(ELEMENT_IDS.output)) return;
 
     // Skip if already initialized
     if (this.initialized) return;
@@ -37,11 +43,11 @@ const ThemeEditor = {
   },
 
   formEl(id) {
-    return document.querySelector(`#theme-editor-form #${id}`);
+    return document.querySelector(`#${ELEMENT_IDS.form} #${id}`);
   },
 
   formQuery(selector) {
-    return document.querySelectorAll(`#theme-editor-form ${selector}`);
+    return document.querySelectorAll(`#${ELEMENT_IDS.form} ${selector}`);
   },
 
   initTabNavigation() {
@@ -64,7 +70,7 @@ const ThemeEditor = {
 
   initControlsFromTheme() {
     const parsed = parseThemeContent(
-      document.getElementById("theme-output").value,
+      document.getElementById(ELEMENT_IDS.output).value,
     );
 
     // Initialize global :root variables
@@ -308,10 +314,10 @@ const ThemeEditor = {
 
   setupEventListeners() {
     document
-      .getElementById("download-theme")
+      .getElementById(ELEMENT_IDS.download)
       .addEventListener("click", () => this.downloadTheme());
     document
-      .getElementById("theme-output")
+      .getElementById(ELEMENT_IDS.output)
       .addEventListener("input", () => this.initControlsFromTheme());
   },
 
@@ -399,7 +405,7 @@ const ThemeEditor = {
 
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
-    document.getElementById("theme-output").value = themeText;
+    document.getElementById(ELEMENT_IDS.output).value = themeText;
   },
 
   /**
@@ -480,7 +486,7 @@ const ThemeEditor = {
   },
 
   downloadTheme() {
-    const content = document.getElementById("theme-output").value;
+    const content = document.getElementById(ELEMENT_IDS.output).value;
     const blob = new Blob([content], { type: "text/css" });
     const url = URL.createObjectURL(blob);
 
