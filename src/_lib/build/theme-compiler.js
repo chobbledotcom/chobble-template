@@ -60,7 +60,7 @@ const generateThemeSwitcherContent = memoize(() => {
   // Generate theme list as CSS custom property for JavaScript access
   const themeList = ["default", ...themes.map((t) => t.name)];
   const displayNames = themes.map(
-    (theme) => `  --theme-${theme.name}-name: "${toDisplayName(theme.name)}";`
+    (theme) => `  --theme-${theme.name}-name: "${toDisplayName(theme.name)}";`,
   );
 
   const metadata = `// Theme metadata for JavaScript access

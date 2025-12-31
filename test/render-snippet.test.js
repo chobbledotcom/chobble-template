@@ -99,88 +99,70 @@ const mockConfig = {
 
 // Setup and run tests
 async function runTests() {
-  try {
-    // Create test directories
-    if (!fs.existsSync(testDir)) {
-      fs.mkdirSync(testDir);
+  // Create test directories
+  fs.mkdirSync(snippetsDir, { recursive: true });
+  // Create _layouts directory (required by layout-aliases.js)
+  const layoutsDir = path.join(testDir, "src/_layouts");
+  fs.mkdirSync(layoutsDir, { recursive: true });
+
+  // Create test files
+  testCases.forEach((testCase) => {
+    if (testCase.content !== null) {
+      fs.writeFileSync(
+        path.join(snippetsDir, `${testCase.name}.md`),
+        testCase.content,
+      );
     }
-    if (!fs.existsSync(snippetsDir)) {
-      fs.mkdirSync(snippetsDir, { recursive: true });
+  });
+
+  // Patch process.cwd() for testing
+  const originalCwd = process.cwd;
+  process.cwd = () => testDir;
+
+  // Import and initialize the eleventy config with our mock
+  const eleventyConfigModule = await import("../.eleventy.js");
+  const eleventyConfig = eleventyConfigModule.default;
+  await eleventyConfig(mockConfig);
+
+  console.log(`=== Running ${TEST_NAME} tests ===`);
+
+  // Run each test case
+  for (const testCase of testCases) {
+    const testId = `${TEST_NAME}/${testCase.name}`;
+    const defaultValue = testCase.defaultValue || "";
+
+    const result = await mockConfig.render_snippet(testCase.name, defaultValue);
+    let expected;
+
+    if (testCase.name === "non-existent") {
+      // For non-existent files, the default string is returned directly without markdown rendering
+      expected = defaultValue;
+    } else if (testCase.expectedResult === null) {
+      // Use original content if expectedResult is null
+      expected = md.render(testCase.content);
+    } else {
+      expected =
+        testCase.expectedResult === ""
+          ? md.render("")
+          : md.render(testCase.expectedResult);
     }
-    // Create _layouts directory (required by layout-aliases.js)
-    const layoutsDir = path.join(testDir, "src/_layouts");
-    if (!fs.existsSync(layoutsDir)) {
-      fs.mkdirSync(layoutsDir, { recursive: true });
-    }
 
-    // Create test files
-    testCases.forEach((testCase) => {
-      if (testCase.content !== null) {
-        fs.writeFileSync(
-          path.join(snippetsDir, `${testCase.name}.md`),
-          testCase.content,
-        );
-      }
-    });
+    assert.strictEqual(
+      result,
+      expected,
+      `${testId} failed: ${testCase.description}`,
+    );
+    console.log(`✅ PASS: ${testId} - ${testCase.description}`);
+  }
 
-    // Patch process.cwd() for testing
-    const originalCwd = process.cwd;
-    process.cwd = () => testDir;
+  console.log(`\n✅ All ${TEST_NAME} tests passed!`);
 
-    try {
-      // Import and initialize the eleventy config with our mock
-      const eleventyConfigModule = await import("../.eleventy.js");
-      const eleventyConfig = eleventyConfigModule.default;
-      await eleventyConfig(mockConfig);
+  // Restore original cwd
+  process.cwd = originalCwd;
 
-      console.log(`=== Running ${TEST_NAME} tests ===`);
-
-      // Run each test case
-      for (const testCase of testCases) {
-        const testId = `${TEST_NAME}/${testCase.name}`;
-        const defaultValue = testCase.defaultValue || "";
-
-        const result = await mockConfig.render_snippet(
-          testCase.name,
-          defaultValue,
-        );
-        let expected;
-
-        if (testCase.name === "non-existent") {
-          // For non-existent files, the default string is returned directly without markdown rendering
-          expected = defaultValue;
-        } else if (testCase.expectedResult === null) {
-          // Use original content if expectedResult is null
-          expected = md.render(testCase.content);
-        } else {
-          expected =
-            testCase.expectedResult === ""
-              ? md.render("")
-              : md.render(testCase.expectedResult);
-        }
-
-        assert.strictEqual(
-          result,
-          expected,
-          `${testId} failed: ${testCase.description}`,
-        );
-        console.log(`✅ PASS: ${testId} - ${testCase.description}`);
-      }
-
-      console.log(`\n✅ All ${TEST_NAME} tests passed!`);
-    } finally {
-      // Restore original cwd
-      process.cwd = originalCwd;
-    }
-  } catch (error) {
-    console.error(`❌ Test failed: ${error.message}`);
-    console.error(error.stack);
-    process.exit(1);
-  } finally {
-    // Clean up
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
-    }
+  // Clean up
+  if (fs.existsSync(testDir)) {
+    fs.rmSync(testDir, { recursive: true, force: true });
   }
 }
 

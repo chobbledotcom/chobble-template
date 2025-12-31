@@ -16,7 +16,11 @@ const testCases = [
     description: "Returns empty string for empty array",
     test: () => {
       const result = renderOpeningTimes([]);
-      expectStrictEqual(result, "", "Should return empty string for empty array");
+      expectStrictEqual(
+        result,
+        "",
+        "Should return empty string for empty array",
+      );
     },
   },
   {
@@ -88,7 +92,10 @@ const testCases = [
       const input = [{ day: "Friday", hours: "8am - 4pm" }];
       const result = renderOpeningTimes(input);
 
-      expectTrue(result.startsWith('<ul class="opening-times">'), "Should start with ul");
+      expectTrue(
+        result.startsWith('<ul class="opening-times">'),
+        "Should start with ul",
+      );
       expectTrue(result.endsWith("</ul>"), "Should end with closing ul");
       expectTrue(result.includes("</li>"), "Should have closing li tags");
     },
@@ -145,7 +152,11 @@ const testCases = [
       configureOpeningTimes(mockConfig);
 
       const result = mockConfig.filters.format_opening_times([]);
-      expectStrictEqual(result, "", "Filter should return empty string for empty input");
+      expectStrictEqual(
+        result,
+        "",
+        "Filter should return empty string for empty input",
+      );
     },
   },
 ];

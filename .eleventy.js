@@ -17,11 +17,10 @@ import { configureProperties } from "#collections/properties.js";
 import { configureReviews } from "#collections/reviews.js";
 import { configureSearch } from "#collections/search.js";
 import { configureTags } from "#collections/tags.js";
-
+import { configureAreaList } from "#eleventy/area-list.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
-import { configureAreaList } from "#eleventy/area-list.js";
 import { configureExternalLinks } from "#eleventy/external-links.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";

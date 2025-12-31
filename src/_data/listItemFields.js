@@ -14,5 +14,5 @@ const DEFAULT_FIELDS = [
 const configFields = configJson.list_item_fields;
 
 export default Array.isArray(configFields) && configFields.length > 0
-    ? configFields
-    : DEFAULT_FIELDS
+  ? configFields
+  : DEFAULT_FIELDS;
