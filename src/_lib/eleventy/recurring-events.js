@@ -1,3 +1,4 @@
+import strings from "#data/strings.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -60,10 +61,13 @@ const getRecurringEventsHtml = memoize(async () => {
 
       // Check if this is a recurring event
       if (data.recurring_date) {
-        // Generate URL from filename
-        // Remove .md extension and any date prefix (YYYY-MM-DD-)
-        const slug = file.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
-        const url = `/events/${slug}/`;
+        // Use permalink from frontmatter if set, otherwise build from fileSlug
+        // This matches how events.11tydata.js computes permalinks via buildPermalink
+        const fileSlug = file
+          .replace(".md", "")
+          .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+        const url =
+          data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`;
 
         recurringEvents.push({
           url: url,
