@@ -1,16 +1,10 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { createTestRunner, expectTrue, fs, path, rootDir, getFiles } from "./test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
 
-// Directories to skip when scanning for JS files
-const SKIP_DIRS = new Set(["node_modules", "_site", ".git"]);
+// Pattern: JS files in src (excludes test files)
+const SOURCE_JS_PATTERN = /^src\/.*(?<!\.test)\.js$/;
 
 // Files that are allowed to use let (third-party, legacy, or special cases)
 const ALLOWED_FILES = new Set([
@@ -31,26 +25,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+fontLink\s*=/, // theme-switcher.js - reassigned
   /^let\s+(fcpDone|initialized)\s*=/, // autosizes.js state flags
 ];
-
-const shouldSkipDir = (name) => {
-  if (name.startsWith(".")) return true;
-  return SKIP_DIRS.has(name);
-};
-
-const getJsFiles = (dir, files = []) => {
-  for (const name of fs.readdirSync(dir)) {
-    const filePath = path.join(dir, name);
-
-    if (fs.statSync(filePath).isDirectory()) {
-      if (!shouldSkipDir(name)) {
-        getJsFiles(filePath, files);
-      }
-    } else if (name.endsWith(".js") && !name.endsWith(".test.js")) {
-      files.push(filePath);
-    }
-  }
-  return files;
-};
 
 /**
  * Find all let declarations in a file
@@ -97,17 +71,16 @@ const isAllowedLet = (line) => {
  * Analyze all JS files and find let usage
  */
 const analyzeLetUsage = () => {
-  const jsFiles = getJsFiles(rootDir);
+  const jsFiles = getFiles(SOURCE_JS_PATTERN);
   const violations = [];
   const warnings = [];
 
-  for (const filePath of jsFiles) {
-    const relativePath = path.relative(rootDir, filePath);
-
+  for (const relativePath of jsFiles) {
     // Skip allowed files entirely
     if (ALLOWED_FILES.has(relativePath)) continue;
 
-    const source = fs.readFileSync(filePath, "utf-8");
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
     const letDeclarations = findLetDeclarations(source);
 
     for (const decl of letDeclarations) {

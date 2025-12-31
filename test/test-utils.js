@@ -1,10 +1,53 @@
 import assert from "assert";
 import fs from "fs";
-import path, { dirname } from "path";
+import path, { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const rootDir = resolve(__dirname, "..");
+
+// Directories always skipped during file discovery
+const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site"]);
+
+/**
+ * Get all files matching a pattern from the project root.
+ * Returns relative paths from root that match the regex.
+ *
+ * @param {RegExp} pattern - Regex to match against relative file paths
+ * @returns {string[]} Array of matching relative paths
+ *
+ * @example
+ * // Get all JS files in src/_lib
+ * getFiles(/^src\/_lib\/.*\.js$/)
+ *
+ * // Get all test files
+ * getFiles(/^test\/.*\.test\.js$/)
+ *
+ * // Get all JS files except in assets
+ * getFiles(/^src\/(?!assets).*\.js$/)
+ */
+const getFiles = (pattern) => {
+  const results = [];
+
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir)) {
+      if (entry.startsWith(".") || ALWAYS_SKIP.has(entry)) continue;
+
+      const fullPath = path.join(dir, entry);
+      const relativePath = path.relative(rootDir, fullPath);
+
+      if (fs.statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+      } else if (pattern.test(relativePath)) {
+        results.push(relativePath);
+      }
+    }
+  };
+
+  walk(rootDir);
+  return results;
+};
 
 const createMockEleventyConfig = () => ({
   addPlugin: function (plugin, config) {
@@ -324,6 +367,8 @@ export {
   assert,
   fs,
   path,
+  rootDir,
+  getFiles,
   createMockEleventyConfig,
   createTempDir,
   createTempFile,

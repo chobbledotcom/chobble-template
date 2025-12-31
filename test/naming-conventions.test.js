@@ -1,14 +1,11 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { createTestRunner, expectTrue, fs, path, rootDir, getFiles } from "./test-utils.js";
 
 // Configuration
 const MAX_WORDS = 4;
 const PREFERRED_WORDS = 3;
+
+// Pattern: JS files in src (excludes test files)
+const SOURCE_JS_PATTERN = /^src\/.*\.js$/;
 
 // External APIs we can't control (only those exceeding 4 words)
 const IGNORED_IDENTIFIERS = new Set([
@@ -64,44 +61,16 @@ const extractCamelCaseIdentifiers = (source) => {
 };
 
 /**
- * Recursively get all JavaScript files from a directory.
- * Skips test files since they can have verbose names for clarity.
- */
-const getJsFiles = (dir, fileList = []) => {
-  const files = fs.readdirSync(dir);
-
-  for (const file of files) {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-
-    if (stat.isDirectory()) {
-      // Skip node_modules, _site, test, and hidden directories
-      if (
-        !file.startsWith(".") &&
-        file !== "node_modules" &&
-        file !== "_site" &&
-        file !== "test"
-      ) {
-        getJsFiles(filePath, fileList);
-      }
-    } else if (file.endsWith(".js")) {
-      fileList.push(filePath);
-    }
-  }
-
-  return fileList;
-};
-
-/**
  * Analyze the codebase for verbose camelCase names.
  * Returns an object with violations and their occurrence counts.
  */
 const analyzeNamingConventions = () => {
-  const jsFiles = getJsFiles(rootDir);
+  const jsFiles = getFiles(SOURCE_JS_PATTERN);
   const violations = {};
 
-  for (const filePath of jsFiles) {
-    const source = fs.readFileSync(filePath, "utf-8");
+  for (const relativePath of jsFiles) {
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
     const identifiers = extractCamelCaseIdentifiers(source);
 
     for (const identifier of identifiers) {
@@ -116,7 +85,7 @@ const analyzeNamingConventions = () => {
           };
         }
         violations[identifier].occurrences++;
-        violations[identifier].files.add(path.relative(rootDir, filePath));
+        violations[identifier].files.add(relativePath);
       }
     }
   }

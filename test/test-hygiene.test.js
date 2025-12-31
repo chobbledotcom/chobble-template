@@ -1,10 +1,4 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { createTestRunner, expectTrue, expectStrictEqual, fs, path } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, getFiles } from "./test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -48,8 +42,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createLocationTracker",
   "withMockStorage",
   // function-length.test.js - analysis helpers
-  "shouldSkipDir",
-  "getJsFiles",
   "extractFunctions",
   "calculateOwnLines",
   "analyzeFunctionLengths",
@@ -75,15 +67,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-hygiene.test.js - self-analysis helpers
   "extractFunctionDefinitions",
   "isTestHelper",
-  "getTestFiles",
   "getSourceFunctionNames",
-  "processDir",
   "analyzeTestFiles",
   // theme-editor.test.js
   "generateFormHtml",
   "createMockDOM",
   // unused-classes.test.js - analysis helpers
-  "getAllFiles",
   "extractClassesFromHtml",
   "extractIdsFromHtml",
   "extractClassesFromJs",
@@ -187,40 +176,19 @@ const isTestHelper = (source, funcName, startLine, lineCount) => {
 };
 
 /**
- * Get all test files
- */
-const getTestFiles = () => {
-  const testDir = path.join(rootDir, "test");
-  return fs.readdirSync(testDir)
-    .filter((f) => f.endsWith(".test.js"))
-    .map((f) => path.join(testDir, f));
-};
-
-/**
  * Get all source function names from _lib directory
  */
 const getSourceFunctionNames = () => {
   const names = new Set();
-  const libDir = path.join(rootDir, "src", "_lib");
+  const libFiles = getFiles(/^src\/_lib\/.*\.js$/);
 
-  const processDir = (dir) => {
-    if (!fs.existsSync(dir)) return;
+  for (const relativePath of libFiles) {
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
+    const funcs = extractFunctionDefinitions(source);
+    funcs.forEach((f) => names.add(f.name));
+  }
 
-    for (const file of fs.readdirSync(dir)) {
-      const filePath = path.join(dir, file);
-      const stat = fs.statSync(filePath);
-
-      if (stat.isDirectory()) {
-        processDir(filePath);
-      } else if (file.endsWith(".js")) {
-        const source = fs.readFileSync(filePath, "utf-8");
-        const funcs = extractFunctionDefinitions(source);
-        funcs.forEach((f) => names.add(f.name));
-      }
-    }
-  };
-
-  processDir(libDir);
   return names;
 };
 
@@ -231,11 +199,12 @@ const getSourceFunctionNames = () => {
  */
 const analyzeTestFiles = () => {
   const issues = [];
-  const testFiles = getTestFiles();
+  const testFiles = getFiles(/^test\/.*\.test\.js$/);
 
-  for (const testFile of testFiles) {
-    const fileName = path.basename(testFile);
-    const source = fs.readFileSync(testFile, "utf-8");
+  for (const relativePath of testFiles) {
+    const fileName = path.basename(relativePath);
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
     const functions = extractFunctionDefinitions(source);
 
     for (const func of functions) {
