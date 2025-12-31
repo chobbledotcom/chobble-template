@@ -105,7 +105,7 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
     return `  ${cssVar}: ${value};`;
   });
 
-  const parts = [`:root {\n${globalLines.join("\n")}\n}`];
+  const cssBlocks = [`:root {\n${globalLines.join("\n")}\n}`];
 
   // Add scoped blocks
   SCOPES.forEach((scope) => {
@@ -115,16 +115,19 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
       const scopeLines = Object.entries(vars)
         .map(([varName, value]) => `  ${varName}: ${value};`)
         .join("\n");
-      parts.push(`${selector} {\n${scopeLines}\n}`);
+      cssBlocks.push(`${selector} {\n${scopeLines}\n}`);
     }
   });
 
-  // Add body classes comment
+  // Join CSS blocks with blank lines, each block ends with }
+  const cssOutput = cssBlocks.join("\n\n") + "\n";
+
+  // Add body classes comment (no trailing newline)
   if (bodyClasses && bodyClasses.length > 0) {
-    parts.push(`/* body_classes: ${bodyClasses.join(", ")} */`);
+    return cssOutput + `\n/* body_classes: ${bodyClasses.join(", ")} */`;
   }
 
-  return parts.join("\n\n");
+  return cssOutput;
 }
 
 /**
