@@ -4,6 +4,7 @@ import {
   createProductsCollection,
   getFeaturedProducts,
   getProductsByCategory,
+  getProductsByCategories,
   processGallery,
 } from "#collections/products.js";
 import {
@@ -230,6 +231,106 @@ const testCases = [
     },
   },
   {
+    name: "getProductsByCategories-basic",
+    description: "Gets products from multiple categories",
+    test: () => {
+      const products = [
+        { data: { title: "Product 1", categories: ["widgets"] } },
+        { data: { title: "Product 2", categories: ["tools"] } },
+        { data: { title: "Product 3", categories: ["gadgets"] } },
+        { data: { title: "Product 4", categories: ["other"] } },
+      ];
+
+      const result = getProductsByCategories(products, ["widgets", "gadgets"]);
+
+      expectStrictEqual(
+        result.length,
+        2,
+        "Should return products from both categories",
+      );
+      const titles = result.map((p) => p.data.title);
+      expectStrictEqual(
+        titles.includes("Product 1"),
+        true,
+        "Should include widget product",
+      );
+      expectStrictEqual(
+        titles.includes("Product 3"),
+        true,
+        "Should include gadget product",
+      );
+    },
+  },
+  {
+    name: "getProductsByCategories-deduplication",
+    description: "Returns unique products even if in multiple categories",
+    test: () => {
+      const products = [
+        { data: { title: "Product 1", categories: ["widgets", "gadgets"] } },
+        { data: { title: "Product 2", categories: ["tools"] } },
+        { data: { title: "Product 3", categories: ["widgets"] } },
+      ];
+
+      const result = getProductsByCategories(products, ["widgets", "gadgets"]);
+
+      expectStrictEqual(
+        result.length,
+        2,
+        "Should deduplicate products in multiple matching categories",
+      );
+      const titles = result.map((p) => p.data.title);
+      expectStrictEqual(
+        titles.includes("Product 1"),
+        true,
+        "Should include multi-category product once",
+      );
+      expectStrictEqual(
+        titles.includes("Product 3"),
+        true,
+        "Should include widget-only product",
+      );
+    },
+  },
+  {
+    name: "getProductsByCategories-empty-inputs",
+    description: "Handles empty or null inputs",
+    test: () => {
+      const products = [
+        { data: { title: "Product 1", categories: ["widgets"] } },
+      ];
+
+      expectDeepEqual(
+        getProductsByCategories(null, ["widgets"]),
+        [],
+        "Should return empty for null products",
+      );
+      expectDeepEqual(
+        getProductsByCategories(products, null),
+        [],
+        "Should return empty for null categories",
+      );
+      expectDeepEqual(
+        getProductsByCategories(products, []),
+        [],
+        "Should return empty for empty categories array",
+      );
+    },
+  },
+  {
+    name: "getProductsByCategories-no-matches",
+    description: "Returns empty when no products match categories",
+    test: () => {
+      const products = [
+        { data: { title: "Product 1", categories: ["widgets"] } },
+        { data: { title: "Product 2" } },
+      ];
+
+      const result = getProductsByCategories(products, ["nonexistent"]);
+
+      expectStrictEqual(result.length, 0, "Should return empty for no matches");
+    },
+  },
+  {
     name: "configureProducts-basic",
     description: "Configures products collection and filters",
     test: () => {
@@ -259,6 +360,11 @@ const testCases = [
       );
       expectFunctionType(
         mockConfig.filters,
+        "getProductsByCategories",
+        "Should add getProductsByCategories filter",
+      );
+      expectFunctionType(
+        mockConfig.filters,
         "getFeaturedProducts",
         "Should add getFeaturedProducts filter",
       );
@@ -266,6 +372,11 @@ const testCases = [
       expectStrictEqual(
         mockConfig.filters.getProductsByCategory,
         getProductsByCategory,
+        "Should use correct filter function",
+      );
+      expectStrictEqual(
+        mockConfig.filters.getProductsByCategories,
+        getProductsByCategories,
         "Should use correct filter function",
       );
       expectStrictEqual(

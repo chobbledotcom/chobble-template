@@ -1,8 +1,21 @@
 const getRootLocations = (locations) =>
   locations?.filter((loc) => !loc.data.parentLocation) || [];
 
-const configureLocations = (eleventyConfig) => {
-  eleventyConfig.addFilter("getRootLocations", getRootLocations);
+/**
+ * Get sibling locations (same parent) excluding the current page
+ * Replaces gnarly Liquid loop with unless/push pattern
+ */
+const getSiblingLocations = (locations, parentLocationSlug, currentUrl) => {
+  if (!locations || !parentLocationSlug) return [];
+  return locations.filter(
+    (loc) =>
+      loc.data.parentLocation === parentLocationSlug && loc.url !== currentUrl,
+  );
 };
 
-export { getRootLocations, configureLocations };
+const configureLocations = (eleventyConfig) => {
+  eleventyConfig.addFilter("getRootLocations", getRootLocations);
+  eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);
+};
+
+export { getRootLocations, getSiblingLocations, configureLocations };
