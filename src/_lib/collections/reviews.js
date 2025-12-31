@@ -84,12 +84,10 @@ const AVATAR_COLORS = [
  * Simple string hash function for consistent color selection
  */
 const hashString = (str) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
+  const hash = [...str].reduce((h, char) => {
+    const next = (h << 5) - h + char.charCodeAt(0);
+    return next & next;
+  }, 0);
   return Math.abs(hash);
 };
 

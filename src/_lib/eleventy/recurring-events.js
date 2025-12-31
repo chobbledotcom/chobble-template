@@ -6,25 +6,22 @@ const renderRecurringEvents = (events) => {
     return "";
   }
 
-  let html = "<ul>\n";
-  for (const event of events) {
+  const items = events.map((event) => {
     const eventData = event.data || event;
     const url = event.url || eventData.url;
-    html += `  <li>\n`;
-    if (url) {
-      html += `    <strong><a href="${url}">${eventData.title}</a></strong><br>\n`;
-    } else {
-      html += `    <strong>${eventData.title}</strong><br>\n`;
-    }
-    html += `    ${eventData.recurring_date}`;
-    if (eventData.event_location) {
-      html += `<br>\n    ${eventData.event_location}`;
-    }
-    html += `\n  </li>\n`;
-  }
-  html += "</ul>";
+    const titleHtml = url
+      ? `<strong><a href="${url}">${eventData.title}</a></strong>`
+      : `<strong>${eventData.title}</strong>`;
+    const locationHtml = eventData.event_location
+      ? `<br>\n    ${eventData.event_location}`
+      : "";
+    return `  <li>
+    ${titleHtml}<br>
+    ${eventData.recurring_date}${locationHtml}
+  </li>`;
+  });
 
-  return html;
+  return `<ul>\n${items.join("\n")}\n</ul>`;
 };
 
 const recurringEventsShortcode = function (eleventyConfig) {
@@ -62,8 +59,7 @@ const getRecurringEventsHtml = memoize(async () => {
         if (data.recurring_date) {
           // Generate URL from filename
           // Remove .md extension and any date prefix (YYYY-MM-DD-)
-          let slug = file.replace(".md", "");
-          slug = slug.replace(/^\d{4}-\d{2}-\d{2}-/, "");
+          const slug = file.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
           const url = `/events/${slug}/`;
 
           recurringEvents.push({
