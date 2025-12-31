@@ -12,7 +12,6 @@
 // Files allowed to use var or let freely (third-party, legacy)
 const ALLOWED_MUTABLE_VAR_FILES = new Set([
   "src/assets/js/autosizes.js", // Third-party polyfill
-  "src/assets/js/search.js", // Legacy search form - uses var throughout
 ]);
 
 // Specific let patterns that are intentionally allowed (module-level state)
