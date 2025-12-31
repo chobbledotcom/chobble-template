@@ -21,12 +21,6 @@ export function saveCart(cart) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-export function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
-}
-
 export function formatPrice(price) {
   return `£${price.toFixed(2)}`;
 }
@@ -73,17 +67,6 @@ export function updateItemQuantity(itemName, quantity) {
     saveCart(cart);
   }
   return true;
-}
-
-export function renderQuantityControls(item) {
-  return `
-    <div class="cart-item-quantity">
-      <button class="qty-btn qty-decrease" data-name="${escapeHtml(item.item_name)}">−</button>
-      <input type="number" class="qty-input" value="${item.quantity}" min="1"
-             ${item.max_quantity ? `max="${item.max_quantity}"` : ""}
-             data-name="${escapeHtml(item.item_name)}">
-      <button class="qty-btn qty-increase" data-name="${escapeHtml(item.item_name)}">+</button>
-    </div>`;
 }
 
 export function attachQuantityHandlers(container, onUpdate) {

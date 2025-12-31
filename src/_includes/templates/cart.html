@@ -1,0 +1,42 @@
+<template id="cart-item-template">
+  <div class="cart-item" data-name="">
+    <div class="cart-item-info">
+      <div class="cart-item-name"></div>
+      <div class="cart-item-price"></div>
+    </div>
+    <div class="cart-item-controls">
+      <div class="cart-item-quantity">
+        <button class="qty-btn qty-decrease" data-name="">−</button>
+        <input type="number" class="qty-input" value="1" min="1" data-name="">
+        <button class="qty-btn qty-increase" data-name="">+</button>
+      </div>
+      <button class="cart-item-remove" data-name="">Remove</button>
+    </div>
+  </div>
+</template>
+
+<template id="quote-cart-item-template">
+  <div class="quote-cart-item" data-name="">
+    <div class="quote-cart-item-info">
+      <span class="quote-cart-item-name"></span>
+      <span class="quote-cart-item-price"></span>
+    </div>
+    <p class="quote-cart-item-specs"></p>
+    <div class="quote-cart-item-controls">
+      <div class="cart-item-quantity">
+        <button class="qty-btn qty-decrease" data-name="">−</button>
+        <input type="number" class="qty-input" value="1" min="1" data-name="">
+        <button class="qty-btn qty-increase" data-name="">+</button>
+      </div>
+      <button class="quote-cart-item-remove" data-name="">Remove</button>
+    </div>
+  </div>
+</template>
+
+<template id="quote-checkout-item-template">
+  <div class="quote-checkout-item">
+    <span class="quote-checkout-item-name"></span>
+    <span class="quote-checkout-item-qty"></span>
+    <span class="quote-checkout-item-price"></span>
+  </div>
+</template>

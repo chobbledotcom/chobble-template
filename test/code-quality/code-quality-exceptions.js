@@ -50,12 +50,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 // Files that are allowed to contain HTML in JavaScript template literals.
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
-  // Client-side JS - cart/checkout rendering
-  "src/assets/js/cart.js",
-  "src/assets/js/cart-utils.js",
-  "src/assets/js/quote.js",
-  "src/assets/js/quote-checkout.js",
-
   // Client-side JS - calendar display
   "src/assets/js/availability-calendar.js",
 
