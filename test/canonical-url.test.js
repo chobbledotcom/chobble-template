@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
-import { canonicalUrl } from "#utils/canonical-url.js";
 import siteData from "#data/site.json" with { type: "json" };
+import { canonicalUrl } from "#utils/canonical-url.js";
 
 const SITE_URL = siteData.url;
 
