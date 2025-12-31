@@ -1,4 +1,4 @@
-import { cacheBust } from "#eleventy/cache-buster.js";
+import { cacheBust, configureCacheBuster } from "#eleventy/cache-buster.js";
 import {
   createTestRunner,
   expectStrictEqual,
@@ -119,6 +119,30 @@ const testCases = [
       }
 
       process.env.ELEVENTY_RUN_MODE = originalRunMode;
+    },
+  },
+  {
+    name: "configureCacheBuster-registers-filter",
+    description: "Registers cacheBust filter with eleventy config",
+    test: () => {
+      const registeredFilters = {};
+      const mockEleventyConfig = {
+        addFilter: (name, fn) => {
+          registeredFilters[name] = fn;
+        },
+      };
+
+      configureCacheBuster(mockEleventyConfig);
+
+      expectTrue(
+        "cacheBust" in registeredFilters,
+        "Should register 'cacheBust' filter",
+      );
+      expectStrictEqual(
+        registeredFilters.cacheBust,
+        cacheBust,
+        "Registered filter should be the cacheBust function",
+      );
     },
   },
 ];
