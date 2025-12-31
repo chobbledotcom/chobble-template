@@ -1,4 +1,3 @@
-import { ALLOWED_THEN_USAGE } from "./code-quality/code-quality-exceptions.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
@@ -44,7 +43,6 @@ const findThenCalls = (source) => {
  */
 const analyzeThenUsage = () => {
   const violations = [];
-  const allowed = [];
 
   // Exclude this test file since it contains examples in test strings
   const allJsFiles = [
@@ -59,25 +57,15 @@ const analyzeThenUsage = () => {
     const thenCalls = findThenCalls(source);
 
     for (const tc of thenCalls) {
-      const location = `${relativePath}:${tc.lineNumber}`;
-
-      if (ALLOWED_THEN_USAGE.has(location)) {
-        allowed.push({
-          file: relativePath,
-          line: tc.lineNumber,
-          code: tc.line,
-        });
-      } else {
-        violations.push({
-          file: relativePath,
-          line: tc.lineNumber,
-          code: tc.line,
-        });
-      }
+      violations.push({
+        file: relativePath,
+        line: tc.lineNumber,
+        code: tc.line,
+      });
     }
   }
 
-  return { violations, allowed };
+  return violations;
 };
 
 const testCases = [
@@ -100,54 +88,24 @@ await asyncFunction();
     },
   },
   {
-    name: "no-new-then-chains",
-    description:
-      "No new .then() chains outside the whitelist - use async/await",
+    name: "no-then-chains",
+    description: "No .then() chains - use async/await instead",
     test: () => {
-      const { violations, allowed } = analyzeThenUsage();
+      const violations = analyzeThenUsage();
 
       if (violations.length > 0) {
-        console.log(
-          `\n  Found ${violations.length} non-whitelisted .then() calls:`,
-        );
+        console.log(`\n  Found ${violations.length} .then() calls:`);
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log(
-          "\n  To fix: refactor to use async/await, or add to ALLOWED_THEN_USAGE in code-quality-exceptions.js\n",
-        );
+        console.log("\n  To fix: refactor to use async/await\n");
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted .then() calls. See list above.`,
+        `Found ${violations.length} .then() calls. See list above.`,
       );
-    },
-  },
-  {
-    name: "report-allowed-then-usage",
-    description: "Reports whitelisted .then() calls for tracking",
-    test: () => {
-      const { allowed } = analyzeThenUsage();
-
-      console.log(`\n  Whitelisted .then() calls: ${allowed.length}`);
-      console.log("  These should be refactored to async/await over time:\n");
-
-      // Group by file for cleaner output
-      const byFile = {};
-      for (const a of allowed) {
-        if (!byFile[a.file]) byFile[a.file] = [];
-        byFile[a.file].push(a.line);
-      }
-
-      for (const [file, lines] of Object.entries(byFile)) {
-        console.log(`     ${file}: lines ${lines.join(", ")}`);
-      }
-      console.log("");
-
-      // This test always passes - it's informational
-      expectTrue(true, "Reported whitelisted .then() calls");
     },
   },
 ];

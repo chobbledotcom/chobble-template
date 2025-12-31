@@ -37,6 +37,9 @@ const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.test.js - test assertions
   "ecommerce-backend/server.test.js:370",
 
+  // src/assets/js/availability-calendar.js - fetch error handling
+  "src/assets/js/availability-calendar.js:132",
+
   // src/assets/js/cart.js - localStorage and fetch handling
   "src/assets/js/cart.js:132",
   "src/assets/js/cart.js:181",
@@ -88,18 +91,4 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/knip.test.js:12",
 ]);
 
-// ============================================
-// .then() usage exceptions
-// ============================================
-
-const ALLOWED_THEN_USAGE = new Set([
-  // src/assets/js/availability-calendar.js - fetch chain
-  "src/assets/js/availability-calendar.js:133",
-]);
-
-export {
-  ALLOWED_MUTABLE_VAR_FILES,
-  ALLOWED_LET_PATTERNS,
-  ALLOWED_TRY_CATCHES,
-  ALLOWED_THEN_USAGE,
-};
+export { ALLOWED_MUTABLE_VAR_FILES, ALLOWED_LET_PATTERNS, ALLOWED_TRY_CATCHES };
