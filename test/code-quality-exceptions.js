@@ -22,8 +22,7 @@ const ALLOWED_LET_PATTERNS = [
   /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
   /^let\s+currentPopupIndex\s*=/, // gallery.js state
   // Closure state shared between callbacks - let is clearer than const wrapper
-  /^let\s+state\s*=/, // closure state shared between callbacks (e.g., pdf.js)
-  /^let\s+paypalToken(Expiry)?\s*=/, // server.js PayPal token cache
+  /^let\s+state\s*=/, // mutable state shared between callbacks
 ];
 
 // ============================================
@@ -34,7 +33,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.js - PayPal API calls
   "ecommerce-backend/server.js:185",
   "ecommerce-backend/server.js:213",
-  "ecommerce-backend/server.js:290",
+  "ecommerce-backend/server.js:289",
 
   // test/run-all-tests.js - test runner error handling
   "test/run-all-tests.js:15",
