@@ -1,4 +1,11 @@
-import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
+import {
+  createTestRunner,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+} from "./test-utils.js";
 
 // Configuration
 const MAX_LINES = 30;
@@ -160,7 +167,9 @@ const analyzeFunctionLengths = () => {
   const violations = [];
 
   // Only check library code, not frontend assets
-  for (const relativePath of SRC_JS_FILES.filter((f) => !f.startsWith("src/assets/"))) {
+  for (const relativePath of SRC_JS_FILES.filter(
+    (f) => !f.startsWith("src/assets/"),
+  )) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const functions = calculateOwnLines(extractFunctions(source));

@@ -57,8 +57,4 @@ const configureMenus = (eleventyConfig) => {
   eleventyConfig.addFilter("getItemsByCategory", getItemsByCategory);
 };
 
-export {
-  configureMenus,
-  getCategoriesByMenu,
-  getItemsByCategory,
-};
+export { configureMenus, getCategoriesByMenu, getItemsByCategory };

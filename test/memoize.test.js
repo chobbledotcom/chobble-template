@@ -1,8 +1,8 @@
 import { arraySlugKey, memoize } from "#utils/memoize.js";
 import {
   createTestRunner,
-  expectStrictEqual,
   expectFunctionType,
+  expectStrictEqual,
 } from "./test-utils.js";
 
 const testCases = [
@@ -44,11 +44,7 @@ const testCases = [
 
       const result = arraySlugKey(args);
 
-      expectStrictEqual(
-        result,
-        "0:slug",
-        "Should use 0 for null array length",
-      );
+      expectStrictEqual(result, "0:slug", "Should use 0 for null array length");
     },
   },
   {
@@ -90,11 +86,7 @@ const testCases = [
 
       const result = arraySlugKey(args);
 
-      expectStrictEqual(
-        result,
-        "1:",
-        "Should handle empty slug",
-      );
+      expectStrictEqual(result, "1:", "Should handle empty slug");
     },
   },
   {
@@ -162,7 +154,11 @@ const testCases = [
       const result2 = memoizedFilter(items, "a");
       const result3 = memoizedFilter(items, "b");
 
-      expectStrictEqual(result1.length, 1, "First call should filter correctly");
+      expectStrictEqual(
+        result1.length,
+        1,
+        "First call should filter correctly",
+      );
       expectStrictEqual(
         result1[0].name,
         "Item A",
