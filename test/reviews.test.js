@@ -671,9 +671,6 @@ const testCases = [
       );
     },
   },
-  // NOTE: The limit === -1 branches (lines 130, 149-154) cannot be tested
-  // without mocking the config module. These branches handle the case where
-  // reviews_truncate_limit is set to -1 to disable pagination entirely.
   {
     name: "withReviewsPage-filters-by-review-count",
     description: "Returns only items exceeding the truncate limit",
@@ -803,6 +800,94 @@ const testCases = [
         result[0].item.fileSlug,
         "product-a",
         "Should include original item in return structure",
+      );
+    },
+  },
+  {
+    name: "withReviewsPage-limit-negative-one-returns-empty",
+    description: "Returns empty array when limit is -1 (no pagination)",
+    test: () => {
+      const reviews = [];
+      for (let i = 0; i < 100; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-01`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      // Pass -1 as limitOverride to test the "no pagination" branch
+      const factory = withReviewsPage(
+        "product",
+        "products",
+        (item) => item,
+        -1,
+      );
+      const result = factory(mockCollectionApi);
+
+      // Even with 100 reviews, limit=-1 means no separate pages
+      expectStrictEqual(
+        result.length,
+        0,
+        "Should return empty when limit is -1",
+      );
+    },
+  },
+  {
+    name: "reviewsRedirects-limit-negative-one-returns-all",
+    description: "Returns all items when limit is -1 (no pagination)",
+    test: () => {
+      const reviews = [];
+      for (let i = 0; i < 100; i++) {
+        reviews.push({
+          data: { products: ["product-a"], rating: 5 },
+          date: new Date(`2024-01-01`),
+        });
+      }
+
+      const products = [
+        { fileSlug: "product-a", data: { title: "Product A" } },
+        { fileSlug: "product-b", data: { title: "Product B" } },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: (tag) => {
+          if (tag === "product") return products;
+          if (tag === "review") return reviews;
+          return [];
+        },
+      };
+
+      // Pass -1 as limitOverride to test the "all redirects" branch
+      const factory = reviewsRedirects("product", "products", -1);
+      const result = factory(mockCollectionApi);
+
+      // All items get redirects when limit=-1
+      expectStrictEqual(
+        result.length,
+        2,
+        "Should return all items when limit is -1",
+      );
+      expectStrictEqual(
+        result[0].fileSlug,
+        "product-a",
+        "Should include product-a",
+      );
+      expectStrictEqual(
+        result[1].fileSlug,
+        "product-b",
+        "Should include product-b",
       );
     },
   },

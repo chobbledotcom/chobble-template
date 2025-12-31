@@ -117,14 +117,24 @@ const reviewerAvatar = (name) => {
 };
 
 /**
+ * Get the reviews truncate limit, with optional override for testing
+ */
+const getReviewsLimit = (limitOverride) =>
+  limitOverride !== undefined ? limitOverride : config().reviews_truncate_limit;
+
+/**
  * Factory: items with enough reviews for a separate /reviews page
+ * @param {string} tag - The tag to filter items by
+ * @param {string} reviewsField - The field to check for reviews
+ * @param {Function} processItem - Optional function to transform items
+ * @param {number} limitOverride - Optional limit override for testing
  */
 const withReviewsPage =
-  (tag, reviewsField, processItem = (item) => item) =>
+  (tag, reviewsField, processItem = (item) => item, limitOverride) =>
   (collectionApi) => {
     const items = collectionApi.getFilteredByTag(tag) || [];
     const visibleReviews = createReviewsCollection(collectionApi);
-    const limit = config().reviews_truncate_limit;
+    const limit = getReviewsLimit(limitOverride);
 
     // If limit is -1, no truncation occurs so no separate page needed
     if (limit === -1) return [];
@@ -139,30 +149,34 @@ const withReviewsPage =
 
 /**
  * Factory: redirect data for items without enough reviews for a separate page
+ * @param {string} tag - The tag to filter items by
+ * @param {string} reviewsField - The field to check for reviews
+ * @param {number} limitOverride - Optional limit override for testing
  */
-const reviewsRedirects = (tag, reviewsField) => (collectionApi) => {
-  const items = collectionApi.getFilteredByTag(tag) || [];
-  const visibleReviews = createReviewsCollection(collectionApi);
-  const limit = config().reviews_truncate_limit;
+const reviewsRedirects =
+  (tag, reviewsField, limitOverride) => (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const visibleReviews = createReviewsCollection(collectionApi);
+    const limit = getReviewsLimit(limitOverride);
 
-  // If limit is -1, no truncation occurs so all items need redirects
-  if (limit === -1) {
-    return items.map((item) => ({
-      item,
-      fileSlug: item.fileSlug,
-    }));
-  }
+    // If limit is -1, no truncation occurs so all items need redirects
+    if (limit === -1) {
+      return items.map((item) => ({
+        item,
+        fileSlug: item.fileSlug,
+      }));
+    }
 
-  return items
-    .filter(
-      (item) =>
-        countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
-    )
-    .map((item) => ({
-      item,
-      fileSlug: item.fileSlug,
-    }));
-};
+    return items
+      .filter(
+        (item) =>
+          countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
+      )
+      .map((item) => ({
+        item,
+        fileSlug: item.fileSlug,
+      }));
+  };
 
 /**
  * Configure reviews collection and filters for Eleventy
