@@ -142,11 +142,9 @@ const cleanupTempDir = (tempDir) => {
 
 const withTempDir = (testName, callback) => {
   const tempDir = createTempDir(testName);
-  try {
-    return callback(tempDir);
-  } finally {
-    cleanupTempDir(tempDir);
-  }
+  const result = callback(tempDir);
+  cleanupTempDir(tempDir);
+  return result;
 };
 
 const withTempFile = (testName, filename, content, callback) => {
@@ -159,40 +157,26 @@ const withTempFile = (testName, filename, content, callback) => {
 const withMockedCwd = (newCwd, callback) => {
   const originalCwd = process.cwd;
   process.cwd = () => newCwd;
-  try {
-    return callback();
-  } finally {
-    process.cwd = originalCwd;
-  }
+  const result = callback();
+  process.cwd = originalCwd;
+  return result;
 };
 
 const runTestSuite = async (testName, testCases) => {
-  try {
-    console.log(`=== Running ${testName} tests ===`);
+  console.log(`=== Running ${testName} tests ===`);
 
-    for (const testCase of testCases) {
-      const testId = `${testName}/${testCase.name}`;
+  for (const testCase of testCases) {
+    const testId = `${testName}/${testCase.name}`;
 
-      try {
-        if (testCase.test) {
-          testCase.test();
-        } else if (testCase.asyncTest) {
-          await testCase.asyncTest();
-        }
-        console.log(`✅ PASS: ${testId} - ${testCase.description}`);
-      } catch (error) {
-        console.error(`❌ FAIL: ${testId} - ${testCase.description}`);
-        console.error(`   Error: ${error.message}`);
-        throw error;
-      }
+    if (testCase.test) {
+      testCase.test();
+    } else if (testCase.asyncTest) {
+      await testCase.asyncTest();
     }
-
-    console.log(`\n✅ All ${testName} tests passed!`);
-  } catch (error) {
-    console.error(`❌ Test suite failed: ${error.message}`);
-    console.error(error.stack);
-    process.exit(1);
+    console.log(`✅ PASS: ${testId} - ${testCase.description}`);
   }
+
+  console.log(`\n✅ All ${testName} tests passed!`);
 };
 
 const createTestRunner = (testName, testCases) => {

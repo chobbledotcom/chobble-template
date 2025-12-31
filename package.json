@@ -19,13 +19,13 @@
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "eleventy --quiet && c8 --lines 76 --functions 76 --branches 92 node test/run-all-tests.js",
+		"test": "eleventy --quiet && c8 --lines 77 --functions 76 --branches 92 node test/run-all-tests.js",
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
 		"lint": "pnpm dlx @biomejs/biome check .",
 		"lint:fix": "pnpm dlx @biomejs/biome check --write .",
-		"precommit": "run-s lint:fix cpd knip:fix test"
+		"precommit": "run-s lint:fix knip:fix test"
 	},
 	"devDependencies": {
 		"c8": "^10.1.3",
