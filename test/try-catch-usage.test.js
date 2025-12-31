@@ -88,6 +88,14 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // src/_lib/filters/spec-filters.js - spec filtering
   "src/_lib/filters/spec-filters.js:15",
+
+  // test/cache-buster.test.js - environment variable mocking
+  "test/cache-buster.test.js:32",
+  "test/cache-buster.test.js:54",
+  "test/cache-buster.test.js:76",
+  "test/cache-buster.test.js:97",
+  "test/cache-buster.test.js:120",
+  "test/cache-buster.test.js:147",
 ]);
 
 /**
