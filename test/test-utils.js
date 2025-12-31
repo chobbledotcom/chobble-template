@@ -163,20 +163,63 @@ const withMockedCwd = (newCwd, callback) => {
 };
 
 const runTestSuite = async (testName, testCases) => {
-  console.log(`=== Running ${testName} tests ===`);
+  const verbose = process.env.TEST_VERBOSE === "1";
+  const failures = [];
 
-  for (const testCase of testCases) {
-    const testId = `${testName}/${testCase.name}`;
-
-    if (testCase.test) {
-      testCase.test();
-    } else if (testCase.asyncTest) {
-      await testCase.asyncTest();
+  try {
+    if (verbose) {
+      console.log(`=== Running ${testName} tests ===`);
     }
-    console.log(`✅ PASS: ${testId} - ${testCase.description}`);
-  }
 
-  console.log(`\n✅ All ${testName} tests passed!`);
+    for (const testCase of testCases) {
+      const testId = `${testName}/${testCase.name}`;
+
+      try {
+        if (testCase.test) {
+          testCase.test();
+        } else if (testCase.asyncTest) {
+          await testCase.asyncTest();
+        }
+        if (verbose) {
+          console.log(`✅ PASS: ${testId} - ${testCase.description}`);
+        }
+      } catch (error) {
+        failures.push({ testId, description: testCase.description, error });
+        if (verbose) {
+          console.error(`❌ FAIL: ${testId} - ${testCase.description}`);
+          console.error(`   Error: ${error.message}`);
+        }
+      }
+    }
+
+    const passed = testCases.length - failures.length;
+
+    // Output results in parseable format for the runner
+    console.log(`__TEST_RESULTS__:${passed}:${failures.length}`);
+
+    if (failures.length > 0) {
+      // Always show failures, even in quiet mode
+      if (!verbose) {
+        console.error(
+          `\n❌ ${testName}: ${failures.length} failed, ${passed} passed`,
+        );
+        for (const { testId, description, error } of failures) {
+          console.error(`  ❌ FAIL: ${testId} - ${description}`);
+          console.error(`     Error: ${error.message}`);
+        }
+      }
+      process.exit(1);
+    } else if (verbose) {
+      console.log(`\n✅ All ${testName} tests passed!`);
+    }
+
+    // Return results for the runner to use
+    return { passed, failed: failures.length };
+  } catch (error) {
+    console.error(`❌ Test suite failed: ${error.message}`);
+    console.error(error.stack);
+    process.exit(1);
+  }
 };
 
 const createTestRunner = (testName, testCases) => {
