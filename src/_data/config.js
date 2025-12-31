@@ -171,3 +171,19 @@ validateCartConfig(config);
 export default function () {
   return config;
 }
+
+export {
+  DEFAULTS,
+  VALID_CART_MODES,
+  DEFAULT_PRODUCT_DATA,
+  getProducts,
+  getFormTarget,
+  extractFrontmatter,
+  checkFrontmatterField,
+  validatePageFrontmatter,
+  validateStripePages,
+  validateQuotePages,
+  validateCartConfig,
+  getPagePath,
+  cartModeError,
+};
