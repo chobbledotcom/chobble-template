@@ -90,7 +90,7 @@ if (a == 1) {}
 if (b != 2) {}
 if (c === 3) {}
 if (d !== 4) {}
-// if (e == 5) {} comment
+// Note: the == operator in comments like this is ignored
 const str = "x == y";
       `;
       const results = findLooseEquality(source);
