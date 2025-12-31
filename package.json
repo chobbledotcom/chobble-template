@@ -26,8 +26,8 @@
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
-		"lint": "pnpm dlx @biomejs/biome check .",
-		"lint:fix": "pnpm dlx @biomejs/biome check --write .",
+		"lint": "command -v biome >/dev/null 2>&1 && biome check . || pnpm dlx @biomejs/biome check .",
+		"lint:fix": "command -v biome >/dev/null 2>&1 && biome check --write . || pnpm dlx @biomejs/biome check --write .",
 		"precommit": "run-s lint:fix knip:fix test"
 	},
 	"devDependencies": {
