@@ -407,7 +407,8 @@ const testCases = [
     test: async () => {
       const transform = createImageTransform();
 
-      const feedContent = '<?xml version="1.0"?><feed><entry>test</entry></feed>';
+      const feedContent =
+        '<?xml version="1.0"?><feed><entry>test</entry></feed>';
       const feedPath = "/test/feed.xml";
 
       const result = await transform(feedContent, feedPath);
@@ -480,10 +481,16 @@ const testCases = [
     test: async () => {
       const result = await imageShortcode("party.jpg", "A party scene");
 
-      assert(result.includes("image-wrapper"), "Should wrap in image-wrapper div");
+      assert(
+        result.includes("image-wrapper"),
+        "Should wrap in image-wrapper div",
+      );
       assert(result.includes("<picture"), "Should generate picture element");
       assert(result.includes('alt="A party scene"'), "Should include alt text");
-      assert(result.includes("aspect-ratio"), "Should include aspect ratio style");
+      assert(
+        result.includes("aspect-ratio"),
+        "Should include aspect ratio style",
+      );
     },
   },
   {
@@ -573,7 +580,10 @@ const testCases = [
     test: async () => {
       const result = await imageShortcode("/images/party.jpg", "Test");
 
-      assert(result.includes("image-wrapper"), "Should process image with / prefix");
+      assert(
+        result.includes("image-wrapper"),
+        "Should process image with / prefix",
+      );
       assert(result.includes("<picture"), "Should generate picture element");
     },
   },
