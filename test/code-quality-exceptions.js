@@ -44,7 +44,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
-  "src/_lib/media/image.js:337",
+  "src/_lib/media/image.js:339",
 
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
@@ -89,32 +89,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 ]);
 
 // ============================================
-// Loose equality (== / !=) exceptions
-// ============================================
-
-const ALLOWED_LOOSE_EQUALITY = new Set([
-  // src/_lib/media/image.js - null checks
-  "src/_lib/media/image.js:101",
-  "src/_lib/media/image.js:177",
-
-  // src/categories/categories.11tydata.js - null check
-  "src/categories/categories.11tydata.js:8",
-
-  // src/_lib/eleventy/js-config.js - null check
-  "src/_lib/eleventy/js-config.js:12",
-
-  // src/_lib/collections/tags.js - null filter
-  "src/_lib/collections/tags.js:7",
-
-  // src/_lib/collections/reviews.js - null checks
-  "src/_lib/collections/reviews.js:49",
-  "src/_lib/collections/reviews.js:60",
-
-  // src/assets/js/tabs.js - length check
-  "src/assets/js/tabs.js:18",
-]);
-
-// ============================================
 // .then() usage exceptions
 // ============================================
 
@@ -127,6 +101,5 @@ export {
   ALLOWED_MUTABLE_VAR_FILES,
   ALLOWED_LET_PATTERNS,
   ALLOWED_TRY_CATCHES,
-  ALLOWED_LOOSE_EQUALITY,
   ALLOWED_THEN_USAGE,
 };

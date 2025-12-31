@@ -98,7 +98,7 @@ const U = {
     return `${metadata.width / gcd}/${metadata.height / gcd}`;
   },
   cropImage: async (aspectRatio, sourcePath, metadata) => {
-    if (aspectRatio == null) return null;
+    if (aspectRatio === null || aspectRatio === undefined) return null;
 
     const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
     if (fs.existsSync(cachedPath)) return cachedPath;
@@ -174,7 +174,9 @@ const U = {
     return `./src/images/${name}`;
   },
   getDefault: (value, defaultString) => {
-    return value == null || value == "" ? defaultString : value;
+    return value === null || value === undefined || value === ""
+      ? defaultString
+      : value;
   },
   makeImageHtml: async (imagePromise, alt, sizes, loading, classes) => {
     return Image.generateHTML(

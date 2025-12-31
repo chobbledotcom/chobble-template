@@ -5,7 +5,7 @@ export default {
     navigationParent: () => strings.product_name,
     eleventyNavigation: (data) => {
       if (data.eleventyNavigation) return data.eleventyNavigation;
-      if (data.parent != null) return false;
+      if (data.parent !== null && data.parent !== undefined) return false;
       return {
         key: data.title,
         parent: strings.product_name,

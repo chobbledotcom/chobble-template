@@ -15,7 +15,7 @@ const addListener = (link) => {
 
 const initTabs = () => {
   const tabs = document.querySelectorAll("#tabs a[href^='#tab-']");
-  if (tabs.length == 0) return;
+  if (tabs.length === 0) return;
   tabs.forEach(addListener);
 };
 
