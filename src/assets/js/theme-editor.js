@@ -8,7 +8,7 @@ import {
   shouldIncludeScopedVar,
 } from "./theme-editor-lib.js";
 
-let state = { previousGlobals: null }; // Mutable state for cascade comparison
+let state = null; // Previous global vars for cascade comparison
 
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
@@ -93,14 +93,10 @@ const ThemeEditor = {
 
     // Capture initial global values for cascade comparison
     // This must happen AFTER all controls are initialized
-    state.previousGlobals = this.captureCurrentGlobalVars();
+    state = this.captureGlobals();
   },
 
-  /**
-   * Capture current global variable values from inputs
-   * Used for cascade comparison when globals change
-   */
-  captureCurrentGlobalVars() {
+  captureGlobals() {
     const vars = {};
     this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
       const varName = `--${el.id}`;
@@ -351,10 +347,7 @@ const ThemeEditor = {
   updateThemeFromControls() {
     const docStyle = getComputedStyle(document.documentElement);
 
-    // Use stored state.previousGlobals for cascade comparison
-    // We can't capture "old" values here because border inputs are already updated
-    // by their event handlers before this method is called
-    const oldGlobalVars = state.previousGlobals || {};
+    const oldGlobalVars = state || {};
 
     // Collect global :root variables
     const globalVars = {};
@@ -375,7 +368,7 @@ const ThemeEditor = {
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
     // Store current global values for next cascade comparison
-    state.previousGlobals = { ...globalVars };
+    state = { ...globalVars };
 
     // Collect scoped variables
     const scopeVars = {};
