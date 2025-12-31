@@ -1,13 +1,13 @@
 {%- assign recurring_events = collections.events | where: "data.recurring_date"
 | sort: "data.title" -%} {%- if recurring_events.size > 0 -%}
-<ul class="recurring-events">
+<ul>
   {%- for event in recurring_events -%} {%- assign event_data = event.data -%}
   <li>
     <strong><a href="{{ event.url }}#content">{{ event_data.title }}</a></strong
     ><br />
-    <span class="event-time">{{ event_data.recurring_date }}</span>
+    {{ event_data.recurring_date }}
     {%- if event_data.event_location -%}
-    <br /><span class="event-location">{{ event_data.event_location }}</span>
+    <br />{{ event_data.event_location }}
     {%- endif -%}
   </li>
   {%- endfor -%}

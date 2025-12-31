@@ -2,13 +2,13 @@
   {%- if options.size == 1 -%}
     <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
     <button
-      class="add-to-cart paypal-button"
+      class="add-to-cart"
       data-item="{{ cart_attributes }}"
     >
       Add to Cart - £{{ options.first.unit_price }}
     </button>
   {%- else -%}
-    <div class="product-options-wrapper">
+    <div>
       <select class="product-options-select">
         <option value="" disabled selected>Please select option</option>
         {%- for option in options -%}
@@ -18,7 +18,7 @@
         {%- endfor -%}
       </select>
       <button
-        class="add-to-cart paypal-button product-option-button"
+        class="add-to-cart product-option-button"
         data-item="{{ cart_attributes }}"
         disabled
       >

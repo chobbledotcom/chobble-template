@@ -4,7 +4,7 @@ layout: base
 
 {{ content }}
 
-<ul class="tag-posts">
+<ul>
   {%- assign taglist = collections[tag] -%}
   {%- for page in taglist | sort: "data.header_text" -%}
     {%- if page.url and page.data.no_index != true -%}

@@ -6,7 +6,7 @@ const renderRecurringEvents = (events) => {
     return "";
   }
 
-  let html = '<ul class="recurring-events">\n';
+  let html = "<ul>\n";
   for (const event of events) {
     const eventData = event.data || event;
     const url = event.url || eventData.url;
@@ -16,9 +16,9 @@ const renderRecurringEvents = (events) => {
     } else {
       html += `    <strong>${eventData.title}</strong><br>\n`;
     }
-    html += `    <span class="event-time">${eventData.recurring_date}</span>`;
+    html += `    ${eventData.recurring_date}`;
     if (eventData.event_location) {
-      html += `<br>\n    <span class="event-location">${eventData.event_location}</span>`;
+      html += `<br>\n    ${eventData.event_location}`;
     }
     html += `\n  </li>\n`;
   }
