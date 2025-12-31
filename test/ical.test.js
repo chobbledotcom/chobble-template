@@ -275,7 +275,8 @@ const testCases = [
   // isOneOffEvent - tests the collection filter logic directly
   {
     name: "isOneOffEvent-with-event-date-only",
-    description: "Returns true for events with event_date but no recurring_date",
+    description:
+      "Returns true for events with event_date but no recurring_date",
     test: () => {
       const event = { data: { event_date: "2025-06-15" } };
       expectTrue(isOneOffEvent(event), "Should return true for one-off event");
@@ -294,7 +295,8 @@ const testCases = [
   },
   {
     name: "isOneOffEvent-with-both-dates",
-    description: "Returns false for events with both event_date and recurring_date",
+    description:
+      "Returns false for events with both event_date and recurring_date",
     test: () => {
       const event = {
         data: { event_date: "2025-06-15", recurring_date: "Weekly" },
