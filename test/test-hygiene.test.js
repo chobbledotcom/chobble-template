@@ -103,6 +103,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "analyzeTryCatchUsage",
+  // banned-comments.test.js - analysis helpers
+  "findTodoFixme",
+  "analyzeTodoFixme",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious
