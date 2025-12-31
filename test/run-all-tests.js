@@ -19,8 +19,6 @@ async function runAllTests() {
 
     console.log(`Found ${testFiles.length} test files\n`);
 
-    let passed = 0;
-    let failed = 0;
     const failedTests = [];
 
     for (const testFile of testFiles) {
@@ -33,21 +31,20 @@ async function runAllTests() {
           stdio: "inherit",
           cwd: rootDir,
         });
-        passed++;
         console.log(`✅ ${testFile} passed`);
       } catch (error) {
-        failed++;
         failedTests.push(testFile);
         console.log(`❌ ${testFile} failed`);
       }
     }
 
     // Summary
+    const passed = testFiles.length - failedTests.length;
     console.log("\n" + "=".repeat(50));
     console.log("TEST SUMMARY");
     console.log("=".repeat(50));
     console.log(`✅ Passed: ${passed}`);
-    console.log(`❌ Failed: ${failed}`);
+    console.log(`❌ Failed: ${failedTests.length}`);
 
     if (failedTests.length > 0) {
       console.log("\nFailed tests:");
