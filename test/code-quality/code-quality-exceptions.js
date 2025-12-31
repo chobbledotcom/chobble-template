@@ -56,9 +56,6 @@ const ALLOWED_HTML_IN_JS = new Set([
   "src/assets/js/quote.js",
   "src/assets/js/quote-checkout.js",
 
-  // Client-side JS - gallery with SVG icons
-  "src/assets/js/gallery.js",
-
   // Client-side JS - calendar display
   "src/assets/js/availability-calendar.js",
 

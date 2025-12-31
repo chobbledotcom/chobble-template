@@ -1,12 +1,8 @@
 import { onReady } from "#assets/on-ready.js";
 
-const SVG_PREV = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <polyline points="15 18 9 12 15 6"></polyline>
-</svg>`;
-
-const SVG_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <polyline points="9 18 15 12 9 6"></polyline>
-</svg>`;
+// Template elements are defined in src/_includes/templates/gallery.html
+const getTemplate = (id) =>
+  document.getElementById(id)?.content.cloneNode(true);
 
 const state = {
   gallery: null,
@@ -77,30 +73,28 @@ const navigatePopup = (direction) => {
 
 const openPopup = () => {
   const image = state.currentImage.querySelector(".image-wrapper");
-
   const totalImages = getTotalImages();
-  const prevHidden =
-    state.currentPopupIndex <= 1 ? 'style="visibility: hidden"' : "";
-  const nextHidden =
-    state.currentPopupIndex >= totalImages ? 'style="visibility: hidden"' : "";
 
-  state.imagePopup.innerHTML = `
-    ${
-      totalImages > 1
-        ? `<button type="button" class="popup-nav popup-nav-prev" ${prevHidden} aria-label="Previous image">
-      ${SVG_PREV}
-    </button>`
-        : ""
+  // Clear popup and build content using templates
+  state.imagePopup.innerHTML = "";
+
+  if (totalImages > 1) {
+    const prevBtn = getTemplate("gallery-popup-nav-prev");
+    if (state.currentPopupIndex <= 1) {
+      prevBtn.querySelector(".popup-nav-prev").style.visibility = "hidden";
     }
-    ${image.outerHTML}
-    ${
-      totalImages > 1
-        ? `<button type="button" class="popup-nav popup-nav-next" ${nextHidden} aria-label="Next image">
-      ${SVG_NEXT}
-    </button>`
-        : ""
+    state.imagePopup.appendChild(prevBtn);
+  }
+
+  state.imagePopup.appendChild(image.cloneNode(true));
+
+  if (totalImages > 1) {
+    const nextBtn = getTemplate("gallery-popup-nav-next");
+    if (state.currentPopupIndex >= totalImages) {
+      nextBtn.querySelector(".popup-nav-next").style.visibility = "hidden";
     }
-  `;
+    state.imagePopup.appendChild(nextBtn);
+  }
 
   for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
     el.sizes = "100vw";
