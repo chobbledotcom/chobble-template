@@ -1,8 +1,5 @@
 import { onReady } from "#assets/on-ready.js";
-
-// Template elements are defined in src/_includes/templates/gallery.html
-const getTemplate = (id) =>
-  document.getElementById(id)?.content.cloneNode(true);
+import { getTemplate } from "#assets/template.js";
 
 const state = {
   gallery: null,
