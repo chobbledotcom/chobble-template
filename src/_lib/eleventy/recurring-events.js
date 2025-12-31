@@ -44,43 +44,42 @@ const getRecurringEventsHtml = memoize(async () => {
 
   // Read all event files from the events directory
   const eventsDir = path.default.join(process.cwd(), "src/events");
-  const recurringEvents = [];
 
-  try {
-    const files = fs.default.readdirSync(eventsDir);
-
-    for (const file of files) {
-      if (file.endsWith(".md")) {
-        const filePath = path.default.join(eventsDir, file);
-        const content = fs.default.readFileSync(filePath, "utf8");
-        const { data } = matter.default(content);
-
-        // Check if this is a recurring event
-        if (data.recurring_date) {
-          // Generate URL from filename
-          // Remove .md extension and any date prefix (YYYY-MM-DD-)
-          const slug = file.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
-          const url = `/events/${slug}/`;
-
-          recurringEvents.push({
-            url: url,
-            data: {
-              title: data.title,
-              recurring_date: data.recurring_date,
-              event_location: data.event_location,
-            },
-          });
-        }
-      }
-    }
-
-    recurringEvents.sort(sortItems);
-
-    return renderRecurringEvents(recurringEvents);
-  } catch (err) {
-    console.error("Error reading events:", err);
+  if (!fs.default.existsSync(eventsDir)) {
     return "";
   }
+
+  const recurringEvents = [];
+  const files = fs.default.readdirSync(eventsDir);
+
+  for (const file of files) {
+    if (file.endsWith(".md")) {
+      const filePath = path.default.join(eventsDir, file);
+      const content = fs.default.readFileSync(filePath, "utf8");
+      const { data } = matter.default(content);
+
+      // Check if this is a recurring event
+      if (data.recurring_date) {
+        // Generate URL from filename
+        // Remove .md extension and any date prefix (YYYY-MM-DD-)
+        const slug = file.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
+        const url = `/events/${slug}/`;
+
+        recurringEvents.push({
+          url: url,
+          data: {
+            title: data.title,
+            recurring_date: data.recurring_date,
+            event_location: data.event_location,
+          },
+        });
+      }
+    }
+  }
+
+  recurringEvents.sort(sortItems);
+
+  return renderRecurringEvents(recurringEvents);
 });
 
 const configureRecurringEvents = (eleventyConfig) => {
