@@ -20,7 +20,20 @@ export default {
     },
     eleventyNavigation: (data) => {
       if (data.eleventyNavigation) return data.eleventyNavigation;
-      if (data.parentLocation) return undefined;
+      if (data.parentLocation) {
+        // Service-location: add as child of parent location
+        // Convert slug to title case for the parent navigation key
+        // e.g., "royston-vasey" → "Royston Vasey"
+        const parentTitle = data.parentLocation
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+        return {
+          key: data.title,
+          parent: parentTitle,
+          order: data.link_order || 0,
+        };
+      }
       return {
         key: data.title,
         parent: strings.location_name,

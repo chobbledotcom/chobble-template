@@ -181,11 +181,8 @@ nav {
           li {
             text-align: left;
             position: relative;
-            /* Nav Dropdown */
-            &:hover ul {
-              display: block;
-            }
-            ul {
+            /* First-level dropdown - only direct child ul */
+            & > ul {
               background: var(--color-bg);
               border: var(--border);
               border-radius: var(--border-radius);
@@ -212,6 +209,29 @@ nav {
               li a {
                 display: block;
               }
+              /* Second-level dropdown - positioned to the right */
+              li {
+                position: relative;
+                & > ul {
+                  top: -0.5rem;
+                  left: 100%;
+                  margin-left: 0.5rem;
+                  &::before {
+                    top: 0;
+                    bottom: 0;
+                    left: -0.5rem;
+                    right: auto;
+                    width: 0.5rem;
+                    height: auto;
+                  }
+                }
+                &:hover > ul {
+                  display: block;
+                }
+              }
+            }
+            &:hover > ul {
+              display: block;
             }
           }
         }
