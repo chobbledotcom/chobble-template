@@ -119,6 +119,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
+  // url-construction.test.js - analysis helpers
+  "findHardcodedUrls",
+  "analyzeHardcodedUrls",
+  "isAllowedLine",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious
