@@ -107,7 +107,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/file-utils.test.js:222",
   "test/file-utils.test.js:265",
 
-  // test/cache-buster.test.js - cache buster tests
+  // test/cache-buster.test.js - environment variable cleanup
   "test/cache-buster.test.js:32",
   "test/cache-buster.test.js:54",
   "test/cache-buster.test.js:76",
