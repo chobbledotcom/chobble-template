@@ -139,7 +139,7 @@ const d = "not a declaration";
       const allowedLines = [
         "let ELEMENTS = null;",
         "let gallery, currentImage, imagePopup;",
-        "let storedCollections = null;",
+        "let state = null;",
       ];
       for (const line of allowedLines) {
         expectTrue(
