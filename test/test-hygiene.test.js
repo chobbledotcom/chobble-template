@@ -106,6 +106,13 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // banned-comments.test.js - analysis helpers
   "findTodoFixme",
   "analyzeTodoFixme",
+  // commented-code.test.js - analysis helpers
+  "isInsideTemplateLiteral",
+  "isDocumentationComment",
+  "findCommentedCode",
+  "analyzeCommentedCode",
+  // commented-code.test.js - test fixture strings
+  "active",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious

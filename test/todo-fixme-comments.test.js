@@ -32,9 +32,10 @@ const findTodoFixme = (source) => {
 const analyzeTodoFixme = () => {
   const violations = [];
 
-  // Exclude this test file since it contains TODO/FIXME in test strings
+  // Exclude test files that contain TODO/FIXME in test fixture strings
   const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/todo-fixme-comments.test.js");
+    .filter((f) => f !== "test/todo-fixme-comments.test.js")
+    .filter((f) => f !== "test/commented-code.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
