@@ -6,7 +6,6 @@ layout: base
 
 {%- if config.form_target and config.form_target != "" -%}
   <form
-    id="quote-checkout-form"
     class="contact-form"
     action="{{ config.form_target }}"
     {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}

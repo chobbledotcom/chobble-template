@@ -2,6 +2,6 @@
   {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, reviewsField %}
   {% assign rating = collections.reviews | getRating: page.fileSlug, reviewsField %}
   {%- if rating -%}
-    <p id="reviews-count"><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
+    <p><a href="#reviews">{{ rating | ratingToStars }} after {{ reviews.size }} reviews</a></p>
   {%- endif -%}
 {%- endif -%}

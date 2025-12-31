@@ -76,6 +76,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractClassesFromHtml",
   "extractIdsFromHtml",
   "extractClassesFromJs",
+  "findIdReferencesInHtml",
   "findClassReferencesInScss",
   "findIdReferencesInScss",
   "findClassReferencesInJs",
