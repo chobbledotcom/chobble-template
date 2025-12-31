@@ -265,11 +265,7 @@ export function configurePdf(eleventyConfig) {
     }
 
     for (const menu of menus) {
-      try {
-        await generateMenuPdf(menu, menuCategories, menuItems, dir.output);
-      } catch (error) {
-        console.error(`Error generating PDF for ${menu.data.title}:`, error);
-      }
+      await generateMenuPdf(menu, menuCategories, menuItems, dir.output);
     }
   });
 }

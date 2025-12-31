@@ -44,7 +44,9 @@ const ALLOWED_TRY_CATCHES = new Set([
   // test/navigation.test.js - navigation tests
   "test/navigation.test.js:80",
 
-  // src/assets/js/cart-utils.js - JSON parsing
+  // src/assets/js/cart-utils.js - JSON parsing of localStorage data
+  // Needed: localStorage is browser-side storage that can be corrupted by users,
+  // extensions, or data migration issues. We don't control this input.
   "src/assets/js/cart-utils.js:12",
 
   // test/checkout.test.js - checkout flow tests
@@ -77,17 +79,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/file-utils.test.js:222",
   "test/file-utils.test.js:265",
 
-  // src/_lib/eleventy/pdf.js - PDF generation
-  "src/_lib/eleventy/pdf.js:268",
-
-  // src/_lib/eleventy/recurring-events.js - date parsing
-  "src/_lib/eleventy/recurring-events.js:49",
-
-  // src/_lib/utils/canonical-url.js - URL parsing
-  "src/_lib/utils/canonical-url.js:17",
-
-  // src/_lib/filters/spec-filters.js - spec filtering
-  "src/_lib/filters/spec-filters.js:15",
 ]);
 
 /**

@@ -12,11 +12,7 @@ const getSpecIcon = (specName) => {
 	const normalized = specName.toLowerCase().trim();
 	const iconFile = specsIcons[normalized];
 	if (!iconFile) return "";
-	try {
-		return inlineAsset(`icons/${iconFile}`);
-	} catch {
-		return "";
-	}
+	return inlineAsset(`icons/${iconFile}`);
 };
 
 /**
