@@ -342,8 +342,14 @@ const testCases = [
       const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
       global.document = dom.window.document;
       try {
-        assert.strictEqual(escapeHtml("<script>alert('xss')</script>"), "&lt;script&gt;alert('xss')&lt;/script&gt;");
-        assert.strictEqual(escapeHtml("Hello & Goodbye"), "Hello &amp; Goodbye");
+        assert.strictEqual(
+          escapeHtml("<script>alert('xss')</script>"),
+          "&lt;script&gt;alert('xss')&lt;/script&gt;",
+        );
+        assert.strictEqual(
+          escapeHtml("Hello & Goodbye"),
+          "Hello &amp; Goodbye",
+        );
         // Note: innerHTML doesn't escape quotes, only < > and &
         assert.strictEqual(escapeHtml('"quoted"'), '"quoted"');
         assert.strictEqual(escapeHtml("normal text"), "normal text");
@@ -377,9 +383,17 @@ const testCases = [
         updateCartIcon();
         const icon = dom.window.document.querySelector(".cart-icon");
         const badge = icon.querySelector(".cart-count");
-        assert.strictEqual(icon.style.display, "flex", "Icon should be visible");
+        assert.strictEqual(
+          icon.style.display,
+          "flex",
+          "Icon should be visible",
+        );
         assert.strictEqual(badge.textContent, "5", "Badge should show count 5");
-        assert.strictEqual(badge.style.display, "block", "Badge should be visible");
+        assert.strictEqual(
+          badge.style.display,
+          "block",
+          "Badge should be visible",
+        );
       } finally {
         globalThis.localStorage = origStorage;
         delete global.document;
@@ -409,7 +423,11 @@ const testCases = [
         const icon = dom.window.document.querySelector(".cart-icon");
         const badge = icon.querySelector(".cart-count");
         assert.strictEqual(icon.style.display, "none", "Icon should be hidden");
-        assert.strictEqual(badge.style.display, "none", "Badge should be hidden");
+        assert.strictEqual(
+          badge.style.display,
+          "none",
+          "Badge should be hidden",
+        );
       } finally {
         globalThis.localStorage = origStorage;
         delete global.document;
@@ -424,9 +442,17 @@ const testCases = [
       withMockStorage(() => {
         saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
         const result = updateItemQuantity("Widget", 5);
-        assert.strictEqual(result, true, "Should return true for existing item");
+        assert.strictEqual(
+          result,
+          true,
+          "Should return true for existing item",
+        );
         const cart = getCart();
-        assert.strictEqual(cart[0].quantity, 5, "Quantity should be updated to 5");
+        assert.strictEqual(
+          cart[0].quantity,
+          5,
+          "Quantity should be updated to 5",
+        );
       });
     },
   },
@@ -442,7 +468,11 @@ const testCases = [
         updateItemQuantity("Remove", 0);
         const cart = getCart();
         assert.strictEqual(cart.length, 1, "Cart should have 1 item");
-        assert.strictEqual(cart[0].item_name, "Keep", "Only Keep should remain");
+        assert.strictEqual(
+          cart[0].item_name,
+          "Keep",
+          "Only Keep should remain",
+        );
       });
     },
   },
@@ -455,12 +485,26 @@ const testCases = [
       global.alert = (msg) => alerts.push(msg);
       try {
         withMockStorage(() => {
-          saveCart([{ item_name: "Limited", unit_price: 10, quantity: 2, max_quantity: 5 }]);
+          saveCart([
+            {
+              item_name: "Limited",
+              unit_price: 10,
+              quantity: 2,
+              max_quantity: 5,
+            },
+          ]);
           updateItemQuantity("Limited", 10);
           const cart = getCart();
-          assert.strictEqual(cart[0].quantity, 5, "Quantity should be capped at max_quantity");
+          assert.strictEqual(
+            cart[0].quantity,
+            5,
+            "Quantity should be capped at max_quantity",
+          );
           assert.strictEqual(alerts.length, 1, "Should show alert");
-          assert.ok(alerts[0].includes("5"), "Alert should mention max quantity");
+          assert.ok(
+            alerts[0].includes("5"),
+            "Alert should mention max quantity",
+          );
         });
       } finally {
         global.alert = origAlert;
@@ -474,7 +518,11 @@ const testCases = [
       withMockStorage(() => {
         saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
         const result = updateItemQuantity("NonExistent", 5);
-        assert.strictEqual(result, false, "Should return false for non-existent item");
+        assert.strictEqual(
+          result,
+          false,
+          "Should return false for non-existent item",
+        );
       });
     },
   },
@@ -497,16 +545,32 @@ const testCases = [
 
         const decreaseBtn = container.querySelector(".qty-decrease");
         assert.ok(decreaseBtn, "Should have decrease button");
-        assert.strictEqual(decreaseBtn.dataset.name, "Widget", "Decrease button should have data-name");
+        assert.strictEqual(
+          decreaseBtn.dataset.name,
+          "Widget",
+          "Decrease button should have data-name",
+        );
 
         const increaseBtn = container.querySelector(".qty-increase");
         assert.ok(increaseBtn, "Should have increase button");
-        assert.strictEqual(increaseBtn.dataset.name, "Widget", "Increase button should have data-name");
+        assert.strictEqual(
+          increaseBtn.dataset.name,
+          "Widget",
+          "Increase button should have data-name",
+        );
 
         const input = container.querySelector(".qty-input");
         assert.ok(input, "Should have quantity input");
-        assert.strictEqual(input.value, "3", "Input should have quantity value");
-        assert.strictEqual(input.dataset.name, "Widget", "Input should have data-name");
+        assert.strictEqual(
+          input.value,
+          "3",
+          "Input should have quantity value",
+        );
+        assert.strictEqual(
+          input.dataset.name,
+          "Widget",
+          "Input should have data-name",
+        );
       } finally {
         delete global.document;
         dom.window.close();
@@ -515,7 +579,8 @@ const testCases = [
   },
   {
     name: "cart-utils-renderQuantityControls-max-quantity",
-    description: "renderQuantityControls includes max attribute when max_quantity set",
+    description:
+      "renderQuantityControls includes max attribute when max_quantity set",
     asyncTest: async () => {
       const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
       global.document = dom.window.document;
@@ -527,7 +592,11 @@ const testCases = [
         container.innerHTML = html;
 
         const input = container.querySelector(".qty-input");
-        assert.strictEqual(input.getAttribute("max"), "5", "Input should have max attribute");
+        assert.strictEqual(
+          input.getAttribute("max"),
+          "5",
+          "Input should have max attribute",
+        );
       } finally {
         delete global.document;
         dom.window.close();
@@ -544,8 +613,14 @@ const testCases = [
         const item = { item_name: "<script>xss</script>", quantity: 1 };
         const html = renderQuantityControls(item);
 
-        assert.ok(!html.includes("<script>xss</script>"), "Should escape HTML in item name");
-        assert.ok(html.includes("&lt;script&gt;"), "Should contain escaped HTML");
+        assert.ok(
+          !html.includes("<script>xss</script>"),
+          "Should escape HTML in item name",
+        );
+        assert.ok(
+          html.includes("&lt;script&gt;"),
+          "Should contain escaped HTML",
+        );
       } finally {
         delete global.document;
         dom.window.close();
@@ -703,10 +778,18 @@ const testCases = [
         const removeBtn = container.querySelector(".remove-btn");
         removeBtn.click();
 
-        assert.strictEqual(removeCalled, true, "onRemove callback should be called");
+        assert.strictEqual(
+          removeCalled,
+          true,
+          "onRemove callback should be called",
+        );
         const cart = getCart();
         assert.strictEqual(cart.length, 1, "Cart should have 1 item");
-        assert.strictEqual(cart[0].item_name, "Gadget", "Widget should be removed");
+        assert.strictEqual(
+          cart[0].item_name,
+          "Gadget",
+          "Widget should be removed",
+        );
       } finally {
         globalThis.localStorage = origStorage;
         dom.window.close();
@@ -1085,7 +1168,8 @@ const testCases = [
   },
   {
     name: "template-list-item-cart-button-no-options",
-    description: "List item cart button renders nothing for items without options",
+    description:
+      "List item cart button renders nothing for items without options",
     asyncTest: async () => {
       const config = { cart_mode: "stripe" };
       const item = {
@@ -1867,7 +1951,8 @@ const testCases = [
   },
   {
     name: "multi-option-select-options-have-data",
-    description: "Select options have index values and button has consolidated data",
+    description:
+      "Select options have index values and button has consolidated data",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         productOptions: [
@@ -1934,10 +2019,7 @@ const testCases = [
       assert.strictEqual(button.disabled, false, "Button should be enabled");
       assert.strictEqual(option.name, "Small");
       assert.strictEqual(option.unit_price, 5.0);
-      assert.ok(
-        button.textContent.includes("5"),
-        "Button should show price",
-      );
+      assert.ok(button.textContent.includes("5"), "Button should show price");
 
       dom.window.close();
     },

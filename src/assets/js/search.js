@@ -1,30 +1,29 @@
 import { onReady } from "./on-ready.js";
 
-function initSearch() {
-  var form = document.getElementById("search-form");
+const normalise = (str) =>
+  str
+    .toLowerCase()
+    .replace(/-/g, " ")
+    .replace(/[^\w\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const initSearch = () => {
+  const form = document.getElementById("search-form");
   if (!form) return;
 
-  var keywordsDatalist = document.getElementById("keywords");
+  const keywordsDatalist = document.getElementById("keywords");
   if (!keywordsDatalist) return;
 
-  var normalise = function (str) {
-    return str
-      .toLowerCase()
-      .replace(/-/g, " ")
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-  };
+  const validKeywords = Array.from(keywordsDatalist.options).map((opt) =>
+    normalise(opt.value),
+  );
 
-  var validKeywords = Array.from(keywordsDatalist.options).map(function (opt) {
-    return normalise(opt.value);
-  });
-
-  form.addEventListener("submit", function (e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    var input = document.getElementById("keyword");
-    var keyword = normalise(input.value);
-    var errorEl = document.getElementById("search-error");
+    const input = document.getElementById("keyword");
+    const keyword = normalise(input.value);
+    const errorEl = document.getElementById("search-error");
 
     if (keyword && validKeywords.includes(keyword)) {
       errorEl.style.display = "none";
@@ -34,7 +33,9 @@ function initSearch() {
       errorEl.style.display = "block";
       input.focus();
     }
-  });
-}
+  };
+
+  form.addEventListener("submit", handleSubmit);
+};
 
 onReady(initSearch);

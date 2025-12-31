@@ -54,13 +54,29 @@ const testCases = [
     description: "Gets sibling locations excluding current page",
     test: () => {
       const locations = [
-        { data: { title: "Cleaning", parentLocation: "london" }, url: "/london/cleaning/" },
-        { data: { title: "Repairs", parentLocation: "london" }, url: "/london/repairs/" },
-        { data: { title: "Painting", parentLocation: "london" }, url: "/london/painting/" },
-        { data: { title: "Plumbing", parentLocation: "manchester" }, url: "/manchester/plumbing/" },
+        {
+          data: { title: "Cleaning", parentLocation: "london" },
+          url: "/london/cleaning/",
+        },
+        {
+          data: { title: "Repairs", parentLocation: "london" },
+          url: "/london/repairs/",
+        },
+        {
+          data: { title: "Painting", parentLocation: "london" },
+          url: "/london/painting/",
+        },
+        {
+          data: { title: "Plumbing", parentLocation: "manchester" },
+          url: "/manchester/plumbing/",
+        },
       ];
 
-      const result = getSiblingLocations(locations, "london", "/london/cleaning/");
+      const result = getSiblingLocations(
+        locations,
+        "london",
+        "/london/cleaning/",
+      );
 
       expectStrictEqual(result.length, 2, "Should return 2 siblings");
       expectStrictEqual(
@@ -80,11 +96,21 @@ const testCases = [
     description: "Returns empty when no siblings exist",
     test: () => {
       const locations = [
-        { data: { title: "Cleaning", parentLocation: "london" }, url: "/london/cleaning/" },
-        { data: { title: "Plumbing", parentLocation: "manchester" }, url: "/manchester/plumbing/" },
+        {
+          data: { title: "Cleaning", parentLocation: "london" },
+          url: "/london/cleaning/",
+        },
+        {
+          data: { title: "Plumbing", parentLocation: "manchester" },
+          url: "/manchester/plumbing/",
+        },
       ];
 
-      const result = getSiblingLocations(locations, "london", "/london/cleaning/");
+      const result = getSiblingLocations(
+        locations,
+        "london",
+        "/london/cleaning/",
+      );
 
       expectStrictEqual(result.length, 0, "Should return no siblings");
     },
@@ -94,7 +120,10 @@ const testCases = [
     description: "Handles null/undefined inputs",
     test: () => {
       const locations = [
-        { data: { title: "Cleaning", parentLocation: "london" }, url: "/london/cleaning/" },
+        {
+          data: { title: "Cleaning", parentLocation: "london" },
+          url: "/london/cleaning/",
+        },
       ];
 
       expectDeepEqual(

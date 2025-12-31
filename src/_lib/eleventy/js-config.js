@@ -9,7 +9,7 @@ const JS_CONFIG_KEYS = ["cart_mode", "checkout_api_url"];
 export function buildJsConfigScript(config) {
   const jsConfig = {};
   for (const key of JS_CONFIG_KEYS) {
-    if (config[key] != null) {
+    if (config[key] !== null && config[key] !== undefined) {
       jsConfig[key] = config[key];
     }
   }

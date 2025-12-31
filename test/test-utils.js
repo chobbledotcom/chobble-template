@@ -142,11 +142,9 @@ const cleanupTempDir = (tempDir) => {
 
 const withTempDir = (testName, callback) => {
   const tempDir = createTempDir(testName);
-  try {
-    return callback(tempDir);
-  } finally {
-    cleanupTempDir(tempDir);
-  }
+  const result = callback(tempDir);
+  cleanupTempDir(tempDir);
+  return result;
 };
 
 const withTempFile = (testName, filename, content, callback) => {
@@ -159,16 +157,19 @@ const withTempFile = (testName, filename, content, callback) => {
 const withMockedCwd = (newCwd, callback) => {
   const originalCwd = process.cwd;
   process.cwd = () => newCwd;
-  try {
-    return callback();
-  } finally {
-    process.cwd = originalCwd;
-  }
+  const result = callback();
+  process.cwd = originalCwd;
+  return result;
 };
 
 const runTestSuite = async (testName, testCases) => {
+  const verbose = process.env.TEST_VERBOSE === "1";
+  const failures = [];
+
   try {
-    console.log(`=== Running ${testName} tests ===`);
+    if (verbose) {
+      console.log(`=== Running ${testName} tests ===`);
+    }
 
     for (const testCase of testCases) {
       const testId = `${testName}/${testCase.name}`;
@@ -179,15 +180,41 @@ const runTestSuite = async (testName, testCases) => {
         } else if (testCase.asyncTest) {
           await testCase.asyncTest();
         }
-        console.log(`✅ PASS: ${testId} - ${testCase.description}`);
+        if (verbose) {
+          console.log(`✅ PASS: ${testId} - ${testCase.description}`);
+        }
       } catch (error) {
-        console.error(`❌ FAIL: ${testId} - ${testCase.description}`);
-        console.error(`   Error: ${error.message}`);
-        throw error;
+        failures.push({ testId, description: testCase.description, error });
+        if (verbose) {
+          console.error(`❌ FAIL: ${testId} - ${testCase.description}`);
+          console.error(`   Error: ${error.message}`);
+        }
       }
     }
 
-    console.log(`\n✅ All ${testName} tests passed!`);
+    const passed = testCases.length - failures.length;
+
+    // Output results in parseable format for the runner
+    console.log(`__TEST_RESULTS__:${passed}:${failures.length}`);
+
+    if (failures.length > 0) {
+      // Always show failures, even in quiet mode
+      if (!verbose) {
+        console.error(
+          `\n❌ ${testName}: ${failures.length} failed, ${passed} passed`,
+        );
+        for (const { testId, description, error } of failures) {
+          console.error(`  ❌ FAIL: ${testId} - ${description}`);
+          console.error(`     Error: ${error.message}`);
+        }
+      }
+      process.exit(1);
+    } else if (verbose) {
+      console.log(`\n✅ All ${testName} tests passed!`);
+    }
+
+    // Return results for the runner to use
+    return { passed, failed: failures.length };
   } catch (error) {
     console.error(`❌ Test suite failed: ${error.message}`);
     console.error(error.stack);

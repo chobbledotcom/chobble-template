@@ -12,7 +12,6 @@
 // Files allowed to use var or let freely (third-party, legacy)
 const ALLOWED_MUTABLE_VAR_FILES = new Set([
   "src/assets/js/autosizes.js", // Third-party polyfill
-  "src/assets/js/search.js", // Legacy search form - uses var throughout
 ]);
 
 // Specific let patterns that are intentionally allowed (module-level state)
@@ -38,10 +37,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.test.js - test assertions
   "ecommerce-backend/server.test.js:370",
 
-  // test/render-snippet.test.js - test cleanup
-  "test/render-snippet.test.js:102",
-  "test/render-snippet.test.js:130",
-
   // src/assets/js/cart.js - JSON parsing and fetch handling
   "src/assets/js/cart.js:121",
   "src/assets/js/cart.js:157",
@@ -49,16 +44,10 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
-  "src/_lib/media/image.js:331",
+  "src/_lib/media/image.js:339",
 
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
-
-  // test/test-utils.js - test utilities with cleanup
-  "test/test-utils.js:145",
-  "test/test-utils.js:162",
-  "test/test-utils.js:170",
-  "test/test-utils.js:176",
 
   // test/scss.test.js - SCSS compilation tests
   "test/scss.test.js:42",
@@ -76,71 +65,27 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/checkout.test.js:235",
   "test/checkout.test.js:283",
   "test/checkout.test.js:344",
-  "test/checkout.test.js:372",
-  "test/checkout.test.js:406",
-  "test/checkout.test.js:456",
-  "test/checkout.test.js:487",
-  "test/checkout.test.js:522",
-  "test/checkout.test.js:543",
-  "test/checkout.test.js:572",
+  "test/checkout.test.js:378",
+  "test/checkout.test.js:420",
+  "test/checkout.test.js:486",
+  "test/checkout.test.js:535",
+  "test/checkout.test.js:587",
   "test/checkout.test.js:612",
-  "test/checkout.test.js:650",
-  "test/checkout.test.js:689",
-
-  // test/inline-asset.test.js - inline asset tests
-  "test/inline-asset.test.js:128",
-  "test/inline-asset.test.js:151",
-  "test/inline-asset.test.js:171",
-  "test/inline-asset.test.js:235",
-  "test/inline-asset.test.js:281",
-  "test/inline-asset.test.js:312",
-  "test/inline-asset.test.js:337",
-  "test/inline-asset.test.js:360",
+  "test/checkout.test.js:647",
+  "test/checkout.test.js:687",
+  "test/checkout.test.js:725",
+  "test/checkout.test.js:764",
 
   // test/file-utils.test.js - file utility tests
   "test/file-utils.test.js:85",
   "test/file-utils.test.js:222",
   "test/file-utils.test.js:265",
 
-  // test/cache-buster.test.js - environment variable cleanup
-  "test/cache-buster.test.js:32",
-  "test/cache-buster.test.js:54",
-  "test/cache-buster.test.js:76",
-  "test/cache-buster.test.js:97",
-  "test/cache-buster.test.js:120",
-  "test/cache-buster.test.js:147",
-
   // test/cpd.test.js - running external tool and capturing exit code
   "test/cpd.test.js:12",
 
   // test/knip.test.js - running external tool and capturing exit code
   "test/knip.test.js:12",
-]);
-
-// ============================================
-// Loose equality (== / !=) exceptions
-// ============================================
-
-const ALLOWED_LOOSE_EQUALITY = new Set([
-  // src/_lib/media/image.js - null checks
-  "src/_lib/media/image.js:101",
-  "src/_lib/media/image.js:171",
-
-  // src/categories/categories.11tydata.js - null check
-  "src/categories/categories.11tydata.js:8",
-
-  // src/_lib/eleventy/js-config.js - null check
-  "src/_lib/eleventy/js-config.js:12",
-
-  // src/_lib/collections/tags.js - null filter
-  "src/_lib/collections/tags.js:7",
-
-  // src/_lib/collections/reviews.js - null checks
-  "src/_lib/collections/reviews.js:49",
-  "src/_lib/collections/reviews.js:60",
-
-  // src/assets/js/tabs.js - length check
-  "src/assets/js/tabs.js:18",
 ]);
 
 // ============================================
@@ -170,7 +115,6 @@ export {
   ALLOWED_MUTABLE_VAR_FILES,
   ALLOWED_LET_PATTERNS,
   ALLOWED_TRY_CATCHES,
-  ALLOWED_LOOSE_EQUALITY,
   ALLOWED_THEN_USAGE,
   ALLOWED_CONSOLE_LOG_FILES,
 };

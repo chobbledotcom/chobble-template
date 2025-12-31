@@ -1,7 +1,4 @@
-import {
-  configureGuides,
-  guidesByCategory,
-} from "#collections/guides.js";
+import { configureGuides, guidesByCategory } from "#collections/guides.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
@@ -150,11 +147,7 @@ const testCases = [
 
       const result = guidesByCategory(guidePages, "getting-started");
 
-      expectStrictEqual(
-        result.length,
-        1,
-        "Should only match exact case",
-      );
+      expectStrictEqual(result.length, 1, "Should only match exact case");
       expectStrictEqual(
         result[0].data.title,
         "Guide 2",
@@ -238,7 +231,8 @@ const testCases = [
         },
       };
 
-      const categories = mockConfig.collections["guide-categories"](mockCollectionApi);
+      const categories =
+        mockConfig.collections["guide-categories"](mockCollectionApi);
       const pages = mockConfig.collections["guide-pages"](mockCollectionApi);
 
       expectStrictEqual(

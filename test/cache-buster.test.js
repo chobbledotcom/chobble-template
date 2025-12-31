@@ -29,19 +29,17 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "serve";
 
-      try {
-        const mockConfig = createMockEleventyConfig();
-        configureCacheBuster(mockConfig);
+      const mockConfig = createMockEleventyConfig();
+      configureCacheBuster(mockConfig);
 
-        const result = mockConfig.filters.cacheBust("/styles.css");
-        expectStrictEqual(
-          result,
-          "/styles.css",
-          "Should return URL unchanged in development mode",
-        );
-      } finally {
-        process.env.ELEVENTY_RUN_MODE = originalRunMode;
-      }
+      const result = mockConfig.filters.cacheBust("/styles.css");
+      expectStrictEqual(
+        result,
+        "/styles.css",
+        "Should return URL unchanged in development mode",
+      );
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
   {
@@ -51,19 +49,17 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       delete process.env.ELEVENTY_RUN_MODE;
 
-      try {
-        const mockConfig = createMockEleventyConfig();
-        configureCacheBuster(mockConfig);
+      const mockConfig = createMockEleventyConfig();
+      configureCacheBuster(mockConfig);
 
-        const result = mockConfig.filters.cacheBust("/script.js");
-        expectStrictEqual(
-          result,
-          "/script.js",
-          "Should return URL unchanged when run mode is undefined",
-        );
-      } finally {
-        process.env.ELEVENTY_RUN_MODE = originalRunMode;
-      }
+      const result = mockConfig.filters.cacheBust("/script.js");
+      expectStrictEqual(
+        result,
+        "/script.js",
+        "Should return URL unchanged when run mode is undefined",
+      );
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
   {
@@ -73,18 +69,16 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      try {
-        const mockConfig = createMockEleventyConfig();
-        configureCacheBuster(mockConfig);
+      const mockConfig = createMockEleventyConfig();
+      configureCacheBuster(mockConfig);
 
-        const result = mockConfig.filters.cacheBust("/styles.css");
-        expectTrue(
-          result.startsWith("/styles.css?cached="),
-          "Should add cached parameter in production mode",
-        );
-      } finally {
-        process.env.ELEVENTY_RUN_MODE = originalRunMode;
-      }
+      const result = mockConfig.filters.cacheBust("/styles.css");
+      expectTrue(
+        result.startsWith("/styles.css?cached="),
+        "Should add cached parameter in production mode",
+      );
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
   {
@@ -94,20 +88,18 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      try {
-        const mockConfig = createMockEleventyConfig();
-        configureCacheBuster(mockConfig);
+      const mockConfig = createMockEleventyConfig();
+      configureCacheBuster(mockConfig);
 
-        const result = mockConfig.filters.cacheBust("/app.js");
-        const match = result.match(/\?cached=(\d+)$/);
-        expectTrue(match !== null, "Should have numeric timestamp");
-        expectTrue(
-          parseInt(match[1]) > 0,
-          "Timestamp should be a positive number",
-        );
-      } finally {
-        process.env.ELEVENTY_RUN_MODE = originalRunMode;
-      }
+      const result = mockConfig.filters.cacheBust("/app.js");
+      const match = result.match(/\?cached=(\d+)$/);
+      expectTrue(match !== null, "Should have numeric timestamp");
+      expectTrue(
+        parseInt(match[1]) > 0,
+        "Timestamp should be a positive number",
+      );
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
   {
@@ -117,24 +109,22 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      try {
-        const mockConfig = createMockEleventyConfig();
-        configureCacheBuster(mockConfig);
+      const mockConfig = createMockEleventyConfig();
+      configureCacheBuster(mockConfig);
 
-        const result1 = mockConfig.filters.cacheBust("/styles.css");
-        const result2 = mockConfig.filters.cacheBust("/script.js");
+      const result1 = mockConfig.filters.cacheBust("/styles.css");
+      const result2 = mockConfig.filters.cacheBust("/script.js");
 
-        const timestamp1 = result1.match(/\?cached=(\d+)$/)[1];
-        const timestamp2 = result2.match(/\?cached=(\d+)$/)[1];
+      const timestamp1 = result1.match(/\?cached=(\d+)$/)[1];
+      const timestamp2 = result2.match(/\?cached=(\d+)$/)[1];
 
-        expectStrictEqual(
-          timestamp1,
-          timestamp2,
-          "Timestamp should be consistent across calls",
-        );
-      } finally {
-        process.env.ELEVENTY_RUN_MODE = originalRunMode;
-      }
+      expectStrictEqual(
+        timestamp1,
+        timestamp2,
+        "Timestamp should be consistent across calls",
+      );
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
   {
@@ -144,27 +134,25 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      try {
-        const mockConfig = createMockEleventyConfig();
-        configureCacheBuster(mockConfig);
+      const mockConfig = createMockEleventyConfig();
+      configureCacheBuster(mockConfig);
 
-        const urls = [
-          "/css/main.css",
-          "/js/bundle.js",
-          "/assets/images/logo.png",
-          "/deep/nested/path/file.woff2",
-        ];
+      const urls = [
+        "/css/main.css",
+        "/js/bundle.js",
+        "/assets/images/logo.png",
+        "/deep/nested/path/file.woff2",
+      ];
 
-        for (const url of urls) {
-          const result = mockConfig.filters.cacheBust(url);
-          expectTrue(
-            result.startsWith(url + "?cached="),
-            `Should add cache busting to ${url}`,
-          );
-        }
-      } finally {
-        process.env.ELEVENTY_RUN_MODE = originalRunMode;
+      for (const url of urls) {
+        const result = mockConfig.filters.cacheBust(url);
+        expectTrue(
+          result.startsWith(url + "?cached="),
+          `Should add cache busting to ${url}`,
+        );
       }
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
 ];

@@ -1,10 +1,10 @@
-import { eventIcal, configureICal } from "#eleventy/ical.js";
+import { configureICal, eventIcal } from "#eleventy/ical.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
+  expectFunctionType,
   expectStrictEqual,
   expectTrue,
-  expectFunctionType,
 } from "./test-utils.js";
 
 const testCases = [
@@ -37,7 +37,11 @@ const testCases = [
         url: "/events/test/",
       };
       const result = eventIcal(event);
-      expectStrictEqual(result, null, "Should return null when ical_url is undefined");
+      expectStrictEqual(
+        result,
+        null,
+        "Should return null when ical_url is undefined",
+      );
     },
   },
   {
@@ -53,7 +57,11 @@ const testCases = [
         url: "/events/test/",
       };
       const result = eventIcal(event);
-      expectStrictEqual(result, null, "Should return null when ical_url is empty");
+      expectStrictEqual(
+        result,
+        null,
+        "Should return null when ical_url is empty",
+      );
     },
   },
 
@@ -72,7 +80,10 @@ const testCases = [
       };
       const result = eventIcal(event);
       expectTrue(result !== null, "Should return iCal content");
-      expectTrue(result.includes("BEGIN:VCALENDAR"), "Should start with VCALENDAR");
+      expectTrue(
+        result.includes("BEGIN:VCALENDAR"),
+        "Should start with VCALENDAR",
+      );
       expectTrue(result.includes("END:VCALENDAR"), "Should end with VCALENDAR");
     },
   },
@@ -89,7 +100,10 @@ const testCases = [
         url: "/events/test/",
       };
       const result = eventIcal(event);
-      expectTrue(result.includes("BEGIN:VEVENT"), "Should contain BEGIN:VEVENT");
+      expectTrue(
+        result.includes("BEGIN:VEVENT"),
+        "Should contain BEGIN:VEVENT",
+      );
       expectTrue(result.includes("END:VEVENT"), "Should contain END:VEVENT");
     },
   },
@@ -106,7 +120,10 @@ const testCases = [
         url: "/events/conference/",
       };
       const result = eventIcal(event);
-      expectTrue(result.includes("SUMMARY:Annual Conference"), "Should contain title as SUMMARY");
+      expectTrue(
+        result.includes("SUMMARY:Annual Conference"),
+        "Should contain title as SUMMARY",
+      );
     },
   },
   {
@@ -123,7 +140,10 @@ const testCases = [
         url: "/events/meetup/",
       };
       const result = eventIcal(event);
-      expectTrue(result.includes("LOCATION:City Hall"), "Should contain event_location as LOCATION");
+      expectTrue(
+        result.includes("LOCATION:City Hall"),
+        "Should contain event_location as LOCATION",
+      );
     },
   },
   {
@@ -139,7 +159,10 @@ const testCases = [
         url: "/events/online/",
       };
       const result = eventIcal(event);
-      expectTrue(!result.includes("LOCATION:"), "Should not have LOCATION field when not provided");
+      expectTrue(
+        !result.includes("LOCATION:"),
+        "Should not have LOCATION field when not provided",
+      );
     },
   },
   {
@@ -156,7 +179,10 @@ const testCases = [
         url: "/events/workshop/",
       };
       const result = eventIcal(event);
-      expectTrue(result.includes("DESCRIPTION:Learn new skills"), "Should use subtitle as DESCRIPTION");
+      expectTrue(
+        result.includes("DESCRIPTION:Learn new skills"),
+        "Should use subtitle as DESCRIPTION",
+      );
     },
   },
   {
@@ -173,7 +199,10 @@ const testCases = [
         url: "/events/seminar/",
       };
       const result = eventIcal(event);
-      expectTrue(result.includes("DESCRIPTION:A great seminar event"), "Should use meta_description as DESCRIPTION");
+      expectTrue(
+        result.includes("DESCRIPTION:A great seminar event"),
+        "Should use meta_description as DESCRIPTION",
+      );
     },
   },
   {
@@ -189,7 +218,10 @@ const testCases = [
         url: "/events/simple/",
       };
       const result = eventIcal(event);
-      expectTrue(result.includes("DESCRIPTION:"), "Should have DESCRIPTION field");
+      expectTrue(
+        result.includes("DESCRIPTION:"),
+        "Should have DESCRIPTION field",
+      );
     },
   },
   {
@@ -250,8 +282,15 @@ const testCases = [
       const mockConfig = createMockEleventyConfig();
       configureICal(mockConfig);
 
-      expectTrue("eventIcal" in mockConfig.filters, "Should add eventIcal filter");
-      expectFunctionType(mockConfig.filters, "eventIcal", "Filter should be a function");
+      expectTrue(
+        "eventIcal" in mockConfig.filters,
+        "Should add eventIcal filter",
+      );
+      expectFunctionType(
+        mockConfig.filters,
+        "eventIcal",
+        "Filter should be a function",
+      );
     },
   },
   {
@@ -261,7 +300,11 @@ const testCases = [
       const mockConfig = createMockEleventyConfig();
       configureICal(mockConfig);
 
-      expectStrictEqual(mockConfig.filters.eventIcal, eventIcal, "Filter should be eventIcal function");
+      expectStrictEqual(
+        mockConfig.filters.eventIcal,
+        eventIcal,
+        "Filter should be eventIcal function",
+      );
     },
   },
   {
@@ -271,8 +314,15 @@ const testCases = [
       const mockConfig = createMockEleventyConfig();
       configureICal(mockConfig);
 
-      expectTrue("oneOffEvents" in mockConfig.collections, "Should add oneOffEvents collection");
-      expectFunctionType(mockConfig.collections, "oneOffEvents", "Collection should be a function");
+      expectTrue(
+        "oneOffEvents" in mockConfig.collections,
+        "Should add oneOffEvents collection",
+      );
+      expectFunctionType(
+        mockConfig.collections,
+        "oneOffEvents",
+        "Collection should be a function",
+      );
     },
   },
   {
@@ -287,8 +337,19 @@ const testCases = [
           if (tag === "events") {
             return [
               { data: { title: "One-off Event", event_date: "2025-06-15" } },
-              { data: { title: "Recurring Event", recurring_date: "Every Monday" } },
-              { data: { title: "Mixed Event", event_date: "2025-07-01", recurring_date: "Weekly" } },
+              {
+                data: {
+                  title: "Recurring Event",
+                  recurring_date: "Every Monday",
+                },
+              },
+              {
+                data: {
+                  title: "Mixed Event",
+                  event_date: "2025-07-01",
+                  recurring_date: "Weekly",
+                },
+              },
               { data: { title: "Another One-off", event_date: "2025-08-01" } },
             ];
           }
@@ -299,8 +360,16 @@ const testCases = [
       const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
 
       expectStrictEqual(result.length, 2, "Should return only one-off events");
-      expectStrictEqual(result[0].data.title, "One-off Event", "First event should be One-off Event");
-      expectStrictEqual(result[1].data.title, "Another One-off", "Second event should be Another One-off");
+      expectStrictEqual(
+        result[0].data.title,
+        "One-off Event",
+        "First event should be One-off Event",
+      );
+      expectStrictEqual(
+        result[1].data.title,
+        "Another One-off",
+        "Second event should be Another One-off",
+      );
     },
   },
   {
@@ -314,8 +383,18 @@ const testCases = [
         getFilteredByTag: (tag) => {
           if (tag === "events") {
             return [
-              { data: { title: "Weekly Meetup", recurring_date: "Every Tuesday" } },
-              { data: { title: "Monthly Workshop", recurring_date: "First Friday" } },
+              {
+                data: {
+                  title: "Weekly Meetup",
+                  recurring_date: "Every Tuesday",
+                },
+              },
+              {
+                data: {
+                  title: "Monthly Workshop",
+                  recurring_date: "First Friday",
+                },
+              },
             ];
           }
           return [];
@@ -324,25 +403,40 @@ const testCases = [
 
       const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
 
-      expectStrictEqual(result.length, 0, "Should exclude all recurring events");
+      expectStrictEqual(
+        result.length,
+        0,
+        "Should exclude all recurring events",
+      );
     },
   },
   {
     name: "configureICal-collection-excludes-events-with-both",
-    description: "oneOffEvents excludes events that have both event_date and recurring_date",
+    description:
+      "oneOffEvents excludes events that have both event_date and recurring_date",
     test: () => {
       const mockConfig = createMockEleventyConfig();
       configureICal(mockConfig);
 
       const mockCollectionApi = {
         getFilteredByTag: () => [
-          { data: { title: "Hybrid", event_date: "2025-06-01", recurring_date: "Weekly" } },
+          {
+            data: {
+              title: "Hybrid",
+              event_date: "2025-06-01",
+              recurring_date: "Weekly",
+            },
+          },
         ],
       };
 
       const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
 
-      expectStrictEqual(result.length, 0, "Should exclude events with both event_date and recurring_date");
+      expectStrictEqual(
+        result.length,
+        0,
+        "Should exclude events with both event_date and recurring_date",
+      );
     },
   },
   {
@@ -358,7 +452,11 @@ const testCases = [
 
       const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
 
-      expectStrictEqual(result.length, 0, "Should return empty array when no events");
+      expectStrictEqual(
+        result.length,
+        0,
+        "Should return empty array when no events",
+      );
     },
   },
 ];

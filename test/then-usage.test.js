@@ -1,5 +1,14 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 import { ALLOWED_THEN_USAGE } from "./code-quality-exceptions.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 /**
  * Find all .then() calls in a file
@@ -38,8 +47,11 @@ const analyzeThenUsage = () => {
   const allowed = [];
 
   // Exclude this test file since it contains examples in test strings
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/then-usage.test.js");
+  const allJsFiles = [
+    ...SRC_JS_FILES,
+    ...ECOMMERCE_JS_FILES,
+    ...TEST_FILES,
+  ].filter((f) => f !== "test/then-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -83,28 +95,33 @@ await asyncFunction();
       const results = findThenCalls(source);
       expectTrue(
         results.length === 2,
-        `Expected 2 .then() calls, found ${results.length}`
+        `Expected 2 .then() calls, found ${results.length}`,
       );
     },
   },
   {
     name: "no-new-then-chains",
-    description: "No new .then() chains outside the whitelist - use async/await",
+    description:
+      "No new .then() chains outside the whitelist - use async/await",
     test: () => {
       const { violations, allowed } = analyzeThenUsage();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted .then() calls:`);
+        console.log(
+          `\n  Found ${violations.length} non-whitelisted .then() calls:`,
+        );
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: refactor to use async/await, or add to ALLOWED_THEN_USAGE in code-quality-exceptions.js\n");
+        console.log(
+          "\n  To fix: refactor to use async/await, or add to ALLOWED_THEN_USAGE in code-quality-exceptions.js\n",
+        );
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted .then() calls. See list above.`
+        `Found ${violations.length} non-whitelisted .then() calls. See list above.`,
       );
     },
   },

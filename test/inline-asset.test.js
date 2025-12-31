@@ -125,12 +125,9 @@ const testCases = [
         '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
       fs.writeFileSync(path.join(assetsDir, "test.svg"), svgContent);
 
-      try {
-        const result = inlineAsset("icons/test.svg", tempDir);
-        expectStrictEqual(result, svgContent, "Should return SVG content");
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      const result = inlineAsset("icons/test.svg", tempDir);
+      expectStrictEqual(result, svgContent, "Should return SVG content");
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -148,16 +145,13 @@ const testCases = [
 </svg>`;
       fs.writeFileSync(path.join(assetsDir, "multiline.svg"), svgContent);
 
-      try {
-        const result = inlineAsset("multiline.svg", tempDir);
-        expectStrictEqual(
-          result,
-          svgContent,
-          "Should return multiline SVG content",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      const result = inlineAsset("multiline.svg", tempDir);
+      expectStrictEqual(
+        result,
+        svgContent,
+        "Should return multiline SVG content",
+      );
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -168,15 +162,12 @@ const testCases = [
       const assetsDir = path.join(tempDir, "src", "assets");
       fs.mkdirSync(assetsDir, { recursive: true });
 
-      try {
-        expectThrows(
-          () => inlineAsset("nonexistent.svg", tempDir),
-          /Asset file not found/,
-          "Should throw for missing file",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      expectThrows(
+        () => inlineAsset("nonexistent.svg", tempDir),
+        /Asset file not found/,
+        "Should throw for missing file",
+      );
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -232,17 +223,10 @@ const testCases = [
       const originalCwd = process.cwd;
       process.cwd = () => tempDir;
 
-      try {
-        const result = mockConfig.filters.inline_asset("rect.svg");
-        expectStrictEqual(
-          result,
-          svgContent,
-          "Filter should return SVG content",
-        );
-      } finally {
-        process.cwd = originalCwd;
-        cleanupTempDir(tempDir);
-      }
+      const result = mockConfig.filters.inline_asset("rect.svg");
+      expectStrictEqual(result, svgContent, "Filter should return SVG content");
+      process.cwd = originalCwd;
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -278,21 +262,18 @@ const testCases = [
       ]);
       fs.writeFileSync(path.join(assetsDir, "test.png"), pngBuffer);
 
-      try {
-        const result = inlineAsset("test.png", tempDir);
-        expectTrue(
-          result.startsWith("data:image/png;base64,"),
-          "Should start with PNG data URI prefix",
-        );
-        const base64Part = result.replace("data:image/png;base64,", "");
-        const decoded = Buffer.from(base64Part, "base64");
-        expectTrue(
-          decoded.equals(pngBuffer),
-          "Decoded base64 should match original",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      const result = inlineAsset("test.png", tempDir);
+      expectTrue(
+        result.startsWith("data:image/png;base64,"),
+        "Should start with PNG data URI prefix",
+      );
+      const base64Part = result.replace("data:image/png;base64,", "");
+      const decoded = Buffer.from(base64Part, "base64");
+      expectTrue(
+        decoded.equals(pngBuffer),
+        "Decoded base64 should match original",
+      );
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -309,15 +290,12 @@ const testCases = [
       ]);
       fs.writeFileSync(path.join(assetsDir, "test.jpg"), jpgBuffer);
 
-      try {
-        const result = inlineAsset("test.jpg", tempDir);
-        expectTrue(
-          result.startsWith("data:image/jpeg;base64,"),
-          "Should use 'jpeg' not 'jpg' as MIME type",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      const result = inlineAsset("test.jpg", tempDir);
+      expectTrue(
+        result.startsWith("data:image/jpeg;base64,"),
+        "Should use 'jpeg' not 'jpg' as MIME type",
+      );
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -334,15 +312,12 @@ const testCases = [
       ]);
       fs.writeFileSync(path.join(assetsDir, "test.webp"), webpBuffer);
 
-      try {
-        const result = inlineAsset("test.webp", tempDir);
-        expectTrue(
-          result.startsWith("data:image/webp;base64,"),
-          "Should start with WebP data URI prefix",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      const result = inlineAsset("test.webp", tempDir);
+      expectTrue(
+        result.startsWith("data:image/webp;base64,"),
+        "Should start with WebP data URI prefix",
+      );
+      cleanupTempDir(tempDir);
     },
   },
   {
@@ -357,15 +332,12 @@ const testCases = [
       const gifBuffer = Buffer.from([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]);
       fs.writeFileSync(path.join(assetsDir, "test.gif"), gifBuffer);
 
-      try {
-        const result = inlineAsset("test.gif", tempDir);
-        expectTrue(
-          result.startsWith("data:image/gif;base64,"),
-          "Should start with GIF data URI prefix",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      const result = inlineAsset("test.gif", tempDir);
+      expectTrue(
+        result.startsWith("data:image/gif;base64,"),
+        "Should start with GIF data URI prefix",
+      );
+      cleanupTempDir(tempDir);
     },
   },
 ];
