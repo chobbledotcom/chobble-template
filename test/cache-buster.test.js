@@ -122,27 +122,32 @@ const testCases = [
     },
   },
   {
-    name: "configureCacheBuster-registers-filter",
-    description: "Registers cacheBust filter with eleventy config",
+    name: "configureCacheBuster-filter-works",
+    description: "Configured filter performs cache busting correctly",
     test: () => {
-      const registeredFilters = {};
+      const filters = {};
       const mockEleventyConfig = {
         addFilter: (name, fn) => {
-          registeredFilters[name] = fn;
+          filters[name] = fn;
         },
       };
 
       configureCacheBuster(mockEleventyConfig);
 
+      // Verify a filter named "cacheBust" was registered
+      expectTrue("cacheBust" in filters, "Should register 'cacheBust' filter");
+
+      // Verify the registered filter actually performs cache busting
+      const originalRunMode = process.env.ELEVENTY_RUN_MODE;
+      process.env.ELEVENTY_RUN_MODE = "build";
+
+      const result = filters.cacheBust("/styles.css");
       expectTrue(
-        "cacheBust" in registeredFilters,
-        "Should register 'cacheBust' filter",
+        result.startsWith("/styles.css?cached="),
+        "Registered filter should add cache busting in production",
       );
-      expectStrictEqual(
-        registeredFilters.cacheBust,
-        cacheBust,
-        "Registered filter should be the cacheBust function",
-      );
+
+      process.env.ELEVENTY_RUN_MODE = originalRunMode;
     },
   },
 ];
