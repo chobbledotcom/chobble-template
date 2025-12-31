@@ -47,9 +47,18 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeFunctionLengths",
   "formatViolations",
   // let-usage.test.js - analysis helpers
+  "findDeclarations",
   "findLetDeclarations",
+  "findVarDeclarations",
   "isAllowedLet",
   "analyzeLetUsage",
+  "analyzeVarUsage",
+  // loose-equality.test.js - analysis helpers
+  "findLooseEquality",
+  "analyzeLooseEquality",
+  // then-usage.test.js - analysis helpers
+  "findThenCalls",
+  "analyzeThenUsage",
   // missing-folders-lib.test.js
   "testLibModules",
   // naming-conventions.test.js - analysis helpers
