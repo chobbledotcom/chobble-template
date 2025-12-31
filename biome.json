@@ -11,6 +11,12 @@
   "linter": {
     "enabled": true,
     "rules": {
+      "complexity": {
+        "noStaticOnlyClass": "error",
+        "noThisInStatic": "error",
+        "noUselessThisAlias": "error",
+        "useArrowFunction": "error"
+      },
       "style": {
         "useConst": "error"
       },

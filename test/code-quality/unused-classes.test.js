@@ -192,6 +192,8 @@ const findIdReferencesInJs = (content, idName) => {
     new RegExp(`id=["']${escaped}["']`),
     // ID stored in const object (e.g., ELEMENT_IDS = { form: "theme-editor-form" })
     new RegExp(`:\\s*["']${escaped}["']`),
+    // ID stored in const variable (e.g., const CART_OVERLAY_ID = "cart-overlay")
+    new RegExp(`=\\s*["']${escaped}["']`),
   ];
 
   if (patterns.some((pattern) => pattern.test(content))) {
