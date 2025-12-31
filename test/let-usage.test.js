@@ -15,7 +15,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+(ELEMENTS|PREVIOUS_GLOBAL_VARS)\s*=\s*null/, // theme-editor.js state
   /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
   /^let\s+currentPopupIndex\s*=/, // gallery.js state
-  /^let\s+storedCollections\s*=\s*null/, // pdf.js state
 ];
 
 /**
@@ -122,7 +121,6 @@ let d, e, f;
       const allowedLines = [
         "let ELEMENTS = null;",
         "let gallery, currentImage, imagePopup;",
-        "let storedCollections = null;",
       ];
       for (const line of allowedLines) {
         expectTrue(
