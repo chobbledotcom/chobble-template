@@ -51,19 +51,19 @@ const ALLOWED_TRY_CATCHES = new Set([
   "src/assets/js/cart-utils.js:11",
 
   // test/checkout.test.js - checkout flow tests
-  "test/checkout.test.js:235",
-  "test/checkout.test.js:283",
-  "test/checkout.test.js:344",
-  "test/checkout.test.js:378",
-  "test/checkout.test.js:420",
-  "test/checkout.test.js:486",
-  "test/checkout.test.js:535",
-  "test/checkout.test.js:587",
-  "test/checkout.test.js:612",
-  "test/checkout.test.js:647",
-  "test/checkout.test.js:687",
-  "test/checkout.test.js:725",
-  "test/checkout.test.js:764",
+  "test/checkout.test.js:234",
+  "test/checkout.test.js:282",
+  "test/checkout.test.js:343",
+  "test/checkout.test.js:377",
+  "test/checkout.test.js:419",
+  "test/checkout.test.js:485",
+  "test/checkout.test.js:534",
+  "test/checkout.test.js:586",
+  "test/checkout.test.js:611",
+  "test/checkout.test.js:646",
+  "test/checkout.test.js:686",
+  "test/checkout.test.js:724",
+  "test/checkout.test.js:763",
 
   // test/file-utils.test.js - file utility tests
   "test/file-utils.test.js:85",
@@ -71,10 +71,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/file-utils.test.js:265",
 
   // test/cpd.test.js - running external tool and capturing exit code
-  "test/cpd.test.js:12",
+  "test/cpd.test.js:16",
 
   // test/knip.test.js - running external tool and capturing exit code
-  "test/knip.test.js:12",
+  "test/knip.test.js:16",
 ]);
 
 // ============================================

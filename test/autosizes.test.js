@@ -7,7 +7,7 @@ import {
   expectStrictEqual,
   expectTrue,
   rootDir,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 // ============================================
 // Load actual autosizes.js source

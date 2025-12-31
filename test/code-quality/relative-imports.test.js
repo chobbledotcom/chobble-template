@@ -47,9 +47,11 @@ const analyzeRelativeImports = () => {
   const violations = [];
 
   // Exclude this test file since it contains examples in test strings
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES].filter(
-    (f) => f !== "test/code-quality/relative-imports.test.js",
-  );
+  const allJsFiles = [
+    ...SRC_JS_FILES,
+    ...ECOMMERCE_JS_FILES,
+    ...TEST_FILES,
+  ].filter((f) => f !== "test/code-quality/relative-imports.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -97,7 +99,8 @@ import qux from "some-package";
   },
   {
     name: "no-relative-imports",
-    description: "No relative imports - use path aliases (#lib/*, #test/*, etc.)",
+    description:
+      "No relative imports - use path aliases (#lib/*, #test/*, etc.)",
     test: () => {
       const violations = analyzeRelativeImports();
 
@@ -110,7 +113,9 @@ import qux from "some-package";
         console.log("\n  To fix: use path aliases instead of relative paths");
         console.log("  Examples:");
         console.log('    "./foo.js" → "#lib/foo.js" or "#test/foo.js"');
-        console.log('    "../utils.js" → "#lib/utils.js" or "#utils/file.js"\n');
+        console.log(
+          '    "../utils.js" → "#lib/utils.js" or "#utils/file.js"\n',
+        );
       }
 
       expectTrue(
