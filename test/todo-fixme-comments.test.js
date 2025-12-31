@@ -1,11 +1,5 @@
 import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 
-// Whitelist of allowed TODO/FIXME occurrences
-// Format: "filepath:lineNumber" - these are grandfathered in and should be removed over time
-const ALLOWED_TODO_FIXME = new Set([
-  // Currently no allowed TODO/FIXME comments - add entries here if temporarily needed
-]);
-
 /**
  * Find all TODO/FIXME occurrences in a file
  * Returns array of { lineNumber, line, match }
@@ -37,7 +31,6 @@ const findTodoFixme = (source) => {
  */
 const analyzeTodoFixme = () => {
   const violations = [];
-  const allowed = [];
 
   // Exclude this test file since it contains TODO/FIXME in test strings
   const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
@@ -49,27 +42,16 @@ const analyzeTodoFixme = () => {
     const todoFixmes = findTodoFixme(source);
 
     for (const tf of todoFixmes) {
-      const location = `${relativePath}:${tf.lineNumber}`;
-
-      if (ALLOWED_TODO_FIXME.has(location)) {
-        allowed.push({
-          file: relativePath,
-          line: tf.lineNumber,
-          code: tf.line,
-          match: tf.match,
-        });
-      } else {
-        violations.push({
-          file: relativePath,
-          line: tf.lineNumber,
-          code: tf.line,
-          match: tf.match,
-        });
-      }
+      violations.push({
+        file: relativePath,
+        line: tf.lineNumber,
+        code: tf.line,
+        match: tf.match,
+      });
     }
   }
 
-  return { violations, allowed };
+  return violations;
 };
 
 const testCases = [
@@ -110,52 +92,23 @@ const todoList = []; // variable name, not a comment
   },
   {
     name: "no-todo-fixme-comments",
-    description: "No TODO/FIXME comments outside the whitelist",
+    description: "No TODO/FIXME comments in the codebase",
     test: () => {
-      const { violations, allowed } = analyzeTodoFixme();
+      const violations = analyzeTodoFixme();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted TODO/FIXME comments:`);
+        console.log(`\n  Found ${violations.length} TODO/FIXME comments:`);
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line} (${v.match})`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: resolve the TODO/FIXME, or add to ALLOWED_TODO_FIXME in todo-fixme-comments.test.js\n");
+        console.log("\n  To fix: resolve the TODO/FIXME before committing.\n");
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted TODO/FIXME comments. See list above.`
+        `Found ${violations.length} TODO/FIXME comments. See list above.`
       );
-    },
-  },
-  {
-    name: "report-allowed-todo-fixme",
-    description: "Reports whitelisted TODO/FIXME comments for tracking",
-    test: () => {
-      const { allowed } = analyzeTodoFixme();
-
-      if (allowed.length > 0) {
-        console.log(`\n  Whitelisted TODO/FIXME comments: ${allowed.length}`);
-        console.log("  These should be removed over time:\n");
-
-        // Group by file for cleaner output
-        const byFile = {};
-        for (const a of allowed) {
-          if (!byFile[a.file]) byFile[a.file] = [];
-          byFile[a.file].push(`${a.line} (${a.match})`);
-        }
-
-        for (const [file, lines] of Object.entries(byFile)) {
-          console.log(`     ${file}: lines ${lines.join(", ")}`);
-        }
-        console.log("");
-      } else {
-        console.log("\n  No whitelisted TODO/FIXME comments - codebase is clean!\n");
-      }
-
-      // This test always passes - it's informational
-      expectTrue(true, "Reported whitelisted TODO/FIXME comments");
     },
   },
 ];
