@@ -13,21 +13,10 @@ layout: base
   {%- include "items.html", items: services -%}
 {%- endif -%}
 
-{%- if categories.size > 0 -%}
-  {%- assign locationProducts = "" | split: "" -%}
-  {%- for category in categories -%}
-    {%- assign categoryProducts = collections.products | getProductsByCategory: category -%}
-    {%- for product in categoryProducts -%}
-      {%- unless locationProducts contains product -%}
-        {%- assign locationProducts = locationProducts | push: product -%}
-      {%- endunless -%}
-    {%- endfor -%}
-  {%- endfor -%}
-
-  {%- if locationProducts.size > 0 -%}
-    <h2>{{ strings.product_name }} in {{ title }}</h2>
-    {%- include "items.html", items: locationProducts -%}
-  {%- endif -%}
+{%- assign locationProducts = collections.products | getProductsByCategories: categories -%}
+{%- if locationProducts.size > 0 -%}
+  <h2>{{ strings.product_name }} in {{ title }}</h2>
+  {%- include "items.html", items: locationProducts -%}
 {%- endif -%}
 
 {%- assign locationProperties = collections.properties | getPropertiesByLocation: locationSlug -%}
@@ -36,17 +25,8 @@ layout: base
   {%- include "items.html", items: locationProperties -%}
 {%- endif -%}
 
-{%- if parentLocation -%}
-  {%- assign siblingServices = collections.location | where: "data.parentLocation", parentLocation -%}
-  {%- assign otherServices = "" | split: "" -%}
-  {%- for service in siblingServices -%}
-    {%- unless service.url == page.url -%}
-      {%- assign otherServices = otherServices | push: service -%}
-    {%- endunless -%}
-  {%- endfor -%}
-
-  {%- if otherServices.size > 0 -%}
-    <h2>Other Services</h2>
-    {%- include "items.html", items: otherServices -%}
-  {%- endif -%}
+{%- assign otherServices = collections.location | getSiblingLocations: parentLocation, page.url -%}
+{%- if otherServices.size > 0 -%}
+  <h2>Other Services</h2>
+  {%- include "items.html", items: otherServices -%}
 {%- endif -%}

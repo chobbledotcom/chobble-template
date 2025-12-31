@@ -37,6 +37,25 @@ const getProductsByCategory = (products, categorySlug) => {
     .sort(sortItems);
 };
 
+/**
+ * Get unique products that belong to any of the given categories
+ * Replaces gnarly Liquid nested loops with contains checks
+ */
+const getProductsByCategories = (products, categorySlugs) => {
+  if (!products || !categorySlugs?.length) return [];
+  const seen = new Set();
+  const result = [];
+  for (const slug of categorySlugs) {
+    for (const product of products) {
+      if (product.data.categories?.includes(slug) && !seen.has(product)) {
+        seen.add(product);
+        result.push(product);
+      }
+    }
+  }
+  return result.sort(sortItems);
+};
+
 const getProductsByEvent = (products, eventSlug) => {
   if (!products) return [];
   return products
@@ -100,6 +119,7 @@ const configureProducts = (eleventyConfig) => {
   );
 
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
+  eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
@@ -113,6 +133,7 @@ export {
   productsWithReviewsPage,
   productReviewsRedirects,
   getProductsByCategory,
+  getProductsByCategories,
   getProductsByEvent,
   getFeaturedProducts,
   configureProducts,
