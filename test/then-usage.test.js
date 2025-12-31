@@ -1,18 +1,18 @@
 import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
-import { ALLOWED_TRY_CATCHES } from "./code-quality-exceptions.js";
+import { ALLOWED_THEN_USAGE } from "./code-quality-exceptions.js";
 
 /**
- * Find all try { occurrences in a file
+ * Find all .then() calls in a file
  * Returns array of { lineNumber, line }
  */
-const findTryCatches = (source) => {
+const findThenCalls = (source) => {
   const results = [];
   const lines = source.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    // Match 'try' followed by optional whitespace and '{'
-    const regex = /\btry\s*\{/g;
+    // Match .then( with optional whitespace
+    const regex = /\.then\s*\(/g;
 
     if (regex.test(line)) {
       // Skip if in a comment
@@ -31,25 +31,25 @@ const findTryCatches = (source) => {
 };
 
 /**
- * Analyze all JS files and find try/catch usage
+ * Analyze all JS files and find .then() usage
  */
-const analyzeTryCatchUsage = () => {
+const analyzeThenUsage = () => {
   const violations = [];
   const allowed = [];
 
-  // Exclude this test file since it contains try/catch examples in test strings
+  // Exclude this test file since it contains examples in test strings
   const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/try-catch-usage.test.js");
+    .filter((f) => f !== "test/then-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
-    const tryCatches = findTryCatches(source);
+    const thenCalls = findThenCalls(source);
 
-    for (const tc of tryCatches) {
+    for (const tc of thenCalls) {
       const location = `${relativePath}:${tc.lineNumber}`;
 
-      if (ALLOWED_TRY_CATCHES.has(location)) {
+      if (ALLOWED_THEN_USAGE.has(location)) {
         allowed.push({
           file: relativePath,
           line: tc.lineNumber,
@@ -70,59 +70,52 @@ const analyzeTryCatchUsage = () => {
 
 const testCases = [
   {
-    name: "find-try-catch-in-source",
-    description: "Correctly identifies try/catch blocks in source code",
+    name: "find-then-in-source",
+    description: "Correctly identifies .then() calls in source code",
     test: () => {
       const source = `
 const a = 1;
-try {
-  doSomething();
-} catch (e) {
-  handleError(e);
-}
-// try { this is a comment
-const b = 2;
+fetch(url).then((res) => res.json());
+promise.then(handleSuccess);
+// promise.then(comment);
+await asyncFunction();
       `;
-      const results = findTryCatches(source);
+      const results = findThenCalls(source);
       expectTrue(
-        results.length === 1,
-        `Expected 1 try/catch, found ${results.length}`
-      );
-      expectTrue(
-        results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`
+        results.length === 2,
+        `Expected 2 .then() calls, found ${results.length}`
       );
     },
   },
   {
-    name: "no-new-try-catches",
-    description: "No new try/catch blocks outside the whitelist",
+    name: "no-new-then-chains",
+    description: "No new .then() chains outside the whitelist - use async/await",
     test: () => {
-      const { violations, allowed } = analyzeTryCatchUsage();
+      const { violations, allowed } = analyzeThenUsage();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted try/catch blocks:`);
+        console.log(`\n  Found ${violations.length} non-whitelisted .then() calls:`);
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js\n");
+        console.log("\n  To fix: refactor to use async/await, or add to ALLOWED_THEN_USAGE in code-quality-exceptions.js\n");
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted try/catch blocks. See list above.`
+        `Found ${violations.length} non-whitelisted .then() calls. See list above.`
       );
     },
   },
   {
-    name: "report-allowed-try-catches",
-    description: "Reports whitelisted try/catch blocks for tracking",
+    name: "report-allowed-then-usage",
+    description: "Reports whitelisted .then() calls for tracking",
     test: () => {
-      const { allowed } = analyzeTryCatchUsage();
+      const { allowed } = analyzeThenUsage();
 
-      console.log(`\n  Whitelisted try/catch blocks: ${allowed.length}`);
-      console.log("  These should be removed over time:\n");
+      console.log(`\n  Whitelisted .then() calls: ${allowed.length}`);
+      console.log("  These should be refactored to async/await over time:\n");
 
       // Group by file for cleaner output
       const byFile = {};
@@ -137,9 +130,9 @@ const b = 2;
       console.log("");
 
       // This test always passes - it's informational
-      expectTrue(true, "Reported whitelisted try/catch blocks");
+      expectTrue(true, "Reported whitelisted .then() calls");
     },
   },
 ];
 
-createTestRunner("try-catch-usage", testCases);
+createTestRunner("then-usage", testCases);
