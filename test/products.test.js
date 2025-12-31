@@ -3,8 +3,8 @@ import {
   configureProducts,
   createProductsCollection,
   getFeaturedProducts,
-  getProductsByCategory,
   getProductsByCategories,
+  getProductsByCategory,
   processGallery,
 } from "#collections/products.js";
 import {

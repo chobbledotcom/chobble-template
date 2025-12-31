@@ -12,7 +12,6 @@
 // Files allowed to use var or let freely (third-party, legacy)
 const ALLOWED_MUTABLE_VAR_FILES = new Set([
   "src/assets/js/autosizes.js", // Third-party polyfill
-  "src/assets/js/search.js", // Legacy search form - uses var throughout
 ]);
 
 // Specific let patterns that are intentionally allowed (module-level state)
@@ -53,7 +52,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
-  "src/_lib/media/image.js:331",
+  "src/_lib/media/image.js:337",
 
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
@@ -80,16 +79,16 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/checkout.test.js:235",
   "test/checkout.test.js:283",
   "test/checkout.test.js:344",
-  "test/checkout.test.js:372",
-  "test/checkout.test.js:406",
-  "test/checkout.test.js:456",
-  "test/checkout.test.js:487",
-  "test/checkout.test.js:522",
-  "test/checkout.test.js:543",
-  "test/checkout.test.js:572",
+  "test/checkout.test.js:378",
+  "test/checkout.test.js:420",
+  "test/checkout.test.js:486",
+  "test/checkout.test.js:535",
+  "test/checkout.test.js:587",
   "test/checkout.test.js:612",
-  "test/checkout.test.js:650",
-  "test/checkout.test.js:689",
+  "test/checkout.test.js:647",
+  "test/checkout.test.js:687",
+  "test/checkout.test.js:725",
+  "test/checkout.test.js:764",
 
   // test/inline-asset.test.js - inline asset tests
   "test/inline-asset.test.js:128",
@@ -122,7 +121,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 const ALLOWED_LOOSE_EQUALITY = new Set([
   // src/_lib/media/image.js - null checks
   "src/_lib/media/image.js:101",
-  "src/_lib/media/image.js:171",
+  "src/_lib/media/image.js:177",
 
   // src/categories/categories.11tydata.js - null check
   "src/categories/categories.11tydata.js:8",

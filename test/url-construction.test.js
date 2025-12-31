@@ -132,7 +132,7 @@ const testCases = [
     name: "detect-hardcoded-events-url",
     description: "Detects hardcoded /events/ URL pattern",
     test: () => {
-      const source = 'const url = `/events/${slug}/`;';
+      const source = "const url = `/events/${slug}/`;";
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(results.length === 1, "Should detect hardcoded /events/ URL");
     },
@@ -145,7 +145,7 @@ const testCases = [
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(
         results.length === 1,
-        "Should detect hardcoded /products/ URL"
+        "Should detect hardcoded /products/ URL",
       );
     },
   },
@@ -153,7 +153,7 @@ const testCases = [
     name: "allow-comments",
     description: "Allows hardcoded URLs in comments",
     test: () => {
-      const source = '// Example: `/events/${slug}/`';
+      const source = "// Example: `/events/${slug}/`";
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(results.length === 0, "Should allow URLs in comments");
     },
@@ -176,7 +176,7 @@ const testCases = [
       const results = findHardcodedUrls(source, "test.js");
       expectTrue(
         results.length === 0,
-        "Should allow strings config URL construction"
+        "Should allow strings config URL construction",
       );
     },
   },
@@ -188,21 +188,21 @@ const testCases = [
 
       if (violations.length > 0) {
         console.log(
-          `\n  Found ${violations.length} hardcoded URL constructions:`
+          `\n  Found ${violations.length} hardcoded URL constructions:`,
         );
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.lineNumber}`);
           console.log(`       ${v.line}`);
         }
         console.log(
-          "\n  To fix: Use strings.*_permalink_dir and/or check for data.permalink\n"
+          "\n  To fix: Use strings.*_permalink_dir and/or check for data.permalink\n",
         );
       }
 
       expectTrue(
         violations.length === 0,
         `Found ${violations.length} hardcoded URL constructions. ` +
-          `Use strings.*_permalink_dir instead of hardcoding paths.`
+          `Use strings.*_permalink_dir instead of hardcoding paths.`,
       );
     },
   },

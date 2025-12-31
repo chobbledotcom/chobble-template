@@ -1,19 +1,19 @@
 import {
-  isTopLevelLocation,
-  sortByNavigationKey,
-  filterTopLevelLocations,
-  formatListWithAnd,
-  locationToLink,
-  formatAreaList,
   configureAreaList,
+  filterTopLevelLocations,
+  formatAreaList,
+  formatListWithAnd,
+  isTopLevelLocation,
+  locationToLink,
+  sortByNavigationKey,
 } from "#eleventy/area-list.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
   expectDeepEqual,
+  expectFalse,
   expectStrictEqual,
   expectTrue,
-  expectFalse,
 } from "./test-utils.js";
 
 // Test fixtures
@@ -252,7 +252,11 @@ const testCases = [
     test: () => {
       expectStrictEqual(formatListWithAnd([]), "", "Should return empty");
       expectStrictEqual(formatListWithAnd(null), "", "Should return empty");
-      expectStrictEqual(formatListWithAnd(undefined), "", "Should return empty");
+      expectStrictEqual(
+        formatListWithAnd(undefined),
+        "",
+        "Should return empty",
+      );
     },
   },
   {

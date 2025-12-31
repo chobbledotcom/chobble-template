@@ -1,14 +1,9 @@
 import configJson from "./config.json" with { type: "json" };
 
-const DEFAULT_ORDER = [
-  "content",
-  "faqs",
-  "subcategories",
-  "products",
-];
+const DEFAULT_ORDER = ["content", "faqs", "subcategories", "products"];
 
 const configOrder = configJson.category_order;
 
 export default Array.isArray(configOrder) && configOrder.length > 0
-    ? configOrder
-    : DEFAULT_ORDER
+  ? configOrder
+  : DEFAULT_ORDER;

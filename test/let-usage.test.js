@@ -1,5 +1,17 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
-import { ALLOWED_MUTABLE_VAR_FILES, ALLOWED_LET_PATTERNS } from "./code-quality-exceptions.js";
+import {
+  ALLOWED_LET_PATTERNS,
+  ALLOWED_MUTABLE_VAR_FILES,
+} from "./code-quality-exceptions.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
@@ -56,8 +68,11 @@ const analyzeMutableVarUsage = () => {
   const letWarnings = [];
 
   // Exclude this test file since it contains var/let examples in test strings
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/let-usage.test.js");
+  const allJsFiles = [
+    ...SRC_JS_FILES,
+    ...ECOMMERCE_JS_FILES,
+    ...TEST_FILES,
+  ].filter((f) => f !== "test/let-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     // Skip fully allowed files
@@ -124,11 +139,11 @@ const d = "not a declaration";
       const vars = results.filter((r) => r.keyword === "var");
       expectTrue(
         lets.length === 2,
-        `Expected 2 let declarations, found ${lets.length}`
+        `Expected 2 let declarations, found ${lets.length}`,
       );
       expectTrue(
         vars.length === 2,
-        `Expected 2 var declarations, found ${vars.length}`
+        `Expected 2 var declarations, found ${vars.length}`,
       );
     },
   },
@@ -144,7 +159,7 @@ const d = "not a declaration";
       for (const line of allowedLines) {
         expectTrue(
           isAllowedLetPattern(line),
-          `Expected "${line}" to be allowed`
+          `Expected "${line}" to be allowed`,
         );
       }
 
@@ -156,7 +171,7 @@ const d = "not a declaration";
       for (const line of disallowedLines) {
         expectTrue(
           !isAllowedLetPattern(line),
-          `Expected "${line}" to NOT be allowed`
+          `Expected "${line}" to NOT be allowed`,
         );
       }
     },
@@ -168,17 +183,21 @@ const d = "not a declaration";
       const { varViolations } = analyzeMutableVarUsage();
 
       if (varViolations.length > 0) {
-        console.log(`\n  Found ${varViolations.length} non-whitelisted var declarations:`);
+        console.log(
+          `\n  Found ${varViolations.length} non-whitelisted var declarations:`,
+        );
         for (const v of varViolations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: refactor to const, or add file to ALLOWED_MUTABLE_VAR_FILES in code-quality-exceptions.js\n");
+        console.log(
+          "\n  To fix: refactor to const, or add file to ALLOWED_MUTABLE_VAR_FILES in code-quality-exceptions.js\n",
+        );
       }
 
       expectTrue(
         varViolations.length === 0,
-        `Found ${varViolations.length} non-whitelisted var declarations. See list above.`
+        `Found ${varViolations.length} non-whitelisted var declarations. See list above.`,
       );
     },
   },
@@ -189,7 +208,9 @@ const d = "not a declaration";
       const { letWarnings } = analyzeMutableVarUsage();
 
       if (letWarnings.length > 0) {
-        console.log(`\n  Found ${letWarnings.length} let declarations to review:`);
+        console.log(
+          `\n  Found ${letWarnings.length} let declarations to review:`,
+        );
         for (const w of letWarnings) {
           console.log(`     - ${w.file}:${w.line}`);
           console.log(`       ${w.code}`);
@@ -201,7 +222,7 @@ const d = "not a declaration";
       if (ENFORCE_NO_LET && letWarnings.length > 0) {
         throw new Error(
           `Found ${letWarnings.length} let declarations. ` +
-          `Refactor to use const or add to ALLOWED_LET_PATTERNS.`
+            `Refactor to use const or add to ALLOWED_LET_PATTERNS.`,
         );
       }
 

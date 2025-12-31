@@ -1,4 +1,13 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 /**
  * Find all TODO/FIXME occurrences in a file
@@ -71,23 +80,23 @@ const todoList = []; // variable name, not a comment
       const results = findTodoFixme(source);
       expectTrue(
         results.length === 2,
-        `Expected 2 TODO/FIXME comments, found ${results.length}`
+        `Expected 2 TODO/FIXME comments, found ${results.length}`,
       );
       expectTrue(
         results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`
+        `Expected line 3, got ${results[0].lineNumber}`,
       );
       expectTrue(
         results[0].match === "TODO",
-        `Expected TODO, got ${results[0].match}`
+        `Expected TODO, got ${results[0].match}`,
       );
       expectTrue(
         results[1].lineNumber === 5,
-        `Expected line 5, got ${results[1].lineNumber}`
+        `Expected line 5, got ${results[1].lineNumber}`,
       );
       expectTrue(
         results[1].match === "FIXME",
-        `Expected FIXME, got ${results[1].match}`
+        `Expected FIXME, got ${results[1].match}`,
       );
     },
   },
@@ -108,7 +117,7 @@ const todoList = []; // variable name, not a comment
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} TODO/FIXME comments. See list above.`
+        `Found ${violations.length} TODO/FIXME comments. See list above.`,
       );
     },
   },
