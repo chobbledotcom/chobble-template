@@ -4,7 +4,7 @@ const extractTags = (collection) => {
   const allTags = collection
     .filter((page) => page.url && !page.data?.no_index)
     .flatMap((page) => page.data?.tags || [])
-    .filter((tag) => tag != null)
+    .filter((tag) => tag !== null && tag !== undefined)
     .map((tag) => String(tag).trim())
     .filter((tag) => tag !== "");
 

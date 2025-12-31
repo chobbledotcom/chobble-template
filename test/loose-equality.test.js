@@ -1,5 +1,13 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
-import { ALLOWED_LOOSE_EQUALITY } from "./code-quality-exceptions.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 /**
  * Find all loose equality comparisons (== or !=) in a file
@@ -26,7 +34,12 @@ const findLooseEquality = (source) => {
       const singleQuotes = (beforeMatch.match(/'/g) || []).length;
       const doubleQuotes = (beforeMatch.match(/"/g) || []).length;
       const backticks = (beforeMatch.match(/`/g) || []).length;
-      if (singleQuotes % 2 === 1 || doubleQuotes % 2 === 1 || backticks % 2 === 1) continue;
+      if (
+        singleQuotes % 2 === 1 ||
+        doubleQuotes % 2 === 1 ||
+        backticks % 2 === 1
+      )
+        continue;
 
       results.push({
         lineNumber: i + 1,
@@ -44,11 +57,13 @@ const findLooseEquality = (source) => {
  */
 const analyzeLooseEquality = () => {
   const violations = [];
-  const allowed = [];
 
   // Exclude this test file since it contains examples in test strings
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/loose-equality.test.js");
+  const allJsFiles = [
+    ...SRC_JS_FILES,
+    ...ECOMMERCE_JS_FILES,
+    ...TEST_FILES,
+  ].filter((f) => f !== "test/loose-equality.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -56,27 +71,16 @@ const analyzeLooseEquality = () => {
     const looseComparisons = findLooseEquality(source);
 
     for (const cmp of looseComparisons) {
-      const location = `${relativePath}:${cmp.lineNumber}`;
-
-      if (ALLOWED_LOOSE_EQUALITY.has(location)) {
-        allowed.push({
-          file: relativePath,
-          line: cmp.lineNumber,
-          code: cmp.line,
-          operator: cmp.operator,
-        });
-      } else {
-        violations.push({
-          file: relativePath,
-          line: cmp.lineNumber,
-          code: cmp.line,
-          operator: cmp.operator,
-        });
-      }
+      violations.push({
+        file: relativePath,
+        line: cmp.lineNumber,
+        code: cmp.line,
+        operator: cmp.operator,
+      });
     }
   }
 
-  return { violations, allowed };
+  return violations;
 };
 
 const testCases = [
@@ -96,62 +100,39 @@ const str = "x == y";
       const results = findLooseEquality(source);
       expectTrue(
         results.length === 2,
-        `Expected 2 loose equality comparisons, found ${results.length}`
+        `Expected 2 loose equality comparisons, found ${results.length}`,
       );
       expectTrue(
         results[0].operator === "==",
-        `Expected first operator to be ==, got ${results[0].operator}`
+        `Expected first operator to be ==, got ${results[0].operator}`,
       );
       expectTrue(
         results[1].operator === "!=",
-        `Expected second operator to be !=, got ${results[1].operator}`
+        `Expected second operator to be !=, got ${results[1].operator}`,
       );
     },
   },
   {
-    name: "no-new-loose-equality",
-    description: "No new loose equality (== or !=) outside the whitelist",
+    name: "no-loose-equality",
+    description: "No loose equality (== or !=) in codebase",
     test: () => {
-      const { violations, allowed } = analyzeLooseEquality();
+      const violations = analyzeLooseEquality();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted loose equality comparisons:`);
+        console.log(
+          `\n  Found ${violations.length} loose equality comparisons:`,
+        );
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line} (${v.operator})`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: use === or !== instead, or add to ALLOWED_LOOSE_EQUALITY in code-quality-exceptions.js\n");
+        console.log("\n  To fix: use === or !== instead\n");
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted loose equality comparisons. See list above.`
+        `Found ${violations.length} loose equality comparisons. See list above.`,
       );
-    },
-  },
-  {
-    name: "report-allowed-loose-equality",
-    description: "Reports whitelisted loose equality for tracking",
-    test: () => {
-      const { allowed } = analyzeLooseEquality();
-
-      console.log(`\n  Whitelisted loose equality comparisons: ${allowed.length}`);
-      console.log("  These should be refactored to === or !== over time:\n");
-
-      // Group by file for cleaner output
-      const byFile = {};
-      for (const a of allowed) {
-        if (!byFile[a.file]) byFile[a.file] = [];
-        byFile[a.file].push(`${a.line} (${a.operator})`);
-      }
-
-      for (const [file, lines] of Object.entries(byFile)) {
-        console.log(`     ${file}: lines ${lines.join(", ")}`);
-      }
-      console.log("");
-
-      // This test always passes - it's informational
-      expectTrue(true, "Reported whitelisted loose equality comparisons");
     },
   },
 ];

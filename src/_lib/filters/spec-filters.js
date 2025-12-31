@@ -8,11 +8,11 @@ import { inlineAsset } from "#media/inline-asset.js";
  * @returns {string} - The icon SVG content or empty string if not found
  */
 const getSpecIcon = (specName) => {
-	if (!specName) return "";
-	const normalized = specName.toLowerCase().trim();
-	const iconFile = specsIcons[normalized];
-	if (!iconFile) return "";
-	return inlineAsset(`icons/${iconFile}`);
+  if (!specName) return "";
+  const normalized = specName.toLowerCase().trim();
+  const iconFile = specsIcons[normalized];
+  if (!iconFile) return "";
+  return inlineAsset(`icons/${iconFile}`);
 };
 
 /**
@@ -21,11 +21,11 @@ const getSpecIcon = (specName) => {
  * @returns {Array|undefined} - Specs array with icon property added
  */
 const computeSpecs = (data) => {
-	if (!data.specs) return undefined;
-	return data.specs.map((spec) => ({
-		...spec,
-		icon: getSpecIcon(spec.name),
-	}));
+  if (!data.specs) return undefined;
+  return data.specs.map((spec) => ({
+    ...spec,
+    icon: getSpecIcon(spec.name),
+  }));
 };
 
 export { getSpecIcon, computeSpecs };

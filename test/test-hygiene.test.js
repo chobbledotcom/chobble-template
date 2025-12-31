@@ -1,4 +1,15 @@
-import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, SRC_JS_FILES, SRC_HTML_FILES, SRC_SCSS_FILES, TEST_FILES } from "./test-utils.js";
+import {
+  createTestRunner,
+  expectStrictEqual,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_HTML_FILES,
+  SRC_JS_FILES,
+  SRC_SCSS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -180,7 +191,9 @@ const extractFunctionDefinitions = (source) => {
  * Returns true if it looks like a test helper (uses assertions, mocks, etc.)
  */
 const isTestHelper = (source, funcName, startLine, lineCount) => {
-  const lines = source.split("\n").slice(startLine - 1, startLine - 1 + lineCount);
+  const lines = source
+    .split("\n")
+    .slice(startLine - 1, startLine - 1 + lineCount);
   const funcBody = lines.join("\n");
 
   // Test-related keywords that indicate this is test code
@@ -253,15 +266,28 @@ const testCases = [
     name: "file-lists-populated",
     description: "Pre-computed file lists contain files",
     test: () => {
-      expectTrue(SRC_JS_FILES.length > 0, `SRC_JS_FILES should not be empty (found ${SRC_JS_FILES.length})`);
-      expectTrue(SRC_HTML_FILES.length > 0, `SRC_HTML_FILES should not be empty (found ${SRC_HTML_FILES.length})`);
-      expectTrue(SRC_SCSS_FILES.length > 0, `SRC_SCSS_FILES should not be empty (found ${SRC_SCSS_FILES.length})`);
-      expectTrue(TEST_FILES.length > 0, `TEST_FILES should not be empty (found ${TEST_FILES.length})`);
+      expectTrue(
+        SRC_JS_FILES.length > 0,
+        `SRC_JS_FILES should not be empty (found ${SRC_JS_FILES.length})`,
+      );
+      expectTrue(
+        SRC_HTML_FILES.length > 0,
+        `SRC_HTML_FILES should not be empty (found ${SRC_HTML_FILES.length})`,
+      );
+      expectTrue(
+        SRC_SCSS_FILES.length > 0,
+        `SRC_SCSS_FILES should not be empty (found ${SRC_SCSS_FILES.length})`,
+      );
+      expectTrue(
+        TEST_FILES.length > 0,
+        `TEST_FILES should not be empty (found ${TEST_FILES.length})`,
+      );
     },
   },
   {
     name: "no-production-code-in-tests",
-    description: "Test files should not contain production logic - only test and import real code",
+    description:
+      "Test files should not contain production logic - only test and import real code",
     test: () => {
       const issues = analyzeTestFiles();
 
@@ -278,7 +304,7 @@ const testCases = [
         issues.length,
         0,
         `Found ${issues.length} function(s) that may be production code in test files. ` +
-        `Tests should import and test real code, not copies.`
+          `Tests should import and test real code, not copies.`,
       );
     },
   },
@@ -289,7 +315,11 @@ const testCases = [
       const source = `const myFunc = (a, b) => {\n  return a + b;\n};`;
       const funcs = extractFunctionDefinitions(source);
       expectStrictEqual(funcs.length, 1, "Should find one function");
-      expectStrictEqual(funcs[0].name, "myFunc", "Should extract function name");
+      expectStrictEqual(
+        funcs[0].name,
+        "myFunc",
+        "Should extract function name",
+      );
     },
   },
   {
@@ -299,7 +329,11 @@ const testCases = [
       const source = `function doSomething(x) {\n  console.log(x);\n}`;
       const funcs = extractFunctionDefinitions(source);
       expectStrictEqual(funcs.length, 1, "Should find one function");
-      expectStrictEqual(funcs[0].name, "doSomething", "Should extract function name");
+      expectStrictEqual(
+        funcs[0].name,
+        "doSomething",
+        "Should extract function name",
+      );
     },
   },
   {
@@ -309,7 +343,11 @@ const testCases = [
       const source = `const fetchData = async (url) => {\n  return await fetch(url);\n};`;
       const funcs = extractFunctionDefinitions(source);
       expectStrictEqual(funcs.length, 1, "Should find async function");
-      expectStrictEqual(funcs[0].name, "fetchData", "Should extract async function name");
+      expectStrictEqual(
+        funcs[0].name,
+        "fetchData",
+        "Should extract async function name",
+      );
     },
   },
 ];
