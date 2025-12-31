@@ -1,4 +1,4 @@
-import { ALLOWED_TRY_CATCHES } from "./code-quality-exceptions.js";
+import { ALLOWED_TRY_CATCHES } from "#test/code-quality/code-quality-exceptions.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
@@ -8,7 +8,7 @@ import {
   rootDir,
   SRC_JS_FILES,
   TEST_FILES,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 /**
  * Find all try { occurrences in a file
@@ -51,7 +51,7 @@ const analyzeTryCatchUsage = () => {
     ...SRC_JS_FILES,
     ...ECOMMERCE_JS_FILES,
     ...TEST_FILES,
-  ].filter((f) => f !== "test/try-catch-usage.test.js");
+  ].filter((f) => f !== "test/code-quality/try-catch-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);

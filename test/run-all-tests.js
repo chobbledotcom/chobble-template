@@ -1,13 +1,34 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "child_process";
-import { readdir } from "fs/promises";
-import { dirname, join, resolve } from "path";
+import { readdir, stat } from "fs/promises";
+import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
+
+/**
+ * Recursively find all .test.js files in a directory
+ */
+const findTestFiles = async (dir) => {
+  const entries = await readdir(dir);
+  const results = [];
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry);
+    const stats = await stat(fullPath);
+
+    if (stats.isDirectory()) {
+      results.push(...(await findTestFiles(fullPath)));
+    } else if (entry.endsWith(".test.js")) {
+      results.push(fullPath);
+    }
+  }
+
+  return results;
+};
 
 // Check for --verbose flag or TEST_VERBOSE env var
 const verbose =
@@ -18,8 +39,8 @@ async function runAllTests() {
     console.log("=== Running All Tests ===\n");
   }
 
-  const files = await readdir(__dirname);
-  const testFiles = files.filter((f) => f.endsWith(".test.js"));
+  const testFiles = await findTestFiles(__dirname);
+  testFiles.sort();
 
   if (verbose) {
     console.log(`Found ${testFiles.length} test files\n`);
@@ -38,11 +59,11 @@ async function runAllTests() {
     return null;
   };
 
-  for (const testFile of testFiles) {
-    const testPath = join(__dirname, testFile);
+  for (const testPath of testFiles) {
+    const displayName = relative(__dirname, testPath);
 
     if (verbose) {
-      console.log(`\n📝 Running ${testFile}...`);
+      console.log(`\n📝 Running ${displayName}...`);
       console.log("─".repeat(50));
     }
 
@@ -72,10 +93,10 @@ async function runAllTests() {
         if (cleanOutput.trim()) {
           console.log(cleanOutput.trimEnd());
         }
-        console.log(`✅ ${testFile} passed`);
+        console.log(`✅ ${displayName} passed`);
       }
     } else {
-      failedTests.push({ file: testFile, stdout, stderr });
+      failedTests.push({ file: displayName, stdout, stderr });
       if (verbose) {
         const cleanOutput = stdout.replace(/__TEST_RESULTS__:\d+:\d+\n?/, "");
         if (cleanOutput.trim()) {
@@ -84,7 +105,7 @@ async function runAllTests() {
         if (stderr.trim()) {
           console.error(stderr.trimEnd());
         }
-        console.log(`❌ ${testFile} failed`);
+        console.log(`❌ ${displayName} failed`);
       }
     }
   }

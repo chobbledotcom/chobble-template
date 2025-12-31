@@ -1,5 +1,5 @@
 import { normaliseSlug } from "#utils/slug-utils.js";
-import { createTestRunner, expectStrictEqual, fs, path } from "./test-utils.js";
+import { createTestRunner, expectStrictEqual, fs, path } from "#test/test-utils.js";
 
 const testCases = [
   {

@@ -1,8 +1,8 @@
 // Quote checkout page
 // Populates form with cart items and displays summary
 
-import { escapeHtml, formatPrice, getCart } from "./cart-utils.js";
-import { onReady } from "./on-ready.js";
+import { escapeHtml, formatPrice, getCart } from "#assets/cart-utils.js";
+import { onReady } from "#assets/on-ready.js";
 
 function populateForm() {
   const cart = getCart();

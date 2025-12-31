@@ -14,7 +14,7 @@ import {
   expectFalse,
   expectStrictEqual,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 // Test fixtures
 const createLocation = (name, url) => ({

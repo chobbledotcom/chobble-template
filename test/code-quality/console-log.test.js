@@ -1,5 +1,5 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
-import { ALLOWED_CONSOLE_LOG_FILES } from "./code-quality-exceptions.js";
+import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
+import { ALLOWED_CONSOLE_LOG_FILES } from "#test/code-quality/code-quality-exceptions.js";
 
 /**
  * Find all console.log usages in a file

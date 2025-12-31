@@ -1,8 +1,8 @@
 import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import metaData from "./meta.json" with { type: "json" };
-import siteData from "./site.json" with { type: "json" };
+import metaData from "#data/meta.json" with { type: "json" };
+import siteData from "#data/site.json" with { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

@@ -2,13 +2,13 @@ import fg from "fast-glob";
 import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import strings from "../src/_data/strings.js";
-import baseStrings from "../src/_data/strings-base.json" with { type: "json" };
+import strings from "#data/strings.js";
+import baseStrings from "#data/strings-base.json" with { type: "json" };
 import {
   createTestRunner,
   expectStrictEqual,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const srcDir = join(__dirname, "../src");
