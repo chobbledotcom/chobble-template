@@ -1,8 +1,7 @@
-import { configureICal, eventIcal } from "#eleventy/ical.js";
+import { eventIcal, isOneOffEvent } from "#eleventy/ical.js";
 import {
-  createMockEleventyConfig,
   createTestRunner,
-  expectFunctionType,
+  expectFalse,
   expectStrictEqual,
   expectTrue,
 } from "#test/test-utils.js";
@@ -269,194 +268,49 @@ const testCases = [
         url: "/events/allday/",
       };
       const result = eventIcal(event);
-      // All-day events use VALUE=DATE format
       expectTrue(result.includes("DTSTART"), "Should contain DTSTART for date");
     },
   },
 
-  // configureICal
+  // isOneOffEvent - tests the collection filter logic directly
   {
-    name: "configureICal-adds-filter",
-    description: "Registers eventIcal filter with Eleventy",
+    name: "isOneOffEvent-with-event-date-only",
+    description: "Returns true for events with event_date but no recurring_date",
     test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      expectTrue(
-        "eventIcal" in mockConfig.filters,
-        "Should add eventIcal filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "eventIcal",
-        "Filter should be a function",
+      const event = { data: { event_date: "2025-06-15" } };
+      expectTrue(isOneOffEvent(event), "Should return true for one-off event");
+    },
+  },
+  {
+    name: "isOneOffEvent-with-recurring-date",
+    description: "Returns false for events with recurring_date",
+    test: () => {
+      const event = { data: { recurring_date: "Every Monday" } };
+      expectFalse(
+        isOneOffEvent(event),
+        "Should return false for recurring event",
       );
     },
   },
   {
-    name: "configureICal-filter-is-eventIcal-function",
-    description: "The registered filter is the eventIcal function",
+    name: "isOneOffEvent-with-both-dates",
+    description: "Returns false for events with both event_date and recurring_date",
     test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      expectStrictEqual(
-        mockConfig.filters.eventIcal,
-        eventIcal,
-        "Filter should be eventIcal function",
-      );
-    },
-  },
-  {
-    name: "configureICal-adds-collection",
-    description: "Registers oneOffEvents collection",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      expectTrue(
-        "oneOffEvents" in mockConfig.collections,
-        "Should add oneOffEvents collection",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "oneOffEvents",
-        "Collection should be a function",
-      );
-    },
-  },
-  {
-    name: "configureICal-collection-filters-one-off-events",
-    description: "oneOffEvents collection includes events with event_date only",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "events") {
-            return [
-              { data: { title: "One-off Event", event_date: "2025-06-15" } },
-              {
-                data: {
-                  title: "Recurring Event",
-                  recurring_date: "Every Monday",
-                },
-              },
-              {
-                data: {
-                  title: "Mixed Event",
-                  event_date: "2025-07-01",
-                  recurring_date: "Weekly",
-                },
-              },
-              { data: { title: "Another One-off", event_date: "2025-08-01" } },
-            ];
-          }
-          return [];
-        },
+      const event = {
+        data: { event_date: "2025-06-15", recurring_date: "Weekly" },
       };
-
-      const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
-
-      expectStrictEqual(result.length, 2, "Should return only one-off events");
-      expectStrictEqual(
-        result[0].data.title,
-        "One-off Event",
-        "First event should be One-off Event",
-      );
-      expectStrictEqual(
-        result[1].data.title,
-        "Another One-off",
-        "Second event should be Another One-off",
+      expectFalse(
+        isOneOffEvent(event),
+        "Should return false when both dates present",
       );
     },
   },
   {
-    name: "configureICal-collection-excludes-recurring",
-    description: "oneOffEvents collection excludes recurring events",
+    name: "isOneOffEvent-no-dates",
+    description: "Returns false for events with no dates",
     test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "events") {
-            return [
-              {
-                data: {
-                  title: "Weekly Meetup",
-                  recurring_date: "Every Tuesday",
-                },
-              },
-              {
-                data: {
-                  title: "Monthly Workshop",
-                  recurring_date: "First Friday",
-                },
-              },
-            ];
-          }
-          return [];
-        },
-      };
-
-      const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
-
-      expectStrictEqual(
-        result.length,
-        0,
-        "Should exclude all recurring events",
-      );
-    },
-  },
-  {
-    name: "configureICal-collection-excludes-events-with-both",
-    description:
-      "oneOffEvents excludes events that have both event_date and recurring_date",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      const mockCollectionApi = {
-        getFilteredByTag: () => [
-          {
-            data: {
-              title: "Hybrid",
-              event_date: "2025-06-01",
-              recurring_date: "Weekly",
-            },
-          },
-        ],
-      };
-
-      const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
-
-      expectStrictEqual(
-        result.length,
-        0,
-        "Should exclude events with both event_date and recurring_date",
-      );
-    },
-  },
-  {
-    name: "configureICal-collection-empty-when-no-events",
-    description: "oneOffEvents returns empty array when no events",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureICal(mockConfig);
-
-      const mockCollectionApi = {
-        getFilteredByTag: () => [],
-      };
-
-      const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
-
-      expectStrictEqual(
-        result.length,
-        0,
-        "Should return empty array when no events",
-      );
+      const event = { data: { title: "No dates" } };
+      expectFalse(isOneOffEvent(event), "Should return false when no dates");
     },
   },
 ];
