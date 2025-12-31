@@ -35,10 +35,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   "ecommerce-backend/server.js:213",
   "ecommerce-backend/server.js:289",
 
-  // test/run-all-tests.js - test runner error handling
-  "test/run-all-tests.js:15",
-  "test/run-all-tests.js:29",
-
   // ecommerce-backend/server.test.js - test assertions
   "ecommerce-backend/server.test.js:370",
 
