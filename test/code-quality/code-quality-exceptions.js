@@ -50,13 +50,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
 
-  // test/scss.test.js - SCSS compilation tests
-  "test/scss.test.js:42",
-  "test/scss.test.js:208",
-
-  // test/navigation.test.js - navigation tests
-  "test/navigation.test.js:80",
-
   // src/assets/js/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.

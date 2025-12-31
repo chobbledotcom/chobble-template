@@ -1,5 +1,5 @@
 // Slider navigation - minimal JS for scroll buttons
-import { onReady } from "./on-ready.js";
+import { onReady } from "#assets/on-ready.js";
 
 function initSliders() {
   document.querySelectorAll(".slider-container").forEach((container) => {

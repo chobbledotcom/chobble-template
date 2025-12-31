@@ -7,7 +7,7 @@ import {
   findImageFiles,
   imageShortcode,
 } from "#media/image.js";
-import { createTestRunner } from "./test-utils.js";
+import { createTestRunner } from "#test/test-utils.js";
 
 const mockEleventyConfig = {
   addAsyncShortcode: function (name, fn) {

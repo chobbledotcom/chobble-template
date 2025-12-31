@@ -9,7 +9,7 @@ import {
   expectDeepEqual,
   expectFunctionType,
   expectStrictEqual,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   {

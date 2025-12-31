@@ -7,8 +7,8 @@
  * This is enforced by tests in test/strings.test.js
  */
 
-import userStrings from "./strings.json" with { type: "json" };
-import baseStrings from "./strings-base.json" with { type: "json" };
+import userStrings from "#data/strings.json" with { type: "json" };
+import baseStrings from "#data/strings-base.json" with { type: "json" };
 
 export default {
   ...baseStrings,

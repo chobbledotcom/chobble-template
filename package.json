@@ -11,7 +11,9 @@
 		"#eleventy/*": "./src/_lib/eleventy/*",
 		"#build/*": "./src/_lib/build/*",
 		"#media/*": "./src/_lib/media/*",
-		"#utils/*": "./src/_lib/utils/*"
+		"#utils/*": "./src/_lib/utils/*",
+		"#assets/*": "./src/assets/js/*",
+		"#test/*": "./test/*"
 	},
 	"pnpm": {
 		"minimumReleaseAge": "10080"
@@ -19,7 +21,7 @@
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "eleventy --quiet && c8 --lines 77.5 --functions 76.5 --branches 92.5 node test/run-all-tests.js",
+		"test": "eleventy --quiet && node test/run-coverage.js",
 		"test:verbose": "TEST_VERBOSE=1 pnpm test",
 		"cpd": "jscpd",
 		"knip": "knip",

@@ -13,7 +13,7 @@ import {
   expectFunctionType,
   expectStrictEqual,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   {
