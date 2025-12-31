@@ -7,7 +7,7 @@ import Botpoison from "@botpoison/browser";
 window.Botpoison = Botpoison;
 
 // Site JS
-import "./autosizes.js";
+import "../../_lib/polyfills/autosizes.js";
 import "./gallery.js";
 import "./scroll-fade.js";
 import "./search.js";

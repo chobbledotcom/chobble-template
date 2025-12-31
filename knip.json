@@ -8,6 +8,7 @@
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
 		"src/assets/js/**",
+		"src/_lib/polyfills/**",
 		"ecommerce-backend/**",
 		"_site/**",
 		"test/**"
