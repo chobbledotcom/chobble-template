@@ -39,6 +39,70 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectTrue",
   "expectFalse",
   "expectThrows",
+  // checkout.test.js - template rendering and mocks
+  "renderTemplate",
+  "createCheckoutPage",
+  "createMockLocalStorage",
+  "createMockFetch",
+  "mockFetch",
+  "createLocationTracker",
+  "withMockStorage",
+  // function-length.test.js - analysis helpers
+  "shouldSkipDir",
+  "getJsFiles",
+  "extractFunctions",
+  "calculateOwnLines",
+  "analyzeFunctionLengths",
+  "formatViolations",
+  // missing-folders-lib.test.js
+  "testLibModules",
+  // naming-conventions.test.js - analysis helpers
+  "countCamelCaseWords",
+  "extractCamelCaseIdentifiers",
+  "analyzeNamingConventions",
+  // render-snippet.test.js
+  "runTests",
+  // scss.variables.test.js
+  "extractUsedVariables",
+  "extractDefinedVariables",
+  "runTest",
+  // strings.test.js
+  "findStringsUsage",
+  // test-hygiene.test.js - self-analysis helpers
+  "extractFunctionDefinitions",
+  "isTestHelper",
+  "getTestFiles",
+  "getSourceFunctionNames",
+  "processDir",
+  "analyzeTestFiles",
+  // theme-editor.test.js
+  "generateFormHtml",
+  "createMockDOM",
+  // unused-classes.test.js - analysis helpers
+  "getAllFiles",
+  "extractClassesFromHtml",
+  "extractIdsFromHtml",
+  "extractClassesFromJs",
+  "findClassReferencesInScss",
+  "findIdReferencesInScss",
+  "findClassReferencesInJs",
+  "findIdReferencesInJs",
+  "collectAllClassesAndIds",
+  "findUnusedClassesAndIds",
+  // checkout.test.js - small inline helper
+  "buildFullName",
+  // checkout.test.js - cart-utils copies for integration testing (inside template strings)
+  "getCart",
+  "saveCart",
+  "getItemCount",
+  "updateCartIcon",
+  // function-length.test.js - test fixture strings (parsed as examples, not real code)
+  "hello",
+  "greet",
+  "fetchData",
+  "test",
+  // naming-conventions.test.js - test fixture string
+  "getUserById",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious
@@ -157,14 +221,13 @@ const getSourceFunctionNames = () => {
 };
 
 /**
- * Analyze test files for copied production code.
- * Focuses on the specific problem: when test files define functions
- * that have the same name as functions in source files (copying instead of importing).
+ * Analyze test files for non-whitelisted functions.
+ * Only functions in ALLOWED_TEST_FUNCTIONS are permitted in test files.
+ * All other function definitions are flagged - tests should import real code.
  */
 const analyzeTestFiles = () => {
   const issues = [];
   const testFiles = getTestFiles();
-  const sourceFunctions = getSourceFunctionNames();
 
   for (const testFile of testFiles) {
     const fileName = path.basename(testFile);
@@ -172,17 +235,13 @@ const analyzeTestFiles = () => {
     const functions = extractFunctionDefinitions(source);
 
     for (const func of functions) {
-      // Skip allowed test utilities
-      if (ALLOWED_TEST_FUNCTIONS.has(func.name)) continue;
-
-      // The key check: function name matches a source function (potential copy)
-      // This catches the mistake of copying production code instead of importing it
-      if (sourceFunctions.has(func.name)) {
+      // Only whitelisted functions are allowed
+      if (!ALLOWED_TEST_FUNCTIONS.has(func.name)) {
         issues.push({
           file: fileName,
           function: func.name,
           line: func.startLine,
-          reason: `Duplicates source function name "${func.name}" - import and test the real code instead of copying it`,
+          reason: `Function "${func.name}" is not whitelisted - add to ALLOWED_TEST_FUNCTIONS or import from source`,
         });
       }
     }
