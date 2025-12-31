@@ -6,11 +6,8 @@
  */
 
 // ============================================
-// var/let exceptions
+// let exceptions (specific patterns only - no file-level exceptions)
 // ============================================
-
-// Files allowed to use var or let freely (third-party, legacy)
-const ALLOWED_MUTABLE_VAR_FILES = new Set([]);
 
 // Specific let patterns that are intentionally allowed (module-level state)
 const ALLOWED_LET_PATTERNS = [
@@ -89,4 +86,4 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/knip.test.js:12",
 ]);
 
-export { ALLOWED_MUTABLE_VAR_FILES, ALLOWED_LET_PATTERNS, ALLOWED_TRY_CATCHES };
+export { ALLOWED_LET_PATTERNS, ALLOWED_TRY_CATCHES };

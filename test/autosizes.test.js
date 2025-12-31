@@ -7,18 +7,10 @@ import {
 } from "./test-utils.js";
 
 // ============================================
-// Helper: Create mock browser environment
+// Shared HTML template and JSDOM options
 // ============================================
 
-const createMockBrowserEnv = (options = {}) => {
-  const {
-    userAgent = "Mozilla/5.0 Chrome/120",
-    hasPerformanceObserver = true,
-    supportsPaintTiming = true,
-    documentReadyState = "complete",
-  } = options;
-
-  const html = `
+const BASE_HTML = `
 <!DOCTYPE html>
 <html>
 <head></head>
@@ -27,81 +19,44 @@ const createMockBrowserEnv = (options = {}) => {
 </body>
 </html>`;
 
-  const dom = new JSDOM(html, {
-    runScripts: "dangerously",
-    resources: "usable",
-    pretendToBeVisual: true,
-  });
+const JSDOM_OPTIONS = {
+  runScripts: "dangerously",
+  resources: "usable",
+  pretendToBeVisual: true,
+};
 
-  const { window } = dom;
+// ============================================
+// Mock PerformanceObserver injection script
+// ============================================
 
-  // Mock navigator.userAgent
-  Object.defineProperty(window.navigator, "userAgent", {
-    value: userAgent,
-    configurable: true,
-  });
-
-  // Mock document.readyState
-  Object.defineProperty(window.document, "readyState", {
-    value: documentReadyState,
-    configurable: true,
-  });
-
-  // Mock PerformanceObserver
-  if (hasPerformanceObserver) {
-    const mockPerformanceObserver = class {
-      static supportedEntryTypes = supportsPaintTiming ? ["paint"] : [];
-
-      constructor(callback) {
-        this.callback = callback;
-        this.observing = false;
-      }
-
-      observe() {
-        this.observing = true;
-        // Simulate FCP after a tick
-        setTimeout(() => {
-          if (this.observing) {
-            this.callback(
-              {
-                getEntriesByName: (name) =>
-                  name === "first-contentful-paint" ? [{ name }] : [],
-              },
-              this,
-            );
-          }
-        }, 0);
-      }
-
-      disconnect() {
-        this.observing = false;
-      }
-    };
-    window.PerformanceObserver = mockPerformanceObserver;
+const createPerformanceObserverScript = (supportsPaint = true) => `
+window.PerformanceObserver = class {
+  static supportedEntryTypes = ${supportsPaint ? '["paint"]' : "[]"};
+  constructor(callback) {
+    this.callback = callback;
+    this.observing = false;
   }
-
-  return { dom, window, document: window.document };
+  observe() {
+    this.observing = true;
+    setTimeout(() => {
+      if (this.observing) {
+        this.callback({
+          getEntriesByName: (name) => name === "first-contentful-paint" ? [{ name }] : []
+        }, this);
+      }
+    }, 0);
+  }
+  disconnect() {
+    this.observing = false;
+  }
 };
+`;
 
 // ============================================
-// Helper: Create image element
+// Autosizes polyfill script (executed in JSDOM context)
 // ============================================
 
-const createImage = (document, attrs = {}) => {
-  const img = document.createElement("img");
-  Object.entries(attrs).forEach(([key, value]) => {
-    img.setAttribute(key, value);
-  });
-  return img;
-};
-
-// ============================================
-// Helper: Execute autosizes script in context
-// ============================================
-
-const executeAutosizesScript = (window) => {
-  // The script is an IIFE, so we execute it in the window context
-  const script = `
+const AUTOSIZES_SCRIPT = `
 (function () {
   const polyfillAutoSizes = () => {
     if (
@@ -267,10 +222,7 @@ const executeAutosizesScript = (window) => {
 
   document.addEventListener("turbo:load", initAutosizes);
 })();
-  `;
-
-  window.eval(script);
-};
+`;
 
 // ============================================
 // Feature Detection Tests
@@ -281,22 +233,28 @@ const featureDetectionTests = [
     name: "skips-polyfill-when-no-performance-observer",
     description: "Does not run polyfill when PerformanceObserver is missing",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        hasPerformanceObserver: false,
-        userAgent: "Mozilla/5.0 Chrome/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Chrome/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      // Don't set PerformanceObserver - leave it undefined
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image should NOT be deferred when polyfill doesn't run
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(
         img.hasAttribute("src"),
         "src should remain when polyfill skipped",
@@ -307,23 +265,28 @@ const featureDetectionTests = [
     name: "skips-polyfill-when-no-paint-timing-support",
     description: "Does not run polyfill when paint timing not supported",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        hasPerformanceObserver: true,
-        supportsPaintTiming: false,
-        userAgent: "Mozilla/5.0 Chrome/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Chrome/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(false));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image should NOT be deferred
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(
         img.hasAttribute("src"),
         "src should remain when polyfill skipped",
@@ -334,21 +297,28 @@ const featureDetectionTests = [
     name: "skips-polyfill-for-chrome-126-plus",
     description: "Does not run polyfill for Chrome 126+",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Chrome/126",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Chrome/126",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image should NOT be deferred for Chrome 126+
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(img.hasAttribute("src"), "src should remain for Chrome 126+");
     },
   },
@@ -356,21 +326,28 @@ const featureDetectionTests = [
     name: "runs-polyfill-for-chrome-125",
     description: "Runs polyfill for Chrome 125 (older than 126)",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Chrome/125",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Chrome/125",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image should be deferred (src moved to data attribute)
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectFalse(
         img.hasAttribute("src"),
         "src should be removed for Chrome 125",
@@ -385,21 +362,28 @@ const featureDetectionTests = [
     name: "runs-polyfill-for-non-chrome-browsers",
     description: "Runs polyfill for non-Chrome browsers (Firefox, Safari)",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image should be deferred for non-Chrome
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectFalse(
         img.hasAttribute("src"),
         "src should be removed for non-Chrome",
@@ -417,21 +401,28 @@ const imageFilteringTests = [
     name: "ignores-images-without-sizes-auto",
     description: "Does not process images without sizes=auto",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "100vw",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "100vw");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image without sizes="auto" should not be processed
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(
         img.hasAttribute("src"),
         "src should remain for non-auto sizes",
@@ -442,21 +433,28 @@ const imageFilteringTests = [
     name: "ignores-images-without-loading-lazy",
     description: "Does not process images without loading=lazy",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "eager",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "eager");
+      window.document.getElementById("container").appendChild(img);
 
-      // Image without loading="lazy" should not be processed
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(
         img.hasAttribute("src"),
         "src should remain for non-lazy loading",
@@ -467,21 +465,28 @@ const imageFilteringTests = [
     name: "ignores-remote-http-images",
     description: "Does not process remote images with http:// URLs",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "http://example.com/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "http://example.com/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Remote images should not be processed
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(img.hasAttribute("src"), "src should remain for http:// URLs");
     },
   },
@@ -489,21 +494,28 @@ const imageFilteringTests = [
     name: "ignores-remote-https-images",
     description: "Does not process remote images with https:// URLs",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "https://example.com/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "https://example.com/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Remote images should not be processed
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectTrue(
         img.hasAttribute("src"),
         "src should remain for https:// URLs",
@@ -514,21 +526,28 @@ const imageFilteringTests = [
     name: "processes-local-images",
     description: "Processes local images with relative paths",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/images/photo.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/images/photo.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Local images should be processed
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectFalse(
         img.hasAttribute("src"),
         "src should be removed for local images",
@@ -544,21 +563,28 @@ const imageFilteringTests = [
     name: "handles-sizes-auto-with-fallback",
     description: "Processes images with sizes='auto, 100vw' format",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto, 100vw",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto, 100vw");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Images with "auto, ..." should be processed
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectFalse(
         img.hasAttribute("src"),
         "src should be removed for auto sizes with fallback",
@@ -576,19 +602,27 @@ const attributeDeferralTests = [
     name: "defers-src-attribute",
     description: "Moves src to data-auto-sizes-src before FCP",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
+
+      window.eval(AUTOSIZES_SCRIPT);
 
       expectFalse(img.hasAttribute("src"), "src should be removed");
       expectStrictEqual(
@@ -602,20 +636,28 @@ const attributeDeferralTests = [
     name: "defers-srcset-attribute",
     description: "Moves srcset to data-auto-sizes-srcset before FCP",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        srcset: "/image-300.jpg 300w, /image-600.jpg 600w",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("srcset", "/image-300.jpg 300w, /image-600.jpg 600w");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
+
+      window.eval(AUTOSIZES_SCRIPT);
 
       expectFalse(img.hasAttribute("srcset"), "srcset should be removed");
       expectStrictEqual(
@@ -629,20 +671,28 @@ const attributeDeferralTests = [
     name: "defers-both-src-and-srcset",
     description: "Moves both src and srcset to data attributes",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        srcset: "/image-300.jpg 300w",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("srcset", "/image-300.jpg 300w");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
+
+      window.eval(AUTOSIZES_SCRIPT);
 
       expectFalse(img.hasAttribute("src"), "src should be removed");
       expectFalse(img.hasAttribute("srcset"), "srcset should be removed");
@@ -667,28 +717,34 @@ const fcpRestorationTests = [
     name: "restores-attributes-after-fcp",
     description: "Restores src and srcset after FCP fires",
     asyncTest: async () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        srcset: "/image-300.jpg 300w",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("srcset", "/image-300.jpg 300w");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Verify deferred initially
+      window.eval(AUTOSIZES_SCRIPT);
+
       expectFalse(img.hasAttribute("src"), "src should be deferred initially");
 
       // Wait for FCP mock to fire
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // After FCP, attributes should be restored
       expectStrictEqual(
         img.getAttribute("src"),
         "/image.jpg",
@@ -705,24 +761,30 @@ const fcpRestorationTests = [
     name: "removes-data-attributes-after-restore",
     description: "Cleans up data-auto-sizes-* attributes after restoration",
     asyncTest: async () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      executeAutosizesScript(window);
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
 
-      // Wait for FCP mock to fire
+      window.eval(AUTOSIZES_SCRIPT);
+
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Data attributes should be cleaned up
       expectFalse(
         img.hasAttribute("data-auto-sizes-src"),
         "data attribute should be removed after restore",
@@ -740,36 +802,45 @@ const multipleImagesTests = [
     name: "processes-multiple-qualifying-images",
     description: "Defers all images with sizes=auto and loading=lazy",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      const container = document.getElementById("container");
-      const img1 = createImage(document, {
-        src: "/image1.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      const img2 = createImage(document, {
-        src: "/image2.jpg",
-        sizes: "auto",
-        loading: "lazy",
-      });
-      const img3 = createImage(document, {
-        src: "/image3.jpg",
-        sizes: "100vw",
-        loading: "lazy",
-      });
+      window.eval(createPerformanceObserverScript(true));
+
+      const container = window.document.getElementById("container");
+
+      const img1 = window.document.createElement("img");
+      img1.setAttribute("src", "/image1.jpg");
+      img1.setAttribute("sizes", "auto");
+      img1.setAttribute("loading", "lazy");
+
+      const img2 = window.document.createElement("img");
+      img2.setAttribute("src", "/image2.jpg");
+      img2.setAttribute("sizes", "auto");
+      img2.setAttribute("loading", "lazy");
+
+      const img3 = window.document.createElement("img");
+      img3.setAttribute("src", "/image3.jpg");
+      img3.setAttribute("sizes", "100vw");
+      img3.setAttribute("loading", "lazy");
+
       container.appendChild(img1);
       container.appendChild(img2);
       container.appendChild(img3);
 
-      executeAutosizesScript(window);
+      window.eval(AUTOSIZES_SCRIPT);
 
-      // First two should be deferred
       expectFalse(img1.hasAttribute("src"), "img1 src should be deferred");
       expectFalse(img2.hasAttribute("src"), "img2 src should be deferred");
-      // Third should not be deferred (no sizes=auto)
       expectTrue(
         img3.hasAttribute("src"),
         "img3 src should remain (no auto sizes)",
@@ -787,29 +858,32 @@ const turboNavigationTests = [
     name: "handles-turbo-load-event",
     description: "Re-initializes on turbo:load event",
     test: () => {
-      const { window, document } = createMockBrowserEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
+      const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
+      const { window } = dom;
+
+      Object.defineProperty(window.document, "readyState", {
+        value: "complete",
+        configurable: true,
       });
 
-      executeAutosizesScript(window);
-
-      // Add new image after initial load
-      const container = document.getElementById("container");
-      const img = createImage(document, {
-        src: "/new-image.jpg",
-        sizes: "auto",
-        loading: "lazy",
+      Object.defineProperty(window.navigator, "userAgent", {
+        value: "Mozilla/5.0 Firefox/120",
+        configurable: true,
       });
-      container.appendChild(img);
+      window.eval(createPerformanceObserverScript(true));
 
-      // Dispatch turbo:load event
+      window.eval(AUTOSIZES_SCRIPT);
+
+      const img = window.document.createElement("img");
+      img.setAttribute("src", "/new-image.jpg");
+      img.setAttribute("sizes", "auto");
+      img.setAttribute("loading", "lazy");
+      window.document.getElementById("container").appendChild(img);
+
       const turboEvent = new window.Event("turbo:load");
-      document.dispatchEvent(turboEvent);
+      window.document.dispatchEvent(turboEvent);
 
-      // After turbo:load, state.fcpDone should be true
-      // and new images should be processed directly (sizes calculated)
-      // Since we can't easily check sizes in JSDOM, we just verify
-      // the event handler doesn't throw
+      // After turbo:load, state.fcpDone should be true and images processed
       expectTrue(true, "turbo:load event handled without error");
     },
   },

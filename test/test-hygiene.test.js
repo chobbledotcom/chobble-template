@@ -134,11 +134,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findHardcodedUrls",
   "analyzeHardcodedUrls",
   "isAllowedLine",
-  // autosizes.test.js - JSDOM test helpers
-  "createMockBrowserEnv",
-  "createImage",
-  "executeAutosizesScript",
-  // autosizes.test.js - functions inside template string (polyfill code being tested)
+  // autosizes.test.js - helper to inject PerformanceObserver mock
+  "createPerformanceObserverScript",
+  // autosizes.test.js - functions inside AUTOSIZES_SCRIPT template (polyfill code)
   "polyfillAutoSizes",
   "elemWidth",
   "calculateAndSetSizes",
