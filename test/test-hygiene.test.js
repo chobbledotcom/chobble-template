@@ -109,6 +109,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "analyzeTryCatchUsage",
+  // banned-comments.test.js - analysis helpers
+  "findTodoFixme",
+  "analyzeTodoFixme",
   // commented-code.test.js - analysis helpers
   "isInsideTemplateLiteral",
   "isDocumentationComment",
