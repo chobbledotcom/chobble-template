@@ -28,7 +28,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+(cachedConfig|cachedSite)\s*=\s*null/, // Caching pattern
   /^let\s+(userStrings|userIcons)\s*=\s*\{\}/, // Try/catch assignment pattern
   /^let\s+storedCollections\s*=\s*null/, // pdf.js state
-  /^let\s+fontLink\s*=/, // theme-switcher.js - reassigned
   /^let\s+(fcpDone|initialized)\s*=/, // autosizes.js state flags
   /^let\s+(paypalToken|paypalTokenExpiry)\s*=/, // server.js PayPal token cache
 ];
