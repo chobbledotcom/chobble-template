@@ -6,25 +6,22 @@ const renderRecurringEvents = (events) => {
     return "";
   }
 
-  let html = '<ul class="recurring-events">\n';
-  for (const event of events) {
+  const items = events.map((event) => {
     const eventData = event.data || event;
     const url = event.url || eventData.url;
-    html += `  <li>\n`;
-    if (url) {
-      html += `    <strong><a href="${url}">${eventData.title}</a></strong><br>\n`;
-    } else {
-      html += `    <strong>${eventData.title}</strong><br>\n`;
-    }
-    html += `    <span class="event-time">${eventData.recurring_date}</span>`;
-    if (eventData.event_location) {
-      html += `<br>\n    <span class="event-location">${eventData.event_location}</span>`;
-    }
-    html += `\n  </li>\n`;
-  }
-  html += "</ul>";
+    const titleHtml = url
+      ? `<strong><a href="${url}">${eventData.title}</a></strong>`
+      : `<strong>${eventData.title}</strong>`;
+    const locationHtml = eventData.event_location
+      ? `<br>\n    <span class="event-location">${eventData.event_location}</span>`
+      : "";
+    return `  <li>
+    ${titleHtml}<br>
+    <span class="event-time">${eventData.recurring_date}</span>${locationHtml}
+  </li>`;
+  });
 
-  return html;
+  return `<ul class="recurring-events">\n${items.join("\n")}\n</ul>`;
 };
 
 const recurringEventsShortcode = function (eleventyConfig) {

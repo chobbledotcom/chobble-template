@@ -3,9 +3,11 @@ import { memoize } from "#utils/memoize.js";
 const normaliseCategory = (category) => {
   if (!category) return "";
   // Handle full paths like "/categories/premium-widgets.md"
-  let normalised = category.replace(/^\/categories\//, "").replace(/\.md$/, "");
-  // Convert hyphens to spaces
-  return normalised.replace(/-/g, " ");
+  // and convert hyphens to spaces
+  return category
+    .replace(/^\/categories\//, "")
+    .replace(/\.md$/, "")
+    .replace(/-/g, " ");
 };
 
 // Build a memoized reverse index: keyword -> [products]

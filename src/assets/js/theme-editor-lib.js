@@ -99,36 +99,32 @@ export function parseBorderValue(borderValue) {
  * @returns {string} - Generated theme CSS
  */
 export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
-  let themeText = ":root {\n";
-
-  // Add global variables
-  Object.entries(globalVars).forEach(([varName, value]) => {
-    // Ensure variable name has -- prefix
+  // Build global :root variables
+  const globalLines = Object.entries(globalVars).map(([varName, value]) => {
     const cssVar = varName.startsWith("--") ? varName : `--${varName}`;
-    themeText += `  ${cssVar}: ${value};\n`;
+    return `  ${cssVar}: ${value};`;
   });
 
-  themeText += "}\n";
+  const parts = [`:root {\n${globalLines.join("\n")}\n}`];
 
   // Add scoped blocks
   SCOPES.forEach((scope) => {
     const vars = scopeVars[scope];
     if (vars && Object.keys(vars).length > 0) {
       const selector = SCOPE_SELECTORS[scope];
-      themeText += `\n${selector} {\n`;
-      Object.entries(vars).forEach(([varName, value]) => {
-        themeText += `  ${varName}: ${value};\n`;
-      });
-      themeText += "}\n";
+      const scopeLines = Object.entries(vars)
+        .map(([varName, value]) => `  ${varName}: ${value};`)
+        .join("\n");
+      parts.push(`${selector} {\n${scopeLines}\n}`);
     }
   });
 
   // Add body classes comment
   if (bodyClasses && bodyClasses.length > 0) {
-    themeText += `\n/* body_classes: ${bodyClasses.join(", ")} */`;
+    parts.push(`/* body_classes: ${bodyClasses.join(", ")} */`);
   }
 
-  return themeText;
+  return parts.join("\n\n");
 }
 
 /**

@@ -5,13 +5,11 @@ const renderOpeningTimes = (openingTimes) => {
     return "";
   }
 
-  let html = '<ul class="opening-times">\n';
-  for (const item of openingTimes) {
-    html += `  <li><strong>${item.day}:</strong> ${item.hours}</li>\n`;
-  }
-  html += "</ul>";
+  const items = openingTimes
+    .map((item) => `  <li><strong>${item.day}:</strong> ${item.hours}</li>`)
+    .join("\n");
 
-  return html;
+  return `<ul class="opening-times">\n${items}\n</ul>`;
 };
 
 const getOpeningTimesHtml = memoize(async () => {
