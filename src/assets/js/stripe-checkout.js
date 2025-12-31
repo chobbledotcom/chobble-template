@@ -35,35 +35,35 @@ async function checkout() {
 
   statusMessage.textContent = "Redirecting to Stripe...";
 
-  try {
-    // Prepare cart items (SKU + quantity only)
-    const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+  // Prepare cart items (SKU + quantity only)
+  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
 
-    // Create Stripe session via backend
-    const response = await fetch(checkoutApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ items }),
-    });
+  // Create Stripe session via backend
+  const response = await fetch(checkoutApiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  }).catch(() => null);
 
-    if (response.ok) {
-      const session = await response.json();
-
-      if (session.url) {
-        window.location.href = session.url;
-        return;
-      }
-
-      showError("Invalid response from server");
-    } else {
-      const error = await response.json();
-      showError(error.error || "Failed to create checkout session");
-    }
-  } catch (_error) {
-    showError("Failed to start checkout. Please try again.");
+  if (!response) {
+    showError("Failed to connect. Please check your internet and try again.");
+    return;
   }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    showError(error.error || "Failed to create checkout session");
+    return;
+  }
+
+  const session = await response.json().catch(() => null);
+
+  if (!session?.url) {
+    showError("Invalid response from server");
+    return;
+  }
+
+  window.location.href = session.url;
 }
 
 // Run checkout on page load
