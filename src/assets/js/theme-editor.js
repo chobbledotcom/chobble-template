@@ -20,25 +20,16 @@ const SCOPE_DOM_SELECTORS = {
 };
 
 const ThemeEditor = {
-  elements: null, // DOM refs, set once in init()
+  initialized: false,
 
   init() {
-    const form = document.getElementById("theme-editor-form");
-    const output = document.getElementById("theme-output");
-
     // Only run on theme-editor page
-    if (!form || !output) return;
+    if (!document.getElementById("theme-editor-form")) return;
+    if (!document.getElementById("theme-output")) return;
 
     // Skip if already initialized
-    if (this.elements) return;
-
-    this.elements = {
-      form,
-      output,
-      downloadBtn: document.getElementById("download-theme"),
-      tabLinks: document.querySelectorAll(".tab-link"),
-      tabContents: document.querySelectorAll(".tab-content"),
-    };
+    if (this.initialized) return;
+    this.initialized = true;
 
     this.initTabNavigation();
     this.initControlsFromTheme();
@@ -46,32 +37,35 @@ const ThemeEditor = {
   },
 
   formEl(id) {
-    return this.elements.form.querySelector(`#${id}`);
+    return document.querySelector(`#theme-editor-form #${id}`);
   },
 
   formQuery(selector) {
-    return this.elements.form.querySelectorAll(selector);
+    return document.querySelectorAll(`#theme-editor-form ${selector}`);
   },
 
   initTabNavigation() {
-    this.elements.tabLinks.forEach((tabLink) => {
+    document.querySelectorAll(".tab-link").forEach((tabLink) => {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
-        this.elements.tabLinks.forEach((link) =>
-          link.classList.remove("active"),
-        );
-        this.elements.tabContents.forEach((content) =>
-          content.classList.remove("active"),
-        );
+        document
+          .querySelectorAll(".tab-link")
+          .forEach((link) => link.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
         tabLink.classList.add("active");
-        const tabId = tabLink.dataset.tab;
-        document.getElementById(`${tabId}-tab`).classList.add("active");
+        document
+          .getElementById(`${tabLink.dataset.tab}-tab`)
+          .classList.add("active");
       });
     });
   },
 
   initControlsFromTheme() {
-    const parsed = parseThemeContent(this.elements.output.value);
+    const parsed = parseThemeContent(
+      document.getElementById("theme-output").value,
+    );
 
     // Initialize global :root variables
     this.initGlobalControls(parsed.root);
@@ -317,12 +311,12 @@ const ThemeEditor = {
   },
 
   setupEventListeners() {
-    this.elements.downloadBtn.addEventListener("click", () =>
-      this.downloadTheme(),
-    );
-    this.elements.output.addEventListener("input", () => {
-      this.initControlsFromTheme();
-    });
+    document
+      .getElementById("download-theme")
+      .addEventListener("click", () => this.downloadTheme());
+    document
+      .getElementById("theme-output")
+      .addEventListener("input", () => this.initControlsFromTheme());
   },
 
   /**
@@ -412,7 +406,7 @@ const ThemeEditor = {
 
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
-    this.elements.output.value = themeText;
+    document.getElementById("theme-output").value = themeText;
   },
 
   /**
@@ -493,7 +487,7 @@ const ThemeEditor = {
   },
 
   downloadTheme() {
-    const content = this.elements.output.value;
+    const content = document.getElementById("theme-output").value;
     const blob = new Blob([content], { type: "text/css" });
     const url = URL.createObjectURL(blob);
 
