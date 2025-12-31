@@ -1,4 +1,11 @@
-import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
+import {
+  createTestRunner,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+} from "./test-utils.js";
 
 // Configuration
 const MAX_WORDS = 4;

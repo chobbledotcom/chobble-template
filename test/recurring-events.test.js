@@ -1,14 +1,14 @@
 import { JSDOM } from "jsdom";
 import {
-  renderRecurringEvents,
   configureRecurringEvents,
+  renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
+  expectFunctionType,
   expectStrictEqual,
   expectTrue,
-  expectFunctionType,
 } from "./test-utils.js";
 
 const testCases = [
@@ -18,7 +18,11 @@ const testCases = [
     description: "Returns empty string for empty events array",
     test: () => {
       const result = renderRecurringEvents([]);
-      expectStrictEqual(result, "", "Should return empty string for empty array");
+      expectStrictEqual(
+        result,
+        "",
+        "Should return empty string for empty array",
+      );
     },
   },
   {
@@ -63,10 +67,21 @@ const testCases = [
       expectTrue(li !== null, "Should have li element");
 
       const link = doc.querySelector("a");
-      expectStrictEqual(link.getAttribute("href"), "/events/market-day/", "Link should have correct href");
-      expectStrictEqual(link.textContent, "Farmers Market", "Link should have event title");
+      expectStrictEqual(
+        link.getAttribute("href"),
+        "/events/market-day/",
+        "Link should have correct href",
+      );
+      expectStrictEqual(
+        link.textContent,
+        "Farmers Market",
+        "Link should have event title",
+      );
 
-      expectTrue(li.textContent.includes("Every Saturday"), "Should show recurring date");
+      expectTrue(
+        li.textContent.includes("Every Saturday"),
+        "Should show recurring date",
+      );
     },
   },
   {
@@ -89,7 +104,11 @@ const testCases = [
       expectStrictEqual(link, null, "Should not have link when no URL");
 
       const strong = doc.querySelector("strong");
-      expectStrictEqual(strong.textContent, "Weekly Meeting", "Title should be in strong tag");
+      expectStrictEqual(
+        strong.textContent,
+        "Weekly Meeting",
+        "Title should be in strong tag",
+      );
     },
   },
   {
@@ -111,7 +130,10 @@ const testCases = [
       const doc = dom.window.document;
 
       const li = doc.querySelector("li");
-      expectTrue(li.textContent.includes("Community Center"), "Should show location");
+      expectTrue(
+        li.textContent.includes("Community Center"),
+        "Should show location",
+      );
     },
   },
   {
@@ -131,7 +153,10 @@ const testCases = [
       const doc = dom.window.document;
 
       const li = doc.querySelector("li");
-      expectTrue(!li.textContent.includes("event_location"), "Should not have location text");
+      expectTrue(
+        !li.textContent.includes("event_location"),
+        "Should not have location text",
+      );
     },
   },
 
@@ -161,7 +186,11 @@ const testCases = [
       expectStrictEqual(listItems.length, 3, "Should have 3 list items");
 
       const links = doc.querySelectorAll("a");
-      expectStrictEqual(links.length, 2, "Should have 2 links (third event has no URL)");
+      expectStrictEqual(
+        links.length,
+        2,
+        "Should have 2 links (third event has no URL)",
+      );
     },
   },
 
@@ -182,8 +211,16 @@ const testCases = [
       const doc = dom.window.document;
 
       const link = doc.querySelector("a");
-      expectStrictEqual(link.textContent, "Flat Event", "Should handle flat data structure");
-      expectStrictEqual(link.getAttribute("href"), "/flat/", "Should use url from flat structure");
+      expectStrictEqual(
+        link.textContent,
+        "Flat Event",
+        "Should handle flat data structure",
+      );
+      expectStrictEqual(
+        link.getAttribute("href"),
+        "/flat/",
+        "Should use url from flat structure",
+      );
     },
   },
   {
@@ -204,7 +241,11 @@ const testCases = [
       const doc = dom.window.document;
 
       const link = doc.querySelector("a");
-      expectStrictEqual(link.textContent, "Nested Event", "Should handle nested data structure");
+      expectStrictEqual(
+        link.textContent,
+        "Nested Event",
+        "Should handle nested data structure",
+      );
     },
   },
   {
@@ -225,7 +266,11 @@ const testCases = [
       const doc = dom.window.document;
 
       const link = doc.querySelector("a");
-      expectStrictEqual(link.getAttribute("href"), "/data-url/", "Should use URL from data object");
+      expectStrictEqual(
+        link.getAttribute("href"),
+        "/data-url/",
+        "Should use URL from data object",
+      );
     },
   },
 
@@ -269,7 +314,10 @@ const testCases = [
         },
       ];
       const result = renderRecurringEvents(events);
-      expectTrue(result.includes("Music & Arts Festival"), "Should preserve ampersand in title");
+      expectTrue(
+        result.includes("Music & Arts Festival"),
+        "Should preserve ampersand in title",
+      );
     },
   },
   {
@@ -285,7 +333,10 @@ const testCases = [
         },
       ];
       const result = renderRecurringEvents(events);
-      expectTrue(result.includes('"Open Mic" Night'), "Should preserve quotes in title");
+      expectTrue(
+        result.includes('"Open Mic" Night'),
+        "Should preserve quotes in title",
+      );
     },
   },
   {
@@ -306,7 +357,10 @@ const testCases = [
       const doc = dom.window.document;
 
       const li = doc.querySelector("li");
-      expectTrue(li.textContent.includes("Café René"), "Should preserve unicode in location");
+      expectTrue(
+        li.textContent.includes("Café René"),
+        "Should preserve unicode in location",
+      );
     },
   },
 
@@ -318,8 +372,15 @@ const testCases = [
       const mockConfig = createMockEleventyConfig();
       configureRecurringEvents(mockConfig);
 
-      expectTrue("recurring_events" in mockConfig.shortcodes, "Should add recurring_events shortcode");
-      expectFunctionType(mockConfig.shortcodes, "recurring_events", "Shortcode should be a function");
+      expectTrue(
+        "recurring_events" in mockConfig.shortcodes,
+        "Should add recurring_events shortcode",
+      );
+      expectFunctionType(
+        mockConfig.shortcodes,
+        "recurring_events",
+        "Shortcode should be a function",
+      );
     },
   },
   {
@@ -329,8 +390,15 @@ const testCases = [
       const mockConfig = createMockEleventyConfig();
       configureRecurringEvents(mockConfig);
 
-      expectTrue("format_recurring_events" in mockConfig.filters, "Should add format_recurring_events filter");
-      expectFunctionType(mockConfig.filters, "format_recurring_events", "Filter should be a function");
+      expectTrue(
+        "format_recurring_events" in mockConfig.filters,
+        "Should add format_recurring_events filter",
+      );
+      expectFunctionType(
+        mockConfig.filters,
+        "format_recurring_events",
+        "Filter should be a function",
+      );
     },
   },
   {
@@ -341,7 +409,11 @@ const testCases = [
       configureRecurringEvents(mockConfig);
 
       const filter = mockConfig.filters.format_recurring_events;
-      expectStrictEqual(filter, renderRecurringEvents, "Filter should be renderRecurringEvents function");
+      expectStrictEqual(
+        filter,
+        renderRecurringEvents,
+        "Filter should be renderRecurringEvents function",
+      );
     },
   },
 
@@ -363,7 +435,7 @@ const testCases = [
       expectStrictEqual(
         JSON.stringify(originalEvents),
         JSON.stringify(eventsCopy),
-        "Should not mutate input array"
+        "Should not mutate input array",
       );
     },
   },
