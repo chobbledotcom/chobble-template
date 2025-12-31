@@ -47,12 +47,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeFunctionLengths",
   "formatViolations",
   // let-usage.test.js - analysis helpers
-  "findDeclarations",
-  "findLetDeclarations",
-  "findVarDeclarations",
-  "isAllowedLet",
-  "analyzeLetUsage",
-  "analyzeVarUsage",
+  "findMutableVarDeclarations",
+  "isAllowedLetPattern",
+  "analyzeMutableVarUsage",
   // loose-equality.test.js - analysis helpers
   "findLooseEquality",
   "analyzeLooseEquality",

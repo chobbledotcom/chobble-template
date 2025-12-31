@@ -1,11 +1,5 @@
 import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
-
-// Whitelist of allowed .then() occurrences
-// Format: "filepath:lineNumber" - these are grandfathered in and should be removed over time
-const ALLOWED_THEN_USAGE = new Set([
-  // src/assets/js/availability-calendar.js - fetch chain
-  "src/assets/js/availability-calendar.js:133",
-]);
+import { ALLOWED_THEN_USAGE } from "./code-quality-exceptions.js";
 
 /**
  * Find all .then() calls in a file
@@ -105,7 +99,7 @@ await asyncFunction();
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: refactor to use async/await, or add to ALLOWED_THEN_USAGE\n");
+        console.log("\n  To fix: refactor to use async/await, or add to ALLOWED_THEN_USAGE in code-quality-exceptions.js\n");
       }
 
       expectTrue(

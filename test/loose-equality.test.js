@@ -1,28 +1,5 @@
 import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
-
-// Whitelist of allowed loose equality occurrences
-// Format: "filepath:lineNumber" - these are grandfathered in and should be removed over time
-const ALLOWED_LOOSE_EQUALITY = new Set([
-  // src/_lib/media/image.js - null checks
-  "src/_lib/media/image.js:101",
-  "src/_lib/media/image.js:171",
-
-  // src/categories/categories.11tydata.js - null check
-  "src/categories/categories.11tydata.js:8",
-
-  // src/_lib/eleventy/js-config.js - null check
-  "src/_lib/eleventy/js-config.js:12",
-
-  // src/_lib/collections/tags.js - null filter
-  "src/_lib/collections/tags.js:7",
-
-  // src/_lib/collections/reviews.js - null checks
-  "src/_lib/collections/reviews.js:49",
-  "src/_lib/collections/reviews.js:60",
-
-  // src/assets/js/tabs.js - length check
-  "src/assets/js/tabs.js:18",
-]);
+import { ALLOWED_LOOSE_EQUALITY } from "./code-quality-exceptions.js";
 
 /**
  * Find all loose equality comparisons (== or !=) in a file
@@ -143,7 +120,7 @@ const str = "x == y";
           console.log(`     - ${v.file}:${v.line} (${v.operator})`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: use === or !== instead, or add to ALLOWED_LOOSE_EQUALITY\n");
+        console.log("\n  To fix: use === or !== instead, or add to ALLOWED_LOOSE_EQUALITY in code-quality-exceptions.js\n");
       }
 
       expectTrue(
