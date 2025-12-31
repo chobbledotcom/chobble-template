@@ -3,9 +3,9 @@ import {
   createMockEleventyConfig,
   createTestRunner,
   expectArrayLength,
-  expectFalse,
   expectFunctionType,
   expectStrictEqual,
+  expectThrows,
   expectTrue,
 } from "#test/test-utils.js";
 
@@ -39,15 +39,12 @@ const testCases = [
 
       expectFunctionType(compiler, undefined, "Should return a function");
 
-      try {
-        compiler({});
-      } catch (error) {
-        expectTrue(
-          error.message.includes("Can't find stylesheet") ||
-            error.message.includes("file to import not found"),
-          "Should handle import errors gracefully",
-        );
-      }
+      // Missing import should throw an error
+      expectThrows(
+        () => compiler({}),
+        /Can't find stylesheet|file to import not found/i,
+        "Should throw error for missing import",
+      );
     },
   },
   {
@@ -205,12 +202,12 @@ const testCases = [
       const invalidScss = ".test { color: ; }"; // Invalid syntax
       const inputPath = "/test/invalid.scss";
 
-      try {
-        compileScss(invalidScss, inputPath);
-        expectFalse(true, "Should throw error for invalid SCSS");
-      } catch (error) {
-        expectTrue(error.message.length > 0, "Should provide error message");
-      }
+      // Invalid SCSS should throw an error with a message
+      expectThrows(
+        () => compileScss(invalidScss, inputPath),
+        /./,
+        "Should throw error for invalid SCSS",
+      );
     },
   },
   {
