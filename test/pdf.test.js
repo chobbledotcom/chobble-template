@@ -623,7 +623,7 @@ const testCases = [
 
       // Create a mock collectionApi
       const mockCollectionApi = {
-        getFilteredByTag: (tag) => [],
+        getFilteredByTag: (_tag) => [],
       };
 
       const result = mockConfig.collections._pdfMenuData(mockCollectionApi);
