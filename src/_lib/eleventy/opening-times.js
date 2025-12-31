@@ -26,4 +26,4 @@ const configureOpeningTimes = (eleventyConfig) => {
   eleventyConfig.addFilter("format_opening_times", renderOpeningTimes);
 };
 
-export { configureOpeningTimes, getOpeningTimesHtml };
+export { configureOpeningTimes, getOpeningTimesHtml, renderOpeningTimes };
