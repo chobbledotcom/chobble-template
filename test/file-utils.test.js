@@ -21,7 +21,7 @@ import {
   withMockedCwd,
   withTempDir,
   withTempFile,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   {

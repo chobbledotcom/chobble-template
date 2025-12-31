@@ -1,4 +1,4 @@
-import { onReady } from "./on-ready.js";
+import { onReady } from "#assets/on-ready.js";
 
 function isThemeEditorPage() {
   return window.location.pathname.includes("/theme-editor/");

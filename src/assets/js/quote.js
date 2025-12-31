@@ -10,8 +10,8 @@ import {
   renderQuantityControls,
   updateCartIcon,
   updateItemQuantity,
-} from "./cart-utils.js";
-import { onReady } from "./on-ready.js";
+} from "#assets/cart-utils.js";
+import { onReady } from "#assets/on-ready.js";
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);

@@ -1,4 +1,4 @@
-import { ALLOWED_LET_PATTERNS } from "./code-quality-exceptions.js";
+import { ALLOWED_LET_PATTERNS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
@@ -8,7 +8,7 @@ import {
   rootDir,
   SRC_JS_FILES,
   TEST_FILES,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
@@ -69,7 +69,7 @@ const analyzeMutableVarUsage = () => {
     ...SRC_JS_FILES,
     ...ECOMMERCE_JS_FILES,
     ...TEST_FILES,
-  ].filter((f) => f !== "test/let-usage.test.js");
+  ].filter((f) => f !== "test/code-quality/let-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -131,11 +131,7 @@ const d = "not a declaration";
     name: "allowed-let-patterns-work",
     description: "Allowed patterns correctly match exempted let usage",
     test: () => {
-      const allowedLines = [
-        "let ELEMENTS = null;",
-        "let gallery, currentImage, imagePopup;",
-        "let state = null;",
-      ];
+      const allowedLines = ["let ELEMENTS = null;", "let state = null;"];
       for (const line of allowedLines) {
         expectTrue(
           isAllowedLetPattern(line),

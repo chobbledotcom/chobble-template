@@ -1,4 +1,4 @@
-import configJson from "./config.json" with { type: "json" };
+import configJson from "#data/config.json" with { type: "json" };
 
 const DEFAULT_FIELDS = [
   "thumbnail",
