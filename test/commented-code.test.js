@@ -1,11 +1,5 @@
 import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 
-// Whitelist of allowed commented-out code occurrences
-// Format: "filepath:lineNumber" - these should be cleaned up over time
-const ALLOWED_COMMENTED_CODE = new Set([
-  // Add exceptions here if truly necessary
-]);
-
 /**
  * Patterns that indicate commented-out code (not documentation)
  * Each pattern is designed to catch code that was disabled, not explanatory comments
@@ -125,7 +119,6 @@ const findCommentedCode = (source, relativePath) => {
  */
 const analyzeCommentedCode = () => {
   const violations = [];
-  const allowed = [];
 
   // Exclude this test file
   const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
@@ -137,25 +130,15 @@ const analyzeCommentedCode = () => {
     const commentedCode = findCommentedCode(source, relativePath);
 
     for (const cc of commentedCode) {
-      const location = `${relativePath}:${cc.lineNumber}`;
-
-      if (ALLOWED_COMMENTED_CODE.has(location)) {
-        allowed.push({
-          file: relativePath,
-          line: cc.lineNumber,
-          code: cc.line,
-        });
-      } else {
-        violations.push({
-          file: relativePath,
-          line: cc.lineNumber,
-          code: cc.line,
-        });
-      }
+      violations.push({
+        file: relativePath,
+        line: cc.lineNumber,
+        code: cc.line,
+      });
     }
   }
 
-  return { violations, allowed };
+  return violations;
 };
 
 const testCases = [
@@ -248,51 +231,24 @@ const a = 1;
     },
   },
   {
-    name: "no-new-commented-code",
-    description: "No new commented-out code outside the whitelist",
+    name: "no-commented-code",
+    description: "No commented-out code allowed in the codebase",
     test: () => {
-      const { violations } = analyzeCommentedCode();
+      const violations = analyzeCommentedCode();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted commented-out code:`);
+        console.log(`\n  Found ${violations.length} commented-out code:`);
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: remove the commented code, or add to ALLOWED_COMMENTED_CODE in commented-code.test.js\n");
+        console.log("\n  To fix: remove the commented code\n");
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted commented-out code. See list above.`
+        `Found ${violations.length} commented-out code. See list above.`
       );
-    },
-  },
-  {
-    name: "report-allowed-commented-code",
-    description: "Reports whitelisted commented-out code for tracking",
-    test: () => {
-      const { allowed } = analyzeCommentedCode();
-
-      console.log(`\n  Whitelisted commented-out code: ${allowed.length}`);
-      if (allowed.length > 0) {
-        console.log("  These should be cleaned up over time:\n");
-
-        // Group by file for cleaner output
-        const byFile = {};
-        for (const a of allowed) {
-          if (!byFile[a.file]) byFile[a.file] = [];
-          byFile[a.file].push(a.line);
-        }
-
-        for (const [file, lines] of Object.entries(byFile)) {
-          console.log(`     ${file}: lines ${lines.join(", ")}`);
-        }
-      }
-      console.log("");
-
-      // This test always passes - it's informational
-      expectTrue(true, "Reported whitelisted commented-out code");
     },
   },
 ];
