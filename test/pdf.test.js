@@ -1,17 +1,17 @@
 import {
   buildMenuPdfData,
-  createMenuPdfTemplate,
   configurePdf,
+  createMenuPdfTemplate,
 } from "#eleventy/pdf.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
   expectArrayLength,
   expectDeepEqual,
-  expectStrictEqual,
-  expectTrue,
   expectFalse,
   expectFunctionType,
+  expectStrictEqual,
+  expectTrue,
 } from "#test/test-utils.js";
 
 // Helper to create mock menu
@@ -69,8 +69,16 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(result.menuTitle, "Lunch Menu", "Should have menu title");
-      expectStrictEqual(result.subtitle, "Served 11am-3pm", "Should have subtitle");
+      expectStrictEqual(
+        result.menuTitle,
+        "Lunch Menu",
+        "Should have menu title",
+      );
+      expectStrictEqual(
+        result.subtitle,
+        "Served 11am-3pm",
+        "Should have subtitle",
+      );
       expectArrayLength(result.categories, 2, "Should have 2 categories");
       expectStrictEqual(
         result.categories[0].name,
@@ -89,7 +97,11 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(result.menuTitle, "Dinner Menu", "Should have menu title");
+      expectStrictEqual(
+        result.menuTitle,
+        "Dinner Menu",
+        "Should have menu title",
+      );
       expectStrictEqual(result.subtitle, "", "Should have empty subtitle");
     },
   },
@@ -147,7 +159,11 @@ const testCases = [
         2,
         "Appetizers should have 2 items",
       );
-      expectArrayLength(result.categories[1].items, 1, "Mains should have 1 item");
+      expectArrayLength(
+        result.categories[1].items,
+        1,
+        "Mains should have 1 item",
+      );
     },
   },
   {
@@ -157,7 +173,12 @@ const testCases = [
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [
-        createMockMenuItem("Spring Rolls", ["apps"], "$8.99", "Crispy and delicious"),
+        createMockMenuItem(
+          "Spring Rolls",
+          ["apps"],
+          "$8.99",
+          "Crispy and delicious",
+        ),
       ];
 
       const result = buildMenuPdfData(menu, categories, items);
@@ -240,7 +261,11 @@ const testCases = [
         result.hasDietaryKeys,
         "Should indicate no dietary keys present",
       );
-      expectStrictEqual(result.dietaryKeyString, "", "Should have empty key string");
+      expectStrictEqual(
+        result.dietaryKeyString,
+        "",
+        "Should have empty key string",
+      );
     },
   },
   {
@@ -437,7 +462,10 @@ const testCases = [
       const menuTitleSection = template.content.find(
         (section) => section.text === "{{menuTitle}}",
       );
-      expectTrue(menuTitleSection !== undefined, "Should have menu title section");
+      expectTrue(
+        menuTitleSection !== undefined,
+        "Should have menu title section",
+      );
       expectStrictEqual(
         menuTitleSection.style,
         "menuTitle",
@@ -451,10 +479,7 @@ const testCases = [
     test: () => {
       const template = createMenuPdfTemplate();
 
-      expectTrue(
-        template.styles !== undefined,
-        "Should have styles object",
-      );
+      expectTrue(template.styles !== undefined, "Should have styles object");
       expectTrue(
         template.styles.businessName !== undefined,
         "Should have businessName style",
@@ -471,7 +496,10 @@ const testCases = [
         template.styles.itemName !== undefined,
         "Should have itemName style",
       );
-      expectTrue(template.styles.price !== undefined, "Should have price style");
+      expectTrue(
+        template.styles.price !== undefined,
+        "Should have price style",
+      );
     },
   },
   {
@@ -595,7 +623,7 @@ const testCases = [
 
       // Create a mock collectionApi
       const mockCollectionApi = {
-        getFilteredByTag: (tag) => [],
+        getFilteredByTag: (_tag) => [],
       };
 
       const result = mockConfig.collections._pdfMenuData(mockCollectionApi);
@@ -612,7 +640,9 @@ const testCases = [
       configurePdf(mockConfig);
 
       const mockMenus = [{ fileSlug: "lunch", data: { title: "Lunch" } }];
-      const mockCategories = [{ fileSlug: "apps", data: { name: "Appetizers" } }];
+      const mockCategories = [
+        { fileSlug: "apps", data: { name: "Appetizers" } },
+      ];
       const mockItems = [{ data: { name: "Soup" } }];
 
       const mockCollectionApi = {
