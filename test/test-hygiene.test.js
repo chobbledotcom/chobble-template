@@ -100,6 +100,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // memoize.test.js - test fixtures for memoize behavior
   "expensiveFn",
   "filterFn",
+  // try-catch-usage.test.js - analysis helpers
+  "findTryCatches",
+  "analyzeTryCatchUsage",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious
