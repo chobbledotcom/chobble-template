@@ -1,51 +1,38 @@
 import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
+import { ALLOWED_MUTABLE_VAR_FILES, ALLOWED_LET_PATTERNS } from "./code-quality-exceptions.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
 
-// Files that are allowed to use let (third-party, legacy, or special cases)
-const ALLOWED_FILES = new Set([
-  "src/assets/js/autosizes.js", // Third-party polyfill
-]);
-
-// Specific let usages that are intentionally allowed
-// Format: "filename:lineNumber" or patterns that are acceptable
-const ALLOWED_PATTERNS = [
-  // Module-level state that must be mutable
-  /^let\s+(ELEMENTS|PREVIOUS_GLOBAL_VARS)\s*=\s*null/, // theme-editor.js state
-  /^let\s+(gallery|currentImage|imagePopup)\s*[,;=]/, // gallery.js DOM refs
-  /^let\s+currentPopupIndex\s*=/, // gallery.js state
-  /^let\s+state\s*=/, // closure state shared between callbacks (e.g., pdf.js)
-  /^let\s+paypalToken(Expiry)?\s*=/, // server.js PayPal token cache
-];
-
 /**
- * Find all let declarations in a file
- * Returns array of { line, lineNumber, column }
+ * Find all var/let declarations in a file
+ * Returns array of { line, lineNumber, column, keyword }
  */
-const findLetDeclarations = (source) => {
+const findMutableVarDeclarations = (source) => {
   const results = [];
   const lines = source.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    // Match 'let' as a keyword (not part of another word)
-    // Handles: let x, let x =, for (let, etc.
-    const regex = /\blet\s+/g;
-    let match;
 
-    while ((match = regex.exec(line)) !== null) {
-      // Skip if in a comment
-      const beforeMatch = line.substring(0, match.index);
-      if (beforeMatch.includes("//")) continue;
-      // Simple check for block comments (not perfect but catches most)
-      if (beforeMatch.includes("/*") && !beforeMatch.includes("*/")) continue;
+    // Check for both var and let
+    for (const keyword of ["var", "let"]) {
+      const regex = new RegExp(`\\b${keyword}\\s+`, "g");
+      let match;
 
-      results.push({
-        line: line.trim(),
-        lineNumber: i + 1,
-        column: match.index + 1,
-      });
+      while ((match = regex.exec(line)) !== null) {
+        // Skip if in a comment
+        const beforeMatch = line.substring(0, match.index);
+        if (beforeMatch.includes("//")) continue;
+        if (beforeMatch.includes("/*") && !beforeMatch.includes("*/")) continue;
+
+        results.push({
+          line: line.trim(),
+          lineNumber: i + 1,
+          column: match.index + 1,
+          keyword,
+        });
+      }
     }
   }
 
@@ -55,70 +42,98 @@ const findLetDeclarations = (source) => {
 /**
  * Check if a let declaration is allowed by our patterns
  */
-const isAllowedLet = (line) => {
+const isAllowedLetPattern = (line) => {
   const trimmed = line.trim();
-  return ALLOWED_PATTERNS.some((pattern) => pattern.test(trimmed));
+  return ALLOWED_LET_PATTERNS.some((pattern) => pattern.test(trimmed));
 };
 
 /**
- * Analyze all JS files and find let usage
+ * Analyze all JS files and find var/let usage
  */
-const analyzeLetUsage = () => {
-  const violations = [];
-  const warnings = [];
+const analyzeMutableVarUsage = () => {
+  const varViolations = [];
+  const varAllowed = [];
+  const letWarnings = [];
 
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES];
+  // Exclude this test file since it contains var/let examples in test strings
+  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
+    .filter((f) => f !== "test/let-usage.test.js");
+
   for (const relativePath of allJsFiles) {
-    // Skip allowed files entirely
-    if (ALLOWED_FILES.has(relativePath)) continue;
+    // Skip fully allowed files
+    if (ALLOWED_MUTABLE_VAR_FILES.has(relativePath)) {
+      // Still count them for reporting
+      const fullPath = path.join(rootDir, relativePath);
+      const source = fs.readFileSync(fullPath, "utf-8");
+      const declarations = findMutableVarDeclarations(source);
+      for (const decl of declarations) {
+        varAllowed.push({
+          file: relativePath,
+          line: decl.lineNumber,
+          code: decl.line,
+          keyword: decl.keyword,
+        });
+      }
+      continue;
+    }
 
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
-    const letDeclarations = findLetDeclarations(source);
+    const declarations = findMutableVarDeclarations(source);
 
-    for (const decl of letDeclarations) {
+    for (const decl of declarations) {
       const entry = {
         file: relativePath,
         line: decl.lineNumber,
         code: decl.line,
+        keyword: decl.keyword,
       };
 
-      if (isAllowedLet(decl.line)) {
-        // Allowed patterns are fine, don't even warn
-        continue;
+      if (decl.keyword === "var") {
+        // var is always a violation outside allowed files
+        varViolations.push(entry);
+      } else if (decl.keyword === "let") {
+        // let is a warning unless it matches allowed patterns
+        if (!isAllowedLetPattern(decl.line)) {
+          letWarnings.push(entry);
+        }
       }
-
-      // For now, everything else is a warning
-      // Later we can move some to violations
-      warnings.push(entry);
     }
   }
 
-  return { violations, warnings };
+  return { varViolations, varAllowed, letWarnings };
 };
 
 const testCases = [
   {
-    name: "find-let-in-source",
-    description: "Correctly identifies let declarations in source code",
+    name: "find-mutable-vars-in-source",
+    description: "Correctly identifies var and let declarations in source code",
     test: () => {
       const source = `
 const a = 1;
 let b = 2;
+var c = 3;
 for (let i = 0; i < 10; i++) {}
+for (var j = 0; j < 10; j++) {}
 // let comment = "ignored";
-const c = "not a declaration";
-let d, e, f;
+// var comment = "ignored";
+const d = "not a declaration";
       `;
-      const results = findLetDeclarations(source);
+      const results = findMutableVarDeclarations(source);
+      const lets = results.filter((r) => r.keyword === "let");
+      const vars = results.filter((r) => r.keyword === "var");
       expectTrue(
-        results.length === 3,
-        `Expected 3 let declarations, found ${results.length}`
+        lets.length === 2,
+        `Expected 2 let declarations, found ${lets.length}`
+      );
+      expectTrue(
+        vars.length === 2,
+        `Expected 2 var declarations, found ${vars.length}`
       );
     },
   },
   {
-    name: "allowed-patterns-work",
+    name: "allowed-let-patterns-work",
     description: "Allowed patterns correctly match exempted let usage",
     test: () => {
       const allowedLines = [
@@ -128,7 +143,7 @@ let d, e, f;
       ];
       for (const line of allowedLines) {
         expectTrue(
-          isAllowedLet(line),
+          isAllowedLetPattern(line),
           `Expected "${line}" to be allowed`
         );
       }
@@ -140,38 +155,81 @@ let d, e, f;
       ];
       for (const line of disallowedLines) {
         expectTrue(
-          !isAllowedLet(line),
+          !isAllowedLetPattern(line),
           `Expected "${line}" to NOT be allowed`
         );
       }
     },
   },
   {
-    name: "check-let-usage-in-project",
+    name: "no-new-var-declarations",
+    description: "No new var declarations outside whitelisted files",
+    test: () => {
+      const { varViolations } = analyzeMutableVarUsage();
+
+      if (varViolations.length > 0) {
+        console.log(`\n  Found ${varViolations.length} non-whitelisted var declarations:`);
+        for (const v of varViolations) {
+          console.log(`     - ${v.file}:${v.line}`);
+          console.log(`       ${v.code}`);
+        }
+        console.log("\n  To fix: refactor to const, or add file to ALLOWED_MUTABLE_VAR_FILES in code-quality-exceptions.js\n");
+      }
+
+      expectTrue(
+        varViolations.length === 0,
+        `Found ${varViolations.length} non-whitelisted var declarations. See list above.`
+      );
+    },
+  },
+  {
+    name: "report-let-usage",
     description: "Scans project files and reports let usage",
     test: () => {
-      const { violations, warnings } = analyzeLetUsage();
+      const { letWarnings } = analyzeMutableVarUsage();
 
-      // Report warnings
-      if (warnings.length > 0) {
-        console.log(`\n  ⚠️  Found ${warnings.length} let declarations to review:`);
-        for (const w of warnings) {
+      if (letWarnings.length > 0) {
+        console.log(`\n  Found ${letWarnings.length} let declarations to review:`);
+        for (const w of letWarnings) {
           console.log(`     - ${w.file}:${w.line}`);
           console.log(`       ${w.code}`);
         }
         console.log("");
       }
 
-      // If enforcing, fail on any violations
-      if (ENFORCE_NO_LET && violations.length > 0) {
+      // If enforcing, fail on any let usage
+      if (ENFORCE_NO_LET && letWarnings.length > 0) {
         throw new Error(
-          `Found ${violations.length} disallowed let declarations. ` +
-          `Refactor to use const or add to allowed patterns if necessary.`
+          `Found ${letWarnings.length} let declarations. ` +
+          `Refactor to use const or add to ALLOWED_LET_PATTERNS.`
         );
       }
 
-      // For now, just pass (warnings are informational)
       expectTrue(true, "Let usage scan completed");
+    },
+  },
+  {
+    name: "report-allowed-mutable-vars",
+    description: "Reports whitelisted var/let declarations for tracking",
+    test: () => {
+      const { varAllowed } = analyzeMutableVarUsage();
+
+      console.log(`\n  Whitelisted var/let declarations: ${varAllowed.length}`);
+      console.log("  These should be refactored to const over time:\n");
+
+      // Group by file for cleaner output
+      const byFile = {};
+      for (const a of varAllowed) {
+        if (!byFile[a.file]) byFile[a.file] = [];
+        byFile[a.file].push(`${a.line} (${a.keyword})`);
+      }
+
+      for (const [file, lines] of Object.entries(byFile)) {
+        console.log(`     ${file}: lines ${lines.join(", ")}`);
+      }
+      console.log("");
+
+      expectTrue(true, "Reported whitelisted var/let declarations");
     },
   },
 ];
