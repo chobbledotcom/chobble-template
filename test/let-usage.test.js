@@ -1,16 +1,7 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;
-
-// Directories to skip when scanning for JS files
-const SKIP_DIRS = new Set(["node_modules", "_site", ".git"]);
 
 // Files that are allowed to use let (third-party, legacy, or special cases)
 const ALLOWED_FILES = new Set([
@@ -30,26 +21,6 @@ const ALLOWED_PATTERNS = [
   /^let\s+(fcpDone|initialized)\s*=/, // autosizes.js state flags
   /^let\s+(paypalToken|paypalTokenExpiry)\s*=/, // server.js PayPal token cache
 ];
-
-const shouldSkipDir = (name) => {
-  if (name.startsWith(".")) return true;
-  return SKIP_DIRS.has(name);
-};
-
-const getJsFiles = (dir, files = []) => {
-  for (const name of fs.readdirSync(dir)) {
-    const filePath = path.join(dir, name);
-
-    if (fs.statSync(filePath).isDirectory()) {
-      if (!shouldSkipDir(name)) {
-        getJsFiles(filePath, files);
-      }
-    } else if (name.endsWith(".js") && !name.endsWith(".test.js")) {
-      files.push(filePath);
-    }
-  }
-  return files;
-};
 
 /**
  * Find all let declarations in a file
@@ -96,17 +67,15 @@ const isAllowedLet = (line) => {
  * Analyze all JS files and find let usage
  */
 const analyzeLetUsage = () => {
-  const jsFiles = getJsFiles(rootDir);
   const violations = [];
   const warnings = [];
 
-  for (const filePath of jsFiles) {
-    const relativePath = path.relative(rootDir, filePath);
-
+  for (const relativePath of SRC_JS_FILES) {
     // Skip allowed files entirely
     if (ALLOWED_FILES.has(relativePath)) continue;
 
-    const source = fs.readFileSync(filePath, "utf-8");
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
     const letDeclarations = findLetDeclarations(source);
 
     for (const decl of letDeclarations) {

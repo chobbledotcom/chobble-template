@@ -2,31 +2,13 @@
 // Detects HTML classes and IDs that are never referenced in SCSS or JS files
 // This helps identify dead code and potential cleanup opportunities
 
-import { readdirSync, readFileSync, statSync } from "fs";
-import { join } from "path";
-import { createTestRunner, expectTrue } from "./test-utils.js";
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_HTML_FILES, SRC_SCSS_FILES, getFiles } from "./test-utils.js";
 
-// ============================================
-// File Discovery
-// ============================================
+const { readFileSync } = fs;
+const { join } = path;
 
-const getAllFiles = (dir, pattern) => {
-  const files = [];
-  const items = readdirSync(dir);
-
-  for (const item of items) {
-    const fullPath = join(dir, item);
-    const stat = statSync(fullPath);
-
-    if (stat.isDirectory()) {
-      files.push(...getAllFiles(fullPath, pattern));
-    } else if (pattern.test(item)) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
-};
+// Asset JS files need a separate pattern (not in the standard SRC_JS_FILES)
+const ASSET_JS_FILES = getFiles(/^src\/assets\/js\/.*\.js$/);
 
 // ============================================
 // Class/ID Extraction from HTML
@@ -424,16 +406,10 @@ const testCases = [
     name: "detect-unused-classes-in-project",
     description: "Scans project files and reports unused classes/IDs",
     test: () => {
-      // Collect all HTML, SCSS, and JS files
-      const srcDir = "src";
-
-      const htmlFiles = [
-        ...getAllFiles(join(srcDir, "_includes"), /\.html$/),
-        ...getAllFiles(join(srcDir, "_layouts"), /\.html$/),
-      ];
-
-      const scssFiles = getAllFiles(join(srcDir, "css"), /\.scss$/);
-      const jsFiles = getAllFiles(join(srcDir, "assets/js"), /\.js$/);
+      // Use pre-computed file lists
+      const htmlFiles = SRC_HTML_FILES.map((f) => join(rootDir, f));
+      const scssFiles = SRC_SCSS_FILES.map((f) => join(rootDir, f));
+      const jsFiles = ASSET_JS_FILES.map((f) => join(rootDir, f));
 
       // Collect all classes and IDs defined in HTML and JS
       const { allClasses, allIds } = collectAllClassesAndIds(

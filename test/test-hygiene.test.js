@@ -1,10 +1,4 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { createTestRunner, expectTrue, expectStrictEqual, fs, path } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { createTestRunner, expectTrue, expectStrictEqual, fs, path, rootDir, SRC_JS_FILES, SRC_HTML_FILES, SRC_SCSS_FILES, TEST_FILES } from "./test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -48,8 +42,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createLocationTracker",
   "withMockStorage",
   // function-length.test.js - analysis helpers
-  "shouldSkipDir",
-  "getJsFiles",
   "extractFunctions",
   "calculateOwnLines",
   "analyzeFunctionLengths",
@@ -75,15 +67,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-hygiene.test.js - self-analysis helpers
   "extractFunctionDefinitions",
   "isTestHelper",
-  "getTestFiles",
   "getSourceFunctionNames",
-  "processDir",
   "analyzeTestFiles",
   // theme-editor.test.js
   "generateFormHtml",
   "createMockDOM",
   // unused-classes.test.js - analysis helpers
-  "getAllFiles",
   "extractClassesFromHtml",
   "extractIdsFromHtml",
   "extractClassesFromJs",
@@ -187,40 +176,18 @@ const isTestHelper = (source, funcName, startLine, lineCount) => {
 };
 
 /**
- * Get all test files
- */
-const getTestFiles = () => {
-  const testDir = path.join(rootDir, "test");
-  return fs.readdirSync(testDir)
-    .filter((f) => f.endsWith(".test.js"))
-    .map((f) => path.join(testDir, f));
-};
-
-/**
- * Get all source function names from _lib directory
+ * Get all source function names from src directory
  */
 const getSourceFunctionNames = () => {
   const names = new Set();
-  const libDir = path.join(rootDir, "src", "_lib");
 
-  const processDir = (dir) => {
-    if (!fs.existsSync(dir)) return;
+  for (const relativePath of SRC_JS_FILES) {
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
+    const funcs = extractFunctionDefinitions(source);
+    funcs.forEach((f) => names.add(f.name));
+  }
 
-    for (const file of fs.readdirSync(dir)) {
-      const filePath = path.join(dir, file);
-      const stat = fs.statSync(filePath);
-
-      if (stat.isDirectory()) {
-        processDir(filePath);
-      } else if (file.endsWith(".js")) {
-        const source = fs.readFileSync(filePath, "utf-8");
-        const funcs = extractFunctionDefinitions(source);
-        funcs.forEach((f) => names.add(f.name));
-      }
-    }
-  };
-
-  processDir(libDir);
   return names;
 };
 
@@ -231,11 +198,11 @@ const getSourceFunctionNames = () => {
  */
 const analyzeTestFiles = () => {
   const issues = [];
-  const testFiles = getTestFiles();
 
-  for (const testFile of testFiles) {
-    const fileName = path.basename(testFile);
-    const source = fs.readFileSync(testFile, "utf-8");
+  for (const relativePath of TEST_FILES) {
+    const fileName = path.basename(relativePath);
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
     const functions = extractFunctionDefinitions(source);
 
     for (const func of functions) {
@@ -255,6 +222,16 @@ const analyzeTestFiles = () => {
 };
 
 const testCases = [
+  {
+    name: "file-lists-populated",
+    description: "Pre-computed file lists contain files",
+    test: () => {
+      expectTrue(SRC_JS_FILES.length > 0, `SRC_JS_FILES should not be empty (found ${SRC_JS_FILES.length})`);
+      expectTrue(SRC_HTML_FILES.length > 0, `SRC_HTML_FILES should not be empty (found ${SRC_HTML_FILES.length})`);
+      expectTrue(SRC_SCSS_FILES.length > 0, `SRC_SCSS_FILES should not be empty (found ${SRC_SCSS_FILES.length})`);
+      expectTrue(TEST_FILES.length > 0, `TEST_FILES should not be empty (found ${TEST_FILES.length})`);
+    },
+  },
   {
     name: "no-production-code-in-tests",
     description: "Test files should not contain production logic - only test and import real code",

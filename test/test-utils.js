@@ -1,10 +1,46 @@
 import assert from "assert";
 import fs from "fs";
-import path, { dirname } from "path";
+import path, { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const rootDir = resolve(__dirname, "..");
+
+// Directories always skipped during file discovery
+const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site"]);
+
+/**
+ * Get all files matching a pattern from the project root.
+ * Returns relative paths from root that match the regex.
+ */
+const getFiles = (pattern) => {
+  const results = [];
+
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir)) {
+      if (entry.startsWith(".") || ALWAYS_SKIP.has(entry)) continue;
+
+      const fullPath = path.join(dir, entry);
+      const relativePath = path.relative(rootDir, fullPath);
+
+      if (fs.statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+      } else if (pattern.test(relativePath)) {
+        results.push(relativePath);
+      }
+    }
+  };
+
+  walk(rootDir);
+  return results;
+};
+
+// Pre-computed file lists for common test patterns
+const SRC_JS_FILES = getFiles(/^src\/.*\.js$/);
+const SRC_HTML_FILES = getFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
+const SRC_SCSS_FILES = getFiles(/^src\/css\/.*\.scss$/);
+const TEST_FILES = getFiles(/^test\/.*\.test\.js$/);
 
 const createMockEleventyConfig = () => ({
   addPlugin: function (plugin, config) {
@@ -315,6 +351,12 @@ export {
   assert,
   fs,
   path,
+  rootDir,
+  getFiles,
+  SRC_JS_FILES,
+  SRC_HTML_FILES,
+  SRC_SCSS_FILES,
+  TEST_FILES,
   createMockEleventyConfig,
   createTempDir,
   createTempFile,

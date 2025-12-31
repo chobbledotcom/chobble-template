@@ -1,18 +1,8 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { createTestRunner, expectTrue, fs, path } from "./test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { createTestRunner, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
 
 // Configuration
 const MAX_LINES = 30;
 const PREFERRED_LINES = 20;
-
-// Directories to skip when scanning for JS files
-const SKIP_DIRS = new Set(["node_modules", "_site", "test"]);
-const SKIP_PATHS = new Set(["src/assets/js"]);
 
 // Functions that are intentionally long (e.g., complex templates, data builders)
 // These are baseline exceptions - new long functions should be refactored
@@ -21,28 +11,6 @@ const IGNORED_FUNCTIONS = new Set([
   "buildMenuPdfData", // PDF data structure with many fields
   "buildFilterUIData", // Complex filter UI data structure builder
 ]);
-
-const shouldSkipDir = (name, filePath) => {
-  if (name.startsWith(".")) return true;
-  if (SKIP_DIRS.has(name)) return true;
-  if (SKIP_PATHS.has(path.relative(rootDir, filePath))) return true;
-  return false;
-};
-
-const getJsFiles = (dir, files = []) => {
-  for (const name of fs.readdirSync(dir)) {
-    const filePath = path.join(dir, name);
-
-    if (fs.statSync(filePath).isDirectory()) {
-      if (!shouldSkipDir(name, filePath)) {
-        getJsFiles(filePath, files);
-      }
-    } else if (name.endsWith(".js")) {
-      files.push(filePath);
-    }
-  }
-  return files;
-};
 
 /**
  * Extract all function definitions from JavaScript source code.
@@ -189,11 +157,12 @@ const calculateOwnLines = (functions) => {
  * Returns an object with violations.
  */
 const analyzeFunctionLengths = () => {
-  const jsFiles = getJsFiles(rootDir);
   const violations = [];
 
-  for (const filePath of jsFiles) {
-    const source = fs.readFileSync(filePath, "utf-8");
+  // Only check library code, not frontend assets
+  for (const relativePath of SRC_JS_FILES.filter((f) => !f.startsWith("src/assets/"))) {
+    const fullPath = path.join(rootDir, relativePath);
+    const source = fs.readFileSync(fullPath, "utf-8");
     const functions = calculateOwnLines(extractFunctions(source));
 
     for (const func of functions) {
@@ -201,7 +170,7 @@ const analyzeFunctionLengths = () => {
         violations.push({
           name: func.name,
           lineCount: func.ownLines,
-          file: path.relative(rootDir, filePath),
+          file: relativePath,
           startLine: func.startLine,
         });
       }
