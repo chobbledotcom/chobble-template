@@ -1,10 +1,22 @@
+import fs from "node:fs";
+import path from "node:path";
 import { JSDOM } from "jsdom";
 import {
   createTestRunner,
   expectFalse,
   expectStrictEqual,
   expectTrue,
+  rootDir,
 } from "./test-utils.js";
+
+// ============================================
+// Load actual autosizes.js source
+// ============================================
+
+const AUTOSIZES_SCRIPT = fs.readFileSync(
+  path.join(rootDir, "src/assets/js/autosizes.js"),
+  "utf-8",
+);
 
 // ============================================
 // Shared HTML template and JSDOM options
@@ -50,178 +62,6 @@ window.PerformanceObserver = class {
     this.observing = false;
   }
 };
-`;
-
-// ============================================
-// Autosizes polyfill script (executed in JSDOM context)
-// ============================================
-
-const AUTOSIZES_SCRIPT = `
-(function () {
-  const polyfillAutoSizes = () => {
-    if (
-      !("PerformanceObserver" in window) ||
-      !PerformanceObserver.supportedEntryTypes.includes("paint")
-    ) {
-      return false;
-    }
-
-    const userAgent = navigator.userAgent;
-    const chromeMatch = userAgent.match(/Chrome\\/(\\d+)/);
-
-    if (!chromeMatch) {
-      return true;
-    }
-
-    const chromeVersion = parseInt(chromeMatch[1], 10);
-    return chromeVersion < 126;
-  };
-
-  if (!polyfillAutoSizes()) {
-    return;
-  }
-
-  const attributes = ["src", "srcset"];
-  const prefix = "data-auto-sizes-";
-  const state = { fcpDone: false, initialized: false };
-
-  function elemWidth(elem) {
-    const width = elem ? Math.round(elem.getBoundingClientRect().width) : 0;
-    if (width <= 0) {
-      return null;
-    }
-    return \`\${width}px\`;
-  }
-
-  function calculateAndSetSizes(img) {
-    const sizes = elemWidth(img) ?? elemWidth(img.parentElement);
-    if (sizes) {
-      img.sizes = sizes;
-    }
-  }
-
-  function deferImages(images) {
-    for (const img of images) {
-      if (img.complete) {
-        continue;
-      }
-      if (
-        !(img.getAttribute("sizes") || "").trim().startsWith("auto") ||
-        img.getAttribute("loading") !== "lazy"
-      ) {
-        continue;
-      }
-      const src = img.getAttribute("src") || "";
-      if (src.startsWith("http://") || src.startsWith("https://")) {
-        continue;
-      }
-      if (!state.fcpDone) {
-        for (const attribute of attributes) {
-          if (img.hasAttribute(attribute)) {
-            img.setAttribute(
-              \`\${prefix}\${attribute}\`,
-              img.getAttribute(attribute),
-            );
-            img.removeAttribute(attribute);
-          }
-        }
-      } else {
-        calculateAndSetSizes(img);
-      }
-    }
-  }
-
-  function restoreImageAttributes() {
-    const images = document.querySelectorAll(
-      \`img[\${prefix}src], img[\${prefix}srcset]\`,
-    );
-
-    for (const img of images) {
-      calculateAndSetSizes(img);
-
-      for (const attribute of attributes) {
-        const tempAttribute = \`\${prefix}\${attribute}\`;
-        if (img.hasAttribute(tempAttribute)) {
-          img[attribute] = img.getAttribute(tempAttribute);
-          img.removeAttribute(tempAttribute);
-        }
-      }
-    }
-  }
-
-  const observer = new MutationObserver((mutations) => {
-    const newImages = [];
-
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") {
-        for (const node of mutation.addedNodes) {
-          if (node.nodeName === "IMG") {
-            newImages.push(node);
-          }
-          if (node.querySelectorAll) {
-            newImages.push(...node.querySelectorAll("img"));
-          }
-        }
-      }
-      else if (
-        mutation.type === "attributes" &&
-        mutation.target.nodeName === "IMG" &&
-        (mutation.attributeName === "sizes" ||
-          mutation.attributeName === "loading" ||
-          mutation.attributeName === "src" ||
-          mutation.attributeName === "srcset")
-      ) {
-        newImages.push(mutation.target);
-      }
-    }
-
-    if (newImages.length > 0) {
-      deferImages(newImages);
-    }
-  });
-
-  function initAutosizes() {
-    if (state.initialized) {
-      state.fcpDone = true;
-      const images = document.querySelectorAll(
-        'img[sizes^="auto"][loading="lazy"]',
-      );
-      for (const img of images) {
-        calculateAndSetSizes(img);
-      }
-      return;
-    }
-
-    state.initialized = true;
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["sizes", "loading"],
-    });
-
-    deferImages(
-      document.querySelectorAll('img[sizes^="auto"][loading="lazy"]'),
-    );
-
-    new PerformanceObserver((entries, perfObserver) => {
-      entries.getEntriesByName("first-contentful-paint").forEach(() => {
-        state.fcpDone = true;
-        setTimeout(restoreImageAttributes, 0);
-        perfObserver.disconnect();
-      });
-    }).observe({ type: "paint", buffered: true });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAutosizes);
-  } else {
-    initAutosizes();
-  }
-
-  document.addEventListener("turbo:load", initAutosizes);
-})();
 `;
 
 // ============================================

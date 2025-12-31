@@ -136,13 +136,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "isAllowedLine",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
-  // autosizes.test.js - functions inside AUTOSIZES_SCRIPT template (polyfill code)
-  "polyfillAutoSizes",
-  "elemWidth",
-  "calculateAndSetSizes",
-  "deferImages",
-  "restoreImageAttributes",
-  "initAutosizes",
 ]);
 
 // Maximum lines for a function in a test file before it's suspicious
