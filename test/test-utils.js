@@ -38,6 +38,9 @@ const getFiles = (pattern) => {
 
 // Pre-computed file lists for common test patterns
 const SRC_JS_FILES = getFiles(/^src\/.*\.js$/);
+const ECOMMERCE_JS_FILES = getFiles(/^ecommerce-backend\/.*\.js$/).filter(
+  (f) => !f.endsWith(".test.js"),
+);
 const SRC_HTML_FILES = getFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = getFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = getFiles(/^test\/.*\.test\.js$/);
@@ -354,6 +357,7 @@ export {
   rootDir,
   getFiles,
   SRC_JS_FILES,
+  ECOMMERCE_JS_FILES,
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
