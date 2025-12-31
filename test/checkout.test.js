@@ -12,12 +12,18 @@ import { buildJsConfigScript } from "../src/_lib/eleventy/js-config.js";
 
 // Import actual cart utilities
 import {
+  attachQuantityHandlers,
+  attachRemoveHandlers,
+  escapeHtml,
   formatPrice,
   getCart,
   getItemCount,
   removeItem,
+  renderQuantityControls,
   STORAGE_KEY,
   saveCart,
+  updateCartIcon,
+  updateItemQuantity,
 } from "../src/assets/js/cart-utils.js";
 import { createTestRunner } from "./test-utils.js";
 
@@ -327,6 +333,384 @@ const testCases = [
         ]);
         assert.strictEqual(getItemCount(), 5);
       });
+    },
+  },
+  {
+    name: "cart-utils-escapeHtml-basic",
+    description: "escapeHtml escapes HTML special characters",
+    asyncTest: async () => {
+      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
+      global.document = dom.window.document;
+      try {
+        assert.strictEqual(escapeHtml("<script>alert('xss')</script>"), "&lt;script&gt;alert('xss')&lt;/script&gt;");
+        assert.strictEqual(escapeHtml("Hello & Goodbye"), "Hello &amp; Goodbye");
+        // Note: innerHTML doesn't escape quotes, only < > and &
+        assert.strictEqual(escapeHtml('"quoted"'), '"quoted"');
+        assert.strictEqual(escapeHtml("normal text"), "normal text");
+      } finally {
+        delete global.document;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-updateCartIcon-shows-icon",
+    description: "updateCartIcon shows cart icon when items in cart",
+    asyncTest: async () => {
+      const dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html><body>
+          <div class="cart-icon" style="display: none;">
+            <span class="cart-count" style="display: none;">0</span>
+          </div>
+        </body></html>
+      `);
+      global.document = dom.window.document;
+      const mockStorage = createMockLocalStorage();
+      const origStorage = globalThis.localStorage;
+      globalThis.localStorage = mockStorage;
+      try {
+        saveCart([
+          { item_name: "A", unit_price: 10, quantity: 2 },
+          { item_name: "B", unit_price: 5, quantity: 3 },
+        ]);
+        updateCartIcon();
+        const icon = dom.window.document.querySelector(".cart-icon");
+        const badge = icon.querySelector(".cart-count");
+        assert.strictEqual(icon.style.display, "flex", "Icon should be visible");
+        assert.strictEqual(badge.textContent, "5", "Badge should show count 5");
+        assert.strictEqual(badge.style.display, "block", "Badge should be visible");
+      } finally {
+        globalThis.localStorage = origStorage;
+        delete global.document;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-updateCartIcon-hides-icon",
+    description: "updateCartIcon hides cart icon when cart is empty",
+    asyncTest: async () => {
+      const dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html><body>
+          <div class="cart-icon" style="display: flex;">
+            <span class="cart-count" style="display: block;">5</span>
+          </div>
+        </body></html>
+      `);
+      global.document = dom.window.document;
+      const mockStorage = createMockLocalStorage();
+      const origStorage = globalThis.localStorage;
+      globalThis.localStorage = mockStorage;
+      try {
+        saveCart([]);
+        updateCartIcon();
+        const icon = dom.window.document.querySelector(".cart-icon");
+        const badge = icon.querySelector(".cart-count");
+        assert.strictEqual(icon.style.display, "none", "Icon should be hidden");
+        assert.strictEqual(badge.style.display, "none", "Badge should be hidden");
+      } finally {
+        globalThis.localStorage = origStorage;
+        delete global.document;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-updateItemQuantity-updates-quantity",
+    description: "updateItemQuantity updates item quantity correctly",
+    test: () => {
+      withMockStorage(() => {
+        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+        const result = updateItemQuantity("Widget", 5);
+        assert.strictEqual(result, true, "Should return true for existing item");
+        const cart = getCart();
+        assert.strictEqual(cart[0].quantity, 5, "Quantity should be updated to 5");
+      });
+    },
+  },
+  {
+    name: "cart-utils-updateItemQuantity-removes-at-zero",
+    description: "updateItemQuantity removes item when quantity is 0 or less",
+    test: () => {
+      withMockStorage(() => {
+        saveCart([
+          { item_name: "Keep", unit_price: 10, quantity: 1 },
+          { item_name: "Remove", unit_price: 5, quantity: 3 },
+        ]);
+        updateItemQuantity("Remove", 0);
+        const cart = getCart();
+        assert.strictEqual(cart.length, 1, "Cart should have 1 item");
+        assert.strictEqual(cart[0].item_name, "Keep", "Only Keep should remain");
+      });
+    },
+  },
+  {
+    name: "cart-utils-updateItemQuantity-respects-max",
+    description: "updateItemQuantity caps at max_quantity and shows alert",
+    asyncTest: async () => {
+      const alerts = [];
+      const origAlert = global.alert;
+      global.alert = (msg) => alerts.push(msg);
+      try {
+        withMockStorage(() => {
+          saveCart([{ item_name: "Limited", unit_price: 10, quantity: 2, max_quantity: 5 }]);
+          updateItemQuantity("Limited", 10);
+          const cart = getCart();
+          assert.strictEqual(cart[0].quantity, 5, "Quantity should be capped at max_quantity");
+          assert.strictEqual(alerts.length, 1, "Should show alert");
+          assert.ok(alerts[0].includes("5"), "Alert should mention max quantity");
+        });
+      } finally {
+        global.alert = origAlert;
+      }
+    },
+  },
+  {
+    name: "cart-utils-updateItemQuantity-nonexistent-item",
+    description: "updateItemQuantity returns false for non-existent item",
+    test: () => {
+      withMockStorage(() => {
+        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+        const result = updateItemQuantity("NonExistent", 5);
+        assert.strictEqual(result, false, "Should return false for non-existent item");
+      });
+    },
+  },
+  {
+    name: "cart-utils-renderQuantityControls-basic",
+    description: "renderQuantityControls generates correct HTML structure",
+    asyncTest: async () => {
+      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
+      global.document = dom.window.document;
+      try {
+        const item = { item_name: "Widget", quantity: 3 };
+        const html = renderQuantityControls(item);
+
+        // Parse the HTML to verify structure
+        const container = dom.window.document.createElement("div");
+        container.innerHTML = html;
+
+        const qtyDiv = container.querySelector(".cart-item-quantity");
+        assert.ok(qtyDiv, "Should have cart-item-quantity container");
+
+        const decreaseBtn = container.querySelector(".qty-decrease");
+        assert.ok(decreaseBtn, "Should have decrease button");
+        assert.strictEqual(decreaseBtn.dataset.name, "Widget", "Decrease button should have data-name");
+
+        const increaseBtn = container.querySelector(".qty-increase");
+        assert.ok(increaseBtn, "Should have increase button");
+        assert.strictEqual(increaseBtn.dataset.name, "Widget", "Increase button should have data-name");
+
+        const input = container.querySelector(".qty-input");
+        assert.ok(input, "Should have quantity input");
+        assert.strictEqual(input.value, "3", "Input should have quantity value");
+        assert.strictEqual(input.dataset.name, "Widget", "Input should have data-name");
+      } finally {
+        delete global.document;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-renderQuantityControls-max-quantity",
+    description: "renderQuantityControls includes max attribute when max_quantity set",
+    asyncTest: async () => {
+      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
+      global.document = dom.window.document;
+      try {
+        const item = { item_name: "Limited", quantity: 2, max_quantity: 5 };
+        const html = renderQuantityControls(item);
+
+        const container = dom.window.document.createElement("div");
+        container.innerHTML = html;
+
+        const input = container.querySelector(".qty-input");
+        assert.strictEqual(input.getAttribute("max"), "5", "Input should have max attribute");
+      } finally {
+        delete global.document;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-renderQuantityControls-escapes-html",
+    description: "renderQuantityControls escapes HTML in item names",
+    asyncTest: async () => {
+      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
+      global.document = dom.window.document;
+      try {
+        const item = { item_name: "<script>xss</script>", quantity: 1 };
+        const html = renderQuantityControls(item);
+
+        assert.ok(!html.includes("<script>xss</script>"), "Should escape HTML in item name");
+        assert.ok(html.includes("&lt;script&gt;"), "Should contain escaped HTML");
+      } finally {
+        delete global.document;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-attachQuantityHandlers-decrease",
+    description: "attachQuantityHandlers attaches decrease button handlers",
+    asyncTest: async () => {
+      const dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html><body>
+          <div id="container">
+            <button class="qty-decrease" data-name="Widget">−</button>
+            <input class="qty-input" data-name="Widget" value="3">
+            <button class="qty-increase" data-name="Widget">+</button>
+          </div>
+        </body></html>
+      `);
+      const mockStorage = createMockLocalStorage();
+      const origStorage = globalThis.localStorage;
+      globalThis.localStorage = mockStorage;
+      try {
+        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
+
+        const container = dom.window.document.getElementById("container");
+        const updates = [];
+
+        attachQuantityHandlers(container, (name, qty) => {
+          updates.push({ name, qty });
+        });
+
+        // Simulate click on decrease button
+        const decreaseBtn = container.querySelector(".qty-decrease");
+        decreaseBtn.click();
+
+        assert.strictEqual(updates.length, 1, "Should have one update");
+        assert.strictEqual(updates[0].name, "Widget", "Should update Widget");
+        assert.strictEqual(updates[0].qty, 2, "Should decrease quantity by 1");
+      } finally {
+        globalThis.localStorage = origStorage;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-attachQuantityHandlers-increase",
+    description: "attachQuantityHandlers attaches increase button handlers",
+    asyncTest: async () => {
+      const dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html><body>
+          <div id="container">
+            <button class="qty-decrease" data-name="Widget">−</button>
+            <input class="qty-input" data-name="Widget" value="3">
+            <button class="qty-increase" data-name="Widget">+</button>
+          </div>
+        </body></html>
+      `);
+      const mockStorage = createMockLocalStorage();
+      const origStorage = globalThis.localStorage;
+      globalThis.localStorage = mockStorage;
+      try {
+        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
+
+        const container = dom.window.document.getElementById("container");
+        const updates = [];
+
+        attachQuantityHandlers(container, (name, qty) => {
+          updates.push({ name, qty });
+        });
+
+        // Simulate click on increase button
+        const increaseBtn = container.querySelector(".qty-increase");
+        increaseBtn.click();
+
+        assert.strictEqual(updates.length, 1, "Should have one update");
+        assert.strictEqual(updates[0].name, "Widget", "Should update Widget");
+        assert.strictEqual(updates[0].qty, 4, "Should increase quantity by 1");
+      } finally {
+        globalThis.localStorage = origStorage;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-attachQuantityHandlers-input-change",
+    description: "attachQuantityHandlers attaches input change handlers",
+    asyncTest: async () => {
+      const dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html><body>
+          <div id="container">
+            <input class="qty-input" data-name="Widget" value="3">
+          </div>
+        </body></html>
+      `);
+      const mockStorage = createMockLocalStorage();
+      const origStorage = globalThis.localStorage;
+      globalThis.localStorage = mockStorage;
+      try {
+        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
+
+        const container = dom.window.document.getElementById("container");
+        const updates = [];
+
+        attachQuantityHandlers(container, (name, qty) => {
+          updates.push({ name, qty });
+        });
+
+        // Simulate input change
+        const input = container.querySelector(".qty-input");
+        input.value = "7";
+        input.dispatchEvent(new dom.window.Event("change"));
+
+        assert.strictEqual(updates.length, 1, "Should have one update");
+        assert.strictEqual(updates[0].name, "Widget", "Should update Widget");
+        assert.strictEqual(updates[0].qty, 7, "Should update to new quantity");
+      } finally {
+        globalThis.localStorage = origStorage;
+        dom.window.close();
+      }
+    },
+  },
+  {
+    name: "cart-utils-attachRemoveHandlers-removes-item",
+    description: "attachRemoveHandlers attaches remove button handlers",
+    asyncTest: async () => {
+      const dom = new JSDOM(`
+        <!DOCTYPE html>
+        <html><body>
+          <div id="container">
+            <button class="remove-btn" data-name="Widget">Remove</button>
+          </div>
+        </body></html>
+      `);
+      const mockStorage = createMockLocalStorage();
+      const origStorage = globalThis.localStorage;
+      globalThis.localStorage = mockStorage;
+      try {
+        saveCart([
+          { item_name: "Widget", unit_price: 10, quantity: 1 },
+          { item_name: "Gadget", unit_price: 20, quantity: 2 },
+        ]);
+
+        const container = dom.window.document.getElementById("container");
+        let removeCalled = false;
+
+        attachRemoveHandlers(container, ".remove-btn", () => {
+          removeCalled = true;
+        });
+
+        // Simulate click on remove button
+        const removeBtn = container.querySelector(".remove-btn");
+        removeBtn.click();
+
+        assert.strictEqual(removeCalled, true, "onRemove callback should be called");
+        const cart = getCart();
+        assert.strictEqual(cart.length, 1, "Cart should have 1 item");
+        assert.strictEqual(cart[0].item_name, "Gadget", "Widget should be removed");
+      } finally {
+        globalThis.localStorage = origStorage;
+        dom.window.close();
+      }
     },
   },
 
