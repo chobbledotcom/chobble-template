@@ -11,7 +11,7 @@ import {
 } from "#test/test-utils.js";
 
 /**
- * Find all try { occurrences in a file
+ * Find all try/catch blocks in a file (excludes try/finally without catch)
  * Returns array of { lineNumber, line }
  */
 const findTryCatches = (source) => {
@@ -21,18 +21,69 @@ const findTryCatches = (source) => {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     // Match 'try' followed by optional whitespace and '{'
-    const regex = /\btry\s*\{/g;
+    const tryRegex = /\btry\s*\{/;
 
-    if (regex.test(line)) {
+    if (tryRegex.test(line)) {
       // Skip if in a comment
       const trimmed = line.trim();
       if (trimmed.startsWith("//")) continue;
       if (trimmed.startsWith("*")) continue; // Block comment line
 
-      results.push({
-        lineNumber: i + 1,
-        line: trimmed,
-      });
+      // Look ahead for a catch block by tracking brace depth
+      // We need to find where the try block ends and check if it's followed by catch
+      let depth = 0;
+      let startedCounting = false;
+      let hasCatch = false;
+
+      // Search through remaining source from this line
+      for (let j = i; j < lines.length; j++) {
+        const searchLine = lines[j];
+
+        for (let k = 0; k < searchLine.length; k++) {
+          const char = searchLine[k];
+
+          if (char === "{") {
+            depth++;
+            startedCounting = true;
+          } else if (char === "}") {
+            depth--;
+
+            // When we close back to depth 0, check what follows
+            if (startedCounting && depth === 0) {
+              // Check if catch follows on this line after the closing brace
+              const afterBrace = searchLine.slice(k + 1);
+              if (/\s*catch\b/.test(afterBrace)) {
+                hasCatch = true;
+                break;
+              }
+
+              // Check next non-empty lines for catch
+              for (let m = j + 1; m < lines.length; m++) {
+                const nextLine = lines[m].trim();
+                if (nextLine === "") continue;
+                if (
+                  /^catch\b/.test(nextLine) ||
+                  /^\}\s*catch\b/.test(nextLine)
+                ) {
+                  hasCatch = true;
+                }
+                break; // Only check first non-empty line
+              }
+              break;
+            }
+          }
+        }
+
+        if (startedCounting && depth === 0) break;
+        if (hasCatch) break;
+      }
+
+      if (hasCatch) {
+        results.push({
+          lineNumber: i + 1,
+          line: trimmed,
+        });
+      }
     }
   }
 
@@ -103,6 +154,46 @@ const b = 2;
       expectTrue(
         results[0].lineNumber === 3,
         `Expected line 3, got ${results[0].lineNumber}`,
+      );
+    },
+  },
+  {
+    name: "ignore-try-finally-in-source",
+    description: "Does not flag try/finally blocks (only try/catch)",
+    test: () => {
+      const source = `
+const a = 1;
+try {
+  doSomething();
+} finally {
+  cleanup();
+}
+const b = 2;
+      `;
+      const results = findTryCatches(source);
+      expectTrue(
+        results.length === 0,
+        `Expected 0 try/catch (only try/finally), found ${results.length}`,
+      );
+    },
+  },
+  {
+    name: "find-try-catch-finally-in-source",
+    description: "Flags try/catch/finally blocks (has catch)",
+    test: () => {
+      const source = `
+try {
+  doSomething();
+} catch (e) {
+  handleError(e);
+} finally {
+  cleanup();
+}
+      `;
+      const results = findTryCatches(source);
+      expectTrue(
+        results.length === 1,
+        `Expected 1 try/catch/finally, found ${results.length}`,
       );
     },
   },

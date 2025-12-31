@@ -1,10 +1,13 @@
 import {
   addGallery,
+  computeGallery,
   configureProducts,
+  createApiSkusCollection,
   createProductsCollection,
   getFeaturedProducts,
   getProductsByCategories,
   getProductsByCategory,
+  getProductsByEvent,
   processGallery,
 } from "#collections/products.js";
 import {
@@ -443,6 +446,178 @@ const testCases = [
         getFeaturedProducts(undefined),
         [],
         "Should return empty array for undefined",
+      );
+    },
+  },
+  {
+    name: "computeGallery-with-gallery",
+    description: "Returns gallery when present",
+    test: () => {
+      const data = { gallery: ["img1.jpg", "img2.jpg"] };
+      const result = computeGallery(data);
+      expectDeepEqual(
+        result,
+        ["img1.jpg", "img2.jpg"],
+        "Should return gallery",
+      );
+    },
+  },
+  {
+    name: "computeGallery-with-header-image",
+    description: "Wraps header_image in array when no gallery",
+    test: () => {
+      const data = { header_image: "header.jpg" };
+      const result = computeGallery(data);
+      expectDeepEqual(
+        result,
+        ["header.jpg"],
+        "Should wrap header_image in array",
+      );
+    },
+  },
+  {
+    name: "computeGallery-neither",
+    description: "Returns undefined when no gallery or header_image",
+    test: () => {
+      const data = { title: "Product" };
+      const result = computeGallery(data);
+      expectStrictEqual(result, undefined, "Should return undefined");
+    },
+  },
+  {
+    name: "getProductsByEvent-basic",
+    description: "Filters products by event slug",
+    test: () => {
+      const products = [
+        {
+          data: { title: "Product 1", events: ["summer-sale", "black-friday"] },
+        },
+        { data: { title: "Product 2", events: ["winter-sale"] } },
+        { data: { title: "Product 3", events: ["summer-sale"] } },
+        { data: { title: "Product 4" } },
+      ];
+
+      const result = getProductsByEvent(products, "summer-sale");
+
+      expectStrictEqual(result.length, 2, "Should return 2 products");
+      expectStrictEqual(
+        result[0].data.title,
+        "Product 1",
+        "Should include first",
+      );
+      expectStrictEqual(
+        result[1].data.title,
+        "Product 3",
+        "Should include third",
+      );
+    },
+  },
+  {
+    name: "getProductsByEvent-null-products",
+    description: "Returns empty array for null products",
+    test: () => {
+      expectDeepEqual(
+        getProductsByEvent(null, "sale"),
+        [],
+        "Should return empty",
+      );
+    },
+  },
+  {
+    name: "createApiSkusCollection-basic",
+    description: "Creates SKU mapping from products with options",
+    test: () => {
+      const mockProducts = [
+        {
+          data: {
+            title: "T-Shirt",
+            options: [
+              {
+                sku: "TSHIRT-S",
+                name: "Small",
+                unit_price: 1999,
+                max_quantity: 10,
+              },
+              { sku: "TSHIRT-M", name: "Medium", unit_price: 1999 },
+            ],
+          },
+        },
+        {
+          data: {
+            title: "Mug",
+            options: [{ sku: "MUG-001", unit_price: 999 }],
+          },
+        },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: () => mockProducts,
+      };
+
+      const result = createApiSkusCollection(mockCollectionApi);
+
+      expectDeepEqual(
+        result["TSHIRT-S"],
+        {
+          name: "T-Shirt - Small",
+          unit_price: 1999,
+          max_quantity: 10,
+        },
+        "Should include SKU with option name and max_quantity",
+      );
+
+      expectDeepEqual(
+        result["TSHIRT-M"],
+        {
+          name: "T-Shirt - Medium",
+          unit_price: 1999,
+          max_quantity: null,
+        },
+        "Should default max_quantity to null",
+      );
+
+      expectDeepEqual(
+        result["MUG-001"],
+        {
+          name: "Mug",
+          unit_price: 999,
+          max_quantity: null,
+        },
+        "Should use product title when no option name",
+      );
+    },
+  },
+  {
+    name: "createApiSkusCollection-skips-invalid",
+    description: "Skips products without options or incomplete SKUs",
+    test: () => {
+      const mockProducts = [
+        { data: { title: "No Options" } },
+        { data: { title: "Empty Options", options: [] } },
+        {
+          data: {
+            title: "Missing SKU",
+            options: [{ name: "Test", unit_price: 100 }],
+          },
+        },
+        {
+          data: {
+            title: "Missing Price",
+            options: [{ sku: "TEST-001", name: "Test" }],
+          },
+        },
+      ];
+
+      const mockCollectionApi = {
+        getFilteredByTag: () => mockProducts,
+      };
+
+      const result = createApiSkusCollection(mockCollectionApi);
+
+      expectDeepEqual(
+        result,
+        {},
+        "Should return empty object for invalid data",
       );
     },
   },
