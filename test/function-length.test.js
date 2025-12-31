@@ -159,7 +159,8 @@ const calculateOwnLines = (functions) => {
 const analyzeFunctionLengths = () => {
   const violations = [];
 
-  for (const relativePath of SRC_JS_FILES) {
+  // Only check library code, not frontend assets
+  for (const relativePath of SRC_JS_FILES.filter((f) => !f.startsWith("src/assets/"))) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const functions = calculateOwnLines(extractFunctions(source));
