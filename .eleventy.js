@@ -21,6 +21,7 @@ import { configureTags } from "#collections/tags.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
+import { configureAreaList } from "#eleventy/area-list.js";
 import { configureExternalLinks } from "#eleventy/external-links.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileUtils } from "#eleventy/file-utils.js";
@@ -56,6 +57,7 @@ export default async function (eleventyConfig) {
 
   // configureLayoutAliases(eleventyConfig);
 
+  configureAreaList(eleventyConfig);
   configureCacheBuster(eleventyConfig);
   configureCanonicalUrl(eleventyConfig);
   configureCategories(eleventyConfig);
