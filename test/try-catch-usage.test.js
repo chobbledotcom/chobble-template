@@ -1,5 +1,14 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
 import { ALLOWED_TRY_CATCHES } from "./code-quality-exceptions.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 /**
  * Find all try { occurrences in a file
@@ -38,8 +47,11 @@ const analyzeTryCatchUsage = () => {
   const allowed = [];
 
   // Exclude this test file since it contains try/catch examples in test strings
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/try-catch-usage.test.js");
+  const allJsFiles = [
+    ...SRC_JS_FILES,
+    ...ECOMMERCE_JS_FILES,
+    ...TEST_FILES,
+  ].filter((f) => f !== "test/try-catch-usage.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -86,11 +98,11 @@ const b = 2;
       const results = findTryCatches(source);
       expectTrue(
         results.length === 1,
-        `Expected 1 try/catch, found ${results.length}`
+        `Expected 1 try/catch, found ${results.length}`,
       );
       expectTrue(
         results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`
+        `Expected line 3, got ${results[0].lineNumber}`,
       );
     },
   },
@@ -101,17 +113,21 @@ const b = 2;
       const { violations, allowed } = analyzeTryCatchUsage();
 
       if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} non-whitelisted try/catch blocks:`);
+        console.log(
+          `\n  Found ${violations.length} non-whitelisted try/catch blocks:`,
+        );
         for (const v of violations) {
           console.log(`     - ${v.file}:${v.line}`);
           console.log(`       ${v.code}`);
         }
-        console.log("\n  To fix: refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js\n");
+        console.log(
+          "\n  To fix: refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js\n",
+        );
       }
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} non-whitelisted try/catch blocks. See list above.`
+        `Found ${violations.length} non-whitelisted try/catch blocks. See list above.`,
       );
     },
   },

@@ -2,7 +2,16 @@
 // Detects HTML classes and IDs that are never referenced in SCSS or JS files
 // This helps identify dead code and potential cleanup opportunities
 
-import { createTestRunner, expectTrue, fs, path, rootDir, SRC_HTML_FILES, SRC_SCSS_FILES, getFiles } from "./test-utils.js";
+import {
+  createTestRunner,
+  expectTrue,
+  fs,
+  getFiles,
+  path,
+  rootDir,
+  SRC_HTML_FILES,
+  SRC_SCSS_FILES,
+} from "./test-utils.js";
 
 const { readFileSync } = fs;
 const { join } = path;
@@ -270,7 +279,13 @@ const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
   return { allClasses, allIds };
 };
 
-const findUnusedClassesAndIds = (allClasses, allIds, scssFiles, jsFiles, htmlFiles) => {
+const findUnusedClassesAndIds = (
+  allClasses,
+  allIds,
+  scssFiles,
+  jsFiles,
+  htmlFiles,
+) => {
   // Load all SCSS, JS, and HTML content
   const scssContent = scssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
   const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");

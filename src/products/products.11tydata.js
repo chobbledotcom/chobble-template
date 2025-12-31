@@ -18,9 +18,7 @@ function computeCartAttributes(data) {
       max_quantity: opt.max_quantity || null,
       sku: opt.sku || null,
     })),
-    specs: specs
-      ? specs.map((s) => ({ name: s.name, value: s.value }))
-      : null,
+    specs: specs ? specs.map((s) => ({ name: s.name, value: s.value })) : null,
   }).replace(/"/g, "&quot;");
 }
 

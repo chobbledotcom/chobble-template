@@ -5,8 +5,8 @@
  * Values are icon filenames in assets/icons/
  */
 
-import baseIcons from "./specs-icons-base.json" with { type: "json" };
 import userIcons from "./specs_icons.json" with { type: "json" };
+import baseIcons from "./specs-icons-base.json" with { type: "json" };
 
 export default {
   ...baseIcons,
