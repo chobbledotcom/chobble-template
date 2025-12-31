@@ -8,7 +8,7 @@ import {
   rootDir,
   SRC_JS_FILES,
   TEST_FILES,
-} from "./test-utils.js";
+} from "../test-utils.js";
 
 /**
  * Find all try { occurrences in a file

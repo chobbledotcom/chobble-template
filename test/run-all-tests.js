@@ -1,27 +1,48 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "child_process";
-import { readdir } from "fs/promises";
-import { dirname, join, resolve } from "path";
+import { readdir, stat } from "fs/promises";
+import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
 
+/**
+ * Recursively find all .test.js files in a directory
+ */
+const findTestFiles = async (dir) => {
+  const entries = await readdir(dir);
+  const results = [];
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry);
+    const stats = await stat(fullPath);
+
+    if (stats.isDirectory()) {
+      results.push(...(await findTestFiles(fullPath)));
+    } else if (entry.endsWith(".test.js")) {
+      results.push(fullPath);
+    }
+  }
+
+  return results;
+};
+
 async function runAllTests() {
   console.log("=== Running All Tests ===\n");
 
-  const files = await readdir(__dirname);
-  const testFiles = files.filter((f) => f.endsWith(".test.js"));
+  const testFiles = await findTestFiles(__dirname);
+  testFiles.sort();
 
   console.log(`Found ${testFiles.length} test files\n`);
 
   const failedTests = [];
 
-  for (const testFile of testFiles) {
-    const testPath = join(__dirname, testFile);
-    console.log(`\n📝 Running ${testFile}...`);
+  for (const testPath of testFiles) {
+    const displayName = relative(__dirname, testPath);
+    console.log(`\n📝 Running ${displayName}...`);
     console.log("─".repeat(50));
 
     const result = spawnSync("node", [testPath], {
@@ -30,10 +51,10 @@ async function runAllTests() {
     });
 
     if (result.status === 0) {
-      console.log(`✅ ${testFile} passed`);
+      console.log(`✅ ${displayName} passed`);
     } else {
-      failedTests.push(testFile);
-      console.log(`❌ ${testFile} failed`);
+      failedTests.push(displayName);
+      console.log(`❌ ${displayName} failed`);
     }
   }
 

@@ -11,7 +11,7 @@ import {
   rootDir,
   SRC_JS_FILES,
   TEST_FILES,
-} from "./test-utils.js";
+} from "../test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;

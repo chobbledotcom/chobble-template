@@ -11,7 +11,7 @@ import {
   rootDir,
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
-} from "./test-utils.js";
+} from "../test-utils.js";
 
 const { readFileSync } = fs;
 const { join } = path;

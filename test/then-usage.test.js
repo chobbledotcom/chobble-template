@@ -1,4 +1,4 @@
-import { ALLOWED_THEN_USAGE } from "./code-quality-exceptions.js";
+import { ALLOWED_THEN_USAGE } from "./code-quality/code-quality-exceptions.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,

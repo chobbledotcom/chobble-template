@@ -9,7 +9,7 @@ import {
   SRC_JS_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
-} from "./test-utils.js";
+} from "../test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([

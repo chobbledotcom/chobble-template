@@ -5,7 +5,7 @@ import {
   path,
   rootDir,
   SRC_JS_FILES,
-} from "./test-utils.js";
+} from "../test-utils.js";
 
 // Patterns that indicate hardcoded URL construction instead of using
 // Eleventy's permalink system or strings configuration.
