@@ -34,16 +34,8 @@ const ALLOWED_TRY_CATCHES = new Set([
   "ecommerce-backend/server.js:213",
   "ecommerce-backend/server.js:289",
 
-  // test/run-all-tests.js - test runner error handling
-  "test/run-all-tests.js:15",
-  "test/run-all-tests.js:29",
-
   // ecommerce-backend/server.test.js - test assertions
   "ecommerce-backend/server.test.js:370",
-
-  // test/render-snippet.test.js - test cleanup
-  "test/render-snippet.test.js:102",
-  "test/render-snippet.test.js:130",
 
   // src/assets/js/cart.js - localStorage and fetch handling
   "src/assets/js/cart.js:132",
@@ -56,12 +48,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // src/assets/js/stripe-checkout.js - Stripe API
   "src/assets/js/stripe-checkout.js:38",
-
-  // test/test-utils.js - test utilities with cleanup
-  "test/test-utils.js:145",
-  "test/test-utils.js:162",
-  "test/test-utils.js:170",
-  "test/test-utils.js:176",
 
   // test/scss.test.js - SCSS compilation tests
   "test/scss.test.js:42",
@@ -112,6 +98,12 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/cache-buster.test.js:97",
   "test/cache-buster.test.js:120",
   "test/cache-buster.test.js:147",
+
+  // test/cpd.test.js - running external tool and capturing exit code
+  "test/cpd.test.js:12",
+
+  // test/knip.test.js - running external tool and capturing exit code
+  "test/knip.test.js:12",
 ]);
 
 // ============================================
