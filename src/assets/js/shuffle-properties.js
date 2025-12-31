@@ -8,7 +8,7 @@ const EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 // Seeded random: same seed = same sequence of numbers
 function seededRandom(seed) {
-  return function () {
+  return () => {
     seed = (seed * 13 + 17) % 1000;
     return seed / 1000;
   };
@@ -60,7 +60,9 @@ function initPropertyShuffle() {
   const shuffled = shuffleArray(items, random);
 
   // Re-append in shuffled order
-  shuffled.forEach((item) => itemsList.appendChild(item));
+  for (const item of shuffled) {
+    itemsList.appendChild(item);
+  }
   itemsList.dataset.shuffled = "true";
 }
 

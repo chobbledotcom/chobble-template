@@ -61,8 +61,7 @@ async function checkout() {
       const error = await response.json();
       showError(error.error || "Failed to create checkout session");
     }
-  } catch (error) {
-    console.error("Stripe checkout failed:", error);
+  } catch (_error) {
     showError("Failed to start checkout. Please try again.");
   }
 }

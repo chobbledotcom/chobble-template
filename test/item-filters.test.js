@@ -1,7 +1,6 @@
 import {
   buildDisplayLookup,
   buildFilterDescription,
-  buildFilterUIData,
   filterToPath,
   generateFilterCombinations,
   getAllFilterAttributes,
@@ -133,17 +132,17 @@ const testCases = [
         "Should map slugified key to original display",
       );
       expectStrictEqual(
-        result["yes"],
+        result.yes,
         "Yes",
         "Should map slugified value to original display",
       );
       expectStrictEqual(
-        result["type"],
+        result.type,
         "Type",
         "Should map simple key to original",
       );
       expectStrictEqual(
-        result["cottage"],
+        result.cottage,
         "Cottage",
         "Should map simple value to original",
       );
@@ -174,7 +173,7 @@ const testCases = [
         "First capitalization should win for key",
       );
       expectStrictEqual(
-        result["yes"],
+        result.yes,
         "YES",
         "First capitalization should win for value",
       );
@@ -191,8 +190,8 @@ const testCases = [
 
       const result = buildDisplayLookup(items);
 
-      expectStrictEqual(result["size"], "Size", "Should still build lookup");
-      expectStrictEqual(result["large"], "Large", "Should include values");
+      expectStrictEqual(result.size, "Size", "Should still build lookup");
+      expectStrictEqual(result.large, "Large", "Should include values");
     },
   },
 

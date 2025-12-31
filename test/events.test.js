@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert from "node:assert";
 import {
   categoriseEvents,
   configureEvents,
@@ -8,7 +8,6 @@ import {
   createEvent,
   createFutureDate,
   createFutureEvent,
-  createPastDate,
   createPastEvent,
   createRecurringEvent,
   createTestRunner,

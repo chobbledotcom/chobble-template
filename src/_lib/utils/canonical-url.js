@@ -36,7 +36,7 @@ export function canonicalUrl(pageUrl) {
   if (!pageUrl || pageUrl === "/") return site.url;
 
   // Normalize page URL to start with a single slash
-  const cleanPageUrl = "/" + pageUrl.replace(/^\/+/, "");
+  const cleanPageUrl = `/${pageUrl.replace(/^\/+/, "")}`;
 
   return site.url + cleanPageUrl;
 }

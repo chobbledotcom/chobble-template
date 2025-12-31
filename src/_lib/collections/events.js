@@ -13,7 +13,7 @@ const getFeaturedEvents = (events) =>
   events?.filter((e) => e.data.featured) || [];
 
 // Memoized since the same events array is categorised multiple times during build
-export const categoriseEvents = memoize(function (events) {
+export const categoriseEvents = memoize((events) => {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 

@@ -1,7 +1,7 @@
-import fs from "fs";
-import { createRequire } from "module";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -138,7 +138,7 @@ const DEFAULT_PRODUCT_DATA = {
 
 function getProducts(configData) {
   const nonNulls = {};
-  const products = configData["products"] || {};
+  const products = configData.products || {};
   Object.keys(products).forEach((key) => {
     if (products[key]) {
       nonNulls[key] = products[key];

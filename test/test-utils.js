@@ -1,7 +1,7 @@
-import assert from "assert";
-import fs from "fs";
-import path, { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import assert from "node:assert";
+import fs from "node:fs";
+import path, { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -93,7 +93,7 @@ const createMockEleventyConfig = () => ({
   },
   resolvePlugin: (pluginName) => {
     // Return a mock plugin function that does nothing
-    return function mockPlugin(config, options) {
+    return function mockPlugin(config, _options) {
       // Mock HTML Base plugin - adds filters that tests might need
       if (pluginName === "@11ty/eleventy/html-base-plugin") {
         config.addFilter("htmlBaseUrl", (url, base) => {
@@ -104,7 +104,7 @@ const createMockEleventyConfig = () => ({
         });
         config.addAsyncFilter(
           "transformWithHtmlBase",
-          async (content, base) => {
+          async (content, _base) => {
             return content; // Just return content unchanged in tests
           },
         );
@@ -115,7 +115,7 @@ const createMockEleventyConfig = () => ({
 });
 
 const createTempDir = (testName, suffix = "") => {
-  const dirName = `temp-${testName}${suffix ? "-" + suffix : ""}`;
+  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}`;
   const tempDir = path.join(__dirname, dirName);
   fs.mkdirSync(tempDir, { recursive: true });
   return tempDir;

@@ -1,5 +1,5 @@
 import listItemFields from "#data/listItemFields.js";
-import { createTestRunner, expectDeepEqual } from "#test/test-utils.js";
+import { createTestRunner } from "#test/test-utils.js";
 
 const DEFAULT_FIELDS = [
   "thumbnail",

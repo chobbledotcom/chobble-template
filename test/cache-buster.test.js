@@ -95,7 +95,7 @@ const testCases = [
       const match = result.match(/\?cached=(\d+)$/);
       expectTrue(match !== null, "Should have numeric timestamp");
       expectTrue(
-        parseInt(match[1]) > 0,
+        parseInt(match[1], 10) > 0,
         "Timestamp should be a positive number",
       );
 
@@ -147,7 +147,7 @@ const testCases = [
       for (const url of urls) {
         const result = mockConfig.filters.cacheBust(url);
         expectTrue(
-          result.startsWith(url + "?cached="),
+          result.startsWith(`${url}?cached=`),
           `Should add cache busting to ${url}`,
         );
       }

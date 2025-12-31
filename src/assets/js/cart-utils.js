@@ -11,7 +11,8 @@ export function getCart() {
   try {
     return JSON.parse(cart);
   } catch (e) {
-    console.error("[cart-utils] Failed to parse cart:", e.message);
+    // biome-ignore lint/suspicious/noConsole: error logging for debugging
+    console.error("Failed to parse cart data:", e);
     return [];
   }
 }
@@ -27,7 +28,7 @@ export function escapeHtml(text) {
 }
 
 export function formatPrice(price) {
-  return "£" + price.toFixed(2);
+  return `£${price.toFixed(2)}`;
 }
 
 export function removeItem(itemName) {
@@ -105,8 +106,8 @@ export function attachQuantityHandlers(container, onUpdate) {
   container.querySelectorAll(".qty-input").forEach((input) => {
     input.addEventListener("change", () => {
       const itemName = input.dataset.name;
-      const quantity = parseInt(input.value);
-      if (!isNaN(quantity)) {
+      const quantity = parseInt(input.value, 10);
+      if (!Number.isNaN(quantity)) {
         onUpdate(itemName, quantity);
       }
     });

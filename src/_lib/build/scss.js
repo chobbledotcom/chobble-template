@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import sass from "sass";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import config from "#data/config.json" with { type: "json" };
@@ -6,12 +6,12 @@ import config from "#data/config.json" with { type: "json" };
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
 
-  return (data) => {
+  return (_data) => {
     if (inputPath.endsWith("bundle.scss")) {
       // Inject compiled themes only if theme-switcher is enabled
       if (config.enable_theme_switcher) {
         const compiledThemes = generateThemeSwitcherContent();
-        inputContent = inputContent + "\n\n" + compiledThemes;
+        inputContent = `${inputContent}\n\n${compiledThemes}`;
       }
     }
 

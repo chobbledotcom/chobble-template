@@ -12,7 +12,6 @@ import {
   createMockEleventyConfig,
   createTempSnippetsDir,
   createTestRunner,
-  expectDeepEqual,
   expectFalse,
   expectFunctionType,
   expectStrictEqual,
@@ -79,7 +78,7 @@ const testCases = [
         "default-cwd",
         "test-file.txt",
         "content",
-        (tempDir, filePath) => {
+        (tempDir, _filePath) => {
           // Change to temp dir and test without specifying baseDir
           const originalCwd = process.cwd();
           try {
@@ -221,7 +220,7 @@ World`;
 
       try {
         // fs already imported from test-utils
-        fs.writeFileSync(snippetsDir + "/test.md", content);
+        fs.writeFileSync(`${snippetsDir}/test.md`, content);
 
         const result = await renderSnippet("test", "default", tempDir);
         expectTrue(result.includes("<h1>"), "Should render markdown to HTML");
@@ -264,7 +263,7 @@ World`;
 
       try {
         // fs already imported from test-utils
-        fs.writeFileSync(snippetsDir + "/test.md", content);
+        fs.writeFileSync(`${snippetsDir}/test.md`, content);
 
         const customRenderer = createMarkdownRenderer({ html: false });
         const result = await renderSnippet(

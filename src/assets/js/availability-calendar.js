@@ -132,9 +132,8 @@ async function openCalendar(apiUrl) {
   try {
     const dates = await fetchAvailability(apiUrl);
     renderCalendar(dates);
-  } catch (err) {
+  } catch (_err) {
     showError("Unable to load availability. Please try again.");
-    console.error("Availability calendar error:", err);
   }
 }
 

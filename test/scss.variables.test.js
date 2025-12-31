@@ -21,8 +21,7 @@ function extractUsedVariables(scssFiles) {
 
   for (const file of scssFiles) {
     const content = readFileSync(file, "utf-8");
-    let match;
-    while ((match = varPattern.exec(content)) !== null) {
+    for (const match of content.matchAll(varPattern)) {
       used.add(`--${match[1]}`);
     }
   }
@@ -36,8 +35,7 @@ function extractDefinedVariables(styleFile) {
 
   // Match variable definitions like: --color-bg: value;
   const defPattern = /^\s*(--[a-z][a-z0-9-]*):/gm;
-  let match;
-  while ((match = defPattern.exec(content)) !== null) {
+  for (const match of content.matchAll(defPattern)) {
     defined.add(match[1]);
   }
 
@@ -49,19 +47,19 @@ function runTest() {
   const used = extractUsedVariables(scssFiles);
   const defined = extractDefinedVariables(STYLE_FILE);
 
-  const undefined = [];
+  const undefinedVars = [];
   for (const variable of used) {
     if (!defined.has(variable) && !ALLOWED_UNDEFINED.includes(variable)) {
-      undefined.push(variable);
+      undefinedVars.push(variable);
     }
   }
 
-  if (undefined.length > 0) {
+  if (undefinedVars.length > 0) {
     console.error("=== CSS Variables Test FAILED ===");
     console.error(
       "The following CSS variables are used but not defined in :root:",
     );
-    for (const v of undefined.sort()) {
+    for (const v of undefinedVars.sort()) {
       console.error(`  - ${v}`);
     }
     console.error("");

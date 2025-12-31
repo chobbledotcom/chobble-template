@@ -110,7 +110,7 @@ const b = 2;
     name: "no-new-try-catches",
     description: "No new try/catch blocks outside the whitelist",
     test: () => {
-      const { violations, allowed } = analyzeTryCatchUsage();
+      const { violations } = analyzeTryCatchUsage();
 
       if (violations.length > 0) {
         console.log(

@@ -1,11 +1,10 @@
-const createInitialMapping = (categories, propertyName) =>
-  (categories || []).reduce(
-    (acc, category) => ({
-      ...acc,
-      [category.fileSlug]: [category.data[propertyName], -1],
-    }),
-    {},
-  );
+const createInitialMapping = (categories, propertyName) => {
+  const result = {};
+  for (const category of categories || []) {
+    result[category.fileSlug] = [category.data[propertyName], -1];
+  }
+  return result;
+};
 
 const extractProductEntries = (products, propertyName) =>
   (products || [])
@@ -19,14 +18,17 @@ const extractProductEntries = (products, propertyName) =>
     );
 
 const buildCategoryPropertyMap = (categories, products, propertyName) => {
-  const initialMapping = createInitialMapping(categories, propertyName);
+  const result = createInitialMapping(categories, propertyName);
   const productEntries = extractProductEntries(products, propertyName);
 
-  return productEntries.reduce((acc, { categorySlug, value, order }) => {
-    const currentEntry = acc[categorySlug];
+  for (const { categorySlug, value, order } of productEntries) {
+    const currentEntry = result[categorySlug];
     const shouldOverride = !currentEntry || currentEntry[1] < order;
-    return shouldOverride ? { ...acc, [categorySlug]: [value, order] } : acc;
-  }, initialMapping);
+    if (shouldOverride) {
+      result[categorySlug] = [value, order];
+    }
+  }
+  return result;
 };
 
 const buildCategoryImageMap = (categories, products) =>

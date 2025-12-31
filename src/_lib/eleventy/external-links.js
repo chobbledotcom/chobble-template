@@ -19,7 +19,7 @@ const getExternalLinkAttributes = (url, config) => {
     attrs.push('rel="noopener noreferrer"');
   }
 
-  return attrs.length > 0 ? " " + attrs.join(" ") : "";
+  return attrs.length > 0 ? ` ${attrs.join(" ")}` : "";
 };
 
 const externalLinkFilter = (url, config) => {

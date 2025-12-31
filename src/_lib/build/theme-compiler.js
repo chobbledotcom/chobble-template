@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { memoize } from "#utils/memoize.js";
 
 // Get all theme files and their names

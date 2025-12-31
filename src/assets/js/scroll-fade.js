@@ -32,7 +32,9 @@ function initScrollFade() {
   // Check for reduced motion preference
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     // Make all elements visible immediately
-    elements.forEach((el) => el.classList.add("scroll-visible"));
+    for (const el of elements) {
+      el.classList.add("scroll-visible");
+    }
     return;
   }
 
@@ -54,7 +56,9 @@ function initScrollFade() {
   );
 
   // Observe all elements
-  elements.forEach((el) => observer.observe(el));
+  for (const el of elements) {
+    observer.observe(el);
+  }
 }
 
 onReady(initScrollFade);

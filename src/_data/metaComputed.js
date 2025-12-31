@@ -1,6 +1,6 @@
-import fs from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import metaData from "#data/meta.json" with { type: "json" };
 import siteData from "#data/site.json" with { type: "json" };
 

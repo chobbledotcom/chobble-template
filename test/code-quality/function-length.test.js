@@ -225,7 +225,7 @@ const violations = analyzeFunctionLengths();
 
 // Log violations for visibility
 if (violations.length > 0) {
-  console.log("\n" + formatViolations(violations) + "\n");
+  console.log(`\n${formatViolations(violations)}\n`);
 }
 
 const testCases = [

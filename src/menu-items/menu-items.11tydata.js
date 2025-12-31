@@ -7,7 +7,7 @@ export default {
       const keys = [];
 
       // Check each dietary indicator configuration
-      for (const [key, indicator] of Object.entries(dietaryIndicators)) {
+      for (const [_key, indicator] of Object.entries(dietaryIndicators)) {
         if (data[indicator.field]) {
           keys.push({
             symbol: indicator.symbol,

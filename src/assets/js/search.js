@@ -27,8 +27,7 @@ const initSearch = () => {
 
     if (keyword && validKeywords.includes(keyword)) {
       errorEl.style.display = "none";
-      window.location.href =
-        "/search/" + encodeURIComponent(keyword.replace(/ /g, "-")) + "/";
+      window.location.href = `/search/${encodeURIComponent(keyword.replace(/ /g, "-"))}/`;
     } else {
       errorEl.style.display = "block";
       input.focus();

@@ -75,7 +75,7 @@ const isInsideTemplateLiteral = (lines, lineIndex) => {
  * Check if a comment is documentation (explaining a pattern) vs disabled code
  * Returns true only if this appears to be a documentation comment for a regex pattern
  */
-const isDocumentationComment = (line, prevLine, nextLine) => {
+const isDocumentationComment = (_line, _prevLine, nextLine) => {
   // Comments followed by regex patterns are documentation (explaining what regex matches)
   // Match lines starting with / but not // (so /pattern/ but not // comment)
   if (nextLine && /^\s*\/[^/]/.test(nextLine)) {
@@ -89,7 +89,7 @@ const isDocumentationComment = (line, prevLine, nextLine) => {
  * Find all commented-out code in a file
  * Returns array of { lineNumber, line }
  */
-const findCommentedCode = (source, relativePath) => {
+const findCommentedCode = (source, _relativePath) => {
   const results = [];
   const lines = source.split("\n");
 

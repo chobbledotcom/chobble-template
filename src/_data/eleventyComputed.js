@@ -1,6 +1,6 @@
-import { existsSync } from "fs";
-import { createRequire } from "module";
-import { join } from "path";
+import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { join } from "node:path";
 import { memoize } from "#utils/memoize.js";
 import {
   buildBaseMeta,
@@ -40,7 +40,7 @@ export default {
   thumbnail: (data) =>
     isValidImage(data.thumbnail)
       ? data.thumbnail
-      : data.gallery && data.gallery[0] && isValidImage(data.gallery[0])
+      : data.gallery?.[0] && isValidImage(data.gallery[0])
         ? data.gallery[0]
         : isValidImage(data.header_image)
           ? data.header_image
