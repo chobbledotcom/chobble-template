@@ -18,8 +18,8 @@ import { onReady } from "#assets/on-ready.js";
 
 // Constants
 const CART_OVERLAY_ID = "cart-overlay";
-const MINIMUM_CHECKOUT_AMOUNT = 0.3; // Stripe requires at least 30p
 const IS_ENQUIRY_MODE = Config.cart_mode === "quote";
+const MINIMUM_CHECKOUT_AMOUNT = Config.cart_mode === "stripe" ? 0.3 : 0;
 
 // Helper to get cart overlay element fresh each time
 const getCartOverlay = () => document.getElementById(CART_OVERLAY_ID);
