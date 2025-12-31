@@ -1,12 +1,7 @@
 import categoryOrder from "../src/_data/categoryOrder.js";
 import { createTestRunner, expectDeepEqual } from "./test-utils.js";
 
-const DEFAULT_ORDER = [
-  "content",
-  "faqs",
-  "subcategories",
-  "products",
-];
+const DEFAULT_ORDER = ["content", "faqs", "subcategories", "products"];
 
 const testCases = [
   {

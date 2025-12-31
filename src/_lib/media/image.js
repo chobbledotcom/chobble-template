@@ -112,7 +112,13 @@ const U = {
     return cachedPath;
   },
   // Build div HTML string directly instead of using JSDOM (much faster)
-  makeDivHtml: async (classes, thumbPromise, imageAspectRatio, maxWidth, innerHTML) => {
+  makeDivHtml: async (
+    classes,
+    thumbPromise,
+    imageAspectRatio,
+    maxWidth,
+    innerHTML,
+  ) => {
     const classAttr = classes
       ? `class="image-wrapper ${classes}"`
       : 'class="image-wrapper"';

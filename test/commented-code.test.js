@@ -1,4 +1,13 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES, TEST_FILES } from "./test-utils.js";
+import {
+  createTestRunner,
+  ECOMMERCE_JS_FILES,
+  expectTrue,
+  fs,
+  path,
+  rootDir,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "./test-utils.js";
 
 /**
  * Patterns that indicate commented-out code (not documentation)
@@ -121,8 +130,11 @@ const analyzeCommentedCode = () => {
   const violations = [];
 
   // Exclude this test file
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/commented-code.test.js");
+  const allJsFiles = [
+    ...SRC_JS_FILES,
+    ...ECOMMERCE_JS_FILES,
+    ...TEST_FILES,
+  ].filter((f) => f !== "test/commented-code.test.js");
 
   for (const relativePath of allJsFiles) {
     const fullPath = path.join(rootDir, relativePath);
@@ -155,11 +167,11 @@ const c = 3;
       const results = findCommentedCode(source, "test.js");
       expectTrue(
         results.length === 1,
-        `Expected 1 commented code, found ${results.length}`
+        `Expected 1 commented code, found ${results.length}`,
       );
       expectTrue(
         results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`
+        `Expected line 3, got ${results[0].lineNumber}`,
       );
     },
   },
@@ -175,7 +187,7 @@ function active() {}
       const results = findCommentedCode(source, "test.js");
       expectTrue(
         results.length === 2,
-        `Expected 2 commented code, found ${results.length}`
+        `Expected 2 commented code, found ${results.length}`,
       );
     },
   },
@@ -191,13 +203,14 @@ console.log("active");
       const results = findCommentedCode(source, "test.js");
       expectTrue(
         results.length === 2,
-        `Expected 2 commented code, found ${results.length}`
+        `Expected 2 commented code, found ${results.length}`,
       );
     },
   },
   {
     name: "ignore-template-literals",
-    description: "Ignores commented code inside template literals (test fixtures)",
+    description:
+      "Ignores commented code inside template literals (test fixtures)",
     test: () => {
       const source = `
 const testFixture = \`
@@ -209,7 +222,7 @@ const real = 1;
       const results = findCommentedCode(source, "test.js");
       expectTrue(
         results.length === 0,
-        `Expected 0 commented code in template literals, found ${results.length}`
+        `Expected 0 commented code in template literals, found ${results.length}`,
       );
     },
   },
@@ -226,7 +239,7 @@ const a = 1;
       const results = findCommentedCode(source, "test.js");
       expectTrue(
         results.length === 0,
-        `Expected 0 commented code, found ${results.length}`
+        `Expected 0 commented code, found ${results.length}`,
       );
     },
   },
@@ -247,7 +260,7 @@ const a = 1;
 
       expectTrue(
         violations.length === 0,
-        `Found ${violations.length} commented-out code. See list above.`
+        `Found ${violations.length} commented-out code. See list above.`,
       );
     },
   },
