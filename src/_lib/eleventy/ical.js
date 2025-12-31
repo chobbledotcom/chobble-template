@@ -35,14 +35,14 @@ export function eventIcal(event) {
   return calendar.toString();
 }
 
-export function configureICal(eleventyConfig) {
-  // Add a filter to generate iCal content
-  eleventyConfig.addFilter("eventIcal", eventIcal);
+// Exported for direct testing
+export function isOneOffEvent(event) {
+  return Boolean(event.data.event_date && !event.data.recurring_date);
+}
 
-  // Add collection of one-off events
+export function configureICal(eleventyConfig) {
+  eleventyConfig.addFilter("eventIcal", eventIcal);
   eleventyConfig.addCollection("oneOffEvents", (collectionApi) =>
-    collectionApi.getFilteredByTag("events").filter((event) => {
-      return event.data.event_date && !event.data.recurring_date;
-    }),
+    collectionApi.getFilteredByTag("events").filter(isOneOffEvent),
   );
 }

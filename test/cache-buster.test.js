@@ -1,27 +1,7 @@
-import { configureCacheBuster } from "#eleventy/cache-buster.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectFunctionType,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { cacheBust } from "#eleventy/cache-buster.js";
+import { createTestRunner, expectStrictEqual, expectTrue } from "#test/test-utils.js";
 
 const testCases = [
-  {
-    name: "configureCacheBuster-registers-filter",
-    description: "Registers cacheBust filter with Eleventy config",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
-      expectFunctionType(
-        mockConfig.filters,
-        "cacheBust",
-        "Should register cacheBust filter",
-      );
-    },
-  },
   {
     name: "cacheBust-development-mode",
     description: "Returns URL unchanged in development mode",
@@ -29,10 +9,7 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "serve";
 
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
-      const result = mockConfig.filters.cacheBust("/styles.css");
+      const result = cacheBust("/styles.css");
       expectStrictEqual(
         result,
         "/styles.css",
@@ -49,10 +26,7 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       delete process.env.ELEVENTY_RUN_MODE;
 
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
-      const result = mockConfig.filters.cacheBust("/script.js");
+      const result = cacheBust("/script.js");
       expectStrictEqual(
         result,
         "/script.js",
@@ -69,10 +43,7 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
-      const result = mockConfig.filters.cacheBust("/styles.css");
+      const result = cacheBust("/styles.css");
       expectTrue(
         result.startsWith("/styles.css?cached="),
         "Should add cached parameter in production mode",
@@ -88,10 +59,7 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
-      const result = mockConfig.filters.cacheBust("/app.js");
+      const result = cacheBust("/app.js");
       const match = result.match(/\?cached=(\d+)$/);
       expectTrue(match !== null, "Should have numeric timestamp");
       expectTrue(
@@ -109,11 +77,8 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
-      const result1 = mockConfig.filters.cacheBust("/styles.css");
-      const result2 = mockConfig.filters.cacheBust("/script.js");
+      const result1 = cacheBust("/styles.css");
+      const result2 = cacheBust("/script.js");
 
       const timestamp1 = result1.match(/\?cached=(\d+)$/)[1];
       const timestamp2 = result2.match(/\?cached=(\d+)$/)[1];
@@ -134,9 +99,6 @@ const testCases = [
       const originalRunMode = process.env.ELEVENTY_RUN_MODE;
       process.env.ELEVENTY_RUN_MODE = "build";
 
-      const mockConfig = createMockEleventyConfig();
-      configureCacheBuster(mockConfig);
-
       const urls = [
         "/css/main.css",
         "/js/bundle.js",
@@ -145,7 +107,7 @@ const testCases = [
       ];
 
       for (const url of urls) {
-        const result = mockConfig.filters.cacheBust(url);
+        const result = cacheBust(url);
         expectTrue(
           result.startsWith(url + "?cached="),
           `Should add cache busting to ${url}`,
