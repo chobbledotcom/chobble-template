@@ -479,9 +479,11 @@ const testCases = [
         }
       }
 
-      // For now, just warn - don't fail the test
-      // TODO: Change to expectTrue(unusedClasses.length === 0) when ready to enforce
-      expectTrue(true, "Analysis completed (warnings only for now)");
+      // Fail the test if there are unused classes
+      expectTrue(
+        unusedClasses.length === 0,
+        `Found ${unusedClasses.length} unused CSS classes`,
+      );
     },
   },
 ];
