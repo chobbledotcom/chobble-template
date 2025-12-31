@@ -1,4 +1,4 @@
-import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "./test-utils.js";
+import { createTestRunner, ECOMMERCE_JS_FILES, expectTrue, fs, path, rootDir, SRC_JS_FILES } from "../test-utils.js";
 import { ALLOWED_CONSOLE_LOG_FILES } from "./code-quality-exceptions.js";
 
 /**
