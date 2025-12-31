@@ -77,16 +77,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   "test/checkout.test.js:725",
   "test/checkout.test.js:764",
 
-  // test/inline-asset.test.js - inline asset tests
-  "test/inline-asset.test.js:128",
-  "test/inline-asset.test.js:151",
-  "test/inline-asset.test.js:171",
-  "test/inline-asset.test.js:235",
-  "test/inline-asset.test.js:281",
-  "test/inline-asset.test.js:312",
-  "test/inline-asset.test.js:337",
-  "test/inline-asset.test.js:360",
-
   // test/file-utils.test.js - file utility tests
   "test/file-utils.test.js:85",
   "test/file-utils.test.js:222",
