@@ -1,5 +1,9 @@
 import { cacheBust } from "#eleventy/cache-buster.js";
-import { createTestRunner, expectStrictEqual, expectTrue } from "#test/test-utils.js";
+import {
+  createTestRunner,
+  expectStrictEqual,
+  expectTrue,
+} from "#test/test-utils.js";
 
 const testCases = [
   {
