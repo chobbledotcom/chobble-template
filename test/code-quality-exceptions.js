@@ -152,10 +152,25 @@ const ALLOWED_THEN_USAGE = new Set([
   "src/assets/js/availability-calendar.js:133",
 ]);
 
+// ============================================
+// console.log exceptions
+// ============================================
+
+// Files allowed to use console.log (CLI scripts, tools, etc.)
+// Production code should use console.error for user-facing error messages
+const ALLOWED_CONSOLE_LOG_FILES = new Set([
+  "src/_lib/scripts/add-skus.js", // CLI script - needs stdout output
+  "src/_lib/media/unused-images.js", // CLI script - reports unused images
+  "src/_lib/eleventy/pdf.js", // Build-time logging
+  "ecommerce-backend/server.js", // Server startup messages
+  "bin/profile", // CLI profiling tool
+]);
+
 export {
   ALLOWED_MUTABLE_VAR_FILES,
   ALLOWED_LET_PATTERNS,
   ALLOWED_TRY_CATCHES,
   ALLOWED_LOOSE_EQUALITY,
   ALLOWED_THEN_USAGE,
+  ALLOWED_CONSOLE_LOG_FILES,
 };
