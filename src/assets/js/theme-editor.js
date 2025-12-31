@@ -8,10 +8,7 @@ import {
   shouldIncludeScopedVar,
 } from "./theme-editor-lib.js";
 
-let state = {
-  elements: null,
-  previousGlobals: null, // Stored for cascade comparison
-};
+let state = { previousGlobals: null }; // Mutable state for cascade comparison
 
 // DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
@@ -23,6 +20,8 @@ const SCOPE_DOM_SELECTORS = {
 };
 
 const ThemeEditor = {
+  elements: null, // DOM refs, set once in init()
+
   init() {
     const form = document.getElementById("theme-editor-form");
     const output = document.getElementById("theme-output");
@@ -31,9 +30,9 @@ const ThemeEditor = {
     if (!form || !output) return;
 
     // Skip if already initialized
-    if (state.elements) return;
+    if (this.elements) return;
 
-    state.elements = {
+    this.elements = {
       form,
       output,
       downloadBtn: document.getElementById("download-theme"),
@@ -47,21 +46,21 @@ const ThemeEditor = {
   },
 
   formEl(id) {
-    return state.elements.form.querySelector(`#${id}`);
+    return this.elements.form.querySelector(`#${id}`);
   },
 
   formQuery(selector) {
-    return state.elements.form.querySelectorAll(selector);
+    return this.elements.form.querySelectorAll(selector);
   },
 
   initTabNavigation() {
-    state.elements.tabLinks.forEach((tabLink) => {
+    this.elements.tabLinks.forEach((tabLink) => {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
-        state.elements.tabLinks.forEach((link) =>
+        this.elements.tabLinks.forEach((link) =>
           link.classList.remove("active"),
         );
-        state.elements.tabContents.forEach((content) =>
+        this.elements.tabContents.forEach((content) =>
           content.classList.remove("active"),
         );
         tabLink.classList.add("active");
@@ -72,7 +71,7 @@ const ThemeEditor = {
   },
 
   initControlsFromTheme() {
-    const parsed = parseThemeContent(state.elements.output.value);
+    const parsed = parseThemeContent(this.elements.output.value);
 
     // Initialize global :root variables
     this.initGlobalControls(parsed.root);
@@ -318,10 +317,10 @@ const ThemeEditor = {
   },
 
   setupEventListeners() {
-    state.elements.downloadBtn.addEventListener("click", () =>
+    this.elements.downloadBtn.addEventListener("click", () =>
       this.downloadTheme(),
     );
-    state.elements.output.addEventListener("input", () => {
+    this.elements.output.addEventListener("input", () => {
       this.initControlsFromTheme();
     });
   },
@@ -413,7 +412,7 @@ const ThemeEditor = {
 
     // Generate CSS
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
-    state.elements.output.value = themeText;
+    this.elements.output.value = themeText;
   },
 
   /**
@@ -494,7 +493,7 @@ const ThemeEditor = {
   },
 
   downloadTheme() {
-    const content = state.elements.output.value;
+    const content = this.elements.output.value;
     const blob = new Blob([content], { type: "text/css" });
     const url = URL.createObjectURL(blob);
 
