@@ -9,7 +9,7 @@ import {
   expectFunctionType,
   expectStrictEqual,
   expectThrows,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   {

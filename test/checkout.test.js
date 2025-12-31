@@ -8,7 +8,7 @@ import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { buildJsConfigScript } from "../src/_lib/eleventy/js-config.js";
+import { buildJsConfigScript } from "#eleventy/js-config.js";
 
 // Import actual cart utilities
 import {
@@ -24,8 +24,8 @@ import {
   saveCart,
   updateCartIcon,
   updateItemQuantity,
-} from "../src/assets/js/cart-utils.js";
-import { createTestRunner } from "./test-utils.js";
+} from "#assets/cart-utils.js";
+import { createTestRunner } from "#test/test-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

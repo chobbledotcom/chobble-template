@@ -15,7 +15,7 @@ import {
   expectDeepEqual,
   expectStrictEqual,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   // parseFilterAttributes tests

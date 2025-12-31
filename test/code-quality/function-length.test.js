@@ -5,7 +5,7 @@ import {
   path,
   rootDir,
   SRC_JS_FILES,
-} from "../test-utils.js";
+} from "#test/test-utils.js";
 
 // Configuration
 const MAX_LINES = 30;

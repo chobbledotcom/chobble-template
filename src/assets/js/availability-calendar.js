@@ -1,7 +1,7 @@
 // Availability Calendar
 // Displays a 12-month calendar with unavailable dates greyed out
 
-import { onReady } from "./on-ready.js";
+import { onReady } from "#assets/on-ready.js";
 
 const MONTHS = [
   "January",

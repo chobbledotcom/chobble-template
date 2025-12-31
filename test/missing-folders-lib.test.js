@@ -9,7 +9,7 @@ import {
   createMockEleventyConfig,
   createTestRunner,
   expectTrue,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 // Test that lib modules handle missing folders gracefully
 const testLibModules = () => {

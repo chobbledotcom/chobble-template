@@ -12,9 +12,9 @@ import {
   renderQuantityControls,
   saveCart,
   updateCartIcon,
-} from "./cart-utils.js";
-import Config from "./config.js";
-import { onReady } from "./on-ready.js";
+} from "#assets/cart-utils.js";
+import Config from "#assets/config.js";
+import { onReady } from "#assets/on-ready.js";
 
 class ShoppingCart {
   // Minimum checkout amount in pounds (Stripe requires at least 30p)

@@ -9,7 +9,7 @@ import {
   SRC_JS_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
-} from "../test-utils.js";
+} from "#test/test-utils.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -35,6 +35,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCategory",
   "createProduct",
   "createCollectionItem",
+  // Code quality analysis helpers
+  "findRelativeImports",
+  "analyzeRelativeImports",
   // Assertion helpers
   "expectFunctionType",
   "expectArrayLength",

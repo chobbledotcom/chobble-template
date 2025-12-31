@@ -1,7 +1,7 @@
 import {
   ALLOWED_LET_PATTERNS,
   ALLOWED_MUTABLE_VAR_FILES,
-} from "./code-quality-exceptions.js";
+} from "#test/code-quality/code-quality-exceptions.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
@@ -11,7 +11,7 @@ import {
   rootDir,
   SRC_JS_FILES,
   TEST_FILES,
-} from "../test-utils.js";
+} from "#test/test-utils.js";
 
 // Set to true once all lets are removed to enforce const-only style
 const ENFORCE_NO_LET = false;

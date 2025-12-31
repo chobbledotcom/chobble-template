@@ -6,7 +6,7 @@ import {
   createCategoriesCollection,
   getFeaturedCategories,
 } from "#collections/categories.js";
-import { createTestRunner } from "./test-utils.js";
+import { createTestRunner } from "#test/test-utils.js";
 
 const mockEleventyConfig = {
   addCollection: function (name, fn) {

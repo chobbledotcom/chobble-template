@@ -13,7 +13,7 @@ import {
   createRecurringEvent,
   createTestRunner,
   formatDateString,
-} from "./test-utils.js";
+} from "#test/test-utils.js";
 
 const testCases = [
   {

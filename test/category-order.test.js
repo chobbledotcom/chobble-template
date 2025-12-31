@@ -1,5 +1,5 @@
-import categoryOrder from "../src/_data/categoryOrder.js";
-import { createTestRunner, expectDeepEqual } from "./test-utils.js";
+import categoryOrder from "#data/categoryOrder.js";
+import { createTestRunner, expectDeepEqual } from "#test/test-utils.js";
 
 const DEFAULT_ORDER = ["content", "faqs", "subcategories", "products"];
 
