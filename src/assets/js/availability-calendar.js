@@ -122,21 +122,20 @@ async function fetchAvailability(url) {
   return response.json();
 }
 
-function openCalendar(apiUrl) {
+async function openCalendar(apiUrl) {
   const dialog = getDialog();
   if (!dialog) return;
 
   showLoading();
   dialog.showModal();
 
-  fetchAvailability(apiUrl)
-    .then((dates) => {
-      renderCalendar(dates);
-    })
-    .catch((err) => {
-      showError("Unable to load availability. Please try again.");
-      console.error("Availability calendar error:", err);
-    });
+  try {
+    const dates = await fetchAvailability(apiUrl);
+    renderCalendar(dates);
+  } catch (err) {
+    showError("Unable to load availability. Please try again.");
+    console.error("Availability calendar error:", err);
+  }
 }
 
 function init() {

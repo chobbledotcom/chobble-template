@@ -37,6 +37,9 @@ const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.test.js - test assertions
   "ecommerce-backend/server.test.js:370",
 
+  // src/assets/js/availability-calendar.js - fetch error handling
+  "src/assets/js/availability-calendar.js:132",
+
   // src/assets/js/cart.js - JSON parsing and fetch handling
   "src/assets/js/cart.js:121",
   "src/assets/js/cart.js:157",
