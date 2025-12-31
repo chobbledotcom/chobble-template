@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import { readdir } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -12,50 +12,45 @@ const rootDir = resolve(__dirname, "..");
 async function runAllTests() {
   console.log("=== Running All Tests ===\n");
 
-  try {
-    // Get all test files
-    const files = await readdir(__dirname);
-    const testFiles = files.filter((f) => f.endsWith(".test.js"));
+  const files = await readdir(__dirname);
+  const testFiles = files.filter((f) => f.endsWith(".test.js"));
 
-    console.log(`Found ${testFiles.length} test files\n`);
+  console.log(`Found ${testFiles.length} test files\n`);
 
-    const failedTests = [];
+  const failedTests = [];
 
-    for (const testFile of testFiles) {
-      const testPath = join(__dirname, testFile);
-      console.log(`\n📝 Running ${testFile}...`);
-      console.log("─".repeat(50));
+  for (const testFile of testFiles) {
+    const testPath = join(__dirname, testFile);
+    console.log(`\n📝 Running ${testFile}...`);
+    console.log("─".repeat(50));
 
-      try {
-        execSync(`node ${testPath}`, {
-          stdio: "inherit",
-          cwd: rootDir,
-        });
-        console.log(`✅ ${testFile} passed`);
-      } catch (error) {
-        failedTests.push(testFile);
-        console.log(`❌ ${testFile} failed`);
-      }
-    }
+    const result = spawnSync("node", [testPath], {
+      stdio: "inherit",
+      cwd: rootDir,
+    });
 
-    // Summary
-    const passed = testFiles.length - failedTests.length;
-    console.log("\n" + "=".repeat(50));
-    console.log("TEST SUMMARY");
-    console.log("=".repeat(50));
-    console.log(`✅ Passed: ${passed}`);
-    console.log(`❌ Failed: ${failedTests.length}`);
-
-    if (failedTests.length > 0) {
-      console.log("\nFailed tests:");
-      failedTests.forEach((test) => console.log(`  - ${test}`));
-      process.exit(1);
+    if (result.status === 0) {
+      console.log(`✅ ${testFile} passed`);
     } else {
-      console.log("\n🎉 All tests passed!");
+      failedTests.push(testFile);
+      console.log(`❌ ${testFile} failed`);
     }
-  } catch (error) {
-    console.error("Error running tests:", error);
+  }
+
+  // Summary
+  const passed = testFiles.length - failedTests.length;
+  console.log("\n" + "=".repeat(50));
+  console.log("TEST SUMMARY");
+  console.log("=".repeat(50));
+  console.log(`✅ Passed: ${passed}`);
+  console.log(`❌ Failed: ${failedTests.length}`);
+
+  if (failedTests.length > 0) {
+    console.log("\nFailed tests:");
+    failedTests.forEach((test) => console.log(`  - ${test}`));
     process.exit(1);
+  } else {
+    console.log("\n🎉 All tests passed!");
   }
 }
 
