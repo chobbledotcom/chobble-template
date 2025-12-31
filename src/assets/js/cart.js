@@ -19,9 +19,7 @@ import { onReady } from "#assets/on-ready.js";
 // Constants
 const CART_OVERLAY_ID = "cart-overlay";
 const MINIMUM_CHECKOUT_AMOUNT = 0.3; // Stripe requires at least 30p
-
-// Helper to check if we're in enquiry/quote mode
-const isEnquiryMode = () => Config.cart_mode === "quote";
+const IS_ENQUIRY_MODE = Config.cart_mode === "quote";
 
 // Helper to get cart overlay element fresh each time
 const getCartOverlay = () => document.getElementById(CART_OVERLAY_ID);
@@ -302,7 +300,7 @@ const handleCartIconClick = (e) => {
   if (!e.target.closest(".cart-icon")) return false;
 
   e.preventDefault();
-  if (isEnquiryMode()) {
+  if (IS_ENQUIRY_MODE) {
     window.location.href = "/quote/";
   } else {
     openCart();
@@ -347,7 +345,7 @@ const handleAddToCart = (e) => {
 // Set up cart overlay listeners (checkout buttons, backdrop click)
 const setupOverlayListeners = () => {
   const cartOverlay = getCartOverlay();
-  if (isEnquiryMode() || !cartOverlay) return;
+  if (IS_ENQUIRY_MODE || !cartOverlay) return;
 
   cartOverlay.addEventListener("click", (e) => {
     if (e.target === cartOverlay) closeCart();
@@ -388,7 +386,7 @@ const setup = () => {
   resetProductSelects();
   setupEventListeners();
 
-  if (!isEnquiryMode()) {
+  if (!IS_ENQUIRY_MODE) {
     updateCartDisplay();
   }
   updateCartCount();
