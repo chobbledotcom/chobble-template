@@ -1,9 +1,9 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
 import { canonicalUrl } from "#utils/canonical-url.js";
+import siteData from "#data/site.json" with { type: "json" };
 
-// Site URL from site.json is https://example.chobble.com
-const SITE_URL = "https://example.chobble.com";
+const SITE_URL = siteData.url;
 
 describe("canonicalUrl", () => {
   it("joins site URL and page URL correctly", () => {
