@@ -227,6 +227,7 @@ const createTestSite = async (options = {}) => {
     "_layouts",
     "css",
     "assets",
+    "utils",
   ]);
   setupDataDir(templateSrc, srcDir, options);
 
