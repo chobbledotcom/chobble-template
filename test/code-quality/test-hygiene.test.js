@@ -150,6 +150,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "containsHtml",
   "findHtmlInJs",
   "analyzeHtmlInJs",
+  // template-selectors.test.js - analysis helpers
+  "extractTemplateIds",
+  "extractSelectorObjects",
+  "extractTemplateDefinitions",
+  "loadTemplate",
 ]);
 
 /**

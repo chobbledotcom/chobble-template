@@ -22,7 +22,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   "src/assets/js/availability-calendar.js:132",
 
   // src/assets/js/cart.js - PayPal checkout fetch handling
-  "src/assets/js/cart.js:225",
+  "src/assets/js/cart.js:227",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
@@ -34,7 +34,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/assets/js/cart-utils.js:11",
+  "src/assets/js/cart-utils.js:13",
 
   // test/cpd.test.js - running external tool and capturing exit code
   "test/cpd.test.js:16",

@@ -13,6 +13,7 @@ import {
 } from "#assets/cart-utils.js";
 import Config from "#assets/config.js";
 import { onReady } from "#assets/on-ready.js";
+import { CART_ITEM_SELECTORS, TEMPLATE_IDS } from "#assets/selectors.js";
 import { getTemplate, populateQuantityControls } from "#assets/template.js";
 
 // Constants
@@ -76,11 +77,12 @@ const closeCart = () => {
 
 // Render a single cart item using template
 const renderCartItem = (item) => {
-  const template = getTemplate("cart-item-template");
+  const template = getTemplate(TEMPLATE_IDS.CART_ITEM);
 
-  template.querySelector(".cart-item").dataset.name = item.item_name;
-  template.querySelector(".cart-item-name").textContent = item.item_name;
-  template.querySelector(".cart-item-price").textContent = formatPrice(
+  template.querySelector(CART_ITEM_SELECTORS.CONTAINER).dataset.name =
+    item.item_name;
+  template.querySelector(CART_ITEM_SELECTORS.NAME).textContent = item.item_name;
+  template.querySelector(CART_ITEM_SELECTORS.PRICE).textContent = formatPrice(
     item.unit_price,
   );
   populateQuantityControls(template, item);
@@ -129,7 +131,7 @@ const updateCartDisplay = () => {
       cartItems.appendChild(renderCartItem(item));
     }
     attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
-    attachRemoveHandlers(cartItems, ".cart-item-remove", () => {
+    attachRemoveHandlers(cartItems, CART_ITEM_SELECTORS.REMOVE, () => {
       updateCartDisplay();
       updateCartCount();
     });

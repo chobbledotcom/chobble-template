@@ -1,4 +1,5 @@
 import { onReady } from "#assets/on-ready.js";
+import { GALLERY_NAV_SELECTORS, TEMPLATE_IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
 
 const state = {
@@ -54,8 +55,8 @@ const updatePopupImage = (index) => {
     el.sizes = "100vw";
   }
 
-  const prev = state.imagePopup.querySelector(".popup-nav-prev");
-  const next = state.imagePopup.querySelector(".popup-nav-next");
+  const prev = state.imagePopup.querySelector(GALLERY_NAV_SELECTORS.PREV);
+  const next = state.imagePopup.querySelector(GALLERY_NAV_SELECTORS.NEXT);
   if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
   if (next)
     next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
@@ -76,9 +77,10 @@ const openPopup = () => {
   state.imagePopup.innerHTML = "";
 
   if (totalImages > 1) {
-    const prevBtn = getTemplate("gallery-popup-nav-prev");
+    const prevBtn = getTemplate(TEMPLATE_IDS.GALLERY_NAV_PREV);
     if (state.currentPopupIndex <= 1) {
-      prevBtn.querySelector(".popup-nav-prev").style.visibility = "hidden";
+      prevBtn.querySelector(GALLERY_NAV_SELECTORS.PREV).style.visibility =
+        "hidden";
     }
     state.imagePopup.appendChild(prevBtn);
   }
@@ -86,9 +88,10 @@ const openPopup = () => {
   state.imagePopup.appendChild(image.cloneNode(true));
 
   if (totalImages > 1) {
-    const nextBtn = getTemplate("gallery-popup-nav-next");
+    const nextBtn = getTemplate(TEMPLATE_IDS.GALLERY_NAV_NEXT);
     if (state.currentPopupIndex >= totalImages) {
-      nextBtn.querySelector(".popup-nav-next").style.visibility = "hidden";
+      nextBtn.querySelector(GALLERY_NAV_SELECTORS.NEXT).style.visibility =
+        "hidden";
     }
     state.imagePopup.appendChild(nextBtn);
   }
@@ -101,12 +104,12 @@ const openPopup = () => {
 
 const handlePopupClick = (event) => {
   // Handle navigation button clicks
-  if (event.target.closest(".popup-nav-prev")) {
+  if (event.target.closest(GALLERY_NAV_SELECTORS.PREV)) {
     event.stopPropagation();
     navigatePopup(-1);
     return;
   }
-  if (event.target.closest(".popup-nav-next")) {
+  if (event.target.closest(GALLERY_NAV_SELECTORS.NEXT)) {
     event.stopPropagation();
     navigatePopup(1);
     return;

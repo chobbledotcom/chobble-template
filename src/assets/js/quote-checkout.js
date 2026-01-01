@@ -3,16 +3,20 @@
 
 import { formatPrice, getCart } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
+import {
+  QUOTE_CHECKOUT_ITEM_SELECTORS,
+  TEMPLATE_IDS,
+} from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
 
 function renderCheckoutItem(item) {
-  const template = getTemplate("quote-checkout-item-template");
+  const template = getTemplate(TEMPLATE_IDS.QUOTE_CHECKOUT_ITEM);
 
-  template.querySelector(".quote-checkout-item-name").textContent =
+  template.querySelector(QUOTE_CHECKOUT_ITEM_SELECTORS.NAME).textContent =
     item.item_name;
-  template.querySelector(".quote-checkout-item-qty").textContent =
+  template.querySelector(QUOTE_CHECKOUT_ITEM_SELECTORS.QTY).textContent =
     `x${item.quantity}`;
-  template.querySelector(".quote-checkout-item-price").textContent =
+  template.querySelector(QUOTE_CHECKOUT_ITEM_SELECTORS.PRICE).textContent =
     formatPrice(item.unit_price * item.quantity);
 
   return template;

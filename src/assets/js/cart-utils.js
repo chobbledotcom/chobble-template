@@ -1,6 +1,8 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
+import { QUANTITY_SELECTORS } from "#assets/selectors.js";
+
 export const STORAGE_KEY = "shopping_cart";
 
 export function getCart() {
@@ -83,10 +85,10 @@ export function attachQuantityHandlers(container, onUpdate) {
       });
     });
   };
-  addQtyHandler(".qty-decrease", -1);
-  addQtyHandler(".qty-increase", 1);
+  addQtyHandler(QUANTITY_SELECTORS.DECREASE, -1);
+  addQtyHandler(QUANTITY_SELECTORS.INCREASE, 1);
 
-  container.querySelectorAll(".qty-input").forEach((input) => {
+  container.querySelectorAll(QUANTITY_SELECTORS.INPUT).forEach((input) => {
     input.addEventListener("change", () => {
       const itemName = input.dataset.name;
       const quantity = parseInt(input.value, 10);
