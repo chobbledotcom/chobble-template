@@ -13,8 +13,12 @@ import {
 } from "#assets/cart-utils.js";
 import Config from "#assets/config.js";
 import { onReady } from "#assets/on-ready.js";
-import { IDS, SEL } from "#assets/selectors.js";
-import { getTemplate, populateQuantityControls } from "#assets/template.js";
+import { IDS } from "#assets/selectors.js";
+import {
+  getTemplate,
+  populateItemFields,
+  populateQuantityControls,
+} from "#assets/template.js";
 
 // Constants
 const CART_OVERLAY_ID = "cart-overlay";
@@ -79,11 +83,7 @@ const closeCart = () => {
 const renderCartItem = (item) => {
   const template = getTemplate(IDS.CART_ITEM);
 
-  template.querySelector(SEL.CART_ITEM.CONTAINER).dataset.name = item.item_name;
-  template.querySelector(SEL.CART_ITEM.NAME).textContent = item.item_name;
-  template.querySelector(SEL.CART_ITEM.PRICE).textContent = formatPrice(
-    item.unit_price,
-  );
+  populateItemFields(template, item.item_name, formatPrice(item.unit_price));
   populateQuantityControls(template, item);
 
   return template;
@@ -130,7 +130,7 @@ const updateCartDisplay = () => {
       cartItems.appendChild(renderCartItem(item));
     }
     attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
-    attachRemoveHandlers(cartItems, SEL.CART_ITEM.REMOVE, () => {
+    attachRemoveHandlers(cartItems, '[data-action="remove"]', () => {
       updateCartDisplay();
       updateCartCount();
     });

@@ -1,34 +1,34 @@
 <template id="{{ selectors.IDS.CART_ITEM }}">
-  <div class="{{ selectors.CART_ITEM.CONTAINER }}" data-name="">
+  <div class="cart-item" data-name="">
     <div class="cart-item-info">
-      <div class="{{ selectors.CART_ITEM.NAME }}"></div>
-      <div class="{{ selectors.CART_ITEM.PRICE }}"></div>
+      <div data-field="name"></div>
+      <div data-field="price"></div>
     </div>
     <div class="cart-item-controls">
+      <button data-action="remove" data-name="">Remove</button>
       {% include "templates/quantity-controls.html" %}
-      <button class="{{ selectors.CART_ITEM.REMOVE }}" data-name="">Remove</button>
     </div>
   </div>
 </template>
 
 <template id="{{ selectors.IDS.QUOTE_CART_ITEM }}">
-  <div class="{{ selectors.QUOTE_CART_ITEM.CONTAINER }}" data-name="">
+  <div class="quote-cart-item" data-name="">
     <div class="quote-cart-item-info">
-      <span class="{{ selectors.QUOTE_CART_ITEM.NAME }}"></span>
-      <span class="{{ selectors.QUOTE_CART_ITEM.PRICE }}"></span>
+      <span data-field="name"></span>
+      <span data-field="price"></span>
     </div>
-    <p class="{{ selectors.QUOTE_CART_ITEM.SPECS }}"></p>
+    <p data-field="specs"></p>
     <div class="quote-cart-item-controls">
       {% include "templates/quantity-controls.html" %}
-      <button class="{{ selectors.QUOTE_CART_ITEM.REMOVE }}" data-name="">Remove</button>
+      <button data-action="remove" data-name="">Remove</button>
     </div>
   </div>
 </template>
 
 <template id="{{ selectors.IDS.QUOTE_CHECKOUT_ITEM }}">
-  <div class="{{ selectors.QUOTE_CHECKOUT_ITEM.CONTAINER }}">
-    <span class="{{ selectors.QUOTE_CHECKOUT_ITEM.NAME }}"></span>
-    <span class="{{ selectors.QUOTE_CHECKOUT_ITEM.QTY }}"></span>
-    <span class="{{ selectors.QUOTE_CHECKOUT_ITEM.PRICE }}"></span>
+  <div class="quote-checkout-item">
+    <span data-field="name"></span>
+    <span data-field="qty"></span>
+    <span data-field="price"></span>
   </div>
 </template>

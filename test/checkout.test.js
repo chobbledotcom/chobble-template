@@ -21,7 +21,6 @@ import {
   updateCartIcon,
   updateItemQuantity,
 } from "#assets/cart-utils.js";
-import { CLASSES } from "#assets/selectors.js";
 import { buildJsConfigScript } from "#eleventy/js-config.js";
 import { createTestRunner } from "#test/test-utils.js";
 

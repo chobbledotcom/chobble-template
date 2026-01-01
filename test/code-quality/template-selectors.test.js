@@ -1,12 +1,12 @@
 // Template selector contract tests
-// Verifies that HTML templates contain all required classes defined in selectors.js
+// Verifies that HTML templates contain all required template IDs
 
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { JSDOM } from "jsdom";
-import { CLASSES, IDS, TEMPLATE_DEFINITIONS } from "#assets/selectors.js";
+import { IDS } from "#assets/selectors.js";
 
 // Build a lookup for Liquid variable expansion
 function buildLiquidLookup() {
@@ -15,13 +15,6 @@ function buildLiquidLookup() {
   // Add IDS
   for (const [key, value] of Object.entries(IDS)) {
     lookup[`selectors.IDS.${key}`] = value;
-  }
-
-  // Add CLASSES
-  for (const [groupName, group] of Object.entries(CLASSES)) {
-    for (const [key, value] of Object.entries(group)) {
-      lookup[`selectors.${groupName}.${key}`] = value;
-    }
   }
 
   return lookup;
@@ -87,41 +80,6 @@ describe("Template selector contracts", () => {
       });
     }
   });
-
-  describe("All required classes exist in templates", () => {
-    for (const [templateId, definition] of Object.entries(
-      TEMPLATE_DEFINITIONS,
-    )) {
-      describe(`${templateId}`, () => {
-        let templateEl = null;
-        for (const dom of [cartTemplates, galleryTemplates]) {
-          if (dom) {
-            templateEl = dom.window.document.getElementById(templateId);
-            if (templateEl) break;
-          }
-        }
-
-        if (!templateEl) {
-          it(`template exists`, () => {
-            assert.fail(`Template "${templateId}" not found`);
-          });
-          return;
-        }
-
-        const content = templateEl.content || templateEl;
-
-        for (const className of definition.classes) {
-          it(`has class "${className}"`, () => {
-            const element = content.querySelector(`.${className}`);
-            assert.ok(
-              element,
-              `Class "${className}" not found in template "${templateId}"`,
-            );
-          });
-        }
-      });
-    }
-  });
 });
 
 describe("Selector constants usage verification", () => {
@@ -131,7 +89,6 @@ describe("Selector constants usage verification", () => {
     "src/assets/js/quote-checkout.js",
     "src/assets/js/gallery.js",
     "src/assets/js/template.js",
-    "src/assets/js/cart-utils.js",
   ];
 
   const jsContent = jsFiles
@@ -149,27 +106,10 @@ describe("Selector constants usage verification", () => {
       });
     }
   });
-
-  describe("SEL groups are used in JS", () => {
-    for (const groupName of Object.keys(CLASSES)) {
-      it(`SEL.${groupName} is used`, () => {
-        const isUsed = jsContent.includes(`SEL.${groupName}`);
-        assert.ok(isUsed, `SEL.${groupName} is defined but not used`);
-      });
-    }
-  });
 });
 
-describe("HTML templates use selector constants", () => {
-  const templateFiles = ["cart.html", "gallery.html", "quantity-controls.html"];
-
-  // Build set of all class values from CLASSES
-  const allClassValues = new Set();
-  for (const group of Object.values(CLASSES)) {
-    for (const value of Object.values(group)) {
-      allClassValues.add(value);
-    }
-  }
+describe("HTML templates use Liquid selectors for IDs", () => {
+  const templateFiles = ["cart.html", "gallery.html"];
 
   for (const filename of templateFiles) {
     const filepath = path.join(templatesDir, filename);
@@ -183,28 +123,6 @@ describe("HTML templates use selector constants", () => {
         hardcodedIds.length,
         0,
         `Found hardcoded template IDs: ${hardcodedIds.join(", ")}`,
-      );
-    });
-
-    it(`${filename} uses Liquid selectors for main classes`, () => {
-      const hardcodedClasses = [];
-      const classMatches = content.matchAll(/class="([^"]+)"/g);
-
-      for (const [, classValue] of classMatches) {
-        if (classValue.includes("{{")) continue;
-
-        for (const cls of classValue.split(" ")) {
-          const trimmed = cls.trim();
-          if (trimmed && allClassValues.has(trimmed)) {
-            hardcodedClasses.push(trimmed);
-          }
-        }
-      }
-
-      assert.strictEqual(
-        hardcodedClasses.length,
-        0,
-        `Found hardcoded classes: ${hardcodedClasses.join(", ")}`,
       );
     });
   }

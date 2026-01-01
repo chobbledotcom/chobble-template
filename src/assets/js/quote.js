@@ -10,8 +10,12 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
-import { IDS, SEL } from "#assets/selectors.js";
-import { getTemplate, populateQuantityControls } from "#assets/template.js";
+import { IDS } from "#assets/selectors.js";
+import {
+  getTemplate,
+  populateItemFields,
+  populateQuantityControls,
+} from "#assets/template.js";
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);
@@ -22,14 +26,9 @@ function handleQuantityUpdate(itemName, quantity) {
 function renderQuoteItem(item) {
   const template = getTemplate(IDS.QUOTE_CART_ITEM);
 
-  template.querySelector(SEL.QUOTE_CART_ITEM.CONTAINER).dataset.name =
-    item.item_name;
-  template.querySelector(SEL.QUOTE_CART_ITEM.NAME).textContent = item.item_name;
-  template.querySelector(SEL.QUOTE_CART_ITEM.PRICE).textContent = formatPrice(
-    item.unit_price,
-  );
+  populateItemFields(template, item.item_name, formatPrice(item.unit_price));
 
-  const specsEl = template.querySelector(SEL.QUOTE_CART_ITEM.SPECS);
+  const specsEl = template.querySelector('[data-field="specs"]');
   if (item.specs && item.specs.length > 0) {
     specsEl.textContent = item.specs
       .map((s) => `${s.name}: ${s.value}`)
@@ -66,7 +65,7 @@ function renderCart() {
     }
 
     attachQuantityHandlers(itemsEl, handleQuantityUpdate);
-    attachRemoveHandlers(itemsEl, SEL.QUOTE_CART_ITEM.REMOVE, () => {
+    attachRemoveHandlers(itemsEl, '[data-action="remove"]', () => {
       renderCart();
       updateCartIcon();
     });

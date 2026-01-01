@@ -3,18 +3,18 @@
 
 import { formatPrice, getCart } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
-import { IDS, SEL } from "#assets/selectors.js";
+import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
 
 function renderCheckoutItem(item) {
   const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM);
 
-  template.querySelector(SEL.QUOTE_CHECKOUT_ITEM.NAME).textContent =
-    item.item_name;
-  template.querySelector(SEL.QUOTE_CHECKOUT_ITEM.QTY).textContent =
+  template.querySelector('[data-field="name"]').textContent = item.item_name;
+  template.querySelector('[data-field="qty"]').textContent =
     `x${item.quantity}`;
-  template.querySelector(SEL.QUOTE_CHECKOUT_ITEM.PRICE).textContent =
-    formatPrice(item.unit_price * item.quantity);
+  template.querySelector('[data-field="price"]').textContent = formatPrice(
+    item.unit_price * item.quantity,
+  );
 
   return template;
 }
