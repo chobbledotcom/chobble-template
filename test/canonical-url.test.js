@@ -1,61 +1,216 @@
-import assert from "node:assert";
-import { describe, it } from "node:test";
 import siteData from "#data/site.json" with { type: "json" };
+import { createTestRunner, expectStrictEqual } from "#test/test-utils.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 
+// Constant: validated at module load, never changes during test execution
 const SITE_URL = siteData.url;
 
-describe("canonicalUrl", () => {
-  it("joins site URL and page URL correctly", () => {
-    assert.strictEqual(
-      canonicalUrl("/quote/"),
-      `${SITE_URL}/quote/`,
-      "Should join site URL with page path",
-    );
-  });
+const testCases = [
+  // ===========================================
+  // Basic Path Joining
+  // ===========================================
+  {
+    name: "basic-path-with-leading-slash",
+    description:
+      "Core use case: page paths from Eleventy always have leading slash",
+    test: () => {
+      const result = canonicalUrl("/quote/");
 
-  it("handles page URL without leading slash", () => {
-    assert.strictEqual(
-      canonicalUrl("quote/"),
-      `${SITE_URL}/quote/`,
-      "Should add leading slash",
-    );
-  });
+      expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
+    },
+  },
+  {
+    name: "path-without-leading-slash",
+    description: "Defensive: handle user content or malformed paths gracefully",
+    test: () => {
+      const result = canonicalUrl("quote/");
 
-  it("handles page URL with multiple leading slashes", () => {
-    assert.strictEqual(
-      canonicalUrl("///quote/"),
-      `${SITE_URL}/quote/`,
-      "Should normalize multiple slashes",
-    );
-  });
+      expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
+    },
+  },
+  {
+    name: "multiple-leading-slashes",
+    description: "Defensive: malformed paths shouldn't create broken URLs",
+    test: () => {
+      const result = canonicalUrl("///quote/");
 
-  it("handles root page URL", () => {
-    assert.strictEqual(
-      canonicalUrl("/"),
-      SITE_URL,
-      "Root should return site URL",
-    );
-  });
+      expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
+    },
+  },
 
-  it("handles empty page URL", () => {
-    assert.strictEqual(
-      canonicalUrl(""),
-      SITE_URL,
-      "Empty should return site URL",
-    );
-  });
+  // ===========================================
+  // Complex Paths (Real-world Scenarios)
+  // ===========================================
+  {
+    name: "deeply-nested-path",
+    description: "Products/categories can be nested several levels deep",
+    test: () => {
+      const result = canonicalUrl("/products/electronics/phones/iphone-15/");
 
-  it("handles null/undefined inputs", () => {
-    assert.strictEqual(
-      canonicalUrl(null),
-      SITE_URL,
-      "Null should return site URL",
-    );
-    assert.strictEqual(
-      canonicalUrl(undefined),
-      SITE_URL,
-      "Undefined should return site URL",
-    );
-  });
-});
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/products/electronics/phones/iphone-15/`,
+        `got: ${result}`,
+      );
+    },
+  },
+  {
+    name: "path-with-query-string",
+    description: "Search pages and filtered views include query parameters",
+    test: () => {
+      const result = canonicalUrl("/search?q=test&category=all");
+
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/search?q=test&category=all`,
+        `got: ${result}`,
+      );
+    },
+  },
+  {
+    name: "path-with-fragment",
+    description: "Deep links to page sections are valid canonical URLs",
+    test: () => {
+      const result = canonicalUrl("/about/#team");
+
+      expectStrictEqual(result, `${SITE_URL}/about/#team`, `got: ${result}`);
+    },
+  },
+  {
+    name: "path-with-query-and-fragment",
+    description: "Combination of query params and fragment identifiers",
+    test: () => {
+      const result = canonicalUrl("/products?sort=price#filters");
+
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/products?sort=price#filters`,
+        `got: ${result}`,
+      );
+    },
+  },
+
+  // ===========================================
+  // Special Characters
+  // ===========================================
+  {
+    name: "path-with-encoded-spaces",
+    description: "URL-encoded characters must be preserved for valid URLs",
+    test: () => {
+      const result = canonicalUrl("/products/my%20product/");
+
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/products/my%20product/`,
+        `got: ${result}`,
+      );
+    },
+  },
+  {
+    name: "path-with-unicode",
+    description: "International content uses unicode in URLs",
+    test: () => {
+      const result = canonicalUrl("/日本語/ページ/");
+
+      expectStrictEqual(result, `${SITE_URL}/日本語/ページ/`, `got: ${result}`);
+    },
+  },
+  {
+    name: "path-with-special-url-chars",
+    description: "Ampersands, equals signs in paths (not just query strings)",
+    test: () => {
+      const result = canonicalUrl("/compare/a=1&b=2/");
+
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/compare/a=1&b=2/`,
+        `got: ${result}`,
+      );
+    },
+  },
+
+  // ===========================================
+  // Boundary Cases
+  // ===========================================
+  {
+    name: "very-long-path",
+    description:
+      "Deep hierarchies or long slugs shouldn't break URL construction",
+    test: () => {
+      const longSegment = "a".repeat(200);
+      const result = canonicalUrl(`/category/${longSegment}/product/`);
+
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/category/${longSegment}/product/`,
+        `got length: ${result.length}`,
+      );
+    },
+  },
+  {
+    name: "protocol-relative-input",
+    description: "Malformed input like //example.com should be treated as path",
+    test: () => {
+      // The function strips leading slashes and prepends one, so this becomes /example.com
+      const result = canonicalUrl("//example.com/path");
+
+      expectStrictEqual(
+        result,
+        `${SITE_URL}/example.com/path`,
+        `got: ${result}`,
+      );
+    },
+  },
+  {
+    name: "path-with-only-slashes",
+    description: "Edge case: multiple slashes but no content",
+    test: () => {
+      const result = canonicalUrl("////");
+
+      // After stripping leading slashes: "", prepend /: "/", so it's just site URL + /
+      expectStrictEqual(result, `${SITE_URL}/`, `got: ${result}`);
+    },
+  },
+
+  // ===========================================
+  // Root/Empty/Null Handling
+  // ===========================================
+  {
+    name: "root-path",
+    description: "Homepage canonical URL should be the bare site URL",
+    test: () => {
+      const result = canonicalUrl("/");
+
+      expectStrictEqual(result, SITE_URL, `got: ${result}`);
+    },
+  },
+  {
+    name: "empty-string",
+    description: "Missing page URL in templates should fall back to site URL",
+    test: () => {
+      const result = canonicalUrl("");
+
+      expectStrictEqual(result, SITE_URL, `got: ${result}`);
+    },
+  },
+  {
+    name: "null-input",
+    description: "Template variable might be null if not set",
+    test: () => {
+      const result = canonicalUrl(null);
+
+      expectStrictEqual(result, SITE_URL, `got: ${result}`);
+    },
+  },
+  {
+    name: "undefined-input",
+    description: "Template variable might be undefined if not passed",
+    test: () => {
+      const result = canonicalUrl(undefined);
+
+      expectStrictEqual(result, SITE_URL, `got: ${result}`);
+    },
+  },
+];
+
+export default createTestRunner("canonical-url", testCases);
