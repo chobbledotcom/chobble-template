@@ -76,12 +76,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "countCamelCaseWords",
   "extractCamelCaseIdentifiers",
   "analyzeNamingConventions",
-  // render-snippet.test.js
-  "runTests",
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
-  "runTest",
+  "extractAllDefinedVariables",
+  "findUndefinedVariables",
   // strings.test.js
   "findStringsUsage",
   // test-hygiene.test.js - self-analysis helpers
@@ -151,6 +150,14 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "buildLiquidLookup",
   "expandLiquidVars",
   "loadTemplate",
+  // test-quality.test.js - analysis helpers
+  "extractTestCases",
+  "extractDescribeItTests",
+  "findVagueTestNames",
+  "findMultiConcernTestNames",
+  "findAsyncTestsWithoutAwait",
+  "findAssertionsWithoutMessages",
+  "findTautologicalAssertions",
 ]);
 
 /**

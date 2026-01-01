@@ -1,169 +1,370 @@
-import assert from "node:assert";
-import fs from "node:fs";
-import path, { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import markdownIt from "markdown-it";
+import { renderSnippet } from "#eleventy/file-utils.js";
+import {
+  cleanupTempDir,
+  createTempSnippetsDir,
+  createTestRunner,
+  expectFalse,
+  expectStrictEqual,
+  expectTrue,
+  fs,
+} from "#test/test-utils.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+/**
+ * Tests for renderSnippet function.
+ *
+ * Note: Basic renderSnippet functionality (frontmatter extraction, missing files,
+ * custom renderers) is covered in file-utils.test.js. This file focuses on:
+ * - Edge cases like empty content
+ * - Shortcode preprocessing ({% opening_times %}, {% recurring_events %})
+ */
 
-const md = new markdownIt({ html: true });
-
-// Test suite configuration
-const TEST_NAME = "render_snippet";
-const testDir = path.join(__dirname, "test-snippets");
-const snippetsDir = path.join(testDir, "src/snippets");
-
-// Test case definitions
 const testCases = [
   {
-    name: "with-frontmatter",
-    description: "Snippet with frontmatter",
-    content: `---
-title: Test Title
-layout: page
+    name: "renderSnippet-empty-content",
+    description: "Renders empty snippet as empty markdown",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-empty",
+      );
+
+      try {
+        fs.writeFileSync(`${snippetsDir}/empty.md`, "");
+
+        const result = await renderSnippet("empty", "fallback", tempDir);
+
+        // Empty markdown renders to empty paragraph or empty string
+        expectStrictEqual(
+          result.trim(),
+          "",
+          "Empty snippet should render empty",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "renderSnippet-whitespace-only",
+    description: "Renders whitespace-only snippet correctly",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-whitespace",
+      );
+
+      try {
+        fs.writeFileSync(`${snippetsDir}/whitespace.md`, "   \n\n   ");
+
+        const result = await renderSnippet("whitespace", "fallback", tempDir);
+
+        // Whitespace-only content should not produce meaningful HTML
+        expectFalse(
+          result.includes("<p>"),
+          "Whitespace-only should not produce paragraphs",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "renderSnippet-frontmatter-with-trailing-newline",
+    description: "Handles frontmatter followed by trailing newline correctly",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-trailing",
+      );
+
+      try {
+        const content = `---
+title: Test
 ---
-# Heading
-Content after frontmatter`,
-    expectedResult: "# Heading\nContent after frontmatter",
+
+`;
+        fs.writeFileSync(`${snippetsDir}/trailing.md`, content);
+
+        const result = await renderSnippet("trailing", "fallback", tempDir);
+
+        expectFalse(
+          result.includes("title:"),
+          "Should not include frontmatter",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
   },
   {
-    name: "without-frontmatter",
-    description: "Snippet without frontmatter",
-    content: `# Heading Only
-This is content without any frontmatter`,
-    expectedResult: null, // null means use the original content
+    name: "renderSnippet-markdown-features",
+    description: "Renders various markdown features correctly",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-features",
+      );
+
+      try {
+        const content = `# Heading
+
+**Bold** and *italic* text.
+
+- List item 1
+- List item 2
+
+[A link](https://example.com)`;
+
+        fs.writeFileSync(`${snippetsDir}/features.md`, content);
+
+        const result = await renderSnippet("features", "fallback", tempDir);
+
+        expectTrue(result.includes("<h1>"), "Should render heading");
+        expectTrue(result.includes("<strong>"), "Should render bold");
+        expectTrue(result.includes("<em>"), "Should render italic");
+        expectTrue(result.includes("<li>"), "Should render list items");
+        expectTrue(result.includes("<a href="), "Should render links");
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
   },
   {
-    name: "empty",
-    description: "Empty snippet",
-    content: "",
-    expectedResult: "",
+    name: "renderSnippet-html-passthrough",
+    description: "Passes through HTML when html option is enabled (default)",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-html",
+      );
+
+      try {
+        const content = `<div class="custom">Custom HTML</div>
+
+Regular paragraph.`;
+
+        fs.writeFileSync(`${snippetsDir}/html.md`, content);
+
+        const result = await renderSnippet("html", "fallback", tempDir);
+
+        expectTrue(
+          result.includes('<div class="custom">'),
+          "Should preserve HTML",
+        );
+        expectTrue(result.includes("<p>"), "Should render markdown paragraphs");
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
   },
   {
-    name: "only-frontmatter",
-    description: "Snippet with only frontmatter",
-    content: `---
-title: Only Frontmatter
-layout: page
----`,
-    expectedResult: "",
+    name: "renderSnippet-opening-times-shortcode",
+    description: "Preprocesses {% opening_times %} shortcode",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-opening",
+      );
+
+      try {
+        const content = `# Our Hours
+
+{% opening_times %}
+
+Come visit us!`;
+
+        fs.writeFileSync(`${snippetsDir}/hours.md`, content);
+
+        const result = await renderSnippet("hours", "fallback", tempDir);
+
+        expectTrue(result.includes("<h1>"), "Should render heading");
+        expectTrue(
+          result.includes("Come visit us"),
+          "Should render surrounding content",
+        );
+        // The shortcode should be processed (replaced with actual content or empty)
+        expectFalse(
+          result.includes("{% opening_times %}"),
+          "Should not contain unprocessed shortcode",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
   },
   {
-    name: "malformed-frontmatter",
-    description: "Snippet with malformed frontmatter",
-    content: `---
-title: Malformed
-layout: page
-# Heading
-Content with malformed frontmatter`,
-    expectedResult: null, // null means use the original content
+    name: "renderSnippet-recurring-events-shortcode",
+    description: "Preprocesses {% recurring_events %} shortcode",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-recurring",
+      );
+
+      try {
+        const content = `# Regular Events
+
+{% recurring_events %}
+
+Join us weekly!`;
+
+        fs.writeFileSync(`${snippetsDir}/events.md`, content);
+
+        const result = await renderSnippet("events", "fallback", tempDir);
+
+        expectTrue(result.includes("<h1>"), "Should render heading");
+        expectTrue(
+          result.includes("Join us weekly"),
+          "Should render surrounding content",
+        );
+        // The shortcode should be processed
+        expectFalse(
+          result.includes("{% recurring_events %}"),
+          "Should not contain unprocessed shortcode",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
   },
   {
-    name: "non-existent",
-    description: "Non-existent snippet file",
-    content: null, // No file will be created
-    defaultValue: "Default content",
-    expectedResult: "Default content",
+    name: "renderSnippet-both-shortcodes",
+    description:
+      "Handles both opening_times and recurring_events in one snippet",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-both",
+      );
+
+      try {
+        const content = `# Schedule
+
+## Opening Times
+{% opening_times %}
+
+## Regular Events
+{% recurring_events %}`;
+
+        fs.writeFileSync(`${snippetsDir}/schedule.md`, content);
+
+        const result = await renderSnippet("schedule", "fallback", tempDir);
+
+        expectFalse(
+          result.includes("{% opening_times %}"),
+          "Should process opening_times shortcode",
+        );
+        expectFalse(
+          result.includes("{% recurring_events %}"),
+          "Should process recurring_events shortcode",
+        );
+        expectTrue(result.includes("<h1>"), "Should render main heading");
+        expectTrue(result.includes("<h2>"), "Should render subheadings");
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "renderSnippet-missing-returns-default",
+    description: "Returns default string for non-existent snippet",
+    asyncTest: async () => {
+      const { tempDir } = createTempSnippetsDir("render-snippet-missing");
+
+      try {
+        const result = await renderSnippet(
+          "nonexistent-snippet-12345",
+          "Default fallback content",
+          tempDir,
+        );
+
+        expectStrictEqual(
+          result,
+          "Default fallback content",
+          "Should return default string unchanged",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "renderSnippet-missing-empty-default",
+    description: "Returns empty string when snippet missing and no default",
+    asyncTest: async () => {
+      const { tempDir } = createTempSnippetsDir("render-snippet-no-default");
+
+      try {
+        const result = await renderSnippet(
+          "nonexistent-snippet-67890",
+          "",
+          tempDir,
+        );
+
+        expectStrictEqual(
+          result,
+          "",
+          "Should return empty string when no default",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "renderSnippet-caching",
+    description: "Returns consistent results (memoization test)",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-cache",
+      );
+
+      try {
+        const content = `# Cached Content
+
+This should be cached.`;
+
+        fs.writeFileSync(`${snippetsDir}/cached.md`, content);
+
+        const result1 = await renderSnippet("cached", "fallback", tempDir);
+        const result2 = await renderSnippet("cached", "fallback", tempDir);
+
+        expectStrictEqual(
+          result1,
+          result2,
+          "Multiple calls should return identical results",
+        );
+        expectTrue(
+          result1.includes("<h1>"),
+          "Should contain rendered markdown",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
+  },
+  {
+    name: "renderSnippet-special-characters",
+    description: "Handles special characters in content",
+    asyncTest: async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render-snippet-special",
+      );
+
+      try {
+        const content = `# Special Characters
+
+Quotes: "double" and 'single'
+Ampersand: &
+Less/greater: < >
+Unicode: café résumé naïve`;
+
+        fs.writeFileSync(`${snippetsDir}/special.md`, content);
+
+        const result = await renderSnippet("special", "fallback", tempDir);
+
+        expectTrue(result.includes("café"), "Should preserve unicode");
+        expectTrue(
+          result.includes("double") || result.includes('"'),
+          "Should handle quotes",
+        );
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    },
   },
 ];
 
-// Create a mock eleventyConfig for testing
-const mockConfig = {
-  addWatchTarget: () => {},
-  addPassthroughCopy: () => mockConfig,
-  addPlugin: () => {},
-  addAsyncShortcode: (name, fn) => {
-    mockConfig[name] = fn;
-  },
-  addTransform: () => {},
-  on: () => {},
-  addCollection: () => {},
-  addFilter: () => {},
-  addAsyncFilter: () => {},
-  addShortcode: (name, fn) => {
-    mockConfig[name] = fn;
-  },
-  addTemplateFormats: () => {},
-  addExtension: () => {},
-  setLayoutsDirectory: () => {},
-  addGlobalData: () => {},
-  addLayoutAlias: () => {},
-  render_snippet: null,
-  resolvePlugin: (_pluginName) => {
-    // Return a mock plugin function
-    return function mockPlugin() {};
-  },
-  pathPrefix: "/",
-};
-
-// Setup and run tests
-async function runTests() {
-  // Create test directories
-  fs.mkdirSync(snippetsDir, { recursive: true });
-  // Create _layouts directory (required by layout-aliases.js)
-  const layoutsDir = path.join(testDir, "src/_layouts");
-  fs.mkdirSync(layoutsDir, { recursive: true });
-
-  // Create test files
-  testCases.forEach((testCase) => {
-    if (testCase.content !== null) {
-      fs.writeFileSync(
-        path.join(snippetsDir, `${testCase.name}.md`),
-        testCase.content,
-      );
-    }
-  });
-
-  // Patch process.cwd() for testing
-  const originalCwd = process.cwd;
-  process.cwd = () => testDir;
-
-  // Import and initialize the eleventy config with our mock
-  const eleventyConfigModule = await import("../.eleventy.js");
-  const eleventyConfig = eleventyConfigModule.default;
-  await eleventyConfig(mockConfig);
-
-  console.log(`=== Running ${TEST_NAME} tests ===`);
-
-  // Run each test case
-  for (const testCase of testCases) {
-    const testId = `${TEST_NAME}/${testCase.name}`;
-    const defaultValue = testCase.defaultValue || "";
-
-    const result = await mockConfig.render_snippet(testCase.name, defaultValue);
-    let expected;
-
-    if (testCase.name === "non-existent") {
-      // For non-existent files, the default string is returned directly without markdown rendering
-      expected = defaultValue;
-    } else if (testCase.expectedResult === null) {
-      // Use original content if expectedResult is null
-      expected = md.render(testCase.content);
-    } else {
-      expected =
-        testCase.expectedResult === ""
-          ? md.render("")
-          : md.render(testCase.expectedResult);
-    }
-
-    assert.strictEqual(
-      result,
-      expected,
-      `${testId} failed: ${testCase.description}`,
-    );
-    console.log(`✅ PASS: ${testId} - ${testCase.description}`);
-  }
-
-  console.log(`\n✅ All ${TEST_NAME} tests passed!`);
-
-  // Restore original cwd
-  process.cwd = originalCwd;
-
-  // Clean up
-  if (fs.existsSync(testDir)) {
-    fs.rmSync(testDir, { recursive: true, force: true });
-  }
-}
-
-runTests();
+export default createTestRunner("render-snippet", testCases);

@@ -58,8 +58,8 @@ describe("sortItems", () => {
     const items = [{ data: { order: 1, title: "B" } }, { data: {} }, {}];
     // Should not throw
     const sorted = [...items].sort(sortItems);
-    assert.strictEqual(sorted.length, 3);
+    assert.strictEqual(sorted.length, 3, "Should have 3 items");
     // Items with order 0 (missing) come before order 1
-    assert.strictEqual(sorted[2].data?.title, "B");
+    assert.strictEqual(sorted[2].data?.title, "B", "Item B should be last");
   });
 });

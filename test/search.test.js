@@ -259,14 +259,18 @@ const testCases = [
     description:
       "Normalizes category paths from frontmatter format to display format",
     test: () => {
-      // Full path as stored in frontmatter
+      // Full path as stored in frontmatter → display format
       expectStrictEqual(
         normaliseCategory("/categories/premium-widgets.md"),
         "premium widgets",
-        "Full category path should be normalized",
+        "Should strip prefix, suffix, and convert hyphens",
       );
-
-      // Falsy values return empty string
+    },
+  },
+  {
+    name: "normaliseCategory-handles-falsy-input",
+    description: "Returns empty string for null/undefined/empty inputs",
+    test: () => {
       expectStrictEqual(normaliseCategory(null), "", "null → empty");
       expectStrictEqual(normaliseCategory(""), "", "empty → empty");
     },
