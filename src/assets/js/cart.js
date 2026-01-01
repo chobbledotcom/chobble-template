@@ -5,16 +5,20 @@
 import {
   attachQuantityHandlers,
   attachRemoveHandlers,
-  escapeHtml,
   formatPrice,
   getCart,
-  renderQuantityControls,
   saveCart,
   updateCartIcon,
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import Config from "#assets/config.js";
 import { onReady } from "#assets/on-ready.js";
+import { IDS } from "#assets/selectors.js";
+import {
+  getTemplate,
+  populateItemFields,
+  populateQuantityControls,
+} from "#assets/template.js";
 
 // Constants
 const CART_OVERLAY_ID = "cart-overlay";
@@ -75,19 +79,15 @@ const closeCart = () => {
   }
 };
 
-// Render a single cart item as HTML
-const renderCartItem = (item) => `
-  <div class="cart-item" data-name="${escapeHtml(item.item_name)}">
-    <div class="cart-item-info">
-      <div class="cart-item-name">${escapeHtml(item.item_name)}</div>
-      <div class="cart-item-price">${formatPrice(item.unit_price)}</div>
-    </div>
-    <div class="cart-item-controls">
-      ${renderQuantityControls(item)}
-      <button class="cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
-    </div>
-  </div>
-`;
+// Render a single cart item using template
+const renderCartItem = (item) => {
+  const template = getTemplate(IDS.CART_ITEM);
+
+  populateItemFields(template, item.item_name, formatPrice(item.unit_price));
+  populateQuantityControls(template, item);
+
+  return template;
+};
 
 // Update checkout button states based on cart total
 const updateCheckoutButtons = (cartOverlay, total) => {
@@ -124,16 +124,18 @@ const updateCartDisplay = () => {
   const total = getCartTotal();
   const isEmpty = cart.length === 0;
 
-  cartItems.innerHTML = isEmpty ? "" : cart.map(renderCartItem).join("");
-  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
-
+  cartItems.innerHTML = "";
   if (!isEmpty) {
+    for (const item of cart) {
+      cartItems.appendChild(renderCartItem(item));
+    }
     attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
-    attachRemoveHandlers(cartItems, ".cart-item-remove", () => {
+    attachRemoveHandlers(cartItems, '[data-action="remove"]', () => {
       updateCartDisplay();
       updateCartCount();
     });
   }
+  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
 
   updateCheckoutButtons(cartOverlay, total);
   if (cartTotal) cartTotal.textContent = formatPrice(total);

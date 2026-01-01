@@ -1,8 +1,23 @@
 // Quote checkout page
 // Populates form with cart items and displays summary
 
-import { escapeHtml, formatPrice, getCart } from "#assets/cart-utils.js";
+import { formatPrice, getCart } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
+import { IDS } from "#assets/selectors.js";
+import { getTemplate } from "#assets/template.js";
+
+function renderCheckoutItem(item) {
+  const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM);
+
+  template.querySelector('[data-field="name"]').textContent = item.item_name;
+  template.querySelector('[data-field="qty"]').textContent =
+    `x${item.quantity}`;
+  template.querySelector('[data-field="price"]').textContent = formatPrice(
+    item.unit_price * item.quantity,
+  );
+
+  return template;
+}
 
 function populateForm() {
   const cart = getCart();
@@ -14,7 +29,6 @@ function populateForm() {
   const itemsEl = summaryEl.querySelector(".quote-checkout-items");
 
   if (cart.length === 0) {
-    // Redirect back to quote page if cart is empty
     window.location.href = "/quote/";
     return;
   }
@@ -30,17 +44,10 @@ function populateForm() {
   cartItemsField.value = cartText;
 
   // Build visual summary
-  itemsEl.innerHTML = cart
-    .map(
-      (item) => `
-        <div class="quote-checkout-item">
-          <span class="quote-checkout-item-name">${escapeHtml(item.item_name)}</span>
-          <span class="quote-checkout-item-qty">x${item.quantity}</span>
-          <span class="quote-checkout-item-price">${formatPrice(item.unit_price * item.quantity)}</span>
-        </div>
-      `,
-    )
-    .join("");
+  itemsEl.innerHTML = "";
+  for (const item of cart) {
+    itemsEl.appendChild(renderCheckoutItem(item));
+  }
 }
 
 onReady(populateForm);

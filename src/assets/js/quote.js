@@ -4,19 +4,42 @@
 import {
   attachQuantityHandlers,
   attachRemoveHandlers,
-  escapeHtml,
   formatPrice,
   getCart,
-  renderQuantityControls,
   updateCartIcon,
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
+import { IDS } from "#assets/selectors.js";
+import {
+  getTemplate,
+  populateItemFields,
+  populateQuantityControls,
+} from "#assets/template.js";
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);
   renderCart();
   updateCartIcon();
+}
+
+function renderQuoteItem(item) {
+  const template = getTemplate(IDS.QUOTE_CART_ITEM);
+
+  populateItemFields(template, item.item_name, formatPrice(item.unit_price));
+
+  const specsEl = template.querySelector('[data-field="specs"]');
+  if (item.specs && item.specs.length > 0) {
+    specsEl.textContent = item.specs
+      .map((s) => `${s.name}: ${s.value}`)
+      .join(", ");
+  } else {
+    specsEl.remove();
+  }
+
+  populateQuantityControls(template, item);
+
+  return template;
 }
 
 function renderCart() {
@@ -36,31 +59,13 @@ function renderCart() {
     emptyEl.style.display = "none";
     actionsEl.style.display = "block";
 
-    itemsEl.innerHTML = cart
-      .map((item) => {
-        const specsHtml =
-          item.specs && item.specs.length > 0
-            ? `<p class="quote-cart-item-specs">${item.specs.map((s) => `${escapeHtml(s.name)}: ${escapeHtml(s.value)}`).join(", ")}</p>`
-            : "";
-        return `
-        <div class="quote-cart-item" data-name="${escapeHtml(item.item_name)}">
-          <div class="quote-cart-item-info">
-            <span class="quote-cart-item-name">${escapeHtml(item.item_name)}</span>
-            <span class="quote-cart-item-price">${formatPrice(item.unit_price)}</span>
-          </div>
-          ${specsHtml}
-          <div class="quote-cart-item-controls">
-            ${renderQuantityControls(item)}
-            <button class="quote-cart-item-remove" data-name="${escapeHtml(item.item_name)}">Remove</button>
-          </div>
-        </div>
-      `;
-      })
-      .join("");
+    itemsEl.innerHTML = "";
+    for (const item of cart) {
+      itemsEl.appendChild(renderQuoteItem(item));
+    }
 
-    // Attach handlers using shared utilities
     attachQuantityHandlers(itemsEl, handleQuantityUpdate);
-    attachRemoveHandlers(itemsEl, ".quote-cart-item-remove", () => {
+    attachRemoveHandlers(itemsEl, '[data-action="remove"]', () => {
       renderCart();
       updateCartIcon();
     });

@@ -108,7 +108,7 @@ dialog.cart-overlay {
   flex-wrap: wrap;
 }
 
-.cart-item-quantity {
+.quantity {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -119,7 +119,7 @@ dialog.cart-overlay {
     min-width: 2rem;
   }
 
-  .qty-input {
+  .quantity-input {
     width: 3rem;
     text-align: center;
     margin: 0;

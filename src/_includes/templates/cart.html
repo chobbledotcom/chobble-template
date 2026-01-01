@@ -1,0 +1,34 @@
+<template id="{{ selectors.IDS.CART_ITEM }}">
+  <div class="cart-item" data-name="">
+    <div class="cart-item-info">
+      <div data-field="name"></div>
+      <div data-field="price"></div>
+    </div>
+    <div class="cart-item-controls">
+      <button data-action="remove" data-name="">Remove</button>
+      {% include "templates/quantity-controls.html" %}
+    </div>
+  </div>
+</template>
+
+<template id="{{ selectors.IDS.QUOTE_CART_ITEM }}">
+  <div class="quote-cart-item" data-name="">
+    <div class="quote-cart-item-info">
+      <span data-field="name"></span>
+      <span data-field="price"></span>
+    </div>
+    <p data-field="specs"></p>
+    <div class="quote-cart-item-controls">
+      {% include "templates/quantity-controls.html" %}
+      <button data-action="remove" data-name="">Remove</button>
+    </div>
+  </div>
+</template>
+
+<template id="{{ selectors.IDS.QUOTE_CHECKOUT_ITEM }}">
+  <div class="quote-checkout-item">
+    <span data-field="name"></span>
+    <span data-field="qty"></span>
+    <span data-field="price"></span>
+  </div>
+</template>

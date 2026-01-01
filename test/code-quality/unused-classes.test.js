@@ -173,6 +173,8 @@ const findClassReferencesInJs = (content, className) => {
     new RegExp(`class=["'][^"']*\\b${escaped}\\b[^"']*["']`),
     // String containing class name (for dynamic class building)
     new RegExp(`["']\\s*${escaped}\\s*["']`),
+    // CSS selector string like ".className" or ".className:hover"
+    new RegExp(`["']\\.${escaped}[^"']*["']`),
     // closest() with class selector
     new RegExp(`closest\\s*\\([^)]*\\.${escaped}[^)]*\\)`),
   ];
@@ -194,6 +196,8 @@ const findIdReferencesInJs = (content, idName) => {
     new RegExp(`:\\s*["']${escaped}["']`),
     // ID stored in const variable (e.g., const CART_OVERLAY_ID = "cart-overlay")
     new RegExp(`=\\s*["']${escaped}["']`),
+    // getTemplate("id") for native <template> elements
+    new RegExp(`getTemplate\\s*\\(\\s*["']${escaped}["']`),
   ];
 
   if (patterns.some((pattern) => pattern.test(content))) {

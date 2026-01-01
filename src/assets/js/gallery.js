@@ -1,12 +1,9 @@
 import { onReady } from "#assets/on-ready.js";
+import { IDS } from "#assets/selectors.js";
+import { getTemplate } from "#assets/template.js";
 
-const SVG_PREV = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <polyline points="15 18 9 12 15 6"></polyline>
-</svg>`;
-
-const SVG_NEXT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <polyline points="9 18 15 12 9 6"></polyline>
-</svg>`;
+const NAV_PREV = '[data-nav="prev"]';
+const NAV_NEXT = '[data-nav="next"]';
 
 const state = {
   gallery: null,
@@ -61,8 +58,8 @@ const updatePopupImage = (index) => {
     el.sizes = "100vw";
   }
 
-  const prev = state.imagePopup.querySelector(".popup-nav-prev");
-  const next = state.imagePopup.querySelector(".popup-nav-next");
+  const prev = state.imagePopup.querySelector(NAV_PREV);
+  const next = state.imagePopup.querySelector(NAV_NEXT);
   if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
   if (next)
     next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
@@ -77,30 +74,28 @@ const navigatePopup = (direction) => {
 
 const openPopup = () => {
   const image = state.currentImage.querySelector(".image-wrapper");
-
   const totalImages = getTotalImages();
-  const prevHidden =
-    state.currentPopupIndex <= 1 ? 'style="visibility: hidden"' : "";
-  const nextHidden =
-    state.currentPopupIndex >= totalImages ? 'style="visibility: hidden"' : "";
 
-  state.imagePopup.innerHTML = `
-    ${
-      totalImages > 1
-        ? `<button type="button" class="popup-nav popup-nav-prev" ${prevHidden} aria-label="Previous image">
-      ${SVG_PREV}
-    </button>`
-        : ""
+  // Clear popup and build content using templates
+  state.imagePopup.innerHTML = "";
+
+  if (totalImages > 1) {
+    const prevBtn = getTemplate(IDS.GALLERY_NAV_PREV);
+    if (state.currentPopupIndex <= 1) {
+      prevBtn.firstElementChild.style.visibility = "hidden";
     }
-    ${image.outerHTML}
-    ${
-      totalImages > 1
-        ? `<button type="button" class="popup-nav popup-nav-next" ${nextHidden} aria-label="Next image">
-      ${SVG_NEXT}
-    </button>`
-        : ""
+    state.imagePopup.appendChild(prevBtn);
+  }
+
+  state.imagePopup.appendChild(image.cloneNode(true));
+
+  if (totalImages > 1) {
+    const nextBtn = getTemplate(IDS.GALLERY_NAV_NEXT);
+    if (state.currentPopupIndex >= totalImages) {
+      nextBtn.firstElementChild.style.visibility = "hidden";
     }
-  `;
+    state.imagePopup.appendChild(nextBtn);
+  }
 
   for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
     el.sizes = "100vw";
@@ -110,12 +105,12 @@ const openPopup = () => {
 
 const handlePopupClick = (event) => {
   // Handle navigation button clicks
-  if (event.target.closest(".popup-nav-prev")) {
+  if (event.target.closest(NAV_PREV)) {
     event.stopPropagation();
     navigatePopup(-1);
     return;
   }
-  if (event.target.closest(".popup-nav-next")) {
+  if (event.target.closest(NAV_NEXT)) {
     event.stopPropagation();
     navigatePopup(1);
     return;

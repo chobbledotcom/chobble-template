@@ -21,12 +21,6 @@ export function saveCart(cart) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
 }
 
-export function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
-}
-
 export function formatPrice(price) {
   return `£${price.toFixed(2)}`;
 }
@@ -75,17 +69,6 @@ export function updateItemQuantity(itemName, quantity) {
   return true;
 }
 
-export function renderQuantityControls(item) {
-  return `
-    <div class="cart-item-quantity">
-      <button class="qty-btn qty-decrease" data-name="${escapeHtml(item.item_name)}">−</button>
-      <input type="number" class="qty-input" value="${item.quantity}" min="1"
-             ${item.max_quantity ? `max="${item.max_quantity}"` : ""}
-             data-name="${escapeHtml(item.item_name)}">
-      <button class="qty-btn qty-increase" data-name="${escapeHtml(item.item_name)}">+</button>
-    </div>`;
-}
-
 export function attachQuantityHandlers(container, onUpdate) {
   const cart = getCart();
 
@@ -100,10 +83,10 @@ export function attachQuantityHandlers(container, onUpdate) {
       });
     });
   };
-  addQtyHandler(".qty-decrease", -1);
-  addQtyHandler(".qty-increase", 1);
+  addQtyHandler('[data-action="decrease"]', -1);
+  addQtyHandler('[data-action="increase"]', 1);
 
-  container.querySelectorAll(".qty-input").forEach((input) => {
+  container.querySelectorAll("input[type='number']").forEach((input) => {
     input.addEventListener("change", () => {
       const itemName = input.dataset.name;
       const quantity = parseInt(input.value, 10);
