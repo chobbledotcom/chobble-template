@@ -8,258 +8,244 @@ import {
   createTempDir,
   createTempFile,
   createTestRunner,
-  expectDeepEqual,
   expectStrictEqual,
+  expectThrows,
+  expectTrue,
   fs,
   path,
   withMockedCwd,
 } from "#test/test-utils.js";
 
+// ============================================
+// Test Helper - Reduces Boilerplate
+// ============================================
+
+/**
+ * Sets up a temp directory with layout files and runs the callback with aliases.
+ * Handles cleanup automatically.
+ */
+const withTempLayouts = (files, callback) => {
+  const tempDir = createTempDir("layout-aliases");
+  const layoutsDir = path.join(tempDir, "src/_layouts");
+  fs.mkdirSync(layoutsDir, { recursive: true });
+
+  for (const file of files) {
+    createTempFile(layoutsDir, file, "<html></html>");
+  }
+
+  const config = createMockEleventyConfig();
+  const aliases = [];
+  config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
+
+  try {
+    withMockedCwd(tempDir, () => configureLayoutAliases(config));
+    return callback(aliases);
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+};
+
+// ============================================
+// Test Cases
+// ============================================
+
 const testCases = [
+  // --- Core Behavior: Counting ---
   {
-    name: "configureLayoutAliases-registers-html-files-as-aliases",
-    description: "Registers layout aliases for each .html file in src/_layouts",
+    name: "registers-one-alias-per-html-file",
+    description: "Creates exactly one alias for each .html file found",
     test: () => {
-      const tempDir = createTempDir("layout-aliases");
-      const layoutsDir = path.join(tempDir, "src/_layouts");
-      fs.mkdirSync(layoutsDir, { recursive: true });
-
-      createTempFile(layoutsDir, "base.html", "<html></html>");
-      createTempFile(layoutsDir, "product.html", "<html></html>");
-      createTempFile(layoutsDir, "category.html", "<html></html>");
-
-      try {
-        const config = createMockEleventyConfig();
-        const aliases = [];
-        config.addLayoutAlias = (alias, file) => {
-          aliases.push({ alias, file });
-        };
-
-        withMockedCwd(tempDir, () => {
-          configureLayoutAliases(config);
-        });
-
+      withTempLayouts(["a.html", "b.html", "c.html"], (aliases) => {
         expectStrictEqual(
           aliases.length,
           3,
-          "Should register 3 layout aliases for 3 HTML files",
+          "Should register one alias per HTML file",
         );
-
-        const aliasNames = aliases.map((a) => a.alias).sort();
-        expectDeepEqual(
-          aliasNames,
-          ["base", "category", "product"],
-          "Should strip .html extension for alias names",
-        );
-
-        const fileNames = aliases.map((a) => a.file).sort();
-        expectDeepEqual(
-          fileNames,
-          ["base.html", "category.html", "product.html"],
-          "Should preserve full filename for file parameter",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
+      });
     },
   },
+
+  // --- Core Behavior: Alias Naming ---
   {
-    name: "configureLayoutAliases-ignores-non-html-files",
-    description: "Only processes files ending in .html, ignores others",
+    name: "strips-html-extension-for-alias-name",
+    description: "Alias name is filename without .html extension",
+    test: () => {
+      withTempLayouts(["my-layout.html"], (aliases) => {
+        expectStrictEqual(
+          aliases[0].alias,
+          "my-layout",
+          "Alias should be filename without .html extension",
+        );
+      });
+    },
+  },
+
+  // --- Core Behavior: File Mapping ---
+  {
+    name: "preserves-full-filename-for-file-parameter",
+    description: "File parameter includes .html extension",
+    test: () => {
+      withTempLayouts(["my-layout.html"], (aliases) => {
+        expectStrictEqual(
+          aliases[0].file,
+          "my-layout.html",
+          "File parameter should preserve full filename with extension",
+        );
+      });
+    },
+  },
+
+  // --- Filtering: Non-HTML Files ---
+  {
+    name: "ignores-non-html-files",
+    description: "Only processes files ending in .html",
     test: () => {
       const tempDir = createTempDir("layout-aliases-filter");
       const layoutsDir = path.join(tempDir, "src/_layouts");
       fs.mkdirSync(layoutsDir, { recursive: true });
 
-      createTempFile(layoutsDir, "base.html", "<html></html>");
+      createTempFile(layoutsDir, "layout.html", "<html></html>");
       createTempFile(layoutsDir, "README.md", "# Layouts");
       createTempFile(layoutsDir, "config.json", "{}");
       createTempFile(layoutsDir, ".gitkeep", "");
-      createTempFile(layoutsDir, "partial.liquid", "{% block %}{% endblock %}");
+      createTempFile(layoutsDir, "partial.liquid", "content");
 
       try {
         const config = createMockEleventyConfig();
         const aliases = [];
-        config.addLayoutAlias = (alias, file) => {
-          aliases.push({ alias, file });
-        };
+        config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
 
-        withMockedCwd(tempDir, () => {
-          configureLayoutAliases(config);
-        });
+        withMockedCwd(tempDir, () => configureLayoutAliases(config));
 
         expectStrictEqual(
           aliases.length,
           1,
-          "Should only register alias for .html file",
-        );
-        expectStrictEqual(
-          aliases[0].alias,
-          "base",
-          "Should register base.html as 'base' alias",
-        );
-        expectStrictEqual(
-          aliases[0].file,
-          "base.html",
-          "Should map to base.html file",
+          "Should only register the one .html file, ignoring others",
         );
       } finally {
         cleanupTempDir(tempDir);
       }
     },
   },
+
+  // --- Edge Case: Empty Directory ---
   {
-    name: "configureLayoutAliases-handles-empty-directory",
-    description: "Handles directory with no HTML files gracefully",
+    name: "handles-empty-directory-gracefully",
+    description: "No errors when directory has no HTML files",
     test: () => {
       const tempDir = createTempDir("layout-aliases-empty");
       const layoutsDir = path.join(tempDir, "src/_layouts");
       fs.mkdirSync(layoutsDir, { recursive: true });
-
       createTempFile(layoutsDir, ".gitkeep", "");
 
       try {
         const config = createMockEleventyConfig();
         const aliases = [];
-        config.addLayoutAlias = (alias, file) => {
-          aliases.push({ alias, file });
-        };
+        config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
 
-        withMockedCwd(tempDir, () => {
-          configureLayoutAliases(config);
-        });
+        withMockedCwd(tempDir, () => configureLayoutAliases(config));
 
         expectStrictEqual(
           aliases.length,
           0,
-          "Should not register any aliases when no HTML files exist",
+          "Should register zero aliases when no HTML files exist",
         );
       } finally {
         cleanupTempDir(tempDir);
       }
     },
   },
+
+  // --- Edge Case: Hyphenated Filenames ---
   {
-    name: "configureLayoutAliases-handles-hyphenated-filenames",
-    description: "Correctly handles layout files with hyphens in names",
+    name: "preserves-hyphens-in-alias-names",
+    description: "Hyphenated filenames produce hyphenated aliases",
     test: () => {
-      const tempDir = createTempDir("layout-aliases-hyphens");
-      const layoutsDir = path.join(tempDir, "src/_layouts");
-      fs.mkdirSync(layoutsDir, { recursive: true });
+      withTempLayouts(["checkout-complete.html"], (aliases) => {
+        expectStrictEqual(
+          aliases[0].alias,
+          "checkout-complete",
+          "Should preserve hyphens in alias name",
+        );
+      });
+    },
+  },
 
-      createTempFile(layoutsDir, "checkout-complete.html", "<html></html>");
-      createTempFile(layoutsDir, "guide-category.html", "<html></html>");
+  // --- Edge Case: Multi-Extension Files ---
+  {
+    name: "handles-multi-extension-filenames",
+    description: "Only strips final .html extension from filenames",
+    test: () => {
+      withTempLayouts(["layout.backup.html"], (aliases) => {
+        expectStrictEqual(
+          aliases[0].alias,
+          "layout.backup",
+          "Should only strip .html, preserving other extensions",
+        );
+      });
+    },
+  },
 
+  // --- Edge Case: Missing Directory ---
+  {
+    name: "throws-when-layouts-directory-missing",
+    description: "Throws error when src/_layouts directory does not exist",
+    test: () => {
+      const tempDir = createTempDir("layout-aliases-missing");
+      // Intentionally NOT creating src/_layouts
+
+      const originalCwd = process.cwd;
       try {
         const config = createMockEleventyConfig();
-        const aliases = [];
-        config.addLayoutAlias = (alias, file) => {
-          aliases.push({ alias, file });
-        };
+        config.addLayoutAlias = () => {};
 
-        withMockedCwd(tempDir, () => {
-          configureLayoutAliases(config);
-        });
+        // Manually mock CWD since withMockedCwd doesn't restore on throw
+        process.cwd = () => tempDir;
 
-        const aliasMap = Object.fromEntries(
-          aliases.map((a) => [a.alias, a.file]),
-        );
-
-        expectStrictEqual(
-          aliasMap["checkout-complete"],
-          "checkout-complete.html",
-          "Should preserve hyphens in alias name",
-        );
-        expectStrictEqual(
-          aliasMap["guide-category"],
-          "guide-category.html",
-          "Should preserve hyphens in alias name",
+        expectThrows(
+          () => configureLayoutAliases(config),
+          /ENOENT/,
+          "Should throw ENOENT when layouts directory is missing",
         );
       } finally {
+        process.cwd = originalCwd;
         cleanupTempDir(tempDir);
       }
     },
   },
+
+  // --- Integration: Production Directory ---
   {
-    name: "configureLayoutAliases-uses-production-layouts-directory",
-    description: "Reads from actual src/_layouts when cwd is project root",
+    name: "finds-layouts-in-production-directory",
+    description: "Successfully reads from actual src/_layouts directory",
     test: () => {
       const config = createMockEleventyConfig();
       const aliases = [];
-      config.addLayoutAlias = (alias, file) => {
-        aliases.push({ alias, file });
-      };
+      config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
 
       configureLayoutAliases(config);
 
-      const hasBaseAlias = aliases.some(
-        (a) => a.alias === "base" && a.file === "base.html",
-      );
-      expectStrictEqual(
-        hasBaseAlias,
-        true,
-        "Should register 'base' alias from production layouts directory",
+      // Test behaviors, not specific files
+      expectTrue(
+        aliases.length > 0,
+        "Should find at least one layout in production directory",
       );
 
-      const hasProductsAlias = aliases.some(
-        (a) => a.alias === "products" && a.file === "products.html",
+      const allHaveAliases = aliases.every(
+        (a) => typeof a.alias === "string" && a.alias.length > 0,
       );
-      expectStrictEqual(
-        hasProductsAlias,
-        true,
-        "Should register 'products' alias from production layouts directory",
+      expectTrue(allHaveAliases, "All aliases should be non-empty strings");
+
+      const allHaveHtmlFiles = aliases.every((a) => a.file.endsWith(".html"));
+      expectTrue(allHaveHtmlFiles, "All file parameters should end with .html");
+
+      const aliasesMatchFiles = aliases.every(
+        (a) => a.file === `${a.alias}.html`,
       );
-
-      const allHtmlFiles = aliases.every((a) => a.file.endsWith(".html"));
-      expectStrictEqual(
-        allHtmlFiles,
-        true,
-        "All registered aliases should map to .html files",
+      expectTrue(
+        aliasesMatchFiles,
+        "Each alias should match its file without .html extension",
       );
-    },
-  },
-  {
-    name: "configureLayoutAliases-calls-addLayoutAlias-method",
-    description: "Uses eleventyConfig.addLayoutAlias to register aliases",
-    test: () => {
-      const tempDir = createTempDir("layout-aliases-method");
-      const layoutsDir = path.join(tempDir, "src/_layouts");
-      fs.mkdirSync(layoutsDir, { recursive: true });
-
-      createTempFile(layoutsDir, "test.html", "<html></html>");
-
-      try {
-        const config = createMockEleventyConfig();
-        let methodCalled = false;
-        let calledWith = null;
-
-        config.addLayoutAlias = (alias, file) => {
-          methodCalled = true;
-          calledWith = { alias, file };
-        };
-
-        withMockedCwd(tempDir, () => {
-          configureLayoutAliases(config);
-        });
-
-        expectStrictEqual(
-          methodCalled,
-          true,
-          "Should call addLayoutAlias on eleventyConfig",
-        );
-        expectStrictEqual(
-          calledWith.alias,
-          "test",
-          "Should pass alias without .html extension",
-        );
-        expectStrictEqual(
-          calledWith.file,
-          "test.html",
-          "Should pass original filename with .html extension",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
     },
   },
 ];

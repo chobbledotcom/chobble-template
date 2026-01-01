@@ -150,6 +150,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "buildLiquidLookup",
   "expandLiquidVars",
   "loadTemplate",
+  // layout-aliases.test.js - test helper
+  "withTempLayouts",
   // test-quality.test.js - analysis helpers
   "extractTestCases",
   "extractDescribeItTests",
