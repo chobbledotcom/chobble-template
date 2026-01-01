@@ -50,12 +50,26 @@ const U = {
   DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
   DEFAULT_SIZE: "auto",
   ASPECT_RATIO_ATTRIBUTE: "eleventy:aspectRatio",
-  makeImagePromise: (path, widths) => {
-    return Image(path, {
+  getImageHtml: (imagePath, widths, alt, sizes, loading, classes) => {
+    const imgAttributes = {
+      alt: alt || "",
+      sizes: sizes || U.DEFAULT_SIZE,
+      loading: loading || "lazy",
+      decoding: "async",
+    };
+
+    const pictureAttributes = classes?.trim() ? { class: classes } : {};
+
+    return Image(imagePath, {
       ...U.DEFAULT_OPTIONS,
       widths: widths,
       fixOrientation: true,
       transformOnRequest: isServeMode(),
+      returnType: "html",
+      htmlOptions: {
+        imgAttributes,
+        pictureAttributes,
+      },
     });
   },
   makeThumbnail: memoize(async (path) => {
@@ -116,20 +130,6 @@ const U = {
       innerHTML,
     );
   },
-  getHtmlAttributes: (alt, sizes, loading, classes) => {
-    const attributes = {
-      alt: alt,
-      sizes: sizes,
-      loading: loading,
-      decoding: "async",
-    };
-    return classes?.trim()
-      ? {
-          ...attributes,
-          classes,
-        }
-      : attributes;
-  },
   getWidths: (widths) => {
     if (typeof widths === "string") {
       widths = widths.split(",");
@@ -155,22 +155,6 @@ const U = {
       return `./src/${name}`;
     }
     return `./src/images/${name}`;
-  },
-  getDefault: (value, defaultString) => {
-    return value === null || value === undefined || value === ""
-      ? defaultString
-      : value;
-  },
-  makeImageHtml: async (imagePromise, alt, sizes, loading, classes) => {
-    return Image.generateHTML(
-      await imagePromise,
-      U.getHtmlAttributes(
-        alt,
-        U.getDefault(sizes, U.DEFAULT_SIZE),
-        U.getDefault(loading, "lazy"),
-        classes,
-      ),
-    );
   },
 };
 
@@ -248,10 +232,9 @@ async function processAndWrapImage({
   const croppedPathOrNull = await U.cropImage(aspectRatio, imagePath, metadata);
   const finalPath = croppedPathOrNull || imagePath;
 
-  const imagePromise = U.makeImagePromise(finalPath, U.getWidths(widths));
-
-  const innerHTML = await U.makeImageHtml(
-    imagePromise,
+  const innerHTML = await U.getImageHtml(
+    finalPath,
+    U.getWidths(widths),
     alt,
     sizes,
     loading,
