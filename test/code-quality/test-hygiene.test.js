@@ -140,6 +140,14 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createPerformanceObserverScript",
   // unused-classes.test.js - helper to add classes from string
   "addClasses",
+  // test-quality.test.js - analysis helpers
+  "extractTestCases",
+  "extractDescribeItTests",
+  "findVagueTestNames",
+  "findMultiConcernTestNames",
+  "findAsyncTestsWithoutAwait",
+  "findAssertionsWithoutMessages",
+  "findTautologicalAssertions",
 ]);
 
 /**

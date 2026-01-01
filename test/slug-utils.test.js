@@ -8,32 +8,68 @@ import {
 
 describe("normaliseSlug", () => {
   it("returns falsy values unchanged", () => {
-    assert.strictEqual(normaliseSlug(null), null);
-    assert.strictEqual(normaliseSlug(undefined), undefined);
-    assert.strictEqual(normaliseSlug(""), "");
+    assert.strictEqual(normaliseSlug(null), null, "Null returns null");
+    assert.strictEqual(
+      normaliseSlug(undefined),
+      undefined,
+      "Undefined returns undefined",
+    );
+    assert.strictEqual(normaliseSlug(""), "", "Empty string returns empty");
   });
 
   it("removes file extension", () => {
-    assert.strictEqual(normaliseSlug("menu.md"), "menu");
-    assert.strictEqual(normaliseSlug("product.json"), "product");
+    assert.strictEqual(
+      normaliseSlug("menu.md"),
+      "menu",
+      "Strips .md extension",
+    );
+    assert.strictEqual(
+      normaliseSlug("product.json"),
+      "product",
+      "Strips .json extension",
+    );
   });
 
   it("extracts filename from full path", () => {
-    assert.strictEqual(normaliseSlug("content/menus/lunch.md"), "lunch");
-    assert.strictEqual(normaliseSlug("src/_data/products/item.json"), "item");
+    assert.strictEqual(
+      normaliseSlug("content/menus/lunch.md"),
+      "lunch",
+      "Extracts from path",
+    );
+    assert.strictEqual(
+      normaliseSlug("src/_data/products/item.json"),
+      "item",
+      "Extracts from nested path",
+    );
   });
 
   it("handles paths without extension", () => {
-    assert.strictEqual(normaliseSlug("content/menus/lunch"), "lunch");
+    assert.strictEqual(
+      normaliseSlug("content/menus/lunch"),
+      "lunch",
+      "Handles no extension",
+    );
   });
 
   it("handles simple slugs without path or extension", () => {
-    assert.strictEqual(normaliseSlug("my-slug"), "my-slug");
-    assert.strictEqual(normaliseSlug("simple"), "simple");
+    assert.strictEqual(
+      normaliseSlug("my-slug"),
+      "my-slug",
+      "Passes through simple slug",
+    );
+    assert.strictEqual(
+      normaliseSlug("simple"),
+      "simple",
+      "Passes through single word",
+    );
   });
 
   it("handles paths with multiple dots in filename", () => {
-    assert.strictEqual(normaliseSlug("path/to/file.test.js"), "file");
+    assert.strictEqual(
+      normaliseSlug("path/to/file.test.js"),
+      "file",
+      "Handles multiple dots",
+    );
   });
 });
 
@@ -73,26 +109,46 @@ describe("buildPermalink", () => {
 describe("buildPdfFilename", () => {
   it("builds PDF filename from business name and menu slug", () => {
     const result = buildPdfFilename("My Restaurant", "lunch-menu");
-    assert.strictEqual(result, "my-restaurant-lunch-menu.pdf");
+    assert.strictEqual(
+      result,
+      "my-restaurant-lunch-menu.pdf",
+      "Combines name and slug",
+    );
   });
 
   it("slugifies business name with special characters", () => {
     const result = buildPdfFilename("Café & Bistro", "dinner");
-    assert.strictEqual(result, "cafe-and-bistro-dinner.pdf");
+    assert.strictEqual(
+      result,
+      "cafe-and-bistro-dinner.pdf",
+      "Handles special chars",
+    );
   });
 
   it("handles already-slugified business name", () => {
     const result = buildPdfFilename("simple-name", "menu");
-    assert.strictEqual(result, "simple-name-menu.pdf");
+    assert.strictEqual(
+      result,
+      "simple-name-menu.pdf",
+      "Handles pre-slugified name",
+    );
   });
 
   it("handles business name with numbers", () => {
     const result = buildPdfFilename("Restaurant 42", "specials");
-    assert.strictEqual(result, "restaurant-42-specials.pdf");
+    assert.strictEqual(
+      result,
+      "restaurant-42-specials.pdf",
+      "Preserves numbers",
+    );
   });
 
   it("handles business name with apostrophes", () => {
     const result = buildPdfFilename("Joe's Diner", "breakfast");
-    assert.strictEqual(result, "joes-diner-breakfast.pdf");
+    assert.strictEqual(
+      result,
+      "joes-diner-breakfast.pdf",
+      "Removes apostrophes",
+    );
   });
 });
