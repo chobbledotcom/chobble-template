@@ -24,26 +24,25 @@ import {
 
 // Grandfathered asyncTest functions that need to be converted to sync
 const ASYNC_TEST_EXCEPTIONS = new Set([
-  "test/checkout.test.js:340", // cart-utils-escapeHtml-basic
-  "test/checkout.test.js:364", // cart-utils-updateCartIcon-shows-icon
-  "test/checkout.test.js:406", // cart-utils-updateCartIcon-hides-icon
-  "test/checkout.test.js:481", // cart-utils-updateItemQuantity-respects-max
-  "test/checkout.test.js:531", // cart-utils-renderQuantityControls-basic
-  "test/checkout.test.js:583", // cart-utils-renderQuantityControls-max-quantity
-  "test/checkout.test.js:608", // cart-utils-renderQuantityControls-escapes-html
-  "test/checkout.test.js:632", // cart-utils-attachQuantityHandlers-decrease
-  "test/checkout.test.js:672", // cart-utils-attachQuantityHandlers-increase
-  "test/checkout.test.js:712", // cart-utils-attachQuantityHandlers-input-change
-  "test/checkout.test.js:751", // cart-utils-attachRemoveHandlers-removes-item
-  "test/checkout.test.js:1229", // stripe-checkout-empty-cart-redirects-home
+  "test/checkout.test.js:376", // cart-utils-escapeHtml-basic
+  "test/checkout.test.js:410", // cart-utils-updateCartIcon-shows-icon
+  "test/checkout.test.js:452", // cart-utils-updateCartIcon-hides-icon
+  "test/checkout.test.js:527", // cart-utils-updateItemQuantity-respects-max
+  "test/checkout.test.js:577", // cart-utils-renderQuantityControls-basic
+  "test/checkout.test.js:629", // cart-utils-renderQuantityControls-max-quantity
+  "test/checkout.test.js:654", // cart-utils-renderQuantityControls-escapes-html
+  "test/checkout.test.js:678", // cart-utils-attachQuantityHandlers-decrease
+  "test/checkout.test.js:718", // cart-utils-attachQuantityHandlers-increase
+  "test/checkout.test.js:758", // cart-utils-attachQuantityHandlers-input-change
+  "test/checkout.test.js:797", // cart-utils-attachRemoveHandlers-removes-item
+  "test/checkout.test.js:1366", // stripe-checkout-empty-cart-redirects-home
 ]);
 
 // Grandfathered assertions without messages
 // Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
 // File-level exceptions are preferred - fix whole files at once
 const MISSING_MESSAGE_EXCEPTIONS = new Set([
-  // Whole files to fix (130 violations across 3 files)
-  "test/checkout.test.js", // 54 violations
+  // Whole files to fix (76 violations across 2 files)
   "test/schema-helper.test.js", // 57 violations
   "test/spec-filters.test.js", // 23 violations (includes some that need review)
 ]);

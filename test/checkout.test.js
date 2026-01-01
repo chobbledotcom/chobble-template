@@ -252,7 +252,11 @@ const testCases = [
     test: () => {
       withMockStorage(() => {
         const cart = getCart();
-        assert.deepStrictEqual(cart, []);
+        assert.deepStrictEqual(
+          cart,
+          [],
+          "getCart should return empty array when localStorage is empty",
+        );
       });
     },
   },
@@ -266,7 +270,11 @@ const testCases = [
         ];
         saveCart(items);
         const retrieved = getCart();
-        assert.deepStrictEqual(retrieved, items);
+        assert.deepStrictEqual(
+          retrieved,
+          items,
+          "getCart should retrieve the same items that were saved",
+        );
       });
     },
   },
@@ -281,7 +289,11 @@ const testCases = [
         console.error = (...args) => errors.push(args);
         try {
           const cart = getCart();
-          assert.deepStrictEqual(cart, []);
+          assert.deepStrictEqual(
+            cart,
+            [],
+            "getCart should return empty array when JSON is corrupt",
+          );
           assert.strictEqual(
             errors.length,
             1,
@@ -307,8 +319,16 @@ const testCases = [
           { item_name: "Remove", unit_price: 5, quantity: 2 },
         ]);
         const result = removeItem("Remove");
-        assert.strictEqual(result.length, 1);
-        assert.strictEqual(result[0].item_name, "Keep");
+        assert.strictEqual(
+          result.length,
+          1,
+          "Cart should have 1 item after removal",
+        );
+        assert.strictEqual(
+          result[0].item_name,
+          "Keep",
+          "Remaining item should be 'Keep'",
+        );
       });
     },
   },
@@ -316,9 +336,21 @@ const testCases = [
     name: "cart-utils-formatPrice",
     description: "formatPrice formats with £ symbol and 2 decimals",
     test: () => {
-      assert.strictEqual(formatPrice(10), "£10.00");
-      assert.strictEqual(formatPrice(5.5), "£5.50");
-      assert.strictEqual(formatPrice(0.3), "£0.30");
+      assert.strictEqual(
+        formatPrice(10),
+        "£10.00",
+        "formatPrice(10) should return '£10.00'",
+      );
+      assert.strictEqual(
+        formatPrice(5.5),
+        "£5.50",
+        "formatPrice(5.5) should return '£5.50'",
+      );
+      assert.strictEqual(
+        formatPrice(0.3),
+        "£0.30",
+        "formatPrice(0.3) should return '£0.30'",
+      );
     },
   },
   {
@@ -330,7 +362,11 @@ const testCases = [
           { item_name: "A", unit_price: 10, quantity: 3 },
           { item_name: "B", unit_price: 5, quantity: 2 },
         ]);
-        assert.strictEqual(getItemCount(), 5);
+        assert.strictEqual(
+          getItemCount(),
+          5,
+          "getItemCount should sum quantities (3 + 2 = 5)",
+        );
       });
     },
   },
@@ -344,14 +380,24 @@ const testCases = [
         assert.strictEqual(
           escapeHtml("<script>alert('xss')</script>"),
           "&lt;script&gt;alert('xss')&lt;/script&gt;",
+          "escapeHtml should escape script tags",
         );
         assert.strictEqual(
           escapeHtml("Hello & Goodbye"),
           "Hello &amp; Goodbye",
+          "escapeHtml should escape ampersands",
         );
         // Note: innerHTML doesn't escape quotes, only < > and &
-        assert.strictEqual(escapeHtml('"quoted"'), '"quoted"');
-        assert.strictEqual(escapeHtml("normal text"), "normal text");
+        assert.strictEqual(
+          escapeHtml('"quoted"'),
+          '"quoted"',
+          "escapeHtml should not escape quotes (innerHTML behavior)",
+        );
+        assert.strictEqual(
+          escapeHtml("normal text"),
+          "normal text",
+          "escapeHtml should leave normal text unchanged",
+        );
       } finally {
         delete global.document;
         dom.window.close();
@@ -836,7 +882,11 @@ const testCases = [
       // Verify config is available via script tag
       const configScript = dom.window.document.getElementById("site-config");
       const siteConfig = JSON.parse(configScript.textContent);
-      assert.strictEqual(siteConfig.checkout_api_url, "https://api.test.com");
+      assert.strictEqual(
+        siteConfig.checkout_api_url,
+        "https://api.test.com",
+        "Config should contain checkout_api_url from options",
+      );
 
       dom.window.close();
     },
@@ -855,8 +905,12 @@ const testCases = [
       const stripeBtn = doc.querySelector(".cart-checkout-stripe");
       const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
-      assert.strictEqual(stripeBtn, null, "Stripe button should not exist");
-      assert.ok(paypalBtn, "PayPal button should exist");
+      assert.strictEqual(
+        stripeBtn,
+        null,
+        "Stripe button should not exist in paypal mode",
+      );
+      assert.ok(paypalBtn, "PayPal button should exist in paypal mode");
 
       dom.window.close();
     },
@@ -874,8 +928,12 @@ const testCases = [
       const stripeBtn = doc.querySelector(".cart-checkout-stripe");
       const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
-      assert.ok(stripeBtn, "Stripe button should exist");
-      assert.strictEqual(paypalBtn, null, "PayPal button should not exist");
+      assert.ok(stripeBtn, "Stripe button should exist in stripe mode");
+      assert.strictEqual(
+        paypalBtn,
+        null,
+        "PayPal button should not exist in stripe mode",
+      );
 
       dom.window.close();
     },
@@ -896,6 +954,7 @@ const testCases = [
       assert.strictEqual(
         page.dataset.checkoutApiUrl,
         "https://checkout.api.com",
+        "Stripe checkout page should have data-checkout-api-url attribute",
       );
 
       const status = doc.getElementById("status-message");
@@ -955,14 +1014,34 @@ const testCases = [
 
       // Parse the consolidated data-item attribute
       const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(itemData.name, "My Product");
-      assert.strictEqual(itemData.options[0].name, "Standard");
-      assert.strictEqual(itemData.options[0].unit_price, 19.99);
-      assert.strictEqual(itemData.options[0].sku, "STD-001");
-      assert.strictEqual(itemData.options[0].max_quantity, 10);
+      assert.strictEqual(
+        itemData.name,
+        "My Product",
+        "Item data should have correct product name",
+      );
+      assert.strictEqual(
+        itemData.options[0].name,
+        "Standard",
+        "First option should be 'Standard'",
+      );
+      assert.strictEqual(
+        itemData.options[0].unit_price,
+        19.99,
+        "First option unit_price should be 19.99",
+      );
+      assert.strictEqual(
+        itemData.options[0].sku,
+        "STD-001",
+        "First option sku should be 'STD-001'",
+      );
+      assert.strictEqual(
+        itemData.options[0].max_quantity,
+        10,
+        "First option max_quantity should be 10",
+      );
       assert.ok(
         button.textContent.includes("19.99"),
-        "Button should show price",
+        "Button should show price in text",
       );
 
       // Should NOT have a select (single option = direct button)
@@ -970,7 +1049,7 @@ const testCases = [
       assert.strictEqual(
         select,
         null,
-        "Should not have select for single option",
+        "Should not have select dropdown for single option",
       );
 
       dom.window.close();
@@ -994,17 +1073,25 @@ const testCases = [
       const button = doc.querySelector(".product-option-button");
 
       assert.ok(select, "Select should exist for multiple options");
-      assert.ok(button, "Add to cart button should exist");
+      assert.ok(button, "Add to cart button should exist for multiple options");
       assert.strictEqual(
         button.disabled,
         true,
-        "Button should be disabled initially",
+        "Button should be disabled initially before option selected",
       );
 
       // Parse the consolidated data-item attribute
       const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(itemData.name, "Variable Product");
-      assert.strictEqual(itemData.options.length, 3);
+      assert.strictEqual(
+        itemData.name,
+        "Variable Product",
+        "Item data should have correct product name",
+      );
+      assert.strictEqual(
+        itemData.options.length,
+        3,
+        "Item data should have 3 options",
+      );
 
       // Check options in select (values are indices now)
       const options = select.querySelectorAll("option");
@@ -1021,15 +1108,41 @@ const testCases = [
       );
 
       // Check second option (Small) - now just value index
-      assert.strictEqual(options[1].value, "0");
-      assert.ok(options[1].textContent.includes("Small"));
-      assert.ok(options[1].textContent.includes("5.00"));
+      assert.strictEqual(
+        options[1].value,
+        "0",
+        "Second option value should be index '0'",
+      );
+      assert.ok(
+        options[1].textContent.includes("Small"),
+        "Second option should include 'Small' in text",
+      );
+      assert.ok(
+        options[1].textContent.includes("5.00"),
+        "Second option should include price '5.00' in text",
+      );
 
       // Verify the data is in itemData
-      assert.strictEqual(itemData.options[0].name, "Small");
-      assert.strictEqual(itemData.options[0].unit_price, 5.0);
-      assert.strictEqual(itemData.options[0].sku, "VAR-S");
-      assert.strictEqual(itemData.options[0].max_quantity, 5);
+      assert.strictEqual(
+        itemData.options[0].name,
+        "Small",
+        "First option in itemData should be 'Small'",
+      );
+      assert.strictEqual(
+        itemData.options[0].unit_price,
+        5.0,
+        "First option unit_price should be 5.0",
+      );
+      assert.strictEqual(
+        itemData.options[0].sku,
+        "VAR-S",
+        "First option sku should be 'VAR-S'",
+      );
+      assert.strictEqual(
+        itemData.options[0].max_quantity,
+        5,
+        "First option max_quantity should be 5",
+      );
 
       dom.window.close();
     },
@@ -1077,11 +1190,31 @@ const testCases = [
 
       // Parse the consolidated data-item attribute
       const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(itemData.name, "Test Product");
-      assert.strictEqual(itemData.options[0].name, "Standard");
-      assert.strictEqual(itemData.options[0].unit_price, 29.99);
-      assert.strictEqual(itemData.options[0].max_quantity, 5);
-      assert.strictEqual(itemData.options[0].sku, "TP1");
+      assert.strictEqual(
+        itemData.name,
+        "Test Product",
+        "Item data should have correct product name",
+      );
+      assert.strictEqual(
+        itemData.options[0].name,
+        "Standard",
+        "First option name should be 'Standard'",
+      );
+      assert.strictEqual(
+        itemData.options[0].unit_price,
+        29.99,
+        "First option unit_price should be 29.99",
+      );
+      assert.strictEqual(
+        itemData.options[0].max_quantity,
+        5,
+        "First option max_quantity should be 5",
+      );
+      assert.strictEqual(
+        itemData.options[0].sku,
+        "TP1",
+        "First option sku should be 'TP1'",
+      );
       dom.window.close();
     },
   },
@@ -1126,15 +1259,19 @@ const testCases = [
       const button = doc.querySelector(".add-to-cart");
       const link = doc.querySelector("a.button");
 
-      assert.strictEqual(button, null, "Should not have direct add-to-cart");
-      assert.ok(link, "Should have Select Options link");
+      assert.strictEqual(
+        button,
+        null,
+        "Should not have direct add-to-cart for multi-option",
+      );
+      assert.ok(link, "Should have Select Options link for multi-option");
       assert.ok(
         link.href.includes("/products/variable-product/"),
-        "Link should go to product page",
+        "Link href should go to product page",
       );
       assert.ok(
         link.textContent.includes("Select Options"),
-        "Link should say Select Options",
+        "Link text should say Select Options",
       );
 
       dom.window.close();
@@ -1240,7 +1377,11 @@ const testCases = [
         return locationTracker.wasRedirectedTo("/");
       });
 
-      assert.strictEqual(result, true, "Should redirect to homepage");
+      assert.strictEqual(
+        result,
+        true,
+        "Empty cart should redirect to homepage",
+      );
     },
   },
   {
@@ -1268,13 +1409,25 @@ const testCases = [
         const cart = getCart();
         const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
 
-        assert.deepStrictEqual(items, [
-          { sku: "SKU-A", quantity: 2 },
-          { sku: "SKU-B", quantity: 1 },
-        ]);
+        assert.deepStrictEqual(
+          items,
+          [
+            { sku: "SKU-A", quantity: 2 },
+            { sku: "SKU-B", quantity: 1 },
+          ],
+          "Checkout should only send sku and quantity to API",
+        );
         // Verify prices are NOT included (security)
-        assert.strictEqual(items[0].unit_price, undefined);
-        assert.strictEqual(items[0].item_name, undefined);
+        assert.strictEqual(
+          items[0].unit_price,
+          undefined,
+          "unit_price should not be sent to API (security)",
+        );
+        assert.strictEqual(
+          items[0].item_name,
+          undefined,
+          "item_name should not be sent to API (only sku needed)",
+        );
       });
     },
   },
@@ -1318,7 +1471,11 @@ const testCases = [
         return locationTracker.wasRedirectedTo("checkout.stripe.com");
       });
 
-      assert.strictEqual(redirected, true);
+      assert.strictEqual(
+        redirected,
+        true,
+        "Successful session creation should redirect to Stripe checkout",
+      );
     },
   },
   {
@@ -1341,9 +1498,17 @@ const testCases = [
         },
       );
 
-      assert.strictEqual(response.ok, false);
+      assert.strictEqual(
+        response.ok,
+        false,
+        "API should return not ok for invalid SKU",
+      );
       const error = await response.json();
-      assert.strictEqual(error.error, "Invalid SKU: FAKE-SKU");
+      assert.strictEqual(
+        error.error,
+        "Invalid SKU: FAKE-SKU",
+        "Error response should contain invalid SKU message",
+      );
     },
   },
   // ----------------------------------------
@@ -1372,7 +1537,11 @@ const testCases = [
         locationTracker.location.href = order.url;
       }
 
-      assert.strictEqual(locationTracker.wasRedirectedTo("paypal.com"), true);
+      assert.strictEqual(
+        locationTracker.wasRedirectedTo("paypal.com"),
+        true,
+        "PayPal checkout should redirect to PayPal approval URL",
+      );
     },
   },
 
@@ -1389,7 +1558,11 @@ const testCases = [
         ]);
 
         const cart = getCart();
-        assert.strictEqual(cart[0].item_name, 'Widget "Deluxe" & More');
+        assert.strictEqual(
+          cart[0].item_name,
+          'Widget "Deluxe" & More',
+          "Cart should preserve special characters in product names",
+        );
       });
     },
   },
@@ -1474,11 +1647,31 @@ const testCases = [
 
       // Parse the consolidated data-item attribute
       const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(itemData.name, "My Product");
-      assert.strictEqual(itemData.options[0].name, "Standard");
-      assert.strictEqual(itemData.options[0].unit_price, 25.0);
-      assert.strictEqual(itemData.options[0].max_quantity, 10);
-      assert.strictEqual(itemData.options[0].sku, "PROD-STD");
+      assert.strictEqual(
+        itemData.name,
+        "My Product",
+        "Button data-item should have correct product name",
+      );
+      assert.strictEqual(
+        itemData.options[0].name,
+        "Standard",
+        "Button data-item option name should be 'Standard'",
+      );
+      assert.strictEqual(
+        itemData.options[0].unit_price,
+        25.0,
+        "Button data-item option unit_price should be 25.0",
+      );
+      assert.strictEqual(
+        itemData.options[0].max_quantity,
+        10,
+        "Button data-item option max_quantity should be 10",
+      );
+      assert.strictEqual(
+        itemData.options[0].sku,
+        "PROD-STD",
+        "Button data-item option sku should be 'PROD-STD'",
+      );
 
       dom.window.close();
     },
@@ -1498,8 +1691,12 @@ const testCases = [
       const itemData = JSON.parse(button.dataset.item);
       const price = itemData.options[0].unit_price;
 
-      assert.strictEqual(price, 19.99);
-      assert.strictEqual(typeof price, "number");
+      assert.strictEqual(price, 19.99, "Price should be parsed as 19.99");
+      assert.strictEqual(
+        typeof price,
+        "number",
+        "Price should be parsed as a number type",
+      );
 
       dom.window.close();
     },
@@ -1580,22 +1777,68 @@ const testCases = [
       const smallOption = select.options[1];
       const largeOption = select.options[2];
 
-      assert.strictEqual(smallOption.value, "0");
-      assert.ok(smallOption.textContent.includes("Small"));
-      assert.strictEqual(largeOption.value, "1");
-      assert.ok(largeOption.textContent.includes("Large"));
+      assert.strictEqual(
+        smallOption.value,
+        "0",
+        "Small option value should be index '0'",
+      );
+      assert.ok(
+        smallOption.textContent.includes("Small"),
+        "Small option text should include 'Small'",
+      );
+      assert.strictEqual(
+        largeOption.value,
+        "1",
+        "Large option value should be index '1'",
+      );
+      assert.ok(
+        largeOption.textContent.includes("Large"),
+        "Large option text should include 'Large'",
+      );
 
       // All data is now in the button's data-item attribute
       const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(itemData.options[0].name, "Small");
-      assert.strictEqual(itemData.options[0].unit_price, 5.0);
-      assert.strictEqual(itemData.options[0].sku, "SKU-S");
-      assert.strictEqual(itemData.options[0].max_quantity, 10);
+      assert.strictEqual(
+        itemData.options[0].name,
+        "Small",
+        "First item option name should be 'Small'",
+      );
+      assert.strictEqual(
+        itemData.options[0].unit_price,
+        5.0,
+        "First item option unit_price should be 5.0",
+      );
+      assert.strictEqual(
+        itemData.options[0].sku,
+        "SKU-S",
+        "First item option sku should be 'SKU-S'",
+      );
+      assert.strictEqual(
+        itemData.options[0].max_quantity,
+        10,
+        "First item option max_quantity should be 10",
+      );
 
-      assert.strictEqual(itemData.options[1].name, "Large");
-      assert.strictEqual(itemData.options[1].unit_price, 10.0);
-      assert.strictEqual(itemData.options[1].sku, "SKU-L");
-      assert.strictEqual(itemData.options[1].max_quantity, 5);
+      assert.strictEqual(
+        itemData.options[1].name,
+        "Large",
+        "Second item option name should be 'Large'",
+      );
+      assert.strictEqual(
+        itemData.options[1].unit_price,
+        10.0,
+        "Second item option unit_price should be 10.0",
+      );
+      assert.strictEqual(
+        itemData.options[1].sku,
+        "SKU-L",
+        "Second item option sku should be 'SKU-L'",
+      );
+      assert.strictEqual(
+        itemData.options[1].max_quantity,
+        5,
+        "Second item option max_quantity should be 5",
+      );
 
       dom.window.close();
     },
@@ -1630,10 +1873,25 @@ const testCases = [
       button.disabled = false;
       button.textContent = `Add to Cart - £${option.unit_price}`;
 
-      assert.strictEqual(button.disabled, false, "Button should be enabled");
-      assert.strictEqual(option.name, "Small");
-      assert.strictEqual(option.unit_price, 5.0);
-      assert.ok(button.textContent.includes("5"), "Button should show price");
+      assert.strictEqual(
+        button.disabled,
+        false,
+        "Button should be enabled after option selected",
+      );
+      assert.strictEqual(
+        option.name,
+        "Small",
+        "Selected option name should be 'Small'",
+      );
+      assert.strictEqual(
+        option.unit_price,
+        5.0,
+        "Selected option unit_price should be 5.0",
+      );
+      assert.ok(
+        button.textContent.includes("5"),
+        "Button text should show selected price",
+      );
 
       dom.window.close();
     },
