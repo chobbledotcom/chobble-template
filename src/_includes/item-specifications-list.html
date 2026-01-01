@@ -2,7 +2,8 @@
   <dl>
     {%- for spec in specs -%}
       <div>
-        <dt>{{ spec.icon }}{{ spec.name }}</dt>
+        {{ spec.icon }}
+        <dt>{{ spec.name }}</dt>
         <dd>{{ spec.value }}</dd>
       </div>
     {%- endfor -%}
