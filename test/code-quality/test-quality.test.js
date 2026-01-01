@@ -26,8 +26,7 @@ import {
 // Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
 // File-level exceptions are preferred - fix whole files at once
 const MISSING_MESSAGE_EXCEPTIONS = new Set([
-  // Whole files to fix (76 violations across 2 files)
-  "test/schema-helper.test.js", // 57 violations
+  // Whole files to fix (23 violations across 1 file)
   "test/spec-filters.test.js", // 23 violations (includes some that need review)
 ]);
 
