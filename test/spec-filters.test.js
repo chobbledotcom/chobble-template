@@ -49,20 +49,11 @@ describe("getSpecIcon", () => {
       lowerResult,
       mixedResult,
       "Lowercase and mixed-case spec names should return same icon",
-<<<<<<< HEAD
     );
     assert.ok(
       lowerResult.includes("<svg") || lowerResult.includes("<SVG"),
       "Icon content should contain SVG markup",
     );
-=======
-    );
-    // And it should contain SVG content (tick.svg exists)
-    assert.ok(
-      lowerResult.includes("<svg") || lowerResult.includes("<SVG"),
-      "Icon content should contain SVG markup",
-    );
->>>>>>> ca37c59 (Add assertion messages to spec-filters.test.js and remove from exceptions)
   });
 
   it("trims spec name before lookup", () => {
@@ -209,10 +200,6 @@ describe("computeSpecs", () => {
     const result = computeSpecs(data);
 
     assert.strictEqual(result.length, 3, "Should return all three specs");
-<<<<<<< HEAD
-=======
-    // First and third should have icons (same icon due to normalization)
->>>>>>> ca37c59 (Add assertion messages to spec-filters.test.js and remove from exceptions)
     assert.ok(result[0].icon.length > 0, "First spec should have icon");
     assert.strictEqual(
       result[1].icon,
@@ -220,10 +207,6 @@ describe("computeSpecs", () => {
       "Second spec should have empty icon (no match)",
     );
     assert.ok(result[2].icon.length > 0, "Third spec should have icon");
-<<<<<<< HEAD
-=======
-    // First and third icons should be identical
->>>>>>> ca37c59 (Add assertion messages to spec-filters.test.js and remove from exceptions)
     assert.strictEqual(
       result[0].icon,
       result[2].icon,
