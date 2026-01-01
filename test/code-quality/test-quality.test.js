@@ -47,12 +47,6 @@ const MISSING_MESSAGE_EXCEPTIONS = new Set([
   "test/spec-filters.test.js", // 23 violations (includes some that need review)
 ]);
 
-// Grandfathered tautological patterns
-// Supports file-level ("test/file.js") or specific ("test/file.js:assignLine:assertLine")
-const TAUTOLOGICAL_EXCEPTIONS = new Set([
-  "test/checkout.test.js", // 2 tautological patterns to fix
-]);
-
 // Files that are allowed to have tests with "and" in names
 const AND_NAME_EXCEPTIONS = new Set([
   "test/theme-editor.test.js", // e2e tests that test workflows
@@ -346,11 +340,6 @@ const findTautologicalAssertions = () => {
   );
 
   for (const relativePath of testFilesToCheck) {
-    // Check if whole file is excepted
-    if (TAUTOLOGICAL_EXCEPTIONS.has(relativePath)) {
-      continue;
-    }
-
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const lines = source.split("\n");
@@ -381,17 +370,13 @@ const findTautologicalAssertions = () => {
           // Check if this is a tautology (assertion within 5 lines of assignment)
           const lineDistance = i + 1 - assignment.line;
           if (lineDistance <= 5 && lineDistance > 0) {
-            const exceptionKey = `${relativePath}:${assignment.line}:${i + 1}`;
-            // Check specific line exception
-            if (!TAUTOLOGICAL_EXCEPTIONS.has(exceptionKey)) {
-              violations.push({
-                file: relativePath,
-                assignLine: assignment.line,
-                assertLine: i + 1,
-                property: prop,
-                reason: `Set "${prop}" on line ${assignment.line}, then assert on line ${i + 1} - tests nothing`,
-              });
-            }
+            violations.push({
+              file: relativePath,
+              assignLine: assignment.line,
+              assertLine: i + 1,
+              property: prop,
+              reason: `Set "${prop}" on line ${assignment.line}, then assert on line ${i + 1} - tests nothing`,
+            });
           }
         }
       }
