@@ -13,6 +13,7 @@ describe("sortItems", () => {
     assert.deepStrictEqual(
       sorted.map((i) => i.data.title),
       ["B", "A", "C"],
+      "Items should be sorted by order: 1->B, 2->A, 3->C",
     );
   });
 
@@ -26,6 +27,7 @@ describe("sortItems", () => {
     assert.deepStrictEqual(
       sorted.map((i) => i.data.title),
       ["Apple", "Mango", "Zebra"],
+      "Items with same order should be sorted alphabetically by title",
     );
   });
 
@@ -39,6 +41,7 @@ describe("sortItems", () => {
     assert.deepStrictEqual(
       sorted.map((i) => i.data.title),
       ["C", "A", "B"],
+      "Missing order should default to 0: -1->C, 0->A, 1->B",
     );
   });
 
@@ -51,6 +54,7 @@ describe("sortItems", () => {
     assert.deepStrictEqual(
       sorted.map((i) => i.data.name),
       ["Apple", "Zebra"],
+      "Should use name for alphabetical sorting when title is missing",
     );
   });
 
