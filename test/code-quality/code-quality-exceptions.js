@@ -19,7 +19,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   "ecommerce-backend/server.test.js:366",
 
   // src/assets/js/availability-calendar.js - fetch error handling
-  "src/assets/js/availability-calendar.js:132",
+  "src/assets/js/availability-calendar.js:151",
 
   // src/assets/js/cart.js - PayPal checkout fetch handling
   "src/assets/js/cart.js:209",
@@ -47,9 +47,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 // Files that are allowed to contain HTML in JavaScript template literals.
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
-  // Client-side JS - calendar display
-  "src/assets/js/availability-calendar.js",
-
   // Server-side Eleventy plugins generating HTML
   "src/_lib/eleventy/area-list.js",
   "src/_lib/eleventy/opening-times.js",

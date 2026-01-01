@@ -59,6 +59,7 @@ function loadTemplate(filename) {
 }
 
 // Load all template files
+const calendarTemplates = loadTemplate("calendar.html");
 const cartTemplates = loadTemplate("cart.html");
 const galleryTemplates = loadTemplate("gallery.html");
 
@@ -67,7 +68,11 @@ describe("Template selector contracts", () => {
     for (const [key, id] of Object.entries(IDS)) {
       it(`template "${id}" (${key}) exists`, () => {
         let found = false;
-        for (const dom of [cartTemplates, galleryTemplates]) {
+        for (const dom of [
+          calendarTemplates,
+          cartTemplates,
+          galleryTemplates,
+        ]) {
           if (dom?.window.document.getElementById(id)) {
             found = true;
             break;
@@ -84,6 +89,7 @@ describe("Template selector contracts", () => {
 
 describe("Selector constants usage verification", () => {
   const jsFiles = [
+    "src/assets/js/availability-calendar.js",
     "src/assets/js/cart.js",
     "src/assets/js/quote.js",
     "src/assets/js/quote-checkout.js",
@@ -109,7 +115,7 @@ describe("Selector constants usage verification", () => {
 });
 
 describe("HTML templates use Liquid selectors for IDs", () => {
-  const templateFiles = ["cart.html", "gallery.html"];
+  const templateFiles = ["calendar.html", "cart.html", "gallery.html"];
 
   for (const filename of templateFiles) {
     const filepath = path.join(templatesDir, filename);
