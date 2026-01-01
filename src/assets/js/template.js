@@ -1,4 +1,4 @@
-import { QUANTITY_SELECTORS } from "#assets/selectors.js";
+import { cls, QUANTITY_CLASSES } from "#assets/selectors.js";
 
 // Clone a <template> element by ID and return its content
 export const getTemplate = (id) =>
@@ -8,11 +8,11 @@ export const getTemplate = (id) =>
 export const populateQuantityControls = (template, item) => {
   const name = item.item_name;
 
-  template.querySelectorAll(QUANTITY_SELECTORS.DATA_NAME).forEach((el) => {
+  template.querySelectorAll("[data-name]").forEach((el) => {
     el.dataset.name = name;
   });
 
-  const input = template.querySelector(QUANTITY_SELECTORS.INPUT);
+  const input = template.querySelector(cls(QUANTITY_CLASSES.INPUT));
   input.value = item.quantity;
   if (item.max_quantity) {
     input.max = item.max_quantity;

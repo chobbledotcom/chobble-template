@@ -1,5 +1,5 @@
-<div class="cart-item-quantity">
-  <button class="qty-btn qty-decrease" data-name="">−</button>
-  <input type="number" class="qty-input" value="1" min="1" data-name="">
-  <button class="qty-btn qty-increase" data-name="">+</button>
+<div class="{{ selectors.QUANTITY.CONTAINER }}">
+  <button class="qty-btn {{ selectors.QUANTITY.DECREASE }}" data-name="">−</button>
+  <input type="number" class="{{ selectors.QUANTITY.INPUT }}" value="1" min="1" data-name="">
+  <button class="qty-btn {{ selectors.QUANTITY.INCREASE }}" data-name="">+</button>
 </div>

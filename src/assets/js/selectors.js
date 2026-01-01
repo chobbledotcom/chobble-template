@@ -1,6 +1,9 @@
 // Template selector constants
-// Single source of truth for selectors used in HTML templates and JS
+// Single source of truth for class names used in HTML templates and JS
 // These constants should be tested against both HTML and CSS to ensure consistency
+
+// Helper to convert class name to CSS selector
+export const cls = (className) => `.${className}`;
 
 // Template IDs
 export const TEMPLATE_IDS = {
@@ -11,87 +14,84 @@ export const TEMPLATE_IDS = {
   GALLERY_NAV_NEXT: "gallery-popup-nav-next",
 };
 
-// Shared quantity controls selectors (used in multiple templates)
-export const QUANTITY_SELECTORS = {
-  CONTAINER: ".cart-item-quantity",
-  DECREASE: ".qty-decrease",
-  INCREASE: ".qty-increase",
-  INPUT: ".qty-input",
-  DATA_NAME: "[data-name]",
+// Shared quantity controls classes (used in multiple templates)
+export const QUANTITY_CLASSES = {
+  CONTAINER: "cart-item-quantity",
+  DECREASE: "qty-decrease",
+  INCREASE: "qty-increase",
+  INPUT: "qty-input",
 };
 
-// Cart item template selectors
-export const CART_ITEM_SELECTORS = {
-  CONTAINER: ".cart-item",
-  NAME: ".cart-item-name",
-  PRICE: ".cart-item-price",
-  REMOVE: ".cart-item-remove",
+// Cart item template classes
+export const CART_ITEM_CLASSES = {
+  CONTAINER: "cart-item",
+  NAME: "cart-item-name",
+  PRICE: "cart-item-price",
+  REMOVE: "cart-item-remove",
 };
 
-// Quote cart item template selectors
-export const QUOTE_CART_ITEM_SELECTORS = {
-  CONTAINER: ".quote-cart-item",
-  NAME: ".quote-cart-item-name",
-  PRICE: ".quote-cart-item-price",
-  SPECS: ".quote-cart-item-specs",
-  REMOVE: ".quote-cart-item-remove",
+// Quote cart item template classes
+export const QUOTE_CART_ITEM_CLASSES = {
+  CONTAINER: "quote-cart-item",
+  NAME: "quote-cart-item-name",
+  PRICE: "quote-cart-item-price",
+  SPECS: "quote-cart-item-specs",
+  REMOVE: "quote-cart-item-remove",
 };
 
-// Quote checkout item template selectors
-export const QUOTE_CHECKOUT_ITEM_SELECTORS = {
-  CONTAINER: ".quote-checkout-item",
-  NAME: ".quote-checkout-item-name",
-  QTY: ".quote-checkout-item-qty",
-  PRICE: ".quote-checkout-item-price",
+// Quote checkout item template classes
+export const QUOTE_CHECKOUT_ITEM_CLASSES = {
+  CONTAINER: "quote-checkout-item",
+  NAME: "quote-checkout-item-name",
+  QTY: "quote-checkout-item-qty",
+  PRICE: "quote-checkout-item-price",
 };
 
-// Gallery popup navigation selectors
-export const GALLERY_NAV_SELECTORS = {
-  PREV: ".popup-nav-prev",
-  NEXT: ".popup-nav-next",
+// Gallery popup navigation classes
+export const GALLERY_NAV_CLASSES = {
+  PREV: "popup-nav-prev",
+  NEXT: "popup-nav-next",
 };
 
 // Complete template definitions for testing
-// Maps template IDs to their required selectors
+// Maps template IDs to their required classes
 export const TEMPLATE_DEFINITIONS = {
   [TEMPLATE_IDS.CART_ITEM]: {
     id: TEMPLATE_IDS.CART_ITEM,
-    selectors: [
-      CART_ITEM_SELECTORS.CONTAINER,
-      CART_ITEM_SELECTORS.NAME,
-      CART_ITEM_SELECTORS.PRICE,
-      CART_ITEM_SELECTORS.REMOVE,
-      QUANTITY_SELECTORS.INPUT,
-      QUANTITY_SELECTORS.DATA_NAME,
+    classes: [
+      CART_ITEM_CLASSES.CONTAINER,
+      CART_ITEM_CLASSES.NAME,
+      CART_ITEM_CLASSES.PRICE,
+      CART_ITEM_CLASSES.REMOVE,
+      QUANTITY_CLASSES.INPUT,
     ],
   },
   [TEMPLATE_IDS.QUOTE_CART_ITEM]: {
     id: TEMPLATE_IDS.QUOTE_CART_ITEM,
-    selectors: [
-      QUOTE_CART_ITEM_SELECTORS.CONTAINER,
-      QUOTE_CART_ITEM_SELECTORS.NAME,
-      QUOTE_CART_ITEM_SELECTORS.PRICE,
-      QUOTE_CART_ITEM_SELECTORS.SPECS,
-      QUOTE_CART_ITEM_SELECTORS.REMOVE,
-      QUANTITY_SELECTORS.INPUT,
-      QUANTITY_SELECTORS.DATA_NAME,
+    classes: [
+      QUOTE_CART_ITEM_CLASSES.CONTAINER,
+      QUOTE_CART_ITEM_CLASSES.NAME,
+      QUOTE_CART_ITEM_CLASSES.PRICE,
+      QUOTE_CART_ITEM_CLASSES.SPECS,
+      QUOTE_CART_ITEM_CLASSES.REMOVE,
+      QUANTITY_CLASSES.INPUT,
     ],
   },
   [TEMPLATE_IDS.QUOTE_CHECKOUT_ITEM]: {
     id: TEMPLATE_IDS.QUOTE_CHECKOUT_ITEM,
-    selectors: [
-      QUOTE_CHECKOUT_ITEM_SELECTORS.CONTAINER,
-      QUOTE_CHECKOUT_ITEM_SELECTORS.NAME,
-      QUOTE_CHECKOUT_ITEM_SELECTORS.QTY,
-      QUOTE_CHECKOUT_ITEM_SELECTORS.PRICE,
+    classes: [
+      QUOTE_CHECKOUT_ITEM_CLASSES.CONTAINER,
+      QUOTE_CHECKOUT_ITEM_CLASSES.NAME,
+      QUOTE_CHECKOUT_ITEM_CLASSES.QTY,
+      QUOTE_CHECKOUT_ITEM_CLASSES.PRICE,
     ],
   },
   [TEMPLATE_IDS.GALLERY_NAV_PREV]: {
     id: TEMPLATE_IDS.GALLERY_NAV_PREV,
-    selectors: [GALLERY_NAV_SELECTORS.PREV],
+    classes: [GALLERY_NAV_CLASSES.PREV],
   },
   [TEMPLATE_IDS.GALLERY_NAV_NEXT]: {
     id: TEMPLATE_IDS.GALLERY_NAV_NEXT,
-    selectors: [GALLERY_NAV_SELECTORS.NEXT],
+    classes: [GALLERY_NAV_CLASSES.NEXT],
   },
 };

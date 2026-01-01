@@ -1,5 +1,5 @@
 // Template selector contract tests
-// Verifies that HTML templates contain all required selectors defined in selectors.js
+// Verifies that HTML templates contain all required classes defined in selectors.js
 
 import assert from "node:assert";
 import fs from "node:fs";
@@ -25,23 +25,23 @@ function extractTemplateIds() {
   return idsObj;
 }
 
-// Extract selector constants from file
-function extractSelectorObjects() {
+// Extract class constants from file (now _CLASSES instead of _SELECTORS)
+function extractClassObjects() {
   const objects = {};
-  const regex = /export const (\w+_SELECTORS) = \{([^}]+)\}/g;
+  const regex = /export const (\w+_CLASSES) = \{([^}]+)\}/g;
   const matches = selectorsContent.matchAll(regex);
   for (const [, name, content] of matches) {
-    const selectors = {};
+    const classes = {};
     const pairs = content.matchAll(/(\w+):\s*"([^"]+)"/g);
     for (const [, key, value] of pairs) {
-      selectors[key] = value;
+      classes[key] = value;
     }
-    objects[name] = selectors;
+    objects[name] = classes;
   }
   return objects;
 }
 
-// Extract TEMPLATE_DEFINITIONS to understand which selectors each template needs
+// Extract TEMPLATE_DEFINITIONS to understand which classes each template needs
 function extractTemplateDefinitions() {
   // Parse the TEMPLATE_DEFINITIONS block
   const match = selectorsContent.match(
@@ -51,14 +51,14 @@ function extractTemplateDefinitions() {
 
   const definitions = {};
   const templateBlocks = match[1].matchAll(
-    /\[TEMPLATE_IDS\.(\w+)\]:\s*\{[^}]*selectors:\s*\[([\s\S]*?)\]/g,
+    /\[TEMPLATE_IDS\.(\w+)\]:\s*\{[^}]*classes:\s*\[([\s\S]*?)\]/g,
   );
 
-  for (const [, templateKey, selectorsList] of templateBlocks) {
-    // Extract selector references from the list
-    const selectorRefs = selectorsList.matchAll(/(\w+_SELECTORS)\.(\w+)/g);
+  for (const [, templateKey, classList] of templateBlocks) {
+    // Extract class references from the list
+    const classRefs = classList.matchAll(/(\w+_CLASSES)\.(\w+)/g);
     definitions[templateKey] = [];
-    for (const [, objName, propName] of selectorRefs) {
+    for (const [, objName, propName] of classRefs) {
       definitions[templateKey].push({ objName, propName });
     }
   }
@@ -66,8 +66,47 @@ function extractTemplateDefinitions() {
 }
 
 const TEMPLATE_IDS = extractTemplateIds();
-const SELECTOR_OBJECTS = extractSelectorObjects();
+const CLASS_OBJECTS = extractClassObjects();
 const TEMPLATE_DEFINITIONS = extractTemplateDefinitions();
+
+// Build a lookup for Liquid variable expansion
+// Maps "selectors.CART_ITEM.NAME" -> "cart-item-name"
+function buildLiquidLookup() {
+  const lookup = {};
+
+  // Add TEMPLATE_IDS
+  for (const [key, value] of Object.entries(TEMPLATE_IDS)) {
+    lookup[`selectors.TEMPLATE_IDS.${key}`] = value;
+  }
+
+  // Add class objects with short names (QUANTITY, CART_ITEM, etc.)
+  const shortNames = {
+    QUANTITY_CLASSES: "QUANTITY",
+    CART_ITEM_CLASSES: "CART_ITEM",
+    QUOTE_CART_ITEM_CLASSES: "QUOTE_CART_ITEM",
+    QUOTE_CHECKOUT_ITEM_CLASSES: "QUOTE_CHECKOUT_ITEM",
+    GALLERY_NAV_CLASSES: "GALLERY_NAV",
+  };
+
+  for (const [objName, classes] of Object.entries(CLASS_OBJECTS)) {
+    const shortName = shortNames[objName] || objName;
+    for (const [key, value] of Object.entries(classes)) {
+      lookup[`selectors.${shortName}.${key}`] = value;
+    }
+  }
+
+  return lookup;
+}
+
+const LIQUID_LOOKUP = buildLiquidLookup();
+
+// Expand Liquid variables in template content
+function expandLiquidVars(content) {
+  return content.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (match, varName) => {
+    const value = LIQUID_LOOKUP[varName.trim()];
+    return value !== undefined ? value : match;
+  });
+}
 
 // Load and parse HTML template files
 const templatesDir = path.join(process.cwd(), "src/_includes/templates");
@@ -77,9 +116,10 @@ function loadTemplate(filename) {
   if (!fs.existsSync(filepath)) {
     return null;
   }
-  const content = fs.readFileSync(filepath, "utf-8");
+  let content = fs.readFileSync(filepath, "utf-8");
+
   // Process Liquid includes - replace with the included file content
-  const processedContent = content.replace(
+  content = content.replace(
     /\{%\s*include\s*["']templates\/([^"']+)["']\s*%\}/g,
     (_, includePath) => {
       const includeFile = path.join(templatesDir, includePath);
@@ -89,7 +129,11 @@ function loadTemplate(filename) {
       return "";
     },
   );
-  return new JSDOM(processedContent);
+
+  // Expand Liquid variables
+  content = expandLiquidVars(content);
+
+  return new JSDOM(content);
 }
 
 // Load all template files
@@ -115,8 +159,8 @@ describe("Template selector contracts", () => {
     }
   });
 
-  describe("All required selectors exist in templates", () => {
-    for (const [templateKey, selectorRefs] of Object.entries(
+  describe("All required classes exist in templates", () => {
+    for (const [templateKey, classRefs] of Object.entries(
       TEMPLATE_DEFINITIONS,
     )) {
       const templateId = TEMPLATE_IDS[templateKey];
@@ -142,18 +186,19 @@ describe("Template selector contracts", () => {
         // Get template content
         const content = templateEl.content || templateEl;
 
-        for (const { objName, propName } of selectorRefs) {
-          const selectorObj = SELECTOR_OBJECTS[objName];
-          if (!selectorObj) continue;
+        for (const { objName, propName } of classRefs) {
+          const classObj = CLASS_OBJECTS[objName];
+          if (!classObj) continue;
 
-          const selector = selectorObj[propName];
-          if (!selector) continue;
+          const className = classObj[propName];
+          if (!className) continue;
 
-          it(`has selector ${objName}.${propName} (${selector})`, () => {
-            const element = content.querySelector(selector);
+          it(`has class ${objName}.${propName} (${className})`, () => {
+            // Convert class name to selector by adding the dot
+            const element = content.querySelector(`.${className}`);
             assert.ok(
               element,
-              `Selector "${selector}" not found in template "${templateId}"`,
+              `Class "${className}" not found in template "${templateId}"`,
             );
           });
         }
@@ -162,7 +207,7 @@ describe("Template selector contracts", () => {
   });
 });
 
-describe("Selector constants usage verification", () => {
+describe("Class constants usage verification", () => {
   // Read JS files that use templates
   const jsFiles = [
     "src/assets/js/cart.js",
@@ -192,12 +237,68 @@ describe("Selector constants usage verification", () => {
     }
   });
 
-  describe("All exported selector objects are used", () => {
-    for (const objName of Object.keys(SELECTOR_OBJECTS)) {
+  describe("All exported class objects are used", () => {
+    for (const objName of Object.keys(CLASS_OBJECTS)) {
       it(`${objName} is imported somewhere`, () => {
         const isUsed = jsContent.includes(objName);
         assert.ok(isUsed, `${objName} is defined but not used in JS files`);
       });
     }
   });
+});
+
+describe("HTML templates use selector constants", () => {
+  // Verify that templates use Liquid variables instead of hardcoded class names
+  const templateFiles = ["cart.html", "gallery.html", "quantity-controls.html"];
+
+  for (const filename of templateFiles) {
+    const filepath = path.join(templatesDir, filename);
+    if (!fs.existsSync(filepath)) continue;
+
+    const content = fs.readFileSync(filepath, "utf-8");
+
+    it(`${filename} uses Liquid selectors for template IDs`, () => {
+      // Check that template IDs use selectors variable
+      const hardcodedIds = content.match(/id="[^{][^"]*-template"/g) || [];
+      assert.strictEqual(
+        hardcodedIds.length,
+        0,
+        `Found hardcoded template IDs: ${hardcodedIds.join(", ")}`,
+      );
+    });
+
+    it(`${filename} uses Liquid selectors for main classes`, () => {
+      // Check for hardcoded classes that should use selectors
+      const hardcodedClasses = [];
+      const classMatches = content.matchAll(/class="([^"]+)"/g);
+
+      // Build set of all selector class values
+      const selectorClassValues = new Set();
+      for (const classes of Object.values(CLASS_OBJECTS)) {
+        for (const value of Object.values(classes)) {
+          selectorClassValues.add(value);
+        }
+      }
+
+      for (const [, classValue] of classMatches) {
+        // Skip if it contains a Liquid variable
+        if (classValue.includes("{{")) continue;
+
+        // Check each class in the attribute
+        for (const cls of classValue.split(" ")) {
+          const trimmed = cls.trim();
+          // Only flag if this exact class is defined in selectors
+          if (trimmed && selectorClassValues.has(trimmed)) {
+            hardcodedClasses.push(trimmed);
+          }
+        }
+      }
+
+      assert.strictEqual(
+        hardcodedClasses.length,
+        0,
+        `Found hardcoded classes that should use selectors: ${hardcodedClasses.join(", ")}`,
+      );
+    });
+  }
 });

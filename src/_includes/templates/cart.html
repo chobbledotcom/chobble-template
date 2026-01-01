@@ -1,34 +1,34 @@
-<template id="cart-item-template">
-  <div class="cart-item" data-name="">
+<template id="{{ selectors.TEMPLATE_IDS.CART_ITEM }}">
+  <div class="{{ selectors.CART_ITEM.CONTAINER }}" data-name="">
     <div class="cart-item-info">
-      <div class="cart-item-name"></div>
-      <div class="cart-item-price"></div>
+      <div class="{{ selectors.CART_ITEM.NAME }}"></div>
+      <div class="{{ selectors.CART_ITEM.PRICE }}"></div>
     </div>
     <div class="cart-item-controls">
       {% include "templates/quantity-controls.html" %}
-      <button class="cart-item-remove" data-name="">Remove</button>
+      <button class="{{ selectors.CART_ITEM.REMOVE }}" data-name="">Remove</button>
     </div>
   </div>
 </template>
 
-<template id="quote-cart-item-template">
-  <div class="quote-cart-item" data-name="">
+<template id="{{ selectors.TEMPLATE_IDS.QUOTE_CART_ITEM }}">
+  <div class="{{ selectors.QUOTE_CART_ITEM.CONTAINER }}" data-name="">
     <div class="quote-cart-item-info">
-      <span class="quote-cart-item-name"></span>
-      <span class="quote-cart-item-price"></span>
+      <span class="{{ selectors.QUOTE_CART_ITEM.NAME }}"></span>
+      <span class="{{ selectors.QUOTE_CART_ITEM.PRICE }}"></span>
     </div>
-    <p class="quote-cart-item-specs"></p>
+    <p class="{{ selectors.QUOTE_CART_ITEM.SPECS }}"></p>
     <div class="quote-cart-item-controls">
       {% include "templates/quantity-controls.html" %}
-      <button class="quote-cart-item-remove" data-name="">Remove</button>
+      <button class="{{ selectors.QUOTE_CART_ITEM.REMOVE }}" data-name="">Remove</button>
     </div>
   </div>
 </template>
 
-<template id="quote-checkout-item-template">
-  <div class="quote-checkout-item">
-    <span class="quote-checkout-item-name"></span>
-    <span class="quote-checkout-item-qty"></span>
-    <span class="quote-checkout-item-price"></span>
+<template id="{{ selectors.TEMPLATE_IDS.QUOTE_CHECKOUT_ITEM }}">
+  <div class="{{ selectors.QUOTE_CHECKOUT_ITEM.CONTAINER }}">
+    <span class="{{ selectors.QUOTE_CHECKOUT_ITEM.NAME }}"></span>
+    <span class="{{ selectors.QUOTE_CHECKOUT_ITEM.QTY }}"></span>
+    <span class="{{ selectors.QUOTE_CHECKOUT_ITEM.PRICE }}"></span>
   </div>
 </template>
