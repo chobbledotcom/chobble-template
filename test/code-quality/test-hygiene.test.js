@@ -147,6 +147,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findVagueTestNames",
   "findMultiConcernTestNames",
   "findAsyncTestsWithoutAwait",
+  "findAssertionsWithoutMessages",
+  "findTautologicalAssertions",
 ]);
 
 /**
