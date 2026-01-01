@@ -293,25 +293,204 @@ const testCases = [
     },
   },
   {
-    name: "navigation-functions-pure",
-    description: "Functions should be pure and not modify inputs",
-    test: () => {
-      const originalCollection = [
-        {
-          data: { tags: ["post"] },
-          fileSlug: "test",
-          url: "/test/",
-        },
-      ];
+    name: "configureNavigation-creates-navigationLinks-collection",
+    description: "Creates navigationLinks collection that filters items",
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+      await configureNavigation(mockConfig);
 
-      const collectionCopy = JSON.parse(JSON.stringify(originalCollection));
+      expectFunctionType(
+        mockConfig.collections,
+        "navigationLinks",
+        "Should add navigationLinks collection",
+      );
 
-      findPageUrl(collectionCopy, "post", "test");
+      // Create mock collection with some items having eleventyNavigation and some not
+      const mockCollectionApi = {
+        getAll: () => [
+          {
+            data: {
+              title: "Home",
+              eleventyNavigation: { key: "Home", order: 1 },
+            },
+          },
+          {
+            data: {
+              title: "About",
+              eleventyNavigation: { key: "About", order: 2 },
+            },
+          },
+          {
+            data: {
+              title: "No Navigation",
+              // No eleventyNavigation - should be filtered out
+            },
+          },
+          {
+            data: {
+              title: "Contact",
+              eleventyNavigation: { key: "Contact", order: 3 },
+            },
+          },
+        ],
+      };
 
+      const result = mockConfig.collections.navigationLinks(mockCollectionApi);
+
+      expectStrictEqual(result.length, 3, "Should filter to 3 nav items");
       expectStrictEqual(
-        JSON.stringify(collectionCopy),
-        JSON.stringify(originalCollection),
-        "findPageUrl should not modify input collection",
+        result[0].data.title,
+        "Home",
+        "First item should be Home",
+      );
+      expectStrictEqual(
+        result[1].data.title,
+        "About",
+        "Second item should be About",
+      );
+      expectStrictEqual(
+        result[2].data.title,
+        "Contact",
+        "Third item should be Contact",
+      );
+    },
+  },
+  {
+    name: "navigationLinks-sorts-by-order",
+    description: "Sorts navigation items by order property",
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+      await configureNavigation(mockConfig);
+
+      const mockCollectionApi = {
+        getAll: () => [
+          {
+            data: {
+              title: "Third",
+              eleventyNavigation: { key: "Third", order: 30 },
+            },
+          },
+          {
+            data: {
+              title: "First",
+              eleventyNavigation: { key: "First", order: 10 },
+            },
+          },
+          {
+            data: {
+              title: "Second",
+              eleventyNavigation: { key: "Second", order: 20 },
+            },
+          },
+        ],
+      };
+
+      const result = mockConfig.collections.navigationLinks(mockCollectionApi);
+
+      expectStrictEqual(result.length, 3, "Should have 3 items");
+      expectStrictEqual(
+        result[0].data.title,
+        "First",
+        "First item should be order 10",
+      );
+      expectStrictEqual(
+        result[1].data.title,
+        "Second",
+        "Second item should be order 20",
+      );
+      expectStrictEqual(
+        result[2].data.title,
+        "Third",
+        "Third item should be order 30",
+      );
+    },
+  },
+  {
+    name: "navigationLinks-default-order-999",
+    description: "Items without order default to 999 and sort alphabetically",
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+      await configureNavigation(mockConfig);
+
+      const mockCollectionApi = {
+        getAll: () => [
+          {
+            data: {
+              title: "Zebra Page",
+              eleventyNavigation: { key: "Zebra Page" }, // no order → 999
+            },
+          },
+          {
+            data: {
+              title: "Has Order",
+              eleventyNavigation: { key: "Has Order", order: 5 },
+            },
+          },
+          {
+            data: {
+              title: "Apple Page",
+              eleventyNavigation: { key: "Apple Page" }, // no order → 999
+            },
+          },
+        ],
+      };
+
+      const result = mockConfig.collections.navigationLinks(mockCollectionApi);
+
+      expectStrictEqual(result.length, 3, "Should have 3 items");
+      expectStrictEqual(
+        result[0].data.title,
+        "Has Order",
+        "Item with explicit order 5 should be first",
+      );
+      expectStrictEqual(
+        result[1].data.title,
+        "Apple Page",
+        "Items with default order 999 sort alphabetically - Apple before Zebra",
+      );
+      expectStrictEqual(
+        result[2].data.title,
+        "Zebra Page",
+        "Zebra should be last",
+      );
+    },
+  },
+  {
+    name: "navigationLinks-uses-title-fallback",
+    description: "Falls back to title when key is missing",
+    asyncTest: async () => {
+      const mockConfig = createMockEleventyConfig();
+      await configureNavigation(mockConfig);
+
+      const mockCollectionApi = {
+        getAll: () => [
+          {
+            data: {
+              title: "Zebra Page",
+              eleventyNavigation: { order: 10 }, // no key, should use title
+            },
+          },
+          {
+            data: {
+              title: "Apple Page",
+              eleventyNavigation: { order: 10 }, // no key, should use title
+            },
+          },
+        ],
+      };
+
+      const result = mockConfig.collections.navigationLinks(mockCollectionApi);
+
+      expectStrictEqual(result.length, 2, "Should have 2 items");
+      expectStrictEqual(
+        result[0].data.title,
+        "Apple Page",
+        "Apple Page should be first",
+      );
+      expectStrictEqual(
+        result[1].data.title,
+        "Zebra Page",
+        "Zebra Page should be second",
       );
     },
   },
