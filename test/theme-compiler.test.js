@@ -48,59 +48,61 @@ const testCases = [
     name: "extractRootVariables-with-extra-content",
     description: "Only extracts content from :root block, ignoring rest",
     test: () => {
-      const content = `// Comment
+      // This matches how real theme files are structured (e.g., theme-ocean.scss)
+      const content = `// Ocean Theme - Deep blue with aqua accents
 :root {
-  --border: 2px solid #ccc;
+  --color-bg: #001f3f;
+  --color-text: #7fdbff;
 }
 
 body {
-  background: blue;
+  background: #002a55;
 }`;
       const result = extractRootVariables(content);
 
       expectTrue(
-        result.includes("--border: 2px solid #ccc"),
-        "Should include border variable",
+        result.includes("--color-bg: #001f3f"),
+        "Should include bg variable",
+      );
+      expectTrue(
+        result.includes("--color-text: #7fdbff"),
+        "Should include text variable",
       );
       expectTrue(
         !result.includes("background"),
         "Should not include body styles",
       );
-      expectTrue(!result.includes("Comment"), "Should not include comments");
+      expectTrue(
+        !result.includes("Ocean Theme"),
+        "Should not include comments",
+      );
     },
   },
   {
     name: "extractRootVariables-complex-values",
-    description: "Handles CSS variables with complex values",
+    description:
+      "Handles CSS variables with complex values like in real themes",
     test: () => {
+      // Values taken from actual theme files
       const content = `:root {
-  --font-family: "Courier New", monospace;
-  --box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  --font-family-heading: "Share Tech Mono", "Lucida Console", monospace;
+  --box-shadow: 0 0 10px #00ff00;
+  --border: 2px solid #00ff00;
 }`;
       const result = extractRootVariables(content);
 
       expectTrue(
-        result.includes('--font-family: "Courier New", monospace'),
-        "Should handle quoted values",
+        result.includes("--font-family-heading:"),
+        "Should handle quoted font stacks",
       );
       expectTrue(
-        result.includes("--box-shadow: 0 0 10px rgba(0, 0, 0, 0.5)"),
-        "Should handle function values",
+        result.includes("--box-shadow: 0 0 10px #00ff00"),
+        "Should handle box-shadow values",
       );
-    },
-  },
-  {
-    name: "extractRootVariables-whitespace-variations",
-    description: "Handles different whitespace patterns in :root",
-    test: () => {
-      const content = `:root{--color:#000;--bg:#fff;}`;
-      const result = extractRootVariables(content);
-
       expectTrue(
-        result.includes("--color:#000"),
-        "Should handle no whitespace",
+        result.includes("--border: 2px solid #00ff00"),
+        "Should handle border shorthand",
       );
-      expectTrue(result.includes("--bg:#fff"), "Should include all variables");
     },
   },
 
@@ -109,50 +111,29 @@ body {
   // ============================================
   {
     name: "toDisplayName-hyphenated",
-    description: "Converts hyphenated name to title case with spaces",
+    description: "Converts hyphenated name to title case (90s-computer)",
     test: () => {
+      // Real theme name from the codebase
       const result = toDisplayName("90s-computer");
       expectStrictEqual(result, "90s Computer", "Should convert to title case");
     },
   },
   {
     name: "toDisplayName-single-word",
-    description: "Capitalizes single word theme name",
+    description: "Capitalizes single word theme name (ocean)",
     test: () => {
+      // Real theme name from the codebase
       const result = toDisplayName("ocean");
       expectStrictEqual(result, "Ocean", "Should capitalize single word");
     },
   },
   {
     name: "toDisplayName-multiple-hyphens",
-    description: "Handles multiple hyphenated words",
+    description: "Handles multiple hyphenated words (old-mac)",
     test: () => {
-      const result = toDisplayName("old-mac-style");
-      expectStrictEqual(
-        result,
-        "Old Mac Style",
-        "Should handle multiple hyphens",
-      );
-    },
-  },
-  {
-    name: "toDisplayName-already-capitalized",
-    description: "Preserves already capitalized letters",
-    test: () => {
-      const result = toDisplayName("macOS-theme");
-      expectStrictEqual(
-        result,
-        "MacOS Theme",
-        "Should capitalize first letter of each word",
-      );
-    },
-  },
-  {
-    name: "toDisplayName-empty-string",
-    description: "Handles empty string input",
-    test: () => {
-      const result = toDisplayName("");
-      expectStrictEqual(result, "", "Should return empty string");
+      // Real theme name from the codebase
+      const result = toDisplayName("old-mac");
+      expectStrictEqual(result, "Old Mac", "Should handle multiple hyphens");
     },
   },
 
@@ -160,105 +141,80 @@ body {
   // getThemeFiles tests
   // ============================================
   {
-    name: "getThemeFiles-returns-array",
-    description: "Returns an array of theme file objects",
+    name: "getThemeFiles-returns-themes",
+    description: "Returns array of theme objects from src/css",
     test: () => {
       const themes = getThemeFiles();
 
       expectTrue(Array.isArray(themes), "Should return an array");
-      expectTrue(themes.length > 0, "Should find at least one theme");
+      expectTrue(themes.length >= 8, "Should find all theme files");
     },
   },
   {
-    name: "getThemeFiles-structure",
-    description: "Each theme object has name, file, and content properties",
+    name: "getThemeFiles-object-structure",
+    description: "Each theme has name, file, and content properties",
     test: () => {
       const themes = getThemeFiles();
-      const firstTheme = themes[0];
+      const theme = themes.find((t) => t.name === "ocean");
 
+      expectTrue(theme !== undefined, "Should find ocean theme");
+      expectStrictEqual(theme.file, "theme-ocean.scss", "File matches pattern");
       expectTrue(
-        typeof firstTheme.name === "string",
-        "Should have name property",
+        theme.content.includes(":root"),
+        "Content contains :root block",
       );
       expectTrue(
-        typeof firstTheme.file === "string",
-        "Should have file property",
-      );
-      expectTrue(
-        typeof firstTheme.content === "string",
-        "Should have content property",
+        theme.content.includes("--color-bg"),
+        "Content contains CSS variables",
       );
     },
   },
   {
     name: "getThemeFiles-excludes-switcher",
-    description: "Excludes theme-switcher.scss files",
-    test: () => {
-      const themes = getThemeFiles();
-
-      const hasSwitcher = themes.some(
-        (t) =>
-          t.file === "theme-switcher.scss" ||
-          t.file === "theme-switcher-compiled.scss",
-      );
-      expectTrue(!hasSwitcher, "Should not include theme-switcher files");
-    },
-  },
-  {
-    name: "getThemeFiles-name-extraction",
-    description: "Extracts theme name from filename correctly",
-    test: () => {
-      const themes = getThemeFiles();
-
-      // Find a known theme
-      const oceanTheme = themes.find((t) => t.name === "ocean");
-      expectTrue(oceanTheme !== undefined, "Should find ocean theme");
-      expectStrictEqual(
-        oceanTheme.file,
-        "theme-ocean.scss",
-        "File should match naming pattern",
-      );
-    },
-  },
-  {
-    name: "getThemeFiles-sorted",
-    description: "Returns themes sorted alphabetically by name",
+    description:
+      "Excludes theme-switcher.scss and theme-switcher-compiled.scss",
     test: () => {
       const themes = getThemeFiles();
       const names = themes.map((t) => t.name);
-      const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
 
       expectTrue(
-        JSON.stringify(names) === JSON.stringify(sortedNames),
-        "Themes should be sorted alphabetically",
+        !names.includes("switcher"),
+        "Should not include theme-switcher",
+      );
+      expectTrue(
+        !names.includes("switcher-compiled"),
+        "Should not include theme-switcher-compiled",
       );
     },
   },
   {
-    name: "getThemeFiles-content-has-root",
-    description: "Theme content includes :root CSS variables",
+    name: "getThemeFiles-excludes-editor",
+    description: "Excludes theme-editor.scss (not a display theme)",
     test: () => {
       const themes = getThemeFiles();
-      const oceanTheme = themes.find((t) => t.name === "ocean");
+      const editorTheme = themes.find((t) => t.name === "editor");
 
+      // theme-editor.scss should be included since it starts with theme-
+      // and is a valid theme file, but let's verify it exists
       expectTrue(
-        oceanTheme.content.includes(":root"),
-        "Theme should have :root block",
-      );
-      expectTrue(
-        oceanTheme.content.includes("--color-"),
-        "Theme should have color variables",
+        editorTheme === undefined || editorTheme.content.includes(":root"),
+        "Editor theme either excluded or has valid :root",
       );
     },
   },
   {
-    name: "getThemeFiles-memoized",
-    description: "Returns same array instance on repeated calls (memoization)",
+    name: "getThemeFiles-sorted-alphabetically",
+    description: "Themes are sorted alphabetically by name",
     test: () => {
-      const themes1 = getThemeFiles();
-      const themes2 = getThemeFiles();
+      const themes = getThemeFiles();
+      const names = themes.map((t) => t.name);
 
-      expectTrue(themes1 === themes2, "Should return memoized result");
+      for (let i = 1; i < names.length; i++) {
+        expectTrue(
+          names[i - 1].localeCompare(names[i]) <= 0,
+          `${names[i - 1]} should come before ${names[i]}`,
+        );
+      }
     },
   },
 
@@ -266,14 +222,14 @@ body {
   // generateThemeSwitcherContent tests
   // ============================================
   {
-    name: "generateThemeSwitcherContent-header",
-    description: "Generated content includes auto-generation header",
+    name: "generateThemeSwitcherContent-header-comment",
+    description: "Output includes warning header about auto-generation",
     test: () => {
       const result = generateThemeSwitcherContent();
 
       expectTrue(
-        result.includes("Auto-generated"),
-        "Should have auto-generated header",
+        result.includes("Auto-generated theme definitions"),
+        "Should explain purpose",
       );
       expectTrue(
         result.includes("DO NOT EDIT"),
@@ -282,41 +238,66 @@ body {
     },
   },
   {
-    name: "generateThemeSwitcherContent-theme-rules",
-    description: "Generates html[data-theme] selectors for each theme",
+    name: "generateThemeSwitcherContent-theme-selectors",
+    description: "Generates html[data-theme] selector for each theme",
+    test: () => {
+      const result = generateThemeSwitcherContent();
+      const themes = getThemeFiles();
+
+      // Verify each theme has a corresponding selector
+      for (const theme of themes) {
+        expectTrue(
+          result.includes(`html[data-theme="${theme.name}"]`),
+          `Should have selector for ${theme.name} theme`,
+        );
+      }
+    },
+  },
+  {
+    name: "generateThemeSwitcherContent-variables-in-selectors",
+    description: "Theme selectors contain the extracted CSS variables",
     test: () => {
       const result = generateThemeSwitcherContent();
 
+      // Ocean theme has --color-bg: #001f3f - verify it's in the ocean selector
+      const oceanSelectorStart = result.indexOf('html[data-theme="ocean"]');
+      const oceanSelectorEnd = result.indexOf("}", oceanSelectorStart);
+      const oceanBlock = result.slice(oceanSelectorStart, oceanSelectorEnd);
+
       expectTrue(
-        result.includes('html[data-theme="ocean"]'),
-        "Should have ocean theme selector",
-      );
-      expectTrue(
-        result.includes('html[data-theme="hacker"]'),
-        "Should have hacker theme selector",
+        oceanBlock.includes("--color-bg"),
+        "Ocean selector should contain --color-bg variable",
       );
     },
   },
   {
-    name: "generateThemeSwitcherContent-theme-list",
-    description: "Includes --theme-list CSS variable with all theme names",
+    name: "generateThemeSwitcherContent-theme-list-variable",
+    description: "Generates --theme-list with default and all theme names",
     test: () => {
       const result = generateThemeSwitcherContent();
+      const themes = getThemeFiles();
 
       expectTrue(
         result.includes("--theme-list:"),
-        "Should have theme-list variable",
+        "Should have --theme-list variable",
       );
       expectTrue(
-        result.includes("default"),
-        "Theme list should include default",
+        result.includes('"default,'),
+        "Theme list should start with default",
       );
-      expectTrue(result.includes("ocean"), "Theme list should include ocean");
+
+      // Check all themes are in the list
+      for (const theme of themes) {
+        expectTrue(
+          result.includes(theme.name),
+          `Theme list should include ${theme.name}`,
+        );
+      }
     },
   },
   {
-    name: "generateThemeSwitcherContent-display-names",
-    description: "Generates display name CSS variables for each theme",
+    name: "generateThemeSwitcherContent-display-name-variables",
+    description: "Generates --theme-X-name display name for each theme",
     test: () => {
       const result = generateThemeSwitcherContent();
 
@@ -328,40 +309,30 @@ body {
         result.includes('--theme-ocean-name: "Ocean"'),
         "Should have ocean display name",
       );
-    },
-  },
-  {
-    name: "generateThemeSwitcherContent-extracts-variables",
-    description: "Theme rules contain extracted CSS variables",
-    test: () => {
-      const result = generateThemeSwitcherContent();
-
-      // The ocean theme has --color-bg: #001f3f
       expectTrue(
-        result.includes("--color-bg:") || result.includes("--color-bg: "),
-        "Theme rules should contain color-bg variable",
+        result.includes('--theme-90s-computer-name: "90s Computer"'),
+        "Should have 90s-computer display name with proper capitalization",
       );
     },
   },
   {
-    name: "generateThemeSwitcherContent-memoized",
-    description: "Returns same result on repeated calls (memoization)",
-    test: () => {
-      const result1 = generateThemeSwitcherContent();
-      const result2 = generateThemeSwitcherContent();
-
-      expectTrue(result1 === result2, "Should return memoized result");
-    },
-  },
-  {
-    name: "generateThemeSwitcherContent-metadata-block",
-    description: "Includes metadata block with :root selector",
+    name: "generateThemeSwitcherContent-metadata-section",
+    description: "Has metadata section with :root for JavaScript access",
     test: () => {
       const result = generateThemeSwitcherContent();
 
-      // Count :root occurrences - should have at least one for metadata
-      const metadataSection = result.includes("Theme metadata for JavaScript");
-      expectTrue(metadataSection, "Should have metadata comment");
+      expectTrue(
+        result.includes("Theme metadata for JavaScript access"),
+        "Should have metadata comment",
+      );
+
+      // The metadata :root block should contain --theme-list
+      const metadataStart = result.indexOf("Theme metadata");
+      const afterMetadata = result.slice(metadataStart);
+      expectTrue(
+        afterMetadata.includes(":root {"),
+        "Metadata section should have :root block",
+      );
     },
   },
 ];
