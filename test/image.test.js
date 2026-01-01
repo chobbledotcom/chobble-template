@@ -613,17 +613,16 @@ const testCases = [
   },
   {
     name: "imageShortcode-invalid-image-path",
-    description: "Returns empty string for invalid image path",
+    description: "Throws error for invalid image path",
     test: async () => {
-      const result = await imageShortcode(
-        "nonexistent-image-12345.jpg",
-        "Test",
-      );
-
-      assert.strictEqual(
-        result,
-        "",
-        "Should return empty string for invalid image path",
+      await assert.rejects(
+        async () => {
+          await imageShortcode("nonexistent-image-12345.jpg", "Test");
+        },
+        {
+          name: "Error",
+        },
+        "Should throw an error for invalid image path",
       );
     },
   },

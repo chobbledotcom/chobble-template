@@ -57,9 +57,6 @@ const ALLOWED_HTML_IN_JS = new Set([
   "src/_lib/eleventy/js-config.js",
   "src/_lib/eleventy/responsive-tables.js",
 
-  // Media utilities with HTML generation
-  "src/_lib/media/image.js",
-
   // Collections with embedded HTML/SVG
   "src/_lib/collections/reviews.js",
 
