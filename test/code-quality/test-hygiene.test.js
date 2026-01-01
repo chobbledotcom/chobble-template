@@ -76,8 +76,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "countCamelCaseWords",
   "extractCamelCaseIdentifiers",
   "analyzeNamingConventions",
-  // render-snippet.test.js
-  "runTests",
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
