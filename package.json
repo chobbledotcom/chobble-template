@@ -22,7 +22,7 @@
 	"scripts": {
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "pnpm run lint && eleventy --quiet && node test/run-coverage.js",
+		"test": "pnpm run lint && pnpm run cpd && eleventy --quiet && node test/run-coverage.js",
 		"test:verbose": "TEST_VERBOSE=1 pnpm test",
 		"cpd": "jscpd",
 		"knip": "knip",
