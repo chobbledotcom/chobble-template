@@ -456,9 +456,9 @@ const testCases = [
       "Recurring events are correctly rendered when site is built with Eleventy",
     asyncTest: async () => {
       const site = await createTestSite({
-        events: [
+        files: [
           {
-            filename: "weekly-meetup.md",
+            path: "events/weekly-meetup.md",
             frontmatter: {
               title: "Weekly Meetup",
               recurring_date: "Every Tuesday at 7pm",
@@ -467,7 +467,7 @@ const testCases = [
             content: "# Weekly Meetup\n\nJoin us every week!",
           },
           {
-            filename: "2024-03-15-monthly-workshop.md",
+            path: "events/2024-03-15-monthly-workshop.md",
             frontmatter: {
               title: "Monthly Workshop",
               recurring_date: "First Saturday of each month",
@@ -475,7 +475,7 @@ const testCases = [
             content: "# Monthly Workshop",
           },
           {
-            filename: "one-time-event.md",
+            path: "events/one-time-event.md",
             frontmatter: {
               title: "One Time Event",
               event_date: "2024-06-15",
@@ -483,11 +483,8 @@ const testCases = [
             content:
               "# One Time Event\n\nThis should NOT appear in recurring list",
           },
-        ],
-        // Create a page that uses the recurring_events shortcode
-        pages: [
           {
-            filename: "recurring-test.md",
+            path: "pages/recurring-test.md",
             frontmatter: {
               title: "Recurring Events Test",
               layout: "page",
@@ -562,9 +559,9 @@ const testCases = [
     description: "Events with custom permalinks use that URL in recurring list",
     asyncTest: async () => {
       const site = await createTestSite({
-        events: [
+        files: [
           {
-            filename: "yoga-class.md",
+            path: "events/yoga-class.md",
             frontmatter: {
               title: "Yoga Class",
               recurring_date: "Wednesdays at 6pm",
@@ -572,10 +569,8 @@ const testCases = [
             },
             content: "# Yoga Class",
           },
-        ],
-        pages: [
           {
-            filename: "test.md",
+            path: "pages/test.md",
             frontmatter: {
               title: "Test",
               layout: "page",
@@ -610,19 +605,17 @@ const testCases = [
     description: "Returns empty content when no recurring events exist",
     asyncTest: async () => {
       const site = await createTestSite({
-        events: [
+        files: [
           {
-            filename: "one-time.md",
+            path: "events/one-time.md",
             frontmatter: {
               title: "One Time Only",
               event_date: "2024-12-25",
             },
             content: "# One Time Only",
           },
-        ],
-        pages: [
           {
-            filename: "test.md",
+            path: "pages/test.md",
             frontmatter: {
               title: "Test",
               layout: "page",
@@ -657,9 +650,9 @@ const testCases = [
     description: "Recurring events render with correct HTML structure",
     asyncTest: async () => {
       const site = await createTestSite({
-        events: [
+        files: [
           {
-            filename: "test-event.md",
+            path: "events/test-event.md",
             frontmatter: {
               title: "Test Event",
               recurring_date: "Daily",
@@ -667,10 +660,8 @@ const testCases = [
             },
             content: "# Test",
           },
-        ],
-        pages: [
           {
-            filename: "test.md",
+            path: "pages/test.md",
             frontmatter: {
               title: "Test",
               layout: "page",
