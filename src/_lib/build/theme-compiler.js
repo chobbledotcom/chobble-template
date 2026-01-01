@@ -66,6 +66,9 @@ ${displayNames.join("\n")}
   return [header, ...themeRules, metadata].join("\n\n");
 });
 
-// We only export generateThemeSwitcherContent now since it's the only function
-// that's actually used (by scss.js to inject themes into bundle.scss)
-export { generateThemeSwitcherContent };
+export {
+  extractRootVariables,
+  generateThemeSwitcherContent,
+  getThemeFiles,
+  toDisplayName,
+};
