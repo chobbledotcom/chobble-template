@@ -1,53 +1,52 @@
 // Template selector constants
-// Single source of truth for class names used in HTML templates and JS
+// Single source of truth - all values auto-generated from schema
+
+const toKebab = (s) => s.toLowerCase().replace(/_/g, "-");
 
 // ===========================================
-// Source of truth: Class names (for HTML)
+// Schema: Structure definition (values auto-generated)
 // ===========================================
 
-export const CLASSES = {
-  QUANTITY: {
-    CONTAINER: "cart-item-quantity",
-    DECREASE: "qty-decrease",
-    INCREASE: "qty-increase",
-    INPUT: "qty-input",
-  },
-  CART_ITEM: {
-    CONTAINER: "cart-item",
-    NAME: "cart-item-name",
-    PRICE: "cart-item-price",
-    REMOVE: "cart-item-remove",
-  },
-  QUOTE_CART_ITEM: {
-    CONTAINER: "quote-cart-item",
-    NAME: "quote-cart-item-name",
-    PRICE: "quote-cart-item-price",
-    SPECS: "quote-cart-item-specs",
-    REMOVE: "quote-cart-item-remove",
-  },
-  QUOTE_CHECKOUT_ITEM: {
-    CONTAINER: "quote-checkout-item",
-    NAME: "quote-checkout-item-name",
-    QTY: "quote-checkout-item-qty",
-    PRICE: "quote-checkout-item-price",
-  },
-  GALLERY_NAV: {
-    PREV: "popup-nav-prev",
-    NEXT: "popup-nav-next",
-  },
+const SCHEMA = {
+  CART_ITEM: ["NAME", "PRICE", "REMOVE"],
+  QUOTE_CART_ITEM: ["NAME", "PRICE", "SPECS", "REMOVE"],
+  QUOTE_CHECKOUT_ITEM: ["NAME", "QTY", "PRICE"],
+  QUANTITY: ["DECREASE", "INCREASE", "INPUT"],
+  GALLERY_NAV: ["PREV", "NEXT"],
+};
+
+// Templates and what class groups they use
+const TEMPLATES = {
+  CART_ITEM: ["CART_ITEM", "QUANTITY.INPUT"],
+  QUOTE_CART_ITEM: ["QUOTE_CART_ITEM", "QUANTITY.INPUT"],
+  QUOTE_CHECKOUT_ITEM: ["QUOTE_CHECKOUT_ITEM"],
+  GALLERY_NAV_PREV: ["GALLERY_NAV.PREV"],
+  GALLERY_NAV_NEXT: ["GALLERY_NAV.NEXT"],
 };
 
 // ===========================================
-// Source of truth: Template IDs
+// Auto-generated: Class names (for HTML)
 // ===========================================
 
-export const IDS = {
-  CART_ITEM: "cart-item-template",
-  QUOTE_CART_ITEM: "quote-cart-item-template",
-  QUOTE_CHECKOUT_ITEM: "quote-checkout-item-template",
-  GALLERY_NAV_PREV: "gallery-popup-nav-prev",
-  GALLERY_NAV_NEXT: "gallery-popup-nav-next",
-};
+export const CLASSES = Object.fromEntries(
+  Object.entries(SCHEMA).map(([group, props]) => [
+    group,
+    {
+      CONTAINER: toKebab(group),
+      ...Object.fromEntries(
+        props.map((p) => [p, `${toKebab(group)}-${toKebab(p)}`]),
+      ),
+    },
+  ]),
+);
+
+// ===========================================
+// Auto-generated: Template IDs
+// ===========================================
+
+export const IDS = Object.fromEntries(
+  Object.keys(TEMPLATES).map((k) => [k, `${toKebab(k)}-template`]),
+);
 
 // ===========================================
 // Auto-generated: CSS selectors (for JS)
@@ -63,46 +62,20 @@ const toSelectors = (obj) =>
 export const SEL = toSelectors(CLASSES);
 
 // ===========================================
-// Template definitions (for testing)
+// Auto-generated: Template definitions (for testing)
 // ===========================================
 
-export const TEMPLATE_DEFINITIONS = {
-  [IDS.CART_ITEM]: {
-    id: IDS.CART_ITEM,
-    classes: [
-      CLASSES.CART_ITEM.CONTAINER,
-      CLASSES.CART_ITEM.NAME,
-      CLASSES.CART_ITEM.PRICE,
-      CLASSES.CART_ITEM.REMOVE,
-      CLASSES.QUANTITY.INPUT,
-    ],
-  },
-  [IDS.QUOTE_CART_ITEM]: {
-    id: IDS.QUOTE_CART_ITEM,
-    classes: [
-      CLASSES.QUOTE_CART_ITEM.CONTAINER,
-      CLASSES.QUOTE_CART_ITEM.NAME,
-      CLASSES.QUOTE_CART_ITEM.PRICE,
-      CLASSES.QUOTE_CART_ITEM.SPECS,
-      CLASSES.QUOTE_CART_ITEM.REMOVE,
-      CLASSES.QUANTITY.INPUT,
-    ],
-  },
-  [IDS.QUOTE_CHECKOUT_ITEM]: {
-    id: IDS.QUOTE_CHECKOUT_ITEM,
-    classes: [
-      CLASSES.QUOTE_CHECKOUT_ITEM.CONTAINER,
-      CLASSES.QUOTE_CHECKOUT_ITEM.NAME,
-      CLASSES.QUOTE_CHECKOUT_ITEM.QTY,
-      CLASSES.QUOTE_CHECKOUT_ITEM.PRICE,
-    ],
-  },
-  [IDS.GALLERY_NAV_PREV]: {
-    id: IDS.GALLERY_NAV_PREV,
-    classes: [CLASSES.GALLERY_NAV.PREV],
-  },
-  [IDS.GALLERY_NAV_NEXT]: {
-    id: IDS.GALLERY_NAV_NEXT,
-    classes: [CLASSES.GALLERY_NAV.NEXT],
-  },
+const getClass = (path) => {
+  const [group, prop] = path.split(".");
+  return prop ? CLASSES[group][prop] : Object.values(CLASSES[group]);
 };
+
+export const TEMPLATE_DEFINITIONS = Object.fromEntries(
+  Object.entries(TEMPLATES).map(([key, paths]) => [
+    IDS[key],
+    {
+      id: IDS[key],
+      classes: paths.flatMap(getClass),
+    },
+  ]),
+);

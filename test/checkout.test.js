@@ -21,6 +21,7 @@ import {
   updateCartIcon,
   updateItemQuantity,
 } from "#assets/cart-utils.js";
+import { CLASSES, SEL } from "#assets/selectors.js";
 import { buildJsConfigScript } from "#eleventy/js-config.js";
 import { createTestRunner } from "#test/test-utils.js";
 
@@ -507,9 +508,9 @@ const testCases = [
         <!DOCTYPE html>
         <html><body>
           <div id="container">
-            <button class="qty-decrease" data-name="Widget">−</button>
-            <input class="qty-input" data-name="Widget" value="3">
-            <button class="qty-increase" data-name="Widget">+</button>
+            <button class="${CLASSES.QUANTITY.DECREASE}" data-name="Widget">−</button>
+            <input class="${CLASSES.QUANTITY.INPUT}" data-name="Widget" value="3">
+            <button class="${CLASSES.QUANTITY.INCREASE}" data-name="Widget">+</button>
           </div>
         </body></html>
       `);
@@ -527,7 +528,7 @@ const testCases = [
         });
 
         // Simulate click on decrease button
-        const decreaseBtn = container.querySelector(".qty-decrease");
+        const decreaseBtn = container.querySelector(SEL.QUANTITY.DECREASE);
         decreaseBtn.click();
 
         assert.strictEqual(updates.length, 1, "Should have one update");
@@ -547,9 +548,9 @@ const testCases = [
         <!DOCTYPE html>
         <html><body>
           <div id="container">
-            <button class="qty-decrease" data-name="Widget">−</button>
-            <input class="qty-input" data-name="Widget" value="3">
-            <button class="qty-increase" data-name="Widget">+</button>
+            <button class="${CLASSES.QUANTITY.DECREASE}" data-name="Widget">−</button>
+            <input class="${CLASSES.QUANTITY.INPUT}" data-name="Widget" value="3">
+            <button class="${CLASSES.QUANTITY.INCREASE}" data-name="Widget">+</button>
           </div>
         </body></html>
       `);
@@ -567,7 +568,7 @@ const testCases = [
         });
 
         // Simulate click on increase button
-        const increaseBtn = container.querySelector(".qty-increase");
+        const increaseBtn = container.querySelector(SEL.QUANTITY.INCREASE);
         increaseBtn.click();
 
         assert.strictEqual(updates.length, 1, "Should have one update");
@@ -587,7 +588,7 @@ const testCases = [
         <!DOCTYPE html>
         <html><body>
           <div id="container">
-            <input class="qty-input" data-name="Widget" value="3">
+            <input class="${CLASSES.QUANTITY.INPUT}" data-name="Widget" value="3">
           </div>
         </body></html>
       `);
@@ -605,7 +606,7 @@ const testCases = [
         });
 
         // Simulate input change
-        const input = container.querySelector(".qty-input");
+        const input = container.querySelector(SEL.QUANTITY.INPUT);
         input.value = "7";
         input.dispatchEvent(new dom.window.Event("change"));
 
