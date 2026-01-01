@@ -32,12 +32,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
   "src/assets/js/cart-utils.js:11",
-
-  // test/cpd.test.js - running external tool and capturing exit code
-  "test/cpd.test.js:16",
-
-  // test/knip.test.js - running external tool and capturing exit code
-  "test/knip.test.js:16",
 ]);
 
 export { ALLOWED_TRY_CATCHES };
