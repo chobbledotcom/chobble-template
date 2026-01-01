@@ -1,4 +1,5 @@
 import strings from "#data/strings.js";
+import { slugToTitle } from "#utils/slug-utils.js";
 
 const locationDir = strings.location_permalink_dir;
 
@@ -22,15 +23,9 @@ export default {
       if (data.eleventyNavigation) return data.eleventyNavigation;
       if (data.parentLocation) {
         // Service-location: add as child of parent location
-        // Convert slug to title case for the parent navigation key
-        // e.g., "royston-vasey" → "Royston Vasey"
-        const parentTitle = data.parentLocation
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
         return {
           key: data.title,
-          parent: parentTitle,
+          parent: slugToTitle(data.parentLocation),
           order: data.link_order || 0,
         };
       }

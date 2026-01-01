@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { memoize } from "#utils/memoize.js";
+import { slugToTitle } from "#utils/slug-utils.js";
 
 // Get all theme files and their names
 const getThemeFiles = memoize(() => {
@@ -35,14 +36,6 @@ const extractRootVariables = (content) => {
   return rootMatch[1];
 };
 
-// Convert theme name to display name (e.g., "90s-computer" -> "90s Computer")
-const toDisplayName = (name) => {
-  return name
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
 // Generate compiled theme CSS for theme-switcher
 const generateThemeSwitcherContent = memoize(() => {
   const themes = getThemeFiles(); // Already sorted alphabetically
@@ -60,7 +53,7 @@ const generateThemeSwitcherContent = memoize(() => {
   // Generate theme list as CSS custom property for JavaScript access
   const themeList = ["default", ...themes.map((t) => t.name)];
   const displayNames = themes.map(
-    (theme) => `  --theme-${theme.name}-name: "${toDisplayName(theme.name)}";`,
+    (theme) => `  --theme-${theme.name}-name: "${slugToTitle(theme.name)}";`,
   );
 
   const metadata = `// Theme metadata for JavaScript access
@@ -73,6 +66,9 @@ ${displayNames.join("\n")}
   return [header, ...themeRules, metadata].join("\n\n");
 });
 
-// We only export generateThemeSwitcherContent now since it's the only function
-// that's actually used (by scss.js to inject themes into bundle.scss)
-export { generateThemeSwitcherContent };
+export {
+  extractRootVariables,
+  generateThemeSwitcherContent,
+  getThemeFiles,
+  slugToTitle,
+};

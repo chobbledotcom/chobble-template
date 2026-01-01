@@ -3,6 +3,7 @@ import {
   createSearchKeywordsCollection,
   getAllKeywords,
   getProductsByKeyword,
+  normaliseCategory,
 } from "#collections/search.js";
 import {
   createMockEleventyConfig,
@@ -250,6 +251,103 @@ const testCases = [
         mockConfig.filters.getAllKeywords,
         getAllKeywords,
         "Should use correct filter function",
+      );
+    },
+  },
+  {
+    name: "normaliseCategory-transforms-category-paths",
+    description:
+      "Normalizes category paths from frontmatter format to display format",
+    test: () => {
+      // Full path as stored in frontmatter
+      expectStrictEqual(
+        normaliseCategory("/categories/premium-widgets.md"),
+        "premium widgets",
+        "Full category path should be normalized",
+      );
+
+      // Falsy values return empty string
+      expectStrictEqual(normaliseCategory(null), "", "null → empty");
+      expectStrictEqual(normaliseCategory(""), "", "empty → empty");
+    },
+  },
+  {
+    name: "getAllKeywords-with-categories",
+    description: "Extracts keywords from product categories",
+    test: () => {
+      const products = [
+        {
+          data: {
+            title: "Product 1",
+            categories: ["/categories/premium-widgets.md"],
+          },
+        },
+        {
+          data: {
+            title: "Product 2",
+            categories: ["/categories/basic-gadgets.md", "simple"],
+          },
+        },
+      ];
+
+      const keywords = getAllKeywords(products);
+
+      expectDeepEqual(
+        keywords,
+        ["basic gadgets", "premium widgets", "simple"],
+        "Should extract and normalize category names as keywords",
+      );
+    },
+  },
+  {
+    name: "getProductsByKeyword-via-category",
+    description: "Finds products by normalized category name",
+    test: () => {
+      const products = [
+        {
+          data: {
+            title: "Widget Pro",
+            categories: ["/categories/premium-widgets.md"],
+          },
+        },
+        {
+          data: {
+            title: "Basic Widget",
+            categories: ["/categories/basic-widgets.md"],
+          },
+        },
+      ];
+
+      const result = getProductsByKeyword(products, "premium widgets");
+
+      expectStrictEqual(result.length, 1, "Should find 1 product");
+      expectStrictEqual(
+        result[0].data.title,
+        "Widget Pro",
+        "Should find correct product",
+      );
+    },
+  },
+  {
+    name: "getAllKeywords-combines-keywords-and-categories",
+    description: "Combines explicit keywords with category-derived keywords",
+    test: () => {
+      const products = [
+        {
+          data: {
+            title: "Product 1",
+            keywords: ["sale", "featured"],
+            categories: ["/categories/premium.md"],
+          },
+        },
+      ];
+
+      const keywords = getAllKeywords(products);
+
+      expectDeepEqual(
+        keywords,
+        ["featured", "premium", "sale"],
+        "Should include both explicit keywords and category-derived keywords",
       );
     },
   },

@@ -22,14 +22,11 @@ const ALLOWED_TRY_CATCHES = new Set([
   "src/assets/js/availability-calendar.js:132",
 
   // src/assets/js/cart.js - PayPal checkout fetch handling
-  "src/assets/js/cart.js:226",
+  "src/assets/js/cart.js:209",
 
   // src/_lib/media/image.js - image processing
   "src/_lib/media/image.js:74",
   "src/_lib/media/image.js:337",
-
-  // src/assets/js/stripe-checkout.js - Stripe API
-  "src/assets/js/stripe-checkout.js:38",
 
   // src/assets/js/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,

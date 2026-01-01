@@ -118,9 +118,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "test",
   // naming-conventions.test.js - test fixture string
   "getUserById",
-  // memoize.test.js - test fixtures for memoize behavior
-  "expensiveFn",
-  "filterFn",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "analyzeTryCatchUsage",
