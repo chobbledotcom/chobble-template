@@ -25,13 +25,16 @@ const selectorsContent = fs.existsSync(SELECTORS_PATH)
   ? readFileSync(SELECTORS_PATH, "utf-8")
   : "";
 
-// Extract class names from *_CLASSES objects in selectors.js
+// Extract class names from CLASSES object in selectors.js
 const extractClassesFromSelectors = () => {
   const classes = new Set();
-  const regex = /export const \w+_CLASSES = \{([^}]+)\}/g;
-  const matches = selectorsContent.matchAll(regex);
-  for (const [, content] of matches) {
-    const pairs = content.matchAll(/\w+:\s*"([^"]+)"/g);
+  // Match the CLASSES = { ... } block
+  const match = selectorsContent.match(
+    /export const CLASSES = \{([\s\S]*?)\n\};/,
+  );
+  if (match) {
+    // Extract all quoted string values (class names)
+    const pairs = match[1].matchAll(/:\s*"([^"]+)"/g);
     for (const [, value] of pairs) {
       classes.add(value);
     }

@@ -11,11 +11,9 @@ import { JSDOM } from "jsdom";
 const selectorsPath = path.join(process.cwd(), "src/assets/js/selectors.js");
 const selectorsContent = fs.readFileSync(selectorsPath, "utf-8");
 
-// Extract TEMPLATE_IDS from the file
-function extractTemplateIds() {
-  const match = selectorsContent.match(
-    /export const TEMPLATE_IDS = \{([^}]+)\}/,
-  );
+// Extract IDS from the file
+function extractIds() {
+  const match = selectorsContent.match(/export const IDS = \{([^}]+)\}/);
   if (!match) return {};
   const idsObj = {};
   const pairs = match[1].matchAll(/(\w+):\s*"([^"]+)"/g);
@@ -25,73 +23,69 @@ function extractTemplateIds() {
   return idsObj;
 }
 
-// Extract class constants from file (now _CLASSES instead of _SELECTORS)
-function extractClassObjects() {
-  const objects = {};
-  const regex = /export const (\w+_CLASSES) = \{([^}]+)\}/g;
-  const matches = selectorsContent.matchAll(regex);
-  for (const [, name, content] of matches) {
-    const classes = {};
-    const pairs = content.matchAll(/(\w+):\s*"([^"]+)"/g);
+// Extract CLASSES object from file (nested structure)
+function extractClasses() {
+  const match = selectorsContent.match(
+    /export const CLASSES = \{([\s\S]*?)\n\};/,
+  );
+  if (!match) return {};
+
+  const classes = {};
+  // Match each top-level group like QUANTITY: {...}, CART_ITEM: {...}
+  const groupRegex = /(\w+):\s*\{([^}]+)\}/g;
+  const groupMatches = match[1].matchAll(groupRegex);
+
+  for (const [, groupName, groupContent] of groupMatches) {
+    classes[groupName] = {};
+    const pairs = groupContent.matchAll(/(\w+):\s*"([^"]+)"/g);
     for (const [, key, value] of pairs) {
-      classes[key] = value;
+      classes[groupName][key] = value;
     }
-    objects[name] = classes;
   }
-  return objects;
+  return classes;
 }
 
 // Extract TEMPLATE_DEFINITIONS to understand which classes each template needs
 function extractTemplateDefinitions() {
-  // Parse the TEMPLATE_DEFINITIONS block
   const match = selectorsContent.match(
     /export const TEMPLATE_DEFINITIONS = \{([\s\S]*?)\n\};/,
   );
   if (!match) return {};
 
   const definitions = {};
+  // Match blocks like [IDS.CART_ITEM]: { ... classes: [...] }
   const templateBlocks = match[1].matchAll(
-    /\[TEMPLATE_IDS\.(\w+)\]:\s*\{[^}]*classes:\s*\[([\s\S]*?)\]/g,
+    /\[IDS\.(\w+)\]:\s*\{[^}]*classes:\s*\[([\s\S]*?)\]/g,
   );
 
   for (const [, templateKey, classList] of templateBlocks) {
-    // Extract class references from the list
-    const classRefs = classList.matchAll(/(\w+_CLASSES)\.(\w+)/g);
+    // Extract class references like CLASSES.CART_ITEM.NAME
+    const classRefs = classList.matchAll(/CLASSES\.(\w+)\.(\w+)/g);
     definitions[templateKey] = [];
-    for (const [, objName, propName] of classRefs) {
-      definitions[templateKey].push({ objName, propName });
+    for (const [, groupName, propName] of classRefs) {
+      definitions[templateKey].push({ groupName, propName });
     }
   }
   return definitions;
 }
 
-const TEMPLATE_IDS = extractTemplateIds();
-const CLASS_OBJECTS = extractClassObjects();
+const IDS = extractIds();
+const CLASSES = extractClasses();
 const TEMPLATE_DEFINITIONS = extractTemplateDefinitions();
 
 // Build a lookup for Liquid variable expansion
-// Maps "selectors.CART_ITEM.NAME" -> "cart-item-name"
 function buildLiquidLookup() {
   const lookup = {};
 
-  // Add TEMPLATE_IDS
-  for (const [key, value] of Object.entries(TEMPLATE_IDS)) {
-    lookup[`selectors.TEMPLATE_IDS.${key}`] = value;
+  // Add IDS
+  for (const [key, value] of Object.entries(IDS)) {
+    lookup[`selectors.IDS.${key}`] = value;
   }
 
-  // Add class objects with short names (QUANTITY, CART_ITEM, etc.)
-  const shortNames = {
-    QUANTITY_CLASSES: "QUANTITY",
-    CART_ITEM_CLASSES: "CART_ITEM",
-    QUOTE_CART_ITEM_CLASSES: "QUOTE_CART_ITEM",
-    QUOTE_CHECKOUT_ITEM_CLASSES: "QUOTE_CHECKOUT_ITEM",
-    GALLERY_NAV_CLASSES: "GALLERY_NAV",
-  };
-
-  for (const [objName, classes] of Object.entries(CLASS_OBJECTS)) {
-    const shortName = shortNames[objName] || objName;
-    for (const [key, value] of Object.entries(classes)) {
-      lookup[`selectors.${shortName}.${key}`] = value;
+  // Add CLASSES
+  for (const [groupName, group] of Object.entries(CLASSES)) {
+    for (const [key, value] of Object.entries(group)) {
+      lookup[`selectors.${groupName}.${key}`] = value;
     }
   }
 
@@ -118,7 +112,7 @@ function loadTemplate(filename) {
   }
   let content = fs.readFileSync(filepath, "utf-8");
 
-  // Process Liquid includes - replace with the included file content
+  // Process Liquid includes
   content = content.replace(
     /\{%\s*include\s*["']templates\/([^"']+)["']\s*%\}/g,
     (_, includePath) => {
@@ -142,7 +136,7 @@ const galleryTemplates = loadTemplate("gallery.html");
 
 describe("Template selector contracts", () => {
   describe("All template IDs exist in HTML", () => {
-    for (const [key, id] of Object.entries(TEMPLATE_IDS)) {
+    for (const [key, id] of Object.entries(IDS)) {
       it(`template "${id}" (${key}) exists`, () => {
         let found = false;
         for (const dom of [cartTemplates, galleryTemplates]) {
@@ -163,11 +157,10 @@ describe("Template selector contracts", () => {
     for (const [templateKey, classRefs] of Object.entries(
       TEMPLATE_DEFINITIONS,
     )) {
-      const templateId = TEMPLATE_IDS[templateKey];
+      const templateId = IDS[templateKey];
       if (!templateId) continue;
 
       describe(`${templateId}`, () => {
-        // Find the template in DOM
         let templateEl = null;
         for (const dom of [cartTemplates, galleryTemplates]) {
           if (dom) {
@@ -183,18 +176,16 @@ describe("Template selector contracts", () => {
           return;
         }
 
-        // Get template content
         const content = templateEl.content || templateEl;
 
-        for (const { objName, propName } of classRefs) {
-          const classObj = CLASS_OBJECTS[objName];
-          if (!classObj) continue;
+        for (const { groupName, propName } of classRefs) {
+          const classGroup = CLASSES[groupName];
+          if (!classGroup) continue;
 
-          const className = classObj[propName];
+          const className = classGroup[propName];
           if (!className) continue;
 
-          it(`has class ${objName}.${propName} (${className})`, () => {
-            // Convert class name to selector by adding the dot
+          it(`has class CLASSES.${groupName}.${propName} (${className})`, () => {
             const element = content.querySelector(`.${className}`);
             assert.ok(
               element,
@@ -207,8 +198,7 @@ describe("Template selector contracts", () => {
   });
 });
 
-describe("Class constants usage verification", () => {
-  // Read JS files that use templates
+describe("Selector constants usage verification", () => {
   const jsFiles = [
     "src/assets/js/cart.js",
     "src/assets/js/quote.js",
@@ -225,31 +215,35 @@ describe("Class constants usage verification", () => {
     })
     .join("\n");
 
-  describe("TEMPLATE_IDS are used in JS", () => {
-    for (const [key, id] of Object.entries(TEMPLATE_IDS)) {
-      it(`TEMPLATE_IDS.${key} is used`, () => {
-        const isUsed = jsContent.includes(`TEMPLATE_IDS.${key}`);
-        assert.ok(
-          isUsed,
-          `TEMPLATE_IDS.${key} (${id}) is defined but not used in JS files`,
-        );
+  describe("IDS are used in JS", () => {
+    for (const [key, id] of Object.entries(IDS)) {
+      it(`IDS.${key} is used`, () => {
+        const isUsed = jsContent.includes(`IDS.${key}`);
+        assert.ok(isUsed, `IDS.${key} (${id}) is defined but not used`);
       });
     }
   });
 
-  describe("All exported class objects are used", () => {
-    for (const objName of Object.keys(CLASS_OBJECTS)) {
-      it(`${objName} is imported somewhere`, () => {
-        const isUsed = jsContent.includes(objName);
-        assert.ok(isUsed, `${objName} is defined but not used in JS files`);
+  describe("SEL groups are used in JS", () => {
+    for (const groupName of Object.keys(CLASSES)) {
+      it(`SEL.${groupName} is used`, () => {
+        const isUsed = jsContent.includes(`SEL.${groupName}`);
+        assert.ok(isUsed, `SEL.${groupName} is defined but not used`);
       });
     }
   });
 });
 
 describe("HTML templates use selector constants", () => {
-  // Verify that templates use Liquid variables instead of hardcoded class names
   const templateFiles = ["cart.html", "gallery.html", "quantity-controls.html"];
+
+  // Build set of all class values from CLASSES
+  const allClassValues = new Set();
+  for (const group of Object.values(CLASSES)) {
+    for (const value of Object.values(group)) {
+      allClassValues.add(value);
+    }
+  }
 
   for (const filename of templateFiles) {
     const filepath = path.join(templatesDir, filename);
@@ -258,7 +252,6 @@ describe("HTML templates use selector constants", () => {
     const content = fs.readFileSync(filepath, "utf-8");
 
     it(`${filename} uses Liquid selectors for template IDs`, () => {
-      // Check that template IDs use selectors variable
       const hardcodedIds = content.match(/id="[^{][^"]*-template"/g) || [];
       assert.strictEqual(
         hardcodedIds.length,
@@ -268,27 +261,15 @@ describe("HTML templates use selector constants", () => {
     });
 
     it(`${filename} uses Liquid selectors for main classes`, () => {
-      // Check for hardcoded classes that should use selectors
       const hardcodedClasses = [];
       const classMatches = content.matchAll(/class="([^"]+)"/g);
 
-      // Build set of all selector class values
-      const selectorClassValues = new Set();
-      for (const classes of Object.values(CLASS_OBJECTS)) {
-        for (const value of Object.values(classes)) {
-          selectorClassValues.add(value);
-        }
-      }
-
       for (const [, classValue] of classMatches) {
-        // Skip if it contains a Liquid variable
         if (classValue.includes("{{")) continue;
 
-        // Check each class in the attribute
         for (const cls of classValue.split(" ")) {
           const trimmed = cls.trim();
-          // Only flag if this exact class is defined in selectors
-          if (trimmed && selectorClassValues.has(trimmed)) {
+          if (trimmed && allClassValues.has(trimmed)) {
             hardcodedClasses.push(trimmed);
           }
         }
@@ -297,7 +278,7 @@ describe("HTML templates use selector constants", () => {
       assert.strictEqual(
         hardcodedClasses.length,
         0,
-        `Found hardcoded classes that should use selectors: ${hardcodedClasses.join(", ")}`,
+        `Found hardcoded classes: ${hardcodedClasses.join(", ")}`,
       );
     });
   }

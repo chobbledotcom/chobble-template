@@ -10,11 +10,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
-import {
-  cls,
-  QUOTE_CART_ITEM_CLASSES,
-  TEMPLATE_IDS,
-} from "#assets/selectors.js";
+import { IDS, SEL } from "#assets/selectors.js";
 import { getTemplate, populateQuantityControls } from "#assets/template.js";
 
 function handleQuantityUpdate(itemName, quantity) {
@@ -24,16 +20,16 @@ function handleQuantityUpdate(itemName, quantity) {
 }
 
 function renderQuoteItem(item) {
-  const template = getTemplate(TEMPLATE_IDS.QUOTE_CART_ITEM);
+  const template = getTemplate(IDS.QUOTE_CART_ITEM);
 
-  template.querySelector(cls(QUOTE_CART_ITEM_CLASSES.CONTAINER)).dataset.name =
+  template.querySelector(SEL.QUOTE_CART_ITEM.CONTAINER).dataset.name =
     item.item_name;
-  template.querySelector(cls(QUOTE_CART_ITEM_CLASSES.NAME)).textContent =
-    item.item_name;
-  template.querySelector(cls(QUOTE_CART_ITEM_CLASSES.PRICE)).textContent =
-    formatPrice(item.unit_price);
+  template.querySelector(SEL.QUOTE_CART_ITEM.NAME).textContent = item.item_name;
+  template.querySelector(SEL.QUOTE_CART_ITEM.PRICE).textContent = formatPrice(
+    item.unit_price,
+  );
 
-  const specsEl = template.querySelector(cls(QUOTE_CART_ITEM_CLASSES.SPECS));
+  const specsEl = template.querySelector(SEL.QUOTE_CART_ITEM.SPECS);
   if (item.specs && item.specs.length > 0) {
     specsEl.textContent = item.specs
       .map((s) => `${s.name}: ${s.value}`)
@@ -70,7 +66,7 @@ function renderCart() {
     }
 
     attachQuantityHandlers(itemsEl, handleQuantityUpdate);
-    attachRemoveHandlers(itemsEl, cls(QUOTE_CART_ITEM_CLASSES.REMOVE), () => {
+    attachRemoveHandlers(itemsEl, SEL.QUOTE_CART_ITEM.REMOVE, () => {
       renderCart();
       updateCartIcon();
     });

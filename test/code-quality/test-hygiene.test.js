@@ -152,8 +152,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findHtmlInJs",
   "analyzeHtmlInJs",
   // template-selectors.test.js - analysis helpers
-  "extractTemplateIds",
-  "extractClassObjects",
+  "extractIds",
+  "extractClasses",
   "extractTemplateDefinitions",
   "buildLiquidLookup",
   "expandLiquidVars",

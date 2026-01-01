@@ -1,5 +1,5 @@
 import { onReady } from "#assets/on-ready.js";
-import { cls, GALLERY_NAV_CLASSES, TEMPLATE_IDS } from "#assets/selectors.js";
+import { IDS, SEL } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
 
 const state = {
@@ -55,8 +55,8 @@ const updatePopupImage = (index) => {
     el.sizes = "100vw";
   }
 
-  const prev = state.imagePopup.querySelector(cls(GALLERY_NAV_CLASSES.PREV));
-  const next = state.imagePopup.querySelector(cls(GALLERY_NAV_CLASSES.NEXT));
+  const prev = state.imagePopup.querySelector(SEL.GALLERY_NAV.PREV);
+  const next = state.imagePopup.querySelector(SEL.GALLERY_NAV.NEXT);
   if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
   if (next)
     next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
@@ -77,10 +77,9 @@ const openPopup = () => {
   state.imagePopup.innerHTML = "";
 
   if (totalImages > 1) {
-    const prevBtn = getTemplate(TEMPLATE_IDS.GALLERY_NAV_PREV);
+    const prevBtn = getTemplate(IDS.GALLERY_NAV_PREV);
     if (state.currentPopupIndex <= 1) {
-      prevBtn.querySelector(cls(GALLERY_NAV_CLASSES.PREV)).style.visibility =
-        "hidden";
+      prevBtn.querySelector(SEL.GALLERY_NAV.PREV).style.visibility = "hidden";
     }
     state.imagePopup.appendChild(prevBtn);
   }
@@ -88,10 +87,9 @@ const openPopup = () => {
   state.imagePopup.appendChild(image.cloneNode(true));
 
   if (totalImages > 1) {
-    const nextBtn = getTemplate(TEMPLATE_IDS.GALLERY_NAV_NEXT);
+    const nextBtn = getTemplate(IDS.GALLERY_NAV_NEXT);
     if (state.currentPopupIndex >= totalImages) {
-      nextBtn.querySelector(cls(GALLERY_NAV_CLASSES.NEXT)).style.visibility =
-        "hidden";
+      nextBtn.querySelector(SEL.GALLERY_NAV.NEXT).style.visibility = "hidden";
     }
     state.imagePopup.appendChild(nextBtn);
   }
@@ -104,12 +102,12 @@ const openPopup = () => {
 
 const handlePopupClick = (event) => {
   // Handle navigation button clicks
-  if (event.target.closest(cls(GALLERY_NAV_CLASSES.PREV))) {
+  if (event.target.closest(SEL.GALLERY_NAV.PREV)) {
     event.stopPropagation();
     navigatePopup(-1);
     return;
   }
-  if (event.target.closest(cls(GALLERY_NAV_CLASSES.NEXT))) {
+  if (event.target.closest(SEL.GALLERY_NAV.NEXT)) {
     event.stopPropagation();
     navigatePopup(1);
     return;
