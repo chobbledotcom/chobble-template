@@ -36,12 +36,10 @@ describe("getSpecIcon", () => {
   });
 
   it("normalizes spec name to lowercase before lookup", () => {
-    // "has dongle" is defined in specs-icons-base.json -> tick.svg
     const lowerResult = getSpecIcon("has dongle");
     const upperResult = getSpecIcon("HAS DONGLE");
     const mixedResult = getSpecIcon("Has Dongle");
 
-    // All should return the same icon content
     assert.strictEqual(
       lowerResult,
       upperResult,
@@ -52,7 +50,6 @@ describe("getSpecIcon", () => {
       mixedResult,
       "Lowercase and mixed-case spec names should return same icon",
     );
-    // And it should contain SVG content (tick.svg exists)
     assert.ok(
       lowerResult.includes("<svg") || lowerResult.includes("<SVG"),
       "Icon content should contain SVG markup",
@@ -71,7 +68,6 @@ describe("getSpecIcon", () => {
   });
 
   it("returns SVG content for existing spec icon", () => {
-    // "has dongle" maps to tick.svg which exists
     const result = getSpecIcon("has dongle");
     assert.ok(result.length > 0, "Should return non-empty content");
     assert.ok(
@@ -204,7 +200,6 @@ describe("computeSpecs", () => {
     const result = computeSpecs(data);
 
     assert.strictEqual(result.length, 3, "Should return all three specs");
-    // First and third should have icons (same icon due to normalization)
     assert.ok(result[0].icon.length > 0, "First spec should have icon");
     assert.strictEqual(
       result[1].icon,
@@ -212,7 +207,6 @@ describe("computeSpecs", () => {
       "Second spec should have empty icon (no match)",
     );
     assert.ok(result[2].icon.length > 0, "Third spec should have icon");
-    // First and third icons should be identical
     assert.strictEqual(
       result[0].icon,
       result[2].icon,
