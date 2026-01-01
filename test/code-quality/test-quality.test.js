@@ -22,11 +22,6 @@ import {
 // Exception Lists (grandfathered violations)
 // ============================================
 
-// Grandfathered asyncTest functions that need to be converted to sync
-const ASYNC_TEST_EXCEPTIONS = new Set([
-  // All checkout.test.js exceptions have been fixed
-]);
-
 // Grandfathered assertions without messages
 // Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
 // File-level exceptions are preferred - fix whole files at once
@@ -233,15 +228,12 @@ const findAsyncTestsWithoutAwait = () => {
         );
 
         if (!hasRealAwait) {
-          const location = `${relativePath}:${i + 1}`;
-          if (!ASYNC_TEST_EXCEPTIONS.has(location)) {
-            violations.push({
-              file: relativePath,
-              line: i + 1,
-              testName,
-              reason: `asyncTest without await - use sync "test" instead`,
-            });
-          }
+          violations.push({
+            file: relativePath,
+            line: i + 1,
+            testName,
+            reason: `asyncTest without await - use sync "test" instead`,
+          });
         }
       }
     }
