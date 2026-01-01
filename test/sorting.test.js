@@ -89,14 +89,24 @@ describe("sortByDateDescending", () => {
 });
 
 describe("getLatestItems", () => {
-  it("returns limited items sorted by date descending", () => {
+  it("limits results to specified count", () => {
+    const items = [
+      { date: "2024-01-01" },
+      { date: "2024-02-01" },
+      { date: "2024-03-01" },
+      { date: "2024-04-01" },
+    ];
+    const latest = getLatestItems(items, 2);
+    assert.strictEqual(latest.length, 2, "Should return only 2 items");
+  });
+
+  it("returns items sorted newest first", () => {
     const items = [
       { date: "2024-01-01", title: "Old" },
       { date: "2024-06-15", title: "Newest" },
       { date: "2024-03-10", title: "Middle" },
     ];
-    const latest = getLatestItems(items, 2);
-    assert.strictEqual(latest.length, 2, "Should return only 2 items");
+    const latest = getLatestItems(items, 3);
     assert.strictEqual(
       latest[0].title,
       "Newest",
@@ -119,5 +129,14 @@ describe("getLatestItems", () => {
   it("handles null input", () => {
     const latest = getLatestItems(null);
     assert.deepStrictEqual(latest, [], "Should return empty array for null");
+  });
+
+  it("handles empty array", () => {
+    const latest = getLatestItems([]);
+    assert.deepStrictEqual(
+      latest,
+      [],
+      "Should return empty array for empty input",
+    );
   });
 });
