@@ -19,31 +19,6 @@ const { join } = path;
 // Asset JS files need a separate pattern (not in the standard SRC_JS_FILES)
 const ASSET_JS_FILES = getFiles(/^src\/assets\/js\/.*\.js$/);
 
-// Read selectors.js to get class names defined there
-const SELECTORS_PATH = join(rootDir, "src/assets/js/selectors.js");
-const selectorsContent = fs.existsSync(SELECTORS_PATH)
-  ? readFileSync(SELECTORS_PATH, "utf-8")
-  : "";
-
-// Extract class names from CLASSES object in selectors.js
-const extractClassesFromSelectors = () => {
-  const classes = new Set();
-  // Match the CLASSES = { ... } block
-  const match = selectorsContent.match(
-    /export const CLASSES = \{([\s\S]*?)\n\};/,
-  );
-  if (match) {
-    // Extract all quoted string values (class names)
-    const pairs = match[1].matchAll(/:\s*"([^"]+)"/g);
-    for (const [, value] of pairs) {
-      classes.add(value);
-    }
-  }
-  return classes;
-};
-
-const SELECTOR_CLASSES = extractClassesFromSelectors();
-
 // ============================================
 // Class/ID Extraction from HTML
 // ============================================
@@ -287,13 +262,9 @@ const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
     }
   }
 
-  // Add classes from selectors.js (used via Liquid templates)
-  for (const cls of SELECTOR_CLASSES) {
-    if (!allClasses.has(cls)) {
-      allClasses.set(cls, []);
-    }
-    allClasses.get(cls).push(SELECTORS_PATH);
-  }
+  // Note: SELECTOR_CLASSES are excluded from this check because they're:
+  // 1. Verified by template-selectors.test.js
+  // 2. Used programmatically via SEL.* (not as literal strings)
 
   return { allClasses, allIds };
 };

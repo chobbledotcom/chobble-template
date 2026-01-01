@@ -6,72 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { JSDOM } from "jsdom";
-
-// We can't import ES modules directly, so read and parse the selectors file
-const selectorsPath = path.join(process.cwd(), "src/assets/js/selectors.js");
-const selectorsContent = fs.readFileSync(selectorsPath, "utf-8");
-
-// Extract IDS from the file
-function extractIds() {
-  const match = selectorsContent.match(/export const IDS = \{([^}]+)\}/);
-  if (!match) return {};
-  const idsObj = {};
-  const pairs = match[1].matchAll(/(\w+):\s*"([^"]+)"/g);
-  for (const [, key, value] of pairs) {
-    idsObj[key] = value;
-  }
-  return idsObj;
-}
-
-// Extract CLASSES object from file (nested structure)
-function extractClasses() {
-  const match = selectorsContent.match(
-    /export const CLASSES = \{([\s\S]*?)\n\};/,
-  );
-  if (!match) return {};
-
-  const classes = {};
-  // Match each top-level group like QUANTITY: {...}, CART_ITEM: {...}
-  const groupRegex = /(\w+):\s*\{([^}]+)\}/g;
-  const groupMatches = match[1].matchAll(groupRegex);
-
-  for (const [, groupName, groupContent] of groupMatches) {
-    classes[groupName] = {};
-    const pairs = groupContent.matchAll(/(\w+):\s*"([^"]+)"/g);
-    for (const [, key, value] of pairs) {
-      classes[groupName][key] = value;
-    }
-  }
-  return classes;
-}
-
-// Extract TEMPLATE_DEFINITIONS to understand which classes each template needs
-function extractTemplateDefinitions() {
-  const match = selectorsContent.match(
-    /export const TEMPLATE_DEFINITIONS = \{([\s\S]*?)\n\};/,
-  );
-  if (!match) return {};
-
-  const definitions = {};
-  // Match blocks like [IDS.CART_ITEM]: { ... classes: [...] }
-  const templateBlocks = match[1].matchAll(
-    /\[IDS\.(\w+)\]:\s*\{[^}]*classes:\s*\[([\s\S]*?)\]/g,
-  );
-
-  for (const [, templateKey, classList] of templateBlocks) {
-    // Extract class references like CLASSES.CART_ITEM.NAME
-    const classRefs = classList.matchAll(/CLASSES\.(\w+)\.(\w+)/g);
-    definitions[templateKey] = [];
-    for (const [, groupName, propName] of classRefs) {
-      definitions[templateKey].push({ groupName, propName });
-    }
-  }
-  return definitions;
-}
-
-const IDS = extractIds();
-const CLASSES = extractClasses();
-const TEMPLATE_DEFINITIONS = extractTemplateDefinitions();
+import { CLASSES, IDS, TEMPLATE_DEFINITIONS } from "#assets/selectors.js";
 
 // Build a lookup for Liquid variable expansion
 function buildLiquidLookup() {
@@ -154,12 +89,9 @@ describe("Template selector contracts", () => {
   });
 
   describe("All required classes exist in templates", () => {
-    for (const [templateKey, classRefs] of Object.entries(
+    for (const [templateId, definition] of Object.entries(
       TEMPLATE_DEFINITIONS,
     )) {
-      const templateId = IDS[templateKey];
-      if (!templateId) continue;
-
       describe(`${templateId}`, () => {
         let templateEl = null;
         for (const dom of [cartTemplates, galleryTemplates]) {
@@ -178,14 +110,8 @@ describe("Template selector contracts", () => {
 
         const content = templateEl.content || templateEl;
 
-        for (const { groupName, propName } of classRefs) {
-          const classGroup = CLASSES[groupName];
-          if (!classGroup) continue;
-
-          const className = classGroup[propName];
-          if (!className) continue;
-
-          it(`has class CLASSES.${groupName}.${propName} (${className})`, () => {
+        for (const className of definition.classes) {
+          it(`has class "${className}"`, () => {
             const element = content.querySelector(`.${className}`);
             assert.ok(
               element,

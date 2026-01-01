@@ -93,7 +93,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "generateFormHtml",
   "createMockDOM",
   // unused-classes.test.js - analysis helpers
-  "extractClassesFromSelectors",
   "extractClassesFromHtml",
   "extractIdsFromHtml",
   "extractClassesFromJs",
@@ -149,9 +148,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findHtmlInJs",
   "analyzeHtmlInJs",
   // template-selectors.test.js - analysis helpers
-  "extractIds",
-  "extractClasses",
-  "extractTemplateDefinitions",
   "buildLiquidLookup",
   "expandLiquidVars",
   "loadTemplate",
