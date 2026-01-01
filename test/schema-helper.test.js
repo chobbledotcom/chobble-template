@@ -18,9 +18,20 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.title, "Test Page");
-    assert.strictEqual(result.description, "A test description");
-    assert.ok(result.url.includes("/test-page/"));
+    assert.strictEqual(
+      result.title,
+      "Test Page",
+      "should set title from data.title",
+    );
+    assert.strictEqual(
+      result.description,
+      "A test description",
+      "should set description from meta_description",
+    );
+    assert.ok(
+      result.url.includes("/test-page/"),
+      "should include page URL path",
+    );
   });
 
   it("uses meta_title when title is not provided", () => {
@@ -32,7 +43,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.title, "Meta Title");
+    assert.strictEqual(
+      result.title,
+      "Meta Title",
+      "should fall back to meta_title when title is missing",
+    );
   });
 
   it("falls back to Untitled when no title or meta_title", () => {
@@ -43,7 +58,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.title, "Untitled");
+    assert.strictEqual(
+      result.title,
+      "Untitled",
+      "should default to 'Untitled' when no title available",
+    );
   });
 
   it("uses subtitle as description when meta_description is not provided", () => {
@@ -56,7 +75,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.description, "A subtitle");
+    assert.strictEqual(
+      result.description,
+      "A subtitle",
+      "should use subtitle as description fallback",
+    );
   });
 
   it("includes image from header_image", () => {
@@ -69,8 +92,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.ok(result.image);
-    assert.ok(result.image.src.includes("test-image.jpg"));
+    assert.ok(result.image, "should include image object");
+    assert.ok(
+      result.image.src.includes("test-image.jpg"),
+      "should include header_image in src",
+    );
   });
 
   it("includes image from image field when header_image is not provided", () => {
@@ -83,8 +109,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.ok(result.image);
-    assert.ok(result.image.src.includes("fallback-image.jpg"));
+    assert.ok(result.image, "should include image object from fallback");
+    assert.ok(
+      result.image.src.includes("fallback-image.jpg"),
+      "should use image field when header_image missing",
+    );
   });
 
   it("handles absolute URL images (http://)", () => {
@@ -97,7 +126,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.image.src, "http://other.com/image.jpg");
+    assert.strictEqual(
+      result.image.src,
+      "http://other.com/image.jpg",
+      "should preserve http:// absolute URLs",
+    );
   });
 
   it("handles absolute URL images (https://)", () => {
@@ -110,7 +143,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.image.src, "https://other.com/image.jpg");
+    assert.strictEqual(
+      result.image.src,
+      "https://other.com/image.jpg",
+      "should preserve https:// absolute URLs",
+    );
   });
 
   it("handles images with leading slash", () => {
@@ -126,6 +163,7 @@ describe("buildBaseMeta", () => {
     assert.strictEqual(
       result.image.src,
       "https://example.com/images/photo.jpg",
+      "should prepend site URL to images with leading slash",
     );
   });
 
@@ -142,6 +180,7 @@ describe("buildBaseMeta", () => {
     assert.strictEqual(
       result.image.src,
       "https://example.com/images/photo.jpg",
+      "should prepend /images/ path for plain filenames",
     );
   });
 
@@ -154,7 +193,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.image, undefined);
+    assert.strictEqual(
+      result.image,
+      undefined,
+      "should not include image when none provided",
+    );
   });
 
   it("includes FAQs when provided", () => {
@@ -170,7 +213,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.deepStrictEqual(result.faq, data.faqs);
+    assert.deepStrictEqual(
+      result.faq,
+      data.faqs,
+      "should include FAQs array in result",
+    );
   });
 
   it("does not include empty FAQs array", () => {
@@ -183,7 +230,11 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.faq, undefined);
+    assert.strictEqual(
+      result.faq,
+      undefined,
+      "should not include empty FAQs array",
+    );
   });
 
   it("preserves metaComputed properties", () => {
@@ -199,8 +250,16 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(result.customField, "custom value");
-    assert.strictEqual(result.anotherField, 123);
+    assert.strictEqual(
+      result.customField,
+      "custom value",
+      "should preserve customField from metaComputed",
+    );
+    assert.strictEqual(
+      result.anotherField,
+      123,
+      "should preserve anotherField from metaComputed",
+    );
   });
 });
 
@@ -214,8 +273,16 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.name, "Test Product");
-    assert.strictEqual(result.brand, "Test Store");
+    assert.strictEqual(
+      result.name,
+      "Test Product",
+      "should set product name from title",
+    );
+    assert.strictEqual(
+      result.brand,
+      "Test Store",
+      "should set brand from site name",
+    );
   });
 
   it("includes offers when price is provided", () => {
@@ -228,14 +295,22 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.ok(result.offers);
-    assert.strictEqual(result.offers.price, "29.99");
-    assert.strictEqual(result.offers.priceCurrency, "GBP");
+    assert.ok(
+      result.offers,
+      "should include offers object when price provided",
+    );
+    assert.strictEqual(result.offers.price, "29.99", "should set offer price");
+    assert.strictEqual(
+      result.offers.priceCurrency,
+      "GBP",
+      "should default to GBP currency",
+    );
     assert.strictEqual(
       result.offers.availability,
       "https://schema.org/InStock",
+      "should set availability to InStock",
     );
-    assert.ok(result.offers.priceValidUntil);
+    assert.ok(result.offers.priceValidUntil, "should include priceValidUntil");
   });
 
   it("strips currency symbols from price", () => {
@@ -248,7 +323,11 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.offers.price, "29.99");
+    assert.strictEqual(
+      result.offers.price,
+      "29.99",
+      "should strip pound sign from price",
+    );
   });
 
   it("strips dollar sign from price", () => {
@@ -261,7 +340,11 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.offers.price, "49.99");
+    assert.strictEqual(
+      result.offers.price,
+      "49.99",
+      "should strip dollar sign from price",
+    );
   });
 
   it("strips euro sign from price", () => {
@@ -274,7 +357,11 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.offers.price, "39.99");
+    assert.strictEqual(
+      result.offers.price,
+      "39.99",
+      "should strip euro sign from price",
+    );
   });
 
   it("strips commas from price", () => {
@@ -287,7 +374,11 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.offers.price, "1299.99");
+    assert.strictEqual(
+      result.offers.price,
+      "1299.99",
+      "should strip commas from price",
+    );
   });
 
   it("does not include offers when price is not provided", () => {
@@ -299,7 +390,11 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.offers, undefined);
+    assert.strictEqual(
+      result.offers,
+      undefined,
+      "should not include offers without price",
+    );
   });
 
   it("includes reviews and rating when reviewsField and collections.reviews are provided", () => {
@@ -324,12 +419,28 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.ok(result.reviews);
-    assert.strictEqual(result.reviews.length, 2);
-    assert.ok(result.rating);
-    assert.strictEqual(result.rating.reviewCount, 2);
-    assert.strictEqual(result.rating.bestRating, 5);
-    assert.strictEqual(result.rating.worstRating, 1);
+    assert.ok(result.reviews, "should include reviews array");
+    assert.strictEqual(
+      result.reviews.length,
+      2,
+      "should include all matching reviews",
+    );
+    assert.ok(result.rating, "should include rating object");
+    assert.strictEqual(
+      result.rating.reviewCount,
+      2,
+      "should set correct review count",
+    );
+    assert.strictEqual(
+      result.rating.bestRating,
+      5,
+      "should set bestRating to 5",
+    );
+    assert.strictEqual(
+      result.rating.worstRating,
+      1,
+      "should set worstRating to 1",
+    );
   });
 
   it("calculates correct average rating", () => {
@@ -355,7 +466,11 @@ describe("buildProductMeta", () => {
     const result = buildProductMeta(data);
 
     // Average of 5 and 3 is 4.0
-    assert.strictEqual(result.rating.ratingValue, "4.0");
+    assert.strictEqual(
+      result.rating.ratingValue,
+      "4.0",
+      "should calculate average rating as 4.0",
+    );
   });
 
   it("formats review with author and rating", () => {
@@ -376,9 +491,17 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.reviews[0].author, "John Doe");
-    assert.strictEqual(result.reviews[0].rating, 5);
-    assert.strictEqual(result.reviews[0].date, "2024-06-15");
+    assert.strictEqual(
+      result.reviews[0].author,
+      "John Doe",
+      "should set review author name",
+    );
+    assert.strictEqual(result.reviews[0].rating, 5, "should set review rating");
+    assert.strictEqual(
+      result.reviews[0].date,
+      "2024-06-15",
+      "should format review date as YYYY-MM-DD",
+    );
   });
 
   it("defaults review rating to 5 when not specified", () => {
@@ -399,7 +522,11 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.reviews[0].rating, 5);
+    assert.strictEqual(
+      result.reviews[0].rating,
+      5,
+      "should default rating to 5 when missing",
+    );
   });
 
   it("does not include reviews and rating when no matching reviews", () => {
@@ -420,8 +547,16 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(result.reviews, undefined);
-    assert.strictEqual(result.rating, undefined);
+    assert.strictEqual(
+      result.reviews,
+      undefined,
+      "should not include reviews when none match",
+    );
+    assert.strictEqual(
+      result.rating,
+      undefined,
+      "should not include rating when no reviews match",
+    );
   });
 });
 
@@ -436,8 +571,12 @@ describe("buildPostMeta", () => {
 
     const result = buildPostMeta(data);
 
-    assert.ok(result.author);
-    assert.strictEqual(result.author.name, "John Author");
+    assert.ok(result.author, "should include author object");
+    assert.strictEqual(
+      result.author.name,
+      "John Author",
+      "should set author name from data",
+    );
   });
 
   it("uses site name as author when author not provided", () => {
@@ -449,7 +588,11 @@ describe("buildPostMeta", () => {
 
     const result = buildPostMeta(data);
 
-    assert.strictEqual(result.author.name, "Test Site");
+    assert.strictEqual(
+      result.author.name,
+      "Test Site",
+      "should fall back to site name when author not provided",
+    );
   });
 
   it("includes datePublished from page.date", () => {
@@ -461,7 +604,11 @@ describe("buildPostMeta", () => {
 
     const result = buildPostMeta(data);
 
-    assert.strictEqual(result.datePublished, "2024-03-15");
+    assert.strictEqual(
+      result.datePublished,
+      "2024-03-15",
+      "should format datePublished as YYYY-MM-DD",
+    );
   });
 
   it("includes publisher with name and logo", () => {
@@ -477,12 +624,27 @@ describe("buildPostMeta", () => {
 
     const result = buildPostMeta(data);
 
-    assert.ok(result.publisher);
-    assert.strictEqual(result.publisher.name, "Test Site");
-    assert.ok(result.publisher.logo);
-    assert.ok(result.publisher.logo.src.includes("custom-logo.png"));
-    assert.strictEqual(result.publisher.logo.width, 512);
-    assert.strictEqual(result.publisher.logo.height, 512);
+    assert.ok(result.publisher, "should include publisher object");
+    assert.strictEqual(
+      result.publisher.name,
+      "Test Site",
+      "should set publisher name from site",
+    );
+    assert.ok(result.publisher.logo, "should include publisher logo");
+    assert.ok(
+      result.publisher.logo.src.includes("custom-logo.png"),
+      "should use custom logo from site",
+    );
+    assert.strictEqual(
+      result.publisher.logo.width,
+      512,
+      "should set logo width to 512",
+    );
+    assert.strictEqual(
+      result.publisher.logo.height,
+      512,
+      "should set logo height to 512",
+    );
   });
 
   it("uses default logo path when site.logo not provided", () => {
@@ -494,7 +656,10 @@ describe("buildPostMeta", () => {
 
     const result = buildPostMeta(data);
 
-    assert.ok(result.publisher.logo.src.includes("/images/logo.png"));
+    assert.ok(
+      result.publisher.logo.src.includes("/images/logo.png"),
+      "should default to /images/logo.png",
+    );
   });
 
   it("does not include datePublished when page.date is not provided", () => {
@@ -506,7 +671,11 @@ describe("buildPostMeta", () => {
 
     const result = buildPostMeta(data);
 
-    assert.strictEqual(result.datePublished, undefined);
+    assert.strictEqual(
+      result.datePublished,
+      undefined,
+      "should not include datePublished when page.date missing",
+    );
   });
 });
 
@@ -520,8 +689,8 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.strictEqual(result.title, "Home");
-    assert.ok(result.url);
+    assert.strictEqual(result.title, "Home", "should include title in result");
+    assert.ok(result.url, "should include url in result");
   });
 
   it("includes organization from metaComputed when available", () => {
@@ -540,9 +709,20 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.ok(result.organization);
-    assert.strictEqual(result.organization.name, "Test Org");
-    assert.strictEqual(result.organization.telephone, "+1234567890");
+    assert.ok(
+      result.organization,
+      "should include organization object from metaComputed",
+    );
+    assert.strictEqual(
+      result.organization.name,
+      "Test Org",
+      "should set organization name",
+    );
+    assert.strictEqual(
+      result.organization.telephone,
+      "+1234567890",
+      "should set organization telephone",
+    );
   });
 
   it("does not include organization when metaComputed.organization is not set", () => {
@@ -555,7 +735,11 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.strictEqual(result.organization, undefined);
+    assert.strictEqual(
+      result.organization,
+      undefined,
+      "should not include organization when empty metaComputed",
+    );
   });
 
   it("does not include organization when metaComputed is not set", () => {
@@ -567,6 +751,10 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.strictEqual(result.organization, undefined);
+    assert.strictEqual(
+      result.organization,
+      undefined,
+      "should not include organization when no metaComputed",
+    );
   });
 });

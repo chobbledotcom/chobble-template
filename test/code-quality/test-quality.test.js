@@ -22,14 +22,6 @@ import {
 // Exception Lists (grandfathered violations)
 // ============================================
 
-// Grandfathered assertions without messages
-// Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
-// File-level exceptions are preferred - fix whole files at once
-const MISSING_MESSAGE_EXCEPTIONS = new Set([
-  // Whole files to fix
-  "test/schema-helper.test.js", // 57 violations
-]);
-
 // Files that are allowed to have tests with "and" in names
 const AND_NAME_EXCEPTIONS = new Set([
   "test/theme-editor.test.js", // e2e tests that test workflows
@@ -252,19 +244,8 @@ const findAssertionsWithoutMessages = () => {
     const source = fs.readFileSync(fullPath, "utf-8");
     const lines = source.split("\n");
 
-    // Check if whole file is excepted
-    if (MISSING_MESSAGE_EXCEPTIONS.has(relativePath)) {
-      continue;
-    }
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      const location = `${relativePath}:${i + 1}`;
-
-      // Skip if specific line is grandfathered
-      if (MISSING_MESSAGE_EXCEPTIONS.has(location)) {
-        continue;
-      }
 
       // Match assert.strictEqual(a, b) without third parameter
       // Pattern: assert.strictEqual(something, something) followed by ; or , or )
