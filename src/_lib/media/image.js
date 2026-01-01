@@ -110,7 +110,7 @@ const U = {
     maxWidth,
     innerHTML,
   ) => {
-    const styles = ["background-size: cover"];
+    const styles = [];
     if (thumbPromise !== null) {
       const bgImage = await thumbPromise;
       if (bgImage) styles.push(`background-image: ${bgImage}`);

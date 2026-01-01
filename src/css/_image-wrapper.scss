@@ -7,8 +7,9 @@ img,
 .image-wrapper {
   position: relative;
   display: block;
-  background-size: cover;
-  background-position: center;
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
   border-radius: var(--border-radius-small);
   overflow: hidden;
   img {
