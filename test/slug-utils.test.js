@@ -76,7 +76,11 @@ describe("normaliseSlug", () => {
 describe("buildPermalink", () => {
   it("returns existing permalink if set", () => {
     const data = { permalink: "/custom/path/", page: { fileSlug: "ignored" } };
-    assert.strictEqual(buildPermalink(data, "products"), "/custom/path/");
+    assert.strictEqual(
+      buildPermalink(data, "products"),
+      "/custom/path/",
+      "Uses existing permalink instead of building from slug",
+    );
   });
 
   it("builds permalink from dir and fileSlug when no permalink set", () => {
@@ -89,20 +93,36 @@ describe("buildPermalink", () => {
 
   it("builds permalink for different directories", () => {
     const data = { page: { fileSlug: "about-us" } };
-    assert.strictEqual(buildPermalink(data, "pages"), "/pages/about-us/");
-    assert.strictEqual(buildPermalink(data, "news"), "/news/about-us/");
+    assert.strictEqual(
+      buildPermalink(data, "pages"),
+      "/pages/about-us/",
+      "Builds correct permalink for pages directory",
+    );
+    assert.strictEqual(
+      buildPermalink(data, "news"),
+      "/news/about-us/",
+      "Builds correct permalink for news directory",
+    );
   });
 
   it("returns undefined permalink if explicitly set to undefined", () => {
     const data = { permalink: undefined, page: { fileSlug: "test" } };
-    assert.strictEqual(buildPermalink(data, "dir"), "/dir/test/");
+    assert.strictEqual(
+      buildPermalink(data, "dir"),
+      "/dir/test/",
+      "Builds permalink when permalink is undefined",
+    );
   });
 
   it("builds permalink when permalink is falsy (false)", () => {
     // When permalink is falsy (including false), the function builds a permalink
     // Draft pages in Eleventy typically wouldn't call buildPermalink
     const data = { permalink: false, page: { fileSlug: "draft" } };
-    assert.strictEqual(buildPermalink(data, "posts"), "/posts/draft/");
+    assert.strictEqual(
+      buildPermalink(data, "posts"),
+      "/posts/draft/",
+      "Builds permalink when permalink is false",
+    );
   });
 });
 
