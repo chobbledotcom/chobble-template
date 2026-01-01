@@ -12,7 +12,6 @@ import { Liquid } from "liquidjs";
 import {
   attachQuantityHandlers,
   attachRemoveHandlers,
-  escapeHtml,
   formatPrice,
   getCart,
   getItemCount,
@@ -370,43 +369,9 @@ const testCases = [
     },
   },
   {
-    name: "cart-utils-escapeHtml-basic",
-    description: "escapeHtml escapes HTML special characters",
-    asyncTest: async () => {
-      const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-      global.document = dom.window.document;
-      try {
-        assert.strictEqual(
-          escapeHtml("<script>alert('xss')</script>"),
-          "&lt;script&gt;alert('xss')&lt;/script&gt;",
-          "escapeHtml should escape script tags",
-        );
-        assert.strictEqual(
-          escapeHtml("Hello & Goodbye"),
-          "Hello &amp; Goodbye",
-          "escapeHtml should escape ampersands",
-        );
-        // Note: innerHTML doesn't escape quotes, only < > and &
-        assert.strictEqual(
-          escapeHtml('"quoted"'),
-          '"quoted"',
-          "escapeHtml should not escape quotes (innerHTML behavior)",
-        );
-        assert.strictEqual(
-          escapeHtml("normal text"),
-          "normal text",
-          "escapeHtml should leave normal text unchanged",
-        );
-      } finally {
-        delete global.document;
-        dom.window.close();
-      }
-    },
-  },
-  {
     name: "cart-utils-updateCartIcon-shows-icon",
     description: "updateCartIcon shows cart icon when items in cart",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -448,7 +413,7 @@ const testCases = [
   {
     name: "cart-utils-updateCartIcon-hides-icon",
     description: "updateCartIcon hides cart icon when cart is empty",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -523,7 +488,7 @@ const testCases = [
   {
     name: "cart-utils-updateItemQuantity-respects-max",
     description: "updateItemQuantity caps at max_quantity and shows alert",
-    asyncTest: async () => {
+    test: () => {
       const alerts = [];
       const origAlert = global.alert;
       global.alert = (msg) => alerts.push(msg);
@@ -573,7 +538,7 @@ const testCases = [
   {
     name: "cart-utils-attachQuantityHandlers-decrease",
     description: "attachQuantityHandlers attaches decrease button handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -613,7 +578,7 @@ const testCases = [
   {
     name: "cart-utils-attachQuantityHandlers-increase",
     description: "attachQuantityHandlers attaches increase button handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -653,7 +618,7 @@ const testCases = [
   {
     name: "cart-utils-attachQuantityHandlers-input-change",
     description: "attachQuantityHandlers attaches input change handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -692,7 +657,7 @@ const testCases = [
   {
     name: "cart-utils-attachRemoveHandlers-removes-item",
     description: "attachRemoveHandlers attaches remove button handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -1261,7 +1226,7 @@ const testCases = [
   {
     name: "stripe-checkout-empty-cart-redirects-home",
     description: "Stripe checkout redirects to homepage when cart is empty",
-    asyncTest: async () => {
+    test: () => {
       const result = withMockStorage(() => {
         saveCart([]);
         const locationTracker = createLocationTracker();
@@ -1742,8 +1707,9 @@ const testCases = [
     },
   },
   {
-    name: "multi-option-select-enables-button-on-change",
-    description: "Selecting an option enables the add-to-cart button",
+    name: "multi-option-select-provides-correct-option-data",
+    description:
+      "Selecting an option retrieves correct option data from button",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         productOptions: [
@@ -1767,28 +1733,28 @@ const testCases = [
       );
       const option = itemData.options[optionIndex];
 
-      // Apply the selection to button (simulating cart.js change handler)
-      button.disabled = false;
-      button.textContent = `Add to Cart - £${option.unit_price}`;
+      // Verify option lookup returns correct data
+      assert.strictEqual(option.name, "Small", "Option name should be Small");
+      assert.strictEqual(option.unit_price, 5.0, "Option price should be 5.0");
+      assert.strictEqual(option.sku, "S", "Option SKU should be S");
+
+      // Verify select index mapping works for other options
+      select.selectedIndex = 2; // Select "Large"
+      const largeIndex = parseInt(
+        select.options[select.selectedIndex].value,
+        10,
+      );
+      const largeOption = itemData.options[largeIndex];
 
       assert.strictEqual(
-        button.disabled,
-        false,
-        "Button should be enabled after option selected",
+        largeOption.name,
+        "Large",
+        "Option name should be Large",
       );
       assert.strictEqual(
-        option.name,
-        "Small",
-        "Selected option name should be 'Small'",
-      );
-      assert.strictEqual(
-        option.unit_price,
-        5.0,
-        "Selected option unit_price should be 5.0",
-      );
-      assert.ok(
-        button.textContent.includes("5"),
-        "Button text should show selected price",
+        largeOption.unit_price,
+        10.0,
+        "Option price should be 10.0",
       );
 
       dom.window.close();

@@ -262,10 +262,6 @@ const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
     }
   }
 
-  // Note: SELECTOR_CLASSES are excluded from this check because they're:
-  // 1. Verified by template-selectors.test.js
-  // 2. Used programmatically via SEL.* (not as literal strings)
-
   return { allClasses, allIds };
 };
 

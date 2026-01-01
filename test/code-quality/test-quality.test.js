@@ -22,22 +22,6 @@ import {
 // Exception Lists (grandfathered violations)
 // ============================================
 
-// Grandfathered asyncTest functions that need to be converted to sync
-const ASYNC_TEST_EXCEPTIONS = new Set([
-  "test/checkout.test.js:376", // cart-utils-escapeHtml-basic
-  "test/checkout.test.js:410", // cart-utils-updateCartIcon-shows-icon
-  "test/checkout.test.js:452", // cart-utils-updateCartIcon-hides-icon
-  "test/checkout.test.js:527", // cart-utils-updateItemQuantity-respects-max
-  "test/checkout.test.js:577", // cart-utils-renderQuantityControls-basic
-  "test/checkout.test.js:629", // cart-utils-renderQuantityControls-max-quantity
-  "test/checkout.test.js:654", // cart-utils-renderQuantityControls-escapes-html
-  "test/checkout.test.js:678", // cart-utils-attachQuantityHandlers-decrease
-  "test/checkout.test.js:718", // cart-utils-attachQuantityHandlers-increase
-  "test/checkout.test.js:758", // cart-utils-attachQuantityHandlers-input-change
-  "test/checkout.test.js:797", // cart-utils-attachRemoveHandlers-removes-item
-  "test/checkout.test.js:1366", // stripe-checkout-empty-cart-redirects-home
-]);
-
 // Grandfathered assertions without messages
 // Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
 // File-level exceptions are preferred - fix whole files at once
@@ -45,12 +29,6 @@ const MISSING_MESSAGE_EXCEPTIONS = new Set([
   // Whole files to fix (76 violations across 2 files)
   "test/schema-helper.test.js", // 57 violations
   "test/spec-filters.test.js", // 23 violations (includes some that need review)
-]);
-
-// Grandfathered tautological patterns
-// Supports file-level ("test/file.js") or specific ("test/file.js:assignLine:assertLine")
-const TAUTOLOGICAL_EXCEPTIONS = new Set([
-  "test/checkout.test.js", // 2 tautological patterns to fix
 ]);
 
 // Files that are allowed to have tests with "and" in names
@@ -244,15 +222,12 @@ const findAsyncTestsWithoutAwait = () => {
         );
 
         if (!hasRealAwait) {
-          const location = `${relativePath}:${i + 1}`;
-          if (!ASYNC_TEST_EXCEPTIONS.has(location)) {
-            violations.push({
-              file: relativePath,
-              line: i + 1,
-              testName,
-              reason: `asyncTest without await - use sync "test" instead`,
-            });
-          }
+          violations.push({
+            file: relativePath,
+            line: i + 1,
+            testName,
+            reason: `asyncTest without await - use sync "test" instead`,
+          });
         }
       }
     }
@@ -346,11 +321,6 @@ const findTautologicalAssertions = () => {
   );
 
   for (const relativePath of testFilesToCheck) {
-    // Check if whole file is excepted
-    if (TAUTOLOGICAL_EXCEPTIONS.has(relativePath)) {
-      continue;
-    }
-
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const lines = source.split("\n");
@@ -381,17 +351,13 @@ const findTautologicalAssertions = () => {
           // Check if this is a tautology (assertion within 5 lines of assignment)
           const lineDistance = i + 1 - assignment.line;
           if (lineDistance <= 5 && lineDistance > 0) {
-            const exceptionKey = `${relativePath}:${assignment.line}:${i + 1}`;
-            // Check specific line exception
-            if (!TAUTOLOGICAL_EXCEPTIONS.has(exceptionKey)) {
-              violations.push({
-                file: relativePath,
-                assignLine: assignment.line,
-                assertLine: i + 1,
-                property: prop,
-                reason: `Set "${prop}" on line ${assignment.line}, then assert on line ${i + 1} - tests nothing`,
-              });
-            }
+            violations.push({
+              file: relativePath,
+              assignLine: assignment.line,
+              assertLine: i + 1,
+              property: prop,
+              reason: `Set "${prop}" on line ${assignment.line}, then assert on line ${i + 1} - tests nothing`,
+            });
           }
         }
       }
