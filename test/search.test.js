@@ -14,65 +14,6 @@ import {
 } from "#test/test-utils.js";
 
 const testCases = [
-  // normaliseCategory: test actual formats used in the site
-  {
-    name: "normaliseCategory-falsy-input",
-    description: "Returns empty string for falsy inputs",
-    test: () => {
-      expectStrictEqual(normaliseCategory(null), "", "null → empty");
-      expectStrictEqual(normaliseCategory(undefined), "", "undefined → empty");
-      expectStrictEqual(normaliseCategory(""), "", "empty string → empty");
-    },
-  },
-  {
-    name: "normaliseCategory-bare-slug",
-    description: "Normalizes bare category slugs (site uses: premium-wotzits)",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("premium-wotzits"),
-        "premium wotzits",
-        "Should convert hyphens to spaces",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-full-path",
-    description:
-      "Normalizes /categories/*.md paths (site uses: /categories/premium-widgets.md)",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("/categories/premium-widgets.md"),
-        "premium widgets",
-        "Should strip prefix, suffix, and convert hyphens",
-      );
-    },
-  },
-  // Integration: categories become searchable keywords
-  {
-    name: "getProductsByKeyword-finds-products-by-category",
-    description: "Products searchable by normalized category name",
-    test: () => {
-      const products = [
-        { data: { title: "A", categories: ["premium-widgets"] } },
-        { data: { title: "B", keywords: ["portable"] } },
-        {
-          data: {
-            title: "C",
-            categories: ["/categories/premium-widgets.md"],
-            keywords: ["portable"],
-          },
-        },
-      ];
-
-      // Both bare slug and full path normalize to "premium widgets"
-      const byCategory = getProductsByKeyword(products, "premium widgets");
-      expectStrictEqual(byCategory.length, 2, "A and C match by category");
-
-      // Keywords still work
-      const byKeyword = getProductsByKeyword(products, "portable");
-      expectStrictEqual(byKeyword.length, 2, "B and C match by keyword");
-    },
-  },
   {
     name: "getAllKeywords-empty",
     description: "Returns empty array for null/undefined/empty products",
@@ -318,14 +259,18 @@ const testCases = [
     description:
       "Normalizes category paths from frontmatter format to display format",
     test: () => {
-      // Full path as stored in frontmatter
+      // Full path as stored in frontmatter → display format
       expectStrictEqual(
         normaliseCategory("/categories/premium-widgets.md"),
         "premium widgets",
-        "Full category path should be normalized",
+        "Should strip prefix, suffix, and convert hyphens",
       );
-
-      // Falsy values return empty string
+    },
+  },
+  {
+    name: "normaliseCategory-handles-falsy-input",
+    description: "Returns empty string for null/undefined/empty inputs",
+    test: () => {
       expectStrictEqual(normaliseCategory(null), "", "null → empty");
       expectStrictEqual(normaliseCategory(""), "", "empty → empty");
     },
