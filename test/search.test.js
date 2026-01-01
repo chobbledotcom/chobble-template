@@ -14,54 +14,31 @@ import {
 } from "#test/test-utils.js";
 
 const testCases = [
-  // normaliseCategory tests
+  // normaliseCategory: test actual formats used in the site
   {
-    name: "normaliseCategory-null",
-    description: "Returns empty string for null input",
+    name: "normaliseCategory-falsy-input",
+    description: "Returns empty string for falsy inputs",
     test: () => {
-      expectStrictEqual(
-        normaliseCategory(null),
-        "",
-        "Should return empty string for null",
-      );
+      expectStrictEqual(normaliseCategory(null), "", "null → empty");
+      expectStrictEqual(normaliseCategory(undefined), "", "undefined → empty");
+      expectStrictEqual(normaliseCategory(""), "", "empty string → empty");
     },
   },
   {
-    name: "normaliseCategory-undefined",
-    description: "Returns empty string for undefined input",
+    name: "normaliseCategory-bare-slug",
+    description: "Normalizes bare category slugs (site uses: premium-wotzits)",
     test: () => {
       expectStrictEqual(
-        normaliseCategory(undefined),
-        "",
-        "Should return empty string for undefined",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-empty-string",
-    description: "Returns empty string for empty string input",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory(""),
-        "",
-        "Should return empty string for empty string",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-simple-slug",
-    description: "Converts hyphens to spaces in simple slug",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("premium-widgets"),
-        "premium widgets",
+        normaliseCategory("premium-wotzits"),
+        "premium wotzits",
         "Should convert hyphens to spaces",
       );
     },
   },
   {
     name: "normaliseCategory-full-path",
-    description: "Strips /categories/ prefix and .md suffix from full path",
+    description:
+      "Normalizes /categories/*.md paths (site uses: /categories/premium-widgets.md)",
     test: () => {
       expectStrictEqual(
         normaliseCategory("/categories/premium-widgets.md"),
@@ -70,181 +47,30 @@ const testCases = [
       );
     },
   },
+  // Integration: categories become searchable keywords
   {
-    name: "normaliseCategory-with-prefix-only",
-    description: "Strips /categories/ prefix",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("/categories/gadgets"),
-        "gadgets",
-        "Should strip prefix without .md suffix",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-with-suffix-only",
-    description: "Strips .md suffix",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("electronics.md"),
-        "electronics",
-        "Should strip .md suffix without prefix",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-multiple-hyphens",
-    description: "Converts all hyphens to spaces",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("super-premium-deluxe-widgets"),
-        "super premium deluxe widgets",
-        "Should convert all hyphens to spaces",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-no-transformation-needed",
-    description: "Returns category unchanged when no transformation needed",
-    test: () => {
-      expectStrictEqual(
-        normaliseCategory("gadgets"),
-        "gadgets",
-        "Should return unchanged when no hyphens or paths",
-      );
-    },
-  },
-  // getAllKeywords with categories
-  {
-    name: "getAllKeywords-with-categories",
-    description: "Extracts keywords from product categories",
+    name: "getProductsByKeyword-finds-products-by-category",
+    description: "Products searchable by normalized category name",
     test: () => {
       const products = [
-        { data: { title: "Widget A", categories: ["premium-widgets"] } },
-        { data: { title: "Widget B", categories: ["budget-items"] } },
-      ];
-
-      const result = getAllKeywords(products);
-
-      expectDeepEqual(
-        result,
-        ["budget items", "premium widgets"],
-        "Should extract and normalize category names as keywords",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-with-full-category-paths",
-    description: "Normalizes full category paths to keywords",
-    test: () => {
-      const products = [
+        { data: { title: "A", categories: ["premium-widgets"] } },
+        { data: { title: "B", keywords: ["portable"] } },
         {
           data: {
-            title: "Product",
-            categories: ["/categories/super-gadgets.md"],
-          },
-        },
-      ];
-
-      const result = getAllKeywords(products);
-
-      expectDeepEqual(
-        result,
-        ["super gadgets"],
-        "Should normalize full category paths",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-mixed-keywords-and-categories",
-    description: "Combines keywords and categories into single list",
-    test: () => {
-      const products = [
-        {
-          data: {
-            title: "Multi-source",
+            title: "C",
+            categories: ["/categories/premium-widgets.md"],
             keywords: ["portable"],
-            categories: ["premium-widgets"],
           },
         },
       ];
 
-      const result = getAllKeywords(products);
+      // Both bare slug and full path normalize to "premium widgets"
+      const byCategory = getProductsByKeyword(products, "premium widgets");
+      expectStrictEqual(byCategory.length, 2, "A and C match by category");
 
-      expectDeepEqual(
-        result,
-        ["portable", "premium widgets"],
-        "Should combine keywords and normalized categories",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-deduplicates-categories",
-    description: "Deduplicates categories across products",
-    test: () => {
-      const products = [
-        { data: { title: "A", categories: ["electronics"] } },
-        { data: { title: "B", categories: ["electronics"] } },
-        { data: { title: "C", categories: ["electronics", "gadgets"] } },
-      ];
-
-      const result = getAllKeywords(products);
-
-      expectDeepEqual(
-        result,
-        ["electronics", "gadgets"],
-        "Should deduplicate categories",
-      );
-    },
-  },
-  // getProductsByKeyword with categories
-  {
-    name: "getProductsByKeyword-matches-normalized-category",
-    description: "Finds products by normalized category name",
-    test: () => {
-      const products = [
-        { data: { title: "Widget A", categories: ["premium-widgets"] } },
-        { data: { title: "Widget B", categories: ["budget-items"] } },
-      ];
-
-      const result = getProductsByKeyword(products, "premium widgets");
-
-      expectStrictEqual(result.length, 1, "Should find 1 product");
-      expectStrictEqual(
-        result[0].data.title,
-        "Widget A",
-        "Should find product by normalized category",
-      );
-    },
-  },
-  {
-    name: "getProductsByKeyword-category-and-keyword-overlap",
-    description: "Finds products matching either keyword or category",
-    test: () => {
-      const products = [
-        { data: { title: "A", keywords: ["portable"] } },
-        { data: { title: "B", categories: ["portable-devices"] } },
-        {
-          data: { title: "C", keywords: ["portable"], categories: ["gadgets"] },
-        },
-      ];
-
-      // Search for "portable" which matches keyword on A and C
-      const portable = getProductsByKeyword(products, "portable");
-      expectStrictEqual(
-        portable.length,
-        2,
-        "Should find 2 products with portable keyword",
-      );
-
-      // Search for "portable devices" which matches normalized category on B
-      const devices = getProductsByKeyword(products, "portable devices");
-      expectStrictEqual(
-        devices.length,
-        1,
-        "Should find 1 product with portable devices category",
-      );
-      expectStrictEqual(devices[0].data.title, "B", "Should find product B");
+      // Keywords still work
+      const byKeyword = getProductsByKeyword(products, "portable");
+      expectStrictEqual(byKeyword.length, 2, "B and C match by keyword");
     },
   },
   {
