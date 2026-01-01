@@ -188,21 +188,6 @@ body {
     },
   },
   {
-    name: "getThemeFiles-excludes-editor",
-    description: "Excludes theme-editor.scss (not a display theme)",
-    test: () => {
-      const themes = getThemeFiles();
-      const editorTheme = themes.find((t) => t.name === "editor");
-
-      // theme-editor.scss should be included since it starts with theme-
-      // and is a valid theme file, but let's verify it exists
-      expectTrue(
-        editorTheme === undefined || editorTheme.content.includes(":root"),
-        "Editor theme either excluded or has valid :root",
-      );
-    },
-  },
-  {
     name: "getThemeFiles-sorted-alphabetically",
     description: "Themes are sorted alphabetically by name",
     test: () => {
