@@ -54,6 +54,7 @@ const U = {
     return Image(path, {
       ...U.DEFAULT_OPTIONS,
       widths: widths,
+      fixOrientation: true,
       transformOnRequest: isServeMode(),
     });
   },
