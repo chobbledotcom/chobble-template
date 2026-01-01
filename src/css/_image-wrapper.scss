@@ -12,7 +12,6 @@ img,
   border-radius: var(--border-radius-small);
   overflow: hidden;
   img {
-    backdrop-filter: blur(10px);
     background-color: transparent;
   }
 }
