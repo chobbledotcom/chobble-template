@@ -5,11 +5,6 @@ import { canonicalUrl } from "#utils/canonical-url.js";
 // Constant: validated at module load, never changes during test execution
 const SITE_URL = siteData.url;
 
-// Helper to verify result is always a string (invariant check)
-const expectStringResult = (result, context) => {
-  expectStrictEqual(typeof result, "string", `${context}: must return string`);
-};
-
 const testCases = [
   // ===========================================
   // Basic Path Joining
@@ -21,7 +16,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/quote/");
 
-      expectStringResult(result, "/quote/");
       expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
     },
   },
@@ -31,7 +25,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("quote/");
 
-      expectStringResult(result, "quote/");
       expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
     },
   },
@@ -41,7 +34,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("///quote/");
 
-      expectStringResult(result, "///quote/");
       expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
     },
   },
@@ -55,7 +47,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/products/electronics/phones/iphone-15/");
 
-      expectStringResult(result, "nested path");
       expectStrictEqual(
         result,
         `${SITE_URL}/products/electronics/phones/iphone-15/`,
@@ -69,7 +60,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/search?q=test&category=all");
 
-      expectStringResult(result, "query string path");
       expectStrictEqual(
         result,
         `${SITE_URL}/search?q=test&category=all`,
@@ -83,7 +73,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/about/#team");
 
-      expectStringResult(result, "fragment path");
       expectStrictEqual(result, `${SITE_URL}/about/#team`, `got: ${result}`);
     },
   },
@@ -93,7 +82,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/products?sort=price#filters");
 
-      expectStringResult(result, "query+fragment path");
       expectStrictEqual(
         result,
         `${SITE_URL}/products?sort=price#filters`,
@@ -111,7 +99,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/products/my%20product/");
 
-      expectStringResult(result, "encoded space");
       expectStrictEqual(
         result,
         `${SITE_URL}/products/my%20product/`,
@@ -125,7 +112,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/日本語/ページ/");
 
-      expectStringResult(result, "unicode path");
       expectStrictEqual(result, `${SITE_URL}/日本語/ページ/`, `got: ${result}`);
     },
   },
@@ -135,7 +121,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/compare/a=1&b=2/");
 
-      expectStringResult(result, "special chars");
       expectStrictEqual(
         result,
         `${SITE_URL}/compare/a=1&b=2/`,
@@ -155,7 +140,6 @@ const testCases = [
       const longSegment = "a".repeat(200);
       const result = canonicalUrl(`/category/${longSegment}/product/`);
 
-      expectStringResult(result, "long path");
       expectStrictEqual(
         result,
         `${SITE_URL}/category/${longSegment}/product/`,
@@ -170,7 +154,6 @@ const testCases = [
       // The function strips leading slashes and prepends one, so this becomes /example.com
       const result = canonicalUrl("//example.com/path");
 
-      expectStringResult(result, "protocol-relative");
       expectStrictEqual(
         result,
         `${SITE_URL}/example.com/path`,
@@ -184,7 +167,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("////");
 
-      expectStringResult(result, "only slashes");
       // After stripping leading slashes: "", prepend /: "/", so it's just site URL + /
       expectStrictEqual(result, `${SITE_URL}/`, `got: ${result}`);
     },
@@ -199,7 +181,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("/");
 
-      expectStringResult(result, "root path");
       expectStrictEqual(result, SITE_URL, `got: ${result}`);
     },
   },
@@ -209,7 +190,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl("");
 
-      expectStringResult(result, "empty string");
       expectStrictEqual(result, SITE_URL, `got: ${result}`);
     },
   },
@@ -219,7 +199,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl(null);
 
-      expectStringResult(result, "null");
       expectStrictEqual(result, SITE_URL, `got: ${result}`);
     },
   },
@@ -229,7 +208,6 @@ const testCases = [
     test: () => {
       const result = canonicalUrl(undefined);
 
-      expectStringResult(result, "undefined");
       expectStrictEqual(result, SITE_URL, `got: ${result}`);
     },
   },

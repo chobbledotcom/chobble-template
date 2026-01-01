@@ -160,8 +160,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAsyncTestsWithoutAwait",
   "findAssertionsWithoutMessages",
   "findTautologicalAssertions",
-  // canonical-url.test.js - assertion helper for type invariant
-  "expectStringResult",
 ]);
 
 /**
