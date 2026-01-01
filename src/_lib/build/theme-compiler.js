@@ -70,5 +70,5 @@ export {
   extractRootVariables,
   generateThemeSwitcherContent,
   getThemeFiles,
-  toDisplayName,
+  slugToTitle,
 };

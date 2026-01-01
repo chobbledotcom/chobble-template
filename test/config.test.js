@@ -9,6 +9,8 @@ import {
   getProducts,
   VALID_CART_MODES,
   validateCartConfig,
+  validateQuotePages,
+  validateStripePages,
 } from "#config/helpers.js";
 import {
   cleanupTempDir,
@@ -498,6 +500,163 @@ Content here`;
         "https://submit-form.com/abc123",
         "form_target should be computed from formspark_id",
       );
+    },
+  },
+
+  // validatePageFrontmatter function tests
+  {
+    name: "validatePageFrontmatter-valid-file",
+    description:
+      "validatePageFrontmatter passes when file has correct frontmatter",
+    test: () => {
+      const tempDir = createTempDir("config-validate-page");
+      const content = `---
+layout: test.html
+permalink: /test/
+---
+Content`;
+      createTempFile(tempDir, "test.md", content);
+
+      // Use the temp file path directly via extractFrontmatter
+      // validatePageFrontmatter uses getPagePath internally, so we test through
+      // its helpers since we already tested extractFrontmatter + checkFrontmatterField
+      const frontmatter = extractFrontmatter(
+        `${tempDir}/test.md`,
+        "test.md",
+        "test",
+      );
+      checkFrontmatterField(
+        frontmatter,
+        "layout",
+        "test.html",
+        "test",
+        "test.md",
+      );
+      checkFrontmatterField(
+        frontmatter,
+        "permalink",
+        "/test/",
+        "test",
+        "test.md",
+      );
+      expectTrue(true, "Should pass for valid frontmatter");
+
+      cleanupTempDir(tempDir);
+    },
+  },
+  {
+    name: "validatePageFrontmatter-wrong-layout",
+    description: "validatePageFrontmatter throws when layout is incorrect",
+    test: () => {
+      const tempDir = createTempDir("config-wrong-layout");
+      const content = `---
+layout: wrong.html
+permalink: /test/
+---
+Content`;
+      const filePath = createTempFile(tempDir, "test.md", content);
+
+      expectThrows(
+        () => {
+          const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
+          checkFrontmatterField(
+            frontmatter,
+            "layout",
+            "expected.html",
+            "stripe",
+            "test.md",
+          );
+        },
+        /does not have layout: expected.html/,
+        "Should throw for wrong layout",
+      );
+
+      cleanupTempDir(tempDir);
+    },
+  },
+  {
+    name: "validatePageFrontmatter-wrong-permalink",
+    description: "validatePageFrontmatter throws when permalink is incorrect",
+    test: () => {
+      const tempDir = createTempDir("config-wrong-permalink");
+      const content = `---
+layout: test.html
+permalink: /wrong/
+---
+Content`;
+      const filePath = createTempFile(tempDir, "test.md", content);
+
+      expectThrows(
+        () => {
+          const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
+          checkFrontmatterField(
+            frontmatter,
+            "permalink",
+            "/expected/",
+            "stripe",
+            "test.md",
+          );
+        },
+        /does not have permalink/,
+        "Should throw for wrong permalink",
+      );
+
+      cleanupTempDir(tempDir);
+    },
+  },
+
+  // validateStripePages function tests
+  {
+    name: "validateStripePages-real-pages",
+    description:
+      "validateStripePages passes with real stripe-checkout.md and order-complete.md",
+    test: () => {
+      // These pages exist in src/pages with correct frontmatter
+      validateStripePages();
+      expectTrue(true, "Should pass for real stripe pages");
+    },
+  },
+
+  // validateQuotePages function tests
+  {
+    name: "validateQuotePages-real-pages",
+    description: "validateQuotePages passes with real checkout.md page",
+    test: () => {
+      // checkout.md exists in src/pages with correct frontmatter
+      validateQuotePages();
+      expectTrue(true, "Should pass for real quote checkout page");
+    },
+  },
+
+  // validateCartConfig with valid stripe config (triggers validateStripePages)
+  {
+    name: "validateCartConfig-stripe-valid",
+    description:
+      "validateCartConfig passes for stripe with checkout_api_url and valid pages",
+    test: () => {
+      const config = {
+        cart_mode: "stripe",
+        checkout_api_url: "https://api.example.com/checkout",
+      };
+      // This should not throw - it validates the real stripe pages exist
+      validateCartConfig(config);
+      expectTrue(true, "Should pass for valid stripe config with pages");
+    },
+  },
+
+  // validateCartConfig with valid quote config (triggers validateQuotePages)
+  {
+    name: "validateCartConfig-quote-valid",
+    description:
+      "validateCartConfig passes for quote with form_target and valid pages",
+    test: () => {
+      const config = {
+        cart_mode: "quote",
+        form_target: "https://forms.example.com/submit",
+      };
+      // This should not throw - it validates the real quote checkout page exists
+      validateCartConfig(config);
+      expectTrue(true, "Should pass for valid quote config with pages");
     },
   },
 ];

@@ -2,7 +2,7 @@ import {
   extractRootVariables,
   generateThemeSwitcherContent,
   getThemeFiles,
-  toDisplayName,
+  slugToTitle,
 } from "#build/theme-compiler.js";
 import {
   createTestRunner,
@@ -107,32 +107,32 @@ body {
   },
 
   // ============================================
-  // toDisplayName tests
+  // slugToTitle tests
   // ============================================
   {
-    name: "toDisplayName-hyphenated",
+    name: "slugToTitle-hyphenated",
     description: "Converts hyphenated name to title case (90s-computer)",
     test: () => {
       // Real theme name from the codebase
-      const result = toDisplayName("90s-computer");
+      const result = slugToTitle("90s-computer");
       expectStrictEqual(result, "90s Computer", "Should convert to title case");
     },
   },
   {
-    name: "toDisplayName-single-word",
+    name: "slugToTitle-single-word",
     description: "Capitalizes single word theme name (ocean)",
     test: () => {
       // Real theme name from the codebase
-      const result = toDisplayName("ocean");
+      const result = slugToTitle("ocean");
       expectStrictEqual(result, "Ocean", "Should capitalize single word");
     },
   },
   {
-    name: "toDisplayName-multiple-hyphens",
+    name: "slugToTitle-multiple-hyphens",
     description: "Handles multiple hyphenated words (old-mac)",
     test: () => {
       // Real theme name from the codebase
-      const result = toDisplayName("old-mac");
+      const result = slugToTitle("old-mac");
       expectStrictEqual(result, "Old Mac", "Should handle multiple hyphens");
     },
   },
