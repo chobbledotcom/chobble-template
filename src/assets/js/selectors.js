@@ -8,20 +8,18 @@ const toKebab = (s) => s.toLowerCase().replace(/_/g, "-");
 // ===========================================
 
 const SCHEMA = {
-  CART_ITEM: ["NAME", "PRICE", "REMOVE"],
-  QUOTE_CART_ITEM: ["NAME", "PRICE", "SPECS", "REMOVE"],
+  CART_ITEM: ["CONTAINER", "NAME", "PRICE", "REMOVE"],
+  QUOTE_CART_ITEM: ["CONTAINER", "NAME", "PRICE", "SPECS", "REMOVE"],
   QUOTE_CHECKOUT_ITEM: ["NAME", "QTY", "PRICE"],
-  QUANTITY: ["DECREASE", "INCREASE", "INPUT"],
-  GALLERY_NAV: ["PREV", "NEXT"],
 };
 
 // Templates and what class groups they use
 const TEMPLATES = {
-  CART_ITEM: ["CART_ITEM", "QUANTITY.INPUT"],
-  QUOTE_CART_ITEM: ["QUOTE_CART_ITEM", "QUANTITY.INPUT"],
+  CART_ITEM: ["CART_ITEM"],
+  QUOTE_CART_ITEM: ["QUOTE_CART_ITEM"],
   QUOTE_CHECKOUT_ITEM: ["QUOTE_CHECKOUT_ITEM"],
-  GALLERY_NAV_PREV: ["GALLERY_NAV.PREV"],
-  GALLERY_NAV_NEXT: ["GALLERY_NAV.NEXT"],
+  GALLERY_NAV_PREV: [],
+  GALLERY_NAV_NEXT: [],
 };
 
 // ===========================================
@@ -31,12 +29,13 @@ const TEMPLATES = {
 export const CLASSES = Object.fromEntries(
   Object.entries(SCHEMA).map(([group, props]) => [
     group,
-    {
-      CONTAINER: toKebab(group),
-      ...Object.fromEntries(
-        props.map((p) => [p, `${toKebab(group)}-${toKebab(p)}`]),
+    Object.fromEntries(
+      props.map((p) =>
+        p === "CONTAINER"
+          ? [p, toKebab(group)]
+          : [p, `${toKebab(group)}-${toKebab(p)}`],
       ),
-    },
+    ),
   ]),
 );
 

@@ -1,5 +1,3 @@
-import { SEL } from "#assets/selectors.js";
-
 // Clone a <template> element by ID and return its content
 export const getTemplate = (id) =>
   document.getElementById(id)?.content.cloneNode(true);
@@ -12,7 +10,7 @@ export const populateQuantityControls = (template, item) => {
     el.dataset.name = name;
   });
 
-  const input = template.querySelector(SEL.QUANTITY.INPUT);
+  const input = template.querySelector("input[type='number']");
   input.value = item.quantity;
   if (item.max_quantity) {
     input.max = item.max_quantity;

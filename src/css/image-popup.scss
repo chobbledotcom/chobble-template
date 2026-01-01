@@ -91,7 +91,7 @@ dialog.image-popup {
     }
   }
 
-  .gallery-nav-prev {
+  [data-nav="prev"] {
     margin-right: 0.5rem;
 
     @include breakpoints.up("md") {
@@ -99,7 +99,7 @@ dialog.image-popup {
     }
   }
 
-  .gallery-nav-next {
+  [data-nav="next"] {
     margin-left: 0.5rem;
 
     @include breakpoints.up("md") {

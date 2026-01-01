@@ -1,6 +1,9 @@
 import { onReady } from "#assets/on-ready.js";
-import { IDS, SEL } from "#assets/selectors.js";
+import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
+
+const NAV_PREV = '[data-nav="prev"]';
+const NAV_NEXT = '[data-nav="next"]';
 
 const state = {
   gallery: null,
@@ -55,8 +58,8 @@ const updatePopupImage = (index) => {
     el.sizes = "100vw";
   }
 
-  const prev = state.imagePopup.querySelector(SEL.GALLERY_NAV.PREV);
-  const next = state.imagePopup.querySelector(SEL.GALLERY_NAV.NEXT);
+  const prev = state.imagePopup.querySelector(NAV_PREV);
+  const next = state.imagePopup.querySelector(NAV_NEXT);
   if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
   if (next)
     next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
@@ -79,7 +82,7 @@ const openPopup = () => {
   if (totalImages > 1) {
     const prevBtn = getTemplate(IDS.GALLERY_NAV_PREV);
     if (state.currentPopupIndex <= 1) {
-      prevBtn.querySelector(SEL.GALLERY_NAV.PREV).style.visibility = "hidden";
+      prevBtn.firstElementChild.style.visibility = "hidden";
     }
     state.imagePopup.appendChild(prevBtn);
   }
@@ -89,7 +92,7 @@ const openPopup = () => {
   if (totalImages > 1) {
     const nextBtn = getTemplate(IDS.GALLERY_NAV_NEXT);
     if (state.currentPopupIndex >= totalImages) {
-      nextBtn.querySelector(SEL.GALLERY_NAV.NEXT).style.visibility = "hidden";
+      nextBtn.firstElementChild.style.visibility = "hidden";
     }
     state.imagePopup.appendChild(nextBtn);
   }
@@ -102,12 +105,12 @@ const openPopup = () => {
 
 const handlePopupClick = (event) => {
   // Handle navigation button clicks
-  if (event.target.closest(SEL.GALLERY_NAV.PREV)) {
+  if (event.target.closest(NAV_PREV)) {
     event.stopPropagation();
     navigatePopup(-1);
     return;
   }
-  if (event.target.closest(SEL.GALLERY_NAV.NEXT)) {
+  if (event.target.closest(NAV_NEXT)) {
     event.stopPropagation();
     navigatePopup(1);
     return;
