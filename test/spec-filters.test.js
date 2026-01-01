@@ -7,7 +7,7 @@ describe("getSpecIcon", () => {
     assert.strictEqual(
       getSpecIcon(null),
       "",
-      "should return empty string for null",
+      "getSpecIcon(null) should return empty string",
     );
   });
 
@@ -15,7 +15,7 @@ describe("getSpecIcon", () => {
     assert.strictEqual(
       getSpecIcon(undefined),
       "",
-      "should return empty string for undefined",
+      "getSpecIcon(undefined) should return empty string",
     );
   });
 
@@ -23,7 +23,7 @@ describe("getSpecIcon", () => {
     assert.strictEqual(
       getSpecIcon(""),
       "",
-      "should return empty string for empty input",
+      "getSpecIcon('') should return empty string",
     );
   });
 
@@ -31,29 +31,38 @@ describe("getSpecIcon", () => {
     assert.strictEqual(
       getSpecIcon("nonexistent-spec-name"),
       "",
-      "should return empty string for unknown spec",
+      "getSpecIcon should return empty string for unknown spec names",
     );
   });
 
   it("normalizes spec name to lowercase before lookup", () => {
-    // "has dongle" is defined in specs-icons-base.json -> tick.svg
     const lowerResult = getSpecIcon("has dongle");
     const upperResult = getSpecIcon("HAS DONGLE");
     const mixedResult = getSpecIcon("Has Dongle");
 
-    // All should return the same icon content
     assert.strictEqual(
       lowerResult,
       upperResult,
-      "lowercase and uppercase should match",
+      "Lowercase and uppercase spec names should return same icon",
     );
     assert.strictEqual(
       lowerResult,
       mixedResult,
-      "lowercase and mixed case should match",
+      "Lowercase and mixed-case spec names should return same icon",
+<<<<<<< HEAD
+    );
+    assert.ok(
+      lowerResult.includes("<svg") || lowerResult.includes("<SVG"),
+      "Icon content should contain SVG markup",
+    );
+=======
     );
     // And it should contain SVG content (tick.svg exists)
-    assert.ok(lowerResult.includes("<svg") || lowerResult.includes("<SVG"));
+    assert.ok(
+      lowerResult.includes("<svg") || lowerResult.includes("<SVG"),
+      "Icon content should contain SVG markup",
+    );
+>>>>>>> ca37c59 (Add assertion messages to spec-filters.test.js and remove from exceptions)
   });
 
   it("trims spec name before lookup", () => {
@@ -63,12 +72,11 @@ describe("getSpecIcon", () => {
     assert.strictEqual(
       normalResult,
       paddedResult,
-      "trimmed and padded should match",
+      "Padded spec name should return same icon as trimmed name",
     );
   });
 
   it("returns SVG content for existing spec icon", () => {
-    // "has dongle" maps to tick.svg which exists
     const result = getSpecIcon("has dongle");
     assert.ok(result.length > 0, "Should return non-empty content");
     assert.ok(
@@ -84,7 +92,7 @@ describe("computeSpecs", () => {
     assert.strictEqual(
       result,
       undefined,
-      "should return undefined for missing specs",
+      "computeSpecs should return undefined when specs is missing",
     );
   });
 
@@ -93,7 +101,7 @@ describe("computeSpecs", () => {
     assert.strictEqual(
       result,
       undefined,
-      "should return undefined for null specs",
+      "computeSpecs should return undefined when specs is null",
     );
   });
 
@@ -102,7 +110,7 @@ describe("computeSpecs", () => {
     assert.deepStrictEqual(
       result,
       [],
-      "should return empty array for empty specs",
+      "computeSpecs should return empty array for empty specs input",
     );
   });
 
@@ -112,14 +120,18 @@ describe("computeSpecs", () => {
     };
     const result = computeSpecs(data);
 
-    assert.strictEqual(result.length, 1, "should return one spec");
+    assert.strictEqual(result.length, 1, "Result should contain one spec");
     assert.ok("icon" in result[0], "Should have icon property");
     assert.strictEqual(
       result[0].name,
       "has dongle",
-      "should preserve spec name",
+      "Spec name should be preserved",
     );
-    assert.strictEqual(result[0].value, "Yes", "should preserve spec value");
+    assert.strictEqual(
+      result[0].value,
+      "Yes",
+      "Spec value should be preserved",
+    );
   });
 
   it("preserves all original spec properties", () => {
@@ -135,17 +147,25 @@ describe("computeSpecs", () => {
     };
     const result = computeSpecs(data);
 
-    assert.strictEqual(result[0].name, "test spec", "should preserve name");
-    assert.strictEqual(result[0].value, "test value", "should preserve value");
+    assert.strictEqual(
+      result[0].name,
+      "test spec",
+      "Name property should be preserved",
+    );
+    assert.strictEqual(
+      result[0].value,
+      "test value",
+      "Value property should be preserved",
+    );
     assert.strictEqual(
       result[0].customProp,
       "custom",
-      "should preserve customProp",
+      "Custom properties should be preserved",
     );
     assert.deepStrictEqual(
       result[0].nested,
       { a: 1 },
-      "should preserve nested object",
+      "Nested objects should be preserved",
     );
   });
 
@@ -158,7 +178,7 @@ describe("computeSpecs", () => {
     assert.strictEqual(
       result[0].icon,
       "",
-      "should return empty icon for unknown spec",
+      "Icon should be empty string for unknown spec",
     );
   });
 
@@ -168,10 +188,13 @@ describe("computeSpecs", () => {
     };
     const result = computeSpecs(data);
 
-    assert.ok(result[0].icon.length > 0, "should have non-empty icon");
+    assert.ok(
+      result[0].icon.length > 0,
+      "Icon should be non-empty for known spec",
+    );
     assert.ok(
       result[0].icon.includes("<svg") || result[0].icon.includes("<SVG"),
-      "should contain SVG markup",
+      "Icon should contain SVG markup",
     );
   });
 
@@ -185,20 +208,26 @@ describe("computeSpecs", () => {
     };
     const result = computeSpecs(data);
 
-    assert.strictEqual(result.length, 3, "should return all three specs");
+    assert.strictEqual(result.length, 3, "Should return all three specs");
+<<<<<<< HEAD
+=======
     // First and third should have icons (same icon due to normalization)
-    assert.ok(result[0].icon.length > 0, "first spec should have icon");
+>>>>>>> ca37c59 (Add assertion messages to spec-filters.test.js and remove from exceptions)
+    assert.ok(result[0].icon.length > 0, "First spec should have icon");
     assert.strictEqual(
       result[1].icon,
       "",
-      "second spec should have empty icon",
+      "Second spec should have empty icon (no match)",
     );
-    assert.ok(result[2].icon.length > 0, "third spec should have icon");
+    assert.ok(result[2].icon.length > 0, "Third spec should have icon");
+<<<<<<< HEAD
+=======
     // First and third icons should be identical
+>>>>>>> ca37c59 (Add assertion messages to spec-filters.test.js and remove from exceptions)
     assert.strictEqual(
       result[0].icon,
       result[2].icon,
-      "normalized names should have same icon",
+      "Case-normalized specs should have identical icons",
     );
   });
 });
