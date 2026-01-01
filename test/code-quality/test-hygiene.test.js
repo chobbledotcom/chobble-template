@@ -81,7 +81,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
-  "runTest",
+  "extractAllDefinedVariables",
+  "findUndefinedVariables",
   // strings.test.js
   "findStringsUsage",
   // test-hygiene.test.js - self-analysis helpers
