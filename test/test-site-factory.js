@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
+import { JSDOM } from "jsdom";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -168,6 +169,10 @@ const createSiteObject = (siteId, siteDir, srcDir, outputDir) => ({
     return fs.readFileSync(fullPath, "utf-8");
   },
 
+  getDoc(filePath) {
+    return new JSDOM(this.getOutput(filePath)).window.document;
+  },
+
   hasOutput(filePath) {
     return fs.existsSync(path.join(outputDir, filePath));
   },
@@ -251,8 +256,24 @@ const createTestSite = async (options = {}) => {
 };
 
 /**
- * Clean up all test sites (for use in test teardown)
+ * Create a test site, build it, run checks, and clean up automatically.
+ *
+ * Usage:
+ *   await withTestSite({ files: [...] }, (site) => {
+ *     const doc = site.getDoc('/test/index.html');
+ *     expectTrue(doc.querySelector('ul') !== null);
+ *   });
  */
+const withTestSite = async (options, fn) => {
+  const site = await createTestSite(options);
+  try {
+    await site.build();
+    await fn(site);
+  } finally {
+    site.cleanup();
+  }
+};
+
 const cleanupAllTestSites = () => {
   const testSitesDir = path.join(__dirname, ".test-sites");
   if (fs.existsSync(testSitesDir)) {
@@ -260,4 +281,4 @@ const cleanupAllTestSites = () => {
   }
 };
 
-export { createTestSite, cleanupAllTestSites };
+export { createTestSite, withTestSite, cleanupAllTestSites };
