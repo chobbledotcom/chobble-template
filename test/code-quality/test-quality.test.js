@@ -22,13 +22,26 @@ import {
 // Exception Lists (grandfathered violations)
 // ============================================
 
-// Grandfathered assertions without messages
-// Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
-// File-level exceptions are preferred - fix whole files at once
-const MISSING_MESSAGE_EXCEPTIONS = new Set([
-  // Whole files to fix (76 violations across 2 files)
-  "test/schema-helper.test.js", // 57 violations
-  "test/spec-filters.test.js", // 23 violations (includes some that need review)
+// Grandfathered asyncTest functions that need to be converted to sync
+const ASYNC_TEST_EXCEPTIONS = new Set([
+  "test/checkout.test.js:376", // cart-utils-escapeHtml-basic
+  "test/checkout.test.js:410", // cart-utils-updateCartIcon-shows-icon
+  "test/checkout.test.js:452", // cart-utils-updateCartIcon-hides-icon
+  "test/checkout.test.js:527", // cart-utils-updateItemQuantity-respects-max
+  "test/checkout.test.js:577", // cart-utils-renderQuantityControls-basic
+  "test/checkout.test.js:629", // cart-utils-renderQuantityControls-max-quantity
+  "test/checkout.test.js:654", // cart-utils-renderQuantityControls-escapes-html
+  "test/checkout.test.js:678", // cart-utils-attachQuantityHandlers-decrease
+  "test/checkout.test.js:718", // cart-utils-attachQuantityHandlers-increase
+  "test/checkout.test.js:758", // cart-utils-attachQuantityHandlers-input-change
+  "test/checkout.test.js:797", // cart-utils-attachRemoveHandlers-removes-item
+  "test/checkout.test.js:1366", // stripe-checkout-empty-cart-redirects-home
+]);
+
+// Grandfathered tautological patterns
+// Supports file-level ("test/file.js") or specific ("test/file.js:assignLine:assertLine")
+const TAUTOLOGICAL_EXCEPTIONS = new Set([
+  "test/checkout.test.js", // 2 tautological patterns to fix
 ]);
 
 // Files that are allowed to have tests with "and" in names
@@ -253,19 +266,8 @@ const findAssertionsWithoutMessages = () => {
     const source = fs.readFileSync(fullPath, "utf-8");
     const lines = source.split("\n");
 
-    // Check if whole file is excepted
-    if (MISSING_MESSAGE_EXCEPTIONS.has(relativePath)) {
-      continue;
-    }
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      const location = `${relativePath}:${i + 1}`;
-
-      // Skip if specific line is grandfathered
-      if (MISSING_MESSAGE_EXCEPTIONS.has(location)) {
-        continue;
-      }
 
       // Match assert.strictEqual(a, b) without third parameter
       // Pattern: assert.strictEqual(something, something) followed by ; or , or )
