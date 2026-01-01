@@ -2,6 +2,8 @@
 // Displays a 12-month calendar with unavailable dates greyed out
 
 import { onReady } from "#assets/on-ready.js";
+import { IDS } from "#assets/selectors.js";
+import { getTemplate } from "#assets/template.js";
 
 const MONTHS = [
   "January",
@@ -31,14 +33,22 @@ function getContent() {
 function showLoading() {
   const content = getContent();
   if (content) {
-    content.innerHTML = '<p class="calendar-loading">Loading...</p>';
+    content.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "calendar-loading";
+    p.textContent = "Loading...";
+    content.appendChild(p);
   }
 }
 
 function showError(message) {
   const content = getContent();
   if (content) {
-    content.innerHTML = `<p class="calendar-error">${message}</p>`;
+    content.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "calendar-error";
+    p.textContent = message;
+    content.appendChild(p);
   }
 }
 
@@ -52,15 +62,16 @@ function renderCalendar(unavailableDates) {
 
   const todayStr = formatDate(today);
 
-  let html = '<div class="calendar-months">';
+  content.innerHTML = "";
+  const container = document.createElement("div");
+  container.className = "calendar-months";
 
   for (let i = 0; i < 12; i++) {
     const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
-    html += renderMonth(monthDate, unavailableSet, todayStr);
+    container.appendChild(renderMonth(monthDate, unavailableSet, todayStr));
   }
 
-  html += "</div>";
-  content.innerHTML = html;
+  content.appendChild(container);
 }
 
 function renderMonth(monthDate, unavailableSet, todayStr) {
@@ -74,18 +85,24 @@ function renderMonth(monthDate, unavailableSet, todayStr) {
   let startDay = firstDay.getDay() - 1;
   if (startDay < 0) startDay = 6;
 
-  let html = `<div class="calendar-month">`;
-  html += `<h3>${MONTHS[month]} ${year}</h3>`;
-  html += `<div class="calendar-grid">`;
+  const monthTemplate = getTemplate(IDS.CALENDAR_MONTH);
+  monthTemplate.querySelector('[data-field="title"]').textContent =
+    `${MONTHS[month]} ${year}`;
+  const grid = monthTemplate.querySelector(".calendar-grid");
 
   // Day headers
   for (const day of DAYS) {
-    html += `<span class="calendar-day-header">${day}</span>`;
+    const header = document.createElement("span");
+    header.className = "calendar-day-header";
+    header.textContent = day;
+    grid.appendChild(header);
   }
 
   // Empty cells before first day
   for (let i = 0; i < startDay; i++) {
-    html += `<span class="calendar-day empty"></span>`;
+    const empty = document.createElement("span");
+    empty.className = "calendar-day empty";
+    grid.appendChild(empty);
   }
 
   // Days of month
@@ -95,16 +112,18 @@ function renderMonth(monthDate, unavailableSet, todayStr) {
     const isUnavailable = unavailableSet.has(dateStr);
     const isToday = dateStr === todayStr;
 
-    let classes = "calendar-day";
-    if (isPast) classes += " past";
-    if (isUnavailable && !isPast) classes += " unavailable";
-    if (isToday) classes += " today";
+    const dayEl = document.createElement("span");
+    dayEl.className = "calendar-day";
+    dayEl.textContent = day;
 
-    html += `<span class="${classes}">${day}</span>`;
+    if (isPast) dayEl.classList.add("past");
+    if (isUnavailable && !isPast) dayEl.classList.add("unavailable");
+    if (isToday) dayEl.classList.add("today");
+
+    grid.appendChild(dayEl);
   }
 
-  html += `</div></div>`;
-  return html;
+  return monthTemplate;
 }
 
 function formatDate(date) {
