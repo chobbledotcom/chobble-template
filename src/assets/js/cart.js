@@ -8,10 +8,10 @@ import {
   escapeHtml,
   formatPrice,
   getCart,
-  removeItem,
   renderQuantityControls,
   saveCart,
   updateCartIcon,
+  updateItemQuantity,
 } from "#assets/cart-utils.js";
 import Config from "#assets/config.js";
 import { onReady } from "#assets/on-ready.js";
@@ -139,28 +139,11 @@ const updateCartDisplay = () => {
   if (cartTotal) cartTotal.textContent = formatPrice(total);
 };
 
-// Update item quantity
+// Update item quantity using shared utility
 const updateQuantity = (itemName, quantity) => {
-  const cart = getCart();
-  const item = cart.find((item) => item.item_name === itemName);
-
-  if (item) {
-    if (quantity <= 0) {
-      removeItem(itemName);
-      updateCartDisplay();
-      updateCartCount();
-    } else {
-      if (item.max_quantity && quantity > item.max_quantity) {
-        alert(`The maximum quantity for this item is ${item.max_quantity}`);
-        item.quantity = item.max_quantity;
-      } else {
-        item.quantity = quantity;
-      }
-      saveCart(cart);
-      updateCartDisplay();
-      updateCartCount();
-    }
-  }
+  updateItemQuantity(itemName, quantity);
+  updateCartDisplay();
+  updateCartCount();
 };
 
 // Add item to cart
