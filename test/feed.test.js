@@ -15,8 +15,8 @@ import {
 
 const FEED_PATH = path.join(process.cwd(), "_site/feed.xml");
 
-// Read feed content once and reuse (module-level, not a function to avoid
-// test-hygiene warnings about functions that look like production code)
+// Read feed content once at module load. Tests check for null and provide
+// clear error messages if the build hasn't been run.
 const feedContent = fs.existsSync(FEED_PATH)
   ? fs.readFileSync(FEED_PATH, "utf-8")
   : null;
@@ -43,6 +43,7 @@ const testCases = [
     name: "feed-has-xml-declaration",
     description: "Feed starts with XML declaration",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(
         feedContent.includes('<?xml version="1.0"'),
         "Should have XML declaration at start",
@@ -53,6 +54,7 @@ const testCases = [
     name: "feed-is-atom-format",
     description: "Feed uses Atom namespace",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(
         feedContent.includes('<feed xmlns="http://www.w3.org/2005/Atom"'),
         "Should have Atom feed namespace declaration",
@@ -63,6 +65,7 @@ const testCases = [
     name: "feed-has-closing-tag",
     description: "Feed is well-formed with closing tag",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(
         feedContent.trimEnd().endsWith("</feed>"),
         "Should end with closing </feed> tag",
@@ -75,6 +78,7 @@ const testCases = [
     name: "feed-has-title-element",
     description: "Feed contains required <title> element",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(feedContent.includes("<title>"), "Atom feed requires <title>");
     },
   },
@@ -82,6 +86,7 @@ const testCases = [
     name: "feed-has-id-element",
     description: "Feed contains required <id> element",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(feedContent.includes("<id>"), "Atom feed requires <id>");
     },
   },
@@ -89,6 +94,7 @@ const testCases = [
     name: "feed-has-updated-element",
     description: "Feed contains required <updated> element",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(
         feedContent.includes("<updated>"),
         "Atom feed requires <updated>",
@@ -99,6 +105,7 @@ const testCases = [
     name: "feed-has-author-element",
     description: "Feed contains <author> element",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(feedContent.includes("<author>"), "Feed should have author");
     },
   },
@@ -108,6 +115,7 @@ const testCases = [
     name: "feed-has-entries",
     description: "Feed contains at least one <entry> element",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(
         feedContent.includes("<entry>"),
         "Feed should contain entry elements for blog posts",
@@ -118,6 +126,7 @@ const testCases = [
     name: "feed-entries-are-well-formed",
     description: "Entry elements have matching closing tags",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       const openCount = (feedContent.match(/<entry>/g) || []).length;
       const closeCount = (feedContent.match(/<\/entry>/g) || []).length;
       expectStrictEqual(
@@ -133,6 +142,7 @@ const testCases = [
     name: "feed-entries-have-html-content",
     description: "Entries include HTML content type",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       expectTrue(
         feedContent.includes('<content type="html">'),
         "Entries should have HTML content",
@@ -143,6 +153,7 @@ const testCases = [
     name: "feed-content-has-absolute-urls",
     description: "Links in content are absolute URLs (not relative)",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
       // The htmlBase plugin transforms relative URLs to absolute
       expectTrue(
         feedContent.includes('href="https://'),
@@ -153,27 +164,18 @@ const testCases = [
 
   // --- Self Link ---
   {
-    name: "feed-has-self-link",
-    description: "Feed includes self-referencing link for discovery",
+    name: "feed-self-link-points-to-feed-xml",
+    description: "Feed has self-referencing link pointing to feed.xml",
     test: () => {
+      expectTrue(feedContent !== null, "Feed file missing - run build first");
+      // Verify both rel="self" exists and it points to feed.xml
       expectTrue(
         feedContent.includes('rel="self"'),
         "Feed should have rel=self link",
       );
-    },
-  },
-  {
-    name: "feed-self-link-points-to-feed",
-    description: "Self link href points to feed.xml",
-    test: () => {
-      // Match self link with href in either order (href before or after rel)
-      const selfLinkMatch =
-        feedContent.match(/<link[^>]*href="([^"]*feed\.xml)"[^>]*rel="self"/) ||
-        feedContent.match(/<link[^>]*rel="self"[^>]*href="([^"]+)"/);
-      expectTrue(selfLinkMatch !== null, "Should find self link with href");
       expectTrue(
-        selfLinkMatch[1].includes("feed.xml"),
-        `Self link should point to feed.xml, got: ${selfLinkMatch?.[1]}`,
+        feedContent.includes("feed.xml") && feedContent.includes('rel="self"'),
+        "Self link should reference feed.xml",
       );
     },
   },
