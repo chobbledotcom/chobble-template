@@ -22,22 +22,6 @@ import {
 // Exception Lists (grandfathered violations)
 // ============================================
 
-// Grandfathered asyncTest functions that need to be converted to sync
-const ASYNC_TEST_EXCEPTIONS = new Set([
-  "test/checkout.test.js:376", // cart-utils-escapeHtml-basic
-  "test/checkout.test.js:410", // cart-utils-updateCartIcon-shows-icon
-  "test/checkout.test.js:452", // cart-utils-updateCartIcon-hides-icon
-  "test/checkout.test.js:527", // cart-utils-updateItemQuantity-respects-max
-  "test/checkout.test.js:577", // cart-utils-renderQuantityControls-basic
-  "test/checkout.test.js:629", // cart-utils-renderQuantityControls-max-quantity
-  "test/checkout.test.js:654", // cart-utils-renderQuantityControls-escapes-html
-  "test/checkout.test.js:678", // cart-utils-attachQuantityHandlers-decrease
-  "test/checkout.test.js:718", // cart-utils-attachQuantityHandlers-increase
-  "test/checkout.test.js:758", // cart-utils-attachQuantityHandlers-input-change
-  "test/checkout.test.js:797", // cart-utils-attachRemoveHandlers-removes-item
-  "test/checkout.test.js:1366", // stripe-checkout-empty-cart-redirects-home
-]);
-
 // Grandfathered assertions without messages
 // Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
 // File-level exceptions are preferred - fix whole files at once
@@ -238,15 +222,12 @@ const findAsyncTestsWithoutAwait = () => {
         );
 
         if (!hasRealAwait) {
-          const location = `${relativePath}:${i + 1}`;
-          if (!ASYNC_TEST_EXCEPTIONS.has(location)) {
-            violations.push({
-              file: relativePath,
-              line: i + 1,
-              testName,
-              reason: `asyncTest without await - use sync "test" instead`,
-            });
-          }
+          violations.push({
+            file: relativePath,
+            line: i + 1,
+            testName,
+            reason: `asyncTest without await - use sync "test" instead`,
+          });
         }
       }
     }

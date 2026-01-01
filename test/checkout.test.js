@@ -373,7 +373,7 @@ const testCases = [
   {
     name: "cart-utils-escapeHtml-basic",
     description: "escapeHtml escapes HTML special characters",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
       global.document = dom.window.document;
       try {
@@ -407,7 +407,7 @@ const testCases = [
   {
     name: "cart-utils-updateCartIcon-shows-icon",
     description: "updateCartIcon shows cart icon when items in cart",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -449,7 +449,7 @@ const testCases = [
   {
     name: "cart-utils-updateCartIcon-hides-icon",
     description: "updateCartIcon hides cart icon when cart is empty",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -524,7 +524,7 @@ const testCases = [
   {
     name: "cart-utils-updateItemQuantity-respects-max",
     description: "updateItemQuantity caps at max_quantity and shows alert",
-    asyncTest: async () => {
+    test: () => {
       const alerts = [];
       const origAlert = global.alert;
       global.alert = (msg) => alerts.push(msg);
@@ -574,7 +574,7 @@ const testCases = [
   {
     name: "cart-utils-renderQuantityControls-basic",
     description: "renderQuantityControls generates correct HTML structure",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
       global.document = dom.window.document;
       try {
@@ -626,7 +626,7 @@ const testCases = [
     name: "cart-utils-renderQuantityControls-max-quantity",
     description:
       "renderQuantityControls includes max attribute when max_quantity set",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
       global.document = dom.window.document;
       try {
@@ -651,7 +651,7 @@ const testCases = [
   {
     name: "cart-utils-renderQuantityControls-escapes-html",
     description: "renderQuantityControls escapes HTML in item names",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
       global.document = dom.window.document;
       try {
@@ -675,7 +675,7 @@ const testCases = [
   {
     name: "cart-utils-attachQuantityHandlers-decrease",
     description: "attachQuantityHandlers attaches decrease button handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -715,7 +715,7 @@ const testCases = [
   {
     name: "cart-utils-attachQuantityHandlers-increase",
     description: "attachQuantityHandlers attaches increase button handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -755,7 +755,7 @@ const testCases = [
   {
     name: "cart-utils-attachQuantityHandlers-input-change",
     description: "attachQuantityHandlers attaches input change handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -794,7 +794,7 @@ const testCases = [
   {
     name: "cart-utils-attachRemoveHandlers-removes-item",
     description: "attachRemoveHandlers attaches remove button handlers",
-    asyncTest: async () => {
+    test: () => {
       const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
@@ -1363,7 +1363,7 @@ const testCases = [
   {
     name: "stripe-checkout-empty-cart-redirects-home",
     description: "Stripe checkout redirects to homepage when cart is empty",
-    asyncTest: async () => {
+    test: () => {
       const result = withMockStorage(() => {
         saveCart([]);
         const locationTracker = createLocationTracker();
