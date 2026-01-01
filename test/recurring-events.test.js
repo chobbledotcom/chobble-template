@@ -1,7 +1,6 @@
 import { JSDOM } from "jsdom";
 import {
   configureRecurringEvents,
-  getRecurringEventsHtml,
   renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
 import {
@@ -11,6 +10,7 @@ import {
   expectStrictEqual,
   expectTrue,
 } from "#test/test-utils.js";
+import { createTestSite } from "#test/test-site-factory.js";
 
 const testCases = [
   // renderRecurringEvents - empty/null inputs
@@ -441,92 +441,272 @@ const testCases = [
     },
   },
 
-  // getRecurringEventsHtml tests
-  // Note: getRecurringEventsHtml is memoized, so we test it with real filesystem files
-  // and verify the complete behavior in a single comprehensive test
+  // ============================================
+  // Integration Tests using Test Site Factory
+  // ============================================
+  // These tests create isolated Eleventy sites with custom content,
+  // build them, and verify the output. This ensures tests are:
+  // - Fully isolated (Section 5: Isolated and Repeatable)
+  // - Testing real behavior through the full build pipeline
+  // - Not dependent on external fixture files
+
   {
-    name: "getRecurringEventsHtml-comprehensive",
+    name: "integration-recurring-events-rendered-in-build",
     description:
-      "Returns properly formatted HTML for recurring events from the filesystem",
+      "Recurring events are correctly rendered when site is built with Eleventy",
     asyncTest: async () => {
-      const result = await getRecurringEventsHtml();
+      const site = await createTestSite({
+        events: [
+          {
+            filename: "weekly-meetup.md",
+            frontmatter: {
+              title: "Weekly Meetup",
+              recurring_date: "Every Tuesday at 7pm",
+              event_location: "Community Center",
+            },
+            content: "# Weekly Meetup\n\nJoin us every week!",
+          },
+          {
+            filename: "2024-03-15-monthly-workshop.md",
+            frontmatter: {
+              title: "Monthly Workshop",
+              recurring_date: "First Saturday of each month",
+            },
+            content: "# Monthly Workshop",
+          },
+          {
+            filename: "one-time-event.md",
+            frontmatter: {
+              title: "One Time Event",
+              event_date: "2024-06-15",
+            },
+            content: "# One Time Event\n\nThis should NOT appear in recurring list",
+          },
+        ],
+        // Create a page that uses the recurring_events shortcode
+        pages: [
+          {
+            filename: "recurring-test.md",
+            frontmatter: {
+              title: "Recurring Events Test",
+              layout: "page",
+              permalink: "/recurring-test/",
+            },
+            content: "# Recurring Events\n\n{% recurring_events %}",
+          },
+        ],
+      });
 
-      // Should return a string (HTML or empty string)
-      expectStrictEqual(typeof result, "string", "Should return a string");
+      try {
+        await site.build();
 
-      // The project has real recurring events in src/events
-      // street-advocacy.md and lunar-networking.md both have recurring_date
-      expectTrue(
-        result.length > 0,
-        "Should return non-empty HTML for existing recurring events",
-      );
-      expectTrue(result.includes("<ul>"), "Should contain ul element");
-      expectTrue(result.includes("<li>"), "Should contain li elements");
+        // Get the test page output
+        const html = site.getOutput("/recurring-test/index.html");
+        const dom = new JSDOM(html);
+        const doc = dom.window.document;
 
-      // Check for known recurring events from the project
-      expectTrue(
-        result.includes("Street Advocacy Sessions") ||
-          result.includes("Lunar Networking"),
-        "Should include recurring event titles",
-      );
+        // Should have ul container for recurring events
+        const ul = doc.querySelector("ul");
+        expectTrue(ul !== null, "Should render recurring events in ul element");
 
-      // Parse as DOM to check structure
-      const dom = new JSDOM(result);
-      const doc = dom.window.document;
-
-      const links = doc.querySelectorAll("a");
-      expectTrue(links.length > 0, "Should have links to event pages");
-
-      // Check that links have proper href attributes
-      for (const link of links) {
-        const href = link.getAttribute("href");
-        expectTrue(href.startsWith("/"), "Links should start with /");
+        // Should include recurring events
         expectTrue(
-          href.includes("events/"),
-          "Links should include events/ path",
+          html.includes("Weekly Meetup"),
+          "Should include Weekly Meetup recurring event",
         );
+        expectTrue(
+          html.includes("Monthly Workshop"),
+          "Should include Monthly Workshop recurring event",
+        );
+        expectTrue(
+          html.includes("Every Tuesday at 7pm"),
+          "Should include recurring date",
+        );
+        expectTrue(
+          html.includes("Community Center"),
+          "Should include event location",
+        );
+
+        // Should NOT include one-time events
+        expectTrue(
+          !html.includes("One Time Event"),
+          "Should NOT include one-time events in recurring list",
+        );
+
+        // Should have links to event pages
+        const links = doc.querySelectorAll("a[href*='/events/']");
+        expectTrue(
+          links.length >= 2,
+          `Should have links to recurring event pages, got ${links.length}`,
+        );
+
+        // Verify URL building - date prefix should be stripped
+        expectTrue(
+          html.includes("/events/monthly-workshop/") ||
+            html.includes("monthly-workshop"),
+          "Should strip date prefix from URL (2024-03-15-monthly-workshop -> monthly-workshop)",
+        );
+        expectTrue(
+          !html.includes("/events/2024-03-15-"),
+          "Should not include date prefix in URL",
+        );
+      } finally {
+        site.cleanup();
       }
-
-      // Known recurring dates from the events
-      const hasRecurringInfo =
-        result.includes("Quarterly") ||
-        result.includes("Thursday") ||
-        result.includes("month");
-      expectTrue(hasRecurringInfo, "Should include recurring date information");
-
-      // Known locations from the events
-      const hasLocation =
-        result.includes("Fulchester") ||
-        result.includes("Moon") ||
-        result.includes("Tranquility");
-      expectTrue(hasLocation, "Should include event locations");
     },
   },
+
   {
-    name: "getRecurringEventsHtml-filters-non-recurring-events",
-    description:
-      "Only includes events with recurring_date field, not one-time events",
+    name: "integration-recurring-events-with-custom-permalink",
+    description: "Events with custom permalinks use that URL in recurring list",
     asyncTest: async () => {
-      const result = await getRecurringEventsHtml();
+      const site = await createTestSite({
+        events: [
+          {
+            filename: "yoga-class.md",
+            frontmatter: {
+              title: "Yoga Class",
+              recurring_date: "Wednesdays at 6pm",
+              permalink: "/classes/yoga/",
+            },
+            content: "# Yoga Class",
+          },
+        ],
+        pages: [
+          {
+            filename: "test.md",
+            frontmatter: {
+              title: "Test",
+              layout: "page",
+              permalink: "/test/",
+            },
+            content: "{% recurring_events %}",
+          },
+        ],
+      });
 
-      // The project has both recurring and non-recurring events
-      // Non-recurring events like "product-launch" and "summer-expo" should not appear
-      // They have event_date but not recurring_date
-      expectTrue(
-        !result.includes("Product Launch"),
-        "Should not include one-time events",
-      );
-      expectTrue(
-        !result.includes("Summer Expo"),
-        "Should not include events without recurring_date",
-      );
+      try {
+        await site.build();
 
-      // But recurring events should be present
-      expectTrue(
-        result.includes("Street Advocacy") ||
-          result.includes("Lunar Networking"),
-        "Should include recurring events",
-      );
+        const html = site.getOutput("/test/index.html");
+
+        expectTrue(
+          html.includes('href="/classes/yoga/"'),
+          "Should use custom permalink from frontmatter",
+        );
+        expectTrue(
+          !html.includes('href="/events/yoga-class/"'),
+          "Should NOT use default URL when custom permalink exists",
+        );
+      } finally {
+        site.cleanup();
+      }
+    },
+  },
+
+  {
+    name: "integration-recurring-events-empty-list",
+    description: "Returns empty content when no recurring events exist",
+    asyncTest: async () => {
+      const site = await createTestSite({
+        events: [
+          {
+            filename: "one-time.md",
+            frontmatter: {
+              title: "One Time Only",
+              event_date: "2024-12-25",
+            },
+            content: "# One Time Only",
+          },
+        ],
+        pages: [
+          {
+            filename: "test.md",
+            frontmatter: {
+              title: "Test",
+              layout: "page",
+              permalink: "/test/",
+            },
+            content: "START{% recurring_events %}END",
+          },
+        ],
+      });
+
+      try {
+        await site.build();
+
+        const html = site.getOutput("/test/index.html");
+
+        // When no recurring events, shortcode returns empty string
+        // So START and END should be adjacent (possibly with whitespace)
+        const noRecurringEvents =
+          !html.includes("<ul>") || !html.includes("One Time Only");
+        expectTrue(
+          noRecurringEvents,
+          "Should not render any recurring events when none exist",
+        );
+      } finally {
+        site.cleanup();
+      }
+    },
+  },
+
+  {
+    name: "integration-recurring-events-html-structure",
+    description: "Recurring events render with correct HTML structure",
+    asyncTest: async () => {
+      const site = await createTestSite({
+        events: [
+          {
+            filename: "test-event.md",
+            frontmatter: {
+              title: "Test Event",
+              recurring_date: "Daily",
+              event_location: "Test Location",
+            },
+            content: "# Test",
+          },
+        ],
+        pages: [
+          {
+            filename: "test.md",
+            frontmatter: {
+              title: "Test",
+              layout: "page",
+              permalink: "/test/",
+            },
+            content: "{% recurring_events %}",
+          },
+        ],
+      });
+
+      try {
+        await site.build();
+
+        const html = site.getOutput("/test/index.html");
+        const dom = new JSDOM(html);
+        const doc = dom.window.document;
+
+        // Check structure: ul > li > strong > a
+        const ul = doc.querySelector("ul");
+        expectTrue(ul !== null, "Should have ul element");
+
+        const li = doc.querySelector("ul li");
+        expectTrue(li !== null, "Should have li element inside ul");
+
+        const strong = doc.querySelector("ul li strong");
+        expectTrue(strong !== null, "Should have strong element for title");
+
+        const link = doc.querySelector("ul li strong a");
+        expectTrue(link !== null, "Should have link inside strong");
+        expectStrictEqual(
+          link.textContent,
+          "Test Event",
+          "Link should contain event title",
+        );
+      } finally {
+        site.cleanup();
+      }
     },
   },
 ];
