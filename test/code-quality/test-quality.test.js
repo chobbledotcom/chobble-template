@@ -50,7 +50,7 @@ const MISSING_MESSAGE_EXCEPTIONS = new Set([
 // Grandfathered tautological patterns
 // Supports file-level ("test/file.js") or specific ("test/file.js:assignLine:assertLine")
 const TAUTOLOGICAL_EXCEPTIONS = new Set([
-  "test/checkout.test.js", // 2 tautological patterns to fix
+  // None - all tautological patterns have been fixed
 ]);
 
 // Files that are allowed to have tests with "and" in names

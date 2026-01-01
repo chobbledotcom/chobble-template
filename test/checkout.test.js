@@ -1844,8 +1844,9 @@ const testCases = [
     },
   },
   {
-    name: "multi-option-select-enables-button-on-change",
-    description: "Selecting an option enables the add-to-cart button",
+    name: "multi-option-select-provides-correct-option-data",
+    description:
+      "Selecting an option retrieves correct option data from button",
     asyncTest: async () => {
       const dom = await createCheckoutPage({
         productOptions: [
@@ -1869,28 +1870,28 @@ const testCases = [
       );
       const option = itemData.options[optionIndex];
 
-      // Apply the selection to button (simulating cart.js change handler)
-      button.disabled = false;
-      button.textContent = `Add to Cart - £${option.unit_price}`;
+      // Verify option lookup returns correct data
+      assert.strictEqual(option.name, "Small", "Option name should be Small");
+      assert.strictEqual(option.unit_price, 5.0, "Option price should be 5.0");
+      assert.strictEqual(option.sku, "S", "Option SKU should be S");
+
+      // Verify select index mapping works for other options
+      select.selectedIndex = 2; // Select "Large"
+      const largeIndex = parseInt(
+        select.options[select.selectedIndex].value,
+        10,
+      );
+      const largeOption = itemData.options[largeIndex];
 
       assert.strictEqual(
-        button.disabled,
-        false,
-        "Button should be enabled after option selected",
+        largeOption.name,
+        "Large",
+        "Option name should be Large",
       );
       assert.strictEqual(
-        option.name,
-        "Small",
-        "Selected option name should be 'Small'",
-      );
-      assert.strictEqual(
-        option.unit_price,
-        5.0,
-        "Selected option unit_price should be 5.0",
-      );
-      assert.ok(
-        button.textContent.includes("5"),
-        "Button text should show selected price",
+        largeOption.unit_price,
+        10.0,
+        "Option price should be 10.0",
       );
 
       dom.window.close();
