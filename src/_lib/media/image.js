@@ -11,8 +11,6 @@ import { memoize } from "#utils/memoize.js";
 
 const CROP_CACHE_DIR = ".image-cache";
 
-const isServeMode = () => process.env.ELEVENTY_RUN_MODE === "serve";
-
 const generateCropHash = (sourcePath, aspectRatio) => {
   return crypto
     .createHash("md5")
@@ -64,7 +62,6 @@ const U = {
       ...U.DEFAULT_OPTIONS,
       widths: widths,
       fixOrientation: true,
-      transformOnRequest: isServeMode(),
       returnType: "html",
       htmlOptions: {
         imgAttributes,
