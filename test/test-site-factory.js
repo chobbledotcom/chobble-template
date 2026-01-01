@@ -18,10 +18,11 @@
  *   site.cleanup();
  */
 
-import { execSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import matter from "gray-matter";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,23 +42,7 @@ const createMarkdownFile = (dir, filename, { frontmatter = {}, content = "" }) =
     fs.mkdirSync(parentDir, { recursive: true });
   }
 
-  const yaml = Object.entries(frontmatter)
-    .map(([key, value]) => {
-      if (typeof value === "string") {
-        // Quote strings that might need it
-        if (value.includes(":") || value.includes("#") || value.includes("'")) {
-          return `${key}: "${value.replace(/"/g, '\\"')}"`;
-        }
-        return `${key}: ${value}`;
-      }
-      if (Array.isArray(value)) {
-        return `${key}:\n${value.map((v) => `  - ${v}`).join("\n")}`;
-      }
-      return `${key}: ${JSON.stringify(value)}`;
-    })
-    .join("\n");
-
-  const fileContent = `---\n${yaml}\n---\n\n${content}`;
+  const fileContent = matter.stringify(content, frontmatter);
   fs.writeFileSync(filePath, fileContent);
   return filePath;
 };
