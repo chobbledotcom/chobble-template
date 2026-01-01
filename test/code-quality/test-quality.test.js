@@ -24,18 +24,7 @@ import {
 
 // Grandfathered asyncTest functions that need to be converted to sync
 const ASYNC_TEST_EXCEPTIONS = new Set([
-  "test/checkout.test.js:340", // cart-utils-escapeHtml-basic
-  "test/checkout.test.js:364", // cart-utils-updateCartIcon-shows-icon
-  "test/checkout.test.js:406", // cart-utils-updateCartIcon-hides-icon
-  "test/checkout.test.js:481", // cart-utils-updateItemQuantity-respects-max
-  "test/checkout.test.js:531", // cart-utils-renderQuantityControls-basic
-  "test/checkout.test.js:583", // cart-utils-renderQuantityControls-max-quantity
-  "test/checkout.test.js:608", // cart-utils-renderQuantityControls-escapes-html
-  "test/checkout.test.js:632", // cart-utils-attachQuantityHandlers-decrease
-  "test/checkout.test.js:672", // cart-utils-attachQuantityHandlers-increase
-  "test/checkout.test.js:712", // cart-utils-attachQuantityHandlers-input-change
-  "test/checkout.test.js:751", // cart-utils-attachRemoveHandlers-removes-item
-  "test/checkout.test.js:1229", // stripe-checkout-empty-cart-redirects-home
+  // All checkout.test.js exceptions have been fixed
 ]);
 
 // Grandfathered assertions without messages
