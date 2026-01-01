@@ -3,6 +3,7 @@ import {
   configureRecurringEvents,
   renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
+import { createTestSite } from "#test/test-site-factory.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
@@ -10,7 +11,6 @@ import {
   expectStrictEqual,
   expectTrue,
 } from "#test/test-utils.js";
-import { createTestSite } from "#test/test-site-factory.js";
 
 const testCases = [
   // renderRecurringEvents - empty/null inputs
@@ -480,7 +480,8 @@ const testCases = [
               title: "One Time Event",
               event_date: "2024-06-15",
             },
-            content: "# One Time Event\n\nThis should NOT appear in recurring list",
+            content:
+              "# One Time Event\n\nThis should NOT appear in recurring list",
           },
         ],
         // Create a page that uses the recurring_events shortcode

@@ -34,7 +34,11 @@ let siteCounter = 0;
 /**
  * Create a markdown file with YAML frontmatter
  */
-const createMarkdownFile = (dir, filename, { frontmatter = {}, content = "" }) => {
+const createMarkdownFile = (
+  dir,
+  filename,
+  { frontmatter = {}, content = "" },
+) => {
   const filePath = path.join(dir, filename);
   const parentDir = path.dirname(filePath);
 
@@ -126,7 +130,7 @@ const createTestSite = async (options = {}) => {
   // Override strings if provided
   if (options.strings) {
     const stringsPath = path.join(dataTarget, "strings.js");
-    let stringsContent = `export default ${JSON.stringify(options.strings, null, 2)};`;
+    const stringsContent = `export default ${JSON.stringify(options.strings, null, 2)};`;
     fs.writeFileSync(stringsPath, stringsContent);
   }
 
@@ -326,4 +330,9 @@ const cleanupAllTestSites = () => {
   }
 };
 
-export { createTestSite, cleanupAllTestSites, createMarkdownFile, createJsonFile };
+export {
+  createTestSite,
+  cleanupAllTestSites,
+  createMarkdownFile,
+  createJsonFile,
+};
