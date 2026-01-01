@@ -1,7 +1,7 @@
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
-  expectTrue,
+  expectStrictEqual,
   fs,
   path,
   rootDir,
@@ -78,25 +78,22 @@ const c = 3;
 const todoList = []; // variable name, not a comment
       `;
       const results = findTodoFixme(source);
-      expectTrue(
-        results.length === 2,
-        `Expected 2 TODO/FIXME comments, found ${results.length}`,
+      expectStrictEqual(results.length, 2, "Should find 2 TODO/FIXME comments");
+      expectStrictEqual(
+        results[0].lineNumber,
+        3,
+        "First comment should be on line 3",
       );
-      expectTrue(
-        results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`,
+      expectStrictEqual(results[0].match, "TODO", "First match should be TODO");
+      expectStrictEqual(
+        results[1].lineNumber,
+        5,
+        "Second comment should be on line 5",
       );
-      expectTrue(
-        results[0].match === "TODO",
-        `Expected TODO, got ${results[0].match}`,
-      );
-      expectTrue(
-        results[1].lineNumber === 5,
-        `Expected line 5, got ${results[1].lineNumber}`,
-      );
-      expectTrue(
-        results[1].match === "FIXME",
-        `Expected FIXME, got ${results[1].match}`,
+      expectStrictEqual(
+        results[1].match,
+        "FIXME",
+        "Second match should be FIXME",
       );
     },
   },
@@ -115,9 +112,10 @@ const todoList = []; // variable name, not a comment
         console.log("\n  To fix: resolve the TODO/FIXME before committing.\n");
       }
 
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} TODO/FIXME comments. See list above.`,
+      expectStrictEqual(
+        violations.length,
+        0,
+        "No TODO/FIXME comments should exist in codebase",
       );
     },
   },
