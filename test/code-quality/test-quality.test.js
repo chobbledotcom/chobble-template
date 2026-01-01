@@ -40,16 +40,8 @@ const ASYNC_TEST_EXCEPTIONS = new Set([
 
 // Grandfathered assertions without messages
 // Format: "file:line" - these should be fixed over time
-// Total: 156 violations to be addressed
+// Total: 130 violations remaining (was 156, fixed 26)
 const MISSING_MESSAGE_EXCEPTIONS = new Set([
-  // test/canonical-url.test.js (7)
-  "test/canonical-url.test.js:10",
-  "test/canonical-url.test.js:14",
-  "test/canonical-url.test.js:18",
-  "test/canonical-url.test.js:22",
-  "test/canonical-url.test.js:26",
-  "test/canonical-url.test.js:30",
-  "test/canonical-url.test.js:31",
   // test/checkout.test.js (54)
   "test/checkout.test.js:255",
   "test/checkout.test.js:269",
@@ -162,26 +154,6 @@ const MISSING_MESSAGE_EXCEPTIONS = new Set([
   "test/schema-helper.test.js:545",
   "test/schema-helper.test.js:558",
   "test/schema-helper.test.js:570",
-  // test/slug-utils.test.js (17)
-  "test/slug-utils.test.js:11",
-  "test/slug-utils.test.js:12",
-  "test/slug-utils.test.js:13",
-  "test/slug-utils.test.js:17",
-  "test/slug-utils.test.js:18",
-  "test/slug-utils.test.js:22",
-  "test/slug-utils.test.js:23",
-  "test/slug-utils.test.js:27",
-  "test/slug-utils.test.js:31",
-  "test/slug-utils.test.js:32",
-  "test/slug-utils.test.js:36",
-  "test/slug-utils.test.js:76",
-  "test/slug-utils.test.js:81",
-  "test/slug-utils.test.js:86",
-  "test/slug-utils.test.js:91",
-  "test/slug-utils.test.js:96",
-  // test/sorting.test.js (2)
-  "test/sorting.test.js:61",
-  "test/sorting.test.js:63",
   // test/spec-filters.test.js (23)
   "test/spec-filters.test.js:7",
   "test/spec-filters.test.js:11",
