@@ -1,9 +1,10 @@
 {%- if specs -%}
-  <h2>Specifications</h2>
   <dl>
     {%- for spec in specs -%}
-      <dt>{{ spec.icon }}{{ spec.name }}</dt>
-      <dd>{{ spec.value }}</dd>
+      <div>
+        <dt>{{ spec.icon }}{{ spec.name }}</dt>
+        <dd>{{ spec.value }}</dd>
+      </div>
     {%- endfor -%}
   </dl>
 {%- endif -%}
