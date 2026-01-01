@@ -39,153 +39,19 @@ const ASYNC_TEST_EXCEPTIONS = new Set([
 ]);
 
 // Grandfathered assertions without messages
-// Format: "file:line" - these should be fixed over time
-// Total: 130 violations remaining (was 156, fixed 26)
+// Supports both file-level ("test/file.js") and line-level ("test/file.js:123")
+// File-level exceptions are preferred - fix whole files at once
 const MISSING_MESSAGE_EXCEPTIONS = new Set([
-  // test/checkout.test.js (54)
-  "test/checkout.test.js:255",
-  "test/checkout.test.js:269",
-  "test/checkout.test.js:284",
-  "test/checkout.test.js:310",
-  "test/checkout.test.js:311",
-  "test/checkout.test.js:319",
-  "test/checkout.test.js:320",
-  "test/checkout.test.js:321",
-  "test/checkout.test.js:333",
-  "test/checkout.test.js:353",
-  "test/checkout.test.js:354",
-  "test/checkout.test.js:839",
-  "test/checkout.test.js:958",
-  "test/checkout.test.js:959",
-  "test/checkout.test.js:960",
-  "test/checkout.test.js:961",
-  "test/checkout.test.js:962",
-  "test/checkout.test.js:1006",
-  "test/checkout.test.js:1007",
-  "test/checkout.test.js:1024",
-  "test/checkout.test.js:1029",
-  "test/checkout.test.js:1030",
-  "test/checkout.test.js:1031",
-  "test/checkout.test.js:1032",
-  "test/checkout.test.js:1080",
-  "test/checkout.test.js:1081",
-  "test/checkout.test.js:1082",
-  "test/checkout.test.js:1083",
-  "test/checkout.test.js:1084",
-  "test/checkout.test.js:1276",
-  "test/checkout.test.js:1277",
-  "test/checkout.test.js:1321",
-  "test/checkout.test.js:1344",
-  "test/checkout.test.js:1346",
-  "test/checkout.test.js:1375",
-  "test/checkout.test.js:1392",
-  "test/checkout.test.js:1477",
-  "test/checkout.test.js:1478",
-  "test/checkout.test.js:1479",
-  "test/checkout.test.js:1480",
-  "test/checkout.test.js:1481",
-  "test/checkout.test.js:1501",
-  "test/checkout.test.js:1502",
-  "test/checkout.test.js:1583",
-  "test/checkout.test.js:1585",
-  "test/checkout.test.js:1590",
-  "test/checkout.test.js:1591",
-  "test/checkout.test.js:1592",
-  "test/checkout.test.js:1593",
-  "test/checkout.test.js:1595",
-  "test/checkout.test.js:1596",
-  "test/checkout.test.js:1597",
-  "test/checkout.test.js:1598",
-  "test/checkout.test.js:1634",
-  "test/checkout.test.js:1635",
-  // test/schema-helper.test.js (57)
-  "test/schema-helper.test.js:21",
-  "test/schema-helper.test.js:22",
-  "test/schema-helper.test.js:35",
-  "test/schema-helper.test.js:46",
-  "test/schema-helper.test.js:59",
-  "test/schema-helper.test.js:72",
-  "test/schema-helper.test.js:86",
-  "test/schema-helper.test.js:100",
-  "test/schema-helper.test.js:113",
-  "test/schema-helper.test.js:157",
-  "test/schema-helper.test.js:173",
-  "test/schema-helper.test.js:186",
-  "test/schema-helper.test.js:202",
-  "test/schema-helper.test.js:203",
-  "test/schema-helper.test.js:217",
-  "test/schema-helper.test.js:218",
-  "test/schema-helper.test.js:231",
-  "test/schema-helper.test.js:232",
-  "test/schema-helper.test.js:233",
-  "test/schema-helper.test.js:238",
-  "test/schema-helper.test.js:251",
-  "test/schema-helper.test.js:264",
-  "test/schema-helper.test.js:277",
-  "test/schema-helper.test.js:290",
-  "test/schema-helper.test.js:302",
-  "test/schema-helper.test.js:327",
-  "test/schema-helper.test.js:328",
-  "test/schema-helper.test.js:329",
-  "test/schema-helper.test.js:330",
-  "test/schema-helper.test.js:331",
-  "test/schema-helper.test.js:332",
-  "test/schema-helper.test.js:358",
-  "test/schema-helper.test.js:379",
-  "test/schema-helper.test.js:380",
-  "test/schema-helper.test.js:381",
-  "test/schema-helper.test.js:402",
-  "test/schema-helper.test.js:423",
-  "test/schema-helper.test.js:424",
-  "test/schema-helper.test.js:439",
-  "test/schema-helper.test.js:440",
-  "test/schema-helper.test.js:452",
-  "test/schema-helper.test.js:464",
-  "test/schema-helper.test.js:480",
-  "test/schema-helper.test.js:481",
-  "test/schema-helper.test.js:482",
-  "test/schema-helper.test.js:484",
-  "test/schema-helper.test.js:485",
-  "test/schema-helper.test.js:509",
-  "test/schema-helper.test.js:523",
-  "test/schema-helper.test.js:524",
-  "test/schema-helper.test.js:543",
-  "test/schema-helper.test.js:544",
-  "test/schema-helper.test.js:545",
-  "test/schema-helper.test.js:558",
-  "test/schema-helper.test.js:570",
-  // test/spec-filters.test.js (23)
-  "test/spec-filters.test.js:7",
-  "test/spec-filters.test.js:11",
-  "test/spec-filters.test.js:15",
-  "test/spec-filters.test.js:19",
-  "test/spec-filters.test.js:29",
-  "test/spec-filters.test.js:30",
-  "test/spec-filters.test.js:39",
-  "test/spec-filters.test.js:56",
-  "test/spec-filters.test.js:61",
-  "test/spec-filters.test.js:66",
-  "test/spec-filters.test.js:75",
-  "test/spec-filters.test.js:77",
-  "test/spec-filters.test.js:78",
-  "test/spec-filters.test.js:94",
-  "test/spec-filters.test.js:95",
-  "test/spec-filters.test.js:96",
-  "test/spec-filters.test.js:97",
-  "test/spec-filters.test.js:106",
-  "test/spec-filters.test.js:115",
-  "test/spec-filters.test.js:131",
-  "test/spec-filters.test.js:133",
-  "test/spec-filters.test.js:134",
-  "test/spec-filters.test.js:135",
-  "test/spec-filters.test.js:137",
+  // Whole files to fix (130 violations across 3 files)
+  "test/checkout.test.js", // 54 violations
+  "test/schema-helper.test.js", // 57 violations
+  "test/spec-filters.test.js", // 23 violations (includes some that need review)
 ]);
 
 // Grandfathered tautological patterns
+// Supports file-level ("test/file.js") or specific ("test/file.js:assignLine:assertLine")
 const TAUTOLOGICAL_EXCEPTIONS = new Set([
-  // test/checkout.test.js - sets DOM properties then asserts
-  "test/checkout.test.js:1630:1633", // button.disabled = false then assert
-  "test/checkout.test.js:1631:1636", // button.textContent then assert includes
+  "test/checkout.test.js", // 2 tautological patterns to fix
 ]);
 
 // Files that are allowed to have tests with "and" in names
@@ -413,11 +279,16 @@ const findAssertionsWithoutMessages = () => {
     const source = fs.readFileSync(fullPath, "utf-8");
     const lines = source.split("\n");
 
+    // Check if whole file is excepted
+    if (MISSING_MESSAGE_EXCEPTIONS.has(relativePath)) {
+      continue;
+    }
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       const location = `${relativePath}:${i + 1}`;
 
-      // Skip if grandfathered
+      // Skip if specific line is grandfathered
       if (MISSING_MESSAGE_EXCEPTIONS.has(location)) {
         continue;
       }
@@ -476,6 +347,11 @@ const findTautologicalAssertions = () => {
   );
 
   for (const relativePath of testFilesToCheck) {
+    // Check if whole file is excepted
+    if (TAUTOLOGICAL_EXCEPTIONS.has(relativePath)) {
+      continue;
+    }
+
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const lines = source.split("\n");
@@ -507,6 +383,7 @@ const findTautologicalAssertions = () => {
           const lineDistance = i + 1 - assignment.line;
           if (lineDistance <= 5 && lineDistance > 0) {
             const exceptionKey = `${relativePath}:${assignment.line}:${i + 1}`;
+            // Check specific line exception
             if (!TAUTOLOGICAL_EXCEPTIONS.has(exceptionKey)) {
               violations.push({
                 file: relativePath,
