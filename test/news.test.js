@@ -1,9 +1,5 @@
-import {
-  createTestRunner,
-  expectStrictEqual,
-  fs,
-  path,
-} from "#test/test-utils.js";
+import { withTestSite } from "#test/test-site-factory.js";
+import { createTestRunner, expectStrictEqual } from "#test/test-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 const testCases = [
@@ -58,51 +54,74 @@ const testCases = [
   {
     name: "news-author-rendered-with-link",
     description: "News post with author renders author link in HTML",
-    test: () => {
-      const newsHtmlPath = path.join(
-        process.cwd(),
-        "_site/news/first/index.html",
-      );
-      const html = fs.readFileSync(newsHtmlPath, "utf-8");
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "news/2024-01-01-test-post.md",
+              frontmatter: {
+                title: "Test Post With Author",
+                author: "src/team/jane-doe.md",
+              },
+              content: "This is a test post with an author.",
+            },
+            {
+              path: "team/jane-doe.md",
+              frontmatter: {
+                title: "Jane Doe",
+                snippet: "Test team member",
+              },
+              content: "Jane Doe bio.",
+            },
+          ],
+        },
+        (site) => {
+          const doc = site.getDoc("/news/test-post/index.html");
+          const content = doc.getElementById("content");
+          const contentHtml = content ? content.innerHTML : "";
 
-      // Extract just the #content section to avoid matching nav/sidebar links
-      const contentMatch = html.match(
-        /<article[^>]*id="content"[^>]*>([\s\S]*?)<\/article>/,
-      );
-      const contentHtml = contentMatch ? contentMatch[1] : "";
-
-      expectStrictEqual(
-        contentHtml.includes('href="/team/jane-doe/"'),
-        true,
-        "Should include link to author's team page",
-      );
-      expectStrictEqual(
-        contentHtml.includes("Jane Doe"),
-        true,
-        "Should include author's name",
+          expectStrictEqual(
+            contentHtml.includes('href="/team/jane-doe/"'),
+            true,
+            "Should include link to author's team page",
+          );
+          expectStrictEqual(
+            contentHtml.includes("Jane Doe"),
+            true,
+            "Should include author's name",
+          );
+        },
       );
     },
   },
   {
     name: "news-without-author-no-link",
     description: "News post without author does not render author section",
-    test: () => {
-      const newsHtmlPath = path.join(
-        process.cwd(),
-        "_site/news/second/index.html",
-      );
-      const html = fs.readFileSync(newsHtmlPath, "utf-8");
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "news/2024-01-01-no-author.md",
+              frontmatter: {
+                title: "Test Post Without Author",
+              },
+              content: "This is a test post without an author.",
+            },
+          ],
+        },
+        (site) => {
+          const doc = site.getDoc("/news/no-author/index.html");
+          const content = doc.getElementById("content");
+          const contentHtml = content ? content.innerHTML : "";
 
-      // Extract just the #content section to avoid matching nav/sidebar links
-      const contentMatch = html.match(
-        /<article[^>]*id="content"[^>]*>([\s\S]*?)<\/article>/,
-      );
-      const contentHtml = contentMatch ? contentMatch[1] : "";
-
-      expectStrictEqual(
-        contentHtml.includes('href="/team/'),
-        false,
-        "Should not include author link when no author is set",
+          expectStrictEqual(
+            contentHtml.includes('href="/team/'),
+            false,
+            "Should not include author link when no author is set",
+          );
+        },
       );
     },
   },
