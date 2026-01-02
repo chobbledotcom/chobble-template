@@ -21,62 +21,60 @@ const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
 
   return Object.fromEntries(
-    filterAttributes.map((attr) => [
-      slugify(attr.name.trim()),
-      slugify(attr.value.trim()),
-    ]),
+    filterAttributes.map((attr) => [slugify(attr.name), slugify(attr.value)]),
   );
 };
 
 /**
  * Build a map of all filter attributes and their possible values
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
- * Pure function: builds result through reduce without mutation
  */
 const getAllFilterAttributes = memoize((items) => {
-  // Collect all [key, value] entries from all items
-  const allAttrEntries = items.flatMap((item) =>
-    Object.entries(parseFilterAttributes(item.data.filter_attributes)),
+  // Step 1: Parse attributes from each item
+  const allAttrs = items.map((item) =>
+    parseFilterAttributes(item.data.filter_attributes),
   );
 
-  // Group values by key, accumulating into Sets
-  const groupedByKey = allAttrEntries.reduce(
-    (acc, [key, value]) => acc.set(key, (acc.get(key) || new Set()).add(value)),
-    new Map(),
-  );
+  // Step 2: Flatten to [key, value] pairs
+  const allPairs = allAttrs.flatMap((attrs) => Object.entries(attrs));
 
-  // Convert to sorted object with sorted value arrays
+  // Step 3: Group values by key using Sets to dedupe
+  const valuesByKey = new Map();
+  for (const [key, value] of allPairs) {
+    if (!valuesByKey.has(key)) valuesByKey.set(key, new Set());
+    valuesByKey.get(key).add(value);
+  }
+
+  // Step 4: Convert to sorted object with sorted arrays
+  const sortedKeys = [...valuesByKey.keys()].sort();
   return Object.fromEntries(
-    [...groupedByKey.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, valueSet]) => [key, [...valueSet].sort()]),
+    sortedKeys.map((key) => [key, [...valuesByKey.get(key)].sort()]),
   );
 });
 
 /**
- * Build a lookup map from lowercase keys/values to original capitalization
+ * Build a lookup map from slugified keys to original display text
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
- * Pure function: first occurrence wins, built via reduce
+ * First occurrence wins when there are duplicates
  */
 const buildDisplayLookup = memoize((items) => {
-  // Collect all [slug, original] pairs from all items
-  const allMappings = items
-    .filter((item) => item.data.filter_attributes)
-    .flatMap((item) =>
-      item.data.filter_attributes.flatMap((attr) => [
-        [slugify(attr.name.trim()), attr.name.trim()],
-        [slugify(attr.value.trim()), attr.value.trim()],
-      ]),
-    );
+  const lookup = {};
 
-  // Reduce to object, keeping first occurrence (first wins)
-  // Uses Object.assign for O(n) performance instead of spread
-  return allMappings.reduce((lookup, [slug, original]) => {
-    if (!(slug in lookup)) {
-      lookup[slug] = original;
+  for (const item of items) {
+    const attrs = item.data.filter_attributes;
+    if (!attrs) continue;
+
+    for (const attr of attrs) {
+      const slugName = slugify(attr.name);
+      const slugValue = slugify(attr.value);
+
+      // First occurrence wins
+      if (!(slugName in lookup)) lookup[slugName] = attr.name;
+      if (!(slugValue in lookup)) lookup[slugValue] = attr.value;
     }
-    return lookup;
-  }, {});
+  }
+
+  return lookup;
 });
 
 /**
@@ -98,11 +96,10 @@ const filterToPath = (filters) => {
 
 /**
  * Group array elements into pairs: [a, b, c, d] => [[a, b], [c, d]]
- * Pure function for functional path parsing
  */
 const toPairs = (arr) => {
   const pairs = [];
-  for (let i = 0; i < arr.length - 1; i += 2) {
+  for (let i = 0; i + 1 < arr.length; i += 2) {
     pairs.push([arr[i], arr[i + 1]]);
   }
   return pairs;
@@ -111,20 +108,18 @@ const toPairs = (arr) => {
 /**
  * Parse URL path back to filter object
  * "capacity/3/size/small" => { capacity: "3", size: "small" }
- * Pure function: returns new object from path string
  */
 const pathToFilter = (path) => {
   if (!path) return {};
 
   const segments = path.split("/").filter(Boolean);
+  const pairs = toPairs(segments);
 
   return Object.fromEntries(
-    toPairs(segments)
-      .map(([key, value]) => [
-        decodeURIComponent(key),
-        decodeURIComponent(value),
-      ])
-      .filter(([key, value]) => key && value),
+    pairs.map(([key, value]) => [
+      decodeURIComponent(key),
+      decodeURIComponent(value),
+    ]),
   );
 };
 
@@ -158,21 +153,21 @@ const getItemsByFilters = (items, filters) => {
 
 /**
  * Build a map of normalized filter attributes for all items (for fast lookups)
- * Keys and values are pre-normalized for O(1) comparison
  * Returns: Map<item, { size: "small", capacity: "3" }>
- * Pure function: creates Map in single pass using constructor
  */
-const buildItemAttributeMap = (items) =>
-  new Map(
-    items.map((item) => [
-      item,
-      Object.fromEntries(
-        Object.entries(parseFilterAttributes(item.data.filter_attributes)).map(
-          ([key, value]) => [normalize(key), normalize(value)],
-        ),
-      ),
-    ]),
+const buildItemAttributeMap = (items) => {
+  const normalizeAttrs = (attrs) =>
+    Object.fromEntries(
+      Object.entries(attrs).map(([k, v]) => [normalize(k), normalize(v)]),
+    );
+
+  return new Map(
+    items.map((item) => {
+      const attrs = parseFilterAttributes(item.data.filter_attributes);
+      return [item, normalizeAttrs(attrs)];
+    }),
   );
+};
 
 /**
  * Check if an item matches filters using pre-normalized attributes
@@ -185,14 +180,10 @@ const attrsMatch = (itemAttrs, normalizedFilters) =>
 
 /**
  * Normalize filter keys and values for comparison
- * Pure function: returns new object without mutating input
  */
 const normalizeFilters = (filters) =>
   Object.fromEntries(
-    Object.entries(filters).map(([key, value]) => [
-      normalize(key),
-      normalize(value),
-    ]),
+    Object.entries(filters).map(([k, v]) => [normalize(k), normalize(v)]),
   );
 
 /**
