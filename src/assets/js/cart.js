@@ -12,6 +12,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import Config from "#assets/config.js";
+import { postJson } from "#assets/http.js";
 import { onReady } from "#assets/on-ready.js";
 import { IDS } from "#assets/selectors.js";
 import {
@@ -191,36 +192,15 @@ const addItem = (
   showAddedFeedback();
 };
 
-// Helper to POST minimal cart data (sku + quantity only) for validated checkout
-const postSkus = async (url) => {
-  const cart = getCart();
-  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ items }),
-  });
-};
-
 // PayPal checkout via backend API
 const paypalCheckout = async (apiUrl) => {
-  try {
-    const response = await postSkus(apiUrl);
+  const cart = getCart();
+  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+  const order = await postJson(apiUrl, { items });
 
-    if (response.ok) {
-      const order = await response.json();
-      if (order.url) {
-        window.location.href = order.url;
-      } else {
-        throw new Error("No approval URL returned");
-      }
-    } else {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to create PayPal order");
-    }
-  } catch (_error) {
+  if (order?.url) {
+    window.location.href = order.url;
+  } else {
     alert("Failed to start checkout. Please try again.");
   }
 };
