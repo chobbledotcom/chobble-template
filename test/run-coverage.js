@@ -20,6 +20,82 @@ function writeLimits(limits) {
   writeFileSync(configPath, content, "utf-8");
 }
 
+function filterCoverageOutput(output) {
+  const lines = output.split("\n");
+  const result = [];
+  let dividerLine = "";
+  let headerLine = "";
+  const dataLines = [];
+  const footerLines = [];
+  let hiddenCount = 0;
+  let dividerCount = 0;
+
+  for (const line of lines) {
+    // Detect divider lines (dashes with pipes)
+    if (line.match(/^-+\|/)) {
+      dividerCount++;
+      if (dividerCount === 1) {
+        // First divider - before header
+        dividerLine = line;
+      }
+      // Skip dividers 2 and 3 - we'll reconstruct them
+      continue;
+    }
+
+    if (dividerCount === 0) {
+      // Lines before the table (test output, etc.)
+      result.push(line);
+    } else if (dividerCount === 1 && line.includes("File")) {
+      // Header line (between first and second divider)
+      headerLine = line;
+    } else if (dividerCount >= 2 && dividerCount < 3) {
+      // Data lines (between second and third divider)
+      // Format: File | % Stmts | % Branch | % Funcs | % Lines | Uncovered
+      const parts = line.split("|").map((p) => p.trim());
+      if (parts.length >= 5) {
+        const stmts = Number.parseFloat(parts[1]);
+        const branch = Number.parseFloat(parts[2]);
+        const funcs = Number.parseFloat(parts[3]);
+        const linesCol = Number.parseFloat(parts[4]);
+
+        // Keep the "All files" summary row and any row that isn't 100% in all columns
+        const isAllFiles = parts[0] === "All files";
+        const isPerfect =
+          stmts === 100 && branch === 100 && funcs === 100 && linesCol === 100;
+
+        if (isAllFiles || !isPerfect) {
+          dataLines.push(line);
+        } else {
+          hiddenCount++;
+        }
+      } else {
+        // Keep lines we can't parse
+        dataLines.push(line);
+      }
+    } else if (dividerCount >= 3) {
+      // Lines after the table
+      footerLines.push(line);
+    }
+  }
+
+  // Reconstruct the output with filtered data
+  if (headerLine) {
+    result.push(dividerLine);
+    result.push(headerLine);
+    result.push(dividerLine);
+    result.push(...dataLines);
+    result.push(dividerLine);
+    result.push(...footerLines);
+  }
+
+  // Add a note about hidden files
+  if (hiddenCount > 0) {
+    result.push(`(${hiddenCount} files with 100% coverage hidden)`);
+  }
+
+  return result.join("\n");
+}
+
 function runCoverage() {
   const limits = readLimits();
 
@@ -41,9 +117,16 @@ function runCoverage() {
   // Pass through any additional args (like --verbose via TEST_VERBOSE env)
   const result = spawnSync("npx", ["c8", ...c8Args], {
     cwd: rootDir,
-    stdio: "inherit",
+    stdio: ["inherit", "pipe", "inherit"],
     env: process.env,
   });
+
+  // Filter and print the coverage output
+  if (result.stdout) {
+    const output = result.stdout.toString();
+    const filtered = filterCoverageOutput(output);
+    console.log(filtered);
+  }
 
   if (result.status !== 0) {
     process.exit(result.status || 1);
