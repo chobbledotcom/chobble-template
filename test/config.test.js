@@ -14,6 +14,7 @@ import {
 } from "#config/helpers.js";
 import {
   cleanupTempDir,
+  createFrontmatter,
   createTempDir,
   createTempFile,
   createTestRunner,
@@ -289,11 +290,10 @@ const testCases = [
     description: "extractFrontmatter extracts frontmatter from valid file",
     test: () => {
       const tempDir = createTempDir("config-test");
-      const content = `---
-layout: test.html
-permalink: /test/
----
-Content here`;
+      const content = createFrontmatter(
+        { layout: "test.html", permalink: "/test/" },
+        "Content here",
+      );
       const filePath = createTempFile(tempDir, "test.md", content);
 
       const result = extractFrontmatter(filePath, "test.md", "stripe");
@@ -510,11 +510,10 @@ Content here`;
       "validatePageFrontmatter passes when file has correct frontmatter",
     test: () => {
       const tempDir = createTempDir("config-validate-page");
-      const content = `---
-layout: test.html
-permalink: /test/
----
-Content`;
+      const content = createFrontmatter(
+        { layout: "test.html", permalink: "/test/" },
+        "Content",
+      );
       createTempFile(tempDir, "test.md", content);
 
       // Use the temp file path directly via extractFrontmatter
@@ -549,11 +548,10 @@ Content`;
     description: "validatePageFrontmatter throws when layout is incorrect",
     test: () => {
       const tempDir = createTempDir("config-wrong-layout");
-      const content = `---
-layout: wrong.html
-permalink: /test/
----
-Content`;
+      const content = createFrontmatter(
+        { layout: "wrong.html", permalink: "/test/" },
+        "Content",
+      );
       const filePath = createTempFile(tempDir, "test.md", content);
 
       expectThrows(
@@ -579,11 +577,10 @@ Content`;
     description: "validatePageFrontmatter throws when permalink is incorrect",
     test: () => {
       const tempDir = createTempDir("config-wrong-permalink");
-      const content = `---
-layout: test.html
-permalink: /wrong/
----
-Content`;
+      const content = createFrontmatter(
+        { layout: "test.html", permalink: "/wrong/" },
+        "Content",
+      );
       const filePath = createTempFile(tempDir, "test.md", content);
 
       expectThrows(
