@@ -1,7 +1,6 @@
 import {
   configureFileUtils,
   createMarkdownRenderer,
-  extractBodyFromMarkdown,
   fileExists,
   fileMissing,
   readFileContent,
@@ -9,7 +8,6 @@ import {
 } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
-  createFrontmatter,
   createMockEleventyConfig,
   createTempSnippetsDir,
   createTestRunner,
@@ -132,61 +130,6 @@ const testCases = [
           "Should return empty string for missing file",
         );
       });
-    },
-  },
-  {
-    name: "extractBodyFromMarkdown-with-frontmatter",
-    description: "Extracts body content excluding frontmatter",
-    test: () => {
-      const content = createFrontmatter(
-        { title: "Test Title", layout: "page" },
-        "# Heading\nContent after frontmatter",
-      );
-
-      const result = extractBodyFromMarkdown(content);
-
-      expectTrue(
-        result.includes("# Heading"),
-        "Should include heading from body",
-      );
-      expectTrue(
-        result.includes("Content after frontmatter"),
-        "Should include content from body",
-      );
-      expectFalse(result.includes("title:"), "Should not include frontmatter");
-    },
-  },
-  {
-    name: "extractBodyFromMarkdown-without-frontmatter",
-    description: "Returns original content when no frontmatter",
-    test: () => {
-      const content = "# Heading Only\nThis is content without any frontmatter";
-
-      const result = extractBodyFromMarkdown(content);
-
-      expectStrictEqual(
-        result,
-        content,
-        "Should return original content when no frontmatter",
-      );
-    },
-  },
-  {
-    name: "extractBodyFromMarkdown-only-frontmatter",
-    description: "Returns empty string for only frontmatter",
-    test: () => {
-      const content = createFrontmatter({
-        title: "Only Frontmatter",
-        layout: "page",
-      });
-
-      const result = extractBodyFromMarkdown(content);
-
-      expectStrictEqual(
-        result.trim(),
-        "",
-        "Should return empty string for only frontmatter",
-      );
     },
   },
   {
@@ -345,19 +288,12 @@ World`;
     name: "functional-programming-style",
     description: "Functions should be pure and not modify inputs",
     test: () => {
-      const content = "original content";
       const name = "test-name";
       const defaultStr = "default";
 
-      extractBodyFromMarkdown(content);
       fileExists(name);
       fileMissing(name);
 
-      expectStrictEqual(
-        content,
-        "original content",
-        "Functions should not modify input strings",
-      );
       expectStrictEqual(
         name,
         "test-name",

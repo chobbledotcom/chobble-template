@@ -41,8 +41,7 @@ const extractFrontmatter = (pagePath, filename, cartMode) => {
   if (!fs.existsSync(pagePath)) {
     throw new Error(cartModeError(cartMode, filename, "does not exist"));
   }
-  const content = fs.readFileSync(pagePath, "utf-8");
-  const { data } = matter(content);
+  const { data } = matter.read(pagePath);
   if (Object.keys(data).length === 0) {
     throw new Error(cartModeError(cartMode, filename, "has no frontmatter"));
   }

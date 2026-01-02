@@ -35,8 +35,6 @@ const readFileContent = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
-const extractBodyFromMarkdown = (content) => matter(content).content;
-
 const renderSnippet = memoize(
   async (
     name,
@@ -48,8 +46,7 @@ const renderSnippet = memoize(
 
     if (!fs.existsSync(snippetPath)) return defaultString;
 
-    const content = fs.readFileSync(snippetPath, "utf8");
-    let bodyContent = extractBodyFromMarkdown(content);
+    let bodyContent = matter.read(snippetPath).content;
 
     // Preprocess liquid shortcodes
     if (bodyContent.includes("{% opening_times %}")) {
@@ -94,7 +91,6 @@ export {
   fileExists,
   fileMissing,
   readFileContent,
-  extractBodyFromMarkdown,
   renderSnippet,
   configureFileUtils,
 };
