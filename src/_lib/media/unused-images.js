@@ -4,45 +4,29 @@ import fastglob from "fast-glob";
 import matter from "gray-matter";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+const IMAGE_REF_PATTERN = /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi;
 const FRONTMATTER_IMAGE_FIELDS = ["header_image", "image", "thumbnail"];
 
-const extractFilename = (imagePath) => {
-  if (!imagePath || typeof imagePath !== "string") return null;
-  return imagePath.split("/").pop();
-};
+const extractFilename = (imagePath) =>
+  typeof imagePath === "string" ? imagePath.split("/").pop() : null;
 
-const extractImagesFromFrontmatter = (data, imageFiles) => {
-  const found = new Set();
+const extractImagesFromFrontmatter = (data, imageFiles) =>
+  FRONTMATTER_IMAGE_FIELDS.map((field) => data[field])
+    .filter(Boolean)
+    .map(extractFilename)
+    .filter((name) => imageFiles.includes(name));
 
-  for (const field of FRONTMATTER_IMAGE_FIELDS) {
-    const value = data[field];
-    if (value) {
-      const filename = extractFilename(value);
-      if (filename && imageFiles.includes(filename)) {
-        found.add(filename);
-      }
-    }
-  }
+const extractImagesFromContent = (content, imageFiles) =>
+  (content.match(IMAGE_REF_PATTERN) || [])
+    .map(extractFilename)
+    .filter((name) => imageFiles.includes(name));
 
-  return found;
-};
-
-const extractImagesFromContent = (content, imageFiles) => {
-  const found = new Set();
-
-  const imageRefs =
-    content.match(
-      /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi,
-    ) || [];
-
-  for (const ref of imageRefs) {
-    const filename = extractFilename(ref);
-    if (filename && imageFiles.includes(filename)) {
-      found.add(filename);
-    }
-  }
-
-  return found;
+const extractImagesFromFile = (filePath, imageFiles) => {
+  const { data, content } = matter.read(filePath);
+  return [
+    ...extractImagesFromFrontmatter(data, imageFiles),
+    ...extractImagesFromContent(content, imageFiles),
+  ];
 };
 
 export function configureUnusedImages(eleventyConfig) {
@@ -63,22 +47,13 @@ export function configureUnusedImages(eleventyConfig) {
       return;
     }
 
-    const usedImages = new Set();
-
     const markdownFiles = fastglob.sync("**/*.md", { cwd: dir.input });
 
-    for (const file of markdownFiles) {
-      const filePath = path.join(dir.input, file);
-      const { data, content } = matter.read(filePath);
-
-      for (const img of extractImagesFromFrontmatter(data, imageFiles)) {
-        usedImages.add(img);
-      }
-
-      for (const img of extractImagesFromContent(content, imageFiles)) {
-        usedImages.add(img);
-      }
-    }
+    const usedImages = new Set(
+      markdownFiles.flatMap((file) =>
+        extractImagesFromFile(path.join(dir.input, file), imageFiles),
+      ),
+    );
 
     const unusedImages = imageFiles.filter((file) => !usedImages.has(file));
 
