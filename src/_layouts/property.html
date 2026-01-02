@@ -5,18 +5,14 @@ layout: base
 <section id="item">
   <div class="title">
     {% include "item-title.html" %}
-    {% include "item-event-details.html" %}
   </div>
 
   {% include "property-gallery.html" %}
 
   <div class="description">
     {% include "item-reviews-count.html" %}
-    {% include "product-options.html" %}
     {% include "item-about-heading.html" %}
     {% include "item-category-links.html" %}
-    {% include "item-event-categories.html" %}
-    {% include "etsy-buy-button.html" %}
     {{ content }}
     {% include "tabs.html" %}
     {% include "item-map-section.html" %}
@@ -25,6 +21,5 @@ layout: base
     {% include "item-reviews-section.html" %}
     {%- include "faq.html" -%}
   </div>
-  {% include "item-event-products.html" %}
   {% include "item-contact-section.html" %}
 </section>
