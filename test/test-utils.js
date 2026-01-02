@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
 
 // Directories always skipped during file discovery
-const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site"]);
+const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site", ".test-sites"]);
 
 /**
  * Get all files matching a pattern from the project root.
@@ -20,15 +20,25 @@ const getFiles = (pattern) => {
 
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir)) {
-      if (entry.startsWith(".") || ALWAYS_SKIP.has(entry)) continue;
+      // Skip hidden files, known skip dirs, and temp test directories
+      if (
+        entry.startsWith(".") ||
+        entry.startsWith("temp-") ||
+        ALWAYS_SKIP.has(entry)
+      )
+        continue;
 
       const fullPath = path.join(dir, entry);
       const relativePath = path.relative(rootDir, fullPath);
 
-      if (fs.statSync(fullPath).isDirectory()) {
-        walk(fullPath);
-      } else if (pattern.test(relativePath)) {
-        results.push(relativePath);
+      try {
+        if (fs.statSync(fullPath).isDirectory()) {
+          walk(fullPath);
+        } else if (pattern.test(relativePath)) {
+          results.push(relativePath);
+        }
+      } catch {
+        // File may have been deleted by another parallel test - skip it
       }
     }
   };
