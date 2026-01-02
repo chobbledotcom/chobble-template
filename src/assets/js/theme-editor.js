@@ -27,6 +27,43 @@ const SCOPE_DOM_SELECTORS = {
 const ThemeEditor = {
   initialized: false,
 
+  /**
+   * Apply parsed border values to border control inputs
+   * @param {Object} parsed - Parsed border object with width, style, color
+   * @param {HTMLInputElement} widthInput - Width number input
+   * @param {HTMLSelectElement} styleSelect - Style select element
+   * @param {HTMLInputElement} colorInput - Color picker input
+   */
+  applyBorderToInputs(parsed, widthInput, styleSelect, colorInput) {
+    if (!parsed || !widthInput || !styleSelect || !colorInput) return;
+    widthInput.value = parsed.width;
+    styleSelect.value = parsed.style;
+    if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
+  },
+
+  /**
+   * Get the value for a CSS variable from rootVars or computed style
+   * @param {string} varName - CSS variable name (e.g., "--color-bg")
+   * @param {Object} rootVars - Object of parsed root variables
+   * @param {Object} options - Options object
+   * @param {string} options.type - "number" to parse as float, otherwise string
+   * @param {string} options.fallback - Fallback value if no value found
+   * @returns {string|number} The value for the control
+   */
+  getControlValue(varName, rootVars, options = {}) {
+    const { type, fallback } = options;
+    if (rootVars[varName]) {
+      return type === "number"
+        ? parseFloat(rootVars[varName]) || 0
+        : rootVars[varName];
+    }
+    const computed = getComputedStyle(document.documentElement)
+      .getPropertyValue(varName)
+      .trim();
+    if (type === "number") return parseFloat(computed) || 0;
+    return computed || fallback || "";
+  },
+
   init() {
     // Only run on theme-editor page
     if (!document.getElementById(ELEMENT_IDS.form)) return;
@@ -120,15 +157,9 @@ const ThemeEditor = {
     // Initialize color controls
     this.formQuery('input[type="color"][data-var]:not([data-scope])').forEach(
       (input) => {
-        const varName = input.dataset.var;
-        if (rootVars[varName]) {
-          input.value = rootVars[varName];
-        } else {
-          input.value =
-            getComputedStyle(document.documentElement)
-              .getPropertyValue(varName)
-              .trim() || "#000000";
-        }
+        input.value = this.getControlValue(input.dataset.var, rootVars, {
+          fallback: "#000000",
+        });
         input.addEventListener("input", () => this.updateThemeFromControls());
       },
     );
@@ -137,43 +168,23 @@ const ThemeEditor = {
     this.formQuery('input[type="text"][data-var]:not([data-scope])').forEach(
       (input) => {
         if (input.id.includes("border")) return; // Skip border hidden inputs
-        const varName = input.dataset.var;
-        if (rootVars[varName]) {
-          input.value = rootVars[varName];
-        } else {
-          input.value = getComputedStyle(document.documentElement)
-            .getPropertyValue(varName)
-            .trim();
-        }
+        input.value = this.getControlValue(input.dataset.var, rootVars);
         input.addEventListener("input", () => this.updateThemeFromControls());
       },
     );
 
     // Initialize select controls
     this.formQuery("select[data-var]:not([data-scope])").forEach((input) => {
-      const varName = input.dataset.var;
-      if (rootVars[varName]) {
-        input.value = rootVars[varName];
-      } else {
-        input.value = getComputedStyle(document.documentElement)
-          .getPropertyValue(varName)
-          .trim();
-      }
+      input.value = this.getControlValue(input.dataset.var, rootVars);
       input.addEventListener("input", () => this.updateThemeFromControls());
     });
 
     // Initialize number controls
     this.formQuery('input[type="number"][data-var]:not([data-scope])').forEach(
       (input) => {
-        const varName = input.dataset.var;
-        if (rootVars[varName]) {
-          input.value = parseFloat(rootVars[varName]) || 0;
-        } else {
-          const computed = getComputedStyle(document.documentElement)
-            .getPropertyValue(varName)
-            .trim();
-          input.value = parseFloat(computed) || 0;
-        }
+        input.value = this.getControlValue(input.dataset.var, rootVars, {
+          type: "number",
+        });
         input.addEventListener("input", () => this.updateThemeFromControls());
       },
     );
@@ -236,11 +247,7 @@ const ThemeEditor = {
       parsed = parseBorderValue(globalBorder);
     }
 
-    if (parsed) {
-      widthInput.value = parsed.width;
-      styleSelect.value = parsed.style;
-      if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
-    }
+    this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
 
     if (outputInput) {
       outputInput.value = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
@@ -444,11 +451,7 @@ const ThemeEditor = {
           const styleSelect = this.formEl(`${scope}-border-style`);
           const colorInput = this.formEl(`${scope}-border-color`);
           const parsed = parseBorderValue(newGlobalBorder);
-          if (parsed && widthInput && styleSelect && colorInput) {
-            widthInput.value = parsed.width;
-            styleSelect.value = parsed.style;
-            if (parsed.color.startsWith("#")) colorInput.value = parsed.color;
-          }
+          this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
           borderOutput.value = newGlobalBorder;
         }
       }
