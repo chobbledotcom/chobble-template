@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p buildah skopeo nodejs pnpm
+#!nix-shell -i bash -p buildah skopeo bun
 
 set -e
 
@@ -9,8 +9,8 @@ TAG="${1:-$(date +%Y%m%d-%H%M%S)}"
 cd "$(dirname "$0")"
 
 echo "Running tests..."
-pnpm install --silent
-pnpm test
+bun install --silent
+bun test
 echo ""
 
 echo "Building image with tag: $TAG"
