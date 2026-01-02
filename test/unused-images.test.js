@@ -2,6 +2,7 @@ import { configureUnusedImages } from "#media/unused-images.js";
 import {
   captureConsoleLogAsync,
   cleanupTempDir,
+  createFrontmatter,
   createMockEleventyConfig,
   createTempDir,
   createTestRunner,
@@ -385,10 +386,10 @@ const testCases = [
 
       fs.writeFileSync(
         path.join(tempDir, "page.md"),
-        `---
-header_image: src/images/banner.jpg
----
-# Page with header image`,
+        createFrontmatter(
+          { header_image: "src/images/banner.jpg" },
+          "# Page with header image",
+        ),
       );
 
       const mockConfig = createMockEleventyConfig();
@@ -422,10 +423,7 @@ header_image: src/images/banner.jpg
 
       fs.writeFileSync(
         path.join(tempDir, "team.md"),
-        `---
-image: profile.png
----
-# Team member`,
+        createFrontmatter({ image: "profile.png" }, "# Team member"),
       );
 
       const mockConfig = createMockEleventyConfig();
@@ -459,10 +457,7 @@ image: profile.png
 
       fs.writeFileSync(
         path.join(tempDir, "post.md"),
-        `---
-thumbnail: /images/thumb.webp
----
-# Blog post`,
+        createFrontmatter({ thumbnail: "/images/thumb.webp" }, "# Blog post"),
       );
 
       const mockConfig = createMockEleventyConfig();
@@ -498,11 +493,10 @@ thumbnail: /images/thumb.webp
 
       fs.writeFileSync(
         path.join(tempDir, "page.md"),
-        `---
-header_image: header.jpg
----
-# Page
-![Inline](/images/inline.png)`,
+        createFrontmatter(
+          { header_image: "header.jpg" },
+          "# Page\n![Inline](/images/inline.png)",
+        ),
       );
 
       const mockConfig = createMockEleventyConfig();
