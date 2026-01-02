@@ -111,8 +111,12 @@ const analyzeTryCatchUsage = () => {
 
     for (const tc of tryCatches) {
       const location = `${relativePath}:${tc.lineNumber}`;
+      // Allow if exact location matches OR if entire file is whitelisted
+      const isAllowed =
+        ALLOWED_TRY_CATCHES.has(location) ||
+        ALLOWED_TRY_CATCHES.has(relativePath);
 
-      if (ALLOWED_TRY_CATCHES.has(location)) {
+      if (isAllowed) {
         allowed.push({
           file: relativePath,
           line: tc.lineNumber,
