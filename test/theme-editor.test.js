@@ -1,6 +1,7 @@
-import { JSDOM } from "jsdom";
 import {
   GLOBAL_INPUTS,
+  getInputCounts,
+  getScopedVarNames,
   getScopes,
   SCOPED_INPUTS,
 } from "#assets/theme-editor-config.js";
@@ -23,10 +24,10 @@ import {
 } from "#test/test-utils.js";
 
 // ============================================
-// Unit Tests - Core parsing functions
+// Unit Tests - parseCssBlock
 // ============================================
 
-const parsingTests = [
+const parseCssBlockTests = [
   {
     name: "parseCssBlock-parses-variables",
     description: "Parses CSS variables from block content",
@@ -37,11 +38,15 @@ const parsingTests = [
         --border: 2px solid #333;
       `;
       const result = parseCssBlock(css);
-      expectDeepEqual(result, {
-        "--color-bg": "#ffffff",
-        "--color-text": "#000000",
-        "--border": "2px solid #333",
-      });
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#ffffff",
+          "--color-text": "#000000",
+          "--border": "2px solid #333",
+        },
+        "Should parse all CSS variables from block content",
+      );
     },
   },
   {
@@ -54,154 +59,346 @@ const parsingTests = [
         --color-text: #000;
       `;
       const result = parseCssBlock(css);
-      expectDeepEqual(result, {
-        "--color-bg": "#fff",
-        "--color-text": "#000",
-      });
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#fff",
+          "--color-text": "#000",
+        },
+        "Should only include CSS variables, ignoring regular properties",
+      );
     },
   },
   {
-    name: "parseThemeContent-full-theme",
-    description: "Parses complete theme with all sections",
+    name: "parseCssBlock-handles-empty-input",
+    description: "Returns empty object for empty/null input",
+    test: () => {
+      expectDeepEqual(
+        parseCssBlock(""),
+        {},
+        "Empty string should return empty object",
+      );
+      expectDeepEqual(
+        parseCssBlock(null),
+        {},
+        "Null should return empty object",
+      );
+      expectDeepEqual(
+        parseCssBlock(undefined),
+        {},
+        "Undefined should return empty object",
+      );
+    },
+  },
+  {
+    name: "parseCssBlock-handles-whitespace-variations",
+    description: "Handles various whitespace in CSS",
+    test: () => {
+      const css = `--color-bg:#fff;--color-text:  #000  ;`;
+      const result = parseCssBlock(css);
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#fff",
+          "--color-text": "#000",
+        },
+        "Should handle whitespace variations",
+      );
+    },
+  },
+];
+
+// ============================================
+// Unit Tests - parseThemeContent
+// ============================================
+
+const parseThemeContentTests = [
+  {
+    name: "parseThemeContent-parses-root",
+    description: "Parses :root variables",
     test: () => {
       const theme = `
 :root {
   --color-bg: #241f31;
   --color-text: #9a9996;
-  --color-link: #f6f5f4;
 }
-
-header {
-  --color-text: #ffffff;
-}
-
-nav {
-  --color-bg: #333;
-}
-
-article {
-  --color-bg: #f0f0f0;
-}
-
-form {
-  --border: 1px solid #ccc;
-}
-
+      `;
+      const result = parseThemeContent(theme);
+      expectDeepEqual(
+        result.root,
+        {
+          "--color-bg": "#241f31",
+          "--color-text": "#9a9996",
+        },
+        "Should parse :root variables",
+      );
+    },
+  },
+  {
+    name: "parseThemeContent-parses-header-scope",
+    description: "Parses header scope variables",
+    test: () => {
+      const theme = `
+:root { --color-bg: #fff; }
+header { --color-text: #ffffff; --color-bg: #333; }
+      `;
+      const result = parseThemeContent(theme);
+      expectDeepEqual(
+        result.scopes.header,
+        { "--color-text": "#ffffff", "--color-bg": "#333" },
+        "Should parse header scope variables",
+      );
+    },
+  },
+  {
+    name: "parseThemeContent-parses-nav-scope",
+    description: "Parses nav scope variables",
+    test: () => {
+      const theme = `
+:root { --color-bg: #fff; }
+nav { --color-link: #00ff00; }
+      `;
+      const result = parseThemeContent(theme);
+      expectDeepEqual(
+        result.scopes.nav,
+        { "--color-link": "#00ff00" },
+        "Should parse nav scope variables",
+      );
+    },
+  },
+  {
+    name: "parseThemeContent-parses-article-scope",
+    description: "Parses article scope variables",
+    test: () => {
+      const theme = `
+:root { --color-bg: #fff; }
+article { --color-bg: #f0f0f0; }
+      `;
+      const result = parseThemeContent(theme);
+      expectDeepEqual(
+        result.scopes.article,
+        { "--color-bg": "#f0f0f0" },
+        "Should parse article scope variables",
+      );
+    },
+  },
+  {
+    name: "parseThemeContent-parses-form-scope",
+    description: "Parses form scope variables",
+    test: () => {
+      const theme = `
+:root { --color-bg: #fff; }
+form { --border: 1px solid #ccc; }
+      `;
+      const result = parseThemeContent(theme);
+      expectDeepEqual(
+        result.scopes.form,
+        { "--border": "1px solid #ccc" },
+        "Should parse form scope variables",
+      );
+    },
+  },
+  {
+    name: "parseThemeContent-parses-button-scope",
+    description: "Parses button multi-selector scope variables",
+    test: () => {
+      const theme = `
+:root { --color-bg: #fff; }
 button,
 .button,
 input[type="submit"] {
   --color-bg: #007bff;
 }
-
-/* body_classes: header-centered-dark */
       `;
       const result = parseThemeContent(theme);
-
-      expectDeepEqual(result.root, {
-        "--color-bg": "#241f31",
-        "--color-text": "#9a9996",
-        "--color-link": "#f6f5f4",
-      });
-      expectDeepEqual(result.scopes.header, { "--color-text": "#ffffff" });
-      expectDeepEqual(result.scopes.nav, { "--color-bg": "#333" });
-      expectDeepEqual(result.scopes.article, { "--color-bg": "#f0f0f0" });
-      expectDeepEqual(result.scopes.form, { "--border": "1px solid #ccc" });
-      expectDeepEqual(result.scopes.button, { "--color-bg": "#007bff" });
-      expectDeepEqual(result.bodyClasses, ["header-centered-dark"]);
+      expectDeepEqual(
+        result.scopes.button,
+        { "--color-bg": "#007bff" },
+        "Should parse button scope variables",
+      );
     },
   },
   {
-    name: "parseBorderValue-parses-border",
-    description: "Parses border value into components",
+    name: "parseThemeContent-parses-body-classes",
+    description: "Parses body_classes comment",
     test: () => {
-      expectDeepEqual(parseBorderValue("2px solid #000000"), {
-        width: 2,
-        style: "solid",
-        color: "#000000",
-      });
-      expectDeepEqual(parseBorderValue("3px dashed #ff0000"), {
-        width: 3,
-        style: "dashed",
-        color: "#ff0000",
-      });
+      const theme = `
+:root { --color-bg: #fff; }
+/* body_classes: header-centered-dark, main-boxed */
+      `;
+      const result = parseThemeContent(theme);
+      expectDeepEqual(
+        result.bodyClasses,
+        ["header-centered-dark", "main-boxed"],
+        "Should parse body_classes comment",
+      );
+    },
+  },
+  {
+    name: "parseThemeContent-handles-empty-input",
+    description: "Returns empty structure for empty input",
+    test: () => {
+      const result = parseThemeContent("");
+      expectDeepEqual(result.root, {}, "Empty input should have empty root");
+      expectDeepEqual(
+        result.scopes,
+        {},
+        "Empty input should have empty scopes",
+      );
+      expectDeepEqual(
+        result.bodyClasses,
+        [],
+        "Empty input should have empty bodyClasses",
+      );
     },
   },
 ];
 
 // ============================================
-// Unit Tests - CSS Generation
+// Unit Tests - parseBorderValue
 // ============================================
 
-const generationTests = [
+const parseBorderValueTests = [
   {
-    name: "generateThemeCss-complete",
-    description: "Generates complete CSS with all sections",
+    name: "parseBorderValue-parses-solid-border",
+    description: "Parses solid border value into components",
     test: () => {
-      const globalVars = {
-        "--color-bg": "#ffffff",
-        "--color-text": "#000000",
-      };
-      const scopeVars = {
-        header: { "--color-text": "#ffffff" },
-        nav: { "--color-link": "#00ff00" },
-        button: { "--color-bg": "#007bff" },
-      };
-      const bodyClasses = ["header-centered-dark"];
-
-      const result = generateThemeCss(globalVars, scopeVars, bodyClasses);
-
-      expectTrue(result.includes(":root {"));
-      expectTrue(result.includes("--color-bg: #ffffff;"));
-      expectTrue(result.includes("--color-text: #000000;"));
-      expectTrue(result.includes("header {"));
-      expectTrue(result.includes("nav {"));
-      expectTrue(result.includes("button,"));
-      expectTrue(result.includes(".button,"));
-      expectTrue(result.includes('input[type="submit"]'));
-      expectTrue(result.includes("/* body_classes: header-centered-dark */"));
+      expectDeepEqual(
+        parseBorderValue("2px solid #000000"),
+        { width: 2, style: "solid", color: "#000000" },
+        "Should parse solid border correctly",
+      );
     },
   },
   {
-    name: "generateThemeCss-omits-empty-scopes",
-    description: "Does not include empty scope blocks",
+    name: "parseBorderValue-parses-dashed-border",
+    description: "Parses dashed border value into components",
     test: () => {
-      const scopeVars = {
-        header: { "--color-text": "#fff" },
-        nav: {},
-        article: {},
-      };
-      const result = generateThemeCss({}, scopeVars, []);
-
-      expectTrue(result.includes("header {"));
-      expectFalse(result.includes("nav {"));
-      expectFalse(result.includes("article {"));
+      expectDeepEqual(
+        parseBorderValue("3px dashed #ff0000"),
+        { width: 3, style: "dashed", color: "#ff0000" },
+        "Should parse dashed border correctly",
+      );
+    },
+  },
+  {
+    name: "parseBorderValue-parses-dotted-border",
+    description: "Parses dotted border value into components",
+    test: () => {
+      expectDeepEqual(
+        parseBorderValue("1px dotted #333333"),
+        { width: 1, style: "dotted", color: "#333333" },
+        "Should parse dotted border correctly",
+      );
+    },
+  },
+  {
+    name: "parseBorderValue-handles-invalid-input",
+    description: "Returns null for invalid border values",
+    test: () => {
+      expectStrictEqual(
+        parseBorderValue(""),
+        null,
+        "Empty string should return null",
+      );
+      expectStrictEqual(
+        parseBorderValue(null),
+        null,
+        "Null should return null",
+      );
+      expectStrictEqual(
+        parseBorderValue("invalid"),
+        null,
+        "Invalid format should return null",
+      );
     },
   },
 ];
 
 // ============================================
-// Unit Tests - Scope variable filtering
+// Unit Tests - shouldIncludeScopedVar
 // ============================================
 
-const scopeFilterTests = [
+const shouldIncludeScopedVarTests = [
   {
-    name: "shouldIncludeScopedVar-includes-different",
-    description: "Includes value when different from global",
+    name: "shouldIncludeScopedVar-includes-when-different",
+    description: "Returns true when scoped value differs from global",
     test: () => {
-      expectTrue(shouldIncludeScopedVar("#ff0000", "#ffffff"));
-      expectTrue(shouldIncludeScopedVar("#000000", "#ffffff"));
+      expectTrue(
+        shouldIncludeScopedVar("#ff0000", "#ffffff"),
+        "Should include red when global is white",
+      );
+      expectTrue(
+        shouldIncludeScopedVar("#000000", "#ffffff"),
+        "Should include black when global is white",
+      );
+      expectTrue(
+        shouldIncludeScopedVar("3px solid #000", "2px solid #000"),
+        "Should include when border width differs",
+      );
     },
   },
   {
-    name: "shouldIncludeScopedVar-excludes-same",
-    description: "Excludes value when same as global",
+    name: "shouldIncludeScopedVar-excludes-when-same",
+    description: "Returns false when scoped value equals global",
     test: () => {
-      expectFalse(shouldIncludeScopedVar("#ffffff", "#ffffff"));
-      expectFalse(shouldIncludeScopedVar("2px solid #333", "2px solid #333"));
+      expectFalse(
+        shouldIncludeScopedVar("#ffffff", "#ffffff"),
+        "Should exclude when colors match exactly",
+      );
+      expectFalse(
+        shouldIncludeScopedVar("2px solid #333", "2px solid #333"),
+        "Should exclude when border values match exactly",
+      );
     },
   },
   {
-    name: "filterScopeVars-filters-correctly",
+    name: "shouldIncludeScopedVar-excludes-empty",
+    description: "Returns false for empty/null values",
+    test: () => {
+      expectFalse(
+        shouldIncludeScopedVar("", "#ffffff"),
+        "Should exclude empty string",
+      );
+      expectFalse(
+        shouldIncludeScopedVar(null, "#ffffff"),
+        "Should exclude null",
+      );
+      expectFalse(
+        shouldIncludeScopedVar(undefined, "#ffffff"),
+        "Should exclude undefined",
+      );
+    },
+  },
+  {
+    name: "shouldIncludeScopedVar-black-preserved-when-intentional",
+    description: "Black (#000000) is included when it differs from global",
+    test: () => {
+      // This tests the bug fix: black should be preserved when intentionally set
+      expectTrue(
+        shouldIncludeScopedVar("#000000", "#ffffff"),
+        "Black should be included when global is white",
+      );
+      expectTrue(
+        shouldIncludeScopedVar("#000000", "#333333"),
+        "Black should be included when global is dark gray",
+      );
+      // But excluded when global is also black
+      expectFalse(
+        shouldIncludeScopedVar("#000000", "#000000"),
+        "Black should be excluded when global is also black",
+      );
+    },
+  },
+];
+
+// ============================================
+// Unit Tests - filterScopeVars
+// ============================================
+
+const filterScopeVarsTests = [
+  {
+    name: "filterScopeVars-filters-matching-values",
     description: "Only includes values that differ from global",
     test: () => {
       const formData = {
@@ -215,675 +412,170 @@ const scopeFilterTests = [
         "--color-link": "#000000",
       };
       const result = filterScopeVars(formData, globals);
-
-      expectDeepEqual(result, {
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#ff0000",
+          "--color-link": "#0000ff",
+        },
+        "Should only include variables that differ from global",
+      );
+    },
+  },
+  {
+    name: "filterScopeVars-handles-all-matching",
+    description: "Returns empty object when all values match global",
+    test: () => {
+      const formData = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+      };
+      const globals = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+      };
+      const result = filterScopeVars(formData, globals);
+      expectDeepEqual(
+        result,
+        {},
+        "Should return empty object when all values match",
+      );
+    },
+  },
+  {
+    name: "filterScopeVars-handles-all-different",
+    description: "Returns all values when none match global",
+    test: () => {
+      const formData = {
         "--color-bg": "#ff0000",
-        "--color-link": "#0000ff",
-      });
-    },
-  },
-];
-
-// ============================================
-// Unit Tests - Config validation
-// ============================================
-
-const configTests = [
-  {
-    name: "scopes-match-between-lib-and-config",
-    description: "SCOPES constant matches config",
-    test: () => {
-      expectDeepEqual(SCOPES, ["header", "nav", "article", "form", "button"]);
-      expectDeepEqual(getScopes(), SCOPES);
-    },
-  },
-  {
-    name: "scope-selectors-defined-correctly",
-    description: "All scope selectors are correctly defined",
-    test: () => {
-      expectStrictEqual(SCOPE_SELECTORS.header, "header");
-      expectStrictEqual(SCOPE_SELECTORS.nav, "nav");
-      expectStrictEqual(SCOPE_SELECTORS.article, "article");
-      expectStrictEqual(SCOPE_SELECTORS.form, "form");
-      expectTrue(SCOPE_SELECTORS.button.includes("button"));
-      expectTrue(SCOPE_SELECTORS.button.includes(".button"));
-      expectTrue(SCOPE_SELECTORS.button.includes('input[type="submit"]'));
-    },
-  },
-];
-
-// ============================================
-// Round-trip tests
-// ============================================
-
-const roundTripTests = [
-  {
-    name: "roundtrip-parse-generate",
-    description: "Parsing and regenerating produces equivalent output",
-    test: () => {
-      const originalTheme = `
-:root {
-  --color-bg: #241f31;
-  --color-text: #9a9996;
-}
-
-header {
-  --color-text: #ffffff;
-}
-
-/* body_classes: header-centered-dark */
-      `;
-
-      const parsed = parseThemeContent(originalTheme);
-      const generated = generateThemeCss(
-        parsed.root,
-        parsed.scopes,
-        parsed.bodyClasses,
-      );
-      const reparsed = parseThemeContent(generated);
-
-      expectDeepEqual(reparsed.root, parsed.root);
-      expectDeepEqual(reparsed.scopes, parsed.scopes);
-      expectDeepEqual(reparsed.bodyClasses, parsed.bodyClasses);
-    },
-  },
-  {
-    name: "adding-scopes-to-minimal-theme",
-    description: "Can add new scopes to a theme that had none",
-    test: () => {
-      const minimalTheme = `:root { --color-bg: #ffffff; }`;
-      const parsed = parseThemeContent(minimalTheme);
-
-      const newScopeVars = {
-        header: { "--color-text": "#ffffff" },
-        nav: { "--color-bg": "#333333" },
+        "--color-text": "#00ff00",
       };
-
-      const generated = generateThemeCss(parsed.root, newScopeVars, []);
-
-      expectTrue(generated.includes("header {"));
-      expectTrue(generated.includes("nav {"));
-      expectTrue(generated.includes("--color-text: #ffffff;"));
-      expectTrue(generated.includes("--color-bg: #333333;"));
-    },
-  },
-];
-
-// ============================================
-// JSDOM Helpers
-// ============================================
-
-function generateFormHtml() {
-  let html = "";
-
-  Object.entries(GLOBAL_INPUTS).forEach(([id, config]) => {
-    if (config.type === "color") {
-      html += `<input type="color" id="${id}" data-var="--${id}">\n`;
-    }
-  });
-
-  getScopes().forEach((scope) => {
-    Object.entries(SCOPED_INPUTS).forEach(([id, config]) => {
-      if (config.type === "color") {
-        html += `<input type="color" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
-      } else if (config.type === "border") {
-        html += `<input type="number" id="${scope}-border-width">\n`;
-        html += `<select id="${scope}-border-style"></select>\n`;
-        html += `<input type="color" id="${scope}-border-color">\n`;
-        html += `<input type="hidden" id="${scope}-${id}" data-var="--${id}" data-scope="${scope}">\n`;
-      }
-    });
-  });
-
-  return html;
-}
-
-function createMockDOM(themeContent = "") {
-  const formInputsHtml = generateFormHtml();
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<head><style>:root { --color-bg: #ffffff; --color-text: #333333; --color-link: #0066cc; --color-link-hover: #004499; }</style></head>
-<body>
-  <form id="theme-editor-form">
-    ${formInputsHtml}
-  </form>
-  <textarea id="theme-output">${themeContent}</textarea>
-</body>
-</html>`;
-
-  return new JSDOM(html, { runScripts: "dangerously" });
-}
-
-// ============================================
-// E2E Tests with JSDOM
-// ============================================
-
-const e2eTests = [
-  {
-    name: "e2e-paste-and-initialize-theme",
-    description: "Pasting a theme correctly initializes all inputs",
-    test: () => {
-      const theme = `
-:root {
-  --color-bg: #ffffff;
-  --color-text: #333333;
-  --color-link: #0066cc;
-  --color-link-hover: #004499;
-}
-
-header {
-  --color-bg: #ff0000;
-  --color-text: #ffffff;
-}
-
-nav {
-  --color-link: #00ff00;
-}
-`;
-      const dom = createMockDOM(theme);
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-      const parsed = parseThemeContent(theme);
-
-      // Initialize inputs from parsed theme
-      getScopes().forEach((scope) => {
-        const scopeVars = parsed.scopes[scope] || {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            if (scopeVars[varName]) {
-              input.value = scopeVars[varName];
-            } else {
-              const globalValue = parsed.root[varName];
-              if (globalValue?.startsWith("#")) {
-                input.value = globalValue;
-              }
-            }
-          });
-      });
-
-      // Verify header scope (has overrides)
-      expectStrictEqual(
-        document.getElementById("header-color-bg").value,
-        "#ff0000",
-      );
-      expectStrictEqual(
-        document.getElementById("header-color-text").value,
-        "#ffffff",
-      );
-      expectStrictEqual(
-        document.getElementById("header-color-link").value,
-        "#0066cc",
-      );
-
-      // Verify nav scope (one override)
-      expectStrictEqual(
-        document.getElementById("nav-color-link").value,
-        "#00ff00",
-      );
-      expectStrictEqual(
-        document.getElementById("nav-color-bg").value,
-        "#ffffff",
-      );
-
-      // Verify article scope (no overrides, all global)
-      expectStrictEqual(
-        document.getElementById("article-color-bg").value,
-        "#ffffff",
-      );
-    },
-  },
-  {
-    name: "e2e-modify-and-generate",
-    description: "Modifying inputs and generating CSS produces correct output",
-    test: () => {
-      const originalTheme = `
-:root {
-  --color-bg: #ffffff;
-  --color-text: #000000;
-  --color-link: #0000ff;
-  --color-link-hover: #0000cc;
-}
-
-header {
-  --color-bg: #333333;
-}
-`;
-      const dom = createMockDOM(originalTheme);
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-      const parsed = parseThemeContent(originalTheme);
-
-      // Initialize inputs
-      getScopes().forEach((scope) => {
-        const scopeVars = parsed.scopes[scope] || {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            if (scopeVars[varName]) {
-              input.value = scopeVars[varName];
-            } else {
-              const globalValue = parsed.root[varName];
-              if (globalValue?.startsWith("#")) {
-                input.value = globalValue;
-              }
-            }
-          });
-      });
-
-      // User modifies values
-      document.getElementById("header-color-bg").value = "#ff0000";
-      document.getElementById("nav-color-link").value = "#00ff00";
-
-      // Collect scope vars
-      const scopeVars = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const value = input.value;
-            const globalValue = parsed.root[varName];
-            if (shouldIncludeScopedVar(value, globalValue)) {
-              vars[varName] = value;
-            }
-          });
-        if (Object.keys(vars).length > 0) {
-          scopeVars[scope] = vars;
-        }
-      });
-
-      // Generate new CSS
-      const newCss = generateThemeCss(parsed.root, scopeVars, []);
-
-      expectTrue(newCss.includes(":root {"));
-      expectTrue(newCss.includes("header {"));
-      expectTrue(newCss.includes("--color-bg: #ff0000"));
-      expectTrue(newCss.includes("nav {"));
-      expectTrue(newCss.includes("--color-link: #00ff00"));
-      expectFalse(newCss.includes("article {"));
-    },
-  },
-  {
-    name: "e2e-only-changed-values-collected",
-    description: "Only inputs that differ from global appear in output",
-    test: () => {
-      const dom = createMockDOM();
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-
-      const globalValues = {
+      const globals = {
         "--color-bg": "#ffffff",
-        "--color-text": "#333333",
+        "--color-text": "#000000",
+      };
+      const result = filterScopeVars(formData, globals);
+      expectDeepEqual(
+        result,
+        formData,
+        "Should return all values when none match",
+      );
+    },
+  },
+  {
+    name: "filterScopeVars-handles-missing-globals",
+    description: "Includes values when global is missing",
+    test: () => {
+      const formData = {
+        "--color-bg": "#ff0000",
+        "--color-text": "#00ff00",
+      };
+      const globals = {
+        "--color-bg": "#ffffff",
+        // --color-text missing
+      };
+      const result = filterScopeVars(formData, globals);
+      expectDeepEqual(
+        result,
+        formData,
+        "Should include value when global is missing",
+      );
+    },
+  },
+  {
+    name: "filterScopeVars-handles-empty-globals",
+    description: "Works with empty globals object",
+    test: () => {
+      const formData = {
+        "--color-bg": "#ff0000",
+      };
+      const result = filterScopeVars(formData, {});
+      expectDeepEqual(
+        result,
+        formData,
+        "Should include all values when globals is empty",
+      );
+    },
+  },
+  {
+    name: "filterScopeVars-cascade-behavior",
+    description:
+      "After global change, scoped values matching NEW global are excluded",
+    test: () => {
+      // This tests the cascade behavior:
+      // When global changes from #9a9996 to #000000, scoped inputs that were
+      // showing the OLD global value get updated to the NEW global value.
+      // Then when we filter, they match the new global and are excluded.
+
+      // Simulating: user changed global from #9a9996 to #000000
+      // Scoped inputs that were showing #9a9996 are now showing #000000
+      const scopedFormData = {
+        "--color-bg": "#ffffff", // Different from global - should be included
+        "--color-text": "#000000", // Same as NEW global - should be excluded
+        "--color-link": "#0066cc", // Same as global - should be excluded
+      };
+      const newGlobals = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000", // NEW global value
         "--color-link": "#0066cc",
-        "--color-link-hover": "#004499",
       };
-
-      // Initialize all scopes to global values
-      getScopes().forEach((scope) => {
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const globalValue = globalValues[varName];
-            if (globalValue) input.value = globalValue;
-          });
-      });
-
-      // Change specific values
-      document.getElementById("header-color-bg").value = "#ff0000";
-      document.getElementById("nav-color-link").value = "#00ff00";
-      document.getElementById("article-color-text").value = "#0000ff";
-
-      // Collect vars for each scope
-      const collectedByScope = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const value = input.value;
-            const globalValue = globalValues[varName];
-            if (shouldIncludeScopedVar(value, globalValue)) {
-              vars[varName] = value;
-            }
-          });
-        collectedByScope[scope] = vars;
-      });
-
-      expectDeepEqual(collectedByScope.header, { "--color-bg": "#ff0000" });
-      expectDeepEqual(collectedByScope.nav, { "--color-link": "#00ff00" });
-      expectDeepEqual(collectedByScope.article, { "--color-text": "#0000ff" });
-      expectDeepEqual(collectedByScope.form, {});
-      expectDeepEqual(collectedByScope.button, {});
-    },
-  },
-  {
-    name: "e2e-black-preserved-when-intentional",
-    description: "Black (#000000) is preserved when intentionally set",
-    test: () => {
-      const theme = `
-:root {
-  --color-bg: #ffffff;
-  --color-text: #333333;
-}
-
-header {
-  --color-bg: #000000;
-  --color-text: #ffffff;
-}
-`;
-      const dom = createMockDOM(theme);
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-      const parsed = parseThemeContent(theme);
-
-      // Initialize header inputs
-      const headerVars = parsed.scopes.header || {};
-      form
-        .querySelectorAll('input[type="color"][data-scope="header"]')
-        .forEach((input) => {
-          const varName = input.dataset.var;
-          if (headerVars[varName]) {
-            input.value = headerVars[varName];
-          } else {
-            const globalValue = parsed.root[varName];
-            if (globalValue?.startsWith("#")) {
-              input.value = globalValue;
-            }
-          }
-        });
-
-      expectStrictEqual(
-        document.getElementById("header-color-bg").value,
-        "#000000",
+      const result = filterScopeVars(scopedFormData, newGlobals);
+      expectDeepEqual(
+        result,
+        {},
+        "After cascade, all scoped values match global and should be excluded",
       );
-
-      // Collect and verify black is preserved
-      const collectedVars = {};
-      form
-        .querySelectorAll('input[type="color"][data-scope="header"]')
-        .forEach((input) => {
-          const varName = input.dataset.var;
-          const value = input.value;
-          const globalValue = parsed.root[varName];
-          if (shouldIncludeScopedVar(value, globalValue)) {
-            collectedVars[varName] = value;
-          }
-        });
-
-      expectStrictEqual(collectedVars["--color-bg"], "#000000");
-      expectStrictEqual(collectedVars["--color-text"], "#ffffff");
-    },
-  },
-  {
-    name: "e2e-full-round-trip",
-    description: "Full round-trip: parse → initialize → collect → generate",
-    test: () => {
-      const originalTheme = `
-:root {
-  --color-bg: #241f31;
-  --color-text: #9a9996;
-  --color-link: #f6f5f4;
-  --color-link-hover: #ffffff;
-}
-
-header {
-  --color-bg: #3d3846;
-  --color-text: #ffffff;
-}
-
-nav {
-  --color-bg: #1a1a1a;
-  --color-link: #ffcc00;
-}
-
-button,
-.button,
-input[type="submit"] {
-  --color-bg: #62a0ea;
-  --color-text: #000000;
-}
-
-/* body_classes: header-centered-dark */
-`;
-      const dom = createMockDOM(originalTheme);
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-      const parsed = parseThemeContent(originalTheme);
-
-      // Initialize all inputs from parsed theme
-      getScopes().forEach((scope) => {
-        const scopeVars = parsed.scopes[scope] || {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            if (scopeVars[varName]) {
-              input.value = scopeVars[varName];
-            } else {
-              const globalValue = parsed.root[varName];
-              if (globalValue?.startsWith("#")) {
-                input.value = globalValue;
-              }
-            }
-          });
-      });
-
-      // Collect scope vars without modification
-      const collectedScopeVars = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const value = input.value;
-            const globalValue = parsed.root[varName];
-            if (shouldIncludeScopedVar(value, globalValue)) {
-              vars[varName] = value;
-            }
-          });
-        if (Object.keys(vars).length > 0) {
-          collectedScopeVars[scope] = vars;
-        }
-      });
-
-      // Generate new CSS
-      const generatedCss = generateThemeCss(
-        parsed.root,
-        collectedScopeVars,
-        parsed.bodyClasses,
-      );
-
-      // Re-parse the generated CSS
-      const reparsed = parseThemeContent(generatedCss);
-
-      expectDeepEqual(reparsed.root, parsed.root);
-      expectDeepEqual(reparsed.scopes.header, parsed.scopes.header);
-      expectDeepEqual(reparsed.scopes.nav, parsed.scopes.nav);
-      expectDeepEqual(reparsed.scopes.button, parsed.scopes.button);
-      expectDeepEqual(reparsed.bodyClasses, parsed.bodyClasses);
-    },
-  },
-  {
-    name: "e2e-generated-css-valid",
-    description: "Generated CSS contains no undefined values",
-    test: () => {
-      const dom = createMockDOM();
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-
-      const globalVars = {
-        "--color-bg": "#ffffff",
-        "--color-text": "#333333",
-      };
-
-      // Collect scope vars using correct query (includes [data-var])
-      const scopeVars = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        form
-          .querySelectorAll(
-            `input[type="color"][data-var][data-scope="${scope}"]`,
-          )
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const value = input.value;
-            if (shouldIncludeScopedVar(value, globalVars[varName])) {
-              vars[varName] = value;
-            }
-          });
-        if (Object.keys(vars).length > 0) {
-          scopeVars[scope] = vars;
-        }
-      });
-
-      const css = generateThemeCss(globalVars, scopeVars, []);
-
-      expectFalse(css.includes("undefined"));
-    },
-  },
-  {
-    name: "e2e-border-initialization",
-    description: "Scoped border inputs initialize correctly",
-    test: () => {
-      const dom = createMockDOM();
-      const { document } = dom.window;
-
-      const globalBorder = "2px solid #58648c";
-
-      // Initialize all scopes to global
-      getScopes().forEach((scope) => {
-        const widthInput = document.getElementById(`${scope}-border-width`);
-        const styleSelect = document.getElementById(`${scope}-border-style`);
-        const colorInput = document.getElementById(`${scope}-border-color`);
-        const outputInput = document.getElementById(`${scope}-border`);
-
-        if (widthInput && styleSelect && colorInput && outputInput) {
-          const match = globalBorder.match(/(\d+)px\s+(\w+)\s+(.+)/);
-          if (match) {
-            widthInput.value = match[1];
-            styleSelect.value = match[2];
-            colorInput.value = match[3];
-            outputInput.value = globalBorder;
-          }
-        }
-      });
-
-      // Collect scope vars - borders should match global and be excluded
-      const scopeVars = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        const borderOutput = document.getElementById(`${scope}-border`);
-        if (borderOutput?.value) {
-          if (shouldIncludeScopedVar(borderOutput.value, globalBorder)) {
-            vars["--border"] = borderOutput.value;
-          }
-        }
-        if (Object.keys(vars).length > 0) {
-          scopeVars[scope] = vars;
-        }
-      });
-
-      expectStrictEqual(Object.keys(scopeVars).length, 0);
     },
   },
 ];
 
 // ============================================
-// Bug regression tests
+// Unit Tests - generateThemeCss
 // ============================================
 
-const exactOutputTests = [
+const generateThemeCssTests = [
   {
-    name: "exact-output-global-only",
-    description: "CSS output matches exactly when only global values are set",
+    name: "generateThemeCss-global-only",
+    description: "Generates CSS with only global values",
     test: () => {
       const globalVars = {
         "--color-bg": "#ffffff",
         "--color-text": "#000000",
       };
-      const scopeVars = {};
-      const bodyClasses = [];
-
-      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
-
+      const css = generateThemeCss(globalVars, {}, []);
       const expected = `:root {
   --color-bg: #ffffff;
   --color-text: #000000;
 }
 `;
-      expectStrictEqual(css, expected, "CSS should match exactly");
+      expectStrictEqual(css, expected, "Should generate :root only CSS");
     },
   },
   {
-    name: "exact-output-with-one-scope",
-    description: "CSS output matches exactly with one scope override",
+    name: "generateThemeCss-with-header-scope",
+    description: "Generates CSS with header scope override",
     test: () => {
-      const globalVars = {
-        "--color-bg": "#ffffff",
-        "--color-text": "#000000",
-      };
-      const scopeVars = {
-        header: { "--color-text": "#ffffff" },
-      };
-      const bodyClasses = [];
-
-      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
-
+      const globalVars = { "--color-bg": "#ffffff" };
+      const scopeVars = { header: { "--color-text": "#ffffff" } };
+      const css = generateThemeCss(globalVars, scopeVars, []);
       const expected = `:root {
   --color-bg: #ffffff;
-  --color-text: #000000;
 }
 
 header {
   --color-text: #ffffff;
 }
 `;
-      expectStrictEqual(css, expected, "CSS should match exactly");
+      expectStrictEqual(css, expected, "Should include header scope block");
     },
   },
   {
-    name: "exact-output-with-body-classes",
-    description: "CSS output matches exactly with body classes",
+    name: "generateThemeCss-with-button-scope",
+    description: "Generates CSS with multi-line button selector",
     test: () => {
-      const globalVars = {
-        "--color-bg": "#ffffff",
-      };
-      const scopeVars = {};
-      const bodyClasses = ["header-centered-dark", "main-boxed"];
-
-      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
-
-      const expected = `:root {
-  --color-bg: #ffffff;
-}
-
-/* body_classes: header-centered-dark, main-boxed */`;
-      expectStrictEqual(css, expected, "CSS should match exactly");
-    },
-  },
-  {
-    name: "exact-output-with-button-scope",
-    description: "CSS output has correct multi-line button selector",
-    test: () => {
-      const globalVars = {
-        "--color-bg": "#ffffff",
-      };
-      const scopeVars = {
-        button: { "--color-bg": "#007bff" },
-      };
-      const bodyClasses = [];
-
-      const css = generateThemeCss(globalVars, scopeVars, bodyClasses);
-
+      const globalVars = { "--color-bg": "#ffffff" };
+      const scopeVars = { button: { "--color-bg": "#007bff" } };
+      const css = generateThemeCss(globalVars, scopeVars, []);
       const expected = `:root {
   --color-bg: #ffffff;
 }
@@ -894,12 +586,61 @@ input[type="submit"] {
   --color-bg: #007bff;
 }
 `;
-      expectStrictEqual(css, expected, "CSS should match exactly");
+      expectStrictEqual(css, expected, "Should include button multi-selector");
     },
   },
   {
-    name: "exact-output-full-theme",
-    description: "Full theme CSS output matches exactly",
+    name: "generateThemeCss-with-body-classes",
+    description: "Generates CSS with body classes comment",
+    test: () => {
+      const globalVars = { "--color-bg": "#ffffff" };
+      const css = generateThemeCss(globalVars, {}, [
+        "header-centered-dark",
+        "main-boxed",
+      ]);
+      const expected = `:root {
+  --color-bg: #ffffff;
+}
+
+/* body_classes: header-centered-dark, main-boxed */`;
+      expectStrictEqual(css, expected, "Should include body_classes comment");
+    },
+  },
+  {
+    name: "generateThemeCss-omits-empty-scopes",
+    description: "Does not include empty scope blocks",
+    test: () => {
+      const scopeVars = {
+        header: { "--color-text": "#fff" },
+        nav: {},
+        article: {},
+      };
+      const css = generateThemeCss({}, scopeVars, []);
+      expectTrue(css.includes("header {"), "Should include non-empty header");
+      expectFalse(css.includes("nav {"), "Should omit empty nav");
+      expectFalse(css.includes("article {"), "Should omit empty article");
+    },
+  },
+  {
+    name: "generateThemeCss-preserves-scope-order",
+    description: "Scopes appear in consistent order",
+    test: () => {
+      const scopeVars = {
+        button: { "--color-bg": "#007bff" },
+        header: { "--color-text": "#fff" },
+        nav: { "--color-link": "#00ff00" },
+      };
+      const css = generateThemeCss({}, scopeVars, []);
+      const headerPos = css.indexOf("header {");
+      const navPos = css.indexOf("nav {");
+      const buttonPos = css.indexOf("button,");
+      expectTrue(headerPos < navPos, "Header should come before nav");
+      expectTrue(navPos < buttonPos, "Nav should come before button");
+    },
+  },
+  {
+    name: "generateThemeCss-full-theme",
+    description: "Generates complete theme with all sections",
     test: () => {
       const globalVars = {
         "--color-bg": "#241f31",
@@ -930,256 +671,445 @@ nav {
 }
 
 /* body_classes: header-centered-dark */`;
-      expectStrictEqual(css, expected, "CSS should match exactly");
+      expectStrictEqual(css, expected, "Full theme should match exactly");
     },
   },
 ];
 
-const bugRegressionTests = [
+// ============================================
+// Unit Tests - Config validation
+// ============================================
+
+const configTests = [
   {
-    name: "bug-changing-global-border-should-not-create-scope-overrides",
-    description:
-      "Changing a global border should not cause unchanged scoped borders to appear as overrides",
+    name: "scopes-match-between-lib-and-config",
+    description: "SCOPES constant matches config getScopes()",
     test: () => {
-      // This tests the bug: user loads theme with --border: 2px solid #000000,
-      // then changes global border to 3px solid #ff0000.
-      // The scoped borders (header, nav, article, form) were initialized to old border
-      // but should NOT appear in output since user never changed them.
-
-      const originalTheme = `
-:root {
-  --color-bg: #ffffff;
-  --color-text: #333333;
-  --border: 2px solid #000000;
-}
-`;
-      const dom = createMockDOM(originalTheme);
-      const { document } = dom.window;
-      const _form = document.getElementById("theme-editor-form");
-      const parsed = parseThemeContent(originalTheme);
-
-      const oldGlobalBorder = parsed.root["--border"];
-
-      // Step 1: Initialize scoped border inputs to global value (simulating page load)
-      getScopes().forEach((scope) => {
-        const borderOutput = document.getElementById(`${scope}-border`);
-        const widthInput = document.getElementById(`${scope}-border-width`);
-        const styleSelect = document.getElementById(`${scope}-border-style`);
-        const colorInput = document.getElementById(`${scope}-border-color`);
-
-        if (borderOutput && widthInput && styleSelect && colorInput) {
-          const match = oldGlobalBorder.match(/(\d+)px\s+(\w+)\s+(.+)/);
-          if (match) {
-            widthInput.value = match[1];
-            styleSelect.value = match[2];
-            colorInput.value = match[3];
-            borderOutput.value = oldGlobalBorder;
-          }
-        }
-      });
-
-      // Verify scoped borders are initialized to old global value
-      expectStrictEqual(
-        document.getElementById("nav-border").value,
-        "2px solid #000000",
+      expectDeepEqual(
+        SCOPES,
+        ["header", "nav", "article", "form", "button"],
+        "SCOPES should contain all expected scope names",
       );
-
-      // Step 2: User changes the GLOBAL border to a new value
-      const newGlobalBorder = "3px solid #ff0000";
-
-      // Step 3: Build new global vars (simulating what updateThemeFromControls does)
-      const oldGlobalVars = {
-        "--border": oldGlobalBorder,
-      };
-      const newGlobalVars = {
-        "--color-bg": "#ffffff",
-        "--color-text": "#333333",
-        "--border": newGlobalBorder,
-      };
-
-      // Step 4: CASCADE global changes to scoped inputs (THE FIX)
-      // For each scoped border, if it equals the OLD global value, update to NEW global value
-      getScopes().forEach((scope) => {
-        const borderOutput = document.getElementById(`${scope}-border`);
-        if (borderOutput) {
-          const oldGlobal = oldGlobalVars["--border"];
-          const newGlobal = newGlobalVars["--border"];
-          if (oldGlobal && newGlobal && borderOutput.value === oldGlobal) {
-            // Update border component inputs too
-            const widthInput = document.getElementById(`${scope}-border-width`);
-            const styleSelect = document.getElementById(
-              `${scope}-border-style`,
-            );
-            const colorInput = document.getElementById(`${scope}-border-color`);
-            const match = newGlobal.match(/(\d+)px\s+(\w+)\s+(.+)/);
-            if (match && widthInput && styleSelect && colorInput) {
-              widthInput.value = match[1];
-              styleSelect.value = match[2];
-              colorInput.value = match[3];
-            }
-            borderOutput.value = newGlobal;
-          }
-        }
-      });
-
-      // Verify cascade worked - scoped borders now have new global value
-      expectStrictEqual(
-        document.getElementById("nav-border").value,
-        "3px solid #ff0000",
-      );
-
-      // Step 5: Collect scope vars - now scoped borders match new global
-      const scopeVars = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        // Check border
-        const borderOutput = document.getElementById(`${scope}-border`);
-        if (borderOutput?.value) {
-          if (
-            shouldIncludeScopedVar(
-              borderOutput.value,
-              newGlobalVars["--border"],
-            )
-          ) {
-            vars["--border"] = borderOutput.value;
-          }
-        }
-        if (Object.keys(vars).length > 0) {
-          scopeVars[scope] = vars;
-        }
-      });
-
-      // Generate CSS
-      const css = generateThemeCss(newGlobalVars, scopeVars, []);
-
-      // With the fix: output should be EXACTLY this - no scope overrides
-      const expected = `:root {
-  --color-bg: #ffffff;
-  --color-text: #333333;
-  --border: 3px solid #ff0000;
-}
-`;
-      expectStrictEqual(
-        css,
-        expected,
-        "Output should contain only :root, no scope overrides for border",
+      expectDeepEqual(
+        getScopes(),
+        SCOPES,
+        "getScopes() should return same values as SCOPES constant",
       );
     },
   },
   {
-    name: "bug-changing-global-should-not-create-scope-overrides",
-    description:
-      "Changing a global value should not cause unchanged scoped inputs to appear as overrides",
+    name: "scope-selectors-header",
+    description: "Header selector is correct",
     test: () => {
-      // This tests the bug: user loads theme with --color-text: #9a9996,
-      // then changes global text color to #000000.
-      // The scoped inputs (nav, article, form) were initialized to #9a9996
-      // but should NOT appear in output since user never changed them.
-      //
-      // THE FIX: When global changes, cascade the change to scoped inputs
-      // that were "following" the old global value.
-
-      const originalTheme = `
-:root {
-  --color-bg: #ffffff;
-  --color-text: #9a9996;
-  --color-link: #0066cc;
-  --color-link-hover: #004499;
-}
-`;
-      const dom = createMockDOM(originalTheme);
-      const { document } = dom.window;
-      const form = document.getElementById("theme-editor-form");
-      const parsed = parseThemeContent(originalTheme);
-
-      // Step 1: Initialize scoped inputs to global values (simulating page load)
-      const oldGlobalVars = { ...parsed.root };
-      getScopes().forEach((scope) => {
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const globalValue = parsed.root[varName];
-            if (globalValue?.startsWith("#")) {
-              input.value = globalValue;
-            }
-          });
-      });
-
-      // Verify scoped inputs are initialized to old global value
       expectStrictEqual(
-        document.getElementById("nav-color-text").value,
-        "#9a9996",
+        SCOPE_SELECTORS.header,
+        "header",
+        "Header selector should be 'header'",
       );
+    },
+  },
+  {
+    name: "scope-selectors-nav",
+    description: "Nav selector is correct",
+    test: () => {
+      expectStrictEqual(
+        SCOPE_SELECTORS.nav,
+        "nav",
+        "Nav selector should be 'nav'",
+      );
+    },
+  },
+  {
+    name: "scope-selectors-article",
+    description: "Article selector is correct",
+    test: () => {
+      expectStrictEqual(
+        SCOPE_SELECTORS.article,
+        "article",
+        "Article selector should be 'article'",
+      );
+    },
+  },
+  {
+    name: "scope-selectors-form",
+    description: "Form selector is correct",
+    test: () => {
+      expectStrictEqual(
+        SCOPE_SELECTORS.form,
+        "form",
+        "Form selector should be 'form'",
+      );
+    },
+  },
+  {
+    name: "scope-selectors-button",
+    description: "Button selector is multi-line",
+    test: () => {
+      expectTrue(
+        SCOPE_SELECTORS.button.includes("button"),
+        "Button selector should include 'button'",
+      );
+      expectTrue(
+        SCOPE_SELECTORS.button.includes(".button"),
+        "Button selector should include '.button'",
+      );
+      expectTrue(
+        SCOPE_SELECTORS.button.includes('input[type="submit"]'),
+        "Button selector should include input[type='submit']",
+      );
+    },
+  },
+  {
+    name: "global-inputs-defined",
+    description: "GLOBAL_INPUTS has expected color inputs",
+    test: () => {
+      expectStrictEqual(
+        GLOBAL_INPUTS["color-bg"].type,
+        "color",
+        "color-bg should be color type",
+      );
+      expectStrictEqual(
+        GLOBAL_INPUTS["color-text"].type,
+        "color",
+        "color-text should be color type",
+      );
+      expectStrictEqual(
+        GLOBAL_INPUTS["color-link"].type,
+        "color",
+        "color-link should be color type",
+      );
+    },
+  },
+  {
+    name: "scoped-inputs-defined",
+    description: "SCOPED_INPUTS has expected inputs",
+    test: () => {
+      expectStrictEqual(
+        SCOPED_INPUTS["color-bg"].type,
+        "color",
+        "scoped color-bg should be color type",
+      );
+      expectStrictEqual(
+        SCOPED_INPUTS.border.type,
+        "border",
+        "scoped border should be border type",
+      );
+    },
+  },
+  {
+    name: "scoped-var-names-correct",
+    description: "getScopedVarNames returns CSS variable names",
+    test: () => {
+      const varNames = getScopedVarNames();
+      expectTrue(varNames.includes("--color-bg"), "Should include --color-bg");
+      expectTrue(
+        varNames.includes("--color-text"),
+        "Should include --color-text",
+      );
+      expectTrue(varNames.includes("--border"), "Should include --border");
+    },
+  },
+  {
+    name: "input-counts-consistent",
+    description: "getInputCounts returns consistent values",
+    test: () => {
+      const counts = getInputCounts();
+      expectStrictEqual(counts.scopes, 5, "Should have 5 scopes");
+      expectTrue(counts.global > 0, "Should have global inputs");
+      expectTrue(counts.scopedPerScope > 0, "Should have scoped inputs");
+      expectStrictEqual(
+        counts.totalScoped,
+        counts.scopedPerScope * counts.scopes,
+        "totalScoped should equal scopedPerScope * scopes",
+      );
+    },
+  },
+];
 
-      // Step 2: User changes the GLOBAL text color to a new value
-      const newGlobalTextColor = "#000000";
-      document.getElementById("color-text").value = newGlobalTextColor;
+// ============================================
+// Round-trip tests
+// ============================================
 
-      // Step 3: Update the global vars (simulating what updateThemeFromControls does)
-      const newGlobalVars = {
-        "--color-bg": "#ffffff",
-        "--color-text": newGlobalTextColor, // NEW value
-        "--color-link": "#0066cc",
-        "--color-link-hover": "#004499",
+const roundTripTests = [
+  {
+    name: "roundtrip-parse-generate-simple",
+    description: "Parsing and regenerating preserves simple theme",
+    test: () => {
+      const originalTheme = `:root {
+  --color-bg: #241f31;
+  --color-text: #9a9996;
+}
+
+header {
+  --color-text: #ffffff;
+}
+
+/* body_classes: header-centered-dark */`;
+
+      const parsed = parseThemeContent(originalTheme);
+      const generated = generateThemeCss(
+        parsed.root,
+        parsed.scopes,
+        parsed.bodyClasses,
+      );
+      const reparsed = parseThemeContent(generated);
+
+      expectDeepEqual(
+        reparsed.root,
+        parsed.root,
+        "Round-trip should preserve :root variables",
+      );
+      expectDeepEqual(
+        reparsed.scopes,
+        parsed.scopes,
+        "Round-trip should preserve scope variables",
+      );
+      expectDeepEqual(
+        reparsed.bodyClasses,
+        parsed.bodyClasses,
+        "Round-trip should preserve body classes",
+      );
+    },
+  },
+  {
+    name: "roundtrip-parse-generate-complex",
+    description: "Parsing and regenerating preserves complex theme",
+    test: () => {
+      const originalTheme = `:root {
+  --color-bg: #241f31;
+  --color-text: #9a9996;
+  --color-link: #f6f5f4;
+  --color-link-hover: #ffffff;
+}
+
+header {
+  --color-bg: #3d3846;
+  --color-text: #ffffff;
+}
+
+nav {
+  --color-bg: #1a1a1a;
+  --color-link: #ffcc00;
+}
+
+button,
+.button,
+input[type="submit"] {
+  --color-bg: #62a0ea;
+  --color-text: #000000;
+}
+
+/* body_classes: header-centered-dark */`;
+
+      const parsed = parseThemeContent(originalTheme);
+      const generated = generateThemeCss(
+        parsed.root,
+        parsed.scopes,
+        parsed.bodyClasses,
+      );
+      const reparsed = parseThemeContent(generated);
+
+      expectDeepEqual(
+        reparsed.root,
+        parsed.root,
+        "Complex round-trip should preserve :root",
+      );
+      expectDeepEqual(
+        reparsed.scopes.header,
+        parsed.scopes.header,
+        "Complex round-trip should preserve header",
+      );
+      expectDeepEqual(
+        reparsed.scopes.nav,
+        parsed.scopes.nav,
+        "Complex round-trip should preserve nav",
+      );
+      expectDeepEqual(
+        reparsed.scopes.button,
+        parsed.scopes.button,
+        "Complex round-trip should preserve button",
+      );
+    },
+  },
+  {
+    name: "roundtrip-adding-scopes",
+    description: "Can add new scopes to a minimal theme",
+    test: () => {
+      const minimalTheme = `:root { --color-bg: #ffffff; }`;
+      const parsed = parseThemeContent(minimalTheme);
+
+      const newScopeVars = {
+        header: { "--color-text": "#ffffff" },
+        nav: { "--color-bg": "#333333" },
       };
 
-      // Step 4: CASCADE global changes to scoped inputs (THE FIX)
-      // For each scoped input, if it equals the OLD global value, update to NEW global value
-      getScopes().forEach((scope) => {
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const oldGlobal = oldGlobalVars[varName];
-            const newGlobal = newGlobalVars[varName];
-            // If scoped input was following old global, update to new global
-            if (oldGlobal && newGlobal && input.value === oldGlobal) {
-              input.value = newGlobal;
-            }
-          });
-      });
+      const generated = generateThemeCss(parsed.root, newScopeVars, []);
+      const reparsed = parseThemeContent(generated);
 
-      // Verify cascade worked - scoped inputs now have new global value
-      expectStrictEqual(
-        document.getElementById("nav-color-text").value,
-        "#000000",
+      expectDeepEqual(
+        reparsed.scopes.header,
+        newScopeVars.header,
+        "Should add header scope",
+      );
+      expectDeepEqual(
+        reparsed.scopes.nav,
+        newScopeVars.nav,
+        "Should add nav scope",
+      );
+    },
+  },
+  {
+    name: "roundtrip-removing-scopes",
+    description: "Can remove scopes by passing empty scopeVars",
+    test: () => {
+      const themeWithScopes = `:root { --color-bg: #ffffff; }
+
+header {
+  --color-text: #ffffff;
+}`;
+      const parsed = parseThemeContent(themeWithScopes);
+      expectDeepEqual(
+        parsed.scopes.header,
+        { "--color-text": "#ffffff" },
+        "Should parse existing header scope",
       );
 
-      // Step 5: Collect scope vars - now scoped inputs match new global
-      const scopeVars = {};
-      getScopes().forEach((scope) => {
-        const vars = {};
-        form
-          .querySelectorAll(`input[type="color"][data-scope="${scope}"]`)
-          .forEach((input) => {
-            const varName = input.dataset.var;
-            const value = input.value;
-            const globalValue = newGlobalVars[varName];
-            if (shouldIncludeScopedVar(value, globalValue)) {
-              vars[varName] = value;
-            }
-          });
-        if (Object.keys(vars).length > 0) {
-          scopeVars[scope] = vars;
-        }
-      });
+      // Generate without any scopes
+      const generated = generateThemeCss(parsed.root, {}, []);
+      const reparsed = parseThemeContent(generated);
+
+      expectDeepEqual(
+        reparsed.scopes,
+        {},
+        "Should have no scopes after regenerating with empty scopeVars",
+      );
+    },
+  },
+];
+
+// ============================================
+// Integration tests - filterScopeVars workflow
+// ============================================
+
+const integrationTests = [
+  {
+    name: "integration-collect-and-generate",
+    description: "filterScopeVars + generateThemeCss produces correct output",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+        "--color-link": "#0066cc",
+      };
+
+      // Simulate form data for each scope
+      const headerFormData = {
+        "--color-bg": "#ff0000", // Different
+        "--color-text": "#000000", // Same as global
+        "--color-link": "#0066cc", // Same as global
+      };
+      const navFormData = {
+        "--color-bg": "#ffffff", // Same as global
+        "--color-text": "#000000", // Same as global
+        "--color-link": "#00ff00", // Different
+      };
+
+      // Filter to get only overrides
+      const headerVars = filterScopeVars(headerFormData, globalVars);
+      const navVars = filterScopeVars(navFormData, globalVars);
+
+      expectDeepEqual(
+        headerVars,
+        { "--color-bg": "#ff0000" },
+        "Header should only have bg override",
+      );
+      expectDeepEqual(
+        navVars,
+        { "--color-link": "#00ff00" },
+        "Nav should only have link override",
+      );
 
       // Generate CSS
-      const css = generateThemeCss(newGlobalVars, scopeVars, []);
+      const scopeVars = {};
+      if (Object.keys(headerVars).length > 0) scopeVars.header = headerVars;
+      if (Object.keys(navVars).length > 0) scopeVars.nav = navVars;
 
-      // With the fix: output should be EXACTLY this - no scope overrides
-      const expected = `:root {
-  --color-bg: #ffffff;
-  --color-text: #000000;
-  --color-link: #0066cc;
-  --color-link-hover: #004499;
-}
-`;
-      expectStrictEqual(
-        css,
-        expected,
-        "Output should contain only :root, no scope overrides",
+      const css = generateThemeCss(globalVars, scopeVars, []);
+
+      expectTrue(css.includes("header {"), "Should include header block");
+      expectTrue(
+        css.includes("--color-bg: #ff0000"),
+        "Should include header bg",
+      );
+      expectTrue(css.includes("nav {"), "Should include nav block");
+      expectTrue(
+        css.includes("--color-link: #00ff00"),
+        "Should include nav link",
+      );
+      expectFalse(css.includes("article {"), "Should not include article");
+    },
+  },
+  {
+    name: "integration-no-overrides-minimal-output",
+    description: "When all scoped values match global, output is minimal",
+    test: () => {
+      const globalVars = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+      };
+
+      // All scopes have values matching global
+      const headerFormData = {
+        "--color-bg": "#ffffff",
+        "--color-text": "#000000",
+      };
+
+      const headerVars = filterScopeVars(headerFormData, globalVars);
+      expectDeepEqual(headerVars, {}, "Header should have no overrides");
+
+      const scopeVars = {};
+      if (Object.keys(headerVars).length > 0) scopeVars.header = headerVars;
+
+      const css = generateThemeCss(globalVars, scopeVars, []);
+
+      expectFalse(css.includes("header {"), "Should not include header block");
+      expectTrue(css.includes(":root {"), "Should include :root block");
+    },
+  },
+  {
+    name: "integration-border-handling",
+    description: "Border values are correctly filtered and generated",
+    test: () => {
+      const globalVars = {
+        "--border": "2px solid #000000",
+      };
+
+      // Header has different border
+      const headerFormData = {
+        "--border": "3px solid #ff0000",
+      };
+      // Nav has same border as global
+      const navFormData = {
+        "--border": "2px solid #000000",
+      };
+
+      const headerVars = filterScopeVars(headerFormData, globalVars);
+      const navVars = filterScopeVars(navFormData, globalVars);
+
+      expectDeepEqual(
+        headerVars,
+        { "--border": "3px solid #ff0000" },
+        "Header should have border override",
+      );
+      expectDeepEqual(navVars, {}, "Nav should have no overrides");
+
+      const scopeVars = { header: headerVars };
+      const css = generateThemeCss(globalVars, scopeVars, []);
+
+      expectTrue(css.includes("header {"), "Should include header block");
+      expectTrue(
+        css.includes("--border: 3px solid #ff0000"),
+        "Should include header border",
       );
     },
   },
@@ -1190,14 +1120,15 @@ const bugRegressionTests = [
 // ============================================
 
 const allTestCases = [
-  ...parsingTests,
-  ...generationTests,
-  ...scopeFilterTests,
+  ...parseCssBlockTests,
+  ...parseThemeContentTests,
+  ...parseBorderValueTests,
+  ...shouldIncludeScopedVarTests,
+  ...filterScopeVarsTests,
+  ...generateThemeCssTests,
   ...configTests,
   ...roundTripTests,
-  ...e2eTests,
-  ...exactOutputTests,
-  ...bugRegressionTests,
+  ...integrationTests,
 ];
 
 createTestRunner("theme-editor", allTestCases);
