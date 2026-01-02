@@ -14,5 +14,5 @@
 	"gitignore": true,
 	"minLines": 3,
 	"minTokens": 30,
-	"path": ["src", ".eleventy.js"]
+	"path": ["src", "test", ".eleventy.js"]
 }
