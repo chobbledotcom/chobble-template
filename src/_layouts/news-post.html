@@ -7,15 +7,36 @@ layout: base
   &rsaquo;
   {{ subtitle | escape }}
 </h2>
-<p>
-  <em>{{ page.date | date: "%b %-d, %Y" }}</em>
-  {%- if authorSlug -%}
-    {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
-    {%- if authorData -%}
-      &middot; <a href="{{ authorData.url }}">{{ authorData.data.title }}</a>
-    {%- endif -%}
-  {%- endif -%}
-</p>
+
+{%- if authorSlug -%}
+  {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
+{%- endif -%}
+
+{%- capture postDate -%}
+  <time class="post-meta__date" datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+{%- endcapture -%}
+
+{%- if authorData -%}
+  {%- capture authorInfo -%}
+    <address class="post-meta__author">By <a rel="author" href="{{ authorData.url }}">{{ authorData.data.title }}</a></address>
+    {{ postDate }}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- if authorData and authorData.data.image -%}
+<header class="post-meta post-meta--with-thumbnail" role="doc-subtitle">
+  <figure class="post-meta__thumbnail">
+    <a href="{{ authorData.url }}">{% image authorData.data.image, authorData.data.title, "80,160,240", "", "", "1/1" %}</a>
+  </figure>
+  <div class="post-meta__info">{{ authorInfo }}</div>
+</header>
+{%- elsif authorData -%}
+<header class="post-meta post-meta--no-thumbnail" role="doc-subtitle">
+  <div class="post-meta__info">{{ authorInfo }}</div>
+</header>
+{%- else -%}
+<header class="post-meta post-meta--no-author" role="doc-subtitle">{{ postDate }}</header>
+{%- endif -%}
 
 {{ content }}
 
