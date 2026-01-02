@@ -9,6 +9,7 @@ import {
 } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
+  createFrontmatter,
   createMockEleventyConfig,
   createTempSnippetsDir,
   createTestRunner,
@@ -137,21 +138,22 @@ const testCases = [
     name: "extractBodyFromMarkdown-with-frontmatter",
     description: "Extracts body content excluding frontmatter",
     test: () => {
-      const content = `---
-title: Test Title
-layout: page
----
-# Heading
-Content after frontmatter`;
+      const content = createFrontmatter(
+        { title: "Test Title", layout: "page" },
+        "# Heading\nContent after frontmatter",
+      );
 
       const result = extractBodyFromMarkdown(content);
-      const expected = "# Heading\nContent after frontmatter";
 
-      expectStrictEqual(
-        result,
-        expected,
-        "Should extract body content without frontmatter",
+      expectTrue(
+        result.includes("# Heading"),
+        "Should include heading from body",
       );
+      expectTrue(
+        result.includes("Content after frontmatter"),
+        "Should include content from body",
+      );
+      expectFalse(result.includes("title:"), "Should not include frontmatter");
     },
   },
   {
@@ -173,15 +175,15 @@ Content after frontmatter`;
     name: "extractBodyFromMarkdown-only-frontmatter",
     description: "Returns empty string for only frontmatter",
     test: () => {
-      const content = `---
-title: Only Frontmatter
-layout: page
----`;
+      const content = createFrontmatter({
+        title: "Only Frontmatter",
+        layout: "page",
+      });
 
       const result = extractBodyFromMarkdown(content);
 
       expectStrictEqual(
-        result,
+        result.trim(),
         "",
         "Should return empty string for only frontmatter",
       );

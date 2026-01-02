@@ -2,6 +2,7 @@ import assert from "node:assert";
 import fs from "node:fs";
 import path, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import matter from "gray-matter";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -316,6 +317,10 @@ const expectThrows = (fn, errorMatcher, message) => {
 // Test Fixture Factories
 // ============================================
 
+// Frontmatter helpers
+const createFrontmatter = (frontmatterData, content = "") =>
+  matter.stringify(content, frontmatterData);
+
 // Date helpers
 const createFutureDate = (daysFromNow = 30) => {
   const date = new Date();
@@ -430,6 +435,7 @@ export {
   expectFalse,
   expectThrows,
   // Test fixture factories
+  createFrontmatter,
   createFutureDate,
   createPastDate,
   formatDateString,

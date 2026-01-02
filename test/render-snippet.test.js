@@ -1,6 +1,7 @@
 import { renderSnippet } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
+  createFrontmatter,
   createTempSnippetsDir,
   createTestRunner,
   expectFalse,
@@ -75,11 +76,7 @@ const testCases = [
       );
 
       try {
-        const content = `---
-title: Test
----
-
-`;
+        const content = createFrontmatter({ title: "Test" }, "\n");
         fs.writeFileSync(`${snippetsDir}/trailing.md`, content);
 
         const result = await renderSnippet("trailing", "fallback", tempDir);
