@@ -18,8 +18,8 @@ const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.test.js - test runner catching failures
   "ecommerce-backend/server.test.js:366",
 
-  // src/assets/js/availability-calendar.js - fetch error handling
-  "src/assets/js/availability-calendar.js:151",
+  // src/assets/js/availability-calendar.js - fetch error handling (network failures)
+  "src/assets/js/availability-calendar.js:153",
 
   // src/assets/js/cart.js - PayPal checkout fetch handling
   "src/assets/js/cart.js:209",

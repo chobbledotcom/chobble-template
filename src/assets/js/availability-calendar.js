@@ -22,126 +22,128 @@ const MONTHS = [
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function getDialog() {
-  return document.getElementById("availability-calendar");
-}
+const getDialog = () => document.getElementById("availability-calendar");
 
-function getContent() {
-  return document.querySelector("#availability-calendar .calendar-content");
-}
+const getContent = () =>
+  document.querySelector("#availability-calendar .calendar-content");
 
-function showLoading() {
+const createElement = (tag, className, textContent = "") => {
+  const el = document.createElement(tag);
+  el.className = className;
+  el.textContent = textContent;
+  return el;
+};
+
+const setContent = (element) => {
   const content = getContent();
   if (content) {
-    content.innerHTML = "";
-    const p = document.createElement("p");
-    p.className = "calendar-loading";
-    p.textContent = "Loading...";
-    content.appendChild(p);
+    content.replaceChildren(element);
   }
-}
+};
 
-function showError(message) {
-  const content = getContent();
-  if (content) {
-    content.innerHTML = "";
-    const p = document.createElement("p");
-    p.className = "calendar-error";
-    p.textContent = message;
-    content.appendChild(p);
-  }
-}
+const showLoading = () =>
+  setContent(createElement("p", "calendar-loading", "Loading..."));
 
-function renderCalendar(unavailableDates) {
-  const content = getContent();
-  if (!content) return;
+const showError = (message) =>
+  setContent(createElement("p", "calendar-error", message));
 
-  const unavailableSet = new Set(unavailableDates);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-  const todayStr = formatDate(today);
+const getStartDay = (firstDay) => {
+  const dayIndex = firstDay.getDay() - 1;
+  return dayIndex < 0 ? 6 : dayIndex;
+};
 
-  content.innerHTML = "";
-  const container = document.createElement("div");
-  container.className = "calendar-months";
+const getDayClasses = (dateStr, todayStr, isUnavailable) => {
+  const isPast = dateStr < todayStr;
+  const isToday = dateStr === todayStr;
+  return [
+    "calendar-day",
+    isPast && "past",
+    isUnavailable && !isPast && "unavailable",
+    isToday && "today",
+  ]
+    .filter(Boolean)
+    .join(" ");
+};
 
-  for (let i = 0; i < 12; i++) {
-    const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
-    container.appendChild(renderMonth(monthDate, unavailableSet, todayStr));
-  }
+const createDayHeaders = () =>
+  DAYS.map((day) => createElement("span", "calendar-day-header", day));
 
-  content.appendChild(container);
-}
+const createEmptyCells = (count) =>
+  Array.from({ length: count }, () =>
+    createElement("span", "calendar-day empty"),
+  );
 
-function renderMonth(monthDate, unavailableSet, todayStr) {
+const createDayCells = (year, month, daysInMonth, unavailableSet, todayStr) =>
+  Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    const dateStr = formatDate(new Date(year, month, day));
+    const isUnavailable = unavailableSet.has(dateStr);
+    const className = getDayClasses(dateStr, todayStr, isUnavailable);
+    return createElement("span", className, String(day));
+  });
+
+const renderMonth = (monthDate, unavailableSet, todayStr) => {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
-
-  // Monday = 0, Sunday = 6 (ISO week)
-  let startDay = firstDay.getDay() - 1;
-  if (startDay < 0) startDay = 6;
+  const startDay = getStartDay(firstDay);
 
   const monthTemplate = getTemplate(IDS.CALENDAR_MONTH);
   monthTemplate.querySelector('[data-field="title"]').textContent =
     `${MONTHS[month]} ${year}`;
+
   const grid = monthTemplate.querySelector(".calendar-grid");
-
-  // Day headers
-  for (const day of DAYS) {
-    const header = document.createElement("span");
-    header.className = "calendar-day-header";
-    header.textContent = day;
-    grid.appendChild(header);
-  }
-
-  // Empty cells before first day
-  for (let i = 0; i < startDay; i++) {
-    const empty = document.createElement("span");
-    empty.className = "calendar-day empty";
-    grid.appendChild(empty);
-  }
-
-  // Days of month
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = formatDate(new Date(year, month, day));
-    const isPast = dateStr < todayStr;
-    const isUnavailable = unavailableSet.has(dateStr);
-    const isToday = dateStr === todayStr;
-
-    const dayEl = document.createElement("span");
-    dayEl.className = "calendar-day";
-    dayEl.textContent = day;
-
-    if (isPast) dayEl.classList.add("past");
-    if (isUnavailable && !isPast) dayEl.classList.add("unavailable");
-    if (isToday) dayEl.classList.add("today");
-
-    grid.appendChild(dayEl);
-  }
+  const allCells = [
+    ...createDayHeaders(),
+    ...createEmptyCells(startDay),
+    ...createDayCells(year, month, daysInMonth, unavailableSet, todayStr),
+  ];
+  grid.replaceChildren(...allCells);
 
   return monthTemplate;
-}
+};
 
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+const getToday = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+};
 
-async function fetchAvailability(url) {
+const renderCalendar = (unavailableDates) => {
+  const content = getContent();
+  if (!content) return;
+
+  const unavailableSet = new Set(unavailableDates);
+  const today = getToday();
+  const todayStr = formatDate(today);
+
+  const months = Array.from({ length: 12 }, (_, i) =>
+    renderMonth(
+      new Date(today.getFullYear(), today.getMonth() + i, 1),
+      unavailableSet,
+      todayStr,
+    ),
+  );
+
+  const container = createElement("div", "calendar-months");
+  container.replaceChildren(...months);
+  content.replaceChildren(container);
+};
+
+const fetchAvailability = async (url) => {
   const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Failed to load availability");
-  }
-  return response.json();
-}
+  return response.ok ? response.json() : null;
+};
 
-async function openCalendar(apiUrl) {
+const openCalendar = async (apiUrl) => {
   const dialog = getDialog();
   if (!dialog) return;
 
@@ -150,33 +152,36 @@ async function openCalendar(apiUrl) {
 
   try {
     const dates = await fetchAvailability(apiUrl);
-    renderCalendar(dates);
+    if (dates) {
+      renderCalendar(dates);
+    } else {
+      showError("Unable to load availability. Please try again.");
+    }
   } catch (_err) {
     showError("Unable to load availability. Please try again.");
   }
-}
+};
 
-function init() {
-  // Handle button clicks via delegation
-  document.addEventListener("click", (e) => {
-    const button = e.target.closest(".check-availability");
-    if (button) {
-      const apiUrl = button.dataset.apiUrl;
-      if (apiUrl) {
-        openCalendar(apiUrl);
-      }
-    }
-  });
+const handleButtonClick = (e) => {
+  const button = e.target.closest(".check-availability");
+  if (button?.dataset.apiUrl) {
+    openCalendar(button.dataset.apiUrl);
+  }
+};
 
-  // Light dismiss (click on backdrop)
+const handleDialogClick = (dialog) => (e) => {
+  if (e.target === dialog) {
+    dialog.close();
+  }
+};
+
+const init = () => {
+  document.addEventListener("click", handleButtonClick);
+
   const dialog = getDialog();
   if (dialog) {
-    dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) {
-        dialog.close();
-      }
-    });
+    dialog.addEventListener("click", handleDialogClick(dialog));
   }
-}
+};
 
 onReady(init);
