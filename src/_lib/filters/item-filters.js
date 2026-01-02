@@ -21,10 +21,7 @@ const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
 
   return Object.fromEntries(
-    filterAttributes.map((attr) => [
-      slugify(attr.name.trim()),
-      slugify(attr.value.trim()),
-    ]),
+    filterAttributes.map((attr) => [slugify(attr.name), slugify(attr.value)]),
   );
 };
 
@@ -33,44 +30,47 @@ const parseFilterAttributes = (filterAttributes) => {
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
  */
 const getAllFilterAttributes = memoize((items) => {
-  const attributeMap = {};
+  // Step 1: Parse attributes from each item
+  const allAttrs = items.map((item) =>
+    parseFilterAttributes(item.data.filter_attributes),
+  );
 
-  for (const item of items) {
-    const attrs = parseFilterAttributes(item.data.filter_attributes);
-    for (const [key, value] of Object.entries(attrs)) {
-      if (!attributeMap[key]) {
-        attributeMap[key] = new Set();
-      }
-      attributeMap[key].add(value);
-    }
+  // Step 2: Flatten to [key, value] pairs
+  const allPairs = allAttrs.flatMap((attrs) => Object.entries(attrs));
+
+  // Step 3: Group values by key using Sets to dedupe
+  const valuesByKey = new Map();
+  for (const [key, value] of allPairs) {
+    if (!valuesByKey.has(key)) valuesByKey.set(key, new Set());
+    valuesByKey.get(key).add(value);
   }
 
-  // Convert sets to sorted arrays
-  const result = {};
-  for (const key of Object.keys(attributeMap).sort()) {
-    result[key] = Array.from(attributeMap[key]).sort();
-  }
-  return result;
+  // Step 4: Convert to sorted object with sorted arrays
+  const sortedKeys = [...valuesByKey.keys()].sort();
+  return Object.fromEntries(
+    sortedKeys.map((key) => [key, [...valuesByKey.get(key)].sort()]),
+  );
 });
 
 /**
- * Build a lookup map from lowercase keys/values to original capitalization
+ * Build a lookup map from slugified keys to original display text
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
+ * First occurrence wins when there are duplicates
  */
 const buildDisplayLookup = memoize((items) => {
   const lookup = {};
 
   for (const item of items) {
-    const filterAttrs = item.data.filter_attributes;
-    if (!filterAttrs) continue;
+    const attrs = item.data.filter_attributes;
+    if (!attrs) continue;
 
-    for (const attr of filterAttrs) {
-      const slugKey = slugify(attr.name.trim());
-      const slugValue = slugify(attr.value.trim());
+    for (const attr of attrs) {
+      const slugName = slugify(attr.name);
+      const slugValue = slugify(attr.value);
 
-      // Store original capitalization (first one wins)
-      if (!lookup[slugKey]) lookup[slugKey] = attr.name.trim();
-      if (!lookup[slugValue]) lookup[slugValue] = attr.value.trim();
+      // First occurrence wins
+      if (!(slugName in lookup)) lookup[slugName] = attr.name;
+      if (!(slugValue in lookup)) lookup[slugValue] = attr.value;
     }
   }
 
@@ -95,6 +95,17 @@ const filterToPath = (filters) => {
 };
 
 /**
+ * Group array elements into pairs: [a, b, c, d] => [[a, b], [c, d]]
+ */
+const toPairs = (arr) => {
+  const pairs = [];
+  for (let i = 0; i + 1 < arr.length; i += 2) {
+    pairs.push([arr[i], arr[i + 1]]);
+  }
+  return pairs;
+};
+
+/**
  * Parse URL path back to filter object
  * "capacity/3/size/small" => { capacity: "3", size: "small" }
  */
@@ -102,16 +113,14 @@ const pathToFilter = (path) => {
   if (!path) return {};
 
   const segments = path.split("/").filter(Boolean);
-  const filters = {};
+  const pairs = toPairs(segments);
 
-  for (let i = 0; i < segments.length - 1; i += 2) {
-    const key = decodeURIComponent(segments[i]);
-    const value = decodeURIComponent(segments[i + 1]);
-    if (key && value) {
-      filters[key] = value;
-    }
-  }
-  return filters;
+  return Object.fromEntries(
+    pairs.map(([key, value]) => [
+      decodeURIComponent(key),
+      decodeURIComponent(value),
+    ]),
+  );
 };
 
 /**
@@ -123,12 +132,9 @@ const itemMatchesFilters = (item, filters) => {
 
   const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
 
-  for (const [key, value] of Object.entries(filters)) {
-    if (normalize(itemAttrs[key] || "") !== normalize(value)) {
-      return false;
-    }
-  }
-  return true;
+  return Object.entries(filters).every(
+    ([key, value]) => normalize(itemAttrs[key] || "") === normalize(value),
+  );
 };
 
 /**
@@ -147,45 +153,38 @@ const getItemsByFilters = (items, filters) => {
 
 /**
  * Build a map of normalized filter attributes for all items (for fast lookups)
- * Keys and values are pre-normalized for O(1) comparison
  * Returns: Map<item, { size: "small", capacity: "3" }>
  */
 const buildItemAttributeMap = (items) => {
-  const map = new Map();
-  for (const item of items) {
-    const attrs = parseFilterAttributes(item.data.filter_attributes);
-    const normalizedAttrs = {};
-    for (const [key, value] of Object.entries(attrs)) {
-      normalizedAttrs[normalize(key)] = normalize(value);
-    }
-    map.set(item, normalizedAttrs);
-  }
-  return map;
+  const normalizeAttrs = (attrs) =>
+    Object.fromEntries(
+      Object.entries(attrs).map(([k, v]) => [normalize(k), normalize(v)]),
+    );
+
+  return new Map(
+    items.map((item) => {
+      const attrs = parseFilterAttributes(item.data.filter_attributes);
+      return [item, normalizeAttrs(attrs)];
+    }),
+  );
 };
 
 /**
  * Check if an item matches filters using pre-normalized attributes
  * Expects itemAttrs to already be normalized
  */
-const attrsMatch = (itemAttrs, normalizedFilters) => {
-  for (const [key, value] of Object.entries(normalizedFilters)) {
-    if (itemAttrs[key] !== value) {
-      return false;
-    }
-  }
-  return true;
-};
+const attrsMatch = (itemAttrs, normalizedFilters) =>
+  Object.entries(normalizedFilters).every(
+    ([key, value]) => itemAttrs[key] === value,
+  );
 
 /**
  * Normalize filter keys and values for comparison
  */
-const normalizeFilters = (filters) => {
-  const normalized = {};
-  for (const [key, value] of Object.entries(filters)) {
-    normalized[normalize(key)] = normalize(value);
-  }
-  return normalized;
-};
+const normalizeFilters = (filters) =>
+  Object.fromEntries(
+    Object.entries(filters).map(([k, v]) => [normalize(k), normalize(v)]),
+  );
 
 /**
  * Count items matching filters using pre-built attribute map
