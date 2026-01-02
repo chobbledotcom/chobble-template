@@ -1,13 +1,21 @@
 #!/usr/bin/env node
 
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { readdir, stat } from "node:fs/promises";
+import os from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
+
+// Number of parallel workers (default to CPU count, max 8)
+const maxWorkers = Math.min(os.cpus().length, 8);
+
+// Check for --verbose flag or TEST_VERBOSE env var
+const verbose =
+  process.argv.includes("--verbose") || process.env.TEST_VERBOSE === "1";
 
 /**
  * Recursively find all .test.js files in a directory
@@ -30,13 +38,74 @@ const findTestFiles = async (dir) => {
   return results;
 };
 
-// Check for --verbose flag or TEST_VERBOSE env var
-const verbose =
-  process.argv.includes("--verbose") || process.env.TEST_VERBOSE === "1";
+/**
+ * Run a single test file and return the result
+ */
+const runTestFile = (testPath, env) => {
+  return new Promise((resolve) => {
+    const child = spawn("node", [testPath], {
+      cwd: rootDir,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    child.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    child.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    child.on("close", (code) => {
+      resolve({ status: code, stdout, stderr });
+    });
+
+    child.on("error", (err) => {
+      resolve({ status: 1, stdout, stderr: stderr + err.message });
+    });
+  });
+};
+
+/**
+ * Run tests in parallel with a worker pool
+ */
+const runTestsParallel = async (testFiles, env, onResult) => {
+  const queue = [...testFiles];
+  const running = new Map();
+
+  const startNext = () => {
+    if (queue.length === 0) return null;
+    const testPath = queue.shift();
+    const promise = runTestFile(testPath, env).then((result) => {
+      running.delete(testPath);
+      onResult(testPath, result);
+      return startNext();
+    });
+    running.set(testPath, promise);
+    return promise;
+  };
+
+  // Start initial batch of workers
+  const initialPromises = [];
+  for (let i = 0; i < maxWorkers && queue.length > 0; i++) {
+    initialPromises.push(startNext());
+  }
+
+  // Wait for all tests to complete
+  await Promise.all(initialPromises);
+  while (running.size > 0) {
+    await Promise.race(running.values());
+  }
+};
 
 async function runAllTests() {
   if (verbose) {
     console.log("=== Running All Tests ===\n");
+    console.log(`Using ${maxWorkers} parallel workers\n`);
   }
 
   const testFiles = await findTestFiles(__dirname);
@@ -49,6 +118,7 @@ async function runAllTests() {
   const failedTests = [];
   let totalTestsPassed = 0;
   let totalTestsFailed = 0;
+  let completedCount = 0;
 
   // Parse test results from output
   const parseTestResults = (output) => {
@@ -59,25 +129,14 @@ async function runAllTests() {
     return null;
   };
 
-  for (const testPath of testFiles) {
+  // Pass verbose flag to child processes via env
+  const env = { ...process.env, TEST_VERBOSE: verbose ? "1" : "" };
+
+  const handleResult = (testPath, result) => {
     const displayName = relative(__dirname, testPath);
-
-    if (verbose) {
-      console.log(`\n📝 Running ${displayName}...`);
-      console.log("─".repeat(50));
-    }
-
-    // Pass verbose flag to child processes via env
-    const env = { ...process.env, TEST_VERBOSE: verbose ? "1" : "" };
-
-    const result = spawnSync("node", [testPath], {
-      cwd: rootDir,
-      env,
-      encoding: "utf-8",
-    });
-
     const stdout = result.stdout || "";
     const stderr = result.stderr || "";
+    completedCount++;
 
     // Parse test counts from output
     const results = parseTestResults(stdout);
@@ -88,12 +147,16 @@ async function runAllTests() {
 
     if (result.status === 0) {
       if (verbose) {
-        // Print output without the __TEST_RESULTS__ line
         const cleanOutput = stdout.replace(/__TEST_RESULTS__:\d+:\d+\n?/, "");
         if (cleanOutput.trim()) {
           console.log(cleanOutput.trimEnd());
         }
         console.log(`✅ ${displayName} passed`);
+      } else {
+        // Show progress in quiet mode
+        process.stdout.write(
+          `\r${completedCount}/${testFiles.length} tests completed`,
+        );
       }
     } else {
       failedTests.push({ file: displayName, stdout, stderr });
@@ -108,13 +171,16 @@ async function runAllTests() {
         console.log(`❌ ${displayName} failed`);
       }
     }
-  }
+  };
+
+  await runTestsParallel(testFiles, env, handleResult);
 
   // Summary
   const filesPassed = testFiles.length - failedTests.length;
 
   if (!verbose) {
-    // Quiet mode summary
+    // Clear progress line and show summary
+    process.stdout.write(`\r${" ".repeat(50)}\r`);
     console.log(
       `\n${testFiles.length} files, ${totalTestsPassed} tests passed`,
     );
