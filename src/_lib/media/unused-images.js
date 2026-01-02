@@ -1,6 +1,34 @@
 import fs from "node:fs";
 import path from "node:path";
 import fastglob from "fast-glob";
+import matter from "gray-matter";
+
+const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+const IMAGE_REF_PATTERN =
+  /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi;
+const FRONTMATTER_IMAGE_FIELDS = ["header_image", "image", "thumbnail"];
+
+const extractFilename = (imagePath) =>
+  typeof imagePath === "string" ? imagePath.split("/").pop() : null;
+
+const extractImagesFromFrontmatter = (data, imageFiles) =>
+  FRONTMATTER_IMAGE_FIELDS.map((field) => data[field])
+    .filter(Boolean)
+    .map(extractFilename)
+    .filter((name) => imageFiles.includes(name));
+
+const extractImagesFromContent = (content, imageFiles) =>
+  (content.match(IMAGE_REF_PATTERN) || [])
+    .map(extractFilename)
+    .filter((name) => imageFiles.includes(name));
+
+const extractImagesFromFile = (filePath, imageFiles) => {
+  const { data, content } = matter.read(filePath);
+  return [
+    ...extractImagesFromFrontmatter(data, imageFiles),
+    ...extractImagesFromContent(content, imageFiles),
+  ];
+};
 
 export function configureUnusedImages(eleventyConfig) {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
@@ -13,35 +41,20 @@ export function configureUnusedImages(eleventyConfig) {
 
     const imageFiles = fs
       .readdirSync(imagesDir)
-      .filter((file) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file));
+      .filter((file) => IMAGE_PATTERN.test(file));
 
     if (imageFiles.length === 0) {
       console.log("No images found in /src/images/");
       return;
     }
 
-    const usedImages = new Set();
-
-    // Scan all markdown files for image references
     const markdownFiles = fastglob.sync("**/*.md", { cwd: dir.input });
 
-    for (const file of markdownFiles) {
-      const filePath = path.join(dir.input, file);
-      const content = fs.readFileSync(filePath, "utf8");
-
-      // Find all image references in the content
-      const imageRefs =
-        content.match(
-          /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi,
-        ) || [];
-
-      imageRefs.forEach((ref) => {
-        const filename = ref.split("/").pop();
-        if (imageFiles.includes(filename)) {
-          usedImages.add(filename);
-        }
-      });
-    }
+    const usedImages = new Set(
+      markdownFiles.flatMap((file) =>
+        extractImagesFromFile(path.join(dir.input, file), imageFiles),
+      ),
+    );
 
     const unusedImages = imageFiles.filter((file) => !usedImages.has(file));
 
