@@ -18,6 +18,38 @@ import {
   expectStrictEqual,
 } from "#test/test-utils.js";
 
+// ============================================
+// Test Helpers
+// ============================================
+
+/**
+ * Create an array of review objects for a product.
+ */
+const createReviews = (productId, count, rating = 5, monthPrefix = "01") =>
+  Array.from({ length: count }, (_, i) => ({
+    data: { products: [productId], rating },
+    date: new Date(`2024-${monthPrefix}-${String(i + 1).padStart(2, "0")}`),
+  }));
+
+/**
+ * Create a mock collection API for testing.
+ */
+const createMockCollectionApi = (products, reviews) => ({
+  getFilteredByTag: (tag) => {
+    if (tag === "product") return products;
+    if (tag === "review") return reviews;
+    return [];
+  },
+});
+
+/**
+ * Create a product fixture.
+ */
+const createProduct = (slug, title) => ({
+  fileSlug: slug,
+  data: { title },
+});
+
 const testCases = [
   {
     name: "createReviewsCollection-basic",
@@ -676,32 +708,15 @@ const testCases = [
     description: "Returns only items exceeding the truncate limit",
     test: () => {
       // 11 reviews for product-a (above limit of 10), 10 for product-b (at limit)
-      const reviews = [];
-      for (let i = 0; i < 11; i++) {
-        reviews.push({
-          data: { products: ["product-a"], rating: 5 },
-          date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
-        });
-      }
-      for (let i = 0; i < 10; i++) {
-        reviews.push({
-          data: { products: ["product-b"], rating: 4 },
-          date: new Date(`2024-02-${String(i + 1).padStart(2, "0")}`),
-        });
-      }
-
-      const products = [
-        { fileSlug: "product-a", data: { title: "Product A" } },
-        { fileSlug: "product-b", data: { title: "Product B" } },
+      const reviews = [
+        ...createReviews("product-a", 11, 5, "01"),
+        ...createReviews("product-b", 10, 4, "02"),
       ];
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "product") return products;
-          if (tag === "review") return reviews;
-          return [];
-        },
-      };
+      const products = [
+        createProduct("product-a", "Product A"),
+        createProduct("product-b", "Product B"),
+      ];
+      const mockCollectionApi = createMockCollectionApi(products, reviews);
 
       const factory = withReviewsPage("product", "products");
       const result = factory(mockCollectionApi);
@@ -720,25 +735,9 @@ const testCases = [
     name: "withReviewsPage-applies-processItem",
     description: "Transforms items through the optional processItem callback",
     test: () => {
-      const reviews = [];
-      for (let i = 0; i < 15; i++) {
-        reviews.push({
-          data: { products: ["product-a"], rating: 5 },
-          date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
-        });
-      }
-
-      const products = [
-        { fileSlug: "product-a", data: { title: "Product A" } },
-      ];
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "product") return products;
-          if (tag === "review") return reviews;
-          return [];
-        },
-      };
+      const reviews = createReviews("product-a", 15);
+      const products = [createProduct("product-a", "Product A")];
+      const mockCollectionApi = createMockCollectionApi(products, reviews);
 
       const processItem = (item) => ({ ...item, transformed: true });
       const factory = withReviewsPage("product", "products", processItem);
@@ -757,32 +756,15 @@ const testCases = [
     description: "Returns redirect data for items not needing separate pages",
     test: () => {
       // 10 reviews for product-a (at limit), 11 for product-b (above limit)
-      const reviews = [];
-      for (let i = 0; i < 10; i++) {
-        reviews.push({
-          data: { products: ["product-a"], rating: 5 },
-          date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
-        });
-      }
-      for (let i = 0; i < 11; i++) {
-        reviews.push({
-          data: { products: ["product-b"], rating: 4 },
-          date: new Date(`2024-02-${String(i + 1).padStart(2, "0")}`),
-        });
-      }
-
-      const products = [
-        { fileSlug: "product-a", data: { title: "Product A" } },
-        { fileSlug: "product-b", data: { title: "Product B" } },
+      const reviews = [
+        ...createReviews("product-a", 10, 5, "01"),
+        ...createReviews("product-b", 11, 4, "02"),
       ];
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "product") return products;
-          if (tag === "review") return reviews;
-          return [];
-        },
-      };
+      const products = [
+        createProduct("product-a", "Product A"),
+        createProduct("product-b", "Product B"),
+      ];
+      const mockCollectionApi = createMockCollectionApi(products, reviews);
 
       const factory = reviewsRedirects("product", "products");
       const result = factory(mockCollectionApi);
@@ -807,25 +789,13 @@ const testCases = [
     name: "withReviewsPage-limit-negative-one-returns-empty",
     description: "Returns empty array when limit is -1 (no pagination)",
     test: () => {
-      const reviews = [];
-      for (let i = 0; i < 100; i++) {
-        reviews.push({
-          data: { products: ["product-a"], rating: 5 },
-          date: new Date(`2024-01-01`),
-        });
-      }
-
-      const products = [
-        { fileSlug: "product-a", data: { title: "Product A" } },
-      ];
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "product") return products;
-          if (tag === "review") return reviews;
-          return [];
-        },
-      };
+      // Use fixed date for all reviews (count doesn't matter for this test)
+      const reviews = Array.from({ length: 100 }, () => ({
+        data: { products: ["product-a"], rating: 5 },
+        date: new Date("2024-01-01"),
+      }));
+      const products = [createProduct("product-a", "Product A")];
+      const mockCollectionApi = createMockCollectionApi(products, reviews);
 
       // Pass -1 as limitOverride to test the "no pagination" branch
       const factory = withReviewsPage(
@@ -848,26 +818,15 @@ const testCases = [
     name: "reviewsRedirects-limit-negative-one-returns-all",
     description: "Returns all items when limit is -1 (no pagination)",
     test: () => {
-      const reviews = [];
-      for (let i = 0; i < 100; i++) {
-        reviews.push({
-          data: { products: ["product-a"], rating: 5 },
-          date: new Date(`2024-01-01`),
-        });
-      }
-
+      const reviews = Array.from({ length: 100 }, () => ({
+        data: { products: ["product-a"], rating: 5 },
+        date: new Date("2024-01-01"),
+      }));
       const products = [
-        { fileSlug: "product-a", data: { title: "Product A" } },
-        { fileSlug: "product-b", data: { title: "Product B" } },
+        createProduct("product-a", "Product A"),
+        createProduct("product-b", "Product B"),
       ];
-
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "product") return products;
-          if (tag === "review") return reviews;
-          return [];
-        },
-      };
+      const mockCollectionApi = createMockCollectionApi(products, reviews);
 
       // Pass -1 as limitOverride to test the "all redirects" branch
       const factory = reviewsRedirects("product", "products", -1);

@@ -1,11 +1,9 @@
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
+import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
 
@@ -274,23 +272,24 @@ const analyzeHtmlInJs = () => {
   // Check source JS files (not test files - tests often have HTML fixtures)
   const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES];
 
-  for (const relativePath of allJsFiles) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
+  const results = analyzeFiles(allJsFiles, (source, relativePath) => {
     const htmlInstances = findHtmlInJs(source);
-
     if (htmlInstances.length > 0) {
-      if (ALLOWED_HTML_IN_JS.has(relativePath)) {
-        allowed.push({
-          file: relativePath,
-          instances: htmlInstances,
-        });
-      } else {
-        violations.push({
-          file: relativePath,
-          instances: htmlInstances,
-        });
-      }
+      return [{ file: relativePath, instances: htmlInstances }];
+    }
+    return [];
+  });
+
+  for (const result of results) {
+    if (ALLOWED_HTML_IN_JS.has(result.file)) {
+      allowed.push(result);
+    } else {
+      violations.push({
+        file: result.file,
+        line: result.instances[0]?.lineNumber || 1,
+        code: result.instances.map((i) => i.preview).join(", "),
+        instances: result.instances,
+      });
     }
   }
 
@@ -386,28 +385,11 @@ const check = value < 10;
     description: "No new HTML-in-JS outside the allowlist",
     test: () => {
       const { violations } = analyzeHtmlInJs();
-
-      if (violations.length > 0) {
-        console.log(
-          `\n  Found ${violations.length} files with HTML in JavaScript:`,
-        );
-        for (const v of violations) {
-          console.log(`     - ${v.file}`);
-          for (const instance of v.instances) {
-            console.log(
-              `       Line ${instance.lineNumber}: ${instance.preview}`,
-            );
-          }
-        }
-        console.log(
-          "\n  To fix: extract HTML to template files, or add to ALLOWED_HTML_IN_JS in code-quality-exceptions.js\n",
-        );
-      }
-
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} files with HTML in JS. See list above.`,
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: "files with HTML in JavaScript",
+        fixHint:
+          "extract HTML to template files, or add to ALLOWED_HTML_IN_JS in code-quality-exceptions.js",
+      });
     },
   },
   {
