@@ -7,7 +7,8 @@
 		"**/src/assets/js/lib/**",
 		"**/*.min.js",
 		"**/package-lock.json",
-		"**/ecommerce-backend/**"
+		"**/ecommerce-backend/**",
+		"**/test/**"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,

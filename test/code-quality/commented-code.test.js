@@ -2,12 +2,14 @@ import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
+import {
+  analyzeFiles,
+  assertNoViolations,
+  combineFileLists,
+} from "#test/code-scanner.js";
 
 /**
  * Patterns that indicate commented-out code (not documentation)
@@ -123,34 +125,25 @@ const findCommentedCode = (source, _relativePath) => {
   return results;
 };
 
+const THIS_FILE = "test/code-quality/commented-code.test.js";
+
 /**
  * Analyze all JS files and find commented-out code
  */
 const analyzeCommentedCode = () => {
-  const violations = [];
+  const files = combineFileLists(
+    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+    [THIS_FILE],
+  );
 
-  // Exclude this test file
-  const allJsFiles = [
-    ...SRC_JS_FILES,
-    ...ECOMMERCE_JS_FILES,
-    ...TEST_FILES,
-  ].filter((f) => f !== "test/code-quality/commented-code.test.js");
-
-  for (const relativePath of allJsFiles) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
+  return analyzeFiles(files, (source, relativePath) => {
     const commentedCode = findCommentedCode(source, relativePath);
-
-    for (const cc of commentedCode) {
-      violations.push({
-        file: relativePath,
-        line: cc.lineNumber,
-        code: cc.line,
-      });
-    }
-  }
-
-  return violations;
+    return commentedCode.map((cc) => ({
+      file: relativePath,
+      line: cc.lineNumber,
+      code: cc.line,
+    }));
+  });
 };
 
 const testCases = [
@@ -248,20 +241,10 @@ const a = 1;
     description: "No commented-out code allowed in the codebase",
     test: () => {
       const violations = analyzeCommentedCode();
-
-      if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} commented-out code:`);
-        for (const v of violations) {
-          console.log(`     - ${v.file}:${v.line}`);
-          console.log(`       ${v.code}`);
-        }
-        console.log("\n  To fix: remove the commented code\n");
-      }
-
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} commented-out code. See list above.`,
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: "commented-out code",
+        fixHint: "remove the commented code",
+      });
     },
   },
 ];

@@ -2,14 +2,12 @@ import {
   createTestRunner,
   expectStrictEqual,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_HTML_FILES,
   SRC_JS_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
+import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -155,6 +153,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-quality.test.js - analysis helpers
   "extractTestCases",
   "extractDescribeItTests",
+  "extractTestNames",
   "findVagueTestNames",
   "findMultiConcernTestNames",
   "findAsyncTestsWithoutAwait",
@@ -163,6 +162,13 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
+  // code-scanner.js - code scanning utilities
+  "scanFilesForViolations",
+  "analyzeFiles",
+  "formatViolationReport",
+  "assertNoViolations",
+  "createPatternMatcher",
+  "combineFileLists",
 ]);
 
 /**
@@ -218,28 +224,22 @@ const extractFunctionDefinitions = (source) => {
  * All other function definitions are flagged - tests should import real code.
  */
 const analyzeTestFiles = () => {
-  const issues = [];
-
-  for (const relativePath of TEST_FILES) {
-    const fileName = path.basename(relativePath);
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
+  return analyzeFiles(TEST_FILES, (source, relativePath) => {
     const functions = extractFunctionDefinitions(source);
+    const violations = [];
 
     for (const func of functions) {
-      // Only whitelisted functions are allowed
       if (!ALLOWED_TEST_FUNCTIONS.has(func.name)) {
-        issues.push({
-          file: fileName,
-          function: func.name,
+        violations.push({
+          file: relativePath,
           line: func.startLine,
-          reason: `Function "${func.name}" is not whitelisted - add to ALLOWED_TEST_FUNCTIONS or import from source`,
+          code: func.name,
+          reason: `Function "${func.name}" is not whitelisted`,
         });
       }
     }
-  }
-
-  return issues;
+    return violations;
+  });
 };
 
 const testCases = [
@@ -271,22 +271,11 @@ const testCases = [
       "Test files should not contain production logic - only test and import real code",
     test: () => {
       const issues = analyzeTestFiles();
-
-      if (issues.length > 0) {
-        console.log("\n  ⚠️  Potential production code found in test files:");
-        for (const issue of issues) {
-          console.log(`     - ${issue.file}:${issue.line} - ${issue.function}`);
-          console.log(`       ${issue.reason}`);
-        }
-        console.log("");
-      }
-
-      expectStrictEqual(
-        issues.length,
-        0,
-        `Found ${issues.length} function(s) that may be production code in test files. ` +
-          `Tests should import and test real code, not copies.`,
-      );
+      assertNoViolations(expectTrue, issues, {
+        message: "non-whitelisted function(s) in test files",
+        fixHint:
+          "add to ALLOWED_TEST_FUNCTIONS or import from source",
+      });
     },
   },
   {

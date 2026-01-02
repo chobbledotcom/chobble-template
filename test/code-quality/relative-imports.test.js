@@ -2,12 +2,14 @@ import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
+import {
+  assertNoViolations,
+  combineFileLists,
+  scanFilesForViolations,
+} from "#test/code-scanner.js";
 
 /**
  * Find all relative imports in a file
@@ -40,35 +42,32 @@ const findRelativeImports = (source) => {
   return results;
 };
 
+const THIS_FILE = "test/code-quality/relative-imports.test.js";
+
 /**
  * Analyze all JS files for relative imports
  */
 const analyzeRelativeImports = () => {
-  const violations = [];
+  const files = combineFileLists(
+    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+    [THIS_FILE],
+  );
 
-  // Exclude this test file since it contains examples in test strings
-  const allJsFiles = [
-    ...SRC_JS_FILES,
-    ...ECOMMERCE_JS_FILES,
-    ...TEST_FILES,
-  ].filter((f) => f !== "test/code-quality/relative-imports.test.js");
+  return scanFilesForViolations(
+    files,
+    (line, lineNumber, _source, relativePath) => {
+      const regex = /from\s+["'](\.\.[/"']|\.\/)/;
+      if (!regex.test(line)) return null;
 
-  for (const relativePath of allJsFiles) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const relativeImports = findRelativeImports(source);
-
-    for (const ri of relativeImports) {
-      violations.push({
+      const pathMatch = line.match(/from\s+["']([^"']+)["']/);
+      return {
         file: relativePath,
-        line: ri.lineNumber,
-        code: ri.line,
-        importPath: ri.importPath,
-      });
-    }
-  }
-
-  return violations;
+        line: lineNumber,
+        code: line.trim(),
+        importPath: pathMatch ? pathMatch[1] : "unknown",
+      };
+    },
+  );
 };
 
 const testCases = [
@@ -103,25 +102,10 @@ import qux from "some-package";
       "No relative imports - use path aliases (#lib/*, #test/*, etc.)",
     test: () => {
       const violations = analyzeRelativeImports();
-
-      if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} relative imports:`);
-        for (const v of violations) {
-          console.log(`     - ${v.file}:${v.line}`);
-          console.log(`       ${v.importPath}`);
-        }
-        console.log("\n  To fix: use path aliases instead of relative paths");
-        console.log("  Examples:");
-        console.log('    "./foo.js" → "#lib/foo.js" or "#test/foo.js"');
-        console.log(
-          '    "../utils.js" → "#lib/utils.js" or "#utils/file.js"\n',
-        );
-      }
-
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} relative imports. See list above.`,
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: "relative imports",
+        fixHint: 'use path aliases instead (e.g., "./foo.js" → "#lib/foo.js")',
+      });
     },
   },
 ];

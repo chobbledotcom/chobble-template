@@ -3,12 +3,14 @@ import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
+import {
+  analyzeFiles,
+  assertNoViolations,
+  combineFileLists,
+} from "#test/code-scanner.js";
 
 /**
  * Find all try/catch blocks in a file (excludes try/finally without catch)
@@ -90,6 +92,8 @@ const findTryCatches = (source) => {
   return results;
 };
 
+const THIS_FILE = "test/code-quality/try-catch-usage.test.js";
+
 /**
  * Analyze all JS files and find try/catch usage
  */
@@ -97,38 +101,30 @@ const analyzeTryCatchUsage = () => {
   const violations = [];
   const allowed = [];
 
-  // Exclude this test file since it contains try/catch examples in test strings
-  const allJsFiles = [
-    ...SRC_JS_FILES,
-    ...ECOMMERCE_JS_FILES,
-    ...TEST_FILES,
-  ].filter((f) => f !== "test/code-quality/try-catch-usage.test.js");
+  const files = combineFileLists(
+    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+    [THIS_FILE],
+  );
 
-  for (const relativePath of allJsFiles) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
+  const results = analyzeFiles(files, (source, relativePath) => {
     const tryCatches = findTryCatches(source);
+    return tryCatches.map((tc) => ({
+      file: relativePath,
+      line: tc.lineNumber,
+      code: tc.line,
+      location: `${relativePath}:${tc.lineNumber}`,
+    }));
+  });
 
-    for (const tc of tryCatches) {
-      const location = `${relativePath}:${tc.lineNumber}`;
-      // Allow if exact location matches OR if entire file is whitelisted
-      const isAllowed =
-        ALLOWED_TRY_CATCHES.has(location) ||
-        ALLOWED_TRY_CATCHES.has(relativePath);
+  for (const tc of results) {
+    const isAllowed =
+      ALLOWED_TRY_CATCHES.has(tc.location) ||
+      ALLOWED_TRY_CATCHES.has(tc.file);
 
-      if (isAllowed) {
-        allowed.push({
-          file: relativePath,
-          line: tc.lineNumber,
-          code: tc.line,
-        });
-      } else {
-        violations.push({
-          file: relativePath,
-          line: tc.lineNumber,
-          code: tc.line,
-        });
-      }
+    if (isAllowed) {
+      allowed.push(tc);
+    } else {
+      violations.push(tc);
     }
   }
 
@@ -206,24 +202,11 @@ try {
     description: "No new try/catch blocks outside the whitelist",
     test: () => {
       const { violations } = analyzeTryCatchUsage();
-
-      if (violations.length > 0) {
-        console.log(
-          `\n  Found ${violations.length} non-whitelisted try/catch blocks:`,
-        );
-        for (const v of violations) {
-          console.log(`     - ${v.file}:${v.line}`);
-          console.log(`       ${v.code}`);
-        }
-        console.log(
-          "\n  To fix: refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js\n",
-        );
-      }
-
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} non-whitelisted try/catch blocks. See list above.`,
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: "non-whitelisted try/catch blocks",
+        fixHint:
+          "refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js",
+      });
     },
   },
   {
