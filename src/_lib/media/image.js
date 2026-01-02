@@ -88,7 +88,7 @@ const U = {
     gcd = gcd(metadata.width, metadata.height);
     return `${metadata.width / gcd}/${metadata.height / gcd}`;
   },
-  cropImage: async (aspectRatio, sourcePath, metadata) => {
+  cropImage: memoize(async (aspectRatio, sourcePath, metadata) => {
     if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
 
     const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
@@ -101,7 +101,7 @@ const U = {
       .toFile(cachedPath);
 
     return cachedPath;
-  },
+  }),
   // Build div HTML using JSDOM for consistency
   makeDivHtml: async (
     classes,
