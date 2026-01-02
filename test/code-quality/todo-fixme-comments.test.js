@@ -27,8 +27,8 @@ const findTodoFixme = (source) =>
   });
 
 const EXCLUDE_FILES = [
-  "test/todo-fixme-comments.test.js",
-  "test/commented-code.test.js",
+  "test/code-quality/todo-fixme-comments.test.js",
+  "test/code-quality/commented-code.test.js",
 ];
 
 /**

@@ -25,7 +25,7 @@ const findThenCalls = (source) =>
     return { lineNumber: lineNum, line: trimmed };
   });
 
-const THIS_FILE = "test/then-usage.test.js";
+const THIS_FILE = "test/code-quality/then-usage.test.js";
 
 /**
  * Analyze all JS files and find .then() usage
