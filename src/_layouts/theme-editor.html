@@ -2,7 +2,6 @@
 layout: base
 ---
 
-{% capture border %}form/border.html{% endcapture %}
 {% capture field %}form/field.html{% endcapture %}
 {% capture scopedColors %}form/scoped-colors.html{% endcapture %}
 {% capture scopedBorder %}form/scoped-border.html{% endcapture %}
@@ -32,7 +31,7 @@ layout: base
     <h2>Layout</h2>
     <div class="grid">
       {% include field, type: "number", id: "border-radius", label: "Border Radius" %}
-      {% include border, id: "border", label: "Border" %}
+      {% include scopedBorder, label: "Border" %}
       {% include field, type: "text", id: "box-shadow", label: "Box Shadow" %}
       {% include field, type: "text", id: "width-content", label: "Content Width" %}
       {% include field, type: "text", id: "width-card", label: "Card Width" %}
