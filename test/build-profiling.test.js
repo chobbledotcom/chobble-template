@@ -160,9 +160,8 @@ const profileNodeStartup = () => {
 const profileSingleImport = (moduleName) => {
   const script = `
     const start = process.hrtime.bigint();
-    import("${moduleName}").then(() => {
-      console.log(JSON.stringify({ time: Number(process.hrtime.bigint() - start) / 1_000_000 }));
-    });
+    await import("${moduleName}");
+    console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
   `;
 
   const result = spawnSync("node", ["--input-type=module", "-e", script], {
@@ -171,15 +170,10 @@ const profileSingleImport = (moduleName) => {
     timeout: 60000,
   });
 
-  try {
-    return JSON.parse(result.stdout.trim()).time;
-  } catch {
-    return 0;
-  }
+  return Number.parseFloat(result.stdout.trim());
 };
 
 const profileConfigImports = (siteDir) => {
-  // Profile individual imports in the config file
   const script = `
     const times = {};
     const measure = async (name, importFn) => {
@@ -188,27 +182,24 @@ const profileConfigImports = (siteDir) => {
       times[name] = Number(process.hrtime.bigint() - start) / 1_000_000;
     };
 
-    const run = async () => {
-      await measure("@11ty/eleventy_RenderPlugin", () => import("@11ty/eleventy"));
-      await measure("@quasibit/eleventy-plugin-schema", () => import("@quasibit/eleventy-plugin-schema"));
-      await measure("#build/esbuild.js", () => import("#build/esbuild.js"));
-      await measure("#build/scss.js", () => import("#build/scss.js"));
-      await measure("#collections/categories.js", () => import("#collections/categories.js"));
-      await measure("#collections/events.js", () => import("#collections/events.js"));
-      await measure("#collections/products.js", () => import("#collections/products.js"));
-      await measure("#collections/properties.js", () => import("#collections/properties.js"));
-      await measure("#eleventy/feed.js", () => import("#eleventy/feed.js"));
-      await measure("#eleventy/external-links.js", () => import("#eleventy/external-links.js"));
-      await measure("#eleventy/navigation.js", () => import("@11ty/eleventy-navigation"));
-      await measure("#eleventy/pdf.js", () => import("#eleventy/pdf.js"));
-      await measure("#media/image.js", () => import("#media/image.js"));
-      await measure("sass", () => import("sass"));
-      await measure("sharp", () => import("sharp"));
-      await measure("@11ty/eleventy-img", () => import("@11ty/eleventy-img"));
+    await measure("@11ty/eleventy_RenderPlugin", () => import("@11ty/eleventy"));
+    await measure("@quasibit/eleventy-plugin-schema", () => import("@quasibit/eleventy-plugin-schema"));
+    await measure("#build/esbuild.js", () => import("#build/esbuild.js"));
+    await measure("#build/scss.js", () => import("#build/scss.js"));
+    await measure("#collections/categories.js", () => import("#collections/categories.js"));
+    await measure("#collections/events.js", () => import("#collections/events.js"));
+    await measure("#collections/products.js", () => import("#collections/products.js"));
+    await measure("#collections/properties.js", () => import("#collections/properties.js"));
+    await measure("#eleventy/feed.js", () => import("#eleventy/feed.js"));
+    await measure("#eleventy/external-links.js", () => import("#eleventy/external-links.js"));
+    await measure("#eleventy/navigation.js", () => import("@11ty/eleventy-navigation"));
+    await measure("#eleventy/pdf.js", () => import("#eleventy/pdf.js"));
+    await measure("#media/image.js", () => import("#media/image.js"));
+    await measure("sass", () => import("sass"));
+    await measure("sharp", () => import("sharp"));
+    await measure("@11ty/eleventy-img", () => import("@11ty/eleventy-img"));
 
-      console.log(JSON.stringify(times));
-    };
-    run();
+    console.log(JSON.stringify(times));
   `;
 
   const result = spawnSync("node", ["--input-type=module", "-e", script], {
@@ -217,14 +208,7 @@ const profileConfigImports = (siteDir) => {
     timeout: 60000,
   });
 
-  let times = {};
-  try {
-    times = JSON.parse(result.stdout.trim());
-  } catch {
-    console.log("Failed to parse import times:", result.stderr || result.stdout);
-  }
-
-  return times;
+  return JSON.parse(result.stdout.trim());
 };
 
 const profileNpxOverhead = () => {
@@ -235,12 +219,10 @@ const profileNpxOverhead = () => {
 };
 
 const profileEleventyModuleLoad = (siteDir) => {
-  // Measure time to load eleventy and get to first tick
   const script = `
     const start = process.hrtime.bigint();
-    const Eleventy = require("@11ty/eleventy");
-    const loadTime = Number(process.hrtime.bigint() - start) / 1_000_000;
-    console.log(JSON.stringify({ loadTime }));
+    require("@11ty/eleventy");
+    console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
   `;
 
   const start = hrtime();
@@ -250,26 +232,16 @@ const profileEleventyModuleLoad = (siteDir) => {
     env: { ...process.env, NODE_PATH: path.join(siteDir, "node_modules") },
   });
   const totalTime = hrtimeToMs(start, hrtime());
+  const loadTime = Number.parseFloat(result.stdout.trim());
 
-  let loadTime = 0;
-  try {
-    const parsed = JSON.parse(result.stdout.trim());
-    loadTime = parsed.loadTime;
-  } catch {
-    // Ignore parse errors
-  }
-
-  return { loadTime, totalTime, nodeStartupOverhead: totalTime - loadTime };
+  return { loadTime, totalTime };
 };
 
 const profileConfigLoad = (siteDir) => {
-  // Measure time to load the eleventy config
   const script = `
     const start = process.hrtime.bigint();
-    import("./.eleventy.js").then(config => {
-      const loadTime = Number(process.hrtime.bigint() - start) / 1_000_000;
-      console.log(JSON.stringify({ loadTime }));
-    });
+    await import("./.eleventy.js");
+    console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
   `;
 
   const start = hrtime();
@@ -278,14 +250,7 @@ const profileConfigLoad = (siteDir) => {
     encoding: "utf-8",
   });
   const totalTime = hrtimeToMs(start, hrtime());
-
-  let loadTime = 0;
-  try {
-    const parsed = JSON.parse(result.stdout.trim());
-    loadTime = parsed.loadTime;
-  } catch {
-    // Ignore parse errors
-  }
+  const loadTime = Number.parseFloat(result.stdout.trim());
 
   return { loadTime, totalTime };
 };
@@ -496,7 +461,4 @@ const runProfiling = async () => {
   console.log("__TEST_RESULTS__:1:0");
 };
 
-runProfiling().catch((error) => {
-  console.error("Profiling failed:", error);
-  process.exit(1);
-});
+runProfiling();
