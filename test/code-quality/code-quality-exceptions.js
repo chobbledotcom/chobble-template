@@ -9,6 +9,7 @@
 // try/catch exceptions
 // ============================================
 
+// Add file:line for specific locations, or just file path to allow all try/catch in that file
 const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.js - PayPal API calls
   "ecommerce-backend/server.js:185",
@@ -18,8 +19,8 @@ const ALLOWED_TRY_CATCHES = new Set([
   // ecommerce-backend/server.test.js - test runner catching failures
   "ecommerce-backend/server.test.js:366",
 
-  // src/assets/js/availability-calendar.js - fetch error handling (network failures)
-  "src/assets/js/availability-calendar.js:153",
+  // src/assets/js/http.js - centralized HTTP error handling (entire file)
+  "src/assets/js/http.js",
 
   // src/assets/js/cart.js - PayPal checkout fetch handling
   "src/assets/js/cart.js:209",

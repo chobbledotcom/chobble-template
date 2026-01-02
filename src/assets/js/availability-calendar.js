@@ -1,6 +1,7 @@
 // Availability Calendar
 // Displays a 12-month calendar with unavailable dates greyed out
 
+import { fetchJson } from "#assets/http.js";
 import { onReady } from "#assets/on-ready.js";
 import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
@@ -138,11 +139,6 @@ const renderCalendar = (unavailableDates) => {
   content.replaceChildren(container);
 };
 
-const fetchAvailability = async (url) => {
-  const response = await fetch(url);
-  return response.ok ? response.json() : null;
-};
-
 const openCalendar = async (apiUrl) => {
   const dialog = getDialog();
   if (!dialog) return;
@@ -150,14 +146,10 @@ const openCalendar = async (apiUrl) => {
   showLoading();
   dialog.showModal();
 
-  try {
-    const dates = await fetchAvailability(apiUrl);
-    if (dates) {
-      renderCalendar(dates);
-    } else {
-      showError("Unable to load availability. Please try again.");
-    }
-  } catch (_err) {
+  const dates = await fetchJson(apiUrl);
+  if (dates) {
+    renderCalendar(dates);
+  } else {
     showError("Unable to load availability. Please try again.");
   }
 };
