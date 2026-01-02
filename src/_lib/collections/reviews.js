@@ -123,6 +123,19 @@ const getReviewsLimit = (limitOverride) =>
   limitOverride !== undefined ? limitOverride : config().reviews_truncate_limit;
 
 /**
+ * Helper to get items and reviews data for review page filtering
+ * @param {string} tag - The tag to filter items by
+ * @param {number} limitOverride - Optional limit override for testing
+ * @param {Object} collectionApi - Eleventy collection API
+ * @returns {Object} Object containing items, visibleReviews, and limit
+ */
+const getItemsAndReviewsData = (tag, limitOverride, collectionApi) => ({
+  items: collectionApi.getFilteredByTag(tag) || [],
+  visibleReviews: createReviewsCollection(collectionApi),
+  limit: getReviewsLimit(limitOverride),
+});
+
+/**
  * Factory: items with enough reviews for a separate /reviews page
  * @param {string} tag - The tag to filter items by
  * @param {string} reviewsField - The field to check for reviews
@@ -132,9 +145,11 @@ const getReviewsLimit = (limitOverride) =>
 const withReviewsPage =
   (tag, reviewsField, processItem = (item) => item, limitOverride) =>
   (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
-    const visibleReviews = createReviewsCollection(collectionApi);
-    const limit = getReviewsLimit(limitOverride);
+    const { items, visibleReviews, limit } = getItemsAndReviewsData(
+      tag,
+      limitOverride,
+      collectionApi,
+    );
 
     // If limit is -1, no truncation occurs so no separate page needed
     if (limit === -1) return [];
@@ -155,9 +170,11 @@ const withReviewsPage =
  */
 const reviewsRedirects =
   (tag, reviewsField, limitOverride) => (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
-    const visibleReviews = createReviewsCollection(collectionApi);
-    const limit = getReviewsLimit(limitOverride);
+    const { items, visibleReviews, limit } = getItemsAndReviewsData(
+      tag,
+      limitOverride,
+      collectionApi,
+    );
 
     // If limit is -1, no truncation occurs so all items need redirects
     if (limit === -1) {
