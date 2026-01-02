@@ -6,6 +6,7 @@ import {
   findImageFiles,
   imageShortcode,
 } from "#media/image.js";
+import { withTestSite } from "#test/test-site-factory.js";
 import {
   createMockEleventyConfig,
   createTestRunner,
@@ -738,6 +739,193 @@ const testCases = [
         "Same inputs should return identical cached output",
       );
     },
+  },
+
+  // ============================================
+  // Integration tests using test-site-factory
+  // ============================================
+  // These tests create isolated Eleventy sites, copy real images,
+  // build them, and verify image processing works end-to-end.
+
+  {
+    name: "integration-image-shortcode-processes-local-image",
+    description:
+      "Image shortcode processes local images in full Eleventy build",
+    asyncTest: () =>
+      withTestSite(
+        {
+          files: [
+            {
+              path: "pages/test.md",
+              frontmatter: {
+                title: "Image Test",
+                layout: "page",
+                permalink: "/test/",
+              },
+              content: '{% image "test-image.jpg", "A test image" %}',
+            },
+          ],
+          images: [{ src: "src/images/party.jpg", dest: "test-image.jpg" }],
+        },
+        (site) => {
+          const html = site.getOutput("/test/index.html");
+          const doc = site.getDoc("/test/index.html");
+
+          // Verify image was processed into picture element
+          expectTrue(
+            html.includes("<picture"),
+            "Should generate picture element from image shortcode",
+          );
+          expectTrue(
+            html.includes('alt="A test image"'),
+            "Should include alt text in processed image",
+          );
+          expectTrue(
+            html.includes("image-wrapper"),
+            "Should wrap processed image in image-wrapper div",
+          );
+
+          // Verify responsive images were generated
+          const sources = doc.querySelectorAll("picture source");
+          expectTrue(
+            sources.length > 0,
+            "Should generate source elements for responsive images",
+          );
+
+          // Verify webp format was generated
+          const webpSource = doc.querySelector(
+            'picture source[type="image/webp"]',
+          );
+          expectTrue(
+            webpSource !== null,
+            "Should generate WebP format for modern browsers",
+          );
+        },
+      ),
+  },
+
+  {
+    name: "integration-image-shortcode-external-url-passthrough",
+    description: "External image URLs pass through without processing in build",
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "pages/test.md",
+              frontmatter: {
+                title: "External Image Test",
+                layout: "page",
+                permalink: "/test/",
+              },
+              content:
+                '{% image "https://example.com/photo.jpg", "External photo" %}',
+            },
+          ],
+        },
+        async (site) => {
+          await site.build();
+
+          const html = site.getOutput("/test/index.html");
+
+          // External URLs should produce simple img tag, not picture
+          expectTrue(
+            html.includes('src="https://example.com/photo.jpg"'),
+            "Should preserve external URL in src attribute",
+          );
+          expectTrue(
+            html.includes('alt="External photo"'),
+            "Should include alt text for external image",
+          );
+          expectTrue(
+            !html.includes("<picture"),
+            "Should not wrap external images in picture element",
+          );
+        },
+      );
+    },
+  },
+
+  {
+    name: "integration-images-collection-finds-images",
+    description: "Images collection returns image filenames from src/images",
+    asyncTest: () =>
+      withTestSite(
+        {
+          files: [
+            {
+              path: "pages/gallery.md",
+              frontmatter: {
+                title: "Gallery",
+                layout: "page",
+                permalink: "/gallery/",
+              },
+              content: `
+{% for img in collections.images %}
+<div class="gallery-item">{{ img }}</div>
+{% endfor %}
+`,
+            },
+          ],
+          images: [
+            { src: "src/images/party.jpg", dest: "alpha.jpg" },
+            { src: "src/images/party.jpg", dest: "beta.jpg" },
+          ],
+        },
+        (site) => {
+          const html = site.getOutput("/gallery/index.html");
+
+          expectTrue(
+            html.includes("alpha.jpg"),
+            "Should include alpha.jpg in images collection",
+          );
+          expectTrue(
+            html.includes("beta.jpg"),
+            "Should include beta.jpg in images collection",
+          );
+        },
+      ),
+  },
+
+  {
+    name: "integration-image-with-custom-widths",
+    description: "Image shortcode respects custom width parameter in build",
+    asyncTest: () =>
+      withTestSite(
+        {
+          files: [
+            {
+              path: "pages/test.md",
+              frontmatter: {
+                title: "Custom Widths Test",
+                layout: "page",
+                permalink: "/test/",
+              },
+              content: '{% image "sized.jpg", "Sized image", "200,400" %}',
+            },
+          ],
+          images: [{ src: "src/images/party.jpg", dest: "sized.jpg" }],
+        },
+        (site) => {
+          const html = site.getOutput("/test/index.html");
+          const doc = site.getDoc("/test/index.html");
+
+          expectTrue(
+            html.includes("<picture"),
+            "Should generate picture element with custom widths",
+          );
+
+          // Verify srcset contains the specified widths
+          const sources = doc.querySelectorAll("picture source");
+          const hasSrcset = Array.from(sources).some(
+            (s) => s.getAttribute("srcset") !== null,
+          );
+          expectTrue(
+            hasSrcset,
+            "Should generate srcset with responsive image widths",
+          );
+        },
+      ),
   },
 ];
 

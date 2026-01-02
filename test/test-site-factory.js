@@ -2,16 +2,17 @@
  * Test Site Factory - Creates isolated Eleventy sites for testing.
  *
  * Usage:
- *   const site = await createTestSite({
+ *   await withTestSite({
  *     files: [
  *       { path: 'events/my-event.md', frontmatter: { title: 'Test' }, content: '# Hello' },
  *       { path: 'pages/test.md', frontmatter: { title: 'Test', permalink: '/test/' } }
  *     ],
- *     config: { site_name: 'Test Site' }
+ *     config: { site_name: 'Test Site' },
+ *     images: ['party.jpg']  // optional: copies from src/images/
+ *   }, (site) => {
+ *     const html = site.getOutput('/events/my-event/index.html');
+ *     expectTrue(html.includes('Test'), 'Should contain test content');
  *   });
- *   await site.build();
- *   const html = site.getOutput('/events/my-event/index.html');
- *   site.cleanup();
  */
 
 import { spawnSync } from "node:child_process";
@@ -210,6 +211,37 @@ const createSiteObject = (siteId, siteDir, srcDir, outputDir) => ({
 });
 
 /**
+ * Copy images into test site's images directory.
+ *
+ * @param {string} srcDir - The test site's src directory
+ * @param {Array} images - Array of image specs, each can be:
+ *   - A string path (copies from src/images/ to same filename)
+ *   - An object { src: "path/to/source.jpg", dest: "filename.jpg" }
+ */
+const copyTestImages = (srcDir, images) => {
+  if (!images || images.length === 0) return;
+
+  const imagesDir = path.join(srcDir, "images");
+  ensureDir(imagesDir);
+
+  for (const img of images) {
+    if (typeof img === "string") {
+      // Simple string: copy from src/images/{img} to images/{img}
+      const srcPath = path.join(rootDir, "src/images", img);
+      const destPath = path.join(imagesDir, img);
+      fs.copyFileSync(srcPath, destPath);
+    } else {
+      // Object with src and dest
+      const srcPath = img.src.startsWith("/")
+        ? img.src
+        : path.join(rootDir, img.src);
+      const destPath = path.join(imagesDir, img.dest);
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+};
+
+/**
  * Create a test site with isolated content
  */
 const createTestSite = async (options = {}) => {
@@ -238,6 +270,9 @@ const createTestSite = async (options = {}) => {
   );
   ensureIndexPage(templateSrc, srcDir, options.files, seenCollections);
 
+  // Copy test images if specified
+  copyTestImages(srcDir, options.images);
+
   copyFile(
     path.join(rootDir, ".eleventy.js"),
     path.join(siteDir, ".eleventy.js"),
@@ -264,6 +299,15 @@ const createTestSite = async (options = {}) => {
  *     const doc = site.getDoc('/test/index.html');
  *     expectTrue(doc.querySelector('ul') !== null);
  *   });
+ *
+ * With images:
+ *   await withTestSite({
+ *     files: [{ path: 'pages/test.md', content: '{% image "photo.jpg", "Alt" %}' }],
+ *     images: [
+ *       "party.jpg",  // copies src/images/party.jpg to images/party.jpg
+ *       { src: "src/images/party.jpg", dest: "photo.jpg" }  // with rename
+ *     ]
+ *   }, (site) => { ... });
  */
 const withTestSite = async (options, fn) => {
   const site = await createTestSite(options);
@@ -282,4 +326,4 @@ const cleanupAllTestSites = () => {
   }
 };
 
-export { createTestSite, withTestSite, cleanupAllTestSites };
+export { withTestSite, cleanupAllTestSites };
