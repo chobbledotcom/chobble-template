@@ -4,6 +4,27 @@
  */
 import { fs, path, rootDir } from "#test/test-utils.js";
 
+// ============================================
+// Common patterns for skipping non-code lines
+// ============================================
+
+/**
+ * Common patterns to identify comment lines (to skip during code analysis).
+ */
+const COMMENT_LINE_PATTERNS = [
+  /^\s*\/\//, // Single-line comments: // ...
+  /^\s*\/\*/, // Block comment start: /* ...
+  /^\s*\*/, // Block comment continuation: * ...
+  /^\s*\*\//, // Block comment end: */
+  /^\s*\/\*.*\*\/\s*$/, // Single-line block comment: /* ... */
+];
+
+/**
+ * Check if a line is a comment (single-line, block start, continuation, or end).
+ */
+const isCommentLine = (line) =>
+  COMMENT_LINE_PATTERNS.some((pattern) => pattern.test(line.trim()));
+
 /**
  * Read a file's source code.
  */
@@ -148,16 +169,24 @@ const createPatternMatcher = (patterns, toViolation) => {
 };
 
 export {
+  // Common patterns
+  COMMENT_LINE_PATTERNS,
+  isCommentLine,
+  // File reading
   readSource,
   toLines,
+  // File list utilities
   excludeFiles,
   combineFileLists,
+  // Pattern matching
   matchAny,
   scanLines,
   findPatterns,
+  createPatternMatcher,
+  // File analysis
   analyzeFiles,
   scanFilesForViolations,
+  // Violation reporting
   formatViolationReport,
   assertNoViolations,
-  createPatternMatcher,
 };
