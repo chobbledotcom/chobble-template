@@ -5,25 +5,12 @@ layout: base
 {{ content }}
 
 {%- if config.form_target and config.form_target != "" -%}
-  <form
-    class="contact-form"
-    action="{{ config.form_target }}"
-    {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
-      data-botpoison-public-key="{{ config.botpoison_public_key }}"
-    {%- endif -%}
-  >
-    <input type="hidden" name="_redirect" value="{{ "/quote-complete/" | canonicalUrl }}" />
-    <input type="hidden" name="_email.template.footer" value="false" />
-    <input
-      type="hidden"
-      name="_email.from"
-      value="{{ site.name }} quote request"
-    />
-    <input
-      type="hidden"
-      name="_email.subject"
-      value="New quote request from {{ site.name }}"
-    />
+  {%- include "form-open.html" -%}
+    {%- include "form-email-config.html",
+        redirect_path: "/quote-complete/",
+        email_from_suffix: "quote request",
+        email_subject: "New quote request from {site_name}"
+    -%}
     <input type="hidden" id="cart-items" name="cart_items" value="" />
 
     {%- assign skipShowOn = true -%}

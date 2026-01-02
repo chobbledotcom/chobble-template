@@ -1,24 +1,11 @@
 <noscript><p>JavaScript is required to submit this form.</p></noscript>
 {%- if config.form_target and config.form_target != "" -%}
-  <form
-    class="contact-form"
-    action="{{ config.form_target }}"
-    {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
-      data-botpoison-public-key="{{ config.botpoison_public_key }}"
-    {%- endif -%}
-  >
-    <input type="hidden" name="_redirect" value="{{ "/thank-you/" | canonicalUrl }}" />
-    <input type="hidden" name="_email.template.footer" value="false" />
-    <input
-      type="hidden"
-      name="_email.from"
-      value="{{ site.name }} contact form"
-    />
-    <input
-      type="hidden"
-      name="_email.subject"
-      value="New message from {{ site.name }} website contact form"
-    />
+  {%- include "form-open.html" -%}
+    {%- include "form-email-config.html",
+        redirect_path: "/thank-you/",
+        email_from_suffix: "contact form",
+        email_subject: "New message from {site_name} website contact form"
+    -%}
     {%- include "form-fields.html" -%}
     <button type="submit">{{ contactForm.submitButtonText }}</button>
   </form>
