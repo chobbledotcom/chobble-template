@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import matter from "gray-matter";
 import markdownIt from "markdown-it";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
@@ -34,12 +35,7 @@ const readFileContent = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
-const extractBodyFromMarkdown = (content) => {
-  const hasFrontmatter = /^---\n[\s\S]*?\n---/.test(content);
-  return hasFrontmatter
-    ? content.replace(/^---\n[\s\S]*?\n---\n?/, "")
-    : content;
-};
+const extractBodyFromMarkdown = (content) => matter(content).content;
 
 const renderSnippet = memoize(
   async (

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import matter from "gray-matter";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,11 +42,11 @@ const extractFrontmatter = (pagePath, filename, cartMode) => {
     throw new Error(cartModeError(cartMode, filename, "does not exist"));
   }
   const content = fs.readFileSync(pagePath, "utf-8");
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) {
+  const { data } = matter(content);
+  if (Object.keys(data).length === 0) {
     throw new Error(cartModeError(cartMode, filename, "has no frontmatter"));
   }
-  return match[1];
+  return data;
 };
 
 const checkFrontmatterField = (
@@ -55,7 +56,7 @@ const checkFrontmatterField = (
   cartMode,
   filename,
 ) => {
-  if (!frontmatter.includes(`${field}: ${value}`)) {
+  if (frontmatter[field] !== value) {
     throw new Error(
       cartModeError(cartMode, filename, `does not have ${field}: ${value}`),
     );

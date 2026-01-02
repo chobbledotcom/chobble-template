@@ -297,11 +297,8 @@ const testCases = [
       const filePath = createTempFile(tempDir, "test.md", content);
 
       const result = extractFrontmatter(filePath, "test.md", "stripe");
-      expectTrue(result.includes("layout: test.html"), "Should contain layout");
-      expectTrue(
-        result.includes("permalink: /test/"),
-        "Should contain permalink",
-      );
+      expectStrictEqual(result.layout, "test.html", "Should contain layout");
+      expectStrictEqual(result.permalink, "/test/", "Should contain permalink");
 
       cleanupTempDir(tempDir);
     },
@@ -341,7 +338,7 @@ const testCases = [
     name: "checkFrontmatterField-valid",
     description: "checkFrontmatterField passes when field exists",
     test: () => {
-      const frontmatter = "layout: test.html\npermalink: /test/";
+      const frontmatter = { layout: "test.html", permalink: "/test/" };
       // Should not throw
       checkFrontmatterField(
         frontmatter,
@@ -357,7 +354,7 @@ const testCases = [
     name: "checkFrontmatterField-missing",
     description: "checkFrontmatterField throws when field is missing",
     test: () => {
-      const frontmatter = "layout: other.html";
+      const frontmatter = { layout: "other.html" };
       expectThrows(
         () =>
           checkFrontmatterField(
