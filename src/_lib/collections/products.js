@@ -43,17 +43,14 @@ const getProductsByCategory = (products, categorySlug) => {
  */
 const getProductsByCategories = (products, categorySlugs) => {
   if (!products || !categorySlugs?.length) return [];
-  const seen = new Set();
-  const result = [];
-  for (const slug of categorySlugs) {
-    for (const product of products) {
-      if (product.data.categories?.includes(slug) && !seen.has(product)) {
-        seen.add(product);
-        result.push(product);
-      }
-    }
-  }
-  return result.sort(sortItems);
+
+  const categorySet = new Set(categorySlugs);
+
+  return products
+    .filter((product) =>
+      product.data.categories?.some((cat) => categorySet.has(cat)),
+    )
+    .sort(sortItems);
 };
 
 const getProductsByEvent = (products, eventSlug) => {

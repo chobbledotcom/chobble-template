@@ -20,13 +20,12 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
 const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
 
-  const parsed = {};
-  for (const attr of filterAttributes) {
-    const key = slugify(attr.name.trim());
-    const value = slugify(attr.value.trim());
-    parsed[key] = value;
-  }
-  return parsed;
+  return Object.fromEntries(
+    filterAttributes.map((attr) => [
+      slugify(attr.name.trim()),
+      slugify(attr.value.trim()),
+    ]),
+  );
 };
 
 /**
@@ -86,13 +85,13 @@ const buildDisplayLookup = memoize((items) => {
 const filterToPath = (filters) => {
   if (!filters || Object.keys(filters).length === 0) return "";
 
-  const sortedKeys = Object.keys(filters).sort();
-  const segments = [];
-  for (const key of sortedKeys) {
-    segments.push(encodeURIComponent(key));
-    segments.push(encodeURIComponent(filters[key]));
-  }
-  return segments.join("/");
+  return Object.keys(filters)
+    .sort()
+    .flatMap((key) => [
+      encodeURIComponent(key),
+      encodeURIComponent(filters[key]),
+    ])
+    .join("/");
 };
 
 /**
