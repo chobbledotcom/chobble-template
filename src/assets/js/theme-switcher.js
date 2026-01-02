@@ -1,10 +1,9 @@
 import { onReady } from "#assets/on-ready.js";
 
-function isThemeEditorPage() {
-  return window.location.pathname.includes("/theme-editor/");
-}
+const isThemeEditorPage = () =>
+  window.location.pathname.includes("/theme-editor/");
 
-function getThemeList() {
+const getThemeList = () => {
   const computed = getComputedStyle(document.documentElement);
   const themeListStr = computed.getPropertyValue("--theme-list").trim();
   if (themeListStr) {
@@ -14,24 +13,20 @@ function getThemeList() {
   }
   // Fallback to a default list if CSS variable not found
   return ["default"];
-}
+};
 
-function getThemeDisplayName(themeName) {
+const getThemeDisplayName = (themeName) => {
   const computed = getComputedStyle(document.documentElement);
   const displayName = computed
     .getPropertyValue(`--theme-${themeName}-name`)
     .trim();
   return displayName ? displayName.replace(/['"]/g, "") : themeName;
-}
+};
 
-function getCurrentTheme() {
-  const stored = localStorage.getItem("theme_name");
-  return stored || "default";
-}
+const getCurrentTheme = () => localStorage.getItem("theme_name") || "default";
 
-function setCurrentTheme(themeName) {
+const setCurrentTheme = (themeName) =>
   localStorage.setItem("theme_name", themeName);
-}
 
 const themeFonts = {
   floral: "princess-sofia:400",
@@ -39,7 +34,7 @@ const themeFonts = {
   neon: "orbitron:600",
 };
 
-function loadFontForTheme(themeName) {
+const loadFontForTheme = (themeName) => {
   const fontLinkId = "theme-font-link";
 
   // Remove existing font link if present
@@ -53,18 +48,29 @@ function loadFontForTheme(themeName) {
     fontLink.href = `https://fonts.bunny.net/css?family=${themeFonts[themeName]}`;
     document.head.appendChild(fontLink);
   }
-}
+};
 
-function applyTheme(themeName) {
+const applyTheme = (themeName) => {
   if (themeName === "default") {
     document.documentElement.removeAttribute("data-theme");
   } else {
     document.documentElement.setAttribute("data-theme", themeName);
   }
   loadFontForTheme(themeName);
-}
+};
 
-function cycleTheme() {
+const updateButtonText = (themeName) => {
+  const button = document.getElementById("theme-switcher-button");
+  if (button) {
+    const displayName = getThemeDisplayName(themeName);
+    button.setAttribute(
+      "aria-label",
+      `Current theme: ${displayName}. Click to switch theme`,
+    );
+  }
+};
+
+const cycleTheme = () => {
   const themes = getThemeList();
   const currentTheme = getCurrentTheme();
   const currentIndex = themes.indexOf(currentTheme);
@@ -74,20 +80,9 @@ function cycleTheme() {
   setCurrentTheme(nextTheme);
   applyTheme(nextTheme);
   updateButtonText(nextTheme);
-}
+};
 
-function updateButtonText(themeName) {
-  const button = document.getElementById("theme-switcher-button");
-  if (button) {
-    const displayName = getThemeDisplayName(themeName);
-    button.setAttribute(
-      "aria-label",
-      `Current theme: ${displayName}. Click to switch theme`,
-    );
-  }
-}
-
-function initThemeSwitcher() {
+const initThemeSwitcher = () => {
   const button = document.getElementById("theme-switcher-button");
   if (!button) return;
   if (isThemeEditorPage()) {
@@ -103,6 +98,6 @@ function initThemeSwitcher() {
     updateButtonText(currentTheme);
     button.addEventListener("click", cycleTheme);
   }
-}
+};
 
 onReady(initThemeSwitcher);
