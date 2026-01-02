@@ -189,6 +189,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createPatternMatcher",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
+  // template.test.js - global document cleanup helper
+  "cleanup",
 ]);
 
 /**

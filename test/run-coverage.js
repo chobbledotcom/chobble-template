@@ -153,10 +153,11 @@ function ratchetLimits(currentLimits) {
     return;
   }
 
-  // Get actual coverage percentages (rounded down to match c8 behavior)
-  const actualLines = Math.floor(total.lines.pct);
-  const actualFunctions = Math.floor(total.functions.pct);
-  const actualBranches = Math.floor(total.branches.pct);
+  // Get actual coverage percentages (rounded to 2 decimal places)
+  const round2 = (n) => Math.round(n * 100) / 100;
+  const actualLines = round2(total.lines.pct);
+  const actualFunctions = round2(total.functions.pct);
+  const actualBranches = round2(total.branches.pct);
 
   let updated = false;
   const newLimits = { ...currentLimits };
