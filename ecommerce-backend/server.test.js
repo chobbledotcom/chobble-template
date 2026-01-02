@@ -3,6 +3,7 @@
  * Run with: pnpm test
  */
 
+const { describe, it, before, after } = require("node:test");
 const http = require("node:http");
 const assert = require("node:assert");
 
@@ -124,258 +125,193 @@ async function teardown() {
 // TESTS
 // ============================================
 
-const tests = [
-  {
-    name: "health endpoint returns ok",
-    run: async () => {
-      const res = await fetch(`http://localhost:${SERVER_PORT}/health`);
-      assert.strictEqual(res.status, 200);
-      const data = await res.json();
-      assert.strictEqual(data.status, "ok");
-      assert.strictEqual(Array.isArray(data.hosts), true);
-    },
-  },
+describe("ecommerce backend", () => {
+  before(async () => {
+    await setup();
+  });
 
-  {
-    name: "health endpoint shows multiple hosts",
-    run: async () => {
-      const res = await fetch(`http://localhost:${SERVER_PORT}/health`);
-      const data = await res.json();
-      assert.strictEqual(data.hosts.length, 2);
-      assert.strictEqual(data.hosts[0], "site1.example.com");
-      assert.strictEqual(data.hosts[1], "site2.example.com");
-    },
-  },
+  after(async () => {
+    await teardown();
+  });
 
-  {
-    name: "POST /api/stripe/create-session rejects missing origin",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU001", quantity: 1 }] },
-      );
-      assert.strictEqual(res.status, 403);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Invalid or missing origin");
-    },
-  },
+  it("health endpoint returns ok", async () => {
+    const res = await fetch(`http://localhost:${SERVER_PORT}/health`);
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.status, "ok");
+    assert.strictEqual(Array.isArray(data.hosts), true);
+  });
 
-  {
-    name: "POST /api/stripe/create-session rejects invalid origin via CORS",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU001", quantity: 1 }] },
-        { Origin: "https://evil.com" },
-      );
-      // CORS middleware rejects with 500 before reaching our handler
-      assert.strictEqual(res.status, 500);
-    },
-  },
+  it("health endpoint shows multiple hosts", async () => {
+    const res = await fetch(`http://localhost:${SERVER_PORT}/health`);
+    const data = await res.json();
+    assert.strictEqual(data.hosts.length, 2);
+    assert.strictEqual(data.hosts[0], "site1.example.com");
+    assert.strictEqual(data.hosts[1], "site2.example.com");
+  });
 
-  {
-    name: "POST /api/stripe/create-session rejects empty items",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      assert.strictEqual(res.status, 400);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Items array is empty or invalid");
-    },
-  },
+  it("POST /api/stripe/create-session rejects missing origin", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU001", quantity: 1 }] },
+    );
+    assert.strictEqual(res.status, 403);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Invalid or missing origin");
+  });
 
-  {
-    name: "POST /api/stripe/create-session validates SKUs from correct origin (site1)",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "INVALID_SKU", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      assert.strictEqual(res.status, 400);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Cart validation failed");
-      assert.strictEqual(data.details[0], "Unknown SKU: INVALID_SKU");
-    },
-  },
+  it("POST /api/stripe/create-session rejects invalid origin via CORS", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU001", quantity: 1 }] },
+      { Origin: "https://evil.com" },
+    );
+    // CORS middleware rejects with 500 before reaching our handler
+    assert.strictEqual(res.status, 500);
+  });
 
-  {
-    name: "POST /api/stripe/create-session validates max_quantity",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU001", quantity: 10 }] }, // max is 5
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      assert.strictEqual(res.status, 400);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Cart validation failed");
-      assert(data.details[0].includes("exceeds maximum"));
-    },
-  },
+  it("POST /api/stripe/create-session rejects empty items", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    assert.strictEqual(res.status, 400);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Items array is empty or invalid");
+  });
 
-  {
-    name: "site1 SKUs are not valid for site2",
-    run: async () => {
-      // SKU001 exists on site1, but not on site2
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU001", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
-      );
-      assert.strictEqual(res.status, 400);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Cart validation failed");
-      assert.strictEqual(data.details[0], "Unknown SKU: SKU001");
-    },
-  },
+  it("POST /api/stripe/create-session validates SKUs from correct origin (site1)", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "INVALID_SKU", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    assert.strictEqual(res.status, 400);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Cart validation failed");
+    assert.strictEqual(data.details[0], "Unknown SKU: INVALID_SKU");
+  });
 
-  {
-    name: "site2 SKUs are not valid for site1",
-    run: async () => {
-      // SKU-A exists on site2, but not on site1
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU-A", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      assert.strictEqual(res.status, 400);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Cart validation failed");
-      assert.strictEqual(data.details[0], "Unknown SKU: SKU-A");
-    },
-  },
+  it("POST /api/stripe/create-session validates max_quantity", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU001", quantity: 10 }] }, // max is 5
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    assert.strictEqual(res.status, 400);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Cart validation failed");
+    assert(data.details[0].includes("exceeds maximum"));
+  });
 
-  {
-    name: "valid cart for site1 returns Stripe not configured (no key)",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU001", quantity: 2 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      // Should pass validation but fail on Stripe config
-      assert.strictEqual(res.status, 500);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Stripe not configured");
-    },
-  },
+  it("site1 SKUs are not valid for site2", async () => {
+    // SKU001 exists on site1, but not on site2
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU001", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
+    );
+    assert.strictEqual(res.status, 400);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Cart validation failed");
+    assert.strictEqual(data.details[0], "Unknown SKU: SKU001");
+  });
 
-  {
-    name: "valid cart for site2 returns Stripe not configured (no key)",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU-A", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
-      );
-      // Should pass validation but fail on Stripe config
-      assert.strictEqual(res.status, 500);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Stripe not configured");
-    },
-  },
+  it("site2 SKUs are not valid for site1", async () => {
+    // SKU-A exists on site2, but not on site1
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU-A", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    assert.strictEqual(res.status, 400);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Cart validation failed");
+    assert.strictEqual(data.details[0], "Unknown SKU: SKU-A");
+  });
 
-  {
-    name: "POST /api/paypal/create-order returns PayPal not configured (no credentials)",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/paypal/create-order`,
-        { items: [{ sku: "SKU001", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      assert.strictEqual(res.status, 500);
-      const data = await res.json();
-      assert.strictEqual(data.error, "PayPal not configured");
-    },
-  },
+  it("valid cart for site1 returns Stripe not configured (no key)", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU001", quantity: 2 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    // Should pass validation but fail on Stripe config
+    assert.strictEqual(res.status, 500);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Stripe not configured");
+  });
 
-  {
-    name: "SKU cache is per-origin",
-    run: async () => {
-      // Clear cache
-      skuPricesCache.clear();
+  it("valid cart for site2 returns Stripe not configured (no key)", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU-A", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
+    );
+    // Should pass validation but fail on Stripe config
+    assert.strictEqual(res.status, 500);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Stripe not configured");
+  });
 
-      // Make request from site1
-      await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU001", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
+  it("POST /api/paypal/create-order returns PayPal not configured (no credentials)", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/paypal/create-order`,
+      { items: [{ sku: "SKU001", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    assert.strictEqual(res.status, 500);
+    const data = await res.json();
+    assert.strictEqual(data.error, "PayPal not configured");
+  });
 
-      // Make request from site2
-      await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU-A", quantity: 1 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
-      );
+  it("SKU cache is per-origin", async () => {
+    // Clear cache
+    skuPricesCache.clear();
 
-      // Both origins should be cached
-      assert.strictEqual(skuPricesCache.size, 2);
-      assert(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_1}`));
-      assert(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_2}`));
-    },
-  },
+    // Make request from site1
+    await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU001", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
 
-  {
-    name: "null max_quantity allows any quantity",
-    run: async () => {
-      // SKU002 has max_quantity: null
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ sku: "SKU002", quantity: 9999 }] },
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      // Should pass validation (fail on Stripe config)
-      assert.strictEqual(res.status, 500);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Stripe not configured");
-    },
-  },
+    // Make request from site2
+    await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU-A", quantity: 1 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
+    );
 
-  {
-    name: "items missing SKU are rejected",
-    run: async () => {
-      const res = await postJson(
-        `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
-        { items: [{ quantity: 1 }] }, // no sku
-        { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
-      );
-      assert.strictEqual(res.status, 400);
-      const data = await res.json();
-      assert.strictEqual(data.error, "Cart validation failed");
-      assert.strictEqual(data.details[0], "Item is missing SKU");
-    },
-  },
-];
+    // Both origins should be cached
+    assert.strictEqual(skuPricesCache.size, 2);
+    assert(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_1}`));
+    assert(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_2}`));
+  });
 
-// ============================================
-// TEST RUNNER
-// ============================================
+  it("null max_quantity allows any quantity", async () => {
+    // SKU002 has max_quantity: null
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ sku: "SKU002", quantity: 9999 }] },
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    // Should pass validation (fail on Stripe config)
+    assert.strictEqual(res.status, 500);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Stripe not configured");
+  });
 
-async function runTests() {
-  await setup();
-
-  let _passed = 0;
-  let failed = 0;
-
-  for (const test of tests) {
-    try {
-      await test.run();
-      _passed++;
-    } catch (_error) {
-      failed++;
-    }
-  }
-
-  await teardown();
-
-  if (failed > 0) {
-    process.exit(1);
-  }
-}
-
-runTests();
+  it("items missing SKU are rejected", async () => {
+    const res = await postJson(
+      `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
+      { items: [{ quantity: 1 }] }, // no sku
+      { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
+    );
+    assert.strictEqual(res.status, 400);
+    const data = await res.json();
+    assert.strictEqual(data.error, "Cart validation failed");
+    assert.strictEqual(data.details[0], "Item is missing SKU");
+  });
+});
