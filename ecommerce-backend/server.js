@@ -1,5 +1,5 @@
 /**
- * Minimal E-commerce Checkout Backend
+ * Minimal E-commerce Checkout Backend (Bun Native)
  * Supports both Stripe and PayPal checkout sessions
  *
  * Environment variables:
@@ -10,87 +10,94 @@
  *   PAYPAL_SANDBOX       - Set to "true" for sandbox mode (default: false)
  *   CURRENCY             - Currency code (default: GBP)
  *   BRAND_NAME           - Brand name shown on PayPal checkout
+ *   PORT                 - Server port (default: 3000)
  */
 
-const express = require("express");
-const cors = require("cors");
+// Configuration (read lazily to allow tests to set env vars first)
+const getConfig = () => {
+  const SITE_HOST = process.env.SITE_HOST;
+  const BRAND_NAME = process.env.BRAND_NAME;
 
-const app = express();
+  if (!SITE_HOST) {
+    console.error("ERROR: SITE_HOST environment variable is required");
+    process.exit(1);
+  }
+  if (!BRAND_NAME) {
+    console.error("ERROR: BRAND_NAME environment variable is required");
+    process.exit(1);
+  }
 
-// Configuration
-const SITE_HOST = process.env.SITE_HOST;
+  return { SITE_HOST, BRAND_NAME };
+};
+
+// Only validate on direct run, not on import
+if (import.meta.main) {
+  getConfig();
+}
+
 const CURRENCY = process.env.CURRENCY || "GBP";
+const PORT = parseInt(process.env.PORT || "3000", 10);
 const PAYPAL_BASE_URL =
   process.env.PAYPAL_SANDBOX === "true"
     ? "https://api-m.sandbox.paypal.com"
     : "https://api-m.paypal.com";
 
-const BRAND_NAME = process.env.BRAND_NAME;
+// Parse comma-separated hosts into array of origins (mutable for testing)
+const SITE_HOSTS = [];
+const ALLOWED_ORIGINS = [];
 
-// Validate required config
-if (!SITE_HOST) {
-  console.error("ERROR: SITE_HOST environment variable is required");
-  process.exit(1);
+function initOrigins() {
+  const SITE_HOST = process.env.SITE_HOST || "";
+  SITE_HOSTS.length = 0;
+  ALLOWED_ORIGINS.length = 0;
+
+  SITE_HOST.split(",")
+    .map((h) => h.trim())
+    .filter(Boolean)
+    .forEach((host) => {
+      SITE_HOSTS.push(host);
+      ALLOWED_ORIGINS.push(`https://${host}`);
+    });
 }
-if (!BRAND_NAME) {
-  console.error("ERROR: BRAND_NAME environment variable is required");
-  process.exit(1);
+
+// Initialize on load if env is set
+if (process.env.SITE_HOST) {
+  initOrigins();
 }
 
-// Parse comma-separated hosts into array of origins
-const SITE_HOSTS = SITE_HOST.split(",")
-  .map((h) => h.trim())
-  .filter(Boolean);
-const ALLOWED_ORIGINS = SITE_HOSTS.map((host) => `https://${host}`);
+// ============================================
+// HELPERS
+// ============================================
 
-// CORS - allow all configured sites dynamically
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like server-to-server or curl)
-      if (!origin) {
-        return callback(null, true);
-      }
-      if (ALLOWED_ORIGINS.includes(origin)) {
-        return callback(null, origin);
-      }
-      return callback(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "POST"],
-  }),
-);
-
-app.use(express.json());
-
-// Logging helper
 const logRequest = (origin, message) => {
   console.log(
     `[${new Date().toISOString()}] ${origin || "unknown"} - ${message}`,
   );
 };
 
-// Health check endpoint
-app.get("/health", (_req, res) => {
-  res.json({
-    status: "ok",
-    hosts: SITE_HOSTS,
-    stripe: !!process.env.STRIPE_SECRET_KEY,
-    paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET),
-  });
-});
+const json = (data, status = 200, origin = null) => {
+  const headers = { "Content-Type": "application/json" };
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+    headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+    headers["Access-Control-Allow-Headers"] = "Content-Type";
+  }
+  return new Response(JSON.stringify(data), { status, headers });
+};
+
+const isValidOrigin = (origin) => origin && ALLOWED_ORIGINS.includes(origin);
+const isValidItems = (items) =>
+  items && Array.isArray(items) && items.length > 0;
 
 // ============================================
 // SKU PRICE VALIDATION
 // ============================================
 
-// Cache for SKU prices per origin (refreshed periodically)
-const skuPricesCache = new Map(); // origin -> { data, expiry }
-const SKU_CACHE_TTL = 60000; // 1 minute cache
+const skuPricesCache = new Map();
+const SKU_CACHE_TTL = 60000;
 
 async function getSkuPrices(origin) {
   const cached = skuPricesCache.get(origin);
-
-  // Return cached data if still valid
   if (cached && Date.now() < cached.expiry) {
     return cached.data;
   }
@@ -104,15 +111,9 @@ async function getSkuPrices(origin) {
 
   const data = await response.json();
   skuPricesCache.set(origin, { data, expiry: Date.now() + SKU_CACHE_TTL });
-
   return data;
 }
 
-/**
- * Validate cart items against authoritative SKU prices
- * Expects items as [{ sku, quantity }, ...]
- * Returns { valid: true, cart: [...], total: number } or { valid: false, errors: [...] }
- */
 async function validateCart(items, origin) {
   const skuPrices = await getSkuPrices(origin);
   const errors = [];
@@ -160,45 +161,52 @@ async function validateCart(items, origin) {
   return { valid: true, cart, total };
 }
 
-const isValidOrigin = (origin) => origin && ALLOWED_ORIGINS.includes(origin);
-const isValidItems = (items) =>
-  items && Array.isArray(items) && items.length > 0;
-
-/**
- * Middleware to validate items from request body
- * Attaches validated cart, total, and origin to req if valid
- */
-async function validateItemsMiddleware(req, res, next) {
-  const { items } = req.body;
-  const origin = req.get("origin");
+async function validateRequest(req) {
+  const origin = req.headers.get("origin");
 
   if (!isValidOrigin(origin)) {
     logRequest(origin, "rejected - invalid origin");
-    return res.status(403).json({ error: "Invalid or missing origin" });
+    return { error: json({ error: "Invalid or missing origin" }, 403, origin) };
   }
+
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return { error: json({ error: "Invalid JSON" }, 400, origin) };
+  }
+
+  const { items } = body;
 
   if (!isValidItems(items)) {
     logRequest(origin, "empty cart");
-    return res.status(400).json({ error: "Items array is empty or invalid" });
+    return {
+      error: json({ error: "Items array is empty or invalid" }, 400, origin),
+    };
   }
 
   try {
     const validation = await validateCart(items, origin);
     if (!validation.valid) {
       logRequest(origin, "cart validation failed");
-      return res
-        .status(400)
-        .json({ error: "Cart validation failed", details: validation.errors });
+      return {
+        error: json(
+          { error: "Cart validation failed", details: validation.errors },
+          400,
+          origin,
+        ),
+      };
     }
 
     logRequest(origin, `cart validated (${items.length} items)`);
-    req.validatedCart = validation.cart;
-    req.cartTotal = validation.total;
-    req.siteOrigin = origin;
-    next();
+    return {
+      cart: validation.cart,
+      total: validation.total,
+      origin,
+    };
   } catch (error) {
     logRequest(origin, `validation error: ${error.message}`);
-    res.status(500).json({ error: error.message });
+    return { error: json({ error: error.message }, 500, origin) };
   }
 }
 
@@ -206,56 +214,55 @@ async function validateItemsMiddleware(req, res, next) {
 // STRIPE CHECKOUT
 // ============================================
 
-app.post(
-  "/api/stripe/create-session",
-  validateItemsMiddleware,
-  async (req, res) => {
-    try {
-      if (!process.env.STRIPE_SECRET_KEY) {
-        return res.status(500).json({ error: "Stripe not configured" });
-      }
+async function handleStripeCreateSession(req) {
+  const validated = await validateRequest(req);
+  if (validated.error) return validated.error;
 
-      const Stripe = require("stripe");
-      const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+  const { cart, total, origin } = validated;
 
-      const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        line_items: req.validatedCart.map((item) => ({
-          price_data: {
-            currency: CURRENCY.toLowerCase(),
-            product_data: { name: item.name },
-            unit_amount: Math.round(item.unit_price * 100),
-          },
-          quantity: item.quantity,
-        })),
-        success_url: `${req.siteOrigin}/order-complete/`,
-        cancel_url: `${req.siteOrigin}/`,
-      });
-
-      console.log(
-        `[${new Date().toISOString()}] ${req.siteOrigin} - Stripe session created`,
-      );
-      res.json({ id: session.id, url: session.url });
-    } catch (error) {
-      console.error(
-        `[${new Date().toISOString()}] ${req.siteOrigin} - Stripe error: ${error.message}`,
-      );
-      res.status(500).json({ error: error.message });
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return json({ error: "Stripe not configured" }, 500, origin);
     }
-  },
-);
+
+    const Stripe = require("stripe");
+    const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: cart.map((item) => ({
+        price_data: {
+          currency: CURRENCY.toLowerCase(),
+          product_data: { name: item.name },
+          unit_amount: Math.round(item.unit_price * 100),
+        },
+        quantity: item.quantity,
+      })),
+      success_url: `${origin}/order-complete/`,
+      cancel_url: `${origin}/`,
+    });
+
+    console.log(
+      `[${new Date().toISOString()}] ${origin} - Stripe session created`,
+    );
+    return json({ id: session.id, url: session.url }, 200, origin);
+  } catch (error) {
+    console.error(
+      `[${new Date().toISOString()}] ${origin} - Stripe error: ${error.message}`,
+    );
+    return json({ error: error.message }, 500, origin);
+  }
+}
 
 // ============================================
 // PAYPAL CHECKOUT
 // ============================================
 
-// Cache PayPal access token
-const state = { token: null, expiry: 0 };
+const paypalState = { token: null, expiry: 0 };
 
 async function getPaypalToken() {
-  // Return cached token if still valid (with 60s buffer)
-  if (state.token && Date.now() < state.expiry - 60000) {
-    return state.token;
+  if (paypalState.token && Date.now() < paypalState.expiry - 60000) {
+    return paypalState.token;
   }
 
   const auth = Buffer.from(
@@ -276,110 +283,162 @@ async function getPaypalToken() {
   }
 
   const data = await response.json();
-  state.token = data.access_token;
-  state.expiry = Date.now() + data.expires_in * 1000;
+  paypalState.token = data.access_token;
+  paypalState.expiry = Date.now() + data.expires_in * 1000;
 
-  return state.token;
+  return paypalState.token;
 }
 
-app.post(
-  "/api/paypal/create-order",
-  validateItemsMiddleware,
-  async (req, res) => {
-    try {
-      if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_SECRET) {
-        return res.status(500).json({ error: "PayPal not configured" });
-      }
+async function handlePaypalCreateOrder(req) {
+  const validated = await validateRequest(req);
+  if (validated.error) return validated.error;
 
-      const accessToken = await getPaypalToken();
-      const itemTotal = req.cartTotal.toFixed(2);
+  const { cart, total, origin } = validated;
 
-      const orderPayload = {
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: CURRENCY,
-              value: itemTotal,
-              breakdown: {
-                item_total: { currency_code: CURRENCY, value: itemTotal },
-              },
-            },
-            items: req.validatedCart.map((item) => ({
-              name: item.name.substring(0, 127), // PayPal has 127 char limit
-              unit_amount: {
-                currency_code: CURRENCY,
-                value: item.unit_price.toFixed(2),
-              },
-              quantity: item.quantity.toString(),
-            })),
-          },
-        ],
-        application_context: {
-          return_url: `${req.siteOrigin}/order-complete/`,
-          cancel_url: `${req.siteOrigin}/`,
-          user_action: "PAY_NOW",
-          brand_name: BRAND_NAME,
-        },
-      };
-
-      const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderPayload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error(
-          `[${new Date().toISOString()}] ${req.siteOrigin} - PayPal order error:`,
-          errorData,
-        );
-        throw new Error(`PayPal order failed: ${response.status}`);
-      }
-
-      const order = await response.json();
-      const approveLink = order.links.find((l) => l.rel === "approve");
-
-      console.log(
-        `[${new Date().toISOString()}] ${req.siteOrigin} - PayPal order created`,
-      );
-      res.json({
-        id: order.id,
-        url: approveLink ? approveLink.href : null,
-      });
-    } catch (error) {
-      console.error(
-        `[${new Date().toISOString()}] ${req.siteOrigin} - PayPal error: ${error.message}`,
-      );
-      res.status(500).json({ error: error.message });
+  try {
+    if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_SECRET) {
+      return json({ error: "PayPal not configured" }, 500, origin);
     }
-  },
-);
+
+    const accessToken = await getPaypalToken();
+    const itemTotal = total.toFixed(2);
+
+    const orderPayload = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: {
+            currency_code: CURRENCY,
+            value: itemTotal,
+            breakdown: {
+              item_total: { currency_code: CURRENCY, value: itemTotal },
+            },
+          },
+          items: cart.map((item) => ({
+            name: item.name.substring(0, 127),
+            unit_amount: {
+              currency_code: CURRENCY,
+              value: item.unit_price.toFixed(2),
+            },
+            quantity: item.quantity.toString(),
+          })),
+        },
+      ],
+      application_context: {
+        return_url: `${origin}/order-complete/`,
+        cancel_url: `${origin}/`,
+        user_action: "PAY_NOW",
+        brand_name: BRAND_NAME,
+      },
+    };
+
+    const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderPayload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(
+        `[${new Date().toISOString()}] ${origin} - PayPal order error:`,
+        errorData,
+      );
+      throw new Error(`PayPal order failed: ${response.status}`);
+    }
+
+    const order = await response.json();
+    const approveLink = order.links.find((l) => l.rel === "approve");
+
+    console.log(
+      `[${new Date().toISOString()}] ${origin} - PayPal order created`,
+    );
+    return json(
+      { id: order.id, url: approveLink ? approveLink.href : null },
+      200,
+      origin,
+    );
+  } catch (error) {
+    console.error(
+      `[${new Date().toISOString()}] ${origin} - PayPal error: ${error.message}`,
+    );
+    return json({ error: error.message }, 500, origin);
+  }
+}
 
 // ============================================
-// START SERVER
+// REQUEST HANDLER
+// ============================================
+
+async function handleRequest(req) {
+  const url = new URL(req.url);
+  const { pathname } = url;
+  const method = req.method;
+
+  // Handle CORS preflight
+  if (method === "OPTIONS") {
+    const origin = req.headers.get("origin");
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": origin,
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      });
+    }
+    return new Response(null, { status: 204 });
+  }
+
+  // Routes
+  if (method === "GET" && pathname === "/health") {
+    return json({
+      status: "ok",
+      hosts: SITE_HOSTS,
+      stripe: !!process.env.STRIPE_SECRET_KEY,
+      paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET),
+    });
+  }
+
+  if (method === "POST" && pathname === "/api/stripe/create-session") {
+    return handleStripeCreateSession(req);
+  }
+
+  if (method === "POST" && pathname === "/api/paypal/create-order") {
+    return handlePaypalCreateOrder(req);
+  }
+
+  return new Response("Not Found", { status: 404 });
+}
+
+// ============================================
+// SERVER
 // ============================================
 
 // Export for testing
-module.exports = { app, skuPricesCache, ALLOWED_ORIGINS };
+export { handleRequest as fetch, skuPricesCache, ALLOWED_ORIGINS, SITE_HOSTS, initOrigins };
 
-// Only start server if run directly (not imported for tests)
-if (require.main === module) {
-  app.listen(3000, () => {
-    console.log(
-      `[${new Date().toISOString()}] Checkout backend running on port 3000`,
-    );
-    console.log(`  Sites: ${SITE_HOSTS.join(", ")}`);
-    console.log(
-      `  Stripe: ${process.env.STRIPE_SECRET_KEY ? "configured" : "not configured"}`,
-    );
-    console.log(
-      `  PayPal: ${process.env.PAYPAL_CLIENT_ID ? "configured" : "not configured"}`,
-    );
-    console.log(`  Currency: ${CURRENCY}`);
-  });
+// Export default for Bun.serve() auto-detection
+export default {
+  port: PORT,
+  fetch: handleRequest,
+};
+
+// Log startup when run directly
+if (import.meta.main) {
+  console.log(
+    `[${new Date().toISOString()}] Checkout backend running on port ${PORT}`,
+  );
+  console.log(`  Sites: ${SITE_HOSTS.join(", ")}`);
+  console.log(
+    `  Stripe: ${process.env.STRIPE_SECRET_KEY ? "configured" : "not configured"}`,
+  );
+  console.log(
+    `  PayPal: ${process.env.PAYPAL_CLIENT_ID ? "configured" : "not configured"}`,
+  );
+  console.log(`  Currency: ${CURRENCY}`);
 }

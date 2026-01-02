@@ -1,15 +1,14 @@
 {
 	"name": "ecommerce-backend",
 	"version": "1.0.0",
-	"description": "Minimal checkout backend for Stripe and PayPal",
+	"description": "Minimal checkout backend for Stripe and PayPal (Bun Native)",
+	"type": "module",
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js",
-		"test": "node server.test.js"
+		"start": "bun server.js",
+		"test": "bun test"
 	},
 	"dependencies": {
-		"cors": "^2.8.5",
-		"express": "^4.18.2",
 		"stripe": "^14.0.0"
 	}
 }

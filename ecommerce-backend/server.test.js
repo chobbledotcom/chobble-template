@@ -1,18 +1,20 @@
 /**
- * End-to-end tests for the ecommerce backend
- * Run with: pnpm test
+ * End-to-end tests for the ecommerce backend (Bun Native)
+ * Run with: bun test
  */
 
-const { describe, it, before, after } = require("node:test");
-const http = require("node:http");
-const assert = require("node:assert");
+import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { createServer } from "node:http";
 
 // Set required env vars before importing server
 process.env.SITE_HOST = "site1.example.com,site2.example.com";
 process.env.BRAND_NAME = "Test Brand";
 process.env.CURRENCY = "GBP";
 
-const { app, skuPricesCache, ALLOWED_ORIGINS } = require("./server.js");
+import { fetch as serverFetch, skuPricesCache, ALLOWED_ORIGINS, initOrigins } from "./server.js";
+
+// Initialize origins after setting env vars
+initOrigins();
 
 // ============================================
 // TEST UTILITIES
@@ -38,7 +40,7 @@ const SITE2_SKU_DATA = {
 
 function createMockSkuServer(port, skuData) {
   return new Promise((resolve) => {
-    const server = http.createServer((req, res) => {
+    const server = createServer((req, res) => {
       if (req.url === "/api/sku_prices.json") {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify(skuData));
@@ -48,39 +50,6 @@ function createMockSkuServer(port, skuData) {
       }
     });
     server.listen(port, () => resolve(server));
-  });
-}
-
-async function fetch(url, options = {}) {
-  return new Promise((resolve, reject) => {
-    const urlObj = new URL(url);
-    const reqOptions = {
-      hostname: urlObj.hostname,
-      port: urlObj.port,
-      path: urlObj.pathname,
-      method: options.method || "GET",
-      headers: options.headers || {},
-    };
-
-    const req = http.request(reqOptions, (res) => {
-      let data = "";
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
-      res.on("end", () => {
-        resolve({
-          status: res.statusCode,
-          ok: res.statusCode >= 200 && res.statusCode < 300,
-          headers: res.headers,
-          json: () => Promise.resolve(JSON.parse(data)),
-          text: () => Promise.resolve(data),
-        });
-      });
-    });
-
-    req.on("error", reject);
-    if (options.body) req.write(options.body);
-    req.end();
   });
 }
 
@@ -109,14 +78,15 @@ async function setup() {
   mockSkuServer1 = await createMockSkuServer(MOCK_SKU_PORT_1, SITE1_SKU_DATA);
   mockSkuServer2 = await createMockSkuServer(MOCK_SKU_PORT_2, SITE2_SKU_DATA);
 
-  // Start main server
-  await new Promise((resolve) => {
-    server = app.listen(SERVER_PORT, resolve);
+  // Start main server using Bun.serve with our fetch handler
+  server = Bun.serve({
+    port: SERVER_PORT,
+    fetch: serverFetch,
   });
 }
 
 async function teardown() {
-  await new Promise((resolve) => server.close(resolve));
+  server.stop();
   await new Promise((resolve) => mockSkuServer1.close(resolve));
   await new Promise((resolve) => mockSkuServer2.close(resolve));
 }
@@ -126,28 +96,28 @@ async function teardown() {
 // ============================================
 
 describe("ecommerce backend", () => {
-  before(async () => {
+  beforeAll(async () => {
     await setup();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await teardown();
   });
 
   it("health endpoint returns ok", async () => {
     const res = await fetch(`http://localhost:${SERVER_PORT}/health`);
-    assert.strictEqual(res.status, 200);
+    expect(res.status).toBe(200);
     const data = await res.json();
-    assert.strictEqual(data.status, "ok");
-    assert.strictEqual(Array.isArray(data.hosts), true);
+    expect(data.status).toBe("ok");
+    expect(Array.isArray(data.hosts)).toBe(true);
   });
 
   it("health endpoint shows multiple hosts", async () => {
     const res = await fetch(`http://localhost:${SERVER_PORT}/health`);
     const data = await res.json();
-    assert.strictEqual(data.hosts.length, 2);
-    assert.strictEqual(data.hosts[0], "site1.example.com");
-    assert.strictEqual(data.hosts[1], "site2.example.com");
+    expect(data.hosts.length).toBe(2);
+    expect(data.hosts[0]).toBe("site1.example.com");
+    expect(data.hosts[1]).toBe("site2.example.com");
   });
 
   it("POST /api/stripe/create-session rejects missing origin", async () => {
@@ -155,19 +125,20 @@ describe("ecommerce backend", () => {
       `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
       { items: [{ sku: "SKU001", quantity: 1 }] },
     );
-    assert.strictEqual(res.status, 403);
+    expect(res.status).toBe(403);
     const data = await res.json();
-    assert.strictEqual(data.error, "Invalid or missing origin");
+    expect(data.error).toBe("Invalid or missing origin");
   });
 
-  it("POST /api/stripe/create-session rejects invalid origin via CORS", async () => {
+  it("POST /api/stripe/create-session rejects invalid origin", async () => {
     const res = await postJson(
       `http://localhost:${SERVER_PORT}/api/stripe/create-session`,
       { items: [{ sku: "SKU001", quantity: 1 }] },
       { Origin: "https://evil.com" },
     );
-    // CORS middleware rejects with 500 before reaching our handler
-    assert.strictEqual(res.status, 500);
+    expect(res.status).toBe(403);
+    const data = await res.json();
+    expect(data.error).toBe("Invalid or missing origin");
   });
 
   it("POST /api/stripe/create-session rejects empty items", async () => {
@@ -176,9 +147,9 @@ describe("ecommerce backend", () => {
       { items: [] },
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
-    assert.strictEqual(res.status, 400);
+    expect(res.status).toBe(400);
     const data = await res.json();
-    assert.strictEqual(data.error, "Items array is empty or invalid");
+    expect(data.error).toBe("Items array is empty or invalid");
   });
 
   it("POST /api/stripe/create-session validates SKUs from correct origin (site1)", async () => {
@@ -187,10 +158,10 @@ describe("ecommerce backend", () => {
       { items: [{ sku: "INVALID_SKU", quantity: 1 }] },
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
-    assert.strictEqual(res.status, 400);
+    expect(res.status).toBe(400);
     const data = await res.json();
-    assert.strictEqual(data.error, "Cart validation failed");
-    assert.strictEqual(data.details[0], "Unknown SKU: INVALID_SKU");
+    expect(data.error).toBe("Cart validation failed");
+    expect(data.details[0]).toBe("Unknown SKU: INVALID_SKU");
   });
 
   it("POST /api/stripe/create-session validates max_quantity", async () => {
@@ -199,10 +170,10 @@ describe("ecommerce backend", () => {
       { items: [{ sku: "SKU001", quantity: 10 }] }, // max is 5
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
-    assert.strictEqual(res.status, 400);
+    expect(res.status).toBe(400);
     const data = await res.json();
-    assert.strictEqual(data.error, "Cart validation failed");
-    assert(data.details[0].includes("exceeds maximum"));
+    expect(data.error).toBe("Cart validation failed");
+    expect(data.details[0]).toContain("exceeds maximum");
   });
 
   it("site1 SKUs are not valid for site2", async () => {
@@ -212,10 +183,10 @@ describe("ecommerce backend", () => {
       { items: [{ sku: "SKU001", quantity: 1 }] },
       { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
     );
-    assert.strictEqual(res.status, 400);
+    expect(res.status).toBe(400);
     const data = await res.json();
-    assert.strictEqual(data.error, "Cart validation failed");
-    assert.strictEqual(data.details[0], "Unknown SKU: SKU001");
+    expect(data.error).toBe("Cart validation failed");
+    expect(data.details[0]).toBe("Unknown SKU: SKU001");
   });
 
   it("site2 SKUs are not valid for site1", async () => {
@@ -225,10 +196,10 @@ describe("ecommerce backend", () => {
       { items: [{ sku: "SKU-A", quantity: 1 }] },
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
-    assert.strictEqual(res.status, 400);
+    expect(res.status).toBe(400);
     const data = await res.json();
-    assert.strictEqual(data.error, "Cart validation failed");
-    assert.strictEqual(data.details[0], "Unknown SKU: SKU-A");
+    expect(data.error).toBe("Cart validation failed");
+    expect(data.details[0]).toBe("Unknown SKU: SKU-A");
   });
 
   it("valid cart for site1 returns Stripe not configured (no key)", async () => {
@@ -238,9 +209,9 @@ describe("ecommerce backend", () => {
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
     // Should pass validation but fail on Stripe config
-    assert.strictEqual(res.status, 500);
+    expect(res.status).toBe(500);
     const data = await res.json();
-    assert.strictEqual(data.error, "Stripe not configured");
+    expect(data.error).toBe("Stripe not configured");
   });
 
   it("valid cart for site2 returns Stripe not configured (no key)", async () => {
@@ -250,9 +221,9 @@ describe("ecommerce backend", () => {
       { Origin: `http://localhost:${MOCK_SKU_PORT_2}` },
     );
     // Should pass validation but fail on Stripe config
-    assert.strictEqual(res.status, 500);
+    expect(res.status).toBe(500);
     const data = await res.json();
-    assert.strictEqual(data.error, "Stripe not configured");
+    expect(data.error).toBe("Stripe not configured");
   });
 
   it("POST /api/paypal/create-order returns PayPal not configured (no credentials)", async () => {
@@ -261,9 +232,9 @@ describe("ecommerce backend", () => {
       { items: [{ sku: "SKU001", quantity: 1 }] },
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
-    assert.strictEqual(res.status, 500);
+    expect(res.status).toBe(500);
     const data = await res.json();
-    assert.strictEqual(data.error, "PayPal not configured");
+    expect(data.error).toBe("PayPal not configured");
   });
 
   it("SKU cache is per-origin", async () => {
@@ -285,9 +256,9 @@ describe("ecommerce backend", () => {
     );
 
     // Both origins should be cached
-    assert.strictEqual(skuPricesCache.size, 2);
-    assert(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_1}`));
-    assert(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_2}`));
+    expect(skuPricesCache.size).toBe(2);
+    expect(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_1}`)).toBe(true);
+    expect(skuPricesCache.has(`http://localhost:${MOCK_SKU_PORT_2}`)).toBe(true);
   });
 
   it("null max_quantity allows any quantity", async () => {
@@ -298,9 +269,9 @@ describe("ecommerce backend", () => {
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
     // Should pass validation (fail on Stripe config)
-    assert.strictEqual(res.status, 500);
+    expect(res.status).toBe(500);
     const data = await res.json();
-    assert.strictEqual(data.error, "Stripe not configured");
+    expect(data.error).toBe("Stripe not configured");
   });
 
   it("items missing SKU are rejected", async () => {
@@ -309,9 +280,9 @@ describe("ecommerce backend", () => {
       { items: [{ quantity: 1 }] }, // no sku
       { Origin: `http://localhost:${MOCK_SKU_PORT_1}` },
     );
-    assert.strictEqual(res.status, 400);
+    expect(res.status).toBe(400);
     const data = await res.json();
-    assert.strictEqual(data.error, "Cart validation failed");
-    assert.strictEqual(data.details[0], "Item is missing SKU");
+    expect(data.error).toBe("Cart validation failed");
+    expect(data.details[0]).toBe("Item is missing SKU");
   });
 });

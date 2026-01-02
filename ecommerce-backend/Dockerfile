@@ -1,13 +1,10 @@
-FROM node:22-alpine
-
-# Install bun for fast package installation
-RUN npm install -g bun
+FROM oven/bun:alpine
 
 WORKDIR /app
 
-# Copy package files and install dependencies with bun
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production
+# Copy package files and install dependencies
+COPY package.json ./
+RUN bun install --production
 
 # Copy application code
 COPY server.js .
@@ -17,7 +14,6 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Run as non-root user for security
-USER node
+USER bun
 
-# Use node to run Express server (bun's HTTP auto-detection has issues with Express)
-CMD ["node", "server.js"]
+CMD ["bun", "server.js"]
