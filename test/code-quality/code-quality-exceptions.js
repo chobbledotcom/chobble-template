@@ -16,9 +16,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   "ecommerce-backend/server.js:213",
   "ecommerce-backend/server.js:289",
 
-  // ecommerce-backend/server.test.js - test runner catching failures
-  "ecommerce-backend/server.test.js:366",
-
   // src/assets/js/http.js - centralized HTTP error handling (entire file)
   "src/assets/js/http.js",
 
