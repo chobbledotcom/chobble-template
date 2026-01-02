@@ -31,50 +31,52 @@ const parseFilterAttributes = (filterAttributes) => {
 /**
  * Build a map of all filter attributes and their possible values
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
+ * Pure function: builds result through reduce without mutation
  */
 const getAllFilterAttributes = memoize((items) => {
-  const attributeMap = {};
+  // Collect all [key, value] entries from all items
+  const allAttrEntries = items.flatMap((item) =>
+    Object.entries(parseFilterAttributes(item.data.filter_attributes)),
+  );
 
-  for (const item of items) {
-    const attrs = parseFilterAttributes(item.data.filter_attributes);
-    for (const [key, value] of Object.entries(attrs)) {
-      if (!attributeMap[key]) {
-        attributeMap[key] = new Set();
-      }
-      attributeMap[key].add(value);
-    }
-  }
+  // Group values by key, accumulating into Sets
+  const groupedByKey = allAttrEntries.reduce(
+    (acc, [key, value]) => acc.set(key, (acc.get(key) || new Set()).add(value)),
+    new Map(),
+  );
 
-  // Convert sets to sorted arrays
-  const result = {};
-  for (const key of Object.keys(attributeMap).sort()) {
-    result[key] = Array.from(attributeMap[key]).sort();
-  }
-  return result;
+  // Convert to sorted object with sorted value arrays
+  return Object.fromEntries(
+    [...groupedByKey.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, valueSet]) => [key, [...valueSet].sort()]),
+  );
 });
 
 /**
  * Build a lookup map from lowercase keys/values to original capitalization
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
+ * Pure function: first occurrence wins, built via reduce
  */
 const buildDisplayLookup = memoize((items) => {
-  const lookup = {};
+  // Collect all [slug, original] pairs from all items
+  const allMappings = items
+    .filter((item) => item.data.filter_attributes)
+    .flatMap((item) =>
+      item.data.filter_attributes.flatMap((attr) => [
+        [slugify(attr.name.trim()), attr.name.trim()],
+        [slugify(attr.value.trim()), attr.value.trim()],
+      ]),
+    );
 
-  for (const item of items) {
-    const filterAttrs = item.data.filter_attributes;
-    if (!filterAttrs) continue;
-
-    for (const attr of filterAttrs) {
-      const slugKey = slugify(attr.name.trim());
-      const slugValue = slugify(attr.value.trim());
-
-      // Store original capitalization (first one wins)
-      if (!lookup[slugKey]) lookup[slugKey] = attr.name.trim();
-      if (!lookup[slugValue]) lookup[slugValue] = attr.value.trim();
+  // Reduce to object, keeping first occurrence (first wins)
+  // Uses Object.assign for O(n) performance instead of spread
+  return allMappings.reduce((lookup, [slug, original]) => {
+    if (!(slug in lookup)) {
+      lookup[slug] = original;
     }
-  }
-
-  return lookup;
+    return lookup;
+  }, {});
 });
 
 /**
@@ -95,23 +97,35 @@ const filterToPath = (filters) => {
 };
 
 /**
+ * Group array elements into pairs: [a, b, c, d] => [[a, b], [c, d]]
+ * Pure function for functional path parsing
+ */
+const toPairs = (arr) => {
+  const pairs = [];
+  for (let i = 0; i < arr.length - 1; i += 2) {
+    pairs.push([arr[i], arr[i + 1]]);
+  }
+  return pairs;
+};
+
+/**
  * Parse URL path back to filter object
  * "capacity/3/size/small" => { capacity: "3", size: "small" }
+ * Pure function: returns new object from path string
  */
 const pathToFilter = (path) => {
   if (!path) return {};
 
   const segments = path.split("/").filter(Boolean);
-  const filters = {};
 
-  for (let i = 0; i < segments.length - 1; i += 2) {
-    const key = decodeURIComponent(segments[i]);
-    const value = decodeURIComponent(segments[i + 1]);
-    if (key && value) {
-      filters[key] = value;
-    }
-  }
-  return filters;
+  return Object.fromEntries(
+    toPairs(segments)
+      .map(([key, value]) => [
+        decodeURIComponent(key),
+        decodeURIComponent(value),
+      ])
+      .filter(([key, value]) => key && value),
+  );
 };
 
 /**
@@ -123,12 +137,9 @@ const itemMatchesFilters = (item, filters) => {
 
   const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
 
-  for (const [key, value] of Object.entries(filters)) {
-    if (normalize(itemAttrs[key] || "") !== normalize(value)) {
-      return false;
-    }
-  }
-  return true;
+  return Object.entries(filters).every(
+    ([key, value]) => normalize(itemAttrs[key] || "") === normalize(value),
+  );
 };
 
 /**
@@ -149,43 +160,40 @@ const getItemsByFilters = (items, filters) => {
  * Build a map of normalized filter attributes for all items (for fast lookups)
  * Keys and values are pre-normalized for O(1) comparison
  * Returns: Map<item, { size: "small", capacity: "3" }>
+ * Pure function: creates Map in single pass using constructor
  */
-const buildItemAttributeMap = (items) => {
-  const map = new Map();
-  for (const item of items) {
-    const attrs = parseFilterAttributes(item.data.filter_attributes);
-    const normalizedAttrs = {};
-    for (const [key, value] of Object.entries(attrs)) {
-      normalizedAttrs[normalize(key)] = normalize(value);
-    }
-    map.set(item, normalizedAttrs);
-  }
-  return map;
-};
+const buildItemAttributeMap = (items) =>
+  new Map(
+    items.map((item) => [
+      item,
+      Object.fromEntries(
+        Object.entries(parseFilterAttributes(item.data.filter_attributes)).map(
+          ([key, value]) => [normalize(key), normalize(value)],
+        ),
+      ),
+    ]),
+  );
 
 /**
  * Check if an item matches filters using pre-normalized attributes
  * Expects itemAttrs to already be normalized
  */
-const attrsMatch = (itemAttrs, normalizedFilters) => {
-  for (const [key, value] of Object.entries(normalizedFilters)) {
-    if (itemAttrs[key] !== value) {
-      return false;
-    }
-  }
-  return true;
-};
+const attrsMatch = (itemAttrs, normalizedFilters) =>
+  Object.entries(normalizedFilters).every(
+    ([key, value]) => itemAttrs[key] === value,
+  );
 
 /**
  * Normalize filter keys and values for comparison
+ * Pure function: returns new object without mutating input
  */
-const normalizeFilters = (filters) => {
-  const normalized = {};
-  for (const [key, value] of Object.entries(filters)) {
-    normalized[normalize(key)] = normalize(value);
-  }
-  return normalized;
-};
+const normalizeFilters = (filters) =>
+  Object.fromEntries(
+    Object.entries(filters).map(([key, value]) => [
+      normalize(key),
+      normalize(value),
+    ]),
+  );
 
 /**
  * Count items matching filters using pre-built attribute map
