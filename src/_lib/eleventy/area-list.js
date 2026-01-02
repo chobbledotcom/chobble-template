@@ -1,15 +1,14 @@
 /**
- * Area list formatting - converts location collections into
- * formatted HTML lists with proper comma/and separation.
+ * Area list formatting - filters and sorts location collections
+ * for use with Liquid templates.
  *
- * Replaces complex Liquid template logic with testable JavaScript.
+ * Logic lives here; HTML markup lives in area-list.html template.
  */
 
 /**
  * Check if a URL represents a top-level location.
- * Top-level locations have exactly 3 segments when split by "/".
- * e.g., "/locations/springfield/" splits to ["", "locations", "springfield", ""]
- * which has size 4, but we check for 3 non-empty segments.
+ * Top-level locations have exactly 2 path segments.
+ * e.g., "/locations/springfield/" -> ["locations", "springfield"]
  *
  * @param {string} url - The URL to check
  * @returns {boolean} True if top-level location
@@ -17,7 +16,7 @@
 const isTopLevelLocation = (url) => {
   if (!url) return false;
   const segments = url.split("/").filter((s) => s !== "");
-  return segments.length === 2; // e.g., ["locations", "springfield"]
+  return segments.length === 2;
 };
 
 /**
@@ -67,52 +66,37 @@ const formatListWithAnd = (items) => {
 };
 
 /**
- * Generate HTML link for a location.
+ * Prepare area list data for template rendering.
+ * Filters, sorts, and adds separators so the template just loops and renders.
  *
- * @param {Object} location - Location object with url and data.eleventyNavigation.key
- * @returns {string} HTML anchor tag
+ * @param {Array} locations - Array of location objects
+ * @param {string} currentUrl - URL of the current page to exclude
+ * @returns {Array} Array of {url, name, separator} ready for template
  */
-const locationToLink = (location) => {
-  const url = location.url || "";
-  const name = location.data?.eleventyNavigation?.key || "";
-  return `<a href="${url}#content">${name}</a>`;
+const prepareAreaList = (locations, currentUrl) => {
+  const filtered = filterTopLevelLocations(locations, currentUrl);
+  const sorted = sortByNavigationKey(filtered);
+
+  return sorted.map((loc, index) => {
+    let separator = "";
+    if (index < sorted.length - 1) {
+      separator = index === sorted.length - 2 ? " and " : ", ";
+    }
+    return {
+      url: loc.url || "",
+      name: loc.data?.eleventyNavigation?.key || "",
+      separator,
+    };
+  });
 };
 
 /**
- * Generate formatted area list HTML.
- *
- * @param {Array} locations - Array of location objects from collections.location
- * @param {string} currentUrl - URL of the current page (to exclude from list)
- * @param {string} prefix - Text to prepend (e.g., "We also serve ")
- * @param {string} suffix - Text to append (e.g., ".")
- * @returns {string} Complete HTML string
- */
-const formatAreaList = (locations, currentUrl, prefix = "", suffix = "") => {
-  const sorted = sortByNavigationKey(locations);
-  const filtered = filterTopLevelLocations(sorted, currentUrl);
-
-  if (filtered.length === 0) return "";
-
-  const links = filtered.map(locationToLink);
-  const formattedList = formatListWithAnd(links);
-
-  return `${prefix}${formattedList}${suffix}`;
-};
-
-/**
- * Configure the Eleventy shortcode for area list.
+ * Configure the Eleventy filters for area list.
  *
  * @param {Object} eleventyConfig - Eleventy configuration object
  */
 const configureAreaList = (eleventyConfig) => {
-  eleventyConfig.addShortcode(
-    "areaList",
-    function (locations, prefix = "", suffix = "") {
-      // `this.page.url` gives us the current page URL in Eleventy shortcodes
-      const currentUrl = this.page?.url || "";
-      return formatAreaList(locations, currentUrl, prefix, suffix);
-    },
-  );
+  eleventyConfig.addFilter("prepareAreaList", prepareAreaList);
 };
 
 export {
@@ -120,7 +104,6 @@ export {
   sortByNavigationKey,
   filterTopLevelLocations,
   formatListWithAnd,
-  locationToLink,
-  formatAreaList,
+  prepareAreaList,
   configureAreaList,
 };
