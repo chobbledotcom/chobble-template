@@ -160,6 +160,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAsyncTestsWithoutAwait",
   "findAssertionsWithoutMessages",
   "findTautologicalAssertions",
+  // pdf-integration.test.js - PDF output helpers
+  "findPdfInMenuDir",
+  "verifyPdfHeader",
 ]);
 
 /**
