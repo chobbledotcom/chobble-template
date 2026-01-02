@@ -1,68 +1,53 @@
 import {
+  analyzeFiles,
+  assertNoViolations,
+  combineFileLists,
+  scanLines,
+} from "#test/code-scanner.js";
+import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectStrictEqual,
-  fs,
-  path,
-  rootDir,
+  expectTrue,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
 
+const TODO_FIXME_REGEX = /\b(TODO|FIXME)\b/gi;
+
 /**
  * Find all TODO/FIXME occurrences in a file
- * Returns array of { lineNumber, line, match }
  */
-const findTodoFixme = (source) => {
-  const results = [];
-  const lines = source.split("\n");
+const findTodoFixme = (source) =>
+  scanLines(source, (line, lineNum) => {
+    const match = line.match(TODO_FIXME_REGEX);
+    return match
+      ? { lineNumber: lineNum, line: line.trim(), match: match[0] }
+      : null;
+  });
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    // Match TODO or FIXME as whole words (case-insensitive)
-    const regex = /\b(TODO|FIXME)\b/gi;
-    const match = line.match(regex);
-
-    if (match) {
-      results.push({
-        lineNumber: i + 1,
-        line: line.trim(),
-        match: match[0],
-      });
-    }
-  }
-
-  return results;
-};
+const EXCLUDE_FILES = [
+  "test/todo-fixme-comments.test.js",
+  "test/commented-code.test.js",
+];
 
 /**
  * Analyze all JS files and find TODO/FIXME comments
  */
-const analyzeTodoFixme = () => {
-  const violations = [];
-
-  // Exclude test files that contain TODO/FIXME in test fixture strings
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES, ...TEST_FILES]
-    .filter((f) => f !== "test/todo-fixme-comments.test.js")
-    .filter((f) => f !== "test/commented-code.test.js");
-
-  for (const relativePath of allJsFiles) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const todoFixmes = findTodoFixme(source);
-
-    for (const tf of todoFixmes) {
-      violations.push({
+const analyzeTodoFixme = () =>
+  analyzeFiles(
+    combineFileLists(
+      [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+      EXCLUDE_FILES,
+    ),
+    (source, relativePath) =>
+      findTodoFixme(source).map((tf) => ({
         file: relativePath,
         line: tf.lineNumber,
         code: tf.line,
         match: tf.match,
-      });
-    }
-  }
-
-  return violations;
-};
+      })),
+  );
 
 const testCases = [
   {
@@ -102,21 +87,10 @@ const todoList = []; // variable name, not a comment
     description: "No TODO/FIXME comments in the codebase",
     test: () => {
       const violations = analyzeTodoFixme();
-
-      if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} TODO/FIXME comments:`);
-        for (const v of violations) {
-          console.log(`     - ${v.file}:${v.line} (${v.match})`);
-          console.log(`       ${v.code}`);
-        }
-        console.log("\n  To fix: resolve the TODO/FIXME before committing.\n");
-      }
-
-      expectStrictEqual(
-        violations.length,
-        0,
-        "No TODO/FIXME comments should exist in codebase",
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: "TODO/FIXME comment(s)",
+        fixHint: "resolve the TODO/FIXME before committing",
+      });
     },
   },
 ];

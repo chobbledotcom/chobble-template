@@ -7,13 +7,12 @@
 		"**/src/assets/js/lib/**",
 		"**/*.min.js",
 		"**/package-lock.json",
-		"**/ecommerce-backend/**",
-		"**/test/**"
+		"**/ecommerce-backend/**"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
 	"gitignore": true,
 	"minLines": 3,
-	"minTokens": 30,
+	"minTokens": 50,
 	"path": ["src", "test", ".eleventy.js"]
 }

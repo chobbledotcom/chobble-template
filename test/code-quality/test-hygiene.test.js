@@ -1,3 +1,4 @@
+import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 import {
   createTestRunner,
   expectStrictEqual,
@@ -7,7 +8,6 @@ import {
   SRC_SCSS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
-import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
@@ -136,8 +136,16 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "isAllowedLine",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
+  // autosizes.test.js - test environment setup helpers
+  "createTestEnv",
+  "runAutosizes",
+  "makeImg",
   // unused-classes.test.js - helper to add classes from string
   "addClasses",
+  // unused-classes.test.js - helper to add items to Map
+  "addToMap",
+  // unused-classes.test.js - helper to log unused items
+  "logUnused",
   // html-in-js.test.js - analysis helpers
   "isCommentLine",
   "extractStringContent",
@@ -162,13 +170,25 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
+  // reviews.test.js - test fixtures helpers
+  "createReviews",
+  "createMockCollectionApi",
+  "createProduct",
   // code-scanner.js - code scanning utilities
-  "scanFilesForViolations",
+  "readSource",
+  "toLines",
+  "excludeFiles",
+  "combineFileLists",
+  "matchAny",
+  "scanLines",
+  "findPatterns",
   "analyzeFiles",
+  "scanFilesForViolations",
   "formatViolationReport",
   "assertNoViolations",
   "createPatternMatcher",
-  "combineFileLists",
+  // unused-images.test.js - test helper
+  "runUnusedImagesTest",
 ]);
 
 /**
@@ -273,8 +293,7 @@ const testCases = [
       const issues = analyzeTestFiles();
       assertNoViolations(expectTrue, issues, {
         message: "non-whitelisted function(s) in test files",
-        fixHint:
-          "add to ALLOWED_TEST_FUNCTIONS or import from source",
+        fixHint: "add to ALLOWED_TEST_FUNCTIONS or import from source",
       });
     },
   },

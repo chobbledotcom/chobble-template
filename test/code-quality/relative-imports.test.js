@@ -1,46 +1,33 @@
 import {
+  assertNoViolations,
+  combineFileLists,
+  scanFilesForViolations,
+  scanLines,
+} from "#test/code-scanner.js";
+import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
-import {
-  assertNoViolations,
-  combineFileLists,
-  scanFilesForViolations,
-} from "#test/code-scanner.js";
+
+const RELATIVE_IMPORT_REGEX = /from\s+["'](\.\.[/"']|\.\/)/;
+const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
 /**
  * Find all relative imports in a file
- * Returns array of { lineNumber, line, importPath }
  */
-const findRelativeImports = (source) => {
-  const results = [];
-  const lines = source.split("\n");
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Match import statements with relative paths
-    // Captures: from "./something" or from "../something" or from '../../something'
-    const regex = /from\s+["'](\.\.[/"']|\.\/)/g;
-
-    if (regex.test(line)) {
-      // Extract the actual import path
-      const pathMatch = line.match(/from\s+["']([^"']+)["']/);
-      const importPath = pathMatch ? pathMatch[1] : "unknown";
-
-      results.push({
-        lineNumber: i + 1,
-        line: line.trim(),
-        importPath,
-      });
-    }
-  }
-
-  return results;
-};
+const findRelativeImports = (source) =>
+  scanLines(source, (line, lineNum) => {
+    if (!RELATIVE_IMPORT_REGEX.test(line)) return null;
+    const pathMatch = line.match(IMPORT_PATH_REGEX);
+    return {
+      lineNumber: lineNum,
+      line: line.trim(),
+      importPath: pathMatch ? pathMatch[1] : "unknown",
+    };
+  });
 
 const THIS_FILE = "test/code-quality/relative-imports.test.js";
 

@@ -1,16 +1,15 @@
 import {
+  analyzeFiles,
+  assertNoViolations,
+  findPatterns,
+  scanLines,
+} from "#test/code-scanner.js";
+import {
   createTestRunner,
   expectStrictEqual,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   TEST_FILES,
 } from "#test/test-utils.js";
-import {
-  analyzeFiles,
-  assertNoViolations,
-} from "#test/code-scanner.js";
 
 /**
  * Test Quality Enforcement
@@ -56,21 +55,12 @@ const TEST_NAME_PATTERNS = [
 /**
  * Extract test case names from source code using multiple patterns.
  */
-const extractTestNames = (source, relativePath) => {
-  const testCases = [];
-  const lines = source.split("\n");
-
-  for (let i = 0; i < lines.length; i++) {
-    for (const pattern of TEST_NAME_PATTERNS) {
-      const match = lines[i].match(pattern);
-      if (match) {
-        testCases.push({ name: match[1], line: i + 1, file: relativePath });
-        break;
-      }
-    }
-  }
-  return testCases;
-};
+const extractTestNames = (source, relativePath) =>
+  findPatterns(source, TEST_NAME_PATTERNS, (match, lineNum) => ({
+    name: match[1],
+    line: lineNum,
+    file: relativePath,
+  }));
 
 // Keep for backwards compatibility in tests
 const extractTestCases = extractTestNames;
@@ -208,7 +198,8 @@ const findAssertionsWithoutMessages = () => {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      const truncatedCode = line.substring(0, 50) + (line.length > 50 ? "..." : "");
+      const truncatedCode =
+        line.substring(0, 50) + (line.length > 50 ? "..." : "");
 
       // Match assert.strictEqual(a, b) without third parameter
       if (/assert\.strictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/.test(line)) {
@@ -221,7 +212,9 @@ const findAssertionsWithoutMessages = () => {
       }
 
       // Match assert.deepStrictEqual without message
-      if (/assert\.deepStrictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/.test(line)) {
+      if (
+        /assert\.deepStrictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/.test(line)
+      ) {
         violations.push({
           file: relativePath,
           line: i + 1,

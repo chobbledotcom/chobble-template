@@ -224,6 +224,16 @@ const findIdReferencesInJs = (content, idName) => {
 // Main Analysis Functions
 // ============================================
 
+/**
+ * Add items from a Set to a Map with file tracking.
+ */
+const addToMap = (map, items, file) => {
+  for (const item of items) {
+    if (!map.has(item)) map.set(item, []);
+    map.get(item).push(file);
+  }
+};
+
 const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
   const allClasses = new Map(); // class -> [files where defined]
   const allIds = new Map(); // id -> [files where defined]
@@ -231,35 +241,14 @@ const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
   // Extract from HTML files
   for (const file of htmlFiles) {
     const content = readFileSync(file, "utf-8");
-    const classes = extractClassesFromHtml(content);
-    const ids = extractIdsFromHtml(content);
-
-    for (const cls of classes) {
-      if (!allClasses.has(cls)) {
-        allClasses.set(cls, []);
-      }
-      allClasses.get(cls).push(file);
-    }
-
-    for (const id of ids) {
-      if (!allIds.has(id)) {
-        allIds.set(id, []);
-      }
-      allIds.get(id).push(file);
-    }
+    addToMap(allClasses, extractClassesFromHtml(content), file);
+    addToMap(allIds, extractIdsFromHtml(content), file);
   }
 
   // Extract from JS files (dynamically created HTML)
   for (const file of jsFiles) {
     const content = readFileSync(file, "utf-8");
-    const classes = extractClassesFromJs(content);
-
-    for (const cls of classes) {
-      if (!allClasses.has(cls)) {
-        allClasses.set(cls, []);
-      }
-      allClasses.get(cls).push(file);
-    }
+    addToMap(allClasses, extractClassesFromJs(content), file);
   }
 
   return { allClasses, allIds };
@@ -473,25 +462,19 @@ const testCases = [
       console.log(`     Unused classes: ${unusedClasses.length}`);
       console.log(`     Unused IDs: ${unusedIds.length}`);
 
-      if (unusedClasses.length > 0) {
-        console.log(`\n  ⚠️  Unused Classes:`);
-        for (const { name, definedIn } of unusedClasses.sort((a, b) =>
+      const logUnused = (items, label) => {
+        if (items.length === 0) return;
+        console.log(`\n  ⚠️  Unused ${label}:`);
+        for (const { name, definedIn } of items.sort((a, b) =>
           a.name.localeCompare(b.name),
         )) {
           const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
           console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
         }
-      }
+      };
 
-      if (unusedIds.length > 0) {
-        console.log(`\n  ⚠️  Unused IDs:`);
-        for (const { name, definedIn } of unusedIds.sort((a, b) =>
-          a.name.localeCompare(b.name),
-        )) {
-          const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
-          console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
-        }
-      }
+      logUnused(unusedClasses, "Classes");
+      logUnused(unusedIds, "IDs");
 
       // Fail the test if there are unused classes
       expectTrue(

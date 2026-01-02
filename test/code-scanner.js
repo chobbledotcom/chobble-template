@@ -1,186 +1,163 @@
 /**
- * Tidy utilities for code quality tests.
- * Provides common patterns for file scanning, line matching, and violation reporting.
+ * Code scanner utilities for code quality tests.
+ * Written in a functional, immutable style.
  */
 import { fs, path, rootDir } from "#test/test-utils.js";
 
 /**
- * Scan files for patterns line-by-line and collect violations.
- * Replaces the common pattern of: iterate files, read source, loop lines, match pattern
- *
- * @param {string[]} files - Array of file paths relative to rootDir
- * @param {function} lineMatcher - Function(line, lineNumber, source, relativePath) => violation or null
- * @param {object} options - Optional settings
- * @param {string[]} options.excludeFiles - Files to exclude from scanning
- * @returns {Array} Array of violations returned by lineMatcher
+ * Read a file's source code.
  */
-const scanFilesForViolations = (files, lineMatcher, options = {}) => {
-  const { excludeFiles = [] } = options;
-  const violations = [];
-  const excludeSet = new Set(excludeFiles);
+const readSource = (relativePath) =>
+  fs.readFileSync(path.join(rootDir, relativePath), "utf-8");
 
-  for (const relativePath of files) {
-    if (excludeSet.has(relativePath)) continue;
+/**
+ * Split source into lines with line numbers.
+ * @returns {Array<{line: string, num: number}>}
+ */
+const toLines = (source) =>
+  source.split("\n").map((line, i) => ({ line, num: i + 1 }));
 
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const lines = source.split("\n");
-
-    for (let i = 0; i < lines.length; i++) {
-      const result = lineMatcher(lines[i], i + 1, source, relativePath);
-      if (result) {
-        if (Array.isArray(result)) {
-          violations.push(...result);
-        } else {
-          violations.push(result);
-        }
-      }
-    }
-  }
-
-  return violations;
+/**
+ * Filter file list excluding certain paths.
+ */
+const excludeFiles = (files, exclude = []) => {
+  const excludeSet = new Set(exclude);
+  return files.filter((f) => !excludeSet.has(f));
 };
 
 /**
- * Scan files and collect all pattern matches with context.
- * For when you need to analyze patterns across the whole file, not just per-line.
- *
- * @param {string[]} files - Array of file paths relative to rootDir
- * @param {function} fileAnalyzer - Function(source, relativePath) => violations array
- * @param {object} options - Optional settings
- * @param {string[]} options.excludeFiles - Files to exclude from scanning
- * @returns {Array} Array of violations returned by fileAnalyzer
+ * Combine multiple file lists, optionally excluding some.
  */
-const analyzeFiles = (files, fileAnalyzer, options = {}) => {
-  const { excludeFiles = [] } = options;
-  const violations = [];
-  const excludeSet = new Set(excludeFiles);
+const combineFileLists = (fileLists, exclude = []) =>
+  excludeFiles(fileLists.flat(), exclude);
 
-  for (const relativePath of files) {
-    if (excludeSet.has(relativePath)) continue;
-
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const results = fileAnalyzer(source, relativePath);
-
-    if (results && results.length > 0) {
-      violations.push(...results);
-    }
+/**
+ * Find first matching pattern in a line.
+ * @returns {match: RegExpMatchArray, pattern: RegExp} | null
+ */
+const matchAny = (line, patterns) => {
+  for (const pattern of patterns) {
+    const match = line.match(pattern);
+    if (match) return { match, pattern };
   }
-
-  return violations;
+  return null;
 };
 
 /**
- * Report violations in a consistent format and return a check function.
- *
- * @param {Array} violations - Array of violation objects with file, line, code properties
- * @param {object} options - Reporting options
- * @param {string} options.message - Main message (e.g., "commented-out code")
- * @param {string} options.fixHint - How to fix hint
- * @param {number} options.limit - Max violations to show (default 10)
- * @returns {object} { count, report } - count of violations and formatted report string
+ * Scan source line-by-line, returning results for matching lines.
+ * @param {string} source - Source code
+ * @param {function} matcher - (line, lineNum, lines) => result | null
+ * @returns {Array} Non-null results
+ */
+const scanLines = (source, matcher) =>
+  toLines(source)
+    .flatMap(({ line, num }, _i, lines) => matcher(line, num, lines))
+    .filter((r) => r !== null && r !== undefined);
+
+/**
+ * Find all pattern matches in source.
+ * @param {string} source - Source code
+ * @param {RegExp[]} patterns - Patterns to match
+ * @param {function} transform - (match, lineNum, line) => result
+ */
+const findPatterns = (source, patterns, transform) =>
+  scanLines(source, (line, num) => {
+    const result = matchAny(line, patterns);
+    return result ? transform(result.match, num, line) : null;
+  });
+
+/**
+ * Analyze multiple files, collecting results.
+ * @param {string[]} files - File paths relative to rootDir
+ * @param {function} analyzer - (source, path) => results[]
+ * @param {object} options - { excludeFiles: string[] }
+ */
+const analyzeFiles = (files, analyzer, options = {}) =>
+  excludeFiles(files, options.excludeFiles || []).flatMap(
+    (relativePath) => analyzer(readSource(relativePath), relativePath) || [],
+  );
+
+/**
+ * Scan files line-by-line, collecting violations.
+ * @param {string[]} files - File paths relative to rootDir
+ * @param {function} matcher - (line, lineNum, source, path) => violation | null
+ * @param {object} options - { excludeFiles: string[] }
+ */
+const scanFilesForViolations = (files, matcher, options = {}) =>
+  analyzeFiles(
+    files,
+    (source, relativePath) =>
+      scanLines(source, (line, num) =>
+        matcher(line, num, source, relativePath),
+      ),
+    options,
+  );
+
+/**
+ * Format violations into a report string.
  */
 const formatViolationReport = (violations, options = {}) => {
   const { message = "violations", fixHint = "", limit = 10 } = options;
 
-  if (violations.length === 0) {
-    return { count: 0, report: "" };
-  }
+  if (violations.length === 0) return { count: 0, report: "" };
 
-  const lines = [];
-  lines.push(`\n  Found ${violations.length} ${message}:`);
+  const header = `\n  Found ${violations.length} ${message}:`;
+  const items = violations
+    .slice(0, limit)
+    .flatMap((v) => [
+      `     - ${v.file}:${v.line}`,
+      ...(v.code ? [`       ${v.code}`] : []),
+    ]);
+  const overflow =
+    violations.length > limit
+      ? [`     ... and ${violations.length - limit} more`]
+      : [];
+  const fix = fixHint ? [`\n  To fix: ${fixHint}\n`] : [""];
 
-  const shown = violations.slice(0, limit);
-  for (const v of shown) {
-    lines.push(`     - ${v.file}:${v.line}`);
-    if (v.code) {
-      lines.push(`       ${v.code}`);
-    }
-  }
-
-  if (violations.length > limit) {
-    lines.push(`     ... and ${violations.length - limit} more`);
-  }
-
-  if (fixHint) {
-    lines.push(`\n  To fix: ${fixHint}\n`);
-  } else {
-    lines.push("");
-  }
-
-  return { count: violations.length, report: lines.join("\n") };
-};
-
-/**
- * Run a violation check, log report, and assert zero violations.
- * Consolidates the common test pattern of analyze -> report -> assert.
- *
- * @param {function} expectTrue - The expectTrue assertion function
- * @param {Array} violations - Violations array
- * @param {object} options - Report options (see formatViolationReport)
- */
-const assertNoViolations = (expectTrue, violations, options = {}) => {
-  const { count, report } = formatViolationReport(violations, options);
-
-  if (report) {
-    console.log(report);
-  }
-
-  expectTrue(
-    count === 0,
-    `Found ${count} ${options.message || "violations"}. See list above.`,
-  );
-};
-
-/**
- * Create a line matcher for simple regex pattern detection.
- *
- * @param {RegExp|RegExp[]} patterns - Pattern(s) to match
- * @param {function} createViolation - Function(line, lineNumber, match, relativePath) => violation object
- * @returns {function} Line matcher suitable for scanFilesForViolations
- */
-const createPatternMatcher = (patterns, createViolation) => {
-  const patternList = Array.isArray(patterns) ? patterns : [patterns];
-
-  return (line, lineNumber, _source, relativePath) => {
-    for (const pattern of patternList) {
-      const match = line.match(pattern);
-      if (match) {
-        return createViolation(line.trim(), lineNumber, match, relativePath);
-      }
-    }
-    return null;
+  return {
+    count: violations.length,
+    report: [header, ...items, ...overflow, ...fix].join("\n"),
   };
 };
 
 /**
- * Combine multiple file lists and optionally exclude certain files.
- *
- * @param {Array<string[]>} fileLists - Arrays of file paths to combine
- * @param {string[]} excludeFiles - Files to exclude
- * @returns {string[]} Combined and filtered file list
+ * Assert no violations, logging report if any found.
  */
-const combineFileLists = (fileLists, excludeFiles = []) => {
-  const excludeSet = new Set(excludeFiles);
-  const combined = [];
+const assertNoViolations = (expectTrue, violations, options = {}) => {
+  const { count, report } = formatViolationReport(violations, options);
+  if (report) console.log(report);
+  expectTrue(
+    count === 0,
+    `Found ${count} ${options.message || "violations"}. See above.`,
+  );
+};
 
-  for (const list of fileLists) {
-    for (const file of list) {
-      if (!excludeSet.has(file)) {
-        combined.push(file);
-      }
-    }
-  }
-
-  return combined;
+/**
+ * Create a line matcher from patterns.
+ * @param {RegExp|RegExp[]} patterns - Pattern(s) to match
+ * @param {function} toViolation - (line, lineNum, match, path) => violation
+ */
+const createPatternMatcher = (patterns, toViolation) => {
+  const patternList = [patterns].flat();
+  return (line, lineNum, _source, relativePath) => {
+    const result = matchAny(line, patternList);
+    return result
+      ? toViolation(line.trim(), lineNum, result.match, relativePath)
+      : null;
+  };
 };
 
 export {
-  scanFilesForViolations,
+  readSource,
+  toLines,
+  excludeFiles,
+  combineFileLists,
+  matchAny,
+  scanLines,
+  findPatterns,
   analyzeFiles,
+  scanFilesForViolations,
   formatViolationReport,
   assertNoViolations,
   createPatternMatcher,
-  combineFileLists,
 };

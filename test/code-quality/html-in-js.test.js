@@ -1,11 +1,11 @@
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
+import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
-import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.

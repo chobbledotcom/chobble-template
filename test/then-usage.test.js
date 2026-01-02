@@ -1,72 +1,48 @@
 import {
+  analyzeFiles,
+  assertNoViolations,
+  combineFileLists,
+  scanLines,
+} from "#test/code-scanner.js";
+import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
 
+const THEN_REGEX = /\.then\s*\(/;
+const isComment = (line) => line.startsWith("//") || line.startsWith("*");
+
 /**
  * Find all .then() calls in a file
- * Returns array of { lineNumber, line }
  */
-const findThenCalls = (source) => {
-  const results = [];
-  const lines = source.split("\n");
+const findThenCalls = (source) =>
+  scanLines(source, (line, lineNum) => {
+    const trimmed = line.trim();
+    if (!THEN_REGEX.test(line) || isComment(trimmed)) return null;
+    return { lineNumber: lineNum, line: trimmed };
+  });
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    // Match .then( with optional whitespace
-    const regex = /\.then\s*\(/g;
-
-    if (regex.test(line)) {
-      // Skip if in a comment
-      const trimmed = line.trim();
-      if (trimmed.startsWith("//")) continue;
-      if (trimmed.startsWith("*")) continue; // Block comment line
-
-      results.push({
-        lineNumber: i + 1,
-        line: trimmed,
-      });
-    }
-  }
-
-  return results;
-};
+const THIS_FILE = "test/then-usage.test.js";
 
 /**
  * Analyze all JS files and find .then() usage
  */
-const analyzeThenUsage = () => {
-  const violations = [];
-
-  // Exclude this test file since it contains examples in test strings
-  const allJsFiles = [
-    ...SRC_JS_FILES,
-    ...ECOMMERCE_JS_FILES,
-    ...TEST_FILES,
-  ].filter((f) => f !== "test/then-usage.test.js");
-
-  for (const relativePath of allJsFiles) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const thenCalls = findThenCalls(source);
-
-    for (const tc of thenCalls) {
-      violations.push({
+const analyzeThenUsage = () =>
+  analyzeFiles(
+    combineFileLists(
+      [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+      [THIS_FILE],
+    ),
+    (source, relativePath) =>
+      findThenCalls(source).map((tc) => ({
         file: relativePath,
         line: tc.lineNumber,
         code: tc.line,
-      });
-    }
-  }
-
-  return violations;
-};
+      })),
+  );
 
 const testCases = [
   {
@@ -92,20 +68,10 @@ await asyncFunction();
     description: "No .then() chains - use async/await instead",
     test: () => {
       const violations = analyzeThenUsage();
-
-      if (violations.length > 0) {
-        console.log(`\n  Found ${violations.length} .then() calls:`);
-        for (const v of violations) {
-          console.log(`     - ${v.file}:${v.line}`);
-          console.log(`       ${v.code}`);
-        }
-        console.log("\n  To fix: refactor to use async/await\n");
-      }
-
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} .then() calls. See list above.`,
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: ".then() call(s)",
+        fixHint: "use async/await instead of .then() chains",
+      });
     },
   },
 ];

@@ -1,16 +1,17 @@
 import { ALLOWED_TRY_CATCHES } from "#test/code-quality/code-quality-exceptions.js";
 import {
+  analyzeFiles,
+  assertNoViolations,
+  combineFileLists,
+  toLines,
+} from "#test/code-scanner.js";
+import {
   createTestRunner,
   ECOMMERCE_JS_FILES,
   expectTrue,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
-import {
-  analyzeFiles,
-  assertNoViolations,
-  combineFileLists,
-} from "#test/code-scanner.js";
 
 /**
  * Find all try/catch blocks in a file (excludes try/finally without catch)
@@ -118,8 +119,7 @@ const analyzeTryCatchUsage = () => {
 
   for (const tc of results) {
     const isAllowed =
-      ALLOWED_TRY_CATCHES.has(tc.location) ||
-      ALLOWED_TRY_CATCHES.has(tc.file);
+      ALLOWED_TRY_CATCHES.has(tc.location) || ALLOWED_TRY_CATCHES.has(tc.file);
 
     if (isAllowed) {
       allowed.push(tc);
