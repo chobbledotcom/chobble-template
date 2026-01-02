@@ -35,8 +35,6 @@ const readFileContent = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
-const extractBodyFromMarkdown = (content) => matter(content).content;
-
 const renderSnippet = memoize(
   async (
     name,
@@ -93,7 +91,6 @@ export {
   fileExists,
   fileMissing,
   readFileContent,
-  extractBodyFromMarkdown,
   renderSnippet,
   configureFileUtils,
 };
