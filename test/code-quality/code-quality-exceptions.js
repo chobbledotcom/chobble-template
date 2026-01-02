@@ -45,4 +45,24 @@ const ALLOWED_HTML_IN_JS = new Set([
   "src/_lib/filters/item-filters.js",
 ]);
 
-export { ALLOWED_TRY_CATCHES, ALLOWED_HTML_IN_JS };
+// ============================================
+// Console.log exceptions
+// ============================================
+
+// Files that are allowed to use console.* for legitimate purposes.
+const ALLOWED_CONSOLE = new Set([
+  // CLI scripts need console output for user feedback
+  "src/_lib/scripts/add-skus.js",
+  "src/_lib/media/unused-images.js",
+
+  // Build-time logging for PDF generation progress
+  "src/_lib/eleventy/pdf.js",
+
+  // Browser-side error handling (caught errors need to be logged somewhere)
+  "src/assets/js/cart-utils.js",
+
+  // ecommerce backend server logging
+  "ecommerce-backend/server.js",
+]);
+
+export { ALLOWED_TRY_CATCHES, ALLOWED_HTML_IN_JS, ALLOWED_CONSOLE };

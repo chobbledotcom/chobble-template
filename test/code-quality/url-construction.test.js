@@ -1,9 +1,12 @@
 import {
+  analyzeFiles,
+  assertNoViolations,
+  matchAny,
+  scanLines,
+} from "#test/code-scanner.js";
+import {
   createTestRunner,
   expectTrue,
-  fs,
-  path,
-  rootDir,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
 
@@ -59,73 +62,45 @@ const ALLOWED_FILES = new Set([
   "test/area-list.test.js",
 ]);
 
-// Specific allowed patterns (line content) that are false positives
-const ALLOWED_LINES = [
-  // Comments explaining the pattern
-  /^\s*\/\//,
-  /^\s*\*/,
-  // URL splitting/parsing (reading URLs, not constructing them)
-  /\.split\(/,
-  // String matching/includes (checking URLs, not constructing them)
-  /\.includes\(/,
-  /\.startsWith\(/,
-  /\.match\(/,
+// Patterns that indicate false positives (reading URLs, not constructing them)
+const ALLOWED_LINE_PATTERNS = [
+  /^\s*\/\//, // Comments
+  /^\s*\*/, // Block comment lines
+  /\.split\(/, // URL splitting/parsing
+  /\.includes\(/, // String matching
+  /\.startsWith\(/, // String matching
+  /\.match\(/, // Regex matching
 ];
-
-/**
- * Check if a line is allowed despite matching a hardcoded pattern
- */
-const isAllowedLine = (line) =>
-  ALLOWED_LINES.some((pattern) => pattern.test(line));
 
 /**
  * Find hardcoded URL patterns in source code
  */
-const findHardcodedUrls = (source, relativePath) => {
-  const results = [];
-  const lines = source.split("\n");
+const findHardcodedUrls = (source) =>
+  scanLines(source, (line, lineNum) => {
+    const trimmed = line.trim();
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const trimmedLine = line.trim();
+    // Skip allowed line patterns (comments, URL parsing)
+    if (matchAny(trimmed, ALLOWED_LINE_PATTERNS)) return null;
 
-    // Skip allowed line patterns
-    if (isAllowedLine(trimmedLine)) continue;
-
-    for (const pattern of HARDCODED_URL_PATTERNS) {
-      if (pattern.test(line)) {
-        results.push({
-          file: relativePath,
-          lineNumber: i + 1,
-          line: trimmedLine,
-          pattern: pattern.toString(),
-        });
-        break; // Only report once per line
-      }
-    }
-  }
-
-  return results;
-};
+    // Check for hardcoded URL patterns
+    const result = matchAny(line, HARDCODED_URL_PATTERNS);
+    return result ? { lineNumber: lineNum, line: trimmed } : null;
+  });
 
 /**
  * Analyze all JS files for hardcoded URL patterns
  */
-const analyzeHardcodedUrls = () => {
-  const violations = [];
-
-  for (const relativePath of SRC_JS_FILES) {
-    // Skip allowed files
-    if (ALLOWED_FILES.has(relativePath)) continue;
-
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const found = findHardcodedUrls(source, relativePath);
-    violations.push(...found);
-  }
-
-  return violations;
-};
+const analyzeHardcodedUrls = () =>
+  analyzeFiles(
+    SRC_JS_FILES,
+    (source, relativePath) =>
+      findHardcodedUrls(source).map((hit) => ({
+        file: relativePath,
+        line: hit.lineNumber,
+        code: hit.line,
+      })),
+    { excludeFiles: [...ALLOWED_FILES] },
+  );
 
 const testCases = [
   {
@@ -134,7 +109,7 @@ const testCases = [
     test: () => {
       // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
       const source = "const url = `/events/${slug}/`;";
-      const results = findHardcodedUrls(source, "test.js");
+      const results = findHardcodedUrls(source);
       expectTrue(results.length === 1, "Should detect hardcoded /events/ URL");
     },
   },
@@ -143,7 +118,7 @@ const testCases = [
     description: "Detects hardcoded /products/ URL pattern",
     test: () => {
       const source = 'const url = "/products/" + productSlug;';
-      const results = findHardcodedUrls(source, "test.js");
+      const results = findHardcodedUrls(source);
       expectTrue(
         results.length === 1,
         "Should detect hardcoded /products/ URL",
@@ -156,7 +131,7 @@ const testCases = [
     test: () => {
       // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
       const source = "// Example: `/events/${slug}/`";
-      const results = findHardcodedUrls(source, "test.js");
+      const results = findHardcodedUrls(source);
       expectTrue(results.length === 0, "Should allow URLs in comments");
     },
   },
@@ -165,7 +140,7 @@ const testCases = [
     description: "Allows URL splitting/parsing operations",
     test: () => {
       const source = 'const parts = url.split("/events/");';
-      const results = findHardcodedUrls(source, "test.js");
+      const results = findHardcodedUrls(source);
       expectTrue(results.length === 0, "Should allow URL parsing");
     },
   },
@@ -174,7 +149,7 @@ const testCases = [
     description: "Allows URL construction using strings config",
     test: () => {
       const source = `const url = \`/\${strings.event_permalink_dir}/\${fileSlug}/\`;`;
-      const results = findHardcodedUrls(source, "test.js");
+      const results = findHardcodedUrls(source);
       expectTrue(
         results.length === 0,
         "Should allow strings config URL construction",
@@ -186,25 +161,10 @@ const testCases = [
     description: "No hardcoded collection URLs in src/_lib JavaScript files",
     test: () => {
       const violations = analyzeHardcodedUrls();
-
-      if (violations.length > 0) {
-        console.log(
-          `\n  Found ${violations.length} hardcoded URL constructions:`,
-        );
-        for (const v of violations) {
-          console.log(`     - ${v.file}:${v.lineNumber}`);
-          console.log(`       ${v.line}`);
-        }
-        console.log(
-          "\n  To fix: Use strings.*_permalink_dir and/or check for data.permalink\n",
-        );
-      }
-
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} hardcoded URL constructions. ` +
-          `Use strings.*_permalink_dir instead of hardcoding paths.`,
-      );
+      assertNoViolations(expectTrue, violations, {
+        message: "hardcoded URL constructions",
+        fixHint: "Use strings.*_permalink_dir and/or check for data.permalink",
+      });
     },
   },
 ];
