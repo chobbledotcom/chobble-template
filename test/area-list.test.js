@@ -1,10 +1,9 @@
 import {
   configureAreaList,
   filterTopLevelLocations,
-  formatAreaList,
   formatListWithAnd,
   isTopLevelLocation,
-  locationToLink,
+  prepareAreaList,
   sortByNavigationKey,
 } from "#eleventy/area-list.js";
 import {
@@ -304,253 +303,150 @@ const testCases = [
     },
   },
 
-  // locationToLink tests
+  // prepareAreaList tests
   {
-    name: "locationToLink-basic",
-    description: "Generates HTML link with #content anchor",
-    test: () => {
-      const location = createLocation("Springfield", "/locations/springfield/");
-      const link = locationToLink(location);
-
-      expectStrictEqual(
-        link,
-        '<a href="/locations/springfield/#content">Springfield</a>',
-        "Should generate correct HTML",
-      );
-    },
-  },
-  {
-    name: "locationToLink-missing-data",
-    description: "Handles missing data gracefully",
-    test: () => {
-      const location = { url: "/test/" };
-      const link = locationToLink(location);
-
-      expectStrictEqual(
-        link,
-        '<a href="/test/#content"></a>',
-        "Should generate link with empty name",
-      );
-    },
-  },
-  {
-    name: "locationToLink-missing-url",
-    description: "Handles missing URL gracefully",
-    test: () => {
-      const location = { data: { eleventyNavigation: { key: "Test" } } };
-      const link = locationToLink(location);
-
-      expectStrictEqual(
-        link,
-        '<a href="#content">Test</a>',
-        "Should generate link with empty url",
-      );
-    },
-  },
-
-  // formatAreaList integration tests
-  {
-    name: "formatAreaList-full-integration",
-    description: "Produces correct output for typical use case",
-    test: () => {
-      const locations = [
-        createLocation("Zebra Town", "/locations/zebra-town/"),
-        createLocation("Springfield", "/locations/springfield/"),
-        createLocation("Downtown", "/locations/springfield/downtown/"),
-        createLocation("Alpha City", "/locations/alpha-city/"),
-      ];
-
-      const result = formatAreaList(
-        locations,
-        "/locations/springfield/",
-        "We also serve ",
-        ".",
-      );
-
-      expectStrictEqual(
-        result,
-        'We also serve <a href="/locations/alpha-city/#content">Alpha City</a> and <a href="/locations/zebra-town/#content">Zebra Town</a>.',
-        "Should produce formatted list",
-      );
-    },
-  },
-  {
-    name: "formatAreaList-three-locations",
-    description: "Handles three locations with comma and 'and'",
-    test: () => {
-      const locations = [
-        createLocation("Charlie", "/locations/charlie/"),
-        createLocation("Alpha", "/locations/alpha/"),
-        createLocation("Bravo", "/locations/bravo/"),
-      ];
-
-      const result = formatAreaList(locations, "/locations/other/", "", "");
-
-      expectStrictEqual(
-        result,
-        '<a href="/locations/alpha/#content">Alpha</a>, <a href="/locations/bravo/#content">Bravo</a> and <a href="/locations/charlie/#content">Charlie</a>',
-        "Should handle three locations",
-      );
-    },
-  },
-  {
-    name: "formatAreaList-single-location",
-    description: "Handles single remaining location",
-    test: () => {
-      const locations = [
-        createLocation("Springfield", "/locations/springfield/"),
-        createLocation("Fulchester", "/locations/fulchester/"),
-      ];
-
-      const result = formatAreaList(
-        locations,
-        "/locations/springfield/",
-        "Also: ",
-        "!",
-      );
-
-      expectStrictEqual(
-        result,
-        'Also: <a href="/locations/fulchester/#content">Fulchester</a>!',
-        "Should handle single location",
-      );
-    },
-  },
-  {
-    name: "formatAreaList-empty-result",
-    description: "Returns empty string when no locations remain",
-    test: () => {
-      const locations = [
-        createLocation("Springfield", "/locations/springfield/"),
-      ];
-
-      const result = formatAreaList(
-        locations,
-        "/locations/springfield/",
-        "Prefix",
-        "Suffix",
-      );
-
-      expectStrictEqual(result, "", "Should return empty when no locations");
-    },
-  },
-  {
-    name: "formatAreaList-excludes-nested",
-    description: "Excludes nested locations from output",
-    test: () => {
-      const locations = [
-        createLocation("Springfield", "/locations/springfield/"),
-        createLocation("Downtown", "/locations/springfield/downtown/"),
-        createLocation("Heights", "/locations/springfield/heights/"),
-      ];
-
-      const result = formatAreaList(locations, "/locations/other/", "", "");
-
-      expectStrictEqual(
-        result,
-        '<a href="/locations/springfield/#content">Springfield</a>',
-        "Should only include top-level",
-      );
-    },
-  },
-  {
-    name: "formatAreaList-empty-locations",
-    description: "Returns empty string for empty locations array",
-    test: () => {
-      expectStrictEqual(
-        formatAreaList([], "/page/", "Pre", "Suf"),
-        "",
-        "Should return empty",
-      );
-      expectStrictEqual(
-        formatAreaList(null, "/page/", "Pre", "Suf"),
-        "",
-        "Should return empty for null",
-      );
-    },
-  },
-  {
-    name: "formatAreaList-default-prefix-suffix",
-    description: "Works with default empty prefix and suffix",
+    name: "prepareAreaList-single-location",
+    description: "Returns single location with no separator",
     test: () => {
       const locations = [
         createLocation("Alpha", "/locations/alpha/"),
         createLocation("Beta", "/locations/beta/"),
       ];
 
-      const result = formatAreaList(locations, "/locations/other/");
+      const result = prepareAreaList(locations, "/locations/alpha/");
 
-      expectStrictEqual(
-        result,
-        '<a href="/locations/alpha/#content">Alpha</a> and <a href="/locations/beta/#content">Beta</a>',
-        "Should work without prefix/suffix",
+      expectStrictEqual(result.length, 1, "Should have 1 item");
+      expectStrictEqual(result[0].name, "Beta", "Should be Beta");
+      expectStrictEqual(result[0].url, "/locations/beta/", "Should have URL");
+      expectStrictEqual(result[0].separator, "", "Should have no separator");
+    },
+  },
+  {
+    name: "prepareAreaList-two-locations",
+    description: "Returns two locations with 'and' separator",
+    test: () => {
+      const locations = [
+        createLocation("Alpha", "/locations/alpha/"),
+        createLocation("Beta", "/locations/beta/"),
+        createLocation("Gamma", "/locations/gamma/"),
+      ];
+
+      const result = prepareAreaList(locations, "/locations/alpha/");
+
+      expectStrictEqual(result.length, 2, "Should have 2 items");
+      expectStrictEqual(result[0].name, "Beta", "First should be Beta");
+      expectStrictEqual(result[0].separator, " and ", "First has 'and'");
+      expectStrictEqual(result[1].name, "Gamma", "Second should be Gamma");
+      expectStrictEqual(result[1].separator, "", "Last has no separator");
+    },
+  },
+  {
+    name: "prepareAreaList-three-locations",
+    description: "Returns three locations with comma and 'and' separators",
+    test: () => {
+      const locations = [
+        createLocation("Delta", "/locations/delta/"),
+        createLocation("Alpha", "/locations/alpha/"),
+        createLocation("Beta", "/locations/beta/"),
+        createLocation("Gamma", "/locations/gamma/"),
+      ];
+
+      const result = prepareAreaList(locations, "/locations/delta/");
+
+      expectStrictEqual(result.length, 3, "Should have 3 items");
+      expectStrictEqual(result[0].name, "Alpha", "First should be Alpha");
+      expectStrictEqual(result[0].separator, ", ", "First has comma");
+      expectStrictEqual(result[1].name, "Beta", "Second should be Beta");
+      expectStrictEqual(result[1].separator, " and ", "Second has 'and'");
+      expectStrictEqual(result[2].name, "Gamma", "Third should be Gamma");
+      expectStrictEqual(result[2].separator, "", "Last has no separator");
+    },
+  },
+  {
+    name: "prepareAreaList-excludes-nested",
+    description: "Excludes nested locations",
+    test: () => {
+      const locations = [
+        createLocation("Alpha", "/locations/alpha/"),
+        createLocation("Nested", "/locations/alpha/nested/"),
+        createLocation("Beta", "/locations/beta/"),
+      ];
+
+      const result = prepareAreaList(locations, "/locations/other/");
+
+      expectStrictEqual(result.length, 2, "Should have 2 items");
+      expectFalse(
+        result.some((r) => r.name === "Nested"),
+        "Should not include nested",
       );
+    },
+  },
+  {
+    name: "prepareAreaList-empty",
+    description: "Returns empty array when no locations remain",
+    test: () => {
+      const locations = [createLocation("Alpha", "/locations/alpha/")];
+
+      const result = prepareAreaList(locations, "/locations/alpha/");
+
+      expectDeepEqual(result, [], "Should return empty array");
+    },
+  },
+  {
+    name: "prepareAreaList-handles-missing-data",
+    description: "Handles locations with missing data gracefully",
+    test: () => {
+      const locations = [
+        { url: "/locations/alpha/" },
+        createLocation("Beta", "/locations/beta/"),
+      ];
+
+      const result = prepareAreaList(locations, "/locations/other/");
+
+      expectStrictEqual(result.length, 2, "Should have 2 items");
+      expectStrictEqual(result[0].name, "", "Missing name should be empty");
+      expectStrictEqual(result[0].url, "/locations/alpha/", "URL preserved");
     },
   },
 
   // configureAreaList tests
   {
-    name: "configureAreaList-registers-shortcode",
-    description: "Registers areaList shortcode with Eleventy",
+    name: "configureAreaList-registers-filter",
+    description: "Registers prepareAreaList filter with Eleventy",
     test: () => {
       const mockConfig = createMockEleventyConfig();
       configureAreaList(mockConfig);
 
       expectTrue(
-        mockConfig.shortcodes !== undefined,
-        "Should have shortcodes object",
+        mockConfig.filters !== undefined,
+        "Should have filters object",
       );
       expectTrue(
-        typeof mockConfig.shortcodes.areaList === "function",
-        "Should register areaList shortcode",
+        typeof mockConfig.filters.prepareAreaList === "function",
+        "Should register prepareAreaList filter",
       );
     },
   },
   {
-    name: "configureAreaList-shortcode-uses-page-url",
-    description: "Shortcode uses this.page.url for current page",
+    name: "configureAreaList-filter-works",
+    description: "Registered filter works correctly",
     test: () => {
       const mockConfig = createMockEleventyConfig();
       configureAreaList(mockConfig);
 
       const locations = [
-        createLocation("Alpha", "/locations/alpha/"),
         createLocation("Beta", "/locations/beta/"),
+        createLocation("Alpha", "/locations/alpha/"),
       ];
 
-      // Simulate Eleventy's `this` context
-      const context = { page: { url: "/locations/alpha/" } };
-      const result = mockConfig.shortcodes.areaList.call(
-        context,
+      const result = mockConfig.filters.prepareAreaList(
         locations,
-        "Serving ",
-        ".",
+        "/locations/other/",
       );
 
-      expectStrictEqual(
-        result,
-        'Serving <a href="/locations/beta/#content">Beta</a>.',
-        "Should exclude current page URL",
-      );
-    },
-  },
-  {
-    name: "configureAreaList-shortcode-handles-missing-page",
-    description: "Shortcode handles missing page context gracefully",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureAreaList(mockConfig);
-
-      const locations = [createLocation("Alpha", "/locations/alpha/")];
-
-      // Call with empty context
-      const result = mockConfig.shortcodes.areaList.call({}, locations, "", "");
-
-      expectStrictEqual(
-        result,
-        '<a href="/locations/alpha/#content">Alpha</a>',
-        "Should work without page context",
-      );
+      expectStrictEqual(result.length, 2, "Should have 2 items");
+      expectStrictEqual(result[0].name, "Alpha", "Should be sorted");
+      expectStrictEqual(result[0].separator, " and ", "Should have separator");
     },
   },
 ];
