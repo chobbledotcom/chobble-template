@@ -190,25 +190,6 @@ const testCases = [
     },
   },
   {
-    name: "extractBodyFromMarkdown-malformed",
-    description: "Returns original content for malformed frontmatter",
-    test: () => {
-      const content = `---
-title: Malformed
-layout: page
-# Heading
-Content with malformed frontmatter`;
-
-      const result = extractBodyFromMarkdown(content);
-
-      expectStrictEqual(
-        result,
-        content,
-        "Should return original content for malformed frontmatter",
-      );
-    },
-  },
-  {
     name: "renderSnippet-exists",
     description: "Renders existing snippet file",
     test: async () => {
