@@ -6,64 +6,62 @@ import { onReady } from "#assets/on-ready.js";
 const STORAGE_KEY = "property_order_seed";
 const EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-// Seeded random: same seed = same sequence of numbers
-function seededRandom(seed) {
-  return () => {
-    seed = (seed * 13 + 17) % 1000;
-    return seed / 1000;
-  };
-}
+// Pure seeded random: returns [randomValue, nextSeed]
+const nextRandom = (seed) => {
+  const newSeed = (seed * 13 + 17) % 1000;
+  return [newSeed / 1000, newSeed];
+};
 
-// Fisher-Yates shuffle with seeded random
-function shuffleArray(array, random) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
+// Pure Fisher-Yates shuffle using recursion
+const shuffleArray = (array, seed) => {
+  const shuffle = (arr, index, currentSeed) =>
+    index <= 0
+      ? arr
+      : ((randomResult) =>
+          ((j) =>
+            shuffle(
+              arr.map((item, idx) =>
+                idx === index ? arr[j] : idx === j ? arr[index] : item,
+              ),
+              index - 1,
+              randomResult[1],
+            ))(Math.floor(randomResult[0] * (index + 1))))(
+          nextRandom(currentSeed),
+        );
 
-function getSeed() {
+  return shuffle([...array], array.length - 1, seed);
+};
+
+const getSeed = () => {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    const seed = parseInt(stored, 10);
-    const now = Date.now();
-    // Check if seed is still valid (less than 24 hours old)
-    if (now - seed < EXPIRY_MS) {
-      return seed;
-    }
+  const now = Date.now();
+
+  if (stored && now - parseInt(stored, 10) < EXPIRY_MS) {
+    return parseInt(stored, 10);
   }
-  // Create new seed
-  const newSeed = Date.now();
-  localStorage.setItem(STORAGE_KEY, newSeed.toString());
-  return newSeed;
-}
 
-function isPropertyPage() {
-  return document.body.classList.contains("properties");
-}
+  localStorage.setItem(STORAGE_KEY, now.toString());
+  return now;
+};
 
-function initPropertyShuffle() {
+const isPropertyPage = () => document.body.classList.contains("properties");
+
+const initPropertyShuffle = () => {
   if (!isPropertyPage()) return;
 
   const itemsList = document.querySelector("ul.items");
   if (!itemsList) return;
-
-  // Avoid re-shuffling if already done
   if (itemsList.dataset.shuffled) return;
 
   const items = Array.from(itemsList.children);
   if (items.length <= 1) return;
 
-  const seed = getSeed();
-  const random = seededRandom(seed);
-  const shuffled = shuffleArray(items, random);
+  const shuffled = shuffleArray(items, getSeed());
 
-  // Re-append in shuffled order
-  for (const item of shuffled) {
+  shuffled.forEach((item) => {
     itemsList.appendChild(item);
-  }
+  });
   itemsList.dataset.shuffled = "true";
-}
+};
 
 onReady(initPropertyShuffle);
