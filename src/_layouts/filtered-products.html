@@ -6,10 +6,4 @@ no_index: true
 {%- assign currentFilters = filterPage.filters -%}
 {%- include "products-filter.html" -%}
 
-<div class="filtered-items">
-  {{ "icons/spinner.svg" | inline_asset }}
-  <div class="filtered-content">
-    {{- content -}}
-    {%- include "items.html", items: filterPage.products -%}
-  </div>
-</div>
+{%- include "filtered-items-section.html", items: filterPage.products -%}
