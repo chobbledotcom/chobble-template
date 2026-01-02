@@ -16,6 +16,28 @@ layout: base
     {%- assign skipShowOn = true -%}
     {%- include "form-fields.html", skipShowOn: skipShowOn -%}
 
+    {%- if config.product_mode == "hire" -%}
+    <div class="hire-dates-section">
+      <h3>Hire Dates</h3>
+      <div class="hire-dates-fields">
+        <label for="hire_start_date">
+          Start Date
+          <input type="date" id="hire_start_date" name="hire_start_date" required />
+        </label>
+        <label for="hire_end_date">
+          End Date
+          <input type="date" id="hire_end_date" name="hire_end_date" required />
+        </label>
+      </div>
+      <div id="hire-total" class="hire-total" style="display: none;">
+        <span class="hire-total-label">Estimated Total:</span>
+        <span class="hire-total-amount" id="hire-total-amount">£0.00</span>
+        <input type="hidden" id="hire_total" name="hire_total" value="" />
+        <input type="hidden" id="hire_days" name="hire_days" value="" />
+      </div>
+    </div>
+    {%- endif -%}
+
     <div id="cart-summary" class="quote-checkout-summary">
       <h3>Items in your quote request:</h3>
       <div class="quote-checkout-items"></div>

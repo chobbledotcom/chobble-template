@@ -3,7 +3,7 @@
 
 import getConfig from "#data/config.js";
 
-const JS_CONFIG_KEYS = ["cart_mode", "checkout_api_url"];
+const JS_CONFIG_KEYS = ["cart_mode", "checkout_api_url", "product_mode"];
 
 // Core function to build the config script HTML - exported for use in tests
 export function buildJsConfigScript(config) {

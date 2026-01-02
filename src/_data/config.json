@@ -1,6 +1,7 @@
 {
 	"has_products_filter": true,
 	"has_properties_filter": true,
+	"product_mode": "hire",
 	"contact_form_target": null,
 	"formspark_id": null,
 	"botpoison_public_key": null,
