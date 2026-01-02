@@ -917,6 +917,311 @@ const testCases = [
         },
       ),
   },
+
+  // ============================================
+  // createImageTransform tests - actual transformation
+  // ============================================
+  // These tests exercise the transform function with content that
+  // triggers actual image processing, not just passthrough.
+
+  {
+    name: "createImageTransform-transforms-local-images",
+    description:
+      "Transform converts raw img tags with /images/ src to wrapped picture elements",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body><img src="/images/party.jpg" alt="Party"></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      expectTrue(
+        result.includes("image-wrapper"),
+        "Should wrap local images in image-wrapper div",
+      );
+      expectTrue(
+        result.includes("<picture"),
+        "Should generate picture element for local images",
+      );
+      expectTrue(
+        result.includes('alt="Party"'),
+        "Should preserve alt text in transformed output",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-fixes-divs-in-paragraphs",
+    description:
+      "Transform lifts wrapped images out of paragraphs to fix invalid HTML",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      // Simulate invalid HTML where a div is the sole child of a paragraph.
+      // This happens when markdown wraps shortcode output in <p> tags.
+      // We need an /images/ src to trigger the transform, but the image is
+      // already wrapped so it won't be reprocessed - only fixDivsInParagraphs runs.
+      const htmlContent = `<html><body><p><div class="image-wrapper"><picture><img src="/images/party.jpg" alt=""></picture></div></p></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      // The div should be lifted out of the paragraph
+      expectTrue(
+        !result.includes("<p><div"),
+        "Should not have div directly inside paragraph after transform",
+      );
+      expectTrue(
+        result.includes("image-wrapper"),
+        "Should still contain the image-wrapper element",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-skips-already-wrapped-images",
+    description:
+      "Transform does not double-wrap images already in image-wrapper",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      // Image already wrapped - should not be processed again
+      const htmlContent = `<html><body><div class="image-wrapper"><img src="/images/party.jpg" alt="Pre-wrapped"></div></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      // Count occurrences of image-wrapper - should still be exactly 1
+      const wrapperCount = (result.match(/image-wrapper/g) || []).length;
+      expectStrictEqual(
+        wrapperCount,
+        1,
+        "Should not add additional image-wrapper to already-wrapped image",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-extracts-aspect-ratio-attribute",
+    description:
+      "Transform uses eleventy:aspectRatio attribute for custom aspect ratio",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body><img src="/images/party.jpg" alt="Wide" eleventy:aspectRatio="16/9"></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      expectTrue(
+        result.includes("aspect-ratio: 16/9"),
+        "Should apply custom aspect ratio from eleventy:aspectRatio attribute",
+      );
+      expectTrue(
+        !result.includes("eleventy:aspectRatio"),
+        "Should remove eleventy:aspectRatio attribute from output",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-preserves-image-classes",
+    description: "Transform preserves class attribute on transformed images",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body><img src="/images/party.jpg" alt="Styled" class="hero-image rounded"></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      expectTrue(
+        result.includes("hero-image"),
+        "Should preserve original image classes in output",
+      );
+      expectTrue(
+        result.includes("rounded"),
+        "Should preserve all original classes",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-handles-multiple-images",
+    description: "Transform processes multiple local images in same document",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body>
+        <img src="/images/party.jpg" alt="First">
+        <img src="/images/menu.jpg" alt="Second">
+      </body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      // Count picture elements - should be 2
+      const pictureCount = (result.match(/<picture/g) || []).length;
+      expectStrictEqual(
+        pictureCount,
+        2,
+        "Should transform all local images in the document",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-mixed-local-and-external",
+    description:
+      "Transform processes local images while leaving external URLs unchanged",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body>
+        <img src="https://example.com/external.jpg" alt="External">
+        <img src="/images/party.jpg" alt="Local">
+      </body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      expectTrue(
+        result.includes('src="https://example.com/external.jpg"'),
+        "Should preserve external image src unchanged",
+      );
+      expectTrue(
+        result.includes("<picture"),
+        "Should transform local image to picture element",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-no-images-early-return",
+    description: "Transform returns content unchanged when no img tags present",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body><p>No images here</p></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      expectStrictEqual(
+        result,
+        htmlContent,
+        "Should return content unchanged when no img tags present",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-no-local-images-early-return",
+    description:
+      "Transform returns content unchanged when only non-local images present",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      const htmlContent = `<html><body><img src="/assets/logo.png" alt="Logo"></body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      expectStrictEqual(
+        result,
+        htmlContent,
+        "Should return unchanged when images don't use /images/ path",
+      );
+    },
+  },
+  {
+    name: "createImageTransform-duplicate-images-use-cache",
+    description:
+      "Transform efficiently reuses cached results for duplicate images",
+    asyncTest: async () => {
+      const transform = createImageTransform();
+      // Same image appears twice - second should use cached result
+      const htmlContent = `<html><body>
+        <img src="/images/party.jpg" alt="First occurrence">
+        <img src="/images/party.jpg" alt="First occurrence">
+      </body></html>`;
+      const htmlPath = "/test/page.html";
+
+      const result = await transform(htmlContent, htmlPath);
+
+      // Both should be transformed identically
+      const pictureCount = (result.match(/<picture/g) || []).length;
+      expectStrictEqual(
+        pictureCount,
+        2,
+        "Both duplicate images should be transformed using cache",
+      );
+    },
+  },
+
+  // ============================================
+  // Integration tests - transform in full build
+  // ============================================
+
+  {
+    name: "integration-markdown-image-transformed",
+    description:
+      "Standard markdown images with /images/ path are transformed in build",
+    asyncTest: () =>
+      withTestSite(
+        {
+          files: [
+            {
+              path: "pages/test.md",
+              frontmatter: {
+                title: "Markdown Image Test",
+                layout: "page",
+                permalink: "/test/",
+              },
+              content: "![A test scene](/images/scene.jpg)",
+            },
+          ],
+          images: [{ src: "src/images/party.jpg", dest: "scene.jpg" }],
+        },
+        (site) => {
+          const html = site.getOutput("/test/index.html");
+
+          expectTrue(
+            html.includes("image-wrapper"),
+            "Markdown image should be wrapped by transform",
+          );
+          expectTrue(
+            html.includes("<picture"),
+            "Markdown image should be converted to picture element",
+          );
+          expectTrue(
+            html.includes('alt="A test scene"'),
+            "Should preserve alt text from markdown",
+          );
+        },
+      ),
+  },
+  {
+    name: "integration-inline-shortcode-paragraph-fix",
+    description:
+      "Image shortcode used inline in paragraph produces valid HTML structure",
+    asyncTest: () =>
+      withTestSite(
+        {
+          files: [
+            {
+              path: "pages/test.md",
+              frontmatter: {
+                title: "Inline Image Test",
+                layout: "page",
+                permalink: "/test/",
+              },
+              content:
+                'Check out this image: {% image "inline.jpg", "Inline test" %}',
+            },
+          ],
+          images: [{ src: "src/images/party.jpg", dest: "inline.jpg" }],
+        },
+        (site) => {
+          const html = site.getOutput("/test/index.html");
+
+          // The image-wrapper div should not be nested inside a paragraph
+          // (fixDivsInParagraphs should have lifted it out)
+          expectTrue(
+            !html.includes("<p><div"),
+            "Should not have invalid div-inside-p nesting",
+          );
+          expectTrue(
+            html.includes("image-wrapper"),
+            "Should contain the image wrapper",
+          );
+        },
+      ),
+  },
 ];
 
 export default createTestRunner("image", testCases);
