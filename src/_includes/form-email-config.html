@@ -1,0 +1,12 @@
+<input type="hidden" name="_redirect" value="{{ redirect_path | canonicalUrl }}" />
+<input type="hidden" name="_email.template.footer" value="false" />
+<input
+  type="hidden"
+  name="_email.from"
+  value="{{ site.name }} {{ email_from_suffix }}"
+/>
+<input
+  type="hidden"
+  name="_email.subject"
+  value="{{ email_subject | replace: '{site_name}', site.name }}"
+/>

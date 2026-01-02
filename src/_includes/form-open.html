@@ -1,0 +1,7 @@
+<form
+  class="contact-form"
+  action="{{ config.form_target }}"
+  {% if config.botpoison_public_key and config.botpoison_public_key != "" -%}
+    data-botpoison-public-key="{{ config.botpoison_public_key }}"
+  {%- endif -%}
+>
