@@ -22,9 +22,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/assets/js/http.js - centralized HTTP error handling (entire file)
   "src/assets/js/http.js",
 
-  // src/assets/js/cart.js - PayPal checkout fetch handling
-  "src/assets/js/cart.js:209",
-
   // src/assets/js/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
