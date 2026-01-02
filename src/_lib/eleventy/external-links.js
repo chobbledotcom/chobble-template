@@ -1,5 +1,5 @@
-import { JSDOM } from "jsdom";
 import configModule from "#data/config.js";
+import { loadJSDOM } from "#utils/lazy-jsdom.js";
 
 const isExternalUrl = (url) => {
   if (!url || typeof url !== "string") {
@@ -26,7 +26,7 @@ const externalLinkFilter = (url, config) => {
   return getExternalLinkAttributes(url, config);
 };
 
-const transformExternalLinks = (content, config) => {
+const transformExternalLinks = async (content, config) => {
   if (!content || !content.includes("<a")) {
     return content;
   }
@@ -40,6 +40,7 @@ const transformExternalLinks = (content, config) => {
     return content;
   }
 
+  const JSDOM = await loadJSDOM();
   const dom = new JSDOM(content);
   const {
     window: { document },
@@ -59,7 +60,7 @@ const transformExternalLinks = (content, config) => {
 };
 
 const createExternalLinksTransform = (config) => {
-  return (content, outputPath) => {
+  return async (content, outputPath) => {
     if (!outputPath || !outputPath.endsWith(".html")) {
       return content;
     }
@@ -68,7 +69,7 @@ const createExternalLinksTransform = (config) => {
       return content;
     }
 
-    return transformExternalLinks(content, config);
+    return await transformExternalLinks(content, config);
   };
 };
 

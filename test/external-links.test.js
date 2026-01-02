@@ -197,10 +197,10 @@ const testCases = [
   {
     name: "transformExternalLinks-disabled",
     description: "Returns content unchanged when config flag is false",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: false };
       const html = '<a href="https://example.com">Link</a>';
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
       expectStrictEqual(
         result,
         html,
@@ -211,10 +211,10 @@ const testCases = [
   {
     name: "transformExternalLinks-no-links",
     description: "Returns content unchanged when no links present",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const html = "<p>No links here</p>";
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
       expectStrictEqual(
         result,
         html,
@@ -225,11 +225,11 @@ const testCases = [
   {
     name: "transformExternalLinks-external-link",
     description: "Adds target and rel to external links",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const html =
         '<html><body><a href="https://example.com">Link</a></body></html>';
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
 
       expectTrue(
         result.includes('target="_blank"'),
@@ -244,10 +244,10 @@ const testCases = [
   {
     name: "transformExternalLinks-internal-link",
     description: "Does not modify internal links",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const html = '<html><body><a href="/about">About</a></body></html>';
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
 
       expectFalse(
         result.includes('target="_blank"'),
@@ -258,11 +258,11 @@ const testCases = [
   {
     name: "transformExternalLinks-mixed-links",
     description: "Handles mix of external and internal links",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const html =
         '<html><body><a href="https://example.com">External</a><a href="/about">Internal</a></body></html>';
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
 
       expectTrue(
         result.includes('href="https://example.com"'),
@@ -281,11 +281,11 @@ const testCases = [
   {
     name: "transformExternalLinks-preserves-existing-attributes",
     description: "Preserves other link attributes",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const html =
         '<html><body><a href="https://example.com" class="button" id="link1">Link</a></body></html>';
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
 
       expectTrue(result.includes('class="button"'), "Should preserve class");
       expectTrue(result.includes('id="link1"'), "Should preserve id");
@@ -294,11 +294,11 @@ const testCases = [
   {
     name: "transformExternalLinks-http-and-https",
     description: "Handles both HTTP and HTTPS URLs",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const html =
         '<html><body><a href="http://example.com">HTTP</a><a href="https://example.com">HTTPS</a></body></html>';
-      const result = transformExternalLinks(html, config);
+      const result = await transformExternalLinks(html, config);
 
       const targetCount = (result.match(/target="_blank"/g) || []).length;
       expectStrictEqual(
@@ -311,18 +311,18 @@ const testCases = [
   {
     name: "transformExternalLinks-null-content",
     description: "Handles null content gracefully",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
-      const result = transformExternalLinks(null, config);
+      const result = await transformExternalLinks(null, config);
       expectStrictEqual(result, null, "Should return null for null content");
     },
   },
   {
     name: "transformExternalLinks-empty-content",
     description: "Handles empty content gracefully",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
-      const result = transformExternalLinks("", config);
+      const result = await transformExternalLinks("", config);
       expectStrictEqual(result, "", "Should return empty string");
     },
   },
@@ -343,12 +343,12 @@ const testCases = [
   {
     name: "createExternalLinksTransform-html-only",
     description: "Only processes HTML files",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const transform = createExternalLinksTransform(config);
 
       const cssContent = "body { color: red; }";
-      const result = transform(cssContent, "style.css");
+      const result = await transform(cssContent, "style.css");
       expectStrictEqual(
         result,
         cssContent,
@@ -359,25 +359,25 @@ const testCases = [
   {
     name: "createExternalLinksTransform-skip-feeds",
     description: "Skips feed files",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const transform = createExternalLinksTransform(config);
 
       const feedContent = '<a href="https://example.com">Link</a>';
-      const result = transform(feedContent, "feed.xml");
+      const result = await transform(feedContent, "feed.xml");
       expectStrictEqual(result, feedContent, "Should skip feed files");
     },
   },
   {
     name: "createExternalLinksTransform-processes-html",
     description: "Processes HTML files",
-    test: () => {
+    asyncTest: async () => {
       const config = { externalLinksTargetBlank: true };
       const transform = createExternalLinksTransform(config);
 
       const html =
         '<html><body><a href="https://example.com">Link</a></body></html>';
-      const result = transform(html, "index.html");
+      const result = await transform(html, "index.html");
 
       expectTrue(
         result.includes('target="_blank"'),
