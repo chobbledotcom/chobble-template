@@ -10,6 +10,11 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
+const readProductFile = (filePath) => {
+  const { data, content: body } = matter.read(filePath);
+  return { data, body, filePath };
+};
+
 const PRODUCTS_DIR = "src/products";
 const SKU_LENGTH = 6;
 const SKU_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -22,15 +27,6 @@ const generateSku = (length = SKU_LENGTH) =>
     { length },
     () => SKU_CHARS[Math.floor(Math.random() * SKU_CHARS.length)],
   ).join("");
-
-/**
- * Read and parse a product file
- */
-const readProductFile = (filePath) => {
-  const content = fs.readFileSync(filePath, "utf8");
-  const { data, content: body } = matter(content);
-  return { data, body, filePath };
-};
 
 /**
  * Get all product files from a directory

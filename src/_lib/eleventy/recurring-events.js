@@ -56,8 +56,7 @@ const getRecurringEventsHtml = memoize(async () => {
   for (const file of files) {
     if (file.endsWith(".md")) {
       const filePath = path.default.join(eventsDir, file);
-      const content = fs.default.readFileSync(filePath, "utf8");
-      const { data } = matter.default(content);
+      const { data } = matter.default.read(filePath);
 
       // Check if this is a recurring event
       if (data.recurring_date) {
