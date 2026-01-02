@@ -896,6 +896,50 @@ ul.news-posts {
   }
 }
 
+// Post meta header styles (author thumbnail and date)
+.post-meta {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--color-accent);
+  border-radius: var(--border-radius);
+  border: var(--border);
+
+  address {
+    font-style: normal;
+    font-weight: bold;
+  }
+
+  time {
+    opacity: 0.8;
+  }
+
+  figure {
+    a {
+      display: block;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  &.with-thumbnail {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 1rem;
+    align-items: center;
+
+    @include breakpoints.up("sm") {
+      grid-template-columns: 80px 1fr;
+    }
+  }
+}
+
 dl {
   dt {
     font-weight: bold;

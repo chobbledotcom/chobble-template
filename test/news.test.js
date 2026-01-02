@@ -125,6 +125,245 @@ const testCases = [
       );
     },
   },
+  {
+    name: "post-meta-with-thumbnail",
+    description:
+      "News post with author that has image renders grid layout with thumbnail",
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "news/2024-01-01-thumbnail-post.md",
+              frontmatter: {
+                title: "Post With Author Thumbnail",
+                author: "src/team/jane-doe.md",
+              },
+              content: "Post content here.",
+            },
+            {
+              path: "team/jane-doe.md",
+              frontmatter: {
+                title: "Jane Doe",
+                snippet: "Test team member",
+                image: "src/images/placeholder-square-1.jpg",
+              },
+              content: "Jane Doe bio.",
+            },
+          ],
+          images: ["placeholder-square-1.jpg"],
+        },
+        (site) => {
+          const doc = site.getDoc("/news/thumbnail-post/index.html");
+          const postMeta = doc.querySelector(".post-meta");
+
+          expectStrictEqual(
+            postMeta !== null,
+            true,
+            "Should have .post-meta element",
+          );
+          expectStrictEqual(
+            postMeta.classList.contains("with-thumbnail"),
+            true,
+            "Should have with-thumbnail class for author with image",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("figure") !== null,
+            true,
+            "Should have figure element for thumbnail",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("figure a") !== null,
+            true,
+            "Should have link inside figure",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("address") !== null,
+            true,
+            "Should have address element for author",
+          );
+          expectStrictEqual(
+            postMeta.querySelector('a[rel="author"]') !== null,
+            true,
+            "Should have author link with rel=author",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("time") !== null,
+            true,
+            "Should have time element",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("time").hasAttribute("datetime"),
+            true,
+            "Time element should have datetime attribute",
+          );
+        },
+      );
+    },
+  },
+  {
+    name: "post-meta-without-thumbnail",
+    description:
+      "News post with author but no image renders without thumbnail class",
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "news/2024-01-01-no-thumb-post.md",
+              frontmatter: {
+                title: "Post With Author No Thumbnail",
+                author: "src/team/john-smith.md",
+              },
+              content: "Post content here.",
+            },
+            {
+              path: "team/john-smith.md",
+              frontmatter: {
+                title: "John Smith",
+                snippet: "Team member without image",
+              },
+              content: "John Smith bio.",
+            },
+          ],
+        },
+        (site) => {
+          const doc = site.getDoc("/news/no-thumb-post/index.html");
+          const postMeta = doc.querySelector(".post-meta");
+
+          expectStrictEqual(
+            postMeta !== null,
+            true,
+            "Should have .post-meta element",
+          );
+          expectStrictEqual(
+            postMeta.classList.contains("with-thumbnail"),
+            false,
+            "Should NOT have with-thumbnail class when author has no image",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("figure"),
+            null,
+            "Should NOT have figure element when no image",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("address") !== null,
+            true,
+            "Should have address element for author",
+          );
+          expectStrictEqual(
+            postMeta.querySelector('a[rel="author"]') !== null,
+            true,
+            "Should have author link with rel=author",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("time") !== null,
+            true,
+            "Should have time element",
+          );
+        },
+      );
+    },
+  },
+  {
+    name: "post-meta-no-author",
+    description: "News post without author renders simple date-only layout",
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "news/2024-01-01-anonymous-post.md",
+              frontmatter: {
+                title: "Anonymous Post",
+              },
+              content: "Post without an author.",
+            },
+          ],
+        },
+        (site) => {
+          const doc = site.getDoc("/news/anonymous-post/index.html");
+          const postMeta = doc.querySelector(".post-meta");
+
+          expectStrictEqual(
+            postMeta !== null,
+            true,
+            "Should have .post-meta element even without author",
+          );
+          expectStrictEqual(
+            postMeta.classList.contains("with-thumbnail"),
+            false,
+            "Should NOT have with-thumbnail class",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("figure"),
+            null,
+            "Should NOT have figure element",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("address"),
+            null,
+            "Should NOT have address element when no author",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("time") !== null,
+            true,
+            "Should have time element for date",
+          );
+          expectStrictEqual(
+            postMeta.querySelector("time").hasAttribute("datetime"),
+            true,
+            "Time element should have datetime attribute",
+          );
+        },
+      );
+    },
+  },
+  {
+    name: "post-meta-semantic-html",
+    description: "Post meta uses semantic HTML with proper roles",
+    asyncTest: async () => {
+      await withTestSite(
+        {
+          files: [
+            {
+              path: "news/2024-01-01-semantic-test.md",
+              frontmatter: {
+                title: "Semantic HTML Test",
+                author: "src/team/jane-doe.md",
+              },
+              content: "Testing semantic markup.",
+            },
+            {
+              path: "team/jane-doe.md",
+              frontmatter: {
+                title: "Jane Doe",
+                snippet: "Test team member",
+                image: "src/images/placeholder-square-1.jpg",
+              },
+              content: "Jane Doe bio.",
+            },
+          ],
+          images: ["placeholder-square-1.jpg"],
+        },
+        (site) => {
+          const doc = site.getDoc("/news/semantic-test/index.html");
+          const postMeta = doc.querySelector(".post-meta");
+
+          expectStrictEqual(
+            postMeta.tagName.toLowerCase(),
+            "header",
+            "Post meta should be a header element",
+          );
+          expectStrictEqual(
+            postMeta.getAttribute("role"),
+            "doc-subtitle",
+            "Should have role=doc-subtitle for accessibility",
+          );
+        },
+      );
+    },
+  },
 ];
 
 export default createTestRunner("news", testCases);

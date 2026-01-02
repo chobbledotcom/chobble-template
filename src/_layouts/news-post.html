@@ -7,15 +7,31 @@ layout: base
   &rsaquo;
   {{ subtitle | escape }}
 </h2>
-<p>
-  <em>{{ page.date | date: "%b %-d, %Y" }}</em>
-  {%- if authorSlug -%}
-    {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
-    {%- if authorData -%}
-      &middot; <a href="{{ authorData.url }}">{{ authorData.data.title }}</a>
-    {%- endif -%}
-  {%- endif -%}
-</p>
+
+{%- if authorSlug -%}
+  {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
+{%- endif -%}
+
+{%- if authorData and authorData.data.image -%}
+<header class="post-meta with-thumbnail" role="doc-subtitle">
+  <figure>
+    <a href="{{ authorData.url }}">{% image authorData.data.image, authorData.data.title, "80,160,240", "", "", "1/1" %}</a>
+  </figure>
+  <div>
+    <address>By <a rel="author" href="{{ authorData.url }}">{{ authorData.data.title }}</a></address>
+    <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+  </div>
+</header>
+{%- elsif authorData -%}
+<header class="post-meta" role="doc-subtitle">
+  <address>By <a rel="author" href="{{ authorData.url }}">{{ authorData.data.title }}</a></address>
+  <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+</header>
+{%- else -%}
+<header class="post-meta" role="doc-subtitle">
+  <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+</header>
+{%- endif -%}
 
 {{ content }}
 
