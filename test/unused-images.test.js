@@ -373,6 +373,161 @@ const testCases = [
       cleanupTempDir(tempDir);
     },
   },
+  {
+    name: "frontmatter-header-image",
+    description: "Detects images referenced in header_image frontmatter field",
+    asyncTest: async () => {
+      const tempDir = createTempDir("unused-images-frontmatter-header");
+      const imagesDir = path.join(tempDir, "images");
+      fs.mkdirSync(imagesDir, { recursive: true });
+
+      fs.writeFileSync(path.join(imagesDir, "banner.jpg"), "fake jpg");
+
+      fs.writeFileSync(
+        path.join(tempDir, "page.md"),
+        `---
+header_image: src/images/banner.jpg
+---
+# Page with header image`,
+      );
+
+      const mockConfig = createMockEleventyConfig();
+      configureUnusedImages(mockConfig);
+
+      const logs = await captureConsoleLogAsync(async () => {
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
+      });
+
+      expectTrue(
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
+        "Should detect header_image reference in frontmatter",
+      );
+
+      cleanupTempDir(tempDir);
+    },
+  },
+  {
+    name: "frontmatter-image-field",
+    description: "Detects images referenced in image frontmatter field",
+    asyncTest: async () => {
+      const tempDir = createTempDir("unused-images-frontmatter-image");
+      const imagesDir = path.join(tempDir, "images");
+      fs.mkdirSync(imagesDir, { recursive: true });
+
+      fs.writeFileSync(path.join(imagesDir, "profile.png"), "fake png");
+
+      fs.writeFileSync(
+        path.join(tempDir, "team.md"),
+        `---
+image: profile.png
+---
+# Team member`,
+      );
+
+      const mockConfig = createMockEleventyConfig();
+      configureUnusedImages(mockConfig);
+
+      const logs = await captureConsoleLogAsync(async () => {
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
+      });
+
+      expectTrue(
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
+        "Should detect image reference in frontmatter",
+      );
+
+      cleanupTempDir(tempDir);
+    },
+  },
+  {
+    name: "frontmatter-thumbnail-field",
+    description: "Detects images referenced in thumbnail frontmatter field",
+    asyncTest: async () => {
+      const tempDir = createTempDir("unused-images-frontmatter-thumb");
+      const imagesDir = path.join(tempDir, "images");
+      fs.mkdirSync(imagesDir, { recursive: true });
+
+      fs.writeFileSync(path.join(imagesDir, "thumb.webp"), "fake webp");
+
+      fs.writeFileSync(
+        path.join(tempDir, "post.md"),
+        `---
+thumbnail: /images/thumb.webp
+---
+# Blog post`,
+      );
+
+      const mockConfig = createMockEleventyConfig();
+      configureUnusedImages(mockConfig);
+
+      const logs = await captureConsoleLogAsync(async () => {
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
+      });
+
+      expectTrue(
+        logs.some((log) =>
+          log.includes("All images in /src/images/ are being used"),
+        ),
+        "Should detect thumbnail reference in frontmatter",
+      );
+
+      cleanupTempDir(tempDir);
+    },
+  },
+  {
+    name: "frontmatter-and-content-images",
+    description: "Detects images in both frontmatter and content",
+    asyncTest: async () => {
+      const tempDir = createTempDir("unused-images-both");
+      const imagesDir = path.join(tempDir, "images");
+      fs.mkdirSync(imagesDir, { recursive: true });
+
+      fs.writeFileSync(path.join(imagesDir, "header.jpg"), "fake jpg");
+      fs.writeFileSync(path.join(imagesDir, "inline.png"), "fake png");
+      fs.writeFileSync(path.join(imagesDir, "unused.gif"), "fake gif");
+
+      fs.writeFileSync(
+        path.join(tempDir, "page.md"),
+        `---
+header_image: header.jpg
+---
+# Page
+![Inline](/images/inline.png)`,
+      );
+
+      const mockConfig = createMockEleventyConfig();
+      configureUnusedImages(mockConfig);
+
+      const logs = await captureConsoleLogAsync(async () => {
+        await mockConfig.eventHandlers["eleventy.after"]({
+          dir: { input: tempDir },
+        });
+      });
+
+      const logOutput = logs.join("\n");
+
+      expectTrue(
+        logOutput.includes("Found 1 unused image(s)"),
+        "Should find exactly 1 unused image",
+      );
+      expectTrue(
+        logOutput.includes("unused.gif"),
+        "Should report unused.gif as unused",
+      );
+
+      cleanupTempDir(tempDir);
+    },
+  },
 ];
 
 export default createTestRunner("unused-images", testCases);
