@@ -6,10 +6,7 @@
   {%- if gallery.size > 1 -%}
   <div class="slider-container property-thumbnails">
     {% include "gallery-thumbnails.html", class: "slider" %}
-    <p class="slider-nav" aria-hidden="true">
-      <a href="#" class="slider-prev">&larr;</a>
-      <a href="#" class="slider-next">&rarr;</a>
-    </p>
+    {% include "slider-nav.html" %}
   </div>
   {%- endif -%}
 </div>
