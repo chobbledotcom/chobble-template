@@ -4,7 +4,8 @@ import fastglob from "fast-glob";
 import matter from "gray-matter";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
-const IMAGE_REF_PATTERN = /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi;
+const IMAGE_REF_PATTERN =
+  /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi;
 const FRONTMATTER_IMAGE_FIELDS = ["header_image", "image", "thumbnail"];
 
 const extractFilename = (imagePath) =>
