@@ -20,6 +20,7 @@
 		"minimumReleaseAge": "10080"
 	},
 	"scripts": {
+		"preinstall": "node -e \"if(!process.env.npm_config_user_agent.startsWith('pnpm')){console.error('Use pnpm to install dependencies');process.exit(1)}\"",
 		"build": "rm -rf _site && eleventy",
 		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
 		"test": "pnpm run lint && pnpm run cpd && eleventy --quiet && node test/run-coverage.js",
