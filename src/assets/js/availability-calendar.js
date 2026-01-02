@@ -1,6 +1,7 @@
 // Availability Calendar
 // Displays a 12-month calendar with unavailable dates greyed out
 
+import { createElement } from "#assets/dom.js";
 import { fetchJson } from "#assets/http.js";
 import { onReady } from "#assets/on-ready.js";
 import { IDS } from "#assets/selectors.js";
@@ -27,13 +28,6 @@ const getDialog = () => document.getElementById("availability-calendar");
 
 const getContent = () =>
   document.querySelector("#availability-calendar .calendar-content");
-
-const createElement = (tag, className, textContent = "") => {
-  const el = document.createElement(tag);
-  el.className = className;
-  el.textContent = textContent;
-  return el;
-};
 
 const setContent = (element) => {
   const content = getContent();
