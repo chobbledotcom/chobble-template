@@ -69,8 +69,7 @@ export function configureUnusedImages(eleventyConfig) {
 
     for (const file of markdownFiles) {
       const filePath = path.join(dir.input, file);
-      const fileContent = fs.readFileSync(filePath, "utf8");
-      const { data, content } = matter(fileContent);
+      const { data, content } = matter.read(filePath);
 
       for (const img of extractImagesFromFrontmatter(data, imageFiles)) {
         usedImages.add(img);
