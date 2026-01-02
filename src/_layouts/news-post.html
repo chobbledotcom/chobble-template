@@ -18,18 +18,18 @@ layout: base
     <a href="{{ authorData.url }}">{% image authorData.data.image, authorData.data.title, "80,160,240", "", "", "1/1" %}</a>
   </figure>
   <div>
-    <address>By <a rel="author" href="{{ authorData.url }}">{{ authorData.data.title }}</a></address>
-    <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+    {%- include "post-meta-author.html" -%}
+    {%- include "post-meta-date.html" -%}
   </div>
 </header>
 {%- elsif authorData -%}
 <header class="post-meta" role="doc-subtitle">
-  <address>By <a rel="author" href="{{ authorData.url }}">{{ authorData.data.title }}</a></address>
-  <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+  {%- include "post-meta-author.html" -%}
+  {%- include "post-meta-date.html" -%}
 </header>
 {%- else -%}
 <header class="post-meta" role="doc-subtitle">
-  <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+  {%- include "post-meta-date.html" -%}
 </header>
 {%- endif -%}
 
