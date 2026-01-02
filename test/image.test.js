@@ -8,6 +8,7 @@ import {
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import {
+  assert,
   createMockEleventyConfig,
   createTestRunner,
   expectDeepEqual,
@@ -702,23 +703,12 @@ const testCases = [
     name: "imageShortcode-invalid-path-throws",
     description: "Throws descriptive error for non-existent image",
     asyncTest: async () => {
-      let errorThrown = false;
-      let errorMessage = "";
-
-      try {
-        await imageShortcode("nonexistent-image-12345.jpg", "Test");
-      } catch (error) {
-        errorThrown = true;
-        errorMessage = error.message;
-      }
-
-      expectTrue(
-        errorThrown,
+      await assert.rejects(
+        () => imageShortcode("nonexistent-image-12345.jpg", "Test"),
+        {
+          name: "Error",
+        },
         "Should throw error when image file does not exist",
-      );
-      expectTrue(
-        errorMessage.length > 0,
-        "Error should have a descriptive message",
       );
     },
   },
