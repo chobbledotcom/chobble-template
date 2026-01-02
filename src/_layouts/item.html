@@ -9,7 +9,11 @@ layout: base
     {% include "item-event-details.html" %}
   </div>
 
-  {% include "item-gallery.html" %}
+  {% if gallery_template %}
+    {% include gallery_template %}
+  {% else %}
+    {% include "item-gallery.html" %}
+  {% endif %}
 
   <div class="description">
     {% include "item-reviews-count.html" %}
