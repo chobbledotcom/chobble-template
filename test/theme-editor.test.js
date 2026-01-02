@@ -37,11 +37,15 @@ const parsingTests = [
         --border: 2px solid #333;
       `;
       const result = parseCssBlock(css);
-      expectDeepEqual(result, {
-        "--color-bg": "#ffffff",
-        "--color-text": "#000000",
-        "--border": "2px solid #333",
-      });
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#ffffff",
+          "--color-text": "#000000",
+          "--border": "2px solid #333",
+        },
+        "Should parse all CSS variables from block content",
+      );
     },
   },
   {
@@ -54,10 +58,14 @@ const parsingTests = [
         --color-text: #000;
       `;
       const result = parseCssBlock(css);
-      expectDeepEqual(result, {
-        "--color-bg": "#fff",
-        "--color-text": "#000",
-      });
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#fff",
+          "--color-text": "#000",
+        },
+        "Should only include CSS variables, ignoring regular properties",
+      );
     },
   },
   {
@@ -97,33 +105,69 @@ input[type="submit"] {
       `;
       const result = parseThemeContent(theme);
 
-      expectDeepEqual(result.root, {
-        "--color-bg": "#241f31",
-        "--color-text": "#9a9996",
-        "--color-link": "#f6f5f4",
-      });
-      expectDeepEqual(result.scopes.header, { "--color-text": "#ffffff" });
-      expectDeepEqual(result.scopes.nav, { "--color-bg": "#333" });
-      expectDeepEqual(result.scopes.article, { "--color-bg": "#f0f0f0" });
-      expectDeepEqual(result.scopes.form, { "--border": "1px solid #ccc" });
-      expectDeepEqual(result.scopes.button, { "--color-bg": "#007bff" });
-      expectDeepEqual(result.bodyClasses, ["header-centered-dark"]);
+      expectDeepEqual(
+        result.root,
+        {
+          "--color-bg": "#241f31",
+          "--color-text": "#9a9996",
+          "--color-link": "#f6f5f4",
+        },
+        "Should parse :root variables",
+      );
+      expectDeepEqual(
+        result.scopes.header,
+        { "--color-text": "#ffffff" },
+        "Should parse header scope variables",
+      );
+      expectDeepEqual(
+        result.scopes.nav,
+        { "--color-bg": "#333" },
+        "Should parse nav scope variables",
+      );
+      expectDeepEqual(
+        result.scopes.article,
+        { "--color-bg": "#f0f0f0" },
+        "Should parse article scope variables",
+      );
+      expectDeepEqual(
+        result.scopes.form,
+        { "--border": "1px solid #ccc" },
+        "Should parse form scope variables",
+      );
+      expectDeepEqual(
+        result.scopes.button,
+        { "--color-bg": "#007bff" },
+        "Should parse button scope variables",
+      );
+      expectDeepEqual(
+        result.bodyClasses,
+        ["header-centered-dark"],
+        "Should parse body_classes comment",
+      );
     },
   },
   {
     name: "parseBorderValue-parses-border",
     description: "Parses border value into components",
     test: () => {
-      expectDeepEqual(parseBorderValue("2px solid #000000"), {
-        width: 2,
-        style: "solid",
-        color: "#000000",
-      });
-      expectDeepEqual(parseBorderValue("3px dashed #ff0000"), {
-        width: 3,
-        style: "dashed",
-        color: "#ff0000",
-      });
+      expectDeepEqual(
+        parseBorderValue("2px solid #000000"),
+        {
+          width: 2,
+          style: "solid",
+          color: "#000000",
+        },
+        "Should parse solid border correctly",
+      );
+      expectDeepEqual(
+        parseBorderValue("3px dashed #ff0000"),
+        {
+          width: 3,
+          style: "dashed",
+          color: "#ff0000",
+        },
+        "Should parse dashed border correctly",
+      );
     },
   },
 ];
@@ -150,15 +194,30 @@ const generationTests = [
 
       const result = generateThemeCss(globalVars, scopeVars, bodyClasses);
 
-      expectTrue(result.includes(":root {"));
-      expectTrue(result.includes("--color-bg: #ffffff;"));
-      expectTrue(result.includes("--color-text: #000000;"));
-      expectTrue(result.includes("header {"));
-      expectTrue(result.includes("nav {"));
-      expectTrue(result.includes("button,"));
-      expectTrue(result.includes(".button,"));
-      expectTrue(result.includes('input[type="submit"]'));
-      expectTrue(result.includes("/* body_classes: header-centered-dark */"));
+      expectTrue(result.includes(":root {"), "Should include :root block");
+      expectTrue(
+        result.includes("--color-bg: #ffffff;"),
+        "Should include --color-bg variable",
+      );
+      expectTrue(
+        result.includes("--color-text: #000000;"),
+        "Should include --color-text variable",
+      );
+      expectTrue(result.includes("header {"), "Should include header block");
+      expectTrue(result.includes("nav {"), "Should include nav block");
+      expectTrue(result.includes("button,"), "Should include button selector");
+      expectTrue(
+        result.includes(".button,"),
+        "Should include .button selector",
+      );
+      expectTrue(
+        result.includes('input[type="submit"]'),
+        "Should include submit input selector",
+      );
+      expectTrue(
+        result.includes("/* body_classes: header-centered-dark */"),
+        "Should include body_classes comment",
+      );
     },
   },
   {
@@ -172,9 +231,15 @@ const generationTests = [
       };
       const result = generateThemeCss({}, scopeVars, []);
 
-      expectTrue(result.includes("header {"));
-      expectFalse(result.includes("nav {"));
-      expectFalse(result.includes("article {"));
+      expectTrue(
+        result.includes("header {"),
+        "Should include non-empty header block",
+      );
+      expectFalse(result.includes("nav {"), "Should omit empty nav block");
+      expectFalse(
+        result.includes("article {"),
+        "Should omit empty article block",
+      );
     },
   },
 ];
@@ -188,16 +253,28 @@ const scopeFilterTests = [
     name: "shouldIncludeScopedVar-includes-different",
     description: "Includes value when different from global",
     test: () => {
-      expectTrue(shouldIncludeScopedVar("#ff0000", "#ffffff"));
-      expectTrue(shouldIncludeScopedVar("#000000", "#ffffff"));
+      expectTrue(
+        shouldIncludeScopedVar("#ff0000", "#ffffff"),
+        "Should include red when global is white",
+      );
+      expectTrue(
+        shouldIncludeScopedVar("#000000", "#ffffff"),
+        "Should include black when global is white",
+      );
     },
   },
   {
     name: "shouldIncludeScopedVar-excludes-same",
     description: "Excludes value when same as global",
     test: () => {
-      expectFalse(shouldIncludeScopedVar("#ffffff", "#ffffff"));
-      expectFalse(shouldIncludeScopedVar("2px solid #333", "2px solid #333"));
+      expectFalse(
+        shouldIncludeScopedVar("#ffffff", "#ffffff"),
+        "Should exclude when colors match",
+      );
+      expectFalse(
+        shouldIncludeScopedVar("2px solid #333", "2px solid #333"),
+        "Should exclude when border values match",
+      );
     },
   },
   {
@@ -216,10 +293,14 @@ const scopeFilterTests = [
       };
       const result = filterScopeVars(formData, globals);
 
-      expectDeepEqual(result, {
-        "--color-bg": "#ff0000",
-        "--color-link": "#0000ff",
-      });
+      expectDeepEqual(
+        result,
+        {
+          "--color-bg": "#ff0000",
+          "--color-link": "#0000ff",
+        },
+        "Should only include variables that differ from global",
+      );
     },
   },
 ];
@@ -233,21 +314,54 @@ const configTests = [
     name: "scopes-match-between-lib-and-config",
     description: "SCOPES constant matches config",
     test: () => {
-      expectDeepEqual(SCOPES, ["header", "nav", "article", "form", "button"]);
-      expectDeepEqual(getScopes(), SCOPES);
+      expectDeepEqual(
+        SCOPES,
+        ["header", "nav", "article", "form", "button"],
+        "SCOPES should contain all expected scope names",
+      );
+      expectDeepEqual(
+        getScopes(),
+        SCOPES,
+        "getScopes() should return same array as SCOPES constant",
+      );
     },
   },
   {
     name: "scope-selectors-defined-correctly",
     description: "All scope selectors are correctly defined",
     test: () => {
-      expectStrictEqual(SCOPE_SELECTORS.header, "header");
-      expectStrictEqual(SCOPE_SELECTORS.nav, "nav");
-      expectStrictEqual(SCOPE_SELECTORS.article, "article");
-      expectStrictEqual(SCOPE_SELECTORS.form, "form");
-      expectTrue(SCOPE_SELECTORS.button.includes("button"));
-      expectTrue(SCOPE_SELECTORS.button.includes(".button"));
-      expectTrue(SCOPE_SELECTORS.button.includes('input[type="submit"]'));
+      expectStrictEqual(
+        SCOPE_SELECTORS.header,
+        "header",
+        "Header selector should be 'header'",
+      );
+      expectStrictEqual(
+        SCOPE_SELECTORS.nav,
+        "nav",
+        "Nav selector should be 'nav'",
+      );
+      expectStrictEqual(
+        SCOPE_SELECTORS.article,
+        "article",
+        "Article selector should be 'article'",
+      );
+      expectStrictEqual(
+        SCOPE_SELECTORS.form,
+        "form",
+        "Form selector should be 'form'",
+      );
+      expectTrue(
+        SCOPE_SELECTORS.button.includes("button"),
+        "Button selector should include 'button'",
+      );
+      expectTrue(
+        SCOPE_SELECTORS.button.includes(".button"),
+        "Button selector should include '.button'",
+      );
+      expectTrue(
+        SCOPE_SELECTORS.button.includes('input[type="submit"]'),
+        "Button selector should include input[type='submit']",
+      );
     },
   },
 ];
@@ -282,9 +396,21 @@ header {
       );
       const reparsed = parseThemeContent(generated);
 
-      expectDeepEqual(reparsed.root, parsed.root);
-      expectDeepEqual(reparsed.scopes, parsed.scopes);
-      expectDeepEqual(reparsed.bodyClasses, parsed.bodyClasses);
+      expectDeepEqual(
+        reparsed.root,
+        parsed.root,
+        "Round-trip should preserve :root variables",
+      );
+      expectDeepEqual(
+        reparsed.scopes,
+        parsed.scopes,
+        "Round-trip should preserve scope variables",
+      );
+      expectDeepEqual(
+        reparsed.bodyClasses,
+        parsed.bodyClasses,
+        "Round-trip should preserve body classes",
+      );
     },
   },
   {
@@ -301,10 +427,19 @@ header {
 
       const generated = generateThemeCss(parsed.root, newScopeVars, []);
 
-      expectTrue(generated.includes("header {"));
-      expectTrue(generated.includes("nav {"));
-      expectTrue(generated.includes("--color-text: #ffffff;"));
-      expectTrue(generated.includes("--color-bg: #333333;"));
+      expectTrue(
+        generated.includes("header {"),
+        "Should include header scope block",
+      );
+      expectTrue(generated.includes("nav {"), "Should include nav scope block");
+      expectTrue(
+        generated.includes("--color-text: #ffffff;"),
+        "Should include header color-text variable",
+      );
+      expectTrue(
+        generated.includes("--color-bg: #333333;"),
+        "Should include nav color-bg variable",
+      );
     },
   },
 ];
@@ -409,30 +544,36 @@ nav {
       expectStrictEqual(
         document.getElementById("header-color-bg").value,
         "#ff0000",
+        "Header bg should use override value #ff0000",
       );
       expectStrictEqual(
         document.getElementById("header-color-text").value,
         "#ffffff",
+        "Header text should use override value #ffffff",
       );
       expectStrictEqual(
         document.getElementById("header-color-link").value,
         "#0066cc",
+        "Header link should fall back to global value #0066cc",
       );
 
       // Verify nav scope (one override)
       expectStrictEqual(
         document.getElementById("nav-color-link").value,
         "#00ff00",
+        "Nav link should use override value #00ff00",
       );
       expectStrictEqual(
         document.getElementById("nav-color-bg").value,
         "#ffffff",
+        "Nav bg should fall back to global value #ffffff",
       );
 
       // Verify article scope (no overrides, all global)
       expectStrictEqual(
         document.getElementById("article-color-bg").value,
         "#ffffff",
+        "Article bg should fall back to global value #ffffff",
       );
     },
   },
@@ -501,12 +642,30 @@ header {
       // Generate new CSS
       const newCss = generateThemeCss(parsed.root, scopeVars, []);
 
-      expectTrue(newCss.includes(":root {"));
-      expectTrue(newCss.includes("header {"));
-      expectTrue(newCss.includes("--color-bg: #ff0000"));
-      expectTrue(newCss.includes("nav {"));
-      expectTrue(newCss.includes("--color-link: #00ff00"));
-      expectFalse(newCss.includes("article {"));
+      expectTrue(
+        newCss.includes(":root {"),
+        "Generated CSS should include :root block",
+      );
+      expectTrue(
+        newCss.includes("header {"),
+        "Generated CSS should include header block",
+      );
+      expectTrue(
+        newCss.includes("--color-bg: #ff0000"),
+        "Generated CSS should include modified header bg color",
+      );
+      expectTrue(
+        newCss.includes("nav {"),
+        "Generated CSS should include nav block",
+      );
+      expectTrue(
+        newCss.includes("--color-link: #00ff00"),
+        "Generated CSS should include modified nav link color",
+      );
+      expectFalse(
+        newCss.includes("article {"),
+        "Generated CSS should not include unchanged article block",
+      );
     },
   },
   {
@@ -557,11 +716,31 @@ header {
         collectedByScope[scope] = vars;
       });
 
-      expectDeepEqual(collectedByScope.header, { "--color-bg": "#ff0000" });
-      expectDeepEqual(collectedByScope.nav, { "--color-link": "#00ff00" });
-      expectDeepEqual(collectedByScope.article, { "--color-text": "#0000ff" });
-      expectDeepEqual(collectedByScope.form, {});
-      expectDeepEqual(collectedByScope.button, {});
+      expectDeepEqual(
+        collectedByScope.header,
+        { "--color-bg": "#ff0000" },
+        "Header should only contain changed --color-bg",
+      );
+      expectDeepEqual(
+        collectedByScope.nav,
+        { "--color-link": "#00ff00" },
+        "Nav should only contain changed --color-link",
+      );
+      expectDeepEqual(
+        collectedByScope.article,
+        { "--color-text": "#0000ff" },
+        "Article should only contain changed --color-text",
+      );
+      expectDeepEqual(
+        collectedByScope.form,
+        {},
+        "Form should be empty (no changes)",
+      );
+      expectDeepEqual(
+        collectedByScope.button,
+        {},
+        "Button should be empty (no changes)",
+      );
     },
   },
   {
@@ -603,6 +782,7 @@ header {
       expectStrictEqual(
         document.getElementById("header-color-bg").value,
         "#000000",
+        "Header bg input should be initialized to black",
       );
 
       // Collect and verify black is preserved
@@ -618,8 +798,16 @@ header {
           }
         });
 
-      expectStrictEqual(collectedVars["--color-bg"], "#000000");
-      expectStrictEqual(collectedVars["--color-text"], "#ffffff");
+      expectStrictEqual(
+        collectedVars["--color-bg"],
+        "#000000",
+        "Black should be preserved in collected vars",
+      );
+      expectStrictEqual(
+        collectedVars["--color-text"],
+        "#ffffff",
+        "White text should be preserved in collected vars",
+      );
     },
   },
   {
@@ -705,11 +893,31 @@ input[type="submit"] {
       // Re-parse the generated CSS
       const reparsed = parseThemeContent(generatedCss);
 
-      expectDeepEqual(reparsed.root, parsed.root);
-      expectDeepEqual(reparsed.scopes.header, parsed.scopes.header);
-      expectDeepEqual(reparsed.scopes.nav, parsed.scopes.nav);
-      expectDeepEqual(reparsed.scopes.button, parsed.scopes.button);
-      expectDeepEqual(reparsed.bodyClasses, parsed.bodyClasses);
+      expectDeepEqual(
+        reparsed.root,
+        parsed.root,
+        "Full round-trip should preserve :root variables",
+      );
+      expectDeepEqual(
+        reparsed.scopes.header,
+        parsed.scopes.header,
+        "Full round-trip should preserve header scope",
+      );
+      expectDeepEqual(
+        reparsed.scopes.nav,
+        parsed.scopes.nav,
+        "Full round-trip should preserve nav scope",
+      );
+      expectDeepEqual(
+        reparsed.scopes.button,
+        parsed.scopes.button,
+        "Full round-trip should preserve button scope",
+      );
+      expectDeepEqual(
+        reparsed.bodyClasses,
+        parsed.bodyClasses,
+        "Full round-trip should preserve body classes",
+      );
     },
   },
   {
@@ -747,7 +955,10 @@ input[type="submit"] {
 
       const css = generateThemeCss(globalVars, scopeVars, []);
 
-      expectFalse(css.includes("undefined"));
+      expectFalse(
+        css.includes("undefined"),
+        "Generated CSS should not contain 'undefined'",
+      );
     },
   },
   {
@@ -792,7 +1003,11 @@ input[type="submit"] {
         }
       });
 
-      expectStrictEqual(Object.keys(scopeVars).length, 0);
+      expectStrictEqual(
+        Object.keys(scopeVars).length,
+        0,
+        "Borders matching global should not create scope overrides",
+      );
     },
   },
 ];
@@ -982,6 +1197,7 @@ const bugRegressionTests = [
       expectStrictEqual(
         document.getElementById("nav-border").value,
         "2px solid #000000",
+        "Nav border should be initialized to old global value",
       );
 
       // Step 2: User changes the GLOBAL border to a new value
@@ -1026,6 +1242,7 @@ const bugRegressionTests = [
       expectStrictEqual(
         document.getElementById("nav-border").value,
         "3px solid #ff0000",
+        "Nav border should be cascaded to new global value",
       );
 
       // Step 5: Collect scope vars - now scoped borders match new global
@@ -1110,6 +1327,7 @@ const bugRegressionTests = [
       expectStrictEqual(
         document.getElementById("nav-color-text").value,
         "#9a9996",
+        "Nav color-text should be initialized to old global value",
       );
 
       // Step 2: User changes the GLOBAL text color to a new value
@@ -1144,6 +1362,7 @@ const bugRegressionTests = [
       expectStrictEqual(
         document.getElementById("nav-color-text").value,
         "#000000",
+        "Nav color-text should be cascaded to new global value",
       );
 
       // Step 5: Collect scope vars - now scoped inputs match new global
