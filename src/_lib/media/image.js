@@ -88,20 +88,23 @@ const U = {
     gcd = gcd(metadata.width, metadata.height);
     return `${metadata.width / gcd}/${metadata.height / gcd}`;
   },
-  cropImage: memoize(async (aspectRatio, sourcePath, metadata) => {
-    if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
+  cropImage: memoize(
+    async (aspectRatio, sourcePath, metadata) => {
+      if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
 
-    const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
-    if (fs.existsSync(cachedPath)) return cachedPath;
+      const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
+      if (fs.existsSync(cachedPath)) return cachedPath;
 
-    const { width, height } = parseCropDimensions(aspectRatio, metadata);
-    fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-    await sharp(sourcePath)
-      .resize(width, height, { fit: "cover" })
-      .toFile(cachedPath);
+      const { width, height } = parseCropDimensions(aspectRatio, metadata);
+      fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
+      await sharp(sourcePath)
+        .resize(width, height, { fit: "cover" })
+        .toFile(cachedPath);
 
-    return cachedPath;
-  }),
+      return cachedPath;
+    },
+    { cacheKey: (args) => `${args[0]}:${args[1]}` },
+  ),
   // Build div HTML using JSDOM for consistency
   makeDivHtml: async (
     classes,
