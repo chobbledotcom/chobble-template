@@ -17,16 +17,11 @@ describe("normaliseSlug", () => {
     assert.strictEqual(normaliseSlug(""), "", "Empty string returns empty");
   });
 
-  it("removes file extension", () => {
+  it("removes .md extension", () => {
     assert.strictEqual(
       normaliseSlug("menu.md"),
       "menu",
       "Strips .md extension",
-    );
-    assert.strictEqual(
-      normaliseSlug("product.json"),
-      "product",
-      "Strips .json extension",
     );
   });
 
@@ -35,11 +30,6 @@ describe("normaliseSlug", () => {
       normaliseSlug("content/menus/lunch.md"),
       "lunch",
       "Extracts from path",
-    );
-    assert.strictEqual(
-      normaliseSlug("src/_data/products/item.json"),
-      "item",
-      "Extracts from nested path",
     );
   });
 
@@ -64,11 +54,16 @@ describe("normaliseSlug", () => {
     );
   });
 
-  it("handles paths with multiple dots in filename", () => {
+  it("preserves dots in filename, only removing .md extension", () => {
     assert.strictEqual(
-      normaliseSlug("path/to/file.test.js"),
-      "file",
-      "Handles multiple dots",
+      normaliseSlug("categories/v2.0-widgets.md"),
+      "v2.0-widgets",
+      "Preserves version number in slug",
+    );
+    assert.strictEqual(
+      normaliseSlug("products/1.5-inch-nails.md"),
+      "1.5-inch-nails",
+      "Preserves decimal in slug",
     );
   });
 });

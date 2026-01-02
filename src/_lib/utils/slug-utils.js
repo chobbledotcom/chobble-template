@@ -6,13 +6,9 @@ import slugify from "@sindresorhus/slugify";
 
 const normaliseSlug = (reference) => {
   if (!reference) return reference;
-
-  // Remove file extension if present
-  const withoutExtension = reference.split(".")[0];
-
-  // Split by path separator and take the last part
-  const pathParts = withoutExtension.split("/");
-  return pathParts[pathParts.length - 1];
+  const pathParts = reference.split("/");
+  const filename = pathParts[pathParts.length - 1];
+  return filename.replace(/\.md$/, "");
 };
 
 // Build a permalink for a collection item
