@@ -4,9 +4,9 @@ import path from "node:path";
 import Image, {
   eleventyImageOnRequestDuringServePlugin,
 } from "@11ty/eleventy-img";
-import { JSDOM } from "jsdom";
 import sharp from "sharp";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
+import { loadJSDOM } from "#utils/lazy-jsdom.js";
 import { memoize } from "#utils/memoize.js";
 
 const CROP_CACHE_DIR = ".image-cache";
@@ -118,7 +118,7 @@ const U = {
     styles.push(`aspect-ratio: ${imageAspectRatio}`);
     if (maxWidth) styles.push(`max-width: ${maxWidth}px`);
 
-    return createHtml(
+    return await createHtml(
       "div",
       {
         class: classes ? `image-wrapper ${classes}` : "image-wrapper",
@@ -189,7 +189,7 @@ async function processAndWrapImage({
     }
     // Convert cached HTML to element using provided document
     if (document) {
-      return parseHtml(cachedHtml, document);
+      return await parseHtml(cachedHtml, document);
     }
   }
   // Handle external URLs - just return a simple img tag without processing
@@ -208,9 +208,9 @@ async function processAndWrapImage({
     if (classes) attributes.class = classes;
 
     if (returnElement) {
-      return createElement("img", attributes, null, document);
+      return await createElement("img", attributes, null, document);
     }
-    return createHtml("img", attributes);
+    return await createHtml("img", attributes);
   }
 
   const imagePath = U.getPath(imageName);
@@ -247,7 +247,7 @@ async function processAndWrapImage({
   );
   imageHtmlCache.set(cacheKey, html);
 
-  return returnElement ? parseHtml(html, document) : html;
+  return returnElement ? await parseHtml(html, document) : html;
 }
 
 import fastglob from "fast-glob";
@@ -359,6 +359,7 @@ const transformImages = async (content) => {
   if (!content || !content.includes("<img")) return content;
   if (!content.includes('src="/images/')) return content;
 
+  const JSDOM = await loadJSDOM();
   const dom = new JSDOM(content);
   const { document } = dom.window;
   const images = document.querySelectorAll('img[src^="/images/"]');

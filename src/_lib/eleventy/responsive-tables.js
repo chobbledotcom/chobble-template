@@ -1,10 +1,11 @@
-import { JSDOM } from "jsdom";
+import { loadJSDOM } from "#utils/lazy-jsdom.js";
 
-const wrapTablesForScroll = (content) => {
+const wrapTablesForScroll = async (content) => {
   if (!content || !content.includes("<table")) {
     return content;
   }
 
+  const JSDOM = await loadJSDOM();
   const dom = new JSDOM(content);
   const {
     window: { document },
@@ -28,12 +29,12 @@ const wrapTablesForScroll = (content) => {
 };
 
 const createResponsiveTablesTransform = () => {
-  return (content, outputPath) => {
+  return async (content, outputPath) => {
     if (!outputPath || !outputPath.endsWith(".html")) {
       return content;
     }
 
-    return wrapTablesForScroll(content);
+    return await wrapTablesForScroll(content);
   };
 };
 

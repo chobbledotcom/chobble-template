@@ -1,10 +1,11 @@
-import { JSDOM } from "jsdom";
+import { loadJSDOM } from "#utils/lazy-jsdom.js";
 
 // Shared JSDOM instance for building elements
 let sharedDom = null;
 
-const getSharedDocument = () => {
+const getSharedDocument = async () => {
   if (!sharedDom) {
+    const JSDOM = await loadJSDOM();
     sharedDom = new JSDOM("");
   }
   return sharedDom.window.document;
@@ -16,15 +17,15 @@ const getSharedDocument = () => {
  * @param {Object} attributes - Key-value pairs of attributes
  * @param {string|Element|Array} children - Inner content or child elements
  * @param {Document} document - Optional existing document to use
- * @returns {Element} The created element
+ * @returns {Promise<Element>} The created element
  */
-const createElement = (
+const createElement = async (
   tagName,
   attributes = {},
   children = null,
   document = null,
 ) => {
-  const doc = document || getSharedDocument();
+  const doc = document || (await getSharedDocument());
   const element = doc.createElement(tagName);
 
   for (const [key, value] of Object.entries(attributes)) {
@@ -62,20 +63,20 @@ const elementToHtml = (element) => {
  * @param {string} tagName - The tag name
  * @param {Object} attributes - Key-value pairs of attributes
  * @param {string|Element|Array} children - Inner content or child elements
- * @returns {string} The HTML string
+ * @returns {Promise<string>} The HTML string
  */
-const createHtml = (tagName, attributes = {}, children = null) => {
-  return elementToHtml(createElement(tagName, attributes, children));
+const createHtml = async (tagName, attributes = {}, children = null) => {
+  return elementToHtml(await createElement(tagName, attributes, children));
 };
 
 /**
  * Parse an HTML string into a DOM element
  * @param {string} html - The HTML string to parse
  * @param {Document} document - Optional existing document to use
- * @returns {Element} The parsed element
+ * @returns {Promise<Element>} The parsed element
  */
-const parseHtml = (html, document = null) => {
-  const doc = document || getSharedDocument();
+const parseHtml = async (html, document = null) => {
+  const doc = document || (await getSharedDocument());
   const template = doc.createElement("template");
   template.innerHTML = html;
   return template.content.firstChild;
