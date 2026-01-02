@@ -17,87 +17,182 @@ const SKU_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 /**
  * Generate a random SKU of specified length
  */
-const generateSku = (length = SKU_LENGTH) => {
-  let sku = "";
-  for (let i = 0; i < length; i++) {
-    sku += SKU_CHARS.charAt(Math.floor(Math.random() * SKU_CHARS.length));
-  }
-  return sku;
+const generateSku = (length = SKU_LENGTH) =>
+  Array.from(
+    { length },
+    () => SKU_CHARS[Math.floor(Math.random() * SKU_CHARS.length)],
+  ).join("");
+
+/**
+ * Read and parse a product file
+ */
+const readProductFile = (filePath) => {
+  const content = fs.readFileSync(filePath, "utf8");
+  const { data, content: body } = matter(content);
+  return { data, body, filePath };
 };
+
+/**
+ * Get all product files from a directory
+ */
+const getProductFiles = (productsDir) =>
+  fs
+    .readdirSync(productsDir)
+    .filter((f) => f.endsWith(".md"))
+    .map((file) => path.join(productsDir, file));
+
+/**
+ * Extract SKUs from a product's options
+ */
+const extractSkusFromProduct = (product) =>
+  (product.data.options || [])
+    .filter((option) => option.sku)
+    .map((option) => option.sku);
 
 /**
  * Collect all existing SKUs from all products
  */
 const collectExistingSkus = (productsDir) => {
-  const skus = new Set();
-  const files = fs.readdirSync(productsDir).filter((f) => f.endsWith(".md"));
-
-  for (const file of files) {
-    const filePath = path.join(productsDir, file);
-    const content = fs.readFileSync(filePath, "utf8");
-    const { data } = matter(content);
-
-    if (data.options && Array.isArray(data.options)) {
-      for (const option of data.options) {
-        if (option.sku) {
-          skus.add(option.sku);
-        }
-      }
-    }
-  }
-
-  return skus;
+  const products = getProductFiles(productsDir).map(readProductFile);
+  const allSkus = products.flatMap(extractSkusFromProduct);
+  return new Set(allSkus);
 };
 
 /**
  * Generate a unique SKU that doesn't exist in the set
+ * Returns { sku, updatedSkus } to avoid mutation
  */
-const generateUniqueSku = (existingSkus) => {
-  let sku;
-  let attempts = 0;
-  const maxAttempts = 1000;
-
-  do {
-    sku = generateSku();
-    attempts++;
-    if (attempts >= maxAttempts) {
+const generateUniqueSku = (existingSkus, maxAttempts = 1000) => {
+  const attempt = (attemptsLeft) => {
+    if (attemptsLeft <= 0) {
       throw new Error("Could not generate unique SKU after maximum attempts");
     }
-  } while (existingSkus.has(sku));
+    const sku = generateSku();
+    return existingSkus.has(sku)
+      ? attempt(attemptsLeft - 1)
+      : { sku, updatedSkus: new Set([...existingSkus, sku]) };
+  };
+  return attempt(maxAttempts);
+};
 
-  existingSkus.add(sku);
-  return sku;
+/**
+ * Add SKUs to options that are missing them (recursive implementation)
+ * Returns { options, skusAdded, updatedSkus }
+ */
+const addSkusToOptions = (options, existingSkus) => {
+  const processOptions = (remaining, processed, skusAdded, currentSkus) => {
+    if (remaining.length === 0) {
+      return { options: processed, skusAdded, updatedSkus: currentSkus };
+    }
+
+    const [option, ...rest] = remaining;
+
+    if (option.sku) {
+      return processOptions(
+        rest,
+        [...processed, option],
+        skusAdded,
+        currentSkus,
+      );
+    }
+
+    const { sku, updatedSkus } = generateUniqueSku(currentSkus);
+    return processOptions(
+      rest,
+      [...processed, { ...option, sku }],
+      skusAdded + 1,
+      updatedSkus,
+    );
+  };
+
+  return processOptions(options, [], 0, existingSkus);
 };
 
 /**
  * Process a single product file and add SKUs to options missing them
- * Returns true if the file was modified
+ * Returns { modified, skusAdded, updatedSkus, filePath, newContent }
  */
-const processProductFile = (filePath, existingSkus, dryRun = false) => {
-  const content = fs.readFileSync(filePath, "utf8");
-  const { data, content: body } = matter(content);
+const processProductFile = (product, existingSkus) => {
+  const { data, body, filePath } = product;
 
   if (!data.options || !Array.isArray(data.options)) {
-    return { modified: false, skusAdded: 0 };
+    return {
+      modified: false,
+      skusAdded: 0,
+      updatedSkus: existingSkus,
+      filePath,
+      newContent: null,
+    };
   }
 
-  let modified = false;
-  let skusAdded = 0;
+  const { options, skusAdded, updatedSkus } = addSkusToOptions(
+    data.options,
+    existingSkus,
+  );
 
-  for (const option of data.options) {
-    if (!option.sku) {
-      option.sku = generateUniqueSku(existingSkus);
-      modified = true;
-      skusAdded++;
+  const modified = skusAdded > 0;
+  const newContent = modified
+    ? matter.stringify(body, { ...data, options })
+    : null;
+
+  return { modified, skusAdded, updatedSkus, filePath, newContent };
+};
+
+/**
+ * Write modified files to disk
+ */
+const writeModifiedFiles = (results) => {
+  results
+    .filter((result) => result.modified && result.newContent)
+    .forEach((result) => {
+      fs.writeFileSync(result.filePath, result.newContent);
+    });
+};
+
+/**
+ * Process all product files and collect results (recursive implementation)
+ */
+const processAllProducts = (productsDir, existingSkus) => {
+  const products = getProductFiles(productsDir).map(readProductFile);
+
+  const processProducts = (remaining, processed, currentSkus) => {
+    if (remaining.length === 0) {
+      return { results: processed, currentSkus };
     }
-  }
 
-  if (modified && !dryRun) {
-    const newContent = matter.stringify(body, data);
-    fs.writeFileSync(filePath, newContent);
-  }
+    const [product, ...rest] = remaining;
+    const result = processProductFile(product, currentSkus);
 
-  return { modified, skusAdded };
+    return processProducts(rest, [...processed, result], result.updatedSkus);
+  };
+
+  return processProducts(products, [], existingSkus);
+};
+
+/**
+ * Log processing results
+ */
+const logResults = (results, dryRun) => {
+  const modifiedResults = results.filter((r) => r.modified);
+
+  modifiedResults.forEach((result) => {
+    const fileName = path.basename(result.filePath);
+    const prefix = dryRun ? "[DRY RUN] Would update" : "Updated";
+    console.log(`${prefix} ${fileName}: added ${result.skusAdded} SKU(s)`);
+  });
+
+  const totalModified = modifiedResults.length;
+  const totalSkusAdded = modifiedResults.reduce(
+    (sum, r) => sum + r.skusAdded,
+    0,
+  );
+
+  const prefix = dryRun ? "[DRY RUN] Would modify" : "Modified";
+  console.log(
+    `\n${prefix} ${totalModified} file(s), added ${totalSkusAdded} SKU(s)`,
+  );
+
+  return { totalModified, totalSkusAdded };
 };
 
 /**
@@ -111,36 +206,16 @@ const addSkusToProducts = (dryRun = false) => {
     process.exit(1);
   }
 
-  // Collect existing SKUs first
   const existingSkus = collectExistingSkus(productsDir);
   console.log(`Found ${existingSkus.size} existing SKUs`);
 
-  const files = fs.readdirSync(productsDir).filter((f) => f.endsWith(".md"));
-  let totalModified = 0;
-  let totalSkusAdded = 0;
+  const { results } = processAllProducts(productsDir, existingSkus);
 
-  for (const file of files) {
-    const filePath = path.join(productsDir, file);
-    const { modified, skusAdded } = processProductFile(
-      filePath,
-      existingSkus,
-      dryRun,
-    );
-
-    if (modified) {
-      totalModified++;
-      totalSkusAdded += skusAdded;
-      console.log(
-        `${dryRun ? "[DRY RUN] Would update" : "Updated"} ${file}: added ${skusAdded} SKU(s)`,
-      );
-    }
+  if (!dryRun) {
+    writeModifiedFiles(results);
   }
 
-  console.log(
-    `\n${dryRun ? "[DRY RUN] Would modify" : "Modified"} ${totalModified} file(s), added ${totalSkusAdded} SKU(s)`,
-  );
-
-  return { totalModified, totalSkusAdded };
+  return logResults(results, dryRun);
 };
 
 // CLI handling
