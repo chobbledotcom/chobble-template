@@ -13,6 +13,7 @@ import {
   parseFilterAttributes,
   pathToFilter,
 } from "#filters/item-filters.js";
+import { expectResultTitles } from "#test/test-utils.js";
 
 describe("item-filters", () => {
   // parseFilterAttributes tests
@@ -275,9 +276,7 @@ describe("item-filters", () => {
 
     const result = getItemsByFilters(items, { "pet-friendly": "yes" });
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Beach Cottage");
-    expect(result[1].data.title).toBe("Pet Apartment");
+    expectResultTitles(result, ["Beach Cottage", "Pet Apartment"]);
   });
 
   // generateFilterCombinations tests

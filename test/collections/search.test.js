@@ -193,8 +193,7 @@ describe("search", () => {
 
     const result = getProductsByKeyword(products, "premium widgets");
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Widget Pro");
+    expectResultTitles(result, ["Widget Pro"]);
   });
 
   test("Combines explicit keywords with category-derived keywords", () => {
