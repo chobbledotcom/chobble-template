@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
-  analyzeFiles,
   assertNoViolations,
   combineFileLists,
-  scanLines,
+  createCodeChecker,
 } from "#test/code-scanner.js";
 import {
   ECOMMERCE_JS_FILES,
@@ -11,41 +10,19 @@ import {
   TEST_FILES,
 } from "#test/test-utils.js";
 
-const TODO_FIXME_REGEX = /\b(TODO|FIXME)\b/gi;
-
-/**
- * Find all TODO/FIXME occurrences in a file
- */
-const findTodoFixme = (source) =>
-  scanLines(source, (line, lineNum) => {
-    const match = line.match(TODO_FIXME_REGEX);
-    return match
-      ? { lineNumber: lineNum, line: line.trim(), match: match[0] }
-      : null;
-  });
-
 const EXCLUDE_FILES = [
   "test/code-quality/todo-fixme-comments.test.js",
   "test/code-quality/commented-code.test.js",
 ];
 
-/**
- * Analyze all JS files and find TODO/FIXME comments
- */
-const analyzeTodoFixme = () =>
-  analyzeFiles(
-    combineFileLists(
-      [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
-      EXCLUDE_FILES,
-    ),
-    (source, relativePath) =>
-      findTodoFixme(source).map((tf) => ({
-        file: relativePath,
-        line: tf.lineNumber,
-        code: tf.line,
-        match: tf.match,
-      })),
-  );
+// Create checker for TODO/FIXME comments using the factory pattern
+const { find: findTodoFixme, analyze: analyzeTodoFixme } = createCodeChecker({
+  patterns: /\b(TODO|FIXME)\b/gi,
+  skipPatterns: [], // Check all lines including comments
+  extractData: (_line, _lineNum, match) => ({ match: match[0] }),
+  files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+  excludeFiles: EXCLUDE_FILES,
+});
 
 describe("todo-fixme-comments", () => {
   test("Correctly identifies TODO/FIXME comments in source code", () => {

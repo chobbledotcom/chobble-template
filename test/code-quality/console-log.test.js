@@ -1,12 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_CONSOLE } from "#test/code-quality/code-quality-exceptions.js";
 import {
-  analyzeFiles,
   assertNoViolations,
   combineFileLists,
-  isCommentLine,
-  matchAny,
-  scanLines,
+  createCodeChecker,
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -26,45 +23,18 @@ const TEST_ALLOWED_FILES = new Set([
   "test/code-quality/console-log.test.js",
 ]);
 
-/**
- * Find console.* calls in source code
- */
-const findConsoleCalls = (source) =>
-  scanLines(source, (line, lineNum) => {
-    const trimmed = line.trim();
-
-    // Skip comments (using shared helper from code-scanner)
-    if (isCommentLine(trimmed)) return null;
-
-    // Check for console.* patterns
-    const result = matchAny(line, CONSOLE_PATTERNS);
-    if (!result) return null;
-
-    // Extract which console method was used
-    const methodMatch = line.match(/console\.(\w+)/);
-    const method = methodMatch ? methodMatch[1] : "log";
-
-    return { lineNumber: lineNum, line: trimmed, method };
+// Create checker for console.* calls using the factory pattern
+const { find: findConsoleCalls, analyze: analyzeConsoleCalls } =
+  createCodeChecker({
+    patterns: CONSOLE_PATTERNS,
+    // skipPatterns defaults to COMMENT_LINE_PATTERNS
+    extractData: (line) => {
+      const methodMatch = line.match(/console\.(\w+)/);
+      return { method: methodMatch ? methodMatch[1] : "log" };
+    },
+    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES]),
+    excludeFiles: [...ALLOWED_CONSOLE, ...TEST_ALLOWED_FILES],
   });
-
-/**
- * Analyze all source JS files for console.* calls
- */
-const analyzeConsoleCalls = () => {
-  const allExclusions = [...ALLOWED_CONSOLE, ...TEST_ALLOWED_FILES];
-
-  return analyzeFiles(
-    combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES]),
-    (source, relativePath) =>
-      findConsoleCalls(source).map((hit) => ({
-        file: relativePath,
-        line: hit.lineNumber,
-        code: hit.line,
-        method: hit.method,
-      })),
-    { excludeFiles: allExclusions },
-  );
-};
 
 describe("console-log", () => {
   test("Detects console.log calls", () => {

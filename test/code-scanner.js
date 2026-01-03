@@ -167,6 +167,69 @@ const createPatternMatcher = (patterns, toViolation) => {
   };
 };
 
+/**
+ * Create a reusable code checker with find and analyze functions.
+ * Consolidates the common find-X/analyze-X pattern into a single factory.
+ *
+ * @param {object} config
+ * @param {RegExp|RegExp[]} config.patterns - Pattern(s) to match in source lines
+ * @param {RegExp[]} [config.skipPatterns] - Patterns that indicate lines to skip
+ * @param {function} [config.extractData] - (line, lineNum, match) => additional data | null
+ * @param {string[]} config.files - File list to analyze
+ * @param {string[]} [config.excludeFiles] - Files to exclude from analysis
+ * @returns {{ find: (source: string) => Array, analyze: () => Array }}
+ */
+const createCodeChecker = (config) => {
+  const {
+    patterns,
+    skipPatterns = COMMENT_LINE_PATTERNS,
+    extractData = () => ({}),
+    files,
+    excludeFiles: excluded = [],
+  } = config;
+
+  const patternList = [patterns].flat();
+
+  // Pure function: find matches in source code
+  const find = (source) =>
+    scanLines(source, (line, lineNum) => {
+      const trimmed = line.trim();
+
+      // Skip lines matching skip patterns
+      if (skipPatterns.some((p) => p.test(trimmed))) return null;
+
+      // Check for pattern match
+      const result = matchAny(line, patternList);
+      if (!result) return null;
+
+      // Extract additional data from match
+      const extra = extractData(line, lineNum, result.match);
+      return extra === null
+        ? null
+        : { lineNumber: lineNum, line: trimmed, ...extra };
+    });
+
+  // Pure function: analyze files and collect violations
+  const analyze = () =>
+    analyzeFiles(
+      files,
+      (source, relativePath) =>
+        find(source).map((hit) => ({
+          file: relativePath,
+          line: hit.lineNumber,
+          code: hit.line,
+          ...Object.fromEntries(
+            Object.entries(hit).filter(
+              ([k]) => !["lineNumber", "line"].includes(k),
+            ),
+          ),
+        })),
+      { excludeFiles: excluded },
+    );
+
+  return { find, analyze };
+};
+
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
@@ -185,6 +248,8 @@ export {
   // File analysis
   analyzeFiles,
   scanFilesForViolations,
+  // Code checker factory
+  createCodeChecker,
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
