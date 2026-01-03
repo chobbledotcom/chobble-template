@@ -1,5 +1,4 @@
-import assert from "node:assert";
-import { describe, it } from "node:test";
+import { describe, expect, test } from "bun:test";
 import {
   cartModeError,
   checkFrontmatterField,
@@ -18,65 +17,53 @@ import {
 } from "#test/test-utils.js";
 
 describe("cartModeError", () => {
-  it("builds error message with cart mode, filename, and issue", () => {
+  test("builds error message with cart mode, filename, and issue", () => {
     const result = cartModeError("stripe", "checkout.md", "does not exist");
-    assert.strictEqual(
-      result,
+    expect(result).toBe(
       'cart_mode is "stripe" but src/pages/checkout.md does not exist',
-      "Should include cart mode, path, and issue",
     );
   });
 
-  it("handles different cart modes", () => {
+  test("handles different cart modes", () => {
     const result = cartModeError("quote", "order.md", "is missing layout");
-    assert.strictEqual(
-      result,
+    expect(result).toBe(
       'cart_mode is "quote" but src/pages/order.md is missing layout',
-      "Should work with different cart modes",
     );
   });
 });
 
 describe("getProducts", () => {
-  it("returns empty object when no products key", () => {
+  test("returns empty object when no products key", () => {
     const result = getProducts({});
-    assert.deepStrictEqual(result, {}, "Empty config returns empty products");
+    expect(result).toEqual({});
   });
 
-  it("returns empty object when products is empty", () => {
+  test("returns empty object when products is empty", () => {
     const result = getProducts({ products: {} });
-    assert.deepStrictEqual(result, {}, "Empty products returns empty object");
+    expect(result).toEqual({});
   });
 
-  it("filters out null values", () => {
+  test("filters out null values", () => {
     const result = getProducts({
       products: {
         item_widths: "240,480",
         gallery_widths: null,
       },
     });
-    assert.deepStrictEqual(
-      result,
-      { item_widths: "240,480" },
-      "Null values should be filtered out",
-    );
+    expect(result).toEqual({ item_widths: "240,480" });
   });
 
-  it("filters out undefined values", () => {
+  test("filters out undefined values", () => {
     const result = getProducts({
       products: {
         header_image_widths: "640,900",
         gallery_thumb_widths: undefined,
       },
     });
-    assert.deepStrictEqual(
-      result,
-      { header_image_widths: "640,900" },
-      "Undefined values should be filtered out",
-    );
+    expect(result).toEqual({ header_image_widths: "640,900" });
   });
 
-  it("preserves all non-null values", () => {
+  test("preserves all non-null values", () => {
     const input = {
       products: {
         item_widths: "240,480,640",
@@ -85,14 +72,10 @@ describe("getProducts", () => {
       },
     };
     const result = getProducts(input);
-    assert.deepStrictEqual(
-      result,
-      input.products,
-      "All non-null values preserved",
-    );
+    expect(result).toEqual(input.products);
   });
 
-  it("filters out all falsy values including empty string, zero, and false", () => {
+  test("filters out all falsy values including empty string, zero, and false", () => {
     const result = getProducts({
       products: {
         empty_string: "",
@@ -102,117 +85,92 @@ describe("getProducts", () => {
         valid_value: "keep",
       },
     });
-    assert.deepStrictEqual(
-      result,
-      { valid_value: "keep" },
-      "Only truthy values are preserved",
-    );
+    expect(result).toEqual({ valid_value: "keep" });
   });
 });
 
 describe("getFormTarget", () => {
-  it("returns null when neither contact_form_target nor formspark_id set", () => {
+  test("returns null when neither contact_form_target nor formspark_id set", () => {
     const result = getFormTarget({});
-    assert.strictEqual(result, null, "Should return null when no form config");
+    expect(result).toBe(null);
   });
 
-  it("returns contact_form_target when set", () => {
+  test("returns contact_form_target when set", () => {
     const result = getFormTarget({
       contact_form_target: "https://custom-form.example.com/submit",
     });
-    assert.strictEqual(
-      result,
-      "https://custom-form.example.com/submit",
-      "Should use contact_form_target directly",
-    );
+    expect(result).toBe("https://custom-form.example.com/submit");
   });
 
-  it("builds formspark URL from formspark_id", () => {
+  test("builds formspark URL from formspark_id", () => {
     const result = getFormTarget({ formspark_id: "abc123" });
-    assert.strictEqual(
-      result,
-      "https://submit-form.com/abc123",
-      "Should build formspark URL",
-    );
+    expect(result).toBe("https://submit-form.com/abc123");
   });
 
-  it("prefers contact_form_target over formspark_id", () => {
+  test("prefers contact_form_target over formspark_id", () => {
     const result = getFormTarget({
       contact_form_target: "https://custom.example.com",
       formspark_id: "ignored123",
     });
-    assert.strictEqual(
-      result,
-      "https://custom.example.com",
-      "contact_form_target takes precedence",
-    );
+    expect(result).toBe("https://custom.example.com");
   });
 });
 
 describe("checkFrontmatterField", () => {
-  it("does not throw when field matches expected value", () => {
+  test("does not throw when field matches expected value", () => {
     const frontmatter = { layout: "checkout.html", permalink: "/checkout/" };
-    assert.doesNotThrow(
-      () =>
-        checkFrontmatterField(
-          frontmatter,
-          "layout",
-          "checkout.html",
-          "stripe",
-          "checkout.md",
-        ),
-      "Should not throw when field matches",
-    );
+    expect(() =>
+      checkFrontmatterField(
+        frontmatter,
+        "layout",
+        "checkout.html",
+        "stripe",
+        "checkout.md",
+      ),
+    ).not.toThrow();
   });
 
-  it("throws when field does not match expected value", () => {
+  test("throws when field does not match expected value", () => {
     const frontmatter = { layout: "wrong-layout.html" };
-    assert.throws(
-      () =>
-        checkFrontmatterField(
-          frontmatter,
-          "layout",
-          "checkout.html",
-          "stripe",
-          "checkout.md",
-        ),
+    expect(() =>
+      checkFrontmatterField(
+        frontmatter,
+        "layout",
+        "checkout.html",
+        "stripe",
+        "checkout.md",
+      ),
+    ).toThrow(
       /cart_mode is "stripe" but src\/pages\/checkout.md does not have layout: checkout.html/,
-      "Should throw with descriptive error",
     );
   });
 
-  it("throws when field is missing from frontmatter", () => {
+  test("throws when field is missing from frontmatter", () => {
     const frontmatter = {};
-    assert.throws(
-      () =>
-        checkFrontmatterField(
-          frontmatter,
-          "permalink",
-          "/checkout/",
-          "quote",
-          "checkout.md",
-        ),
-      /does not have permalink/,
-      "Should throw when field is missing",
-    );
+    expect(() =>
+      checkFrontmatterField(
+        frontmatter,
+        "permalink",
+        "/checkout/",
+        "quote",
+        "checkout.md",
+      ),
+    ).toThrow(/does not have permalink/);
   });
 });
 
 describe("extractFrontmatter", () => {
-  it("throws when file does not exist", () => {
-    assert.throws(
-      () =>
-        extractFrontmatter(
-          "/nonexistent/path/to/file.md",
-          "nonexistent.md",
-          "stripe",
-        ),
-      /does not exist/,
-      "Should throw when file doesn't exist",
-    );
+  test("throws when file does not exist", () => {
+    expect(() =>
+      extractFrontmatter(
+        "/nonexistent/path/to/file.md",
+        "nonexistent.md",
+        "stripe",
+      ),
+    ).toThrow(/does not exist/);
   });
 
-  it("throws when file has no frontmatter", () => {
+  test("throws when file has no frontmatter", () => {
     const tempDir = createTempDir("extractFrontmatter");
     try {
       const filePath = createTempFile(
@@ -220,17 +178,15 @@ describe("extractFrontmatter", () => {
         "empty.md",
         "Just content, no frontmatter",
       );
-      assert.throws(
-        () => extractFrontmatter(filePath, "empty.md", "stripe"),
+      expect(() => extractFrontmatter(filePath, "empty.md", "stripe")).toThrow(
         /has no frontmatter/,
-        "Should throw when frontmatter is empty",
       );
     } finally {
       cleanupTempDir(tempDir);
     }
   });
 
-  it("returns frontmatter data when file has valid frontmatter", () => {
+  test("returns frontmatter data when file has valid frontmatter", () => {
     const tempDir = createTempDir("extractFrontmatter-valid");
     try {
       const content = `---
@@ -240,11 +196,10 @@ permalink: /test/
 Content here`;
       const filePath = createTempFile(tempDir, "valid.md", content);
       const result = extractFrontmatter(filePath, "valid.md", "stripe");
-      assert.deepStrictEqual(
-        result,
-        { layout: "test-layout.html", permalink: "/test/" },
-        "Should return parsed frontmatter",
-      );
+      expect(result).toEqual({
+        layout: "test-layout.html",
+        permalink: "/test/",
+      });
     } finally {
       cleanupTempDir(tempDir);
     }
@@ -252,120 +207,62 @@ Content here`;
 });
 
 describe("validateCartConfig", () => {
-  it("does nothing when cart_mode is not set", () => {
-    assert.doesNotThrow(
-      () => validateCartConfig({}),
-      "Should not throw when cart_mode is null/undefined",
-    );
-    assert.doesNotThrow(
-      () => validateCartConfig({ cart_mode: null }),
-      "Should not throw when cart_mode is null",
-    );
+  test("does nothing when cart_mode is not set", () => {
+    expect(() => validateCartConfig({})).not.toThrow();
+    expect(() => validateCartConfig({ cart_mode: null })).not.toThrow();
   });
 
-  it("throws for invalid cart_mode", () => {
-    assert.throws(
-      () => validateCartConfig({ cart_mode: "invalid" }),
+  test("throws for invalid cart_mode", () => {
+    expect(() => validateCartConfig({ cart_mode: "invalid" })).toThrow(
       /Invalid cart_mode: "invalid". Must be one of: paypal, stripe, quote/,
-      "Should reject invalid cart modes",
     );
   });
 
-  it("throws for paypal mode without checkout_api_url", () => {
-    assert.throws(
-      () => validateCartConfig({ cart_mode: "paypal" }),
+  test("throws for paypal mode without checkout_api_url", () => {
+    expect(() => validateCartConfig({ cart_mode: "paypal" })).toThrow(
       /cart_mode is "paypal" but checkout_api_url is not set/,
-      "PayPal requires checkout_api_url",
     );
   });
 
-  it("throws for stripe mode without checkout_api_url", () => {
-    assert.throws(
-      () => validateCartConfig({ cart_mode: "stripe" }),
+  test("throws for stripe mode without checkout_api_url", () => {
+    expect(() => validateCartConfig({ cart_mode: "stripe" })).toThrow(
       /cart_mode is "stripe" but checkout_api_url is not set/,
-      "Stripe requires checkout_api_url",
     );
   });
 
-  it("throws for quote mode without form_target", () => {
-    assert.throws(
-      () => validateCartConfig({ cart_mode: "quote" }),
+  test("throws for quote mode without form_target", () => {
+    expect(() => validateCartConfig({ cart_mode: "quote" })).toThrow(
       /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
-      "Quote mode requires form_target",
     );
   });
 });
 
 describe("DEFAULTS", () => {
-  it("includes expected default values", () => {
-    assert.strictEqual(
-      DEFAULTS.sticky_mobile_nav,
-      true,
-      "sticky_mobile_nav defaults to true",
-    );
-    assert.strictEqual(
-      DEFAULTS.horizontal_nav,
-      true,
-      "horizontal_nav defaults to true",
-    );
-    assert.strictEqual(
-      DEFAULTS.externalLinksTargetBlank,
-      false,
-      "externalLinksTargetBlank defaults to false",
-    );
-    assert.strictEqual(DEFAULTS.cart_mode, null, "cart_mode defaults to null");
-    assert.strictEqual(
-      DEFAULTS.has_products_filter,
-      false,
-      "has_products_filter defaults to false",
-    );
+  test("includes expected default values", () => {
+    expect(DEFAULTS.sticky_mobile_nav).toBe(true);
+    expect(DEFAULTS.horizontal_nav).toBe(true);
+    expect(DEFAULTS.externalLinksTargetBlank).toBe(false);
+    expect(DEFAULTS.cart_mode).toBe(null);
+    expect(DEFAULTS.has_products_filter).toBe(false);
   });
 
-  it("has null contact form configuration by default", () => {
-    assert.strictEqual(
-      DEFAULTS.contact_form_target,
-      null,
-      "contact_form_target defaults to null",
-    );
-    assert.strictEqual(
-      DEFAULTS.formspark_id,
-      null,
-      "formspark_id defaults to null",
-    );
+  test("has null contact form configuration by default", () => {
+    expect(DEFAULTS.contact_form_target).toBe(null);
+    expect(DEFAULTS.formspark_id).toBe(null);
   });
 });
 
 describe("VALID_CART_MODES", () => {
-  it("contains exactly paypal, stripe, and quote", () => {
-    assert.deepStrictEqual(
-      VALID_CART_MODES,
-      ["paypal", "stripe", "quote"],
-      "Should have exactly three valid modes",
-    );
+  test("contains exactly paypal, stripe, and quote", () => {
+    expect(VALID_CART_MODES).toEqual(["paypal", "stripe", "quote"]);
   });
 });
 
 describe("DEFAULT_PRODUCT_DATA", () => {
-  it("has image width configurations", () => {
-    assert.strictEqual(
-      DEFAULT_PRODUCT_DATA.item_widths,
-      "240,480,640",
-      "item_widths has expected value",
-    );
-    assert.strictEqual(
-      DEFAULT_PRODUCT_DATA.gallery_thumb_widths,
-      "240,480",
-      "gallery_thumb_widths has expected value",
-    );
-    assert.strictEqual(
-      DEFAULT_PRODUCT_DATA.gallery_image_widths,
-      "900,1300,1800",
-      "gallery_image_widths has expected value",
-    );
-    assert.strictEqual(
-      DEFAULT_PRODUCT_DATA.header_image_widths,
-      "640,900,1300",
-      "header_image_widths has expected value",
-    );
+  test("has image width configurations", () => {
+    expect(DEFAULT_PRODUCT_DATA.item_widths).toBe("240,480,640");
+    expect(DEFAULT_PRODUCT_DATA.gallery_thumb_widths).toBe("240,480");
+    expect(DEFAULT_PRODUCT_DATA.gallery_image_widths).toBe("900,1300,1800");
+    expect(DEFAULT_PRODUCT_DATA.header_image_widths).toBe("640,900,1300");
   });
 });

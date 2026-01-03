@@ -19,7 +19,7 @@
 		"build": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs",
 		"serve": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs --serve --incremental --quiet",
 		"test": "bun run lint && bun run cpd && bun run build --quiet && bun test/run-coverage.js",
-		"test:unit": "bun test",
+		"test:unit": "bun test --concurrent --timeout 30000",
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
