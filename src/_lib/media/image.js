@@ -114,12 +114,15 @@ const U = {
     innerHTML,
   ) => {
     const styles = [];
+
     if (thumbPromise !== null) {
       const bgImage = await thumbPromise;
       if (bgImage) styles.push(`background-image: ${bgImage}`);
     }
+
     styles.push(`aspect-ratio: ${imageAspectRatio}`);
-    if (maxWidth) styles.push(`max-width: ${maxWidth}px`);
+
+    if (maxWidth) styles.push(`max-width: min(${maxWidth}px, 100%)`);
 
     return await createHtml(
       "div",
