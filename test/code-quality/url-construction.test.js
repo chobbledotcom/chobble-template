@@ -5,15 +5,15 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
 // Regexes that match hardcoded URL path construction
 // These match patterns like: `/events/${slug}/` or `"/events/" + slug`
 const HARDCODED_URL_PATTERNS = [
-  // Template literal with hardcoded path: `/events/${...}`
-  /`\/events\/\$\{/,
-  /`\/products\/\$\{/,
-  /`\/locations\/\$\{/,
-  /`\/properties\/\$\{/,
-  /`\/news\/\$\{/,
-  /`\/guide\/\$\{/,
-  /`\/menus\/\$\{/,
-  /`\/categories\/\$\{/,
+  // Template literal with hardcoded path: `/events/${...}` or `${foo}/events/${...}`
+  /`[^`]*\/events\/\$\{/,
+  /`[^`]*\/products\/\$\{/,
+  /`[^`]*\/locations\/\$\{/,
+  /`[^`]*\/properties\/\$\{/,
+  /`[^`]*\/news\/\$\{/,
+  /`[^`]*\/guide\/\$\{/,
+  /`[^`]*\/menus\/\$\{/,
+  /`[^`]*\/categories\/\$\{/,
 
   // String concatenation with hardcoded path: "/events/" + or '/events/' +
   /["']\/events\/["']\s*\+/,

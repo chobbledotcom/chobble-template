@@ -1,6 +1,7 @@
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import site from "#data/site.json" with { type: "json" };
+import strings from "#data/strings.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -240,7 +241,8 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   }
 
   const filename = buildPdfFilename(site.name, menu.fileSlug);
-  const outputPath = `${outputDir}/menus/${menu.fileSlug}/${filename}`;
+  const menuDir = strings.menu_permalink_dir;
+  const outputPath = `${outputDir}/${menuDir}/${menu.fileSlug}/${filename}`;
   const dir = dirname(outputPath);
 
   if (!existsSync(dir)) {
