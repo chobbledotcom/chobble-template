@@ -1,17 +1,17 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
 import {
+  createMockReview,
+  createPostSchemaData,
+  createProductSchemaData,
+  createSchemaData,
+} from "#test/test-utils.js";
+import {
   buildBaseMeta,
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
-import {
-  createMockReview,
-  createPostSchemaData,
-  createProductSchemaData,
-  createSchemaData,
-} from "../test-utils.js";
 
 describe("buildBaseMeta", () => {
   it("returns basic meta with url, title, and description", () => {
