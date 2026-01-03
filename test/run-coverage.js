@@ -101,6 +101,7 @@ function runCoverage() {
 
   // Run c8 with current limits and JSON reporter
   const c8Args = [
+    "--check-coverage",
     "--lines",
     String(limits.lines),
     "--functions",
