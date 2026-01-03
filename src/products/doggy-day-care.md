@@ -24,7 +24,8 @@ options:
     unit_price: "£65"
     days: 4
     sku: IEI6S8
-header_image: /images/placeholder-wide-3.jpg
+gallery:
+  - /images/placeholder-wide-3.jpg
 categories:
   - compact-doodahs
 ---
@@ -32,6 +33,7 @@ categories:
 Give your furry friend the care they deserve with our professional doggy day care service. Our experienced staff provide a safe, fun environment for dogs of all sizes.
 
 Each stay includes:
+
 - Supervised play time
 - Regular feeding schedules
 - Comfortable sleeping areas
