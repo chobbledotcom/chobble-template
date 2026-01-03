@@ -4,7 +4,10 @@ import {
   getCategoriesByMenu,
   getItemsByCategory,
 } from "#collections/menus.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("menus", () => {
   // getCategoriesByMenu tests
@@ -315,9 +318,7 @@ describe("menus", () => {
 
     const result = getCategoriesByMenu(categories, "lunch");
 
-    expect(result[0].data.title).toBe("First");
-    expect(result[1].data.title).toBe("Second");
-    expect(result[2].data.title).toBe("Third");
+    expectResultTitles(result, ["First", "Second", "Third"]);
   });
 
   test("Preserves order of items as encountered", () => {
@@ -335,9 +336,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result[0].data.title).toBe("First");
-    expect(result[1].data.title).toBe("Second");
-    expect(result[2].data.title).toBe("Third");
+    expectResultTitles(result, ["First", "Second", "Third"]);
   });
 
   test("Same item can appear in multiple category lookups", () => {
