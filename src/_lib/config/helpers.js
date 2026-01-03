@@ -151,18 +151,20 @@ function validateCartConfig(config) {
   }
 }
 
-function getProducts(configData) {
-  const nonNulls = {};
+/**
+ * Extract non-null product settings from config
+ */
+const getProducts = (configData) => {
   const products = configData.products || {};
-  Object.keys(products).forEach((key) => {
-    if (products[key]) {
-      nonNulls[key] = products[key];
-    }
-  });
-  return nonNulls;
-}
+  return Object.fromEntries(
+    Object.entries(products).filter(([, value]) => value),
+  );
+};
 
-function getFormTarget(configData) {
+/**
+ * Get form target URL from config, preferring explicit target over formspark
+ */
+const getFormTarget = (configData) => {
   if (configData.contact_form_target) {
     return configData.contact_form_target;
   }
@@ -170,7 +172,7 @@ function getFormTarget(configData) {
     return `https://submit-form.com/${configData.formspark_id}`;
   }
   return null;
-}
+};
 
 export {
   DEFAULTS,

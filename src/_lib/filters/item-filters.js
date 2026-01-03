@@ -1,4 +1,5 @@
 import slugify from "@sindresorhus/slugify";
+import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -30,22 +31,12 @@ const parseFilterAttributes = (filterAttributes) => {
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
  */
 const getAllFilterAttributes = memoize((items) => {
-  // Step 1: Parse attributes from each item
-  const allAttrs = items.map((item) =>
-    parseFilterAttributes(item.data.filter_attributes),
+  const allPairs = items.flatMap((item) =>
+    Object.entries(parseFilterAttributes(item.data.filter_attributes)),
   );
 
-  // Step 2: Flatten to [key, value] pairs
-  const allPairs = allAttrs.flatMap((attrs) => Object.entries(attrs));
+  const valuesByKey = groupValuesBy(allPairs);
 
-  // Step 3: Group values by key using Sets to dedupe
-  const valuesByKey = new Map();
-  for (const [key, value] of allPairs) {
-    if (!valuesByKey.has(key)) valuesByKey.set(key, new Set());
-    valuesByKey.get(key).add(value);
-  }
-
-  // Step 4: Convert to sorted object with sorted arrays
   const sortedKeys = [...valuesByKey.keys()].sort();
   return Object.fromEntries(
     sortedKeys.map((key) => [key, [...valuesByKey.get(key)].sort()]),
@@ -53,29 +44,26 @@ const getAllFilterAttributes = memoize((items) => {
 });
 
 /**
+ * Extract (slug, display) pairs from an item's filter attributes
+ */
+const getDisplayPairs = (item) => {
+  const attrs = item.data.filter_attributes;
+  if (!attrs) return [];
+
+  return attrs.flatMap((attr) => [
+    [slugify(attr.name), attr.name],
+    [slugify(attr.value), attr.value],
+  ]);
+};
+
+/**
  * Build a lookup map from slugified keys to original display text
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
  * First occurrence wins when there are duplicates
  */
-const buildDisplayLookup = memoize((items) => {
-  const lookup = {};
-
-  for (const item of items) {
-    const attrs = item.data.filter_attributes;
-    if (!attrs) continue;
-
-    for (const attr of attrs) {
-      const slugName = slugify(attr.name);
-      const slugValue = slugify(attr.value);
-
-      // First occurrence wins
-      if (!(slugName in lookup)) lookup[slugName] = attr.name;
-      if (!(slugValue in lookup)) lookup[slugValue] = attr.value;
-    }
-  }
-
-  return lookup;
-});
+const buildDisplayLookup = memoize((items) =>
+  buildFirstOccurrenceLookup(items, getDisplayPairs),
+);
 
 /**
  * Convert filter object to URL path segment

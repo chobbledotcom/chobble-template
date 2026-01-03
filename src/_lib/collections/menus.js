@@ -1,55 +1,40 @@
+import { buildReverseIndex } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 
-// Build memoized reverse index: menuSlug -> [categories]
-const buildMenuCategoryMap = memoize((categories) => {
-  const menuCategories = new Map();
+/**
+ * Extract menu slugs from a category
+ */
+const getCategoryMenus = (category) => category.data.menus || [];
 
-  for (const category of categories) {
-    const menus = category.data.menus;
-    if (menus) {
-      for (const menuSlug of menus) {
-        if (!menuCategories.has(menuSlug)) {
-          menuCategories.set(menuSlug, []);
-        }
-        menuCategories.get(menuSlug).push(category);
-      }
-    }
-  }
+/**
+ * Extract category slugs from item data, handling both array and single value
+ */
+const getItemCategories = (item) =>
+  item.data.menu_categories ||
+  (item.data.menu_category ? [item.data.menu_category] : []);
 
-  return menuCategories;
-});
+/**
+ * Build memoized reverse index: menuSlug -> [categories]
+ */
+const buildMenuCategoryMap = memoize((categories) =>
+  buildReverseIndex(categories, getCategoryMenus),
+);
 
-// Build memoized reverse index: categorySlug -> [items]
-const buildCategoryItemMap = memoize((items) => {
-  const categoryItems = new Map();
-
-  for (const item of items) {
-    // Get categories from either menu_categories array or single menu_category
-    const categories =
-      item.data.menu_categories ||
-      (item.data.menu_category ? [item.data.menu_category] : []);
-
-    for (const categorySlug of categories) {
-      if (!categoryItems.has(categorySlug)) {
-        categoryItems.set(categorySlug, []);
-      }
-      categoryItems.get(categorySlug).push(item);
-    }
-  }
-
-  return categoryItems;
-});
+/**
+ * Build memoized reverse index: categorySlug -> [items]
+ */
+const buildCategoryItemMap = memoize((items) =>
+  buildReverseIndex(items, getItemCategories),
+);
 
 const getCategoriesByMenu = (categories, menuSlug) => {
   if (!categories) return [];
-  const map = buildMenuCategoryMap(categories);
-  return map.get(menuSlug) || [];
+  return buildMenuCategoryMap(categories).get(menuSlug) || [];
 };
 
 const getItemsByCategory = (items, categorySlug) => {
   if (!items) return [];
-  const map = buildCategoryItemMap(items);
-  return map.get(categorySlug) || [];
+  return buildCategoryItemMap(items).get(categorySlug) || [];
 };
 
 const configureMenus = (eleventyConfig) => {
