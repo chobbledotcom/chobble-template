@@ -1,9 +1,9 @@
 import { expect } from "bun:test";
-import { Window } from "happy-dom";
 import fs from "node:fs";
 import path, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
+import { Window } from "happy-dom";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {

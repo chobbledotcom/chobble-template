@@ -12,9 +12,7 @@ import { Window } from "happy-dom";
  */
 const createTestEnv = async (bodyHtml = "") => {
   const window = new Window({ url: "http://localhost" });
-  window.document.write(
-    `<!DOCTYPE html><html><body>${bodyHtml}</body></html>`,
-  );
+  window.document.write(`<!DOCTYPE html><html><body>${bodyHtml}</body></html>`);
 
   // Set up global environment for the module
   globalThis.document = window.document;
