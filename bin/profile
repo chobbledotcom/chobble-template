@@ -117,7 +117,7 @@ report += '\nTo visualize the full profile:\n';
 report += '  1. Open Chrome DevTools -> Performance tab\n';
 report += '  2. Click \"Load profile...\" button\n';
 report += '  3. Select: .profile/build.cpuprofile\n';
-report += '\nOr use: npx speedscope .profile/build.cpuprofile\n';
+report += '\nOr use: bunx speedscope .profile/build.cpuprofile\n';
 
 writeFileSync('$PROFILE_DIR/report.txt', report);
 console.log(report);
@@ -132,5 +132,5 @@ echo "  - report.txt        (text summary)"
 if [[ "$1" == "--open" ]]; then
   echo ""
   echo "Opening in speedscope..."
-  npx speedscope "$PROFILE_DIR/build.cpuprofile"
+  bunx speedscope "$PROFILE_DIR/build.cpuprofile"
 fi

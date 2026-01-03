@@ -17,10 +17,10 @@ tabs:
       To install Eleventy, run the following command:
 
       ```bash
-      pnpm add @11ty/eleventy
+      bun add @11ty/eleventy
       ```
 
-      Make sure you have Node.js installed first.
+      Make sure you have Bun installed first.
   - title: Configuration
     body: |
       Create an `.eleventy.js` file in your project root to configure Eleventy.

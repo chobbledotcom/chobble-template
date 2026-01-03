@@ -11,7 +11,7 @@ eleventyNavigation:
   order: 1
 faqs:
   - question: How do I get started?
-    answer: Clone the repo and run pnpm install, then pnpm start.
+    answer: Clone the repo and run bun install, then bun start.
     order: 1
 ---
 
