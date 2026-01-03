@@ -38,6 +38,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeRelativeImports",
   "findRelativePathJoins",
   "analyzeRelativePathJoins",
+  "analyzeProcessCwd",
   // Assertion helpers
   "expectFunctionType",
   "expectArrayLength",

@@ -1,4 +1,7 @@
-import { ALLOWED_RELATIVE_PATHS } from "#test/code-quality/code-quality-exceptions.js";
+import {
+  ALLOWED_PROCESS_CWD,
+  ALLOWED_RELATIVE_PATHS,
+} from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   combineFileLists,
@@ -23,6 +26,10 @@ const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 // Also matches: path.join(__dirname, "../images/logo.png") with ".." at start of path segment
 const PATH_JOIN_WITH_DOTDOT =
   /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/;
+
+// Pattern for process.cwd() usage in test files
+// Tests should use rootDir from test-utils.js instead for consistency
+const PROCESS_CWD_PATTERN = /process\.cwd\(\)/;
 
 const THIS_FILE = "test/code-quality/relative-paths.test.js";
 
@@ -92,6 +99,31 @@ const analyzeRelativePathJoins = () => {
     (line, lineNumber, _source, relativePath) => {
       if (isCommentLine(line)) return null;
       if (!PATH_JOIN_WITH_DOTDOT.test(line)) return null;
+
+      return {
+        file: relativePath,
+        line: lineNumber,
+        code: line.trim(),
+      };
+    },
+  );
+};
+
+/**
+ * Analyze test files for process.cwd() usage
+ * Tests should use rootDir from test-utils.js instead
+ */
+const analyzeProcessCwd = () => {
+  const files = combineFileLists(
+    [TEST_FILES],
+    [THIS_FILE, ...ALLOWED_PROCESS_CWD],
+  );
+
+  return scanFilesForViolations(
+    files,
+    (line, lineNumber, _source, relativePath) => {
+      if (isCommentLine(line)) return null;
+      if (!PROCESS_CWD_PATTERN.test(line)) return null;
 
       return {
         file: relativePath,
@@ -187,6 +219,19 @@ const clean = path.join(__dirname, "subdir");
         message: 'path operations with ".."',
         fixHint:
           "use path utilities from #lib/paths.js or restructure to avoid parent directory navigation",
+      });
+    },
+  },
+  {
+    name: "no-process-cwd-in-tests",
+    description:
+      "Test files should use rootDir from test-utils.js instead of process.cwd()",
+    test: () => {
+      const violations = analyzeProcessCwd();
+      assertNoViolations(expectTrue, violations, {
+        message: "process.cwd() usages in test files",
+        fixHint:
+          "import { rootDir } from '#test/test-utils.js' instead of using process.cwd()",
       });
     },
   },

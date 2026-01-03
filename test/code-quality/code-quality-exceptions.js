@@ -83,9 +83,21 @@ const ALLOWED_RELATIVE_PATHS = new Set([
   "test/run-coverage.js",
 ]);
 
+// ============================================
+// process.cwd() exceptions (test files only)
+// ============================================
+
+// Test files that legitimately need process.cwd() instead of rootDir.
+// Most tests should import rootDir from test-utils.js instead.
+const ALLOWED_PROCESS_CWD = new Set([
+  // Tests that specifically test file-utils.js which uses process.cwd() internally
+  "test/utils/file-utils.test.js",
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_RELATIVE_PATHS,
+  ALLOWED_PROCESS_CWD,
 };

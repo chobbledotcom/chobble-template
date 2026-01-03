@@ -2,11 +2,10 @@
 // Verifies that HTML templates contain all required template IDs
 
 import assert from "node:assert";
-import fs from "node:fs";
-import path from "node:path";
 import { describe, it } from "node:test";
 import { JSDOM } from "jsdom";
 import { IDS } from "#assets/selectors.js";
+import { fs, path, rootDir } from "#test/test-utils.js";
 
 // Build a lookup for Liquid variable expansion
 function buildLiquidLookup() {
@@ -31,7 +30,7 @@ function expandLiquidVars(content) {
 }
 
 // Load and parse HTML template files
-const templatesDir = path.join(process.cwd(), "src/_includes/templates");
+const templatesDir = path.join(rootDir, "src/_includes/templates");
 
 function loadTemplate(filename) {
   const filepath = path.join(templatesDir, filename);
@@ -99,7 +98,7 @@ describe("Selector constants usage verification", () => {
 
   const jsContent = jsFiles
     .map((f) => {
-      const filepath = path.join(process.cwd(), f);
+      const filepath = path.join(rootDir, f);
       return fs.existsSync(filepath) ? fs.readFileSync(filepath, "utf-8") : "";
     })
     .join("\n");
