@@ -1,13 +1,22 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import Image, {
-  eleventyImageOnRequestDuringServePlugin,
-} from "@11ty/eleventy-img";
-import sharp from "sharp";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { loadJSDOM } from "#utils/lazy-jsdom.js";
 import { memoize } from "#utils/memoize.js";
+
+// Lazy-load heavy image processing modules
+let sharpModule = null;
+const getSharp = async () => {
+  if (!sharpModule) sharpModule = (await import("sharp")).default;
+  return sharpModule;
+};
+
+let eleventyImgModule = null;
+const getEleventyImg = async () => {
+  if (!eleventyImgModule) eleventyImgModule = await import("@11ty/eleventy-img");
+  return eleventyImgModule;
+};
 
 const CROP_CACHE_DIR = ".image-cache";
 
@@ -48,7 +57,7 @@ const U = {
   DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
   DEFAULT_SIZE: "auto",
   ASPECT_RATIO_ATTRIBUTE: "eleventy:aspectRatio",
-  getImageHtml: (imagePath, widths, alt, sizes, loading, classes) => {
+  getImageHtml: async (imagePath, widths, alt, sizes, loading, classes) => {
     const imgAttributes = {
       alt: alt || "",
       sizes: sizes || U.DEFAULT_SIZE,
@@ -58,6 +67,7 @@ const U = {
 
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
 
+    const { default: Image } = await getEleventyImg();
     return Image(imagePath, {
       ...U.DEFAULT_OPTIONS,
       widths: widths,
@@ -69,8 +79,9 @@ const U = {
       },
     });
   },
-  makeThumbnail: memoize(async (path) => {
-    const thumbnails = await Image(path, {
+  makeThumbnail: memoize(async (imagePath) => {
+    const { default: Image } = await getEleventyImg();
+    const thumbnails = await Image(imagePath, {
       ...U.DEFAULT_OPTIONS,
       widths: [32],
       formats: ["webp"],
@@ -97,6 +108,7 @@ const U = {
 
       const { width, height } = parseCropDimensions(aspectRatio, metadata);
       fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
+      const sharp = await getSharp();
       await sharp(sourcePath)
         .resize(width, height, { fit: "cover" })
         .toFile(cachedPath);
@@ -141,8 +153,8 @@ const U = {
   },
   // Memoize sharp metadata reads (just the metadata, not the sharp instance)
   getMetadata: memoize(async (path) => {
-    const sharpImage = sharp(path);
-    return await sharpImage.metadata();
+    const sharp = await getSharp();
+    return await sharp(path).metadata();
   }),
   // Memoize file size checks
   getFileSize: memoize((path) => fs.statSync(path).size),
@@ -282,10 +294,11 @@ const createImageTransform = () => {
   };
 };
 
-const configureImages = (eleventyConfig) => {
+const configureImages = async (eleventyConfig) => {
   const imageFiles = findImageFiles();
 
-  // Add dev server middleware for on-request image transforms
+  // Add dev server middleware for on-request image transforms (lazy-loaded)
+  const { eleventyImageOnRequestDuringServePlugin } = await getEleventyImg();
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
   // Add shortcode
