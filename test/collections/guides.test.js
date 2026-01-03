@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { configureGuides, guidesByCategory } from "#collections/guides.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("guides", () => {
   test("Filters guide pages by category slug", () => {
@@ -13,9 +16,7 @@ describe("guides", () => {
 
     const result = guidesByCategory(guidePages, "getting-started");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Guide 1");
-    expect(result[1].data.title).toBe("Guide 3");
+    expectResultTitles(result, ["Guide 1", "Guide 3"]);
   });
 
   test("Returns single guide when only one matches", () => {
@@ -27,8 +28,7 @@ describe("guides", () => {
 
     const result = guidesByCategory(guidePages, "advanced");
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Guide 2");
+    expectResultTitles(result, ["Guide 2"]);
   });
 
   test("Returns empty array when no guides match category", () => {
@@ -82,8 +82,7 @@ describe("guides", () => {
 
     const result = guidesByCategory(guidePages, "getting-started");
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Guide 2");
+    expectResultTitles(result, ["Guide 2"]);
   });
 
   test("Does not modify input array", () => {

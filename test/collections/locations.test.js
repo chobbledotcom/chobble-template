@@ -4,7 +4,10 @@ import {
   getRootLocations,
   getSiblingLocations,
 } from "#collections/locations.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("locations", () => {
   test("Filters locations without parent", () => {
@@ -16,9 +19,7 @@ describe("locations", () => {
 
     const result = getRootLocations(locations);
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("London");
-    expect(result[1].data.title).toBe("UK");
+    expectResultTitles(result, ["London", "UK"]);
   });
 
   test("Handles null/undefined input", () => {
@@ -52,9 +53,7 @@ describe("locations", () => {
       "/london/cleaning/",
     );
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Repairs");
-    expect(result[1].data.title).toBe("Painting");
+    expectResultTitles(result, ["Repairs", "Painting"]);
   });
 
   test("Returns empty when no siblings exist", () => {

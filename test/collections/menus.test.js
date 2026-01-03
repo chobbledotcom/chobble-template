@@ -26,9 +26,7 @@ describe("menus", () => {
 
     const lunchCategories = getCategoriesByMenu(categories, "lunch");
 
-    expect(lunchCategories).toHaveLength(2);
-    expect(lunchCategories[0].data.title).toBe("Appetizers");
-    expect(lunchCategories[1].data.title).toBe("Sandwiches");
+    expectResultTitles(lunchCategories, ["Appetizers", "Sandwiches"]);
   });
 
   test("Returns empty array when no categories match menu", () => {
@@ -80,8 +78,7 @@ describe("menus", () => {
 
     const result = getCategoriesByMenu(categories, "lunch");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Has Menus");
+    expectResultTitles(result, ["Has Menus"]);
   });
 
   test("Category can belong to multiple menus", () => {
@@ -116,9 +113,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result).toHaveLength(2);
-    expect(result[0].data.title).toBe("Spring Rolls");
-    expect(result[1].data.title).toBe("Soup");
+    expectResultTitles(result, ["Spring Rolls", "Soup"]);
   });
 
   test("Handles menu_categories array", () => {
@@ -208,8 +203,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Has Category");
+    expectResultTitles(result, ["Has Category"]);
   });
 
   test("Handles empty menu_categories array", () => {
@@ -224,8 +218,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Has Category");
+    expectResultTitles(result, ["Has Category"]);
   });
 
   // configureMenus tests
