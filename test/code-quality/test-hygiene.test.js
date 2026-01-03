@@ -32,12 +32,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCategory",
   "createProduct",
   "createCollectionItem",
-  // Code quality analysis helpers (relative-paths.test.js)
-  "findRelativeImports",
-  "analyzeRelativeImports",
-  "findRelativePathJoins",
-  "analyzeRelativePathJoins",
-  "analyzeProcessCwd",
   // Assertion helpers
   "expectFunctionType",
   "expectArrayLength",
@@ -67,9 +61,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // loose-equality.test.js - analysis helpers
   "findLooseEquality",
   "analyzeLooseEquality",
-  // then-usage.test.js - analysis helpers
-  "findThenCalls",
-  "analyzeThenUsage",
   // missing-folders-lib.test.js
   "testLibModules",
   // naming-conventions.test.js - analysis helpers
@@ -119,12 +110,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "analyzeTryCatchUsage",
-  // console-log.test.js - analysis helpers
-  "findConsoleCalls",
-  "analyzeConsoleCalls",
-  // banned-comments.test.js - analysis helpers
-  "findTodoFixme",
-  "analyzeTodoFixme",
   // commented-code.test.js - analysis helpers
   "isInsideTemplateLiteral",
   "isDocumentationComment",
@@ -132,10 +117,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
-  // url-construction.test.js - analysis helpers
-  "findHardcodedUrls",
-  "analyzeHardcodedUrls",
-  "isAllowedLine",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
   // autosizes.test.js - test environment setup helpers

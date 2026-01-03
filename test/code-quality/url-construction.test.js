@@ -1,23 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import {
-  analyzeFiles,
-  assertNoViolations,
-  matchAny,
-  scanLines,
-} from "#test/code-scanner.js";
+import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-
-// Patterns that indicate hardcoded URL construction instead of using
-// Eleventy's permalink system or strings configuration.
-//
-// Bad patterns:
-// - Hardcoding collection paths like `/events/`, `/products/`, etc.
-// - Constructing URLs from filenames without checking for custom permalinks
-//
-// Good patterns:
-// - Using strings.event_permalink_dir, strings.product_permalink_dir, etc.
-// - Using data.page.fileSlug or item.fileSlug from Eleventy collections
-// - Checking for data.permalink before constructing URLs
 
 // Regexes that match hardcoded URL path construction
 // These match patterns like: `/events/${slug}/` or `"/events/" + slug`
@@ -50,17 +33,17 @@ const HARDCODED_URL_PATTERNS = [
 ];
 
 // Files that are allowed to have these patterns (with justification)
-const ALLOWED_FILES = new Set([
+const ALLOWED_FILES = [
   // Test files can have hardcoded URLs for test fixtures
   "test/recurring-events.test.js",
   "test/url-construction.test.js",
   "test/events.test.js",
   "test/navigation.test.js",
   "test/area-list.test.js",
-]);
+];
 
 // Patterns that indicate false positives (reading URLs, not constructing them)
-const ALLOWED_LINE_PATTERNS = [
+const SKIP_LINE_PATTERNS = [
   /^\s*\/\//, // Comments
   /^\s*\*/, // Block comment lines
   /\.split\(/, // URL splitting/parsing
@@ -69,35 +52,14 @@ const ALLOWED_LINE_PATTERNS = [
   /\.match\(/, // Regex matching
 ];
 
-/**
- * Find hardcoded URL patterns in source code
- */
-const findHardcodedUrls = (source) =>
-  scanLines(source, (line, lineNum) => {
-    const trimmed = line.trim();
-
-    // Skip allowed line patterns (comments, URL parsing)
-    if (matchAny(trimmed, ALLOWED_LINE_PATTERNS)) return null;
-
-    // Check for hardcoded URL patterns
-    const result = matchAny(line, HARDCODED_URL_PATTERNS);
-    return result ? { lineNumber: lineNum, line: trimmed } : null;
+// Create checker for hardcoded URL patterns using the factory
+const { find: findHardcodedUrls, analyze: analyzeHardcodedUrls } =
+  createCodeChecker({
+    patterns: HARDCODED_URL_PATTERNS,
+    skipPatterns: SKIP_LINE_PATTERNS,
+    files: SRC_JS_FILES,
+    excludeFiles: ALLOWED_FILES,
   });
-
-/**
- * Analyze all JS files for hardcoded URL patterns
- */
-const analyzeHardcodedUrls = () =>
-  analyzeFiles(
-    SRC_JS_FILES,
-    (source, relativePath) =>
-      findHardcodedUrls(source).map((hit) => ({
-        file: relativePath,
-        line: hit.lineNumber,
-        code: hit.line,
-      })),
-    { excludeFiles: [...ALLOWED_FILES] },
-  );
 
 describe("url-construction", () => {
   test("Detects hardcoded /events/ URL pattern", () => {

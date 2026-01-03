@@ -6,9 +6,7 @@ import {
 import {
   assertNoViolations,
   combineFileLists,
-  isCommentLine,
-  scanFilesForViolations,
-  scanLines,
+  createCodeChecker,
 } from "#test/code-scanner.js";
 import {
   ECOMMERCE_JS_FILES,
@@ -16,122 +14,38 @@ import {
   TEST_FILES,
 } from "#test/test-utils.js";
 
-// Pattern for relative imports: from "./" or from "../"
-const RELATIVE_IMPORT_REGEX = /from\s+["'](\.\.[/"']|\.\/)/;
+const THIS_FILE = "test/code-quality/relative-paths.test.js";
 const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
-// Patterns for path joining with ".." - catches path.join(), path.resolve(), join(), resolve()
-// Matches: path.join(__dirname, ".."), join(foo, "..", "bar"), resolve(__dirname, "..")
-// Also matches: path.join(__dirname, "../images/logo.png") with ".." at start of path segment
-const PATH_JOIN_WITH_DOTDOT =
-  /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/;
-
-// Pattern for process.cwd() usage in test files
-// Tests should use rootDir from test-utils.js instead for consistency
-const PROCESS_CWD_PATTERN = /process\.cwd\(\)/;
-
-const THIS_FILE = "test/code-quality/relative-paths.test.js";
-
-/**
- * Find all relative imports in a file
- */
-const findRelativeImports = (source) =>
-  scanLines(source, (line, lineNum) => {
-    if (!RELATIVE_IMPORT_REGEX.test(line)) return null;
-    const pathMatch = line.match(IMPORT_PATH_REGEX);
-    return {
-      lineNumber: lineNum,
-      line: line.trim(),
-      importPath: pathMatch ? pathMatch[1] : "unknown",
-    };
-  });
-
-/**
- * Find path operations that use ".." to navigate up directories
- */
-const findRelativePathJoins = (source) =>
-  scanLines(source, (line, lineNum) => {
-    if (isCommentLine(line)) return null;
-    if (!PATH_JOIN_WITH_DOTDOT.test(line)) return null;
-    return {
-      lineNumber: lineNum,
-      line: line.trim(),
-    };
-  });
-
-/**
- * Analyze all JS files for relative imports
- */
-const analyzeRelativeImports = () => {
-  const files = combineFileLists(
-    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
-    [THIS_FILE],
-  );
-
-  return scanFilesForViolations(
-    files,
-    (line, lineNumber, _source, relativePath) => {
-      if (!RELATIVE_IMPORT_REGEX.test(line)) return null;
-
+// Create checker for relative imports using the factory
+const { find: findRelativeImports, analyze: analyzeRelativeImports } =
+  createCodeChecker({
+    patterns: /from\s+["'](\.\.[/"']|\.\/)/,
+    skipPatterns: [], // Check all lines
+    extractData: (line) => {
       const pathMatch = line.match(IMPORT_PATH_REGEX);
-      return {
-        file: relativePath,
-        line: lineNumber,
-        code: line.trim(),
-        importPath: pathMatch ? pathMatch[1] : "unknown",
-      };
+      return { importPath: pathMatch ? pathMatch[1] : "unknown" };
     },
-  );
-};
+    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+    excludeFiles: [THIS_FILE],
+  });
 
-/**
- * Analyze all JS files for path.join/resolve with ".." patterns
- */
-const analyzeRelativePathJoins = () => {
-  const files = combineFileLists(
-    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
-    [THIS_FILE, ...ALLOWED_RELATIVE_PATHS],
-  );
+// Create checker for path.join/resolve with ".." patterns
+const { find: findRelativePathJoins, analyze: analyzeRelativePathJoins } =
+  createCodeChecker({
+    patterns: /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/,
+    // skipPatterns defaults to COMMENT_LINE_PATTERNS
+    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+    excludeFiles: [THIS_FILE, ...ALLOWED_RELATIVE_PATHS],
+  });
 
-  return scanFilesForViolations(
-    files,
-    (line, lineNumber, _source, relativePath) => {
-      if (isCommentLine(line)) return null;
-      if (!PATH_JOIN_WITH_DOTDOT.test(line)) return null;
-
-      return {
-        file: relativePath,
-        line: lineNumber,
-        code: line.trim(),
-      };
-    },
-  );
-};
-
-/**
- * Analyze test files for process.cwd() usage
- * Tests should use rootDir from test-utils.js instead
- */
-const analyzeProcessCwd = () => {
-  const files = combineFileLists(
-    [TEST_FILES],
-    [THIS_FILE, ...ALLOWED_PROCESS_CWD],
-  );
-
-  return scanFilesForViolations(
-    files,
-    (line, lineNumber, _source, relativePath) => {
-      if (isCommentLine(line)) return null;
-      if (!PROCESS_CWD_PATTERN.test(line)) return null;
-
-      return {
-        file: relativePath,
-        line: lineNumber,
-        code: line.trim(),
-      };
-    },
-  );
-};
+// Create checker for process.cwd() in test files
+const { analyze: analyzeProcessCwd } = createCodeChecker({
+  patterns: /process\.cwd\(\)/,
+  // skipPatterns defaults to COMMENT_LINE_PATTERNS
+  files: TEST_FILES,
+  excludeFiles: [THIS_FILE, ...ALLOWED_PROCESS_CWD],
+});
 
 describe("relative-paths", () => {
   test("Correctly identifies relative imports in source code", () => {
