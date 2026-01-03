@@ -138,6 +138,11 @@ function runCoverage() {
 }
 
 function ratchetLimits(currentLimits) {
+  // Only ratchet on CI to avoid local cache differences affecting thresholds
+  if (!process.env.CI) {
+    return;
+  }
+
   // Read the JSON coverage report
   const reportPath = resolve(rootDir, "coverage", "coverage-summary.json");
   let report;

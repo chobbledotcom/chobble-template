@@ -1,3 +1,5 @@
+// Use the same slugify that Eleventy uses internally
+// (available as transitive dependency of @11ty/eleventy)
 import slugify from "@sindresorhus/slugify";
 
 // The 'reference' type objects in PagesCMS use the full
@@ -29,4 +31,10 @@ const slugToTitle = (slug) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-export { normaliseSlug, buildPermalink, buildPdfFilename, slugToTitle };
+export {
+  slugify,
+  normaliseSlug,
+  buildPermalink,
+  buildPdfFilename,
+  slugToTitle,
+};
