@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { PAGES_DIR } from "#lib/paths.js";
 
 const DEFAULTS = {
   sticky_mobile_nav: true,
@@ -36,8 +33,7 @@ const DEFAULT_PRODUCT_DATA = {
 const cartModeError = (cartMode, filename, issue) =>
   `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
 
-const getPagePath = (filename) =>
-  path.join(__dirname, "..", "..", "pages", filename);
+const getPagePath = (filename) => path.join(PAGES_DIR, filename);
 
 const extractFrontmatter = (pagePath, filename, cartMode) => {
   if (!fs.existsSync(pagePath)) {

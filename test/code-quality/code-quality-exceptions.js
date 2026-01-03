@@ -65,4 +65,39 @@ const ALLOWED_CONSOLE = new Set([
   "ecommerce-backend/server.js",
 ]);
 
-export { ALLOWED_TRY_CATCHES, ALLOWED_HTML_IN_JS, ALLOWED_CONSOLE };
+// ============================================
+// Relative path exceptions
+// ============================================
+
+// Files allowed to use ".." for path navigation.
+// The paths utility is the ONLY source file allowed - it provides paths for everyone else.
+// Test infrastructure files need ".." to reference project root.
+const ALLOWED_RELATIVE_PATHS = new Set([
+  // Source: centralized path utility (the one exception - provides paths for others)
+  "src/_lib/paths.js",
+
+  // Test infrastructure - calculates rootDir for all other tests to import
+  "test/test-utils.js",
+  "test/test-site-factory.js",
+  "test/run-all-tests.js",
+  "test/run-coverage.js",
+]);
+
+// ============================================
+// process.cwd() exceptions (test files only)
+// ============================================
+
+// Test files that legitimately need process.cwd() instead of rootDir.
+// Most tests should import rootDir from test-utils.js instead.
+const ALLOWED_PROCESS_CWD = new Set([
+  // Tests that specifically test file-utils.js which uses process.cwd() internally
+  "test/utils/file-utils.test.js",
+]);
+
+export {
+  ALLOWED_TRY_CATCHES,
+  ALLOWED_HTML_IN_JS,
+  ALLOWED_CONSOLE,
+  ALLOWED_RELATIVE_PATHS,
+  ALLOWED_PROCESS_CWD,
+};
