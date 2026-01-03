@@ -3,7 +3,6 @@ import {
   analyzeFiles,
   assertNoViolations,
   combineFileLists,
-  toLines,
 } from "#test/code-scanner.js";
 import {
   createTestRunner,

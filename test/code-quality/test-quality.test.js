@@ -2,7 +2,6 @@ import {
   analyzeFiles,
   assertNoViolations,
   findPatterns,
-  scanLines,
 } from "#test/code-scanner.js";
 import {
   createTestRunner,
