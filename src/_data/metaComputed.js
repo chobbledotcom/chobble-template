@@ -1,13 +1,11 @@
 import fs from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import metaData from "#data/meta.json" with { type: "json" };
 import siteData from "#data/site.json" with { type: "json" };
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { IMAGES_DIR } from "#lib/paths.js";
 
 export default function () {
-  const logoPath = join(__dirname, "../images/logo.png");
+  const logoPath = join(IMAGES_DIR, "logo.png");
   const logoUrl = fs.existsSync(logoPath)
     ? `${siteData.url}/images/logo.png`
     : null;

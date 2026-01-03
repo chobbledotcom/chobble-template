@@ -33,9 +33,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCategory",
   "createProduct",
   "createCollectionItem",
-  // Code quality analysis helpers
+  // Code quality analysis helpers (relative-paths.test.js)
   "findRelativeImports",
   "analyzeRelativeImports",
+  "findRelativePathJoins",
+  "analyzeRelativePathJoins",
   // Assertion helpers
   "expectFunctionType",
   "expectArrayLength",

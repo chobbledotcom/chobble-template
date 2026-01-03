@@ -65,4 +65,34 @@ const ALLOWED_CONSOLE = new Set([
   "ecommerce-backend/server.js",
 ]);
 
-export { ALLOWED_TRY_CATCHES, ALLOWED_HTML_IN_JS, ALLOWED_CONSOLE };
+// ============================================
+// Relative path exceptions
+// ============================================
+
+// Files allowed to use ".." for path navigation.
+// The paths utility is the ONLY source file allowed - it provides paths for everyone else.
+// Test infrastructure files need ".." to reference project root.
+const ALLOWED_RELATIVE_PATHS = new Set([
+  // Source: centralized path utility (the one exception - provides paths for others)
+  "src/_lib/paths.js",
+
+  // Test infrastructure - needs __dirname + ".." to find project root
+  "test/test-utils.js",
+  "test/test-site-factory.js",
+  "test/run-all-tests.js",
+  "test/run-coverage.js",
+
+  // Tests that need to reference project root or source directories
+  "test/strings.test.js",
+  "test/checkout.test.js",
+
+  // Code quality tests that need project root access
+  "test/code-quality/lockfile.test.js",
+]);
+
+export {
+  ALLOWED_TRY_CATCHES,
+  ALLOWED_HTML_IN_JS,
+  ALLOWED_CONSOLE,
+  ALLOWED_RELATIVE_PATHS,
+};
