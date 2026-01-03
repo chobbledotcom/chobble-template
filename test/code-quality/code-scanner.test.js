@@ -36,9 +36,7 @@ describe("code-scanner", () => {
     });
 
     test("formats violations with code", () => {
-      const violations = [
-        { file: "test.js", line: 10, code: "console.log()" },
-      ];
+      const violations = [{ file: "test.js", line: 10, code: "console.log()" }];
       const result = formatViolationReport(violations, { message: "issues" });
       expect(result.count).toBe(1);
       expect(result.report).toContain("Found 1 issues");
@@ -99,7 +97,7 @@ describe("code-scanner", () => {
     test("works with array of patterns", () => {
       const matcher = createPatternMatcher(
         [/foo/, /bar/],
-        (line, num, match) => ({
+        (_line, num, match) => ({
           line: num,
           match: match[0],
         }),
@@ -170,7 +168,7 @@ describe("code-scanner", () => {
       const { find } = createCodeChecker({
         patterns: /(\w+)\(\)/,
         skipPatterns: [],
-        extractData: (line, _num, match) => ({ funcName: match[1] }),
+        extractData: (_line, _num, match) => ({ funcName: match[1] }),
         files: [],
       });
 
