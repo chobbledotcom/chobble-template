@@ -3,147 +3,22 @@ import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.j
 import {
   analyzeFiles,
   assertNoViolations,
-  isCommentLine,
+  extractStringContent,
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
-
-// ============================================
-// HTML-in-JS Detection
-// Uses shared utilities from code-scanner.js
-// ============================================
 
 // HTML tag patterns and known tags
 const HTML_PATTERNS = [
   /<[a-zA-Z][a-zA-Z0-9]*[\s>]/,
-  /<[a-zA-Z][a-zA-Z0-9]*\s*\/>/,
   /<\/[a-zA-Z][a-zA-Z0-9]*>/,
 ];
+const HTML_TAGS = new Set(
+  "div span p a button input form ul ol li table tr td th thead tbody h1 h2 h3 h4 h5 h6 img br hr strong em b i u pre code blockquote nav header footer main section article aside label select option textarea svg path polyline circle rect line polygon g defs use script style link meta head body html template".split(
+    " ",
+  ),
+);
 
-const HTML_TAGS = new Set([
-  "div",
-  "span",
-  "p",
-  "a",
-  "button",
-  "input",
-  "form",
-  "ul",
-  "ol",
-  "li",
-  "table",
-  "tr",
-  "td",
-  "th",
-  "thead",
-  "tbody",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "img",
-  "br",
-  "hr",
-  "strong",
-  "em",
-  "b",
-  "i",
-  "u",
-  "pre",
-  "code",
-  "blockquote",
-  "nav",
-  "header",
-  "footer",
-  "main",
-  "section",
-  "article",
-  "aside",
-  "label",
-  "select",
-  "option",
-  "textarea",
-  "svg",
-  "path",
-  "polyline",
-  "circle",
-  "rect",
-  "line",
-  "polygon",
-  "g",
-  "defs",
-  "use",
-  "script",
-  "style",
-  "link",
-  "meta",
-  "head",
-  "body",
-  "html",
-  "template",
-]);
-
-/**
- * Extract string/template literal content from source.
- */
-const extractStringContent = (source) => {
-  const results = [];
-  const lines = source.split("\n");
-  let inTemplate = false,
-    templateStart = 0,
-    templateContent = "",
-    braceDepth = 0;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (isCommentLine(line)) continue;
-
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j],
-        prevChar = j > 0 ? line[j - 1] : "";
-
-      if (inTemplate && char === "$" && line[j + 1] === "{") {
-        braceDepth++;
-        j++;
-        continue;
-      }
-      if (braceDepth > 0) {
-        if (char === "{") braceDepth++;
-        if (char === "}") braceDepth--;
-        continue;
-      }
-
-      if (char === "`" && prevChar !== "\\") {
-        if (inTemplate) {
-          results.push({
-            lineNumber: templateStart + 1,
-            content: templateContent,
-            type: "template",
-          });
-          inTemplate = false;
-          templateContent = "";
-        } else {
-          inTemplate = true;
-          templateStart = i;
-          templateContent = "";
-        }
-      } else if (inTemplate) {
-        templateContent += char;
-      }
-    }
-    if (inTemplate) templateContent += "\n";
-
-    for (const match of line.matchAll(/["']([^"'\\]|\\.)*["']/g)) {
-      results.push({ lineNumber: i + 1, content: match[0], type: "string" });
-    }
-  }
-  return results;
-};
-
-/**
- * Find HTML content in JavaScript source.
- */
+/** Find HTML content in JavaScript source. */
 const findHtmlInJs = (source) =>
   extractStringContent(source)
     .filter(({ content }) => {

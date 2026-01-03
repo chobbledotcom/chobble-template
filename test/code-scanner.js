@@ -43,6 +43,64 @@ const isInsideTemplateLiteral = (lines, lineIndex) => {
 };
 
 /**
+ * Extract string and template literal content from JavaScript source.
+ * Returns array of { lineNumber, content, type: 'string'|'template' }
+ */
+const extractStringContent = (source) => {
+  const results = [];
+  const lines = source.split("\n");
+  let inTemplate = false,
+    templateStart = 0,
+    templateContent = "",
+    braceDepth = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (isCommentLine(line)) continue;
+
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j],
+        prevChar = j > 0 ? line[j - 1] : "";
+
+      if (inTemplate && char === "$" && line[j + 1] === "{") {
+        braceDepth++;
+        j++;
+        continue;
+      }
+      if (braceDepth > 0) {
+        if (char === "{") braceDepth++;
+        if (char === "}") braceDepth--;
+        continue;
+      }
+
+      if (char === "`" && prevChar !== "\\") {
+        if (inTemplate) {
+          results.push({
+            lineNumber: templateStart + 1,
+            content: templateContent,
+            type: "template",
+          });
+          inTemplate = false;
+          templateContent = "";
+        } else {
+          inTemplate = true;
+          templateStart = i;
+          templateContent = "";
+        }
+      } else if (inTemplate) {
+        templateContent += char;
+      }
+    }
+    if (inTemplate) templateContent += "\n";
+
+    for (const match of line.matchAll(/["']([^"'\\]|\\.)*["']/g)) {
+      results.push({ lineNumber: i + 1, content: match[0], type: "string" });
+    }
+  }
+  return results;
+};
+
+/**
  * Read a file's source code.
  */
 const readSource = (relativePath) =>
@@ -309,6 +367,7 @@ export {
   COMMENT_LINE_PATTERNS,
   isCommentLine,
   isInsideTemplateLiteral,
+  extractStringContent,
   // File reading
   readSource,
   toLines,
