@@ -198,6 +198,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "readBaseline",
   "writeBaseline",
   "round2",
+  // data-exports.test.js - analysis helpers
+  "hasProblematicNamedExports",
 ]);
 
 /**

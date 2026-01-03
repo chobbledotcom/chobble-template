@@ -1,7 +1,7 @@
-import categoryOrder, {
-  DEFAULT_ORDER,
-  getCategoryOrder,
-} from "#data/categoryOrder.js";
+import categoryOrder from "#data/categoryOrder.js";
+
+const { DEFAULT_ORDER, getCategoryOrder } = categoryOrder._helpers;
+
 import {
   createTestRunner,
   expectDeepEqual,
