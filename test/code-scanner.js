@@ -101,6 +101,18 @@ const extractStringContent = (source) => {
 };
 
 /**
+ * Strip strings and comments from source code for pattern matching.
+ * Replaces string content with empty quotes, removes block/line comments.
+ */
+const stripStringsAndComments = (source) =>
+  source
+    .replace(/'(?:[^'\\]|\\.)*'/g, '""')
+    .replace(/"(?:[^"\\]|\\.)*"/g, '""')
+    .replace(/`(?:[^`\\]|\\.)*`/g, '""')
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/.*$/gm, "");
+
+/**
  * Read a file's source code.
  */
 const readSource = (relativePath) =>
@@ -368,6 +380,7 @@ export {
   isCommentLine,
   isInsideTemplateLiteral,
   extractStringContent,
+  stripStringsAndComments,
   // File reading
   readSource,
   toLines,

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
+import { analyzeFiles, stripStringsAndComments } from "#test/code-scanner.js";
+import { SRC_JS_FILES } from "#test/test-utils.js";
 
 // ============================================
 // Naming Convention Checker Factory
@@ -37,22 +38,12 @@ const createNamingConventionChecker = (jsFiles, config = {}) => {
 
   const extractCamelCaseIdentifiers = (source) => {
     const identifiers = new Set();
-
-    const noStrings = source
-      .replace(/'(?:[^'\\]|\\.)*'/g, '""')
-      .replace(/"(?:[^"\\]|\\.)*"/g, '""')
-      .replace(/`(?:[^`\\]|\\.)*`/g, '""');
-
-    const noComments = noStrings
-      .replace(/\/\*[\s\S]*?\*\//g, "")
-      .replace(/\/\/.*$/gm, "");
-
-    const camelCasePattern = /\b([a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*)\b/g;
-
-    for (const match of noComments.matchAll(camelCasePattern)) {
+    const clean = stripStringsAndComments(source);
+    for (const match of clean.matchAll(
+      /\b([a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*)\b/g,
+    )) {
       identifiers.add(match[1]);
     }
-
     return Array.from(identifiers);
   };
 
@@ -62,29 +53,22 @@ const createNamingConventionChecker = (jsFiles, config = {}) => {
 
   const analyzeNamingConventions = () => {
     const violations = {};
-
-    for (const relativePath of jsFiles) {
-      const fullPath = path.join(rootDir, relativePath);
-      const source = fs.readFileSync(fullPath, "utf-8");
-      const identifiers = extractCamelCaseIdentifiers(source);
-
-      for (const identifier of identifiers) {
+    analyzeFiles(jsFiles, (source, relativePath) => {
+      for (const identifier of extractCamelCaseIdentifiers(source)) {
         const wordCount = countCamelCaseWords(identifier);
-
         if (wordCount > maxWords && !ignoredIdentifiers.has(identifier)) {
-          if (!violations[identifier]) {
+          if (!violations[identifier])
             violations[identifier] = {
               wordCount,
               occurrences: 0,
               files: new Set(),
             };
-          }
           violations[identifier].occurrences++;
           violations[identifier].files.add(relativePath);
         }
       }
-    }
-
+      return [];
+    });
     return violations;
   };
 
