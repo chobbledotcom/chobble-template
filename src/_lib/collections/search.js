@@ -1,55 +1,47 @@
 import { memoize } from "#utils/memoize.js";
 
+/**
+ * Normalize a category path to a search keyword
+ * Handles full paths like "/categories/premium-widgets.md"
+ */
 const normaliseCategory = (category) => {
   if (!category) return "";
-  // Handle full paths like "/categories/premium-widgets.md"
-  // and convert hyphens to spaces
   return category
     .replace(/^\/categories\//, "")
     .replace(/\.md$/, "")
     .replace(/-/g, " ");
 };
 
-// Build a memoized reverse index: keyword -> [products]
-// This avoids repeated nested loops when searching by keyword
+/**
+ * Extract all keywords from a product (explicit keywords + normalized categories)
+ */
+const getProductKeywords = (product) => {
+  const explicitKeywords = product.data?.keywords || [];
+  const categoryKeywords = (product.data?.categories || []).map(
+    normaliseCategory,
+  );
+  return [...new Set([...explicitKeywords, ...categoryKeywords])];
+};
+
+/**
+ * Build a memoized reverse index: keyword -> [products]
+ * Uses flatMap to create (keyword, product) pairs, then reduce to group
+ */
 const buildProductKeywordMap = memoize((products) => {
-  const keywordProducts = new Map();
+  const pairs = products.flatMap((product) =>
+    getProductKeywords(product).map((keyword) => ({ keyword, product })),
+  );
 
-  for (const product of products) {
-    const productKeywords = new Set();
-
-    // Add explicit keywords
-    const keywords = product.data?.keywords;
-    if (keywords) {
-      for (const kw of keywords) {
-        productKeywords.add(kw);
-      }
-    }
-
-    // Add normalized categories as keywords
-    const categories = product.data?.categories;
-    if (categories) {
-      for (const cat of categories) {
-        productKeywords.add(normaliseCategory(cat));
-      }
-    }
-
-    // Build reverse index
-    for (const kw of productKeywords) {
-      if (!keywordProducts.has(kw)) {
-        keywordProducts.set(kw, []);
-      }
-      keywordProducts.get(kw).push(product);
-    }
-  }
-
-  return keywordProducts;
+  return pairs.reduce((map, { keyword, product }) => {
+    const existing = map.get(keyword) || [];
+    return new Map(map).set(keyword, [...existing, product]);
+  }, new Map());
 });
 
 const getAllKeywords = (products) => {
   if (!products) return [];
   const map = buildProductKeywordMap(products);
-  return Array.from(map.keys()).sort();
+  return [...map.keys()].sort();
 };
 
 const getProductsByKeyword = (products, keyword) => {

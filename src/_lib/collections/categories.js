@@ -1,11 +1,17 @@
-const createInitialMapping = (categories, propertyName) => {
-  const result = {};
-  for (const category of categories || []) {
-    result[category.fileSlug] = [category.data[propertyName], -1];
-  }
-  return result;
-};
+/**
+ * Create initial mapping from category slugs to [propertyValue, order] pairs
+ */
+const createInitialMapping = (categories, propertyName) =>
+  Object.fromEntries(
+    (categories || []).map((category) => [
+      category.fileSlug,
+      [category.data[propertyName], -1],
+    ]),
+  );
 
+/**
+ * Extract (categorySlug, value, order) entries from products for a given property
+ */
 const extractProductEntries = (products, propertyName) =>
   (products || [])
     .filter((product) => product.data[propertyName])
@@ -17,33 +23,43 @@ const extractProductEntries = (products, propertyName) =>
       })),
     );
 
+/**
+ * Determine if new entry should override existing based on order
+ */
+const shouldOverride = (currentEntry, newOrder) =>
+  !currentEntry || currentEntry[1] < newOrder;
+
+/**
+ * Build a map of category slugs to property values, preferring highest order
+ */
 const buildCategoryPropertyMap = (categories, products, propertyName) => {
   const result = createInitialMapping(categories, propertyName);
   const productEntries = extractProductEntries(products, propertyName);
 
   for (const { categorySlug, value, order } of productEntries) {
-    const currentEntry = result[categorySlug];
-    const shouldOverride = !currentEntry || currentEntry[1] < order;
-    if (shouldOverride) {
+    if (shouldOverride(result[categorySlug], order)) {
       result[categorySlug] = [value, order];
     }
   }
+
   return result;
 };
 
 const buildCategoryImageMap = (categories, products) =>
   buildCategoryPropertyMap(categories, products, "header_image");
 
+/**
+ * Assign images to categories from the property maps
+ * NOTE: Mutates category.data directly because Eleventy template objects have
+ * special getters/internal state that break with spread operators
+ */
 const assignCategoryImages = (
   categories,
   categoryImages,
   categoryThumbnails = {},
 ) => {
   if (!categories) return [];
-  // NOTE: This function mutates category objects directly rather than using
-  // functional programming patterns (like spread operators) because Eleventy
-  // template objects have special getters and internal state. Using spread
-  // operators triggers premature access to templateContent, causing errors.
+
   return categories.map((category) => {
     category.data.header_image = categoryImages[category.fileSlug]?.[0];
     const thumbnail = categoryThumbnails[category.fileSlug]?.[0];

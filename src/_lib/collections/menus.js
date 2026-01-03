@@ -1,43 +1,40 @@
 import { memoize } from "#utils/memoize.js";
 
-// Build memoized reverse index: menuSlug -> [categories]
+/**
+ * Build memoized reverse index: menuSlug -> [categories]
+ * Uses flatMap to create pairs, then reduce to group by menu slug
+ */
 const buildMenuCategoryMap = memoize((categories) => {
-  const menuCategories = new Map();
+  const pairs = categories.flatMap((category) =>
+    (category.data.menus || []).map((menuSlug) => ({ menuSlug, category })),
+  );
 
-  for (const category of categories) {
-    const menus = category.data.menus;
-    if (menus) {
-      for (const menuSlug of menus) {
-        if (!menuCategories.has(menuSlug)) {
-          menuCategories.set(menuSlug, []);
-        }
-        menuCategories.get(menuSlug).push(category);
-      }
-    }
-  }
-
-  return menuCategories;
+  return pairs.reduce((map, { menuSlug, category }) => {
+    const existing = map.get(menuSlug) || [];
+    return new Map(map).set(menuSlug, [...existing, category]);
+  }, new Map());
 });
 
-// Build memoized reverse index: categorySlug -> [items]
+/**
+ * Extract category slugs from item data, handling both array and single value
+ */
+const getItemCategories = (item) =>
+  item.data.menu_categories ||
+  (item.data.menu_category ? [item.data.menu_category] : []);
+
+/**
+ * Build memoized reverse index: categorySlug -> [items]
+ * Uses flatMap to create pairs, then reduce to group by category slug
+ */
 const buildCategoryItemMap = memoize((items) => {
-  const categoryItems = new Map();
+  const pairs = items.flatMap((item) =>
+    getItemCategories(item).map((categorySlug) => ({ categorySlug, item })),
+  );
 
-  for (const item of items) {
-    // Get categories from either menu_categories array or single menu_category
-    const categories =
-      item.data.menu_categories ||
-      (item.data.menu_category ? [item.data.menu_category] : []);
-
-    for (const categorySlug of categories) {
-      if (!categoryItems.has(categorySlug)) {
-        categoryItems.set(categorySlug, []);
-      }
-      categoryItems.get(categorySlug).push(item);
-    }
-  }
-
-  return categoryItems;
+  return pairs.reduce((map, { categorySlug, item }) => {
+    const existing = map.get(categorySlug) || [];
+    return new Map(map).set(categorySlug, [...existing, item]);
+  }, new Map());
 });
 
 const getCategoriesByMenu = (categories, menuSlug) => {
