@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   cartModeError,
   checkFrontmatterField,
@@ -174,9 +174,9 @@ describe("config", () => {
     const content = "Just plain content without frontmatter";
     const filePath = createTempFile(tempDir, "plain.md", content);
 
-    expect(() =>
-      extractFrontmatter(filePath, "plain.md", "stripe"),
-    ).toThrow(/has no frontmatter/);
+    expect(() => extractFrontmatter(filePath, "plain.md", "stripe")).toThrow(
+      /has no frontmatter/,
+    );
 
     cleanupTempDir(tempDir);
   });
@@ -225,17 +225,23 @@ describe("config", () => {
 
   test("validateCartConfig throws for invalid cart_mode", () => {
     const config = { cart_mode: "invalid" };
-    expect(() => validateCartConfig(config)).toThrow(/Invalid cart_mode: "invalid"/);
+    expect(() => validateCartConfig(config)).toThrow(
+      /Invalid cart_mode: "invalid"/,
+    );
   });
 
   test("validateCartConfig throws when paypal mode has no checkout_api_url", () => {
     const config = { cart_mode: "paypal", checkout_api_url: null };
-    expect(() => validateCartConfig(config)).toThrow(/checkout_api_url is not set/);
+    expect(() => validateCartConfig(config)).toThrow(
+      /checkout_api_url is not set/,
+    );
   });
 
   test("validateCartConfig throws when stripe mode has no checkout_api_url", () => {
     const config = { cart_mode: "stripe", checkout_api_url: null };
-    expect(() => validateCartConfig(config)).toThrow(/checkout_api_url is not set/);
+    expect(() => validateCartConfig(config)).toThrow(
+      /checkout_api_url is not set/,
+    );
   });
 
   test("validateCartConfig throws when quote mode has no form_target", () => {

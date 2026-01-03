@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Configuration

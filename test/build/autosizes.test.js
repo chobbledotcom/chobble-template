@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import { JSDOM } from "jsdom";

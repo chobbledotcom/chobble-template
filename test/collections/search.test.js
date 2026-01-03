@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   configureSearch,
   createSearchKeywordsCollection,
@@ -30,7 +30,12 @@ describe("search", () => {
       { data: { title: "Product 2", keywords: ["gadgets", "red"] } },
     ];
 
-    expect(getAllKeywords(products)).toEqual(["blue", "gadgets", "red", "widgets"]);
+    expect(getAllKeywords(products)).toEqual([
+      "blue",
+      "gadgets",
+      "red",
+      "widgets",
+    ]);
   });
 
   test("Deduplicates keywords across products", () => {
@@ -139,7 +144,9 @@ describe("search", () => {
 
   test("Normalizes category paths from frontmatter format to display format", () => {
     // Full path as stored in frontmatter → display format
-    expect(normaliseCategory("/categories/premium-widgets.md")).toBe("premium widgets");
+    expect(normaliseCategory("/categories/premium-widgets.md")).toBe(
+      "premium widgets",
+    );
   });
 
   test("Returns empty string for null/undefined/empty inputs", () => {

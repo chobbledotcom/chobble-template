@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   configureReviews,
   countReviews,
@@ -429,12 +429,7 @@ describe("reviews", () => {
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 
     // Pass -1 as limitOverride to test the "no pagination" branch
-    const factory = withReviewsPage(
-      "product",
-      "products",
-      (item) => item,
-      -1,
-    );
+    const factory = withReviewsPage("product", "products", (item) => item, -1);
     const result = factory(mockCollectionApi);
 
     // Even with 100 reviews, limit=-1 means no separate pages

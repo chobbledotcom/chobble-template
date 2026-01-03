@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import getConfig from "#data/config.js";
 import { buildJsConfigScript, configureJsConfig } from "#eleventy/js-config.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -51,7 +51,9 @@ describe("js-config", () => {
     };
     const result = buildJsConfigScript(config);
     expect(result.includes('"cart_mode":"stripe"')).toBe(true);
-    expect(result.includes('"checkout_api_url":"https://api.example.com"')).toBe(true);
+    expect(
+      result.includes('"checkout_api_url":"https://api.example.com"'),
+    ).toBe(true);
   });
 
   test("Only includes specified config keys", () => {

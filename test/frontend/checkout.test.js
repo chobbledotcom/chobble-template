@@ -2,7 +2,7 @@
 // Tests the complete checkout flow with mocked Stripe API
 // Uses actual cart-utils.js and renders real Liquid templates
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
 // Import actual cart utilities
@@ -1226,10 +1226,7 @@ describe("checkout", () => {
 
     // Verify select index mapping works for other options
     select.selectedIndex = 2; // Select "Large"
-    const largeIndex = parseInt(
-      select.options[select.selectedIndex].value,
-      10,
-    );
+    const largeIndex = parseInt(select.options[select.selectedIndex].value, 10);
     const largeOption = itemData.options[largeIndex];
 
     expect(largeOption.name).toBe("Large");

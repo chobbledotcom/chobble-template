@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
 import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";

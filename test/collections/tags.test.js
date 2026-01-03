@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { configureTags, extractTags } from "#collections/tags.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 

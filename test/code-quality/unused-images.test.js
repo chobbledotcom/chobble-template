@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { configureUnusedImages } from "#media/unused-images.js";
 import {
   captureConsoleLogAsync,
@@ -132,15 +132,7 @@ describe("unused-images", () => {
     await runUnusedImagesTest(
       "extensions",
       (_tempDir, imagesDir) => {
-        for (const ext of [
-          "jpg",
-          "jpeg",
-          "png",
-          "gif",
-          "webp",
-          "svg",
-          "JPG",
-        ]) {
+        for (const ext of ["jpg", "jpeg", "png", "gif", "webp", "svg", "JPG"]) {
           fs.writeFileSync(path.join(imagesDir, `test.${ext}`), "fake");
         }
       },
@@ -285,10 +277,7 @@ describe("unused-images", () => {
         fs.writeFileSync(path.join(imagesDir, "thumb.webp"), "fake webp");
         fs.writeFileSync(
           path.join(tempDir, "post.md"),
-          createFrontmatter(
-            { thumbnail: "/images/thumb.webp" },
-            "# Blog post",
-          ),
+          createFrontmatter({ thumbnail: "/images/thumb.webp" }, "# Blog post"),
         );
       },
       (logs) => {

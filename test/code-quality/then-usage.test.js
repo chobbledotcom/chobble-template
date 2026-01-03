@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   analyzeFiles,
   assertNoViolations,
@@ -31,7 +31,10 @@ const THIS_FILE = "test/code-quality/then-usage.test.js";
  */
 const analyzeThenUsage = () =>
   analyzeFiles(
-    combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES], [THIS_FILE]),
+    combineFileLists(
+      [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+      [THIS_FILE],
+    ),
     (source, relativePath) =>
       findThenCalls(source).map((tc) => ({
         file: relativePath,

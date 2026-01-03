@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { ALLOWED_CONSOLE } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeFiles,

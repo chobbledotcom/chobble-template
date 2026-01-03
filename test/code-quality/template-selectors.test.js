@@ -1,7 +1,7 @@
 // Template selector contract tests
 // Verifies that HTML templates contain all required template IDs
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
 import { IDS } from "#assets/selectors.js";
 import { fs, path, rootDir } from "#test/test-utils.js";
@@ -100,7 +100,7 @@ describe("Selector constants usage verification", () => {
     .join("\n");
 
   describe("IDS are used in JS", () => {
-    for (const [key, id] of Object.entries(IDS)) {
+    for (const [key, _id] of Object.entries(IDS)) {
       test(`IDS.${key} is used`, () => {
         const isUsed = jsContent.includes(`IDS.${key}`);
         expect(isUsed).toBe(true);

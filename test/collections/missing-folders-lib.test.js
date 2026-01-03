@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { configureCategories } from "#collections/categories.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";

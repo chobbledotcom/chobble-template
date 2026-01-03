@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   addGallery,
   computeGallery,
@@ -30,7 +30,12 @@ describe("products", () => {
     const result = processGallery(input);
 
     expect(result.length).toBe(4);
-    expect(result).toEqual(["image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg"]);
+    expect(result).toEqual([
+      "image1.jpg",
+      "image2.jpg",
+      "image3.jpg",
+      "image4.jpg",
+    ]);
   });
 
   test("Handles items without gallery", () => {
@@ -188,14 +193,22 @@ describe("products", () => {
     configureProducts(mockConfig);
 
     expect(typeof mockConfig.collections.products).toBe("function");
-    expect(typeof mockConfig.collections.productsWithReviewsPage).toBe("function");
-    expect(typeof mockConfig.collections.productReviewsRedirects).toBe("function");
+    expect(typeof mockConfig.collections.productsWithReviewsPage).toBe(
+      "function",
+    );
+    expect(typeof mockConfig.collections.productReviewsRedirects).toBe(
+      "function",
+    );
     expect(typeof mockConfig.filters.getProductsByCategory).toBe("function");
     expect(typeof mockConfig.filters.getProductsByCategories).toBe("function");
     expect(typeof mockConfig.filters.getFeaturedProducts).toBe("function");
 
-    expect(mockConfig.filters.getProductsByCategory).toBe(getProductsByCategory);
-    expect(mockConfig.filters.getProductsByCategories).toBe(getProductsByCategories);
+    expect(mockConfig.filters.getProductsByCategory).toBe(
+      getProductsByCategory,
+    );
+    expect(mockConfig.filters.getProductsByCategories).toBe(
+      getProductsByCategories,
+    );
     expect(mockConfig.filters.getFeaturedProducts).toBe(getFeaturedProducts);
   });
 

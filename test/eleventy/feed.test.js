@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
 // Test the actual feed output using isolated test sites
@@ -38,7 +38,9 @@ describe("feed", () => {
         const content = site.getOutput("feed.xml");
 
         expect(content.includes('<?xml version="1.0"')).toBe(true);
-        expect(content.includes('<feed xmlns="http://www.w3.org/2005/Atom"')).toBe(true);
+        expect(
+          content.includes('<feed xmlns="http://www.w3.org/2005/Atom"'),
+        ).toBe(true);
         expect(content.includes("</feed>")).toBe(true);
       },
     );
@@ -151,7 +153,9 @@ describe("feed", () => {
       (site) => {
         expect(site.hasOutput("feed.xml")).toBe(true);
         const feed = site.getOutput("feed.xml");
-        expect(feed.includes('<feed xmlns="http://www.w3.org/2005/Atom"')).toBe(true);
+        expect(feed.includes('<feed xmlns="http://www.w3.org/2005/Atom"')).toBe(
+          true,
+        );
         // With no posts, there should be no entries
         expect(!feed.includes("<entry>")).toBe(true);
       },
@@ -203,7 +207,9 @@ describe("feed", () => {
         expect(feed.includes("<entry>")).toBe(true);
         expect(feed.includes("Tom and Jerry")).toBe(true);
         // Apostrophe should be handled (either escaped or in CDATA)
-        expect(feed.includes("Jerry's") || feed.includes("Jerry&#39;s")).toBe(true);
+        expect(feed.includes("Jerry's") || feed.includes("Jerry&#39;s")).toBe(
+          true,
+        );
       },
     );
   });

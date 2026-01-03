@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { compileScss, configureScss, createScssCompiler } from "#build/scss.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
@@ -42,8 +42,7 @@ describe("scss", () => {
   });
 
   test("Handles nested SCSS rules", () => {
-    const inputContent =
-      ".nav { ul { margin: 0; li { list-style: none; } } }";
+    const inputContent = ".nav { ul { margin: 0; li { list-style: none; } } }";
     const inputPath = "/test/nested.scss";
 
     const result = compileScss(inputContent, inputPath);
@@ -66,8 +65,7 @@ describe("scss", () => {
 
     expect(result.includes(".btn")).toBe(true);
     expect(
-      result.includes("background: blue") ||
-        result.includes("background:blue"),
+      result.includes("background: blue") || result.includes("background:blue"),
     ).toBe(true);
     expect(
       result.includes("padding: 10px") || result.includes("padding:10px"),

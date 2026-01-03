@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   categoriseEvents,
   configureEvents,
@@ -210,10 +210,7 @@ describe("events", () => {
   });
 
   test("Show logic shows past events when regular events exist", () => {
-    const events = [
-      createPastEvent(),
-      createRecurringEvent("Weekly Meeting"),
-    ];
+    const events = [createPastEvent(), createRecurringEvent("Weekly Meeting")];
 
     const result = categoriseEvents(events);
 

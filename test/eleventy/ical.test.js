@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { configureICal, eventIcal, isOneOffEvent } from "#eleventy/ical.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
@@ -45,7 +45,9 @@ describe("ical", () => {
     ).toBe(null);
 
     // ical_url is empty string
-    expect(eventIcal({ ...baseEvent, data: { ...baseEvent.data, ical_url: "" } })).toBe(null);
+    expect(
+      eventIcal({ ...baseEvent, data: { ...baseEvent.data, ical_url: "" } }),
+    ).toBe(null);
   });
 
   // eventIcal - valid iCal generation
@@ -181,9 +183,9 @@ describe("ical", () => {
     const result = eventIcal(event);
     expect(result.includes("DTSTART")).toBe(true);
     // All-day events in ical-generator use VALUE=DATE format
-    expect(
-      result.includes(";VALUE=DATE") || result.includes("20250619"),
-    ).toBe(true);
+    expect(result.includes(";VALUE=DATE") || result.includes("20250619")).toBe(
+      true,
+    );
   });
 
   test("iCal URL field contains the event's canonical URL", () => {

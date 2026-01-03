@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   configureProperties,
   createPropertiesCollection,
@@ -149,13 +149,21 @@ describe("properties", () => {
     configureProperties(mockConfig);
 
     expect(typeof mockConfig.collections.properties).toBe("function");
-    expect(typeof mockConfig.collections.propertiesWithReviewsPage).toBe("function");
-    expect(typeof mockConfig.collections.propertyReviewsRedirects).toBe("function");
+    expect(typeof mockConfig.collections.propertiesWithReviewsPage).toBe(
+      "function",
+    );
+    expect(typeof mockConfig.collections.propertyReviewsRedirects).toBe(
+      "function",
+    );
     expect(typeof mockConfig.filters.getPropertiesByLocation).toBe("function");
     expect(typeof mockConfig.filters.getFeaturedProperties).toBe("function");
 
-    expect(mockConfig.filters.getPropertiesByLocation).toBe(getPropertiesByLocation);
-    expect(mockConfig.filters.getFeaturedProperties).toBe(getFeaturedProperties);
+    expect(mockConfig.filters.getPropertiesByLocation).toBe(
+      getPropertiesByLocation,
+    );
+    expect(mockConfig.filters.getFeaturedProperties).toBe(
+      getFeaturedProperties,
+    );
   });
 
   test("Returns only properties exceeding the truncate limit", () => {

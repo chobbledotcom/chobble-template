@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import specsIconsBase from "#data/specs-icons-base.json" with { type: "json" };
 import { computeSpecs, getSpecIcon } from "#filters/spec-filters.js";
 

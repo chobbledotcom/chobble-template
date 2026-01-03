@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   configureImages,
   copyImageCache,
@@ -250,9 +250,7 @@ describe("image", () => {
       const result = await imageShortcode(externalUrl, alt);
 
       expect(result.includes("<img")).toBe(true);
-      expect(result.includes('src="https://example.com/image.jpg"')).toBe(
-        true,
-      );
+      expect(result.includes('src="https://example.com/image.jpg"')).toBe(true);
       expect(result.includes('alt="External image"')).toBe(true);
       expect(result.includes('loading="lazy"')).toBe(true);
       expect(result.includes('decoding="async"')).toBe(true);

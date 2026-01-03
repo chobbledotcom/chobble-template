@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import fg from "fast-glob";
 import { rootDir } from "#test/test-utils.js";
@@ -214,8 +214,8 @@ describe("scss.variables", () => {
   });
 
   test("Reports variable coverage statistics", () => {
-    const usedCount = usedVariables.size;
-    const definedCount = definedVariables.size;
+    const _usedCount = usedVariables.size;
+    const _definedCount = definedVariables.size;
 
     // Calculate how many defined variables are actually used
     const definedAndUsed = [...definedVariables].filter((v) =>

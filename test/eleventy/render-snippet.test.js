@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { renderSnippet } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
@@ -267,9 +267,7 @@ Unicode: café résumé naïve`;
       const result = await renderSnippet("special", "fallback", tempDir);
 
       expect(result.includes("café")).toBe(true);
-      expect(
-        result.includes("double") || result.includes('"'),
-      ).toBe(true);
+      expect(result.includes("double") || result.includes('"')).toBe(true);
     } finally {
       cleanupTempDir(tempDir);
     }

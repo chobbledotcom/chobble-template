@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
 import {
   configureRecurringEvents,
@@ -351,9 +351,9 @@ describe("recurring-events", () => {
         expect(html.includes("Community Center")).toBe(true);
         expect(!html.includes("One Time Event")).toBe(true);
         expect(!html.includes("/events/2024-03-15-")).toBe(true);
-        expect(
-          doc.querySelectorAll("ul li a[href*='/events/']").length,
-        ).toBe(2);
+        expect(doc.querySelectorAll("ul li a[href*='/events/']").length).toBe(
+          2,
+        );
       },
     ));
 
@@ -408,9 +408,9 @@ describe("recurring-events", () => {
       },
       (site) => {
         const html = site.getOutput("/test/index.html");
-        expect(
-          !html.includes("<ul>") || !html.includes("One Time Only"),
-        ).toBe(true);
+        expect(!html.includes("<ul>") || !html.includes("One Time Only")).toBe(
+          true,
+        );
       },
     ));
 

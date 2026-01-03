@@ -6,7 +6,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -173,7 +173,9 @@ function runCoverage() {
   console.log(`Branches:  ${branches}% (threshold: ${limits.branches}%)`);
 
   if (lines < limits.lines) {
-    console.error(`\n❌ Line coverage ${lines}% below threshold ${limits.lines}%`);
+    console.error(
+      `\n❌ Line coverage ${lines}% below threshold ${limits.lines}%`,
+    );
     failed = true;
   }
   if (functions < limits.functions) {

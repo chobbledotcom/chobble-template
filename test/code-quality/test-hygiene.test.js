@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 import {
   SRC_HTML_FILES,

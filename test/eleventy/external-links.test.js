@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   configureExternalLinks,
   createExternalLinksTransform,
@@ -90,10 +90,7 @@ describe("external-links", () => {
   });
 
   test("Handles undefined config gracefully", () => {
-    const result = getExternalLinkAttributes(
-      "https://example.com",
-      undefined,
-    );
+    const result = getExternalLinkAttributes("https://example.com", undefined);
     expect(result).toBe("");
   });
 
@@ -240,9 +237,7 @@ describe("external-links", () => {
 
     expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
 
-    const result = mockConfig.filters.externalLinkAttrs(
-      "https://example.com",
-    );
+    const result = mockConfig.filters.externalLinkAttrs("https://example.com");
     expect(typeof result).toBe("string");
   });
 

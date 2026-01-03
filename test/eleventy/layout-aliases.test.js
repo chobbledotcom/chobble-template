@@ -1,7 +1,7 @@
 // Tests for layout-aliases.js
 // Verifies Eleventy layout alias configuration from src/_layouts directory
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import {
   cleanupTempDir,

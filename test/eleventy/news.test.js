@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
@@ -119,7 +119,9 @@ describe("news", () => {
         expect(postMeta.querySelector("address") !== null).toBe(true);
         expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
         expect(postMeta.querySelector("time") !== null).toBe(true);
-        expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(true);
+        expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(
+          true,
+        );
       },
     );
   });
@@ -182,7 +184,9 @@ describe("news", () => {
         expect(postMeta.querySelector("figure")).toBe(null);
         expect(postMeta.querySelector("address")).toBe(null);
         expect(postMeta.querySelector("time") !== null).toBe(true);
-        expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(true);
+        expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(
+          true,
+        );
       },
     );
   });

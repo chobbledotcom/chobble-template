@@ -198,7 +198,7 @@ const withMockedCwd = (newCwd, callback) => {
 // These provide a familiar API while using Bun's testing
 // ============================================
 
-const expectFunctionType = (obj, property, message) => {
+const expectFunctionType = (obj, property, _message) => {
   if (property === undefined) {
     expect(typeof obj).toBe("function");
   } else {
@@ -207,31 +207,31 @@ const expectFunctionType = (obj, property, message) => {
   }
 };
 
-const expectArrayLength = (arr, expectedLength, message) => {
+const expectArrayLength = (arr, expectedLength, _message) => {
   expect(arr.length).toBe(expectedLength);
 };
 
-const expectObjectProperty = (obj, property, expectedValue, message) => {
+const expectObjectProperty = (obj, property, expectedValue, _message) => {
   expect(obj[property]).toBe(expectedValue);
 };
 
-const expectDeepEqual = (actual, expected, message) => {
+const expectDeepEqual = (actual, expected, _message) => {
   expect(actual).toEqual(expected);
 };
 
-const expectStrictEqual = (actual, expected, message) => {
+const expectStrictEqual = (actual, expected, _message) => {
   expect(actual).toBe(expected);
 };
 
-const expectTrue = (value, message) => {
+const expectTrue = (value, _message) => {
   expect(value).toBe(true);
 };
 
-const expectFalse = (value, message) => {
+const expectFalse = (value, _message) => {
   expect(value).toBe(false);
 };
 
-const expectThrows = (fn, errorMatcher, message) => {
+const expectThrows = (fn, errorMatcher, _message) => {
   expect(fn).toThrow(errorMatcher);
 };
 

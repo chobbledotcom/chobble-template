@@ -1,7 +1,7 @@
 // Hire Calculator Tests
 // Tests the hire-calculator.js functions for date calculation and pricing
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   calculateDays,
   calculateHireTotal,

@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import fg from "fast-glob";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };

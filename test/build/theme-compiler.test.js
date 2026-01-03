@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   extractRootVariables,
   generateThemeSwitcherContent,
@@ -175,9 +175,9 @@ body {
 
       expect(result.includes('--theme-default-name: "Default"')).toBe(true);
       expect(result.includes('--theme-ocean-name: "Ocean"')).toBe(true);
-      expect(
-        result.includes('--theme-90s-computer-name: "90s Computer"'),
-      ).toBe(true);
+      expect(result.includes('--theme-90s-computer-name: "90s Computer"')).toBe(
+        true,
+      );
     });
 
     test("Has metadata section with :root for JavaScript access", () => {

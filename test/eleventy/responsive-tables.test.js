@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 

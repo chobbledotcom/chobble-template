@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import categoryOrder from "#data/categoryOrder.js";
 
 const { DEFAULT_ORDER, getCategoryOrder } = categoryOrder._helpers;

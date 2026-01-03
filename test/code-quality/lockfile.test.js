@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { resolve } from "node:path";
 import { fs, rootDir } from "#test/test-utils.js";
 

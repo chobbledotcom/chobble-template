@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { DATA_DIR, IMAGES_DIR, PAGES_DIR, SRC_DIR } from "#lib/paths.js";
 import { fs, path, rootDir } from "#test/test-utils.js";
 
