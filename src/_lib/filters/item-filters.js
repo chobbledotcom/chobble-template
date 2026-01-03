@@ -1,6 +1,6 @@
-import slugify from "@sindresorhus/slugify";
 import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
+import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 /**
