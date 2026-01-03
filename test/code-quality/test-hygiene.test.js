@@ -32,6 +32,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCategory",
   "createProduct",
   "createCollectionItem",
+  "createPropertyReviewFixture",
   // Code quality analysis helpers (relative-paths.test.js)
   "findRelativeImports",
   "analyzeRelativeImports",

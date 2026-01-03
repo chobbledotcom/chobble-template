@@ -8,6 +8,10 @@ import {
   propertyReviewsRedirects,
 } from "#collections/properties.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
+import configData from "#data/config.json" with { type: "json" };
+
+// Read truncate limit from config for portable tests across inherited sites
+const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 describe("properties", () => {
   test("Creates properties collection from API", () => {
@@ -166,74 +170,56 @@ describe("properties", () => {
     );
   });
 
-  test("Returns only properties exceeding the truncate limit", () => {
-    // 11 reviews for property-a (above limit of 10), 10 for property-b (at limit)
+  // Helper to create property review test fixtures
+  const createPropertyReviewFixture = (countA, countB) => {
     const reviews = [];
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < countA; i++) {
       reviews.push({
         data: { properties: ["property-a"], rating: 5 },
-        date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
+        date: new Date(`2024-01-${String((i % 28) + 1).padStart(2, "0")}`),
       });
     }
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < countB; i++) {
       reviews.push({
         data: { properties: ["property-b"], rating: 4 },
-        date: new Date(`2024-02-${String(i + 1).padStart(2, "0")}`),
+        date: new Date(`2024-02-${String((i % 28) + 1).padStart(2, "0")}`),
       });
     }
-
     const properties = [
       { fileSlug: "property-a", data: { title: "Property A" } },
       { fileSlug: "property-b", data: { title: "Property B" } },
     ];
-
-    const mockCollectionApi = {
+    return {
       getFilteredByTag: (tag) => {
         if (tag === "property") return properties;
         if (tag === "review") return reviews;
         return [];
       },
     };
+  };
 
+  test("Returns only properties exceeding the truncate limit", () => {
+    // property-a gets limit+1 reviews (above limit), property-b gets limit reviews (at limit)
+    const mockCollectionApi = createPropertyReviewFixture(
+      TRUNCATE_LIMIT + 1,
+      TRUNCATE_LIMIT,
+    );
     const result = propertiesWithReviewsPage(mockCollectionApi);
 
-    // Only property-a (11 reviews) should be included, not property-b (10 reviews)
+    // Only property-a (above limit) should be included, not property-b (at limit)
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("property-a");
   });
 
   test("Returns redirect data for properties not needing separate pages", () => {
-    // 10 reviews for property-a (at limit), 11 for property-b (above limit)
-    const reviews = [];
-    for (let i = 0; i < 10; i++) {
-      reviews.push({
-        data: { properties: ["property-a"], rating: 5 },
-        date: new Date(`2024-01-${String(i + 1).padStart(2, "0")}`),
-      });
-    }
-    for (let i = 0; i < 11; i++) {
-      reviews.push({
-        data: { properties: ["property-b"], rating: 4 },
-        date: new Date(`2024-02-${String(i + 1).padStart(2, "0")}`),
-      });
-    }
-
-    const properties = [
-      { fileSlug: "property-a", data: { title: "Property A" } },
-      { fileSlug: "property-b", data: { title: "Property B" } },
-    ];
-
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        if (tag === "property") return properties;
-        if (tag === "review") return reviews;
-        return [];
-      },
-    };
-
+    // property-a gets limit reviews (at limit), property-b gets limit+1 reviews (above limit)
+    const mockCollectionApi = createPropertyReviewFixture(
+      TRUNCATE_LIMIT,
+      TRUNCATE_LIMIT + 1,
+    );
     const result = propertyReviewsRedirects(mockCollectionApi);
 
-    // Only property-a (10 reviews) should get redirect, not property-b (11 reviews)
+    // Only property-a (at limit) should get redirect, not property-b (above limit)
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("property-a");
     // Verify the return structure includes the item reference

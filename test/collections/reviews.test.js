@@ -12,6 +12,10 @@ import {
   withReviewsPage,
 } from "#collections/reviews.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
+import configData from "#data/config.json" with { type: "json" };
+
+// Read truncate limit from config for portable tests across inherited sites
+const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 // ============================================
 // Test Helpers
@@ -19,11 +23,12 @@ import { createMockEleventyConfig } from "#test/test-utils.js";
 
 /**
  * Create an array of review objects for a product.
+ * Uses modulo to handle day overflow for large review counts.
  */
 const createReviews = (productId, count, rating = 5, monthPrefix = "01") =>
   Array.from({ length: count }, (_, i) => ({
     data: { products: [productId], rating },
-    date: new Date(`2024-${monthPrefix}-${String(i + 1).padStart(2, "0")}`),
+    date: new Date(`2024-${monthPrefix}-${String((i % 28) + 1).padStart(2, "0")}`),
   }));
 
 /**
@@ -363,10 +368,11 @@ describe("reviews", () => {
   });
 
   test("Returns only items exceeding the truncate limit", () => {
-    // 11 reviews for product-a (above limit of 10), 10 for product-b (at limit)
+    // Create reviews relative to the configured limit for portability
+    // product-a gets limit+1 reviews (above limit), product-b gets limit reviews (at limit)
     const reviews = [
-      ...createReviews("product-a", 11, 5, "01"),
-      ...createReviews("product-b", 10, 4, "02"),
+      ...createReviews("product-a", TRUNCATE_LIMIT + 1, 5, "01"),
+      ...createReviews("product-b", TRUNCATE_LIMIT, 4, "02"),
     ];
     const products = [
       createProduct("product-a", "Product A"),
@@ -377,14 +383,15 @@ describe("reviews", () => {
     const factory = withReviewsPage("product", "products");
     const result = factory(mockCollectionApi);
 
-    // Only product-a (11 reviews) should be included, not product-b (10 reviews)
+    // Only product-a (above limit) should be included, not product-b (at limit)
     // This tests the boundary: > limit, not >= limit
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("product-a");
   });
 
   test("Transforms items through the optional processItem callback", () => {
-    const reviews = createReviews("product-a", 15);
+    // Use limit+5 to ensure we're clearly above the limit
+    const reviews = createReviews("product-a", TRUNCATE_LIMIT + 5);
     const products = [createProduct("product-a", "Product A")];
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 
@@ -397,10 +404,11 @@ describe("reviews", () => {
   });
 
   test("Returns redirect data for items not needing separate pages", () => {
-    // 10 reviews for product-a (at limit), 11 for product-b (above limit)
+    // Create reviews relative to the configured limit for portability
+    // product-a gets limit reviews (at limit), product-b gets limit+1 reviews (above limit)
     const reviews = [
-      ...createReviews("product-a", 10, 5, "01"),
-      ...createReviews("product-b", 11, 4, "02"),
+      ...createReviews("product-a", TRUNCATE_LIMIT, 5, "01"),
+      ...createReviews("product-b", TRUNCATE_LIMIT + 1, 4, "02"),
     ];
     const products = [
       createProduct("product-a", "Product A"),
@@ -411,7 +419,7 @@ describe("reviews", () => {
     const factory = reviewsRedirects("product", "products");
     const result = factory(mockCollectionApi);
 
-    // Only product-a (10 reviews) should get redirect, not product-b (11 reviews)
+    // Only product-a (at limit) should get redirect, not product-b (above limit)
     // This tests the boundary: <= limit, not < limit
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("product-a");

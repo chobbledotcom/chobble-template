@@ -7,6 +7,7 @@ import {
   fs,
   getFiles,
   path,
+  projectTestConfig,
   rootDir,
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
@@ -17,6 +18,15 @@ const { join } = path;
 
 // Asset JS files need a separate pattern (not in the standard SRC_JS_FILES)
 const ASSET_JS_FILES = getFiles(/^src\/assets\/js\/.*\.js$/);
+
+// Project-specific allowlists from .test-config.json
+// This allows inherited sites to declare classes/IDs that are intentionally unused
+const UNUSED_CLASSES_ALLOWLIST = new Set(
+  projectTestConfig.unusedClassesAllowlist || [],
+);
+const UNUSED_IDS_ALLOWLIST = new Set(
+  projectTestConfig.unusedIdsAllowlist || [],
+);
 
 // ============================================
 // Class/ID Extraction from HTML
@@ -389,12 +399,21 @@ describe("unused-classes", () => {
     const { allClasses, allIds } = collectAllClassesAndIds(htmlFiles, jsFiles);
 
     // Find unused ones
-    const { unusedClasses, unusedIds } = findUnusedClassesAndIds(
-      allClasses,
-      allIds,
-      scssFiles,
-      jsFiles,
-      htmlFiles,
+    const { unusedClasses: allUnusedClasses, unusedIds: allUnusedIds } =
+      findUnusedClassesAndIds(
+        allClasses,
+        allIds,
+        scssFiles,
+        jsFiles,
+        htmlFiles,
+      );
+
+    // Filter out project-specific allowlisted items
+    const unusedClasses = allUnusedClasses.filter(
+      ({ name }) => !UNUSED_CLASSES_ALLOWLIST.has(name),
+    );
+    const unusedIds = allUnusedIds.filter(
+      ({ name }) => !UNUSED_IDS_ALLOWLIST.has(name),
     );
 
     // Report results
@@ -406,6 +425,11 @@ describe("unused-classes", () => {
     console.log(`     Total IDs found: ${totalIds}`);
     console.log(`     Unused classes: ${unusedClasses.length}`);
     console.log(`     Unused IDs: ${unusedIds.length}`);
+    if (UNUSED_CLASSES_ALLOWLIST.size > 0 || UNUSED_IDS_ALLOWLIST.size > 0) {
+      console.log(
+        `     Allowlisted: ${UNUSED_CLASSES_ALLOWLIST.size} classes, ${UNUSED_IDS_ALLOWLIST.size} IDs`,
+      );
+    }
 
     const logUnused = (items, label) => {
       if (items.length === 0) return;
@@ -416,6 +440,9 @@ describe("unused-classes", () => {
         const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
         console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
       }
+      console.log(
+        `\n     To allowlist, add to .test-config.json "unused${label}Allowlist"`,
+      );
     };
 
     logUnused(unusedClasses, "Classes");
