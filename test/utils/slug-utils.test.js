@@ -1,5 +1,4 @@
-import assert from "node:assert";
-import { describe, it } from "node:test";
+import { describe, expect, test } from "bun:test";
 import {
   buildPdfFilename,
   buildPermalink,
@@ -7,163 +6,86 @@ import {
 } from "#utils/slug-utils.js";
 
 describe("normaliseSlug", () => {
-  it("returns falsy values unchanged", () => {
-    assert.strictEqual(normaliseSlug(null), null, "Null returns null");
-    assert.strictEqual(
-      normaliseSlug(undefined),
-      undefined,
-      "Undefined returns undefined",
-    );
-    assert.strictEqual(normaliseSlug(""), "", "Empty string returns empty");
+  test("returns falsy values unchanged", () => {
+    expect(normaliseSlug(null)).toBe(null);
+    expect(normaliseSlug(undefined)).toBe(undefined);
+    expect(normaliseSlug("")).toBe("");
   });
 
-  it("removes .md extension", () => {
-    assert.strictEqual(
-      normaliseSlug("menu.md"),
-      "menu",
-      "Strips .md extension",
-    );
+  test("removes .md extension", () => {
+    expect(normaliseSlug("menu.md")).toBe("menu");
   });
 
-  it("extracts filename from full path", () => {
-    assert.strictEqual(
-      normaliseSlug("content/menus/lunch.md"),
-      "lunch",
-      "Extracts from path",
-    );
+  test("extracts filename from full path", () => {
+    expect(normaliseSlug("content/menus/lunch.md")).toBe("lunch");
   });
 
-  it("handles paths without extension", () => {
-    assert.strictEqual(
-      normaliseSlug("content/menus/lunch"),
-      "lunch",
-      "Handles no extension",
-    );
+  test("handles paths without extension", () => {
+    expect(normaliseSlug("content/menus/lunch")).toBe("lunch");
   });
 
-  it("handles simple slugs without path or extension", () => {
-    assert.strictEqual(
-      normaliseSlug("my-slug"),
-      "my-slug",
-      "Passes through simple slug",
-    );
-    assert.strictEqual(
-      normaliseSlug("simple"),
-      "simple",
-      "Passes through single word",
-    );
+  test("handles simple slugs without path or extension", () => {
+    expect(normaliseSlug("my-slug")).toBe("my-slug");
+    expect(normaliseSlug("simple")).toBe("simple");
   });
 
-  it("preserves dots in filename, only removing .md extension", () => {
-    assert.strictEqual(
-      normaliseSlug("categories/v2.0-widgets.md"),
-      "v2.0-widgets",
-      "Preserves version number in slug",
-    );
-    assert.strictEqual(
-      normaliseSlug("products/1.5-inch-nails.md"),
-      "1.5-inch-nails",
-      "Preserves decimal in slug",
-    );
+  test("preserves dots in filename, only removing .md extension", () => {
+    expect(normaliseSlug("categories/v2.0-widgets.md")).toBe("v2.0-widgets");
+    expect(normaliseSlug("products/1.5-inch-nails.md")).toBe("1.5-inch-nails");
   });
 });
 
 describe("buildPermalink", () => {
-  it("returns existing permalink if set", () => {
+  test("returns existing permalink if set", () => {
     const data = { permalink: "/custom/path/", page: { fileSlug: "ignored" } };
-    assert.strictEqual(
-      buildPermalink(data, "products"),
-      "/custom/path/",
-      "Uses existing permalink instead of building from slug",
-    );
+    expect(buildPermalink(data, "products")).toBe("/custom/path/");
   });
 
-  it("builds permalink from dir and fileSlug when no permalink set", () => {
+  test("builds permalink from dir and fileSlug when no permalink set", () => {
     const data = { page: { fileSlug: "my-product" } };
-    assert.strictEqual(
-      buildPermalink(data, "products"),
-      "/products/my-product/",
-    );
+    expect(buildPermalink(data, "products")).toBe("/products/my-product/");
   });
 
-  it("builds permalink for different directories", () => {
+  test("builds permalink for different directories", () => {
     const data = { page: { fileSlug: "about-us" } };
-    assert.strictEqual(
-      buildPermalink(data, "pages"),
-      "/pages/about-us/",
-      "Builds correct permalink for pages directory",
-    );
-    assert.strictEqual(
-      buildPermalink(data, "news"),
-      "/news/about-us/",
-      "Builds correct permalink for news directory",
-    );
+    expect(buildPermalink(data, "pages")).toBe("/pages/about-us/");
+    expect(buildPermalink(data, "news")).toBe("/news/about-us/");
   });
 
-  it("returns undefined permalink if explicitly set to undefined", () => {
+  test("returns undefined permalink if explicitly set to undefined", () => {
     const data = { permalink: undefined, page: { fileSlug: "test" } };
-    assert.strictEqual(
-      buildPermalink(data, "dir"),
-      "/dir/test/",
-      "Builds permalink when permalink is undefined",
-    );
+    expect(buildPermalink(data, "dir")).toBe("/dir/test/");
   });
 
-  it("builds permalink when permalink is falsy (false)", () => {
-    // When permalink is falsy (including false), the function builds a permalink
-    // Draft pages in Eleventy typically wouldn't call buildPermalink
+  test("builds permalink when permalink is falsy (false)", () => {
     const data = { permalink: false, page: { fileSlug: "draft" } };
-    assert.strictEqual(
-      buildPermalink(data, "posts"),
-      "/posts/draft/",
-      "Builds permalink when permalink is false",
-    );
+    expect(buildPermalink(data, "posts")).toBe("/posts/draft/");
   });
 });
 
 describe("buildPdfFilename", () => {
-  it("builds PDF filename from business name and menu slug", () => {
+  test("builds PDF filename from business name and menu slug", () => {
     const result = buildPdfFilename("My Restaurant", "lunch-menu");
-    assert.strictEqual(
-      result,
-      "my-restaurant-lunch-menu.pdf",
-      "Combines name and slug",
-    );
+    expect(result).toBe("my-restaurant-lunch-menu.pdf");
   });
 
-  it("slugifies business name with special characters", () => {
+  test("slugifies business name with special characters", () => {
     const result = buildPdfFilename("Café & Bistro", "dinner");
-    assert.strictEqual(
-      result,
-      "cafe-and-bistro-dinner.pdf",
-      "Handles special chars",
-    );
+    expect(result).toBe("cafe-and-bistro-dinner.pdf");
   });
 
-  it("handles already-slugified business name", () => {
+  test("handles already-slugified business name", () => {
     const result = buildPdfFilename("simple-name", "menu");
-    assert.strictEqual(
-      result,
-      "simple-name-menu.pdf",
-      "Handles pre-slugified name",
-    );
+    expect(result).toBe("simple-name-menu.pdf");
   });
 
-  it("handles business name with numbers", () => {
+  test("handles business name with numbers", () => {
     const result = buildPdfFilename("Restaurant 42", "specials");
-    assert.strictEqual(
-      result,
-      "restaurant-42-specials.pdf",
-      "Preserves numbers",
-    );
+    expect(result).toBe("restaurant-42-specials.pdf");
   });
 
-  it("handles business name with apostrophes", () => {
+  test("handles business name with apostrophes", () => {
     const result = buildPdfFilename("Joe's Diner", "breakfast");
-    assert.strictEqual(
-      result,
-      "joes-diner-breakfast.pdf",
-      "Removes apostrophes",
-    );
+    expect(result).toBe("joes-diner-breakfast.pdf");
   });
 });

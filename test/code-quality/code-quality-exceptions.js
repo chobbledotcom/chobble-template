@@ -52,7 +52,7 @@ const ALLOWED_HTML_IN_JS = new Set([
 // Files that are allowed to use console.* for legitimate purposes.
 const ALLOWED_CONSOLE = new Set([
   // CLI scripts need console output for user feedback
-  "src/_lib/scripts/add-skus.js",
+  "bin/add-skus",
   "src/_lib/media/unused-images.js",
 
   // Build-time logging for PDF generation progress

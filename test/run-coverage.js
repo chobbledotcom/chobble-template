@@ -136,7 +136,7 @@ function runCoverage() {
   // Run bun test with coverage
   const result = spawnSync(
     "bun",
-    ["test", "--coverage", "--coverage-reporter=lcov"],
+    ["test", "--coverage", "--coverage-reporter=lcov", "--concurrent"],
     {
       cwd: rootDir,
       stdio: ["inherit", "pipe", "inherit"],
