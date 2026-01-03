@@ -275,6 +275,21 @@ const expectThrows = (fn, errorMatcher, _message) => {
   expect(fn).toThrow(errorMatcher);
 };
 
+/**
+ * Assert that a result array has expected titles in order.
+ * A functional, declarative helper for the common pattern of checking
+ * result.length and result[i].data.title across collection tests.
+ *
+ * @param {Array} result - Array of items with data.title properties
+ * @param {Array<string>} expectedTitles - Titles in expected order
+ */
+const expectResultTitles = (result, expectedTitles) => {
+  expect(result.length).toBe(expectedTitles.length);
+  expectedTitles.forEach((title, i) => {
+    expect(result[i].data.title).toBe(title);
+  });
+};
+
 // ============================================
 // Test Fixture Factories
 // ============================================
@@ -499,6 +514,7 @@ export {
   expectTrue,
   expectFalse,
   expectThrows,
+  expectResultTitles,
   // Test fixture factories
   createFrontmatter,
   createFutureDate,

@@ -6,17 +6,10 @@ import {
   createCategoriesCollection,
   getFeaturedCategories,
 } from "#collections/categories.js";
-
-const mockEleventyConfig = {
-  addCollection: function (name, fn) {
-    this.collections = this.collections || {};
-    this.collections[name] = fn;
-  },
-  addFilter: function (name, fn) {
-    this.filters = this.filters || {};
-    this.filters[name] = fn;
-  },
-};
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("categories", () => {
   test("buildCategoryImageMap-empty-data", () => {
@@ -276,8 +269,7 @@ describe("categories", () => {
 
     const result = getFeaturedCategories(categories);
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Featured Category");
+    expectResultTitles(result, ["Featured Category"]);
   });
 
   test("getFeaturedCategories-null-safe", () => {
@@ -286,7 +278,7 @@ describe("categories", () => {
   });
 
   test("configureCategories-basic", () => {
-    const mockConfig = { ...mockEleventyConfig };
+    const mockConfig = createMockEleventyConfig();
 
     configureCategories(mockConfig);
 

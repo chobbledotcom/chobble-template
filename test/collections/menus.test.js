@@ -4,7 +4,10 @@ import {
   getCategoriesByMenu,
   getItemsByCategory,
 } from "#collections/menus.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("menus", () => {
   // getCategoriesByMenu tests
@@ -23,9 +26,7 @@ describe("menus", () => {
 
     const lunchCategories = getCategoriesByMenu(categories, "lunch");
 
-    expect(lunchCategories).toHaveLength(2);
-    expect(lunchCategories[0].data.title).toBe("Appetizers");
-    expect(lunchCategories[1].data.title).toBe("Sandwiches");
+    expectResultTitles(lunchCategories, ["Appetizers", "Sandwiches"]);
   });
 
   test("Returns empty array when no categories match menu", () => {
@@ -77,8 +78,7 @@ describe("menus", () => {
 
     const result = getCategoriesByMenu(categories, "lunch");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Has Menus");
+    expectResultTitles(result, ["Has Menus"]);
   });
 
   test("Category can belong to multiple menus", () => {
@@ -113,9 +113,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result).toHaveLength(2);
-    expect(result[0].data.title).toBe("Spring Rolls");
-    expect(result[1].data.title).toBe("Soup");
+    expectResultTitles(result, ["Spring Rolls", "Soup"]);
   });
 
   test("Handles menu_categories array", () => {
@@ -205,8 +203,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Has Category");
+    expectResultTitles(result, ["Has Category"]);
   });
 
   test("Handles empty menu_categories array", () => {
@@ -221,8 +218,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].data.title).toBe("Has Category");
+    expectResultTitles(result, ["Has Category"]);
   });
 
   // configureMenus tests
@@ -315,9 +311,7 @@ describe("menus", () => {
 
     const result = getCategoriesByMenu(categories, "lunch");
 
-    expect(result[0].data.title).toBe("First");
-    expect(result[1].data.title).toBe("Second");
-    expect(result[2].data.title).toBe("Third");
+    expectResultTitles(result, ["First", "Second", "Third"]);
   });
 
   test("Preserves order of items as encountered", () => {
@@ -335,9 +329,7 @@ describe("menus", () => {
 
     const result = getItemsByCategory(items, "appetizers");
 
-    expect(result[0].data.title).toBe("First");
-    expect(result[1].data.title).toBe("Second");
-    expect(result[2].data.title).toBe("Third");
+    expectResultTitles(result, ["First", "Second", "Third"]);
   });
 
   test("Same item can appear in multiple category lookups", () => {

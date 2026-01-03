@@ -4,7 +4,10 @@ import {
   createNavigationFilter,
   findPageUrl,
 } from "#collections/navigation.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("navigation", () => {
   test("Creates navigation filter function", () => {
@@ -240,10 +243,7 @@ describe("navigation", () => {
 
     const result = mockConfig.collections.navigationLinks(mockCollectionApi);
 
-    expect(result.length).toBe(3);
-    expect(result[0].data.title).toBe("Home");
-    expect(result[1].data.title).toBe("About");
-    expect(result[2].data.title).toBe("Contact");
+    expectResultTitles(result, ["Home", "About", "Contact"]);
   });
 
   test("Sorts navigation items by order property", async () => {
@@ -275,10 +275,7 @@ describe("navigation", () => {
 
     const result = mockConfig.collections.navigationLinks(mockCollectionApi);
 
-    expect(result.length).toBe(3);
-    expect(result[0].data.title).toBe("First");
-    expect(result[1].data.title).toBe("Second");
-    expect(result[2].data.title).toBe("Third");
+    expectResultTitles(result, ["First", "Second", "Third"]);
   });
 
   test("Items without order default to 999 and sort alphabetically", async () => {
@@ -310,10 +307,7 @@ describe("navigation", () => {
 
     const result = mockConfig.collections.navigationLinks(mockCollectionApi);
 
-    expect(result.length).toBe(3);
-    expect(result[0].data.title).toBe("Has Order");
-    expect(result[1].data.title).toBe("Apple Page");
-    expect(result[2].data.title).toBe("Zebra Page");
+    expectResultTitles(result, ["Has Order", "Apple Page", "Zebra Page"]);
   });
 
   test("Falls back to title when key is missing", async () => {
@@ -339,9 +333,7 @@ describe("navigation", () => {
 
     const result = mockConfig.collections.navigationLinks(mockCollectionApi);
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Apple Page");
-    expect(result[1].data.title).toBe("Zebra Page");
+    expectResultTitles(result, ["Apple Page", "Zebra Page"]);
   });
 
   test("Handles edge cases gracefully", () => {

@@ -11,7 +11,10 @@ import {
   getProductsByEvent,
   processGallery,
 } from "#collections/products.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("products", () => {
   test("Returns null/undefined gallery unchanged", () => {
@@ -118,9 +121,7 @@ describe("products", () => {
 
     const result = getProductsByCategory(products, "widgets");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Product 1");
-    expect(result[1].data.title).toBe("Product 3");
+    expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
   test("Handles products without categories", () => {
@@ -222,9 +223,7 @@ describe("products", () => {
 
     const result = getFeaturedProducts(products);
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Product 1");
-    expect(result[1].data.title).toBe("Product 3");
+    expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
   test("Returns empty array when no products are featured", () => {
@@ -273,9 +272,7 @@ describe("products", () => {
 
     const result = getProductsByEvent(products, "summer-sale");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Product 1");
-    expect(result[1].data.title).toBe("Product 3");
+    expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
   test("Returns empty array for null products", () => {

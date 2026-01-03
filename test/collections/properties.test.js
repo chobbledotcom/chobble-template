@@ -8,7 +8,10 @@ import {
   propertyReviewsRedirects,
 } from "#collections/properties.js";
 import configData from "#data/config.json" with { type: "json" };
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
@@ -61,9 +64,7 @@ describe("properties", () => {
 
     const result = getPropertiesByLocation(properties, "springfield");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Property 1");
-    expect(result[1].data.title).toBe("Property 3");
+    expectResultTitles(result, ["Property 1", "Property 3"]);
   });
 
   test("Handles properties without locations", () => {
@@ -110,10 +111,7 @@ describe("properties", () => {
 
     const result = getPropertiesByLocation(properties, "shelbyville");
 
-    expect(result.length).toBe(3);
-    expect(result[0].data.title).toBe("Property A");
-    expect(result[1].data.title).toBe("Property B");
-    expect(result[2].data.title).toBe("Property C");
+    expectResultTitles(result, ["Property A", "Property B", "Property C"]);
   });
 
   test("Filters properties by featured flag", () => {
@@ -126,9 +124,7 @@ describe("properties", () => {
 
     const result = getFeaturedProperties(properties);
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Property 1");
-    expect(result[1].data.title).toBe("Property 3");
+    expectResultTitles(result, ["Property 1", "Property 3"]);
   });
 
   test("Returns empty array when no properties are featured", () => {
