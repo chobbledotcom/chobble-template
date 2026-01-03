@@ -1,19 +1,10 @@
+import { buildReverseIndex } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 
 /**
- * Build memoized reverse index: menuSlug -> [categories]
- * Uses flatMap to create pairs, then reduce to group by menu slug
+ * Extract menu slugs from a category
  */
-const buildMenuCategoryMap = memoize((categories) => {
-  const pairs = categories.flatMap((category) =>
-    (category.data.menus || []).map((menuSlug) => ({ menuSlug, category })),
-  );
-
-  return pairs.reduce((map, { menuSlug, category }) => {
-    const existing = map.get(menuSlug) || [];
-    return new Map(map).set(menuSlug, [...existing, category]);
-  }, new Map());
-});
+const getCategoryMenus = (category) => category.data.menus || [];
 
 /**
  * Extract category slugs from item data, handling both array and single value
@@ -23,30 +14,27 @@ const getItemCategories = (item) =>
   (item.data.menu_category ? [item.data.menu_category] : []);
 
 /**
- * Build memoized reverse index: categorySlug -> [items]
- * Uses flatMap to create pairs, then reduce to group by category slug
+ * Build memoized reverse index: menuSlug -> [categories]
  */
-const buildCategoryItemMap = memoize((items) => {
-  const pairs = items.flatMap((item) =>
-    getItemCategories(item).map((categorySlug) => ({ categorySlug, item })),
-  );
+const buildMenuCategoryMap = memoize((categories) =>
+  buildReverseIndex(categories, getCategoryMenus),
+);
 
-  return pairs.reduce((map, { categorySlug, item }) => {
-    const existing = map.get(categorySlug) || [];
-    return new Map(map).set(categorySlug, [...existing, item]);
-  }, new Map());
-});
+/**
+ * Build memoized reverse index: categorySlug -> [items]
+ */
+const buildCategoryItemMap = memoize((items) =>
+  buildReverseIndex(items, getItemCategories),
+);
 
 const getCategoriesByMenu = (categories, menuSlug) => {
   if (!categories) return [];
-  const map = buildMenuCategoryMap(categories);
-  return map.get(menuSlug) || [];
+  return buildMenuCategoryMap(categories).get(menuSlug) || [];
 };
 
 const getItemsByCategory = (items, categorySlug) => {
   if (!items) return [];
-  const map = buildCategoryItemMap(items);
-  return map.get(categorySlug) || [];
+  return buildCategoryItemMap(items).get(categorySlug) || [];
 };
 
 const configureMenus = (eleventyConfig) => {

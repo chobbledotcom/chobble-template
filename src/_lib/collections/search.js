@@ -1,3 +1,4 @@
+import { buildReverseIndex } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 
 /**
@@ -25,29 +26,19 @@ const getProductKeywords = (product) => {
 
 /**
  * Build a memoized reverse index: keyword -> [products]
- * Uses flatMap to create (keyword, product) pairs, then reduce to group
  */
-const buildProductKeywordMap = memoize((products) => {
-  const pairs = products.flatMap((product) =>
-    getProductKeywords(product).map((keyword) => ({ keyword, product })),
-  );
-
-  return pairs.reduce((map, { keyword, product }) => {
-    const existing = map.get(keyword) || [];
-    return new Map(map).set(keyword, [...existing, product]);
-  }, new Map());
-});
+const buildProductKeywordMap = memoize((products) =>
+  buildReverseIndex(products, getProductKeywords),
+);
 
 const getAllKeywords = (products) => {
   if (!products) return [];
-  const map = buildProductKeywordMap(products);
-  return [...map.keys()].sort();
+  return [...buildProductKeywordMap(products).keys()].sort();
 };
 
 const getProductsByKeyword = (products, keyword) => {
   if (!products || !keyword) return [];
-  const map = buildProductKeywordMap(products);
-  return map.get(keyword) || [];
+  return buildProductKeywordMap(products).get(keyword) || [];
 };
 
 const createSearchKeywordsCollection = (collectionApi) => {
