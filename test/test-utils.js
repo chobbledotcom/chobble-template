@@ -3,6 +3,21 @@ import fs from "node:fs";
 import path, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
+import { Window } from "happy-dom";
+
+// JSDOM-compatible wrapper for happy-dom
+class DOM {
+  constructor(html = "", _options = {}) {
+    this.window = new Window({ url: _options.url || "http://localhost" });
+    if (html) {
+      this.window.document.write(html);
+    }
+  }
+
+  serialize() {
+    return this.window.document.documentElement.outerHTML;
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -429,6 +444,7 @@ const createMockReview = ({
 });
 
 export {
+  DOM,
   expect,
   fs,
   path,

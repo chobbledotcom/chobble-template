@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import { JSDOM } from "jsdom";
+import vm from "node:vm";
+import { Window } from "happy-dom";
 import { rootDir } from "#test/test-utils.js";
 
 // ============================================
@@ -14,7 +15,7 @@ const AUTOSIZES_SCRIPT = fs.readFileSync(
 );
 
 // ============================================
-// Shared HTML template and JSDOM options
+// Shared HTML template
 // ============================================
 
 const BASE_HTML = `
@@ -25,12 +26,6 @@ const BASE_HTML = `
   <div id="container"></div>
 </body>
 </html>`;
-
-const JSDOM_OPTIONS = {
-  runScripts: "dangerously",
-  resources: "usable",
-  pretendToBeVisual: true,
-};
 
 // ============================================
 // Mock PerformanceObserver injection script
@@ -64,13 +59,30 @@ window.PerformanceObserver = class {
 // ============================================
 
 /**
+ * Execute script in window context using Node's vm module
+ */
+const execScript = (window, script) => {
+  // Create a context with all necessary window properties
+  const context = vm.createContext({
+    window,
+    document: window.document,
+    navigator: window.navigator,
+    setTimeout: window.setTimeout.bind(window),
+    PerformanceObserver: window.PerformanceObserver,
+    MutationObserver: window.MutationObserver,
+    console,
+  });
+  vm.runInContext(script, context);
+};
+
+/**
  * Create a test environment with configurable browser and image.
  * @param {Object} options
  * @param {string} options.userAgent - Browser user agent string
  * @param {boolean} options.hasPerfObserver - Whether PerformanceObserver exists
  * @param {boolean} options.supportsPaint - Whether paint timing is supported
  * @param {Object} options.imgAttrs - Image attributes { src, sizes, loading, srcset }
- * @returns {{ window, img }} The JSDOM window and created image element
+ * @returns {{ window, img }} The happy-dom window and created image element
  */
 const createTestEnv = (options = {}) => {
   const {
@@ -80,8 +92,12 @@ const createTestEnv = (options = {}) => {
     imgAttrs = { src: "/image.jpg", sizes: "auto", loading: "lazy" },
   } = options;
 
-  const dom = new JSDOM(BASE_HTML, JSDOM_OPTIONS);
-  const { window } = dom;
+  const window = new Window({
+    settings: {
+      disableJavaScriptEvaluation: false,
+    },
+  });
+  window.document.write(BASE_HTML);
 
   Object.defineProperty(window.document, "readyState", {
     value: "complete",
@@ -94,7 +110,7 @@ const createTestEnv = (options = {}) => {
   });
 
   if (hasPerfObserver) {
-    window.eval(createPerformanceObserverScript(supportsPaint));
+    execScript(window, createPerformanceObserverScript(supportsPaint));
   }
 
   const img = window.document.createElement("img");
@@ -110,7 +126,7 @@ const createTestEnv = (options = {}) => {
  * Run autosizes script and return the image state.
  */
 const runAutosizes = (window, img) => {
-  window.eval(AUTOSIZES_SCRIPT);
+  execScript(window, AUTOSIZES_SCRIPT);
   return img;
 };
 
@@ -321,7 +337,7 @@ describe("autosizes", () => {
       container.appendChild(img2);
       container.appendChild(img3);
 
-      window.eval(AUTOSIZES_SCRIPT);
+      execScript(window, AUTOSIZES_SCRIPT);
 
       expect(img1.hasAttribute("src")).toBe(false);
       expect(img2.hasAttribute("src")).toBe(false);
@@ -332,7 +348,7 @@ describe("autosizes", () => {
   describe("Turbo navigation", () => {
     test("Re-initializes on turbo:load event", () => {
       const { window } = createTestEnv({ imgAttrs: {} });
-      window.eval(AUTOSIZES_SCRIPT);
+      execScript(window, AUTOSIZES_SCRIPT);
 
       const img = makeImg(window, {
         src: "/new-image.jpg",
