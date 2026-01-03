@@ -7,6 +7,7 @@ import matter from "gray-matter";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
+const srcDir = resolve(rootDir, "src");
 
 // Directories always skipped during file discovery
 const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site", ".test-sites"]);
@@ -521,6 +522,7 @@ export {
   fs,
   path,
   rootDir,
+  srcDir,
   getFiles,
   SRC_JS_FILES,
   ECOMMERCE_JS_FILES,

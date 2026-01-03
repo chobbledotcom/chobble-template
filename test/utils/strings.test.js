@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import fg from "fast-glob";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
@@ -8,10 +5,9 @@ import {
   createTestRunner,
   expectStrictEqual,
   expectTrue,
+  fs,
+  srcDir,
 } from "#test/test-utils.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const srcDir = join(__dirname, "../src");
 
 /**
  * Find all strings.X usages in the codebase using Node.js
