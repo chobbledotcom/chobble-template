@@ -96,7 +96,7 @@ const findCommentedCode = (source, _relativePath) => {
   const rawLines = lines.map((l) => l.line);
 
   return lines
-    .filter(({ line, num }, i) => {
+    .filter(({ line }, i) => {
       if (isInsideTemplateLiteral(rawLines, i)) return false;
       const prevLine = i > 0 ? rawLines[i - 1] : "";
       const nextLine = i < rawLines.length - 1 ? rawLines[i + 1] : "";
