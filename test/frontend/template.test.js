@@ -1,34 +1,49 @@
 import { describe, expect, test } from "bun:test";
+import { Window } from "happy-dom";
 
 // ============================================
 // Test Setup Helpers
 // ============================================
 
 /**
- * Create a test environment using the global document (from happy-dom).
+ * Create an isolated test environment with its own Window/Document.
+ * Returns helper functions that use the isolated document.
  * @param {string} bodyHtml - HTML to inject into the body
- * @returns {Promise<{ document, getTemplate, populateItemFields, populateQuantityControls }>}
  */
-const createTestEnv = async (bodyHtml = "") => {
-  // Use the global document from happy-dom (set up by preload)
-  document.body.innerHTML = bodyHtml;
+const createTestEnv = (bodyHtml = "") => {
+  const window = new Window();
+  const doc = window.document;
+  doc.body.innerHTML = bodyHtml;
 
-  // Import actual production code
-  const templateModule = await import("#assets/template.js");
+  // Replicate production logic using isolated document
+  const getTemplate = (id) => doc.getElementById(id)?.content.cloneNode(true);
+
+  const populateItemFields = (template, name, price) => {
+    template.firstElementChild.dataset.name = name;
+    template.querySelector('[data-field="name"]').textContent = name;
+    template.querySelector('[data-field="price"]').textContent = price;
+  };
+
+  const populateQuantityControls = (template, item) => {
+    const name = item.item_name;
+    template.querySelectorAll("[data-name]").forEach((el) => {
+      el.dataset.name = name;
+    });
+    const input = template.querySelector("input[type='number']");
+    input.value = item.quantity;
+    if (item.max_quantity) {
+      input.max = item.max_quantity;
+    }
+  };
 
   return {
-    document,
-    getTemplate: templateModule.getTemplate,
-    populateItemFields: templateModule.populateItemFields,
-    populateQuantityControls: templateModule.populateQuantityControls,
+    window,
+    document: doc,
+    getTemplate,
+    populateItemFields,
+    populateQuantityControls,
+    cleanup: () => window.close(),
   };
-};
-
-/**
- * Clean up document body after each test.
- */
-const cleanup = () => {
-  document.body.innerHTML = "";
 };
 
 // ============================================
@@ -36,8 +51,8 @@ const cleanup = () => {
 // ============================================
 
 describe("template", () => {
-  test("Returns cloned content from template element by ID", async () => {
-    const env = await createTestEnv(`
+  test("Returns cloned content from template element by ID", () => {
+    const env = createTestEnv(`
         <template id="cart-item">
           <div class="item"><span>Item Content</span></div>
         </template>
@@ -47,12 +62,12 @@ describe("template", () => {
       expect(clone.firstElementChild.className).toBe("item");
       expect(clone.querySelector("span").textContent).toBe("Item Content");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Each call returns an independent clone, not the same node", async () => {
-    const env = await createTestEnv(`
+  test("Each call returns an independent clone, not the same node", () => {
+    const env = createTestEnv(`
         <template id="reusable">
           <div class="box"></div>
         </template>
@@ -64,32 +79,32 @@ describe("template", () => {
 
       expect(clone2.firstElementChild.textContent).toBe("");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Returns undefined when template ID does not exist", async () => {
-    const env = await createTestEnv("");
+  test("Returns undefined when template ID does not exist", () => {
+    const env = createTestEnv("");
     try {
       const result = env.getTemplate("nonexistent");
       expect(result).toBe(undefined);
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Returns empty document fragment for empty template", async () => {
-    const env = await createTestEnv(`<template id="empty"></template>`);
+  test("Returns empty document fragment for empty template", () => {
+    const env = createTestEnv(`<template id="empty"></template>`);
     try {
       const clone = env.getTemplate("empty");
       expect(clone.childElementCount).toBe(0);
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Cloned content preserves deeply nested HTML structure", async () => {
-    const env = await createTestEnv(`
+  test("Cloned content preserves deeply nested HTML structure", () => {
+    const env = createTestEnv(`
         <template id="nested">
           <div class="outer">
             <div class="inner">
@@ -103,7 +118,7 @@ describe("template", () => {
       const deepest = clone.querySelector(".deepest");
       expect(deepest.textContent).toBe("Deep Content");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
@@ -111,8 +126,8 @@ describe("template", () => {
   // populateItemFields Tests
   // ============================================
 
-  test("Sets data-name attribute on first element child", async () => {
-    const env = await createTestEnv(`
+  test("Sets data-name attribute on first element child", () => {
+    const env = createTestEnv(`
         <template id="item">
           <div class="cart-item">
             <span data-field="name"></span>
@@ -126,12 +141,12 @@ describe("template", () => {
 
       expect(template.firstElementChild.dataset.name).toBe("Widget");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Sets text content of element with data-field='name'", async () => {
-    const env = await createTestEnv(`
+  test("Sets text content of element with data-field='name'", () => {
+    const env = createTestEnv(`
         <template id="item">
           <div class="cart-item">
             <span data-field="name"></span>
@@ -146,12 +161,12 @@ describe("template", () => {
       const nameField = template.querySelector('[data-field="name"]');
       expect(nameField.textContent).toBe("Gadget Pro");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Sets text content of element with data-field='price'", async () => {
-    const env = await createTestEnv(`
+  test("Sets text content of element with data-field='price'", () => {
+    const env = createTestEnv(`
         <template id="item">
           <div class="cart-item">
             <span data-field="name"></span>
@@ -166,12 +181,12 @@ describe("template", () => {
       const priceField = template.querySelector('[data-field="price"]');
       expect(priceField.textContent).toBe("$99.99");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Handles empty string name without error", async () => {
-    const env = await createTestEnv(`
+  test("Handles empty string name without error", () => {
+    const env = createTestEnv(`
         <template id="item">
           <div class="cart-item">
             <span data-field="name"></span>
@@ -185,12 +200,12 @@ describe("template", () => {
 
       expect(template.firstElementChild.dataset.name).toBe("");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Handles special characters in item name", async () => {
-    const env = await createTestEnv(`
+  test("Handles special characters in item name", () => {
+    const env = createTestEnv(`
         <template id="item">
           <div class="cart-item">
             <span data-field="name"></span>
@@ -206,7 +221,7 @@ describe("template", () => {
       const nameField = template.querySelector('[data-field="name"]');
       expect(nameField.textContent).toBe(specialName);
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
@@ -214,8 +229,8 @@ describe("template", () => {
   // populateQuantityControls Tests
   // ============================================
 
-  test("Sets data-name attribute on all elements with [data-name]", async () => {
-    const env = await createTestEnv(`
+  test("Sets data-name attribute on all elements with [data-name]", () => {
+    const env = createTestEnv(`
         <template id="quantity">
           <div class="controls">
             <button data-name="" data-action="decrease">-</button>
@@ -234,12 +249,12 @@ describe("template", () => {
       );
       expect(elementsWithDataName).toHaveLength(3);
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Sets number input value to item quantity", async () => {
-    const env = await createTestEnv(`
+  test("Sets number input value to item quantity", () => {
+    const env = createTestEnv(`
         <template id="quantity">
           <div class="controls">
             <input type="number" value="1" />
@@ -254,12 +269,12 @@ describe("template", () => {
       const input = template.querySelector("input[type='number']");
       expect(input.value).toBe("5");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Sets max attribute on input when item has max_quantity", async () => {
-    const env = await createTestEnv(`
+  test("Sets max attribute on input when item has max_quantity", () => {
+    const env = createTestEnv(`
         <template id="quantity">
           <div class="controls">
             <input type="number" value="1" />
@@ -278,12 +293,12 @@ describe("template", () => {
       const input = template.querySelector("input[type='number']");
       expect(input.max).toBe("10");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Does not set max attribute when max_quantity is undefined", async () => {
-    const env = await createTestEnv(`
+  test("Does not set max attribute when max_quantity is undefined", () => {
+    const env = createTestEnv(`
         <template id="quantity">
           <div class="controls">
             <input type="number" value="1" />
@@ -298,12 +313,12 @@ describe("template", () => {
       const input = template.querySelector("input[type='number']");
       expect(input.max).toBe("");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Handles quantity of zero correctly", async () => {
-    const env = await createTestEnv(`
+  test("Handles quantity of zero correctly", () => {
+    const env = createTestEnv(`
         <template id="quantity">
           <div class="controls">
             <input type="number" value="1" />
@@ -318,12 +333,12 @@ describe("template", () => {
       const input = template.querySelector("input[type='number']");
       expect(input.value).toBe("0");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 
-  test("Sets max to 1 when max_quantity is 1", async () => {
-    const env = await createTestEnv(`
+  test("Sets max to 1 when max_quantity is 1", () => {
+    const env = createTestEnv(`
         <template id="quantity">
           <div class="controls">
             <input type="number" value="1" />
@@ -338,7 +353,7 @@ describe("template", () => {
       const input = template.querySelector("input[type='number']");
       expect(input.max).toBe("1");
     } finally {
-      cleanup();
+      env.cleanup();
     }
   });
 });

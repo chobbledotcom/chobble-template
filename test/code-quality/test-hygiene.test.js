@@ -173,12 +173,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createPatternMatcher",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // template.test.js - global document cleanup helper
+  // template.test.js - isolated DOM testing helpers
   "cleanup",
-  // cpd.test.js - baseline ratcheting helpers
-  "readBaseline",
-  "writeBaseline",
-  "round2",
+  "getTemplate",
+  "populateItemFields",
+  "populateQuantityControls",
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",
