@@ -7,6 +7,7 @@ import matter from "gray-matter";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
+const srcDir = resolve(rootDir, "src");
 
 // Directories always skipped during file discovery
 const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site", ".test-sites"]);
@@ -413,11 +414,115 @@ const createCollectionItem = (slug, url, tags = [], extraData = {}) => ({
   },
 });
 
+// Schema-helper test fixtures
+const createSchemaPage = ({
+  url = "/page/",
+  fileSlug = null,
+  date = null,
+} = {}) => {
+  const page = { url };
+  if (fileSlug) page.fileSlug = fileSlug;
+  if (date) page.date = date;
+  return page;
+};
+
+const createSchemaSite = ({
+  url = "https://example.com",
+  name = "Test Site",
+  logo = null,
+} = {}) => {
+  const site = { url, name };
+  if (logo) site.logo = logo;
+  return site;
+};
+
+const createSchemaData = (options = {}) => {
+  const {
+    pageUrl = "/page/",
+    pageFileSlug = null,
+    pageDate = null,
+    siteUrl = "https://example.com",
+    siteName = "Test Site",
+    siteLogo = null,
+    ...extraData
+  } = options;
+  const data = {
+    page: createSchemaPage({
+      url: pageUrl,
+      fileSlug: pageFileSlug,
+      date: pageDate,
+    }),
+    site: createSchemaSite({ url: siteUrl, name: siteName, logo: siteLogo }),
+    ...extraData,
+  };
+  // Only add title if not explicitly set to undefined
+  if (!("title" in options) || options.title !== undefined) {
+    data.title = options.title ?? "Test";
+  }
+  return data;
+};
+
+const createProductSchemaData = ({
+  fileSlug = "test",
+  title = "Test Product",
+  siteName = "Test Store",
+  price = null,
+  reviews = null,
+  reviewsField = null,
+  ...extraData
+} = {}) => {
+  const data = createSchemaData({
+    pageUrl: `/products/${fileSlug}/`,
+    pageFileSlug: fileSlug,
+    title,
+    siteName,
+    ...extraData,
+  });
+  if (price) data.price = price;
+  if (reviews && reviewsField) {
+    data.collections = { reviews };
+    data.reviewsField = reviewsField;
+  }
+  return data;
+};
+
+const createPostSchemaData = ({
+  title = "Test Post",
+  author = null,
+  date = new Date("2024-03-15"),
+  siteName = "Test Site",
+  siteLogo = null,
+  ...extraData
+} = {}) => {
+  const data = createSchemaData({
+    pageUrl: "/news/test-post/",
+    pageDate: date,
+    title,
+    siteName,
+    siteLogo,
+    ...extraData,
+  });
+  if (author) data.author = author;
+  return data;
+};
+
+const createMockReview = ({
+  name = "Reviewer",
+  rating = 5,
+  field = "products",
+  items = ["test"],
+  date = new Date("2024-01-15"),
+} = {}) => ({
+  data: { name, rating, [field]: items },
+  date,
+});
+
 export {
   assert,
   fs,
   path,
   rootDir,
+  srcDir,
   getFiles,
   SRC_JS_FILES,
   ECOMMERCE_JS_FILES,
@@ -456,4 +561,11 @@ export {
   createCategory,
   createProduct,
   createCollectionItem,
+  // Schema-helper fixtures
+  createSchemaPage,
+  createSchemaSite,
+  createSchemaData,
+  createProductSchemaData,
+  createPostSchemaData,
+  createMockReview,
 };

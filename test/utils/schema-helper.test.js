@@ -6,15 +6,20 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+import {
+  createMockReview,
+  createPostSchemaData,
+  createProductSchemaData,
+  createSchemaData,
+} from "../test-utils.js";
 
 describe("buildBaseMeta", () => {
   it("returns basic meta with url, title, and description", () => {
-    const data = {
-      page: { url: "/test-page/" },
+    const data = createSchemaData({
+      pageUrl: "/test-page/",
       title: "Test Page",
       meta_description: "A test description",
-      site: { url: "https://example.com" },
-    };
+    });
 
     const result = buildBaseMeta(data);
 
@@ -35,11 +40,10 @@ describe("buildBaseMeta", () => {
   });
 
   it("uses meta_title when title is not provided", () => {
-    const data = {
-      page: { url: "/page/" },
+    const data = createSchemaData({
+      title: undefined,
       meta_title: "Meta Title",
-      site: { url: "https://example.com" },
-    };
+    });
 
     const result = buildBaseMeta(data);
 
@@ -51,10 +55,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("falls back to Untitled when no title or meta_title", () => {
-    const data = {
-      page: { url: "/page/" },
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ title: undefined });
 
     const result = buildBaseMeta(data);
 
@@ -66,12 +67,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("uses subtitle as description when meta_description is not provided", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      subtitle: "A subtitle",
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ subtitle: "A subtitle" });
 
     const result = buildBaseMeta(data);
 
@@ -83,12 +79,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("includes image from header_image", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      header_image: "test-image.jpg",
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ header_image: "test-image.jpg" });
 
     const result = buildBaseMeta(data);
 
@@ -100,12 +91,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("includes image from image field when header_image is not provided", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      image: "fallback-image.jpg",
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ image: "fallback-image.jpg" });
 
     const result = buildBaseMeta(data);
 
@@ -117,12 +103,9 @@ describe("buildBaseMeta", () => {
   });
 
   it("handles absolute URL images (http://)", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
+    const data = createSchemaData({
       header_image: "http://other.com/image.jpg",
-      site: { url: "https://example.com" },
-    };
+    });
 
     const result = buildBaseMeta(data);
 
@@ -134,12 +117,9 @@ describe("buildBaseMeta", () => {
   });
 
   it("handles absolute URL images (https://)", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
+    const data = createSchemaData({
       header_image: "https://other.com/image.jpg",
-      site: { url: "https://example.com" },
-    };
+    });
 
     const result = buildBaseMeta(data);
 
@@ -151,12 +131,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("handles images with leading slash", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      header_image: "/images/photo.jpg",
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ header_image: "/images/photo.jpg" });
 
     const result = buildBaseMeta(data);
 
@@ -168,12 +143,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("prepends /images/ for plain image filenames", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      header_image: "photo.jpg",
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ header_image: "photo.jpg" });
 
     const result = buildBaseMeta(data);
 
@@ -185,11 +155,7 @@ describe("buildBaseMeta", () => {
   });
 
   it("does not include image when none provided", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData();
 
     const result = buildBaseMeta(data);
 
@@ -201,32 +167,23 @@ describe("buildBaseMeta", () => {
   });
 
   it("includes FAQs when provided", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      faqs: [
-        { question: "Q1", answer: "A1" },
-        { question: "Q2", answer: "A2" },
-      ],
-      site: { url: "https://example.com" },
-    };
+    const faqs = [
+      { question: "Q1", answer: "A1" },
+      { question: "Q2", answer: "A2" },
+    ];
+    const data = createSchemaData({ faqs });
 
     const result = buildBaseMeta(data);
 
     assert.deepStrictEqual(
       result.faq,
-      data.faqs,
+      faqs,
       "should include FAQs array in result",
     );
   });
 
   it("does not include empty FAQs array", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      faqs: [],
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({ faqs: [] });
 
     const result = buildBaseMeta(data);
 
@@ -238,15 +195,9 @@ describe("buildBaseMeta", () => {
   });
 
   it("preserves metaComputed properties", () => {
-    const data = {
-      page: { url: "/page/" },
-      title: "Test",
-      metaComputed: {
-        customField: "custom value",
-        anotherField: 123,
-      },
-      site: { url: "https://example.com" },
-    };
+    const data = createSchemaData({
+      metaComputed: { customField: "custom value", anotherField: 123 },
+    });
 
     const result = buildBaseMeta(data);
 
@@ -265,11 +216,7 @@ describe("buildBaseMeta", () => {
 
 describe("buildProductMeta", () => {
   it("returns product meta with name and brand", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData();
 
     const result = buildProductMeta(data);
 
@@ -286,12 +233,7 @@ describe("buildProductMeta", () => {
   });
 
   it("includes offers when price is provided", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      price: "29.99",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData({ price: "29.99" });
 
     const result = buildProductMeta(data);
 
@@ -314,12 +256,7 @@ describe("buildProductMeta", () => {
   });
 
   it("strips currency symbols from price", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      price: "£29.99",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData({ price: "£29.99" });
 
     const result = buildProductMeta(data);
 
@@ -331,12 +268,7 @@ describe("buildProductMeta", () => {
   });
 
   it("strips dollar sign from price", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      price: "$49.99",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData({ price: "$49.99" });
 
     const result = buildProductMeta(data);
 
@@ -348,12 +280,7 @@ describe("buildProductMeta", () => {
   });
 
   it("strips euro sign from price", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      price: "€39.99",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData({ price: "€39.99" });
 
     const result = buildProductMeta(data);
 
@@ -365,12 +292,7 @@ describe("buildProductMeta", () => {
   });
 
   it("strips commas from price", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      price: "1,299.99",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData({ price: "1,299.99" });
 
     const result = buildProductMeta(data);
 
@@ -382,11 +304,7 @@ describe("buildProductMeta", () => {
   });
 
   it("does not include offers when price is not provided", () => {
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-    };
+    const data = createProductSchemaData();
 
     const result = buildProductMeta(data);
 
@@ -399,23 +317,17 @@ describe("buildProductMeta", () => {
 
   it("includes reviews and rating when reviewsField and collections.reviews are provided", () => {
     const mockReviews = [
-      {
-        data: { name: "Reviewer 1", rating: 5, products: ["test"] },
-        date: new Date("2024-01-15"),
-      },
-      {
-        data: { name: "Reviewer 2", rating: 4, products: ["test"] },
+      createMockReview({ name: "Reviewer 1", rating: 5 }),
+      createMockReview({
+        name: "Reviewer 2",
+        rating: 4,
         date: new Date("2024-02-20"),
-      },
+      }),
     ];
-
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-      collections: { reviews: mockReviews },
+    const data = createProductSchemaData({
+      reviews: mockReviews,
       reviewsField: "products",
-    };
+    });
 
     const result = buildProductMeta(data);
 
@@ -445,27 +357,20 @@ describe("buildProductMeta", () => {
 
   it("calculates correct average rating", () => {
     const mockReviews = [
-      {
-        data: { name: "Reviewer 1", rating: 5, products: ["test"] },
-        date: new Date("2024-01-15"),
-      },
-      {
-        data: { name: "Reviewer 2", rating: 3, products: ["test"] },
+      createMockReview({ name: "Reviewer 1", rating: 5 }),
+      createMockReview({
+        name: "Reviewer 2",
+        rating: 3,
         date: new Date("2024-02-20"),
-      },
+      }),
     ];
-
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-      collections: { reviews: mockReviews },
+    const data = createProductSchemaData({
+      reviews: mockReviews,
       reviewsField: "products",
-    };
+    });
 
     const result = buildProductMeta(data);
 
-    // Average of 5 and 3 is 4.0
     assert.strictEqual(
       result.rating.ratingValue,
       "4.0",
@@ -475,19 +380,16 @@ describe("buildProductMeta", () => {
 
   it("formats review with author and rating", () => {
     const mockReviews = [
-      {
-        data: { name: "John Doe", rating: 5, products: ["test"] },
+      createMockReview({
+        name: "John Doe",
+        rating: 5,
         date: new Date("2024-06-15"),
-      },
+      }),
     ];
-
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-      collections: { reviews: mockReviews },
+    const data = createProductSchemaData({
+      reviews: mockReviews,
       reviewsField: "products",
-    };
+    });
 
     const result = buildProductMeta(data);
 
@@ -511,14 +413,10 @@ describe("buildProductMeta", () => {
         date: new Date("2024-01-15"),
       },
     ];
-
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-      collections: { reviews: mockReviews },
+    const data = createProductSchemaData({
+      reviews: mockReviews,
       reviewsField: "products",
-    };
+    });
 
     const result = buildProductMeta(data);
 
@@ -531,19 +429,12 @@ describe("buildProductMeta", () => {
 
   it("does not include reviews and rating when no matching reviews", () => {
     const mockReviews = [
-      {
-        data: { name: "Reviewer", rating: 5, products: ["other-product"] },
-        date: new Date("2024-01-15"),
-      },
+      createMockReview({ name: "Reviewer", items: ["other-product"] }),
     ];
-
-    const data = {
-      page: { url: "/products/test/", fileSlug: "test" },
-      title: "Test Product",
-      site: { url: "https://example.com", name: "Test Store" },
-      collections: { reviews: mockReviews },
+    const data = createProductSchemaData({
+      reviews: mockReviews,
       reviewsField: "products",
-    };
+    });
 
     const result = buildProductMeta(data);
 
@@ -562,12 +453,7 @@ describe("buildProductMeta", () => {
 
 describe("buildPostMeta", () => {
   it("returns post meta with author", () => {
-    const data = {
-      page: { url: "/news/test-post/", date: new Date("2024-03-15") },
-      title: "Test Post",
-      author: "John Author",
-      site: { url: "https://example.com", name: "Test Site" },
-    };
+    const data = createPostSchemaData({ author: "John Author" });
 
     const result = buildPostMeta(data);
 
@@ -580,11 +466,7 @@ describe("buildPostMeta", () => {
   });
 
   it("uses site name as author when author not provided", () => {
-    const data = {
-      page: { url: "/news/test-post/", date: new Date("2024-03-15") },
-      title: "Test Post",
-      site: { url: "https://example.com", name: "Test Site" },
-    };
+    const data = createPostSchemaData();
 
     const result = buildPostMeta(data);
 
@@ -596,11 +478,7 @@ describe("buildPostMeta", () => {
   });
 
   it("includes datePublished from page.date", () => {
-    const data = {
-      page: { url: "/news/test-post/", date: new Date("2024-03-15") },
-      title: "Test Post",
-      site: { url: "https://example.com", name: "Test Site" },
-    };
+    const data = createPostSchemaData();
 
     const result = buildPostMeta(data);
 
@@ -612,15 +490,7 @@ describe("buildPostMeta", () => {
   });
 
   it("includes publisher with name and logo", () => {
-    const data = {
-      page: { url: "/news/test-post/", date: new Date("2024-03-15") },
-      title: "Test Post",
-      site: {
-        url: "https://example.com",
-        name: "Test Site",
-        logo: "/custom-logo.png",
-      },
-    };
+    const data = createPostSchemaData({ siteLogo: "/custom-logo.png" });
 
     const result = buildPostMeta(data);
 
@@ -648,11 +518,7 @@ describe("buildPostMeta", () => {
   });
 
   it("uses default logo path when site.logo not provided", () => {
-    const data = {
-      page: { url: "/news/test-post/", date: new Date("2024-03-15") },
-      title: "Test Post",
-      site: { url: "https://example.com", name: "Test Site" },
-    };
+    const data = createPostSchemaData();
 
     const result = buildPostMeta(data);
 
@@ -663,11 +529,7 @@ describe("buildPostMeta", () => {
   });
 
   it("does not include datePublished when page.date is not provided", () => {
-    const data = {
-      page: { url: "/news/test-post/" },
-      title: "Test Post",
-      site: { url: "https://example.com", name: "Test Site" },
-    };
+    const data = createPostSchemaData({ date: null });
 
     const result = buildPostMeta(data);
 
@@ -681,11 +543,11 @@ describe("buildPostMeta", () => {
 
 describe("buildOrganizationMeta", () => {
   it("returns organization meta with base properties", () => {
-    const data = {
-      page: { url: "/" },
+    const data = createSchemaData({
+      pageUrl: "/",
       title: "Home",
-      site: { url: "https://example.com", name: "Test Organization" },
-    };
+      siteName: "Test Organization",
+    });
 
     const result = buildOrganizationMeta(data);
 
@@ -694,10 +556,10 @@ describe("buildOrganizationMeta", () => {
   });
 
   it("includes organization from metaComputed when available", () => {
-    const data = {
-      page: { url: "/" },
+    const data = createSchemaData({
+      pageUrl: "/",
       title: "Home",
-      site: { url: "https://example.com", name: "Test Organization" },
+      siteName: "Test Organization",
       metaComputed: {
         organization: {
           name: "Test Org",
@@ -705,7 +567,7 @@ describe("buildOrganizationMeta", () => {
           address: { streetAddress: "123 Main St" },
         },
       },
-    };
+    });
 
     const result = buildOrganizationMeta(data);
 
@@ -726,12 +588,12 @@ describe("buildOrganizationMeta", () => {
   });
 
   it("does not include organization when metaComputed.organization is not set", () => {
-    const data = {
-      page: { url: "/" },
+    const data = createSchemaData({
+      pageUrl: "/",
       title: "Home",
-      site: { url: "https://example.com", name: "Test Organization" },
+      siteName: "Test Organization",
       metaComputed: {},
-    };
+    });
 
     const result = buildOrganizationMeta(data);
 
@@ -743,11 +605,11 @@ describe("buildOrganizationMeta", () => {
   });
 
   it("does not include organization when metaComputed is not set", () => {
-    const data = {
-      page: { url: "/" },
+    const data = createSchemaData({
+      pageUrl: "/",
       title: "Home",
-      site: { url: "https://example.com", name: "Test Organization" },
-    };
+      siteName: "Test Organization",
+    });
 
     const result = buildOrganizationMeta(data);
 

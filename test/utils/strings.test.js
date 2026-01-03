@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import { join } from "node:path";
 import fg from "fast-glob";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
@@ -7,10 +5,9 @@ import {
   createTestRunner,
   expectStrictEqual,
   expectTrue,
-  rootDir,
+  fs,
+  srcDir,
 } from "#test/test-utils.js";
-
-const srcDir = join(rootDir, "src");
 
 /**
  * Find all strings.X usages in the codebase using Node.js

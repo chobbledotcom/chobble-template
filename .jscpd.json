@@ -1,6 +1,7 @@
 {
-	"threshold": 0.9,
-	"reporters": ["console"],
+	"threshold": 1.02,
+	"reporters": ["console", "json"],
+	"output": ".jscpd-report",
 	"ignore": [
 		"**/node_modules/**",
 		"**/_site/**",

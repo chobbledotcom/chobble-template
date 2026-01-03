@@ -3,8 +3,6 @@
 // Uses actual cart-utils.js and renders real Liquid templates
 
 import assert from "node:assert";
-import fs from "node:fs";
-import path from "node:path";
 import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
 // Import actual cart utilities
@@ -21,7 +19,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { buildJsConfigScript } from "#eleventy/js-config.js";
-import { createTestRunner, rootDir } from "#test/test-utils.js";
+import { createTestRunner, fs, path, rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Template Rendering
