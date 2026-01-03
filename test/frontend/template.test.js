@@ -1,28 +1,23 @@
 import { describe, expect, test } from "bun:test";
-import { Window } from "happy-dom";
 
 // ============================================
 // Test Setup Helpers
 // ============================================
 
 /**
- * Create a happy-dom environment and load the template.js module.
+ * Create a test environment using the global document (from happy-dom).
  * @param {string} bodyHtml - HTML to inject into the body
- * @returns {Promise<{ window, document, getTemplate, populateItemFields, populateQuantityControls }>}
+ * @returns {Promise<{ document, getTemplate, populateItemFields, populateQuantityControls }>}
  */
 const createTestEnv = async (bodyHtml = "") => {
-  const window = new Window({ url: "http://localhost" });
-  window.document.write(`<!DOCTYPE html><html><body>${bodyHtml}</body></html>`);
-
-  // Set up global environment for the module
-  globalThis.document = window.document;
+  // Use the global document from happy-dom (set up by preload)
+  document.body.innerHTML = bodyHtml;
 
   // Import actual production code
   const templateModule = await import("#assets/template.js");
 
   return {
-    window,
-    document: window.document,
+    document,
     getTemplate: templateModule.getTemplate,
     populateItemFields: templateModule.populateItemFields,
     populateQuantityControls: templateModule.populateQuantityControls,
@@ -30,10 +25,10 @@ const createTestEnv = async (bodyHtml = "") => {
 };
 
 /**
- * Clean up global document after each test.
+ * Clean up document body after each test.
  */
 const cleanup = () => {
-  delete globalThis.document;
+  document.body.innerHTML = "";
 };
 
 // ============================================

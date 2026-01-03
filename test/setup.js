@@ -1,6 +1,7 @@
 /**
  * Test setup file - preloaded before all tests.
- * Ensures happy-dom and test utilities are loaded before tests run.
+ * Registers happy-dom globals (document, window, etc.) for DOM testing.
  */
-import "happy-dom";
-import "#test/test-utils.js";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
+
+GlobalRegistrator.register();
