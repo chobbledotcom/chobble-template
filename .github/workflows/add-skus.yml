@@ -27,7 +27,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Add SKUs to products
-        run: bun src/_lib/scripts/add-skus.js
+        run: bun bin/add-skus
 
       - name: Check for changes
         id: changes
