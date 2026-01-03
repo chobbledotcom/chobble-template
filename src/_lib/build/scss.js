@@ -1,5 +1,5 @@
 import path from "node:path";
-import sass from "sass";
+import * as sass from "sass";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import config from "#data/config.json" with { type: "json" };
 
