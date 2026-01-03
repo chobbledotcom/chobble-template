@@ -25,17 +25,28 @@ echo ""
 echo "1. Running build with CPU profiler..."
 cd "$PROJECT_DIR"
 rm -rf _site
-node \
+
+bun \
   --cpu-prof \
   --cpu-prof-dir="$PROFILE_DIR" \
   --cpu-prof-name=build.cpuprofile \
-  node_modules/@11ty/eleventy/cmd.cjs 2>&1 | tail -5
+  node_modules/@11ty/eleventy/cmd.cjs
+
+# Check if profile was created
+if [[ ! -f "$PROFILE_DIR/build.cpuprofile" ]]; then
+  echo ""
+  echo "Warning: CPU profile was not created."
+  echo "This can happen due to signal handling issues in some environments."
+  echo "Try running the profiling command directly:"
+  echo "  bun --cpu-prof --cpu-prof-dir=.profile --cpu-prof-name=build.cpuprofile node_modules/@11ty/eleventy/cmd.cjs"
+  exit 1
+fi
 
 echo ""
 echo "2. Generating text report..."
 
 # Create a Node script to parse the cpuprofile and generate a readable report
-node --input-type=module -e "
+bun --input-type=module -e "
 import { readFileSync, writeFileSync } from 'fs';
 
 const profile = JSON.parse(readFileSync('$PROFILE_DIR/build.cpuprofile', 'utf8'));
