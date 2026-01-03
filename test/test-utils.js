@@ -24,13 +24,6 @@ const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, "..");
 const srcDir = resolve(rootDir, "src");
 
-// Load project-specific test configuration if it exists
-// This allows inherited sites to customize test behavior via .test-config.json
-const PROJECT_CONFIG_PATH = resolve(rootDir, ".test-config.json");
-const projectTestConfig = fs.existsSync(PROJECT_CONFIG_PATH)
-  ? JSON.parse(fs.readFileSync(PROJECT_CONFIG_PATH, "utf-8"))
-  : {};
-
 // Directories always skipped during file discovery
 const ALWAYS_SKIP = new Set(["node_modules", ".git", "_site", ".test-sites"]);
 
@@ -457,7 +450,6 @@ export {
   path,
   rootDir,
   srcDir,
-  projectTestConfig,
   getFiles,
   SRC_JS_FILES,
   ECOMMERCE_JS_FILES,

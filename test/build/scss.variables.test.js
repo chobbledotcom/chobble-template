@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { projectTestConfig, rootDir } from "#test/test-utils.js";
+import { rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Constants
@@ -14,10 +14,6 @@ const STYLE_FILE = "src/css/style.scss";
 const CONSUMED_VIA_JS = [
   "--scroll-fade-selectors", // Read by scroll-fade.js via getPropertyValue
 ];
-
-// Project-specific CSS variables allowlist from .test-config.json
-// This allows inherited sites to declare variables that are defined elsewhere
-const CSS_VARIABLES_ALLOWLIST = projectTestConfig.cssVariablesAllowlist || [];
 
 // ============================================
 // Helper functions
@@ -76,16 +72,12 @@ const extractAllDefinedVariables = (scssFiles) => {
 
 /**
  * Find all undefined variables (used but not defined)
- * Excludes variables consumed via JavaScript and project-specific allowlist
+ * Excludes variables consumed via JavaScript
  */
 const findUndefinedVariables = (used, defined) => {
   const undefinedVars = [];
   for (const variable of used) {
-    if (
-      !defined.has(variable) &&
-      !CONSUMED_VIA_JS.includes(variable) &&
-      !CSS_VARIABLES_ALLOWLIST.includes(variable)
-    ) {
+    if (!defined.has(variable) && !CONSUMED_VIA_JS.includes(variable)) {
       undefinedVars.push(variable);
     }
   }
@@ -142,7 +134,6 @@ describe("scss.variables", () => {
         "  1. Add them to :root in src/css/style.scss",
         "  2. Replace with a standard variable (--color-text, --color-bg, etc.)",
         "  3. Add to CONSUMED_VIA_JS if used by JavaScript instead of CSS",
-        '  4. Add to .test-config.json "cssVariablesAllowlist" if defined elsewhere',
       ].join("\n");
       throw new Error(errorMsg);
     }
