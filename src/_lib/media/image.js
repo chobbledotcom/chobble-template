@@ -14,7 +14,8 @@ const getSharp = async () => {
 
 let eleventyImgModule = null;
 const getEleventyImg = async () => {
-  if (!eleventyImgModule) eleventyImgModule = await import("@11ty/eleventy-img");
+  if (!eleventyImgModule)
+    eleventyImgModule = await import("@11ty/eleventy-img");
   return eleventyImgModule;
 };
 

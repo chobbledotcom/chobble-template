@@ -213,6 +213,21 @@ function createMenuPdfTemplate() {
   };
 }
 
+const writePdfToFile = (pdfDoc, outputPath) =>
+  new Promise((resolve, reject) => {
+    const stream = createWriteStream(outputPath);
+    pdfDoc.pipe(stream);
+    pdfDoc.end();
+    stream.on("finish", () => {
+      console.log(`Generated PDF: ${outputPath}`);
+      resolve(outputPath);
+    });
+    stream.on("error", (error) => {
+      console.error(`Error writing PDF: ${outputPath}`, error);
+      reject(error);
+    });
+  });
+
 async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const data = buildMenuPdfData(menu, menuCategories, menuItems);
   const template = createMenuPdfTemplate();
@@ -232,21 +247,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
     mkdirSync(dir, { recursive: true });
   }
 
-  return new Promise((resolve, reject) => {
-    const stream = createWriteStream(outputPath);
-    pdfDoc.pipe(stream);
-    pdfDoc.end();
-
-    stream.on("finish", () => {
-      console.log(`Generated PDF: ${outputPath}`);
-      resolve(outputPath);
-    });
-
-    stream.on("error", (error) => {
-      console.error(`Error writing PDF: ${outputPath}`, error);
-      reject(error);
-    });
-  });
+  return writePdfToFile(pdfDoc, outputPath);
 }
 
 export function configurePdf(eleventyConfig) {
