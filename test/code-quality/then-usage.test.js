@@ -12,15 +12,15 @@ import {
 
 const THIS_FILE = "test/code-quality/then-usage.test.js";
 
-// Create checker for .then() calls using the factory pattern
-const { find: findThenCalls, analyze: analyzeThenUsage } = createCodeChecker({
-  patterns: /\.then\s*\(/,
-  skipPatterns: [/^\/\//, /^\*/],
-  files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
-  excludeFiles: [THIS_FILE],
-});
-
 describe("then-usage", () => {
+  // Create checker inside describe block to ensure imports are resolved
+  const { find: findThenCalls, analyze: analyzeThenUsage } = createCodeChecker({
+    patterns: /\.then\s*\(/,
+    skipPatterns: [/^\/\//, /^\*/],
+    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+    excludeFiles: [THIS_FILE],
+  });
+
   test("Correctly identifies .then() calls in source code", () => {
     const source = `
 const a = 1;

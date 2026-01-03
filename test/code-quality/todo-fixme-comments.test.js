@@ -15,16 +15,16 @@ const EXCLUDE_FILES = [
   "test/code-quality/commented-code.test.js",
 ];
 
-// Create checker for TODO/FIXME comments using the factory pattern
-const { find: findTodoFixme, analyze: analyzeTodoFixme } = createCodeChecker({
-  patterns: /\b(TODO|FIXME)\b/gi,
-  skipPatterns: [], // Check all lines including comments
-  extractData: (_line, _lineNum, match) => ({ match: match[0] }),
-  files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
-  excludeFiles: EXCLUDE_FILES,
-});
-
 describe("todo-fixme-comments", () => {
+  // Create checker inside describe block to ensure imports are resolved
+  const { find: findTodoFixme, analyze: analyzeTodoFixme } = createCodeChecker({
+    patterns: /\b(TODO|FIXME)\b/gi,
+    skipPatterns: [], // Check all lines including comments
+    extractData: (_line, _lineNum, match) => ({ match: match[0] }),
+    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+    excludeFiles: EXCLUDE_FILES,
+  });
+
   test("Correctly identifies TODO/FIXME comments in source code", () => {
     const source = `
 const a = 1;

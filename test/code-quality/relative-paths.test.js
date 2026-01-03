@@ -17,37 +17,35 @@ import {
 const THIS_FILE = "test/code-quality/relative-paths.test.js";
 const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
-// Create checker for relative imports using the factory
-const { find: findRelativeImports, analyze: analyzeRelativeImports } =
-  createCodeChecker({
-    patterns: /from\s+["'](\.\.[/"']|\.\/)/,
-    skipPatterns: [], // Check all lines
-    extractData: (line) => {
-      const pathMatch = line.match(IMPORT_PATH_REGEX);
-      return { importPath: pathMatch ? pathMatch[1] : "unknown" };
-    },
-    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
-    excludeFiles: [THIS_FILE],
-  });
-
-// Create checker for path.join/resolve with ".." patterns
-const { find: findRelativePathJoins, analyze: analyzeRelativePathJoins } =
-  createCodeChecker({
-    patterns: /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/,
-    // skipPatterns defaults to COMMENT_LINE_PATTERNS
-    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
-    excludeFiles: [THIS_FILE, ...ALLOWED_RELATIVE_PATHS],
-  });
-
-// Create checker for process.cwd() in test files
-const { analyze: analyzeProcessCwd } = createCodeChecker({
-  patterns: /process\.cwd\(\)/,
-  // skipPatterns defaults to COMMENT_LINE_PATTERNS
-  files: TEST_FILES,
-  excludeFiles: [THIS_FILE, ...ALLOWED_PROCESS_CWD],
-});
-
 describe("relative-paths", () => {
+  // Create checkers inside describe block to ensure imports are resolved
+  const { find: findRelativeImports, analyze: analyzeRelativeImports } =
+    createCodeChecker({
+      patterns: /from\s+["'](\.\.[/"']|\.\/)/,
+      skipPatterns: [], // Check all lines
+      extractData: (line) => {
+        const pathMatch = line.match(IMPORT_PATH_REGEX);
+        return { importPath: pathMatch ? pathMatch[1] : "unknown" };
+      },
+      files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+      excludeFiles: [THIS_FILE],
+    });
+
+  const { find: findRelativePathJoins, analyze: analyzeRelativePathJoins } =
+    createCodeChecker({
+      patterns: /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/,
+      // skipPatterns defaults to COMMENT_LINE_PATTERNS
+      files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+      excludeFiles: [THIS_FILE, ...ALLOWED_RELATIVE_PATHS],
+    });
+
+  const { analyze: analyzeProcessCwd } = createCodeChecker({
+    patterns: /process\.cwd\(\)/,
+    // skipPatterns defaults to COMMENT_LINE_PATTERNS
+    files: TEST_FILES,
+    excludeFiles: [THIS_FILE, ...ALLOWED_PROCESS_CWD],
+  });
+
   test("Correctly identifies relative imports in source code", () => {
     const source = `
 import { foo } from "./utils.js";
