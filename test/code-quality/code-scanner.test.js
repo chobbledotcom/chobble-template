@@ -111,7 +111,7 @@ describe("code-scanner", () => {
   describe("scanFilesForViolations", () => {
     test("scans files and collects violations", () => {
       // Use a small subset of files for testing
-      const testFiles = SRC_JS_FILES.slice(0, 2);
+      const testFiles = SRC_JS_FILES().slice(0, 2);
       const violations = scanFilesForViolations(
         testFiles,
         (line, lineNum, _source, relativePath) => {
@@ -191,7 +191,7 @@ describe("code-scanner", () => {
     test("analyze function processes files and returns violations", () => {
       const { analyze } = createCodeChecker({
         patterns: /this_pattern_should_not_match_anything_xyz123/,
-        files: SRC_JS_FILES.slice(0, 1),
+        files: SRC_JS_FILES().slice(0, 1),
       });
 
       const violations = analyze();

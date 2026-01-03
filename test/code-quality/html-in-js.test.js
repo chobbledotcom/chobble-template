@@ -266,7 +266,7 @@ const analyzeHtmlInJs = () => {
   const allowed = [];
 
   // Check source JS files (not test files - tests often have HTML fixtures)
-  const allJsFiles = [...SRC_JS_FILES, ...ECOMMERCE_JS_FILES];
+  const allJsFiles = [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()];
 
   const results = analyzeFiles(allJsFiles, (source, relativePath) => {
     const htmlInstances = findHtmlInJs(source);

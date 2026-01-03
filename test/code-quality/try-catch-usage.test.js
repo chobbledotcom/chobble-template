@@ -101,7 +101,7 @@ const analyzeTryCatchUsage = () => {
   const allowed = [];
 
   const files = combineFileLists(
-    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+    [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
     [THIS_FILE],
   );
 

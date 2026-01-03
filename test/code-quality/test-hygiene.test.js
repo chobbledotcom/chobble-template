@@ -237,7 +237,7 @@ const extractFunctionDefinitions = (source) => {
  * All other function definitions are flagged - tests should import real code.
  */
 const analyzeTestFiles = () => {
-  return analyzeFiles(TEST_FILES, (source, relativePath) => {
+  return analyzeFiles(TEST_FILES(), (source, relativePath) => {
     const functions = extractFunctionDefinitions(source);
     const violations = [];
 
@@ -257,10 +257,10 @@ const analyzeTestFiles = () => {
 
 describe("test-hygiene", () => {
   test("Pre-computed file lists contain files", () => {
-    expect(SRC_JS_FILES.length).toBeGreaterThan(0);
-    expect(SRC_HTML_FILES.length).toBeGreaterThan(0);
-    expect(SRC_SCSS_FILES.length).toBeGreaterThan(0);
-    expect(TEST_FILES.length).toBeGreaterThan(0);
+    expect(SRC_JS_FILES().length).toBeGreaterThan(0);
+    expect(SRC_HTML_FILES().length).toBeGreaterThan(0);
+    expect(SRC_SCSS_FILES().length).toBeGreaterThan(0);
+    expect(TEST_FILES().length).toBeGreaterThan(0);
   });
 
   test("Test files should not contain production logic - only test and import real code", () => {

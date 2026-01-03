@@ -21,7 +21,11 @@ describe("todo-fixme-comments", () => {
     patterns: /\b(TODO|FIXME)\b/gi,
     skipPatterns: [], // Check all lines including comments
     extractData: (_line, _lineNum, match) => ({ match: match[0] }),
-    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+    files: combineFileLists([
+      SRC_JS_FILES(),
+      ECOMMERCE_JS_FILES(),
+      TEST_FILES(),
+    ]),
     excludeFiles: EXCLUDE_FILES,
   });
 

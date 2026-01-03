@@ -64,7 +64,7 @@ const extractCamelCaseIdentifiers = (source) => {
 const analyzeNamingConventions = () => {
   const violations = {};
 
-  for (const relativePath of SRC_JS_FILES) {
+  for (const relativePath of SRC_JS_FILES()) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const identifiers = extractCamelCaseIdentifiers(source);

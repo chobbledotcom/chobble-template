@@ -57,7 +57,7 @@ const { find: findHardcodedUrls, analyze: analyzeHardcodedUrls } =
   createCodeChecker({
     patterns: HARDCODED_URL_PATTERNS,
     skipPatterns: SKIP_LINE_PATTERNS,
-    files: SRC_JS_FILES,
+    files: SRC_JS_FILES(),
     excludeFiles: ALLOWED_FILES,
   });
 

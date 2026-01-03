@@ -115,7 +115,7 @@ const THIS_FILE = "test/code-quality/commented-code.test.js";
  */
 const analyzeCommentedCode = () => {
   const files = combineFileLists(
-    [SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES],
+    [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
     [THIS_FILE],
   );
 

@@ -27,7 +27,11 @@ describe("relative-paths", () => {
         const pathMatch = line.match(IMPORT_PATH_REGEX);
         return { importPath: pathMatch ? pathMatch[1] : "unknown" };
       },
-      files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+      files: combineFileLists([
+        SRC_JS_FILES(),
+        ECOMMERCE_JS_FILES(),
+        TEST_FILES(),
+      ]),
       excludeFiles: [THIS_FILE],
     });
 
@@ -35,14 +39,18 @@ describe("relative-paths", () => {
     createCodeChecker({
       patterns: /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/,
       // skipPatterns defaults to COMMENT_LINE_PATTERNS
-      files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+      files: combineFileLists([
+        SRC_JS_FILES(),
+        ECOMMERCE_JS_FILES(),
+        TEST_FILES(),
+      ]),
       excludeFiles: [THIS_FILE, ...ALLOWED_RELATIVE_PATHS],
     });
 
   const { analyze: analyzeProcessCwd } = createCodeChecker({
     patterns: /process\.cwd\(\)/,
     // skipPatterns defaults to COMMENT_LINE_PATTERNS
-    files: TEST_FILES,
+    files: TEST_FILES(),
     excludeFiles: [THIS_FILE, ...ALLOWED_PROCESS_CWD],
   });
 

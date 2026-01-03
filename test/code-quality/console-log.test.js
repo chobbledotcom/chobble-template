@@ -32,7 +32,7 @@ const { find: findConsoleCalls, analyze: analyzeConsoleCalls } =
       const methodMatch = line.match(/console\.(\w+)/);
       return { method: methodMatch ? methodMatch[1] : "log" };
     },
-    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES]),
+    files: combineFileLists([SRC_JS_FILES(), ECOMMERCE_JS_FILES()]),
     excludeFiles: [...ALLOWED_CONSOLE, ...TEST_ALLOWED_FILES],
   });
 

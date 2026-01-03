@@ -381,8 +381,8 @@ describe("unused-classes", () => {
 
   test("Scans project files and reports unused classes/IDs", () => {
     // Use pre-computed file lists
-    const htmlFiles = SRC_HTML_FILES.map((f) => join(rootDir, f));
-    const scssFiles = SRC_SCSS_FILES.map((f) => join(rootDir, f));
+    const htmlFiles = SRC_HTML_FILES().map((f) => join(rootDir, f));
+    const scssFiles = SRC_SCSS_FILES().map((f) => join(rootDir, f));
     const jsFiles = ASSET_JS_FILES.map((f) => join(rootDir, f));
 
     // Collect all classes and IDs defined in HTML and JS

@@ -68,7 +68,7 @@ const extractDescribeItTests = (source, relativePath) =>
  * Check for vague test names.
  */
 const findVagueTestNames = () => {
-  return analyzeFiles(TEST_FILES, (source, relativePath) => {
+  return analyzeFiles(TEST_FILES(), (source, relativePath) => {
     const violations = [];
     const testCases = extractTestNames(source, relativePath);
 
@@ -93,7 +93,7 @@ const findVagueTestNames = () => {
  * Check for test names with multiple "and"s suggesting multiple concerns.
  */
 const findMultiConcernTestNames = () => {
-  const filesToCheck = TEST_FILES.filter((f) => !AND_NAME_EXCEPTIONS.has(f));
+  const filesToCheck = TEST_FILES().filter((f) => !AND_NAME_EXCEPTIONS.has(f));
 
   return analyzeFiles(filesToCheck, (source, relativePath) => {
     const violations = [];
@@ -118,7 +118,7 @@ const findMultiConcernTestNames = () => {
  * Check for asyncTest without real await operations.
  */
 const findAsyncTestsWithoutAwait = () => {
-  return analyzeFiles(TEST_FILES, (source, relativePath) => {
+  return analyzeFiles(TEST_FILES(), (source, relativePath) => {
     const violations = [];
     const lines = source.split("\n");
 
@@ -183,7 +183,7 @@ const findAsyncTestsWithoutAwait = () => {
  */
 const findAssertionsWithoutMessages = () => {
   // Skip code-quality tests (meta-tests)
-  const testFilesToCheck = TEST_FILES.filter(
+  const testFilesToCheck = TEST_FILES().filter(
     (f) => !f.includes("code-quality/"),
   );
 
@@ -241,7 +241,7 @@ const findAssertionsWithoutMessages = () => {
  *   assert.strictEqual(x.prop, value);
  */
 const findTautologicalAssertions = () => {
-  const testFilesToCheck = TEST_FILES.filter(
+  const testFilesToCheck = TEST_FILES().filter(
     (f) => !f.includes("code-quality/"),
   );
 

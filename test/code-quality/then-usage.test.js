@@ -17,7 +17,11 @@ describe("then-usage", () => {
   const { find: findThenCalls, analyze: analyzeThenUsage } = createCodeChecker({
     patterns: /\.then\s*\(/,
     skipPatterns: [/^\/\//, /^\*/],
-    files: combineFileLists([SRC_JS_FILES, ECOMMERCE_JS_FILES, TEST_FILES]),
+    files: combineFileLists([
+      SRC_JS_FILES(),
+      ECOMMERCE_JS_FILES(),
+      TEST_FILES(),
+    ]),
     excludeFiles: [THIS_FILE],
   });
 

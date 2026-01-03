@@ -161,7 +161,7 @@ const analyzeFunctionLengths = () => {
   const violations = [];
 
   // Only check library code, not frontend assets
-  for (const relativePath of SRC_JS_FILES.filter(
+  for (const relativePath of SRC_JS_FILES().filter(
     (f) => !f.startsWith("src/assets/"),
   )) {
     const fullPath = path.join(rootDir, relativePath);
