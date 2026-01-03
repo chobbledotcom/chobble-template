@@ -1,9 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import fg from "fast-glob";
 import { rootDir } from "#test/test-utils.js";
-
-const { globSync } = fg;
 
 // ============================================
 // Constants
@@ -91,7 +88,12 @@ const findUndefinedVariables = (used, defined) => {
 // Load data for tests
 // ============================================
 
-const scssFiles = globSync(`${rootDir}/${SCSS_DIR}/**/*.scss`);
+const scssFiles = [
+  ...new Bun.Glob("**/*.scss").scanSync({
+    cwd: `${rootDir}/${SCSS_DIR}`,
+    absolute: true,
+  }),
+];
 const usedVariables = extractUsedVariables(scssFiles);
 const definedVariables = extractDefinedVariables(`${rootDir}/${STYLE_FILE}`);
 const allDefinedVariables = extractAllDefinedVariables(scssFiles);

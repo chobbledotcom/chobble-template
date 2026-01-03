@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import fg from "fast-glob";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
 import { fs, srcDir } from "#test/test-utils.js";
@@ -12,10 +11,12 @@ const findStringsUsage = () => {
   const ignoreKeys = new Set(["js", "json", "test", "mjs"]);
 
   // Find all template/source files
-  const files = fg.sync("**/*.{html,md,js,mjs,liquid,njk}", {
-    cwd: srcDir,
-    absolute: true,
-  });
+  const files = [
+    ...new Bun.Glob("**/*.{html,md,js,mjs,liquid,njk}").scanSync({
+      cwd: srcDir,
+      absolute: true,
+    }),
+  ];
 
   const keys = new Set();
   const regex = /strings\.([a-z_]+)/g;

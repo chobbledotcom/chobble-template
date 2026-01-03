@@ -256,10 +256,10 @@ async function processAndWrapImage({
   return returnElement ? await parseHtml(html, document) : html;
 }
 
-import fastglob from "fast-glob";
-
-const findImageFiles = (pattern = ["src/images/*.jpg"]) => {
-  return fastglob.sync(pattern);
+const findImageFiles = (patterns = ["src/images/*.jpg"]) => {
+  return patterns.flatMap((pattern) => [
+    ...new Bun.Glob(pattern).scanSync("."),
+  ]);
 };
 
 const createImagesCollection = (imageFiles) => {
