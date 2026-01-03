@@ -16,10 +16,9 @@
 		"@zachleat/heading-anchors",
 		"@botpoison/browser",
 		"@hotwired/turbo",
-		"liquidjs",
-		"c8"
+		"@happy-dom/global-registrator"
 	],
-	"ignoreBinaries": ["biome"],
+	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
 	"rules": {},
 	"eleventy": false

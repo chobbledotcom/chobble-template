@@ -215,15 +215,14 @@ const createLocationTracker = () => {
   };
 };
 
-// Helper to run tests with mock localStorage
+// Helper to run tests with isolated localStorage
+// Uses the global localStorage (from happy-dom) but clears it before/after each test
 const withMockStorage = (fn) => {
-  const mockStorage = createMockLocalStorage();
-  const origStorage = globalThis.localStorage;
-  globalThis.localStorage = mockStorage;
+  globalThis.localStorage.clear();
   try {
-    return fn(mockStorage);
+    return fn(globalThis.localStorage);
   } finally {
-    globalThis.localStorage = origStorage;
+    globalThis.localStorage.clear();
   }
 };
 
@@ -299,61 +298,39 @@ describe("checkout", () => {
   });
 
   test("updateCartIcon shows cart icon when items in cart", () => {
-    const window = new Window();
-    window.document.write(`
-        <!DOCTYPE html>
-        <html><body>
-          <div class="cart-icon" style="display: none;">
-            <span class="cart-count" style="display: none;">0</span>
-          </div>
-        </body></html>
-      `);
-    global.document = window.document;
-    const mockStorage = createMockLocalStorage();
-    const origStorage = globalThis.localStorage;
-    globalThis.localStorage = mockStorage;
-    try {
+    withMockStorage(() => {
+      document.body.innerHTML = `
+        <div class="cart-icon" style="display: none;">
+          <span class="cart-count" style="display: none;">0</span>
+        </div>
+      `;
       saveCart([
         { item_name: "A", unit_price: 10, quantity: 2 },
         { item_name: "B", unit_price: 5, quantity: 3 },
       ]);
       updateCartIcon();
-      const icon = window.document.querySelector(".cart-icon");
+      const icon = document.querySelector(".cart-icon");
       const badge = icon.querySelector(".cart-count");
       expect(icon.style.display).toBe("flex");
       expect(badge.textContent).toBe("5");
       expect(badge.style.display).toBe("block");
-    } finally {
-      globalThis.localStorage = origStorage;
-      delete global.document;
-    }
+    });
   });
 
   test("updateCartIcon hides cart icon when cart is empty", () => {
-    const window = new Window();
-    window.document.write(`
-        <!DOCTYPE html>
-        <html><body>
-          <div class="cart-icon" style="display: flex;">
-            <span class="cart-count" style="display: block;">5</span>
-          </div>
-        </body></html>
-      `);
-    global.document = window.document;
-    const mockStorage = createMockLocalStorage();
-    const origStorage = globalThis.localStorage;
-    globalThis.localStorage = mockStorage;
-    try {
+    withMockStorage(() => {
+      document.body.innerHTML = `
+        <div class="cart-icon" style="display: flex;">
+          <span class="cart-count" style="display: block;">5</span>
+        </div>
+      `;
       saveCart([]);
       updateCartIcon();
-      const icon = window.document.querySelector(".cart-icon");
+      const icon = document.querySelector(".cart-icon");
       const badge = icon.querySelector(".cart-count");
       expect(icon.style.display).toBe("none");
       expect(badge.style.display).toBe("none");
-    } finally {
-      globalThis.localStorage = origStorage;
-      delete global.document;
-    }
+    });
   });
 
   test("updateItemQuantity updates item quantity correctly", () => {
@@ -413,24 +390,17 @@ describe("checkout", () => {
   });
 
   test("attachQuantityHandlers attaches decrease button handlers", () => {
-    const window = new Window();
-    window.document.write(`
-        <!DOCTYPE html>
-        <html><body>
-          <div id="container">
-            <button data-action="decrease" data-name="Widget">−</button>
-            <input type="number" data-name="Widget" value="3">
-            <button data-action="increase" data-name="Widget">+</button>
-          </div>
-        </body></html>
-      `);
-    const mockStorage = createMockLocalStorage();
-    const origStorage = globalThis.localStorage;
-    globalThis.localStorage = mockStorage;
-    try {
+    withMockStorage(() => {
+      document.body.innerHTML = `
+        <div id="container">
+          <button data-action="decrease" data-name="Widget">−</button>
+          <input type="number" data-name="Widget" value="3">
+          <button data-action="increase" data-name="Widget">+</button>
+        </div>
+      `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = window.document.getElementById("container");
+      const container = document.getElementById("container");
       const updates = [];
 
       attachQuantityHandlers(container, (name, qty) => {
@@ -444,30 +414,21 @@ describe("checkout", () => {
       expect(updates).toHaveLength(1);
       expect(updates[0].name).toBe("Widget");
       expect(updates[0].qty).toBe(2);
-    } finally {
-      globalThis.localStorage = origStorage;
-    }
+    });
   });
 
   test("attachQuantityHandlers attaches increase button handlers", () => {
-    const window = new Window();
-    window.document.write(`
-        <!DOCTYPE html>
-        <html><body>
-          <div id="container">
-            <button data-action="decrease" data-name="Widget">−</button>
-            <input type="number" data-name="Widget" value="3">
-            <button data-action="increase" data-name="Widget">+</button>
-          </div>
-        </body></html>
-      `);
-    const mockStorage = createMockLocalStorage();
-    const origStorage = globalThis.localStorage;
-    globalThis.localStorage = mockStorage;
-    try {
+    withMockStorage(() => {
+      document.body.innerHTML = `
+        <div id="container">
+          <button data-action="decrease" data-name="Widget">−</button>
+          <input type="number" data-name="Widget" value="3">
+          <button data-action="increase" data-name="Widget">+</button>
+        </div>
+      `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = window.document.getElementById("container");
+      const container = document.getElementById("container");
       const updates = [];
 
       attachQuantityHandlers(container, (name, qty) => {
@@ -481,28 +442,19 @@ describe("checkout", () => {
       expect(updates).toHaveLength(1);
       expect(updates[0].name).toBe("Widget");
       expect(updates[0].qty).toBe(4);
-    } finally {
-      globalThis.localStorage = origStorage;
-    }
+    });
   });
 
   test("attachQuantityHandlers attaches input change handlers", () => {
-    const window = new Window();
-    window.document.write(`
-        <!DOCTYPE html>
-        <html><body>
-          <div id="container">
-            <input type="number" data-name="Widget" value="3">
-          </div>
-        </body></html>
-      `);
-    const mockStorage = createMockLocalStorage();
-    const origStorage = globalThis.localStorage;
-    globalThis.localStorage = mockStorage;
-    try {
+    withMockStorage(() => {
+      document.body.innerHTML = `
+        <div id="container">
+          <input type="number" data-name="Widget" value="3">
+        </div>
+      `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = window.document.getElementById("container");
+      const container = document.getElementById("container");
       const updates = [];
 
       attachQuantityHandlers(container, (name, qty) => {
@@ -512,36 +464,27 @@ describe("checkout", () => {
       // Simulate input change
       const input = container.querySelector("input[type='number']");
       input.value = "7";
-      input.dispatchEvent(new window.Event("change"));
+      input.dispatchEvent(new Event("change"));
 
       expect(updates).toHaveLength(1);
       expect(updates[0].name).toBe("Widget");
       expect(updates[0].qty).toBe(7);
-    } finally {
-      globalThis.localStorage = origStorage;
-    }
+    });
   });
 
   test("attachRemoveHandlers attaches remove button handlers", () => {
-    const window = new Window();
-    window.document.write(`
-        <!DOCTYPE html>
-        <html><body>
-          <div id="container">
-            <button class="remove-btn" data-name="Widget">Remove</button>
-          </div>
-        </body></html>
-      `);
-    const mockStorage = createMockLocalStorage();
-    const origStorage = globalThis.localStorage;
-    globalThis.localStorage = mockStorage;
-    try {
+    withMockStorage(() => {
+      document.body.innerHTML = `
+        <div id="container">
+          <button class="remove-btn" data-name="Widget">Remove</button>
+        </div>
+      `;
       saveCart([
         { item_name: "Widget", unit_price: 10, quantity: 1 },
         { item_name: "Gadget", unit_price: 20, quantity: 2 },
       ]);
 
-      const container = window.document.getElementById("container");
+      const container = document.getElementById("container");
       let removeCalled = false;
 
       attachRemoveHandlers(container, ".remove-btn", () => {
@@ -556,9 +499,7 @@ describe("checkout", () => {
       const cart = getCart();
       expect(cart).toHaveLength(1);
       expect(cart[0].item_name).toBe("Gadget");
-    } finally {
-      globalThis.localStorage = origStorage;
-    }
+    });
   });
 
   // ----------------------------------------
