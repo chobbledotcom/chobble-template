@@ -19,10 +19,12 @@ const DEFAULTS = {
   chobble_link: null,
   map_embed_src: null,
   cart_mode: null,
+  product_mode: null,
   has_products_filter: false,
 };
 
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];
+const VALID_PRODUCT_MODES = ["buy", "hire"];
 
 const DEFAULT_PRODUCT_DATA = {
   item_widths: "240,480,640",
@@ -102,8 +104,22 @@ function validateQuotePages() {
   );
 }
 
+function validateProductMode(config) {
+  const { product_mode } = config;
+
+  if (!product_mode) return;
+
+  if (!VALID_PRODUCT_MODES.includes(product_mode)) {
+    throw new Error(
+      `Invalid product_mode: "${product_mode}". Must be one of: ${VALID_PRODUCT_MODES.join(", ")}, or null/omitted for default (buy).`,
+    );
+  }
+}
+
 function validateCartConfig(config) {
   const { cart_mode, checkout_api_url, form_target } = config;
+
+  validateProductMode(config);
 
   if (!cart_mode) return;
 
@@ -161,6 +177,7 @@ const getFormTarget = (configData) => {
 export {
   DEFAULTS,
   VALID_CART_MODES,
+  VALID_PRODUCT_MODES,
   DEFAULT_PRODUCT_DATA,
   getProducts,
   getFormTarget,
@@ -169,6 +186,7 @@ export {
   validatePageFrontmatter,
   validateStripePages,
   validateQuotePages,
+  validateProductMode,
   validateCartConfig,
   getPagePath,
   cartModeError,
