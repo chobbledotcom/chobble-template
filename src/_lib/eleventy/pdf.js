@@ -1,9 +1,18 @@
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { renderPdfTemplate } from "json-to-pdf";
 import site from "#data/site.json" with { type: "json" };
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
+
+// Lazy-load json-to-pdf only when generating PDFs
+let pdfRenderer = null;
+const getPdfRenderer = async () => {
+  if (!pdfRenderer) {
+    const mod = await import("json-to-pdf");
+    pdfRenderer = mod.renderPdfTemplate;
+  }
+  return pdfRenderer;
+};
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
   const menuSlug = menu.fileSlug;
@@ -208,6 +217,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const data = buildMenuPdfData(menu, menuCategories, menuItems);
   const template = createMenuPdfTemplate();
 
+  const renderPdfTemplate = await getPdfRenderer();
   const pdfDoc = renderPdfTemplate(template, data);
   if (!pdfDoc) {
     console.error(`Failed to generate PDF for menu: ${menu.data.title}`);
