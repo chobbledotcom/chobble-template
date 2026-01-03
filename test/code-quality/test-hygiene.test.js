@@ -200,6 +200,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "round2",
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
+  "hasWrongHelperName",
 ]);
 
 /**

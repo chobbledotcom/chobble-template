@@ -4,7 +4,6 @@ import { createTestRunner, expectTrue, rootDir } from "#test/test-utils.js";
 
 const dataDir = join(rootDir, "src/_data");
 
-// Pre-compute list of JS data files
 const DATA_JS_FILES = existsSync(dataDir)
   ? readdirSync(dataDir)
       .filter((f) => f.endsWith(".js"))
@@ -15,28 +14,28 @@ const DATA_JS_FILES = existsSync(dataDir)
  * Check if a JS file has named exports alongside default export.
  * This breaks Eleventy data files because Eleventy exposes all exports
  * as properties of an object instead of just the default value.
- *
- * Valid patterns:
- *   - export default value;  (only default export)
- *   - array._helpers = {...}; export default array;  (helpers attached to value)
- *
- * Invalid patterns:
- *   - export const FOO = ...; export default ...; (named + default)
- *   - export { FOO }; export default ...; (re-export + default)
  */
 const hasProblematicNamedExports = (content) => {
-  // Check for named exports (export const, export function, export {, export let, export var)
   const namedExportPattern =
     /export\s+(const|let|var|function|class)\s+\w+|export\s*\{/;
-
-  // Check for default export
   const defaultExportPattern = /export\s+default\b/;
 
-  const hasNamedExport = namedExportPattern.test(content);
-  const hasDefaultExport = defaultExportPattern.test(content);
+  return namedExportPattern.test(content) && defaultExportPattern.test(content);
+};
 
-  // Problem only occurs when BOTH exist
-  return hasNamedExport && hasDefaultExport;
+/**
+ * Check if helpers are attached with wrong property name.
+ * If attaching helpers, must use `._helpers` not other names.
+ */
+const hasWrongHelperName = (content) => {
+  // Look for pattern like `value.something = {` where something isn't _helpers
+  const helperPattern = /\w+\.(\w+)\s*=\s*\{[^}]*\b(DEFAULT|select|get)\w*/;
+  const match = content.match(helperPattern);
+
+  if (match && match[1] !== "_helpers") {
+    return match[1];
+  }
+  return null;
 };
 
 const testCases = [
@@ -57,9 +56,29 @@ const testCases = [
       expectTrue(
         problemFiles.length === 0,
         `Data files with mixed exports found: ${problemFiles.join(", ")}. ` +
-          "When Eleventy loads ES modules with named exports alongside default, " +
-          "it exposes all exports as object properties instead of just the default value. " +
           "Use the _helpers pattern: attach helpers to the value before exporting default.",
+      );
+    },
+  },
+  {
+    name: "helpers-use-correct-property-name",
+    description: "Helper properties on data exports must be named '_helpers'",
+    test: () => {
+      const wrongNames = [];
+
+      for (const file of DATA_JS_FILES) {
+        const content = readFileSync(file.path, "utf-8");
+        const wrongName = hasWrongHelperName(content);
+        if (wrongName) {
+          wrongNames.push(
+            `${file.name} uses '.${wrongName}' instead of '._helpers'`,
+          );
+        }
+      }
+
+      expectTrue(
+        wrongNames.length === 0,
+        `Wrong helper property names: ${wrongNames.join("; ")}`,
       );
     },
   },
