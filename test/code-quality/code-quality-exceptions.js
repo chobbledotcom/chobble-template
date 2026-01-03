@@ -95,6 +95,39 @@ const ALLOWED_PROCESS_CWD = new Set([
 ]);
 
 // ============================================
+// Mutable const exceptions (empty [], Set, Map)
+// ============================================
+
+// Const declarations that create mutable containers (arrays, Sets, Maps).
+// While const prevents reassignment, these containers can still be mutated.
+// Prefer functional patterns: map, filter, reduce, spread, etc.
+const ALLOWED_MUTABLE_CONST = new Set([
+  // Empty arrays - being populated via push/mutation
+  "src/_lib/filters/item-filters.js:89", // pairs array built with push
+  "src/_lib/filters/item-filters.js:202", // combinations array built with push
+  "src/menu-items/menu-items.11tydata.js:7", // keys array built with push
+  "src/_lib/media/image.js:129", // styles array built with push
+  "src/assets/js/autosizes.js:135", // newImages array built with push
+  "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
+  "src/_lib/eleventy/external-links.js:16", // attrs array built with push
+
+  // Sets - being populated via add/mutation
+  "src/products/products.11tydata.js:21", // seenDays tracking seen items
+  "src/_lib/filters/item-filters.js:203", // seen Set for deduplication
+  "src/_lib/filters/item-filters.js:264", // validPaths Set from array
+  "src/_lib/media/unused-images.js:52", // usedImages Set from array
+  "src/_lib/collections/products.js:49", // categorySet from array
+  "src/assets/js/availability-calendar.js:119", // unavailableSet from array
+
+  // Maps - used as caches/indexes being populated via set
+  "src/_lib/utils/memoize.js:5", // memoization cache
+  "src/_lib/utils/grouping.js:21", // index Map for grouping
+  "src/_lib/utils/grouping.js:51", // groups Map for grouping
+  "src/_lib/utils/grouping.js:108", // groups Map for grouping
+  "src/_lib/media/image.js:178", // imageHtmlCache for memoization
+]);
+
+// ============================================
 // let/mutable variable exceptions
 // ============================================
 
@@ -123,4 +156,5 @@ export {
   ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_LET_USAGE,
+  ALLOWED_MUTABLE_CONST,
 };
