@@ -10,6 +10,14 @@ function computeCartAttributes(data) {
 
   const specs = computeSpecs(data);
 
+  const hirePrices = {
+    1: data.price || null,
+    2: data.price_2_days || null,
+    3: data.price_3_days || null,
+    4: data.price_4_days || null,
+    5: data.price_5_days || null,
+  };
+
   return JSON.stringify({
     name: data.title,
     options: data.options.map((opt) => ({
@@ -19,6 +27,7 @@ function computeCartAttributes(data) {
       sku: opt.sku || null,
     })),
     specs: specs ? specs.map((s) => ({ name: s.name, value: s.value })) : null,
+    hire_prices: hirePrices,
   }).replace(/"/g, "&quot;");
 }
 

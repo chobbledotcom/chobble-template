@@ -157,6 +157,7 @@ const addItem = (
   maxQuantity = null,
   sku = null,
   specs = null,
+  hirePrices = null,
 ) => {
   const cart = getCart();
   const existingItem = cart.find((item) => item.item_name === itemName);
@@ -183,6 +184,7 @@ const addItem = (
       max_quantity: maxQuantity,
       sku: sku,
       specs: specs,
+      hire_prices: hirePrices,
     });
   }
 
@@ -303,6 +305,7 @@ const handleAddToCart = (e) => {
       option.max_quantity || null,
       option.sku || null,
       itemData.specs || null,
+      itemData.hire_prices || null,
     );
   }
 };

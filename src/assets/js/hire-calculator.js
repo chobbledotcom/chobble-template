@@ -23,56 +23,62 @@ const calculateDays = (startDate, endDate) => {
   return diffDays > 0 ? diffDays : 0;
 };
 
-// Get the daily rate for an item based on quantity
-// Uses unit_price as the base daily rate
-const getDailyRate = (item) => parsePrice(item.unit_price) * item.quantity;
+// Get price for an item for a specific number of days
+// Returns null if no price exists for that day count
+const getPriceForDays = (item, days) => {
+  const hirePrices = item.hire_prices;
+  if (!hirePrices) return null;
+  const price = hirePrices[days];
+  return price ? parsePrice(price) * item.quantity : null;
+};
 
 // Calculate total hire cost for all cart items
+// Returns { total, canCalculate } - canCalculate is false if any item lacks price for day count
 const calculateHireTotal = (cart, days) => {
-  if (days <= 0) return 0;
-  const dailyTotal = cart.reduce((sum, item) => sum + getDailyRate(item), 0);
-  return dailyTotal * days;
-};
+  if (days <= 0 || cart.length === 0) return { total: 0, canCalculate: false };
 
-// Update the display and hidden fields
-const updateTotal = (totalEl, amountEl, totalInput, daysInput, total, days) => {
-  if (days > 0) {
-    totalEl.style.display = "flex";
-    amountEl.textContent = formatPrice(total);
-    totalInput.value = formatPrice(total);
-    daysInput.value = days;
-  } else {
-    totalEl.style.display = "none";
-    amountEl.textContent = "£0.00";
-    totalInput.value = "";
-    daysInput.value = "";
+  let total = 0;
+  for (const item of cart) {
+    const itemPrice = getPriceForDays(item, days);
+    if (itemPrice === null) {
+      return { total: 0, canCalculate: false };
+    }
+    total += itemPrice;
   }
-};
-
-// Handle date change events
-const handleDateChange = (elements) => () => {
-  const { startInput, endInput, totalEl, amountEl, totalInput, daysInput } =
-    elements;
-
-  const startDate = startInput.value;
-  const endDate = endInput.value;
-
-  if (!startDate || !endDate) {
-    updateTotal(totalEl, amountEl, totalInput, daysInput, 0, 0);
-    return;
-  }
-
-  const days = calculateDays(startDate, endDate);
-  const cart = getCart();
-  const total = calculateHireTotal(cart, days);
-
-  updateTotal(totalEl, amountEl, totalInput, daysInput, total, days);
+  return { total, canCalculate: true };
 };
 
 // Set minimum date to today
 const setMinDate = (input) => {
   const today = new Date().toISOString().split("T")[0];
   input.min = today;
+};
+
+// Handle date change events
+const handleDateChange = (elements) => () => {
+  const { startInput, endInput, totalEl, daysInput } = elements;
+
+  const startDate = startInput.value;
+  const endDate = endInput.value;
+
+  if (!startDate || !endDate) {
+    totalEl.style.display = "none";
+    daysInput.value = "";
+    return;
+  }
+
+  const days = calculateDays(startDate, endDate);
+  const cart = getCart();
+  const { total, canCalculate } = calculateHireTotal(cart, days);
+
+  daysInput.value = days;
+  totalEl.style.display = "block";
+
+  if (canCalculate) {
+    totalEl.textContent = `Estimated total for ${days} day${days === 1 ? "" : "s"}: ${formatPrice(total)}`;
+  } else {
+    totalEl.textContent = `We'll provide an exact quote for your ${days} day hire.`;
+  }
 };
 
 // Initialize hire calculator
@@ -82,26 +88,15 @@ const initHireCalculator = () => {
   const startInput = document.getElementById("hire_start_date");
   const endInput = document.getElementById("hire_end_date");
   const totalEl = document.getElementById("hire-total");
-  const amountEl = document.getElementById("hire-total-amount");
-  const totalInput = document.getElementById("hire_total");
   const daysInput = document.getElementById("hire_days");
 
-  if (!startInput || !endInput || !totalEl || !amountEl) return;
+  if (!startInput || !endInput || !totalEl) return;
 
-  const elements = {
-    startInput,
-    endInput,
-    totalEl,
-    amountEl,
-    totalInput,
-    daysInput,
-  };
+  const elements = { startInput, endInput, totalEl, daysInput };
 
-  // Set minimum dates
   setMinDate(startInput);
   setMinDate(endInput);
 
-  // Update end date minimum when start date changes
   startInput.addEventListener("change", () => {
     if (startInput.value) {
       endInput.min = startInput.value;

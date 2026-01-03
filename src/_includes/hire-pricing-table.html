@@ -1,42 +1,11 @@
-{%- comment -%}
-Hire pricing table - displays multi-day pricing for hire mode products
-Only shown when product_mode is "hire" and product has hire pricing fields
-{%- endcomment -%}
 {%- if config.product_mode == "hire" -%}
   {%- if price or price_2_days or price_3_days or price_4_days or price_5_days -%}
-    <div class="hire-pricing-table">
-      <div class="hire-pricing-row">
-        {%- if price -%}
-          <div class="hire-pricing-cell" data-days="1" data-price="{{ price }}">
-            <span class="hire-pricing-days">1 day</span>
-            <span class="hire-pricing-amount">{{ price }}</span>
-          </div>
-        {%- endif -%}
-        {%- if price_2_days -%}
-          <div class="hire-pricing-cell" data-days="2" data-price="{{ price_2_days }}">
-            <span class="hire-pricing-days">2 days</span>
-            <span class="hire-pricing-amount">{{ price_2_days }}</span>
-          </div>
-        {%- endif -%}
-        {%- if price_3_days -%}
-          <div class="hire-pricing-cell" data-days="3" data-price="{{ price_3_days }}">
-            <span class="hire-pricing-days">3 days</span>
-            <span class="hire-pricing-amount">{{ price_3_days }}</span>
-          </div>
-        {%- endif -%}
-        {%- if price_4_days -%}
-          <div class="hire-pricing-cell" data-days="4" data-price="{{ price_4_days }}">
-            <span class="hire-pricing-days">4 days</span>
-            <span class="hire-pricing-amount">{{ price_4_days }}</span>
-          </div>
-        {%- endif -%}
-        {%- if price_5_days -%}
-          <div class="hire-pricing-cell" data-days="5" data-price="{{ price_5_days }}">
-            <span class="hire-pricing-days">5 days</span>
-            <span class="hire-pricing-amount">{{ price_5_days }}</span>
-          </div>
-        {%- endif -%}
-      </div>
-    </div>
+    <ul class="hire-prices">
+      {%- if price -%}<li><strong>1 day:</strong> {{ price }}</li>{%- endif -%}
+      {%- if price_2_days -%}<li><strong>2 days:</strong> {{ price_2_days }}</li>{%- endif -%}
+      {%- if price_3_days -%}<li><strong>3 days:</strong> {{ price_3_days }}</li>{%- endif -%}
+      {%- if price_4_days -%}<li><strong>4 days:</strong> {{ price_4_days }}</li>{%- endif -%}
+      {%- if price_5_days -%}<li><strong>5 days:</strong> {{ price_5_days }}</li>{%- endif -%}
+    </ul>
   {%- endif -%}
 {%- endif -%}

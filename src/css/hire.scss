@@ -1,45 +1,19 @@
 // Hire mode styles
-// Pricing table and date picker for hire functionality
 
 @use "breakpoints";
 
-// Hire pricing table on product pages
-.hire-pricing-table {
-  margin: 1rem 0;
-}
-
-.hire-pricing-row {
+.hire-prices {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.5rem 1.5rem;
+  list-style: none;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
   border: var(--border);
   border-radius: var(--border-radius);
-  padding: 0.75rem;
   background: var(--color-accent);
 }
 
-.hire-pricing-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  min-width: 5rem;
-  flex: 1;
-  text-align: center;
-}
-
-.hire-pricing-days {
-  font-size: 0.85rem;
-  opacity: 0.8;
-  margin-bottom: 0.25rem;
-}
-
-.hire-pricing-amount {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-// Hire dates section on checkout page
 .hire-dates-section {
   margin: 1.5rem 0;
   padding: 1rem;
@@ -69,37 +43,14 @@
   }
 }
 
-// Running total display
 .hire-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: var(--border);
-  font-size: 1.1rem;
-}
-
-.hire-total-label {
   font-weight: bold;
 }
 
-.hire-total-amount {
-  font-weight: bold;
-  font-size: 1.25rem;
-}
-
-// Mobile adjustments
 @include breakpoints.down("sm") {
-  .hire-pricing-cell {
-    min-width: 4rem;
-    padding: 0.5rem;
-  }
-
-  .hire-pricing-amount {
-    font-size: 1rem;
-  }
-
   .hire-dates-fields {
     flex-direction: column;
   }
