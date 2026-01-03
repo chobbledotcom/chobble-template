@@ -19,10 +19,10 @@ jobs:
           sed -i 's|"checkout_api_url": null|"checkout_api_url": "${{ secrets.CHECKOUT_API_URL }}"|g' src/_data/config.json
           sed -i 's|"stripe_publishable_key": null|"stripe_publishable_key": "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"|g' src/_data/config.json
 
-      - name: Build with Node
+      - name: Build with Bun
         run: |
-          pnpm install
-          pnpm exec eleventy
+          bun install
+          bun ./node_modules/@11ty/eleventy/cmd.cjs
 
       - name: Deploy to neocities
         # uses: bcomnes/deploy-to-neocities@v3

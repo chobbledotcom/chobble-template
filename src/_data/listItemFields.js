@@ -1,6 +1,6 @@
 import configJson from "#data/config.json" with { type: "json" };
 
-export const DEFAULT_FIELDS = [
+const DEFAULT_FIELDS = [
   "thumbnail",
   "link",
   "price",
@@ -11,9 +11,12 @@ export const DEFAULT_FIELDS = [
   "cart-button",
 ];
 
-export const selectListItemFields = (configFields) =>
+const selectListItemFields = (configFields) =>
   Array.isArray(configFields) && configFields.length > 0
     ? configFields
     : DEFAULT_FIELDS;
 
-export default selectListItemFields(configJson.list_item_fields);
+const listItemFields = selectListItemFields(configJson.list_item_fields);
+listItemFields._helpers = { DEFAULT_FIELDS, selectListItemFields };
+
+export default listItemFields;

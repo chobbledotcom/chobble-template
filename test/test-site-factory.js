@@ -146,11 +146,15 @@ const createSiteObject = (siteId, siteDir, srcDir, outputDir) => ({
   outputDir,
 
   async build() {
-    const result = spawnSync("npx", ["eleventy", "--quiet"], {
-      cwd: siteDir,
-      stdio: "pipe",
-      encoding: "utf-8",
-    });
+    const result = spawnSync(
+      "bun",
+      ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
+      {
+        cwd: siteDir,
+        stdio: "pipe",
+        encoding: "utf-8",
+      },
+    );
     if (result.status !== 0) {
       const error = new Error(
         `Eleventy build failed: ${result.stderr || result.stdout}`,

@@ -111,12 +111,12 @@ function runCoverage() {
     "--reporter=text",
     "--reporter=json-summary",
     "--report-dir=coverage",
-    "node",
+    "bun",
     "test/run-all-tests.js",
   ];
 
   // Pass through any additional args (like --verbose via TEST_VERBOSE env)
-  const result = spawnSync("npx", ["c8", ...c8Args], {
+  const result = spawnSync("bunx", ["c8", ...c8Args], {
     cwd: rootDir,
     stdio: ["inherit", "pipe", "inherit"],
     env: process.env,

@@ -15,13 +15,15 @@
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
-              nodejs_24
-              pnpm
+              bun
               biome
+              vips
+              stdenv.cc.cc.lib
             ];
 
             shellHook = ''
-              [ ! -d node_modules ] && pnpm install
+              export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
+              [ ! -d node_modules ] && bun install
 
               export PATH="$PWD/bin:$PATH"
 
@@ -30,16 +32,16 @@
               Development environment ready!
 
               Available commands:
-               - 'pnpm run serve'  # Clean & start dev server with incremental builds
-               - 'pnpm run build'  # Clean & build the site in ./_site
-               - 'pnpm test'       # Run JavaScript tests
-               - 'lint'            # Format code with Biome (Nix-only)
-               - 'screenshot'      # Take website screenshots (Nix-only)
-               - 'profile'         # Profile build for performance bottlenecks
+               - 'bun run serve'  # Clean & start dev server with incremental builds
+               - 'bun run build'  # Clean & build the site in ./_site
+               - 'bun test'       # Run JavaScript tests
+               - 'lint'           # Format code with Biome (Nix-only)
+               - 'screenshot'     # Take website screenshots (Nix-only)
+               - 'profile'        # Profile build for performance bottlenecks
 
               EOF
 
-              pnpm install
+              bun install
               git pull
             '';
           };

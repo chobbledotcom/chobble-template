@@ -31,7 +31,7 @@ const testCases = [
     test: () => {
       const baseline = readBaseline();
 
-      const result = spawnSync("pnpm", ["cpd"], {
+      const result = spawnSync("bun", ["run", "cpd"], {
         cwd: rootDir,
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "pipe"],
@@ -54,7 +54,7 @@ const testCases = [
         actual <= limit,
         true,
         `Code duplication ${actual}% exceeds baseline ${limit}%. ` +
-          "Run 'pnpm cpd' to see details.",
+          "Run 'bun run cpd' to see details.",
       );
 
       // Ratchet down if duplication decreased

@@ -9,13 +9,13 @@ import {
 const testCases = [
   {
     name: "no-package-lock",
-    description: "package-lock.json should not exist (this project uses pnpm)",
+    description: "package-lock.json should not exist (this project uses bun)",
     test: () => {
       const lockfilePath = resolve(rootDir, "package-lock.json");
       const exists = fs.existsSync(lockfilePath);
       expectFalse(
         exists,
-        "package-lock.json exists but this project uses pnpm. Delete it and use 'pnpm install' instead of 'npm install'.",
+        "package-lock.json exists but this project uses bun. Delete it and use 'bun install' instead of 'npm install'.",
       );
     },
   },

@@ -1,7 +1,7 @@
-import listItemFields, {
-  DEFAULT_FIELDS,
-  selectListItemFields,
-} from "#data/listItemFields.js";
+import listItemFields from "#data/listItemFields.js";
+
+const { DEFAULT_FIELDS, selectListItemFields } = listItemFields._helpers;
+
 import {
   createTestRunner,
   expectDeepEqual,
