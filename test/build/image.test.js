@@ -176,37 +176,37 @@ describe("image", () => {
   // configureImages tests
   // ============================================
   describe("configureImages", () => {
-    test("Registers async image shortcode with Eleventy config", () => {
+    test("Registers async image shortcode with Eleventy config", async () => {
       const mockConfig = createMockEleventyConfig();
 
-      configureImages(mockConfig);
+      await configureImages(mockConfig);
 
       expect("image" in mockConfig.asyncShortcodes).toBe(true);
       expect(typeof mockConfig.asyncShortcodes.image).toBe("function");
     });
 
-    test("Registers processImages transform with Eleventy config", () => {
+    test("Registers processImages transform with Eleventy config", async () => {
       const mockConfig = createMockEleventyConfig();
 
-      configureImages(mockConfig);
+      await configureImages(mockConfig);
 
       expect("processImages" in mockConfig.transforms).toBe(true);
       expect(typeof mockConfig.transforms.processImages).toBe("function");
     });
 
-    test("Registers images collection with Eleventy config", () => {
+    test("Registers images collection with Eleventy config", async () => {
       const mockConfig = createMockEleventyConfig();
 
-      configureImages(mockConfig);
+      await configureImages(mockConfig);
 
       expect("images" in mockConfig.collections).toBe(true);
       expect(typeof mockConfig.collections.images).toBe("function");
     });
 
-    test("Registers eleventy.after event handler for cache copying", () => {
+    test("Registers eleventy.after event handler for cache copying", async () => {
       const mockConfig = createMockEleventyConfig();
 
-      configureImages(mockConfig);
+      await configureImages(mockConfig);
 
       expect(
         mockConfig.eventHandlers !== undefined &&
@@ -217,20 +217,20 @@ describe("image", () => {
       );
     });
 
-    test("Adds eleventy-img plugin to config", () => {
+    test("Adds eleventy-img plugin to config", async () => {
       const mockConfig = createMockEleventyConfig();
 
-      configureImages(mockConfig);
+      await configureImages(mockConfig);
 
       expect(mockConfig.pluginCalls && mockConfig.pluginCalls.length > 0).toBe(
         true,
       );
     });
 
-    test("Images collection function returns an array", () => {
+    test("Images collection function returns an array", async () => {
       const mockConfig = createMockEleventyConfig();
 
-      configureImages(mockConfig);
+      await configureImages(mockConfig);
 
       const collectionFn = mockConfig.collections.images;
       const result = collectionFn();

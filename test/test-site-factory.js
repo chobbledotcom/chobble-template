@@ -21,6 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
+import { memoize } from "#utils/memoize.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -35,6 +36,24 @@ class DOM {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
+
+// Memoized helpers for caching expensive operations on template source files
+const getCachedDirExists = memoize((dir) => fs.existsSync(dir));
+
+const getCachedJsonFile = memoize((filePath) =>
+  fs.existsSync(filePath)
+    ? JSON.parse(fs.readFileSync(filePath, "utf-8"))
+    : null,
+);
+
+const getCachedDirList = memoize((dir) =>
+  !fs.existsSync(dir)
+    ? []
+    : fs.readdirSync(dir).map((name) => ({
+        name,
+        isFile: fs.statSync(path.join(dir, name)).isFile(),
+      })),
+);
 
 const randomId = () => Math.random().toString(36).slice(2, 10);
 
@@ -66,10 +85,10 @@ const createMarkdownFile = (
 };
 
 const copyDirFiles = (src, dest, filter = () => true) => {
-  if (!fs.existsSync(src)) return;
-  for (const file of fs.readdirSync(src)) {
-    if (fs.statSync(path.join(src, file)).isFile() && filter(file)) {
-      copyFile(path.join(src, file), path.join(dest, file));
+  const entries = getCachedDirList(src);
+  for (const entry of entries) {
+    if (entry.isFile && filter(entry.name)) {
+      copyFile(path.join(src, entry.name), path.join(dest, entry.name));
     }
   }
 };
@@ -85,7 +104,7 @@ const copy11tyDataFiles = (templateSrc, srcDir, collection) => {
 const symlinkDirs = (templateSrc, srcDir, dirs) => {
   for (const dir of dirs) {
     const source = path.join(templateSrc, dir);
-    if (fs.existsSync(source)) {
+    if (getCachedDirExists(source)) {
       fs.symlinkSync(source, path.join(srcDir, dir));
     }
   }
@@ -98,9 +117,8 @@ const setupDataDir = (templateSrc, srcDir, options) => {
 
   if (options.config) {
     const configPath = path.join(dataTarget, "config.json");
-    const existing = fs.existsSync(configPath)
-      ? JSON.parse(fs.readFileSync(configPath, "utf-8"))
-      : {};
+    const sourceConfigPath = path.join(dataSource, "config.json");
+    const existing = getCachedJsonFile(sourceConfigPath) || {};
     writeJson(configPath, { ...existing, ...options.config });
   }
 
@@ -292,9 +310,7 @@ const createTestSite = async (options = {}) => {
     path.join(siteDir, ".eleventy.js"),
   );
 
-  const pkgJson = JSON.parse(
-    fs.readFileSync(path.join(rootDir, "package.json"), "utf-8"),
-  );
+  const pkgJson = getCachedJsonFile(path.join(rootDir, "package.json"));
   writeJson(path.join(siteDir, "package.json"), pkgJson);
 
   fs.symlinkSync(

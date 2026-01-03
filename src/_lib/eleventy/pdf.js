@@ -1,9 +1,19 @@
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { renderPdfTemplate } from "json-to-pdf";
 import site from "#data/site.json" with { type: "json" };
+import strings from "#data/strings.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
+
+// Lazy-load json-to-pdf only when generating PDFs
+let pdfRenderer = null;
+const getPdfRenderer = async () => {
+  if (!pdfRenderer) {
+    const mod = await import("json-to-pdf");
+    pdfRenderer = mod.renderPdfTemplate;
+  }
+  return pdfRenderer;
+};
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
   const menuSlug = menu.fileSlug;
@@ -204,10 +214,26 @@ function createMenuPdfTemplate() {
   };
 }
 
+const writePdfToFile = (pdfDoc, outputPath) =>
+  new Promise((resolve, reject) => {
+    const stream = createWriteStream(outputPath);
+    pdfDoc.pipe(stream);
+    pdfDoc.end();
+    stream.on("finish", () => {
+      console.log(`Generated PDF: ${outputPath}`);
+      resolve(outputPath);
+    });
+    stream.on("error", (error) => {
+      console.error(`Error writing PDF: ${outputPath}`, error);
+      reject(error);
+    });
+  });
+
 async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const data = buildMenuPdfData(menu, menuCategories, menuItems);
   const template = createMenuPdfTemplate();
 
+  const renderPdfTemplate = await getPdfRenderer();
   const pdfDoc = renderPdfTemplate(template, data);
   if (!pdfDoc) {
     console.error(`Failed to generate PDF for menu: ${menu.data.title}`);
@@ -215,28 +241,15 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   }
 
   const filename = buildPdfFilename(site.name, menu.fileSlug);
-  const outputPath = `${outputDir}/menus/${menu.fileSlug}/${filename}`;
+  const menuDir = strings.menu_permalink_dir;
+  const outputPath = `${outputDir}/${menuDir}/${menu.fileSlug}/${filename}`;
   const dir = dirname(outputPath);
 
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
 
-  return new Promise((resolve, reject) => {
-    const stream = createWriteStream(outputPath);
-    pdfDoc.pipe(stream);
-    pdfDoc.end();
-
-    stream.on("finish", () => {
-      console.log(`Generated PDF: ${outputPath}`);
-      resolve(outputPath);
-    });
-
-    stream.on("error", (error) => {
-      console.error(`Error writing PDF: ${outputPath}`, error);
-      reject(error);
-    });
-  });
+  return writePdfToFile(pdfDoc, outputPath);
 }
 
 export function configurePdf(eleventyConfig) {

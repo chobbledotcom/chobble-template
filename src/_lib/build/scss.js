@@ -1,12 +1,18 @@
 import path from "node:path";
-import * as sass from "sass";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import config from "#data/config.json" with { type: "json" };
+
+// Lazy-load sass only when actually compiling SCSS
+let sass = null;
+const getSass = async () => {
+  if (!sass) sass = await import("sass");
+  return sass;
+};
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
 
-  return (_data) => {
+  return async (_data) => {
     if (inputPath.endsWith("bundle.scss")) {
       // Inject compiled themes only if theme-switcher is enabled
       if (config.enable_theme_switcher) {
@@ -15,15 +21,16 @@ const createScssCompiler = (inputContent, inputPath) => {
       }
     }
 
-    return sass.compileString(inputContent, {
+    const sassModule = await getSass();
+    return sassModule.compileString(inputContent, {
       loadPaths: [dir],
     }).css;
   };
 };
 
-const compileScss = (inputContent, inputPath) => {
+const compileScss = async (inputContent, inputPath) => {
   const compiler = createScssCompiler(inputContent, inputPath);
-  return compiler({});
+  return await compiler({});
 };
 
 const configureScss = (eleventyConfig) => {

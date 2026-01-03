@@ -66,7 +66,7 @@ export default async function (eleventyConfig) {
   configureFileUtils(eleventyConfig);
   configureGuides(eleventyConfig);
   configureICal(eleventyConfig);
-  configureImages(eleventyConfig);
+  await configureImages(eleventyConfig);
   configurePdf(eleventyConfig);
   configureJsConfig(eleventyConfig);
   configureInlineAsset(eleventyConfig);
