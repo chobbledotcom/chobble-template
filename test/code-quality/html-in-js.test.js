@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
-import { analyzeFiles, assertNoViolations, isCommentLine } from "#test/code-scanner.js";
+import {
+  analyzeFiles,
+  assertNoViolations,
+  isCommentLine,
+} from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 // ============================================
@@ -16,13 +20,68 @@ const HTML_PATTERNS = [
 ];
 
 const HTML_TAGS = new Set([
-  "div", "span", "p", "a", "button", "input", "form", "ul", "ol", "li",
-  "table", "tr", "td", "th", "thead", "tbody", "h1", "h2", "h3", "h4", "h5", "h6",
-  "img", "br", "hr", "strong", "em", "b", "i", "u", "pre", "code", "blockquote",
-  "nav", "header", "footer", "main", "section", "article", "aside",
-  "label", "select", "option", "textarea",
-  "svg", "path", "polyline", "circle", "rect", "line", "polygon", "g", "defs", "use",
-  "script", "style", "link", "meta", "head", "body", "html", "template",
+  "div",
+  "span",
+  "p",
+  "a",
+  "button",
+  "input",
+  "form",
+  "ul",
+  "ol",
+  "li",
+  "table",
+  "tr",
+  "td",
+  "th",
+  "thead",
+  "tbody",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "img",
+  "br",
+  "hr",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "u",
+  "pre",
+  "code",
+  "blockquote",
+  "nav",
+  "header",
+  "footer",
+  "main",
+  "section",
+  "article",
+  "aside",
+  "label",
+  "select",
+  "option",
+  "textarea",
+  "svg",
+  "path",
+  "polyline",
+  "circle",
+  "rect",
+  "line",
+  "polygon",
+  "g",
+  "defs",
+  "use",
+  "script",
+  "style",
+  "link",
+  "meta",
+  "head",
+  "body",
+  "html",
+  "template",
 ]);
 
 /**
@@ -31,16 +90,24 @@ const HTML_TAGS = new Set([
 const extractStringContent = (source) => {
   const results = [];
   const lines = source.split("\n");
-  let inTemplate = false, templateStart = 0, templateContent = "", braceDepth = 0;
+  let inTemplate = false,
+    templateStart = 0,
+    templateContent = "",
+    braceDepth = 0;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (isCommentLine(line)) continue;
 
     for (let j = 0; j < line.length; j++) {
-      const char = line[j], prevChar = j > 0 ? line[j - 1] : "";
+      const char = line[j],
+        prevChar = j > 0 ? line[j - 1] : "";
 
-      if (inTemplate && char === "$" && line[j + 1] === "{") { braceDepth++; j++; continue; }
+      if (inTemplate && char === "$" && line[j + 1] === "{") {
+        braceDepth++;
+        j++;
+        continue;
+      }
       if (braceDepth > 0) {
         if (char === "{") braceDepth++;
         if (char === "}") braceDepth--;
@@ -49,10 +116,17 @@ const extractStringContent = (source) => {
 
       if (char === "`" && prevChar !== "\\") {
         if (inTemplate) {
-          results.push({ lineNumber: templateStart + 1, content: templateContent, type: "template" });
-          inTemplate = false; templateContent = "";
+          results.push({
+            lineNumber: templateStart + 1,
+            content: templateContent,
+            type: "template",
+          });
+          inTemplate = false;
+          templateContent = "";
         } else {
-          inTemplate = true; templateStart = i; templateContent = "";
+          inTemplate = true;
+          templateStart = i;
+          templateContent = "";
         }
       } else if (inTemplate) {
         templateContent += char;
@@ -80,7 +154,8 @@ const findHtmlInJs = (source) =>
     .map(({ lineNumber, content, type }) => ({
       lineNumber,
       type,
-      preview: content.replace(/\s+/g, " ").trim().substring(0, 60) +
+      preview:
+        content.replace(/\s+/g, " ").trim().substring(0, 60) +
         (content.length > 60 ? "..." : ""),
     }));
 
@@ -88,7 +163,8 @@ const findHtmlInJs = (source) =>
  * Analyze JS files for HTML content, separating allowed from violations.
  */
 const analyzeHtmlInJs = (jsFiles, allowedFiles) => {
-  const violations = [], allowed = [];
+  const violations = [],
+    allowed = [];
 
   const results = analyzeFiles(jsFiles, (source, relativePath) => {
     const instances = findHtmlInJs(source);

@@ -60,7 +60,11 @@ const createFunctionLengthChecker = (jsFiles, config = {}) => {
       const match =
         funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
       if (match) {
-        stack.push({ name: match[1], startLine: lineNum, openBraceDepth: null });
+        stack.push({
+          name: match[1],
+          startLine: lineNum,
+          openBraceDepth: null,
+        });
       }
 
       for (let j = 0; j < line.length; j++) {
@@ -83,7 +87,11 @@ const createFunctionLengthChecker = (jsFiles, config = {}) => {
         }
         if (inMultilineComment) continue;
 
-        if (!inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
+        if (
+          !inTemplate &&
+          (char === '"' || char === "'") &&
+          prevChar !== "\\"
+        ) {
           if (!inString) {
             inString = true;
             stringChar = char;
@@ -104,7 +112,8 @@ const createFunctionLengthChecker = (jsFiles, config = {}) => {
         if (char === "{") {
           globalBraceDepth++;
           for (const item of stack) {
-            if (item.openBraceDepth === null) item.openBraceDepth = globalBraceDepth;
+            if (item.openBraceDepth === null)
+              item.openBraceDepth = globalBraceDepth;
           }
         } else if (char === "}") {
           for (let k = stack.length - 1; k >= 0; k--) {

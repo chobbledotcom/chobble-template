@@ -265,7 +265,9 @@ describe("test-hygiene", () => {
       for (const name of unusedEntries.sort()) {
         console.log(`     - ${name} (x0)`);
       }
-      console.log("\n  To fix: remove these entries from ALLOWED_TEST_FUNCTIONS");
+      console.log(
+        "\n  To fix: remove these entries from ALLOWED_TEST_FUNCTIONS",
+      );
     }
 
     // Show usage counts for all entries (informational)
@@ -274,7 +276,9 @@ describe("test-hygiene", () => {
       .sort((a, b) => a[1] - b[1]); // Sort by count ascending
 
     if (usedEntries.length > 0) {
-      console.log(`\n  ALLOWED_TEST_FUNCTIONS usage (${usedEntries.length} entries):`);
+      console.log(
+        `\n  ALLOWED_TEST_FUNCTIONS usage (${usedEntries.length} entries):`,
+      );
       for (const [name, count] of usedEntries) {
         console.log(`     ${name} (x${count})`);
       }
