@@ -1,14 +1,11 @@
-import * as esbuild from "esbuild";
-
 export function configureEsbuild(eleventyConfig) {
   eleventyConfig.on("eleventy.before", async () => {
-    await esbuild.build({
-      entryPoints: ["src/assets/js/_bundle.js"],
-      bundle: true,
+    await Bun.build({
+      entrypoints: ["src/assets/js/_bundle.js"],
+      outdir: "_site/assets/js",
+      naming: "bundle.js",
       minify: true,
-      format: "esm",
-      outfile: "_site/assets/js/bundle.js",
-      target: ["es2017"],
+      target: "browser",
     });
   });
 }

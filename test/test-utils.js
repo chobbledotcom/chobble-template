@@ -32,14 +32,10 @@ const getFiles = (pattern) => {
       const fullPath = path.join(dir, entry);
       const relativePath = path.relative(rootDir, fullPath);
 
-      try {
-        if (fs.statSync(fullPath).isDirectory()) {
-          walk(fullPath);
-        } else if (pattern.test(relativePath)) {
-          results.push(relativePath);
-        }
-      } catch {
-        // File may have been deleted by another parallel test - skip it
+      if (fs.statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+      } else if (pattern.test(relativePath)) {
+        results.push(relativePath);
       }
     }
   };

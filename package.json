@@ -2,7 +2,6 @@
 	"name": "chobble-template",
 	"version": "1.0.0",
 	"type": "module",
-	"packageManager": "pnpm@10.26.1",
 	"imports": {
 		"#data/*": "./src/_data/*",
 		"#lib/*": "./src/_lib/*",
@@ -16,38 +15,33 @@
 		"#assets/*": "./src/assets/js/*",
 		"#test/*": "./test/*"
 	},
-	"pnpm": {
-		"minimumReleaseAge": "10080"
-	},
 	"scripts": {
-		"preinstall": "node -e \"if(!process.env.npm_config_user_agent.startsWith('pnpm')){console.error('Use pnpm to install dependencies');process.exit(1)}\"",
-		"build": "rm -rf _site && eleventy",
-		"serve": "rm -rf _site && eleventy --serve --incremental --quiet",
-		"test": "pnpm run lint && pnpm run cpd && eleventy --quiet && node test/run-coverage.js",
-		"test:verbose": "TEST_VERBOSE=1 pnpm test",
+		"build": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs",
+		"serve": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs --serve --incremental --quiet",
+		"test": "bun run lint && bun run cpd && bun run build --quiet && bun test/run-coverage.js",
+		"test:verbose": "TEST_VERBOSE=1 bun run test",
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
-		"lint": "command -v biome >/dev/null 2>&1 && biome check . || pnpm dlx @biomejs/biome check .",
-		"lint:fix": "command -v biome >/dev/null 2>&1 && biome check --write . || pnpm dlx @biomejs/biome check --write .",
-		"precommit": "pnpm run lint:fix && pnpm run knip:fix && pnpm run test"
+		"lint": "bunx @biomejs/biome check .",
+		"lint:fix": "bunx @biomejs/biome check --write .",
+		"precommit": "bun run lint:fix && bun run knip:fix && bun run test"
 	},
 	"devDependencies": {
 		"c8": "^10.1.3",
-		"esbuild": "^0.27.0",
 		"jscpd": "^4.0.5",
 		"jsdom": "^27.4.0",
 		"knip": "^5.38.0"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
-		"@sindresorhus/slugify": "^3.0.0",
 		"@11ty/eleventy-img": "^6.0.0",
 		"@11ty/eleventy-navigation": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^2.0.2",
 		"@botpoison/browser": "^0.1.30",
 		"@hotwired/turbo": "^8.0.12",
 		"@quasibit/eleventy-plugin-schema": "^1.11.1",
+		"@sindresorhus/slugify": "^3.0.0",
 		"@zachleat/heading-anchors": "^1.0.1",
 		"fast-glob": "^3.3.2",
 		"gray-matter": "^4.0.3",
@@ -57,5 +51,8 @@
 		"markdown-it": "^14.1.0",
 		"sass": "^1.86.3",
 		"sharp": "^0.34.5"
-	}
+	},
+	"trustedDependencies": [
+		"@parcel/watcher"
+	]
 }
