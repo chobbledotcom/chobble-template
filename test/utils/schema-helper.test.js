@@ -11,7 +11,7 @@ import {
   createPostSchemaData,
   createProductSchemaData,
   createSchemaData,
-} from "./test-utils.js";
+} from "../test-utils.js";
 
 describe("buildBaseMeta", () => {
   it("returns basic meta with url, title, and description", () => {
