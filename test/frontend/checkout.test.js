@@ -1,9 +1,9 @@
-// Checkout E2E Tests using JSDOM
+// Checkout E2E Tests using happy-dom
 // Tests the complete checkout flow with mocked Stripe API
 // Uses actual cart-utils.js and renders real Liquid templates
 
 import { describe, expect, test } from "bun:test";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
 // Import actual cart utilities
 import {
@@ -137,11 +137,9 @@ const createCheckoutPage = async (options = {}) => {
     </html>
   `;
 
-  return new JSDOM(html, {
-    url: "https://example.com",
-    runScripts: "dangerously",
-    resources: "usable",
-  });
+  const window = new Window({ url: "https://example.com" });
+  window.document.write(html);
+  return { window };
 };
 
 // ============================================
@@ -301,7 +299,8 @@ describe("checkout", () => {
   });
 
   test("updateCartIcon shows cart icon when items in cart", () => {
-    const dom = new JSDOM(`
+    const window = new Window();
+    window.document.write(`
         <!DOCTYPE html>
         <html><body>
           <div class="cart-icon" style="display: none;">
@@ -309,7 +308,7 @@ describe("checkout", () => {
           </div>
         </body></html>
       `);
-    global.document = dom.window.document;
+    global.document = window.document;
     const mockStorage = createMockLocalStorage();
     const origStorage = globalThis.localStorage;
     globalThis.localStorage = mockStorage;
@@ -319,7 +318,7 @@ describe("checkout", () => {
         { item_name: "B", unit_price: 5, quantity: 3 },
       ]);
       updateCartIcon();
-      const icon = dom.window.document.querySelector(".cart-icon");
+      const icon = window.document.querySelector(".cart-icon");
       const badge = icon.querySelector(".cart-count");
       expect(icon.style.display).toBe("flex");
       expect(badge.textContent).toBe("5");
@@ -327,12 +326,12 @@ describe("checkout", () => {
     } finally {
       globalThis.localStorage = origStorage;
       delete global.document;
-      dom.window.close();
     }
   });
 
   test("updateCartIcon hides cart icon when cart is empty", () => {
-    const dom = new JSDOM(`
+    const window = new Window();
+    window.document.write(`
         <!DOCTYPE html>
         <html><body>
           <div class="cart-icon" style="display: flex;">
@@ -340,21 +339,20 @@ describe("checkout", () => {
           </div>
         </body></html>
       `);
-    global.document = dom.window.document;
+    global.document = window.document;
     const mockStorage = createMockLocalStorage();
     const origStorage = globalThis.localStorage;
     globalThis.localStorage = mockStorage;
     try {
       saveCart([]);
       updateCartIcon();
-      const icon = dom.window.document.querySelector(".cart-icon");
+      const icon = window.document.querySelector(".cart-icon");
       const badge = icon.querySelector(".cart-count");
       expect(icon.style.display).toBe("none");
       expect(badge.style.display).toBe("none");
     } finally {
       globalThis.localStorage = origStorage;
       delete global.document;
-      dom.window.close();
     }
   });
 
@@ -415,7 +413,8 @@ describe("checkout", () => {
   });
 
   test("attachQuantityHandlers attaches decrease button handlers", () => {
-    const dom = new JSDOM(`
+    const window = new Window();
+    window.document.write(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -431,7 +430,7 @@ describe("checkout", () => {
     try {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = dom.window.document.getElementById("container");
+      const container = window.document.getElementById("container");
       const updates = [];
 
       attachQuantityHandlers(container, (name, qty) => {
@@ -447,12 +446,12 @@ describe("checkout", () => {
       expect(updates[0].qty).toBe(2);
     } finally {
       globalThis.localStorage = origStorage;
-      dom.window.close();
     }
   });
 
   test("attachQuantityHandlers attaches increase button handlers", () => {
-    const dom = new JSDOM(`
+    const window = new Window();
+    window.document.write(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -468,7 +467,7 @@ describe("checkout", () => {
     try {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = dom.window.document.getElementById("container");
+      const container = window.document.getElementById("container");
       const updates = [];
 
       attachQuantityHandlers(container, (name, qty) => {
@@ -484,12 +483,12 @@ describe("checkout", () => {
       expect(updates[0].qty).toBe(4);
     } finally {
       globalThis.localStorage = origStorage;
-      dom.window.close();
     }
   });
 
   test("attachQuantityHandlers attaches input change handlers", () => {
-    const dom = new JSDOM(`
+    const window = new Window();
+    window.document.write(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -503,7 +502,7 @@ describe("checkout", () => {
     try {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = dom.window.document.getElementById("container");
+      const container = window.document.getElementById("container");
       const updates = [];
 
       attachQuantityHandlers(container, (name, qty) => {
@@ -513,19 +512,19 @@ describe("checkout", () => {
       // Simulate input change
       const input = container.querySelector("input[type='number']");
       input.value = "7";
-      input.dispatchEvent(new dom.window.Event("change"));
+      input.dispatchEvent(new window.Event("change"));
 
       expect(updates).toHaveLength(1);
       expect(updates[0].name).toBe("Widget");
       expect(updates[0].qty).toBe(7);
     } finally {
       globalThis.localStorage = origStorage;
-      dom.window.close();
     }
   });
 
   test("attachRemoveHandlers attaches remove button handlers", () => {
-    const dom = new JSDOM(`
+    const window = new Window();
+    window.document.write(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -542,7 +541,7 @@ describe("checkout", () => {
         { item_name: "Gadget", unit_price: 20, quantity: 2 },
       ]);
 
-      const container = dom.window.document.getElementById("container");
+      const container = window.document.getElementById("container");
       let removeCalled = false;
 
       attachRemoveHandlers(container, ".remove-btn", () => {
@@ -559,7 +558,6 @@ describe("checkout", () => {
       expect(cart[0].item_name).toBe("Gadget");
     } finally {
       globalThis.localStorage = origStorage;
-      dom.window.close();
     }
   });
 
@@ -586,8 +584,6 @@ describe("checkout", () => {
     const configScript = dom.window.document.getElementById("site-config");
     const siteConfig = JSON.parse(configScript.textContent);
     expect(siteConfig.checkout_api_url).toBe("https://api.test.com");
-
-    dom.window.close();
   });
 
   test("Cart overlay shows PayPal button when cart_mode is paypal", async () => {
@@ -603,8 +599,6 @@ describe("checkout", () => {
 
     expect(stripeBtn).toBeNull();
     expect(paypalBtn).toBeTruthy();
-
-    dom.window.close();
   });
 
   test("Cart overlay shows Stripe button when cart_mode is stripe", async () => {
@@ -619,8 +613,6 @@ describe("checkout", () => {
 
     expect(stripeBtn).toBeTruthy();
     expect(paypalBtn).toBeNull();
-
-    dom.window.close();
   });
 
   test("Stripe checkout page template renders with data attributes", async () => {
@@ -638,8 +630,6 @@ describe("checkout", () => {
     const status = doc.getElementById("status-message");
     expect(status).toBeTruthy();
     expect(status.textContent.includes("Checking cart")).toBe(true);
-
-    dom.window.close();
   });
 
   test("Cart icon template renders with required elements", async () => {
@@ -652,8 +642,6 @@ describe("checkout", () => {
     expect(cartIcon.querySelector("svg")).toBeTruthy();
     expect(cartIcon.querySelector(".cart-count")).toBeTruthy();
     expect(cartIcon.style.display).toBe("none");
-
-    dom.window.close();
   });
 
   test("Product options template renders single option as button", async () => {
@@ -686,8 +674,6 @@ describe("checkout", () => {
     // Should NOT have a select (single option = direct button)
     const select = doc.querySelector(".product-options-select");
     expect(select).toBeNull();
-
-    dom.window.close();
   });
 
   test("Product options template renders multiple options as select", async () => {
@@ -730,8 +716,6 @@ describe("checkout", () => {
     expect(itemData.options[0].unit_price).toBe(5.0);
     expect(itemData.options[0].sku).toBe("VAR-S");
     expect(itemData.options[0].max_quantity).toBe(5);
-
-    dom.window.close();
   });
 
   test("List item cart button renders Add to Cart for single option products", async () => {
@@ -765,8 +749,9 @@ describe("checkout", () => {
       { config, item },
     );
 
-    const dom = new JSDOM(`<div>${html}</div>`);
-    const doc = dom.window.document;
+    const window = new Window();
+    window.document.write(`<div>${html}</div>`);
+    const doc = window.document;
     const button = doc.querySelector(".add-to-cart");
 
     expect(button).toBeTruthy();
@@ -778,7 +763,6 @@ describe("checkout", () => {
     expect(itemData.options[0].unit_price).toBe(29.99);
     expect(itemData.options[0].max_quantity).toBe(5);
     expect(itemData.options[0].sku).toBe("TP1");
-    dom.window.close();
   });
 
   test("List item cart button shows Select Options link for multi-option products", async () => {
@@ -813,8 +797,9 @@ describe("checkout", () => {
       { config, item },
     );
 
-    const dom = new JSDOM(`<div>${html}</div>`);
-    const doc = dom.window.document;
+    const window = new Window();
+    window.document.write(`<div>${html}</div>`);
+    const doc = window.document;
     const button = doc.querySelector(".add-to-cart");
     const link = doc.querySelector("a.button");
 
@@ -822,8 +807,6 @@ describe("checkout", () => {
     expect(link).toBeTruthy();
     expect(link.href.includes("/products/variable-product/")).toBe(true);
     expect(link.textContent.includes("Select Options")).toBe(true);
-
-    dom.window.close();
   });
 
   test("List item cart button renders nothing when cart_mode is null", async () => {
@@ -874,8 +857,6 @@ describe("checkout", () => {
 
     expect(button).toBeNull();
     expect(select).toBeNull();
-
-    dom.window.close();
   });
 
   // ----------------------------------------
@@ -1100,8 +1081,6 @@ describe("checkout", () => {
     expect(itemData.options[0].unit_price).toBe(25.0);
     expect(itemData.options[0].max_quantity).toBe(10);
     expect(itemData.options[0].sku).toBe("PROD-STD");
-
-    dom.window.close();
   });
 
   test("Price is parsed as float from data attribute", async () => {
@@ -1118,8 +1097,6 @@ describe("checkout", () => {
 
     expect(price).toBe(19.99);
     expect(typeof price).toBe("number");
-
-    dom.window.close();
   });
 
   // ----------------------------------------
@@ -1137,8 +1114,6 @@ describe("checkout", () => {
     const button = doc.querySelector(".product-option-button");
 
     expect(button.disabled).toBe(true);
-
-    dom.window.close();
   });
 
   test("Multi-option select has disabled placeholder option", async () => {
@@ -1156,8 +1131,6 @@ describe("checkout", () => {
     expect(firstOption.disabled).toBe(true);
     expect(firstOption.value).toBe("");
     expect(firstOption.selected).toBe(true);
-
-    dom.window.close();
   });
 
   test("Select options have index values and button has consolidated data", async () => {
@@ -1192,8 +1165,6 @@ describe("checkout", () => {
     expect(itemData.options[1].unit_price).toBe(10.0);
     expect(itemData.options[1].sku).toBe("SKU-L");
     expect(itemData.options[1].max_quantity).toBe(5);
-
-    dom.window.close();
   });
 
   test("Selecting an option retrieves correct option data from button", async () => {
@@ -1231,8 +1202,6 @@ describe("checkout", () => {
 
     expect(largeOption.name).toBe("Large");
     expect(largeOption.unit_price).toBe(10.0);
-
-    dom.window.close();
   });
 
   // ----------------------------------------
@@ -1258,8 +1227,6 @@ describe("checkout", () => {
     const configScript = doc.getElementById("site-config");
     const siteConfig = JSON.parse(configScript.textContent);
     expect(siteConfig.cart_mode).toBe("quote");
-
-    dom.window.close();
   });
 
   test("Quote mode should not render cart overlay", async () => {
@@ -1272,7 +1239,5 @@ describe("checkout", () => {
     const cartOverlay = doc.getElementById("cart-overlay");
 
     expect(cartOverlay).toBeNull();
-
-    dom.window.close();
   });
 });

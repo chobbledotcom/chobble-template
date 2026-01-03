@@ -1,21 +1,20 @@
 import { describe, expect, test } from "bun:test";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 
 // ============================================
 // Test Setup Helpers
 // ============================================
 
 /**
- * Create a JSDOM environment and load the template.js module.
+ * Create a happy-dom environment and load the template.js module.
  * @param {string} bodyHtml - HTML to inject into the body
  * @returns {Promise<{ window, document, getTemplate, populateItemFields, populateQuantityControls }>}
  */
 const createTestEnv = async (bodyHtml = "") => {
-  const dom = new JSDOM(
+  const window = new Window({ url: "http://localhost" });
+  window.document.write(
     `<!DOCTYPE html><html><body>${bodyHtml}</body></html>`,
-    { url: "http://localhost" },
   );
-  const { window } = dom;
 
   // Set up global environment for the module
   globalThis.document = window.document;

@@ -1,4 +1,6 @@
 [test]
+preload = ["happy-dom"]
+
 # Test file patterns
 root = "./test"
 

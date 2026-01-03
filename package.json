@@ -28,8 +28,8 @@
 		"precommit": "bun run lint:fix && bun run knip:fix && bun run test"
 	},
 	"devDependencies": {
+		"happy-dom": "^18.0.1",
 		"jscpd": "^4.0.5",
-		"jsdom": "^27.4.0",
 		"knip": "^5.38.0"
 	},
 	"dependencies": {

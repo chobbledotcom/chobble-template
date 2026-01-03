@@ -2,9 +2,8 @@
 // Verifies that HTML templates contain all required template IDs
 
 import { describe, expect, test } from "bun:test";
-import { JSDOM } from "jsdom";
 import { IDS } from "#assets/selectors.js";
-import { fs, path, rootDir } from "#test/test-utils.js";
+import { DOM, fs, path, rootDir } from "#test/test-utils.js";
 
 // Build a lookup for Liquid variable expansion
 function buildLiquidLookup() {
@@ -53,7 +52,7 @@ function loadTemplate(filename) {
   // Expand Liquid variables
   content = expandLiquidVars(content);
 
-  return new JSDOM(content);
+  return new DOM(content);
 }
 
 // Load all template files

@@ -1,11 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { JSDOM } from "jsdom";
 import {
   configureRecurringEvents,
   renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { createMockEleventyConfig, DOM } from "#test/test-utils.js";
 
 describe("recurring-events", () => {
   // renderRecurringEvents - empty/null inputs
@@ -36,7 +35,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const ul = doc.querySelector("ul");
@@ -62,7 +61,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const link = doc.querySelector("a");
@@ -84,7 +83,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const li = doc.querySelector("li");
@@ -101,7 +100,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const li = doc.querySelector("li");
@@ -124,7 +123,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const listItems = doc.querySelectorAll("li");
@@ -144,7 +143,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const link = doc.querySelector("a");
@@ -163,7 +162,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const link = doc.querySelector("a");
@@ -181,7 +180,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const link = doc.querySelector("a");
@@ -248,7 +247,7 @@ describe("recurring-events", () => {
       },
     ];
     const result = renderRecurringEvents(events);
-    const dom = new JSDOM(result);
+    const dom = new DOM(result);
     const doc = dom.window.document;
 
     const li = doc.querySelector("li");

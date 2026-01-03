@@ -1,13 +1,23 @@
-// Lazy-loaded JSDOM to avoid expensive startup import
-// This module is imported instead of jsdom directly
-let JSDOM;
+// Lazy-loaded happy-dom with JSDOM-compatible API
+// This module provides the same interface as jsdom but uses happy-dom
+import { Window } from "happy-dom";
+
+// JSDOM-compatible wrapper for happy-dom
+class HappyDOMWrapper {
+  constructor(html = "") {
+    this.window = new Window();
+    if (html) {
+      this.window.document.write(html);
+    }
+  }
+
+  serialize() {
+    return this.window.document.documentElement.outerHTML;
+  }
+}
 
 const loadJSDOM = async () => {
-  if (!JSDOM) {
-    const jsdom = await import("jsdom");
-    JSDOM = jsdom.JSDOM;
-  }
-  return JSDOM;
+  return HappyDOMWrapper;
 };
 
 export { loadJSDOM };

@@ -20,7 +20,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
+
+// JSDOM-compatible wrapper for happy-dom
+class DOM {
+  constructor(html = "") {
+    this.window = new Window();
+    if (html) {
+      this.window.document.write(html);
+    }
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -175,7 +185,7 @@ const createSiteObject = (siteId, siteDir, srcDir, outputDir) => ({
   },
 
   getDoc(filePath) {
-    return new JSDOM(this.getOutput(filePath)).window.document;
+    return new DOM(this.getOutput(filePath)).window.document;
   },
 
   hasOutput(filePath) {
