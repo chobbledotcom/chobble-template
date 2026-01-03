@@ -10,6 +10,7 @@ import {
   createFutureEvent,
   createPastEvent,
   createRecurringEvent,
+  expectResultTitles,
   formatDateString,
 } from "#test/test-utils.js";
 
@@ -239,9 +240,7 @@ describe("events", () => {
 
     const result = getFeaturedEvents(events);
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Event 1");
-    expect(result[1].data.title).toBe("Event 3");
+    expectResultTitles(result, ["Event 1", "Event 3"]);
   });
 
   test("Returns empty array when no events are featured", () => {

@@ -12,7 +12,10 @@ import {
   withReviewsPage,
 } from "#collections/reviews.js";
 import configData from "#data/config.json" with { type: "json" };
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
@@ -122,9 +125,7 @@ describe("reviews", () => {
 
     const result = getReviewsFor(reviews, "product-a", "products");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Review 3");
-    expect(result[1].data.title).toBe("Review 1");
+    expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Handles reviews without matching field", () => {
@@ -157,8 +158,7 @@ describe("reviews", () => {
 
     const result = getReviewsFor(reviews, "category-a", "categories");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Review 3");
+    expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Filters reviews by properties field", () => {
@@ -179,8 +179,7 @@ describe("reviews", () => {
 
     const result = getReviewsFor(reviews, "property-a", "properties");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Review 3");
+    expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Generic function works with any field", () => {
@@ -197,8 +196,7 @@ describe("reviews", () => {
 
     const result = getReviewsFor(reviews, "item-a", "customField");
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Review 1");
+    expectResultTitles(result, ["Review 1"]);
   });
 
   test("Counts reviews for any field type", () => {

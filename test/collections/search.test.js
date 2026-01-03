@@ -6,7 +6,10 @@ import {
   getProductsByKeyword,
   normaliseCategory,
 } from "#collections/search.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("search", () => {
   test("Returns empty array for null/undefined/empty products", () => {
@@ -74,9 +77,7 @@ describe("search", () => {
 
     const result = getProductsByKeyword(products, "portable");
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.title).toBe("Product 1");
-    expect(result[1].data.title).toBe("Product 3");
+    expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
   test("Returns empty array when no products match", () => {
@@ -97,8 +98,7 @@ describe("search", () => {
 
     const result = getProductsByKeyword(products, "test");
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Product 2");
+    expectResultTitles(result, ["Product 2"]);
   });
 
   test("Creates collection of unique keywords from products", () => {
@@ -193,8 +193,7 @@ describe("search", () => {
 
     const result = getProductsByKeyword(products, "premium widgets");
 
-    expect(result.length).toBe(1);
-    expect(result[0].data.title).toBe("Widget Pro");
+    expectResultTitles(result, ["Widget Pro"]);
   });
 
   test("Combines explicit keywords with category-derived keywords", () => {
