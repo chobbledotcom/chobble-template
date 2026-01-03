@@ -32,6 +32,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCategory",
   "createProduct",
   "createCollectionItem",
+  "createPropertyReviewFixture",
   // Assertion helpers
   "expectFunctionType",
   "expectArrayLength",
