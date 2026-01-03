@@ -125,6 +125,11 @@ content:
               label: Unit Price (£),
               required: true,
             }
+          - {
+              name: days,
+              type: number,
+              label: Days (for hire products),
+            }
       - { name: etsy_url, label: Etsy URL, type: string }
       - { name: body, label: Body, type: code, options: { language: markdown } }
       - { name: features, type: string, label: Features, list: true }
