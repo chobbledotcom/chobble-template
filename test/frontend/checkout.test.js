@@ -146,26 +146,6 @@ const createCheckoutPage = async (options = {}) => {
 // Mock Utilities
 // ============================================
 
-const createMockLocalStorage = () => {
-  const store = {};
-  return {
-    getItem: (key) => store[key] || null,
-    setItem: (key, value) => {
-      store[key] = String(value);
-    },
-    removeItem: (key) => {
-      delete store[key];
-    },
-    clear: () => {
-      for (const key in store) delete store[key];
-    },
-    get length() {
-      return Object.keys(store).length;
-    },
-    key: (i) => Object.keys(store)[i] || null,
-  };
-};
-
 const createMockFetch = (responses = {}) => {
   const calls = [];
 

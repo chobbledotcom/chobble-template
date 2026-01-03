@@ -1,5 +1,4 @@
-import assert from "node:assert";
-import { describe, it } from "node:test";
+import { describe, expect, test } from "bun:test";
 import {
   createMockReview,
   createPostSchemaData,
@@ -14,7 +13,7 @@ import {
 } from "#utils/schema-helper.js";
 
 describe("buildBaseMeta", () => {
-  it("returns basic meta with url, title, and description", () => {
+  test("returns basic meta with url, title, and description", () => {
     const data = createSchemaData({
       pageUrl: "/test-page/",
       title: "Test Page",
@@ -23,23 +22,12 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.title,
-      "Test Page",
-      "should set title from data.title",
-    );
-    assert.strictEqual(
-      result.description,
-      "A test description",
-      "should set description from meta_description",
-    );
-    assert.ok(
-      result.url.includes("/test-page/"),
-      "should include page URL path",
-    );
+    expect(result.title).toBe("Test Page");
+    expect(result.description).toBe("A test description");
+    expect(result.url.includes("/test-page/")).toBe(true);
   });
 
-  it("uses meta_title when title is not provided", () => {
+  test("uses meta_title when title is not provided", () => {
     const data = createSchemaData({
       title: undefined,
       meta_title: "Meta Title",
@@ -47,126 +35,88 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.title,
-      "Meta Title",
-      "should fall back to meta_title when title is missing",
-    );
+    expect(result.title).toBe("Meta Title");
   });
 
-  it("falls back to Untitled when no title or meta_title", () => {
+  test("falls back to Untitled when no title or meta_title", () => {
     const data = createSchemaData({ title: undefined });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.title,
-      "Untitled",
-      "should default to 'Untitled' when no title available",
-    );
+    expect(result.title).toBe("Untitled");
   });
 
-  it("uses subtitle as description when meta_description is not provided", () => {
+  test("uses subtitle as description when meta_description is not provided", () => {
     const data = createSchemaData({ subtitle: "A subtitle" });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.description,
-      "A subtitle",
-      "should use subtitle as description fallback",
-    );
+    expect(result.description).toBe("A subtitle");
   });
 
-  it("includes image from header_image", () => {
+  test("includes image from header_image", () => {
     const data = createSchemaData({ header_image: "test-image.jpg" });
 
     const result = buildBaseMeta(data);
 
-    assert.ok(result.image, "should include image object");
-    assert.ok(
-      result.image.src.includes("test-image.jpg"),
-      "should include header_image in src",
-    );
+    expect(result.image).toBeTruthy();
+    expect(result.image.src.includes("test-image.jpg")).toBe(true);
   });
 
-  it("includes image from image field when header_image is not provided", () => {
+  test("includes image from image field when header_image is not provided", () => {
     const data = createSchemaData({ image: "fallback-image.jpg" });
 
     const result = buildBaseMeta(data);
 
-    assert.ok(result.image, "should include image object from fallback");
-    assert.ok(
-      result.image.src.includes("fallback-image.jpg"),
-      "should use image field when header_image missing",
-    );
+    expect(result.image).toBeTruthy();
+    expect(result.image.src.includes("fallback-image.jpg")).toBe(true);
   });
 
-  it("handles absolute URL images (http://)", () => {
+  test("handles absolute URL images (http://)", () => {
     const data = createSchemaData({
       header_image: "http://other.com/image.jpg",
     });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.image.src,
-      "http://other.com/image.jpg",
-      "should preserve http:// absolute URLs",
-    );
+    expect(result.image.src).toBe("http://other.com/image.jpg");
   });
 
-  it("handles absolute URL images (https://)", () => {
+  test("handles absolute URL images (https://)", () => {
     const data = createSchemaData({
       header_image: "https://other.com/image.jpg",
     });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.image.src,
-      "https://other.com/image.jpg",
-      "should preserve https:// absolute URLs",
-    );
+    expect(result.image.src).toBe("https://other.com/image.jpg");
   });
 
-  it("handles images with leading slash", () => {
+  test("handles images with leading slash", () => {
     const data = createSchemaData({ header_image: "/images/photo.jpg" });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.image.src,
-      "https://example.com/images/photo.jpg",
-      "should prepend site URL to images with leading slash",
-    );
+    expect(result.image.src).toBe("https://example.com/images/photo.jpg");
   });
 
-  it("prepends /images/ for plain image filenames", () => {
+  test("prepends /images/ for plain image filenames", () => {
     const data = createSchemaData({ header_image: "photo.jpg" });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.image.src,
-      "https://example.com/images/photo.jpg",
-      "should prepend /images/ path for plain filenames",
-    );
+    expect(result.image.src).toBe("https://example.com/images/photo.jpg");
   });
 
-  it("does not include image when none provided", () => {
+  test("does not include image when none provided", () => {
     const data = createSchemaData();
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.image,
-      undefined,
-      "should not include image when none provided",
-    );
+    expect(result.image).toBeUndefined();
   });
 
-  it("includes FAQs when provided", () => {
+  test("includes FAQs when provided", () => {
     const faqs = [
       { question: "Q1", answer: "A1" },
       { question: "Q2", answer: "A2" },
@@ -175,147 +125,92 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    assert.deepStrictEqual(
-      result.faq,
-      faqs,
-      "should include FAQs array in result",
-    );
+    expect(result.faq).toEqual(faqs);
   });
 
-  it("does not include empty FAQs array", () => {
+  test("does not include empty FAQs array", () => {
     const data = createSchemaData({ faqs: [] });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.faq,
-      undefined,
-      "should not include empty FAQs array",
-    );
+    expect(result.faq).toBeUndefined();
   });
 
-  it("preserves metaComputed properties", () => {
+  test("preserves metaComputed properties", () => {
     const data = createSchemaData({
       metaComputed: { customField: "custom value", anotherField: 123 },
     });
 
     const result = buildBaseMeta(data);
 
-    assert.strictEqual(
-      result.customField,
-      "custom value",
-      "should preserve customField from metaComputed",
-    );
-    assert.strictEqual(
-      result.anotherField,
-      123,
-      "should preserve anotherField from metaComputed",
-    );
+    expect(result.customField).toBe("custom value");
+    expect(result.anotherField).toBe(123);
   });
 });
 
 describe("buildProductMeta", () => {
-  it("returns product meta with name and brand", () => {
+  test("returns product meta with name and brand", () => {
     const data = createProductSchemaData();
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.name,
-      "Test Product",
-      "should set product name from title",
-    );
-    assert.strictEqual(
-      result.brand,
-      "Test Store",
-      "should set brand from site name",
-    );
+    expect(result.name).toBe("Test Product");
+    expect(result.brand).toBe("Test Store");
   });
 
-  it("includes offers when price is provided", () => {
+  test("includes offers when price is provided", () => {
     const data = createProductSchemaData({ price: "29.99" });
 
     const result = buildProductMeta(data);
 
-    assert.ok(
-      result.offers,
-      "should include offers object when price provided",
-    );
-    assert.strictEqual(result.offers.price, "29.99", "should set offer price");
-    assert.strictEqual(
-      result.offers.priceCurrency,
-      "GBP",
-      "should default to GBP currency",
-    );
-    assert.strictEqual(
-      result.offers.availability,
-      "https://schema.org/InStock",
-      "should set availability to InStock",
-    );
-    assert.ok(result.offers.priceValidUntil, "should include priceValidUntil");
+    expect(result.offers).toBeTruthy();
+    expect(result.offers.price).toBe("29.99");
+    expect(result.offers.priceCurrency).toBe("GBP");
+    expect(result.offers.availability).toBe("https://schema.org/InStock");
+    expect(result.offers.priceValidUntil).toBeTruthy();
   });
 
-  it("strips currency symbols from price", () => {
+  test("strips currency symbols from price", () => {
     const data = createProductSchemaData({ price: "£29.99" });
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.offers.price,
-      "29.99",
-      "should strip pound sign from price",
-    );
+    expect(result.offers.price).toBe("29.99");
   });
 
-  it("strips dollar sign from price", () => {
+  test("strips dollar sign from price", () => {
     const data = createProductSchemaData({ price: "$49.99" });
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.offers.price,
-      "49.99",
-      "should strip dollar sign from price",
-    );
+    expect(result.offers.price).toBe("49.99");
   });
 
-  it("strips euro sign from price", () => {
+  test("strips euro sign from price", () => {
     const data = createProductSchemaData({ price: "€39.99" });
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.offers.price,
-      "39.99",
-      "should strip euro sign from price",
-    );
+    expect(result.offers.price).toBe("39.99");
   });
 
-  it("strips commas from price", () => {
+  test("strips commas from price", () => {
     const data = createProductSchemaData({ price: "1,299.99" });
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.offers.price,
-      "1299.99",
-      "should strip commas from price",
-    );
+    expect(result.offers.price).toBe("1299.99");
   });
 
-  it("does not include offers when price is not provided", () => {
+  test("does not include offers when price is not provided", () => {
     const data = createProductSchemaData();
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.offers,
-      undefined,
-      "should not include offers without price",
-    );
+    expect(result.offers).toBeUndefined();
   });
 
-  it("includes reviews and rating when reviewsField and collections.reviews are provided", () => {
+  test("includes reviews and rating when reviewsField and collections.reviews are provided", () => {
     const mockReviews = [
       createMockReview({ name: "Reviewer 1", rating: 5 }),
       createMockReview({
@@ -331,31 +226,15 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.ok(result.reviews, "should include reviews array");
-    assert.strictEqual(
-      result.reviews.length,
-      2,
-      "should include all matching reviews",
-    );
-    assert.ok(result.rating, "should include rating object");
-    assert.strictEqual(
-      result.rating.reviewCount,
-      2,
-      "should set correct review count",
-    );
-    assert.strictEqual(
-      result.rating.bestRating,
-      5,
-      "should set bestRating to 5",
-    );
-    assert.strictEqual(
-      result.rating.worstRating,
-      1,
-      "should set worstRating to 1",
-    );
+    expect(result.reviews).toBeTruthy();
+    expect(result.reviews.length).toBe(2);
+    expect(result.rating).toBeTruthy();
+    expect(result.rating.reviewCount).toBe(2);
+    expect(result.rating.bestRating).toBe(5);
+    expect(result.rating.worstRating).toBe(1);
   });
 
-  it("calculates correct average rating", () => {
+  test("calculates correct average rating", () => {
     const mockReviews = [
       createMockReview({ name: "Reviewer 1", rating: 5 }),
       createMockReview({
@@ -371,14 +250,10 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.rating.ratingValue,
-      "4.0",
-      "should calculate average rating as 4.0",
-    );
+    expect(result.rating.ratingValue).toBe("4.0");
   });
 
-  it("formats review with author and rating", () => {
+  test("formats review with author and rating", () => {
     const mockReviews = [
       createMockReview({
         name: "John Doe",
@@ -393,20 +268,12 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.reviews[0].author,
-      "John Doe",
-      "should set review author name",
-    );
-    assert.strictEqual(result.reviews[0].rating, 5, "should set review rating");
-    assert.strictEqual(
-      result.reviews[0].date,
-      "2024-06-15",
-      "should format review date as YYYY-MM-DD",
-    );
+    expect(result.reviews[0].author).toBe("John Doe");
+    expect(result.reviews[0].rating).toBe(5);
+    expect(result.reviews[0].date).toBe("2024-06-15");
   });
 
-  it("defaults review rating to 5 when not specified", () => {
+  test("defaults review rating to 5 when not specified", () => {
     const mockReviews = [
       {
         data: { name: "Reviewer", products: ["test"] },
@@ -420,14 +287,10 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.reviews[0].rating,
-      5,
-      "should default rating to 5 when missing",
-    );
+    expect(result.reviews[0].rating).toBe(5);
   });
 
-  it("does not include reviews and rating when no matching reviews", () => {
+  test("does not include reviews and rating when no matching reviews", () => {
     const mockReviews = [
       createMockReview({ name: "Reviewer", items: ["other-product"] }),
     ];
@@ -438,111 +301,69 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    assert.strictEqual(
-      result.reviews,
-      undefined,
-      "should not include reviews when none match",
-    );
-    assert.strictEqual(
-      result.rating,
-      undefined,
-      "should not include rating when no reviews match",
-    );
+    expect(result.reviews).toBeUndefined();
+    expect(result.rating).toBeUndefined();
   });
 });
 
 describe("buildPostMeta", () => {
-  it("returns post meta with author", () => {
+  test("returns post meta with author", () => {
     const data = createPostSchemaData({ author: "John Author" });
 
     const result = buildPostMeta(data);
 
-    assert.ok(result.author, "should include author object");
-    assert.strictEqual(
-      result.author.name,
-      "John Author",
-      "should set author name from data",
-    );
+    expect(result.author).toBeTruthy();
+    expect(result.author.name).toBe("John Author");
   });
 
-  it("uses site name as author when author not provided", () => {
+  test("uses site name as author when author not provided", () => {
     const data = createPostSchemaData();
 
     const result = buildPostMeta(data);
 
-    assert.strictEqual(
-      result.author.name,
-      "Test Site",
-      "should fall back to site name when author not provided",
-    );
+    expect(result.author.name).toBe("Test Site");
   });
 
-  it("includes datePublished from page.date", () => {
+  test("includes datePublished from page.date", () => {
     const data = createPostSchemaData();
 
     const result = buildPostMeta(data);
 
-    assert.strictEqual(
-      result.datePublished,
-      "2024-03-15",
-      "should format datePublished as YYYY-MM-DD",
-    );
+    expect(result.datePublished).toBe("2024-03-15");
   });
 
-  it("includes publisher with name and logo", () => {
+  test("includes publisher with name and logo", () => {
     const data = createPostSchemaData({ siteLogo: "/custom-logo.png" });
 
     const result = buildPostMeta(data);
 
-    assert.ok(result.publisher, "should include publisher object");
-    assert.strictEqual(
-      result.publisher.name,
-      "Test Site",
-      "should set publisher name from site",
-    );
-    assert.ok(result.publisher.logo, "should include publisher logo");
-    assert.ok(
-      result.publisher.logo.src.includes("custom-logo.png"),
-      "should use custom logo from site",
-    );
-    assert.strictEqual(
-      result.publisher.logo.width,
-      512,
-      "should set logo width to 512",
-    );
-    assert.strictEqual(
-      result.publisher.logo.height,
-      512,
-      "should set logo height to 512",
-    );
+    expect(result.publisher).toBeTruthy();
+    expect(result.publisher.name).toBe("Test Site");
+    expect(result.publisher.logo).toBeTruthy();
+    expect(result.publisher.logo.src.includes("custom-logo.png")).toBe(true);
+    expect(result.publisher.logo.width).toBe(512);
+    expect(result.publisher.logo.height).toBe(512);
   });
 
-  it("uses default logo path when site.logo not provided", () => {
+  test("uses default logo path when site.logo not provided", () => {
     const data = createPostSchemaData();
 
     const result = buildPostMeta(data);
 
-    assert.ok(
-      result.publisher.logo.src.includes("/images/logo.png"),
-      "should default to /images/logo.png",
-    );
+    expect(result.publisher.logo.src.includes("/images/logo.png")).toBe(true);
   });
 
-  it("does not include datePublished when page.date is not provided", () => {
+  test("does not include datePublished when page.date is not provided", () => {
     const data = createPostSchemaData({ date: null });
 
     const result = buildPostMeta(data);
 
-    assert.strictEqual(
-      result.datePublished,
-      undefined,
-      "should not include datePublished when page.date missing",
-    );
+    expect(result.datePublished).toBeUndefined();
   });
 });
 
 describe("buildOrganizationMeta", () => {
-  it("returns organization meta with base properties", () => {
+  test("returns organization meta with base properties", () => {
     const data = createSchemaData({
       pageUrl: "/",
       title: "Home",
@@ -551,11 +372,11 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.strictEqual(result.title, "Home", "should include title in result");
-    assert.ok(result.url, "should include url in result");
+    expect(result.title).toBe("Home");
+    expect(result.url).toBeTruthy();
   });
 
-  it("includes organization from metaComputed when available", () => {
+  test("includes organization from metaComputed when available", () => {
     const data = createSchemaData({
       pageUrl: "/",
       title: "Home",
@@ -571,23 +392,12 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.ok(
-      result.organization,
-      "should include organization object from metaComputed",
-    );
-    assert.strictEqual(
-      result.organization.name,
-      "Test Org",
-      "should set organization name",
-    );
-    assert.strictEqual(
-      result.organization.telephone,
-      "+1234567890",
-      "should set organization telephone",
-    );
+    expect(result.organization).toBeTruthy();
+    expect(result.organization.name).toBe("Test Org");
+    expect(result.organization.telephone).toBe("+1234567890");
   });
 
-  it("does not include organization when metaComputed.organization is not set", () => {
+  test("does not include organization when metaComputed.organization is not set", () => {
     const data = createSchemaData({
       pageUrl: "/",
       title: "Home",
@@ -597,14 +407,10 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.strictEqual(
-      result.organization,
-      undefined,
-      "should not include organization when empty metaComputed",
-    );
+    expect(result.organization).toBeUndefined();
   });
 
-  it("does not include organization when metaComputed is not set", () => {
+  test("does not include organization when metaComputed is not set", () => {
     const data = createSchemaData({
       pageUrl: "/",
       title: "Home",
@@ -613,10 +419,6 @@ describe("buildOrganizationMeta", () => {
 
     const result = buildOrganizationMeta(data);
 
-    assert.strictEqual(
-      result.organization,
-      undefined,
-      "should not include organization when no metaComputed",
-    );
+    expect(result.organization).toBeUndefined();
   });
 });
