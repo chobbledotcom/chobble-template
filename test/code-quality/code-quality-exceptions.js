@@ -94,10 +94,33 @@ const ALLOWED_PROCESS_CWD = new Set([
   "test/utils/file-utils.test.js",
 ]);
 
+// ============================================
+// let/mutable variable exceptions
+// ============================================
+
+// Mutable variables that can't be refactored to immutable patterns.
+// let foo = null; for lazy loading is auto-allowed; these are other cases.
+// Note: for (let i = ...) loops are not detected (pattern matches line-start let only)
+const ALLOWED_LET_USAGE = new Set([
+  // theme-editor.js - accumulator in parseBorderValue loop
+  "src/assets/js/theme-editor.js:242",
+  // theme-editor.js - computed property check in loop
+  "src/assets/js/theme-editor.js:286",
+  // hire-calculator.js - accumulator for total calculation
+  "src/assets/js/hire-calculator.js:50",
+  // area-list.js - separator built incrementally in loop
+  "src/_lib/eleventy/area-list.js:81",
+  // file-utils.js - content modified by conditional logic
+  "src/_lib/eleventy/file-utils.js:49",
+  // image.js - recursive gcd function (could refactor but works)
+  "src/_lib/media/image.js:97",
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
+  ALLOWED_LET_USAGE,
 };
