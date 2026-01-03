@@ -7,8 +7,8 @@ import {
   propertiesWithReviewsPage,
   propertyReviewsRedirects,
 } from "#collections/properties.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
 import configData from "#data/config.json" with { type: "json" };
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;

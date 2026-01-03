@@ -11,8 +11,8 @@ import {
   reviewsRedirects,
   withReviewsPage,
 } from "#collections/reviews.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
 import configData from "#data/config.json" with { type: "json" };
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
@@ -28,7 +28,9 @@ const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 const createReviews = (productId, count, rating = 5, monthPrefix = "01") =>
   Array.from({ length: count }, (_, i) => ({
     data: { products: [productId], rating },
-    date: new Date(`2024-${monthPrefix}-${String((i % 28) + 1).padStart(2, "0")}`),
+    date: new Date(
+      `2024-${monthPrefix}-${String((i % 28) + 1).padStart(2, "0")}`,
+    ),
   }));
 
 /**

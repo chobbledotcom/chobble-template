@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import { withTestSite } from "#test/test-site-factory.js";
 import siteData from "#data/site.json" with { type: "json" };
+import { withTestSite } from "#test/test-site-factory.js";
 
 /**
  * PDF Integration Tests
