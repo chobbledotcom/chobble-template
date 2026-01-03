@@ -1,11 +1,7 @@
+import { describe, expect, test } from "bun:test";
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
 import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
-import {
-  createTestRunner,
-  ECOMMERCE_JS_FILES,
-  expectTrue,
-  SRC_JS_FILES,
-} from "#test/test-utils.js";
+import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.
@@ -296,120 +292,78 @@ const analyzeHtmlInJs = () => {
   return { violations, allowed };
 };
 
-const testCases = [
-  {
-    name: "detect-html-in-template-literal",
-    description: "Correctly identifies HTML in template literals",
-    test: () => {
-      const source = `
+describe("html-in-js", () => {
+  test("Correctly identifies HTML in template literals", () => {
+    const source = `
 const template = \`<div class="test">Hello</div>\`;
 const notHtml = \`Just some text\`;
-      `;
-      const results = findHtmlInJs(source);
-      expectTrue(
-        results.length === 1,
-        `Expected 1 HTML instance, found ${results.length}`,
-      );
-      expectTrue(
-        results[0].lineNumber === 2,
-        `Expected line 2, got ${results[0].lineNumber}`,
-      );
-    },
-  },
-  {
-    name: "detect-svg-in-template-literal",
-    description: "Correctly identifies SVG in template literals",
-    test: () => {
-      const source = `
+    `;
+    const results = findHtmlInJs(source);
+    expect(results.length).toBe(1);
+    expect(results[0].lineNumber).toBe(2);
+  });
+
+  test("Correctly identifies SVG in template literals", () => {
+    const source = `
 const icon = \`<svg viewBox="0 0 24 24"><path d="M0 0"/></svg>\`;
-      `;
-      const results = findHtmlInJs(source);
-      expectTrue(
-        results.length === 1,
-        `Expected 1 SVG instance, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "detect-multiline-template",
-    description: "Correctly identifies HTML in multiline template literals",
-    test: () => {
-      const source = `
+    `;
+    const results = findHtmlInJs(source);
+    expect(results.length).toBe(1);
+  });
+
+  test("Correctly identifies HTML in multiline template literals", () => {
+    const source = `
 const template = \`
   <div class="container">
     <span>Content</span>
   </div>
 \`;
-      `;
-      const results = findHtmlInJs(source);
-      expectTrue(
-        results.length === 1,
-        `Expected 1 HTML instance, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "ignore-non-html-templates",
-    description: "Does not flag template literals without HTML",
-    test: () => {
-      const source = `
+    `;
+    const results = findHtmlInJs(source);
+    expect(results.length).toBe(1);
+  });
+
+  test("Does not flag template literals without HTML", () => {
+    const source = `
 const message = \`Hello, \${name}!\`;
 const query = \`SELECT * FROM users WHERE id = \${id}\`;
 const css = \`.class { color: red; }\`;
-      `;
-      const results = findHtmlInJs(source);
-      expectTrue(
-        results.length === 0,
-        `Expected 0 HTML instances, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "ignore-comparison-operators",
-    description: "Does not flag comparison operators as HTML",
-    test: () => {
-      const source = `
+    `;
+    const results = findHtmlInJs(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag comparison operators as HTML", () => {
+    const source = `
 const isSmaller = a < b;
 const isLarger = x > y;
 const check = value < 10;
-      `;
-      const results = findHtmlInJs(source);
-      expectTrue(
-        results.length === 0,
-        `Expected 0 HTML instances (comparisons), found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "no-new-html-in-js",
-    description: "No new HTML-in-JS outside the allowlist",
-    test: () => {
-      const { violations } = analyzeHtmlInJs();
-      assertNoViolations(expectTrue, violations, {
-        message: "files with HTML in JavaScript",
-        fixHint:
-          "extract HTML to template files, or add to ALLOWED_HTML_IN_JS in code-quality-exceptions.js",
-      });
-    },
-  },
-  {
-    name: "report-allowed-html-in-js",
-    description: "Reports allowlisted HTML-in-JS files for tracking",
-    test: () => {
-      const { allowed } = analyzeHtmlInJs();
+    `;
+    const results = findHtmlInJs(source);
+    expect(results.length).toBe(0);
+  });
 
-      console.log(`\n  Allowlisted HTML-in-JS files: ${allowed.length}`);
-      console.log("  These should be refactored over time:\n");
+  test("No new HTML-in-JS outside the allowlist", () => {
+    const { violations } = analyzeHtmlInJs();
+    assertNoViolations(violations, {
+      message: "files with HTML in JavaScript",
+      fixHint:
+        "extract HTML to template files, or add to ALLOWED_HTML_IN_JS in code-quality-exceptions.js",
+    });
+  });
 
-      for (const a of allowed) {
-        console.log(`     ${a.file}: ${a.instances.length} instance(s)`);
-      }
-      console.log("");
+  test("Reports allowlisted HTML-in-JS files for tracking", () => {
+    const { allowed } = analyzeHtmlInJs();
 
-      // This test always passes - it's informational
-      expectTrue(true, "Reported allowlisted HTML-in-JS files");
-    },
-  },
-];
+    console.log(`\n  Allowlisted HTML-in-JS files: ${allowed.length}`);
+    console.log("  These should be refactored over time:\n");
 
-createTestRunner("html-in-js", testCases);
+    for (const a of allowed) {
+      console.log(`     ${a.file}: ${a.instances.length} instance(s)`);
+    }
+    console.log("");
+
+    // This test always passes - it's informational
+    expect(true).toBe(true);
+  });
+});

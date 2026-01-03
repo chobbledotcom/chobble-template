@@ -2,7 +2,7 @@
 // Tests the complete checkout flow with mocked Stripe API
 // Uses actual cart-utils.js and renders real Liquid templates
 
-import assert from "node:assert";
+import { describe, expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
 // Import actual cart utilities
@@ -19,7 +19,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { buildJsConfigScript } from "#eleventy/js-config.js";
-import { createTestRunner, fs, path, rootDir } from "#test/test-utils.js";
+import { fs, path, rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Template Rendering
@@ -233,139 +233,75 @@ const withMockStorage = (fn) => {
 // Test Cases
 // ============================================
 
-const testCases = [
+describe("checkout", () => {
   // ----------------------------------------
   // cart-utils.js Direct Tests
   // ----------------------------------------
-  {
-    name: "cart-utils-getCart-empty",
-    description: "getCart returns empty array when localStorage is empty",
-    test: () => {
-      withMockStorage(() => {
+  test("getCart returns empty array when localStorage is empty", () => {
+    withMockStorage(() => {
+      const cart = getCart();
+      expect(cart).toEqual([]);
+    });
+  });
+
+  test("saveCart persists cart and getCart retrieves it", () => {
+    withMockStorage(() => {
+      const items = [
+        { item_name: "Widget", unit_price: 15.0, quantity: 2, sku: "W1" },
+      ];
+      saveCart(items);
+      const retrieved = getCart();
+      expect(retrieved).toEqual(items);
+    });
+  });
+
+  test("getCart logs error and returns empty array for corrupt JSON", () => {
+    withMockStorage((storage) => {
+      storage.setItem(STORAGE_KEY, "not valid json {{{");
+      const errors = [];
+      const originalError = console.error;
+      console.error = (...args) => errors.push(args);
+      try {
         const cart = getCart();
-        assert.deepStrictEqual(
-          cart,
-          [],
-          "getCart should return empty array when localStorage is empty",
-        );
-      });
-    },
-  },
-  {
-    name: "cart-utils-saveCart-and-getCart",
-    description: "saveCart persists cart and getCart retrieves it",
-    test: () => {
-      withMockStorage(() => {
-        const items = [
-          { item_name: "Widget", unit_price: 15.0, quantity: 2, sku: "W1" },
-        ];
-        saveCart(items);
-        const retrieved = getCart();
-        assert.deepStrictEqual(
-          retrieved,
-          items,
-          "getCart should retrieve the same items that were saved",
-        );
-      });
-    },
-  },
-  {
-    name: "cart-utils-getCart-handles-corrupt-data",
-    description: "getCart logs error and returns empty array for corrupt JSON",
-    test: () => {
-      withMockStorage((storage) => {
-        storage.setItem(STORAGE_KEY, "not valid json {{{");
-        const errors = [];
-        const originalError = console.error;
-        console.error = (...args) => errors.push(args);
-        try {
-          const cart = getCart();
-          assert.deepStrictEqual(
-            cart,
-            [],
-            "getCart should return empty array when JSON is corrupt",
-          );
-          assert.strictEqual(
-            errors.length,
-            1,
-            "Expected one error to be logged",
-          );
-          assert.ok(
-            errors[0][0].includes("Failed to parse"),
-            "Error should mention failed to parse",
-          );
-        } finally {
-          console.error = originalError;
-        }
-      });
-    },
-  },
-  {
-    name: "cart-utils-removeItem",
-    description: "removeItem removes item by name",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([
-          { item_name: "Keep", unit_price: 10, quantity: 1 },
-          { item_name: "Remove", unit_price: 5, quantity: 2 },
-        ]);
-        const result = removeItem("Remove");
-        assert.strictEqual(
-          result.length,
-          1,
-          "Cart should have 1 item after removal",
-        );
-        assert.strictEqual(
-          result[0].item_name,
-          "Keep",
-          "Remaining item should be 'Keep'",
-        );
-      });
-    },
-  },
-  {
-    name: "cart-utils-formatPrice",
-    description: "formatPrice formats with £ symbol and 2 decimals",
-    test: () => {
-      assert.strictEqual(
-        formatPrice(10),
-        "£10.00",
-        "formatPrice(10) should return '£10.00'",
-      );
-      assert.strictEqual(
-        formatPrice(5.5),
-        "£5.50",
-        "formatPrice(5.5) should return '£5.50'",
-      );
-      assert.strictEqual(
-        formatPrice(0.3),
-        "£0.30",
-        "formatPrice(0.3) should return '£0.30'",
-      );
-    },
-  },
-  {
-    name: "cart-utils-getItemCount",
-    description: "getItemCount sums all quantities",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([
-          { item_name: "A", unit_price: 10, quantity: 3 },
-          { item_name: "B", unit_price: 5, quantity: 2 },
-        ]);
-        assert.strictEqual(
-          getItemCount(),
-          5,
-          "getItemCount should sum quantities (3 + 2 = 5)",
-        );
-      });
-    },
-  },
-  {
-    name: "cart-utils-updateCartIcon-shows-icon",
-    description: "updateCartIcon shows cart icon when items in cart",
-    test: () => {
-      const dom = new JSDOM(`
+        expect(cart).toEqual([]);
+        expect(errors.length).toBe(1);
+        expect(errors[0][0].includes("Failed to parse")).toBe(true);
+      } finally {
+        console.error = originalError;
+      }
+    });
+  });
+
+  test("removeItem removes item by name", () => {
+    withMockStorage(() => {
+      saveCart([
+        { item_name: "Keep", unit_price: 10, quantity: 1 },
+        { item_name: "Remove", unit_price: 5, quantity: 2 },
+      ]);
+      const result = removeItem("Remove");
+      expect(result).toHaveLength(1);
+      expect(result[0].item_name).toBe("Keep");
+    });
+  });
+
+  test("formatPrice formats with £ symbol and 2 decimals", () => {
+    expect(formatPrice(10)).toBe("£10.00");
+    expect(formatPrice(5.5)).toBe("£5.50");
+    expect(formatPrice(0.3)).toBe("£0.30");
+  });
+
+  test("getItemCount sums all quantities", () => {
+    withMockStorage(() => {
+      saveCart([
+        { item_name: "A", unit_price: 10, quantity: 3 },
+        { item_name: "B", unit_price: 5, quantity: 2 },
+      ]);
+      expect(getItemCount()).toBe(5);
+    });
+  });
+
+  test("updateCartIcon shows cart icon when items in cart", () => {
+    const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
           <div class="cart-icon" style="display: none;">
@@ -373,41 +309,30 @@ const testCases = [
           </div>
         </body></html>
       `);
-      global.document = dom.window.document;
-      const mockStorage = createMockLocalStorage();
-      const origStorage = globalThis.localStorage;
-      globalThis.localStorage = mockStorage;
-      try {
-        saveCart([
-          { item_name: "A", unit_price: 10, quantity: 2 },
-          { item_name: "B", unit_price: 5, quantity: 3 },
-        ]);
-        updateCartIcon();
-        const icon = dom.window.document.querySelector(".cart-icon");
-        const badge = icon.querySelector(".cart-count");
-        assert.strictEqual(
-          icon.style.display,
-          "flex",
-          "Icon should be visible",
-        );
-        assert.strictEqual(badge.textContent, "5", "Badge should show count 5");
-        assert.strictEqual(
-          badge.style.display,
-          "block",
-          "Badge should be visible",
-        );
-      } finally {
-        globalThis.localStorage = origStorage;
-        delete global.document;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-updateCartIcon-hides-icon",
-    description: "updateCartIcon hides cart icon when cart is empty",
-    test: () => {
-      const dom = new JSDOM(`
+    global.document = dom.window.document;
+    const mockStorage = createMockLocalStorage();
+    const origStorage = globalThis.localStorage;
+    globalThis.localStorage = mockStorage;
+    try {
+      saveCart([
+        { item_name: "A", unit_price: 10, quantity: 2 },
+        { item_name: "B", unit_price: 5, quantity: 3 },
+      ]);
+      updateCartIcon();
+      const icon = dom.window.document.querySelector(".cart-icon");
+      const badge = icon.querySelector(".cart-count");
+      expect(icon.style.display).toBe("flex");
+      expect(badge.textContent).toBe("5");
+      expect(badge.style.display).toBe("block");
+    } finally {
+      globalThis.localStorage = origStorage;
+      delete global.document;
+      dom.window.close();
+    }
+  });
+
+  test("updateCartIcon hides cart icon when cart is empty", () => {
+    const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
           <div class="cart-icon" style="display: flex;">
@@ -415,124 +340,82 @@ const testCases = [
           </div>
         </body></html>
       `);
-      global.document = dom.window.document;
-      const mockStorage = createMockLocalStorage();
-      const origStorage = globalThis.localStorage;
-      globalThis.localStorage = mockStorage;
-      try {
-        saveCart([]);
-        updateCartIcon();
-        const icon = dom.window.document.querySelector(".cart-icon");
-        const badge = icon.querySelector(".cart-count");
-        assert.strictEqual(icon.style.display, "none", "Icon should be hidden");
-        assert.strictEqual(
-          badge.style.display,
-          "none",
-          "Badge should be hidden",
-        );
-      } finally {
-        globalThis.localStorage = origStorage;
-        delete global.document;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-updateItemQuantity-updates-quantity",
-    description: "updateItemQuantity updates item quantity correctly",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
-        const result = updateItemQuantity("Widget", 5);
-        assert.strictEqual(
-          result,
-          true,
-          "Should return true for existing item",
-        );
-        const cart = getCart();
-        assert.strictEqual(
-          cart[0].quantity,
-          5,
-          "Quantity should be updated to 5",
-        );
-      });
-    },
-  },
-  {
-    name: "cart-utils-updateItemQuantity-removes-at-zero",
-    description: "updateItemQuantity removes item when quantity is 0 or less",
-    test: () => {
+    global.document = dom.window.document;
+    const mockStorage = createMockLocalStorage();
+    const origStorage = globalThis.localStorage;
+    globalThis.localStorage = mockStorage;
+    try {
+      saveCart([]);
+      updateCartIcon();
+      const icon = dom.window.document.querySelector(".cart-icon");
+      const badge = icon.querySelector(".cart-count");
+      expect(icon.style.display).toBe("none");
+      expect(badge.style.display).toBe("none");
+    } finally {
+      globalThis.localStorage = origStorage;
+      delete global.document;
+      dom.window.close();
+    }
+  });
+
+  test("updateItemQuantity updates item quantity correctly", () => {
+    withMockStorage(() => {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+      const result = updateItemQuantity("Widget", 5);
+      expect(result).toBe(true);
+      const cart = getCart();
+      expect(cart[0].quantity).toBe(5);
+    });
+  });
+
+  test("updateItemQuantity removes item when quantity is 0 or less", () => {
+    withMockStorage(() => {
+      saveCart([
+        { item_name: "Keep", unit_price: 10, quantity: 1 },
+        { item_name: "Remove", unit_price: 5, quantity: 3 },
+      ]);
+      updateItemQuantity("Remove", 0);
+      const cart = getCart();
+      expect(cart).toHaveLength(1);
+      expect(cart[0].item_name).toBe("Keep");
+    });
+  });
+
+  test("updateItemQuantity caps at max_quantity and shows alert", () => {
+    const alerts = [];
+    const origAlert = global.alert;
+    global.alert = (msg) => alerts.push(msg);
+    try {
       withMockStorage(() => {
         saveCart([
-          { item_name: "Keep", unit_price: 10, quantity: 1 },
-          { item_name: "Remove", unit_price: 5, quantity: 3 },
+          {
+            item_name: "Limited",
+            unit_price: 10,
+            quantity: 2,
+            max_quantity: 5,
+          },
         ]);
-        updateItemQuantity("Remove", 0);
+        updateItemQuantity("Limited", 10);
         const cart = getCart();
-        assert.strictEqual(cart.length, 1, "Cart should have 1 item");
-        assert.strictEqual(
-          cart[0].item_name,
-          "Keep",
-          "Only Keep should remain",
-        );
+        expect(cart[0].quantity).toBe(5);
+        expect(alerts).toHaveLength(1);
+        expect(alerts[0].includes("5")).toBe(true);
       });
-    },
-  },
-  {
-    name: "cart-utils-updateItemQuantity-respects-max",
-    description: "updateItemQuantity caps at max_quantity and shows alert",
-    test: () => {
-      const alerts = [];
-      const origAlert = global.alert;
-      global.alert = (msg) => alerts.push(msg);
-      try {
-        withMockStorage(() => {
-          saveCart([
-            {
-              item_name: "Limited",
-              unit_price: 10,
-              quantity: 2,
-              max_quantity: 5,
-            },
-          ]);
-          updateItemQuantity("Limited", 10);
-          const cart = getCart();
-          assert.strictEqual(
-            cart[0].quantity,
-            5,
-            "Quantity should be capped at max_quantity",
-          );
-          assert.strictEqual(alerts.length, 1, "Should show alert");
-          assert.ok(
-            alerts[0].includes("5"),
-            "Alert should mention max quantity",
-          );
-        });
-      } finally {
-        global.alert = origAlert;
-      }
-    },
-  },
-  {
-    name: "cart-utils-updateItemQuantity-nonexistent-item",
-    description: "updateItemQuantity returns false for non-existent item",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
-        const result = updateItemQuantity("NonExistent", 5);
-        assert.strictEqual(
-          result,
-          false,
-          "Should return false for non-existent item",
-        );
-      });
-    },
-  },
-  {
-    name: "cart-utils-attachQuantityHandlers-decrease",
-    description: "attachQuantityHandlers attaches decrease button handlers",
-    test: () => {
-      const dom = new JSDOM(`
+    } finally {
+      global.alert = origAlert;
+    }
+  });
+
+  test("updateItemQuantity returns false for non-existent item", () => {
+    withMockStorage(() => {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+      const result = updateItemQuantity("NonExistent", 5);
+      expect(result).toBe(false);
+    });
+  });
+
+  test("attachQuantityHandlers attaches decrease button handlers", () => {
+    const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -542,37 +425,34 @@ const testCases = [
           </div>
         </body></html>
       `);
-      const mockStorage = createMockLocalStorage();
-      const origStorage = globalThis.localStorage;
-      globalThis.localStorage = mockStorage;
-      try {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
+    const mockStorage = createMockLocalStorage();
+    const origStorage = globalThis.localStorage;
+    globalThis.localStorage = mockStorage;
+    try {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-        const container = dom.window.document.getElementById("container");
-        const updates = [];
+      const container = dom.window.document.getElementById("container");
+      const updates = [];
 
-        attachQuantityHandlers(container, (name, qty) => {
-          updates.push({ name, qty });
-        });
+      attachQuantityHandlers(container, (name, qty) => {
+        updates.push({ name, qty });
+      });
 
-        // Simulate click on decrease button
-        const decreaseBtn = container.querySelector('[data-action="decrease"]');
-        decreaseBtn.click();
+      // Simulate click on decrease button
+      const decreaseBtn = container.querySelector('[data-action="decrease"]');
+      decreaseBtn.click();
 
-        assert.strictEqual(updates.length, 1, "Should have one update");
-        assert.strictEqual(updates[0].name, "Widget", "Should update Widget");
-        assert.strictEqual(updates[0].qty, 2, "Should decrease quantity by 1");
-      } finally {
-        globalThis.localStorage = origStorage;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-attachQuantityHandlers-increase",
-    description: "attachQuantityHandlers attaches increase button handlers",
-    test: () => {
-      const dom = new JSDOM(`
+      expect(updates).toHaveLength(1);
+      expect(updates[0].name).toBe("Widget");
+      expect(updates[0].qty).toBe(2);
+    } finally {
+      globalThis.localStorage = origStorage;
+      dom.window.close();
+    }
+  });
+
+  test("attachQuantityHandlers attaches increase button handlers", () => {
+    const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -582,37 +462,34 @@ const testCases = [
           </div>
         </body></html>
       `);
-      const mockStorage = createMockLocalStorage();
-      const origStorage = globalThis.localStorage;
-      globalThis.localStorage = mockStorage;
-      try {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
+    const mockStorage = createMockLocalStorage();
+    const origStorage = globalThis.localStorage;
+    globalThis.localStorage = mockStorage;
+    try {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-        const container = dom.window.document.getElementById("container");
-        const updates = [];
+      const container = dom.window.document.getElementById("container");
+      const updates = [];
 
-        attachQuantityHandlers(container, (name, qty) => {
-          updates.push({ name, qty });
-        });
+      attachQuantityHandlers(container, (name, qty) => {
+        updates.push({ name, qty });
+      });
 
-        // Simulate click on increase button
-        const increaseBtn = container.querySelector('[data-action="increase"]');
-        increaseBtn.click();
+      // Simulate click on increase button
+      const increaseBtn = container.querySelector('[data-action="increase"]');
+      increaseBtn.click();
 
-        assert.strictEqual(updates.length, 1, "Should have one update");
-        assert.strictEqual(updates[0].name, "Widget", "Should update Widget");
-        assert.strictEqual(updates[0].qty, 4, "Should increase quantity by 1");
-      } finally {
-        globalThis.localStorage = origStorage;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-attachQuantityHandlers-input-change",
-    description: "attachQuantityHandlers attaches input change handlers",
-    test: () => {
-      const dom = new JSDOM(`
+      expect(updates).toHaveLength(1);
+      expect(updates[0].name).toBe("Widget");
+      expect(updates[0].qty).toBe(4);
+    } finally {
+      globalThis.localStorage = origStorage;
+      dom.window.close();
+    }
+  });
+
+  test("attachQuantityHandlers attaches input change handlers", () => {
+    const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -620,38 +497,35 @@ const testCases = [
           </div>
         </body></html>
       `);
-      const mockStorage = createMockLocalStorage();
-      const origStorage = globalThis.localStorage;
-      globalThis.localStorage = mockStorage;
-      try {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
+    const mockStorage = createMockLocalStorage();
+    const origStorage = globalThis.localStorage;
+    globalThis.localStorage = mockStorage;
+    try {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-        const container = dom.window.document.getElementById("container");
-        const updates = [];
+      const container = dom.window.document.getElementById("container");
+      const updates = [];
 
-        attachQuantityHandlers(container, (name, qty) => {
-          updates.push({ name, qty });
-        });
+      attachQuantityHandlers(container, (name, qty) => {
+        updates.push({ name, qty });
+      });
 
-        // Simulate input change
-        const input = container.querySelector("input[type='number']");
-        input.value = "7";
-        input.dispatchEvent(new dom.window.Event("change"));
+      // Simulate input change
+      const input = container.querySelector("input[type='number']");
+      input.value = "7";
+      input.dispatchEvent(new dom.window.Event("change"));
 
-        assert.strictEqual(updates.length, 1, "Should have one update");
-        assert.strictEqual(updates[0].name, "Widget", "Should update Widget");
-        assert.strictEqual(updates[0].qty, 7, "Should update to new quantity");
-      } finally {
-        globalThis.localStorage = origStorage;
-        dom.window.close();
-      }
-    },
-  },
-  {
-    name: "cart-utils-attachRemoveHandlers-removes-item",
-    description: "attachRemoveHandlers attaches remove button handlers",
-    test: () => {
-      const dom = new JSDOM(`
+      expect(updates).toHaveLength(1);
+      expect(updates[0].name).toBe("Widget");
+      expect(updates[0].qty).toBe(7);
+    } finally {
+      globalThis.localStorage = origStorage;
+      dom.window.close();
+    }
+  });
+
+  test("attachRemoveHandlers attaches remove button handlers", () => {
+    const dom = new JSDOM(`
         <!DOCTYPE html>
         <html><body>
           <div id="container">
@@ -659,1100 +533,707 @@ const testCases = [
           </div>
         </body></html>
       `);
-      const mockStorage = createMockLocalStorage();
-      const origStorage = globalThis.localStorage;
-      globalThis.localStorage = mockStorage;
-      try {
-        saveCart([
-          { item_name: "Widget", unit_price: 10, quantity: 1 },
-          { item_name: "Gadget", unit_price: 20, quantity: 2 },
-        ]);
+    const mockStorage = createMockLocalStorage();
+    const origStorage = globalThis.localStorage;
+    globalThis.localStorage = mockStorage;
+    try {
+      saveCart([
+        { item_name: "Widget", unit_price: 10, quantity: 1 },
+        { item_name: "Gadget", unit_price: 20, quantity: 2 },
+      ]);
 
-        const container = dom.window.document.getElementById("container");
-        let removeCalled = false;
+      const container = dom.window.document.getElementById("container");
+      let removeCalled = false;
 
-        attachRemoveHandlers(container, ".remove-btn", () => {
-          removeCalled = true;
-        });
+      attachRemoveHandlers(container, ".remove-btn", () => {
+        removeCalled = true;
+      });
 
-        // Simulate click on remove button
-        const removeBtn = container.querySelector(".remove-btn");
-        removeBtn.click();
+      // Simulate click on remove button
+      const removeBtn = container.querySelector(".remove-btn");
+      removeBtn.click();
 
-        assert.strictEqual(
-          removeCalled,
-          true,
-          "onRemove callback should be called",
-        );
-        const cart = getCart();
-        assert.strictEqual(cart.length, 1, "Cart should have 1 item");
-        assert.strictEqual(
-          cart[0].item_name,
-          "Gadget",
-          "Widget should be removed",
-        );
-      } finally {
-        globalThis.localStorage = origStorage;
-        dom.window.close();
-      }
-    },
-  },
+      expect(removeCalled).toBe(true);
+      const cart = getCart();
+      expect(cart).toHaveLength(1);
+      expect(cart[0].item_name).toBe("Gadget");
+    } finally {
+      globalThis.localStorage = origStorage;
+      dom.window.close();
+    }
+  });
 
   // ----------------------------------------
   // Real Template Tests
   // ----------------------------------------
-  {
-    name: "template-cart-overlay-renders",
-    description: "Cart overlay template renders with all required elements",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        cartMode: "stripe",
-        checkoutApiUrl: "https://api.test.com",
-      });
+  test("Cart overlay template renders with all required elements", async () => {
+    const dom = await createCheckoutPage({
+      cartMode: "stripe",
+      checkoutApiUrl: "https://api.test.com",
+    });
 
-      const doc = dom.window.document;
-      const overlay = doc.getElementById("cart-overlay");
+    const doc = dom.window.document;
+    const overlay = doc.getElementById("cart-overlay");
 
-      assert.ok(overlay, "Cart overlay should exist");
-      assert.ok(
-        overlay.querySelector(".cart-items"),
-        "Should have cart-items container",
-      );
-      assert.ok(
-        overlay.querySelector(".cart-empty"),
-        "Should have cart-empty message",
-      );
-      assert.ok(
-        overlay.querySelector(".cart-total-amount"),
-        "Should have total display",
-      );
-      assert.ok(
-        overlay.querySelector(".cart-checkout-stripe"),
-        "Should have Stripe button",
-      );
-      assert.ok(
-        overlay.querySelector(".cart-minimum-message"),
-        "Should have minimum message",
-      );
+    expect(overlay).toBeTruthy();
+    expect(overlay.querySelector(".cart-items")).toBeTruthy();
+    expect(overlay.querySelector(".cart-empty")).toBeTruthy();
+    expect(overlay.querySelector(".cart-total-amount")).toBeTruthy();
+    expect(overlay.querySelector(".cart-checkout-stripe")).toBeTruthy();
+    expect(overlay.querySelector(".cart-minimum-message")).toBeTruthy();
 
-      // Verify config is available via script tag
-      const configScript = dom.window.document.getElementById("site-config");
-      const siteConfig = JSON.parse(configScript.textContent);
-      assert.strictEqual(
-        siteConfig.checkout_api_url,
-        "https://api.test.com",
-        "Config should contain checkout_api_url from options",
-      );
+    // Verify config is available via script tag
+    const configScript = dom.window.document.getElementById("site-config");
+    const siteConfig = JSON.parse(configScript.textContent);
+    expect(siteConfig.checkout_api_url).toBe("https://api.test.com");
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-cart-overlay-paypal-mode",
-    description: "Cart overlay shows PayPal button when cart_mode is paypal",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        cartMode: "paypal",
-        paypalEmail: "pay@example.com",
-        checkoutApiUrl: "https://api.example.com",
-      });
+    dom.window.close();
+  });
 
-      const doc = dom.window.document;
-      const stripeBtn = doc.querySelector(".cart-checkout-stripe");
-      const paypalBtn = doc.querySelector(".cart-checkout-paypal");
+  test("Cart overlay shows PayPal button when cart_mode is paypal", async () => {
+    const dom = await createCheckoutPage({
+      cartMode: "paypal",
+      paypalEmail: "pay@example.com",
+      checkoutApiUrl: "https://api.example.com",
+    });
 
-      assert.strictEqual(
-        stripeBtn,
-        null,
-        "Stripe button should not exist in paypal mode",
-      );
-      assert.ok(paypalBtn, "PayPal button should exist in paypal mode");
+    const doc = dom.window.document;
+    const stripeBtn = doc.querySelector(".cart-checkout-stripe");
+    const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-cart-overlay-stripe-mode",
-    description: "Cart overlay shows Stripe button when cart_mode is stripe",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        cartMode: "stripe",
-        checkoutApiUrl: "https://api.example.com",
-      });
+    expect(stripeBtn).toBeNull();
+    expect(paypalBtn).toBeTruthy();
 
-      const doc = dom.window.document;
-      const stripeBtn = doc.querySelector(".cart-checkout-stripe");
-      const paypalBtn = doc.querySelector(".cart-checkout-paypal");
+    dom.window.close();
+  });
 
-      assert.ok(stripeBtn, "Stripe button should exist in stripe mode");
-      assert.strictEqual(
-        paypalBtn,
-        null,
-        "PayPal button should not exist in stripe mode",
-      );
+  test("Cart overlay shows Stripe button when cart_mode is stripe", async () => {
+    const dom = await createCheckoutPage({
+      cartMode: "stripe",
+      checkoutApiUrl: "https://api.example.com",
+    });
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-stripe-checkout-page-renders",
-    description: "Stripe checkout page template renders with data attributes",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        includeStripeCheckoutPage: true,
-        checkoutApiUrl: "https://checkout.api.com",
-      });
+    const doc = dom.window.document;
+    const stripeBtn = doc.querySelector(".cart-checkout-stripe");
+    const paypalBtn = doc.querySelector(".cart-checkout-paypal");
 
-      const doc = dom.window.document;
-      const page = doc.querySelector(".stripe-checkout-page");
+    expect(stripeBtn).toBeTruthy();
+    expect(paypalBtn).toBeNull();
 
-      assert.ok(page, "Stripe checkout page should exist");
-      assert.strictEqual(
-        page.dataset.checkoutApiUrl,
-        "https://checkout.api.com",
-        "Stripe checkout page should have data-checkout-api-url attribute",
-      );
+    dom.window.close();
+  });
 
-      const status = doc.getElementById("status-message");
-      assert.ok(status, "Status message element should exist");
-      assert.ok(
-        status.textContent.includes("Checking cart"),
-        "Should show initial status",
-      );
+  test("Stripe checkout page template renders with data attributes", async () => {
+    const dom = await createCheckoutPage({
+      includeStripeCheckoutPage: true,
+      checkoutApiUrl: "https://checkout.api.com",
+    });
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-cart-icon-renders",
-    description: "Cart icon template renders with required elements",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage();
+    const doc = dom.window.document;
+    const page = doc.querySelector(".stripe-checkout-page");
 
-      const doc = dom.window.document;
-      const cartIcon = doc.querySelector(".cart-icon");
+    expect(page).toBeTruthy();
+    expect(page.dataset.checkoutApiUrl).toBe("https://checkout.api.com");
 
-      assert.ok(cartIcon, "Cart icon should exist");
-      assert.ok(cartIcon.querySelector("svg"), "Should have SVG icon");
-      assert.ok(
-        cartIcon.querySelector(".cart-count"),
-        "Should have cart count badge",
-      );
-      assert.strictEqual(
-        cartIcon.style.display,
-        "none",
-        "Cart icon should be hidden initially",
-      );
+    const status = doc.getElementById("status-message");
+    expect(status).toBeTruthy();
+    expect(status.textContent.includes("Checking cart")).toBe(true);
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-product-options-single-renders",
-    description: "Product options template renders single option as button",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productTitle: "My Product",
-        productOptions: [
-          {
-            name: "Standard",
-            unit_price: "19.99",
-            max_quantity: 10,
-            sku: "STD-001",
-          },
-        ],
-      });
+    dom.window.close();
+  });
 
-      const doc = dom.window.document;
-      const button = doc.querySelector(".add-to-cart");
+  test("Cart icon template renders with required elements", async () => {
+    const dom = await createCheckoutPage();
 
-      assert.ok(button, "Add to cart button should exist");
+    const doc = dom.window.document;
+    const cartIcon = doc.querySelector(".cart-icon");
 
-      // Parse the consolidated data-item attribute
-      const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(
-        itemData.name,
-        "My Product",
-        "Item data should have correct product name",
-      );
-      assert.strictEqual(
-        itemData.options[0].name,
-        "Standard",
-        "First option should be 'Standard'",
-      );
-      assert.strictEqual(
-        itemData.options[0].unit_price,
-        19.99,
-        "First option unit_price should be 19.99",
-      );
-      assert.strictEqual(
-        itemData.options[0].sku,
-        "STD-001",
-        "First option sku should be 'STD-001'",
-      );
-      assert.strictEqual(
-        itemData.options[0].max_quantity,
-        10,
-        "First option max_quantity should be 10",
-      );
-      assert.ok(
-        button.textContent.includes("19.99"),
-        "Button should show price in text",
-      );
+    expect(cartIcon).toBeTruthy();
+    expect(cartIcon.querySelector("svg")).toBeTruthy();
+    expect(cartIcon.querySelector(".cart-count")).toBeTruthy();
+    expect(cartIcon.style.display).toBe("none");
 
-      // Should NOT have a select (single option = direct button)
-      const select = doc.querySelector(".product-options-select");
-      assert.strictEqual(
-        select,
-        null,
-        "Should not have select dropdown for single option",
-      );
+    dom.window.close();
+  });
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-product-options-multiple-renders",
-    description: "Product options template renders multiple options as select",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productTitle: "Variable Product",
-        productOptions: [
-          { name: "Small", unit_price: "5.00", max_quantity: 5, sku: "VAR-S" },
-          { name: "Medium", unit_price: "7.50", max_quantity: 3, sku: "VAR-M" },
-          { name: "Large", unit_price: "10.00", max_quantity: 2, sku: "VAR-L" },
-        ],
-      });
-
-      const doc = dom.window.document;
-      const select = doc.querySelector(".product-options-select");
-      const button = doc.querySelector(".product-option-button");
-
-      assert.ok(select, "Select should exist for multiple options");
-      assert.ok(button, "Add to cart button should exist for multiple options");
-      assert.strictEqual(
-        button.disabled,
-        true,
-        "Button should be disabled initially before option selected",
-      );
-
-      // Parse the consolidated data-item attribute
-      const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(
-        itemData.name,
-        "Variable Product",
-        "Item data should have correct product name",
-      );
-      assert.strictEqual(
-        itemData.options.length,
-        3,
-        "Item data should have 3 options",
-      );
-
-      // Check options in select (values are indices now)
-      const options = select.querySelectorAll("option");
-      assert.strictEqual(
-        options.length,
-        4,
-        "Should have 4 options (1 placeholder + 3 choices)",
-      );
-
-      // First option is placeholder
-      assert.ok(
-        options[0].disabled,
-        "First option should be disabled placeholder",
-      );
-
-      // Check second option (Small) - now just value index
-      assert.strictEqual(
-        options[1].value,
-        "0",
-        "Second option value should be index '0'",
-      );
-      assert.ok(
-        options[1].textContent.includes("Small"),
-        "Second option should include 'Small' in text",
-      );
-      assert.ok(
-        options[1].textContent.includes("5.00"),
-        "Second option should include price '5.00' in text",
-      );
-
-      // Verify the data is in itemData
-      assert.strictEqual(
-        itemData.options[0].name,
-        "Small",
-        "First option in itemData should be 'Small'",
-      );
-      assert.strictEqual(
-        itemData.options[0].unit_price,
-        5.0,
-        "First option unit_price should be 5.0",
-      );
-      assert.strictEqual(
-        itemData.options[0].sku,
-        "VAR-S",
-        "First option sku should be 'VAR-S'",
-      );
-      assert.strictEqual(
-        itemData.options[0].max_quantity,
-        5,
-        "First option max_quantity should be 5",
-      );
-
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-list-item-cart-button-single-option",
-    description:
-      "List item cart button renders Add to Cart for single option products",
-    asyncTest: async () => {
-      const config = { cart_mode: "stripe" };
-      const options = [
-        { name: "Standard", unit_price: 29.99, max_quantity: 5, sku: "TP1" },
-      ];
-      // Compute cart_attributes like products.11tydata.js does
-      const cart_attributes = JSON.stringify({
-        name: "Test Product",
-        options: options.map((opt) => ({
-          name: opt.name,
-          unit_price: opt.unit_price,
-          max_quantity: opt.max_quantity || null,
-          sku: opt.sku || null,
-        })),
-        specs: null,
-      }).replace(/"/g, "&quot;");
-
-      const item = {
-        data: {
-          title: "Test Product",
-          options,
-          cart_attributes,
+  test("Product options template renders single option as button", async () => {
+    const dom = await createCheckoutPage({
+      productTitle: "My Product",
+      productOptions: [
+        {
+          name: "Standard",
+          unit_price: "19.99",
+          max_quantity: 10,
+          sku: "STD-001",
         },
-        url: "/products/test-product/",
-      };
+      ],
+    });
 
-      const html = await renderTemplate(
-        "src/_includes/list-item-cart-button.html",
-        { config, item },
-      );
+    const doc = dom.window.document;
+    const button = doc.querySelector(".add-to-cart");
 
-      const dom = new JSDOM(`<div>${html}</div>`);
-      const doc = dom.window.document;
-      const button = doc.querySelector(".add-to-cart");
+    expect(button).toBeTruthy();
 
-      assert.ok(button, "Add to cart button should exist");
+    // Parse the consolidated data-item attribute
+    const itemData = JSON.parse(button.dataset.item);
+    expect(itemData.name).toBe("My Product");
+    expect(itemData.options[0].name).toBe("Standard");
+    expect(itemData.options[0].unit_price).toBe(19.99);
+    expect(itemData.options[0].sku).toBe("STD-001");
+    expect(itemData.options[0].max_quantity).toBe(10);
+    expect(button.textContent.includes("19.99")).toBe(true);
 
-      // Parse the consolidated data-item attribute
-      const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(
-        itemData.name,
-        "Test Product",
-        "Item data should have correct product name",
-      );
-      assert.strictEqual(
-        itemData.options[0].name,
-        "Standard",
-        "First option name should be 'Standard'",
-      );
-      assert.strictEqual(
-        itemData.options[0].unit_price,
-        29.99,
-        "First option unit_price should be 29.99",
-      );
-      assert.strictEqual(
-        itemData.options[0].max_quantity,
-        5,
-        "First option max_quantity should be 5",
-      );
-      assert.strictEqual(
-        itemData.options[0].sku,
-        "TP1",
-        "First option sku should be 'TP1'",
-      );
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-list-item-cart-button-multi-option",
-    description:
-      "List item cart button shows Select Options link for multi-option products",
-    asyncTest: async () => {
-      const config = { cart_mode: "stripe" };
-      const options = [
-        { name: "Small", unit_price: 19.99, sku: "VP-S" },
-        { name: "Large", unit_price: 29.99, sku: "VP-L" },
-      ];
-      // Compute cart_attributes like products.11tydata.js does
-      const cart_attributes = JSON.stringify({
-        name: "Variable Product",
-        options: options.map((opt) => ({
-          name: opt.name,
-          unit_price: opt.unit_price,
-          max_quantity: opt.max_quantity || null,
-          sku: opt.sku || null,
-        })),
-        specs: null,
-      }).replace(/"/g, "&quot;");
+    // Should NOT have a select (single option = direct button)
+    const select = doc.querySelector(".product-options-select");
+    expect(select).toBeNull();
 
-      const item = {
-        data: {
-          title: "Variable Product",
-          options,
-          cart_attributes,
-        },
-        url: "/products/variable-product/",
-      };
+    dom.window.close();
+  });
 
-      const html = await renderTemplate(
-        "src/_includes/list-item-cart-button.html",
-        { config, item },
-      );
+  test("Product options template renders multiple options as select", async () => {
+    const dom = await createCheckoutPage({
+      productTitle: "Variable Product",
+      productOptions: [
+        { name: "Small", unit_price: "5.00", max_quantity: 5, sku: "VAR-S" },
+        { name: "Medium", unit_price: "7.50", max_quantity: 3, sku: "VAR-M" },
+        { name: "Large", unit_price: "10.00", max_quantity: 2, sku: "VAR-L" },
+      ],
+    });
 
-      const dom = new JSDOM(`<div>${html}</div>`);
-      const doc = dom.window.document;
-      const button = doc.querySelector(".add-to-cart");
-      const link = doc.querySelector("a.button");
+    const doc = dom.window.document;
+    const select = doc.querySelector(".product-options-select");
+    const button = doc.querySelector(".product-option-button");
 
-      assert.strictEqual(
-        button,
-        null,
-        "Should not have direct add-to-cart for multi-option",
-      );
-      assert.ok(link, "Should have Select Options link for multi-option");
-      assert.ok(
-        link.href.includes("/products/variable-product/"),
-        "Link href should go to product page",
-      );
-      assert.ok(
-        link.textContent.includes("Select Options"),
-        "Link text should say Select Options",
-      );
+    expect(select).toBeTruthy();
+    expect(button).toBeTruthy();
+    expect(button.disabled).toBe(true);
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "template-list-item-cart-button-no-cart-mode",
-    description: "List item cart button renders nothing when cart_mode is null",
-    asyncTest: async () => {
-      const config = { cart_mode: null };
-      const item = {
-        data: {
-          title: "Test Product",
-          options: [{ name: "Standard", unit_price: 29.99, sku: "TP1" }],
-        },
-        url: "/products/test-product/",
-      };
+    // Parse the consolidated data-item attribute
+    const itemData = JSON.parse(button.dataset.item);
+    expect(itemData.name).toBe("Variable Product");
+    expect(itemData.options).toHaveLength(3);
 
-      const html = await renderTemplate(
-        "src/_includes/list-item-cart-button.html",
-        { config, item },
-      );
+    // Check options in select (values are indices now)
+    const options = select.querySelectorAll("option");
+    expect(options).toHaveLength(4);
 
-      assert.strictEqual(
-        html.trim(),
-        "",
-        "Should render nothing without cart_mode",
-      );
-    },
-  },
-  {
-    name: "template-list-item-cart-button-no-options",
-    description:
-      "List item cart button renders nothing for items without options",
-    asyncTest: async () => {
-      const config = { cart_mode: "stripe" };
-      const item = {
-        data: {
-          title: "Blog Post",
-        },
-        url: "/news/blog-post/",
-      };
+    // First option is placeholder
+    expect(options[0].disabled).toBe(true);
 
-      const html = await renderTemplate(
-        "src/_includes/list-item-cart-button.html",
-        { config, item },
-      );
+    // Check second option (Small) - now just value index
+    expect(options[1].value).toBe("0");
+    expect(options[1].textContent.includes("Small")).toBe(true);
+    expect(options[1].textContent.includes("5.00")).toBe(true);
 
-      assert.strictEqual(
-        html.trim(),
-        "",
-        "Should render nothing for items without options",
-      );
-    },
-  },
-  {
-    name: "template-product-options-no-payment-configured",
-    description:
-      "Product options template renders nothing when no payment configured",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        cartMode: null,
-        paypalEmail: null,
-        productOptions: [{ name: "Test", unit_price: "10.00", sku: "TEST" }],
-      });
+    // Verify the data is in itemData
+    expect(itemData.options[0].name).toBe("Small");
+    expect(itemData.options[0].unit_price).toBe(5.0);
+    expect(itemData.options[0].sku).toBe("VAR-S");
+    expect(itemData.options[0].max_quantity).toBe(5);
 
-      const doc = dom.window.document;
-      const button = doc.querySelector(".add-to-cart");
-      const select = doc.querySelector(".product-options-select");
+    dom.window.close();
+  });
 
-      assert.strictEqual(
-        button,
-        null,
-        "Should not render add-to-cart when no payment",
-      );
-      assert.strictEqual(
-        select,
-        null,
-        "Should not render select when no payment",
-      );
+  test("List item cart button renders Add to Cart for single option products", async () => {
+    const config = { cart_mode: "stripe" };
+    const options = [
+      { name: "Standard", unit_price: 29.99, max_quantity: 5, sku: "TP1" },
+    ];
+    // Compute cart_attributes like products.11tydata.js does
+    const cart_attributes = JSON.stringify({
+      name: "Test Product",
+      options: options.map((opt) => ({
+        name: opt.name,
+        unit_price: opt.unit_price,
+        max_quantity: opt.max_quantity || null,
+        sku: opt.sku || null,
+      })),
+      specs: null,
+    }).replace(/"/g, "&quot;");
 
-      dom.window.close();
-    },
-  },
+    const item = {
+      data: {
+        title: "Test Product",
+        options,
+        cart_attributes,
+      },
+      url: "/products/test-product/",
+    };
+
+    const html = await renderTemplate(
+      "src/_includes/list-item-cart-button.html",
+      { config, item },
+    );
+
+    const dom = new JSDOM(`<div>${html}</div>`);
+    const doc = dom.window.document;
+    const button = doc.querySelector(".add-to-cart");
+
+    expect(button).toBeTruthy();
+
+    // Parse the consolidated data-item attribute
+    const itemData = JSON.parse(button.dataset.item);
+    expect(itemData.name).toBe("Test Product");
+    expect(itemData.options[0].name).toBe("Standard");
+    expect(itemData.options[0].unit_price).toBe(29.99);
+    expect(itemData.options[0].max_quantity).toBe(5);
+    expect(itemData.options[0].sku).toBe("TP1");
+    dom.window.close();
+  });
+
+  test("List item cart button shows Select Options link for multi-option products", async () => {
+    const config = { cart_mode: "stripe" };
+    const options = [
+      { name: "Small", unit_price: 19.99, sku: "VP-S" },
+      { name: "Large", unit_price: 29.99, sku: "VP-L" },
+    ];
+    // Compute cart_attributes like products.11tydata.js does
+    const cart_attributes = JSON.stringify({
+      name: "Variable Product",
+      options: options.map((opt) => ({
+        name: opt.name,
+        unit_price: opt.unit_price,
+        max_quantity: opt.max_quantity || null,
+        sku: opt.sku || null,
+      })),
+      specs: null,
+    }).replace(/"/g, "&quot;");
+
+    const item = {
+      data: {
+        title: "Variable Product",
+        options,
+        cart_attributes,
+      },
+      url: "/products/variable-product/",
+    };
+
+    const html = await renderTemplate(
+      "src/_includes/list-item-cart-button.html",
+      { config, item },
+    );
+
+    const dom = new JSDOM(`<div>${html}</div>`);
+    const doc = dom.window.document;
+    const button = doc.querySelector(".add-to-cart");
+    const link = doc.querySelector("a.button");
+
+    expect(button).toBeNull();
+    expect(link).toBeTruthy();
+    expect(link.href.includes("/products/variable-product/")).toBe(true);
+    expect(link.textContent.includes("Select Options")).toBe(true);
+
+    dom.window.close();
+  });
+
+  test("List item cart button renders nothing when cart_mode is null", async () => {
+    const config = { cart_mode: null };
+    const item = {
+      data: {
+        title: "Test Product",
+        options: [{ name: "Standard", unit_price: 29.99, sku: "TP1" }],
+      },
+      url: "/products/test-product/",
+    };
+
+    const html = await renderTemplate(
+      "src/_includes/list-item-cart-button.html",
+      { config, item },
+    );
+
+    expect(html.trim()).toBe("");
+  });
+
+  test("List item cart button renders nothing for items without options", async () => {
+    const config = { cart_mode: "stripe" };
+    const item = {
+      data: {
+        title: "Blog Post",
+      },
+      url: "/news/blog-post/",
+    };
+
+    const html = await renderTemplate(
+      "src/_includes/list-item-cart-button.html",
+      { config, item },
+    );
+
+    expect(html.trim()).toBe("");
+  });
+
+  test("Product options template renders nothing when no payment configured", async () => {
+    const dom = await createCheckoutPage({
+      cartMode: null,
+      paypalEmail: null,
+      productOptions: [{ name: "Test", unit_price: "10.00", sku: "TEST" }],
+    });
+
+    const doc = dom.window.document;
+    const button = doc.querySelector(".add-to-cart");
+    const select = doc.querySelector(".product-options-select");
+
+    expect(button).toBeNull();
+    expect(select).toBeNull();
+
+    dom.window.close();
+  });
 
   // ----------------------------------------
   // Stripe Checkout Flow Tests
   // ----------------------------------------
-  {
-    name: "stripe-checkout-empty-cart-redirects-home",
-    description: "Stripe checkout redirects to homepage when cart is empty",
-    test: () => {
-      const result = withMockStorage(() => {
-        saveCart([]);
-        const locationTracker = createLocationTracker();
+  test("Stripe checkout redirects to homepage when cart is empty", () => {
+    const result = withMockStorage(() => {
+      saveCart([]);
+      const locationTracker = createLocationTracker();
 
-        // Simulate stripe-checkout.js logic
-        const cart = getCart();
-        if (cart.length === 0) {
-          locationTracker.location.href = "/";
-        }
+      // Simulate stripe-checkout.js logic
+      const cart = getCart();
+      if (cart.length === 0) {
+        locationTracker.location.href = "/";
+      }
 
-        return locationTracker.wasRedirectedTo("/");
-      });
+      return locationTracker.wasRedirectedTo("/");
+    });
 
-      assert.strictEqual(
-        result,
-        true,
-        "Empty cart should redirect to homepage",
-      );
-    },
-  },
-  {
-    name: "stripe-checkout-prepares-items-correctly",
-    description: "Checkout sends only sku and quantity to API, not prices",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([
-          {
-            item_name: "Product A",
-            unit_price: 99.99,
-            quantity: 2,
-            sku: "SKU-A",
-            max_quantity: 10,
-          },
-          {
-            item_name: "Product B",
-            unit_price: 49.99,
-            quantity: 1,
-            sku: "SKU-B",
-          },
-        ]);
+    expect(result).toBe(true);
+  });
 
-        // This matches stripe-checkout.js:46
-        const cart = getCart();
-        const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+  test("Checkout sends only sku and quantity to API, not prices", () => {
+    withMockStorage(() => {
+      saveCart([
+        {
+          item_name: "Product A",
+          unit_price: 99.99,
+          quantity: 2,
+          sku: "SKU-A",
+          max_quantity: 10,
+        },
+        {
+          item_name: "Product B",
+          unit_price: 49.99,
+          quantity: 1,
+          sku: "SKU-B",
+        },
+      ]);
 
-        assert.deepStrictEqual(
-          items,
-          [
-            { sku: "SKU-A", quantity: 2 },
-            { sku: "SKU-B", quantity: 1 },
-          ],
-          "Checkout should only send sku and quantity to API",
-        );
-        // Verify prices are NOT included (security)
-        assert.strictEqual(
-          items[0].unit_price,
-          undefined,
-          "unit_price should not be sent to API (security)",
-        );
-        assert.strictEqual(
-          items[0].item_name,
-          undefined,
-          "item_name should not be sent to API (only sku needed)",
-        );
-      });
-    },
-  },
-  {
-    name: "stripe-checkout-api-success-redirects",
-    description: "Successful Stripe session creation redirects to Stripe URL",
-    asyncTest: async () => {
-      const redirected = await withMockStorage(async () => {
-        saveCart([
-          { item_name: "Widget", unit_price: 15, quantity: 1, sku: "W1" },
-        ]);
+      // This matches stripe-checkout.js:46
+      const cart = getCart();
+      const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
 
-        const mockFetch = createMockFetch({
-          "/api/stripe/create-session": {
-            ok: true,
-            data: {
-              id: "cs_test_123",
-              url: "https://checkout.stripe.com/pay/cs_test_123",
-            },
-          },
-        });
+      expect(items).toEqual([
+        { sku: "SKU-A", quantity: 2 },
+        { sku: "SKU-B", quantity: 1 },
+      ]);
+      // Verify prices are NOT included (security)
+      expect(items[0].unit_price).toBeUndefined();
+      expect(items[0].item_name).toBeUndefined();
+    });
+  });
 
-        const locationTracker = createLocationTracker();
-        const cart = getCart();
-        const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+  test("Successful Stripe session creation redirects to Stripe URL", async () => {
+    const redirected = await withMockStorage(async () => {
+      saveCart([
+        { item_name: "Widget", unit_price: 15, quantity: 1, sku: "W1" },
+      ]);
 
-        const response = await mockFetch(
-          "https://api.example.com/api/stripe/create-session",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items }),
-          },
-        );
-
-        const session = await response.json();
-        if (session.url) {
-          locationTracker.location.href = session.url;
-        }
-
-        return locationTracker.wasRedirectedTo("checkout.stripe.com");
-      });
-
-      assert.strictEqual(
-        redirected,
-        true,
-        "Successful session creation should redirect to Stripe checkout",
-      );
-    },
-  },
-  {
-    name: "stripe-checkout-api-error-handling",
-    description: "API error returns error message for display",
-    asyncTest: async () => {
       const mockFetch = createMockFetch({
         "/api/stripe/create-session": {
-          ok: false,
-          status: 400,
-          data: { error: "Invalid SKU: FAKE-SKU" },
+          ok: true,
+          data: {
+            id: "cs_test_123",
+            url: "https://checkout.stripe.com/pay/cs_test_123",
+          },
         },
       });
+
+      const locationTracker = createLocationTracker();
+      const cart = getCart();
+      const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
 
       const response = await mockFetch(
         "https://api.example.com/api/stripe/create-session",
         {
           method: "POST",
-          body: JSON.stringify({ items: [{ sku: "FAKE-SKU", quantity: 1 }] }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items }),
         },
       );
 
-      assert.strictEqual(
-        response.ok,
-        false,
-        "API should return not ok for invalid SKU",
-      );
-      const error = await response.json();
-      assert.strictEqual(
-        error.error,
-        "Invalid SKU: FAKE-SKU",
-        "Error response should contain invalid SKU message",
-      );
-    },
-  },
+      const session = await response.json();
+      if (session.url) {
+        locationTracker.location.href = session.url;
+      }
+
+      return locationTracker.wasRedirectedTo("checkout.stripe.com");
+    });
+
+    expect(redirected).toBe(true);
+  });
+
+  test("API error returns error message for display", async () => {
+    const mockFetch = createMockFetch({
+      "/api/stripe/create-session": {
+        ok: false,
+        status: 400,
+        data: { error: "Invalid SKU: FAKE-SKU" },
+      },
+    });
+
+    const response = await mockFetch(
+      "https://api.example.com/api/stripe/create-session",
+      {
+        method: "POST",
+        body: JSON.stringify({ items: [{ sku: "FAKE-SKU", quantity: 1 }] }),
+      },
+    );
+
+    expect(response.ok).toBe(false);
+    const error = await response.json();
+    expect(error.error).toBe("Invalid SKU: FAKE-SKU");
+  });
+
   // ----------------------------------------
   // PayPal Checkout Tests
   // ----------------------------------------
-  {
-    name: "paypal-api-checkout-redirects",
-    description: "PayPal API checkout redirects to PayPal approval URL",
-    asyncTest: async () => {
-      const mockFetch = createMockFetch({
-        "/api/paypal/create-order": {
-          ok: true,
-          data: { url: "https://www.paypal.com/checkoutnow?token=ABC" },
-        },
-      });
+  test("PayPal API checkout redirects to PayPal approval URL", async () => {
+    const mockFetch = createMockFetch({
+      "/api/paypal/create-order": {
+        ok: true,
+        data: { url: "https://www.paypal.com/checkoutnow?token=ABC" },
+      },
+    });
 
-      const locationTracker = createLocationTracker();
+    const locationTracker = createLocationTracker();
 
-      const response = await mockFetch(
-        "https://api.example.com/api/paypal/create-order",
-        { method: "POST", body: JSON.stringify({ items: [] }) },
-      );
+    const response = await mockFetch(
+      "https://api.example.com/api/paypal/create-order",
+      { method: "POST", body: JSON.stringify({ items: [] }) },
+    );
 
-      const order = await response.json();
-      if (order.url) {
-        locationTracker.location.href = order.url;
-      }
+    const order = await response.json();
+    if (order.url) {
+      locationTracker.location.href = order.url;
+    }
 
-      assert.strictEqual(
-        locationTracker.wasRedirectedTo("paypal.com"),
-        true,
-        "PayPal checkout should redirect to PayPal approval URL",
-      );
-    },
-  },
+    expect(locationTracker.wasRedirectedTo("paypal.com")).toBe(true);
+  });
 
   // ----------------------------------------
   // Business Logic Tests
   // ----------------------------------------
-  {
-    name: "special-characters-preserved",
-    description: "Cart preserves special characters in product names",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([
-          { item_name: 'Widget "Deluxe" & More', unit_price: 10, quantity: 1 },
-        ]);
+  test("Cart preserves special characters in product names", () => {
+    withMockStorage(() => {
+      saveCart([
+        { item_name: 'Widget "Deluxe" & More', unit_price: 10, quantity: 1 },
+      ]);
 
-        const cart = getCart();
-        assert.strictEqual(
-          cart[0].item_name,
-          'Widget "Deluxe" & More',
-          "Cart should preserve special characters in product names",
-        );
-      });
-    },
-  },
+      const cart = getCart();
+      expect(cart[0].item_name).toBe('Widget "Deluxe" & More');
+    });
+  });
 
   // ----------------------------------------
   // updateItemQuantity Tests (using actual production function)
   // ----------------------------------------
-  {
-    name: "updateItemQuantity-updates-existing-item",
-    description: "updateItemQuantity changes quantity for existing item",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+  test("updateItemQuantity changes quantity for existing item", () => {
+    withMockStorage(() => {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
 
-        const result = updateItemQuantity("Widget", 5);
+      const result = updateItemQuantity("Widget", 5);
 
-        assert.strictEqual(
-          result,
-          true,
-          "Should return true for existing item",
-        );
-        const cart = getCart();
-        assert.strictEqual(cart[0].quantity, 5, "Quantity should be updated");
-      });
-    },
-  },
-  {
-    name: "updateItemQuantity-removes-at-zero",
-    description: "updateItemQuantity removes item when quantity is 0",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([
-          { item_name: "Keep", unit_price: 10, quantity: 1 },
-          { item_name: "Remove", unit_price: 5, quantity: 3 },
-        ]);
+      expect(result).toBe(true);
+      const cart = getCart();
+      expect(cart[0].quantity).toBe(5);
+    });
+  });
 
-        updateItemQuantity("Remove", 0);
+  test("updateItemQuantity removes item when quantity is 0", () => {
+    withMockStorage(() => {
+      saveCart([
+        { item_name: "Keep", unit_price: 10, quantity: 1 },
+        { item_name: "Remove", unit_price: 5, quantity: 3 },
+      ]);
 
-        const cart = getCart();
-        assert.strictEqual(cart.length, 1, "Should have 1 item remaining");
-        assert.strictEqual(cart[0].item_name, "Keep", "Keep should remain");
-      });
-    },
-  },
-  {
-    name: "updateItemQuantity-returns-false-for-nonexistent",
-    description: "updateItemQuantity returns false for non-existent item",
-    test: () => {
-      withMockStorage(() => {
-        saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+      updateItemQuantity("Remove", 0);
 
-        const result = updateItemQuantity("NonExistent", 5);
+      const cart = getCart();
+      expect(cart).toHaveLength(1);
+      expect(cart[0].item_name).toBe("Keep");
+    });
+  });
 
-        assert.strictEqual(result, false, "Should return false");
-      });
-    },
-  },
+  test("updateItemQuantity returns false for non-existent item", () => {
+    withMockStorage(() => {
+      saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
+
+      const result = updateItemQuantity("NonExistent", 5);
+
+      expect(result).toBe(false);
+    });
+  });
 
   // ----------------------------------------
   // Add to Cart Button Tests
   // ----------------------------------------
-  {
-    name: "add-to-cart-button-has-correct-data",
-    description: "Add to cart button contains all necessary data attributes",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productTitle: "My Product",
-        productOptions: [
-          {
-            name: "Standard",
-            unit_price: "25.00",
-            max_quantity: 10,
-            sku: "PROD-STD",
-          },
-        ],
-      });
+  test("Add to cart button contains all necessary data attributes", async () => {
+    const dom = await createCheckoutPage({
+      productTitle: "My Product",
+      productOptions: [
+        {
+          name: "Standard",
+          unit_price: "25.00",
+          max_quantity: 10,
+          sku: "PROD-STD",
+        },
+      ],
+    });
 
-      const doc = dom.window.document;
-      const button = doc.querySelector(".add-to-cart");
+    const doc = dom.window.document;
+    const button = doc.querySelector(".add-to-cart");
 
-      assert.ok(button, "Button should exist");
+    expect(button).toBeTruthy();
 
-      // Parse the consolidated data-item attribute
-      const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(
-        itemData.name,
-        "My Product",
-        "Button data-item should have correct product name",
-      );
-      assert.strictEqual(
-        itemData.options[0].name,
-        "Standard",
-        "Button data-item option name should be 'Standard'",
-      );
-      assert.strictEqual(
-        itemData.options[0].unit_price,
-        25.0,
-        "Button data-item option unit_price should be 25.0",
-      );
-      assert.strictEqual(
-        itemData.options[0].max_quantity,
-        10,
-        "Button data-item option max_quantity should be 10",
-      );
-      assert.strictEqual(
-        itemData.options[0].sku,
-        "PROD-STD",
-        "Button data-item option sku should be 'PROD-STD'",
-      );
+    // Parse the consolidated data-item attribute
+    const itemData = JSON.parse(button.dataset.item);
+    expect(itemData.name).toBe("My Product");
+    expect(itemData.options[0].name).toBe("Standard");
+    expect(itemData.options[0].unit_price).toBe(25.0);
+    expect(itemData.options[0].max_quantity).toBe(10);
+    expect(itemData.options[0].sku).toBe("PROD-STD");
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "add-to-cart-parses-price-correctly",
-    description: "Price is parsed as float from data attribute",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productOptions: [{ name: "Test", unit_price: "19.99", sku: "T1" }],
-      });
+    dom.window.close();
+  });
 
-      const doc = dom.window.document;
-      const button = doc.querySelector(".add-to-cart");
+  test("Price is parsed as float from data attribute", async () => {
+    const dom = await createCheckoutPage({
+      productOptions: [{ name: "Test", unit_price: "19.99", sku: "T1" }],
+    });
 
-      // Parse from consolidated data-item attribute
-      const itemData = JSON.parse(button.dataset.item);
-      const price = itemData.options[0].unit_price;
+    const doc = dom.window.document;
+    const button = doc.querySelector(".add-to-cart");
 
-      assert.strictEqual(price, 19.99, "Price should be parsed as 19.99");
-      assert.strictEqual(
-        typeof price,
-        "number",
-        "Price should be parsed as a number type",
-      );
+    // Parse from consolidated data-item attribute
+    const itemData = JSON.parse(button.dataset.item);
+    const price = itemData.options[0].unit_price;
 
-      dom.window.close();
-    },
-  },
+    expect(price).toBe(19.99);
+    expect(typeof price).toBe("number");
+
+    dom.window.close();
+  });
 
   // ----------------------------------------
   // Multi-Option Select Tests
   // ----------------------------------------
-  {
-    name: "multi-option-select-disables-button-initially",
-    description: "Multi-option button is disabled until option selected",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productOptions: [
-          { name: "Small", unit_price: "5.00", sku: "S" },
-          { name: "Large", unit_price: "10.00", sku: "L" },
-        ],
-      });
+  test("Multi-option button is disabled until option selected", async () => {
+    const dom = await createCheckoutPage({
+      productOptions: [
+        { name: "Small", unit_price: "5.00", sku: "S" },
+        { name: "Large", unit_price: "10.00", sku: "L" },
+      ],
+    });
 
-      const doc = dom.window.document;
-      const button = doc.querySelector(".product-option-button");
+    const doc = dom.window.document;
+    const button = doc.querySelector(".product-option-button");
 
-      assert.strictEqual(
-        button.disabled,
-        true,
-        "Button should be disabled initially",
-      );
+    expect(button.disabled).toBe(true);
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "multi-option-select-has-placeholder",
-    description: "Multi-option select has disabled placeholder option",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productOptions: [
-          { name: "Small", unit_price: "5.00", sku: "S" },
-          { name: "Large", unit_price: "10.00", sku: "L" },
-        ],
-      });
+    dom.window.close();
+  });
 
-      const doc = dom.window.document;
-      const select = doc.querySelector(".product-options-select");
-      const firstOption = select.options[0];
+  test("Multi-option select has disabled placeholder option", async () => {
+    const dom = await createCheckoutPage({
+      productOptions: [
+        { name: "Small", unit_price: "5.00", sku: "S" },
+        { name: "Large", unit_price: "10.00", sku: "L" },
+      ],
+    });
 
-      assert.ok(firstOption.disabled, "First option should be disabled");
-      assert.strictEqual(
-        firstOption.value,
-        "",
-        "First option should have empty value",
-      );
-      assert.ok(
-        firstOption.selected,
-        "First option should be selected by default",
-      );
+    const doc = dom.window.document;
+    const select = doc.querySelector(".product-options-select");
+    const firstOption = select.options[0];
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "multi-option-select-options-have-data",
-    description:
-      "Select options have index values and button has consolidated data",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productOptions: [
-          { name: "Small", unit_price: "5.00", max_quantity: 10, sku: "SKU-S" },
-          { name: "Large", unit_price: "10.00", max_quantity: 5, sku: "SKU-L" },
-        ],
-      });
+    expect(firstOption.disabled).toBe(true);
+    expect(firstOption.value).toBe("");
+    expect(firstOption.selected).toBe(true);
 
-      const doc = dom.window.document;
-      const select = doc.querySelector(".product-options-select");
-      const button = doc.querySelector(".product-option-button");
+    dom.window.close();
+  });
 
-      // Skip placeholder (index 0) - options now have index values
-      const smallOption = select.options[1];
-      const largeOption = select.options[2];
+  test("Select options have index values and button has consolidated data", async () => {
+    const dom = await createCheckoutPage({
+      productOptions: [
+        { name: "Small", unit_price: "5.00", max_quantity: 10, sku: "SKU-S" },
+        { name: "Large", unit_price: "10.00", max_quantity: 5, sku: "SKU-L" },
+      ],
+    });
 
-      assert.strictEqual(
-        smallOption.value,
-        "0",
-        "Small option value should be index '0'",
-      );
-      assert.ok(
-        smallOption.textContent.includes("Small"),
-        "Small option text should include 'Small'",
-      );
-      assert.strictEqual(
-        largeOption.value,
-        "1",
-        "Large option value should be index '1'",
-      );
-      assert.ok(
-        largeOption.textContent.includes("Large"),
-        "Large option text should include 'Large'",
-      );
+    const doc = dom.window.document;
+    const select = doc.querySelector(".product-options-select");
+    const button = doc.querySelector(".product-option-button");
 
-      // All data is now in the button's data-item attribute
-      const itemData = JSON.parse(button.dataset.item);
-      assert.strictEqual(
-        itemData.options[0].name,
-        "Small",
-        "First item option name should be 'Small'",
-      );
-      assert.strictEqual(
-        itemData.options[0].unit_price,
-        5.0,
-        "First item option unit_price should be 5.0",
-      );
-      assert.strictEqual(
-        itemData.options[0].sku,
-        "SKU-S",
-        "First item option sku should be 'SKU-S'",
-      );
-      assert.strictEqual(
-        itemData.options[0].max_quantity,
-        10,
-        "First item option max_quantity should be 10",
-      );
+    // Skip placeholder (index 0) - options now have index values
+    const smallOption = select.options[1];
+    const largeOption = select.options[2];
 
-      assert.strictEqual(
-        itemData.options[1].name,
-        "Large",
-        "Second item option name should be 'Large'",
-      );
-      assert.strictEqual(
-        itemData.options[1].unit_price,
-        10.0,
-        "Second item option unit_price should be 10.0",
-      );
-      assert.strictEqual(
-        itemData.options[1].sku,
-        "SKU-L",
-        "Second item option sku should be 'SKU-L'",
-      );
-      assert.strictEqual(
-        itemData.options[1].max_quantity,
-        5,
-        "Second item option max_quantity should be 5",
-      );
+    expect(smallOption.value).toBe("0");
+    expect(smallOption.textContent.includes("Small")).toBe(true);
+    expect(largeOption.value).toBe("1");
+    expect(largeOption.textContent.includes("Large")).toBe(true);
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "multi-option-select-provides-correct-option-data",
-    description:
-      "Selecting an option retrieves correct option data from button",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        productOptions: [
-          { name: "Small", unit_price: "5.00", sku: "S" },
-          { name: "Large", unit_price: "10.00", sku: "L" },
-        ],
-      });
+    // All data is now in the button's data-item attribute
+    const itemData = JSON.parse(button.dataset.item);
+    expect(itemData.options[0].name).toBe("Small");
+    expect(itemData.options[0].unit_price).toBe(5.0);
+    expect(itemData.options[0].sku).toBe("SKU-S");
+    expect(itemData.options[0].max_quantity).toBe(10);
 
-      const doc = dom.window.document;
-      const select = doc.querySelector(".product-options-select");
-      const button = doc.querySelector(".product-option-button");
+    expect(itemData.options[1].name).toBe("Large");
+    expect(itemData.options[1].unit_price).toBe(10.0);
+    expect(itemData.options[1].sku).toBe("SKU-L");
+    expect(itemData.options[1].max_quantity).toBe(5);
 
-      // Get item data from button
-      const itemData = JSON.parse(button.dataset.item);
+    dom.window.close();
+  });
 
-      // Simulate selecting an option (matches cart.js change handler)
-      select.selectedIndex = 1; // Select "Small" (index 0 in options array)
-      const optionIndex = parseInt(
-        select.options[select.selectedIndex].value,
-        10,
-      );
-      const option = itemData.options[optionIndex];
+  test("Selecting an option retrieves correct option data from button", async () => {
+    const dom = await createCheckoutPage({
+      productOptions: [
+        { name: "Small", unit_price: "5.00", sku: "S" },
+        { name: "Large", unit_price: "10.00", sku: "L" },
+      ],
+    });
 
-      // Verify option lookup returns correct data
-      assert.strictEqual(option.name, "Small", "Option name should be Small");
-      assert.strictEqual(option.unit_price, 5.0, "Option price should be 5.0");
-      assert.strictEqual(option.sku, "S", "Option SKU should be S");
+    const doc = dom.window.document;
+    const select = doc.querySelector(".product-options-select");
+    const button = doc.querySelector(".product-option-button");
 
-      // Verify select index mapping works for other options
-      select.selectedIndex = 2; // Select "Large"
-      const largeIndex = parseInt(
-        select.options[select.selectedIndex].value,
-        10,
-      );
-      const largeOption = itemData.options[largeIndex];
+    // Get item data from button
+    const itemData = JSON.parse(button.dataset.item);
 
-      assert.strictEqual(
-        largeOption.name,
-        "Large",
-        "Option name should be Large",
-      );
-      assert.strictEqual(
-        largeOption.unit_price,
-        10.0,
-        "Option price should be 10.0",
-      );
+    // Simulate selecting an option (matches cart.js change handler)
+    select.selectedIndex = 1; // Select "Small" (index 0 in options array)
+    const optionIndex = parseInt(
+      select.options[select.selectedIndex].value,
+      10,
+    );
+    const option = itemData.options[optionIndex];
 
-      dom.window.close();
-    },
-  },
+    // Verify option lookup returns correct data
+    expect(option.name).toBe("Small");
+    expect(option.unit_price).toBe(5.0);
+    expect(option.sku).toBe("S");
+
+    // Verify select index mapping works for other options
+    select.selectedIndex = 2; // Select "Large"
+    const largeIndex = parseInt(select.options[select.selectedIndex].value, 10);
+    const largeOption = itemData.options[largeIndex];
+
+    expect(largeOption.name).toBe("Large");
+    expect(largeOption.unit_price).toBe(10.0);
+
+    dom.window.close();
+  });
 
   // ----------------------------------------
   // Quote Mode (Enquiry) Tests
@@ -1762,53 +1243,36 @@ const testCases = [
   // quote-mode-no-cart-overlay tests verify quote mode without this problem.
   // Cart functionality is tested via the cart-utils tests that call actual
   // production functions.
-  {
-    name: "quote-mode-config-is-set",
-    description: "Quote mode sets cart_mode in config script",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        cartMode: "quote",
-        productOptions: [{ name: "Test", unit_price: "10.00", sku: "T1" }],
-      });
+  test("Quote mode sets cart_mode in config script", async () => {
+    const dom = await createCheckoutPage({
+      cartMode: "quote",
+      productOptions: [{ name: "Test", unit_price: "10.00", sku: "T1" }],
+    });
 
-      const doc = dom.window.document;
-      const cartIcon = doc.querySelector(".cart-icon");
+    const doc = dom.window.document;
+    const cartIcon = doc.querySelector(".cart-icon");
 
-      assert.ok(cartIcon, "Cart icon should exist");
+    expect(cartIcon).toBeTruthy();
 
-      // Verify config script has quote mode
-      const configScript = doc.getElementById("site-config");
-      const siteConfig = JSON.parse(configScript.textContent);
-      assert.strictEqual(
-        siteConfig.cart_mode,
-        "quote",
-        "Config should have cart_mode='quote'",
-      );
+    // Verify config script has quote mode
+    const configScript = doc.getElementById("site-config");
+    const siteConfig = JSON.parse(configScript.textContent);
+    expect(siteConfig.cart_mode).toBe("quote");
 
-      dom.window.close();
-    },
-  },
-  {
-    name: "quote-mode-no-cart-overlay",
-    description: "Quote mode should not render cart overlay",
-    asyncTest: async () => {
-      const dom = await createCheckoutPage({
-        cartMode: "quote",
-        productOptions: [{ name: "Test", unit_price: "10.00", sku: "T1" }],
-      });
+    dom.window.close();
+  });
 
-      const doc = dom.window.document;
-      const cartOverlay = doc.getElementById("cart-overlay");
+  test("Quote mode should not render cart overlay", async () => {
+    const dom = await createCheckoutPage({
+      cartMode: "quote",
+      productOptions: [{ name: "Test", unit_price: "10.00", sku: "T1" }],
+    });
 
-      assert.strictEqual(
-        cartOverlay,
-        null,
-        "Cart overlay should not exist in quote mode",
-      );
+    const doc = dom.window.document;
+    const cartOverlay = doc.getElementById("cart-overlay");
 
-      dom.window.close();
-    },
-  },
-];
+    expect(cartOverlay).toBeNull();
 
-export default createTestRunner("checkout", testCases);
+    dom.window.close();
+  });
+});

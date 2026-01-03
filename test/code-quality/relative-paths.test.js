@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import {
   ALLOWED_PROCESS_CWD,
   ALLOWED_RELATIVE_PATHS,
@@ -10,9 +11,7 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import {
-  createTestRunner,
   ECOMMERCE_JS_FILES,
-  expectTrue,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
@@ -134,107 +133,66 @@ const analyzeProcessCwd = () => {
   );
 };
 
-const testCases = [
-  // Unit tests for the detection functions
-  {
-    name: "find-relative-imports-in-source",
-    description: "Correctly identifies relative imports in source code",
-    test: () => {
-      const source = `
+describe("relative-paths", () => {
+  test("Correctly identifies relative imports in source code", () => {
+    const source = `
 import { foo } from "./utils.js";
 import bar from "../lib/bar.js";
 import { baz } from "#lib/baz.js";
 import qux from "some-package";
-      `;
-      const results = findRelativeImports(source);
-      expectTrue(
-        results.length === 2,
-        `Expected 2 relative imports, found ${results.length}`,
-      );
-      expectTrue(
-        results[0].importPath === "./utils.js",
-        `Expected ./utils.js, got ${results[0].importPath}`,
-      );
-      expectTrue(
-        results[1].importPath === "../lib/bar.js",
-        `Expected ../lib/bar.js, got ${results[1].importPath}`,
-      );
-    },
-  },
-  {
-    name: "find-path-join-with-dotdot",
-    description: "Correctly identifies path.join/resolve with '..' patterns",
-    test: () => {
-      const source = `
+    `;
+    const results = findRelativeImports(source);
+    expect(results.length).toBe(2);
+    expect(results[0].importPath).toBe("./utils.js");
+    expect(results[1].importPath).toBe("../lib/bar.js");
+  });
+
+  test("Correctly identifies path.join/resolve with '..' patterns", () => {
+    const source = `
 const root = path.resolve(__dirname, "..");
 const logo = path.join(__dirname, "../images/logo.png");
 const pages = join(__dirname, "..", "..", "pages");
 const config = resolve(__dirname, "..");
 const clean = path.join(__dirname, "subdir", "file.js");
 const alsoClean = join(baseDir, "foo", "bar");
-      `;
-      const results = findRelativePathJoins(source);
-      expectTrue(
-        results.length === 4,
-        `Expected 4 path violations, found ${results.length}: ${JSON.stringify(results)}`,
-      );
-    },
-  },
-  {
-    name: "skip-comments",
-    description: "Ignores '..' patterns in comments",
-    test: () => {
-      const source = `
+    `;
+    const results = findRelativePathJoins(source);
+    expect(results.length).toBe(4);
+  });
+
+  test("Ignores '..' patterns in comments", () => {
+    const source = `
 // const root = path.resolve(__dirname, "..");
 /* path.join(__dirname, "..") */
 const clean = path.join(__dirname, "subdir");
-      `;
-      const results = findRelativePathJoins(source);
-      expectTrue(
-        results.length === 0,
-        `Expected 0 violations (comments should be skipped), found ${results.length}`,
-      );
-    },
-  },
-  // Enforcement tests
-  {
-    name: "no-relative-imports",
-    description:
-      "No relative imports - use path aliases (#lib/*, #test/*, etc.)",
-    test: () => {
-      const violations = analyzeRelativeImports();
-      assertNoViolations(expectTrue, violations, {
-        message: "relative imports",
-        fixHint: 'use path aliases instead (e.g., "./foo.js" → "#lib/foo.js")',
-      });
-    },
-  },
-  {
-    name: "no-path-join-with-dotdot",
-    description:
-      "No path.join/resolve with '..' - use path utilities or absolute references",
-    test: () => {
-      const violations = analyzeRelativePathJoins();
-      assertNoViolations(expectTrue, violations, {
-        message: 'path operations with ".."',
-        fixHint:
-          "use path utilities from #lib/paths.js or restructure to avoid parent directory navigation",
-      });
-    },
-  },
-  {
-    name: "no-process-cwd-in-tests",
-    description:
-      "Test files should use rootDir from test-utils.js instead of process.cwd()",
-    test: () => {
-      const violations = analyzeProcessCwd();
-      assertNoViolations(expectTrue, violations, {
-        message: "process.cwd() usages in test files",
-        fixHint:
-          "import { rootDir } from '#test/test-utils.js' instead of using process.cwd()",
-      });
-    },
-  },
-];
+    `;
+    const results = findRelativePathJoins(source);
+    expect(results.length).toBe(0);
+  });
 
-createTestRunner("relative-paths", testCases);
+  test("No relative imports - use path aliases (#lib/*, #test/*, etc.)", () => {
+    const violations = analyzeRelativeImports();
+    assertNoViolations(violations, {
+      message: "relative imports",
+      fixHint: 'use path aliases instead (e.g., "./foo.js" → "#lib/foo.js")',
+    });
+  });
+
+  test("No path.join/resolve with '..' - use path utilities or absolute references", () => {
+    const violations = analyzeRelativePathJoins();
+    assertNoViolations(violations, {
+      message: 'path operations with ".."',
+      fixHint:
+        "use path utilities from #lib/paths.js or restructure to avoid parent directory navigation",
+    });
+  });
+
+  test("Test files should use rootDir from test-utils.js instead of process.cwd()", () => {
+    const violations = analyzeProcessCwd();
+    assertNoViolations(violations, {
+      message: "process.cwd() usages in test files",
+      fixHint:
+        "import { rootDir } from '#test/test-utils.js' instead of using process.cwd()",
+    });
+  });
+});

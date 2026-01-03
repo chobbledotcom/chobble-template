@@ -1,6 +1,7 @@
+import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createTestRunner, expectTrue, rootDir } from "#test/test-utils.js";
+import { rootDir } from "#test/test-utils.js";
 
 const dataDir = join(rootDir, "src/_data");
 
@@ -38,50 +39,33 @@ const hasWrongHelperName = (content) => {
   return null;
 };
 
-const testCases = [
-  {
-    name: "no-mixed-exports-in-data-files",
-    description:
-      "Data files should not mix named exports with default exports (breaks Eleventy)",
-    test: () => {
-      const problemFiles = [];
+describe("data-exports", () => {
+  test("Data files should not mix named exports with default exports (breaks Eleventy)", () => {
+    const problemFiles = [];
 
-      for (const file of DATA_JS_FILES) {
-        const content = readFileSync(file.path, "utf-8");
-        if (hasProblematicNamedExports(content)) {
-          problemFiles.push(file.name);
-        }
+    for (const file of DATA_JS_FILES) {
+      const content = readFileSync(file.path, "utf-8");
+      if (hasProblematicNamedExports(content)) {
+        problemFiles.push(file.name);
       }
+    }
 
-      expectTrue(
-        problemFiles.length === 0,
-        `Data files with mixed exports found: ${problemFiles.join(", ")}. ` +
-          "Use the _helpers pattern: attach helpers to the value before exporting default.",
-      );
-    },
-  },
-  {
-    name: "helpers-use-correct-property-name",
-    description: "Helper properties on data exports must be named '_helpers'",
-    test: () => {
-      const wrongNames = [];
+    expect(problemFiles.length).toBe(0);
+  });
 
-      for (const file of DATA_JS_FILES) {
-        const content = readFileSync(file.path, "utf-8");
-        const wrongName = hasWrongHelperName(content);
-        if (wrongName) {
-          wrongNames.push(
-            `${file.name} uses '.${wrongName}' instead of '._helpers'`,
-          );
-        }
+  test("Helper properties on data exports must be named '_helpers'", () => {
+    const wrongNames = [];
+
+    for (const file of DATA_JS_FILES) {
+      const content = readFileSync(file.path, "utf-8");
+      const wrongName = hasWrongHelperName(content);
+      if (wrongName) {
+        wrongNames.push(
+          `${file.name} uses '.${wrongName}' instead of '._helpers'`,
+        );
       }
+    }
 
-      expectTrue(
-        wrongNames.length === 0,
-        `Wrong helper property names: ${wrongNames.join("; ")}`,
-      );
-    },
-  },
-];
-
-createTestRunner("data-exports", testCases);
+    expect(wrongNames.length).toBe(0);
+  });
+});

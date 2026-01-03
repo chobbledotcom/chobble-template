@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import {
   configureAreaList,
   filterTopLevelLocations,
@@ -6,14 +7,7 @@ import {
   prepareAreaList,
   sortByNavigationKey,
 } from "#eleventy/area-list.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectDeepEqual,
-  expectFalse,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
 // Test fixtures
 const createLocation = (name, url) => ({
@@ -25,430 +19,258 @@ const createLocation = (name, url) => ({
   },
 });
 
-const testCases = [
+describe("area-list", () => {
   // isTopLevelLocation tests
-  {
-    name: "isTopLevelLocation-top-level",
-    description: "Returns true for top-level location URLs",
-    test: () => {
-      expectTrue(
-        isTopLevelLocation("/locations/springfield/"),
-        "Should match /locations/springfield/",
-      );
-      expectTrue(
-        isTopLevelLocation("/locations/fulchester/"),
-        "Should match /locations/fulchester/",
-      );
-    },
-  },
-  {
-    name: "isTopLevelLocation-nested",
-    description: "Returns false for nested location URLs",
-    test: () => {
-      expectFalse(
-        isTopLevelLocation("/locations/springfield/downtown/"),
-        "Should not match nested locations",
-      );
-      expectFalse(
-        isTopLevelLocation("/locations/springfield/heights/area/"),
-        "Should not match deeply nested",
-      );
-    },
-  },
-  {
-    name: "isTopLevelLocation-root",
-    description: "Returns false for root locations URL",
-    test: () => {
-      expectFalse(
-        isTopLevelLocation("/locations/"),
-        "Should not match /locations/",
-      );
-    },
-  },
-  {
-    name: "isTopLevelLocation-null",
-    description: "Returns false for null/undefined/empty",
-    test: () => {
-      expectFalse(isTopLevelLocation(null), "Should return false for null");
-      expectFalse(
-        isTopLevelLocation(undefined),
-        "Should return false for undefined",
-      );
-      expectFalse(isTopLevelLocation(""), "Should return false for empty");
-    },
-  },
+  test("Returns true for top-level location URLs", () => {
+    expect(isTopLevelLocation("/locations/springfield/")).toBe(true);
+    expect(isTopLevelLocation("/locations/fulchester/")).toBe(true);
+  });
+
+  test("Returns false for nested location URLs", () => {
+    expect(isTopLevelLocation("/locations/springfield/downtown/")).toBe(false);
+    expect(isTopLevelLocation("/locations/springfield/heights/area/")).toBe(
+      false,
+    );
+  });
+
+  test("Returns false for root locations URL", () => {
+    expect(isTopLevelLocation("/locations/")).toBe(false);
+  });
+
+  test("Returns false for null/undefined/empty", () => {
+    expect(isTopLevelLocation(null)).toBe(false);
+    expect(isTopLevelLocation(undefined)).toBe(false);
+    expect(isTopLevelLocation("")).toBe(false);
+  });
 
   // sortByNavigationKey tests
-  {
-    name: "sortByNavigationKey-alphabetical",
-    description: "Sorts locations alphabetically by navigation key",
-    test: () => {
-      const locations = [
-        createLocation("Zebra Town", "/locations/zebra-town/"),
-        createLocation("Alpha City", "/locations/alpha-city/"),
-        createLocation("Metro Area", "/locations/metro-area/"),
-      ];
+  test("Sorts locations alphabetically by navigation key", () => {
+    const locations = [
+      createLocation("Zebra Town", "/locations/zebra-town/"),
+      createLocation("Alpha City", "/locations/alpha-city/"),
+      createLocation("Metro Area", "/locations/metro-area/"),
+    ];
 
-      const sorted = sortByNavigationKey(locations);
+    const sorted = sortByNavigationKey(locations);
 
-      expectStrictEqual(
-        sorted[0].data.eleventyNavigation.key,
-        "Alpha City",
-        "First should be Alpha City",
-      );
-      expectStrictEqual(
-        sorted[1].data.eleventyNavigation.key,
-        "Metro Area",
-        "Second should be Metro Area",
-      );
-      expectStrictEqual(
-        sorted[2].data.eleventyNavigation.key,
-        "Zebra Town",
-        "Third should be Zebra Town",
-      );
-    },
-  },
-  {
-    name: "sortByNavigationKey-empty",
-    description: "Returns empty array for null/undefined/empty input",
-    test: () => {
-      expectDeepEqual(
-        sortByNavigationKey(null),
-        [],
-        "Should return [] for null",
-      );
-      expectDeepEqual(
-        sortByNavigationKey(undefined),
-        [],
-        "Should return [] for undefined",
-      );
-      expectDeepEqual(sortByNavigationKey([]), [], "Should return [] for []");
-    },
-  },
-  {
-    name: "sortByNavigationKey-missing-keys",
-    description: "Handles locations with missing navigation keys",
-    test: () => {
-      const locations = [
-        createLocation("Bravo", "/locations/bravo/"),
-        { url: "/locations/no-key/", data: {} },
-        createLocation("Alpha", "/locations/alpha/"),
-      ];
+    expect(sorted[0].data.eleventyNavigation.key).toBe("Alpha City");
+    expect(sorted[1].data.eleventyNavigation.key).toBe("Metro Area");
+    expect(sorted[2].data.eleventyNavigation.key).toBe("Zebra Town");
+  });
 
-      const sorted = sortByNavigationKey(locations);
+  test("Returns empty array for null/undefined/empty input", () => {
+    expect(sortByNavigationKey(null)).toEqual([]);
+    expect(sortByNavigationKey(undefined)).toEqual([]);
+    expect(sortByNavigationKey([])).toEqual([]);
+  });
 
-      // Empty key should sort first (empty string < "Alpha")
-      expectStrictEqual(sorted.length, 3, "Should have 3 items");
-      expectStrictEqual(
-        sorted[0].data.eleventyNavigation,
-        undefined,
-        "Missing key should sort first",
-      );
-    },
-  },
-  {
-    name: "sortByNavigationKey-immutable",
-    description: "Does not mutate the original array",
-    test: () => {
-      const locations = [
-        createLocation("Beta", "/locations/beta/"),
-        createLocation("Alpha", "/locations/alpha/"),
-      ];
-      const original = [...locations];
+  test("Handles locations with missing navigation keys", () => {
+    const locations = [
+      createLocation("Bravo", "/locations/bravo/"),
+      { url: "/locations/no-key/", data: {} },
+      createLocation("Alpha", "/locations/alpha/"),
+    ];
 
-      sortByNavigationKey(locations);
+    const sorted = sortByNavigationKey(locations);
 
-      expectStrictEqual(
-        locations[0].data.eleventyNavigation.key,
-        "Beta",
-        "Original should be unchanged",
-      );
-      expectDeepEqual(
-        locations.map((l) => l.data.eleventyNavigation.key),
-        original.map((l) => l.data.eleventyNavigation.key),
-        "Original array should not be mutated",
-      );
-    },
-  },
+    // Empty key should sort first (empty string < "Alpha")
+    expect(sorted).toHaveLength(3);
+    expect(sorted[0].data.eleventyNavigation).toBe(undefined);
+  });
+
+  test("Does not mutate the original array", () => {
+    const locations = [
+      createLocation("Beta", "/locations/beta/"),
+      createLocation("Alpha", "/locations/alpha/"),
+    ];
+    const original = [...locations];
+
+    sortByNavigationKey(locations);
+
+    expect(locations[0].data.eleventyNavigation.key).toBe("Beta");
+    expect(locations.map((l) => l.data.eleventyNavigation.key)).toEqual(
+      original.map((l) => l.data.eleventyNavigation.key),
+    );
+  });
 
   // filterTopLevelLocations tests
-  {
-    name: "filterTopLevelLocations-filters-correctly",
-    description: "Filters to only top-level locations",
-    test: () => {
-      const locations = [
-        createLocation("Springfield", "/locations/springfield/"),
-        createLocation("Downtown", "/locations/springfield/downtown/"),
-        createLocation("Fulchester", "/locations/fulchester/"),
-      ];
+  test("Filters to only top-level locations", () => {
+    const locations = [
+      createLocation("Springfield", "/locations/springfield/"),
+      createLocation("Downtown", "/locations/springfield/downtown/"),
+      createLocation("Fulchester", "/locations/fulchester/"),
+    ];
 
-      const filtered = filterTopLevelLocations(
-        locations,
-        "/locations/other-page/",
-      );
+    const filtered = filterTopLevelLocations(
+      locations,
+      "/locations/other-page/",
+    );
 
-      expectStrictEqual(filtered.length, 2, "Should have 2 top-level items");
-      expectStrictEqual(
-        filtered[0].data.eleventyNavigation.key,
-        "Springfield",
-        "First should be Springfield",
-      );
-      expectStrictEqual(
-        filtered[1].data.eleventyNavigation.key,
-        "Fulchester",
-        "Second should be Fulchester",
-      );
-    },
-  },
-  {
-    name: "filterTopLevelLocations-excludes-current-page",
-    description: "Excludes the current page from results",
-    test: () => {
-      const locations = [
-        createLocation("Springfield", "/locations/springfield/"),
-        createLocation("Fulchester", "/locations/fulchester/"),
-        createLocation("Royston Vasey", "/locations/royston-vasey/"),
-      ];
+    expect(filtered).toHaveLength(2);
+    expect(filtered[0].data.eleventyNavigation.key).toBe("Springfield");
+    expect(filtered[1].data.eleventyNavigation.key).toBe("Fulchester");
+  });
 
-      const filtered = filterTopLevelLocations(
-        locations,
-        "/locations/springfield/",
-      );
+  test("Excludes the current page from results", () => {
+    const locations = [
+      createLocation("Springfield", "/locations/springfield/"),
+      createLocation("Fulchester", "/locations/fulchester/"),
+      createLocation("Royston Vasey", "/locations/royston-vasey/"),
+    ];
 
-      expectStrictEqual(filtered.length, 2, "Should have 2 items");
-      expectFalse(
-        filtered.some((l) => l.url === "/locations/springfield/"),
-        "Should not include current page",
-      );
-    },
-  },
-  {
-    name: "filterTopLevelLocations-empty",
-    description: "Returns empty array for null/undefined/empty",
-    test: () => {
-      expectDeepEqual(
-        filterTopLevelLocations(null, "/page/"),
-        [],
-        "Should return [] for null",
-      );
-      expectDeepEqual(
-        filterTopLevelLocations(undefined, "/page/"),
-        [],
-        "Should return [] for undefined",
-      );
-      expectDeepEqual(
-        filterTopLevelLocations([], "/page/"),
-        [],
-        "Should return [] for []",
-      );
-    },
-  },
+    const filtered = filterTopLevelLocations(
+      locations,
+      "/locations/springfield/",
+    );
+
+    expect(filtered).toHaveLength(2);
+    expect(filtered.some((l) => l.url === "/locations/springfield/")).toBe(
+      false,
+    );
+  });
+
+  test("filterTopLevelLocations returns empty array for null/undefined/empty", () => {
+    expect(filterTopLevelLocations(null, "/page/")).toEqual([]);
+    expect(filterTopLevelLocations(undefined, "/page/")).toEqual([]);
+    expect(filterTopLevelLocations([], "/page/")).toEqual([]);
+  });
 
   // formatListWithAnd tests
-  {
-    name: "formatListWithAnd-empty",
-    description: "Returns empty string for empty array",
-    test: () => {
-      expectStrictEqual(formatListWithAnd([]), "", "Should return empty");
-      expectStrictEqual(formatListWithAnd(null), "", "Should return empty");
-      expectStrictEqual(
-        formatListWithAnd(undefined),
-        "",
-        "Should return empty",
-      );
-    },
-  },
-  {
-    name: "formatListWithAnd-single",
-    description: "Returns single item without separator",
-    test: () => {
-      expectStrictEqual(
-        formatListWithAnd(["Alpha"]),
-        "Alpha",
-        "Should return single item",
-      );
-    },
-  },
-  {
-    name: "formatListWithAnd-two",
-    description: "Returns two items with 'and'",
-    test: () => {
-      expectStrictEqual(
-        formatListWithAnd(["Alpha", "Beta"]),
-        "Alpha and Beta",
-        "Should join two with 'and'",
-      );
-    },
-  },
-  {
-    name: "formatListWithAnd-three",
-    description: "Returns three items with commas and 'and'",
-    test: () => {
-      expectStrictEqual(
-        formatListWithAnd(["Alpha", "Beta", "Gamma"]),
-        "Alpha, Beta and Gamma",
-        "Should join three correctly",
-      );
-    },
-  },
-  {
-    name: "formatListWithAnd-many",
-    description: "Returns many items with commas and final 'and'",
-    test: () => {
-      expectStrictEqual(
-        formatListWithAnd(["A", "B", "C", "D", "E"]),
-        "A, B, C, D and E",
-        "Should join many correctly",
-      );
-    },
-  },
+  test("Returns empty string for empty array", () => {
+    expect(formatListWithAnd([])).toBe("");
+    expect(formatListWithAnd(null)).toBe("");
+    expect(formatListWithAnd(undefined)).toBe("");
+  });
+
+  test("Returns single item without separator", () => {
+    expect(formatListWithAnd(["Alpha"])).toBe("Alpha");
+  });
+
+  test("Returns two items with 'and'", () => {
+    expect(formatListWithAnd(["Alpha", "Beta"])).toBe("Alpha and Beta");
+  });
+
+  test("Returns three items with commas and 'and'", () => {
+    expect(formatListWithAnd(["Alpha", "Beta", "Gamma"])).toBe(
+      "Alpha, Beta and Gamma",
+    );
+  });
+
+  test("Returns many items with commas and final 'and'", () => {
+    expect(formatListWithAnd(["A", "B", "C", "D", "E"])).toBe(
+      "A, B, C, D and E",
+    );
+  });
 
   // prepareAreaList tests
-  {
-    name: "prepareAreaList-single-location",
-    description: "Returns single location with no separator",
-    test: () => {
-      const locations = [
-        createLocation("Alpha", "/locations/alpha/"),
-        createLocation("Beta", "/locations/beta/"),
-      ];
+  test("Returns single location with no separator", () => {
+    const locations = [
+      createLocation("Alpha", "/locations/alpha/"),
+      createLocation("Beta", "/locations/beta/"),
+    ];
 
-      const result = prepareAreaList(locations, "/locations/alpha/");
+    const result = prepareAreaList(locations, "/locations/alpha/");
 
-      expectStrictEqual(result.length, 1, "Should have 1 item");
-      expectStrictEqual(result[0].name, "Beta", "Should be Beta");
-      expectStrictEqual(result[0].url, "/locations/beta/", "Should have URL");
-      expectStrictEqual(result[0].separator, "", "Should have no separator");
-    },
-  },
-  {
-    name: "prepareAreaList-two-locations",
-    description: "Returns two locations with 'and' separator",
-    test: () => {
-      const locations = [
-        createLocation("Alpha", "/locations/alpha/"),
-        createLocation("Beta", "/locations/beta/"),
-        createLocation("Gamma", "/locations/gamma/"),
-      ];
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("Beta");
+    expect(result[0].url).toBe("/locations/beta/");
+    expect(result[0].separator).toBe("");
+  });
 
-      const result = prepareAreaList(locations, "/locations/alpha/");
+  test("Returns two locations with 'and' separator", () => {
+    const locations = [
+      createLocation("Alpha", "/locations/alpha/"),
+      createLocation("Beta", "/locations/beta/"),
+      createLocation("Gamma", "/locations/gamma/"),
+    ];
 
-      expectStrictEqual(result.length, 2, "Should have 2 items");
-      expectStrictEqual(result[0].name, "Beta", "First should be Beta");
-      expectStrictEqual(result[0].separator, " and ", "First has 'and'");
-      expectStrictEqual(result[1].name, "Gamma", "Second should be Gamma");
-      expectStrictEqual(result[1].separator, "", "Last has no separator");
-    },
-  },
-  {
-    name: "prepareAreaList-three-locations",
-    description: "Returns three locations with comma and 'and' separators",
-    test: () => {
-      const locations = [
-        createLocation("Delta", "/locations/delta/"),
-        createLocation("Alpha", "/locations/alpha/"),
-        createLocation("Beta", "/locations/beta/"),
-        createLocation("Gamma", "/locations/gamma/"),
-      ];
+    const result = prepareAreaList(locations, "/locations/alpha/");
 
-      const result = prepareAreaList(locations, "/locations/delta/");
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("Beta");
+    expect(result[0].separator).toBe(" and ");
+    expect(result[1].name).toBe("Gamma");
+    expect(result[1].separator).toBe("");
+  });
 
-      expectStrictEqual(result.length, 3, "Should have 3 items");
-      expectStrictEqual(result[0].name, "Alpha", "First should be Alpha");
-      expectStrictEqual(result[0].separator, ", ", "First has comma");
-      expectStrictEqual(result[1].name, "Beta", "Second should be Beta");
-      expectStrictEqual(result[1].separator, " and ", "Second has 'and'");
-      expectStrictEqual(result[2].name, "Gamma", "Third should be Gamma");
-      expectStrictEqual(result[2].separator, "", "Last has no separator");
-    },
-  },
-  {
-    name: "prepareAreaList-excludes-nested",
-    description: "Excludes nested locations",
-    test: () => {
-      const locations = [
-        createLocation("Alpha", "/locations/alpha/"),
-        createLocation("Nested", "/locations/alpha/nested/"),
-        createLocation("Beta", "/locations/beta/"),
-      ];
+  test("Returns three locations with comma and 'and' separators", () => {
+    const locations = [
+      createLocation("Delta", "/locations/delta/"),
+      createLocation("Alpha", "/locations/alpha/"),
+      createLocation("Beta", "/locations/beta/"),
+      createLocation("Gamma", "/locations/gamma/"),
+    ];
 
-      const result = prepareAreaList(locations, "/locations/other/");
+    const result = prepareAreaList(locations, "/locations/delta/");
 
-      expectStrictEqual(result.length, 2, "Should have 2 items");
-      expectFalse(
-        result.some((r) => r.name === "Nested"),
-        "Should not include nested",
-      );
-    },
-  },
-  {
-    name: "prepareAreaList-empty",
-    description: "Returns empty array when no locations remain",
-    test: () => {
-      const locations = [createLocation("Alpha", "/locations/alpha/")];
+    expect(result).toHaveLength(3);
+    expect(result[0].name).toBe("Alpha");
+    expect(result[0].separator).toBe(", ");
+    expect(result[1].name).toBe("Beta");
+    expect(result[1].separator).toBe(" and ");
+    expect(result[2].name).toBe("Gamma");
+    expect(result[2].separator).toBe("");
+  });
 
-      const result = prepareAreaList(locations, "/locations/alpha/");
+  test("Excludes nested locations", () => {
+    const locations = [
+      createLocation("Alpha", "/locations/alpha/"),
+      createLocation("Nested", "/locations/alpha/nested/"),
+      createLocation("Beta", "/locations/beta/"),
+    ];
 
-      expectDeepEqual(result, [], "Should return empty array");
-    },
-  },
-  {
-    name: "prepareAreaList-handles-missing-data",
-    description: "Handles locations with missing data gracefully",
-    test: () => {
-      const locations = [
-        { url: "/locations/alpha/" },
-        createLocation("Beta", "/locations/beta/"),
-      ];
+    const result = prepareAreaList(locations, "/locations/other/");
 
-      const result = prepareAreaList(locations, "/locations/other/");
+    expect(result).toHaveLength(2);
+    expect(result.some((r) => r.name === "Nested")).toBe(false);
+  });
 
-      expectStrictEqual(result.length, 2, "Should have 2 items");
-      expectStrictEqual(result[0].name, "", "Missing name should be empty");
-      expectStrictEqual(result[0].url, "/locations/alpha/", "URL preserved");
-    },
-  },
+  test("Returns empty array when no locations remain", () => {
+    const locations = [createLocation("Alpha", "/locations/alpha/")];
+
+    const result = prepareAreaList(locations, "/locations/alpha/");
+
+    expect(result).toEqual([]);
+  });
+
+  test("Handles locations with missing data gracefully", () => {
+    const locations = [
+      { url: "/locations/alpha/" },
+      createLocation("Beta", "/locations/beta/"),
+    ];
+
+    const result = prepareAreaList(locations, "/locations/other/");
+
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("");
+    expect(result[0].url).toBe("/locations/alpha/");
+  });
 
   // configureAreaList tests
-  {
-    name: "configureAreaList-registers-filter",
-    description: "Registers prepareAreaList filter with Eleventy",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureAreaList(mockConfig);
+  test("Registers prepareAreaList filter with Eleventy", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureAreaList(mockConfig);
 
-      expectTrue(
-        mockConfig.filters !== undefined,
-        "Should have filters object",
-      );
-      expectTrue(
-        typeof mockConfig.filters.prepareAreaList === "function",
-        "Should register prepareAreaList filter",
-      );
-    },
-  },
-  {
-    name: "configureAreaList-filter-works",
-    description: "Registered filter works correctly",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureAreaList(mockConfig);
+    expect(mockConfig.filters).not.toBe(undefined);
+    expect(typeof mockConfig.filters.prepareAreaList).toBe("function");
+  });
 
-      const locations = [
-        createLocation("Beta", "/locations/beta/"),
-        createLocation("Alpha", "/locations/alpha/"),
-      ];
+  test("Registered filter works correctly", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureAreaList(mockConfig);
 
-      const result = mockConfig.filters.prepareAreaList(
-        locations,
-        "/locations/other/",
-      );
+    const locations = [
+      createLocation("Beta", "/locations/beta/"),
+      createLocation("Alpha", "/locations/alpha/"),
+    ];
 
-      expectStrictEqual(result.length, 2, "Should have 2 items");
-      expectStrictEqual(result[0].name, "Alpha", "Should be sorted");
-      expectStrictEqual(result[0].separator, " and ", "Should have separator");
-    },
-  },
-];
+    const result = mockConfig.filters.prepareAreaList(
+      locations,
+      "/locations/other/",
+    );
 
-export default createTestRunner("area-list", testCases);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("Alpha");
+    expect(result[0].separator).toBe(" and ");
+  });
+});

@@ -1,9 +1,4 @@
-import {
-  createTestRunner,
-  expectDeepEqual,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { describe, expect, test } from "bun:test";
 import {
   buildFirstOccurrenceLookup,
   buildReverseIndex,
@@ -12,366 +7,220 @@ import {
   groupValuesBy,
 } from "#utils/grouping.js";
 
-const testCases = [
+describe("grouping", () => {
   // ============================================
   // buildReverseIndex Tests
   // ============================================
-  {
-    name: "buildReverseIndex-basic-multi-key",
-    description: "Builds index from items with multiple keys each",
-    test: () => {
-      const products = [
-        { name: "Widget", categories: ["tools", "hardware"] },
-        { name: "Gadget", categories: ["tools", "electronics"] },
-        { name: "Gizmo", categories: ["electronics"] },
-      ];
+  test("Builds index from items with multiple keys each", () => {
+    const products = [
+      { name: "Widget", categories: ["tools", "hardware"] },
+      { name: "Gadget", categories: ["tools", "electronics"] },
+      { name: "Gizmo", categories: ["electronics"] },
+    ];
 
-      const index = buildReverseIndex(products, (p) => p.categories);
+    const index = buildReverseIndex(products, (p) => p.categories);
 
-      expectStrictEqual(
-        index.get("tools").length,
-        2,
-        "tools should have Widget and Gadget",
-      );
-      expectStrictEqual(
-        index.get("electronics").length,
-        2,
-        "electronics should have Gadget and Gizmo",
-      );
-      expectStrictEqual(
-        index.get("hardware").length,
-        1,
-        "hardware should have only Widget",
-      );
-    },
-  },
-  {
-    name: "buildReverseIndex-empty-keys",
-    description: "Handles items that return empty key arrays",
-    test: () => {
-      const items = [
-        { name: "A", tags: ["x"] },
-        { name: "B", tags: [] },
-        { name: "C", tags: ["x", "y"] },
-      ];
+    expect(index.get("tools").length).toBe(2);
+    expect(index.get("electronics").length).toBe(2);
+    expect(index.get("hardware").length).toBe(1);
+  });
 
-      const index = buildReverseIndex(items, (i) => i.tags);
+  test("Handles items that return empty key arrays", () => {
+    const items = [
+      { name: "A", tags: ["x"] },
+      { name: "B", tags: [] },
+      { name: "C", tags: ["x", "y"] },
+    ];
 
-      expectStrictEqual(
-        index.get("x").length,
-        2,
-        "x should have items A and C",
-      );
-      expectStrictEqual(index.get("y").length, 1, "y should have only C");
-      expectStrictEqual(
-        index.has("B"),
-        false,
-        "B should not create any index entry",
-      );
-    },
-  },
-  {
-    name: "buildReverseIndex-empty-items",
-    description: "Returns empty Map for empty items array",
-    test: () => {
-      const index = buildReverseIndex([], (i) => i.keys || []);
+    const index = buildReverseIndex(items, (i) => i.tags);
 
-      expectStrictEqual(index.size, 0, "Should return empty Map");
-    },
-  },
-  {
-    name: "buildReverseIndex-preserves-item-references",
-    description: "Index entries reference original item objects",
-    test: () => {
-      const items = [
-        { id: 1, keys: ["a"] },
-        { id: 2, keys: ["a"] },
-      ];
+    expect(index.get("x").length).toBe(2);
+    expect(index.get("y").length).toBe(1);
+    expect(index.has("B")).toBe(false);
+  });
 
-      const index = buildReverseIndex(items, (i) => i.keys);
+  test("Returns empty Map for empty items array", () => {
+    const index = buildReverseIndex([], (i) => i.keys || []);
 
-      expectStrictEqual(
-        index.get("a")[0],
-        items[0],
-        "Should preserve reference to first item",
-      );
-      expectStrictEqual(
-        index.get("a")[1],
-        items[1],
-        "Should preserve reference to second item",
-      );
-    },
-  },
+    expect(index.size).toBe(0);
+  });
+
+  test("Index entries reference original item objects", () => {
+    const items = [
+      { id: 1, keys: ["a"] },
+      { id: 2, keys: ["a"] },
+    ];
+
+    const index = buildReverseIndex(items, (i) => i.keys);
+
+    expect(index.get("a")[0]).toBe(items[0]);
+    expect(index.get("a")[1]).toBe(items[1]);
+  });
 
   // ============================================
   // groupValuesBy Tests
   // ============================================
-  {
-    name: "groupValuesBy-basic",
-    description: "Groups key-value pairs by key with unique values",
-    test: () => {
-      const pairs = [
-        ["size", "small"],
-        ["size", "large"],
-        ["color", "red"],
-        ["size", "medium"],
-      ];
+  test("Groups key-value pairs by key with unique values", () => {
+    const pairs = [
+      ["size", "small"],
+      ["size", "large"],
+      ["color", "red"],
+      ["size", "medium"],
+    ];
 
-      const grouped = groupValuesBy(pairs);
+    const grouped = groupValuesBy(pairs);
 
-      expectStrictEqual(
-        grouped.get("size").size,
-        3,
-        "size should have 3 values",
-      );
-      expectStrictEqual(
-        grouped.get("color").size,
-        1,
-        "color should have 1 value",
-      );
-      expectTrue(grouped.get("size").has("small"), "size should include small");
-      expectTrue(grouped.get("size").has("large"), "size should include large");
-    },
-  },
-  {
-    name: "groupValuesBy-deduplicates",
-    description: "Deduplicates repeated values for same key",
-    test: () => {
-      const pairs = [
-        ["size", "small"],
-        ["size", "small"],
-        ["size", "small"],
-      ];
+    expect(grouped.get("size").size).toBe(3);
+    expect(grouped.get("color").size).toBe(1);
+    expect(grouped.get("size").has("small")).toBe(true);
+    expect(grouped.get("size").has("large")).toBe(true);
+  });
 
-      const grouped = groupValuesBy(pairs);
+  test("Deduplicates repeated values for same key", () => {
+    const pairs = [
+      ["size", "small"],
+      ["size", "small"],
+      ["size", "small"],
+    ];
 
-      expectStrictEqual(
-        grouped.get("size").size,
-        1,
-        "Duplicate values should be deduplicated",
-      );
-    },
-  },
-  {
-    name: "groupValuesBy-empty-pairs",
-    description: "Returns empty Map for empty pairs array",
-    test: () => {
-      const grouped = groupValuesBy([]);
+    const grouped = groupValuesBy(pairs);
 
-      expectStrictEqual(grouped.size, 0, "Should return empty Map");
-    },
-  },
+    expect(grouped.get("size").size).toBe(1);
+  });
+
+  test("Returns empty Map for empty pairs array", () => {
+    const grouped = groupValuesBy([]);
+
+    expect(grouped.size).toBe(0);
+  });
 
   // ============================================
   // buildFirstOccurrenceLookup Tests
   // ============================================
-  {
-    name: "buildFirstOccurrenceLookup-first-wins",
-    description: "Only first occurrence of each key is kept",
-    test: () => {
-      const items = [
-        { attrs: [{ slug: "red", display: "Red" }] },
-        { attrs: [{ slug: "red", display: "OVERRIDE" }] },
-        { attrs: [{ slug: "blue", display: "Blue" }] },
-      ];
+  test("Only first occurrence of each key is kept", () => {
+    const items = [
+      { attrs: [{ slug: "red", display: "Red" }] },
+      { attrs: [{ slug: "red", display: "OVERRIDE" }] },
+      { attrs: [{ slug: "blue", display: "Blue" }] },
+    ];
 
-      const lookup = buildFirstOccurrenceLookup(items, (item) =>
-        item.attrs.map((a) => [a.slug, a.display]),
-      );
+    const lookup = buildFirstOccurrenceLookup(items, (item) =>
+      item.attrs.map((a) => [a.slug, a.display]),
+    );
 
-      expectStrictEqual(
-        lookup.red,
-        "Red",
-        "First occurrence 'Red' should win over 'OVERRIDE'",
-      );
-      expectStrictEqual(lookup.blue, "Blue", "blue should map to Blue");
-    },
-  },
-  {
-    name: "buildFirstOccurrenceLookup-multiple-pairs-per-item",
-    description: "Handles items that produce multiple key-value pairs",
-    test: () => {
-      const items = [
-        {
-          attrs: [
-            { k: "a", v: 1 },
-            { k: "b", v: 2 },
-          ],
-        },
-        { attrs: [{ k: "c", v: 3 }] },
-      ];
+    expect(lookup.red).toBe("Red");
+    expect(lookup.blue).toBe("Blue");
+  });
 
-      const lookup = buildFirstOccurrenceLookup(items, (item) =>
-        item.attrs.map((a) => [a.k, a.v]),
-      );
+  test("Handles items that produce multiple key-value pairs", () => {
+    const items = [
+      {
+        attrs: [
+          { k: "a", v: 1 },
+          { k: "b", v: 2 },
+        ],
+      },
+      { attrs: [{ k: "c", v: 3 }] },
+    ];
 
-      expectStrictEqual(lookup.a, 1, "a should map to 1");
-      expectStrictEqual(lookup.b, 2, "b should map to 2");
-      expectStrictEqual(lookup.c, 3, "c should map to 3");
-    },
-  },
-  {
-    name: "buildFirstOccurrenceLookup-empty-items",
-    description: "Returns empty object for empty items array",
-    test: () => {
-      const lookup = buildFirstOccurrenceLookup([], () => []);
+    const lookup = buildFirstOccurrenceLookup(items, (item) =>
+      item.attrs.map((a) => [a.k, a.v]),
+    );
 
-      expectDeepEqual(lookup, {}, "Should return empty object");
-    },
-  },
+    expect(lookup.a).toBe(1);
+    expect(lookup.b).toBe(2);
+    expect(lookup.c).toBe(3);
+  });
+
+  test("Returns empty object for empty items array", () => {
+    const lookup = buildFirstOccurrenceLookup([], () => []);
+
+    expect(lookup).toEqual({});
+  });
 
   // ============================================
   // groupBy Tests
   // ============================================
-  {
-    name: "groupBy-single-key",
-    description: "Groups items by single extracted key",
-    test: () => {
-      const events = [
-        { date: "2024-01-15", title: "A" },
-        { date: "2024-01-15", title: "B" },
-        { date: "2024-02-20", title: "C" },
-      ];
+  test("Groups items by single extracted key", () => {
+    const events = [
+      { date: "2024-01-15", title: "A" },
+      { date: "2024-01-15", title: "B" },
+      { date: "2024-02-20", title: "C" },
+    ];
 
-      const byDate = groupBy(events, (e) => e.date);
+    const byDate = groupBy(events, (e) => e.date);
 
-      expectStrictEqual(
-        byDate.get("2024-01-15").length,
-        2,
-        "Jan 15 should have 2 events",
-      );
-      expectStrictEqual(
-        byDate.get("2024-02-20").length,
-        1,
-        "Feb 20 should have 1 event",
-      );
-    },
-  },
-  {
-    name: "groupBy-skips-null-keys",
-    description: "Items with null/undefined keys are excluded",
-    test: () => {
-      const items = [
-        { type: "a", name: "A" },
-        { type: null, name: "B" },
-        { type: undefined, name: "C" },
-        { type: "a", name: "D" },
-      ];
+    expect(byDate.get("2024-01-15").length).toBe(2);
+    expect(byDate.get("2024-02-20").length).toBe(1);
+  });
 
-      const byType = groupBy(items, (i) => i.type);
+  test("Items with null/undefined keys are excluded", () => {
+    const items = [
+      { type: "a", name: "A" },
+      { type: null, name: "B" },
+      { type: undefined, name: "C" },
+      { type: "a", name: "D" },
+    ];
 
-      expectStrictEqual(
-        byType.get("a").length,
-        2,
-        "type 'a' should have 2 items",
-      );
-      expectStrictEqual(byType.size, 1, "Only one group should exist");
-    },
-  },
-  {
-    name: "groupBy-empty-items",
-    description: "Returns empty Map for empty items array",
-    test: () => {
-      const grouped = groupBy([], (i) => i.key);
+    const byType = groupBy(items, (i) => i.type);
 
-      expectStrictEqual(grouped.size, 0, "Should return empty Map");
-    },
-  },
-  {
-    name: "groupBy-preserves-order",
-    description: "Items within groups maintain insertion order",
-    test: () => {
-      const items = [
-        { type: "x", order: 1 },
-        { type: "x", order: 2 },
-        { type: "x", order: 3 },
-      ];
+    expect(byType.get("a").length).toBe(2);
+    expect(byType.size).toBe(1);
+  });
 
-      const grouped = groupBy(items, (i) => i.type);
+  test("Returns empty Map for empty items array", () => {
+    const grouped = groupBy([], (i) => i.key);
 
-      expectStrictEqual(
-        grouped.get("x")[0].order,
-        1,
-        "First inserted should be first",
-      );
-      expectStrictEqual(
-        grouped.get("x")[2].order,
-        3,
-        "Last inserted should be last",
-      );
-    },
-  },
+    expect(grouped.size).toBe(0);
+  });
+
+  test("Items within groups maintain insertion order", () => {
+    const items = [
+      { type: "x", order: 1 },
+      { type: "x", order: 2 },
+      { type: "x", order: 3 },
+    ];
+
+    const grouped = groupBy(items, (i) => i.type);
+
+    expect(grouped.get("x")[0].order).toBe(1);
+    expect(grouped.get("x")[2].order).toBe(3);
+  });
 
   // ============================================
   // createLookup Tests
   // ============================================
-  {
-    name: "createLookup-returns-items",
-    description: "Returns items from index when key exists",
-    test: () => {
-      const index = new Map([
-        ["widgets", [{ id: 1 }, { id: 2 }]],
-        ["gadgets", [{ id: 3 }]],
-      ]);
+  test("Returns items from index when key exists", () => {
+    const index = new Map([
+      ["widgets", [{ id: 1 }, { id: 2 }]],
+      ["gadgets", [{ id: 3 }]],
+    ]);
 
-      const lookup = createLookup(index);
+    const lookup = createLookup(index);
 
-      expectStrictEqual(
-        lookup("widgets").length,
-        2,
-        "Should return 2 items for widgets",
-      );
-      expectStrictEqual(
-        lookup("gadgets")[0].id,
-        3,
-        "Should return correct gadgets item",
-      );
-    },
-  },
-  {
-    name: "createLookup-returns-empty-array-for-missing",
-    description: "Returns empty array when key not in index",
-    test: () => {
-      const index = new Map([["existing", [{ id: 1 }]]]);
+    expect(lookup("widgets").length).toBe(2);
+    expect(lookup("gadgets")[0].id).toBe(3);
+  });
 
-      const lookup = createLookup(index);
+  test("Returns empty array when key not in index", () => {
+    const index = new Map([["existing", [{ id: 1 }]]]);
 
-      expectDeepEqual(
-        lookup("missing"),
-        [],
-        "Should return empty array for missing key",
-      );
-    },
-  },
-  {
-    name: "createLookup-with-buildReverseIndex",
-    description: "Works correctly with buildReverseIndex output",
-    test: () => {
-      const products = [
-        { name: "A", categories: ["tools"] },
-        { name: "B", categories: ["tools", "hardware"] },
-      ];
+    const lookup = createLookup(index);
 
-      const index = buildReverseIndex(products, (p) => p.categories);
-      const getByCategory = createLookup(index);
+    expect(lookup("missing")).toEqual([]);
+  });
 
-      expectStrictEqual(
-        getByCategory("tools").length,
-        2,
-        "Should return 2 products for tools",
-      );
-      expectStrictEqual(
-        getByCategory("hardware").length,
-        1,
-        "Should return 1 product for hardware",
-      );
-      expectDeepEqual(
-        getByCategory("nonexistent"),
-        [],
-        "Should return empty array for unknown category",
-      );
-    },
-  },
-];
+  test("Works correctly with buildReverseIndex output", () => {
+    const products = [
+      { name: "A", categories: ["tools"] },
+      { name: "B", categories: ["tools", "hardware"] },
+    ];
 
-export default createTestRunner("grouping", testCases);
+    const index = buildReverseIndex(products, (p) => p.categories);
+    const getByCategory = createLookup(index);
+
+    expect(getByCategory("tools").length).toBe(2);
+    expect(getByCategory("hardware").length).toBe(1);
+    expect(getByCategory("nonexistent")).toEqual([]);
+  });
+});

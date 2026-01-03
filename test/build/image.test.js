@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import {
   configureImages,
   copyImageCache,
@@ -7,51 +8,30 @@ import {
   imageShortcode,
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
-import {
-  assert,
-  createMockEleventyConfig,
-  createTestRunner,
-  expectDeepEqual,
-  expectFunctionType,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const testCases = [
+describe("image", () => {
   // ============================================
   // findImageFiles tests
   // ============================================
-  {
-    name: "findImageFiles-returns-array",
-    description: "findImageFiles returns an array for any input",
-    test: () => {
+  describe("findImageFiles", () => {
+    test("findImageFiles returns an array for any input", () => {
       const result = findImageFiles([]);
-      expectTrue(
-        Array.isArray(result),
-        "findImageFiles should return an array even for empty pattern",
-      );
-    },
-  },
-  {
-    name: "findImageFiles-custom-pattern",
-    description: "findImageFiles accepts custom file patterns without throwing",
-    test: () => {
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test("findImageFiles accepts custom file patterns without throwing", () => {
       const customPattern = ["test/fixtures/*.png"];
       const result = findImageFiles(customPattern);
-      expectTrue(
-        Array.isArray(result),
-        "findImageFiles should return an array for custom patterns",
-      );
-    },
-  },
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
 
   // ============================================
   // createImagesCollection tests
   // ============================================
-  {
-    name: "createImagesCollection-extracts-filenames",
-    description: "Extracts filenames from paths and reverses order",
-    test: () => {
+  describe("createImagesCollection", () => {
+    test("Extracts filenames from paths and reverses order", () => {
       const imageFiles = [
         "src/images/photo1.jpg",
         "src/images/photo2.jpg",
@@ -60,171 +40,96 @@ const testCases = [
 
       const result = createImagesCollection(imageFiles);
 
-      expectDeepEqual(
-        result,
-        ["banner.jpg", "photo2.jpg", "photo1.jpg"],
-        "Should extract filenames and reverse order for newest-first display",
-      );
-    },
-  },
-  {
-    name: "createImagesCollection-empty-array",
-    description: "Returns empty array for empty input",
-    test: () => {
+      expect(result).toEqual(["banner.jpg", "photo2.jpg", "photo1.jpg"]);
+    });
+
+    test("Returns empty array for empty input", () => {
       const result = createImagesCollection([]);
 
-      expectDeepEqual(
-        result,
-        [],
-        "Should return empty array when no images provided",
-      );
-    },
-  },
-  {
-    name: "createImagesCollection-null-input",
-    description: "Returns empty array when input is null",
-    test: () => {
+      expect(result).toEqual([]);
+    });
+
+    test("Returns empty array when input is null", () => {
       const result = createImagesCollection(null);
 
-      expectDeepEqual(
-        result,
-        [],
-        "Should gracefully handle null input by returning empty array",
-      );
-    },
-  },
-  {
-    name: "createImagesCollection-undefined-input",
-    description: "Returns empty array when input is undefined",
-    test: () => {
+      expect(result).toEqual([]);
+    });
+
+    test("Returns empty array when input is undefined", () => {
       const result = createImagesCollection(undefined);
 
-      expectDeepEqual(
-        result,
-        [],
-        "Should gracefully handle undefined input by returning empty array",
-      );
-    },
-  },
-  {
-    name: "createImagesCollection-various-path-structures",
-    description: "Extracts filename regardless of directory structure",
-    test: () => {
+      expect(result).toEqual([]);
+    });
+
+    test("Extracts filename regardless of directory structure", () => {
       const imageFiles = ["assets/imgs/test.jpg", "public/photos/vacation.jpg"];
 
       const result = createImagesCollection(imageFiles);
 
-      expectDeepEqual(
-        result,
-        ["vacation.jpg", "test.jpg"],
-        "Should extract filename from any path structure",
-      );
-    },
-  },
-  {
-    name: "createImagesCollection-immutable",
-    description: "Does not modify input array",
-    test: () => {
+      expect(result).toEqual(["vacation.jpg", "test.jpg"]);
+    });
+
+    test("Does not modify input array", () => {
       const originalFiles = ["src/images/test1.jpg", "src/images/test2.jpg"];
       const filesCopy = [...originalFiles];
 
       createImagesCollection(filesCopy);
 
-      expectDeepEqual(
-        filesCopy,
-        originalFiles,
-        "Input array should not be modified by createImagesCollection",
-      );
-    },
-  },
-  {
-    name: "createImagesCollection-consistent-results",
-    description: "Returns consistent results for identical inputs",
-    test: () => {
+      expect(filesCopy).toEqual(originalFiles);
+    });
+
+    test("Returns consistent results for identical inputs", () => {
       const files = ["src/images/test1.jpg", "src/images/test2.jpg"];
 
       const result1 = createImagesCollection(files);
       const result2 = createImagesCollection(files);
 
-      expectDeepEqual(
-        result1,
-        result2,
-        "Should produce identical results for same input",
-      );
-      expectTrue(
-        result1 !== result2,
-        "Should create new array instance each time (not return same reference)",
-      );
-    },
-  },
+      expect(result1).toEqual(result2);
+      expect(result1 !== result2).toBe(true);
+    });
+  });
 
   // ============================================
   // copyImageCache tests
   // ============================================
-  {
-    name: "copyImageCache-does-not-throw",
-    description:
-      "copyImageCache runs without throwing even if cache directory missing",
-    test: () => {
+  describe("copyImageCache", () => {
+    test("copyImageCache runs without throwing even if cache directory missing", () => {
       // If this throws, the test framework will catch it and fail the test
       copyImageCache();
-      expectTrue(true, "copyImageCache should complete without throwing");
-    },
-  },
+      expect(true).toBe(true);
+    });
+  });
 
   // ============================================
   // createImageTransform tests
   // ============================================
-  {
-    name: "createImageTransform-returns-function",
-    description: "createImageTransform returns a transform function",
-    test: () => {
+  describe("createImageTransform", () => {
+    test("createImageTransform returns a transform function", () => {
       const transform = createImageTransform();
 
-      expectFunctionType(
-        transform,
-        undefined,
-        "createImageTransform should return a function",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-css-passthrough",
-    description: "Transform passes through CSS files unchanged",
-    asyncTest: async () => {
+      expect(typeof transform).toBe("function");
+    });
+
+    test("Transform passes through CSS files unchanged", async () => {
       const transform = createImageTransform();
       const cssContent = "body { margin: 0; }";
       const cssPath = "/test/style.css";
 
       const result = await transform(cssContent, cssPath);
 
-      expectStrictEqual(
-        result,
-        cssContent,
-        "CSS files should pass through unchanged - no image processing needed",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-null-path-passthrough",
-    description: "Transform passes through content when output path is null",
-    asyncTest: async () => {
+      expect(result).toBe(cssContent);
+    });
+
+    test("Transform passes through content when output path is null", async () => {
       const transform = createImageTransform();
       const content = "<p>Test content</p>";
 
       const result = await transform(content, null);
 
-      expectStrictEqual(
-        result,
-        content,
-        "Content should pass through when no output path provided",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-feed-xml-passthrough",
-    description: "Transform passes through feed.xml files without processing",
-    asyncTest: async () => {
+      expect(result).toBe(content);
+    });
+
+    test("Transform passes through feed.xml files without processing", async () => {
       const transform = createImageTransform();
       const feedContent =
         '<?xml version="1.0"?><feed><entry>test</entry></feed>';
@@ -232,51 +137,30 @@ const testCases = [
 
       const result = await transform(feedContent, feedPath);
 
-      expectStrictEqual(
-        result,
-        feedContent,
-        "Feed XML files should pass through unchanged",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-feed-json-passthrough",
-    description: "Transform passes through feed.json files without processing",
-    asyncTest: async () => {
+      expect(result).toBe(feedContent);
+    });
+
+    test("Transform passes through feed.json files without processing", async () => {
       const transform = createImageTransform();
       const feedContent = '{"items": []}';
       const feedPath = "/test/feed.json";
 
       const result = await transform(feedContent, feedPath);
 
-      expectStrictEqual(
-        result,
-        feedContent,
-        "Feed JSON files should pass through unchanged",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-html-without-images-passthrough",
-    description: "Transform passes through HTML without img tags",
-    asyncTest: async () => {
+      expect(result).toBe(feedContent);
+    });
+
+    test("Transform passes through HTML without img tags", async () => {
       const transform = createImageTransform();
       const htmlContent = "<html><body><p>Hello world</p></body></html>";
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectStrictEqual(
-        result,
-        htmlContent,
-        "HTML without images should pass through unchanged",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-external-images-passthrough",
-    description: "Transform passes through HTML with only external image URLs",
-    asyncTest: async () => {
+      expect(result).toBe(htmlContent);
+    });
+
+    test("Transform passes through HTML with only external image URLs", async () => {
       const transform = createImageTransform();
       const htmlContent =
         '<html><body><img src="https://example.com/image.jpg" alt="test"></body></html>';
@@ -284,112 +168,66 @@ const testCases = [
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectStrictEqual(
-        result,
-        htmlContent,
-        "HTML with external images should pass through - only local images need processing",
-      );
-    },
-  },
+      expect(result).toBe(htmlContent);
+    });
+  });
 
   // ============================================
   // configureImages tests
   // ============================================
-  {
-    name: "configureImages-registers-shortcode",
-    description: "Registers async image shortcode with Eleventy config",
-    test: () => {
+  describe("configureImages", () => {
+    test("Registers async image shortcode with Eleventy config", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureImages(mockConfig);
 
-      expectTrue(
-        "image" in mockConfig.asyncShortcodes,
-        "Should register 'image' as an async shortcode",
-      );
-      expectFunctionType(
-        mockConfig.asyncShortcodes,
-        "image",
-        "image shortcode should be a function",
-      );
-    },
-  },
-  {
-    name: "configureImages-registers-transform",
-    description: "Registers processImages transform with Eleventy config",
-    test: () => {
+      expect("image" in mockConfig.asyncShortcodes).toBe(true);
+      expect(typeof mockConfig.asyncShortcodes.image).toBe("function");
+    });
+
+    test("Registers processImages transform with Eleventy config", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureImages(mockConfig);
 
-      expectTrue(
-        "processImages" in mockConfig.transforms,
-        "Should register 'processImages' transform",
-      );
-      expectFunctionType(
-        mockConfig.transforms,
-        "processImages",
-        "processImages transform should be a function",
-      );
-    },
-  },
-  {
-    name: "configureImages-registers-collection",
-    description: "Registers images collection with Eleventy config",
-    test: () => {
+      expect("processImages" in mockConfig.transforms).toBe(true);
+      expect(typeof mockConfig.transforms.processImages).toBe("function");
+    });
+
+    test("Registers images collection with Eleventy config", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureImages(mockConfig);
 
-      expectTrue(
-        "images" in mockConfig.collections,
-        "Should register 'images' collection",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "images",
-        "images collection should be a function",
-      );
-    },
-  },
-  {
-    name: "configureImages-registers-event-handler",
-    description: "Registers eleventy.after event handler for cache copying",
-    test: () => {
+      expect("images" in mockConfig.collections).toBe(true);
+      expect(typeof mockConfig.collections.images).toBe("function");
+    });
+
+    test("Registers eleventy.after event handler for cache copying", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureImages(mockConfig);
 
-      expectTrue(
+      expect(
         mockConfig.eventHandlers !== undefined &&
           "eleventy.after" in mockConfig.eventHandlers,
-        "Should register 'eleventy.after' event handler for image cache",
+      ).toBe(true);
+      expect(typeof mockConfig.eventHandlers["eleventy.after"]).toBe(
+        "function",
       );
-      expectFunctionType(
-        mockConfig.eventHandlers,
-        "eleventy.after",
-        "eleventy.after handler should be a function",
-      );
-    },
-  },
-  {
-    name: "configureImages-adds-plugin",
-    description: "Adds eleventy-img plugin to config",
-    test: () => {
+    });
+
+    test("Adds eleventy-img plugin to config", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureImages(mockConfig);
 
-      expectTrue(
-        mockConfig.pluginCalls && mockConfig.pluginCalls.length > 0,
-        "Should add at least one plugin (eleventy-img)",
+      expect(mockConfig.pluginCalls && mockConfig.pluginCalls.length > 0).toBe(
+        true,
       );
-    },
-  },
-  {
-    name: "configureImages-collection-returns-array",
-    description: "Images collection function returns an array",
-    test: () => {
+    });
+
+    test("Images collection function returns an array", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureImages(mockConfig);
@@ -397,84 +235,41 @@ const testCases = [
       const collectionFn = mockConfig.collections.images;
       const result = collectionFn();
 
-      expectTrue(
-        Array.isArray(result),
-        "images collection function should return an array of image filenames",
-      );
-    },
-  },
+      expect(Array.isArray(result)).toBe(true);
+    });
+  });
 
   // ============================================
   // imageShortcode tests - external URLs
   // ============================================
-  {
-    name: "imageShortcode-external-https-returns-img-tag",
-    description:
-      "Returns simple img tag for external HTTPS URLs without processing",
-    asyncTest: async () => {
+  describe("imageShortcode - external URLs", () => {
+    test("Returns simple img tag for external HTTPS URLs without processing", async () => {
       const externalUrl = "https://example.com/image.jpg";
       const alt = "External image";
 
       const result = await imageShortcode(externalUrl, alt);
 
-      expectTrue(
-        result.includes("<img"),
-        "Should return an img tag for external URL",
-      );
-      expectTrue(
-        result.includes('src="https://example.com/image.jpg"'),
-        "Should preserve original external URL in src attribute",
-      );
-      expectTrue(
-        result.includes('alt="External image"'),
-        "Should include provided alt text",
-      );
-      expectTrue(
-        result.includes('loading="lazy"'),
-        "Should include lazy loading by default",
-      );
-      expectTrue(
-        result.includes('decoding="async"'),
-        "Should include async decoding for performance",
-      );
-      expectTrue(
-        !result.includes("image-wrapper"),
-        "Should not wrap external images in image-wrapper div",
-      );
-      expectTrue(
-        !result.includes("background-image"),
-        "Should not include base64 placeholder for external images",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-external-http-returns-img-tag",
-    description:
-      "Returns simple img tag for external HTTP URLs without processing",
-    asyncTest: async () => {
+      expect(result.includes("<img")).toBe(true);
+      expect(result.includes('src="https://example.com/image.jpg"')).toBe(true);
+      expect(result.includes('alt="External image"')).toBe(true);
+      expect(result.includes('loading="lazy"')).toBe(true);
+      expect(result.includes('decoding="async"')).toBe(true);
+      expect(!result.includes("image-wrapper")).toBe(true);
+      expect(!result.includes("background-image")).toBe(true);
+    });
+
+    test("Returns simple img tag for external HTTP URLs without processing", async () => {
       const externalUrl = "http://example.com/image.jpg";
       const alt = "HTTP image";
 
       const result = await imageShortcode(externalUrl, alt);
 
-      expectTrue(
-        result.includes("<img"),
-        "Should return an img tag for HTTP URL",
-      );
-      expectTrue(
-        result.includes('src="http://example.com/image.jpg"'),
-        "Should preserve original HTTP URL (not upgrade to HTTPS)",
-      );
-      expectTrue(
-        result.includes('alt="HTTP image"'),
-        "Should include provided alt text",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-external-url-with-classes",
-    description: "Includes custom classes on external URL img tags",
-    asyncTest: async () => {
+      expect(result.includes("<img")).toBe(true);
+      expect(result.includes('src="http://example.com/image.jpg"')).toBe(true);
+      expect(result.includes('alt="HTTP image"')).toBe(true);
+    });
+
+    test("Includes custom classes on external URL img tags", async () => {
       const externalUrl = "https://example.com/image.jpg";
       const result = await imageShortcode(
         externalUrl,
@@ -483,30 +278,18 @@ const testCases = [
         "my-custom-class",
       );
 
-      expectTrue(
-        result.includes('class="my-custom-class"'),
-        "Should apply custom classes to external image img tag",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-external-url-empty-alt",
-    description: "Handles empty alt text for external URLs (decorative images)",
-    asyncTest: async () => {
+      expect(result.includes('class="my-custom-class"')).toBe(true);
+    });
+
+    test("Handles empty alt text for external URLs (decorative images)", async () => {
       const externalUrl = "https://example.com/image.jpg";
 
       const result = await imageShortcode(externalUrl, "");
 
-      expectTrue(
-        result.includes('alt=""'),
-        "Should include empty alt attribute for decorative images",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-external-url-eager-loading",
-    description: "External URL respects custom loading attribute",
-    asyncTest: async () => {
+      expect(result.includes('alt=""')).toBe(true);
+    });
+
+    test("External URL respects custom loading attribute", async () => {
       const result = await imageShortcode(
         "https://example.com/image.jpg",
         "Test",
@@ -517,45 +300,24 @@ const testCases = [
         "eager",
       );
 
-      expectTrue(
-        result.includes('loading="eager"'),
-        "Should use eager loading when specified for above-fold images",
-      );
-    },
-  },
+      expect(result.includes('loading="eager"')).toBe(true);
+    });
+  });
 
   // ============================================
   // imageShortcode tests - local images
   // ============================================
-  {
-    name: "imageShortcode-local-image-wrapped",
-    description:
-      "Processes local image and returns wrapped HTML with picture element",
-    asyncTest: async () => {
+  describe("imageShortcode - local images", () => {
+    test("Processes local image and returns wrapped HTML with picture element", async () => {
       const result = await imageShortcode("party.jpg", "A party scene");
 
-      expectTrue(
-        result.includes("image-wrapper"),
-        "Should wrap local images in image-wrapper div for LQIP",
-      );
-      expectTrue(
-        result.includes("<picture"),
-        "Should generate picture element with multiple formats",
-      );
-      expectTrue(
-        result.includes('alt="A party scene"'),
-        "Should include alt text in final img tag",
-      );
-      expectTrue(
-        result.includes("aspect-ratio"),
-        "Should include aspect ratio style for layout stability",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-local-image-with-classes",
-    description: "Applies custom classes to image wrapper",
-    asyncTest: async () => {
+      expect(result.includes("image-wrapper")).toBe(true);
+      expect(result.includes("<picture")).toBe(true);
+      expect(result.includes('alt="A party scene"')).toBe(true);
+      expect(result.includes("aspect-ratio")).toBe(true);
+    });
+
+    test("Applies custom classes to image wrapper", async () => {
       const result = await imageShortcode(
         "party.jpg",
         "Test",
@@ -563,29 +325,19 @@ const testCases = [
         "my-class another-class",
       );
 
-      expectTrue(
-        result.includes("image-wrapper my-class another-class"),
-        "Should include custom classes on wrapper div",
+      expect(result.includes("image-wrapper my-class another-class")).toBe(
+        true,
       );
-    },
-  },
-  {
-    name: "imageShortcode-local-image-with-widths",
-    description: "Processes local image with custom responsive widths",
-    asyncTest: async () => {
+    });
+
+    test("Processes local image with custom responsive widths", async () => {
       const result = await imageShortcode("party.jpg", "Test", "300,600");
 
-      expectTrue(
-        result.includes("<picture"),
-        "Should generate picture element with specified widths",
-      );
-      expectTrue(result.includes("image-wrapper"), "Should wrap in div");
-    },
-  },
-  {
-    name: "imageShortcode-local-image-with-sizes",
-    description: "Processes local image with custom sizes attribute",
-    asyncTest: async () => {
+      expect(result.includes("<picture")).toBe(true);
+      expect(result.includes("image-wrapper")).toBe(true);
+    });
+
+    test("Processes local image with custom sizes attribute", async () => {
       const result = await imageShortcode(
         "party.jpg",
         "Test",
@@ -594,16 +346,10 @@ const testCases = [
         "(max-width: 600px) 100vw, 50vw",
       );
 
-      expectTrue(
-        result.includes("(max-width: 600px) 100vw, 50vw"),
-        "Should include custom sizes attribute for responsive behavior",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-local-image-with-aspect-ratio",
-    description: "Uses provided aspect ratio instead of calculated",
-    asyncTest: async () => {
+      expect(result.includes("(max-width: 600px) 100vw, 50vw")).toBe(true);
+    });
+
+    test("Uses provided aspect ratio instead of calculated", async () => {
       const result = await imageShortcode(
         "party.jpg",
         "Test",
@@ -613,16 +359,10 @@ const testCases = [
         "16/9",
       );
 
-      expectTrue(
-        result.includes("aspect-ratio: 16/9"),
-        "Should use provided aspect ratio for layout",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-local-image-eager-loading",
-    description: "Processes local image with eager loading for LCP images",
-    asyncTest: async () => {
+      expect(result.includes("aspect-ratio: 16/9")).toBe(true);
+    });
+
+    test("Processes local image with eager loading for LCP images", async () => {
       const result = await imageShortcode(
         "party.jpg",
         "Test",
@@ -633,116 +373,69 @@ const testCases = [
         "eager",
       );
 
-      expectTrue(
-        result.includes('loading="eager"'),
-        "Should use eager loading for above-fold/LCP images",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-widths-as-array",
-    description: "Accepts widths as array instead of comma-separated string",
-    asyncTest: async () => {
+      expect(result.includes('loading="eager"')).toBe(true);
+    });
+
+    test("Accepts widths as array instead of comma-separated string", async () => {
       const result = await imageShortcode("party.jpg", "Test", [320, 640]);
 
-      expectTrue(
-        result.includes("<picture"),
-        "Should process image when widths provided as array",
-      );
-    },
-  },
+      expect(result.includes("<picture")).toBe(true);
+    });
+  });
 
   // ============================================
   // imageShortcode tests - path normalization
   // ============================================
-  {
-    name: "imageShortcode-path-with-leading-slash",
-    description: "Handles image path starting with /",
-    asyncTest: async () => {
+  describe("imageShortcode - path normalization", () => {
+    test("Handles image path starting with /", async () => {
       const result = await imageShortcode("/images/party.jpg", "Test");
 
-      expectTrue(
-        result.includes("image-wrapper"),
-        "Should process image with leading slash path",
-      );
-      expectTrue(
-        result.includes("<picture"),
-        "Should generate picture element",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-path-with-src-prefix",
-    description: "Handles image path starting with src/",
-    asyncTest: async () => {
+      expect(result.includes("image-wrapper")).toBe(true);
+      expect(result.includes("<picture")).toBe(true);
+    });
+
+    test("Handles image path starting with src/", async () => {
       const result = await imageShortcode("src/images/party.jpg", "Test");
 
-      expectTrue(
-        result.includes("image-wrapper"),
-        "Should process image with src/ prefix path",
-      );
-    },
-  },
-  {
-    name: "imageShortcode-path-with-images-prefix",
-    description: "Handles image path starting with images/",
-    asyncTest: async () => {
+      expect(result.includes("image-wrapper")).toBe(true);
+    });
+
+    test("Handles image path starting with images/", async () => {
       const result = await imageShortcode("images/party.jpg", "Test");
 
-      expectTrue(
-        result.includes("image-wrapper"),
-        "Should process image with images/ prefix path",
-      );
-    },
-  },
+      expect(result.includes("image-wrapper")).toBe(true);
+    });
+  });
 
   // ============================================
   // imageShortcode tests - error handling
   // ============================================
-  {
-    name: "imageShortcode-invalid-path-throws",
-    description: "Throws descriptive error for non-existent image",
-    asyncTest: async () => {
-      await assert.rejects(
-        () => imageShortcode("nonexistent-image-12345.jpg", "Test"),
-        {
-          name: "Error",
-        },
-        "Should throw error when image file does not exist",
-      );
-    },
-  },
+  describe("imageShortcode - error handling", () => {
+    test("Throws descriptive error for non-existent image", async () => {
+      await expect(
+        imageShortcode("nonexistent-image-12345.jpg", "Test"),
+      ).rejects.toThrow();
+    });
+  });
 
   // ============================================
   // imageShortcode tests - caching
   // ============================================
-  {
-    name: "imageShortcode-caching-consistent",
-    description: "Returns identical cached result for same inputs",
-    asyncTest: async () => {
+  describe("imageShortcode - caching", () => {
+    test("Returns identical cached result for same inputs", async () => {
       const result1 = await imageShortcode("menu.jpg", "Menu image");
       const result2 = await imageShortcode("menu.jpg", "Menu image");
 
-      expectStrictEqual(
-        result1,
-        result2,
-        "Same inputs should return identical cached output",
-      );
-    },
-  },
+      expect(result1).toBe(result2);
+    });
+  });
 
   // ============================================
   // Integration tests using test-site-factory
   // ============================================
-  // These tests create isolated Eleventy sites, copy real images,
-  // build them, and verify image processing works end-to-end.
-
-  {
-    name: "integration-image-shortcode-processes-local-image",
-    description:
-      "Image shortcode processes local images in full Eleventy build",
-    asyncTest: () =>
-      withTestSite(
+  describe("Integration tests", () => {
+    test("Image shortcode processes local images in full Eleventy build", async () => {
+      await withTestSite(
         {
           files: [
             {
@@ -762,85 +455,60 @@ const testCases = [
           const doc = site.getDoc("/test/index.html");
 
           // Verify image was processed into picture element
-          expectTrue(
-            html.includes("<picture"),
-            "Should generate picture element from image shortcode",
-          );
-          expectTrue(
-            html.includes('alt="A test image"'),
-            "Should include alt text in processed image",
-          );
-          expectTrue(
-            html.includes("image-wrapper"),
-            "Should wrap processed image in image-wrapper div",
-          );
+          expect(html.includes("<picture")).toBe(true);
+          expect(html.includes('alt="A test image"')).toBe(true);
+          expect(html.includes("image-wrapper")).toBe(true);
 
           // Verify responsive images were generated
           const sources = doc.querySelectorAll("picture source");
-          expectTrue(
-            sources.length > 0,
-            "Should generate source elements for responsive images",
-          );
+          expect(sources.length > 0).toBe(true);
 
           // Verify webp format was generated
           const webpSource = doc.querySelector(
             'picture source[type="image/webp"]',
           );
-          expectTrue(
-            webpSource !== null,
-            "Should generate WebP format for modern browsers",
-          );
-        },
-      ),
-  },
-
-  {
-    name: "integration-image-shortcode-external-url-passthrough",
-    description: "External image URLs pass through without processing in build",
-    asyncTest: async () => {
-      await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: {
-                title: "External Image Test",
-                layout: "page",
-                permalink: "/test/",
-              },
-              content:
-                '{% image "https://example.com/photo.jpg", "External photo" %}',
-            },
-          ],
-        },
-        async (site) => {
-          await site.build();
-
-          const html = site.getOutput("/test/index.html");
-
-          // External URLs should produce simple img tag, not picture
-          expectTrue(
-            html.includes('src="https://example.com/photo.jpg"'),
-            "Should preserve external URL in src attribute",
-          );
-          expectTrue(
-            html.includes('alt="External photo"'),
-            "Should include alt text for external image",
-          );
-          expectTrue(
-            !html.includes("<picture"),
-            "Should not wrap external images in picture element",
-          );
+          expect(webpSource !== null).toBe(true);
         },
       );
-    },
-  },
+    });
 
-  {
-    name: "integration-images-collection-finds-images",
-    description: "Images collection returns image filenames from src/images",
-    asyncTest: () =>
-      withTestSite(
+    test(
+      "External image URLs pass through without processing in build",
+      async () => {
+        await withTestSite(
+          {
+            files: [
+              {
+                path: "pages/test.md",
+                frontmatter: {
+                  title: "External Image Test",
+                  layout: "page",
+                  permalink: "/test/",
+                },
+                content:
+                  '{% image "https://example.com/photo.jpg", "External photo" %}',
+              },
+            ],
+          },
+          async (site) => {
+            await site.build();
+
+            const html = site.getOutput("/test/index.html");
+
+            // External URLs should produce simple img tag, not picture
+            expect(html.includes('src="https://example.com/photo.jpg"')).toBe(
+              true,
+            );
+            expect(html.includes('alt="External photo"')).toBe(true);
+            expect(!html.includes("<picture")).toBe(true);
+          },
+        );
+      },
+      { timeout: 30000 },
+    );
+
+    test("Images collection returns image filenames from src/images", async () => {
+      await withTestSite(
         {
           files: [
             {
@@ -865,23 +533,14 @@ const testCases = [
         (site) => {
           const html = site.getOutput("/gallery/index.html");
 
-          expectTrue(
-            html.includes("alpha.jpg"),
-            "Should include alpha.jpg in images collection",
-          );
-          expectTrue(
-            html.includes("beta.jpg"),
-            "Should include beta.jpg in images collection",
-          );
+          expect(html.includes("alpha.jpg")).toBe(true);
+          expect(html.includes("beta.jpg")).toBe(true);
         },
-      ),
-  },
+      );
+    });
 
-  {
-    name: "integration-image-with-custom-widths",
-    description: "Image shortcode respects custom width parameter in build",
-    asyncTest: () =>
-      withTestSite(
+    test("Image shortcode respects custom width parameter in build", async () => {
+      await withTestSite(
         {
           files: [
             {
@@ -900,147 +559,80 @@ const testCases = [
           const html = site.getOutput("/test/index.html");
           const doc = site.getDoc("/test/index.html");
 
-          expectTrue(
-            html.includes("<picture"),
-            "Should generate picture element with custom widths",
-          );
+          expect(html.includes("<picture")).toBe(true);
 
           // Verify srcset contains the specified widths
           const sources = doc.querySelectorAll("picture source");
           const hasSrcset = Array.from(sources).some(
             (s) => s.getAttribute("srcset") !== null,
           );
-          expectTrue(
-            hasSrcset,
-            "Should generate srcset with responsive image widths",
-          );
+          expect(hasSrcset).toBe(true);
         },
-      ),
-  },
+      );
+    });
+  });
 
   // ============================================
   // createImageTransform tests - actual transformation
   // ============================================
-  // These tests exercise the transform function with content that
-  // triggers actual image processing, not just passthrough.
-
-  {
-    name: "createImageTransform-transforms-local-images",
-    description:
-      "Transform converts raw img tags with /images/ src to wrapped picture elements",
-    asyncTest: async () => {
+  describe("createImageTransform - transformations", () => {
+    test("Transform converts raw img tags with /images/ src to wrapped picture elements", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body><img src="/images/party.jpg" alt="Party"></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectTrue(
-        result.includes("image-wrapper"),
-        "Should wrap local images in image-wrapper div",
-      );
-      expectTrue(
-        result.includes("<picture"),
-        "Should generate picture element for local images",
-      );
-      expectTrue(
-        result.includes('alt="Party"'),
-        "Should preserve alt text in transformed output",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-fixes-divs-in-paragraphs",
-    description:
-      "Transform lifts wrapped images out of paragraphs to fix invalid HTML",
-    asyncTest: async () => {
+      expect(result.includes("image-wrapper")).toBe(true);
+      expect(result.includes("<picture")).toBe(true);
+      expect(result.includes('alt="Party"')).toBe(true);
+    });
+
+    test("Transform lifts wrapped images out of paragraphs to fix invalid HTML", async () => {
       const transform = createImageTransform();
-      // Simulate invalid HTML where a div is the sole child of a paragraph.
-      // This happens when markdown wraps shortcode output in <p> tags.
-      // We need an /images/ src to trigger the transform, but the image is
-      // already wrapped so it won't be reprocessed - only fixDivsInParagraphs runs.
       const htmlContent = `<html><body><p><div class="image-wrapper"><picture><img src="/images/party.jpg" alt=""></picture></div></p></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      // The div should be lifted out of the paragraph
-      expectTrue(
-        !result.includes("<p><div"),
-        "Should not have div directly inside paragraph after transform",
-      );
-      expectTrue(
-        result.includes("image-wrapper"),
-        "Should still contain the image-wrapper element",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-skips-already-wrapped-images",
-    description:
-      "Transform does not double-wrap images already in image-wrapper",
-    asyncTest: async () => {
+      expect(!result.includes("<p><div")).toBe(true);
+      expect(result.includes("image-wrapper")).toBe(true);
+    });
+
+    test("Transform does not double-wrap images already in image-wrapper", async () => {
       const transform = createImageTransform();
-      // Image already wrapped - should not be processed again
       const htmlContent = `<html><body><div class="image-wrapper"><img src="/images/party.jpg" alt="Pre-wrapped"></div></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      // Count occurrences of image-wrapper - should still be exactly 1
       const wrapperCount = (result.match(/image-wrapper/g) || []).length;
-      expectStrictEqual(
-        wrapperCount,
-        1,
-        "Should not add additional image-wrapper to already-wrapped image",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-extracts-aspect-ratio-attribute",
-    description:
-      "Transform uses eleventy:aspectRatio attribute for custom aspect ratio",
-    asyncTest: async () => {
+      expect(wrapperCount).toBe(1);
+    });
+
+    test("Transform uses eleventy:aspectRatio attribute for custom aspect ratio", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body><img src="/images/party.jpg" alt="Wide" eleventy:aspectRatio="16/9"></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectTrue(
-        result.includes("aspect-ratio: 16/9"),
-        "Should apply custom aspect ratio from eleventy:aspectRatio attribute",
-      );
-      expectTrue(
-        !result.includes("eleventy:aspectRatio"),
-        "Should remove eleventy:aspectRatio attribute from output",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-preserves-image-classes",
-    description: "Transform preserves class attribute on transformed images",
-    asyncTest: async () => {
+      expect(result.includes("aspect-ratio: 16/9")).toBe(true);
+      expect(!result.includes("eleventy:aspectRatio")).toBe(true);
+    });
+
+    test("Transform preserves class attribute on transformed images", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body><img src="/images/party.jpg" alt="Styled" class="hero-image rounded"></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectTrue(
-        result.includes("hero-image"),
-        "Should preserve original image classes in output",
-      );
-      expectTrue(
-        result.includes("rounded"),
-        "Should preserve all original classes",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-handles-multiple-images",
-    description: "Transform processes multiple local images in same document",
-    asyncTest: async () => {
+      expect(result.includes("hero-image")).toBe(true);
+      expect(result.includes("rounded")).toBe(true);
+    });
+
+    test("Transform processes multiple local images in same document", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body>
         <img src="/images/party.jpg" alt="First">
@@ -1050,20 +642,11 @@ const testCases = [
 
       const result = await transform(htmlContent, htmlPath);
 
-      // Count picture elements - should be 2
       const pictureCount = (result.match(/<picture/g) || []).length;
-      expectStrictEqual(
-        pictureCount,
-        2,
-        "Should transform all local images in the document",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-mixed-local-and-external",
-    description:
-      "Transform processes local images while leaving external URLs unchanged",
-    asyncTest: async () => {
+      expect(pictureCount).toBe(2);
+    });
+
+    test("Transform processes local images while leaving external URLs unchanged", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body>
         <img src="https://example.com/external.jpg" alt="External">
@@ -1073,58 +656,34 @@ const testCases = [
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectTrue(
-        result.includes('src="https://example.com/external.jpg"'),
-        "Should preserve external image src unchanged",
+      expect(result.includes('src="https://example.com/external.jpg"')).toBe(
+        true,
       );
-      expectTrue(
-        result.includes("<picture"),
-        "Should transform local image to picture element",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-no-images-early-return",
-    description: "Transform returns content unchanged when no img tags present",
-    asyncTest: async () => {
+      expect(result.includes("<picture")).toBe(true);
+    });
+
+    test("Transform returns content unchanged when no img tags present", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body><p>No images here</p></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectStrictEqual(
-        result,
-        htmlContent,
-        "Should return content unchanged when no img tags present",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-no-local-images-early-return",
-    description:
-      "Transform returns content unchanged when only non-local images present",
-    asyncTest: async () => {
+      expect(result).toBe(htmlContent);
+    });
+
+    test("Transform returns content unchanged when only non-local images present", async () => {
       const transform = createImageTransform();
       const htmlContent = `<html><body><img src="/assets/logo.png" alt="Logo"></body></html>`;
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);
 
-      expectStrictEqual(
-        result,
-        htmlContent,
-        "Should return unchanged when images don't use /images/ path",
-      );
-    },
-  },
-  {
-    name: "createImageTransform-duplicate-images-use-cache",
-    description:
-      "Transform efficiently reuses cached results for duplicate images",
-    asyncTest: async () => {
+      expect(result).toBe(htmlContent);
+    });
+
+    test("Transform efficiently reuses cached results for duplicate images", async () => {
       const transform = createImageTransform();
-      // Same image appears twice - second should use cached result
       const htmlContent = `<html><body>
         <img src="/images/party.jpg" alt="First occurrence">
         <img src="/images/party.jpg" alt="First occurrence">
@@ -1133,26 +692,17 @@ const testCases = [
 
       const result = await transform(htmlContent, htmlPath);
 
-      // Both should be transformed identically
       const pictureCount = (result.match(/<picture/g) || []).length;
-      expectStrictEqual(
-        pictureCount,
-        2,
-        "Both duplicate images should be transformed using cache",
-      );
-    },
-  },
+      expect(pictureCount).toBe(2);
+    });
+  });
 
   // ============================================
   // Integration tests - transform in full build
   // ============================================
-
-  {
-    name: "integration-markdown-image-transformed",
-    description:
-      "Standard markdown images with /images/ path are transformed in build",
-    asyncTest: () =>
-      withTestSite(
+  describe("Integration - transform in build", () => {
+    test("Standard markdown images with /images/ path are transformed in build", async () => {
+      await withTestSite(
         {
           files: [
             {
@@ -1170,27 +720,15 @@ const testCases = [
         (site) => {
           const html = site.getOutput("/test/index.html");
 
-          expectTrue(
-            html.includes("image-wrapper"),
-            "Markdown image should be wrapped by transform",
-          );
-          expectTrue(
-            html.includes("<picture"),
-            "Markdown image should be converted to picture element",
-          );
-          expectTrue(
-            html.includes('alt="A test scene"'),
-            "Should preserve alt text from markdown",
-          );
+          expect(html.includes("image-wrapper")).toBe(true);
+          expect(html.includes("<picture")).toBe(true);
+          expect(html.includes('alt="A test scene"')).toBe(true);
         },
-      ),
-  },
-  {
-    name: "integration-inline-shortcode-paragraph-fix",
-    description:
-      "Image shortcode used inline in paragraph produces valid HTML structure",
-    asyncTest: () =>
-      withTestSite(
+      );
+    });
+
+    test("Image shortcode used inline in paragraph produces valid HTML structure", async () => {
+      await withTestSite(
         {
           files: [
             {
@@ -1209,19 +747,10 @@ const testCases = [
         (site) => {
           const html = site.getOutput("/test/index.html");
 
-          // The image-wrapper div should not be nested inside a paragraph
-          // (fixDivsInParagraphs should have lifted it out)
-          expectTrue(
-            !html.includes("<p><div"),
-            "Should not have invalid div-inside-p nesting",
-          );
-          expectTrue(
-            html.includes("image-wrapper"),
-            "Should contain the image wrapper",
-          );
+          expect(!html.includes("<p><div")).toBe(true);
+          expect(html.includes("image-wrapper")).toBe(true);
         },
-      ),
-  },
-];
-
-export default createTestRunner("image", testCases);
+      );
+    });
+  });
+});

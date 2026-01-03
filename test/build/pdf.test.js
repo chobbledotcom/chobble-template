@@ -1,18 +1,10 @@
+import { describe, expect, test } from "bun:test";
 import {
   buildMenuPdfData,
   configurePdf,
   createMenuPdfTemplate,
 } from "#eleventy/pdf.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectArrayLength,
-  expectDeepEqual,
-  expectFalse,
-  expectFunctionType,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
 // Helper to create mock menu
 const createMockMenu = (slug, title, subtitle = null) => ({
@@ -51,12 +43,10 @@ const createMockMenuItem = (
   },
 });
 
-const testCases = [
+describe("pdf", () => {
   // buildMenuPdfData tests
-  {
-    name: "buildMenuPdfData-basic",
-    description: "Builds PDF data from menu with categories and items",
-    test: () => {
+  describe("buildMenuPdfData", () => {
+    test("Builds PDF data from menu with categories and items", () => {
       const menu = createMockMenu("lunch", "Lunch Menu", "Served 11am-3pm");
       const categories = [
         createMockCategory("appetizers", "Appetizers", ["lunch"]),
@@ -69,46 +59,24 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(
-        result.menuTitle,
-        "Lunch Menu",
-        "Should have menu title",
-      );
-      expectStrictEqual(
-        result.subtitle,
-        "Served 11am-3pm",
-        "Should have subtitle",
-      );
-      expectArrayLength(result.categories, 2, "Should have 2 categories");
-      expectStrictEqual(
-        result.categories[0].name,
-        "Appetizers",
-        "First category should be Appetizers",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-empty-subtitle",
-    description: "Handles missing subtitle",
-    test: () => {
+      expect(result.menuTitle).toBe("Lunch Menu");
+      expect(result.subtitle).toBe("Served 11am-3pm");
+      expect(result.categories).toHaveLength(2);
+      expect(result.categories[0].name).toBe("Appetizers");
+    });
+
+    test("Handles missing subtitle", () => {
       const menu = createMockMenu("dinner", "Dinner Menu");
       const categories = [];
       const items = [];
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(
-        result.menuTitle,
-        "Dinner Menu",
-        "Should have menu title",
-      );
-      expectStrictEqual(result.subtitle, "", "Should have empty subtitle");
-    },
-  },
-  {
-    name: "buildMenuPdfData-filters-categories-by-menu",
-    description: "Only includes categories that belong to the menu",
-    test: () => {
+      expect(result.menuTitle).toBe("Dinner Menu");
+      expect(result.subtitle).toBe("");
+    });
+
+    test("Only includes categories that belong to the menu", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [
         createMockCategory("lunch-apps", "Lunch Appetizers", ["lunch"]),
@@ -119,27 +87,12 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectArrayLength(
-        result.categories,
-        2,
-        "Should only include lunch and shared categories",
-      );
-      expectStrictEqual(
-        result.categories[0].name,
-        "Lunch Appetizers",
-        "Should include lunch category",
-      );
-      expectStrictEqual(
-        result.categories[1].name,
-        "Shared Items",
-        "Should include shared category",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-filters-items-by-category",
-    description: "Items are correctly filtered into their categories",
-    test: () => {
+      expect(result.categories).toHaveLength(2);
+      expect(result.categories[0].name).toBe("Lunch Appetizers");
+      expect(result.categories[1].name).toBe("Shared Items");
+    });
+
+    test("Items are correctly filtered into their categories", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [
         createMockCategory("appetizers", "Appetizers", ["lunch"]),
@@ -154,22 +107,11 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectArrayLength(
-        result.categories[0].items,
-        2,
-        "Appetizers should have 2 items",
-      );
-      expectArrayLength(
-        result.categories[1].items,
-        1,
-        "Mains should have 1 item",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-item-structure",
-    description: "Menu items have correct structure in PDF data",
-    test: () => {
+      expect(result.categories[0].items).toHaveLength(2);
+      expect(result.categories[1].items).toHaveLength(1);
+    });
+
+    test("Menu items have correct structure in PDF data", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [
@@ -184,19 +126,12 @@ const testCases = [
       const result = buildMenuPdfData(menu, categories, items);
 
       const item = result.categories[0].items[0];
-      expectStrictEqual(item.name, "Spring Rolls", "Should have item name");
-      expectStrictEqual(item.price, "$8.99", "Should have item price");
-      expectStrictEqual(
-        item.description,
-        "Crispy and delicious",
-        "Should have item description",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-dietary-symbols",
-    description: "Dietary symbols are joined correctly",
-    test: () => {
+      expect(item.name).toBe("Spring Rolls");
+      expect(item.price).toBe("$8.99");
+      expect(item.description).toBe("Crispy and delicious");
+    });
+
+    test("Dietary symbols are joined correctly", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [
@@ -209,17 +144,10 @@ const testCases = [
       const result = buildMenuPdfData(menu, categories, items);
 
       const item = result.categories[0].items[0];
-      expectStrictEqual(
-        item.dietarySymbols,
-        "V GF",
-        "Should join dietary symbols with space",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-dietary-key-string",
-    description: "Builds dietary key string from all items",
-    test: () => {
+      expect(item.dietarySymbols).toBe("V GF");
+    });
+
+    test("Builds dietary key string from all items", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [
@@ -233,45 +161,23 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectTrue(
-        result.hasDietaryKeys,
-        "Should indicate dietary keys are present",
-      );
-      expectTrue(
-        result.dietaryKeyString.includes("(V) Vegetarian"),
-        "Should include vegetarian key",
-      );
-      expectTrue(
-        result.dietaryKeyString.includes("(GF) Gluten Free"),
-        "Should include gluten free key",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-no-dietary-keys",
-    description: "Handles items without dietary keys",
-    test: () => {
+      expect(result.hasDietaryKeys).toBe(true);
+      expect(result.dietaryKeyString.includes("(V) Vegetarian")).toBe(true);
+      expect(result.dietaryKeyString.includes("(GF) Gluten Free")).toBe(true);
+    });
+
+    test("Handles items without dietary keys", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [createMockMenuItem("Burger", ["apps"], "$12")];
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectFalse(
-        result.hasDietaryKeys,
-        "Should indicate no dietary keys present",
-      );
-      expectStrictEqual(
-        result.dietaryKeyString,
-        "",
-        "Should have empty key string",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-deduplicates-dietary-keys",
-    description: "Same dietary key from multiple items appears only once",
-    test: () => {
+      expect(result.hasDietaryKeys).toBe(false);
+      expect(result.dietaryKeyString).toBe("");
+    });
+
+    test("Same dietary key from multiple items appears only once", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [
@@ -286,13 +192,10 @@ const testCases = [
       const result = buildMenuPdfData(menu, categories, items);
 
       const vCount = (result.dietaryKeyString.match(/\(V\)/g) || []).length;
-      expectStrictEqual(vCount, 1, "Vegetarian should appear only once");
-    },
-  },
-  {
-    name: "buildMenuPdfData-category-description-strips-html",
-    description: "HTML is stripped from category descriptions",
-    test: () => {
+      expect(vCount).toBe(1);
+    });
+
+    test("HTML is stripped from category descriptions", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [
         createMockCategory(
@@ -306,78 +209,47 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(
-        result.categories[0].description,
-        "Our famous starters",
-        "Should strip HTML tags",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-null-categories",
-    description: "Handles null categories array",
-    test: () => {
+      expect(result.categories[0].description).toBe("Our famous starters");
+    });
+
+    test("Handles null categories array", () => {
       const menu = createMockMenu("lunch", "Lunch");
 
       const result = buildMenuPdfData(menu, null, []);
 
-      expectArrayLength(result.categories, 0, "Should return empty categories");
-    },
-  },
-  {
-    name: "buildMenuPdfData-null-items",
-    description: "Handles null items array",
-    test: () => {
+      expect(result.categories).toHaveLength(0);
+    });
+
+    test("Handles null items array", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
 
       const result = buildMenuPdfData(menu, categories, null);
 
-      expectArrayLength(
-        result.categories[0].items,
-        0,
-        "Should have empty items array",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-empty-description",
-    description: "Handles items without description",
-    test: () => {
+      expect(result.categories[0].items).toHaveLength(0);
+    });
+
+    test("Handles items without description", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [createMockMenuItem("Simple Item", ["apps"], "$5", null)];
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(
-        result.categories[0].items[0].description,
-        "",
-        "Should have empty description",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-empty-dietary-keys-array",
-    description: "Handles empty dietary keys array",
-    test: () => {
+      expect(result.categories[0].items[0].description).toBe("");
+    });
+
+    test("Handles empty dietary keys array", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [createMockMenuItem("Item", ["apps"], "$5", null, [])];
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(
-        result.categories[0].items[0].dietarySymbols,
-        "",
-        "Should have empty dietary symbols",
-      );
-    },
-  },
-  {
-    name: "buildMenuPdfData-filters-dietary-keys-without-symbol-or-label",
-    description: "Filters out dietary keys missing symbol or label",
-    test: () => {
+      expect(result.categories[0].items[0].dietarySymbols).toBe("");
+    });
+
+    test("Filters out dietary keys missing symbol or label", () => {
       const menu = createMockMenu("lunch", "Lunch");
       const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
       const items = [
@@ -391,232 +263,120 @@ const testCases = [
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expectStrictEqual(
-        result.dietaryKeyString,
-        "(V) Vegetarian",
-        "Should only include complete dietary keys",
-      );
-    },
-  },
+      expect(result.dietaryKeyString).toBe("(V) Vegetarian");
+    });
+  });
 
   // createMenuPdfTemplate tests
-  {
-    name: "createMenuPdfTemplate-returns-object",
-    description: "Returns a valid PDF template object",
-    test: () => {
+  describe("createMenuPdfTemplate", () => {
+    test("Returns a valid PDF template object", () => {
       const template = createMenuPdfTemplate();
 
-      expectStrictEqual(typeof template, "object", "Should return an object");
-      expectStrictEqual(template.pageSize, "A4", "Should use A4 page size");
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-page-margins",
-    description: "Template has page margins defined",
-    test: () => {
+      expect(typeof template).toBe("object");
+      expect(template.pageSize).toBe("A4");
+    });
+
+    test("Template has page margins defined", () => {
       const template = createMenuPdfTemplate();
 
-      expectDeepEqual(
-        template.pageMargins,
-        [40, 40, 40, 40],
-        "Should have 40px margins on all sides",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-content-array",
-    description: "Template has content array with required sections",
-    test: () => {
+      expect(template.pageMargins).toEqual([40, 40, 40, 40]);
+    });
+
+    test("Template has content array with required sections", () => {
       const template = createMenuPdfTemplate();
 
-      expectTrue(Array.isArray(template.content), "Content should be an array");
-      expectTrue(template.content.length > 0, "Content should not be empty");
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-business-name-section",
-    description: "Template includes business name placeholder",
-    test: () => {
+      expect(Array.isArray(template.content)).toBe(true);
+      expect(template.content.length > 0).toBe(true);
+    });
+
+    test("Template includes business name placeholder", () => {
       const template = createMenuPdfTemplate();
 
       const businessNameSection = template.content.find(
         (section) => section.text === "{{businessName}}",
       );
-      expectTrue(
-        businessNameSection !== undefined,
-        "Should have business name section",
-      );
-      expectStrictEqual(
-        businessNameSection.style,
-        "businessName",
-        "Should use businessName style",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-menu-title-section",
-    description: "Template includes menu title placeholder",
-    test: () => {
+      expect(businessNameSection !== undefined).toBe(true);
+      expect(businessNameSection.style).toBe("businessName");
+    });
+
+    test("Template includes menu title placeholder", () => {
       const template = createMenuPdfTemplate();
 
       const menuTitleSection = template.content.find(
         (section) => section.text === "{{menuTitle}}",
       );
-      expectTrue(
-        menuTitleSection !== undefined,
-        "Should have menu title section",
-      );
-      expectStrictEqual(
-        menuTitleSection.style,
-        "menuTitle",
-        "Should use menuTitle style",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-styles",
-    description: "Template has all required styles defined",
-    test: () => {
+      expect(menuTitleSection !== undefined).toBe(true);
+      expect(menuTitleSection.style).toBe("menuTitle");
+    });
+
+    test("Template has all required styles defined", () => {
       const template = createMenuPdfTemplate();
 
-      expectTrue(template.styles !== undefined, "Should have styles object");
-      expectTrue(
-        template.styles.businessName !== undefined,
-        "Should have businessName style",
-      );
-      expectTrue(
-        template.styles.menuTitle !== undefined,
-        "Should have menuTitle style",
-      );
-      expectTrue(
-        template.styles.categoryHeader !== undefined,
-        "Should have categoryHeader style",
-      );
-      expectTrue(
-        template.styles.itemName !== undefined,
-        "Should have itemName style",
-      );
-      expectTrue(
-        template.styles.price !== undefined,
-        "Should have price style",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-styles-have-font-sizes",
-    description: "Styles have appropriate font sizes",
-    test: () => {
+      expect(template.styles !== undefined).toBe(true);
+      expect(template.styles.businessName !== undefined).toBe(true);
+      expect(template.styles.menuTitle !== undefined).toBe(true);
+      expect(template.styles.categoryHeader !== undefined).toBe(true);
+      expect(template.styles.itemName !== undefined).toBe(true);
+      expect(template.styles.price !== undefined).toBe(true);
+    });
+
+    test("Styles have appropriate font sizes", () => {
       const template = createMenuPdfTemplate();
 
-      expectStrictEqual(
-        template.styles.businessName.fontSize,
-        24,
-        "Business name should be 24pt",
-      );
-      expectStrictEqual(
-        template.styles.menuTitle.fontSize,
-        18,
-        "Menu title should be 18pt",
-      );
-      expectStrictEqual(
-        template.styles.categoryHeader.fontSize,
-        16,
-        "Category header should be 16pt",
-      );
-      expectStrictEqual(
-        template.styles.itemName.fontSize,
-        11,
-        "Item name should be 11pt",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-default-font",
-    description: "Template uses Helvetica as default font",
-    test: () => {
+      expect(template.styles.businessName.fontSize).toBe(24);
+      expect(template.styles.menuTitle.fontSize).toBe(18);
+      expect(template.styles.categoryHeader.fontSize).toBe(16);
+      expect(template.styles.itemName.fontSize).toBe(11);
+    });
+
+    test("Template uses Helvetica as default font", () => {
       const template = createMenuPdfTemplate();
 
-      expectStrictEqual(
-        template.defaultStyle.font,
-        "Helvetica",
-        "Should use Helvetica font",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-categories-template",
-    description: "Template has categories loop structure",
-    test: () => {
+      expect(template.defaultStyle.font).toBe("Helvetica");
+    });
+
+    test("Template has categories loop structure", () => {
       const template = createMenuPdfTemplate();
 
       const categoriesSection = template.content.find(
         (section) => section["{{#each categories:category}}"],
       );
-      expectTrue(
-        categoriesSection !== undefined,
-        "Should have categories each loop",
-      );
-    },
-  },
-  {
-    name: "createMenuPdfTemplate-has-dietary-key-section",
-    description: "Template has conditional dietary key section",
-    test: () => {
+      expect(categoriesSection !== undefined).toBe(true);
+    });
+
+    test("Template has conditional dietary key section", () => {
       const template = createMenuPdfTemplate();
 
       const dietarySection = template.content.find(
         (section) => section["{{#if hasDietaryKeys}}"],
       );
-      expectTrue(
-        dietarySection !== undefined,
-        "Should have dietary keys conditional",
-      );
-    },
-  },
+      expect(dietarySection !== undefined).toBe(true);
+    });
+  });
 
   // configurePdf tests
-  {
-    name: "configurePdf-adds-collection",
-    description: "Adds _pdfMenuData collection",
-    test: () => {
+  describe("configurePdf", () => {
+    test("Adds _pdfMenuData collection", () => {
       const mockConfig = createMockEleventyConfig();
 
       configurePdf(mockConfig);
 
-      expectTrue(
-        mockConfig.collections !== undefined,
-        "Should have collections",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "_pdfMenuData",
-        "Should add _pdfMenuData collection",
-      );
-    },
-  },
-  {
-    name: "configurePdf-adds-event-handler",
-    description: "Adds eleventy.after event handler",
-    test: () => {
+      expect(mockConfig.collections !== undefined).toBe(true);
+      expect(typeof mockConfig.collections._pdfMenuData).toBe("function");
+    });
+
+    test("Adds eleventy.after event handler", () => {
       const mockConfig = createMockEleventyConfig();
 
       configurePdf(mockConfig);
 
-      expectTrue(
-        mockConfig.eventHandlers !== undefined,
-        "Should have event handlers",
+      expect(mockConfig.eventHandlers !== undefined).toBe(true);
+      expect(typeof mockConfig.eventHandlers["eleventy.after"]).toBe(
+        "function",
       );
-      expectFunctionType(
-        mockConfig.eventHandlers,
-        "eleventy.after",
-        "Should add eleventy.after handler",
-      );
-    },
-  },
-  {
-    name: "configurePdf-collection-returns-empty-array",
-    description: "PDF collection returns empty array (used for side effects)",
-    test: () => {
+    });
+
+    test("PDF collection returns empty array (used for side effects)", () => {
       const mockConfig = createMockEleventyConfig();
 
       configurePdf(mockConfig);
@@ -628,13 +388,10 @@ const testCases = [
 
       const result = mockConfig.collections._pdfMenuData(mockCollectionApi);
 
-      expectDeepEqual(result, [], "Collection should return empty array");
-    },
-  },
-  {
-    name: "configurePdf-collection-stores-menu-data",
-    description: "Collection function retrieves and stores menu data",
-    test: () => {
+      expect(result).toEqual([]);
+    });
+
+    test("Collection function retrieves and stores menu data", () => {
       const mockConfig = createMockEleventyConfig();
 
       configurePdf(mockConfig);
@@ -659,9 +416,7 @@ const testCases = [
 
       // The collection should return empty array
       const result = mockConfig.collections._pdfMenuData(mockCollectionApi);
-      expectDeepEqual(result, [], "Collection should return empty array");
-    },
-  },
-];
-
-export default createTestRunner("pdf", testCases);
+      expect(result).toEqual([]);
+    });
+  });
+});

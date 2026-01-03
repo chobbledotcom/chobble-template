@@ -1,216 +1,128 @@
+import { describe, expect, test } from "bun:test";
 import siteData from "#data/site.json" with { type: "json" };
-import { createTestRunner, expectStrictEqual } from "#test/test-utils.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 
 // Constant: validated at module load, never changes during test execution
 const SITE_URL = siteData.url;
 
-const testCases = [
+describe("canonical-url", () => {
   // ===========================================
   // Basic Path Joining
   // ===========================================
-  {
-    name: "basic-path-with-leading-slash",
-    description:
-      "Core use case: page paths from Eleventy always have leading slash",
-    test: () => {
-      const result = canonicalUrl("/quote/");
+  test("Core use case: page paths from Eleventy always have leading slash", () => {
+    const result = canonicalUrl("/quote/");
 
-      expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
-    },
-  },
-  {
-    name: "path-without-leading-slash",
-    description: "Defensive: handle user content or malformed paths gracefully",
-    test: () => {
-      const result = canonicalUrl("quote/");
+    expect(result).toBe(`${SITE_URL}/quote/`);
+  });
 
-      expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
-    },
-  },
-  {
-    name: "multiple-leading-slashes",
-    description: "Defensive: malformed paths shouldn't create broken URLs",
-    test: () => {
-      const result = canonicalUrl("///quote/");
+  test("Defensive: handle user content or malformed paths gracefully", () => {
+    const result = canonicalUrl("quote/");
 
-      expectStrictEqual(result, `${SITE_URL}/quote/`, `got: ${result}`);
-    },
-  },
+    expect(result).toBe(`${SITE_URL}/quote/`);
+  });
+
+  test("Defensive: malformed paths shouldn't create broken URLs", () => {
+    const result = canonicalUrl("///quote/");
+
+    expect(result).toBe(`${SITE_URL}/quote/`);
+  });
 
   // ===========================================
   // Complex Paths (Real-world Scenarios)
   // ===========================================
-  {
-    name: "deeply-nested-path",
-    description: "Products/categories can be nested several levels deep",
-    test: () => {
-      const result = canonicalUrl("/products/electronics/phones/iphone-15/");
+  test("Products/categories can be nested several levels deep", () => {
+    const result = canonicalUrl("/products/electronics/phones/iphone-15/");
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/products/electronics/phones/iphone-15/`,
-        `got: ${result}`,
-      );
-    },
-  },
-  {
-    name: "path-with-query-string",
-    description: "Search pages and filtered views include query parameters",
-    test: () => {
-      const result = canonicalUrl("/search?q=test&category=all");
+    expect(result).toBe(`${SITE_URL}/products/electronics/phones/iphone-15/`);
+  });
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/search?q=test&category=all`,
-        `got: ${result}`,
-      );
-    },
-  },
-  {
-    name: "path-with-fragment",
-    description: "Deep links to page sections are valid canonical URLs",
-    test: () => {
-      const result = canonicalUrl("/about/#team");
+  test("Search pages and filtered views include query parameters", () => {
+    const result = canonicalUrl("/search?q=test&category=all");
 
-      expectStrictEqual(result, `${SITE_URL}/about/#team`, `got: ${result}`);
-    },
-  },
-  {
-    name: "path-with-query-and-fragment",
-    description: "Combination of query params and fragment identifiers",
-    test: () => {
-      const result = canonicalUrl("/products?sort=price#filters");
+    expect(result).toBe(`${SITE_URL}/search?q=test&category=all`);
+  });
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/products?sort=price#filters`,
-        `got: ${result}`,
-      );
-    },
-  },
+  test("Deep links to page sections are valid canonical URLs", () => {
+    const result = canonicalUrl("/about/#team");
+
+    expect(result).toBe(`${SITE_URL}/about/#team`);
+  });
+
+  test("Combination of query params and fragment identifiers", () => {
+    const result = canonicalUrl("/products?sort=price#filters");
+
+    expect(result).toBe(`${SITE_URL}/products?sort=price#filters`);
+  });
 
   // ===========================================
   // Special Characters
   // ===========================================
-  {
-    name: "path-with-encoded-spaces",
-    description: "URL-encoded characters must be preserved for valid URLs",
-    test: () => {
-      const result = canonicalUrl("/products/my%20product/");
+  test("URL-encoded characters must be preserved for valid URLs", () => {
+    const result = canonicalUrl("/products/my%20product/");
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/products/my%20product/`,
-        `got: ${result}`,
-      );
-    },
-  },
-  {
-    name: "path-with-unicode",
-    description: "International content uses unicode in URLs",
-    test: () => {
-      const result = canonicalUrl("/日本語/ページ/");
+    expect(result).toBe(`${SITE_URL}/products/my%20product/`);
+  });
 
-      expectStrictEqual(result, `${SITE_URL}/日本語/ページ/`, `got: ${result}`);
-    },
-  },
-  {
-    name: "path-with-special-url-chars",
-    description: "Ampersands, equals signs in paths (not just query strings)",
-    test: () => {
-      const result = canonicalUrl("/compare/a=1&b=2/");
+  test("International content uses unicode in URLs", () => {
+    const result = canonicalUrl("/日本語/ページ/");
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/compare/a=1&b=2/`,
-        `got: ${result}`,
-      );
-    },
-  },
+    expect(result).toBe(`${SITE_URL}/日本語/ページ/`);
+  });
+
+  test("Ampersands, equals signs in paths (not just query strings)", () => {
+    const result = canonicalUrl("/compare/a=1&b=2/");
+
+    expect(result).toBe(`${SITE_URL}/compare/a=1&b=2/`);
+  });
 
   // ===========================================
   // Boundary Cases
   // ===========================================
-  {
-    name: "very-long-path",
-    description:
-      "Deep hierarchies or long slugs shouldn't break URL construction",
-    test: () => {
-      const longSegment = "a".repeat(200);
-      const result = canonicalUrl(`/category/${longSegment}/product/`);
+  test("Deep hierarchies or long slugs shouldn't break URL construction", () => {
+    const longSegment = "a".repeat(200);
+    const result = canonicalUrl(`/category/${longSegment}/product/`);
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/category/${longSegment}/product/`,
-        `got length: ${result.length}`,
-      );
-    },
-  },
-  {
-    name: "protocol-relative-input",
-    description: "Malformed input like //example.com should be treated as path",
-    test: () => {
-      // The function strips leading slashes and prepends one, so this becomes /example.com
-      const result = canonicalUrl("//example.com/path");
+    expect(result).toBe(`${SITE_URL}/category/${longSegment}/product/`);
+  });
 
-      expectStrictEqual(
-        result,
-        `${SITE_URL}/example.com/path`,
-        `got: ${result}`,
-      );
-    },
-  },
-  {
-    name: "path-with-only-slashes",
-    description: "Edge case: multiple slashes but no content",
-    test: () => {
-      const result = canonicalUrl("////");
+  test("Malformed input like //example.com should be treated as path", () => {
+    // The function strips leading slashes and prepends one, so this becomes /example.com
+    const result = canonicalUrl("//example.com/path");
 
-      // After stripping leading slashes: "", prepend /: "/", so it's just site URL + /
-      expectStrictEqual(result, `${SITE_URL}/`, `got: ${result}`);
-    },
-  },
+    expect(result).toBe(`${SITE_URL}/example.com/path`);
+  });
+
+  test("Edge case: multiple slashes but no content", () => {
+    const result = canonicalUrl("////");
+
+    // After stripping leading slashes: "", prepend /: "/", so it's just site URL + /
+    expect(result).toBe(`${SITE_URL}/`);
+  });
 
   // ===========================================
   // Root/Empty/Null Handling
   // ===========================================
-  {
-    name: "root-path",
-    description: "Homepage canonical URL should be the bare site URL",
-    test: () => {
-      const result = canonicalUrl("/");
+  test("Homepage canonical URL should be the bare site URL", () => {
+    const result = canonicalUrl("/");
 
-      expectStrictEqual(result, SITE_URL, `got: ${result}`);
-    },
-  },
-  {
-    name: "empty-string",
-    description: "Missing page URL in templates should fall back to site URL",
-    test: () => {
-      const result = canonicalUrl("");
+    expect(result).toBe(SITE_URL);
+  });
 
-      expectStrictEqual(result, SITE_URL, `got: ${result}`);
-    },
-  },
-  {
-    name: "null-input",
-    description: "Template variable might be null if not set",
-    test: () => {
-      const result = canonicalUrl(null);
+  test("Missing page URL in templates should fall back to site URL", () => {
+    const result = canonicalUrl("");
 
-      expectStrictEqual(result, SITE_URL, `got: ${result}`);
-    },
-  },
-  {
-    name: "undefined-input",
-    description: "Template variable might be undefined if not passed",
-    test: () => {
-      const result = canonicalUrl(undefined);
+    expect(result).toBe(SITE_URL);
+  });
 
-      expectStrictEqual(result, SITE_URL, `got: ${result}`);
-    },
-  },
-];
+  test("Template variable might be null if not set", () => {
+    const result = canonicalUrl(null);
 
-export default createTestRunner("canonical-url", testCases);
+    expect(result).toBe(SITE_URL);
+  });
+
+  test("Template variable might be undefined if not passed", () => {
+    const result = canonicalUrl(undefined);
+
+    expect(result).toBe(SITE_URL);
+  });
+});

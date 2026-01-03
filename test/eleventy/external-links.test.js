@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import {
   configureExternalLinks,
   createExternalLinksTransform,
@@ -6,505 +7,276 @@ import {
   isExternalUrl,
   transformExternalLinks,
 } from "#eleventy/external-links.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectFalse,
-  expectFunctionType,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const testCases = [
-  {
-    name: "isExternalUrl-http",
-    description: "Detects HTTP URLs as external",
-    test: () => {
-      const result = isExternalUrl("http://example.com");
-      expectTrue(result, "Should return true for HTTP URLs");
-    },
-  },
-  {
-    name: "isExternalUrl-https",
-    description: "Detects HTTPS URLs as external",
-    test: () => {
-      const result = isExternalUrl("https://example.com");
-      expectTrue(result, "Should return true for HTTPS URLs");
-    },
-  },
-  {
-    name: "isExternalUrl-relative",
-    description: "Detects relative URLs as internal",
-    test: () => {
-      const result = isExternalUrl("/about");
-      expectFalse(result, "Should return false for relative URLs");
-    },
-  },
-  {
-    name: "isExternalUrl-absolute-path",
-    description: "Detects absolute paths as internal",
-    test: () => {
-      const result = isExternalUrl("/pages/about");
-      expectFalse(result, "Should return false for absolute paths");
-    },
-  },
-  {
-    name: "isExternalUrl-hash",
-    description: "Detects hash links as internal",
-    test: () => {
-      const result = isExternalUrl("#section");
-      expectFalse(result, "Should return false for hash links");
-    },
-  },
-  {
-    name: "isExternalUrl-mailto",
-    description: "Detects mailto links as internal",
-    test: () => {
-      const result = isExternalUrl("mailto:test@example.com");
-      expectFalse(result, "Should return false for mailto links");
-    },
-  },
-  {
-    name: "isExternalUrl-null",
-    description: "Handles null input gracefully",
-    test: () => {
-      const result = isExternalUrl(null);
-      expectFalse(result, "Should return false for null");
-    },
-  },
-  {
-    name: "isExternalUrl-undefined",
-    description: "Handles undefined input gracefully",
-    test: () => {
-      const result = isExternalUrl(undefined);
-      expectFalse(result, "Should return false for undefined");
-    },
-  },
-  {
-    name: "isExternalUrl-empty-string",
-    description: "Handles empty string gracefully",
-    test: () => {
-      const result = isExternalUrl("");
-      expectFalse(result, "Should return false for empty string");
-    },
-  },
-  {
-    name: "isExternalUrl-non-string",
-    description: "Handles non-string input gracefully",
-    test: () => {
-      const result1 = isExternalUrl(123);
-      expectFalse(result1, "Should return false for number");
+describe("external-links", () => {
+  test("Detects HTTP URLs as external", () => {
+    const result = isExternalUrl("http://example.com");
+    expect(result).toBe(true);
+  });
 
-      const result2 = isExternalUrl({ url: "http://example.com" });
-      expectFalse(result2, "Should return false for object");
+  test("Detects HTTPS URLs as external", () => {
+    const result = isExternalUrl("https://example.com");
+    expect(result).toBe(true);
+  });
 
-      const result3 = isExternalUrl(["http://example.com"]);
-      expectFalse(result3, "Should return false for array");
-    },
-  },
-  {
-    name: "getExternalLinkAttributes-disabled",
-    description: "Returns empty string when config flag is false",
-    test: () => {
-      const config = { externalLinksTargetBlank: false };
-      const result = getExternalLinkAttributes("https://example.com", config);
-      expectStrictEqual(
-        result,
-        "",
-        "Should return empty string when flag is false",
-      );
-    },
-  },
-  {
-    name: "getExternalLinkAttributes-enabled",
-    description: "Returns target and rel attributes when config flag is true",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = getExternalLinkAttributes("https://example.com", config);
-      expectStrictEqual(
-        result,
-        ' target="_blank" rel="noopener noreferrer"',
-        "Should return target and rel attributes when flag is true",
-      );
-    },
-  },
-  {
-    name: "getExternalLinkAttributes-internal-link",
-    description: "Returns empty string for internal links regardless of config",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = getExternalLinkAttributes("/about", config);
-      expectStrictEqual(
-        result,
-        "",
-        "Should return empty string for internal links",
-      );
-    },
-  },
-  {
-    name: "getExternalLinkAttributes-no-config",
-    description: "Handles missing config gracefully",
-    test: () => {
-      const result = getExternalLinkAttributes("https://example.com", null);
-      expectStrictEqual(
-        result,
-        "",
-        "Should return empty string when config is null",
-      );
-    },
-  },
-  {
-    name: "getExternalLinkAttributes-undefined-config",
-    description: "Handles undefined config gracefully",
-    test: () => {
-      const result = getExternalLinkAttributes(
-        "https://example.com",
-        undefined,
-      );
-      expectStrictEqual(
-        result,
-        "",
-        "Should return empty string when config is undefined",
-      );
-    },
-  },
-  {
-    name: "getExternalLinkAttributes-http-enabled",
-    description: "Works with HTTP URLs when enabled",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = getExternalLinkAttributes("http://example.com", config);
-      expectStrictEqual(
-        result,
-        ' target="_blank" rel="noopener noreferrer"',
-        "Should work with HTTP URLs",
-      );
-    },
-  },
-  {
-    name: "externalLinkFilter-basic",
-    description: "externalLinkFilter delegates to getExternalLinkAttributes",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = externalLinkFilter("https://example.com", config);
-      expectStrictEqual(
-        result,
-        ' target="_blank" rel="noopener noreferrer"',
-        "Should delegate to getExternalLinkAttributes",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-disabled",
-    description: "Returns content unchanged when config flag is false",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: false };
-      const html = '<a href="https://example.com">Link</a>';
-      const result = await transformExternalLinks(html, config);
-      expectStrictEqual(
-        result,
-        html,
-        "Should return unchanged HTML when disabled",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-no-links",
-    description: "Returns content unchanged when no links present",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const html = "<p>No links here</p>";
-      const result = await transformExternalLinks(html, config);
-      expectStrictEqual(
-        result,
-        html,
-        "Should return unchanged HTML when no links",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-external-link",
-    description: "Adds target and rel to external links",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const html =
-        '<html><body><a href="https://example.com">Link</a></body></html>';
-      const result = await transformExternalLinks(html, config);
+  test("Detects relative URLs as internal", () => {
+    const result = isExternalUrl("/about");
+    expect(result).toBe(false);
+  });
 
-      expectTrue(
-        result.includes('target="_blank"'),
-        "Should add target attribute",
-      );
-      expectTrue(
-        result.includes('rel="noopener noreferrer"'),
-        "Should add rel attribute",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-internal-link",
-    description: "Does not modify internal links",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const html = '<html><body><a href="/about">About</a></body></html>';
-      const result = await transformExternalLinks(html, config);
+  test("Detects absolute paths as internal", () => {
+    const result = isExternalUrl("/pages/about");
+    expect(result).toBe(false);
+  });
 
-      expectFalse(
-        result.includes('target="_blank"'),
-        "Should not add target to internal links",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-mixed-links",
-    description: "Handles mix of external and internal links",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const html =
-        '<html><body><a href="https://example.com">External</a><a href="/about">Internal</a></body></html>';
-      const result = await transformExternalLinks(html, config);
+  test("Detects hash links as internal", () => {
+    const result = isExternalUrl("#section");
+    expect(result).toBe(false);
+  });
 
-      expectTrue(
-        result.includes('href="https://example.com"'),
-        "Should preserve external URL",
-      );
-      expectTrue(
-        result.includes('href="/about"'),
-        "Should preserve internal URL",
-      );
-      expectTrue(
-        result.includes('target="_blank"'),
-        "Should add target to external link",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-preserves-existing-attributes",
-    description: "Preserves other link attributes",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const html =
-        '<html><body><a href="https://example.com" class="button" id="link1">Link</a></body></html>';
-      const result = await transformExternalLinks(html, config);
+  test("Detects mailto links as internal", () => {
+    const result = isExternalUrl("mailto:test@example.com");
+    expect(result).toBe(false);
+  });
 
-      expectTrue(result.includes('class="button"'), "Should preserve class");
-      expectTrue(result.includes('id="link1"'), "Should preserve id");
-    },
-  },
-  {
-    name: "transformExternalLinks-http-and-https",
-    description: "Handles both HTTP and HTTPS URLs",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const html =
-        '<html><body><a href="http://example.com">HTTP</a><a href="https://example.com">HTTPS</a></body></html>';
-      const result = await transformExternalLinks(html, config);
+  test("Handles null input gracefully", () => {
+    const result = isExternalUrl(null);
+    expect(result).toBe(false);
+  });
 
-      const targetCount = (result.match(/target="_blank"/g) || []).length;
-      expectStrictEqual(
-        targetCount,
-        2,
-        "Should add target to both HTTP and HTTPS links",
-      );
-    },
-  },
-  {
-    name: "transformExternalLinks-null-content",
-    description: "Handles null content gracefully",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = await transformExternalLinks(null, config);
-      expectStrictEqual(result, null, "Should return null for null content");
-    },
-  },
-  {
-    name: "transformExternalLinks-empty-content",
-    description: "Handles empty content gracefully",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = await transformExternalLinks("", config);
-      expectStrictEqual(result, "", "Should return empty string");
-    },
-  },
-  {
-    name: "createExternalLinksTransform-basic",
-    description: "Creates transform function",
-    test: () => {
-      const config = { externalLinksTargetBlank: false };
-      const transform = createExternalLinksTransform(config);
+  test("Handles undefined input gracefully", () => {
+    const result = isExternalUrl(undefined);
+    expect(result).toBe(false);
+  });
 
-      expectFunctionType(
-        transform,
-        undefined,
-        "Should return a transform function",
-      );
-    },
-  },
-  {
-    name: "createExternalLinksTransform-html-only",
-    description: "Only processes HTML files",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const transform = createExternalLinksTransform(config);
+  test("Handles empty string gracefully", () => {
+    const result = isExternalUrl("");
+    expect(result).toBe(false);
+  });
 
-      const cssContent = "body { color: red; }";
-      const result = await transform(cssContent, "style.css");
-      expectStrictEqual(
-        result,
-        cssContent,
-        "Should not process non-HTML files",
-      );
-    },
-  },
-  {
-    name: "createExternalLinksTransform-skip-feeds",
-    description: "Skips feed files",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const transform = createExternalLinksTransform(config);
+  test("Handles non-string input gracefully", () => {
+    const result1 = isExternalUrl(123);
+    expect(result1).toBe(false);
 
-      const feedContent = '<a href="https://example.com">Link</a>';
-      const result = await transform(feedContent, "feed.xml");
-      expectStrictEqual(result, feedContent, "Should skip feed files");
-    },
-  },
-  {
-    name: "createExternalLinksTransform-processes-html",
-    description: "Processes HTML files",
-    asyncTest: async () => {
-      const config = { externalLinksTargetBlank: true };
-      const transform = createExternalLinksTransform(config);
+    const result2 = isExternalUrl({ url: "http://example.com" });
+    expect(result2).toBe(false);
 
-      const html =
-        '<html><body><a href="https://example.com">Link</a></body></html>';
-      const result = await transform(html, "index.html");
+    const result3 = isExternalUrl(["http://example.com"]);
+    expect(result3).toBe(false);
+  });
 
-      expectTrue(
-        result.includes('target="_blank"'),
-        "Should process HTML files",
-      );
-    },
-  },
-  {
-    name: "configureExternalLinks-basic",
-    description: "Adds externalLinkAttrs filter to Eleventy config",
-    asyncTest: async () => {
-      const mockConfig = createMockEleventyConfig();
-      await configureExternalLinks(mockConfig);
+  test("Returns empty string when config flag is false", () => {
+    const config = { externalLinksTargetBlank: false };
+    const result = getExternalLinkAttributes("https://example.com", config);
+    expect(result).toBe("");
+  });
 
-      expectFunctionType(
-        mockConfig.filters,
-        "externalLinkAttrs",
-        "Should add externalLinkAttrs filter",
-      );
-    },
-  },
-  {
-    name: "configureExternalLinks-adds-transform",
-    description: "Adds HTML transform to Eleventy config",
-    asyncTest: async () => {
-      const mockConfig = createMockEleventyConfig();
-      await configureExternalLinks(mockConfig);
+  test("Returns target and rel attributes when config flag is true", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = getExternalLinkAttributes("https://example.com", config);
+    expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
+  });
 
-      expectFunctionType(
-        mockConfig.transforms,
-        "externalLinks",
-        "Should add externalLinks transform",
-      );
-    },
-  },
-  {
-    name: "configureExternalLinks-filter-works",
-    description: "Configured filter uses loaded config",
-    asyncTest: async () => {
-      const mockConfig = createMockEleventyConfig();
-      await configureExternalLinks(mockConfig);
+  test("Returns empty string for internal links regardless of config", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = getExternalLinkAttributes("/about", config);
+    expect(result).toBe("");
+  });
 
-      expectFunctionType(
-        mockConfig.filters,
-        "externalLinkAttrs",
-        "Should have externalLinkAttrs filter",
-      );
+  test("Handles missing config gracefully", () => {
+    const result = getExternalLinkAttributes("https://example.com", null);
+    expect(result).toBe("");
+  });
 
-      const result = mockConfig.filters.externalLinkAttrs(
-        "https://example.com",
-      );
-      expectStrictEqual(
-        typeof result,
-        "string",
-        "Filter should return a string",
-      );
-    },
-  },
-  {
-    name: "edge-case-url-with-spaces",
-    description: "Handles URLs with spaces",
-    test: () => {
-      const result = isExternalUrl("https://example.com/path with spaces");
-      expectTrue(result, "Should still detect as external URL");
-    },
-  },
-  {
-    name: "edge-case-url-with-query-params",
-    description: "Handles URLs with query parameters",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = getExternalLinkAttributes(
-        "https://example.com?foo=bar&baz=qux",
-        config,
-      );
-      expectStrictEqual(
-        result,
-        ' target="_blank" rel="noopener noreferrer"',
-        "Should work with query parameters",
-      );
-    },
-  },
-  {
-    name: "edge-case-url-with-fragment",
-    description: "Handles external URLs with fragments",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = getExternalLinkAttributes(
-        "https://example.com#section",
-        config,
-      );
-      expectStrictEqual(
-        result,
-        ' target="_blank" rel="noopener noreferrer"',
-        "Should work with fragments",
-      );
-    },
-  },
-  {
-    name: "security-rel-attribute",
-    description: "Always includes rel attribute with noopener and noreferrer",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const result = getExternalLinkAttributes("https://example.com", config);
+  test("Handles undefined config gracefully", () => {
+    const result = getExternalLinkAttributes("https://example.com", undefined);
+    expect(result).toBe("");
+  });
 
-      expectTrue(
-        result.includes('rel="noopener noreferrer"'),
-        "Should include rel attribute with noopener and noreferrer",
-      );
-    },
-  },
-  {
-    name: "pure-function-test",
-    description: "Functions should be pure and not modify inputs",
-    test: () => {
-      const config = { externalLinksTargetBlank: true };
-      const configCopy = JSON.parse(JSON.stringify(config));
+  test("Works with HTTP URLs when enabled", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = getExternalLinkAttributes("http://example.com", config);
+    expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
+  });
 
-      getExternalLinkAttributes("https://example.com", config);
+  test("externalLinkFilter delegates to getExternalLinkAttributes", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = externalLinkFilter("https://example.com", config);
+    expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
+  });
 
-      expectStrictEqual(
-        JSON.stringify(config),
-        JSON.stringify(configCopy),
-        "Should not modify config object",
-      );
-    },
-  },
-];
+  test("Returns content unchanged when config flag is false", async () => {
+    const config = { externalLinksTargetBlank: false };
+    const html = '<a href="https://example.com">Link</a>';
+    const result = await transformExternalLinks(html, config);
+    expect(result).toBe(html);
+  });
 
-export default createTestRunner("external-links", testCases);
+  test("Returns content unchanged when no links present", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const html = "<p>No links here</p>";
+    const result = await transformExternalLinks(html, config);
+    expect(result).toBe(html);
+  });
+
+  test("Adds target and rel to external links", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const html =
+      '<html><body><a href="https://example.com">Link</a></body></html>';
+    const result = await transformExternalLinks(html, config);
+
+    expect(result.includes('target="_blank"')).toBe(true);
+    expect(result.includes('rel="noopener noreferrer"')).toBe(true);
+  });
+
+  test("Does not modify internal links", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const html = '<html><body><a href="/about">About</a></body></html>';
+    const result = await transformExternalLinks(html, config);
+
+    expect(result.includes('target="_blank"')).toBe(false);
+  });
+
+  test("Handles mix of external and internal links", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const html =
+      '<html><body><a href="https://example.com">External</a><a href="/about">Internal</a></body></html>';
+    const result = await transformExternalLinks(html, config);
+
+    expect(result.includes('href="https://example.com"')).toBe(true);
+    expect(result.includes('href="/about"')).toBe(true);
+    expect(result.includes('target="_blank"')).toBe(true);
+  });
+
+  test("Preserves other link attributes", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const html =
+      '<html><body><a href="https://example.com" class="button" id="link1">Link</a></body></html>';
+    const result = await transformExternalLinks(html, config);
+
+    expect(result.includes('class="button"')).toBe(true);
+    expect(result.includes('id="link1"')).toBe(true);
+  });
+
+  test("Handles both HTTP and HTTPS URLs", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const html =
+      '<html><body><a href="http://example.com">HTTP</a><a href="https://example.com">HTTPS</a></body></html>';
+    const result = await transformExternalLinks(html, config);
+
+    const targetCount = (result.match(/target="_blank"/g) || []).length;
+    expect(targetCount).toBe(2);
+  });
+
+  test("Handles null content gracefully", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = await transformExternalLinks(null, config);
+    expect(result).toBe(null);
+  });
+
+  test("Handles empty content gracefully", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = await transformExternalLinks("", config);
+    expect(result).toBe("");
+  });
+
+  test("Creates transform function", () => {
+    const config = { externalLinksTargetBlank: false };
+    const transform = createExternalLinksTransform(config);
+
+    expect(typeof transform).toBe("function");
+  });
+
+  test("Only processes HTML files", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const transform = createExternalLinksTransform(config);
+
+    const cssContent = "body { color: red; }";
+    const result = await transform(cssContent, "style.css");
+    expect(result).toBe(cssContent);
+  });
+
+  test("Skips feed files", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const transform = createExternalLinksTransform(config);
+
+    const feedContent = '<a href="https://example.com">Link</a>';
+    const result = await transform(feedContent, "feed.xml");
+    expect(result).toBe(feedContent);
+  });
+
+  test("Processes HTML files", async () => {
+    const config = { externalLinksTargetBlank: true };
+    const transform = createExternalLinksTransform(config);
+
+    const html =
+      '<html><body><a href="https://example.com">Link</a></body></html>';
+    const result = await transform(html, "index.html");
+
+    expect(result.includes('target="_blank"')).toBe(true);
+  });
+
+  test("Adds externalLinkAttrs filter to Eleventy config", async () => {
+    const mockConfig = createMockEleventyConfig();
+    await configureExternalLinks(mockConfig);
+
+    expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
+  });
+
+  test("Adds HTML transform to Eleventy config", async () => {
+    const mockConfig = createMockEleventyConfig();
+    await configureExternalLinks(mockConfig);
+
+    expect(typeof mockConfig.transforms.externalLinks).toBe("function");
+  });
+
+  test("Configured filter uses loaded config", async () => {
+    const mockConfig = createMockEleventyConfig();
+    await configureExternalLinks(mockConfig);
+
+    expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
+
+    const result = mockConfig.filters.externalLinkAttrs("https://example.com");
+    expect(typeof result).toBe("string");
+  });
+
+  test("Handles URLs with spaces", () => {
+    const result = isExternalUrl("https://example.com/path with spaces");
+    expect(result).toBe(true);
+  });
+
+  test("Handles URLs with query parameters", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = getExternalLinkAttributes(
+      "https://example.com?foo=bar&baz=qux",
+      config,
+    );
+    expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
+  });
+
+  test("Handles external URLs with fragments", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = getExternalLinkAttributes(
+      "https://example.com#section",
+      config,
+    );
+    expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
+  });
+
+  test("Always includes rel attribute with noopener and noreferrer", () => {
+    const config = { externalLinksTargetBlank: true };
+    const result = getExternalLinkAttributes("https://example.com", config);
+
+    expect(result.includes('rel="noopener noreferrer"')).toBe(true);
+  });
+
+  test("Functions should be pure and not modify inputs", () => {
+    const config = { externalLinksTargetBlank: true };
+    const configCopy = JSON.parse(JSON.stringify(config));
+
+    getExternalLinkAttributes("https://example.com", config);
+
+    expect(JSON.stringify(config)).toBe(JSON.stringify(configCopy));
+  });
+});

@@ -1,11 +1,5 @@
-import {
-  createTestRunner,
-  expectTrue,
-  fs,
-  path,
-  rootDir,
-  SRC_JS_FILES,
-} from "#test/test-utils.js";
+import { describe, expect, test } from "bun:test";
+import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Configuration
 const MAX_LINES = 30;
@@ -220,99 +214,74 @@ const formatViolations = (violations) => {
   return lines.join("\n");
 };
 
-// Run the analysis once for use in tests
-const violations = analyzeFunctionLengths();
-
-// Log violations for visibility
-if (violations.length > 0) {
-  console.log(`\n${formatViolations(violations)}\n`);
-}
-
-const testCases = [
-  {
-    name: "extract-simple-function",
-    description: "extractFunctions finds simple function declarations",
-    test: () => {
-      const source = `
+describe("function-length", () => {
+  test("extractFunctions finds simple function declarations", () => {
+    const source = `
 function hello() {
   console.log("hi");
 }
-      `;
-      const functions = extractFunctions(source);
-      expectTrue(functions.length === 1, "Should find 1 function");
-      expectTrue(functions[0].name === "hello", "Should find hello");
-      expectTrue(functions[0].lineCount === 3, "Should be 3 lines");
-    },
-  },
-  {
-    name: "extract-arrow-function",
-    description: "extractFunctions finds arrow functions assigned to variables",
-    test: () => {
-      const source = `
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("hello");
+    expect(functions[0].lineCount).toBe(3);
+  });
+
+  test("extractFunctions finds arrow functions assigned to variables", () => {
+    const source = `
 const greet = (name) => {
   return "Hello " + name;
 };
-      `;
-      const functions = extractFunctions(source);
-      expectTrue(functions.length === 1, "Should find 1 function");
-      expectTrue(functions[0].name === "greet", "Should find greet");
-    },
-  },
-  {
-    name: "extract-async-function",
-    description: "extractFunctions finds async functions",
-    test: () => {
-      const source = `
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("greet");
+  });
+
+  test("extractFunctions finds async functions", () => {
+    const source = `
 async function fetchData() {
   const res = await fetch(url);
   return res.json();
 }
-      `;
-      const functions = extractFunctions(source);
-      expectTrue(functions.length === 1, "Should find 1 function");
-      expectTrue(functions[0].name === "fetchData", "Should find fetchData");
-    },
-  },
-  {
-    name: "extract-exported-function",
-    description: "extractFunctions finds exported arrow functions",
-    test: () => {
-      const source = `
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("fetchData");
+  });
+
+  test("extractFunctions finds exported arrow functions", () => {
+    const source = `
 export const helper = (x) => {
   return x * 2;
 };
-      `;
-      const functions = extractFunctions(source);
-      expectTrue(functions.length === 1, "Should find 1 function");
-      expectTrue(functions[0].name === "helper", "Should find helper");
-    },
-  },
-  {
-    name: "ignore-strings-with-braces",
-    description: "extractFunctions ignores braces inside strings",
-    test: () => {
-      const source = `
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("helper");
+  });
+
+  test("extractFunctions ignores braces inside strings", () => {
+    const source = `
 function test() {
   const a = "{ not a brace }";
   const b = '{ also not }';
   return true;
 }
-      `;
-      const functions = extractFunctions(source);
-      expectTrue(functions.length === 1, "Should find 1 function");
-      expectTrue(functions[0].lineCount === 5, "Should be 5 lines");
-    },
-  },
-  {
-    name: "check-violations",
-    description: `Check functions do not exceed ${MAX_LINES} lines`,
-    test: () => {
-      expectTrue(
-        violations.length === 0,
-        `Found ${violations.length} function(s) exceeding ${MAX_LINES} lines. See list above.`,
-      );
-    },
-  },
-];
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].lineCount).toBe(5);
+  });
 
-createTestRunner("function-length", testCases);
+  test(`Check functions do not exceed ${MAX_LINES} lines`, () => {
+    const violations = analyzeFunctionLengths();
+
+    // Log violations for visibility
+    if (violations.length > 0) {
+      console.log(`\n${formatViolations(violations)}\n`);
+    }
+
+    expect(violations.length).toBe(0);
+  });
+});

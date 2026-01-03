@@ -1,0 +1,9 @@
+[test]
+# Test file patterns
+root = "./test"
+
+# Parallel execution (default behavior in Bun)
+# Bun automatically runs tests in parallel
+
+# Timeout for individual tests (30 seconds)
+timeout = 30000

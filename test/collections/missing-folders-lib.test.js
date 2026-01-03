@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import { configureCategories } from "#collections/categories.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
@@ -5,198 +6,123 @@ import { configureProducts } from "#collections/products.js";
 import { configureTags } from "#collections/tags.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-// Test that lib modules handle missing folders gracefully
-const testLibModules = () => {
-  const testCases = [];
+describe("missing-folders-lib", () => {
+  // Test that lib modules handle missing folders gracefully
+  test("Categories module handles empty collections", () => {
+    const mockConfig = createMockEleventyConfig();
 
-  // Test categories module with empty collections
-  testCases.push({
-    name: "categories-handles-empty-collections",
-    description: "Categories module handles empty collections",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+    // Should not throw when configuring
+    configureCategories(mockConfig);
 
-      // Should not throw when configuring
-      configureCategories(mockConfig);
+    // Test with empty collections
+    const mockCollectionApi = {
+      getFilteredByTag: (tag) => {
+        if (tag === "category") return [];
+        if (tag === "product") return [];
+        return [];
+      },
+    };
 
-      // Test with empty collections
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "category") return [];
-          if (tag === "product") return [];
-          return [];
-        },
-      };
-
-      const result = mockConfig.collections.categories(mockCollectionApi);
-      expectTrue(Array.isArray(result), "Should return an array");
-      expectTrue(
-        result.length === 0,
-        "Should return empty array for no categories",
-      );
-    },
+    const result = mockConfig.collections.categories(mockCollectionApi);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length === 0).toBe(true);
   });
 
-  // Test menus module
-  testCases.push({
-    name: "menus-handles-missing-data",
-    description: "Menus module handles missing menu data",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Menus module handles missing menu data", () => {
+    const mockConfig = createMockEleventyConfig();
 
-      configureMenus(mockConfig);
+    configureMenus(mockConfig);
 
-      // Test filters with empty data
-      const emptyCategories = [];
-      const emptyItems = [];
+    // Test filters with empty data
+    const emptyCategories = [];
+    const emptyItems = [];
 
-      const categoriesByMenu = mockConfig.filters.getCategoriesByMenu(
-        emptyCategories,
-        "test-menu",
-      );
-      expectTrue(
-        Array.isArray(categoriesByMenu),
-        "Should return array for categories by menu",
-      );
-      expectTrue(
-        categoriesByMenu.length === 0,
-        "Should return empty array for no categories",
-      );
+    const categoriesByMenu = mockConfig.filters.getCategoriesByMenu(
+      emptyCategories,
+      "test-menu",
+    );
+    expect(Array.isArray(categoriesByMenu)).toBe(true);
+    expect(categoriesByMenu.length === 0).toBe(true);
 
-      const itemsByCategory = mockConfig.filters.getItemsByCategory(
-        emptyItems,
-        "test-category",
-      );
-      expectTrue(
-        Array.isArray(itemsByCategory),
-        "Should return array for items by category",
-      );
-      expectTrue(
-        itemsByCategory.length === 0,
-        "Should return empty array for no items",
-      );
-    },
+    const itemsByCategory = mockConfig.filters.getItemsByCategory(
+      emptyItems,
+      "test-category",
+    );
+    expect(Array.isArray(itemsByCategory)).toBe(true);
+    expect(itemsByCategory.length === 0).toBe(true);
   });
 
-  // Test products module
-  testCases.push({
-    name: "products-handles-empty-collections",
-    description: "Products module handles empty collections",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Products module handles empty collections", () => {
+    const mockConfig = createMockEleventyConfig();
 
-      configureProducts(mockConfig);
+    configureProducts(mockConfig);
 
-      // Test with empty collections
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "product") return [];
-          return [];
-        },
-      };
+    // Test with empty collections
+    const mockCollectionApi = {
+      getFilteredByTag: (tag) => {
+        if (tag === "product") return [];
+        return [];
+      },
+    };
 
-      const result = mockConfig.collections.products(mockCollectionApi);
-      expectTrue(Array.isArray(result), "Should return an array");
-      expectTrue(
-        result.length === 0,
-        "Should return empty array for no products",
-      );
-    },
+    const result = mockConfig.collections.products(mockCollectionApi);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length === 0).toBe(true);
   });
 
-  // Test tags module
-  testCases.push({
-    name: "tags-handles-empty-collections",
-    description: "Tags module handles empty collections",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Tags module handles empty collections", () => {
+    const mockConfig = createMockEleventyConfig();
 
-      configureTags(mockConfig);
+    configureTags(mockConfig);
 
-      // Test with empty collections
-      const mockCollectionApi = {
-        getAll: () => [],
-      };
+    // Test with empty collections
+    const mockCollectionApi = {
+      getAll: () => [],
+    };
 
-      if (mockConfig.collections?.tagList) {
-        const result = mockConfig.collections.tagList(mockCollectionApi);
-        expectTrue(Array.isArray(result), "Should return an array");
-      } else {
-        // Tags module doesn't create collections, just filters
-        expectTrue(
-          mockConfig.filters !== undefined,
-          "Should have filters configured",
-        );
-      }
-    },
+    if (mockConfig.collections?.tagList) {
+      const result = mockConfig.collections.tagList(mockCollectionApi);
+      expect(Array.isArray(result)).toBe(true);
+    } else {
+      // Tags module doesn't create collections, just filters
+      expect(mockConfig.filters !== undefined).toBe(true);
+    }
   });
 
-  // Test recurring events module
-  testCases.push({
-    name: "events-handles-missing-files",
-    description: "Recurring events handles missing event files",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Recurring events handles missing event files", () => {
+    const mockConfig = createMockEleventyConfig();
 
-      // Should not throw when configuring
-      configureRecurringEvents(mockConfig);
+    // Should not throw when configuring
+    configureRecurringEvents(mockConfig);
 
-      // Test filter with empty data
-      const emptyEvents = [];
-      if (mockConfig.filters.generateRecurringEvents) {
-        const result = mockConfig.filters.generateRecurringEvents(emptyEvents);
-        expectTrue(Array.isArray(result), "Should return an array");
-      }
-    },
+    // Test filter with empty data
+    const emptyEvents = [];
+    if (mockConfig.filters.generateRecurringEvents) {
+      const result = mockConfig.filters.generateRecurringEvents(emptyEvents);
+      expect(Array.isArray(result)).toBe(true);
+    }
   });
 
-  // Test navigation module
-  testCases.push({
-    name: "navigation-handles-missing-pages",
-    description: "Navigation module handles missing pages",
-    asyncTest: async () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Navigation module handles missing pages", async () => {
+    const mockConfig = createMockEleventyConfig();
 
-      // Should not throw when configuring (async due to plugin loading)
-      await configureNavigation(mockConfig);
+    // Should not throw when configuring (async due to plugin loading)
+    await configureNavigation(mockConfig);
 
-      // Check that plugin was added
-      expectTrue(
-        mockConfig.pluginCalls !== undefined,
-        "Should have plugin calls",
-      );
-    },
+    // Check that plugin was added
+    expect(mockConfig.pluginCalls !== undefined).toBe(true);
   });
 
-  // Test feed module
-  testCases.push({
-    name: "feed-handles-missing-posts",
-    description: "Feed module handles missing posts",
-    asyncTest: async () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Feed module handles missing posts", async () => {
+    const mockConfig = createMockEleventyConfig();
 
-      // Should not throw when configuring (async due to plugin loading)
-      await configureFeed(mockConfig);
+    // Should not throw when configuring (async due to plugin loading)
+    await configureFeed(mockConfig);
 
-      // Check that RSS date filters were added
-      expectTrue(
-        mockConfig.filters.dateToRfc3339 !== undefined,
-        "Should add dateToRfc3339 filter",
-      );
-      expectTrue(
-        mockConfig.filters.dateToRfc822 !== undefined,
-        "Should add dateToRfc822 filter",
-      );
-    },
+    // Check that RSS date filters were added
+    expect(mockConfig.filters.dateToRfc3339 !== undefined).toBe(true);
+    expect(mockConfig.filters.dateToRfc822 !== undefined).toBe(true);
   });
-
-  return testCases;
-};
-
-createTestRunner("missing-folders-lib", testLibModules());
+});

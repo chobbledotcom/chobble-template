@@ -1,164 +1,89 @@
+import { describe, expect, test } from "bun:test";
 import {
   configureOpeningTimes,
   renderOpeningTimes,
 } from "#eleventy/opening-times.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectFunctionType,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const testCases = [
-  {
-    name: "renderOpeningTimes-empty-array",
-    description: "Returns empty string for empty array",
-    test: () => {
-      const result = renderOpeningTimes([]);
-      expectStrictEqual(
-        result,
-        "",
-        "Should return empty string for empty array",
-      );
-    },
-  },
-  {
-    name: "renderOpeningTimes-null-input",
-    description: "Returns empty string for null input",
-    test: () => {
-      const result = renderOpeningTimes(null);
-      expectStrictEqual(result, "", "Should return empty string for null");
-    },
-  },
-  {
-    name: "renderOpeningTimes-undefined-input",
-    description: "Returns empty string for undefined input",
-    test: () => {
-      const result = renderOpeningTimes(undefined);
-      expectStrictEqual(result, "", "Should return empty string for undefined");
-    },
-  },
-  {
-    name: "renderOpeningTimes-single-entry",
-    description: "Renders single opening time entry correctly",
-    test: () => {
-      const input = [{ day: "Monday", hours: "9am - 5pm" }];
-      const result = renderOpeningTimes(input);
+describe("opening-times", () => {
+  test("Returns empty string for empty array", () => {
+    const result = renderOpeningTimes([]);
+    expect(result).toBe("");
+  });
 
-      expectTrue(
-        result.includes('<ul class="opening-times">'),
-        "Should have ul with correct class",
-      );
-      expectTrue(
-        result.includes("<strong>Monday:</strong> 9am - 5pm"),
-        "Should have day and hours",
-      );
-      expectTrue(result.includes("<li>"), "Should have list item");
-    },
-  },
-  {
-    name: "renderOpeningTimes-multiple-entries",
-    description: "Renders multiple opening time entries correctly",
-    test: () => {
-      const input = [
-        { day: "Monday", hours: "9am - 5pm" },
-        { day: "Tuesday", hours: "10am - 6pm" },
-        { day: "Wednesday", hours: "Closed" },
-      ];
-      const result = renderOpeningTimes(input);
+  test("Returns empty string for null input", () => {
+    const result = renderOpeningTimes(null);
+    expect(result).toBe("");
+  });
 
-      expectTrue(
-        result.includes("<strong>Monday:</strong> 9am - 5pm"),
-        "Should have Monday",
-      );
-      expectTrue(
-        result.includes("<strong>Tuesday:</strong> 10am - 6pm"),
-        "Should have Tuesday",
-      );
-      expectTrue(
-        result.includes("<strong>Wednesday:</strong> Closed"),
-        "Should have Wednesday",
-      );
+  test("Returns empty string for undefined input", () => {
+    const result = renderOpeningTimes(undefined);
+    expect(result).toBe("");
+  });
 
-      const liCount = (result.match(/<li>/g) || []).length;
-      expectStrictEqual(liCount, 3, "Should have 3 list items");
-    },
-  },
-  {
-    name: "renderOpeningTimes-structure",
-    description: "Generates correct HTML structure",
-    test: () => {
-      const input = [{ day: "Friday", hours: "8am - 4pm" }];
-      const result = renderOpeningTimes(input);
+  test("Renders single opening time entry correctly", () => {
+    const input = [{ day: "Monday", hours: "9am - 5pm" }];
+    const result = renderOpeningTimes(input);
 
-      expectTrue(
-        result.startsWith('<ul class="opening-times">'),
-        "Should start with ul",
-      );
-      expectTrue(result.endsWith("</ul>"), "Should end with closing ul");
-      expectTrue(result.includes("</li>"), "Should have closing li tags");
-    },
-  },
-  {
-    name: "configureOpeningTimes-registers-shortcode",
-    description: "Registers opening_times shortcode",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureOpeningTimes(mockConfig);
+    expect(result.includes('<ul class="opening-times">')).toBe(true);
+    expect(result.includes("<strong>Monday:</strong> 9am - 5pm")).toBe(true);
+    expect(result.includes("<li>")).toBe(true);
+  });
 
-      expectFunctionType(
-        mockConfig.shortcodes,
-        "opening_times",
-        "Should register opening_times shortcode",
-      );
-    },
-  },
-  {
-    name: "configureOpeningTimes-registers-filter",
-    description: "Registers format_opening_times filter",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureOpeningTimes(mockConfig);
+  test("Renders multiple opening time entries correctly", () => {
+    const input = [
+      { day: "Monday", hours: "9am - 5pm" },
+      { day: "Tuesday", hours: "10am - 6pm" },
+      { day: "Wednesday", hours: "Closed" },
+    ];
+    const result = renderOpeningTimes(input);
 
-      expectFunctionType(
-        mockConfig.filters,
-        "format_opening_times",
-        "Should register format_opening_times filter",
-      );
-    },
-  },
-  {
-    name: "configureOpeningTimes-filter-works",
-    description: "format_opening_times filter produces correct output",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureOpeningTimes(mockConfig);
+    expect(result.includes("<strong>Monday:</strong> 9am - 5pm")).toBe(true);
+    expect(result.includes("<strong>Tuesday:</strong> 10am - 6pm")).toBe(true);
+    expect(result.includes("<strong>Wednesday:</strong> Closed")).toBe(true);
 
-      const input = [{ day: "Saturday", hours: "10am - 2pm" }];
-      const result = mockConfig.filters.format_opening_times(input);
+    const liCount = (result.match(/<li>/g) || []).length;
+    expect(liCount).toBe(3);
+  });
 
-      expectTrue(
-        result.includes("<strong>Saturday:</strong> 10am - 2pm"),
-        "Filter should render opening times correctly",
-      );
-    },
-  },
-  {
-    name: "configureOpeningTimes-filter-empty",
-    description: "format_opening_times filter handles empty input",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureOpeningTimes(mockConfig);
+  test("Generates correct HTML structure", () => {
+    const input = [{ day: "Friday", hours: "8am - 4pm" }];
+    const result = renderOpeningTimes(input);
 
-      const result = mockConfig.filters.format_opening_times([]);
-      expectStrictEqual(
-        result,
-        "",
-        "Filter should return empty string for empty input",
-      );
-    },
-  },
-];
+    expect(result.startsWith('<ul class="opening-times">')).toBe(true);
+    expect(result.endsWith("</ul>")).toBe(true);
+    expect(result.includes("</li>")).toBe(true);
+  });
 
-export default createTestRunner("opening-times", testCases);
+  test("Registers opening_times shortcode", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureOpeningTimes(mockConfig);
+
+    expect(typeof mockConfig.shortcodes.opening_times).toBe("function");
+  });
+
+  test("Registers format_opening_times filter", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureOpeningTimes(mockConfig);
+
+    expect(typeof mockConfig.filters.format_opening_times).toBe("function");
+  });
+
+  test("format_opening_times filter produces correct output", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureOpeningTimes(mockConfig);
+
+    const input = [{ day: "Saturday", hours: "10am - 2pm" }];
+    const result = mockConfig.filters.format_opening_times(input);
+
+    expect(result.includes("<strong>Saturday:</strong> 10am - 2pm")).toBe(true);
+  });
+
+  test("format_opening_times filter handles empty input", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureOpeningTimes(mockConfig);
+
+    const result = mockConfig.filters.format_opening_times([]);
+    expect(result).toBe("");
+  });
+});

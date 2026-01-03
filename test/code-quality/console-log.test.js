@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import { ALLOWED_CONSOLE } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeFiles,
@@ -7,12 +8,7 @@ import {
   matchAny,
   scanLines,
 } from "#test/code-scanner.js";
-import {
-  createTestRunner,
-  ECOMMERCE_JS_FILES,
-  expectTrue,
-  SRC_JS_FILES,
-} from "#test/test-utils.js";
+import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Patterns that match console.* calls
 const CONSOLE_PATTERNS = [
@@ -26,8 +22,6 @@ const CONSOLE_PATTERNS = [
 
 // Files that are allowed to have console statements (test infrastructure)
 const TEST_ALLOWED_FILES = new Set([
-  // Test runner outputs results
-  "test/test-utils.js",
   // Code quality tests output violation reports
   "test/code-quality/console-log.test.js",
 ]);
@@ -72,124 +66,88 @@ const analyzeConsoleCalls = () => {
   );
 };
 
-const testCases = [
-  {
-    name: "detect-console-log",
-    description: "Detects console.log calls",
-    test: () => {
-      const source = 'console.log("hello");';
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 1, "Should detect console.log");
-      expectTrue(results[0].method === "log", "Should identify method as log");
-    },
-  },
-  {
-    name: "detect-console-error",
-    description: "Detects console.error calls",
-    test: () => {
-      const source = 'console.error("error message");';
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 1, "Should detect console.error");
-      expectTrue(
-        results[0].method === "error",
-        "Should identify method as error",
-      );
-    },
-  },
-  {
-    name: "detect-console-warn",
-    description: "Detects console.warn calls",
-    test: () => {
-      const source = 'console.warn("warning");';
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 1, "Should detect console.warn");
-      expectTrue(
-        results[0].method === "warn",
-        "Should identify method as warn",
-      );
-    },
-  },
-  {
-    name: "detect-multiple-console-calls",
-    description: "Detects multiple console calls in source",
-    test: () => {
-      const source = `
+describe("console-log", () => {
+  test("Detects console.log calls", () => {
+    const source = 'console.log("hello");';
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(1);
+    expect(results[0].method).toBe("log");
+  });
+
+  test("Detects console.error calls", () => {
+    const source = 'console.error("error message");';
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(1);
+    expect(results[0].method).toBe("error");
+  });
+
+  test("Detects console.warn calls", () => {
+    const source = 'console.warn("warning");';
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(1);
+    expect(results[0].method).toBe("warn");
+  });
+
+  test("Detects multiple console calls in source", () => {
+    const source = `
 const x = 1;
 console.log("debug");
 doSomething();
 console.error("oops");
-      `;
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 2, "Should detect 2 console calls");
-    },
-  },
-  {
-    name: "ignore-single-line-comments",
-    description: "Ignores console calls in single-line comments",
-    test: () => {
-      const source = `
+    `;
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(2);
+  });
+
+  test("Ignores console calls in single-line comments", () => {
+    const source = `
 // console.log("commented out");
 const x = 1;
-      `;
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 0, "Should ignore // comments");
-    },
-  },
-  {
-    name: "ignore-block-comment-lines",
-    description: "Ignores console calls in block comment continuation lines",
-    test: () => {
-      const source = `
+    `;
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Ignores console calls in block comment continuation lines", () => {
+    const source = `
 /*
  * console.log("in block comment");
  */
 const x = 1;
-      `;
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 0, "Should ignore block comment lines");
-    },
-  },
-  {
-    name: "ignore-non-console-code",
-    description: "Does not flag code without console calls",
-    test: () => {
-      const source = `
+    `;
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag code without console calls", () => {
+    const source = `
 const logger = { log: () => {} };
 logger.log("this is fine");
 myConsole.log("also fine");
-      `;
-      const results = findConsoleCalls(source);
-      expectTrue(results.length === 0, "Should not flag non-console code");
-    },
-  },
-  {
-    name: "no-console-in-production-code",
-    description: "No console.* calls in production source files",
-    test: () => {
-      const violations = analyzeConsoleCalls();
-      assertNoViolations(expectTrue, violations, {
-        message: "console.* calls in production code",
-        fixHint:
-          "Remove console.* calls or add to ALLOWED_CONSOLE in code-quality-exceptions.js",
-      });
-    },
-  },
-  {
-    name: "report-allowed-console",
-    description: "Reports allowlisted console usage for tracking",
-    test: () => {
-      console.log(`\n  Allowlisted console.* files: ${ALLOWED_CONSOLE.size}`);
-      console.log("  These should be reviewed periodically:\n");
+    `;
+    const results = findConsoleCalls(source);
+    expect(results.length).toBe(0);
+  });
 
-      for (const file of ALLOWED_CONSOLE) {
-        console.log(`     ${file}`);
-      }
-      console.log("");
+  test("No console.* calls in production source files", () => {
+    const violations = analyzeConsoleCalls();
+    assertNoViolations(violations, {
+      message: "console.* calls in production code",
+      fixHint:
+        "Remove console.* calls or add to ALLOWED_CONSOLE in code-quality-exceptions.js",
+    });
+  });
 
-      // This test always passes - it's informational
-      expectTrue(true, "Reported allowlisted console usage");
-    },
-  },
-];
+  test("Reports allowlisted console usage for tracking", () => {
+    console.log(`\n  Allowlisted console.* files: ${ALLOWED_CONSOLE.size}`);
+    console.log("  These should be reviewed periodically:\n");
 
-createTestRunner("console-log", testCases);
+    for (const file of ALLOWED_CONSOLE) {
+      console.log(`     ${file}`);
+    }
+    console.log("");
+
+    // This test always passes - it's informational
+    expect(true).toBe(true);
+  });
+});

@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import {
   configureSearch,
   createSearchKeywordsCollection,
@@ -5,356 +6,210 @@ import {
   getProductsByKeyword,
   normaliseCategory,
 } from "#collections/search.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectDeepEqual,
-  expectFunctionType,
-  expectStrictEqual,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const testCases = [
-  {
-    name: "getAllKeywords-empty",
-    description: "Returns empty array for null/undefined/empty products",
-    test: () => {
-      expectDeepEqual(getAllKeywords(null), [], "Should return [] for null");
-      expectDeepEqual(
-        getAllKeywords(undefined),
-        [],
-        "Should return [] for undefined",
-      );
-      expectDeepEqual(
-        getAllKeywords([]),
-        [],
-        "Should return [] for empty array",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-no-keywords",
-    description: "Returns empty array when products have no keywords",
-    test: () => {
-      const products = [
+describe("search", () => {
+  test("Returns empty array for null/undefined/empty products", () => {
+    expect(getAllKeywords(null)).toEqual([]);
+    expect(getAllKeywords(undefined)).toEqual([]);
+    expect(getAllKeywords([])).toEqual([]);
+  });
+
+  test("Returns empty array when products have no keywords", () => {
+    const products = [
+      { data: { title: "Product 1" } },
+      { data: { title: "Product 2", keywords: null } },
+    ];
+
+    expect(getAllKeywords(products)).toEqual([]);
+  });
+
+  test("Extracts and sorts keywords from products", () => {
+    const products = [
+      { data: { title: "Product 1", keywords: ["widgets", "blue"] } },
+      { data: { title: "Product 2", keywords: ["gadgets", "red"] } },
+    ];
+
+    expect(getAllKeywords(products)).toEqual([
+      "blue",
+      "gadgets",
+      "red",
+      "widgets",
+    ]);
+  });
+
+  test("Deduplicates keywords across products", () => {
+    const products = [
+      { data: { title: "Product 1", keywords: ["portable", "blue"] } },
+      { data: { title: "Product 2", keywords: ["portable", "red"] } },
+      { data: { title: "Product 3", keywords: ["portable"] } },
+    ];
+
+    expect(getAllKeywords(products)).toEqual(["blue", "portable", "red"]);
+  });
+
+  test("Handles mix of products with and without keywords", () => {
+    const products = [
+      { data: { title: "Product 1", keywords: ["alpha"] } },
+      { data: { title: "Product 2" } },
+      { data: { title: "Product 3", keywords: ["beta"] } },
+      { data: { title: "Product 4", keywords: null } },
+    ];
+
+    expect(getAllKeywords(products)).toEqual(["alpha", "beta"]);
+  });
+
+  test("Returns empty array for null/undefined inputs", () => {
+    expect(getProductsByKeyword(null, "test")).toEqual([]);
+    expect(getProductsByKeyword([], null)).toEqual([]);
+    expect(getProductsByKeyword([], "")).toEqual([]);
+  });
+
+  test("Filters products by keyword", () => {
+    const products = [
+      { data: { title: "Product 1", keywords: ["portable", "blue"] } },
+      { data: { title: "Product 2", keywords: ["stationary", "blue"] } },
+      { data: { title: "Product 3", keywords: ["portable", "red"] } },
+    ];
+
+    const result = getProductsByKeyword(products, "portable");
+
+    expect(result.length).toBe(2);
+    expect(result[0].data.title).toBe("Product 1");
+    expect(result[1].data.title).toBe("Product 3");
+  });
+
+  test("Returns empty array when no products match", () => {
+    const products = [
+      { data: { title: "Product 1", keywords: ["alpha"] } },
+      { data: { title: "Product 2", keywords: ["beta"] } },
+    ];
+
+    expect(getProductsByKeyword(products, "gamma")).toEqual([]);
+  });
+
+  test("Handles products without keywords field", () => {
+    const products = [
+      { data: { title: "Product 1" } },
+      { data: { title: "Product 2", keywords: ["test"] } },
+      { data: { title: "Product 3", keywords: null } },
+    ];
+
+    const result = getProductsByKeyword(products, "test");
+
+    expect(result.length).toBe(1);
+    expect(result[0].data.title).toBe("Product 2");
+  });
+
+  test("Creates collection of unique keywords from products", () => {
+    const mockCollectionApi = {
+      getFilteredByTag: (tag) => {
+        expect(tag).toBe("product");
+        return [
+          { data: { title: "Product 1", keywords: ["zebra", "apple"] } },
+          { data: { title: "Product 2", keywords: ["banana"] } },
+        ];
+      },
+    };
+
+    const result = createSearchKeywordsCollection(mockCollectionApi);
+
+    expect(result).toEqual(["apple", "banana", "zebra"]);
+  });
+
+  test("Returns empty array when no products have keywords", () => {
+    const mockCollectionApi = {
+      getFilteredByTag: () => [
         { data: { title: "Product 1" } },
-        { data: { title: "Product 2", keywords: null } },
-      ];
-
-      expectDeepEqual(
-        getAllKeywords(products),
-        [],
-        "Should return [] when no products have keywords",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-basic",
-    description: "Extracts and sorts keywords from products",
-    test: () => {
-      const products = [
-        { data: { title: "Product 1", keywords: ["widgets", "blue"] } },
-        { data: { title: "Product 2", keywords: ["gadgets", "red"] } },
-      ];
-
-      expectDeepEqual(
-        getAllKeywords(products),
-        ["blue", "gadgets", "red", "widgets"],
-        "Should return sorted unique keywords",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-deduplication",
-    description: "Deduplicates keywords across products",
-    test: () => {
-      const products = [
-        { data: { title: "Product 1", keywords: ["portable", "blue"] } },
-        { data: { title: "Product 2", keywords: ["portable", "red"] } },
-        { data: { title: "Product 3", keywords: ["portable"] } },
-      ];
-
-      expectDeepEqual(
-        getAllKeywords(products),
-        ["blue", "portable", "red"],
-        "Should deduplicate keywords",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-mixed",
-    description: "Handles mix of products with and without keywords",
-    test: () => {
-      const products = [
-        { data: { title: "Product 1", keywords: ["alpha"] } },
         { data: { title: "Product 2" } },
-        { data: { title: "Product 3", keywords: ["beta"] } },
-        { data: { title: "Product 4", keywords: null } },
-      ];
+      ],
+    };
 
-      expectDeepEqual(
-        getAllKeywords(products),
-        ["alpha", "beta"],
-        "Should only collect keywords from products that have them",
-      );
-    },
-  },
-  {
-    name: "getProductsByKeyword-empty",
-    description: "Returns empty array for null/undefined inputs",
-    test: () => {
-      expectDeepEqual(
-        getProductsByKeyword(null, "test"),
-        [],
-        "Should return [] for null products",
-      );
-      expectDeepEqual(
-        getProductsByKeyword([], null),
-        [],
-        "Should return [] for null keyword",
-      );
-      expectDeepEqual(
-        getProductsByKeyword([], ""),
-        [],
-        "Should return [] for empty keyword",
-      );
-    },
-  },
-  {
-    name: "getProductsByKeyword-basic",
-    description: "Filters products by keyword",
-    test: () => {
-      const products = [
-        { data: { title: "Product 1", keywords: ["portable", "blue"] } },
-        { data: { title: "Product 2", keywords: ["stationary", "blue"] } },
-        { data: { title: "Product 3", keywords: ["portable", "red"] } },
-      ];
+    const result = createSearchKeywordsCollection(mockCollectionApi);
 
-      const result = getProductsByKeyword(products, "portable");
+    expect(result).toEqual([]);
+  });
 
-      expectStrictEqual(result.length, 2, "Should return 2 products");
-      expectStrictEqual(
-        result[0].data.title,
-        "Product 1",
-        "Should include first product",
-      );
-      expectStrictEqual(
-        result[1].data.title,
-        "Product 3",
-        "Should include third product",
-      );
-    },
-  },
-  {
-    name: "getProductsByKeyword-no-match",
-    description: "Returns empty array when no products match",
-    test: () => {
-      const products = [
-        { data: { title: "Product 1", keywords: ["alpha"] } },
-        { data: { title: "Product 2", keywords: ["beta"] } },
-      ];
+  test("Configures search collection and filters", () => {
+    const mockConfig = createMockEleventyConfig();
 
-      expectDeepEqual(
-        getProductsByKeyword(products, "gamma"),
-        [],
-        "Should return [] when no products match",
-      );
-    },
-  },
-  {
-    name: "getProductsByKeyword-no-keywords",
-    description: "Handles products without keywords field",
-    test: () => {
-      const products = [
-        { data: { title: "Product 1" } },
-        { data: { title: "Product 2", keywords: ["test"] } },
-        { data: { title: "Product 3", keywords: null } },
-      ];
+    configureSearch(mockConfig);
 
-      const result = getProductsByKeyword(products, "test");
+    expect(typeof mockConfig.collections.searchKeywords).toBe("function");
+    expect(typeof mockConfig.filters.getProductsByKeyword).toBe("function");
+    expect(typeof mockConfig.filters.getAllKeywords).toBe("function");
+    expect(mockConfig.filters.getProductsByKeyword).toBe(getProductsByKeyword);
+    expect(mockConfig.filters.getAllKeywords).toBe(getAllKeywords);
+  });
 
-      expectStrictEqual(result.length, 1, "Should return 1 product");
-      expectStrictEqual(
-        result[0].data.title,
-        "Product 2",
-        "Should only include product with matching keyword",
-      );
-    },
-  },
-  {
-    name: "createSearchKeywordsCollection-basic",
-    description: "Creates collection of unique keywords from products",
-    test: () => {
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          expectStrictEqual(tag, "product", "Should filter by product tag");
-          return [
-            { data: { title: "Product 1", keywords: ["zebra", "apple"] } },
-            { data: { title: "Product 2", keywords: ["banana"] } },
-          ];
+  test("Normalizes category paths from frontmatter format to display format", () => {
+    // Full path as stored in frontmatter → display format
+    expect(normaliseCategory("/categories/premium-widgets.md")).toBe(
+      "premium widgets",
+    );
+  });
+
+  test("Returns empty string for null/undefined/empty inputs", () => {
+    expect(normaliseCategory(null)).toBe("");
+    expect(normaliseCategory("")).toBe("");
+  });
+
+  test("Extracts keywords from product categories", () => {
+    const products = [
+      {
+        data: {
+          title: "Product 1",
+          categories: ["/categories/premium-widgets.md"],
         },
-      };
-
-      const result = createSearchKeywordsCollection(mockCollectionApi);
-
-      expectDeepEqual(
-        result,
-        ["apple", "banana", "zebra"],
-        "Should return sorted unique keywords",
-      );
-    },
-  },
-  {
-    name: "createSearchKeywordsCollection-empty",
-    description: "Returns empty array when no products have keywords",
-    test: () => {
-      const mockCollectionApi = {
-        getFilteredByTag: () => [
-          { data: { title: "Product 1" } },
-          { data: { title: "Product 2" } },
-        ],
-      };
-
-      const result = createSearchKeywordsCollection(mockCollectionApi);
-
-      expectDeepEqual(result, [], "Should return empty array");
-    },
-  },
-  {
-    name: "configureSearch-basic",
-    description: "Configures search collection and filters",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-
-      configureSearch(mockConfig);
-
-      expectFunctionType(
-        mockConfig.collections,
-        "searchKeywords",
-        "Should add searchKeywords collection",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getProductsByKeyword",
-        "Should add getProductsByKeyword filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "getAllKeywords",
-        "Should add getAllKeywords filter",
-      );
-      expectStrictEqual(
-        mockConfig.filters.getProductsByKeyword,
-        getProductsByKeyword,
-        "Should use correct filter function",
-      );
-      expectStrictEqual(
-        mockConfig.filters.getAllKeywords,
-        getAllKeywords,
-        "Should use correct filter function",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-transforms-category-paths",
-    description:
-      "Normalizes category paths from frontmatter format to display format",
-    test: () => {
-      // Full path as stored in frontmatter → display format
-      expectStrictEqual(
-        normaliseCategory("/categories/premium-widgets.md"),
-        "premium widgets",
-        "Should strip prefix, suffix, and convert hyphens",
-      );
-    },
-  },
-  {
-    name: "normaliseCategory-handles-falsy-input",
-    description: "Returns empty string for null/undefined/empty inputs",
-    test: () => {
-      expectStrictEqual(normaliseCategory(null), "", "null → empty");
-      expectStrictEqual(normaliseCategory(""), "", "empty → empty");
-    },
-  },
-  {
-    name: "getAllKeywords-with-categories",
-    description: "Extracts keywords from product categories",
-    test: () => {
-      const products = [
-        {
-          data: {
-            title: "Product 1",
-            categories: ["/categories/premium-widgets.md"],
-          },
+      },
+      {
+        data: {
+          title: "Product 2",
+          categories: ["/categories/basic-gadgets.md", "simple"],
         },
-        {
-          data: {
-            title: "Product 2",
-            categories: ["/categories/basic-gadgets.md", "simple"],
-          },
+      },
+    ];
+
+    const keywords = getAllKeywords(products);
+
+    expect(keywords).toEqual(["basic gadgets", "premium widgets", "simple"]);
+  });
+
+  test("Finds products by normalized category name", () => {
+    const products = [
+      {
+        data: {
+          title: "Widget Pro",
+          categories: ["/categories/premium-widgets.md"],
         },
-      ];
-
-      const keywords = getAllKeywords(products);
-
-      expectDeepEqual(
-        keywords,
-        ["basic gadgets", "premium widgets", "simple"],
-        "Should extract and normalize category names as keywords",
-      );
-    },
-  },
-  {
-    name: "getProductsByKeyword-via-category",
-    description: "Finds products by normalized category name",
-    test: () => {
-      const products = [
-        {
-          data: {
-            title: "Widget Pro",
-            categories: ["/categories/premium-widgets.md"],
-          },
+      },
+      {
+        data: {
+          title: "Basic Widget",
+          categories: ["/categories/basic-widgets.md"],
         },
-        {
-          data: {
-            title: "Basic Widget",
-            categories: ["/categories/basic-widgets.md"],
-          },
+      },
+    ];
+
+    const result = getProductsByKeyword(products, "premium widgets");
+
+    expect(result.length).toBe(1);
+    expect(result[0].data.title).toBe("Widget Pro");
+  });
+
+  test("Combines explicit keywords with category-derived keywords", () => {
+    const products = [
+      {
+        data: {
+          title: "Product 1",
+          keywords: ["sale", "featured"],
+          categories: ["/categories/premium.md"],
         },
-      ];
+      },
+    ];
 
-      const result = getProductsByKeyword(products, "premium widgets");
+    const keywords = getAllKeywords(products);
 
-      expectStrictEqual(result.length, 1, "Should find 1 product");
-      expectStrictEqual(
-        result[0].data.title,
-        "Widget Pro",
-        "Should find correct product",
-      );
-    },
-  },
-  {
-    name: "getAllKeywords-combines-keywords-and-categories",
-    description: "Combines explicit keywords with category-derived keywords",
-    test: () => {
-      const products = [
-        {
-          data: {
-            title: "Product 1",
-            keywords: ["sale", "featured"],
-            categories: ["/categories/premium.md"],
-          },
-        },
-      ];
-
-      const keywords = getAllKeywords(products);
-
-      expectDeepEqual(
-        keywords,
-        ["featured", "premium", "sale"],
-        "Should include both explicit keywords and category-derived keywords",
-      );
-    },
-  },
-];
-
-export default createTestRunner("search", testCases);
+    expect(keywords).toEqual(["featured", "premium", "sale"]);
+  });
+});

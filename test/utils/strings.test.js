@@ -1,13 +1,8 @@
+import { describe, expect, test } from "bun:test";
 import fg from "fast-glob";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
-import {
-  createTestRunner,
-  expectStrictEqual,
-  expectTrue,
-  fs,
-  srcDir,
-} from "#test/test-utils.js";
+import { fs, srcDir } from "#test/test-utils.js";
 
 /**
  * Find all strings.X usages in the codebase using Node.js
@@ -38,43 +33,29 @@ const findStringsUsage = () => {
   return Array.from(keys);
 };
 
-createTestRunner("strings", [
-  {
-    name: "has-all-base-keys",
-    description: "Merged strings includes all keys from strings-base.json",
-    test: () => {
-      for (const key of Object.keys(baseStrings)) {
-        expectTrue(
-          key in strings,
-          `strings should have key "${key}" from base`,
-        );
-      }
-    },
-  },
-  {
-    name: "returns-base-values",
-    description: "Returns values from strings-base.json",
-    test: () => {
-      expectStrictEqual(strings.product_name, "Products");
-      expectStrictEqual(strings.location_name, "Locations");
-      expectStrictEqual(strings.event_name, "Events");
-    },
-  },
-  {
-    name: "all-used-keys-have-defaults",
-    description:
-      "Every strings.X usage in codebase has a default in strings-base.json",
-    test: () => {
-      const usedKeys = findStringsUsage();
-      const missingKeys = usedKeys.filter((key) => !(key in baseStrings));
+describe("strings", () => {
+  test("Merged strings includes all keys from strings-base.json", () => {
+    for (const key of Object.keys(baseStrings)) {
+      expect(key in strings).toBe(true);
+    }
+  });
 
-      if (missingKeys.length > 0) {
-        throw new Error(
-          `Missing defaults in strings-base.json for: ${missingKeys.join(", ")}`,
-        );
-      }
+  test("Returns values from strings-base.json", () => {
+    expect(strings.product_name).toBe("Products");
+    expect(strings.location_name).toBe("Locations");
+    expect(strings.event_name).toBe("Events");
+  });
 
-      expectTrue(usedKeys.length > 0, "Should find some string usages");
-    },
-  },
-]);
+  test("Every strings.X usage in codebase has a default in strings-base.json", () => {
+    const usedKeys = findStringsUsage();
+    const missingKeys = usedKeys.filter((key) => !(key in baseStrings));
+
+    if (missingKeys.length > 0) {
+      throw new Error(
+        `Missing defaults in strings-base.json for: ${missingKeys.join(", ")}`,
+      );
+    }
+
+    expect(usedKeys.length > 0).toBe(true);
+  });
+});

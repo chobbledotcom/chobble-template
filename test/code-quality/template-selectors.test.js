@@ -1,8 +1,7 @@
 // Template selector contract tests
 // Verifies that HTML templates contain all required template IDs
 
-import assert from "node:assert";
-import { describe, it } from "node:test";
+import { describe, expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
 import { IDS } from "#assets/selectors.js";
 import { fs, path, rootDir } from "#test/test-utils.js";
@@ -65,7 +64,7 @@ const galleryTemplates = loadTemplate("gallery.html");
 describe("Template selector contracts", () => {
   describe("All template IDs exist in HTML", () => {
     for (const [key, id] of Object.entries(IDS)) {
-      it(`template "${id}" (${key}) exists`, () => {
+      test(`template "${id}" (${key}) exists`, () => {
         let found = false;
         for (const dom of [
           calendarTemplates,
@@ -77,10 +76,7 @@ describe("Template selector contracts", () => {
             break;
           }
         }
-        assert.ok(
-          found,
-          `Template with id="${id}" not found in any template file`,
-        );
+        expect(found).toBe(true);
       });
     }
   });
@@ -104,10 +100,10 @@ describe("Selector constants usage verification", () => {
     .join("\n");
 
   describe("IDS are used in JS", () => {
-    for (const [key, id] of Object.entries(IDS)) {
-      it(`IDS.${key} is used`, () => {
+    for (const [key, _id] of Object.entries(IDS)) {
+      test(`IDS.${key} is used`, () => {
         const isUsed = jsContent.includes(`IDS.${key}`);
-        assert.ok(isUsed, `IDS.${key} (${id}) is defined but not used`);
+        expect(isUsed).toBe(true);
       });
     }
   });
@@ -122,13 +118,9 @@ describe("HTML templates use Liquid selectors for IDs", () => {
 
     const content = fs.readFileSync(filepath, "utf-8");
 
-    it(`${filename} uses Liquid selectors for template IDs`, () => {
+    test(`${filename} uses Liquid selectors for template IDs`, () => {
       const hardcodedIds = content.match(/id="[^{][^"]*-template"/g) || [];
-      assert.strictEqual(
-        hardcodedIds.length,
-        0,
-        `Found hardcoded template IDs: ${hardcodedIds.join(", ")}`,
-      );
+      expect(hardcodedIds.length).toBe(0);
     });
   }
 });

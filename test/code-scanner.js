@@ -2,6 +2,7 @@
  * Code scanner utilities for code quality tests.
  * Written in a functional, immutable style.
  */
+import { expect } from "bun:test";
 import { fs, path, rootDir } from "#test/test-utils.js";
 
 // ============================================
@@ -143,14 +144,12 @@ const formatViolationReport = (violations, options = {}) => {
 
 /**
  * Assert no violations, logging report if any found.
+ * Uses Bun's expect internally.
  */
-const assertNoViolations = (expectTrue, violations, options = {}) => {
+const assertNoViolations = (violations, options = {}) => {
   const { count, report } = formatViolationReport(violations, options);
   if (report) console.log(report);
-  expectTrue(
-    count === 0,
-    `Found ${count} ${options.message || "violations"}. See above.`,
-  );
+  expect(count).toBe(0);
 };
 
 /**

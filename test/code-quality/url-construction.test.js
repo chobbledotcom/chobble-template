@@ -1,14 +1,11 @@
+import { describe, expect, test } from "bun:test";
 import {
   analyzeFiles,
   assertNoViolations,
   matchAny,
   scanLines,
 } from "#test/code-scanner.js";
-import {
-  createTestRunner,
-  expectTrue,
-  SRC_JS_FILES,
-} from "#test/test-utils.js";
+import { SRC_JS_FILES } from "#test/test-utils.js";
 
 // Patterns that indicate hardcoded URL construction instead of using
 // Eleventy's permalink system or strings configuration.
@@ -102,71 +99,44 @@ const analyzeHardcodedUrls = () =>
     { excludeFiles: [...ALLOWED_FILES] },
   );
 
-const testCases = [
-  {
-    name: "detect-hardcoded-events-url",
-    description: "Detects hardcoded /events/ URL pattern",
-    test: () => {
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
-      const source = "const url = `/events/${slug}/`;";
-      const results = findHardcodedUrls(source);
-      expectTrue(results.length === 1, "Should detect hardcoded /events/ URL");
-    },
-  },
-  {
-    name: "detect-hardcoded-products-url",
-    description: "Detects hardcoded /products/ URL pattern",
-    test: () => {
-      const source = 'const url = "/products/" + productSlug;';
-      const results = findHardcodedUrls(source);
-      expectTrue(
-        results.length === 1,
-        "Should detect hardcoded /products/ URL",
-      );
-    },
-  },
-  {
-    name: "allow-comments",
-    description: "Allows hardcoded URLs in comments",
-    test: () => {
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
-      const source = "// Example: `/events/${slug}/`";
-      const results = findHardcodedUrls(source);
-      expectTrue(results.length === 0, "Should allow URLs in comments");
-    },
-  },
-  {
-    name: "allow-url-parsing",
-    description: "Allows URL splitting/parsing operations",
-    test: () => {
-      const source = 'const parts = url.split("/events/");';
-      const results = findHardcodedUrls(source);
-      expectTrue(results.length === 0, "Should allow URL parsing");
-    },
-  },
-  {
-    name: "allow-strings-config-usage",
-    description: "Allows URL construction using strings config",
-    test: () => {
-      const source = `const url = \`/\${strings.event_permalink_dir}/\${fileSlug}/\`;`;
-      const results = findHardcodedUrls(source);
-      expectTrue(
-        results.length === 0,
-        "Should allow strings config URL construction",
-      );
-    },
-  },
-  {
-    name: "no-hardcoded-urls-in-src",
-    description: "No hardcoded collection URLs in src/_lib JavaScript files",
-    test: () => {
-      const violations = analyzeHardcodedUrls();
-      assertNoViolations(expectTrue, violations, {
-        message: "hardcoded URL constructions",
-        fixHint: "Use strings.*_permalink_dir and/or check for data.permalink",
-      });
-    },
-  },
-];
+describe("url-construction", () => {
+  test("Detects hardcoded /events/ URL pattern", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
+    const source = "const url = `/events/${slug}/`;";
+    const results = findHardcodedUrls(source);
+    expect(results.length).toBe(1);
+  });
 
-createTestRunner("url-construction", testCases);
+  test("Detects hardcoded /products/ URL pattern", () => {
+    const source = 'const url = "/products/" + productSlug;';
+    const results = findHardcodedUrls(source);
+    expect(results.length).toBe(1);
+  });
+
+  test("Allows hardcoded URLs in comments", () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
+    const source = "// Example: `/events/${slug}/`";
+    const results = findHardcodedUrls(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Allows URL splitting/parsing operations", () => {
+    const source = 'const parts = url.split("/events/");';
+    const results = findHardcodedUrls(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Allows URL construction using strings config", () => {
+    const source = `const url = \`/\${strings.event_permalink_dir}/\${fileSlug}/\`;`;
+    const results = findHardcodedUrls(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("No hardcoded collection URLs in src/_lib JavaScript files", () => {
+    const violations = analyzeHardcodedUrls();
+    assertNoViolations(violations, {
+      message: "hardcoded URL constructions",
+      fixHint: "Use strings.*_permalink_dir and/or check for data.permalink",
+    });
+  });
+});
