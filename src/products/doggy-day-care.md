@@ -9,19 +9,19 @@ keywords:
 product_mode: hire
 options:
   - name: 1 Day
-    unit_price: 30
+    unit_price: "£30"
     days: 1
     sku: KQFRY0
   - name: 2 Days
-    unit_price: 45
+    unit_price: "£45"
     days: 2
     sku: R5UK65
   - name: 3 Days
-    unit_price: 55
+    unit_price: "£55"
     days: 3
     sku: 2ICDWV
   - name: 4 Days
-    unit_price: 65
+    unit_price: "£65"
     days: 4
     sku: IEI6S8
 header_image: /images/placeholder-wide-3.jpg

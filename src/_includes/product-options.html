@@ -1,42 +1,26 @@
 {%- assign mode = product_mode | default: config.product_mode -%}
 {%- if config.cart_mode and cart_attributes -%}
-  {%- if mode == "hire" -%}
-    {%- comment -%}For hire products, show single button with lowest-days option price{%- endcomment -%}
-    {%- assign hire_options = options | where_exp: "opt", "opt.days" | sort: "days" -%}
-    {%- if hire_options.size > 0 -%}
-      <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
-      <button
-        class="add-to-cart"
-        data-item="{{ cart_attributes }}"
-      >
-        Add to Quote - from £{{ hire_options.first.unit_price }}
-      </button>
-    {%- endif -%}
-  {%- elsif options.size == 1 -%}
-    <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
-    <button
-      class="add-to-cart"
-      data-item="{{ cart_attributes }}"
-    >
-      Add to Cart - £{{ options.first.unit_price }}
-    </button>
-  {%- else -%}
-    <div>
-      <select class="product-options-select">
-        <option value="" disabled selected>Please select option</option>
-        {%- for option in options -%}
-        <option value="{{ forloop.index0 }}">
-          {{- option.name }} - £{{ option.unit_price -}}
-        </option>
-        {%- endfor -%}
-      </select>
-      <button
-        class="add-to-cart product-option-button"
-        data-item="{{ cart_attributes }}"
-        disabled
-      >
-        Add to Cart
-      </button>
-    </div>
-  {%- endif -%}
+{%- if mode == "hire" -%}
+<noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
+<button class="add-to-cart" data-item="{{ cart_attributes }}">
+  Add to Quote - from £{{ options.first.unit_price }}
+</button>
+{%- elsif options.size == 1 -%}
+<noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
+<button class="add-to-cart" data-item="{{ cart_attributes }}">
+  Add to Cart - £{{ options.first.unit_price }}
+</button>
+{%- else -%}
+<div>
+  <select class="product-options-select">
+    <option value="" disabled selected>Please select option</option>
+    {%- for option in options -%}
+    <option value="{{ forloop.index0 }}">{{ option.name }} - £{{ option.unit_price }}</option>
+    {%- endfor -%}
+  </select>
+  <button class="add-to-cart product-option-button" data-item="{{ cart_attributes }}" disabled>
+    Add to Cart
+  </button>
+</div>
+{%- endif -%}
 {%- endif -%}

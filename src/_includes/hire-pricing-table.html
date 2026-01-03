@@ -1,11 +1,8 @@
 {%- assign mode = product_mode | default: config.product_mode -%}
 {%- if mode == "hire" and options.size > 0 -%}
-  {%- assign hire_options = options | where_exp: "opt", "opt.days" | sort: "days" -%}
-  {%- if hire_options.size > 0 -%}
-    <ul class="hire-prices">
-      {%- for opt in hire_options -%}
-        <li><strong>{{ opt.days }} day{% if opt.days != 1 %}s{% endif %}:</strong> £{{ opt.unit_price }}</li>
-      {%- endfor -%}
-    </ul>
-  {%- endif -%}
+<ul class="hire-prices">
+  {%- for opt in options -%}
+  <li><strong>{{ opt.days }} day{% if opt.days != 1 %}s{% endif %}:</strong> £{{ opt.unit_price }}</li>
+  {%- endfor -%}
+</ul>
 {%- endif -%}
