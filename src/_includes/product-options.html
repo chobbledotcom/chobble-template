@@ -1,4 +1,5 @@
-{%- if config.cart_mode and cart_attributes -%}
+{%- assign mode = product_mode | default: config.product_mode -%}
+{%- if config.cart_mode and cart_attributes and mode != "hire" -%}
   {%- if options.size == 1 -%}
     <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
     <button
