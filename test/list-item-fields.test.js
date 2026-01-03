@@ -1,44 +1,120 @@
-import listItemFields from "#data/listItemFields.js";
-import { createTestRunner } from "#test/test-utils.js";
-
-const DEFAULT_FIELDS = [
-  "thumbnail",
-  "link",
-  "price",
-  "date",
-  "subtitle",
-  "location",
-  "event-date",
-  "cart-button",
-];
+import listItemFields, {
+  DEFAULT_FIELDS,
+  selectListItemFields,
+} from "#data/listItemFields.js";
+import {
+  createTestRunner,
+  expectDeepEqual,
+  expectStrictEqual,
+  expectTrue,
+} from "#test/test-utils.js";
 
 const testCases = [
   {
-    name: "listItemFields-is-array",
+    name: "exports-array",
     description: "listItemFields exports an array",
     test: () => {
-      if (!Array.isArray(listItemFields)) {
-        throw new Error("listItemFields should be an array");
-      }
+      expectTrue(
+        Array.isArray(listItemFields),
+        "listItemFields should be an array",
+      );
     },
   },
   {
-    name: "listItemFields-not-empty",
+    name: "exports-non-empty-array",
     description: "listItemFields is not empty",
     test: () => {
-      if (listItemFields.length === 0) {
-        throw new Error("listItemFields should not be empty");
-      }
+      expectTrue(
+        listItemFields.length > 0,
+        "listItemFields should not be empty",
+      );
     },
   },
   {
-    name: "listItemFields-valid-fields",
-    description: "listItemFields contains only valid field names",
+    name: "selectListItemFields-returns-config-when-valid-array",
+    description:
+      "selectListItemFields returns config fields when given a non-empty array",
     test: () => {
-      for (const field of listItemFields) {
-        if (!DEFAULT_FIELDS.includes(field)) {
-          throw new Error(`Invalid field name: ${field}`);
-        }
+      const configFields = ["link", "price"];
+      const result = selectListItemFields(configFields);
+      expectDeepEqual(result, configFields, "Should return the config array");
+    },
+  },
+  {
+    name: "selectListItemFields-returns-defaults-for-empty-array",
+    description:
+      "selectListItemFields returns DEFAULT_FIELDS when given an empty array",
+    test: () => {
+      const result = selectListItemFields([]);
+      expectDeepEqual(
+        result,
+        DEFAULT_FIELDS,
+        "Should return DEFAULT_FIELDS for empty array",
+      );
+    },
+  },
+  {
+    name: "selectListItemFields-returns-defaults-for-null",
+    description: "selectListItemFields returns DEFAULT_FIELDS when given null",
+    test: () => {
+      const result = selectListItemFields(null);
+      expectDeepEqual(
+        result,
+        DEFAULT_FIELDS,
+        "Should return DEFAULT_FIELDS for null",
+      );
+    },
+  },
+  {
+    name: "selectListItemFields-returns-defaults-for-undefined",
+    description:
+      "selectListItemFields returns DEFAULT_FIELDS when given undefined",
+    test: () => {
+      const result = selectListItemFields(undefined);
+      expectDeepEqual(
+        result,
+        DEFAULT_FIELDS,
+        "Should return DEFAULT_FIELDS for undefined",
+      );
+    },
+  },
+  {
+    name: "selectListItemFields-returns-defaults-for-non-array",
+    description:
+      "selectListItemFields returns DEFAULT_FIELDS when given a non-array value",
+    test: () => {
+      const result = selectListItemFields("not-an-array");
+      expectDeepEqual(
+        result,
+        DEFAULT_FIELDS,
+        "Should return DEFAULT_FIELDS for string",
+      );
+    },
+  },
+  {
+    name: "default-fields-contains-expected-values",
+    description: "DEFAULT_FIELDS contains all expected field names",
+    test: () => {
+      const expected = [
+        "thumbnail",
+        "link",
+        "price",
+        "date",
+        "subtitle",
+        "location",
+        "event-date",
+        "cart-button",
+      ];
+      expectStrictEqual(
+        DEFAULT_FIELDS.length,
+        expected.length,
+        "DEFAULT_FIELDS should have correct number of fields",
+      );
+      for (const field of expected) {
+        expectTrue(
+          DEFAULT_FIELDS.includes(field),
+          `DEFAULT_FIELDS should include "${field}"`,
+        );
       }
     },
   },
