@@ -89,17 +89,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAsyncTestsWithoutAwait",
   "findAssertionsWithoutMessages",
   "findTautologicalAssertions",
-  // html-in-js.test.js - createHtmlInJsChecker factory and its methods
-  "createHtmlInJsChecker",
-  "isCommentLine",
+  // html-in-js.test.js - HTML detection helpers
   "extractStringContent",
-  "containsHtml",
   "findHtmlInJs",
   "analyzeHtmlInJs",
-  // commented-code.test.js - createCommentedCodeChecker factory and its methods
-  "createCommentedCodeChecker",
-  "isInsideTemplateLiteral",
-  "isDocumentationComment",
+  // commented-code.test.js - commented code detection helpers
   "findCommentedCode",
   "analyzeCommentedCode",
   // strings.test.js

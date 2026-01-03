@@ -27,6 +27,22 @@ const isCommentLine = (line) =>
   COMMENT_LINE_PATTERNS.some((pattern) => pattern.test(line.trim()));
 
 /**
+ * Check if a line index is inside an unclosed template literal.
+ * Counts backticks in all preceding lines to determine if we're in a template.
+ * @param {string[]} lines - All lines of source
+ * @param {number} lineIndex - 0-based index of current line
+ * @returns {boolean}
+ */
+const isInsideTemplateLiteral = (lines, lineIndex) => {
+  let backtickCount = 0;
+  for (let i = 0; i < lineIndex; i++) {
+    const matches = lines[i].match(/(?<!\\)`/g);
+    if (matches) backtickCount += matches.length;
+  }
+  return backtickCount % 2 === 1;
+};
+
+/**
  * Read a file's source code.
  */
 const readSource = (relativePath) =>
@@ -292,6 +308,7 @@ export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
   isCommentLine,
+  isInsideTemplateLiteral,
   // File reading
   readSource,
   toLines,
