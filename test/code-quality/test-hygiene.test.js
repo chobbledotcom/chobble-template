@@ -59,6 +59,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findMutableVarDeclarations",
   "isAllowedLetPattern",
   "analyzeMutableVarUsage",
+  "isMutableConstPattern",
+  "findMutableConstDeclarations",
+  "analyzeMutableConstUsage",
   // loose-equality.test.js - analysis helpers
   "findLooseEquality",
   "analyzeLooseEquality",
@@ -171,6 +174,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "formatViolationReport",
   "assertNoViolations",
   "createPatternMatcher",
+  "validateExceptions",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
   // template.test.js - isolated DOM testing helpers

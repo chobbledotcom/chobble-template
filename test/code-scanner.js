@@ -230,6 +230,56 @@ const createCodeChecker = (config) => {
   return { find, analyze };
 };
 
+/**
+ * Validate that exception entries still refer to lines containing the expected pattern.
+ * Returns stale entries that no longer exist or no longer match.
+ *
+ * @param {Set<string>} allowlist - Set of "file:line" or "file" entries
+ * @param {RegExp|RegExp[]} patterns - Pattern(s) the line should match
+ * @returns {Array<{entry: string, reason: string}>} Stale entries
+ */
+const validateExceptions = (allowlist, patterns) => {
+  const patternList = [patterns].flat();
+  const stale = [];
+
+  for (const entry of allowlist) {
+    // Skip file-only entries (no line number)
+    if (!entry.includes(":")) continue;
+
+    const [filePath, lineNumStr] = entry.split(":");
+    const lineNum = parseInt(lineNumStr, 10);
+
+    try {
+      const source = readSource(filePath);
+      const lines = source.split("\n");
+
+      // Check if line exists
+      if (lineNum > lines.length || lineNum < 1) {
+        stale.push({
+          entry,
+          reason: `Line ${lineNum} doesn't exist (file has ${lines.length} lines)`,
+        });
+        continue;
+      }
+
+      // Check if line matches pattern
+      const line = lines[lineNum - 1];
+      const matches = patternList.some((p) => p.test(line));
+
+      if (!matches) {
+        stale.push({
+          entry,
+          reason: `Line no longer matches pattern: "${line.trim().slice(0, 50)}..."`,
+        });
+      }
+    } catch {
+      stale.push({ entry, reason: `File not found: ${filePath}` });
+    }
+  }
+
+  return stale;
+};
+
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
@@ -253,4 +303,6 @@ export {
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
+  // Exception validation
+  validateExceptions,
 };

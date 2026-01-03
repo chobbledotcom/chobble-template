@@ -7,6 +7,7 @@ import {
   analyzeFiles,
   assertNoViolations,
   createCodeChecker,
+  validateExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -212,5 +213,28 @@ const filled = [1, 2, 3];
       }
     }
     expect(true).toBe(true);
+  });
+
+  // Exception validation tests
+  test("ALLOWED_LET_USAGE entries still exist and match pattern", () => {
+    const stale = validateExceptions(ALLOWED_LET_USAGE, /^\s*let\s+\w+/);
+    if (stale.length > 0) {
+      console.log("\n  Stale ALLOWED_LET_USAGE entries:");
+      for (const s of stale) {
+        console.log(`    - ${s.entry}: ${s.reason}`);
+      }
+    }
+    expect(stale.length).toBe(0);
+  });
+
+  test("ALLOWED_MUTABLE_CONST entries still exist and match pattern", () => {
+    const stale = validateExceptions(ALLOWED_MUTABLE_CONST, MUTABLE_CONST_PATTERNS);
+    if (stale.length > 0) {
+      console.log("\n  Stale ALLOWED_MUTABLE_CONST entries:");
+      for (const s of stale) {
+        console.log(`    - ${s.entry}: ${s.reason}`);
+      }
+    }
+    expect(stale.length).toBe(0);
   });
 });
