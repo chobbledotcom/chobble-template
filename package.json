@@ -29,7 +29,7 @@
 	},
 	"devDependencies": {
 		"@happy-dom/global-registrator": "^20.0.11",
-		"happy-dom": "^18.0.1",
+		"happy-dom": "^20.0.11",
 		"jscpd": "^4.0.5",
 		"knip": "^5.38.0"
 	},
