@@ -716,6 +716,14 @@ ul.items {
   & > * {
     width: 14rem;
     max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+    & > * {
+      padding: 0;
+      margin: 0;
+    }
   }
   h3,
   p {
