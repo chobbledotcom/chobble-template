@@ -29,9 +29,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .image-cache
-          key: ${{ runner.os }}-images-${{ hashFiles('src/images/**/*') }}
+          key: images-${{ hashFiles('src/images/**/*') }}
           restore-keys: |
-            ${{ runner.os }}-images-
+            images-
 
       - name: Update config.json with secrets
         run: |
