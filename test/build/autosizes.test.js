@@ -1,13 +1,8 @@
+import { describe, test, expect } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import { JSDOM } from "jsdom";
-import {
-  createTestRunner,
-  expectFalse,
-  expectStrictEqual,
-  expectTrue,
-  rootDir,
-} from "#test/test-utils.js";
+import { rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Load actual autosizes.js source
@@ -119,307 +114,6 @@ const runAutosizes = (window, img) => {
   return img;
 };
 
-// ============================================
-// Feature Detection Tests
-// ============================================
-
-const featureDetectionTests = [
-  {
-    name: "skips-polyfill-when-no-performance-observer",
-    description: "Does not run polyfill when PerformanceObserver is missing",
-    test: () => {
-      const { window, img } = createTestEnv({
-        userAgent: "Mozilla/5.0 Chrome/120",
-        hasPerfObserver: false,
-      });
-      runAutosizes(window, img);
-      expectTrue(
-        img.hasAttribute("src"),
-        "src should remain when polyfill skipped",
-      );
-    },
-  },
-  {
-    name: "skips-polyfill-when-no-paint-timing-support",
-    description: "Does not run polyfill when paint timing not supported",
-    test: () => {
-      const { window, img } = createTestEnv({
-        userAgent: "Mozilla/5.0 Chrome/120",
-        supportsPaint: false,
-      });
-      runAutosizes(window, img);
-      expectTrue(
-        img.hasAttribute("src"),
-        "src should remain when polyfill skipped",
-      );
-    },
-  },
-  {
-    name: "skips-polyfill-for-chrome-126-plus",
-    description: "Does not run polyfill for Chrome 126+",
-    test: () => {
-      const { window, img } = createTestEnv({
-        userAgent: "Mozilla/5.0 Chrome/126",
-      });
-      runAutosizes(window, img);
-      expectTrue(img.hasAttribute("src"), "src should remain for Chrome 126+");
-    },
-  },
-  {
-    name: "runs-polyfill-for-chrome-125",
-    description: "Runs polyfill for Chrome 125 (older than 126)",
-    test: () => {
-      const { window, img } = createTestEnv({
-        userAgent: "Mozilla/5.0 Chrome/125",
-      });
-      runAutosizes(window, img);
-      expectFalse(
-        img.hasAttribute("src"),
-        "src should be removed for Chrome 125",
-      );
-      expectTrue(
-        img.hasAttribute("data-auto-sizes-src"),
-        "src should be stored in data attribute",
-      );
-    },
-  },
-  {
-    name: "runs-polyfill-for-non-chrome-browsers",
-    description: "Runs polyfill for non-Chrome browsers (Firefox, Safari)",
-    test: () => {
-      const { window, img } = createTestEnv({
-        userAgent: "Mozilla/5.0 Firefox/120",
-      });
-      runAutosizes(window, img);
-      expectFalse(
-        img.hasAttribute("src"),
-        "src should be removed for non-Chrome",
-      );
-    },
-  },
-];
-
-// ============================================
-// Image Filtering Tests
-// ============================================
-
-const imageFilteringTests = [
-  {
-    name: "ignores-images-without-sizes-auto",
-    description: "Does not process images without sizes=auto",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: { src: "/image.jpg", sizes: "100vw", loading: "lazy" },
-      });
-      runAutosizes(window, img);
-      expectTrue(
-        img.hasAttribute("src"),
-        "src should remain for non-auto sizes",
-      );
-    },
-  },
-  {
-    name: "ignores-images-without-loading-lazy",
-    description: "Does not process images without loading=lazy",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: { src: "/image.jpg", sizes: "auto", loading: "eager" },
-      });
-      runAutosizes(window, img);
-      expectTrue(
-        img.hasAttribute("src"),
-        "src should remain for non-lazy loading",
-      );
-    },
-  },
-  {
-    name: "ignores-remote-http-images",
-    description: "Does not process remote images with http:// URLs",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "http://example.com/image.jpg",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expectTrue(img.hasAttribute("src"), "src should remain for http:// URLs");
-    },
-  },
-  {
-    name: "ignores-remote-https-images",
-    description: "Does not process remote images with https:// URLs",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "https://example.com/image.jpg",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expectTrue(
-        img.hasAttribute("src"),
-        "src should remain for https:// URLs",
-      );
-    },
-  },
-  {
-    name: "processes-local-images",
-    description: "Processes local images with relative paths",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: { src: "/images/photo.jpg", sizes: "auto", loading: "lazy" },
-      });
-      runAutosizes(window, img);
-      expectFalse(
-        img.hasAttribute("src"),
-        "src should be removed for local images",
-      );
-      expectStrictEqual(
-        img.getAttribute("data-auto-sizes-src"),
-        "/images/photo.jpg",
-        "Original src should be stored",
-      );
-    },
-  },
-  {
-    name: "handles-sizes-auto-with-fallback",
-    description: "Processes images with sizes='auto, 100vw' format",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: { src: "/image.jpg", sizes: "auto, 100vw", loading: "lazy" },
-      });
-      runAutosizes(window, img);
-      expectFalse(
-        img.hasAttribute("src"),
-        "src should be removed for auto sizes with fallback",
-      );
-    },
-  },
-];
-
-// ============================================
-// Attribute Deferral Tests
-// ============================================
-
-const attributeDeferralTests = [
-  {
-    name: "defers-src-attribute",
-    description: "Moves src to data-auto-sizes-src before FCP",
-    test: () => {
-      const { window, img } = createTestEnv();
-      runAutosizes(window, img);
-      expectFalse(img.hasAttribute("src"), "src should be removed");
-      expectStrictEqual(
-        img.getAttribute("data-auto-sizes-src"),
-        "/image.jpg",
-        "src should be stored in data attribute",
-      );
-    },
-  },
-  {
-    name: "defers-srcset-attribute",
-    description: "Moves srcset to data-auto-sizes-srcset before FCP",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "/image.jpg",
-          srcset: "/image-300.jpg 300w, /image-600.jpg 600w",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expectFalse(img.hasAttribute("srcset"), "srcset should be removed");
-      expectStrictEqual(
-        img.getAttribute("data-auto-sizes-srcset"),
-        "/image-300.jpg 300w, /image-600.jpg 600w",
-        "srcset should be stored in data attribute",
-      );
-    },
-  },
-  {
-    name: "defers-both-src-and-srcset",
-    description: "Moves both src and srcset to data attributes",
-    test: () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "/image.jpg",
-          srcset: "/image-300.jpg 300w",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expectFalse(img.hasAttribute("src"), "src should be removed");
-      expectFalse(img.hasAttribute("srcset"), "srcset should be removed");
-      expectTrue(
-        img.hasAttribute("data-auto-sizes-src"),
-        "src should be stored",
-      );
-      expectTrue(
-        img.hasAttribute("data-auto-sizes-srcset"),
-        "srcset should be stored",
-      );
-    },
-  },
-];
-
-// ============================================
-// FCP Restoration Tests
-// ============================================
-
-const fcpRestorationTests = [
-  {
-    name: "restores-attributes-after-fcp",
-    description: "Restores src and srcset after FCP fires",
-    asyncTest: async () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "/image.jpg",
-          srcset: "/image-300.jpg 300w",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expectFalse(img.hasAttribute("src"), "src should be deferred initially");
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expectStrictEqual(
-        img.getAttribute("src"),
-        "/image.jpg",
-        "src should be restored after FCP",
-      );
-      expectStrictEqual(
-        img.getAttribute("srcset"),
-        "/image-300.jpg 300w",
-        "srcset should be restored after FCP",
-      );
-    },
-  },
-  {
-    name: "removes-data-attributes-after-restore",
-    description: "Cleans up data-auto-sizes-* attributes after restoration",
-    asyncTest: async () => {
-      const { window, img } = createTestEnv();
-      runAutosizes(window, img);
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      expectFalse(
-        img.hasAttribute("data-auto-sizes-src"),
-        "data attribute should be removed after restore",
-      );
-    },
-  },
-];
-
-// ============================================
-// Multiple Images Tests
-// ============================================
-
 /**
  * Create an image element with given attributes.
  */
@@ -429,12 +123,181 @@ const makeImg = (window, attrs) => {
   return img;
 };
 
-const multipleImagesTests = [
-  {
-    name: "processes-multiple-qualifying-images",
-    description: "Defers all images with sizes=auto and loading=lazy",
-    test: () => {
-      // Use createTestEnv but skip the default image by passing empty imgAttrs
+describe("autosizes", () => {
+  describe("Feature detection", () => {
+    test("Does not run polyfill when PerformanceObserver is missing", () => {
+      const { window, img } = createTestEnv({
+        userAgent: "Mozilla/5.0 Chrome/120",
+        hasPerfObserver: false,
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Does not run polyfill when paint timing not supported", () => {
+      const { window, img } = createTestEnv({
+        userAgent: "Mozilla/5.0 Chrome/120",
+        supportsPaint: false,
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Does not run polyfill for Chrome 126+", () => {
+      const { window, img } = createTestEnv({
+        userAgent: "Mozilla/5.0 Chrome/126",
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Runs polyfill for Chrome 125 (older than 126)", () => {
+      const { window, img } = createTestEnv({
+        userAgent: "Mozilla/5.0 Chrome/125",
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+      expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
+    });
+
+    test("Runs polyfill for non-Chrome browsers (Firefox, Safari)", () => {
+      const { window, img } = createTestEnv({
+        userAgent: "Mozilla/5.0 Firefox/120",
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+    });
+  });
+
+  describe("Image filtering", () => {
+    test("Does not process images without sizes=auto", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: { src: "/image.jpg", sizes: "100vw", loading: "lazy" },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Does not process images without loading=lazy", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: { src: "/image.jpg", sizes: "auto", loading: "eager" },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Does not process remote images with http:// URLs", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: {
+          src: "http://example.com/image.jpg",
+          sizes: "auto",
+          loading: "lazy",
+        },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Does not process remote images with https:// URLs", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: {
+          src: "https://example.com/image.jpg",
+          sizes: "auto",
+          loading: "lazy",
+        },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    });
+
+    test("Processes local images with relative paths", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: { src: "/images/photo.jpg", sizes: "auto", loading: "lazy" },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+      expect(img.getAttribute("data-auto-sizes-src")).toBe("/images/photo.jpg");
+    });
+
+    test("Processes images with sizes='auto, 100vw' format", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: { src: "/image.jpg", sizes: "auto, 100vw", loading: "lazy" },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+    });
+  });
+
+  describe("Attribute deferral", () => {
+    test("Moves src to data-auto-sizes-src before FCP", () => {
+      const { window, img } = createTestEnv();
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+      expect(img.getAttribute("data-auto-sizes-src")).toBe("/image.jpg");
+    });
+
+    test("Moves srcset to data-auto-sizes-srcset before FCP", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: {
+          src: "/image.jpg",
+          srcset: "/image-300.jpg 300w, /image-600.jpg 600w",
+          sizes: "auto",
+          loading: "lazy",
+        },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("srcset")).toBe(false);
+      expect(img.getAttribute("data-auto-sizes-srcset")).toBe(
+        "/image-300.jpg 300w, /image-600.jpg 600w",
+      );
+    });
+
+    test("Moves both src and srcset to data attributes", () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: {
+          src: "/image.jpg",
+          srcset: "/image-300.jpg 300w",
+          sizes: "auto",
+          loading: "lazy",
+        },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+      expect(img.hasAttribute("srcset")).toBe(false);
+      expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
+      expect(img.hasAttribute("data-auto-sizes-srcset")).toBe(true);
+    });
+  });
+
+  describe("FCP restoration", () => {
+    test("Restores src and srcset after FCP fires", async () => {
+      const { window, img } = createTestEnv({
+        imgAttrs: {
+          src: "/image.jpg",
+          srcset: "/image-300.jpg 300w",
+          sizes: "auto",
+          loading: "lazy",
+        },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(false);
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(img.getAttribute("src")).toBe("/image.jpg");
+      expect(img.getAttribute("srcset")).toBe("/image-300.jpg 300w");
+    });
+
+    test("Cleans up data-auto-sizes-* attributes after restoration", async () => {
+      const { window, img } = createTestEnv();
+      runAutosizes(window, img);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(img.hasAttribute("data-auto-sizes-src")).toBe(false);
+    });
+  });
+
+  describe("Multiple images", () => {
+    test("Defers all images with sizes=auto and loading=lazy", () => {
       const { window } = createTestEnv({ imgAttrs: {} });
       const container = window.document.getElementById("container");
 
@@ -460,25 +323,14 @@ const multipleImagesTests = [
 
       window.eval(AUTOSIZES_SCRIPT);
 
-      expectFalse(img1.hasAttribute("src"), "img1 src should be deferred");
-      expectFalse(img2.hasAttribute("src"), "img2 src should be deferred");
-      expectTrue(
-        img3.hasAttribute("src"),
-        "img3 src should remain (no auto sizes)",
-      );
-    },
-  },
-];
+      expect(img1.hasAttribute("src")).toBe(false);
+      expect(img2.hasAttribute("src")).toBe(false);
+      expect(img3.hasAttribute("src")).toBe(true);
+    });
+  });
 
-// ============================================
-// Turbo Navigation Tests
-// ============================================
-
-const turboNavigationTests = [
-  {
-    name: "handles-turbo-load-event",
-    description: "Re-initializes on turbo:load event",
-    test: () => {
+  describe("Turbo navigation", () => {
+    test("Re-initializes on turbo:load event", () => {
       const { window } = createTestEnv({ imgAttrs: {} });
       window.eval(AUTOSIZES_SCRIPT);
 
@@ -492,22 +344,7 @@ const turboNavigationTests = [
       const turboEvent = new window.Event("turbo:load");
       window.document.dispatchEvent(turboEvent);
 
-      expectTrue(true, "turbo:load event handled without error");
-    },
-  },
-];
-
-// ============================================
-// Combine and run all tests
-// ============================================
-
-const allTestCases = [
-  ...featureDetectionTests,
-  ...imageFilteringTests,
-  ...attributeDeferralTests,
-  ...fcpRestorationTests,
-  ...multipleImagesTests,
-  ...turboNavigationTests,
-];
-
-createTestRunner("autosizes", allTestCases);
+      expect(true).toBe(true);
+    });
+  });
+});

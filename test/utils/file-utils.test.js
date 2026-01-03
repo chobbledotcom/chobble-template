@@ -1,3 +1,4 @@
+import { describe, test, expect } from "bun:test";
 import {
   configureFileUtils,
   createMarkdownRenderer,
@@ -10,302 +11,194 @@ import {
   cleanupTempDir,
   createMockEleventyConfig,
   createTempSnippetsDir,
-  createTestRunner,
-  expectFalse,
-  expectFunctionType,
-  expectStrictEqual,
-  expectTrue,
   fs,
   withMockedCwd,
   withTempDir,
   withTempFile,
 } from "#test/test-utils.js";
 
-const testCases = [
-  {
-    name: "createMarkdownRenderer-default",
-    description: "Creates markdown renderer with default options",
-    test: () => {
-      const renderer = createMarkdownRenderer();
-      expectFunctionType(renderer, "render", "Should have render function");
+describe("file-utils", () => {
+  test("Creates markdown renderer with default options", () => {
+    const renderer = createMarkdownRenderer();
+    expect(typeof renderer.render).toBe("function");
 
-      const result = renderer.render("# Hello\n\nWorld");
-      expectTrue(result.includes("<h1>"), "Should render markdown to HTML");
-      expectTrue(result.includes("Hello"), "Should include content");
-    },
-  },
-  {
-    name: "createMarkdownRenderer-custom",
-    description: "Creates markdown renderer with custom options",
-    test: () => {
-      const renderer = createMarkdownRenderer({ html: false });
-      expectFunctionType(renderer, "render", "Should have render function");
+    const result = renderer.render("# Hello\n\nWorld");
+    expect(result.includes("<h1>")).toBe(true);
+    expect(result.includes("Hello")).toBe(true);
+  });
 
-      const result = renderer.render("<div>HTML</div>");
-      expectFalse(
-        result.includes("<div>"),
-        "Should not allow HTML when html: false",
-      );
-    },
-  },
-  {
-    name: "fileExists-true",
-    description: "Returns true for existing files",
-    test: () => {
-      withTempFile("fileExists", "test.txt", "test content", (tempDir) => {
-        const result = fileExists("test.txt", tempDir);
-        expectTrue(result, "Should return true for existing file");
-      });
-    },
-  },
-  {
-    name: "fileExists-false",
-    description: "Returns false for non-existing files",
-    test: () => {
-      withTempDir("fileExists-false", (tempDir) => {
-        const result = fileExists("nonexistent.txt", tempDir);
-        expectFalse(result, "Should return false for non-existing file");
-      });
-    },
-  },
-  {
-    name: "fileExists-default-cwd",
-    description: "Uses process.cwd() as default base directory",
-    test: () => {
-      // Create a temp file in current working directory to test
-      withTempFile(
-        "default-cwd",
-        "test-file.txt",
-        "content",
-        (tempDir, _filePath) => {
-          // Change to temp dir and test without specifying baseDir
-          const originalCwd = process.cwd();
-          try {
-            process.chdir(tempDir);
-            const result = fileExists("test-file.txt");
-            expectTrue(result, "Should find file using process.cwd() as base");
-          } finally {
-            process.chdir(originalCwd);
-          }
-        },
-      );
-    },
-  },
-  {
-    name: "fileMissing-inverse",
-    description: "Returns inverse of fileExists",
-    test: () => {
-      withTempFile("fileMissing", "test.txt", "test content", (tempDir) => {
-        expectFalse(
-          fileMissing("test.txt", tempDir),
-          "Should return false for existing file",
-        );
-        expectTrue(
-          fileMissing("nonexistent.txt", tempDir),
-          "Should return true for non-existing file",
-        );
-      });
-    },
-  },
-  {
-    name: "readFileContent-exists",
-    description: "Reads content from existing file",
-    test: () => {
-      const content = "Hello, World!";
-      withTempFile("readFile", "test.txt", content, (tempDir) => {
-        const result = readFileContent("test.txt", tempDir);
-        expectStrictEqual(result, content, "Should return file content");
-      });
-    },
-  },
-  {
-    name: "readFileContent-missing",
-    description: "Returns empty string for missing file",
-    test: () => {
-      withTempDir("readFile-missing", (tempDir) => {
-        const result = readFileContent("nonexistent.txt", tempDir);
-        expectStrictEqual(
-          result,
-          "",
-          "Should return empty string for missing file",
-        );
-      });
-    },
-  },
-  {
-    name: "renderSnippet-exists",
-    description: "Renders existing snippet file",
-    test: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir("renderSnippet");
-      const content = `---
+  test("Creates markdown renderer with custom options", () => {
+    const renderer = createMarkdownRenderer({ html: false });
+    expect(typeof renderer.render).toBe("function");
+
+    const result = renderer.render("<div>HTML</div>");
+    expect(result.includes("<div>")).toBe(false);
+  });
+
+  test("Returns true for existing files", () => {
+    withTempFile("fileExists", "test.txt", "test content", (tempDir) => {
+      const result = fileExists("test.txt", tempDir);
+      expect(result).toBe(true);
+    });
+  });
+
+  test("Returns false for non-existing files", () => {
+    withTempDir("fileExists-false", (tempDir) => {
+      const result = fileExists("nonexistent.txt", tempDir);
+      expect(result).toBe(false);
+    });
+  });
+
+  test("Uses process.cwd() as default base directory", () => {
+    // Create a temp file in current working directory to test
+    withTempFile(
+      "default-cwd",
+      "test-file.txt",
+      "content",
+      (tempDir, _filePath) => {
+        // Change to temp dir and test without specifying baseDir
+        const originalCwd = process.cwd();
+        try {
+          process.chdir(tempDir);
+          const result = fileExists("test-file.txt");
+          expect(result).toBe(true);
+        } finally {
+          process.chdir(originalCwd);
+        }
+      },
+    );
+  });
+
+  test("Returns inverse of fileExists", () => {
+    withTempFile("fileMissing", "test.txt", "test content", (tempDir) => {
+      expect(fileMissing("test.txt", tempDir)).toBe(false);
+      expect(fileMissing("nonexistent.txt", tempDir)).toBe(true);
+    });
+  });
+
+  test("Reads content from existing file", () => {
+    const content = "Hello, World!";
+    withTempFile("readFile", "test.txt", content, (tempDir) => {
+      const result = readFileContent("test.txt", tempDir);
+      expect(result).toBe(content);
+    });
+  });
+
+  test("Returns empty string for missing file", () => {
+    withTempDir("readFile-missing", (tempDir) => {
+      const result = readFileContent("nonexistent.txt", tempDir);
+      expect(result).toBe("");
+    });
+  });
+
+  test("Renders existing snippet file", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir("renderSnippet");
+    const content = `---
 title: Test
 ---
 # Hello
 
 World`;
 
-      try {
-        // fs already imported from test-utils
-        fs.writeFileSync(`${snippetsDir}/test.md`, content);
+    try {
+      // fs already imported from test-utils
+      fs.writeFileSync(`${snippetsDir}/test.md`, content);
 
-        const result = await renderSnippet("test", "default", tempDir);
-        expectTrue(result.includes("<h1>"), "Should render markdown to HTML");
-        expectTrue(result.includes("Hello"), "Should include content");
-        expectFalse(
-          result.includes("title: Test"),
-          "Should not include frontmatter",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-missing",
-    description: "Returns default string for missing snippet",
-    test: async () => {
-      withTempDir("renderSnippet-missing", async (tempDir) => {
-        const result = await renderSnippet(
-          "nonexistent",
-          "Default content",
-          tempDir,
-        );
-        expectStrictEqual(
-          result,
-          "Default content",
-          "Should return default string for missing snippet",
-        );
-      });
-    },
-  },
-  {
-    name: "renderSnippet-custom-renderer",
-    description: "Uses custom markdown renderer",
-    test: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "renderSnippet-custom",
+      const result = await renderSnippet("test", "default", tempDir);
+      expect(result.includes("<h1>")).toBe(true);
+      expect(result.includes("Hello")).toBe(true);
+      expect(result.includes("title: Test")).toBe(false);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("Returns default string for missing snippet", async () => {
+    withTempDir("renderSnippet-missing", async (tempDir) => {
+      const result = await renderSnippet(
+        "nonexistent",
+        "Default content",
+        tempDir,
       );
-      const content = "# Hello\n\nWorld";
+      expect(result).toBe("Default content");
+    });
+  });
 
-      try {
-        // fs already imported from test-utils
-        fs.writeFileSync(`${snippetsDir}/test.md`, content);
+  test("Uses custom markdown renderer", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "renderSnippet-custom",
+    );
+    const content = "# Hello\n\nWorld";
 
-        const customRenderer = createMarkdownRenderer({ html: false });
-        const result = await renderSnippet(
-          "test",
-          "default",
-          tempDir,
-          customRenderer,
-        );
-        expectTrue(
-          result.includes("<h1>"),
-          "Should render with custom renderer",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "configureFileUtils-basic",
-    description: "Configures file utility filters and shortcodes",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+    try {
+      // fs already imported from test-utils
+      fs.writeFileSync(`${snippetsDir}/test.md`, content);
 
-      configureFileUtils(mockConfig);
-
-      expectFunctionType(
-        mockConfig.filters,
-        "file_exists",
-        "Should add file_exists filter",
-      );
-      expectFunctionType(
-        mockConfig.filters,
-        "file_missing",
-        "Should add file_missing filter",
-      );
-      expectFunctionType(
-        mockConfig.asyncShortcodes,
-        "render_snippet",
-        "Should add render_snippet async shortcode",
-      );
-      expectFunctionType(
-        mockConfig.shortcodes,
-        "read_file",
-        "Should add read_file shortcode",
-      );
-    },
-  },
-  {
-    name: "configureFileUtils-filters-work",
-    description: "Configured filters work correctly",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureFileUtils(mockConfig);
-
-      const existsResult = mockConfig.filters.file_exists("package.json");
-      const missingResult = mockConfig.filters.file_missing(
-        "nonexistent-file.txt",
-      );
-
-      expectTrue(existsResult, "file_exists should work");
-      expectTrue(missingResult, "file_missing should work");
-    },
-  },
-  {
-    name: "configureFileUtils-shortcodes-work",
-    description: "Configured shortcodes work correctly",
-    test: async () => {
-      const content = "Test content";
-
-      withTempFile("shortcodes", "test.txt", content, async (tempDir) => {
-        const mockConfig = createMockEleventyConfig();
-        configureFileUtils(mockConfig);
-
-        await withMockedCwd(tempDir, async () => {
-          const readResult = mockConfig.shortcodes.read_file("test.txt");
-          expectStrictEqual(
-            readResult,
-            content,
-            "read_file shortcode should work",
-          );
-
-          const snippetResult = await mockConfig.asyncShortcodes.render_snippet(
-            "nonexistent",
-            "default",
-          );
-          expectStrictEqual(
-            snippetResult,
-            "default",
-            "render_snippet shortcode should work",
-          );
-        });
-      });
-    },
-  },
-  {
-    name: "functional-programming-style",
-    description: "Functions should be pure and not modify inputs",
-    test: () => {
-      const name = "test-name";
-      const defaultStr = "default";
-
-      fileExists(name);
-      fileMissing(name);
-
-      expectStrictEqual(
-        name,
-        "test-name",
-        "Functions should not modify input parameters",
-      );
-      expectStrictEqual(
-        defaultStr,
+      const customRenderer = createMarkdownRenderer({ html: false });
+      const result = await renderSnippet(
+        "test",
         "default",
-        "Functions should not modify input parameters",
+        tempDir,
+        customRenderer,
       );
-    },
-  },
-];
+      expect(result.includes("<h1>")).toBe(true);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-export default createTestRunner("file-utils", testCases);
+  test("Configures file utility filters and shortcodes", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureFileUtils(mockConfig);
+
+    expect(typeof mockConfig.filters.file_exists).toBe("function");
+    expect(typeof mockConfig.filters.file_missing).toBe("function");
+    expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
+    expect(typeof mockConfig.shortcodes.read_file).toBe("function");
+  });
+
+  test("Configured filters work correctly", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureFileUtils(mockConfig);
+
+    const existsResult = mockConfig.filters.file_exists("package.json");
+    const missingResult = mockConfig.filters.file_missing(
+      "nonexistent-file.txt",
+    );
+
+    expect(existsResult).toBe(true);
+    expect(missingResult).toBe(true);
+  });
+
+  test("Configured shortcodes work correctly", async () => {
+    const content = "Test content";
+
+    withTempFile("shortcodes", "test.txt", content, async (tempDir) => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+
+      await withMockedCwd(tempDir, async () => {
+        const readResult = mockConfig.shortcodes.read_file("test.txt");
+        expect(readResult).toBe(content);
+
+        const snippetResult = await mockConfig.asyncShortcodes.render_snippet(
+          "nonexistent",
+          "default",
+        );
+        expect(snippetResult).toBe("default");
+      });
+    });
+  });
+
+  test("Functions should be pure and not modify inputs", () => {
+    const name = "test-name";
+    const defaultStr = "default";
+
+    fileExists(name);
+    fileMissing(name);
+
+    expect(name).toBe("test-name");
+    expect(defaultStr).toBe("default");
+  });
+});

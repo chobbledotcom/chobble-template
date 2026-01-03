@@ -1,3 +1,4 @@
+import { describe, test, expect } from "bun:test";
 import {
   cartModeError,
   checkFrontmatterField,
@@ -17,642 +18,377 @@ import {
   createFrontmatter,
   createTempDir,
   createTempFile,
-  createTestRunner,
-  expectDeepEqual,
-  expectStrictEqual,
-  expectThrows,
-  expectTrue,
 } from "#test/test-utils.js";
 
-const testCases = [
+describe("config", () => {
   // DEFAULTS constant tests
-  {
-    name: "defaults-is-object",
-    description: "DEFAULTS is an object with expected properties",
-    test: () => {
-      expectStrictEqual(typeof DEFAULTS, "object", "DEFAULTS should be object");
-      expectStrictEqual(
-        DEFAULTS.sticky_mobile_nav,
-        true,
-        "sticky_mobile_nav should default to true",
-      );
-      expectStrictEqual(
-        DEFAULTS.horizontal_nav,
-        true,
-        "horizontal_nav should default to true",
-      );
-      expectStrictEqual(
-        DEFAULTS.homepage_news,
-        true,
-        "homepage_news should default to true",
-      );
-      expectStrictEqual(
-        DEFAULTS.homepage_products,
-        true,
-        "homepage_products should default to true",
-      );
-      expectStrictEqual(
-        DEFAULTS.externalLinksTargetBlank,
-        false,
-        "externalLinksTargetBlank should default to false",
-      );
-      expectStrictEqual(
-        DEFAULTS.contact_form_target,
-        null,
-        "contact_form_target should default to null",
-      );
-      expectStrictEqual(
-        DEFAULTS.formspark_id,
-        null,
-        "formspark_id should default to null",
-      );
-      expectStrictEqual(
-        DEFAULTS.botpoison_public_key,
-        null,
-        "botpoison_public_key should default to null",
-      );
-      expectStrictEqual(
-        DEFAULTS.template_repo_url,
-        "https://github.com/chobbledotcom/chobble-template",
-        "template_repo_url should have correct default",
-      );
-      expectStrictEqual(
-        DEFAULTS.chobble_link,
-        null,
-        "chobble_link should default to null",
-      );
-      expectStrictEqual(
-        DEFAULTS.map_embed_src,
-        null,
-        "map_embed_src should default to null",
-      );
-      expectStrictEqual(
-        DEFAULTS.cart_mode,
-        null,
-        "cart_mode should default to null",
-      );
-      expectStrictEqual(
-        DEFAULTS.has_products_filter,
-        false,
-        "has_products_filter should default to false",
-      );
-    },
-  },
+  test("DEFAULTS is an object with expected properties", () => {
+    expect(typeof DEFAULTS).toBe("object");
+    expect(DEFAULTS.sticky_mobile_nav).toBe(true);
+    expect(DEFAULTS.horizontal_nav).toBe(true);
+    expect(DEFAULTS.homepage_news).toBe(true);
+    expect(DEFAULTS.homepage_products).toBe(true);
+    expect(DEFAULTS.externalLinksTargetBlank).toBe(false);
+    expect(DEFAULTS.contact_form_target).toBe(null);
+    expect(DEFAULTS.formspark_id).toBe(null);
+    expect(DEFAULTS.botpoison_public_key).toBe(null);
+    expect(DEFAULTS.template_repo_url).toBe(
+      "https://github.com/chobbledotcom/chobble-template",
+    );
+    expect(DEFAULTS.chobble_link).toBe(null);
+    expect(DEFAULTS.map_embed_src).toBe(null);
+    expect(DEFAULTS.cart_mode).toBe(null);
+    expect(DEFAULTS.has_products_filter).toBe(false);
+  });
 
   // VALID_CART_MODES constant tests
-  {
-    name: "valid-cart-modes",
-    description: "VALID_CART_MODES contains correct values",
-    test: () => {
-      expectTrue(Array.isArray(VALID_CART_MODES), "Should be an array");
-      expectDeepEqual(
-        VALID_CART_MODES,
-        ["paypal", "stripe", "quote"],
-        "Should contain paypal, stripe, quote",
-      );
-    },
-  },
+  test("VALID_CART_MODES contains correct values", () => {
+    expect(Array.isArray(VALID_CART_MODES)).toBe(true);
+    expect(VALID_CART_MODES).toEqual(["paypal", "stripe", "quote"]);
+  });
 
   // DEFAULT_PRODUCT_DATA constant tests
-  {
-    name: "default-product-data",
-    description: "DEFAULT_PRODUCT_DATA has correct image width defaults",
-    test: () => {
-      expectStrictEqual(
-        DEFAULT_PRODUCT_DATA.item_widths,
-        "240,480,640",
-        "item_widths should have correct default",
-      );
-      expectStrictEqual(
-        DEFAULT_PRODUCT_DATA.gallery_thumb_widths,
-        "240,480",
-        "gallery_thumb_widths should have correct default",
-      );
-      expectStrictEqual(
-        DEFAULT_PRODUCT_DATA.gallery_image_widths,
-        "900,1300,1800",
-        "gallery_image_widths should have correct default",
-      );
-      expectStrictEqual(
-        DEFAULT_PRODUCT_DATA.header_image_widths,
-        "640,900,1300",
-        "header_image_widths should have correct default",
-      );
-    },
-  },
+  test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {
+    expect(DEFAULT_PRODUCT_DATA.item_widths).toBe("240,480,640");
+    expect(DEFAULT_PRODUCT_DATA.gallery_thumb_widths).toBe("240,480");
+    expect(DEFAULT_PRODUCT_DATA.gallery_image_widths).toBe("900,1300,1800");
+    expect(DEFAULT_PRODUCT_DATA.header_image_widths).toBe("640,900,1300");
+  });
 
   // getProducts function tests
-  {
-    name: "getProducts-empty",
-    description: "getProducts returns empty object when no products",
-    test: () => {
-      const result = getProducts({});
-      expectDeepEqual(result, {}, "Should return empty object");
-    },
-  },
-  {
-    name: "getProducts-undefined-products",
-    description: "getProducts handles undefined products property",
-    test: () => {
-      const result = getProducts({ other: "value" });
-      expectDeepEqual(result, {}, "Should return empty object");
-    },
-  },
-  {
-    name: "getProducts-filters-null",
-    description: "getProducts filters out null values",
-    test: () => {
-      const configData = {
-        products: {
-          item_widths: "100,200",
-          gallery_thumb_widths: null,
-          custom_field: "value",
-        },
-      };
-      const result = getProducts(configData);
-      expectStrictEqual(result.item_widths, "100,200", "Should keep non-null");
-      expectStrictEqual(
-        result.gallery_thumb_widths,
-        undefined,
-        "Should filter null",
-      );
-      expectStrictEqual(result.custom_field, "value", "Should keep non-null");
-    },
-  },
-  {
-    name: "getProducts-keeps-all-truthy",
-    description: "getProducts keeps all truthy values",
-    test: () => {
-      const configData = {
-        products: {
-          a: "string",
-          b: 123,
-          c: true,
-          d: [],
-          e: {},
-        },
-      };
-      const result = getProducts(configData);
-      expectStrictEqual(result.a, "string", "Should keep string");
-      expectStrictEqual(result.b, 123, "Should keep number");
-      expectStrictEqual(result.c, true, "Should keep boolean");
-      expectDeepEqual(result.d, [], "Should keep array");
-      expectDeepEqual(result.e, {}, "Should keep object");
-    },
-  },
+  test("getProducts returns empty object when no products", () => {
+    const result = getProducts({});
+    expect(result).toEqual({});
+  });
+
+  test("getProducts handles undefined products property", () => {
+    const result = getProducts({ other: "value" });
+    expect(result).toEqual({});
+  });
+
+  test("getProducts filters out null values", () => {
+    const configData = {
+      products: {
+        item_widths: "100,200",
+        gallery_thumb_widths: null,
+        custom_field: "value",
+      },
+    };
+    const result = getProducts(configData);
+    expect(result.item_widths).toBe("100,200");
+    expect(result.gallery_thumb_widths).toBe(undefined);
+    expect(result.custom_field).toBe("value");
+  });
+
+  test("getProducts keeps all truthy values", () => {
+    const configData = {
+      products: {
+        a: "string",
+        b: 123,
+        c: true,
+        d: [],
+        e: {},
+      },
+    };
+    const result = getProducts(configData);
+    expect(result.a).toBe("string");
+    expect(result.b).toBe(123);
+    expect(result.c).toBe(true);
+    expect(result.d).toEqual([]);
+    expect(result.e).toEqual({});
+  });
 
   // getFormTarget function tests
-  {
-    name: "getFormTarget-contact-form-target",
-    description: "getFormTarget returns contact_form_target when set",
-    test: () => {
-      const configData = {
-        contact_form_target: "https://custom-form.com/submit",
-        formspark_id: "abc123",
-      };
-      const result = getFormTarget(configData);
-      expectStrictEqual(
-        result,
-        "https://custom-form.com/submit",
-        "Should prefer contact_form_target",
-      );
-    },
-  },
-  {
-    name: "getFormTarget-formspark-id",
-    description: "getFormTarget builds URL from formspark_id when no target",
-    test: () => {
-      const configData = {
-        contact_form_target: null,
-        formspark_id: "abc123",
-      };
-      const result = getFormTarget(configData);
-      expectStrictEqual(
-        result,
-        "https://submit-form.com/abc123",
-        "Should build formspark URL",
-      );
-    },
-  },
-  {
-    name: "getFormTarget-null",
-    description: "getFormTarget returns null when neither is set",
-    test: () => {
-      const configData = {};
-      const result = getFormTarget(configData);
-      expectStrictEqual(result, null, "Should return null");
-    },
-  },
-  {
-    name: "getFormTarget-empty-strings",
-    description: "getFormTarget handles empty strings as falsy",
-    test: () => {
-      const configData = {
-        contact_form_target: "",
-        formspark_id: "",
-      };
-      const result = getFormTarget(configData);
-      expectStrictEqual(result, null, "Should return null for empty strings");
-    },
-  },
+  test("getFormTarget returns contact_form_target when set", () => {
+    const configData = {
+      contact_form_target: "https://custom-form.com/submit",
+      formspark_id: "abc123",
+    };
+    const result = getFormTarget(configData);
+    expect(result).toBe("https://custom-form.com/submit");
+  });
+
+  test("getFormTarget builds URL from formspark_id when no target", () => {
+    const configData = {
+      contact_form_target: null,
+      formspark_id: "abc123",
+    };
+    const result = getFormTarget(configData);
+    expect(result).toBe("https://submit-form.com/abc123");
+  });
+
+  test("getFormTarget returns null when neither is set", () => {
+    const configData = {};
+    const result = getFormTarget(configData);
+    expect(result).toBe(null);
+  });
+
+  test("getFormTarget handles empty strings as falsy", () => {
+    const configData = {
+      contact_form_target: "",
+      formspark_id: "",
+    };
+    const result = getFormTarget(configData);
+    expect(result).toBe(null);
+  });
 
   // cartModeError function tests
-  {
-    name: "cartModeError-format",
-    description: "cartModeError returns correctly formatted error message",
-    test: () => {
-      const result = cartModeError("stripe", "checkout.md", "does not exist");
-      expectStrictEqual(
-        result,
-        'cart_mode is "stripe" but src/pages/checkout.md does not exist',
-        "Should format error correctly",
-      );
-    },
-  },
+  test("cartModeError returns correctly formatted error message", () => {
+    const result = cartModeError("stripe", "checkout.md", "does not exist");
+    expect(result).toBe(
+      'cart_mode is "stripe" but src/pages/checkout.md does not exist',
+    );
+  });
 
   // getPagePath function tests
-  {
-    name: "getPagePath-format",
-    description: "getPagePath returns correct path",
-    test: () => {
-      const result = getPagePath("test.md");
-      expectTrue(
-        result.endsWith("pages/test.md"),
-        "Should end with pages/filename",
-      );
-      expectTrue(result.includes("src"), "Should include src directory");
-    },
-  },
+  test("getPagePath returns correct path", () => {
+    const result = getPagePath("test.md");
+    expect(result.endsWith("pages/test.md")).toBe(true);
+    expect(result.includes("src")).toBe(true);
+  });
 
   // extractFrontmatter function tests
-  {
-    name: "extractFrontmatter-valid",
-    description: "extractFrontmatter extracts frontmatter from valid file",
-    test: () => {
-      const tempDir = createTempDir("config-test");
-      const content = createFrontmatter(
-        { layout: "test.html", permalink: "/test/" },
-        "Content here",
-      );
-      const filePath = createTempFile(tempDir, "test.md", content);
+  test("extractFrontmatter extracts frontmatter from valid file", () => {
+    const tempDir = createTempDir("config-test");
+    const content = createFrontmatter(
+      { layout: "test.html", permalink: "/test/" },
+      "Content here",
+    );
+    const filePath = createTempFile(tempDir, "test.md", content);
 
-      const result = extractFrontmatter(filePath, "test.md", "stripe");
-      expectStrictEqual(result.layout, "test.html", "Should contain layout");
-      expectStrictEqual(result.permalink, "/test/", "Should contain permalink");
+    const result = extractFrontmatter(filePath, "test.md", "stripe");
+    expect(result.layout).toBe("test.html");
+    expect(result.permalink).toBe("/test/");
 
-      cleanupTempDir(tempDir);
-    },
-  },
-  {
-    name: "extractFrontmatter-file-not-found",
-    description: "extractFrontmatter throws when file does not exist",
-    test: () => {
-      expectThrows(
-        () =>
-          extractFrontmatter("/nonexistent/path/file.md", "file.md", "stripe"),
-        /does not exist/,
-        "Should throw file not found error",
-      );
-    },
-  },
-  {
-    name: "extractFrontmatter-no-frontmatter",
-    description: "extractFrontmatter throws when no frontmatter present",
-    test: () => {
-      const tempDir = createTempDir("config-test-no-fm");
-      const content = "Just plain content without frontmatter";
-      const filePath = createTempFile(tempDir, "plain.md", content);
+    cleanupTempDir(tempDir);
+  });
 
-      expectThrows(
-        () => extractFrontmatter(filePath, "plain.md", "stripe"),
-        /has no frontmatter/,
-        "Should throw no frontmatter error",
-      );
+  test("extractFrontmatter throws when file does not exist", () => {
+    expect(() =>
+      extractFrontmatter("/nonexistent/path/file.md", "file.md", "stripe"),
+    ).toThrow(/does not exist/);
+  });
 
-      cleanupTempDir(tempDir);
-    },
-  },
+  test("extractFrontmatter throws when no frontmatter present", () => {
+    const tempDir = createTempDir("config-test-no-fm");
+    const content = "Just plain content without frontmatter";
+    const filePath = createTempFile(tempDir, "plain.md", content);
+
+    expect(() =>
+      extractFrontmatter(filePath, "plain.md", "stripe"),
+    ).toThrow(/has no frontmatter/);
+
+    cleanupTempDir(tempDir);
+  });
 
   // checkFrontmatterField function tests
-  {
-    name: "checkFrontmatterField-valid",
-    description: "checkFrontmatterField passes when field exists",
-    test: () => {
-      const frontmatter = { layout: "test.html", permalink: "/test/" };
-      // Should not throw
+  test("checkFrontmatterField passes when field exists", () => {
+    const frontmatter = { layout: "test.html", permalink: "/test/" };
+    // Should not throw
+    checkFrontmatterField(
+      frontmatter,
+      "layout",
+      "test.html",
+      "stripe",
+      "test.md",
+    );
+    expect(true).toBe(true);
+  });
+
+  test("checkFrontmatterField throws when field is missing", () => {
+    const frontmatter = { layout: "other.html" };
+    expect(() =>
       checkFrontmatterField(
         frontmatter,
         "layout",
         "test.html",
         "stripe",
         "test.md",
-      );
-      expectTrue(true, "Should not throw for valid field");
-    },
-  },
-  {
-    name: "checkFrontmatterField-missing",
-    description: "checkFrontmatterField throws when field is missing",
-    test: () => {
-      const frontmatter = { layout: "other.html" };
-      expectThrows(
-        () =>
-          checkFrontmatterField(
-            frontmatter,
-            "layout",
-            "test.html",
-            "stripe",
-            "test.md",
-          ),
-        /does not have layout: test.html/,
-        "Should throw for missing field value",
-      );
-    },
-  },
+      ),
+    ).toThrow(/does not have layout: test.html/);
+  });
 
   // validateCartConfig function tests
-  {
-    name: "validateCartConfig-null-mode",
-    description: "validateCartConfig passes with null cart_mode",
-    test: () => {
-      const config = { cart_mode: null };
-      // Should not throw
-      validateCartConfig(config);
-      expectTrue(true, "Should not throw for null cart_mode");
-    },
-  },
-  {
-    name: "validateCartConfig-undefined-mode",
-    description: "validateCartConfig passes with undefined cart_mode",
-    test: () => {
-      const config = {};
-      // Should not throw
-      validateCartConfig(config);
-      expectTrue(true, "Should not throw for undefined cart_mode");
-    },
-  },
-  {
-    name: "validateCartConfig-invalid-mode",
-    description: "validateCartConfig throws for invalid cart_mode",
-    test: () => {
-      const config = { cart_mode: "invalid" };
-      expectThrows(
-        () => validateCartConfig(config),
-        /Invalid cart_mode: "invalid"/,
-        "Should throw for invalid cart_mode",
-      );
-    },
-  },
-  {
-    name: "validateCartConfig-paypal-no-url",
-    description:
-      "validateCartConfig throws when paypal mode has no checkout_api_url",
-    test: () => {
-      const config = { cart_mode: "paypal", checkout_api_url: null };
-      expectThrows(
-        () => validateCartConfig(config),
-        /checkout_api_url is not set/,
-        "Should throw for paypal without checkout_api_url",
-      );
-    },
-  },
-  {
-    name: "validateCartConfig-stripe-no-url",
-    description:
-      "validateCartConfig throws when stripe mode has no checkout_api_url",
-    test: () => {
-      const config = { cart_mode: "stripe", checkout_api_url: null };
-      expectThrows(
-        () => validateCartConfig(config),
-        /checkout_api_url is not set/,
-        "Should throw for stripe without checkout_api_url",
-      );
-    },
-  },
-  {
-    name: "validateCartConfig-quote-no-form-target",
-    description: "validateCartConfig throws when quote mode has no form_target",
-    test: () => {
-      const config = { cart_mode: "quote", form_target: null };
-      expectThrows(
-        () => validateCartConfig(config),
-        /formspark_id nor contact_form_target is set/,
-        "Should throw for quote without form_target",
-      );
-    },
-  },
-  {
-    name: "validateCartConfig-paypal-with-url",
-    description: "validateCartConfig passes for paypal with checkout_api_url",
-    test: () => {
-      const config = {
-        cart_mode: "paypal",
-        checkout_api_url: "https://api.example.com",
-      };
-      // Should not throw
-      validateCartConfig(config);
-      expectTrue(true, "Should not throw for valid paypal config");
-    },
-  },
+  test("validateCartConfig passes with null cart_mode", () => {
+    const config = { cart_mode: null };
+    // Should not throw
+    validateCartConfig(config);
+    expect(true).toBe(true);
+  });
+
+  test("validateCartConfig passes with undefined cart_mode", () => {
+    const config = {};
+    // Should not throw
+    validateCartConfig(config);
+    expect(true).toBe(true);
+  });
+
+  test("validateCartConfig throws for invalid cart_mode", () => {
+    const config = { cart_mode: "invalid" };
+    expect(() => validateCartConfig(config)).toThrow(/Invalid cart_mode: "invalid"/);
+  });
+
+  test("validateCartConfig throws when paypal mode has no checkout_api_url", () => {
+    const config = { cart_mode: "paypal", checkout_api_url: null };
+    expect(() => validateCartConfig(config)).toThrow(/checkout_api_url is not set/);
+  });
+
+  test("validateCartConfig throws when stripe mode has no checkout_api_url", () => {
+    const config = { cart_mode: "stripe", checkout_api_url: null };
+    expect(() => validateCartConfig(config)).toThrow(/checkout_api_url is not set/);
+  });
+
+  test("validateCartConfig throws when quote mode has no form_target", () => {
+    const config = { cart_mode: "quote", form_target: null };
+    expect(() => validateCartConfig(config)).toThrow(
+      /formspark_id nor contact_form_target is set/,
+    );
+  });
+
+  test("validateCartConfig passes for paypal with checkout_api_url", () => {
+    const config = {
+      cart_mode: "paypal",
+      checkout_api_url: "https://api.example.com",
+    };
+    // Should not throw
+    validateCartConfig(config);
+    expect(true).toBe(true);
+  });
 
   // Integration test: verify config data file exports default function
-  {
-    name: "config-data-file-exports-function",
-    description: "config.js data file exports a default function for Eleventy",
-    test: async () => {
-      const configModule = await import("#data/config.js");
-      expectStrictEqual(
-        typeof configModule.default,
-        "function",
-        "config.js should export a default function",
-      );
-      // Verify it only has default export (no named exports that would break Eleventy)
-      const exportNames = Object.keys(configModule);
-      expectStrictEqual(
-        exportNames.length,
-        1,
-        "config.js should only have default export to work with Eleventy data cascade",
-      );
-      expectStrictEqual(
-        exportNames[0],
-        "default",
-        "config.js export should be named 'default'",
-      );
-    },
-  },
-  {
-    name: "config-data-file-returns-form-target",
-    description:
-      "config.js returns computed form_target when formspark_id is set",
-    test: () => {
-      // Test that getFormTarget properly computes form_target
-      // This ensures the config data file will return form_target to templates
-      const configWithFormspark = {
-        formspark_id: "abc123",
-        contact_form_target: null,
-      };
-      const result = getFormTarget(configWithFormspark);
-      expectStrictEqual(
-        result,
-        "https://submit-form.com/abc123",
-        "form_target should be computed from formspark_id",
-      );
-    },
-  },
+  test("config.js data file exports a default function for Eleventy", async () => {
+    const configModule = await import("#data/config.js");
+    expect(typeof configModule.default).toBe("function");
+    // Verify it only has default export (no named exports that would break Eleventy)
+    const exportNames = Object.keys(configModule);
+    expect(exportNames).toHaveLength(1);
+    expect(exportNames[0]).toBe("default");
+  });
+
+  test("config.js returns computed form_target when formspark_id is set", () => {
+    // Test that getFormTarget properly computes form_target
+    // This ensures the config data file will return form_target to templates
+    const configWithFormspark = {
+      formspark_id: "abc123",
+      contact_form_target: null,
+    };
+    const result = getFormTarget(configWithFormspark);
+    expect(result).toBe("https://submit-form.com/abc123");
+  });
 
   // validatePageFrontmatter function tests
-  {
-    name: "validatePageFrontmatter-valid-file",
-    description:
-      "validatePageFrontmatter passes when file has correct frontmatter",
-    test: () => {
-      const tempDir = createTempDir("config-validate-page");
-      const content = createFrontmatter(
-        { layout: "test.html", permalink: "/test/" },
-        "Content",
-      );
-      createTempFile(tempDir, "test.md", content);
+  test("validatePageFrontmatter passes when file has correct frontmatter", () => {
+    const tempDir = createTempDir("config-validate-page");
+    const content = createFrontmatter(
+      { layout: "test.html", permalink: "/test/" },
+      "Content",
+    );
+    createTempFile(tempDir, "test.md", content);
 
-      // Use the temp file path directly via extractFrontmatter
-      // validatePageFrontmatter uses getPagePath internally, so we test through
-      // its helpers since we already tested extractFrontmatter + checkFrontmatterField
-      const frontmatter = extractFrontmatter(
-        `${tempDir}/test.md`,
-        "test.md",
-        "test",
-      );
+    // Use the temp file path directly via extractFrontmatter
+    // validatePageFrontmatter uses getPagePath internally, so we test through
+    // its helpers since we already tested extractFrontmatter + checkFrontmatterField
+    const frontmatter = extractFrontmatter(
+      `${tempDir}/test.md`,
+      "test.md",
+      "test",
+    );
+    checkFrontmatterField(
+      frontmatter,
+      "layout",
+      "test.html",
+      "test",
+      "test.md",
+    );
+    checkFrontmatterField(
+      frontmatter,
+      "permalink",
+      "/test/",
+      "test",
+      "test.md",
+    );
+    expect(true).toBe(true);
+
+    cleanupTempDir(tempDir);
+  });
+
+  test("validatePageFrontmatter throws when layout is incorrect", () => {
+    const tempDir = createTempDir("config-wrong-layout");
+    const content = createFrontmatter(
+      { layout: "wrong.html", permalink: "/test/" },
+      "Content",
+    );
+    const filePath = createTempFile(tempDir, "test.md", content);
+
+    expect(() => {
+      const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
       checkFrontmatterField(
         frontmatter,
         "layout",
-        "test.html",
-        "test",
+        "expected.html",
+        "stripe",
         "test.md",
       );
+    }).toThrow(/does not have layout: expected.html/);
+
+    cleanupTempDir(tempDir);
+  });
+
+  test("validatePageFrontmatter throws when permalink is incorrect", () => {
+    const tempDir = createTempDir("config-wrong-permalink");
+    const content = createFrontmatter(
+      { layout: "test.html", permalink: "/wrong/" },
+      "Content",
+    );
+    const filePath = createTempFile(tempDir, "test.md", content);
+
+    expect(() => {
+      const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
       checkFrontmatterField(
         frontmatter,
         "permalink",
-        "/test/",
-        "test",
+        "/expected/",
+        "stripe",
         "test.md",
       );
-      expectTrue(true, "Should pass for valid frontmatter");
+    }).toThrow(/does not have permalink/);
 
-      cleanupTempDir(tempDir);
-    },
-  },
-  {
-    name: "validatePageFrontmatter-wrong-layout",
-    description: "validatePageFrontmatter throws when layout is incorrect",
-    test: () => {
-      const tempDir = createTempDir("config-wrong-layout");
-      const content = createFrontmatter(
-        { layout: "wrong.html", permalink: "/test/" },
-        "Content",
-      );
-      const filePath = createTempFile(tempDir, "test.md", content);
-
-      expectThrows(
-        () => {
-          const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
-          checkFrontmatterField(
-            frontmatter,
-            "layout",
-            "expected.html",
-            "stripe",
-            "test.md",
-          );
-        },
-        /does not have layout: expected.html/,
-        "Should throw for wrong layout",
-      );
-
-      cleanupTempDir(tempDir);
-    },
-  },
-  {
-    name: "validatePageFrontmatter-wrong-permalink",
-    description: "validatePageFrontmatter throws when permalink is incorrect",
-    test: () => {
-      const tempDir = createTempDir("config-wrong-permalink");
-      const content = createFrontmatter(
-        { layout: "test.html", permalink: "/wrong/" },
-        "Content",
-      );
-      const filePath = createTempFile(tempDir, "test.md", content);
-
-      expectThrows(
-        () => {
-          const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
-          checkFrontmatterField(
-            frontmatter,
-            "permalink",
-            "/expected/",
-            "stripe",
-            "test.md",
-          );
-        },
-        /does not have permalink/,
-        "Should throw for wrong permalink",
-      );
-
-      cleanupTempDir(tempDir);
-    },
-  },
+    cleanupTempDir(tempDir);
+  });
 
   // validateStripePages function tests
-  {
-    name: "validateStripePages-real-pages",
-    description:
-      "validateStripePages passes with real stripe-checkout.md and order-complete.md",
-    test: () => {
-      // These pages exist in src/pages with correct frontmatter
-      validateStripePages();
-      expectTrue(true, "Should pass for real stripe pages");
-    },
-  },
+  test("validateStripePages passes with real stripe-checkout.md and order-complete.md", () => {
+    // These pages exist in src/pages with correct frontmatter
+    validateStripePages();
+    expect(true).toBe(true);
+  });
 
   // validateQuotePages function tests
-  {
-    name: "validateQuotePages-real-pages",
-    description: "validateQuotePages passes with real checkout.md page",
-    test: () => {
-      // checkout.md exists in src/pages with correct frontmatter
-      validateQuotePages();
-      expectTrue(true, "Should pass for real quote checkout page");
-    },
-  },
+  test("validateQuotePages passes with real checkout.md page", () => {
+    // checkout.md exists in src/pages with correct frontmatter
+    validateQuotePages();
+    expect(true).toBe(true);
+  });
 
   // validateCartConfig with valid stripe config (triggers validateStripePages)
-  {
-    name: "validateCartConfig-stripe-valid",
-    description:
-      "validateCartConfig passes for stripe with checkout_api_url and valid pages",
-    test: () => {
-      const config = {
-        cart_mode: "stripe",
-        checkout_api_url: "https://api.example.com/checkout",
-      };
-      // This should not throw - it validates the real stripe pages exist
-      validateCartConfig(config);
-      expectTrue(true, "Should pass for valid stripe config with pages");
-    },
-  },
+  test("validateCartConfig passes for stripe with checkout_api_url and valid pages", () => {
+    const config = {
+      cart_mode: "stripe",
+      checkout_api_url: "https://api.example.com/checkout",
+    };
+    // This should not throw - it validates the real stripe pages exist
+    validateCartConfig(config);
+    expect(true).toBe(true);
+  });
 
   // validateCartConfig with valid quote config (triggers validateQuotePages)
-  {
-    name: "validateCartConfig-quote-valid",
-    description:
-      "validateCartConfig passes for quote with form_target and valid pages",
-    test: () => {
-      const config = {
-        cart_mode: "quote",
-        form_target: "https://forms.example.com/submit",
-      };
-      // This should not throw - it validates the real quote checkout page exists
-      validateCartConfig(config);
-      expectTrue(true, "Should pass for valid quote config with pages");
-    },
-  },
-];
-
-export default createTestRunner("config", testCases);
+  test("validateCartConfig passes for quote with form_target and valid pages", () => {
+    const config = {
+      cart_mode: "quote",
+      form_target: "https://forms.example.com/submit",
+    };
+    // This should not throw - it validates the real quote checkout page exists
+    validateCartConfig(config);
+    expect(true).toBe(true);
+  });
+});

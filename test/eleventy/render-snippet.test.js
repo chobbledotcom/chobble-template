@@ -1,12 +1,9 @@
+import { describe, test, expect } from "bun:test";
 import { renderSnippet } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
   createFrontmatter,
   createTempSnippetsDir,
-  createTestRunner,
-  expectFalse,
-  expectStrictEqual,
-  expectTrue,
   fs,
 } from "#test/test-utils.js";
 
@@ -19,87 +16,65 @@ import {
  * - Shortcode preprocessing ({% opening_times %}, {% recurring_events %})
  */
 
-const testCases = [
-  {
-    name: "renderSnippet-empty-content",
-    description: "Renders empty snippet as empty markdown",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-empty",
-      );
+describe("render-snippet", () => {
+  test("Renders empty snippet as empty markdown", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-empty",
+    );
 
-      try {
-        fs.writeFileSync(`${snippetsDir}/empty.md`, "");
+    try {
+      fs.writeFileSync(`${snippetsDir}/empty.md`, "");
 
-        const result = await renderSnippet("empty", "fallback", tempDir);
+      const result = await renderSnippet("empty", "fallback", tempDir);
 
-        // Empty markdown renders to empty paragraph or empty string
-        expectStrictEqual(
-          result.trim(),
-          "",
-          "Empty snippet should render empty",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-whitespace-only",
-    description: "Renders whitespace-only snippet correctly",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-whitespace",
-      );
+      // Empty markdown renders to empty paragraph or empty string
+      expect(result.trim()).toBe("");
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        fs.writeFileSync(`${snippetsDir}/whitespace.md`, "   \n\n   ");
+  test("Renders whitespace-only snippet correctly", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-whitespace",
+    );
 
-        const result = await renderSnippet("whitespace", "fallback", tempDir);
+    try {
+      fs.writeFileSync(`${snippetsDir}/whitespace.md`, "   \n\n   ");
 
-        // Whitespace-only content should not produce meaningful HTML
-        expectFalse(
-          result.includes("<p>"),
-          "Whitespace-only should not produce paragraphs",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-frontmatter-with-trailing-newline",
-    description: "Handles frontmatter followed by trailing newline correctly",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-trailing",
-      );
+      const result = await renderSnippet("whitespace", "fallback", tempDir);
 
-      try {
-        const content = createFrontmatter({ title: "Test" }, "\n");
-        fs.writeFileSync(`${snippetsDir}/trailing.md`, content);
+      // Whitespace-only content should not produce meaningful HTML
+      expect(result.includes("<p>")).toBe(false);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-        const result = await renderSnippet("trailing", "fallback", tempDir);
+  test("Handles frontmatter followed by trailing newline correctly", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-trailing",
+    );
 
-        expectFalse(
-          result.includes("title:"),
-          "Should not include frontmatter",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-markdown-features",
-    description: "Renders various markdown features correctly",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-features",
-      );
+    try {
+      const content = createFrontmatter({ title: "Test" }, "\n");
+      fs.writeFileSync(`${snippetsDir}/trailing.md`, content);
 
-      try {
-        const content = `# Heading
+      const result = await renderSnippet("trailing", "fallback", tempDir);
+
+      expect(result.includes("title:")).toBe(false);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("Renders various markdown features correctly", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-features",
+    );
+
+    try {
+      const content = `# Heading
 
 **Bold** and *italic* text.
 
@@ -108,126 +83,98 @@ const testCases = [
 
 [A link](https://example.com)`;
 
-        fs.writeFileSync(`${snippetsDir}/features.md`, content);
+      fs.writeFileSync(`${snippetsDir}/features.md`, content);
 
-        const result = await renderSnippet("features", "fallback", tempDir);
+      const result = await renderSnippet("features", "fallback", tempDir);
 
-        expectTrue(result.includes("<h1>"), "Should render heading");
-        expectTrue(result.includes("<strong>"), "Should render bold");
-        expectTrue(result.includes("<em>"), "Should render italic");
-        expectTrue(result.includes("<li>"), "Should render list items");
-        expectTrue(result.includes("<a href="), "Should render links");
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-html-passthrough",
-    description: "Passes through HTML when html option is enabled (default)",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-html",
-      );
+      expect(result.includes("<h1>")).toBe(true);
+      expect(result.includes("<strong>")).toBe(true);
+      expect(result.includes("<em>")).toBe(true);
+      expect(result.includes("<li>")).toBe(true);
+      expect(result.includes("<a href=")).toBe(true);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        const content = `<div class="custom">Custom HTML</div>
+  test("Passes through HTML when html option is enabled (default)", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-html",
+    );
+
+    try {
+      const content = `<div class="custom">Custom HTML</div>
 
 Regular paragraph.`;
 
-        fs.writeFileSync(`${snippetsDir}/html.md`, content);
+      fs.writeFileSync(`${snippetsDir}/html.md`, content);
 
-        const result = await renderSnippet("html", "fallback", tempDir);
+      const result = await renderSnippet("html", "fallback", tempDir);
 
-        expectTrue(
-          result.includes('<div class="custom">'),
-          "Should preserve HTML",
-        );
-        expectTrue(result.includes("<p>"), "Should render markdown paragraphs");
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-opening-times-shortcode",
-    description: "Preprocesses {% opening_times %} shortcode",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-opening",
-      );
+      expect(result.includes('<div class="custom">')).toBe(true);
+      expect(result.includes("<p>")).toBe(true);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        const content = `# Our Hours
+  test("Preprocesses {% opening_times %} shortcode", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-opening",
+    );
+
+    try {
+      const content = `# Our Hours
 
 {% opening_times %}
 
 Come visit us!`;
 
-        fs.writeFileSync(`${snippetsDir}/hours.md`, content);
+      fs.writeFileSync(`${snippetsDir}/hours.md`, content);
 
-        const result = await renderSnippet("hours", "fallback", tempDir);
+      const result = await renderSnippet("hours", "fallback", tempDir);
 
-        expectTrue(result.includes("<h1>"), "Should render heading");
-        expectTrue(
-          result.includes("Come visit us"),
-          "Should render surrounding content",
-        );
-        // The shortcode should be processed (replaced with actual content or empty)
-        expectFalse(
-          result.includes("{% opening_times %}"),
-          "Should not contain unprocessed shortcode",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-recurring-events-shortcode",
-    description: "Preprocesses {% recurring_events %} shortcode",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-recurring",
-      );
+      expect(result.includes("<h1>")).toBe(true);
+      expect(result.includes("Come visit us")).toBe(true);
+      // The shortcode should be processed (replaced with actual content or empty)
+      expect(result.includes("{% opening_times %}")).toBe(false);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        const content = `# Regular Events
+  test("Preprocesses {% recurring_events %} shortcode", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-recurring",
+    );
+
+    try {
+      const content = `# Regular Events
 
 {% recurring_events %}
 
 Join us weekly!`;
 
-        fs.writeFileSync(`${snippetsDir}/events.md`, content);
+      fs.writeFileSync(`${snippetsDir}/events.md`, content);
 
-        const result = await renderSnippet("events", "fallback", tempDir);
+      const result = await renderSnippet("events", "fallback", tempDir);
 
-        expectTrue(result.includes("<h1>"), "Should render heading");
-        expectTrue(
-          result.includes("Join us weekly"),
-          "Should render surrounding content",
-        );
-        // The shortcode should be processed
-        expectFalse(
-          result.includes("{% recurring_events %}"),
-          "Should not contain unprocessed shortcode",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-both-shortcodes",
-    description:
-      "Handles both opening_times and recurring_events in one snippet",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-both",
-      );
+      expect(result.includes("<h1>")).toBe(true);
+      expect(result.includes("Join us weekly")).toBe(true);
+      // The shortcode should be processed
+      expect(result.includes("{% recurring_events %}")).toBe(false);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        const content = `# Schedule
+  test("Handles both opening_times and recurring_events in one snippet", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-both",
+    );
+
+    try {
+      const content = `# Schedule
 
 ## Opening Times
 {% opening_times %}
@@ -235,133 +182,96 @@ Join us weekly!`;
 ## Regular Events
 {% recurring_events %}`;
 
-        fs.writeFileSync(`${snippetsDir}/schedule.md`, content);
+      fs.writeFileSync(`${snippetsDir}/schedule.md`, content);
 
-        const result = await renderSnippet("schedule", "fallback", tempDir);
+      const result = await renderSnippet("schedule", "fallback", tempDir);
 
-        expectFalse(
-          result.includes("{% opening_times %}"),
-          "Should process opening_times shortcode",
-        );
-        expectFalse(
-          result.includes("{% recurring_events %}"),
-          "Should process recurring_events shortcode",
-        );
-        expectTrue(result.includes("<h1>"), "Should render main heading");
-        expectTrue(result.includes("<h2>"), "Should render subheadings");
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-missing-returns-default",
-    description: "Returns default string for non-existent snippet",
-    asyncTest: async () => {
-      const { tempDir } = createTempSnippetsDir("render-snippet-missing");
+      expect(result.includes("{% opening_times %}")).toBe(false);
+      expect(result.includes("{% recurring_events %}")).toBe(false);
+      expect(result.includes("<h1>")).toBe(true);
+      expect(result.includes("<h2>")).toBe(true);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        const result = await renderSnippet(
-          "nonexistent-snippet-12345",
-          "Default fallback content",
-          tempDir,
-        );
+  test("Returns default string for non-existent snippet", async () => {
+    const { tempDir } = createTempSnippetsDir("render-snippet-missing");
 
-        expectStrictEqual(
-          result,
-          "Default fallback content",
-          "Should return default string unchanged",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-missing-empty-default",
-    description: "Returns empty string when snippet missing and no default",
-    asyncTest: async () => {
-      const { tempDir } = createTempSnippetsDir("render-snippet-no-default");
-
-      try {
-        const result = await renderSnippet(
-          "nonexistent-snippet-67890",
-          "",
-          tempDir,
-        );
-
-        expectStrictEqual(
-          result,
-          "",
-          "Should return empty string when no default",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-caching",
-    description: "Returns consistent results (memoization test)",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-cache",
+    try {
+      const result = await renderSnippet(
+        "nonexistent-snippet-12345",
+        "Default fallback content",
+        tempDir,
       );
 
-      try {
-        const content = `# Cached Content
+      expect(result).toBe("Default fallback content");
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("Returns empty string when snippet missing and no default", async () => {
+    const { tempDir } = createTempSnippetsDir("render-snippet-no-default");
+
+    try {
+      const result = await renderSnippet(
+        "nonexistent-snippet-67890",
+        "",
+        tempDir,
+      );
+
+      expect(result).toBe("");
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("Returns consistent results (memoization test)", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-cache",
+    );
+
+    try {
+      const content = `# Cached Content
 
 This should be cached.`;
 
-        fs.writeFileSync(`${snippetsDir}/cached.md`, content);
+      fs.writeFileSync(`${snippetsDir}/cached.md`, content);
 
-        const result1 = await renderSnippet("cached", "fallback", tempDir);
-        const result2 = await renderSnippet("cached", "fallback", tempDir);
+      const result1 = await renderSnippet("cached", "fallback", tempDir);
+      const result2 = await renderSnippet("cached", "fallback", tempDir);
 
-        expectStrictEqual(
-          result1,
-          result2,
-          "Multiple calls should return identical results",
-        );
-        expectTrue(
-          result1.includes("<h1>"),
-          "Should contain rendered markdown",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-  {
-    name: "renderSnippet-special-characters",
-    description: "Handles special characters in content",
-    asyncTest: async () => {
-      const { tempDir, snippetsDir } = createTempSnippetsDir(
-        "render-snippet-special",
-      );
+      expect(result1).toBe(result2);
+      expect(result1.includes("<h1>")).toBe(true);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
 
-      try {
-        const content = `# Special Characters
+  test("Handles special characters in content", async () => {
+    const { tempDir, snippetsDir } = createTempSnippetsDir(
+      "render-snippet-special",
+    );
+
+    try {
+      const content = `# Special Characters
 
 Quotes: "double" and 'single'
 Ampersand: &
 Less/greater: < >
 Unicode: café résumé naïve`;
 
-        fs.writeFileSync(`${snippetsDir}/special.md`, content);
+      fs.writeFileSync(`${snippetsDir}/special.md`, content);
 
-        const result = await renderSnippet("special", "fallback", tempDir);
+      const result = await renderSnippet("special", "fallback", tempDir);
 
-        expectTrue(result.includes("café"), "Should preserve unicode");
-        expectTrue(
-          result.includes("double") || result.includes('"'),
-          "Should handle quotes",
-        );
-      } finally {
-        cleanupTempDir(tempDir);
-      }
-    },
-  },
-];
-
-export default createTestRunner("render-snippet", testCases);
+      expect(result.includes("café")).toBe(true);
+      expect(
+        result.includes("double") || result.includes('"'),
+      ).toBe(true);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+});

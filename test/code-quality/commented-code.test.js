@@ -1,3 +1,4 @@
+import { describe, test, expect } from "bun:test";
 import {
   analyzeFiles,
   assertNoViolations,
@@ -5,9 +6,7 @@ import {
   toLines,
 } from "#test/code-scanner.js";
 import {
-  createTestRunner,
   ECOMMERCE_JS_FILES,
-  expectTrue,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
@@ -130,107 +129,67 @@ const analyzeCommentedCode = () => {
   });
 };
 
-const testCases = [
-  {
-    name: "detect-commented-variable",
-    description: "Correctly identifies commented-out variable declarations",
-    test: () => {
-      const source = `
+describe("commented-code", () => {
+  test("Correctly identifies commented-out variable declarations", () => {
+    const source = `
 const a = 1;
 // const b = 2;
 // This is a regular comment
 const c = 3;
-      `;
-      const results = findCommentedCode(source, "test.js");
-      expectTrue(
-        results.length === 1,
-        `Expected 1 commented code, found ${results.length}`,
-      );
-      expectTrue(
-        results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`,
-      );
-    },
-  },
-  {
-    name: "detect-commented-function",
-    description: "Correctly identifies commented-out function declarations",
-    test: () => {
-      const source = `
+    `;
+    const results = findCommentedCode(source, "test.js");
+    expect(results.length).toBe(1);
+    expect(results[0].lineNumber).toBe(3);
+  });
+
+  test("Correctly identifies commented-out function declarations", () => {
+    const source = `
 function active() {}
 // function disabled() {}
 // async function alsoDisabled() {}
-      `;
-      const results = findCommentedCode(source, "test.js");
-      expectTrue(
-        results.length === 2,
-        `Expected 2 commented code, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "detect-commented-console",
-    description: "Correctly identifies commented-out console statements",
-    test: () => {
-      const source = `
+    `;
+    const results = findCommentedCode(source, "test.js");
+    expect(results.length).toBe(2);
+  });
+
+  test("Correctly identifies commented-out console statements", () => {
+    const source = `
 console.log("active");
 // console.log("disabled");
 // console.error("also disabled");
-      `;
-      const results = findCommentedCode(source, "test.js");
-      expectTrue(
-        results.length === 2,
-        `Expected 2 commented code, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "ignore-template-literals",
-    description:
-      "Ignores commented code inside template literals (test fixtures)",
-    test: () => {
-      const source = `
+    `;
+    const results = findCommentedCode(source, "test.js");
+    expect(results.length).toBe(2);
+  });
+
+  test("Ignores commented code inside template literals (test fixtures)", () => {
+    const source = `
 const testFixture = \`
 // const ignored = "inside template";
 // console.log("also ignored");
 \`;
 const real = 1;
-      `;
-      const results = findCommentedCode(source, "test.js");
-      expectTrue(
-        results.length === 0,
-        `Expected 0 commented code in template literals, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "ignore-regular-comments",
-    description: "Does not flag regular documentation comments",
-    test: () => {
-      const source = `
+    `;
+    const results = findCommentedCode(source, "test.js");
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag regular documentation comments", () => {
+    const source = `
 // This is a comment about the code
 // Remember to implement this later
 // NOTE: important detail
 const a = 1;
-      `;
-      const results = findCommentedCode(source, "test.js");
-      expectTrue(
-        results.length === 0,
-        `Expected 0 commented code, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "no-commented-code",
-    description: "No commented-out code allowed in the codebase",
-    test: () => {
-      const violations = analyzeCommentedCode();
-      assertNoViolations(expectTrue, violations, {
-        message: "commented-out code",
-        fixHint: "remove the commented code",
-      });
-    },
-  },
-];
+    `;
+    const results = findCommentedCode(source, "test.js");
+    expect(results.length).toBe(0);
+  });
 
-createTestRunner("commented-code", testCases);
+  test("No commented-out code allowed in the codebase", () => {
+    const violations = analyzeCommentedCode();
+    assertNoViolations(violations, {
+      message: "commented-out code",
+      fixHint: "remove the commented code",
+    });
+  });
+});

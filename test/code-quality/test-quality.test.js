@@ -1,14 +1,10 @@
+import { describe, test, expect } from "bun:test";
 import {
   analyzeFiles,
   assertNoViolations,
   findPatterns,
 } from "#test/code-scanner.js";
-import {
-  createTestRunner,
-  expectStrictEqual,
-  expectTrue,
-  TEST_FILES,
-} from "#test/test-utils.js";
+import { TEST_FILES } from "#test/test-utils.js";
 
 /**
  * Test Quality Enforcement
@@ -304,12 +300,9 @@ const findTautologicalAssertions = () => {
 // Test Cases
 // ============================================
 
-const testCases = [
-  {
-    name: "extractTestCases-basic",
-    description: "Correctly extracts test case names from testCases array",
-    test: () => {
-      const source = `
+describe("test-quality", () => {
+  test("Correctly extracts test case names from testCases array", () => {
+    const source = `
 const testCases = [
   {
     name: "my-test",
@@ -317,147 +310,113 @@ const testCases = [
     test: () => {}
   }
 ];`;
-      const cases = extractTestCases(source, "test.js");
-      expectStrictEqual(cases.length, 1, "Should find one test case");
-      expectStrictEqual(cases[0].name, "my-test", "Should extract name");
-    },
-  },
-  {
-    name: "extractDescribeItTests-basic",
-    description: "Correctly extracts it() test names",
-    test: () => {
-      const source = `
+    const cases = extractTestCases(source, "test.js");
+    expect(cases.length).toBe(1);
+    expect(cases[0].name).toBe("my-test");
+  });
+
+  test("Correctly extracts it() test names", () => {
+    const source = `
 describe("module", () => {
   it("should do something", () => {});
   it('handles edge case', () => {});
 });`;
-      const cases = extractDescribeItTests(source, "test.js");
-      expectStrictEqual(cases.length, 2, "Should find two tests");
-      expectStrictEqual(
-        cases[0].name,
-        "should do something",
-        "Should extract first name",
-      );
-    },
-  },
-  {
-    name: "vague-names-detected",
-    description: "Detects vague test names",
-    test: () => {
-      const testPatterns = [
-        "test-1",
-        "test1",
-        "test",
-        "works",
-        "basic",
-        "simple",
-      ];
-      for (const name of testPatterns) {
-        const isVague = VAGUE_NAME_PATTERNS.some((p) => p.test(name));
-        expectTrue(isVague, `"${name}" should be detected as vague`);
-      }
-    },
-  },
-  {
-    name: "good-names-not-flagged",
-    description: "Does not flag good descriptive test names",
-    test: () => {
-      const goodNames = [
-        "addItem-increments-quantity",
-        "getCart-returns-empty-array-initially",
-        "parseConfig-handles-missing-keys",
-        "basic-functionality-works",
-      ];
-      for (const name of goodNames) {
-        const isVague = VAGUE_NAME_PATTERNS.some((p) => p.test(name));
-        expectTrue(!isVague, `"${name}" should NOT be flagged as vague`);
-      }
-    },
-  },
-  {
-    name: "tautology-detection-basic",
-    description: "Detects set-then-assert tautological patterns",
-    test: () => {
-      const source = `
+    const cases = extractDescribeItTests(source, "test.js");
+    expect(cases.length).toBe(2);
+    expect(cases[0].name).toBe("should do something");
+  });
+
+  test("Detects vague test names", () => {
+    const testPatterns = [
+      "test-1",
+      "test1",
+      "test",
+      "works",
+      "basic",
+      "simple",
+    ];
+    for (const name of testPatterns) {
+      const isVague = VAGUE_NAME_PATTERNS.some((p) => p.test(name));
+      expect(isVague).toBe(true);
+    }
+  });
+
+  test("Does not flag good descriptive test names", () => {
+    const goodNames = [
+      "addItem-increments-quantity",
+      "getCart-returns-empty-array-initially",
+      "parseConfig-handles-missing-keys",
+      "basic-functionality-works",
+    ];
+    for (const name of goodNames) {
+      const isVague = VAGUE_NAME_PATTERNS.some((p) => p.test(name));
+      expect(isVague).toBe(false);
+    }
+  });
+
+  test("Detects set-then-assert tautological patterns", () => {
+    const source = `
         button.disabled = false;
         assert.strictEqual(button.disabled, false);
       `;
-      const lines = source.split("\n");
-      const recentAssignments = new Map();
-      let foundTautology = false;
+    const lines = source.split("\n");
+    const recentAssignments = new Map();
+    let foundTautology = false;
 
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        const assignMatch = line.match(/^(\w+(?:\.\w+)+)\s*=\s*([^;]+);?\s*$/);
-        if (assignMatch) {
-          recentAssignments.set(assignMatch[1], { line: i + 1 });
-        }
-        const assertMatch = line.match(
-          /assert\.strictEqual\s*\(\s*(\w+(?:\.\w+)+)/,
-        );
-        if (assertMatch && recentAssignments.has(assertMatch[1])) {
-          foundTautology = true;
-        }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const assignMatch = line.match(/^(\w+(?:\.\w+)+)\s*=\s*([^;]+);?\s*$/);
+      if (assignMatch) {
+        recentAssignments.set(assignMatch[1], { line: i + 1 });
       }
+      const assertMatch = line.match(
+        /assert\.strictEqual\s*\(\s*(\w+(?:\.\w+)+)/,
+      );
+      if (assertMatch && recentAssignments.has(assertMatch[1])) {
+        foundTautology = true;
+      }
+    }
 
-      expectTrue(foundTautology, "Should detect tautological pattern");
-    },
-  },
-  {
-    name: "no-vague-test-names",
-    description: "No tests have vague names (Section 4)",
-    test: () => {
-      const violations = findVagueTestNames();
-      assertNoViolations(expectTrue, violations, {
-        message: "vague test name(s)",
-        fixHint: "use descriptive test names",
-      });
-    },
-  },
-  {
-    name: "no-multi-concern-test-names",
-    description: "No tests have multiple 'and's (Section 6)",
-    test: () => {
-      const violations = findMultiConcernTestNames();
-      assertNoViolations(expectTrue, violations, {
-        message: "multi-concern test(s)",
-        fixHint: "split tests that test multiple things",
-      });
-    },
-  },
-  {
-    name: "async-tests-have-await",
-    description: "asyncTest functions have real await (Section 9)",
-    test: () => {
-      const violations = findAsyncTestsWithoutAwait();
-      assertNoViolations(expectTrue, violations, {
-        message: "asyncTest(s) without await",
-        fixHint: 'use sync "test" instead of asyncTest when no await needed',
-      });
-    },
-  },
-  {
-    name: "assertions-have-messages",
-    description: "Assertions have descriptive messages (Section 4)",
-    test: () => {
-      const violations = findAssertionsWithoutMessages();
-      assertNoViolations(expectTrue, violations, {
-        message: "assertion(s) without messages",
-        fixHint: "add descriptive message as third parameter to assertions",
-      });
-    },
-  },
-  {
-    name: "no-tautological-assertions",
-    description: "No tautological set-then-assert patterns (Section 2)",
-    test: () => {
-      const violations = findTautologicalAssertions();
-      assertNoViolations(expectTrue, violations, {
-        message: "tautological assertion(s)",
-        fixHint: "test actual behavior, not just set-then-check patterns",
-      });
-    },
-  },
-];
+    expect(foundTautology).toBe(true);
+  });
 
-export default createTestRunner("test-quality", testCases);
+  test("No tests have vague names (Section 4)", () => {
+    const violations = findVagueTestNames();
+    assertNoViolations(violations, {
+      message: "vague test name(s)",
+      fixHint: "use descriptive test names",
+    });
+  });
+
+  test("No tests have multiple 'and's (Section 6)", () => {
+    const violations = findMultiConcernTestNames();
+    assertNoViolations(violations, {
+      message: "multi-concern test(s)",
+      fixHint: "split tests that test multiple things",
+    });
+  });
+
+  test("asyncTest functions have real await (Section 9)", () => {
+    const violations = findAsyncTestsWithoutAwait();
+    assertNoViolations(violations, {
+      message: "asyncTest(s) without await",
+      fixHint: 'use sync "test" instead of asyncTest when no await needed',
+    });
+  });
+
+  test("Assertions have descriptive messages (Section 4)", () => {
+    const violations = findAssertionsWithoutMessages();
+    assertNoViolations(violations, {
+      message: "assertion(s) without messages",
+      fixHint: "add descriptive message as third parameter to assertions",
+    });
+  });
+
+  test("No tautological set-then-assert patterns (Section 2)", () => {
+    const violations = findTautologicalAssertions();
+    assertNoViolations(violations, {
+      message: "tautological assertion(s)",
+      fixHint: "test actual behavior, not just set-then-check patterns",
+    });
+  });
+});

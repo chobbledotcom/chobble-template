@@ -1,254 +1,142 @@
+import { describe, test, expect } from "bun:test";
 import { configureGuides, guidesByCategory } from "#collections/guides.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectDeepEqual,
-  expectFunctionType,
-  expectStrictEqual,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const testCases = [
-  {
-    name: "guidesByCategory-basic",
-    description: "Filters guide pages by category slug",
-    test: () => {
-      const guidePages = [
-        { data: { title: "Guide 1", "guide-category": "getting-started" } },
-        { data: { title: "Guide 2", "guide-category": "advanced" } },
-        { data: { title: "Guide 3", "guide-category": "getting-started" } },
-        { data: { title: "Guide 4", "guide-category": "tips" } },
-      ];
+describe("guides", () => {
+  test("Filters guide pages by category slug", () => {
+    const guidePages = [
+      { data: { title: "Guide 1", "guide-category": "getting-started" } },
+      { data: { title: "Guide 2", "guide-category": "advanced" } },
+      { data: { title: "Guide 3", "guide-category": "getting-started" } },
+      { data: { title: "Guide 4", "guide-category": "tips" } },
+    ];
 
-      const result = guidesByCategory(guidePages, "getting-started");
+    const result = guidesByCategory(guidePages, "getting-started");
 
-      expectStrictEqual(
-        result.length,
-        2,
-        "Should return 2 guides in getting-started category",
-      );
-      expectStrictEqual(
-        result[0].data.title,
-        "Guide 1",
-        "Should include first matching guide",
-      );
-      expectStrictEqual(
-        result[1].data.title,
-        "Guide 3",
-        "Should include second matching guide",
-      );
-    },
-  },
-  {
-    name: "guidesByCategory-single-match",
-    description: "Returns single guide when only one matches",
-    test: () => {
-      const guidePages = [
-        { data: { title: "Guide 1", "guide-category": "getting-started" } },
-        { data: { title: "Guide 2", "guide-category": "advanced" } },
-        { data: { title: "Guide 3", "guide-category": "tips" } },
-      ];
+    expect(result.length).toBe(2);
+    expect(result[0].data.title).toBe("Guide 1");
+    expect(result[1].data.title).toBe("Guide 3");
+  });
 
-      const result = guidesByCategory(guidePages, "advanced");
+  test("Returns single guide when only one matches", () => {
+    const guidePages = [
+      { data: { title: "Guide 1", "guide-category": "getting-started" } },
+      { data: { title: "Guide 2", "guide-category": "advanced" } },
+      { data: { title: "Guide 3", "guide-category": "tips" } },
+    ];
 
-      expectStrictEqual(result.length, 1, "Should return 1 guide");
-      expectStrictEqual(
-        result[0].data.title,
-        "Guide 2",
-        "Should return the correct guide",
-      );
-    },
-  },
-  {
-    name: "guidesByCategory-no-matches",
-    description: "Returns empty array when no guides match category",
-    test: () => {
-      const guidePages = [
-        { data: { title: "Guide 1", "guide-category": "getting-started" } },
-        { data: { title: "Guide 2", "guide-category": "advanced" } },
-      ];
+    const result = guidesByCategory(guidePages, "advanced");
 
-      const result = guidesByCategory(guidePages, "nonexistent");
+    expect(result.length).toBe(1);
+    expect(result[0].data.title).toBe("Guide 2");
+  });
 
-      expectStrictEqual(result.length, 0, "Should return no guides");
-    },
-  },
-  {
-    name: "guidesByCategory-null-pages",
-    description: "Handles null/undefined guide pages",
-    test: () => {
-      expectDeepEqual(
-        guidesByCategory(null, "getting-started"),
-        [],
-        "Should return empty array for null pages",
-      );
-      expectDeepEqual(
-        guidesByCategory(undefined, "getting-started"),
-        [],
-        "Should return empty array for undefined pages",
-      );
-    },
-  },
-  {
-    name: "guidesByCategory-null-category",
-    description: "Handles null/undefined category slug",
-    test: () => {
-      const guidePages = [
-        { data: { title: "Guide 1", "guide-category": "getting-started" } },
-      ];
+  test("Returns empty array when no guides match category", () => {
+    const guidePages = [
+      { data: { title: "Guide 1", "guide-category": "getting-started" } },
+      { data: { title: "Guide 2", "guide-category": "advanced" } },
+    ];
 
-      expectDeepEqual(
-        guidesByCategory(guidePages, null),
-        [],
-        "Should return empty array for null category",
-      );
-      expectDeepEqual(
-        guidesByCategory(guidePages, undefined),
-        [],
-        "Should return empty array for undefined category",
-      );
-    },
-  },
-  {
-    name: "guidesByCategory-empty-pages",
-    description: "Handles empty guide pages array",
-    test: () => {
-      const result = guidesByCategory([], "getting-started");
+    const result = guidesByCategory(guidePages, "nonexistent");
 
-      expectDeepEqual(result, [], "Should return empty array for empty pages");
-    },
-  },
-  {
-    name: "guidesByCategory-missing-category-field",
-    description: "Skips guides without guide-category field",
-    test: () => {
-      const guidePages = [
-        { data: { title: "Guide 1", "guide-category": "getting-started" } },
-        { data: { title: "Guide 2" } },
-        { data: { title: "Guide 3", "guide-category": "getting-started" } },
-      ];
+    expect(result.length).toBe(0);
+  });
 
-      const result = guidesByCategory(guidePages, "getting-started");
+  test("Handles null/undefined guide pages", () => {
+    expect(guidesByCategory(null, "getting-started")).toEqual([]);
+    expect(guidesByCategory(undefined, "getting-started")).toEqual([]);
+  });
 
-      expectStrictEqual(
-        result.length,
-        2,
-        "Should only return guides with matching category",
-      );
-    },
-  },
-  {
-    name: "guidesByCategory-case-sensitive",
-    description: "Category matching is case-sensitive",
-    test: () => {
-      const guidePages = [
-        { data: { title: "Guide 1", "guide-category": "Getting-Started" } },
-        { data: { title: "Guide 2", "guide-category": "getting-started" } },
-      ];
+  test("Handles null/undefined category slug", () => {
+    const guidePages = [
+      { data: { title: "Guide 1", "guide-category": "getting-started" } },
+    ];
 
-      const result = guidesByCategory(guidePages, "getting-started");
+    expect(guidesByCategory(guidePages, null)).toEqual([]);
+    expect(guidesByCategory(guidePages, undefined)).toEqual([]);
+  });
 
-      expectStrictEqual(result.length, 1, "Should only match exact case");
-      expectStrictEqual(
-        result[0].data.title,
-        "Guide 2",
-        "Should return correctly cased guide",
-      );
-    },
-  },
-  {
-    name: "guidesByCategory-immutable",
-    description: "Does not modify input array",
-    test: () => {
-      const originalPages = [
-        { data: { title: "Guide 1", "guide-category": "getting-started" } },
-        { data: { title: "Guide 2", "guide-category": "advanced" } },
-      ];
+  test("Handles empty guide pages array", () => {
+    const result = guidesByCategory([], "getting-started");
 
-      const pagesCopy = structuredClone(originalPages);
+    expect(result).toEqual([]);
+  });
 
-      guidesByCategory(pagesCopy, "getting-started");
+  test("Skips guides without guide-category field", () => {
+    const guidePages = [
+      { data: { title: "Guide 1", "guide-category": "getting-started" } },
+      { data: { title: "Guide 2" } },
+      { data: { title: "Guide 3", "guide-category": "getting-started" } },
+    ];
 
-      expectDeepEqual(
-        pagesCopy,
-        originalPages,
-        "Should not modify input array",
-      );
-    },
-  },
-  {
-    name: "configureGuides-collections",
-    description: "Adds guide-categories and guide-pages collections",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+    const result = guidesByCategory(guidePages, "getting-started");
 
-      configureGuides(mockConfig);
+    expect(result.length).toBe(2);
+  });
 
-      expectFunctionType(
-        mockConfig.collections,
-        "guide-categories",
-        "Should add guide-categories collection",
-      );
-      expectFunctionType(
-        mockConfig.collections,
-        "guide-pages",
-        "Should add guide-pages collection",
-      );
-    },
-  },
-  {
-    name: "configureGuides-filter",
-    description: "Adds guidesByCategory filter",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+  test("Category matching is case-sensitive", () => {
+    const guidePages = [
+      { data: { title: "Guide 1", "guide-category": "Getting-Started" } },
+      { data: { title: "Guide 2", "guide-category": "getting-started" } },
+    ];
 
-      configureGuides(mockConfig);
+    const result = guidesByCategory(guidePages, "getting-started");
 
-      expectFunctionType(
-        mockConfig.filters,
-        "guidesByCategory",
-        "Should add guidesByCategory filter",
-      );
-      expectStrictEqual(
-        mockConfig.filters.guidesByCategory,
-        guidesByCategory,
-        "Should use correct filter function",
-      );
-    },
-  },
-  {
-    name: "configureGuides-collection-functions",
-    description: "Collection functions filter by correct tags",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+    expect(result.length).toBe(1);
+    expect(result[0].data.title).toBe("Guide 2");
+  });
 
-      configureGuides(mockConfig);
+  test("Does not modify input array", () => {
+    const originalPages = [
+      { data: { title: "Guide 1", "guide-category": "getting-started" } },
+      { data: { title: "Guide 2", "guide-category": "advanced" } },
+    ];
 
-      const mockCollectionApi = {
-        getFilteredByTag: (tag) => {
-          if (tag === "guide-category") return [{ slug: "cat-1" }];
-          if (tag === "guide-page") return [{ slug: "page-1" }];
-          return [];
-        },
-      };
+    const pagesCopy = structuredClone(originalPages);
 
-      const categories =
-        mockConfig.collections["guide-categories"](mockCollectionApi);
-      const pages = mockConfig.collections["guide-pages"](mockCollectionApi);
+    guidesByCategory(pagesCopy, "getting-started");
 
-      expectStrictEqual(
-        categories.length,
-        1,
-        "Should return guide-category items",
-      );
-      expectStrictEqual(
-        categories[0].slug,
-        "cat-1",
-        "Should return correct category",
-      );
-      expectStrictEqual(pages.length, 1, "Should return guide-page items");
-      expectStrictEqual(pages[0].slug, "page-1", "Should return correct page");
-    },
-  },
-];
+    expect(pagesCopy).toEqual(originalPages);
+  });
 
-export default createTestRunner("guides", testCases);
+  test("Adds guide-categories and guide-pages collections", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureGuides(mockConfig);
+
+    expect(typeof mockConfig.collections["guide-categories"]).toBe("function");
+    expect(typeof mockConfig.collections["guide-pages"]).toBe("function");
+  });
+
+  test("Adds guidesByCategory filter", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureGuides(mockConfig);
+
+    expect(typeof mockConfig.filters.guidesByCategory).toBe("function");
+    expect(mockConfig.filters.guidesByCategory).toBe(guidesByCategory);
+  });
+
+  test("Collection functions filter by correct tags", () => {
+    const mockConfig = createMockEleventyConfig();
+
+    configureGuides(mockConfig);
+
+    const mockCollectionApi = {
+      getFilteredByTag: (tag) => {
+        if (tag === "guide-category") return [{ slug: "cat-1" }];
+        if (tag === "guide-page") return [{ slug: "page-1" }];
+        return [];
+      },
+    };
+
+    const categories =
+      mockConfig.collections["guide-categories"](mockCollectionApi);
+    const pages = mockConfig.collections["guide-pages"](mockCollectionApi);
+
+    expect(categories.length).toBe(1);
+    expect(categories[0].slug).toBe("cat-1");
+    expect(pages.length).toBe(1);
+    expect(pages[0].slug).toBe("page-1");
+  });
+});

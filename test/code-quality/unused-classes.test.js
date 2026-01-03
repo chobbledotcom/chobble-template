@@ -2,9 +2,8 @@
 // Detects HTML classes and IDs that are never referenced in SCSS or JS files
 // This helps identify dead code and potential cleanup opportunities
 
+import { describe, test, expect } from "bun:test";
 import {
-  createTestRunner,
-  expectTrue,
   fs,
   getFiles,
   path,
@@ -297,198 +296,135 @@ const findUnusedClassesAndIds = (
 // Test Cases
 // ============================================
 
-const testCases = [
-  {
-    name: "extract-classes-from-html",
-    description: "Extracts class names from HTML class attributes",
-    test: () => {
-      const html = `
-        <div class="foo bar">
-          <span class="baz"></span>
-        </div>
-      `;
-      const classes = extractClassesFromHtml(html);
-      expectTrue(classes.has("foo"), "Should extract 'foo'");
-      expectTrue(classes.has("bar"), "Should extract 'bar'");
-      expectTrue(classes.has("baz"), "Should extract 'baz'");
-    },
-  },
-  {
-    name: "extract-classes-with-liquid",
-    description: "Handles Liquid/Nunjucks in class attributes",
-    test: () => {
-      const html = `
-        <div class="static {% if x %}conditional{% endif %}">
-        <span class="{{ variable }} another"></span>
-      `;
-      const classes = extractClassesFromHtml(html);
-      expectTrue(classes.has("static"), "Should extract static class");
-      expectTrue(classes.has("another"), "Should extract 'another'");
-      // Conditional and variable classes are stripped
-    },
-  },
-  {
-    name: "extract-ids-from-html",
-    description: "Extracts ID names from HTML id attributes",
-    test: () => {
-      const html = `
-        <div id="main-content">
-          <span id="sidebar"></span>
-        </div>
-      `;
-      const ids = extractIdsFromHtml(html);
-      expectTrue(ids.has("main-content"), "Should extract 'main-content'");
-      expectTrue(ids.has("sidebar"), "Should extract 'sidebar'");
-    },
-  },
-  {
-    name: "extract-classes-from-js",
-    description: "Extracts classes from JS template literals",
-    test: () => {
-      const js = `
-        const html = \`<div class="cart-item">
-          <span class="item-name item-bold"></span>
-        </div>\`;
-        icon.classList.add("active");
-        let classes = "base-class";
-        classes += " extra";
-      `;
-      const classes = extractClassesFromJs(js);
-      expectTrue(classes.has("cart-item"), "Should extract 'cart-item'");
-      expectTrue(classes.has("item-name"), "Should extract 'item-name'");
-      expectTrue(
-        classes.has("active"),
-        "Should extract 'active' from classList",
-      );
-      expectTrue(classes.has("base-class"), "Should extract from assignment");
-      expectTrue(classes.has("extra"), "Should extract from concatenation");
-    },
-  },
-  {
-    name: "find-class-references-in-scss",
-    description: "Finds class selectors in SCSS content",
-    test: () => {
-      const scss = `
-        .cart-item { color: red; }
-        .cart-item:hover { color: blue; }
-        .cart-item.active { font-weight: bold; }
-        .unused-class { display: none; }
-      `;
-      expectTrue(
-        findClassReferencesInScss(scss, "cart-item"),
-        "Should find .cart-item",
-      );
-      expectTrue(
-        findClassReferencesInScss(scss, "active"),
-        "Should find .active",
-      );
-      expectTrue(
-        !findClassReferencesInScss(scss, "nonexistent"),
-        "Should not find nonexistent class",
-      );
-    },
-  },
-  {
-    name: "find-class-references-in-js",
-    description: "Finds class references in JS content",
-    test: () => {
-      const js = `
-        document.querySelector(".cart-item");
-        element.classList.contains("active");
-        const html = \`<div class="dynamic"></div>\`;
-      `;
-      expectTrue(
-        findClassReferencesInJs(js, "cart-item"),
-        "Should find in querySelector",
-      );
-      expectTrue(
-        findClassReferencesInJs(js, "active"),
-        "Should find in classList",
-      );
-      expectTrue(
-        findClassReferencesInJs(js, "dynamic"),
-        "Should find in template",
-      );
-    },
-  },
-  {
-    name: "find-id-references",
-    description: "Finds ID references in SCSS and JS",
-    test: () => {
-      const scss = "#main-nav { display: flex; }";
-      const js = `document.getElementById("sidebar");`;
+describe("unused-classes", () => {
+  test("Extracts class names from HTML class attributes", () => {
+    const html = `
+      <div class="foo bar">
+        <span class="baz"></span>
+      </div>
+    `;
+    const classes = extractClassesFromHtml(html);
+    expect(classes.has("foo")).toBe(true);
+    expect(classes.has("bar")).toBe(true);
+    expect(classes.has("baz")).toBe(true);
+  });
 
-      expectTrue(
-        findIdReferencesInScss(scss, "main-nav"),
-        "Should find #main-nav in SCSS",
-      );
-      expectTrue(
-        findIdReferencesInJs(js, "sidebar"),
-        "Should find getElementById",
-      );
-    },
-  },
-  {
-    name: "detect-unused-classes-in-project",
-    description: "Scans project files and reports unused classes/IDs",
-    test: () => {
-      // Use pre-computed file lists
-      const htmlFiles = SRC_HTML_FILES.map((f) => join(rootDir, f));
-      const scssFiles = SRC_SCSS_FILES.map((f) => join(rootDir, f));
-      const jsFiles = ASSET_JS_FILES.map((f) => join(rootDir, f));
+  test("Handles Liquid/Nunjucks in class attributes", () => {
+    const html = `
+      <div class="static {% if x %}conditional{% endif %}">
+      <span class="{{ variable }} another"></span>
+    `;
+    const classes = extractClassesFromHtml(html);
+    expect(classes.has("static")).toBe(true);
+    expect(classes.has("another")).toBe(true);
+    // Conditional and variable classes are stripped
+  });
 
-      // Collect all classes and IDs defined in HTML and JS
-      const { allClasses, allIds } = collectAllClassesAndIds(
-        htmlFiles,
-        jsFiles,
-      );
+  test("Extracts ID names from HTML id attributes", () => {
+    const html = `
+      <div id="main-content">
+        <span id="sidebar"></span>
+      </div>
+    `;
+    const ids = extractIdsFromHtml(html);
+    expect(ids.has("main-content")).toBe(true);
+    expect(ids.has("sidebar")).toBe(true);
+  });
 
-      // Find unused ones
-      const { unusedClasses, unusedIds } = findUnusedClassesAndIds(
-        allClasses,
-        allIds,
-        scssFiles,
-        jsFiles,
-        htmlFiles,
-      );
+  test("Extracts classes from JS template literals", () => {
+    const js = `
+      const html = \`<div class="cart-item">
+        <span class="item-name item-bold"></span>
+      </div>\`;
+      icon.classList.add("active");
+      let classes = "base-class";
+      classes += " extra";
+    `;
+    const classes = extractClassesFromJs(js);
+    expect(classes.has("cart-item")).toBe(true);
+    expect(classes.has("item-name")).toBe(true);
+    expect(classes.has("active")).toBe(true);
+    expect(classes.has("base-class")).toBe(true);
+    expect(classes.has("extra")).toBe(true);
+  });
 
-      // Report results
-      const totalClasses = allClasses.size;
-      const totalIds = allIds.size;
+  test("Finds class selectors in SCSS content", () => {
+    const scss = `
+      .cart-item { color: red; }
+      .cart-item:hover { color: blue; }
+      .cart-item.active { font-weight: bold; }
+      .unused-class { display: none; }
+    `;
+    expect(findClassReferencesInScss(scss, "cart-item")).toBe(true);
+    expect(findClassReferencesInScss(scss, "active")).toBe(true);
+    expect(findClassReferencesInScss(scss, "nonexistent")).toBe(false);
+  });
 
-      console.log(`\n  📊 Analysis Results:`);
-      console.log(`     Total classes found: ${totalClasses}`);
-      console.log(`     Total IDs found: ${totalIds}`);
-      console.log(`     Unused classes: ${unusedClasses.length}`);
-      console.log(`     Unused IDs: ${unusedIds.length}`);
+  test("Finds class references in JS content", () => {
+    const js = `
+      document.querySelector(".cart-item");
+      element.classList.contains("active");
+      const html = \`<div class="dynamic"></div>\`;
+    `;
+    expect(findClassReferencesInJs(js, "cart-item")).toBe(true);
+    expect(findClassReferencesInJs(js, "active")).toBe(true);
+    expect(findClassReferencesInJs(js, "dynamic")).toBe(true);
+  });
 
-      const logUnused = (items, label) => {
-        if (items.length === 0) return;
-        console.log(`\n  ⚠️  Unused ${label}:`);
-        for (const { name, definedIn } of items.sort((a, b) =>
-          a.name.localeCompare(b.name),
-        )) {
-          const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
-          console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
-        }
-      };
+  test("Finds ID references in SCSS and JS", () => {
+    const scss = "#main-nav { display: flex; }";
+    const js = `document.getElementById("sidebar");`;
 
-      logUnused(unusedClasses, "Classes");
-      logUnused(unusedIds, "IDs");
+    expect(findIdReferencesInScss(scss, "main-nav")).toBe(true);
+    expect(findIdReferencesInJs(js, "sidebar")).toBe(true);
+  });
 
-      // Fail the test if there are unused classes
-      expectTrue(
-        unusedClasses.length === 0,
-        `Found ${unusedClasses.length} unused CSS classes`,
-      );
+  test("Scans project files and reports unused classes/IDs", () => {
+    // Use pre-computed file lists
+    const htmlFiles = SRC_HTML_FILES.map((f) => join(rootDir, f));
+    const scssFiles = SRC_SCSS_FILES.map((f) => join(rootDir, f));
+    const jsFiles = ASSET_JS_FILES.map((f) => join(rootDir, f));
 
-      // Fail the test if there are unused IDs
-      expectTrue(
-        unusedIds.length === 0,
-        `Found ${unusedIds.length} unused IDs`,
-      );
-    },
-  },
-];
+    // Collect all classes and IDs defined in HTML and JS
+    const { allClasses, allIds } = collectAllClassesAndIds(htmlFiles, jsFiles);
 
-export default createTestRunner("unused-classes", testCases);
+    // Find unused ones
+    const { unusedClasses, unusedIds } = findUnusedClassesAndIds(
+      allClasses,
+      allIds,
+      scssFiles,
+      jsFiles,
+      htmlFiles,
+    );
+
+    // Report results
+    const totalClasses = allClasses.size;
+    const totalIds = allIds.size;
+
+    console.log(`\n  📊 Analysis Results:`);
+    console.log(`     Total classes found: ${totalClasses}`);
+    console.log(`     Total IDs found: ${totalIds}`);
+    console.log(`     Unused classes: ${unusedClasses.length}`);
+    console.log(`     Unused IDs: ${unusedIds.length}`);
+
+    const logUnused = (items, label) => {
+      if (items.length === 0) return;
+      console.log(`\n  ⚠️  Unused ${label}:`);
+      for (const { name, definedIn } of items.sort((a, b) =>
+        a.name.localeCompare(b.name),
+      )) {
+        const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
+        console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
+      }
+    };
+
+    logUnused(unusedClasses, "Classes");
+    logUnused(unusedIds, "IDs");
+
+    // Fail the test if there are unused classes
+    expect(unusedClasses.length).toBe(0);
+
+    // Fail the test if there are unused IDs
+    expect(unusedIds.length).toBe(0);
+  });
+});

@@ -1,252 +1,137 @@
+import { describe, test, expect } from "bun:test";
 import specsIconsBase from "#data/specs-icons-base.json" with { type: "json" };
 import { computeSpecs, getSpecIcon } from "#filters/spec-filters.js";
-import {
-  createTestRunner,
-  expectDeepEqual,
-  expectStrictEqual,
-  expectTrue,
-} from "#test/test-utils.js";
 
 // Use actual spec name from base config so tests stay in sync
 const KNOWN_SPEC = Object.keys(specsIconsBase)[0];
 
-const testCases = [
+describe("spec-filters", () => {
   // ============================================
   // getSpecIcon - Input Validation
   // ============================================
-  {
-    name: "getSpecIcon-null-returns-empty",
-    description: "Returns empty string for null input",
-    test: () => {
-      const result = getSpecIcon(null);
-      expectStrictEqual(
-        result,
-        "",
-        "getSpecIcon(null) should return empty string",
-      );
-    },
-  },
-  {
-    name: "getSpecIcon-undefined-returns-empty",
-    description: "Returns empty string for undefined input",
-    test: () => {
-      const result = getSpecIcon(undefined);
-      expectStrictEqual(
-        result,
-        "",
-        "getSpecIcon(undefined) should return empty string",
-      );
-    },
-  },
-  {
-    name: "getSpecIcon-empty-string-returns-empty",
-    description: "Returns empty string for empty string input",
-    test: () => {
-      const result = getSpecIcon("");
-      expectStrictEqual(
-        result,
-        "",
-        "getSpecIcon('') should return empty string",
-      );
-    },
-  },
-  {
-    name: "getSpecIcon-unknown-spec-returns-empty",
-    description: "Returns empty string for non-existent spec name",
-    test: () => {
-      const result = getSpecIcon("nonexistent-spec-name");
-      expectStrictEqual(
-        result,
-        "",
-        "Unknown spec name should return empty string",
-      );
-    },
-  },
+  test("Returns empty string for null input", () => {
+    const result = getSpecIcon(null);
+    expect(result).toBe("");
+  });
+
+  test("Returns empty string for undefined input", () => {
+    const result = getSpecIcon(undefined);
+    expect(result).toBe("");
+  });
+
+  test("Returns empty string for empty string input", () => {
+    const result = getSpecIcon("");
+    expect(result).toBe("");
+  });
+
+  test("Returns empty string for non-existent spec name", () => {
+    const result = getSpecIcon("nonexistent-spec-name");
+    expect(result).toBe("");
+  });
 
   // ============================================
   // getSpecIcon - Normalization
   // ============================================
-  {
-    name: "getSpecIcon-normalizes-to-lowercase",
-    description: "Normalizes spec name to lowercase before lookup",
-    test: () => {
-      const lowerResult = getSpecIcon(KNOWN_SPEC);
-      const upperResult = getSpecIcon(KNOWN_SPEC.toUpperCase());
+  test("Normalizes spec name to lowercase before lookup", () => {
+    const lowerResult = getSpecIcon(KNOWN_SPEC);
+    const upperResult = getSpecIcon(KNOWN_SPEC.toUpperCase());
 
-      expectStrictEqual(
-        lowerResult,
-        upperResult,
-        "Lowercase and uppercase spec names should return same icon",
-      );
-    },
-  },
-  {
-    name: "getSpecIcon-trims-whitespace",
-    description: "Trims whitespace from spec name before lookup",
-    test: () => {
-      const normalResult = getSpecIcon(KNOWN_SPEC);
-      const paddedResult = getSpecIcon(`  ${KNOWN_SPEC}  `);
+    expect(lowerResult).toBe(upperResult);
+  });
 
-      expectStrictEqual(
-        normalResult,
-        paddedResult,
-        "Padded spec name should return same icon as trimmed name",
-      );
-    },
-  },
-  {
-    name: "getSpecIcon-returns-svg-for-known-spec",
-    description: "Returns SVG content for spec with defined icon",
-    test: () => {
-      const result = getSpecIcon(KNOWN_SPEC);
+  test("Trims whitespace from spec name before lookup", () => {
+    const normalResult = getSpecIcon(KNOWN_SPEC);
+    const paddedResult = getSpecIcon(`  ${KNOWN_SPEC}  `);
 
-      expectTrue(result.startsWith("<svg"), "Icon should start with <svg");
-    },
-  },
+    expect(normalResult).toBe(paddedResult);
+  });
+
+  test("Returns SVG content for spec with defined icon", () => {
+    const result = getSpecIcon(KNOWN_SPEC);
+
+    expect(result.startsWith("<svg")).toBe(true);
+  });
 
   // ============================================
   // computeSpecs - Input Validation
   // ============================================
-  {
-    name: "computeSpecs-undefined-specs-returns-undefined",
-    description: "Returns undefined when data.specs is undefined",
-    test: () => {
-      const result = computeSpecs({});
-      expectStrictEqual(
-        result,
-        undefined,
-        "computeSpecs should return undefined when specs is missing",
-      );
-    },
-  },
-  {
-    name: "computeSpecs-null-specs-returns-undefined",
-    description: "Returns undefined when data.specs is null",
-    test: () => {
-      const result = computeSpecs({ specs: null });
-      expectStrictEqual(
-        result,
-        undefined,
-        "computeSpecs should return undefined when specs is null",
-      );
-    },
-  },
-  {
-    name: "computeSpecs-empty-array-returns-empty-array",
-    description: "Returns empty array when specs is empty array",
-    test: () => {
-      const result = computeSpecs({ specs: [] });
-      expectDeepEqual(
-        result,
-        [],
-        "computeSpecs should return empty array for empty specs input",
-      );
-    },
-  },
+  test("Returns undefined when data.specs is undefined", () => {
+    const result = computeSpecs({});
+    expect(result).toBe(undefined);
+  });
+
+  test("Returns undefined when data.specs is null", () => {
+    const result = computeSpecs({ specs: null });
+    expect(result).toBe(undefined);
+  });
+
+  test("Returns empty array when specs is empty array", () => {
+    const result = computeSpecs({ specs: [] });
+    expect(result).toEqual([]);
+  });
 
   // ============================================
   // computeSpecs - Transformation
   // ============================================
-  {
-    name: "computeSpecs-adds-icon-property",
-    description: "Adds icon property to each spec object",
-    test: () => {
-      const data = {
-        specs: [{ name: KNOWN_SPEC, value: "Yes" }],
-      };
+  test("Adds icon property to each spec object", () => {
+    const data = {
+      specs: [{ name: KNOWN_SPEC, value: "Yes" }],
+    };
 
-      const result = computeSpecs(data);
+    const result = computeSpecs(data);
 
-      expectStrictEqual(result.length, 1, "Result should contain one spec");
-      expectTrue("icon" in result[0], "Spec should have icon property");
-    },
-  },
-  {
-    name: "computeSpecs-preserves-original-properties",
-    description: "Preserves all original spec properties",
-    test: () => {
-      const data = {
-        specs: [
-          {
-            name: "test spec",
-            value: "test value",
-            customProp: "custom",
-          },
-        ],
-      };
+    expect(result.length).toBe(1);
+    expect("icon" in result[0]).toBe(true);
+  });
 
-      const result = computeSpecs(data);
+  test("Preserves all original spec properties", () => {
+    const data = {
+      specs: [
+        {
+          name: "test spec",
+          value: "test value",
+          customProp: "custom",
+        },
+      ],
+    };
 
-      expectStrictEqual(
-        result[0].name,
-        "test spec",
-        "Name should be preserved",
-      );
-      expectStrictEqual(
-        result[0].value,
-        "test value",
-        "Value should be preserved",
-      );
-      expectStrictEqual(
-        result[0].customProp,
-        "custom",
-        "Custom props should be preserved",
-      );
-    },
-  },
-  {
-    name: "computeSpecs-unknown-spec-gets-empty-icon",
-    description: "Returns empty string icon for specs without matching icon",
-    test: () => {
-      const data = {
-        specs: [{ name: "nonexistent-spec", value: "test" }],
-      };
+    const result = computeSpecs(data);
 
-      const result = computeSpecs(data);
+    expect(result[0].name).toBe("test spec");
+    expect(result[0].value).toBe("test value");
+    expect(result[0].customProp).toBe("custom");
+  });
 
-      expectStrictEqual(
-        result[0].icon,
-        "",
-        "Icon should be empty string for unknown spec",
-      );
-    },
-  },
-  {
-    name: "computeSpecs-known-spec-gets-svg-icon",
-    description: "Returns SVG content for specs with matching icon",
-    test: () => {
-      const data = {
-        specs: [{ name: KNOWN_SPEC, value: "Yes" }],
-      };
+  test("Returns empty string icon for specs without matching icon", () => {
+    const data = {
+      specs: [{ name: "nonexistent-spec", value: "test" }],
+    };
 
-      const result = computeSpecs(data);
+    const result = computeSpecs(data);
 
-      expectTrue(
-        result[0].icon.startsWith("<svg"),
-        "Icon should start with <svg",
-      );
-    },
-  },
-  {
-    name: "computeSpecs-case-insensitive-icon-lookup",
-    description: "Finds icons regardless of spec name case",
-    test: () => {
-      const data = {
-        specs: [
-          { name: KNOWN_SPEC, value: "lowercase" },
-          { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
-        ],
-      };
+    expect(result[0].icon).toBe("");
+  });
 
-      const result = computeSpecs(data);
+  test("Returns SVG content for specs with matching icon", () => {
+    const data = {
+      specs: [{ name: KNOWN_SPEC, value: "Yes" }],
+    };
 
-      expectStrictEqual(
-        result[0].icon,
-        result[1].icon,
-        "Same spec in different cases should get same icon",
-      );
-    },
-  },
-];
+    const result = computeSpecs(data);
 
-export default createTestRunner("spec-filters", testCases);
+    expect(result[0].icon.startsWith("<svg")).toBe(true);
+  });
+
+  test("Finds icons regardless of spec name case", () => {
+    const data = {
+      specs: [
+        { name: KNOWN_SPEC, value: "lowercase" },
+        { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
+      ],
+    };
+
+    const result = computeSpecs(data);
+
+    expect(result[0].icon).toBe(result[1].icon);
+  });
+});

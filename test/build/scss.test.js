@@ -1,235 +1,146 @@
+import { describe, test, expect } from "bun:test";
 import { compileScss, configureScss, createScssCompiler } from "#build/scss.js";
-import {
-  createMockEleventyConfig,
-  createTestRunner,
-  expectArrayLength,
-  expectFunctionType,
-  expectStrictEqual,
-  expectThrows,
-  expectTrue,
-} from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
-const testCases = [
-  {
-    name: "createScssCompiler-basic",
-    description: "Creates SCSS compiler function for given input path",
-    test: () => {
-      const inputPath = "/test/styles.scss";
-      const simpleScss = "$color: red; body { color: $color; }";
-      const compiler = createScssCompiler(simpleScss, inputPath);
+describe("scss", () => {
+  test("Creates SCSS compiler function for given input path", () => {
+    const inputPath = "/test/styles.scss";
+    const simpleScss = "$color: red; body { color: $color; }";
+    const compiler = createScssCompiler(simpleScss, inputPath);
 
-      expectFunctionType(compiler, undefined, "Should return a function");
+    expect(typeof compiler).toBe("function");
 
-      const result = compiler({});
-      expectTrue(
-        result.includes("color: red"),
-        "Should compile SCSS variables",
-      );
-      expectTrue(result.includes("body"), "Should include selectors");
-    },
-  },
-  {
-    name: "createScssCompiler-with-imports",
-    description: "Handles SCSS with import paths correctly",
-    test: () => {
-      const inputPath = "/project/src/css/main.scss";
-      const scssWithImports =
-        '@import "variables"; body { background: $bg-color; }';
-      const compiler = createScssCompiler(scssWithImports, inputPath);
+    const result = compiler({});
+    expect(result.includes("color: red")).toBe(true);
+    expect(result.includes("body")).toBe(true);
+  });
 
-      expectFunctionType(compiler, undefined, "Should return a function");
+  test("Handles SCSS with import paths correctly", () => {
+    const inputPath = "/project/src/css/main.scss";
+    const scssWithImports =
+      '@import "variables"; body { background: $bg-color; }';
+    const compiler = createScssCompiler(scssWithImports, inputPath);
 
-      // Missing import should throw an error
-      expectThrows(
-        () => compiler({}),
-        /Can't find stylesheet|file to import not found/i,
-        "Should throw error for missing import",
-      );
-    },
-  },
-  {
-    name: "compileScss-basic",
-    description: "Compiles SCSS content with basic functionality",
-    test: () => {
-      const inputContent = "$primary: #333; .header { color: $primary; }";
-      const inputPath = "/test/style.scss";
+    expect(typeof compiler).toBe("function");
 
-      const result = compileScss(inputContent, inputPath);
+    // Missing import should throw an error
+    expect(() => compiler({})).toThrow(
+      /Can't find stylesheet|file to import not found/i,
+    );
+  });
 
-      expectTrue(result.includes(".header"), "Should include CSS selectors");
-      expectTrue(
-        result.includes("color: #333") || result.includes("color:#333"),
-        "Should compile SCSS variables",
-      );
-    },
-  },
-  {
-    name: "compileScss-nested-rules",
-    description: "Handles nested SCSS rules",
-    test: () => {
-      const inputContent =
-        ".nav { ul { margin: 0; li { list-style: none; } } }";
-      const inputPath = "/test/nested.scss";
+  test("Compiles SCSS content with basic functionality", () => {
+    const inputContent = "$primary: #333; .header { color: $primary; }";
+    const inputPath = "/test/style.scss";
 
-      const result = compileScss(inputContent, inputPath);
+    const result = compileScss(inputContent, inputPath);
 
-      expectTrue(result.includes(".nav ul"), "Should handle nested selectors");
-      expectTrue(
-        result.includes(".nav ul li"),
-        "Should handle deeply nested selectors",
-      );
-    },
-  },
-  {
-    name: "compileScss-mixins",
-    description: "Handles SCSS mixins",
-    test: () => {
-      const inputContent = `
+    expect(result.includes(".header")).toBe(true);
+    expect(
+      result.includes("color: #333") || result.includes("color:#333"),
+    ).toBe(true);
+  });
+
+  test("Handles nested SCSS rules", () => {
+    const inputContent =
+      ".nav { ul { margin: 0; li { list-style: none; } } }";
+    const inputPath = "/test/nested.scss";
+
+    const result = compileScss(inputContent, inputPath);
+
+    expect(result.includes(".nav ul")).toBe(true);
+    expect(result.includes(".nav ul li")).toBe(true);
+  });
+
+  test("Handles SCSS mixins", () => {
+    const inputContent = `
         @mixin button-style($bg) {
           background: $bg;
           padding: 10px;
         }
         .btn { @include button-style(blue); }
       `;
-      const inputPath = "/test/mixins.scss";
+    const inputPath = "/test/mixins.scss";
 
-      const result = compileScss(inputContent, inputPath);
+    const result = compileScss(inputContent, inputPath);
 
-      expectTrue(result.includes(".btn"), "Should include selector");
-      expectTrue(
-        result.includes("background: blue") ||
-          result.includes("background:blue"),
-        "Should apply mixin",
-      );
-      expectTrue(
-        result.includes("padding: 10px") || result.includes("padding:10px"),
-        "Should include mixin properties",
-      );
-    },
-  },
-  {
-    name: "configureScss-basic",
-    description: "Configures SCSS compilation in Eleventy",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
+    expect(result.includes(".btn")).toBe(true);
+    expect(
+      result.includes("background: blue") ||
+        result.includes("background:blue"),
+    ).toBe(true);
+    expect(
+      result.includes("padding: 10px") || result.includes("padding:10px"),
+    ).toBe(true);
+  });
 
-      configureScss(mockConfig);
+  test("Configures SCSS compilation in Eleventy", () => {
+    const mockConfig = createMockEleventyConfig();
 
-      expectArrayLength(
-        mockConfig.templateFormats,
-        1,
-        "Should add template format",
-      );
-      expectStrictEqual(
-        mockConfig.templateFormats[0],
-        "scss",
-        "Should add scss format",
-      );
+    configureScss(mockConfig);
 
-      expectTrue(
-        mockConfig.extensions.scss !== undefined,
-        "Should add scss extension",
-      );
+    expect(mockConfig.templateFormats).toHaveLength(1);
+    expect(mockConfig.templateFormats[0]).toBe("scss");
 
-      const scssExtension = mockConfig.extensions.scss;
-      expectStrictEqual(
-        scssExtension.outputFileExtension,
-        "css",
-        "Should output CSS files",
-      );
-      expectFunctionType(
-        scssExtension,
-        "compile",
-        "Should have compile function",
-      );
-    },
-  },
-  {
-    name: "configureScss-compiler-function",
-    description: "SCSS extension compile function works correctly",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScss(mockConfig);
+    expect(mockConfig.extensions.scss !== undefined).toBe(true);
 
-      const scssExtension = mockConfig.extensions.scss;
-      const inputContent = "$color: green; .test { color: $color; }";
-      const inputPath = "/project/bundle.scss";
+    const scssExtension = mockConfig.extensions.scss;
+    expect(scssExtension.outputFileExtension).toBe("css");
+    expect(typeof scssExtension.compile).toBe("function");
+  });
 
-      const compileFn = scssExtension.compile(inputContent, inputPath);
-      expectFunctionType(
-        compileFn,
-        undefined,
-        "Compile should return a function",
-      );
+  test("SCSS extension compile function works correctly", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureScss(mockConfig);
 
-      const result = compileFn({});
-      expectTrue(
-        typeof result === "string",
-        "Should return compiled CSS string",
-      );
-      expectTrue(result.includes(".test"), "Should include CSS selector");
-      expectTrue(
-        result.includes("color: green") || result.includes("color:green"),
-        "Should compile SCSS",
-      );
-    },
-  },
-  {
-    name: "configureScss-load-paths",
-    description: "Uses correct load paths for imports",
-    test: () => {
-      const mockConfig = createMockEleventyConfig();
-      configureScss(mockConfig);
+    const scssExtension = mockConfig.extensions.scss;
+    const inputContent = "$color: green; .test { color: $color; }";
+    const inputPath = "/project/bundle.scss";
 
-      const scssExtension = mockConfig.extensions.scss;
-      const inputPath = "/project/src/css/bundle.scss";
-      const inputContent = ".test { color: blue; }";
+    const compileFn = scssExtension.compile(inputContent, inputPath);
+    expect(typeof compileFn).toBe("function");
 
-      const compileFn = scssExtension.compile(inputContent, inputPath);
-      const result = compileFn({});
+    const result = compileFn({});
+    expect(typeof result).toBe("string");
+    expect(result.includes(".test")).toBe(true);
+    expect(
+      result.includes("color: green") || result.includes("color:green"),
+    ).toBe(true);
+  });
 
-      expectTrue(
-        typeof result === "string",
-        "Should compile successfully with load paths",
-      );
-      expectTrue(result.includes(".test"), "Should include styles");
-    },
-  },
-  {
-    name: "error-handling",
-    description: "Handles SCSS compilation errors gracefully",
-    test: () => {
-      const invalidScss = ".test { color: ; }"; // Invalid syntax
-      const inputPath = "/test/invalid.scss";
+  test("Uses correct load paths for imports", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureScss(mockConfig);
 
-      // Invalid SCSS should throw an error with a message
-      expectThrows(
-        () => compileScss(invalidScss, inputPath),
-        /./,
-        "Should throw error for invalid SCSS",
-      );
-    },
-  },
-  {
-    name: "functional-programming-style",
-    description: "Functions should be pure and not modify inputs",
-    test: () => {
-      const originalContent = "$test: red; .class { color: $test; }";
-      const originalPath = "/test/style.scss";
-      const contentCopy = originalContent;
-      const pathCopy = originalPath;
+    const scssExtension = mockConfig.extensions.scss;
+    const inputPath = "/project/src/css/bundle.scss";
+    const inputContent = ".test { color: blue; }";
 
-      compileScss(contentCopy, pathCopy);
-      createScssCompiler(contentCopy, pathCopy);
+    const compileFn = scssExtension.compile(inputContent, inputPath);
+    const result = compileFn({});
 
-      expectStrictEqual(
-        contentCopy,
-        originalContent,
-        "Should not modify input content",
-      );
-      expectStrictEqual(pathCopy, originalPath, "Should not modify input path");
-    },
-  },
-];
+    expect(typeof result).toBe("string");
+    expect(result.includes(".test")).toBe(true);
+  });
 
-export default createTestRunner("scss", testCases);
+  test("Handles SCSS compilation errors gracefully", () => {
+    const invalidScss = ".test { color: ; }"; // Invalid syntax
+    const inputPath = "/test/invalid.scss";
+
+    // Invalid SCSS should throw an error with a message
+    expect(() => compileScss(invalidScss, inputPath)).toThrow(/./);
+  });
+
+  test("Functions should be pure and not modify inputs", () => {
+    const originalContent = "$test: red; .class { color: $test; }";
+    const originalPath = "/test/style.scss";
+    const contentCopy = originalContent;
+    const pathCopy = originalPath;
+
+    compileScss(contentCopy, pathCopy);
+    createScssCompiler(contentCopy, pathCopy);
+
+    expect(contentCopy).toBe(originalContent);
+    expect(pathCopy).toBe(originalPath);
+  });
+});

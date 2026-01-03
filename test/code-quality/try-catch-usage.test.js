@@ -1,3 +1,4 @@
+import { describe, test, expect } from "bun:test";
 import { ALLOWED_TRY_CATCHES } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeFiles,
@@ -5,9 +6,7 @@ import {
   combineFileLists,
 } from "#test/code-scanner.js";
 import {
-  createTestRunner,
   ECOMMERCE_JS_FILES,
-  expectTrue,
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
@@ -130,12 +129,9 @@ const analyzeTryCatchUsage = () => {
   return { violations, allowed };
 };
 
-const testCases = [
-  {
-    name: "find-try-catch-in-source",
-    description: "Correctly identifies try/catch blocks in source code",
-    test: () => {
-      const source = `
+describe("try-catch-usage", () => {
+  test("Correctly identifies try/catch blocks in source code", () => {
+    const source = `
 const a = 1;
 try {
   doSomething();
@@ -144,23 +140,14 @@ try {
 }
 // try { this is a comment
 const b = 2;
-      `;
-      const results = findTryCatches(source);
-      expectTrue(
-        results.length === 1,
-        `Expected 1 try/catch, found ${results.length}`,
-      );
-      expectTrue(
-        results[0].lineNumber === 3,
-        `Expected line 3, got ${results[0].lineNumber}`,
-      );
-    },
-  },
-  {
-    name: "ignore-try-finally-in-source",
-    description: "Does not flag try/finally blocks (only try/catch)",
-    test: () => {
-      const source = `
+    `;
+    const results = findTryCatches(source);
+    expect(results.length).toBe(1);
+    expect(results[0].lineNumber).toBe(3);
+  });
+
+  test("Does not flag try/finally blocks (only try/catch)", () => {
+    const source = `
 const a = 1;
 try {
   doSomething();
@@ -168,19 +155,13 @@ try {
   cleanup();
 }
 const b = 2;
-      `;
-      const results = findTryCatches(source);
-      expectTrue(
-        results.length === 0,
-        `Expected 0 try/catch (only try/finally), found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "find-try-catch-finally-in-source",
-    description: "Flags try/catch/finally blocks (has catch)",
-    test: () => {
-      const source = `
+    `;
+    const results = findTryCatches(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Flags try/catch/finally blocks (has catch)", () => {
+    const source = `
 try {
   doSomething();
 } catch (e) {
@@ -188,51 +169,39 @@ try {
 } finally {
   cleanup();
 }
-      `;
-      const results = findTryCatches(source);
-      expectTrue(
-        results.length === 1,
-        `Expected 1 try/catch/finally, found ${results.length}`,
-      );
-    },
-  },
-  {
-    name: "no-new-try-catches",
-    description: "No new try/catch blocks outside the whitelist",
-    test: () => {
-      const { violations } = analyzeTryCatchUsage();
-      assertNoViolations(expectTrue, violations, {
-        message: "non-whitelisted try/catch blocks",
-        fixHint:
-          "refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js",
-      });
-    },
-  },
-  {
-    name: "report-allowed-try-catches",
-    description: "Reports whitelisted try/catch blocks for tracking",
-    test: () => {
-      const { allowed } = analyzeTryCatchUsage();
+    `;
+    const results = findTryCatches(source);
+    expect(results.length).toBe(1);
+  });
 
-      console.log(`\n  Whitelisted try/catch blocks: ${allowed.length}`);
-      console.log("  These should be removed over time:\n");
+  test("No new try/catch blocks outside the whitelist", () => {
+    const { violations } = analyzeTryCatchUsage();
+    assertNoViolations(violations, {
+      message: "non-whitelisted try/catch blocks",
+      fixHint:
+        "refactor to avoid try/catch, or add to ALLOWED_TRY_CATCHES in code-quality-exceptions.js",
+    });
+  });
 
-      // Group by file for cleaner output
-      const byFile = {};
-      for (const a of allowed) {
-        if (!byFile[a.file]) byFile[a.file] = [];
-        byFile[a.file].push(a.line);
-      }
+  test("Reports whitelisted try/catch blocks for tracking", () => {
+    const { allowed } = analyzeTryCatchUsage();
 
-      for (const [file, lines] of Object.entries(byFile)) {
-        console.log(`     ${file}: lines ${lines.join(", ")}`);
-      }
-      console.log("");
+    console.log(`\n  Whitelisted try/catch blocks: ${allowed.length}`);
+    console.log("  These should be removed over time:\n");
 
-      // This test always passes - it's informational
-      expectTrue(true, "Reported whitelisted try/catch blocks");
-    },
-  },
-];
+    // Group by file for cleaner output
+    const byFile = {};
+    for (const a of allowed) {
+      if (!byFile[a.file]) byFile[a.file] = [];
+      byFile[a.file].push(a.line);
+    }
 
-createTestRunner("try-catch-usage", testCases);
+    for (const [file, lines] of Object.entries(byFile)) {
+      console.log(`     ${file}: lines ${lines.join(", ")}`);
+    }
+    console.log("");
+
+    // This test always passes - it's informational
+    expect(true).toBe(true);
+  });
+});

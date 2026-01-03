@@ -1,4 +1,4 @@
-import assert from "node:assert";
+import { expect } from "bun:test";
 import fs from "node:fs";
 import path, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -193,131 +193,46 @@ const withMockedCwd = (newCwd, callback) => {
   return result;
 };
 
-const runTestSuite = async (testName, testCases) => {
-  const verbose = process.env.TEST_VERBOSE === "1";
-  const failures = [];
-
-  try {
-    if (verbose) {
-      console.log(`=== Running ${testName} tests ===`);
-    }
-
-    for (const testCase of testCases) {
-      const testId = `${testName}/${testCase.name}`;
-
-      try {
-        if (testCase.test) {
-          testCase.test();
-        } else if (testCase.asyncTest) {
-          await testCase.asyncTest();
-        }
-        if (verbose) {
-          console.log(`✅ PASS: ${testId} - ${testCase.description}`);
-        }
-      } catch (error) {
-        failures.push({ testId, description: testCase.description, error });
-        if (verbose) {
-          console.error(`❌ FAIL: ${testId} - ${testCase.description}`);
-          console.error(`   Error: ${error.message}`);
-        }
-      }
-    }
-
-    const passed = testCases.length - failures.length;
-
-    // Output results in parseable format for the runner
-    console.log(`__TEST_RESULTS__:${passed}:${failures.length}`);
-
-    if (failures.length > 0) {
-      // Always show failures, even in quiet mode
-      if (!verbose) {
-        console.error(
-          `\n❌ ${testName}: ${failures.length} failed, ${passed} passed`,
-        );
-        for (const { testId, description, error } of failures) {
-          console.error(`  ❌ FAIL: ${testId} - ${description}`);
-          console.error(`     Error: ${error.message}`);
-        }
-      }
-      process.exit(1);
-    } else if (verbose) {
-      console.log(`\n✅ All ${testName} tests passed!`);
-    }
-
-    // Return results for the runner to use
-    return { passed, failed: failures.length };
-  } catch (error) {
-    console.error(`❌ Test suite failed: ${error.message}`);
-    console.error(error.stack);
-    process.exit(1);
-  }
-};
-
-const createTestRunner = (testName, testCases) => {
-  const runTests = () => runTestSuite(testName, testCases);
-
-  // Always run tests when module is loaded (for script execution)
-  runTests();
-
-  return { runTests };
-};
+// ============================================
+// Assertion helpers using Bun's expect
+// These provide a familiar API while using Bun's testing
+// ============================================
 
 const expectFunctionType = (obj, property, message) => {
   if (property === undefined) {
-    // When property is undefined, we're checking if obj itself is a function
-    assert.strictEqual(
-      typeof obj,
-      "function",
-      message || `Should be a function`,
-    );
+    expect(typeof obj).toBe("function");
   } else {
-    assert.strictEqual(
-      obj !== undefined && obj !== null,
-      true,
-      message || `Object should exist to check ${property}`,
-    );
-    assert.strictEqual(
-      typeof obj[property],
-      "function",
-      message || `${property} should be a function`,
-    );
+    expect(obj).toBeDefined();
+    expect(typeof obj[property]).toBe("function");
   }
 };
 
 const expectArrayLength = (arr, expectedLength, message) => {
-  assert.strictEqual(
-    arr.length,
-    expectedLength,
-    message || `Array should have length ${expectedLength}`,
-  );
+  expect(arr.length).toBe(expectedLength);
 };
 
 const expectObjectProperty = (obj, property, expectedValue, message) => {
-  assert.strictEqual(
-    obj[property],
-    expectedValue,
-    message || `Property ${property} should equal ${expectedValue}`,
-  );
+  expect(obj[property]).toBe(expectedValue);
 };
 
 const expectDeepEqual = (actual, expected, message) => {
-  assert.deepStrictEqual(actual, expected, message);
+  expect(actual).toEqual(expected);
 };
 
 const expectStrictEqual = (actual, expected, message) => {
-  assert.strictEqual(actual, expected, message);
+  expect(actual).toBe(expected);
 };
 
 const expectTrue = (value, message) => {
-  assert.strictEqual(value, true, message);
+  expect(value).toBe(true);
 };
 
 const expectFalse = (value, message) => {
-  assert.strictEqual(value, false, message);
+  expect(value).toBe(false);
 };
 
 const expectThrows = (fn, errorMatcher, message) => {
-  assert.throws(fn, errorMatcher, message);
+  expect(fn).toThrow(errorMatcher);
 };
 
 // ============================================
@@ -514,7 +429,7 @@ const createMockReview = ({
 });
 
 export {
-  assert,
+  expect,
   fs,
   path,
   rootDir,
@@ -535,8 +450,6 @@ export {
   withTempDir,
   withTempFile,
   withMockedCwd,
-  runTestSuite,
-  createTestRunner,
   expectFunctionType,
   expectArrayLength,
   expectObjectProperty,
