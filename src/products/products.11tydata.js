@@ -1,4 +1,5 @@
 import { computeGallery } from "#collections/products.js";
+import getConfig from "#data/config.js";
 import strings from "#data/strings.js";
 import { computeSpecs } from "#filters/spec-filters.js";
 import { buildPermalink, normaliseSlug } from "#utils/slug-utils.js";
@@ -8,7 +9,9 @@ function computeCartAttributes(data) {
     return null;
   }
 
+  const config = getConfig();
   const specs = computeSpecs(data);
+  const effectiveProductMode = data.product_mode || config.product_mode || null;
 
   const hirePrices = {
     1: data.price || null,
@@ -28,6 +31,7 @@ function computeCartAttributes(data) {
     })),
     specs: specs ? specs.map((s) => ({ name: s.name, value: s.value })) : null,
     hire_prices: hirePrices,
+    product_mode: effectiveProductMode,
   }).replace(/"/g, "&quot;");
 }
 

@@ -1,9 +1,17 @@
 // Hire calculator for quote checkout
+// Shows date fields if any cart item is hire mode
 // Calculates running total based on hire dates and cart items
 
 import { formatPrice, getCart } from "#assets/cart-utils.js";
-import Config from "#assets/config.js";
 import { onReady } from "#assets/on-ready.js";
+
+// Check if any cart item is a hire item
+const hasHireItems = (cart) =>
+  cart.some((item) => item.product_mode === "hire");
+
+// Get only hire items from cart
+const getHireItems = (cart) =>
+  cart.filter((item) => item.product_mode === "hire");
 
 // Parse a price string, extracting numeric value
 // Handles formats like "£50", "from £50", "£50.00", "50", etc.
@@ -32,13 +40,15 @@ const getPriceForDays = (item, days) => {
   return price ? parsePrice(price) * item.quantity : null;
 };
 
-// Calculate total hire cost for all cart items
-// Returns { total, canCalculate } - canCalculate is false if any item lacks price for day count
+// Calculate total hire cost for hire items only
+// Returns { total, canCalculate } - canCalculate is false if any hire item lacks price
 const calculateHireTotal = (cart, days) => {
-  if (days <= 0 || cart.length === 0) return { total: 0, canCalculate: false };
+  const hireItems = getHireItems(cart);
+  if (days <= 0 || hireItems.length === 0)
+    return { total: 0, canCalculate: false };
 
   let total = 0;
-  for (const item of cart) {
+  for (const item of hireItems) {
     const itemPrice = getPriceForDays(item, days);
     if (itemPrice === null) {
       return { total: 0, canCalculate: false };
@@ -83,14 +93,21 @@ const handleDateChange = (elements) => () => {
 
 // Initialize hire calculator
 const initHireCalculator = () => {
-  if (Config.product_mode !== "hire") return;
-
+  const section = document.getElementById("hire-dates-section");
   const startInput = document.getElementById("hire_start_date");
   const endInput = document.getElementById("hire_end_date");
   const totalEl = document.getElementById("hire-total");
   const daysInput = document.getElementById("hire_days");
 
-  if (!startInput || !endInput || !totalEl) return;
+  if (!section || !startInput || !endInput || !totalEl) return;
+
+  const cart = getCart();
+  if (!hasHireItems(cart)) return;
+
+  // Show the section and make fields required
+  section.style.display = "block";
+  startInput.required = true;
+  endInput.required = true;
 
   const elements = { startInput, endInput, totalEl, daysInput };
 
@@ -110,4 +127,15 @@ const initHireCalculator = () => {
   endInput.addEventListener("change", handleDateChange(elements));
 };
 
-onReady(initHireCalculator);
+// Only initialize in browser environment
+if (typeof document !== "undefined") {
+  onReady(initHireCalculator);
+}
+
+export {
+  parsePrice,
+  calculateDays,
+  hasHireItems,
+  getHireItems,
+  calculateHireTotal,
+};

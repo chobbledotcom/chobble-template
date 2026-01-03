@@ -17,11 +17,6 @@ options:
     max_quantity: 10
     unit_price: 99.99
     sku: MH6D2J
-price: "£50/day"
-price_2_days: "£90"
-price_3_days: "£120"
-price_4_days: "£150"
-price_5_days: "from £175"
 header_image: /images/placeholder-wide-2.jpg
 gallery:
   - /images/placeholder-square-7.jpg

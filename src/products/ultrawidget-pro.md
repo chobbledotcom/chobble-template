@@ -26,11 +26,6 @@ options:
     max_quantity: 2
     unit_price: 2299.99
     sku: EVL68A
-price: "£150/day"
-price_2_days: "£275"
-price_3_days: "£380"
-price_4_days: "£470"
-price_5_days: "£550"
 header_image: src/images/placeholder-wide-4.jpg
 categories:
   - /categories/premium-widgets.md
