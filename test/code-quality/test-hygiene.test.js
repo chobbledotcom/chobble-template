@@ -191,6 +191,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runUnusedImagesTest",
   // template.test.js - global document cleanup helper
   "cleanup",
+  // cpd.test.js - baseline ratcheting helpers
+  "readBaseline",
+  "writeBaseline",
+  "round2",
 ]);
 
 /**
