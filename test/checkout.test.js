@@ -5,7 +5,6 @@
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { Liquid } from "liquidjs";
 // Import actual cart utilities
@@ -22,11 +21,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { buildJsConfigScript } from "#eleventy/js-config.js";
-import { createTestRunner } from "#test/test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.join(__dirname, "..");
+import { createTestRunner, rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Template Rendering
@@ -34,15 +29,15 @@ const projectRoot = path.join(__dirname, "..");
 
 const liquid = new Liquid({
   root: [
-    path.join(projectRoot, "src/_includes"),
-    path.join(projectRoot, "src/_layouts"),
+    path.join(rootDir, "src/_includes"),
+    path.join(rootDir, "src/_layouts"),
   ],
   extname: ".html",
 });
 
 // Read and render actual Liquid templates
 const renderTemplate = async (templatePath, data = {}) => {
-  const fullPath = path.join(projectRoot, templatePath);
+  const fullPath = path.join(rootDir, templatePath);
   const template = fs.readFileSync(fullPath, "utf-8");
   return liquid.parseAndRender(template, data);
 };

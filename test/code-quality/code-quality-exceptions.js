@@ -76,18 +76,11 @@ const ALLOWED_RELATIVE_PATHS = new Set([
   // Source: centralized path utility (the one exception - provides paths for others)
   "src/_lib/paths.js",
 
-  // Test infrastructure - needs __dirname + ".." to find project root
+  // Test infrastructure - calculates rootDir for all other tests to import
   "test/test-utils.js",
   "test/test-site-factory.js",
   "test/run-all-tests.js",
   "test/run-coverage.js",
-
-  // Tests that need to reference project root or source directories
-  "test/strings.test.js",
-  "test/checkout.test.js",
-
-  // Code quality tests that need project root access
-  "test/code-quality/lockfile.test.js",
 ]);
 
 export {
