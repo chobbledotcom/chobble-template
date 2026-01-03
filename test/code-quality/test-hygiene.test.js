@@ -125,12 +125,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "collectAllClassesAndIds",
   "findUnusedClassesAndIds",
   "logUnused",
-  // scss.variables.test.js - createSCSSVariableAnalyzer factory and its methods
+  // scss.variables.test.js - createSCSSVariableAnalyzer with chainable API
   "createSCSSVariableAnalyzer",
-  "extractUsedVariables",
-  "extractDefinedVariables",
-  "extractAllDefinedVariables",
-  "findUndefinedVariables",
+  "scan",
+  "extractUsed",
+  "extractDefined",
 ]);
 
 /**

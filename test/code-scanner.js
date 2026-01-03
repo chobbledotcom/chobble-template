@@ -230,6 +230,64 @@ const createCodeChecker = (config) => {
   return { find, analyze };
 };
 
+/**
+ * Create a chainable pattern collector for extracting matches from files.
+ * Returns Sets for deduplication and easy set operations.
+ *
+ * @example
+ * const collector = createPatternCollector();
+ * const used = collector.from(scssFiles).matchAll(varPattern, m => `--${m[1]}`);
+ * const defined = collector.from([styleFile]).matchAll(defPattern);
+ * const undefined = used.filter(v => !defined.has(v));
+ */
+const createPatternCollector = () => ({
+  from: (files) => ({
+    /**
+     * Collect all regex matches from files into a Set.
+     * @param {RegExp} pattern - Must have 'g' flag
+     * @param {function} [transform] - Transform match to value (default: m => m[1])
+     * @returns {Set<string>}
+     */
+    matchAll: (pattern, transform = (m) => m[1]) => {
+      const results = new Set();
+      for (const file of files) {
+        const content = fs.readFileSync(
+          file.startsWith("/") ? file : path.join(rootDir, file),
+          "utf-8",
+        );
+        for (const match of content.matchAll(pattern)) {
+          const value = transform(match);
+          if (value !== null && value !== undefined) results.add(value);
+        }
+      }
+      return results;
+    },
+
+    /**
+     * Collect all regex matches with file info.
+     * @param {RegExp} pattern - Must have 'g' flag
+     * @param {function} [transform] - Transform (match, file) to value
+     * @returns {Array<{value: any, file: string}>}
+     */
+    matchAllWithFiles: (pattern, transform = (m) => m[1]) => {
+      const results = [];
+      for (const file of files) {
+        const content = fs.readFileSync(
+          file.startsWith("/") ? file : path.join(rootDir, file),
+          "utf-8",
+        );
+        for (const match of content.matchAll(pattern)) {
+          const value = transform(match, file);
+          if (value !== null && value !== undefined) {
+            results.push({ value, file });
+          }
+        }
+      }
+      return results;
+    },
+  }),
+});
+
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
@@ -250,6 +308,8 @@ export {
   scanFilesForViolations,
   // Code checker factory
   createCodeChecker,
+  // Pattern collector factory
+  createPatternCollector,
   // Violation reporting
   formatViolationReport,
   assertNoViolations,

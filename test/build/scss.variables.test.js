@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { createPatternCollector } from "#test/code-scanner.js";
 import { rootDir } from "#test/test-utils.js";
 
 // ============================================
@@ -15,75 +16,86 @@ const CONSUMED_VIA_JS = [
   "--scroll-fade-selectors", // Read by scroll-fade.js via getPropertyValue
 ];
 
+// Regex patterns for CSS variable extraction
+const VAR_PATTERN = /var\(--([a-z][a-z0-9-]*)/g;
+const DEF_PATTERN = /^\s*(--[a-z][a-z0-9-]*):/gm;
+
 // ============================================
 // SCSS Variables Analyzer Factory
-// Consolidates extraction and analysis of CSS variables
+// Uses createPatternCollector for chainable file scanning
 // ============================================
 
 /**
- * Factory function that creates an SCSS variable analyzer with methods for:
- * - Extracting used variables (var(--name) patterns)
- * - Extracting defined variables (--name: value patterns)
- * - Finding undefined variables (used but not defined)
+ * Factory that creates a chainable SCSS variable analyzer.
+ * Uses functional composition with the pattern collector.
+ *
+ * @example
+ * const analyzer = createSCSSVariableAnalyzer(CONSUMED_VIA_JS);
+ * const { used, defined, undefined } = analyzer
+ *   .scan(scssFiles)
+ *   .definedIn(styleFile)
+ *   .analyze();
  */
 const createSCSSVariableAnalyzer = (consumedViaJs = []) => {
-  const varPattern = /var\(--([a-z][a-z0-9-]*)/g;
-  const defPattern = /^\s*(--[a-z][a-z0-9-]*):/gm;
+  const collector = createPatternCollector();
+  const consumedSet = new Set(consumedViaJs);
 
-  const extractUsedVariables = (scssFiles) => {
-    const used = new Set();
-    for (const file of scssFiles) {
-      const content = readFileSync(file, "utf-8");
-      for (const match of content.matchAll(varPattern)) {
-        used.add(`--${match[1]}`);
-      }
-    }
-    return used;
+  // Chainable scanner that collects used/defined vars
+  const scan = (files) => {
+    const used = collector
+      .from(files)
+      .matchAll(VAR_PATTERN, (m) => `--${m[1]}`);
+
+    return {
+      used,
+      // Chain: specify where definitions should come from
+      definedIn: (defFiles) => {
+        const defined = collector.from(defFiles).matchAll(DEF_PATTERN);
+        return {
+          used,
+          defined,
+          // Terminal: compute undefined variables
+          analyze: () => ({
+            used,
+            defined,
+            undefined: [...used]
+              .filter((v) => !defined.has(v) && !consumedSet.has(v))
+              .sort(),
+          }),
+        };
+      },
+      // Alternative: get all definitions from same files
+      withDefinitions: () => {
+        const defined = collector.from(files).matchAll(DEF_PATTERN);
+        return {
+          used,
+          defined,
+          analyze: () => ({
+            used,
+            defined,
+            undefined: [...used]
+              .filter((v) => !defined.has(v) && !consumedSet.has(v))
+              .sort(),
+          }),
+        };
+      },
+    };
   };
 
-  const extractDefinedVariables = (styleFile) => {
-    const defined = new Set();
-    const content = readFileSync(styleFile, "utf-8");
-    for (const match of content.matchAll(defPattern)) {
-      defined.add(match[1]);
-    }
-    return defined;
-  };
+  // Direct extraction methods (for unit tests)
+  const extractUsed = (files) =>
+    collector.from(files).matchAll(VAR_PATTERN, (m) => `--${m[1]}`);
 
-  const extractAllDefinedVariables = (scssFiles) => {
-    const defined = new Set();
-    for (const file of scssFiles) {
-      const content = readFileSync(file, "utf-8");
-      for (const match of content.matchAll(defPattern)) {
-        defined.add(match[1]);
-      }
-    }
-    return defined;
-  };
+  const extractDefined = (files) => collector.from(files).matchAll(DEF_PATTERN);
 
-  const findUndefinedVariables = (used, defined) => {
-    const undefinedVars = [];
-    for (const variable of used) {
-      if (!defined.has(variable) && !consumedViaJs.includes(variable)) {
-        undefinedVars.push(variable);
-      }
-    }
-    return undefinedVars.sort();
-  };
-
-  return {
-    extractUsedVariables,
-    extractDefinedVariables,
-    extractAllDefinedVariables,
-    findUndefinedVariables,
-  };
+  return { scan, extractUsed, extractDefined };
 };
 
-// Create analyzer instance with JS-consumed variables
+// Create analyzer instance
 const scssAnalyzer = createSCSSVariableAnalyzer(CONSUMED_VIA_JS);
 
 // ============================================
-// Load data for tests
+// Load data for tests using chainable API
 // ============================================
 
 const scssFiles = [
@@ -92,15 +104,18 @@ const scssFiles = [
     absolute: true,
   }),
 ];
-const usedVariables = scssAnalyzer.extractUsedVariables(scssFiles);
-const definedVariables = scssAnalyzer.extractDefinedVariables(
-  `${rootDir}/${STYLE_FILE}`,
-);
-const allDefinedVariables = scssAnalyzer.extractAllDefinedVariables(scssFiles);
-const undefinedVariables = scssAnalyzer.findUndefinedVariables(
-  usedVariables,
-  definedVariables,
-);
+
+// Use chainable API for main analysis
+const analysis = scssAnalyzer
+  .scan(scssFiles)
+  .definedIn([`${rootDir}/${STYLE_FILE}`])
+  .analyze();
+
+const { used: usedVariables, defined: definedVariables } = analysis;
+const undefinedVariables = analysis.undefined;
+
+// Get all definitions across all files (for JS-consumed variable check)
+const allDefinedVariables = scssAnalyzer.extractDefined(scssFiles);
 
 // ============================================
 // Test cases
@@ -155,17 +170,15 @@ describe("scss.variables", () => {
     expect(undefinedJsVars).toEqual([]);
   });
 
-  test("extractUsedVariables finds var() usages correctly", () => {
+  test("extractUsed finds var() usages correctly", () => {
     // Test the extraction function with known content
     const testFiles = scssFiles.slice(0, 1);
-    const result = scssAnalyzer.extractUsedVariables(testFiles);
+    const result = scssAnalyzer.extractUsed(testFiles);
     expect(result instanceof Set).toBe(true);
   });
 
-  test("extractDefinedVariables finds variable definitions correctly", () => {
-    const result = scssAnalyzer.extractDefinedVariables(
-      `${rootDir}/${STYLE_FILE}`,
-    );
+  test("extractDefined finds variable definitions correctly", () => {
+    const result = scssAnalyzer.extractDefined([`${rootDir}/${STYLE_FILE}`]);
     expect(result instanceof Set).toBe(true);
     // Check for known variables that should exist
     const hasColorVar = [...result].some((v) => v.startsWith("--color-"));
