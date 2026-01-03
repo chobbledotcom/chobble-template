@@ -4,7 +4,7 @@
   <li>
     {%- if post.data.thumbnail -%}
       <a class="thumbnail" href="{{ post.url }}#content">
-        {%- image post.data.thumbnail, post.data.title, "200, 300, 400" -%}
+        {%- image post.data.thumbnail, post.data.title, "200, 300, 400", "", "", "1/1" -%}
       </a>
     {%- endif -%}
     <div class="details">
