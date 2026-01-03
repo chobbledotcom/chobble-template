@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import fastglob from "fast-glob";
 import matter from "gray-matter";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
@@ -48,7 +47,7 @@ export function configureUnusedImages(eleventyConfig) {
       return;
     }
 
-    const markdownFiles = fastglob.sync("**/*.md", { cwd: dir.input });
+    const markdownFiles = [...new Bun.Glob("**/*.md").scanSync(dir.input)];
 
     const usedImages = new Set(
       markdownFiles.flatMap((file) =>
