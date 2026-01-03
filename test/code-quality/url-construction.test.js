@@ -1,36 +1,25 @@
 import { describe, expect, test } from "bun:test";
+import stringsBase from "#data/strings-base.json" with { type: "json" };
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
+import { memoize } from "#utils/memoize.js";
 
-// Regexes that match hardcoded URL path construction
-// These match patterns like: `/events/${slug}/` or `"/events/" + slug`
-const HARDCODED_URL_PATTERNS = [
-  // Template literal with hardcoded path: `/events/${...}` or `${foo}/events/${...}`
-  /`[^`]*\/events\/\$\{/,
-  /`[^`]*\/products\/\$\{/,
-  /`[^`]*\/locations\/\$\{/,
-  /`[^`]*\/properties\/\$\{/,
-  /`[^`]*\/news\/\$\{/,
-  /`[^`]*\/guide\/\$\{/,
-  /`[^`]*\/menus\/\$\{/,
-  /`[^`]*\/categories\/\$\{/,
+// Build hardcoded URL patterns dynamically from strings-base.json
+// Any key ending in _dir defines a collection directory that shouldn't be hardcoded
+const buildHardcodedUrlPatterns = memoize(() =>
+  Object.entries(stringsBase)
+    .filter(([key]) => key.endsWith("_dir"))
+    .flatMap(([, dir]) => [
+      // Template literal: `${foo}/events/${...}` or `/events/${...}`
+      new RegExp(`\`[^\`]*\\/${dir}\\/\\$\\{`),
+      // String concatenation: "/events/" + or '/events/' +
+      new RegExp(`["']\\/${dir}\\/["']\\s*\\+`),
+      // Assignment: = "/events/..." or = `/events/...`
+      new RegExp(`=\\s*["'\`]\\/${dir}\\/[^"'\`]+["'\`]`),
+    ]),
+);
 
-  // String concatenation with hardcoded path: "/events/" + or '/events/' +
-  /["']\/events\/["']\s*\+/,
-  /["']\/products\/["']\s*\+/,
-  /["']\/locations\/["']\s*\+/,
-  /["']\/properties\/["']\s*\+/,
-  /["']\/news\/["']\s*\+/,
-  /["']\/guide\/["']\s*\+/,
-  /["']\/menus\/["']\s*\+/,
-  /["']\/categories\/["']\s*\+/,
-
-  // Assignment with hardcoded path: = "/events/..." or = `/events/...`
-  /=\s*["'`]\/events\/[^"'`]+["'`]/,
-  /=\s*["'`]\/products\/[^"'`]+["'`]/,
-  /=\s*["'`]\/locations\/[^"'`]+["'`]/,
-  /=\s*["'`]\/properties\/[^"'`]+["'`]/,
-];
+const HARDCODED_URL_PATTERNS = buildHardcodedUrlPatterns();
 
 // Files that are allowed to have these patterns (with justification)
 const ALLOWED_FILES = [
