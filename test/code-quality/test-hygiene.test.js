@@ -17,11 +17,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
-  // checkout.test.js - cart-utils copies for integration testing (inside template strings)
-  "getCart",
-  "saveCart",
-  "getItemCount",
-  "updateCartIcon",
   // function-length.test.js - test fixture strings (parsed as examples, not real code)
   "hello",
   "greet",
@@ -43,13 +38,20 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "loadTemplate",
   // layout-aliases.test.js - test helper
   "withTempLayouts",
+  // pdf.test.js - test fixture helpers
+  "createMockMenu",
+  "createMockCategory",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
+  "slugify",
+  // area-list.test.js - test fixture helper
+  "createLocation",
   // reviews.test.js - test fixtures helpers
   "createReviews",
   "createMockCollectionApi",
   "createProduct",
+  "processItem",
   // properties.test.js - test fixture helper
   "createPropertyReviewFixture",
   // unused-images.test.js - test helper
@@ -63,11 +65,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",
-  // theme-editor.test.js
-  "generateFormHtml",
-  "createMockDOM",
-  // missing-folders-lib.test.js
-  "testLibModules",
   // test-hygiene.test.js - self-analysis helpers
   "extractFunctionDefinitions",
   "analyzeTestFiles",
@@ -117,7 +114,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findIdReferencesInHtml",
   "addToMap",
   "collectAllClassesAndIds",
-  "findUnusedClassesAndIds",
   "logUnused",
   // scss.variables.test.js - createSCSSVariableAnalyzer with chainable API
   "createSCSSVariableAnalyzer",
@@ -136,8 +132,8 @@ const extractFunctionDefinitions = (source) => {
 
   // Patterns for function definitions
   const patterns = [
-    // const name = (args) => { ... }
-    /^(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>\s*\{/,
+    // const name = (args) => { ... } or const name = (args) => expression
+    /^(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/,
     // const name = function(args) { ... }
     /^(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?function\s*\([^)]*\)\s*\{/,
     // function name(args) { ... }
@@ -151,15 +147,22 @@ const extractFunctionDefinitions = (source) => {
       const match = line.match(pattern);
       if (match) {
         const name = match[1];
-        // Count lines until closing brace (simple heuristic)
-        let braceCount = 1;
+        // For brace-based functions, count until closing brace
+        // For implicit returns, just count as single line
+        const hasBrace = line.includes("{");
         let endLine = i;
-        for (let j = i + 1; j < lines.length && braceCount > 0; j++) {
-          const checkLine = lines[j];
-          braceCount += (checkLine.match(/\{/g) || []).length;
-          braceCount -= (checkLine.match(/\}/g) || []).length;
-          endLine = j;
+
+        if (hasBrace) {
+          let braceCount = (line.match(/\{/g) || []).length;
+          braceCount -= (line.match(/\}/g) || []).length;
+          for (let j = i + 1; j < lines.length && braceCount > 0; j++) {
+            const checkLine = lines[j];
+            braceCount += (checkLine.match(/\{/g) || []).length;
+            braceCount -= (checkLine.match(/\}/g) || []).length;
+            endLine = j;
+          }
         }
+
         functions.push({
           name,
           lineCount: endLine - i + 1,
@@ -232,5 +235,52 @@ describe("test-hygiene", () => {
     const funcs = extractFunctionDefinitions(source);
     expect(funcs.length).toBe(1);
     expect(funcs[0].name).toBe("fetchData");
+  });
+
+  test("All ALLOWED_TEST_FUNCTIONS entries are actually used", () => {
+    // Count occurrences of each function name in test files
+    const functionCounts = new Map();
+    for (const name of ALLOWED_TEST_FUNCTIONS) {
+      functionCounts.set(name, 0);
+    }
+
+    analyzeFiles(TEST_FILES, (source) => {
+      for (const func of extractFunctionDefinitions(source)) {
+        if (functionCounts.has(func.name)) {
+          functionCounts.set(func.name, functionCounts.get(func.name) + 1);
+        }
+      }
+      return [];
+    });
+
+    // Find entries with zero usage
+    const unusedEntries = [...functionCounts.entries()]
+      .filter(([_, count]) => count === 0)
+      .map(([name]) => name);
+
+    if (unusedEntries.length > 0) {
+      console.log(
+        `\n  Found ${unusedEntries.length} unused ALLOWED_TEST_FUNCTIONS entries:`,
+      );
+      for (const name of unusedEntries.sort()) {
+        console.log(`     - ${name} (x0)`);
+      }
+      console.log("\n  To fix: remove these entries from ALLOWED_TEST_FUNCTIONS");
+    }
+
+    // Show usage counts for all entries (informational)
+    const usedEntries = [...functionCounts.entries()]
+      .filter(([_, count]) => count > 0)
+      .sort((a, b) => a[1] - b[1]); // Sort by count ascending
+
+    if (usedEntries.length > 0) {
+      console.log(`\n  ALLOWED_TEST_FUNCTIONS usage (${usedEntries.length} entries):`);
+      for (const [name, count] of usedEntries) {
+        console.log(`     ${name} (x${count})`);
+      }
+      console.log("");
+    }
+
+    expect(unusedEntries).toEqual([]);
   });
 });
