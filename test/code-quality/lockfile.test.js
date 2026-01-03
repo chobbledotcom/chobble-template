@@ -1,10 +1,10 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { createTestRunner, expectFalse, fs } from "#test/test-utils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+import { resolve } from "node:path";
+import {
+  createTestRunner,
+  expectFalse,
+  fs,
+  rootDir,
+} from "#test/test-utils.js";
 
 const testCases = [
   {
