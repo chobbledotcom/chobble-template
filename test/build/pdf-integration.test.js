@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import siteData from "#data/site.json" with { type: "json" };
 import { withTestSite } from "#test/test-site-factory.js";
 
 /**
@@ -22,8 +23,13 @@ import { withTestSite } from "#test/test-site-factory.js";
 // PDF files start with this magic number
 const PDF_MAGIC_BYTES = Buffer.from([0x25, 0x50, 0x44, 0x46]); // %PDF
 
-// Default site name produces this slug prefix (from src/_data/site.json)
-const SITE_SLUG = "the-chobble-template";
+// Derive site slug dynamically from site.json for portability across projects
+const slugify = (str) =>
+  str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+const SITE_SLUG = slugify(siteData.name);
 
 // Helper to find PDF file in menu output directory
 const findPdfInMenuDir = (site, menuSlug) => {
