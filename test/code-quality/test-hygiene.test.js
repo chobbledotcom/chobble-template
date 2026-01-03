@@ -9,39 +9,6 @@ import {
 
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
-  // Test utilities from test-utils.js pattern
-  "execScript",
-  "createMockEleventyConfig",
-  "createTempDir",
-  "createTempFile",
-  "createTempSnippetsDir",
-  "cleanupTempDir",
-  "withTempDir",
-  "withTempFile",
-  "withMockedCwd",
-  "runTestSuite",
-  "createTestRunner",
-  // Fixture factories
-  "createFutureDate",
-  "createPastDate",
-  "formatDateString",
-  "createEvent",
-  "createFutureEvent",
-  "createPastEvent",
-  "createRecurringEvent",
-  "createCategory",
-  "createProduct",
-  "createCollectionItem",
-  "createPropertyReviewFixture",
-  // Assertion helpers
-  "expectFunctionType",
-  "expectArrayLength",
-  "expectObjectProperty",
-  "expectDeepEqual",
-  "expectStrictEqual",
-  "expectTrue",
-  "expectFalse",
-  "expectThrows",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -50,52 +17,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
-  // function-length.test.js - analysis helpers
-  "extractFunctions",
-  "calculateOwnLines",
-  "analyzeFunctionLengths",
-  "formatViolations",
-  // let-usage.test.js - analysis helpers
-  "findMutableVarDeclarations",
-  "isAllowedLetPattern",
-  "analyzeMutableVarUsage",
-  // loose-equality.test.js - analysis helpers
-  "findLooseEquality",
-  "analyzeLooseEquality",
-  // missing-folders-lib.test.js
-  "testLibModules",
-  // naming-conventions.test.js - analysis helpers
-  "countCamelCaseWords",
-  "extractCamelCaseIdentifiers",
-  "analyzeNamingConventions",
-  // scss.variables.test.js
-  "extractUsedVariables",
-  "extractDefinedVariables",
-  "extractAllDefinedVariables",
-  "findUndefinedVariables",
-  // strings.test.js
-  "findStringsUsage",
-  // test-hygiene.test.js - self-analysis helpers
-  "extractFunctionDefinitions",
-  "isTestHelper",
-  "getSourceFunctionNames",
-  "analyzeTestFiles",
-  // theme-editor.test.js
-  "generateFormHtml",
-  "createMockDOM",
-  // unused-classes.test.js - analysis helpers
-  "extractClassesFromHtml",
-  "extractIdsFromHtml",
-  "extractClassesFromJs",
-  "findIdReferencesInHtml",
-  "findClassReferencesInScss",
-  "findIdReferencesInScss",
-  "findClassReferencesInJs",
-  "findIdReferencesInJs",
-  "collectAllClassesAndIds",
-  "findUnusedClassesAndIds",
-  // checkout.test.js - small inline helper
-  "buildFullName",
   // checkout.test.js - cart-utils copies for integration testing (inside template strings)
   "getCart",
   "saveCart",
@@ -108,49 +29,20 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "test",
   // naming-conventions.test.js - test fixture string
   "getUserById",
-  // try-catch-usage.test.js - analysis helpers
-  "findTryCatches",
-  "analyzeTryCatchUsage",
-  // commented-code.test.js - analysis helpers
-  "isInsideTemplateLiteral",
-  "isDocumentationComment",
-  "findCommentedCode",
-  "analyzeCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
-  // autosizes.test.js - helper to inject PerformanceObserver mock
-  "createPerformanceObserverScript",
   // autosizes.test.js - test environment setup helpers
+  "execScript",
+  "createPerformanceObserverScript",
   "createTestEnv",
   "runAutosizes",
   "makeImg",
-  // unused-classes.test.js - helper to add classes from string
-  "addClasses",
-  // unused-classes.test.js - helper to add items to Map
-  "addToMap",
-  // unused-classes.test.js - helper to log unused items
-  "logUnused",
-  // html-in-js.test.js - analysis helpers
-  "isCommentLine",
-  "extractStringContent",
-  "containsHtml",
-  "findHtmlInJs",
-  "analyzeHtmlInJs",
   // template-selectors.test.js - analysis helpers
   "buildLiquidLookup",
   "expandLiquidVars",
   "loadTemplate",
   // layout-aliases.test.js - test helper
   "withTempLayouts",
-  // test-quality.test.js - analysis helpers
-  "extractTestCases",
-  "extractDescribeItTests",
-  "extractTestNames",
-  "findVagueTestNames",
-  "findMultiConcernTestNames",
-  "findAsyncTestsWithoutAwait",
-  "findAssertionsWithoutMessages",
-  "findTautologicalAssertions",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
@@ -158,19 +50,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createReviews",
   "createMockCollectionApi",
   "createProduct",
-  // code-scanner.js - code scanning utilities
-  "readSource",
-  "toLines",
-  "excludeFiles",
-  "combineFileLists",
-  "matchAny",
-  "scanLines",
-  "findPatterns",
-  "analyzeFiles",
-  "scanFilesForViolations",
-  "formatViolationReport",
-  "assertNoViolations",
-  "createPatternMatcher",
+  // properties.test.js - test fixture helper
+  "createPropertyReviewFixture",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
   // template.test.js - global document cleanup helper
@@ -182,6 +63,67 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",
+  // theme-editor.test.js
+  "generateFormHtml",
+  "createMockDOM",
+  // missing-folders-lib.test.js
+  "testLibModules",
+  // test-hygiene.test.js - self-analysis helpers
+  "extractFunctionDefinitions",
+  "analyzeTestFiles",
+  // function-length.test.js - analysis helpers
+  "extractFunctions",
+  "calculateOwnLines",
+  "analyzeFunctionLengths",
+  "formatViolations",
+  // try-catch-usage.test.js - analysis helpers
+  "findTryCatches",
+  "analyzeTryCatchUsage",
+  // test-quality.test.js - analysis helpers
+  "findVagueTestNames",
+  "findMultiConcernTestNames",
+  "findAsyncTestsWithoutAwait",
+  "findAssertionsWithoutMessages",
+  "findTautologicalAssertions",
+  // html-in-js.test.js - analysis helpers
+  "isCommentLine",
+  "extractStringContent",
+  "containsHtml",
+  "findHtmlInJs",
+  "analyzeHtmlInJs",
+  // commented-code.test.js - analysis helpers
+  "isInsideTemplateLiteral",
+  "isDocumentationComment",
+  "findCommentedCode",
+  "analyzeCommentedCode",
+  // strings.test.js
+  "findStringsUsage",
+  // naming-conventions.test.js - analysis helpers
+  "countCamelCaseWords",
+  "extractCamelCaseIdentifiers",
+  "analyzeNamingConventions",
+  // unused-classes.test.js - createCSSAnalyzer factory and its methods
+  "createCSSAnalyzer",
+  "escapeRegex",
+  "extractClassesFromHtml",
+  "extractIdsFromHtml",
+  "extractClassesFromJs",
+  "addClasses",
+  "findClassReferencesInScss",
+  "findIdReferencesInScss",
+  "findClassReferencesInJs",
+  "findIdReferencesInJs",
+  "findIdReferencesInHtml",
+  "addToMap",
+  "collectAllClassesAndIds",
+  "findUnusedClassesAndIds",
+  "logUnused",
+  // scss.variables.test.js - createSCSSVariableAnalyzer factory and its methods
+  "createSCSSVariableAnalyzer",
+  "extractUsedVariables",
+  "extractDefinedVariables",
+  "extractAllDefinedVariables",
+  "findUndefinedVariables",
 ]);
 
 /**
