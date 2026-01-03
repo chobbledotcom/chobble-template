@@ -73,21 +73,13 @@ const analyzeMutableVarUsage = () => {
     })),
   );
 
-  const violations = [];
-  const allowed = [];
+  const isAllowlisted = (decl) =>
+    ALLOWED_LET_USAGE.has(decl.location) || ALLOWED_LET_USAGE.has(decl.file);
 
-  for (const decl of results) {
-    const isAllowed =
-      ALLOWED_LET_USAGE.has(decl.location) || ALLOWED_LET_USAGE.has(decl.file);
-
-    if (isAllowed) {
-      allowed.push(decl);
-    } else {
-      violations.push(decl);
-    }
-  }
-
-  return { violations, allowed };
+  return {
+    violations: results.filter((decl) => !isAllowlisted(decl)),
+    allowed: results.filter(isAllowlisted),
+  };
 };
 
 /**
@@ -105,22 +97,14 @@ const analyzeMutableConstUsage = () => {
     })),
   );
 
-  const violations = [];
-  const allowed = [];
+  const isAllowlisted = (decl) =>
+    ALLOWED_MUTABLE_CONST.has(decl.location) ||
+    ALLOWED_MUTABLE_CONST.has(decl.file);
 
-  for (const decl of results) {
-    const isAllowed =
-      ALLOWED_MUTABLE_CONST.has(decl.location) ||
-      ALLOWED_MUTABLE_CONST.has(decl.file);
-
-    if (isAllowed) {
-      allowed.push(decl);
-    } else {
-      violations.push(decl);
-    }
-  }
-
-  return { violations, allowed };
+  return {
+    violations: results.filter((decl) => !isAllowlisted(decl)),
+    allowed: results.filter(isAllowlisted),
+  };
 };
 
 describe("let-usage", () => {
