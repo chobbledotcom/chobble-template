@@ -71,7 +71,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-hygiene.test.js - self-analysis helpers
   "extractFunctionDefinitions",
   "analyzeTestFiles",
-  // function-length.test.js - analysis helpers
+  // function-length.test.js - createFunctionLengthChecker factory and its methods
+  "createFunctionLengthChecker",
   "extractFunctions",
   "calculateOwnLines",
   "analyzeFunctionLengths",
@@ -79,26 +80,32 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "analyzeTryCatchUsage",
-  // test-quality.test.js - analysis helpers
+  // test-quality.test.js - createTestQualityChecker factory and its methods
+  "createTestQualityChecker",
+  "extractTestNames",
+  "extractDescribeItTests",
   "findVagueTestNames",
   "findMultiConcernTestNames",
   "findAsyncTestsWithoutAwait",
   "findAssertionsWithoutMessages",
   "findTautologicalAssertions",
-  // html-in-js.test.js - analysis helpers
+  // html-in-js.test.js - createHtmlInJsChecker factory and its methods
+  "createHtmlInJsChecker",
   "isCommentLine",
   "extractStringContent",
   "containsHtml",
   "findHtmlInJs",
   "analyzeHtmlInJs",
-  // commented-code.test.js - analysis helpers
+  // commented-code.test.js - createCommentedCodeChecker factory and its methods
+  "createCommentedCodeChecker",
   "isInsideTemplateLiteral",
   "isDocumentationComment",
   "findCommentedCode",
   "analyzeCommentedCode",
   // strings.test.js
   "findStringsUsage",
-  // naming-conventions.test.js - analysis helpers
+  // naming-conventions.test.js - createNamingConventionChecker factory and its methods
+  "createNamingConventionChecker",
   "countCamelCaseWords",
   "extractCamelCaseIdentifiers",
   "analyzeNamingConventions",
