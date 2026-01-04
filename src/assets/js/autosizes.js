@@ -97,38 +97,45 @@
     }
   }
 
+  // Process a single image for deferred loading
+  const processImageForDefer = (img) => {
+    if (!shouldProcessImage(img)) return;
+    if (state.fcpDone) {
+      calculateAndSetSizes(img);
+    } else {
+      storeAndRemoveAttributes(img);
+    }
+  };
+
   // Store the original src and srcset attributes, and remove them to prevent loading before
   // we've calculated the sizes attribute
-  function deferImages(images) {
+  const deferImages = (images) => {
     for (const img of images) {
-      if (!shouldProcessImage(img)) continue;
-
-      if (!state.fcpDone) {
-        storeAndRemoveAttributes(img);
-      } else {
-        calculateAndSetSizes(img);
-      }
+      processImageForDefer(img);
     }
-  }
+  };
+
+  // Restore stored attributes back to their original names
+  const restoreStoredAttributes = (img) => {
+    for (const attribute of attributes) {
+      const tempAttribute = `${prefix}${attribute}`;
+      if (!img.hasAttribute(tempAttribute)) continue;
+      img[attribute] = img.getAttribute(tempAttribute);
+      img.removeAttribute(tempAttribute);
+    }
+  };
 
   // Set the sizes attribute to the computed width in pixels and restore original src and srcset
-  function restoreImageAttributes() {
+  const restoreImageAttributes = () => {
     const images = document.querySelectorAll(
       `img[${prefix}src], img[${prefix}srcset]`,
     );
 
     for (const img of images) {
       calculateAndSetSizes(img);
-
-      for (const attribute of attributes) {
-        const tempAttribute = `${prefix}${attribute}`;
-        if (img.hasAttribute(tempAttribute)) {
-          img[attribute] = img.getAttribute(tempAttribute);
-          img.removeAttribute(tempAttribute);
-        }
-      }
+      restoreStoredAttributes(img);
     }
-  }
+  };
 
   // Collect images from added nodes
   const collectImagesFromNodes = (addedNodes) =>

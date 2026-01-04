@@ -109,49 +109,49 @@ async function getSkuPrices(origin) {
 }
 
 /**
+ * Validate a single cart item against SKU prices
+ * Returns { error: string } or { cartItem: {...} }
+ */
+function validateCartItem(item, skuPrices) {
+  const { sku, quantity } = item;
+
+  if (!sku) return { error: "Item is missing SKU" };
+
+  const skuData = skuPrices[sku];
+  if (!skuData) return { error: `Unknown SKU: ${sku}` };
+
+  if (skuData.max_quantity !== null && quantity > skuData.max_quantity) {
+    return {
+      error: `SKU ${sku}: quantity ${quantity} exceeds maximum ${skuData.max_quantity}`,
+    };
+  }
+
+  return {
+    cartItem: {
+      name: skuData.name,
+      sku,
+      unit_price: skuData.unit_price,
+      quantity,
+    },
+  };
+}
+
+/**
  * Validate cart items against authoritative SKU prices
  * Expects items as [{ sku, quantity }, ...]
  * Returns { valid: true, cart: [...], total: number } or { valid: false, errors: [...] }
  */
 async function validateCart(items, origin) {
   const skuPrices = await getSkuPrices(origin);
-  const errors = [];
-  const cart = [];
 
-  for (const item of items) {
-    const { sku, quantity } = item;
-
-    if (!sku) {
-      errors.push("Item is missing SKU");
-      continue;
-    }
-
-    const skuData = skuPrices[sku];
-
-    if (!skuData) {
-      errors.push(`Unknown SKU: ${sku}`);
-      continue;
-    }
-
-    if (skuData.max_quantity !== null && quantity > skuData.max_quantity) {
-      errors.push(
-        `SKU ${sku}: quantity ${quantity} exceeds maximum ${skuData.max_quantity}`,
-      );
-      continue;
-    }
-
-    cart.push({
-      name: skuData.name,
-      sku,
-      unit_price: skuData.unit_price,
-      quantity,
-    });
-  }
+  const results = items.map((item) => validateCartItem(item, skuPrices));
+  const errors = results.filter((r) => r.error).map((r) => r.error);
 
   if (errors.length > 0) {
     return { valid: false, errors };
   }
 
+  const cart = results.map((r) => r.cartItem);
   const total = cart.reduce(
     (sum, item) => sum + item.unit_price * item.quantity,
     0,

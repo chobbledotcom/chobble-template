@@ -30,6 +30,21 @@ const extractImagesFromFile = (filePath, imageFiles) => {
   ];
 };
 
+const reportUnusedImages = (unusedImages) => {
+  if (unusedImages.length > 0) {
+    console.log("\n📸 Unused Images Report:");
+    console.log("========================");
+    for (const image of unusedImages) {
+      console.log(`❌ ${image}`);
+    }
+    console.log(
+      `\nFound ${unusedImages.length} unused image(s) in /src/images/`,
+    );
+  } else {
+    console.log("\n✅ All images in /src/images/ are being used!");
+  }
+};
+
 export function configureUnusedImages(eleventyConfig) {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
     const imagesDir = path.join(dir.input, "images");
@@ -56,17 +71,6 @@ export function configureUnusedImages(eleventyConfig) {
 
     const unusedImages = imageFiles.filter(notMemberOf(usedImagesList));
 
-    if (unusedImages.length > 0) {
-      console.log("\n📸 Unused Images Report:");
-      console.log("========================");
-      for (const image of unusedImages) {
-        console.log(`❌ ${image}`);
-      }
-      console.log(
-        `\nFound ${unusedImages.length} unused image(s) in /src/images/`,
-      );
-    } else {
-      console.log("\n✅ All images in /src/images/ are being used!");
-    }
+    reportUnusedImages(unusedImages);
   });
 }

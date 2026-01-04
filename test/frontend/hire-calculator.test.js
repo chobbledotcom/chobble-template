@@ -5,6 +5,7 @@ import { describe, expect, test } from "bun:test";
 import {
   calculateDays,
   calculateHireTotal,
+  formatHireMessage,
   getHireItems,
   hasHireItems,
   parsePrice,
@@ -214,5 +215,29 @@ describe("hire-calculator", () => {
     const result = calculateHireTotal(cart, 1);
     expect(result.canCalculate).toBe(true);
     expect(result.total).toBe(120);
+  });
+
+  // ----------------------------------------
+  // formatHireMessage Tests
+  // ----------------------------------------
+  test("formatHireMessage shows estimated total when canCalculate is true", () => {
+    const message = formatHireMessage(3, 150, true);
+    expect(message).toBe("Estimated total for 3 days: £150.00");
+  });
+
+  test("formatHireMessage uses singular 'day' for 1 day", () => {
+    const message = formatHireMessage(1, 50, true);
+    expect(message).toBe("Estimated total for 1 day: £50.00");
+  });
+
+  test("formatHireMessage shows quote message when canCalculate is false", () => {
+    const message = formatHireMessage(5, 0, false);
+    expect(message).toBe("We'll provide an exact quote for your 5 day hire.");
+  });
+
+  test("formatHireMessage handles various day counts", () => {
+    expect(formatHireMessage(2, 100, true)).toContain("2 days");
+    expect(formatHireMessage(7, 350, true)).toContain("7 days");
+    expect(formatHireMessage(14, 700, true)).toContain("14 days");
   });
 });
