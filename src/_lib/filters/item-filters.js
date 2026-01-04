@@ -135,7 +135,6 @@ const itemMatchesFilters = (item, filters) => {
  * Get items matching the given filters
  */
 const getItemsByFilters = (items, filters) => {
-  if (!items) return [];
   if (!filters || Object.keys(filters).length === 0) {
     return items.slice().sort(sortItems);
   }
@@ -184,8 +183,6 @@ const countMatchingItems = (items, itemAttrMap, filters) => {
  * recurse to later keys, so each path is generated exactly once.
  */
 const generateFilterCombinations = memoize((items) => {
-  if (!items) return [];
-
   const allAttributes = getAllFilterAttributes(items);
   const attributeKeys = Object.keys(allAttributes);
 

@@ -275,10 +275,6 @@ describe("products", () => {
     expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
-  test("Returns empty array for null products", () => {
-    expect(getProductsByEvent(null, "sale")).toEqual([]);
-  });
-
   test("Creates SKU mapping from products with options", () => {
     const mockProducts = [
       {

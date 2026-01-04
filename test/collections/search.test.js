@@ -12,9 +12,7 @@ import {
 } from "#test/test-utils.js";
 
 describe("search", () => {
-  test("Returns empty array for null/undefined/empty products", () => {
-    expect(getAllKeywords(null)).toEqual([]);
-    expect(getAllKeywords(undefined)).toEqual([]);
+  test("Returns empty array for empty products array", () => {
     expect(getAllKeywords([])).toEqual([]);
   });
 

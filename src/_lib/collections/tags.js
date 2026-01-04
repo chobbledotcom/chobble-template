@@ -9,10 +9,8 @@ import {
 
 const notNullish = (x) => x !== null && x !== undefined;
 
-const extractTags = (collection) => {
-  if (!collection) return [];
-
-  return pipe(
+const extractTags = (collection) =>
+  pipe(
     filter((page) => page.url && !page.data?.no_index),
     flatMap((page) => page.data?.tags || []),
     filter(notNullish),
@@ -21,7 +19,6 @@ const extractTags = (collection) => {
     unique,
     sort((a, b) => a.localeCompare(b)),
   )(collection);
-};
 
 const configureTags = (eleventyConfig) => {
   eleventyConfig.addFilter("tags", extractTags);

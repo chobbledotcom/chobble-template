@@ -187,18 +187,10 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:107", // path
-  "src/_lib/filters/item-filters.js:138", // items
-  "src/_lib/filters/item-filters.js:187", // items
   "src/_lib/collections/products.js:6", // gallery
-  "src/_lib/collections/products.js:38", // products
-  "src/_lib/collections/products.js:58", // products
-  "src/_lib/collections/products.js:83", // options
-  "src/_lib/collections/menus.js:31", // categories
-  "src/_lib/collections/menus.js:36", // items
+  "src/_lib/collections/products.js:79", // options
   "src/_lib/collections/search.js:9", // category
-  "src/_lib/collections/search.js:35", // products
   "src/_lib/collections/reviews.js:101", // name
-  "src/_lib/collections/tags.js:13", // collection
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
   "src/_lib/utils/schema-helper.js:7", // imageInput
