@@ -20,42 +20,33 @@ const CONSUMED_VIA_JS = [
 // ============================================
 
 /**
- * Extract all CSS variable usages from SCSS files
- * Finds patterns like: var(--color-bg)
+ * Create a pattern extractor for files.
+ * @param {RegExp} pattern - Regex with capture group
+ * @param {function} [transform] - Transform match to value (default: m => m[1])
+ * @returns {function} - Curried function: files => Set
  */
-const extractUsedVariables = (scssFiles) => {
-  const used = new Set();
-  const varPattern = /var\(--([a-z][a-z0-9-]*)/g;
-
-  for (const file of scssFiles) {
-    const content = readFileSync(file, "utf-8");
-    for (const match of content.matchAll(varPattern)) {
-      used.add(`--${match[1]}`);
-    }
-  }
-
-  return used;
-};
-
-/**
- * Extract all CSS variable definitions from one or more SCSS files
- * Finds patterns like: --color-bg: value;
- * @param {string|string[]} files - Single file path or array of file paths
- */
-const extractDefinedVariables = (files) => {
+const createExtractor = (pattern, transform = (m) => m[1]) => (files) => {
   const fileList = Array.isArray(files) ? files : [files];
-  const defined = new Set();
-  const defPattern = /^\s*(--[a-z][a-z0-9-]*):/gm;
+  const results = new Set();
 
   for (const file of fileList) {
     const content = readFileSync(file, "utf-8");
-    for (const match of content.matchAll(defPattern)) {
-      defined.add(match[1]);
+    for (const match of content.matchAll(pattern)) {
+      results.add(transform(match));
     }
   }
 
-  return defined;
+  return results;
 };
+
+/** Extract var(--name) usages from files */
+const extractUsedVariables = createExtractor(
+  /var\(--([a-z][a-z0-9-]*)/g,
+  (m) => `--${m[1]}`,
+);
+
+/** Extract --name: definitions from files */
+const extractDefinedVariables = createExtractor(/^\s*(--[a-z][a-z0-9-]*):/gm);
 
 /**
  * Find all undefined variables (used but not defined)

@@ -49,6 +49,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractCamelCaseIdentifiers",
   "analyzeNamingConventions",
   // scss.variables.test.js
+  "createExtractor",
   "extractUsedVariables",
   "extractDefinedVariables",
   "findUndefinedVariables",
