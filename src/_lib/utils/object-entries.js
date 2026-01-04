@@ -56,4 +56,34 @@ const mapBoth = (fn) => mapObject((k, v) => [fn(k), fn(v)]);
  */
 const pickTruthy = filterObject((_k, v) => v);
 
-export { mapEntries, everyEntry, mapObject, filterObject, mapBoth, pickTruthy };
+/**
+ * Build an object from an array by extracting key-value pairs
+ *
+ * Each item is transformed to a [key, value] entry via the toEntry function.
+ * This is a functional alternative to building objects with for-loops and mutation.
+ *
+ * @param {Array} items - Array of items to transform
+ * @param {Function} toEntry - Function that returns [key, value] for each item
+ * @returns {Object} Object built from the entries
+ *
+ * @example
+ * // Build filename -> alt text lookup
+ * toObject(images, img => [img.path.split('/').pop(), img.alt])
+ * // { 'photo.jpg': 'A photo', 'logo.png': 'Company logo' }
+ *
+ * @example
+ * // Build id -> item index
+ * toObject(items, (item, i) => [item.id, i])
+ * // { 'abc': 0, 'def': 1, 'ghi': 2 }
+ */
+const toObject = (items, toEntry) => Object.fromEntries(items.map(toEntry));
+
+export {
+  mapEntries,
+  everyEntry,
+  mapObject,
+  filterObject,
+  mapBoth,
+  pickTruthy,
+  toObject,
+};

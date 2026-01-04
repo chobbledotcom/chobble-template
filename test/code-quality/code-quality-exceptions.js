@@ -113,7 +113,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/theme-editor.js:367", // globalVars object built with property assignment
   "src/assets/js/theme-editor.js:388", // scopeVars object built with property assignment
   "src/assets/js/theme-editor.js:462", // vars object built with property assignment
-  "src/_data/altTagsLookup.js:6", // lookup object built with property assignment
   "src/_lib/filters/item-filters.js:357", // redirects object built with property assignment
   "src/_lib/utils/grouping.js:80", // lookup object built with property assignment
   "src/_lib/eleventy/js-config.js:10", // jsConfig object built with property assignment
