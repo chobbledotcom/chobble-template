@@ -14,6 +14,7 @@ import {
 import configData from "#data/config.json" with { type: "json" };
 import {
   createMockEleventyConfig,
+  createProduct,
   expectResultTitles,
 } from "#test/test-utils.js";
 
@@ -45,14 +46,6 @@ const createMockCollectionApi = (products, reviews) => ({
     if (tag === "review") return reviews;
     return [];
   },
-});
-
-/**
- * Create a product fixture.
- */
-const createProduct = (slug, title) => ({
-  fileSlug: slug,
-  data: { title },
 });
 
 describe("reviews", () => {
@@ -375,8 +368,8 @@ describe("reviews", () => {
       ...createReviews("product-b", TRUNCATE_LIMIT, 4, "02"),
     ];
     const products = [
-      createProduct("product-a", "Product A"),
-      createProduct("product-b", "Product B"),
+      createProduct({ slug: "product-a", title: "Product A" }),
+      createProduct({ slug: "product-b", title: "Product B" }),
     ];
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 
@@ -392,7 +385,7 @@ describe("reviews", () => {
   test("Transforms items through the optional processItem callback", () => {
     // Use limit+5 to ensure we're clearly above the limit
     const reviews = createReviews("product-a", TRUNCATE_LIMIT + 5);
-    const products = [createProduct("product-a", "Product A")];
+    const products = [createProduct({ slug: "product-a", title: "Product A" })];
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 
     const processItem = (item) => ({ ...item, transformed: true });
@@ -411,8 +404,8 @@ describe("reviews", () => {
       ...createReviews("product-b", TRUNCATE_LIMIT + 1, 4, "02"),
     ];
     const products = [
-      createProduct("product-a", "Product A"),
-      createProduct("product-b", "Product B"),
+      createProduct({ slug: "product-a", title: "Product A" }),
+      createProduct({ slug: "product-b", title: "Product B" }),
     ];
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 
@@ -433,7 +426,7 @@ describe("reviews", () => {
       data: { products: ["product-a"], rating: 5 },
       date: new Date("2024-01-01"),
     }));
-    const products = [createProduct("product-a", "Product A")];
+    const products = [createProduct({ slug: "product-a", title: "Product A" })];
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 
     // Pass -1 as limitOverride to test the "no pagination" branch
@@ -450,8 +443,8 @@ describe("reviews", () => {
       date: new Date("2024-01-01"),
     }));
     const products = [
-      createProduct("product-a", "Product A"),
-      createProduct("product-b", "Product B"),
+      createProduct({ slug: "product-a", title: "Product A" }),
+      createProduct({ slug: "product-b", title: "Product B" }),
     ];
     const mockCollectionApi = createMockCollectionApi(products, reviews);
 

@@ -332,12 +332,14 @@ const createCategory = (slug, headerImage = null, extraData = {}) => ({
 
 // Product fixtures
 const createProduct = ({
+  slug = null,
   title = "Test Product",
   categories = [],
   order = 0,
   headerImage = null,
   ...extraData
 } = {}) => ({
+  ...(slug && { fileSlug: slug }),
   data: {
     title,
     categories,
