@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  analyzeFiles,
+  analyzeWithAllowlist,
   assertNoViolations,
   isCommentLine,
   scanLines,
@@ -79,19 +79,6 @@ const findSuboptimalOrder = (source) =>
     };
   });
 
-/**
- * Analyze all JS files for suboptimal short-circuit ordering.
- */
-const analyzeShortCircuitOrder = () =>
-  analyzeFiles(SRC_JS_FILES(), (source, relativePath) =>
-    findSuboptimalOrder(source).map((hit) => ({
-      file: relativePath,
-      line: hit.lineNumber,
-      code: hit.line,
-      location: `${relativePath}:${hit.lineNumber}`,
-    })),
-  );
-
 describe("short-circuit-order", () => {
   test("Detects expensive method before simple equality", () => {
     const source = "const x = arr.includes(val) && id === targetId;";
@@ -142,7 +129,10 @@ describe("short-circuit-order", () => {
   });
 
   test("No suboptimal short-circuit ordering in source files", () => {
-    const violations = analyzeShortCircuitOrder();
+    const { violations } = analyzeWithAllowlist({
+      findFn: findSuboptimalOrder,
+      files: SRC_JS_FILES,
+    });
     assertNoViolations(violations, {
       message: "suboptimal short-circuit ordering",
       fixHint:
