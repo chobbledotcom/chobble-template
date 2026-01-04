@@ -27,11 +27,15 @@ const buildCategoryItemMap = memoize((items) =>
   buildReverseIndex(items, getItemCategories),
 );
 
-const getCategoriesByMenu = (categories, menuSlug) =>
-  buildMenuCategoryMap(categories).get(menuSlug) || [];
+const getCategoriesByMenu = (categories, menuSlug) => {
+  if (categories === undefined) return [];
+  return buildMenuCategoryMap(categories).get(menuSlug) || [];
+};
 
-const getItemsByCategory = (items, categorySlug) =>
-  buildCategoryItemMap(items).get(categorySlug) || [];
+const getItemsByCategory = (items, categorySlug) => {
+  if (items === undefined) return [];
+  return buildCategoryItemMap(items).get(categorySlug) || [];
+};
 
 const configureMenus = (eleventyConfig) => {
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
