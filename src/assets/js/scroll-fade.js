@@ -5,60 +5,45 @@
  */
 import { onReady } from "#assets/on-ready.js";
 
-function initScrollFade() {
-  // Read selectors from CSS custom property (set in theme.scss)
-  const selectorsValue = getComputedStyle(
-    document.documentElement,
-  ).getPropertyValue("--scroll-fade-selectors");
+const getScrollFadeSelectors = () => {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(
+    "--scroll-fade-selectors",
+  );
+  return value?.replace(/^["']|["']$/g, "").trim() || null;
+};
 
-  if (!selectorsValue || selectorsValue.trim() === "") {
-    return; // No selectors configured, nothing to do
-  }
+const prefersReducedMotion = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Parse the selectors (remove quotes and trim)
-  const selectors = selectorsValue.replace(/^["']|["']$/g, "").trim();
-
-  if (!selectors) {
-    return;
-  }
-
-  // Query all elements matching the selectors
-  const elements = document.querySelectorAll(selectors);
-
-  if (elements.length === 0) {
-    return;
-  }
-
-  // Check for reduced motion preference
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    // Make all elements visible immediately
-    for (const el of elements) {
-      el.classList.add("scroll-visible");
-    }
-    return;
-  }
-
-  // Create IntersectionObserver
+const createScrollObserver = () => {
   const observer = new IntersectionObserver(
     (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("scroll-visible");
-          observer.unobserve(entry.target); // Stop observing once visible
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add("scroll-visible");
+          observer.unobserve(e.target);
         }
       }
     },
-    {
-      root: null, // viewport
-      rootMargin: "0px 0px -50px 0px", // Trigger slightly before fully in view
-      threshold: 0.1, // 10% visible
-    },
+    { root: null, rootMargin: "0px 0px -50px 0px", threshold: 0.1 },
   );
+  return observer;
+};
 
-  // Observe all elements
-  for (const el of elements) {
-    observer.observe(el);
+function initScrollFade() {
+  const selectors = getScrollFadeSelectors();
+  if (!selectors) return;
+
+  const elements = document.querySelectorAll(selectors);
+  if (elements.length === 0) return;
+
+  if (prefersReducedMotion()) {
+    for (const el of elements) el.classList.add("scroll-visible");
+    return;
   }
+
+  const observer = createScrollObserver();
+  for (const el of elements) observer.observe(el);
 }
 
 onReady(initScrollFade);

@@ -90,24 +90,22 @@ const renderCartItem = (item) => {
   return template;
 };
 
+const updateStripeBtn = (btn, isBelowMinimum) => {
+  btn.style.display = isBelowMinimum ? "none" : "";
+  btn.disabled = isBelowMinimum;
+};
+
 // Update checkout button states based on cart total
 const updateCheckoutButtons = (cartOverlay, total) => {
+  const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
   const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
   const stripeBtn = cartOverlay.querySelector(".cart-checkout-stripe");
-  const minimumMessage = cartOverlay.querySelector(".cart-minimum-message");
-  const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
+  const minMsg = cartOverlay.querySelector(".cart-minimum-message");
 
   if (paypalBtn) paypalBtn.disabled = total === 0;
-
-  if (stripeBtn) {
-    stripeBtn.style.display = isBelowMinimum ? "none" : "";
-    stripeBtn.disabled = isBelowMinimum;
-  }
-
-  if (minimumMessage) {
-    minimumMessage.style.display =
-      isBelowMinimum && total > 0 ? "block" : "none";
-  }
+  if (stripeBtn) updateStripeBtn(stripeBtn, isBelowMinimum);
+  if (minMsg)
+    minMsg.style.display = isBelowMinimum && total > 0 ? "block" : "none";
 };
 
 // Render cart items and attach handlers
@@ -126,20 +124,17 @@ const renderCartItems = (cartItems, cart) => {
 // Update cart display in overlay
 const updateCartDisplay = () => {
   const cartOverlay = getCartOverlay();
-  if (!cartOverlay) return;
-
-  const cart = getCart();
-  const cartItems = cartOverlay.querySelector(".cart-items");
+  const cartItems = cartOverlay?.querySelector(".cart-items");
   if (!cartItems) return;
 
-  const cartEmpty = cartOverlay.querySelector(".cart-empty");
-  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
+  const cart = getCart();
   const total = getCartTotal();
   const isEmpty = cart.length === 0;
+  const cartEmpty = cartOverlay.querySelector(".cart-empty");
+  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
 
-  if (!isEmpty) renderCartItems(cartItems, cart);
-  else cartItems.innerHTML = "";
-
+  if (isEmpty) cartItems.innerHTML = "";
+  else renderCartItems(cartItems, cart);
   if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
   if (cartTotal) cartTotal.textContent = formatPrice(total);
   updateCheckoutButtons(cartOverlay, total);
