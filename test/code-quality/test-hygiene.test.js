@@ -164,6 +164,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",
+  // method-aliasing.test.js - analysis helpers
+  "parseAlias",
+  "findAliases",
+  "analyzeMethodAliasing",
 ]);
 
 /**
