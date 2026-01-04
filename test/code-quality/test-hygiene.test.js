@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
 import {
+  extractFunctions,
   SRC_HTML_FILES,
   SRC_JS_FILES,
   SRC_SCSS_FILES,
@@ -47,7 +48,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createLocationTracker",
   "withMockStorage",
   // function-length.test.js - analysis helpers
-  "extractFunctions",
   "calculateOwnLines",
   "analyzeFunctionLengths",
   "formatViolations",
@@ -70,7 +70,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // strings.test.js
   "findStringsUsage",
   // test-hygiene.test.js - self-analysis helpers
-  "extractFunctionDefinitions",
   "analyzeTestFiles",
   // unused-classes.test.js - analysis helpers
   "extractClassesFromHtml",
@@ -82,11 +81,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findIdReferencesInJs",
   "collectAllClassesAndIds",
   "findUnusedClassesAndIds",
-  // function-length.test.js - test fixture strings (parsed as examples, not real code)
-  "hello",
-  "greet",
-  "fetchData",
-  "test",
   // naming-conventions.test.js - test fixture string
   "getUserById",
   // try-catch-usage.test.js - analysis helpers
@@ -169,64 +163,28 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeMethodAliasing",
 ]);
 
-/**
- * Extract function definitions from source code.
- * Returns array of { name, lineCount, startLine }
- */
-const extractFunctionDefinitions = (source) => {
-  const functions = [];
-  const lines = source.split("\n");
-
-  // Patterns for function definitions
-  const patterns = [
-    // const name = (args) => { ... }
-    /^(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>\s*\{/,
-    // const name = function(args) { ... }
-    /^(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?function\s*\([^)]*\)\s*\{/,
-    // function name(args) { ... }
-    /^(?:async\s+)?function\s+(\w+)\s*\([^)]*\)\s*\{/,
-  ];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-
-    for (const pattern of patterns) {
-      const match = line.match(pattern);
-      if (match) {
-        const name = match[1];
-        // Count lines until closing brace (simple heuristic)
-        let braceCount = 1;
-        let endLine = i;
-        for (let j = i + 1; j < lines.length && braceCount > 0; j++) {
-          const checkLine = lines[j];
-          braceCount += (checkLine.match(/\{/g) || []).length;
-          braceCount -= (checkLine.match(/\}/g) || []).length;
-          endLine = j;
-        }
-        functions.push({
-          name,
-          lineCount: endLine - i + 1,
-          startLine: i + 1,
-        });
-        break;
-      }
-    }
-  }
-
-  return functions;
-};
+// Pattern to identify true function declarations (not methods or callbacks)
+const DECLARATION_PATTERN =
+  /^\s*(?:export\s+)?(?:const|let|var|(?:async\s+)?function)\s+/;
 
 /**
  * Analyze test files for non-whitelisted functions.
  * Only functions in ALLOWED_TEST_FUNCTIONS are permitted in test files.
  * All other function definitions are flagged - tests should import real code.
+ * Filters to only top-level declarations (const/let/var/function), ignoring
+ * object methods and callbacks which are typically test fixtures.
  */
 const analyzeTestFiles = () => {
   return analyzeFiles(TEST_FILES(), (source, relativePath) => {
-    const functions = extractFunctionDefinitions(source);
+    const lines = source.split("\n");
+    const functions = extractFunctions(source);
     const violations = [];
 
     for (const func of functions) {
+      // Only check actual declarations (const/let/var/function), not methods
+      const sourceLine = lines[func.startLine - 1] || "";
+      if (!DECLARATION_PATTERN.test(sourceLine)) continue;
+
       if (!ALLOWED_TEST_FUNCTIONS.has(func.name)) {
         violations.push({
           file: relativePath,
@@ -254,27 +212,6 @@ describe("test-hygiene", () => {
       message: "non-whitelisted function(s) in test files",
       fixHint: "add to ALLOWED_TEST_FUNCTIONS or import from source",
     });
-  });
-
-  test("Correctly extracts arrow function definitions", () => {
-    const source = `const myFunc = (a, b) => {\n  return a + b;\n};`;
-    const funcs = extractFunctionDefinitions(source);
-    expect(funcs.length).toBe(1);
-    expect(funcs[0].name).toBe("myFunc");
-  });
-
-  test("Correctly extracts regular function definitions", () => {
-    const source = `function doSomething(x) {\n  console.log(x);\n}`;
-    const funcs = extractFunctionDefinitions(source);
-    expect(funcs.length).toBe(1);
-    expect(funcs[0].name).toBe("doSomething");
-  });
-
-  test("Correctly extracts async function definitions", () => {
-    const source = `const fetchData = async (url) => {\n  return await fetch(url);\n};`;
-    const funcs = extractFunctionDefinitions(source);
-    expect(funcs.length).toBe(1);
-    expect(funcs[0].name).toBe("fetchData");
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are defined in test files", () => {
