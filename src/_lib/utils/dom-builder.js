@@ -11,6 +11,29 @@ const getSharedDocument = async () => {
   return sharedDom.window.document;
 };
 
+// Apply attributes to an element
+const applyAttributes = (element, attributes) => {
+  for (const [key, value] of Object.entries(attributes)) {
+    if (value !== null && value !== undefined) {
+      element.setAttribute(key, value);
+    }
+  }
+};
+
+// Append children to an element
+const appendChildren = (element, children) => {
+  if (children === null) return;
+  if (typeof children === "string") {
+    element.innerHTML = children;
+  } else if (Array.isArray(children)) {
+    for (const child of children) {
+      element.appendChild(child);
+    }
+  } else {
+    element.appendChild(children);
+  }
+};
+
 /**
  * Create an HTML element with attributes and optional children
  * @param {string} tagName - The tag name (e.g., 'div', 'img')
@@ -27,25 +50,8 @@ const createElement = async (
 ) => {
   const doc = document || (await getSharedDocument());
   const element = doc.createElement(tagName);
-
-  for (const [key, value] of Object.entries(attributes)) {
-    if (value !== null && value !== undefined) {
-      element.setAttribute(key, value);
-    }
-  }
-
-  if (children !== null) {
-    if (typeof children === "string") {
-      element.innerHTML = children;
-    } else if (Array.isArray(children)) {
-      for (const child of children) {
-        element.appendChild(child);
-      }
-    } else {
-      element.appendChild(children);
-    }
-  }
-
+  applyAttributes(element, attributes);
+  appendChildren(element, children);
   return element;
 };
 

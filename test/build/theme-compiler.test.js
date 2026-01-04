@@ -23,7 +23,7 @@ describe("theme-compiler", () => {
     });
 
     test("Returns empty string when no :root block exists", () => {
-      const content = `body { color: red; }`;
+      const content = "body { color: red; }";
       const result = extractRootVariables(content);
 
       expect(result).toBe("");

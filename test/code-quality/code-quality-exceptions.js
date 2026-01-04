@@ -102,9 +102,6 @@ const ALLOWED_PROCESS_CWD = new Set([
 // While const prevents reassignment, these containers can still be mutated.
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
-  // Empty arrays - being populated via push/mutation
-  "src/assets/js/autosizes.js:135", // newImages array built with push
-
   // Sets - internal implementation of functional utilities (created once, never mutated)
   "src/_lib/utils/array-utils.js:190", // memberOf: Set for O(1) lookup predicate
   "src/_lib/utils/array-utils.js:212", // notMemberOf: Set for O(1) lookup predicate
@@ -132,10 +129,7 @@ const ALLOWED_OBJECT_MUTATION = new Set([
 // Files that use .push() for array mutation.
 // Prefer functional patterns: map, filter, reduce, spread, concat, etc.
 const ALLOWED_ARRAY_PUSH = new Set([
-  // Browser-side DOM manipulation - building arrays from MutationObserver
-  "src/assets/js/autosizes.js:141", // newImages.push(node)
-  "src/assets/js/autosizes.js:145", // newImages.push(...querySelectorAll)
-  "src/assets/js/autosizes.js:158", // newImages.push(mutation.target)
+  // (empty - all push usages have been refactored to functional patterns)
 ]);
 
 export {

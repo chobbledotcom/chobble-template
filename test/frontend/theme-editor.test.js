@@ -56,7 +56,7 @@ describe("theme-editor", () => {
   });
 
   test("Handles various whitespace in CSS", () => {
-    const css = `--color-bg:#fff;--color-text:  #000  ;`;
+    const css = "--color-bg:#fff;--color-text:  #000  ;";
     const result = parseCssBlock(css);
     expect(result).toEqual({
       "--color-bg": "#fff",
@@ -559,7 +559,7 @@ input[type="submit"] {
   });
 
   test("Can add new scopes to a minimal theme", () => {
-    const minimalTheme = `:root { --color-bg: #ffffff; }`;
+    const minimalTheme = ":root { --color-bg: #ffffff; }";
     const parsed = parseThemeContent(minimalTheme);
 
     const newScopeVars = {

@@ -32,14 +32,14 @@ const getCartOverlay = () => document.getElementById(CART_OVERLAY_ID);
 // Reset product option selects on page load
 const resetProductSelects = () => {
   const selects = document.querySelectorAll(".product-options-select");
-  selects.forEach((select) => {
+  for (const select of selects) {
     select.selectedIndex = 0;
     const button = select.parentElement.querySelector(".product-option-button");
     if (button) {
       button.disabled = true;
       button.textContent = "Add to Cart";
     }
-  });
+  }
 };
 
 // Calculate cart total
@@ -58,10 +58,10 @@ const updateCartCount = () => {
 
 // Show "added to cart" feedback
 const showAddedFeedback = () => {
-  document.querySelectorAll(".cart-icon").forEach((icon) => {
+  for (const icon of document.querySelectorAll(".cart-icon")) {
     icon.classList.add("cart-bounce");
     setTimeout(() => icon.classList.remove("cart-bounce"), 600);
-  });
+  }
 };
 
 // Open cart overlay
@@ -290,23 +290,24 @@ const handleCartIconClick = (e) => {
   return true;
 };
 
+// Validate product option selection
+const validateProductOption = (button) => {
+  if (!button.classList.contains("product-option-button")) return true;
+  const select = button.parentElement.querySelector(".product-options-select");
+  if (select && select.value === "") {
+    alert("Please select an option");
+    return false;
+  }
+  return true;
+};
+
 // Handle add to cart button click
 const handleAddToCart = (e) => {
   if (!e.target.classList.contains("add-to-cart")) return;
-
   e.preventDefault();
   const button = e.target;
 
-  // For product options, validate selection first
-  if (button.classList.contains("product-option-button")) {
-    const select = button.parentElement.querySelector(
-      ".product-options-select",
-    );
-    if (select && select.value === "") {
-      alert("Please select an option");
-      return;
-    }
-  }
+  if (!validateProductOption(button)) return;
 
   const itemData = JSON.parse(button.dataset.item);
   const option = itemData.options[getOptionIndex(button)];

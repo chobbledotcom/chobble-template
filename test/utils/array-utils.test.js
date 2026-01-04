@@ -220,9 +220,9 @@ describe("array-utils", () => {
     const isMember = memberOf(values);
     const isNotMember = notMemberOf(values);
 
-    ["a", "b", "c", "d", "e"].forEach((v) => {
+    for (const v of ["a", "b", "c", "d", "e"]) {
       expect(isNotMember(v)).toBe(!isMember(v));
-    });
+    }
   });
 
   // ============================================

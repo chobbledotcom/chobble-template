@@ -2,15 +2,15 @@
 import { onReady } from "#assets/on-ready.js";
 
 function initSliders() {
-  document.querySelectorAll(".slider-container").forEach((container) => {
+  for (const container of document.querySelectorAll(".slider-container")) {
     const slider = container.querySelector(".slider");
     const prevBtn = container.querySelector(".slider-prev");
     const nextBtn = container.querySelector(".slider-next");
 
-    if (!slider || !prevBtn || !nextBtn) return;
+    if (!slider || !prevBtn || !nextBtn) continue;
 
     // Skip if already initialized
-    if (slider.dataset.sliderInit) return;
+    if (slider.dataset.sliderInit) continue;
     slider.dataset.sliderInit = "true";
 
     // Get scroll amount (width of first item + gap)
@@ -55,16 +55,16 @@ function initSliders() {
 
     // Initial state
     updateState();
-  });
+  }
 }
 
 // Re-calculate button visibility for all sliders
 function updateAllSliders() {
-  document.querySelectorAll(".slider").forEach((slider) => {
+  for (const slider of document.querySelectorAll(".slider")) {
     if (slider._updateSliderState) {
       slider._updateSliderState();
     }
-  });
+  }
 }
 
 onReady(initSliders);

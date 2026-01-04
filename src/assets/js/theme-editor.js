@@ -90,7 +90,7 @@ const ThemeEditor = {
   },
 
   initTabNavigation() {
-    document.querySelectorAll(".tab-link").forEach((tabLink) => {
+    for (const tabLink of document.querySelectorAll(".tab-link")) {
       tabLink.addEventListener("click", (e) => {
         e.preventDefault();
         for (const link of document.querySelectorAll(".tab-link")) {
@@ -104,7 +104,7 @@ const ThemeEditor = {
           .getElementById(`${tabLink.dataset.tab}-tab`)
           .classList.add("active");
       });
-    });
+    }
   },
 
   initControlsFromTheme() {
@@ -116,18 +116,16 @@ const ThemeEditor = {
     this.initGlobalControls(parsed.root);
 
     // Initialize scoped controls - ALWAYS init all scopes to attach event listeners
-    SCOPES.forEach((scope) => {
+    for (const scope of SCOPES) {
       this.initScopedControls(scope, parsed.scopes[scope] || {});
-    });
+    }
 
     // Apply initial scoped values to DOM for live preview
     this.applyScopes(parsed.scopes);
 
     // Initialize body classes
-    if (parsed.bodyClasses.length > 0) {
-      parsed.bodyClasses.forEach((cssClass) => {
-        document.body.classList.add(cssClass);
-      });
+    for (const cssClass of parsed.bodyClasses) {
+      document.body.classList.add(cssClass);
     }
 
     // Initialize select-class controls
@@ -139,44 +137,44 @@ const ThemeEditor = {
 
   initGlobalControls(rootVars) {
     // Apply variables to document and initialize controls
-    Object.entries(rootVars).forEach(([varName, value]) => {
+    for (const [varName, value] of Object.entries(rootVars)) {
       document.documentElement.style.setProperty(varName, value);
-    });
+    }
 
     // Initialize color controls
-    this.formQuery('input[type="color"][data-var]:not([data-scope])').forEach(
-      (input) => {
-        input.value = this.getControlValue(input.dataset.var, rootVars, {
-          fallback: "#000000",
-        });
-        input.addEventListener("input", () => this.updateThemeFromControls());
-      },
-    );
+    for (const input of this.formQuery(
+      'input[type="color"][data-var]:not([data-scope])',
+    )) {
+      input.value = this.getControlValue(input.dataset.var, rootVars, {
+        fallback: "#000000",
+      });
+      input.addEventListener("input", () => this.updateThemeFromControls());
+    }
 
     // Initialize text controls
-    this.formQuery('input[type="text"][data-var]:not([data-scope])').forEach(
-      (input) => {
-        if (input.id.includes("border")) return; // Skip border hidden inputs
-        input.value = this.getControlValue(input.dataset.var, rootVars);
-        input.addEventListener("input", () => this.updateThemeFromControls());
-      },
-    );
-
-    // Initialize select controls
-    this.formQuery("select[data-var]:not([data-scope])").forEach((input) => {
+    for (const input of this.formQuery(
+      'input[type="text"][data-var]:not([data-scope])',
+    )) {
+      if (input.id.includes("border")) continue; // Skip border hidden inputs
       input.value = this.getControlValue(input.dataset.var, rootVars);
       input.addEventListener("input", () => this.updateThemeFromControls());
-    });
+    }
+
+    // Initialize select controls
+    for (const input of this.formQuery("select[data-var]:not([data-scope])")) {
+      input.value = this.getControlValue(input.dataset.var, rootVars);
+      input.addEventListener("input", () => this.updateThemeFromControls());
+    }
 
     // Initialize number controls
-    this.formQuery('input[type="number"][data-var]:not([data-scope])').forEach(
-      (input) => {
-        input.value = this.getControlValue(input.dataset.var, rootVars, {
-          type: "number",
-        });
-        input.addEventListener("input", () => this.updateThemeFromControls());
-      },
-    );
+    for (const input of this.formQuery(
+      'input[type="number"][data-var]:not([data-scope])',
+    )) {
+      input.value = this.getControlValue(input.dataset.var, rootVars, {
+        type: "number",
+      });
+      input.addEventListener("input", () => this.updateThemeFromControls());
+    }
 
     // Initialize border controls for global border
     this.initBorderControl("", rootVars["--border"]);
@@ -189,9 +187,9 @@ const ThemeEditor = {
     // IMPORTANT: Must initialize to global values, not browser default #000000
     // Otherwise unchanged inputs pollute output (see test: browser-default-black-should-not-pollute-output)
     // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
-    this.formQuery(
+    for (const input of this.formQuery(
       `input[type="color"][data-var][data-scope="${scope}"]`,
-    ).forEach((input) => {
+    )) {
       const varName = input.dataset.var;
       if (scopeVars[varName]) {
         // Use value from parsed theme
@@ -205,7 +203,7 @@ const ThemeEditor = {
         }
       }
       input.addEventListener("input", () => this.updateThemeFromControls());
-    });
+    }
 
     // Initialize border for this scope
     this.initBorderControl(scope, scopeVars["--border"]);
@@ -258,41 +256,41 @@ const ThemeEditor = {
   },
 
   initSelectClassControls() {
-    this.formQuery("select[data-class]").forEach((input) => {
-      input.querySelectorAll("option").forEach((o) => {
+    for (const input of this.formQuery("select[data-class]")) {
+      for (const o of input.querySelectorAll("option")) {
         if (document.body.classList.contains(o.value)) input.value = o.value;
-      });
+      }
       input.addEventListener("input", () => this.updateThemeFromControls());
-    });
+    }
   },
 
   initCheckboxControls(rootVars) {
-    document
-      .querySelectorAll('input[type="checkbox"][data-target]')
-      .forEach((checkbox) => {
-        const targetIds = checkbox.dataset.target.split(",");
-        const id = checkbox.id.replace(/-enabled$/, "");
-        const hasRootVar = rootVars[`--${id}`] !== undefined;
-        const hasActiveClass = Array.from(
-          formEl(`${id}[data-class]`)?.querySelectorAll("option") || [],
-        ).some(
-          (opt) =>
-            opt.value !== "" && document.body.classList.contains(opt.value),
-        );
-        const isEnabled = hasRootVar || hasActiveClass;
+    for (const checkbox of document.querySelectorAll(
+      'input[type="checkbox"][data-target]',
+    )) {
+      const targetIds = checkbox.dataset.target.split(",");
+      const id = checkbox.id.replace(/-enabled$/, "");
+      const hasRootVar = rootVars[`--${id}`] !== undefined;
+      const hasActiveClass = Array.from(
+        formEl(`${id}[data-class]`)?.querySelectorAll("option") || [],
+      ).some(
+        (opt) =>
+          opt.value !== "" && document.body.classList.contains(opt.value),
+      );
+      const isEnabled = hasRootVar || hasActiveClass;
 
-        checkbox.checked = isEnabled;
+      checkbox.checked = isEnabled;
+      for (const tid of targetIds) {
+        this.toggleCheckbox(tid, isEnabled);
+      }
+
+      checkbox.addEventListener("change", () => {
         for (const tid of targetIds) {
-          this.toggleCheckbox(tid, isEnabled);
+          this.toggleCheckbox(tid, checkbox.checked);
         }
-
-        checkbox.addEventListener("change", () => {
-          for (const tid of targetIds) {
-            this.toggleCheckbox(tid, checkbox.checked);
-          }
-          this.updateThemeFromControls();
-        });
+        this.updateThemeFromControls();
       });
+    }
   },
 
   toggleCheckbox(id, checked) {
@@ -321,29 +319,30 @@ const ThemeEditor = {
    * Apply scoped CSS variables to DOM elements for live preview
    */
   applyScopes(scopeVars) {
-    SCOPES.forEach((scope) => {
+    const varsToClear = [
+      "--color-bg",
+      "--color-text",
+      "--color-link",
+      "--color-link-hover",
+      "--border",
+    ];
+    for (const scope of SCOPES) {
       const selector = SCOPE_DOM_SELECTORS[scope];
       const elements = document.querySelectorAll(selector);
       const vars = scopeVars[scope] || {};
 
-      elements.forEach((el) => {
+      for (const el of elements) {
         // Clear previous scoped values
-        [
-          "--color-bg",
-          "--color-text",
-          "--color-link",
-          "--color-link-hover",
-          "--border",
-        ].forEach((varName) => {
+        for (const varName of varsToClear) {
           el.style.removeProperty(varName);
-        });
+        }
 
         // Apply new scoped values
-        Object.entries(vars).forEach(([varName, value]) => {
+        for (const [varName, value] of Object.entries(vars)) {
           el.style.setProperty(varName, value);
-        });
-      });
-    });
+        }
+      }
+    }
   },
 
   updateThemeFromControls() {
@@ -385,46 +384,47 @@ const ThemeEditor = {
     document.getElementById(ELEMENT_IDS.output).value = themeText;
   },
 
+  // Update color inputs that were following old global value
+  cascadeColorInputs(scope, oldGlobalVars, newGlobalVars) {
+    for (const input of this.formQuery(
+      `input[type="color"][data-var][data-scope="${scope}"]`,
+    )) {
+      const varName = input.dataset.var;
+      const oldGlobal = oldGlobalVars[varName];
+      const newGlobal = newGlobalVars[varName];
+      if (oldGlobal && newGlobal && input.value === oldGlobal) {
+        input.value = newGlobal;
+      }
+    }
+  },
+
+  // Update border inputs that were following old global value
+  cascadeBorderInputs(scope, oldGlobalVars, newGlobalVars) {
+    const borderOutput = formEl(`${scope}-border`);
+    if (!borderOutput) return;
+
+    const oldGlobalBorder = oldGlobalVars["--border"];
+    const newGlobalBorder = newGlobalVars["--border"];
+    if (!oldGlobalBorder || !newGlobalBorder) return;
+    if (borderOutput.value !== oldGlobalBorder) return;
+
+    const widthInput = formEl(`${scope}-border-width`);
+    const styleSelect = formEl(`${scope}-border-style`);
+    const colorInput = formEl(`${scope}-border-color`);
+    const parsed = parseBorderValue(newGlobalBorder);
+    this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
+    borderOutput.value = newGlobalBorder;
+  },
+
   /**
    * Cascade global value changes to scoped inputs that were "following" the old global value.
    * This prevents unchanged scoped inputs from appearing as overrides when global changes.
    */
   cascadeGlobalChangesToScopes(oldGlobalVars, newGlobalVars) {
-    SCOPES.forEach((scope) => {
-      // Color inputs
-      this.formQuery(
-        `input[type="color"][data-var][data-scope="${scope}"]`,
-      ).forEach((input) => {
-        const varName = input.dataset.var;
-        const oldGlobal = oldGlobalVars[varName];
-        const newGlobal = newGlobalVars[varName];
-
-        // If this scoped input was showing the old global value, update it to the new global
-        if (oldGlobal && newGlobal && input.value === oldGlobal) {
-          input.value = newGlobal;
-        }
-      });
-
-      // Border inputs
-      const borderOutput = formEl(`${scope}-border`);
-      if (borderOutput) {
-        const oldGlobalBorder = oldGlobalVars["--border"];
-        const newGlobalBorder = newGlobalVars["--border"];
-        if (
-          oldGlobalBorder &&
-          newGlobalBorder &&
-          borderOutput.value === oldGlobalBorder
-        ) {
-          // Update border component inputs too
-          const widthInput = formEl(`${scope}-border-width`);
-          const styleSelect = formEl(`${scope}-border-style`);
-          const colorInput = formEl(`${scope}-border-color`);
-          const parsed = parseBorderValue(newGlobalBorder);
-          this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
-          borderOutput.value = newGlobalBorder;
-        }
-      }
-    });
+    for (const scope of SCOPES) {
+      this.cascadeColorInputs(scope, oldGlobalVars, newGlobalVars);
+      this.cascadeBorderInputs(scope, oldGlobalVars, newGlobalVars);
+    }
   },
 
   collectScopeVars(scope) {

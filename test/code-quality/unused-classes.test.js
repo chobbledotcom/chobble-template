@@ -386,7 +386,7 @@ describe("unused-classes", () => {
     const totalClasses = allClasses.size;
     const totalIds = allIds.size;
 
-    console.log(`\n  📊 Analysis Results:`);
+    console.log("\n  📊 Analysis Results:");
     console.log(`     Total classes found: ${totalClasses}`);
     console.log(`     Total IDs found: ${totalIds}`);
     console.log(`     Unused classes: ${unusedClasses.length}`);

@@ -169,6 +169,43 @@ const U = {
 // Cache for processAndWrapImage results (HTML strings only, not elements)
 const imageHtmlCache = new Map();
 
+// Check cache and return result if available
+async function getCachedResult(cacheKey, returnElement, document) {
+  if (!imageHtmlCache.has(cacheKey)) return null;
+  const cachedHtml = imageHtmlCache.get(cacheKey);
+  if (!returnElement) return cachedHtml;
+  if (document) return await parseHtml(cachedHtml, document);
+  return null;
+}
+
+// Handle external URLs - just return a simple img tag without processing
+async function handleExternalUrl(
+  imageNameStr,
+  alt,
+  loading,
+  classes,
+  returnElement,
+  document,
+) {
+  const attributes = {
+    src: imageNameStr,
+    alt: alt || "",
+    loading: loading || "lazy",
+    decoding: "async",
+    sizes: "auto",
+  };
+  if (classes) attributes.class = classes;
+
+  if (returnElement) {
+    return await createElement("img", attributes, null, document);
+  }
+  return await createHtml("img", attributes);
+}
+
+// Check if URL is external
+const isExternalUrl = (url) =>
+  url.startsWith("http://") || url.startsWith("https://");
+
 async function processAndWrapImage({
   logName: _logName,
   imageName,
@@ -192,46 +229,27 @@ async function processAndWrapImage({
     loading,
   });
 
-  // Use cache for HTML output, or when we have a document to create element from cached HTML
-  if (imageHtmlCache.has(cacheKey)) {
-    const cachedHtml = imageHtmlCache.get(cacheKey);
-    if (!returnElement) {
-      return cachedHtml;
-    }
-    // Convert cached HTML to element using provided document
-    if (document) {
-      return await parseHtml(cachedHtml, document);
-    }
-  }
-  // Handle external URLs - just return a simple img tag without processing
-  const imageNameStr = imageName.toString();
-  if (
-    imageNameStr.startsWith("http://") ||
-    imageNameStr.startsWith("https://")
-  ) {
-    const attributes = {
-      src: imageNameStr,
-      alt: alt || "",
-      loading: loading || "lazy",
-      decoding: "async",
-      sizes: "auto",
-    };
-    if (classes) attributes.class = classes;
+  const cached = await getCachedResult(cacheKey, returnElement, document);
+  if (cached) return cached;
 
-    if (returnElement) {
-      return await createElement("img", attributes, null, document);
-    }
-    return await createHtml("img", attributes);
+  const imageNameStr = imageName.toString();
+  if (isExternalUrl(imageNameStr)) {
+    return await handleExternalUrl(
+      imageNameStr,
+      alt,
+      loading,
+      classes,
+      returnElement,
+      document,
+    );
   }
 
   const imagePath = U.getPath(imageName);
   const metadata = await U.getMetadata(imagePath);
 
   // Check if we should skip base64 placeholder for SVG or images under 5KB
-  const isSvg = metadata.format === "svg";
-  const fileSize = U.getFileSize(imagePath);
-  const isUnder5KB = fileSize < 5 * 1024;
-  const shouldSkipPlaceholder = isSvg || isUnder5KB;
+  const shouldSkipPlaceholder =
+    metadata.format === "svg" || U.getFileSize(imagePath) < 5 * 1024;
 
   const thumbPromise = shouldSkipPlaceholder
     ? null
@@ -335,12 +353,13 @@ const imageShortcode = async (
  * Fix invalid HTML where divs are the sole child of paragraph tags.
  */
 const fixDivsInParagraphs = (document) => {
-  Array.from(document.querySelectorAll("p"))
-    .filter((p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV")
-    .forEach((p) => {
-      p.parentNode.insertBefore(p.firstChild, p);
-      p.parentNode.removeChild(p);
-    });
+  const invalidParagraphs = Array.from(document.querySelectorAll("p")).filter(
+    (p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV",
+  );
+  for (const p of invalidParagraphs) {
+    p.parentNode.insertBefore(p.firstChild, p);
+    p.parentNode.removeChild(p);
+  }
 };
 
 const extractImageOptions = (img, document) => {

@@ -94,49 +94,49 @@ const analyzeShortCircuitOrder = () =>
 
 describe("short-circuit-order", () => {
   test("Detects expensive method before simple equality", () => {
-    const source = `const x = arr.includes(val) && id === targetId;`;
+    const source = "const x = arr.includes(val) && id === targetId;";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(1);
   });
 
   test("Detects with optional chaining", () => {
-    const source = `item.data?.tags?.includes(tag) && item.fileSlug === slug`;
+    const source = "item.data?.tags?.includes(tag) && item.fileSlug === slug";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(1);
   });
 
   test("Detects .some() pattern", () => {
-    const source = `categories.some(c => c.id === x) && name === targetName`;
+    const source = "categories.some(c => c.id === x) && name === targetName";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(1);
   });
 
   test("Detects .has() pattern (Set/Map)", () => {
-    const source = `mySet.has(item) && count === 0`;
+    const source = "mySet.has(item) && count === 0";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(1);
   });
 
   test("Does not flag optimal order (equality first)", () => {
-    const source = `id === targetId && arr.includes(val)`;
+    const source = "id === targetId && arr.includes(val)";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(0);
   });
 
   test("Does not flag two simple checks", () => {
-    const source = `a === b && c === d`;
+    const source = "a === b && c === d";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(0);
   });
 
   test("Does not flag two expensive checks", () => {
-    const source = `arr.includes(a) && arr.includes(b)`;
+    const source = "arr.includes(a) && arr.includes(b)";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(0);
   });
 
   test("Does not flag comments", () => {
-    const source = `// arr.includes(val) && id === targetId`;
+    const source = "// arr.includes(val) && id === targetId";
     const results = findSuboptimalOrder(source);
     expect(results.length).toBe(0);
   });

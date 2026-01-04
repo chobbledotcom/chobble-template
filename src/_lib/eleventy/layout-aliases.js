@@ -3,9 +3,10 @@ import { join } from "node:path";
 
 export function configureLayoutAliases(eleventyConfig) {
   const layoutsDir = join(process.cwd(), "src/_layouts");
-  readdirSync(layoutsDir)
-    .filter((file) => file.endsWith(".html"))
-    .forEach((file) => {
-      eleventyConfig.addLayoutAlias(file.replace(".html", ""), file);
-    });
+  const htmlFiles = readdirSync(layoutsDir).filter((file) =>
+    file.endsWith(".html"),
+  );
+  for (const file of htmlFiles) {
+    eleventyConfig.addLayoutAlias(file.replace(".html", ""), file);
+  }
 }
