@@ -167,6 +167,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "parseAlias",
   "findAliases",
   "analyzeMethodAliasing",
+  // short-circuit-order.test.js - analysis helpers
+  "buildPattern",
+  "hasSuboptimalOrder",
+  "findSuboptimalOrder",
+  "analyzeShortCircuitOrder",
 ]);
 
 /**

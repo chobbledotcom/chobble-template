@@ -13,7 +13,7 @@ const findPageUrl = (collection, tag, slug) => {
     return "#";
   }
   const result = collection.find(
-    (item) => item.data?.tags?.includes(tag) && item.fileSlug === slug,
+    (item) => item.fileSlug === slug && item.data?.tags?.includes(tag),
   );
   if (!result) {
     return "#";
