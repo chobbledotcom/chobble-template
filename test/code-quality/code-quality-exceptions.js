@@ -103,8 +103,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:5", // memoization cache
-  "src/_lib/media/image.js:170", // imageHtmlCache for memoization
+  "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
 ]);
 
 // ============================================
@@ -171,8 +170,8 @@ const ALLOWED_NULL_CHECKS = new Set([
 
   // === Lazy module loading (initially null until loaded) ===
   "src/_lib/build/scss.js:8", // sass
-  "src/_lib/media/image.js:13", // sharpModule
-  "src/_lib/media/image.js:19", // eleventyImgModule
+  "src/_lib/media/image-crop.js:12", // sharpModule
+  "src/_lib/media/image-lqip.js:11", // eleventyImgModule
   "src/_lib/eleventy/pdf.js:20", // pdfRenderer
   "src/_lib/utils/lazy-jsdom.js:7", // HappyDOMWrapper
   "src/_lib/utils/dom-builder.js:7", // sharedDom
@@ -212,7 +211,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/collections/tags.js:13", // collection
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
-  "src/_lib/media/image.js:289", // imageFiles
   "src/_lib/utils/schema-helper.js:7", // imageInput
   "src/_lib/utils/canonical-url.js:9", // url
   "src/_lib/utils/slug-utils.js:12", // reference

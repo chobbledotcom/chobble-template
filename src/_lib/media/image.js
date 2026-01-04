@@ -1,192 +1,129 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
+import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
+import {
+  filenameFormat,
+  getEleventyImg,
+  getThumbnailOrNull,
+} from "#media/image-lqip.js";
+import { createImageTransform as createTransform } from "#media/image-transform.js";
 import { compact } from "#utils/array-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
-import { loadJSDOM } from "#utils/lazy-jsdom.js";
-import { simplifyRatio } from "#utils/math-utils.js";
-import { memoize } from "#utils/memoize.js";
+import { jsonKey, memoize } from "#utils/memoize.js";
 
-// Lazy-load heavy image processing modules
-let sharpModule = null;
-const getSharp = async () => {
-  if (!sharpModule) sharpModule = (await import("sharp")).default;
-  return sharpModule;
+// Image processing configuration
+const DEFAULT_OPTIONS = {
+  formats: ["webp", "jpeg"],
+  outputDir: ".image-cache",
+  urlPath: "/img/",
+  svgShortCircuit: true,
+  filenameFormat,
 };
 
-let eleventyImgModule = null;
-const getEleventyImg = async () => {
-  if (!eleventyImgModule)
-    eleventyImgModule = await import("@11ty/eleventy-img");
-  return eleventyImgModule;
+const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
+const DEFAULT_SIZE = "auto";
+
+// Path normalization for image sources
+const getPath = (imageName) => {
+  const name = imageName.toString();
+  if (name.startsWith("/")) return `./src${name}`;
+  if (name.startsWith("src/")) return `./${name}`;
+  if (name.startsWith("images/")) return `./src/${name}`;
+  return `./src/images/${name}`;
 };
 
-const CROP_CACHE_DIR = ".image-cache";
+// Parse widths - handles string "240,480" or array
+const getWidths = (widths) =>
+  typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
 
-const generateCropHash = (sourcePath, aspectRatio) => {
-  return crypto
-    .createHash("md5")
-    .update(`${sourcePath}:${aspectRatio}`)
-    .digest("hex")
-    .slice(0, 8);
-};
-
-const buildCropCachePath = (sourcePath, aspectRatio) => {
-  const hash = generateCropHash(sourcePath, aspectRatio);
-  const basename = path.basename(sourcePath, path.extname(sourcePath));
-  return path.join(CROP_CACHE_DIR, `${basename}-crop-${hash}.jpeg`);
-};
-
-const parseCropDimensions = (aspectRatio, metadata) => {
-  const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
-  const aspectFraction = dimensions[0] / dimensions[1];
-  return {
-    width: metadata.width,
-    height: Math.round(metadata.width / aspectFraction),
+// Generate responsive image HTML using eleventy-img
+const getImageHtml = async (
+  imagePath,
+  widths,
+  alt,
+  sizes,
+  loading,
+  classes,
+) => {
+  const imgAttributes = {
+    alt: alt || "",
+    sizes: sizes || DEFAULT_SIZE,
+    loading: loading || "lazy",
+    decoding: "async",
   };
+
+  const pictureAttributes = classes?.trim() ? { class: classes } : {};
+
+  const { default: Image } = await getEleventyImg();
+  return Image(imagePath, {
+    ...DEFAULT_OPTIONS,
+    widths,
+    fixOrientation: true,
+    returnType: "html",
+    htmlOptions: { imgAttributes, pictureAttributes },
+  });
 };
 
-const U = {
-  DEFAULT_OPTIONS: {
-    formats: ["webp", "jpeg"],
-    outputDir: ".image-cache",
-    urlPath: "/img/",
-    svgShortCircuit: true,
-    filenameFormat: (_id, src, width, format) => {
-      const basename = path.basename(src, path.extname(src));
-      return `${basename}-${width}.${format}`;
+// Build wrapper div with LQIP background and aspect ratio
+const makeDivHtml = async (
+  classes,
+  thumbPromise,
+  aspectRatio,
+  maxWidth,
+  innerHTML,
+) => {
+  const bgImage = thumbPromise !== null ? await thumbPromise : null;
+  const styles = compact([
+    bgImage && `background-image: ${bgImage}`,
+    `aspect-ratio: ${aspectRatio}`,
+    maxWidth && `max-width: min(${maxWidth}px, 100%)`,
+  ]);
+
+  return await createHtml(
+    "div",
+    {
+      class: classes ? `image-wrapper ${classes}` : "image-wrapper",
+      style: styles.join("; "),
     },
-  },
-  DEFAULT_WIDTHS: [240, 480, 900, 1300, "auto"],
-  DEFAULT_SIZE: "auto",
-  ASPECT_RATIO_ATTRIBUTE: "eleventy:aspectRatio",
-  getImageHtml: async (imagePath, widths, alt, sizes, loading, classes) => {
-    const imgAttributes = {
-      alt: alt || "",
-      sizes: sizes || U.DEFAULT_SIZE,
-      loading: loading || "lazy",
-      decoding: "async",
-    };
-
-    const pictureAttributes = classes?.trim() ? { class: classes } : {};
-
-    const { default: Image } = await getEleventyImg();
-    return Image(imagePath, {
-      ...U.DEFAULT_OPTIONS,
-      widths: widths,
-      fixOrientation: true,
-      returnType: "html",
-      htmlOptions: {
-        imgAttributes,
-        pictureAttributes,
-      },
-    });
-  },
-  makeThumbnail: memoize(async (imagePath) => {
-    const { default: Image } = await getEleventyImg();
-    const thumbnails = await Image(imagePath, {
-      ...U.DEFAULT_OPTIONS,
-      widths: [32],
-      formats: ["webp"],
-    });
-    const [thumbnail] = thumbnails.webp;
-    const file = fs.readFileSync(thumbnail.outputPath);
-    const base64 = file.toString("base64");
-    return `url('data:image/webp;base64,${base64}')`;
-  }),
-  getAspectRatio: (aspectRatio, metadata) =>
-    aspectRatio || simplifyRatio(metadata.width, metadata.height),
-  cropImage: memoize(
-    async (aspectRatio, sourcePath, metadata) => {
-      if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
-
-      const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
-      if (fs.existsSync(cachedPath)) return cachedPath;
-
-      const { width, height } = parseCropDimensions(aspectRatio, metadata);
-      fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-      const sharp = await getSharp();
-      await sharp(sourcePath)
-        .resize(width, height, { fit: "cover" })
-        .toFile(cachedPath);
-
-      return cachedPath;
-    },
-    { cacheKey: (args) => `${args[0]}:${args[1]}` },
-  ),
-  // Build div HTML using JSDOM for consistency
-  makeDivHtml: async (
-    classes,
-    thumbPromise,
-    imageAspectRatio,
-    maxWidth,
     innerHTML,
-  ) => {
-    const bgImage = thumbPromise !== null ? await thumbPromise : null;
-    const styles = compact([
-      bgImage && `background-image: ${bgImage}`,
-      `aspect-ratio: ${imageAspectRatio}`,
-      maxWidth && `max-width: min(${maxWidth}px, 100%)`,
-    ]);
+  );
+};
 
-    return await createHtml(
-      "div",
-      {
-        class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-        style: styles.join("; "),
-      },
+// Compute wrapped image HTML for local images (memoized)
+const computeWrappedImageHtml = memoize(
+  async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
+    const imagePath = getPath(imageName);
+    const metadata = await getMetadata(imagePath);
+    const finalPath = await cropImage(aspectRatio, imagePath, metadata);
+
+    const innerHTML = await getImageHtml(
+      finalPath,
+      getWidths(widths),
+      alt,
+      sizes,
+      loading,
+      classes,
+    );
+
+    return await makeDivHtml(
+      classes,
+      getThumbnailOrNull(imagePath, metadata),
+      getAspectRatio(aspectRatio, metadata),
+      metadata.width,
       innerHTML,
     );
   },
-  getWidths: (widths) => {
-    if (typeof widths === "string") {
-      widths = widths.split(",");
-    }
-    return widths || U.DEFAULT_WIDTHS;
-  },
-  // Memoize sharp metadata reads (just the metadata, not the sharp instance)
-  getMetadata: memoize(async (path) => {
-    const sharp = await getSharp();
-    return await sharp(path).metadata();
-  }),
-  // Memoize file size checks
-  getFileSize: memoize((path) => fs.statSync(path).size),
-  getPath: (imageName) => {
-    const name = imageName.toString();
-    if (name.startsWith("/")) {
-      return `./src${name}`;
-    }
-    if (name.startsWith("src/")) {
-      return `./${name}`;
-    }
-    if (name.startsWith("images/")) {
-      return `./src/${name}`;
-    }
-    return `./src/images/${name}`;
-  },
-};
+  { cacheKey: jsonKey },
+);
 
-// Cache for processAndWrapImage results (HTML strings only, not elements)
-const imageHtmlCache = new Map();
-
-// Check cache and return result if available
-async function getCachedResult(cacheKey, returnElement, document) {
-  if (!imageHtmlCache.has(cacheKey)) return null;
-  const cachedHtml = imageHtmlCache.get(cacheKey);
-  if (returnElement === false) return cachedHtml;
-  if (document) return await parseHtml(cachedHtml, document);
-  return null;
-}
-
-// Handle external URLs - just return a simple img tag without processing
-async function handleExternalUrl(
+// Handle external URLs - simple img tag without processing
+const handleExternalUrl = async (
   imageNameStr,
   alt,
   loading,
   classes,
   returnElement,
   document,
-) {
+) => {
   const attributes = {
     src: imageNameStr,
     alt: alt || "",
@@ -196,17 +133,17 @@ async function handleExternalUrl(
   };
   if (classes) attributes.class = classes;
 
-  if (returnElement) {
-    return await createElement("img", attributes, null, document);
-  }
-  return await createHtml("img", attributes);
-}
+  return returnElement
+    ? await createElement("img", attributes, null, document)
+    : await createHtml("img", attributes);
+};
 
 // Check if URL is external
 const isExternalUrl = (url) =>
   url.startsWith("http://") || url.startsWith("https://");
 
-async function processAndWrapImage({
+// Main image processing function
+const processAndWrapImage = async ({
   logName: _logName,
   imageName,
   alt,
@@ -216,23 +153,10 @@ async function processAndWrapImage({
   returnElement = false,
   aspectRatio = null,
   loading = null,
-  document = null, // Optional: reuse existing JSDOM document
-}) {
-  // Create cache key from params that affect the output HTML
-  const cacheKey = JSON.stringify({
-    imageName: imageName?.toString(),
-    alt,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-    loading,
-  });
-
-  const cached = await getCachedResult(cacheKey, returnElement, document);
-  if (cached) return cached;
-
+  document = null,
+}) => {
   const imageNameStr = imageName.toString();
+
   if (isExternalUrl(imageNameStr)) {
     return await handleExternalUrl(
       imageNameStr,
@@ -244,89 +168,53 @@ async function processAndWrapImage({
     );
   }
 
-  const imagePath = U.getPath(imageName);
-  const metadata = await U.getMetadata(imagePath);
-
-  // Check if we should skip base64 placeholder for SVG or images under 5KB
-  const shouldSkipPlaceholder =
-    metadata.format === "svg" || U.getFileSize(imagePath) < 5 * 1024;
-
-  const thumbPromise = shouldSkipPlaceholder
-    ? null
-    : U.makeThumbnail(imagePath);
-  const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
-  const croppedPathOrNull = await U.cropImage(aspectRatio, imagePath, metadata);
-  const finalPath = croppedPathOrNull || imagePath;
-
-  const innerHTML = await U.getImageHtml(
-    finalPath,
-    U.getWidths(widths),
+  const html = await computeWrappedImageHtml({
+    imageName,
     alt,
+    classes,
     sizes,
+    widths,
+    aspectRatio,
     loading,
-    classes,
-  );
-
-  const html = await U.makeDivHtml(
-    classes,
-    thumbPromise,
-    imageAspectRatio,
-    metadata.width,
-    innerHTML,
-  );
-  imageHtmlCache.set(cacheKey, html);
+  });
 
   return returnElement ? await parseHtml(html, document) : html;
-}
-
-const findImageFiles = (patterns = ["src/images/*.jpg"]) => {
-  return patterns.flatMap((pattern) => [
-    ...new Bun.Glob(pattern).scanSync("."),
-  ]);
 };
 
-const createImagesCollection = (imageFiles) => {
-  if (!imageFiles) return [];
-  return imageFiles.map((i) => i.split("/")[2]).reverse();
-};
+// Find image files matching patterns
+const findImageFiles = (patterns = ["src/images/*.jpg"]) =>
+  patterns.flatMap((pattern) => [...new Bun.Glob(pattern).scanSync(".")]);
 
+// Create images collection for Eleventy
+const createImagesCollection = (imageFiles) =>
+  (imageFiles ?? []).map((i) => i.split("/")[2]).reverse();
+
+// Copy image cache to output directory
 const copyImageCache = () => {
   if (fs.existsSync(".image-cache/")) {
     fs.cpSync(".image-cache/", "_site/img/", { recursive: true });
   }
 };
 
-const createImageTransform = () => {
-  return async (content, outputPath) => {
-    if (!outputPath || !outputPath.endsWith(".html")) return content;
-    // Skip image processing for feeds - content is already processed
-    if (outputPath.includes("/feed.")) return content;
-    return await transformImages(content);
-  };
-};
+// Create image transform - wraps the low-level transform with processAndWrapImage
+const createImageTransform = () => createTransform(processAndWrapImage);
 
+// Configure Eleventy with image processing
 const configureImages = async (eleventyConfig) => {
   const imageFiles = findImageFiles();
 
-  // Add dev server middleware for on-request image transforms (lazy-loaded)
   const { eleventyImageOnRequestDuringServePlugin } = await getEleventyImg();
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
-  // Add shortcode
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
-
-  // Add transform
   eleventyConfig.addTransform("processImages", createImageTransform());
-
-  // Add collection
   eleventyConfig.addCollection("images", () =>
     createImagesCollection(imageFiles),
   );
-
-  // Add after event for cache copying
   eleventyConfig.on("eleventy.after", copyImageCache);
 };
 
+// Image shortcode for use in templates
 const imageShortcode = async (
   imageName,
   alt,
@@ -335,8 +223,8 @@ const imageShortcode = async (
   sizes = null,
   aspectRatio = null,
   loading = null,
-) => {
-  return await processAndWrapImage({
+) =>
+  processAndWrapImage({
     logName: `imageShortcode: ${imageName}`,
     imageName,
     alt,
@@ -347,63 +235,6 @@ const imageShortcode = async (
     loading,
     returnElement: false,
   });
-};
-
-/**
- * Fix invalid HTML where divs are the sole child of paragraph tags.
- */
-const fixDivsInParagraphs = (document) => {
-  const invalidParagraphs = Array.from(document.querySelectorAll("p")).filter(
-    (p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV",
-  );
-  for (const p of invalidParagraphs) {
-    p.parentNode.insertBefore(p.firstChild, p);
-    p.parentNode.removeChild(p);
-  }
-};
-
-const extractImageOptions = (img, document) => {
-  const aspectRatio = img.getAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-  if (aspectRatio) img.removeAttribute(U.ASPECT_RATIO_ATTRIBUTE);
-
-  return {
-    logName: `transformImages: ${img}`,
-    imageName: img.getAttribute("src"),
-    alt: img.getAttribute("alt"),
-    classes: img.getAttribute("class"),
-    sizes: img.getAttribute("sizes"),
-    widths: img.getAttribute("widths"),
-    aspectRatio,
-    loading: null,
-    returnElement: true,
-    document,
-  };
-};
-
-const processImageElement = async (img, document) => {
-  if (img.parentNode.classList.contains("image-wrapper")) return;
-  const wrapped = await processAndWrapImage(extractImageOptions(img, document));
-  img.parentNode.replaceChild(wrapped, img);
-};
-
-const transformImages = async (content) => {
-  if (!content || !content.includes("<img")) return content;
-  if (!content.includes('src="/images/')) return content;
-
-  const JSDOM = await loadJSDOM();
-  const dom = new JSDOM(content);
-  const { document } = dom.window;
-  const images = document.querySelectorAll('img[src^="/images/"]');
-
-  if (images.length === 0) return content;
-
-  await Promise.all(
-    Array.from(images).map((img) => processImageElement(img, document)),
-  );
-
-  fixDivsInParagraphs(document);
-  return dom.serialize();
-};
 
 export {
   findImageFiles,
