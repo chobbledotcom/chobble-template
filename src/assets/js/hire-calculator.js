@@ -67,31 +67,31 @@ const setMinDate = (input) => {
   input.min = today;
 };
 
+// Format hire total message based on calculation result
+const formatHireMessage = (days, total, canCalculate) => {
+  const dayLabel = days === 1 ? "day" : "days";
+  if (canCalculate) {
+    return `Estimated total for ${days} ${dayLabel}: ${formatPrice(total)}`;
+  }
+  return `We'll provide an exact quote for your ${days} day hire.`;
+};
+
 // Handle date change events
 const handleDateChange = (elements) => () => {
   const { startInput, endInput, totalEl, daysInput } = elements;
 
-  const startDate = startInput.value;
-  const endDate = endInput.value;
-
-  if (!startDate || !endDate) {
+  if (!startInput.value || !endInput.value) {
     totalEl.style.display = "none";
     daysInput.value = "";
     return;
   }
 
-  const days = calculateDays(startDate, endDate);
-  const cart = getCart();
-  const { total, canCalculate } = calculateHireTotal(cart, days);
+  const days = calculateDays(startInput.value, endInput.value);
+  const { total, canCalculate } = calculateHireTotal(getCart(), days);
 
   daysInput.value = days;
   totalEl.style.display = "block";
-
-  if (canCalculate) {
-    totalEl.textContent = `Estimated total for ${days} day${days === 1 ? "" : "s"}: ${formatPrice(total)}`;
-  } else {
-    totalEl.textContent = `We'll provide an exact quote for your ${days} day hire.`;
-  }
+  totalEl.textContent = formatHireMessage(days, total, canCalculate);
 };
 
 // Initialize hire calculator
@@ -141,4 +141,5 @@ export {
   hasHireItems,
   getHireItems,
   calculateHireTotal,
+  formatHireMessage,
 };

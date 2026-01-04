@@ -8,7 +8,11 @@ import {
   getFormTarget,
   getProducts,
   VALID_CART_MODES,
+  VALID_PRODUCT_MODES,
   validateCartConfig,
+  validateCheckoutApiUrl,
+  validateProductMode,
+  validateQuoteConfig,
 } from "#config/helpers.js";
 import {
   cleanupTempDir,
@@ -206,6 +210,81 @@ Content here`;
   });
 });
 
+describe("validateProductMode", () => {
+  test("does not throw when product_mode is not set", () => {
+    expect(() => validateProductMode({})).not.toThrow();
+    expect(() => validateProductMode({ product_mode: null })).not.toThrow();
+    expect(() =>
+      validateProductMode({ product_mode: undefined }),
+    ).not.toThrow();
+  });
+
+  test("does not throw for valid product_mode buy", () => {
+    expect(() => validateProductMode({ product_mode: "buy" })).not.toThrow();
+  });
+
+  test("does not throw for valid product_mode hire", () => {
+    expect(() => validateProductMode({ product_mode: "hire" })).not.toThrow();
+  });
+
+  test("throws for invalid product_mode", () => {
+    expect(() => validateProductMode({ product_mode: "invalid" })).toThrow(
+      /Invalid product_mode: "invalid". Must be one of: buy, hire/,
+    );
+  });
+
+  test("throws for misspelled product_mode", () => {
+    expect(() => validateProductMode({ product_mode: "hyre" })).toThrow(
+      /Invalid product_mode/,
+    );
+  });
+});
+
+describe("validateCheckoutApiUrl", () => {
+  test("does not throw when cart_mode is paypal and checkout_api_url is set", () => {
+    expect(() =>
+      validateCheckoutApiUrl("paypal", "https://api.example.com"),
+    ).not.toThrow();
+  });
+
+  test("does not throw when cart_mode is stripe and checkout_api_url is set", () => {
+    expect(() =>
+      validateCheckoutApiUrl("stripe", "https://api.example.com"),
+    ).not.toThrow();
+  });
+
+  test("throws when cart_mode is paypal and checkout_api_url is missing", () => {
+    expect(() => validateCheckoutApiUrl("paypal", null)).toThrow(
+      /cart_mode is "paypal" but checkout_api_url is not set/,
+    );
+  });
+
+  test("throws when cart_mode is stripe and checkout_api_url is missing", () => {
+    expect(() => validateCheckoutApiUrl("stripe", undefined)).toThrow(
+      /cart_mode is "stripe" but checkout_api_url is not set/,
+    );
+  });
+
+  test("does not throw for quote mode regardless of checkout_api_url", () => {
+    expect(() => validateCheckoutApiUrl("quote", null)).not.toThrow();
+    expect(() => validateCheckoutApiUrl("quote", undefined)).not.toThrow();
+  });
+});
+
+describe("validateQuoteConfig", () => {
+  test("throws when form_target is missing", () => {
+    expect(() => validateQuoteConfig(null)).toThrow(
+      /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
+    );
+  });
+
+  test("throws when form_target is undefined", () => {
+    expect(() => validateQuoteConfig(undefined)).toThrow(
+      /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
+    );
+  });
+});
+
 describe("validateCartConfig", () => {
   test("does nothing when cart_mode is not set", () => {
     expect(() => validateCartConfig({})).not.toThrow();
@@ -255,6 +334,12 @@ describe("DEFAULTS", () => {
 describe("VALID_CART_MODES", () => {
   test("contains exactly paypal, stripe, and quote", () => {
     expect(VALID_CART_MODES).toEqual(["paypal", "stripe", "quote"]);
+  });
+});
+
+describe("VALID_PRODUCT_MODES", () => {
+  test("contains exactly buy and hire", () => {
+    expect(VALID_PRODUCT_MODES).toEqual(["buy", "hire"]);
   });
 });
 

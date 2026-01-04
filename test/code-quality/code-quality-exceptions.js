@@ -115,7 +115,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
 const ALLOWED_OBJECT_MUTATION = new Set([
   // Browser-side image lazy loading - setting DOM element attributes
-  "src/assets/js/autosizes.js:126", // img[attribute] = img.getAttribute
+  "src/assets/js/autosizes.js:123", // img[attribute] = img.getAttribute
 ]);
 
 // ============================================
