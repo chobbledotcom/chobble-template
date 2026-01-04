@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { rootDir } from "#test/test-utils.js";
+import { createExtractor, rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Constants
@@ -18,26 +18,6 @@ const CONSUMED_VIA_JS = [
 // ============================================
 // Helper functions
 // ============================================
-
-/**
- * Create a pattern extractor for files.
- * @param {RegExp} pattern - Regex with capture group
- * @param {function} [transform] - Transform match to value (default: m => m[1])
- * @returns {function} - Curried function: files => Set
- */
-const createExtractor = (pattern, transform = (m) => m[1]) => (files) => {
-  const fileList = Array.isArray(files) ? files : [files];
-  const results = new Set();
-
-  for (const file of fileList) {
-    const content = readFileSync(file, "utf-8");
-    for (const match of content.matchAll(pattern)) {
-      results.add(transform(match));
-    }
-  }
-
-  return results;
-};
 
 /** Extract var(--name) usages from files */
 const extractUsedVariables = createExtractor(
