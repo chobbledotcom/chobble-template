@@ -1,3 +1,4 @@
+import { chunk } from "#utils/array-utils.js";
 import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { slugify } from "#utils/slug-utils.js";
@@ -85,13 +86,7 @@ const filterToPath = (filters) => {
 /**
  * Group array elements into pairs: [a, b, c, d] => [[a, b], [c, d]]
  */
-const toPairs = (arr) => {
-  const pairs = [];
-  for (let i = 0; i + 1 < arr.length; i += 2) {
-    pairs.push([arr[i], arr[i + 1]]);
-  }
-  return pairs;
-};
+const toPairs = (arr) => chunk(arr, 2);
 
 /**
  * Parse URL path back to filter object
