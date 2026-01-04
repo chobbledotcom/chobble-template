@@ -228,7 +228,10 @@ const filled = [1, 2, 3];
   });
 
   test("ALLOWED_MUTABLE_CONST entries still exist and match pattern", () => {
-    const stale = validateExceptions(ALLOWED_MUTABLE_CONST, MUTABLE_CONST_PATTERNS);
+    const stale = validateExceptions(
+      ALLOWED_MUTABLE_CONST,
+      MUTABLE_CONST_PATTERNS,
+    );
     if (stale.length > 0) {
       console.log("\n  Stale ALLOWED_MUTABLE_CONST entries:");
       for (const s of stale) {
