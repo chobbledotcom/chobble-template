@@ -1,6 +1,7 @@
 // Functions for theme editor - can be tested with DOM mocking
 
 import { compact, filter, map, pipe, split } from "#utils/array-utils.js";
+import { filterObject } from "#utils/object-entries.js";
 
 // Scopes that support local CSS variable overrides
 export const SCOPES = ["header", "nav", "article", "form", "button"];
@@ -156,15 +157,10 @@ export function shouldIncludeScopedVar(value, globalValue) {
  * @param {Object} globalValues - Global values for comparison { varName: value }
  * @returns {Object} - Filtered scope variables (only those differing from global)
  */
-export function filterScopeVars(scopeFormData, globalValues = {}) {
-  return pipe(
-    Object.entries,
-    filter(([varName, value]) =>
-      shouldIncludeScopedVar(value, globalValues[varName]),
-    ),
-    Object.fromEntries,
+export const filterScopeVars = (scopeFormData, globalValues = {}) =>
+  filterObject((varName, value) =>
+    shouldIncludeScopedVar(value, globalValues[varName]),
   )(scopeFormData);
-}
 
 // Pipeline helpers for theme editor UI
 
@@ -228,8 +224,7 @@ export const toggleClassAndReturn = (el, enabled) => (value) => {
  * @returns {Function} (el) => array of active class names
  */
 export const collectActiveClasses = (formEl) => (el) => {
-  const checkbox = formEl(`${el.id}-enabled`);
-  const enabled = !checkbox || checkbox.checked;
+  const enabled = isControlEnabled(formEl)(el);
   return pipe(
     Array.from,
     map((o) => o.value),
