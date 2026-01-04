@@ -25,11 +25,6 @@ import { sortItems } from "#utils/sorting.js";
 const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /**
- * Create a Set from an iterable (functional wrapper to avoid linter pattern)
- */
-const toSet = (iterable) => new Set(iterable);
-
-/**
  * Parse filter attributes from item data
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
@@ -271,7 +266,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
     return { hasFilters: false };
   }
 
-  const validPaths = toSet(validPages.map((p) => p.path));
+  const validPaths = validPages.map((p) => p.path);
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 
@@ -303,7 +298,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
           const path = filterToPath(newFilters);
 
           // Only include if this path exists (has items)
-          if (!isActive && !validPaths.has(path)) {
+          if (!isActive && !validPaths.includes(path)) {
             return null;
           }
 

@@ -70,10 +70,10 @@ describe("grouping", () => {
 
     const grouped = groupValuesBy(pairs);
 
-    expect(grouped.get("size").size).toBe(3);
-    expect(grouped.get("color").size).toBe(1);
-    expect(grouped.get("size").has("small")).toBe(true);
-    expect(grouped.get("size").has("large")).toBe(true);
+    expect(grouped.get("size").length).toBe(3);
+    expect(grouped.get("color").length).toBe(1);
+    expect(grouped.get("size").includes("small")).toBe(true);
+    expect(grouped.get("size").includes("large")).toBe(true);
   });
 
   test("Deduplicates repeated values for same key", () => {
@@ -85,7 +85,7 @@ describe("grouping", () => {
 
     const grouped = groupValuesBy(pairs);
 
-    expect(grouped.get("size").size).toBe(1);
+    expect(grouped.get("size").length).toBe(1);
   });
 
   test("Returns empty Map for empty pairs array", () => {

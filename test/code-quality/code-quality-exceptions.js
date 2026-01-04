@@ -102,10 +102,6 @@ const ALLOWED_PROCESS_CWD = new Set([
 // While const prevents reassignment, these containers can still be mutated.
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
-  // Sets - internal implementation of functional utilities (created once, never mutated)
-  "src/_lib/utils/array-utils.js:190", // memberOf: Set for O(1) lookup predicate
-  "src/_lib/utils/array-utils.js:212", // notMemberOf: Set for O(1) lookup predicate
-
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:5", // memoization cache
   "src/_lib/media/image.js:170", // imageHtmlCache for memoization
