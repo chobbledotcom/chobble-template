@@ -113,7 +113,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/theme-editor.js:367", // globalVars object built with property assignment
   "src/assets/js/theme-editor.js:388", // scopeVars object built with property assignment
   "src/assets/js/theme-editor.js:462", // vars object built with property assignment
-  "src/_lib/filters/item-filters.js:357", // redirects object built with property assignment
+  "src/_lib/filters/item-filters.js:364", // redirects object built with property assignment
 
   // Sets - being populated via add/mutation
   "src/_lib/media/unused-images.js:52", // usedImages Set from array

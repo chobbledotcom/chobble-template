@@ -1,5 +1,8 @@
+import { filter, flatMap, pipe, sort, uniqueBy } from "#utils/array-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
+
+const hasSymbolAndLabel = (key) => key.symbol && key.label;
 
 export default {
   eleventyComputed: {
@@ -12,21 +15,21 @@ export default {
       };
     },
     allDietaryKeys: (data) => {
-      const menuCategories = (data.collections.menu_category || [])
-        .filter((cat) => cat.data.menus?.includes(data.page.fileSlug))
-        .sort(sortItems);
+      const menuCategories = pipe(
+        filter((cat) => cat.data.menus?.includes(data.page.fileSlug)),
+        sort(sortItems),
+      )(data.collections.menu_category || []);
 
-      const allItems = menuCategories.flatMap((category) =>
-        (data.collections.menu_item || []).filter((item) =>
-          item.data.menu_categories?.includes(category.fileSlug),
-        ),
-      );
+      const menuItems = data.collections.menu_item || [];
+      const itemInCategory = (category) => (item) =>
+        item.data.menu_categories?.includes(category.fileSlug);
 
-      const dietaryKeys = allItems
-        .flatMap((item) => item.data.dietaryKeys || [])
-        .filter((key) => key.symbol && key.label);
-
-      return [...new Map(dietaryKeys.map((key) => [key.symbol, key])).values()];
+      return pipe(
+        flatMap((category) => menuItems.filter(itemInCategory(category))),
+        flatMap((item) => item.data.dietaryKeys || []),
+        filter(hasSymbolAndLabel),
+        uniqueBy((key) => key.symbol),
+      )(menuCategories);
     },
   },
 };

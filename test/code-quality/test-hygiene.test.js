@@ -161,6 +161,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "parseAlias",
   "findAliases",
   "analyzeMethodAliasing",
+  // short-circuit-order.test.js - analysis helpers
+  "buildPattern",
+  "hasSuboptimalOrder",
+  "findSuboptimalOrder",
+  "analyzeShortCircuitOrder",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

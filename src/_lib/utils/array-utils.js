@@ -3,6 +3,45 @@
  */
 
 /**
+ * Left-to-right function composition
+ *
+ * Passes a value through a sequence of functions, where each function
+ * receives the result of the previous one.
+ *
+ * @param {...Function} fns - Functions to compose
+ * @returns {Function} (value) => transformed value
+ *
+ * @example
+ * pipe(addOne, double, toString)(5)  // "12"
+ * pipe(filter(isEven), map(square), sum)(numbers)
+ */
+const pipe =
+  (...fns) =>
+  (x) =>
+    fns.reduce((v, f) => f(v), x);
+
+/**
+ * Curried array helpers for use with pipe()
+ *
+ * @example
+ * pipe(
+ *   filter(x => x > 0),
+ *   map(x => x * 2),
+ *   sort((a, b) => a - b)
+ * )(numbers)
+ */
+const filter = (predicate) => (arr) => arr.filter(predicate);
+const map = (fn) => (arr) => arr.map(fn);
+const flatMap = (fn) => (arr) => arr.flatMap(fn);
+const sort = (comparator) => (arr) => [...arr].sort(comparator);
+const unique = (arr) => [...new Set(arr)];
+const uniqueBy = (getKey) => (arr) => [
+  ...new Map(arr.map((item) => [getKey(item), item])).values(),
+];
+const join = (separator) => (arr) => arr.join(separator);
+const split = (separator) => (str) => str.split(separator);
+
+/**
  * Split an array into groups of a specified size
  *
  * Incomplete groups at the end are dropped (strict chunking).
@@ -94,4 +133,19 @@ const findDuplicate = (items, getKey = (x) => x) => {
   return items.find((_, i) => keys.indexOf(keys[i]) !== i);
 };
 
-export { chunk, compact, findDuplicate, listSeparator, pick };
+export {
+  chunk,
+  compact,
+  filter,
+  findDuplicate,
+  flatMap,
+  join,
+  listSeparator,
+  map,
+  pick,
+  pipe,
+  sort,
+  split,
+  unique,
+  uniqueBy,
+};

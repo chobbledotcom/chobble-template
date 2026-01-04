@@ -2,6 +2,15 @@ import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import site from "#data/site.json" with { type: "json" };
 import strings from "#data/strings.js";
+import {
+  filter,
+  flatMap,
+  join,
+  map,
+  pipe,
+  sort,
+  uniqueBy,
+} from "#utils/array-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -15,52 +24,56 @@ const getPdfRenderer = async () => {
   return pdfRenderer;
 };
 
+const hasSymbolAndLabel = (key) => key.symbol && key.label;
+const formatDietaryKey = (k) => `(${k.symbol}) ${k.label}`;
+
 function buildMenuPdfData(menu, menuCategories, menuItems) {
   const menuSlug = menu.fileSlug;
+  const items = menuItems || [];
 
-  const categories = (menuCategories || [])
-    .filter((cat) => cat.data.menus?.includes(menuSlug))
-    .sort(sortItems);
+  const categories = pipe(
+    filter((cat) => cat.data.menus?.includes(menuSlug)),
+    sort(sortItems),
+  )(menuCategories || []);
 
-  const pdfCategories = categories.map((category) => {
-    const items = (menuItems || [])
-      .filter((item) => item.data.menu_categories?.includes(category.fileSlug))
-      .map((item) => ({
+  const itemsInCategory = (category) =>
+    pipe(
+      filter((item) => item.data.menu_categories?.includes(category.fileSlug)),
+      map((item) => ({
         name: item.data.name,
         price: item.data.price,
         description: item.data.description || "",
-        dietarySymbols: (item.data.dietaryKeys || [])
-          .map((k) => k.symbol)
-          .join(" "),
-      }));
+        dietarySymbols: pipe(
+          map((k) => k.symbol),
+          join(" "),
+        )(item.data.dietaryKeys || []),
+      })),
+    )(items);
 
-    return {
-      name: category.data.name,
-      description: category.templateContent
-        ? category.templateContent.replace(/<[^>]*>/g, "").trim()
-        : "",
-      items,
-    };
-  });
+  const pdfCategories = map((category) => ({
+    name: category.data.name,
+    description: category.templateContent
+      ? category.templateContent.replace(/<[^>]*>/g, "").trim()
+      : "",
+    items: itemsInCategory(category),
+  }))(categories);
 
-  const allDietaryKeys = categories
-    .flatMap((category) =>
-      (menuItems || [])
+  const uniqueDietaryKeys = pipe(
+    flatMap((category) =>
+      items
         .filter((item) =>
           item.data.menu_categories?.includes(category.fileSlug),
         )
         .flatMap((item) => item.data.dietaryKeys || []),
-    )
-    .filter((key) => key.symbol && key.label);
+    ),
+    filter(hasSymbolAndLabel),
+    uniqueBy((key) => key.symbol),
+  )(categories);
 
-  const uniqueDietaryKeys = [
-    ...new Map(allDietaryKeys.map((key) => [key.symbol, key])).values(),
-  ];
-
-  // Pre-join dietary keys as a string since json-to-pdf doesn't support @last
-  const dietaryKeyString = uniqueDietaryKeys
-    .map((k) => `(${k.symbol}) ${k.label}`)
-    .join(", ");
+  const dietaryKeyString = pipe(
+    map(formatDietaryKey),
+    join(", "),
+  )(uniqueDietaryKeys);
 
   return {
     businessName: site.name,
