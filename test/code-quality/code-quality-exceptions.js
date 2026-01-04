@@ -125,7 +125,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/_lib/utils/grouping.js:23", // index Map for grouping
   "src/_lib/utils/grouping.js:53", // groups Map for grouping
   "src/_lib/utils/grouping.js:102", // groups Map for grouping
-  "src/_lib/media/image.js:175", // imageHtmlCache for memoization
+  "src/_lib/media/image.js:170", // imageHtmlCache for memoization
 ]);
 
 // ============================================
@@ -142,8 +142,6 @@ const ALLOWED_LET_USAGE = new Set([
   "src/assets/js/theme-editor.js:286",
   // file-utils.js - content modified by conditional logic
   "src/_lib/eleventy/file-utils.js:49",
-  // image.js - recursive gcd function (could refactor but works)
-  "src/_lib/media/image.js:98",
 ]);
 
 export {
