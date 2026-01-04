@@ -9,6 +9,14 @@ import { memoize } from "#utils/memoize.js";
 
 const cacheKeyFromArgs = (args) => args.join(",");
 
+/**
+ * Replace a pattern in content if present, using async HTML generator
+ */
+const replaceIfPresent = async (content, pattern, getHtml) =>
+  content.includes(pattern)
+    ? content.replace(pattern, await getHtml())
+    : content;
+
 const getDirname = (importMetaUrl) =>
   path.dirname(fileURLToPath(importMetaUrl));
 
@@ -46,23 +54,21 @@ const renderSnippet = memoize(
 
     if (!fs.existsSync(snippetPath)) return defaultString;
 
-    let bodyContent = matter.read(snippetPath).content;
+    const rawContent = matter.read(snippetPath).content;
 
-    // Preprocess liquid shortcodes
-    if (bodyContent.includes("{% opening_times %}")) {
-      const openingHtml = await getOpeningTimesHtml();
-      bodyContent = bodyContent.replace("{% opening_times %}", openingHtml);
-    }
+    // Preprocess liquid shortcodes using pure functional transformations
+    const withOpening = await replaceIfPresent(
+      rawContent,
+      "{% opening_times %}",
+      getOpeningTimesHtml,
+    );
+    const processed = await replaceIfPresent(
+      withOpening,
+      "{% recurring_events %}",
+      getRecurringEventsHtml,
+    );
 
-    if (bodyContent.includes("{% recurring_events %}")) {
-      const recurringHtml = await getRecurringEventsHtml();
-      bodyContent = bodyContent.replace(
-        "{% recurring_events %}",
-        recurringHtml,
-      );
-    }
-
-    return mdRenderer.render(bodyContent);
+    return mdRenderer.render(processed);
   },
   { cacheKey: cacheKeyFromArgs },
 );
