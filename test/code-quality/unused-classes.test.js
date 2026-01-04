@@ -46,12 +46,13 @@ const trim = (str) => str.trim();
 const toSet = (arr) => new Set(arr);
 
 /**
- * Curried function to extract classes or IDs from HTML content.
+ * Extract classes or IDs from HTML content.
  * Uses pipe and functional composition for clean data flow.
  * @param {'class' | 'id'} type - The attribute type to extract
- * @returns {(content: string) => Set<string>} - Function that extracts values from content
+ * @param {string} content - The HTML content to parse
+ * @returns {Set<string>} - Set of extracted values
  */
-const extractFromHtml = (type) =>
+const extractFromHtml = (type, content) =>
   type === "class"
     ? pipe(
         cleanLiquid,
@@ -60,13 +61,13 @@ const extractFromHtml = (type) =>
         flatMap(pipe(normalizeWhitespace, split(" "))),
         filter(isValidClass),
         toSet,
-      )
+      )(content)
     : pipe(
         matchAll(/id="([^"]*)"/g),
         map(getMatch(1)),
         filterMap((val) => !isDynamicId(val) && isNotEmpty(val), trim),
         toSet,
-      );
+      )(content);
 
 // ============================================
 // Class/ID Extraction from JavaScript
@@ -222,8 +223,8 @@ const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
   // Extract from HTML files
   for (const file of htmlFiles) {
     const content = readFileSync(file, "utf-8");
-    addToMap(allClasses, extractFromHtml("class")(content), file);
-    addToMap(allIds, extractFromHtml("id")(content), file);
+    addToMap(allClasses, extractFromHtml("class", content), file);
+    addToMap(allIds, extractFromHtml("id", content), file);
   }
 
   // Extract from JS files (dynamically created HTML)
@@ -285,7 +286,7 @@ describe("unused-classes", () => {
         <span class="baz"></span>
       </div>
     `;
-    const classes = extractFromHtml("class")(html);
+    const classes = extractFromHtml("class", html);
     expect(classes.has("foo")).toBe(true);
     expect(classes.has("bar")).toBe(true);
     expect(classes.has("baz")).toBe(true);
@@ -296,7 +297,7 @@ describe("unused-classes", () => {
       <div class="static {% if x %}conditional{% endif %}">
       <span class="{{ variable }} another"></span>
     `;
-    const classes = extractFromHtml("class")(html);
+    const classes = extractFromHtml("class", html);
     expect(classes.has("static")).toBe(true);
     expect(classes.has("another")).toBe(true);
     // Conditional and variable classes are stripped
@@ -308,7 +309,7 @@ describe("unused-classes", () => {
         <span id="sidebar"></span>
       </div>
     `;
-    const ids = extractFromHtml("id")(html);
+    const ids = extractFromHtml("id", html);
     expect(ids.has("main-content")).toBe(true);
     expect(ids.has("sidebar")).toBe(true);
   });
