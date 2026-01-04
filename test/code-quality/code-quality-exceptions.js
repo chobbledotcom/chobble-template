@@ -113,10 +113,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/theme-editor.js:367", // globalVars object built with property assignment
   "src/assets/js/theme-editor.js:388", // scopeVars object built with property assignment
   "src/assets/js/theme-editor.js:462", // vars object built with property assignment
-  "src/_data/altTagsLookup.js:6", // lookup object built with property assignment
   "src/_lib/filters/item-filters.js:364", // redirects object built with property assignment
-  "src/_lib/utils/grouping.js:80", // lookup object built with property assignment
-  "src/_lib/eleventy/js-config.js:10", // jsConfig object built with property assignment
 
   // Sets - being populated via add/mutation
   "src/_lib/media/unused-images.js:52", // usedImages Set from array
@@ -125,9 +122,9 @@ const ALLOWED_MUTABLE_CONST = new Set([
 
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:5", // memoization cache
-  "src/_lib/utils/grouping.js:21", // index Map for grouping
-  "src/_lib/utils/grouping.js:51", // groups Map for grouping
-  "src/_lib/utils/grouping.js:108", // groups Map for grouping
+  "src/_lib/utils/grouping.js:23", // index Map for grouping
+  "src/_lib/utils/grouping.js:53", // groups Map for grouping
+  "src/_lib/utils/grouping.js:102", // groups Map for grouping
   "src/_lib/media/image.js:170", // imageHtmlCache for memoization
 ]);
 

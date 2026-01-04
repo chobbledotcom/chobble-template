@@ -2,6 +2,8 @@
  * Functional grouping utilities for building indices and lookups
  */
 
+import { fromPairs } from "#utils/object-entries.js";
+
 /**
  * Build a reverse index from items to keys (many-to-many relationship)
  *
@@ -66,6 +68,9 @@ const groupValuesBy = (pairs) => {
  * Extracts (key, value) pairs from items and builds a lookup object
  * where only the first occurrence of each key is kept.
  *
+ * Uses reverse + fromPairs: reversing makes the first occurrence end up
+ * last, so it overwrites any later occurrences when building the object.
+ *
  * @param {Array} items - Array of items to process
  * @param {Function} getPairs - Function that extracts [[key, value], ...] pairs from each item
  * @returns {Object} { key: value, ... }
@@ -76,19 +81,8 @@ const groupValuesBy = (pairs) => {
  *   item.attrs.flatMap(a => [[slugify(a.name), a.name], [slugify(a.value), a.value]])
  * );
  */
-const buildFirstOccurrenceLookup = (items, getPairs) => {
-  const lookup = {};
-
-  for (const item of items) {
-    for (const [key, value] of getPairs(item)) {
-      if (!(key in lookup)) {
-        lookup[key] = value;
-      }
-    }
-  }
-
-  return lookup;
-};
+const buildFirstOccurrenceLookup = (items, getPairs) =>
+  fromPairs(items.flatMap(getPairs).reverse());
 
 /**
  * Group items by a single key (one-to-many relationship)

@@ -3,6 +3,7 @@ import getConfig from "#data/config.js";
 import strings from "#data/strings.js";
 import { computeSpecs } from "#filters/spec-filters.js";
 import { findDuplicate, pick } from "#utils/array-utils.js";
+import { toObject } from "#utils/object-entries.js";
 import { buildPermalink, normaliseSlug } from "#utils/slug-utils.js";
 
 const parsePrice = (priceStr, context) => {
@@ -64,7 +65,7 @@ const computeCartAttributes = (data) => {
 
   const hirePrices =
     mode === "hire"
-      ? Object.fromEntries(options.map((opt) => [opt.days, opt.unit_price]))
+      ? toObject(options, (opt) => [opt.days, opt.unit_price])
       : {};
 
   return JSON.stringify({
