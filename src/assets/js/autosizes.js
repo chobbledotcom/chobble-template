@@ -134,7 +134,9 @@
   const collectImagesFromNodes = (addedNodes) =>
     Array.from(addedNodes).flatMap((node) => [
       ...(node.nodeName === "IMG" ? [node] : []),
-      ...(node.querySelectorAll ? Array.from(node.querySelectorAll("img")) : []),
+      ...(node.querySelectorAll
+        ? Array.from(node.querySelectorAll("img"))
+        : []),
     ]);
 
   // Check if mutation is a relevant attribute change on an image
