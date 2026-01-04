@@ -4,6 +4,8 @@ import {
   compact,
   findDuplicate,
   listSeparator,
+  memberOf,
+  notMemberOf,
   pick,
 } from "#utils/array-utils.js";
 
@@ -127,5 +129,96 @@ describe("array-utils", () => {
     const duplicate = findDuplicate(options, (opt) => opt.days);
     expect(duplicate.days).toBe(1);
     expect(duplicate.price).toBe(15); // It's the second occurrence
+  });
+
+  // ============================================
+  // memberOf Tests
+  // ============================================
+  test("memberOf returns true for values in collection", () => {
+    const isWeekend = memberOf(["saturday", "sunday"]);
+    expect(isWeekend("saturday")).toBe(true);
+    expect(isWeekend("sunday")).toBe(true);
+  });
+
+  test("memberOf returns false for values not in collection", () => {
+    const isWeekend = memberOf(["saturday", "sunday"]);
+    expect(isWeekend("monday")).toBe(false);
+    expect(isWeekend("friday")).toBe(false);
+  });
+
+  test("memberOf works with filter", () => {
+    const validCodes = memberOf(["A1", "B2", "C3"]);
+    const codes = ["A1", "X9", "B2", "Z0", "C3"];
+    expect(codes.filter(validCodes)).toEqual(["A1", "B2", "C3"]);
+  });
+
+  test("memberOf works with some", () => {
+    const hasFruit = memberOf(["apple", "banana", "orange"]);
+    expect(["carrot", "banana", "potato"].some(hasFruit)).toBe(true);
+    expect(["carrot", "broccoli", "potato"].some(hasFruit)).toBe(false);
+  });
+
+  test("memberOf works with every", () => {
+    const isDigit = memberOf([
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+    ]);
+    expect(["1", "2", "3"].every(isDigit)).toBe(true);
+    expect(["1", "a", "3"].every(isDigit)).toBe(false);
+  });
+
+  test("memberOf works with numbers", () => {
+    const isPrime = memberOf([2, 3, 5, 7, 11, 13]);
+    expect(isPrime(7)).toBe(true);
+    expect(isPrime(4)).toBe(false);
+  });
+
+  test("memberOf handles empty collection", () => {
+    const isEmpty = memberOf([]);
+    expect(isEmpty("anything")).toBe(false);
+  });
+
+  // ============================================
+  // notMemberOf Tests
+  // ============================================
+  test("notMemberOf returns true for values not in collection", () => {
+    const isNotReserved = notMemberOf(["admin", "root", "system"]);
+    expect(isNotReserved("user")).toBe(true);
+    expect(isNotReserved("guest")).toBe(true);
+  });
+
+  test("notMemberOf returns false for values in collection", () => {
+    const isNotReserved = notMemberOf(["admin", "root", "system"]);
+    expect(isNotReserved("admin")).toBe(false);
+    expect(isNotReserved("root")).toBe(false);
+  });
+
+  test("notMemberOf works with filter to exclude items", () => {
+    const isNotExcluded = notMemberOf(["spam", "trash"]);
+    const folders = ["inbox", "spam", "drafts", "trash", "sent"];
+    expect(folders.filter(isNotExcluded)).toEqual(["inbox", "drafts", "sent"]);
+  });
+
+  test("notMemberOf handles empty collection", () => {
+    const isNotEmpty = notMemberOf([]);
+    expect(isNotEmpty("anything")).toBe(true);
+  });
+
+  test("notMemberOf is the logical inverse of memberOf", () => {
+    const values = ["a", "b", "c"];
+    const isMember = memberOf(values);
+    const isNotMember = notMemberOf(values);
+
+    ["a", "b", "c", "d", "e"].forEach((v) => {
+      expect(isNotMember(v)).toBe(!isMember(v));
+    });
   });
 });

@@ -6,6 +6,7 @@ import { fetchJson } from "#assets/http.js";
 import { onReady } from "#assets/on-ready.js";
 import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
+import { memberOf } from "#utils/array-utils.js";
 
 const MONTHS = [
   "January",
@@ -75,16 +76,15 @@ const createEmptyCells = (count) =>
     createElement("span", "calendar-day empty"),
   );
 
-const createDayCells = (year, month, daysInMonth, unavailableSet, todayStr) =>
+const createDayCells = (year, month, daysInMonth, isUnavailable, todayStr) =>
   Array.from({ length: daysInMonth }, (_, i) => {
     const day = i + 1;
     const dateStr = formatDate(new Date(year, month, day));
-    const isUnavailable = unavailableSet.has(dateStr);
-    const className = getDayClasses(dateStr, todayStr, isUnavailable);
+    const className = getDayClasses(dateStr, todayStr, isUnavailable(dateStr));
     return createElement("span", className, String(day));
   });
 
-const renderMonth = (monthDate, unavailableSet, todayStr) => {
+const renderMonth = (monthDate, isUnavailable, todayStr) => {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
   const firstDay = new Date(year, month, 1);
@@ -100,7 +100,7 @@ const renderMonth = (monthDate, unavailableSet, todayStr) => {
   const allCells = [
     ...createDayHeaders(),
     ...createEmptyCells(startDay),
-    ...createDayCells(year, month, daysInMonth, unavailableSet, todayStr),
+    ...createDayCells(year, month, daysInMonth, isUnavailable, todayStr),
   ];
   grid.replaceChildren(...allCells);
 
@@ -116,14 +116,14 @@ const renderCalendar = (unavailableDates) => {
   const content = getContent();
   if (!content) return;
 
-  const unavailableSet = new Set(unavailableDates);
+  const isUnavailable = memberOf(unavailableDates);
   const today = getToday();
   const todayStr = formatDate(today);
 
   const months = Array.from({ length: 12 }, (_, i) =>
     renderMonth(
       new Date(today.getFullYear(), today.getMonth() + i, 1),
-      unavailableSet,
+      isUnavailable,
       todayStr,
     ),
   );

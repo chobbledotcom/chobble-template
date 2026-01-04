@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { notMemberOf } from "#utils/array-utils.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 const IMAGE_REF_PATTERN =
@@ -49,13 +50,11 @@ export function configureUnusedImages(eleventyConfig) {
 
     const markdownFiles = [...new Bun.Glob("**/*.md").scanSync(dir.input)];
 
-    const usedImages = new Set(
-      markdownFiles.flatMap((file) =>
-        extractImagesFromFile(path.join(dir.input, file), imageFiles),
-      ),
+    const usedImagesList = markdownFiles.flatMap((file) =>
+      extractImagesFromFile(path.join(dir.input, file), imageFiles),
     );
 
-    const unusedImages = imageFiles.filter((file) => !usedImages.has(file));
+    const unusedImages = imageFiles.filter(notMemberOf(usedImagesList));
 
     if (unusedImages.length > 0) {
       console.log("\n📸 Unused Images Report:");

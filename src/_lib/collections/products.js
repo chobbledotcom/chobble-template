@@ -1,5 +1,5 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
-import { findDuplicate } from "#utils/array-utils.js";
+import { findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
@@ -47,12 +47,10 @@ const getProductsByCategory = (products, categorySlug) => {
 const getProductsByCategories = (products, categorySlugs) => {
   if (!products || !categorySlugs?.length) return [];
 
-  const categorySet = new Set(categorySlugs);
+  const isSelectedCategory = memberOf(categorySlugs);
 
   return products
-    .filter((product) =>
-      product.data.categories?.some((cat) => categorySet.has(cat)),
-    )
+    .filter((product) => product.data.categories?.some(isSelectedCategory))
     .sort(sortItems);
 };
 

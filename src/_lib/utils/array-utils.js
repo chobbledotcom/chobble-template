@@ -133,6 +133,55 @@ const findDuplicate = (items, getKey = (x) => x) => {
   return items.find((_, i) => keys.indexOf(keys[i]) !== i);
 };
 
+/**
+ * Create a membership predicate for efficient lookup
+ *
+ * Returns a predicate function that tests if a value is in the collection.
+ * Uses a Set internally for O(1) lookup performance.
+ *
+ * @param {Iterable} values - Values to check membership against
+ * @returns {Function} (value) => boolean
+ *
+ * @example
+ * const isWeekend = memberOf(['saturday', 'sunday']);
+ * isWeekend('saturday')  // true
+ * isWeekend('monday')    // false
+ *
+ * // Use with filter
+ * const validCodes = memberOf(['A1', 'B2', 'C3']);
+ * codes.filter(validCodes)  // only codes in the valid set
+ *
+ * // Use with some/every
+ * items.some(memberOf(allowedItems))
+ * items.every(memberOf(validValues))
+ */
+const memberOf = (values) => {
+  const set = new Set(values);
+  return (value) => set.has(value);
+};
+
+/**
+ * Create a negated membership predicate
+ *
+ * Returns a predicate function that tests if a value is NOT in the collection.
+ * Uses a Set internally for O(1) lookup performance.
+ *
+ * @param {Iterable} values - Values to exclude
+ * @returns {Function} (value) => boolean
+ *
+ * @example
+ * const isNotReserved = notMemberOf(['admin', 'root', 'system']);
+ * isNotReserved('user')   // true
+ * isNotReserved('admin')  // false
+ *
+ * // Use with filter to exclude items
+ * usernames.filter(notMemberOf(reservedNames))
+ */
+const notMemberOf = (values) => {
+  const set = new Set(values);
+  return (value) => !set.has(value);
+};
+
 export {
   chunk,
   compact,
@@ -142,6 +191,8 @@ export {
   join,
   listSeparator,
   map,
+  memberOf,
+  notMemberOf,
   pick,
   pipe,
   sort,
