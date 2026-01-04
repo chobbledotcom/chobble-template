@@ -113,6 +113,23 @@ function validateProductMode(config) {
   }
 }
 
+function validateCheckoutApiUrl(cartMode, checkoutApiUrl) {
+  if ((cartMode === "paypal" || cartMode === "stripe") && !checkoutApiUrl) {
+    throw new Error(
+      `cart_mode is "${cartMode}" but checkout_api_url is not set in config.json`,
+    );
+  }
+}
+
+function validateQuoteConfig(formTarget) {
+  if (!formTarget) {
+    throw new Error(
+      'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
+    );
+  }
+  validateQuotePages();
+}
+
 function validateCartConfig(config) {
   const { cart_mode, checkout_api_url, form_target } = config;
 
@@ -126,25 +143,14 @@ function validateCartConfig(config) {
     );
   }
 
-  if (cart_mode === "paypal" || cart_mode === "stripe") {
-    if (!checkout_api_url) {
-      throw new Error(
-        `cart_mode is "${cart_mode}" but checkout_api_url is not set in config.json`,
-      );
-    }
-  }
+  validateCheckoutApiUrl(cart_mode, checkout_api_url);
 
   if (cart_mode === "stripe") {
     validateStripePages();
   }
 
   if (cart_mode === "quote") {
-    if (!form_target) {
-      throw new Error(
-        'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
-      );
-    }
-    validateQuotePages();
+    validateQuoteConfig(form_target);
   }
 }
 

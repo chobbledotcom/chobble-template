@@ -28,6 +28,24 @@ const SCOPE_DOM_SELECTORS = {
   button: "button, .button, input[type='submit']",
 };
 
+// CSS variables to clear when applying scoped styles
+const SCOPED_VARS_TO_CLEAR = [
+  "--color-bg",
+  "--color-text",
+  "--color-link",
+  "--color-link-hover",
+  "--border",
+];
+
+const applyScopeToElement = (el, vars) => {
+  for (const varName of SCOPED_VARS_TO_CLEAR) {
+    el.style.removeProperty(varName);
+  }
+  for (const [varName, value] of Object.entries(vars)) {
+    el.style.setProperty(varName, value);
+  }
+};
+
 // Create form element selector for this form
 const formEl = createFormEl(ELEMENT_IDS.form);
 
@@ -319,28 +337,13 @@ const ThemeEditor = {
    * Apply scoped CSS variables to DOM elements for live preview
    */
   applyScopes(scopeVars) {
-    const varsToClear = [
-      "--color-bg",
-      "--color-text",
-      "--color-link",
-      "--color-link-hover",
-      "--border",
-    ];
     for (const scope of SCOPES) {
       const selector = SCOPE_DOM_SELECTORS[scope];
       const elements = document.querySelectorAll(selector);
       const vars = scopeVars[scope] || {};
 
       for (const el of elements) {
-        // Clear previous scoped values
-        for (const varName of varsToClear) {
-          el.style.removeProperty(varName);
-        }
-
-        // Apply new scoped values
-        for (const [varName, value] of Object.entries(vars)) {
-          el.style.setProperty(varName, value);
-        }
+        applyScopeToElement(el, vars);
       }
     }
   },
