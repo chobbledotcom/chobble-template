@@ -34,10 +34,11 @@ const { find: findMutableVarDeclarations } = createCodeChecker({
   files: [],
 });
 
-// Patterns that detect mutable const declarations (empty array, Set, Map)
+// Patterns that detect mutable const declarations (empty array/object, Set, Map)
 // These bypass const's protection by using mutable containers
 const MUTABLE_CONST_PATTERNS = [
   /^\s*const\s+\w+\s*=\s*\[\s*\]/, // const x = []
+  /^\s*const\s+\w+\s*=\s*\{\s*\}/, // const x = {}
   /^\s*const\s+\w+\s*=\s*new\s+Set\s*\(/, // const x = new Set()
   /^\s*const\s+\w+\s*=\s*new\s+Map\s*\(/, // const x = new Map()
 ];
@@ -53,6 +54,7 @@ const { find: findMutableConstDeclarations } = createCodeChecker({
   patterns: MUTABLE_CONST_PATTERNS,
   extractData: (line) => {
     if (/\[\s*\]/.test(line)) return { reason: "Empty array const" };
+    if (/\{\s*\}/.test(line)) return { reason: "Empty object const" };
     if (/new\s+Set/.test(line)) return { reason: "Set const" };
     if (/new\s+Map/.test(line)) return { reason: "Map const" };
     return { reason: "Mutable const" };
@@ -134,9 +136,11 @@ let mutableVar = 0;
   // Mutable const detection tests
   test("Detects mutable const patterns", () => {
     expect(isMutableConstPattern("const items = [];")).toBe(true);
+    expect(isMutableConstPattern("const data = {};")).toBe(true);
     expect(isMutableConstPattern("const seen = new Set();")).toBe(true);
     expect(isMutableConstPattern("const cache = new Map();")).toBe(true);
     expect(isMutableConstPattern("  const items = [];")).toBe(true);
+    expect(isMutableConstPattern("  const obj = {};")).toBe(true);
     expect(isMutableConstPattern("const set = new Set([1, 2]);")).toBe(true);
   });
 
@@ -145,21 +149,26 @@ let mutableVar = 0;
     expect(isMutableConstPattern("const items = [1, 2, 3];")).toBe(false);
     expect(isMutableConstPattern('const name = "test";')).toBe(false);
     expect(isMutableConstPattern("const fn = () => {};")).toBe(false);
+    expect(isMutableConstPattern("const obj = { key: 'value' };")).toBe(false);
+    expect(isMutableConstPattern("const config = { a: 1, b: 2 };")).toBe(false);
   });
 
   test("Detects mutable const declarations in source code", () => {
     const source = `
 const immutable = 1;
 const items = [];
+const data = {};
 const seen = new Set();
 const cache = new Map();
 const filled = [1, 2, 3];
+const config = { key: 'value' };
     `;
     const results = findMutableConstDeclarations(source);
-    expect(results.length).toBe(3);
+    expect(results.length).toBe(4);
     expect(results[0].reason).toBe("Empty array const");
-    expect(results[1].reason).toBe("Set const");
-    expect(results[2].reason).toBe("Map const");
+    expect(results[1].reason).toBe("Empty object const");
+    expect(results[2].reason).toBe("Set const");
+    expect(results[3].reason).toBe("Map const");
   });
 
   test("No mutable const declarations outside allowlist", () => {
