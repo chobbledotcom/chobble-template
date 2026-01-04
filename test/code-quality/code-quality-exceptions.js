@@ -117,21 +117,11 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/_lib/media/image.js:170", // imageHtmlCache for memoization
 ]);
 
-// ============================================
-// let/mutable variable exceptions
-// ============================================
-
-// Mutable variables that can't be refactored to immutable patterns.
-// let foo = null; for lazy loading is auto-allowed; these are other cases.
-// Note: for (let i = ...) loops are not detected (pattern matches line-start let only)
-const ALLOWED_LET_USAGE = new Set([]);
-
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
-  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
 };
