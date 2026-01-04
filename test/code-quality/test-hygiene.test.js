@@ -165,6 +165,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "hasWrongHelperName",
   // method-aliasing.test.js - analysis helpers
   "parseAlias",
+  "parseWrapper",
+  "normalizeParams",
   "findAliases",
   "analyzeMethodAliasing",
 ]);

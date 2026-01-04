@@ -11,7 +11,11 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
  * Detect method/function aliasing like:
  *   const newName = existingName;
  *
- * This pattern adds noise without value. Instead:
+ * And method wrappers like:
+ *   const fromPairs = (pairs) => Object.fromEntries(pairs);
+ *   const double = (x) => multiply(x);
+ *
+ * These patterns add noise without value. Instead:
  * - Use the original name directly
  * - Or give the function a more generic name that fits all contexts
  */
@@ -20,6 +24,11 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
 // Must be a simple identifier on the right, ending with semicolon
 // This avoids matching multi-line chains like: const x = y\n  .map(...)
 const ALIAS_PATTERN = /^\s*const\s+(\w+)\s*=\s*([a-z_]\w*)\s*;\s*$/i;
+
+// Pattern: const name = (params) => something(params);
+// Captures: name, params, method/function call, args
+const WRAPPER_PATTERN =
+  /^\s*const\s+(\w+)\s*=\s*\(([^)]*)\)\s*=>\s*([a-zA-Z_][\w.]*)\(([^)]*)\)\s*;?\s*$/;
 
 // Pattern to match local definitions (const/let/var/function)
 const DEF_PATTERN = /^\s*(?:const|let|var|function)\s+(\w+)(?:\s*=|\s*\()/;
@@ -56,17 +65,64 @@ const parseAlias = (line) => {
   // Skip single-letter variables (loop indices, etc.)
   if (originalName.length === 1) return null;
 
-  return { newName, originalName };
+  return { newName, originalName, type: "alias" };
+};
+
+// Normalize params: remove whitespace, split by comma, filter empty
+const normalizeParams = (params) =>
+  params
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+/**
+ * Check if a line is a method wrapper.
+ * A wrapper is: const name = (params) => something(params)
+ * where the arguments match the parameters exactly.
+ */
+const parseWrapper = (line) => {
+  if (isCommentLine(line)) return null;
+
+  const match = line.match(WRAPPER_PATTERN);
+  if (!match) return null;
+
+  const [, newName, params, calledMethod, args] = match;
+
+  // Normalize and compare params vs args
+  const paramList = normalizeParams(params);
+  const argList = normalizeParams(args);
+
+  // Must have at least one parameter
+  if (paramList.length === 0) return null;
+
+  // Args must exactly match params (same order, same names)
+  if (paramList.length !== argList.length) return null;
+  if (!paramList.every((p, i) => p === argList[i])) return null;
+
+  return { newName, originalName: calledMethod, type: "wrapper" };
 };
 
 /**
- * Find aliases in source, checking that the original is defined locally.
+ * Find aliases and wrappers in source.
+ * For simple aliases, checks that the original is defined locally.
+ * For wrappers, always flags (they're wrapping external or internal calls).
  */
 const findAliases = (source) => {
   const lines = source.split("\n");
   const localDefs = collectLocalDefs(lines);
 
   return scanLines(source, (line, lineNum) => {
+    // Check for wrapper first (more specific pattern)
+    const wrapper = parseWrapper(line);
+    if (wrapper) {
+      return {
+        lineNumber: lineNum,
+        line: line.trim(),
+        ...wrapper,
+      };
+    }
+
+    // Check for simple alias
     const alias = parseAlias(line);
     if (!alias) return null;
 
@@ -164,12 +220,69 @@ const empty = null;
     expect(results.length).toBe(0);
   });
 
-  test("No method aliasing in source files", () => {
+  // Wrapper detection tests
+  test("Detects method wrapper with single param", () => {
+    const source = `const fromPairs = (pairs) => Object.fromEntries(pairs);`;
+    const results = findAliases(source);
+    expect(results.length).toBe(1);
+    expect(results[0].newName).toBe("fromPairs");
+    expect(results[0].originalName).toBe("Object.fromEntries");
+    expect(results[0].type).toBe("wrapper");
+  });
+
+  test("Detects wrapper calling plain function", () => {
+    const source = `const double = (x) => multiply(x);`;
+    const results = findAliases(source);
+    expect(results.length).toBe(1);
+    expect(results[0].newName).toBe("double");
+    expect(results[0].originalName).toBe("multiply");
+    expect(results[0].type).toBe("wrapper");
+  });
+
+  test("Detects wrapper with multiple params", () => {
+    const source = `const add = (a, b) => sum(a, b);`;
+    const results = findAliases(source);
+    expect(results.length).toBe(1);
+    expect(results[0].newName).toBe("add");
+    expect(results[0].originalName).toBe("sum");
+  });
+
+  test("Does not flag wrapper when args differ from params", () => {
+    const source = `const double = (x) => multiply(x, 2);`;
+    const results = findAliases(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag wrapper with different arg order", () => {
+    const source = `const swap = (a, b) => doThing(b, a);`;
+    const results = findAliases(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag arrow function with logic", () => {
+    const source = `const double = (x) => x * 2;`;
+    const results = findAliases(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag wrapper with additional constant args", () => {
+    const source = `const getPagePath = (filename) => path.join(PAGES_DIR, filename);`;
+    const results = findAliases(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("Does not flag empty param wrapper", () => {
+    const source = `const getData = () => fetchData();`;
+    const results = findAliases(source);
+    expect(results.length).toBe(0);
+  });
+
+  test("No method aliasing or wrappers in source files", () => {
     const violations = analyzeMethodAliasing();
     assertNoViolations(violations, {
-      message: "method alias(es)",
+      message: "method alias(es) or wrapper(s)",
       fixHint:
-        "use the original name directly, or give it a generic name that fits all contexts",
+        "use the original method/function directly instead of wrapping it",
     });
   });
 });
