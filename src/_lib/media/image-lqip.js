@@ -13,6 +13,12 @@ const getEleventyImg = async () => {
   return eleventyImgModule;
 };
 
+// Shared filename format for eleventy-img output
+const filenameFormat = (_id, src, width, format) => {
+  const basename = path.basename(src, path.extname(src));
+  return `${basename}-${width}.${format}`;
+};
+
 // Shared options for thumbnail generation
 const THUMBNAIL_OPTIONS = {
   formats: ["webp"],
@@ -20,10 +26,7 @@ const THUMBNAIL_OPTIONS = {
   urlPath: "/img/",
   svgShortCircuit: true,
   widths: [32],
-  filenameFormat: (_id, src, width, format) => {
-    const basename = path.basename(src, path.extname(src));
-    return `${basename}-${width}.${format}`;
-  },
+  filenameFormat,
 };
 
 // Minimum file size to bother with a placeholder (5KB)
@@ -60,5 +63,6 @@ export {
   getFileSize,
   getThumbnailOrNull,
   getEleventyImg,
+  filenameFormat,
   THUMBNAIL_OPTIONS,
 };
