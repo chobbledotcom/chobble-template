@@ -190,10 +190,8 @@ const findImageFiles = (patterns = ["src/images/*.jpg"]) => {
   ]);
 };
 
-const createImagesCollection = (imageFiles) => {
-  if (!imageFiles) return [];
-  return imageFiles.map((i) => i.split("/")[2]).reverse();
-};
+const createImagesCollection = (imageFiles = []) =>
+  imageFiles.map((i) => i.split("/")[2]).reverse();
 
 const copyImageCache = () => {
   if (fs.existsSync(".image-cache/")) {
