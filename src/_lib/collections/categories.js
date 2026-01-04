@@ -1,3 +1,5 @@
+import { reduce } from "#utils/array-utils.js";
+
 /**
  * Create initial mapping from category slugs to [propertyValue, order] pairs
  */
@@ -32,18 +34,14 @@ const shouldOverride = (currentEntry, newOrder) =>
 /**
  * Build a map of category slugs to property values, preferring highest order
  */
-const buildCategoryPropertyMap = (categories, products, propertyName) => {
-  const result = createInitialMapping(categories, propertyName);
-  const productEntries = extractProductEntries(products, propertyName);
-
-  for (const { categorySlug, value, order } of productEntries) {
-    if (shouldOverride(result[categorySlug], order)) {
-      result[categorySlug] = [value, order];
-    }
-  }
-
-  return result;
-};
+const buildCategoryPropertyMap = (categories, products, propertyName) =>
+  reduce(
+    (acc, { categorySlug, value, order }) =>
+      shouldOverride(acc[categorySlug], order)
+        ? { ...acc, [categorySlug]: [value, order] }
+        : acc,
+    createInitialMapping(categories, propertyName),
+  )(extractProductEntries(products, propertyName));
 
 const buildCategoryImageMap = (categories, products) =>
   buildCategoryPropertyMap(categories, products, "header_image");
