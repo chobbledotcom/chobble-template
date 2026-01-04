@@ -132,23 +132,17 @@ const findIdReferencesInHtml = (content, idName) => {
 // Reference Detection in SCSS
 // ============================================
 
-const findClassReferencesInScss = (content, className) => {
-  // Escape special regex characters in class name
-  const escaped = className.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-  // Match .className in selectors (with word boundary or valid selector chars after)
-  // This handles: .class, .class:hover, .class.other, .class[attr], .class>child, etc.
-  const patterns = [new RegExp(`\\.${escaped}(?=[\\s,:{\\[>+~.)#]|$)`, "m")];
-
-  return patterns.some((pattern) => pattern.test(content));
-};
-
-const findIdReferencesInScss = (content, idName) => {
-  const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-  // Match #idName in selectors
-  const pattern = new RegExp(`#${escaped}(?=[\\s,:{\\[>+~.#]|$)`, "m");
-
+/**
+ * Find CSS selector references in SCSS content.
+ * @param {string} content - SCSS file content
+ * @param {string} name - The class or ID name to find
+ * @param {string} prefix - The selector prefix ("\\." for class, "#" for id)
+ */
+const findSelectorReferencesInScss = (content, name, prefix) => {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Match selector in SCSS (with word boundary or valid selector chars after)
+  // Handles: .class, .class:hover, .class.other, .class[attr], .class>child, #id, etc.
+  const pattern = new RegExp(`${prefix}${escaped}(?=[\\s,:{\\[>+~.)#]|$)`, "m");
   return pattern.test(content);
 };
 
@@ -270,7 +264,7 @@ const findUnusedClassesAndIds = (
 
   // Check each class
   for (const [className, definedIn] of allClasses) {
-    const inScss = findClassReferencesInScss(scssContent, className);
+    const inScss = findSelectorReferencesInScss(scssContent, className, "\\.");
     const inJs = findClassReferencesInJs(jsContent, className);
 
     if (!inScss && !inJs) {
@@ -280,7 +274,7 @@ const findUnusedClassesAndIds = (
 
   // Check each ID
   for (const [idName, definedIn] of allIds) {
-    const inScss = findIdReferencesInScss(scssContent, idName);
+    const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
     const inJs = findIdReferencesInJs(jsContent, idName);
     const inHtml = findIdReferencesInHtml(htmlContent, idName);
 
@@ -355,9 +349,11 @@ describe("unused-classes", () => {
       .cart-item.active { font-weight: bold; }
       .unused-class { display: none; }
     `;
-    expect(findClassReferencesInScss(scss, "cart-item")).toBe(true);
-    expect(findClassReferencesInScss(scss, "active")).toBe(true);
-    expect(findClassReferencesInScss(scss, "nonexistent")).toBe(false);
+    expect(findSelectorReferencesInScss(scss, "cart-item", "\\.")).toBe(true);
+    expect(findSelectorReferencesInScss(scss, "active", "\\.")).toBe(true);
+    expect(findSelectorReferencesInScss(scss, "nonexistent", "\\.")).toBe(
+      false,
+    );
   });
 
   test("Finds class references in JS content", () => {
@@ -375,7 +371,7 @@ describe("unused-classes", () => {
     const scss = "#main-nav { display: flex; }";
     const js = `document.getElementById("sidebar");`;
 
-    expect(findIdReferencesInScss(scss, "main-nav")).toBe(true);
+    expect(findSelectorReferencesInScss(scss, "main-nav", "#")).toBe(true);
     expect(findIdReferencesInJs(js, "sidebar")).toBe(true);
   });
 
