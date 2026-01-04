@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   workflow_call:
 
+permissions:
+  contents: write
+
 jobs:
   test:
     name: Run Tests
@@ -20,3 +23,21 @@ jobs:
 
       - name: Run tests
         run: bun run test
+
+      - name: Check for coverage changes
+        id: coverage_changes
+        run: |
+          if git diff --quiet .test_coverage.json; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push coverage changes
+        if: steps.coverage_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .test_coverage.json
+          git commit -m "Ratchet up test coverage thresholds"
+          git push
