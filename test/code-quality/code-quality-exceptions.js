@@ -128,6 +128,117 @@ const ALLOWED_ARRAY_PUSH = new Set([
   // (empty - all push usages have been refactored to functional patterns)
 ]);
 
+// ============================================
+// Null check exceptions (if (!x) patterns)
+// ============================================
+
+// Simple null/undefined checks that are legitimate because the value
+// can genuinely be null/undefined from external sources.
+// New code should avoid this pattern unless truly necessary.
+const ALLOWED_NULL_CHECKS = new Set([
+  // === Environment variables / Config (can be undefined) ===
+  "ecommerce-backend/server.js:31", // SITE_HOST
+  "ecommerce-backend/server.js:35", // BRAND_NAME
+  "ecommerce-backend/server.js:51", // origin (CORS)
+  "src/_lib/config/helpers.js:107", // product_mode
+  "src/_lib/config/helpers.js:121", // cart_mode
+  "src/_lib/config/helpers.js:130", // checkout_api_url
+  "src/_lib/config/helpers.js:142", // form_target
+  "src/assets/js/stripe-checkout.js:31", // checkoutApiUrl
+
+  // === DOM element lookups (querySelector can return null) ===
+  "src/assets/js/search.js:13", // form
+  "src/assets/js/search.js:16", // keywordsDatalist
+  "src/assets/js/availability-calendar.js:117", // content
+  "src/assets/js/availability-calendar.js:138", // dialog
+  "src/assets/js/theme-switcher.js:87", // button
+  "src/assets/js/theme-editor.js:298", // target
+  "src/assets/js/theme-editor.js:404", // borderOutput
+  "src/assets/js/cart.js:116", // cartOverlay
+  "src/assets/js/cart.js:123", // cartItems
+  "src/assets/js/shuffle-properties.js:49", // itemsList
+  "src/assets/js/quote.js:48", // container
+  "src/assets/js/gallery.js:20", // imageLink
+  "src/assets/js/gallery.js:30", // fullImage
+  "src/assets/js/gallery.js:45", // imageWrapper
+  "src/assets/js/gallery.js:51", // content
+  "src/assets/js/stripe-checkout.js:16", // main
+  "src/assets/js/slider.js:19", // firstItem
+
+  // === Regex match results (match() returns null on no match) ===
+  "src/products/products.11tydata.js:11", // match
+  "src/_lib/build/theme-compiler.js:33", // rootMatch
+  "src/assets/js/autosizes.js:40", // chromeMatch
+
+  // === Lazy module loading (initially null until loaded) ===
+  "src/_lib/build/scss.js:8", // sass
+  "src/_lib/media/image.js:13", // sharpModule
+  "src/_lib/media/image.js:19", // eleventyImgModule
+  "src/_lib/eleventy/pdf.js:20", // pdfRenderer
+  "src/_lib/utils/lazy-jsdom.js:7", // HappyDOMWrapper
+  "src/_lib/utils/dom-builder.js:7", // sharedDom
+
+  // === External/parsed data (localStorage, API responses, etc) ===
+  "src/assets/js/scroll-fade.js:21", // selectors (parsed from data attribute)
+  "src/assets/js/cart-utils.js:8", // cart (from localStorage)
+  "src/assets/js/cart-utils.js:56", // item
+  "src/assets/js/theme-editor-lib.js:32", // cssText
+  "src/assets/js/theme-editor-lib.js:66", // themeContent
+  "src/assets/js/theme-editor-lib.js:89", // borderValue
+  "src/assets/js/theme-editor-lib.js:164", // value
+  "src/assets/js/hire-calculator.js:20", // priceStr
+  "src/assets/js/hire-calculator.js:38", // hirePrices
+  "src/_lib/filters/spec-filters.js:11", // specName
+  "src/_lib/filters/spec-filters.js:14", // iconFile
+  "ecommerce-backend/server.js:124", // sku (request param)
+  "ecommerce-backend/server.js:131", // skuData (lookup result)
+  "src/assets/js/stripe-checkout.js:48", // response
+  "src/_lib/eleventy/pdf.js:251", // pdfDoc
+  "src/_lib/eleventy/pdf.js:281", // state
+
+  // === Optional function parameters ===
+  "src/_lib/utils/dom-builder.js:25", // children (optional param)
+  "src/_lib/filters/item-filters.js:33", // filterAttributes
+  "src/_lib/filters/item-filters.js:62", // attrs
+  "src/_lib/filters/item-filters.js:107", // path
+  "src/_lib/filters/item-filters.js:138", // items
+  "src/_lib/filters/item-filters.js:187", // items
+  "src/_lib/collections/products.js:6", // gallery
+  "src/_lib/collections/products.js:38", // products
+  "src/_lib/collections/products.js:58", // products
+  "src/_lib/collections/products.js:83", // options
+  "src/_lib/collections/menus.js:31", // categories
+  "src/_lib/collections/menus.js:36", // items
+  "src/_lib/collections/categories.js:64", // categories
+  "src/_lib/collections/search.js:9", // category
+  "src/_lib/collections/search.js:35", // products
+  "src/_lib/collections/reviews.js:101", // name
+  "src/_lib/collections/reviews.js:103", // trimmed
+  "src/_lib/collections/tags.js:13", // collection
+  "src/_lib/collections/navigation.js:12", // collection
+  "src/_lib/collections/navigation.js:18", // result
+  "src/_lib/media/image.js:176", // returnElement
+  "src/_lib/media/image.js:289", // imageFiles
+  "src/_lib/utils/schema-helper.js:7", // imageInput
+  "src/_lib/utils/canonical-url.js:9", // url
+  "src/_lib/utils/slug-utils.js:12", // reference
+  "src/_lib/eleventy/area-list.js:19", // url
+
+  // === Boolean flag checks (naming suggests boolean intent) ===
+  "src/assets/js/cart.js:129", // isEmpty
+  "src/assets/js/cart.js:374", // IS_ENQUIRY_MODE
+  "src/_lib/eleventy/cache-buster.js:7", // isProduction
+
+  // === Test infrastructure ===
+  "test/code-scanner.js:209", // result
+  "test/code-scanner.js:313", // matches
+  "test/test-utils.js:152", // computed (memoization check)
+  "test/test-utils.js:433", // inString
+  "test/code-quality/method-aliasing.test.js:46", // match
+  "test/code-quality/method-aliasing.test.js:71", // alias
+  "test/code-quality/test-quality.test.js:166", // hasRealAwait
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
@@ -137,4 +248,5 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_ARRAY_PUSH,
+  ALLOWED_NULL_CHECKS,
 };
