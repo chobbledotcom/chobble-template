@@ -3,6 +3,7 @@ import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.j
 import {
   analyzeWithAllowlist,
   assertNoViolations,
+  isCommentLine,
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -55,14 +56,6 @@ const EXCLUSION_PATTERNS = [
   // Regex patterns
   /\/.*<.*\//,
 ];
-
-/**
- * Check if a line is inside a comment
- */
-const isCommentLine = (line) => {
-  const trimmed = line.trim();
-  return trimmed.startsWith("//") || trimmed.startsWith("*");
-};
 
 /**
  * Extract template literals and string content from source

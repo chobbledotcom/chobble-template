@@ -28,15 +28,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProduct",
   "createCollectionItem",
   "createPropertyReviewFixture",
-  // Assertion helpers
-  "expectFunctionType",
-  "expectArrayLength",
-  "expectObjectProperty",
-  "expectDeepEqual",
-  "expectStrictEqual",
-  "expectTrue",
-  "expectFalse",
-  "expectThrows",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -50,9 +41,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "formatViolations",
   // let-usage.test.js - analysis helpers
   "findMutableVarDeclarations",
-  "isAllowedLetPattern",
   "analyzeMutableVarUsage",
-  "isMutableConstPattern",
   "findMutableConstDeclarations",
   "analyzeMutableConstUsage",
   // naming-conventions.test.js - analysis helpers
@@ -101,7 +90,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // unused-classes.test.js - helper to log unused items
   "logUnused",
   // html-in-js.test.js - analysis helpers
-  "isCommentLine",
   "extractStringContent",
   "containsHtml",
   "findHtmlInJs",
@@ -129,6 +117,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createMockCollectionApi",
   "createProduct",
   // code-scanner.js - code scanning utilities
+  "matchesAny",
+  "isCommentLine",
   "readSource",
   "toLines",
   "excludeFiles",
