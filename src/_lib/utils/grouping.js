@@ -12,7 +12,6 @@ import { fromPairs } from "#utils/object-entries.js";
 const appendToMap = (map, [key, item]) =>
   map.set(key, [...(map.get(key) || []), item]);
 
-
 /**
  * Build a reverse index from items to keys (many-to-many relationship)
  *
