@@ -127,8 +127,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Mutable variables that can't be refactored to immutable patterns.
 // let foo = null; for lazy loading is auto-allowed; these are other cases.
 // Note: for (let i = ...) loops are not detected (pattern matches line-start let only)
-const ALLOWED_LET_USAGE = new Set(
-  "src/_lib/eleventy/file-utils.js:49"
+const ALLOWED_LET_USAGE = new Set([
+  "src/_lib/eleventy/file-utils.js:49",
 ]);
 
 export {
