@@ -1,4 +1,12 @@
-import { chunk } from "#utils/array-utils.js";
+import {
+  chunk,
+  compact,
+  flatMap,
+  join,
+  map,
+  pipe,
+  sort,
+} from "#utils/array-utils.js";
 import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
@@ -80,13 +88,14 @@ const buildDisplayLookup = memoize((items) =>
 const filterToPath = (filters) => {
   if (!filters || Object.keys(filters).length === 0) return "";
 
-  return Object.keys(filters)
-    .sort()
-    .flatMap((key) => [
+  return pipe(
+    sort((a, b) => a.localeCompare(b)),
+    flatMap((key) => [
       encodeURIComponent(key),
       encodeURIComponent(filters[key]),
-    ])
-    .join("/");
+    ]),
+    join("/"),
+  )(Object.keys(filters));
 };
 
 /**
@@ -101,15 +110,13 @@ const toPairs = (arr) => chunk(arr, 2);
 const pathToFilter = (path) => {
   if (!path) return {};
 
-  const segments = path.split("/").filter(Boolean);
-  const pairs = toPairs(segments);
-
-  return Object.fromEntries(
-    pairs.map(([key, value]) => [
-      decodeURIComponent(key),
-      decodeURIComponent(value),
-    ]),
-  );
+  return pipe(
+    (s) => s.split("/"),
+    compact,
+    toPairs,
+    map(([key, value]) => [decodeURIComponent(key), decodeURIComponent(value)]),
+    Object.fromEntries,
+  )(path);
 };
 
 /**

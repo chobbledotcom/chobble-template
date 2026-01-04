@@ -1,4 +1,5 @@
 import config from "#data/config.js";
+import { filter, map, pipe } from "#utils/array-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 /**
@@ -40,16 +41,17 @@ const countReviews = (reviews, slug, field) =>
  * @param {string} field - The field to check
  * @returns {number|null} Ceiling of average rating, or null if no ratings
  */
+const isValidRating = (r) => r !== null && r !== undefined && !Number.isNaN(r);
+
 const getRating = (reviews, slug, field) => {
-  const matchingReviews = reviews.filter((review) =>
-    review.data[field]?.includes(slug),
-  );
-  const ratingsWithValues = matchingReviews
-    .map((r) => r.data.rating)
-    .filter((r) => r !== null && r !== undefined && !Number.isNaN(r));
-  if (ratingsWithValues.length === 0) return null;
-  const avg =
-    ratingsWithValues.reduce((a, b) => a + b, 0) / ratingsWithValues.length;
+  const ratings = pipe(
+    filter((review) => review.data[field]?.includes(slug)),
+    map((r) => r.data.rating),
+    filter(isValidRating),
+  )(reviews);
+
+  if (ratings.length === 0) return null;
+  const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
   return Math.ceil(avg);
 };
 
