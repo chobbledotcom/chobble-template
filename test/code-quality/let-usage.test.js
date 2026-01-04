@@ -4,7 +4,7 @@ import {
   ALLOWED_MUTABLE_CONST,
 } from "#test/code-quality/code-quality-exceptions.js";
 import {
-  analyzeFiles,
+  analyzeWithAllowlist,
   assertNoViolations,
   createCodeChecker,
   validateExceptions,
@@ -60,53 +60,21 @@ const { find: findMutableConstDeclarations } = createCodeChecker({
   files: [],
 });
 
-/**
- * Analyze all JS files for mutable variable declarations.
- * Filters by allowed patterns and allowlist.
- */
-const analyzeMutableVarUsage = () => {
-  const results = analyzeFiles(SRC_JS_FILES(), (source, relativePath) =>
-    findMutableVarDeclarations(source).map((hit) => ({
-      file: relativePath,
-      line: hit.lineNumber,
-      code: hit.line,
-      location: `${relativePath}:${hit.lineNumber}`,
-    })),
-  );
+/** Analyze all JS files for mutable variable declarations. */
+const analyzeMutableVarUsage = () =>
+  analyzeWithAllowlist({
+    findFn: findMutableVarDeclarations,
+    allowlist: ALLOWED_LET_USAGE,
+    files: SRC_JS_FILES,
+  });
 
-  const isAllowlisted = (decl) =>
-    ALLOWED_LET_USAGE.has(decl.location) || ALLOWED_LET_USAGE.has(decl.file);
-
-  return {
-    violations: results.filter((decl) => !isAllowlisted(decl)),
-    allowed: results.filter(isAllowlisted),
-  };
-};
-
-/**
- * Analyze all JS files for mutable const declarations.
- * Filters by allowlist.
- */
-const analyzeMutableConstUsage = () => {
-  const results = analyzeFiles(SRC_JS_FILES(), (source, relativePath) =>
-    findMutableConstDeclarations(source).map((hit) => ({
-      file: relativePath,
-      line: hit.lineNumber,
-      code: hit.line,
-      reason: hit.reason,
-      location: `${relativePath}:${hit.lineNumber}`,
-    })),
-  );
-
-  const isAllowlisted = (decl) =>
-    ALLOWED_MUTABLE_CONST.has(decl.location) ||
-    ALLOWED_MUTABLE_CONST.has(decl.file);
-
-  return {
-    violations: results.filter((decl) => !isAllowlisted(decl)),
-    allowed: results.filter(isAllowlisted),
-  };
-};
+/** Analyze all JS files for mutable const declarations. */
+const analyzeMutableConstUsage = () =>
+  analyzeWithAllowlist({
+    findFn: findMutableConstDeclarations,
+    allowlist: ALLOWED_MUTABLE_CONST,
+    files: SRC_JS_FILES,
+  });
 
 describe("let-usage", () => {
   test("Detects let declarations in source code", () => {
