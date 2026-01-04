@@ -185,45 +185,60 @@ const generateFilterCombinations = memoize((items) => {
 
   if (attributeKeys.length === 0) return [];
 
-  // Pre-build attribute map for all items (single pass)
   const itemAttrMap = buildItemAttributeMap(items);
 
-  // Pure recursive generator - returns [results, seenPaths]
-  const generateCombos = (currentFilters, startKeyIndex, seenPaths) =>
-    attributeKeys.slice(startKeyIndex).reduce(
-      ([results, seen], key, offset) => {
-        const i = startKeyIndex + offset;
-        return allAttributes[key].reduce(
-          ([innerResults, innerSeen], value) => {
-            const newFilters = { ...currentFilters, [key]: value };
-            const path = filterToPath(newFilters);
+  // Count items matching these filters
+  const countMatches = (filters) =>
+    countMatchingItems(items, itemAttrMap, filters);
 
-            if (innerSeen.has(path)) return [innerResults, innerSeen];
+  // Add a path to the seen set
+  const markSeen = (seen, path) => toSet([...seen, path]);
 
-            const matchCount = countMatchingItems(
-              items,
-              itemAttrMap,
-              newFilters,
-            );
-            if (matchCount === 0) return [innerResults, innerSeen];
+  // Create a combo result object
+  const toCombo = (filters, path, count) => ({ filters, path, count });
 
-            const combo = { filters: newFilters, path, count: matchCount };
-            const updatedSeen = toSet([...innerSeen, path]);
-            const [childResults, finalSeen] = generateCombos(
-              newFilters,
-              i + 1,
-              updatedSeen,
-            );
+  // Try one filter value: skip if seen or no matches, else recurse
+  const tryValue = (recurse, keyIndex, baseFilters) => (acc, value, key) => {
+    const [results, seen] = acc;
+    const filters = { ...baseFilters, [key]: value };
+    const path = filterToPath(filters);
 
-            return [[...innerResults, combo, ...childResults], finalSeen];
-          },
-          [results, seen],
-        );
-      },
-      [[], seenPaths],
+    if (seen.has(path)) return acc;
+
+    const count = countMatches(filters);
+    if (count === 0) return acc;
+
+    const [childResults, childSeen] = recurse(
+      filters,
+      keyIndex + 1,
+      markSeen(seen, path),
     );
 
-  const [combinations] = generateCombos({}, 0, toSet([]));
+    return [
+      [...results, toCombo(filters, path, count), ...childResults],
+      childSeen,
+    ];
+  };
+
+  // Process all values for one attribute key
+  const processKey = (recurse, baseFilters, keyIndex) => (acc, key) =>
+    allAttributes[key].reduce(
+      (innerAcc, value) =>
+        tryValue(recurse, keyIndex, baseFilters)(innerAcc, value, key),
+      acc,
+    );
+
+  // Generate all combinations starting from given filters and key index
+  const generateFrom = (baseFilters, startIndex, seen) =>
+    attributeKeys
+      .slice(startIndex)
+      .reduce(
+        (acc, key, offset) =>
+          processKey(generateFrom, baseFilters, startIndex + offset)(acc, key),
+        [[], seen],
+      );
+
+  const [combinations] = generateFrom({}, 0, toSet([]));
   return combinations;
 });
 
