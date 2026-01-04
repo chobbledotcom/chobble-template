@@ -1,13 +1,17 @@
 import { onReady } from "#assets/on-ready.js";
 import {
+  collectActiveClasses,
+  controlToVarEntry,
+  createFormEl,
   generateThemeCss,
+  inputToScopedEntry,
+  isControlEnabled,
   parseBorderValue,
   parseThemeContent,
   SCOPES,
   shouldIncludeScopedVar,
 } from "#assets/theme-editor-lib.js";
-
-let state = null; // Previous global vars for cascade comparison
+import { compact, filter, flatMap, map, pipe } from "#utils/array-utils.js";
 
 const ELEMENT_IDS = {
   form: "theme-editor-form",
@@ -23,6 +27,9 @@ const SCOPE_DOM_SELECTORS = {
   form: "form",
   button: "button, .button, input[type='submit']",
 };
+
+// Create form element selector for this form
+const formEl = createFormEl(ELEMENT_IDS.form);
 
 const ThemeEditor = {
   initialized: false,
@@ -78,10 +85,6 @@ const ThemeEditor = {
     this.setupEventListeners();
   },
 
-  formEl(id) {
-    return document.querySelector(`#${ELEMENT_IDS.form} #${id}`);
-  },
-
   formQuery(selector) {
     return document.querySelectorAll(`#${ELEMENT_IDS.form} ${selector}`);
   },
@@ -132,20 +135,6 @@ const ThemeEditor = {
 
     // Set up checkbox controls for global variables
     this.initCheckboxControls(parsed.root);
-
-    // Capture initial global values for cascade comparison
-    // This must happen AFTER all controls are initialized
-    state = this.captureGlobals();
-  },
-
-  captureGlobals() {
-    const vars = {};
-    this.formQuery("[data-var]:not([data-scope])").forEach((el) => {
-      const varName = `--${el.id}`;
-      const value = el.id === "border-radius" ? `${el.value}px` : el.value;
-      vars[varName] = value;
-    });
-    return vars;
   },
 
   initGlobalControls(rootVars) {
@@ -231,21 +220,21 @@ const ThemeEditor = {
     const idPrefix = scope ? `${scope}-` : "";
     const isGlobal = !scope;
 
-    const widthInput = this.formEl(`${idPrefix}border-width`);
-    const styleSelect = this.formEl(`${idPrefix}border-style`);
-    const colorInput = this.formEl(`${idPrefix}border-color`);
-    const outputInput = this.formEl(`${idPrefix}border`);
+    const widthInput = formEl(`${idPrefix}border-width`);
+    const styleSelect = formEl(`${idPrefix}border-style`);
+    const colorInput = formEl(`${idPrefix}border-color`);
+    const outputInput = formEl(`${idPrefix}border`);
 
     if (!widthInput || !styleSelect || !colorInput) return;
 
     // Parse provided value or fall back to global computed value
-    let parsed = parseBorderValue(borderValue);
-    if (!parsed) {
-      const globalBorder = getComputedStyle(document.documentElement)
-        .getPropertyValue("--border")
-        .trim();
-      parsed = parseBorderValue(globalBorder);
-    }
+    const parsed =
+      parseBorderValue(borderValue) ||
+      parseBorderValue(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--border")
+          .trim(),
+      );
 
     this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
 
@@ -283,15 +272,14 @@ const ThemeEditor = {
       .forEach((checkbox) => {
         const targetIds = checkbox.dataset.target.split(",");
         const id = checkbox.id.replace(/-enabled$/, "");
-        let isEnabled = rootVars[`--${id}`] !== undefined;
-
-        // Check for select-class options
-        this.formEl(`${id}[data-class]`)
-          ?.querySelectorAll("option")
-          .forEach((opt) => {
-            if (opt.value !== "" && document.body.classList.contains(opt.value))
-              isEnabled = true;
-          });
+        const hasRootVar = rootVars[`--${id}`] !== undefined;
+        const hasActiveClass = Array.from(
+          formEl(`${id}[data-class]`)?.querySelectorAll("option") || [],
+        ).some(
+          (opt) =>
+            opt.value !== "" && document.body.classList.contains(opt.value),
+        );
+        const isEnabled = hasRootVar || hasActiveClass;
 
         checkbox.checked = isEnabled;
         for (const tid of targetIds) {
@@ -308,7 +296,7 @@ const ThemeEditor = {
   },
 
   toggleCheckbox(id, checked) {
-    const target = this.formEl(id);
+    const target = formEl(id);
     if (!target) return;
     if (checked) {
       target.disabled = false;
@@ -359,59 +347,40 @@ const ThemeEditor = {
   },
 
   updateThemeFromControls() {
-    const _docStyle = getComputedStyle(document.documentElement);
-
-    const oldGlobalVars = state || {};
+    // Read previous global values from textarea for cascade comparison
+    const oldGlobalVars = parseThemeContent(
+      document.getElementById(ELEMENT_IDS.output).value,
+    ).root;
 
     // Collect global :root variables
-    const globalVars = {};
-    Array.from(this.formQuery("[data-var]:not([data-scope])"))
-      .filter((input) => {
-        const checkbox = this.formEl(`${input.id}-enabled`);
-        return !checkbox || checkbox.checked;
-      })
-      .forEach((el) => {
-        const value = el.id === "border-radius" ? `${el.value}px` : el.value;
-        const varName = `--${el.id}`;
-        document.documentElement.style.setProperty(varName, value);
-        globalVars[varName] = value;
-      });
+    const globalVars = pipe(
+      Array.from,
+      filter(isControlEnabled(formEl)),
+      map(controlToVarEntry),
+      Object.fromEntries,
+    )(this.formQuery("[data-var]:not([data-scope])"));
 
     // Cascade global changes to scoped inputs that were "following" the old global value
     // This prevents unchanged scoped inputs from appearing as overrides when global changes
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
-    // Store current global values for next cascade comparison
-    state = { ...globalVars };
-
     // Collect scoped variables
-    const scopeVars = {};
-    SCOPES.forEach((scope) => {
-      const vars = this.collectScopeVars(scope);
-      if (Object.keys(vars).length > 0) {
-        scopeVars[scope] = vars;
-      }
-    });
+    const scopeVars = pipe(
+      map((scope) => [scope, this.collectScopeVars(scope)]),
+      filter(([, vars]) => Object.keys(vars).length > 0),
+      Object.fromEntries,
+    )(SCOPES);
 
     // Apply scoped variables to DOM for live preview
     this.applyScopes(scopeVars);
 
-    // Handle body classes
-    const bodyClasses = [];
-    this.formQuery("[data-class]").forEach((el) => {
-      const checkbox = this.formEl(`${el.id}-enabled`);
-      const enabled = !checkbox || checkbox.checked;
-      const values = Array.from(el.querySelectorAll("option"))
-        .map((o) => o.value)
-        .filter((v) => v !== "");
-      values.forEach((value) => {
-        const isActive = value === el.value && enabled;
-        document.body.classList.toggle(value, isActive);
-        if (isActive) bodyClasses.push(value);
-      });
-    });
+    // Handle body classes - toggle DOM classes and collect active ones
+    const bodyClasses = pipe(
+      Array.from,
+      flatMap(collectActiveClasses(formEl)),
+    )(this.formQuery("[data-class]"));
 
-    // Generate CSS
+    // Generate CSS and write to textarea
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
     document.getElementById(ELEMENT_IDS.output).value = themeText;
   },
@@ -437,7 +406,7 @@ const ThemeEditor = {
       });
 
       // Border inputs
-      const borderOutput = this.formEl(`${scope}-border`);
+      const borderOutput = formEl(`${scope}-border`);
       if (borderOutput) {
         const oldGlobalBorder = oldGlobalVars["--border"];
         const newGlobalBorder = newGlobalVars["--border"];
@@ -447,9 +416,9 @@ const ThemeEditor = {
           borderOutput.value === oldGlobalBorder
         ) {
           // Update border component inputs too
-          const widthInput = this.formEl(`${scope}-border-width`);
-          const styleSelect = this.formEl(`${scope}-border-style`);
-          const colorInput = this.formEl(`${scope}-border-color`);
+          const widthInput = formEl(`${scope}-border-width`);
+          const styleSelect = formEl(`${scope}-border-style`);
+          const colorInput = formEl(`${scope}-border-color`);
           const parsed = parseBorderValue(newGlobalBorder);
           this.applyBorderToInputs(parsed, widthInput, styleSelect, colorInput);
           borderOutput.value = newGlobalBorder;
@@ -459,34 +428,27 @@ const ThemeEditor = {
   },
 
   collectScopeVars(scope) {
-    const vars = {};
     const docStyle = getComputedStyle(document.documentElement);
 
     // Color inputs for this scope - compare against global value for same var
     // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
-    this.formQuery(
-      `input[type="color"][data-var][data-scope="${scope}"]`,
-    ).forEach((input) => {
-      const varName = input.dataset.var;
-      const value = input.value;
-      // Get the global value for this same variable
-      const globalValue = docStyle.getPropertyValue(varName).trim();
-      // Include if different from global (even if it's #000000 = black)
-      if (shouldIncludeScopedVar(value, globalValue)) {
-        vars[varName] = value;
-      }
-    });
+    const colorVars = pipe(
+      Array.from,
+      map(inputToScopedEntry(docStyle)),
+      compact,
+      Object.fromEntries,
+    )(this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`));
 
     // Border for this scope - include if different from global border
-    const borderOutput = this.formEl(`${scope}-border`);
-    if (borderOutput?.value) {
-      const globalBorder = docStyle.getPropertyValue("--border").trim();
-      if (shouldIncludeScopedVar(borderOutput.value, globalBorder)) {
-        vars["--border"] = borderOutput.value;
-      }
-    }
+    const borderOutput = formEl(`${scope}-border`);
+    const globalBorder = docStyle.getPropertyValue("--border").trim();
+    const borderVar =
+      borderOutput?.value &&
+      shouldIncludeScopedVar(borderOutput.value, globalBorder)
+        ? { "--border": borderOutput.value }
+        : {};
 
-    return vars;
+    return { ...colorVars, ...borderVar };
   },
 
   downloadTheme() {

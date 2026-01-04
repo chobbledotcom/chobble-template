@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  ALLOWED_LET_USAGE,
-  ALLOWED_MUTABLE_CONST,
-} from "#test/code-quality/code-quality-exceptions.js";
+import { ALLOWED_MUTABLE_CONST } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
@@ -66,7 +63,7 @@ const { find: findMutableConstDeclarations } = createCodeChecker({
 const analyzeMutableVarUsage = () =>
   analyzeWithAllowlist({
     findFn: findMutableVarDeclarations,
-    allowlist: ALLOWED_LET_USAGE,
+    allowlist: new Set(),
     files: SRC_JS_FILES,
   });
 
@@ -119,18 +116,6 @@ let mutableVar = 0;
       fixHint:
         "use const with immutable patterns, or add to ALLOWED_LET_USAGE in code-quality-exceptions.js",
     });
-  });
-
-  test("Reports allowlisted let usage for tracking", () => {
-    const { allowed } = analyzeMutableVarUsage();
-    console.log(`\n  Allowlisted let usages: ${allowed.length}`);
-    if (allowed.length > 0) {
-      console.log("  Locations:");
-      for (const loc of allowed) {
-        console.log(`    - ${loc.location}`);
-      }
-    }
-    expect(true).toBe(true);
   });
 
   // Mutable const detection tests
@@ -193,17 +178,6 @@ const config = { key: 'value' };
   });
 
   // Exception validation tests
-  test("ALLOWED_LET_USAGE entries still exist and match pattern", () => {
-    const stale = validateExceptions(ALLOWED_LET_USAGE, /^\s*let\s+\w+/);
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_LET_USAGE entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
-  });
-
   test("ALLOWED_MUTABLE_CONST entries still exist and match pattern", () => {
     const stale = validateExceptions(
       ALLOWED_MUTABLE_CONST,

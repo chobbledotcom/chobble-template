@@ -104,15 +104,6 @@ const ALLOWED_PROCESS_CWD = new Set([
 const ALLOWED_MUTABLE_CONST = new Set([
   // Empty arrays - being populated via push/mutation
   "src/assets/js/autosizes.js:135", // newImages array built with push
-  "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
-
-  // Empty objects - being populated via property assignment
-  "src/assets/js/theme-editor-lib.js:22", // vars object built with property assignment
-  "src/assets/js/theme-editor-lib.js:159", // vars object built with property assignment
-  "src/assets/js/theme-editor.js:142", // vars object built with property assignment
-  "src/assets/js/theme-editor.js:367", // globalVars object built with property assignment
-  "src/assets/js/theme-editor.js:388", // scopeVars object built with property assignment
-  "src/assets/js/theme-editor.js:462", // vars object built with property assignment
 
   // Sets - internal implementation of functional utilities (created once, never mutated)
   "src/_lib/utils/array-utils.js:189", // memberOf: Set for O(1) lookup predicate
@@ -126,26 +117,11 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/_lib/media/image.js:170", // imageHtmlCache for memoization
 ]);
 
-// ============================================
-// let/mutable variable exceptions
-// ============================================
-
-// Mutable variables that can't be refactored to immutable patterns.
-// let foo = null; for lazy loading is auto-allowed; these are other cases.
-// Note: for (let i = ...) loops are not detected (pattern matches line-start let only)
-const ALLOWED_LET_USAGE = new Set([
-  // theme-editor.js - accumulator in parseBorderValue loop
-  "src/assets/js/theme-editor.js:242",
-  // theme-editor.js - computed property check in loop
-  "src/assets/js/theme-editor.js:286",
-]);
-
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
-  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
 };
