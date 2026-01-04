@@ -32,14 +32,19 @@ const shouldOverride = (currentEntry, newOrder) =>
   !currentEntry || currentEntry[1] < newOrder;
 
 /**
+ * Update mapping with new entry if it has higher order than existing
+ */
+const withHigherOrderEntry = (mapping, { categorySlug, value, order }) =>
+  shouldOverride(mapping[categorySlug], order)
+    ? { ...mapping, [categorySlug]: [value, order] }
+    : mapping;
+
+/**
  * Build a map of category slugs to property values, preferring highest order
  */
 const buildCategoryPropertyMap = (categories, products, propertyName) =>
   reduce(
-    (acc, { categorySlug, value, order }) =>
-      shouldOverride(acc[categorySlug], order)
-        ? { ...acc, [categorySlug]: [value, order] }
-        : acc,
+    withHigherOrderEntry,
     createInitialMapping(categories, propertyName),
   )(extractProductEntries(products, propertyName));
 
