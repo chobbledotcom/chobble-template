@@ -105,9 +105,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   // Empty arrays - being populated via push/mutation
   "src/assets/js/autosizes.js:135", // newImages array built with push
 
-  // Empty objects - being populated via property assignment
-  "src/_lib/filters/item-filters.js:364", // redirects object built with property assignment
-
   // Sets - internal implementation of functional utilities (created once, never mutated)
   "src/_lib/utils/array-utils.js:189", // memberOf: Set for O(1) lookup predicate
   "src/_lib/utils/array-utils.js:211", // notMemberOf: Set for O(1) lookup predicate
@@ -127,7 +124,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Mutable variables that can't be refactored to immutable patterns.
 // let foo = null; for lazy loading is auto-allowed; these are other cases.
 // Note: for (let i = ...) loops are not detected (pattern matches line-start let only)
-const ALLOWED_LET_USAGE = new Set(["src/_lib/eleventy/file-utils.js:49"]);
+const ALLOWED_LET_USAGE = new Set([]);
 
 export {
   ALLOWED_TRY_CATCHES,
