@@ -35,7 +35,11 @@ const map = (fn) => (arr) => arr.map(fn);
 const flatMap = (fn) => (arr) => arr.flatMap(fn);
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
 const unique = (arr) => [...new Set(arr)];
+const uniqueBy = (getKey) => (arr) => [
+  ...new Map(arr.map((item) => [getKey(item), item])).values(),
+];
 const join = (separator) => (arr) => arr.join(separator);
+const split = (separator) => (str) => str.split(separator);
 
 /**
  * Split an array into groups of a specified size
@@ -141,5 +145,7 @@ export {
   pick,
   pipe,
   sort,
+  split,
   unique,
+  uniqueBy,
 };
