@@ -20,7 +20,7 @@ describe("events", () => {
     expect(result.past).toEqual([]);
     expect(result.regular).toEqual([]);
     expect(result.show).toEqual({
-      upcoming: true,
+      upcoming: false,
       regular: false,
       past: false,
     });
@@ -50,7 +50,7 @@ describe("events", () => {
     expect(result.past.length).toBe(1);
     expect(result.regular.length).toBe(0);
     expect(result.show).toEqual({
-      upcoming: true,
+      upcoming: false,
       regular: false,
       past: true,
     });
@@ -97,7 +97,7 @@ describe("events", () => {
     expect(result.past.length).toBe(1);
     expect(result.regular.length).toBe(1);
     expect(result.show).toEqual({
-      upcoming: false,
+      upcoming: true,
       regular: true,
       past: true,
     });
@@ -177,10 +177,10 @@ describe("events", () => {
     expect(result.regular[1].data.title).toBe("Named Event");
   });
 
-  test("Show logic with no events shows upcoming only", () => {
+  test("Show logic with no events shows nothing", () => {
     const result = categoriseEvents([]);
 
-    expect(result.show.upcoming).toBe(true);
+    expect(result.show.upcoming).toBe(false);
     expect(result.show.regular).toBe(false);
     expect(result.show.past).toBe(false);
   });
@@ -195,7 +195,7 @@ describe("events", () => {
     expect(result.show.past).toBe(false);
   });
 
-  test("Show logic hides upcoming when regular events exist", () => {
+  test("Show logic shows both upcoming and regular when both exist", () => {
     const events = createEvents([
       {},
       { title: "Weekly Meeting", recurring: "Every Monday" },
@@ -203,12 +203,12 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.show.upcoming).toBe(false);
+    expect(result.show.upcoming).toBe(true);
     expect(result.show.regular).toBe(true);
     expect(result.show.past).toBe(false);
   });
 
-  test("Show logic shows past events when regular events exist", () => {
+  test("Show logic shows past and regular but not upcoming when no upcoming", () => {
     const events = createEvents([
       { daysOffset: -30 },
       { title: "Weekly Meeting", recurring: "Every Monday" },
@@ -221,12 +221,12 @@ describe("events", () => {
     expect(result.show.past).toBe(true);
   });
 
-  test("Show logic shows past events even without regular events", () => {
+  test("Show logic shows only past when only past events exist", () => {
     const events = [createEvent({ daysOffset: -30 })];
 
     const result = categoriseEvents(events);
 
-    expect(result.show.upcoming).toBe(true);
+    expect(result.show.upcoming).toBe(false);
     expect(result.show.regular).toBe(false);
     expect(result.show.past).toBe(true);
   });

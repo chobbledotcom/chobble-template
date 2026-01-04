@@ -57,7 +57,7 @@ export const categoriseEvents = memoize((events) => {
     past,
     regular,
     show: {
-      upcoming: regular.length === 0,
+      upcoming: upcoming.length > 0,
       regular: regular.length > 0,
       past: past.length > 0,
     },

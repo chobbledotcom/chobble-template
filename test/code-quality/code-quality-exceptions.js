@@ -128,9 +128,6 @@ const ALLOWED_ARRAY_PUSH = new Set([
 
   // Theme editor - building CSS blocks string array
   "src/assets/js/theme-editor-lib.js:118", // cssBlocks.push for CSS generation
-
-  // Shopping cart - adding items to cart (browser-side state)
-  "src/assets/js/cart.js:181", // cart.push for adding cart items
 ]);
 
 export {
