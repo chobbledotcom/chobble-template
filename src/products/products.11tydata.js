@@ -2,6 +2,7 @@ import { computeGallery } from "#collections/products.js";
 import getConfig from "#data/config.js";
 import strings from "#data/strings.js";
 import { computeSpecs } from "#filters/spec-filters.js";
+import { pick } from "#utils/array-utils.js";
 import { buildPermalink, normaliseSlug } from "#utils/slug-utils.js";
 
 const parsePrice = (priceStr, context) => {
@@ -81,7 +82,7 @@ const computeCartAttributes = (data) => {
       sku: opt.sku || null,
       days: opt.days || null,
     })),
-    specs: specs ? specs.map((s) => ({ name: s.name, value: s.value })) : null,
+    specs: specs ? specs.map(pick(["name", "value"])) : null,
     hire_prices: hirePrices,
     product_mode: mode,
   }).replace(/"/g, "&quot;");

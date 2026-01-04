@@ -8,19 +8,10 @@ const isExternalUrl = (url) => {
   return url.startsWith("http://") || url.startsWith("https://");
 };
 
-const getExternalLinkAttributes = (url, config) => {
-  if (!isExternalUrl(url)) {
-    return "";
-  }
-
-  const attrs = [];
-  if (config?.externalLinksTargetBlank) {
-    attrs.push('target="_blank"');
-    attrs.push('rel="noopener noreferrer"');
-  }
-
-  return attrs.length > 0 ? ` ${attrs.join(" ")}` : "";
-};
+const getExternalLinkAttributes = (url, config) =>
+  config?.externalLinksTargetBlank && isExternalUrl(url)
+    ? ' target="_blank" rel="noopener noreferrer"'
+    : "";
 
 const externalLinkFilter = (url, config) => {
   return getExternalLinkAttributes(url, config);
