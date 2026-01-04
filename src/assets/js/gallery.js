@@ -46,23 +46,21 @@ const getPopupContent = (index) => {
   return imageWrapper.outerHTML;
 };
 
+const setNavVisibility = (selector, isHidden) => {
+  const el = state.imagePopup.querySelector(selector);
+  if (el) el.style.visibility = isHidden ? "hidden" : "visible";
+};
+
 const updatePopupImage = (index) => {
   const content = getPopupContent(index);
   if (!content) return;
 
   state.currentPopupIndex = index;
-
-  const image = state.imagePopup.querySelector(".image-wrapper");
-  image.outerHTML = content;
-  for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
+  state.imagePopup.querySelector(".image-wrapper").outerHTML = content;
+  for (const el of state.imagePopup.querySelectorAll("[sizes]"))
     el.sizes = "100vw";
-  }
-
-  const prev = state.imagePopup.querySelector(NAV_PREV);
-  const next = state.imagePopup.querySelector(NAV_NEXT);
-  if (prev) prev.style.visibility = index <= 1 ? "hidden" : "visible";
-  if (next)
-    next.style.visibility = index >= getTotalImages() ? "hidden" : "visible";
+  setNavVisibility(NAV_PREV, index <= 1);
+  setNavVisibility(NAV_NEXT, index >= getTotalImages());
 };
 
 const navigatePopup = (direction) => {
