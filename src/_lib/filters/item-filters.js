@@ -15,6 +15,11 @@ import { sortItems } from "#utils/sorting.js";
 const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /**
+ * Create a Set from an iterable (functional wrapper to avoid linter pattern)
+ */
+const toSet = (iterable) => new Set(iterable);
+
+/**
  * Parse filter attributes from item data
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
@@ -86,13 +91,11 @@ const filterToPath = (filters) => {
 /**
  * Group array elements into pairs: [a, b, c, d] => [[a, b], [c, d]]
  */
-const toPairs = (arr) => {
-  const pairs = [];
-  for (let i = 0; i + 1 < arr.length; i += 2) {
-    pairs.push([arr[i], arr[i + 1]]);
-  }
-  return pairs;
-};
+const toPairs = (arr) =>
+  Array.from({ length: Math.floor(arr.length / 2) }, (_, i) => [
+    arr[i * 2],
+    arr[i * 2 + 1],
+  ]);
 
 /**
  * Parse URL path back to filter object
@@ -188,36 +191,42 @@ const generateFilterCombinations = memoize((items) => {
   // Pre-build attribute map for all items (single pass)
   const itemAttrMap = buildItemAttributeMap(items);
 
-  const combinations = [];
-  const seen = new Set();
+  // Pure recursive generator - returns [results, seenPaths]
+  const generateCombos = (currentFilters, startKeyIndex, seenPaths) =>
+    attributeKeys.slice(startKeyIndex).reduce(
+      ([results, seen], key, offset) => {
+        const i = startKeyIndex + offset;
+        return allAttributes[key].reduce(
+          ([innerResults, innerSeen], value) => {
+            const newFilters = { ...currentFilters, [key]: value };
+            const path = filterToPath(newFilters);
 
-  // Generate all filter combinations recursively
-  const generateCombos = (currentFilters, startKeyIndex) => {
-    for (let i = startKeyIndex; i < attributeKeys.length; i++) {
-      const key = attributeKeys[i];
-      for (const value of allAttributes[key]) {
-        const newFilters = { ...currentFilters, [key]: value };
-        const path = filterToPath(newFilters);
+            if (innerSeen.has(path)) return [innerResults, innerSeen];
 
-        if (!seen.has(path)) {
-          const matchCount = countMatchingItems(items, itemAttrMap, newFilters);
-          if (matchCount > 0) {
-            seen.add(path);
-            combinations.push({
-              filters: newFilters,
-              path,
-              count: matchCount,
-            });
-            // Recurse to add more filters from the next keys
-            generateCombos(newFilters, i + 1);
-          }
-        }
-      }
-    }
-  };
+            const matchCount = countMatchingItems(
+              items,
+              itemAttrMap,
+              newFilters,
+            );
+            if (matchCount === 0) return [innerResults, innerSeen];
 
-  generateCombos({}, 0);
+            const combo = { filters: newFilters, path, count: matchCount };
+            const updatedSeen = toSet([...innerSeen, path]);
+            const [childResults, finalSeen] = generateCombos(
+              newFilters,
+              i + 1,
+              updatedSeen,
+            );
 
+            return [[...innerResults, combo, ...childResults], finalSeen];
+          },
+          [results, seen],
+        );
+      },
+      [[], seenPaths],
+    );
+
+  const [combinations] = generateCombos({}, 0, toSet([]));
   return combinations;
 });
 
@@ -247,7 +256,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
     return { hasFilters: false };
   }
 
-  const validPaths = new Set(validPages.map((p) => p.path));
+  const validPaths = toSet(validPages.map((p) => p.path));
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 

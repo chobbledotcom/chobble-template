@@ -21,15 +21,19 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
 // This avoids matching multi-line chains like: const x = y\n  .map(...)
 const ALIAS_PATTERN = /^\s*const\s+(\w+)\s*=\s*([a-z_]\w*)\s*;\s*$/i;
 
+// Pattern to match local definitions (const/let/var/function)
+const DEF_PATTERN = /^\s*(?:const|let|var|function)\s+(\w+)(?:\s*=|\s*\()/;
+
 // Identifiers that are commonly assigned (not aliases)
-const ALLOWED_RIGHT_HAND = new Set([
-  "null",
-  "undefined",
-  "true",
-  "false",
-  "NaN",
-  "Infinity",
-]);
+const isBuiltinIdentifier = (name) =>
+  ["null", "undefined", "true", "false", "NaN", "Infinity"].includes(name);
+
+// Extract definition name from a line, or null if not a definition
+const extractDefName = (line) => DEF_PATTERN.exec(line)?.[1] ?? null;
+
+// Collect all local definitions from source lines (functional style)
+const collectLocalDefs = (lines) =>
+  new Set(lines.map(extractDefName).filter(Boolean));
 
 /**
  * Check if a line is a method alias.
@@ -47,7 +51,7 @@ const parseAlias = (line) => {
   if (newName === originalName) return null;
 
   // Skip known primitives/builtins
-  if (ALLOWED_RIGHT_HAND.has(originalName)) return null;
+  if (isBuiltinIdentifier(originalName)) return null;
 
   // Skip single-letter variables (loop indices, etc.)
   if (originalName.length === 1) return null;
@@ -60,18 +64,8 @@ const parseAlias = (line) => {
  */
 const findAliases = (source) => {
   const lines = source.split("\n");
+  const localDefs = collectLocalDefs(lines);
 
-  // First pass: collect all local definitions
-  const localDefs = new Set();
-  for (const line of lines) {
-    // Match const/let/function declarations
-    const defMatch = line.match(
-      /^\s*(?:const|let|var|function)\s+(\w+)(?:\s*=|\s*\()/,
-    );
-    if (defMatch) localDefs.add(defMatch[1]);
-  }
-
-  // Second pass: find aliases of local definitions
   return scanLines(source, (line, lineNum) => {
     const alias = parseAlias(line);
     if (!alias) return null;
