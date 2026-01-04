@@ -20,8 +20,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempFile",
   "withMockedCwd",
   // Fixture factories
-  "createFutureDate",
-  "createPastDate",
+  "createOffsetDate",
   "formatDateString",
   "createEvent",
   "createFutureEvent",

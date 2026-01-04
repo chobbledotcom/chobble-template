@@ -6,8 +6,8 @@ import {
 } from "#collections/events.js";
 import {
   createEvent,
-  createFutureDate,
   createFutureEvent,
+  createOffsetDate,
   createPastEvent,
   createRecurringEvent,
   expectResultTitles,
@@ -153,7 +153,7 @@ describe("events", () => {
         data: {
           title: "Hybrid Event",
           recurring_date: "Every Friday",
-          event_date: formatDateString(createFutureDate()),
+          event_date: formatDateString(createOffsetDate()),
         },
       },
     ];
