@@ -118,7 +118,6 @@ let mutableVar = 0;
     });
   });
 
-
   // Mutable const detection tests
   test("Detects mutable const patterns", () => {
     expect(isMutableConstPattern("const items = [];")).toBe(true);
