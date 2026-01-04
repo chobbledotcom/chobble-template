@@ -237,12 +237,12 @@ const createCodeChecker = (config) => {
  *
  * @param {object} config
  * @param {function} config.findFn - Function (source) => Array of hits with lineNumber, line, and optional extra fields
- * @param {Set<string>} config.allowlist - Set of "file:line" or "file" entries to allow
+ * @param {Set<string>} [config.allowlist] - Set of "file:line" or "file" entries to allow (defaults to empty Set)
  * @param {string[]|function} [config.files] - File list or function returning file list (defaults to empty array)
  * @returns {{ violations: Array, allowed: Array }}
  */
 const analyzeWithAllowlist = (config) => {
-  const { findFn, allowlist, files = [] } = config;
+  const { findFn, allowlist = new Set(), files = [] } = config;
   const fileList = typeof files === "function" ? files() : files;
 
   const results = analyzeFiles(fileList, (source, relativePath) =>

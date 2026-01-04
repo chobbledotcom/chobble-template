@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  analyzeFiles,
+  analyzeWithAllowlist,
   assertNoViolations,
   isCommentLine,
   scanLines,
@@ -81,21 +81,6 @@ const findAliases = (source) => {
   });
 };
 
-/**
- * Analyze all JS files for method aliasing.
- */
-const analyzeMethodAliasing = () =>
-  analyzeFiles(SRC_JS_FILES(), (source, relativePath) =>
-    findAliases(source).map((hit) => ({
-      file: relativePath,
-      line: hit.lineNumber,
-      code: hit.line,
-      newName: hit.newName,
-      originalName: hit.originalName,
-      location: `${relativePath}:${hit.lineNumber}`,
-    })),
-  );
-
 describe("method-aliasing", () => {
   test("Detects simple method aliasing", () => {
     const source = `const originalFn = (x) => x * 2;
@@ -165,7 +150,10 @@ const empty = null;
   });
 
   test("No method aliasing in source files", () => {
-    const violations = analyzeMethodAliasing();
+    const { violations } = analyzeWithAllowlist({
+      findFn: findAliases,
+      files: SRC_JS_FILES,
+    });
     assertNoViolations(violations, {
       message: "method alias(es)",
       fixHint:
