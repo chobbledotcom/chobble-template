@@ -56,4 +56,56 @@ const mapBoth = (fn) => mapObject((k, v) => [fn(k), fn(v)]);
  */
 const pickTruthy = filterObject((_k, v) => v);
 
-export { mapEntries, everyEntry, mapObject, filterObject, mapBoth, pickTruthy };
+/**
+ * Build an object from an array by extracting key-value pairs
+ *
+ * Each item is transformed to a [key, value] entry via the toEntry function.
+ * This is a functional alternative to building objects with for-loops and mutation.
+ *
+ * @param {Array} items - Array of items to transform
+ * @param {Function} toEntry - Function that returns [key, value] for each item
+ * @returns {Object} Object built from the entries
+ *
+ * @example
+ * // Build filename -> alt text lookup
+ * toObject(images, img => [img.path.split('/').pop(), img.alt])
+ * // { 'photo.jpg': 'A photo', 'logo.png': 'Company logo' }
+ *
+ * @example
+ * // Build id -> item index
+ * toObject(items, (item, i) => [item.id, i])
+ * // { 'abc': 0, 'def': 1, 'ghi': 2 }
+ */
+const toObject = (items, toEntry) => Object.fromEntries(items.map(toEntry));
+
+/**
+ * Build an object directly from an array of [key, value] pairs
+ *
+ * This is a thin wrapper around Object.fromEntries for consistency
+ * and readability when composing with other functional utilities.
+ *
+ * Note: Later entries overwrite earlier ones with the same key (last wins).
+ * For first-occurrence-wins, reverse the array first.
+ *
+ * @param {Array} pairs - Array of [key, value] pairs
+ * @returns {Object} Object built from the pairs
+ *
+ * @example
+ * fromPairs([['a', 1], ['b', 2]])  // { a: 1, b: 2 }
+ *
+ * @example
+ * // First-occurrence-wins (reverse to get first as last)
+ * fromPairs([['a', 1], ['a', 2]].reverse())  // { a: 1 }
+ */
+const fromPairs = (pairs) => Object.fromEntries(pairs);
+
+export {
+  mapEntries,
+  everyEntry,
+  mapObject,
+  filterObject,
+  mapBoth,
+  pickTruthy,
+  toObject,
+  fromPairs,
+};
