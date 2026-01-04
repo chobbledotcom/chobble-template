@@ -4,7 +4,7 @@ const BUILD_TIMESTAMP = Math.floor(Date.now() / 1000);
 export function cacheBust(url) {
   const isProduction = process.env.ELEVENTY_RUN_MODE === "build";
 
-  if (!isProduction) {
+  if (isProduction === false) {
     return url;
   }
 
