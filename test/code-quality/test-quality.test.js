@@ -163,7 +163,7 @@ const findAsyncTestsWithoutAwait = () => {
             !expr.includes("Promise.reject"),
         );
 
-        if (!hasRealAwait) {
+        if (hasRealAwait === false) {
           violations.push({
             file: relativePath,
             line: i + 1,

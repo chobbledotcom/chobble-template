@@ -61,8 +61,6 @@ const assignCategoryImages = (
   categoryImages,
   categoryThumbnails = {},
 ) => {
-  if (!categories) return [];
-
   return categories.map((category) => {
     category.data.header_image = categoryImages[category.fileSlug]?.[0];
     const thumbnail = categoryThumbnails[category.fileSlug]?.[0];

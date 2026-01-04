@@ -149,7 +149,7 @@ const memoize = (fn) => {
   let value;
   let computed = false;
   return () => {
-    if (!computed) {
+    if (computed === false) {
       value = fn();
       computed = true;
     }
@@ -430,7 +430,7 @@ const extractFunctions = (source) => {
 
       // Handle strings
       if (!inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
-        if (!inString) {
+        if (inString === false) {
           inString = true;
           stringChar = char;
         } else if (char === stringChar) {
