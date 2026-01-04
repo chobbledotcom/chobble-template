@@ -95,16 +95,28 @@ const ALLOWED_PROCESS_CWD = new Set([
 ]);
 
 // ============================================
-// Mutable const exceptions (empty [], Set, Map)
+// Mutable const exceptions (empty [], {}, Set, Map)
 // ============================================
 
-// Const declarations that create mutable containers (arrays, Sets, Maps).
+// Const declarations that create mutable containers (arrays, objects, Sets, Maps).
 // While const prevents reassignment, these containers can still be mutated.
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Empty arrays - being populated via push/mutation
   "src/assets/js/autosizes.js:135", // newImages array built with push
   "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
+
+  // Empty objects - being populated via property assignment
+  "src/assets/js/theme-editor-lib.js:22", // vars object built with property assignment
+  "src/assets/js/theme-editor-lib.js:159", // vars object built with property assignment
+  "src/assets/js/theme-editor.js:142", // vars object built with property assignment
+  "src/assets/js/theme-editor.js:367", // globalVars object built with property assignment
+  "src/assets/js/theme-editor.js:388", // scopeVars object built with property assignment
+  "src/assets/js/theme-editor.js:462", // vars object built with property assignment
+  "src/_data/altTagsLookup.js:6", // lookup object built with property assignment
+  "src/_lib/filters/item-filters.js:357", // redirects object built with property assignment
+  "src/_lib/utils/grouping.js:80", // lookup object built with property assignment
+  "src/_lib/eleventy/js-config.js:10", // jsConfig object built with property assignment
 
   // Sets - being populated via add/mutation
   "src/_lib/media/unused-images.js:52", // usedImages Set from array
