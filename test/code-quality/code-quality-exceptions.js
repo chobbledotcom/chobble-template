@@ -141,9 +141,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:35", // BRAND_NAME
   "ecommerce-backend/server.js:51", // origin (CORS)
   "src/_lib/config/helpers.js:107", // product_mode
-  "src/_lib/config/helpers.js:121", // cart_mode
-  "src/_lib/config/helpers.js:130", // checkout_api_url
-  "src/_lib/config/helpers.js:142", // form_target
+  "src/_lib/config/helpers.js:125", // formTarget
+  "src/_lib/config/helpers.js:138", // cart_mode
   "src/assets/js/stripe-checkout.js:31", // checkoutApiUrl
 
   // === DOM element lookups (querySelector can return null) ===
@@ -152,18 +151,18 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/availability-calendar.js:117", // content
   "src/assets/js/availability-calendar.js:138", // dialog
   "src/assets/js/theme-switcher.js:87", // button
-  "src/assets/js/theme-editor.js:298", // target
-  "src/assets/js/theme-editor.js:404", // borderOutput
-  "src/assets/js/cart.js:116", // cartOverlay
-  "src/assets/js/cart.js:123", // cartItems
+  "src/assets/js/theme-editor.js:316", // target
+  "src/assets/js/theme-editor.js:407", // borderOutput
+  "src/assets/js/cart.js:128", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
   "src/assets/js/quote.js:48", // container
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper
-  "src/assets/js/gallery.js:51", // content
+  "src/assets/js/gallery.js:56", // content
   "src/assets/js/stripe-checkout.js:16", // main
   "src/assets/js/slider.js:19", // firstItem
+  "src/assets/js/scroll-fade.js:35", // selectors
 
   // === Regex match results (match() returns null on no match) ===
   "src/products/products.11tydata.js:11", // match
@@ -179,9 +178,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/utils/dom-builder.js:7", // sharedDom
 
   // === External/parsed data (localStorage, API responses, etc) ===
-  "src/assets/js/scroll-fade.js:21", // selectors (parsed from data attribute)
   "src/assets/js/cart-utils.js:8", // cart (from localStorage)
-  "src/assets/js/cart-utils.js:56", // item
+  "src/assets/js/cart-utils.js:61", // item
   "src/assets/js/theme-editor-lib.js:32", // cssText
   "src/assets/js/theme-editor-lib.js:66", // themeContent
   "src/assets/js/theme-editor-lib.js:89", // borderValue
@@ -190,14 +188,13 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/hire-calculator.js:38", // hirePrices
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
-  "ecommerce-backend/server.js:124", // sku (request param)
-  "ecommerce-backend/server.js:131", // skuData (lookup result)
+  "ecommerce-backend/server.js:118", // sku (request param)
+  "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/assets/js/stripe-checkout.js:48", // response
   "src/_lib/eleventy/pdf.js:251", // pdfDoc
   "src/_lib/eleventy/pdf.js:281", // state
 
   // === Optional function parameters ===
-  "src/_lib/utils/dom-builder.js:25", // children (optional param)
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:107", // path
@@ -225,8 +222,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/eleventy/area-list.js:19", // url
 
   // === Boolean flag checks (naming suggests boolean intent) ===
-  "src/assets/js/cart.js:129", // isEmpty
-  "src/assets/js/cart.js:374", // IS_ENQUIRY_MODE
+  "src/assets/js/cart.js:383", // IS_ENQUIRY_MODE
   "src/_lib/eleventy/cache-buster.js:7", // isProduction
 
   // === Test infrastructure ===
