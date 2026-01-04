@@ -31,10 +31,8 @@ const buildProductKeywordMap = memoize((products) =>
   buildReverseIndex(products, getProductKeywords),
 );
 
-const getAllKeywords = (products) => {
-  if (!products) return [];
-  return [...buildProductKeywordMap(products).keys()].sort();
-};
+const getAllKeywords = (products) =>
+  [...buildProductKeywordMap(products).keys()].sort();
 
 const getProductsByKeyword = (products, keyword) => {
   if (!products || !keyword) return [];

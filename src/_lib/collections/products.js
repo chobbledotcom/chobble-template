@@ -34,12 +34,10 @@ const createProductsCollection = (collectionApi) => {
   return products.map(addGallery);
 };
 
-const getProductsByCategory = (products, categorySlug) => {
-  if (!products) return [];
-  return products
+const getProductsByCategory = (products, categorySlug) =>
+  products
     .filter((product) => product.data.categories?.includes(categorySlug))
     .sort(sortItems);
-};
 
 /**
  * Get unique products that belong to any of the given categories
@@ -54,12 +52,10 @@ const getProductsByCategories = (products, categorySlugs) => {
     .sort(sortItems);
 };
 
-const getProductsByEvent = (products, eventSlug) => {
-  if (!products) return [];
-  return products
+const getProductsByEvent = (products, eventSlug) =>
+  products
     .filter((product) => product.data.events?.includes(eventSlug))
     .sort(sortItems);
-};
 
 const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];

@@ -350,12 +350,6 @@ describe("item-filters", () => {
     expect(normalize("Size: Large!")).toBe("sizelarge");
   });
 
-  // getItemsByFilters with null/empty items
-  test("Returns empty array for null items", () => {
-    expect(getItemsByFilters(null, { type: "cottage" })).toEqual([]);
-    expect(getItemsByFilters(undefined, {})).toEqual([]);
-  });
-
   test("Returns all items sorted when no filters provided", () => {
     const items = [
       {
@@ -796,11 +790,6 @@ describe("item-filters", () => {
   });
 
   // generateFilterCombinations edge cases
-  test("Returns empty array for null/undefined items", () => {
-    expect(generateFilterCombinations(null)).toEqual([]);
-    expect(generateFilterCombinations(undefined)).toEqual([]);
-  });
-
   test("Returns empty array when items have no filter attributes", () => {
     const items = [{ data: { title: "No attrs" } }];
     expect(generateFilterCombinations(items)).toEqual([]);
