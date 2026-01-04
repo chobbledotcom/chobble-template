@@ -51,6 +51,14 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/test/**/*.js"],
+      "linter": {
+        "domains": {
+          "test": "recommended"
+        }
+      }
     }
   ]
 }
