@@ -1,5 +1,10 @@
 import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
+import {
+  everyEntry,
+  mapBoth,
+  mapEntries,
+} from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -115,14 +120,14 @@ const pathToFilter = (path) => {
  * Check if an item matches the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
  */
+const matchesNormalized = (itemAttrs) =>
+  everyEntry((key, value) => normalize(itemAttrs[key] || "") === normalize(value));
+
 const itemMatchesFilters = (item, filters) => {
   if (!filters || Object.keys(filters).length === 0) return true;
 
   const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
-
-  return Object.entries(filters).every(
-    ([key, value]) => normalize(itemAttrs[key] || "") === normalize(value),
-  );
+  return matchesNormalized(itemAttrs)(filters);
 };
 
 /**
@@ -143,12 +148,9 @@ const getItemsByFilters = (items, filters) => {
  * Build a map of normalized filter attributes for all items (for fast lookups)
  * Returns: Map<item, { size: "small", capacity: "3" }>
  */
-const buildItemAttributeMap = (items) => {
-  const normalizeAttrs = (attrs) =>
-    Object.fromEntries(
-      Object.entries(attrs).map(([k, v]) => [normalize(k), normalize(v)]),
-    );
+const normalizeAttrs = mapBoth(normalize);
 
+const buildItemAttributeMap = (items) => {
   return new Map(
     items.map((item) => {
       const attrs = parseFilterAttributes(item.data.filter_attributes);
@@ -162,17 +164,12 @@ const buildItemAttributeMap = (items) => {
  * Expects itemAttrs to already be normalized
  */
 const attrsMatch = (itemAttrs, normalizedFilters) =>
-  Object.entries(normalizedFilters).every(
-    ([key, value]) => itemAttrs[key] === value,
-  );
+  everyEntry((key, value) => itemAttrs[key] === value)(normalizedFilters);
 
 /**
  * Normalize filter keys and values for comparison
  */
-const normalizeFilters = (filters) =>
-  Object.fromEntries(
-    Object.entries(filters).map(([k, v]) => [normalize(k), normalize(v)]),
-  );
+const normalizeFilters = normalizeAttrs;
 
 /**
  * Count items matching filters using pre-built attribute map
@@ -236,14 +233,11 @@ const generateFilterCombinations = memoize((items) => {
  * Build a filter description string from filters using display lookup
  * { size: "compact", type: "pro" } => "Size: compact, Type: pro"
  */
-const buildFilterDescription = (filters, displayLookup) => {
-  return Object.entries(filters)
-    .map(
-      ([key, value]) =>
-        `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`,
-    )
-    .join(", ");
-};
+const toDisplayPair = (displayLookup) => (key, value) =>
+  `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`;
+
+const buildFilterDescription = (filters, displayLookup) =>
+  mapEntries(toDisplayPair(displayLookup))(filters).join(", ");
 
 /**
  * Build pre-computed filter UI data for templates
@@ -367,7 +361,7 @@ const createFilterConfig = (options) => {
       }
     }
 
-    return Object.entries(redirects).map(([from, to]) => ({ from, to }));
+    return mapEntries((from, to) => ({ from, to }))(redirects);
   };
 
   const attributesCollection = (collectionApi) => {

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { PAGES_DIR } from "#lib/paths.js";
+import { pickTruthy } from "#utils/object-entries.js";
 
 const DEFAULTS = {
   sticky_mobile_nav: true,
@@ -150,12 +151,7 @@ function validateCartConfig(config) {
 /**
  * Extract non-null product settings from config
  */
-const getProducts = (configData) => {
-  const products = configData.products || {};
-  return Object.fromEntries(
-    Object.entries(products).filter(([, value]) => value),
-  );
-};
+const getProducts = (configData) => pickTruthy(configData.products || {});
 
 /**
  * Get form target URL from config, preferring explicit target over formspark
