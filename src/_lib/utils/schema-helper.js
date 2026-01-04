@@ -4,8 +4,6 @@ import { canonicalUrl } from "#utils/canonical-url.js";
 const toDateString = (date) => date.toISOString().split("T")[0];
 
 function buildImageUrl(imageInput, siteUrl) {
-  if (!imageInput) return null;
-
   if (imageInput.startsWith("http://") || imageInput.startsWith("https://")) {
     return imageInput;
   }
