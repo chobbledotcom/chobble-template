@@ -6,6 +6,7 @@ import {
   SCOPES,
   shouldIncludeScopedVar,
 } from "#assets/theme-editor-lib.js";
+import { compact, filter, flatMap, map, pipe } from "#utils/array-utils.js";
 
 const ELEMENT_IDS = {
   form: "theme-editor-form",
@@ -348,50 +349,54 @@ const ThemeEditor = {
     ).root;
 
     // Collect global :root variables
-    const globalVars = Object.fromEntries(
-      Array.from(this.formQuery("[data-var]:not([data-scope])"))
-        .filter((input) => {
-          const checkbox = this.formEl(`${input.id}-enabled`);
-          return !checkbox || checkbox.checked;
-        })
-        .map((el) => {
-          const value = el.id === "border-radius" ? `${el.value}px` : el.value;
-          const varName = `--${el.id}`;
-          document.documentElement.style.setProperty(varName, value);
-          return [varName, value];
-        }),
-    );
+    const globalVars = pipe(
+      Array.from,
+      filter((input) => {
+        const checkbox = this.formEl(`${input.id}-enabled`);
+        return !checkbox || checkbox.checked;
+      }),
+      map((el) => {
+        const value = el.id === "border-radius" ? `${el.value}px` : el.value;
+        const varName = `--${el.id}`;
+        document.documentElement.style.setProperty(varName, value);
+        return [varName, value];
+      }),
+      Object.fromEntries,
+    )(this.formQuery("[data-var]:not([data-scope])"));
 
     // Cascade global changes to scoped inputs that were "following" the old global value
     // This prevents unchanged scoped inputs from appearing as overrides when global changes
     this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
 
     // Collect scoped variables
-    const scopeVars = Object.fromEntries(
-      SCOPES.map((scope) => [scope, this.collectScopeVars(scope)]).filter(
-        ([, vars]) => Object.keys(vars).length > 0,
-      ),
-    );
+    const scopeVars = pipe(
+      map((scope) => [scope, this.collectScopeVars(scope)]),
+      filter(([, vars]) => Object.keys(vars).length > 0),
+      Object.fromEntries,
+    )(SCOPES);
 
     // Apply scoped variables to DOM for live preview
     this.applyScopes(scopeVars);
 
     // Handle body classes - toggle DOM classes and collect active ones
-    const bodyClasses = Array.from(this.formQuery("[data-class]")).flatMap(
-      (el) => {
+    const bodyClasses = pipe(
+      Array.from,
+      flatMap((el) => {
         const checkbox = this.formEl(`${el.id}-enabled`);
         const enabled = !checkbox || checkbox.checked;
-        return Array.from(el.querySelectorAll("option"))
-          .map((o) => o.value)
-          .filter((v) => v !== "")
-          .map((value) => {
+        return pipe(
+          Array.from,
+          map((o) => o.value),
+          filter((v) => v !== ""),
+          map((value) => {
             const isActive = value === el.value && enabled;
             document.body.classList.toggle(value, isActive);
             return isActive ? value : null;
-          })
-          .filter((v) => v !== null);
-      },
-    );
+          }),
+          compact,
+        )(el.querySelectorAll("option"));
+      }),
+    )(this.formQuery("[data-class]"));
 
     // Generate CSS and write to textarea
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
@@ -445,20 +450,19 @@ const ThemeEditor = {
 
     // Color inputs for this scope - compare against global value for same var
     // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
-    const colorVars = Object.fromEntries(
-      Array.from(
-        this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`),
-      )
-        .map((input) => {
-          const varName = input.dataset.var;
-          const value = input.value;
-          const globalValue = docStyle.getPropertyValue(varName).trim();
-          return shouldIncludeScopedVar(value, globalValue)
-            ? [varName, value]
-            : null;
-        })
-        .filter((entry) => entry !== null),
-    );
+    const colorVars = pipe(
+      Array.from,
+      map((input) => {
+        const varName = input.dataset.var;
+        const value = input.value;
+        const globalValue = docStyle.getPropertyValue(varName).trim();
+        return shouldIncludeScopedVar(value, globalValue)
+          ? [varName, value]
+          : null;
+      }),
+      compact,
+      Object.fromEntries,
+    )(this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`));
 
     // Border for this scope - include if different from global border
     const borderOutput = this.formEl(`${scope}-border`);

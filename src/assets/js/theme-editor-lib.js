@@ -1,5 +1,7 @@
 // Pure functions for theme editor - can be tested without DOM
 
+import { compact, filter, map, pipe, split } from "#utils/array-utils.js";
+
 // Scopes that support local CSS variable overrides
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 
@@ -19,13 +21,13 @@ export const SCOPE_SELECTORS = {
  */
 export function parseCssBlock(cssText) {
   if (!cssText) return {};
-  return Object.fromEntries(
-    cssText
-      .split(";")
-      .map((line) => line.match(/^\s*(--[a-zA-Z0-9-]+)\s*:\s*(.+?)\s*$/))
-      .filter((match) => match)
-      .map((match) => [match[1], match[2]]),
-  );
+  return pipe(
+    split(";"),
+    map((line) => line.match(/^\s*(--[a-zA-Z0-9-]+)\s*:\s*(.+?)\s*$/)),
+    compact,
+    map((match) => [match[1], match[2]]),
+    Object.fromEntries,
+  )(cssText);
 }
 
 /**
@@ -155,9 +157,11 @@ export function shouldIncludeScopedVar(value, globalValue) {
  * @returns {Object} - Filtered scope variables (only those differing from global)
  */
 export function filterScopeVars(scopeFormData, globalValues = {}) {
-  return Object.fromEntries(
-    Object.entries(scopeFormData).filter(([varName, value]) =>
+  return pipe(
+    Object.entries,
+    filter(([varName, value]) =>
       shouldIncludeScopedVar(value, globalValues[varName]),
     ),
-  );
+    Object.fromEntries,
+  )(scopeFormData);
 }
