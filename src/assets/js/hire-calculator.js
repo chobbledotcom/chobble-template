@@ -141,4 +141,5 @@ export {
   hasHireItems,
   getHireItems,
   calculateHireTotal,
+  formatHireMessage,
 };

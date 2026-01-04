@@ -185,6 +185,8 @@ export {
   validateStripePages,
   validateQuotePages,
   validateProductMode,
+  validateCheckoutApiUrl,
+  validateQuoteConfig,
   validateCartConfig,
   getPagePath,
   cartModeError,
