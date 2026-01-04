@@ -108,11 +108,10 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
 
   // Sets - being populated via add/mutation
-  "src/products/products.11tydata.js:22", // seenDays tracking seen items
   "src/_lib/filters/item-filters.js:198", // seen Set for deduplication
   "src/_lib/filters/item-filters.js:259", // validPaths Set from array
   "src/_lib/media/unused-images.js:52", // usedImages Set from array
-  "src/_lib/collections/products.js:49", // categorySet from array
+  "src/_lib/collections/products.js:50", // categorySet from array
   "src/assets/js/availability-calendar.js:119", // unavailableSet from array
 
   // Maps - used as caches/indexes being populated via set

@@ -72,4 +72,26 @@ const compact = (arr) => arr.filter(Boolean);
 const listSeparator = (length) => (index) =>
   index >= length - 1 ? "" : index === length - 2 ? " and " : ", ";
 
-export { chunk, compact, listSeparator, pick };
+/**
+ * Find the first duplicate item in an array
+ *
+ * Returns the first item whose key matches a previous item's key.
+ * Returns undefined if no duplicates exist.
+ *
+ * Uses pure functional approach with no mutable state.
+ *
+ * @param {Array} items - Array to check for duplicates
+ * @param {Function} getKey - Optional key extractor (defaults to identity)
+ * @returns {*} First duplicate item, or undefined
+ *
+ * @example
+ * findDuplicate([1, 2, 1])                              // 1
+ * findDuplicate([{id: 1}, {id: 2}, {id: 1}], x => x.id) // {id: 1} (at index 2)
+ * findDuplicate([1, 2, 3])                              // undefined
+ */
+const findDuplicate = (items, getKey = (x) => x) => {
+  const keys = items.map(getKey);
+  return items.find((_, i) => keys.indexOf(keys[i]) !== i);
+};
+
+export { chunk, compact, findDuplicate, listSeparator, pick };
