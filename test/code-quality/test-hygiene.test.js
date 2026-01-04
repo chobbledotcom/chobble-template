@@ -51,7 +51,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
-  "extractAllDefinedVariables",
   "findUndefinedVariables",
   // strings.test.js
   "findStringsUsage",
