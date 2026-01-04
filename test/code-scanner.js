@@ -4,6 +4,7 @@
  */
 import { expect } from "bun:test";
 import { fs, path, rootDir } from "#test/test-utils.js";
+import { notMemberOf } from "#utils/array-utils.js";
 
 // ============================================
 // Common patterns for skipping non-code lines
@@ -42,10 +43,8 @@ const toLines = (source) =>
 /**
  * Filter file list excluding certain paths.
  */
-const excludeFiles = (files, exclude = []) => {
-  const excludeSet = new Set(exclude);
-  return files.filter((f) => !excludeSet.has(f));
-};
+const excludeFiles = (files, exclude = []) =>
+  files.filter(notMemberOf(exclude));
 
 /**
  * Combine multiple file lists, optionally excluding some.

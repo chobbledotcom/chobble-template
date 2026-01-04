@@ -115,10 +115,9 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/theme-editor.js:462", // vars object built with property assignment
   "src/_lib/filters/item-filters.js:364", // redirects object built with property assignment
 
-  // Sets - being populated via add/mutation
-  "src/_lib/media/unused-images.js:52", // usedImages Set from array
-  "src/_lib/collections/products.js:50", // categorySet from array
-  "src/assets/js/availability-calendar.js:119", // unavailableSet from array
+  // Sets - internal implementation of functional utilities (created once, never mutated)
+  "src/_lib/utils/array-utils.js:159", // memberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:181", // notMemberOf: Set for O(1) lookup predicate
 
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:5", // memoization cache
