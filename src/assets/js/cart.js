@@ -380,7 +380,7 @@ const setup = () => {
   resetProductSelects();
   setupEventListeners();
 
-  if (!IS_ENQUIRY_MODE) {
+  if (IS_ENQUIRY_MODE === false) {
     updateCartDisplay();
   }
   updateCartCount();

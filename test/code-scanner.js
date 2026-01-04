@@ -308,9 +308,8 @@ const validateExceptions = (allowlist, patterns) => {
 
       // Check if line matches pattern
       const line = lines[lineNum - 1];
-      const matches = patternList.some((p) => p.test(line));
 
-      if (!matches) {
+      if (!patternList.some((p) => p.test(line))) {
         stale.push({
           entry,
           reason: `Line no longer matches pattern: "${line.trim().slice(0, 50)}..."`,

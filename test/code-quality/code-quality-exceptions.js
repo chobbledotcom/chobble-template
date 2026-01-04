@@ -206,33 +206,22 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/collections/products.js:83", // options
   "src/_lib/collections/menus.js:31", // categories
   "src/_lib/collections/menus.js:36", // items
-  "src/_lib/collections/categories.js:64", // categories
   "src/_lib/collections/search.js:9", // category
   "src/_lib/collections/search.js:35", // products
   "src/_lib/collections/reviews.js:101", // name
-  "src/_lib/collections/reviews.js:103", // trimmed
   "src/_lib/collections/tags.js:13", // collection
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
-  "src/_lib/media/image.js:176", // returnElement
   "src/_lib/media/image.js:289", // imageFiles
   "src/_lib/utils/schema-helper.js:7", // imageInput
   "src/_lib/utils/canonical-url.js:9", // url
   "src/_lib/utils/slug-utils.js:12", // reference
   "src/_lib/eleventy/area-list.js:19", // url
 
-  // === Boolean flag checks (naming suggests boolean intent) ===
-  "src/assets/js/cart.js:383", // IS_ENQUIRY_MODE
-  "src/_lib/eleventy/cache-buster.js:7", // isProduction
-
   // === Test infrastructure ===
   "test/code-scanner.js:209", // result
-  "test/code-scanner.js:313", // matches
-  "test/test-utils.js:152", // computed (memoization check)
-  "test/test-utils.js:433", // inString
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
-  "test/code-quality/test-quality.test.js:166", // hasRealAwait
 ]);
 
 export {

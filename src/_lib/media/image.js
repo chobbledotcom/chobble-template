@@ -173,7 +173,7 @@ const imageHtmlCache = new Map();
 async function getCachedResult(cacheKey, returnElement, document) {
   if (!imageHtmlCache.has(cacheKey)) return null;
   const cachedHtml = imageHtmlCache.get(cacheKey);
-  if (!returnElement) return cachedHtml;
+  if (returnElement === false) return cachedHtml;
   if (document) return await parseHtml(cachedHtml, document);
   return null;
 }

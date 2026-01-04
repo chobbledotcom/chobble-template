@@ -100,7 +100,7 @@ const hashString = (str) => {
 const getInitials = (name) => {
   if (!name) return "?";
   const trimmed = name.trim();
-  if (!trimmed) return "?";
+  if (trimmed === "") return "?";
   if (trimmed.length <= 2) return trimmed.toUpperCase();
   const words = trimmed.split(/\s+/).filter(Boolean);
   if (words.length === 1) return words[0].charAt(0).toUpperCase();
