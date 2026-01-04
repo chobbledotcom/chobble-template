@@ -310,30 +310,21 @@ const formatDateString = (date) => date.toISOString().split("T")[0];
 
 /**
  * Unified event fixture factory using functional options pattern.
- * Replaces createEvent, createFutureEvent, createPastEvent, createRecurringEvent.
  *
  * @param {Object} options
  * @param {string} [options.title] - Event title (defaults based on event type)
  * @param {Date} [options.date] - Explicit date for the event
- * @param {number} [options.daysOffset] - Days from today (positive=future, negative=past)
+ * @param {number} [options.daysOffset=30] - Days from today (positive=future, negative=past)
  * @param {string} [options.recurring] - Recurring date string (e.g., "Every Monday")
- * @param {Object} [options.extraData] - Additional data to merge
  * @returns {Object} Event fixture with { data: { title, event_date|recurring_date, ... } }
- *
- * @example
- * createEvent({ daysOffset: 30 }) // future event
- * createEvent({ daysOffset: -30 }) // past event
- * createEvent({ recurring: "Every Monday" }) // recurring event
- * createEvent({ date: new Date(), title: "Today" }) // explicit date
  */
 const createEvent = ({
   title,
   date,
-  daysOffset,
+  daysOffset = 30,
   recurring,
   ...extraData
 } = {}) => {
-  // Recurring events use recurring_date field
   if (recurring !== undefined) {
     return {
       data: {
@@ -344,21 +335,11 @@ const createEvent = ({
     };
   }
 
-  // Determine the event date
-  const eventDate =
-    date !== undefined
-      ? date
-      : daysOffset !== undefined
-        ? createOffsetDate(daysOffset)
-        : createOffsetDate(30);
-
-  // Derive default title from offset direction
-  const defaultTitle =
-    daysOffset !== undefined && daysOffset < 0 ? "Past Event" : "Future Event";
+  const eventDate = date ?? createOffsetDate(daysOffset);
 
   return {
     data: {
-      title: title ?? defaultTitle,
+      title: title ?? (daysOffset < 0 ? "Past Event" : "Future Event"),
       event_date:
         eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
       ...extraData,
