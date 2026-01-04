@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   everyEntry,
   filterObject,
+  fromPairs,
   mapBoth,
   mapEntries,
   mapObject,
@@ -152,6 +153,47 @@ describe("object-entries utilities", () => {
         "photo.jpg": "A photo",
         "logo.png": "Company logo",
       });
+    });
+  });
+
+  describe("fromPairs", () => {
+    test("builds object from array of pairs", () => {
+      const pairs = [
+        ["a", 1],
+        ["b", 2],
+        ["c", 3],
+      ];
+      expect(fromPairs(pairs)).toEqual({ a: 1, b: 2, c: 3 });
+    });
+
+    test("returns empty object for empty array", () => {
+      expect(fromPairs([])).toEqual({});
+    });
+
+    test("later entries overwrite earlier ones (last wins)", () => {
+      const pairs = [
+        ["x", 1],
+        ["x", 2],
+        ["x", 3],
+      ];
+      expect(fromPairs(pairs)).toEqual({ x: 3 });
+    });
+
+    test("reversing gives first-occurrence-wins", () => {
+      const pairs = [
+        ["x", "first"],
+        ["x", "second"],
+        ["x", "third"],
+      ];
+      expect(fromPairs(pairs.reverse())).toEqual({ x: "first" });
+    });
+
+    test("works with mixed key types", () => {
+      const pairs = [
+        ["string", "value1"],
+        [1, "value2"],
+      ];
+      expect(fromPairs(pairs)).toEqual({ string: "value1", 1: "value2" });
     });
   });
 

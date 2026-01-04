@@ -78,6 +78,27 @@ const pickTruthy = filterObject((_k, v) => v);
  */
 const toObject = (items, toEntry) => Object.fromEntries(items.map(toEntry));
 
+/**
+ * Build an object directly from an array of [key, value] pairs
+ *
+ * This is a thin wrapper around Object.fromEntries for consistency
+ * and readability when composing with other functional utilities.
+ *
+ * Note: Later entries overwrite earlier ones with the same key (last wins).
+ * For first-occurrence-wins, reverse the array first.
+ *
+ * @param {Array} pairs - Array of [key, value] pairs
+ * @returns {Object} Object built from the pairs
+ *
+ * @example
+ * fromPairs([['a', 1], ['b', 2]])  // { a: 1, b: 2 }
+ *
+ * @example
+ * // First-occurrence-wins (reverse to get first as last)
+ * fromPairs([['a', 1], ['a', 2]].reverse())  // { a: 1 }
+ */
+const fromPairs = (pairs) => Object.fromEntries(pairs);
+
 export {
   mapEntries,
   everyEntry,
@@ -86,4 +107,5 @@ export {
   mapBoth,
   pickTruthy,
   toObject,
+  fromPairs,
 };
