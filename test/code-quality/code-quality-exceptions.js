@@ -113,11 +113,10 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/theme-editor.js:367", // globalVars object built with property assignment
   "src/assets/js/theme-editor.js:388", // scopeVars object built with property assignment
   "src/assets/js/theme-editor.js:462", // vars object built with property assignment
-  "src/_lib/filters/item-filters.js:364", // redirects object built with property assignment
 
   // Sets - internal implementation of functional utilities (created once, never mutated)
-  "src/_lib/utils/array-utils.js:159", // memberOf: Set for O(1) lookup predicate
-  "src/_lib/utils/array-utils.js:181", // notMemberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:189", // memberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:211", // notMemberOf: Set for O(1) lookup predicate
 
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:5", // memoization cache
@@ -139,8 +138,6 @@ const ALLOWED_LET_USAGE = new Set([
   "src/assets/js/theme-editor.js:242",
   // theme-editor.js - computed property check in loop
   "src/assets/js/theme-editor.js:286",
-  // file-utils.js - content modified by conditional logic
-  "src/_lib/eleventy/file-utils.js:49",
 ]);
 
 export {
