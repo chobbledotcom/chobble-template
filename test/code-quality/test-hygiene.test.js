@@ -28,15 +28,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProduct",
   "createCollectionItem",
   "createPropertyReviewFixture",
-  // Assertion helpers
-  "expectFunctionType",
-  "expectArrayLength",
-  "expectObjectProperty",
-  "expectDeepEqual",
-  "expectStrictEqual",
-  "expectTrue",
-  "expectFalse",
-  "expectThrows",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",

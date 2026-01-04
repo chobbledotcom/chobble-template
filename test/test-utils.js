@@ -234,48 +234,6 @@ const withMockedCwd = (newCwd, callback) => {
   return result;
 };
 
-// ============================================
-// Assertion helpers using Bun's expect
-// These provide a familiar API while using Bun's testing
-// ============================================
-
-const expectFunctionType = (obj, property, _message) => {
-  if (property === undefined) {
-    expect(typeof obj).toBe("function");
-  } else {
-    expect(obj).toBeDefined();
-    expect(typeof obj[property]).toBe("function");
-  }
-};
-
-const expectArrayLength = (arr, expectedLength, _message) => {
-  expect(arr.length).toBe(expectedLength);
-};
-
-const expectObjectProperty = (obj, property, expectedValue, _message) => {
-  expect(obj[property]).toBe(expectedValue);
-};
-
-const expectDeepEqual = (actual, expected, _message) => {
-  expect(actual).toEqual(expected);
-};
-
-const expectStrictEqual = (actual, expected, _message) => {
-  expect(actual).toBe(expected);
-};
-
-const expectTrue = (value, _message) => {
-  expect(value).toBe(true);
-};
-
-const expectFalse = (value, _message) => {
-  expect(value).toBe(false);
-};
-
-const expectThrows = (fn, errorMatcher, _message) => {
-  expect(fn).toThrow(errorMatcher);
-};
-
 /**
  * Assert that a result array has expected titles in order.
  * A functional, declarative helper for the common pattern of checking
@@ -647,14 +605,6 @@ export {
   withTempDir,
   withTempFile,
   withMockedCwd,
-  expectFunctionType,
-  expectArrayLength,
-  expectObjectProperty,
-  expectDeepEqual,
-  expectStrictEqual,
-  expectTrue,
-  expectFalse,
-  expectThrows,
   expectResultTitles,
   // Test fixture factories
   createFrontmatter,
