@@ -119,10 +119,17 @@ const reviewerAvatar = (name) => {
 };
 
 /**
+ * Default reviews truncate limit when not configured
+ */
+const DEFAULT_REVIEWS_LIMIT = 10;
+
+/**
  * Get the reviews truncate limit, with optional override for testing
  */
 const getReviewsLimit = (limitOverride) =>
-  limitOverride !== undefined ? limitOverride : config().reviews_truncate_limit;
+  limitOverride !== undefined
+    ? limitOverride
+    : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT);
 
 /**
  * Helper to get items and reviews data for review page filtering
