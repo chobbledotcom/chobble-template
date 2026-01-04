@@ -49,6 +49,12 @@ describe("menus", () => {
     expect(result).toEqual([]);
   });
 
+  test("Returns empty array when categories is undefined", () => {
+    const result = getCategoriesByMenu(undefined, "lunch");
+
+    expect(result).toEqual([]);
+  });
+
   test("Skips categories without menus property", () => {
     const categories = [
       {
@@ -154,6 +160,12 @@ describe("menus", () => {
     const result = getItemsByCategory([], "appetizers");
 
     expect(result).toHaveLength(0);
+    expect(result).toEqual([]);
+  });
+
+  test("Returns empty array when items is undefined", () => {
+    const result = getItemsByCategory(undefined, "appetizers");
+
     expect(result).toEqual([]);
   });
 
