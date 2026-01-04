@@ -104,11 +104,9 @@ const formatViolations = (violations) => {
 
 describe("function-length", () => {
   test("extractFunctions finds simple function declarations", () => {
-    const source = [
-      "function hello() {",
-      '  console.log("hi");',
-      "}",
-    ].join("\n");
+    const source = ["function hello() {", '  console.log("hi");', "}"].join(
+      "\n",
+    );
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].name).toBe("hello");
@@ -245,11 +243,7 @@ describe("function-length", () => {
   });
 
   test("extractFunctions reports accurate startLine and endLine", () => {
-    const source = [
-      "const foo = () => {",
-      '  return "bar";',
-      "};",
-    ].join("\n");
+    const source = ["const foo = () => {", '  return "bar";', "};"].join("\n");
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].startLine).toBe(1);
