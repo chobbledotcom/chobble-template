@@ -104,14 +104,13 @@ const ALLOWED_PROCESS_CWD = new Set([
 const ALLOWED_MUTABLE_CONST = new Set([
   // Empty arrays - being populated via push/mutation
   "src/_lib/filters/item-filters.js:197", // combinations array built with push
-  "src/menu-items/menu-items.11tydata.js:7", // keys array built with push
   "src/_lib/media/image.js:129", // styles array built with push
   "src/assets/js/autosizes.js:135", // newImages array built with push
   "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
   "src/_lib/eleventy/external-links.js:16", // attrs array built with push
 
   // Sets - being populated via add/mutation
-  "src/products/products.11tydata.js:21", // seenDays tracking seen items
+  "src/products/products.11tydata.js:22", // seenDays tracking seen items
   "src/_lib/filters/item-filters.js:198", // seen Set for deduplication
   "src/_lib/filters/item-filters.js:259", // validPaths Set from array
   "src/_lib/media/unused-images.js:52", // usedImages Set from array

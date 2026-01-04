@@ -22,4 +22,35 @@ const chunk = (arr, size) =>
     arr.slice(i * size, i * size + size),
   );
 
-export { chunk };
+/**
+ * Create a picker function for the specified keys (curried form)
+ *
+ * Returns a function that extracts only the specified keys from an object.
+ * This curried form works perfectly with map(): arr.map(pick(['a', 'b']))
+ *
+ * @param {string[]} keys - Keys to include
+ * @returns {Function} (obj) => picked object
+ *
+ * @example
+ * pick(['a', 'c'])({ a: 1, b: 2, c: 3 })  // { a: 1, c: 3 }
+ * users.map(pick(['name', 'age']))        // picks name & age from each
+ */
+const pick = (keys) => (obj) =>
+  Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
+
+/**
+ * Map an array of objects, keeping only the specified keys from each
+ *
+ * Equivalent to: arr.map(pick(keys))
+ *
+ * @param {Object[]} arr - Array of objects
+ * @param {string[]} keys - Keys to include in each object
+ * @returns {Object[]} Array of objects with only the specified keys
+ *
+ * @example
+ * const users = [{ name: 'Jo', age: 25, id: 1 }, { name: 'Sam', age: 30, id: 2 }];
+ * pickMap(users, ['name', 'age'])  // [{ name: 'Jo', age: 25 }, { name: 'Sam', age: 30 }]
+ */
+const pickMap = (arr, keys) => arr.map(pick(keys));
+
+export { chunk, pick, pickMap };
