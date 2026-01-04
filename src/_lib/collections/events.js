@@ -1,23 +1,25 @@
+import { sort } from "#utils/array-utils.js";
+import { groupBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
 /**
- * Sort events by event_date, returning a new sorted array (no mutation)
+ * Date comparison for sorting events by event_date
  */
-const sortByEventDate = (events, descending = false) =>
-  [...events].sort((a, b) => {
-    const dateA = new Date(a.data.event_date);
-    const dateB = new Date(b.data.event_date);
-    return descending ? dateB - dateA : dateA - dateB;
-  });
+const byEventDateAsc = (a, b) =>
+  new Date(a.data.event_date) - new Date(b.data.event_date);
+
+const byEventDateDesc = (a, b) =>
+  new Date(b.data.event_date) - new Date(a.data.event_date);
 
 const getFeaturedEvents = (events) =>
   events?.filter((e) => e.data.featured) || [];
 
 /**
- * Determine which category an event belongs to based on its date properties
+ * Create an event categorizer based on current date
+ * Returns a pure function: (event) => "upcoming" | "past" | "regular" | null
  */
-const getEventCategory = (event, now) => {
+const createEventCategorizer = (now) => (event) => {
   if (event.data.recurring_date) {
     return "regular";
   }
@@ -32,37 +34,32 @@ const getEventCategory = (event, now) => {
 };
 
 /**
+ * Safe lookup from Map with default value
+ */
+const fromMap = (map, key, defaultVal = []) => map.get(key) ?? defaultVal;
+
+/**
  * Categorise events into upcoming, past, and regular groups
- * Uses functional reduce pattern instead of forEach with mutations
+ * Uses functional groupBy - no mutable objects or loops
  */
 export const categoriseEvents = memoize((events) => {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  const categorised = { upcoming: [], past: [], regular: [] };
+  const grouped = groupBy(events, createEventCategorizer(now));
 
-  for (const event of events) {
-    const category = getEventCategory(event, now);
-    if (category) {
-      categorised[category].push(event);
-    }
-  }
-
-  const upcoming = sortByEventDate(categorised.upcoming);
-  const past = sortByEventDate(categorised.past, true);
-  const regular = [...categorised.regular].sort(sortItems);
-
-  const hasRegular = regular.length > 0;
-  const hasPast = past.length > 0;
+  const upcoming = sort(byEventDateAsc)(fromMap(grouped, "upcoming"));
+  const past = sort(byEventDateDesc)(fromMap(grouped, "past"));
+  const regular = sort(sortItems)(fromMap(grouped, "regular"));
 
   return {
     upcoming,
     past,
     regular,
     show: {
-      upcoming: !hasRegular,
-      regular: hasRegular,
-      past: hasPast,
+      upcoming: upcoming.length > 0,
+      regular: regular.length > 0,
+      past: past.length > 0,
     },
   };
 });

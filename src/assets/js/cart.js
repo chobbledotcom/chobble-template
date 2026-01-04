@@ -149,7 +149,29 @@ const updateQuantity = (itemName, quantity) => {
   updateCartCount();
 };
 
-// Add item to cart
+// Clamp quantity to max, alerting if exceeded
+const clampQuantity = (quantity, maxQuantity) => {
+  if (!maxQuantity || quantity <= maxQuantity) return quantity;
+  alert(`The maximum quantity for this item is ${maxQuantity}`);
+  return maxQuantity;
+};
+
+// Create updated item with added quantity
+const withAddedQuantity = (item, quantity, maxQuantity, sku) => ({
+  ...item,
+  quantity: clampQuantity(item.quantity + quantity, maxQuantity),
+  max_quantity: maxQuantity ?? item.max_quantity,
+  sku: sku ?? item.sku,
+});
+
+// Update item at index, keeping others unchanged
+const updateItemAt = (cart, index, updateFn) =>
+  cart.map((item, i) => (i === index ? updateFn(item) : item));
+
+// Append new item to cart
+const appendItem = (cart, newItem) => [...cart, newItem];
+
+// Add item to cart (functional - no mutation)
 const addItem = (
   itemName,
   unitPrice,
@@ -161,36 +183,27 @@ const addItem = (
   productMode = null,
 ) => {
   const cart = getCart();
-  const existingItem = cart.find((item) => item.item_name === itemName);
+  const existingIndex = cart.findIndex((item) => item.item_name === itemName);
 
-  if (existingItem) {
-    const newQuantity = existingItem.quantity + quantity;
-    if (maxQuantity && newQuantity > maxQuantity) {
-      alert(`The maximum quantity for this item is ${maxQuantity}`);
-      existingItem.quantity = maxQuantity;
-    } else {
-      existingItem.quantity = newQuantity;
-    }
-    if (maxQuantity !== null) {
-      existingItem.max_quantity = maxQuantity;
-    }
-    if (sku !== null) {
-      existingItem.sku = sku;
-    }
-  } else {
-    cart.push({
-      item_name: itemName,
-      unit_price: unitPrice,
-      quantity: quantity,
-      max_quantity: maxQuantity,
-      sku: sku,
-      specs: specs,
-      hire_prices: hirePrices,
-      product_mode: productMode,
-    });
-  }
+  const newItem = {
+    item_name: itemName,
+    unit_price: unitPrice,
+    quantity,
+    max_quantity: maxQuantity,
+    sku,
+    specs,
+    hire_prices: hirePrices,
+    product_mode: productMode,
+  };
 
-  saveCart(cart);
+  const newCart =
+    existingIndex >= 0
+      ? updateItemAt(cart, existingIndex, (item) =>
+          withAddedQuantity(item, quantity, maxQuantity, sku),
+        )
+      : appendItem(cart, newItem);
+
+  saveCart(newCart);
   updateCartDisplay();
   updateCartCount();
   showAddedFeedback();

@@ -114,6 +114,22 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/_lib/media/image.js:170", // imageHtmlCache for memoization
 ]);
 
+// ============================================
+// Array .push() exceptions
+// ============================================
+
+// Files that use .push() for array mutation.
+// Prefer functional patterns: map, filter, reduce, spread, concat, etc.
+const ALLOWED_ARRAY_PUSH = new Set([
+  // Browser-side DOM manipulation - building arrays from MutationObserver
+  "src/assets/js/autosizes.js:141", // newImages.push(node)
+  "src/assets/js/autosizes.js:145", // newImages.push(...querySelectorAll)
+  "src/assets/js/autosizes.js:158", // newImages.push(mutation.target)
+
+  // Theme editor - building CSS blocks string array
+  "src/assets/js/theme-editor-lib.js:118", // cssBlocks.push for CSS generation
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
@@ -121,4 +137,5 @@ export {
   ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
+  ALLOWED_ARRAY_PUSH,
 };
