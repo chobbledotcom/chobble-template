@@ -107,10 +107,10 @@ const ALLOWED_MUTABLE_CONST = new Set([
 
   // Empty objects - being populated via property assignment
   "src/_lib/filters/item-filters.js:364", // redirects object built with property assignment
-
+  
   // Sets - internal implementation of functional utilities (created once, never mutated)
-  "src/_lib/utils/array-utils.js:159", // memberOf: Set for O(1) lookup predicate
-  "src/_lib/utils/array-utils.js:181", // notMemberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:189", // memberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:211", // notMemberOf: Set for O(1) lookup predicate
 
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:5", // memoization cache
@@ -127,9 +127,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Mutable variables that can't be refactored to immutable patterns.
 // let foo = null; for lazy loading is auto-allowed; these are other cases.
 // Note: for (let i = ...) loops are not detected (pattern matches line-start let only)
-const ALLOWED_LET_USAGE = new Set([
-  // file-utils.js - content modified by conditional logic
-  "src/_lib/eleventy/file-utils.js:49",
+const ALLOWED_LET_USAGE = new Set(
+  "src/_lib/eleventy/file-utils.js:49"
 ]);
 
 export {

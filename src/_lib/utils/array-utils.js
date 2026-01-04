@@ -42,6 +42,31 @@ const join = (separator) => (arr) => arr.join(separator);
 const split = (separator) => (str) => str.split(separator);
 
 /**
+ * Filter and map in a single pass (curried)
+ *
+ * Combines filter and map operations, processing each element once.
+ * More expressive than chaining filter().map() when both operate
+ * on the same items. Uses flatMap for a pure implementation.
+ *
+ * @param {Function} predicate - (item) => boolean
+ * @param {Function} transform - (item) => result
+ * @returns {Function} (array) => filtered and mapped array
+ *
+ * @example
+ * // Get names of active users
+ * filterMap(user => user.active, user => user.name)(users)
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   filterMap(n => n > 0, n => n * 2),
+ *   sort((a, b) => a - b)
+ * )(numbers)
+ */
+const filterMap = (predicate, transform) => (arr) =>
+  arr.flatMap((item) => (predicate(item) ? [transform(item)] : []));
+
+/**
  * Split an array into groups of a specified size
  *
  * Incomplete groups at the end are dropped (strict chunking).
@@ -75,7 +100,12 @@ const chunk = (arr, size) =>
  * users.map(pick(['name', 'age']))        // picks name & age from each
  */
 const pick = (keys) => (obj) =>
-  Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
+  Object.fromEntries(
+    filterMap(
+      (k) => k in obj,
+      (k) => [k, obj[k]],
+    )(keys),
+  );
 
 /**
  * Remove falsy values from an array
@@ -186,6 +216,7 @@ export {
   chunk,
   compact,
   filter,
+  filterMap,
   findDuplicate,
   flatMap,
   join,
