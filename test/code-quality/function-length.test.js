@@ -162,6 +162,99 @@ function test() {
     expect(functions[0].lineCount).toBe(5);
   });
 
+  test("extractFunctions ignores braces inside template literals", () => {
+    const source = `
+const render = (data) => {
+  return \`<div>\${ data.value }</div>\`;
+}
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe("render");
+    expect(functions[0].lineCount).toBe(3);
+  });
+
+  test("extractFunctions ignores braces inside single-line comments", () => {
+    const source = `
+function process() {
+  // This comment has { braces } in it
+  return 42;
+}
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].lineCount).toBe(4);
+  });
+
+  test("extractFunctions ignores braces inside multi-line comments", () => {
+    const source = `
+function calculate() {
+  /* This is a comment
+     with { braces } spanning
+     multiple lines */
+  return 1 + 1;
+}
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].lineCount).toBe(6);
+  });
+
+  test("extractFunctions handles nested functions correctly", () => {
+    const source = `
+function outer() {
+  const inner = () => {
+    return "nested";
+  };
+  return inner();
+}
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(2);
+
+    const outer = functions.find((f) => f.name === "outer");
+    const inner = functions.find((f) => f.name === "inner");
+
+    expect(outer).toBeDefined();
+    expect(inner).toBeDefined();
+    expect(outer.lineCount).toBe(6);
+    expect(inner.lineCount).toBe(3);
+  });
+
+  test("extractFunctions finds multiple top-level functions", () => {
+    const source = `
+function first() {
+  return 1;
+}
+
+const second = () => {
+  return 2;
+};
+
+async function third() {
+  return 3;
+}
+    `;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(3);
+    expect(functions.map((f) => f.name).sort()).toEqual([
+      "first",
+      "second",
+      "third",
+    ]);
+  });
+
+  test("extractFunctions reports accurate startLine and endLine", () => {
+    const source = `const foo = () => {
+  return "bar";
+};`;
+    const functions = extractFunctions(source);
+    expect(functions.length).toBe(1);
+    expect(functions[0].startLine).toBe(1);
+    expect(functions[0].endLine).toBe(3);
+    expect(functions[0].lineCount).toBe(3);
+  });
+
   test(`Check functions do not exceed ${MAX_LINES} lines`, () => {
     const violations = analyzeFunctionLengths();
 
