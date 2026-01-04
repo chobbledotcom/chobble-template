@@ -299,15 +299,9 @@ const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
 
 // Date helpers
-const createFutureDate = (daysFromNow = 30) => {
+const createOffsetDate = (daysOffset = 30) => {
   const date = new Date();
-  date.setDate(date.getDate() + daysFromNow);
-  return date;
-};
-
-const createPastDate = (daysAgo = 30) => {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
+  date.setDate(date.getDate() + daysOffset);
   return date;
 };
 
@@ -327,10 +321,10 @@ const createFutureEvent = (
   title = "Future Event",
   daysFromNow = 30,
   extraData = {},
-) => createEvent(title, createFutureDate(daysFromNow), extraData);
+) => createEvent(title, createOffsetDate(daysFromNow), extraData);
 
 const createPastEvent = (title = "Past Event", daysAgo = 30, extraData = {}) =>
-  createEvent(title, createPastDate(daysAgo), extraData);
+  createEvent(title, createOffsetDate(-daysAgo), extraData);
 
 const createRecurringEvent = (
   title,
@@ -517,8 +511,7 @@ export {
   expectResultTitles,
   // Test fixture factories
   createFrontmatter,
-  createFutureDate,
-  createPastDate,
+  createOffsetDate,
   formatDateString,
   createEvent,
   createFutureEvent,
