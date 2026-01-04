@@ -135,8 +135,6 @@ const ALLOWED_LET_USAGE = new Set([
   "src/assets/js/theme-editor.js:242",
   // theme-editor.js - computed property check in loop
   "src/assets/js/theme-editor.js:286",
-  // hire-calculator.js - accumulator for total calculation
-  "src/assets/js/hire-calculator.js:50",
   // file-utils.js - content modified by conditional logic
   "src/_lib/eleventy/file-utils.js:49",
   // image.js - recursive gcd function (could refactor but works)

@@ -40,22 +40,25 @@ const getPriceForDays = (item, days) => {
   return price ? parsePrice(price) * item.quantity : null;
 };
 
+// Sum an array of numbers
+const sum = (numbers) => numbers.reduce((acc, n) => acc + n, 0);
+
 // Calculate total hire cost for hire items only
 // Returns { total, canCalculate } - canCalculate is false if any hire item lacks price
 const calculateHireTotal = (cart, days) => {
   const hireItems = getHireItems(cart);
-  if (days <= 0 || hireItems.length === 0)
-    return { total: 0, canCalculate: false };
 
-  let total = 0;
-  for (const item of hireItems) {
-    const itemPrice = getPriceForDays(item, days);
-    if (itemPrice === null) {
-      return { total: 0, canCalculate: false };
-    }
-    total += itemPrice;
+  if (days <= 0 || hireItems.length === 0) {
+    return { total: 0, canCalculate: false };
   }
-  return { total, canCalculate: true };
+
+  const prices = hireItems.map((item) => getPriceForDays(item, days));
+
+  if (prices.includes(null)) {
+    return { total: 0, canCalculate: false };
+  }
+
+  return { total: sum(prices), canCalculate: true };
 };
 
 // Set minimum date to today
