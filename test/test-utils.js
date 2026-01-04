@@ -4,6 +4,7 @@ import path, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
+import { map } from "#utils/array-utils.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -365,6 +366,22 @@ const createEvent = ({
   };
 };
 
+/**
+ * Create multiple events from an array of options.
+ * Functional composition using curried map.
+ *
+ * @param {Array<Object>} optionsArray - Array of createEvent option objects
+ * @returns {Array<Object>} Array of event fixtures
+ *
+ * @example
+ * createEvents([
+ *   { title: "Event 1", daysOffset: 30 },
+ *   { title: "Event 2", daysOffset: -30 },
+ *   { recurring: "Every Monday" }
+ * ])
+ */
+const createEvents = map(createEvent);
+
 // Category fixtures
 const createCategory = (slug, headerImage = null, extraData = {}) => ({
   fileSlug: slug,
@@ -663,6 +680,7 @@ export {
   createOffsetDate,
   formatDateString,
   createEvent,
+  createEvents,
   createCategory,
   createProduct,
   createCollectionItem,
