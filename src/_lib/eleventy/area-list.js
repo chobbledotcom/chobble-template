@@ -5,6 +5,8 @@
  * Logic lives here; HTML markup lives in area-list.html template.
  */
 
+import { listSeparator } from "#utils/array-utils.js";
+
 /**
  * Check if a URL represents a top-level location.
  * Top-level locations have exactly 2 path segments.
@@ -76,18 +78,13 @@ const formatListWithAnd = (items) => {
 const prepareAreaList = (locations, currentUrl) => {
   const filtered = filterTopLevelLocations(locations, currentUrl);
   const sorted = sortByNavigationKey(filtered);
+  const separator = listSeparator(sorted.length);
 
-  return sorted.map((loc, index) => {
-    let separator = "";
-    if (index < sorted.length - 1) {
-      separator = index === sorted.length - 2 ? " and " : ", ";
-    }
-    return {
-      url: loc.url || "",
-      name: loc.data?.eleventyNavigation?.key || "",
-      separator,
-    };
-  });
+  return sorted.map((loc, index) => ({
+    url: loc.url || "",
+    name: loc.data?.eleventyNavigation?.key || "",
+    separator: separator(index),
+  }));
 };
 
 /**

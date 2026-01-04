@@ -54,4 +54,22 @@ const pick = (keys) => (obj) =>
  */
 const compact = (arr) => arr.filter(Boolean);
 
-export { chunk, compact, pick };
+/**
+ * Get the separator for an item in a list formatted with "and"
+ *
+ * Returns ", " for most items, " and " for second-to-last, "" for last.
+ * Curried: call with length first, then index.
+ *
+ * @param {number} length - Total length of the list
+ * @returns {Function} (index) => separator string
+ *
+ * @example
+ * const sep = listSeparator(3);
+ * sep(0)  // ", "
+ * sep(1)  // " and "
+ * sep(2)  // ""
+ */
+const listSeparator = (length) => (index) =>
+  index >= length - 1 ? "" : index === length - 2 ? " and " : ", ";
+
+export { chunk, compact, listSeparator, pick };
