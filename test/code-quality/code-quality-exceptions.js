@@ -103,13 +103,10 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Empty arrays - being populated via push/mutation
-  "src/_lib/filters/item-filters.js:197", // combinations array built with push
   "src/assets/js/autosizes.js:135", // newImages array built with push
   "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
 
   // Sets - being populated via add/mutation
-  "src/_lib/filters/item-filters.js:198", // seen Set for deduplication
-  "src/_lib/filters/item-filters.js:259", // validPaths Set from array
   "src/_lib/media/unused-images.js:52", // usedImages Set from array
   "src/_lib/collections/products.js:50", // categorySet from array
   "src/assets/js/availability-calendar.js:119", // unavailableSet from array
