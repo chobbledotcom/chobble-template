@@ -7,19 +7,17 @@ import { fromPairs } from "#utils/object-entries.js";
 
 /**
  * Append item to array at key in Map, creating array if needed
- * Returns the Map for chaining in reduce
+ * Accepts [key, item] pair for direct use with reduce
  */
-const appendToMap = (map, key, item) =>
+const appendToMap = (map, [key, item]) =>
   map.set(key, [...(map.get(key) || []), item]);
 
 /**
  * Add value to Set at key in Map, creating Set if needed
- * Returns the Map for chaining in reduce
+ * Accepts [key, value] pair for direct use with reduce
  */
-const mapSetAdd = (map, key, value) => {
-  const set = map.get(key) || new Set();
-  return map.set(key, set.add(value));
-};
+const mapSetAdd = (map, [key, value]) =>
+  map.set(key, (map.get(key) || new Set()).add(value));
 
 /**
  * Build a reverse index from items to keys (many-to-many relationship)
@@ -39,7 +37,7 @@ const mapSetAdd = (map, key, value) => {
 const buildReverseIndex = (items, getKeys) =>
   pipe(
     flatMap((item) => getKeys(item).map((key) => [key, item])),
-    reduce((map, [key, item]) => appendToMap(map, key, item), new Map()),
+    reduce(appendToMap, new Map()),
   )(items);
 
 /**
@@ -57,10 +55,7 @@ const buildReverseIndex = (items, getKeys) =>
  * const grouped = groupValuesBy(pairs);
  * // Map { "size" => Set { "small", "large" } }
  */
-const groupValuesBy = (pairs) =>
-  pipe(reduce((map, [key, value]) => mapSetAdd(map, key, value), new Map()))(
-    pairs,
-  );
+const groupValuesBy = (pairs) => pipe(reduce(mapSetAdd, new Map()))(pairs);
 
 /**
  * Build a first-occurrence-wins lookup from items
@@ -102,7 +97,7 @@ const groupBy = (items, getKey) =>
   pipe(
     filter((item) => getKey(item) != null),
     flatMap((item) => [[getKey(item), item]]),
-    reduce((map, [key, item]) => appendToMap(map, key, item), new Map()),
+    reduce(appendToMap, new Map()),
   )(items);
 
 /**
