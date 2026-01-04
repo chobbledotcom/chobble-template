@@ -103,16 +103,12 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Empty arrays - being populated via push/mutation
-  "src/menu-items/menu-items.11tydata.js:7", // keys array built with push
-  "src/_lib/media/image.js:129", // styles array built with push
   "src/assets/js/autosizes.js:135", // newImages array built with push
   "src/assets/js/theme-editor.js:400", // bodyClasses array built with push
-  "src/_lib/eleventy/external-links.js:16", // attrs array built with push
 
   // Sets - being populated via add/mutation
-  "src/products/products.11tydata.js:21", // seenDays tracking seen items
   "src/_lib/media/unused-images.js:52", // usedImages Set from array
-  "src/_lib/collections/products.js:49", // categorySet from array
+  "src/_lib/collections/products.js:50", // categorySet from array
   "src/assets/js/availability-calendar.js:119", // unavailableSet from array
 
   // Maps - used as caches/indexes being populated via set
@@ -120,7 +116,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/_lib/utils/grouping.js:21", // index Map for grouping
   "src/_lib/utils/grouping.js:51", // groups Map for grouping
   "src/_lib/utils/grouping.js:108", // groups Map for grouping
-  "src/_lib/media/image.js:178", // imageHtmlCache for memoization
+  "src/_lib/media/image.js:175", // imageHtmlCache for memoization
 ]);
 
 // ============================================
@@ -135,14 +131,10 @@ const ALLOWED_LET_USAGE = new Set([
   "src/assets/js/theme-editor.js:242",
   // theme-editor.js - computed property check in loop
   "src/assets/js/theme-editor.js:286",
-  // hire-calculator.js - accumulator for total calculation
-  "src/assets/js/hire-calculator.js:50",
-  // area-list.js - separator built incrementally in loop
-  "src/_lib/eleventy/area-list.js:81",
   // file-utils.js - content modified by conditional logic
   "src/_lib/eleventy/file-utils.js:49",
   // image.js - recursive gcd function (could refactor but works)
-  "src/_lib/media/image.js:97",
+  "src/_lib/media/image.js:98",
 ]);
 
 export {

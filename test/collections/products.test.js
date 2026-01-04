@@ -355,6 +355,53 @@ describe("products", () => {
     expect(result).toEqual({});
   });
 
+  test("Throws error for duplicate SKUs across products", () => {
+    const mockProducts = [
+      {
+        data: {
+          title: "Product A",
+          options: [{ sku: "DUPE-001", name: "Option A", unit_price: 100 }],
+        },
+      },
+      {
+        data: {
+          title: "Product B",
+          options: [{ sku: "DUPE-001", name: "Option B", unit_price: 200 }],
+        },
+      },
+    ];
+
+    const mockCollectionApi = {
+      getFilteredByTag: () => mockProducts,
+    };
+
+    expect(() => createApiSkusCollection(mockCollectionApi)).toThrow(
+      'Duplicate SKU "DUPE-001" found in product "Product B - Option B"',
+    );
+  });
+
+  test("Throws error for duplicate SKUs within same product", () => {
+    const mockProducts = [
+      {
+        data: {
+          title: "Product A",
+          options: [
+            { sku: "SAME-SKU", name: "Option 1", unit_price: 100 },
+            { sku: "SAME-SKU", name: "Option 2", unit_price: 150 },
+          ],
+        },
+      },
+    ];
+
+    const mockCollectionApi = {
+      getFilteredByTag: () => mockProducts,
+    };
+
+    expect(() => createApiSkusCollection(mockCollectionApi)).toThrow(
+      'Duplicate SKU "SAME-SKU"',
+    );
+  });
+
   test("Filter functions should be pure and not modify inputs", () => {
     const originalProducts = [
       { data: { title: "Product 1", categories: ["widgets"] } },

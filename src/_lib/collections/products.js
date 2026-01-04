@@ -1,4 +1,5 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
+import { findDuplicate } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
@@ -98,10 +99,19 @@ const extractProductSkus = (product) => {
 /**
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
+ * Throws an error if duplicate SKUs are found
  */
 const createApiSkusCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("product") || [];
-  return Object.fromEntries(products.flatMap(extractProductSkus));
+  const allSkuEntries = products.flatMap(extractProductSkus);
+
+  const duplicate = findDuplicate(allSkuEntries, ([sku]) => sku);
+  if (duplicate) {
+    const [sku, data] = duplicate;
+    throw new Error(`Duplicate SKU "${sku}" found in product "${data.name}"`);
+  }
+
+  return Object.fromEntries(allSkuEntries);
 };
 
 const productsWithReviewsPage = withReviewsPage(
