@@ -1,4 +1,4 @@
-// Pure functions for theme editor - can be tested without DOM
+// Functions for theme editor - can be tested with DOM mocking
 
 import { compact, filter, map, pipe, split } from "#utils/array-utils.js";
 
@@ -165,3 +165,76 @@ export function filterScopeVars(scopeFormData, globalValues = {}) {
     Object.fromEntries,
   )(scopeFormData);
 }
+
+// Pipeline helpers for theme editor UI
+
+/**
+ * Create a form element selector for a given form ID
+ * @param {string} formId - The form element ID
+ * @returns {Function} (id) => element or null
+ */
+export const createFormEl = (formId) => (id) =>
+  document.querySelector(`#${formId} #${id}`);
+
+/**
+ * Check if a control is enabled (no checkbox or checkbox is checked)
+ * @param {Function} formEl - Form element selector function
+ * @returns {Function} (input) => boolean
+ */
+export const isControlEnabled = (formEl) => (input) => {
+  const checkbox = formEl(`${input.id}-enabled`);
+  return !checkbox || checkbox.checked;
+};
+
+/**
+ * Convert a form control to a CSS variable entry and apply to document
+ * @param {HTMLElement} el - The form control element
+ * @returns {Array} [varName, value] tuple
+ */
+export const controlToVarEntry = (el) => {
+  const value = el.id === "border-radius" ? `${el.value}px` : el.value;
+  const varName = `--${el.id}`;
+  document.documentElement.style.setProperty(varName, value);
+  return [varName, value];
+};
+
+/**
+ * Create a function to convert color input to scoped var entry
+ * @param {CSSStyleDeclaration} docStyle - Computed style of document element
+ * @returns {Function} (input) => [varName, value] or null
+ */
+export const inputToScopedEntry = (docStyle) => (input) => {
+  const varName = input.dataset.var;
+  const value = input.value;
+  const globalValue = docStyle.getPropertyValue(varName).trim();
+  return shouldIncludeScopedVar(value, globalValue) ? [varName, value] : null;
+};
+
+/**
+ * Toggle a body class and return the value if active
+ * @param {HTMLElement} el - The select element
+ * @param {boolean} enabled - Whether the control is enabled
+ * @returns {Function} (value) => value or null
+ */
+export const toggleClassAndReturn = (el, enabled) => (value) => {
+  const isActive = value === el.value && enabled;
+  document.body.classList.toggle(value, isActive);
+  return isActive ? value : null;
+};
+
+/**
+ * Collect active class values from a select element
+ * @param {Function} formEl - Form element selector function
+ * @returns {Function} (el) => array of active class names
+ */
+export const collectActiveClasses = (formEl) => (el) => {
+  const checkbox = formEl(`${el.id}-enabled`);
+  const enabled = !checkbox || checkbox.checked;
+  return pipe(
+    Array.from,
+    map((o) => o.value),
+    filter((v) => v !== ""),
+    map(toggleClassAndReturn(el, enabled)),
+    compact,
+  )(el.querySelectorAll("option"));
+};
