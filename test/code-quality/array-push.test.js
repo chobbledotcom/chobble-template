@@ -1,10 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_ARRAY_PUSH } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
   createCodeChecker,
-  validateExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -22,7 +20,7 @@ const { find: findArrayPush } = createCodeChecker({
 const analyzeArrayPushUsage = () =>
   analyzeWithAllowlist({
     findFn: findArrayPush,
-    allowlist: ALLOWED_ARRAY_PUSH,
+    allowlist: new Set(),
     files: SRC_JS_FILES,
   });
 
@@ -59,36 +57,11 @@ arr. push(3);
     expect(results.length).toBe(2);
   });
 
-  test("No .push() usage outside allowlist", () => {
+  test("No .push() usage in source code", () => {
     const { violations } = analyzeArrayPushUsage();
     assertNoViolations(violations, {
       message: ".push() usage(s)",
-      fixHint:
-        "use functional patterns (map, filter, reduce, spread, concat), or add to ALLOWED_ARRAY_PUSH in code-quality-exceptions.js",
+      fixHint: "use functional patterns (map, filter, reduce, spread, concat)",
     });
-  });
-
-  test("Reports allowlisted .push() usage for tracking", () => {
-    const { allowed } = analyzeArrayPushUsage();
-    console.log(`\n  Allowlisted .push() usages: ${allowed.length}`);
-    if (allowed.length > 0) {
-      console.log("  Locations:");
-      for (const loc of allowed) {
-        console.log(`    - ${loc.location}`);
-      }
-    }
-    expect(true).toBe(true);
-  });
-
-  // Exception validation tests
-  test("ALLOWED_ARRAY_PUSH entries still exist and match pattern", () => {
-    const stale = validateExceptions(ALLOWED_ARRAY_PUSH, ARRAY_PUSH_PATTERN);
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_ARRAY_PUSH entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
   });
 });

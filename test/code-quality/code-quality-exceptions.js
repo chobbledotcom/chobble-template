@@ -118,16 +118,6 @@ const ALLOWED_OBJECT_MUTATION = new Set([
 ]);
 
 // ============================================
-// Array .push() exceptions
-// ============================================
-
-// Files that use .push() for array mutation.
-// Prefer functional patterns: map, filter, reduce, spread, concat, etc.
-const ALLOWED_ARRAY_PUSH = new Set([
-  // (empty - all push usages have been refactored to functional patterns)
-]);
-
-// ============================================
 // Null check exceptions (if (!x) patterns)
 // ============================================
 
@@ -230,6 +220,5 @@ export {
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
-  ALLOWED_ARRAY_PUSH,
   ALLOWED_NULL_CHECKS,
 };
