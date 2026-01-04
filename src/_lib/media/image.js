@@ -4,6 +4,7 @@ import path from "node:path";
 import { compact } from "#utils/array-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { loadJSDOM } from "#utils/lazy-jsdom.js";
+import { simplifyRatio } from "#utils/math-utils.js";
 import { memoize } from "#utils/memoize.js";
 
 // Lazy-load heavy image processing modules
@@ -93,14 +94,8 @@ const U = {
     const base64 = file.toString("base64");
     return `url('data:image/webp;base64,${base64}')`;
   }),
-  getAspectRatio: (aspectRatio, metadata) => {
-    if (aspectRatio) return aspectRatio;
-    let gcd = function gcd(a, b) {
-      return b ? gcd(b, a % b) : a;
-    };
-    gcd = gcd(metadata.width, metadata.height);
-    return `${metadata.width / gcd}/${metadata.height / gcd}`;
-  },
+  getAspectRatio: (aspectRatio, metadata) =>
+    aspectRatio || simplifyRatio(metadata.width, metadata.height),
   cropImage: memoize(
     async (aspectRatio, sourcePath, metadata) => {
       if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
