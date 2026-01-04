@@ -1,50 +1,11 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
+import { getEleventyImg, getThumbnailOrNull } from "#media/image-lqip.js";
 import { compact } from "#utils/array-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { loadJSDOM } from "#utils/lazy-jsdom.js";
-import { simplifyRatio } from "#utils/math-utils.js";
-import { memoize, jsonKey } from "#utils/memoize.js";
-
-// Lazy-load heavy image processing modules
-let sharpModule = null;
-const getSharp = async () => {
-  if (!sharpModule) sharpModule = (await import("sharp")).default;
-  return sharpModule;
-};
-
-let eleventyImgModule = null;
-const getEleventyImg = async () => {
-  if (!eleventyImgModule)
-    eleventyImgModule = await import("@11ty/eleventy-img");
-  return eleventyImgModule;
-};
-
-const CROP_CACHE_DIR = ".image-cache";
-
-const generateCropHash = (sourcePath, aspectRatio) => {
-  return crypto
-    .createHash("md5")
-    .update(`${sourcePath}:${aspectRatio}`)
-    .digest("hex")
-    .slice(0, 8);
-};
-
-const buildCropCachePath = (sourcePath, aspectRatio) => {
-  const hash = generateCropHash(sourcePath, aspectRatio);
-  const basename = path.basename(sourcePath, path.extname(sourcePath));
-  return path.join(CROP_CACHE_DIR, `${basename}-crop-${hash}.jpeg`);
-};
-
-const parseCropDimensions = (aspectRatio, metadata) => {
-  const dimensions = aspectRatio.split("/").map((s) => Number.parseFloat(s));
-  const aspectFraction = dimensions[0] / dimensions[1];
-  return {
-    width: metadata.width,
-    height: Math.round(metadata.width / aspectFraction),
-  };
-};
+import { jsonKey, memoize } from "#utils/memoize.js";
 
 const U = {
   DEFAULT_OPTIONS: {
@@ -82,38 +43,6 @@ const U = {
       },
     });
   },
-  makeThumbnail: memoize(async (imagePath) => {
-    const { default: Image } = await getEleventyImg();
-    const thumbnails = await Image(imagePath, {
-      ...U.DEFAULT_OPTIONS,
-      widths: [32],
-      formats: ["webp"],
-    });
-    const [thumbnail] = thumbnails.webp;
-    const file = fs.readFileSync(thumbnail.outputPath);
-    const base64 = file.toString("base64");
-    return `url('data:image/webp;base64,${base64}')`;
-  }),
-  getAspectRatio: (aspectRatio, metadata) =>
-    aspectRatio || simplifyRatio(metadata.width, metadata.height),
-  cropImage: memoize(
-    async (aspectRatio, sourcePath, metadata) => {
-      if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
-
-      const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
-      if (fs.existsSync(cachedPath)) return cachedPath;
-
-      const { width, height } = parseCropDimensions(aspectRatio, metadata);
-      fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-      const sharp = await getSharp();
-      await sharp(sourcePath)
-        .resize(width, height, { fit: "cover" })
-        .toFile(cachedPath);
-
-      return cachedPath;
-    },
-    { cacheKey: (args) => `${args[0]}:${args[1]}` },
-  ),
   // Build div HTML using JSDOM for consistency
   makeDivHtml: async (
     classes,
@@ -144,13 +73,6 @@ const U = {
     }
     return widths || U.DEFAULT_WIDTHS;
   },
-  // Memoize sharp metadata reads (just the metadata, not the sharp instance)
-  getMetadata: memoize(async (path) => {
-    const sharp = await getSharp();
-    return await sharp(path).metadata();
-  }),
-  // Memoize file size checks
-  getFileSize: memoize((path) => fs.statSync(path).size),
   getPath: (imageName) => {
     const name = imageName.toString();
     if (name.startsWith("/")) {
@@ -171,17 +93,8 @@ const U = {
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
     const imagePath = U.getPath(imageName);
-    const metadata = await U.getMetadata(imagePath);
-
-    const shouldSkipPlaceholder =
-      metadata.format === "svg" || U.getFileSize(imagePath) < 5 * 1024;
-
-    const thumbPromise = shouldSkipPlaceholder
-      ? null
-      : U.makeThumbnail(imagePath);
-    const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
-    const croppedPathOrNull = await U.cropImage(aspectRatio, imagePath, metadata);
-    const finalPath = croppedPathOrNull || imagePath;
+    const metadata = await getMetadata(imagePath);
+    const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
     const innerHTML = await U.getImageHtml(
       finalPath,
@@ -194,8 +107,8 @@ const computeWrappedImageHtml = memoize(
 
     return await U.makeDivHtml(
       classes,
-      thumbPromise,
-      imageAspectRatio,
+      getThumbnailOrNull(imagePath, metadata),
+      getAspectRatio(aspectRatio, metadata),
       metadata.width,
       innerHTML,
     );
