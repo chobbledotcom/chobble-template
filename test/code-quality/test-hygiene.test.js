@@ -40,10 +40,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeFunctionLengths",
   "formatViolations",
   // let-usage.test.js - analysis helpers
+  "matchesAny",
   "findMutableVarDeclarations",
-  "isAllowedLetPattern",
   "analyzeMutableVarUsage",
-  "isMutableConstPattern",
   "findMutableConstDeclarations",
   "analyzeMutableConstUsage",
   // naming-conventions.test.js - analysis helpers
