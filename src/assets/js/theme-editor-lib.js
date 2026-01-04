@@ -1,7 +1,15 @@
 // Functions for theme editor - can be tested with DOM mocking
 
-import { compact, filter, map, pipe, split } from "#utils/array-utils.js";
-import { filterObject } from "#utils/object-entries.js";
+import {
+  compact,
+  filter,
+  filterMap,
+  join,
+  map,
+  pipe,
+  split,
+} from "#utils/array-utils.js";
+import { filterObject, fromPairs } from "#utils/object-entries.js";
 
 // Scopes that support local CSS variable overrides
 export const SCOPES = ["header", "nav", "article", "form", "button"];
@@ -31,46 +39,45 @@ export function parseCssBlock(cssText) {
   )(cssText);
 }
 
+// Get regex pattern for a scope block
+const getScopePattern = (scope) =>
+  scope === "button"
+    ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
+    : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
+
+// Parse scopes from theme content into [scope, vars] pairs
+const parseScopePairs = (themeContent) =>
+  pipe(
+    filterMap(
+      (scope) => themeContent.match(getScopePattern(scope)),
+      (scope) => [
+        scope,
+        parseCssBlock(themeContent.match(getScopePattern(scope))[1]),
+      ],
+    ),
+  )(SCOPES);
+
 /**
  * Parse theme content from a theme.scss string
  * @param {string} themeContent - Full theme SCSS content
  * @returns {Object} - { root: {}, scopes: {}, bodyClasses: [] }
  */
 export function parseThemeContent(themeContent) {
-  const result = {
-    root: {},
-    scopes: {},
-    bodyClasses: [],
-  };
+  if (!themeContent) return { root: {}, scopes: {}, bodyClasses: [] };
 
-  if (!themeContent) return result;
-
-  // Parse :root block
   const rootMatch = themeContent.match(/:root\s*\{([^}]*)\}/s);
-  if (rootMatch) {
-    result.root = parseCssBlock(rootMatch[1]);
-  }
-
-  // Parse scoped blocks (header, nav, article, form, button)
-  SCOPES.forEach((scope) => {
-    // Button has a multi-line selector, other scopes use a simple pattern
-    const pattern =
-      scope === "button"
-        ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
-        : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
-    const match = themeContent.match(pattern);
-    if (match) {
-      result.scopes[scope] = parseCssBlock(match[1]);
-    }
-  });
-
-  // Parse body_classes comment
   const classesMatch = themeContent.match(/\/\* body_classes: (.+) \*\//);
-  if (classesMatch) {
-    result.bodyClasses = classesMatch[1].split(",").map((s) => s.trim());
-  }
 
-  return result;
+  return {
+    root: rootMatch ? parseCssBlock(rootMatch[1]) : {},
+    scopes: fromPairs(parseScopePairs(themeContent)),
+    bodyClasses: classesMatch
+      ? pipe(
+          split(","),
+          map((s) => s.trim()),
+        )(classesMatch[1])
+      : [],
+  };
 }
 
 /**
@@ -91,6 +98,25 @@ export function parseBorderValue(borderValue) {
   return null;
 }
 
+// Helper to format a CSS variable line
+const formatCssLine = ([varName, value]) => {
+  const cssVar = varName.startsWith("--") ? varName : `--${varName}`;
+  return `  ${cssVar}: ${value};`;
+};
+
+// Helper to build a CSS block from selector and variables
+const buildCssBlock = (selector, vars) =>
+  pipe(
+    Object.entries,
+    map(([varName, value]) => `  ${varName}: ${value};`),
+    join("\n"),
+    (lines) => `${selector} {\n${lines}\n}`,
+  )(vars);
+
+// Predicate to check if scope has variables defined
+const scopeHasVars = (scopeVars) => (scope) =>
+  scopeVars[scope] && Object.keys(scopeVars[scope]).length > 0;
+
 /**
  * Generate theme CSS from controls data
  * @param {Object} globalVars - Global :root CSS variables { varName: value }
@@ -99,35 +125,25 @@ export function parseBorderValue(borderValue) {
  * @returns {string} - Generated theme CSS
  */
 export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
-  // Build global :root variables
-  const globalLines = Object.entries(globalVars).map(([varName, value]) => {
-    const cssVar = varName.startsWith("--") ? varName : `--${varName}`;
-    return `  ${cssVar}: ${value};`;
-  });
+  const rootBlock = pipe(
+    Object.entries,
+    map(formatCssLine),
+    join("\n"),
+    (lines) => `:root {\n${lines}\n}`,
+  )(globalVars);
 
-  const cssBlocks = [`:root {\n${globalLines.join("\n")}\n}`];
+  const scopeBlocks = filterMap(scopeHasVars(scopeVars), (scope) =>
+    buildCssBlock(SCOPE_SELECTORS[scope], scopeVars[scope]),
+  )(SCOPES);
 
-  // Add scoped blocks
-  SCOPES.forEach((scope) => {
-    const vars = scopeVars[scope];
-    if (vars && Object.keys(vars).length > 0) {
-      const selector = SCOPE_SELECTORS[scope];
-      const scopeLines = Object.entries(vars)
-        .map(([varName, value]) => `  ${varName}: ${value};`)
-        .join("\n");
-      cssBlocks.push(`${selector} {\n${scopeLines}\n}`);
-    }
-  });
+  const cssOutput = pipe(
+    join("\n\n"),
+    (s) => `${s}\n`,
+  )([rootBlock, ...scopeBlocks]);
 
-  // Join CSS blocks with blank lines, each block ends with }
-  const cssOutput = `${cssBlocks.join("\n\n")}\n`;
-
-  // Add body classes comment (no trailing newline)
-  if (bodyClasses && bodyClasses.length > 0) {
-    return `${cssOutput}\n/* body_classes: ${bodyClasses.join(", ")} */`;
-  }
-
-  return cssOutput;
+  return bodyClasses?.length > 0
+    ? `${cssOutput}\n/* body_classes: ${bodyClasses.join(", ")} */`
+    : cssOutput;
 }
 
 /**

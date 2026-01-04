@@ -121,9 +121,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Files that use obj[key] = value for object mutation.
 // Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
 const ALLOWED_OBJECT_MUTATION = new Set([
-  // Browser-side theme CSS parsing - building scopes object from regex matches
-  "src/assets/js/theme-editor-lib.js:63", // result.scopes[scope] = parseCssBlock
-
   // Browser-side image lazy loading - setting DOM element attributes
   "src/assets/js/autosizes.js:126", // img[attribute] = img.getAttribute
 ]);
@@ -139,9 +136,6 @@ const ALLOWED_ARRAY_PUSH = new Set([
   "src/assets/js/autosizes.js:141", // newImages.push(node)
   "src/assets/js/autosizes.js:145", // newImages.push(...querySelectorAll)
   "src/assets/js/autosizes.js:158", // newImages.push(mutation.target)
-
-  // Theme editor - building CSS blocks string array
-  "src/assets/js/theme-editor-lib.js:118", // cssBlocks.push for CSS generation
 ]);
 
 export {
