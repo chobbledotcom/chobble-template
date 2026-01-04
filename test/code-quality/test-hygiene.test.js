@@ -115,7 +115,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // reviews.test.js - test fixtures helpers
   "createReviews",
   "createMockCollectionApi",
-  "createProduct",
   // code-scanner.js - code scanning utilities
   "matchesAny",
   "isCommentLine",
@@ -123,7 +122,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "toLines",
   "excludeFiles",
   "combineFileLists",
-  "matchAny",
   "scanLines",
   "findPatterns",
   "analyzeFiles",

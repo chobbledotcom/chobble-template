@@ -79,15 +79,15 @@ for (let i = 0; i < 10; i++) {}
 
   test("Allows let = null pattern for lazy loading", () => {
     const isAllowedLet = matchesAny(ALLOWED_LET_PATTERNS);
-    expect(isAllowedLet("let sass = null;")).toBe(true);
-    expect(isAllowedLet("let sharpModule = null")).toBe(true);
-    expect(isAllowedLet("let state = null; // comment")).toBe(true);
+    expect(isAllowedLet("let sass = null;")).toBeTruthy();
+    expect(isAllowedLet("let sharpModule = null")).toBeTruthy();
+    expect(isAllowedLet("let state = null; // comment")).toBeTruthy();
   });
 
   test("Disallows other let patterns", () => {
     const isAllowedLet = matchesAny(ALLOWED_LET_PATTERNS);
-    expect(isAllowedLet("let total = 0;")).toBe(false);
-    expect(isAllowedLet('let separator = "";')).toBe(false);
+    expect(isAllowedLet("let total = 0;")).toBeNull();
+    expect(isAllowedLet('let separator = "";')).toBeNull();
   });
 
   test("Skips allowed patterns in source analysis", () => {
@@ -112,23 +112,23 @@ let mutableVar = 0;
   // Mutable const detection tests
   test("Detects mutable const patterns", () => {
     const isMutableConst = matchesAny(MUTABLE_CONST_PATTERNS);
-    expect(isMutableConst("const items = [];")).toBe(true);
-    expect(isMutableConst("const data = {};")).toBe(true);
-    expect(isMutableConst("const seen = new Set();")).toBe(true);
-    expect(isMutableConst("const cache = new Map();")).toBe(true);
-    expect(isMutableConst("  const items = [];")).toBe(true);
-    expect(isMutableConst("  const obj = {};")).toBe(true);
-    expect(isMutableConst("const set = new Set([1, 2]);")).toBe(true);
+    expect(isMutableConst("const items = [];")).toBeTruthy();
+    expect(isMutableConst("const data = {};")).toBeTruthy();
+    expect(isMutableConst("const seen = new Set();")).toBeTruthy();
+    expect(isMutableConst("const cache = new Map();")).toBeTruthy();
+    expect(isMutableConst("  const items = [];")).toBeTruthy();
+    expect(isMutableConst("  const obj = {};")).toBeTruthy();
+    expect(isMutableConst("const set = new Set([1, 2]);")).toBeTruthy();
   });
 
   test("Does not detect immutable const patterns", () => {
     const isMutableConst = matchesAny(MUTABLE_CONST_PATTERNS);
-    expect(isMutableConst("const x = 1;")).toBe(false);
-    expect(isMutableConst("const items = [1, 2, 3];")).toBe(false);
-    expect(isMutableConst('const name = "test";')).toBe(false);
-    expect(isMutableConst("const fn = () => {};")).toBe(false);
-    expect(isMutableConst("const obj = { key: 'value' };")).toBe(false);
-    expect(isMutableConst("const config = { a: 1, b: 2 };")).toBe(false);
+    expect(isMutableConst("const x = 1;")).toBeNull();
+    expect(isMutableConst("const items = [1, 2, 3];")).toBeNull();
+    expect(isMutableConst('const name = "test";')).toBeNull();
+    expect(isMutableConst("const fn = () => {};")).toBeNull();
+    expect(isMutableConst("const obj = { key: 'value' };")).toBeNull();
+    expect(isMutableConst("const config = { a: 1, b: 2 };")).toBeNull();
   });
 
   test("Detects mutable const declarations in source code", () => {

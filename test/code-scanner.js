@@ -11,12 +11,17 @@ import { notMemberOf } from "#utils/array-utils.js";
 // ============================================
 
 /**
- * Curried pattern matcher - returns a predicate that tests if a string matches any pattern.
+ * Curried pattern matcher - returns the first match result or null.
  * @param {RegExp[]} patterns - Array of patterns to test against
- * @returns {(str: string) => boolean} Predicate function
+ * @returns {(str: string) => {match: RegExpMatchArray, pattern: RegExp} | null}
  */
-const matchesAny = (patterns) => (str) =>
-  patterns.some((pattern) => pattern.test(str));
+const matchesAny = (patterns) => (str) => {
+  for (const pattern of patterns) {
+    const match = str.match(pattern);
+    if (match) return { match, pattern };
+  }
+  return null;
+};
 
 /**
  * Common patterns to identify comment lines (to skip during code analysis).
@@ -32,7 +37,8 @@ const COMMENT_LINE_PATTERNS = [
 /**
  * Check if a line is a comment (single-line, block start, continuation, or end).
  */
-const isCommentLine = (line) => matchesAny(COMMENT_LINE_PATTERNS)(line.trim());
+const isCommentLine = (line) =>
+  !!matchesAny(COMMENT_LINE_PATTERNS)(line.trim());
 
 /**
  * Read a file's source code.
@@ -60,18 +66,6 @@ const combineFileLists = (fileLists, exclude = []) =>
   excludeFiles(fileLists.flat(), exclude);
 
 /**
- * Find first matching pattern in a line.
- * @returns {match: RegExpMatchArray, pattern: RegExp} | null
- */
-const matchAny = (line, patterns) => {
-  for (const pattern of patterns) {
-    const match = line.match(pattern);
-    if (match) return { match, pattern };
-  }
-  return null;
-};
-
-/**
  * Scan source line-by-line, returning results for matching lines.
  * @param {string} source - Source code
  * @param {function} matcher - (line, lineNum, lines) => result | null
@@ -90,7 +84,7 @@ const scanLines = (source, matcher) =>
  */
 const findPatterns = (source, patterns, transform) =>
   scanLines(source, (line, num) => {
-    const result = matchAny(line, patterns);
+    const result = matchesAny(patterns)(line);
     return result ? transform(result.match, num, line) : null;
   });
 
@@ -164,9 +158,9 @@ const assertNoViolations = (violations, options = {}) => {
  * @param {function} toViolation - (line, lineNum, match, path) => violation
  */
 const createPatternMatcher = (patterns, toViolation) => {
-  const patternList = [patterns].flat();
+  const matcher = matchesAny([patterns].flat());
   return (line, lineNum, _source, relativePath) => {
-    const result = matchAny(line, patternList);
+    const result = matcher(line);
     return result
       ? toViolation(line.trim(), lineNum, result.match, relativePath)
       : null;
@@ -194,7 +188,8 @@ const createCodeChecker = (config) => {
     excludeFiles: excluded = [],
   } = config;
 
-  const patternList = [patterns].flat();
+  const matcher = matchesAny([patterns].flat());
+  const shouldSkip = matchesAny(skipPatterns);
 
   // Pure function: find matches in source code
   const find = (source) =>
@@ -202,10 +197,10 @@ const createCodeChecker = (config) => {
       const trimmed = line.trim();
 
       // Skip lines matching skip patterns
-      if (skipPatterns.some((p) => p.test(trimmed))) return null;
+      if (shouldSkip(trimmed)) return null;
 
       // Check for pattern match
-      const result = matchAny(line, patternList);
+      const result = matcher(line);
       if (!result) return null;
 
       // Extract additional data from match
@@ -326,7 +321,6 @@ const validateExceptions = (allowlist, patterns) => {
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
-  matchesAny,
   isCommentLine,
   // File reading
   readSource,
@@ -335,7 +329,7 @@ export {
   excludeFiles,
   combineFileLists,
   // Pattern matching
-  matchAny,
+  matchesAny,
   scanLines,
   findPatterns,
   createPatternMatcher,
