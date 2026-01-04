@@ -165,10 +165,9 @@ const findDuplicate = (items, getKey = (x) => x) => {
 };
 
 /**
- * Create a membership predicate for efficient lookup
+ * Create a membership predicate
  *
  * Returns a predicate function that tests if a value is in the collection.
- * Uses a Set internally for O(1) lookup performance.
  *
  * @param {Iterable} values - Values to check membership against
  * @returns {Function} (value) => boolean
@@ -186,16 +185,12 @@ const findDuplicate = (items, getKey = (x) => x) => {
  * items.some(memberOf(allowedItems))
  * items.every(memberOf(validValues))
  */
-const memberOf = (values) => {
-  const set = new Set(values);
-  return (value) => set.has(value);
-};
+const memberOf = (values) => (value) => values.includes(value);
 
 /**
  * Create a negated membership predicate
  *
  * Returns a predicate function that tests if a value is NOT in the collection.
- * Uses a Set internally for O(1) lookup performance.
  *
  * @param {Iterable} values - Values to exclude
  * @returns {Function} (value) => boolean
@@ -208,10 +203,7 @@ const memberOf = (values) => {
  * // Use with filter to exclude items
  * usernames.filter(notMemberOf(reservedNames))
  */
-const notMemberOf = (values) => {
-  const set = new Set(values);
-  return (value) => !set.has(value);
-};
+const notMemberOf = (values) => (value) => !values.includes(value);
 
 export {
   chunk,
