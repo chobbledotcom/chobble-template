@@ -110,6 +110,19 @@ const updateCheckoutButtons = (cartOverlay, total) => {
   }
 };
 
+// Render cart items and attach handlers
+const renderCartItems = (cartItems, cart) => {
+  cartItems.innerHTML = "";
+  for (const item of cart) {
+    cartItems.appendChild(renderCartItem(item));
+  }
+  attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
+  attachRemoveHandlers(cartItems, '[data-action="remove"]', () => {
+    updateCartDisplay();
+    updateCartCount();
+  });
+};
+
 // Update cart display in overlay
 const updateCartDisplay = () => {
   const cartOverlay = getCartOverlay();
@@ -117,29 +130,19 @@ const updateCartDisplay = () => {
 
   const cart = getCart();
   const cartItems = cartOverlay.querySelector(".cart-items");
-  const cartEmpty = cartOverlay.querySelector(".cart-empty");
-  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
-
   if (!cartItems) return;
 
+  const cartEmpty = cartOverlay.querySelector(".cart-empty");
+  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
   const total = getCartTotal();
   const isEmpty = cart.length === 0;
 
-  cartItems.innerHTML = "";
-  if (!isEmpty) {
-    for (const item of cart) {
-      cartItems.appendChild(renderCartItem(item));
-    }
-    attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
-    attachRemoveHandlers(cartItems, '[data-action="remove"]', () => {
-      updateCartDisplay();
-      updateCartCount();
-    });
-  }
-  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
+  if (!isEmpty) renderCartItems(cartItems, cart);
+  else cartItems.innerHTML = "";
 
-  updateCheckoutButtons(cartOverlay, total);
+  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
   if (cartTotal) cartTotal.textContent = formatPrice(total);
+  updateCheckoutButtons(cartOverlay, total);
 };
 
 // Update item quantity using shared utility
@@ -301,30 +304,46 @@ const validateProductOption = (button) => {
   return true;
 };
 
-// Handle add to cart button click
-const handleAddToCart = (e) => {
-  if (!e.target.classList.contains("add-to-cart")) return;
-  e.preventDefault();
-  const button = e.target;
-
-  if (!validateProductOption(button)) return;
-
+// Extract item details from add-to-cart button
+const extractItemFromButton = (button) => {
   const itemData = JSON.parse(button.dataset.item);
   const option = itemData.options[getOptionIndex(button)];
   const fullItemName = buildFullItemName(itemData.name, option.name);
 
-  if (fullItemName && !Number.isNaN(option.unit_price)) {
-    addItem(
-      fullItemName,
-      option.unit_price,
-      1,
-      option.max_quantity || null,
-      option.sku || null,
-      itemData.specs || null,
-      itemData.hire_prices || null,
-      itemData.product_mode || null,
-    );
-  }
+  if (!fullItemName || Number.isNaN(option.unit_price)) return null;
+
+  return {
+    name: fullItemName,
+    unitPrice: option.unit_price,
+    maxQuantity: option.max_quantity || null,
+    sku: option.sku || null,
+    specs: itemData.specs || null,
+    hirePrices: itemData.hire_prices || null,
+    productMode: itemData.product_mode || null,
+  };
+};
+
+// Handle add to cart button click
+const handleAddToCart = (e) => {
+  if (!e.target.classList.contains("add-to-cart")) return;
+  e.preventDefault();
+
+  const button = e.target;
+  if (!validateProductOption(button)) return;
+
+  const item = extractItemFromButton(button);
+  if (!item) return;
+
+  addItem(
+    item.name,
+    item.unitPrice,
+    1,
+    item.maxQuantity,
+    item.sku,
+    item.specs,
+    item.hirePrices,
+    item.productMode,
+  );
 };
 
 // Set up cart overlay listeners (checkout buttons, backdrop click)
