@@ -307,36 +307,63 @@ const createOffsetDate = (daysOffset = 30) => {
 
 const formatDateString = (date) => date.toISOString().split("T")[0];
 
-// Event fixtures
-const createEvent = (title, eventDate, extraData = {}) => ({
-  data: {
-    title,
-    event_date:
-      eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
-    ...extraData,
-  },
-});
-
-const createFutureEvent = (
-  title = "Future Event",
-  daysFromNow = 30,
-  extraData = {},
-) => createEvent(title, createOffsetDate(daysFromNow), extraData);
-
-const createPastEvent = (title = "Past Event", daysAgo = 30, extraData = {}) =>
-  createEvent(title, createOffsetDate(-daysAgo), extraData);
-
-const createRecurringEvent = (
+/**
+ * Unified event fixture factory using functional options pattern.
+ * Replaces createEvent, createFutureEvent, createPastEvent, createRecurringEvent.
+ *
+ * @param {Object} options
+ * @param {string} [options.title] - Event title (defaults based on event type)
+ * @param {Date} [options.date] - Explicit date for the event
+ * @param {number} [options.daysOffset] - Days from today (positive=future, negative=past)
+ * @param {string} [options.recurring] - Recurring date string (e.g., "Every Monday")
+ * @param {Object} [options.extraData] - Additional data to merge
+ * @returns {Object} Event fixture with { data: { title, event_date|recurring_date, ... } }
+ *
+ * @example
+ * createEvent({ daysOffset: 30 }) // future event
+ * createEvent({ daysOffset: -30 }) // past event
+ * createEvent({ recurring: "Every Monday" }) // recurring event
+ * createEvent({ date: new Date(), title: "Today" }) // explicit date
+ */
+const createEvent = ({
   title,
-  recurringDate = "Every Monday",
-  extraData = {},
-) => ({
-  data: {
-    title,
-    recurring_date: recurringDate,
-    ...extraData,
-  },
-});
+  date,
+  daysOffset,
+  recurring,
+  ...extraData
+} = {}) => {
+  // Recurring events use recurring_date field
+  if (recurring !== undefined) {
+    return {
+      data: {
+        title: title ?? "Recurring Event",
+        recurring_date: recurring,
+        ...extraData,
+      },
+    };
+  }
+
+  // Determine the event date
+  const eventDate =
+    date !== undefined
+      ? date
+      : daysOffset !== undefined
+        ? createOffsetDate(daysOffset)
+        : createOffsetDate(30);
+
+  // Derive default title from offset direction
+  const defaultTitle =
+    daysOffset !== undefined && daysOffset < 0 ? "Past Event" : "Future Event";
+
+  return {
+    data: {
+      title: title ?? defaultTitle,
+      event_date:
+        eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
+      ...extraData,
+    },
+  };
+};
 
 // Category fixtures
 const createCategory = (slug, headerImage = null, extraData = {}) => ({
@@ -636,9 +663,6 @@ export {
   createOffsetDate,
   formatDateString,
   createEvent,
-  createFutureEvent,
-  createPastEvent,
-  createRecurringEvent,
   createCategory,
   createProduct,
   createCollectionItem,
