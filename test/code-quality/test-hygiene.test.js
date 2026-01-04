@@ -81,21 +81,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findIdReferencesInJs",
   "collectAllClassesAndIds",
   "findUnusedClassesAndIds",
-  // function-length.test.js - test fixture strings (parsed as examples, not real code)
-  "hello",
-  "greet",
-  "fetchData",
-  "helper",
-  "test",
-  "render",
-  "process",
-  "calculate",
-  "outer",
-  "inner",
-  "first",
-  "second",
-  "third",
-  "foo",
   // naming-conventions.test.js - test fixture string
   "getUserById",
   // try-catch-usage.test.js - analysis helpers
