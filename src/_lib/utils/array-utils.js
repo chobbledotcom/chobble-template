@@ -39,18 +39,19 @@ const pick = (keys) => (obj) =>
   Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
 
 /**
- * Map an array of objects, keeping only the specified keys from each
+ * Remove falsy values from an array
  *
- * Equivalent to: arr.map(pick(keys))
+ * Filters out null, undefined, false, 0, '', and NaN.
+ * Perfect for building arrays with conditional elements.
  *
- * @param {Object[]} arr - Array of objects
- * @param {string[]} keys - Keys to include in each object
- * @returns {Object[]} Array of objects with only the specified keys
+ * @param {Array} arr - Array potentially containing falsy values
+ * @returns {Array} Array with only truthy values
  *
  * @example
- * const users = [{ name: 'Jo', age: 25, id: 1 }, { name: 'Sam', age: 30, id: 2 }];
- * pickMap(users, ['name', 'age'])  // [{ name: 'Jo', age: 25 }, { name: 'Sam', age: 30 }]
+ * compact([1, null, 2, undefined, 3])        // [1, 2, 3]
+ * compact(['a', false && 'b', 'c'])          // ['a', 'c']
+ * compact([condition && 'value', 'always']) // conditionally includes 'value'
  */
-const pickMap = (arr, keys) => arr.map(pick(keys));
+const compact = (arr) => arr.filter(Boolean);
 
-export { chunk, pick, pickMap };
+export { chunk, compact, pick };

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { compact } from "#utils/array-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { loadJSDOM } from "#utils/lazy-jsdom.js";
 import { memoize } from "#utils/memoize.js";
@@ -126,16 +127,12 @@ const U = {
     maxWidth,
     innerHTML,
   ) => {
-    const styles = [];
-
-    if (thumbPromise !== null) {
-      const bgImage = await thumbPromise;
-      if (bgImage) styles.push(`background-image: ${bgImage}`);
-    }
-
-    styles.push(`aspect-ratio: ${imageAspectRatio}`);
-
-    if (maxWidth) styles.push(`max-width: min(${maxWidth}px, 100%)`);
+    const bgImage = thumbPromise !== null ? await thumbPromise : null;
+    const styles = compact([
+      bgImage && `background-image: ${bgImage}`,
+      `aspect-ratio: ${imageAspectRatio}`,
+      maxWidth && `max-width: min(${maxWidth}px, 100%)`,
+    ]);
 
     return await createHtml(
       "div",
