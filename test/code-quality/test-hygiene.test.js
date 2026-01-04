@@ -72,13 +72,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-hygiene.test.js - self-analysis helpers
   "analyzeTestFiles",
   // unused-classes.test.js - analysis helpers
-  "extractClassesFromHtml",
-  "extractIdsFromHtml",
+  "extractFromHtml",
   "extractClassesFromJs",
   "findIdReferencesInHtml",
   "findSelectorReferencesInScss",
-  "findClassReferencesInJs",
-  "findIdReferencesInJs",
+  "findReferencesInJs",
   "collectAllClassesAndIds",
   "findUnusedClassesAndIds",
   // naming-conventions.test.js - test fixture string
