@@ -19,14 +19,13 @@ export const SCOPE_SELECTORS = {
  */
 export function parseCssBlock(cssText) {
   if (!cssText) return {};
-  const vars = {};
-  cssText.split(";").forEach((line) => {
-    const match = line.match(/^\s*(--[a-zA-Z0-9-]+)\s*:\s*(.+?)\s*$/);
-    if (match) {
-      vars[match[1]] = match[2];
-    }
-  });
-  return vars;
+  return Object.fromEntries(
+    cssText
+      .split(";")
+      .map((line) => line.match(/^\s*(--[a-zA-Z0-9-]+)\s*:\s*(.+?)\s*$/))
+      .filter((match) => match)
+      .map((match) => [match[1], match[2]]),
+  );
 }
 
 /**
@@ -156,14 +155,9 @@ export function shouldIncludeScopedVar(value, globalValue) {
  * @returns {Object} - Filtered scope variables (only those differing from global)
  */
 export function filterScopeVars(scopeFormData, globalValues = {}) {
-  const vars = {};
-
-  Object.entries(scopeFormData).forEach(([varName, value]) => {
-    const globalValue = globalValues[varName];
-    if (shouldIncludeScopedVar(value, globalValue)) {
-      vars[varName] = value;
-    }
-  });
-
-  return vars;
+  return Object.fromEntries(
+    Object.entries(scopeFormData).filter(([varName, value]) =>
+      shouldIncludeScopedVar(value, globalValues[varName]),
+    ),
+  );
 }
