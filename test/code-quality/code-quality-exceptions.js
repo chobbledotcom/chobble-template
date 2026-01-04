@@ -106,14 +106,11 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/assets/js/autosizes.js:135", // newImages array built with push
 
   // Sets - internal implementation of functional utilities (created once, never mutated)
-  "src/_lib/utils/array-utils.js:189", // memberOf: Set for O(1) lookup predicate
-  "src/_lib/utils/array-utils.js:211", // notMemberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:190", // memberOf: Set for O(1) lookup predicate
+  "src/_lib/utils/array-utils.js:212", // notMemberOf: Set for O(1) lookup predicate
 
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:5", // memoization cache
-  "src/_lib/utils/grouping.js:23", // index Map for grouping
-  "src/_lib/utils/grouping.js:53", // groups Map for grouping
-  "src/_lib/utils/grouping.js:102", // groups Map for grouping
   "src/_lib/media/image.js:170", // imageHtmlCache for memoization
 ]);
 

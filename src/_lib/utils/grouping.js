@@ -2,7 +2,22 @@
  * Functional grouping utilities for building indices and lookups
  */
 
+import { filter, flatMap, pipe, reduce } from "#utils/array-utils.js";
 import { fromPairs } from "#utils/object-entries.js";
+
+/**
+ * Append item to array at key in Map, creating array if needed
+ * Accepts [key, item] pair for direct use with reduce
+ */
+const appendToMap = (map, [key, item]) =>
+  map.set(key, [...(map.get(key) || []), item]);
+
+/**
+ * Add value to Set at key in Map, creating Set if needed
+ * Accepts [key, value] pair for direct use with reduce
+ */
+const mapSetAdd = (map, [key, value]) =>
+  map.set(key, (map.get(key) || new Set()).add(value));
 
 /**
  * Build a reverse index from items to keys (many-to-many relationship)
@@ -19,20 +34,11 @@ import { fromPairs } from "#utils/object-entries.js";
  * const index = buildReverseIndex(products, (p) => p.data.categories || []);
  * const widgetProducts = index.get("widgets") || [];
  */
-const buildReverseIndex = (items, getKeys) => {
-  const index = new Map();
-
-  for (const item of items) {
-    for (const key of getKeys(item)) {
-      if (!index.has(key)) {
-        index.set(key, []);
-      }
-      index.get(key).push(item);
-    }
-  }
-
-  return index;
-};
+const buildReverseIndex = (items, getKeys) =>
+  pipe(
+    flatMap((item) => getKeys(item).map((key) => [key, item])),
+    reduce(appendToMap, new Map()),
+  )(items);
 
 /**
  * Group values by key with deduplication
@@ -49,18 +55,7 @@ const buildReverseIndex = (items, getKeys) => {
  * const grouped = groupValuesBy(pairs);
  * // Map { "size" => Set { "small", "large" } }
  */
-const groupValuesBy = (pairs) => {
-  const groups = new Map();
-
-  for (const [key, value] of pairs) {
-    if (!groups.has(key)) {
-      groups.set(key, new Set());
-    }
-    groups.get(key).add(value);
-  }
-
-  return groups;
-};
+const groupValuesBy = (pairs) => pipe(reduce(mapSetAdd, new Map()))(pairs);
 
 /**
  * Build a first-occurrence-wins lookup from items
@@ -98,21 +93,12 @@ const buildFirstOccurrenceLookup = (items, getPairs) =>
  * // Group events by date
  * const byDate = groupBy(events, (e) => e.data.event_date);
  */
-const groupBy = (items, getKey) => {
-  const groups = new Map();
-
-  for (const item of items) {
-    const key = getKey(item);
-    if (key !== undefined && key !== null) {
-      if (!groups.has(key)) {
-        groups.set(key, []);
-      }
-      groups.get(key).push(item);
-    }
-  }
-
-  return groups;
-};
+const groupBy = (items, getKey) =>
+  pipe(
+    filter((item) => getKey(item) != null),
+    flatMap((item) => [[getKey(item), item]]),
+    reduce(appendToMap, new Map()),
+  )(items);
 
 /**
  * Create a lookup helper for a reverse index

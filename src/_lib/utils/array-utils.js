@@ -33,6 +33,7 @@ const pipe =
 const filter = (predicate) => (arr) => arr.filter(predicate);
 const map = (fn) => (arr) => arr.map(fn);
 const flatMap = (fn) => (arr) => arr.flatMap(fn);
+const reduce = (fn, initial) => (arr) => arr.reduce(fn, initial);
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
 const unique = (arr) => [...new Set(arr)];
 const uniqueBy = (getKey) => (arr) => [
@@ -226,6 +227,7 @@ export {
   notMemberOf,
   pick,
   pipe,
+  reduce,
   sort,
   split,
   unique,
