@@ -36,16 +36,21 @@ export function getItemCount() {
   return cart.reduce((count, item) => count + item.quantity, 0);
 }
 
+const updateBadge = (badge, count) => {
+  badge.textContent = count;
+  badge.style.display = count > 0 ? "block" : "none";
+};
+
+const updateIcon = (icon, count) => {
+  icon.style.display = count > 0 ? "flex" : "none";
+  const badge = icon.querySelector(".cart-count");
+  if (badge) updateBadge(badge, count);
+};
+
 export function updateCartIcon() {
   const count = getItemCount();
-  const icons = document.querySelectorAll(".cart-icon");
-  for (const icon of icons) {
-    icon.style.display = count > 0 ? "flex" : "none";
-    const badge = icon.querySelector(".cart-count");
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "block" : "none";
-    }
+  for (const icon of document.querySelectorAll(".cart-icon")) {
+    updateIcon(icon, count);
   }
 }
 

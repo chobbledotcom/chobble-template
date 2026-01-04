@@ -17,30 +17,22 @@ function buildImageUrl(imageInput, siteUrl) {
   return `${siteUrl}/images/${imageInput}`;
 }
 
-function buildBaseMeta(data) {
-  const baseMeta = data.metaComputed || {};
+const buildImageMeta = (imageSource, siteUrl) => {
+  const imageUrl = buildImageUrl(imageSource, siteUrl);
+  return imageUrl ? { image: { src: imageUrl } } : {};
+};
 
-  const meta = {
-    ...baseMeta,
+function buildBaseMeta(data) {
+  const imageSource = data.header_image || data.image || null;
+
+  return {
+    ...(data.metaComputed || {}),
     url: canonicalUrl(data.page.url),
     title: data.title || data.meta_title || "Untitled",
     description: data.meta_description || data.subtitle,
+    ...(imageSource && buildImageMeta(imageSource, data.site.url)),
+    ...(data.faqs?.length > 0 && { faq: data.faqs }),
   };
-
-  const imageSource = data.header_image || data.image || null;
-
-  if (imageSource) {
-    const imageUrl = buildImageUrl(imageSource, data.site.url);
-    if (imageUrl) {
-      meta.image = { src: imageUrl };
-    }
-  }
-
-  if (data.faqs?.length > 0) {
-    meta.faq = data.faqs;
-  }
-
-  return meta;
 }
 
 function buildOffers(price) {

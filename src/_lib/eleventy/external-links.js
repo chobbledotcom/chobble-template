@@ -17,34 +17,26 @@ const externalLinkFilter = (url, config) => {
   return getExternalLinkAttributes(url, config);
 };
 
+const shouldSkipTransform = (content, config) =>
+  !content ||
+  !content.includes("<a") ||
+  !config?.externalLinksTargetBlank ||
+  (!content.includes("http://") && !content.includes("https://"));
+
+const applyExternalAttrs = (link) => {
+  link.setAttribute("target", "_blank");
+  link.setAttribute("rel", "noopener noreferrer");
+};
+
 const transformExternalLinks = async (content, config) => {
-  if (!content || !content.includes("<a")) {
-    return content;
-  }
-
-  if (!config?.externalLinksTargetBlank) {
-    return content;
-  }
-
-  // Fast check: skip JSDOM if no external links present
-  if (!content.includes("http://") && !content.includes("https://")) {
-    return content;
-  }
+  if (shouldSkipTransform(content, config)) return content;
 
   const JSDOM = await loadJSDOM();
   const dom = new JSDOM(content);
-  const {
-    window: { document },
-  } = dom;
+  const { document } = dom.window;
 
-  const links = document.querySelectorAll("a[href]");
-
-  for (const link of links) {
-    const href = link.getAttribute("href");
-    if (isExternalUrl(href)) {
-      link.setAttribute("target", "_blank");
-      link.setAttribute("rel", "noopener noreferrer");
-    }
+  for (const link of document.querySelectorAll("a[href]")) {
+    if (isExternalUrl(link.getAttribute("href"))) applyExternalAttrs(link);
   }
 
   return dom.serialize();
