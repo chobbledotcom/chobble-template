@@ -1,6 +1,7 @@
 import {
   chunk,
   compact,
+  filterMap,
   flatMap,
   join,
   map,
@@ -361,22 +362,24 @@ const createFilterConfig = (options) => {
     const items = collectionApi.getFilteredByTag(tag) || [];
     const attrKeys = Object.keys(getAllFilterAttributes(items));
     const searchUrl = `${baseUrl}/search`;
-    const redirects = {};
 
-    for (const key of attrKeys) {
-      redirects[`${searchUrl}/${key}/`] = `${searchUrl}/#content`;
-    }
+    const toRedirect = (basePath, key) => ({
+      from: `${searchUrl}${basePath}/${key}/`,
+      to: `${searchUrl}${basePath}/#content`,
+    });
 
-    for (const combo of generateFilterCombinations(items)) {
-      for (const key of attrKeys) {
-        if (!combo.filters[key]) {
-          redirects[`${searchUrl}/${combo.path}/${key}/`] =
-            `${searchUrl}/${combo.path}/#content`;
-        }
-      }
-    }
+    const simpleRedirects = map((key) => toRedirect("", key))(attrKeys);
 
-    return mapEntries((from, to) => ({ from, to }))(redirects);
+    const comboRedirects = pipe(
+      flatMap((combo) =>
+        filterMap(
+          (key) => !combo.filters[key],
+          (key) => toRedirect(`/${combo.path}`, key),
+        )(attrKeys),
+      ),
+    )(generateFilterCombinations(items));
+
+    return [...simpleRedirects, ...comboRedirects];
   };
 
   const attributesCollection = (collectionApi) => {

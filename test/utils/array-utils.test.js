@@ -2,11 +2,14 @@ import { describe, expect, test } from "bun:test";
 import {
   chunk,
   compact,
+  filterMap,
   findDuplicate,
   listSeparator,
   memberOf,
   notMemberOf,
   pick,
+  pipe,
+  sort,
 } from "#utils/array-utils.js";
 
 describe("array-utils", () => {
@@ -220,5 +223,87 @@ describe("array-utils", () => {
     ["a", "b", "c", "d", "e"].forEach((v) => {
       expect(isNotMember(v)).toBe(!isMember(v));
     });
+  });
+
+  // ============================================
+  // filterMap Tests
+  // ============================================
+  test("filterMap filters and maps in one pass", () => {
+    const numbers = [1, -2, 3, -4, 5];
+    const result = filterMap(
+      (n) => n > 0,
+      (n) => n * 2,
+    )(numbers);
+    expect(result).toEqual([2, 6, 10]);
+  });
+
+  test("filterMap returns empty array when nothing matches", () => {
+    const numbers = [1, 2, 3];
+    const result = filterMap(
+      (n) => n > 10,
+      (n) => n * 2,
+    )(numbers);
+    expect(result).toEqual([]);
+  });
+
+  test("filterMap transforms all items when all match predicate", () => {
+    const numbers = [1, 2, 3];
+    const result = filterMap(
+      () => true,
+      (n) => n * 2,
+    )(numbers);
+    expect(result).toEqual([2, 4, 6]);
+  });
+
+  test("filterMap works with objects", () => {
+    const users = [
+      { name: "Alice", active: true },
+      { name: "Bob", active: false },
+      { name: "Charlie", active: true },
+    ];
+    const result = filterMap(
+      (user) => user.active,
+      (user) => user.name,
+    )(users);
+    expect(result).toEqual(["Alice", "Charlie"]);
+  });
+
+  test("filterMap handles empty arrays", () => {
+    const result = filterMap(
+      () => true,
+      (x) => x,
+    )([]);
+    expect(result).toEqual([]);
+  });
+
+  test("filterMap works with pipe", () => {
+    const numbers = [5, -3, 1, -7, 4, 2];
+    const result = pipe(
+      filterMap(
+        (n) => n > 0,
+        (n) => n * 10,
+      ),
+      sort((a, b) => a - b),
+    )(numbers);
+    expect(result).toEqual([10, 20, 40, 50]);
+  });
+
+  test("filterMap is curried for reuse", () => {
+    const getActiveNames = filterMap(
+      (user) => user.active,
+      (user) => user.name,
+    );
+
+    const team1 = [
+      { name: "A", active: true },
+      { name: "B", active: false },
+    ];
+    const team2 = [
+      { name: "C", active: false },
+      { name: "D", active: true },
+    ];
+
+    expect(getActiveNames(team1)).toEqual(["A"]);
+    expect(getActiveNames(team2)).toEqual(["D"]);
   });
 });

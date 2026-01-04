@@ -1,5 +1,5 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
-import { findDuplicate, memberOf } from "#utils/array-utils.js";
+import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
@@ -84,14 +84,14 @@ const extractProductSkus = (product) => {
 
   const productTitle = product.data.title || "";
 
-  return options.filter(isValidSku).map((option) => [
+  return filterMap(isValidSku, (option) => [
     option.sku,
     {
       name: buildOptionName(productTitle, option.name),
       unit_price: option.unit_price,
       max_quantity: option.max_quantity ?? null,
     },
-  ]);
+  ])(options);
 };
 
 /**
