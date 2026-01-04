@@ -4,6 +4,7 @@ import path, { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
+import { map } from "#utils/array-utils.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -307,36 +308,60 @@ const createOffsetDate = (daysOffset = 30) => {
 
 const formatDateString = (date) => date.toISOString().split("T")[0];
 
-// Event fixtures
-const createEvent = (title, eventDate, extraData = {}) => ({
-  data: {
-    title,
-    event_date:
-      eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
-    ...extraData,
-  },
-});
-
-const createFutureEvent = (
-  title = "Future Event",
-  daysFromNow = 30,
-  extraData = {},
-) => createEvent(title, createOffsetDate(daysFromNow), extraData);
-
-const createPastEvent = (title = "Past Event", daysAgo = 30, extraData = {}) =>
-  createEvent(title, createOffsetDate(-daysAgo), extraData);
-
-const createRecurringEvent = (
+/**
+ * Unified event fixture factory using functional options pattern.
+ *
+ * @param {Object} options
+ * @param {string} [options.title] - Event title (defaults based on event type)
+ * @param {Date} [options.date] - Explicit date for the event
+ * @param {number} [options.daysOffset=30] - Days from today (positive=future, negative=past)
+ * @param {string} [options.recurring] - Recurring date string (e.g., "Every Monday")
+ * @returns {Object} Event fixture with { data: { title, event_date|recurring_date, ... } }
+ */
+const createEvent = ({
   title,
-  recurringDate = "Every Monday",
-  extraData = {},
-) => ({
-  data: {
-    title,
-    recurring_date: recurringDate,
-    ...extraData,
-  },
-});
+  date,
+  daysOffset = 30,
+  recurring,
+  ...extraData
+} = {}) => {
+  if (recurring !== undefined) {
+    return {
+      data: {
+        title: title ?? "Recurring Event",
+        recurring_date: recurring,
+        ...extraData,
+      },
+    };
+  }
+
+  const eventDate = date ?? createOffsetDate(daysOffset);
+
+  return {
+    data: {
+      title: title ?? (daysOffset < 0 ? "Past Event" : "Future Event"),
+      event_date:
+        eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
+      ...extraData,
+    },
+  };
+};
+
+/**
+ * Create multiple events from an array of options.
+ * Functional composition using curried map.
+ *
+ * @param {Array<Object>} optionsArray - Array of createEvent option objects
+ * @returns {Array<Object>} Array of event fixtures
+ *
+ * @example
+ * createEvents([
+ *   { title: "Event 1", daysOffset: 30 },
+ *   { title: "Event 2", daysOffset: -30 },
+ *   { recurring: "Every Monday" }
+ * ])
+ */
+const createEvents = map(createEvent);
 
 // Category fixtures
 const createCategory = (slug, headerImage = null, extraData = {}) => ({
@@ -636,9 +661,7 @@ export {
   createOffsetDate,
   formatDateString,
   createEvent,
-  createFutureEvent,
-  createPastEvent,
-  createRecurringEvent,
+  createEvents,
   createCategory,
   createProduct,
   createCollectionItem,

@@ -6,10 +6,8 @@ import {
 } from "#collections/events.js";
 import {
   createEvent,
-  createFutureEvent,
+  createEvents,
   createOffsetDate,
-  createPastEvent,
-  createRecurringEvent,
   expectResultTitles,
   formatDateString,
 } from "#test/test-utils.js";
@@ -29,7 +27,7 @@ describe("events", () => {
   });
 
   test("Categorizes future events as upcoming", () => {
-    const events = [createFutureEvent()];
+    const events = [createEvent()];
 
     const result = categoriseEvents(events);
 
@@ -44,7 +42,7 @@ describe("events", () => {
   });
 
   test("Categorizes past events correctly", () => {
-    const events = [createPastEvent()];
+    const events = [createEvent({ daysOffset: -30 })];
 
     const result = categoriseEvents(events);
 
@@ -59,7 +57,7 @@ describe("events", () => {
   });
 
   test("Events today are categorized as upcoming", () => {
-    const events = [createEvent("Today Event", new Date())];
+    const events = [createEvent({ title: "Today Event", date: new Date() })];
 
     const result = categoriseEvents(events);
 
@@ -69,10 +67,10 @@ describe("events", () => {
   });
 
   test("Categorizes recurring events correctly", () => {
-    const events = [
-      createRecurringEvent("Weekly Meeting", "Every Monday at 10 AM"),
-      createRecurringEvent("Monthly Review", "First Friday of each month"),
-    ];
+    const events = createEvents([
+      { title: "Weekly Meeting", recurring: "Every Monday at 10 AM" },
+      { title: "Monthly Review", recurring: "First Friday of each month" },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -87,11 +85,11 @@ describe("events", () => {
   });
 
   test("Handles mix of upcoming, past, and recurring events", () => {
-    const events = [
-      createFutureEvent(),
-      createPastEvent(),
-      createRecurringEvent("Weekly Meeting"),
-    ];
+    const events = createEvents([
+      {},
+      { daysOffset: -30 },
+      { title: "Weekly Meeting", recurring: "Every Monday" },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -106,11 +104,11 @@ describe("events", () => {
   });
 
   test("Sorts upcoming events by date (earliest first)", () => {
-    const events = [
-      createFutureEvent("Latest Event", 60),
-      createFutureEvent("Earliest Event", 30),
-      createFutureEvent("Middle Event", 45),
-    ];
+    const events = createEvents([
+      { title: "Latest Event", daysOffset: 60 },
+      { title: "Earliest Event", daysOffset: 30 },
+      { title: "Middle Event", daysOffset: 45 },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -120,11 +118,11 @@ describe("events", () => {
   });
 
   test("Sorts past events by date (most recent first)", () => {
-    const events = [
-      createPastEvent("Oldest Event", 60),
-      createPastEvent("Most Recent Event", 30),
-      createPastEvent("Middle Event", 45),
-    ];
+    const events = createEvents([
+      { title: "Oldest Event", daysOffset: -60 },
+      { title: "Most Recent Event", daysOffset: -30 },
+      { title: "Middle Event", daysOffset: -45 },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -134,11 +132,11 @@ describe("events", () => {
   });
 
   test("Sorts regular events alphabetically by title", () => {
-    const events = [
-      createRecurringEvent("Zumba Class", "Every Thursday"),
-      createRecurringEvent("Book Club", "First Wednesday"),
-      createRecurringEvent("Monthly Meeting", "Last Friday"),
-    ];
+    const events = createEvents([
+      { title: "Zumba Class", recurring: "Every Thursday" },
+      { title: "Book Club", recurring: "First Wednesday" },
+      { title: "Monthly Meeting", recurring: "Last Friday" },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -169,7 +167,7 @@ describe("events", () => {
   test("Handles events without titles gracefully", () => {
     const events = [
       { data: { recurring_date: "Every Monday" } },
-      createRecurringEvent("Named Event", "Every Tuesday"),
+      ...createEvents([{ title: "Named Event", recurring: "Every Tuesday" }]),
     ];
 
     const result = categoriseEvents(events);
@@ -188,7 +186,7 @@ describe("events", () => {
   });
 
   test("Show logic with only upcoming events", () => {
-    const events = [createFutureEvent()];
+    const events = [createEvent()];
 
     const result = categoriseEvents(events);
 
@@ -198,10 +196,10 @@ describe("events", () => {
   });
 
   test("Show logic hides upcoming when regular events exist", () => {
-    const events = [
-      createFutureEvent(),
-      createRecurringEvent("Weekly Meeting"),
-    ];
+    const events = createEvents([
+      {},
+      { title: "Weekly Meeting", recurring: "Every Monday" },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -211,7 +209,10 @@ describe("events", () => {
   });
 
   test("Show logic shows past events when regular events exist", () => {
-    const events = [createPastEvent(), createRecurringEvent("Weekly Meeting")];
+    const events = createEvents([
+      { daysOffset: -30 },
+      { title: "Weekly Meeting", recurring: "Every Monday" },
+    ]);
 
     const result = categoriseEvents(events);
 
@@ -221,7 +222,7 @@ describe("events", () => {
   });
 
   test("Show logic shows past events even without regular events", () => {
-    const events = [createPastEvent()];
+    const events = [createEvent({ daysOffset: -30 })];
 
     const result = categoriseEvents(events);
 
