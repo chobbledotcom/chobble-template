@@ -308,12 +308,9 @@ const validateProductOption = (button) => {
 const extractItemFromButton = (button) => {
   const itemData = JSON.parse(button.dataset.item);
   const option = itemData.options[getOptionIndex(button)];
-  const fullItemName = buildFullItemName(itemData.name, option.name);
-
-  if (!fullItemName || Number.isNaN(option.unit_price)) return null;
 
   return {
-    name: fullItemName,
+    name: buildFullItemName(itemData.name, option.name),
     unitPrice: option.unit_price,
     maxQuantity: option.max_quantity || null,
     sku: option.sku || null,
@@ -332,8 +329,6 @@ const handleAddToCart = (e) => {
   if (!validateProductOption(button)) return;
 
   const item = extractItemFromButton(button);
-  if (!item) return;
-
   addItem(
     item.name,
     item.unitPrice,
