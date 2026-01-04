@@ -4,17 +4,10 @@ import {
   analyzeWithAllowlist,
   assertNoViolations,
   createCodeChecker,
+  matchesAny,
   validateExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-
-/**
- * Curried pattern matcher - returns a predicate that tests if a line matches any pattern.
- * @param {RegExp[]} patterns - Array of patterns to test against
- * @returns {(line: string) => boolean} Predicate function
- */
-const matchesAny = (patterns) => (line) =>
-  patterns.some((pattern) => pattern.test(line));
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [

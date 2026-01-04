@@ -11,6 +11,14 @@ import { notMemberOf } from "#utils/array-utils.js";
 // ============================================
 
 /**
+ * Curried pattern matcher - returns a predicate that tests if a string matches any pattern.
+ * @param {RegExp[]} patterns - Array of patterns to test against
+ * @returns {(str: string) => boolean} Predicate function
+ */
+const matchesAny = (patterns) => (str) =>
+  patterns.some((pattern) => pattern.test(str));
+
+/**
  * Common patterns to identify comment lines (to skip during code analysis).
  */
 const COMMENT_LINE_PATTERNS = [
@@ -24,8 +32,7 @@ const COMMENT_LINE_PATTERNS = [
 /**
  * Check if a line is a comment (single-line, block start, continuation, or end).
  */
-const isCommentLine = (line) =>
-  COMMENT_LINE_PATTERNS.some((pattern) => pattern.test(line.trim()));
+const isCommentLine = (line) => matchesAny(COMMENT_LINE_PATTERNS)(line.trim());
 
 /**
  * Read a file's source code.
@@ -320,6 +327,7 @@ const validateExceptions = (allowlist, patterns) => {
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
+  matchesAny,
   isCommentLine,
   // File reading
   readSource,

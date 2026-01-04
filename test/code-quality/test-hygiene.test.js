@@ -40,7 +40,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "analyzeFunctionLengths",
   "formatViolations",
   // let-usage.test.js - analysis helpers
-  "matchesAny",
   "findMutableVarDeclarations",
   "analyzeMutableVarUsage",
   "findMutableConstDeclarations",
@@ -93,7 +92,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // unused-classes.test.js - helper to log unused items
   "logUnused",
   // html-in-js.test.js - analysis helpers
-  "isCommentLine",
   "extractStringContent",
   "containsHtml",
   "findHtmlInJs",
@@ -121,6 +119,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createMockCollectionApi",
   "createProduct",
   // code-scanner.js - code scanning utilities
+  "matchesAny",
+  "isCommentLine",
   "readSource",
   "toLines",
   "excludeFiles",
