@@ -18,19 +18,19 @@ describe("object-entries utilities", () => {
     });
 
     test("works with empty object", () => {
-      const double = mapEntries((k, v) => v * 2);
+      const double = mapEntries((_k, v) => v * 2);
       expect(double({})).toEqual([]);
     });
   });
 
   describe("everyEntry", () => {
     test("returns true when all entries match", () => {
-      const allPositive = everyEntry((k, v) => v > 0);
+      const allPositive = everyEntry((_k, v) => v > 0);
       expect(allPositive(testObj)).toBe(true);
     });
 
     test("returns false when any entry fails", () => {
-      const allLarge = everyEntry((k, v) => v > 2);
+      const allLarge = everyEntry((_k, v) => v > 2);
       expect(allLarge(testObj)).toBe(false);
     });
 
@@ -66,7 +66,7 @@ describe("object-entries utilities", () => {
 
   describe("filterObject", () => {
     test("filters entries and returns object", () => {
-      const keepPositive = filterObject((k, v) => v > 1);
+      const keepPositive = filterObject((_k, v) => v > 1);
       expect(keepPositive(testObj)).toEqual({ b: 2, c: 3 });
     });
 
@@ -76,7 +76,7 @@ describe("object-entries utilities", () => {
     });
 
     test("returns empty object when nothing matches", () => {
-      const keepHuge = filterObject((k, v) => v > 100);
+      const keepHuge = filterObject((_k, v) => v > 100);
       expect(keepHuge(testObj)).toEqual({});
     });
   });

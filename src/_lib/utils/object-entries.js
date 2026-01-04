@@ -54,13 +54,6 @@ const mapBoth = (fn) => mapObject((k, v) => [fn(k), fn(v)]);
  * @example
  * pickTruthy({ a: 1, b: null, c: '' }) // { a: 1 }
  */
-const pickTruthy = filterObject((k, v) => v);
+const pickTruthy = filterObject((_k, v) => v);
 
-export {
-  mapEntries,
-  everyEntry,
-  mapObject,
-  filterObject,
-  mapBoth,
-  pickTruthy,
-};
+export { mapEntries, everyEntry, mapObject, filterObject, mapBoth, pickTruthy };

@@ -1,10 +1,6 @@
 import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
-import {
-  everyEntry,
-  mapBoth,
-  mapEntries,
-} from "#utils/object-entries.js";
+import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -121,7 +117,9 @@ const pathToFilter = (path) => {
  * Uses normalized comparison (lowercase, no special chars/spaces)
  */
 const matchesNormalized = (itemAttrs) =>
-  everyEntry((key, value) => normalize(itemAttrs[key] || "") === normalize(value));
+  everyEntry(
+    (key, value) => normalize(itemAttrs[key] || "") === normalize(value),
+  );
 
 const itemMatchesFilters = (item, filters) => {
   if (!filters || Object.keys(filters).length === 0) return true;
