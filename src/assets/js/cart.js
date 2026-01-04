@@ -121,6 +121,19 @@ const renderCartItems = (cartItems, cart) => {
   });
 };
 
+// Render cart items and attach handlers
+const renderCartItems = (cartItems, cart) => {
+  cartItems.innerHTML = "";
+  for (const item of cart) {
+    cartItems.appendChild(renderCartItem(item));
+  }
+  attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
+  attachRemoveHandlers(cartItems, '[data-action="remove"]', () => {
+    updateCartDisplay();
+    updateCartCount();
+  });
+};
+
 // Update cart display in overlay
 const updateCartDisplay = () => {
   const cartOverlay = getCartOverlay();
