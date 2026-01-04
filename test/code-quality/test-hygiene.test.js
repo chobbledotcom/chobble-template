@@ -19,8 +19,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempDir",
   "withTempFile",
   "withMockedCwd",
-  "runTestSuite",
-  "createTestRunner",
   // Fixture factories
   "createFutureDate",
   "createPastDate",
@@ -45,7 +43,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
-  "createMockLocalStorage",
   "createMockFetch",
   "mockFetch",
   "createLocationTracker",
@@ -59,11 +56,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findMutableVarDeclarations",
   "isAllowedLetPattern",
   "analyzeMutableVarUsage",
-  // loose-equality.test.js - analysis helpers
-  "findLooseEquality",
-  "analyzeLooseEquality",
-  // missing-folders-lib.test.js
-  "testLibModules",
+  "isMutableConstPattern",
+  "findMutableConstDeclarations",
+  "analyzeMutableConstUsage",
   // naming-conventions.test.js - analysis helpers
   "countCamelCaseWords",
   "extractCamelCaseIdentifiers",
@@ -77,12 +72,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findStringsUsage",
   // test-hygiene.test.js - self-analysis helpers
   "extractFunctionDefinitions",
-  "isTestHelper",
-  "getSourceFunctionNames",
   "analyzeTestFiles",
-  // theme-editor.test.js
-  "generateFormHtml",
-  "createMockDOM",
   // unused-classes.test.js - analysis helpers
   "extractClassesFromHtml",
   "extractIdsFromHtml",
@@ -94,13 +84,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findIdReferencesInJs",
   "collectAllClassesAndIds",
   "findUnusedClassesAndIds",
-  // checkout.test.js - small inline helper
-  "buildFullName",
-  // checkout.test.js - cart-utils copies for integration testing (inside template strings)
-  "getCart",
-  "saveCart",
-  "getItemCount",
-  "updateCartIcon",
   // function-length.test.js - test fixture strings (parsed as examples, not real code)
   "hello",
   "greet",
@@ -171,10 +154,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "formatViolationReport",
   "assertNoViolations",
   "createPatternMatcher",
+  "validateExceptions",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
   // template.test.js - isolated DOM testing helpers
-  "cleanup",
   "getTemplate",
   "populateItemFields",
   "populateQuantityControls",
@@ -289,5 +272,42 @@ describe("test-hygiene", () => {
     const funcs = extractFunctionDefinitions(source);
     expect(funcs.length).toBe(1);
     expect(funcs[0].name).toBe("fetchData");
+  });
+
+  test("ALLOWED_TEST_FUNCTIONS entries are defined in test files", () => {
+    // Include test files AND test infrastructure files
+    const allTestFiles = [
+      ...TEST_FILES(),
+      "test/test-utils.js",
+      "test/test-site-factory.js",
+      "test/code-scanner.js",
+    ];
+
+    // Combine all test file sources
+    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
+      "\n",
+    );
+
+    // Find allowlisted functions that aren't defined anywhere in test files
+    // Look for common definition patterns: const/let/var/function name, or : name (destructuring)
+    const stale = [...ALLOWED_TEST_FUNCTIONS].filter((name) => {
+      const patterns = [
+        new RegExp(`\\bconst\\s+${name}\\s*=`),
+        new RegExp(`\\blet\\s+${name}\\s*=`),
+        new RegExp(`\\bvar\\s+${name}\\s*=`),
+        new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
+        new RegExp(`:\\s*${name}\\s*[,}\\)]`), // destructuring: { x: name } or (name)
+      ];
+      return !patterns.some((p) => p.test(allTestSource));
+    });
+
+    if (stale.length > 0) {
+      console.log("\n  Stale ALLOWED_TEST_FUNCTIONS entries:");
+      for (const name of stale) {
+        console.log(`    - ${name}`);
+      }
+    }
+
+    expect(stale.length).toBe(0);
   });
 });

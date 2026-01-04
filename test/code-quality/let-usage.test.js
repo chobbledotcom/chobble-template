@@ -1,9 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_LET_USAGE } from "#test/code-quality/code-quality-exceptions.js";
+import {
+  ALLOWED_LET_USAGE,
+  ALLOWED_MUTABLE_CONST,
+} from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeFiles,
   assertNoViolations,
   createCodeChecker,
+  validateExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -30,6 +34,32 @@ const { find: findMutableVarDeclarations } = createCodeChecker({
   files: [],
 });
 
+// Patterns that detect mutable const declarations (empty array, Set, Map)
+// These bypass const's protection by using mutable containers
+const MUTABLE_CONST_PATTERNS = [
+  /^\s*const\s+\w+\s*=\s*\[\s*\]/, // const x = []
+  /^\s*const\s+\w+\s*=\s*new\s+Set\s*\(/, // const x = new Set()
+  /^\s*const\s+\w+\s*=\s*new\s+Map\s*\(/, // const x = new Map()
+];
+
+/**
+ * Check if a line contains a mutable const pattern.
+ */
+const isMutableConstPattern = (line) =>
+  MUTABLE_CONST_PATTERNS.some((pattern) => pattern.test(line));
+
+// Create checker for finding mutable const declarations
+const { find: findMutableConstDeclarations } = createCodeChecker({
+  patterns: MUTABLE_CONST_PATTERNS,
+  extractData: (line) => {
+    if (/\[\s*\]/.test(line)) return { reason: "Empty array const" };
+    if (/new\s+Set/.test(line)) return { reason: "Set const" };
+    if (/new\s+Map/.test(line)) return { reason: "Map const" };
+    return { reason: "Mutable const" };
+  },
+  files: [],
+});
+
 /**
  * Analyze all JS files for mutable variable declarations.
  * Filters by allowed patterns and allowlist.
@@ -44,21 +74,38 @@ const analyzeMutableVarUsage = () => {
     })),
   );
 
-  const violations = [];
-  const allowed = [];
+  const isAllowlisted = (decl) =>
+    ALLOWED_LET_USAGE.has(decl.location) || ALLOWED_LET_USAGE.has(decl.file);
 
-  for (const decl of results) {
-    const isAllowed =
-      ALLOWED_LET_USAGE.has(decl.location) || ALLOWED_LET_USAGE.has(decl.file);
+  return {
+    violations: results.filter((decl) => !isAllowlisted(decl)),
+    allowed: results.filter(isAllowlisted),
+  };
+};
 
-    if (isAllowed) {
-      allowed.push(decl);
-    } else {
-      violations.push(decl);
-    }
-  }
+/**
+ * Analyze all JS files for mutable const declarations.
+ * Filters by allowlist.
+ */
+const analyzeMutableConstUsage = () => {
+  const results = analyzeFiles(SRC_JS_FILES(), (source, relativePath) =>
+    findMutableConstDeclarations(source).map((hit) => ({
+      file: relativePath,
+      line: hit.lineNumber,
+      code: hit.line,
+      reason: hit.reason,
+      location: `${relativePath}:${hit.lineNumber}`,
+    })),
+  );
 
-  return { violations, allowed };
+  const isAllowlisted = (decl) =>
+    ALLOWED_MUTABLE_CONST.has(decl.location) ||
+    ALLOWED_MUTABLE_CONST.has(decl.file);
+
+  return {
+    violations: results.filter((decl) => !isAllowlisted(decl)),
+    allowed: results.filter(isAllowlisted),
+  };
 };
 
 describe("let-usage", () => {
@@ -114,5 +161,83 @@ let mutableVar = 0;
       }
     }
     expect(true).toBe(true);
+  });
+
+  // Mutable const detection tests
+  test("Detects mutable const patterns", () => {
+    expect(isMutableConstPattern("const items = [];")).toBe(true);
+    expect(isMutableConstPattern("const seen = new Set();")).toBe(true);
+    expect(isMutableConstPattern("const cache = new Map();")).toBe(true);
+    expect(isMutableConstPattern("  const items = [];")).toBe(true);
+    expect(isMutableConstPattern("const set = new Set([1, 2]);")).toBe(true);
+  });
+
+  test("Does not detect immutable const patterns", () => {
+    expect(isMutableConstPattern("const x = 1;")).toBe(false);
+    expect(isMutableConstPattern("const items = [1, 2, 3];")).toBe(false);
+    expect(isMutableConstPattern('const name = "test";')).toBe(false);
+    expect(isMutableConstPattern("const fn = () => {};")).toBe(false);
+  });
+
+  test("Detects mutable const declarations in source code", () => {
+    const source = `
+const immutable = 1;
+const items = [];
+const seen = new Set();
+const cache = new Map();
+const filled = [1, 2, 3];
+    `;
+    const results = findMutableConstDeclarations(source);
+    expect(results.length).toBe(3);
+    expect(results[0].reason).toBe("Empty array const");
+    expect(results[1].reason).toBe("Set const");
+    expect(results[2].reason).toBe("Map const");
+  });
+
+  test("No mutable const declarations outside allowlist", () => {
+    const { violations } = analyzeMutableConstUsage();
+    assertNoViolations(violations, {
+      message: "mutable const declaration(s)",
+      fixHint:
+        "use functional patterns (map/filter/reduce/spread), or add to ALLOWED_MUTABLE_CONST in code-quality-exceptions.js",
+    });
+  });
+
+  test("Reports allowlisted mutable const usage for tracking", () => {
+    const { allowed } = analyzeMutableConstUsage();
+    console.log(`\n  Allowlisted mutable const usages: ${allowed.length}`);
+    if (allowed.length > 0) {
+      console.log("  Locations:");
+      for (const loc of allowed) {
+        console.log(`    - ${loc.location} (${loc.reason})`);
+      }
+    }
+    expect(true).toBe(true);
+  });
+
+  // Exception validation tests
+  test("ALLOWED_LET_USAGE entries still exist and match pattern", () => {
+    const stale = validateExceptions(ALLOWED_LET_USAGE, /^\s*let\s+\w+/);
+    if (stale.length > 0) {
+      console.log("\n  Stale ALLOWED_LET_USAGE entries:");
+      for (const s of stale) {
+        console.log(`    - ${s.entry}: ${s.reason}`);
+      }
+    }
+    expect(stale.length).toBe(0);
+  });
+
+  test("ALLOWED_MUTABLE_CONST entries still exist and match pattern", () => {
+    const stale = validateExceptions(
+      ALLOWED_MUTABLE_CONST,
+      MUTABLE_CONST_PATTERNS,
+    );
+    if (stale.length > 0) {
+      console.log("\n  Stale ALLOWED_MUTABLE_CONST entries:");
+      for (const s of stale) {
+        console.log(`    - ${s.entry}: ${s.reason}`);
+      }
+    }
+    expect(stale.length).toBe(0);
   });
 });
