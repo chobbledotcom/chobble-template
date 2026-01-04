@@ -9,61 +9,54 @@ function showError(message) {
   statusMessage.classList.add("error");
 }
 
-async function checkout() {
-  const main = document.querySelector(".stripe-checkout-page");
-
-  // Only run on stripe-checkout page
-  if (!main) return;
-
-  const statusMessage = document.getElementById("status-message");
-  const checkoutApiUrl = main.dataset.checkoutApiUrl;
-
-  const cart = getCart();
-
-  // If cart is empty, redirect to homepage
-  if (cart.length === 0) {
-    statusMessage.textContent = "Redirecting to homepage...";
-    window.location.href = "/";
-    return;
-  }
-
-  // Check configuration
-  if (!checkoutApiUrl) {
-    showError("Checkout backend is not configured");
-    return;
-  }
-
-  statusMessage.textContent = "Redirecting to Stripe...";
-
-  // Prepare cart items (SKU + quantity only)
-  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
-
-  // Create Stripe session via backend
+const createStripeSession = async (checkoutApiUrl, items) => {
   const response = await fetch(checkoutApiUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ items }),
   }).catch(() => null);
 
-  if (!response) {
-    showError("Failed to connect. Please check your internet and try again.");
-    return;
-  }
-
+  if (!response)
+    return {
+      error: "Failed to connect. Please check your internet and try again.",
+    };
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    showError(error.error || "Failed to create checkout session");
-    return;
+    const data = await response.json().catch(() => ({}));
+    return { error: data.error || "Failed to create checkout session" };
   }
-
   const session = await response.json().catch(() => null);
+  if (!session?.url) return { error: "Invalid response from server" };
+  return { url: session.url };
+};
 
-  if (!session?.url) {
-    showError("Invalid response from server");
+async function checkout() {
+  const main = document.querySelector(".stripe-checkout-page");
+  if (!main) return;
+
+  const statusMessage = document.getElementById("status-message");
+  const checkoutApiUrl = main.dataset.checkoutApiUrl;
+  const cart = getCart();
+
+  if (cart.length === 0) {
+    statusMessage.textContent = "Redirecting to homepage...";
+    window.location.href = "/";
     return;
   }
 
-  window.location.href = session.url;
+  if (!checkoutApiUrl) {
+    showError("Checkout backend is not configured");
+    return;
+  }
+
+  statusMessage.textContent = "Redirecting to Stripe...";
+  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+  const result = await createStripeSession(checkoutApiUrl, items);
+
+  if (result.error) {
+    showError(result.error);
+    return;
+  }
+  window.location.href = result.url;
 }
 
 // Run checkout on page load

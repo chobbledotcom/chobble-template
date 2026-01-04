@@ -15,21 +15,20 @@ const byEventDateDesc = (a, b) =>
 const getFeaturedEvents = (events) =>
   events?.filter((e) => e.data.featured) || [];
 
+const categorizeByEventDate = (eventDate, now) => {
+  const date = new Date(eventDate);
+  date.setHours(0, 0, 0, 0);
+  return date >= now ? "upcoming" : "past";
+};
+
 /**
  * Create an event categorizer based on current date
  * Returns a pure function: (event) => "upcoming" | "past" | "regular" | null
  */
 const createEventCategorizer = (now) => (event) => {
-  if (event.data.recurring_date) {
-    return "regular";
-  }
-
-  if (event.data.event_date) {
-    const eventDate = new Date(event.data.event_date);
-    eventDate.setHours(0, 0, 0, 0);
-    return eventDate >= now ? "upcoming" : "past";
-  }
-
+  if (event.data.recurring_date) return "regular";
+  if (event.data.event_date)
+    return categorizeByEventDate(event.data.event_date, now);
   return null;
 };
 

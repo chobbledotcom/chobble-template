@@ -121,6 +121,14 @@ const renderCartItems = (cartItems, cart) => {
   });
 };
 
+const updateCartVisibility = (cartOverlay, isEmpty, total) => {
+  const cartEmpty = cartOverlay.querySelector(".cart-empty");
+  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
+  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
+  if (cartTotal) cartTotal.textContent = formatPrice(total);
+  updateCheckoutButtons(cartOverlay, total);
+};
+
 // Update cart display in overlay
 const updateCartDisplay = () => {
   const cartOverlay = getCartOverlay();
@@ -128,16 +136,10 @@ const updateCartDisplay = () => {
   if (!cartItems) return;
 
   const cart = getCart();
-  const total = getCartTotal();
   const isEmpty = cart.length === 0;
-  const cartEmpty = cartOverlay.querySelector(".cart-empty");
-  const cartTotal = cartOverlay.querySelector(".cart-total-amount");
-
   if (isEmpty) cartItems.innerHTML = "";
   else renderCartItems(cartItems, cart);
-  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
-  if (cartTotal) cartTotal.textContent = formatPrice(total);
-  updateCheckoutButtons(cartOverlay, total);
+  updateCartVisibility(cartOverlay, isEmpty, getCartTotal());
 };
 
 // Update item quantity using shared utility
