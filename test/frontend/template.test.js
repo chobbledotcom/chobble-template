@@ -26,9 +26,9 @@ const createTestEnv = (bodyHtml = "") => {
 
   const populateQuantityControls = (template, item) => {
     const name = item.item_name;
-    template.querySelectorAll("[data-name]").forEach((el) => {
+    for (const el of template.querySelectorAll("[data-name]")) {
       el.dataset.name = name;
-    });
+    }
     const input = template.querySelector("input[type='number']");
     input.value = item.quantity;
     if (item.max_quantity) {

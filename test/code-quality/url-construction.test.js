@@ -52,7 +52,6 @@ const { find: findHardcodedUrls, analyze: analyzeHardcodedUrls } =
 
 describe("url-construction", () => {
   test("Detects hardcoded /events/ URL pattern", () => {
-    // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
     const source = "const url = `/events/${slug}/`;";
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(1);
@@ -65,7 +64,6 @@ describe("url-construction", () => {
   });
 
   test("Allows hardcoded URLs in comments", () => {
-    // biome-ignore lint/suspicious/noTemplateCurlyInString: test fixture
     const source = "// Example: `/events/${slug}/`";
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(0);
@@ -78,7 +76,8 @@ describe("url-construction", () => {
   });
 
   test("Allows URL construction using strings config", () => {
-    const source = `const url = \`/\${strings.event_permalink_dir}/\${fileSlug}/\`;`;
+    const source =
+      "const url = `/${strings.event_permalink_dir}/${fileSlug}/`;";
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(0);
   });

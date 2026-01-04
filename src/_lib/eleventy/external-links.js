@@ -39,13 +39,13 @@ const transformExternalLinks = async (content, config) => {
 
   const links = document.querySelectorAll("a[href]");
 
-  links.forEach((link) => {
+  for (const link of links) {
     const href = link.getAttribute("href");
     if (isExternalUrl(href)) {
       link.setAttribute("target", "_blank");
       link.setAttribute("rel", "noopener noreferrer");
     }
-  });
+  }
 
   return dom.serialize();
 };

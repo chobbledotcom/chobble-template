@@ -664,7 +664,7 @@ describe("image", () => {
 
     test("Transform returns content unchanged when no img tags present", async () => {
       const transform = createImageTransform();
-      const htmlContent = `<html><body><p>No images here</p></body></html>`;
+      const htmlContent = "<html><body><p>No images here</p></body></html>";
       const htmlPath = "/test/page.html";
 
       const result = await transform(htmlContent, htmlPath);

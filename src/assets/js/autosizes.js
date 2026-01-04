@@ -72,40 +72,40 @@
     }
   }
 
+  // Check if image has auto sizes and lazy loading
+  const hasAutoSizesLazy = (img) =>
+    (img.getAttribute("sizes") || "").trim().startsWith("auto") &&
+    img.getAttribute("loading") === "lazy";
+
+  // Check if src is a local URL (not external http/https)
+  const isLocalSrc = (img) => {
+    const src = img.getAttribute("src") || "";
+    return !src.startsWith("http://") && !src.startsWith("https://");
+  };
+
+  // Check if image should be processed by the polyfill
+  const shouldProcessImage = (img) =>
+    !img.complete && hasAutoSizesLazy(img) && isLocalSrc(img);
+
+  // Store original attributes and remove them to prevent loading
+  function storeAndRemoveAttributes(img) {
+    for (const attribute of attributes) {
+      if (img.hasAttribute(attribute)) {
+        img.setAttribute(`${prefix}${attribute}`, img.getAttribute(attribute));
+        img.removeAttribute(attribute);
+      }
+    }
+  }
+
   // Store the original src and srcset attributes, and remove them to prevent loading before
   // we've calculated the sizes attribute
   function deferImages(images) {
     for (const img of images) {
-      if (img.complete) {
-        // Don't do any of this if the image is already loaded
-        continue;
-      }
-      // Only process images with sizes attribute starting with "auto" and loading="lazy"
-      if (
-        !(img.getAttribute("sizes") || "").trim().startsWith("auto") ||
-        img.getAttribute("loading") !== "lazy"
-      ) {
-        continue;
-      }
-      // Skip remote images (http/https URLs) - only process local images
-      const src = img.getAttribute("src") || "";
-      if (src.startsWith("http://") || src.startsWith("https://")) {
-        continue;
-      }
+      if (!shouldProcessImage(img)) continue;
+
       if (!state.fcpDone) {
-        for (const attribute of attributes) {
-          if (img.hasAttribute(attribute)) {
-            // Store original src and srcset
-            img.setAttribute(
-              `${prefix}${attribute}`,
-              img.getAttribute(attribute),
-            );
-            // Remove src and srcset to prevent loading
-            img.removeAttribute(attribute);
-          }
-        }
+        storeAndRemoveAttributes(img);
       } else {
-        // Calculate sizes without removing src and srcset
         calculateAndSetSizes(img);
       }
     }
@@ -130,38 +130,35 @@
     }
   }
 
+  // Collect images from added nodes
+  const collectImagesFromNodes = (addedNodes) =>
+    Array.from(addedNodes).flatMap((node) => [
+      ...(node.nodeName === "IMG" ? [node] : []),
+      ...(node.querySelectorAll ? Array.from(node.querySelectorAll("img")) : []),
+    ]);
+
+  // Check if mutation is a relevant attribute change on an image
+  const WATCHED_ATTRS = ["sizes", "loading", "src", "srcset"];
+  function isImageAttributeMutation(mutation) {
+    return (
+      mutation.type === "attributes" &&
+      mutation.target.nodeName === "IMG" &&
+      WATCHED_ATTRS.includes(mutation.attributeName)
+    );
+  }
+
+  // Collect images from a mutation
+  const collectImagesFromMutation = (mutation) =>
+    mutation.type === "childList"
+      ? collectImagesFromNodes(mutation.addedNodes)
+      : isImageAttributeMutation(mutation)
+        ? [mutation.target]
+        : [];
+
   // Set up mutation observer to detect new images
   const observer = new MutationObserver((mutations) => {
-    const newImages = [];
-
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") {
-        for (const node of mutation.addedNodes) {
-          if (node.nodeName === "IMG") {
-            newImages.push(node);
-          }
-          // Add all images within added nodes
-          if (node.querySelectorAll) {
-            newImages.push(...node.querySelectorAll("img"));
-          }
-        }
-      }
-      // Check for attribute changes on images
-      else if (
-        mutation.type === "attributes" &&
-        mutation.target.nodeName === "IMG" &&
-        (mutation.attributeName === "sizes" ||
-          mutation.attributeName === "loading" ||
-          mutation.attributeName === "src" ||
-          mutation.attributeName === "srcset")
-      ) {
-        newImages.push(mutation.target);
-      }
-    }
-
-    if (newImages.length > 0) {
-      deferImages(newImages);
-    }
+    const newImages = mutations.flatMap(collectImagesFromMutation);
+    if (newImages.length > 0) deferImages(newImages);
   });
 
   function initAutosizes() {
@@ -193,11 +190,11 @@
     );
 
     new PerformanceObserver((entries, perfObserver) => {
-      entries.getEntriesByName("first-contentful-paint").forEach(() => {
+      for (const _ of entries.getEntriesByName("first-contentful-paint")) {
         state.fcpDone = true;
         setTimeout(restoreImageAttributes, 0);
         perfObserver.disconnect();
-      });
+      }
     }).observe({ type: "paint", buffered: true });
   }
 

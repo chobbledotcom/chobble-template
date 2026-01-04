@@ -41,12 +41,12 @@ function initScrollFade() {
   // Create IntersectionObserver
   const observer = new IntersectionObserver(
     (entries) => {
-      entries.forEach((entry) => {
+      for (const entry of entries) {
         if (entry.isIntersecting) {
           entry.target.classList.add("scroll-visible");
           observer.unobserve(entry.target); // Stop observing once visible
         }
-      });
+      }
     },
     {
       root: null, // viewport

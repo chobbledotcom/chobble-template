@@ -39,14 +39,14 @@ export function getItemCount() {
 export function updateCartIcon() {
   const count = getItemCount();
   const icons = document.querySelectorAll(".cart-icon");
-  icons.forEach((icon) => {
+  for (const icon of icons) {
     icon.style.display = count > 0 ? "flex" : "none";
     const badge = icon.querySelector(".cart-count");
     if (badge) {
       badge.textContent = count;
       badge.style.display = count > 0 ? "block" : "none";
     }
-  });
+  }
 }
 
 export function updateItemQuantity(itemName, quantity) {
@@ -73,7 +73,7 @@ export function attachQuantityHandlers(container, onUpdate) {
   const cart = getCart();
 
   const addQtyHandler = (selector, delta) => {
-    container.querySelectorAll(selector).forEach((btn) => {
+    for (const btn of container.querySelectorAll(selector)) {
       btn.addEventListener("click", () => {
         const itemName = btn.dataset.name;
         const item = cart.find((i) => i.item_name === itemName);
@@ -81,12 +81,12 @@ export function attachQuantityHandlers(container, onUpdate) {
           onUpdate(itemName, item.quantity + delta);
         }
       });
-    });
+    }
   };
   addQtyHandler('[data-action="decrease"]', -1);
   addQtyHandler('[data-action="increase"]', 1);
 
-  container.querySelectorAll("input[type='number']").forEach((input) => {
+  for (const input of container.querySelectorAll("input[type='number']")) {
     input.addEventListener("change", () => {
       const itemName = input.dataset.name;
       const quantity = parseInt(input.value, 10);
@@ -94,14 +94,14 @@ export function attachQuantityHandlers(container, onUpdate) {
         onUpdate(itemName, quantity);
       }
     });
-  });
+  }
 }
 
 export function attachRemoveHandlers(container, selector, onRemove) {
-  container.querySelectorAll(selector).forEach((btn) => {
+  for (const btn of container.querySelectorAll(selector)) {
     btn.addEventListener("click", () => {
       removeItem(btn.dataset.name);
       onRemove();
     });
-  });
+  }
 }

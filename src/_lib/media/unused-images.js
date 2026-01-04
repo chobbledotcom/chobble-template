@@ -59,9 +59,9 @@ export function configureUnusedImages(eleventyConfig) {
     if (unusedImages.length > 0) {
       console.log("\n📸 Unused Images Report:");
       console.log("========================");
-      unusedImages.forEach((image) => {
+      for (const image of unusedImages) {
         console.log(`❌ ${image}`);
-      });
+      }
       console.log(
         `\nFound ${unusedImages.length} unused image(s) in /src/images/`,
       );

@@ -13,17 +13,17 @@ const wrapTablesForScroll = async (content) => {
 
   const tables = document.querySelectorAll("table");
 
-  tables.forEach((table) => {
+  for (const table of tables) {
     // Skip if already wrapped
     if (table.parentElement?.classList?.contains("scrollable-table")) {
-      return;
+      continue;
     }
 
     const wrapper = document.createElement("div");
     wrapper.className = "scrollable-table";
     table.parentNode.insertBefore(wrapper, table);
     wrapper.appendChild(table);
-  });
+  }
 
   return dom.serialize();
 };

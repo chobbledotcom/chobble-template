@@ -12,22 +12,18 @@ const nextRandom = (seed) => {
   return [newSeed / 1000, newSeed];
 };
 
+// Swap two indices in an array (pure function)
+const swapIndices = (arr, i, j) =>
+  arr.map((item, idx) => (idx === i ? arr[j] : idx === j ? arr[i] : item));
+
 // Pure Fisher-Yates shuffle using recursion
 const shuffleArray = (array, seed) => {
-  const shuffle = (arr, index, currentSeed) =>
-    index <= 0
-      ? arr
-      : ((randomResult) =>
-          ((j) =>
-            shuffle(
-              arr.map((item, idx) =>
-                idx === index ? arr[j] : idx === j ? arr[index] : item,
-              ),
-              index - 1,
-              randomResult[1],
-            ))(Math.floor(randomResult[0] * (index + 1))))(
-          nextRandom(currentSeed),
-        );
+  const shuffle = (arr, index, currentSeed) => {
+    if (index <= 0) return arr;
+    const [randomValue, nextSeed] = nextRandom(currentSeed);
+    const j = Math.floor(randomValue * (index + 1));
+    return shuffle(swapIndices(arr, index, j), index - 1, nextSeed);
+  };
 
   return shuffle([...array], array.length - 1, seed);
 };
@@ -58,9 +54,9 @@ const initPropertyShuffle = () => {
 
   const shuffled = shuffleArray(items, getSeed());
 
-  shuffled.forEach((item) => {
+  for (const item of shuffled) {
     itemsList.appendChild(item);
-  });
+  }
   itemsList.dataset.shuffled = "true";
 };
 
