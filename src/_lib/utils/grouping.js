@@ -12,12 +12,6 @@ import { fromPairs } from "#utils/object-entries.js";
 const appendToMap = (map, [key, item]) =>
   map.set(key, [...(map.get(key) || []), item]);
 
-/**
- * Add value to Set at key in Map, creating Set if needed
- * Accepts [key, value] pair for direct use with reduce
- */
-const mapSetAdd = (map, [key, value]) =>
-  map.set(key, (map.get(key) || new Set()).add(value));
 
 /**
  * Build a reverse index from items to keys (many-to-many relationship)
@@ -44,18 +38,21 @@ const buildReverseIndex = (items, getKeys) =>
  * Group values by key with deduplication
  *
  * Takes an array of (key, value) pairs and groups unique values by key.
- * Returns a Map where each key points to a Set of unique values.
+ * Returns a Map where each key points to an array of unique values.
  *
  * @param {Array} pairs - Array of [key, value] pairs
- * @returns {Map} Map<key, Set<value>>
+ * @returns {Map} Map<key, value[]>
  *
  * @example
  * // Group attribute values by attribute name
  * const pairs = [["size", "small"], ["size", "large"], ["size", "small"]];
  * const grouped = groupValuesBy(pairs);
- * // Map { "size" => Set { "small", "large" } }
+ * // Map { "size" => ["small", "large"] }
  */
-const groupValuesBy = (pairs) => pipe(reduce(mapSetAdd, new Map()))(pairs);
+const groupValuesBy = (pairs) => {
+  const grouped = pipe(reduce(appendToMap, new Map()))(pairs);
+  return new Map([...grouped].map(([k, v]) => [k, [...new Set(v)]]));
+};
 
 /**
  * Build a first-occurrence-wins lookup from items
