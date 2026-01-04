@@ -146,7 +146,6 @@ const findSelectorReferencesInScss = (content, name, prefix) => {
   return pattern.test(content);
 };
 
-
 // ============================================
 // Reference Detection in JavaScript
 // ============================================
@@ -352,7 +351,9 @@ describe("unused-classes", () => {
     `;
     expect(findSelectorReferencesInScss(scss, "cart-item", "\\.")).toBe(true);
     expect(findSelectorReferencesInScss(scss, "active", "\\.")).toBe(true);
-    expect(findSelectorReferencesInScss(scss, "nonexistent", "\\.")).toBe(false);
+    expect(findSelectorReferencesInScss(scss, "nonexistent", "\\.")).toBe(
+      false,
+    );
   });
 
   test("Finds class references in JS content", () => {
