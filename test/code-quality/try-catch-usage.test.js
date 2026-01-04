@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_TRY_CATCHES } from "#test/code-quality/code-quality-exceptions.js";
 import {
-  analyzeFiles,
+  analyzeWithAllowlist,
   assertNoViolations,
   combineFileLists,
 } from "#test/code-scanner.js";
@@ -93,41 +93,17 @@ const findTryCatches = (source) => {
 
 const THIS_FILE = "test/code-quality/try-catch-usage.test.js";
 
-/**
- * Analyze all JS files and find try/catch usage
- */
-const analyzeTryCatchUsage = () => {
-  const violations = [];
-  const allowed = [];
-
-  const files = combineFileLists(
-    [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
-    [THIS_FILE],
-  );
-
-  const results = analyzeFiles(files, (source, relativePath) => {
-    const tryCatches = findTryCatches(source);
-    return tryCatches.map((tc) => ({
-      file: relativePath,
-      line: tc.lineNumber,
-      code: tc.line,
-      location: `${relativePath}:${tc.lineNumber}`,
-    }));
+/** Analyze all JS files and find try/catch usage. */
+const analyzeTryCatchUsage = () =>
+  analyzeWithAllowlist({
+    findFn: findTryCatches,
+    allowlist: ALLOWED_TRY_CATCHES,
+    files: () =>
+      combineFileLists(
+        [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
+        [THIS_FILE],
+      ),
   });
-
-  for (const tc of results) {
-    const isAllowed =
-      ALLOWED_TRY_CATCHES.has(tc.location) || ALLOWED_TRY_CATCHES.has(tc.file);
-
-    if (isAllowed) {
-      allowed.push(tc);
-    } else {
-      violations.push(tc);
-    }
-  }
-
-  return { violations, allowed };
-};
 
 describe("try-catch-usage", () => {
   test("Correctly identifies try/catch blocks in source code", () => {

@@ -231,6 +231,44 @@ const createCodeChecker = (config) => {
 };
 
 /**
+ * Analyze files with a find function and filter by allowlist.
+ * Consolidates the common pattern of finding issues then filtering by exceptions.
+ *
+ * @param {object} config
+ * @param {function} config.findFn - Function (source) => Array of hits with lineNumber, line, and optional extra fields
+ * @param {Set<string>} config.allowlist - Set of "file:line" or "file" entries to allow
+ * @param {string[]|function} [config.files] - File list or function returning file list (defaults to empty array)
+ * @returns {{ violations: Array, allowed: Array }}
+ */
+const analyzeWithAllowlist = (config) => {
+  const { findFn, allowlist, files = [] } = config;
+  const fileList = typeof files === "function" ? files() : files;
+
+  const results = analyzeFiles(fileList, (source, relativePath) =>
+    findFn(source).map((hit) => ({
+      file: relativePath,
+      line: hit.lineNumber,
+      code: hit.line,
+      location: `${relativePath}:${hit.lineNumber}`,
+      // Spread any extra fields from the hit (like 'reason')
+      ...Object.fromEntries(
+        Object.entries(hit).filter(
+          ([k]) => !["lineNumber", "line"].includes(k),
+        ),
+      ),
+    })),
+  );
+
+  const isAllowlisted = (decl) =>
+    allowlist.has(decl.location) || allowlist.has(decl.file);
+
+  return {
+    violations: results.filter((decl) => !isAllowlisted(decl)),
+    allowed: results.filter(isAllowlisted),
+  };
+};
+
+/**
  * Validate that exception entries still refer to lines containing the expected pattern.
  * Returns stale entries that no longer exist or no longer match.
  *
@@ -300,6 +338,8 @@ export {
   scanFilesForViolations,
   // Code checker factory
   createCodeChecker,
+  // Allowlist analysis
+  analyzeWithAllowlist,
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
