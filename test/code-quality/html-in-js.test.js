@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
-import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
+import {
+  analyzeWithAllowlist,
+  assertNoViolations,
+} from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 /**
@@ -236,7 +239,8 @@ const containsHtml = (content) => {
 };
 
 /**
- * Find HTML content in JavaScript file
+ * Find HTML content in JavaScript file.
+ * Returns array of { lineNumber, line } for use with analyzeWithAllowlist.
  */
 const findHtmlInJs = (source) => {
   const results = [];
@@ -249,8 +253,7 @@ const findHtmlInJs = (source) => {
 
       results.push({
         lineNumber: item.lineNumber,
-        type: item.type,
-        preview: preview + (item.content.length > 60 ? "..." : ""),
+        line: preview + (item.content.length > 60 ? "..." : ""),
       });
     }
   }
@@ -258,39 +261,13 @@ const findHtmlInJs = (source) => {
   return results;
 };
 
-/**
- * Analyze all JS files for HTML content
- */
-const analyzeHtmlInJs = () => {
-  const violations = [];
-  const allowed = [];
-
-  // Check source JS files (not test files - tests often have HTML fixtures)
-  const allJsFiles = [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()];
-
-  const results = analyzeFiles(allJsFiles, (source, relativePath) => {
-    const htmlInstances = findHtmlInJs(source);
-    if (htmlInstances.length > 0) {
-      return [{ file: relativePath, instances: htmlInstances }];
-    }
-    return [];
+/** Analyze all JS files for HTML content. */
+const analyzeHtmlInJs = () =>
+  analyzeWithAllowlist({
+    findFn: findHtmlInJs,
+    allowlist: ALLOWED_HTML_IN_JS,
+    files: () => [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()],
   });
-
-  for (const result of results) {
-    if (ALLOWED_HTML_IN_JS.has(result.file)) {
-      allowed.push(result);
-    } else {
-      violations.push({
-        file: result.file,
-        line: result.instances[0]?.lineNumber || 1,
-        code: result.instances.map((i) => i.preview).join(", "),
-        instances: result.instances,
-      });
-    }
-  }
-
-  return { violations, allowed };
-};
 
 describe("html-in-js", () => {
   test("Correctly identifies HTML in template literals", () => {
@@ -355,11 +332,19 @@ const check = value < 10;
   test("Reports allowlisted HTML-in-JS files for tracking", () => {
     const { allowed } = analyzeHtmlInJs();
 
-    console.log(`\n  Allowlisted HTML-in-JS files: ${allowed.length}`);
+    // Group by file for cleaner output
+    const byFile = {};
+    for (const a of allowed) {
+      if (!byFile[a.file]) byFile[a.file] = [];
+      byFile[a.file].push(a.line);
+    }
+
+    const fileCount = Object.keys(byFile).length;
+    console.log(`\n  Allowlisted HTML-in-JS files: ${fileCount}`);
     console.log("  These should be refactored over time:\n");
 
-    for (const a of allowed) {
-      console.log(`     ${a.file}: ${a.instances.length} instance(s)`);
+    for (const [file, lines] of Object.entries(byFile)) {
+      console.log(`     ${file}: ${lines.length} instance(s)`);
     }
     console.log("");
 
