@@ -22,4 +22,8 @@ const arraySlugKey = (args) => {
   return `${arr?.length || 0}:${slug}`;
 };
 
-export { memoize, arraySlugKey };
+// Cache key for functions that take a single object argument
+// Stringifies the object to create a unique key based on its contents
+const jsonKey = (args) => JSON.stringify(args[0]);
+
+export { memoize, arraySlugKey, jsonKey };

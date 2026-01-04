@@ -5,7 +5,7 @@ import { compact } from "#utils/array-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { loadJSDOM } from "#utils/lazy-jsdom.js";
 import { simplifyRatio } from "#utils/math-utils.js";
-import { memoize } from "#utils/memoize.js";
+import { memoize, jsonKey } from "#utils/memoize.js";
 
 // Lazy-load heavy image processing modules
 let sharpModule = null;
@@ -166,17 +166,42 @@ const U = {
   },
 };
 
-// Cache for processAndWrapImage results (HTML strings only, not elements)
-const imageHtmlCache = new Map();
+// Compute wrapped image HTML for local images (memoized)
+// Takes only the params that affect the HTML output
+const computeWrappedImageHtml = memoize(
+  async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
+    const imagePath = U.getPath(imageName);
+    const metadata = await U.getMetadata(imagePath);
 
-// Check cache and return result if available
-async function getCachedResult(cacheKey, returnElement, document) {
-  if (!imageHtmlCache.has(cacheKey)) return null;
-  const cachedHtml = imageHtmlCache.get(cacheKey);
-  if (returnElement === false) return cachedHtml;
-  if (document) return await parseHtml(cachedHtml, document);
-  return null;
-}
+    const shouldSkipPlaceholder =
+      metadata.format === "svg" || U.getFileSize(imagePath) < 5 * 1024;
+
+    const thumbPromise = shouldSkipPlaceholder
+      ? null
+      : U.makeThumbnail(imagePath);
+    const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
+    const croppedPathOrNull = await U.cropImage(aspectRatio, imagePath, metadata);
+    const finalPath = croppedPathOrNull || imagePath;
+
+    const innerHTML = await U.getImageHtml(
+      finalPath,
+      U.getWidths(widths),
+      alt,
+      sizes,
+      loading,
+      classes,
+    );
+
+    return await U.makeDivHtml(
+      classes,
+      thumbPromise,
+      imageAspectRatio,
+      metadata.width,
+      innerHTML,
+    );
+  },
+  { cacheKey: jsonKey },
+);
 
 // Handle external URLs - just return a simple img tag without processing
 async function handleExternalUrl(
@@ -216,23 +241,11 @@ async function processAndWrapImage({
   returnElement = false,
   aspectRatio = null,
   loading = null,
-  document = null, // Optional: reuse existing JSDOM document
+  document = null,
 }) {
-  // Create cache key from params that affect the output HTML
-  const cacheKey = JSON.stringify({
-    imageName: imageName?.toString(),
-    alt,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-    loading,
-  });
-
-  const cached = await getCachedResult(cacheKey, returnElement, document);
-  if (cached) return cached;
-
   const imageNameStr = imageName.toString();
+
+  // External URLs get simple img tags (no processing needed)
   if (isExternalUrl(imageNameStr)) {
     return await handleExternalUrl(
       imageNameStr,
@@ -244,37 +257,16 @@ async function processAndWrapImage({
     );
   }
 
-  const imagePath = U.getPath(imageName);
-  const metadata = await U.getMetadata(imagePath);
-
-  // Check if we should skip base64 placeholder for SVG or images under 5KB
-  const shouldSkipPlaceholder =
-    metadata.format === "svg" || U.getFileSize(imagePath) < 5 * 1024;
-
-  const thumbPromise = shouldSkipPlaceholder
-    ? null
-    : U.makeThumbnail(imagePath);
-  const imageAspectRatio = U.getAspectRatio(aspectRatio, metadata);
-  const croppedPathOrNull = await U.cropImage(aspectRatio, imagePath, metadata);
-  const finalPath = croppedPathOrNull || imagePath;
-
-  const innerHTML = await U.getImageHtml(
-    finalPath,
-    U.getWidths(widths),
+  // Local images use the memoized HTML computation
+  const html = await computeWrappedImageHtml({
+    imageName,
     alt,
+    classes,
     sizes,
+    widths,
+    aspectRatio,
     loading,
-    classes,
-  );
-
-  const html = await U.makeDivHtml(
-    classes,
-    thumbPromise,
-    imageAspectRatio,
-    metadata.width,
-    innerHTML,
-  );
-  imageHtmlCache.set(cacheKey, html);
+  });
 
   return returnElement ? await parseHtml(html, document) : html;
 }
