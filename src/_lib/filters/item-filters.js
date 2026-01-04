@@ -176,6 +176,9 @@ const countMatchingItems = (items, itemAttrMap, filters) => {
 /**
  * Generate all filter combinations that have matching items
  * Returns array of { filters: {...}, path: "...", count: N }
+ *
+ * No duplicate tracking needed: we process keys in order and only
+ * recurse to later keys, so each path is generated exactly once.
  */
 const generateFilterCombinations = memoize((items) => {
   if (!items) return [];
@@ -191,55 +194,47 @@ const generateFilterCombinations = memoize((items) => {
   const countMatches = (filters) =>
     countMatchingItems(items, itemAttrMap, filters);
 
-  // Add a path to the seen set
-  const markSeen = (seen, path) => toSet([...seen, path]);
-
   // Create a combo result object
-  const toCombo = (filters, path, count) => ({ filters, path, count });
+  const toCombo = (filters, count) => ({
+    filters,
+    path: filterToPath(filters),
+    count,
+  });
 
-  // Try one filter value: skip if seen or no matches, else recurse
-  const tryValue = (recurse, keyIndex, baseFilters) => (acc, value, key) => {
-    const [results, seen] = acc;
-    const filters = { ...baseFilters, [key]: value };
-    const path = filterToPath(filters);
+  // Try one filter value: skip if no matches, else include with children
+  const tryValue =
+    (recurse, keyIndex, baseFilters) => (results, value, key) => {
+      const filters = { ...baseFilters, [key]: value };
+      const count = countMatches(filters);
 
-    if (seen.has(path)) return acc;
+      if (count === 0) return results;
 
-    const count = countMatches(filters);
-    if (count === 0) return acc;
-
-    const [childResults, childSeen] = recurse(
-      filters,
-      keyIndex + 1,
-      markSeen(seen, path),
-    );
-
-    return [
-      [...results, toCombo(filters, path, count), ...childResults],
-      childSeen,
-    ];
-  };
+      const childResults = recurse(filters, keyIndex + 1);
+      return [...results, toCombo(filters, count), ...childResults];
+    };
 
   // Process all values for one attribute key
-  const processKey = (recurse, baseFilters, keyIndex) => (acc, key) =>
+  const processKey = (recurse, baseFilters, keyIndex) => (results, key) =>
     allAttributes[key].reduce(
-      (innerAcc, value) =>
-        tryValue(recurse, keyIndex, baseFilters)(innerAcc, value, key),
-      acc,
+      (acc, value) => tryValue(recurse, keyIndex, baseFilters)(acc, value, key),
+      results,
     );
 
   // Generate all combinations starting from given filters and key index
-  const generateFrom = (baseFilters, startIndex, seen) =>
+  const generateFrom = (baseFilters, startIndex) =>
     attributeKeys
       .slice(startIndex)
       .reduce(
-        (acc, key, offset) =>
-          processKey(generateFrom, baseFilters, startIndex + offset)(acc, key),
-        [[], seen],
+        (results, key, offset) =>
+          processKey(
+            generateFrom,
+            baseFilters,
+            startIndex + offset,
+          )(results, key),
+        [],
       );
 
-  const [combinations] = generateFrom({}, 0, toSet([]));
-  return combinations;
+  return generateFrom({}, 0);
 });
 
 /**
