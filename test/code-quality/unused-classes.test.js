@@ -146,11 +146,6 @@ const findSelectorReferencesInScss = (content, name, prefix) => {
   return pattern.test(content);
 };
 
-const findClassReferencesInScss = (content, className) =>
-  findSelectorReferencesInScss(content, className, "\\.");
-
-const findIdReferencesInScss = (content, idName) =>
-  findSelectorReferencesInScss(content, idName, "#");
 
 // ============================================
 // Reference Detection in JavaScript
@@ -270,7 +265,7 @@ const findUnusedClassesAndIds = (
 
   // Check each class
   for (const [className, definedIn] of allClasses) {
-    const inScss = findClassReferencesInScss(scssContent, className);
+    const inScss = findSelectorReferencesInScss(scssContent, className, "\\.");
     const inJs = findClassReferencesInJs(jsContent, className);
 
     if (!inScss && !inJs) {
@@ -280,7 +275,7 @@ const findUnusedClassesAndIds = (
 
   // Check each ID
   for (const [idName, definedIn] of allIds) {
-    const inScss = findIdReferencesInScss(scssContent, idName);
+    const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
     const inJs = findIdReferencesInJs(jsContent, idName);
     const inHtml = findIdReferencesInHtml(htmlContent, idName);
 
@@ -355,9 +350,9 @@ describe("unused-classes", () => {
       .cart-item.active { font-weight: bold; }
       .unused-class { display: none; }
     `;
-    expect(findClassReferencesInScss(scss, "cart-item")).toBe(true);
-    expect(findClassReferencesInScss(scss, "active")).toBe(true);
-    expect(findClassReferencesInScss(scss, "nonexistent")).toBe(false);
+    expect(findSelectorReferencesInScss(scss, "cart-item", "\\.")).toBe(true);
+    expect(findSelectorReferencesInScss(scss, "active", "\\.")).toBe(true);
+    expect(findSelectorReferencesInScss(scss, "nonexistent", "\\.")).toBe(false);
   });
 
   test("Finds class references in JS content", () => {
@@ -375,7 +370,7 @@ describe("unused-classes", () => {
     const scss = "#main-nav { display: flex; }";
     const js = `document.getElementById("sidebar");`;
 
-    expect(findIdReferencesInScss(scss, "main-nav")).toBe(true);
+    expect(findSelectorReferencesInScss(scss, "main-nav", "#")).toBe(true);
     expect(findIdReferencesInJs(js, "sidebar")).toBe(true);
   });
 
