@@ -115,6 +115,20 @@ const ALLOWED_MUTABLE_CONST = new Set([
 ]);
 
 // ============================================
+// Object mutation via bracket assignment exceptions
+// ============================================
+
+// Files that use obj[key] = value for object mutation.
+// Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
+const ALLOWED_OBJECT_MUTATION = new Set([
+  // Browser-side theme CSS parsing - building scopes object from regex matches
+  "src/assets/js/theme-editor-lib.js:63", // result.scopes[scope] = parseCssBlock
+
+  // Browser-side image lazy loading - setting DOM element attributes
+  "src/assets/js/autosizes.js:126", // img[attribute] = img.getAttribute
+]);
+
+// ============================================
 // Array .push() exceptions
 // ============================================
 
@@ -137,5 +151,6 @@ export {
   ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
+  ALLOWED_OBJECT_MUTATION,
   ALLOWED_ARRAY_PUSH,
 };
