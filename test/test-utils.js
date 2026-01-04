@@ -374,6 +374,128 @@ const createCollectionItem = (slug, url, tags = [], extraData = {}) => ({
   },
 });
 
+// ============================================
+// Code Analysis Utilities
+// ============================================
+
+/**
+ * Extract all function definitions from JavaScript source code.
+ * Uses a stack to properly handle nested functions.
+ * Returns an array of { name, startLine, endLine, lineCount }.
+ */
+const extractFunctions = (source) => {
+  const functions = [];
+  const lines = source.split("\n");
+  const stack = []; // Stack of { name, startLine, braceDepth }
+
+  let globalBraceDepth = 0;
+  let inString = false;
+  let stringChar = null;
+  let inTemplate = false;
+  let inMultilineComment = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lineNum = i + 1;
+
+    // Check for function start patterns
+    const funcDeclMatch = line.match(
+      /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/,
+    );
+    // Only match arrow functions with braces (multi-line bodies)
+    const arrowMatch = line.match(
+      /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/,
+    );
+    const methodMatch = line.match(
+      /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/,
+    );
+    const objMethodMatch = line.match(
+      /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/,
+    );
+
+    const match = funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
+
+    if (match) {
+      stack.push({
+        name: match[1],
+        startLine: lineNum,
+        openBraceDepth: null, // Will be set when we see the opening brace
+      });
+    }
+
+    // Process characters for brace counting
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const prevChar = j > 0 ? line[j - 1] : "";
+      const nextChar = j < line.length - 1 ? line[j + 1] : "";
+
+      // Handle comments
+      if (!inString && !inTemplate) {
+        if (char === "/" && nextChar === "/" && !inMultilineComment) break;
+        if (char === "/" && nextChar === "*" && !inMultilineComment) {
+          inMultilineComment = true;
+          j++;
+          continue;
+        }
+        if (char === "*" && nextChar === "/" && inMultilineComment) {
+          inMultilineComment = false;
+          j++;
+          continue;
+        }
+      }
+      if (inMultilineComment) continue;
+
+      // Handle strings
+      if (!inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char === stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+        continue;
+      }
+
+      // Handle template literals
+      if (char === "`" && prevChar !== "\\") {
+        inTemplate = !inTemplate;
+        continue;
+      }
+
+      if (inString) continue;
+
+      // Count braces
+      if (char === "{") {
+        globalBraceDepth++;
+        // Record opening brace depth for pending functions
+        for (const item of stack) {
+          if (item.openBraceDepth === null) {
+            item.openBraceDepth = globalBraceDepth;
+          }
+        }
+      } else if (char === "}") {
+        // Check if this closes any function on the stack
+        for (let k = stack.length - 1; k >= 0; k--) {
+          if (stack[k].openBraceDepth === globalBraceDepth) {
+            const completed = stack.splice(k, 1)[0];
+            functions.push({
+              name: completed.name,
+              startLine: completed.startLine,
+              endLine: lineNum,
+              lineCount: lineNum - completed.startLine + 1,
+            });
+            break;
+          }
+        }
+        globalBraceDepth--;
+      }
+    }
+  }
+
+  return functions;
+};
+
 // Schema-helper test fixtures
 const createSchemaPage = ({
   url = "/page/",
@@ -527,4 +649,6 @@ export {
   createProductSchemaData,
   createPostSchemaData,
   createMockReview,
+  // Code analysis utilities
+  extractFunctions,
 };
