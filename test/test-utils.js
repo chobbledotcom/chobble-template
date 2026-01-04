@@ -364,6 +364,29 @@ const createCollectionItem = (slug, url, tags = [], extraData = {}) => ({
 // ============================================
 
 /**
+ * Create a pattern extractor for files.
+ * Curried: (pattern, transform) => (files) => Set
+ * @param {RegExp} pattern - Regex with capture group
+ * @param {function} [transform] - Transform match to value (default: m => m[1])
+ * @returns {function} - files => Set of extracted values
+ */
+const createExtractor =
+  (pattern, transform = (m) => m[1]) =>
+  (files) => {
+    const fileList = Array.isArray(files) ? files : [files];
+    const results = new Set();
+
+    for (const file of fileList) {
+      const content = fs.readFileSync(file, "utf-8");
+      for (const match of content.matchAll(pattern)) {
+        results.add(transform(match));
+      }
+    }
+
+    return results;
+  };
+
+/**
  * Extract all function definitions from JavaScript source code.
  * Uses a stack to properly handle nested functions.
  * Returns an array of { name, startLine, endLine, lineCount }.
@@ -625,5 +648,6 @@ export {
   createPostSchemaData,
   createMockReview,
   // Code analysis utilities
+  createExtractor,
   extractFunctions,
 };

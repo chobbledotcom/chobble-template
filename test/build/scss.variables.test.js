@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { rootDir } from "#test/test-utils.js";
+import { createExtractor, rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Constants
@@ -19,56 +19,14 @@ const CONSUMED_VIA_JS = [
 // Helper functions
 // ============================================
 
-/**
- * Extract all CSS variable usages from SCSS files
- * Finds patterns like: var(--color-bg)
- */
-const extractUsedVariables = (scssFiles) => {
-  const used = new Set();
-  const varPattern = /var\(--([a-z][a-z0-9-]*)/g;
+/** Extract var(--name) usages from files */
+const extractUsedVariables = createExtractor(
+  /var\(--([a-z][a-z0-9-]*)/g,
+  (m) => `--${m[1]}`,
+);
 
-  for (const file of scssFiles) {
-    const content = readFileSync(file, "utf-8");
-    for (const match of content.matchAll(varPattern)) {
-      used.add(`--${match[1]}`);
-    }
-  }
-
-  return used;
-};
-
-/**
- * Extract all CSS variable definitions from a stylesheet
- * Finds patterns like: --color-bg: value;
- */
-const extractDefinedVariables = (styleFile) => {
-  const defined = new Set();
-  const content = readFileSync(styleFile, "utf-8");
-
-  const defPattern = /^\s*(--[a-z][a-z0-9-]*):/gm;
-  for (const match of content.matchAll(defPattern)) {
-    defined.add(match[1]);
-  }
-
-  return defined;
-};
-
-/**
- * Extract all CSS variable definitions from multiple SCSS files
- */
-const extractAllDefinedVariables = (scssFiles) => {
-  const defined = new Set();
-  const defPattern = /^\s*(--[a-z][a-z0-9-]*):/gm;
-
-  for (const file of scssFiles) {
-    const content = readFileSync(file, "utf-8");
-    for (const match of content.matchAll(defPattern)) {
-      defined.add(match[1]);
-    }
-  }
-
-  return defined;
-};
+/** Extract --name: definitions from files */
+const extractDefinedVariables = createExtractor(/^\s*(--[a-z][a-z0-9-]*):/gm);
 
 /**
  * Find all undefined variables (used but not defined)
@@ -96,7 +54,7 @@ const scssFiles = [
 ];
 const usedVariables = extractUsedVariables(scssFiles);
 const definedVariables = extractDefinedVariables(`${rootDir}/${STYLE_FILE}`);
-const allDefinedVariables = extractAllDefinedVariables(scssFiles);
+const allDefinedVariables = extractDefinedVariables(scssFiles);
 const undefinedVariables = findUndefinedVariables(
   usedVariables,
   definedVariables,
