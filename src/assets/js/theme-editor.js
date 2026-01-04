@@ -77,16 +77,15 @@ const ThemeEditor = {
    */
   getControlValue(varName, rootVars, options = {}) {
     const { type, fallback } = options;
-    if (rootVars[varName]) {
-      return type === "number"
-        ? parseFloat(rootVars[varName]) || 0
-        : rootVars[varName];
-    }
+    const parseValue = (val) =>
+      type === "number" ? parseFloat(val) || 0 : val;
+    if (rootVars[varName]) return parseValue(rootVars[varName]);
     const computed = getComputedStyle(document.documentElement)
       .getPropertyValue(varName)
       .trim();
-    if (type === "number") return parseFloat(computed) || 0;
-    return computed || fallback || "";
+    return computed
+      ? parseValue(computed)
+      : fallback || (type === "number" ? 0 : "");
   },
 
   init() {
@@ -153,77 +152,55 @@ const ThemeEditor = {
     this.initCheckboxControls(parsed.root);
   },
 
+  initControlInputs(selector, rootVars, options = {}) {
+    const updateHandler = () => this.updateThemeFromControls();
+    for (const input of this.formQuery(selector)) {
+      if (options.skipBorder && input.id.includes("border")) continue;
+      input.value = this.getControlValue(input.dataset.var, rootVars, options);
+      input.addEventListener("input", updateHandler);
+    }
+  },
+
   initGlobalControls(rootVars) {
-    // Apply variables to document and initialize controls
     for (const [varName, value] of Object.entries(rootVars)) {
       document.documentElement.style.setProperty(varName, value);
     }
-
-    // Initialize color controls
-    for (const input of this.formQuery(
+    this.initControlInputs(
       'input[type="color"][data-var]:not([data-scope])',
-    )) {
-      input.value = this.getControlValue(input.dataset.var, rootVars, {
-        fallback: "#000000",
-      });
-      input.addEventListener("input", () => this.updateThemeFromControls());
-    }
-
-    // Initialize text controls
-    for (const input of this.formQuery(
+      rootVars,
+      { fallback: "#000000" },
+    );
+    this.initControlInputs(
       'input[type="text"][data-var]:not([data-scope])',
-    )) {
-      if (input.id.includes("border")) continue; // Skip border hidden inputs
-      input.value = this.getControlValue(input.dataset.var, rootVars);
-      input.addEventListener("input", () => this.updateThemeFromControls());
-    }
-
-    // Initialize select controls
-    for (const input of this.formQuery("select[data-var]:not([data-scope])")) {
-      input.value = this.getControlValue(input.dataset.var, rootVars);
-      input.addEventListener("input", () => this.updateThemeFromControls());
-    }
-
-    // Initialize number controls
-    for (const input of this.formQuery(
+      rootVars,
+      { skipBorder: true },
+    );
+    this.initControlInputs("select[data-var]:not([data-scope])", rootVars);
+    this.initControlInputs(
       'input[type="number"][data-var]:not([data-scope])',
-    )) {
-      input.value = this.getControlValue(input.dataset.var, rootVars, {
-        type: "number",
-      });
-      input.addEventListener("input", () => this.updateThemeFromControls());
-    }
-
-    // Initialize border controls for global border
+      rootVars,
+      { type: "number" },
+    );
     this.initBorderControl("", rootVars["--border"]);
+  },
+
+  initScopedColorInput(input, scopeVars, docStyle) {
+    const varName = input.dataset.var;
+    if (scopeVars[varName]) {
+      input.value = scopeVars[varName];
+    } else {
+      const globalValue = docStyle.getPropertyValue(varName).trim();
+      if (globalValue?.startsWith("#")) input.value = globalValue;
+    }
+    input.addEventListener("input", () => this.updateThemeFromControls());
   },
 
   initScopedControls(scope, scopeVars) {
     const docStyle = getComputedStyle(document.documentElement);
-
-    // Initialize color controls for this scope
-    // IMPORTANT: Must initialize to global values, not browser default #000000
-    // Otherwise unchanged inputs pollute output (see test: browser-default-black-should-not-pollute-output)
-    // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
-    for (const input of this.formQuery(
-      `input[type="color"][data-var][data-scope="${scope}"]`,
-    )) {
-      const varName = input.dataset.var;
-      if (scopeVars[varName]) {
-        // Use value from parsed theme
-        input.value = scopeVars[varName];
-      } else {
-        // Initialize to GLOBAL value so unchanged inputs don't pollute output
-        // Browser color inputs default to #000000 which would differ from global
-        const globalValue = docStyle.getPropertyValue(varName).trim();
-        if (globalValue?.startsWith("#")) {
-          input.value = globalValue;
-        }
-      }
-      input.addEventListener("input", () => this.updateThemeFromControls());
+    const selector = `input[type="color"][data-var][data-scope="${scope}"]`;
+    for (const input of this.formQuery(selector)) {
+      this.initScopedColorInput(input, scopeVars, docStyle);
     }
-
-    // Initialize border for this scope
     this.initBorderControl(scope, scopeVars["--border"]);
   },
 

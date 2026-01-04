@@ -265,6 +265,25 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   return writePdfToFile(pdfDoc, outputPath);
 }
 
+const generateAllMenuPdfs = async (state, outputDir) => {
+  const { menus, menuCategories, menuItems } = state;
+  for (const menu of menus) {
+    await generateMenuPdf(menu, menuCategories, menuItems, outputDir);
+  }
+};
+
+const handleEleventyAfter = async (state, outputDir) => {
+  if (!state) {
+    console.log("No menu collections found, skipping PDF generation");
+    return;
+  }
+  if (!state.menus || state.menus.length === 0) {
+    console.log("No menus found, skipping PDF generation");
+    return;
+  }
+  await generateAllMenuPdfs(state, outputDir);
+};
+
 export function configurePdf(eleventyConfig) {
   let state = null;
 
@@ -278,21 +297,7 @@ export function configurePdf(eleventyConfig) {
   });
 
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    if (!state) {
-      console.log("No menu collections found, skipping PDF generation");
-      return;
-    }
-
-    const { menus, menuCategories, menuItems } = state;
-
-    if (!menus || menus.length === 0) {
-      console.log("No menus found, skipping PDF generation");
-      return;
-    }
-
-    for (const menu of menus) {
-      await generateMenuPdf(menu, menuCategories, menuItems, dir.output);
-    }
+    await handleEleventyAfter(state, dir.output);
   });
 }
 

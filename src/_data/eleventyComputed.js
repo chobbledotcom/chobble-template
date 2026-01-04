@@ -32,19 +32,20 @@ function hasTag(data, tag) {
   return Array.isArray(tags) ? tags.includes(tag) : tags === tag;
 }
 
+function findValidThumbnail(data) {
+  if (isValidImage(data.thumbnail)) return data.thumbnail;
+  if (data.gallery?.[0] && isValidImage(data.gallery[0]))
+    return data.gallery[0];
+  if (isValidImage(data.header_image)) return data.header_image;
+  return null;
+}
+
 export default {
   header_text: (data) => data.header_text || data.title,
   meta_title: (data) => data.meta_title || data.title,
   description: (data) => data.snippet || data.meta_description || "",
   contactForm: () => require("./contact-form.json"),
-  thumbnail: (data) =>
-    isValidImage(data.thumbnail)
-      ? data.thumbnail
-      : data.gallery?.[0] && isValidImage(data.gallery[0])
-        ? data.gallery[0]
-        : isValidImage(data.header_image)
-          ? data.header_image
-          : null,
+  thumbnail: findValidThumbnail,
   faqs: (data) => (Array.isArray(data.faqs) ? data.faqs : []),
   tabs: (data) => (Array.isArray(data.tabs) ? data.tabs : []),
   meta: (data) => {

@@ -54,21 +54,21 @@ export function updateCartIcon() {
   }
 }
 
+const clampToMaxQuantity = (item, quantity) => {
+  if (!item.max_quantity || quantity <= item.max_quantity) return quantity;
+  alert(`The maximum quantity for this item is ${item.max_quantity}`);
+  return item.max_quantity;
+};
+
 export function updateItemQuantity(itemName, quantity) {
   const cart = getCart();
   const item = cart.find((i) => i.item_name === itemName);
-
   if (!item) return false;
 
   if (quantity <= 0) {
     removeItem(itemName);
   } else {
-    if (item.max_quantity && quantity > item.max_quantity) {
-      alert(`The maximum quantity for this item is ${item.max_quantity}`);
-      item.quantity = item.max_quantity;
-    } else {
-      item.quantity = quantity;
-    }
+    item.quantity = clampToMaxQuantity(item, quantity);
     saveCart(cart);
   }
   return true;

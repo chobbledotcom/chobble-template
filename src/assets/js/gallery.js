@@ -70,30 +70,30 @@ const navigatePopup = (direction) => {
   }
 };
 
+const appendNavButton = (templateId, shouldHide) => {
+  const btn = getTemplate(templateId);
+  if (shouldHide) btn.firstElementChild.style.visibility = "hidden";
+  state.imagePopup.appendChild(btn);
+};
+
+const addNavigationButtons = (totalImages) => {
+  if (totalImages <= 1) return;
+  appendNavButton(IDS.GALLERY_NAV_PREV, state.currentPopupIndex <= 1);
+};
+
+const addNextButton = (totalImages) => {
+  if (totalImages <= 1) return;
+  appendNavButton(IDS.GALLERY_NAV_NEXT, state.currentPopupIndex >= totalImages);
+};
+
 const openPopup = () => {
   const image = state.currentImage.querySelector(".image-wrapper");
   const totalImages = getTotalImages();
 
-  // Clear popup and build content using templates
   state.imagePopup.innerHTML = "";
-
-  if (totalImages > 1) {
-    const prevBtn = getTemplate(IDS.GALLERY_NAV_PREV);
-    if (state.currentPopupIndex <= 1) {
-      prevBtn.firstElementChild.style.visibility = "hidden";
-    }
-    state.imagePopup.appendChild(prevBtn);
-  }
-
+  addNavigationButtons(totalImages);
   state.imagePopup.appendChild(image.cloneNode(true));
-
-  if (totalImages > 1) {
-    const nextBtn = getTemplate(IDS.GALLERY_NAV_NEXT);
-    if (state.currentPopupIndex >= totalImages) {
-      nextBtn.firstElementChild.style.visibility = "hidden";
-    }
-    state.imagePopup.appendChild(nextBtn);
-  }
+  addNextButton(totalImages);
 
   for (const el of state.imagePopup.querySelectorAll("[sizes]")) {
     el.sizes = "100vw";

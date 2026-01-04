@@ -143,7 +143,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/config/helpers.js:107", // product_mode
   "src/_lib/config/helpers.js:125", // formTarget
   "src/_lib/config/helpers.js:138", // cart_mode
-  "src/assets/js/stripe-checkout.js:31", // checkoutApiUrl
+  "src/assets/js/stripe-checkout.js:46", // checkoutApiUrl
 
   // === DOM element lookups (querySelector can return null) ===
   "src/assets/js/search.js:13", // form
@@ -151,16 +151,16 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/availability-calendar.js:117", // content
   "src/assets/js/availability-calendar.js:138", // dialog
   "src/assets/js/theme-switcher.js:87", // button
-  "src/assets/js/theme-editor.js:316", // target
-  "src/assets/js/theme-editor.js:407", // borderOutput
-  "src/assets/js/cart.js:128", // cartItems
+  "src/assets/js/theme-editor.js:293", // target
+  "src/assets/js/theme-editor.js:384", // borderOutput
+  "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
   "src/assets/js/quote.js:48", // container
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper
   "src/assets/js/gallery.js:56", // content
-  "src/assets/js/stripe-checkout.js:16", // main
+  "src/assets/js/stripe-checkout.js:34", // main
   "src/assets/js/slider.js:19", // firstItem
   "src/assets/js/scroll-fade.js:35", // selectors
 
@@ -179,7 +179,7 @@ const ALLOWED_NULL_CHECKS = new Set([
 
   // === External/parsed data (localStorage, API responses, etc) ===
   "src/assets/js/cart-utils.js:8", // cart (from localStorage)
-  "src/assets/js/cart-utils.js:61", // item
+  "src/assets/js/cart-utils.js:66", // item
   "src/assets/js/theme-editor-lib.js:32", // cssText
   "src/assets/js/theme-editor-lib.js:66", // themeContent
   "src/assets/js/theme-editor-lib.js:89", // borderValue
@@ -190,9 +190,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
-  "src/assets/js/stripe-checkout.js:48", // response
+  "src/assets/js/stripe-checkout.js:19", // response
   "src/_lib/eleventy/pdf.js:251", // pdfDoc
-  "src/_lib/eleventy/pdf.js:281", // state
+  "src/_lib/eleventy/pdf.js:276", // state
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
