@@ -1,6 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
+import {
+  createTeamMember,
+  expectHasAuthorElements,
+  expectNoThumbnailLayout,
+} from "#test/test-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
+
+// Pre-built fixture for tests needing author with image
+const janeDoeWithImage = createTeamMember(
+  "jane-doe",
+  "Jane Doe",
+  "Test team member",
+  "src/images/placeholder-square-1.jpg",
+);
 
 describe("news", () => {
   test("Returns simple slug unchanged", () => {
@@ -96,15 +109,7 @@ describe("news", () => {
             },
             content: "Post content here.",
           },
-          {
-            path: "team/jane-doe.md",
-            frontmatter: {
-              title: "Jane Doe",
-              snippet: "Test team member",
-              image: "src/images/placeholder-square-1.jpg",
-            },
-            content: "Jane Doe bio.",
-          },
+          janeDoeWithImage,
         ],
         images: ["placeholder-square-1.jpg"],
       },
@@ -116,9 +121,7 @@ describe("news", () => {
         expect(postMeta.classList.contains("with-thumbnail")).toBe(true);
         expect(postMeta.querySelector("figure") !== null).toBe(true);
         expect(postMeta.querySelector("figure a") !== null).toBe(true);
-        expect(postMeta.querySelector("address") !== null).toBe(true);
-        expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
-        expect(postMeta.querySelector("time") !== null).toBe(true);
+        expectHasAuthorElements(postMeta);
         expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(
           true,
         );
@@ -138,26 +141,19 @@ describe("news", () => {
             },
             content: "Post content here.",
           },
-          {
-            path: "team/john-smith.md",
-            frontmatter: {
-              title: "John Smith",
-              snippet: "Team member without image",
-            },
-            content: "John Smith bio.",
-          },
+          createTeamMember(
+            "john-smith",
+            "John Smith",
+            "Team member without image",
+          ),
         ],
       },
       (site) => {
         const doc = site.getDoc("/news/no-thumb-post/index.html");
         const postMeta = doc.querySelector(".post-meta");
 
-        expect(postMeta !== null).toBe(true);
-        expect(postMeta.classList.contains("with-thumbnail")).toBe(false);
-        expect(postMeta.querySelector("figure")).toBe(null);
-        expect(postMeta.querySelector("address") !== null).toBe(true);
-        expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
-        expect(postMeta.querySelector("time") !== null).toBe(true);
+        expectNoThumbnailLayout(postMeta);
+        expectHasAuthorElements(postMeta);
       },
     );
   });
@@ -179,9 +175,7 @@ describe("news", () => {
         const doc = site.getDoc("/news/anonymous-post/index.html");
         const postMeta = doc.querySelector(".post-meta");
 
-        expect(postMeta !== null).toBe(true);
-        expect(postMeta.classList.contains("with-thumbnail")).toBe(false);
-        expect(postMeta.querySelector("figure")).toBe(null);
+        expectNoThumbnailLayout(postMeta);
         expect(postMeta.querySelector("address")).toBe(null);
         expect(postMeta.querySelector("time") !== null).toBe(true);
         expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(
@@ -203,15 +197,7 @@ describe("news", () => {
             },
             content: "Testing semantic markup.",
           },
-          {
-            path: "team/jane-doe.md",
-            frontmatter: {
-              title: "Jane Doe",
-              snippet: "Test team member",
-              image: "src/images/placeholder-square-1.jpg",
-            },
-            content: "Jane Doe bio.",
-          },
+          janeDoeWithImage,
         ],
         images: ["placeholder-square-1.jpg"],
       },

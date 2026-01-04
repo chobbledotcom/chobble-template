@@ -291,6 +291,19 @@ const expectResultTitles = (result, expectedTitles) => {
   });
 };
 
+// Post meta assertion helpers (for news tests)
+const expectHasAuthorElements = (postMeta) => {
+  expect(postMeta.querySelector("address") !== null).toBe(true);
+  expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
+  expect(postMeta.querySelector("time") !== null).toBe(true);
+};
+
+const expectNoThumbnailLayout = (postMeta) => {
+  expect(postMeta !== null).toBe(true);
+  expect(postMeta.classList.contains("with-thumbnail")).toBe(false);
+  expect(postMeta.querySelector("figure")).toBe(null);
+};
+
 // ============================================
 // Test Fixture Factories
 // ============================================
@@ -397,6 +410,17 @@ const createCollectionItem = (slug, url, tags = [], extraData = {}) => ({
     tags,
     ...extraData,
   },
+});
+
+// Team member fixtures (for news tests)
+const createTeamMember = (slug, name, snippet, image = null) => ({
+  path: `team/${slug}.md`,
+  frontmatter: {
+    title: name,
+    snippet,
+    ...(image && { image }),
+  },
+  content: `${name} bio.`,
 });
 
 // ============================================
@@ -656,6 +680,8 @@ export {
   expectFalse,
   expectThrows,
   expectResultTitles,
+  expectHasAuthorElements,
+  expectNoThumbnailLayout,
   // Test fixture factories
   createFrontmatter,
   createOffsetDate,
@@ -665,6 +691,7 @@ export {
   createCategory,
   createProduct,
   createCollectionItem,
+  createTeamMember,
   // Schema-helper fixtures
   createSchemaPage,
   createSchemaSite,
