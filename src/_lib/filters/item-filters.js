@@ -165,18 +165,12 @@ const attrsMatch = (itemAttrs, normalizedFilters) =>
   everyEntry((key, value) => itemAttrs[key] === value)(normalizedFilters);
 
 /**
- * Normalize filter keys and values for comparison
- */
-const normalizeFilters = normalizeAttrs;
-
-/**
  * Count items matching filters using pre-built attribute map
  */
 const countMatchingItems = (items, itemAttrMap, filters) => {
-  const normalizedFilters = normalizeFilters(filters);
-  return items.filter((item) =>
-    attrsMatch(itemAttrMap.get(item), normalizedFilters),
-  ).length;
+  const normalized = normalizeAttrs(filters);
+  return items.filter((item) => attrsMatch(itemAttrMap.get(item), normalized))
+    .length;
 };
 
 /**
