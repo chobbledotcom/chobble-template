@@ -28,15 +28,20 @@ const renderRecurringEvents = (events) => {
   return `<ul>\n${items.join("\n")}\n</ul>`;
 };
 
-const _recurringEventsShortcode = function (_eleventyConfig) {
-  const events =
-    this.ctx?.collections?.events || this.collections?.events || [];
+/**
+ * Shortcode function that renders recurring events from a provided collection.
+ * Used for testing with mock data. Not used directly in Eleventy due to
+ * collection access limitations in shortcodes.
+ *
+ * @param {Array} events - Events collection to filter and render
+ */
+function recurringEventsShortcode(events = []) {
   const recurringEvents = events
     .filter((event) => event.data?.recurring_date)
     .sort(sortItems);
 
   return renderRecurringEvents(recurringEvents);
-};
+}
 
 /**
  * Extract file slug from markdown filename
@@ -109,5 +114,6 @@ const configureRecurringEvents = (eleventyConfig) => {
 export {
   configureRecurringEvents,
   renderRecurringEvents,
+  recurringEventsShortcode,
   getRecurringEventsHtml,
 };

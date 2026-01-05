@@ -418,5 +418,40 @@ describe("pdf", () => {
       const result = mockConfig.collections._pdfMenuData(mockCollectionApi);
       expect(result).toEqual([]);
     });
+
+    test("eleventy.after handler skips PDF generation when state is null", async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      configurePdf(mockConfig);
+
+      // Call eleventy.after WITHOUT calling the collection first (state is null)
+      // This should not throw and should skip PDF generation
+      await mockConfig.eventHandlers["eleventy.after"]({
+        dir: { output: "/tmp" },
+      });
+
+      // If we get here without error, the early return worked
+      expect(true).toBe(true);
+    });
+
+    test("eleventy.after handler skips PDF generation when menus array is empty", async () => {
+      const mockConfig = createMockEleventyConfig();
+
+      configurePdf(mockConfig);
+
+      // First populate state with empty menus
+      const mockCollectionApi = {
+        getFilteredByTag: (_tag) => [],
+      };
+      mockConfig.collections._pdfMenuData(mockCollectionApi);
+
+      // Call eleventy.after - should skip because no menus
+      await mockConfig.eventHandlers["eleventy.after"]({
+        dir: { output: "/tmp" },
+      });
+
+      // If we get here without error, the early return worked
+      expect(true).toBe(true);
+    });
   });
 });
