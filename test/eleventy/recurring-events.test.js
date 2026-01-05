@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureRecurringEvents,
+  recurringEventsShortcode,
   renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
@@ -221,6 +222,50 @@ describe("recurring-events", () => {
     expect(mockConfig.filters.format_recurring_events).toBe(
       renderRecurringEvents,
     );
+  });
+
+  // recurringEventsShortcode tests
+  test("recurringEventsShortcode returns HTML when passed events with recurring_date", () => {
+    const events = [
+      {
+        data: {
+          title: "Weekly Meetup",
+          recurring_date: "Every Tuesday",
+          order: 1,
+        },
+        url: "/events/meetup/",
+      },
+    ];
+
+    const result = recurringEventsShortcode(events);
+
+    expect(result.includes("Weekly Meetup")).toBe(true);
+    expect(result.includes("Every Tuesday")).toBe(true);
+  });
+
+  test("recurringEventsShortcode returns empty string when no recurring events exist", () => {
+    const events = [
+      {
+        data: { title: "One-time Event", event_date: "2024-01-01" },
+        url: "/events/one-time/",
+      },
+    ];
+
+    const result = recurringEventsShortcode(events);
+
+    expect(result).toBe("");
+  });
+
+  test("recurringEventsShortcode handles empty array gracefully", () => {
+    const result = recurringEventsShortcode([]);
+
+    expect(result).toBe("");
+  });
+
+  test("recurringEventsShortcode handles undefined gracefully", () => {
+    const result = recurringEventsShortcode();
+
+    expect(result).toBe("");
   });
 
   // renderRecurringEvents - immutability
