@@ -124,7 +124,7 @@ const DEFAULT_REVIEWS_LIMIT = 10;
  * @param {Object} collectionApi - Eleventy collection API
  * @returns {Object} Object containing items, visibleReviews, and limit
  */
-const getItemsAndReviewsData = (tag, limitOverride, collectionApi) => ({
+const getReviewData = (tag, limitOverride, collectionApi) => ({
   items: collectionApi.getFilteredByTag(tag) || [],
   visibleReviews: createReviewsCollection(collectionApi),
   limit:
@@ -143,7 +143,7 @@ const getItemsAndReviewsData = (tag, limitOverride, collectionApi) => ({
 const withReviewsPage =
   (tag, reviewsField, processItem = (item) => item, limitOverride) =>
   (collectionApi) => {
-    const { items, visibleReviews, limit } = getItemsAndReviewsData(
+    const { items, visibleReviews, limit } = getReviewData(
       tag,
       limitOverride,
       collectionApi,
@@ -168,7 +168,7 @@ const withReviewsPage =
  */
 const reviewsRedirects =
   (tag, reviewsField, limitOverride) => (collectionApi) => {
-    const { items, visibleReviews, limit } = getItemsAndReviewsData(
+    const { items, visibleReviews, limit } = getReviewData(
       tag,
       limitOverride,
       collectionApi,
