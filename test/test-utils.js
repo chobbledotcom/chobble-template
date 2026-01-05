@@ -480,7 +480,11 @@ const processChar = (lineNum) => (state, char, index, chars) => {
   if (state.inComment) return state;
 
   // Handle strings
-  if (!state.inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
+  if (
+    !state.inTemplate &&
+    (char === '"' || char === "'") &&
+    prevChar !== "\\"
+  ) {
     if (!state.inString) {
       return { ...state, inString: true, stringChar: char };
     } else if (char === state.stringChar) {
@@ -502,7 +506,9 @@ const processChar = (lineNum) => (state, char, index, chars) => {
     const newDepth = state.braceDepth + 1;
     // Record opening brace depth for pending functions
     const newStack = state.stack.map((item) =>
-      item.openBraceDepth === null ? { ...item, openBraceDepth: newDepth } : item,
+      item.openBraceDepth === null
+        ? { ...item, openBraceDepth: newDepth }
+        : item,
     );
     return { ...state, braceDepth: newDepth, stack: newStack };
   }
