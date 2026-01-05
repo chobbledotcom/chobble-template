@@ -186,7 +186,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
-  "src/_lib/filters/item-filters.js:107", // path
+  "src/_lib/filters/item-filters.js:102", // path
   "src/_lib/collections/products.js:6", // gallery
   "src/_lib/collections/products.js:79", // options
   "src/_lib/collections/search.js:9", // category
@@ -231,13 +231,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/eleventy/recurring-events.js:71", // readRecurringEvent
   "src/_lib/eleventy/pdf.js:230", // writePdfToFile
   "src/_lib/eleventy/js-config.js:10", // toConfigEntry
-
-  // === Filters ===
-  "src/_lib/filters/item-filters.js:100", // toPairs
-  "src/_lib/filters/item-filters.js:122", // matchesNormalized
-  "src/_lib/filters/item-filters.js:166", // attrsMatch
-  "src/_lib/filters/item-filters.js:172", // countMatchingItems
-  "src/_lib/filters/item-filters.js:244", // toDisplayPair
 
   // === Media ===
   "src/_lib/media/unused-images.js:33", // reportUnusedImages

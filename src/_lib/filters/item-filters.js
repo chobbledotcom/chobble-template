@@ -95,11 +95,6 @@ const filterToPath = (filters) => {
 };
 
 /**
- * Group array elements into pairs: [a, b, c, d] => [[a, b], [c, d]]
- */
-const toPairs = (arr) => chunk(arr, 2);
-
-/**
  * Parse URL path back to filter object
  * "capacity/3/size/small" => { capacity: "3", size: "small" }
  */
@@ -109,7 +104,7 @@ const pathToFilter = (path) => {
   return pipe(
     (s) => s.split("/"),
     compact,
-    toPairs,
+    (arr) => chunk(arr, 2),
     map(([key, value]) => [decodeURIComponent(key), decodeURIComponent(value)]),
     Object.fromEntries,
   )(path);
@@ -119,16 +114,13 @@ const pathToFilter = (path) => {
  * Check if an item matches the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
  */
-const matchesNormalized = (itemAttrs) =>
-  everyEntry(
-    (key, value) => normalize(itemAttrs[key] || "") === normalize(value),
-  );
-
 const itemMatchesFilters = (item, filters) => {
   if (!filters || Object.keys(filters).length === 0) return true;
 
   const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
-  return matchesNormalized(itemAttrs)(filters);
+  return everyEntry(
+    (key, value) => normalize(itemAttrs[key] || "") === normalize(value),
+  )(filters);
 };
 
 /**
@@ -160,22 +152,6 @@ const buildItemAttributeMap = (items) => {
 };
 
 /**
- * Check if an item matches filters using pre-normalized attributes
- * Expects itemAttrs to already be normalized
- */
-const attrsMatch = (itemAttrs, normalizedFilters) =>
-  everyEntry((key, value) => itemAttrs[key] === value)(normalizedFilters);
-
-/**
- * Count items matching filters using pre-built attribute map
- */
-const countMatchingItems = (items, itemAttrMap, filters) => {
-  const normalized = normalizeAttrs(filters);
-  return items.filter((item) => attrsMatch(itemAttrMap.get(item), normalized))
-    .length;
-};
-
-/**
  * Generate all filter combinations that have matching items
  * Returns array of { filters: {...}, path: "...", count: N }
  *
@@ -191,8 +167,14 @@ const generateFilterCombinations = memoize((items) => {
   const itemAttrMap = buildItemAttributeMap(items);
 
   // Count items matching these filters
-  const countMatches = (filters) =>
-    countMatchingItems(items, itemAttrMap, filters);
+  const countMatches = (filters) => {
+    const normalized = normalizeAttrs(filters);
+    return items.filter((item) =>
+      everyEntry((key, value) => itemAttrMap.get(item)[key] === value)(
+        normalized,
+      ),
+    ).length;
+  };
 
   // Create a combo result object
   const toCombo = (filters, count) => ({
@@ -241,11 +223,11 @@ const generateFilterCombinations = memoize((items) => {
  * Build a filter description string from filters using display lookup
  * { size: "compact", type: "pro" } => "Size: compact, Type: pro"
  */
-const toDisplayPair = (displayLookup) => (key, value) =>
-  `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`;
-
 const buildFilterDescription = (filters, displayLookup) =>
-  mapEntries(toDisplayPair(displayLookup))(filters).join(", ");
+  mapEntries(
+    (key, value) =>
+      `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`,
+  )(filters).join(", ");
 
 /**
  * Build pre-computed filter UI data for templates
