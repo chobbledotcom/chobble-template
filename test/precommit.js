@@ -6,7 +6,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { ROOT_DIR } from "../src/_lib/paths.js";
+import { ROOT_DIR } from "#lib/paths.js";
 
 const rootDir = ROOT_DIR;
 const verbose = process.argv.includes("--verbose");
