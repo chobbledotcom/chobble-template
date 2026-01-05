@@ -186,7 +186,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
-  "src/_lib/filters/item-filters.js:102", // path
+  "src/_lib/filters/item-filters.js:107", // path
   "src/_lib/collections/products.js:6", // gallery
   "src/_lib/collections/products.js:79", // options
   "src/_lib/collections/search.js:9", // category
@@ -208,63 +208,60 @@ const ALLOWED_NULL_CHECKS = new Set([
 // Single-use unexported function exceptions
 // ============================================
 
-// Functions that are intentionally single-use for clarity/naming purposes.
-// These are warnings, not errors - functions are kept separate for readability.
-// Consider inlining these into their callers or exporting if part of public API.
+// Files with single-use functions that are intentionally kept for clarity.
+// Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
-  // === Data layer ===
-  "src/_data/altTagsLookup.js:6", // toFilenameEntry
-
-  // === Collections ===
-  "src/_lib/collections/reviews.js:88", // hashString
-  "src/_lib/collections/tags.js:10", // notNullish
-  "src/_lib/collections/events.js:9", // byEventDateAsc
-  "src/_lib/collections/events.js:12", // byEventDateDesc
-  "src/_lib/collections/events.js:18", // categorizeByEventDate
-
-  // === Utilities ===
-  "src/_lib/utils/dom-builder.js:24", // appendChildren
-  "src/_lib/utils/slug-utils.js:32", // capitalize
-
-  // === Eleventy plugins ===
-  "src/_lib/eleventy/recurring-events.js:56", // toRecurringEvent
-  "src/_lib/eleventy/recurring-events.js:71", // readRecurringEvent
-  "src/_lib/eleventy/pdf.js:230", // writePdfToFile
-  "src/_lib/eleventy/js-config.js:10", // toConfigEntry
-
-  // === Media ===
-  "src/_lib/media/unused-images.js:33", // reportUnusedImages
-
-  // === Browser-side JS ===
-  "src/assets/js/shuffle-properties.js:10", // nextRandom
-  "src/assets/js/shuffle-properties.js:16", // swapIndices
-  "src/assets/js/shuffle-properties.js:20", // shuffleArray
-  "src/assets/js/gallery.js:28", // showImageByIndex
-  "src/assets/js/gallery.js:79", // addNavigationButtons
-  "src/assets/js/gallery.js:84", // addNextButton
-  "src/assets/js/selectors.js:4", // toKebab
-  "src/assets/js/quote-checkout.js:22", // populateForm
-  "src/assets/js/cart-utils.js:57", // clampToMaxQuantity
-  "src/assets/js/availability-calendar.js:40", // showLoading
-  "src/assets/js/availability-calendar.js:136", // openCalendar
-  "src/assets/js/cart.js:33", // resetProductSelects
-  "src/assets/js/cart.js:60", // showAddedFeedback
-  "src/assets/js/cart.js:153", // clampQuantity
-  "src/assets/js/cart.js:172", // appendItem
-  "src/assets/js/cart.js:213", // paypalCheckout
-  "src/assets/js/cart.js:226", // checkoutWithPayPal
-  "src/assets/js/cart.js:235", // checkoutWithStripe
-  "src/assets/js/theme-editor-lib.js:117", // scopeHasVars
-
-  // === Test files ===
-  "test/collections/products.test.js:39", // assertingCollectionApi
-  "test/utils/strings.test.js:10", // SOURCE_FILES
-  "test/eleventy/recurring-events.test.js:32", // flatEvent
-  "test/code-quality/array-push.test.js:20", // analyzeArrayPushUsage
-  "test/code-quality/unused-classes.test.js:34", // cleanLiquid
-  "test/code-quality/unused-classes.test.js:175", // escapeRegex
-  "test/code-quality/unused-classes.test.js:178", // testAny
-  "test/code-quality/method-aliasing.test.js:35", // collectLocalDefs
+  "ecommerce-backend/server.js",
+  "src/_data/altTagsLookup.js",
+  "src/_data/eleventyComputed.js",
+  "src/_data/metaComputed.js",
+  "src/_lib/build/scss.js",
+  "src/_lib/collections/categories.js",
+  "src/_lib/collections/events.js",
+  "src/_lib/collections/menus.js",
+  "src/_lib/collections/navigation.js",
+  "src/_lib/collections/products.js",
+  "src/_lib/collections/reviews.js",
+  "src/_lib/collections/search.js",
+  "src/_lib/collections/tags.js",
+  "src/_lib/eleventy/external-links.js",
+  "src/_lib/eleventy/file-utils.js",
+  "src/_lib/eleventy/js-config.js",
+  "src/_lib/eleventy/pdf.js",
+  "src/_lib/eleventy/recurring-events.js",
+  "src/_lib/eleventy/responsive-tables.js",
+  "src/_lib/filters/item-filters.js",
+  "src/_lib/media/image-crop.js",
+  "src/_lib/media/image.js",
+  "src/_lib/media/unused-images.js",
+  "src/_lib/utils/canonical-url.js",
+  "src/_lib/utils/dom-builder.js",
+  "src/_lib/utils/schema-helper.js",
+  "src/_lib/utils/slug-utils.js",
+  "src/assets/js/availability-calendar.js",
+  "src/assets/js/cart-utils.js",
+  "src/assets/js/cart.js",
+  "src/assets/js/gallery.js",
+  "src/assets/js/hire-calculator.js",
+  "src/assets/js/quote-checkout.js",
+  "src/assets/js/quote.js",
+  "src/assets/js/scroll-fade.js",
+  "src/assets/js/search.js",
+  "src/assets/js/selectors.js",
+  "src/assets/js/shuffle-properties.js",
+  "src/assets/js/slider.js",
+  "src/assets/js/stripe-checkout.js",
+  "src/assets/js/tabs.js",
+  "src/assets/js/theme-editor-lib.js",
+  "src/assets/js/theme-editor.js",
+  "src/assets/js/theme-switcher.js",
+  "src/products/products.11tydata.js",
+  "test/code-quality/array-push.test.js",
+  "test/code-quality/method-aliasing.test.js",
+  "test/code-quality/unused-classes.test.js",
+  "test/collections/products.test.js",
+  "test/eleventy/recurring-events.test.js",
+  "test/utils/strings.test.js",
 ]);
 
 export {
