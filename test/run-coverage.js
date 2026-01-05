@@ -2,7 +2,8 @@
 
 /**
  * Coverage runner for Bun's native test framework.
- * Runs tests with coverage, enforces thresholds, and ratchets up limits on CI.
+ * Runs tests with coverage, enforces thresholds, ratchets up limits on CI,
+ * and prevents new uncovered code via an exceptions allowlist.
  */
 
 import { spawnSync } from "node:child_process";
@@ -12,6 +13,7 @@ import { ROOT_DIR } from "../src/_lib/paths.js";
 
 const rootDir = ROOT_DIR;
 const configPath = resolve(rootDir, ".test_coverage.json");
+const exceptionsPath = resolve(rootDir, ".coverage_exceptions.json");
 const lcovPath = resolve(rootDir, "coverage", "lcov.info");
 
 function readLimits() {
@@ -24,15 +26,30 @@ function writeLimits(limits) {
   writeFileSync(configPath, content, "utf-8");
 }
 
+function readExceptions() {
+  if (!existsSync(exceptionsPath)) {
+    return { lines: {}, functions: {} };
+  }
+  const content = readFileSync(exceptionsPath, "utf-8");
+  return JSON.parse(content);
+}
+
+function writeExceptions(exceptions) {
+  const content = `${JSON.stringify(exceptions, null, "\t")}\n`;
+  writeFileSync(exceptionsPath, content, "utf-8");
+}
+
 // Files excluded from coverage calculations (bootstrap/preload scripts)
 const COVERAGE_EXCLUDE = ["test/ensure-deps.js"];
 
 /**
- * Parse LCOV file to extract coverage percentages
+ * Parse LCOV file to extract coverage percentages and uncovered code locations
  */
 function parseLcov(lcovContent) {
   const files = {};
+  const uncovered = { lines: {}, functions: {} };
   let currentFile = null;
+  let currentFileRelative = null;
   let skipFile = false;
 
   for (const line of lcovContent.split("\n")) {
@@ -41,9 +58,11 @@ function parseLcov(lcovContent) {
       skipFile = COVERAGE_EXCLUDE.some((p) => filePath.endsWith(p));
       if (skipFile) {
         currentFile = null;
+        currentFileRelative = null;
         continue;
       }
       currentFile = filePath;
+      currentFileRelative = filePath.replace(`${rootDir}/`, "");
       files[currentFile] = {
         linesFound: 0,
         linesHit: 0,
@@ -65,8 +84,27 @@ function parseLcov(lcovContent) {
         files[currentFile].branchesFound = parseInt(line.slice(4), 10);
       } else if (line.startsWith("BRH:")) {
         files[currentFile].branchesHit = parseInt(line.slice(4), 10);
+      } else if (line.startsWith("DA:")) {
+        // DA:line,hit_count - track uncovered lines
+        const [lineNum, hits] = line.slice(3).split(",").map(Number);
+        if (hits === 0) {
+          if (!uncovered.lines[currentFileRelative]) {
+            uncovered.lines[currentFileRelative] = [];
+          }
+          uncovered.lines[currentFileRelative].push(lineNum);
+        }
+      } else if (line.startsWith("FNDA:")) {
+        // FNDA:hit_count,function_name - track uncovered functions
+        const [hits, funcName] = line.slice(5).split(",");
+        if (parseInt(hits, 10) === 0) {
+          if (!uncovered.functions[currentFileRelative]) {
+            uncovered.functions[currentFileRelative] = [];
+          }
+          uncovered.functions[currentFileRelative].push(funcName);
+        }
       } else if (line === "end_of_record") {
         currentFile = null;
+        currentFileRelative = null;
       }
     }
   }
@@ -92,6 +130,7 @@ function parseLcov(lcovContent) {
 
   return {
     files,
+    uncovered,
     totals: {
       lines: totalLines > 0 ? round2((hitLines / totalLines) * 100) : 100,
       functions:
@@ -138,6 +177,144 @@ function filterCoverageOutput(output) {
   return result.join("\n");
 }
 
+/**
+ * Check for new uncovered code not in the exceptions list.
+ * Returns violations object with any new uncovered lines/functions.
+ */
+function checkCoverageExceptions(uncovered, exceptions, verbose) {
+  const violations = { lines: {}, functions: {} };
+  let hasViolations = false;
+
+  // Check for new uncovered lines
+  for (const [file, lines] of Object.entries(uncovered.lines)) {
+    const allowedLines = new Set(exceptions.lines[file] || []);
+    const newUncovered = lines.filter((line) => !allowedLines.has(line));
+    if (newUncovered.length > 0) {
+      violations.lines[file] = newUncovered;
+      hasViolations = true;
+    }
+  }
+
+  // Check for new uncovered functions
+  for (const [file, funcs] of Object.entries(uncovered.functions)) {
+    const allowedFuncs = new Set(exceptions.functions[file] || []);
+    const newUncovered = funcs.filter((func) => !allowedFuncs.has(func));
+    if (newUncovered.length > 0) {
+      violations.functions[file] = newUncovered;
+      hasViolations = true;
+    }
+  }
+
+  if (hasViolations) {
+    console.error("\n❌ New uncovered code detected!");
+    console.error(
+      "   All new code must have test coverage. Either add tests or update .coverage_exceptions.json",
+    );
+
+    if (Object.keys(violations.lines).length > 0) {
+      console.error("\n   Uncovered lines:");
+      for (const [file, lines] of Object.entries(violations.lines)) {
+        console.error(`     ${file}: lines ${lines.join(", ")}`);
+      }
+    }
+
+    if (Object.keys(violations.functions).length > 0) {
+      console.error("\n   Uncovered functions:");
+      for (const [file, funcs] of Object.entries(violations.functions)) {
+        console.error(`     ${file}: ${funcs.join(", ")}`);
+      }
+    }
+
+    return false;
+  }
+
+  // Check if any exceptions can be removed (lines are now covered)
+  const removableExceptions = { lines: {}, functions: {} };
+  let hasRemovable = false;
+
+  for (const [file, allowedLines] of Object.entries(exceptions.lines)) {
+    const stillUncovered = new Set(uncovered.lines[file] || []);
+    const nowCovered = allowedLines.filter((line) => !stillUncovered.has(line));
+    if (nowCovered.length > 0) {
+      removableExceptions.lines[file] = nowCovered;
+      hasRemovable = true;
+    }
+  }
+
+  for (const [file, allowedFuncs] of Object.entries(exceptions.functions)) {
+    const stillUncovered = new Set(uncovered.functions[file] || []);
+    const nowCovered = allowedFuncs.filter((func) => !stillUncovered.has(func));
+    if (nowCovered.length > 0) {
+      removableExceptions.functions[file] = nowCovered;
+      hasRemovable = true;
+    }
+  }
+
+  if (hasRemovable && verbose) {
+    console.log("\n📉 Some exceptions can be removed (code is now covered):");
+    for (const [file, lines] of Object.entries(removableExceptions.lines)) {
+      console.log(`   ${file}: lines ${lines.join(", ")}`);
+    }
+    for (const [file, funcs] of Object.entries(removableExceptions.functions)) {
+      console.log(`   ${file}: ${funcs.join(", ")}`);
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Ratchet down coverage exceptions on CI - remove exceptions for now-covered code
+ */
+function ratchetExceptions(exceptions, uncovered, verbose) {
+  if (!process.env.CI || process.env.GITHUB_REF_NAME !== "main") {
+    return;
+  }
+
+  let updated = false;
+  const newExceptions = {
+    _comment: exceptions._comment,
+    lines: {},
+    functions: {},
+  };
+
+  // Only keep exceptions for code that's still uncovered
+  for (const [file, allowedLines] of Object.entries(exceptions.lines)) {
+    const stillUncovered = new Set(uncovered.lines[file] || []);
+    const remainingLines = allowedLines.filter((line) =>
+      stillUncovered.has(line),
+    );
+    if (remainingLines.length > 0) {
+      newExceptions.lines[file] = remainingLines;
+    }
+    if (remainingLines.length !== allowedLines.length) {
+      updated = true;
+    }
+  }
+
+  for (const [file, allowedFuncs] of Object.entries(exceptions.functions)) {
+    const stillUncovered = new Set(uncovered.functions[file] || []);
+    const remainingFuncs = allowedFuncs.filter((func) =>
+      stillUncovered.has(func),
+    );
+    if (remainingFuncs.length > 0) {
+      newExceptions.functions[file] = remainingFuncs;
+    }
+    if (remainingFuncs.length !== allowedFuncs.length) {
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    writeExceptions(newExceptions);
+    if (verbose) {
+      console.log(
+        "\n📉 Coverage exceptions ratcheted down in .coverage_exceptions.json",
+      );
+    }
+  }
+}
+
 function runCoverage() {
   const limits = readLimits();
   const verbose = process.env.VERBOSE === "1";
@@ -181,6 +358,12 @@ function runCoverage() {
   const lcovContent = readFileSync(lcovPath, "utf-8");
   const coverage = parseLcov(lcovContent);
 
+  // Check coverage exceptions - prevent new uncovered code
+  const exceptions = readExceptions();
+  if (!checkCoverageExceptions(coverage.uncovered, exceptions, verbose)) {
+    process.exit(1);
+  }
+
   // Check against thresholds
   const { lines, functions, branches } = coverage.totals;
   let failed = false;
@@ -221,6 +404,9 @@ function runCoverage() {
 
   // Ratchet up limits on CI
   ratchetLimits(limits, coverage.totals, verbose);
+
+  // Ratchet down exceptions on CI (remove now-covered code from exceptions)
+  ratchetExceptions(exceptions, coverage.uncovered, verbose);
 }
 
 function ratchetLimits(currentLimits, actual, verbose) {
