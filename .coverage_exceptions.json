@@ -40,9 +40,6 @@
 			130,
 			149
 		],
-		"src/_lib/eleventy/external-links.js": [
-			51
-		],
 		"src/_lib/eleventy/file-utils.js": [
 			20
 		],

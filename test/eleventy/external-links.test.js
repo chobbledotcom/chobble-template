@@ -197,12 +197,12 @@ describe("external-links", () => {
     expect(result).toBe(cssContent);
   });
 
-  test("Skips feed files", async () => {
+  test("Skips non-HTML files like feed.xml", async () => {
     const config = { externalLinksTargetBlank: true };
     const transform = createExternalLinksTransform(config);
 
     const feedContent = '<a href="https://example.com">Link</a>';
-    const result = await transform(feedContent, "feed.xml");
+    const result = await transform(feedContent, "_site/feed.xml");
     expect(result).toBe(feedContent);
   });
 
