@@ -6,7 +6,6 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
 import { ROOT_DIR } from "../src/_lib/paths.js";
 
 const rootDir = ROOT_DIR;
@@ -63,7 +62,7 @@ function extractErrorsFromOutput(output) {
 }
 
 function printSummary() {
-  console.log("\n" + "=".repeat(60));
+  console.log(`\n${"=".repeat(60)}`);
   console.log("PRECOMMIT SUMMARY");
   console.log("=".repeat(60));
 
@@ -100,7 +99,9 @@ function printSummary() {
 
       if (errors.length > 0) {
         console.log(`\n${step} errors:`);
-        errors.slice(0, 10).forEach((error) => console.log(`  ${error}`));
+        for (const error of errors.slice(0, 10)) {
+          console.log(`  ${error}`);
+        }
         if (errors.length > 10) {
           console.log(
             `  ... and ${errors.length - 10} more errors (use --verbose to see all)`,
