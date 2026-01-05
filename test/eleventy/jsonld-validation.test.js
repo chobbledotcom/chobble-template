@@ -71,26 +71,20 @@ const validateWithSchemaOrg = async (html) => {
 const JSON_LD_PATTERN =
   /<script type="application\/ld\+json">([\s\S]*?)<\/script>/;
 
-const parseJsonSafe = (str) => {
-  try {
-    return JSON.parse(str);
-  } catch {
-    return null;
-  }
-};
+const parseJsonSafe = (str) => JSON.parse(str);
 
 const extractJsonLd = (html) => {
   const match = html.match(JSON_LD_PATTERN);
   return match ? parseJsonSafe(match[1]) : null;
 };
 
-const getEntities = (jsonLd) => jsonLd?.["@graph"] ?? (jsonLd ? [jsonLd] : []);
+const getEntities = (jsonLd) => jsonLd["@graph"] || [jsonLd];
 
 const findEntityByType = (jsonLd, type) =>
-  getEntities(jsonLd).find((e) => e["@type"] === type) ?? null;
+  getEntities(jsonLd).find((e) => e["@type"] === type);
 
 // ============================================
-// Validation Functions (pure, composable)
+// Validation Functions
 // ============================================
 
 const VALID_CONTEXTS = new Set([
@@ -99,13 +93,7 @@ const VALID_CONTEXTS = new Set([
   "https://schema.org/",
 ]);
 
-const validateContext = (jsonLd) => {
-  if (!jsonLd) return { valid: false, error: "No JSON-LD found" };
-  if (!jsonLd["@context"]) return { valid: false, error: "Missing @context" };
-  if (!VALID_CONTEXTS.has(jsonLd["@context"]))
-    return { valid: false, error: `Invalid @context: ${jsonLd["@context"]}` };
-  return { valid: true, error: null };
-};
+const hasValidContext = (jsonLd) => VALID_CONTEXTS.has(jsonLd["@context"]);
 
 // Required properties by type (based on Google Rich Results requirements)
 const REQUIRED_PROPERTIES = {
@@ -117,21 +105,8 @@ const REQUIRED_PROPERTIES = {
   Event: [],
 };
 
-const validateEntityProperties = (entity, type) => {
-  if (!entity) return { valid: false, errors: [`No ${type} entity found`] };
-
-  const typeError =
-    entity["@type"] !== type
-      ? [`Expected @type "${type}", got "${entity["@type"]}"`]
-      : [];
-
-  const missingProps = (REQUIRED_PROPERTIES[type] || [])
-    .filter((prop) => !entity[prop])
-    .map((prop) => `Missing required property: ${prop}`);
-
-  const errors = [...typeError, ...missingProps];
-  return { valid: errors.length === 0, errors };
-};
+const hasRequiredProperties = (entity, type) =>
+  (REQUIRED_PROPERTIES[type] || []).every((prop) => entity[prop]);
 
 // ============================================
 // Test Fixtures (factory functions)
@@ -286,8 +261,8 @@ const assertEntityValid = (site, pagePath, entityType) => {
   const html = site.getOutput(pagePath);
   const jsonLd = extractJsonLd(html);
   const entity = findEntityByType(jsonLd, entityType);
-  const result = validateEntityProperties(entity, entityType);
-  expect(result.valid).toBe(true);
+  expect(entity["@type"]).toBe(entityType);
+  expect(hasRequiredProperties(entity, entityType)).toBe(true);
 };
 
 // ============================================
@@ -339,7 +314,7 @@ describe("JSON-LD structured data validation", () => {
       const jsonLd = extractJsonLd(html);
 
       expect(jsonLd).not.toBeNull();
-      expect(validateContext(jsonLd).valid).toBe(true);
+      expect(hasValidContext(jsonLd)).toBe(true);
       expect(jsonLd["@graph"]).toBeDefined();
       expect(Array.isArray(jsonLd["@graph"])).toBe(true);
     });
@@ -349,7 +324,7 @@ describe("JSON-LD structured data validation", () => {
       const jsonLd = extractJsonLd(html);
 
       expect(jsonLd).not.toBeNull();
-      expect(validateContext(jsonLd).valid).toBe(true);
+      expect(hasValidContext(jsonLd)).toBe(true);
       expect(jsonLd["@graph"]).toBeDefined();
     });
 
@@ -358,7 +333,7 @@ describe("JSON-LD structured data validation", () => {
       const jsonLd = extractJsonLd(html);
 
       expect(jsonLd).not.toBeNull();
-      expect(validateContext(jsonLd).valid).toBe(true);
+      expect(hasValidContext(jsonLd)).toBe(true);
       expect(jsonLd["@graph"]).toBeDefined();
     });
 
@@ -367,7 +342,7 @@ describe("JSON-LD structured data validation", () => {
       const jsonLd = extractJsonLd(html);
 
       expect(jsonLd).not.toBeNull();
-      expect(validateContext(jsonLd).valid).toBe(true);
+      expect(hasValidContext(jsonLd)).toBe(true);
       expect(jsonLd["@graph"]).toBeDefined();
     });
 
@@ -504,7 +479,7 @@ describe("JSON-LD structured data validation", () => {
           const jsonLd = extractJsonLd(html);
 
           expect(jsonLd).not.toBeNull();
-          expect(validateContext(jsonLd).valid).toBe(true);
+          expect(hasValidContext(jsonLd)).toBe(true);
           await assertSchemaOrgValid(html, "Special chars");
         },
       );
@@ -554,7 +529,7 @@ describe("JSON-LD structured data validation", () => {
           const jsonLd = extractJsonLd(html);
 
           expect(jsonLd).not.toBeNull();
-          expect(validateContext(jsonLd).valid).toBe(true);
+          expect(hasValidContext(jsonLd)).toBe(true);
           await assertSchemaOrgValid(html, "No image");
         },
       );
@@ -586,29 +561,22 @@ describe("JSON-LD structured data validation", () => {
       const htmlFiles = findHtmlFiles(siteDir);
       expect(htmlFiles.length).toBeGreaterThan(0);
 
-      const results = htmlFiles.map((filePath) => {
-        const html = fs.readFileSync(filePath, "utf-8");
-        const jsonLd = extractJsonLd(html);
-        return {
-          file: relativePath(filePath),
-          hasJsonLd: jsonLd !== null,
-          contextValid: jsonLd ? validateContext(jsonLd).valid : null,
-          error: jsonLd ? validateContext(jsonLd).error : "No JSON-LD found",
-        };
-      });
+      const invalidPages = htmlFiles
+        .map((filePath) => {
+          const html = fs.readFileSync(filePath, "utf-8");
+          const jsonLd = extractJsonLd(html);
+          return { file: relativePath(filePath), jsonLd };
+        })
+        .filter((r) => r.jsonLd && !hasValidContext(r.jsonLd));
 
-      // Pages with JSON-LD should have valid context
-      const pagesWithJsonLd = results.filter((r) => r.hasJsonLd);
-      const invalidContext = pagesWithJsonLd.filter((r) => !r.contextValid);
-
-      if (invalidContext.length > 0) {
+      if (invalidPages.length > 0) {
         console.log("Pages with invalid JSON-LD context:");
-        for (const r of invalidContext) {
-          console.log(`  ${r.file}: ${r.error}`);
+        for (const r of invalidPages) {
+          console.log(`  ${r.file}: got @context "${r.jsonLd["@context"]}"`);
         }
       }
 
-      expect(invalidContext.length).toBe(0);
+      expect(invalidPages.length).toBe(0);
     });
 
     test("all production pages validate against schema.org", async () => {
