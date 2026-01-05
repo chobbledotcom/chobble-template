@@ -9,7 +9,54 @@ import {
 import {
   createMockEleventyConfig,
   expectResultTitles,
+  taggedCollectionApi,
 } from "#test/test-utils.js";
+import { map } from "#utils/array-utils.js";
+
+// ============================================
+// Functional Test Fixture Builders
+// ============================================
+
+/**
+ * Create a category with fileSlug and data
+ * @param {string} slug - The fileSlug
+ * @param {string|null} headerImage - The header_image (null/undefined to omit)
+ * @param {Object} extraData - Additional data properties
+ */
+const category = (slug, headerImage, extraData = {}) => ({
+  fileSlug: slug,
+  data: {
+    ...(headerImage !== undefined && { header_image: headerImage }),
+    ...extraData,
+  },
+});
+
+/**
+ * Create categories from an array of [slug, headerImage, extraData] tuples
+ * Curried for use with pipe
+ */
+const categories = map(([slug, headerImage, extraData]) =>
+  category(slug, headerImage, extraData),
+);
+
+/**
+ * Create a product for category image tests
+ * @param {Object} options - Product options
+ */
+const product = ({ order, cats = [], headerImage, ...extraData } = {}) => ({
+  data: {
+    ...(order !== undefined && { order }),
+    ...(cats.length > 0 && { categories: cats }),
+    ...(headerImage && { header_image: headerImage }),
+    ...extraData,
+  },
+});
+
+/**
+ * Create products from an array of option objects
+ * Curried for use with pipe
+ */
+const products = map(product);
 
 describe("categories", () => {
   test("buildCategoryImageMap-empty-data", () => {
@@ -19,12 +66,12 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-categories-only", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
-      { fileSlug: "gadgets", data: { header_image: "gadget-header.jpg" } },
-    ];
+    const testCategories = categories([
+      ["widgets", "widget-header.jpg"],
+      ["gadgets", "gadget-header.jpg"],
+    ]);
 
-    const result = buildCategoryImageMap(categories, []);
+    const result = buildCategoryImageMap(testCategories, []);
 
     expect(result).toEqual({
       widgets: ["widget-header.jpg", -1],
@@ -33,12 +80,12 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-no-category-images", () => {
-    const categories = [
-      { fileSlug: "widgets", data: {} },
-      { fileSlug: "gadgets", data: { header_image: null } },
+    const testCategories = [
+      category("widgets", undefined),
+      category("gadgets", null),
     ];
 
-    const result = buildCategoryImageMap(categories, []);
+    const result = buildCategoryImageMap(testCategories, []);
 
     expect(result).toEqual({
       widgets: [undefined, -1],
@@ -47,21 +94,16 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-product-override", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = [
+      product({
+        order: 5,
+        cats: ["widgets"],
+        headerImage: "product-image.jpg",
+      }),
     ];
 
-    const products = [
-      {
-        data: {
-          order: 5,
-          categories: ["widgets"],
-          header_image: "product-image.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["product-image.jpg", 5],
@@ -69,28 +111,13 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-product-no-override", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
-    ];
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = products([
+      { order: 2, cats: ["widgets"], headerImage: "low-priority.jpg" },
+      { order: 5, cats: ["widgets"], headerImage: "high-priority.jpg" },
+    ]);
 
-    const products = [
-      {
-        data: {
-          order: 2,
-          categories: ["widgets"],
-          header_image: "low-priority.jpg",
-        },
-      },
-      {
-        data: {
-          order: 5,
-          categories: ["widgets"],
-          header_image: "high-priority.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["high-priority.jpg", 5],
@@ -98,20 +125,12 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-default-order", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = [
+      product({ cats: ["widgets"], headerImage: "product-image.jpg" }),
     ];
 
-    const products = [
-      {
-        data: {
-          categories: ["widgets"],
-          header_image: "product-image.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["product-image.jpg", 0],
@@ -119,22 +138,19 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-multiple-categories", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
-      { fileSlug: "gadgets", data: { header_image: "gadget-header.jpg" } },
+    const testCategories = categories([
+      ["widgets", "widget-header.jpg"],
+      ["gadgets", "gadget-header.jpg"],
+    ]);
+    const testProducts = [
+      product({
+        order: 3,
+        cats: ["widgets", "gadgets"],
+        headerImage: "multi-category.jpg",
+      }),
     ];
 
-    const products = [
-      {
-        data: {
-          order: 3,
-          categories: ["widgets", "gadgets"],
-          header_image: "multi-category.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["multi-category.jpg", 3],
@@ -143,20 +159,10 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-no-product-image", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
-    ];
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = [product({ order: 10, cats: ["widgets"] })];
 
-    const products = [
-      {
-        data: {
-          order: 10,
-          categories: ["widgets"],
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["widget-header.jpg", -1],
@@ -164,17 +170,16 @@ describe("categories", () => {
   });
 
   test("assignCategoryImages-basic", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { title: "Widgets" } },
-      { fileSlug: "gadgets", data: { title: "Gadgets" } },
-    ];
-
+    const testCategories = categories([
+      ["widgets", undefined, { title: "Widgets" }],
+      ["gadgets", undefined, { title: "Gadgets" }],
+    ]);
     const categoryImages = {
       widgets: ["widget-final.jpg", 5],
       gadgets: ["gadget-final.jpg", 3],
     };
 
-    const result = assignCategoryImages(categories, categoryImages);
+    const result = assignCategoryImages(testCategories, categoryImages);
 
     expect(result[0].data.header_image).toBe("widget-final.jpg");
     expect(result[1].data.header_image).toBe("gadget-final.jpg");
@@ -182,77 +187,49 @@ describe("categories", () => {
   });
 
   test("assignCategoryImages-missing-mapping", () => {
-    const categories = [{ fileSlug: "widgets", data: { title: "Widgets" } }];
-
+    const testCategories = [
+      category("widgets", undefined, { title: "Widgets" }),
+    ];
     const categoryImages = {};
 
-    const result = assignCategoryImages(categories, categoryImages);
+    const result = assignCategoryImages(testCategories, categoryImages);
 
     expect(result[0].data.header_image).toBe(undefined);
   });
 
   test("assignCategoryImages-mutates-original", () => {
-    const categories = [{ fileSlug: "widgets", data: { title: "Widgets" } }];
+    const testCategories = [
+      category("widgets", undefined, { title: "Widgets" }),
+    ];
+    const categoryImages = { widgets: ["widget.jpg", 1] };
 
-    const categoryImages = {
-      widgets: ["widget.jpg", 1],
-    };
+    const result = assignCategoryImages(testCategories, categoryImages);
 
-    const result = assignCategoryImages(categories, categoryImages);
-
-    expect(result[0]).toBe(categories[0]);
-    expect(categories[0].data.header_image).toBe("widget.jpg");
+    expect(result[0]).toBe(testCategories[0]);
+    expect(testCategories[0].data.header_image).toBe("widget.jpg");
   });
 
   test("createCategoriesCollection-empty", () => {
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        if (tag === "category") return [];
-        if (tag === "product") return [];
-        return [];
-      },
-    };
+    const mockApi = taggedCollectionApi({ category: [], product: [] });
 
-    const result = createCategoriesCollection(mockCollectionApi);
+    const result = createCategoriesCollection(mockApi);
 
     expect(result).toEqual([]);
   });
 
   test("createCategoriesCollection-integration", () => {
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        if (tag === "category") {
-          return [
-            {
-              fileSlug: "widgets",
-              data: { title: "Widgets", header_image: "default-widget.jpg" },
-            },
-            { fileSlug: "gadgets", data: { title: "Gadgets" } },
-          ];
-        }
-        if (tag === "product") {
-          return [
-            {
-              data: {
-                order: 5,
-                categories: ["widgets"],
-                header_image: "premium-widget.jpg",
-              },
-            },
-            {
-              data: {
-                order: 2,
-                categories: ["gadgets"],
-                header_image: "basic-gadget.jpg",
-              },
-            },
-          ];
-        }
-        return [];
-      },
-    };
+    const mockApi = taggedCollectionApi({
+      category: categories([
+        ["widgets", "default-widget.jpg", { title: "Widgets" }],
+        ["gadgets", undefined, { title: "Gadgets" }],
+      ]),
+      product: products([
+        { order: 5, cats: ["widgets"], headerImage: "premium-widget.jpg" },
+        { order: 2, cats: ["gadgets"], headerImage: "basic-gadget.jpg" },
+      ]),
+    });
 
-    const result = createCategoriesCollection(mockCollectionApi);
+    const result = createCategoriesCollection(mockApi);
 
     expect(result.length).toBe(2);
     expect(result[0].data.header_image).toBe("premium-widget.jpg");
@@ -261,13 +238,13 @@ describe("categories", () => {
   });
 
   test("getFeaturedCategories-basic", () => {
-    const categories = [
-      { data: { title: "Featured Category", featured: true } },
-      { data: { title: "Regular Category", featured: false } },
-      { data: { title: "Another Category" } },
-    ];
+    const testCategories = categories([
+      ["featured", undefined, { title: "Featured Category", featured: true }],
+      ["regular", undefined, { title: "Regular Category", featured: false }],
+      ["another", undefined, { title: "Another Category" }],
+    ]);
 
-    const result = getFeaturedCategories(categories);
+    const result = getFeaturedCategories(testCategories);
 
     expectResultTitles(result, ["Featured Category"]);
   });
@@ -294,28 +271,13 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-order-precedence", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
-    ];
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = products([
+      { order: 5, cats: ["widgets"], headerImage: "first-image.jpg" },
+      { order: 5, cats: ["widgets"], headerImage: "second-image.jpg" },
+    ]);
 
-    const products = [
-      {
-        data: {
-          order: 5,
-          categories: ["widgets"],
-          header_image: "first-image.jpg",
-        },
-      },
-      {
-        data: {
-          order: 5,
-          categories: ["widgets"],
-          header_image: "second-image.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["first-image.jpg", 5],
@@ -323,20 +285,12 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-products-without-categories", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = [
+      product({ order: 5, headerImage: "orphan-image.jpg" }),
     ];
 
-    const products = [
-      {
-        data: {
-          order: 5,
-          header_image: "orphan-image.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["widget-header.jpg", -1],
@@ -344,21 +298,16 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-unknown-categories", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-header.jpg" } },
+    const testCategories = [category("widgets", "widget-header.jpg")];
+    const testProducts = [
+      product({
+        order: 5,
+        cats: ["widgets", "unknown-category"],
+        headerImage: "product-image.jpg",
+      }),
     ];
 
-    const products = [
-      {
-        data: {
-          order: 5,
-          categories: ["widgets", "unknown-category"],
-          header_image: "product-image.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["product-image.jpg", 5],
@@ -368,15 +317,10 @@ describe("categories", () => {
 
   test("buildCategoryImageMap-functional-immutability", () => {
     const originalCategories = [
-      {
-        fileSlug: "widgets",
-        data: { title: "Widgets", header_image: "original.jpg" },
-      },
+      category("widgets", "original.jpg", { title: "Widgets" }),
     ];
     const originalProducts = [
-      {
-        data: { order: 1, categories: ["widgets"], header_image: "test.jpg" },
-      },
+      product({ order: 1, cats: ["widgets"], headerImage: "test.jpg" }),
     ];
 
     const categoriesCopy = JSON.parse(JSON.stringify(originalCategories));
@@ -397,43 +341,23 @@ describe("categories", () => {
   });
 
   test("buildCategoryImageMap-complex-scenario", () => {
-    const categories = [
-      { fileSlug: "widgets", data: { header_image: "widget-default.jpg" } },
-      { fileSlug: "gadgets", data: { header_image: "gadget-default.jpg" } },
-      { fileSlug: "tools", data: {} },
-    ];
+    const testCategories = categories([
+      ["widgets", "widget-default.jpg"],
+      ["gadgets", "gadget-default.jpg"],
+      ["tools", undefined],
+    ]);
+    const testProducts = products([
+      {
+        order: 3,
+        cats: ["widgets", "gadgets"],
+        headerImage: "cross-category.jpg",
+      },
+      { order: 1, cats: ["widgets"], headerImage: "low-priority-widget.jpg" },
+      { order: 5, cats: ["tools"], headerImage: "high-priority-tool.jpg" },
+      { cats: ["gadgets"], headerImage: "default-order-gadget.jpg" },
+    ]);
 
-    const products = [
-      {
-        data: {
-          order: 3,
-          categories: ["widgets", "gadgets"],
-          header_image: "cross-category.jpg",
-        },
-      },
-      {
-        data: {
-          order: 1,
-          categories: ["widgets"],
-          header_image: "low-priority-widget.jpg",
-        },
-      },
-      {
-        data: {
-          order: 5,
-          categories: ["tools"],
-          header_image: "high-priority-tool.jpg",
-        },
-      },
-      {
-        data: {
-          categories: ["gadgets"],
-          header_image: "default-order-gadget.jpg",
-        },
-      },
-    ];
-
-    const result = buildCategoryImageMap(categories, products);
+    const result = buildCategoryImageMap(testCategories, testProducts);
 
     expect(result).toEqual({
       widgets: ["cross-category.jpg", 3],
@@ -444,12 +368,10 @@ describe("categories", () => {
 
   test("categories-functions-pure", () => {
     const originalCategories = [
-      { fileSlug: "widgets", data: { title: "Widgets" } },
+      category("widgets", undefined, { title: "Widgets" }),
     ];
     const originalProducts = [
-      {
-        data: { order: 1, categories: ["widgets"], header_image: "test.jpg" },
-      },
+      product({ order: 1, cats: ["widgets"], headerImage: "test.jpg" }),
     ];
 
     const categoriesCopy = JSON.parse(JSON.stringify(originalCategories));
