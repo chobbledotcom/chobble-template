@@ -1,12 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_MUTABLE_CONST } from "#test/code-quality/code-quality-exceptions.js";
+import {
+  ALLOWED_LET_USAGE,
+  ALLOWED_MUTABLE_CONST,
+} from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   createCodeChecker,
   matchesAny,
   validateExceptions,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SRC_AND_TEST_UTILS_FILES } from "#test/test-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [
@@ -32,8 +35,8 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       if (matchesAny(ALLOWED_LET_PATTERNS)(line.trim())) return null;
       return { reason: "Mutable variable declaration" };
     },
-    files: SRC_JS_FILES,
-    allowlist: new Set(),
+    files: SRC_AND_TEST_UTILS_FILES,
+    allowlist: ALLOWED_LET_USAGE,
   });
 
 // Complete checker for mutable const declarations
@@ -47,7 +50,7 @@ const { find: findMutableConstDeclarations, analyze: mutableConstAnalysis } =
       if (/new\s+Map/.test(line)) return { reason: "Map const" };
       return { reason: "Mutable const" };
     },
-    files: SRC_JS_FILES,
+    files: SRC_AND_TEST_UTILS_FILES,
     allowlist: ALLOWED_MUTABLE_CONST,
   });
 

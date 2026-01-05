@@ -164,6 +164,15 @@ const SRC_HTML_FILES = memoize(() =>
 );
 const SRC_SCSS_FILES = memoize(() => getFiles(/^src\/css\/.*\.scss$/));
 const TEST_FILES = memoize(() => getFiles(/^test\/.*\.test\.js$/));
+// Test utility scripts (non-test files in test directory)
+const TEST_UTILITY_FILES = memoize(() =>
+  getFiles(/^test\/[^/]+\.js$/).filter((f) => !f.endsWith(".test.js")),
+);
+// Source files plus test utilities (for code quality checks)
+const SRC_AND_TEST_UTILS_FILES = memoize(() => [
+  ...SRC_JS_FILES(),
+  ...TEST_UTILITY_FILES(),
+]);
 const ALL_JS_FILES = memoize(() =>
   getFiles(/^(src|ecommerce-backend|test)\/.*\.js$/),
 );
@@ -698,6 +707,8 @@ export {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
+  TEST_UTILITY_FILES,
+  SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
   captureConsoleLog,

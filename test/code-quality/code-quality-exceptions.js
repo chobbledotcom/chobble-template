@@ -77,6 +77,30 @@ const ALLOWED_PROCESS_CWD = new Set([
 ]);
 
 // ============================================
+// Let usage exceptions
+// ============================================
+
+// Explicit let declarations that are necessary for legitimate mutability.
+// Most let usage should be converted to const with functional patterns.
+const ALLOWED_LET_USAGE = new Set([
+  // Test utilities - legitimate mutable state for parsing/tracking
+  "test/test-utils.js:147", // lazy memoization value
+  "test/test-utils.js:148", // computed flag
+  "test/test-utils.js:449", // brace depth counter (parser state)
+  "test/test-utils.js:450", // string state flag (parser state)
+  "test/test-utils.js:452", // template state flag (parser state)
+  "test/test-utils.js:453", // comment state flag (parser state)
+  "test/precommit.js:90", // pass/fail status flag
+  "test/run-coverage.js:36", // file skip flag (parser state)
+  "test/run-coverage.js:75", // coverage total counters (accumulation)
+  "test/run-coverage.js:77", // coverage total counters (accumulation)
+  "test/run-coverage.js:79", // coverage total counters (accumulation)
+  "test/run-coverage.js:113", // hidden count accumulator (filtering)
+  "test/run-coverage.js:186", // failure flag (validation tracking)
+  "test/run-coverage.js:232", // update flag (ratchet tracking)
+]);
+
+// ============================================
 // Mutable const exceptions (empty [], {}, Set, Map)
 // ============================================
 
@@ -86,6 +110,24 @@ const ALLOWED_PROCESS_CWD = new Set([
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+
+  // Test utilities - imperative accumulation patterns for performance/clarity
+  "test/test-utils.js:27", // ALWAYS_SKIP set (static config)
+  "test/test-utils.js:117", // results accumulator (getFiles)
+  "test/test-utils.js:182", // logs accumulator (console capture)
+  "test/test-utils.js:191", // logs accumulator (console capture async)
+  "test/test-utils.js:427", // results set (extractClassesAndIds)
+  "test/test-utils.js:445", // functions accumulator (extractFunctions)
+  "test/test-utils.js:447", // stack for parsing state (extractFunctions)
+  "test/build-profiling.js:61", // times accumulator (performance tracking)
+  "test/build-profiling.js:216", // runs accumulator (benchmark results)
+  "test/precommit.js:22", // results accumulator (script results)
+  "test/precommit.js:47", // errors accumulator (validation errors)
+  "test/precommit.js:91", // passedSteps accumulator (status tracking)
+  "test/precommit.js:92", // failedSteps accumulator (status tracking)
+  "test/code-scanner.js:310", // stale entries accumulator (validation)
+  "test/run-coverage.js:34", // files accumulator (LCOV parsing)
+  "test/run-coverage.js:112", // result accumulator (coverage filtering)
 ]);
 
 // ============================================
@@ -266,6 +308,7 @@ export {
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
+  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
