@@ -2,61 +2,17 @@ import { describe, expect, test } from "bun:test";
 import {
   buildSections,
   processQuoteFields,
-  splitFieldsIntoSections,
 } from "#config/quote-fields-helpers.js";
 
 describe("quote-fields-helpers", () => {
-  // splitFieldsIntoSections function tests
-  describe("splitFieldsIntoSections", () => {
-    test("splits fields at divider", () => {
-      const fields = [
-        { name: "field1", type: "text" },
-        { type: "divider" },
-        { name: "field2", type: "email" },
-      ];
-      const result = splitFieldsIntoSections(fields);
-      expect(result.length).toBe(2);
-      expect(result[0].length).toBe(1);
-      expect(result[0][0].name).toBe("field1");
-      expect(result[1].length).toBe(1);
-      expect(result[1][0].name).toBe("field2");
-    });
-
-    test("handles multiple dividers", () => {
-      const fields = [
-        { name: "a", type: "text" },
-        { type: "divider" },
-        { name: "b", type: "text" },
-        { type: "divider" },
-        { name: "c", type: "text" },
-      ];
-      const result = splitFieldsIntoSections(fields);
-      expect(result.length).toBe(3);
-      expect(result[0][0].name).toBe("a");
-      expect(result[1][0].name).toBe("b");
-      expect(result[2][0].name).toBe("c");
-    });
-
-    test("handles no dividers", () => {
-      const fields = [
-        { name: "field1", type: "text" },
-        { name: "field2", type: "email" },
-      ];
-      const result = splitFieldsIntoSections(fields);
-      expect(result.length).toBe(1);
-      expect(result[0].length).toBe(2);
-    });
-  });
-
   // buildSections function tests
   describe("buildSections", () => {
-    test("builds sections with titles and metadata", () => {
-      const fieldSections = [
-        [{ name: "a", type: "text" }],
-        [{ name: "b", type: "email" }],
+    test("builds sections with metadata", () => {
+      const sections = [
+        { title: "Section 1", fields: [{ name: "a", type: "text" }] },
+        { title: "Section 2", fields: [{ name: "b", type: "email" }] },
       ];
-      const titles = ["Section 1", "Section 2"];
-      const result = buildSections(fieldSections, titles);
+      const result = buildSections(sections);
 
       expect(result.length).toBe(2);
       expect(result[0].title).toBe("Section 1");
@@ -70,20 +26,25 @@ describe("quote-fields-helpers", () => {
     });
 
     test("adds templates to fields", () => {
-      const fieldSections = [
-        [
-          { name: "text", type: "text" },
-          { name: "area", type: "textarea" },
-        ],
+      const sections = [
+        {
+          title: "Test",
+          fields: [
+            { name: "text", type: "text" },
+            { name: "area", type: "textarea" },
+          ],
+        },
       ];
-      const result = buildSections(fieldSections, ["Test"]);
+      const result = buildSections(sections);
       expect(result[0].fields[0].template).toBe("form-field-input.html");
       expect(result[0].fields[1].template).toBe("form-field-textarea.html");
     });
 
     test("single section is both first and last", () => {
-      const fieldSections = [[{ name: "solo", type: "text" }]];
-      const result = buildSections(fieldSections, ["Only"]);
+      const sections = [
+        { title: "Only", fields: [{ name: "solo", type: "text" }] },
+      ];
+      const result = buildSections(sections);
       expect(result[0].isFirst).toBe(true);
       expect(result[0].isLast).toBe(true);
     });
@@ -93,12 +54,10 @@ describe("quote-fields-helpers", () => {
   describe("processQuoteFields", () => {
     test("processes complete quote fields data", () => {
       const data = {
-        fields: [
-          { name: "date", type: "date" },
-          { type: "divider" },
-          { name: "name", type: "text" },
+        sections: [
+          { title: "Event", fields: [{ name: "date", type: "date" }] },
+          { title: "Contact", fields: [{ name: "name", type: "text" }] },
         ],
-        sectionTitles: ["Event", "Contact"],
         recapTitle: "Review",
         submitButtonText: "Send",
       };
@@ -112,22 +71,22 @@ describe("quote-fields-helpers", () => {
       expect(result.submitButtonText).toBe("Send");
     });
 
-    test("includes flat fields array with templates", () => {
+    test("adds templates to section fields", () => {
       const data = {
-        fields: [
-          { name: "text", type: "text" },
-          { type: "divider" },
-          { name: "area", type: "textarea" },
+        sections: [
+          { title: "Part 1", fields: [{ name: "text", type: "text" }] },
+          { title: "Part 2", fields: [{ name: "area", type: "textarea" }] },
         ],
-        sectionTitles: ["Part 1", "Part 2"],
         recapTitle: "Review",
         submitButtonText: "Submit",
       };
       const result = processQuoteFields(data);
-      // Flat fields includes all including divider
-      expect(result.fields.length).toBe(3);
-      expect(result.fields[0].template).toBe("form-field-input.html");
-      expect(result.fields[2].template).toBe("form-field-textarea.html");
+      expect(result.sections[0].fields[0].template).toBe(
+        "form-field-input.html",
+      );
+      expect(result.sections[1].fields[0].template).toBe(
+        "form-field-textarea.html",
+      );
     });
   });
 
