@@ -17,7 +17,6 @@ import {
   assertNoViolations,
   combineFileLists,
   readSource,
-  validateExceptions,
 } from "#test/code-scanner.js";
 import {
   ECOMMERCE_JS_FILES,
@@ -228,9 +227,6 @@ const analyzeSingleUseFunctions = () => {
       // Skip nested functions (intentionally scoped)
       if (func.isNested) continue;
 
-      // Skip common patterns that are intentionally single-use
-      if (isIntentionallySingleUse(func.name)) continue;
-
       // Count total references across all files
       let totalRefs = 0;
       for (const [, otherData] of fileData) {
@@ -249,75 +245,13 @@ const analyzeSingleUseFunctions = () => {
     }
   }
 
-  // Filter by allowlist
-  const isAllowlisted = (v) =>
-    ALLOWED_SINGLE_USE_FUNCTIONS.has(`${v.file}:${v.line}`) ||
-    ALLOWED_SINGLE_USE_FUNCTIONS.has(v.file);
+  // Filter by allowlist (file-level only)
+  const isAllowlisted = (v) => ALLOWED_SINGLE_USE_FUNCTIONS.has(v.file);
 
   return {
     violations: violations.filter((v) => !isAllowlisted(v)),
     allowed: violations.filter(isAllowlisted),
   };
-};
-
-/**
- * Check if a function name suggests it's intentionally single-use.
- * These patterns indicate the function exists for naming/clarity purposes.
- * Only includes patterns actually used in this codebase.
- */
-const isIntentionallySingleUse = (name) => {
-  const patterns = [
-    /^handle[A-Z]/, // Event handlers: handleClick, handleSubmit
-    /^on[A-Z]/, // Event callbacks: onClick, onLoad
-    /^create[A-Z]/, // Factory functions: createWidget, createStore
-    /^build[A-Z]/, // Builder functions: buildConfig, buildTemplate
-    /^init[A-Z]/, // Initialization: initApp, initModule
-    /^setup[A-Z]/, // Setup functions: setupRoutes, setupListeners
-    /^configure[A-Z]/, // Configuration: configureApp, configurePlugin
-    /^render[A-Z]/, // Render functions: renderHeader, renderItem
-    /^validate[A-Z]/, // Validators: validateInput, validateForm
-    /^process[A-Z]/, // Processors: processData, processRequest
-    /^transform[A-Z]/, // Transformers: transformData, transformResult
-    /^parse[A-Z]/, // Parsers: parseConfig, parseInput
-    /^format[A-Z]/, // Formatters: formatDate, formatCurrency
-    /^get[A-Z]/, // Getters: getData, getConfig
-    /^fetch[A-Z]/, // Fetchers: fetchUsers, fetchData
-    /^load[A-Z]/, // Loaders: loadConfig, loadModule
-    /^register[A-Z]/, // Registrations: registerPlugin, registerHandler
-    /^update[A-Z]/, // Updaters: updateState, updateUI
-    /^apply[A-Z]/, // Appliers: applyTheme, applyFilter
-    /^extract[A-Z]/, // Extractors: extractData, extractValue
-    /^generate[A-Z]/, // Generators: generateId, generateReport
-    /^compute[A-Z]/, // Computations: computeTotal, computeHash
-    /^calculate[A-Z]/, // Calculations: calculatePrice, calculateTax
-    /^normalize[A-Z]/, // Normalizers: normalizeData, normalizePath
-    /^compile[A-Z]/, // Compilers: compileTemplate, compileScss
-    /^resolve[A-Z]/, // Resolvers: resolvePath, resolveConfig
-    /^merge[A-Z]/, // Mergers: mergeConfig, mergeOptions
-    /^filter[A-Z]/, // Filters: filterItems, filterByCategory
-    /^sort[A-Z]/, // Sorters: sortByDate, sortByName
-    /^map[A-Z]/, // Mappers: mapEntries, mapObject
-    /^find[A-Z]/, // Finders: findUser, findById
-    /^check[A-Z]/, // Checkers: checkPermission, checkValidity
-    /^assert[A-Z]/, // Asserters: assertValid, assertNotNull
-    /^ensure[A-Z]/, // Ensurers: ensureLoaded, ensureValid
-    /^wrap[A-Z]/, // Wrappers: wrapHandler, wrapComponent
-    /^with[A-Z]/, // Higher-order: withAuth, withLogging
-    /^make[A-Z]/, // Makers: makeRequest, makeHandler
-    /^run[A-Z]/, // Runners: runTests, runMigration
-    /^execute[A-Z]/, // Executors: executeQuery, executeCommand
-    /^perform[A-Z]/, // Performers: performAction, performCleanup
-    /^is[A-Z]/, // Predicates: isValid, isEmpty
-    /^has[A-Z]/, // Has-predicates: hasPermission, hasValue
-    /^can[A-Z]/, // Can-predicates: canEdit, canDelete
-    /^should[A-Z]/, // Should-predicates: shouldUpdate, shouldRender
-    /Handler$/, // Handlers: addQtyHandler, updateHandler
-    /Listener$/, // Listeners: changeListener, scrollListener
-    /Helper$/, // Helpers: testHelper, asyncHelper
-    /Fn$/, // Function references: keyFn, filterFn
-  ];
-
-  return patterns.some((pattern) => pattern.test(name));
 };
 
 // ============================================
@@ -472,29 +406,6 @@ const z = add(5, 6);
     });
   });
 
-  describe("isIntentionallySingleUse", () => {
-    test("allows handler functions", () => {
-      expect(isIntentionallySingleUse("handleClick")).toBe(true);
-      expect(isIntentionallySingleUse("handleSubmit")).toBe(true);
-    });
-
-    test("allows factory functions", () => {
-      expect(isIntentionallySingleUse("createWidget")).toBe(true);
-      expect(isIntentionallySingleUse("buildConfig")).toBe(true);
-    });
-
-    test("allows predicates", () => {
-      expect(isIntentionallySingleUse("isValid")).toBe(true);
-      expect(isIntentionallySingleUse("hasPermission")).toBe(true);
-    });
-
-    test("rejects generic names", () => {
-      expect(isIntentionallySingleUse("foo")).toBe(false);
-      expect(isIntentionallySingleUse("helper")).toBe(false);
-      expect(isIntentionallySingleUse("myFunc")).toBe(false);
-    });
-  });
-
   test("No single-use unexported functions outside allowlist", () => {
     const { violations } = analyzeSingleUseFunctions();
 
@@ -505,18 +416,18 @@ const z = add(5, 6);
     });
   });
 
-  test("ALLOWED_SINGLE_USE_FUNCTIONS entries are still valid", () => {
-    // Validate that allowlist entries still exist and contain single-use functions
-    const allPatterns = [FUNCTION_DECL_PATTERN, ARROW_OR_EXPR_PATTERN];
-    const stale = validateExceptions(ALLOWED_SINGLE_USE_FUNCTIONS, allPatterns);
+  test("ALLOWED_SINGLE_USE_FUNCTIONS files exist", () => {
+    const missing = [...ALLOWED_SINGLE_USE_FUNCTIONS].filter(
+      (file) => !readSource(file),
+    );
 
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_SINGLE_USE_FUNCTIONS entries:");
-      for (const { entry, reason } of stale) {
-        console.log(`    - ${entry}: ${reason}`);
+    if (missing.length > 0) {
+      console.log("\n  Missing ALLOWED_SINGLE_USE_FUNCTIONS files:");
+      for (const file of missing) {
+        console.log(`    - ${file}`);
       }
     }
 
-    expect(stale.length).toBe(0);
+    expect(missing.length).toBe(0);
   });
 });
