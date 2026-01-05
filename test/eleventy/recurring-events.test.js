@@ -5,146 +5,130 @@ import {
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig, DOM } from "#test/test-utils.js";
+import { map, pipe } from "#utils/array-utils.js";
+
+// ============================================
+// Functional Test Fixture Builders
+// ============================================
+
+/**
+ * Create an event with nested data structure
+ * @param {string} title - Event title
+ * @param {string} recurring - Recurring date string
+ * @param {Object} options - Additional options (url, location)
+ */
+const event = (title, recurring, { url, location } = {}) => ({
+  ...(url && { url }),
+  data: {
+    title,
+    recurring_date: recurring,
+    ...(location && { event_location: location }),
+  },
+});
+
+/**
+ * Create a flat event (data at top level, not nested)
+ */
+const flatEvent = (title, recurring, url) => ({
+  title,
+  recurring_date: recurring,
+  url,
+});
+
+/**
+ * Create events from an array of [title, recurring, options] tuples
+ * Curried for use with pipe
+ */
+const events = map(([title, recurring, options]) =>
+  event(title, recurring, options),
+);
+
+/**
+ * Parse HTML and return document for DOM queries
+ */
+const parseDoc = (html) => new DOM(html).window.document;
+
+/**
+ * Render events and return parsed document
+ */
+const renderAndParse = pipe(renderRecurringEvents, parseDoc);
 
 describe("recurring-events", () => {
   // renderRecurringEvents - empty/null inputs
   test("Returns empty string for empty events array", () => {
-    const result = renderRecurringEvents([]);
-    expect(result).toBe("");
+    expect(renderRecurringEvents([])).toBe("");
   });
 
   test("Returns empty string for null input", () => {
-    const result = renderRecurringEvents(null);
-    expect(result).toBe("");
+    expect(renderRecurringEvents(null)).toBe("");
   });
 
   test("Returns empty string for undefined input", () => {
-    const result = renderRecurringEvents(undefined);
-    expect(result).toBe("");
+    expect(renderRecurringEvents(undefined)).toBe("");
   });
 
   // renderRecurringEvents - single event
   test("Renders single event with URL as linked title", () => {
-    const events = [
-      {
-        url: "/events/market-day/",
-        data: {
-          title: "Farmers Market",
-          recurring_date: "Every Saturday",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([
+      event("Farmers Market", "Every Saturday", { url: "/events/market-day/" }),
+    ]);
 
-    const ul = doc.querySelector("ul");
-    expect(ul !== null).toBe(true);
-
-    const li = doc.querySelector("li");
-    expect(li !== null).toBe(true);
+    expect(doc.querySelector("ul") !== null).toBe(true);
+    expect(doc.querySelector("li") !== null).toBe(true);
 
     const link = doc.querySelector("a");
     expect(link.getAttribute("href")).toBe("/events/market-day/");
     expect(link.textContent).toBe("Farmers Market");
-
-    expect(li.textContent.includes("Every Saturday")).toBe(true);
+    expect(doc.querySelector("li").textContent.includes("Every Saturday")).toBe(
+      true,
+    );
   });
 
   test("Renders event without URL as plain text title", () => {
-    const events = [
-      {
-        data: {
-          title: "Weekly Meeting",
-          recurring_date: "Mondays at 9am",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([event("Weekly Meeting", "Mondays at 9am")]);
 
-    const link = doc.querySelector("a");
-    expect(link).toBe(null);
-
-    const strong = doc.querySelector("strong");
-    expect(strong.textContent).toBe("Weekly Meeting");
+    expect(doc.querySelector("a")).toBe(null);
+    expect(doc.querySelector("strong").textContent).toBe("Weekly Meeting");
   });
 
   test("Renders event location when provided", () => {
-    const events = [
-      {
+    const doc = renderAndParse([
+      event("Yoga Class", "Wednesdays 6pm", {
         url: "/events/yoga/",
-        data: {
-          title: "Yoga Class",
-          recurring_date: "Wednesdays 6pm",
-          event_location: "Community Center",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+        location: "Community Center",
+      }),
+    ]);
 
-    const li = doc.querySelector("li");
-    expect(li.textContent.includes("Community Center")).toBe(true);
+    expect(
+      doc.querySelector("li").textContent.includes("Community Center"),
+    ).toBe(true);
   });
 
   test("Does not render location span when not provided", () => {
-    const events = [
-      {
-        data: {
-          title: "Online Meetup",
-          recurring_date: "First Friday of month",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([
+      event("Online Meetup", "First Friday of month"),
+    ]);
 
-    const li = doc.querySelector("li");
-    expect(!li.textContent.includes("event_location")).toBe(true);
+    expect(
+      !doc.querySelector("li").textContent.includes("event_location"),
+    ).toBe(true);
   });
 
   // renderRecurringEvents - multiple events
   test("Renders multiple events as list items", () => {
-    const events = [
-      {
-        url: "/events/market/",
-        data: { title: "Market", recurring_date: "Saturdays" },
-      },
-      {
-        url: "/events/meetup/",
-        data: { title: "Meetup", recurring_date: "Tuesdays" },
-      },
-      {
-        data: { title: "Class", recurring_date: "Daily" },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([
+      event("Market", "Saturdays", { url: "/events/market/" }),
+      event("Meetup", "Tuesdays", { url: "/events/meetup/" }),
+      event("Class", "Daily"),
+    ]);
 
-    const listItems = doc.querySelectorAll("li");
-    expect(listItems.length).toBe(3);
-
-    const links = doc.querySelectorAll("a");
-    expect(links.length).toBe(2);
+    expect(doc.querySelectorAll("li").length).toBe(3);
+    expect(doc.querySelectorAll("a").length).toBe(2);
   });
 
   // renderRecurringEvents - data structure variations
   test("Handles flat event objects (data at top level)", () => {
-    const events = [
-      {
-        title: "Flat Event",
-        recurring_date: "Weekly",
-        url: "/flat/",
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([flatEvent("Flat Event", "Weekly", "/flat/")]);
 
     const link = doc.querySelector("a");
     expect(link.textContent).toBe("Flat Event");
@@ -152,25 +136,15 @@ describe("recurring-events", () => {
   });
 
   test("Handles nested event objects (data in .data property)", () => {
-    const events = [
-      {
-        url: "/nested/",
-        data: {
-          title: "Nested Event",
-          recurring_date: "Monthly",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([
+      event("Nested Event", "Monthly", { url: "/nested/" }),
+    ]);
 
-    const link = doc.querySelector("a");
-    expect(link.textContent).toBe("Nested Event");
+    expect(doc.querySelector("a").textContent).toBe("Nested Event");
   });
 
   test("Falls back to URL in data object if not at top level", () => {
-    const events = [
+    const testEvents = [
       {
         data: {
           title: "Event With Data URL",
@@ -179,27 +153,16 @@ describe("recurring-events", () => {
         },
       },
     ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse(testEvents);
 
-    const link = doc.querySelector("a");
-    expect(link.getAttribute("href")).toBe("/data-url/");
+    expect(doc.querySelector("a").getAttribute("href")).toBe("/data-url/");
   });
 
   // renderRecurringEvents - HTML structure
   test("Generates correct HTML structure", () => {
-    const events = [
-      {
-        url: "/test/",
-        data: {
-          title: "Test Event",
-          recurring_date: "Daily",
-          event_location: "Here",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
+    const result = renderRecurringEvents([
+      event("Test Event", "Daily", { url: "/test/", location: "Here" }),
+    ]);
 
     expect(result.startsWith("<ul>")).toBe(true);
     expect(result.endsWith("</ul>")).toBe(true);
@@ -211,47 +174,27 @@ describe("recurring-events", () => {
 
   // renderRecurringEvents - special characters
   test("Preserves special characters in event title", () => {
-    const events = [
-      {
-        data: {
-          title: "Music & Arts Festival",
-          recurring_date: "Annually",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
+    const result = renderRecurringEvents([
+      event("Music & Arts Festival", "Annually"),
+    ]);
     expect(result.includes("Music & Arts Festival")).toBe(true);
   });
 
   test("Handles quotes in event title", () => {
-    const events = [
-      {
-        data: {
-          title: '"Open Mic" Night',
-          recurring_date: "Fridays",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
+    const result = renderRecurringEvents([
+      event('"Open Mic" Night', "Fridays"),
+    ]);
     expect(result.includes('"Open Mic" Night')).toBe(true);
   });
 
   test("Handles unicode characters in location", () => {
-    const events = [
-      {
-        data: {
-          title: "Café Meeting",
-          recurring_date: "Tuesdays",
-          event_location: "Café René",
-        },
-      },
-    ];
-    const result = renderRecurringEvents(events);
-    const dom = new DOM(result);
-    const doc = dom.window.document;
+    const doc = renderAndParse([
+      event("Café Meeting", "Tuesdays", { location: "Café René" }),
+    ]);
 
-    const li = doc.querySelector("li");
-    expect(li.textContent.includes("Café René")).toBe(true);
+    expect(doc.querySelector("li").textContent.includes("Café René")).toBe(
+      true,
+    );
   });
 
   // configureRecurringEvents
@@ -275,18 +218,14 @@ describe("recurring-events", () => {
     const mockConfig = createMockEleventyConfig();
     configureRecurringEvents(mockConfig);
 
-    const filter = mockConfig.filters.format_recurring_events;
-    expect(filter).toBe(renderRecurringEvents);
+    expect(mockConfig.filters.format_recurring_events).toBe(
+      renderRecurringEvents,
+    );
   });
 
   // renderRecurringEvents - immutability
   test("Does not modify the input events array", () => {
-    const originalEvents = [
-      {
-        url: "/test/",
-        data: { title: "Test", recurring_date: "Weekly" },
-      },
-    ];
+    const originalEvents = [event("Test", "Weekly", { url: "/test/" })];
     const eventsCopy = JSON.parse(JSON.stringify(originalEvents));
 
     renderRecurringEvents(originalEvents);
@@ -297,47 +236,46 @@ describe("recurring-events", () => {
   // ============================================
   // Integration Tests using Test Site Factory
   // ============================================
-  // These tests create isolated Eleventy sites with custom content,
-  // build them, and verify the output. This ensures tests are:
-  // - Fully isolated (Section 5: Isolated and Repeatable)
-  // - Testing real behavior through the full build pipeline
-  // - Not dependent on external fixture files
+
+  /**
+   * Create a recurring event file for test site
+   */
+  const eventFile = (slug, title, recurring, extras = {}) => ({
+    path: `events/${slug}.md`,
+    frontmatter: { title, recurring_date: recurring, ...extras },
+  });
+
+  /**
+   * Create a one-time event file (no recurring_date)
+   */
+  const oneTimeEventFile = (slug, title, date) => ({
+    path: `events/${slug}.md`,
+    frontmatter: { title, event_date: date },
+  });
+
+  /**
+   * Create a test page that renders recurring events
+   */
+  const testPage = (content = "{% recurring_events %}") => ({
+    path: "pages/test.md",
+    frontmatter: { title: "Test", layout: "page", permalink: "/test/" },
+    content,
+  });
 
   test("Recurring events are correctly rendered in Eleventy build", async () =>
     withTestSite(
       {
         files: [
-          {
-            path: "events/weekly-meetup.md",
-            frontmatter: {
-              title: "Weekly Meetup",
-              recurring_date: "Every Tuesday at 7pm",
-              event_location: "Community Center",
-            },
-          },
-          {
-            path: "events/2024-03-15-monthly-workshop.md",
-            frontmatter: {
-              title: "Monthly Workshop",
-              recurring_date: "First Saturday of each month",
-            },
-          },
-          {
-            path: "events/one-time-event.md",
-            frontmatter: {
-              title: "One Time Event",
-              event_date: "2024-06-15",
-            },
-          },
-          {
-            path: "pages/test.md",
-            frontmatter: {
-              title: "Test",
-              layout: "page",
-              permalink: "/test/",
-            },
-            content: "{% recurring_events %}",
-          },
+          eventFile("weekly-meetup", "Weekly Meetup", "Every Tuesday at 7pm", {
+            event_location: "Community Center",
+          }),
+          eventFile(
+            "2024-03-15-monthly-workshop",
+            "Monthly Workshop",
+            "First Saturday of each month",
+          ),
+          oneTimeEventFile("one-time-event", "One Time Event", "2024-06-15"),
+          testPage(),
         ],
       },
       (site) => {
@@ -360,23 +298,10 @@ describe("recurring-events", () => {
     withTestSite(
       {
         files: [
-          {
-            path: "events/yoga-class.md",
-            frontmatter: {
-              title: "Yoga Class",
-              recurring_date: "Wednesdays at 6pm",
-              permalink: "/classes/yoga/",
-            },
-          },
-          {
-            path: "pages/test.md",
-            frontmatter: {
-              title: "Test",
-              layout: "page",
-              permalink: "/test/",
-            },
-            content: "{% recurring_events %}",
-          },
+          eventFile("yoga-class", "Yoga Class", "Wednesdays at 6pm", {
+            permalink: "/classes/yoga/",
+          }),
+          testPage(),
         ],
       },
       (site) => {
@@ -390,19 +315,8 @@ describe("recurring-events", () => {
     withTestSite(
       {
         files: [
-          {
-            path: "events/one-time.md",
-            frontmatter: { title: "One Time Only", event_date: "2024-12-25" },
-          },
-          {
-            path: "pages/test.md",
-            frontmatter: {
-              title: "Test",
-              layout: "page",
-              permalink: "/test/",
-            },
-            content: "START{% recurring_events %}END",
-          },
+          oneTimeEventFile("one-time", "One Time Only", "2024-12-25"),
+          testPage("START{% recurring_events %}END"),
         ],
       },
       (site) => {
@@ -416,26 +330,13 @@ describe("recurring-events", () => {
   test("Recurring events render with correct HTML structure", async () =>
     withTestSite(
       {
-        files: [
-          {
-            path: "events/test-event.md",
-            frontmatter: { title: "Test Event", recurring_date: "Daily" },
-          },
-          {
-            path: "pages/test.md",
-            frontmatter: {
-              title: "Test",
-              layout: "page",
-              permalink: "/test/",
-            },
-            content: "{% recurring_events %}",
-          },
-        ],
+        files: [eventFile("test-event", "Test Event", "Daily"), testPage()],
       },
       (site) => {
         const doc = site.getDoc("/test/index.html");
-        const link = doc.querySelector("ul li strong a");
-        expect(link?.textContent).toBe("Test Event");
+        expect(doc.querySelector("ul li strong a")?.textContent).toBe(
+          "Test Event",
+        );
       },
     ));
 });
