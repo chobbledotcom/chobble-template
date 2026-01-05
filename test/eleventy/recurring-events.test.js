@@ -5,7 +5,7 @@ import {
   renderRecurringEvents,
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
-import { createMockEleventyConfig, DOM } from "#test/test-utils.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 import { map, pipe } from "#utils/array-utils.js";
 
 // ============================================
@@ -47,7 +47,10 @@ const events = map(([title, recurring, options]) =>
 /**
  * Parse HTML and return document for DOM queries
  */
-const parseDoc = (html) => new DOM(html).window.document;
+const parseDoc = (html) => {
+  document.body.innerHTML = html;
+  return document;
+};
 
 /**
  * Render events and return parsed document
