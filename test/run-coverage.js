@@ -140,6 +140,7 @@ function filterCoverageOutput(output) {
 
 function runCoverage() {
   const limits = readLimits();
+  const verbose = process.env.VERBOSE === "1";
 
   // Run bun test with coverage
   const result = spawnSync(
@@ -160,7 +161,7 @@ function runCoverage() {
   );
 
   // Print test output (filtered if it includes coverage)
-  if (result.stdout) {
+  if (result.stdout && verbose) {
     const output = result.stdout.toString();
     console.log(filterCoverageOutput(output));
   }
@@ -171,7 +172,9 @@ function runCoverage() {
 
   // Parse LCOV to get actual coverage
   if (!existsSync(lcovPath)) {
-    console.log("No coverage data found, skipping threshold check");
+    if (verbose) {
+      console.log("No coverage data found, skipping threshold check");
+    }
     return;
   }
 
@@ -182,10 +185,12 @@ function runCoverage() {
   const { lines, functions, branches } = coverage.totals;
   let failed = false;
 
-  console.log("\n--- Coverage Summary ---");
-  console.log(`Lines:     ${lines}% (threshold: ${limits.lines}%)`);
-  console.log(`Functions: ${functions}% (threshold: ${limits.functions}%)`);
-  console.log(`Branches:  ${branches}% (threshold: ${limits.branches}%)`);
+  if (verbose) {
+    console.log("\n--- Coverage Summary ---");
+    console.log(`Lines:     ${lines}% (threshold: ${limits.lines}%)`);
+    console.log(`Functions: ${functions}% (threshold: ${limits.functions}%)`);
+    console.log(`Branches:  ${branches}% (threshold: ${limits.branches}%)`);
+  }
 
   if (lines < limits.lines) {
     console.error(
@@ -210,13 +215,15 @@ function runCoverage() {
     process.exit(1);
   }
 
-  console.log("\n✅ Coverage thresholds met!");
+  if (verbose) {
+    console.log("\n✅ Coverage thresholds met!");
+  }
 
   // Ratchet up limits on CI
-  ratchetLimits(limits, coverage.totals);
+  ratchetLimits(limits, coverage.totals, verbose);
 }
 
-function ratchetLimits(currentLimits, actual) {
+function ratchetLimits(currentLimits, actual, verbose) {
   // Only ratchet on CI and main branch to avoid local cache differences and non-main branches
   if (!process.env.CI || process.env.GITHUB_REF_NAME !== "main") {
     return;
@@ -242,19 +249,21 @@ function ratchetLimits(currentLimits, actual) {
 
   if (updated) {
     writeLimits(newLimits);
-    console.log("\n📈 Coverage limits updated in .test_coverage.json:");
-    if (newLimits.lines !== currentLimits.lines) {
-      console.log(`   lines: ${currentLimits.lines}% → ${newLimits.lines}%`);
-    }
-    if (newLimits.functions !== currentLimits.functions) {
-      console.log(
-        `   functions: ${currentLimits.functions}% → ${newLimits.functions}%`,
-      );
-    }
-    if (newLimits.branches !== currentLimits.branches) {
-      console.log(
-        `   branches: ${currentLimits.branches}% → ${newLimits.branches}%`,
-      );
+    if (verbose) {
+      console.log("\n📈 Coverage limits updated in .test_coverage.json:");
+      if (newLimits.lines !== currentLimits.lines) {
+        console.log(`   lines: ${currentLimits.lines}% → ${newLimits.lines}%`);
+      }
+      if (newLimits.functions !== currentLimits.functions) {
+        console.log(
+          `   functions: ${currentLimits.functions}% → ${newLimits.functions}%`,
+        );
+      }
+      if (newLimits.branches !== currentLimits.branches) {
+        console.log(
+          `   branches: ${currentLimits.branches}% → ${newLimits.branches}%`,
+        );
+      }
     }
   }
 }

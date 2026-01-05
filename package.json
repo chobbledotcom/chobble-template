@@ -27,7 +27,7 @@
 		"knip:fix": "knip --fix",
 		"lint": "bunx @biomejs/biome check .",
 		"lint:fix": "bunx @biomejs/biome check --write .",
-		"precommit": "bun install && bun run lint:fix && bun run knip:fix && bun run test"
+		"precommit": "node test/precommit.js"
 	},
 	"devDependencies": {
 		"@adobe/structured-data-validator": "^1.5.0",
