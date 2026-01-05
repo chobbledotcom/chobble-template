@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  ALLOWED_PROCESS_CWD,
-  ALLOWED_RELATIVE_PATHS,
-} from "#test/code-quality/code-quality-exceptions.js";
+import { ALLOWED_PROCESS_CWD } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   combineFileLists,
@@ -44,7 +41,7 @@ describe("relative-paths", () => {
         ECOMMERCE_JS_FILES(),
         TEST_FILES(),
       ]),
-      excludeFiles: [THIS_FILE, ...ALLOWED_RELATIVE_PATHS],
+      excludeFiles: [THIS_FILE, "src/_lib/paths.js"],
     });
 
   const { analyze: analyzeProcessCwd } = createCodeChecker({

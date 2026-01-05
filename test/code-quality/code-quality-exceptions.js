@@ -66,14 +66,6 @@ const ALLOWED_CONSOLE = new Set([
 ]);
 
 // ============================================
-// Relative path exceptions
-// ============================================
-
-// Files allowed to use ".." for path navigation.
-// The paths utility is the ONLY source file allowed - it provides paths for everyone else.
-const ALLOWED_RELATIVE_PATHS = ["src/_lib/paths.js"];
-
-// ============================================
 // process.cwd() exceptions (test files only)
 // ============================================
 
@@ -278,7 +270,6 @@ export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
-  ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
