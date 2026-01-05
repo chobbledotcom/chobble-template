@@ -13,23 +13,44 @@ import {
 } from "#collections/reviews.js";
 import configData from "#data/config.json" with { type: "json" };
 import {
+  item as baseItem,
+  collectionApi,
   createMockEleventyConfig,
   createProduct,
   expectResultTitles,
+  taggedCollectionApi,
 } from "#test/test-utils.js";
+import { map } from "#utils/array-utils.js";
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 // ============================================
-// Test Helpers
+// Functional Test Fixture Builders
 // ============================================
 
 /**
- * Create an array of review objects for a product.
+ * Create a review extending the base item with a date.
+ * @param {string} title - Review title
+ * @param {string} dateStr - Date string (YYYY-MM-DD format)
+ * @param {Object} options - Additional options (rating, hidden, products, etc.)
+ */
+const item = (title, dateStr, options = {}) => ({
+  ...baseItem(title, options),
+  date: new Date(dateStr),
+});
+
+/**
+ * Create items from an array of [title, dateStr, options] tuples
+ * Curried for use with pipe
+ */
+const items = map(([title, dateStr, options]) => item(title, dateStr, options));
+
+/**
+ * Create multiple reviews for a product with sequential dates.
  * Uses modulo to handle day overflow for large review counts.
  */
-const createReviews = (productId, count, rating = 5, monthPrefix = "01") =>
+const itemsFor = (productId, count, rating = 5, monthPrefix = "01") =>
   Array.from({ length: count }, (_, i) => ({
     data: { products: [productId], rating },
     date: new Date(
@@ -37,208 +58,141 @@ const createReviews = (productId, count, rating = 5, monthPrefix = "01") =>
     ),
   }));
 
-/**
- * Create a mock collection API for testing.
- */
-const createMockCollectionApi = (products, reviews) => ({
-  getFilteredByTag: (tag) => {
-    if (tag === "product") return products;
-    if (tag === "review") return reviews;
-    return [];
-  },
-});
-
 describe("reviews", () => {
   test("Creates reviews collection excluding hidden and sorted newest first", () => {
-    const mockReviews = [
-      { data: { name: "Review 1", rating: 5 }, date: new Date("2024-01-01") },
-      {
-        data: { name: "Review 2", rating: 4, hidden: true },
-        date: new Date("2024-01-02"),
-      },
-      { data: { name: "Review 3", rating: 5 }, date: new Date("2024-01-03") },
-      {
-        data: { name: "Review 4", rating: 3, hidden: true },
-        date: new Date("2024-01-04"),
-      },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", { rating: 5 }],
+      ["Review 2", "2024-01-02", { rating: 4, hidden: true }],
+      ["Review 3", "2024-01-03", { rating: 5 }],
+      ["Review 4", "2024-01-04", { rating: 3, hidden: true }],
+    ]);
 
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        expect(tag).toBe("review");
-        return mockReviews;
-      },
-    };
+    const result = createReviewsCollection(collectionApi(testReviews));
 
-    const result = createReviewsCollection(mockCollectionApi);
-
-    expect(result.length).toBe(2);
-    expect(result[0].data.name).toBe("Review 3");
-    expect(result[1].data.name).toBe("Review 1");
+    expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Returns all reviews when none are hidden, sorted newest first", () => {
-    const mockReviews = [
-      { data: { name: "Review 1", rating: 5 }, date: new Date("2024-01-01") },
-      { data: { name: "Review 2", rating: 4 }, date: new Date("2024-01-03") },
-      { data: { name: "Review 3", rating: 3 }, date: new Date("2024-01-02") },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", { rating: 5 }],
+      ["Review 2", "2024-01-03", { rating: 4 }],
+      ["Review 3", "2024-01-02", { rating: 3 }],
+    ]);
 
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        expect(tag).toBe("review");
-        return mockReviews;
-      },
-    };
+    const result = createReviewsCollection(collectionApi(testReviews));
 
-    const result = createReviewsCollection(mockCollectionApi);
-
-    expect(result.length).toBe(3);
-    expect(result[0].data.name).toBe("Review 2");
-    expect(result[1].data.name).toBe("Review 3");
-    expect(result[2].data.name).toBe("Review 1");
+    expectResultTitles(result, ["Review 2", "Review 3", "Review 1"]);
   });
 
   test("Filters reviews by products field and sorts newest first", () => {
-    const reviews = [
-      {
-        data: { title: "Review 1", products: ["product-a", "product-b"] },
-        date: new Date("2024-01-01"),
-      },
-      {
-        data: { title: "Review 2", products: ["product-c"] },
-        date: new Date("2024-01-02"),
-      },
-      {
-        data: { title: "Review 3", products: ["product-a"] },
-        date: new Date("2024-01-03"),
-      },
-      { data: { title: "Review 4" }, date: new Date("2024-01-04") },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", { products: ["product-a", "product-b"] }],
+      ["Review 2", "2024-01-02", { products: ["product-c"] }],
+      ["Review 3", "2024-01-03", { products: ["product-a"] }],
+      ["Review 4", "2024-01-04", {}],
+    ]);
 
-    const result = getReviewsFor(reviews, "product-a", "products");
+    const result = getReviewsFor(testReviews, "product-a", "products");
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Handles reviews without matching field", () => {
-    const reviews = [
-      { data: { title: "Review 1" } },
-      { data: { title: "Review 2", products: null } },
-      { data: { title: "Review 3", products: [] } },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", {}],
+      ["Review 2", "2024-01-02", { products: null }],
+      ["Review 3", "2024-01-03", { products: [] }],
+    ]);
 
-    const result = getReviewsFor(reviews, "product-a", "products");
+    const result = getReviewsFor(testReviews, "product-a", "products");
 
     expect(result.length).toBe(0);
   });
 
   test("Filters reviews by categories field", () => {
-    const reviews = [
-      {
-        data: { title: "Review 1", categories: ["category-a", "category-b"] },
-        date: new Date("2024-01-01"),
-      },
-      {
-        data: { title: "Review 2", categories: ["category-c"] },
-        date: new Date("2024-01-02"),
-      },
-      {
-        data: { title: "Review 3", categories: ["category-a"] },
-        date: new Date("2024-01-03"),
-      },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", { categories: ["category-a", "category-b"] }],
+      ["Review 2", "2024-01-02", { categories: ["category-c"] }],
+      ["Review 3", "2024-01-03", { categories: ["category-a"] }],
+    ]);
 
-    const result = getReviewsFor(reviews, "category-a", "categories");
+    const result = getReviewsFor(testReviews, "category-a", "categories");
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Filters reviews by properties field", () => {
-    const reviews = [
-      {
-        data: { title: "Review 1", properties: ["property-a"] },
-        date: new Date("2024-01-01"),
-      },
-      {
-        data: { title: "Review 2", properties: ["property-b"] },
-        date: new Date("2024-01-02"),
-      },
-      {
-        data: { title: "Review 3", properties: ["property-a", "property-b"] },
-        date: new Date("2024-01-03"),
-      },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", { properties: ["property-a"] }],
+      ["Review 2", "2024-01-02", { properties: ["property-b"] }],
+      ["Review 3", "2024-01-03", { properties: ["property-a", "property-b"] }],
+    ]);
 
-    const result = getReviewsFor(reviews, "property-a", "properties");
+    const result = getReviewsFor(testReviews, "property-a", "properties");
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Generic function works with any field", () => {
-    const reviews = [
-      {
-        data: { title: "Review 1", customField: ["item-a"] },
-        date: new Date("2024-01-01"),
-      },
-      {
-        data: { title: "Review 2", customField: ["item-b"] },
-        date: new Date("2024-01-02"),
-      },
-    ];
+    const testReviews = items([
+      ["Review 1", "2024-01-01", { customField: ["item-a"] }],
+      ["Review 2", "2024-01-02", { customField: ["item-b"] }],
+    ]);
 
-    const result = getReviewsFor(reviews, "item-a", "customField");
+    const result = getReviewsFor(testReviews, "item-a", "customField");
 
     expectResultTitles(result, ["Review 1"]);
   });
 
   test("Counts reviews for any field type", () => {
-    const reviews = [
-      { data: { products: ["product-a", "product-b"] } },
-      { data: { products: ["product-a"] } },
-      { data: { products: ["product-c"] } },
-      { data: { categories: ["category-a"] } },
-    ];
+    const testReviews = items([
+      ["R1", "2024-01-01", { products: ["product-a", "product-b"] }],
+      ["R2", "2024-01-02", { products: ["product-a"] }],
+      ["R3", "2024-01-03", { products: ["product-c"] }],
+      ["R4", "2024-01-04", { categories: ["category-a"] }],
+    ]);
 
-    expect(countReviews(reviews, "product-a", "products")).toBe(2);
-    expect(countReviews(reviews, "product-b", "products")).toBe(1);
-    expect(countReviews(reviews, "product-d", "products")).toBe(0);
-    expect(countReviews(reviews, "category-a", "categories")).toBe(1);
+    expect(countReviews(testReviews, "product-a", "products")).toBe(2);
+    expect(countReviews(testReviews, "product-b", "products")).toBe(1);
+    expect(countReviews(testReviews, "product-d", "products")).toBe(0);
+    expect(countReviews(testReviews, "category-a", "categories")).toBe(1);
   });
 
   test("Calculates rating for any field type", () => {
-    const reviews = [
-      { data: { products: ["product-a"], rating: 5 } },
-      { data: { products: ["product-a"], rating: 3 } },
-      { data: { categories: ["category-a"], rating: 4 } },
-    ];
+    const testReviews = items([
+      ["R1", "2024-01-01", { products: ["product-a"], rating: 5 }],
+      ["R2", "2024-01-02", { products: ["product-a"], rating: 3 }],
+      ["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }],
+    ]);
 
-    expect(getRating(reviews, "product-a", "products")).toBe(4);
-    expect(getRating(reviews, "category-a", "categories")).toBe(4);
+    expect(getRating(testReviews, "product-a", "products")).toBe(4);
+    expect(getRating(testReviews, "category-a", "categories")).toBe(4);
   });
 
   test("Returns ceiling of average rating", () => {
-    const reviews = [
-      { data: { products: ["product-a"], rating: 5 } },
-      { data: { products: ["product-a"], rating: 4 } },
-    ];
+    const testReviews = items([
+      ["R1", "2024-01-01", { products: ["product-a"], rating: 5 }],
+      ["R2", "2024-01-02", { products: ["product-a"], rating: 4 }],
+    ]);
 
-    expect(getRating(reviews, "product-a", "products")).toBe(5);
+    expect(getRating(testReviews, "product-a", "products")).toBe(5);
   });
 
   test("Returns null when no ratings exist", () => {
-    const reviews = [
-      { data: { products: ["product-a"] } },
-      { data: { products: ["product-a"], rating: null } },
-    ];
+    const testReviews = items([
+      ["R1", "2024-01-01", { products: ["product-a"] }],
+      ["R2", "2024-01-02", { products: ["product-a"], rating: null }],
+    ]);
 
-    expect(getRating(reviews, "product-a", "products")).toBe(null);
+    expect(getRating(testReviews, "product-a", "products")).toBe(null);
   });
 
   test("Returns null when no matching items", () => {
-    const reviews = [{ data: { products: ["product-b"], rating: 5 } }];
+    const testReviews = items([
+      ["R1", "2024-01-01", { products: ["product-b"], rating: 5 }],
+    ]);
 
-    expect(getRating(reviews, "product-a", "products")).toBe(null);
+    expect(getRating(testReviews, "product-a", "products")).toBe(null);
   });
 
   test("Converts rating to star emojis", () => {
@@ -345,14 +299,9 @@ describe("reviews", () => {
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
-    const testDate = new Date("2024-01-01");
-    const originalReviews = [
-      {
-        data: { title: "Review 1", products: ["product-1"] },
-        date: testDate,
-      },
-    ];
-
+    const originalReviews = items([
+      ["Review 1", "2024-01-01", { products: ["product-1"] }],
+    ]);
     const reviewsCopy = structuredClone(originalReviews);
 
     getReviewsFor(reviewsCopy, "product-1", "products");
@@ -361,96 +310,86 @@ describe("reviews", () => {
   });
 
   test("Returns only items exceeding the truncate limit", () => {
-    // Create reviews relative to the configured limit for portability
     // product-a gets limit+1 reviews (above limit), product-b gets limit reviews (at limit)
-    const reviews = [
-      ...createReviews("product-a", TRUNCATE_LIMIT + 1, 5, "01"),
-      ...createReviews("product-b", TRUNCATE_LIMIT, 4, "02"),
+    const testReviews = [
+      ...itemsFor("product-a", TRUNCATE_LIMIT + 1, 5, "01"),
+      ...itemsFor("product-b", TRUNCATE_LIMIT, 4, "02"),
     ];
     const products = [
       createProduct({ slug: "product-a", title: "Product A" }),
       createProduct({ slug: "product-b", title: "Product B" }),
     ];
-    const mockCollectionApi = createMockCollectionApi(products, reviews);
 
     const factory = withReviewsPage("product", "products");
-    const result = factory(mockCollectionApi);
+    const result = factory(
+      taggedCollectionApi({ product: products, review: testReviews }),
+    );
 
     // Only product-a (above limit) should be included, not product-b (at limit)
-    // This tests the boundary: > limit, not >= limit
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("product-a");
   });
 
   test("Transforms items through the optional processItem callback", () => {
-    // Use limit+5 to ensure we're clearly above the limit
-    const reviews = createReviews("product-a", TRUNCATE_LIMIT + 5);
+    const testReviews = itemsFor("product-a", TRUNCATE_LIMIT + 5);
     const products = [createProduct({ slug: "product-a", title: "Product A" })];
-    const mockCollectionApi = createMockCollectionApi(products, reviews);
 
     const processItem = (item) => ({ ...item, transformed: true });
     const factory = withReviewsPage("product", "products", processItem);
-    const result = factory(mockCollectionApi);
+    const result = factory(
+      taggedCollectionApi({ product: products, review: testReviews }),
+    );
 
     expect(result.length).toBe(1);
     expect(result[0].transformed).toBe(true);
   });
 
   test("Returns redirect data for items not needing separate pages", () => {
-    // Create reviews relative to the configured limit for portability
     // product-a gets limit reviews (at limit), product-b gets limit+1 reviews (above limit)
-    const reviews = [
-      ...createReviews("product-a", TRUNCATE_LIMIT, 5, "01"),
-      ...createReviews("product-b", TRUNCATE_LIMIT + 1, 4, "02"),
+    const testReviews = [
+      ...itemsFor("product-a", TRUNCATE_LIMIT, 5, "01"),
+      ...itemsFor("product-b", TRUNCATE_LIMIT + 1, 4, "02"),
     ];
     const products = [
       createProduct({ slug: "product-a", title: "Product A" }),
       createProduct({ slug: "product-b", title: "Product B" }),
     ];
-    const mockCollectionApi = createMockCollectionApi(products, reviews);
 
     const factory = reviewsRedirects("product", "products");
-    const result = factory(mockCollectionApi);
+    const result = factory(
+      taggedCollectionApi({ product: products, review: testReviews }),
+    );
 
     // Only product-a (at limit) should get redirect, not product-b (above limit)
-    // This tests the boundary: <= limit, not < limit
     expect(result.length).toBe(1);
     expect(result[0].fileSlug).toBe("product-a");
-    // Verify the return structure includes the item reference
     expect(result[0].item.fileSlug).toBe("product-a");
   });
 
   test("Returns empty array when limit is -1 (no pagination)", () => {
-    // Use fixed date for all reviews (count doesn't matter for this test)
-    const reviews = Array.from({ length: 100 }, () => ({
-      data: { products: ["product-a"], rating: 5 },
-      date: new Date("2024-01-01"),
-    }));
+    const testReviews = itemsFor("product-a", 100);
     const products = [createProduct({ slug: "product-a", title: "Product A" })];
-    const mockCollectionApi = createMockCollectionApi(products, reviews);
 
-    // Pass -1 as limitOverride to test the "no pagination" branch
-    const factory = withReviewsPage("product", "products", (item) => item, -1);
-    const result = factory(mockCollectionApi);
+    const factory = withReviewsPage("product", "products", (i) => i, -1);
+    const result = factory(
+      taggedCollectionApi({ product: products, review: testReviews }),
+    );
 
     // Even with 100 reviews, limit=-1 means no separate pages
     expect(result.length).toBe(0);
   });
 
   test("Returns all items when limit is -1 (no pagination)", () => {
-    const reviews = Array.from({ length: 100 }, () => ({
-      data: { products: ["product-a"], rating: 5 },
-      date: new Date("2024-01-01"),
-    }));
+    const testReviews = itemsFor("product-a", 100);
     const products = [
       createProduct({ slug: "product-a", title: "Product A" }),
       createProduct({ slug: "product-b", title: "Product B" }),
     ];
-    const mockCollectionApi = createMockCollectionApi(products, reviews);
 
-    // Pass -1 as limitOverride to test the "all redirects" branch
     const factory = reviewsRedirects("product", "products", -1);
-    const result = factory(mockCollectionApi);
+    const result = factory(
+      taggedCollectionApi({ product: products, review: testReviews }),
+    );
 
     // All items get redirects when limit=-1
     expect(result.length).toBe(2);
