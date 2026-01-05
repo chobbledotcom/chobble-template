@@ -100,7 +100,7 @@ myConsole.log("also fine");
   });
 
   test("No console.* calls in production source files", () => {
-    const violations = analyzeConsoleCalls();
+    const { violations } = analyzeConsoleCalls();
     assertNoViolations(violations, {
       message: "console.* calls in production code",
       fixHint:

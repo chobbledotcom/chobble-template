@@ -188,14 +188,15 @@ describe("code-scanner", () => {
       expect(results.length).toBe(0);
     });
 
-    test("analyze function processes files and returns violations", () => {
+    test("analyze function processes files and returns violations/allowed", () => {
       const { analyze } = createCodeChecker({
         patterns: /this_pattern_should_not_match_anything_xyz123/,
         files: SRC_JS_FILES().slice(0, 1),
       });
 
-      const violations = analyze();
+      const { violations, allowed } = analyze();
       expect(Array.isArray(violations)).toBe(true);
+      expect(Array.isArray(allowed)).toBe(true);
       expect(violations.length).toBe(0);
     });
   });

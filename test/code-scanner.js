@@ -5,6 +5,11 @@
 import { expect } from "bun:test";
 import { fs, path, rootDir } from "#test/test-utils.js";
 import { notMemberOf } from "#utils/array-utils.js";
+import { omit } from "#utils/object-entries.js";
+
+// Standard fields returned by find functions (everything else is extra data)
+const STANDARD_HIT_FIELDS = ["lineNumber", "line"];
+const omitStandardFields = omit(STANDARD_HIT_FIELDS);
 
 // ============================================
 // Common patterns for skipping non-code lines
@@ -213,35 +218,14 @@ const createCodeChecker = (config) => {
     });
 
   // Pure function: analyze files and collect results
-  // If allowlist provided, returns { violations, allowed }; otherwise returns array
-  const analyze = () => {
-    const fileList = typeof files === "function" ? files() : files;
-    const results = analyzeFiles(
-      fileList,
-      (source, relativePath) =>
-        find(source).map((hit) => ({
-          file: relativePath,
-          line: hit.lineNumber,
-          code: hit.line,
-          location: `${relativePath}:${hit.lineNumber}`,
-          ...Object.fromEntries(
-            Object.entries(hit).filter(
-              ([k]) => !["lineNumber", "line"].includes(k),
-            ),
-          ),
-        })),
-      { excludeFiles: excluded },
-    );
-
-    if (allowlist === null) return results;
-
-    const isAllowlisted = (decl) =>
-      allowlist.has(decl.location) || allowlist.has(decl.file);
-    return {
-      violations: results.filter((decl) => !isAllowlisted(decl)),
-      allowed: results.filter(isAllowlisted),
-    };
-  };
+  // Delegates to analyzeWithAllowlist for consistent behavior
+  const analyze = () =>
+    analyzeWithAllowlist({
+      findFn: find,
+      allowlist: allowlist ?? new Set(),
+      files,
+      excludeFiles: excluded,
+    });
 
   return { find, analyze };
 };
@@ -254,25 +238,29 @@ const createCodeChecker = (config) => {
  * @param {function} config.findFn - Function (source) => Array of hits with lineNumber, line, and optional extra fields
  * @param {Set<string>} [config.allowlist] - Set of "file:line" or "file" entries to allow (defaults to empty Set)
  * @param {string[]|function} [config.files] - File list or function returning file list (defaults to empty array)
+ * @param {string[]} [config.excludeFiles] - Files to exclude from analysis
  * @returns {{ violations: Array, allowed: Array }}
  */
 const analyzeWithAllowlist = (config) => {
-  const { findFn, allowlist = new Set(), files = [] } = config;
+  const {
+    findFn,
+    allowlist = new Set(),
+    files = [],
+    excludeFiles = [],
+  } = config;
   const fileList = typeof files === "function" ? files() : files;
 
-  const results = analyzeFiles(fileList, (source, relativePath) =>
-    findFn(source).map((hit) => ({
-      file: relativePath,
-      line: hit.lineNumber,
-      code: hit.line,
-      location: `${relativePath}:${hit.lineNumber}`,
-      // Spread any extra fields from the hit (like 'reason')
-      ...Object.fromEntries(
-        Object.entries(hit).filter(
-          ([k]) => !["lineNumber", "line"].includes(k),
-        ),
-      ),
-    })),
+  const results = analyzeFiles(
+    fileList,
+    (source, relativePath) =>
+      findFn(source).map((hit) => ({
+        file: relativePath,
+        line: hit.lineNumber,
+        code: hit.line,
+        location: `${relativePath}:${hit.lineNumber}`,
+        ...omitStandardFields(hit),
+      })),
+    { excludeFiles },
   );
 
   const isAllowlisted = (decl) =>
