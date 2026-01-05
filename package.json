@@ -2,6 +2,7 @@
 	"name": "chobble-template",
 	"version": "1.0.0",
 	"type": "module",
+	"packageManager": "bun@1.2.13",
 	"imports": {
 		"#data/*": "./src/_data/*",
 		"#lib/*": "./src/_lib/*",
@@ -16,6 +17,7 @@
 		"#test/*": "./test/*"
 	},
 	"scripts": {
+		"preinstall": "node -e \"if(!process.env.npm_config_user_agent||!process.env.npm_config_user_agent.startsWith('bun')){console.error('\\n\\x1b[31mERROR: This project requires bun.\\x1b[0m\\nRun: bun install\\nInstall bun: https://bun.sh\\n');process.exit(1)}\"",
 		"build": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs",
 		"serve": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs --serve --incremental --quiet",
 		"test": "bun run lint && bun run cpd && bun run build --quiet && bun test/run-coverage.js",
