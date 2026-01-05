@@ -199,4 +199,54 @@ describe("news", () => {
       expect(postMeta.getAttribute("role")).toBe("doc-subtitle");
     });
   });
+
+  // no_index integration tests
+  test("News post with no_index renders as standalone page", async () => {
+    const files = [
+      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
+    ];
+
+    await withTestSite({ files }, (site) => {
+      expect(site.hasOutput("/news/hidden-post/index.html")).toBe(true);
+
+      const html = getContentHtml(site, "hidden-post");
+      expect(html.includes("Hidden Post Title")).toBe(true);
+    });
+  });
+
+  test("News post with no_index does not appear in news list", async () => {
+    const files = [
+      newsPost("visible-post", "Visible Post Title"),
+      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
+      {
+        path: "pages/news.md",
+        frontmatter: {
+          title: "News",
+          layout: "news-archive.html",
+          permalink: "/news/",
+        },
+        content: "News archive page",
+      },
+    ];
+
+    await withTestSite({ files }, (site) => {
+      const newsListHtml = site.getOutput("/news/index.html");
+
+      expect(newsListHtml.includes("Visible Post Title")).toBe(true);
+      expect(newsListHtml.includes("Hidden Post Title")).toBe(false);
+    });
+  });
+
+  test("News post with no_index has noindex meta tag", async () => {
+    const files = [
+      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
+    ];
+
+    await withTestSite({ files }, (site) => {
+      const html = site.getOutput("/news/hidden-post/index.html");
+
+      expect(html.includes('name="robots"')).toBe(true);
+      expect(html.includes("noindex")).toBe(true);
+    });
+  });
 });

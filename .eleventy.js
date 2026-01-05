@@ -10,6 +10,7 @@ import { configureCategories } from "#collections/categories.js";
 import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
 import { configureLocations } from "#collections/locations.js";
+import { configureNews } from "#collections/news.js";
 import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
 import { configureProducts } from "#collections/products.js";
@@ -73,6 +74,7 @@ export default async function (eleventyConfig) {
   configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);
+  configureNews(eleventyConfig);
   configureOpeningTimes(eleventyConfig);
   configureRecurringEvents(eleventyConfig);
   configureResponsiveTables(eleventyConfig);

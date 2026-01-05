@@ -20,7 +20,7 @@
   <author>
     <name>{{ site.name }}</name>
   </author>
-  {%- for post in collections.news reversed limit: 20 %}
+  {%- for post in collections.news limit: 20 %}
   {%- assign absolutePostUrl = post.url | htmlBaseUrl: site.url %}
   <entry>
     <title>{{ post.data.title }}</title>
