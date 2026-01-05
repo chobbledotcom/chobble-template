@@ -1,10 +1,10 @@
 import { expect } from "bun:test";
 import fs from "node:fs";
-import path, { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { map } from "#utils/array-utils.js";
+import { ROOT_DIR, SRC_DIR } from "../src/_lib/paths.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -20,10 +20,8 @@ class DOM {
   }
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
-const srcDir = resolve(rootDir, "src");
+const rootDir = ROOT_DIR;
+const srcDir = SRC_DIR;
 
 // Directories always skipped during file discovery
 const ALWAYS_SKIP = new Set([

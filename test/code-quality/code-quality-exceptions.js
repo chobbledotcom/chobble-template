@@ -5,8 +5,6 @@
  * These should be removed over time as the codebase is refactored.
  */
 
-import { getTestInfrastructureFiles } from "../../src/_lib/paths.js";
-
 // ============================================
 // try/catch exceptions
 // ============================================
@@ -73,14 +71,7 @@ const ALLOWED_CONSOLE = new Set([
 
 // Files allowed to use ".." for path navigation.
 // The paths utility is the ONLY source file allowed - it provides paths for everyone else.
-// Test infrastructure files need ".." to reference project root.
-const ALLOWED_RELATIVE_PATHS = new Set([
-  // Source: centralized path utility (the one exception - provides paths for others)
-  "src/_lib/paths.js",
-
-  // Test infrastructure - calculates rootDir for all other tests to import
-  ...getTestInfrastructureFiles(),
-]);
+const ALLOWED_RELATIVE_PATHS = ["src/_lib/paths.js"];
 
 // ============================================
 // process.cwd() exceptions (test files only)

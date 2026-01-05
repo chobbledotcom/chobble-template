@@ -7,12 +7,10 @@
 
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import { ROOT_DIR } from "../src/_lib/paths.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+const rootDir = ROOT_DIR;
 const configPath = resolve(rootDir, ".test_coverage.json");
 const lcovPath = resolve(rootDir, "coverage", "lcov.info");
 
