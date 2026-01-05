@@ -559,8 +559,9 @@ describe("item-filters", () => {
       ["Item 2", attr("Type", "B")],
     ]);
 
-    const pagesResult =
-      mock.getCollection("testFilterPages")(collectionApi(testItems));
+    const pagesResult = mock.getCollection("testFilterPages")(
+      collectionApi(testItems),
+    );
 
     expect(pagesResult.length >= 2).toBe(true);
     expect(pagesResult[0].path !== undefined).toBe(true);
@@ -586,7 +587,9 @@ describe("item-filters", () => {
 
     const testItems = [item(null, attr("Type", "A"), attr("Size", "Large"))];
 
-    const redirects = mock.getCollection("testRedirects")(collectionApi(testItems));
+    const redirects = mock.getCollection("testRedirects")(
+      collectionApi(testItems),
+    );
 
     expect(redirects.length > 0).toBe(true);
     expect(redirects[0].from !== undefined).toBe(true);
