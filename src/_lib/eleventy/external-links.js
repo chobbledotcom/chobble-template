@@ -47,10 +47,6 @@ const createExternalLinksTransform = (config) => {
       return content;
     }
 
-    if (outputPath.includes("/feed.")) {
-      return content;
-    }
-
     return await transformExternalLinks(content, config);
   };
 };
