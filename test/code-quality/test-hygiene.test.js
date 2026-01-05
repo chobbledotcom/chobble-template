@@ -114,8 +114,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findPdfInMenuDir",
   "verifyPdfHeader",
   // reviews.test.js - test fixtures helpers
-  "createReviews",
-  "createMockCollectionApi",
+  "itemsFor",
   // code-scanner.js - code scanning utilities
   "matchesAny",
   "isCommentLine",
