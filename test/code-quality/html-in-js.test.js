@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
-  createAllowlistAnalyzer,
   isCommentLine,
+  withAllowlist,
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -254,11 +254,12 @@ const findHtmlInJs = (source) => {
   return results;
 };
 
-// Curried analyzer - partially applied, files passed at call site
-const analyzeHtml = createAllowlistAnalyzer(findHtmlInJs)(ALLOWED_HTML_IN_JS);
-
-// File list for HTML-in-JS analysis
-const htmlInJsFiles = () => [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()];
+// Complete analyzer - find + allowlist + files in one definition
+const htmlInJsAnalysis = withAllowlist({
+  find: findHtmlInJs,
+  allowlist: ALLOWED_HTML_IN_JS,
+  files: () => [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()],
+});
 
 describe("html-in-js", () => {
   test("Correctly identifies HTML in template literals", () => {
@@ -312,7 +313,7 @@ const check = value < 10;
   });
 
   test("No new HTML-in-JS outside the allowlist", () => {
-    const { violations } = analyzeHtml(htmlInJsFiles);
+    const { violations } = htmlInJsAnalysis();
     assertNoViolations(violations, {
       message: "files with HTML in JavaScript",
       fixHint:
@@ -321,7 +322,7 @@ const check = value < 10;
   });
 
   test("Reports allowlisted HTML-in-JS files for tracking", () => {
-    const { allowed } = analyzeHtml(htmlInJsFiles);
+    const { allowed } = htmlInJsAnalysis();
 
     // Group by file for cleaner output
     const byFile = {};

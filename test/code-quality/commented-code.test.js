@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
-  analyzeFiles,
   assertNoViolations,
   combineFileLists,
   toLines,
+  withAllowlist,
 } from "#test/code-scanner.js";
 import {
   ECOMMERCE_JS_FILES,
@@ -110,22 +110,15 @@ const findCommentedCode = (source, _relativePath) => {
 
 const THIS_FILE = "test/code-quality/commented-code.test.js";
 
-// File list for analysis (excludes this file to avoid self-detection)
-const commentedCodeFiles = () =>
-  combineFileLists(
-    [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
-    [THIS_FILE],
-  );
-
-// Curried analyzer - maps find results to violation format
-const analyzeCommented = (files) =>
-  analyzeFiles(files(), (source, relativePath) =>
-    findCommentedCode(source, relativePath).map((cc) => ({
-      file: relativePath,
-      line: cc.lineNumber,
-      code: cc.line,
-    })),
-  );
+// Complete analyzer - find + files in one definition (no allowlist needed)
+const commentedCodeAnalysis = withAllowlist({
+  find: findCommentedCode,
+  files: () =>
+    combineFileLists(
+      [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
+      [THIS_FILE],
+    ),
+});
 
 describe("commented-code", () => {
   test("Correctly identifies commented-out variable declarations", () => {
@@ -184,7 +177,7 @@ const a = 1;
   });
 
   test("No commented-out code allowed in the codebase", () => {
-    const violations = analyzeCommented(commentedCodeFiles);
+    const { violations } = commentedCodeAnalysis();
     assertNoViolations(violations, {
       message: "commented-out code",
       fixHint: "remove the commented code",

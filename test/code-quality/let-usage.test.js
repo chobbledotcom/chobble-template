@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { ALLOWED_MUTABLE_CONST } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
-  createAllowlistAnalyzer,
   createCodeChecker,
   matchesAny,
   validateExceptions,
@@ -15,17 +14,6 @@ const ALLOWED_LET_PATTERNS = [
   /^let\s+\w+\s*=\s*null\s*;?\s*(\/\/.*)?$/,
 ];
 
-// Create checker for finding let declarations
-const { find: findMutableVarDeclarations } = createCodeChecker({
-  patterns: /^\s*let\s+\w+/,
-  extractData: (line) => {
-    // Skip if matches allowed pattern (lazy loading)
-    if (matchesAny(ALLOWED_LET_PATTERNS)(line.trim())) return null;
-    return { reason: "Mutable variable declaration" };
-  },
-  files: [],
-});
-
 // Patterns that detect mutable const declarations (empty array/object, Set, Map)
 // These bypass const's protection by using mutable containers
 const MUTABLE_CONST_PATTERNS = [
@@ -35,26 +23,33 @@ const MUTABLE_CONST_PATTERNS = [
   /^\s*const\s+\w+\s*=\s*new\s+Map\s*\(/, // const x = new Map()
 ];
 
-// Create checker for finding mutable const declarations
-const { find: findMutableConstDeclarations } = createCodeChecker({
-  patterns: MUTABLE_CONST_PATTERNS,
-  extractData: (line) => {
-    if (/\[\s*\]/.test(line)) return { reason: "Empty array const" };
-    if (/\{\s*\}/.test(line)) return { reason: "Empty object const" };
-    if (/new\s+Set/.test(line)) return { reason: "Set const" };
-    if (/new\s+Map/.test(line)) return { reason: "Map const" };
-    return { reason: "Mutable const" };
-  },
-  files: [],
-});
+// Complete checker for let declarations - find + analyze in one definition
+const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
+  createCodeChecker({
+    patterns: /^\s*let\s+\w+/,
+    extractData: (line) => {
+      // Skip if matches allowed pattern (lazy loading)
+      if (matchesAny(ALLOWED_LET_PATTERNS)(line.trim())) return null;
+      return { reason: "Mutable variable declaration" };
+    },
+    files: SRC_JS_FILES,
+    allowlist: new Set(),
+  });
 
-// Curried analyzers - partially applied, files passed at call site for lazy evaluation
-const analyzeMutableVar = createAllowlistAnalyzer(findMutableVarDeclarations)(
-  new Set(),
-);
-const analyzeMutableConst = createAllowlistAnalyzer(
-  findMutableConstDeclarations,
-)(ALLOWED_MUTABLE_CONST);
+// Complete checker for mutable const declarations
+const { find: findMutableConstDeclarations, analyze: mutableConstAnalysis } =
+  createCodeChecker({
+    patterns: MUTABLE_CONST_PATTERNS,
+    extractData: (line) => {
+      if (/\[\s*\]/.test(line)) return { reason: "Empty array const" };
+      if (/\{\s*\}/.test(line)) return { reason: "Empty object const" };
+      if (/new\s+Set/.test(line)) return { reason: "Set const" };
+      if (/new\s+Map/.test(line)) return { reason: "Map const" };
+      return { reason: "Mutable const" };
+    },
+    files: SRC_JS_FILES,
+    allowlist: ALLOWED_MUTABLE_CONST,
+  });
 
 describe("let-usage", () => {
   test("Detects let declarations in source code", () => {
@@ -93,7 +88,7 @@ let mutableVar = 0;
   });
 
   test("No mutable variables outside allowed patterns and allowlist", () => {
-    const { violations } = analyzeMutableVar(SRC_JS_FILES);
+    const { violations } = mutableVarAnalysis();
     assertNoViolations(violations, {
       message: "mutable variable declaration(s)",
       fixHint:
@@ -142,7 +137,7 @@ const config = { key: 'value' };
   });
 
   test("No mutable const declarations outside allowlist", () => {
-    const { violations } = analyzeMutableConst(SRC_JS_FILES);
+    const { violations } = mutableConstAnalysis();
     assertNoViolations(violations, {
       message: "mutable const declaration(s)",
       fixHint:
@@ -151,7 +146,7 @@ const config = { key: 'value' };
   });
 
   test("Reports allowlisted mutable const usage for tracking", () => {
-    const { allowed } = analyzeMutableConst(SRC_JS_FILES);
+    const { allowed } = mutableConstAnalysis();
     console.log(`\n  Allowlisted mutable const usages: ${allowed.length}`);
     if (allowed.length > 0) {
       console.log("  Locations:");

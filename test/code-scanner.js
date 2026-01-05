@@ -175,17 +175,19 @@ const createPatternMatcher = (patterns, toViolation) => {
  * @param {RegExp|RegExp[]} config.patterns - Pattern(s) to match in source lines
  * @param {RegExp[]} [config.skipPatterns] - Patterns that indicate lines to skip
  * @param {function} [config.extractData] - (line, lineNum, match) => additional data | null
- * @param {string[]} config.files - File list to analyze
+ * @param {string[]|function} [config.files] - File list or function returning file list
  * @param {string[]} [config.excludeFiles] - Files to exclude from analysis
- * @returns {{ find: (source: string) => Array, analyze: () => Array }}
+ * @param {Set<string>} [config.allowlist] - Optional allowlist for filtering results
+ * @returns {{ find: (source: string) => Array, analyze: () => Object }}
  */
 const createCodeChecker = (config) => {
   const {
     patterns,
     skipPatterns = COMMENT_LINE_PATTERNS,
     extractData = () => ({}),
-    files,
+    files = [],
     excludeFiles: excluded = [],
+    allowlist = null,
   } = config;
 
   const matcher = matchesAny([patterns].flat());
@@ -199,9 +201,9 @@ const createCodeChecker = (config) => {
       // Skip lines matching skip patterns
       if (shouldSkip(trimmed)) return null;
 
-      // Check for pattern match
+      // Check for pattern match (matcher returns { match, pattern } or null)
       const result = matcher(line);
-      if (!result) return null;
+      if (result === null) return null;
 
       // Extract additional data from match
       const extra = extractData(line, lineNum, result.match);
@@ -210,15 +212,18 @@ const createCodeChecker = (config) => {
         : { lineNumber: lineNum, line: trimmed, ...extra };
     });
 
-  // Pure function: analyze files and collect violations
-  const analyze = () =>
-    analyzeFiles(
-      files,
+  // Pure function: analyze files and collect results
+  // If allowlist provided, returns { violations, allowed }; otherwise returns array
+  const analyze = () => {
+    const fileList = typeof files === "function" ? files() : files;
+    const results = analyzeFiles(
+      fileList,
       (source, relativePath) =>
         find(source).map((hit) => ({
           file: relativePath,
           line: hit.lineNumber,
           code: hit.line,
+          location: `${relativePath}:${hit.lineNumber}`,
           ...Object.fromEntries(
             Object.entries(hit).filter(
               ([k]) => !["lineNumber", "line"].includes(k),
@@ -227,6 +232,16 @@ const createCodeChecker = (config) => {
         })),
       { excludeFiles: excluded },
     );
+
+    if (allowlist === null) return results;
+
+    const isAllowlisted = (decl) =>
+      allowlist.has(decl.location) || allowlist.has(decl.file);
+    return {
+      violations: results.filter((decl) => !isAllowlisted(decl)),
+      allowed: results.filter(isAllowlisted),
+    };
+  };
 
   return { find, analyze };
 };
@@ -270,24 +285,29 @@ const analyzeWithAllowlist = (config) => {
 };
 
 /**
- * Curried analyzer factory - creates a reusable analyzer from find function.
- * Reduces boilerplate by combining find function with allowlist and files configuration.
+ * Create a zero-argument analyzer from a custom find function with allowlist.
+ * For tests that need custom find logic (not pattern-based).
  *
- * @param {function} findFn - Function (source) => Array of hits
- * @returns {function} Curried function: (allowlist) => (files) => { violations, allowed }
- *
- * @example
- * // Create analyzer for try/catch detection
- * const analyzeTryCatch = createAllowlistAnalyzer(findTryCatches)(ALLOWED_TRY_CATCHES);
- * const { violations, allowed } = analyzeTryCatch(() => SRC_JS_FILES());
+ * @param {object} config
+ * @param {function} config.find - Function (source) => Array of hits with lineNumber, line
+ * @param {Set<string>} [config.allowlist] - Set of "file:line" or "file" entries to allow
+ * @param {string[]|function} config.files - File list or function returning file list
+ * @returns {function} Zero-argument function returning { violations, allowed }
  *
  * @example
- * // Fully curried usage
- * const analyzer = createAllowlistAnalyzer(findFn)(allowlist)(files);
- * const { violations } = analyzer;
+ * const tryCatchAnalysis = withAllowlist({
+ *   find: findTryCatches,
+ *   allowlist: ALLOWED_TRY_CATCHES,
+ *   files: () => combineFileLists([SRC_JS_FILES(), TEST_FILES()], [THIS_FILE]),
+ * });
+ * const { violations, allowed } = tryCatchAnalysis();
  */
-const createAllowlistAnalyzer = (findFn) => (allowlist) => (files) =>
-  analyzeWithAllowlist({ findFn, allowlist, files });
+const withAllowlist = (config) => () =>
+  analyzeWithAllowlist({
+    findFn: config.find,
+    allowlist: config.allowlist ?? new Set(),
+    files: config.files,
+  });
 
 /**
  * Validate that exception entries still refer to lines containing the expected pattern.
@@ -360,7 +380,7 @@ export {
   createCodeChecker,
   // Allowlist analysis
   analyzeWithAllowlist,
-  createAllowlistAnalyzer,
+  withAllowlist,
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
