@@ -17,26 +17,25 @@ const externalLinkFilter = (url, config) => {
   return getExternalLinkAttributes(url, config);
 };
 
-const shouldSkipTransform = (content, config) =>
-  !content ||
-  !content.includes("<a") ||
-  !config?.externalLinksTargetBlank ||
-  (!content.includes("http://") && !content.includes("https://"));
-
-const applyExternalAttrs = (link) => {
-  link.setAttribute("target", "_blank");
-  link.setAttribute("rel", "noopener noreferrer");
-};
-
 const transformExternalLinks = async (content, config) => {
-  if (shouldSkipTransform(content, config)) return content;
+  if (
+    !content ||
+    !content.includes("<a") ||
+    !config?.externalLinksTargetBlank ||
+    (!content.includes("http://") && !content.includes("https://"))
+  ) {
+    return content;
+  }
 
   const JSDOM = await loadJSDOM();
   const dom = new JSDOM(content);
   const { document } = dom.window;
 
   for (const link of document.querySelectorAll("a[href]")) {
-    if (isExternalUrl(link.getAttribute("href"))) applyExternalAttrs(link);
+    if (isExternalUrl(link.getAttribute("href"))) {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+    }
   }
 
   return dom.serialize();

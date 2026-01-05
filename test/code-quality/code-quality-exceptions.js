@@ -220,7 +220,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/search.js",
-  "src/_lib/eleventy/external-links.js",
   "src/_lib/eleventy/file-utils.js",
   "src/_lib/eleventy/js-config.js",
   "src/_lib/eleventy/pdf.js",
