@@ -28,16 +28,6 @@ const renderRecurringEvents = (events) => {
   return `<ul>\n${items.join("\n")}\n</ul>`;
 };
 
-const _recurringEventsShortcode = function (_eleventyConfig) {
-  const events =
-    this.ctx?.collections?.events || this.collections?.events || [];
-  const recurringEvents = events
-    .filter((event) => event.data?.recurring_date)
-    .sort(sortItems);
-
-  return renderRecurringEvents(recurringEvents);
-};
-
 /**
  * Extract file slug from markdown filename
  */
