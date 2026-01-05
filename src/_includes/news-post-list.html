@@ -1,4 +1,4 @@
-{%- assign posts = collections.news | reverse -%}
+{%- assign posts = collections.news -%}
 <ul class="news-posts">
   {%- for post in posts limit: limit -%}
   <li>

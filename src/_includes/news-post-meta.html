@@ -1,0 +1,24 @@
+{%- if authorSlug -%}
+  {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
+{%- endif -%}
+
+{%- if authorData and authorData.data.image -%}
+<header class="post-meta with-thumbnail" role="doc-subtitle">
+  <figure>
+    <a href="{{ authorData.url }}">{% image authorData.data.image, authorData.data.title, "80,160,240", "", "", "1/1" %}</a>
+  </figure>
+  <div>
+    {%- include "post-meta-author.html" -%}
+    {%- include "post-meta-date.html" -%}
+  </div>
+</header>
+{%- elsif authorData -%}
+<header class="post-meta" role="doc-subtitle">
+  {%- include "post-meta-author.html" -%}
+  {%- include "post-meta-date.html" -%}
+</header>
+{%- else -%}
+<header class="post-meta" role="doc-subtitle">
+  {%- include "post-meta-date.html" -%}
+</header>
+{%- endif -%}
