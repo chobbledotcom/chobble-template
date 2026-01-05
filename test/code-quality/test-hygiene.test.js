@@ -148,6 +148,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "buildPattern",
   "hasSuboptimalOrder",
   "findSuboptimalOrder",
+  // image.test.js - functional test helpers
+  "expectPassthrough",
+  "expectIncludes",
+  "expectLocalImage",
+  "runTransform",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
