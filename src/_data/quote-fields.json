@@ -1,0 +1,82 @@
+{
+	"fields": [
+		{
+			"name": "event_start_date",
+			"type": "date",
+			"label": "Event Start Date",
+			"required": true
+		},
+		{
+			"name": "event_end_date",
+			"type": "date",
+			"label": "Event End Date",
+			"required": true
+		},
+		{
+			"name": "event_type",
+			"type": "select",
+			"label": "Type of Event",
+			"required": true,
+			"options": [
+				"Wedding",
+				"Birthday Party",
+				"Corporate Event",
+				"Festival",
+				"School Fete",
+				"Private Party",
+				"Other"
+			]
+		},
+		{
+			"name": "event_location",
+			"label": "Event Location",
+			"placeholder": "Venue name and address",
+			"required": true
+		},
+		{
+			"name": "event_start_time",
+			"label": "Event Start Time",
+			"placeholder": "e.g. 10:00am"
+		},
+		{
+			"name": "event_end_time",
+			"label": "Event End Time",
+			"placeholder": "e.g. 6:00pm"
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"name": "name",
+			"label": "Your Name",
+			"placeholder": "Your name",
+			"required": true
+		},
+		{
+			"name": "email",
+			"type": "email",
+			"label": "Email Address",
+			"placeholder": "Your email address",
+			"required": true
+		},
+		{
+			"name": "phone",
+			"label": "Phone Number",
+			"placeholder": "Your phone number"
+		},
+		{
+			"name": "contact_preference",
+			"type": "radio",
+			"label": "Preferred Contact Method",
+			"options": ["Email", "Phone", "Either"]
+		},
+		{
+			"name": "message",
+			"type": "textarea",
+			"label": "Your Message",
+			"placeholder": "Any additional information about your event",
+			"rows": 4
+		}
+	],
+	"submitButtonText": "Submit Quote Request"
+}

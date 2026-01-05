@@ -13,9 +13,6 @@ layout: base
     -%}
     <input type="hidden" id="cart-items" name="cart_items" value="" />
 
-    {%- assign skipShowOn = true -%}
-    {%- include "form-fields.html", skipShowOn: skipShowOn -%}
-
     <div id="hire-dates-section" class="hire-dates-section" style="display: none;">
       <h3>Hire Dates</h3>
       <div class="hire-dates-fields">
@@ -32,12 +29,7 @@ layout: base
       <input type="hidden" id="hire_days" name="hire_days" value="" />
     </div>
 
-    <div id="cart-summary" class="quote-checkout-summary">
-      <h3>Items in your quote request:</h3>
-      <div class="quote-checkout-items"></div>
-    </div>
-
-    <button type="submit" class="button">{{ contactForm.submitButtonText | default: "Send Enquiry" }}</button>
+    {%- include "quote-form-steps.html" -%}
   </form>
 {%- else -%}
   {%- include "formspark-missing.html" -%}

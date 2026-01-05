@@ -1,0 +1,60 @@
+{%- comment -%}
+Renders a single form field based on its type
+Parameters:
+  - field: The field object with name, type, label, etc.
+  - title: Optional page title for showOn fields
+{%- endcomment -%}
+{%- if field.type == "textarea" -%}
+  <label for="{{ field.name }}">
+    {{ field.label }}
+    <textarea
+      id="{{ field.name }}"
+      name="{{ field.name }}"
+      {%- if field.required %} required{%- endif %}
+      rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
+      placeholder="{% if field.showOn %}{{ title }}{% else %}{{ field.placeholder }}{% endif %}"
+    >{% if field.showOn %}{{ title }}{% endif %}</textarea>
+  </label>
+{%- elsif field.type == "select" -%}
+  <label for="{{ field.name }}">
+    {{ field.label }}
+    <select
+      id="{{ field.name }}"
+      name="{{ field.name }}"
+      {%- if field.required %} required{%- endif %}
+    >
+      <option value="" disabled selected>Select an option</option>
+      {%- for option in field.options -%}
+        <option value="{{ option }}">{{ option }}</option>
+      {%- endfor -%}
+    </select>
+  </label>
+{%- elsif field.type == "radio" -%}
+  <fieldset class="radio-group">
+    <legend>{{ field.label }}</legend>
+    {%- for option in field.options -%}
+      {%- assign optionId = field.name | append: "_" | append: forloop.index -%}
+      <div class="radio-option">
+        <input
+          type="radio"
+          id="{{ optionId }}"
+          name="{{ field.name }}"
+          value="{{ option }}"
+          {%- if field.required and forloop.first %} required{%- endif %}
+        />
+        <label for="{{ optionId }}">{{ option }}</label>
+      </div>
+    {%- endfor -%}
+  </fieldset>
+{%- else -%}
+  <label for="{{ field.name }}">
+    {{ field.label }}
+    <input
+      type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
+      id="{{ field.name }}"
+      name="{{ field.name }}"
+      placeholder="{{ field.placeholder }}"
+      {%- if field.required %} required{%- endif %}
+    />
+  </label>
+{%- endif -%}

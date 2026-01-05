@@ -1,0 +1,81 @@
+{%- comment -%}
+Renders multi-step quote form with sections split by dividers
+Uses quoteFields.fields and splits at type: "divider"
+Final step shows recap with cart items and all entered data
+{%- endcomment -%}
+
+{%- assign stepNumber = 0 -%}
+{%- assign currentStepFields = "" -%}
+
+<div class="quote-steps" data-current-step="0">
+  <div class="quote-steps-progress">
+    {%- assign totalSteps = 0 -%}
+    {%- for field in quoteFields.fields -%}
+      {%- if field.type == "divider" -%}
+        {%- assign totalSteps = totalSteps | plus: 1 -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign totalSteps = totalSteps | plus: 2 -%}
+    {%- for i in (1..totalSteps) -%}
+      <div class="quote-steps-indicator{% if i == 1 %} active{% endif %}" data-step="{{ i | minus: 1 }}">
+        <span class="step-number">{{ i }}</span>
+      </div>
+      {%- unless forloop.last -%}
+        <div class="quote-steps-connector"></div>
+      {%- endunless -%}
+    {%- endfor -%}
+  </div>
+
+  {%- assign stepNumber = 0 -%}
+  {%- assign inStep = true -%}
+
+  {%- for field in quoteFields.fields -%}
+    {%- if forloop.first -%}
+      <div class="quote-step active" data-step="{{ stepNumber }}">
+        <h3 class="quote-step-title">Event Details</h3>
+    {%- endif -%}
+
+    {%- if field.type == "divider" -%}
+      </div>
+      {%- assign stepNumber = stepNumber | plus: 1 -%}
+      <div class="quote-step" data-step="{{ stepNumber }}">
+        <h3 class="quote-step-title">Your Details</h3>
+    {%- else -%}
+      {%- include "form-field.html", field: field -%}
+    {%- endif -%}
+
+    {%- if forloop.last -%}
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- assign stepNumber = stepNumber | plus: 1 -%}
+  <div class="quote-step" data-step="{{ stepNumber }}">
+    <h3 class="quote-step-title">Review Your Request</h3>
+
+    <div class="quote-recap">
+      <div class="quote-recap-section">
+        <h4>Items in your quote</h4>
+        <div id="cart-summary" class="quote-checkout-summary">
+          <div class="quote-checkout-items"></div>
+        </div>
+      </div>
+
+      <div class="quote-recap-section">
+        <h4>Event Details</h4>
+        <dl class="quote-recap-list" id="recap-event"></dl>
+      </div>
+
+      <div class="quote-recap-section">
+        <h4>Your Details</h4>
+        <dl class="quote-recap-list" id="recap-contact"></dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="quote-steps-nav">
+    <button type="button" class="button quote-step-prev" style="display: none;">Back</button>
+    <button type="button" class="button quote-step-next">Continue</button>
+    <button type="submit" class="button quote-step-submit" style="display: none;">{{ quoteFields.submitButtonText | default: "Submit Quote Request" }}</button>
+  </div>
+</div>

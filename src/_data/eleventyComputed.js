@@ -45,6 +45,7 @@ export default {
   meta_title: (data) => data.meta_title || data.title,
   description: (data) => data.snippet || data.meta_description || "",
   contactForm: () => require("./contact-form.json"),
+  quoteFields: () => require("./quote-fields.json"),
   thumbnail: findValidThumbnail,
   faqs: (data) => (Array.isArray(data.faqs) ? data.faqs : []),
   tabs: (data) => (Array.isArray(data.tabs) ? data.tabs : []),
