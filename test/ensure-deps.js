@@ -2,8 +2,9 @@
  * Dependency check preload script - runs before test setup.
  * Automatically installs dependencies if node_modules is missing.
  */
-import { existsSync } from "node:fs";
+
 import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 const projectRoot = join(import.meta.dir, "..");
