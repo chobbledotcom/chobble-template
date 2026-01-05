@@ -12,7 +12,6 @@ import {
   collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
-  taggedCollectionApi,
 } from "#test/test-utils.js";
 import { map } from "#utils/array-utils.js";
 

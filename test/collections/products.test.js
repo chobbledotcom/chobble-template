@@ -122,7 +122,9 @@ describe("products", () => {
       ["Product 3", { gallery: ["img3.jpg"] }],
     ]);
 
-    const result = createProductsCollection(assertingCollectionApi(testProducts));
+    const result = createProductsCollection(
+      assertingCollectionApi(testProducts),
+    );
 
     expect(result.length).toBe(3);
     expect(result[0].data.gallery).toEqual(["img1.jpg"]);
@@ -351,9 +353,7 @@ describe("products", () => {
       product("Product B", { options: [option("DUPE-001", "Option B", 200)] }),
     ];
 
-    expect(() =>
-      createApiSkusCollection(collectionApi(testProducts)),
-    ).toThrow(
+    expect(() => createApiSkusCollection(collectionApi(testProducts))).toThrow(
       'Duplicate SKU "DUPE-001" found in product "Product B - Option B"',
     );
   });
@@ -368,9 +368,9 @@ describe("products", () => {
       }),
     ];
 
-    expect(() =>
-      createApiSkusCollection(collectionApi(testProducts)),
-    ).toThrow('Duplicate SKU "SAME-SKU"');
+    expect(() => createApiSkusCollection(collectionApi(testProducts))).toThrow(
+      'Duplicate SKU "SAME-SKU"',
+    );
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
