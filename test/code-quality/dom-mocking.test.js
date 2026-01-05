@@ -77,7 +77,9 @@ document.createElement("div");
     const { allowed } = domPatternAnalysis();
     if (allowed.length > 0) {
       console.log(`\n  Allowlisted DOM patterns: ${allowed.length}`);
-      console.log("  These are infrastructure files that legitimately use DOM:");
+      console.log(
+        "  These are infrastructure files that legitimately use DOM:",
+      );
       for (const loc of allowed) {
         console.log(`    - ${loc.location}`);
       }

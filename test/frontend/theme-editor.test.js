@@ -747,9 +747,9 @@ header {
     const result = controlToVarEntry(input);
 
     expect(result).toEqual(["--color-bg", "#ff0000"]);
-    expect(
-      document.documentElement.style.getPropertyValue("--color-bg"),
-    ).toBe("#ff0000");
+    expect(document.documentElement.style.getPropertyValue("--color-bg")).toBe(
+      "#ff0000",
+    );
   });
 
   test("controlToVarEntry appends px for border-radius", () => {
