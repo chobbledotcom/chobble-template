@@ -156,10 +156,7 @@ describe("products", () => {
       "gadgets",
     ]);
 
-    expect(result.length).toBe(2);
-    const titles = result.map((p) => p.data.title);
-    expect(titles.includes("Product 1")).toBe(true);
-    expect(titles.includes("Product 3")).toBe(true);
+    expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
   test("Returns unique products even if in multiple categories", () => {
@@ -174,10 +171,7 @@ describe("products", () => {
       "gadgets",
     ]);
 
-    expect(result.length).toBe(2);
-    const titles = result.map((p) => p.data.title);
-    expect(titles.includes("Product 1")).toBe(true);
-    expect(titles.includes("Product 3")).toBe(true);
+    expectResultTitles(result, ["Product 1", "Product 3"]);
   });
 
   test("Handles empty or null inputs", () => {
