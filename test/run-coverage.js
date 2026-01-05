@@ -233,17 +233,17 @@ function ratchetLimits(currentLimits, actual, verbose) {
   const newLimits = { ...currentLimits };
 
   if (actual.lines > currentLimits.lines) {
-    newLimits.lines = actual.lines;
+    newLimits.lines = Math.floor(actual.lines);
     updated = true;
   }
 
   if (actual.functions > currentLimits.functions) {
-    newLimits.functions = actual.functions;
+    newLimits.functions = Math.floor(actual.functions);
     updated = true;
   }
 
   if (actual.branches > currentLimits.branches) {
-    newLimits.branches = actual.branches;
+    newLimits.branches = Math.floor(actual.branches);
     updated = true;
   }
 
