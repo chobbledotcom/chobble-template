@@ -12,7 +12,6 @@ import {
   collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
-  item,
   items,
 } from "#test/test-utils.js";
 

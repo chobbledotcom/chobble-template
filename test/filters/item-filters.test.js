@@ -14,9 +14,9 @@ import {
   pathToFilter,
 } from "#filters/item-filters.js";
 import {
+  item as baseItem,
   collectionApi,
   expectResultTitles,
-  item as baseItem,
 } from "#test/test-utils.js";
 import { map, pipe, reduce } from "#utils/array-utils.js";
 
