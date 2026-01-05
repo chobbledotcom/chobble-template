@@ -148,8 +148,12 @@ function initQuoteSteps() {
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  prevBtn.addEventListener("click", () => goToStep(getCurrentStep(container) - 1));
-  nextBtn.addEventListener("click", () => goToStep(getCurrentStep(container) + 1));
+  prevBtn.addEventListener("click", () =>
+    goToStep(getCurrentStep(container) - 1),
+  );
+  nextBtn.addEventListener("click", () =>
+    goToStep(getCurrentStep(container) + 1),
+  );
 
   for (const [index, indicator] of indicators.entries()) {
     indicator.addEventListener("click", () => {
@@ -161,3 +165,21 @@ function initQuoteSteps() {
 }
 
 onReady(initQuoteSteps);
+
+// Exports for testing
+export {
+  buildFieldRecapItem,
+  buildRadioRecapItem,
+  getCurrentStep,
+  getFieldDisplayValue,
+  getFieldLabel,
+  getRadioLabel,
+  getRadioValue,
+  initQuoteSteps,
+  populateRecap,
+  updateButtons,
+  updateIndicators,
+  validateField,
+  validateRadioField,
+  validateStep,
+};
