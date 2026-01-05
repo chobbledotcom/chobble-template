@@ -100,9 +100,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/precommit.js:100", // passedSteps accumulator (status tracking)
   "test/precommit.js:101", // failedSteps accumulator (status tracking)
   "test/code-scanner.js:310", // stale entries accumulator (validation)
-  "test/run-coverage.js:35", // result object accumulator (diffByFile helper)
-  "test/run-coverage.js:48", // result object accumulator (mapTypes helper)
-  "test/run-coverage.js:140", // removable entries accumulator (coverage tracking)
+  "test/run-coverage.js:36", // result object accumulator (diffByFile helper)
+  "test/run-coverage.js:136", // removable entries accumulator (coverage tracking)
 ]);
 
 // ============================================
