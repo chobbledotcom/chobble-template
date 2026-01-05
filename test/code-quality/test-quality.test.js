@@ -7,6 +7,7 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
+import { compact, filterMap } from "#utils/array-utils.js";
 
 /**
  * Test Quality Enforcement
@@ -49,10 +50,6 @@ const matchesAnyVaguePattern = (name) =>
 
 // Curried predicate: counts "and" occurrences in name
 const countAnds = (name) => (name.match(/-and-/g) || []).length;
-
-// Curried filter + map: transforms test cases to violations if predicate matches
-const toViolationsWhere = (predicate, toViolation) => (testCases) =>
-  testCases.filter(predicate).map(toViolation);
 
 // ============================================
 // Test Name Extraction
@@ -102,7 +99,7 @@ const multiConcernViolation = createViolation(
  */
 const findVagueTestNames = () =>
   analyzeFiles(TEST_FILES(), (source, relativePath) =>
-    toViolationsWhere(
+    filterMap(
       (tc) => matchesAnyVaguePattern(tc.name),
       vagueViolation,
     )(extractTestNames(source, relativePath)),
@@ -116,7 +113,7 @@ const findMultiConcernTestNames = () => {
   const filesToCheck = TEST_FILES().filter((f) => !AND_NAME_EXCEPTIONS.has(f));
 
   return analyzeFiles(filesToCheck, (source, relativePath) =>
-    toViolationsWhere(
+    filterMap(
       (tc) => countAnds(tc.name) >= 2,
       multiConcernViolation,
     )(extractTestNames(source, relativePath)),
@@ -190,6 +187,11 @@ const hasRealAwait = (body) => {
   );
 };
 
+// Async test without await violation creator
+const asyncTestViolation = createViolation(
+  () => 'asyncTest without await - use sync "test" instead',
+);
+
 /**
  * Check for asyncTest without real await operations.
  * Pure: () => violations[]
@@ -207,12 +209,11 @@ const findAsyncTestsWithoutAwait = () =>
 
       return hasRealAwait(funcBody)
         ? null
-        : {
+        : asyncTestViolation({
             file: relativePath,
             line: lineNum,
-            code: testName,
-            reason: 'asyncTest without await - use sync "test" instead',
-          };
+            name: testName,
+          });
     });
   });
 
@@ -230,6 +231,10 @@ const ASSERTION_PATTERNS = [
   [/assert\.ok\s*\([^,)]+\)\s*[;,)]?\s*$/, "ok"],
 ];
 
+// Assertion without message violation creator (curried with method name)
+const assertionMissingMessageViolation = (method) =>
+  createViolation(() => `assert.${method} missing message parameter`);
+
 /**
  * Check a single line for assertion without message.
  * Pure: (line, lineNum, relativePath) => violation | null
@@ -242,12 +247,11 @@ const checkLineForAssertionWithoutMessage = (line, lineNum, relativePath) => {
   const match = ASSERTION_PATTERNS.find(([pattern]) => pattern.test(trimmed));
 
   return match
-    ? {
+    ? assertionMissingMessageViolation(match[1])({
         file: relativePath,
         line: lineNum,
         code: truncated,
-        reason: `assert.${match[1]} missing message parameter`,
-      }
+      })
     : null;
 };
 
@@ -309,6 +313,13 @@ const findRecentAssignment = (assignments, prop, beforeLine, maxDistance) => {
     : undefined;
 };
 
+// Tautology violation creator (curried with context)
+const tautologyViolation = (assignLine) =>
+  createViolation(
+    (ctx) =>
+      `Set "${ctx.code}" on line ${assignLine}, then assert on line ${ctx.line} - tests nothing`,
+  );
+
 /**
  * Scan for set-then-assert patterns.
  * Pure: (source, relativePath) => violations[]
@@ -320,8 +331,8 @@ const findTautologiesInSource = (source, relativePath) => {
   const assignments = extractAssignments(lines);
   const assertions = extractAssertions(lines);
 
-  return assertions
-    .map((assertion) => {
+  return compact(
+    assertions.map((assertion) => {
       const assignLine = findRecentAssignment(
         assignments,
         assertion.prop,
@@ -329,15 +340,14 @@ const findTautologiesInSource = (source, relativePath) => {
         maxDistance,
       );
       return assignLine !== undefined
-        ? {
+        ? tautologyViolation(assignLine)({
             file: relativePath,
             line: assertion.lineNum,
             code: assertion.prop,
-            reason: `Set "${assertion.prop}" on line ${assignLine}, then assert on line ${assertion.lineNum} - tests nothing`,
-          }
+          })
         : null;
-    })
-    .filter((v) => v !== null);
+    }),
+  );
 };
 
 /**
