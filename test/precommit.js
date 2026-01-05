@@ -73,8 +73,18 @@ function extractErrorsFromOutput(output) {
       trimmed.startsWith("error:") ||
       trimmed.startsWith("Error:") ||
       trimmed.includes("FAIL") ||
-      trimmed.includes("below threshold")
+      trimmed.includes("below threshold") ||
+      // Coverage-specific errors from run-coverage.js
+      trimmed.includes("Uncovered") ||
+      trimmed.includes("must have test coverage")
     ) {
+      errors.push(trimmed);
+    }
+
+    // Include coverage violation details (path/file.ext: items)
+    // These lines show which specific files/lines/functions/branches need coverage
+    // Matches patterns like: src/file.js: 10, 20 or src/file.js: funcName, otherFunc
+    if (/^[\w./-]+\.\w+:\s*.+$/.test(trimmed)) {
       errors.push(trimmed);
     }
   }
