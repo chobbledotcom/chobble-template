@@ -20,9 +20,9 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
+import { ROOT_DIR } from "#lib/paths.js";
 import { filter, flatMap, map, pipe, unique } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
-import { ROOT_DIR } from "#lib/paths.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
