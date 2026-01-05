@@ -7,6 +7,34 @@ import { fs, path, rootDir } from "#test/test-utils.js";
 import { notMemberOf } from "#utils/array-utils.js";
 import { omit } from "#utils/object-entries.js";
 
+/**
+ * Resolve import aliases to file paths.
+ * Maps package.json imports like #test/* to actual paths.
+ */
+const resolveAlias = (importPath) => {
+  const aliasMap = {
+    "#test/": "test/",
+    "#lib/": "src/_lib/",
+    "#collections/": "src/_lib/collections/",
+    "#config/": "src/_lib/config/",
+    "#filters/": "src/_lib/filters/",
+    "#eleventy/": "src/_lib/eleventy/",
+    "#build/": "src/_lib/build/",
+    "#media/": "src/_lib/media/",
+    "#utils/": "src/_lib/utils/",
+    "#assets/": "src/assets/js/",
+    "#data/": "src/_data/",
+  };
+
+  for (const [alias, realPath] of Object.entries(aliasMap)) {
+    if (importPath.startsWith(alias)) {
+      return importPath.replace(alias, realPath);
+    }
+  }
+
+  return importPath;
+};
+
 // Standard fields returned by find functions (everything else is extra data)
 const STANDARD_HIT_FIELDS = ["lineNumber", "line"];
 const omitStandardFields = omit(STANDARD_HIT_FIELDS);
@@ -60,9 +88,12 @@ const toLines = (source) =>
 
 /**
  * Filter file list excluding certain paths.
+ * Resolves aliases in exclude list before filtering.
  */
-const excludeFiles = (files, exclude = []) =>
-  files.filter(notMemberOf(exclude));
+const excludeFiles = (files, exclude = []) => {
+  const resolvedExclude = exclude.map(resolveAlias);
+  return files.filter(notMemberOf(resolvedExclude));
+};
 
 /**
  * Combine multiple file lists, optionally excluding some.
@@ -367,6 +398,8 @@ const createViolation = (reasonFn) => (context) => ({
 });
 
 export {
+  // Alias resolution
+  resolveAlias,
   // Common patterns
   COMMENT_LINE_PATTERNS,
   isCommentLine,
