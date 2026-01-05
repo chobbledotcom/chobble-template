@@ -23,7 +23,8 @@
 			"label": "Product",
 			"required": true,
 			"rows": 6,
-			"showOn": "product"
+			"showOn": "product",
+			"defaultFromPageTitle": true
 		},
 		{
 			"name": "event",
@@ -31,7 +32,8 @@
 			"label": "Event",
 			"required": true,
 			"rows": 6,
-			"showOn": "event"
+			"showOn": "event",
+			"defaultFromPageTitle": true
 		},
 		{
 			"name": "message",

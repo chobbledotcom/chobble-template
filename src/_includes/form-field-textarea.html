@@ -5,6 +5,6 @@
     name="{{ field.name }}"
     {%- if field.required %} required{%- endif %}
     rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
-    placeholder="{% if field.showOn %}{{ title }}{% else %}{{ field.placeholder }}{% endif %}"
-  >{% if field.showOn %}{{ title }}{% endif %}</textarea>
+    placeholder="{% if field.defaultFromPageTitle %}{{ pageTitle }}{% else %}{{ field.placeholder }}{% endif %}"
+  >{% if field.defaultFromPageTitle %}{{ pageTitle }}{% endif %}</textarea>
 </label>

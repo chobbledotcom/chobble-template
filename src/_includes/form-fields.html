@@ -20,6 +20,6 @@ Parameters:
     {%- endif -%}
   {%- endif -%}
   {%- if shouldShow -%}
-    {%- include "form-field.html", field: field, title: title -%}
+    {%- include field.template, field: field, pageTitle: title -%}
   {%- endif -%}
 {%- endfor -%}

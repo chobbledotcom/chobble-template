@@ -1,5 +1,7 @@
 // Quote fields processing helpers
 
+import { addFieldTemplates } from "#config/form-helpers.js";
+
 // Default section titles - can be overridden in JSON
 export const DEFAULT_SECTION_TITLES = ["Event Details", "Your Details"];
 
@@ -27,11 +29,11 @@ export function splitFieldsIntoSections(fields) {
     : result.sections;
 }
 
-// Build sections with titles and metadata
+// Build sections with titles and metadata, adding templates to fields
 export function buildSections(fieldSections, sectionTitles) {
   return fieldSections.map((fields, index) => ({
     title: sectionTitles[index] || `Step ${index + 1}`,
-    fields,
+    fields: addFieldTemplates(fields),
     stepNumber: index,
     isFirst: index === 0,
     isLast: index === fieldSections.length - 1,
@@ -52,6 +54,6 @@ export function processQuoteFields(data) {
     totalSteps,
     recapTitle: data.recapTitle || "Review Your Request",
     submitButtonText: data.submitButtonText || "Submit Quote Request",
-    fields: data.fields, // Keep original for backwards compatibility
+    fields: addFieldTemplates(data.fields || []),
   };
 }

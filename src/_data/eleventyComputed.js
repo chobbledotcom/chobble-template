@@ -44,7 +44,7 @@ export default {
   header_text: (data) => data.header_text || data.title,
   meta_title: (data) => data.meta_title || data.title,
   description: (data) => data.snippet || data.meta_description || "",
-  contactForm: () => require("./contact-form.json"),
+  contactForm: () => require("./contact-form.js").default(),
   quoteFields: () => require("./quote-fields.js").default(),
   thumbnail: findValidThumbnail,
   faqs: (data) => (Array.isArray(data.faqs) ? data.faqs : []),
