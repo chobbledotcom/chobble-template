@@ -15,27 +15,17 @@ import {
   collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
+  item,
+  items,
 } from "#test/test-utils.js";
-import { map } from "#utils/array-utils.js";
 
 // ============================================
 // Functional Test Fixture Builders
 // ============================================
 
-/**
- * Create a product with nested data structure
- * @param {string} title - Product title
- * @param {Object} options - Additional product data (categories, featured, events, gallery, options, etc.)
- */
-const product = (title, options = {}) => ({
-  data: { title, ...options },
-});
-
-/**
- * Create products from an array of [title, options] tuples
- * Curried for use with pipe
- */
-const products = map(([title, options]) => product(title, options));
+// Use shared item/items from test-utils for products
+const product = item;
+const products = items;
 
 /**
  * Create a product option (SKU variant)

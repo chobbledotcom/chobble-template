@@ -13,7 +13,11 @@ import {
   parseFilterAttributes,
   pathToFilter,
 } from "#filters/item-filters.js";
-import { collectionApi, expectResultTitles } from "#test/test-utils.js";
+import {
+  collectionApi,
+  expectResultTitles,
+  item as baseItem,
+} from "#test/test-utils.js";
 import { map, pipe, reduce } from "#utils/array-utils.js";
 
 // ============================================
@@ -26,16 +30,14 @@ import { map, pipe, reduce } from "#utils/array-utils.js";
 const attr = (name, value) => ({ name, value });
 
 /**
- * Create an item with filter_attributes and optional title
+ * Create an item with filter_attributes using rest params syntax.
+ * Wraps the shared baseItem for filter-specific convenience.
+ *
  * @param {string|null} title - Item title (null for no title)
  * @param {...Object} attrs - Filter attributes created with attr()
  */
-const item = (title, ...attrs) => ({
-  data: {
-    ...(title && { title }),
-    ...(attrs.length > 0 && { filter_attributes: attrs }),
-  },
-});
+const item = (title, ...attrs) =>
+  baseItem(title, attrs.length > 0 ? { filter_attributes: attrs } : {});
 
 /**
  * Create items from an array of [title, ...attrs] tuples

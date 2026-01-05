@@ -12,24 +12,17 @@ import {
   collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
+  item,
+  items,
 } from "#test/test-utils.js";
-import { map } from "#utils/array-utils.js";
 
 // ============================================
 // Functional Test Fixture Builders
 // ============================================
 
-/**
- * Create a property with nested data structure
- */
-const property = (title, options = {}) => ({
-  data: { title, ...options },
-});
-
-/**
- * Create properties from an array of [title, options] tuples
- */
-const properties = map(([title, options]) => property(title, options));
+// Use shared item/items from test-utils for properties
+const property = item;
+const properties = items;
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
