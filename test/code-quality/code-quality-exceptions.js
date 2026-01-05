@@ -200,6 +200,78 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
+  "test/code-quality/single-use-functions.test.js:101", // inString (boolean state)
+  "test/code-quality/single-use-functions.test.js:118", // inString (boolean state)
+]);
+
+// ============================================
+// Single-use unexported function exceptions
+// ============================================
+
+// Functions that are intentionally single-use for clarity/naming purposes.
+// These are warnings, not errors - functions are kept separate for readability.
+// Consider inlining these into their callers or exporting if part of public API.
+const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
+  // === Data layer ===
+  "src/_data/altTagsLookup.js:6", // toFilenameEntry
+
+  // === Collections ===
+  "src/_lib/collections/reviews.js:88", // hashString
+  "src/_lib/collections/tags.js:10", // notNullish
+  "src/_lib/collections/events.js:9", // byEventDateAsc
+  "src/_lib/collections/events.js:12", // byEventDateDesc
+  "src/_lib/collections/events.js:18", // categorizeByEventDate
+
+  // === Utilities ===
+  "src/_lib/utils/dom-builder.js:24", // appendChildren
+  "src/_lib/utils/slug-utils.js:32", // capitalize
+
+  // === Eleventy plugins ===
+  "src/_lib/eleventy/recurring-events.js:56", // toRecurringEvent
+  "src/_lib/eleventy/recurring-events.js:71", // readRecurringEvent
+  "src/_lib/eleventy/pdf.js:230", // writePdfToFile
+  "src/_lib/eleventy/js-config.js:10", // toConfigEntry
+
+  // === Filters ===
+  "src/_lib/filters/item-filters.js:100", // toPairs
+  "src/_lib/filters/item-filters.js:122", // matchesNormalized
+  "src/_lib/filters/item-filters.js:166", // attrsMatch
+  "src/_lib/filters/item-filters.js:172", // countMatchingItems
+  "src/_lib/filters/item-filters.js:244", // toDisplayPair
+
+  // === Media ===
+  "src/_lib/media/unused-images.js:33", // reportUnusedImages
+
+  // === Browser-side JS ===
+  "src/assets/js/shuffle-properties.js:10", // nextRandom
+  "src/assets/js/shuffle-properties.js:16", // swapIndices
+  "src/assets/js/shuffle-properties.js:20", // shuffleArray
+  "src/assets/js/gallery.js:28", // showImageByIndex
+  "src/assets/js/gallery.js:79", // addNavigationButtons
+  "src/assets/js/gallery.js:84", // addNextButton
+  "src/assets/js/selectors.js:4", // toKebab
+  "src/assets/js/quote-checkout.js:22", // populateForm
+  "src/assets/js/cart-utils.js:57", // clampToMaxQuantity
+  "src/assets/js/availability-calendar.js:40", // showLoading
+  "src/assets/js/availability-calendar.js:136", // openCalendar
+  "src/assets/js/cart.js:33", // resetProductSelects
+  "src/assets/js/cart.js:60", // showAddedFeedback
+  "src/assets/js/cart.js:153", // clampQuantity
+  "src/assets/js/cart.js:172", // appendItem
+  "src/assets/js/cart.js:213", // paypalCheckout
+  "src/assets/js/cart.js:226", // checkoutWithPayPal
+  "src/assets/js/cart.js:235", // checkoutWithStripe
+  "src/assets/js/theme-editor-lib.js:117", // scopeHasVars
+
+  // === Test files ===
+  "test/collections/products.test.js:39", // assertingCollectionApi
+  "test/utils/strings.test.js:10", // SOURCE_FILES
+  "test/eleventy/recurring-events.test.js:32", // flatEvent
+  "test/code-quality/array-push.test.js:20", // analyzeArrayPushUsage
+  "test/code-quality/unused-classes.test.js:34", // cleanLiquid
+  "test/code-quality/unused-classes.test.js:175", // escapeRegex
+  "test/code-quality/unused-classes.test.js:178", // testAny
+  "test/code-quality/method-aliasing.test.js:35", // collectLocalDefs
 ]);
 
 export {
@@ -211,4 +283,5 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
+  ALLOWED_SINGLE_USE_FUNCTIONS,
 };
