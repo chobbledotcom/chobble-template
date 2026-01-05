@@ -116,6 +116,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findTestNameBackwards",
   "hasRealAwait",
   "checkLineForAssertionWithoutMessage",
+  "extractAssignments",
+  "extractAssertions",
+  "findRecentAssignment",
   "findTautologiesInSource",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",

@@ -100,8 +100,7 @@ const vagueViolation = createViolation(
 
 // Multi-concern violation creator
 const multiConcernViolation = createViolation(
-  (tc) =>
-    `Test name has ${countAnds(tc.name)} "and"s - consider splitting`,
+  (tc) => `Test name has ${countAnds(tc.name)} "and"s - consider splitting`,
 );
 
 /**
@@ -231,7 +230,10 @@ const findAsyncTestsWithoutAwait = () =>
 // Assertion patterns that need messages (pattern, method name)
 const ASSERTION_PATTERNS = [
   [/assert\.strictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/, "strictEqual"],
-  [/assert\.deepStrictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/, "deepStrictEqual"],
+  [
+    /assert\.deepStrictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/,
+    "deepStrictEqual",
+  ],
   [/assert\.ok\s*\([^,)]+\)\s*[;,)]?\s*$/, "ok"],
 ];
 
@@ -241,7 +243,8 @@ const ASSERTION_PATTERNS = [
  */
 const checkLineForAssertionWithoutMessage = (line, lineNum, relativePath) => {
   const trimmed = line.trim();
-  const truncated = trimmed.substring(0, 50) + (trimmed.length > 50 ? "..." : "");
+  const truncated =
+    trimmed.substring(0, 50) + (trimmed.length > 50 ? "..." : "");
 
   const match = ASSERTION_PATTERNS.find(([pattern]) => pattern.test(trimmed));
 
@@ -273,7 +276,7 @@ const findAssertionsWithoutMessages = () => {
 };
 
 // ============================================
-// Tautological Assertion Detection (Immutable)
+// Tautological Assertion Detection (Functional)
 // ============================================
 
 // Pattern matchers for assignments and assertions
@@ -281,66 +284,67 @@ const ASSIGNMENT_PATTERN = /^(\w+(?:\.\w+)+)\s*=\s*([^;]+);?\s*$/;
 const ASSERT_PATTERN = /assert\.(?:strictEqual|ok)\s*\(\s*(\w+(?:\.\w+)+)/;
 
 /**
- * Scan for set-then-assert patterns using immutable state.
+ * Extract all assignments from source as [{prop, lineNum}].
+ * Pure: (lines) => assignments[]
+ */
+const extractAssignments = (lines) =>
+  lines.flatMap((line, index) => {
+    const match = line.trim().match(ASSIGNMENT_PATTERN);
+    return match ? [{ prop: match[1], lineNum: index + 1 }] : [];
+  });
+
+/**
+ * Extract all assertions from source as [{prop, lineNum}].
+ * Pure: (lines) => assertions[]
+ */
+const extractAssertions = (lines) =>
+  lines.flatMap((line, index) => {
+    const match = line.trim().match(ASSERT_PATTERN);
+    return match ? [{ prop: match[1], lineNum: index + 1 }] : [];
+  });
+
+/**
+ * Find the most recent assignment for a property before a given line.
+ * Pure: (assignments, prop, beforeLine, maxDistance) => lineNum | undefined
+ */
+const findRecentAssignment = (assignments, prop, beforeLine, maxDistance) => {
+  const matching = assignments
+    .filter((a) => a.prop === prop && a.lineNum < beforeLine)
+    .filter((a) => beforeLine - a.lineNum <= maxDistance);
+  return matching.length > 0
+    ? matching[matching.length - 1].lineNum
+    : undefined;
+};
+
+/**
+ * Scan for set-then-assert patterns.
  * Pure: (source, relativePath) => violations[]
  */
 const findTautologiesInSource = (source, relativePath) => {
   const lines = source.split("\n");
   const maxDistance = 5;
-  const staleThreshold = 10;
 
-  // Process lines with immutable accumulator
-  const result = lines.reduce(
-    (acc, lineContent, index) => {
-      const lineNum = index + 1;
-      const line = lineContent.trim();
+  const assignments = extractAssignments(lines);
+  const assertions = extractAssertions(lines);
 
-      // Check for assignment
-      const assignMatch = line.match(ASSIGNMENT_PATTERN);
-      if (assignMatch) {
-        const [, prop] = assignMatch;
-        return {
-          ...acc,
-          assignments: { ...acc.assignments, [prop]: lineNum },
-        };
-      }
-
-      // Check for assertion
-      const assertMatch = line.match(ASSERT_PATTERN);
-      if (assertMatch) {
-        const prop = assertMatch[1];
-        const assignLine = acc.assignments[prop];
-
-        if (assignLine !== undefined) {
-          const distance = lineNum - assignLine;
-          if (distance > 0 && distance <= maxDistance) {
-            const violation = {
-              file: relativePath,
-              line: lineNum,
-              code: prop,
-              reason: `Set "${prop}" on line ${assignLine}, then assert on line ${lineNum} - tests nothing`,
-            };
-            return {
-              ...acc,
-              violations: [...acc.violations, violation],
-            };
-          }
-        }
-      }
-
-      // Prune stale assignments (immutably)
-      const freshAssignments = Object.fromEntries(
-        Object.entries(acc.assignments).filter(
-          ([, assignLineNum]) => lineNum - assignLineNum <= staleThreshold,
-        ),
+  return assertions
+    .map((assertion) => {
+      const assignLine = findRecentAssignment(
+        assignments,
+        assertion.prop,
+        assertion.lineNum,
+        maxDistance,
       );
-
-      return { ...acc, assignments: freshAssignments };
-    },
-    { assignments: {}, violations: [] },
-  );
-
-  return result.violations;
+      return assignLine !== undefined
+        ? {
+            file: relativePath,
+            line: assertion.lineNum,
+            code: assertion.prop,
+            reason: `Set "${assertion.prop}" on line ${assignLine}, then assert on line ${assertion.lineNum} - tests nothing`,
+          }
+        : null;
+    })
+    .filter((v) => v !== null);
 };
 
 /**
@@ -419,6 +423,30 @@ describe("module", () => {
       `;
     const violations = findTautologiesInSource(source, "test.js");
     expect(violations.length).toBe(1);
+  });
+
+  test("Does not flag assertions without prior assignments", () => {
+    const source = `
+        const result = computeValue();
+        assert.strictEqual(result.status, true);
+      `;
+    const violations = findTautologiesInSource(source, "test.js");
+    expect(violations.length).toBe(0);
+  });
+
+  test("Does not flag assertions too far from assignments", () => {
+    const source = `
+        button.disabled = false;
+        line1;
+        line2;
+        line3;
+        line4;
+        line5;
+        line6;
+        assert.strictEqual(button.disabled, false);
+      `;
+    const violations = findTautologiesInSource(source, "test.js");
+    expect(violations.length).toBe(0);
   });
 
   test("No tests have vague names (Section 4)", () => {
