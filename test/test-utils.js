@@ -4,6 +4,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { map } from "#utils/array-utils.js";
+import { memoize } from "#utils/memoize.js";
 import { ROOT_DIR, SRC_DIR } from "../src/_lib/paths.js";
 
 // JSDOM-compatible wrapper for happy-dom
@@ -141,19 +142,8 @@ const getFiles = (pattern) => {
   return results;
 };
 
-// Memoized file list getter - defers getFiles() call until first use
+// Memoized file list getters - defer getFiles() call until first use
 // to avoid TDZ issues during circular imports at module load time
-const memoize = (fn) => {
-  const cache = { value: undefined, computed: false };
-  return () => {
-    if (!cache.computed) {
-      cache.value = fn();
-      cache.computed = true;
-    }
-    return cache.value;
-  };
-};
-
 const SRC_JS_FILES = memoize(() => getFiles(/^src\/.*\.js$/));
 const ECOMMERCE_JS_FILES = memoize(() =>
   getFiles(/^ecommerce-backend\/.*\.js$/),

@@ -84,11 +84,11 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Most let usage should be converted to const with functional patterns.
 const ALLOWED_LET_USAGE = new Set([
   // extractFunctions - complex stateful parser (5 state variables)
-  "test/test-utils.js:448", // globalBraceDepth counter
-  "test/test-utils.js:449", // inString state flag
-  "test/test-utils.js:450", // stringChar tracking
-  "test/test-utils.js:451", // inTemplate state flag
-  "test/test-utils.js:452", // inMultilineComment state flag
+  "test/test-utils.js:438", // globalBraceDepth counter
+  "test/test-utils.js:439", // inString state flag
+  "test/test-utils.js:440", // stringChar tracking
+  "test/test-utils.js:441", // inTemplate state flag
+  "test/test-utils.js:442", // inMultilineComment state flag
 ]);
 
 // ============================================
@@ -103,13 +103,13 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
 
   // Test utilities - imperative accumulation patterns for performance/clarity
-  "test/test-utils.js:27", // ALWAYS_SKIP set (static config)
-  "test/test-utils.js:117", // results accumulator (getFiles)
-  "test/test-utils.js:181", // logs accumulator (console capture)
-  "test/test-utils.js:190", // logs accumulator (console capture async)
-  "test/test-utils.js:426", // results set (createExtractor)
-  "test/test-utils.js:444", // functions accumulator (extractFunctions - parser)
-  "test/test-utils.js:446", // stack for parsing state (extractFunctions - parser)
+  "test/test-utils.js:28", // ALWAYS_SKIP set (static config)
+  "test/test-utils.js:118", // results accumulator (getFiles)
+  "test/test-utils.js:171", // logs accumulator (console capture)
+  "test/test-utils.js:180", // logs accumulator (console capture async)
+  "test/test-utils.js:416", // results set (createExtractor)
+  "test/test-utils.js:434", // functions accumulator (extractFunctions - parser)
+  "test/test-utils.js:436", // stack for parsing state (extractFunctions - parser)
   "test/build-profiling.js:61", // times accumulator (performance tracking)
   "test/build-profiling.js:216", // runs accumulator (benchmark results)
   "test/precommit.js:22", // results accumulator (script results)
