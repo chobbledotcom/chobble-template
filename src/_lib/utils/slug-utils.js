@@ -29,9 +29,12 @@ const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
 // Convert a slug to title case (e.g., "90s-computer" -> "90s Computer")
-const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 const slugToTitle = (slug) =>
-  pipe(split("-"), map(capitalize), join(" "))(slug);
+  pipe(
+    split("-"),
+    map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
+    join(" "),
+  )(slug);
 
 export {
   slugify,
