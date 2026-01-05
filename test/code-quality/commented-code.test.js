@@ -110,24 +110,22 @@ const findCommentedCode = (source, _relativePath) => {
 
 const THIS_FILE = "test/code-quality/commented-code.test.js";
 
-/**
- * Analyze all JS files and find commented-out code
- */
-const analyzeCommentedCode = () => {
-  const files = combineFileLists(
+// File list for analysis (excludes this file to avoid self-detection)
+const commentedCodeFiles = () =>
+  combineFileLists(
     [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
     [THIS_FILE],
   );
 
-  return analyzeFiles(files, (source, relativePath) => {
-    const commentedCode = findCommentedCode(source, relativePath);
-    return commentedCode.map((cc) => ({
+// Curried analyzer - maps find results to violation format
+const analyzeCommented = (files) =>
+  analyzeFiles(files(), (source, relativePath) =>
+    findCommentedCode(source, relativePath).map((cc) => ({
       file: relativePath,
       line: cc.lineNumber,
       code: cc.line,
-    }));
-  });
-};
+    })),
+  );
 
 describe("commented-code", () => {
   test("Correctly identifies commented-out variable declarations", () => {
@@ -186,7 +184,7 @@ const a = 1;
   });
 
   test("No commented-out code allowed in the codebase", () => {
-    const violations = analyzeCommentedCode();
+    const violations = analyzeCommented(commentedCodeFiles);
     assertNoViolations(violations, {
       message: "commented-out code",
       fixHint: "remove the commented code",

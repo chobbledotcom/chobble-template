@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_MUTABLE_CONST } from "#test/code-quality/code-quality-exceptions.js";
 import {
-  analyzeWithAllowlist,
   assertNoViolations,
+  createAllowlistAnalyzer,
   createCodeChecker,
   matchesAny,
   validateExceptions,
@@ -48,21 +48,13 @@ const { find: findMutableConstDeclarations } = createCodeChecker({
   files: [],
 });
 
-/** Analyze all JS files for mutable variable declarations. */
-const analyzeMutableVarUsage = () =>
-  analyzeWithAllowlist({
-    findFn: findMutableVarDeclarations,
-    allowlist: new Set(),
-    files: SRC_JS_FILES,
-  });
-
-/** Analyze all JS files for mutable const declarations. */
-const analyzeMutableConstUsage = () =>
-  analyzeWithAllowlist({
-    findFn: findMutableConstDeclarations,
-    allowlist: ALLOWED_MUTABLE_CONST,
-    files: SRC_JS_FILES,
-  });
+// Curried analyzers - partially applied, files passed at call site for lazy evaluation
+const analyzeMutableVar = createAllowlistAnalyzer(findMutableVarDeclarations)(
+  new Set(),
+);
+const analyzeMutableConst = createAllowlistAnalyzer(
+  findMutableConstDeclarations,
+)(ALLOWED_MUTABLE_CONST);
 
 describe("let-usage", () => {
   test("Detects let declarations in source code", () => {
@@ -101,7 +93,7 @@ let mutableVar = 0;
   });
 
   test("No mutable variables outside allowed patterns and allowlist", () => {
-    const { violations } = analyzeMutableVarUsage();
+    const { violations } = analyzeMutableVar(SRC_JS_FILES);
     assertNoViolations(violations, {
       message: "mutable variable declaration(s)",
       fixHint:
@@ -150,7 +142,7 @@ const config = { key: 'value' };
   });
 
   test("No mutable const declarations outside allowlist", () => {
-    const { violations } = analyzeMutableConstUsage();
+    const { violations } = analyzeMutableConst(SRC_JS_FILES);
     assertNoViolations(violations, {
       message: "mutable const declaration(s)",
       fixHint:
@@ -159,7 +151,7 @@ const config = { key: 'value' };
   });
 
   test("Reports allowlisted mutable const usage for tracking", () => {
-    const { allowed } = analyzeMutableConstUsage();
+    const { allowed } = analyzeMutableConst(SRC_JS_FILES);
     console.log(`\n  Allowlisted mutable const usages: ${allowed.length}`);
     if (allowed.length > 0) {
       console.log("  Locations:");

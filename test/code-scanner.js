@@ -270,6 +270,26 @@ const analyzeWithAllowlist = (config) => {
 };
 
 /**
+ * Curried analyzer factory - creates a reusable analyzer from find function.
+ * Reduces boilerplate by combining find function with allowlist and files configuration.
+ *
+ * @param {function} findFn - Function (source) => Array of hits
+ * @returns {function} Curried function: (allowlist) => (files) => { violations, allowed }
+ *
+ * @example
+ * // Create analyzer for try/catch detection
+ * const analyzeTryCatch = createAllowlistAnalyzer(findTryCatches)(ALLOWED_TRY_CATCHES);
+ * const { violations, allowed } = analyzeTryCatch(() => SRC_JS_FILES());
+ *
+ * @example
+ * // Fully curried usage
+ * const analyzer = createAllowlistAnalyzer(findFn)(allowlist)(files);
+ * const { violations } = analyzer;
+ */
+const createAllowlistAnalyzer = (findFn) => (allowlist) => (files) =>
+  analyzeWithAllowlist({ findFn, allowlist, files });
+
+/**
  * Validate that exception entries still refer to lines containing the expected pattern.
  * Returns stale entries that no longer exist or no longer match.
  *
@@ -340,6 +360,7 @@ export {
   createCodeChecker,
   // Allowlist analysis
   analyzeWithAllowlist,
+  createAllowlistAnalyzer,
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
