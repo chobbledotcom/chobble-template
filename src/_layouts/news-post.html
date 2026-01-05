@@ -2,43 +2,10 @@
 layout: base
 ---
 
-<h2>
-  <a href="/{{ strings.news_permalink_dir }}/">News</a>
-  {%- if subtitle and subtitle != "" %}
-    › {{ subtitle | escape }}
-  {%- endif -%}
-</h2>
+{% include "news-post-header.html" %}
 
-{%- if authorSlug -%}
-  {%- assign authorData = collections.team | where: "fileSlug", authorSlug | first -%}
-{%- endif -%}
-
-{%- if authorData and authorData.data.image -%}
-<header class="post-meta with-thumbnail" role="doc-subtitle">
-  <figure>
-    <a href="{{ authorData.url }}">{% image authorData.data.image, authorData.data.title, "80,160,240", "", "", "1/1" %}</a>
-  </figure>
-  <div>
-    {%- include "post-meta-author.html" -%}
-    {%- include "post-meta-date.html" -%}
-  </div>
-</header>
-{%- elsif authorData -%}
-<header class="post-meta" role="doc-subtitle">
-  {%- include "post-meta-author.html" -%}
-  {%- include "post-meta-date.html" -%}
-</header>
-{%- else -%}
-<header class="post-meta" role="doc-subtitle">
-  {%- include "post-meta-date.html" -%}
-</header>
-{%- endif -%}
+{% include "news-post-meta.html" %}
 
 {{ content }}
 
-{% if gallery %}
-  {% for image in gallery %}
-    {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-    {% image image, alt_text, config.products.gallery_image_widths %}
-  {% endfor %}
-{% endif %}
+{% include "news-post-gallery.html" %}

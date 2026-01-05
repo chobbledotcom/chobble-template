@@ -24,7 +24,7 @@ layout: base
   {%- endfor -%}
 
   {%- if all_have_images -%}
-    {%- assign posts = collections.news | reverse | slice: 0, 2 -%}
+    {%- assign posts = collections.news | slice: 0, 2 -%}
     {%- include "items.html", items: posts -%}
   {%- else -%}
     {% include "news-post-list.html", limit: 2 %}
