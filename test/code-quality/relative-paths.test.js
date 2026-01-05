@@ -15,6 +15,7 @@ describe("relative-paths", () => {
     "test/build-profiling.js",
     "test/code-scanner.js",
     "test/setup.js",
+    "test/ensure-deps.js",
   ];
 
   const { find: findRelativeImports, analyze: analyzeRelativeImports } =
