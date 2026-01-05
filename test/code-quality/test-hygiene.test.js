@@ -71,6 +71,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findUnusedClassesAndIds",
   // naming-conventions.test.js - test fixture string
   "getUserById",
+  // jsonld-validation.test.js - JSON-LD extraction and validation helpers
+  "extractJsonLd",
+  "getEntities",
+  "findEntityByType",
+  "validateContext",
+  "validateEntityProperties",
+  "productFile",
+  "newsFile",
+  "pageFile",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   // commented-code.test.js - analysis helpers
