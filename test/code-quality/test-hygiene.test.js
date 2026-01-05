@@ -148,6 +148,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "buildPattern",
   "hasSuboptimalOrder",
   "findSuboptimalOrder",
+  // news.test.js - functional test fixture builders
+  "newsPost",
+  "teamMember",
+  "getPostMeta",
+  "getContentHtml",
+  "extractImages",
+  "expectAuthorElements",
+  "expectTimeElement",
+  "expectMetaStructure",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
