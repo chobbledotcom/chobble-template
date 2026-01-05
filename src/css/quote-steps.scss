@@ -150,3 +150,16 @@
 .quote-step select {
   width: 100%;
 }
+
+// Field error states
+.field-error {
+  &:is(input, select, textarea) {
+    border-color: var(--color-error);
+    outline: 2px solid var(--color-error);
+    outline-offset: -2px;
+  }
+
+  &:is(label, fieldset) {
+    color: var(--color-error);
+  }
+}

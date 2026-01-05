@@ -69,15 +69,44 @@ function populateRecap(steps) {
   recapContact.innerHTML = contactFieldIds.map(buildFieldRecapItem).join("");
 }
 
+function getFieldWrapper(field) {
+  // For radios, the wrapper is the fieldset
+  if (field.type === "radio") {
+    return field.closest("fieldset");
+  }
+  // For other fields, the wrapper is the parent label
+  return field.closest("label");
+}
+
+function setFieldError(field, hasError) {
+  const wrapper = getFieldWrapper(field);
+  field.classList.toggle("field-error", hasError);
+  if (wrapper) {
+    wrapper.classList.toggle("field-error", hasError);
+  }
+}
+
+function clearFieldError(field) {
+  setFieldError(field, false);
+}
+
+function setupErrorClearingOnField(field) {
+  const eventType = field.type === "radio" ? "change" : "input";
+  field.addEventListener(eventType, () => clearFieldError(field), {
+    once: true,
+  });
+}
+
 function validateRadioGroup(name, stepEl) {
   const radios = stepEl.querySelectorAll(`input[name="${name}"]`);
   const checked = stepEl.querySelector(`input[name="${name}"]:checked`);
-  if (radios[0]?.required && !checked) {
-    radios[0].focus();
-    radios[0].reportValidity();
-    return false;
+  const isRequired = radios[0]?.required;
+  const isValid = !isRequired || checked !== null;
+  if (!isValid && radios[0]) {
+    setFieldError(radios[0], true);
+    setupErrorClearingOnField(radios[0]);
   }
-  return true;
+  return isValid;
 }
 
 function validateField(field, stepEl) {
@@ -86,20 +115,29 @@ function validateField(field, stepEl) {
     return validateRadioGroup(field.name, stepEl);
   }
   // Use HTML5 constraint validation (checks required, email format, patterns, etc.)
-  if (!field.checkValidity()) {
-    field.focus();
-    field.reportValidity();
-    return false;
+  const isValid = field.checkValidity();
+  if (!isValid) {
+    setFieldError(field, true);
+    setupErrorClearingOnField(field);
   }
-  return true;
+  return isValid;
 }
 
 function validateStep(stepEl) {
-  const requiredFields = stepEl.querySelectorAll("[required]");
-  for (const field of requiredFields) {
-    if (!validateField(field, stepEl)) return false;
+  const requiredFields = [...stepEl.querySelectorAll("[required]")];
+  const invalidFields = requiredFields.filter(
+    (field) => !validateField(field, stepEl),
+  );
+
+  // Scroll to first invalid field
+  if (invalidFields.length > 0) {
+    const firstInvalid = invalidFields[0];
+    const wrapper = getFieldWrapper(firstInvalid);
+    const scrollTarget = wrapper || firstInvalid;
+    scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
   }
-  return true;
+
+  return invalidFields.length === 0;
 }
 
 function updateIndicators(indicators, currentStep) {
@@ -174,14 +212,17 @@ onReady(initQuoteSteps);
 export {
   buildFieldRecapItem,
   buildRadioRecapItem,
+  clearFieldError,
   getCurrentStep,
   getFieldDisplayValue,
   getFieldLabel,
+  getFieldWrapper,
   getRadioLabel,
   getRadioValue,
   getStepFieldIds,
   initQuoteSteps,
   populateRecap,
+  setFieldError,
   updateButtons,
   updateIndicators,
   validateField,

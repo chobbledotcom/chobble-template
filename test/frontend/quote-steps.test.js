@@ -5,14 +5,17 @@ import { describe, expect, test } from "bun:test";
 import {
   buildFieldRecapItem,
   buildRadioRecapItem,
+  clearFieldError,
   getCurrentStep,
   getFieldDisplayValue,
   getFieldLabel,
+  getFieldWrapper,
   getRadioLabel,
   getRadioValue,
   getStepFieldIds,
   initQuoteSteps,
   populateRecap,
+  setFieldError,
   updateButtons,
   updateIndicators,
   validateField,
@@ -72,6 +75,77 @@ describe("quote-steps", () => {
   test("getRadioLabel returns id when no fieldset legend", () => {
     document.body.innerHTML = '<input type="radio" name="orphan" />';
     expect(getRadioLabel("orphan")).toBe("orphan");
+  });
+
+  // ----------------------------------------
+  // getFieldWrapper Tests (with DOM)
+  // ----------------------------------------
+  test("getFieldWrapper returns parent label for input", () => {
+    document.body.innerHTML = `
+      <label>
+        Name
+        <input id="name" type="text" />
+      </label>
+    `;
+    const field = document.getElementById("name");
+    const wrapper = getFieldWrapper(field);
+    expect(wrapper.tagName).toBe("LABEL");
+  });
+
+  test("getFieldWrapper returns fieldset for radio", () => {
+    document.body.innerHTML = `
+      <fieldset>
+        <legend>Preference</legend>
+        <input type="radio" name="pref" value="A" />
+      </fieldset>
+    `;
+    const field = document.querySelector("input[type=radio]");
+    const wrapper = getFieldWrapper(field);
+    expect(wrapper.tagName).toBe("FIELDSET");
+  });
+
+  test("getFieldWrapper returns null when no wrapper", () => {
+    document.body.innerHTML = '<input id="orphan" type="text" />';
+    const field = document.getElementById("orphan");
+    const wrapper = getFieldWrapper(field);
+    expect(wrapper).toBe(null);
+  });
+
+  // ----------------------------------------
+  // setFieldError / clearFieldError Tests (with DOM)
+  // ----------------------------------------
+  test("setFieldError adds error class to field", () => {
+    document.body.innerHTML = '<input id="test" type="text" />';
+    const field = document.getElementById("test");
+    setFieldError(field, true);
+    expect(field.classList.contains("field-error")).toBe(true);
+  });
+
+  test("setFieldError adds error class to wrapper", () => {
+    document.body.innerHTML = `
+      <label>
+        Name
+        <input id="test" type="text" />
+      </label>
+    `;
+    const field = document.getElementById("test");
+    const wrapper = field.closest("label");
+    setFieldError(field, true);
+    expect(wrapper.classList.contains("field-error")).toBe(true);
+  });
+
+  test("clearFieldError removes error class", () => {
+    document.body.innerHTML = `
+      <label class="field-error">
+        Name
+        <input id="test" type="text" class="field-error" />
+      </label>
+    `;
+    const field = document.getElementById("test");
+    const wrapper = field.closest("label");
+    clearFieldError(field);
+    expect(field.classList.contains("field-error")).toBe(false);
+    expect(wrapper.classList.contains("field-error")).toBe(false);
   });
 
   // ----------------------------------------
@@ -168,6 +242,21 @@ describe("quote-steps", () => {
     const field = document.querySelector("input[type=radio]");
     const stepEl = document.querySelector(".step");
     expect(validateField(field, stepEl)).toBe(true);
+  });
+
+  test("validateField adds error class on invalid field", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <label>
+          Name
+          <input id="test" type="text" required value="" />
+        </label>
+      </div>
+    `;
+    const field = document.getElementById("test");
+    const stepEl = document.querySelector(".step");
+    validateField(field, stepEl);
+    expect(field.classList.contains("field-error")).toBe(true);
   });
 
   // ----------------------------------------

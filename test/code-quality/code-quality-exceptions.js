@@ -130,7 +130,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/quote-steps.js:33", // value (radio recap item)
   "src/assets/js/quote-steps.js:39", // field (field recap item)
   "src/assets/js/quote-steps.js:44", // value (field recap item)
-  "src/assets/js/quote-steps.js:124", // container (init)
+  "src/assets/js/quote-steps.js:119", // isValid (field validation)
+  "src/assets/js/quote-steps.js:162", // container (init)
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper
