@@ -23,10 +23,6 @@ import {
 // Functional Test Fixture Builders
 // ============================================
 
-// Use shared item/items from test-utils for products
-const product = item;
-const products = items;
-
 /**
  * Create a product option (SKU variant)
  */
@@ -40,10 +36,10 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
 /**
  * Create a mock collection API with tag assertion
  */
-const assertingCollectionApi = (mockProducts, expectedTag = "product") => ({
+const assertingCollectionApi = (testItems, expectedTag = "product") => ({
   getFilteredByTag: (tag) => {
     expect(tag).toBe(expectedTag);
-    return mockProducts;
+    return testItems;
   },
 });
 
@@ -73,7 +69,7 @@ describe("products", () => {
   });
 
   test("Handles items without gallery", () => {
-    const testProduct = product("Test Product", { price: 100 });
+    const testProduct = item("Test Product", { price: 100 });
 
     const result = addGallery(testProduct);
 
@@ -83,7 +79,7 @@ describe("products", () => {
   });
 
   test("Processes gallery in item data", () => {
-    const testProduct = product("Test Product", {
+    const testProduct = item("Test Product", {
       gallery: ["product.jpg", "gallery1.jpg"],
     });
 
@@ -96,7 +92,7 @@ describe("products", () => {
   });
 
   test("Processes gallery correctly while preserving object reference", () => {
-    const testProduct = product("Test Product", { gallery: ["image.jpg"] });
+    const testProduct = item("Test Product", { gallery: ["image.jpg"] });
     const productCopy = JSON.parse(JSON.stringify(testProduct));
 
     const result = addGallery(productCopy);
@@ -106,7 +102,7 @@ describe("products", () => {
   });
 
   test("Creates products collection from API", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { gallery: ["img1.jpg"] }],
       ["Product 2", {}],
       ["Product 3", { gallery: ["img3.jpg"] }],
@@ -123,7 +119,7 @@ describe("products", () => {
   });
 
   test("Filters products by category", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { categories: ["widgets", "gadgets"] }],
       ["Product 2", { categories: ["tools"] }],
       ["Product 3", { categories: ["widgets"] }],
@@ -136,7 +132,7 @@ describe("products", () => {
   });
 
   test("Handles products without categories", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", {}],
       ["Product 2", { categories: null }],
       ["Product 3", { categories: [] }],
@@ -148,7 +144,7 @@ describe("products", () => {
   });
 
   test("Gets products from multiple categories", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { categories: ["widgets"] }],
       ["Product 2", { categories: ["tools"] }],
       ["Product 3", { categories: ["gadgets"] }],
@@ -167,7 +163,7 @@ describe("products", () => {
   });
 
   test("Returns unique products even if in multiple categories", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { categories: ["widgets", "gadgets"] }],
       ["Product 2", { categories: ["tools"] }],
       ["Product 3", { categories: ["widgets"] }],
@@ -185,7 +181,7 @@ describe("products", () => {
   });
 
   test("Handles empty or null inputs", () => {
-    const testProducts = [product("Product 1", { categories: ["widgets"] })];
+    const testProducts = [item("Product 1", { categories: ["widgets"] })];
 
     expect(getProductsByCategories(null, ["widgets"])).toEqual([]);
     expect(getProductsByCategories(testProducts, null)).toEqual([]);
@@ -193,7 +189,7 @@ describe("products", () => {
   });
 
   test("Returns empty when no products match categories", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { categories: ["widgets"] }],
       ["Product 2", {}],
     ]);
@@ -229,7 +225,7 @@ describe("products", () => {
   });
 
   test("Filters products by featured flag", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { featured: true }],
       ["Product 2", { featured: false }],
       ["Product 3", { featured: true }],
@@ -242,7 +238,7 @@ describe("products", () => {
   });
 
   test("Returns empty array when no products are featured", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { featured: false }],
       ["Product 2", {}],
     ]);
@@ -276,7 +272,7 @@ describe("products", () => {
   });
 
   test("Filters products by event slug", () => {
-    const testProducts = products([
+    const testProducts = items([
       ["Product 1", { events: ["summer-sale", "black-friday"] }],
       ["Product 2", { events: ["winter-sale"] }],
       ["Product 3", { events: ["summer-sale"] }],
@@ -290,13 +286,13 @@ describe("products", () => {
 
   test("Creates SKU mapping from products with options", () => {
     const testProducts = [
-      product("T-Shirt", {
+      item("T-Shirt", {
         options: [
           option("TSHIRT-S", "Small", 1999, 10),
           option("TSHIRT-M", "Medium", 1999),
         ],
       }),
-      product("Mug", {
+      item("Mug", {
         options: [option("MUG-001", null, 999)],
       }),
     ];
@@ -324,10 +320,10 @@ describe("products", () => {
 
   test("Skips products without options or incomplete SKUs", () => {
     const testProducts = [
-      product("No Options"),
-      product("Empty Options", { options: [] }),
-      product("Missing SKU", { options: [{ name: "Test", unit_price: 100 }] }),
-      product("Missing Price", {
+      item("No Options"),
+      item("Empty Options", { options: [] }),
+      item("Missing SKU", { options: [{ name: "Test", unit_price: 100 }] }),
+      item("Missing Price", {
         options: [{ sku: "TEST-001", name: "Test" }],
       }),
     ];
@@ -339,8 +335,8 @@ describe("products", () => {
 
   test("Throws error for duplicate SKUs across products", () => {
     const testProducts = [
-      product("Product A", { options: [option("DUPE-001", "Option A", 100)] }),
-      product("Product B", { options: [option("DUPE-001", "Option B", 200)] }),
+      item("Product A", { options: [option("DUPE-001", "Option A", 100)] }),
+      item("Product B", { options: [option("DUPE-001", "Option B", 200)] }),
     ];
 
     expect(() => createApiSkusCollection(collectionApi(testProducts))).toThrow(
@@ -350,7 +346,7 @@ describe("products", () => {
 
   test("Throws error for duplicate SKUs within same product", () => {
     const testProducts = [
-      product("Product A", {
+      item("Product A", {
         options: [
           option("SAME-SKU", "Option 1", 100),
           option("SAME-SKU", "Option 2", 150),
@@ -364,7 +360,7 @@ describe("products", () => {
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
-    const testProducts = [product("Product 1", { categories: ["widgets"] })];
+    const testProducts = [item("Product 1", { categories: ["widgets"] })];
     const productsCopy = structuredClone(testProducts);
 
     getProductsByCategory(productsCopy, "widgets");

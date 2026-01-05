@@ -16,26 +16,18 @@ import {
   items,
 } from "#test/test-utils.js";
 
-// ============================================
-// Functional Test Fixture Builders
-// ============================================
-
-// Use shared item/items from test-utils for properties
-const property = item;
-const properties = items;
-
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 describe("properties", () => {
   test("Creates properties collection from API", () => {
-    const testProperties = properties([
+    const testItems = items([
       ["Property 1", { gallery: ["img1.jpg"] }],
       ["Property 2", {}],
       ["Property 3", { gallery: ["img3.jpg"] }],
     ]);
 
-    const result = createPropertiesCollection(collectionApi(testProperties));
+    const result = createPropertiesCollection(collectionApi(testItems));
 
     expect(result.length).toBe(3);
     expect(result[0].data.gallery).toEqual(["img1.jpg"]);
