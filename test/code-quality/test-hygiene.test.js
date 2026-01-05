@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { analyzeFiles, assertNoViolations } from "#test/code-scanner.js";
+import {
+  analyzeFiles,
+  assertNoViolations,
+  createViolation,
+} from "#test/code-scanner.js";
 import {
   extractFunctions,
   SRC_HTML_FILES,
@@ -55,6 +59,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // strings.test.js
   "findStringsUsage",
   // test-hygiene.test.js - self-analysis helpers
+  "nonWhitelistedViolation",
   "analyzeTestFiles",
   // unused-classes.test.js - analysis helpers
   "extractFromHtml",
@@ -108,7 +113,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-quality.test.js - functional utilities
   "matchesAnyVaguePattern",
   "countAnds",
-  "createViolation",
   "toViolationsWhere",
   "vagueViolation",
   "multiConcernViolation",
@@ -139,6 +143,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "formatViolationReport",
   "assertNoViolations",
   "createPatternMatcher",
+  "createViolation",
   "validateExceptions",
   "analyzeWithAllowlist",
   // unused-images.test.js - test helper
@@ -184,6 +189,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
 const DECLARATION_PATTERN =
   /^\s*(?:export\s+)?(?:const|let|var|(?:async\s+)?function)\s+/;
 
+// Curried violation creator for non-whitelisted functions
+const nonWhitelistedViolation = createViolation(
+  (ctx) => `Function "${ctx.name}" is not whitelisted`,
+);
+
 /**
  * Analyze test files for non-whitelisted functions.
  * Only functions in ALLOWED_TEST_FUNCTIONS are permitted in test files.
@@ -191,29 +201,25 @@ const DECLARATION_PATTERN =
  * Filters to only top-level declarations (const/let/var/function), ignoring
  * object methods and callbacks which are typically test fixtures.
  */
-const analyzeTestFiles = () => {
-  return analyzeFiles(TEST_FILES(), (source, relativePath) => {
+const analyzeTestFiles = () =>
+  analyzeFiles(TEST_FILES(), (source, relativePath) => {
     const lines = source.split("\n");
     const functions = extractFunctions(source);
-    const violations = [];
 
-    for (const func of functions) {
-      // Only check actual declarations (const/let/var/function), not methods
-      const sourceLine = lines[func.startLine - 1] || "";
-      if (!DECLARATION_PATTERN.test(sourceLine)) continue;
-
-      if (!ALLOWED_TEST_FUNCTIONS.has(func.name)) {
-        violations.push({
+    return functions
+      .filter((func) => {
+        const sourceLine = lines[func.startLine - 1] || "";
+        return DECLARATION_PATTERN.test(sourceLine);
+      })
+      .filter((func) => !ALLOWED_TEST_FUNCTIONS.has(func.name))
+      .map((func) =>
+        nonWhitelistedViolation({
           file: relativePath,
           line: func.startLine,
-          code: func.name,
-          reason: `Function "${func.name}" is not whitelisted`,
-        });
-      }
-    }
-    return violations;
+          name: func.name,
+        }),
+      );
   });
-};
 
 describe("test-hygiene", () => {
   test("Pre-computed file lists contain files", () => {

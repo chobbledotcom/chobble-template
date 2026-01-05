@@ -346,6 +346,26 @@ const validateExceptions = (allowlist, patterns) => {
   return stale;
 };
 
+/**
+ * Curried violation factory for creating standardized violation objects.
+ * Takes a reason function and returns a transformer for any context object.
+ *
+ * @param {function} reasonFn - (context) => string reason message
+ * @returns {function} (context) => violation object
+ *
+ * @example
+ * const vagueNameViolation = createViolation(
+ *   (tc) => `Vague test name "${tc.name}" - use descriptive name`
+ * );
+ * const violation = vagueNameViolation({ file: 'test.js', line: 10, name: 'test1' });
+ */
+const createViolation = (reasonFn) => (context) => ({
+  file: context.file,
+  line: context.line,
+  code: context.code ?? context.name,
+  reason: reasonFn(context),
+});
+
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
@@ -372,6 +392,8 @@ export {
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
+  // Violation factory
+  createViolation,
   // Exception validation
   validateExceptions,
 };

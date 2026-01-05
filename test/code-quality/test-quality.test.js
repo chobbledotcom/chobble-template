@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   analyzeFiles,
   assertNoViolations,
+  createViolation,
   findPatterns,
   scanLines,
 } from "#test/code-scanner.js";
@@ -48,14 +49,6 @@ const matchesAnyVaguePattern = (name) =>
 
 // Curried predicate: counts "and" occurrences in name
 const countAnds = (name) => (name.match(/-and-/g) || []).length;
-
-// Curried violation creator: (reasonFn) => (testCase) => violation
-const createViolation = (reasonFn) => (testCase) => ({
-  file: testCase.file,
-  line: testCase.line,
-  code: testCase.name,
-  reason: reasonFn(testCase),
-});
 
 // Curried filter + map: transforms test cases to violations if predicate matches
 const toViolationsWhere = (predicate, toViolation) => (testCases) =>
