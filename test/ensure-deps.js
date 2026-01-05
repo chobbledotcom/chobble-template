@@ -13,10 +13,7 @@ const nodeModulesPath = join(projectRoot, "node_modules");
 if (!existsSync(nodeModulesPath)) {
   console.log("\n⚠ node_modules not found - running bun install...\n");
   try {
-    execSync("bun install", {
-      cwd: projectRoot,
-      stdio: "inherit",
-    });
+    execSync("bun install", { cwd: projectRoot, stdio: "inherit" });
     console.log("\n✓ Dependencies installed successfully\n");
   } catch (error) {
     console.error("\n✗ Failed to install dependencies:", error.message);

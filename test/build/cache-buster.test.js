@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { cacheBust } from "#eleventy/cache-buster.js";
+import { cacheBust, configureCacheBuster } from "#eleventy/cache-buster.js";
 
 describe("cache-buster", () => {
   test("Returns URL unchanged in development mode", () => {
@@ -76,5 +76,18 @@ describe("cache-buster", () => {
     }
 
     process.env.ELEVENTY_RUN_MODE = originalRunMode;
+  });
+
+  test("configureCacheBuster registers the filter", () => {
+    const filters = {};
+    const mockConfig = {
+      addFilter: (name, fn) => {
+        filters[name] = fn;
+      },
+    };
+
+    configureCacheBuster(mockConfig);
+
+    expect(filters.cacheBust).toBe(cacheBust);
   });
 });

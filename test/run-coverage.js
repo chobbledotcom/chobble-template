@@ -26,16 +26,26 @@ function writeLimits(limits) {
   writeFileSync(configPath, content, "utf-8");
 }
 
+// Files excluded from coverage calculations (bootstrap/preload scripts)
+const COVERAGE_EXCLUDE = ["test/ensure-deps.js"];
+
 /**
  * Parse LCOV file to extract coverage percentages
  */
 function parseLcov(lcovContent) {
   const files = {};
   let currentFile = null;
+  let skipFile = false;
 
   for (const line of lcovContent.split("\n")) {
     if (line.startsWith("SF:")) {
-      currentFile = line.slice(3);
+      const filePath = line.slice(3);
+      skipFile = COVERAGE_EXCLUDE.some((p) => filePath.endsWith(p));
+      if (skipFile) {
+        currentFile = null;
+        continue;
+      }
+      currentFile = filePath;
       files[currentFile] = {
         linesFound: 0,
         linesHit: 0,
