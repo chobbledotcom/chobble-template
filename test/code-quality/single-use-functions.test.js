@@ -263,6 +263,7 @@ const analyzeSingleUseFunctions = () => {
 /**
  * Check if a function name suggests it's intentionally single-use.
  * These patterns indicate the function exists for naming/clarity purposes.
+ * Only includes patterns actually used in this codebase.
  */
 const isIntentionallySingleUse = (name) => {
   const patterns = [
@@ -290,45 +291,30 @@ const isIntentionallySingleUse = (name) => {
     /^compute[A-Z]/, // Computations: computeTotal, computeHash
     /^calculate[A-Z]/, // Calculations: calculatePrice, calculateTax
     /^normalize[A-Z]/, // Normalizers: normalizeData, normalizePath
-    /^sanitize[A-Z]/, // Sanitizers: sanitizeInput, sanitizeHtml
-    /^serialize[A-Z]/, // Serializers: serializeData, serializeForm
-    /^deserialize[A-Z]/, // Deserializers: deserializeData
-    /^encode[A-Z]/, // Encoders: encodeUrl, encodeBase64
-    /^decode[A-Z]/, // Decoders: decodeToken, decodeBase64
-    /^compile[A-Z]/, // Compilers: compileTemplate, compileRegex
+    /^compile[A-Z]/, // Compilers: compileTemplate, compileScss
     /^resolve[A-Z]/, // Resolvers: resolvePath, resolveConfig
     /^merge[A-Z]/, // Mergers: mergeConfig, mergeOptions
     /^filter[A-Z]/, // Filters: filterItems, filterByCategory
     /^sort[A-Z]/, // Sorters: sortByDate, sortByName
-    /^map[A-Z]/, // Mappers: mapToDto, mapToEntity
-    /^reduce[A-Z]/, // Reducers: reduceItems, reduceState
+    /^map[A-Z]/, // Mappers: mapEntries, mapObject
     /^find[A-Z]/, // Finders: findUser, findById
     /^check[A-Z]/, // Checkers: checkPermission, checkValidity
     /^assert[A-Z]/, // Asserters: assertValid, assertNotNull
     /^ensure[A-Z]/, // Ensurers: ensureLoaded, ensureValid
     /^wrap[A-Z]/, // Wrappers: wrapHandler, wrapComponent
-    /^unwrap[A-Z]/, // Unwrappers: unwrapResult, unwrapOptional
     /^with[A-Z]/, // Higher-order: withAuth, withLogging
     /^make[A-Z]/, // Makers: makeRequest, makeHandler
     /^run[A-Z]/, // Runners: runTests, runMigration
     /^execute[A-Z]/, // Executors: executeQuery, executeCommand
     /^perform[A-Z]/, // Performers: performAction, performCleanup
-    /^do[A-Z]/, // Doers: doFetch, doUpdate
     /^is[A-Z]/, // Predicates: isValid, isEmpty
     /^has[A-Z]/, // Has-predicates: hasPermission, hasValue
     /^can[A-Z]/, // Can-predicates: canEdit, canDelete
     /^should[A-Z]/, // Should-predicates: shouldUpdate, shouldRender
-    /Callback$/, // Callbacks: successCallback, errorCallback
-    /Handler$/, // Handlers: clickHandler, submitHandler
+    /Handler$/, // Handlers: addQtyHandler, updateHandler
     /Listener$/, // Listeners: changeListener, scrollListener
-    /Reducer$/, // Reducers: stateReducer, dataReducer
-    /Transformer$/, // Transformers: dataTransformer
-    /Validator$/, // Validators: inputValidator, formValidator
-    /Factory$/, // Factories: widgetFactory, componentFactory
-    /Builder$/, // Builders: configBuilder, queryBuilder
-    /Helper$/, // Helpers: testHelper, formatHelper
-    /Util$/, // Utils: stringUtil, dateUtil
-    /Fn$/, // Function references: compareFn, mapFn
+    /Helper$/, // Helpers: testHelper, asyncHelper
+    /Fn$/, // Function references: keyFn, filterFn
   ];
 
   return patterns.some((pattern) => pattern.test(name));
