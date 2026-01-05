@@ -190,6 +190,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "navItems",
   "navCollectionApi",
   "withNavigation",
+  // recurring-events.test.js - functional test fixture builders
+  "parseDoc",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
