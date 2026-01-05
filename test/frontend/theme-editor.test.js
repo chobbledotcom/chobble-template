@@ -22,7 +22,6 @@ import {
   shouldIncludeScopedVar,
   toggleClassAndReturn,
 } from "#assets/theme-editor-lib.js";
-import { DOM } from "#test/test-utils.js";
 
 // ============================================
 // Unit Tests - parseCssBlock
@@ -697,213 +696,129 @@ header {
   // ============================================
 
   test("createFormEl returns function that queries form elements", () => {
-    const dom = new DOM(`
+    document.body.innerHTML = `
       <form id="theme-form">
         <input id="color-bg" type="color" value="#ffffff">
         <input id="color-text" type="color" value="#000000">
       </form>
-    `);
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    `;
 
-    try {
-      const formEl = createFormEl("theme-form");
-      const colorBg = formEl("color-bg");
-      const colorText = formEl("color-text");
-      const nonExistent = formEl("non-existent");
+    const formEl = createFormEl("theme-form");
 
-      expect(colorBg?.id).toBe("color-bg");
-      expect(colorText?.id).toBe("color-text");
-      expect(nonExistent).toBe(null);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(formEl("color-bg")?.id).toBe("color-bg");
+    expect(formEl("color-text")?.id).toBe("color-text");
+    expect(formEl("non-existent")).toBe(null);
   });
 
   test("isControlEnabled returns true when no checkbox exists", () => {
-    const dom = new DOM(`
+    document.body.innerHTML = `
       <form id="test-form">
         <input id="color-bg" type="color" value="#ffffff">
       </form>
-    `);
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    `;
 
-    try {
-      const formEl = createFormEl("test-form");
-      const input = formEl("color-bg");
-      const enabled = isControlEnabled(formEl)(input);
+    const formEl = createFormEl("test-form");
+    const input = formEl("color-bg");
 
-      expect(enabled).toBe(true);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(isControlEnabled(formEl)(input)).toBe(true);
   });
 
   test("isControlEnabled returns checkbox state when checkbox exists", () => {
-    const dom = new DOM(`
+    document.body.innerHTML = `
       <form id="test-form">
         <input id="color-bg" type="color" value="#ffffff">
         <input id="color-bg-enabled" type="checkbox" checked>
         <input id="color-text" type="color" value="#000000">
         <input id="color-text-enabled" type="checkbox">
       </form>
-    `);
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    `;
 
-    try {
-      const formEl = createFormEl("test-form");
-      const colorBg = formEl("color-bg");
-      const colorText = formEl("color-text");
+    const formEl = createFormEl("test-form");
 
-      expect(isControlEnabled(formEl)(colorBg)).toBe(true);
-      expect(isControlEnabled(formEl)(colorText)).toBe(false);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(isControlEnabled(formEl)(formEl("color-bg"))).toBe(true);
+    expect(isControlEnabled(formEl)(formEl("color-text"))).toBe(false);
   });
 
   test("controlToVarEntry converts input to CSS variable entry", () => {
-    const dom = new DOM("<html><body></body></html>");
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    const input = document.createElement("input");
+    input.id = "color-bg";
+    input.value = "#ff0000";
 
-    try {
-      const input = document.createElement("input");
-      input.id = "color-bg";
-      input.value = "#ff0000";
+    const result = controlToVarEntry(input);
 
-      const result = controlToVarEntry(input);
-
-      expect(result).toEqual(["--color-bg", "#ff0000"]);
-      expect(
-        document.documentElement.style.getPropertyValue("--color-bg"),
-      ).toBe("#ff0000");
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(result).toEqual(["--color-bg", "#ff0000"]);
+    expect(
+      document.documentElement.style.getPropertyValue("--color-bg"),
+    ).toBe("#ff0000");
   });
 
   test("controlToVarEntry appends px for border-radius", () => {
-    const dom = new DOM("<html><body></body></html>");
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    const input = document.createElement("input");
+    input.id = "border-radius";
+    input.value = "8";
 
-    try {
-      const input = document.createElement("input");
-      input.id = "border-radius";
-      input.value = "8";
+    const result = controlToVarEntry(input);
 
-      const result = controlToVarEntry(input);
-
-      expect(result).toEqual(["--border-radius", "8px"]);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(result).toEqual(["--border-radius", "8px"]);
   });
 
   test("inputToScopedEntry returns entry when value differs from global", () => {
-    const dom = new DOM("<html><body></body></html>");
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    document.documentElement.style.setProperty("--color-bg", "#ffffff");
+    const docStyle = getComputedStyle(document.documentElement);
 
-    try {
-      document.documentElement.style.setProperty("--color-bg", "#ffffff");
-      const docStyle = getComputedStyle(document.documentElement);
+    const input = document.createElement("input");
+    input.dataset.var = "--color-bg";
+    input.value = "#ff0000";
 
-      const input = document.createElement("input");
-      input.dataset.var = "--color-bg";
-      input.value = "#ff0000";
+    const result = inputToScopedEntry(docStyle)(input);
 
-      const entryFn = inputToScopedEntry(docStyle);
-      const result = entryFn(input);
-
-      expect(result).toEqual(["--color-bg", "#ff0000"]);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(result).toEqual(["--color-bg", "#ff0000"]);
   });
 
   test("inputToScopedEntry returns null when value matches global", () => {
-    const dom = new DOM("<html><body></body></html>");
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    document.documentElement.style.setProperty("--color-bg", "#ffffff");
+    const docStyle = getComputedStyle(document.documentElement);
 
-    try {
-      document.documentElement.style.setProperty("--color-bg", "#ffffff");
-      const docStyle = getComputedStyle(document.documentElement);
+    const input = document.createElement("input");
+    input.dataset.var = "--color-bg";
+    input.value = "#ffffff";
 
-      const input = document.createElement("input");
-      input.dataset.var = "--color-bg";
-      input.value = "#ffffff";
+    const result = inputToScopedEntry(docStyle)(input);
 
-      const entryFn = inputToScopedEntry(docStyle);
-      const result = entryFn(input);
-
-      expect(result).toBe(null);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(result).toBe(null);
   });
 
   test("toggleClassAndReturn toggles body class and returns value when active", () => {
-    const dom = new DOM("<html><body></body></html>");
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    const select = document.createElement("select");
+    select.innerHTML = `
+      <option value="">None</option>
+      <option value="header-dark">Dark Header</option>
+      <option value="header-light">Light Header</option>
+    `;
+    select.value = "header-dark";
 
-    try {
-      const select = document.createElement("select");
-      select.innerHTML = `
-        <option value="">None</option>
-        <option value="header-dark">Dark Header</option>
-        <option value="header-light">Light Header</option>
-      `;
-      select.value = "header-dark";
+    const toggleFn = toggleClassAndReturn(select, true);
 
-      const toggleFn = toggleClassAndReturn(select, true);
+    expect(toggleFn("header-dark")).toBe("header-dark");
+    expect(document.body.classList.contains("header-dark")).toBe(true);
 
-      expect(toggleFn("header-dark")).toBe("header-dark");
-      expect(document.body.classList.contains("header-dark")).toBe(true);
-
-      expect(toggleFn("header-light")).toBe(null);
-      expect(document.body.classList.contains("header-light")).toBe(false);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(toggleFn("header-light")).toBe(null);
+    expect(document.body.classList.contains("header-light")).toBe(false);
   });
 
   test("toggleClassAndReturn returns null when not enabled", () => {
-    const dom = new DOM("<html><body></body></html>");
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    const select = document.createElement("select");
+    select.innerHTML = `<option value="header-dark">Dark</option>`;
+    select.value = "header-dark";
 
-    try {
-      const select = document.createElement("select");
-      select.innerHTML = `<option value="header-dark">Dark</option>`;
-      select.value = "header-dark";
+    const toggleFn = toggleClassAndReturn(select, false);
 
-      const toggleFn = toggleClassAndReturn(select, false);
-      const result = toggleFn("header-dark");
-
-      expect(result).toBe(null);
-      expect(document.body.classList.contains("header-dark")).toBe(false);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(toggleFn("header-dark")).toBe(null);
+    expect(document.body.classList.contains("header-dark")).toBe(false);
   });
 
   test("collectActiveClasses collects active class values from select", () => {
-    const dom = new DOM(`
+    document.body.innerHTML = `
       <form id="test-form">
         <select id="header-style">
           <option value="">None</option>
@@ -911,48 +826,34 @@ header {
           <option value="header-light">Light</option>
         </select>
       </form>
-    `);
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    `;
 
-    try {
-      const formEl = createFormEl("test-form");
-      const select = formEl("header-style");
-      select.value = "header-light"; // Set value explicitly for happy-dom
+    const formEl = createFormEl("test-form");
+    const select = formEl("header-style");
+    select.value = "header-light";
 
-      const classes = collectActiveClasses(formEl)(select);
+    const classes = collectActiveClasses(formEl)(select);
 
-      expect(classes).toEqual(["header-light"]);
-      expect(document.body.classList.contains("header-light")).toBe(true);
-      expect(document.body.classList.contains("header-dark")).toBe(false);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(classes).toEqual(["header-light"]);
+    expect(document.body.classList.contains("header-light")).toBe(true);
+    expect(document.body.classList.contains("header-dark")).toBe(false);
   });
 
   test("collectActiveClasses returns empty array when no option selected", () => {
-    const dom = new DOM(`
+    document.body.innerHTML = `
       <form id="test-form">
         <select id="header-style">
           <option value="" selected>None</option>
           <option value="header-dark">Dark</option>
         </select>
       </form>
-    `);
-    const { document } = dom.window;
-    const originalDoc = globalThis.document;
-    globalThis.document = document;
+    `;
 
-    try {
-      const formEl = createFormEl("test-form");
-      const select = formEl("header-style");
+    const formEl = createFormEl("test-form");
+    const select = formEl("header-style");
 
-      const classes = collectActiveClasses(formEl)(select);
+    const classes = collectActiveClasses(formEl)(select);
 
-      expect(classes).toEqual([]);
-    } finally {
-      globalThis.document = originalDoc;
-    }
+    expect(classes).toEqual([]);
   });
 });
