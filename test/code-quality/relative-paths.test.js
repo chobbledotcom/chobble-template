@@ -8,16 +8,6 @@ const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
 describe("relative-paths", () => {
   // Create checkers inside describe block to ensure imports are resolved
-  const testInfrastructureFiles = [
-    "test/test-utils.js",
-    "test/test-site-factory.js",
-    "test/run-coverage.js",
-    "test/build-profiling.js",
-    "test/code-scanner.js",
-    "test/setup.js",
-    "test/ensure-deps.js",
-  ];
-
   const { find: findRelativeImports, analyze: analyzeRelativeImports } =
     createCodeChecker({
       patterns: /from\s+["'](\.\.[/"']|\.\/)/,
@@ -27,7 +17,7 @@ describe("relative-paths", () => {
         return { importPath: pathMatch ? pathMatch[1] : "unknown" };
       },
       files: ALL_JS_FILES(),
-      excludeFiles: [THIS_FILE, ...testInfrastructureFiles],
+      excludeFiles: [THIS_FILE],
     });
 
   const { find: findRelativePathJoins, analyze: analyzeRelativePathJoins } =
@@ -35,11 +25,7 @@ describe("relative-paths", () => {
       patterns: /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/,
       // skipPatterns defaults to COMMENT_LINE_PATTERNS
       files: ALL_JS_FILES(),
-      excludeFiles: [
-        THIS_FILE,
-        "src/_lib/paths.js",
-        ...testInfrastructureFiles,
-      ],
+      excludeFiles: [THIS_FILE, "src/_lib/paths.js"],
     });
 
   const { analyze: analyzeProcessCwd } = createCodeChecker({
