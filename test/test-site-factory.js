@@ -18,11 +18,11 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { filter, flatMap, map, pipe, unique } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
+import { ROOT_DIR } from "../src/_lib/paths.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -34,9 +34,7 @@ class DOM {
   }
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, "..");
+const rootDir = ROOT_DIR;
 
 // -----------------------------------------------------------------------------
 // Curried Path Utilities

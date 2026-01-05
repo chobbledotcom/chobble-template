@@ -1,5 +1,5 @@
 [test]
-preload = ["./test/setup.js"]
+preload = ["./test/ensure-deps.js", "./test/setup.js"]
 
 # Test file patterns
 root = "./test"

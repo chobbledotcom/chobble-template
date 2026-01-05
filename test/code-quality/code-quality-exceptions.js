@@ -66,24 +66,6 @@ const ALLOWED_CONSOLE = new Set([
 ]);
 
 // ============================================
-// Relative path exceptions
-// ============================================
-
-// Files allowed to use ".." for path navigation.
-// The paths utility is the ONLY source file allowed - it provides paths for everyone else.
-// Test infrastructure files need ".." to reference project root.
-const ALLOWED_RELATIVE_PATHS = new Set([
-  // Source: centralized path utility (the one exception - provides paths for others)
-  "src/_lib/paths.js",
-
-  // Test infrastructure - calculates rootDir for all other tests to import
-  "test/test-utils.js",
-  "test/test-site-factory.js",
-  "test/run-all-tests.js",
-  "test/run-coverage.js",
-]);
-
-// ============================================
 // process.cwd() exceptions (test files only)
 // ============================================
 
@@ -198,7 +180,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
-  "src/_lib/utils/canonical-url.js:9", // url
   "src/_lib/utils/slug-utils.js:12", // reference
   "src/_lib/eleventy/area-list.js:19", // url
 
@@ -236,10 +217,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/media/image-crop.js",
   "src/_lib/media/image.js",
   "src/_lib/media/unused-images.js",
-  "src/_lib/utils/canonical-url.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/schema-helper.js",
-  "src/_lib/utils/slug-utils.js",
   "src/assets/js/availability-calendar.js",
   "src/assets/js/cart-utils.js",
   "src/assets/js/cart.js",
@@ -250,7 +229,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/quote-steps.js",
   "src/assets/js/scroll-fade.js",
   "src/assets/js/search.js",
-  "src/assets/js/selectors.js",
   "src/assets/js/shuffle-properties.js",
   "src/assets/js/slider.js",
   "src/assets/js/stripe-checkout.js",
@@ -294,7 +272,6 @@ export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
-  ALLOWED_RELATIVE_PATHS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,

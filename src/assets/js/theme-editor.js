@@ -341,7 +341,7 @@ const ThemeEditor = {
 
     // Cascade global changes to scoped inputs that were "following" the old global value
     // This prevents unchanged scoped inputs from appearing as overrides when global changes
-    this.cascadeGlobalChangesToScopes(oldGlobalVars, globalVars);
+    this.cascadeChanges(oldGlobalVars, globalVars);
 
     // Collect scoped variables
     const scopeVars = pipe(
@@ -400,7 +400,7 @@ const ThemeEditor = {
    * Cascade global value changes to scoped inputs that were "following" the old global value.
    * This prevents unchanged scoped inputs from appearing as overrides when global changes.
    */
-  cascadeGlobalChangesToScopes(oldGlobalVars, newGlobalVars) {
+  cascadeChanges(oldGlobalVars, newGlobalVars) {
     for (const scope of SCOPES) {
       this.cascadeColorInputs(scope, oldGlobalVars, newGlobalVars);
       this.cascadeBorderInputs(scope, oldGlobalVars, newGlobalVars);
