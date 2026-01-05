@@ -1,227 +1,202 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
+import { filter, pipe } from "#utils/array-utils.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
+// ============================================
+// Functional Test Fixture Builders
+// ============================================
+
+/**
+ * Create a news post file for test site
+ * @param {string} slug - Post slug (without date prefix)
+ * @param {string} title - Post title
+ * @param {Object} options - Additional frontmatter (author, etc.)
+ */
+const newsPost = (slug, title, { author, ...extras } = {}) => ({
+  path: `news/2024-01-01-${slug}.md`,
+  frontmatter: {
+    title,
+    ...(author && { author: `src/team/${author}.md` }),
+    ...extras,
+  },
+  content: `Content for ${title}.`,
+});
+
+/**
+ * Create a team member file for test site
+ * @param {string} slug - Team member slug
+ * @param {string} name - Team member name
+ * @param {Object} options - Additional frontmatter (image, snippet, etc.)
+ */
+const teamMember = (slug, name, { image, ...extras } = {}) => ({
+  path: `team/${slug}.md`,
+  frontmatter: {
+    title: name,
+    snippet: extras.snippet ?? `${name} bio snippet`,
+    ...(image && { image: `src/images/${image}` }),
+    ...extras,
+  },
+  content: `${name} bio.`,
+});
+
+/**
+ * Get post meta element from a news post page
+ */
+const getPostMeta = (site, slug) => {
+  const doc = site.getDoc(`/news/${slug}/index.html`);
+  return doc.querySelector(".post-meta");
+};
+
+/**
+ * Get content HTML from a news post page
+ */
+const getContentHtml = (site, slug) => {
+  const doc = site.getDoc(`/news/${slug}/index.html`);
+  const content = doc.getElementById("content");
+  return content ? content.innerHTML : "";
+};
+
+/**
+ * Extract images from test files (for images array)
+ */
+const extractImages = pipe(
+  filter((file) => file.frontmatter?.image),
+  (files) => files.map((f) => f.frontmatter.image.replace("src/images/", "")),
+);
+
+/**
+ * Assert post meta has expected elements for posts with authors
+ */
+const expectAuthorElements = (postMeta) => {
+  expect(postMeta.querySelector("address") !== null).toBe(true);
+  expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
+};
+
+/**
+ * Assert post meta has time element with datetime attribute
+ */
+const expectTimeElement = (postMeta) => {
+  expect(postMeta.querySelector("time") !== null).toBe(true);
+  expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(true);
+};
+
+/**
+ * Assert post meta base structure (exists, thumbnail class, figure)
+ */
+const expectMetaStructure = (postMeta, { hasThumbnail, hasFigure }) => {
+  expect(postMeta !== null).toBe(true);
+  expect(postMeta.classList.contains("with-thumbnail")).toBe(hasThumbnail);
+  hasFigure
+    ? expect(postMeta.querySelector("figure") !== null).toBe(true)
+    : expect(postMeta.querySelector("figure")).toBe(null);
+};
+
 describe("news", () => {
+  // normaliseSlug unit tests
   test("Returns simple slug unchanged", () => {
-    const result = normaliseSlug("jane-doe");
-    expect(result).toBe("jane-doe");
+    expect(normaliseSlug("jane-doe")).toBe("jane-doe");
   });
 
   test("Extracts slug from full path reference", () => {
-    const result = normaliseSlug("src/team/jane-doe.md");
-    expect(result).toBe("jane-doe");
+    expect(normaliseSlug("src/team/jane-doe.md")).toBe("jane-doe");
   });
 
   test("Removes file extension from slug", () => {
-    const result = normaliseSlug("jane-doe.md");
-    expect(result).toBe("jane-doe");
+    expect(normaliseSlug("jane-doe.md")).toBe("jane-doe");
   });
 
   test("Returns null for null input", () => {
-    const result = normaliseSlug(null);
-    expect(result).toBe(null);
+    expect(normaliseSlug(null)).toBe(null);
   });
 
   test("Returns undefined for undefined input", () => {
-    const result = normaliseSlug(undefined);
-    expect(result).toBe(undefined);
+    expect(normaliseSlug(undefined)).toBe(undefined);
   });
 
+  // Integration tests with test site
   test("News post with author renders author link in HTML", async () => {
-    await withTestSite(
-      {
-        files: [
-          {
-            path: "news/2024-01-01-test-post.md",
-            frontmatter: {
-              title: "Test Post With Author",
-              author: "src/team/jane-doe.md",
-            },
-            content: "This is a test post with an author.",
-          },
-          {
-            path: "team/jane-doe.md",
-            frontmatter: {
-              title: "Jane Doe",
-              snippet: "Test team member",
-            },
-            content: "Jane Doe bio.",
-          },
-        ],
-      },
-      (site) => {
-        const doc = site.getDoc("/news/test-post/index.html");
-        const content = doc.getElementById("content");
-        const contentHtml = content ? content.innerHTML : "";
+    const files = [
+      newsPost("test-post", "Test Post With Author", { author: "jane-doe" }),
+      teamMember("jane-doe", "Jane Doe"),
+    ];
 
-        expect(contentHtml.includes('href="/team/jane-doe/"')).toBe(true);
-        expect(contentHtml.includes("Jane Doe")).toBe(true);
-      },
-    );
+    await withTestSite({ files }, (site) => {
+      const html = getContentHtml(site, "test-post");
+
+      expect(html.includes('href="/team/jane-doe/"')).toBe(true);
+      expect(html.includes("Jane Doe")).toBe(true);
+    });
   });
 
   test("News post without author does not render author section", async () => {
-    await withTestSite(
-      {
-        files: [
-          {
-            path: "news/2024-01-01-no-author.md",
-            frontmatter: {
-              title: "Test Post Without Author",
-            },
-            content: "This is a test post without an author.",
-          },
-        ],
-      },
-      (site) => {
-        const doc = site.getDoc("/news/no-author/index.html");
-        const content = doc.getElementById("content");
-        const contentHtml = content ? content.innerHTML : "";
+    const files = [newsPost("no-author", "Test Post Without Author")];
 
-        expect(contentHtml.includes('href="/team/')).toBe(false);
-      },
-    );
+    await withTestSite({ files }, (site) => {
+      const html = getContentHtml(site, "no-author");
+
+      expect(html.includes('href="/team/')).toBe(false);
+    });
   });
 
   test("News post with author that has image renders grid layout with thumbnail", async () => {
-    await withTestSite(
-      {
-        files: [
-          {
-            path: "news/2024-01-01-thumbnail-post.md",
-            frontmatter: {
-              title: "Post With Author Thumbnail",
-              author: "src/team/jane-doe.md",
-            },
-            content: "Post content here.",
-          },
-          {
-            path: "team/jane-doe.md",
-            frontmatter: {
-              title: "Jane Doe",
-              snippet: "Test team member",
-              image: "src/images/placeholder-square-1.jpg",
-            },
-            content: "Jane Doe bio.",
-          },
-        ],
-        images: ["placeholder-square-1.jpg"],
-      },
-      (site) => {
-        const doc = site.getDoc("/news/thumbnail-post/index.html");
-        const postMeta = doc.querySelector(".post-meta");
+    const files = [
+      newsPost("thumbnail-post", "Post With Author Thumbnail", {
+        author: "jane-doe",
+      }),
+      teamMember("jane-doe", "Jane Doe", { image: "placeholder-square-1.jpg" }),
+    ];
 
-        expect(postMeta !== null).toBe(true);
-        expect(postMeta.classList.contains("with-thumbnail")).toBe(true);
-        expect(postMeta.querySelector("figure") !== null).toBe(true);
-        expect(postMeta.querySelector("figure a") !== null).toBe(true);
-        expect(postMeta.querySelector("address") !== null).toBe(true);
-        expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
-        expect(postMeta.querySelector("time") !== null).toBe(true);
-        expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(
-          true,
-        );
-      },
-    );
+    await withTestSite({ files, images: extractImages(files) }, (site) => {
+      const postMeta = getPostMeta(site, "thumbnail-post");
+
+      expectMetaStructure(postMeta, { hasThumbnail: true, hasFigure: true });
+      expect(postMeta.querySelector("figure a") !== null).toBe(true);
+      expectAuthorElements(postMeta);
+      expectTimeElement(postMeta);
+    });
   });
 
   test("News post with author but no image renders without thumbnail class", async () => {
-    await withTestSite(
-      {
-        files: [
-          {
-            path: "news/2024-01-01-no-thumb-post.md",
-            frontmatter: {
-              title: "Post With Author No Thumbnail",
-              author: "src/team/john-smith.md",
-            },
-            content: "Post content here.",
-          },
-          {
-            path: "team/john-smith.md",
-            frontmatter: {
-              title: "John Smith",
-              snippet: "Team member without image",
-            },
-            content: "John Smith bio.",
-          },
-        ],
-      },
-      (site) => {
-        const doc = site.getDoc("/news/no-thumb-post/index.html");
-        const postMeta = doc.querySelector(".post-meta");
+    const files = [
+      newsPost("no-thumb-post", "Post With Author No Thumbnail", {
+        author: "john-smith",
+      }),
+      teamMember("john-smith", "John Smith"),
+    ];
 
-        expect(postMeta !== null).toBe(true);
-        expect(postMeta.classList.contains("with-thumbnail")).toBe(false);
-        expect(postMeta.querySelector("figure")).toBe(null);
-        expect(postMeta.querySelector("address") !== null).toBe(true);
-        expect(postMeta.querySelector('a[rel="author"]') !== null).toBe(true);
-        expect(postMeta.querySelector("time") !== null).toBe(true);
-      },
-    );
+    await withTestSite({ files }, (site) => {
+      const postMeta = getPostMeta(site, "no-thumb-post");
+
+      expectMetaStructure(postMeta, { hasThumbnail: false, hasFigure: false });
+      expectAuthorElements(postMeta);
+      expect(postMeta.querySelector("time") !== null).toBe(true);
+    });
   });
 
   test("News post without author renders simple date-only layout", async () => {
-    await withTestSite(
-      {
-        files: [
-          {
-            path: "news/2024-01-01-anonymous-post.md",
-            frontmatter: {
-              title: "Anonymous Post",
-            },
-            content: "Post without an author.",
-          },
-        ],
-      },
-      (site) => {
-        const doc = site.getDoc("/news/anonymous-post/index.html");
-        const postMeta = doc.querySelector(".post-meta");
+    const files = [newsPost("anonymous-post", "Anonymous Post")];
 
-        expect(postMeta !== null).toBe(true);
-        expect(postMeta.classList.contains("with-thumbnail")).toBe(false);
-        expect(postMeta.querySelector("figure")).toBe(null);
-        expect(postMeta.querySelector("address")).toBe(null);
-        expect(postMeta.querySelector("time") !== null).toBe(true);
-        expect(postMeta.querySelector("time").hasAttribute("datetime")).toBe(
-          true,
-        );
-      },
-    );
+    await withTestSite({ files }, (site) => {
+      const postMeta = getPostMeta(site, "anonymous-post");
+
+      expectMetaStructure(postMeta, { hasThumbnail: false, hasFigure: false });
+      expect(postMeta.querySelector("address")).toBe(null);
+      expectTimeElement(postMeta);
+    });
   });
 
   test("Post meta uses semantic HTML with proper roles", async () => {
-    await withTestSite(
-      {
-        files: [
-          {
-            path: "news/2024-01-01-semantic-test.md",
-            frontmatter: {
-              title: "Semantic HTML Test",
-              author: "src/team/jane-doe.md",
-            },
-            content: "Testing semantic markup.",
-          },
-          {
-            path: "team/jane-doe.md",
-            frontmatter: {
-              title: "Jane Doe",
-              snippet: "Test team member",
-              image: "src/images/placeholder-square-1.jpg",
-            },
-            content: "Jane Doe bio.",
-          },
-        ],
-        images: ["placeholder-square-1.jpg"],
-      },
-      (site) => {
-        const doc = site.getDoc("/news/semantic-test/index.html");
-        const postMeta = doc.querySelector(".post-meta");
+    const files = [
+      newsPost("semantic-test", "Semantic HTML Test", { author: "jane-doe" }),
+      teamMember("jane-doe", "Jane Doe", { image: "placeholder-square-1.jpg" }),
+    ];
 
-        expect(postMeta.tagName.toLowerCase()).toBe("header");
-        expect(postMeta.getAttribute("role")).toBe("doc-subtitle");
-      },
-    );
+    await withTestSite({ files, images: extractImages(files) }, (site) => {
+      const postMeta = getPostMeta(site, "semantic-test");
+
+      expect(postMeta.tagName.toLowerCase()).toBe("header");
+      expect(postMeta.getAttribute("role")).toBe("doc-subtitle");
+    });
   });
 });
