@@ -44,7 +44,11 @@ describe("dom-builder", () => {
   });
 
   test("Creates element with string children (innerHTML)", async () => {
-    const element = await createElement("p", {}, "Hello <strong>world</strong>");
+    const element = await createElement(
+      "p",
+      {},
+      "Hello <strong>world</strong>",
+    );
 
     expect(element.innerHTML).toBe("Hello <strong>world</strong>");
   });
@@ -119,7 +123,9 @@ describe("dom-builder", () => {
     );
     const html = elementToHtml(element);
 
-    expect(html).toBe('<div id="parent" class="wrapper"><span>Nested</span></div>');
+    expect(html).toBe(
+      '<div id="parent" class="wrapper"><span>Nested</span></div>',
+    );
   });
 
   // ============================================
@@ -135,8 +141,8 @@ describe("dom-builder", () => {
   test("Creates self-closing tags correctly", async () => {
     const html = await createHtml("img", { src: "test.png", alt: "Test" });
 
-    expect(html.includes("src=\"test.png\"")).toBe(true);
-    expect(html.includes("alt=\"Test\"")).toBe(true);
+    expect(html.includes('src="test.png"')).toBe(true);
+    expect(html.includes('alt="Test"')).toBe(true);
   });
 
   // ============================================
@@ -152,9 +158,7 @@ describe("dom-builder", () => {
   });
 
   test("Parses nested HTML correctly", async () => {
-    const element = await parseHtml(
-      '<ul><li>Item 1</li><li>Item 2</li></ul>',
-    );
+    const element = await parseHtml("<ul><li>Item 1</li><li>Item 2</li></ul>");
 
     expect(element.tagName.toLowerCase()).toBe("ul");
     expect(element.children.length).toBe(2);

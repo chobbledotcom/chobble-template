@@ -768,7 +768,7 @@ header {
   });
 
   test("controlToVarEntry converts input to CSS variable entry", () => {
-    const dom = new DOM(`<html><body></body></html>`);
+    const dom = new DOM("<html><body></body></html>");
     const { document } = dom.window;
     const originalDoc = globalThis.document;
     globalThis.document = document;
@@ -781,16 +781,16 @@ header {
       const result = controlToVarEntry(input);
 
       expect(result).toEqual(["--color-bg", "#ff0000"]);
-      expect(document.documentElement.style.getPropertyValue("--color-bg")).toBe(
-        "#ff0000",
-      );
+      expect(
+        document.documentElement.style.getPropertyValue("--color-bg"),
+      ).toBe("#ff0000");
     } finally {
       globalThis.document = originalDoc;
     }
   });
 
   test("controlToVarEntry appends px for border-radius", () => {
-    const dom = new DOM(`<html><body></body></html>`);
+    const dom = new DOM("<html><body></body></html>");
     const { document } = dom.window;
     const originalDoc = globalThis.document;
     globalThis.document = document;
@@ -809,7 +809,7 @@ header {
   });
 
   test("inputToScopedEntry returns entry when value differs from global", () => {
-    const dom = new DOM(`<html><body></body></html>`);
+    const dom = new DOM("<html><body></body></html>");
     const { document } = dom.window;
     const originalDoc = globalThis.document;
     globalThis.document = document;
@@ -832,7 +832,7 @@ header {
   });
 
   test("inputToScopedEntry returns null when value matches global", () => {
-    const dom = new DOM(`<html><body></body></html>`);
+    const dom = new DOM("<html><body></body></html>");
     const { document } = dom.window;
     const originalDoc = globalThis.document;
     globalThis.document = document;
@@ -855,7 +855,7 @@ header {
   });
 
   test("toggleClassAndReturn toggles body class and returns value when active", () => {
-    const dom = new DOM(`<html><body></body></html>`);
+    const dom = new DOM("<html><body></body></html>");
     const { document } = dom.window;
     const originalDoc = globalThis.document;
     globalThis.document = document;
@@ -882,7 +882,7 @@ header {
   });
 
   test("toggleClassAndReturn returns null when not enabled", () => {
-    const dom = new DOM(`<html><body></body></html>`);
+    const dom = new DOM("<html><body></body></html>");
     const { document } = dom.window;
     const originalDoc = globalThis.document;
     globalThis.document = document;
