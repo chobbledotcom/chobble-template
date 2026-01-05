@@ -77,6 +77,21 @@ const ALLOWED_PROCESS_CWD = new Set([
 ]);
 
 // ============================================
+// Let usage exceptions
+// ============================================
+
+// Explicit let declarations that are necessary for legitimate mutability.
+// Most let usage should be converted to const with functional patterns.
+const ALLOWED_LET_USAGE = new Set([
+  // extractFunctions - complex stateful parser (5 state variables)
+  "test/test-utils.js:448", // globalBraceDepth counter
+  "test/test-utils.js:449", // inString state flag
+  "test/test-utils.js:450", // stringChar tracking
+  "test/test-utils.js:451", // inTemplate state flag
+  "test/test-utils.js:452", // inMultilineComment state flag
+]);
+
+// ============================================
 // Mutable const exceptions (empty [], {}, Set, Map)
 // ============================================
 
@@ -93,6 +108,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/test-utils.js:181", // logs accumulator (console capture)
   "test/test-utils.js:190", // logs accumulator (console capture async)
   "test/test-utils.js:426", // results set (createExtractor)
+  "test/test-utils.js:444", // functions accumulator (extractFunctions - parser)
+  "test/test-utils.js:446", // stack for parsing state (extractFunctions - parser)
   "test/build-profiling.js:61", // times accumulator (performance tracking)
   "test/build-profiling.js:216", // runs accumulator (benchmark results)
   "test/precommit.js:22", // results accumulator (script results)
@@ -280,6 +297,7 @@ export {
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
+  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,

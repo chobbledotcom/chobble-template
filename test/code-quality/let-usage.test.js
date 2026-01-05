@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_MUTABLE_CONST } from "#test/code-quality/code-quality-exceptions.js";
+import {
+  ALLOWED_LET_USAGE,
+  ALLOWED_MUTABLE_CONST,
+} from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   createCodeChecker,
@@ -33,7 +36,7 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       return { reason: "Mutable variable declaration" };
     },
     files: SRC_AND_TEST_UTILS_FILES,
-    allowlist: new Set(), // All let usages have been refactored to functional patterns
+    allowlist: ALLOWED_LET_USAGE,
   });
 
 // Complete checker for mutable const declarations

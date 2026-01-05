@@ -441,155 +441,116 @@ const createExtractor =
  * Returns an array of { name, startLine, endLine, lineCount }.
  */
 const extractFunctions = (source) => {
+  const functions = [];
   const lines = source.split("\n");
+  const stack = []; // Stack of { name, startLine, openBraceDepth }
 
-  const finalState = lines.reduce(
-    (state, line, i) => {
-      const lineNum = i + 1;
+  let globalBraceDepth = 0;
+  let inString = false;
+  let stringChar = null;
+  let inTemplate = false;
+  let inMultilineComment = false;
 
-      // Check for function start patterns
-      const funcDeclMatch = line.match(
-        /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/,
-      );
-      // Only match arrow functions with braces (multi-line bodies)
-      const arrowMatch = line.match(
-        /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/,
-      );
-      const methodMatch = line.match(
-        /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/,
-      );
-      const objMethodMatch = line.match(
-        /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/,
-      );
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lineNum = i + 1;
 
-      const match = funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
+    // Check for function start patterns
+    const funcDeclMatch = line.match(
+      /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/,
+    );
+    // Only match arrow functions with braces (multi-line bodies)
+    const arrowMatch = line.match(
+      /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/,
+    );
+    const methodMatch = line.match(
+      /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/,
+    );
+    const objMethodMatch = line.match(
+      /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/,
+    );
 
-      // Add function to stack if we found a match
-      const stackWithNewFunc = match
-        ? [
-            ...state.stack,
-            {
-              name: match[1],
-              startLine: lineNum,
-              openBraceDepth: null,
-            },
-          ]
-        : state.stack;
+    const match = funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
 
-      // Process characters for brace counting and string/comment state
-      const charState = [...line].reduce(
-        (cState, char, j) => {
-          const prevChar = j > 0 ? line[j - 1] : "";
-          const nextChar = j < line.length - 1 ? line[j + 1] : "";
+    if (match) {
+      stack.push({
+        name: match[1],
+        startLine: lineNum,
+        openBraceDepth: null, // Will be set when we see the opening brace
+      });
+    }
 
-          // Handle comments
-          if (!cState.inString && !cState.inTemplate) {
-            if (char === "/" && nextChar === "/" && !cState.inMultilineComment) {
-              return { ...cState, skipRestOfLine: true };
-            }
-            if (char === "/" && nextChar === "*" && !cState.inMultilineComment) {
-              return { ...cState, inMultilineComment: true, skipNext: true };
-            }
-            if (char === "*" && nextChar === "/" && cState.inMultilineComment) {
-              return { ...cState, inMultilineComment: false, skipNext: true };
-            }
+    // Process characters for brace counting
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const prevChar = j > 0 ? line[j - 1] : "";
+      const nextChar = j < line.length - 1 ? line[j + 1] : "";
+
+      // Handle comments
+      if (!inString && !inTemplate) {
+        if (char === "/" && nextChar === "/" && !inMultilineComment) break;
+        if (char === "/" && nextChar === "*" && !inMultilineComment) {
+          inMultilineComment = true;
+          j++;
+          continue;
+        }
+        if (char === "*" && nextChar === "/" && inMultilineComment) {
+          inMultilineComment = false;
+          j++;
+          continue;
+        }
+      }
+      if (inMultilineComment) continue;
+
+      // Handle strings
+      if (!inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char === stringChar) {
+          inString = false;
+          stringChar = null;
+        }
+        continue;
+      }
+
+      // Handle template literals
+      if (char === "`" && prevChar !== "\\") {
+        inTemplate = !inTemplate;
+        continue;
+      }
+
+      if (inString) continue;
+
+      // Count braces
+      if (char === "{") {
+        globalBraceDepth++;
+        // Record opening brace depth for pending functions
+        for (const item of stack) {
+          if (item.openBraceDepth === null) {
+            item.openBraceDepth = globalBraceDepth;
           }
-          if (cState.skipNext) return { ...cState, skipNext: false };
-          if (cState.skipRestOfLine || cState.inMultilineComment) return cState;
-
-          // Handle strings
-          if (!cState.inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
-            if (!cState.inString) {
-              return { ...cState, inString: true, stringChar: char };
-            }
-            if (char === cState.stringChar) {
-              return { ...cState, inString: false, stringChar: null };
-            }
-            return cState;
+        }
+      } else if (char === "}") {
+        // Check if this closes any function on the stack
+        for (let k = stack.length - 1; k >= 0; k--) {
+          if (stack[k].openBraceDepth === globalBraceDepth) {
+            const completed = stack.splice(k, 1)[0];
+            functions.push({
+              name: completed.name,
+              startLine: completed.startLine,
+              endLine: lineNum,
+              lineCount: lineNum - completed.startLine + 1,
+            });
+            break;
           }
+        }
+        globalBraceDepth--;
+      }
+    }
+  }
 
-          // Handle template literals
-          if (char === "`" && prevChar !== "\\") {
-            return { ...cState, inTemplate: !cState.inTemplate };
-          }
-
-          if (cState.inString) return cState;
-
-          // Count braces
-          if (char === "{") {
-            const newDepth = cState.globalBraceDepth + 1;
-            // Record opening brace depth for pending functions
-            const updatedStack = cState.stack.map((item) =>
-              item.openBraceDepth === null ? { ...item, openBraceDepth: newDepth } : item,
-            );
-            return { ...cState, globalBraceDepth: newDepth, stack: updatedStack };
-          }
-
-          if (char === "}") {
-            // Check if this closes any function on the stack
-            const closingIdx = [...cState.stack]
-              .reverse()
-              .findIndex((item) => item.openBraceDepth === cState.globalBraceDepth);
-
-            if (closingIdx !== -1) {
-              const actualIdx = cState.stack.length - 1 - closingIdx;
-              const completed = cState.stack[actualIdx];
-              const newStack = [
-                ...cState.stack.slice(0, actualIdx),
-                ...cState.stack.slice(actualIdx + 1),
-              ];
-              const newFunctions = [
-                ...cState.functions,
-                {
-                  name: completed.name,
-                  startLine: completed.startLine,
-                  endLine: lineNum,
-                  lineCount: lineNum - completed.startLine + 1,
-                },
-              ];
-              return {
-                ...cState,
-                globalBraceDepth: cState.globalBraceDepth - 1,
-                stack: newStack,
-                functions: newFunctions,
-              };
-            }
-            return { ...cState, globalBraceDepth: cState.globalBraceDepth - 1 };
-          }
-
-          return cState;
-        },
-        {
-          ...state,
-          stack: stackWithNewFunc,
-          skipRestOfLine: false,
-          skipNext: false,
-        },
-      );
-
-      // Return state for next line, preserving string/comment state across lines
-      return {
-        functions: charState.functions,
-        stack: charState.stack,
-        globalBraceDepth: charState.globalBraceDepth,
-        inString: charState.inString,
-        stringChar: charState.stringChar,
-        inTemplate: charState.inTemplate,
-        inMultilineComment: charState.inMultilineComment,
-      };
-    },
-    {
-      functions: [],
-      stack: [],
-      globalBraceDepth: 0,
-      inString: false,
-      stringChar: null,
-      inTemplate: false,
-      inMultilineComment: false,
-    },
-  );
-
-  return finalState.functions;
+  return functions;
 };
 
 // Schema-helper test fixtures
