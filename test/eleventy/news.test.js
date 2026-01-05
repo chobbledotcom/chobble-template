@@ -136,7 +136,10 @@ describe("news", () => {
     await withTestSite({ files, images: extractImages(files) }, (site) => {
       // Test 1: Post with author + image renders thumbnail layout with semantic HTML
       const metaWithImage = getPostMeta(site, "with-author-image");
-      expectMetaStructure(metaWithImage, { hasThumbnail: true, hasFigure: true });
+      expectMetaStructure(metaWithImage, {
+        hasThumbnail: true,
+        hasFigure: true,
+      });
       expect(metaWithImage.querySelector("figure a") !== null).toBe(true);
       expectAuthorElements(metaWithImage);
       expectTimeElement(metaWithImage);
@@ -150,7 +153,10 @@ describe("news", () => {
 
       // Test 3: Post with author but no image renders without thumbnail
       const metaNoImage = getPostMeta(site, "with-author-no-image");
-      expectMetaStructure(metaNoImage, { hasThumbnail: false, hasFigure: false });
+      expectMetaStructure(metaNoImage, {
+        hasThumbnail: false,
+        hasFigure: false,
+      });
       expectAuthorElements(metaNoImage);
       expectTimeElement(metaNoImage);
 
@@ -160,7 +166,10 @@ describe("news", () => {
 
       // Test 5: Post without author renders simple date-only layout
       const metaNoAuthor = getPostMeta(site, "no-author");
-      expectMetaStructure(metaNoAuthor, { hasThumbnail: false, hasFigure: false });
+      expectMetaStructure(metaNoAuthor, {
+        hasThumbnail: false,
+        hasFigure: false,
+      });
       expect(metaNoAuthor.querySelector("address")).toBe(null);
       expectTimeElement(metaNoAuthor);
     });
