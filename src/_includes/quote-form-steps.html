@@ -1,0 +1,54 @@
+{%- comment -%}
+Renders multi-step quote form using pre-processed sections from quote-fields.js
+{%- endcomment -%}
+
+<div class="quote-steps" data-current-step="0">
+  <div class="quote-steps-progress">
+    {%- for i in (1..quoteFields.totalSteps) -%}
+      <div class="quote-steps-indicator{% if i == 1 %} active{% endif %}" data-step="{{ i | minus: 1 }}">
+        <span class="step-number">{{ i }}</span>
+      </div>
+      {%- unless forloop.last -%}
+        <div class="quote-steps-connector"></div>
+      {%- endunless -%}
+    {%- endfor -%}
+  </div>
+
+  {%- for section in quoteFields.sections -%}
+    <div class="quote-step{% if section.isFirst %} active{% endif %}" data-step="{{ section.stepNumber }}">
+      <h3 class="quote-step-title">{{ section.title }}</h3>
+      {%- for field in section.fields -%}
+        {%- include field.template, field: field -%}
+      {%- endfor -%}
+    </div>
+  {%- endfor -%}
+
+  <div class="quote-step" data-step="{{ quoteFields.sections.size }}">
+    <h3 class="quote-step-title">{{ quoteFields.recapTitle }}</h3>
+
+    <div class="quote-recap">
+      <div class="quote-recap-section">
+        <h4>Items in your quote</h4>
+        <div id="cart-summary" class="quote-checkout-summary">
+          <div class="quote-checkout-items"></div>
+        </div>
+      </div>
+
+      <div class="quote-recap-section">
+        <h4>Event Details</h4>
+        <dl class="quote-recap-list" id="recap-event"></dl>
+      </div>
+
+      <div class="quote-recap-section">
+        <h4>Your Details</h4>
+        <dl class="quote-recap-list" id="recap-contact"></dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="quote-steps-nav">
+    <button type="button" class="button quote-step-prev" style="display: none;">Back</button>
+    <button type="button" class="button quote-step-next">Continue</button>
+    <button type="submit" class="button quote-step-submit" style="display: none;">{{ quoteFields.submitButtonText }}</button>
+  </div>
+</div>

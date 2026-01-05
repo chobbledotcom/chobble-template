@@ -91,6 +91,17 @@
 			94
 		],
 		"src/_lib/media/image-crop.js": [
+			34,
+			35,
+			36,
+			37,
+			38,
+			54,
+			55,
+			57,
+			58,
+			59,
+			60,
 			75
 		],
 		"src/_lib/media/inline-asset.js": [
@@ -102,6 +113,11 @@
 			14,
 			15,
 			16
+		],
+		"src/assets/js/quote-steps.js": [
+			193,
+			201,
+			203
 		],
 		"src/assets/js/hire-calculator.js": [
 			65,

@@ -2,8 +2,10 @@
 Renders form fields from contactForm.fields
 Parameters:
   - skipShowOn: if true, skip fields with showOn (for quote checkout)
+  - fields: optional override for fields array (defaults to contactForm.fields)
 {%- endcomment -%}
-{%- for field in contactForm.fields -%}
+{%- assign fieldsToRender = fields | default: contactForm.fields -%}
+{%- for field in fieldsToRender -%}
   {%- assign shouldShow = true -%}
   {%- if field.showOn -%}
     {%- if skipShowOn -%}
@@ -15,25 +17,6 @@ Parameters:
     {%- endif -%}
   {%- endif -%}
   {%- if shouldShow -%}
-    <label for="{{ field.name }}">
-      {{ field.label }}
-      {%- if field.type == "textarea" -%}
-        <textarea
-          id="{{ field.name }}"
-          name="{{ field.name }}"
-          {%- if field.required %} required{%- endif %}
-          rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
-          placeholder="{% if field.showOn %}{{ title }}{% else %}{{ field.placeholder }}{% endif %}"
-        >{% if field.showOn %}{{ title }}{% endif %}</textarea>
-      {%- else -%}
-        <input
-          type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
-          id="{{ field.name }}"
-          name="{{ field.name }}"
-          placeholder="{{ field.placeholder }}"
-          {%- if field.required %} required{%- endif %}
-        />
-      {%- endif -%}
-    </label>
+    {%- include field.template, field: field, pageTitle: title -%}
   {%- endif -%}
 {%- endfor -%}

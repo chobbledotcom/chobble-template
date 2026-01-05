@@ -1,0 +1,165 @@
+// Quote form multi-step styles
+
+@use "breakpoints";
+
+.quote-steps {
+  max-width: var(--width-card-wide);
+}
+
+.quote-steps-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+}
+
+.quote-steps-indicator {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: var(--border);
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.2s ease;
+
+  .step-number {
+    line-height: 1;
+  }
+
+  &.active {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  &.completed {
+    background: var(--color-accent);
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.quote-steps-connector {
+  flex: 1;
+  max-width: 4rem;
+  height: 2px;
+  background: var(--color-text);
+  opacity: 0.3;
+}
+
+.quote-step {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+.quote-step-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+}
+
+.quote-steps-nav {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: var(--border);
+
+  .button {
+    flex: 1;
+
+    @include breakpoints.up("sm") {
+      flex: 0 0 auto;
+    }
+  }
+}
+
+.quote-recap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.quote-recap-section {
+  padding: 1rem;
+  border: var(--border);
+  border-radius: var(--border-radius);
+  background: var(--color-accent);
+
+  h4 {
+    margin: 0 0 1rem;
+  }
+}
+
+.quote-recap-list {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+
+  dt {
+    font-weight: bold;
+    margin-top: 0.5rem;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+// Radio group styles
+.radio-group {
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
+
+  legend {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+
+  input[type="radio"] {
+    margin: 0;
+  }
+
+  label {
+    margin: 0;
+    font-weight: normal;
+  }
+}
+
+// Select field width
+.quote-step select {
+  width: 100%;
+}
+
+// Field error states
+.field-error {
+  &:is(input, select, textarea) {
+    border-color: var(--color-error);
+    outline: 2px solid var(--color-error);
+    outline-offset: -2px;
+  }
+
+  &:is(label, fieldset) {
+    color: var(--color-error);
+  }
+}

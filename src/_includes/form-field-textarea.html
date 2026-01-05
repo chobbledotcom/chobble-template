@@ -1,0 +1,10 @@
+<label for="{{ field.name }}">
+  {{ field.label }}
+  <textarea
+    id="{{ field.name }}"
+    name="{{ field.name }}"
+    {%- if field.required %} required{%- endif %}
+    rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
+    placeholder="{% if field.defaultFromPageTitle %}{{ pageTitle }}{% else %}{{ field.placeholder }}{% endif %}"
+  >{% if field.defaultFromPageTitle %}{{ pageTitle }}{% endif %}</textarea>
+</label>
