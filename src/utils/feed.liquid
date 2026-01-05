@@ -20,10 +20,7 @@
   <author>
     <name>{{ site.name }}</name>
   </author>
-  {%- assign feed_count = 0 -%}
-  {%- for post in collections.news reversed %}
-  {%- unless post.data.no_index -%}
-  {%- if feed_count < 20 -%}
+  {%- for post in collections.news limit: 20 %}
   {%- assign absolutePostUrl = post.url | htmlBaseUrl: site.url %}
   <entry>
     <title>{{ post.data.title }}</title>
@@ -32,8 +29,5 @@
     <id>{{ absolutePostUrl }}</id>
     <content type="html"><![CDATA[{{ post.content | transformWithHtmlBase: site.url, post.url }}]]></content>
   </entry>
-  {%- assign feed_count = feed_count | plus: 1 -%}
-  {%- endif -%}
-  {%- endunless -%}
   {%- endfor %}
 </feed>

@@ -11,19 +11,12 @@ layout: base
   {%- include "items.html", items: menus -%}
 {%- endif -%}
 
-{%- assign visible_news = "" | split: "" -%}
-{%- for post in collections.news -%}
-  {%- unless post.data.no_index -%}
-    {%- assign visible_news = visible_news | push: post -%}
-  {%- endunless -%}
-{%- endfor -%}
-
-{%- if homepage.show_news and visible_news.size > 0 -%}
+{%- if homepage.show_news and collections.news.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-news-header", "<h3>Latest Posts</h3>" -%}
 
   {%- assign all_have_images = true -%}
-  {%- for post in visible_news -%}
+  {%- for post in collections.news -%}
     {%- unless post.data.header_image -%}
       {%- assign all_have_images = false -%}
       {%- break -%}
@@ -31,7 +24,7 @@ layout: base
   {%- endfor -%}
 
   {%- if all_have_images -%}
-    {%- assign posts = visible_news | reverse | slice: 0, 2 -%}
+    {%- assign posts = collections.news | slice: 0, 2 -%}
     {%- include "items.html", items: posts -%}
   {%- else -%}
     {% include "news-post-list.html", limit: 2 %}
