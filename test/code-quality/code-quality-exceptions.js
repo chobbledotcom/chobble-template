@@ -77,16 +77,6 @@ const ALLOWED_PROCESS_CWD = new Set([
 ]);
 
 // ============================================
-// Let usage exceptions
-// ============================================
-
-// Explicit let declarations that are necessary for legitimate mutability.
-// Most let usage should be converted to const with functional patterns.
-const ALLOWED_LET_USAGE = new Set([
-  // All let usages have been refactored to use functional patterns
-]);
-
-// ============================================
 // Mutable const exceptions (empty [], {}, Set, Map)
 // ============================================
 
@@ -290,7 +280,6 @@ export {
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
-  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
