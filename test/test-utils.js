@@ -5,7 +5,7 @@ import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { map } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
-import { ROOT_DIR, SRC_DIR } from "../src/_lib/paths.js";
+import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
