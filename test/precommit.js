@@ -47,14 +47,35 @@ function extractErrorsFromOutput(output) {
   const errors = [];
 
   for (const line of lines) {
-    // Look for error indicators
+    const trimmed = line.trim();
+
+    // Skip empty lines and cruft
+    if (!trimmed) continue;
+
+    // Skip command outputs and file paths
+    if (trimmed.startsWith("$") || trimmed.startsWith("/")) continue;
+
+    // Skip image filenames and other generic file paths
     if (
-      line.includes("error") ||
-      line.includes("ERROR") ||
-      line.includes("❌") ||
-      line.includes("FAIL")
+      trimmed.endsWith(".jpg") ||
+      trimmed.endsWith(".png") ||
+      trimmed.endsWith(".gif")
     ) {
-      errors.push(line);
+      continue;
+    }
+
+    // Skip long command lines that start with "node -e"
+    if (trimmed.startsWith("node -e")) continue;
+
+    // Look for actual error messages
+    if (
+      trimmed.startsWith("❌") ||
+      trimmed.startsWith("error:") ||
+      trimmed.startsWith("Error:") ||
+      trimmed.includes("FAIL") ||
+      trimmed.includes("below threshold")
+    ) {
+      errors.push(trimmed);
     }
   }
 
