@@ -114,8 +114,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findPdfInMenuDir",
   "verifyPdfHeader",
   // reviews.test.js - test fixtures helpers
-  "createReviews",
-  "createMockCollectionApi",
+  "itemsFor",
   // code-scanner.js - code scanning utilities
   "matchesAny",
   "isCommentLine",
@@ -153,6 +152,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectIncludes",
   "expectLocalImage",
   "runTransform",
+  // news.test.js - functional test fixture builders
+  "newsPost",
+  "teamMember",
+  "getPostMeta",
+  "getContentHtml",
+  "extractImages",
+  "expectAuthorElements",
+  "expectTimeElement",
+  "expectMetaStructure",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
