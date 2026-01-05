@@ -83,17 +83,6 @@ const AVATAR_COLORS = [
 ];
 
 /**
- * Simple string hash function for consistent color selection
- */
-const hashString = (str) => {
-  const hash = [...str].reduce((h, char) => {
-    const next = (h << 5) - h + char.charCodeAt(0);
-    return next & next;
-  }, 0);
-  return Math.abs(hash);
-};
-
-/**
  * Extract initials from a name
  * Handles: "John Smith" -> "JS", "JS" -> "JS", "John" -> "J"
  */
@@ -112,7 +101,14 @@ const getInitials = (name) => {
  * Uses the name to pick a consistent color and display initials
  */
 const reviewerAvatar = (name) => {
-  const color = AVATAR_COLORS[hashString(name || "") % AVATAR_COLORS.length];
+  const str = name || "";
+  const hash = Math.abs(
+    [...str].reduce((h, char) => {
+      const next = (h << 5) - h + char.charCodeAt(0);
+      return next & next;
+    }, 0),
+  );
+  const color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
   const initials = getInitials(name);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="${color}"/><text x="20" y="20" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="bold">${initials}</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;

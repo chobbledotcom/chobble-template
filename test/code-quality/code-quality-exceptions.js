@@ -190,7 +190,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/collections/products.js:6", // gallery
   "src/_lib/collections/products.js:79", // options
   "src/_lib/collections/search.js:9", // category
-  "src/_lib/collections/reviews.js:101", // name
+  "src/_lib/collections/reviews.js:90", // name
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
   "src/_lib/utils/canonical-url.js:9", // url
@@ -214,13 +214,6 @@ const ALLOWED_NULL_CHECKS = new Set([
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   // === Data layer ===
   "src/_data/altTagsLookup.js:6", // toFilenameEntry
-
-  // === Collections ===
-  "src/_lib/collections/reviews.js:88", // hashString
-  "src/_lib/collections/tags.js:10", // notNullish
-  "src/_lib/collections/events.js:9", // byEventDateAsc
-  "src/_lib/collections/events.js:12", // byEventDateDesc
-  "src/_lib/collections/events.js:18", // categorizeByEventDate
 
   // === Utilities ===
   "src/_lib/utils/dom-builder.js:24", // appendChildren
