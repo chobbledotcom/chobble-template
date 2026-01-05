@@ -30,7 +30,9 @@
 		"precommit": "bun install && bun run lint:fix && bun run knip:fix && bun run test"
 	},
 	"devDependencies": {
+		"@adobe/structured-data-validator": "^1.5.0",
 		"@happy-dom/global-registrator": "^20.0.11",
+		"@marbec/web-auto-extractor": "^2.2.1",
 		"happy-dom": "^20.0.11",
 		"jscpd": "^4.0.5",
 		"knip": "^5.38.0"
