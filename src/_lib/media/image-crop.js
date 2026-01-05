@@ -67,7 +67,15 @@ const cropImage = memoize(
 // Get image metadata (memoized)
 const getMetadata = memoize(async (imagePath) => {
   const sharp = await getSharp();
-  return await sharp(imagePath).metadata();
+  const metadata = await sharp(imagePath).metadata();
+
+  // Handle EXIF orientation - if rotated 90/270 degrees, swap width/height
+  const needsSwap = [5, 6, 7, 8].includes(metadata.orientation || 1);
+  if (needsSwap) {
+    return { ...metadata, width: metadata.height, height: metadata.width };
+  }
+
+  return metadata;
 });
 
 export { cropImage, getAspectRatio, getMetadata };
