@@ -2,7 +2,6 @@
 // Handles step transitions, validation, and recap population
 
 import { onReady } from "#assets/on-ready.js";
-import { unique } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
@@ -31,29 +30,30 @@ function getRadioLabel(id) {
 
 function buildRadioRecapItem(id) {
   const value = getRadioValue(id);
-  return value ? `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>` : "";
+  if (!value) return "";
+  return `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 function buildFieldRecapItem(id) {
   const field = document.getElementById(id);
-
-  // Try radio fallback if no regular field found
-  if (field === null) {
-    return document.querySelector(`input[name="${id}"]`)
-      ? buildRadioRecapItem(id)
-      : "";
+  if (!field) {
+    const radioField = document.querySelector(`input[name="${id}"]`);
+    return radioField ? buildRadioRecapItem(id) : "";
   }
-
   const value = getFieldDisplayValue(field);
-  return value ? `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>` : "";
+  if (!value) return "";
+  return `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 function getStepFieldIds(stepEl) {
   const fields = [...stepEl.querySelectorAll("input, select, textarea")];
-  const ids = fields.map((field) =>
-    field.type === "radio" ? field.name : field.id,
-  );
-  return unique(ids.filter(Boolean));
+  return fields.reduce((acc, field) => {
+    const id = field.type === "radio" ? field.name : field.id;
+    if (id && !acc.includes(id)) {
+      acc.push(id);
+    }
+    return acc;
+  }, []);
 }
 
 function populateRecap(steps) {
@@ -116,7 +116,7 @@ function validateField(field, stepEl) {
   }
   // Use HTML5 constraint validation (checks required, email format, patterns, etc.)
   const isValid = field.checkValidity();
-  if (isValid === false) {
+  if (!isValid) {
     setFieldError(field, true);
     setupErrorClearingOnField(field);
   }
@@ -159,7 +159,7 @@ function getCurrentStep(container) {
 
 function initQuoteSteps() {
   const container = document.querySelector(".quote-steps");
-  if (container === null) return;
+  if (!container) return;
 
   const steps = container.querySelectorAll(".quote-step");
   const indicators = container.querySelectorAll(".quote-steps-indicator");
