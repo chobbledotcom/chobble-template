@@ -4,6 +4,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { map } from "#utils/array-utils.js";
+import { memoize } from "#utils/memoize.js";
 import { ROOT_DIR, SRC_DIR } from "../src/_lib/paths.js";
 
 // JSDOM-compatible wrapper for happy-dom
@@ -141,20 +142,8 @@ const getFiles = (pattern) => {
   return results;
 };
 
-// Memoized file list getter - defers getFiles() call until first use
+// Memoized file list getters - defer getFiles() call until first use
 // to avoid TDZ issues during circular imports at module load time
-const memoize = (fn) => {
-  let value;
-  let computed = false;
-  return () => {
-    if (computed === false) {
-      value = fn();
-      computed = true;
-    }
-    return value;
-  };
-};
-
 const SRC_JS_FILES = memoize(() => getFiles(/^src\/.*\.js$/));
 const ECOMMERCE_JS_FILES = memoize(() =>
   getFiles(/^ecommerce-backend\/.*\.js$/),
@@ -164,6 +153,15 @@ const SRC_HTML_FILES = memoize(() =>
 );
 const SRC_SCSS_FILES = memoize(() => getFiles(/^src\/css\/.*\.scss$/));
 const TEST_FILES = memoize(() => getFiles(/^test\/.*\.test\.js$/));
+// Test utility scripts (non-test files in test directory)
+const TEST_UTILITY_FILES = memoize(() =>
+  getFiles(/^test\/[^/]+\.js$/).filter((f) => !f.endsWith(".test.js")),
+);
+// Source files plus test utilities (for code quality checks)
+const SRC_AND_TEST_UTILS_FILES = memoize(() => [
+  ...SRC_JS_FILES(),
+  ...TEST_UTILITY_FILES(),
+]);
 const ALL_JS_FILES = memoize(() =>
   getFiles(/^(src|ecommerce-backend|test)\/.*\.js$/),
 );
@@ -435,7 +433,7 @@ const createExtractor =
 const extractFunctions = (source) => {
   const functions = [];
   const lines = source.split("\n");
-  const stack = []; // Stack of { name, startLine, braceDepth }
+  const stack = []; // Stack of { name, startLine, openBraceDepth }
 
   let globalBraceDepth = 0;
   let inString = false;
@@ -496,7 +494,7 @@ const extractFunctions = (source) => {
 
       // Handle strings
       if (!inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
-        if (inString === false) {
+        if (!inString) {
           inString = true;
           stringChar = char;
         } else if (char === stringChar) {
@@ -698,6 +696,8 @@ export {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
+  TEST_UTILITY_FILES,
+  SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
   captureConsoleLog,

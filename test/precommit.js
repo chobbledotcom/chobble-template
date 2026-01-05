@@ -97,7 +97,6 @@ function printSummary() {
   console.log("PRECOMMIT SUMMARY");
   console.log("=".repeat(60));
 
-  let allPassed = true;
   const passedSteps = [];
   const failedSteps = [];
 
@@ -108,9 +107,10 @@ function printSummary() {
       passedSteps.push(step.name);
     } else {
       failedSteps.push(step.name);
-      allPassed = false;
     }
   }
+
+  const allPassed = failedSteps.length === 0;
 
   // Print passed checks
   if (passedSteps.length > 0) {

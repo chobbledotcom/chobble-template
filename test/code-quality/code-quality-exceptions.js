@@ -77,6 +77,21 @@ const ALLOWED_PROCESS_CWD = new Set([
 ]);
 
 // ============================================
+// Let usage exceptions
+// ============================================
+
+// Explicit let declarations that are necessary for legitimate mutability.
+// Most let usage should be converted to const with functional patterns.
+const ALLOWED_LET_USAGE = new Set([
+  // extractFunctions - complex stateful parser (5 state variables)
+  "test/test-utils.js:438", // globalBraceDepth counter
+  "test/test-utils.js:439", // inString state flag
+  "test/test-utils.js:440", // stringChar tracking
+  "test/test-utils.js:441", // inTemplate state flag
+  "test/test-utils.js:442", // inMultilineComment state flag
+]);
+
+// ============================================
 // Mutable const exceptions (empty [], {}, Set, Map)
 // ============================================
 
@@ -86,6 +101,25 @@ const ALLOWED_PROCESS_CWD = new Set([
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+
+  // Test utilities - imperative accumulation patterns for performance/clarity
+  "test/test-utils.js:28", // ALWAYS_SKIP set (static config)
+  "test/test-utils.js:118", // results accumulator (getFiles)
+  "test/test-utils.js:171", // logs accumulator (console capture)
+  "test/test-utils.js:180", // logs accumulator (console capture async)
+  "test/test-utils.js:416", // results set (createExtractor)
+  "test/test-utils.js:434", // functions accumulator (extractFunctions - parser)
+  "test/test-utils.js:436", // stack for parsing state (extractFunctions - parser)
+  "test/build-profiling.js:61", // times accumulator (performance tracking)
+  "test/build-profiling.js:216", // runs accumulator (benchmark results)
+  "test/precommit.js:22", // results accumulator (script results)
+  "test/precommit.js:47", // errors accumulator (validation errors)
+  "test/precommit.js:90", // passedSteps accumulator (status tracking)
+  "test/precommit.js:91", // failedSteps accumulator (status tracking)
+  "test/code-scanner.js:310", // stale entries accumulator (validation)
+  "test/run-coverage.js:35", // result object accumulator (diffByFile helper)
+  "test/run-coverage.js:48", // result object accumulator (mapTypes helper)
+  "test/run-coverage.js:140", // removable entries accumulator (coverage tracking)
 ]);
 
 // ============================================
@@ -272,6 +306,7 @@ export {
   ALLOWED_HTML_IN_JS,
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
+  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
