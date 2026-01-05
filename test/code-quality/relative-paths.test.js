@@ -1,21 +1,22 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_PROCESS_CWD } from "#test/code-quality/code-quality-exceptions.js";
-import {
-  assertNoViolations,
-  combineFileLists,
-  createCodeChecker,
-} from "#test/code-scanner.js";
-import {
-  ECOMMERCE_JS_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
-} from "#test/test-utils.js";
+import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
+import { ALL_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/code-quality/relative-paths.test.js";
 const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
 describe("relative-paths", () => {
   // Create checkers inside describe block to ensure imports are resolved
+  const testInfrastructureFiles = [
+    "test/test-utils.js",
+    "test/test-site-factory.js",
+    "test/run-coverage.js",
+    "test/build-profiling.js",
+    "test/code-scanner.js",
+    "test/setup.js",
+  ];
+
   const { find: findRelativeImports, analyze: analyzeRelativeImports } =
     createCodeChecker({
       patterns: /from\s+["'](\.\.[/"']|\.\/)/,
@@ -24,24 +25,20 @@ describe("relative-paths", () => {
         const pathMatch = line.match(IMPORT_PATH_REGEX);
         return { importPath: pathMatch ? pathMatch[1] : "unknown" };
       },
-      files: combineFileLists([
-        SRC_JS_FILES(),
-        ECOMMERCE_JS_FILES(),
-        TEST_FILES(),
-      ]),
-      excludeFiles: [THIS_FILE],
+      files: ALL_JS_FILES(),
+      excludeFiles: [THIS_FILE, ...testInfrastructureFiles],
     });
 
   const { find: findRelativePathJoins, analyze: analyzeRelativePathJoins } =
     createCodeChecker({
       patterns: /(?:path\.)?(join|resolve)\s*\([^)]*["']\.\.["'/]/,
       // skipPatterns defaults to COMMENT_LINE_PATTERNS
-      files: combineFileLists([
-        SRC_JS_FILES(),
-        ECOMMERCE_JS_FILES(),
-        TEST_FILES(),
-      ]),
-      excludeFiles: [THIS_FILE, "src/_lib/paths.js"],
+      files: ALL_JS_FILES(),
+      excludeFiles: [
+        THIS_FILE,
+        "src/_lib/paths.js",
+        ...testInfrastructureFiles,
+      ],
     });
 
   const { analyze: analyzeProcessCwd } = createCodeChecker({
