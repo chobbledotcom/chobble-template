@@ -6,8 +6,9 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 
-const projectRoot = join(import.meta.dir, "..");
+const projectRoot = ROOT_DIR;
 const nodeModulesPath = join(projectRoot, "node_modules");
 
 if (!existsSync(nodeModulesPath)) {

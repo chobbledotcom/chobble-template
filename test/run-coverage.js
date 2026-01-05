@@ -8,7 +8,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { ROOT_DIR } from "../src/_lib/paths.js";
+import { ROOT_DIR } from "#lib/paths.js";
 
 // --- Configuration ---
 

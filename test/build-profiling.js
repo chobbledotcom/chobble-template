@@ -9,11 +9,10 @@
 
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { ROOT_DIR } from "#lib/paths.js";
 import { createTestSite } from "#test/test-site-factory.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, "..");
+const rootDir = ROOT_DIR;
 
 const hrtime = () => process.hrtime.bigint();
 const hrtimeToMs = (start, end) => Number(end - start) / 1_000_000;
