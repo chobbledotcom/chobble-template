@@ -261,6 +261,29 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "test/utils/strings.test.js",
 ]);
 
+// ============================================
+// DOM class constructor exceptions
+// ============================================
+
+// Files allowed to use `new DOM()` for parsing HTML strings into documents.
+// Most DOM tests should use `document` directly (via happy-dom GlobalRegistrator).
+// Use `new DOM(html)` only when parsing generated HTML for assertions,
+// NOT for mocking the global document.
+const ALLOWED_DOM_CONSTRUCTOR = new Set([
+  // Infrastructure: DOM class definition
+  "test/test-utils.js:10",
+
+  // Parsing build output into queryable documents
+  "test/test-site-factory.js:330",
+
+  // Parsing generated HTML for assertions
+  "test/code-quality/template-selectors.test.js:55",
+  "test/eleventy/recurring-events.test.js:49",
+
+  // This test file tests these patterns
+  "test/code-quality/dom-mocking.test.js",
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
@@ -271,4 +294,5 @@ export {
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
   ALLOWED_SINGLE_USE_FUNCTIONS,
+  ALLOWED_DOM_CONSTRUCTOR,
 };

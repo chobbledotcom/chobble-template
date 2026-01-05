@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { ALLOWED_DOM_CONSTRUCTOR } from "#test/code-quality/code-quality-exceptions.js";
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
 
@@ -8,15 +9,6 @@ const BAD_DOM_PATTERNS = [
   /globalThis\.document/, // globalThis.document - use document directly
   /new\s+DOM\s*\(/, // new DOM() - use document.body.innerHTML instead
 ];
-
-// Files that are allowed to use these patterns (infrastructure only)
-const ALLOWLIST = new Set([
-  "test/test-utils.js:10", // DOM class definition
-  "test/test-site-factory.js:330", // DOM used for parsing build output
-  "test/code-quality/template-selectors.test.js:55", // DOM for HTML parsing
-  "test/eleventy/recurring-events.test.js:49", // DOM for parseDoc helper
-  "test/code-quality/dom-mocking.test.js", // This file (tests these patterns)
-]);
 
 const { find: findBadDomPatterns, analyze: domPatternAnalysis } =
   createCodeChecker({
@@ -31,7 +23,7 @@ const { find: findBadDomPatterns, analyze: domPatternAnalysis } =
       return null;
     },
     files: TEST_FILES,
-    allowlist: ALLOWLIST,
+    allowlist: ALLOWED_DOM_CONSTRUCTOR,
   });
 
 describe("dom-mocking", () => {
