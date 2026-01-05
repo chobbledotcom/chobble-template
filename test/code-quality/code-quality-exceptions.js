@@ -241,7 +241,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/quote.js",
   "src/assets/js/scroll-fade.js",
   "src/assets/js/search.js",
-  "src/assets/js/selectors.js",
   "src/assets/js/shuffle-properties.js",
   "src/assets/js/slider.js",
   "src/assets/js/stripe-checkout.js",
