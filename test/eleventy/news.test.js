@@ -115,109 +115,67 @@ describe("news", () => {
   });
 
   // Integration tests with test site
-  test("News post with author renders author link in HTML", async () => {
+  test("Post meta renders correctly with various author and image combinations", async () => {
     const files = [
-      newsPost("test-post", "Test Post With Author", { author: "jane-doe" }),
-      teamMember("jane-doe", "Jane Doe"),
-    ];
-
-    await withTestSite({ files }, (site) => {
-      const html = getContentHtml(site, "test-post");
-
-      expect(html.includes('href="/team/jane-doe/"')).toBe(true);
-      expect(html.includes("Jane Doe")).toBe(true);
-    });
-  });
-
-  test("News post without author does not render author section", async () => {
-    const files = [newsPost("no-author", "Test Post Without Author")];
-
-    await withTestSite({ files }, (site) => {
-      const html = getContentHtml(site, "no-author");
-
-      expect(html.includes('href="/team/')).toBe(false);
-    });
-  });
-
-  test("News post with author that has image renders grid layout with thumbnail", async () => {
-    const files = [
-      newsPost("thumbnail-post", "Post With Author Thumbnail", {
+      // Post with author + image
+      newsPost("with-author-image", "Post With Author and Image", {
         author: "jane-doe",
       }),
       teamMember("jane-doe", "Jane Doe", { image: "placeholder-square-1.jpg" }),
-    ];
 
-    await withTestSite({ files, images: extractImages(files) }, (site) => {
-      const postMeta = getPostMeta(site, "thumbnail-post");
-
-      expectMetaStructure(postMeta, { hasThumbnail: true, hasFigure: true });
-      expect(postMeta.querySelector("figure a") !== null).toBe(true);
-      expectAuthorElements(postMeta);
-      expectTimeElement(postMeta);
-    });
-  });
-
-  test("News post with author but no image renders without thumbnail class", async () => {
-    const files = [
-      newsPost("no-thumb-post", "Post With Author No Thumbnail", {
+      // Post with author but no image
+      newsPost("with-author-no-image", "Post With Author No Image", {
         author: "john-smith",
       }),
       teamMember("john-smith", "John Smith"),
-    ];
 
-    await withTestSite({ files }, (site) => {
-      const postMeta = getPostMeta(site, "no-thumb-post");
-
-      expectMetaStructure(postMeta, { hasThumbnail: false, hasFigure: false });
-      expectAuthorElements(postMeta);
-      expect(postMeta.querySelector("time") !== null).toBe(true);
-    });
-  });
-
-  test("News post without author renders simple date-only layout", async () => {
-    const files = [newsPost("anonymous-post", "Anonymous Post")];
-
-    await withTestSite({ files }, (site) => {
-      const postMeta = getPostMeta(site, "anonymous-post");
-
-      expectMetaStructure(postMeta, { hasThumbnail: false, hasFigure: false });
-      expect(postMeta.querySelector("address")).toBe(null);
-      expectTimeElement(postMeta);
-    });
-  });
-
-  test("Post meta uses semantic HTML with proper roles", async () => {
-    const files = [
-      newsPost("semantic-test", "Semantic HTML Test", { author: "jane-doe" }),
-      teamMember("jane-doe", "Jane Doe", { image: "placeholder-square-1.jpg" }),
+      // Post without author
+      newsPost("no-author", "Post Without Author"),
     ];
 
     await withTestSite({ files, images: extractImages(files) }, (site) => {
-      const postMeta = getPostMeta(site, "semantic-test");
+      // Test 1: Post with author + image renders thumbnail layout with semantic HTML
+      const metaWithImage = getPostMeta(site, "with-author-image");
+      expectMetaStructure(metaWithImage, { hasThumbnail: true, hasFigure: true });
+      expect(metaWithImage.querySelector("figure a") !== null).toBe(true);
+      expectAuthorElements(metaWithImage);
+      expectTimeElement(metaWithImage);
+      expect(metaWithImage.tagName.toLowerCase()).toBe("header");
+      expect(metaWithImage.getAttribute("role")).toBe("doc-subtitle");
 
-      expect(postMeta.tagName.toLowerCase()).toBe("header");
-      expect(postMeta.getAttribute("role")).toBe("doc-subtitle");
+      // Test 2: Post with author link renders in HTML content
+      const htmlWithAuthor = getContentHtml(site, "with-author-image");
+      expect(htmlWithAuthor.includes('href="/team/jane-doe/"')).toBe(true);
+      expect(htmlWithAuthor.includes("Jane Doe")).toBe(true);
+
+      // Test 3: Post with author but no image renders without thumbnail
+      const metaNoImage = getPostMeta(site, "with-author-no-image");
+      expectMetaStructure(metaNoImage, { hasThumbnail: false, hasFigure: false });
+      expectAuthorElements(metaNoImage);
+      expectTimeElement(metaNoImage);
+
+      // Test 4: Post without author does not render author section
+      const htmlNoAuthor = getContentHtml(site, "no-author");
+      expect(htmlNoAuthor.includes('href="/team/')).toBe(false);
+
+      // Test 5: Post without author renders simple date-only layout
+      const metaNoAuthor = getPostMeta(site, "no-author");
+      expectMetaStructure(metaNoAuthor, { hasThumbnail: false, hasFigure: false });
+      expect(metaNoAuthor.querySelector("address")).toBe(null);
+      expectTimeElement(metaNoAuthor);
     });
   });
 
   // no_index integration tests
-  test("News post with no_index renders as standalone page", async () => {
+  test("Posts with no_index are correctly excluded from archive and marked for search engines", async () => {
     const files = [
-      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
-    ];
-
-    await withTestSite({ files }, (site) => {
-      expect(site.hasOutput("/news/hidden-post/index.html")).toBe(true);
-
-      const html = getContentHtml(site, "hidden-post");
-      expect(html.includes("Hidden Post Title")).toBe(true);
-    });
-  });
-
-  test("News post with no_index does not appear in news list", async () => {
-    const files = [
+      // Visible post
       newsPost("visible-post", "Visible Post Title"),
+
+      // Hidden post with no_index
       newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
+
+      // News archive page
       {
         path: "pages/news.md",
         frontmatter: {
@@ -230,23 +188,20 @@ describe("news", () => {
     ];
 
     await withTestSite({ files }, (site) => {
-      const newsListHtml = site.getOutput("/news/index.html");
+      // Test 1: no_index post renders as standalone page
+      expect(site.hasOutput("/news/hidden-post/index.html")).toBe(true);
+      const hiddenHtml = getContentHtml(site, "hidden-post");
+      expect(hiddenHtml.includes("Hidden Post Title")).toBe(true);
 
+      // Test 2: no_index post has noindex meta tag
+      const hiddenOutput = site.getOutput("/news/hidden-post/index.html");
+      expect(hiddenOutput.includes('name="robots"')).toBe(true);
+      expect(hiddenOutput.includes("noindex")).toBe(true);
+
+      // Test 3: no_index post does not appear in news list
+      const newsListHtml = site.getOutput("/news/index.html");
       expect(newsListHtml.includes("Visible Post Title")).toBe(true);
       expect(newsListHtml.includes("Hidden Post Title")).toBe(false);
-    });
-  });
-
-  test("News post with no_index has noindex meta tag", async () => {
-    const files = [
-      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
-    ];
-
-    await withTestSite({ files }, (site) => {
-      const html = site.getOutput("/news/hidden-post/index.html");
-
-      expect(html.includes('name="robots"')).toBe(true);
-      expect(html.includes("noindex")).toBe(true);
     });
   });
 });
