@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import Validator from "@adobe/structured-data-validator";
+import WebAutoExtractor from "@marbec/web-auto-extractor";
 import { createTestSite, withTestSite } from "#test/test-site-factory.js";
 
 /**
@@ -8,13 +10,73 @@ import { createTestSite, withTestSite } from "#test/test-site-factory.js";
  * that conforms to schema.org specifications. This helps prevent Google Search Console
  * warnings about invalid structured data.
  *
- * Validates:
- * - JSON-LD is valid JSON and parseable
- * - Required @context is present and correct
- * - @graph structure is present
- * - Required properties for each schema type are included
- * - Cross-referencing with @id works correctly
+ * Uses @adobe/structured-data-validator to validate against:
+ * - Official schema.org definitions
+ * - Google Rich Results requirements
  */
+
+// ============================================
+// Schema.org Validator Setup
+// ============================================
+
+// Cache the schema.org definitions (fetched once for all tests)
+let schemaOrgJson = null;
+let validator = null;
+
+/**
+ * Initialize the schema.org validator
+ * Fetches the schema.org definitions once and caches them
+ */
+const initValidator = async () => {
+  if (validator) return validator;
+
+  // Fetch the latest schema.org definitions
+  const response = await fetch(
+    "https://schema.org/version/latest/schemaorg-all-https.jsonld",
+  );
+  schemaOrgJson = await response.json();
+  validator = new Validator(schemaOrgJson);
+  return validator;
+};
+
+/**
+ * Validate HTML against schema.org using Adobe validator
+ * @param {string} html - The full HTML content
+ * @returns {Promise<{valid: boolean, errors: Array, warnings: Array}>}
+ */
+const validateWithSchemaOrg = async (html) => {
+  const v = await initValidator();
+
+  // Extract structured data from HTML
+  const extractor = new WebAutoExtractor({
+    addLocation: true,
+    embedSource: ["rdfa", "microdata"],
+  });
+  const extractedData = extractor.parse(html);
+
+  // Validate against schema.org
+  const results = await v.validate(extractedData);
+
+  // Collect errors and warnings
+  const errors = [];
+  const warnings = [];
+
+  for (const result of results) {
+    if (result.errors?.length > 0) {
+      errors.push(...result.errors);
+    }
+    if (result.warnings?.length > 0) {
+      warnings.push(...result.warnings);
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    results,
+  };
+};
 
 // ============================================
 // Helper Functions
@@ -262,6 +324,58 @@ describe("JSON-LD structured data validation", () => {
 
     afterAll(() => site?.cleanup());
 
+    // --- Schema.org Validation Tests (using Adobe validator) ---
+
+    test("Product page validates against schema.org", async () => {
+      const html = site.getOutput("/products/test-product/index.html");
+      const result = await validateWithSchemaOrg(html);
+
+      if (!result.valid) {
+        console.log("Product schema.org validation errors:", result.errors);
+      }
+      expect(result.valid).toBe(true);
+    });
+
+    test("News post validates against schema.org", async () => {
+      const html = site.getOutput("/news/test-post/index.html");
+      const result = await validateWithSchemaOrg(html);
+
+      if (!result.valid) {
+        console.log("BlogPosting schema.org validation errors:", result.errors);
+      }
+      expect(result.valid).toBe(true);
+    });
+
+    test("Home page validates against schema.org", async () => {
+      const html = site.getOutput("/index.html");
+      const result = await validateWithSchemaOrg(html);
+
+      if (!result.valid) {
+        console.log("Home page schema.org validation errors:", result.errors);
+      }
+      expect(result.valid).toBe(true);
+    });
+
+    test("Contact page validates against schema.org", async () => {
+      const html = site.getOutput("/contact/index.html");
+      const result = await validateWithSchemaOrg(html);
+
+      if (!result.valid) {
+        console.log("Contact schema.org validation errors:", result.errors);
+      }
+      expect(result.valid).toBe(true);
+    });
+
+    test("About page validates against schema.org", async () => {
+      const html = site.getOutput("/about/index.html");
+      const result = await validateWithSchemaOrg(html);
+
+      if (!result.valid) {
+        console.log("About page schema.org validation errors:", result.errors);
+      }
+      expect(result.valid).toBe(true);
+    });
+
     // --- Basic JSON-LD Structure Tests ---
 
     test("Product page contains valid JSON-LD", () => {
@@ -481,12 +595,16 @@ describe("JSON-LD structured data validation", () => {
           ],
           images: ["placeholder.jpg"],
         },
-        (site) => {
+        async (site) => {
           const html = site.getOutput("/news/special-chars/index.html");
           const jsonLd = extractJsonLd(html);
 
           expect(jsonLd).not.toBeNull();
           expect(validateContext(jsonLd).valid).toBe(true);
+
+          // Also validate against schema.org
+          const result = await validateWithSchemaOrg(html);
+          expect(result.valid).toBe(true);
         },
       );
     });
@@ -501,7 +619,7 @@ describe("JSON-LD structured data validation", () => {
           ],
           images: ["placeholder.jpg"],
         },
-        (site) => {
+        async (site) => {
           const html = site.getOutput("/products/free-product/index.html");
           const jsonLd = extractJsonLd(html);
           const product = findEntityByType(jsonLd, "Product");
@@ -509,6 +627,10 @@ describe("JSON-LD structured data validation", () => {
           expect(jsonLd).not.toBeNull();
           expect(product).not.toBeNull();
           expect(product["@type"]).toBe("Product");
+
+          // Also validate against schema.org
+          const result = await validateWithSchemaOrg(html);
+          expect(result.valid).toBe(true);
         },
       );
     });
@@ -529,12 +651,16 @@ describe("JSON-LD structured data validation", () => {
             },
           ],
         },
-        (site) => {
+        async (site) => {
           const html = site.getOutput("/simple/index.html");
           const jsonLd = extractJsonLd(html);
 
           expect(jsonLd).not.toBeNull();
           expect(validateContext(jsonLd).valid).toBe(true);
+
+          // Also validate against schema.org
+          const result = await validateWithSchemaOrg(html);
+          expect(result.valid).toBe(true);
         },
       );
     });
