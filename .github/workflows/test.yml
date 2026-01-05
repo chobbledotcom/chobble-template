@@ -23,6 +23,8 @@ jobs:
 
       - name: Run tests
         run: bun run test
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
       - name: Check for coverage changes
         id: coverage_changes
@@ -34,7 +36,7 @@ jobs:
           fi
 
       - name: Commit and push coverage changes
-        if: steps.coverage_changes.outputs.has_changes == 'true'
+        if: steps.coverage_changes.outputs.has_changes == 'true' && github.ref_name == 'main'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
