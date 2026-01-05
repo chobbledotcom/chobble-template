@@ -6,9 +6,6 @@ Parameters:
 {%- endcomment -%}
 {%- assign fieldsToRender = fields | default: contactForm.fields -%}
 {%- for field in fieldsToRender -%}
-  {%- if field.type == "divider" -%}
-    {%- continue -%}
-  {%- endif -%}
   {%- assign shouldShow = true -%}
   {%- if field.showOn -%}
     {%- if skipShowOn -%}
