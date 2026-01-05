@@ -231,7 +231,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/media/image-crop.js",
   "src/_lib/media/image.js",
   "src/_lib/media/unused-images.js",
-  "src/_lib/utils/canonical-url.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/schema-helper.js",
   "src/_lib/utils/slug-utils.js",
