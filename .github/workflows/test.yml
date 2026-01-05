@@ -29,7 +29,7 @@ jobs:
       - name: Check for coverage changes
         id: coverage_changes
         run: |
-          if git diff --quiet .test_coverage.json; then
+          if git diff --quiet .coverage_exceptions.json; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
@@ -40,6 +40,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add .test_coverage.json
-          git commit -m "Ratchet up test coverage thresholds"
+          git add .coverage_exceptions.json
+          git commit -m "Ratchet down coverage exceptions"
           git push
