@@ -2,7 +2,7 @@
 
 /**
  * Coverage runner for Bun's test framework.
- * Parses LCOV output to enforce thresholds and prevent new uncovered code.
+ * Parses LCOV output to prevent new uncovered code via an exceptions allowlist.
  */
 
 import { spawnSync } from "node:child_process";
@@ -13,7 +13,6 @@ import { ROOT_DIR } from "../src/_lib/paths.js";
 // --- Configuration ---
 
 const rootDir = ROOT_DIR;
-const configPath = resolve(rootDir, ".test_coverage.json");
 const exceptionsPath = resolve(rootDir, ".coverage_exceptions.json");
 const lcovPath = resolve(rootDir, "coverage", "lcov.info");
 const COVERAGE_EXCLUDE = ["test/ensure-deps.js"];
@@ -26,9 +25,6 @@ const readJson = (path, fallback) =>
 
 const writeJson = (path, data) =>
   writeFileSync(path, `${JSON.stringify(data, null, "\t")}\n`, "utf-8");
-
-const pct = (hit, found) =>
-  found > 0 ? Math.round((hit / found) * 10000) / 100 : 100;
 
 // Set operations
 const difference = (a, b) => a.filter((x) => !b.has(x));
@@ -61,27 +57,6 @@ const onCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
 
 // --- LCOV Parsing ---
 
-const lcovHandlers = {
-  LF: (totals, val) => {
-    totals.lines[1] += val;
-  },
-  LH: (totals, val) => {
-    totals.lines[0] += val;
-  },
-  FNF: (totals, val) => {
-    totals.functions[1] += val;
-  },
-  FNH: (totals, val) => {
-    totals.functions[0] += val;
-  },
-  BRF: (totals, val) => {
-    totals.branches[1] += val;
-  },
-  BRH: (totals, val) => {
-    totals.branches[0] += val;
-  },
-};
-
 const parseUncovered = {
   DA: (line) => {
     const [lineNum, hits] = line.split(",").map(Number);
@@ -100,7 +75,6 @@ const parseUncovered = {
 };
 
 function parseLcov(content) {
-  const totals = { lines: [0, 0], functions: [0, 0], branches: [0, 0] };
   const uncovered = { lines: {}, functions: {}, branches: {} };
   let file = null;
 
@@ -123,19 +97,9 @@ function parseLcov(content) {
     const colonIdx = line.indexOf(":");
     if (colonIdx > 0) {
       const prefix = line.slice(0, colonIdx);
-      const value = line.slice(colonIdx + 1);
-
-      // Handle totals
-      const handler = lcovHandlers[prefix];
-      if (handler) {
-        handler(totals, parseInt(value, 10));
-        continue;
-      }
-
-      // Handle uncovered items
       const parser = parseUncovered[prefix];
       if (parser) {
-        const result = parser(value);
+        const result = parser(line.slice(colonIdx + 1));
         if (result) {
           if (!uncovered[result.type][file]) uncovered[result.type][file] = [];
           uncovered[result.type][file].push(result.id);
@@ -144,12 +108,7 @@ function parseLcov(content) {
     }
   }
 
-  const percentages = {};
-  for (const t of TYPES) {
-    percentages[t] = pct(totals[t][0], totals[t][1]);
-  }
-
-  return { uncovered, percentages };
+  return uncovered;
 }
 
 // --- Exception Checking ---
@@ -229,37 +188,9 @@ function ratchetExceptions(exceptions, uncovered, verbose) {
   }
 }
 
-function ratchetThresholds(thresholds, actual, verbose) {
-  if (!onCI()) return;
-
-  const ratcheted = {};
-  for (const t of TYPES) {
-    ratcheted[t] = Math.max(thresholds[t], Math.floor(actual[t]));
-  }
-
-  const changed = TYPES.some((t) => ratcheted[t] !== thresholds[t]);
-
-  if (changed) {
-    writeJson(configPath, ratcheted);
-    if (verbose) {
-      console.log("\n📈 Coverage thresholds updated in .test_coverage.json:");
-      for (const t of TYPES) {
-        if (ratcheted[t] !== thresholds[t]) {
-          console.log(`   ${t}: ${thresholds[t]}% → ${ratcheted[t]}%`);
-        }
-      }
-    }
-  }
-}
-
 // --- Main ---
 
 function runCoverage() {
-  const thresholds = readJson(configPath, {
-    lines: 0,
-    functions: 0,
-    branches: 0,
-  });
   const verbose = process.env.VERBOSE === "1";
 
   const result = spawnSync(
@@ -277,43 +208,26 @@ function runCoverage() {
 
   if (verbose && result.stdout) console.log(result.stdout.toString());
   if (result.status !== 0) process.exit(result.status || 1);
+
   if (!existsSync(lcovPath)) {
     if (verbose) console.log("No coverage data found, skipping checks");
     return;
   }
 
-  const coverage = parseLcov(readFileSync(lcovPath, "utf-8"));
+  const uncovered = parseLcov(readFileSync(lcovPath, "utf-8"));
   const exceptions = readJson(exceptionsPath, {
     lines: {},
     functions: {},
     branches: {},
   });
 
-  if (!checkExceptions(coverage.uncovered, exceptions, verbose)) {
+  if (!checkExceptions(uncovered, exceptions, verbose)) {
     process.exit(1);
   }
 
-  if (verbose) {
-    console.log("\n--- Coverage Summary ---");
-    for (const t of TYPES) {
-      console.log(
-        `${t.padEnd(10)} ${coverage.percentages[t]}% (threshold: ${thresholds[t]}%)`,
-      );
-    }
-  }
+  if (verbose) console.log("\n✅ All code covered (or in exceptions)!");
 
-  const failures = TYPES.filter((t) => coverage.percentages[t] < thresholds[t]);
-  for (const t of failures) {
-    console.error(
-      `\n❌ ${t} coverage ${coverage.percentages[t]}% below threshold ${thresholds[t]}%`,
-    );
-  }
-
-  if (failures.length > 0) process.exit(1);
-  if (verbose) console.log("\n✅ Coverage thresholds met!");
-
-  ratchetThresholds(thresholds, coverage.percentages, verbose);
-  ratchetExceptions(exceptions, coverage.uncovered, verbose);
+  ratchetExceptions(exceptions, uncovered, verbose);
 }
 
 runCoverage();
