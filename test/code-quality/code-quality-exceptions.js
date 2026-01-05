@@ -214,7 +214,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/media/unused-images.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/schema-helper.js",
-  "src/_lib/utils/slug-utils.js",
   "src/assets/js/availability-calendar.js",
   "src/assets/js/cart-utils.js",
   "src/assets/js/cart.js",
