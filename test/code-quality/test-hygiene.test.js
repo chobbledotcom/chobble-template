@@ -56,6 +56,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findStringsUsage",
   // test-hygiene.test.js - self-analysis helpers
   "analyzeTestFiles",
+  "definitionPatternsFor",
+  "isDefinedIn",
+  "findStaleAllowlistEntries",
   // unused-classes.test.js - analysis helpers
   "extractFromHtml",
   "extractClassesFromJs",
@@ -200,6 +203,30 @@ const analyzeTestFiles = () => {
   });
 };
 
+// ============================================
+// Allowlist Validation Helpers (functional style)
+// ============================================
+
+// Generate regex patterns that match function definitions for a given name
+const definitionPatternsFor = (name) => [
+  new RegExp(`\\bconst\\s+${name}\\s*=`),
+  new RegExp(`\\blet\\s+${name}\\s*=`),
+  new RegExp(`\\bvar\\s+${name}\\s*=`),
+  new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
+  new RegExp(`:\\s*${name}\\s*[,}\\)]`), // destructuring: { x: name }
+];
+
+// Curried: check if a name is defined anywhere in source
+const isDefinedIn = (source) => (name) =>
+  definitionPatternsFor(name).some((p) => p.test(source));
+
+// Find allowlist entries that are not defined in any of the given files
+const findStaleAllowlistEntries = (allowlist, files) => {
+  const allSource = analyzeFiles(files, (source) => source).join("\n");
+  const isDefined = isDefinedIn(allSource);
+  return [...allowlist].filter((name) => !isDefined(name));
+};
+
 describe("test-hygiene", () => {
   test("Pre-computed file lists contain files", () => {
     expect(SRC_JS_FILES().length).toBeGreaterThan(0);
@@ -217,7 +244,6 @@ describe("test-hygiene", () => {
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are defined in test files", () => {
-    // Include test files AND test infrastructure files
     const allTestFiles = [
       ...TEST_FILES(),
       "test/test-utils.js",
@@ -225,23 +251,10 @@ describe("test-hygiene", () => {
       "test/code-scanner.js",
     ];
 
-    // Combine all test file sources
-    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
-      "\n",
+    const stale = findStaleAllowlistEntries(
+      ALLOWED_TEST_FUNCTIONS,
+      allTestFiles,
     );
-
-    // Find allowlisted functions that aren't defined anywhere in test files
-    // Look for common definition patterns: const/let/var/function name, or : name (destructuring)
-    const stale = [...ALLOWED_TEST_FUNCTIONS].filter((name) => {
-      const patterns = [
-        new RegExp(`\\bconst\\s+${name}\\s*=`),
-        new RegExp(`\\blet\\s+${name}\\s*=`),
-        new RegExp(`\\bvar\\s+${name}\\s*=`),
-        new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
-        new RegExp(`:\\s*${name}\\s*[,}\\)]`), // destructuring: { x: name } or (name)
-      ];
-      return !patterns.some((p) => p.test(allTestSource));
-    });
 
     if (stale.length > 0) {
       console.log("\n  Stale ALLOWED_TEST_FUNCTIONS entries:");
