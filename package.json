@@ -27,7 +27,7 @@
 		"knip:fix": "knip --fix",
 		"lint": "bunx @biomejs/biome check .",
 		"lint:fix": "bunx @biomejs/biome check --write .",
-		"precommit": "bun run lint:fix && bun run knip:fix && bun run test"
+		"precommit": "bun install && bun run lint:fix && bun run knip:fix && bun run test"
 	},
 	"devDependencies": {
 		"@happy-dom/global-registrator": "^20.0.11",
