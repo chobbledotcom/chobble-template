@@ -219,8 +219,8 @@ function runCoverage() {
 }
 
 function ratchetLimits(currentLimits, actual) {
-  // Only ratchet on CI to avoid local cache differences affecting thresholds
-  if (!process.env.CI) {
+  // Only ratchet on CI and main branch to avoid local cache differences and non-main branches
+  if (!process.env.CI || process.env.GITHUB_REF_NAME !== "main") {
     return;
   }
 
