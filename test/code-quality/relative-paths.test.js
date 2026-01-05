@@ -91,7 +91,7 @@ const clean = path.join(__dirname, "subdir");
   });
 
   test("No relative imports - use path aliases (#lib/*, #test/*, etc.)", () => {
-    const violations = analyzeRelativeImports();
+    const { violations } = analyzeRelativeImports();
     assertNoViolations(violations, {
       message: "relative imports",
       fixHint: 'use path aliases instead (e.g., "./foo.js" → "#lib/foo.js")',
@@ -99,7 +99,7 @@ const clean = path.join(__dirname, "subdir");
   });
 
   test("No path.join/resolve with '..' - use path utilities or absolute references", () => {
-    const violations = analyzeRelativePathJoins();
+    const { violations } = analyzeRelativePathJoins();
     assertNoViolations(violations, {
       message: 'path operations with ".."',
       fixHint:
@@ -108,7 +108,7 @@ const clean = path.join(__dirname, "subdir");
   });
 
   test("Test files should use rootDir from test-utils.js instead of process.cwd()", () => {
-    const violations = analyzeProcessCwd();
+    const { violations } = analyzeProcessCwd();
     assertNoViolations(violations, {
       message: "process.cwd() usages in test files",
       fixHint:

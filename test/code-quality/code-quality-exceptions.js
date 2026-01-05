@@ -198,7 +198,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/eleventy/area-list.js:19", // url
 
   // === Test infrastructure ===
-  "test/code-scanner.js:204", // result
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
 ]);

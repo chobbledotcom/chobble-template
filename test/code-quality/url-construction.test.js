@@ -83,7 +83,7 @@ describe("url-construction", () => {
   });
 
   test("No hardcoded collection URLs in src/_lib JavaScript files", () => {
-    const violations = analyzeHardcodedUrls();
+    const { violations } = analyzeHardcodedUrls();
     assertNoViolations(violations, {
       message: "hardcoded URL constructions",
       fixHint: "Use strings.*_permalink_dir and/or check for data.permalink",

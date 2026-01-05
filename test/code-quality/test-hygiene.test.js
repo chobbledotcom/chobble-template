@@ -43,9 +43,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "formatViolations",
   // let-usage.test.js - analysis helpers
   "findMutableVarDeclarations",
-  "analyzeMutableVarUsage",
   "findMutableConstDeclarations",
-  "analyzeMutableConstUsage",
   // naming-conventions.test.js - analysis helpers
   "countCamelCaseWords",
   "extractCamelCaseIdentifiers",
@@ -70,12 +68,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "getUserById",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
-  "analyzeTryCatchUsage",
   // commented-code.test.js - analysis helpers
   "isInsideTemplateLiteral",
   "isDocumentationComment",
   "findCommentedCode",
-  "analyzeCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
   // autosizes.test.js - helper to inject PerformanceObserver mock
@@ -94,7 +90,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractStringContent",
   "containsHtml",
   "findHtmlInJs",
-  "analyzeHtmlInJs",
   // template-selectors.test.js - analysis helpers
   "buildLiquidLookup",
   "expandLiquidVars",

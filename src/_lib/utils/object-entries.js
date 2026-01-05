@@ -57,6 +57,15 @@ const mapBoth = (fn) => mapObject((k, v) => [fn(k), fn(v)]);
 const pickTruthy = filterObject((_k, v) => v);
 
 /**
+ * Create a curried function that omits specified keys from an object
+ * Inverse of pick() - excludes keys instead of including them
+ * @example
+ * omit(['a', 'c'])({ a: 1, b: 2, c: 3 }) // { b: 2 }
+ * hits.map(omit(['lineNumber', 'line'])) // removes standard fields
+ */
+const omit = (keys) => filterObject((k) => !keys.includes(k));
+
+/**
  * Build an object from an array by extracting key-value pairs
  *
  * Each item is transformed to a [key, value] entry via the toEntry function.
@@ -106,6 +115,7 @@ export {
   filterObject,
   mapBoth,
   pickTruthy,
+  omit,
   toObject,
   fromPairs,
 };

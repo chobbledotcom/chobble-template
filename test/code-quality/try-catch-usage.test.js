@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { ALLOWED_TRY_CATCHES } from "#test/code-quality/code-quality-exceptions.js";
 import {
-  analyzeWithAllowlist,
   assertNoViolations,
   combineFileLists,
+  withAllowlist,
 } from "#test/code-scanner.js";
 import {
   ECOMMERCE_JS_FILES,
@@ -93,17 +93,16 @@ const findTryCatches = (source) => {
 
 const THIS_FILE = "test/code-quality/try-catch-usage.test.js";
 
-/** Analyze all JS files and find try/catch usage. */
-const analyzeTryCatchUsage = () =>
-  analyzeWithAllowlist({
-    findFn: findTryCatches,
-    allowlist: ALLOWED_TRY_CATCHES,
-    files: () =>
-      combineFileLists(
-        [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
-        [THIS_FILE],
-      ),
-  });
+// Complete analyzer - find + allowlist + files in one definition
+const tryCatchAnalysis = withAllowlist({
+  find: findTryCatches,
+  allowlist: ALLOWED_TRY_CATCHES,
+  files: () =>
+    combineFileLists(
+      [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
+      [THIS_FILE],
+    ),
+});
 
 describe("try-catch-usage", () => {
   test("Correctly identifies try/catch blocks in source code", () => {
@@ -151,7 +150,7 @@ try {
   });
 
   test("No new try/catch blocks outside the whitelist", () => {
-    const { violations } = analyzeTryCatchUsage();
+    const { violations } = tryCatchAnalysis();
     assertNoViolations(violations, {
       message: "non-whitelisted try/catch blocks",
       fixHint:
@@ -160,7 +159,7 @@ try {
   });
 
   test("Reports whitelisted try/catch blocks for tracking", () => {
-    const { allowed } = analyzeTryCatchUsage();
+    const { allowed } = tryCatchAnalysis();
 
     console.log(`\n  Whitelisted try/catch blocks: ${allowed.length}`);
     console.log("  These should be removed over time:\n");

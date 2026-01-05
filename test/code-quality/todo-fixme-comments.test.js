@@ -47,7 +47,7 @@ const todoList = []; // variable name, not a comment
   });
 
   test("No TODO/FIXME comments in the codebase", () => {
-    const violations = analyzeTodoFixme();
+    const { violations } = analyzeTodoFixme();
     assertNoViolations(violations, {
       message: "TODO/FIXME comment(s)",
       fixHint: "resolve the TODO/FIXME before committing",

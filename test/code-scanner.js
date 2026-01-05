@@ -5,6 +5,11 @@
 import { expect } from "bun:test";
 import { fs, path, rootDir } from "#test/test-utils.js";
 import { notMemberOf } from "#utils/array-utils.js";
+import { omit } from "#utils/object-entries.js";
+
+// Standard fields returned by find functions (everything else is extra data)
+const STANDARD_HIT_FIELDS = ["lineNumber", "line"];
+const omitStandardFields = omit(STANDARD_HIT_FIELDS);
 
 // ============================================
 // Common patterns for skipping non-code lines
@@ -175,17 +180,19 @@ const createPatternMatcher = (patterns, toViolation) => {
  * @param {RegExp|RegExp[]} config.patterns - Pattern(s) to match in source lines
  * @param {RegExp[]} [config.skipPatterns] - Patterns that indicate lines to skip
  * @param {function} [config.extractData] - (line, lineNum, match) => additional data | null
- * @param {string[]} config.files - File list to analyze
+ * @param {string[]|function} [config.files] - File list or function returning file list
  * @param {string[]} [config.excludeFiles] - Files to exclude from analysis
- * @returns {{ find: (source: string) => Array, analyze: () => Array }}
+ * @param {Set<string>} [config.allowlist] - Optional allowlist for filtering results
+ * @returns {{ find: (source: string) => Array, analyze: () => Object }}
  */
 const createCodeChecker = (config) => {
   const {
     patterns,
     skipPatterns = COMMENT_LINE_PATTERNS,
     extractData = () => ({}),
-    files,
+    files = [],
     excludeFiles: excluded = [],
+    allowlist = null,
   } = config;
 
   const matcher = matchesAny([patterns].flat());
@@ -199,9 +206,9 @@ const createCodeChecker = (config) => {
       // Skip lines matching skip patterns
       if (shouldSkip(trimmed)) return null;
 
-      // Check for pattern match
+      // Check for pattern match (matcher returns { match, pattern } or null)
       const result = matcher(line);
-      if (!result) return null;
+      if (result === null) return null;
 
       // Extract additional data from match
       const extra = extractData(line, lineNum, result.match);
@@ -210,23 +217,15 @@ const createCodeChecker = (config) => {
         : { lineNumber: lineNum, line: trimmed, ...extra };
     });
 
-  // Pure function: analyze files and collect violations
+  // Pure function: analyze files and collect results
+  // Delegates to analyzeWithAllowlist for consistent behavior
   const analyze = () =>
-    analyzeFiles(
+    analyzeWithAllowlist({
+      findFn: find,
+      allowlist: allowlist ?? new Set(),
       files,
-      (source, relativePath) =>
-        find(source).map((hit) => ({
-          file: relativePath,
-          line: hit.lineNumber,
-          code: hit.line,
-          ...Object.fromEntries(
-            Object.entries(hit).filter(
-              ([k]) => !["lineNumber", "line"].includes(k),
-            ),
-          ),
-        })),
-      { excludeFiles: excluded },
-    );
+      excludeFiles: excluded,
+    });
 
   return { find, analyze };
 };
@@ -239,25 +238,29 @@ const createCodeChecker = (config) => {
  * @param {function} config.findFn - Function (source) => Array of hits with lineNumber, line, and optional extra fields
  * @param {Set<string>} [config.allowlist] - Set of "file:line" or "file" entries to allow (defaults to empty Set)
  * @param {string[]|function} [config.files] - File list or function returning file list (defaults to empty array)
+ * @param {string[]} [config.excludeFiles] - Files to exclude from analysis
  * @returns {{ violations: Array, allowed: Array }}
  */
 const analyzeWithAllowlist = (config) => {
-  const { findFn, allowlist = new Set(), files = [] } = config;
+  const {
+    findFn,
+    allowlist = new Set(),
+    files = [],
+    excludeFiles = [],
+  } = config;
   const fileList = typeof files === "function" ? files() : files;
 
-  const results = analyzeFiles(fileList, (source, relativePath) =>
-    findFn(source).map((hit) => ({
-      file: relativePath,
-      line: hit.lineNumber,
-      code: hit.line,
-      location: `${relativePath}:${hit.lineNumber}`,
-      // Spread any extra fields from the hit (like 'reason')
-      ...Object.fromEntries(
-        Object.entries(hit).filter(
-          ([k]) => !["lineNumber", "line"].includes(k),
-        ),
-      ),
-    })),
+  const results = analyzeFiles(
+    fileList,
+    (source, relativePath) =>
+      findFn(source).map((hit) => ({
+        file: relativePath,
+        line: hit.lineNumber,
+        code: hit.line,
+        location: `${relativePath}:${hit.lineNumber}`,
+        ...omitStandardFields(hit),
+      })),
+    { excludeFiles },
   );
 
   const isAllowlisted = (decl) =>
@@ -268,6 +271,31 @@ const analyzeWithAllowlist = (config) => {
     allowed: results.filter(isAllowlisted),
   };
 };
+
+/**
+ * Create a zero-argument analyzer from a custom find function with allowlist.
+ * For tests that need custom find logic (not pattern-based).
+ *
+ * @param {object} config
+ * @param {function} config.find - Function (source) => Array of hits with lineNumber, line
+ * @param {Set<string>} [config.allowlist] - Set of "file:line" or "file" entries to allow
+ * @param {string[]|function} config.files - File list or function returning file list
+ * @returns {function} Zero-argument function returning { violations, allowed }
+ *
+ * @example
+ * const tryCatchAnalysis = withAllowlist({
+ *   find: findTryCatches,
+ *   allowlist: ALLOWED_TRY_CATCHES,
+ *   files: () => combineFileLists([SRC_JS_FILES(), TEST_FILES()], [THIS_FILE]),
+ * });
+ * const { violations, allowed } = tryCatchAnalysis();
+ */
+const withAllowlist = (config) => () =>
+  analyzeWithAllowlist({
+    findFn: config.find,
+    allowlist: config.allowlist ?? new Set(),
+    files: config.files,
+  });
 
 /**
  * Validate that exception entries still refer to lines containing the expected pattern.
@@ -340,6 +368,7 @@ export {
   createCodeChecker,
   // Allowlist analysis
   analyzeWithAllowlist,
+  withAllowlist,
   // Violation reporting
   formatViolationReport,
   assertNoViolations,
