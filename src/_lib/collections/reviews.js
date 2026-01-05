@@ -41,13 +41,11 @@ const countReviews = (reviews, slug, field) =>
  * @param {string} field - The field to check
  * @returns {number|null} Ceiling of average rating, or null if no ratings
  */
-const isValidRating = (r) => r !== null && r !== undefined && !Number.isNaN(r);
-
 const getRating = (reviews, slug, field) => {
   const ratings = pipe(
     filter((review) => review.data[field]?.includes(slug)),
     map((r) => r.data.rating),
-    filter(isValidRating),
+    filter((r) => r !== null && r !== undefined && !Number.isNaN(r)),
   )(reviews);
 
   if (ratings.length === 0) return null;
@@ -120,14 +118,6 @@ const reviewerAvatar = (name) => {
 const DEFAULT_REVIEWS_LIMIT = 10;
 
 /**
- * Get the reviews truncate limit, with optional override for testing
- */
-const getReviewsLimit = (limitOverride) =>
-  limitOverride !== undefined
-    ? limitOverride
-    : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT);
-
-/**
  * Helper to get items and reviews data for review page filtering
  * @param {string} tag - The tag to filter items by
  * @param {number} limitOverride - Optional limit override for testing
@@ -137,7 +127,10 @@ const getReviewsLimit = (limitOverride) =>
 const getItemsAndReviewsData = (tag, limitOverride, collectionApi) => ({
   items: collectionApi.getFilteredByTag(tag) || [],
   visibleReviews: createReviewsCollection(collectionApi),
-  limit: getReviewsLimit(limitOverride),
+  limit:
+    limitOverride !== undefined
+      ? limitOverride
+      : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT),
 });
 
 /**
