@@ -121,19 +121,6 @@ describe("form-helpers", () => {
       expect(result.fields[1].template).toBe("form-field-input.html");
     });
 
-    test("handles data with no fields property", () => {
-      const data = { submitButtonText: "Submit" };
-      const result = processContactForm(data);
-      expect(result.submitButtonText).toBe("Submit");
-      expect(result.fields).toEqual([]);
-    });
-
-    test("handles data with empty fields array", () => {
-      const data = { fields: [] };
-      const result = processContactForm(data);
-      expect(result.fields).toEqual([]);
-    });
-
     test("preserves all top-level properties", () => {
       const data = {
         submitButtonText: "Send Message",

@@ -1,4 +1,6 @@
 {
+	"sectionTitles": ["Event Details", "Your Details"],
+	"recapTitle": "Review Your Request",
 	"fields": [
 		{
 			"name": "event_start_date",

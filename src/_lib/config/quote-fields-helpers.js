@@ -2,9 +2,6 @@
 
 import { addFieldTemplates } from "#config/form-helpers.js";
 
-// Default section titles - can be overridden in JSON
-export const DEFAULT_SECTION_TITLES = ["Event Details", "Your Details"];
-
 // Split fields into sections by dividers using reduce
 export function splitFieldsIntoSections(fields) {
   const result = fields.reduce(
@@ -32,7 +29,7 @@ export function splitFieldsIntoSections(fields) {
 // Build sections with titles and metadata, adding templates to fields
 export function buildSections(fieldSections, sectionTitles) {
   return fieldSections.map((fields, index) => ({
-    title: sectionTitles[index] || `Step ${index + 1}`,
+    title: sectionTitles[index],
     fields: addFieldTemplates(fields),
     stepNumber: index,
     isFirst: index === 0,
@@ -42,18 +39,14 @@ export function buildSections(fieldSections, sectionTitles) {
 
 // Process the raw JSON into a structured format
 export function processQuoteFields(data) {
-  const fieldSections = splitFieldsIntoSections(data.fields || []);
-  const sectionTitles = data.sectionTitles || DEFAULT_SECTION_TITLES;
-  const sections = buildSections(fieldSections, sectionTitles);
-
-  // Total steps = form sections + recap section
-  const totalSteps = sections.length + 1;
+  const fieldSections = splitFieldsIntoSections(data.fields);
+  const sections = buildSections(fieldSections, data.sectionTitles);
 
   return {
     sections,
-    totalSteps,
-    recapTitle: data.recapTitle || "Review Your Request",
-    submitButtonText: data.submitButtonText || "Submit Quote Request",
-    fields: addFieldTemplates(data.fields || []),
+    totalSteps: sections.length + 1,
+    recapTitle: data.recapTitle,
+    submitButtonText: data.submitButtonText,
+    fields: addFieldTemplates(data.fields),
   };
 }

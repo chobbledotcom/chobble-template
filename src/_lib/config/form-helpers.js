@@ -26,6 +26,6 @@ export function addFieldTemplates(fields) {
 export function processContactForm(data) {
   return {
     ...data,
-    fields: addFieldTemplates(data.fields || []),
+    fields: addFieldTemplates(data.fields),
   };
 }
