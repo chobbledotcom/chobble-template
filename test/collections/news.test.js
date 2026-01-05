@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  configureNews,
-  createNewsCollection,
-} from "#collections/news.js";
+import { configureNews, createNewsCollection } from "#collections/news.js";
 import {
   collectionApi,
   createMockEleventyConfig,
