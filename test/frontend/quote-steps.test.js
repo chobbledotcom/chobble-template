@@ -715,4 +715,79 @@ describe("quote-steps", () => {
     const container = document.querySelector(".quote-steps");
     expect(container.dataset.currentStep).toBe("1");
   });
+
+  test("initQuoteSteps scrolls container into view after step change", () => {
+    document.body.innerHTML = `
+      <div class="quote-steps" data-current-step="0">
+        <div class="quote-step active" data-step="0">
+          <input type="text" required value="filled" />
+        </div>
+        <div class="quote-step" data-step="1">Step 2</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+    const container = document.querySelector(".quote-steps");
+    let scrollCalled = false;
+    container.scrollIntoView = () => {
+      scrollCalled = true;
+    };
+    initQuoteSteps();
+    const nextBtn = document.querySelector(".quote-step-next");
+    nextBtn.click();
+    expect(scrollCalled).toBe(true);
+  });
+
+  test("initQuoteSteps sets up indicator click handlers", () => {
+    document.body.innerHTML = `
+      <div class="quote-steps" data-current-step="0">
+        <div class="quote-steps-indicator"></div>
+        <div class="quote-steps-indicator"></div>
+        <div class="quote-steps-indicator"></div>
+        <div class="quote-step active" data-step="0">
+          <input type="text" required value="filled" />
+        </div>
+        <div class="quote-step" data-step="1">Step 2</div>
+        <div class="quote-step" data-step="2">Step 3</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+    const container = document.querySelector(".quote-steps");
+    container.scrollIntoView = () => {};
+    initQuoteSteps();
+    const nextBtn = document.querySelector(".quote-step-next");
+    // Advance to step 2
+    nextBtn.click();
+    nextBtn.click();
+    expect(container.dataset.currentStep).toBe("2");
+    // Click first indicator to go back to step 0
+    const indicators = document.querySelectorAll(".quote-steps-indicator");
+    indicators[0].click();
+    expect(container.dataset.currentStep).toBe("0");
+  });
+
+  test("initQuoteSteps indicator click only navigates to completed steps", () => {
+    document.body.innerHTML = `
+      <div class="quote-steps" data-current-step="0">
+        <div class="quote-steps-indicator"></div>
+        <div class="quote-steps-indicator"></div>
+        <div class="quote-step active" data-step="0">Step 1</div>
+        <div class="quote-step" data-step="1">Step 2</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+    const container = document.querySelector(".quote-steps");
+    container.scrollIntoView = () => {};
+    initQuoteSteps();
+    // Click second indicator (should not advance since it's not completed)
+    const indicators = document.querySelectorAll(".quote-steps-indicator");
+    indicators[1].click();
+    // Should stay on step 0 since step 1 is not a previous step
+    expect(container.dataset.currentStep).toBe("0");
+  });
 });
