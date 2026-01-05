@@ -26,7 +26,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/eleventy/jsonld-validation.test.js - JSON parsing of extracted JSON-LD
   // Needed: JSON-LD can be malformed or invalid in rendered HTML
-  "test/eleventy/jsonld-validation.test.js:95",
+  "test/eleventy/jsonld-validation.test.js:75",
 ]);
 
 // ============================================
@@ -206,10 +206,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/code-quality/method-aliasing.test.js:71", // alias
   "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
   "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
-  "test/eleventy/jsonld-validation.test.js:94", // match (regex result can be null)
-  "test/eleventy/jsonld-validation.test.js:108", // jsonLd (can be null)
-  "test/eleventy/jsonld-validation.test.js:130", // jsonLd (validation check)
-  "test/eleventy/jsonld-validation.test.js:155", // entity (can be null)
+  "test/eleventy/jsonld-validation.test.js:103", // jsonLd (validation check)
+  "test/eleventy/jsonld-validation.test.js:121", // entity (can be null)
 ]);
 
 // ============================================

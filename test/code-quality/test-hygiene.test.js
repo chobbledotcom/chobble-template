@@ -72,16 +72,24 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // naming-conventions.test.js - test fixture string
   "getUserById",
   // jsonld-validation.test.js - JSON-LD extraction and validation helpers
-  "initValidator",
+  "createValidator",
+  "createExtractor",
+  "collectValidationIssues",
   "validateWithSchemaOrg",
+  "parseJsonSafe",
   "extractJsonLd",
   "getEntities",
   "findEntityByType",
   "validateContext",
   "validateEntityProperties",
+  "createFile",
   "productFile",
   "newsFile",
   "pageFile",
+  "assertSchemaOrgValid",
+  "assertEntityValid",
+  "findHtmlFiles",
+  "relativePath",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   // commented-code.test.js - analysis helpers
