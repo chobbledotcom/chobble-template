@@ -161,6 +161,13 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectAuthorElements",
   "expectTimeElement",
   "expectMetaStructure",
+  // navigation.test.js - functional test fixture builders
+  "pageItem",
+  "expectFindsTarget",
+  "navItem",
+  "navItems",
+  "navCollectionApi",
+  "withNavigation",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

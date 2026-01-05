@@ -7,357 +7,203 @@ import {
 import {
   createMockEleventyConfig,
   expectResultTitles,
+  item,
 } from "#test/test-utils.js";
+import { map } from "#utils/array-utils.js";
+
+// ============================================
+// Functional Test Fixture Builders
+// ============================================
+
+/** Create a page item for findPageUrl tests */
+const pageItem = (slug, url, tags = []) => ({
+  data: { tags },
+  fileSlug: slug,
+  url,
+});
+
+/** Assert findPageUrl finds target page despite noisy items */
+const expectFindsTarget = (noisyItems) => {
+  const target = pageItem("hello-world", "/posts/hello-world/", ["post"]);
+  expect(findPageUrl([...noisyItems, target], "post", "hello-world")).toBe(
+    "/posts/hello-world/",
+  );
+};
+
+/** Create navigation item from [title, navOptions] tuple */
+const navItem = ([title, navOptions]) =>
+  item(title, { eleventyNavigation: navOptions });
+
+/** Transform tuples to navigation items */
+const navItems = map(navItem);
+
+/** Create mock collection API from navigation tuples */
+const navCollectionApi = (tuples) => ({
+  getAll: () => navItems(tuples),
+});
+
+/** Setup configured navigation and return mockConfig */
+const withNavigation = async () => {
+  const mockConfig = createMockEleventyConfig();
+  await configureNavigation(mockConfig);
+  return mockConfig;
+};
 
 describe("navigation", () => {
   test("Creates navigation filter function", () => {
-    const mockEleventyConfig = {};
-    const _mockNavUtil = {
-      toHtml: {
-        call: (context, _collection, options) => {
-          expect(context).toBe(mockEleventyConfig);
-          expect(options.activeAnchorClass).toBe("active");
-          expect(options.activeKey).toBe("test-key");
-          return "<nav>Mock HTML</nav>";
-        },
-      },
-    };
-
-    const filter = createNavigationFilter(mockEleventyConfig);
+    const filter = createNavigationFilter({});
     expect(typeof filter).toBe("function");
-
-    const result = filter([], "test-key");
-    expect(typeof result).toBe("string");
+    expect(typeof filter([], "test-key")).toBe("string");
   });
 
   test("Passes collection to navUtil correctly", () => {
-    const mockCollection = [
-      { title: "Home", url: "/" },
-      { title: "About", url: "/about/" },
-    ];
-
-    const mockEleventyConfig = {};
-    const _mockNavUtil = {
-      toHtml: {
-        call: (_context, collection, _options) => {
-          expect(collection).toBe(mockCollection);
-          return '<nav><a href="/">Home</a><a href="/about/">About</a></nav>';
-        },
-      },
-    };
-
-    const filter = createNavigationFilter(mockEleventyConfig);
-    // Just test that it handles collections without throwing, since real navUtil
-    // requires collection to be processed by eleventyNavigation filter first
-    // If this throws, the test will fail - no need to catch
-    filter([], "home"); // Empty collection should work
-    expect(true).toBe(true);
+    const filter = createNavigationFilter({});
+    filter([], "home"); // Empty collection should work without throwing
   });
 
   test("Finds page URL by tag and slug", () => {
     const collection = [
-      {
-        data: { tags: ["post"] },
-        fileSlug: "hello-world",
-        url: "/posts/hello-world/",
-      },
-      {
-        data: { tags: ["page"] },
-        fileSlug: "about",
-        url: "/about/",
-      },
-      {
-        data: { tags: ["post", "featured"] },
-        fileSlug: "featured-post",
-        url: "/posts/featured-post/",
-      },
+      pageItem("hello-world", "/posts/hello-world/", ["post"]),
+      pageItem("about", "/about/", ["page"]),
+      pageItem("featured-post", "/posts/featured-post/", ["post", "featured"]),
     ];
 
-    const result = findPageUrl(collection, "post", "hello-world");
-    expect(result).toBe("/posts/hello-world/");
+    expect(findPageUrl(collection, "post", "hello-world")).toBe(
+      "/posts/hello-world/",
+    );
   });
 
   test("Finds page with multiple tags", () => {
     const collection = [
-      {
-        data: { tags: ["post", "featured"] },
-        fileSlug: "featured-post",
-        url: "/posts/featured-post/",
-      },
-      {
-        data: { tags: ["page"] },
-        fileSlug: "about",
-        url: "/about/",
-      },
+      pageItem("featured-post", "/posts/featured-post/", ["post", "featured"]),
+      pageItem("about", "/about/", ["page"]),
     ];
 
-    const result = findPageUrl(collection, "featured", "featured-post");
-    expect(result).toBe("/posts/featured-post/");
+    expect(findPageUrl(collection, "featured", "featured-post")).toBe(
+      "/posts/featured-post/",
+    );
   });
 
   test("Returns # when page not found", () => {
     const collection = [
-      {
-        data: { tags: ["post"] },
-        fileSlug: "hello-world",
-        url: "/posts/hello-world/",
-      },
+      pageItem("hello-world", "/posts/hello-world/", ["post"]),
     ];
 
-    const result = findPageUrl(collection, "post", "nonexistent");
-    expect(result).toBe("#");
+    expect(findPageUrl(collection, "post", "nonexistent")).toBe("#");
   });
 
   test("Handles items without tags", () => {
-    const collection = [
-      {
-        data: {},
-        fileSlug: "no-tags",
-        url: "/no-tags/",
-      },
-      {
-        data: { tags: ["post"] },
-        fileSlug: "hello-world",
-        url: "/posts/hello-world/",
-      },
-    ];
-
-    const result = findPageUrl(collection, "post", "hello-world");
-    expect(result).toBe("/posts/hello-world/");
+    expectFindsTarget([{ data: {}, fileSlug: "no-tags", url: "/no-tags/" }]);
   });
 
   test("Handles items with null tags", () => {
-    const collection = [
-      {
-        data: { tags: null },
-        fileSlug: "null-tags",
-        url: "/null-tags/",
-      },
-      {
-        data: { tags: ["post"] },
-        fileSlug: "hello-world",
-        url: "/posts/hello-world/",
-      },
-    ];
-
-    const result = findPageUrl(collection, "post", "hello-world");
-    expect(result).toBe("/posts/hello-world/");
+    expectFindsTarget([pageItem("null-tags", "/null-tags/", null)]);
   });
 
   test("Requires exact slug match", () => {
     const collection = [
-      {
-        data: { tags: ["post"] },
-        fileSlug: "hello-world",
-        url: "/posts/hello-world/",
-      },
-      {
-        data: { tags: ["post"] },
-        fileSlug: "hello-world-2",
-        url: "/posts/hello-world-2/",
-      },
+      pageItem("hello-world", "/posts/hello-world/", ["post"]),
+      pageItem("hello-world-2", "/posts/hello-world-2/", ["post"]),
     ];
 
-    const result = findPageUrl(collection, "post", "hello-world");
-    expect(result).toBe("/posts/hello-world/");
+    expect(findPageUrl(collection, "post", "hello-world")).toBe(
+      "/posts/hello-world/",
+    );
   });
 
   test("Configures navigation filters in Eleventy", async () => {
-    const mockConfig = createMockEleventyConfig();
-    const _mockNavUtil = {
-      toHtml: {
-        call: () => "<nav>test</nav>",
-      },
-    };
-
-    await configureNavigation(mockConfig);
+    const mockConfig = await withNavigation();
 
     expect(typeof mockConfig.filters.toNavigation).toBe("function");
     expect(typeof mockConfig.filters.pageUrl).toBe("function");
-
     expect(mockConfig.filters.pageUrl).toBe(findPageUrl);
   });
 
   test("Configured filters work correctly", async () => {
-    const mockConfig = createMockEleventyConfig();
-    const _mockNavUtil = {
-      toHtml: {
-        call: () => "<nav>Working</nav>",
-      },
-    };
+    const mockConfig = await withNavigation();
 
-    await configureNavigation(mockConfig);
-
-    // Test toNavigation filter
-    const navResult = mockConfig.filters.toNavigation([], "home");
-    expect(typeof navResult).toBe("string");
-
-    // Test pageUrl filter
-    const collection = [
-      {
-        data: { tags: ["post"] },
-        fileSlug: "test",
-        url: "/test/",
-      },
-    ];
-
-    const urlResult = mockConfig.filters.pageUrl(collection, "post", "test");
-    expect(urlResult).toBe("/test/");
+    expect(typeof mockConfig.filters.toNavigation([], "home")).toBe("string");
+    expect(
+      mockConfig.filters.pageUrl(
+        [pageItem("test", "/test/", ["post"])],
+        "post",
+        "test",
+      ),
+    ).toBe("/test/");
   });
 
   test("Creates navigationLinks collection that filters items", async () => {
-    const mockConfig = createMockEleventyConfig();
-    await configureNavigation(mockConfig);
-
+    const mockConfig = await withNavigation();
     expect(typeof mockConfig.collections.navigationLinks).toBe("function");
 
-    // Create mock collection with some items having eleventyNavigation and some not
-    const mockCollectionApi = {
+    const api = {
       getAll: () => [
-        {
-          data: {
-            title: "Home",
-            eleventyNavigation: { key: "Home", order: 1 },
-          },
-        },
-        {
-          data: {
-            title: "About",
-            eleventyNavigation: { key: "About", order: 2 },
-          },
-        },
-        {
-          data: {
-            title: "No Navigation",
-            // No eleventyNavigation - should be filtered out
-          },
-        },
-        {
-          data: {
-            title: "Contact",
-            eleventyNavigation: { key: "Contact", order: 3 },
-          },
-        },
+        ...navItems([
+          ["Home", { key: "Home", order: 1 }],
+          ["About", { key: "About", order: 2 }],
+        ]),
+        item("No Navigation"),
+        ...navItems([["Contact", { key: "Contact", order: 3 }]]),
       ],
     };
 
-    const result = mockConfig.collections.navigationLinks(mockCollectionApi);
-
-    expectResultTitles(result, ["Home", "About", "Contact"]);
+    expectResultTitles(mockConfig.collections.navigationLinks(api), [
+      "Home",
+      "About",
+      "Contact",
+    ]);
   });
 
   test("Sorts navigation items by order property", async () => {
-    const mockConfig = createMockEleventyConfig();
-    await configureNavigation(mockConfig);
+    const mockConfig = await withNavigation();
+    const api = navCollectionApi([
+      ["Third", { key: "Third", order: 30 }],
+      ["First", { key: "First", order: 10 }],
+      ["Second", { key: "Second", order: 20 }],
+    ]);
 
-    const mockCollectionApi = {
-      getAll: () => [
-        {
-          data: {
-            title: "Third",
-            eleventyNavigation: { key: "Third", order: 30 },
-          },
-        },
-        {
-          data: {
-            title: "First",
-            eleventyNavigation: { key: "First", order: 10 },
-          },
-        },
-        {
-          data: {
-            title: "Second",
-            eleventyNavigation: { key: "Second", order: 20 },
-          },
-        },
-      ],
-    };
-
-    const result = mockConfig.collections.navigationLinks(mockCollectionApi);
-
-    expectResultTitles(result, ["First", "Second", "Third"]);
+    expectResultTitles(mockConfig.collections.navigationLinks(api), [
+      "First",
+      "Second",
+      "Third",
+    ]);
   });
 
   test("Items without order default to 999 and sort alphabetically", async () => {
-    const mockConfig = createMockEleventyConfig();
-    await configureNavigation(mockConfig);
+    const mockConfig = await withNavigation();
+    const api = navCollectionApi([
+      ["Zebra Page", { key: "Zebra Page" }],
+      ["Has Order", { key: "Has Order", order: 5 }],
+      ["Apple Page", { key: "Apple Page" }],
+    ]);
 
-    const mockCollectionApi = {
-      getAll: () => [
-        {
-          data: {
-            title: "Zebra Page",
-            eleventyNavigation: { key: "Zebra Page" }, // no order → 999
-          },
-        },
-        {
-          data: {
-            title: "Has Order",
-            eleventyNavigation: { key: "Has Order", order: 5 },
-          },
-        },
-        {
-          data: {
-            title: "Apple Page",
-            eleventyNavigation: { key: "Apple Page" }, // no order → 999
-          },
-        },
-      ],
-    };
-
-    const result = mockConfig.collections.navigationLinks(mockCollectionApi);
-
-    expectResultTitles(result, ["Has Order", "Apple Page", "Zebra Page"]);
+    expectResultTitles(mockConfig.collections.navigationLinks(api), [
+      "Has Order",
+      "Apple Page",
+      "Zebra Page",
+    ]);
   });
 
   test("Falls back to title when key is missing", async () => {
-    const mockConfig = createMockEleventyConfig();
-    await configureNavigation(mockConfig);
+    const mockConfig = await withNavigation();
+    const api = navCollectionApi([
+      ["Zebra Page", { order: 10 }],
+      ["Apple Page", { order: 10 }],
+    ]);
 
-    const mockCollectionApi = {
-      getAll: () => [
-        {
-          data: {
-            title: "Zebra Page",
-            eleventyNavigation: { order: 10 }, // no key, should use title
-          },
-        },
-        {
-          data: {
-            title: "Apple Page",
-            eleventyNavigation: { order: 10 }, // no key, should use title
-          },
-        },
-      ],
-    };
-
-    const result = mockConfig.collections.navigationLinks(mockCollectionApi);
-
-    expectResultTitles(result, ["Apple Page", "Zebra Page"]);
+    expectResultTitles(mockConfig.collections.navigationLinks(api), [
+      "Apple Page",
+      "Zebra Page",
+    ]);
   });
 
   test("Handles edge cases gracefully", () => {
-    // Empty collection
-    const result1 = findPageUrl([], "post", "test");
-    expect(result1).toBe("#");
+    const expectNotFound = (collection) =>
+      expect(findPageUrl(collection, "post", "test")).toBe("#");
 
-    // Collection with undefined data - should not find a match and return #
-    const collectionWithUndefined = [
-      {
-        fileSlug: "test",
-        url: "/test/",
-        // No data property, so item.data.tags will be undefined
-      },
-    ];
-
-    const result2 = findPageUrl(collectionWithUndefined, "post", "test");
-    expect(result2).toBe("#");
-
-    // Null/undefined collection
-    const result3 = findPageUrl(null, "post", "test");
-    expect(result3).toBe("#");
-
-    const result4 = findPageUrl(undefined, "post", "test");
-    expect(result4).toBe("#");
+    expectNotFound([]); // Empty
+    expectNotFound([{ fileSlug: "test", url: "/test/" }]); // Missing data
+    expectNotFound(null);
+    expectNotFound(undefined);
   });
 });
