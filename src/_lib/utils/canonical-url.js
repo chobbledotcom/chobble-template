@@ -1,29 +1,20 @@
 import site from "#data/site.json" with { type: "json" };
 
-/**
- * Validates that site.url is a proper HTTP/HTTPS URL without a trailing slash.
- * @param {string} url - The URL to validate
- * @throws {Error} If URL is missing, invalid, or ends with a slash
- */
-function validateSiteUrl(url) {
-  if (!url) {
-    throw new Error("site.json is missing the 'url' field");
-  }
-
-  if (url.endsWith("/")) {
-    throw new Error(`site.json 'url' must not end with a slash: ${url}`);
-  }
-
-  const parsed = new URL(url);
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    throw new Error(
-      `site.json 'url' must use http or https protocol, got: ${url}`,
-    );
-  }
+// Validate on module load
+if (!site.url) {
+  throw new Error("site.json is missing the 'url' field");
 }
 
-// Validate on module load
-validateSiteUrl(site.url);
+if (site.url.endsWith("/")) {
+  throw new Error(`site.json 'url' must not end with a slash: ${site.url}`);
+}
+
+const parsed = new URL(site.url);
+if (!["http:", "https:"].includes(parsed.protocol)) {
+  throw new Error(
+    `site.json 'url' must use http or https protocol, got: ${site.url}`,
+  );
+}
 
 /**
  * Generates a canonical URL by joining the site URL with a page path.

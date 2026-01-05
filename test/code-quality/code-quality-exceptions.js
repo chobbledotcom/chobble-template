@@ -175,7 +175,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
-  "src/_lib/utils/canonical-url.js:9", // url
   "src/_lib/utils/slug-utils.js:12", // reference
   "src/_lib/eleventy/area-list.js:19", // url
 
@@ -213,7 +212,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/media/image-crop.js",
   "src/_lib/media/image.js",
   "src/_lib/media/unused-images.js",
-  "src/_lib/utils/canonical-url.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/schema-helper.js",
   "src/_lib/utils/slug-utils.js",
