@@ -426,121 +426,167 @@ const createExtractor =
   };
 
 /**
- * Extract all function definitions from JavaScript source code.
- * Uses a stack to properly handle nested functions.
- * Returns an array of { name, startLine, endLine, lineCount }.
+ * Match function declaration patterns in a line of code.
+ * Returns the function name if found, null otherwise.
  */
-const extractFunctions = (source) => {
-  const functions = [];
-  const lines = source.split("\n");
-  const stack = []; // Stack of { name, startLine, openBraceDepth }
+const matchFunctionStart = (line) => {
+  const patterns = [
+    /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/, // function declarations
+    /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/, // arrow functions
+    /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/, // method definitions
+    /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/, // object methods
+  ];
+  const match = patterns.reduce(
+    (found, pattern) => found || line.match(pattern),
+    null,
+  );
+  return match ? match[1] : null;
+};
 
-  let globalBraceDepth = 0;
-  let inString = false;
-  let stringChar = null;
-  let inTemplate = false;
-  let inMultilineComment = false;
+/**
+ * Process a single character in the parser.
+ * Pure function: returns new state without mutation.
+ * Curried: processChar(lineNum)(state, char, index, chars)
+ */
+const processChar = (lineNum) => (state, char, index, chars) => {
+  // Skip if flagged from previous iteration (after /* or */)
+  if (state.skipNext) {
+    return { ...state, skipNext: false };
+  }
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lineNum = i + 1;
+  // Already stopped processing this line (single-line comment)
+  if (state.stopLine) return state;
 
-    // Check for function start patterns
-    const funcDeclMatch = line.match(
-      /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/,
-    );
-    // Only match arrow functions with braces (multi-line bodies)
-    const arrowMatch = line.match(
-      /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/,
-    );
-    const methodMatch = line.match(
-      /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/,
-    );
-    const objMethodMatch = line.match(
-      /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/,
-    );
+  const prevChar = index > 0 ? chars[index - 1] : "";
+  const nextChar = index < chars.length - 1 ? chars[index + 1] : "";
 
-    const match = funcDeclMatch || arrowMatch || methodMatch || objMethodMatch;
-
-    if (match) {
-      stack.push({
-        name: match[1],
-        startLine: lineNum,
-        openBraceDepth: null, // Will be set when we see the opening brace
-      });
+  // Handle comments when not in string/template
+  if (!state.inString && !state.inTemplate) {
+    // Single-line comment - stop processing rest of line
+    if (char === "/" && nextChar === "/" && !state.inComment) {
+      return { ...state, stopLine: true };
     }
-
-    // Process characters for brace counting
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j];
-      const prevChar = j > 0 ? line[j - 1] : "";
-      const nextChar = j < line.length - 1 ? line[j + 1] : "";
-
-      // Handle comments
-      if (!inString && !inTemplate) {
-        if (char === "/" && nextChar === "/" && !inMultilineComment) break;
-        if (char === "/" && nextChar === "*" && !inMultilineComment) {
-          inMultilineComment = true;
-          j++;
-          continue;
-        }
-        if (char === "*" && nextChar === "/" && inMultilineComment) {
-          inMultilineComment = false;
-          j++;
-          continue;
-        }
-      }
-      if (inMultilineComment) continue;
-
-      // Handle strings
-      if (!inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
-        if (!inString) {
-          inString = true;
-          stringChar = char;
-        } else if (char === stringChar) {
-          inString = false;
-          stringChar = null;
-        }
-        continue;
-      }
-
-      // Handle template literals
-      if (char === "`" && prevChar !== "\\") {
-        inTemplate = !inTemplate;
-        continue;
-      }
-
-      if (inString) continue;
-
-      // Count braces
-      if (char === "{") {
-        globalBraceDepth++;
-        // Record opening brace depth for pending functions
-        for (const item of stack) {
-          if (item.openBraceDepth === null) {
-            item.openBraceDepth = globalBraceDepth;
-          }
-        }
-      } else if (char === "}") {
-        // Check if this closes any function on the stack
-        for (let k = stack.length - 1; k >= 0; k--) {
-          if (stack[k].openBraceDepth === globalBraceDepth) {
-            const completed = stack.splice(k, 1)[0];
-            functions.push({
-              name: completed.name,
-              startLine: completed.startLine,
-              endLine: lineNum,
-              lineCount: lineNum - completed.startLine + 1,
-            });
-            break;
-          }
-        }
-        globalBraceDepth--;
-      }
+    // Start multiline comment
+    if (char === "/" && nextChar === "*" && !state.inComment) {
+      return { ...state, inComment: true, skipNext: true };
+    }
+    // End multiline comment
+    if (char === "*" && nextChar === "/" && state.inComment) {
+      return { ...state, inComment: false, skipNext: true };
     }
   }
 
-  return functions;
+  // Skip everything inside multiline comments
+  if (state.inComment) return state;
+
+  // Handle strings
+  if (!state.inTemplate && (char === '"' || char === "'") && prevChar !== "\\") {
+    if (!state.inString) {
+      return { ...state, inString: true, stringChar: char };
+    } else if (char === state.stringChar) {
+      return { ...state, inString: false, stringChar: null };
+    }
+    return state;
+  }
+
+  // Handle template literals
+  if (char === "`" && prevChar !== "\\") {
+    return { ...state, inTemplate: !state.inTemplate };
+  }
+
+  // Skip content inside strings
+  if (state.inString) return state;
+
+  // Handle opening brace
+  if (char === "{") {
+    const newDepth = state.braceDepth + 1;
+    // Record opening brace depth for pending functions
+    const newStack = state.stack.map((item) =>
+      item.openBraceDepth === null ? { ...item, openBraceDepth: newDepth } : item,
+    );
+    return { ...state, braceDepth: newDepth, stack: newStack };
+  }
+
+  // Handle closing brace
+  if (char === "}") {
+    // Find function that closes at this depth (search from end)
+    const closingIndex = state.stack.findLastIndex(
+      (item) => item.openBraceDepth === state.braceDepth,
+    );
+
+    if (closingIndex >= 0) {
+      const completed = state.stack[closingIndex];
+      const newFunction = {
+        name: completed.name,
+        startLine: completed.startLine,
+        endLine: lineNum,
+        lineCount: lineNum - completed.startLine + 1,
+      };
+      return {
+        ...state,
+        braceDepth: state.braceDepth - 1,
+        stack: state.stack.filter((_, i) => i !== closingIndex),
+        functions: [...state.functions, newFunction],
+      };
+    }
+
+    return { ...state, braceDepth: state.braceDepth - 1 };
+  }
+
+  return state;
+};
+
+/**
+ * Process a single line of source code.
+ * Pure function: returns new state without mutation.
+ */
+const processLine = (state, line, index) => {
+  const lineNum = index + 1;
+
+  // Check for function start and add to stack if found
+  const funcName = matchFunctionStart(line);
+  const stateWithFunc = funcName
+    ? {
+        ...state,
+        stack: [
+          ...state.stack,
+          { name: funcName, startLine: lineNum, openBraceDepth: null },
+        ],
+      }
+    : state;
+
+  // Process each character with reduce
+  const chars = [...line];
+  const lineState = { ...stateWithFunc, stopLine: false };
+  const processedState = chars.reduce(processChar(lineNum), lineState);
+
+  // Clean up line-specific flag
+  const { stopLine: _, ...cleanState } = processedState;
+  return cleanState;
+};
+
+/**
+ * Extract all function definitions from JavaScript source code.
+ * Uses a stack to properly handle nested functions.
+ * Returns an array of { name, startLine, endLine, lineCount }.
+ *
+ * Pure functional implementation using reduce with immutable state.
+ */
+const extractFunctions = (source) => {
+  const initialState = {
+    braceDepth: 0,
+    inString: false,
+    stringChar: null,
+    inTemplate: false,
+    inComment: false,
+    skipNext: false,
+    functions: [],
+    stack: [],
+  };
+
+  const lines = source.split("\n");
+  const finalState = lines.reduce(processLine, initialState);
+  return finalState.functions;
 };
 
 // Schema-helper test fixtures
