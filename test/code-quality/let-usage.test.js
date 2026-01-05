@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import {
-  ALLOWED_LET_USAGE,
   ALLOWED_MUTABLE_CONST,
 } from "#test/code-quality/code-quality-exceptions.js";
 import {
@@ -36,7 +35,6 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       return { reason: "Mutable variable declaration" };
     },
     files: SRC_AND_TEST_UTILS_FILES,
-    allowlist: ALLOWED_LET_USAGE,
   });
 
 // Complete checker for mutable const declarations
@@ -90,12 +88,12 @@ let mutableVar = 0;
     expect(results[0].line).toBe("let mutableVar = 0;");
   });
 
-  test("No mutable variables outside allowed patterns and allowlist", () => {
+  test("No mutable variables outside allowed patterns", () => {
     const { violations } = mutableVarAnalysis();
     assertNoViolations(violations, {
       message: "mutable variable declaration(s)",
       fixHint:
-        "use const with immutable patterns, or add to ALLOWED_LET_USAGE in code-quality-exceptions.js",
+        "use const with immutable patterns (only let moduleName = null; is allowed for lazy loading)",
     });
   });
 
