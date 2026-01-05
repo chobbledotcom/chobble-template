@@ -607,6 +607,43 @@ const createMockReview = ({
   date,
 });
 
+// ============================================
+// Mock Collection API Helpers
+// ============================================
+
+/**
+ * Create a mock collection API that returns items for any tag.
+ * Simple version with no tag assertion.
+ *
+ * @param {Array} items - Items to return from getFilteredByTag
+ * @returns {Object} Mock collection API with getFilteredByTag method
+ *
+ * @example
+ * const api = collectionApi([product1, product2]);
+ * createProductsCollection(api);
+ */
+const collectionApi = (items) => ({
+  getFilteredByTag: () => items,
+});
+
+/**
+ * Create a mock collection API that returns different items based on tag.
+ * Uses an object map for clean multi-tag scenarios.
+ *
+ * @param {Object} tagMap - Map of tag names to item arrays
+ * @returns {Object} Mock collection API with getFilteredByTag method
+ *
+ * @example
+ * const api = taggedCollectionApi({
+ *   product: [product1, product2],
+ *   review: [review1],
+ *   category: []
+ * });
+ */
+const taggedCollectionApi = (tagMap) => ({
+  getFilteredByTag: (tag) => tagMap[tag] ?? [],
+});
+
 export {
   DOM,
   expect,
@@ -650,4 +687,7 @@ export {
   // Code analysis utilities
   createExtractor,
   extractFunctions,
+  // Mock collection API helpers
+  collectionApi,
+  taggedCollectionApi,
 };

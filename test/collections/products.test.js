@@ -12,6 +12,7 @@ import {
   processGallery,
 } from "#collections/products.js";
 import {
+  collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
 } from "#test/test-utils.js";
@@ -47,20 +48,13 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
 });
 
 /**
- * Create a mock collection API that returns specified products
+ * Create a mock collection API with tag assertion
  */
-const mockCollectionApi = (mockProducts, expectedTag = "product") => ({
+const assertingCollectionApi = (mockProducts, expectedTag = "product") => ({
   getFilteredByTag: (tag) => {
     expect(tag).toBe(expectedTag);
     return mockProducts;
   },
-});
-
-/**
- * Create a simple mock collection API (no tag assertion)
- */
-const simpleCollectionApi = (mockProducts) => ({
-  getFilteredByTag: () => mockProducts,
 });
 
 describe("products", () => {
@@ -128,7 +122,7 @@ describe("products", () => {
       ["Product 3", { gallery: ["img3.jpg"] }],
     ]);
 
-    const result = createProductsCollection(mockCollectionApi(testProducts));
+    const result = createProductsCollection(assertingCollectionApi(testProducts));
 
     expect(result.length).toBe(3);
     expect(result[0].data.gallery).toEqual(["img1.jpg"]);
@@ -169,7 +163,10 @@ describe("products", () => {
       ["Product 4", { categories: ["other"] }],
     ]);
 
-    const result = getProductsByCategories(testProducts, ["widgets", "gadgets"]);
+    const result = getProductsByCategories(testProducts, [
+      "widgets",
+      "gadgets",
+    ]);
 
     expect(result.length).toBe(2);
     const titles = result.map((p) => p.data.title);
@@ -184,7 +181,10 @@ describe("products", () => {
       ["Product 3", { categories: ["widgets"] }],
     ]);
 
-    const result = getProductsByCategories(testProducts, ["widgets", "gadgets"]);
+    const result = getProductsByCategories(testProducts, [
+      "widgets",
+      "gadgets",
+    ]);
 
     expect(result.length).toBe(2);
     const titles = result.map((p) => p.data.title);
@@ -309,7 +309,7 @@ describe("products", () => {
       }),
     ];
 
-    const result = createApiSkusCollection(simpleCollectionApi(testProducts));
+    const result = createApiSkusCollection(collectionApi(testProducts));
 
     expect(result["TSHIRT-S"]).toEqual({
       name: "T-Shirt - Small",
@@ -335,10 +335,12 @@ describe("products", () => {
       product("No Options"),
       product("Empty Options", { options: [] }),
       product("Missing SKU", { options: [{ name: "Test", unit_price: 100 }] }),
-      product("Missing Price", { options: [{ sku: "TEST-001", name: "Test" }] }),
+      product("Missing Price", {
+        options: [{ sku: "TEST-001", name: "Test" }],
+      }),
     ];
 
-    const result = createApiSkusCollection(simpleCollectionApi(testProducts));
+    const result = createApiSkusCollection(collectionApi(testProducts));
 
     expect(result).toEqual({});
   });
@@ -349,7 +351,9 @@ describe("products", () => {
       product("Product B", { options: [option("DUPE-001", "Option B", 200)] }),
     ];
 
-    expect(() => createApiSkusCollection(simpleCollectionApi(testProducts))).toThrow(
+    expect(() =>
+      createApiSkusCollection(collectionApi(testProducts)),
+    ).toThrow(
       'Duplicate SKU "DUPE-001" found in product "Product B - Option B"',
     );
   });
@@ -364,9 +368,9 @@ describe("products", () => {
       }),
     ];
 
-    expect(() => createApiSkusCollection(simpleCollectionApi(testProducts))).toThrow(
-      'Duplicate SKU "SAME-SKU"',
-    );
+    expect(() =>
+      createApiSkusCollection(collectionApi(testProducts)),
+    ).toThrow('Duplicate SKU "SAME-SKU"');
   });
 
   test("Filter functions should be pure and not modify inputs", () => {

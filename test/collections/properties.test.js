@@ -9,29 +9,41 @@ import {
 } from "#collections/properties.js";
 import configData from "#data/config.json" with { type: "json" };
 import {
+  collectionApi,
   createMockEleventyConfig,
   expectResultTitles,
+  taggedCollectionApi,
 } from "#test/test-utils.js";
+import { map } from "#utils/array-utils.js";
+
+// ============================================
+// Functional Test Fixture Builders
+// ============================================
+
+/**
+ * Create a property with nested data structure
+ */
+const property = (title, options = {}) => ({
+  data: { title, ...options },
+});
+
+/**
+ * Create properties from an array of [title, options] tuples
+ */
+const properties = map(([title, options]) => property(title, options));
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 describe("properties", () => {
   test("Creates properties collection from API", () => {
-    const mockProperties = [
-      { data: { title: "Property 1", gallery: ["img1.jpg"] } },
-      { data: { title: "Property 2" } },
-      { data: { title: "Property 3", gallery: ["img3.jpg"] } },
-    ];
+    const testProperties = properties([
+      ["Property 1", { gallery: ["img1.jpg"] }],
+      ["Property 2", {}],
+      ["Property 3", { gallery: ["img3.jpg"] }],
+    ]);
 
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        expect(tag).toBe("property");
-        return mockProperties;
-      },
-    };
-
-    const result = createPropertiesCollection(mockCollectionApi);
+    const result = createPropertiesCollection(collectionApi(testProperties));
 
     expect(result.length).toBe(3);
     expect(result[0].data.gallery).toEqual(["img1.jpg"]);
@@ -40,11 +52,7 @@ describe("properties", () => {
   });
 
   test("Handles empty property collection", () => {
-    const mockCollectionApi = {
-      getFilteredByTag: () => [],
-    };
-
-    const result = createPropertiesCollection(mockCollectionApi);
+    const result = createPropertiesCollection(collectionApi([]));
 
     expect(result.length).toBe(0);
   });
