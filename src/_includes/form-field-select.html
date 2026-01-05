@@ -1,0 +1,13 @@
+<label for="{{ field.name }}">
+  {{ field.label }}
+  <select
+    id="{{ field.name }}"
+    name="{{ field.name }}"
+    {%- if field.required %} required{%- endif %}
+  >
+    <option value="" disabled selected>Select an option</option>
+    {%- for option in field.options -%}
+      <option value="{{ option }}">{{ option }}</option>
+    {%- endfor -%}
+  </select>
+</label>
