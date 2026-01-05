@@ -45,48 +45,52 @@ function buildFieldRecapItem(id) {
   return `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
-function populateRecap() {
+function getStepFieldIds(stepEl) {
+  const fields = [...stepEl.querySelectorAll("input, select, textarea")];
+  return fields.reduce((acc, field) => {
+    const id = field.type === "radio" ? field.name : field.id;
+    if (id && !acc.includes(id)) {
+      return [...acc, id];
+    }
+    return acc;
+  }, []);
+}
+
+function populateRecap(steps) {
   const recapEvent = document.getElementById("recap-event");
   const recapContact = document.getElementById("recap-contact");
   if (!recapEvent || !recapContact) return;
+  if (!steps || steps.length < 2) return;
 
-  const eventFields = [
-    "event_start_date",
-    "event_end_date",
-    "event_type",
-    "event_location",
-    "event_start_time",
-    "event_end_time",
-  ];
-  const contactFields = [
-    "name",
-    "email",
-    "phone",
-    "contact_preference",
-    "message",
-  ];
+  const eventFieldIds = getStepFieldIds(steps[0]);
+  const contactFieldIds = getStepFieldIds(steps[1]);
 
-  recapEvent.innerHTML = eventFields.map(buildFieldRecapItem).join("");
-  recapContact.innerHTML = contactFields.map(buildFieldRecapItem).join("");
+  recapEvent.innerHTML = eventFieldIds.map(buildFieldRecapItem).join("");
+  recapContact.innerHTML = contactFieldIds.map(buildFieldRecapItem).join("");
 }
 
-function validateRadioField(field, stepEl) {
-  const checked = stepEl.querySelector(`input[name="${field.name}"]:checked`);
-  if (!checked) {
-    field.focus();
-    field.reportValidity();
+function validateRadioGroup(name, stepEl) {
+  const radios = stepEl.querySelectorAll(`input[name="${name}"]`);
+  const checked = stepEl.querySelector(`input[name="${name}"]:checked`);
+  if (radios[0]?.required && !checked) {
+    radios[0].focus();
+    radios[0].reportValidity();
     return false;
   }
   return true;
 }
 
 function validateField(field, stepEl) {
-  if (!field.value) {
+  // Radio buttons need group validation
+  if (field.type === "radio") {
+    return validateRadioGroup(field.name, stepEl);
+  }
+  // Use HTML5 constraint validation (checks required, email format, patterns, etc.)
+  if (!field.checkValidity()) {
     field.focus();
     field.reportValidity();
     return false;
   }
-  if (field.type === "radio") return validateRadioField(field, stepEl);
   return true;
 }
 
@@ -136,7 +140,7 @@ function initQuoteSteps() {
     }
     updateIndicators(indicators, currentStep);
     updateButtons(prevBtn, nextBtn, submitBtn, currentStep, totalSteps);
-    if (currentStep === totalSteps - 1) populateRecap();
+    if (currentStep === totalSteps - 1) populateRecap(steps);
   }
 
   function goToStep(newStep) {
@@ -175,11 +179,12 @@ export {
   getFieldLabel,
   getRadioLabel,
   getRadioValue,
+  getStepFieldIds,
   initQuoteSteps,
   populateRecap,
   updateButtons,
   updateIndicators,
   validateField,
-  validateRadioField,
+  validateRadioGroup,
   validateStep,
 };

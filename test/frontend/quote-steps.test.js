@@ -10,12 +10,13 @@ import {
   getFieldLabel,
   getRadioLabel,
   getRadioValue,
+  getStepFieldIds,
   initQuoteSteps,
   populateRecap,
   updateButtons,
   updateIndicators,
   validateField,
-  validateRadioField,
+  validateRadioGroup,
   validateStep,
 } from "#assets/quote-steps.js";
 
@@ -103,10 +104,10 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // validateField Tests (with DOM)
   // ----------------------------------------
-  test("validateField returns true for filled field", () => {
+  test("validateField returns true for valid field", () => {
     document.body.innerHTML = `
       <div class="step">
-        <input id="test" type="text" value="filled" />
+        <input id="test" type="text" required value="filled" />
       </div>
     `;
     const field = document.getElementById("test");
@@ -114,10 +115,10 @@ describe("quote-steps", () => {
     expect(validateField(field, stepEl)).toBe(true);
   });
 
-  test("validateField returns false for empty field", () => {
+  test("validateField returns false for empty required field", () => {
     document.body.innerHTML = `
       <div class="step">
-        <input id="test" type="text" value="" />
+        <input id="test" type="text" required value="" />
       </div>
     `;
     const field = document.getElementById("test");
@@ -125,41 +126,83 @@ describe("quote-steps", () => {
     expect(validateField(field, stepEl)).toBe(false);
   });
 
-  test("validateField calls validateRadioField for radio type", () => {
+  test("validateField returns true for empty non-required field", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input id="test" type="text" value="" />
+      </div>
+    `;
+    const field = document.getElementById("test");
+    const stepEl = document.querySelector(".step");
+    expect(validateField(field, stepEl)).toBe(true);
+  });
+
+  test("validateField validates email format", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input id="test" type="email" required value="invalid-email" />
+      </div>
+    `;
+    const field = document.getElementById("test");
+    const stepEl = document.querySelector(".step");
+    expect(validateField(field, stepEl)).toBe(false);
+  });
+
+  test("validateField returns true for valid email", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input id="test" type="email" required value="test@example.com" />
+      </div>
+    `;
+    const field = document.getElementById("test");
+    const stepEl = document.querySelector(".step");
+    expect(validateField(field, stepEl)).toBe(true);
+  });
+
+  test("validateField delegates to validateRadioGroup for radio type", () => {
     document.body.innerHTML = `
       <div class="step">
         <input type="radio" name="pref" value="A" checked />
       </div>
     `;
     const field = document.querySelector("input[type=radio]");
-    field.value = "A"; // Set a value so it passes the first check
     const stepEl = document.querySelector(".step");
     expect(validateField(field, stepEl)).toBe(true);
   });
 
   // ----------------------------------------
-  // validateRadioField Tests (with DOM)
+  // validateRadioGroup Tests (with DOM)
   // ----------------------------------------
-  test("validateRadioField returns true when radio is checked", () => {
+  test("validateRadioGroup returns true when required radio is checked", () => {
     document.body.innerHTML = `
       <div class="step">
-        <input type="radio" name="pref" value="A" checked />
+        <input type="radio" name="pref" value="A" required checked />
       </div>
     `;
-    const field = document.querySelector("input[type=radio]");
     const stepEl = document.querySelector(".step");
-    expect(validateRadioField(field, stepEl)).toBe(true);
+    expect(validateRadioGroup("pref", stepEl)).toBe(true);
   });
 
-  test("validateRadioField returns false when radio not checked", () => {
+  test("validateRadioGroup returns false when required radio not checked", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input type="radio" name="pref" value="A" required />
+        <input type="radio" name="pref" value="B" />
+      </div>
+    `;
+    const stepEl = document.querySelector(".step");
+    expect(validateRadioGroup("pref", stepEl)).toBe(false);
+  });
+
+  test("validateRadioGroup returns true when non-required radio not checked", () => {
     document.body.innerHTML = `
       <div class="step">
         <input type="radio" name="pref" value="A" />
+        <input type="radio" name="pref" value="B" />
       </div>
     `;
-    const field = document.querySelector("input[type=radio]");
     const stepEl = document.querySelector(".step");
-    expect(validateRadioField(field, stepEl)).toBe(false);
+    expect(validateRadioGroup("pref", stepEl)).toBe(true);
   });
 
   // ----------------------------------------
@@ -347,6 +390,71 @@ describe("quote-steps", () => {
     expect(validateStep(stepEl)).toBe(false);
   });
 
+  test("validateStep fails on invalid email format", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input type="email" required value="not-an-email" />
+      </div>
+    `;
+    const stepEl = document.querySelector(".step");
+    expect(validateStep(stepEl)).toBe(false);
+  });
+
+  // ----------------------------------------
+  // getStepFieldIds Tests (with DOM)
+  // ----------------------------------------
+  test("getStepFieldIds returns field ids from step", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input id="name" type="text" />
+        <input id="email" type="email" />
+      </div>
+    `;
+    const stepEl = document.querySelector(".step");
+    const ids = getStepFieldIds(stepEl);
+    expect(ids).toContain("name");
+    expect(ids).toContain("email");
+  });
+
+  test("getStepFieldIds returns radio name instead of id", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input type="radio" name="contact" value="Email" />
+        <input type="radio" name="contact" value="Phone" />
+      </div>
+    `;
+    const stepEl = document.querySelector(".step");
+    const ids = getStepFieldIds(stepEl);
+    expect(ids).toEqual(["contact"]);
+  });
+
+  test("getStepFieldIds deduplicates radio buttons", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <input type="radio" name="pref" value="A" />
+        <input type="radio" name="pref" value="B" />
+        <input type="radio" name="pref" value="C" />
+      </div>
+    `;
+    const stepEl = document.querySelector(".step");
+    const ids = getStepFieldIds(stepEl);
+    expect(ids.length).toBe(1);
+    expect(ids[0]).toBe("pref");
+  });
+
+  test("getStepFieldIds includes select and textarea", () => {
+    document.body.innerHTML = `
+      <div class="step">
+        <select id="event_type"><option>Wedding</option></select>
+        <textarea id="message"></textarea>
+      </div>
+    `;
+    const stepEl = document.querySelector(".step");
+    const ids = getStepFieldIds(stepEl);
+    expect(ids).toContain("event_type");
+    expect(ids).toContain("message");
+  });
+
   // ----------------------------------------
   // buildFieldRecapItem Tests (with DOM)
   // ----------------------------------------
@@ -408,16 +516,29 @@ describe("quote-steps", () => {
     expect(() => populateRecap()).not.toThrow();
   });
 
-  test("populateRecap fills recap sections with field values", () => {
+  test("populateRecap does nothing if steps not provided", () => {
     document.body.innerHTML = `
-      <label for="event_start_date">Start Date</label>
-      <input type="date" id="event_start_date" value="2025-06-15" />
-      <label for="name">Name</label>
-      <input type="text" id="name" value="Jane Doe" />
       <dl id="recap-event"></dl>
       <dl id="recap-contact"></dl>
     `;
-    populateRecap();
+    expect(() => populateRecap()).not.toThrow();
+  });
+
+  test("populateRecap fills recap sections from step fields", () => {
+    document.body.innerHTML = `
+      <div class="step" data-step="0">
+        <label for="start_date">Start Date</label>
+        <input type="date" id="start_date" value="2025-06-15" />
+      </div>
+      <div class="step" data-step="1">
+        <label for="name">Name</label>
+        <input type="text" id="name" value="Jane Doe" />
+      </div>
+      <dl id="recap-event"></dl>
+      <dl id="recap-contact"></dl>
+    `;
+    const steps = document.querySelectorAll(".step");
+    populateRecap(steps);
     const recapEvent = document.getElementById("recap-event");
     const recapContact = document.getElementById("recap-contact");
     expect(recapEvent.innerHTML).toContain("2025-06-15");
@@ -465,5 +586,44 @@ describe("quote-steps", () => {
     initQuoteSteps();
     const submitBtn = document.querySelector(".quote-step-submit");
     expect(submitBtn.style.display).toBe("");
+  });
+
+  test("initQuoteSteps validates before advancing to next step", () => {
+    document.body.innerHTML = `
+      <div class="quote-steps" data-current-step="0">
+        <div class="quote-step active" data-step="0">
+          <input type="text" required value="" />
+        </div>
+        <div class="quote-step" data-step="1">Step 2</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+    initQuoteSteps();
+    const nextBtn = document.querySelector(".quote-step-next");
+    nextBtn.click();
+    const container = document.querySelector(".quote-steps");
+    // Should stay on step 0 because validation fails
+    expect(container.dataset.currentStep).toBe("0");
+  });
+
+  test("initQuoteSteps advances when validation passes", () => {
+    document.body.innerHTML = `
+      <div class="quote-steps" data-current-step="0">
+        <div class="quote-step active" data-step="0">
+          <input type="text" required value="filled" />
+        </div>
+        <div class="quote-step" data-step="1">Step 2</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+    initQuoteSteps();
+    const nextBtn = document.querySelector(".quote-step-next");
+    nextBtn.click();
+    const container = document.querySelector(".quote-steps");
+    expect(container.dataset.currentStep).toBe("1");
   });
 });
