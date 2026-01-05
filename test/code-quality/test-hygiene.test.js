@@ -105,6 +105,18 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAsyncTestsWithoutAwait",
   "findAssertionsWithoutMessages",
   "findTautologicalAssertions",
+  // test-quality.test.js - functional utilities
+  "matchesAnyVaguePattern",
+  "countAnds",
+  "createViolation",
+  "toViolationsWhere",
+  "vagueViolation",
+  "multiConcernViolation",
+  "extractFunctionBody",
+  "findTestNameBackwards",
+  "hasRealAwait",
+  "checkLineForAssertionWithoutMessage",
+  "findTautologiesInSource",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",

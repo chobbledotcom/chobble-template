@@ -3,6 +3,7 @@ import {
   analyzeFiles,
   assertNoViolations,
   findPatterns,
+  scanLines,
 } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
 
@@ -38,7 +39,30 @@ const VAGUE_NAME_PATTERNS = [
 ];
 
 // ============================================
-// Analysis Functions
+// Functional Utilities
+// ============================================
+
+// Curried predicate: checks if name matches any vague pattern
+const matchesAnyVaguePattern = (name) =>
+  VAGUE_NAME_PATTERNS.some((p) => p.test(name));
+
+// Curried predicate: counts "and" occurrences in name
+const countAnds = (name) => (name.match(/-and-/g) || []).length;
+
+// Curried violation creator: (reasonFn) => (testCase) => violation
+const createViolation = (reasonFn) => (testCase) => ({
+  file: testCase.file,
+  line: testCase.line,
+  code: testCase.name,
+  reason: reasonFn(testCase),
+});
+
+// Curried filter + map: transforms test cases to violations if predicate matches
+const toViolationsWhere = (predicate, toViolation) => (testCases) =>
+  testCases.filter(predicate).map(toViolation);
+
+// ============================================
+// Test Name Extraction
 // ============================================
 
 // Test name patterns to look for
@@ -49,6 +73,7 @@ const TEST_NAME_PATTERNS = [
 
 /**
  * Extract test case names from source code using multiple patterns.
+ * Pure function: (source, relativePath) => testCases[]
  */
 const extractTestNames = (source, relativePath) =>
   findPatterns(source, TEST_NAME_PATTERNS, (match, lineNum) => ({
@@ -64,236 +89,271 @@ const extractDescribeItTests = (source, relativePath) =>
     TEST_NAME_PATTERNS[1].test(`  it('${t.name}'`),
   );
 
+// ============================================
+// Analysis Functions (Pure + Composable)
+// ============================================
+
+// Vague name violation creator
+const vagueViolation = createViolation(
+  (tc) => `Vague test name "${tc.name}" - use descriptive name`,
+);
+
+// Multi-concern violation creator
+const multiConcernViolation = createViolation(
+  (tc) =>
+    `Test name has ${countAnds(tc.name)} "and"s - consider splitting`,
+);
+
 /**
  * Check for vague test names.
+ * Pure: () => violations[]
  */
-const findVagueTestNames = () => {
-  return analyzeFiles(TEST_FILES(), (source, relativePath) => {
-    const violations = [];
-    const testCases = extractTestNames(source, relativePath);
-
-    for (const testCase of testCases) {
-      for (const pattern of VAGUE_NAME_PATTERNS) {
-        if (pattern.test(testCase.name)) {
-          violations.push({
-            file: relativePath,
-            line: testCase.line,
-            code: testCase.name,
-            reason: `Vague test name "${testCase.name}" - use descriptive name`,
-          });
-          break;
-        }
-      }
-    }
-    return violations;
-  });
-};
+const findVagueTestNames = () =>
+  analyzeFiles(TEST_FILES(), (source, relativePath) =>
+    toViolationsWhere(
+      (tc) => matchesAnyVaguePattern(tc.name),
+      vagueViolation,
+    )(extractTestNames(source, relativePath)),
+  );
 
 /**
  * Check for test names with multiple "and"s suggesting multiple concerns.
+ * Pure: () => violations[]
  */
 const findMultiConcernTestNames = () => {
   const filesToCheck = TEST_FILES().filter((f) => !AND_NAME_EXCEPTIONS.has(f));
 
-  return analyzeFiles(filesToCheck, (source, relativePath) => {
-    const violations = [];
-    const testCases = extractTestNames(source, relativePath);
+  return analyzeFiles(filesToCheck, (source, relativePath) =>
+    toViolationsWhere(
+      (tc) => countAnds(tc.name) >= 2,
+      multiConcernViolation,
+    )(extractTestNames(source, relativePath)),
+  );
+};
 
-    for (const testCase of testCases) {
-      const andCount = (testCase.name.match(/-and-/g) || []).length;
-      if (andCount >= 2) {
-        violations.push({
-          file: relativePath,
-          line: testCase.line,
-          code: testCase.name,
-          reason: `Test name has ${andCount} "and"s - consider splitting`,
-        });
-      }
-    }
-    return violations;
-  });
+// ============================================
+// Async Test Analysis (Functional Brace Tracking)
+// ============================================
+
+/**
+ * Extract function body starting at a given line using brace counting.
+ * Pure function: (lines, startIndex) => string
+ */
+const extractFunctionBody = (lines, startIndex) => {
+  const extractState = lines.slice(startIndex).reduce(
+    (state, line) => {
+      if (state.done) return state;
+
+      const newBody = [...state.body, line];
+      const braceChanges = [...line].reduce(
+        (acc, char) => ({
+          depth: acc.depth + (char === "{" ? 1 : char === "}" ? -1 : 0),
+          started: acc.started || char === "{",
+        }),
+        { depth: state.depth, started: state.started },
+      );
+
+      const isDone = braceChanges.started && braceChanges.depth === 0;
+
+      return {
+        body: newBody,
+        depth: braceChanges.depth,
+        started: braceChanges.started,
+        done: isDone,
+      };
+    },
+    { body: [], depth: 0, started: false, done: false },
+  );
+
+  return extractState.body.join("\n");
+};
+
+/**
+ * Find test name by searching backwards from a line.
+ * Pure function: (lines, startIndex, maxLookback) => string
+ */
+const findTestNameBackwards = (lines, startIndex, maxLookback = 10) => {
+  const searchRange = lines.slice(
+    Math.max(0, startIndex - maxLookback),
+    startIndex,
+  );
+
+  const found = searchRange
+    .reverse()
+    .map((line) => line.match(/name:\s*["']([^"']+)["']/))
+    .find((match) => match !== null);
+
+  return found ? found[1] : "unknown";
+};
+
+/**
+ * Check if function body has real await operations.
+ * Pure predicate: (body) => boolean
+ */
+const hasRealAwait = (body) => {
+  const awaitMatches = body.match(/await\s+[^;,\n]+/g) || [];
+  return awaitMatches.some(
+    (expr) =>
+      !expr.includes("Promise.resolve") && !expr.includes("Promise.reject"),
+  );
 };
 
 /**
  * Check for asyncTest without real await operations.
+ * Pure: () => violations[]
  */
-const findAsyncTestsWithoutAwait = () => {
-  return analyzeFiles(TEST_FILES(), (source, relativePath) => {
-    const violations = [];
+const findAsyncTestsWithoutAwait = () =>
+  analyzeFiles(TEST_FILES(), (source, relativePath) => {
     const lines = source.split("\n");
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+    return scanLines(source, (line, lineNum) => {
+      if (!/asyncTest:\s*async/.test(line)) return null;
 
-      if (/asyncTest:\s*async/.test(line)) {
-        let testName = "unknown";
-        for (let j = i - 1; j >= 0 && j > i - 10; j--) {
-          const nameMatch = lines[j].match(/name:\s*["']([^"']+)["']/);
-          if (nameMatch) {
-            testName = nameMatch[1];
-            break;
-          }
-        }
+      const lineIndex = lineNum - 1;
+      const testName = findTestNameBackwards(lines, lineIndex);
+      const funcBody = extractFunctionBody(lines, lineIndex);
 
-        let braceCount = 0;
-        let started = false;
-        let funcBody = "";
-
-        for (let j = i; j < lines.length; j++) {
-          const checkLine = lines[j];
-          for (const char of checkLine) {
-            if (char === "{") {
-              braceCount++;
-              started = true;
-            } else if (char === "}") {
-              braceCount--;
-            }
-          }
-          funcBody += `${checkLine}\n`;
-
-          if (started && braceCount === 0) {
-            break;
-          }
-        }
-
-        const awaitMatches = funcBody.match(/await\s+[^;,\n]+/g) || [];
-        const hasRealAwait = awaitMatches.some(
-          (expr) =>
-            !expr.includes("Promise.resolve") &&
-            !expr.includes("Promise.reject"),
-        );
-
-        if (hasRealAwait === false) {
-          violations.push({
+      return hasRealAwait(funcBody)
+        ? null
+        : {
             file: relativePath,
-            line: i + 1,
+            line: lineNum,
             code: testName,
-            reason: `asyncTest without await - use sync "test" instead`,
-          });
-        }
-      }
-    }
-    return violations;
+            reason: 'asyncTest without await - use sync "test" instead',
+          };
+    });
   });
+
+// ============================================
+// Assertion Analysis (Pattern-Based)
+// ============================================
+
+// Assertion patterns that need messages (pattern, method name)
+const ASSERTION_PATTERNS = [
+  [/assert\.strictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/, "strictEqual"],
+  [/assert\.deepStrictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/, "deepStrictEqual"],
+  [/assert\.ok\s*\([^,)]+\)\s*[;,)]?\s*$/, "ok"],
+];
+
+/**
+ * Check a single line for assertion without message.
+ * Pure: (line, lineNum, relativePath) => violation | null
+ */
+const checkLineForAssertionWithoutMessage = (line, lineNum, relativePath) => {
+  const trimmed = line.trim();
+  const truncated = trimmed.substring(0, 50) + (trimmed.length > 50 ? "..." : "");
+
+  const match = ASSERTION_PATTERNS.find(([pattern]) => pattern.test(trimmed));
+
+  return match
+    ? {
+        file: relativePath,
+        line: lineNum,
+        code: truncated,
+        reason: `assert.${match[1]} missing message parameter`,
+      }
+    : null;
 };
 
 /**
  * Check for assertions without descriptive messages.
  * Section 4: Clear Failure Semantics
+ * Pure: () => violations[]
  */
 const findAssertionsWithoutMessages = () => {
-  // Skip code-quality tests (meta-tests)
   const testFilesToCheck = TEST_FILES().filter(
     (f) => !f.includes("code-quality/"),
   );
 
-  return analyzeFiles(testFilesToCheck, (source, relativePath) => {
-    const violations = [];
-    const lines = source.split("\n");
+  return analyzeFiles(testFilesToCheck, (source, relativePath) =>
+    scanLines(source, (line, lineNum) =>
+      checkLineForAssertionWithoutMessage(line, lineNum, relativePath),
+    ),
+  );
+};
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      const truncatedCode =
-        line.substring(0, 50) + (line.length > 50 ? "..." : "");
+// ============================================
+// Tautological Assertion Detection (Immutable)
+// ============================================
 
-      // Match assert.strictEqual(a, b) without third parameter
-      if (/assert\.strictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/.test(line)) {
-        violations.push({
-          file: relativePath,
-          line: i + 1,
-          code: truncatedCode,
-          reason: "assert.strictEqual missing message parameter",
-        });
+// Pattern matchers for assignments and assertions
+const ASSIGNMENT_PATTERN = /^(\w+(?:\.\w+)+)\s*=\s*([^;]+);?\s*$/;
+const ASSERT_PATTERN = /assert\.(?:strictEqual|ok)\s*\(\s*(\w+(?:\.\w+)+)/;
+
+/**
+ * Scan for set-then-assert patterns using immutable state.
+ * Pure: (source, relativePath) => violations[]
+ */
+const findTautologiesInSource = (source, relativePath) => {
+  const lines = source.split("\n");
+  const maxDistance = 5;
+  const staleThreshold = 10;
+
+  // Process lines with immutable accumulator
+  const result = lines.reduce(
+    (acc, lineContent, index) => {
+      const lineNum = index + 1;
+      const line = lineContent.trim();
+
+      // Check for assignment
+      const assignMatch = line.match(ASSIGNMENT_PATTERN);
+      if (assignMatch) {
+        const [, prop] = assignMatch;
+        return {
+          ...acc,
+          assignments: { ...acc.assignments, [prop]: lineNum },
+        };
       }
 
-      // Match assert.deepStrictEqual without message
-      if (
-        /assert\.deepStrictEqual\s*\([^,]+,[^,)]+\)\s*[;,)]?\s*$/.test(line)
-      ) {
-        violations.push({
-          file: relativePath,
-          line: i + 1,
-          code: truncatedCode,
-          reason: "assert.deepStrictEqual missing message parameter",
-        });
+      // Check for assertion
+      const assertMatch = line.match(ASSERT_PATTERN);
+      if (assertMatch) {
+        const prop = assertMatch[1];
+        const assignLine = acc.assignments[prop];
+
+        if (assignLine !== undefined) {
+          const distance = lineNum - assignLine;
+          if (distance > 0 && distance <= maxDistance) {
+            const violation = {
+              file: relativePath,
+              line: lineNum,
+              code: prop,
+              reason: `Set "${prop}" on line ${assignLine}, then assert on line ${lineNum} - tests nothing`,
+            };
+            return {
+              ...acc,
+              violations: [...acc.violations, violation],
+            };
+          }
+        }
       }
 
-      // Match assert.ok(x) without message
-      if (/assert\.ok\s*\([^,)]+\)\s*[;,)]?\s*$/.test(line)) {
-        violations.push({
-          file: relativePath,
-          line: i + 1,
-          code: truncatedCode,
-          reason: "assert.ok missing message parameter",
-        });
-      }
-    }
-    return violations;
-  });
+      // Prune stale assignments (immutably)
+      const freshAssignments = Object.fromEntries(
+        Object.entries(acc.assignments).filter(
+          ([, assignLineNum]) => lineNum - assignLineNum <= staleThreshold,
+        ),
+      );
+
+      return { ...acc, assignments: freshAssignments };
+    },
+    { assignments: {}, violations: [] },
+  );
+
+  return result.violations;
 };
 
 /**
  * Check for tautological assertions.
  * Section 2: Not Tautological
- *
- * Detects patterns like:
- *   x.prop = value;
- *   assert.strictEqual(x.prop, value);
+ * Pure: () => violations[]
  */
 const findTautologicalAssertions = () => {
   const testFilesToCheck = TEST_FILES().filter(
     (f) => !f.includes("code-quality/"),
   );
 
-  return analyzeFiles(testFilesToCheck, (source, relativePath) => {
-    const violations = [];
-    const lines = source.split("\n");
-
-    // Track recent assignments: { "x.prop": { value, line } }
-    const recentAssignments = new Map();
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      // Match property assignments: x.prop = value;
-      const assignMatch = line.match(/^(\w+(?:\.\w+)+)\s*=\s*([^;]+);?\s*$/);
-      if (assignMatch) {
-        const [, prop, value] = assignMatch;
-        recentAssignments.set(prop, { value: value.trim(), line: i + 1 });
-        continue;
-      }
-
-      // Match assertions on properties
-      const assertMatch = line.match(
-        /assert\.(?:strictEqual|ok)\s*\(\s*(\w+(?:\.\w+)+)/,
-      );
-      if (assertMatch) {
-        const prop = assertMatch[1];
-        const assignment = recentAssignments.get(prop);
-
-        if (assignment) {
-          // Check if this is a tautology (assertion within 5 lines of assignment)
-          const lineDistance = i + 1 - assignment.line;
-          if (lineDistance <= 5 && lineDistance > 0) {
-            violations.push({
-              file: relativePath,
-              line: i + 1,
-              code: prop,
-              reason: `Set "${prop}" on line ${assignment.line}, then assert on line ${i + 1} - tests nothing`,
-            });
-          }
-        }
-      }
-
-      // Clear assignments that are too old (more than 10 lines ago)
-      for (const [key, val] of recentAssignments) {
-        if (i + 1 - val.line > 10) {
-          recentAssignments.delete(key);
-        }
-      }
-    }
-    return violations;
-  });
+  return analyzeFiles(testFilesToCheck, findTautologiesInSource);
 };
 
 // ============================================
@@ -336,8 +396,7 @@ describe("module", () => {
       "simple",
     ];
     for (const name of testPatterns) {
-      const isVague = VAGUE_NAME_PATTERNS.some((p) => p.test(name));
-      expect(isVague).toBe(true);
+      expect(matchesAnyVaguePattern(name)).toBe(true);
     }
   });
 
@@ -349,8 +408,7 @@ describe("module", () => {
       "basic-functionality-works",
     ];
     for (const name of goodNames) {
-      const isVague = VAGUE_NAME_PATTERNS.some((p) => p.test(name));
-      expect(isVague).toBe(false);
+      expect(matchesAnyVaguePattern(name)).toBe(false);
     }
   });
 
@@ -359,25 +417,8 @@ describe("module", () => {
         button.disabled = false;
         assert.strictEqual(button.disabled, false);
       `;
-    const lines = source.split("\n");
-    const recentAssignments = new Map();
-    let foundTautology = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      const assignMatch = line.match(/^(\w+(?:\.\w+)+)\s*=\s*([^;]+);?\s*$/);
-      if (assignMatch) {
-        recentAssignments.set(assignMatch[1], { line: i + 1 });
-      }
-      const assertMatch = line.match(
-        /assert\.strictEqual\s*\(\s*(\w+(?:\.\w+)+)/,
-      );
-      if (assertMatch && recentAssignments.has(assertMatch[1])) {
-        foundTautology = true;
-      }
-    }
-
-    expect(foundTautology).toBe(true);
+    const violations = findTautologiesInSource(source, "test.js");
+    expect(violations.length).toBe(1);
   });
 
   test("No tests have vague names (Section 4)", () => {
