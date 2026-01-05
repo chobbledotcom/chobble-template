@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Coverage runner for Bun's native test framework.
- * Runs tests with coverage, enforces thresholds, and ratchets up limits on CI.
+ * Coverage runner for Bun's test framework.
+ * Parses LCOV output to prevent new uncovered code via an exceptions allowlist.
  */
 
 import { spawnSync } from "node:child_process";
@@ -10,139 +10,189 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ROOT_DIR } from "../src/_lib/paths.js";
 
+// --- Configuration ---
+
 const rootDir = ROOT_DIR;
-const configPath = resolve(rootDir, ".test_coverage.json");
+const exceptionsPath = resolve(rootDir, ".coverage_exceptions.json");
 const lcovPath = resolve(rootDir, "coverage", "lcov.info");
-
-function readLimits() {
-  const content = readFileSync(configPath, "utf-8");
-  return JSON.parse(content);
-}
-
-function writeLimits(limits) {
-  const content = `${JSON.stringify(limits, null, "\t")}\n`;
-  writeFileSync(configPath, content, "utf-8");
-}
-
-// Files excluded from coverage calculations (bootstrap/preload scripts)
 const COVERAGE_EXCLUDE = ["test/ensure-deps.js"];
+const TYPES = ["lines", "functions", "branches"];
 
-/**
- * Parse LCOV file to extract coverage percentages
- */
-function parseLcov(lcovContent) {
-  const files = {};
-  let currentFile = null;
-  let skipFile = false;
+// --- Functional Helpers ---
 
-  for (const line of lcovContent.split("\n")) {
+const readJson = (path, fallback) =>
+  existsSync(path) ? JSON.parse(readFileSync(path, "utf-8")) : fallback;
+
+const writeJson = (path, data) =>
+  writeFileSync(path, `${JSON.stringify(data, null, "\t")}\n`, "utf-8");
+
+// Set operations
+const difference = (a, b) => a.filter((x) => !b.has(x));
+const intersection = (a, b) => a.filter((x) => b.has(x));
+
+// Curried helpers for coverage operations
+const diffByFile = (fn) => (current, allowed) => {
+  const result = {};
+  for (const [file, items] of Object.entries(current)) {
+    const diff = fn(items, new Set(allowed[file] || []));
+    if (diff.length > 0) result[file] = diff;
+  }
+  return result;
+};
+
+const findNew = diffByFile(difference); // items in current not in allowed
+const findRemaining = diffByFile(intersection); // items in current that are in allowed
+
+// Apply operation across all coverage types
+const mapTypes = (fn) => (data) => {
+  const result = {};
+  for (const type of TYPES) {
+    result[type] = fn(data, type);
+  }
+  return result;
+};
+
+const isNonEmpty = (obj) => Object.keys(obj).length > 0;
+const onCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
+
+// --- LCOV Parsing ---
+
+const parseUncovered = {
+  DA: (line) => {
+    const [lineNum, hits] = line.split(",").map(Number);
+    return hits === 0 ? { type: "lines", id: lineNum } : null;
+  },
+  FNDA: (line) => {
+    const [hits, name] = line.split(",");
+    return parseInt(hits, 10) === 0 ? { type: "functions", id: name } : null;
+  },
+  BRDA: (line) => {
+    const [ln, block, branch, taken] = line.split(",");
+    return taken === "0" || taken === "-"
+      ? { type: "branches", id: `${ln}:${block}:${branch}` }
+      : null;
+  },
+};
+
+function parseLcov(content) {
+  const uncovered = { lines: {}, functions: {}, branches: {} };
+  let file = null;
+
+  for (const line of content.split("\n")) {
     if (line.startsWith("SF:")) {
-      const filePath = line.slice(3);
-      skipFile = COVERAGE_EXCLUDE.some((p) => filePath.endsWith(p));
-      if (skipFile) {
-        currentFile = null;
-        continue;
-      }
-      currentFile = filePath;
-      files[currentFile] = {
-        linesFound: 0,
-        linesHit: 0,
-        functionsFound: 0,
-        functionsHit: 0,
-        branchesFound: 0,
-        branchesHit: 0,
-      };
-    } else if (currentFile) {
-      if (line.startsWith("LF:")) {
-        files[currentFile].linesFound = parseInt(line.slice(3), 10);
-      } else if (line.startsWith("LH:")) {
-        files[currentFile].linesHit = parseInt(line.slice(3), 10);
-      } else if (line.startsWith("FNF:")) {
-        files[currentFile].functionsFound = parseInt(line.slice(4), 10);
-      } else if (line.startsWith("FNH:")) {
-        files[currentFile].functionsHit = parseInt(line.slice(4), 10);
-      } else if (line.startsWith("BRF:")) {
-        files[currentFile].branchesFound = parseInt(line.slice(4), 10);
-      } else if (line.startsWith("BRH:")) {
-        files[currentFile].branchesHit = parseInt(line.slice(4), 10);
-      } else if (line === "end_of_record") {
-        currentFile = null;
+      const path = line.slice(3);
+      file = COVERAGE_EXCLUDE.some((p) => path.endsWith(p))
+        ? null
+        : path.replace(`${rootDir}/`, "");
+      continue;
+    }
+
+    if (!file) continue;
+
+    if (line === "end_of_record") {
+      file = null;
+      continue;
+    }
+
+    const colonIdx = line.indexOf(":");
+    if (colonIdx > 0) {
+      const prefix = line.slice(0, colonIdx);
+      const parser = parseUncovered[prefix];
+      if (parser) {
+        const result = parser(line.slice(colonIdx + 1));
+        if (result) {
+          if (!uncovered[result.type][file]) uncovered[result.type][file] = [];
+          uncovered[result.type][file].push(result.id);
+        }
       }
     }
   }
 
-  // Calculate totals
-  let totalLines = 0,
-    hitLines = 0;
-  let totalFunctions = 0,
-    hitFunctions = 0;
-  let totalBranches = 0,
-    hitBranches = 0;
-
-  for (const file of Object.values(files)) {
-    totalLines += file.linesFound;
-    hitLines += file.linesHit;
-    totalFunctions += file.functionsFound;
-    hitFunctions += file.functionsHit;
-    totalBranches += file.branchesFound;
-    hitBranches += file.branchesHit;
-  }
-
-  const round2 = (n) => Math.round(n * 100) / 100;
-
-  return {
-    files,
-    totals: {
-      lines: totalLines > 0 ? round2((hitLines / totalLines) * 100) : 100,
-      functions:
-        totalFunctions > 0
-          ? round2((hitFunctions / totalFunctions) * 100)
-          : 100,
-      branches:
-        totalBranches > 0 ? round2((hitBranches / totalBranches) * 100) : 100,
-    },
-  };
+  return uncovered;
 }
 
-/**
- * Filter coverage output to hide files with 100% coverage
- */
-function filterCoverageOutput(output) {
-  const lines = output.split("\n");
-  const result = [];
-  let hiddenCount = 0;
+// --- Exception Checking ---
 
-  for (const line of lines) {
-    // Check if this is a file coverage line (contains percentage)
-    const fileMatch = line.match(
-      /^(.+?)\s+\|\s+([\d.]+)%\s+\|\s+([\d.]+)%\s+\|\s+([\d.]+)%/,
+function checkExceptions(uncovered, exceptions, verbose) {
+  const violations = mapTypes(({ uncovered, exceptions }, type) =>
+    findNew(uncovered[type] || {}, exceptions[type] || {}),
+  )({ uncovered, exceptions });
+
+  const hasViolations = TYPES.some((t) => isNonEmpty(violations[t]));
+
+  if (hasViolations) {
+    console.error("\n❌ New uncovered code detected!");
+    console.error(
+      "   All new code must have test coverage. Either add tests or update .coverage_exceptions.json\n",
     );
-    if (fileMatch) {
-      const [, , lines, funcs, branches] = fileMatch;
-      const isPerfect =
-        parseFloat(lines) === 100 &&
-        parseFloat(funcs) === 100 &&
-        parseFloat(branches) === 100;
-      if (isPerfect) {
-        hiddenCount++;
-        continue;
+    for (const type of TYPES) {
+      if (!isNonEmpty(violations[type])) continue;
+      console.error(`   Uncovered ${type}:`);
+      for (const [file, items] of Object.entries(violations[type])) {
+        console.error(`     ${file}: ${items.join(", ")}`);
       }
     }
-    result.push(line);
+    return false;
   }
 
-  if (hiddenCount > 0) {
-    result.push(`\n(${hiddenCount} files with 100% coverage hidden)`);
+  if (verbose) {
+    const removable = mapTypes(({ uncovered, exceptions }, type) => {
+      const result = {};
+      for (const [file, items] of Object.entries(exceptions[type] || {})) {
+        const nowCovered = difference(
+          items,
+          new Set(uncovered[type]?.[file] || []),
+        );
+        if (nowCovered.length > 0) result[file] = nowCovered;
+      }
+      return result;
+    })({ uncovered, exceptions });
+
+    if (TYPES.some((t) => isNonEmpty(removable[t]))) {
+      console.log("\n📉 Some exceptions can be removed (code is now covered):");
+      for (const type of TYPES) {
+        if (!isNonEmpty(removable[type])) continue;
+        for (const [file, items] of Object.entries(removable[type])) {
+          console.log(`   ${file} ${type}: ${items.join(", ")}`);
+        }
+      }
+    }
   }
 
-  return result.join("\n");
+  return true;
 }
+
+// --- Ratcheting (CI only) ---
+
+function ratchetExceptions(exceptions, uncovered, verbose) {
+  if (!onCI()) return;
+
+  const ratcheted = {
+    _comment: exceptions._comment,
+    ...mapTypes(({ uncovered, exceptions }, type) =>
+      findRemaining(exceptions[type] || {}, uncovered[type] || {}),
+    )({ uncovered, exceptions }),
+  };
+
+  const changed = TYPES.some(
+    (t) => JSON.stringify(ratcheted[t]) !== JSON.stringify(exceptions[t] || {}),
+  );
+
+  if (changed) {
+    writeJson(exceptionsPath, ratcheted);
+    if (verbose) {
+      console.log(
+        "\n📉 Coverage exceptions ratcheted down in .coverage_exceptions.json",
+      );
+    }
+  }
+}
+
+// --- Main ---
 
 function runCoverage() {
-  const limits = readLimits();
   const verbose = process.env.VERBOSE === "1";
 
-  // Run bun test with coverage
   const result = spawnSync(
     "bun",
     [
@@ -153,119 +203,31 @@ function runCoverage() {
       "--timeout",
       "30000",
     ],
-    {
-      cwd: rootDir,
-      stdio: ["inherit", "pipe", "inherit"],
-      env: process.env,
-    },
+    { cwd: rootDir, stdio: ["inherit", "pipe", "inherit"], env: process.env },
   );
 
-  // Print test output (filtered if it includes coverage)
-  if (result.stdout && verbose) {
-    const output = result.stdout.toString();
-    console.log(filterCoverageOutput(output));
-  }
+  if (verbose && result.stdout) console.log(result.stdout.toString());
+  if (result.status !== 0) process.exit(result.status || 1);
 
-  if (result.status !== 0) {
-    process.exit(result.status || 1);
-  }
-
-  // Parse LCOV to get actual coverage
   if (!existsSync(lcovPath)) {
-    if (verbose) {
-      console.log("No coverage data found, skipping threshold check");
-    }
+    if (verbose) console.log("No coverage data found, skipping checks");
     return;
   }
 
-  const lcovContent = readFileSync(lcovPath, "utf-8");
-  const coverage = parseLcov(lcovContent);
+  const uncovered = parseLcov(readFileSync(lcovPath, "utf-8"));
+  const exceptions = readJson(exceptionsPath, {
+    lines: {},
+    functions: {},
+    branches: {},
+  });
 
-  // Check against thresholds
-  const { lines, functions, branches } = coverage.totals;
-  let failed = false;
-
-  if (verbose) {
-    console.log("\n--- Coverage Summary ---");
-    console.log(`Lines:     ${lines}% (threshold: ${limits.lines}%)`);
-    console.log(`Functions: ${functions}% (threshold: ${limits.functions}%)`);
-    console.log(`Branches:  ${branches}% (threshold: ${limits.branches}%)`);
-  }
-
-  if (lines < limits.lines) {
-    console.error(
-      `\n❌ Line coverage ${lines}% below threshold ${limits.lines}%`,
-    );
-    failed = true;
-  }
-  if (functions < limits.functions) {
-    console.error(
-      `\n❌ Function coverage ${functions}% below threshold ${limits.functions}%`,
-    );
-    failed = true;
-  }
-  if (branches < limits.branches) {
-    console.error(
-      `\n❌ Branch coverage ${branches}% below threshold ${limits.branches}%`,
-    );
-    failed = true;
-  }
-
-  if (failed) {
+  if (!checkExceptions(uncovered, exceptions, verbose)) {
     process.exit(1);
   }
 
-  if (verbose) {
-    console.log("\n✅ Coverage thresholds met!");
-  }
+  if (verbose) console.log("\n✅ All code covered (or in exceptions)!");
 
-  // Ratchet up limits on CI
-  ratchetLimits(limits, coverage.totals, verbose);
-}
-
-function ratchetLimits(currentLimits, actual, verbose) {
-  // Only ratchet on CI and main branch to avoid local cache differences and non-main branches
-  if (!process.env.CI || process.env.GITHUB_REF_NAME !== "main") {
-    return;
-  }
-
-  let updated = false;
-  const newLimits = { ...currentLimits };
-
-  if (actual.lines > currentLimits.lines) {
-    newLimits.lines = Math.floor(actual.lines);
-    updated = true;
-  }
-
-  if (actual.functions > currentLimits.functions) {
-    newLimits.functions = Math.floor(actual.functions);
-    updated = true;
-  }
-
-  if (actual.branches > currentLimits.branches) {
-    newLimits.branches = Math.floor(actual.branches);
-    updated = true;
-  }
-
-  if (updated) {
-    writeLimits(newLimits);
-    if (verbose) {
-      console.log("\n📈 Coverage limits updated in .test_coverage.json:");
-      if (newLimits.lines !== currentLimits.lines) {
-        console.log(`   lines: ${currentLimits.lines}% → ${newLimits.lines}%`);
-      }
-      if (newLimits.functions !== currentLimits.functions) {
-        console.log(
-          `   functions: ${currentLimits.functions}% → ${newLimits.functions}%`,
-        );
-      }
-      if (newLimits.branches !== currentLimits.branches) {
-        console.log(
-          `   branches: ${currentLimits.branches}% → ${newLimits.branches}%`,
-        );
-      }
-    }
-  }
+  ratchetExceptions(exceptions, uncovered, verbose);
 }
 
 runCoverage();
