@@ -95,22 +95,17 @@ const handleDateChange = (elements) => () => {
 };
 
 // Initialize hire calculator
+// Looks for fields named start_date and end_date in the form
 const initHireCalculator = () => {
-  const section = document.getElementById("hire-dates-section");
-  const startInput = document.getElementById("hire_start_date");
-  const endInput = document.getElementById("hire_end_date");
+  const startInput = document.querySelector('input[name="start_date"]');
+  const endInput = document.querySelector('input[name="end_date"]');
   const totalEl = document.getElementById("hire-total");
   const daysInput = document.getElementById("hire_days");
 
-  if (!section || !startInput || !endInput || !totalEl) return;
+  if (!startInput || !endInput || !totalEl) return;
 
   const cart = getCart();
   if (!hasHireItems(cart)) return;
-
-  // Show the section and make fields required
-  section.style.display = "block";
-  startInput.required = true;
-  endInput.required = true;
 
   const elements = { startInput, endInput, totalEl, daysInput };
 

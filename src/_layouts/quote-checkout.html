@@ -12,22 +12,8 @@ layout: base
         email_subject: "New quote request from {site_name}"
     -%}
     <input type="hidden" id="cart-items" name="cart_items" value="" />
-
-    <div id="hire-dates-section" class="hire-dates-section" style="display: none;">
-      <h3>Hire Dates</h3>
-      <div class="hire-dates-fields">
-        <label for="hire_start_date">
-          Start Date
-          <input type="date" id="hire_start_date" name="hire_start_date" />
-        </label>
-        <label for="hire_end_date">
-          End Date
-          <input type="date" id="hire_end_date" name="hire_end_date" />
-        </label>
-      </div>
-      <div id="hire-total" class="hire-total" style="display: none;"></div>
-      <input type="hidden" id="hire_days" name="hire_days" value="" />
-    </div>
+    <input type="hidden" id="hire_days" name="hire_days" value="" />
+    <div id="hire-total" class="hire-total" style="display: none;"></div>
 
     {%- include "quote-form-steps.html" -%}
   </form>

@@ -3,15 +3,15 @@
 	"recapTitle": "Review Your Request",
 	"fields": [
 		{
-			"name": "event_start_date",
+			"name": "start_date",
 			"type": "date",
-			"label": "Event Start Date",
+			"label": "Start Date",
 			"required": true
 		},
 		{
-			"name": "event_end_date",
+			"name": "end_date",
 			"type": "date",
-			"label": "Event End Date",
+			"label": "End Date",
 			"required": true
 		},
 		{
