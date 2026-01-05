@@ -3,34 +3,8 @@ import { groupBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
-/**
- * Date comparison for sorting events by event_date
- */
-const byEventDateAsc = (a, b) =>
-  new Date(a.data.event_date) - new Date(b.data.event_date);
-
-const byEventDateDesc = (a, b) =>
-  new Date(b.data.event_date) - new Date(a.data.event_date);
-
 const getFeaturedEvents = (events) =>
   events?.filter((e) => e.data.featured) || [];
-
-const categorizeByEventDate = (eventDate, now) => {
-  const date = new Date(eventDate);
-  date.setHours(0, 0, 0, 0);
-  return date >= now ? "upcoming" : "past";
-};
-
-/**
- * Create an event categorizer based on current date
- * Returns a pure function: (event) => "upcoming" | "past" | "regular" | null
- */
-const createEventCategorizer = (now) => (event) => {
-  if (event.data.recurring_date) return "regular";
-  if (event.data.event_date)
-    return categorizeByEventDate(event.data.event_date, now);
-  return null;
-};
 
 /**
  * Safe lookup from Map with default value
@@ -45,10 +19,20 @@ export const categoriseEvents = memoize((events) => {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  const grouped = groupBy(events, createEventCategorizer(now));
+  const grouped = groupBy(events, (event) => {
+    if (event.data.recurring_date) return "regular";
+    if (!event.data.event_date) return null;
+    const date = new Date(event.data.event_date);
+    date.setHours(0, 0, 0, 0);
+    return date >= now ? "upcoming" : "past";
+  });
 
-  const upcoming = sort(byEventDateAsc)(fromMap(grouped, "upcoming"));
-  const past = sort(byEventDateDesc)(fromMap(grouped, "past"));
+  const upcoming = sort(
+    (a, b) => new Date(a.data.event_date) - new Date(b.data.event_date),
+  )(fromMap(grouped, "upcoming"));
+  const past = sort(
+    (a, b) => new Date(b.data.event_date) - new Date(a.data.event_date),
+  )(fromMap(grouped, "past"));
   const regular = sort(sortItems)(fromMap(grouped, "regular"));
 
   return {

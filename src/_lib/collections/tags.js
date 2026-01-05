@@ -7,13 +7,11 @@ import {
   unique,
 } from "#utils/array-utils.js";
 
-const notNullish = (x) => x !== null && x !== undefined;
-
 const extractTags = (collection) =>
   pipe(
     filter((page) => page.url && !page.data?.no_index),
     flatMap((page) => page.data?.tags || []),
-    filter(notNullish),
+    filter((x) => x !== null && x !== undefined),
     map((tag) => String(tag).trim()),
     filter((tag) => tag !== ""),
     unique,

@@ -186,11 +186,11 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
-  "src/_lib/filters/item-filters.js:107", // path
+  "src/_lib/filters/item-filters.js:102", // path
   "src/_lib/collections/products.js:6", // gallery
   "src/_lib/collections/products.js:79", // options
   "src/_lib/collections/search.js:9", // category
-  "src/_lib/collections/reviews.js:101", // name
+  "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:12", // collection
   "src/_lib/collections/navigation.js:18", // result
   "src/_lib/utils/canonical-url.js:9", // url
@@ -200,8 +200,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
-  "test/code-quality/single-use-functions.test.js:101", // inString (boolean state)
-  "test/code-quality/single-use-functions.test.js:118", // inString (boolean state)
+  "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
+  "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
 ]);
 
 // ============================================
@@ -217,13 +217,10 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
   "src/_lib/collections/categories.js",
-  "src/_lib/collections/events.js",
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
-  "src/_lib/collections/reviews.js",
   "src/_lib/collections/search.js",
-  "src/_lib/collections/tags.js",
   "src/_lib/eleventy/external-links.js",
   "src/_lib/eleventy/file-utils.js",
   "src/_lib/eleventy/js-config.js",
