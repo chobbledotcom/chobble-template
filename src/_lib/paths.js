@@ -11,4 +11,17 @@ const IMAGES_DIR = join(SRC_DIR, "images");
 const PAGES_DIR = join(SRC_DIR, "pages");
 const DATA_DIR = join(SRC_DIR, "_data");
 
-export { SRC_DIR, IMAGES_DIR, PAGES_DIR, DATA_DIR };
+/**
+ * Test infrastructure files that legitimately need to use ".." for path navigation.
+ * These files calculate the project root for all other tests to import.
+ */
+function getTestInfrastructureFiles() {
+  return [
+    "test/test-utils.js",
+    "test/test-site-factory.js",
+    "test/run-all-tests.js",
+    "test/run-coverage.js",
+  ];
+}
+
+export { SRC_DIR, IMAGES_DIR, PAGES_DIR, DATA_DIR, getTestInfrastructureFiles };

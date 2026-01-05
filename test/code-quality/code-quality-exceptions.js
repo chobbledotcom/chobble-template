@@ -5,6 +5,8 @@
  * These should be removed over time as the codebase is refactored.
  */
 
+import { getTestInfrastructureFiles } from "../../src/_lib/paths.js";
+
 // ============================================
 // try/catch exceptions
 // ============================================
@@ -77,10 +79,7 @@ const ALLOWED_RELATIVE_PATHS = new Set([
   "src/_lib/paths.js",
 
   // Test infrastructure - calculates rootDir for all other tests to import
-  "test/test-utils.js",
-  "test/test-site-factory.js",
-  "test/run-all-tests.js",
-  "test/run-coverage.js",
+  ...getTestInfrastructureFiles(),
 ]);
 
 // ============================================
