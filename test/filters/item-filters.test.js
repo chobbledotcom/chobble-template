@@ -14,6 +14,78 @@ import {
   pathToFilter,
 } from "#filters/item-filters.js";
 import { expectResultTitles } from "#test/test-utils.js";
+import { map, pipe, reduce } from "#utils/array-utils.js";
+
+// ============================================
+// Functional Test Fixture Builders
+// ============================================
+
+/**
+ * Create a filter attribute { name, value }
+ */
+const attr = (name, value) => ({ name, value });
+
+/**
+ * Create an item with filter_attributes and optional title
+ * @param {string|null} title - Item title (null for no title)
+ * @param {...Object} attrs - Filter attributes created with attr()
+ */
+const item = (title, ...attrs) => ({
+  data: {
+    ...(title && { title }),
+    ...(attrs.length > 0 && { filter_attributes: attrs }),
+  },
+});
+
+/**
+ * Create items from an array of [title, ...attrs] tuples
+ * Curried for use with pipe
+ */
+const items = map(([title, ...attrs]) => item(title, ...attrs));
+
+/**
+ * Create validPages array from path strings
+ */
+const pages = map((path) => ({ path }));
+
+/**
+ * Build filterData { attributes, displayLookup } from a definition object
+ * Definition format: { attrName: { display: "Display Name", values: { slug: "Display" } } }
+ */
+const filterData = (definition) =>
+  pipe(
+    Object.entries,
+    reduce(
+      (acc, [attrKey, { display, values }]) => ({
+        attributes: {
+          ...acc.attributes,
+          [attrKey]: Object.keys(values),
+        },
+        displayLookup: {
+          ...acc.displayLookup,
+          [attrKey]: display,
+          ...values,
+        },
+      }),
+      { attributes: {}, displayLookup: {} },
+    ),
+  )(definition);
+
+/**
+ * Create a mock Eleventy config that captures addCollection/addFilter calls
+ */
+const mockConfig = () => {
+  const collections = [];
+  const filters = [];
+  return {
+    addCollection: (name, fn) => collections.push({ name, fn }),
+    addFilter: (name, fn) => filters.push({ name, fn }),
+    getCollections: () => collections,
+    getFilters: () => filters,
+    getCollection: (name) => collections.find((c) => c.name === name)?.fn,
+    getFilter: (name) => filters.find((f) => f.name === name)?.fn,
+  };
+};
 
 describe("item-filters", () => {
   // parseFilterAttributes tests
@@ -23,40 +95,32 @@ describe("item-filters", () => {
   });
 
   test("Parses basic filter attributes with lowercase conversion", () => {
-    const input = [
-      { name: "Size", value: "Small" },
-      { name: "Type", value: "Cottage" },
-    ];
-
-    const result = parseFilterAttributes(input);
+    const result = parseFilterAttributes([
+      attr("Size", "Small"),
+      attr("Type", "Cottage"),
+    ]);
 
     expect(result).toEqual({ size: "small", type: "cottage" });
   });
 
   test("Converts spaces to dashes using slugify", () => {
-    const input = [
-      { name: "Pet Friendly", value: "Yes" },
-      { name: "Beach Access", value: "Private Beach" },
-    ];
-
-    const result = parseFilterAttributes(input);
+    const result = parseFilterAttributes([
+      attr("Pet Friendly", "Yes"),
+      attr("Beach Access", "Private Beach"),
+    ]);
 
     expect(result["pet-friendly"]).toBe("yes");
     expect(result["beach-access"]).toBe("private-beach");
   });
 
   test("Trims whitespace from names and values", () => {
-    const input = [{ name: "  Size  ", value: "  Large  " }];
-
-    const result = parseFilterAttributes(input);
+    const result = parseFilterAttributes([attr("  Size  ", "  Large  ")]);
 
     expect(result).toEqual({ size: "large" });
   });
 
   test("Handles special characters via slugify", () => {
-    const input = [{ name: "Size & Type", value: "Extra Large!" }];
-
-    const result = parseFilterAttributes(input);
+    const result = parseFilterAttributes([attr("Size & Type", "Extra Large!")]);
 
     // slugify removes special chars and replaces spaces with dashes
     expect(
@@ -67,18 +131,11 @@ describe("item-filters", () => {
 
   // buildDisplayLookup tests
   test("Builds lookup from slugified keys to original display values", () => {
-    const items = [
-      {
-        data: {
-          filter_attributes: [
-            { name: "Pet Friendly", value: "Yes" },
-            { name: "Type", value: "Cottage" },
-          ],
-        },
-      },
+    const testItems = [
+      item(null, attr("Pet Friendly", "Yes"), attr("Type", "Cottage")),
     ];
 
-    const result = buildDisplayLookup(items);
+    const result = buildDisplayLookup(testItems);
 
     expect(result["pet-friendly"]).toBe("Pet Friendly");
     expect(result.yes).toBe("Yes");
@@ -87,32 +144,21 @@ describe("item-filters", () => {
   });
 
   test("First capitalization wins for duplicate keys", () => {
-    const items = [
-      {
-        data: {
-          filter_attributes: [{ name: "Pet Friendly", value: "YES" }],
-        },
-      },
-      {
-        data: {
-          filter_attributes: [{ name: "pet friendly", value: "yes" }],
-        },
-      },
+    const testItems = [
+      item(null, attr("Pet Friendly", "YES")),
+      item(null, attr("pet friendly", "yes")),
     ];
 
-    const result = buildDisplayLookup(items);
+    const result = buildDisplayLookup(testItems);
 
     expect(result["pet-friendly"]).toBe("Pet Friendly");
     expect(result.yes).toBe("YES");
   });
 
   test("Handles items without filter_attributes", () => {
-    const items = [
-      { data: { title: "No filters" } },
-      { data: { filter_attributes: [{ name: "Size", value: "Large" }] } },
-    ];
+    const testItems = [item("No filters"), item(null, attr("Size", "Large"))];
 
-    const result = buildDisplayLookup(items);
+    const result = buildDisplayLookup(testItems);
 
     expect(result.size).toBe("Size");
     expect(result.large).toBe("Large");
@@ -160,41 +206,21 @@ describe("item-filters", () => {
 
   // getAllFilterAttributes tests
   test("Collects all unique filter attributes and values", () => {
-    const items = [
-      {
-        data: {
-          filter_attributes: [
-            { name: "Type", value: "Cottage" },
-            { name: "Bedrooms", value: "2" },
-          ],
-        },
-      },
-      {
-        data: {
-          filter_attributes: [
-            { name: "Type", value: "Apartment" },
-            { name: "Bedrooms", value: "3" },
-          ],
-        },
-      },
+    const testItems = [
+      item(null, attr("Type", "Cottage"), attr("Bedrooms", "2")),
+      item(null, attr("Type", "Apartment"), attr("Bedrooms", "3")),
     ];
 
-    const result = getAllFilterAttributes(items);
+    const result = getAllFilterAttributes(testItems);
 
     expect(result.bedrooms).toEqual(["2", "3"]);
     expect(result.type).toEqual(["apartment", "cottage"]);
   });
 
   test("Uses slugified keys for attributes with spaces", () => {
-    const items = [
-      {
-        data: {
-          filter_attributes: [{ name: "Pet Friendly", value: "Yes" }],
-        },
-      },
-    ];
+    const testItems = [item(null, attr("Pet Friendly", "Yes"))];
 
-    const result = getAllFilterAttributes(items);
+    const result = getAllFilterAttributes(testItems);
 
     expect("pet-friendly" in result).toBe(true);
     expect(result["pet-friendly"]).toEqual(["yes"]);
@@ -202,27 +228,20 @@ describe("item-filters", () => {
 
   // itemMatchesFilters tests
   test("All items match empty filters", () => {
-    const item = {
-      data: {
-        filter_attributes: [{ name: "Type", value: "Cottage" }],
-      },
-    };
+    const testItem = item(null, attr("Type", "Cottage"));
 
-    expect(itemMatchesFilters(item, null)).toBe(true);
-    expect(itemMatchesFilters(item, {})).toBe(true);
+    expect(itemMatchesFilters(testItem, null)).toBe(true);
+    expect(itemMatchesFilters(testItem, {})).toBe(true);
   });
 
   test("Returns true for matching filters", () => {
-    const item = {
-      data: {
-        filter_attributes: [
-          { name: "Pet Friendly", value: "Yes" },
-          { name: "Type", value: "Cottage" },
-        ],
-      },
-    };
+    const testItem = item(
+      null,
+      attr("Pet Friendly", "Yes"),
+      attr("Type", "Cottage"),
+    );
 
-    const result = itemMatchesFilters(item, {
+    const result = itemMatchesFilters(testItem, {
       "pet-friendly": "yes",
       type: "cottage",
     });
@@ -231,68 +250,33 @@ describe("item-filters", () => {
   });
 
   test("Returns false for non-matching filters", () => {
-    const item = {
-      data: {
-        filter_attributes: [{ name: "Type", value: "Cottage" }],
-      },
-    };
+    const testItem = item(null, attr("Type", "Cottage"));
 
-    const result = itemMatchesFilters(item, { type: "apartment" });
+    const result = itemMatchesFilters(testItem, { type: "apartment" });
 
     expect(result).toBe(false);
   });
 
   // getItemsByFilters tests
   test("Returns only items matching all filters", () => {
-    const items = [
-      {
-        data: {
-          title: "Beach Cottage",
-          filter_attributes: [
-            { name: "Pet Friendly", value: "Yes" },
-            { name: "Type", value: "Cottage" },
-          ],
-        },
-      },
-      {
-        data: {
-          title: "City Apartment",
-          filter_attributes: [
-            { name: "Pet Friendly", value: "No" },
-            { name: "Type", value: "Apartment" },
-          ],
-        },
-      },
-      {
-        data: {
-          title: "Pet Apartment",
-          filter_attributes: [
-            { name: "Pet Friendly", value: "Yes" },
-            { name: "Type", value: "Apartment" },
-          ],
-        },
-      },
-    ];
+    const testItems = items([
+      ["Beach Cottage", attr("Pet Friendly", "Yes"), attr("Type", "Cottage")],
+      ["City Apartment", attr("Pet Friendly", "No"), attr("Type", "Apartment")],
+      ["Pet Apartment", attr("Pet Friendly", "Yes"), attr("Type", "Apartment")],
+    ]);
 
-    const result = getItemsByFilters(items, { "pet-friendly": "yes" });
+    const result = getItemsByFilters(testItems, { "pet-friendly": "yes" });
 
     expectResultTitles(result, ["Beach Cottage", "Pet Apartment"]);
   });
 
   // generateFilterCombinations tests
   test("Generates all valid filter combination paths", () => {
-    const items = [
-      {
-        data: {
-          filter_attributes: [
-            { name: "Pet Friendly", value: "Yes" },
-            { name: "Type", value: "Cottage" },
-          ],
-        },
-      },
+    const testItems = [
+      item(null, attr("Pet Friendly", "Yes"), attr("Type", "Cottage")),
     ];
 
-    const result = generateFilterCombinations(items);
+    const result = generateFilterCombinations(testItems);
 
     // Should have combinations for: pet-friendly/yes, type/cottage, and both combined
     const paths = result.map((c) => c.path);
@@ -320,19 +304,14 @@ describe("item-filters", () => {
 
   // Integration test: URL generation with spaces
   test("Filter URLs use dashes instead of %20 for spaces (main bug fix)", () => {
-    const items = [
-      {
-        data: {
-          filter_attributes: [
-            { name: "Pet Friendly", value: "Yes" },
-            { name: "Type", value: "Apartment" },
-          ],
-        },
-      },
-    ];
+    const testItem = item(
+      null,
+      attr("Pet Friendly", "Yes"),
+      attr("Type", "Apartment"),
+    );
 
     // Parse attributes (this is where slugification happens)
-    const parsed = parseFilterAttributes(items[0].data.filter_attributes);
+    const parsed = parseFilterAttributes(testItem.data.filter_attributes);
 
     // Generate path
     const path = filterToPath(parsed);
@@ -351,63 +330,45 @@ describe("item-filters", () => {
   });
 
   test("Returns all items sorted when no filters provided", () => {
-    const items = [
-      {
-        data: {
-          title: "B Item",
-          filter_attributes: [{ name: "Type", value: "B" }],
-        },
-      },
-      {
-        data: {
-          title: "A Item",
-          filter_attributes: [{ name: "Type", value: "A" }],
-        },
-      },
-    ];
+    const testItems = items([
+      ["B Item", attr("Type", "B")],
+      ["A Item", attr("Type", "A")],
+    ]);
 
-    const result = getItemsByFilters(items, {});
+    const result = getItemsByFilters(testItems, {});
 
     expect(result.length).toBe(2);
   });
 
   // buildFilterUIData tests
   test("Returns hasFilters false when no filter attributes exist", () => {
-    const filterData = { attributes: {}, displayLookup: {} };
-    const result = buildFilterUIData(filterData, null, [], "/products");
+    const data = filterData({});
+    const result = buildFilterUIData(data, null, [], "/products");
 
     expect(result.hasFilters).toBe(false);
   });
 
-  test("Builds complete UI data structure with filter groups", () => {
-    const filterData = {
-      attributes: {
-        type: ["cottage", "apartment"],
-        size: ["small", "large"],
+  // Shared filter data for buildFilterUIData tests
+  const typeSizeFilterData = () =>
+    filterData({
+      type: {
+        display: "Type",
+        values: { cottage: "Cottage", apartment: "Apartment" },
       },
-      displayLookup: {
-        type: "Type",
-        cottage: "Cottage",
-        apartment: "Apartment",
-        size: "Size",
-        small: "Small",
-        large: "Large",
-      },
-    };
-    const validPages = [
-      { path: "type/cottage" },
-      { path: "type/apartment" },
-      { path: "size/small" },
-      { path: "size/large" },
-      { path: "size/small/type/cottage" },
-    ];
+      size: { display: "Size", values: { small: "Small", large: "Large" } },
+    });
 
-    const result = buildFilterUIData(
-      filterData,
-      null,
-      validPages,
-      "/properties",
-    );
+  test("Builds complete UI data structure with filter groups", () => {
+    const data = typeSizeFilterData();
+    const validPages = pages([
+      "type/cottage",
+      "type/apartment",
+      "size/small",
+      "size/large",
+      "size/small/type/cottage",
+    ]);
+
+    const result = buildFilterUIData(data, null, validPages, "/properties");
 
     expect(result.hasFilters).toBe(true);
     expect(result.hasActiveFilters).toBe(false);
@@ -417,30 +378,17 @@ describe("item-filters", () => {
   });
 
   test("Includes active filters with remove URLs", () => {
-    const filterData = {
-      attributes: {
-        type: ["cottage", "apartment"],
-        size: ["small", "large"],
-      },
-      displayLookup: {
-        type: "Type",
-        cottage: "Cottage",
-        apartment: "Apartment",
-        size: "Size",
-        small: "Small",
-        large: "Large",
-      },
-    };
+    const data = typeSizeFilterData();
     const currentFilters = { type: "cottage" };
-    const validPages = [
-      { path: "type/cottage" },
-      { path: "type/apartment" },
-      { path: "size/small/type/cottage" },
-      { path: "size/large/type/cottage" },
-    ];
+    const validPages = pages([
+      "type/cottage",
+      "type/apartment",
+      "size/small/type/cottage",
+      "size/large/type/cottage",
+    ]);
 
     const result = buildFilterUIData(
-      filterData,
+      data,
       currentFilters,
       validPages,
       "/properties",
@@ -454,23 +402,15 @@ describe("item-filters", () => {
   });
 
   test("Only includes options that lead to valid pages", () => {
-    const filterData = {
-      attributes: { type: ["cottage", "apartment", "villa"] },
-      displayLookup: {
-        type: "Type",
-        cottage: "Cottage",
-        apartment: "Apartment",
-        villa: "Villa",
+    const data = filterData({
+      type: {
+        display: "Type",
+        values: { cottage: "Cottage", apartment: "Apartment", villa: "Villa" },
       },
-    };
-    const validPages = [{ path: "type/cottage" }, { path: "type/apartment" }];
+    });
+    const validPages = pages(["type/cottage", "type/apartment"]);
 
-    const result = buildFilterUIData(
-      filterData,
-      null,
-      validPages,
-      "/properties",
-    );
+    const result = buildFilterUIData(data, null, validPages, "/properties");
 
     expect(result.groups[0].options.length).toBe(2);
     const optionValues = result.groups[0].options.map((o) => o.value);
@@ -480,19 +420,17 @@ describe("item-filters", () => {
   });
 
   test("Marks currently active options in filter groups", () => {
-    const filterData = {
-      attributes: { type: ["cottage", "apartment"] },
-      displayLookup: {
-        type: "Type",
-        cottage: "Cottage",
-        apartment: "Apartment",
+    const data = filterData({
+      type: {
+        display: "Type",
+        values: { cottage: "Cottage", apartment: "Apartment" },
       },
-    };
+    });
     const currentFilters = { type: "cottage" };
-    const validPages = [{ path: "type/cottage" }, { path: "type/apartment" }];
+    const validPages = pages(["type/cottage", "type/apartment"]);
 
     const result = buildFilterUIData(
-      filterData,
+      data,
       currentFilters,
       validPages,
       "/properties",
@@ -509,48 +447,33 @@ describe("item-filters", () => {
   });
 
   test("Excludes groups with no valid options", () => {
-    const filterData = {
-      attributes: { type: ["cottage"], size: ["small"] },
-      displayLookup: {
-        type: "Type",
-        cottage: "Cottage",
-        size: "Size",
-        small: "Small",
-      },
-    };
+    const data = filterData({
+      type: { display: "Type", values: { cottage: "Cottage" } },
+      size: { display: "Size", values: { small: "Small" } },
+    });
     // Only type/cottage is valid, size/small is not
-    const validPages = [{ path: "type/cottage" }];
+    const validPages = pages(["type/cottage"]);
 
-    const result = buildFilterUIData(
-      filterData,
-      null,
-      validPages,
-      "/properties",
-    );
+    const result = buildFilterUIData(data, null, validPages, "/properties");
 
     expect(result.groups.length).toBe(1);
     expect(result.groups[0].name).toBe("type");
   });
 
   test("Remove URL for active filter keeps other filters", () => {
-    const filterData = {
-      attributes: { type: ["cottage"], size: ["small"] },
-      displayLookup: {
-        type: "Type",
-        cottage: "Cottage",
-        size: "Size",
-        small: "Small",
-      },
-    };
+    const data = filterData({
+      type: { display: "Type", values: { cottage: "Cottage" } },
+      size: { display: "Size", values: { small: "Small" } },
+    });
     const currentFilters = { type: "cottage", size: "small" };
-    const validPages = [
-      { path: "type/cottage" },
-      { path: "size/small" },
-      { path: "size/small/type/cottage" },
-    ];
+    const validPages = pages([
+      "type/cottage",
+      "size/small",
+      "size/small/type/cottage",
+    ]);
 
     const result = buildFilterUIData(
-      filterData,
+      data,
       currentFilters,
       validPages,
       "/properties",
@@ -568,8 +491,23 @@ describe("item-filters", () => {
   });
 
   // createFilterConfig tests
+  // Shared config factory for createFilterConfig tests
+  const testFilterConfig = (overrides = {}) =>
+    createFilterConfig({
+      tag: "test",
+      permalinkDir: "test",
+      itemsKey: "testItems",
+      collections: {
+        pages: "testFilterPages",
+        redirects: "testRedirects",
+        attributes: "testAttributes",
+      },
+      uiDataFilterName: "testFilterUIData",
+      ...overrides,
+    });
+
   test("Returns an object with configure function", () => {
-    const config = createFilterConfig({
+    const config = testFilterConfig({
       tag: "product",
       permalinkDir: "products",
       itemsKey: "products",
@@ -585,18 +523,8 @@ describe("item-filters", () => {
   });
 
   test("Configure adds all required collections and filter", () => {
-    const addedCollections = [];
-    const addedFilters = [];
-    const mockEleventyConfig = {
-      addCollection: (name, fn) => {
-        addedCollections.push({ name, fn });
-      },
-      addFilter: (name, fn) => {
-        addedFilters.push({ name, fn });
-      },
-    };
-
-    const config = createFilterConfig({
+    const mock = mockConfig();
+    const config = testFilterConfig({
       tag: "property",
       permalinkDir: "properties",
       itemsKey: "properties",
@@ -608,78 +536,45 @@ describe("item-filters", () => {
       uiDataFilterName: "propertyFilterUIData",
     });
 
-    config.configure(mockEleventyConfig);
+    config.configure(mock);
 
-    expect(addedCollections.length).toBe(3);
-    expect(addedFilters.length).toBe(1);
-    expect(addedFilters[0].name).toBe("propertyFilterUIData");
+    expect(mock.getCollections().length).toBe(3);
+    expect(mock.getFilters().length).toBe(1);
+    expect(mock.getFilters()[0].name).toBe("propertyFilterUIData");
 
-    const collectionNames = addedCollections.map((c) => c.name);
+    const collectionNames = mock.getCollections().map((c) => c.name);
     expect(collectionNames.includes("propertyFilterPages")).toBe(true);
     expect(collectionNames.includes("propertyRedirects")).toBe(true);
     expect(collectionNames.includes("propertyFilterAttributes")).toBe(true);
   });
 
   test("Pages collection returns filter combinations with items", () => {
-    let pagesCollection;
-    const mockEleventyConfig = {
-      addCollection: (name, fn) => {
-        if (name === "testFilterPages") pagesCollection = fn;
-      },
-      addFilter: () => {},
-    };
+    const mock = mockConfig();
+    const config = testFilterConfig();
 
-    const config = createFilterConfig({
-      tag: "test",
-      permalinkDir: "test",
-      itemsKey: "testItems",
-      collections: {
-        pages: "testFilterPages",
-        redirects: "testRedirects",
-        attributes: "testAttributes",
-      },
-      uiDataFilterName: "testFilterUIData",
-    });
-
-    config.configure(mockEleventyConfig);
+    config.configure(mock);
 
     const mockCollectionApi = {
-      getFilteredByTag: () => [
-        {
-          data: {
-            title: "Item 1",
-            filter_attributes: [{ name: "Type", value: "A" }],
-          },
-        },
-        {
-          data: {
-            title: "Item 2",
-            filter_attributes: [{ name: "Type", value: "B" }],
-          },
-        },
-      ],
+      getFilteredByTag: () =>
+        items([
+          ["Item 1", attr("Type", "A")],
+          ["Item 2", attr("Type", "B")],
+        ]),
     };
 
-    const pages = pagesCollection(mockCollectionApi);
+    const pagesResult =
+      mock.getCollection("testFilterPages")(mockCollectionApi);
 
-    expect(pages.length >= 2).toBe(true);
-    expect(pages[0].path !== undefined).toBe(true);
-    expect(pages[0].filters !== undefined).toBe(true);
-    expect(pages[0].testItems !== undefined).toBe(true);
-    expect(pages[0].filterDescription !== undefined).toBe(true);
+    expect(pagesResult.length >= 2).toBe(true);
+    expect(pagesResult[0].path !== undefined).toBe(true);
+    expect(pagesResult[0].filters !== undefined).toBe(true);
+    expect(pagesResult[0].testItems !== undefined).toBe(true);
+    expect(pagesResult[0].filterDescription !== undefined).toBe(true);
   });
 
   test("Redirects collection generates redirects for partial paths", () => {
-    let redirectsCollection;
-    const mockEleventyConfig = {
-      addCollection: (name, fn) => {
-        if (name === "testRedirects") redirectsCollection = fn;
-      },
-      addFilter: () => {},
-    };
-
-    const config = createFilterConfig({
-      tag: "test",
+    const mock = mockConfig();
+    const config = testFilterConfig({
       permalinkDir: "items",
       itemsKey: "items",
       collections: {
@@ -690,22 +585,15 @@ describe("item-filters", () => {
       uiDataFilterName: "testUI",
     });
 
-    config.configure(mockEleventyConfig);
+    config.configure(mock);
 
     const mockCollectionApi = {
       getFilteredByTag: () => [
-        {
-          data: {
-            filter_attributes: [
-              { name: "Type", value: "A" },
-              { name: "Size", value: "Large" },
-            ],
-          },
-        },
+        item(null, attr("Type", "A"), attr("Size", "Large")),
       ],
     };
 
-    const redirects = redirectsCollection(mockCollectionApi);
+    const redirects = mock.getCollection("testRedirects")(mockCollectionApi);
 
     expect(redirects.length > 0).toBe(true);
     expect(redirects[0].from !== undefined).toBe(true);
@@ -719,16 +607,8 @@ describe("item-filters", () => {
   });
 
   test("Attributes collection returns attributes and display lookup", () => {
-    let attributesCollection;
-    const mockEleventyConfig = {
-      addCollection: (name, fn) => {
-        if (name === "testAttrs") attributesCollection = fn;
-      },
-      addFilter: () => {},
-    };
-
-    const config = createFilterConfig({
-      tag: "test",
+    const mock = mockConfig();
+    const config = testFilterConfig({
       permalinkDir: "items",
       itemsKey: "items",
       collections: {
@@ -739,19 +619,13 @@ describe("item-filters", () => {
       uiDataFilterName: "testUI",
     });
 
-    config.configure(mockEleventyConfig);
+    config.configure(mock);
 
     const mockCollectionApi = {
-      getFilteredByTag: () => [
-        {
-          data: {
-            filter_attributes: [{ name: "Pet Friendly", value: "Yes" }],
-          },
-        },
-      ],
+      getFilteredByTag: () => [item(null, attr("Pet Friendly", "Yes"))],
     };
 
-    const attrs = attributesCollection(mockCollectionApi);
+    const attrs = mock.getCollection("testAttrs")(mockCollectionApi);
 
     expect(attrs.attributes !== undefined).toBe(true);
     expect(attrs.displayLookup !== undefined).toBe(true);
@@ -760,50 +634,37 @@ describe("item-filters", () => {
   });
 
   test("UI data filter calls buildFilterUIData with correct baseUrl", () => {
-    let uiDataFilter;
-    const mockEleventyConfig = {
-      addCollection: () => {},
-      addFilter: (name, fn) => {
-        if (name === "testUI") uiDataFilter = fn;
-      },
-    };
-
-    const config = createFilterConfig({
-      tag: "test",
+    const mock = mockConfig();
+    const config = testFilterConfig({
       permalinkDir: "my-items",
       itemsKey: "items",
       collections: { pages: "p", redirects: "r", attributes: "a" },
       uiDataFilterName: "testUI",
     });
 
-    config.configure(mockEleventyConfig);
+    config.configure(mock);
 
-    const filterData = {
-      attributes: { type: ["a"] },
-      displayLookup: { type: "Type", a: "A" },
-    };
-    const validPages = [{ path: "type/a" }];
+    const data = filterData({
+      type: { display: "Type", values: { a: "A" } },
+    });
+    const validPages = pages(["type/a"]);
 
-    const result = uiDataFilter(filterData, null, validPages);
+    const result = mock.getFilter("testUI")(data, null, validPages);
 
     expect(result.clearAllUrl).toBe("/my-items/#content");
   });
 
   // generateFilterCombinations edge cases
   test("Returns empty array when items have no filter attributes", () => {
-    const items = [{ data: { title: "No attrs" } }];
-    expect(generateFilterCombinations(items)).toEqual([]);
+    const testItems = [item("No attrs")];
+    expect(generateFilterCombinations(testItems)).toEqual([]);
   });
 
   // itemMatchesFilters with missing attribute
   test("Returns false when item is missing a filtered attribute", () => {
-    const item = {
-      data: {
-        filter_attributes: [{ name: "Type", value: "Cottage" }],
-      },
-    };
+    const testItem = item(null, attr("Type", "Cottage"));
 
-    const result = itemMatchesFilters(item, {
+    const result = itemMatchesFilters(testItem, {
       type: "cottage",
       size: "large",
     });
