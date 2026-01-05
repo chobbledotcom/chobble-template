@@ -253,7 +253,47 @@ const expectResultTitles = (result, expectedTitles) => {
 // Test Fixture Factories
 // ============================================
 
+// ----------------------------------------
+// Generic Item Builder
+// ----------------------------------------
+
+/**
+ * Create a collection item with nested data structure.
+ * This is the universal builder for products, properties, events, pages, etc.
+ * All collection items share this pattern: { data: { title?, ...options } }
+ *
+ * @param {string|null} title - Item title (null/undefined to omit title)
+ * @param {Object} options - Additional data (categories, featured, filter_attributes, etc.)
+ * @returns {Object} Item with { data: { title?, ...options } }
+ *
+ * @example
+ * item("My Product", { categories: ["widgets"], featured: true })
+ * item("Beach House", { locations: ["coast"], filter_attributes: [...] })
+ * item(null, { filter_attributes: [attr("Size", "Large")] })
+ */
+const item = (title, options = {}) => ({
+  data: {
+    ...(title && { title }),
+    ...options,
+  },
+});
+
+/**
+ * Create items from an array of [title, options] tuples.
+ * Curried for use with pipe.
+ *
+ * @example
+ * items([
+ *   ["Product 1", { categories: ["widgets"] }],
+ *   ["Product 2", { featured: true }],
+ * ])
+ */
+const items = map(([title, options]) => item(title, options));
+
+// ----------------------------------------
 // Frontmatter helpers
+// ----------------------------------------
+
 const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
 
@@ -607,6 +647,43 @@ const createMockReview = ({
   date,
 });
 
+// ============================================
+// Mock Collection API Helpers
+// ============================================
+
+/**
+ * Create a mock collection API that returns items for any tag.
+ * Simple version with no tag assertion.
+ *
+ * @param {Array} items - Items to return from getFilteredByTag
+ * @returns {Object} Mock collection API with getFilteredByTag method
+ *
+ * @example
+ * const api = collectionApi([product1, product2]);
+ * createProductsCollection(api);
+ */
+const collectionApi = (items) => ({
+  getFilteredByTag: () => items,
+});
+
+/**
+ * Create a mock collection API that returns different items based on tag.
+ * Uses an object map for clean multi-tag scenarios.
+ *
+ * @param {Object} tagMap - Map of tag names to item arrays
+ * @returns {Object} Mock collection API with getFilteredByTag method
+ *
+ * @example
+ * const api = taggedCollectionApi({
+ *   product: [product1, product2],
+ *   review: [review1],
+ *   category: []
+ * });
+ */
+const taggedCollectionApi = (tagMap) => ({
+  getFilteredByTag: (tag) => tagMap[tag] ?? [],
+});
+
 export {
   DOM,
   expect,
@@ -631,6 +708,9 @@ export {
   withTempFile,
   withMockedCwd,
   expectResultTitles,
+  // Generic item builder
+  item,
+  items,
   // Test fixture factories
   createFrontmatter,
   createOffsetDate,
@@ -650,4 +730,7 @@ export {
   // Code analysis utilities
   createExtractor,
   extractFunctions,
+  // Mock collection API helpers
+  collectionApi,
+  taggedCollectionApi,
 };

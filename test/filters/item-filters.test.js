@@ -13,7 +13,11 @@ import {
   parseFilterAttributes,
   pathToFilter,
 } from "#filters/item-filters.js";
-import { expectResultTitles } from "#test/test-utils.js";
+import {
+  item as baseItem,
+  collectionApi,
+  expectResultTitles,
+} from "#test/test-utils.js";
 import { map, pipe, reduce } from "#utils/array-utils.js";
 
 // ============================================
@@ -26,16 +30,14 @@ import { map, pipe, reduce } from "#utils/array-utils.js";
 const attr = (name, value) => ({ name, value });
 
 /**
- * Create an item with filter_attributes and optional title
+ * Create an item with filter_attributes using rest params syntax.
+ * Wraps the shared baseItem for filter-specific convenience.
+ *
  * @param {string|null} title - Item title (null for no title)
  * @param {...Object} attrs - Filter attributes created with attr()
  */
-const item = (title, ...attrs) => ({
-  data: {
-    ...(title && { title }),
-    ...(attrs.length > 0 && { filter_attributes: attrs }),
-  },
-});
+const item = (title, ...attrs) =>
+  baseItem(title, attrs.length > 0 ? { filter_attributes: attrs } : {});
 
 /**
  * Create items from an array of [title, ...attrs] tuples
@@ -554,16 +556,14 @@ describe("item-filters", () => {
 
     config.configure(mock);
 
-    const mockCollectionApi = {
-      getFilteredByTag: () =>
-        items([
-          ["Item 1", attr("Type", "A")],
-          ["Item 2", attr("Type", "B")],
-        ]),
-    };
+    const testItems = items([
+      ["Item 1", attr("Type", "A")],
+      ["Item 2", attr("Type", "B")],
+    ]);
 
-    const pagesResult =
-      mock.getCollection("testFilterPages")(mockCollectionApi);
+    const pagesResult = mock.getCollection("testFilterPages")(
+      collectionApi(testItems),
+    );
 
     expect(pagesResult.length >= 2).toBe(true);
     expect(pagesResult[0].path !== undefined).toBe(true);
@@ -587,13 +587,11 @@ describe("item-filters", () => {
 
     config.configure(mock);
 
-    const mockCollectionApi = {
-      getFilteredByTag: () => [
-        item(null, attr("Type", "A"), attr("Size", "Large")),
-      ],
-    };
+    const testItems = [item(null, attr("Type", "A"), attr("Size", "Large"))];
 
-    const redirects = mock.getCollection("testRedirects")(mockCollectionApi);
+    const redirects = mock.getCollection("testRedirects")(
+      collectionApi(testItems),
+    );
 
     expect(redirects.length > 0).toBe(true);
     expect(redirects[0].from !== undefined).toBe(true);
@@ -621,11 +619,9 @@ describe("item-filters", () => {
 
     config.configure(mock);
 
-    const mockCollectionApi = {
-      getFilteredByTag: () => [item(null, attr("Pet Friendly", "Yes"))],
-    };
+    const testItems = [item(null, attr("Pet Friendly", "Yes"))];
 
-    const attrs = mock.getCollection("testAttrs")(mockCollectionApi);
+    const attrs = mock.getCollection("testAttrs")(collectionApi(testItems));
 
     expect(attrs.attributes !== undefined).toBe(true);
     expect(attrs.displayLookup !== undefined).toBe(true);
