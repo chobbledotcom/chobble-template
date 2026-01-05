@@ -31,62 +31,118 @@ const COVERAGE_EXCLUDE = ["test/ensure-deps.js"];
  * Parse LCOV file to extract coverage percentages
  */
 function parseLcov(lcovContent) {
-  const files = {};
-  let currentFile = null;
-  let skipFile = false;
+  const { files } = lcovContent.split("\n").reduce(
+    (state, line) => {
+      if (line.startsWith("SF:")) {
+        const filePath = line.slice(3);
+        const skipFile = COVERAGE_EXCLUDE.some((p) => filePath.endsWith(p));
+        if (skipFile) {
+          return { ...state, currentFile: null };
+        }
+        return {
+          ...state,
+          currentFile: filePath,
+          files: {
+            ...state.files,
+            [filePath]: {
+              linesFound: 0,
+              linesHit: 0,
+              functionsFound: 0,
+              functionsHit: 0,
+              branchesFound: 0,
+              branchesHit: 0,
+            },
+          },
+        };
+      }
 
-  for (const line of lcovContent.split("\n")) {
-    if (line.startsWith("SF:")) {
-      const filePath = line.slice(3);
-      skipFile = COVERAGE_EXCLUDE.some((p) => filePath.endsWith(p));
-      if (skipFile) {
-        currentFile = null;
-        continue;
-      }
-      currentFile = filePath;
-      files[currentFile] = {
-        linesFound: 0,
-        linesHit: 0,
-        functionsFound: 0,
-        functionsHit: 0,
-        branchesFound: 0,
-        branchesHit: 0,
-      };
-    } else if (currentFile) {
+      if (!state.currentFile) return state;
+
+      const { currentFile, files } = state;
       if (line.startsWith("LF:")) {
-        files[currentFile].linesFound = parseInt(line.slice(3), 10);
-      } else if (line.startsWith("LH:")) {
-        files[currentFile].linesHit = parseInt(line.slice(3), 10);
-      } else if (line.startsWith("FNF:")) {
-        files[currentFile].functionsFound = parseInt(line.slice(4), 10);
-      } else if (line.startsWith("FNH:")) {
-        files[currentFile].functionsHit = parseInt(line.slice(4), 10);
-      } else if (line.startsWith("BRF:")) {
-        files[currentFile].branchesFound = parseInt(line.slice(4), 10);
-      } else if (line.startsWith("BRH:")) {
-        files[currentFile].branchesHit = parseInt(line.slice(4), 10);
-      } else if (line === "end_of_record") {
-        currentFile = null;
+        return {
+          ...state,
+          files: {
+            ...files,
+            [currentFile]: { ...files[currentFile], linesFound: parseInt(line.slice(3), 10) },
+          },
+        };
       }
-    }
-  }
+      if (line.startsWith("LH:")) {
+        return {
+          ...state,
+          files: {
+            ...files,
+            [currentFile]: { ...files[currentFile], linesHit: parseInt(line.slice(3), 10) },
+          },
+        };
+      }
+      if (line.startsWith("FNF:")) {
+        return {
+          ...state,
+          files: {
+            ...files,
+            [currentFile]: { ...files[currentFile], functionsFound: parseInt(line.slice(4), 10) },
+          },
+        };
+      }
+      if (line.startsWith("FNH:")) {
+        return {
+          ...state,
+          files: {
+            ...files,
+            [currentFile]: { ...files[currentFile], functionsHit: parseInt(line.slice(4), 10) },
+          },
+        };
+      }
+      if (line.startsWith("BRF:")) {
+        return {
+          ...state,
+          files: {
+            ...files,
+            [currentFile]: { ...files[currentFile], branchesFound: parseInt(line.slice(4), 10) },
+          },
+        };
+      }
+      if (line.startsWith("BRH:")) {
+        return {
+          ...state,
+          files: {
+            ...files,
+            [currentFile]: { ...files[currentFile], branchesHit: parseInt(line.slice(4), 10) },
+          },
+        };
+      }
+      if (line === "end_of_record") {
+        return { ...state, currentFile: null };
+      }
+
+      return state;
+    },
+    { files: {}, currentFile: null },
+  );
 
   // Calculate totals
-  let totalLines = 0,
-    hitLines = 0;
-  let totalFunctions = 0,
-    hitFunctions = 0;
-  let totalBranches = 0,
-    hitBranches = 0;
+  const totals = Object.values(files).reduce(
+    (acc, file) => ({
+      totalLines: acc.totalLines + file.linesFound,
+      hitLines: acc.hitLines + file.linesHit,
+      totalFunctions: acc.totalFunctions + file.functionsFound,
+      hitFunctions: acc.hitFunctions + file.functionsHit,
+      totalBranches: acc.totalBranches + file.branchesFound,
+      hitBranches: acc.hitBranches + file.branchesHit,
+    }),
+    {
+      totalLines: 0,
+      hitLines: 0,
+      totalFunctions: 0,
+      hitFunctions: 0,
+      totalBranches: 0,
+      hitBranches: 0,
+    },
+  );
 
-  for (const file of Object.values(files)) {
-    totalLines += file.linesFound;
-    hitLines += file.linesHit;
-    totalFunctions += file.functionsFound;
-    hitFunctions += file.functionsHit;
-    totalBranches += file.branchesFound;
-    hitBranches += file.branchesHit;
-  }
+  const { totalLines, hitLines, totalFunctions, hitFunctions, totalBranches, hitBranches } = totals;
 
   const round2 = (n) => Math.round(n * 100) / 100;
 
@@ -109,31 +165,32 @@ function parseLcov(lcovContent) {
  */
 function filterCoverageOutput(output) {
   const lines = output.split("\n");
-  const result = [];
-  let hiddenCount = 0;
 
-  for (const line of lines) {
-    // Check if this is a file coverage line (contains percentage)
-    const fileMatch = line.match(
-      /^(.+?)\s+\|\s+([\d.]+)%\s+\|\s+([\d.]+)%\s+\|\s+([\d.]+)%/,
-    );
-    if (fileMatch) {
-      const [, , lines, funcs, branches] = fileMatch;
-      const isPerfect =
-        parseFloat(lines) === 100 &&
-        parseFloat(funcs) === 100 &&
-        parseFloat(branches) === 100;
-      if (isPerfect) {
-        hiddenCount++;
-        continue;
+  const { visibleLines, hiddenCount } = lines.reduce(
+    (acc, line) => {
+      // Check if this is a file coverage line (contains percentage)
+      const fileMatch = line.match(
+        /^(.+?)\s+\|\s+([\d.]+)%\s+\|\s+([\d.]+)%\s+\|\s+([\d.]+)%/,
+      );
+      if (fileMatch) {
+        const [, , lines, funcs, branches] = fileMatch;
+        const isPerfect =
+          parseFloat(lines) === 100 &&
+          parseFloat(funcs) === 100 &&
+          parseFloat(branches) === 100;
+        if (isPerfect) {
+          return { ...acc, hiddenCount: acc.hiddenCount + 1 };
+        }
       }
-    }
-    result.push(line);
-  }
+      return { ...acc, visibleLines: [...acc.visibleLines, line] };
+    },
+    { visibleLines: [], hiddenCount: 0 },
+  );
 
-  if (hiddenCount > 0) {
-    result.push(`\n(${hiddenCount} files with 100% coverage hidden)`);
-  }
+  const result =
+    hiddenCount > 0
+      ? [...visibleLines, `\n(${hiddenCount} files with 100% coverage hidden)`]
+      : visibleLines;
 
   return result.join("\n");
 }
@@ -183,7 +240,6 @@ function runCoverage() {
 
   // Check against thresholds
   const { lines, functions, branches } = coverage.totals;
-  let failed = false;
 
   if (verbose) {
     console.log("\n--- Coverage Summary ---");
@@ -192,26 +248,15 @@ function runCoverage() {
     console.log(`Branches:  ${branches}% (threshold: ${limits.branches}%)`);
   }
 
-  if (lines < limits.lines) {
-    console.error(
-      `\n❌ Line coverage ${lines}% below threshold ${limits.lines}%`,
-    );
-    failed = true;
-  }
-  if (functions < limits.functions) {
-    console.error(
-      `\n❌ Function coverage ${functions}% below threshold ${limits.functions}%`,
-    );
-    failed = true;
-  }
-  if (branches < limits.branches) {
-    console.error(
-      `\n❌ Branch coverage ${branches}% below threshold ${limits.branches}%`,
-    );
-    failed = true;
-  }
+  const failures = [
+    lines < limits.lines && `\n❌ Line coverage ${lines}% below threshold ${limits.lines}%`,
+    functions < limits.functions && `\n❌ Function coverage ${functions}% below threshold ${limits.functions}%`,
+    branches < limits.branches && `\n❌ Branch coverage ${branches}% below threshold ${limits.branches}%`,
+  ].filter(Boolean);
 
-  if (failed) {
+  failures.forEach((error) => console.error(error));
+
+  if (failures.length > 0) {
     process.exit(1);
   }
 
@@ -229,23 +274,13 @@ function ratchetLimits(currentLimits, actual, verbose) {
     return;
   }
 
-  let updated = false;
-  const newLimits = { ...currentLimits };
+  const newLimits = {
+    lines: actual.lines > currentLimits.lines ? Math.floor(actual.lines) : currentLimits.lines,
+    functions: actual.functions > currentLimits.functions ? Math.floor(actual.functions) : currentLimits.functions,
+    branches: actual.branches > currentLimits.branches ? Math.floor(actual.branches) : currentLimits.branches,
+  };
 
-  if (actual.lines > currentLimits.lines) {
-    newLimits.lines = Math.floor(actual.lines);
-    updated = true;
-  }
-
-  if (actual.functions > currentLimits.functions) {
-    newLimits.functions = Math.floor(actual.functions);
-    updated = true;
-  }
-
-  if (actual.branches > currentLimits.branches) {
-    newLimits.branches = Math.floor(actual.branches);
-    updated = true;
-  }
+  const updated = JSON.stringify(newLimits) !== JSON.stringify(currentLimits);
 
   if (updated) {
     writeLimits(newLimits);
