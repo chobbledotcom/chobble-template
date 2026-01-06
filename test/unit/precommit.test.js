@@ -7,11 +7,10 @@ import { pipe } from "#utils/array-utils.js";
 const precommitPath = join(rootDir, "test", "precommit.js");
 
 /**
- * Load the extractErrorsFromOutput function from the precommit.js file.
- * Uses pipe for functional composition to eliminate test duplication.
- * Memoized so the file is read only once.
+ * Memoized loader for the extractErrorsFromOutput function from precommit.js.
+ * Uses pipe for functional composition. The file is read only once.
  */
-const getExtractErrorsFunction = memoize(() =>
+const extractErrorsFunction = memoize(() =>
   pipe(
     // Read file content from disk
     (path) => require("node:fs").readFileSync(path, "utf-8"),
@@ -41,7 +40,7 @@ const getExtractErrorsFunction = memoize(() =>
  */
 describe("precommit error output", () => {
   test("extractErrorsFromOutput correctly parses knip errors", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real knip error output
     const knipOutput = `
@@ -77,7 +76,7 @@ Unlisted dependencies (1)
   });
 
   test("extractErrorsFromOutput correctly parses jscpd errors", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real jscpd error output
     const jscpdOutput = `
@@ -100,7 +99,7 @@ Total duplicates: 1250 lines across 15 files
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real bun test failure output
     const testOutput = `
@@ -126,7 +125,7 @@ AssertionError: expected undefined to be defined
   });
 
   test("extractErrorsFromOutput correctly parses coverage errors", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real coverage error output from run-coverage.js
     const coverageOutput = `
@@ -160,7 +159,7 @@ src/utils/new-helper.js
   });
 
   test("extractErrorsFromOutput filters out noise but keeps errors", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const noisyOutput = `
 $ bun test
@@ -204,7 +203,7 @@ error: something went wrong
   });
 
   test("extractErrorsFromOutput handles multiline error messages", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const multilineOutput = `
 ❌ Test suite failed
@@ -228,14 +227,14 @@ Error: Cannot find module 'missing-dep'
   });
 
   test("extractErrorsFromOutput handles empty output", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const errors = extractErrorsFromOutput("");
     expect(errors).toEqual([]);
   });
 
   test("extractErrorsFromOutput handles output with only whitespace", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const errors = extractErrorsFromOutput("   \n  \n   \t  \n  ");
     expect(errors).toEqual([]);
@@ -311,7 +310,7 @@ describe("precommit script integration", () => {
  */
 describe("precommit error pattern edge cases", () => {
   test("extractErrorsFromOutput captures eslint/biome style errors", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const lintOutput = `
 src/components/Button.js:15:3
@@ -332,7 +331,7 @@ src/utils/helpers.js:42:10
   });
 
   test("extractErrorsFromOutput captures assertion errors", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const assertOutput = `
 ❌ test/unit/utils.test.js > formatDate
@@ -349,7 +348,7 @@ AssertionError: expected 'foo' to equal 'bar'
   });
 
   test("extractErrorsFromOutput handles errors with colons in unexpected places", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Coverage errors with file:line patterns
     const coverageOutput = `
@@ -366,7 +365,7 @@ src/api/client.js: retryRequest, handleError
   });
 
   test("extractErrorsFromOutput captures stack traces for debugging", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const stackTraceOutput = `
 Error: Cannot find module 'missing-package'
@@ -384,7 +383,7 @@ Error: Cannot find module 'missing-package'
   });
 
   test("extractErrorsFromOutput handles complex real-world knip output", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Real knip output format
     const realKnipOutput = `
@@ -421,7 +420,7 @@ Unlisted dependencies (1)
   });
 
   test("extractErrorsFromOutput handles real jscpd duplication output", () => {
-    const extractErrorsFromOutput = getExtractErrorsFunction();
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const realJscpdOutput = `
 Clone found (src/components/Form.js[15:45] - src/components/ContactForm.js[20:50])

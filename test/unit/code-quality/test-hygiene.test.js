@@ -256,7 +256,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runStep",
   "extractErrorsFromOutput",
   // precommit.test.js - memoized function loader
-  "getExtractErrorsFunction",
+  "extractErrorsFunction",
   // test-utils.js - test utilities (internal functions)
   "walk",
   "getFiles",
