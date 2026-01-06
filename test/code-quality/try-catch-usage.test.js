@@ -57,7 +57,10 @@ const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
  * Process characters in a line to track brace depth
  * Returns { depth, foundCatch: boolean | null, startedCounting }
  */
-const processLineChars = (searchLine, depth, startedCounting, lines, lineIndex) => {
+const processLineChars = (searchLine, initialDepth, initialStartedCounting, lines, lineIndex) => {
+  let depth = initialDepth;
+  let startedCounting = initialStartedCounting;
+
   for (let charIndex = 0; charIndex < searchLine.length; charIndex++) {
     const char = searchLine[charIndex];
 
