@@ -6,6 +6,7 @@ import {
   createTestSite,
   withTestSite,
 } from "#test/test-site-factory.js";
+import { rootDir } from "#test/test-utils.js";
 
 describe("test-site-factory", () => {
   // Clean up any leftover test sites before and after all tests
@@ -100,10 +101,7 @@ describe("test-site-factory", () => {
 
     test("creates test site with images from src/images", async () => {
       // First, create a test image file in src/images
-      const testImagePath = path.join(
-        process.cwd(),
-        "src/images/test-image.jpg",
-      );
+      const testImagePath = path.join(rootDir, "src/images/test-image.jpg");
       const imageExists = fs.existsSync(testImagePath);
 
       // Only run this test if the test image exists, otherwise skip
@@ -138,7 +136,7 @@ describe("test-site-factory", () => {
 
     test("creates test site with images using object spec with absolute path", async () => {
       // Create a test image file
-      const testImagePath = path.join(process.cwd(), "test-custom-image.jpg");
+      const testImagePath = path.join(rootDir, "test-custom-image.jpg");
       fs.writeFileSync(testImagePath, "fake image content");
 
       const site = await createTestSite({

@@ -26,7 +26,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/test-site-factory.test.js:229",
+  "test/test-site-factory.test.js:346",
 ]);
 
 // ============================================
@@ -208,6 +208,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/code-quality/method-aliasing.test.js:71", // alias
   "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
   "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
+  "test/test-site-factory.test.js:108", // imageExists (file may not exist)
+  "test/test-site-factory.test.js:131", // imageExists (cleanup check)
 ]);
 
 // ============================================
