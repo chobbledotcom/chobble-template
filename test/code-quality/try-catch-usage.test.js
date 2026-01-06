@@ -3,6 +3,7 @@ import { ALLOWED_TRY_CATCHES } from "#test/code-quality/code-quality-exceptions.
 import {
   assertNoViolations,
   combineFileLists,
+  isCommentLine,
   withAllowlist,
 } from "#test/code-scanner.js";
 import {
@@ -10,14 +11,6 @@ import {
   SRC_JS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
-
-/**
- * Check if a line is a comment
- */
-const isCommentLine = (line) => {
-  const trimmed = line.trim();
-  return trimmed.startsWith("//") || trimmed.startsWith("*");
-};
 
 /**
  * Check if a string contains a catch keyword after whitespace

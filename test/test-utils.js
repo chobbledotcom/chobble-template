@@ -167,15 +167,6 @@ const ALL_JS_FILES = memoize(() =>
 );
 
 // Console capture utilities for testing output
-const captureConsoleLog = (fn) => {
-  const logs = [];
-  const originalLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  fn();
-  console.log = originalLog;
-  return logs;
-};
-
 const captureConsoleLogAsync = async (fn) => {
   const logs = [];
   const originalLog = console.log;
@@ -426,15 +417,6 @@ const createEvent = ({
  */
 const createEvents = map(createEvent);
 
-// Category fixtures
-const createCategory = (slug, headerImage = null, extraData = {}) => ({
-  fileSlug: slug,
-  data: {
-    header_image: headerImage,
-    ...extraData,
-  },
-});
-
 // Product fixtures
 const createProduct = ({
   slug = null,
@@ -450,16 +432,6 @@ const createProduct = ({
     categories,
     order,
     header_image: headerImage,
-    ...extraData,
-  },
-});
-
-// Collection item fixtures (for navigation tests)
-const createCollectionItem = (slug, url, tags = [], extraData = {}) => ({
-  fileSlug: slug,
-  url,
-  data: {
-    tags,
     ...extraData,
   },
 });
@@ -853,7 +825,6 @@ export {
   SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
-  captureConsoleLog,
   captureConsoleLogAsync,
   createTempDir,
   createTempFile,
@@ -877,9 +848,7 @@ export {
   formatDateString,
   createEvent,
   createEvents,
-  createCategory,
   createProduct,
-  createCollectionItem,
   // Schema-helper fixtures
   createSchemaPage,
   createSchemaSite,
