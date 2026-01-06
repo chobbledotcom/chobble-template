@@ -5,6 +5,7 @@ import {
   formatViolationReport,
   isCommentLine,
   scanFilesForViolations,
+  validateExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -198,6 +199,90 @@ describe("code-scanner", () => {
       expect(Array.isArray(violations)).toBe(true);
       expect(Array.isArray(allowed)).toBe(true);
       expect(violations.length).toBe(0);
+    });
+  });
+
+  describe("validateExceptions", () => {
+    test("returns empty array when all exceptions are valid", () => {
+      const allowlist = new Set([
+        "test/code-scanner.js:5", // import statement
+        "test/code-scanner.js:6", // import statement
+      ]);
+      const patterns = /import/;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale).toEqual([]);
+    });
+
+    test("skips file-only entries without line numbers", () => {
+      const allowlist = new Set([
+        "test/code-scanner.js", // file-only entry, should be skipped
+        "test/code-scanner.js:5", // should be validated
+      ]);
+      const patterns = /import/;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale).toEqual([]);
+    });
+
+    test("detects when line number exceeds file length", () => {
+      const allowlist = new Set(["test/code-scanner.js:999999"]);
+      const patterns = /./;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe("test/code-scanner.js:999999");
+      expect(stale[0].reason).toMatch(/Line 999999 doesn't exist/);
+    });
+
+    test("detects when line number is less than 1", () => {
+      const allowlist = new Set(["test/code-scanner.js:0"]);
+      const patterns = /./;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe("test/code-scanner.js:0");
+      expect(stale[0].reason).toMatch(/Line 0 doesn't exist/);
+    });
+
+    test("detects when line no longer matches pattern", () => {
+      const allowlist = new Set(["test/code-scanner.js:1"]); // Line 1 has a comment, not console.log
+      const patterns = /console\.log/;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe("test/code-scanner.js:1");
+      expect(stale[0].reason).toMatch(/Line no longer matches pattern/);
+    });
+
+    test("works with multiple patterns", () => {
+      const allowlist = new Set(["test/code-scanner.js:5"]);
+      const patterns = [/console\.log/, /import/]; // Line 5 should match import
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale).toEqual([]);
+    });
+
+    test("detects when file does not exist", () => {
+      const allowlist = new Set(["non-existent-file.js:10"]);
+      const patterns = /./;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe("non-existent-file.js:10");
+      expect(stale[0].reason).toBe("File not found: non-existent-file.js");
+    });
+
+    test("detects multiple stale entries", () => {
+      const allowlist = new Set([
+        "test/code-scanner.js:999999", // line doesn't exist
+        "non-existent-file.js:10", // file doesn't exist
+        "test/code-scanner.js:1", // line doesn't match pattern
+      ]);
+      const patterns = /console\.log/; // Line 1 won't match this
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(3);
     });
   });
 });
