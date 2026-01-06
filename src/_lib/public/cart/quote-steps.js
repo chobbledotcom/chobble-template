@@ -6,7 +6,7 @@ import {
   updateStepProgress,
 } from "#public/ui/quote-steps-progress.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { filter, map, pipe, unique } from "#utils/array-utils.js";
+import { filter, map, pipe, unique, uniqueBy } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
@@ -62,11 +62,7 @@ const extractFieldRefs = pipe(
 );
 
 // Dedupe field refs by id (since unique() compares by reference)
-const uniqueById = (refs) =>
-  refs.reduce(
-    (acc, ref) => (acc.some((r) => r.id === ref.id) ? acc : [...acc, ref]),
-    [],
-  );
+const uniqueById = uniqueBy((ref) => ref.id);
 
 // Get field refs from a DOM element
 function getStepFieldRefs(stepEl) {
