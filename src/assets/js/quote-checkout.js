@@ -2,11 +2,13 @@
 // Populates form with cart items and displays summary
 
 import { formatPrice, getCart } from "#assets/cart-utils.js";
+import { initHireCalculator } from "#assets/hire-calculator.js";
 import { onReady } from "#assets/on-ready.js";
+import { updateQuotePrice } from "#assets/quote-price-utils.js";
 import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
 
-function renderCheckoutItem(item) {
+const renderCheckoutItem = (item) => {
   const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM);
 
   template.querySelector('[data-field="name"]').textContent = item.item_name;
@@ -17,9 +19,9 @@ function renderCheckoutItem(item) {
   );
 
   return template;
-}
+};
 
-function populateForm() {
+const populateForm = () => {
   const cart = getCart();
   const cartItemsField = document.getElementById("cart-items");
   const summaryEl = document.getElementById("cart-summary");
@@ -48,6 +50,12 @@ function populateForm() {
   for (const item of cart) {
     itemsEl.appendChild(renderCheckoutItem(item));
   }
-}
+};
 
-onReady(populateForm);
+const init = () => {
+  populateForm();
+  updateQuotePrice();
+  initHireCalculator(updateQuotePrice);
+};
+
+onReady(init);
