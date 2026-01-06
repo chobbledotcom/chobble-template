@@ -18,6 +18,7 @@ import {
   cleanupTempDir,
   createTempDir,
   createTempFile,
+  expectObjectProps,
 } from "#test/test-utils.js";
 
 describe("cartModeError", () => {
@@ -318,16 +319,20 @@ describe("validateCartConfig", () => {
 
 describe("DEFAULTS", () => {
   test("includes expected default values", () => {
-    expect(DEFAULTS.sticky_mobile_nav).toBe(true);
-    expect(DEFAULTS.horizontal_nav).toBe(true);
-    expect(DEFAULTS.externalLinksTargetBlank).toBe(false);
-    expect(DEFAULTS.cart_mode).toBe(null);
-    expect(DEFAULTS.has_products_filter).toBe(false);
+    expectObjectProps({
+      sticky_mobile_nav: true,
+      horizontal_nav: true,
+      externalLinksTargetBlank: false,
+      cart_mode: null,
+      has_products_filter: false,
+    })(DEFAULTS);
   });
 
   test("has null contact form configuration by default", () => {
-    expect(DEFAULTS.contact_form_target).toBe(null);
-    expect(DEFAULTS.formspark_id).toBe(null);
+    expectObjectProps({
+      contact_form_target: null,
+      formspark_id: null,
+    })(DEFAULTS);
   });
 });
 
@@ -345,9 +350,11 @@ describe("VALID_PRODUCT_MODES", () => {
 
 describe("DEFAULT_PRODUCT_DATA", () => {
   test("has image width configurations", () => {
-    expect(DEFAULT_PRODUCT_DATA.item_widths).toBe("240,480,640");
-    expect(DEFAULT_PRODUCT_DATA.gallery_thumb_widths).toBe("240,480");
-    expect(DEFAULT_PRODUCT_DATA.gallery_image_widths).toBe("900,1300,1800");
-    expect(DEFAULT_PRODUCT_DATA.header_image_widths).toBe("640,900,1300");
+    expectObjectProps({
+      item_widths: "240,480,640",
+      gallery_thumb_widths: "240,480",
+      gallery_image_widths: "900,1300,1800",
+      header_image_widths: "640,900,1300",
+    })(DEFAULT_PRODUCT_DATA);
   });
 });
