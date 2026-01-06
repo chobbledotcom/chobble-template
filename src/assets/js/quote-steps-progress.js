@@ -7,7 +7,9 @@ function renderIndicator(step, index, isLast) {
       <span class="step-name">${step.name}</span>
       <span class="step-number">${step.number}</span>
     </div>`;
-  return isLast ? indicator : indicator + '<div class="quote-steps-connector"></div>';
+  return isLast
+    ? indicator
+    : `${indicator}<div class="quote-steps-connector"></div>`;
 }
 
 export function renderStepProgress(container, steps, completedSteps) {

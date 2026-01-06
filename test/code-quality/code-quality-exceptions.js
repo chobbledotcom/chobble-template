@@ -55,6 +55,9 @@ const ALLOWED_HTML_IN_JS = new Set([
 
   // Filters with HTML formatting
   "src/_lib/filters/item-filters.js",
+
+  // JS-rendered step progress indicator
+  "src/assets/js/quote-steps-progress.js",
 ]);
 
 // ============================================
@@ -308,6 +311,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/quote-checkout.js",
   "src/assets/js/quote.js",
   "src/assets/js/quote-steps.js",
+  "src/assets/js/quote-steps-progress.js",
   "src/assets/js/scroll-fade.js",
   "src/assets/js/search.js",
   "src/assets/js/shuffle-properties.js",
