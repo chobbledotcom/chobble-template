@@ -112,21 +112,56 @@ const extractClassesFromJs = (content) => {
 };
 
 // ============================================
+// Pattern Matching Helpers (Generic Factories)
+// ============================================
+
+// Pure helpers for pattern matching
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const buildPatterns = (builders) => (escaped) =>
+  builders.map((build) => new RegExp(build(escaped)));
+const testAny = (patterns) => (content) =>
+  patterns.some((pattern) => pattern.test(content));
+
+/**
+ * Generic factory to create a pattern finder from pattern builders.
+ * Consolidates pattern building and testing logic for reuse.
+ * @param {Array<function>} patternBuilders - Functions that take escaped name and return pattern string
+ * @returns {(name: string) => (content: string) => boolean} - Curried function
+ */
+const createPatternFinder = (patternBuilders) => (name) => {
+  const escaped = escapeRegex(name);
+  const patterns = buildPatterns(patternBuilders)(escaped);
+  return (content) => testAny(patterns)(content);
+};
+
+/**
+ * Create a pattern finder for SCSS selectors with a specific prefix.
+ * Handles CSS selector boundaries (space, comma, colon, brackets, etc).
+ * @param {string} prefix - CSS selector prefix ("\\." for class, "#" for id)
+ * @returns {(name: string) => (content: string) => boolean} - Curried function
+ */
+const createScssPatternFinder = (prefix) => (name) => {
+  const escaped = escapeRegex(name);
+  const pattern = new RegExp(`${prefix}${escaped}(?=[\\s,:{\\[>+~.)#]|$)`, "m");
+  return (content) => pattern.test(content);
+};
+
+// ============================================
 // Reference Detection in HTML
 // ============================================
 
-const findIdReferencesInHtml = (content, idName) => {
-  const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// Pattern builders for HTML ID references
+const htmlIdPatternBuilders = [
+  (e) => `href=["'][^"']*#${e}["']`,
+  (e) => `for=["']${e}["']`,
+];
 
-  const patterns = [
-    // href="#id" or href="/path/#id" anchor links
-    new RegExp(`href=["'][^"']*#${escaped}["']`),
-    // for="id" label associations
-    new RegExp(`for=["']${escaped}["']`),
-  ];
-
-  return patterns.some((pattern) => pattern.test(content));
-};
+/**
+ * Find ID references in HTML content (href anchors and label associations).
+ * Uses the generic pattern finder factory.
+ */
+const findIdReferencesInHtml = (content, idName) =>
+  createPatternFinder(htmlIdPatternBuilders)(idName)(content);
 
 // ============================================
 // Reference Detection in SCSS
@@ -134,17 +169,13 @@ const findIdReferencesInHtml = (content, idName) => {
 
 /**
  * Find CSS selector references in SCSS content.
+ * Uses the generic SCSS pattern finder factory.
  * @param {string} content - SCSS file content
  * @param {string} name - The class or ID name to find
  * @param {string} prefix - The selector prefix ("\\." for class, "#" for id)
  */
-const findSelectorReferencesInScss = (content, name, prefix) => {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  // Match selector in SCSS (with word boundary or valid selector chars after)
-  // Handles: .class, .class:hover, .class.other, .class[attr], .class>child, #id, etc.
-  const pattern = new RegExp(`${prefix}${escaped}(?=[\\s,:{\\[>+~.)#]|$)`, "m");
-  return pattern.test(content);
-};
+const findSelectorReferencesInScss = (content, name, prefix) =>
+  createScssPatternFinder(prefix)(name)(content);
 
 // ============================================
 // Reference Detection in JavaScript
@@ -171,13 +202,6 @@ const idPatternBuilders = [
   (e) => `getTemplate\\s*\\(\\s*["']${e}["']`,
 ];
 
-// Pure helpers for pattern matching
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const buildPatterns = (builders) => (escaped) =>
-  builders.map((build) => new RegExp(build(escaped)));
-const testAny = (patterns) => (content) =>
-  patterns.some((pattern) => pattern.test(content));
-
 // Dynamic ID pattern for template literals like getElementById(`${tabId}-tab`)
 const getDynamicIdPattern = (name) =>
   name.includes("-")
@@ -188,18 +212,20 @@ const getDynamicIdPattern = (name) =>
 
 /**
  * Curried function to find class or ID references in JavaScript content.
- * Uses functional composition with pattern builders.
+ * Uses the generic pattern finder factory with special handling for dynamic ID patterns.
  * @param {'class' | 'id'} type - The reference type to find
  * @returns {(name: string) => (content: string) => boolean} - Curried function
  */
-const findReferencesInJs = (type) => (name) => {
-  const escaped = escapeRegex(name);
-  const builders = type === "class" ? classPatternBuilders : idPatternBuilders;
-  const patterns = buildPatterns(builders)(escaped);
-  const dynamicPattern = type === "id" ? getDynamicIdPattern(name) : null;
-
-  return (content) =>
-    testAny(patterns)(content) || dynamicPattern?.test(content);
+const findReferencesInJs = (type) => {
+  const finder = createPatternFinder(
+    type === "class" ? classPatternBuilders : idPatternBuilders,
+  );
+  return (name) => {
+    const dynamicPattern = type === "id" ? getDynamicIdPattern(name) : null;
+    const contentMatcher = finder(name);
+    return (content) =>
+      contentMatcher(content) || dynamicPattern?.test(content);
+  };
 };
 
 // ============================================
