@@ -1,0 +1,307 @@
+// Hire Calculator Tests
+// Tests the hire-calculator.js functions for date management
+
+import { describe, expect, test } from "bun:test";
+import { STORAGE_KEY } from "#assets/cart-utils.js";
+import {
+  calculateDays,
+  getHireItems,
+  hasHireItems,
+  initHireCalculator,
+  isHireItem,
+  setMinDate,
+} from "#assets/hire-calculator.js";
+
+// Helper to run tests with isolated localStorage
+const withMockStorage = (fn) => {
+  globalThis.localStorage.clear();
+  try {
+    return fn(globalThis.localStorage);
+  } finally {
+    globalThis.localStorage.clear();
+  }
+};
+
+describe("hire-calculator", () => {
+  // ----------------------------------------
+  // calculateDays Tests
+  // ----------------------------------------
+  test("calculateDays returns 1 when start and end are same day", () => {
+    expect(calculateDays("2025-01-15", "2025-01-15")).toBe(1);
+  });
+
+  test("calculateDays counts days inclusive of start and end", () => {
+    expect(calculateDays("2025-01-15", "2025-01-17")).toBe(3);
+    expect(calculateDays("2025-01-01", "2025-01-05")).toBe(5);
+  });
+
+  test("calculateDays works across month boundaries", () => {
+    expect(calculateDays("2025-01-30", "2025-02-02")).toBe(4);
+  });
+
+  test("calculateDays returns 0 when end is before start", () => {
+    expect(calculateDays("2025-01-20", "2025-01-15")).toBe(0);
+  });
+
+  // ----------------------------------------
+  // isHireItem Tests
+  // ----------------------------------------
+  test("isHireItem returns true for hire mode items", () => {
+    expect(isHireItem({ product_mode: "hire" })).toBe(true);
+  });
+
+  test("isHireItem returns false for buy mode items", () => {
+    expect(isHireItem({ product_mode: "buy" })).toBe(false);
+  });
+
+  test("isHireItem returns false for null product_mode", () => {
+    expect(isHireItem({ product_mode: null })).toBe(false);
+  });
+
+  test("isHireItem returns false for undefined product_mode", () => {
+    expect(isHireItem({})).toBe(false);
+  });
+
+  // ----------------------------------------
+  // hasHireItems Tests
+  // ----------------------------------------
+  test("hasHireItems returns true if any item has product_mode hire", () => {
+    const cart = [
+      { item_name: "Widget", product_mode: "buy" },
+      { item_name: "Doggy Care", product_mode: "hire" },
+    ];
+    expect(hasHireItems(cart)).toBe(true);
+  });
+
+  test("hasHireItems returns false if no items have hire mode", () => {
+    const cart = [
+      { item_name: "Widget", product_mode: "buy" },
+      { item_name: "Gadget", product_mode: null },
+    ];
+    expect(hasHireItems(cart)).toBe(false);
+  });
+
+  test("hasHireItems returns false for empty cart", () => {
+    expect(hasHireItems([])).toBe(false);
+  });
+
+  // ----------------------------------------
+  // getHireItems Tests
+  // ----------------------------------------
+  test("getHireItems returns only items with product_mode hire", () => {
+    const cart = [
+      { item_name: "Widget", product_mode: "buy" },
+      { item_name: "Doggy Care", product_mode: "hire" },
+      { item_name: "Gadget", product_mode: null },
+      { item_name: "Equipment", product_mode: "hire" },
+    ];
+    const hireItems = getHireItems(cart);
+    expect(hireItems).toHaveLength(2);
+    expect(hireItems[0].item_name).toBe("Doggy Care");
+    expect(hireItems[1].item_name).toBe("Equipment");
+  });
+
+  test("getHireItems returns empty array when no hire items", () => {
+    const cart = [{ item_name: "Widget", product_mode: "buy" }];
+    const hireItems = getHireItems(cart);
+    expect(hireItems).toHaveLength(0);
+  });
+
+  // ----------------------------------------
+  // setMinDate Tests
+  // ----------------------------------------
+  test("setMinDate sets min attribute to today's date", () => {
+    document.body.innerHTML = '<input type="date" id="test-date" />';
+    const input = document.getElementById("test-date");
+
+    setMinDate(input);
+
+    const today = new Date().toISOString().split("T")[0];
+    expect(input.min).toBe(today);
+  });
+
+  test("setMinDate works on multiple inputs", () => {
+    document.body.innerHTML = `
+      <input type="date" id="start" />
+      <input type="date" id="end" />
+    `;
+    const startInput = document.getElementById("start");
+    const endInput = document.getElementById("end");
+
+    setMinDate(startInput);
+    setMinDate(endInput);
+
+    const today = new Date().toISOString().split("T")[0];
+    expect(startInput.min).toBe(today);
+    expect(endInput.min).toBe(today);
+  });
+
+  // ----------------------------------------
+  // initHireCalculator Tests
+  // ----------------------------------------
+  test("initHireCalculator does nothing when start input missing", () => {
+    withMockStorage(() => {
+      document.body.innerHTML = '<input type="date" name="end_date" />';
+      expect(() => initHireCalculator()).not.toThrow();
+    });
+  });
+
+  test("initHireCalculator does nothing when end input missing", () => {
+    withMockStorage(() => {
+      document.body.innerHTML = '<input type="date" name="start_date" />';
+      expect(() => initHireCalculator()).not.toThrow();
+    });
+  });
+
+  test("initHireCalculator does nothing when cart has no hire items", () => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Widget", product_mode: "buy" }]),
+      );
+
+      document.body.innerHTML = `
+        <input type="date" name="start_date" />
+        <input type="date" name="end_date" />
+        <input type="hidden" id="hire_days" />
+      `;
+
+      initHireCalculator();
+
+      const startInput = document.querySelector('input[name="start_date"]');
+      expect(startInput.min).toBe("");
+    });
+  });
+
+  test("initHireCalculator sets min dates when cart has hire items", () => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+      );
+
+      document.body.innerHTML = `
+        <input type="date" name="start_date" />
+        <input type="date" name="end_date" />
+        <input type="hidden" id="hire_days" />
+      `;
+
+      initHireCalculator();
+
+      const startInput = document.querySelector('input[name="start_date"]');
+      const endInput = document.querySelector('input[name="end_date"]');
+      const today = new Date().toISOString().split("T")[0];
+      expect(startInput.min).toBe(today);
+      expect(endInput.min).toBe(today);
+    });
+  });
+
+  test("initHireCalculator updates end min when start date changes", () => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+      );
+
+      document.body.innerHTML = `
+        <input type="date" name="start_date" />
+        <input type="date" name="end_date" />
+        <input type="hidden" id="hire_days" />
+      `;
+
+      initHireCalculator(() => {});
+
+      const startInput = document.querySelector('input[name="start_date"]');
+      const endInput = document.querySelector('input[name="end_date"]');
+
+      startInput.value = "2025-02-15";
+      startInput.dispatchEvent(new Event("change"));
+
+      expect(endInput.min).toBe("2025-02-15");
+    });
+  });
+
+  test("initHireCalculator adjusts end date when it becomes before start date", () => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+      );
+
+      document.body.innerHTML = `
+        <input type="date" name="start_date" value="2025-01-10" />
+        <input type="date" name="end_date" value="2025-01-15" />
+        <input type="hidden" id="hire_days" />
+      `;
+
+      initHireCalculator(() => {});
+
+      const startInput = document.querySelector('input[name="start_date"]');
+      const endInput = document.querySelector('input[name="end_date"]');
+
+      startInput.value = "2025-01-20";
+      startInput.dispatchEvent(new Event("change"));
+
+      expect(endInput.value).toBe("2025-01-20");
+    });
+  });
+
+  test("initHireCalculator calls onDaysChange callback when dates change", () => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+      );
+
+      document.body.innerHTML = `
+        <input type="date" name="start_date" value="2025-01-15" />
+        <input type="date" name="end_date" value="" />
+        <input type="hidden" id="hire_days" value="" />
+      `;
+
+      let callbackDays = null;
+      initHireCalculator((days) => {
+        callbackDays = days;
+      });
+
+      const endInput = document.querySelector('input[name="end_date"]');
+      const daysInput = document.getElementById("hire_days");
+
+      endInput.value = "2025-01-17";
+      endInput.dispatchEvent(new Event("change"));
+
+      expect(daysInput.value).toBe("3");
+      expect(callbackDays).toBe(3);
+    });
+  });
+
+  test("initHireCalculator calls callback with 1 when dates incomplete", () => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+      );
+
+      document.body.innerHTML = `
+        <input type="date" name="start_date" value="2025-01-15" />
+        <input type="date" name="end_date" value="2025-01-17" />
+        <input type="hidden" id="hire_days" value="3" />
+      `;
+
+      let callbackDays = null;
+      initHireCalculator((days) => {
+        callbackDays = days;
+      });
+
+      const endInput = document.querySelector('input[name="end_date"]');
+      const daysInput = document.getElementById("hire_days");
+
+      // Clear end date
+      endInput.value = "";
+      endInput.dispatchEvent(new Event("change"));
+
+      expect(daysInput.value).toBe("");
+      expect(callbackDays).toBe(1);
+    });
+  });
+});

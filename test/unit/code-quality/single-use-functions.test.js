@@ -19,8 +19,9 @@ import {
   readSource,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
+import { filterMap, pipe } from "#utils/array-utils.js";
 
-const THIS_FILE = "test/code-quality/single-use-functions.test.js";
+const THIS_FILE = "test/unit/code-quality/single-use-functions.test.js";
 
 // ============================================
 // Function Definition Patterns
@@ -223,7 +224,37 @@ const countReferences = (source, functionName) => {
 };
 
 /**
+ * Build a global reference count map for all function names across all files.
+ * This replaces O(n³) nested loops with a single O(n*m) pass.
+ */
+const buildReferenceCountMap = (fileData) => {
+  const refCounts = new Map();
+
+  // Collect all unique function names first
+  for (const [, data] of fileData) {
+    for (const func of data.functions) {
+      if (!refCounts.has(func.name)) {
+        refCounts.set(func.name, 0);
+      }
+    }
+  }
+
+  // Count references to each function name across all files in one pass
+  for (const [, data] of fileData) {
+    for (const funcName of refCounts.keys()) {
+      refCounts.set(
+        funcName,
+        refCounts.get(funcName) + countReferences(data.source, funcName),
+      );
+    }
+  }
+
+  return refCounts;
+};
+
+/**
  * Analyze all files for single-use unexported functions.
+ * Optimized using pipe() and reference count map to avoid O(n³) complexity.
  */
 const analyzeSingleUseFunctions = () => {
   const allFiles = combineFileLists([ALL_JS_FILES()], [THIS_FILE]);
@@ -239,43 +270,42 @@ const analyzeSingleUseFunctions = () => {
     });
   }
 
-  // Second pass: count references across all files for each function
-  const violations = [];
+  // Second pass: build reference count map (O(n*m) instead of O(n³))
+  const refCounts = buildReferenceCountMap(fileData);
 
+  // Third pass: identify violations using functional composition
+  const allViolations = [];
   for (const [file, data] of fileData) {
-    const { functions, exports } = data;
+    const fileViolations = pipe(
+      filterMap(
+        (func) => {
+          // Skip exported functions
+          if (data.exports.has(func.name)) return false;
 
-    for (const func of functions) {
-      // Skip exported functions
-      if (exports.has(func.name)) continue;
+          // Skip nested functions (intentionally scoped)
+          if (func.isNested) return false;
 
-      // Skip nested functions (intentionally scoped)
-      if (func.isNested) continue;
-
-      // Count total references across all files
-      let totalRefs = 0;
-      for (const [, otherData] of fileData) {
-        totalRefs += countReferences(otherData.source, func.name);
-      }
-
-      // 2 references = 1 definition + 1 call = single use
-      if (totalRefs === 2) {
-        violations.push({
+          // 2 references = 1 definition + 1 call = single use
+          return refCounts.get(func.name) === 2;
+        },
+        (func) => ({
           file,
           line: func.line,
           code: func.name,
           reason: `Function "${func.name}" is only called once - nest it inside its caller`,
-        });
-      }
-    }
+        }),
+      ),
+    )(data.functions);
+
+    allViolations.push(...fileViolations);
   }
 
   // Filter by allowlist (file-level only)
   const isAllowlisted = (v) => ALLOWED_SINGLE_USE_FUNCTIONS.has(v.file);
 
   return {
-    violations: violations.filter((v) => !isAllowlisted(v)),
-    allowed: violations.filter(isAllowlisted),
+    violations: allViolations.filter((v) => !isAllowlisted(v)),
+    allowed: allViolations.filter(isAllowlisted),
   };
 };
 

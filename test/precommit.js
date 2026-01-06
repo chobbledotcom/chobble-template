@@ -10,13 +10,14 @@ import { ROOT_DIR } from "#lib/paths.js";
 
 const rootDir = ROOT_DIR;
 const verbose = process.argv.includes("--verbose");
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 
 // Define the steps to run
 const steps = [
   { name: "install", cmd: "bun", args: ["install"] },
   { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
   { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
-  { name: "test", cmd: "bun", args: ["run", "test"] },
+  { name: "test:unit", cmd: "bun", args: ["run", "test:unit"] },
 ];
 
 const results = {};
@@ -42,7 +43,7 @@ function runStep(step) {
   return result.status === 0;
 }
 
-function extractErrorsFromOutput(output) {
+export function extractErrorsFromOutput(output) {
   const lines = output.split("\n");
   const errors = [];
 
@@ -52,7 +53,7 @@ function extractErrorsFromOutput(output) {
     // Skip empty lines and cruft
     if (!trimmed) continue;
 
-    // Skip command outputs and file paths
+    // Skip command outputs and file paths at the start
     if (trimmed.startsWith("$") || trimmed.startsWith("/")) continue;
 
     // Skip image filenames and other generic file paths
@@ -67,24 +68,56 @@ function extractErrorsFromOutput(output) {
     // Skip long command lines that start with "node -e"
     if (trimmed.startsWith("node -e")) continue;
 
-    // Look for actual error messages
-    if (
+    // Look for error indicators
+    const hasErrorIndicator =
       trimmed.startsWith("❌") ||
       trimmed.startsWith("error:") ||
       trimmed.startsWith("Error:") ||
+      trimmed.startsWith("AssertionError:") ||
       trimmed.includes("FAIL") ||
+      trimmed.toLowerCase().includes("fail") ||
       trimmed.includes("below threshold") ||
       // Coverage-specific errors from run-coverage.js
       trimmed.includes("Uncovered") ||
-      trimmed.includes("must have test coverage")
-    ) {
+      trimmed.includes("must have test coverage");
+
+    // Look for tool-specific error patterns
+    const hasToolPattern =
+      // Knip outputs: "Unused files (3)", "Unused exports (5)", etc.
+      /^Unused (files|exports|dependencies|types)/i.test(trimmed) ||
+      /^Unlisted dependencies/i.test(trimmed) ||
+      // Duplication/jscpd: "Clone found", "Duplication detected"
+      /^(Clone found|Duplication detected|Total duplicates)/i.test(trimmed) ||
+      // Test counts: "2 tests failed", "15 errors found"
+      /\d+ (tests?|errors?) (failed|found)/i.test(trimmed) ||
+      // Coverage patterns
+      /coverage.*\d+%/i.test(trimmed);
+
+    if (hasErrorIndicator || hasToolPattern) {
       errors.push(trimmed);
     }
 
     // Include coverage violation details (path/file.ext: items)
     // These lines show which specific files/lines/functions/branches need coverage
     // Matches patterns like: src/file.js: 10, 20 or src/file.js: funcName, otherFunc
-    if (/^[\w./-]+\.\w+:\s*.+$/.test(trimmed)) {
+    // BUT skip informational test output from allowlist tracking:
+    //   - HTML-in-JS allowlist: "file.js: N instance(s)"
+    //   - try-catch allowlist: "file.js: lines N, N, N"
+    //   - let/const allowlist: "file.js: N usage(s)"
+    if (
+      /^[\w./-]+\.\w+:\s*.+$/.test(trimmed) &&
+      !trimmed.includes("instance(s)") &&
+      !trimmed.includes("usage(s)") &&
+      !/:\s*lines\s+\d/.test(trimmed) // Skip "file.js: lines 12, 28" pattern
+    ) {
+      errors.push(trimmed);
+    }
+
+    // Include stack trace lines that provide context (but not all of them)
+    // Match lines like "at Object.<anonymous> (src/index.js:5:15)"
+    // Note: trimmed already has leading whitespace removed
+    if (/^at .+\(.+:\d+:\d+\)/.test(trimmed)) {
+      // Only include the first few stack frames (limit added when displaying)
       errors.push(trimmed);
     }
   }
@@ -128,8 +161,8 @@ function printSummary() {
         ...extractErrorsFromOutput(result.stderr),
       ];
 
+      console.log(`\n${step} errors:`);
       if (errors.length > 0) {
-        console.log(`\n${step} errors:`);
         for (const error of errors.slice(0, 10)) {
           console.log(`  ${error}`);
         }
@@ -138,6 +171,18 @@ function printSummary() {
             `  ... and ${errors.length - 10} more errors (use --verbose to see all)`,
           );
         }
+      } else {
+        // Show last 15 lines of output when no specific errors extracted
+        console.log("  No specific errors extracted. Last 15 lines of output:");
+        const allOutput = (result.stderr || result.stdout || "").split("\n");
+        const lastLines = allOutput.slice(-15).filter((l) => l.trim());
+        for (const line of lastLines) {
+          console.log(`  ${line}`);
+        }
+        console.log(
+          "\n  Run with --verbose to see full output, or check exit code:",
+        );
+        console.log(`  Exit code: ${result.status}`);
       }
     }
   }
@@ -149,18 +194,20 @@ function printSummary() {
   }
 }
 
-// Run all steps
-console.log(
-  verbose
-    ? "Running precommit checks (verbose)...\n"
-    : "Running precommit checks...",
-);
+// Run all steps (only when executed directly, not when imported)
+if (isMainModule) {
+  console.log(
+    verbose
+      ? "Running precommit checks (verbose)...\n"
+      : "Running precommit checks...",
+  );
 
-for (const step of steps) {
-  if (!runStep(step)) {
-    printSummary();
-    process.exit(1);
+  for (const step of steps) {
+    if (!runStep(step)) {
+      printSummary();
+      process.exit(1);
+    }
   }
-}
 
-printSummary();
+  printSummary();
+}

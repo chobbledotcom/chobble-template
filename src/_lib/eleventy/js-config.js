@@ -6,14 +6,11 @@ import { toObject } from "#utils/object-entries.js";
 
 const JS_CONFIG_KEYS = ["cart_mode", "checkout_api_url", "product_mode"];
 
-const isDefined = (config) => (key) => config[key] != null;
-const toConfigEntry = (config) => (key) => [key, config[key]];
-
 // Core function to build the config script HTML - exported for use in tests
 export function buildJsConfigScript(config) {
   const jsConfig = toObject(
-    JS_CONFIG_KEYS.filter(isDefined(config)),
-    toConfigEntry(config),
+    JS_CONFIG_KEYS.filter((key) => config[key] != null),
+    (key) => [key, config[key]],
   );
   return `<script id="site-config" type="application/json">${JSON.stringify(jsConfig)}</script>`;
 }

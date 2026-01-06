@@ -6,6 +6,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
+import { filterMap, pipe } from "#utils/array-utils.js";
 
 /**
  * Patterns that indicate commented-out code (not documentation)
@@ -52,21 +53,21 @@ const COMMENTED_CODE_PATTERNS = [
 ];
 
 /**
- * Check if a line is inside a template literal (backtick string)
- * This helps avoid false positives from test fixtures
+ * Build template literal state for all lines in a single O(n) pass
+ * Returns an array where each index indicates if that line is inside a template literal
+ * This replaces the O(n²) approach of checking each line independently
  */
-const isInsideTemplateLiteral = (lines, lineIndex) => {
+const buildTemplateLiteralState = (lines) => {
   let backtickCount = 0;
-  for (let i = 0; i < lineIndex; i++) {
-    const line = lines[i];
-    // Count unescaped backticks
+  return lines.map((line) => {
+    const isInside = backtickCount % 2 === 1;
+    // Count unescaped backticks in this line
     const matches = line.match(/(?<!\\)`/g);
     if (matches) {
       backtickCount += matches.length;
     }
-  }
-  // Odd number means we're inside a template literal
-  return backtickCount % 2 === 1;
+    return isInside;
+  });
 };
 
 /**
@@ -85,26 +86,40 @@ const isDocumentationComment = (_line, _prevLine, nextLine) => {
 
 /**
  * Find all commented-out code in a file
+ * Optimized using pipe() and filterMap() for single-pass processing
  */
 const findCommentedCode = (source, _relativePath) => {
   const lines = toLines(source);
   const rawLines = lines.map((l) => l.line);
+  const insideTemplateLiteral = buildTemplateLiteralState(rawLines);
 
-  return lines
-    .filter(({ line }, i) => {
-      if (isInsideTemplateLiteral(rawLines, i)) return false;
-      const prevLine = i > 0 ? rawLines[i - 1] : "";
-      const nextLine = i < rawLines.length - 1 ? rawLines[i + 1] : "";
-      return COMMENTED_CODE_PATTERNS.some(
-        (pattern) =>
-          pattern.test(line) &&
-          !isDocumentationComment(line, prevLine, nextLine),
-      );
-    })
-    .map(({ line, num }) => ({ lineNumber: num, line: line.trim() }));
+  // Enrich lines with context needed for filtering
+  const enrichedLines = lines.map((item, i) => ({
+    ...item,
+    inTemplate: insideTemplateLiteral[i],
+    prevLine: i > 0 ? rawLines[i - 1] : "",
+    nextLine: i < rawLines.length - 1 ? rawLines[i + 1] : "",
+  }));
+
+  return pipe(
+    filterMap(
+      ({ line, inTemplate, prevLine, nextLine }) => {
+        // Skip lines inside template literals
+        if (inTemplate) return false;
+
+        // Check if line matches any pattern and isn't documentation
+        return COMMENTED_CODE_PATTERNS.some(
+          (pattern) =>
+            pattern.test(line) &&
+            !isDocumentationComment(line, prevLine, nextLine),
+        );
+      },
+      ({ line, num }) => ({ lineNumber: num, line: line.trim() }),
+    ),
+  )(enrichedLines);
 };
 
-const THIS_FILE = "test/code-quality/commented-code.test.js";
+const THIS_FILE = "test/unit/code-quality/commented-code.test.js";
 
 // Complete analyzer - find + files in one definition (no allowlist needed)
 const commentedCodeAnalysis = withAllowlist({

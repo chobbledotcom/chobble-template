@@ -18,7 +18,7 @@ const { find: findNullChecks } = createCodeChecker({
   files: [],
 });
 
-const THIS_FILE = "test/code-quality/null-checks.test.js";
+const THIS_FILE = "test/unit/code-quality/null-checks.test.js";
 
 const analyzeNullChecks = () =>
   analyzeWithAllowlist({

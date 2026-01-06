@@ -15,29 +15,54 @@
 }
 
 .quote-steps-indicator {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: var(--border);
-  background: var(--color-bg);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-weight: bold;
+  gap: 0.5rem;
   transition: all 0.2s ease;
 
+  .step-name {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    text-align: center;
+    max-width: 5rem;
+    line-height: 1.2;
+  }
+
   .step-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: var(--border);
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
     line-height: 1;
+    transition: all 0.2s ease;
   }
 
   &.active {
-    background: var(--color-text);
-    color: var(--color-bg);
+    .step-name {
+      opacity: 1;
+      font-weight: bold;
+    }
+
+    .step-number {
+      background: var(--color-text);
+      color: var(--color-bg);
+    }
   }
 
   &.completed {
-    background: var(--color-accent);
     cursor: pointer;
+
+    .step-number {
+      background: var(--color-accent);
+    }
 
     &:hover {
       opacity: 0.8;
@@ -51,6 +76,8 @@
   height: 2px;
   background: var(--color-text);
   opacity: 0.3;
+  align-self: flex-end;
+  margin-bottom: 1.15rem;
 }
 
 .quote-step {

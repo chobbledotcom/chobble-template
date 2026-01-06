@@ -17,8 +17,12 @@
 		"@botpoison/browser",
 		"@hotwired/turbo",
 		"@happy-dom/global-registrator",
+		"happy-dom",
+		"@adobe/structured-data-validator",
+		"@marbec/web-auto-extractor",
 		"@11ty/eleventy-img",
 		"json-to-pdf",
+		"liquidjs",
 		"sass",
 		"sharp"
 	],
