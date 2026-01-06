@@ -250,9 +250,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:102", // path
-  "src/_lib/collections/products.js:6", // gallery
-  "src/_lib/collections/products.js:72", // options
-  "src/_lib/collections/search.js:9", // category
+  "src/_lib/collections/products.js:71", // options
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:13", // collection
   "src/_lib/collections/navigation.js:19", // result
