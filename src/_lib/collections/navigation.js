@@ -1,6 +1,7 @@
 import navUtil from "@11ty/eleventy-navigation/eleventy-navigation.js";
 
 import { filter, pipe, sort } from "#utils/array-utils.js";
+import { sortNavigationItems } from "#utils/sorting.js";
 
 const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
   navUtil.toHtml.call(eleventyConfig, collection, {
@@ -31,22 +32,11 @@ const configureNavigation = async (eleventyConfig) => {
   );
   eleventyConfig.addFilter("pageUrl", findPageUrl);
 
-  // Add custom collection for navigation links sorted by order, then by title
+  // Add custom collection for navigation links sorted by order, then by key
   eleventyConfig.addCollection("navigationLinks", (collectionApi) =>
     pipe(
       filter((item) => item.data.eleventyNavigation),
-      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Sorting by order then title requires this logic
-      sort((a, b) => {
-        const orderDiff =
-          (a.data.eleventyNavigation.order ?? 999) -
-          (b.data.eleventyNavigation.order ?? 999);
-        if (orderDiff !== 0) return orderDiff;
-        return (
-          a.data.eleventyNavigation.key ||
-          a.data.title ||
-          ""
-        ).localeCompare(b.data.eleventyNavigation.key || b.data.title || "");
-      }),
+      sort(sortNavigationItems),
     )(collectionApi.getAll()),
   );
 };
