@@ -117,7 +117,7 @@ const collectFieldDetails = (container) => {
 
 // Create an item element from template
 const createItemElement = (item, days) => {
-  const template = getTemplate(IDS.QUOTE_PRICE_ITEM);
+  const template = getTemplate(IDS.QUOTE_PRICE_ITEM, document);
   const price = getPriceForDays(days)(item);
   template.querySelector('[data-field="name"]').textContent =
     formatItemName(item);
@@ -164,7 +164,7 @@ const renderQuotePrice = (container, days = 1) => {
     return;
   }
 
-  const template = getTemplate(IDS.QUOTE_PRICE);
+  const template = getTemplate(IDS.QUOTE_PRICE, document);
   const { total, canCalculate } = calculateTotal(cart, days);
   const itemCount = countItems(cart);
 

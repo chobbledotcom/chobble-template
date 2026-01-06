@@ -15,7 +15,7 @@ import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
 const renderCheckoutItem = (item) => {
-  const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM);
+  const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM, document);
 
   template.querySelector('[data-field="name"]').textContent = item.item_name;
   template.querySelector('[data-field="qty"]').textContent =

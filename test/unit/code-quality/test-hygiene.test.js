@@ -115,6 +115,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createTestEnv",
   "runAutosizes",
   "makeImg",
+  "setupAndRun",
   // unused-classes.test.js - helper to add classes from string
   "addClasses",
   // unused-classes.test.js - helper to add items to Map
@@ -173,10 +174,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCodeChecker",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // template.test.js - isolated DOM testing helpers
-  "getTemplate",
-  "populateItemFields",
-  "populateQuantityControls",
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",

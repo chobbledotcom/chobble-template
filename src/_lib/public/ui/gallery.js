@@ -71,7 +71,7 @@ const navigatePopup = (direction) => {
 };
 
 const appendNavButton = (templateId, shouldHide) => {
-  const btn = getTemplate(templateId);
+  const btn = getTemplate(templateId, document);
   if (shouldHide) btn.firstElementChild.style.visibility = "hidden";
   state.imagePopup.appendChild(btn);
 };
