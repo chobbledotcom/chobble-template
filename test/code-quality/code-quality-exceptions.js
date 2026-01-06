@@ -276,8 +276,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
   "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:53", // trimmed (line processing)
-  "test/precommit.js:105", // result (skip if step wasn't run)
-  "test/precommit.js:147", // allPassed (check if all steps passed)
+  "test/precommit.js:114", // result (skip if step wasn't run)
+  "test/precommit.js:168", // allPassed (check if all steps passed)
 ]);
 
 // ============================================
