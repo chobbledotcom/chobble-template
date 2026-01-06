@@ -62,7 +62,8 @@ arr. push(3);
     const { violations } = analyzeArrayPushUsage();
     assertNoViolations(violations, {
       message: ".push() usage(s)",
-      fixHint: "use functional patterns (map, filter, reduce, spread, concat) unless using safe reduce accumulator pattern",
+      fixHint:
+        "use functional patterns (map, filter, reduce, spread, concat) unless using safe reduce accumulator pattern",
     });
   });
 });

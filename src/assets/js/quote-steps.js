@@ -2,6 +2,7 @@
 // Handles step transitions, validation, and recap population
 
 import { onReady } from "#assets/on-ready.js";
+import { accumulate } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
@@ -45,15 +46,19 @@ function buildFieldRecapItem(id) {
   return `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
+// Utility function for safe array accumulation (used by getStepFieldIds)
+const collectFieldIds = accumulate((acc, field) => {
+  const id = field.type === "radio" ? field.name : field.id;
+  if (id && !acc.includes(id)) {
+    acc.push(id);
+  }
+  return acc;
+});
+
+// Get field IDs from a DOM element (accepts DOM element for backward compatibility)
 function getStepFieldIds(stepEl) {
   const fields = [...stepEl.querySelectorAll("input, select, textarea")];
-  return fields.reduce((acc, field) => {
-    const id = field.type === "radio" ? field.name : field.id;
-    if (id && !acc.includes(id)) {
-      acc.push(id);
-    }
-    return acc;
-  }, []);
+  return collectFieldIds(fields);
 }
 
 function populateRecap(steps) {
