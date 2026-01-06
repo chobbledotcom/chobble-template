@@ -36,7 +36,8 @@
       "style": {
         "useConst": "error",
         "useTemplate": "error",
-        "noUnusedTemplateLiteral": "error"
+        "noUnusedTemplateLiteral": "error",
+        "useFilenamingConvention": "error"
       },
       "suspicious": {
         "noVar": "error",
