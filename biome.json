@@ -37,7 +37,15 @@
         "useConst": "error",
         "useTemplate": "error",
         "noUnusedTemplateLiteral": "error",
-        "useFilenamingConvention": "error"
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": [
+              "kebab-case",
+              "export"
+            ]
+          }
+        }
       },
       "suspicious": {
         "noVar": "error",
