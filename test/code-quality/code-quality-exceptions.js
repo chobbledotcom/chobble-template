@@ -250,9 +250,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:102", // path
-  "src/_lib/collections/products.js:6", // gallery
-  "src/_lib/collections/products.js:72", // options
-  "src/_lib/collections/search.js:9", // category
+  "src/_lib/collections/products.js:71", // options
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:13", // collection
   "src/_lib/collections/navigation.js:19", // result
@@ -265,9 +263,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/integration/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
   "test/run-coverage.js:74", // file (iteration over files)
-  "test/precommit.js:55", // trimmed (line processing)
-  "test/precommit.js:139", // result (skip if step wasn't run)
-  "test/precommit.js:186", // allPassed (check if all steps passed)
+  "test/precommit.js:56", // trimmed (line processing)
+  "test/precommit.js:140", // result (skip if step wasn't run)
+  "test/precommit.js:187", // allPassed (check if all steps passed)
   "test/demo-precommit-errors.js:26", // functionMatch (regex match can be null)
 ]);
 
@@ -292,7 +290,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/lazy-loader.js",
-  "src/_lib/utils/schema-helper.js",
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -308,9 +305,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/shuffle-properties.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
-  "src/_lib/public/ui/tabs.js",
   "src/_lib/public/theme/theme-editor-lib.js",
-  "src/products/products.11tydata.js",
   "test/unit/code-quality/knip.test.js",
 ]);
 

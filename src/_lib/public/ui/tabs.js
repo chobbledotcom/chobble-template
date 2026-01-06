@@ -1,7 +1,5 @@
 import { onReady } from "#public/utils/on-ready.js";
 
-const processed = new WeakSet();
-
 const setActiveTab = (tabs, activeLink) => {
   for (const link of tabs) {
     link.closest(".tab").classList.remove("active");
@@ -9,19 +7,7 @@ const setActiveTab = (tabs, activeLink) => {
   activeLink.closest(".tab").classList.add("active");
 };
 
-const addListener = (link, tabs) => {
-  if (processed.has(link)) return;
-  processed.add(link);
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-    setActiveTab(tabs, link);
-    history.pushState({}, "", link.href);
-    history.pushState({}, "", link.href);
-    history.back();
-  });
-};
-
-const initTabs = () => {
+onReady(() => {
   const tabs = document.querySelectorAll("#tabs a[href^='#tab-']");
   if (tabs.length === 0) return;
 
@@ -30,8 +16,12 @@ const initTabs = () => {
   setActiveTab(tabs, activeLink || tabs[0]);
 
   for (const tab of tabs) {
-    addListener(tab, tabs);
+    tab.addEventListener("click", (event) => {
+      event.preventDefault();
+      setActiveTab(tabs, tab);
+      history.pushState({}, "", tab.href);
+      history.pushState({}, "", tab.href);
+      history.back();
+    });
   }
-};
-
-onReady(initTabs);
+});

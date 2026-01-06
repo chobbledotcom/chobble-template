@@ -6,7 +6,6 @@ import { memoize } from "#utils/memoize.js";
  * Handles full paths like "/categories/premium-widgets.md"
  */
 const normaliseCategory = (category) => {
-  if (!category) return "";
   return category
     .replace(/^\/categories\//, "")
     .replace(/\.md$/, "")

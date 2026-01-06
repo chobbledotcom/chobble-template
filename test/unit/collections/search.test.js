@@ -147,11 +147,6 @@ describe("search", () => {
     );
   });
 
-  test("Returns empty string for null/undefined/empty inputs", () => {
-    expect(normaliseCategory(null)).toBe("");
-    expect(normaliseCategory("")).toBe("");
-  });
-
   test("Extracts keywords from product categories", () => {
     const products = [
       {
