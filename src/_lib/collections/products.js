@@ -61,43 +61,30 @@ const getFeaturedProducts = (products) =>
   products?.filter((p) => p.data.featured) || [];
 
 /**
- * Build display name for a product option
- */
-const buildOptionName = (productTitle, optionName) =>
-  optionName ? `${productTitle} - ${optionName}` : productTitle;
-
-/**
- * Check if an option has valid SKU data
- */
-const isValidSku = (option) => option.sku && option.unit_price !== undefined;
-
-/**
- * Extract SKU entries from a single product
- */
-const extractProductSkus = (product) => {
-  const options = product.data.options;
-  if (!options) return [];
-
-  const productTitle = product.data.title || "";
-
-  return filterMap(isValidSku, (option) => [
-    option.sku,
-    {
-      name: buildOptionName(productTitle, option.name),
-      unit_price: option.unit_price,
-      max_quantity: option.max_quantity ?? null,
-    },
-  ])(options);
-};
-
-/**
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
  * Throws an error if duplicate SKUs are found
  */
 const createApiSkusCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("product") || [];
-  const allSkuEntries = products.flatMap(extractProductSkus);
+  const allSkuEntries = products.flatMap((product) => {
+    const options = product.data.options;
+    if (!options) return [];
+
+    const productTitle = product.data.title || "";
+
+    return filterMap(
+      (option) => option.sku && option.unit_price !== undefined,
+      (option) => [
+        option.sku,
+        {
+          name: option.name ? `${productTitle} - ${option.name}` : productTitle,
+          unit_price: option.unit_price,
+          max_quantity: option.max_quantity ?? null,
+        },
+      ],
+    )(options);
+  });
 
   const duplicate = findDuplicate(allSkuEntries, ([sku]) => sku);
   if (duplicate) {

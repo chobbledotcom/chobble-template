@@ -33,7 +33,7 @@ const { find: findObjectMutation } = createCodeChecker({
 const analyzeObjectMutation = () =>
   analyzeWithAllowlist({
     findFn: findObjectMutation,
-    allowlist: ALLOWED_OBJECT_MUTATION,
+    allowlist: new Set([ALLOWED_OBJECT_MUTATION]),
     files: SRC_JS_FILES,
   });
 
@@ -98,7 +98,7 @@ obj[ key ] = value;
   // Exception validation tests
   test("ALLOWED_OBJECT_MUTATION entries still exist and match pattern", () => {
     const stale = validateExceptions(
-      ALLOWED_OBJECT_MUTATION,
+      new Set([ALLOWED_OBJECT_MUTATION]),
       OBJECT_MUTATION_PATTERN,
     );
     if (stale.length > 0) {
