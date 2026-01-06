@@ -23,6 +23,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
   "src/assets/js/cart-utils.js:11",
+
+  // test/test-site-factory.test.js - Testing error handling behavior
+  // Needed: test intentionally catches errors to verify error handling works correctly
+  "test/test-site-factory.test.js:346",
 ]);
 
 // ============================================
@@ -274,7 +278,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/code-quality/method-aliasing.test.js:71", // alias
   "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
   "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
-  "test/code-quality/try-catch-usage.test.js:40", // nextLine (find() can return undefined)
+  "test/test-site-factory.test.js:108", // imageExists (file may not exist)
+  "test/test-site-factory.test.js:131", // imageExists (cleanup check)
 ]);
 
 // ============================================

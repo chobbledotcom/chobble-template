@@ -28,6 +28,18 @@ describe("relative-paths", () => {
       excludeFiles: [THIS_FILE, "src/_lib/paths.js"],
     });
 
+  const { find: findGeneralAliases, analyze: analyzeGeneralAliases } =
+    createCodeChecker({
+      patterns: /from\s+["']#src\//,
+      skipPatterns: [], // Check all lines
+      extractData: (line) => {
+        const pathMatch = line.match(IMPORT_PATH_REGEX);
+        return { importPath: pathMatch ? pathMatch[1] : "unknown" };
+      },
+      files: ALL_JS_FILES(),
+      excludeFiles: [THIS_FILE],
+    });
+
   const { analyze: analyzeProcessCwd } = createCodeChecker({
     patterns: /process\.cwd\(\)/,
     // skipPatterns defaults to COMMENT_LINE_PATTERNS
@@ -46,6 +58,19 @@ import qux from "some-package";
     expect(results.length).toBe(2);
     expect(results[0].importPath).toBe("./utils.js");
     expect(results[1].importPath).toBe("../lib/bar.js");
+  });
+
+  test("Correctly identifies overly general #src/ aliases", () => {
+    const source = `
+import { foo } from "#src/utils.js";
+import bar from "#src/_lib/bar.js";
+import { baz } from "#lib/baz.js";
+import qux from "some-package";
+    `;
+    const results = findGeneralAliases(source);
+    expect(results.length).toBe(2);
+    expect(results[0].importPath).toBe("#src/utils.js");
+    expect(results[1].importPath).toBe("#src/_lib/bar.js");
   });
 
   test("Correctly identifies path.join/resolve with '..' patterns", () => {
@@ -76,6 +101,15 @@ const clean = path.join(__dirname, "subdir");
     assertNoViolations(violations, {
       message: "relative imports",
       fixHint: 'use path aliases instead (e.g., "./foo.js" → "#lib/foo.js")',
+    });
+  });
+
+  test("No overly general #src/ aliases - use specific aliases (#lib/*, #config/*, etc.)", () => {
+    const { violations } = analyzeGeneralAliases();
+    assertNoViolations(violations, {
+      message: "#src/ alias usage",
+      fixHint:
+        'use specific aliases instead (e.g., "#src/_lib/foo.js" → "#lib/foo.js")',
     });
   });
 
