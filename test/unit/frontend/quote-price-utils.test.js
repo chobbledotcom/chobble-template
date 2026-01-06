@@ -275,36 +275,37 @@ describe("quote-price-utils", () => {
   });
 
   // ----------------------------------------
-  // getFieldLabel Tests (with DOM)
+  // getFieldLabel Tests (with config mapping)
   // ----------------------------------------
   describe("getFieldLabel", () => {
-    test("returns label text for field with label", () => {
+    test("returns label from config for known field", () => {
       document.body.innerHTML = `
-        <label for="name">Your Name</label>
-        <input id="name" type="text" />
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
+        <input id="name" name="name" type="text" />
       `;
       const field = document.getElementById("name");
       expect(getFieldLabel(field)).toBe("Your Name");
     });
 
-    test("returns field id when no label exists", () => {
-      document.body.innerHTML = '<input id="orphan" type="text" />';
+    test("returns field name when not in config", () => {
+      document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{}</script>
+        <input id="orphan" name="orphan" type="text" />
+      `;
       const field = document.getElementById("orphan");
       expect(getFieldLabel(field)).toBe("orphan");
     });
 
-    test("returns legend text for radio button", () => {
+    test("returns label for radio button by name", () => {
       document.body.innerHTML = `
-        <fieldset>
-          <legend>Contact Preference</legend>
-          <input type="radio" name="contact" value="Email" />
-        </fieldset>
+        <script class="quote-field-labels" type="application/json">{"contact": "Contact Preference"}</script>
+        <input type="radio" name="contact" value="Email" />
       `;
       const field = document.querySelector('input[type="radio"]');
       expect(getFieldLabel(field)).toBe("Contact Preference");
     });
 
-    test("returns radio name when no legend exists", () => {
+    test("returns radio name when no config script exists", () => {
       document.body.innerHTML =
         '<input type="radio" name="orphan_radio" value="A" />';
       const field = document.querySelector('input[type="radio"]');
@@ -313,14 +314,14 @@ describe("quote-price-utils", () => {
   });
 
   // ----------------------------------------
-  // collectFieldDetails Tests (with DOM)
+  // collectFieldDetails Tests (with config mapping)
   // ----------------------------------------
   describe("collectFieldDetails", () => {
     test("collects details from text inputs with values", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
         <div class="container">
-          <label for="name">Your Name</label>
-          <input id="name" type="text" value="John Doe" />
+          <input id="name" name="name" type="text" value="John Doe" />
         </div>
       `;
       const container = document.querySelector(".container");
@@ -330,11 +331,10 @@ describe("quote-price-utils", () => {
 
     test("excludes empty fields", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email"}</script>
         <div class="container">
-          <label for="name">Your Name</label>
-          <input id="name" type="text" value="" />
-          <label for="email">Email</label>
-          <input id="email" type="text" value="test@example.com" />
+          <input id="name" name="name" type="text" value="" />
+          <input id="email" name="email" type="text" value="test@example.com" />
         </div>
       `;
       const container = document.querySelector(".container");
@@ -344,13 +344,11 @@ describe("quote-price-utils", () => {
 
     test("collects multiple filled fields in order", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email", "phone": "Phone"}</script>
         <div class="container">
-          <label for="name">Your Name</label>
-          <input id="name" type="text" value="Jane" />
-          <label for="email">Email</label>
-          <input id="email" type="email" value="jane@test.com" />
-          <label for="phone">Phone</label>
-          <input id="phone" type="tel" value="555-1234" />
+          <input id="name" name="name" type="text" value="Jane" />
+          <input id="email" name="email" type="email" value="jane@test.com" />
+          <input id="phone" name="phone" type="tel" value="555-1234" />
         </div>
       `;
       const container = document.querySelector(".container");
@@ -364,12 +362,10 @@ describe("quote-price-utils", () => {
 
     test("collects checked radio value", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"contact": "Preferred Contact"}</script>
         <div class="container">
-          <fieldset>
-            <legend>Preferred Contact</legend>
-            <input type="radio" name="contact" value="Email" checked />
-            <input type="radio" name="contact" value="Phone" />
-          </fieldset>
+          <input type="radio" name="contact" value="Email" checked />
+          <input type="radio" name="contact" value="Phone" />
         </div>
       `;
       const container = document.querySelector(".container");
@@ -379,12 +375,10 @@ describe("quote-price-utils", () => {
 
     test("excludes unchecked radio groups", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"contact": "Preferred Contact"}</script>
         <div class="container">
-          <fieldset>
-            <legend>Preferred Contact</legend>
-            <input type="radio" name="contact" value="Email" />
-            <input type="radio" name="contact" value="Phone" />
-          </fieldset>
+          <input type="radio" name="contact" value="Email" />
+          <input type="radio" name="contact" value="Phone" />
         </div>
       `;
       const container = document.querySelector(".container");
@@ -394,13 +388,11 @@ describe("quote-price-utils", () => {
 
     test("deduplicates radio buttons by name", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"pref": "Preference"}</script>
         <div class="container">
-          <fieldset>
-            <legend>Preference</legend>
-            <input type="radio" name="pref" value="A" checked />
-            <input type="radio" name="pref" value="B" />
-            <input type="radio" name="pref" value="C" />
-          </fieldset>
+          <input type="radio" name="pref" value="A" checked />
+          <input type="radio" name="pref" value="B" />
+          <input type="radio" name="pref" value="C" />
         </div>
       `;
       const container = document.querySelector(".container");
@@ -411,9 +403,9 @@ describe("quote-price-utils", () => {
 
     test("collects select field value", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"event_type": "Event Type"}</script>
         <div class="container">
-          <label for="event_type">Event Type</label>
-          <select id="event_type">
+          <select id="event_type" name="event_type">
             <option value="">Choose...</option>
             <option value="wedding" selected>Wedding</option>
           </select>
@@ -426,9 +418,9 @@ describe("quote-price-utils", () => {
 
     test("collects textarea value", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"message": "Message"}</script>
         <div class="container">
-          <label for="message">Message</label>
-          <textarea id="message">Hello there</textarea>
+          <textarea id="message" name="message">Hello there</textarea>
         </div>
       `;
       const container = document.querySelector(".container");
@@ -438,9 +430,9 @@ describe("quote-price-utils", () => {
 
     test("excludes empty textarea", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"message": "Message"}</script>
         <div class="container">
-          <label for="message">Message</label>
-          <textarea id="message"></textarea>
+          <textarea id="message" name="message"></textarea>
         </div>
       `;
       const container = document.querySelector(".container");
@@ -457,20 +449,15 @@ describe("quote-price-utils", () => {
 
     test("collects mixed field types", () => {
       document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"name": "Name", "event": "Event", "contact": "Contact", "notes": "Notes"}</script>
         <div class="container">
-          <label for="name">Name</label>
-          <input id="name" type="text" value="John" />
-          <label for="event">Event</label>
-          <select id="event">
+          <input id="name" name="name" type="text" value="John" />
+          <select id="event" name="event">
             <option value="">Choose...</option>
             <option value="party" selected>Party</option>
           </select>
-          <fieldset>
-            <legend>Contact</legend>
-            <input type="radio" name="contact" value="Email" checked />
-          </fieldset>
-          <label for="notes">Notes</label>
-          <textarea id="notes">Some notes</textarea>
+          <input type="radio" name="contact" value="Email" checked />
+          <textarea id="notes" name="notes">Some notes</textarea>
         </div>
       `;
       const container = document.querySelector(".container");

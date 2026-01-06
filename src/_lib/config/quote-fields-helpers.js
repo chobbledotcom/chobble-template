@@ -13,6 +13,14 @@ export function buildSections(sections) {
   }));
 }
 
+// Build a flat mapping of field name -> label from all sections
+export function buildFieldLabels(sections) {
+  const allFields = sections.flatMap((section) => section.fields);
+  return Object.fromEntries(
+    allFields.map((field) => [field.name, field.label]),
+  );
+}
+
 // Process the raw JSON into a structured format
 export function processQuoteFields(data) {
   const sections = buildSections(data.sections);
@@ -33,5 +41,6 @@ export function processQuoteFields(data) {
     steps,
     recapTitle: data.recapTitle,
     submitButtonText: data.submitButtonText,
+    fieldLabels: buildFieldLabels(data.sections),
   };
 }
