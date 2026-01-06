@@ -225,7 +225,7 @@ function initQuoteSteps() {
 
   // Set up click handlers for completed indicators
   progressContainer.addEventListener("click", (e) => {
-    const indicator = e.target.closest(".quote-steps-indicator");
+    const indicator = e.target.closest("li");
     if (indicator === null) return;
     const stepIndex = parseInt(indicator.dataset.step, 10);
     const formStep = stepIndex - baseCompletedSteps;

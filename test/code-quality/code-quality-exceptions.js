@@ -74,9 +74,6 @@ const ALLOWED_HTML_IN_JS = new Set([
 
   // Filters with HTML formatting
   "src/_lib/filters/item-filters.js",
-
-  // JS-rendered step progress indicator
-  "src/_lib/public/ui/quote-steps-progress.js",
 ]);
 
 // ============================================
