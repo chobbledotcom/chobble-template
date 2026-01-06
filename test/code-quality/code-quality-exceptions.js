@@ -241,6 +241,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/code-quality/method-aliasing.test.js:71", // alias
   "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
   "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
+  "test/code-quality/try-catch-usage.test.js:40", // nextLine (find() can return undefined)
 ]);
 
 // ============================================
@@ -291,6 +292,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/products/products.11tydata.js",
   "test/code-quality/array-push.test.js",
   "test/code-quality/method-aliasing.test.js",
+  "test/code-quality/try-catch-usage.test.js",
   "test/code-quality/unused-classes.test.js",
   "test/collections/products.test.js",
   "test/eleventy/recurring-events.test.js",
