@@ -116,7 +116,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "logUnused",
   // html-in-js.test.js - analysis helpers
   "extractStringContent",
+  "extractTagName",
+  "hasKnownHtmlTag",
+  "matchesHtmlPattern",
   "containsHtml",
+  "createPreview",
+  "toHtmlResult",
   "findHtmlInJs",
   // template-selectors.test.js - analysis helpers
   "buildLiquidLookup",
@@ -263,6 +268,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectEventCounts",
   "handleOpeningBrace",
   "handleClosingBrace",
+  "handleComments",
+  "handleStringDelimiters",
   "processLine",
   "extractFunctions",
   // build-profiling.js - measurement utilities
@@ -322,16 +329,8 @@ describe("test-hygiene", () => {
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are defined in test files", () => {
-    // Include test files AND test infrastructure files
-    const allTestFiles = [
-      ...TEST_FILES(),
-      "test/test-utils.js",
-      "test/test-site-factory.js",
-      "test/code-scanner.js",
-    ];
-
     // Combine all test file sources
-    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
+    const allTestSource = analyzeFiles(TEST_FILES(), (source) => source).join(
       "\n",
     );
 
@@ -359,16 +358,8 @@ describe("test-hygiene", () => {
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are actually used in test files", () => {
-    // Include test files AND test infrastructure files
-    const allTestFiles = [
-      ...TEST_FILES(),
-      "test/test-utils.js",
-      "test/test-site-factory.js",
-      "test/code-scanner.js",
-    ];
-
     // Combine all test file sources
-    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
+    const allTestSource = analyzeFiles(TEST_FILES(), (source) => source).join(
       "\n",
     );
 

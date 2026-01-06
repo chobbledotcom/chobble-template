@@ -35,7 +35,7 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       if (matchesAny(ALLOWED_LET_PATTERNS)(line.trim())) return null;
       return { reason: "Mutable variable declaration" };
     },
-    files: ALL_JS_FILES,
+    files: ALL_JS_FILES(),
     allowlist: ALLOWED_LET,
   });
 
@@ -50,7 +50,7 @@ const { find: findMutableConstDeclarations, analyze: mutableConstAnalysis } =
       if (/new\s+Map/.test(line)) return { reason: "Map const" };
       return { reason: "Mutable const" };
     },
-    files: ALL_JS_FILES,
+    files: ALL_JS_FILES(),
     allowlist: ALLOWED_MUTABLE_CONST,
   });
 

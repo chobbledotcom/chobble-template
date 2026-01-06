@@ -6,11 +6,7 @@ import {
   isCommentLine,
   withAllowlist,
 } from "#test/code-scanner.js";
-import {
-  ECOMMERCE_JS_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
-} from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
 import { groupBy } from "#utils/grouping.js";
 
 /**
@@ -146,11 +142,7 @@ const THIS_FILE = "test/code-quality/try-catch-usage.test.js";
 const tryCatchAnalysis = withAllowlist({
   find: findTryCatches,
   allowlist: ALLOWED_TRY_CATCHES,
-  files: () =>
-    combineFileLists(
-      [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
-      [THIS_FILE],
-    ),
+  files: () => combineFileLists([ALL_JS_FILES()], [THIS_FILE]),
 });
 
 describe("try-catch-usage", () => {
