@@ -6,6 +6,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
+import { filterMap } from "#utils/array-utils.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.
@@ -208,123 +209,126 @@ const extractStringContent = (source) => {
 };
 
 /**
+ * Known HTML/SVG tag names for verification
+ */
+const HTML_TAGS = new Set([
+  "div",
+  "span",
+  "p",
+  "a",
+  "button",
+  "input",
+  "form",
+  "ul",
+  "ol",
+  "li",
+  "table",
+  "tr",
+  "td",
+  "th",
+  "thead",
+  "tbody",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "img",
+  "br",
+  "hr",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "u",
+  "pre",
+  "code",
+  "blockquote",
+  "nav",
+  "header",
+  "footer",
+  "main",
+  "section",
+  "article",
+  "aside",
+  "label",
+  "select",
+  "option",
+  "textarea",
+  "svg",
+  "path",
+  "polyline",
+  "circle",
+  "rect",
+  "line",
+  "polygon",
+  "g",
+  "defs",
+  "use",
+  "script",
+  "style",
+  "link",
+  "meta",
+  "head",
+  "body",
+  "html",
+  "template",
+]);
+
+/**
+ * Extract and verify tag name from content
+ */
+const extractTagName = (content) => {
+  const match = content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
+  return match ? match[1].toLowerCase() : null;
+};
+
+/**
+ * Check if content contains a known HTML tag
+ */
+const hasKnownHtmlTag = (content) => {
+  const tagName = extractTagName(content);
+  return tagName ? HTML_TAGS.has(tagName) : false;
+};
+
+/**
+ * Check if content matches any HTML pattern and contains a known tag
+ */
+const matchesHtmlPattern = (content) =>
+  HTML_PATTERNS.some((pattern) => pattern.test(content)) &&
+  hasKnownHtmlTag(content);
+
+/**
  * Check if content contains HTML
  */
-const containsHtml = (content) => {
-  // Check exclusion patterns first
-  for (const pattern of EXCLUSION_PATTERNS) {
-    if (pattern.test(content)) {
-      // If it matches an exclusion but also clearly has HTML, continue checking
-      // This is a simple heuristic
-    }
-  }
+const containsHtml = (content) => matchesHtmlPattern(content);
 
-  // Check for HTML patterns
-  for (const pattern of HTML_PATTERNS) {
-    if (pattern.test(content)) {
-      // Verify it's not a false positive
-      // Check if it looks like actual HTML (has closing > or is a known tag)
-      const match = content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
-      if (match) {
-        const tagName = match[1].toLowerCase();
-        // Common HTML/SVG tags
-        const htmlTags = new Set([
-          "div",
-          "span",
-          "p",
-          "a",
-          "button",
-          "input",
-          "form",
-          "ul",
-          "ol",
-          "li",
-          "table",
-          "tr",
-          "td",
-          "th",
-          "thead",
-          "tbody",
-          "h1",
-          "h2",
-          "h3",
-          "h4",
-          "h5",
-          "h6",
-          "img",
-          "br",
-          "hr",
-          "strong",
-          "em",
-          "b",
-          "i",
-          "u",
-          "pre",
-          "code",
-          "blockquote",
-          "nav",
-          "header",
-          "footer",
-          "main",
-          "section",
-          "article",
-          "aside",
-          "label",
-          "select",
-          "option",
-          "textarea",
-          "svg",
-          "path",
-          "polyline",
-          "circle",
-          "rect",
-          "line",
-          "polygon",
-          "g",
-          "defs",
-          "use",
-          "script",
-          "style",
-          "link",
-          "meta",
-          "head",
-          "body",
-          "html",
-          "template",
-        ]);
-
-        if (htmlTags.has(tagName)) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
+/**
+ * Create a preview of HTML content (first 60 chars, normalized whitespace)
+ */
+const createPreview = (content) => {
+  const preview = content.replace(/\s+/g, " ").trim().substring(0, 60);
+  return preview + (content.length > 60 ? "..." : "");
 };
+
+/**
+ * Transform string content item to result format
+ */
+const toHtmlResult = (item) => ({
+  lineNumber: item.lineNumber,
+  line: createPreview(item.content),
+});
 
 /**
  * Find HTML content in JavaScript file.
  * Returns array of { lineNumber, line } for use with analyzeWithAllowlist.
  */
-const findHtmlInJs = (source) => {
-  const results = [];
-  const stringContent = extractStringContent(source);
-
-  for (const item of stringContent) {
-    if (containsHtml(item.content)) {
-      // Get a preview of the HTML
-      const preview = item.content.replace(/\s+/g, " ").trim().substring(0, 60);
-
-      results.push({
-        lineNumber: item.lineNumber,
-        line: preview + (item.content.length > 60 ? "..." : ""),
-      });
-    }
-  }
-
-  return results;
-};
+const findHtmlInJs = (source) =>
+  filterMap(
+    (item) => containsHtml(item.content),
+    toHtmlResult,
+  )(extractStringContent(source));
 
 // Complete analyzer - find + allowlist + files in one definition
 const htmlInJsAnalysis = withAllowlist({

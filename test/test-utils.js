@@ -558,6 +558,35 @@ const handleClosingBrace = (lineNum, state) => {
 };
 
 /**
+ * Handle comment state transitions
+ */
+const handleComments = (state, char, nextChar) => {
+  if (isSingleLineCommentStart(char, nextChar, state)) {
+    return { ...state, stopLine: true };
+  }
+  if (isMultiLineCommentStart(char, nextChar, state)) {
+    return { ...state, inComment: true, skipNext: true };
+  }
+  if (isMultiLineCommentEnd(char, nextChar, state)) {
+    return { ...state, inComment: false, skipNext: true };
+  }
+  return null;
+};
+
+/**
+ * Handle string delimiter state transitions
+ */
+const handleStringDelimiters = (state, char) => {
+  if (!state.inString) {
+    return { ...state, inString: true, stringChar: char };
+  }
+  if (char === state.stringChar) {
+    return { ...state, inString: false, stringChar: null };
+  }
+  return state;
+};
+
+/**
  * Process a single character in the parser.
  * Pure function: returns new state without mutation.
  * Curried: processChar(lineNum)(state, char, index, chars)
@@ -575,15 +604,8 @@ const processChar = (lineNum) => (state, char, index, chars) => {
 
   // Handle comments when not in string/template
   if (!state.inString && !state.inTemplate) {
-    if (isSingleLineCommentStart(char, nextChar, state)) {
-      return { ...state, stopLine: true };
-    }
-    if (isMultiLineCommentStart(char, nextChar, state)) {
-      return { ...state, inComment: true, skipNext: true };
-    }
-    if (isMultiLineCommentEnd(char, nextChar, state)) {
-      return { ...state, inComment: false, skipNext: true };
-    }
+    const commentResult = handleComments(state, char, nextChar);
+    if (commentResult !== null) return commentResult;
   }
 
   // Early exit: inside multiline comments
@@ -591,13 +613,7 @@ const processChar = (lineNum) => (state, char, index, chars) => {
 
   // Handle string delimiters
   if (!state.inTemplate && isStringDelimiter(char, prevChar)) {
-    if (!state.inString) {
-      return { ...state, inString: true, stringChar: char };
-    }
-    if (char === state.stringChar) {
-      return { ...state, inString: false, stringChar: null };
-    }
-    return state;
+    return handleStringDelimiters(state, char);
   }
 
   // Handle template literals
