@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { configureICal, eventIcal, isOneOffEvent } from "#eleventy/ical.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectResultTitles,
+} from "#test/test-utils.js";
 
 describe("ical", () => {
   // isOneOffEvent tests
@@ -246,9 +249,7 @@ describe("ical", () => {
 
     const result = mockConfig.collections.oneOffEvents(mockCollectionApi);
 
-    expect(result).toHaveLength(2);
-    expect(result[0].data.title).toBe("One-off");
-    expect(result[1].data.title).toBe("Another One-off");
+    expectResultTitles(result, ["One-off", "Another One-off"]);
   });
 
   test("oneOffEvents collection returns empty when no one-off events exist", () => {

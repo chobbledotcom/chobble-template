@@ -249,22 +249,32 @@ const expectResultTitles = (result, expectedTitles) => {
 };
 
 /**
- * Assert that a result array has expected gallery values in order.
- * Handles both arrays and undefined galleries.
+ * Assert that a result array has expected data values for a given key.
+ * Curried: first call with key name, returns assertion function.
+ * Handles both values and undefined.
  *
- * @param {Array} result - Array of items with data.gallery properties
- * @param {Array<Array<string>|undefined>} expectedGalleries - Galleries in expected order
+ * @param {string} key - The data key to check (e.g., "gallery", "categories")
+ * @returns {Function} (result, expectedValues) => void
+ *
+ * @example
+ * const expectGalleries = expectDataArray("gallery");
+ * expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
+ *
+ * @example
+ * expectDataArray("categories")(result, [["widgets"], ["tools"]]);
  */
-const expectGalleries = (result, expectedGalleries) => {
-  expect(result.length).toBe(expectedGalleries.length);
-  expectedGalleries.forEach((gallery, i) => {
-    if (gallery === undefined) {
-      expect(result[i].data.gallery).toBe(undefined);
+const expectDataArray = (key) => (result, expectedValues) => {
+  expect(result.length).toBe(expectedValues.length);
+  expectedValues.forEach((value, i) => {
+    if (value === undefined) {
+      expect(result[i].data[key]).toBe(undefined);
     } else {
-      expect(result[i].data.gallery).toEqual(gallery);
+      expect(result[i].data[key]).toEqual(value);
     }
   });
 };
+
+const expectGalleries = expectDataArray("gallery");
 
 /**
  * Assert that categorised events have expected counts.
@@ -793,6 +803,7 @@ export {
   withTempFile,
   withMockedCwd,
   expectResultTitles,
+  expectDataArray,
   expectGalleries,
   expectEventCounts,
   // Generic item builder
