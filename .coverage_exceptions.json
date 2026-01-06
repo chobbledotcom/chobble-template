@@ -103,11 +103,6 @@
 			15,
 			16
 		],
-		"src/assets/js/quote-steps.js": [
-			193,
-			201,
-			203
-		],
 		"src/assets/js/hire-calculator.js": [
 			65,
 			66,
@@ -156,18 +151,6 @@
 			135,
 			142,
 			156
-		],
-		"test/code-scanner.js": [
-			325,
-			326,
-			327,
-			328,
-			329,
-			336,
-			337,
-			338,
-			339,
-			341
 		],
 		"test/test-site-factory.js": [
 			67,
