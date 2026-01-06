@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { expectObjectProps } from "#test/test-utils.js";
 import {
   createElement,
   createHtml,
@@ -96,8 +97,10 @@ describe("dom-builder", () => {
     const doc = await getSharedDocument();
     const element = await createElement("span", { id: "test" }, "Content", doc);
 
-    expect(element.ownerDocument).toBe(doc);
-    expect(element.id).toBe("test");
+    expectObjectProps({
+      ownerDocument: doc,
+      id: "test",
+    })(element);
   });
 
   // ============================================
@@ -170,8 +173,10 @@ describe("dom-builder", () => {
     const doc = await getSharedDocument();
     const element = await parseHtml('<span id="test">Test</span>', doc);
 
-    expect(element.ownerDocument).toBe(doc);
-    expect(element.id).toBe("test");
+    expectObjectProps({
+      ownerDocument: doc,
+      id: "test",
+    })(element);
   });
 
   // ============================================

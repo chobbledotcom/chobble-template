@@ -80,9 +80,11 @@ describe("config", () => {
       },
     };
     const result = getProducts(configData);
-    expect(result.item_widths).toBe("100,200");
-    expect(result.gallery_thumb_widths).toBe(undefined);
-    expect(result.custom_field).toBe("value");
+    expectObjectProps({
+      item_widths: "100,200",
+      gallery_thumb_widths: undefined,
+      custom_field: "value",
+    })(result);
   });
 
   test("getProducts keeps all truthy values", () => {
@@ -96,9 +98,11 @@ describe("config", () => {
       },
     };
     const result = getProducts(configData);
-    expect(result.a).toBe("string");
-    expect(result.b).toBe(123);
-    expect(result.c).toBe(true);
+    expectObjectProps({
+      a: "string",
+      b: 123,
+      c: true,
+    })(result);
     expect(result.d).toEqual([]);
     expect(result.e).toEqual({});
   });
@@ -162,8 +166,10 @@ describe("config", () => {
     const filePath = createTempFile(tempDir, "test.md", content);
 
     const result = extractFrontmatter(filePath, "test.md", "stripe");
-    expect(result.layout).toBe("test.html");
-    expect(result.permalink).toBe("/test/");
+    expectObjectProps({
+      layout: "test.html",
+      permalink: "/test/",
+    })(result);
 
     cleanupTempDir(tempDir);
   });

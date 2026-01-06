@@ -4,6 +4,7 @@ import {
   createPostSchemaData,
   createProductSchemaData,
   createSchemaData,
+  expectObjectProps,
 } from "#test/test-utils.js";
 import {
   buildBaseMeta,
@@ -143,8 +144,10 @@ describe("buildBaseMeta", () => {
 
     const result = buildBaseMeta(data);
 
-    expect(result.customField).toBe("custom value");
-    expect(result.anotherField).toBe(123);
+    expectObjectProps({
+      customField: "custom value",
+      anotherField: 123,
+    })(result);
   });
 });
 
@@ -154,8 +157,10 @@ describe("buildProductMeta", () => {
 
     const result = buildProductMeta(data);
 
-    expect(result.name).toBe("Test Product");
-    expect(result.brand).toBe("Test Store");
+    expectObjectProps({
+      name: "Test Product",
+      brand: "Test Store",
+    })(result);
   });
 
   test("includes offers when price is provided", () => {

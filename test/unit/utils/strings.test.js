@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import strings from "#data/strings.js";
 import baseStrings from "#data/strings-base.json" with { type: "json" };
-import { createExtractor, srcDir } from "#test/test-utils.js";
+import {
+  createExtractor,
+  expectObjectProps,
+  srcDir,
+} from "#test/test-utils.js";
 
 // File extensions to ignore (from imports like "./strings.js")
 const IGNORE_KEYS = new Set(["js", "json", "test", "mjs"]);
@@ -14,9 +18,11 @@ describe("strings", () => {
   });
 
   test("Returns values from strings-base.json", () => {
-    expect(strings.product_name).toBe("Products");
-    expect(strings.location_name).toBe("Locations");
-    expect(strings.event_name).toBe("Events");
+    expectObjectProps({
+      product_name: "Products",
+      location_name: "Locations",
+      event_name: "Events",
+    })(strings);
   });
 
   test("Every strings.X usage in codebase has a default in strings-base.json", () => {
