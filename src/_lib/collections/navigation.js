@@ -21,16 +21,6 @@ const findPageUrl = (collection, tag, slug) => {
   return result.url;
 };
 
-const sortByNavOrder = (a, b) => {
-  const orderA = a.data.eleventyNavigation.order ?? 999;
-  const orderB = b.data.eleventyNavigation.order ?? 999;
-  if (orderA !== orderB) return orderA - orderB;
-
-  const titleA = a.data.eleventyNavigation.key || a.data.title || "";
-  const titleB = b.data.eleventyNavigation.key || b.data.title || "";
-  return titleA.localeCompare(titleB);
-};
-
 const configureNavigation = async (eleventyConfig) => {
   const nav = await import("@11ty/eleventy-navigation");
   eleventyConfig.addPlugin(nav.default);
@@ -45,7 +35,15 @@ const configureNavigation = async (eleventyConfig) => {
   eleventyConfig.addCollection("navigationLinks", (collectionApi) =>
     pipe(
       filter((item) => item.data.eleventyNavigation),
-      sort(sortByNavOrder),
+      sort((a, b) => {
+        const orderA = a.data.eleventyNavigation.order ?? 999;
+        const orderB = b.data.eleventyNavigation.order ?? 999;
+        if (orderA !== orderB) return orderA - orderB;
+
+        const titleA = a.data.eleventyNavigation.key || a.data.title || "";
+        const titleB = b.data.eleventyNavigation.key || b.data.title || "";
+        return titleA.localeCompare(titleB);
+      }),
     )(collectionApi.getAll()),
   );
 };
