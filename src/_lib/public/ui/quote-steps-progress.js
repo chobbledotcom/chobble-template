@@ -28,8 +28,9 @@ export function updateStepProgress(container, completedSteps) {
 }
 
 function initStandaloneProgress() {
-  const container = document.querySelector(
-    ".quote-steps-progress:not(.quote-steps .quote-steps-progress)",
+  const allContainers = document.querySelectorAll(".quote-steps-progress");
+  const container = Array.from(allContainers).find(
+    (el) => !el.closest(".quote-steps"),
   );
   if (!container) return;
 

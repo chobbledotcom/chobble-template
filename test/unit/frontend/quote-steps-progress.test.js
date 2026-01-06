@@ -95,4 +95,86 @@ describe("quote-steps-progress", () => {
       expect(indicators[2].classList.contains("completed")).toBe(false);
     });
   });
+
+  describe("initStandaloneProgress (via turbo:load)", () => {
+    test("initializes standalone progress indicator on turbo:load", () => {
+      document.body.innerHTML = `
+        <div class="quote-steps-progress" data-completed-steps="1"></div>
+        <script class="quote-steps-data" type="application/json">
+          ${JSON.stringify(steps)}
+        </script>
+      `;
+
+      document.dispatchEvent(new Event("turbo:load"));
+
+      const container = document.querySelector(".quote-steps-progress");
+      const indicators = container.querySelectorAll(".quote-steps-indicator");
+
+      expect(indicators.length).toBe(4);
+      expect(indicators[0].classList.contains("completed")).toBe(true);
+      expect(indicators[1].classList.contains("active")).toBe(true);
+    });
+
+    test("does not error when container is missing", () => {
+      document.body.innerHTML = "";
+
+      expect(() => {
+        document.dispatchEvent(new Event("turbo:load"));
+      }).not.toThrow();
+    });
+
+    test("does not error when data script is missing", () => {
+      document.body.innerHTML =
+        '<div class="quote-steps-progress" data-completed-steps="0"></div>';
+
+      expect(() => {
+        document.dispatchEvent(new Event("turbo:load"));
+      }).not.toThrow();
+
+      const container = document.querySelector(".quote-steps-progress");
+      expect(container.innerHTML).toBe("");
+    });
+
+    test("ignores progress indicators inside quote-steps form", () => {
+      document.body.innerHTML = `
+        <div class="quote-steps">
+          <div class="quote-steps-progress" data-completed-steps="1"></div>
+        </div>
+        <script class="quote-steps-data" type="application/json">
+          ${JSON.stringify(steps)}
+        </script>
+      `;
+
+      document.dispatchEvent(new Event("turbo:load"));
+
+      const container = document.querySelector(".quote-steps-progress");
+      const indicators = container.querySelectorAll(".quote-steps-indicator");
+
+      expect(indicators.length).toBe(0);
+    });
+
+    test("only initializes standalone progress indicators", () => {
+      document.body.innerHTML = `
+        <div class="quote-steps">
+          <div class="quote-steps-progress"></div>
+        </div>
+        <div class="quote-steps-progress" data-completed-steps="2"></div>
+        <script class="quote-steps-data" type="application/json">
+          ${JSON.stringify(steps)}
+        </script>
+      `;
+
+      document.dispatchEvent(new Event("turbo:load"));
+
+      const standaloneContainer = document.querySelectorAll(
+        ".quote-steps-progress",
+      )[1];
+      const indicators = standaloneContainer.querySelectorAll(
+        ".quote-steps-indicator",
+      );
+
+      expect(indicators.length).toBe(4);
+      expect(indicators[2].classList.contains("active")).toBe(true);
+    });
+  });
 });
