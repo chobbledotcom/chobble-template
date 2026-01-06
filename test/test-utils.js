@@ -234,6 +234,18 @@ const withMockedCwd = (newCwd, callback) => {
 };
 
 /**
+ * Assert that a result is a valid script tag with correct id and type.
+ * Functional helper to reduce duplication in script tag validation.
+ *
+ * @param {string} result - The script tag string to validate
+ */
+const expectValidScriptTag = (result) => {
+  expect(result.startsWith('<script id="site-config"')).toBe(true);
+  expect(result.includes('type="application/json"')).toBe(true);
+  expect(result.endsWith("</script>")).toBe(true);
+};
+
+/**
  * Assert that a result array has expected titles in order.
  * A functional, declarative helper for the common pattern of checking
  * result.length and result[i].data.title across collection tests.
@@ -852,6 +864,7 @@ export {
   withTempDir,
   withTempFile,
   withMockedCwd,
+  expectValidScriptTag,
   expectResultTitles,
   expectObjectProps,
   expectArrayProp,
