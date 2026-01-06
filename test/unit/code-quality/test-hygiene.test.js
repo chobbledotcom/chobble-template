@@ -174,9 +174,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCodeChecker",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // template.test.js - isolated DOM testing helpers
-  "getTemplate",
-  "populateItemFields",
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",

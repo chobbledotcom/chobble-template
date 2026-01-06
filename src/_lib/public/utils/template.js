@@ -1,6 +1,7 @@
 // Clone a <template> element by ID and return its content
-export const getTemplate = (id) =>
-  document.getElementById(id)?.content.cloneNode(true);
+// Accepts optional document parameter for testing with isolated DOMs
+export const getTemplate = (id, doc = document) =>
+  doc.getElementById(id)?.content.cloneNode(true);
 
 // Populate common cart item fields (name, price, data-name attribute)
 export const populateItemFields = (template, name, price) => {
