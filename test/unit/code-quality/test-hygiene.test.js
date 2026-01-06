@@ -244,23 +244,25 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "hrtimeToMs",
   // run-coverage.js - coverage utilities
   "parseLcov",
+  "parseLine",
   "parseUncovered",
-  "findNew",
-  "findRemaining",
   "ratchetExceptions",
   "runCoverage",
-  "printSummary",
   "checkExceptions",
+  "logViolations",
   "diffByFile",
   "difference",
   "intersection",
+  "toSet",
   "isNonEmpty",
+  "isMainCI",
   "mapTypes",
   "readJson",
   "writeJson",
   // precommit.js - precommit utilities
   "runStep",
   "extractErrorsFromOutput",
+  "printSummary",
   // precommit.test.js - memoized function loader
   "extractErrorsFunction",
   // precommit.test.js - functional test helper
