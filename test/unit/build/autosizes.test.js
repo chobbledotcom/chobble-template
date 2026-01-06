@@ -139,6 +139,24 @@ const makeImg = (window, attrs) => {
   return img;
 };
 
+// Shared test configuration for src+srcset scenarios
+const SRC_SRCSET_ATTRS = {
+  src: "/image.jpg",
+  srcset: "/image-300.jpg 300w",
+  sizes: "auto",
+  loading: "lazy",
+};
+
+/**
+ * Setup test environment with imgAttrs and run autosizes.
+ * Returns { window, img } for assertions.
+ */
+const setupAndRun = (imgAttrs) => {
+  const { window, img } = createTestEnv({ imgAttrs });
+  runAutosizes(window, img);
+  return { window, img };
+};
+
 describe("autosizes", () => {
   describe("Feature detection", () => {
     test("Does not run polyfill when PerformanceObserver is missing", () => {
@@ -269,15 +287,7 @@ describe("autosizes", () => {
     });
 
     test("Moves both src and srcset to data attributes", () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "/image.jpg",
-          srcset: "/image-300.jpg 300w",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
+      const { img } = setupAndRun(SRC_SRCSET_ATTRS);
       expect(img.hasAttribute("src")).toBe(false);
       expect(img.hasAttribute("srcset")).toBe(false);
       expect(img.hasAttribute("data-auto-sizes-src")).toBe(true);
@@ -287,15 +297,7 @@ describe("autosizes", () => {
 
   describe("FCP restoration", () => {
     test("Restores src and srcset after FCP fires", async () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "/image.jpg",
-          srcset: "/image-300.jpg 300w",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
+      const { img } = setupAndRun(SRC_SRCSET_ATTRS);
       expect(img.hasAttribute("src")).toBe(false);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
