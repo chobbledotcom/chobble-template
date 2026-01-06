@@ -21,15 +21,8 @@ const TYPES = ["lines", "functions", "branches"];
 
 // --- Functional Helpers ---
 
-const readJson = (path, fallback) =>
-  existsSync(path) ? JSON.parse(readFileSync(path, "utf-8")) : fallback;
-
-const writeJson = (path, data) =>
-  writeFileSync(path, `${JSON.stringify(data, null, "\t")}\n`, "utf-8");
-
 // Set operations
 const difference = (a, b) => a.filter((x) => !b.has(x));
-const intersection = (a, b) => a.filter((x) => b.has(x));
 
 // Curried helpers for coverage operations
 const diffByFile = (fn) => (current, allowed) => {
@@ -41,36 +34,31 @@ const diffByFile = (fn) => (current, allowed) => {
   return result;
 };
 
-const findNew = diffByFile(difference); // items in current not in allowed
-const findRemaining = diffByFile(intersection); // items in current that are in allowed
-
 // Apply operation across all coverage types (curried)
 const mapTypes = (fn) => (data) =>
   toObject(TYPES, (type) => [type, fn(data, type)]);
 
 const isNonEmpty = (obj) => Object.keys(obj).length > 0;
-const onCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
 
 // --- LCOV Parsing ---
 
-const parseUncovered = {
-  DA: (line) => {
-    const [lineNum, hits] = line.split(",").map(Number);
-    return hits === 0 ? { type: "lines", id: lineNum } : null;
-  },
-  FNDA: (line) => {
-    const [hits, name] = line.split(",");
-    return parseInt(hits, 10) === 0 ? { type: "functions", id: name } : null;
-  },
-  BRDA: (line) => {
-    const [ln, block, branch, taken] = line.split(",");
-    return taken === "0" || taken === "-"
-      ? { type: "branches", id: `${ln}:${block}:${branch}` }
-      : null;
-  },
-};
-
 function parseLcov(content) {
+  const parseUncovered = {
+    DA: (line) => {
+      const [lineNum, hits] = line.split(",").map(Number);
+      return hits === 0 ? { type: "lines", id: lineNum } : null;
+    },
+    FNDA: (line) => {
+      const [hits, name] = line.split(",");
+      return parseInt(hits, 10) === 0 ? { type: "functions", id: name } : null;
+    },
+    BRDA: (line) => {
+      const [ln, block, branch, taken] = line.split(",");
+      return taken === "0" || taken === "-"
+        ? { type: "branches", id: `${ln}:${block}:${branch}` }
+        : null;
+    },
+  };
   const uncovered = { lines: {}, functions: {}, branches: {} };
   let file = null;
 
@@ -110,6 +98,7 @@ function parseLcov(content) {
 // --- Exception Checking ---
 
 function checkExceptions(uncovered, exceptions, verbose) {
+  const findNew = diffByFile(difference); // items in current not in allowed
   const violations = mapTypes(({ uncovered, exceptions }, type) =>
     findNew(uncovered[type] || {}, exceptions[type] || {}),
   )({ uncovered, exceptions });
@@ -161,8 +150,11 @@ function checkExceptions(uncovered, exceptions, verbose) {
 // --- Ratcheting (CI only) ---
 
 function ratchetExceptions(exceptions, uncovered, verbose) {
+  const onCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
   if (!onCI()) return;
 
+  const intersection = (a, b) => a.filter((x) => b.has(x));
+  const findRemaining = diffByFile(intersection); // items in current that are in allowed
   const ratcheted = {
     _comment: exceptions._comment,
     ...mapTypes(({ uncovered, exceptions }, type) =>
@@ -175,6 +167,8 @@ function ratchetExceptions(exceptions, uncovered, verbose) {
   );
 
   if (changed) {
+    const writeJson = (path, data) =>
+      writeFileSync(path, `${JSON.stringify(data, null, "\t")}\n`, "utf-8");
     writeJson(exceptionsPath, ratcheted);
     if (verbose) {
       console.log(
@@ -187,6 +181,8 @@ function ratchetExceptions(exceptions, uncovered, verbose) {
 // --- Main ---
 
 function runCoverage() {
+  const readJson = (path, fallback) =>
+    existsSync(path) ? JSON.parse(readFileSync(path, "utf-8")) : fallback;
   const verbose = process.env.VERBOSE === "1";
 
   const result = spawnSync(

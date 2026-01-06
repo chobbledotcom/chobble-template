@@ -277,11 +277,11 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/eleventy/area-list.js:19", // url
 
   // === Test infrastructure ===
-  "test/code-quality/method-aliasing.test.js:46", // match
-  "test/code-quality/method-aliasing.test.js:71", // alias
+  "test/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
+  "test/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
-  "test/run-coverage.js:86", // file (iteration over files)
+  "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:53", // trimmed (line processing)
   "test/precommit.js:105", // result (skip if step wasn't run)
   "test/precommit.js:147", // allPassed (check if all steps passed)
@@ -326,16 +326,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/tabs.js",
   "src/assets/js/theme-editor-lib.js",
   "src/products/products.11tydata.js",
-  "test/code-quality/array-push.test.js",
-  "test/code-quality/method-aliasing.test.js",
-  "test/code-quality/unused-classes.test.js",
-  "test/collections/products.test.js",
-  "test/eleventy/recurring-events.test.js",
-  "test/utils/strings.test.js",
-  "test/test-site-factory.js",
-  "test/build-profiling.js",
-  "test/test-utils.js",
-  "test/run-coverage.js",
 ]);
 
 // ============================================
@@ -351,8 +341,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:322",
-  "test/test-site-factory.js:330",
+  "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
   "test/code-quality/template-selectors.test.js:55",

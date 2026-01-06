@@ -199,8 +199,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "navItems",
   "navCollectionApi",
   "withNavigation",
-  // recurring-events.test.js - functional test fixture builders
-  "parseDoc",
   // test-site-factory.js - test site utilities
   "randomId",
   "ensureDir",
@@ -235,7 +233,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "profileEleventyModuleLoad",
   "profileSingleImport",
   "profileBuild",
-  "runProfiling",
   "hrtimeToMs",
   // run-coverage.js - coverage utilities
   "parseLcov",
