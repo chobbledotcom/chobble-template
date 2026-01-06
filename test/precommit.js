@@ -100,7 +100,16 @@ export function extractErrorsFromOutput(output) {
     // Include coverage violation details (path/file.ext: items)
     // These lines show which specific files/lines/functions/branches need coverage
     // Matches patterns like: src/file.js: 10, 20 or src/file.js: funcName, otherFunc
-    if (/^[\w./-]+\.\w+:\s*.+$/.test(trimmed)) {
+    // BUT skip informational test output from allowlist tracking:
+    //   - HTML-in-JS allowlist: "file.js: N instance(s)"
+    //   - try-catch allowlist: "file.js: lines N, N, N"
+    //   - let/const allowlist: "file.js: N usage(s)"
+    if (
+      /^[\w./-]+\.\w+:\s*.+$/.test(trimmed) &&
+      !trimmed.includes("instance(s)") &&
+      !trimmed.includes("usage(s)") &&
+      !/:\s*lines\s+\d/.test(trimmed) // Skip "file.js: lines 12, 28" pattern
+    ) {
       errors.push(trimmed);
     }
 
@@ -152,8 +161,8 @@ function printSummary() {
         ...extractErrorsFromOutput(result.stderr),
       ];
 
+      console.log(`\n${step} errors:`);
       if (errors.length > 0) {
-        console.log(`\n${step} errors:`);
         for (const error of errors.slice(0, 10)) {
           console.log(`  ${error}`);
         }
@@ -162,6 +171,18 @@ function printSummary() {
             `  ... and ${errors.length - 10} more errors (use --verbose to see all)`,
           );
         }
+      } else {
+        // Show last 15 lines of output when no specific errors extracted
+        console.log("  No specific errors extracted. Last 15 lines of output:");
+        const allOutput = (result.stderr || result.stdout || "").split("\n");
+        const lastLines = allOutput.slice(-15).filter((l) => l.trim());
+        for (const line of lastLines) {
+          console.log(`  ${line}`);
+        }
+        console.log(
+          "\n  Run with --verbose to see full output, or check exit code:",
+        );
+        console.log(`  Exit code: ${result.status}`);
       }
     }
   }
