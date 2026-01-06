@@ -28,6 +28,8 @@ const difference = (a, b) => a.filter((x) => !b.has(x));
 const diffByFile = (fn) => (current, allowed) => {
   const result = {};
   for (const [file, items] of Object.entries(current)) {
+    // If allowed[file] is true, skip entire file (no violations)
+    if (allowed[file] === true) continue;
     const diff = fn(items, new Set(allowed[file] || []));
     if (diff.length > 0) result[file] = diff;
   }
