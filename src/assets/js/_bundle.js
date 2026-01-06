@@ -22,7 +22,6 @@ import "./quote.js";
 import "./quote-checkout.js";
 import "./quote-complete.js";
 import "./quote-steps.js";
-import "./quote-steps-progress.js";
 
 // Stripe checkout (standalone page)
 import "./stripe-checkout.js";

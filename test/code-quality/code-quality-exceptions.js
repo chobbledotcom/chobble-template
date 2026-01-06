@@ -56,8 +56,8 @@ const ALLOWED_HTML_IN_JS = new Set([
   // Filters with HTML formatting
   "src/_lib/filters/item-filters.js",
 
-  // JS-rendered step progress indicator
-  "src/assets/js/quote-steps-progress.js",
+  // JS-rendered step progress indicator (merged into quote-steps.js)
+  "src/assets/js/quote-steps.js",
 ]);
 
 // ============================================
@@ -223,11 +223,11 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
   "src/assets/js/quote.js:49", // container
-  "src/assets/js/quote-steps.js:43", // field (field recap item)
-  "src/assets/js/quote-steps.js:161", // container (init)
-  "src/assets/js/quote-steps.js:211", // indicator (click handler)
-  "src/assets/js/quote-steps-progress.js:34", // container (standalone init)
-  "src/assets/js/quote-steps-progress.js:37", // dataScript (standalone init)
+  "src/assets/js/quote-steps.js:38", // container (standalone init)
+  "src/assets/js/quote-steps.js:41", // dataScript (standalone init)
+  "src/assets/js/quote-steps.js:82", // field (field recap item)
+  "src/assets/js/quote-steps.js:200", // container (init)
+  "src/assets/js/quote-steps.js:250", // indicator (click handler)
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper
@@ -311,7 +311,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/quote-price-utils.js",
   "src/assets/js/quote.js",
   "src/assets/js/quote-steps.js",
-  "src/assets/js/quote-steps-progress.js",
   "src/assets/js/scroll-fade.js",
   "src/assets/js/search.js",
   "src/assets/js/shuffle-properties.js",
