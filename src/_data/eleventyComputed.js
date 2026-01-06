@@ -43,7 +43,8 @@ function findValidThumbnail(data) {
 export default {
   header_text: (data) => data.header_text || data.title,
   meta_title: (data) => data.meta_title || data.title,
-  description: (data) => data.snippet || data.meta_description || "",
+  description: (data) =>
+    data.description || data.snippet || data.meta_description || "",
   contactForm: () => require("./contact-form.js").default(),
   quoteFields: () => require("./quote-fields.js").default(),
   thumbnail: findValidThumbnail,

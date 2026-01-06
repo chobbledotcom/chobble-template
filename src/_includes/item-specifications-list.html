@@ -2,7 +2,7 @@
   <dl>
     {%- for spec in specs -%}
       <div>
-        {{- spec.icon -}}
+        {%- if spec.icon -%}<span aria-hidden="true">{{- spec.icon -}}</span>{%- endif -%}
         <dt>{{ spec.name }}</dt>
         <dd>{{ spec.value }}</dd>
       </div>
