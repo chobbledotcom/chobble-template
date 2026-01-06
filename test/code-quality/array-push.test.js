@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { ALLOWED_ARRAY_PUSH } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
@@ -20,7 +21,7 @@ const { find: findArrayPush } = createCodeChecker({
 const analyzeArrayPushUsage = () =>
   analyzeWithAllowlist({
     findFn: findArrayPush,
-    allowlist: new Set(),
+    allowlist: ALLOWED_ARRAY_PUSH,
     files: SRC_JS_FILES,
   });
 
@@ -61,7 +62,7 @@ arr. push(3);
     const { violations } = analyzeArrayPushUsage();
     assertNoViolations(violations, {
       message: ".push() usage(s)",
-      fixHint: "use functional patterns (map, filter, reduce, spread, concat)",
+      fixHint: "use functional patterns (map, filter, reduce, spread, concat) unless using safe reduce accumulator pattern",
     });
   });
 });
