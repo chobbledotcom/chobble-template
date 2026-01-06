@@ -2,6 +2,7 @@
 // Handles step transitions, validation, and recap population
 
 import { onReady } from "#assets/on-ready.js";
+import { filter, map, pipe, unique } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
@@ -45,11 +46,18 @@ function buildFieldRecapItem(id) {
   return `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
+// Functional pipeline for extracting field IDs from an array of fields
+// Radios use the name attribute as their ID, other fields use the id attribute
+const extractFieldIds = pipe(
+  map((field) => (field.type === "radio" ? field.name : field.id)),
+  filter(Boolean), // Remove null/undefined/empty ids
+  unique, // Remove duplicates
+);
+
+// Get field IDs from a DOM element (backward compatible wrapper)
 function getStepFieldIds(stepEl) {
   const fields = [...stepEl.querySelectorAll("input, select, textarea")];
-  return fields
-    .map((field) => (field.type === "radio" ? field.name : field.id))
-    .filter((id, index, arr) => id && arr.indexOf(id) === index);
+  return extractFieldIds(fields);
 }
 
 function populateRecap(steps) {
