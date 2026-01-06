@@ -81,7 +81,12 @@
             "noUnusedFunctionParameters": "off"
           },
           "complexity": {
-            "noExcessiveCognitiveComplexity": "off"
+            "noExcessiveCognitiveComplexity": {
+              "level": "error",
+              "options": {
+                "maxAllowedComplexity": 55
+              }
+            }
           },
           "suspicious": {
             "noTemplateCurlyInString": "off"
