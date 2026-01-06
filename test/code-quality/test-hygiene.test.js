@@ -117,7 +117,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "logUnused",
   // html-in-js.test.js - analysis helpers
   "extractStringContent",
+  "extractTagName",
+  "hasKnownHtmlTag",
+  "matchesHtmlPattern",
   "containsHtml",
+  "createPreview",
+  "toHtmlResult",
   "findHtmlInJs",
   // template-selectors.test.js - analysis helpers
   "buildLiquidLookup",
@@ -264,6 +269,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectEventCounts",
   "handleOpeningBrace",
   "handleClosingBrace",
+  "handleComments",
+  "handleStringDelimiters",
   "processLine",
   "extractFunctions",
   // build-profiling.js - measurement utilities
