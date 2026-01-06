@@ -1,27 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#utils/memoize.js";
 
-const cacheKeyFromArgs = (args) => args.join(",");
-
-/**
- * Replace a pattern in content if present, using async HTML generator
- */
-const replaceIfPresent = async (content, pattern, getHtml) =>
-  content.includes(pattern)
-    ? content.replace(pattern, await getHtml())
-    : content;
-
-const getDirname = (importMetaUrl) =>
-  path.dirname(fileURLToPath(importMetaUrl));
-
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
+
+const cacheKeyFromArgs = (args) => args.join(",");
 
 const fileExists = memoize(
   (relativePath, baseDir = process.cwd()) => {
@@ -57,6 +45,11 @@ const renderSnippet = memoize(
     const rawContent = matter.read(snippetPath).content;
 
     // Preprocess liquid shortcodes using pure functional transformations
+    const replaceIfPresent = async (content, pattern, getHtml) =>
+      content.includes(pattern)
+        ? content.replace(pattern, await getHtml())
+        : content;
+
     const withOpening = await replaceIfPresent(
       rawContent,
       "{% opening_times %}",
@@ -74,7 +67,7 @@ const renderSnippet = memoize(
 );
 
 const configureFileUtils = (eleventyConfig) => {
-  const mdRenderer = createMarkdownRenderer();
+  const mdRenderer = new markdownIt({ html: true });
 
   eleventyConfig.addFilter("file_exists", (name) => fileExists(name));
 
@@ -92,7 +85,6 @@ const configureFileUtils = (eleventyConfig) => {
 };
 
 export {
-  getDirname,
   createMarkdownRenderer,
   fileExists,
   fileMissing,
