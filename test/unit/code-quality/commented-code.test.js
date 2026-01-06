@@ -104,7 +104,7 @@ const findCommentedCode = (source, _relativePath) => {
     .map(({ line, num }) => ({ lineNumber: num, line: line.trim() }));
 };
 
-const THIS_FILE = "test/code-quality/commented-code.test.js";
+const THIS_FILE = "test/unit/code-quality/commented-code.test.js";
 
 // Complete analyzer - find + files in one definition (no allowlist needed)
 const commentedCodeAnalysis = withAllowlist({
