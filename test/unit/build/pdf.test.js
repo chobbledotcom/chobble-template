@@ -46,6 +46,21 @@ const createMockMenuItem = (
   },
 });
 
+// Helper to create dietary key test data - maps dietary keys arrays to full test setup
+const createDietaryKeyTestData = (dietaryKeysList) => ({
+  menu: createMockMenu("lunch", "Lunch"),
+  categories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+  items: dietaryKeysList.map((dietaryKeys, i) =>
+    createMockMenuItem(
+      `Item ${i + 1}`,
+      ["apps"],
+      `$${5 + i}`,
+      null,
+      dietaryKeys,
+    ),
+  ),
+});
+
 describe("pdf", () => {
   // buildMenuPdfData tests
   describe("buildMenuPdfData", () => {
@@ -156,16 +171,10 @@ describe("pdf", () => {
     });
 
     test("Builds dietary key string from all items", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem("Item 1", ["apps"], "$5", null, [
-          { symbol: "V", label: "Vegetarian" },
-        ]),
-        createMockMenuItem("Item 2", ["apps"], "$6", null, [
-          { symbol: "GF", label: "Gluten Free" },
-        ]),
-      ];
+      const { menu, categories, items } = createDietaryKeyTestData([
+        [{ symbol: "V", label: "Vegetarian" }],
+        [{ symbol: "GF", label: "Gluten Free" }],
+      ]);
 
       const result = buildMenuPdfData(menu, categories, items);
 
@@ -188,16 +197,10 @@ describe("pdf", () => {
     });
 
     test("Same dietary key from multiple items appears only once", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem("Item 1", ["apps"], "$5", null, [
-          { symbol: "V", label: "Vegetarian" },
-        ]),
-        createMockMenuItem("Item 2", ["apps"], "$6", null, [
-          { symbol: "V", label: "Vegetarian" },
-        ]),
-      ];
+      const { menu, categories, items } = createDietaryKeyTestData([
+        [{ symbol: "V", label: "Vegetarian" }],
+        [{ symbol: "V", label: "Vegetarian" }],
+      ]);
 
       const result = buildMenuPdfData(menu, categories, items);
 
