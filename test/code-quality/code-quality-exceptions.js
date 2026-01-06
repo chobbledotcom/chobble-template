@@ -252,8 +252,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/assets/js/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:246", // pdfDoc
-  "src/_lib/eleventy/pdf.js:271", // state
+  "src/_lib/eleventy/pdf.js:228", // pdfDoc (renderer result)
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
@@ -291,10 +290,11 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_data/eleventyComputed.js",
   "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
-  "src/_lib/eleventy/file-utils.js",
-  "src/_lib/eleventy/js-config.js",
-  "src/_lib/eleventy/pdf.js",
-  "src/_lib/eleventy/recurring-events.js",
+  "src/_lib/collections/categories.js",
+  "src/_lib/collections/menus.js",
+  "src/_lib/collections/navigation.js",
+  "src/_lib/collections/products.js",
+  "src/_lib/collections/search.js",
   "src/_lib/eleventy/responsive-tables.js",
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js",
