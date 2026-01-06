@@ -50,6 +50,9 @@
         "noUnusedImports": "error",
         "noUnusedFunctionParameters": "error",
         "noGlobalDirnameFilename": "error"
+      },
+      "performance": {
+        "noAccumulatingSpread": "error"
       }
     }
   },
