@@ -2,6 +2,8 @@
  * Functional array utilities
  */
 
+import { log } from "#utils/console.js";
+
 /**
  * Left-to-right function composition
  *
@@ -240,6 +242,38 @@ const memberOf = (values) => (value) => values.includes(value);
  */
 const notMemberOf = (values) => (value) => !values.includes(value);
 
+/**
+ * Print items with truncation and "more" message.
+ * Logs each item (up to maxItems) with a prefix, then shows "more" message if truncated.
+ * Curried: configure options first, then pass items.
+ *
+ * @param {Object} options
+ * @param {number} options.maxItems - Maximum items to show (default: 10)
+ * @param {string} options.prefix - Prefix for each line (default: "  ")
+ * @param {string} options.moreLabel - Label for "more" message (default: "more")
+ * @param {string} options.suffix - Suffix for "more" message (default: "(use --verbose to see all)")
+ * @returns {Function} (items) => void
+ *
+ * @example
+ * printTruncatedList()(errors);  // uses defaults
+ * printTruncatedList({ moreLabel: "errors" })(errors);
+ */
+const printTruncatedList =
+  ({
+    maxItems = 10,
+    prefix = "  ",
+    moreLabel = "more",
+    suffix = "(use --verbose to see all)",
+  } = {}) =>
+  (items) => {
+    for (const item of items.slice(0, maxItems)) {
+      log(`${prefix}${item}`);
+    }
+    if (items.length > maxItems) {
+      log(`${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`);
+    }
+  };
+
 export {
   accumulate,
   chunk,
@@ -255,6 +289,7 @@ export {
   notMemberOf,
   pick,
   pipe,
+  printTruncatedList,
   reduce,
   sort,
   split,

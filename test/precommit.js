@@ -7,6 +7,7 @@
 
 import { spawnSync } from "node:child_process";
 import { ROOT_DIR } from "#lib/paths.js";
+import { printTruncatedList } from "#utils/array-utils.js";
 
 const rootDir = ROOT_DIR;
 const verbose = process.argv.includes("--verbose");
@@ -163,14 +164,7 @@ function printSummary() {
 
       console.log(`\n${step} errors:`);
       if (errors.length > 0) {
-        for (const error of errors.slice(0, 10)) {
-          console.log(`  ${error}`);
-        }
-        if (errors.length > 10) {
-          console.log(
-            `  ... and ${errors.length - 10} more errors (use --verbose to see all)`,
-          );
-        }
+        printTruncatedList({ moreLabel: "errors" })(errors);
       } else {
         // Show last 15 lines of output when no specific errors extracted
         console.log("  No specific errors extracted. Last 15 lines of output:");

@@ -25,7 +25,7 @@ function handleQuantityUpdate(itemName, quantity) {
 }
 
 function renderQuoteItem(item) {
-  const template = getTemplate(IDS.QUOTE_CART_ITEM);
+  const template = getTemplate(IDS.QUOTE_CART_ITEM, document);
 
   populateItemFields(template, item.item_name, formatPrice(item.unit_price));
 

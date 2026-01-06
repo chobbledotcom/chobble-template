@@ -82,7 +82,7 @@ const closeCart = () => {
 
 // Render a single cart item using template
 const renderCartItem = (item) => {
-  const template = getTemplate(IDS.CART_ITEM);
+  const template = getTemplate(IDS.CART_ITEM, document);
 
   populateItemFields(template, item.item_name, formatPrice(item.unit_price));
   populateQuantityControls(template, item);

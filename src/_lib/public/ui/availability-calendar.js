@@ -92,7 +92,7 @@ const renderMonth = (monthDate, isUnavailable, todayStr) => {
   const daysInMonth = lastDay.getDate();
   const startDay = getStartDay(firstDay);
 
-  const monthTemplate = getTemplate(IDS.CALENDAR_MONTH);
+  const monthTemplate = getTemplate(IDS.CALENDAR_MONTH, document);
   monthTemplate.querySelector('[data-field="title"]').textContent =
     `${MONTHS[month]} ${year}`;
 

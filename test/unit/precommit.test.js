@@ -261,19 +261,22 @@ Error: Cannot find module 'missing-dep'
       "utf-8",
     );
 
-    // Check that the script has the 10-error limit
-    expect(precommitCode).toContain("errors.slice(0, 10)");
-    expect(precommitCode).toContain("and ${errors.length - 10} more errors");
+    // Check that the script uses printTruncatedList with errors label
+    expect(precommitCode).toContain(
+      'import { printTruncatedList } from "#utils/array-utils.js"',
+    );
+    expect(precommitCode).toContain('printTruncatedList({ moreLabel: "errors"');
   });
 
   test("precommit script shows verbose flag hint when errors are truncated", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
+    const arrayUtilsPath = join(rootDir, "src/_lib/utils/array-utils.js");
+    const arrayUtilsCode = require("node:fs").readFileSync(
+      arrayUtilsPath,
       "utf-8",
     );
 
-    // Verify the hint message exists
-    expect(precommitCode).toContain("use --verbose to see all");
+    // Verify the printTruncatedList utility has the verbose hint as default
+    expect(arrayUtilsCode).toContain("use --verbose to see all");
   });
 });
 
