@@ -1,9 +1,9 @@
 // Quote price display utilities
 // Renders a price summary for cart items with hire pricing
 
-import { formatPrice, getCart } from "#assets/cart-utils.js";
-import { IDS } from "#assets/selectors.js";
-import { getTemplate } from "#assets/template.js";
+import { formatPrice, getCart } from "#public/utils/cart-utils.js";
+import { IDS } from "#public/utils/selectors.js";
+import { getTemplate } from "#public/utils/template.js";
 import { map, reduce } from "#utils/array-utils.js";
 
 // Predicates

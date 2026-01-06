@@ -3,26 +3,23 @@
 	"entry": [
 		".eleventy.js",
 		"src/_data/**/*.{js,mjs}",
-		"src/**/*.11tydata.js"
+		"src/**/*.11tydata.js",
+		"src/_lib/public/bundle.js",
+		"test/**/*.test.js",
+		"test/build-profiling.js",
+		"test/ensure-deps.js",
+		"test/setup.js",
+		"test/demo-precommit-errors.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
-		"src/assets/js/**",
 		"ecommerce-backend/**",
-		"_site/**",
-		"test/**"
+		"_site/**"
 	],
 	"ignoreDependencies": [
 		"@zachleat/heading-anchors",
-		"@botpoison/browser",
-		"@hotwired/turbo",
-		"@happy-dom/global-registrator",
-		"happy-dom",
-		"@adobe/structured-data-validator",
-		"@marbec/web-auto-extractor",
 		"@11ty/eleventy-img",
 		"json-to-pdf",
-		"liquidjs",
 		"sass",
 		"sharp"
 	],

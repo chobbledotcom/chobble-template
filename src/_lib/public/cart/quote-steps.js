@@ -1,51 +1,12 @@
 // Quote form multi-step navigation
-// Handles step transitions, validation, recap population, and progress indicator
+// Handles step transitions, validation, and recap population
 
-import { onReady } from "#assets/on-ready.js";
+import {
+  renderStepProgress,
+  updateStepProgress,
+} from "#public/ui/quote-steps-progress.js";
+import { onReady } from "#public/utils/on-ready.js";
 import { filter, map, pipe, unique } from "#utils/array-utils.js";
-
-// === Step Progress Indicator Functions ===
-
-function renderIndicator(step, index, isLast) {
-  const indicator = `<div class="quote-steps-indicator" data-step="${index}">
-      <span class="step-name">${step.name}</span>
-      <span class="step-number">${step.number}</span>
-    </div>`;
-  return isLast
-    ? indicator
-    : `${indicator}<div class="quote-steps-connector"></div>`;
-}
-
-function renderStepProgress(container, steps, completedSteps) {
-  container.innerHTML = steps
-    .map((step, i) => renderIndicator(step, i, i === steps.length - 1))
-    .join("");
-  updateStepProgress(container, completedSteps);
-}
-
-function updateStepProgress(container, completedSteps) {
-  const indicators = container.querySelectorAll(".quote-steps-indicator");
-  for (const [index, indicator] of indicators.entries()) {
-    indicator.classList.toggle("active", index === completedSteps);
-    indicator.classList.toggle("completed", index < completedSteps);
-  }
-}
-
-function initStandaloneProgress() {
-  const container = document.querySelector(
-    ".quote-steps-progress:not(.quote-steps .quote-steps-progress)",
-  );
-  if (!container) return;
-
-  const dataScript = document.querySelector(".quote-steps-data");
-  if (!dataScript) return;
-
-  const steps = JSON.parse(dataScript.textContent);
-  const completedSteps = parseInt(container.dataset.completedSteps, 10);
-  renderStepProgress(container, steps, completedSteps);
-}
-
-// === Quote Step Form Functions ===
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
@@ -77,41 +38,63 @@ function buildRadioRecapItem(id) {
   return value === "" ? "" : `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
 }
 
-function buildFieldRecapItem(id) {
+function buildRegularFieldRecapItem(id) {
   const field = document.getElementById(id);
-  if (!field) {
-    const radioField = document.querySelector(`input[name="${id}"]`);
-    return radioField ? buildRadioRecapItem(id) : "";
-  }
   const value = getFieldDisplayValue(field);
   return value === "" ? "" : `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
-// Functional pipeline for extracting field IDs from an array of fields
-// Radios use the name attribute as their ID, other fields use the id attribute
-const extractFieldIds = pipe(
-  map((field) => (field.type === "radio" ? field.name : field.id)),
-  filter(Boolean), // Remove null/undefined/empty ids
-  unique, // Remove duplicates
+function buildRecapItem(ref) {
+  return ref.isRadio
+    ? buildRadioRecapItem(ref.id)
+    : buildRegularFieldRecapItem(ref.id);
+}
+
+// Functional pipeline for extracting field refs from an array of fields
+// Returns objects with isRadio flag and id (name for radios, id for others)
+const extractFieldRefs = pipe(
+  map((field) => ({
+    isRadio: field.type === "radio",
+    id: field.type === "radio" ? field.name : field.id,
+  })),
+  filter((ref) => ref.id), // Remove empty ids
+  unique, // Remove duplicates (compares by reference, but works for our pipeline)
 );
 
-// Get field IDs from a DOM element (backward compatible wrapper)
-function getStepFieldIds(stepEl) {
+// Dedupe field refs by id (since unique() compares by reference)
+const uniqueById = (refs) =>
+  refs.reduce(
+    (acc, ref) => (acc.some((r) => r.id === ref.id) ? acc : [...acc, ref]),
+    [],
+  );
+
+// Get field refs from a DOM element
+function getStepFieldRefs(stepEl) {
   const fields = [...stepEl.querySelectorAll("input, select, textarea")];
-  return extractFieldIds(fields);
+  return uniqueById(extractFieldRefs(fields));
+}
+
+// Backward compatible wrapper - returns just the IDs as strings
+function getStepFieldIds(stepEl) {
+  return getStepFieldRefs(stepEl).map((ref) => ref.id);
+}
+
+// Backward compatible wrapper - takes string id, detects type
+function buildFieldRecapItem(id) {
+  const isRadio =
+    document.querySelector(`input[name="${id}"][type="radio"]`) !== null;
+  return buildRecapItem({ isRadio, id });
 }
 
 function populateRecap(steps) {
   const recapEvent = document.getElementById("recap-event");
   const recapContact = document.getElementById("recap-contact");
-  if (!recapEvent || !recapContact) return;
-  if (!steps || steps.length < 2) return;
 
-  const eventFieldIds = getStepFieldIds(steps[0]);
-  const contactFieldIds = getStepFieldIds(steps[1]);
+  const eventFieldRefs = getStepFieldRefs(steps[0]);
+  const contactFieldRefs = getStepFieldRefs(steps[1]);
 
-  recapEvent.innerHTML = eventFieldIds.map(buildFieldRecapItem).join("");
-  recapContact.innerHTML = contactFieldIds.map(buildFieldRecapItem).join("");
+  recapEvent.innerHTML = eventFieldRefs.map(buildRecapItem).join("");
+  recapContact.innerHTML = contactFieldRefs.map(buildRecapItem).join("");
 }
 
 function getFieldWrapper(field) {
@@ -197,7 +180,7 @@ function getCurrentStep(container) {
 
 function initQuoteSteps() {
   const container = document.querySelector(".quote-steps");
-  if (!container) return;
+  if (container === null) return;
 
   const steps = container.querySelectorAll(".quote-step");
   const progressContainer = container.querySelector(".quote-steps-progress");
@@ -205,10 +188,6 @@ function initQuoteSteps() {
   const prevBtn = container.querySelector(".quote-step-prev");
   const nextBtn = container.querySelector(".quote-step-next");
   const submitBtn = container.querySelector(".quote-step-submit");
-
-  if (!steps.length || !prevBtn || !nextBtn || !submitBtn) return;
-  if (!progressContainer || !dataScript) return;
-
   const stepsData = JSON.parse(dataScript.textContent);
   const baseCompletedSteps = parseInt(
     progressContainer.dataset.completedSteps,
@@ -247,7 +226,7 @@ function initQuoteSteps() {
   // Set up click handlers for completed indicators
   progressContainer.addEventListener("click", (e) => {
     const indicator = e.target.closest(".quote-steps-indicator");
-    if (!indicator) return;
+    if (indicator === null) return;
     const stepIndex = parseInt(indicator.dataset.step, 10);
     const formStep = stepIndex - baseCompletedSteps;
     if (formStep >= 0 && formStep < getCurrentStep(container)) {
@@ -259,7 +238,6 @@ function initQuoteSteps() {
 }
 
 onReady(initQuoteSteps);
-onReady(initStandaloneProgress);
 
 // Exports for testing
 export {
@@ -275,10 +253,8 @@ export {
   getStepFieldIds,
   initQuoteSteps,
   populateRecap,
-  renderStepProgress,
   setFieldError,
   updateButtons,
-  updateStepProgress,
   validateField,
   validateRadioGroup,
   validateStep,
