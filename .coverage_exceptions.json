@@ -1,5 +1,4 @@
 {
-	"_comment": "Uncovered lines grandfathered in. New code must have full coverage.",
 	"src/_lib/build/scss.js": [
 		40
 	],
