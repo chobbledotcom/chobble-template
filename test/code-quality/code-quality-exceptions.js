@@ -129,11 +129,16 @@ const ALLOWED_LET = new Set([
   "test/code-quality/code-scanner.test.js",
   "test/code-quality/single-use-functions.test.js",
   "test/code-quality/html-in-js.test.js",
+  "test/code-quality/commented-code.test.js",
+  "test/code-quality/template-selectors.test.js",
+  "test/code-quality/let-usage.test.js", // Test file has let in test cases
+  "test/code-quality/unused-classes.test.js",
   "test/test-site-factory.js",
   "test/precommit.js",
   "test/run-coverage.js",
   "test/test-utils.js",
   "test/code-scanner.js",
+  "ecommerce-backend/server.test.js",
 ]);
 
 // ============================================

@@ -56,52 +56,42 @@ const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
  */
 const processLineChars = (searchLine, initialDepth, initialStartedCounting, lines, lineIndex) => {
   const chars = searchLine.split("");
-  const result = chars.reduce(
-    (state, char, charIndex) => {
-      if (state.finished) return state;
+  const state = {
+    depth: initialDepth,
+    startedCounting: initialStartedCounting,
+    foundCatch: null,
+    finished: false,
+  };
 
-      if (char === "{") {
-        return {
-          ...state,
-          depth: state.depth + 1,
-          startedCounting: true,
-        };
-      }
+  for (const [charIndex, char] of chars.entries()) {
+    if (state.finished) break;
 
-      if (char !== "}") return state;
+    if (char === "{") {
+      state.depth++;
+      state.startedCounting = true;
+      continue;
+    }
 
-      const newDepth = state.depth - 1;
+    if (char !== "}") continue;
 
-      // When we close back to depth 0, check what follows
-      if (state.startedCounting && newDepth === 0) {
-        const foundCatch = catchFollowsClosingBrace(
-          searchLine,
-          charIndex,
-          lines,
-          lineIndex,
-        );
-        return {
-          depth: newDepth,
-          foundCatch,
-          startedCounting: state.startedCounting,
-          finished: true,
-        };
-      }
+    state.depth--;
 
-      return { ...state, depth: newDepth };
-    },
-    {
-      depth: initialDepth,
-      startedCounting: initialStartedCounting,
-      foundCatch: null,
-      finished: false,
-    },
-  );
+    // When we close back to depth 0, check what follows
+    if (state.startedCounting && state.depth === 0) {
+      state.foundCatch = catchFollowsClosingBrace(
+        searchLine,
+        charIndex,
+        lines,
+        lineIndex,
+      );
+      state.finished = true;
+    }
+  }
 
   return {
-    depth: result.depth,
-    foundCatch: result.foundCatch,
-    startedCounting: result.startedCounting,
+    depth: state.depth,
+    foundCatch: state.foundCatch,
+    startedCounting: state.startedCounting,
   };
 };
 
@@ -110,37 +100,30 @@ const processLineChars = (searchLine, initialDepth, initialStartedCounting, line
  * Returns true if catch is found
  */
 const tryBlockHasCatch = (lines, startLineIndex) => {
-  const result = lines.slice(startLineIndex).reduce(
-    (state, line, index) => {
-      if (state.finished) return state;
+  const state = { depth: 0, startedCounting: false, hasCatch: false };
 
-      const lineResult = processLineChars(
-        line,
-        state.depth,
-        state.startedCounting,
-        lines,
-        startLineIndex + index,
-      );
+  for (const [index, line] of lines.slice(startLineIndex).entries()) {
+    const lineResult = processLineChars(
+      line,
+      state.depth,
+      state.startedCounting,
+      lines,
+      startLineIndex + index,
+    );
 
-      if (lineResult.foundCatch !== null) {
-        return { ...state, finished: true, hasCatch: lineResult.foundCatch };
-      }
+    state.depth = lineResult.depth;
+    state.startedCounting = lineResult.startedCounting;
 
-      if (lineResult.startedCounting && lineResult.depth === 0) {
-        return { ...state, finished: true, hasCatch: false };
-      }
+    if (lineResult.foundCatch !== null) {
+      return lineResult.foundCatch;
+    }
 
-      return {
-        depth: lineResult.depth,
-        startedCounting: lineResult.startedCounting,
-        finished: false,
-        hasCatch: false,
-      };
-    },
-    { depth: 0, startedCounting: false, finished: false, hasCatch: false },
-  );
+    if (state.startedCounting && state.depth === 0) {
+      return false;
+    }
+  }
 
-  return result.hasCatch;
+  return state.hasCatch;
 };
 
 /**
