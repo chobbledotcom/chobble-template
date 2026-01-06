@@ -160,8 +160,6 @@ const ALLOWED_LET = new Set([
   "test/build/pdf-integration.test.js",
   "test/eleventy/jsonld-validation.test.js",
   "test/eleventy/feed.test.js",
-  "test/frontend/checkout.test.js",
-  "test/frontend/quote-steps.test.js",
   "test/frontend/gallery.test.js",
   "test/frontend/hire-calculator.test.js",
   "test/frontend/scroll-fade.test.js",
