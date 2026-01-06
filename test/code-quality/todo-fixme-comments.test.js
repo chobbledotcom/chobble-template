@@ -13,6 +13,7 @@ import {
 const EXCLUDE_FILES = [
   "test/code-quality/todo-fixme-comments.test.js",
   "test/code-quality/commented-code.test.js",
+  "test/code-quality/code-quality-exceptions.js", // Contains filename references with "todo"/"fixme"
 ];
 
 describe("todo-fixme-comments", () => {

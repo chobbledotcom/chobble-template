@@ -152,7 +152,7 @@ const SRC_HTML_FILES = memoize(() =>
   getFiles(/^src\/(_includes|_layouts)\/.*\.html$/),
 );
 const SRC_SCSS_FILES = memoize(() => getFiles(/^src\/css\/.*\.scss$/));
-const TEST_FILES = memoize(() => getFiles(/^test\/.*\.test\.js$/));
+const TEST_FILES = memoize(() => getFiles(/^test\/.*\.js$/));
 // Test utility scripts (non-test files in test directory)
 const TEST_UTILITY_FILES = memoize(() =>
   getFiles(/^test\/[^/]+\.js$/).filter((f) => !f.endsWith(".test.js")),
