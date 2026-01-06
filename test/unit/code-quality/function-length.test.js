@@ -6,6 +6,7 @@ import {
   rootDir,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
+import { filterMap, map, pipe } from "#utils/array-utils.js";
 
 // Configuration
 const MAX_LINES = 30;
@@ -22,53 +23,62 @@ const IGNORED_FUNCTIONS = new Set([
 /**
  * Calculate "own lines" for each function by subtracting nested function lines.
  * A nested function is one that starts and ends within another function's range.
+ * Optimized using pipe() and combined filter+reduce in single pass.
  */
-const calculateOwnLines = (functions) => {
-  return functions.map((func) => {
-    const nestedLines = functions
-      .filter(
-        (other) =>
+const calculateOwnLines = (functions) =>
+  pipe(
+    map((func) => {
+      // Combine filter+reduce in single pass to count nested lines
+      const nestedLines = functions.reduce((sum, other) => {
+        // Check if other function is nested within this function
+        const isNested =
           other !== func &&
           other.startLine > func.startLine &&
-          other.endLine < func.endLine,
-      )
-      .reduce((sum, nested) => sum + nested.lineCount, 0);
+          other.endLine < func.endLine;
 
-    return {
-      ...func,
-      ownLines: func.lineCount - nestedLines,
-    };
-  });
-};
+        return isNested ? sum + other.lineCount : sum;
+      }, 0);
+
+      return {
+        ...func,
+        ownLines: func.lineCount - nestedLines,
+      };
+    }),
+  )(functions);
 
 /**
  * Analyze the codebase for overly long functions.
- * Returns an object with violations.
+ * Returns violations using functional composition.
  */
 const analyzeFunctionLengths = () => {
-  const violations = [];
-
-  // Only check library code, not frontend assets
-  for (const relativePath of SRC_JS_FILES().filter(
+  const filesToCheck = SRC_JS_FILES().filter(
     (f) => !f.startsWith("src/assets/"),
-  )) {
+  );
+
+  const allViolations = [];
+
+  for (const relativePath of filesToCheck) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const functions = calculateOwnLines(extractFunctions(source));
 
-    for (const func of functions) {
-      if (func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name)) {
-        violations.push({
+    const fileViolations = pipe(
+      filterMap(
+        (func) =>
+          func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name),
+        (func) => ({
           name: func.name,
           lineCount: func.ownLines,
           file: relativePath,
           startLine: func.startLine,
-        });
-      }
-    }
+        }),
+      ),
+    )(functions);
+
+    allViolations.push(...fileViolations);
   }
 
-  return violations;
+  return allViolations;
 };
 
 /**
