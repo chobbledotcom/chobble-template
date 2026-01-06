@@ -3,18 +3,23 @@ import { spawnSync } from "node:child_process";
 import { rootDir } from "#test/test-utils.js";
 
 describe("cpd", () => {
-  test("code duplication stays within threshold", () => {
-    const result = spawnSync("bun", ["run", "cpd"], {
-      cwd: rootDir,
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"],
-    });
+  test(
+    "code duplication stays within threshold",
+    () => {
+      const result = spawnSync("bun", ["run", "cpd"], {
+        cwd: rootDir,
+        encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"],
+        timeout: 30000,
+      });
 
-    if (result.status !== 0) {
-      console.log("\n  Duplication exceeds threshold:\n");
-      console.log(result.stdout || result.stderr);
-    }
+      if (result.status !== 0) {
+        console.log("\n  Duplication exceeds threshold:\n");
+        console.log(result.stdout || result.stderr);
+      }
 
-    expect(result.status).toBe(0);
-  });
+      expect(result.status).toBe(0);
+    },
+    { timeout: 35000 }, // cpd scan can take 10+ seconds on larger codebases
+  );
 });
