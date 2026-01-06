@@ -1,30 +1,5 @@
 import { onReady } from "#assets/on-ready.js";
 
-const isThemeEditorPage = () =>
-  window.location.pathname.includes("/theme-editor/");
-
-const getThemeList = () => {
-  const computed = getComputedStyle(document.documentElement);
-  const themeListStr = computed.getPropertyValue("--theme-list").trim();
-  if (themeListStr) {
-    // Remove quotes and split by comma
-    const themes = themeListStr.replace(/['"]/g, "").split(",");
-    return themes;
-  }
-  // Fallback to a default list if CSS variable not found
-  return ["default"];
-};
-
-const getThemeDisplayName = (themeName) => {
-  const computed = getComputedStyle(document.documentElement);
-  const displayName = computed
-    .getPropertyValue(`--theme-${themeName}-name`)
-    .trim();
-  return displayName ? displayName.replace(/['"]/g, "") : themeName;
-};
-
-const getCurrentTheme = () => localStorage.getItem("theme_name") || "default";
-
 const setCurrentTheme = (themeName) =>
   localStorage.setItem("theme_name", themeName);
 
@@ -34,13 +9,15 @@ const themeFonts = {
   neon: "orbitron:600",
 };
 
-const loadFontForTheme = (themeName) => {
+const applyTheme = (themeName) => {
+  if (themeName === "default") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", themeName);
+  }
+
   const fontLinkId = "theme-font-link";
-
-  // Remove existing font link if present
   document.getElementById(fontLinkId)?.remove();
-
-  // Add font link if theme has a custom font
   if (themeFonts[themeName]) {
     const fontLink = document.createElement("link");
     fontLink.id = fontLinkId;
@@ -50,29 +27,33 @@ const loadFontForTheme = (themeName) => {
   }
 };
 
-const applyTheme = (themeName) => {
-  if (themeName === "default") {
-    document.documentElement.removeAttribute("data-theme");
-  } else {
-    document.documentElement.setAttribute("data-theme", themeName);
-  }
-  loadFontForTheme(themeName);
-};
-
 const updateButtonText = (themeName) => {
   const button = document.getElementById("theme-switcher-button");
   if (button) {
-    const displayName = getThemeDisplayName(themeName);
+    const computed = getComputedStyle(document.documentElement);
+    const displayName = computed
+      .getPropertyValue(`--theme-${themeName}-name`)
+      .trim();
+    const resolvedDisplayName = displayName
+      ? displayName.replace(/['"]/g, "")
+      : themeName;
+
     button.setAttribute(
       "aria-label",
-      `Current theme: ${displayName}. Click to switch theme`,
+      `Current theme: ${resolvedDisplayName}. Click to switch theme`,
     );
   }
 };
 
 const cycleTheme = () => {
-  const themes = getThemeList();
-  const currentTheme = getCurrentTheme();
+  const computed = getComputedStyle(document.documentElement);
+  const themeListStr = computed.getPropertyValue("--theme-list").trim();
+  const themes = themeListStr
+    ? themeListStr.replace(/['"]/g, "").split(",")
+    : ["default"];
+
+  const currentTheme = localStorage.getItem("theme_name") || "default";
+
   const currentIndex = themes.indexOf(currentTheme);
   const nextIndex = (currentIndex + 1) % themes.length;
   const nextTheme = themes[nextIndex];
@@ -85,7 +66,7 @@ const cycleTheme = () => {
 const initThemeSwitcher = () => {
   const button = document.getElementById("theme-switcher-button");
   if (!button) return;
-  if (isThemeEditorPage()) {
+  if (window.location.pathname.includes("/theme-editor/")) {
     // Hide button and reset theme on theme-editor page
     button.style.display = "none";
     setCurrentTheme("default");
@@ -93,7 +74,7 @@ const initThemeSwitcher = () => {
   } else {
     // Show button on other pages
     button.style.display = "";
-    const currentTheme = getCurrentTheme();
+    const currentTheme = localStorage.getItem("theme_name") || "default";
     applyTheme(currentTheme);
     updateButtonText(currentTheme);
     button.addEventListener("click", cycleTheme);
