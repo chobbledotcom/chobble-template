@@ -10,6 +10,8 @@ import {
   getProducts,
   VALID_CART_MODES,
   validateCartConfig,
+  validatePageFrontmatter,
+  validateProductMode,
   validateQuotePages,
   validateStripePages,
 } from "#config/helpers.js";
@@ -362,43 +364,67 @@ describe("config", () => {
     cleanupTempDir(tempDir);
   });
 
+  // validatePageFrontmatter function tests
+  test("validatePageFrontmatter passes when file has correct frontmatter", () => {
+    // stripe-checkout.md exists with correct frontmatter
+    validatePageFrontmatter(
+      "stripe-checkout.md",
+      "stripe-checkout.html",
+      "/stripe-checkout/",
+      "stripe",
+    );
+    expect(true).toBe(true);
+  });
+
+  test("validatePageFrontmatter throws when file does not exist", () => {
+    expect(() =>
+      validatePageFrontmatter(
+        "nonexistent.md",
+        "test.html",
+        "/test/",
+        "stripe",
+      ),
+    ).toThrow(/does not exist/);
+  });
+
+  test("validatePageFrontmatter throws when layout is incorrect", () => {
+    expect(() =>
+      validatePageFrontmatter(
+        "stripe-checkout.md",
+        "wrong-layout.html",
+        "/stripe-checkout/",
+        "stripe",
+      ),
+    ).toThrow(/does not have layout: wrong-layout.html/);
+  });
+
+  test("validatePageFrontmatter throws when permalink is incorrect", () => {
+    expect(() =>
+      validatePageFrontmatter(
+        "stripe-checkout.md",
+        "stripe-checkout.html",
+        "/wrong-permalink/",
+        "stripe",
+      ),
+    ).toThrow(/does not have permalink: \/wrong-permalink\//);
+  });
+
   // validateStripePages function tests
-  // Only run this test when the project uses stripe cart_mode
   test("validateStripePages passes with real stripe-checkout.md and order-complete.md", () => {
-    // Read actual config to check if stripe pages should exist
-    const configModule = require("#data/config.json");
-    if (configModule.cart_mode !== "stripe") {
-      // Skip test - not applicable to this cart mode
-      return;
-    }
     // These pages exist in src/pages with correct frontmatter
     validateStripePages();
     expect(true).toBe(true);
   });
 
   // validateQuotePages function tests
-  // Only run this test when the project uses quote cart_mode
   test("validateQuotePages passes with real checkout.md page", () => {
-    // Read actual config to check if quote pages should exist
-    const configModule = require("#data/config.json");
-    if (configModule.cart_mode !== "quote") {
-      // Skip test - not applicable to this cart mode
-      return;
-    }
     // checkout.md exists in src/pages with correct frontmatter
     validateQuotePages();
     expect(true).toBe(true);
   });
 
   // validateCartConfig with valid stripe config (triggers validateStripePages)
-  // Only run this test when the project uses stripe cart_mode
   test("validateCartConfig passes for stripe with checkout_api_url and valid pages", () => {
-    // Read actual config to check if stripe mode is in use
-    const configModule = require("#data/config.json");
-    if (configModule.cart_mode !== "stripe") {
-      // Skip test - not applicable to this cart mode
-      return;
-    }
     const config = {
       cart_mode: "stripe",
       checkout_api_url: "https://api.example.com/checkout",
@@ -409,14 +435,7 @@ describe("config", () => {
   });
 
   // validateCartConfig with valid quote config (triggers validateQuotePages)
-  // Only run this test when the project uses quote cart_mode
   test("validateCartConfig passes for quote with form_target and valid pages", () => {
-    // Read actual config to check if quote mode is in use
-    const configModule = require("#data/config.json");
-    if (configModule.cart_mode !== "quote") {
-      // Skip test - not applicable to this cart mode
-      return;
-    }
     const config = {
       cart_mode: "quote",
       form_target: "https://forms.example.com/submit",
@@ -424,5 +443,37 @@ describe("config", () => {
     // This should not throw - it validates the real quote checkout page exists
     validateCartConfig(config);
     expect(true).toBe(true);
+  });
+
+  // validateProductMode function tests
+  test("validateProductMode passes with null product_mode", () => {
+    const config = { product_mode: null };
+    validateProductMode(config);
+    expect(true).toBe(true);
+  });
+
+  test("validateProductMode passes with undefined product_mode", () => {
+    const config = {};
+    validateProductMode(config);
+    expect(true).toBe(true);
+  });
+
+  test("validateProductMode passes with valid buy mode", () => {
+    const config = { product_mode: "buy" };
+    validateProductMode(config);
+    expect(true).toBe(true);
+  });
+
+  test("validateProductMode passes with valid hire mode", () => {
+    const config = { product_mode: "hire" };
+    validateProductMode(config);
+    expect(true).toBe(true);
+  });
+
+  test("validateProductMode throws for invalid product_mode", () => {
+    const config = { product_mode: "invalid" };
+    expect(() => validateProductMode(config)).toThrow(
+      /Invalid product_mode: "invalid"/,
+    );
   });
 });
