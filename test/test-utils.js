@@ -15,10 +15,6 @@ class DOM {
       this.window.document.write(html);
     }
   }
-
-  serialize() {
-    return this.window.document.documentElement.outerHTML;
-  }
 }
 
 const rootDir = ROOT_DIR;
@@ -91,30 +87,8 @@ const createMockEleventyConfig = () => ({
   addTemplateFormats: createArrayMethod("templateFormats"),
   addWatchTarget: createArrayMethod("watchTargets"),
   addPassthroughCopy: createArrayMethod("passthroughCopies"),
-  // Unique methods
-  setLayoutsDirectory: function (dir) {
-    this.layoutsDirectory = dir;
-  },
-  resolvePlugin: (pluginName) => {
-    // Return a mock plugin function that does nothing
-    return function mockPlugin(config, _options) {
-      // Mock HTML Base plugin - adds filters that tests might need
-      if (pluginName === "@11ty/eleventy/html-base-plugin") {
-        config.addFilter("htmlBaseUrl", (url, base) => {
-          if (base && url && !url.startsWith("http")) {
-            return base + url;
-          }
-          return url;
-        });
-        config.addAsyncFilter(
-          "transformWithHtmlBase",
-          async (content, _base) => {
-            return content; // Just return content unchanged in tests
-          },
-        );
-      }
-    };
-  },
+  // Mock plugin resolution (used by feed.js)
+  resolvePlugin: () => () => {},
   pathPrefix: "/",
 });
 
@@ -171,15 +145,6 @@ const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
-// Test utility scripts (non-test files in test directory)
-const TEST_UTILITY_FILES = memoize(() =>
-  getFiles(/^test\/[^/]+\.js$/).filter((f) => !f.endsWith(".test.js")),
-);
-// Source files plus test utilities (for code quality checks)
-const SRC_AND_TEST_UTILS_FILES = memoize(() => [
-  ...SRC_JS_FILES(),
-  ...TEST_UTILITY_FILES(),
-]);
 const ALL_JS_FILES = memoizedFiles(/^(src|ecommerce-backend|test)\/.*\.js$/);
 
 // Console capture utilities for testing output
@@ -937,8 +902,6 @@ export {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
-  TEST_UTILITY_FILES,
-  SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
   captureConsole,
