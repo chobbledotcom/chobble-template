@@ -10,7 +10,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import { pipe, filter, reduce, filterMap, split } from "#utils/array-utils.js";
+import { filter, filterMap, pipe, reduce, split } from "#utils/array-utils.js";
 import { fromPairs } from "#utils/object-entries.js";
 
 // --- Configuration ---
@@ -55,7 +55,10 @@ const parseLine = (state, line) => {
   if (line.startsWith("SF:")) {
     const path = line.slice(3);
     const isExcluded = COVERAGE_EXCLUDE.some((p) => path.endsWith(p));
-    return { ...state, file: isExcluded ? null : path.replace(`${rootDir}/`, "") };
+    return {
+      ...state,
+      file: isExcluded ? null : path.replace(`${rootDir}/`, ""),
+    };
   }
 
   if (!state.file || line === "end_of_record") {
@@ -66,7 +69,13 @@ const parseLine = (state, line) => {
     const lineNum = parseDA(line.slice(3));
     if (lineNum !== null) {
       const fileLines = state.uncovered[state.file] || [];
-      return { ...state, uncovered: { ...state.uncovered, [state.file]: [...fileLines, lineNum] } };
+      return {
+        ...state,
+        uncovered: {
+          ...state.uncovered,
+          [state.file]: [...fileLines, lineNum],
+        },
+      };
     }
   }
 
@@ -132,7 +141,11 @@ const ratchetExceptions = (exceptions, uncovered, verbose) => {
   };
 
   if (JSON.stringify(ratcheted) !== JSON.stringify(exceptions)) {
-    writeFileSync(exceptionsPath, `${JSON.stringify(ratcheted, null, "\t")}\n`, "utf-8");
+    writeFileSync(
+      exceptionsPath,
+      `${JSON.stringify(ratcheted, null, "\t")}\n`,
+      "utf-8",
+    );
     if (verbose) console.log("\n📉 Coverage exceptions ratcheted down");
   }
 };
@@ -147,7 +160,14 @@ const runCoverage = () => {
 
   const result = spawnSync(
     "bun",
-    ["test", "--coverage", "--coverage-reporter=lcov", "--concurrent", "--timeout", "30000"],
+    [
+      "test",
+      "--coverage",
+      "--coverage-reporter=lcov",
+      "--concurrent",
+      "--timeout",
+      "30000",
+    ],
     { cwd: rootDir, stdio: ["inherit", "pipe", "inherit"], env: process.env },
   );
 
