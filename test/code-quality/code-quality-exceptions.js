@@ -292,9 +292,9 @@ const ALLOWED_NULL_CHECKS = new Set([
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
-  "src/_data/alt-tags-lookup.js",
-  "src/_data/eleventy-computed.js",
-  "src/_data/meta-computed.js",
+  "src/_data/altTagsLookup.js",
+  "src/_data/eleventyComputed.js",
+  "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
