@@ -278,22 +278,13 @@ describe("quote-price-utils", () => {
   // getFieldLabel Tests (with config mapping)
   // ----------------------------------------
   describe("getFieldLabel", () => {
-    test("returns label from config for known field", () => {
+    test("returns label from config for text field", () => {
       document.body.innerHTML = `
         <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
         <input id="name" name="name" type="text" />
       `;
       const field = document.getElementById("name");
       expect(getFieldLabel(field)).toBe("Your Name");
-    });
-
-    test("returns field name when not in config", () => {
-      document.body.innerHTML = `
-        <script class="quote-field-labels" type="application/json">{}</script>
-        <input id="orphan" name="orphan" type="text" />
-      `;
-      const field = document.getElementById("orphan");
-      expect(getFieldLabel(field)).toBe("orphan");
     });
 
     test("returns label for radio button by name", () => {
@@ -305,12 +296,8 @@ describe("quote-price-utils", () => {
       expect(getFieldLabel(field)).toBe("Contact Preference");
     });
 
-    test("returns radio name when no config script exists", () => {
-      document.body.innerHTML =
-        '<input type="radio" name="orphan_radio" value="A" />';
-      const field = document.querySelector('input[type="radio"]');
-      expect(getFieldLabel(field)).toBe("orphan_radio");
-    });
+    // Note: No tests for missing config script or unknown fields
+    // The config script always exists and contains all field labels
   });
 
   // ----------------------------------------

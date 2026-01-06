@@ -61,11 +61,9 @@ const countItems = (cart) => sum(map((item) => item.quantity)(cart));
 // Field Details Collection
 // ============================================================================
 
-// Get field labels mapping from config (cached after first load)
-const getFieldLabels = () => {
-  const script = document.querySelector(".quote-field-labels");
-  return script ? JSON.parse(script.textContent) : {};
-};
+// Get field labels mapping from config
+const getFieldLabels = () =>
+  JSON.parse(document.querySelector(".quote-field-labels").textContent);
 
 // Predicates for field types
 const isRadio = (field) => field.type === "radio";
@@ -89,11 +87,8 @@ const getFieldValue = (field) => {
 };
 
 // Get the label for a field from config mapping
-const getFieldLabel = (field) => {
-  const labels = getFieldLabels();
-  const name = field.name || field.id;
-  return labels[name] || name;
-};
+const getFieldLabel = (field) =>
+  getFieldLabels()[field.name || field.id];
 
 // Get unique identifier for a field (name for radios, id for others)
 const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
