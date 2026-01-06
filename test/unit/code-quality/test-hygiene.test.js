@@ -33,6 +33,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createSchemaData",
   // quote-steps.test.js - test fixture factory
   "createQuoteStepsHtml",
+  // theme-editor.test.js - functional test helpers
+  "roundTripTheme",
+  "testScopedEntry",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
   // item-filters.test.js - preset config factory
