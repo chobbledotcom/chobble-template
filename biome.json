@@ -61,6 +61,16 @@
   },
   "overrides": [
     {
+      "includes": ["src/_data/**/*.js"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": [
         "src/_lib/build/**/*.js",
         "src/_lib/media/unused-images.js",
