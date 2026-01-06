@@ -1,18 +1,23 @@
 /**
+ * Factory function to create a comparator that sorts by numeric value first,
+ * then by string value as a secondary sort key.
+ * @param {Function} getNumeric - Function to extract numeric value from item
+ * @param {Function} getString - Function to extract string value from item
+ * @returns {Function} Comparator function for use with Array.sort()
+ */
+const createOrderThenStringComparator = (getNumeric, getString) => (a, b) => {
+  const diff = getNumeric(a) - getNumeric(b);
+  return diff !== 0 ? diff : getString(a).localeCompare(getString(b));
+};
+
+/**
  * Comparator for sorting by order then by title/name.
  * Default behavior assumes items have item.data.order and item.data.title/name.
  */
-const sortItems = (a, b) => {
-  const orderA = a.data?.order ?? 0;
-  const orderB = b.data?.order ?? 0;
-
-  const orderDiff = orderA - orderB;
-  if (orderDiff !== 0) return orderDiff;
-
-  const titleA = a.data?.title || a.data?.name || "";
-  const titleB = b.data?.title || b.data?.name || "";
-  return titleA.localeCompare(titleB);
-};
+const sortItems = createOrderThenStringComparator(
+  (item) => item.data?.order ?? 0,
+  (item) => item.data?.title || item.data?.name || "",
+);
 
 /**
  * Comparator for sorting by date descending (newest first).
@@ -31,16 +36,9 @@ const getLatestItems = (items, limit = 3) =>
  * Assumes items have item.data.eleventyNavigation with order property,
  * and fallback to item.data.title for the secondary sort.
  */
-const sortNavigationItems = (a, b) => {
-  const orderA = a.data.eleventyNavigation.order ?? 999;
-  const orderB = b.data.eleventyNavigation.order ?? 999;
-
-  const orderDiff = orderA - orderB;
-  if (orderDiff !== 0) return orderDiff;
-
-  const keyA = a.data.eleventyNavigation.key || a.data.title || "";
-  const keyB = b.data.eleventyNavigation.key || b.data.title || "";
-  return keyA.localeCompare(keyB);
-};
+const sortNavigationItems = createOrderThenStringComparator(
+  (item) => item.data.eleventyNavigation.order ?? 999,
+  (item) => item.data.eleventyNavigation.key || item.data.title || "",
+);
 
 export { sortItems, sortByDateDescending, getLatestItems, sortNavigationItems };
