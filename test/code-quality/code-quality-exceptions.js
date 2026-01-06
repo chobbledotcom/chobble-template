@@ -292,7 +292,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/lazy-loader.js",
-  "src/_lib/utils/schema-helper.js",
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -308,9 +307,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/shuffle-properties.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
-  "src/_lib/public/ui/tabs.js",
   "src/_lib/public/theme/theme-editor-lib.js",
-  "src/products/products.11tydata.js",
   "test/unit/code-quality/knip.test.js",
 ]);
 

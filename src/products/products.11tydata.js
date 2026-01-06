@@ -19,18 +19,6 @@ const getProductMode = (data) => {
   return data.product_mode || config.product_mode;
 };
 
-const validateHireOptions = (options, title) => {
-  const duplicate = findDuplicate(options, (opt) => opt.days);
-  if (duplicate) {
-    throw new Error(
-      `Product "${title}" has duplicate options for days=${duplicate.days}`,
-    );
-  }
-  if (!options.some((opt) => opt.days === 1)) {
-    throw new Error(`Product "${title}" is hire mode but has no 1-day option`);
-  }
-};
-
 const computeOptions = (data) => {
   if (!data.options || data.options.length === 0) {
     return [];
@@ -50,42 +38,6 @@ const computeOptions = (data) => {
     .sort((a, b) => a.days - b.days);
 };
 
-const computeCartAttributes = (data) => {
-  const options = computeOptions(data);
-  if (options.length === 0) {
-    return null;
-  }
-
-  const mode = getProductMode(data);
-  const specs = computeSpecs(data);
-
-  if (mode === "hire") {
-    validateHireOptions(options, data.title);
-  }
-
-  const hirePrices =
-    mode === "hire"
-      ? toObject(options, (opt) => [opt.days, opt.unit_price])
-      : {};
-
-  return JSON.stringify({
-    name: data.title,
-    options: options.map((opt) => ({
-      name: opt.name,
-      unit_price:
-        mode === "hire"
-          ? opt.unit_price
-          : parsePrice(opt.unit_price, `${data.title} option "${opt.name}"`),
-      max_quantity: opt.max_quantity || null,
-      sku: opt.sku || null,
-      days: opt.days || null,
-    })),
-    specs: specs ? specs.map(pick(["name", "value"])) : null,
-    hire_prices: hirePrices,
-    product_mode: mode,
-  }).replace(/"/g, "&quot;");
-};
-
 export default {
   eleventyComputed: {
     categories: (data) => (data.categories || []).map(normaliseSlug),
@@ -94,6 +46,53 @@ export default {
     options: computeOptions,
     permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
     specs: computeSpecs,
-    cart_attributes: computeCartAttributes,
+    cart_attributes: (data) => {
+      const options = computeOptions(data);
+      if (options.length === 0) {
+        return null;
+      }
+
+      const mode = getProductMode(data);
+      const specs = computeSpecs(data);
+
+      if (mode === "hire") {
+        const duplicate = findDuplicate(options, (opt) => opt.days);
+        if (duplicate) {
+          throw new Error(
+            `Product "${data.title}" has duplicate options for days=${duplicate.days}`,
+          );
+        }
+        if (!options.some((opt) => opt.days === 1)) {
+          throw new Error(
+            `Product "${data.title}" is hire mode but has no 1-day option`,
+          );
+        }
+      }
+
+      const hirePrices =
+        mode === "hire"
+          ? toObject(options, (opt) => [opt.days, opt.unit_price])
+          : {};
+
+      return JSON.stringify({
+        name: data.title,
+        options: options.map((opt) => ({
+          name: opt.name,
+          unit_price:
+            mode === "hire"
+              ? opt.unit_price
+              : parsePrice(
+                  opt.unit_price,
+                  `${data.title} option "${opt.name}"`,
+                ),
+          max_quantity: opt.max_quantity || null,
+          sku: opt.sku || null,
+          days: opt.days || null,
+        })),
+        specs: specs ? specs.map(pick(["name", "value"])) : null,
+        hire_prices: hirePrices,
+        product_mode: mode,
+      }).replace(/"/g, "&quot;");
+    },
   },
 };

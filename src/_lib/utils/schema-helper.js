@@ -15,56 +15,19 @@ function buildImageUrl(imageInput, siteUrl) {
   return `${siteUrl}/images/${imageInput}`;
 }
 
-const buildImageMeta = (imageSource, siteUrl) => {
-  const imageUrl = buildImageUrl(imageSource, siteUrl);
-  return imageUrl ? { image: { src: imageUrl } } : {};
-};
-
 function buildBaseMeta(data) {
   const imageSource = data.header_image || data.image || null;
+  const imageUrl = imageSource
+    ? buildImageUrl(imageSource, data.site.url)
+    : null;
 
   return {
     ...(data.metaComputed || {}),
     url: canonicalUrl(data.page.url),
     title: data.title || data.meta_title || "Untitled",
     description: data.meta_description || data.subtitle,
-    ...(imageSource && buildImageMeta(imageSource, data.site.url)),
+    ...(imageUrl && { image: { src: imageUrl } }),
     ...(data.faqs?.length > 0 && { faq: data.faqs }),
-  };
-}
-
-function buildOffers(price) {
-  const validUntil = new Date();
-  validUntil.setFullYear(validUntil.getFullYear() + 1);
-
-  return {
-    price: price.toString().replace(/[£€$,]/g, ""),
-    priceCurrency: "GBP",
-    availability: "https://schema.org/InStock",
-    priceValidUntil: toDateString(validUntil),
-  };
-}
-
-function formatReview(review) {
-  const reviewData = {
-    author: review.data.name,
-    rating: review.data.rating || 5,
-  };
-  if (review.date) {
-    reviewData.date = toDateString(review.date);
-  }
-  return reviewData;
-}
-
-function buildRating(reviews) {
-  const ratings = reviews.map((r) => r.data.rating || 5);
-  const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-
-  return {
-    ratingValue: avg.toFixed(1),
-    reviewCount: reviews.length,
-    bestRating: 5,
-    worstRating: 1,
   };
 }
 
@@ -74,7 +37,15 @@ function buildProductMeta(data) {
   meta.brand = data.site.name;
 
   if (data.price) {
-    meta.offers = buildOffers(data.price);
+    const validUntil = new Date();
+    validUntil.setFullYear(validUntil.getFullYear() + 1);
+
+    meta.offers = {
+      price: data.price.toString().replace(/[£€$,]/g, ""),
+      priceCurrency: "GBP",
+      availability: "https://schema.org/InStock",
+      priceValidUntil: toDateString(validUntil),
+    };
   }
 
   if (data.collections?.reviews && data.reviewsField) {
@@ -85,8 +56,26 @@ function buildProductMeta(data) {
     );
 
     if (reviews.length > 0) {
-      meta.reviews = reviews.map(formatReview);
-      meta.rating = buildRating(reviews);
+      meta.reviews = reviews.map((review) => {
+        const reviewData = {
+          author: review.data.name,
+          rating: review.data.rating || 5,
+        };
+        if (review.date) {
+          reviewData.date = toDateString(review.date);
+        }
+        return reviewData;
+      });
+
+      const ratings = reviews.map((r) => r.data.rating || 5);
+      const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+
+      meta.rating = {
+        ratingValue: avg.toFixed(1),
+        reviewCount: reviews.length,
+        bestRating: 5,
+        worstRating: 1,
+      };
     }
   }
 
