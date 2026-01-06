@@ -222,7 +222,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/theme-editor.js:384", // borderOutput
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
-  "src/assets/js/quote.js:48", // container
+  "src/assets/js/quote.js:49", // container
   "src/assets/js/quote-steps.js:43", // field (field recap item)
   "src/assets/js/quote-steps.js:161", // container (init)
   "src/assets/js/quote-steps.js:211", // indicator (click handler)
@@ -248,8 +248,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/theme-editor-lib.js:48", // themeContent
   "src/assets/js/theme-editor-lib.js:85", // borderValue
   "src/assets/js/theme-editor-lib.js:157", // value
-  "src/assets/js/hire-calculator.js:22", // priceStr
-  "src/assets/js/hire-calculator.js:40", // hirePrices
+  "src/assets/js/quote-price-utils.js:15", // priceStr
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
@@ -309,6 +308,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/gallery.js",
   "src/assets/js/hire-calculator.js",
   "src/assets/js/quote-checkout.js",
+  "src/assets/js/quote-price-utils.js",
   "src/assets/js/quote.js",
   "src/assets/js/quote-steps.js",
   "src/assets/js/quote-steps-progress.js",

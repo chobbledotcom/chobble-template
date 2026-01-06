@@ -7,6 +7,8 @@ export const IDS = Object.fromEntries(
     "CART_ITEM",
     "QUOTE_CART_ITEM",
     "QUOTE_CHECKOUT_ITEM",
+    "QUOTE_PRICE",
+    "QUOTE_PRICE_ITEM",
     "GALLERY_NAV_PREV",
     "GALLERY_NAV_NEXT",
   ].map((k) => [k, `${k.toLowerCase().replace(/_/g, "-")}-template`]),
