@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { notMemberOf } from "#utils/array-utils.js";
+import { filter, map, notMemberOf, pipe } from "#utils/array-utils.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 const IMAGE_REF_PATTERN =
@@ -31,18 +31,23 @@ export function configureUnusedImages(eleventyConfig) {
 
     const markdownFiles = [...new Bun.Glob("**/*.md").scanSync(dir.input)];
 
+    const isValidImageName = (name) => imageFiles.includes(name);
+
     const usedImagesList = markdownFiles.flatMap((file) => {
       const { data, content } = matter.read(path.join(dir.input, file));
       return [
-        // Extract images from frontmatter
-        ...FRONTMATTER_IMAGE_FIELDS.map((field) => data[field])
-          .filter(Boolean)
-          .map(extractFilename)
-          .filter((name) => imageFiles.includes(name)),
-        // Extract images from content
-        ...(content.match(IMAGE_REF_PATTERN) || [])
-          .map(extractFilename)
-          .filter((name) => imageFiles.includes(name)),
+        // Extract images from frontmatter using pipe
+        ...pipe(
+          map((field) => field),
+          filter(Boolean),
+          map(extractFilename),
+          filter(isValidImageName),
+        )(FRONTMATTER_IMAGE_FIELDS.map((field) => data[field])),
+        // Extract images from content using pipe
+        ...pipe(
+          map(extractFilename),
+          filter(isValidImageName),
+        )(content.match(IMAGE_REF_PATTERN) || []),
       ];
     });
 
