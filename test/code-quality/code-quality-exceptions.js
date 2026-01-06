@@ -223,11 +223,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/cart/cart.js:136", // cartItems
   "src/_lib/public/ui/shuffle-properties.js:49", // itemsList
   "src/_lib/public/cart/quote.js:49", // container
-  "src/_lib/public/cart/quote-steps.js:43", // field (field recap item)
-  "src/_lib/public/cart/quote-steps.js:161", // container (init)
-  "src/_lib/public/cart/quote-steps.js:211", // indicator (click handler)
-  "src/_lib/public/ui/quote-steps-progress.js:35", // container (standalone init)
-  "src/_lib/public/ui/quote-steps-progress.js:38", // dataScript (standalone init)
   "src/_lib/public/ui/gallery.js:20", // imageLink
   "src/_lib/public/ui/gallery.js:30", // fullImage
   "src/_lib/public/ui/gallery.js:45", // imageWrapper

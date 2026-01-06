@@ -123,17 +123,8 @@ describe("quote-steps-progress", () => {
       }).not.toThrow();
     });
 
-    test("does not error when data script is missing", () => {
-      document.body.innerHTML =
-        '<div class="quote-steps-progress" data-completed-steps="0"></div>';
-
-      expect(() => {
-        document.dispatchEvent(new Event("turbo:load"));
-      }).not.toThrow();
-
-      const container = document.querySelector(".quote-steps-progress");
-      expect(container.innerHTML).toBe("");
-    });
+    // Note: We trust templates to always include dataScript with progress container
+    // No test for missing dataScript - that would be a template bug
 
     test("ignores progress indicators inside quote-steps form", () => {
       document.body.innerHTML = `

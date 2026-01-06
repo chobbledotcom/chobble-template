@@ -32,11 +32,9 @@ function initStandaloneProgress() {
   const container = Array.from(allContainers).find(
     (el) => !el.closest(".quote-steps"),
   );
-  if (!container) return;
+  if (container === undefined) return;
 
   const dataScript = document.querySelector(".quote-steps-data");
-  if (!dataScript) return;
-
   const steps = JSON.parse(dataScript.textContent);
   const completedSteps = parseInt(container.dataset.completedSteps, 10);
   renderStepProgress(container, steps, completedSteps);
