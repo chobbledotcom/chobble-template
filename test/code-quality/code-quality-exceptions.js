@@ -327,7 +327,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:334",
+  "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:55",

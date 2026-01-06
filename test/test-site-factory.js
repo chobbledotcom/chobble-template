@@ -99,21 +99,23 @@ const createMarkdownFile =
 // Directory Operations - Functional patterns for bulk operations
 // -----------------------------------------------------------------------------
 
+/** Copy files from a directory with optional filtering */
+const copyDirFiles = (src, dest, filterFn = () => true) =>
+  pipe(
+    () => getCachedDirList(src),
+    filter((entry) => entry.isFile && filterFn(entry.name)),
+    map((entry) => {
+      const copy = copyToDir(dest);
+      return copy(path.join(src, entry.name), entry.name);
+    }),
+  )();
+
 /** Copy 11ty data files for a collection */
 const copy11tyDataFiles = (templateSrc, srcDir) => (collection) => {
   const hasExtension =
     (...exts) =>
     (filename) =>
       exts.some((ext) => filename.endsWith(ext));
-  const copyDirFiles = (src, dest, filterFn = () => true) =>
-    pipe(
-      () => getCachedDirList(src),
-      filter((entry) => entry.isFile && filterFn(entry.name)),
-      map((entry) => {
-        const copy = copyToDir(dest);
-        return copy(path.join(src, entry.name), entry.name);
-      }),
-    )();
   return copyDirFiles(
     path.join(templateSrc, collection),
     path.join(srcDir, collection),
@@ -158,15 +160,6 @@ const createTestSite = async (options = {}) => {
 
   // Setup data directory
   const setupDataDir = (templateSrc, srcDir, options) => {
-    const copyDirFiles = (src, dest, filterFn = () => true) =>
-      pipe(
-        () => getCachedDirList(src),
-        filter((entry) => entry.isFile && filterFn(entry.name)),
-        map((entry) => {
-          const copy = copyToDir(dest);
-          return copy(path.join(src, entry.name), entry.name);
-        }),
-      )();
     const dataSource = path.join(templateSrc, "_data");
     const dataTarget = path.join(srcDir, "_data");
     const writeData = writeToDir(dataTarget);
