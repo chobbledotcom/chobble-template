@@ -38,8 +38,6 @@ function initStandaloneProgress() {
   if (container === null) return;
 
   const dataScript = document.querySelector(".quote-steps-data");
-  if (dataScript === null) return;
-
   const steps = JSON.parse(dataScript.textContent);
   const completedSteps = parseInt(container.dataset.completedSteps, 10);
   renderStepProgress(container, steps, completedSteps);
@@ -205,10 +203,6 @@ function initQuoteSteps() {
   const prevBtn = container.querySelector(".quote-step-prev");
   const nextBtn = container.querySelector(".quote-step-next");
   const submitBtn = container.querySelector(".quote-step-submit");
-
-  if (!steps.length || !prevBtn || !nextBtn || !submitBtn) return;
-  if (!progressContainer || !dataScript) return;
-
   const stepsData = JSON.parse(dataScript.textContent);
   const baseCompletedSteps = parseInt(
     progressContainer.dataset.completedSteps,
