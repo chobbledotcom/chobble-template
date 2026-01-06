@@ -10,7 +10,7 @@ import {
   TEST_FILES,
 } from "#test/test-utils.js";
 
-const THIS_FILE = "test/code-quality/then-usage.test.js";
+const THIS_FILE = "test/unit/code-quality/then-usage.test.js";
 
 describe("then-usage", () => {
   // Create checker inside describe block to ensure imports are resolved

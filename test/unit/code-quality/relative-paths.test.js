@@ -3,7 +3,7 @@ import { ALLOWED_PROCESS_CWD } from "#test/code-quality/code-quality-exceptions.
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { ALL_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 
-const THIS_FILE = "test/code-quality/relative-paths.test.js";
+const THIS_FILE = "test/unit/code-quality/relative-paths.test.js";
 const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
 describe("relative-paths", () => {
