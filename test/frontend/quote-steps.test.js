@@ -1,7 +1,7 @@
 // Quote steps multi-form navigation tests
 // Tests the production quote-steps.js functions directly
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 import {
   buildFieldRecapItem,
   buildRadioRecapItem,
@@ -729,14 +729,11 @@ describe("quote-steps", () => {
       </div>
     `;
     const container = document.querySelector(".quote-steps");
-    const scrollTracker = { called: false };
-    container.scrollIntoView = () => {
-      scrollTracker.called = true;
-    };
+    container.scrollIntoView = mock(() => {});
     initQuoteSteps();
     const nextBtn = document.querySelector(".quote-step-next");
     nextBtn.click();
-    expect(scrollTracker.called).toBe(true);
+    expect(container.scrollIntoView).toHaveBeenCalled();
   });
 
   test("initQuoteSteps sets up indicator click handlers", () => {
