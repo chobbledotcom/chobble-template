@@ -26,4 +26,21 @@ const sortByDateDescending = (a, b) => new Date(b.date) - new Date(a.date);
 const getLatestItems = (items, limit = 3) =>
   (items || []).sort(sortByDateDescending).slice(0, limit);
 
-export { sortItems, sortByDateDescending, getLatestItems };
+/**
+ * Comparator for sorting navigation items by order then by key.
+ * Assumes items have item.data.eleventyNavigation with order property,
+ * and fallback to item.data.title for the secondary sort.
+ */
+const sortNavigationItems = (a, b) => {
+  const orderA = a.data.eleventyNavigation.order ?? 999;
+  const orderB = b.data.eleventyNavigation.order ?? 999;
+
+  const orderDiff = orderA - orderB;
+  if (orderDiff !== 0) return orderDiff;
+
+  const keyA = a.data.eleventyNavigation.key || a.data.title || "";
+  const keyB = b.data.eleventyNavigation.key || b.data.title || "";
+  return keyA.localeCompare(keyB);
+};
+
+export { sortItems, sortByDateDescending, getLatestItems, sortNavigationItems };
