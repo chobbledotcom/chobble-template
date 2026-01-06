@@ -1,51 +1,12 @@
 // Quote form multi-step navigation
-// Handles step transitions, validation, recap population, and progress indicator
+// Handles step transitions, validation, and recap population
 
-import { onReady } from "#assets/on-ready.js";
+import {
+  renderStepProgress,
+  updateStepProgress,
+} from "#public/ui/quote-steps-progress.js";
+import { onReady } from "#public/utils/on-ready.js";
 import { filter, map, pipe, unique } from "#utils/array-utils.js";
-
-// === Step Progress Indicator Functions ===
-
-function renderIndicator(step, index, isLast) {
-  const indicator = `<div class="quote-steps-indicator" data-step="${index}">
-      <span class="step-name">${step.name}</span>
-      <span class="step-number">${step.number}</span>
-    </div>`;
-  return isLast
-    ? indicator
-    : `${indicator}<div class="quote-steps-connector"></div>`;
-}
-
-function renderStepProgress(container, steps, completedSteps) {
-  container.innerHTML = steps
-    .map((step, i) => renderIndicator(step, i, i === steps.length - 1))
-    .join("");
-  updateStepProgress(container, completedSteps);
-}
-
-function updateStepProgress(container, completedSteps) {
-  const indicators = container.querySelectorAll(".quote-steps-indicator");
-  for (const [index, indicator] of indicators.entries()) {
-    indicator.classList.toggle("active", index === completedSteps);
-    indicator.classList.toggle("completed", index < completedSteps);
-  }
-}
-
-function initStandaloneProgress() {
-  const container = document.querySelector(
-    ".quote-steps-progress:not(.quote-steps .quote-steps-progress)",
-  );
-  if (!container) return;
-
-  const dataScript = document.querySelector(".quote-steps-data");
-  if (!dataScript) return;
-
-  const steps = JSON.parse(dataScript.textContent);
-  const completedSteps = parseInt(container.dataset.completedSteps, 10);
-  renderStepProgress(container, steps, completedSteps);
-}
-
-// === Quote Step Form Functions ===
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
@@ -259,7 +220,6 @@ function initQuoteSteps() {
 }
 
 onReady(initQuoteSteps);
-onReady(initStandaloneProgress);
 
 // Exports for testing
 export {
@@ -275,10 +235,8 @@ export {
   getStepFieldIds,
   initQuoteSteps,
   populateRecap,
-  renderStepProgress,
   setFieldError,
   updateButtons,
-  updateStepProgress,
   validateField,
   validateRadioGroup,
   validateStep,

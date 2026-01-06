@@ -1,7 +1,7 @@
 // Hire calculator for quote checkout
 // Manages date inputs and notifies when hire days change
 
-import { getCart } from "#assets/cart-utils.js";
+import { getCart } from "#public/utils/cart-utils.js";
 import { filter } from "#utils/array-utils.js";
 
 // Predicates

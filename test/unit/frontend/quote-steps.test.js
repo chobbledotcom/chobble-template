@@ -20,7 +20,7 @@ import {
   validateField,
   validateRadioGroup,
   validateStep,
-} from "#assets/quote-steps.js";
+} from "#public/cart/quote-steps.js";
 
 describe("quote-steps", () => {
   // ----------------------------------------

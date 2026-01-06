@@ -23,8 +23,8 @@ import {
 const { readFileSync } = fs;
 const { join } = path;
 
-// Asset JS files need a separate pattern (not in the standard SRC_JS_FILES)
-const ASSET_JS_FILES = getFiles(/^src\/assets\/js\/.*\.js$/);
+// Public JS files need a separate pattern (not in the standard SRC_JS_FILES)
+const PUBLIC_JS_FILES = getFiles(/^src\/_lib\/public\/.*\.js$/);
 
 // ============================================
 // Class/ID Extraction from HTML
@@ -364,7 +364,7 @@ describe("unused-classes", () => {
     // Use pre-computed file lists
     const htmlFiles = SRC_HTML_FILES().map((f) => join(rootDir, f));
     const scssFiles = SRC_SCSS_FILES().map((f) => join(rootDir, f));
-    const jsFiles = ASSET_JS_FILES.map((f) => join(rootDir, f));
+    const jsFiles = PUBLIC_JS_FILES.map((f) => join(rootDir, f));
 
     // Collect all classes and IDs defined in HTML and JS
     const { allClasses, allIds } = collectAllClassesAndIds(htmlFiles, jsFiles);

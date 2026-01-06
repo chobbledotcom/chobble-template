@@ -8,15 +8,15 @@ import {
   getCart,
   updateCartIcon,
   updateItemQuantity,
-} from "#assets/cart-utils.js";
-import { onReady } from "#assets/on-ready.js";
-import { updateQuotePrice } from "#assets/quote-price-utils.js";
-import { IDS } from "#assets/selectors.js";
+} from "#public/utils/cart-utils.js";
+import { onReady } from "#public/utils/on-ready.js";
+import { updateQuotePrice } from "#public/utils/quote-price-utils.js";
+import { IDS } from "#public/utils/selectors.js";
 import {
   getTemplate,
   populateItemFields,
   populateQuantityControls,
-} from "#assets/template.js";
+} from "#public/utils/template.js";
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);

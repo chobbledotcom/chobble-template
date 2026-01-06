@@ -2,7 +2,7 @@
 // Verifies that HTML templates contain all required template IDs
 
 import { describe, expect, test } from "bun:test";
-import { IDS } from "#assets/selectors.js";
+import { IDS } from "#public/utils/selectors.js";
 import { DOM, fs, path, rootDir } from "#test/test-utils.js";
 
 // Build a lookup for Liquid variable expansion
@@ -85,13 +85,13 @@ describe("Template selector contracts", () => {
 
 describe("Selector constants usage verification", () => {
   const jsFiles = [
-    "src/assets/js/availability-calendar.js",
-    "src/assets/js/cart.js",
-    "src/assets/js/quote.js",
-    "src/assets/js/quote-checkout.js",
-    "src/assets/js/quote-price-utils.js",
-    "src/assets/js/gallery.js",
-    "src/assets/js/template.js",
+    "src/_lib/public/ui/availability-calendar.js",
+    "src/_lib/public/cart/cart.js",
+    "src/_lib/public/cart/quote.js",
+    "src/_lib/public/cart/quote-checkout.js",
+    "src/_lib/public/utils/quote-price-utils.js",
+    "src/_lib/public/ui/gallery.js",
+    "src/_lib/public/utils/template.js",
   ];
 
   const jsContent = jsFiles
