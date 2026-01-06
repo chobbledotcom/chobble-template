@@ -13,7 +13,7 @@
 		"#build/*": "./src/_lib/build/*",
 		"#media/*": "./src/_lib/media/*",
 		"#utils/*": "./src/_lib/utils/*",
-		"#assets/*": "./src/assets/js/*",
+		"#public/*": "./src/_lib/public/*",
 		"#test/*": "./test/*"
 	},
 	"scripts": {
