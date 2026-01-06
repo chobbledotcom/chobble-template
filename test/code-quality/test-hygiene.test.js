@@ -358,4 +358,62 @@ describe("test-hygiene", () => {
 
     expect(stale.length).toBe(0);
   });
+
+  test("ALLOWED_TEST_FUNCTIONS entries are actually used in test files", () => {
+    // Include test files AND test infrastructure files
+    const allTestFiles = [
+      ...TEST_FILES(),
+      "test/test-utils.js",
+      "test/test-site-factory.js",
+      "test/code-scanner.js",
+    ];
+
+    // Combine all test file sources
+    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
+      "\n",
+    );
+
+    // Find allowlisted functions that are defined but never called/referenced
+    // Skip some special cases that might be used in non-obvious ways
+    const skipUsageCheck = new Set([
+      // Exported from test-utils.js but may only be imported elsewhere
+      "rootDir",
+      "srcDir",
+      "fs",
+      "path",
+      "expect",
+      "DOM",
+    ]);
+
+    const unused = [...ALLOWED_TEST_FUNCTIONS]
+      .filter((name) => !skipUsageCheck.has(name))
+      .filter((name) => {
+        // Check if function is called or used as a reference (callback, etc.)
+        // Patterns:
+        // - Direct call: functionName(
+        // - Passed as callback: map(functionName)
+        // - Object property access: obj[functionName]
+        // - Destructuring or assignment: = functionName
+        const usagePatterns = [
+          new RegExp(`\\b${name}\\s*\\(`), // function call
+          new RegExp(`[\\(,\\s]${name}[\\),\\s]`), // passed as argument/callback
+          new RegExp(`\\[${name}\\]`), // array/object access
+          new RegExp(`=\\s*${name}[\\s;,)]`), // assignment
+          new RegExp(`\\.${name}\\b`), // property access
+        ];
+        return !usagePatterns.some((p) => p.test(allTestSource));
+      });
+
+    if (unused.length > 0) {
+      console.log("\n  Unused ALLOWED_TEST_FUNCTIONS entries:");
+      for (const name of unused) {
+        console.log(`    - ${name}`);
+      }
+      console.log(
+        "\n  These functions are defined but never called. Consider removing them.",
+      );
+    }
+
+    expect(unused.length).toBe(0);
+  });
 });
