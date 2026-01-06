@@ -14,21 +14,16 @@ const normaliseCategory = (category) => {
 };
 
 /**
- * Extract all keywords from a product (explicit keywords + normalized categories)
- */
-const getProductKeywords = (product) => {
-  const explicitKeywords = product.data?.keywords || [];
-  const categoryKeywords = (product.data?.categories || []).map(
-    normaliseCategory,
-  );
-  return [...new Set([...explicitKeywords, ...categoryKeywords])];
-};
-
-/**
  * Build a memoized reverse index: keyword -> [products]
  */
 const buildProductKeywordMap = memoize((products) =>
-  buildReverseIndex(products, getProductKeywords),
+  buildReverseIndex(products, (product) => {
+    const explicitKeywords = product.data?.keywords || [];
+    const categoryKeywords = (product.data?.categories || []).map(
+      normaliseCategory,
+    );
+    return [...new Set([...explicitKeywords, ...categoryKeywords])];
+  }),
 );
 
 const getAllKeywords = (products) =>
