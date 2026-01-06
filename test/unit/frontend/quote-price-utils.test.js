@@ -66,8 +66,7 @@ describe("quote-price-utils", () => {
     });
 
     test("returns value for textarea", () => {
-      document.body.innerHTML =
-        '<textarea id="message">Hello World</textarea>';
+      document.body.innerHTML = '<textarea id="message">Hello World</textarea>';
       const field = document.getElementById("message");
       expect(getFieldValue(field)).toBe("Hello World");
     });

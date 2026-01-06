@@ -4,7 +4,7 @@
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
-import { filter, filterMap, map, pipe, reduce, uniqueBy } from "#utils/array-utils.js";
+import { filter, map, pipe, reduce, uniqueBy } from "#utils/array-utils.js";
 
 // Predicates
 const isHireItem = (item) => item.product_mode === "hire";
