@@ -7,9 +7,7 @@ import {
   createCodeChecker,
   validateExceptions,
 } from "#test/code-scanner.js";
-import {
-  ALL_JS_FILES,
-} from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
 
 // Detects if (!identifier) - simple null checks on variables
 // Does NOT match: if (!obj.prop), if (!fn()), if (!arr.length)
@@ -26,11 +24,7 @@ const analyzeNullChecks = () =>
   analyzeWithAllowlist({
     findFn: findNullChecks,
     allowlist: ALLOWED_NULL_CHECKS,
-    files: () =>
-      combineFileLists(
-        [ALL_JS_FILES()],
-        [THIS_FILE],
-      ),
+    files: () => combineFileLists([ALL_JS_FILES()], [THIS_FILE]),
   });
 
 describe("null-checks", () => {

@@ -18,9 +18,7 @@ import {
   combineFileLists,
   readSource,
 } from "#test/code-scanner.js";
-import {
-  ALL_JS_FILES,
-} from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/code-quality/single-use-functions.test.js";
 
@@ -228,10 +226,7 @@ const countReferences = (source, functionName) => {
  * Analyze all files for single-use unexported functions.
  */
 const analyzeSingleUseFunctions = () => {
-  const allFiles = combineFileLists(
-    [ALL_JS_FILES()],
-    [THIS_FILE],
-  );
+  const allFiles = combineFileLists([ALL_JS_FILES()], [THIS_FILE]);
 
   // First pass: collect all function definitions and exports per file
   const fileData = new Map();

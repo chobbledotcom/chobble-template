@@ -5,9 +5,7 @@ import {
   toLines,
   withAllowlist,
 } from "#test/code-scanner.js";
-import {
-  ALL_JS_FILES,
-} from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
 
 /**
  * Patterns that indicate commented-out code (not documentation)
@@ -111,11 +109,7 @@ const THIS_FILE = "test/code-quality/commented-code.test.js";
 // Complete analyzer - find + files in one definition (no allowlist needed)
 const commentedCodeAnalysis = withAllowlist({
   find: findCommentedCode,
-  files: () =>
-    combineFileLists(
-      [ALL_JS_FILES()],
-      [THIS_FILE],
-    ),
+  files: () => combineFileLists([ALL_JS_FILES()], [THIS_FILE]),
 });
 
 describe("commented-code", () => {

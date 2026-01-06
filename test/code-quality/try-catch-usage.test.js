@@ -6,9 +6,7 @@ import {
   isCommentLine,
   withAllowlist,
 } from "#test/code-scanner.js";
-import {
-  ALL_JS_FILES,
-} from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
 
 /**
  * Check if a string contains a catch keyword after whitespace
@@ -148,11 +146,7 @@ const THIS_FILE = "test/code-quality/try-catch-usage.test.js";
 const tryCatchAnalysis = withAllowlist({
   find: findTryCatches,
   allowlist: ALLOWED_TRY_CATCHES,
-  files: () =>
-    combineFileLists(
-      [ALL_JS_FILES()],
-      [THIS_FILE],
-    ),
+  files: () => combineFileLists([ALL_JS_FILES()], [THIS_FILE]),
 });
 
 describe("try-catch-usage", () => {
