@@ -1,0 +1,30 @@
+{%- comment -%}
+Step progress indicator for the quote process.
+Parameters:
+  - include_first_step: Whether to show the first step (default: false)
+                        Use true for /quote/ page (shows step 1 active)
+                        Use false for /checkout/ (shows steps 2+ with step 2 active)
+{%- endcomment -%}
+
+{%- if include_first_step -%}
+  {%- assign offset = 0 -%}
+  {%- assign total = quoteFields.totalSteps | plus: 1 -%}
+{%- else -%}
+  {%- assign offset = 1 -%}
+  {%- assign total = quoteFields.totalSteps -%}
+{%- endif -%}
+
+<div class="quote-steps-progress">
+  {%- for i in (1..total) -%}
+    {%- assign display_num = i | plus: offset -%}
+    {%- assign step_name_index = i | plus: offset | minus: 1 -%}
+    {%- assign step_name = quoteFields.stepNames[step_name_index] -%}
+    <div class="quote-steps-indicator{% if i == 1 %} active{% endif %}" data-step="{{ i | minus: 1 }}">
+      <span class="step-name">{{ step_name }}</span>
+      <span class="step-number">{{ display_num }}</span>
+    </div>
+    {%- unless forloop.last -%}
+      <div class="quote-steps-connector"></div>
+    {%- endunless -%}
+  {%- endfor -%}
+</div>

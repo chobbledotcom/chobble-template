@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildSections,
+  buildStepNames,
   processQuoteFields,
 } from "#config/quote-fields-helpers.js";
 import { expectProp } from "#test/test-utils.js";
@@ -51,10 +52,41 @@ describe("quote-fields-helpers", () => {
     });
   });
 
+  // buildStepNames function tests
+  describe("buildStepNames", () => {
+    test("builds step names array with quote step, section titles, and recap", () => {
+      const data = {
+        quoteStepName: "Your Items",
+        recapTitle: "Review",
+      };
+      const sections = [{ title: "Event" }, { title: "Contact" }];
+      const result = buildStepNames(data, sections);
+
+      expect(result).toEqual(["Your Items", "Event", "Contact", "Review"]);
+    });
+
+    test("uses defaults when quoteStepName is missing", () => {
+      const data = { recapTitle: "Summary" };
+      const sections = [{ title: "Details" }];
+      const result = buildStepNames(data, sections);
+
+      expect(result).toEqual(["Your Items", "Details", "Summary"]);
+    });
+
+    test("uses default recap title when missing", () => {
+      const data = { quoteStepName: "Cart" };
+      const sections = [{ title: "Info" }];
+      const result = buildStepNames(data, sections);
+
+      expect(result).toEqual(["Cart", "Info", "Review"]);
+    });
+  });
+
   // processQuoteFields function tests
   describe("processQuoteFields", () => {
     test("processes complete quote fields data", () => {
       const data = {
+        quoteStepName: "Your Items",
         sections: [
           { title: "Event", fields: [{ name: "date", type: "date" }] },
           { title: "Contact", fields: [{ name: "name", type: "text" }] },
@@ -68,6 +100,12 @@ describe("quote-fields-helpers", () => {
       expect(result.sections[0].title).toBe("Event");
       expect(result.sections[1].title).toBe("Contact");
       expect(result.totalSteps).toBe(3); // 2 sections + recap
+      expect(result.stepNames).toEqual([
+        "Your Items",
+        "Event",
+        "Contact",
+        "Review",
+      ]);
       expect(result.recapTitle).toBe("Review");
       expect(result.submitButtonText).toBe("Send");
     });
@@ -106,6 +144,8 @@ describe("quote-fields-helpers", () => {
     const quoteFields = quoteFieldsModule.default();
     expect(Array.isArray(quoteFields.sections)).toBe(true);
     expect(typeof quoteFields.totalSteps).toBe("number");
+    expect(Array.isArray(quoteFields.stepNames)).toBe(true);
+    expect(quoteFields.stepNames.length).toBe(quoteFields.totalSteps + 1);
     expect(typeof quoteFields.recapTitle).toBe("string");
     expect(typeof quoteFields.submitButtonText).toBe("string");
     // All section fields should have template property

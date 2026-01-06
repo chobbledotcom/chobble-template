@@ -13,13 +13,24 @@ export function buildSections(sections) {
   }));
 }
 
+// Build array of step names for the progress indicator
+export function buildStepNames(data, sections) {
+  return [
+    data.quoteStepName || "Your Items",
+    ...sections.map((s) => s.title),
+    data.recapTitle || "Review",
+  ];
+}
+
 // Process the raw JSON into a structured format
 export function processQuoteFields(data) {
   const sections = buildSections(data.sections);
+  const stepNames = buildStepNames(data, sections);
 
   return {
     sections,
     totalSteps: sections.length + 1,
+    stepNames,
     recapTitle: data.recapTitle,
     submitButtonText: data.submitButtonText,
   };
