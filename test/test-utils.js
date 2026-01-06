@@ -564,7 +564,11 @@ const processLine = (state, line, index) => {
   // Process each character with reduce
   const chars = [...line];
   const lineState = { ...stateWithFunc, stopLine: false };
-  const processedState = chars.reduce(processChar(lineNum), lineState);
+  const charProcessor = processChar(lineNum);
+  const processedState = chars.reduce(
+    (st, char, idx) => charProcessor(st, char, idx, chars),
+    lineState,
+  );
 
   // Clean up line-specific flag
   const { stopLine: _, ...cleanState } = processedState;

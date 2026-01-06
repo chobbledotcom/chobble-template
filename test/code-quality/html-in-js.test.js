@@ -58,13 +58,12 @@ const EXCLUSION_PATTERNS = [
 ];
 
 /**
- * Extract template literals and string content from source
+ * Extract template literals and string content from source.
  * Returns array of { lineNumber, content, type }
  */
 const extractStringContent = (source) => {
   const results = [];
   const lines = source.split("\n");
-
   let inTemplateLiteral = false;
   let templateLiteralStart = 0;
   let templateContent = "";
@@ -84,7 +83,7 @@ const extractStringContent = (source) => {
       // Handle template literal expressions ${...}
       if (inTemplateLiteral && char === "$" && line[j + 1] === "{") {
         braceDepth++;
-        j++; // Skip the {
+        j++;
         continue;
       }
 
@@ -97,7 +96,6 @@ const extractStringContent = (source) => {
       // Unescaped backtick
       if (char === "`" && prevChar !== "\\") {
         if (inTemplateLiteral) {
-          // End of template literal
           results.push({
             lineNumber: templateLiteralStart + 1,
             content: templateContent,
@@ -106,7 +104,6 @@ const extractStringContent = (source) => {
           inTemplateLiteral = false;
           templateContent = "";
         } else {
-          // Start of template literal
           inTemplateLiteral = true;
           templateLiteralStart = i;
           templateContent = "";
@@ -120,10 +117,8 @@ const extractStringContent = (source) => {
       templateContent += "\n";
     }
 
-    // Also check for regular strings with HTML on this line
-    // Match single and double quoted strings
-    const stringMatches = line.matchAll(/["']([^"'\\]|\\.)*["']/g);
-    for (const match of stringMatches) {
+    // Check for regular strings on this line
+    for (const match of line.matchAll(/["']([^"'\\]|\\.)*["']/g)) {
       results.push({
         lineNumber: i + 1,
         content: match[0],
@@ -135,100 +130,83 @@ const extractStringContent = (source) => {
   return results;
 };
 
+// Common HTML/SVG tags
+const HTML_TAGS = new Set([
+  "div",
+  "span",
+  "p",
+  "a",
+  "button",
+  "input",
+  "form",
+  "ul",
+  "ol",
+  "li",
+  "table",
+  "tr",
+  "td",
+  "th",
+  "thead",
+  "tbody",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "img",
+  "br",
+  "hr",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "u",
+  "pre",
+  "code",
+  "blockquote",
+  "nav",
+  "header",
+  "footer",
+  "main",
+  "section",
+  "article",
+  "aside",
+  "label",
+  "select",
+  "option",
+  "textarea",
+  "svg",
+  "path",
+  "polyline",
+  "circle",
+  "rect",
+  "line",
+  "polygon",
+  "g",
+  "defs",
+  "use",
+  "script",
+  "style",
+  "link",
+  "meta",
+  "head",
+  "body",
+  "html",
+  "template",
+]);
+
 /**
  * Check if content contains HTML
  */
 const containsHtml = (content) => {
-  // Check exclusion patterns first
-  for (const pattern of EXCLUSION_PATTERNS) {
-    if (pattern.test(content)) {
-      // If it matches an exclusion but also clearly has HTML, continue checking
-      // This is a simple heuristic
-    }
-  }
+  // Check if any HTML pattern matches
+  const hasHtmlPattern = HTML_PATTERNS.some((p) => p.test(content));
+  if (!hasHtmlPattern) return false;
 
-  // Check for HTML patterns
-  for (const pattern of HTML_PATTERNS) {
-    if (pattern.test(content)) {
-      // Verify it's not a false positive
-      // Check if it looks like actual HTML (has closing > or is a known tag)
-      const match = content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
-      if (match) {
-        const tagName = match[1].toLowerCase();
-        // Common HTML/SVG tags
-        const htmlTags = new Set([
-          "div",
-          "span",
-          "p",
-          "a",
-          "button",
-          "input",
-          "form",
-          "ul",
-          "ol",
-          "li",
-          "table",
-          "tr",
-          "td",
-          "th",
-          "thead",
-          "tbody",
-          "h1",
-          "h2",
-          "h3",
-          "h4",
-          "h5",
-          "h6",
-          "img",
-          "br",
-          "hr",
-          "strong",
-          "em",
-          "b",
-          "i",
-          "u",
-          "pre",
-          "code",
-          "blockquote",
-          "nav",
-          "header",
-          "footer",
-          "main",
-          "section",
-          "article",
-          "aside",
-          "label",
-          "select",
-          "option",
-          "textarea",
-          "svg",
-          "path",
-          "polyline",
-          "circle",
-          "rect",
-          "line",
-          "polygon",
-          "g",
-          "defs",
-          "use",
-          "script",
-          "style",
-          "link",
-          "meta",
-          "head",
-          "body",
-          "html",
-          "template",
-        ]);
-
-        if (htmlTags.has(tagName)) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
+  // Verify it's a known HTML tag
+  const match = content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
+  return match ? HTML_TAGS.has(match[1].toLowerCase()) : false;
 };
 
 /**

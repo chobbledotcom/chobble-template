@@ -90,6 +90,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "assertEntityValid",
   "findHtmlFiles",
   "relativePath",
+  "readAndExtractJsonLd",
+  "printInvalidPages",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   // commented-code.test.js - analysis helpers

@@ -74,32 +74,26 @@ function parseLcov(content) {
   const uncovered = { lines: {}, functions: {}, branches: {} };
   let file = null;
 
+  const isExcluded = (path) => COVERAGE_EXCLUDE.some((p) => path.endsWith(p));
+  const normalizeFile = (path) => path.replace(`${rootDir}/`, "");
+
+  const addUncovered = (type, fileKey, id) => {
+    if (!uncovered[type][fileKey]) uncovered[type][fileKey] = [];
+    uncovered[type][fileKey].push(id);
+  };
+
   for (const line of content.split("\n")) {
     if (line.startsWith("SF:")) {
       const path = line.slice(3);
-      file = COVERAGE_EXCLUDE.some((p) => path.endsWith(p))
-        ? null
-        : path.replace(`${rootDir}/`, "");
-      continue;
-    }
-
-    if (!file) continue;
-
-    if (line === "end_of_record") {
+      file = isExcluded(path) ? null : normalizeFile(path);
+    } else if (line === "end_of_record") {
       file = null;
-      continue;
-    }
-
-    const colonIdx = line.indexOf(":");
-    if (colonIdx > 0) {
-      const prefix = line.slice(0, colonIdx);
-      const parser = parseUncovered[prefix];
-      if (parser) {
-        const result = parser(line.slice(colonIdx + 1));
-        if (result) {
-          if (!uncovered[result.type][file]) uncovered[result.type][file] = [];
-          uncovered[result.type][file].push(result.id);
-        }
+    } else if (file) {
+      const colonIdx = line.indexOf(":");
+      if (colonIdx > 0) {
+        const prefix = line.slice(0, colonIdx);
+        const result = parseUncovered[prefix]?.(line.slice(colonIdx + 1));
+        if (result) addUncovered(result.type, file, result.id);
       }
     }
   }
@@ -121,37 +115,34 @@ function checkExceptions(uncovered, exceptions, verbose) {
     console.error(
       "   All new code must have test coverage. Either add tests or update .coverage_exceptions.json\n",
     );
-    for (const type of TYPES) {
-      if (!isNonEmpty(violations[type])) continue;
-      console.error(`   Uncovered ${type}:`);
-      for (const [file, items] of Object.entries(violations[type])) {
-        console.error(`     ${file}: ${items.join(", ")}`);
+    TYPES.forEach((type) => {
+      if (isNonEmpty(violations[type])) {
+        console.error(`   Uncovered ${type}:`);
+        Object.entries(violations[type]).forEach(([file, items]) => {
+          console.error(`     ${file}: ${items.join(", ")}`);
+        });
       }
-    }
+    });
     return false;
   }
 
   if (verbose) {
     const removable = mapTypes(({ uncovered, exceptions }, type) => {
       const result = {};
-      for (const [file, items] of Object.entries(exceptions[type] || {})) {
-        const nowCovered = difference(
-          items,
-          new Set(uncovered[type]?.[file] || []),
-        );
+      Object.entries(exceptions[type] || {}).forEach(([file, items]) => {
+        const nowCovered = difference(items, new Set(uncovered[type]?.[file] || []));
         if (nowCovered.length > 0) result[file] = nowCovered;
-      }
+      });
       return result;
     })({ uncovered, exceptions });
 
     if (TYPES.some((t) => isNonEmpty(removable[t]))) {
       console.log("\n📉 Some exceptions can be removed (code is now covered):");
-      for (const type of TYPES) {
-        if (!isNonEmpty(removable[type])) continue;
-        for (const [file, items] of Object.entries(removable[type])) {
+      TYPES.forEach((type) => {
+        Object.entries(removable[type] || {}).forEach(([file, items]) => {
           console.log(`   ${file} ${type}: ${items.join(", ")}`);
-        }
-      }
+        });
+      });
     }
   }
 

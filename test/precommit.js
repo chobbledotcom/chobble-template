@@ -43,53 +43,29 @@ function runStep(step) {
 }
 
 function extractErrorsFromOutput(output) {
-  const lines = output.split("\n");
-  const errors = [];
+  const isSkippable = (trimmed) =>
+    !trimmed ||
+    trimmed.startsWith("$") ||
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("node -e") ||
+    trimmed.endsWith(".jpg") ||
+    trimmed.endsWith(".png") ||
+    trimmed.endsWith(".gif");
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+  const isErrorLine = (trimmed) =>
+    trimmed.startsWith("❌") ||
+    trimmed.startsWith("error:") ||
+    trimmed.startsWith("Error:") ||
+    trimmed.includes("FAIL") ||
+    trimmed.includes("below threshold") ||
+    trimmed.includes("Uncovered") ||
+    trimmed.includes("must have test coverage") ||
+    /^[\w./-]+\.\w+:\s*.+$/.test(trimmed);
 
-    // Skip empty lines and cruft
-    if (!trimmed) continue;
-
-    // Skip command outputs and file paths
-    if (trimmed.startsWith("$") || trimmed.startsWith("/")) continue;
-
-    // Skip image filenames and other generic file paths
-    if (
-      trimmed.endsWith(".jpg") ||
-      trimmed.endsWith(".png") ||
-      trimmed.endsWith(".gif")
-    ) {
-      continue;
-    }
-
-    // Skip long command lines that start with "node -e"
-    if (trimmed.startsWith("node -e")) continue;
-
-    // Look for actual error messages
-    if (
-      trimmed.startsWith("❌") ||
-      trimmed.startsWith("error:") ||
-      trimmed.startsWith("Error:") ||
-      trimmed.includes("FAIL") ||
-      trimmed.includes("below threshold") ||
-      // Coverage-specific errors from run-coverage.js
-      trimmed.includes("Uncovered") ||
-      trimmed.includes("must have test coverage")
-    ) {
-      errors.push(trimmed);
-    }
-
-    // Include coverage violation details (path/file.ext: items)
-    // These lines show which specific files/lines/functions/branches need coverage
-    // Matches patterns like: src/file.js: 10, 20 or src/file.js: funcName, otherFunc
-    if (/^[\w./-]+\.\w+:\s*.+$/.test(trimmed)) {
-      errors.push(trimmed);
-    }
-  }
-
-  return errors;
+  return output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((trimmed) => !isSkippable(trimmed) && isErrorLine(trimmed));
 }
 
 function printSummary() {
@@ -97,54 +73,50 @@ function printSummary() {
   console.log("PRECOMMIT SUMMARY");
   console.log("=".repeat(60));
 
-  const passedSteps = [];
-  const failedSteps = [];
-
-  for (const step of steps) {
-    const result = results[step.name];
-    if (!result) continue; // Skip if step wasn't run
-    if (result.status === 0) {
-      passedSteps.push(step.name);
-    } else {
-      failedSteps.push(step.name);
-    }
-  }
-
-  const allPassed = failedSteps.length === 0;
-
-  // Print passed checks
-  if (passedSteps.length > 0) {
-    console.log(`✅ Passed: ${passedSteps.join(", ")}`);
-  }
-
-  // Print failed checks with errors
-  if (failedSteps.length > 0) {
-    console.log(`\n❌ Failed: ${failedSteps.join(", ")}`);
-
-    for (const step of failedSteps) {
-      const result = results[step];
-      const errors = [
-        ...extractErrorsFromOutput(result.stdout),
-        ...extractErrorsFromOutput(result.stderr),
-      ];
-
-      if (errors.length > 0) {
-        console.log(`\n${step} errors:`);
-        for (const error of errors.slice(0, 10)) {
-          console.log(`  ${error}`);
-        }
-        if (errors.length > 10) {
-          console.log(
-            `  ... and ${errors.length - 10} more errors (use --verbose to see all)`,
-          );
-        }
+  const partitionResults = (steps) => {
+    const passed = [];
+    const failed = [];
+    for (const step of steps) {
+      const result = results[step.name];
+      if (result) {
+        (result.status === 0 ? passed : failed).push(step.name);
       }
     }
+    return { passed, failed };
+  };
+
+  const printErrors = (stepName, stdout, stderr) => {
+    const errors = [
+      ...extractErrorsFromOutput(stdout),
+      ...extractErrorsFromOutput(stderr),
+    ];
+
+    if (errors.length === 0) return;
+
+    console.log(`\n${stepName} errors:`);
+    errors.slice(0, 10).forEach((error) => console.log(`  ${error}`));
+    if (errors.length > 10) {
+      console.log(
+        `  ... and ${errors.length - 10} more errors (use --verbose to see all)`,
+      );
+    }
+  };
+
+  const { passed, failed } = partitionResults(steps);
+
+  if (passed.length > 0) console.log(`✅ Passed: ${passed.join(", ")}`);
+
+  if (failed.length > 0) {
+    console.log(`\n❌ Failed: ${failed.join(", ")}`);
+    failed.forEach((step) => {
+      const result = results[step];
+      printErrors(step, result.stdout, result.stderr);
+    });
   }
 
   console.log("=".repeat(60));
 
-  if (!allPassed) {
+  if (failed.length > 0) {
     process.exit(1);
   }
 }

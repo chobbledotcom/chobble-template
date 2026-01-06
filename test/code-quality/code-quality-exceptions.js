@@ -96,12 +96,11 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/build-profiling.js:60", // times accumulator (performance tracking)
   "test/build-profiling.js:215", // runs accumulator (benchmark results)
   "test/precommit.js:22", // results accumulator (script results)
-  "test/precommit.js:47", // errors accumulator (validation errors)
-  "test/precommit.js:100", // passedSteps accumulator (status tracking)
-  "test/precommit.js:101", // failedSteps accumulator (status tracking)
+  "test/precommit.js:77", // passed array accumulator (status tracking)
+  "test/precommit.js:78", // failed array accumulator (status tracking)
   "test/code-scanner.js:310", // stale entries accumulator (validation)
   "test/run-coverage.js:36", // result object accumulator (diffByFile helper)
-  "test/run-coverage.js:136", // removable entries accumulator (coverage tracking)
+  "test/run-coverage.js:131", // removable entries accumulator (coverage tracking)
 ]);
 
 // ============================================
@@ -202,8 +201,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
-  "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
-  "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
+  "test/code-quality/single-use-functions.test.js:100", // inString (state tracking in extractor)
+  "test/code-quality/single-use-functions.test.js:117", // inString (state tracking in extractor)
+  "test/code-quality/html-in-js.test.js:205", // hasHtmlPattern (pattern check in validator)
 ]);
 
 // ============================================

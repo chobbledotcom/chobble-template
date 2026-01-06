@@ -143,40 +143,25 @@ const extractExports = (source) => {
   const lines = source.split("\n");
 
   for (const line of lines) {
-    // export function name
-    const funcMatch = line.match(EXPORT_FUNCTION_PATTERN);
+    const tryMatch = (pattern) => line.match(pattern);
+
+    const funcMatch =
+      tryMatch(EXPORT_FUNCTION_PATTERN) || tryMatch(EXPORT_VAR_PATTERN) || tryMatch(EXPORT_DEFAULT_PATTERN);
+
     if (funcMatch) {
       exported.add(funcMatch[1]);
       continue;
     }
 
-    // export const/let/var name
-    const varMatch = line.match(EXPORT_VAR_PATTERN);
-    if (varMatch) {
-      exported.add(varMatch[1]);
-      continue;
-    }
-
-    // export { name1, name2 }
-    const listMatch = line.match(EXPORT_LIST_PATTERN);
+    // export { name1, name2 as alias }
+    const listMatch = tryMatch(EXPORT_LIST_PATTERN);
     if (listMatch) {
-      const names = listMatch[1].split(",").map((n) => {
-        // Handle "name as alias" - we want the original name
-        const parts = n.trim().split(/\s+as\s+/);
-        return parts[0].trim();
-      });
-      for (const name of names) {
-        if (name && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)) {
-          exported.add(name);
-        }
-      }
-      continue;
-    }
+      const names = listMatch[1]
+        .split(",")
+        .map((n) => n.trim().split(/\s+as\s+/)[0].trim())
+        .filter((n) => /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(n));
 
-    // export default name
-    const defaultMatch = line.match(EXPORT_DEFAULT_PATTERN);
-    if (defaultMatch) {
-      exported.add(defaultMatch[1]);
+      names.forEach((name) => exported.add(name));
     }
   }
 

@@ -555,6 +555,20 @@ describe("JSON-LD structured data validation", () => {
     const relativePath = (filePath) =>
       filePath.replace(siteDir, "").replace(/^\//, "");
 
+    const readAndExtractJsonLd = (filePath) => ({
+      file: relativePath(filePath),
+      html: fs.readFileSync(filePath, "utf-8"),
+      jsonLd: extractJsonLd(fs.readFileSync(filePath, "utf-8")),
+    });
+
+    const printInvalidPages = (title, pages, details) => {
+      if (pages.length === 0) return;
+      console.log(`\n${title}`);
+      pages.forEach((r) => {
+        console.log(details(r));
+      });
+    };
+
     test("all production pages have valid JSON-LD structure", () => {
       expect(fs.existsSync(siteDir)).toBe(true);
 
@@ -562,19 +576,14 @@ describe("JSON-LD structured data validation", () => {
       expect(htmlFiles.length).toBeGreaterThan(0);
 
       const invalidPages = htmlFiles
-        .map((filePath) => {
-          const html = fs.readFileSync(filePath, "utf-8");
-          const jsonLd = extractJsonLd(html);
-          return { file: relativePath(filePath), jsonLd };
-        })
+        .map(readAndExtractJsonLd)
         .filter((r) => r.jsonLd && !hasValidContext(r.jsonLd));
 
-      if (invalidPages.length > 0) {
-        console.log("Pages with invalid JSON-LD context:");
-        for (const r of invalidPages) {
-          console.log(`  ${r.file}: got @context "${r.jsonLd["@context"]}"`);
-        }
-      }
+      printInvalidPages(
+        "Pages with invalid JSON-LD context:",
+        invalidPages,
+        (r) => `  ${r.file}: got @context "${r.jsonLd["@context"]}"`,
+      );
 
       expect(invalidPages.length).toBe(0);
     });
@@ -583,39 +592,28 @@ describe("JSON-LD structured data validation", () => {
       expect(fs.existsSync(siteDir)).toBe(true);
 
       const htmlFiles = findHtmlFiles(siteDir);
-
-      // Only validate pages with JSON-LD
-      const pagesWithJsonLd = htmlFiles.filter((filePath) => {
-        const html = fs.readFileSync(filePath, "utf-8");
-        return extractJsonLd(html) !== null;
-      });
+      const pagesWithJsonLd = htmlFiles
+        .map(readAndExtractJsonLd)
+        .filter((r) => r.jsonLd !== null);
 
       const validationResults = await Promise.all(
-        pagesWithJsonLd.map(async (filePath) => {
-          const html = fs.readFileSync(filePath, "utf-8");
+        pagesWithJsonLd.map(async ({ file, html }) => {
           const result = await validateWithSchemaOrg(html);
-          return {
-            file: relativePath(filePath),
-            valid: result.valid,
-            errors: result.errors,
-          };
+          return { file, valid: result.valid, errors: result.errors };
         }),
       );
 
       const invalidPages = validationResults.filter((r) => !r.valid);
 
-      if (invalidPages.length > 0) {
-        console.log("\nPages with invalid schema.org data:");
-        for (const r of invalidPages) {
-          console.log(`\n  ${r.file}:`);
-          for (const e of r.errors.slice(0, 3)) {
-            console.log(`    - ${e}`);
-          }
-          if (r.errors.length > 3) {
-            console.log(`    ... and ${r.errors.length - 3} more errors`);
-          }
-        }
-      }
+      printInvalidPages("Pages with invalid schema.org data:", invalidPages, (r) => {
+        const errorLines = r.errors
+          .slice(0, 3)
+          .map((e) => `    - ${e}`)
+          .join("\n");
+        const overflow =
+          r.errors.length > 3 ? `    ... and ${r.errors.length - 3} more errors` : "";
+        return `\n  ${r.file}:\n${errorLines}${overflow ? "\n" + overflow : ""}`;
+      });
 
       expect(invalidPages.length).toBe(0);
     });
