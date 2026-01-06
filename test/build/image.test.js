@@ -1,10 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureImages,
-  copyImageCache,
   createImagesCollection,
   createImageTransform,
-  findImageFiles,
   imageShortcode,
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
