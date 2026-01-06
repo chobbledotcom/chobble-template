@@ -13,23 +13,19 @@ export function buildSections(sections) {
   }));
 }
 
-// Build array of step objects for the progress indicator
-export function buildSteps(data, sections) {
-  const names = [
+// Process the raw JSON into a structured format
+export function processQuoteFields(data) {
+  const sections = buildSections(data.sections);
+
+  const stepNames = [
     data.quoteStepName || "Your Items",
     ...sections.map((s) => s.title),
     data.recapTitle || "Review",
   ];
-  return names.map((name, index) => ({
+  const steps = stepNames.map((name, index) => ({
     name,
     number: index + 1,
   }));
-}
-
-// Process the raw JSON into a structured format
-export function processQuoteFields(data) {
-  const sections = buildSections(data.sections);
-  const steps = buildSteps(data, sections);
 
   return {
     sections,

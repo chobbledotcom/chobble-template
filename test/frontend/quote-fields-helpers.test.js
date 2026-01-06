@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildSections,
-  buildSteps,
   processQuoteFields,
 } from "#config/quote-fields-helpers.js";
 import { expectProp } from "#test/test-utils.js";
@@ -49,49 +48,6 @@ describe("quote-fields-helpers", () => {
       const result = buildSections(sections);
       expectIsFirst(result, [true]);
       expectIsLast(result, [true]);
-    });
-  });
-
-  // buildSteps function tests
-  describe("buildSteps", () => {
-    test("builds steps array with name and number for each step", () => {
-      const data = {
-        quoteStepName: "Your Items",
-        recapTitle: "Review",
-      };
-      const sections = [{ title: "Event" }, { title: "Contact" }];
-      const result = buildSteps(data, sections);
-
-      expect(result).toEqual([
-        { name: "Your Items", number: 1 },
-        { name: "Event", number: 2 },
-        { name: "Contact", number: 3 },
-        { name: "Review", number: 4 },
-      ]);
-    });
-
-    test("uses defaults when quoteStepName is missing", () => {
-      const data = { recapTitle: "Summary" };
-      const sections = [{ title: "Details" }];
-      const result = buildSteps(data, sections);
-
-      expect(result).toEqual([
-        { name: "Your Items", number: 1 },
-        { name: "Details", number: 2 },
-        { name: "Summary", number: 3 },
-      ]);
-    });
-
-    test("uses default recap title when missing", () => {
-      const data = { quoteStepName: "Cart" };
-      const sections = [{ title: "Info" }];
-      const result = buildSteps(data, sections);
-
-      expect(result).toEqual([
-        { name: "Cart", number: 1 },
-        { name: "Info", number: 2 },
-        { name: "Review", number: 3 },
-      ]);
     });
   });
 
