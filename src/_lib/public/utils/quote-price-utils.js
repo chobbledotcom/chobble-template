@@ -87,8 +87,7 @@ const getFieldValue = (field) => {
 };
 
 // Get the label for a field from config mapping
-const getFieldLabel = (field) =>
-  getFieldLabels()[field.name || field.id];
+const getFieldLabel = (field) => getFieldLabels()[field.name || field.id];
 
 // Get unique identifier for a field (name for radios, id for others)
 const getFieldId = (field) => (isRadio(field) ? field.name : field.id);

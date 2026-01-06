@@ -57,8 +57,6 @@
     {
       "includes": [
         "src/_lib/build/**/*.js",
-        "src/_lib/media/unused-images.js",
-        "src/_lib/eleventy/pdf.js",
         "ecommerce-backend/server.js",
         "**/test/**/*.js"
       ],

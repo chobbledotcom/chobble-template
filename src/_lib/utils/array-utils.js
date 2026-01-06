@@ -2,6 +2,8 @@
  * Functional array utilities
  */
 
+import { log } from "#utils/console.js";
+
 /**
  * Left-to-right function composition
  *
@@ -265,14 +267,10 @@ const printTruncatedList =
   } = {}) =>
   (items) => {
     for (const item of items.slice(0, maxItems)) {
-      // biome-ignore lint/suspicious/noConsole: Intentional console output utility
-      console.log(`${prefix}${item}`);
+      log(`${prefix}${item}`);
     }
     if (items.length > maxItems) {
-      // biome-ignore lint/suspicious/noConsole: Intentional console output utility
-      console.log(
-        `${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`,
-      );
+      log(`${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`);
     }
   };
 
