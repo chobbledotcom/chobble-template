@@ -172,7 +172,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // image.test.js - functional test helpers
   "expectPassthrough",
   "expectIncludes",
-  "expectLocalImage",
   "runTransform",
   // news.test.js - functional test fixture builders
   "newsPost",
