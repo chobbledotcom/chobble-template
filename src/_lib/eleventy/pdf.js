@@ -19,9 +19,6 @@ const getPdfRenderer = createLazyLoader("json-to-pdf", {
   property: "renderPdfTemplate",
 });
 
-const hasSymbolAndLabel = (key) => key.symbol && key.label;
-const formatDietaryKey = (k) => `(${k.symbol}) ${k.label}`;
-
 function buildMenuPdfData(menu, menuCategories, menuItems) {
   const menuSlug = menu.fileSlug;
   const items = menuItems || [];
@@ -61,12 +58,12 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
         )
         .flatMap((item) => item.data.dietaryKeys || []),
     ),
-    filter(hasSymbolAndLabel),
+    filter((key) => key.symbol && key.label),
     uniqueBy((key) => key.symbol),
   )(categories);
 
   const dietaryKeyString = pipe(
-    map(formatDietaryKey),
+    map((k) => `(${k.symbol}) ${k.label}`),
     join(", "),
   )(uniqueDietaryKeys);
 
@@ -222,21 +219,6 @@ function createMenuPdfTemplate() {
   };
 }
 
-const writePdfToFile = (pdfDoc, outputPath) =>
-  new Promise((resolve, reject) => {
-    const stream = createWriteStream(outputPath);
-    pdfDoc.pipe(stream);
-    pdfDoc.end();
-    stream.on("finish", () => {
-      console.log(`Generated PDF: ${outputPath}`);
-      resolve(outputPath);
-    });
-    stream.on("error", (error) => {
-      console.error(`Error writing PDF: ${outputPath}`, error);
-      reject(error);
-    });
-  });
-
 async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const data = buildMenuPdfData(menu, menuCategories, menuItems);
   const template = createMenuPdfTemplate();
@@ -257,27 +239,20 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
     mkdirSync(dir, { recursive: true });
   }
 
-  return writePdfToFile(pdfDoc, outputPath);
+  return new Promise((resolve, reject) => {
+    const stream = createWriteStream(outputPath);
+    pdfDoc.pipe(stream);
+    pdfDoc.end();
+    stream.on("finish", () => {
+      console.log(`Generated PDF: ${outputPath}`);
+      resolve(outputPath);
+    });
+    stream.on("error", (error) => {
+      console.error(`Error writing PDF: ${outputPath}`, error);
+      reject(error);
+    });
+  });
 }
-
-const generateAllMenuPdfs = async (state, outputDir) => {
-  const { menus, menuCategories, menuItems } = state;
-  for (const menu of menus) {
-    await generateMenuPdf(menu, menuCategories, menuItems, outputDir);
-  }
-};
-
-const handleEleventyAfter = async (state, outputDir) => {
-  if (!state) {
-    console.log("No menu collections found, skipping PDF generation");
-    return;
-  }
-  if (!state.menus || state.menus.length === 0) {
-    console.log("No menus found, skipping PDF generation");
-    return;
-  }
-  await generateAllMenuPdfs(state, outputDir);
-};
 
 export function configurePdf(eleventyConfig) {
   let state = null;
@@ -292,7 +267,12 @@ export function configurePdf(eleventyConfig) {
   });
 
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    await handleEleventyAfter(state, dir.output);
+    if (!state || !state.menus || state.menus.length === 0) return;
+
+    const { menus, menuCategories, menuItems } = state;
+    for (const menu of menus) {
+      await generateMenuPdf(menu, menuCategories, menuItems, dir.output);
+    }
   });
 }
 

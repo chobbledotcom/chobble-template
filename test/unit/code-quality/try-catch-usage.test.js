@@ -136,7 +136,7 @@ const findTryCatches = (source) => {
     }));
 };
 
-const THIS_FILE = "test/code-quality/try-catch-usage.test.js";
+const THIS_FILE = "test/unit/code-quality/try-catch-usage.test.js";
 
 // Complete analyzer - find + allowlist + files in one definition
 const tryCatchAnalysis = withAllowlist({

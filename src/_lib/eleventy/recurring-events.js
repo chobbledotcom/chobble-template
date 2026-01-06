@@ -44,42 +44,6 @@ function recurringEventsShortcode(events = []) {
 }
 
 /**
- * Extract file slug from markdown filename
- */
-const extractFileSlug = (filename) =>
-  filename.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
-
-/**
- * Build event URL from frontmatter or generate from slug
- */
-const buildEventUrl = (frontmatter, fileSlug) =>
-  frontmatter.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`;
-
-/**
- * Transform frontmatter data into recurring event object
- */
-const toRecurringEvent = (frontmatter, filename) => {
-  const fileSlug = extractFileSlug(filename);
-  return {
-    url: buildEventUrl(frontmatter, fileSlug),
-    data: {
-      title: frontmatter.title,
-      recurring_date: frontmatter.recurring_date,
-      event_location: frontmatter.event_location,
-    },
-  };
-};
-
-/**
- * Read and parse a markdown file, returning frontmatter if it's a recurring event
- */
-const readRecurringEvent = (path, matter, eventsDir, filename) => {
-  const filePath = path.default.join(eventsDir, filename);
-  const { data } = matter.default.read(filePath);
-  return data.recurring_date ? toRecurringEvent(data, filename) : null;
-};
-
-/**
  * Get recurring events HTML for direct use in file-utils
  * Memoized at module level so all importers share the same cache
  */
@@ -99,7 +63,24 @@ const getRecurringEventsHtml = memoize(async () => {
     .filter((file) => file.endsWith(".md"));
 
   const recurringEvents = markdownFiles
-    .map((filename) => readRecurringEvent(path, matter, eventsDir, filename))
+    .map((filename) => {
+      const filePath = path.default.join(eventsDir, filename);
+      const { data } = matter.default.read(filePath);
+
+      if (!data.recurring_date) return null;
+
+      const fileSlug = filename
+        .replace(".md", "")
+        .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+      return {
+        url: data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
+        data: {
+          title: data.title,
+          recurring_date: data.recurring_date,
+          event_location: data.event_location,
+        },
+      };
+    })
     .filter(Boolean)
     .sort(sortItems);
 

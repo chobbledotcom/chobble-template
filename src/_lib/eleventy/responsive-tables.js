@@ -1,7 +1,12 @@
 import { loadDOM } from "#utils/lazy-dom.js";
 
-const wrapTablesForScroll = async (content) => {
-  if (!content || !content.includes("<table")) {
+async function transformHtmlForResponsiveTables(content, outputPath) {
+  if (
+    !outputPath ||
+    !outputPath.endsWith(".html") ||
+    !content ||
+    !content.includes("<table")
+  ) {
     return content;
   }
 
@@ -11,10 +16,7 @@ const wrapTablesForScroll = async (content) => {
   const tables = document.querySelectorAll("table");
 
   for (const table of tables) {
-    // Skip if already wrapped
-    if (table.parentElement?.classList?.contains("scrollable-table")) {
-      continue;
-    }
+    if (table.parentElement?.classList?.contains("scrollable-table")) continue;
 
     const wrapper = document.createElement("div");
     wrapper.className = "scrollable-table";
@@ -23,22 +25,12 @@ const wrapTablesForScroll = async (content) => {
   }
 
   return dom.serialize();
-};
-
-const createResponsiveTablesTransform = () => {
-  return async (content, outputPath) => {
-    if (!outputPath || !outputPath.endsWith(".html")) {
-      return content;
-    }
-
-    return await wrapTablesForScroll(content);
-  };
-};
+}
 
 const configureResponsiveTables = (eleventyConfig) => {
   eleventyConfig.addTransform(
     "responsiveTables",
-    createResponsiveTablesTransform(),
+    transformHtmlForResponsiveTables,
   );
 };
 

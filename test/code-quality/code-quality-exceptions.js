@@ -26,7 +26,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/test-site-factory.test.js:346",
+  "test/integration/test-site-factory.test.js:346",
 
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
@@ -85,7 +85,7 @@ const ALLOWED_CONSOLE = new Set([
 // Most tests should import rootDir from test-utils.js instead.
 const ALLOWED_PROCESS_CWD = new Set([
   // Tests that specifically test file-utils.js which uses process.cwd() internally
-  "test/utils/file-utils.test.js",
+  "test/unit/utils/file-utils.test.js",
 ]);
 
 // ============================================
@@ -108,43 +108,43 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/run-coverage.js",
 
   // Test files - imperative accumulation patterns for test setup/assertions
-  "test/build/cache-buster.test.js",
-  "test/build/pdf-integration.test.js",
-  "test/build/pdf.test.js",
-  "test/build/scss.variables.test.js",
-  "test/code-quality/array-push.test.js",
+  "test/unit/build/cache-buster.test.js",
+  "test/integration/build/pdf-integration.test.js",
+  "test/unit/build/pdf.test.js",
+  "test/unit/build/scss.variables.test.js",
+  "test/unit/code-quality/array-push.test.js",
   "test/code-quality/code-quality-exceptions.js",
-  "test/code-quality/code-scanner.test.js",
-  "test/code-quality/commented-code.test.js",
-  "test/code-quality/console-log.test.js",
-  "test/code-quality/data-exports.test.js",
-  "test/code-quality/function-length.test.js",
-  "test/code-quality/html-in-js.test.js",
-  "test/code-quality/let-usage.test.js",
-  "test/code-quality/method-aliasing.test.js",
-  "test/code-quality/naming-conventions.test.js",
-  "test/code-quality/null-checks.test.js",
-  "test/code-quality/single-use-functions.test.js",
-  "test/code-quality/template-selectors.test.js",
-  "test/code-quality/test-hygiene.test.js",
-  "test/code-quality/test-quality.test.js",
-  "test/code-quality/todo-fixme-comments.test.js",
-  "test/code-quality/unused-classes.test.js",
-  "test/collections/categories.test.js",
-  "test/collections/missing-folders-lib.test.js",
-  "test/collections/properties.test.js",
-  "test/eleventy/feed.test.js",
-  "test/eleventy/jsonld-validation.test.js",
-  "test/eleventy/layout-aliases.test.js",
-  "test/filters/item-filters.test.js",
-  "test/frontend/checkout.test.js",
-  "test/frontend/config.test.js",
-  "test/frontend/quote-steps.test.js",
-  "test/frontend/theme-editor.test.js",
-  "test/utils/grouping.test.js",
-  "test/utils/helpers.test.js",
-  "test/utils/object-entries.test.js",
-  "test/utils/strings.test.js",
+  "test/unit/code-quality/code-scanner.test.js",
+  "test/unit/code-quality/commented-code.test.js",
+  "test/unit/code-quality/console-log.test.js",
+  "test/unit/code-quality/data-exports.test.js",
+  "test/unit/code-quality/function-length.test.js",
+  "test/unit/code-quality/html-in-js.test.js",
+  "test/unit/code-quality/let-usage.test.js",
+  "test/unit/code-quality/method-aliasing.test.js",
+  "test/unit/code-quality/naming-conventions.test.js",
+  "test/unit/code-quality/null-checks.test.js",
+  "test/unit/code-quality/single-use-functions.test.js",
+  "test/unit/code-quality/template-selectors.test.js",
+  "test/unit/code-quality/test-hygiene.test.js",
+  "test/unit/code-quality/test-quality.test.js",
+  "test/unit/code-quality/todo-fixme-comments.test.js",
+  "test/unit/code-quality/unused-classes.test.js",
+  "test/unit/collections/categories.test.js",
+  "test/unit/collections/missing-folders-lib.test.js",
+  "test/unit/collections/properties.test.js",
+  "test/integration/eleventy/feed.test.js",
+  "test/integration/eleventy/jsonld-validation.test.js",
+  "test/unit/eleventy/layout-aliases.test.js",
+  "test/unit/filters/item-filters.test.js",
+  "test/unit/frontend/checkout.test.js",
+  "test/unit/frontend/config.test.js",
+  "test/unit/frontend/quote-steps.test.js",
+  "test/unit/frontend/theme-editor.test.js",
+  "test/unit/utils/grouping.test.js",
+  "test/unit/utils/helpers.test.js",
+  "test/unit/utils/object-entries.test.js",
+  "test/unit/utils/strings.test.js",
   "ecommerce-backend/server.test.js",
 ]);
 
@@ -157,26 +157,26 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Only 'let moduleName = null;' is allowed for lazy loading without exceptions.
 const ALLOWED_LET = new Set([
   // Test files with mutable state tracking
-  "test/build/pdf-integration.test.js",
-  "test/eleventy/jsonld-validation.test.js",
-  "test/eleventy/feed.test.js",
-  "test/frontend/gallery.test.js",
-  "test/frontend/hire-calculator.test.js",
-  "test/frontend/scroll-fade.test.js",
-  "test/frontend/cart.test.js",
-  "test/frontend/turbo.test.js",
-  "test/frontend/slider.test.js",
-  "test/frontend/search.test.js",
-  "test/frontend/quote-checkout.test.js",
-  "test/code-quality/code-scanner.test.js",
-  "test/code-quality/single-use-functions.test.js",
-  "test/code-quality/html-in-js.test.js",
-  "test/code-quality/commented-code.test.js",
-  "test/code-quality/template-selectors.test.js",
-  "test/code-quality/let-usage.test.js", // Test file has let in test cases
-  "test/code-quality/unused-classes.test.js",
+  "test/integration/build/pdf-integration.test.js",
+  "test/integration/eleventy/jsonld-validation.test.js",
+  "test/integration/eleventy/feed.test.js",
+  "test/unit/frontend/gallery.test.js",
+  "test/unit/frontend/hire-calculator.test.js",
+  "test/unit/frontend/scroll-fade.test.js",
+  "test/unit/frontend/cart.test.js",
+  "test/unit/frontend/turbo.test.js",
+  "test/unit/frontend/slider.test.js",
+  "test/unit/frontend/search.test.js",
+  "test/unit/frontend/quote-checkout.test.js",
+  "test/unit/code-quality/code-scanner.test.js",
+  "test/unit/code-quality/single-use-functions.test.js",
+  "test/unit/code-quality/html-in-js.test.js",
+  "test/unit/code-quality/commented-code.test.js",
+  "test/unit/code-quality/template-selectors.test.js",
+  "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
+  "test/unit/code-quality/unused-classes.test.js",
   "test/test-site-factory.js",
-  "test/test-site-factory.test.js",
+  "test/integration/test-site-factory.test.js",
   "test/precommit.js",
   "test/run-coverage.js",
   "test/test-utils.js",
@@ -252,8 +252,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/assets/js/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:246", // pdfDoc
-  "src/_lib/eleventy/pdf.js:271", // state
+  "src/_lib/eleventy/pdf.js:228", // pdfDoc (renderer result)
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
@@ -269,10 +268,10 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/eleventy/area-list.js:19", // url
 
   // === Test infrastructure ===
-  "test/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
-  "test/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
-  "test/test-site-factory.test.js:108", // imageExists (file may not exist)
-  "test/test-site-factory.test.js:131", // imageExists (cleanup check)
+  "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
+  "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
+  "test/integration/test-site-factory.test.js:108", // imageExists (file may not exist)
+  "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
   "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:53", // trimmed (line processing)
   "test/precommit.js:105", // result (skip if step wasn't run)
@@ -291,10 +290,11 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_data/eleventyComputed.js",
   "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
-  "src/_lib/eleventy/file-utils.js",
-  "src/_lib/eleventy/js-config.js",
-  "src/_lib/eleventy/pdf.js",
-  "src/_lib/eleventy/recurring-events.js",
+  "src/_lib/collections/categories.js",
+  "src/_lib/collections/menus.js",
+  "src/_lib/collections/navigation.js",
+  "src/_lib/collections/products.js",
+  "src/_lib/collections/search.js",
   "src/_lib/eleventy/responsive-tables.js",
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js",
@@ -335,11 +335,11 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
-  "test/code-quality/template-selectors.test.js:55",
-  "test/eleventy/recurring-events.test.js:49",
+  "test/unit/code-quality/template-selectors.test.js:55",
+  "test/integration/eleventy/recurring-events.test.js:49",
 
   // This test file tests these patterns
-  "test/code-quality/dom-mocking.test.js",
+  "test/unit/code-quality/dom-mocking.test.js",
 ]);
 
 export {

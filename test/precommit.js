@@ -16,7 +16,7 @@ const steps = [
   { name: "install", cmd: "bun", args: ["install"] },
   { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
   { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
-  { name: "test", cmd: "bun", args: ["run", "test"] },
+  { name: "test:unit", cmd: "bun", args: ["run", "test:unit"] },
 ];
 
 const results = {};
