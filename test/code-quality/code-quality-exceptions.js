@@ -243,7 +243,7 @@ const ALLOWED_NULL_CHECKS = new Set([
 
   // === External/parsed data (localStorage, API responses, etc) ===
   "src/assets/js/cart-utils.js:8", // cart (from localStorage)
-  "src/assets/js/cart-utils.js:66", // item
+  "src/assets/js/cart-utils.js:54", // item (from array find)
   "src/assets/js/theme-editor-lib.js:32", // cssText
   "src/assets/js/theme-editor-lib.js:48", // themeContent
   "src/assets/js/theme-editor-lib.js:85", // borderValue
@@ -303,7 +303,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/utils/lazy-loader.js",
   "src/_lib/utils/schema-helper.js",
   "src/assets/js/availability-calendar.js",
-  "src/assets/js/cart-utils.js",
   "src/assets/js/cart.js",
   "src/assets/js/gallery.js",
   "src/assets/js/hire-calculator.js",
