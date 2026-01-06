@@ -396,3 +396,31 @@ dialog.cart-overlay {
     }
   }
 }
+
+// Quote layout - side-by-side on larger screens when no right sidebar
+body.one-column {
+  @include breakpoints.up("md") {
+    .quote-layout {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .quote-main,
+    .quote-layout > form {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .quote-sidebar {
+      width: 16rem;
+      flex-shrink: 0;
+      position: sticky;
+      top: 1rem;
+
+      .quote-price {
+        margin-top: 0;
+      }
+    }
+  }
+}
