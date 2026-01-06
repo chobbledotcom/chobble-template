@@ -28,9 +28,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createOffsetDate",
   "formatDateString",
   "createEvent",
-  "createCategory",
   "createProduct",
-  "createCollectionItem",
   "createPropertyReviewFixture",
   "createSchemaData",
   // item-filters.test.js - mock eleventy config with getters
@@ -257,7 +255,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-utils.js - test utilities (internal functions)
   "walk",
   "getFiles",
-  "captureConsoleLog",
   "captureConsoleLogAsync",
   "expectResultTitles",
   "expectArrayProp",
