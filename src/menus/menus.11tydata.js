@@ -2,8 +2,6 @@ import { filter, flatMap, pipe, sort, uniqueBy } from "#utils/array-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-const hasSymbolAndLabel = (key) => key.symbol && key.label;
-
 export default {
   eleventyComputed: {
     pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
@@ -27,7 +25,7 @@ export default {
       return pipe(
         flatMap((category) => menuItems.filter(itemInCategory(category))),
         flatMap((item) => item.data.dietaryKeys || []),
-        filter(hasSymbolAndLabel),
+        filter((key) => key.symbol && key.label),
         uniqueBy((key) => key.symbol),
       )(menuCategories);
     },
