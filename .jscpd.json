@@ -15,6 +15,7 @@
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
 	"gitignore": true,
+	"exitCode": 1,
 	"minLines": 3,
 	"minTokens": 50,
 	"path": ["src", "test", ".eleventy.js"]
