@@ -180,8 +180,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/theme-editor-lib.js:66", // themeContent
   "src/assets/js/theme-editor-lib.js:89", // borderValue
   "src/assets/js/theme-editor-lib.js:164", // value
-  "src/assets/js/hire-calculator.js:20", // priceStr
-  "src/assets/js/hire-calculator.js:38", // hirePrices
+  "src/assets/js/hire-calculator.js:22", // priceStr
+  "src/assets/js/hire-calculator.js:40", // hirePrices
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
