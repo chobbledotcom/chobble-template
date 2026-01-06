@@ -192,10 +192,7 @@ const ALLOWED_LET = new Set([
 
 // Files that use obj[key] = value for object mutation.
 // Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
-const ALLOWED_OBJECT_MUTATION = new Set([
-  // Browser-side image lazy loading - setting DOM element attributes
-  "src/assets/js/autosizes.js:123", // img[attribute] = img.getAttribute
-]);
+const ALLOWED_OBJECT_MUTATION = "src/assets/js/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
 
 // ============================================
 // Null check exceptions (if (!x) patterns)
