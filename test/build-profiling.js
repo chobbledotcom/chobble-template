@@ -9,8 +9,8 @@
 
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { createTestSite } from "#test/test-site-factory.js";
 import { ROOT_DIR } from "#lib/paths.js";
+import { createTestSite } from "#test/test-site-factory.js";
 
 const rootDir = ROOT_DIR;
 

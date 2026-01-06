@@ -100,9 +100,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/precommit.js:100", // passedSteps accumulator (status tracking)
   "test/precommit.js:101", // failedSteps accumulator (status tracking)
   "test/code-scanner.js:310", // stale entries accumulator (validation)
-  "test/run-coverage.js:35", // result object accumulator (diffByFile helper)
-  "test/run-coverage.js:48", // result object accumulator (mapTypes helper)
-  "test/run-coverage.js:140", // removable entries accumulator (coverage tracking)
+  "test/run-coverage.js:36", // result object accumulator (diffByFile helper)
+  "test/run-coverage.js:136", // removable entries accumulator (coverage tracking)
 ]);
 
 // ============================================
@@ -144,11 +143,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
   "src/assets/js/quote.js:48", // container
-  "src/assets/js/quote-steps.js:33", // value (radio recap item)
-  "src/assets/js/quote-steps.js:39", // field (field recap item)
-  "src/assets/js/quote-steps.js:44", // value (field recap item)
-  "src/assets/js/quote-steps.js:119", // isValid (field validation)
-  "src/assets/js/quote-steps.js:162", // container (init)
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper
