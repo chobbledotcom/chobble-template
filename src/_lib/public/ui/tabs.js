@@ -1,7 +1,5 @@
 import { onReady } from "#public/utils/on-ready.js";
 
-const processed = new WeakSet();
-
 const setActiveTab = (tabs, activeLink) => {
   for (const link of tabs) {
     link.closest(".tab").classList.remove("active");
@@ -18,8 +16,6 @@ onReady(() => {
   setActiveTab(tabs, activeLink || tabs[0]);
 
   for (const tab of tabs) {
-    if (processed.has(tab)) continue;
-    processed.add(tab);
     tab.addEventListener("click", (event) => {
       event.preventDefault();
       setActiveTab(tabs, tab);
