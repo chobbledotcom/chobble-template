@@ -790,4 +790,29 @@ describe("quote-steps", () => {
     // Should stay on step 0 since step 1 is not a previous step
     expect(container.dataset.currentStep).toBe("0");
   });
+
+  test("initQuoteSteps prev button navigates back", () => {
+    document.body.innerHTML = `
+      <div class="quote-steps" data-current-step="0">
+        <div class="quote-step active" data-step="0">
+          <input type="text" required value="filled" />
+        </div>
+        <div class="quote-step" data-step="1">Step 2</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+    const container = document.querySelector(".quote-steps");
+    container.scrollIntoView = () => {};
+    initQuoteSteps();
+    const nextBtn = document.querySelector(".quote-step-next");
+    const prevBtn = document.querySelector(".quote-step-prev");
+    // Advance to step 1
+    nextBtn.click();
+    expect(container.dataset.currentStep).toBe("1");
+    // Go back to step 0
+    prevBtn.click();
+    expect(container.dataset.currentStep).toBe("0");
+  });
 });

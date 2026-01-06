@@ -143,6 +143,11 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
   "src/assets/js/quote.js:48", // container
+  "src/assets/js/quote-steps.js:33", // value (radio recap item)
+  "src/assets/js/quote-steps.js:39", // field (field recap item)
+  "src/assets/js/quote-steps.js:44", // value (field recap item)
+  "src/assets/js/quote-steps.js:115", // isValid (field validation)
+  "src/assets/js/quote-steps.js:158", // container (init)
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper

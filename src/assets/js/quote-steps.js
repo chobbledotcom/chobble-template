@@ -47,13 +47,9 @@ function buildFieldRecapItem(id) {
 
 function getStepFieldIds(stepEl) {
   const fields = [...stepEl.querySelectorAll("input, select, textarea")];
-  return fields.reduce((acc, field) => {
-    const id = field.type === "radio" ? field.name : field.id;
-    if (id && !acc.includes(id)) {
-      acc.push(id);
-    }
-    return acc;
-  }, []);
+  return fields
+    .map((field) => (field.type === "radio" ? field.name : field.id))
+    .filter((id, index, arr) => id && arr.indexOf(id) === index);
 }
 
 function populateRecap(steps) {
