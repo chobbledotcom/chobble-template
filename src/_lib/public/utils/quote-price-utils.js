@@ -180,11 +180,8 @@ const renderQuotePrice = (container, days = 1) => {
   populateItems(itemsContainer, cart, days);
 
   const detailsContainer = template.querySelector('[data-field="details"]');
-  const formContainer = getFormContainer();
-  if (formContainer) {
-    const details = collectFieldDetails(formContainer);
-    populateDetails(detailsContainer, details);
-  }
+  const details = collectFieldDetails(getFormContainer());
+  populateDetails(detailsContainer, details);
 
   container.innerHTML = "";
   container.appendChild(template);
@@ -201,8 +198,6 @@ const updateQuotePrice = (days = 1) => {
 // Uses event delegation for efficiency
 const setupDetailsBlurHandlers = (getDays = () => 1) => {
   const formContainer = getFormContainer();
-  if (!formContainer) return;
-
   const handleBlur = (event) => {
     const target = event.target;
     if (target.matches("input, select, textarea")) {

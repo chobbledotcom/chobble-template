@@ -475,10 +475,8 @@ describe("quote-price-utils", () => {
   // setupDetailsBlurHandlers Tests (with DOM)
   // ----------------------------------------
   describe("setupDetailsBlurHandlers", () => {
-    test("does nothing when no form container exists", () => {
-      document.body.innerHTML = "<div>No form here</div>";
-      expect(() => setupDetailsBlurHandlers()).not.toThrow();
-    });
+    // Note: We trust form container always exists on quote pages
+    // No test for missing container - that would be a template bug
 
     test("attaches blur handler to form container", () => {
       document.body.innerHTML = `
