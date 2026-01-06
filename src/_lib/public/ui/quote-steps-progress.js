@@ -2,28 +2,25 @@
 
 import { onReady } from "#public/utils/on-ready.js";
 
-function renderIndicator(step, index, isLast) {
-  const indicator = `<div class="quote-steps-indicator" data-step="${index}">
-      <span class="step-name">${step.name}</span>
-      <span class="step-number">${step.number}</span>
-    </div>`;
-  return isLast
-    ? indicator
-    : `${indicator}<div class="quote-steps-connector"></div>`;
+function renderIndicator(step, index) {
+  return `<li data-step="${index}">
+      <span data-name="name">${step.name}</span>
+      <span data-name="index">${step.number}</span>
+    </li>`;
 }
 
 export function renderStepProgress(container, steps, completedSteps) {
-  container.innerHTML = steps
-    .map((step, i) => renderIndicator(step, i, i === steps.length - 1))
-    .join("");
+  container.innerHTML = `<ul>${steps.map(renderIndicator).join("")}</ul>`;
   updateStepProgress(container, completedSteps);
 }
 
 export function updateStepProgress(container, completedSteps) {
-  const indicators = container.querySelectorAll(".quote-steps-indicator");
+  const indicators = container.querySelectorAll("li");
   for (const [index, indicator] of indicators.entries()) {
-    indicator.classList.toggle("active", index === completedSteps);
-    indicator.classList.toggle("completed", index < completedSteps);
+    const isActive = index === completedSteps;
+    const isCompleted = index < completedSteps;
+    indicator.setAttribute("aria-current", isActive ? "step" : "false");
+    indicator.classList.toggle("completed", isCompleted);
   }
 }
 
