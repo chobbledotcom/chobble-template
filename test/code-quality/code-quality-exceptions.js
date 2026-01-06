@@ -191,10 +191,7 @@ const ALLOWED_LET = new Set([
 
 // Files that use obj[key] = value for object mutation.
 // Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
-const ALLOWED_OBJECT_MUTATION = new Set([
-  // Browser-side image lazy loading - setting DOM element attributes
-  "src/assets/js/autosizes.js:123", // img[attribute] = img.getAttribute
-]);
+const ALLOWED_OBJECT_MUTATION = "src/assets/js/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
 
 // ============================================
 // Null check exceptions (if (!x) patterns)
@@ -272,7 +269,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:102", // path
   "src/_lib/collections/products.js:6", // gallery
-  "src/_lib/collections/products.js:79", // options
+  "src/_lib/collections/products.js:72", // options
   "src/_lib/collections/search.js:9", // category
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:12", // collection
@@ -303,11 +300,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_data/eleventyComputed.js",
   "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
-  "src/_lib/collections/categories.js",
-  "src/_lib/collections/menus.js",
-  "src/_lib/collections/navigation.js",
-  "src/_lib/collections/products.js",
-  "src/_lib/collections/search.js",
   "src/_lib/eleventy/file-utils.js",
   "src/_lib/eleventy/js-config.js",
   "src/_lib/eleventy/pdf.js",
