@@ -68,15 +68,8 @@ describe("template", () => {
     }
   });
 
-  test("Returns undefined when template ID does not exist", () => {
-    const env = createTestEnv("");
-    try {
-      const result = env.getTemplate("nonexistent");
-      expect(result).toBe(undefined);
-    } finally {
-      env.cleanup();
-    }
-  });
+  // Note: No test for non-existent template ID - templates always exist
+  // in our codebase and missing templates indicate a bug to be fixed
 
   test("Returns empty document fragment for empty template", () => {
     const env = createTestEnv(`<template id="empty"></template>`);

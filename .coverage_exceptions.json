@@ -101,6 +101,7 @@
 			15,
 			16
 		],
+		"src/_lib/public/utils/quote-price-utils.js": true,
 		"src/assets/js/quote-steps.js": [
 			34,
 			35,

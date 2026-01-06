@@ -1,10 +1,16 @@
 // Quote checkout page
 // Populates form with cart items and displays summary
 
-import { initHireCalculator } from "#public/cart/hire-calculator.js";
+import {
+  calculateDays,
+  initHireCalculator,
+} from "#public/cart/hire-calculator.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { updateQuotePrice } from "#public/utils/quote-price-utils.js";
+import {
+  setupDetailsBlurHandlers,
+  updateQuotePrice,
+} from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
@@ -52,10 +58,18 @@ const populateForm = () => {
   }
 };
 
+// Calculate days from date inputs (returns 1 if dates not set)
+const getDays = () => {
+  const start = document.querySelector('input[name="start_date"]').value;
+  const end = document.querySelector('input[name="end_date"]').value;
+  return start && end ? calculateDays(start, end) : 1;
+};
+
 const init = () => {
   populateForm();
   updateQuotePrice();
   initHireCalculator(updateQuotePrice);
+  setupDetailsBlurHandlers(getDays);
 };
 
 onReady(init);
