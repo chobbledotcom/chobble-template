@@ -2,7 +2,7 @@
 // Tests the complete checkout flow with mocked Stripe API
 // Uses actual cart-utils.js and renders real Liquid templates
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
 // Import actual cart utilities
@@ -83,12 +83,10 @@ const createCheckoutPage = async (options = {}) => {
   });
 
   // Only include cart overlay for paypal/stripe modes (not quote mode)
-  let cartOverlay = "";
-  if (cartMode !== "quote") {
-    cartOverlay = await renderTemplate("src/_includes/cart-overlay.html", {
-      config,
-    });
-  }
+  const cartOverlay =
+    cartMode !== "quote"
+      ? await renderTemplate("src/_includes/cart-overlay.html", { config })
+      : "";
 
   const productOptionsHtml = await renderTemplate(
     "src/_includes/product-options.html",
@@ -101,15 +99,11 @@ const createCheckoutPage = async (options = {}) => {
   );
 
   // Render stripe checkout page if needed
-  let stripeCheckoutPage = "";
-  if (includeStripeCheckoutPage) {
-    stripeCheckoutPage = await renderTemplate(
-      "src/_layouts/stripe-checkout.html",
-      { config },
-    );
-    // Remove the frontmatter/layout wrapper - just get the content
-    stripeCheckoutPage = stripeCheckoutPage.replace(/^---[\s\S]*?---\s*/, "");
-  }
+  const stripeCheckoutPage = includeStripeCheckoutPage
+    ? (
+        await renderTemplate("src/_layouts/stripe-checkout.html", { config })
+      ).replace(/^---[\s\S]*?---\s*/, "")
+    : "";
 
   // Build config script using the same function as the Eleventy shortcode
   const configScript = buildJsConfigScript(config);
@@ -465,17 +459,15 @@ describe("checkout", () => {
       ]);
 
       const container = document.getElementById("container");
-      let removeCalled = false;
+      const removeCalled = mock(() => {});
 
-      attachRemoveHandlers(container, ".remove-btn", () => {
-        removeCalled = true;
-      });
+      attachRemoveHandlers(container, ".remove-btn", removeCalled);
 
       // Simulate click on remove button
       const removeBtn = container.querySelector(".remove-btn");
       removeBtn.click();
 
-      expect(removeCalled).toBe(true);
+      expect(removeCalled).toHaveBeenCalled();
       const cart = getCart();
       expect(cart).toHaveLength(1);
       expect(cart[0].item_name).toBe("Gadget");

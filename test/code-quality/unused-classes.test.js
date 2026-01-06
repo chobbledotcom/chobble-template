@@ -30,19 +30,9 @@ const ASSET_JS_FILES = getFiles(/^src\/assets\/js\/.*\.js$/);
 // Class/ID Extraction from HTML
 // ============================================
 
-// Pure helper functions for extractFromHtml
-const cleanLiquid = (content) =>
-  content
-    .replace(/\{\{-?[\s\S]*?-?\}\}/g, " ")
-    .replace(/\{%-?[\s\S]*?-?%\}/g, " ");
-
+// Helper function shared between multiple test cases
 const matchAll = (regex) => (content) => [...content.matchAll(regex)];
 const getMatch = (index) => (match) => match[index];
-const normalizeWhitespace = (str) => str.replace(/\s+/g, " ").trim();
-const isValidClass = (cls) => cls && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls);
-const isDynamicId = (val) => val.includes("{{") || val.includes("{%");
-const isNotEmpty = (val) => val.trim() !== "";
-const trim = (str) => str.trim();
 const toSet = (arr) => new Set(arr);
 
 /**
@@ -52,8 +42,19 @@ const toSet = (arr) => new Set(arr);
  * @param {string} content - The HTML content to parse
  * @returns {Set<string>} - Set of extracted values
  */
-const extractFromHtml = (type, content) =>
-  type === "class"
+const extractFromHtml = (type, content) => {
+  const cleanLiquid = (content) =>
+    content
+      .replace(/\{\{-?[\s\S]*?-?\}\}/g, " ")
+      .replace(/\{%-?[\s\S]*?-?%\}/g, " ");
+
+  const normalizeWhitespace = (str) => str.replace(/\s+/g, " ").trim();
+  const isValidClass = (cls) => cls && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls);
+  const isDynamicId = (val) => val.includes("{{") || val.includes("{%");
+  const isNotEmpty = (val) => val.trim() !== "";
+  const trim = (str) => str.trim();
+
+  return type === "class"
     ? pipe(
         cleanLiquid,
         matchAll(/class="([^"]*)"/g),
@@ -68,6 +69,7 @@ const extractFromHtml = (type, content) =>
         filterMap((val) => !isDynamicId(val) && isNotEmpty(val), trim),
         toSet,
       )(content);
+};
 
 // ============================================
 // Class/ID Extraction from JavaScript
@@ -109,23 +111,6 @@ const extractClassesFromJs = (content) => {
   }
 
   return classes;
-};
-
-// ============================================
-// Reference Detection in HTML
-// ============================================
-
-const findIdReferencesInHtml = (content, idName) => {
-  const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-  const patterns = [
-    // href="#id" or href="/path/#id" anchor links
-    new RegExp(`href=["'][^"']*#${escaped}["']`),
-    // for="id" label associations
-    new RegExp(`for=["']${escaped}["']`),
-  ];
-
-  return patterns.some((pattern) => pattern.test(content));
 };
 
 // ============================================
@@ -171,21 +156,6 @@ const idPatternBuilders = [
   (e) => `getTemplate\\s*\\(\\s*["']${e}["']`,
 ];
 
-// Pure helpers for pattern matching
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const buildPatterns = (builders) => (escaped) =>
-  builders.map((build) => new RegExp(build(escaped)));
-const testAny = (patterns) => (content) =>
-  patterns.some((pattern) => pattern.test(content));
-
-// Dynamic ID pattern for template literals like getElementById(`${tabId}-tab`)
-const getDynamicIdPattern = (name) =>
-  name.includes("-")
-    ? new RegExp(
-        `getElementById\\s*\\(\\s*\`\\$\\{[^}]+\\}-${name.split("-").pop()}\`\\s*\\)`,
-      )
-    : null;
-
 /**
  * Curried function to find class or ID references in JavaScript content.
  * Uses functional composition with pattern builders.
@@ -193,6 +163,18 @@ const getDynamicIdPattern = (name) =>
  * @returns {(name: string) => (content: string) => boolean} - Curried function
  */
 const findReferencesInJs = (type) => (name) => {
+  const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const buildPatterns = (builders) => (escaped) =>
+    builders.map((build) => new RegExp(build(escaped)));
+  const testAny = (patterns) => (content) =>
+    patterns.some((pattern) => pattern.test(content));
+  const getDynamicIdPattern = (name) =>
+    name.includes("-")
+      ? new RegExp(
+          `getElementById\\s*\\(\\s*\`\\$\\{[^}]+\\}-${name.split("-").pop()}\`\\s*\\)`,
+        )
+      : null;
+
   const escaped = escapeRegex(name);
   const builders = type === "class" ? classPatternBuilders : idPatternBuilders;
   const patterns = buildPatterns(builders)(escaped);
@@ -200,79 +182,6 @@ const findReferencesInJs = (type) => (name) => {
 
   return (content) =>
     testAny(patterns)(content) || dynamicPattern?.test(content);
-};
-
-// ============================================
-// Main Analysis Functions
-// ============================================
-
-/**
- * Add items from a Set to a Map with file tracking.
- */
-const addToMap = (map, items, file) => {
-  for (const item of items) {
-    if (!map.has(item)) map.set(item, []);
-    map.get(item).push(file);
-  }
-};
-
-const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
-  const allClasses = new Map(); // class -> [files where defined]
-  const allIds = new Map(); // id -> [files where defined]
-
-  // Extract from HTML files
-  for (const file of htmlFiles) {
-    const content = readFileSync(file, "utf-8");
-    addToMap(allClasses, extractFromHtml("class", content), file);
-    addToMap(allIds, extractFromHtml("id", content), file);
-  }
-
-  // Extract from JS files (dynamically created HTML)
-  for (const file of jsFiles) {
-    const content = readFileSync(file, "utf-8");
-    addToMap(allClasses, extractClassesFromJs(content), file);
-  }
-
-  return { allClasses, allIds };
-};
-
-const findUnusedClassesAndIds = (
-  allClasses,
-  allIds,
-  scssFiles,
-  jsFiles,
-  htmlFiles,
-) => {
-  // Load all SCSS, JS, and HTML content
-  const scssContent = scssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-  const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-  const htmlContent = htmlFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-
-  const unusedClasses = [];
-  const unusedIds = [];
-
-  // Check each class
-  for (const [className, definedIn] of allClasses) {
-    const inScss = findSelectorReferencesInScss(scssContent, className, "\\.");
-    const inJs = findReferencesInJs("class")(className)(jsContent);
-
-    if (!inScss && !inJs) {
-      unusedClasses.push({ name: className, definedIn });
-    }
-  }
-
-  // Check each ID
-  for (const [idName, definedIn] of allIds) {
-    const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
-    const inJs = findReferencesInJs("id")(idName)(jsContent);
-    const inHtml = findIdReferencesInHtml(htmlContent, idName);
-
-    if (!inScss && !inJs && !inHtml) {
-      unusedIds.push({ name: idName, definedIn });
-    }
-  }
-
-  return { unusedClasses, unusedIds };
 };
 
 // ============================================
@@ -365,6 +274,93 @@ describe("unused-classes", () => {
   });
 
   test("Scans project files and reports unused classes/IDs", () => {
+    const addToMap = (map, items, file) => {
+      for (const item of items) {
+        if (!map.has(item)) map.set(item, []);
+        map.get(item).push(file);
+      }
+    };
+
+    const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
+      const allClasses = new Map(); // class -> [files where defined]
+      const allIds = new Map(); // id -> [files where defined]
+
+      // Extract from HTML files
+      for (const file of htmlFiles) {
+        const content = readFileSync(file, "utf-8");
+        addToMap(allClasses, extractFromHtml("class", content), file);
+        addToMap(allIds, extractFromHtml("id", content), file);
+      }
+
+      // Extract from JS files (dynamically created HTML)
+      for (const file of jsFiles) {
+        const content = readFileSync(file, "utf-8");
+        addToMap(allClasses, extractClassesFromJs(content), file);
+      }
+
+      return { allClasses, allIds };
+    };
+
+    const findUnusedClassesAndIds = (
+      allClasses,
+      allIds,
+      scssFiles,
+      jsFiles,
+      htmlFiles,
+    ) => {
+      const findIdReferencesInHtml = (content, idName) => {
+        const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        const patterns = [
+          // href="#id" or href="/path/#id" anchor links
+          new RegExp(`href=["'][^"']*#${escaped}["']`),
+          // for="id" label associations
+          new RegExp(`for=["']${escaped}["']`),
+        ];
+
+        return patterns.some((pattern) => pattern.test(content));
+      };
+
+      // Load all SCSS, JS, and HTML content
+      const scssContent = scssFiles
+        .map((f) => readFileSync(f, "utf-8"))
+        .join("\n");
+      const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+      const htmlContent = htmlFiles
+        .map((f) => readFileSync(f, "utf-8"))
+        .join("\n");
+
+      const unusedClasses = [];
+      const unusedIds = [];
+
+      // Check each class
+      for (const [className, definedIn] of allClasses) {
+        const inScss = findSelectorReferencesInScss(
+          scssContent,
+          className,
+          "\\.",
+        );
+        const inJs = findReferencesInJs("class")(className)(jsContent);
+
+        if (!inScss && !inJs) {
+          unusedClasses.push({ name: className, definedIn });
+        }
+      }
+
+      // Check each ID
+      for (const [idName, definedIn] of allIds) {
+        const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
+        const inJs = findReferencesInJs("id")(idName)(jsContent);
+        const inHtml = findIdReferencesInHtml(htmlContent, idName);
+
+        if (!inScss && !inJs && !inHtml) {
+          unusedIds.push({ name: idName, definedIn });
+        }
+      }
+
+      return { unusedClasses, unusedIds };
+    };
+
     // Use pre-computed file lists
     const htmlFiles = SRC_HTML_FILES().map((f) => join(rootDir, f));
     const scssFiles = SRC_SCSS_FILES().map((f) => join(rootDir, f));

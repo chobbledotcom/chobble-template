@@ -16,14 +16,6 @@ const { find: findArrayPush } = createCodeChecker({
   files: [],
 });
 
-/** Analyze all JS files for .push() usage. */
-const analyzeArrayPushUsage = () =>
-  analyzeWithAllowlist({
-    findFn: findArrayPush,
-    allowlist: new Set(), // No exceptions - prefer functional patterns
-    files: SRC_JS_FILES,
-  });
-
 describe("array-push", () => {
   test("Detects .push() calls in source code", () => {
     const source = `
@@ -58,6 +50,13 @@ arr. push(3);
   });
 
   test("No .push() usage in source code", () => {
+    const analyzeArrayPushUsage = () =>
+      analyzeWithAllowlist({
+        findFn: findArrayPush,
+        allowlist: new Set(), // No exceptions - prefer functional patterns
+        files: SRC_JS_FILES,
+      });
+
     const { violations } = analyzeArrayPushUsage();
     assertNoViolations(violations, {
       message: ".push() usage(s)",
