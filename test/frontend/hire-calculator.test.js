@@ -209,7 +209,7 @@ describe("hire-calculator", () => {
         <input type="hidden" id="hire_days" />
       `;
 
-      initHireCalculator();
+      initHireCalculator(() => {});
 
       const startInput = document.querySelector('input[name="start_date"]');
       const endInput = document.querySelector('input[name="end_date"]');
@@ -234,7 +234,7 @@ describe("hire-calculator", () => {
         <input type="hidden" id="hire_days" />
       `;
 
-      initHireCalculator();
+      initHireCalculator(() => {});
 
       const startInput = document.querySelector('input[name="start_date"]');
       const endInput = document.querySelector('input[name="end_date"]');

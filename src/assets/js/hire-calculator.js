@@ -30,7 +30,7 @@ const areDatesValid = (startValue, endValue) => Boolean(startValue && endValue);
 // Update days input and notify callback
 const notifyDaysChange = (daysInput, onDaysChange, days) => {
   if (daysInput) daysInput.value = days;
-  if (onDaysChange) onDaysChange(days);
+  onDaysChange(days);
 };
 
 // Sync end date min constraint with start date
@@ -44,12 +44,11 @@ const syncEndDateConstraint = (startInput, endInput) => {
 // Initialize hire calculator
 // Sets up date inputs and calls onDaysChange when dates are selected
 const initHireCalculator = (onDaysChange) => {
+  if (!hasHireItems(getCart())) return;
+
   const startInput = document.querySelector('input[name="start_date"]');
   const endInput = document.querySelector('input[name="end_date"]');
   const daysInput = document.getElementById("hire_days");
-
-  if (!startInput || !endInput) return;
-  if (!hasHireItems(getCart())) return;
 
   setMinDate(startInput);
   setMinDate(endInput);
@@ -57,7 +56,7 @@ const initHireCalculator = (onDaysChange) => {
   const handleChange = () => {
     if (!areDatesValid(startInput.value, endInput.value)) {
       if (daysInput) daysInput.value = "";
-      if (onDaysChange) onDaysChange(1);
+      onDaysChange(1);
       return;
     }
     const days = calculateDays(startInput.value, endInput.value);
