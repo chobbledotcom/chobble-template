@@ -10,6 +10,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { printTruncatedList } from "#utils/array-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -140,14 +141,7 @@ for (const demo of demos) {
   if (errors.length === 0) {
     console.log("  (no errors extracted - this might be a problem!)");
   } else {
-    for (const error of errors.slice(0, 10)) {
-      console.log(`  ${error}`);
-    }
-    if (errors.length > 10) {
-      console.log(
-        `  ... and ${errors.length - 10} more (use --verbose to see all)`,
-      );
-    }
+    printTruncatedList()(errors);
   }
 }
 
