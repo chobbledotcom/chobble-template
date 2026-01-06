@@ -20,7 +20,7 @@ const CONSOLE_PATTERNS = [
 // Files that are allowed to have console statements (test infrastructure)
 const TEST_ALLOWED_FILES = new Set([
   // Code quality tests output violation reports
-  "test/code-quality/console-log.test.js",
+  "test/unit/code-quality/console-log.test.js",
 ]);
 
 // Create checker for console.* calls using the factory pattern

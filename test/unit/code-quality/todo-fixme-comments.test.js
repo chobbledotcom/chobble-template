@@ -11,8 +11,8 @@ import {
 } from "#test/test-utils.js";
 
 const EXCLUDE_FILES = [
-  "test/code-quality/todo-fixme-comments.test.js",
-  "test/code-quality/commented-code.test.js",
+  "test/unit/code-quality/todo-fixme-comments.test.js",
+  "test/unit/code-quality/commented-code.test.js",
   "test/code-quality/code-quality-exceptions.js", // Contains filename references with "todo"/"fixme"
 ];
 

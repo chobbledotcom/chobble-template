@@ -20,7 +20,7 @@ import {
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
 
-const THIS_FILE = "test/code-quality/single-use-functions.test.js";
+const THIS_FILE = "test/unit/code-quality/single-use-functions.test.js";
 
 // ============================================
 // Function Definition Patterns
