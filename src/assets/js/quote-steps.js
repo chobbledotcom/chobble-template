@@ -50,7 +50,7 @@ function getStepFieldIds(stepEl) {
   return fields.reduce((acc, field) => {
     const id = field.type === "radio" ? field.name : field.id;
     if (id && !acc.includes(id)) {
-      return [...acc, id];
+      acc.push(id);
     }
     return acc;
   }, []);
