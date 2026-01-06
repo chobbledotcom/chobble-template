@@ -30,6 +30,14 @@ const diffByFile = (fn) => (current, allowed) => {
   for (const [file, items] of Object.entries(current)) {
     // If allowed[file] is true, skip entire file (no violations)
     if (allowed[file] === true) continue;
+    // Handle whole-file exceptions (items === true)
+    if (items === true) {
+      const allowedItems = allowed[file];
+      if (allowedItems && allowedItems.length > 0) {
+        result[file] = true;
+      }
+      continue;
+    }
     const diff = fn(items, new Set(allowed[file] || []));
     if (diff.length > 0) result[file] = diff;
   }
