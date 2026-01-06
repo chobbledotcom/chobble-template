@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
+import { populateQuantityControls } from "#public/utils/template.js";
 
 // ============================================
 // Test Setup Helpers
@@ -22,18 +23,6 @@ const createTestEnv = (bodyHtml = "") => {
     template.firstElementChild.dataset.name = name;
     template.querySelector('[data-field="name"]').textContent = name;
     template.querySelector('[data-field="price"]').textContent = price;
-  };
-
-  const populateQuantityControls = (template, item) => {
-    const name = item.item_name;
-    for (const el of template.querySelectorAll("[data-name]")) {
-      el.dataset.name = name;
-    }
-    const input = template.querySelector("input[type='number']");
-    input.value = item.quantity;
-    if (item.max_quantity) {
-      input.max = item.max_quantity;
-    }
   };
 
   return {

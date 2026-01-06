@@ -177,7 +177,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // template.test.js - isolated DOM testing helpers
   "getTemplate",
   "populateItemFields",
-  "populateQuantityControls",
   // data-exports.test.js - analysis helpers
   "hasProblematicNamedExports",
   "hasWrongHelperName",
