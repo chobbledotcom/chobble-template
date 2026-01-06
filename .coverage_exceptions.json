@@ -97,11 +97,7 @@
 			15,
 			16
 		],
-		"src/assets/js/quote-steps-progress.js": [
-			30,
-			31,
-			32,
-			33,
+		"src/assets/js/quote-steps.js": [
 			34,
 			35,
 			36,
@@ -111,7 +107,10 @@
 			40,
 			41,
 			42,
-			44
+			43,
+			44,
+			45,
+			46
 		],
 		"src/assets/js/theme-editor-config.js": [
 			135,
