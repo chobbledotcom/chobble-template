@@ -26,8 +26,8 @@
 		"cpd": "jscpd",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
-		"lint": "bunx @biomejs/biome check .",
-		"lint:fix": "bunx @biomejs/biome check --write .",
+		"lint": "bunx @biomejs/biome check --error-on-warnings .",
+		"lint:fix": "bunx @biomejs/biome check --write --error-on-warnings .",
 		"precommit": "node test/precommit.js"
 	},
 	"devDependencies": {
