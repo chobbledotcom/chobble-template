@@ -729,14 +729,14 @@ describe("quote-steps", () => {
       </div>
     `;
     const container = document.querySelector(".quote-steps");
-    let scrollCalled = false;
+    const scrollTracker = { called: false };
     container.scrollIntoView = () => {
-      scrollCalled = true;
+      scrollTracker.called = true;
     };
     initQuoteSteps();
     const nextBtn = document.querySelector(".quote-step-next");
     nextBtn.click();
-    expect(scrollCalled).toBe(true);
+    expect(scrollTracker.called).toBe(true);
   });
 
   test("initQuoteSteps sets up indicator click handlers", () => {
