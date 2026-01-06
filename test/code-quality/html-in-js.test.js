@@ -5,7 +5,7 @@ import {
   isCommentLine,
   withAllowlist,
 } from "#test/code-scanner.js";
-import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
+import { ECOMMERCE_JS_FILES, SRC_JS_FILES, getAdjacentChars } from "#test/test-utils.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.
@@ -78,14 +78,6 @@ const extractStringContent = (source) => {
    */
   const processCharForTemplate = (lineIndex) => (state, char, index, chars) => {
     /**
-     * Helper: Get adjacent characters for current position
-     */
-    const getAdjacent = (idx, chrs) => ({
-      prev: idx > 0 ? chrs[idx - 1] : "",
-      next: idx < chrs.length - 1 ? chrs[idx + 1] : "",
-    });
-
-    /**
      * Helper: Check if char is unescaped backtick
      */
     const isUnescapedBacktick = (ch, prevCh) => ch === "`" && prevCh !== "\\";
@@ -137,7 +129,7 @@ const extractStringContent = (source) => {
       return { ...state, skipNext: false };
     }
 
-    const { prev, next } = getAdjacent(index, chars);
+    const { prev, next } = getAdjacentChars(index, chars);
 
     // Handle template expression braces
     if (state.inTemplate && isTemplateExpressionStart(char, next)) {

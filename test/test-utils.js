@@ -859,6 +859,9 @@ export {
   // Code analysis utilities
   createExtractor,
   extractFunctions,
+  // DOM and storage helpers
+  getAdjacentChars,
+  withMockStorage,
   // Mock collection API helpers
   collectionApi,
   taggedCollectionApi,

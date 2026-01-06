@@ -19,7 +19,7 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { buildJsConfigScript } from "#eleventy/js-config.js";
-import { fs, path, rootDir } from "#test/test-utils.js";
+import { fs, path, rootDir, withMockStorage } from "#test/test-utils.js";
 
 // ============================================
 // Template Rendering
@@ -193,17 +193,6 @@ const createLocationTracker = () => {
     redirects,
     wasRedirectedTo: (url) => redirects.some((r) => r.includes(url)),
   };
-};
-
-// Helper to run tests with isolated localStorage
-// Uses the global localStorage (from happy-dom) but clears it before/after each test
-const withMockStorage = (fn) => {
-  globalThis.localStorage.clear();
-  try {
-    return fn(globalThis.localStorage);
-  } finally {
-    globalThis.localStorage.clear();
-  }
 };
 
 // ============================================

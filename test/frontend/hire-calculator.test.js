@@ -15,17 +15,7 @@ import {
   parsePrice,
   setMinDate,
 } from "#assets/hire-calculator.js";
-
-// Helper to run tests with isolated localStorage
-// Uses the global localStorage (from happy-dom) but clears it before/after each test
-const withMockStorage = (fn) => {
-  globalThis.localStorage.clear();
-  try {
-    return fn(globalThis.localStorage);
-  } finally {
-    globalThis.localStorage.clear();
-  }
-};
+import { withMockStorage } from "#test/test-utils.js";
 
 describe("hire-calculator", () => {
   // ----------------------------------------
