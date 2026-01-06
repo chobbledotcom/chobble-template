@@ -17,9 +17,20 @@ export function buildSections(sections) {
 export function processQuoteFields(data) {
   const sections = buildSections(data.sections);
 
+  const stepNames = [
+    data.quoteStepName || "Your Items",
+    ...sections.map((s) => s.title),
+    data.recapTitle || "Review",
+  ];
+  const steps = stepNames.map((name, index) => ({
+    name,
+    number: index + 1,
+  }));
+
   return {
     sections,
     totalSteps: sections.length + 1,
+    steps,
     recapTitle: data.recapTitle,
     submitButtonText: data.submitButtonText,
   };
