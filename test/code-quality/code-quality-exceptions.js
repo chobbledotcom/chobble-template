@@ -282,11 +282,11 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/eleventy/area-list.js:19", // url
 
   // === Test infrastructure ===
-  "test/code-quality/method-aliasing.test.js:46", // match
-  "test/code-quality/method-aliasing.test.js:71", // alias
+  "test/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
+  "test/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
-  "test/run-coverage.js:86", // file (iteration over files)
+  "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:53", // trimmed (line processing)
   "test/precommit.js:105", // result (skip if step wasn't run)
   "test/precommit.js:147", // allPassed (check if all steps passed)
@@ -353,8 +353,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:322",
-  "test/test-site-factory.js:330",
+  "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
   "test/code-quality/template-selectors.test.js:55",

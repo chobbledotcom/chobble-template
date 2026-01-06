@@ -516,7 +516,9 @@ const extractFunctions = (source) => {
   const handleOpeningBrace = (state) => {
     const newDepth = state.braceDepth + 1;
     const newStack = state.stack.map((item) =>
-      item.openBraceDepth === null ? { ...item, openBraceDepth: newDepth } : item,
+      item.openBraceDepth === null
+        ? { ...item, openBraceDepth: newDepth }
+        : item,
     );
     return { ...state, braceDepth: newDepth, stack: newStack };
   };
@@ -571,33 +573,30 @@ const extractFunctions = (source) => {
     return state;
   };
 
-  // Helper: Process a single character in the parser
+  // Helper: Process a single character in the parser (curried for reduce)
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Inherent complexity from state machine logic
   const processChar = (lineNum) => (state, char, index, chars) => {
-    // Early exit: if skipNext is set, clear it
-    if (state.skipNext) {
-      return { ...state, skipNext: false };
-    }
-
-    // Early exit: if line processing stopped
+    // Quick exits for special states
+    if (state.skipNext) return { ...state, skipNext: false };
     if (state.stopLine) return state;
 
     const { prev: prevChar, next: nextChar } = getAdjacentChars(index, chars);
 
-    // Handle comments when not in string/template
+    // Comment handling when not in string/template
     if (!state.inString && !state.inTemplate) {
-      const commentResult = handleComments(state, char, nextChar);
-      if (commentResult !== null) return commentResult;
+      const result = handleComments(state, char, nextChar);
+      if (result !== null) return result;
     }
 
     // Early exit: inside multiline comments
     if (state.inComment) return state;
 
-    // Handle string delimiters
+    // String delimiters (when not in template)
     if (!state.inTemplate && isStringDelimiter(char, prevChar)) {
       return handleStringDelimiters(state, char);
     }
 
-    // Handle template literals
+    // Template delimiters
     if (isTemplateDelimiter(char, prevChar)) {
       return { ...state, inTemplate: !state.inTemplate };
     }
@@ -606,10 +605,11 @@ const extractFunctions = (source) => {
     if (state.inString) return state;
 
     // Handle braces
-    if (char === "{") return handleOpeningBrace(state);
-    if (char === "}") return handleClosingBrace(lineNum, state);
-
-    return state;
+    return char === "{"
+      ? handleOpeningBrace(state)
+      : char === "}"
+        ? handleClosingBrace(lineNum, state)
+        : state;
   };
 
   // Helper: Process a single line of source code

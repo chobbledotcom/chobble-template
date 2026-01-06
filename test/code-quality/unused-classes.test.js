@@ -322,16 +322,24 @@ describe("unused-classes", () => {
       };
 
       // Load all SCSS, JS, and HTML content
-      const scssContent = scssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+      const scssContent = scssFiles
+        .map((f) => readFileSync(f, "utf-8"))
+        .join("\n");
       const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-      const htmlContent = htmlFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+      const htmlContent = htmlFiles
+        .map((f) => readFileSync(f, "utf-8"))
+        .join("\n");
 
       const unusedClasses = [];
       const unusedIds = [];
 
       // Check each class
       for (const [className, definedIn] of allClasses) {
-        const inScss = findSelectorReferencesInScss(scssContent, className, "\\.");
+        const inScss = findSelectorReferencesInScss(
+          scssContent,
+          className,
+          "\\.",
+        );
         const inJs = findReferencesInJs("class")(className)(jsContent);
 
         if (!inScss && !inJs) {

@@ -29,7 +29,9 @@ describe("strings", () => {
 
     const extractStringsKeys = createExtractor(/strings\.([a-z_]+)/g);
     const findStringsUsage = () =>
-      [...extractStringsKeys(SOURCE_FILES())].filter((k) => !IGNORE_KEYS.has(k));
+      [...extractStringsKeys(SOURCE_FILES())].filter(
+        (k) => !IGNORE_KEYS.has(k),
+      );
     const usedKeys = findStringsUsage();
     const missingKeys = usedKeys.filter((key) => !(key in baseStrings));
 
