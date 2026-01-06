@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   test:
@@ -35,11 +36,29 @@ jobs:
             echo "has_changes=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit and push coverage changes
+      - name: Create coverage ratchet PR
         if: steps.coverage_changes.outputs.has_changes == 'true' && github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
+          git checkout -B coverage-ratchet
           git add .coverage_exceptions.json
           git commit -m "Ratchet down coverage exceptions"
-          git push
+          git push --force origin coverage-ratchet
+
+          existing_pr=$(gh pr list --head coverage-ratchet --state open --json number --jq '.[0].number')
+
+          if [ -z "$existing_pr" ]; then
+            gh pr create \
+              --title "Ratchet down coverage exceptions" \
+              --body "Automated PR to ratchet down coverage exceptions." \
+              --head coverage-ratchet \
+              --base main
+          else
+            echo "PR #$existing_pr already exists and has been updated"
+          fi
+
+          gh pr merge coverage-ratchet --auto --squash --delete-branch
