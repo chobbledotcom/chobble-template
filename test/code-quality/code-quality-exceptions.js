@@ -105,17 +105,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
 ]);
 
 // ============================================
-// Array.push() exceptions (in accumulators)
-// ============================================
-
-// Array.push() is allowed in reduce accumulators where it's safe (contained mutation).
-// The O(1) performance is better than spread syntax O(n) which causes O(n²) in loops.
-// Pattern: const result = arr.reduce((acc, item) => { acc.push(item); return acc; }, [])
-const ALLOWED_ARRAY_PUSH = new Set([
-  // (Currently no entries - prefer functional patterns with pipe/map/filter/reduce)
-]);
-
-// ============================================
 // Object mutation via bracket assignment exceptions
 // ============================================
 
@@ -300,7 +289,6 @@ export {
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
-  ALLOWED_ARRAY_PUSH,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
   ALLOWED_SINGLE_USE_FUNCTIONS,

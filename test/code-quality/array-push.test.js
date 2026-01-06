@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_ARRAY_PUSH } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
@@ -21,7 +20,7 @@ const { find: findArrayPush } = createCodeChecker({
 const analyzeArrayPushUsage = () =>
   analyzeWithAllowlist({
     findFn: findArrayPush,
-    allowlist: ALLOWED_ARRAY_PUSH,
+    allowlist: new Set(), // No exceptions - prefer functional patterns
     files: SRC_JS_FILES,
   });
 
