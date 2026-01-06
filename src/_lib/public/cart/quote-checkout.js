@@ -1,7 +1,10 @@
 // Quote checkout page
 // Populates form with cart items and displays summary
 
-import { initHireCalculator } from "#public/cart/hire-calculator.js";
+import {
+  calculateDays,
+  initHireCalculator,
+} from "#public/cart/hire-calculator.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
 import {
@@ -55,24 +58,18 @@ const populateForm = () => {
   }
 };
 
-// Create days tracker with closure to avoid mutable let
-const createDaysTracker = (initialDays) => {
-  const state = { days: initialDays };
-  return {
-    get: () => state.days,
-    update: (days) => {
-      state.days = days;
-      updateQuotePrice(days);
-    },
-  };
+// Calculate days from date inputs (returns 1 if dates not set)
+const getDays = () => {
+  const start = document.querySelector('input[name="start_date"]')?.value;
+  const end = document.querySelector('input[name="end_date"]')?.value;
+  return start && end ? calculateDays(start, end) : 1;
 };
-const daysTracker = createDaysTracker(1);
 
 const init = () => {
   populateForm();
   updateQuotePrice();
-  initHireCalculator(daysTracker.update);
-  setupDetailsBlurHandlers(daysTracker.get);
+  initHireCalculator(updateQuotePrice);
+  setupDetailsBlurHandlers(getDays);
 };
 
 onReady(init);
