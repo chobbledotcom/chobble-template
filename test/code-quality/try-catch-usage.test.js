@@ -12,79 +12,127 @@ import {
 } from "#test/test-utils.js";
 
 /**
+ * Check if a line is a comment
+ */
+const isCommentLine = (line) => {
+  const trimmed = line.trim();
+  return trimmed.startsWith("//") || trimmed.startsWith("*");
+};
+
+/**
+ * Check if a string contains a catch keyword after whitespace
+ */
+const hasCatchKeyword = (text) => /\s*catch\b/.test(text);
+
+/**
+ * Find the first non-empty line starting from index
+ */
+const findNextNonEmptyLine = (lines, startIndex) => {
+  for (let i = startIndex; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed !== "") return trimmed;
+  }
+  return null;
+};
+
+/**
+ * Check if the line following a closing brace has a catch
+ */
+const nextLineHasCatch = (lines, lineIndex) => {
+  const nextLine = findNextNonEmptyLine(lines, lineIndex + 1);
+  if (!nextLine) return false;
+  return /^catch\b/.test(nextLine) || /^\}\s*catch\b/.test(nextLine);
+};
+
+/**
+ * Check if catch follows the closing brace at this position
+ */
+const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
+  const afterBrace = searchLine.slice(charIndex + 1);
+  if (hasCatchKeyword(afterBrace)) return true;
+  return nextLineHasCatch(lines, lineIndex);
+};
+
+/**
+ * Process characters in a line to track brace depth
+ * Returns { depth, foundCatch: boolean | null, startedCounting }
+ */
+const processLineChars = (searchLine, depth, startedCounting, lines, lineIndex) => {
+  for (let charIndex = 0; charIndex < searchLine.length; charIndex++) {
+    const char = searchLine[charIndex];
+
+    if (char === "{") {
+      depth++;
+      startedCounting = true;
+      continue;
+    }
+
+    if (char !== "}") continue;
+
+    depth--;
+
+    // When we close back to depth 0, check what follows
+    if (startedCounting && depth === 0) {
+      const foundCatch = catchFollowsClosingBrace(
+        searchLine,
+        charIndex,
+        lines,
+        lineIndex,
+      );
+      return { depth, foundCatch, startedCounting };
+    }
+  }
+
+  return { depth, foundCatch: null, startedCounting };
+};
+
+/**
+ * Track brace depth and find if try block has a catch
+ * Returns true if catch is found
+ */
+const tryBlockHasCatch = (lines, startLineIndex) => {
+  let depth = 0;
+  let startedCounting = false;
+
+  for (let lineIndex = startLineIndex; lineIndex < lines.length; lineIndex++) {
+    const result = processLineChars(
+      lines[lineIndex],
+      depth,
+      startedCounting,
+      lines,
+      lineIndex,
+    );
+
+    depth = result.depth;
+    startedCounting = result.startedCounting;
+
+    if (result.foundCatch !== null) return result.foundCatch;
+    if (startedCounting && depth === 0) return false;
+  }
+
+  return false;
+};
+
+/**
  * Find all try/catch blocks in a file (excludes try/finally without catch)
  * Returns array of { lineNumber, line }
  */
 const findTryCatches = (source) => {
   const results = [];
   const lines = source.split("\n");
+  const tryRegex = /\btry\s*\{/;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    // Match 'try' followed by optional whitespace and '{'
-    const tryRegex = /\btry\s*\{/;
 
-    if (tryRegex.test(line)) {
-      // Skip if in a comment
-      const trimmed = line.trim();
-      if (trimmed.startsWith("//")) continue;
-      if (trimmed.startsWith("*")) continue; // Block comment line
+    if (!tryRegex.test(line)) continue;
+    if (isCommentLine(line)) continue;
 
-      // Look ahead for a catch block by tracking brace depth
-      // We need to find where the try block ends and check if it's followed by catch
-      let depth = 0;
-      let startedCounting = false;
-      let hasCatch = false;
-
-      // Search through remaining source from this line
-      for (let j = i; j < lines.length; j++) {
-        const searchLine = lines[j];
-
-        for (let k = 0; k < searchLine.length; k++) {
-          const char = searchLine[k];
-
-          if (char === "{") {
-            depth++;
-            startedCounting = true;
-          } else if (char === "}") {
-            depth--;
-
-            // When we close back to depth 0, check what follows
-            if (startedCounting && depth === 0) {
-              // Check if catch follows on this line after the closing brace
-              const afterBrace = searchLine.slice(k + 1);
-              if (/\s*catch\b/.test(afterBrace)) {
-                hasCatch = true;
-                break;
-              }
-
-              // Check next non-empty lines for catch
-              for (let m = j + 1; m < lines.length; m++) {
-                const nextLine = lines[m].trim();
-                if (nextLine === "") continue;
-                if (
-                  /^catch\b/.test(nextLine) ||
-                  /^\}\s*catch\b/.test(nextLine)
-                ) {
-                  hasCatch = true;
-                }
-                break; // Only check first non-empty line
-              }
-              break;
-            }
-          }
-        }
-
-        if (startedCounting && depth === 0) break;
-        if (hasCatch) break;
-      }
-
-      if (hasCatch) {
-        results.push({
-          lineNumber: i + 1,
-          line: trimmed,
-        });
-      }
+    if (tryBlockHasCatch(lines, i)) {
+      results.push({
+        lineNumber: i + 1,
+        line: line.trim(),
+      });
     }
   }
 
