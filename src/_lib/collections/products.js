@@ -78,9 +78,7 @@ const createApiSkusCollection = (collectionApi) => {
       (option) => [
         option.sku,
         {
-          name: option.name
-            ? `${productTitle} - ${option.name}`
-            : productTitle,
+          name: option.name ? `${productTitle} - ${option.name}` : productTitle,
           unit_price: option.unit_price,
           max_quantity: option.max_quantity ?? null,
         },
