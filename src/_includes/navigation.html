@@ -5,13 +5,14 @@
       type="checkbox"
       id="nav-toggle"
       class="toggle"
+      aria-label="Toggle navigation menu"
     >
     <label
       for="nav-toggle"
       class="toggle-label"
+      aria-hidden="true"
     >
-      <span class="visually-hidden">Toggle navigation menu</span>
-      <span aria-hidden="true"></span>
+      <span></span>
     </label>
   {%- endif -%}
   {%- assign navItems = collections.navigationLinks | eleventyNavigation -%}
