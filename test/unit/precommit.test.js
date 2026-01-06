@@ -7,35 +7,26 @@ import { pipe } from "#utils/array-utils.js";
 const precommitPath = join(rootDir, "test", "precommit.js");
 
 /**
- * Functional helpers to extract and load the extractErrorsFromOutput function.
- * Uses currying and composition to eliminate test duplication.
+ * Load the extractErrorsFromOutput function from the precommit.js file.
+ * Uses pipe for functional composition to eliminate test duplication.
+ * Memoized so the file is read only once.
  */
-
-// Read file content from disk
-const readFile = (path) => require("node:fs").readFileSync(path, "utf-8");
-
-// Extract function source using regex
-const extractFunctionSource = (content) =>
-  content.match(
-    /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-  )?.[0];
-
-// Remove export keyword to prepare for eval
-const removeExport = (source) => source?.replace("export ", "");
-
-// Evaluate and return the function (biome-ignore used inline)
-const evaluateFunction = (source) => {
-  // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-  return eval(`${source}; extractErrorsFromOutput`);
-};
-
-// Memoized function loader - only reads and parses once
 const getExtractErrorsFunction = memoize(() =>
   pipe(
-    readFile,
-    extractFunctionSource,
-    removeExport,
-    evaluateFunction,
+    // Read file content from disk
+    (path) => require("node:fs").readFileSync(path, "utf-8"),
+    // Extract function source using regex
+    (content) =>
+      content.match(
+        /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
+      )?.[0],
+    // Remove export keyword to prepare for eval
+    (source) => source?.replace("export ", ""),
+    // Evaluate and return the function
+    (source) => {
+      // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
+      return eval(`${source}; extractErrorsFromOutput`);
+    },
   )(precommitPath),
 );
 
