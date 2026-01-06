@@ -16,7 +16,6 @@ const applyTheme = (themeName) => {
     document.documentElement.setAttribute("data-theme", themeName);
   }
 
-  // loadFontForTheme inlined
   const fontLinkId = "theme-font-link";
   document.getElementById(fontLinkId)?.remove();
   if (themeFonts[themeName]) {
@@ -31,7 +30,6 @@ const applyTheme = (themeName) => {
 const updateButtonText = (themeName) => {
   const button = document.getElementById("theme-switcher-button");
   if (button) {
-    // getThemeDisplayName inlined
     const computed = getComputedStyle(document.documentElement);
     const displayName = computed
       .getPropertyValue(`--theme-${themeName}-name`)
@@ -48,14 +46,12 @@ const updateButtonText = (themeName) => {
 };
 
 const cycleTheme = () => {
-  // getThemeList inlined
   const computed = getComputedStyle(document.documentElement);
   const themeListStr = computed.getPropertyValue("--theme-list").trim();
   const themes = themeListStr
     ? themeListStr.replace(/['"]/g, "").split(",")
     : ["default"];
 
-  // getCurrentTheme inlined
   const currentTheme = localStorage.getItem("theme_name") || "default";
 
   const currentIndex = themes.indexOf(currentTheme);
@@ -70,7 +66,6 @@ const cycleTheme = () => {
 const initThemeSwitcher = () => {
   const button = document.getElementById("theme-switcher-button");
   if (!button) return;
-  // isThemeEditorPage inlined
   if (window.location.pathname.includes("/theme-editor/")) {
     // Hide button and reset theme on theme-editor page
     button.style.display = "none";
@@ -79,7 +74,6 @@ const initThemeSwitcher = () => {
   } else {
     // Show button on other pages
     button.style.display = "";
-    // getCurrentTheme inlined
     const currentTheme = localStorage.getItem("theme_name") || "default";
     applyTheme(currentTheme);
     updateButtonText(currentTheme);

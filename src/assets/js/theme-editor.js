@@ -305,7 +305,6 @@ const ThemeEditor = {
    * Apply scoped CSS variables to DOM elements for live preview
    */
   applyScopes(scopeVars) {
-    // applyScopeToElement inlined as nested function
     const applyScopeToElement = (el, vars) => {
       for (const varName of SCOPED_VARS_TO_CLEAR) {
         el.style.removeProperty(varName);

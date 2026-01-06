@@ -50,7 +50,6 @@ export function parseThemeContent(themeContent) {
   const rootMatch = themeContent.match(/:root\s*\{([^}]*)\}/s);
   const classesMatch = themeContent.match(/\/\* body_classes: (.+) \*\//);
 
-  // parseScopePairs inlined
   const getScopePattern = (scope) =>
     scope === "button"
       ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
@@ -103,7 +102,6 @@ export function parseBorderValue(borderValue) {
  * @returns {string} - Generated theme CSS
  */
 export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
-  // formatCssLine inlined
   const formatCssLine = ([varName, value]) => {
     const cssVar = varName.startsWith("--") ? varName : `--${varName}`;
     return `  ${cssVar}: ${value};`;
@@ -116,7 +114,6 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
     (lines) => `:root {\n${lines}\n}`,
   )(globalVars);
 
-  // buildCssBlock inlined
   const buildCssBlock = (selector, vars) =>
     pipe(
       Object.entries,
@@ -125,7 +122,6 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
       (lines) => `${selector} {\n${lines}\n}`,
     )(vars);
 
-  // scopeHasVars inlined
   const scopeHasVars = (scopeVars) => (scope) =>
     scopeVars[scope] && Object.keys(scopeVars[scope]).length > 0;
 
