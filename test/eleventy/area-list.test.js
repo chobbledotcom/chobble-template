@@ -22,6 +22,9 @@ const createLocation = (name, url) => ({
   },
 });
 
+// Create multiple locations from [name, url] tuples
+const createLocations = (tuples) => tuples.map(([name, url]) => createLocation(name, url));
+
 describe("area-list", () => {
   // isTopLevelLocation tests
   test("Returns true for top-level location URLs", () => {
@@ -48,11 +51,11 @@ describe("area-list", () => {
 
   // sortByNavigationKey tests
   test("Sorts locations alphabetically by navigation key", () => {
-    const locations = [
-      createLocation("Zebra Town", "/locations/zebra-town/"),
-      createLocation("Alpha City", "/locations/alpha-city/"),
-      createLocation("Metro Area", "/locations/metro-area/"),
-    ];
+    const locations = createLocations([
+      ["Zebra Town", "/locations/zebra-town/"],
+      ["Alpha City", "/locations/alpha-city/"],
+      ["Metro Area", "/locations/metro-area/"],
+    ]);
 
     const sorted = sortByNavigationKey(locations);
 
@@ -82,10 +85,10 @@ describe("area-list", () => {
   });
 
   test("Does not mutate the original array", () => {
-    const locations = [
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Alpha", "/locations/alpha/"),
-    ];
+    const locations = createLocations([
+      ["Beta", "/locations/beta/"],
+      ["Alpha", "/locations/alpha/"],
+    ]);
     const original = [...locations];
 
     sortByNavigationKey(locations);
@@ -98,11 +101,11 @@ describe("area-list", () => {
 
   // filterTopLevelLocations tests
   test("Filters to only top-level locations", () => {
-    const locations = [
-      createLocation("Springfield", "/locations/springfield/"),
-      createLocation("Downtown", "/locations/springfield/downtown/"),
-      createLocation("Fulchester", "/locations/fulchester/"),
-    ];
+    const locations = createLocations([
+      ["Springfield", "/locations/springfield/"],
+      ["Downtown", "/locations/springfield/downtown/"],
+      ["Fulchester", "/locations/fulchester/"],
+    ]);
 
     const filtered = filterTopLevelLocations(
       locations,
@@ -115,11 +118,11 @@ describe("area-list", () => {
   });
 
   test("Excludes the current page from results", () => {
-    const locations = [
-      createLocation("Springfield", "/locations/springfield/"),
-      createLocation("Fulchester", "/locations/fulchester/"),
-      createLocation("Royston Vasey", "/locations/royston-vasey/"),
-    ];
+    const locations = createLocations([
+      ["Springfield", "/locations/springfield/"],
+      ["Fulchester", "/locations/fulchester/"],
+      ["Royston Vasey", "/locations/royston-vasey/"],
+    ]);
 
     const filtered = filterTopLevelLocations(
       locations,
@@ -167,10 +170,10 @@ describe("area-list", () => {
 
   // prepareAreaList tests
   test("Returns single location with no separator", () => {
-    const locations = [
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Beta", "/locations/beta/"),
-    ];
+    const locations = createLocations([
+      ["Alpha", "/locations/alpha/"],
+      ["Beta", "/locations/beta/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
@@ -181,11 +184,11 @@ describe("area-list", () => {
   });
 
   test("Returns two locations with 'and' separator", () => {
-    const locations = [
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Gamma", "/locations/gamma/"),
-    ];
+    const locations = createLocations([
+      ["Alpha", "/locations/alpha/"],
+      ["Beta", "/locations/beta/"],
+      ["Gamma", "/locations/gamma/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
@@ -194,12 +197,12 @@ describe("area-list", () => {
   });
 
   test("Returns three locations with comma and 'and' separators", () => {
-    const locations = [
-      createLocation("Delta", "/locations/delta/"),
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Gamma", "/locations/gamma/"),
-    ];
+    const locations = createLocations([
+      ["Delta", "/locations/delta/"],
+      ["Alpha", "/locations/alpha/"],
+      ["Beta", "/locations/beta/"],
+      ["Gamma", "/locations/gamma/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/delta/");
 
@@ -208,11 +211,11 @@ describe("area-list", () => {
   });
 
   test("Excludes nested locations", () => {
-    const locations = [
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Nested", "/locations/alpha/nested/"),
-      createLocation("Beta", "/locations/beta/"),
-    ];
+    const locations = createLocations([
+      ["Alpha", "/locations/alpha/"],
+      ["Nested", "/locations/alpha/nested/"],
+      ["Beta", "/locations/beta/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/other/");
 
@@ -221,7 +224,7 @@ describe("area-list", () => {
   });
 
   test("Returns empty array when no locations remain", () => {
-    const locations = [createLocation("Alpha", "/locations/alpha/")];
+    const locations = createLocations([["Alpha", "/locations/alpha/"]]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
@@ -254,10 +257,10 @@ describe("area-list", () => {
     const mockConfig = createMockEleventyConfig();
     configureAreaList(mockConfig);
 
-    const locations = [
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Alpha", "/locations/alpha/"),
-    ];
+    const locations = createLocations([
+      ["Beta", "/locations/beta/"],
+      ["Alpha", "/locations/alpha/"],
+    ]);
 
     const result = mockConfig.filters.prepareAreaList(
       locations,
