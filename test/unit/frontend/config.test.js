@@ -20,7 +20,9 @@ import {
   createFrontmatter,
   createTempDir,
   createTempFile,
+  expectObjectProps,
 } from "#test/test-utils.js";
+import { pipe } from "#utils/array-utils.js";
 
 describe("config", () => {
   // DEFAULTS constant tests
@@ -51,10 +53,14 @@ describe("config", () => {
 
   // DEFAULT_PRODUCT_DATA constant tests
   test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {
-    expect(DEFAULT_PRODUCT_DATA.item_widths).toBe("240,480,640");
-    expect(DEFAULT_PRODUCT_DATA.gallery_thumb_widths).toBe("240,480");
-    expect(DEFAULT_PRODUCT_DATA.gallery_image_widths).toBe("900,1300,1800");
-    expect(DEFAULT_PRODUCT_DATA.header_image_widths).toBe("640,900,1300");
+    pipe(
+      expectObjectProps({
+        item_widths: "240,480,640",
+        gallery_thumb_widths: "240,480",
+        gallery_image_widths: "900,1300,1800",
+        header_image_widths: "640,900,1300",
+      }),
+    )(DEFAULT_PRODUCT_DATA);
   });
 
   // getProducts function tests
