@@ -36,29 +36,17 @@ export function getItemCount() {
   return cart.reduce((count, item) => count + item.quantity, 0);
 }
 
-const updateBadge = (badge, count) => {
-  badge.textContent = count;
-  badge.style.display = count > 0 ? "block" : "none";
-};
-
-const updateIcon = (icon, count) => {
-  icon.style.display = count > 0 ? "flex" : "none";
-  const badge = icon.querySelector(".cart-count");
-  if (badge) updateBadge(badge, count);
-};
-
 export function updateCartIcon() {
   const count = getItemCount();
   for (const icon of document.querySelectorAll(".cart-icon")) {
-    updateIcon(icon, count);
+    icon.style.display = count > 0 ? "flex" : "none";
+    const badge = icon.querySelector(".cart-count");
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? "block" : "none";
+    }
   }
 }
-
-const clampToMaxQuantity = (item, quantity) => {
-  if (!item.max_quantity || quantity <= item.max_quantity) return quantity;
-  alert(`The maximum quantity for this item is ${item.max_quantity}`);
-  return item.max_quantity;
-};
 
 export function updateItemQuantity(itemName, quantity) {
   const cart = getCart();
@@ -68,7 +56,13 @@ export function updateItemQuantity(itemName, quantity) {
   if (quantity <= 0) {
     removeItem(itemName);
   } else {
-    item.quantity = clampToMaxQuantity(item, quantity);
+    // Clamp quantity to item's max_quantity if set
+    if (item.max_quantity && quantity > item.max_quantity) {
+      alert(`The maximum quantity for this item is ${item.max_quantity}`);
+      item.quantity = item.max_quantity;
+    } else {
+      item.quantity = quantity;
+    }
     saveCart(cart);
   }
   return true;

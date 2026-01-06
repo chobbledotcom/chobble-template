@@ -243,7 +243,7 @@ const ALLOWED_NULL_CHECKS = new Set([
 
   // === External/parsed data (localStorage, API responses, etc) ===
   "src/_lib/public/utils/cart-utils.js:8", // cart (from localStorage)
-  "src/_lib/public/utils/cart-utils.js:66", // item
+  "src/_lib/public/utils/cart-utils.js:54", // item (from array find)
   "src/_lib/public/theme/theme-editor-lib.js:32", // cssText
   "src/_lib/public/theme/theme-editor-lib.js:48", // themeContent
   "src/_lib/public/theme/theme-editor-lib.js:85", // borderValue
@@ -276,8 +276,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
   "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:53", // trimmed (line processing)
-  "test/precommit.js:105", // result (skip if step wasn't run)
-  "test/precommit.js:147", // allPassed (check if all steps passed)
+  "test/precommit.js:114", // result (skip if step wasn't run)
+  "test/precommit.js:168", // allPassed (check if all steps passed)
 ]);
 
 // ============================================
@@ -320,6 +320,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/tabs.js",
   "src/_lib/public/theme/theme-editor-lib.js",
   "src/products/products.11tydata.js",
+  "test/unit/code-quality/knip.test.js",
 ]);
 
 // ============================================
