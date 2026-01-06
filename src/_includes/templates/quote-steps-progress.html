@@ -1,2 +1,9 @@
+<template id="{{ selectors.IDS.QUOTE_STEP_INDICATOR }}">
+  <li>
+    <span data-name="name"></span>
+    <span data-name="index"></span>
+  </li>
+</template>
+
 <div class="quote-steps-progress" data-completed-steps="{{ completed_steps }}"></div>
 <script type="application/json" class="quote-steps-data">{{ quoteFields.steps | json }}</script>

@@ -7,6 +7,23 @@ import { pipe } from "#utils/array-utils.js";
 const precommitPath = join(rootDir, "test", "precommit.js");
 
 /**
+ * Assert that all expected strings appear in the errors array.
+ * Uses functional iteration to verify each expectation independently.
+ * Provides clear error messages when a specific string is not found.
+ *
+ * @param {Array<string>} errors - Array of error strings to search
+ * @param {...string} expectedStrings - Strings that should appear in errors
+ *
+ * @example
+ * expectErrorsToInclude(errors, "Unused files", "Unused exports");
+ */
+const expectErrorsToInclude = (errors, ...expectedStrings) => {
+  for (const str of expectedStrings) {
+    expect(errors.some((e) => e.includes(str))).toBe(true);
+  }
+};
+
+/**
  * Memoized loader for the extractErrorsFromOutput function from precommit.js.
  * Uses pipe for functional composition. The file is read only once.
  */
@@ -70,9 +87,12 @@ Unlisted dependencies (1)
     const errors = extractErrorsFromOutput(knipOutput);
 
     // Should capture the summary lines
-    expect(errors.some((e) => e.includes("Unused files"))).toBe(true);
-    expect(errors.some((e) => e.includes("Unused exports"))).toBe(true);
-    expect(errors.some((e) => e.includes("Unused dependencies"))).toBe(true);
+    expectErrorsToInclude(
+      errors,
+      "Unused files",
+      "Unused exports",
+      "Unused dependencies",
+    );
   });
 
   test("extractErrorsFromOutput correctly parses jscpd errors", () => {
@@ -413,10 +433,13 @@ Unlisted dependencies (1)
 
     const errors = extractErrorsFromOutput(realKnipOutput);
 
-    expect(errors.some((e) => e.includes("Unused files"))).toBe(true);
-    expect(errors.some((e) => e.includes("Unused exports"))).toBe(true);
-    expect(errors.some((e) => e.includes("Unused dependencies"))).toBe(true);
-    expect(errors.some((e) => e.includes("Unlisted dependencies"))).toBe(true);
+    expectErrorsToInclude(
+      errors,
+      "Unused files",
+      "Unused exports",
+      "Unused dependencies",
+      "Unlisted dependencies",
+    );
 
     // Should have captured the summary lines
     expect(errors.length).toBeGreaterThan(0);

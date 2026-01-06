@@ -74,9 +74,6 @@ const ALLOWED_HTML_IN_JS = new Set([
 
   // Filters with HTML formatting
   "src/_lib/filters/item-filters.js",
-
-  // JS-rendered step progress indicator
-  "src/_lib/public/ui/quote-steps-progress.js",
 ]);
 
 // ============================================
@@ -330,7 +327,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:334",
+  "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:55",

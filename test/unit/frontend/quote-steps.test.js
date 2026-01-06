@@ -602,11 +602,19 @@ describe("quote-steps", () => {
     { name: "Review", number: 4 },
   ]);
 
+  // Template element required by renderStepProgress
+  const indicatorTemplate = `
+    <template id="quote-step-indicator-template">
+      <li><span data-name="name"></span><span data-name="index"></span></li>
+    </template>
+  `;
+
   function createQuoteStepsHtml(options = {}) {
     const currentStep = options.currentStep ?? 0;
     const inputValue = options.inputValue ?? "filled";
     const inputRequired = options.inputRequired !== false;
     return `
+      ${indicatorTemplate}
       <div class="quote-steps" data-current-step="${currentStep}">
         <div class="quote-steps-progress" data-completed-steps="1"></div>
         <script type="application/json" class="quote-steps-data">${stepsData}</script>
@@ -684,7 +692,7 @@ describe("quote-steps", () => {
     nextBtn.click();
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("2");
-    const indicators = document.querySelectorAll(".quote-steps-indicator");
+    const indicators = document.querySelectorAll(".quote-steps-progress li");
     indicators[1].click();
     expect(container.dataset.currentStep).toBe("0");
   });
@@ -694,7 +702,7 @@ describe("quote-steps", () => {
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = () => {};
     initQuoteSteps();
-    const indicators = document.querySelectorAll(".quote-steps-indicator");
+    const indicators = document.querySelectorAll(".quote-steps-progress li");
     indicators[2].click();
     expect(container.dataset.currentStep).toBe("0");
   });
