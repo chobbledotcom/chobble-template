@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { expectObjectProps } from "#test/test-utils.js";
+import { captureConsole, expectObjectProps } from "#test/test-utils.js";
 import {
   chunk,
   compact,
@@ -314,16 +314,6 @@ describe("array-utils", () => {
   // ============================================
   // printTruncatedList Tests
   // ============================================
-
-  // Helper to capture console.log output
-  const captureConsole = (fn) => {
-    const logs = [];
-    const originalLog = console.log;
-    console.log = (...args) => logs.push(args.join(" "));
-    fn();
-    console.log = originalLog;
-    return logs;
-  };
 
   test("printTruncatedList prints all items when under maxItems", () => {
     const items = ["error 1", "error 2", "error 3"];
