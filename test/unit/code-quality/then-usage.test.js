@@ -40,7 +40,7 @@ await asyncFunction();
   test("No .then() chains - use async/await instead", () => {
     const { violations } = analyzeThenUsage();
     assertNoViolations(violations, {
-      message: ".then() call(s)",
+      singular: ".then() call",
       fixHint: "use async/await instead of .then() chains",
     });
   });

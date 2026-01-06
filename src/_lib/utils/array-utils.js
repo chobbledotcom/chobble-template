@@ -202,6 +202,22 @@ const findDuplicate = (items, getKey = (x) => x) => {
 const accumulate = (fn) => (arr) => arr.reduce(fn, []);
 
 /**
+ * Create a membership predicate factory with configurable negation.
+ * Curried: (negate) => (values) => (value) => boolean
+ *
+ * This factory unifies memberOf and notMemberOf into a single pattern.
+ *
+ * @param {boolean} negate - Whether to negate the membership test
+ * @returns {Function} (values) => (value) => boolean
+ *
+ * @example
+ * const memberOf = membershipPredicate(false);
+ * const notMemberOf = membershipPredicate(true);
+ */
+const membershipPredicate = (negate) => (values) => (value) =>
+  negate ? !values.includes(value) : values.includes(value);
+
+/**
  * Create a membership predicate
  *
  * Returns a predicate function that tests if a value is in the collection.
@@ -222,7 +238,7 @@ const accumulate = (fn) => (arr) => arr.reduce(fn, []);
  * items.some(memberOf(allowedItems))
  * items.every(memberOf(validValues))
  */
-const memberOf = (values) => (value) => values.includes(value);
+const memberOf = membershipPredicate(false);
 
 /**
  * Create a negated membership predicate
@@ -240,7 +256,39 @@ const memberOf = (values) => (value) => values.includes(value);
  * // Use with filter to exclude items
  * usernames.filter(notMemberOf(reservedNames))
  */
-const notMemberOf = (values) => (value) => !values.includes(value);
+const notMemberOf = membershipPredicate(true);
+
+/**
+ * Create a pluralization formatter.
+ * Curried: (singular, plural?) => (count) => string
+ *
+ * Returns a function that formats a count with the appropriate singular/plural form.
+ * If plural is omitted, auto-derives it from singular (adds "es" if ends in "s", else "s").
+ *
+ * @param {string} singular - Singular form (e.g., "day", "item in order")
+ * @param {string} [plural] - Plural form (optional, auto-derived if omitted)
+ * @returns {Function} (count) => formatted string
+ *
+ * @example
+ * const formatDays = pluralize("day");
+ * formatDays(1)  // "1 day"
+ * formatDays(5)  // "5 days"
+ *
+ * @example
+ * const formatClasses = pluralize("class");
+ * formatClasses(1)  // "1 class"
+ * formatClasses(2)  // "2 classes"
+ *
+ * @example
+ * const formatItems = pluralize("item in order", "items in order");
+ * formatItems(1)  // "1 item in order"
+ * formatItems(3)  // "3 items in order"
+ */
+const pluralize = (singular, plural) => {
+  const pluralForm =
+    plural ?? (singular.endsWith("s") ? `${singular}es` : `${singular}s`);
+  return (count) => (count === 1 ? `1 ${singular}` : `${count} ${pluralForm}`);
+};
 
 /**
  * Print items with truncation and "more" message.
@@ -286,9 +334,11 @@ export {
   listSeparator,
   map,
   memberOf,
+  membershipPredicate,
   notMemberOf,
   pick,
   pipe,
+  pluralize,
   printTruncatedList,
   reduce,
   sort,

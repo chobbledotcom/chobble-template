@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { createExtractor, rootDir } from "#test/test-utils.js";
+import { pluralize } from "#utils/array-utils.js";
 
 // ============================================
 // Constants
@@ -84,8 +85,9 @@ describe("scss.variables", () => {
 
   test("All CSS variables used in SCSS are defined in :root", () => {
     if (undefinedVariables.length > 0) {
+      const formatVars = pluralize("undefined CSS variable");
       const errorMsg = [
-        `Found ${undefinedVariables.length} undefined CSS variable(s):`,
+        `Found ${formatVars(undefinedVariables.length)}:`,
         ...undefinedVariables.map((v) => `  - ${v}`),
         "",
         "To fix:",
@@ -139,8 +141,12 @@ describe("scss.variables", () => {
     }
 
     if (invalidNames.length > 0) {
+      const formatInvalid = pluralize(
+        "variable with invalid name",
+        "variables with invalid names",
+      );
       throw new Error(
-        `Found ${invalidNames.length} variable(s) with invalid names:\n` +
+        `Found ${formatInvalid(invalidNames.length)}:\n` +
           invalidNames.map((v) => `  - ${v}`).join("\n") +
           "\n\nVariable names should match: --[a-z][a-z0-9-]*",
       );
@@ -164,8 +170,9 @@ describe("scss.variables", () => {
       .map(([name, count]) => `${name} (${count}x)`);
 
     if (duplicates.length > 0) {
+      const formatDuplicates = pluralize("duplicate variable definition");
       throw new Error(
-        `Found ${duplicates.length} duplicate variable definition(s):\n` +
+        `Found ${formatDuplicates(duplicates.length)}:\n` +
           duplicates.map((d) => `  - ${d}`).join("\n"),
       );
     }

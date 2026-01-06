@@ -123,7 +123,7 @@ describe("unused-images", () => {
         expect(logOutput.includes("Unused Images Report")).toBe(true);
         expect(logOutput.includes("unused.png")).toBe(true);
         expect(logOutput.includes("also-unused.gif")).toBe(true);
-        expect(logOutput.includes("Found 2 unused image(s)")).toBe(true);
+        expect(logOutput.includes("Found 2 unused images")).toBe(true);
       },
     );
   });
@@ -137,7 +137,7 @@ describe("unused-images", () => {
         }
       },
       (logs) => {
-        expect(logs.join("\n").includes("Found 7 unused image(s)")).toBe(true);
+        expect(logs.join("\n").includes("Found 7 unused images")).toBe(true);
       },
     );
   });
@@ -307,7 +307,7 @@ describe("unused-images", () => {
       },
       (logs) => {
         const logOutput = logs.join("\n");
-        expect(logOutput.includes("Found 1 unused image(s)")).toBe(true);
+        expect(logOutput.includes("Found 1 unused image")).toBe(true);
         expect(logOutput.includes("unused.gif")).toBe(true);
       },
     );

@@ -336,7 +336,8 @@ describe("test-hygiene", () => {
   test("Test files should not contain production logic - only test and import real code", () => {
     const issues = analyzeTestFiles();
     assertNoViolations(issues, {
-      message: "non-whitelisted function(s) in test files",
+      singular: "non-whitelisted function in test file",
+      plural: "non-whitelisted functions in test files",
       fixHint: "add to ALLOWED_TEST_FUNCTIONS or import from source",
     });
   });

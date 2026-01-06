@@ -4,7 +4,7 @@
  */
 import { expect } from "bun:test";
 import { fs, path, rootDir } from "#test/test-utils.js";
-import { notMemberOf } from "#utils/array-utils.js";
+import { notMemberOf, pluralize } from "#utils/array-utils.js";
 import { omit } from "#utils/object-entries.js";
 
 // Standard fields returned by find functions (everything else is extra data)
@@ -122,13 +122,28 @@ const scanFilesForViolations = (files, matcher, options = {}) =>
 
 /**
  * Format violations into a report string.
+ * Supports singular/plural forms via pluralize for proper grammar.
+ *
+ * @param {Array} violations - Array of violation objects
+ * @param {Object} options
+ * @param {string} [options.singular] - Singular form (e.g., "null check")
+ * @param {string} [options.plural] - Plural form (e.g., "null checks")
+ * @param {string} [options.message] - Legacy: message with (s) suffix (deprecated)
+ * @param {string} [options.fixHint] - Hint for fixing violations
+ * @param {number} [options.limit] - Max violations to show (default: 10)
  */
 const formatViolationReport = (violations, options = {}) => {
-  const { message = "violations", fixHint = "", limit = 10 } = options;
+  const { singular, plural, message, fixHint = "", limit = 10 } = options;
 
   if (violations.length === 0) return { count: 0, report: "" };
 
-  const header = `\n  Found ${violations.length} ${message}:`;
+  // Use pluralize if singular provided (plural is optional, auto-derived if omitted)
+  // Fall back to legacy message format if neither provided
+  const formatCount = singular
+    ? pluralize(singular, plural)
+    : (n) => `${n} ${message || "violation(s)"}`;
+
+  const header = `\n  Found ${formatCount(violations.length)}:`;
   const items = violations
     .slice(0, limit)
     .flatMap((v) => [
