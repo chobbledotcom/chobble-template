@@ -1,6 +1,8 @@
 // Shared cart utilities
 // Common functions used across cart, quote, and checkout pages
 
+import { error as logError } from "#utils/console.js";
+
 export const STORAGE_KEY = "shopping_cart";
 
 export function getCart() {
@@ -11,8 +13,7 @@ export function getCart() {
   try {
     return JSON.parse(cart);
   } catch (e) {
-    // biome-ignore lint/suspicious/noConsole: error logging for debugging
-    console.error("Failed to parse cart data:", e);
+    logError("Failed to parse cart data:", e);
     return [];
   }
 }
