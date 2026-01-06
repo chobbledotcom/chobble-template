@@ -4,7 +4,10 @@
 import { initHireCalculator } from "#public/cart/hire-calculator.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { updateQuotePrice } from "#public/utils/quote-price-utils.js";
+import {
+  setupDetailsBlurHandlers,
+  updateQuotePrice,
+} from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
@@ -52,10 +55,24 @@ const populateForm = () => {
   }
 };
 
+// Create days tracker with closure to avoid mutable let
+const createDaysTracker = (initialDays) => {
+  const state = { days: initialDays };
+  return {
+    get: () => state.days,
+    update: (days) => {
+      state.days = days;
+      updateQuotePrice(days);
+    },
+  };
+};
+const daysTracker = createDaysTracker(1);
+
 const init = () => {
   populateForm();
   updateQuotePrice();
-  initHireCalculator(updateQuotePrice);
+  initHireCalculator(daysTracker.update);
+  setupDetailsBlurHandlers(daysTracker.get);
 };
 
 onReady(init);

@@ -230,6 +230,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/cart/stripe-checkout.js:34", // main
   "src/_lib/public/ui/slider.js:19", // firstItem
   "src/_lib/public/ui/scroll-fade.js:35", // selectors
+  "src/_lib/public/utils/quote-price-utils.js:207", // formContainer (getFormContainer)
 
   // === Regex match results (match() returns null on no match) ===
   "src/products/products.11tydata.js:11", // match

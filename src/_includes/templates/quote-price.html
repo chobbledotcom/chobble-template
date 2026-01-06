@@ -5,6 +5,9 @@
     <li>
       <ul data-field="items"></ul>
     </li>
+    <li>
+      <ul data-field="details"></ul>
+    </li>
     <li>Hire length: <span data-field="hire-length"></span></li>
     <li>Estimated total: <span data-field="total"></span></li>
   </ul>
@@ -14,5 +17,12 @@
   <li>
     <span data-field="name"></span>
     <span data-field="price"></span>
+  </li>
+</template>
+
+<template id="{{ selectors.IDS.QUOTE_PRICE_DETAIL }}">
+  <li>
+    <span data-field="key"></span>
+    <span data-field="value"></span>
   </li>
 </template>
