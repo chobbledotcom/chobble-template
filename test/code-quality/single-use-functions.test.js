@@ -271,7 +271,7 @@ const analyzeSingleUseFunctions = () => {
           file,
           line: func.line,
           code: func.name,
-          reason: `Function "${func.name}" is only called once - consider inlining`,
+          reason: `Function "${func.name}" is only called once - nest it inside its caller`,
         });
       }
     }
@@ -444,7 +444,7 @@ const z = add(5, 6);
     assertNoViolations(violations, {
       message: "single-use unexported function(s)",
       fixHint:
-        "Consider inlining into the caller, or add to ALLOWED_SINGLE_USE_FUNCTIONS if intentional",
+        "Nest the function inside its caller if it's specific to it, or add to ALLOWED_SINGLE_USE_FUNCTIONS if it's intentionally kept separate",
     });
   });
 

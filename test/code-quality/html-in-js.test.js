@@ -62,77 +62,149 @@ const EXCLUSION_PATTERNS = [
  * Returns array of { lineNumber, content, type }
  */
 const extractStringContent = (source) => {
-  const results = [];
+  /**
+   * Helper: Handle opening brace in template expression
+   * (Used twice in processCharForTemplate)
+   */
+  const handleTemplateBraceOpen = (state, char) => ({
+    ...state,
+    braceDepth: state.braceDepth + 1,
+    skipNext: char === "$", // Skip '{' after '$'
+  });
+
+  /**
+   * Process single character for template extraction.
+   * Pure function following test-utils.js pattern.
+   */
+  const processCharForTemplate = (lineIndex) => (state, char, index, chars) => {
+    /**
+     * Helper: Get adjacent characters for current position
+     */
+    const getAdjacent = (idx, chrs) => ({
+      prev: idx > 0 ? chrs[idx - 1] : "",
+      next: idx < chrs.length - 1 ? chrs[idx + 1] : "",
+    });
+
+    /**
+     * Helper: Check if char is unescaped backtick
+     */
+    const isUnescapedBacktick = (ch, prevCh) => ch === "`" && prevCh !== "\\";
+
+    /**
+     * Helper: Check if starting template expression ${
+     */
+    const isTemplateExpressionStart = (ch, nextCh) =>
+      ch === "$" && nextCh === "{";
+
+    /**
+     * Helper: Handle closing brace in template expression
+     */
+    const handleTemplateBraceClose = (st) => ({
+      ...st,
+      braceDepth: st.braceDepth - 1,
+    });
+
+    /**
+     * Helper: Handle backtick (start or end template)
+     */
+    const handleBacktick = (st, lineIdx) => {
+      if (st.inTemplate) {
+        // End template literal
+        return {
+          ...st,
+          inTemplate: false,
+          templateContent: "",
+          results: [
+            ...st.results,
+            {
+              lineNumber: st.templateStart + 1,
+              content: st.templateContent,
+              type: "template",
+            },
+          ],
+        };
+      }
+      // Start template literal
+      return {
+        ...st,
+        inTemplate: true,
+        templateStart: lineIdx,
+        templateContent: "",
+      };
+    };
+
+    if (state.skipNext) {
+      return { ...state, skipNext: false };
+    }
+
+    const { prev, next } = getAdjacent(index, chars);
+
+    // Handle template expression braces
+    if (state.inTemplate && isTemplateExpressionStart(char, next)) {
+      return handleTemplateBraceOpen(state, char);
+    }
+
+    if (state.braceDepth > 0) {
+      if (char === "{") return handleTemplateBraceOpen(state, char);
+      if (char === "}") return handleTemplateBraceClose(state);
+      return state;
+    }
+
+    // Handle backticks
+    if (isUnescapedBacktick(char, prev)) {
+      return handleBacktick(state, lineIndex);
+    }
+
+    // Accumulate template content
+    if (state.inTemplate) {
+      return { ...state, templateContent: `${state.templateContent}${char}` };
+    }
+
+    return state;
+  };
+
+  /**
+   * Process single line: extract template parts and regular strings.
+   * Pure function returning updated state.
+   */
+  const processLineForStrings = (state, line, lineIndex) => {
+    if (isCommentLine(line)) return state;
+
+    // Process characters for template literals
+    const chars = [...line];
+    const afterChars = chars.reduce(processCharForTemplate(lineIndex), state);
+
+    // Add newline to template content if still inside template
+    const withNewline = afterChars.inTemplate
+      ? { ...afterChars, templateContent: `${afterChars.templateContent}\n` }
+      : afterChars;
+
+    // Extract regular strings from this line
+    const stringMatches = [...line.matchAll(/["']([^"'\\]|\\.)*["']/g)];
+    const stringResults = stringMatches.map((match) => ({
+      lineNumber: lineIndex + 1,
+      content: match[0],
+      type: "string",
+    }));
+
+    return {
+      ...withNewline,
+      results: [...withNewline.results, ...stringResults],
+    };
+  };
+
   const lines = source.split("\n");
+  const initialState = {
+    inTemplate: false,
+    templateStart: 0,
+    templateContent: "",
+    braceDepth: 0,
+    skipNext: false,
+    results: [],
+  };
 
-  let inTemplateLiteral = false;
-  let templateLiteralStart = 0;
-  let templateContent = "";
-  let braceDepth = 0;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Skip comment lines
-    if (isCommentLine(line)) continue;
-
-    // Track template literals across lines
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j];
-      const prevChar = j > 0 ? line[j - 1] : "";
-
-      // Handle template literal expressions ${...}
-      if (inTemplateLiteral && char === "$" && line[j + 1] === "{") {
-        braceDepth++;
-        j++; // Skip the {
-        continue;
-      }
-
-      if (braceDepth > 0) {
-        if (char === "{") braceDepth++;
-        if (char === "}") braceDepth--;
-        continue;
-      }
-
-      // Unescaped backtick
-      if (char === "`" && prevChar !== "\\") {
-        if (inTemplateLiteral) {
-          // End of template literal
-          results.push({
-            lineNumber: templateLiteralStart + 1,
-            content: templateContent,
-            type: "template",
-          });
-          inTemplateLiteral = false;
-          templateContent = "";
-        } else {
-          // Start of template literal
-          inTemplateLiteral = true;
-          templateLiteralStart = i;
-          templateContent = "";
-        }
-      } else if (inTemplateLiteral) {
-        templateContent += char;
-      }
-    }
-
-    if (inTemplateLiteral) {
-      templateContent += "\n";
-    }
-
-    // Also check for regular strings with HTML on this line
-    // Match single and double quoted strings
-    const stringMatches = line.matchAll(/["']([^"'\\]|\\.)*["']/g);
-    for (const match of stringMatches) {
-      results.push({
-        lineNumber: i + 1,
-        content: match[0],
-        type: "string",
-      });
-    }
-  }
-
-  return results;
+  const finalState = lines.reduce(processLineForStrings, initialState);
+  return finalState.results;
 };
 
 /**
