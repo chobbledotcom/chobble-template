@@ -1,8 +1,33 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
+import { memoize } from "#lib/utils/memoize.js";
 import { rootDir } from "#test/test-utils.js";
+import { pipe } from "#utils/array-utils.js";
 
 const precommitPath = join(rootDir, "test", "precommit.js");
+
+/**
+ * Memoized loader for the extractErrorsFromOutput function from precommit.js.
+ * Uses pipe for functional composition. The file is read only once.
+ */
+const extractErrorsFunction = memoize(() =>
+  pipe(
+    // Read file content from disk
+    (path) => require("node:fs").readFileSync(path, "utf-8"),
+    // Extract function source using regex
+    (content) =>
+      content.match(
+        /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
+      )?.[0],
+    // Remove export keyword to prepare for eval
+    (source) => source?.replace("export ", ""),
+    // Evaluate and return the function
+    (source) => {
+      // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
+      return eval(`${source}; extractErrorsFromOutput`);
+    },
+  )(precommitPath),
+);
 
 /**
  * Tests for the precommit script error output handling.
@@ -15,21 +40,7 @@ const precommitPath = join(rootDir, "test", "precommit.js");
  */
 describe("precommit error output", () => {
   test("extractErrorsFromOutput correctly parses knip errors", () => {
-    // Import the extractErrorsFromOutput function by reading and evaluating the file
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-
-    // Extract the function (this is a bit hacky but works for testing)
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real knip error output
     const knipOutput = `
@@ -65,18 +76,7 @@ Unlisted dependencies (1)
   });
 
   test("extractErrorsFromOutput correctly parses jscpd errors", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real jscpd error output
     const jscpdOutput = `
@@ -99,18 +99,7 @@ Total duplicates: 1250 lines across 15 files
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real bun test failure output
     const testOutput = `
@@ -136,18 +125,7 @@ AssertionError: expected undefined to be defined
   });
 
   test("extractErrorsFromOutput correctly parses coverage errors", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Simulate real coverage error output from run-coverage.js
     const coverageOutput = `
@@ -181,18 +159,7 @@ src/utils/new-helper.js
   });
 
   test("extractErrorsFromOutput filters out noise but keeps errors", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const noisyOutput = `
 $ bun test
@@ -236,18 +203,7 @@ error: something went wrong
   });
 
   test("extractErrorsFromOutput handles multiline error messages", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const multilineOutput = `
 ❌ Test suite failed
@@ -271,36 +227,14 @@ Error: Cannot find module 'missing-dep'
   });
 
   test("extractErrorsFromOutput handles empty output", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const errors = extractErrorsFromOutput("");
     expect(errors).toEqual([]);
   });
 
   test("extractErrorsFromOutput handles output with only whitespace", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const errors = extractErrorsFromOutput("   \n  \n   \t  \n  ");
     expect(errors).toEqual([]);
@@ -376,18 +310,7 @@ describe("precommit script integration", () => {
  */
 describe("precommit error pattern edge cases", () => {
   test("extractErrorsFromOutput captures eslint/biome style errors", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const lintOutput = `
 src/components/Button.js:15:3
@@ -408,18 +331,7 @@ src/utils/helpers.js:42:10
   });
 
   test("extractErrorsFromOutput captures assertion errors", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const assertOutput = `
 ❌ test/unit/utils.test.js > formatDate
@@ -436,18 +348,7 @@ AssertionError: expected 'foo' to equal 'bar'
   });
 
   test("extractErrorsFromOutput handles errors with colons in unexpected places", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Coverage errors with file:line patterns
     const coverageOutput = `
@@ -464,18 +365,7 @@ src/api/client.js: retryRequest, handleError
   });
 
   test("extractErrorsFromOutput captures stack traces for debugging", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const stackTraceOutput = `
 Error: Cannot find module 'missing-package'
@@ -493,18 +383,7 @@ Error: Cannot find module 'missing-package'
   });
 
   test("extractErrorsFromOutput handles complex real-world knip output", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     // Real knip output format
     const realKnipOutput = `
@@ -541,18 +420,7 @@ Unlisted dependencies (1)
   });
 
   test("extractErrorsFromOutput handles real jscpd duplication output", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
-      "utf-8",
-    );
-    // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-    const extractErrorsFromOutput = eval(
-      `${precommitCode
-        .match(
-          /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-        )?.[0]
-        ?.replace("export ", "")}; extractErrorsFromOutput`,
-    );
+    const extractErrorsFromOutput = extractErrorsFunction();
 
     const realJscpdOutput = `
 Clone found (src/components/Form.js[15:45] - src/components/ContactForm.js[20:50])
