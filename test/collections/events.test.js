@@ -8,6 +8,7 @@ import {
   createEvent,
   createEvents,
   createOffsetDate,
+  expectEventCounts,
   expectResultTitles,
   formatDateString,
 } from "#test/test-utils.js";
@@ -31,9 +32,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(1);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(0);
+    expectEventCounts(result, { upcoming: 1 });
     expect(result.show).toEqual({
       upcoming: true,
       regular: false,
@@ -46,9 +45,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(0);
-    expect(result.past.length).toBe(1);
-    expect(result.regular.length).toBe(0);
+    expectEventCounts(result, { past: 1 });
     expect(result.show).toEqual({
       upcoming: false,
       regular: false,
@@ -61,9 +58,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(1);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(0);
+    expectEventCounts(result, { upcoming: 1 });
   });
 
   test("Categorizes recurring events correctly", () => {
@@ -74,9 +69,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(0);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(2);
+    expectEventCounts(result, { regular: 2 });
     expect(result.show).toEqual({
       upcoming: false,
       regular: true,
@@ -93,9 +86,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(1);
-    expect(result.past.length).toBe(1);
-    expect(result.regular.length).toBe(1);
+    expectEventCounts(result, { upcoming: 1, past: 1, regular: 1 });
     expect(result.show).toEqual({
       upcoming: true,
       regular: true,

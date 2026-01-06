@@ -11,6 +11,7 @@ import configData from "#data/config.json" with { type: "json" };
 import {
   collectionApi,
   createMockEleventyConfig,
+  expectGalleries,
   expectResultTitles,
   items,
 } from "#test/test-utils.js";
@@ -28,10 +29,7 @@ describe("properties", () => {
 
     const result = createPropertiesCollection(collectionApi(testItems));
 
-    expect(result.length).toBe(3);
-    expect(result[0].data.gallery).toEqual(["img1.jpg"]);
-    expect(result[1].data.gallery).toBe(undefined);
-    expect(result[2].data.gallery).toEqual(["img3.jpg"]);
+    expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
   });
 
   test("Handles empty property collection", () => {

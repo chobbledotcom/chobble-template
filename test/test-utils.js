@@ -248,6 +248,37 @@ const expectResultTitles = (result, expectedTitles) => {
   });
 };
 
+/**
+ * Assert that a result array has expected gallery values in order.
+ * Handles both arrays and undefined galleries.
+ *
+ * @param {Array} result - Array of items with data.gallery properties
+ * @param {Array<Array<string>|undefined>} expectedGalleries - Galleries in expected order
+ */
+const expectGalleries = (result, expectedGalleries) => {
+  expect(result.length).toBe(expectedGalleries.length);
+  expectedGalleries.forEach((gallery, i) => {
+    if (gallery === undefined) {
+      expect(result[i].data.gallery).toBe(undefined);
+    } else {
+      expect(result[i].data.gallery).toEqual(gallery);
+    }
+  });
+};
+
+/**
+ * Assert that categorised events have expected counts.
+ * Reduces boilerplate in event categorisation tests.
+ *
+ * @param {Object} result - Result from categoriseEvents with upcoming/past/regular arrays
+ * @param {Object} counts - Expected counts { upcoming, past, regular }
+ */
+const expectEventCounts = (result, { upcoming = 0, past = 0, regular = 0 }) => {
+  expect(result.upcoming.length).toBe(upcoming);
+  expect(result.past.length).toBe(past);
+  expect(result.regular.length).toBe(regular);
+};
+
 // ============================================
 // Test Fixture Factories
 // ============================================
@@ -762,6 +793,8 @@ export {
   withTempFile,
   withMockedCwd,
   expectResultTitles,
+  expectGalleries,
+  expectEventCounts,
   // Generic item builder
   item,
   items,

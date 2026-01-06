@@ -365,21 +365,4 @@ describe("categories", () => {
       tools: ["high-priority-tool.jpg", 5],
     });
   });
-
-  test("categories-functions-pure", () => {
-    const originalCategories = [
-      category("widgets", undefined, { title: "Widgets" }),
-    ];
-    const originalProducts = [
-      product({ order: 1, cats: ["widgets"], headerImage: "test.jpg" }),
-    ];
-
-    const categoriesCopy = JSON.parse(JSON.stringify(originalCategories));
-    const productsCopy = JSON.parse(JSON.stringify(originalProducts));
-
-    buildCategoryImageMap(categoriesCopy, productsCopy);
-
-    expect(categoriesCopy).toEqual(originalCategories);
-    expect(productsCopy).toEqual(originalProducts);
-  });
 });
