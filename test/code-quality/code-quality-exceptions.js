@@ -277,8 +277,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
-  "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
-  "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
   "test/code-quality/try-catch-usage.test.js:40", // nextLine (find() can return undefined)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
