@@ -14,9 +14,19 @@ describe("quote-steps-progress", () => {
     { name: "Review", number: 4 },
   ];
 
+  // Template element required by renderStepProgress
+  const indicatorTemplate = `
+    <template id="quote-step-indicator-template">
+      <li><span data-name="name"></span><span data-name="index"></span></li>
+    </template>
+  `;
+
   describe("renderStepProgress", () => {
     test("renders all steps as list items", () => {
-      document.body.innerHTML = '<div class="quote-steps-progress"></div>';
+      document.body.innerHTML = `
+        ${indicatorTemplate}
+        <div class="quote-steps-progress"></div>
+      `;
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 0);
 
@@ -25,7 +35,10 @@ describe("quote-steps-progress", () => {
     });
 
     test("renders step names and numbers", () => {
-      document.body.innerHTML = '<div class="quote-steps-progress"></div>';
+      document.body.innerHTML = `
+        ${indicatorTemplate}
+        <div class="quote-steps-progress"></div>
+      `;
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 0);
 
@@ -43,7 +56,10 @@ describe("quote-steps-progress", () => {
     });
 
     test("sets data-step attribute on indicators", () => {
-      document.body.innerHTML = '<div class="quote-steps-progress"></div>';
+      document.body.innerHTML = `
+        ${indicatorTemplate}
+        <div class="quote-steps-progress"></div>
+      `;
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 0);
 
@@ -54,7 +70,10 @@ describe("quote-steps-progress", () => {
     });
 
     test("sets aria-current on active step", () => {
-      document.body.innerHTML = '<div class="quote-steps-progress"></div>';
+      document.body.innerHTML = `
+        ${indicatorTemplate}
+        <div class="quote-steps-progress"></div>
+      `;
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 1);
 
@@ -73,7 +92,10 @@ describe("quote-steps-progress", () => {
 
   describe("updateStepProgress", () => {
     test("updates aria-current based on completed steps", () => {
-      document.body.innerHTML = '<div class="quote-steps-progress"></div>';
+      document.body.innerHTML = `
+        ${indicatorTemplate}
+        <div class="quote-steps-progress"></div>
+      `;
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 0);
       updateStepProgress(container, 2);
@@ -91,7 +113,10 @@ describe("quote-steps-progress", () => {
     });
 
     test("clears previous active/completed states", () => {
-      document.body.innerHTML = '<div class="quote-steps-progress"></div>';
+      document.body.innerHTML = `
+        ${indicatorTemplate}
+        <div class="quote-steps-progress"></div>
+      `;
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 2);
       updateStepProgress(container, 0);
@@ -114,6 +139,7 @@ describe("quote-steps-progress", () => {
 
     test("initializes standalone progress indicator on turbo:load", () => {
       document.body.innerHTML = `
+        ${indicatorTemplate}
         <div class="quote-steps-progress" data-completed-steps="1"></div>
         <script class="quote-steps-data" type="application/json">${stepsJson}</script>
       `;
@@ -130,7 +156,7 @@ describe("quote-steps-progress", () => {
     });
 
     test("does not error when container is missing", () => {
-      document.body.innerHTML = "";
+      document.body.innerHTML = indicatorTemplate;
       expect(() =>
         document.dispatchEvent(new Event("turbo:load")),
       ).not.toThrow();
@@ -141,6 +167,7 @@ describe("quote-steps-progress", () => {
 
     test("ignores progress indicators inside quote-steps form", () => {
       document.body.innerHTML = `
+        ${indicatorTemplate}
         <div class="quote-steps">
           <div class="quote-steps-progress" data-completed-steps="1"></div>
         </div>
@@ -154,6 +181,7 @@ describe("quote-steps-progress", () => {
 
     test("only initializes standalone progress indicators", () => {
       document.body.innerHTML = `
+        ${indicatorTemplate}
         <div class="quote-steps">
           <div class="quote-steps-progress"></div>
         </div>

@@ -1,16 +1,25 @@
 // Renders and updates the step progress indicator
 
 import { onReady } from "#public/utils/on-ready.js";
+import { IDS } from "#public/utils/selectors.js";
+import { getTemplate } from "#public/utils/template.js";
 
-function renderIndicator(step, index) {
-  return `<li data-step="${index}">
-      <span data-name="name">${step.name}</span>
-      <span data-name="index">${step.number}</span>
-    </li>`;
+function createIndicator(step, index) {
+  const template = getTemplate(IDS.QUOTE_STEP_INDICATOR, document);
+  const li = template.querySelector("li");
+  li.dataset.step = index;
+  li.querySelector('[data-name="name"]').textContent = step.name;
+  li.querySelector('[data-name="index"]').textContent = step.number;
+  return li;
 }
 
 export function renderStepProgress(container, steps, completedSteps) {
-  container.innerHTML = `<ul>${steps.map(renderIndicator).join("")}</ul>`;
+  const ul = document.createElement("ul");
+  for (const [index, step] of steps.entries()) {
+    ul.appendChild(createIndicator(step, index));
+  }
+  container.innerHTML = "";
+  container.appendChild(ul);
   updateStepProgress(container, completedSteps);
 }
 
