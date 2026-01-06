@@ -176,6 +176,15 @@ const captureConsoleLogAsync = async (fn) => {
   return logs;
 };
 
+const captureConsole = (fn) => {
+  const logs = [];
+  const originalLog = console.log;
+  console.log = (...args) => logs.push(args.join(" "));
+  fn();
+  console.log = originalLog;
+  return logs;
+};
+
 const createTempDir = (testName, suffix = "") => {
   const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}`;
   const tempDir = path.join(__dirname, dirName);
@@ -834,6 +843,7 @@ export {
   SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
+  captureConsole,
   captureConsoleLogAsync,
   createTempDir,
   createTempFile,
