@@ -165,6 +165,41 @@ const findDuplicate = (items, getKey = (x) => x) => {
 };
 
 /**
+ * Safe array accumulation in reduce callbacks
+ *
+ * Use this for building arrays within reduce operations.
+ * Each call gets a fresh array, providing O(1) push operations
+ * instead of O(n²) complexity from repeated spread syntax.
+ *
+ * This enables safe imperative patterns like acc.push() within the callback.
+ *
+ * @param {Function} fn - (accumulator, item) => accumulator callback
+ * @returns {Function} (array) => result (fresh array per call)
+ *
+ * @example
+ * // Collect unique IDs from fields
+ * const getFieldIds = accumulate((acc, field) => {
+ *   const id = field.type === "radio" ? field.name : field.id;
+ *   if (id && !acc.includes(id)) {
+ *     acc.push(id);  // Safe: array only accessible within callback
+ *   }
+ *   return acc;
+ * });
+ *
+ * getFieldIds(fields)  // Returns array
+ *
+ * @example
+ * // Use with pipe for functional composition
+ * pipe(
+ *   accumulate((acc, user) => {
+ *     if (user.active) acc.push(user.name);
+ *     return acc;
+ *   })
+ * )(users)
+ */
+const accumulate = (fn) => (arr) => arr.reduce(fn, []);
+
+/**
  * Create a membership predicate
  *
  * Returns a predicate function that tests if a value is in the collection.
@@ -206,6 +241,7 @@ const memberOf = (values) => (value) => values.includes(value);
 const notMemberOf = (values) => (value) => !values.includes(value);
 
 export {
+  accumulate,
   chunk,
   compact,
   filter,
