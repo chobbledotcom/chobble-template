@@ -6,7 +6,7 @@ import {
   matchesAny,
   validateExceptions,
 } from "#test/code-scanner.js";
-import { SRC_AND_TEST_UTILS_FILES } from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [
@@ -32,7 +32,7 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       if (matchesAny(ALLOWED_LET_PATTERNS)(line.trim())) return null;
       return { reason: "Mutable variable declaration" };
     },
-    files: SRC_AND_TEST_UTILS_FILES,
+    files: ALL_JS_FILES,
   });
 
 // Complete checker for mutable const declarations
@@ -46,7 +46,7 @@ const { find: findMutableConstDeclarations, analyze: mutableConstAnalysis } =
       if (/new\s+Map/.test(line)) return { reason: "Map const" };
       return { reason: "Mutable const" };
     },
-    files: SRC_AND_TEST_UTILS_FILES,
+    files: ALL_JS_FILES,
     allowlist: ALLOWED_MUTABLE_CONST,
   });
 
