@@ -57,6 +57,8 @@
     {
       "includes": [
         "src/_lib/build/**/*.js",
+        "src/_lib/media/image-crop.js",
+        "src/_lib/media/image.js",
         "src/_lib/media/unused-images.js",
         "src/_lib/eleventy/pdf.js",
         "ecommerce-backend/server.js",
@@ -66,6 +68,14 @@
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          },
+          "complexity": {
+            "noExcessiveCognitiveComplexity": {
+              "level": "error",
+              "options": {
+                "maxAllowedComplexity": 10
+              }
+            }
           }
         }
       }

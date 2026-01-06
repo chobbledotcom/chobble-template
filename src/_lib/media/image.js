@@ -22,125 +22,64 @@ const DEFAULT_OPTIONS = {
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_SIZE = "auto";
 
-// Path normalization for image sources
-const getPath = (imageName) => {
-  const name = imageName.toString();
-  if (name.startsWith("/")) return `./src${name}`;
-  if (name.startsWith("src/")) return `./${name}`;
-  if (name.startsWith("images/")) return `./src/${name}`;
-  return `./src/images/${name}`;
-};
-
-// Parse widths - handles string "240,480" or array
-const getWidths = (widths) =>
-  typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
-
-// Generate responsive image HTML using eleventy-img
-const getImageHtml = async (
-  imagePath,
-  widths,
-  alt,
-  sizes,
-  loading,
-  classes,
-) => {
-  const imgAttributes = {
-    alt: alt || "",
-    sizes: sizes || DEFAULT_SIZE,
-    loading: loading || "lazy",
-    decoding: "async",
-  };
-
-  const pictureAttributes = classes?.trim() ? { class: classes } : {};
-
-  const { default: Image } = await getEleventyImg();
-  return Image(imagePath, {
-    ...DEFAULT_OPTIONS,
-    widths,
-    fixOrientation: true,
-    returnType: "html",
-    htmlOptions: { imgAttributes, pictureAttributes },
-  });
-};
-
-// Build wrapper div with LQIP background and aspect ratio
-const makeDivHtml = async (
-  classes,
-  thumbPromise,
-  aspectRatio,
-  maxWidth,
-  innerHTML,
-) => {
-  const bgImage = thumbPromise !== null ? await thumbPromise : null;
-  const styles = compact([
-    bgImage && `background-image: ${bgImage}`,
-    `aspect-ratio: ${aspectRatio}`,
-    maxWidth && `max-width: min(${maxWidth}px, 100%)`,
-  ]);
-
-  return await createHtml(
-    "div",
-    {
-      class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-      style: styles.join("; "),
-    },
-    innerHTML,
-  );
-};
-
 // Compute wrapped image HTML for local images (memoized)
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
-    const imagePath = getPath(imageName);
+    // Path normalization for image sources
+    const name = imageName.toString();
+    const imagePath = (() => {
+      if (name.startsWith("/")) return `./src${name}`;
+      if (name.startsWith("src/")) return `./${name}`;
+      if (name.startsWith("images/")) return `./src/${name}`;
+      return `./src/images/${name}`;
+    })();
+
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
-    const innerHTML = await getImageHtml(
-      finalPath,
-      getWidths(widths),
-      alt,
-      sizes,
-      loading,
-      classes,
-    );
+    // Parse widths - handles string "240,480" or array
+    const parsedWidths =
+      typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
 
-    return await makeDivHtml(
-      classes,
-      getThumbnailOrNull(imagePath, metadata),
-      getAspectRatio(aspectRatio, metadata),
-      metadata.width,
+    // Generate responsive image HTML using eleventy-img
+    const imgAttributes = {
+      alt: alt || "",
+      sizes: sizes || DEFAULT_SIZE,
+      loading: loading || "lazy",
+      decoding: "async",
+    };
+
+    const pictureAttributes = classes?.trim() ? { class: classes } : {};
+
+    const { default: Image } = await getEleventyImg();
+    const innerHTML = await Image(finalPath, {
+      ...DEFAULT_OPTIONS,
+      widths: parsedWidths,
+      fixOrientation: true,
+      returnType: "html",
+      htmlOptions: { imgAttributes, pictureAttributes },
+    });
+
+    // Build wrapper div with LQIP background and aspect ratio
+    const thumbPromise = getThumbnailOrNull(imagePath, metadata);
+    const bgImage = thumbPromise !== null ? await thumbPromise : null;
+    const styles = compact([
+      bgImage && `background-image: ${bgImage}`,
+      `aspect-ratio: ${getAspectRatio(aspectRatio, metadata)}`,
+      metadata.width && `max-width: min(${metadata.width}px, 100%)`,
+    ]);
+
+    return await createHtml(
+      "div",
+      {
+        class: classes ? `image-wrapper ${classes}` : "image-wrapper",
+        style: styles.join("; "),
+      },
       innerHTML,
     );
   },
   { cacheKey: jsonKey },
 );
-
-// Handle external URLs - simple img tag without processing
-const handleExternalUrl = async (
-  imageNameStr,
-  alt,
-  loading,
-  classes,
-  returnElement,
-  document,
-) => {
-  const attributes = {
-    src: imageNameStr,
-    alt: alt || "",
-    loading: loading || "lazy",
-    decoding: "async",
-    sizes: "auto",
-  };
-  if (classes) attributes.class = classes;
-
-  return returnElement
-    ? await createElement("img", attributes, null, document)
-    : await createHtml("img", attributes);
-};
-
-// Check if URL is external
-const isExternalUrl = (url) =>
-  url.startsWith("http://") || url.startsWith("https://");
 
 // Main image processing function
 const processAndWrapImage = async ({
@@ -157,15 +96,24 @@ const processAndWrapImage = async ({
 }) => {
   const imageNameStr = imageName.toString();
 
-  if (isExternalUrl(imageNameStr)) {
-    return await handleExternalUrl(
-      imageNameStr,
-      alt,
-      loading,
-      classes,
-      returnElement,
-      document,
-    );
+  // Check if URL is external
+  if (
+    imageNameStr.startsWith("http://") ||
+    imageNameStr.startsWith("https://")
+  ) {
+    // Handle external URLs - simple img tag without processing
+    const attributes = {
+      src: imageNameStr,
+      alt: alt || "",
+      loading: loading || "lazy",
+      decoding: "async",
+      sizes: "auto",
+    };
+    if (classes) attributes.class = classes;
+
+    return returnElement
+      ? await createElement("img", attributes, null, document)
+      : await createHtml("img", attributes);
   }
 
   const html = await computeWrappedImageHtml({
@@ -181,37 +129,31 @@ const processAndWrapImage = async ({
   return returnElement ? await parseHtml(html, document) : html;
 };
 
-// Find image files matching patterns
-const findImageFiles = (patterns = ["src/images/*.jpg"]) =>
-  patterns.flatMap((pattern) => [...new Bun.Glob(pattern).scanSync(".")]);
-
-// Create images collection for Eleventy
-const createImagesCollection = (imageFiles) =>
-  (imageFiles ?? []).map((i) => i.split("/")[2]).reverse();
-
-// Copy image cache to output directory
-const copyImageCache = () => {
-  if (fs.existsSync(".image-cache/")) {
-    fs.cpSync(".image-cache/", "_site/img/", { recursive: true });
-  }
-};
-
 // Create image transform - wraps the low-level transform with processAndWrapImage
 const createImageTransform = () => createTransform(processAndWrapImage);
 
 // Configure Eleventy with image processing
 const configureImages = async (eleventyConfig) => {
-  const imageFiles = findImageFiles();
+  // Find image files matching patterns
+  const imageFiles = ["src/images/*.jpg"].flatMap((pattern) => [
+    ...new Bun.Glob(pattern).scanSync("."),
+  ]);
 
   const { eleventyImageOnRequestDuringServePlugin } = await getEleventyImg();
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
   eleventyConfig.addTransform("processImages", createImageTransform());
+  // Create images collection for Eleventy
   eleventyConfig.addCollection("images", () =>
-    createImagesCollection(imageFiles),
+    (imageFiles ?? []).map((i) => i.split("/")[2]).reverse(),
   );
-  eleventyConfig.on("eleventy.after", copyImageCache);
+  // Copy image cache to output directory
+  eleventyConfig.on("eleventy.after", () => {
+    if (fs.existsSync(".image-cache/")) {
+      fs.cpSync(".image-cache/", "_site/img/", { recursive: true });
+    }
+  });
 };
 
 // Image shortcode for use in templates
@@ -236,11 +178,4 @@ const imageShortcode = async (
     returnElement: false,
   });
 
-export {
-  findImageFiles,
-  createImagesCollection,
-  copyImageCache,
-  createImageTransform,
-  configureImages,
-  imageShortcode,
-};
+export { createImageTransform, configureImages, imageShortcode };
