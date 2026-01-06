@@ -9,6 +9,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
+import { toObject } from "#utils/object-entries.js";
 
 // --- Configuration ---
 
@@ -43,14 +44,9 @@ const diffByFile = (fn) => (current, allowed) => {
 const findNew = diffByFile(difference); // items in current not in allowed
 const findRemaining = diffByFile(intersection); // items in current that are in allowed
 
-// Apply operation across all coverage types
-const mapTypes = (fn) => (data) => {
-  const result = {};
-  for (const type of TYPES) {
-    result[type] = fn(data, type);
-  }
-  return result;
-};
+// Apply operation across all coverage types (curried)
+const mapTypes = (fn) => (data) =>
+  toObject(TYPES, (type) => [type, fn(data, type)]);
 
 const isNonEmpty = (obj) => Object.keys(obj).length > 0;
 const onCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
