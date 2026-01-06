@@ -51,6 +51,7 @@ jobs:
     uses: ./.github/workflows/test.yml
     permissions:
       contents: write
+      pull-requests: write
 
   deploy-neocities:
     name: Deploy to Neocities
