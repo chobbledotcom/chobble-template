@@ -10,6 +10,7 @@ import {
   updateItemQuantity,
 } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
+import { updateQuotePrice } from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import {
   getTemplate,
@@ -70,6 +71,8 @@ function renderCart() {
       updateCartIcon();
     });
   }
+
+  updateQuotePrice();
 }
 
 onReady(renderCart);

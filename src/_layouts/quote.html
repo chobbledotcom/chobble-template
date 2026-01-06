@@ -4,6 +4,8 @@ layout: base
 
 {{ content }}
 
+{%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
+
 <noscript
   ><p>JavaScript is required to view and manage your quote cart.</p></noscript
 >
@@ -14,7 +16,10 @@ layout: base
     </p>
   </div>
   <div class="quote-cart-items"></div>
+  <div id="quote-price-container" style="display: none"></div>
   <div class="quote-cart-actions" style="display: none">
     <a href="/checkout/" class="button">Continue to Enquiry</a>
   </div>
 </div>
+
+{% include "templates/quote-price.html" %}

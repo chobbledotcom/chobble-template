@@ -2,6 +2,10 @@
 // Handles step transitions, validation, and recap population
 
 import { onReady } from "#public/utils/on-ready.js";
+import {
+  renderStepProgress,
+  updateStepProgress,
+} from "#public/ui/quote-steps-progress.js";
 import { filter, map, pipe, unique } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
@@ -31,8 +35,7 @@ function getRadioLabel(id) {
 
 function buildRadioRecapItem(id) {
   const value = getRadioValue(id);
-  if (!value) return "";
-  return `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
+  return value === "" ? "" : `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 function buildFieldRecapItem(id) {
@@ -42,8 +45,7 @@ function buildFieldRecapItem(id) {
     return radioField ? buildRadioRecapItem(id) : "";
   }
   const value = getFieldDisplayValue(field);
-  if (!value) return "";
-  return `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
+  return value === "" ? "" : `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 // Functional pipeline for extracting field IDs from an array of fields
@@ -120,7 +122,7 @@ function validateField(field, stepEl) {
   }
   // Use HTML5 constraint validation (checks required, email format, patterns, etc.)
   const isValid = field.checkValidity();
-  if (!isValid) {
+  if (isValid === false) {
     setFieldError(field, true);
     setupErrorClearingOnField(field);
   }
@@ -144,13 +146,6 @@ function validateStep(stepEl) {
   return invalidFields.length === 0;
 }
 
-function updateIndicators(indicators, currentStep) {
-  for (const [index, indicator] of indicators.entries()) {
-    indicator.classList.toggle("active", index === currentStep);
-    indicator.classList.toggle("completed", index < currentStep);
-  }
-}
-
 function updateButtons(prevBtn, nextBtn, submitBtn, currentStep, totalSteps) {
   prevBtn.style.display = currentStep === 0 ? "none" : "";
   nextBtn.style.display = currentStep === totalSteps - 1 ? "none" : "";
@@ -166,21 +161,30 @@ function initQuoteSteps() {
   if (!container) return;
 
   const steps = container.querySelectorAll(".quote-step");
-  const indicators = container.querySelectorAll(".quote-steps-indicator");
+  const progressContainer = container.querySelector(".quote-steps-progress");
+  const dataScript = container.querySelector(".quote-steps-data");
   const prevBtn = container.querySelector(".quote-step-prev");
   const nextBtn = container.querySelector(".quote-step-next");
   const submitBtn = container.querySelector(".quote-step-submit");
 
   if (!steps.length || !prevBtn || !nextBtn || !submitBtn) return;
+  if (!progressContainer || !dataScript) return;
 
+  const stepsData = JSON.parse(dataScript.textContent);
+  const baseCompletedSteps = parseInt(
+    progressContainer.dataset.completedSteps,
+    10,
+  );
   const totalSteps = steps.length;
+
+  renderStepProgress(progressContainer, stepsData, baseCompletedSteps);
 
   function updateUI() {
     const currentStep = getCurrentStep(container);
     for (const [index, step] of steps.entries()) {
       step.classList.toggle("active", index === currentStep);
     }
-    updateIndicators(indicators, currentStep);
+    updateStepProgress(progressContainer, baseCompletedSteps + currentStep);
     updateButtons(prevBtn, nextBtn, submitBtn, currentStep, totalSteps);
     if (currentStep === totalSteps - 1) populateRecap(steps);
   }
@@ -201,11 +205,16 @@ function initQuoteSteps() {
     goToStep(getCurrentStep(container) + 1),
   );
 
-  for (const [index, indicator] of indicators.entries()) {
-    indicator.addEventListener("click", () => {
-      if (index < getCurrentStep(container)) goToStep(index);
-    });
-  }
+  // Set up click handlers for completed indicators
+  progressContainer.addEventListener("click", (e) => {
+    const indicator = e.target.closest(".quote-steps-indicator");
+    if (!indicator) return;
+    const stepIndex = parseInt(indicator.dataset.step, 10);
+    const formStep = stepIndex - baseCompletedSteps;
+    if (formStep >= 0 && formStep < getCurrentStep(container)) {
+      goToStep(formStep);
+    }
+  });
 
   updateUI();
 }
@@ -228,7 +237,6 @@ export {
   populateRecap,
   setFieldError,
   updateButtons,
-  updateIndicators,
   validateField,
   validateRadioGroup,
   validateStep,

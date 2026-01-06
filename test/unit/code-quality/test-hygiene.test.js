@@ -31,6 +31,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProduct",
   "createPropertyReviewFixture",
   "createSchemaData",
+  // quote-steps.test.js - test fixture factory
+  "createQuoteStepsHtml",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
   // checkout.test.js - template rendering and mocks
