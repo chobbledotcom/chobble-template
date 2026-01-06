@@ -3,13 +3,215 @@
 
 import { describe, expect, mock, test } from "bun:test";
 import {
+  calculateTotal,
   collectFieldDetails,
+  countItems,
+  formatHireLength,
+  formatItemCount,
+  formatItemName,
+  formatItemPrice,
   getFieldLabel,
   getFieldValue,
+  getPriceForDays,
+  parsePrice,
   setupDetailsBlurHandlers,
+  updateQuotePrice,
 } from "#public/utils/quote-price-utils.js";
 
 describe("quote-price-utils", () => {
+  // ----------------------------------------
+  // parsePrice Tests
+  // ----------------------------------------
+  describe("parsePrice", () => {
+    test("returns number as-is", () => {
+      expect(parsePrice(10)).toBe(10);
+      expect(parsePrice(99.99)).toBe(99.99);
+    });
+
+    test("parses price string with currency symbol", () => {
+      expect(parsePrice("£10.00")).toBe(10);
+      expect(parsePrice("$25.50")).toBe(25.5);
+    });
+
+    test("returns 0 for empty/falsy values", () => {
+      expect(parsePrice("")).toBe(0);
+      expect(parsePrice(null)).toBe(0);
+      expect(parsePrice(undefined)).toBe(0);
+    });
+
+    test("extracts first numeric value from string", () => {
+      expect(parsePrice("Price: 15.00")).toBe(15);
+    });
+
+    test("returns 0 for non-numeric string", () => {
+      expect(parsePrice("no numbers")).toBe(0);
+    });
+  });
+
+  // ----------------------------------------
+  // getPriceForDays Tests
+  // ----------------------------------------
+  describe("getPriceForDays", () => {
+    test("returns unit_price * quantity for non-hire items", () => {
+      const item = { product_mode: "buy", unit_price: 10, quantity: 2 };
+      expect(getPriceForDays(1)(item)).toBe(20);
+    });
+
+    test("returns hire price for hire items", () => {
+      const item = {
+        product_mode: "hire",
+        hire_prices: { 1: "£10", 2: "£18" },
+        quantity: 1,
+      };
+      expect(getPriceForDays(1)(item)).toBe(10);
+      expect(getPriceForDays(2)(item)).toBe(18);
+    });
+
+    test("multiplies hire price by quantity", () => {
+      const item = {
+        product_mode: "hire",
+        hire_prices: { 1: "£10" },
+        quantity: 3,
+      };
+      expect(getPriceForDays(1)(item)).toBe(30);
+    });
+
+    test("returns null when hire price not available for day count", () => {
+      const item = {
+        product_mode: "hire",
+        hire_prices: { 1: "£10" },
+        quantity: 1,
+      };
+      expect(getPriceForDays(5)(item)).toBe(null);
+    });
+  });
+
+  // ----------------------------------------
+  // formatItemName Tests
+  // ----------------------------------------
+  describe("formatItemName", () => {
+    test("returns item name for quantity 1", () => {
+      expect(formatItemName({ item_name: "Bouncy Castle", quantity: 1 })).toBe(
+        "Bouncy Castle",
+      );
+    });
+
+    test("appends quantity for quantity > 1", () => {
+      expect(formatItemName({ item_name: "Chair", quantity: 5 })).toBe(
+        "Chair (×5)",
+      );
+    });
+  });
+
+  // ----------------------------------------
+  // formatItemPrice Tests
+  // ----------------------------------------
+  describe("formatItemPrice", () => {
+    test("returns TBC for null price", () => {
+      expect(formatItemPrice(null)).toBe("TBC");
+    });
+
+    test("formats numeric price", () => {
+      // formatPrice from cart-utils adds currency formatting
+      const result = formatItemPrice(10);
+      expect(result).toContain("10");
+    });
+  });
+
+  // ----------------------------------------
+  // calculateTotal Tests
+  // ----------------------------------------
+  describe("calculateTotal", () => {
+    test("calculates total for non-hire items", () => {
+      const cart = [
+        { product_mode: "buy", unit_price: 10, quantity: 1 },
+        { product_mode: "buy", unit_price: 20, quantity: 2 },
+      ];
+      const result = calculateTotal(cart, 1);
+      expect(result.total).toBe(50);
+      expect(result.canCalculate).toBe(true);
+    });
+
+    test("calculates total for hire items", () => {
+      const cart = [
+        { product_mode: "hire", hire_prices: { 1: "£10" }, quantity: 1 },
+        { product_mode: "hire", hire_prices: { 1: "£20" }, quantity: 1 },
+      ];
+      const result = calculateTotal(cart, 1);
+      expect(result.total).toBe(30);
+      expect(result.canCalculate).toBe(true);
+    });
+
+    test("returns canCalculate false when price unavailable", () => {
+      const cart = [
+        { product_mode: "hire", hire_prices: { 1: "£10" }, quantity: 1 },
+      ];
+      const result = calculateTotal(cart, 5);
+      expect(result.canCalculate).toBe(false);
+      expect(result.total).toBe(0);
+    });
+
+    test("returns zero total for empty cart", () => {
+      const result = calculateTotal([], 1);
+      expect(result.total).toBe(0);
+      expect(result.canCalculate).toBe(true);
+    });
+  });
+
+  // ----------------------------------------
+  // formatHireLength Tests
+  // ----------------------------------------
+  describe("formatHireLength", () => {
+    test("returns singular for 1 day", () => {
+      expect(formatHireLength(1)).toBe("1 day");
+    });
+
+    test("returns plural for multiple days", () => {
+      expect(formatHireLength(2)).toBe("2 days");
+      expect(formatHireLength(7)).toBe("7 days");
+    });
+  });
+
+  // ----------------------------------------
+  // formatItemCount Tests
+  // ----------------------------------------
+  describe("formatItemCount", () => {
+    test("returns singular for 1 item", () => {
+      expect(formatItemCount(1)).toBe("1 item in order");
+    });
+
+    test("returns plural for multiple items", () => {
+      expect(formatItemCount(3)).toBe("3 items in order");
+    });
+  });
+
+  // ----------------------------------------
+  // countItems Tests
+  // ----------------------------------------
+  describe("countItems", () => {
+    test("counts single item", () => {
+      expect(countItems([{ quantity: 1 }])).toBe(1);
+    });
+
+    test("sums quantities across items", () => {
+      expect(countItems([{ quantity: 2 }, { quantity: 3 }])).toBe(5);
+    });
+
+    test("returns 0 for empty cart", () => {
+      expect(countItems([])).toBe(0);
+    });
+  });
+
+  // ----------------------------------------
+  // updateQuotePrice Tests (with DOM)
+  // ----------------------------------------
+  describe("updateQuotePrice", () => {
+    test("does nothing when container not found", () => {
+      document.body.innerHTML = "<div>No container</div>";
+      expect(() => updateQuotePrice()).not.toThrow();
+    });
+  });
+
   // ----------------------------------------
   // getFieldValue Tests (with DOM)
   // ----------------------------------------
