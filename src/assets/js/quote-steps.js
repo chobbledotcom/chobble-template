@@ -35,8 +35,7 @@ function getRadioLabel(id) {
 
 function buildRadioRecapItem(id) {
   const value = getRadioValue(id);
-  if (!value) return "";
-  return `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
+  return value === "" ? "" : `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 function buildFieldRecapItem(id) {
@@ -46,8 +45,7 @@ function buildFieldRecapItem(id) {
     return radioField ? buildRadioRecapItem(id) : "";
   }
   const value = getFieldDisplayValue(field);
-  if (!value) return "";
-  return `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
+  return value === "" ? "" : `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 // Functional pipeline for extracting field IDs from an array of fields
@@ -124,7 +122,7 @@ function validateField(field, stepEl) {
   }
   // Use HTML5 constraint validation (checks required, email format, patterns, etc.)
   const isValid = field.checkValidity();
-  if (!isValid) {
+  if (isValid === false) {
     setFieldError(field, true);
     setupErrorClearingOnField(field);
   }
