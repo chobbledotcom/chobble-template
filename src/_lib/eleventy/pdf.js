@@ -11,6 +11,7 @@ import {
   sort,
   uniqueBy,
 } from "#utils/array-utils.js";
+import { log, error as logError } from "#utils/console.js";
 import { createLazyLoader } from "#utils/lazy-loader.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
@@ -226,7 +227,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const renderPdfTemplate = await getPdfRenderer();
   const pdfDoc = renderPdfTemplate(template, data);
   if (!pdfDoc) {
-    console.error(`Failed to generate PDF for menu: ${menu.data.title}`);
+    logError(`Failed to generate PDF for menu: ${menu.data.title}`);
     return null;
   }
 
@@ -244,12 +245,12 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
     pdfDoc.pipe(stream);
     pdfDoc.end();
     stream.on("finish", () => {
-      console.log(`Generated PDF: ${outputPath}`);
+      log(`Generated PDF: ${outputPath}`);
       resolve(outputPath);
     });
-    stream.on("error", (error) => {
-      console.error(`Error writing PDF: ${outputPath}`, error);
-      reject(error);
+    stream.on("error", (err) => {
+      logError(`Error writing PDF: ${outputPath}`, err);
+      reject(err);
     });
   });
 }

@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { error as logError, log } from "#utils/console.js";
 
 const readProductFile = (filePath) => {
   const { data, content: body } = matter.read(filePath);
@@ -174,7 +175,7 @@ const logResults = (results, dryRun) => {
   modifiedResults.forEach((result) => {
     const fileName = path.basename(result.filePath);
     const prefix = dryRun ? "[DRY RUN] Would update" : "Updated";
-    console.log(`${prefix} ${fileName}: added ${result.skusAdded} SKU(s)`);
+    log(`${prefix} ${fileName}: added ${result.skusAdded} SKU(s)`);
   });
 
   const totalModified = modifiedResults.length;
@@ -184,9 +185,7 @@ const logResults = (results, dryRun) => {
   );
 
   const prefix = dryRun ? "[DRY RUN] Would modify" : "Modified";
-  console.log(
-    `\n${prefix} ${totalModified} file(s), added ${totalSkusAdded} SKU(s)`,
-  );
+  log(`\n${prefix} ${totalModified} file(s), added ${totalSkusAdded} SKU(s)`);
 
   return { totalModified, totalSkusAdded };
 };
@@ -198,12 +197,12 @@ const addSkusToProducts = (dryRun = false) => {
   const productsDir = path.join(process.cwd(), PRODUCTS_DIR);
 
   if (!fs.existsSync(productsDir)) {
-    console.error(`Products directory not found: ${productsDir}`);
+    logError(`Products directory not found: ${productsDir}`);
     process.exit(1);
   }
 
   const existingSkus = collectExistingSkus(productsDir);
-  console.log(`Found ${existingSkus.size} existing SKUs`);
+  log(`Found ${existingSkus.size} existing SKUs`);
 
   const { results } = processAllProducts(productsDir, existingSkus);
 
@@ -219,7 +218,7 @@ const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 
 if (dryRun) {
-  console.log("Running in dry-run mode (no files will be modified)\n");
+  log("Running in dry-run mode (no files will be modified)\n");
 }
 
 addSkusToProducts(dryRun);

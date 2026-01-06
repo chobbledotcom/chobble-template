@@ -41,7 +41,7 @@ const ALLOWED_TRY_CATCHES = new Set([
   // src/_lib/public/utils/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/_lib/public/utils/cart-utils.js:11",
+  "src/_lib/public/utils/cart-utils.js:13",
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
@@ -77,26 +77,6 @@ const ALLOWED_HTML_IN_JS = new Set([
 
   // JS-rendered step progress indicator
   "src/_lib/public/ui/quote-steps-progress.js",
-]);
-
-// ============================================
-// Console.log exceptions
-// ============================================
-
-// Files that are allowed to use console.* for legitimate purposes.
-const ALLOWED_CONSOLE = new Set([
-  // CLI scripts need console output for user feedback
-  "bin/add-skus",
-  "src/_lib/media/unused-images.js",
-
-  // Build-time logging for PDF generation progress
-  "src/_lib/eleventy/pdf.js",
-
-  // Browser-side error handling (caught errors need to be logged somewhere)
-  "src/_lib/public/utils/cart-utils.js",
-
-  // ecommerce backend server logging
-  "ecommerce-backend/server.js",
 ]);
 
 // ============================================
@@ -138,7 +118,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
   "test/unit/code-quality/commented-code.test.js",
-  "test/unit/code-quality/console-log.test.js",
   "test/unit/code-quality/data-exports.test.js",
   "test/unit/code-quality/function-length.test.js",
   "test/unit/code-quality/html-in-js.test.js",
@@ -256,8 +235,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/ui/autosizes.js:40", // chromeMatch
 
   // === External/parsed data (localStorage, API responses, etc) ===
-  "src/_lib/public/utils/cart-utils.js:8", // cart (from localStorage)
-  "src/_lib/public/utils/cart-utils.js:54", // item (from array find)
+  "src/_lib/public/utils/cart-utils.js:10", // cart (from localStorage)
+  "src/_lib/public/utils/cart-utils.js:55", // item (from array find)
   "src/_lib/public/theme/theme-editor-lib.js:32", // cssText
   "src/_lib/public/theme/theme-editor-lib.js:48", // themeContent
   "src/_lib/public/theme/theme-editor-lib.js:85", // borderValue
@@ -268,7 +247,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/_lib/public/cart/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:228", // pdfDoc (renderer result)
+  "src/_lib/eleventy/pdf.js:229", // pdfDoc (renderer result)
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
@@ -364,7 +343,6 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_HTML_IN_JS,
-  ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { filter, map, notMemberOf, pipe } from "#utils/array-utils.js";
+import { log } from "#utils/console.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 const IMAGE_REF_PATTERN =
@@ -16,7 +17,7 @@ export function configureUnusedImages(eleventyConfig) {
     const imagesDir = path.join(dir.input, "images");
 
     if (!fs.existsSync(imagesDir)) {
-      console.log("No images directory found.");
+      log("No images directory found.");
       return;
     }
 
@@ -25,7 +26,7 @@ export function configureUnusedImages(eleventyConfig) {
       .filter((file) => IMAGE_PATTERN.test(file));
 
     if (imageFiles.length === 0) {
-      console.log("No images found in /src/images/");
+      log("No images found in /src/images/");
       return;
     }
 
@@ -55,16 +56,14 @@ export function configureUnusedImages(eleventyConfig) {
 
     // Report unused images
     if (unusedImages.length > 0) {
-      console.log("\n📸 Unused Images Report:");
-      console.log("========================");
+      log("\n📸 Unused Images Report:");
+      log("========================");
       for (const image of unusedImages) {
-        console.log(`❌ ${image}`);
+        log(`❌ ${image}`);
       }
-      console.log(
-        `\nFound ${unusedImages.length} unused image(s) in /src/images/`,
-      );
+      log(`\nFound ${unusedImages.length} unused image(s) in /src/images/`);
     } else {
-      console.log("\n✅ All images in /src/images/ are being used!");
+      log("\n✅ All images in /src/images/ are being used!");
     }
   });
 }
