@@ -53,7 +53,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/code-scanner.js - Exception validation
   // Needed: validates exception entries by reading files that might not exist
-  "test/code-scanner.js:319",
+  "test/code-scanner.js:334",
 ]);
 
 // ============================================

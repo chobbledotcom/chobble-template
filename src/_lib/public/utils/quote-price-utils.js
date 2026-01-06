@@ -55,7 +55,7 @@ const calculateTotal = (cart, days) => {
 };
 
 // Format hire length display - uses curried pluralize
-const formatHireLength = pluralize("day", "days");
+const formatHireLength = pluralize("day");
 
 // Format item count display - uses curried pluralize
 const formatItemCount = pluralize("item in order", "items in order");

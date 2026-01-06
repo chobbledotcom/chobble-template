@@ -368,7 +368,7 @@ describe("module", () => {
   test("No tests have vague names (Section 4)", () => {
     const violations = findVagueTestNames();
     assertNoViolations(violations, {
-      message: "vague test name(s)",
+      singular: "vague test name",
       fixHint: "use descriptive test names",
     });
   });
@@ -376,7 +376,7 @@ describe("module", () => {
   test("No tests have multiple 'and's (Section 6)", () => {
     const violations = findMultiConcernTestNames();
     assertNoViolations(violations, {
-      message: "multi-concern test(s)",
+      singular: "multi-concern test",
       fixHint: "split tests that test multiple things",
     });
   });
@@ -384,7 +384,8 @@ describe("module", () => {
   test("asyncTest functions have real await (Section 9)", () => {
     const violations = findAsyncTestsWithoutAwait();
     assertNoViolations(violations, {
-      message: "asyncTest(s) without await",
+      singular: "asyncTest without await",
+      plural: "asyncTests without await",
       fixHint: 'use sync "test" instead of asyncTest when no await needed',
     });
   });
@@ -392,7 +393,8 @@ describe("module", () => {
   test("Assertions have descriptive messages (Section 4)", () => {
     const violations = findAssertionsWithoutMessages();
     assertNoViolations(violations, {
-      message: "assertion(s) without messages",
+      singular: "assertion without message",
+      plural: "assertions without messages",
       fixHint: "add descriptive message as third parameter to assertions",
     });
   });
@@ -400,7 +402,7 @@ describe("module", () => {
   test("No tautological set-then-assert patterns (Section 2)", () => {
     const violations = findTautologicalAssertions();
     assertNoViolations(violations, {
-      message: "tautological assertion(s)",
+      singular: "tautological assertion",
       fixHint: "test actual behavior, not just set-then-check patterns",
     });
   });

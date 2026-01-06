@@ -1,7 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { filter, map, notMemberOf, pipe } from "#utils/array-utils.js";
+import {
+  filter,
+  map,
+  notMemberOf,
+  pipe,
+  pluralize,
+} from "#utils/array-utils.js";
 import { log } from "#utils/console.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
@@ -61,7 +67,8 @@ export function configureUnusedImages(eleventyConfig) {
       for (const image of unusedImages) {
         log(`❌ ${image}`);
       }
-      log(`\nFound ${unusedImages.length} unused image(s) in /src/images/`);
+      const formatUnused = pluralize("unused image");
+      log(`\nFound ${formatUnused(unusedImages.length)} in /src/images/`);
     } else {
       log("\n✅ All images in /src/images/ are being used!");
     }

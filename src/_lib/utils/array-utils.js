@@ -260,26 +260,35 @@ const notMemberOf = membershipPredicate(true);
 
 /**
  * Create a pluralization formatter.
- * Curried: (singular, plural) => (count) => string
+ * Curried: (singular, plural?) => (count) => string
  *
  * Returns a function that formats a count with the appropriate singular/plural form.
+ * If plural is omitted, auto-derives it from singular (adds "es" if ends in "s", else "s").
  *
  * @param {string} singular - Singular form (e.g., "day", "item in order")
- * @param {string} plural - Plural form (e.g., "days", "items in order")
+ * @param {string} [plural] - Plural form (optional, auto-derived if omitted)
  * @returns {Function} (count) => formatted string
  *
  * @example
- * const formatDays = pluralize("day", "days");
+ * const formatDays = pluralize("day");
  * formatDays(1)  // "1 day"
  * formatDays(5)  // "5 days"
+ *
+ * @example
+ * const formatClasses = pluralize("class");
+ * formatClasses(1)  // "1 class"
+ * formatClasses(2)  // "2 classes"
  *
  * @example
  * const formatItems = pluralize("item in order", "items in order");
  * formatItems(1)  // "1 item in order"
  * formatItems(3)  // "3 items in order"
  */
-const pluralize = (singular, plural) => (count) =>
-  count === 1 ? `1 ${singular}` : `${count} ${plural}`;
+const pluralize = (singular, plural) => {
+  const pluralForm =
+    plural ?? (singular.endsWith("s") ? `${singular}es` : `${singular}s`);
+  return (count) => (count === 1 ? `1 ${singular}` : `${count} ${pluralForm}`);
+};
 
 /**
  * Print items with truncation and "more" message.

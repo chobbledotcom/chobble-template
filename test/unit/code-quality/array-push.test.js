@@ -57,7 +57,7 @@ arr. push(3);
     });
 
     assertNoViolations(violations, {
-      message: ".push() usage(s)",
+      singular: ".push() usage",
       fixHint:
         "use functional patterns (map, filter, reduce, spread, concat) unless using safe reduce accumulator pattern",
     });

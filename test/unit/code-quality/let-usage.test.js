@@ -93,7 +93,7 @@ let mutableVar = 0;
   test("No mutable variables outside allowed patterns", () => {
     const { violations } = mutableVarAnalysis();
     assertNoViolations(violations, {
-      message: "mutable variable declaration(s)",
+      singular: "mutable variable declaration",
       fixHint:
         "use const with immutable patterns (only let moduleName = null; is allowed for lazy loading)",
     });
@@ -142,7 +142,7 @@ const config = { key: 'value' };
   test("No mutable const declarations outside allowlist", () => {
     const { violations } = mutableConstAnalysis();
     assertNoViolations(violations, {
-      message: "mutable const declaration(s)",
+      singular: "mutable const declaration",
       fixHint:
         "use functional patterns (map/filter/reduce/spread), or add to ALLOWED_MUTABLE_CONST in code-quality-exceptions.js",
     });
