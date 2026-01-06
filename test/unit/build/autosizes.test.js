@@ -10,7 +10,7 @@ import { rootDir } from "#test/test-utils.js";
 // ============================================
 
 const AUTOSIZES_SCRIPT = fs.readFileSync(
-  path.join(rootDir, "src/assets/js/autosizes.js"),
+  path.join(rootDir, "src/_lib/public/ui/autosizes.js"),
   "utf-8",
 );
 

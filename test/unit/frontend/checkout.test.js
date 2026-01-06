@@ -5,6 +5,7 @@
 import { describe, expect, mock, test } from "bun:test";
 import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
+import { buildJsConfigScript } from "#eleventy/js-config.js";
 // Import actual cart utilities
 import {
   attachQuantityHandlers,
@@ -17,8 +18,7 @@ import {
   saveCart,
   updateCartIcon,
   updateItemQuantity,
-} from "#assets/cart-utils.js";
-import { buildJsConfigScript } from "#eleventy/js-config.js";
+} from "#public/utils/cart-utils.js";
 import { fs, path, rootDir } from "#test/test-utils.js";
 
 // ============================================

@@ -52,7 +52,7 @@ const calculateOwnLines = (functions) =>
  */
 const analyzeFunctionLengths = () => {
   const filesToCheck = SRC_JS_FILES().filter(
-    (f) => !f.startsWith("src/assets/"),
+    (f) => !f.startsWith("src/_lib/public/"),
   );
 
   const allViolations = [];

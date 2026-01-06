@@ -2,7 +2,6 @@
 // Tests the hire-calculator.js functions for date management
 
 import { describe, expect, test } from "bun:test";
-import { STORAGE_KEY } from "#assets/cart-utils.js";
 import {
   calculateDays,
   getHireItems,
@@ -10,7 +9,8 @@ import {
   initHireCalculator,
   isHireItem,
   setMinDate,
-} from "#assets/hire-calculator.js";
+} from "#public/cart/hire-calculator.js";
+import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 
 // Helper to run tests with isolated localStorage
 const withMockStorage = (fn) => {

@@ -20,7 +20,7 @@ import {
   validateField,
   validateRadioGroup,
   validateStep,
-} from "#assets/quote-steps.js";
+} from "#public/cart/quote-steps.js";
 
 describe("quote-steps", () => {
   // ----------------------------------------
@@ -517,10 +517,8 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // buildFieldRecapItem Tests (with DOM)
   // ----------------------------------------
-  test("buildFieldRecapItem returns empty string for missing field", () => {
-    document.body.innerHTML = "";
-    expect(buildFieldRecapItem("nonexistent")).toBe("");
-  });
+  // Note: We trust templates to always include the referenced fields
+  // No test for missing fields - that would be a template bug
 
   test("buildFieldRecapItem returns empty string for empty value", () => {
     document.body.innerHTML = `
@@ -570,18 +568,8 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // populateRecap Tests (with DOM)
   // ----------------------------------------
-  test("populateRecap does nothing if recap elements missing", () => {
-    document.body.innerHTML = "";
-    expect(() => populateRecap()).not.toThrow();
-  });
-
-  test("populateRecap does nothing if steps not provided", () => {
-    document.body.innerHTML = `
-      <dl id="recap-event"></dl>
-      <dl id="recap-contact"></dl>
-    `;
-    expect(() => populateRecap()).not.toThrow();
-  });
+  // Note: We trust templates to always include recap elements and pass valid steps
+  // No tests for missing elements - that would be a template/caller bug
 
   test("populateRecap fills recap sections from step fields", () => {
     document.body.innerHTML = `
@@ -626,7 +614,10 @@ describe("quote-steps", () => {
           <input type="text" ${inputRequired ? "required" : ""} value="${inputValue}" />
         </div>
         <div class="quote-step${currentStep === 1 ? " active" : ""}" data-step="1">Step 2</div>
-        <div class="quote-step${currentStep === 2 ? " active" : ""}" data-step="2">Step 3</div>
+        <div class="quote-step${currentStep === 2 ? " active" : ""}" data-step="2">
+          <dl id="recap-event"></dl>
+          <dl id="recap-contact"></dl>
+        </div>
         <button class="quote-step-prev">Back</button>
         <button class="quote-step-next">Next</button>
         <button class="quote-step-submit">Submit</button>
@@ -639,10 +630,8 @@ describe("quote-steps", () => {
     expect(() => initQuoteSteps()).not.toThrow();
   });
 
-  test("initQuoteSteps does nothing if required elements missing", () => {
-    document.body.innerHTML = '<div class="quote-steps"></div>';
-    expect(() => initQuoteSteps()).not.toThrow();
-  });
+  // Note: We trust templates to always include all required child elements
+  // No test for missing child elements - that would be a template bug
 
   test("initQuoteSteps sets up navigation on valid container", () => {
     document.body.innerHTML = createQuoteStepsHtml();

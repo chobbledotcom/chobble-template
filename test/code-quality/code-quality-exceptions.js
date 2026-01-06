@@ -16,13 +16,13 @@ const ALLOWED_TRY_CATCHES = new Set([
   "ecommerce-backend/server.js:213",
   "ecommerce-backend/server.js:289",
 
-  // src/assets/js/http.js - centralized HTTP error handling (entire file)
-  "src/assets/js/http.js",
+  // src/_lib/public/utils/http.js - centralized HTTP error handling (entire file)
+  "src/_lib/public/utils/http.js",
 
-  // src/assets/js/cart-utils.js - JSON parsing of localStorage data
+  // src/_lib/public/utils/cart-utils.js - JSON parsing of localStorage data
   // Needed: localStorage is browser-side storage that can be corrupted by users,
   // extensions, or data migration issues. We don't control this input.
-  "src/assets/js/cart-utils.js:11",
+  "src/_lib/public/utils/cart-utils.js:11",
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
@@ -56,8 +56,8 @@ const ALLOWED_HTML_IN_JS = new Set([
   // Filters with HTML formatting
   "src/_lib/filters/item-filters.js",
 
-  // JS-rendered step progress indicator (merged into quote-steps.js)
-  "src/assets/js/quote-steps.js",
+  // JS-rendered step progress indicator
+  "src/_lib/public/ui/quote-steps-progress.js",
 ]);
 
 // ============================================
@@ -74,7 +74,7 @@ const ALLOWED_CONSOLE = new Set([
   "src/_lib/eleventy/pdf.js",
 
   // Browser-side error handling (caught errors need to be logged somewhere)
-  "src/assets/js/cart-utils.js",
+  "src/_lib/public/utils/cart-utils.js",
 
   // ecommerce backend server logging
   "ecommerce-backend/server.js",
@@ -193,7 +193,7 @@ const ALLOWED_LET = new Set([
 
 // Files that use obj[key] = value for object mutation.
 // Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
-const ALLOWED_OBJECT_MUTATION = "src/assets/js/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
+const ALLOWED_OBJECT_MUTATION = "src/_lib/public/ui/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
 
 // ============================================
 // Null check exceptions (if (!x) patterns)
@@ -210,45 +210,45 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/config/helpers.js:107", // product_mode
   "src/_lib/config/helpers.js:125", // formTarget
   "src/_lib/config/helpers.js:138", // cart_mode
-  "src/assets/js/stripe-checkout.js:46", // checkoutApiUrl
+  "src/_lib/public/cart/stripe-checkout.js:46", // checkoutApiUrl
 
   // === DOM element lookups (querySelector can return null) ===
-  "src/assets/js/search.js:13", // form
-  "src/assets/js/search.js:16", // keywordsDatalist
-  "src/assets/js/availability-calendar.js:117", // content
-  "src/assets/js/availability-calendar.js:138", // dialog
-  "src/assets/js/theme-switcher.js:68", // button
-  "src/assets/js/theme-editor.js:284", // target
-  "src/assets/js/theme-editor.js:384", // borderOutput
-  "src/assets/js/cart.js:136", // cartItems
-  "src/assets/js/shuffle-properties.js:49", // itemsList
-  "src/assets/js/quote.js:49", // container
-  "src/assets/js/gallery.js:20", // imageLink
-  "src/assets/js/gallery.js:30", // fullImage
-  "src/assets/js/gallery.js:45", // imageWrapper
-  "src/assets/js/gallery.js:56", // content
-  "src/assets/js/stripe-checkout.js:34", // main
-  "src/assets/js/slider.js:19", // firstItem
-  "src/assets/js/scroll-fade.js:35", // selectors
+  "src/_lib/public/ui/search.js:13", // form
+  "src/_lib/public/ui/search.js:16", // keywordsDatalist
+  "src/_lib/public/ui/availability-calendar.js:117", // content
+  "src/_lib/public/ui/availability-calendar.js:138", // dialog
+  "src/_lib/public/theme/theme-switcher.js:68", // button
+  "src/_lib/public/theme/theme-editor.js:284", // target
+  "src/_lib/public/theme/theme-editor.js:384", // borderOutput
+  "src/_lib/public/cart/cart.js:136", // cartItems
+  "src/_lib/public/ui/shuffle-properties.js:49", // itemsList
+  "src/_lib/public/cart/quote.js:49", // container
+  "src/_lib/public/ui/gallery.js:20", // imageLink
+  "src/_lib/public/ui/gallery.js:30", // fullImage
+  "src/_lib/public/ui/gallery.js:45", // imageWrapper
+  "src/_lib/public/ui/gallery.js:56", // content
+  "src/_lib/public/cart/stripe-checkout.js:34", // main
+  "src/_lib/public/ui/slider.js:19", // firstItem
+  "src/_lib/public/ui/scroll-fade.js:35", // selectors
 
   // === Regex match results (match() returns null on no match) ===
   "src/products/products.11tydata.js:11", // match
   "src/_lib/build/theme-compiler.js:33", // rootMatch
-  "src/assets/js/autosizes.js:40", // chromeMatch
+  "src/_lib/public/ui/autosizes.js:40", // chromeMatch
 
   // === External/parsed data (localStorage, API responses, etc) ===
-  "src/assets/js/cart-utils.js:8", // cart (from localStorage)
-  "src/assets/js/cart-utils.js:54", // item (from array find)
-  "src/assets/js/theme-editor-lib.js:32", // cssText
-  "src/assets/js/theme-editor-lib.js:48", // themeContent
-  "src/assets/js/theme-editor-lib.js:85", // borderValue
-  "src/assets/js/theme-editor-lib.js:157", // value
-  "src/assets/js/quote-price-utils.js:15", // priceStr
+  "src/_lib/public/utils/cart-utils.js:8", // cart (from localStorage)
+  "src/_lib/public/utils/cart-utils.js:54", // item (from array find)
+  "src/_lib/public/theme/theme-editor-lib.js:32", // cssText
+  "src/_lib/public/theme/theme-editor-lib.js:48", // themeContent
+  "src/_lib/public/theme/theme-editor-lib.js:85", // borderValue
+  "src/_lib/public/theme/theme-editor-lib.js:157", // value
+  "src/_lib/public/utils/quote-price-utils.js:15", // priceStr
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
-  "src/assets/js/stripe-checkout.js:19", // response
+  "src/_lib/public/cart/stripe-checkout.js:19", // response
   "src/_lib/eleventy/pdf.js:228", // pdfDoc (renderer result)
 
   // === Optional function parameters ===
@@ -298,21 +298,23 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/lazy-loader.js",
   "src/_lib/utils/schema-helper.js",
-  "src/assets/js/availability-calendar.js",
-  "src/assets/js/cart.js",
-  "src/assets/js/gallery.js",
-  "src/assets/js/hire-calculator.js",
-  "src/assets/js/quote-checkout.js",
-  "src/assets/js/quote-price-utils.js",
-  "src/assets/js/quote.js",
-  "src/assets/js/quote-steps.js",
-  "src/assets/js/scroll-fade.js",
-  "src/assets/js/search.js",
-  "src/assets/js/shuffle-properties.js",
-  "src/assets/js/slider.js",
-  "src/assets/js/stripe-checkout.js",
-  "src/assets/js/tabs.js",
-  "src/assets/js/theme-editor-lib.js",
+  "src/_lib/public/ui/availability-calendar.js",
+  "src/_lib/public/utils/cart-utils.js",
+  "src/_lib/public/cart/cart.js",
+  "src/_lib/public/ui/gallery.js",
+  "src/_lib/public/cart/hire-calculator.js",
+  "src/_lib/public/cart/quote-checkout.js",
+  "src/_lib/public/utils/quote-price-utils.js",
+  "src/_lib/public/cart/quote.js",
+  "src/_lib/public/cart/quote-steps.js",
+  "src/_lib/public/ui/quote-steps-progress.js",
+  "src/_lib/public/ui/scroll-fade.js",
+  "src/_lib/public/ui/search.js",
+  "src/_lib/public/ui/shuffle-properties.js",
+  "src/_lib/public/ui/slider.js",
+  "src/_lib/public/cart/stripe-checkout.js",
+  "src/_lib/public/ui/tabs.js",
+  "src/_lib/public/theme/theme-editor-lib.js",
   "src/products/products.11tydata.js",
   "test/unit/code-quality/knip.test.js",
 ]);
