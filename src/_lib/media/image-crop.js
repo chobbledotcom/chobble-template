@@ -11,30 +11,6 @@ const getSharp = createLazyLoader("sharp", { property: "default" });
 
 const CROP_CACHE_DIR = ".image-cache";
 
-// Generate a short hash for cache file naming
-const generateCropHash = (sourcePath, aspectRatio) =>
-  crypto
-    .createHash("md5")
-    .update(`${sourcePath}:${aspectRatio}`)
-    .digest("hex")
-    .slice(0, 8);
-
-// Build cache path for cropped image
-const buildCropCachePath = (sourcePath, aspectRatio) => {
-  const hash = generateCropHash(sourcePath, aspectRatio);
-  const basename = path.basename(sourcePath, path.extname(sourcePath));
-  return path.join(CROP_CACHE_DIR, `${basename}-crop-${hash}.jpeg`);
-};
-
-// Parse aspect ratio string (e.g., "16/9") into crop dimensions
-const parseCropDimensions = (aspectRatio, metadata) => {
-  const [w, h] = aspectRatio.split("/").map(Number.parseFloat);
-  return {
-    width: metadata.width,
-    height: Math.round(metadata.width / (w / h)),
-  };
-};
-
 // Get aspect ratio - use provided or calculate from metadata
 const getAspectRatio = (aspectRatio, metadata) =>
   aspectRatio || simplifyRatio(metadata.width, metadata.height);
@@ -44,10 +20,27 @@ const cropImage = memoize(
   async (aspectRatio, sourcePath, metadata) => {
     if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
 
-    const cachedPath = buildCropCachePath(sourcePath, aspectRatio);
+    // Build cache path for cropped image
+    const hash = crypto
+      .createHash("md5")
+      .update(`${sourcePath}:${aspectRatio}`)
+      .digest("hex")
+      .slice(0, 8);
+    const basename = path.basename(sourcePath, path.extname(sourcePath));
+    const cachedPath = path.join(
+      CROP_CACHE_DIR,
+      `${basename}-crop-${hash}.jpeg`,
+    );
+
     if (fs.existsSync(cachedPath)) return cachedPath;
 
-    const { width, height } = parseCropDimensions(aspectRatio, metadata);
+    // Parse aspect ratio string (e.g., "16/9") into crop dimensions
+    const [w, h] = aspectRatio.split("/").map(Number.parseFloat);
+    const { width, height } = {
+      width: metadata.width,
+      height: Math.round(metadata.width / (w / h)),
+    };
+
     fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
 
     const sharp = await getSharp();

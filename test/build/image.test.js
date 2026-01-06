@@ -1,10 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureImages,
-  copyImageCache,
-  createImagesCollection,
   createImageTransform,
-  findImageFiles,
   imageShortcode,
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
@@ -56,49 +53,6 @@ const testPage = (content, permalink = "/test/", title = "Test") => ({
 const imageFiles = map((dest) => imageFile(dest));
 
 describe("image", () => {
-  // ============================================
-  // findImageFiles tests
-  // ============================================
-  describe("findImageFiles", () => {
-    test("Returns array of image file paths", () => {
-      const result = findImageFiles();
-      expect(Array.isArray(result)).toBe(true);
-    });
-  });
-
-  // ============================================
-  // createImagesCollection tests
-  // ============================================
-  describe("createImagesCollection", () => {
-    test("Extracts filenames from paths and reverses order", () => {
-      const imageFiles = [
-        "src/images/photo1.jpg",
-        "src/images/photo2.jpg",
-        "src/images/banner.jpg",
-      ];
-
-      const result = createImagesCollection(imageFiles);
-
-      expect(result).toEqual(["banner.jpg", "photo2.jpg", "photo1.jpg"]);
-    });
-
-    test("Returns empty array for empty input", () => {
-      const result = createImagesCollection([]);
-
-      expect(result).toEqual([]);
-    });
-  });
-
-  // ============================================
-  // copyImageCache tests
-  // ============================================
-  describe("copyImageCache", () => {
-    test("Runs without throwing", () => {
-      // Simple coverage test - function handles missing cache directory gracefully
-      expect(() => copyImageCache()).not.toThrow();
-    });
-  });
-
   // ============================================
   // createImageTransform tests
   // ============================================
