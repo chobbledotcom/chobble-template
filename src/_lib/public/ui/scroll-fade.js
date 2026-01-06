@@ -3,7 +3,7 @@
  * Uses IntersectionObserver for performant scroll-based animations.
  * Selectors are configured in theme.scss via --scroll-fade-selectors CSS custom property.
  */
-import { onReady } from "#assets/on-ready.js";
+import { onReady } from "#assets/utils/on-ready.js";
 
 const getScrollFadeSelectors = () => {
   const value = getComputedStyle(document.documentElement).getPropertyValue(

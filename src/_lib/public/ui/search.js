@@ -1,4 +1,4 @@
-import { onReady } from "#assets/on-ready.js";
+import { onReady } from "#assets/utils/on-ready.js";
 
 const normalise = (str) =>
   str

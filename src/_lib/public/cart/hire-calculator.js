@@ -2,8 +2,8 @@
 // Shows date fields if any cart item is hire mode
 // Calculates running total based on hire dates and cart items
 
-import { formatPrice, getCart } from "#assets/cart-utils.js";
-import { onReady } from "#assets/on-ready.js";
+import { formatPrice, getCart } from "#assets/utils/cart-utils.js";
+import { onReady } from "#assets/utils/on-ready.js";
 import { filter, map, reduce } from "#utils/array-utils.js";
 
 // Predicates

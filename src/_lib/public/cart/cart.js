@@ -10,16 +10,16 @@ import {
   saveCart,
   updateCartIcon,
   updateItemQuantity,
-} from "#assets/cart-utils.js";
-import Config from "#assets/config.js";
-import { postJson } from "#assets/http.js";
-import { onReady } from "#assets/on-ready.js";
-import { IDS } from "#assets/selectors.js";
+} from "#assets/utils/cart-utils.js";
+import Config from "#assets/utils/config.js";
+import { postJson } from "#assets/utils/http.js";
+import { onReady } from "#assets/utils/on-ready.js";
+import { IDS } from "#assets/utils/selectors.js";
 import {
   getTemplate,
   populateItemFields,
   populateQuantityControls,
-} from "#assets/template.js";
+} from "#assets/utils/template.js";
 
 // Constants
 const CART_OVERLAY_ID = "cart-overlay";

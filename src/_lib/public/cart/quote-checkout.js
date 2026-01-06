@@ -1,10 +1,10 @@
 // Quote checkout page
 // Populates form with cart items and displays summary
 
-import { formatPrice, getCart } from "#assets/cart-utils.js";
-import { onReady } from "#assets/on-ready.js";
-import { IDS } from "#assets/selectors.js";
-import { getTemplate } from "#assets/template.js";
+import { formatPrice, getCart } from "#assets/utils/cart-utils.js";
+import { onReady } from "#assets/utils/on-ready.js";
+import { IDS } from "#assets/utils/selectors.js";
+import { getTemplate } from "#assets/utils/template.js";
 
 function renderCheckoutItem(item) {
   const template = getTemplate(IDS.QUOTE_CHECKOUT_ITEM);

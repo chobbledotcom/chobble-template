@@ -1,6 +1,6 @@
-import { onReady } from "#assets/on-ready.js";
-import { IDS } from "#assets/selectors.js";
-import { getTemplate } from "#assets/template.js";
+import { onReady } from "#assets/utils/on-ready.js";
+import { IDS } from "#assets/utils/selectors.js";
+import { getTemplate } from "#assets/utils/template.js";
 
 const NAV_PREV = '[data-nav="prev"]';
 const NAV_NEXT = '[data-nav="next"]';

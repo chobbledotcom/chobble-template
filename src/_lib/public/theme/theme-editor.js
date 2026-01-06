@@ -1,4 +1,4 @@
-import { onReady } from "#assets/on-ready.js";
+import { onReady } from "#assets/utils/on-ready.js";
 import {
   collectActiveClasses,
   controlToVarEntry,
@@ -10,7 +10,7 @@ import {
   parseThemeContent,
   SCOPES,
   shouldIncludeScopedVar,
-} from "#assets/theme-editor-lib.js";
+} from "#assets/theme/theme-editor-lib.js";
 import { compact, filter, flatMap, map, pipe } from "#utils/array-utils.js";
 
 const ELEMENT_IDS = {
