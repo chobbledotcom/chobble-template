@@ -8,6 +8,7 @@ import {
   createEvent,
   createEvents,
   createOffsetDate,
+  expectEventCounts,
   expectResultTitles,
   formatDateString,
 } from "#test/test-utils.js";
@@ -31,9 +32,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(1);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(0);
+    expectEventCounts(result, { upcoming: 1 });
     expect(result.show).toEqual({
       upcoming: true,
       regular: false,
@@ -46,9 +45,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(0);
-    expect(result.past.length).toBe(1);
-    expect(result.regular.length).toBe(0);
+    expectEventCounts(result, { past: 1 });
     expect(result.show).toEqual({
       upcoming: false,
       regular: false,
@@ -61,9 +58,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(1);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(0);
+    expectEventCounts(result, { upcoming: 1 });
   });
 
   test("Categorizes recurring events correctly", () => {
@@ -74,9 +69,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(0);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(2);
+    expectEventCounts(result, { regular: 2 });
     expect(result.show).toEqual({
       upcoming: false,
       regular: true,
@@ -93,9 +86,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(1);
-    expect(result.past.length).toBe(1);
-    expect(result.regular.length).toBe(1);
+    expectEventCounts(result, { upcoming: 1, past: 1, regular: 1 });
     expect(result.show).toEqual({
       upcoming: true,
       regular: true,
@@ -112,9 +103,11 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming[0].data.title).toBe("Earliest Event");
-    expect(result.upcoming[1].data.title).toBe("Middle Event");
-    expect(result.upcoming[2].data.title).toBe("Latest Event");
+    expectResultTitles(result.upcoming, [
+      "Earliest Event",
+      "Middle Event",
+      "Latest Event",
+    ]);
   });
 
   test("Sorts past events by date (most recent first)", () => {
@@ -126,9 +119,11 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.past[0].data.title).toBe("Most Recent Event");
-    expect(result.past[1].data.title).toBe("Middle Event");
-    expect(result.past[2].data.title).toBe("Oldest Event");
+    expectResultTitles(result.past, [
+      "Most Recent Event",
+      "Middle Event",
+      "Oldest Event",
+    ]);
   });
 
   test("Sorts regular events alphabetically by title", () => {
@@ -140,9 +135,11 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.regular[0].data.title).toBe("Book Club");
-    expect(result.regular[1].data.title).toBe("Monthly Meeting");
-    expect(result.regular[2].data.title).toBe("Zumba Class");
+    expectResultTitles(result.regular, [
+      "Book Club",
+      "Monthly Meeting",
+      "Zumba Class",
+    ]);
   });
 
   test("If event has both recurring_date and event_date, recurring takes precedence", () => {
@@ -158,10 +155,8 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.upcoming.length).toBe(0);
-    expect(result.past.length).toBe(0);
-    expect(result.regular.length).toBe(1);
-    expect(result.regular[0].data.title).toBe("Hybrid Event");
+    expectEventCounts(result, { regular: 1 });
+    expectResultTitles(result.regular, ["Hybrid Event"]);
   });
 
   test("Handles events without titles gracefully", () => {
@@ -172,9 +167,7 @@ describe("events", () => {
 
     const result = categoriseEvents(events);
 
-    expect(result.regular.length).toBe(2);
-    expect(result.regular[0].data.title).toBe(undefined);
-    expect(result.regular[1].data.title).toBe("Named Event");
+    expectResultTitles(result.regular, [undefined, "Named Event"]);
   });
 
   test("Show logic with no events shows nothing", () => {

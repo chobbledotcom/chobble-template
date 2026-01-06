@@ -7,7 +7,15 @@ import {
   prepareAreaList,
   sortByNavigationKey,
 } from "#eleventy/area-list.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectArrayProp,
+  expectProp,
+} from "#test/test-utils.js";
+
+const expectNames = expectProp("name");
+const expectSeparators = expectProp("separator");
+const expectNavKeys = expectArrayProp((l) => l.data.eleventyNavigation?.key);
 
 // Test fixtures
 const createLocation = (name, url) => ({
@@ -18,6 +26,10 @@ const createLocation = (name, url) => ({
     },
   },
 });
+
+// Create multiple locations from [name, url] tuples
+const createLocations = (tuples) =>
+  tuples.map(([name, url]) => createLocation(name, url));
 
 describe("area-list", () => {
   // isTopLevelLocation tests
@@ -45,17 +57,15 @@ describe("area-list", () => {
 
   // sortByNavigationKey tests
   test("Sorts locations alphabetically by navigation key", () => {
-    const locations = [
-      createLocation("Zebra Town", "/locations/zebra-town/"),
-      createLocation("Alpha City", "/locations/alpha-city/"),
-      createLocation("Metro Area", "/locations/metro-area/"),
-    ];
+    const locations = createLocations([
+      ["Zebra Town", "/locations/zebra-town/"],
+      ["Alpha City", "/locations/alpha-city/"],
+      ["Metro Area", "/locations/metro-area/"],
+    ]);
 
     const sorted = sortByNavigationKey(locations);
 
-    expect(sorted[0].data.eleventyNavigation.key).toBe("Alpha City");
-    expect(sorted[1].data.eleventyNavigation.key).toBe("Metro Area");
-    expect(sorted[2].data.eleventyNavigation.key).toBe("Zebra Town");
+    expectNavKeys(sorted, ["Alpha City", "Metro Area", "Zebra Town"]);
   });
 
   test("Returns empty array for null/undefined/empty input", () => {
@@ -79,10 +89,10 @@ describe("area-list", () => {
   });
 
   test("Does not mutate the original array", () => {
-    const locations = [
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Alpha", "/locations/alpha/"),
-    ];
+    const locations = createLocations([
+      ["Beta", "/locations/beta/"],
+      ["Alpha", "/locations/alpha/"],
+    ]);
     const original = [...locations];
 
     sortByNavigationKey(locations);
@@ -95,28 +105,26 @@ describe("area-list", () => {
 
   // filterTopLevelLocations tests
   test("Filters to only top-level locations", () => {
-    const locations = [
-      createLocation("Springfield", "/locations/springfield/"),
-      createLocation("Downtown", "/locations/springfield/downtown/"),
-      createLocation("Fulchester", "/locations/fulchester/"),
-    ];
+    const locations = createLocations([
+      ["Springfield", "/locations/springfield/"],
+      ["Downtown", "/locations/springfield/downtown/"],
+      ["Fulchester", "/locations/fulchester/"],
+    ]);
 
     const filtered = filterTopLevelLocations(
       locations,
       "/locations/other-page/",
     );
 
-    expect(filtered).toHaveLength(2);
-    expect(filtered[0].data.eleventyNavigation.key).toBe("Springfield");
-    expect(filtered[1].data.eleventyNavigation.key).toBe("Fulchester");
+    expectNavKeys(filtered, ["Springfield", "Fulchester"]);
   });
 
   test("Excludes the current page from results", () => {
-    const locations = [
-      createLocation("Springfield", "/locations/springfield/"),
-      createLocation("Fulchester", "/locations/fulchester/"),
-      createLocation("Royston Vasey", "/locations/royston-vasey/"),
-    ];
+    const locations = createLocations([
+      ["Springfield", "/locations/springfield/"],
+      ["Fulchester", "/locations/fulchester/"],
+      ["Royston Vasey", "/locations/royston-vasey/"],
+    ]);
 
     const filtered = filterTopLevelLocations(
       locations,
@@ -164,10 +172,10 @@ describe("area-list", () => {
 
   // prepareAreaList tests
   test("Returns single location with no separator", () => {
-    const locations = [
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Beta", "/locations/beta/"),
-    ];
+    const locations = createLocations([
+      ["Alpha", "/locations/alpha/"],
+      ["Beta", "/locations/beta/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
@@ -178,46 +186,38 @@ describe("area-list", () => {
   });
 
   test("Returns two locations with 'and' separator", () => {
-    const locations = [
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Gamma", "/locations/gamma/"),
-    ];
+    const locations = createLocations([
+      ["Alpha", "/locations/alpha/"],
+      ["Beta", "/locations/beta/"],
+      ["Gamma", "/locations/gamma/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
-    expect(result).toHaveLength(2);
-    expect(result[0].name).toBe("Beta");
-    expect(result[0].separator).toBe(" and ");
-    expect(result[1].name).toBe("Gamma");
-    expect(result[1].separator).toBe("");
+    expectNames(result, ["Beta", "Gamma"]);
+    expectSeparators(result, [" and ", ""]);
   });
 
   test("Returns three locations with comma and 'and' separators", () => {
-    const locations = [
-      createLocation("Delta", "/locations/delta/"),
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Gamma", "/locations/gamma/"),
-    ];
+    const locations = createLocations([
+      ["Delta", "/locations/delta/"],
+      ["Alpha", "/locations/alpha/"],
+      ["Beta", "/locations/beta/"],
+      ["Gamma", "/locations/gamma/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/delta/");
 
-    expect(result).toHaveLength(3);
-    expect(result[0].name).toBe("Alpha");
-    expect(result[0].separator).toBe(", ");
-    expect(result[1].name).toBe("Beta");
-    expect(result[1].separator).toBe(" and ");
-    expect(result[2].name).toBe("Gamma");
-    expect(result[2].separator).toBe("");
+    expectNames(result, ["Alpha", "Beta", "Gamma"]);
+    expectSeparators(result, [", ", " and ", ""]);
   });
 
   test("Excludes nested locations", () => {
-    const locations = [
-      createLocation("Alpha", "/locations/alpha/"),
-      createLocation("Nested", "/locations/alpha/nested/"),
-      createLocation("Beta", "/locations/beta/"),
-    ];
+    const locations = createLocations([
+      ["Alpha", "/locations/alpha/"],
+      ["Nested", "/locations/alpha/nested/"],
+      ["Beta", "/locations/beta/"],
+    ]);
 
     const result = prepareAreaList(locations, "/locations/other/");
 
@@ -226,7 +226,7 @@ describe("area-list", () => {
   });
 
   test("Returns empty array when no locations remain", () => {
-    const locations = [createLocation("Alpha", "/locations/alpha/")];
+    const locations = createLocations([["Alpha", "/locations/alpha/"]]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
@@ -259,18 +259,17 @@ describe("area-list", () => {
     const mockConfig = createMockEleventyConfig();
     configureAreaList(mockConfig);
 
-    const locations = [
-      createLocation("Beta", "/locations/beta/"),
-      createLocation("Alpha", "/locations/alpha/"),
-    ];
+    const locations = createLocations([
+      ["Beta", "/locations/beta/"],
+      ["Alpha", "/locations/alpha/"],
+    ]);
 
     const result = mockConfig.filters.prepareAreaList(
       locations,
       "/locations/other/",
     );
 
-    expect(result).toHaveLength(2);
-    expect(result[0].name).toBe("Alpha");
-    expect(result[0].separator).toBe(" and ");
+    expectNames(result, ["Alpha", "Beta"]);
+    expectSeparators(result, [" and ", ""]);
   });
 });

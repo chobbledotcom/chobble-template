@@ -248,6 +248,72 @@ const expectResultTitles = (result, expectedTitles) => {
   });
 };
 
+/**
+ * Assert that a result array has expected values for a given property getter.
+ * The most generic form - accepts any getter function.
+ * Curried: first call with getter, returns assertion function.
+ *
+ * @param {Function} getter - (item) => value to extract from each item
+ * @returns {Function} (result, expectedValues) => void
+ *
+ * @example
+ * expectArrayProp(item => item.name)(result, ["Alpha", "Beta"]);
+ * expectArrayProp(item => item.data.title)(result, ["Product 1", "Product 2"]);
+ */
+const expectArrayProp = (getter) => (result, expectedValues) => {
+  expect(result.length).toBe(expectedValues.length);
+  expectedValues.forEach((value, i) => {
+    const actual = getter(result[i]);
+    if (value === undefined) {
+      expect(actual).toBe(undefined);
+    } else {
+      expect(actual).toEqual(value);
+    }
+  });
+};
+
+/**
+ * Assert that a result array has expected values for a top-level property.
+ * Curried: first call with key name, returns assertion function.
+ *
+ * @param {string} key - The property key to check (e.g., "name", "template")
+ * @returns {Function} (result, expectedValues) => void
+ *
+ * @example
+ * expectProp("name")(result, ["Alpha", "Beta"]);
+ * expectProp("template")(result, ["input.html", "textarea.html"]);
+ */
+const expectProp = (key) => expectArrayProp((item) => item[key]);
+
+/**
+ * Assert that a result array has expected data values for a given key.
+ * Curried: first call with key name, returns assertion function.
+ * For checking result[i].data[key] patterns.
+ *
+ * @param {string} key - The data key to check (e.g., "gallery", "categories")
+ * @returns {Function} (result, expectedValues) => void
+ *
+ * @example
+ * const expectGalleries = expectDataArray("gallery");
+ * expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
+ */
+const expectDataArray = (key) => expectArrayProp((item) => item.data[key]);
+
+const expectGalleries = expectDataArray("gallery");
+
+/**
+ * Assert that categorised events have expected counts.
+ * Reduces boilerplate in event categorisation tests.
+ *
+ * @param {Object} result - Result from categoriseEvents with upcoming/past/regular arrays
+ * @param {Object} counts - Expected counts { upcoming, past, regular }
+ */
+const expectEventCounts = (result, { upcoming = 0, past = 0, regular = 0 }) => {
+  expect(result.upcoming.length).toBe(upcoming);
+  expect(result.past.length).toBe(past);
+  expect(result.regular.length).toBe(regular);
+};
+
 // ============================================
 // Test Fixture Factories
 // ============================================
@@ -797,6 +863,11 @@ export {
   withTempFile,
   withMockedCwd,
   expectResultTitles,
+  expectArrayProp,
+  expectProp,
+  expectDataArray,
+  expectGalleries,
+  expectEventCounts,
   // Generic item builder
   item,
   items,

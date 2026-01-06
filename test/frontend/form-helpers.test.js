@@ -4,6 +4,9 @@ import {
   getFieldTemplate,
   processContactForm,
 } from "#config/form-helpers.js";
+import { expectProp } from "#test/test-utils.js";
+
+const expectTemplates = expectProp("template");
 
 describe("form-helpers", () => {
   // getFieldTemplate function tests
@@ -62,8 +65,10 @@ describe("form-helpers", () => {
         { name: "email", type: "email" },
       ];
       const result = addFieldTemplates(fields);
-      expect(result[0].template).toBe("form-field-input.html");
-      expect(result[1].template).toBe("form-field-input.html");
+      expectTemplates(result, [
+        "form-field-input.html",
+        "form-field-input.html",
+      ]);
     });
 
     test("preserves all original field properties", () => {
@@ -91,10 +96,12 @@ describe("form-helpers", () => {
         { name: "contact", type: "radio" },
       ];
       const result = addFieldTemplates(fields);
-      expect(result[0].template).toBe("form-field-input.html");
-      expect(result[1].template).toBe("form-field-textarea.html");
-      expect(result[2].template).toBe("form-field-select.html");
-      expect(result[3].template).toBe("form-field-radio.html");
+      expectTemplates(result, [
+        "form-field-input.html",
+        "form-field-textarea.html",
+        "form-field-select.html",
+        "form-field-radio.html",
+      ]);
     });
 
     test("does not mutate original fields array", () => {

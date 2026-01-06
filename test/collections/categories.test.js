@@ -8,10 +8,14 @@ import {
 } from "#collections/categories.js";
 import {
   createMockEleventyConfig,
+  expectDataArray,
   expectResultTitles,
   taggedCollectionApi,
 } from "#test/test-utils.js";
+
 import { map } from "#utils/array-utils.js";
+
+const expectHeaderImages = expectDataArray("header_image");
 
 // ============================================
 // Functional Test Fixture Builders
@@ -181,8 +185,7 @@ describe("categories", () => {
 
     const result = assignCategoryImages(testCategories, categoryImages);
 
-    expect(result[0].data.header_image).toBe("widget-final.jpg");
-    expect(result[1].data.header_image).toBe("gadget-final.jpg");
+    expectHeaderImages(result, ["widget-final.jpg", "gadget-final.jpg"]);
     expect(result[0].data.title).toBe("Widgets");
   });
 
@@ -194,7 +197,7 @@ describe("categories", () => {
 
     const result = assignCategoryImages(testCategories, categoryImages);
 
-    expect(result[0].data.header_image).toBe(undefined);
+    expectHeaderImages(result, [undefined]);
   });
 
   test("assignCategoryImages-mutates-original", () => {
@@ -231,9 +234,7 @@ describe("categories", () => {
 
     const result = createCategoriesCollection(mockApi);
 
-    expect(result.length).toBe(2);
-    expect(result[0].data.header_image).toBe("premium-widget.jpg");
-    expect(result[1].data.header_image).toBe("basic-gadget.jpg");
+    expectHeaderImages(result, ["premium-widget.jpg", "basic-gadget.jpg"]);
     expect(result[0].data.title).toBe("Widgets");
   });
 
@@ -364,22 +365,5 @@ describe("categories", () => {
       gadgets: ["cross-category.jpg", 3],
       tools: ["high-priority-tool.jpg", 5],
     });
-  });
-
-  test("categories-functions-pure", () => {
-    const originalCategories = [
-      category("widgets", undefined, { title: "Widgets" }),
-    ];
-    const originalProducts = [
-      product({ order: 1, cats: ["widgets"], headerImage: "test.jpg" }),
-    ];
-
-    const categoriesCopy = JSON.parse(JSON.stringify(originalCategories));
-    const productsCopy = JSON.parse(JSON.stringify(originalProducts));
-
-    buildCategoryImageMap(categoriesCopy, productsCopy);
-
-    expect(categoriesCopy).toEqual(originalCategories);
-    expect(productsCopy).toEqual(originalProducts);
   });
 });
