@@ -61,12 +61,6 @@ const hasExtension =
 
 const getCachedDirExists = memoize((dir) => fs.existsSync(dir));
 
-const getCachedJsonFile = memoize((filePath) =>
-  fs.existsSync(filePath)
-    ? JSON.parse(fs.readFileSync(filePath, "utf-8"))
-    : null,
-);
-
 const getCachedDirList = memoize((dir) =>
   !fs.existsSync(dir)
     ? []
@@ -171,8 +165,8 @@ const setupDataDir = (templateSrc, srcDir, options) => {
 
   // Merge config with source config
   if (options.config) {
-    const existing =
-      getCachedJsonFile(path.join(dataSource, "config.json")) || {};
+    const configPath = path.join(dataSource, "config.json");
+    const existing = JSON.parse(fs.readFileSync(configPath, "utf-8"));
     writeJson("config.json", { ...existing, ...options.config });
   }
 
@@ -385,9 +379,7 @@ const createTestSite = async (options = {}) => {
 
   // Copy config and create symlinks
   copyToDir(siteDir)(path.join(rootDir, ".eleventy.js"), ".eleventy.js");
-
-  const pkgJson = getCachedJsonFile(path.join(rootDir, "package.json"));
-  writeJsonToDir(siteDir)("package.json", pkgJson);
+  copyToDir(siteDir)(path.join(rootDir, "package.json"), "package.json");
 
   fs.symlinkSync(
     path.join(rootDir, "node_modules"),
