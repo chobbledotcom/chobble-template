@@ -2,6 +2,7 @@
 
 import { describe, expect, test } from "bun:test";
 import {
+  initStandaloneProgress,
   renderStepProgress,
   updateStepProgress,
 } from "#public/ui/quote-steps-progress.js";
@@ -134,16 +135,16 @@ describe("quote-steps-progress", () => {
     });
   });
 
-  describe("initStandaloneProgress (via turbo:load)", () => {
+  describe("initStandaloneProgress", () => {
     const stepsJson = JSON.stringify(steps);
 
-    test("initializes standalone progress indicator on turbo:load", () => {
+    test("initializes standalone progress indicator", () => {
       document.body.innerHTML = `
         ${indicatorTemplate}
         <div class="quote-steps-progress" data-completed-steps="1"></div>
         <script class="quote-steps-data" type="application/json">${stepsJson}</script>
       `;
-      document.dispatchEvent(new Event("turbo:load"));
+      initStandaloneProgress();
 
       const container = document.querySelector(".quote-steps-progress");
       const indicators = [...container.querySelectorAll("li")];
@@ -157,9 +158,7 @@ describe("quote-steps-progress", () => {
 
     test("does not error when container is missing", () => {
       document.body.innerHTML = indicatorTemplate;
-      expect(() =>
-        document.dispatchEvent(new Event("turbo:load")),
-      ).not.toThrow();
+      expect(() => initStandaloneProgress()).not.toThrow();
     });
 
     // Note: We trust templates to always include dataScript with progress container
@@ -173,7 +172,7 @@ describe("quote-steps-progress", () => {
         </div>
         <script class="quote-steps-data" type="application/json">${stepsJson}</script>
       `;
-      document.dispatchEvent(new Event("turbo:load"));
+      initStandaloneProgress();
 
       const container = document.querySelector(".quote-steps-progress");
       expect(container.querySelectorAll("li").length).toBe(0);
@@ -188,7 +187,7 @@ describe("quote-steps-progress", () => {
         <div class="quote-steps-progress" data-completed-steps="2"></div>
         <script class="quote-steps-data" type="application/json">${stepsJson}</script>
       `;
-      document.dispatchEvent(new Event("turbo:load"));
+      initStandaloneProgress();
 
       const standaloneContainer = document.querySelectorAll(
         ".quote-steps-progress",
