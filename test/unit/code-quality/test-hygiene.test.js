@@ -15,6 +15,7 @@ import {
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
   // Test utilities from test-utils.js pattern
+  "createObjectBuilder",
   "captureConsole",
   "execScript",
   "createMockEleventyConfig",

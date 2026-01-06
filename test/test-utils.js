@@ -751,6 +751,25 @@ const extractFunctions = (source) => {
 // Schema-helper test fixtures
 
 /**
+ * Add optional properties to an object if they are truthy.
+ * Curried: (keys) => (obj, options) => obj
+ * Mutates and returns the object for chaining.
+ *
+ * @param {Array<string>} keys - Property keys to conditionally add
+ * @returns {Function} (obj, options) => obj
+ *
+ * @example
+ * const addContactInfo = addOptionalProps(["email", "phone"]);
+ * addContactInfo({ name: "Alice" }, { email: "a@b.com" }); // { name: "Alice", email: "a@b.com" }
+ */
+const addOptionalProps = (keys) => (obj, options) => {
+  for (const key of keys) {
+    if (options[key]) obj[key] = options[key];
+  }
+  return obj;
+};
+
+/**
  * Create an object builder with required and optional properties.
  * Curried: (requiredDefaults, optionalKeys) => (options) => object
  *
@@ -766,18 +785,16 @@ const extractFunctions = (source) => {
  * createPerson({ name: "Alice", age: 30 }); // { name: "Alice", age: 30 }
  * createPerson({ email: null }); // { name: "Anonymous" }
  */
-const createObjectBuilder =
-  (requiredDefaults, optionalKeys) =>
-  (options = {}) => {
+const createObjectBuilder = (requiredDefaults, optionalKeys) => {
+  const addOptionals = addOptionalProps(optionalKeys);
+  return (options = {}) => {
     const obj = {};
     for (const [key, defaultVal] of Object.entries(requiredDefaults)) {
       obj[key] = options[key] ?? defaultVal;
     }
-    for (const key of optionalKeys) {
-      if (options[key]) obj[key] = options[key];
-    }
-    return obj;
+    return addOptionals(obj, options);
   };
+};
 
 const createSchemaPage = createObjectBuilder({ url: "/page/" }, [
   "fileSlug",
