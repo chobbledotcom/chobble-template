@@ -2,7 +2,8 @@
 
 /**
  * Coverage runner for Bun's test framework.
- * Parses LCOV output to prevent new uncovered code via an exceptions allowlist.
+ * Parses LCOV output to prevent new uncovered lines via an exceptions allowlist.
+ * Note: Bun only outputs line coverage (DA records), not function/branch coverage.
  */
 
 import { spawnSync } from "node:child_process";
@@ -10,7 +11,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 import { pipe, filter, reduce, filterMap, split } from "#utils/array-utils.js";
-import { toObject, fromPairs } from "#utils/object-entries.js";
+import { fromPairs } from "#utils/object-entries.js";
 
 // --- Configuration ---
 
@@ -18,25 +19,22 @@ const rootDir = ROOT_DIR;
 const exceptionsPath = resolve(rootDir, ".coverage_exceptions.json");
 const lcovPath = resolve(rootDir, "coverage", "lcov.info");
 const COVERAGE_EXCLUDE = ["test/ensure-deps.js"];
-const TYPES = ["lines", "functions", "branches"];
 
 // --- Functional Helpers ---
-// Note: Bun's LCOV output only includes DA (line) records, not FNDA/BRDA.
-// Function and branch parsing is implemented but unused until Bun adds support.
 
-// Set operations (curried for use with pipe)
 const difference = (setB) => (arr) => filter((x) => !setB.has(x))(arr);
 const intersection = (setB) => (arr) => filter((x) => setB.has(x))(arr);
 const toSet = (arr) => new Set(arr || []);
+const isNonEmpty = (obj) => Object.keys(obj).length > 0;
 
-// Curried helpers for coverage operations
+// Compute difference/intersection between current uncovered and allowed exceptions
 const diffByFile = (setOp) => (current, allowed) =>
   pipe(
     Object.entries,
     filterMap(
-      ([file, items]) => allowed[file] !== true && items !== true,
-      ([file, items]) => {
-        const diff = setOp(toSet(allowed[file] || []))(items);
+      ([file]) => allowed[file] !== true,
+      ([file, lines]) => {
+        const diff = setOp(toSet(allowed[file]))(lines);
         return diff.length > 0 ? [file, diff] : null;
       },
     ),
@@ -44,129 +42,77 @@ const diffByFile = (setOp) => (current, allowed) =>
     fromPairs,
   )(current);
 
-// Apply operation across all coverage types (curried)
-const mapTypes = (fn) => (data) =>
-  toObject(TYPES, (type) => [type, fn(data, type)]);
-
-const isNonEmpty = (obj) => Object.keys(obj).length > 0;
-
 // --- LCOV Parsing ---
 
-// Record parsers: extract uncovered item from LCOV line data
-const parseUncovered = {
-  DA: (data) => {
-    const [lineNum, hits] = data.split(",").map(Number);
-    return hits === 0 ? { type: "lines", id: lineNum } : null;
-  },
-  FNDA: (data) => {
-    const [hits, name] = data.split(",");
-    return parseInt(hits, 10) === 0 ? { type: "functions", id: name } : null;
-  },
-  BRDA: (data) => {
-    const [ln, block, branch, taken] = data.split(",");
-    return taken === "0" || taken === "-"
-      ? { type: "branches", id: `${ln}:${block}:${branch}` }
-      : null;
-  },
+// Parse DA (line data) records: "DA:lineNum,hitCount"
+const parseDA = (data) => {
+  const [lineNum, hits] = data.split(",").map(Number);
+  return hits === 0 ? lineNum : null;
 };
 
-// Parse a single LCOV line, returning state update
+// Parse a single LCOV line, accumulating uncovered lines per file
 const parseLine = (state, line) => {
-  // Start of file record
   if (line.startsWith("SF:")) {
     const path = line.slice(3);
     const isExcluded = COVERAGE_EXCLUDE.some((p) => path.endsWith(p));
     return { ...state, file: isExcluded ? null : path.replace(`${rootDir}/`, "") };
   }
 
-  // End of file record or no active file
   if (!state.file || line === "end_of_record") {
     return { ...state, file: null };
   }
 
-  // Parse coverage data lines (DA, FNDA, BRDA)
-  const colonIdx = line.indexOf(":");
-  if (colonIdx > 0) {
-    const prefix = line.slice(0, colonIdx);
-    const parser = parseUncovered[prefix];
-    if (parser) {
-      const result = parser(line.slice(colonIdx + 1));
-      if (result) {
-        const { type, id } = result;
-        const fileItems = state.uncovered[type][state.file] || [];
-        return {
-          ...state,
-          uncovered: {
-            ...state.uncovered,
-            [type]: { ...state.uncovered[type], [state.file]: [...fileItems, id] },
-          },
-        };
-      }
+  if (line.startsWith("DA:")) {
+    const lineNum = parseDA(line.slice(3));
+    if (lineNum !== null) {
+      const fileLines = state.uncovered[state.file] || [];
+      return { ...state, uncovered: { ...state.uncovered, [state.file]: [...fileLines, lineNum] } };
     }
   }
+
   return state;
 };
 
 const parseLcov = (content) =>
   pipe(
     split("\n"),
-    reduce(parseLine, { file: null, uncovered: { lines: {}, functions: {}, branches: {} } }),
+    reduce(parseLine, { file: null, uncovered: {} }),
     (state) => state.uncovered,
   )(content);
 
 // --- Exception Checking ---
 
-// Log violations grouped by type
-const logViolations = (violations, label, logFn = console.error) =>
-  TYPES.filter((t) => isNonEmpty(violations[t])).forEach((type) => {
-    logFn(`   ${label} ${type}:`);
-    Object.entries(violations[type]).forEach(([file, items]) =>
-      logFn(`     ${file}: ${items.join(", ")}`),
-    );
-  });
-
 const checkExceptions = (uncovered, exceptions, verbose) => {
-  const findNew = diffByFile(difference);
-  const violations = mapTypes(
-    ({ uncovered, exceptions }, type) =>
-      findNew(uncovered[type] || {}, exceptions[type] || {}),
-  )({ uncovered, exceptions });
+  const violations = diffByFile(difference)(uncovered, exceptions);
 
-  const hasViolations = TYPES.some((t) => isNonEmpty(violations[t]));
-
-  if (hasViolations) {
-    console.error("\n❌ New uncovered code detected!");
-    console.error(
-      "   All new code must have test coverage. Either add tests or update .coverage_exceptions.json\n",
-    );
-    logViolations(violations, "Uncovered");
+  if (isNonEmpty(violations)) {
+    console.error("\n❌ New uncovered lines detected!");
+    console.error("   Add tests or update .coverage_exceptions.json\n");
+    for (const [file, lines] of Object.entries(violations)) {
+      console.error(`   ${file}: ${lines.join(", ")}`);
+    }
     return false;
   }
 
   if (verbose) {
-    // Find exceptions that can be removed (items now covered)
-    const findRemovable = (exceptions, uncovered) =>
-      pipe(
-        Object.entries,
-        filterMap(
-          ([, items]) => Array.isArray(items),
-          ([file, items]) => {
-            const nowCovered = difference(toSet(uncovered?.[file] || []))(items);
-            return nowCovered.length > 0 ? [file, nowCovered] : null;
-          },
-        ),
-        filter(Boolean),
-        fromPairs,
-      )(exceptions || {});
+    const removable = pipe(
+      Object.entries,
+      filterMap(
+        ([, lines]) => Array.isArray(lines),
+        ([file, lines]) => {
+          const nowCovered = difference(toSet(uncovered[file] || []))(lines);
+          return nowCovered.length > 0 ? [file, nowCovered] : null;
+        },
+      ),
+      filter(Boolean),
+      fromPairs,
+    )(exceptions);
 
-    const removable = mapTypes(
-      ({ uncovered, exceptions }, type) =>
-        findRemovable(exceptions[type], uncovered[type]),
-    )({ uncovered, exceptions });
-
-    if (TYPES.some((t) => isNonEmpty(removable[t]))) {
-      console.log("\n📉 Some exceptions can be removed (code is now covered):");
-      logViolations(removable, "", console.log);
+    if (isNonEmpty(removable)) {
+      console.log("\n📉 Some exceptions can be removed (now covered):");
+      for (const [file, lines] of Object.entries(removable)) {
+        console.log(`   ${file}: ${lines.join(", ")}`);
+      }
     }
   }
 
@@ -176,32 +122,18 @@ const checkExceptions = (uncovered, exceptions, verbose) => {
 // --- Ratcheting (CI only) ---
 
 const isMainCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
-const writeJson = (path, data) =>
-  writeFileSync(path, `${JSON.stringify(data, null, "\t")}\n`, "utf-8");
 
 const ratchetExceptions = (exceptions, uncovered, verbose) => {
   if (!isMainCI()) return;
 
-  const findRemaining = diffByFile(intersection);
   const ratcheted = {
     _comment: exceptions._comment,
-    ...mapTypes(
-      ({ uncovered, exceptions }, type) =>
-        findRemaining(exceptions[type] || {}, uncovered[type] || {}),
-    )({ uncovered, exceptions }),
+    ...diffByFile(intersection)(exceptions, uncovered),
   };
 
-  const hasChanged = TYPES.some(
-    (t) => JSON.stringify(ratcheted[t]) !== JSON.stringify(exceptions[t] || {}),
-  );
-
-  if (hasChanged) {
-    writeJson(exceptionsPath, ratcheted);
-    if (verbose) {
-      console.log(
-        "\n📉 Coverage exceptions ratcheted down in .coverage_exceptions.json",
-      );
-    }
+  if (JSON.stringify(ratcheted) !== JSON.stringify(exceptions)) {
+    writeFileSync(exceptionsPath, `${JSON.stringify(ratcheted, null, "\t")}\n`, "utf-8");
+    if (verbose) console.log("\n📉 Coverage exceptions ratcheted down");
   }
 };
 
@@ -209,8 +141,6 @@ const ratchetExceptions = (exceptions, uncovered, verbose) => {
 
 const readJson = (path, fallback) =>
   existsSync(path) ? JSON.parse(readFileSync(path, "utf-8")) : fallback;
-
-const emptyExceptions = { lines: {}, functions: {}, branches: {} };
 
 const runCoverage = () => {
   const verbose = process.env.VERBOSE === "1";
@@ -230,13 +160,13 @@ const runCoverage = () => {
   }
 
   const uncovered = parseLcov(readFileSync(lcovPath, "utf-8"));
-  const exceptions = readJson(exceptionsPath, emptyExceptions);
+  const exceptions = readJson(exceptionsPath, {});
 
   if (!checkExceptions(uncovered, exceptions, verbose)) {
     process.exit(1);
   }
 
-  if (verbose) console.log("\n✅ All code covered (or in exceptions)!");
+  if (verbose) console.log("\n✅ All lines covered (or in exceptions)!");
 
   ratchetExceptions(exceptions, uncovered, verbose);
 };
