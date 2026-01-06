@@ -35,6 +35,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createQuoteStepsHtml",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
+  // item-filters.test.js - preset config factory
+  "itemsConfig",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -129,8 +131,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "buildLiquidLookup",
   "expandLiquidVars",
   "loadTemplate",
-  // layout-aliases.test.js - test helper
+  // layout-aliases.test.js - test helpers
   "withTempLayouts",
+  "runLayoutAliases",
   // test-quality.test.js - analysis helpers
   "extractTestNames",
   "findVagueTestNames",
