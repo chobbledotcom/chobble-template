@@ -48,7 +48,8 @@
       "correctness": {
         "noUnusedVariables": "error",
         "noUnusedImports": "error",
-        "noUnusedFunctionParameters": "error"
+        "noUnusedFunctionParameters": "error",
+        "noGlobalDirnameFilename": "error"
       }
     }
   },
