@@ -33,7 +33,7 @@ export function updateStepProgress(container, completedSteps) {
   }
 }
 
-function initStandaloneProgress() {
+export function initStandaloneProgress() {
   const allContainers = document.querySelectorAll(".quote-steps-progress");
   const container = Array.from(allContainers).find(
     (el) => !el.closest(".quote-steps"),
