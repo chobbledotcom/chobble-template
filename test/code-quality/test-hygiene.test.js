@@ -330,16 +330,8 @@ describe("test-hygiene", () => {
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are defined in test files", () => {
-    // Include test files AND test infrastructure files
-    const allTestFiles = [
-      ...TEST_FILES(),
-      "test/test-utils.js",
-      "test/test-site-factory.js",
-      "test/code-scanner.js",
-    ];
-
     // Combine all test file sources
-    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
+    const allTestSource = analyzeFiles(TEST_FILES(), (source) => source).join(
       "\n",
     );
 
@@ -367,16 +359,8 @@ describe("test-hygiene", () => {
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are actually used in test files", () => {
-    // Include test files AND test infrastructure files
-    const allTestFiles = [
-      ...TEST_FILES(),
-      "test/test-utils.js",
-      "test/test-site-factory.js",
-      "test/code-scanner.js",
-    ];
-
     // Combine all test file sources
-    const allTestSource = analyzeFiles(allTestFiles, (source) => source).join(
+    const allTestSource = analyzeFiles(TEST_FILES(), (source) => source).join(
       "\n",
     );
 
