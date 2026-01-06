@@ -32,7 +32,7 @@ const diffByFile = (setOp) => (current, allowed) =>
   pipe(
     Object.entries,
     filterMap(
-      ([file]) => allowed[file] !== true,
+      ([file, lines]) => Array.isArray(lines) && allowed[file] !== true,
       ([file, lines]) => {
         const diff = setOp(toSet(allowed[file]))(lines);
         return diff.length > 0 ? [file, diff] : null;
