@@ -1,12 +1,12 @@
-import { loadJSDOM } from "#utils/lazy-jsdom.js";
+import { loadDOM } from "#utils/lazy-dom.js";
 
 const wrapTablesForScroll = async (content) => {
   if (!content || !content.includes("<table")) {
     return content;
   }
 
-  const JSDOM = await loadJSDOM();
-  const dom = new JSDOM(content);
+  const DOM = await loadDOM();
+  const dom = new DOM(content);
   const {
     window: { document },
   } = dom;

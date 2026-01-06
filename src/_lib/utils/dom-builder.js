@@ -1,11 +1,11 @@
-import { loadJSDOM } from "#utils/lazy-jsdom.js";
+import { loadDOM } from "#utils/lazy-dom.js";
 import { createLazyLoader } from "#utils/lazy-loader.js";
 
-// Shared JSDOM instance for building elements
+// Shared DOM instance for building elements
 const getSharedDocument = createLazyLoader(null, {
   init: async () => {
-    const JSDOM = await loadJSDOM();
-    const sharedDom = new JSDOM("");
+    const DOM = await loadDOM();
+    const sharedDom = new DOM("");
     return sharedDom.window.document;
   },
 });

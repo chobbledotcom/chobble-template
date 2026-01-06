@@ -1,7 +1,7 @@
 // HTML image transformation for Eleventy build output
 // Finds <img> tags and replaces them with responsive picture elements
 
-import { loadJSDOM } from "#utils/lazy-jsdom.js";
+import { loadDOM } from "#utils/lazy-dom.js";
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 
@@ -47,8 +47,8 @@ const transformImages = async (content, processAndWrapImage) => {
   if (!content?.includes("<img")) return content;
   if (!content.includes('src="/images/')) return content;
 
-  const JSDOM = await loadJSDOM();
-  const dom = new JSDOM(content);
+  const DOM = await loadDOM();
+  const dom = new DOM(content);
   const { document } = dom.window;
   const images = document.querySelectorAll('img[src^="/images/"]');
 

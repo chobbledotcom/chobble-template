@@ -40,10 +40,10 @@ const loadModule = async (modulePath, options) => {
  *
  * @example
  * // Custom transformation
- * const getJSDOM = createLazyLoader("happy-dom", {
+ * const getDOM = createLazyLoader("happy-dom", {
  *   transform: (mod) => {
  *     const { Window } = mod;
- *     return class JSDOM {
+ *     return class DOM {
  *       constructor(html) {
  *         this.window = new Window();
  *         if (html) this.window.document.write(html);
@@ -56,8 +56,8 @@ const loadModule = async (modulePath, options) => {
  * // Lazy initialization without module import
  * const getSharedDocument = createLazyLoader(null, {
  *   init: async () => {
- *     const JSDOM = await loadJSDOM();
- *     const dom = new JSDOM("");
+ *     const DOM = await loadDOM();
+ *     const dom = new DOM("");
  *     return dom.window.document;
  *   }
  * });

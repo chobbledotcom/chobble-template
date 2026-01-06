@@ -1,13 +1,13 @@
-// Happy-dom with JSDOM-compatible API
-// This module provides the same interface as jsdom but uses happy-dom
+// Happy-dom with DOM manipulation API
+// Provides a lightweight DOM implementation for server-side rendering
 
 import { createLazyLoader } from "#utils/lazy-loader.js";
 
-const loadJSDOM = createLazyLoader("happy-dom", {
+const loadDOM = createLazyLoader("happy-dom", {
   transform: (mod) => {
     const { Window } = mod;
 
-    // JSDOM-compatible wrapper for happy-dom
+    // Wrapper class providing DOM document access
     return class {
       constructor(html = "") {
         this.window = new Window();
@@ -23,4 +23,4 @@ const loadJSDOM = createLazyLoader("happy-dom", {
   },
 });
 
-export { loadJSDOM };
+export { loadDOM };
