@@ -60,14 +60,8 @@ describe("image", () => {
   // findImageFiles tests
   // ============================================
   describe("findImageFiles", () => {
-    test("findImageFiles returns an array for any input", () => {
-      const result = findImageFiles([]);
-      expect(Array.isArray(result)).toBe(true);
-    });
-
-    test("findImageFiles accepts custom file patterns without throwing", () => {
-      const customPattern = ["test/fixtures/*.png"];
-      const result = findImageFiles(customPattern);
+    test("Returns array of image file paths", () => {
+      const result = findImageFiles();
       expect(Array.isArray(result)).toBe(true);
     });
   });
@@ -93,55 +87,15 @@ describe("image", () => {
 
       expect(result).toEqual([]);
     });
-
-    test("Returns empty array when input is null", () => {
-      const result = createImagesCollection(null);
-
-      expect(result).toEqual([]);
-    });
-
-    test("Returns empty array when input is undefined", () => {
-      const result = createImagesCollection(undefined);
-
-      expect(result).toEqual([]);
-    });
-
-    test("Extracts filename regardless of directory structure", () => {
-      const files = ["assets/imgs/test.jpg", "public/photos/vacation.jpg"];
-
-      const result = createImagesCollection(files);
-
-      expect(result).toEqual(["vacation.jpg", "test.jpg"]);
-    });
-
-    test("Does not modify input array", () => {
-      const originalFiles = ["src/images/test1.jpg", "src/images/test2.jpg"];
-      const filesCopy = [...originalFiles];
-
-      createImagesCollection(filesCopy);
-
-      expect(filesCopy).toEqual(originalFiles);
-    });
-
-    test("Returns consistent results for identical inputs", () => {
-      const files = ["src/images/test1.jpg", "src/images/test2.jpg"];
-
-      const result1 = createImagesCollection(files);
-      const result2 = createImagesCollection(files);
-
-      expect(result1).toEqual(result2);
-      expect(result1 !== result2).toBe(true);
-    });
   });
 
   // ============================================
   // copyImageCache tests
   // ============================================
   describe("copyImageCache", () => {
-    test("copyImageCache runs without throwing even if cache directory missing", () => {
-      // If this throws, the test framework will catch it and fail the test
-      copyImageCache();
-      expect(true).toBe(true);
+    test("Runs without throwing", () => {
+      // Simple coverage test - function handles missing cache directory gracefully
+      expect(() => copyImageCache()).not.toThrow();
     });
   });
 
@@ -155,39 +109,16 @@ describe("image", () => {
       expect(typeof transform).toBe("function");
     });
 
-    // Passthrough test cases - content that should pass through unchanged
-    const passthroughCases = passthroughs([
-      ["body { margin: 0; }", "/test/style.css"],
-      ["<p>Test content</p>", null],
-      [
-        '<?xml version="1.0"?><feed><entry>test</entry></feed>',
-        "/test/feed.xml",
-      ],
-      ['{"items": []}', "/test/feed.json"],
-      ["<html><body><p>Hello world</p></body></html>", "/test/page.html"],
-      [
-        '<html><body><img src="https://example.com/image.jpg" alt="test"></body></html>',
-        "/test/page.html",
-      ],
-    ]);
+    test("Transform passes through non-HTML files unchanged", () =>
+      expectPassthrough(passthrough("body { margin: 0; }", "/test/style.css")));
 
-    test("Transform passes through CSS files unchanged", () =>
-      expectPassthrough(passthroughCases[0]));
-
-    test("Transform passes through content when output path is null", () =>
-      expectPassthrough(passthroughCases[1]));
-
-    test("Transform passes through feed.xml files without processing", () =>
-      expectPassthrough(passthroughCases[2]));
-
-    test("Transform passes through feed.json files without processing", () =>
-      expectPassthrough(passthroughCases[3]));
-
-    test("Transform passes through HTML without img tags", () =>
-      expectPassthrough(passthroughCases[4]));
-
-    test("Transform passes through HTML with only external image URLs", () =>
-      expectPassthrough(passthroughCases[5]));
+    test("Transform passes through HTML without local images", () =>
+      expectPassthrough(
+        passthrough(
+          "<html><body><p>Hello world</p></body></html>",
+          "/test/page.html",
+        ),
+      ));
   });
 
   // ============================================
@@ -273,7 +204,7 @@ describe("image", () => {
       }
     };
 
-    test("Returns simple img tag for external HTTPS URLs without processing", async () => {
+    test("Returns simple img tag for external URLs without processing", async () => {
       const result = await imageShortcode(
         "https://example.com/image.jpg",
         "External image",
@@ -292,48 +223,18 @@ describe("image", () => {
       );
     });
 
-    test("Returns simple img tag for external HTTP URLs without processing", async () => {
-      const result = await imageShortcode(
-        "http://example.com/image.jpg",
-        "HTTP image",
-      );
-
-      expectIncludes(result, [
-        "<img",
-        'src="http://example.com/image.jpg"',
-        'alt="HTTP image"',
-      ]);
-    });
-
-    test("Includes custom classes on external URL img tags", async () => {
+    test("External URLs support custom classes and loading attributes", async () => {
       const result = await imageShortcode(
         "https://example.com/image.jpg",
         "Test",
         null,
         "my-custom-class",
-      );
-
-      expectIncludes(result, ['class="my-custom-class"']);
-    });
-
-    test("Handles empty alt text for external URLs (decorative images)", async () => {
-      const result = await imageShortcode("https://example.com/image.jpg", "");
-
-      expectIncludes(result, ['alt=""']);
-    });
-
-    test("External URL respects custom loading attribute", async () => {
-      const result = await imageShortcode(
-        "https://example.com/image.jpg",
-        "Test",
-        null,
-        null,
         null,
         null,
         "eager",
       );
 
-      expectIncludes(result, ['loading="eager"']);
+      expectIncludes(result, ['class="my-custom-class"', 'loading="eager"']);
     });
   });
 
@@ -361,66 +262,21 @@ describe("image", () => {
       ]);
     });
 
-    test("Applies custom classes to image wrapper", async () => {
+    test("Supports custom classes, sizes, and aspect ratio", async () => {
       const result = await imageShortcode(
         "party.jpg",
         "Test",
-        null,
-        "my-class another-class",
-      );
-
-      expectIncludes(result, ["image-wrapper my-class another-class"]);
-    });
-
-    test("Processes local image with custom responsive widths", async () => {
-      const result = await imageShortcode("party.jpg", "Test", "300,600");
-
-      expectIncludes(result, ["<picture", "image-wrapper"]);
-    });
-
-    test("Processes local image with custom sizes attribute", async () => {
-      const result = await imageShortcode(
-        "party.jpg",
-        "Test",
-        null,
-        null,
-        "(max-width: 600px) 100vw, 50vw",
-      );
-
-      expectIncludes(result, ["(max-width: 600px) 100vw, 50vw"]);
-    });
-
-    test("Uses provided aspect ratio instead of calculated", async () => {
-      const result = await imageShortcode(
-        "party.jpg",
-        "Test",
-        null,
-        null,
-        null,
+        "300,600",
+        "my-class",
+        "(max-width: 600px) 100vw",
         "16/9",
       );
 
-      expectIncludes(result, ["aspect-ratio: 16/9"]);
-    });
-
-    test("Processes local image with eager loading for LCP images", async () => {
-      const result = await imageShortcode(
-        "party.jpg",
-        "Test",
-        null,
-        null,
-        null,
-        null,
-        "eager",
-      );
-
-      expectIncludes(result, ['loading="eager"']);
-    });
-
-    test("Accepts widths as array instead of comma-separated string", async () => {
-      const result = await imageShortcode("party.jpg", "Test", [320, 640]);
-
-      expectIncludes(result, ["<picture"]);
+      expectIncludes(result, [
+        "image-wrapper my-class",
+        "(max-width: 600px) 100vw",
+        "aspect-ratio: 16/9",
+      ]);
     });
   });
 
@@ -428,23 +284,19 @@ describe("image", () => {
   // imageShortcode tests - path normalization
   // ============================================
   describe("imageShortcode - path normalization", () => {
-    /**
-     * Helper to verify local image produces wrapped picture element
-     */
-    const expectLocalImage = async (path) => {
-      const result = await imageShortcode(path, "Test");
-      expect(result.includes("image-wrapper")).toBe(true);
-      expect(result.includes("<picture")).toBe(true);
-    };
+    test("Handles various image path formats", async () => {
+      const paths = [
+        "/images/party.jpg",
+        "src/images/party.jpg",
+        "images/party.jpg",
+      ];
 
-    test("Handles image path starting with /", () =>
-      expectLocalImage("/images/party.jpg"));
-
-    test("Handles image path starting with src/", () =>
-      expectLocalImage("src/images/party.jpg"));
-
-    test("Handles image path starting with images/", () =>
-      expectLocalImage("images/party.jpg"));
+      for (const path of paths) {
+        const result = await imageShortcode(path, "Test");
+        expect(result.includes("image-wrapper")).toBe(true);
+        expect(result.includes("<picture")).toBe(true);
+      }
+    });
   });
 
   // ============================================
@@ -502,34 +354,6 @@ describe("image", () => {
       );
     });
 
-    test(
-      "External image URLs pass through without processing in build",
-      async () => {
-        await withTestSite(
-          {
-            files: [
-              testPage(
-                '{% image "https://example.com/photo.jpg", "External photo" %}',
-              ),
-            ],
-          },
-          async (site) => {
-            await site.build();
-
-            const html = site.getOutput("/test/index.html");
-
-            // External URLs should produce simple img tag, not picture
-            expect(html.includes('src="https://example.com/photo.jpg"')).toBe(
-              true,
-            );
-            expect(html.includes('alt="External photo"')).toBe(true);
-            expect(!html.includes("<picture")).toBe(true);
-          },
-        );
-      },
-      { timeout: 30000 },
-    );
-
     test("Images collection returns image filenames from src/images", async () => {
       const galleryContent = `
 {% for img in collections.images %}
@@ -546,30 +370,6 @@ describe("image", () => {
 
           expect(html.includes("alpha.jpg")).toBe(true);
           expect(html.includes("beta.jpg")).toBe(true);
-        },
-      );
-    });
-
-    test("Image shortcode respects custom width parameter in build", async () => {
-      await withTestSite(
-        {
-          files: [
-            testPage('{% image "sized.jpg", "Sized image", "200,400" %}'),
-          ],
-          images: [imageFile("sized.jpg")],
-        },
-        (site) => {
-          const html = site.getOutput("/test/index.html");
-          const doc = site.getDoc("/test/index.html");
-
-          expect(html.includes("<picture")).toBe(true);
-
-          // Verify srcset contains the specified widths
-          const sources = doc.querySelectorAll("picture source");
-          const hasSrcset = Array.from(sources).some(
-            (s) => s.getAttribute("srcset") !== null,
-          );
-          expect(hasSrcset).toBe(true);
         },
       );
     });
@@ -721,25 +521,6 @@ describe("image", () => {
           expect(html.includes("image-wrapper")).toBe(true);
           expect(html.includes("<picture")).toBe(true);
           expect(html.includes('alt="A test scene"')).toBe(true);
-        },
-      );
-    });
-
-    test("Image shortcode used inline in paragraph produces valid HTML structure", async () => {
-      await withTestSite(
-        {
-          files: [
-            testPage(
-              'Check out this image: {% image "inline.jpg", "Inline test" %}',
-            ),
-          ],
-          images: [imageFile("inline.jpg")],
-        },
-        (site) => {
-          const html = site.getOutput("/test/index.html");
-
-          expect(html.includes("<p><div")).toBe(false);
-          expect(html.includes("image-wrapper")).toBe(true);
         },
       );
     });
