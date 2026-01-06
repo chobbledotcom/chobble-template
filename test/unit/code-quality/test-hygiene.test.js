@@ -273,6 +273,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractFunctions",
   // build-profiling.js - measurement utilities
   "measure",
+  // knip.test.js - functional pipeline helpers
+  "runKnip",
+  "logFailureDetails",
+  "extractStatus",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

@@ -319,6 +319,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/tabs.js",
   "src/assets/js/theme-editor-lib.js",
   "src/products/products.11tydata.js",
+  "test/unit/code-quality/knip.test.js",
 ]);
 
 // ============================================
