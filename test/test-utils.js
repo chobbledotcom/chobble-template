@@ -15,10 +15,6 @@ class DOM {
       this.window.document.write(html);
     }
   }
-
-  serialize() {
-    return this.window.document.documentElement.outerHTML;
-  }
 }
 
 const rootDir = ROOT_DIR;
@@ -91,30 +87,8 @@ const createMockEleventyConfig = () => ({
   addTemplateFormats: createArrayMethod("templateFormats"),
   addWatchTarget: createArrayMethod("watchTargets"),
   addPassthroughCopy: createArrayMethod("passthroughCopies"),
-  // Unique methods
-  setLayoutsDirectory: function (dir) {
-    this.layoutsDirectory = dir;
-  },
-  resolvePlugin: (pluginName) => {
-    // Return a mock plugin function that does nothing
-    return function mockPlugin(config, _options) {
-      // Mock HTML Base plugin - adds filters that tests might need
-      if (pluginName === "@11ty/eleventy/html-base-plugin") {
-        config.addFilter("htmlBaseUrl", (url, base) => {
-          if (base && url && !url.startsWith("http")) {
-            return base + url;
-          }
-          return url;
-        });
-        config.addAsyncFilter(
-          "transformWithHtmlBase",
-          async (content, _base) => {
-            return content; // Just return content unchanged in tests
-          },
-        );
-      }
-    };
-  },
+  // Mock plugin resolution (used by feed.js)
+  resolvePlugin: () => () => {},
   pathPrefix: "/",
 });
 
@@ -152,27 +126,26 @@ const getFiles = (pattern) => {
 
 // Memoized file list getters - defer getFiles() call until first use
 // to avoid TDZ issues during circular imports at module load time
-const SRC_JS_FILES = memoize(() => getFiles(/^src\/.*\.js$/));
-const ECOMMERCE_JS_FILES = memoize(() =>
-  getFiles(/^ecommerce-backend\/.*\.js$/),
-);
-const SRC_HTML_FILES = memoize(() =>
-  getFiles(/^src\/(_includes|_layouts)\/.*\.html$/),
-);
-const SRC_SCSS_FILES = memoize(() => getFiles(/^src\/css\/.*\.scss$/));
-const TEST_FILES = memoize(() => getFiles(/^test\/.*\.js$/));
-// Test utility scripts (non-test files in test directory)
-const TEST_UTILITY_FILES = memoize(() =>
-  getFiles(/^test\/[^/]+\.js$/).filter((f) => !f.endsWith(".test.js")),
-);
-// Source files plus test utilities (for code quality checks)
-const SRC_AND_TEST_UTILS_FILES = memoize(() => [
-  ...SRC_JS_FILES(),
-  ...TEST_UTILITY_FILES(),
-]);
-const ALL_JS_FILES = memoize(() =>
-  getFiles(/^(src|ecommerce-backend|test)\/.*\.js$/),
-);
+
+/**
+ * Create a memoized file getter for a given pattern.
+ * Curried: (pattern) => () => files
+ *
+ * @param {RegExp} pattern - Regex pattern for file matching
+ * @returns {Function} Memoized function that returns matching files
+ *
+ * @example
+ * const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
+ * const files = SRC_JS_FILES(); // Returns array of matching files
+ */
+const memoizedFiles = (pattern) => memoize(() => getFiles(pattern));
+
+const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
+const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
+const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
+const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
+const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src|ecommerce-backend|test)\/.*\.js$/);
 
 // Console capture utilities for testing output
 // Uses curried factory to eliminate duplication between sync and async versions
@@ -741,26 +714,62 @@ const extractFunctions = (source) => {
 };
 
 // Schema-helper test fixtures
-const createSchemaPage = ({
-  url = "/page/",
-  fileSlug = null,
-  date = null,
-} = {}) => {
-  const page = { url };
-  if (fileSlug) page.fileSlug = fileSlug;
-  if (date) page.date = date;
-  return page;
+
+/**
+ * Add optional properties to an object if they are truthy.
+ * Curried: (keys) => (obj, options) => obj
+ * Mutates and returns the object for chaining.
+ *
+ * @param {Array<string>} keys - Property keys to conditionally add
+ * @returns {Function} (obj, options) => obj
+ *
+ * @example
+ * const addContactInfo = addOptionalProps(["email", "phone"]);
+ * addContactInfo({ name: "Alice" }, { email: "a@b.com" }); // { name: "Alice", email: "a@b.com" }
+ */
+const addOptionalProps = (keys) => (obj, options) => {
+  for (const key of keys) {
+    if (options[key]) obj[key] = options[key];
+  }
+  return obj;
 };
 
-const createSchemaSite = ({
-  url = "https://example.com",
-  name = "Test Site",
-  logo = null,
-} = {}) => {
-  const site = { url, name };
-  if (logo) site.logo = logo;
-  return site;
+/**
+ * Create an object builder with required and optional properties.
+ * Curried: (requiredDefaults, optionalKeys) => (options) => object
+ *
+ * Required properties are always included (with defaults if not provided).
+ * Optional properties are only added if their value is truthy.
+ *
+ * @param {Object} requiredDefaults - Map of required property names to default values
+ * @param {Array<string>} optionalKeys - Array of optional property names
+ * @returns {Function} (options) => object
+ *
+ * @example
+ * const createPerson = createObjectBuilder({ name: "Anonymous" }, ["age", "email"]);
+ * createPerson({ name: "Alice", age: 30 }); // { name: "Alice", age: 30 }
+ * createPerson({ email: null }); // { name: "Anonymous" }
+ */
+const createObjectBuilder = (requiredDefaults, optionalKeys) => {
+  const addOptionals = addOptionalProps(optionalKeys);
+  return (options = {}) => {
+    const obj = {};
+    for (const [key, defaultVal] of Object.entries(requiredDefaults)) {
+      obj[key] = options[key] ?? defaultVal;
+    }
+    return addOptionals(obj, options);
+  };
 };
+
+const createSchemaPage = createObjectBuilder({ url: "/page/" }, [
+  "fileSlug",
+  "date",
+]);
+
+const createSchemaSite = createObjectBuilder(
+  { url: "https://example.com", name: "Test Site" },
+  ["logo"],
+);
 
 const createSchemaData = (options = {}) => {
   const {
@@ -893,8 +902,6 @@ export {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
-  TEST_UTILITY_FILES,
-  SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
   captureConsole,
