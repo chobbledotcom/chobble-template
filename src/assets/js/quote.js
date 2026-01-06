@@ -10,15 +10,13 @@ import {
   updateItemQuantity,
 } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
-import { initQuotePrice } from "#assets/quote-price-utils.js";
+import { updateQuotePrice } from "#assets/quote-price-utils.js";
 import { IDS } from "#assets/selectors.js";
 import {
   getTemplate,
   populateItemFields,
   populateQuantityControls,
 } from "#assets/template.js";
-
-let quotePrice = null;
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);
@@ -74,14 +72,7 @@ function renderCart() {
     });
   }
 
-  if (quotePrice) {
-    quotePrice.update(1);
-  }
+  updateQuotePrice();
 }
 
-function init() {
-  quotePrice = initQuotePrice();
-  renderCart();
-}
-
-onReady(init);
+onReady(renderCart);

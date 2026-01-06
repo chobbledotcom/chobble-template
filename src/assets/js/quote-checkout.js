@@ -4,7 +4,7 @@
 import { formatPrice, getCart } from "#assets/cart-utils.js";
 import { initHireCalculator } from "#assets/hire-calculator.js";
 import { onReady } from "#assets/on-ready.js";
-import { initQuotePrice } from "#assets/quote-price-utils.js";
+import { updateQuotePrice } from "#assets/quote-price-utils.js";
 import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
 
@@ -54,12 +54,8 @@ const populateForm = () => {
 
 const init = () => {
   populateForm();
-
-  // Initialize quote price display and connect to hire calculator
-  const quotePrice = initQuotePrice();
-  if (quotePrice) {
-    initHireCalculator((days) => quotePrice.update(days));
-  }
+  updateQuotePrice();
+  initHireCalculator(updateQuotePrice);
 };
 
 onReady(init);

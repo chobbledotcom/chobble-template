@@ -106,17 +106,10 @@ const renderQuotePrice = (container, days = 1) => {
   container.style.display = "block";
 };
 
-// Initialize quote price display
-const initQuotePrice = (initialDays = 1) => {
+// Update quote price display (stateless - gets container fresh each time)
+const updateQuotePrice = (days = 1) => {
   const container = document.getElementById("quote-price-container");
-  if (!container) return null;
-
-  renderQuotePrice(container, initialDays);
-
-  return {
-    update: (days) => renderQuotePrice(container, days),
-    container,
-  };
+  if (container) renderQuotePrice(container, days);
 };
 
 export {
@@ -127,6 +120,6 @@ export {
   formatItemName,
   formatItemPrice,
   getPriceForDays,
-  initQuotePrice,
   parsePrice,
+  updateQuotePrice,
 };

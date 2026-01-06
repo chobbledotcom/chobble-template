@@ -219,7 +219,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/theme-editor.js:384", // borderOutput
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
-  "src/assets/js/quote.js:51", // container
+  "src/assets/js/quote.js:49", // container
   "src/assets/js/quote-steps.js:34", // value (radio recap item)
   "src/assets/js/quote-steps.js:40", // field (field recap item)
   "src/assets/js/quote-steps.js:45", // value (field recap item)
@@ -246,7 +246,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/theme-editor-lib.js:85", // borderValue
   "src/assets/js/theme-editor-lib.js:157", // value
   "src/assets/js/quote-price-utils.js:15", // priceStr
-  "src/assets/js/quote-price-utils.js:112", // container (getElementById can return null)
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
