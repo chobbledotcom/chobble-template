@@ -444,100 +444,135 @@ const matchFunctionStart = (line) => {
 };
 
 /**
+ * Helper: Get adjacent characters
+ */
+const getAdjacentChars = (index, chars) => ({
+  prev: index > 0 ? chars[index - 1] : "",
+  next: index < chars.length - 1 ? chars[index + 1] : "",
+});
+
+/**
+ * Helper: Check if starting single-line comment
+ */
+const isSingleLineCommentStart = (char, nextChar, state) =>
+  char === "/" && nextChar === "/" && !state.inComment;
+
+/**
+ * Helper: Check if starting multi-line comment
+ */
+const isMultiLineCommentStart = (char, nextChar, state) =>
+  char === "/" && nextChar === "*" && !state.inComment;
+
+/**
+ * Helper: Check if ending multi-line comment
+ */
+const isMultiLineCommentEnd = (char, nextChar, state) =>
+  char === "*" && nextChar === "/" && state.inComment;
+
+/**
+ * Helper: Check if string delimiter (not escaped)
+ */
+const isStringDelimiter = (char, prevChar) =>
+  (char === '"' || char === "'") && prevChar !== "\\";
+
+/**
+ * Helper: Check if template literal delimiter (not escaped)
+ */
+const isTemplateDelimiter = (char, prevChar) =>
+  char === "`" && prevChar !== "\\";
+
+/**
+ * Helper: Handle opening brace
+ */
+const handleOpeningBrace = (state) => {
+  const newDepth = state.braceDepth + 1;
+  const newStack = state.stack.map((item) =>
+    item.openBraceDepth === null ? { ...item, openBraceDepth: newDepth } : item,
+  );
+  return { ...state, braceDepth: newDepth, stack: newStack };
+};
+
+/**
+ * Helper: Handle closing brace
+ */
+const handleClosingBrace = (lineNum, state) => {
+  const closingIndex = state.stack.findLastIndex(
+    (item) => item.openBraceDepth === state.braceDepth,
+  );
+
+  if (closingIndex < 0) {
+    return { ...state, braceDepth: state.braceDepth - 1 };
+  }
+
+  const completed = state.stack[closingIndex];
+  const newFunction = {
+    name: completed.name,
+    startLine: completed.startLine,
+    endLine: lineNum,
+    lineCount: lineNum - completed.startLine + 1,
+  };
+  return {
+    ...state,
+    braceDepth: state.braceDepth - 1,
+    stack: state.stack.filter((_, i) => i !== closingIndex),
+    functions: [...state.functions, newFunction],
+  };
+};
+
+/**
  * Process a single character in the parser.
  * Pure function: returns new state without mutation.
  * Curried: processChar(lineNum)(state, char, index, chars)
  */
 const processChar = (lineNum) => (state, char, index, chars) => {
-  // Skip if flagged from previous iteration (after /* or */)
+  // Early exit: if skipNext is set, clear it
   if (state.skipNext) {
     return { ...state, skipNext: false };
   }
 
-  // Already stopped processing this line (single-line comment)
+  // Early exit: if line processing stopped
   if (state.stopLine) return state;
 
-  const prevChar = index > 0 ? chars[index - 1] : "";
-  const nextChar = index < chars.length - 1 ? chars[index + 1] : "";
+  const { prev: prevChar, next: nextChar } = getAdjacentChars(index, chars);
 
   // Handle comments when not in string/template
   if (!state.inString && !state.inTemplate) {
-    // Single-line comment - stop processing rest of line
-    if (char === "/" && nextChar === "/" && !state.inComment) {
+    if (isSingleLineCommentStart(char, nextChar, state)) {
       return { ...state, stopLine: true };
     }
-    // Start multiline comment
-    if (char === "/" && nextChar === "*" && !state.inComment) {
+    if (isMultiLineCommentStart(char, nextChar, state)) {
       return { ...state, inComment: true, skipNext: true };
     }
-    // End multiline comment
-    if (char === "*" && nextChar === "/" && state.inComment) {
+    if (isMultiLineCommentEnd(char, nextChar, state)) {
       return { ...state, inComment: false, skipNext: true };
     }
   }
 
-  // Skip everything inside multiline comments
+  // Early exit: inside multiline comments
   if (state.inComment) return state;
 
-  // Handle strings
-  if (
-    !state.inTemplate &&
-    (char === '"' || char === "'") &&
-    prevChar !== "\\"
-  ) {
+  // Handle string delimiters
+  if (!state.inTemplate && isStringDelimiter(char, prevChar)) {
     if (!state.inString) {
       return { ...state, inString: true, stringChar: char };
-    } else if (char === state.stringChar) {
+    }
+    if (char === state.stringChar) {
       return { ...state, inString: false, stringChar: null };
     }
     return state;
   }
 
   // Handle template literals
-  if (char === "`" && prevChar !== "\\") {
+  if (isTemplateDelimiter(char, prevChar)) {
     return { ...state, inTemplate: !state.inTemplate };
   }
 
-  // Skip content inside strings
+  // Early exit: inside strings
   if (state.inString) return state;
 
-  // Handle opening brace
-  if (char === "{") {
-    const newDepth = state.braceDepth + 1;
-    // Record opening brace depth for pending functions
-    const newStack = state.stack.map((item) =>
-      item.openBraceDepth === null
-        ? { ...item, openBraceDepth: newDepth }
-        : item,
-    );
-    return { ...state, braceDepth: newDepth, stack: newStack };
-  }
-
-  // Handle closing brace
-  if (char === "}") {
-    // Find function that closes at this depth (search from end)
-    const closingIndex = state.stack.findLastIndex(
-      (item) => item.openBraceDepth === state.braceDepth,
-    );
-
-    if (closingIndex >= 0) {
-      const completed = state.stack[closingIndex];
-      const newFunction = {
-        name: completed.name,
-        startLine: completed.startLine,
-        endLine: lineNum,
-        lineCount: lineNum - completed.startLine + 1,
-      };
-      return {
-        ...state,
-        braceDepth: state.braceDepth - 1,
-        stack: state.stack.filter((_, i) => i !== closingIndex),
-        functions: [...state.functions, newFunction],
-      };
-    }
-
-    return { ...state, braceDepth: state.braceDepth - 1 };
-  }
+  // Handle braces
+  if (char === "{") return handleOpeningBrace(state);
+  if (char === "}") return handleClosingBrace(lineNum, state);
 
   return state;
 };
