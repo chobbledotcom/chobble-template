@@ -1,18 +1,2 @@
-<div class="quote-steps-progress">
-  {%- for step in quoteFields.steps -%}
-    {%- if forloop.index0 < completed_steps -%}
-      {%- assign step_class = "completed" -%}
-    {%- elsif forloop.index0 == completed_steps -%}
-      {%- assign step_class = "active" -%}
-    {%- else -%}
-      {%- assign step_class = "" -%}
-    {%- endif -%}
-    <div class="quote-steps-indicator {{ step_class }}" data-step="{{ forloop.index0 }}">
-      <span class="step-name">{{ step.name }}</span>
-      <span class="step-number">{{ step.number }}</span>
-    </div>
-    {%- unless forloop.last -%}
-      <div class="quote-steps-connector"></div>
-    {%- endunless -%}
-  {%- endfor -%}
-</div>
+<div class="quote-steps-progress" data-completed-steps="{{ completed_steps }}"></div>
+<script type="application/json" class="quote-steps-data">{{ quoteFields.steps | json }}</script>
