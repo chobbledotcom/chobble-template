@@ -48,7 +48,8 @@
       "correctness": {
         "noUnusedVariables": "error",
         "noUnusedImports": "error",
-        "noUnusedFunctionParameters": "error"
+        "noUnusedFunctionParameters": "error",
+        "noGlobalDirnameFilename": "error"
       }
     }
   },
@@ -81,7 +82,12 @@
             "noUnusedFunctionParameters": "off"
           },
           "complexity": {
-            "noExcessiveCognitiveComplexity": "off"
+            "noExcessiveCognitiveComplexity": {
+              "level": "error",
+              "options": {
+                "maxAllowedComplexity": 50
+              }
+            }
           },
           "suspicious": {
             "noTemplateCurlyInString": "off"

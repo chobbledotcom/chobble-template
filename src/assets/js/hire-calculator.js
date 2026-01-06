@@ -4,14 +4,16 @@
 
 import { formatPrice, getCart } from "#assets/cart-utils.js";
 import { onReady } from "#assets/on-ready.js";
+import { filter, map, reduce } from "#utils/array-utils.js";
+
+// Predicates
+const isHireItem = (item) => item.product_mode === "hire";
 
 // Check if any cart item is a hire item
-const hasHireItems = (cart) =>
-  cart.some((item) => item.product_mode === "hire");
+const hasHireItems = (cart) => cart.some(isHireItem);
 
 // Get only hire items from cart
-const getHireItems = (cart) =>
-  cart.filter((item) => item.product_mode === "hire");
+const getHireItems = filter(isHireItem);
 
 // Parse a price string, extracting numeric value
 // Handles formats like "£50", "from £50", "£50.00", "50", etc.
@@ -33,7 +35,7 @@ const calculateDays = (startDate, endDate) => {
 
 // Get price for an item for a specific number of days
 // Returns null if no price exists for that day count
-const getPriceForDays = (item, days) => {
+const getPriceForDays = (days) => (item) => {
   const hirePrices = item.hire_prices;
   if (!hirePrices) return null;
   const price = hirePrices[days];
@@ -41,7 +43,7 @@ const getPriceForDays = (item, days) => {
 };
 
 // Sum an array of numbers
-const sum = (numbers) => numbers.reduce((acc, n) => acc + n, 0);
+const sum = reduce((acc, n) => acc + n, 0);
 
 // Calculate total hire cost for hire items only
 // Returns { total, canCalculate } - canCalculate is false if any hire item lacks price
@@ -52,7 +54,7 @@ const calculateHireTotal = (cart, days) => {
     return { total: 0, canCalculate: false };
   }
 
-  const prices = hireItems.map((item) => getPriceForDays(item, days));
+  const prices = map(getPriceForDays(days))(hireItems);
 
   if (prices.includes(null)) {
     return { total: 0, canCalculate: false };
@@ -131,10 +133,14 @@ if (typeof document !== "undefined") {
 }
 
 export {
-  parsePrice,
   calculateDays,
-  hasHireItems,
-  getHireItems,
   calculateHireTotal,
   formatHireMessage,
+  getHireItems,
+  handleDateChange,
+  hasHireItems,
+  initHireCalculator,
+  isHireItem,
+  parsePrice,
+  setMinDate,
 };

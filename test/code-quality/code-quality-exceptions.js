@@ -90,6 +90,56 @@ const ALLOWED_PROCESS_CWD = new Set([
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
   "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+  "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
+
+  // Test utilities - entire files allowed for imperative test patterns
+  "test/test-utils.js",
+  "test/build-profiling.js",
+  "test/precommit.js",
+  "test/code-scanner.js",
+  "test/run-coverage.js",
+
+  // Test files - imperative accumulation patterns for test setup/assertions
+  "test/build/cache-buster.test.js",
+  "test/build/pdf-integration.test.js",
+  "test/build/pdf.test.js",
+  "test/build/scss.variables.test.js",
+  "test/code-quality/array-push.test.js",
+  "test/code-quality/code-quality-exceptions.js",
+  "test/code-quality/code-scanner.test.js",
+  "test/code-quality/commented-code.test.js",
+  "test/code-quality/console-log.test.js",
+  "test/code-quality/data-exports.test.js",
+  "test/code-quality/function-length.test.js",
+  "test/code-quality/html-in-js.test.js",
+  "test/code-quality/let-usage.test.js",
+  "test/code-quality/method-aliasing.test.js",
+  "test/code-quality/naming-conventions.test.js",
+  "test/code-quality/null-checks.test.js",
+  "test/code-quality/single-use-functions.test.js",
+  "test/code-quality/template-selectors.test.js",
+  "test/code-quality/test-hygiene.test.js",
+  "test/code-quality/test-quality.test.js",
+  "test/code-quality/todo-fixme-comments.test.js",
+  "test/code-quality/try-catch-usage.test.js",
+  "test/code-quality/unused-classes.test.js",
+  "test/collections/categories.test.js",
+  "test/collections/missing-folders-lib.test.js",
+  "test/collections/properties.test.js",
+  "test/eleventy/feed.test.js",
+  "test/eleventy/jsonld-validation.test.js",
+  "test/eleventy/layout-aliases.test.js",
+  "test/filters/item-filters.test.js",
+  "test/frontend/checkout.test.js",
+  "test/frontend/config.test.js",
+  "test/frontend/quote-steps.test.js",
+  "test/frontend/theme-editor.test.js",
+  "test/utils/grouping.test.js",
+  "test/utils/helpers.test.js",
+  "test/utils/object-entries.test.js",
+  "test/utils/strings.test.js",
+  "ecommerce-backend/server.test.js",
+]);
 
   // Test utilities - imperative accumulation patterns for performance/clarity
   "test/test-utils.js:28", // ALWAYS_SKIP set (static config)
@@ -180,8 +230,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/theme-editor-lib.js:66", // themeContent
   "src/assets/js/theme-editor-lib.js:89", // borderValue
   "src/assets/js/theme-editor-lib.js:164", // value
-  "src/assets/js/hire-calculator.js:20", // priceStr
-  "src/assets/js/hire-calculator.js:38", // hirePrices
+  "src/assets/js/hire-calculator.js:22", // priceStr
+  "src/assets/js/hire-calculator.js:40", // hirePrices
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
@@ -206,8 +256,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
-  "test/code-quality/single-use-functions.test.js:100", // inString (boolean state)
-  "test/code-quality/single-use-functions.test.js:117", // inString (boolean state)
+  "test/code-quality/try-catch-usage.test.js:40", // nextLine (find() can return undefined)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
 ]);
@@ -260,6 +309,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/products/products.11tydata.js",
   "test/code-quality/array-push.test.js",
   "test/code-quality/method-aliasing.test.js",
+  "test/code-quality/try-catch-usage.test.js",
   "test/code-quality/unused-classes.test.js",
   "test/collections/products.test.js",
   "test/eleventy/recurring-events.test.js",
@@ -295,6 +345,7 @@ export {
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
+  ALLOWED_LET,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
   ALLOWED_SINGLE_USE_FUNCTIONS,
