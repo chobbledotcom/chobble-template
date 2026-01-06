@@ -508,6 +508,19 @@ describe("item-filters", () => {
       ...overrides,
     });
 
+  // Preset config for tests that use "items" permalinkDir
+  const itemsConfig = () =>
+    testFilterConfig({
+      permalinkDir: "items",
+      itemsKey: "items",
+      collections: {
+        pages: "testPages",
+        redirects: "testRedirects",
+        attributes: "testAttrs",
+      },
+      uiDataFilterName: "testUI",
+    });
+
   test("Returns an object with configure function", () => {
     const config = testFilterConfig({
       tag: "product",
@@ -574,18 +587,7 @@ describe("item-filters", () => {
 
   test("Redirects collection generates redirects for partial paths", () => {
     const mock = mockConfig();
-    const config = testFilterConfig({
-      permalinkDir: "items",
-      itemsKey: "items",
-      collections: {
-        pages: "testPages",
-        redirects: "testRedirects",
-        attributes: "testAttrs",
-      },
-      uiDataFilterName: "testUI",
-    });
-
-    config.configure(mock);
+    itemsConfig().configure(mock);
 
     const testItems = [item(null, attr("Type", "A"), attr("Size", "Large"))];
 
@@ -606,18 +608,7 @@ describe("item-filters", () => {
 
   test("Attributes collection returns attributes and display lookup", () => {
     const mock = mockConfig();
-    const config = testFilterConfig({
-      permalinkDir: "items",
-      itemsKey: "items",
-      collections: {
-        pages: "testPages",
-        redirects: "testRedirects",
-        attributes: "testAttrs",
-      },
-      uiDataFilterName: "testUI",
-    });
-
-    config.configure(mock);
+    itemsConfig().configure(mock);
 
     const testItems = [item(null, attr("Pet Friendly", "Yes"))];
 

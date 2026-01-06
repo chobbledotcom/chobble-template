@@ -18,6 +18,23 @@ import {
 // ============================================
 
 /**
+ * Run configureLayoutAliases in a temp directory, returning captured aliases.
+ * Handles cleanup automatically.
+ */
+const runLayoutAliases = (tempDir) => {
+  const config = createMockEleventyConfig();
+  const aliases = [];
+  config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
+
+  try {
+    withMockedCwd(tempDir, () => configureLayoutAliases(config));
+    return aliases;
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+};
+
+/**
  * Sets up a temp directory with layout files and runs the callback with aliases.
  * Handles cleanup automatically.
  */
@@ -30,16 +47,7 @@ const withTempLayouts = (files, callback) => {
     createTempFile(layoutsDir, file, "<html></html>");
   }
 
-  const config = createMockEleventyConfig();
-  const aliases = [];
-  config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
-
-  try {
-    withMockedCwd(tempDir, () => configureLayoutAliases(config));
-    return callback(aliases);
-  } finally {
-    cleanupTempDir(tempDir);
-  }
+  return callback(runLayoutAliases(tempDir));
 };
 
 // ============================================
@@ -80,17 +88,7 @@ describe("layout-aliases", () => {
     createTempFile(layoutsDir, ".gitkeep", "");
     createTempFile(layoutsDir, "partial.liquid", "content");
 
-    try {
-      const config = createMockEleventyConfig();
-      const aliases = [];
-      config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
-
-      withMockedCwd(tempDir, () => configureLayoutAliases(config));
-
-      expect(aliases).toHaveLength(1);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
+    expect(runLayoutAliases(tempDir)).toHaveLength(1);
   });
 
   // --- Edge Case: Empty Directory ---
@@ -100,17 +98,7 @@ describe("layout-aliases", () => {
     fs.mkdirSync(layoutsDir, { recursive: true });
     createTempFile(layoutsDir, ".gitkeep", "");
 
-    try {
-      const config = createMockEleventyConfig();
-      const aliases = [];
-      config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
-
-      withMockedCwd(tempDir, () => configureLayoutAliases(config));
-
-      expect(aliases).toHaveLength(0);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
+    expect(runLayoutAliases(tempDir)).toHaveLength(0);
   });
 
   // --- Edge Case: Hyphenated Filenames ---

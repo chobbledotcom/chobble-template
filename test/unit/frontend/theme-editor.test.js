@@ -24,6 +24,36 @@ import {
 } from "#public/theme/theme-editor-lib.js";
 
 // ============================================
+// Functional Test Helpers
+// ============================================
+
+/**
+ * Parse-generate-reparse a theme and return both results for comparison.
+ * Curried: takes theme string, returns { parsed, reparsed } for assertions.
+ */
+const roundTripTheme = (theme) => {
+  const parsed = parseThemeContent(theme);
+  const generated = generateThemeCss(
+    parsed.root,
+    parsed.scopes,
+    parsed.bodyClasses,
+  );
+  return { parsed, reparsed: parseThemeContent(generated) };
+};
+
+/**
+ * Create a scoped entry test runner.
+ * Curried: (varName, globalValue) => (inputValue) => result
+ */
+const testScopedEntry = (varName, globalValue) => (inputValue) => {
+  document.documentElement.style.setProperty(varName, globalValue);
+  const input = document.createElement("input");
+  input.dataset.var = varName;
+  input.value = inputValue;
+  return inputToScopedEntry(getComputedStyle(document.documentElement))(input);
+};
+
+// ============================================
 // Unit Tests - parseCssBlock
 // ============================================
 
@@ -499,7 +529,7 @@ nav {
   // ============================================
 
   test("Parsing and regenerating preserves simple theme", () => {
-    const originalTheme = `:root {
+    const { parsed, reparsed } = roundTripTheme(`:root {
   --color-bg: #241f31;
   --color-text: #9a9996;
 }
@@ -508,15 +538,7 @@ header {
   --color-text: #ffffff;
 }
 
-/* body_classes: header-centered-dark */`;
-
-    const parsed = parseThemeContent(originalTheme);
-    const generated = generateThemeCss(
-      parsed.root,
-      parsed.scopes,
-      parsed.bodyClasses,
-    );
-    const reparsed = parseThemeContent(generated);
+/* body_classes: header-centered-dark */`);
 
     expect(reparsed.root).toEqual(parsed.root);
     expect(reparsed.scopes).toEqual(parsed.scopes);
@@ -524,7 +546,7 @@ header {
   });
 
   test("Parsing and regenerating preserves complex theme", () => {
-    const originalTheme = `:root {
+    const { parsed, reparsed } = roundTripTheme(`:root {
   --color-bg: #241f31;
   --color-text: #9a9996;
   --color-link: #f6f5f4;
@@ -548,15 +570,7 @@ input[type="submit"] {
   --color-text: #000000;
 }
 
-/* body_classes: header-centered-dark */`;
-
-    const parsed = parseThemeContent(originalTheme);
-    const generated = generateThemeCss(
-      parsed.root,
-      parsed.scopes,
-      parsed.bodyClasses,
-    );
-    const reparsed = parseThemeContent(generated);
+/* body_classes: header-centered-dark */`);
 
     expect(reparsed.root).toEqual(parsed.root);
     expect(reparsed.scopes.header).toEqual(parsed.scopes.header);
@@ -763,29 +777,15 @@ header {
   });
 
   test("inputToScopedEntry returns entry when value differs from global", () => {
-    document.documentElement.style.setProperty("--color-bg", "#ffffff");
-    const docStyle = getComputedStyle(document.documentElement);
+    const testColorBg = testScopedEntry("--color-bg", "#ffffff");
 
-    const input = document.createElement("input");
-    input.dataset.var = "--color-bg";
-    input.value = "#ff0000";
-
-    const result = inputToScopedEntry(docStyle)(input);
-
-    expect(result).toEqual(["--color-bg", "#ff0000"]);
+    expect(testColorBg("#ff0000")).toEqual(["--color-bg", "#ff0000"]);
   });
 
   test("inputToScopedEntry returns null when value matches global", () => {
-    document.documentElement.style.setProperty("--color-bg", "#ffffff");
-    const docStyle = getComputedStyle(document.documentElement);
+    const testColorBg = testScopedEntry("--color-bg", "#ffffff");
 
-    const input = document.createElement("input");
-    input.dataset.var = "--color-bg";
-    input.value = "#ffffff";
-
-    const result = inputToScopedEntry(docStyle)(input);
-
-    expect(result).toBe(null);
+    expect(testColorBg("#ffffff")).toBe(null);
   });
 
   test("toggleClassAndReturn toggles body class and returns value when active", () => {
