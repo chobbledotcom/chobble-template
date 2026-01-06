@@ -1,7 +1,7 @@
 // Hire Calculator Tests
 // Tests the hire-calculator.js functions for date calculation and pricing
 
-import { describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { STORAGE_KEY } from "#assets/cart-utils.js";
 import {
   calculateDays,
@@ -13,6 +13,7 @@ import {
   initHireCalculator,
   isHireItem,
   parsePrice,
+  resetHireCalculator,
   setMinDate,
 } from "#assets/hire-calculator.js";
 
@@ -28,6 +29,10 @@ const withMockStorage = (fn) => {
 };
 
 describe("hire-calculator", () => {
+  // Reset state before each test
+  beforeEach(() => {
+    resetHireCalculator();
+  });
   // ----------------------------------------
   // parsePrice Tests
   // ----------------------------------------

@@ -96,9 +96,22 @@ const handleDateChange = (elements) => () => {
   totalEl.textContent = formatHireMessage(days, total, canCalculate);
 };
 
+// Track initialization state
+let initialized = false;
+let daysChangeCallback = null;
+
 // Initialize hire calculator
 // Looks for fields named start_date and end_date in the form
-const initHireCalculator = () => {
+// Accepts optional onDaysChange callback for integration with quote price
+const initHireCalculator = (onDaysChange) => {
+  // Store callback for later calls (allows registering callback after init)
+  if (onDaysChange) {
+    daysChangeCallback = onDaysChange;
+  }
+
+  // Only set up DOM elements and event listeners once
+  if (initialized) return;
+
   const startInput = document.querySelector('input[name="start_date"]');
   const endInput = document.querySelector('input[name="end_date"]');
   const totalEl = document.getElementById("hire-total");
@@ -109,10 +122,20 @@ const initHireCalculator = () => {
   const cart = getCart();
   if (!hasHireItems(cart)) return;
 
+  initialized = true;
+
   const elements = { startInput, endInput, totalEl, daysInput };
 
   setMinDate(startInput);
   setMinDate(endInput);
+
+  const handleChange = () => {
+    handleDateChange(elements)();
+    if (daysChangeCallback) {
+      const days = daysInput.value ? Number(daysInput.value) : 1;
+      daysChangeCallback(days);
+    }
+  };
 
   startInput.addEventListener("change", () => {
     if (startInput.value) {
@@ -121,15 +144,21 @@ const initHireCalculator = () => {
         endInput.value = startInput.value;
       }
     }
-    handleDateChange(elements)();
+    handleChange();
   });
 
-  endInput.addEventListener("change", handleDateChange(elements));
+  endInput.addEventListener("change", handleChange);
+};
+
+// Reset initialization state (for testing)
+const resetHireCalculator = () => {
+  initialized = false;
+  daysChangeCallback = null;
 };
 
 // Only initialize in browser environment
 if (typeof document !== "undefined") {
-  onReady(initHireCalculator);
+  onReady(() => initHireCalculator());
 }
 
 export {
@@ -142,5 +171,6 @@ export {
   initHireCalculator,
   isHireItem,
   parsePrice,
+  resetHireCalculator,
   setMinDate,
 };
