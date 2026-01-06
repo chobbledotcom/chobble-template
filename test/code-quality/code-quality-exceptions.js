@@ -338,16 +338,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/theme-editor.js",
   "src/assets/js/theme-switcher.js",
   "src/products/products.11tydata.js",
-  "test/code-quality/array-push.test.js",
-  "test/code-quality/method-aliasing.test.js",
-  "test/code-quality/unused-classes.test.js",
-  "test/collections/products.test.js",
-  "test/eleventy/recurring-events.test.js",
-  "test/utils/strings.test.js",
-  "test/test-site-factory.js",
-  "test/build-profiling.js",
-  "test/test-utils.js",
-  "test/run-coverage.js",
 ]);
 
 // ============================================

@@ -40,26 +40,9 @@ const rootDir = ROOT_DIR;
 // Curried Path Utilities
 // -----------------------------------------------------------------------------
 
-/** Create a path joiner curried on the base directory */
-const inDir =
-  (base) =>
-  (...segments) =>
-    path.join(base, ...segments);
-
-/** Get the first path segment (collection name) */
-const getCollection = (filePath) => filePath.split("/")[0];
-
-/** Check if filename matches any of the given extensions */
-const hasExtension =
-  (...exts) =>
-  (filename) =>
-    exts.some((ext) => filename.endsWith(ext));
-
 // -----------------------------------------------------------------------------
-// Memoized Helpers - Cache expensive operations on template source files
+// Pure Utility Functions
 // -----------------------------------------------------------------------------
-
-const getCachedDirExists = memoize((dir) => fs.existsSync(dir));
 
 const getCachedDirList = memoize((dir) =>
   !fs.existsSync(dir)
@@ -69,12 +52,6 @@ const getCachedDirList = memoize((dir) =>
         isFile: fs.statSync(path.join(dir, name)).isFile(),
       })),
 );
-
-// -----------------------------------------------------------------------------
-// Pure Utility Functions
-// -----------------------------------------------------------------------------
-
-const randomId = () => Math.random().toString(36).slice(2, 10);
 
 // -----------------------------------------------------------------------------
 // Curried File Operations - Enable composition and partial application
@@ -122,229 +99,28 @@ const createMarkdownFile =
 // Directory Operations - Functional patterns for bulk operations
 // -----------------------------------------------------------------------------
 
-/** Copy files from src to dest that match the filter predicate */
-const copyDirFiles = (src, dest, filterFn = () => true) =>
-  pipe(
-    () => getCachedDirList(src),
-    filter((entry) => entry.isFile && filterFn(entry.name)),
-    map((entry) => {
-      const copy = copyToDir(dest);
-      return copy(path.join(src, entry.name), entry.name);
-    }),
-  )();
-
 /** Copy 11ty data files for a collection */
-const copy11tyDataFiles = (templateSrc, srcDir) => (collection) =>
-  copyDirFiles(
+const copy11tyDataFiles = (templateSrc, srcDir) => (collection) => {
+  const hasExtension =
+    (...exts) =>
+    (filename) =>
+      exts.some((ext) => filename.endsWith(ext));
+  const copyDirFiles = (src, dest, filterFn = () => true) =>
+    pipe(
+      () => getCachedDirList(src),
+      filter((entry) => entry.isFile && filterFn(entry.name)),
+      map((entry) => {
+        const copy = copyToDir(dest);
+        return copy(path.join(src, entry.name), entry.name);
+      }),
+    )();
+  return copyDirFiles(
     path.join(templateSrc, collection),
     path.join(srcDir, collection),
     hasExtension(".11tydata.js", ".json"),
   );
-
-/** Create symlinks for shared directories */
-const symlinkDirs = (templateSrc, srcDir, dirs) => {
-  for (const dir of dirs.filter((d) =>
-    getCachedDirExists(path.join(templateSrc, d)),
-  )) {
-    fs.symlinkSync(path.join(templateSrc, dir), path.join(srcDir, dir));
-  }
 };
 
-// -----------------------------------------------------------------------------
-// Data Directory Setup - Compose data file operations
-// -----------------------------------------------------------------------------
-
-const setupDataDir = (templateSrc, srcDir, options) => {
-  const dataSource = path.join(templateSrc, "_data");
-  const dataTarget = path.join(srcDir, "_data");
-  const writeData = writeToDir(dataTarget);
-  const writeJson = writeJsonToDir(dataTarget);
-
-  // Copy base data files
-  copyDirFiles(dataSource, dataTarget);
-
-  // Merge config with source config
-  if (options.config) {
-    const configPath = path.join(dataSource, "config.json");
-    const existing = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    writeJson("config.json", { ...existing, ...options.config });
-  }
-
-  // Write custom strings module
-  if (options.strings) {
-    writeData(
-      "strings.js",
-      `export default ${JSON.stringify(options.strings, null, 2)};`,
-    );
-  }
-
-  // Write additional data files
-  if (options.dataFiles) {
-    for (const { filename, data } of options.dataFiles) {
-      writeJson(filename, data);
-    }
-  }
-};
-
-// -----------------------------------------------------------------------------
-// Content Creation - Functional accumulation pattern
-// -----------------------------------------------------------------------------
-
-/** Extract unique collections from file list using functional composition */
-const extractCollections = pipe(
-  map(({ path: filePath }) => getCollection(filePath)),
-  unique,
-);
-
-/** Create content files and return collections touched */
-const createContentFiles = (templateSrc, srcDir, files = []) => {
-  const collections = extractCollections(files);
-  const copyDataFiles = copy11tyDataFiles(templateSrc, srcDir);
-  const writeMarkdown = createMarkdownFile(srcDir);
-
-  // Copy data files for each collection (side effect)
-  for (const collection of collections) {
-    copyDataFiles(collection);
-  }
-
-  // Create markdown files (side effect)
-  for (const file of files) {
-    writeMarkdown(file.path, {
-      frontmatter: file.frontmatter || {},
-      content: file.content || "",
-    });
-  }
-
-  return collections;
-};
-
-/** Ensure an index page exists */
-const ensureIndexPage = (templateSrc, srcDir, files = [], collections) => {
-  const hasIndex = files.some(
-    (f) => f.path === "pages/index.md" || f.frontmatter?.permalink === "/",
-  );
-
-  if (hasIndex) return;
-
-  if (!collections.includes("pages")) {
-    copy11tyDataFiles(templateSrc, srcDir)("pages");
-  }
-
-  createMarkdownFile(srcDir)("pages/index.md", {
-    frontmatter: { title: "Test Site", layout: "page", permalink: "/" },
-    content: "# Test Site",
-  });
-};
-
-// -----------------------------------------------------------------------------
-// Image Handling - Normalize and copy with functional patterns
-// -----------------------------------------------------------------------------
-
-/** Normalize image spec to { src, dest } object */
-const normalizeImageSpec = (img) =>
-  typeof img === "string"
-    ? { src: path.join(rootDir, "src/images", img), dest: img }
-    : {
-        src: img.src.startsWith("/") ? img.src : path.join(rootDir, img.src),
-        dest: img.dest,
-      };
-
-/** Copy test images to site's images directory */
-const copyTestImages = (srcDir, images = []) => {
-  if (images.length === 0) return;
-
-  const imagesDir = ensureDir(path.join(srcDir, "images"));
-  const copyImage = copyToDir(imagesDir);
-
-  for (const { src, dest } of images.map(normalizeImageSpec)) {
-    copyImage(src, dest);
-  }
-};
-
-// -----------------------------------------------------------------------------
-// Site Object Factory - Creates the test site interface
-// -----------------------------------------------------------------------------
-
-/** Recursively list all files in a directory (pure recursive approach) */
-const listFilesRecursive = (dir, prefix = "") =>
-  !fs.existsSync(dir)
-    ? []
-    : pipe(
-        () => fs.readdirSync(dir),
-        flatMap((entry) => {
-          const fullPath = path.join(dir, entry);
-          const relativePath = path.join(prefix, entry);
-          return fs.statSync(fullPath).isDirectory()
-            ? listFilesRecursive(fullPath, relativePath)
-            : [relativePath];
-        }),
-      )();
-
-/** Create the site object with all methods */
-const createSiteObject = (siteId, siteDir, srcDir, outputDir) => {
-  // Curried helper bound to output directory
-  const getOutputPath = inDir(outputDir);
-
-  return Object.freeze({
-    id: siteId,
-    dir: siteDir,
-    srcDir,
-    outputDir,
-
-    async build() {
-      const result = spawnSync(
-        "bun",
-        ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
-        { cwd: siteDir, stdio: "pipe", encoding: "utf-8" },
-      );
-
-      if (result.status !== 0) {
-        const error = new Error(
-          `Eleventy build failed: ${result.stderr || result.stdout}`,
-        );
-        error.stdout = result.stdout;
-        error.stderr = result.stderr;
-        throw error;
-      }
-
-      return result.stdout;
-    },
-
-    getOutput(filePath) {
-      const fullPath = getOutputPath(filePath);
-      if (!fs.existsSync(fullPath)) {
-        throw new Error(`Output file not found: ${filePath}`);
-      }
-      return fs.readFileSync(fullPath, "utf-8");
-    },
-
-    getDoc(filePath) {
-      return new DOM(this.getOutput(filePath)).window.document;
-    },
-
-    hasOutput(filePath) {
-      return fs.existsSync(getOutputPath(filePath));
-    },
-
-    listOutputFiles() {
-      return listFilesRecursive(outputDir);
-    },
-
-    addFile(relativePath, content) {
-      writeToDir(srcDir)(relativePath, content);
-    },
-
-    addMarkdown(relativePath, opts) {
-      createMarkdownFile(srcDir)(relativePath, opts);
-    },
-
-    cleanup() {
-      if (fs.existsSync(siteDir)) {
-        fs.rmSync(siteDir, { recursive: true, force: true });
-      }
-    },
-  });
-};
 
 // -----------------------------------------------------------------------------
 // Main API Functions
@@ -354,6 +130,7 @@ const createSiteObject = (siteId, siteDir, srcDir, outputDir) => {
  * Create a test site with isolated content
  */
 const createTestSite = async (options = {}) => {
+  const randomId = () => Math.random().toString(36).slice(2, 10);
   const siteId = randomId();
   const siteDir = path.join(__dirname, ".test-sites", siteId);
   const srcDir = path.join(siteDir, "src");
@@ -362,7 +139,15 @@ const createTestSite = async (options = {}) => {
 
   fs.mkdirSync(srcDir, { recursive: true });
 
-  // Setup symlinks, data, and content
+  // Setup symlinks for shared directories
+  const getCachedDirExists = memoize((dir) => fs.existsSync(dir));
+  const symlinkDirs = (templateSrc, srcDir, dirs) => {
+    for (const dir of dirs.filter((d) =>
+      getCachedDirExists(path.join(templateSrc, d)),
+    )) {
+      fs.symlinkSync(path.join(templateSrc, dir), path.join(srcDir, dir));
+    }
+  };
   symlinkDirs(templateSrc, srcDir, [
     "_lib",
     "_includes",
@@ -371,10 +156,115 @@ const createTestSite = async (options = {}) => {
     "assets",
     "utils",
   ]);
+
+  // Setup data directory
+  const setupDataDir = (templateSrc, srcDir, options) => {
+    const copyDirFiles = (src, dest, filterFn = () => true) =>
+      pipe(
+        () => getCachedDirList(src),
+        filter((entry) => entry.isFile && filterFn(entry.name)),
+        map((entry) => {
+          const copy = copyToDir(dest);
+          return copy(path.join(src, entry.name), entry.name);
+        }),
+      )();
+    const dataSource = path.join(templateSrc, "_data");
+    const dataTarget = path.join(srcDir, "_data");
+    const writeData = writeToDir(dataTarget);
+    const writeJson = writeJsonToDir(dataTarget);
+
+    // Copy base data files
+    copyDirFiles(dataSource, dataTarget);
+
+    // Merge config with source config
+    if (options.config) {
+      const configPath = path.join(dataSource, "config.json");
+      const existing = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      writeJson("config.json", { ...existing, ...options.config });
+    }
+
+    // Write custom strings module
+    if (options.strings) {
+      writeData(
+        "strings.js",
+        `export default ${JSON.stringify(options.strings, null, 2)};`,
+      );
+    }
+
+    // Write additional data files
+    if (options.dataFiles) {
+      for (const { filename, data } of options.dataFiles) {
+        writeJson(filename, data);
+      }
+    }
+  };
   setupDataDir(templateSrc, srcDir, options);
 
+  // Create content files and return collections touched
+  const getCollection = (filePath) => filePath.split("/")[0];
+  const extractCollections = pipe(
+    map(({ path: filePath }) => getCollection(filePath)),
+    unique,
+  );
+  const createContentFiles = (templateSrc, srcDir, files = []) => {
+    const collections = extractCollections(files);
+    const copyDataFiles = copy11tyDataFiles(templateSrc, srcDir);
+    const writeMarkdown = createMarkdownFile(srcDir);
+
+    // Copy data files for each collection (side effect)
+    for (const collection of collections) {
+      copyDataFiles(collection);
+    }
+
+    // Create markdown files (side effect)
+    for (const file of files) {
+      writeMarkdown(file.path, {
+        frontmatter: file.frontmatter || {},
+        content: file.content || "",
+      });
+    }
+
+    return collections;
+  };
   const collections = createContentFiles(templateSrc, srcDir, options.files);
+
+  // Ensure an index page exists
+  const ensureIndexPage = (templateSrc, srcDir, files = [], collections) => {
+    const hasIndex = files.some(
+      (f) => f.path === "pages/index.md" || f.frontmatter?.permalink === "/",
+    );
+
+    if (hasIndex) return;
+
+    if (!collections.includes("pages")) {
+      copy11tyDataFiles(templateSrc, srcDir)("pages");
+    }
+
+    createMarkdownFile(srcDir)("pages/index.md", {
+      frontmatter: { title: "Test Site", layout: "page", permalink: "/" },
+      content: "# Test Site",
+    });
+  };
   ensureIndexPage(templateSrc, srcDir, options.files, collections);
+
+  // Copy test images
+  const normalizeImageSpec = (img) =>
+    typeof img === "string"
+      ? { src: path.join(rootDir, "src/images", img), dest: img }
+      : {
+          src: img.src.startsWith("/") ? img.src : path.join(rootDir, img.src),
+          dest: img.dest,
+        };
+  const copyTestImages = (srcDir, images = []) => {
+    if (images.length === 0) return;
+
+    const imagesDir = ensureDir(path.join(srcDir, "images"));
+    const copyImage = copyToDir(imagesDir);
+
+    for (const { src, dest } of images.map(normalizeImageSpec)) {
+      copyImage(src, dest);
+    }
+  };
   copyTestImages(srcDir, options.images);
 
   // Copy config and create symlinks
@@ -385,6 +275,89 @@ const createTestSite = async (options = {}) => {
     path.join(rootDir, "node_modules"),
     path.join(siteDir, "node_modules"),
   );
+
+  // Create the site object with all methods
+  const inDir =
+    (base) =>
+    (...segments) =>
+      path.join(base, ...segments);
+  const listFilesRecursive = (dir, prefix = "") =>
+    !fs.existsSync(dir)
+      ? []
+      : pipe(
+          () => fs.readdirSync(dir),
+          flatMap((entry) => {
+            const fullPath = path.join(dir, entry);
+            const relativePath = path.join(prefix, entry);
+            return fs.statSync(fullPath).isDirectory()
+              ? listFilesRecursive(fullPath, relativePath)
+              : [relativePath];
+          }),
+        )();
+  const createSiteObject = (siteId, siteDir, srcDir, outputDir) => {
+    // Curried helper bound to output directory
+    const getOutputPath = inDir(outputDir);
+
+    return Object.freeze({
+      id: siteId,
+      dir: siteDir,
+      srcDir,
+      outputDir,
+
+      async build() {
+        const result = spawnSync(
+          "bun",
+          ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
+          { cwd: siteDir, stdio: "pipe", encoding: "utf-8" },
+        );
+
+        if (result.status !== 0) {
+          const error = new Error(
+            `Eleventy build failed: ${result.stderr || result.stdout}`,
+          );
+          error.stdout = result.stdout;
+          error.stderr = result.stderr;
+          throw error;
+        }
+
+        return result.stdout;
+      },
+
+      getOutput(filePath) {
+        const fullPath = getOutputPath(filePath);
+        if (!fs.existsSync(fullPath)) {
+          throw new Error(`Output file not found: ${filePath}`);
+        }
+        return fs.readFileSync(fullPath, "utf-8");
+      },
+
+      getDoc(filePath) {
+        return new DOM(this.getOutput(filePath)).window.document;
+      },
+
+      hasOutput(filePath) {
+        return fs.existsSync(getOutputPath(filePath));
+      },
+
+      listOutputFiles() {
+        return listFilesRecursive(outputDir);
+      },
+
+      addFile(relativePath, content) {
+        writeToDir(srcDir)(relativePath, content);
+      },
+
+      addMarkdown(relativePath, opts) {
+        createMarkdownFile(srcDir)(relativePath, opts);
+      },
+
+      cleanup() {
+        if (fs.existsSync(siteDir)) {
+          fs.rmSync(siteDir, { recursive: true, force: true });
+        }
+      },
+    });
+  };
 
   return createSiteObject(siteId, siteDir, srcDir, outputDir);
 };

@@ -34,16 +34,6 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
   ...(max_quantity && { max_quantity }),
 });
 
-/**
- * Create a mock collection API with tag assertion
- */
-const assertingCollectionApi = (testItems, expectedTag = "product") => ({
-  getFilteredByTag: (tag) => {
-    expect(tag).toBe(expectedTag);
-    return testItems;
-  },
-});
-
 describe("products", () => {
   test("Returns null/undefined gallery unchanged", () => {
     expect(processGallery(null)).toBe(null);
@@ -103,6 +93,13 @@ describe("products", () => {
   });
 
   test("Creates products collection from API", () => {
+    const assertingCollectionApi = (testItems, expectedTag = "product") => ({
+      getFilteredByTag: (tag) => {
+        expect(tag).toBe(expectedTag);
+        return testItems;
+      },
+    });
+
     const testProducts = items([
       ["Product 1", { gallery: ["img1.jpg"] }],
       ["Product 2", {}],
