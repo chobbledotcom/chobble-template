@@ -63,75 +63,107 @@ const EXPORT_DEFAULT_PATTERN =
 // ============================================
 
 /**
+ * Process a single character for function definition tracking.
+ * Pure function: returns new state without mutation.
+ */
+const processCharForFuncDef = (state, char, index, line) => {
+  if (state.skipNext) {
+    return { ...state, skipNext: false };
+  }
+
+  const prevChar = index > 0 ? line[index - 1] : "";
+  const nextChar = index < line.length - 1 ? line[index + 1] : "";
+
+  // Handle comments
+  if (!state.inString) {
+    if (char === "/" && nextChar === "/" && !state.inMultilineComment) {
+      return { ...state, stopProcessing: true };
+    }
+    if (char === "/" && nextChar === "*" && !state.inMultilineComment) {
+      return { ...state, inMultilineComment: true, skipNext: true };
+    }
+    if (char === "*" && nextChar === "/" && state.inMultilineComment) {
+      return { ...state, inMultilineComment: false, skipNext: true };
+    }
+  }
+
+  if (state.inMultilineComment) return state;
+
+  // Handle strings
+  if ((char === '"' || char === "'" || char === "`") && prevChar !== "\\") {
+    if (!state.inString) {
+      return { ...state, inString: true, stringChar: char };
+    } else if (char === state.stringChar) {
+      return { ...state, inString: false, stringChar: null };
+    }
+  }
+
+  if (state.inString) return state;
+
+  // Count braces
+  if (char === "{") {
+    return { ...state, braceDepth: state.braceDepth + 1 };
+  }
+  if (char === "}") {
+    return { ...state, braceDepth: state.braceDepth - 1 };
+  }
+
+  return state;
+};
+
+/**
+ * Process a single line for function definition tracking.
+ * Pure function: returns new state without mutation.
+ */
+const processLineForFuncDef = (state, line, index) => {
+  const lineNum = index + 1;
+
+  // Check for function definition
+  const funcMatch =
+    line.match(FUNCTION_DECL_PATTERN) || line.match(ARROW_OR_EXPR_PATTERN);
+
+  // Process characters to update brace depth and string/comment state
+  const chars = [...line];
+  const charState = { ...state, stopProcessing: false };
+  const processedState = chars.reduce(
+    (s, char, i) =>
+      s.stopProcessing ? s : processCharForFuncDef(s, char, i, line),
+    charState,
+  );
+
+  // Add function if found
+  if (funcMatch) {
+    const newFunction = {
+      name: funcMatch[1],
+      line: lineNum,
+      isNested: state.braceDepth > 0,
+    };
+    return {
+      ...processedState,
+      functions: [...processedState.functions, newFunction],
+    };
+  }
+
+  return processedState;
+};
+
+/**
  * Extract function definitions from source code.
  * Returns array of { name, line, isNested }
  */
 const extractFunctionDefinitions = (source) => {
+  const initialState = {
+    braceDepth: 0,
+    inString: false,
+    stringChar: null,
+    inMultilineComment: false,
+    skipNext: false,
+    functions: [],
+  };
+
   const lines = source.split("\n");
-  const functions = [];
-  let braceDepth = 0;
-  let inString = false;
-  let stringChar = null;
-  let inMultilineComment = false;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lineNum = i + 1;
-
-    // Check for function definitions
-    const funcMatch =
-      line.match(FUNCTION_DECL_PATTERN) || line.match(ARROW_OR_EXPR_PATTERN);
-
-    if (funcMatch) {
-      functions.push({
-        name: funcMatch[1],
-        line: lineNum,
-        isNested: braceDepth > 0,
-      });
-    }
-
-    // Track brace depth to detect nested functions
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j];
-      const prevChar = j > 0 ? line[j - 1] : "";
-      const nextChar = j < line.length - 1 ? line[j + 1] : "";
-
-      // Handle comments
-      if (!inString) {
-        if (char === "/" && nextChar === "/" && !inMultilineComment) break;
-        if (char === "/" && nextChar === "*" && !inMultilineComment) {
-          inMultilineComment = true;
-          j++;
-          continue;
-        }
-        if (char === "*" && nextChar === "/" && inMultilineComment) {
-          inMultilineComment = false;
-          j++;
-          continue;
-        }
-      }
-      if (inMultilineComment) continue;
-
-      // Handle strings
-      if ((char === '"' || char === "'" || char === "`") && prevChar !== "\\") {
-        if (!inString) {
-          inString = true;
-          stringChar = char;
-        } else if (char === stringChar) {
-          inString = false;
-          stringChar = null;
-        }
-        continue;
-      }
-      if (inString) continue;
-
-      // Count braces
-      if (char === "{") braceDepth++;
-      if (char === "}") braceDepth--;
-    }
-  }
-
-  return functions;
+  const finalState = lines.reduce(processLineForFuncDef, initialState);
+  return finalState.functions;
 };
 
 /**
