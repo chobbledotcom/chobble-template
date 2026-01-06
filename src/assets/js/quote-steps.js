@@ -1,8 +1,8 @@
 // Quote form multi-step navigation
 // Handles step transitions, validation, and recap population
 
-import { filter, map, pipe, unique } from "#utils/array-utils.js";
 import { onReady } from "#assets/on-ready.js";
+import { filter, map, pipe, unique } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
