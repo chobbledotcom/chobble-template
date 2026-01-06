@@ -249,9 +249,46 @@ const expectResultTitles = (result, expectedTitles) => {
 };
 
 /**
+ * Assert that a result array has expected values for a given property getter.
+ * The most generic form - accepts any getter function.
+ * Curried: first call with getter, returns assertion function.
+ *
+ * @param {Function} getter - (item) => value to extract from each item
+ * @returns {Function} (result, expectedValues) => void
+ *
+ * @example
+ * expectArrayProp(item => item.name)(result, ["Alpha", "Beta"]);
+ * expectArrayProp(item => item.data.title)(result, ["Product 1", "Product 2"]);
+ */
+const expectArrayProp = (getter) => (result, expectedValues) => {
+  expect(result.length).toBe(expectedValues.length);
+  expectedValues.forEach((value, i) => {
+    const actual = getter(result[i]);
+    if (value === undefined) {
+      expect(actual).toBe(undefined);
+    } else {
+      expect(actual).toEqual(value);
+    }
+  });
+};
+
+/**
+ * Assert that a result array has expected values for a top-level property.
+ * Curried: first call with key name, returns assertion function.
+ *
+ * @param {string} key - The property key to check (e.g., "name", "template")
+ * @returns {Function} (result, expectedValues) => void
+ *
+ * @example
+ * expectProp("name")(result, ["Alpha", "Beta"]);
+ * expectProp("template")(result, ["input.html", "textarea.html"]);
+ */
+const expectProp = (key) => expectArrayProp((item) => item[key]);
+
+/**
  * Assert that a result array has expected data values for a given key.
  * Curried: first call with key name, returns assertion function.
- * Handles both values and undefined.
+ * For checking result[i].data[key] patterns.
  *
  * @param {string} key - The data key to check (e.g., "gallery", "categories")
  * @returns {Function} (result, expectedValues) => void
@@ -259,20 +296,8 @@ const expectResultTitles = (result, expectedTitles) => {
  * @example
  * const expectGalleries = expectDataArray("gallery");
  * expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
- *
- * @example
- * expectDataArray("categories")(result, [["widgets"], ["tools"]]);
  */
-const expectDataArray = (key) => (result, expectedValues) => {
-  expect(result.length).toBe(expectedValues.length);
-  expectedValues.forEach((value, i) => {
-    if (value === undefined) {
-      expect(result[i].data[key]).toBe(undefined);
-    } else {
-      expect(result[i].data[key]).toEqual(value);
-    }
-  });
-};
+const expectDataArray = (key) => expectArrayProp((item) => item.data[key]);
 
 const expectGalleries = expectDataArray("gallery");
 
@@ -803,6 +828,8 @@ export {
   withTempFile,
   withMockedCwd,
   expectResultTitles,
+  expectArrayProp,
+  expectProp,
   expectDataArray,
   expectGalleries,
   expectEventCounts,

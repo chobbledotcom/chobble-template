@@ -7,7 +7,10 @@ import {
   prepareAreaList,
   sortByNavigationKey,
 } from "#eleventy/area-list.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { createMockEleventyConfig, expectProp } from "#test/test-utils.js";
+
+const expectNames = expectProp("name");
+const expectSeparators = expectProp("separator");
 
 // Test fixtures
 const createLocation = (name, url) => ({
@@ -186,11 +189,8 @@ describe("area-list", () => {
 
     const result = prepareAreaList(locations, "/locations/alpha/");
 
-    expect(result).toHaveLength(2);
-    expect(result[0].name).toBe("Beta");
-    expect(result[0].separator).toBe(" and ");
-    expect(result[1].name).toBe("Gamma");
-    expect(result[1].separator).toBe("");
+    expectNames(result, ["Beta", "Gamma"]);
+    expectSeparators(result, [" and ", ""]);
   });
 
   test("Returns three locations with comma and 'and' separators", () => {
@@ -203,13 +203,8 @@ describe("area-list", () => {
 
     const result = prepareAreaList(locations, "/locations/delta/");
 
-    expect(result).toHaveLength(3);
-    expect(result[0].name).toBe("Alpha");
-    expect(result[0].separator).toBe(", ");
-    expect(result[1].name).toBe("Beta");
-    expect(result[1].separator).toBe(" and ");
-    expect(result[2].name).toBe("Gamma");
-    expect(result[2].separator).toBe("");
+    expectNames(result, ["Alpha", "Beta", "Gamma"]);
+    expectSeparators(result, [", ", " and ", ""]);
   });
 
   test("Excludes nested locations", () => {
@@ -269,8 +264,7 @@ describe("area-list", () => {
       "/locations/other/",
     );
 
-    expect(result).toHaveLength(2);
-    expect(result[0].name).toBe("Alpha");
-    expect(result[0].separator).toBe(" and ");
+    expectNames(result, ["Alpha", "Beta"]);
+    expectSeparators(result, [" and ", ""]);
   });
 });
