@@ -6,7 +6,6 @@ import path from "node:path";
 import { createLazyLoader } from "#utils/lazy-loader.js";
 import { memoize } from "#utils/memoize.js";
 
-// Lazy-load eleventy-img (heavy dependency)
 const getEleventyImg = createLazyLoader("@11ty/eleventy-img");
 
 // Shared filename format for eleventy-img output

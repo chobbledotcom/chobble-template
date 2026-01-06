@@ -7,7 +7,6 @@ import { createLazyLoader } from "#utils/lazy-loader.js";
 import { simplifyRatio } from "#utils/math-utils.js";
 import { memoize } from "#utils/memoize.js";
 
-// Lazy-load sharp (heavy dependency)
 const getSharp = createLazyLoader("sharp", { property: "default" });
 
 const CROP_CACHE_DIR = ".image-cache";

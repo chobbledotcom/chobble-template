@@ -15,7 +15,6 @@ import { createLazyLoader } from "#utils/lazy-loader.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-// Lazy-load json-to-pdf only when generating PDFs
 const getPdfRenderer = createLazyLoader("json-to-pdf", {
   property: "renderPdfTemplate",
 });

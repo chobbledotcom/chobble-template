@@ -257,8 +257,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/assets/js/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:247", // pdfDoc
-  "src/_lib/eleventy/pdf.js:272", // state
+  "src/_lib/eleventy/pdf.js:246", // pdfDoc
+  "src/_lib/eleventy/pdf.js:271", // state
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes

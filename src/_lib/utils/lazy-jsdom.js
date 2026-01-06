@@ -1,4 +1,4 @@
-// Lazy-loaded happy-dom with JSDOM-compatible API
+// Happy-dom with JSDOM-compatible API
 // This module provides the same interface as jsdom but uses happy-dom
 
 import { createLazyLoader } from "#utils/lazy-loader.js";

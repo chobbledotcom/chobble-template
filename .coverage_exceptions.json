@@ -2,12 +2,13 @@
 	"_comment": "This file tracks uncovered lines/functions that are grandfathered in. New code must have full coverage.",
 	"lines": {
 		"src/_lib/build/scss.js": [
-			41
+			40
 		],
 		"src/_lib/eleventy/file-utils.js": [
 			20
 		],
 		"src/_lib/eleventy/pdf.js": [
+			225,
 			226,
 			227,
 			228,
@@ -19,7 +20,7 @@
 			234,
 			235,
 			236,
-			237,
+			240,
 			241,
 			242,
 			243,
@@ -40,30 +41,29 @@
 			258,
 			259,
 			260,
-			261,
+			263,
 			264,
 			265,
 			266,
 			267,
-			268,
-			279
+			278
 		],
 		"src/_lib/eleventy/recurring-events.js": [
 			94
 		],
 		"src/_lib/media/image-crop.js": [
+			30,
 			31,
 			32,
 			33,
 			34,
-			35,
+			50,
 			51,
-			52,
+			53,
 			54,
 			55,
 			56,
-			57,
-			72
+			71
 		],
 		"src/_lib/media/inline-asset.js": [
 			85
