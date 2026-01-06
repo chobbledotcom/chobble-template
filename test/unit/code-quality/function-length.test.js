@@ -51,7 +51,9 @@ const calculateOwnLines = (functions) =>
  * Returns violations using functional composition.
  */
 const analyzeFunctionLengths = () => {
-  const filesToCheck = SRC_JS_FILES().filter((f) => !f.startsWith("src/assets/"));
+  const filesToCheck = SRC_JS_FILES().filter(
+    (f) => !f.startsWith("src/assets/"),
+  );
 
   const allViolations = [];
 
