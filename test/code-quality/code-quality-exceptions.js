@@ -262,7 +262,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
   "test/integration/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
-  "test/run-coverage.js:84", // file (iteration over files)
   "test/precommit.js:56", // trimmed (line processing)
   "test/precommit.js:140", // result (skip if step wasn't run)
   "test/precommit.js:187", // allPassed (check if all steps passed)
