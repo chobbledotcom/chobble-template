@@ -4,9 +4,8 @@ import { createLazyLoader } from "#utils/lazy-loader.js";
 // Shared DOM instance for building elements
 const getSharedDocument = createLazyLoader(null, {
   init: async () => {
-    const DOM = await loadDOM();
-    const sharedDom = new DOM("");
-    return sharedDom.window.document;
+    const dom = await loadDOM("");
+    return dom.window.document;
   },
 });
 

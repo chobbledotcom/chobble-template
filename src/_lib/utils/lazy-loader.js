@@ -56,8 +56,7 @@ const loadModule = async (modulePath, options) => {
  * // Lazy initialization without module import
  * const getSharedDocument = createLazyLoader(null, {
  *   init: async () => {
- *     const DOM = await loadDOM();
- *     const dom = new DOM("");
+ *     const dom = await loadDOM("");
  *     return dom.window.document;
  *   }
  * });

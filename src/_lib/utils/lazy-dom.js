@@ -3,7 +3,7 @@
 
 import { createLazyLoader } from "#utils/lazy-loader.js";
 
-const loadDOM = createLazyLoader("happy-dom", {
+const getDOMClass = createLazyLoader("happy-dom", {
   transform: (mod) => {
     const { Window } = mod;
 
@@ -22,5 +22,11 @@ const loadDOM = createLazyLoader("happy-dom", {
     };
   },
 });
+
+// Create a DOM instance with optional HTML content
+const loadDOM = async (html = "") => {
+  const DOM = await getDOMClass();
+  return new DOM(html);
+};
 
 export { loadDOM };

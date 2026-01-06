@@ -27,8 +27,7 @@ const transformExternalLinks = async (content, config) => {
     return content;
   }
 
-  const DOM = await loadDOM();
-  const dom = new DOM(content);
+  const dom = await loadDOM(content);
   const { document } = dom.window;
 
   for (const link of document.querySelectorAll("a[href]")) {

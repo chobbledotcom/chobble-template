@@ -5,11 +5,8 @@ const wrapTablesForScroll = async (content) => {
     return content;
   }
 
-  const DOM = await loadDOM();
-  const dom = new DOM(content);
-  const {
-    window: { document },
-  } = dom;
+  const dom = await loadDOM(content);
+  const { document } = dom.window;
 
   const tables = document.querySelectorAll("table");
 

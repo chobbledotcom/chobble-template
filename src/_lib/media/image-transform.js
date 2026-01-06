@@ -47,8 +47,7 @@ const transformImages = async (content, processAndWrapImage) => {
   if (!content?.includes("<img")) return content;
   if (!content.includes('src="/images/')) return content;
 
-  const DOM = await loadDOM();
-  const dom = new DOM(content);
+  const dom = await loadDOM(content);
   const { document } = dom.window;
   const images = document.querySelectorAll('img[src^="/images/"]');
 
