@@ -60,6 +60,7 @@ const calendarTemplates = loadTemplate("calendar.html");
 const cartTemplates = loadTemplate("cart.html");
 const galleryTemplates = loadTemplate("gallery.html");
 const quotePriceTemplates = loadTemplate("quote-price.html");
+const quoteStepsProgressTemplates = loadTemplate("quote-steps-progress.html");
 
 describe("Template selector contracts", () => {
   describe("All template IDs exist in HTML", () => {
@@ -71,6 +72,7 @@ describe("Template selector contracts", () => {
           cartTemplates,
           galleryTemplates,
           quotePriceTemplates,
+          quoteStepsProgressTemplates,
         ]) {
           if (dom?.window.document.getElementById(id)) {
             found = true;
@@ -91,6 +93,7 @@ describe("Selector constants usage verification", () => {
     "src/_lib/public/cart/quote-checkout.js",
     "src/_lib/public/utils/quote-price-utils.js",
     "src/_lib/public/ui/gallery.js",
+    "src/_lib/public/ui/quote-steps-progress.js",
     "src/_lib/public/utils/template.js",
   ];
 

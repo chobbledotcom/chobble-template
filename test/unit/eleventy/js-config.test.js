@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import getConfig from "#data/config.js";
 import { buildJsConfigScript, configureJsConfig } from "#eleventy/js-config.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectValidScriptTag,
+} from "#test/test-utils.js";
 
 describe("js-config", () => {
   test("Returns empty JSON object for empty config", () => {
@@ -80,9 +83,7 @@ describe("js-config", () => {
 
   test("Generates script tag with correct id and type", () => {
     const result = buildJsConfigScript({ cart_mode: "quote" });
-    expect(result.startsWith('<script id="site-config"')).toBe(true);
-    expect(result.includes('type="application/json"')).toBe(true);
-    expect(result.endsWith("</script>")).toBe(true);
+    expectValidScriptTag(result);
   });
 
   test("Registers jsConfigScript shortcode on eleventyConfig", () => {
@@ -101,9 +102,7 @@ describe("js-config", () => {
     const result = shortcodeFn.call({});
 
     // The result should be a valid script tag
-    expect(result.startsWith('<script id="site-config"')).toBe(true);
-    expect(result.includes('type="application/json"')).toBe(true);
-    expect(result.endsWith("</script>")).toBe(true);
+    expectValidScriptTag(result);
   });
 
   test("Shortcode output matches expected values from config", () => {
