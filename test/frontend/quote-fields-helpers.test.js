@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildSections,
-  buildStepNames,
+  buildSteps,
   processQuoteFields,
 } from "#config/quote-fields-helpers.js";
 import { expectProp } from "#test/test-utils.js";
@@ -52,33 +52,46 @@ describe("quote-fields-helpers", () => {
     });
   });
 
-  // buildStepNames function tests
-  describe("buildStepNames", () => {
-    test("builds step names array with quote step, section titles, and recap", () => {
+  // buildSteps function tests
+  describe("buildSteps", () => {
+    test("builds steps array with name and number for each step", () => {
       const data = {
         quoteStepName: "Your Items",
         recapTitle: "Review",
       };
       const sections = [{ title: "Event" }, { title: "Contact" }];
-      const result = buildStepNames(data, sections);
+      const result = buildSteps(data, sections);
 
-      expect(result).toEqual(["Your Items", "Event", "Contact", "Review"]);
+      expect(result).toEqual([
+        { name: "Your Items", number: 1 },
+        { name: "Event", number: 2 },
+        { name: "Contact", number: 3 },
+        { name: "Review", number: 4 },
+      ]);
     });
 
     test("uses defaults when quoteStepName is missing", () => {
       const data = { recapTitle: "Summary" };
       const sections = [{ title: "Details" }];
-      const result = buildStepNames(data, sections);
+      const result = buildSteps(data, sections);
 
-      expect(result).toEqual(["Your Items", "Details", "Summary"]);
+      expect(result).toEqual([
+        { name: "Your Items", number: 1 },
+        { name: "Details", number: 2 },
+        { name: "Summary", number: 3 },
+      ]);
     });
 
     test("uses default recap title when missing", () => {
       const data = { quoteStepName: "Cart" };
       const sections = [{ title: "Info" }];
-      const result = buildStepNames(data, sections);
+      const result = buildSteps(data, sections);
 
-      expect(result).toEqual(["Cart", "Info", "Review"]);
+      expect(result).toEqual([
+        { name: "Cart", number: 1 },
+        { name: "Info", number: 2 },
+        { name: "Review", number: 3 },
+      ]);
     });
   });
 
@@ -100,11 +113,11 @@ describe("quote-fields-helpers", () => {
       expect(result.sections[0].title).toBe("Event");
       expect(result.sections[1].title).toBe("Contact");
       expect(result.totalSteps).toBe(3); // 2 sections + recap
-      expect(result.stepNames).toEqual([
-        "Your Items",
-        "Event",
-        "Contact",
-        "Review",
+      expect(result.steps).toEqual([
+        { name: "Your Items", number: 1 },
+        { name: "Event", number: 2 },
+        { name: "Contact", number: 3 },
+        { name: "Review", number: 4 },
       ]);
       expect(result.recapTitle).toBe("Review");
       expect(result.submitButtonText).toBe("Send");
@@ -144,8 +157,13 @@ describe("quote-fields-helpers", () => {
     const quoteFields = quoteFieldsModule.default();
     expect(Array.isArray(quoteFields.sections)).toBe(true);
     expect(typeof quoteFields.totalSteps).toBe("number");
-    expect(Array.isArray(quoteFields.stepNames)).toBe(true);
-    expect(quoteFields.stepNames.length).toBe(quoteFields.totalSteps + 1);
+    expect(Array.isArray(quoteFields.steps)).toBe(true);
+    expect(quoteFields.steps.length).toBe(quoteFields.totalSteps + 1);
+    // Each step should have name and number
+    for (const step of quoteFields.steps) {
+      expect(typeof step.name).toBe("string");
+      expect(typeof step.number).toBe("number");
+    }
     expect(typeof quoteFields.recapTitle).toBe("string");
     expect(typeof quoteFields.submitButtonText).toBe("string");
     // All section fields should have template property

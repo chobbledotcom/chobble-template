@@ -1,27 +1,26 @@
 {%- comment -%}
 Step progress indicator for the quote process.
 Parameters:
-  - include_first_step: Whether to show the first step (default: false)
-                        Use true for /quote/ page (shows step 1 active)
-                        Use false for /checkout/ (shows steps 2+ with step 2 active)
+  - completed_steps: Number of steps already completed (default: 0)
+                     Use 0 for /quote/ (step 1 active)
+                     Use 1 for /checkout/ (step 1 completed, step 2 active)
 {%- endcomment -%}
 
-{%- if include_first_step -%}
-  {%- assign offset = 0 -%}
-  {%- assign total = quoteFields.totalSteps | plus: 1 -%}
-{%- else -%}
-  {%- assign offset = 1 -%}
-  {%- assign total = quoteFields.totalSteps -%}
-{%- endif -%}
+{%- assign completed = completed_steps | default: 0 -%}
+{%- assign active_index = completed -%}
 
 <div class="quote-steps-progress">
-  {%- for i in (1..total) -%}
-    {%- assign display_num = i | plus: offset -%}
-    {%- assign step_name_index = i | plus: offset | minus: 1 -%}
-    {%- assign step_name = quoteFields.stepNames[step_name_index] -%}
-    <div class="quote-steps-indicator{% if i == 1 %} active{% endif %}" data-step="{{ i | minus: 1 }}">
-      <span class="step-name">{{ step_name }}</span>
-      <span class="step-number">{{ display_num }}</span>
+  {%- for step in quoteFields.steps -%}
+    {%- if forloop.index0 < completed -%}
+      {%- assign step_class = "completed" -%}
+    {%- elsif forloop.index0 == active_index -%}
+      {%- assign step_class = "active" -%}
+    {%- else -%}
+      {%- assign step_class = "" -%}
+    {%- endif -%}
+    <div class="quote-steps-indicator {{ step_class }}" data-step="{{ forloop.index0 }}">
+      <span class="step-name">{{ step.name }}</span>
+      <span class="step-number">{{ step.number }}</span>
     </div>
     {%- unless forloop.last -%}
       <div class="quote-steps-connector"></div>

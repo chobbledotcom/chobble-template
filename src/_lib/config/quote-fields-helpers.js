@@ -13,24 +13,28 @@ export function buildSections(sections) {
   }));
 }
 
-// Build array of step names for the progress indicator
-export function buildStepNames(data, sections) {
-  return [
+// Build array of step objects for the progress indicator
+export function buildSteps(data, sections) {
+  const names = [
     data.quoteStepName || "Your Items",
     ...sections.map((s) => s.title),
     data.recapTitle || "Review",
   ];
+  return names.map((name, index) => ({
+    name,
+    number: index + 1,
+  }));
 }
 
 // Process the raw JSON into a structured format
 export function processQuoteFields(data) {
   const sections = buildSections(data.sections);
-  const stepNames = buildStepNames(data, sections);
+  const steps = buildSteps(data, sections);
 
   return {
     sections,
     totalSteps: sections.length + 1,
-    stepNames,
+    steps,
     recapTitle: data.recapTitle,
     submitButtonText: data.submitButtonText,
   };
