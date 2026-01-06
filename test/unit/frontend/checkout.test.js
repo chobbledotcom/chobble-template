@@ -19,7 +19,7 @@ import {
   updateCartIcon,
   updateItemQuantity,
 } from "#public/utils/cart-utils.js";
-import { fs, path, rootDir } from "#test/test-utils.js";
+import { expectObjectProps, fs, path, rootDir } from "#test/test-utils.js";
 
 // ============================================
 // Template Rendering
@@ -1041,9 +1041,11 @@ describe("checkout", () => {
     const select = doc.querySelector(".product-options-select");
     const firstOption = select.options[0];
 
-    expect(firstOption.disabled).toBe(true);
-    expect(firstOption.value).toBe("");
-    expect(firstOption.selected).toBe(true);
+    expectObjectProps({
+      disabled: true,
+      value: "",
+      selected: true,
+    })(firstOption);
   });
 
   test("Select options have index values and button has consolidated data", async () => {

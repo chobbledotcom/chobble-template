@@ -4,7 +4,10 @@ import {
   configurePdf,
   createMenuPdfTemplate,
 } from "#eleventy/pdf.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectObjectProps,
+} from "#test/test-utils.js";
 
 // Helper to create mock menu
 const createMockMenu = (slug, title, subtitle = null) => ({
@@ -59,8 +62,10 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.menuTitle).toBe("Lunch Menu");
-      expect(result.subtitle).toBe("Served 11am-3pm");
+      expectObjectProps({
+        menuTitle: "Lunch Menu",
+        subtitle: "Served 11am-3pm",
+      })(result);
       expect(result.categories).toHaveLength(2);
       expect(result.categories[0].name).toBe("Appetizers");
     });
@@ -72,8 +77,10 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.menuTitle).toBe("Dinner Menu");
-      expect(result.subtitle).toBe("");
+      expectObjectProps({
+        menuTitle: "Dinner Menu",
+        subtitle: "",
+      })(result);
     });
 
     test("Only includes categories that belong to the menu", () => {
@@ -125,10 +132,11 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      const item = result.categories[0].items[0];
-      expect(item.name).toBe("Spring Rolls");
-      expect(item.price).toBe("$8.99");
-      expect(item.description).toBe("Crispy and delicious");
+      expectObjectProps({
+        name: "Spring Rolls",
+        price: "$8.99",
+        description: "Crispy and delicious",
+      })(result.categories[0].items[0]);
     });
 
     test("Dietary symbols are joined correctly", () => {
@@ -173,8 +181,10 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.hasDietaryKeys).toBe(false);
-      expect(result.dietaryKeyString).toBe("");
+      expectObjectProps({
+        hasDietaryKeys: false,
+        dietaryKeyString: "",
+      })(result);
     });
 
     test("Same dietary key from multiple items appears only once", () => {
