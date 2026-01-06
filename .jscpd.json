@@ -1,22 +1,19 @@
 {
-	"threshold": 1.5,
+	"threshold": 0,
 	"reporters": ["console", "json"],
 	"output": ".jscpd-report",
 	"ignore": [
 		"**/node_modules/**",
 		"**/_site/**",
-		"**/src/assets/js/lib/**",
-		"**/*.min.js",
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
-			"**/scripts/**",
 		"**/.test-sites/**"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
 	"gitignore": true,
 	"exitCode": 1,
-	"minLines": 3,
+	"minLines": 1,
 	"minTokens": 50,
 	"path": ["src", "test", ".eleventy.js"]
 }
