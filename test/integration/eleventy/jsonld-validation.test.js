@@ -245,6 +245,13 @@ const PAGES_WITH_WEBSITE = [
   "/index.html",
 ];
 
+const PAGES_WITH_JSONLD_GRAPH = [
+  "/products/test-product/index.html",
+  "/news/test-post/index.html",
+  "/index.html",
+  "/contact/index.html",
+];
+
 // ============================================
 // Test Helpers
 // ============================================
@@ -309,41 +316,14 @@ describe("JSON-LD structured data validation", () => {
 
     // --- Basic JSON-LD Structure Tests ---
 
-    test("Product page contains valid JSON-LD structure", () => {
-      const html = site.getOutput("/products/test-product/index.html");
-      const jsonLd = extractJsonLd(html);
-
-      expect(jsonLd).not.toBeNull();
-      expect(hasValidContext(jsonLd)).toBe(true);
-      expect(jsonLd["@graph"]).toBeDefined();
-      expect(Array.isArray(jsonLd["@graph"])).toBe(true);
-    });
-
-    test("News post contains valid JSON-LD structure", () => {
-      const html = site.getOutput("/news/test-post/index.html");
-      const jsonLd = extractJsonLd(html);
-
-      expect(jsonLd).not.toBeNull();
-      expect(hasValidContext(jsonLd)).toBe(true);
-      expect(jsonLd["@graph"]).toBeDefined();
-    });
-
-    test("Home page contains valid JSON-LD structure", () => {
-      const html = site.getOutput("/index.html");
-      const jsonLd = extractJsonLd(html);
-
-      expect(jsonLd).not.toBeNull();
-      expect(hasValidContext(jsonLd)).toBe(true);
-      expect(jsonLd["@graph"]).toBeDefined();
-    });
-
-    test("Contact page contains valid JSON-LD structure", () => {
-      const html = site.getOutput("/contact/index.html");
-      const jsonLd = extractJsonLd(html);
-
-      expect(jsonLd).not.toBeNull();
-      expect(hasValidContext(jsonLd)).toBe(true);
-      expect(jsonLd["@graph"]).toBeDefined();
+    test("Pages contain valid JSON-LD structure", () => {
+      for (const pagePath of PAGES_WITH_JSONLD_GRAPH) {
+        const jsonLd = extractJsonLd(site.getOutput(pagePath));
+        expect(jsonLd).not.toBeNull();
+        expect(hasValidContext(jsonLd)).toBe(true);
+        expect(jsonLd["@graph"]).toBeDefined();
+        expect(Array.isArray(jsonLd["@graph"])).toBe(true);
+      }
     });
 
     // --- Organization Schema Tests ---
