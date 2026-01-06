@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
+import {
+  getTemplate,
+  populateItemFields,
+  populateQuantityControls,
+} from "#public/utils/template.js";
 
 // ============================================
 // Test Setup Helpers
@@ -15,31 +20,11 @@ const createTestEnv = (bodyHtml = "") => {
   const doc = window.document;
   doc.body.innerHTML = bodyHtml;
 
-  // Replicate production logic using isolated document
-  const getTemplate = (id) => doc.getElementById(id)?.content.cloneNode(true);
-
-  const populateItemFields = (template, name, price) => {
-    template.firstElementChild.dataset.name = name;
-    template.querySelector('[data-field="name"]').textContent = name;
-    template.querySelector('[data-field="price"]').textContent = price;
-  };
-
-  const populateQuantityControls = (template, item) => {
-    const name = item.item_name;
-    for (const el of template.querySelectorAll("[data-name]")) {
-      el.dataset.name = name;
-    }
-    const input = template.querySelector("input[type='number']");
-    input.value = item.quantity;
-    if (item.max_quantity) {
-      input.max = item.max_quantity;
-    }
-  };
-
   return {
     window,
     document: doc,
-    getTemplate,
+    // Partially apply doc to getTemplate for this environment
+    getTemplate: (id) => getTemplate(id, doc),
     populateItemFields,
     populateQuantityControls,
     cleanup: () => window.close(),
