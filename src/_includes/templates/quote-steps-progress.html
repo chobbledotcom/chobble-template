@@ -1,19 +1,8 @@
-{%- comment -%}
-Step progress indicator for the quote process.
-Parameters:
-  - completed_steps: Number of steps already completed (default: 0)
-                     Use 0 for /quote/ (step 1 active)
-                     Use 1 for /checkout/ (step 1 completed, step 2 active)
-{%- endcomment -%}
-
-{%- assign completed = completed_steps | default: 0 -%}
-{%- assign active_index = completed -%}
-
 <div class="quote-steps-progress">
   {%- for step in quoteFields.steps -%}
-    {%- if forloop.index0 < completed -%}
+    {%- if forloop.index0 < completed_steps -%}
       {%- assign step_class = "completed" -%}
-    {%- elsif forloop.index0 == active_index -%}
+    {%- elsif forloop.index0 == completed_steps -%}
       {%- assign step_class = "active" -%}
     {%- else -%}
       {%- assign step_class = "" -%}
