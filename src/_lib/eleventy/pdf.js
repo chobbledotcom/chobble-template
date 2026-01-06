@@ -11,18 +11,14 @@ import {
   sort,
   uniqueBy,
 } from "#utils/array-utils.js";
+import { createLazyLoader } from "#utils/lazy-loader.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 // Lazy-load json-to-pdf only when generating PDFs
-let pdfRenderer = null;
-const getPdfRenderer = async () => {
-  if (!pdfRenderer) {
-    const mod = await import("json-to-pdf");
-    pdfRenderer = mod.renderPdfTemplate;
-  }
-  return pdfRenderer;
-};
+const getPdfRenderer = createLazyLoader("json-to-pdf", {
+  property: "renderPdfTemplate",
+});
 
 const hasSymbolAndLabel = (key) => key.symbol && key.label;
 const formatDietaryKey = (k) => `(${k.symbol}) ${k.label}`;

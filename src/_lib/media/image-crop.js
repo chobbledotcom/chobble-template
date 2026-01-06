@@ -3,15 +3,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { createLazyLoader } from "#utils/lazy-loader.js";
 import { simplifyRatio } from "#utils/math-utils.js";
 import { memoize } from "#utils/memoize.js";
 
 // Lazy-load sharp (heavy dependency)
-let sharpModule = null;
-const getSharp = async () => {
-  if (!sharpModule) sharpModule = (await import("sharp")).default;
-  return sharpModule;
-};
+const getSharp = createLazyLoader("sharp", { property: "default" });
 
 const CROP_CACHE_DIR = ".image-cache";
 

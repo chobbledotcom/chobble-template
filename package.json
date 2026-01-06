@@ -39,7 +39,6 @@
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
-		"@11ty/eleventy-img": "^6.0.0",
 		"@11ty/eleventy-navigation": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^2.0.2",
 		"@botpoison/browser": "^0.1.30",
@@ -49,11 +48,8 @@
 		"@zachleat/heading-anchors": "^1.0.1",
 		"gray-matter": "^4.0.3",
 		"ical-generator": "^9.0.0",
-		"json-to-pdf": "^0.1.2",
 		"liquidjs": "^10.24.0",
-		"markdown-it": "^14.1.0",
-		"sass": "^1.86.3",
-		"sharp": "^0.34.5"
+		"markdown-it": "^14.1.0"
 	},
 	"trustedDependencies": [
 		"@parcel/watcher"

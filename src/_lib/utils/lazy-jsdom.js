@@ -1,14 +1,14 @@
 // Lazy-loaded happy-dom with JSDOM-compatible API
 // This module provides the same interface as jsdom but uses happy-dom
 
-let HappyDOMWrapper = null;
+import { createLazyLoader } from "#utils/lazy-loader.js";
 
-const loadJSDOM = async () => {
-  if (!HappyDOMWrapper) {
-    const { Window } = await import("happy-dom");
+const loadJSDOM = createLazyLoader("happy-dom", {
+  transform: (mod) => {
+    const { Window } = mod;
 
     // JSDOM-compatible wrapper for happy-dom
-    HappyDOMWrapper = class {
+    return class {
       constructor(html = "") {
         this.window = new Window();
         if (html) {
@@ -20,8 +20,7 @@ const loadJSDOM = async () => {
         return this.window.document.documentElement.outerHTML;
       }
     };
-  }
-  return HappyDOMWrapper;
-};
+  },
+});
 
 export { loadJSDOM };

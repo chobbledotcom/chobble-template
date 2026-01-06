@@ -1,13 +1,10 @@
 import path from "node:path";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import config from "#data/config.json" with { type: "json" };
+import { createLazyLoader } from "#utils/lazy-loader.js";
 
 // Lazy-load sass only when actually compiling SCSS
-let sass = null;
-const getSass = async () => {
-  if (!sass) sass = await import("sass");
-  return sass;
-};
+const getSass = createLazyLoader("sass");
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
