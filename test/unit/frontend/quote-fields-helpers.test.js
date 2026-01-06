@@ -55,6 +55,7 @@ describe("quote-fields-helpers", () => {
   describe("processQuoteFields", () => {
     test("processes complete quote fields data", () => {
       const data = {
+        quoteStepName: "Your Items",
         sections: [
           { title: "Event", fields: [{ name: "date", type: "date" }] },
           { title: "Contact", fields: [{ name: "name", type: "text" }] },
@@ -68,6 +69,12 @@ describe("quote-fields-helpers", () => {
       expect(result.sections[0].title).toBe("Event");
       expect(result.sections[1].title).toBe("Contact");
       expect(result.totalSteps).toBe(3); // 2 sections + recap
+      expect(result.steps).toEqual([
+        { name: "Your Items", number: 1 },
+        { name: "Event", number: 2 },
+        { name: "Contact", number: 3 },
+        { name: "Review", number: 4 },
+      ]);
       expect(result.recapTitle).toBe("Review");
       expect(result.submitButtonText).toBe("Send");
     });
@@ -106,6 +113,13 @@ describe("quote-fields-helpers", () => {
     const quoteFields = quoteFieldsModule.default();
     expect(Array.isArray(quoteFields.sections)).toBe(true);
     expect(typeof quoteFields.totalSteps).toBe("number");
+    expect(Array.isArray(quoteFields.steps)).toBe(true);
+    expect(quoteFields.steps.length).toBe(quoteFields.totalSteps + 1);
+    // Each step should have name and number
+    for (const step of quoteFields.steps) {
+      expect(typeof step.name).toBe("string");
+      expect(typeof step.number).toBe("number");
+    }
     expect(typeof quoteFields.recapTitle).toBe("string");
     expect(typeof quoteFields.submitButtonText).toBe("string");
     // All section fields should have template property

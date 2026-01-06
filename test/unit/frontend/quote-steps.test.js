@@ -17,7 +17,6 @@ import {
   populateRecap,
   setFieldError,
   updateButtons,
-  updateIndicators,
   validateField,
   validateRadioGroup,
   validateStep,
@@ -361,35 +360,6 @@ describe("quote-steps", () => {
   });
 
   // ----------------------------------------
-  // updateIndicators Tests (with DOM)
-  // ----------------------------------------
-  test("updateIndicators sets active class on current step", () => {
-    document.body.innerHTML = `
-      <div class="indicator"></div>
-      <div class="indicator"></div>
-      <div class="indicator"></div>
-    `;
-    const indicators = document.querySelectorAll(".indicator");
-    updateIndicators(indicators, 1);
-    expect(indicators[0].classList.contains("active")).toBe(false);
-    expect(indicators[1].classList.contains("active")).toBe(true);
-    expect(indicators[2].classList.contains("active")).toBe(false);
-  });
-
-  test("updateIndicators sets completed class on previous steps", () => {
-    document.body.innerHTML = `
-      <div class="indicator"></div>
-      <div class="indicator"></div>
-      <div class="indicator"></div>
-    `;
-    const indicators = document.querySelectorAll(".indicator");
-    updateIndicators(indicators, 2);
-    expect(indicators[0].classList.contains("completed")).toBe(true);
-    expect(indicators[1].classList.contains("completed")).toBe(true);
-    expect(indicators[2].classList.contains("completed")).toBe(false);
-  });
-
-  // ----------------------------------------
   // getFieldDisplayValue Tests
   // ----------------------------------------
   test("getFieldDisplayValue returns value for text input", () => {
@@ -637,6 +607,33 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // initQuoteSteps Tests (with DOM)
   // ----------------------------------------
+  const stepsData = JSON.stringify([
+    { name: "Items", number: 1 },
+    { name: "Event", number: 2 },
+    { name: "Contact", number: 3 },
+    { name: "Review", number: 4 },
+  ]);
+
+  function createQuoteStepsHtml(options = {}) {
+    const currentStep = options.currentStep ?? 0;
+    const inputValue = options.inputValue ?? "filled";
+    const inputRequired = options.inputRequired !== false;
+    return `
+      <div class="quote-steps" data-current-step="${currentStep}">
+        <div class="quote-steps-progress" data-completed-steps="1"></div>
+        <script type="application/json" class="quote-steps-data">${stepsData}</script>
+        <div class="quote-step${currentStep === 0 ? " active" : ""}" data-step="0">
+          <input type="text" ${inputRequired ? "required" : ""} value="${inputValue}" />
+        </div>
+        <div class="quote-step${currentStep === 1 ? " active" : ""}" data-step="1">Step 2</div>
+        <div class="quote-step${currentStep === 2 ? " active" : ""}" data-step="2">Step 3</div>
+        <button class="quote-step-prev">Back</button>
+        <button class="quote-step-next">Next</button>
+        <button class="quote-step-submit">Submit</button>
+      </div>
+    `;
+  }
+
   test("initQuoteSteps does nothing if no quote-steps container", () => {
     document.body.innerHTML = "<div>No steps here</div>";
     expect(() => initQuoteSteps()).not.toThrow();
@@ -648,67 +645,30 @@ describe("quote-steps", () => {
   });
 
   test("initQuoteSteps sets up navigation on valid container", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-step active" data-step="0">Step 1</div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml();
     initQuoteSteps();
     const prevBtn = document.querySelector(".quote-step-prev");
     expect(prevBtn.style.display).toBe("none");
   });
 
   test("initQuoteSteps shows submit on last step", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="1">
-        <div class="quote-step" data-step="0">Step 1</div>
-        <div class="quote-step active" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml({ currentStep: 2 });
     initQuoteSteps();
     const submitBtn = document.querySelector(".quote-step-submit");
     expect(submitBtn.style.display).toBe("");
   });
 
   test("initQuoteSteps validates before advancing to next step", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-step active" data-step="0">
-          <input type="text" required value="" />
-        </div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml({ inputValue: "" });
     initQuoteSteps();
     const nextBtn = document.querySelector(".quote-step-next");
     nextBtn.click();
     const container = document.querySelector(".quote-steps");
-    // Should stay on step 0 because validation fails
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps advances when validation passes", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-step active" data-step="0">
-          <input type="text" required value="filled" />
-        </div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml();
     initQuoteSteps();
     const nextBtn = document.querySelector(".quote-step-next");
     nextBtn.click();
@@ -717,17 +677,7 @@ describe("quote-steps", () => {
   });
 
   test("initQuoteSteps scrolls container into view after step change", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-step active" data-step="0">
-          <input type="text" required value="filled" />
-        </div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml();
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = mock(() => {});
     initQuoteSteps();
@@ -737,78 +687,38 @@ describe("quote-steps", () => {
   });
 
   test("initQuoteSteps sets up indicator click handlers", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-steps-indicator"></div>
-        <div class="quote-steps-indicator"></div>
-        <div class="quote-steps-indicator"></div>
-        <div class="quote-step active" data-step="0">
-          <input type="text" required value="filled" />
-        </div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <div class="quote-step" data-step="2">Step 3</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml();
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = () => {};
     initQuoteSteps();
     const nextBtn = document.querySelector(".quote-step-next");
-    // Advance to step 2
     nextBtn.click();
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("2");
-    // Click first indicator to go back to step 0
     const indicators = document.querySelectorAll(".quote-steps-indicator");
-    indicators[0].click();
+    indicators[1].click();
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps indicator click only navigates to completed steps", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-steps-indicator"></div>
-        <div class="quote-steps-indicator"></div>
-        <div class="quote-step active" data-step="0">Step 1</div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml();
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = () => {};
     initQuoteSteps();
-    // Click second indicator (should not advance since it's not completed)
     const indicators = document.querySelectorAll(".quote-steps-indicator");
-    indicators[1].click();
-    // Should stay on step 0 since step 1 is not a previous step
+    indicators[2].click();
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps prev button navigates back", () => {
-    document.body.innerHTML = `
-      <div class="quote-steps" data-current-step="0">
-        <div class="quote-step active" data-step="0">
-          <input type="text" required value="filled" />
-        </div>
-        <div class="quote-step" data-step="1">Step 2</div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
+    document.body.innerHTML = createQuoteStepsHtml();
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = () => {};
     initQuoteSteps();
     const nextBtn = document.querySelector(".quote-step-next");
     const prevBtn = document.querySelector(".quote-step-prev");
-    // Advance to step 1
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("1");
-    // Go back to step 0
     prevBtn.click();
     expect(container.dataset.currentStep).toBe("0");
   });
