@@ -135,10 +135,7 @@ const isMainCI = () => process.env.CI && process.env.GITHUB_REF_NAME === "main";
 const ratchetExceptions = (exceptions, uncovered, verbose) => {
   if (!isMainCI()) return;
 
-  const ratcheted = {
-    _comment: exceptions._comment,
-    ...diffByFile(intersection)(exceptions, uncovered),
-  };
+  const ratcheted = diffByFile(intersection)(exceptions, uncovered);
 
   if (JSON.stringify(ratcheted) !== JSON.stringify(exceptions)) {
     writeFileSync(
