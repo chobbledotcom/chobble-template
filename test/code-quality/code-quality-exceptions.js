@@ -141,21 +141,42 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "ecommerce-backend/server.test.js",
 ]);
 
-  // Test utilities - imperative accumulation patterns for performance/clarity
-  "test/test-utils.js:28", // ALWAYS_SKIP set (static config)
-  "test/test-utils.js:118", // results accumulator (getFiles)
-  "test/test-utils.js:171", // logs accumulator (console capture)
-  "test/test-utils.js:180", // logs accumulator (console capture async)
-  "test/test-utils.js:482", // results set (createExtractor)
-  "test/build-profiling.js:60", // times accumulator (performance tracking)
-  "test/build-profiling.js:215", // runs accumulator (benchmark results)
-  "test/precommit.js:22", // results accumulator (script results)
-  "test/precommit.js:47", // errors accumulator (validation errors)
-  "test/precommit.js:100", // passedSteps accumulator (status tracking)
-  "test/precommit.js:101", // failedSteps accumulator (status tracking)
-  "test/code-scanner.js:310", // stale entries accumulator (validation)
-  "test/run-coverage.js:36", // result object accumulator (diffByFile helper)
-  "test/run-coverage.js:136", // removable entries accumulator (coverage tracking)
+// ============================================
+// Let declarations exceptions
+// ============================================
+
+// Files that use 'let' for mutable variables.
+// Prefer functional patterns (map/filter/reduce) or const with immutable updates.
+// Only 'let moduleName = null;' is allowed for lazy loading without exceptions.
+const ALLOWED_LET = new Set([
+  // Test files with mutable state tracking
+  "test/build/pdf-integration.test.js",
+  "test/eleventy/jsonld-validation.test.js",
+  "test/eleventy/feed.test.js",
+  "test/frontend/checkout.test.js",
+  "test/frontend/quote-steps.test.js",
+  "test/frontend/gallery.test.js",
+  "test/frontend/hire-calculator.test.js",
+  "test/frontend/scroll-fade.test.js",
+  "test/frontend/cart.test.js",
+  "test/frontend/turbo.test.js",
+  "test/frontend/slider.test.js",
+  "test/frontend/search.test.js",
+  "test/frontend/quote-checkout.test.js",
+  "test/code-quality/code-scanner.test.js",
+  "test/code-quality/single-use-functions.test.js",
+  "test/code-quality/html-in-js.test.js",
+  "test/code-quality/commented-code.test.js",
+  "test/code-quality/template-selectors.test.js",
+  "test/code-quality/let-usage.test.js", // Test file has let in test cases
+  "test/code-quality/unused-classes.test.js",
+  "test/test-site-factory.js",
+  "test/test-site-factory.test.js",
+  "test/precommit.js",
+  "test/run-coverage.js",
+  "test/test-utils.js",
+  "test/code-scanner.js",
+  "ecommerce-backend/server.test.js",
 ]);
 
 // ============================================
