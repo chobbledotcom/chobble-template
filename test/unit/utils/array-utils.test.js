@@ -10,6 +10,7 @@ import {
   notMemberOf,
   pick,
   pipe,
+  printTruncatedList,
   sort,
 } from "#utils/array-utils.js";
 
@@ -308,5 +309,86 @@ describe("array-utils", () => {
 
     expect(getActiveNames(team1)).toEqual(["A"]);
     expect(getActiveNames(team2)).toEqual(["D"]);
+  });
+
+  // ============================================
+  // printTruncatedList Tests
+  // ============================================
+
+  // Helper to capture console.log output
+  const captureConsole = (fn) => {
+    const logs = [];
+    const originalLog = console.log;
+    console.log = (...args) => logs.push(args.join(" "));
+    fn();
+    console.log = originalLog;
+    return logs;
+  };
+
+  test("printTruncatedList prints all items when under maxItems", () => {
+    const items = ["error 1", "error 2", "error 3"];
+    const logs = captureConsole(() => printTruncatedList()(items));
+
+    expect(logs).toEqual(["  error 1", "  error 2", "  error 3"]);
+  });
+
+  test("printTruncatedList truncates at 10 items by default", () => {
+    const items = Array.from({ length: 15 }, (_, i) => `item ${i + 1}`);
+    const logs = captureConsole(() => printTruncatedList()(items));
+
+    expect(logs.length).toBe(11); // 10 items + "more" message
+    expect(logs[0]).toBe("  item 1");
+    expect(logs[9]).toBe("  item 10");
+    expect(logs[10]).toBe("  ... and 5 more (use --verbose to see all)");
+  });
+
+  test("printTruncatedList respects custom maxItems", () => {
+    const items = ["a", "b", "c", "d", "e"];
+    const logs = captureConsole(() =>
+      printTruncatedList({ maxItems: 3 })(items),
+    );
+
+    expect(logs.length).toBe(4);
+    expect(logs[3]).toBe("  ... and 2 more (use --verbose to see all)");
+  });
+
+  test("printTruncatedList respects custom prefix", () => {
+    const items = ["item"];
+    const logs = captureConsole(() =>
+      printTruncatedList({ prefix: ">>> " })(items),
+    );
+
+    expect(logs[0]).toBe(">>> item");
+  });
+
+  test("printTruncatedList respects custom moreLabel", () => {
+    const items = Array.from({ length: 12 }, (_, i) => `err ${i}`);
+    const logs = captureConsole(() =>
+      printTruncatedList({ moreLabel: "errors" })(items),
+    );
+
+    expect(logs[10]).toBe("  ... and 2 errors (use --verbose to see all)");
+  });
+
+  test("printTruncatedList respects custom suffix", () => {
+    const items = Array.from({ length: 12 }, (_, i) => `item ${i}`);
+    const logs = captureConsole(() =>
+      printTruncatedList({ suffix: "(run with -v)" })(items),
+    );
+
+    expect(logs[10]).toBe("  ... and 2 more (run with -v)");
+  });
+
+  test("printTruncatedList handles empty array", () => {
+    const logs = captureConsole(() => printTruncatedList()([]));
+    expect(logs).toEqual([]);
+  });
+
+  test("printTruncatedList handles exactly maxItems", () => {
+    const items = Array.from({ length: 10 }, (_, i) => `item ${i + 1}`);
+    const logs = captureConsole(() => printTruncatedList()(items));
+
+    expect(logs.length).toBe(10); // No "more" message
+    expect(logs[9]).toBe("  item 10");
   });
 });
