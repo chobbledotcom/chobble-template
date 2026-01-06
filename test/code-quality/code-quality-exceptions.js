@@ -129,7 +129,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/code-quality/test-hygiene.test.js",
   "test/code-quality/test-quality.test.js",
   "test/code-quality/todo-fixme-comments.test.js",
-  "test/code-quality/try-catch-usage.test.js",
   "test/code-quality/unused-classes.test.js",
   "test/collections/categories.test.js",
   "test/collections/missing-folders-lib.test.js",
@@ -285,7 +284,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/code-quality/method-aliasing.test.js:46", // match
   "test/code-quality/method-aliasing.test.js:71", // alias
-  "test/code-quality/try-catch-usage.test.js:29", // nextLine (find() can return undefined)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
   "test/run-coverage.js:86", // file (iteration over files)
@@ -342,7 +340,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/products/products.11tydata.js",
   "test/code-quality/array-push.test.js",
   "test/code-quality/method-aliasing.test.js",
-  "test/code-quality/try-catch-usage.test.js",
   "test/code-quality/unused-classes.test.js",
   "test/collections/products.test.js",
   "test/eleventy/recurring-events.test.js",

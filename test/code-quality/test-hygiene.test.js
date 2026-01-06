@@ -91,7 +91,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "relativePath",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
-  "hasCatchKeyword",
   "findNextNonEmptyLine",
   "nextLineHasCatch",
   "catchFollowsClosingBrace",

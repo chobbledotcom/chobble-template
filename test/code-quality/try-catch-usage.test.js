@@ -7,18 +7,14 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
-
-/**
- * Check if a string contains a catch keyword after whitespace
- */
-const hasCatchKeyword = (text) => /\s*catch\b/.test(text);
+import { groupBy } from "#utils/grouping.js";
 
 /**
  * Find the first non-empty line starting from index
  */
 const findNextNonEmptyLine = (lines, startIndex) => {
   const line = lines.slice(startIndex).find((l) => l.trim() !== "");
-  return line ? line.trim() : null;
+  return line?.trim() ?? "";
 };
 
 /**
@@ -26,7 +22,7 @@ const findNextNonEmptyLine = (lines, startIndex) => {
  */
 const nextLineHasCatch = (lines, lineIndex) => {
   const nextLine = findNextNonEmptyLine(lines, lineIndex + 1);
-  if (!nextLine) return false;
+  if (nextLine === "") return false;
   return /^catch\b/.test(nextLine) || /^\}\s*catch\b/.test(nextLine);
 };
 
@@ -35,7 +31,7 @@ const nextLineHasCatch = (lines, lineIndex) => {
  */
 const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
   const afterBrace = searchLine.slice(charIndex + 1);
-  if (hasCatchKeyword(afterBrace)) return true;
+  if (/\s*catch\b/.test(afterBrace)) return true;
   return nextLineHasCatch(lines, lineIndex);
 };
 
@@ -210,11 +206,10 @@ try {
     console.log("  These should be removed over time:\n");
 
     // Group by file for cleaner output
-    const byFile = {};
-    for (const a of allowed) {
-      if (!byFile[a.file]) byFile[a.file] = [];
-      byFile[a.file].push(a.line);
-    }
+    const byFileMap = groupBy(allowed, (a) => a.file);
+    const byFile = Object.fromEntries(
+      [...byFileMap].map(([file, items]) => [file, items.map((a) => a.line)]),
+    );
 
     for (const [file, lines] of Object.entries(byFile)) {
       console.log(`     ${file}: lines ${lines.join(", ")}`);
