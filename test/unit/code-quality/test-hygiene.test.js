@@ -99,7 +99,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "processLineChars",
   "tryBlockHasCatch",
   // commented-code.test.js - analysis helpers
-  "isInsideTemplateLiteral",
+  "buildTemplateLiteralState",
   "isDocumentationComment",
   "findCommentedCode",
   // commented-code.test.js - test fixture strings
