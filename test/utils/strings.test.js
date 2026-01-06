@@ -6,21 +6,6 @@ import { createExtractor, srcDir } from "#test/test-utils.js";
 // File extensions to ignore (from imports like "./strings.js")
 const IGNORE_KEYS = new Set(["js", "json", "test", "mjs"]);
 
-// Source files to scan for strings.X usage
-const SOURCE_FILES = () => [
-  ...new Bun.Glob("**/*.{html,md,js,mjs,liquid,njk}").scanSync({
-    cwd: srcDir,
-    absolute: true,
-  }),
-];
-
-/** Extract all strings.X keys from files */
-const extractStringsKeys = createExtractor(/strings\.([a-z_]+)/g);
-
-/** Find all strings.X usages, filtering out file extension keys */
-const findStringsUsage = () =>
-  [...extractStringsKeys(SOURCE_FILES())].filter((k) => !IGNORE_KEYS.has(k));
-
 describe("strings", () => {
   test("Merged strings includes all keys from strings-base.json", () => {
     for (const key of Object.keys(baseStrings)) {
@@ -35,6 +20,18 @@ describe("strings", () => {
   });
 
   test("Every strings.X usage in codebase has a default in strings-base.json", () => {
+    const SOURCE_FILES = () => [
+      ...new Bun.Glob("**/*.{html,md,js,mjs,liquid,njk}").scanSync({
+        cwd: srcDir,
+        absolute: true,
+      }),
+    ];
+
+    const extractStringsKeys = createExtractor(/strings\.([a-z_]+)/g);
+    const findStringsUsage = () =>
+      [...extractStringsKeys(SOURCE_FILES())].filter(
+        (k) => !IGNORE_KEYS.has(k),
+      );
     const usedKeys = findStringsUsage();
     const missingKeys = usedKeys.filter((key) => !(key in baseStrings));
 

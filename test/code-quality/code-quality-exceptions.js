@@ -160,8 +160,6 @@ const ALLOWED_LET = new Set([
   "test/build/pdf-integration.test.js",
   "test/eleventy/jsonld-validation.test.js",
   "test/eleventy/feed.test.js",
-  "test/frontend/checkout.test.js",
-  "test/frontend/quote-steps.test.js",
   "test/frontend/gallery.test.js",
   "test/frontend/hire-calculator.test.js",
   "test/frontend/scroll-fade.test.js",
@@ -216,8 +214,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/search.js:16", // keywordsDatalist
   "src/assets/js/availability-calendar.js:117", // content
   "src/assets/js/availability-calendar.js:138", // dialog
-  "src/assets/js/theme-switcher.js:87", // button
-  "src/assets/js/theme-editor.js:293", // target
+  "src/assets/js/theme-switcher.js:68", // button
+  "src/assets/js/theme-editor.js:284", // target
   "src/assets/js/theme-editor.js:384", // borderOutput
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
@@ -240,21 +238,13 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/build/theme-compiler.js:33", // rootMatch
   "src/assets/js/autosizes.js:40", // chromeMatch
 
-  // === Lazy module loading (initially null until loaded) ===
-  "src/_lib/build/scss.js:8", // sass
-  "src/_lib/media/image-crop.js:12", // sharpModule
-  "src/_lib/media/image-lqip.js:11", // eleventyImgModule
-  "src/_lib/eleventy/pdf.js:20", // pdfRenderer
-  "src/_lib/utils/lazy-jsdom.js:7", // HappyDOMWrapper
-  "src/_lib/utils/dom-builder.js:7", // sharedDom
-
   // === External/parsed data (localStorage, API responses, etc) ===
   "src/assets/js/cart-utils.js:8", // cart (from localStorage)
   "src/assets/js/cart-utils.js:66", // item
   "src/assets/js/theme-editor-lib.js:32", // cssText
-  "src/assets/js/theme-editor-lib.js:66", // themeContent
-  "src/assets/js/theme-editor-lib.js:89", // borderValue
-  "src/assets/js/theme-editor-lib.js:164", // value
+  "src/assets/js/theme-editor-lib.js:48", // themeContent
+  "src/assets/js/theme-editor-lib.js:85", // borderValue
+  "src/assets/js/theme-editor-lib.js:157", // value
   "src/assets/js/hire-calculator.js:22", // priceStr
   "src/assets/js/hire-calculator.js:40", // hirePrices
   "src/_lib/filters/spec-filters.js:11", // specName
@@ -262,8 +252,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/assets/js/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:251", // pdfDoc
-  "src/_lib/eleventy/pdf.js:276", // state
+  "src/_lib/eleventy/pdf.js:246", // pdfDoc
+  "src/_lib/eleventy/pdf.js:271", // state
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
@@ -279,11 +269,11 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/eleventy/area-list.js:19", // url
 
   // === Test infrastructure ===
-  "test/code-quality/method-aliasing.test.js:46", // match
-  "test/code-quality/method-aliasing.test.js:71", // alias
+  "test/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
+  "test/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
-  "test/run-coverage.js:86", // file (iteration over files)
+  "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:53", // trimmed (line processing)
   "test/precommit.js:105", // result (skip if step wasn't run)
   "test/precommit.js:147", // allPassed (check if all steps passed)
@@ -311,6 +301,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/media/image.js",
   "src/_lib/media/unused-images.js",
   "src/_lib/utils/dom-builder.js",
+  "src/_lib/utils/lazy-loader.js",
   "src/_lib/utils/schema-helper.js",
   "src/assets/js/availability-calendar.js",
   "src/assets/js/cart-utils.js",
@@ -327,19 +318,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/stripe-checkout.js",
   "src/assets/js/tabs.js",
   "src/assets/js/theme-editor-lib.js",
-  "src/assets/js/theme-editor.js",
-  "src/assets/js/theme-switcher.js",
   "src/products/products.11tydata.js",
-  "test/code-quality/array-push.test.js",
-  "test/code-quality/method-aliasing.test.js",
-  "test/code-quality/unused-classes.test.js",
-  "test/collections/products.test.js",
-  "test/eleventy/recurring-events.test.js",
-  "test/utils/strings.test.js",
-  "test/test-site-factory.js",
-  "test/build-profiling.js",
-  "test/test-utils.js",
-  "test/run-coverage.js",
 ]);
 
 // ============================================
@@ -355,8 +334,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:322",
-  "test/test-site-factory.js:330",
+  "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
   "test/code-quality/template-selectors.test.js:55",

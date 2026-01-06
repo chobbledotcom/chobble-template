@@ -28,15 +28,6 @@ const event = (title, recurring, { url, location } = {}) => ({
 });
 
 /**
- * Create a flat event (data at top level, not nested)
- */
-const flatEvent = (title, recurring, url) => ({
-  title,
-  recurring_date: recurring,
-  url,
-});
-
-/**
  * Create events from an array of [title, recurring, options] tuples
  * Curried for use with pipe
  */
@@ -45,17 +36,12 @@ const events = map(([title, recurring, options]) =>
 );
 
 /**
- * Parse HTML and return document for DOM queries
- */
-const parseDoc = (html) => {
-  document.body.innerHTML = html;
-  return document;
-};
-
-/**
  * Render events and return parsed document
  */
-const renderAndParse = pipe(renderRecurringEvents, parseDoc);
+const renderAndParse = pipe(renderRecurringEvents, (html) => {
+  document.body.innerHTML = html;
+  return document;
+});
 
 describe("recurring-events", () => {
   // renderRecurringEvents - empty/null inputs
@@ -132,6 +118,11 @@ describe("recurring-events", () => {
 
   // renderRecurringEvents - data structure variations
   test("Handles flat event objects (data at top level)", () => {
+    const flatEvent = (title, recurring, url) => ({
+      title,
+      recurring_date: recurring,
+      url,
+    });
     const doc = renderAndParse([flatEvent("Flat Event", "Weekly", "/flat/")]);
 
     const link = doc.querySelector("a");

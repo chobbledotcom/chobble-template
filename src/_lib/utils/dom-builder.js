@@ -1,15 +1,13 @@
-import { loadJSDOM } from "#utils/lazy-jsdom.js";
+import { loadDOM } from "#utils/lazy-dom.js";
+import { createLazyLoader } from "#utils/lazy-loader.js";
 
-// Shared JSDOM instance for building elements
-let sharedDom = null;
-
-const getSharedDocument = async () => {
-  if (!sharedDom) {
-    const JSDOM = await loadJSDOM();
-    sharedDom = new JSDOM("");
-  }
-  return sharedDom.window.document;
-};
+// Shared DOM instance for building elements
+const getSharedDocument = createLazyLoader(null, {
+  init: async () => {
+    const dom = await loadDOM("");
+    return dom.window.document;
+  },
+});
 
 // Apply attributes to an element
 const applyAttributes = (element, attributes) => {

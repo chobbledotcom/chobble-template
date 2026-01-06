@@ -3,15 +3,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { createLazyLoader } from "#utils/lazy-loader.js";
 import { memoize } from "#utils/memoize.js";
 
-// Lazy-load eleventy-img (heavy dependency)
-let eleventyImgModule = null;
-const getEleventyImg = async () => {
-  if (!eleventyImgModule)
-    eleventyImgModule = await import("@11ty/eleventy-img");
-  return eleventyImgModule;
-};
+const getEleventyImg = createLazyLoader("@11ty/eleventy-img");
 
 // Shared filename format for eleventy-img output
 const filenameFormat = (_id, src, width, format) => {
