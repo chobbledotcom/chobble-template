@@ -7,24 +7,24 @@ import Botpoison from "@botpoison/browser";
 window.Botpoison = Botpoison;
 
 // UI features
-import "#assets/ui/autosizes.js";
-import "#assets/ui/gallery.js";
-import "#assets/ui/scroll-fade.js";
-import "#assets/ui/search.js";
-import "#assets/ui/slider.js";
-import "#assets/ui/tabs.js";
-import "#assets/ui/availability-calendar.js";
-import "#assets/ui/shuffle-properties.js";
+import "#public/ui/autosizes.js";
+import "#public/ui/gallery.js";
+import "#public/ui/scroll-fade.js";
+import "#public/ui/search.js";
+import "#public/ui/slider.js";
+import "#public/ui/tabs.js";
+import "#public/ui/availability-calendar.js";
+import "#public/ui/shuffle-properties.js";
 
 // Theme
-import "#assets/theme/theme-editor.js";
-import "#assets/theme/theme-switcher.js";
+import "#public/theme/theme-editor.js";
+import "#public/theme/theme-switcher.js";
 
 // Cart & Quote
-import "#assets/cart/cart.js";
-import "#assets/cart/quote.js";
-import "#assets/cart/quote-checkout.js";
-import "#assets/cart/quote-complete.js";
-import "#assets/cart/quote-steps.js";
-import "#assets/cart/hire-calculator.js";
-import "#assets/cart/stripe-checkout.js";
+import "#public/cart/cart.js";
+import "#public/cart/quote.js";
+import "#public/cart/quote-checkout.js";
+import "#public/cart/quote-complete.js";
+import "#public/cart/quote-steps.js";
+import "#public/cart/hire-calculator.js";
+import "#public/cart/stripe-checkout.js";

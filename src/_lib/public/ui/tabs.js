@@ -1,4 +1,4 @@
-import { onReady } from "#assets/utils/on-ready.js";
+import { onReady } from "#public/utils/on-ready.js";
 
 const processed = new WeakSet();
 

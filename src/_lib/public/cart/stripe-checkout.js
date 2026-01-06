@@ -1,7 +1,7 @@
 // Stripe Checkout Page
 // Handles the redirect flow: checks cart and redirects to Stripe or homepage
 
-import { getCart } from "#assets/utils/cart-utils.js";
+import { getCart } from "#public/utils/cart-utils.js";
 
 function showError(message) {
   const statusMessage = document.getElementById("status-message");

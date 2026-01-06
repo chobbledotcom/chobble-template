@@ -8,14 +8,14 @@ import {
   getCart,
   updateCartIcon,
   updateItemQuantity,
-} from "#assets/utils/cart-utils.js";
-import { onReady } from "#assets/utils/on-ready.js";
-import { IDS } from "#assets/utils/selectors.js";
+} from "#public/utils/cart-utils.js";
+import { onReady } from "#public/utils/on-ready.js";
+import { IDS } from "#public/utils/selectors.js";
 import {
   getTemplate,
   populateItemFields,
   populateQuantityControls,
-} from "#assets/utils/template.js";
+} from "#public/utils/template.js";
 
 function handleQuantityUpdate(itemName, quantity) {
   updateItemQuantity(itemName, quantity);

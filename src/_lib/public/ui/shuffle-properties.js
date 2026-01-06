@@ -1,7 +1,7 @@
 // Shuffle properties on property listing pages using a seeded random
 // The seed is stored in localStorage and expires after 24 hours
 
-import { onReady } from "#assets/utils/on-ready.js";
+import { onReady } from "#public/utils/on-ready.js";
 
 const STORAGE_KEY = "property_order_seed";
 const EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours

@@ -1,11 +1,11 @@
 // Availability Calendar
 // Displays a 12-month calendar with unavailable dates greyed out
 
-import { createElement } from "#assets/utils/dom.js";
-import { fetchJson } from "#assets/utils/http.js";
-import { onReady } from "#assets/utils/on-ready.js";
-import { IDS } from "#assets/utils/selectors.js";
-import { getTemplate } from "#assets/utils/template.js";
+import { createElement } from "#public/utils/dom.js";
+import { fetchJson } from "#public/utils/http.js";
+import { onReady } from "#public/utils/on-ready.js";
+import { IDS } from "#public/utils/selectors.js";
+import { getTemplate } from "#public/utils/template.js";
 import { memberOf } from "#utils/array-utils.js";
 
 const MONTHS = [

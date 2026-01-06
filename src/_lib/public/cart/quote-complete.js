@@ -1,7 +1,7 @@
 // Quote complete page
 // Clears cart after successful quote submission
 
-import { STORAGE_KEY } from "#assets/utils/cart-utils.js";
+import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 
 // Only run on quote-complete page
 if (document.body.classList.contains("quote-complete")) {

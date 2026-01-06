@@ -1,7 +1,7 @@
 // Quote form multi-step navigation
 // Handles step transitions, validation, and recap population
 
-import { onReady } from "#assets/utils/on-ready.js";
+import { onReady } from "#public/utils/on-ready.js";
 import { filter, map, pipe, unique } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
