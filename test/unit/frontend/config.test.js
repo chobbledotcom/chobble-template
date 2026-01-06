@@ -20,27 +20,28 @@ import {
   createFrontmatter,
   createTempDir,
   createTempFile,
+  expectObjectProps,
 } from "#test/test-utils.js";
 
 describe("config", () => {
   // DEFAULTS constant tests
   test("DEFAULTS is an object with expected properties", () => {
     expect(typeof DEFAULTS).toBe("object");
-    expect(DEFAULTS.sticky_mobile_nav).toBe(true);
-    expect(DEFAULTS.horizontal_nav).toBe(true);
-    expect(DEFAULTS.homepage_news).toBe(true);
-    expect(DEFAULTS.homepage_products).toBe(true);
-    expect(DEFAULTS.externalLinksTargetBlank).toBe(false);
-    expect(DEFAULTS.contact_form_target).toBe(null);
-    expect(DEFAULTS.formspark_id).toBe(null);
-    expect(DEFAULTS.botpoison_public_key).toBe(null);
-    expect(DEFAULTS.template_repo_url).toBe(
-      "https://github.com/chobbledotcom/chobble-template",
-    );
-    expect(DEFAULTS.chobble_link).toBe(null);
-    expect(DEFAULTS.map_embed_src).toBe(null);
-    expect(DEFAULTS.cart_mode).toBe(null);
-    expect(DEFAULTS.has_products_filter).toBe(false);
+    expectObjectProps({
+      sticky_mobile_nav: true,
+      horizontal_nav: true,
+      homepage_news: true,
+      homepage_products: true,
+      externalLinksTargetBlank: false,
+      contact_form_target: null,
+      formspark_id: null,
+      botpoison_public_key: null,
+      template_repo_url: "https://github.com/chobbledotcom/chobble-template",
+      chobble_link: null,
+      map_embed_src: null,
+      cart_mode: null,
+      has_products_filter: false,
+    })(DEFAULTS);
   });
 
   // VALID_CART_MODES constant tests
@@ -51,10 +52,12 @@ describe("config", () => {
 
   // DEFAULT_PRODUCT_DATA constant tests
   test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {
-    expect(DEFAULT_PRODUCT_DATA.item_widths).toBe("240,480,640");
-    expect(DEFAULT_PRODUCT_DATA.gallery_thumb_widths).toBe("240,480");
-    expect(DEFAULT_PRODUCT_DATA.gallery_image_widths).toBe("900,1300,1800");
-    expect(DEFAULT_PRODUCT_DATA.header_image_widths).toBe("640,900,1300");
+    expectObjectProps({
+      item_widths: "240,480,640",
+      gallery_thumb_widths: "240,480",
+      gallery_image_widths: "900,1300,1800",
+      header_image_widths: "640,900,1300",
+    })(DEFAULT_PRODUCT_DATA);
   });
 
   // getProducts function tests

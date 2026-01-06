@@ -33,8 +33,13 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createSchemaData",
   // quote-steps.test.js - test fixture factory
   "createQuoteStepsHtml",
+  // theme-editor.test.js - functional test helpers
+  "roundTripTheme",
+  "testScopedEntry",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
+  // item-filters.test.js - preset config factory
+  "itemsConfig",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -129,8 +134,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "buildLiquidLookup",
   "expandLiquidVars",
   "loadTemplate",
-  // layout-aliases.test.js - test helper
+  // layout-aliases.test.js - test helpers
   "withTempLayouts",
+  "runLayoutAliases",
   // test-quality.test.js - analysis helpers
   "extractTestNames",
   "findVagueTestNames",

@@ -240,6 +240,30 @@ const expectResultTitles = (result, expectedTitles) => {
 };
 
 /**
+ * Assert that an object has expected property values.
+ * Curried for use with pipe: first call with expected props map.
+ *
+ * @param {Object} propMap - Map of property names to expected values
+ * @returns {Function} (obj) => obj (returns obj for chaining in pipe)
+ *
+ * @example
+ * expectObjectProps({ name: "foo", count: 42 })(myObj);
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   expectObjectProps({ item_widths: "240,480,640" }),
+ *   expectObjectProps({ gallery_thumb_widths: "240,480" })
+ * )(DEFAULT_PRODUCT_DATA);
+ */
+const expectObjectProps = (propMap) => (obj) => {
+  for (const [key, value] of Object.entries(propMap)) {
+    expect(obj[key]).toBe(value);
+  }
+  return obj;
+};
+
+/**
  * Assert that a result array has expected values for a given property getter.
  * The most generic form - accepts any getter function.
  * Curried: first call with getter, returns assertion function.
@@ -819,6 +843,7 @@ export {
   withTempFile,
   withMockedCwd,
   expectResultTitles,
+  expectObjectProps,
   expectArrayProp,
   expectProp,
   expectDataArray,
