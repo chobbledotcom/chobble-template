@@ -113,8 +113,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // The O(1) performance is better than spread syntax O(n) which causes O(n²) in loops.
 // Pattern: const result = arr.reduce((acc, item) => { acc.push(item); return acc; }, [])
 const ALLOWED_ARRAY_PUSH = new Set([
-  // Reduce accumulator - safe mutation pattern with O(1) performance
-  "src/assets/js/quote-steps.js:53", // getStepFieldIds - collecting field IDs
+  // (Currently no entries - prefer functional patterns with pipe/map/filter/reduce)
 ]);
 
 // ============================================
@@ -159,8 +158,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/quote-steps.js:34", // value (radio recap item)
   "src/assets/js/quote-steps.js:40", // field (field recap item)
   "src/assets/js/quote-steps.js:45", // value (field recap item)
-  "src/assets/js/quote-steps.js:124", // isValid (field validation)
-  "src/assets/js/quote-steps.js:167", // container (init)
+  "src/assets/js/quote-steps.js:123", // isValid (field validation)
+  "src/assets/js/quote-steps.js:166", // container (init)
   "src/assets/js/gallery.js:20", // imageLink
   "src/assets/js/gallery.js:30", // fullImage
   "src/assets/js/gallery.js:45", // imageWrapper
