@@ -27,6 +27,14 @@ const ALLOWED_TRY_CATCHES = new Set([
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
   "test/test-site-factory.test.js:346",
+
+  // test/ensure-deps.js - Dependency checking utility
+  // Needed: checks if dependencies are installed, needs try/catch for module resolution
+  "test/ensure-deps.js:16",
+
+  // test/code-scanner.js - Exception validation
+  // Needed: validates exception entries by reading files that might not exist
+  "test/code-scanner.js:319",
 ]);
 
 // ============================================
@@ -280,6 +288,10 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/code-quality/try-catch-usage.test.js:40", // nextLine (find() can return undefined)
   "test/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/test-site-factory.test.js:131", // imageExists (cleanup check)
+  "test/run-coverage.js:86", // file (iteration over files)
+  "test/precommit.js:53", // trimmed (line processing)
+  "test/precommit.js:105", // result (skip if step wasn't run)
+  "test/precommit.js:147", // allPassed (check if all steps passed)
 ]);
 
 // ============================================
@@ -335,6 +347,10 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "test/collections/products.test.js",
   "test/eleventy/recurring-events.test.js",
   "test/utils/strings.test.js",
+  "test/test-site-factory.js",
+  "test/build-profiling.js",
+  "test/test-utils.js",
+  "test/run-coverage.js",
 ]);
 
 // ============================================
@@ -350,6 +366,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
+  "test/test-site-factory.js:322",
   "test/test-site-factory.js:330",
 
   // Parsing generated HTML for assertions
