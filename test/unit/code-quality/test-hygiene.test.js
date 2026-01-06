@@ -31,6 +31,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProduct",
   "createPropertyReviewFixture",
   "createSchemaData",
+  // quote-steps.test.js - test fixture factory
+  "createQuoteStepsHtml",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
   // checkout.test.js - template rendering and mocks
@@ -97,7 +99,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "processLineChars",
   "tryBlockHasCatch",
   // commented-code.test.js - analysis helpers
-  "isInsideTemplateLiteral",
+  "buildTemplateLiteralState",
   "isDocumentationComment",
   "findCommentedCode",
   // commented-code.test.js - test fixture strings
