@@ -9,12 +9,14 @@ import { memoize } from "#utils/memoize.js";
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
 
+const cacheKeyFromArgs = (args) => args.join(",");
+
 const fileExists = memoize(
   (relativePath, baseDir = process.cwd()) => {
     const fullPath = path.join(baseDir, relativePath);
     return fs.existsSync(fullPath);
   },
-  { cacheKey: (args) => args.join(",") },
+  { cacheKey: cacheKeyFromArgs },
 );
 
 const fileMissing = (relativePath, baseDir = process.cwd()) =>
@@ -26,7 +28,7 @@ const readFileContent = memoize(
     if (!fs.existsSync(fullPath)) return "";
     return fs.readFileSync(fullPath, "utf8");
   },
-  { cacheKey: (args) => args.join(",") },
+  { cacheKey: cacheKeyFromArgs },
 );
 
 const renderSnippet = memoize(
@@ -61,7 +63,7 @@ const renderSnippet = memoize(
 
     return mdRenderer.render(processed);
   },
-  { cacheKey: (args) => args.join(",") },
+  { cacheKey: cacheKeyFromArgs },
 );
 
 const configureFileUtils = (eleventyConfig) => {
