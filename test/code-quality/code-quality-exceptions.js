@@ -238,14 +238,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/build/theme-compiler.js:33", // rootMatch
   "src/assets/js/autosizes.js:40", // chromeMatch
 
-  // === Lazy module loading (initially null until loaded) ===
-  "src/_lib/build/scss.js:8", // sass
-  "src/_lib/media/image-crop.js:12", // sharpModule
-  "src/_lib/media/image-lqip.js:11", // eleventyImgModule
-  "src/_lib/eleventy/pdf.js:20", // pdfRenderer
-  "src/_lib/utils/lazy-jsdom.js:7", // HappyDOMWrapper
-  "src/_lib/utils/dom-builder.js:7", // sharedDom
-
   // === External/parsed data (localStorage, API responses, etc) ===
   "src/assets/js/cart-utils.js:8", // cart (from localStorage)
   "src/assets/js/cart-utils.js:66", // item
@@ -260,8 +252,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/assets/js/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:251", // pdfDoc
-  "src/_lib/eleventy/pdf.js:276", // state
+  "src/_lib/eleventy/pdf.js:246", // pdfDoc
+  "src/_lib/eleventy/pdf.js:271", // state
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
@@ -309,6 +301,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/media/image.js",
   "src/_lib/media/unused-images.js",
   "src/_lib/utils/dom-builder.js",
+  "src/_lib/utils/lazy-loader.js",
   "src/_lib/utils/schema-helper.js",
   "src/assets/js/availability-calendar.js",
   "src/assets/js/cart-utils.js",

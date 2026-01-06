@@ -16,7 +16,11 @@
 		"@zachleat/heading-anchors",
 		"@botpoison/browser",
 		"@hotwired/turbo",
-		"@happy-dom/global-registrator"
+		"@happy-dom/global-registrator",
+		"@11ty/eleventy-img",
+		"json-to-pdf",
+		"sass",
+		"sharp"
 	],
 	"ignoreBinaries": [],
 	"ignoreExportsUsedInFile": true,
