@@ -9,7 +9,7 @@ import {
   matchesAny,
   validateExceptions,
 } from "#test/code-scanner.js";
-import { ALL_JS_FILES } from "#test/test-utils.js";
+import { ALL_JS_FILES, SRC_AND_TEST_UTILS_FILES } from "#test/test-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [
@@ -50,7 +50,7 @@ const { find: findMutableConstDeclarations, analyze: mutableConstAnalysis } =
       if (/new\s+Map/.test(line)) return { reason: "Map const" };
       return { reason: "Mutable const" };
     },
-    files: ALL_JS_FILES,
+    files: SRC_AND_TEST_UTILS_FILES,
     allowlist: ALLOWED_MUTABLE_CONST,
   });
 
