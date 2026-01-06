@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
-  ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
+  ALLOWED_MUTABLE_CONST,
 } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
