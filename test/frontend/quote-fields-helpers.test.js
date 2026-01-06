@@ -3,6 +3,12 @@ import {
   buildSections,
   processQuoteFields,
 } from "#config/quote-fields-helpers.js";
+import { expectProp } from "#test/test-utils.js";
+
+const expectTitles = expectProp("title");
+const expectStepNumbers = expectProp("stepNumber");
+const expectIsFirst = expectProp("isFirst");
+const expectIsLast = expectProp("isLast");
 
 describe("quote-fields-helpers", () => {
   // buildSections function tests
@@ -14,15 +20,10 @@ describe("quote-fields-helpers", () => {
       ];
       const result = buildSections(sections);
 
-      expect(result.length).toBe(2);
-      expect(result[0].title).toBe("Section 1");
-      expect(result[0].stepNumber).toBe(0);
-      expect(result[0].isFirst).toBe(true);
-      expect(result[0].isLast).toBe(false);
-      expect(result[1].title).toBe("Section 2");
-      expect(result[1].stepNumber).toBe(1);
-      expect(result[1].isFirst).toBe(false);
-      expect(result[1].isLast).toBe(true);
+      expectTitles(result, ["Section 1", "Section 2"]);
+      expectStepNumbers(result, [0, 1]);
+      expectIsFirst(result, [true, false]);
+      expectIsLast(result, [false, true]);
     });
 
     test("adds templates to fields", () => {
@@ -45,8 +46,8 @@ describe("quote-fields-helpers", () => {
         { title: "Only", fields: [{ name: "solo", type: "text" }] },
       ];
       const result = buildSections(sections);
-      expect(result[0].isFirst).toBe(true);
-      expect(result[0].isLast).toBe(true);
+      expectIsFirst(result, [true]);
+      expectIsLast(result, [true]);
     });
   });
 
