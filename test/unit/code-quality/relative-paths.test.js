@@ -7,18 +7,21 @@ const THIS_FILE = "test/unit/code-quality/relative-paths.test.js";
 const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
 describe("relative-paths", () => {
+  // Factory for import-style code checkers with common configuration
+  const importCheckerConfig = (patterns) => ({
+    patterns,
+    skipPatterns: [],
+    extractData: (line) => {
+      const pathMatch = line.match(IMPORT_PATH_REGEX);
+      return { importPath: pathMatch ? pathMatch[1] : "unknown" };
+    },
+    files: ALL_JS_FILES(),
+    excludeFiles: [THIS_FILE],
+  });
+
   // Create checkers inside describe block to ensure imports are resolved
   const { find: findRelativeImports, analyze: analyzeRelativeImports } =
-    createCodeChecker({
-      patterns: /from\s+["'](\.\.[/"']|\.\/)/,
-      skipPatterns: [], // Check all lines
-      extractData: (line) => {
-        const pathMatch = line.match(IMPORT_PATH_REGEX);
-        return { importPath: pathMatch ? pathMatch[1] : "unknown" };
-      },
-      files: ALL_JS_FILES(),
-      excludeFiles: [THIS_FILE],
-    });
+    createCodeChecker(importCheckerConfig(/from\s+["'](\.\.[/"']|\.\/)/));
 
   const { find: findRelativePathJoins, analyze: analyzeRelativePathJoins } =
     createCodeChecker({
@@ -29,16 +32,7 @@ describe("relative-paths", () => {
     });
 
   const { find: findGeneralAliases, analyze: analyzeGeneralAliases } =
-    createCodeChecker({
-      patterns: /from\s+["']#src\//,
-      skipPatterns: [], // Check all lines
-      extractData: (line) => {
-        const pathMatch = line.match(IMPORT_PATH_REGEX);
-        return { importPath: pathMatch ? pathMatch[1] : "unknown" };
-      },
-      files: ALL_JS_FILES(),
-      excludeFiles: [THIS_FILE],
-    });
+    createCodeChecker(importCheckerConfig(/from\s+["']#src\//));
 
   const { analyze: analyzeProcessCwd } = createCodeChecker({
     patterns: /process\.cwd\(\)/,
