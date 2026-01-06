@@ -125,10 +125,7 @@ describe("test-site-factory", () => {
 
       try {
         // Verify image was copied to site
-        const copiedImagePath = path.join(
-          site.srcDir,
-          "images/test-image.jpg",
-        );
+        const copiedImagePath = path.join(site.srcDir, "images/test-image.jpg");
         expect(fs.existsSync(copiedImagePath)).toBe(true);
       } finally {
         site.cleanup();
