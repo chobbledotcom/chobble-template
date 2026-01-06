@@ -3,7 +3,6 @@ import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const processGallery = (gallery) => {
-  if (!gallery) return gallery;
   if (Array.isArray(gallery)) return gallery;
   return Object.values(gallery);
 };
