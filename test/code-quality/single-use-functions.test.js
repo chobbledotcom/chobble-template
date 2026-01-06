@@ -19,9 +19,7 @@ import {
   readSource,
 } from "#test/code-scanner.js";
 import {
-  ECOMMERCE_JS_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
+  ALL_JS_FILES,
 } from "#test/test-utils.js";
 
 const THIS_FILE = "test/code-quality/single-use-functions.test.js";
@@ -231,7 +229,7 @@ const countReferences = (source, functionName) => {
  */
 const analyzeSingleUseFunctions = () => {
   const allFiles = combineFileLists(
-    [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
+    [ALL_JS_FILES()],
     [THIS_FILE],
   );
 

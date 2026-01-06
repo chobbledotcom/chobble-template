@@ -7,9 +7,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import {
-  ECOMMERCE_JS_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
+  ALL_JS_FILES,
 } from "#test/test-utils.js";
 
 /**
@@ -152,7 +150,7 @@ const tryCatchAnalysis = withAllowlist({
   allowlist: ALLOWED_TRY_CATCHES,
   files: () =>
     combineFileLists(
-      [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
+      [ALL_JS_FILES()],
       [THIS_FILE],
     ),
 });

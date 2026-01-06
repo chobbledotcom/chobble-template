@@ -8,9 +8,7 @@ import {
   validateExceptions,
 } from "#test/code-scanner.js";
 import {
-  ECOMMERCE_JS_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
+  ALL_JS_FILES,
 } from "#test/test-utils.js";
 
 // Detects if (!identifier) - simple null checks on variables
@@ -30,7 +28,7 @@ const analyzeNullChecks = () =>
     allowlist: ALLOWED_NULL_CHECKS,
     files: () =>
       combineFileLists(
-        [SRC_JS_FILES(), ECOMMERCE_JS_FILES(), TEST_FILES()],
+        [ALL_JS_FILES()],
         [THIS_FILE],
       ),
   });
