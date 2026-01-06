@@ -7,6 +7,8 @@
  * Write:      mapEntries((k, v) => transform(k, v))(obj)
  */
 
+import { notMemberOf } from "#utils/array-utils.js";
+
 /**
  * Curried map over entries -> returns array
  * @example
@@ -59,11 +61,12 @@ const pickTruthy = filterObject((_k, v) => v);
 /**
  * Create a curried function that omits specified keys from an object
  * Inverse of pick() - excludes keys instead of including them
+ * Uses notMemberOf for functional composition with the membership predicate factory.
  * @example
  * omit(['a', 'c'])({ a: 1, b: 2, c: 3 }) // { b: 2 }
  * hits.map(omit(['lineNumber', 'line'])) // removes standard fields
  */
-const omit = (keys) => filterObject((k) => !keys.includes(k));
+const omit = (keys) => filterObject(notMemberOf(keys));
 
 /**
  * Build an object from an array by extracting key-value pairs

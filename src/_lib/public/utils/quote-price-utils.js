@@ -4,7 +4,14 @@
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
-import { filter, map, pipe, reduce, uniqueBy } from "#utils/array-utils.js";
+import {
+  filter,
+  map,
+  pipe,
+  pluralize,
+  reduce,
+  uniqueBy,
+} from "#utils/array-utils.js";
 
 // Predicates
 const isHireItem = (item) => item.product_mode === "hire";
@@ -47,12 +54,11 @@ const calculateTotal = (cart, days) => {
   return { total: sum(prices), canCalculate: true };
 };
 
-// Format hire length display
-const formatHireLength = (days) => (days === 1 ? "1 day" : `${days} days`);
+// Format hire length display - uses curried pluralize
+const formatHireLength = pluralize("day", "days");
 
-// Format item count display
-const formatItemCount = (count) =>
-  count === 1 ? "1 item in order" : `${count} items in order`;
+// Format item count display - uses curried pluralize
+const formatItemCount = pluralize("item in order", "items in order");
 
 // Count total items including quantities
 const countItems = (cart) => sum(map((item) => item.quantity)(cart));

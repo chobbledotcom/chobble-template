@@ -238,7 +238,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/theme/theme-editor-lib.js:48", // themeContent
   "src/_lib/public/theme/theme-editor-lib.js:85", // borderValue
   "src/_lib/public/theme/theme-editor-lib.js:157", // value
-  "src/_lib/public/utils/quote-price-utils.js:15", // priceStr
+  "src/_lib/public/utils/quote-price-utils.js:22", // priceStr
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
