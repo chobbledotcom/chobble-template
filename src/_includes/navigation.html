@@ -10,7 +10,8 @@
       for="nav-toggle"
       class="toggle-label"
     >
-      <span></span>
+      <span class="visually-hidden">Toggle navigation menu</span>
+      <span aria-hidden="true"></span>
     </label>
   {%- endif -%}
   {%- assign navItems = collections.navigationLinks | eleventyNavigation -%}
