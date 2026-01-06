@@ -7,10 +7,15 @@ import {
   prepareAreaList,
   sortByNavigationKey,
 } from "#eleventy/area-list.js";
-import { createMockEleventyConfig, expectProp } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectArrayProp,
+  expectProp,
+} from "#test/test-utils.js";
 
 const expectNames = expectProp("name");
 const expectSeparators = expectProp("separator");
+const expectNavKeys = expectArrayProp((l) => l.data.eleventyNavigation?.key);
 
 // Test fixtures
 const createLocation = (name, url) => ({
@@ -23,7 +28,8 @@ const createLocation = (name, url) => ({
 });
 
 // Create multiple locations from [name, url] tuples
-const createLocations = (tuples) => tuples.map(([name, url]) => createLocation(name, url));
+const createLocations = (tuples) =>
+  tuples.map(([name, url]) => createLocation(name, url));
 
 describe("area-list", () => {
   // isTopLevelLocation tests
@@ -59,9 +65,7 @@ describe("area-list", () => {
 
     const sorted = sortByNavigationKey(locations);
 
-    expect(sorted[0].data.eleventyNavigation.key).toBe("Alpha City");
-    expect(sorted[1].data.eleventyNavigation.key).toBe("Metro Area");
-    expect(sorted[2].data.eleventyNavigation.key).toBe("Zebra Town");
+    expectNavKeys(sorted, ["Alpha City", "Metro Area", "Zebra Town"]);
   });
 
   test("Returns empty array for null/undefined/empty input", () => {
@@ -112,9 +116,7 @@ describe("area-list", () => {
       "/locations/other-page/",
     );
 
-    expect(filtered).toHaveLength(2);
-    expect(filtered[0].data.eleventyNavigation.key).toBe("Springfield");
-    expect(filtered[1].data.eleventyNavigation.key).toBe("Fulchester");
+    expectNavKeys(filtered, ["Springfield", "Fulchester"]);
   });
 
   test("Excludes the current page from results", () => {

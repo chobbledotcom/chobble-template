@@ -96,7 +96,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/test-utils.js:118", // results accumulator (getFiles)
   "test/test-utils.js:171", // logs accumulator (console capture)
   "test/test-utils.js:180", // logs accumulator (console capture async)
-  "test/test-utils.js:416", // results set (createExtractor)
+  "test/test-utils.js:482", // results set (createExtractor)
   "test/build-profiling.js:60", // times accumulator (performance tracking)
   "test/build-profiling.js:215", // runs accumulator (benchmark results)
   "test/precommit.js:22", // results accumulator (script results)
