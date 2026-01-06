@@ -1,52 +1,34 @@
 import { reduce } from "#utils/array-utils.js";
 
 /**
- * Create initial mapping from category slugs to [propertyValue, order] pairs
- */
-const createInitialMapping = (categories, propertyName) =>
-  Object.fromEntries(
-    (categories || []).map((category) => [
-      category.fileSlug,
-      [category.data[propertyName], -1],
-    ]),
-  );
-
-/**
- * Extract (categorySlug, value, order) entries from products for a given property
- */
-const extractProductEntries = (products, propertyName) =>
-  (products || [])
-    .filter((product) => product.data[propertyName])
-    .flatMap((product) =>
-      (product.data.categories || []).map((slug) => ({
-        categorySlug: slug,
-        value: product.data[propertyName],
-        order: product.data.order || 0,
-      })),
-    );
-
-/**
- * Determine if new entry should override existing based on order
- */
-const shouldOverride = (currentEntry, newOrder) =>
-  !currentEntry || currentEntry[1] < newOrder;
-
-/**
- * Update mapping with new entry if it has higher order than existing
- */
-const withHigherOrderEntry = (mapping, { categorySlug, value, order }) =>
-  shouldOverride(mapping[categorySlug], order)
-    ? { ...mapping, [categorySlug]: [value, order] }
-    : mapping;
-
-/**
  * Build a map of category slugs to property values, preferring highest order
  */
 const buildCategoryPropertyMap = (categories, products, propertyName) =>
   reduce(
-    withHigherOrderEntry,
-    createInitialMapping(categories, propertyName),
-  )(extractProductEntries(products, propertyName));
+    (mapping, { categorySlug, value, order }) => {
+      const currentEntry = mapping[categorySlug];
+      const shouldOverride = !currentEntry || currentEntry[1] < order;
+      return shouldOverride
+        ? { ...mapping, [categorySlug]: [value, order] }
+        : mapping;
+    },
+    Object.fromEntries(
+      (categories || []).map((category) => [
+        category.fileSlug,
+        [category.data[propertyName], -1],
+      ]),
+    ),
+  )(
+    (products || [])
+      .filter((product) => product.data[propertyName])
+      .flatMap((product) =>
+        (product.data.categories || []).map((slug) => ({
+          categorySlug: slug,
+          value: product.data[propertyName],
+          order: product.data.order || 0,
+        })),
+      ),
+  );
 
 const buildCategoryImageMap = (categories, products) =>
   buildCategoryPropertyMap(categories, products, "header_image");
