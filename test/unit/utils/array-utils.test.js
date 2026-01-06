@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { expectObjectProps } from "#test/test-utils.js";
 import {
   chunk,
   compact,
@@ -130,8 +131,10 @@ describe("array-utils", () => {
     ];
 
     const duplicate = findDuplicate(options, (opt) => opt.days);
-    expect(duplicate.days).toBe(1);
-    expect(duplicate.price).toBe(15); // It's the second occurrence
+    expectObjectProps({
+      days: 1,
+      price: 15, // It's the second occurrence
+    })(duplicate);
   });
 
   // ============================================

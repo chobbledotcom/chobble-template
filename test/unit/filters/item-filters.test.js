@@ -16,6 +16,7 @@ import {
 import {
   item as baseItem,
   collectionApi,
+  expectObjectProps,
   expectResultTitles,
 } from "#test/test-utils.js";
 import { map, pipe, reduce } from "#utils/array-utils.js";
@@ -139,10 +140,12 @@ describe("item-filters", () => {
 
     const result = buildDisplayLookup(testItems);
 
-    expect(result["pet-friendly"]).toBe("Pet Friendly");
-    expect(result.yes).toBe("Yes");
-    expect(result.type).toBe("Type");
-    expect(result.cottage).toBe("Cottage");
+    expectObjectProps({
+      "pet-friendly": "Pet Friendly",
+      yes: "Yes",
+      type: "Type",
+      cottage: "Cottage",
+    })(result);
   });
 
   test("First capitalization wins for duplicate keys", () => {
@@ -153,8 +156,10 @@ describe("item-filters", () => {
 
     const result = buildDisplayLookup(testItems);
 
-    expect(result["pet-friendly"]).toBe("Pet Friendly");
-    expect(result.yes).toBe("YES");
+    expectObjectProps({
+      "pet-friendly": "Pet Friendly",
+      yes: "YES",
+    })(result);
   });
 
   test("Handles items without filter_attributes", () => {
@@ -162,8 +167,10 @@ describe("item-filters", () => {
 
     const result = buildDisplayLookup(testItems);
 
-    expect(result.size).toBe("Size");
-    expect(result.large).toBe("Large");
+    expectObjectProps({
+      size: "Size",
+      large: "Large",
+    })(result);
   });
 
   // filterToPath tests

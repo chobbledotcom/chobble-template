@@ -4,7 +4,10 @@ import {
   configurePdf,
   createMenuPdfTemplate,
 } from "#eleventy/pdf.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectObjectProps,
+} from "#test/test-utils.js";
 
 // Helper to create mock menu
 const createMockMenu = (slug, title, subtitle = null) => ({
@@ -43,6 +46,21 @@ const createMockMenuItem = (
   },
 });
 
+// Helper to create dietary key test data - maps dietary keys arrays to full test setup
+const createDietaryKeyTestData = (dietaryKeysList) => ({
+  menu: createMockMenu("lunch", "Lunch"),
+  categories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+  items: dietaryKeysList.map((dietaryKeys, i) =>
+    createMockMenuItem(
+      `Item ${i + 1}`,
+      ["apps"],
+      `$${5 + i}`,
+      null,
+      dietaryKeys,
+    ),
+  ),
+});
+
 describe("pdf", () => {
   // buildMenuPdfData tests
   describe("buildMenuPdfData", () => {
@@ -59,8 +77,10 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.menuTitle).toBe("Lunch Menu");
-      expect(result.subtitle).toBe("Served 11am-3pm");
+      expectObjectProps({
+        menuTitle: "Lunch Menu",
+        subtitle: "Served 11am-3pm",
+      })(result);
       expect(result.categories).toHaveLength(2);
       expect(result.categories[0].name).toBe("Appetizers");
     });
@@ -72,8 +92,10 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.menuTitle).toBe("Dinner Menu");
-      expect(result.subtitle).toBe("");
+      expectObjectProps({
+        menuTitle: "Dinner Menu",
+        subtitle: "",
+      })(result);
     });
 
     test("Only includes categories that belong to the menu", () => {
@@ -125,10 +147,11 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      const item = result.categories[0].items[0];
-      expect(item.name).toBe("Spring Rolls");
-      expect(item.price).toBe("$8.99");
-      expect(item.description).toBe("Crispy and delicious");
+      expectObjectProps({
+        name: "Spring Rolls",
+        price: "$8.99",
+        description: "Crispy and delicious",
+      })(result.categories[0].items[0]);
     });
 
     test("Dietary symbols are joined correctly", () => {
@@ -148,16 +171,10 @@ describe("pdf", () => {
     });
 
     test("Builds dietary key string from all items", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem("Item 1", ["apps"], "$5", null, [
-          { symbol: "V", label: "Vegetarian" },
-        ]),
-        createMockMenuItem("Item 2", ["apps"], "$6", null, [
-          { symbol: "GF", label: "Gluten Free" },
-        ]),
-      ];
+      const { menu, categories, items } = createDietaryKeyTestData([
+        [{ symbol: "V", label: "Vegetarian" }],
+        [{ symbol: "GF", label: "Gluten Free" }],
+      ]);
 
       const result = buildMenuPdfData(menu, categories, items);
 
@@ -173,21 +190,17 @@ describe("pdf", () => {
 
       const result = buildMenuPdfData(menu, categories, items);
 
-      expect(result.hasDietaryKeys).toBe(false);
-      expect(result.dietaryKeyString).toBe("");
+      expectObjectProps({
+        hasDietaryKeys: false,
+        dietaryKeyString: "",
+      })(result);
     });
 
     test("Same dietary key from multiple items appears only once", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem("Item 1", ["apps"], "$5", null, [
-          { symbol: "V", label: "Vegetarian" },
-        ]),
-        createMockMenuItem("Item 2", ["apps"], "$6", null, [
-          { symbol: "V", label: "Vegetarian" },
-        ]),
-      ];
+      const { menu, categories, items } = createDietaryKeyTestData([
+        [{ symbol: "V", label: "Vegetarian" }],
+        [{ symbol: "V", label: "Vegetarian" }],
+      ]);
 
       const result = buildMenuPdfData(menu, categories, items);
 

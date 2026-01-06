@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { expectObjectProps } from "#test/test-utils.js";
 import {
   buildFirstOccurrenceLookup,
   buildReverseIndex,
@@ -108,8 +109,10 @@ describe("grouping", () => {
       item.attrs.map((a) => [a.slug, a.display]),
     );
 
-    expect(lookup.red).toBe("Red");
-    expect(lookup.blue).toBe("Blue");
+    expectObjectProps({
+      red: "Red",
+      blue: "Blue",
+    })(lookup);
   });
 
   test("Handles items that produce multiple key-value pairs", () => {
@@ -127,9 +130,11 @@ describe("grouping", () => {
       item.attrs.map((a) => [a.k, a.v]),
     );
 
-    expect(lookup.a).toBe(1);
-    expect(lookup.b).toBe(2);
-    expect(lookup.c).toBe(3);
+    expectObjectProps({
+      a: 1,
+      b: 2,
+      c: 3,
+    })(lookup);
   });
 
   test("Returns empty object for empty items array", () => {

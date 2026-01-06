@@ -4,7 +4,7 @@ import {
   getFieldTemplate,
   processContactForm,
 } from "#config/form-helpers.js";
-import { expectProp } from "#test/test-utils.js";
+import { expectObjectProps, expectProp } from "#test/test-utils.js";
 
 const expectTemplates = expectProp("template");
 
@@ -135,8 +135,10 @@ describe("form-helpers", () => {
         fields: [{ name: "test", type: "text" }],
       };
       const result = processContactForm(data);
-      expect(result.submitButtonText).toBe("Send Message");
-      expect(result.successMessage).toBe("Thanks!");
+      expectObjectProps({
+        submitButtonText: "Send Message",
+        successMessage: "Thanks!",
+      })(result);
     });
 
     test("does not mutate original data", () => {
