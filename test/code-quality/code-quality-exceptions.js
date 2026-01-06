@@ -3,6 +3,25 @@
  *
  * All whitelisted/grandfathered code quality violations are defined here.
  * These should be removed over time as the codebase is refactored.
+ *
+ * ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║                              ⚠️  WARNING ⚠️                                ║
+ * ║                                                                           ║
+ * ║  DO NOT ADD NEW ENTRIES TO THIS FILE UNDER ANY CIRCUMSTANCES.             ║
+ * ║                                                                           ║
+ * ║  This file exists ONLY to track legacy code that predates our quality     ║
+ * ║  standards. Every entry here represents technical debt that must be       ║
+ * ║  eliminated, not expanded.                                                ║
+ * ║                                                                           ║
+ * ║  The ONLY valid changes to this file are DELETIONS.                       ║
+ * ║                                                                           ║
+ * ║  If your new code triggers a quality check failure:                       ║
+ * ║    1. Fix the code to meet quality standards - no exceptions              ║
+ * ║    2. If you believe the check is wrong, fix the check itself             ║
+ * ║    3. There is no option 3 - adding exceptions is not allowed             ║
+ * ║                                                                           ║
+ * ║  PRs that add new entries to this file will be rejected.                  ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
 // ============================================
