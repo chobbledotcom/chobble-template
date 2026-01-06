@@ -21,16 +21,6 @@ const findPageUrl = (collection, tag, slug) => {
   return result.url;
 };
 
-const sortByNavOrder = (a, b) => {
-  const orderA = a.data.eleventyNavigation.order ?? 999;
-  const orderB = b.data.eleventyNavigation.order ?? 999;
-  if (orderA !== orderB) return orderA - orderB;
-
-  const titleA = a.data.eleventyNavigation.key || a.data.title || "";
-  const titleB = b.data.eleventyNavigation.key || b.data.title || "";
-  return titleA.localeCompare(titleB);
-};
-
 const configureNavigation = async (eleventyConfig) => {
   const nav = await import("@11ty/eleventy-navigation");
   eleventyConfig.addPlugin(nav.default);
@@ -45,7 +35,18 @@ const configureNavigation = async (eleventyConfig) => {
   eleventyConfig.addCollection("navigationLinks", (collectionApi) =>
     pipe(
       filter((item) => item.data.eleventyNavigation),
-      sort(sortByNavOrder),
+      // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Sorting by order then title requires this logic
+      sort((a, b) => {
+        const orderDiff =
+          (a.data.eleventyNavigation.order ?? 999) -
+          (b.data.eleventyNavigation.order ?? 999);
+        if (orderDiff !== 0) return orderDiff;
+        return (
+          a.data.eleventyNavigation.key ||
+          a.data.title ||
+          ""
+        ).localeCompare(b.data.eleventyNavigation.key || b.data.title || "");
+      }),
     )(collectionApi.getAll()),
   );
 };
