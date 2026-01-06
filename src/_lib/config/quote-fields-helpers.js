@@ -1,6 +1,7 @@
 // Quote fields processing helpers
 
 import { addFieldTemplates } from "#config/form-helpers.js";
+import { toObject } from "#utils/object-entries.js";
 
 // Build sections with metadata, adding templates to fields
 export function buildSections(sections) {
@@ -16,9 +17,7 @@ export function buildSections(sections) {
 // Build a flat mapping of field name -> label from all sections
 export function buildFieldLabels(sections) {
   const allFields = sections.flatMap((section) => section.fields);
-  return Object.fromEntries(
-    allFields.map((field) => [field.name, field.label]),
-  );
+  return toObject(allFields, (field) => [field.name, field.label]);
 }
 
 // Process the raw JSON into a structured format
