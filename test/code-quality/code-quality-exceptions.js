@@ -262,8 +262,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/collections/products.js:72", // options
   "src/_lib/collections/search.js:9", // category
   "src/_lib/collections/reviews.js:88", // name
-  "src/_lib/collections/navigation.js:12", // collection
-  "src/_lib/collections/navigation.js:18", // result
+  "src/_lib/collections/navigation.js:13", // collection
+  "src/_lib/collections/navigation.js:19", // result
   "src/_lib/utils/slug-utils.js:12", // reference
   "src/_lib/eleventy/area-list.js:19", // url
 
@@ -297,9 +297,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/search.js",
   "src/_lib/eleventy/responsive-tables.js",
   "src/_lib/filters/item-filters.js",
-  "src/_lib/media/image-crop.js",
-  "src/_lib/media/image.js",
-  "src/_lib/media/unused-images.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/lazy-loader.js",
   "src/_lib/utils/schema-helper.js",

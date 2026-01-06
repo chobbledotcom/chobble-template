@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { notMemberOf } from "#utils/array-utils.js";
+import { filter, map, notMemberOf, pipe } from "#utils/array-utils.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 const IMAGE_REF_PATTERN =
@@ -10,40 +10,6 @@ const FRONTMATTER_IMAGE_FIELDS = ["header_image", "image", "thumbnail"];
 
 const extractFilename = (imagePath) =>
   typeof imagePath === "string" ? imagePath.split("/").pop() : null;
-
-const extractImagesFromFrontmatter = (data, imageFiles) =>
-  FRONTMATTER_IMAGE_FIELDS.map((field) => data[field])
-    .filter(Boolean)
-    .map(extractFilename)
-    .filter((name) => imageFiles.includes(name));
-
-const extractImagesFromContent = (content, imageFiles) =>
-  (content.match(IMAGE_REF_PATTERN) || [])
-    .map(extractFilename)
-    .filter((name) => imageFiles.includes(name));
-
-const extractImagesFromFile = (filePath, imageFiles) => {
-  const { data, content } = matter.read(filePath);
-  return [
-    ...extractImagesFromFrontmatter(data, imageFiles),
-    ...extractImagesFromContent(content, imageFiles),
-  ];
-};
-
-const reportUnusedImages = (unusedImages) => {
-  if (unusedImages.length > 0) {
-    console.log("\n📸 Unused Images Report:");
-    console.log("========================");
-    for (const image of unusedImages) {
-      console.log(`❌ ${image}`);
-    }
-    console.log(
-      `\nFound ${unusedImages.length} unused image(s) in /src/images/`,
-    );
-  } else {
-    console.log("\n✅ All images in /src/images/ are being used!");
-  }
-};
 
 export function configureUnusedImages(eleventyConfig) {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
@@ -65,12 +31,40 @@ export function configureUnusedImages(eleventyConfig) {
 
     const markdownFiles = [...new Bun.Glob("**/*.md").scanSync(dir.input)];
 
-    const usedImagesList = markdownFiles.flatMap((file) =>
-      extractImagesFromFile(path.join(dir.input, file), imageFiles),
-    );
+    const isValidImageName = (name) => imageFiles.includes(name);
+
+    const usedImagesList = markdownFiles.flatMap((file) => {
+      const { data, content } = matter.read(path.join(dir.input, file));
+      return [
+        // Extract images from frontmatter using pipe
+        ...pipe(
+          map((field) => field),
+          filter(Boolean),
+          map(extractFilename),
+          filter(isValidImageName),
+        )(FRONTMATTER_IMAGE_FIELDS.map((field) => data[field])),
+        // Extract images from content using pipe
+        ...pipe(
+          map(extractFilename),
+          filter(isValidImageName),
+        )(content.match(IMAGE_REF_PATTERN) || []),
+      ];
+    });
 
     const unusedImages = imageFiles.filter(notMemberOf(usedImagesList));
 
-    reportUnusedImages(unusedImages);
+    // Report unused images
+    if (unusedImages.length > 0) {
+      console.log("\n📸 Unused Images Report:");
+      console.log("========================");
+      for (const image of unusedImages) {
+        console.log(`❌ ${image}`);
+      }
+      console.log(
+        `\nFound ${unusedImages.length} unused image(s) in /src/images/`,
+      );
+    } else {
+      console.log("\n✅ All images in /src/images/ are being used!");
+    }
   });
 }
