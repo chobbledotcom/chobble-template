@@ -4,24 +4,21 @@
 		".eleventy.js",
 		"src/_data/**/*.{js,mjs}",
 		"src/**/*.11tydata.js",
-		"src/_lib/public/bundle.js"
+		"src/_lib/public/bundle.js",
+		"test/**/*.test.js",
+		"test/build-profiling.js",
+		"test/ensure-deps.js",
+		"test/setup.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
 		"ecommerce-backend/**",
-		"_site/**",
-		"test/**",
-		"src/_lib/public/theme/theme-editor-config.js"
+		"_site/**"
 	],
 	"ignoreDependencies": [
 		"@zachleat/heading-anchors",
-		"@happy-dom/global-registrator",
-		"happy-dom",
-		"@adobe/structured-data-validator",
-		"@marbec/web-auto-extractor",
 		"@11ty/eleventy-img",
 		"json-to-pdf",
-		"liquidjs",
 		"sass",
 		"sharp"
 	],

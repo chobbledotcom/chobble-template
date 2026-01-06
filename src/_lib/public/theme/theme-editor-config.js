@@ -130,31 +130,10 @@ export const SCOPE_DEFINITIONS = {
 };
 
 /**
- * Get all input IDs for a specific scope
- */
-export function getScopedInputIds(scope) {
-  return Object.keys(SCOPED_INPUTS).map((id) => `${scope}-${id}`);
-}
-
-/**
- * Get all global input IDs
- */
-export function getGlobalInputIds() {
-  return Object.keys(GLOBAL_INPUTS);
-}
-
-/**
  * Get all scopes
  */
 export function getScopes() {
   return Object.keys(SCOPE_DEFINITIONS);
-}
-
-/**
- * Get the CSS selector for a scope
- */
-export function getScopeSelector(scope) {
-  return SCOPE_DEFINITIONS[scope]?.selector || scope;
 }
 
 /**

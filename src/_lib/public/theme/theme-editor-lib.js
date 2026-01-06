@@ -166,7 +166,6 @@ export function shouldIncludeScopedVar(value, globalValue) {
  * @param {Object} globalValues - Global values for comparison { varName: value }
  * @returns {Object} - Filtered scope variables (only those differing from global)
  */
-// biome-ignore lint/correctness/noUnusedVariables: exported for testing
 export const filterScopeVars = (scopeFormData, globalValues = {}) =>
   filterObject((varName, value) =>
     shouldIncludeScopedVar(value, globalValues[varName]),
