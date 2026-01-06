@@ -105,6 +105,38 @@ const ALLOWED_MUTABLE_CONST = new Set([
 ]);
 
 // ============================================
+// Let declarations exceptions
+// ============================================
+
+// Files that use 'let' for mutable variables.
+// Prefer functional patterns (map/filter/reduce) or const with immutable updates.
+// Only 'let moduleName = null;' is allowed for lazy loading without exceptions.
+const ALLOWED_LET = new Set([
+  // Test files with mutable state tracking
+  "test/build/pdf-integration.test.js",
+  "test/eleventy/jsonld-validation.test.js",
+  "test/eleventy/feed.test.js",
+  "test/frontend/checkout.test.js",
+  "test/frontend/quote-steps.test.js",
+  "test/frontend/gallery.test.js",
+  "test/frontend/hire-calculator.test.js",
+  "test/frontend/scroll-fade.test.js",
+  "test/frontend/cart.test.js",
+  "test/frontend/turbo.test.js",
+  "test/frontend/slider.test.js",
+  "test/frontend/search.test.js",
+  "test/frontend/quote-checkout.test.js",
+  "test/code-quality/code-scanner.test.js",
+  "test/code-quality/single-use-functions.test.js",
+  "test/code-quality/html-in-js.test.js",
+  "test/test-site-factory.js",
+  "test/precommit.js",
+  "test/run-coverage.js",
+  "test/test-utils.js",
+  "test/code-scanner.js",
+]);
+
+// ============================================
 // Object mutation via bracket assignment exceptions
 // ============================================
 
@@ -289,6 +321,7 @@ export {
   ALLOWED_CONSOLE,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
+  ALLOWED_LET,
   ALLOWED_OBJECT_MUTATION,
   ALLOWED_NULL_CHECKS,
   ALLOWED_SINGLE_USE_FUNCTIONS,

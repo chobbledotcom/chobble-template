@@ -28,11 +28,8 @@ const hasCatchKeyword = (text) => /\s*catch\b/.test(text);
  * Find the first non-empty line starting from index
  */
 const findNextNonEmptyLine = (lines, startIndex) => {
-  for (let i = startIndex; i < lines.length; i++) {
-    const trimmed = lines[i].trim();
-    if (trimmed !== "") return trimmed;
-  }
-  return null;
+  const line = lines.slice(startIndex).find((l) => l.trim() !== "");
+  return line ? line.trim() : null;
 };
 
 /**
@@ -58,35 +55,54 @@ const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
  * Returns { depth, foundCatch: boolean | null, startedCounting }
  */
 const processLineChars = (searchLine, initialDepth, initialStartedCounting, lines, lineIndex) => {
-  let depth = initialDepth;
-  let startedCounting = initialStartedCounting;
+  const chars = searchLine.split("");
+  const result = chars.reduce(
+    (state, char, charIndex) => {
+      if (state.finished) return state;
 
-  for (let charIndex = 0; charIndex < searchLine.length; charIndex++) {
-    const char = searchLine[charIndex];
+      if (char === "{") {
+        return {
+          ...state,
+          depth: state.depth + 1,
+          startedCounting: true,
+        };
+      }
 
-    if (char === "{") {
-      depth++;
-      startedCounting = true;
-      continue;
-    }
+      if (char !== "}") return state;
 
-    if (char !== "}") continue;
+      const newDepth = state.depth - 1;
 
-    depth--;
+      // When we close back to depth 0, check what follows
+      if (state.startedCounting && newDepth === 0) {
+        const foundCatch = catchFollowsClosingBrace(
+          searchLine,
+          charIndex,
+          lines,
+          lineIndex,
+        );
+        return {
+          depth: newDepth,
+          foundCatch,
+          startedCounting: state.startedCounting,
+          finished: true,
+        };
+      }
 
-    // When we close back to depth 0, check what follows
-    if (startedCounting && depth === 0) {
-      const foundCatch = catchFollowsClosingBrace(
-        searchLine,
-        charIndex,
-        lines,
-        lineIndex,
-      );
-      return { depth, foundCatch, startedCounting };
-    }
-  }
+      return { ...state, depth: newDepth };
+    },
+    {
+      depth: initialDepth,
+      startedCounting: initialStartedCounting,
+      foundCatch: null,
+      finished: false,
+    },
+  );
 
-  return { depth, foundCatch: null, startedCounting };
+  return {
+    depth: result.depth,
+    foundCatch: result.foundCatch,
+    startedCounting: result.startedCounting,
+  };
 };
 
 /**
@@ -94,26 +110,37 @@ const processLineChars = (searchLine, initialDepth, initialStartedCounting, line
  * Returns true if catch is found
  */
 const tryBlockHasCatch = (lines, startLineIndex) => {
-  let depth = 0;
-  let startedCounting = false;
+  const result = lines.slice(startLineIndex).reduce(
+    (state, line, index) => {
+      if (state.finished) return state;
 
-  for (let lineIndex = startLineIndex; lineIndex < lines.length; lineIndex++) {
-    const result = processLineChars(
-      lines[lineIndex],
-      depth,
-      startedCounting,
-      lines,
-      lineIndex,
-    );
+      const lineResult = processLineChars(
+        line,
+        state.depth,
+        state.startedCounting,
+        lines,
+        startLineIndex + index,
+      );
 
-    depth = result.depth;
-    startedCounting = result.startedCounting;
+      if (lineResult.foundCatch !== null) {
+        return { ...state, finished: true, hasCatch: lineResult.foundCatch };
+      }
 
-    if (result.foundCatch !== null) return result.foundCatch;
-    if (startedCounting && depth === 0) return false;
-  }
+      if (lineResult.startedCounting && lineResult.depth === 0) {
+        return { ...state, finished: true, hasCatch: false };
+      }
 
-  return false;
+      return {
+        depth: lineResult.depth,
+        startedCounting: lineResult.startedCounting,
+        finished: false,
+        hasCatch: false,
+      };
+    },
+    { depth: 0, startedCounting: false, finished: false, hasCatch: false },
+  );
+
+  return result.hasCatch;
 };
 
 /**
@@ -121,25 +148,18 @@ const tryBlockHasCatch = (lines, startLineIndex) => {
  * Returns array of { lineNumber, line }
  */
 const findTryCatches = (source) => {
-  const results = [];
   const lines = source.split("\n");
   const tryRegex = /\btry\s*\{/;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    if (!tryRegex.test(line)) continue;
-    if (isCommentLine(line)) continue;
-
-    if (tryBlockHasCatch(lines, i)) {
-      results.push({
-        lineNumber: i + 1,
-        line: line.trim(),
-      });
-    }
-  }
-
-  return results;
+  return lines
+    .map((line, index) => ({ line, index }))
+    .filter(({ line }) => tryRegex.test(line))
+    .filter(({ line }) => !isCommentLine(line))
+    .filter(({ index }) => tryBlockHasCatch(lines, index))
+    .map(({ line, index }) => ({
+      lineNumber: index + 1,
+      line: line.trim(),
+    }));
 };
 
 const THIS_FILE = "test/code-quality/try-catch-usage.test.js";

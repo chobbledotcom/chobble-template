@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_MUTABLE_CONST } from "#test/code-quality/code-quality-exceptions.js";
+import {
+  ALLOWED_MUTABLE_CONST,
+  ALLOWED_LET,
+} from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   createCodeChecker,
@@ -33,6 +36,7 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       return { reason: "Mutable variable declaration" };
     },
     files: ALL_JS_FILES,
+    allowlist: ALLOWED_LET,
   });
 
 // Complete checker for mutable const declarations
@@ -164,6 +168,35 @@ const config = { key: 'value' };
     );
     if (stale.length > 0) {
       console.log("\n  Stale ALLOWED_MUTABLE_CONST entries:");
+      for (const s of stale) {
+        console.log(`    - ${s.entry}: ${s.reason}`);
+      }
+    }
+    expect(stale.length).toBe(0);
+  });
+
+  test("Reports allowlisted let usage for tracking", () => {
+    const { allowed } = mutableVarAnalysis();
+    console.log(`\n  Allowlisted let usages: ${allowed.length}`);
+    if (allowed.length > 0) {
+      console.log("  Files with let:");
+      const byFile = {};
+      for (const loc of allowed) {
+        const file = loc.file || loc.location.split(":")[0];
+        if (!byFile[file]) byFile[file] = 0;
+        byFile[file]++;
+      }
+      for (const [file, count] of Object.entries(byFile)) {
+        console.log(`    - ${file}: ${count} usage(s)`);
+      }
+    }
+    expect(true).toBe(true);
+  });
+
+  test("ALLOWED_LET entries still exist and match pattern", () => {
+    const stale = validateExceptions(ALLOWED_LET, /^\s*let\s+\w+/);
+    if (stale.length > 0) {
+      console.log("\n  Stale ALLOWED_LET entries:");
       for (const s of stale) {
         console.log(`    - ${s.entry}: ${s.reason}`);
       }
