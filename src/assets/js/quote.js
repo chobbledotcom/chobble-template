@@ -80,7 +80,7 @@ function renderCart() {
 }
 
 function init() {
-  quotePrice = initQuotePrice("quote-price-container", 1);
+  quotePrice = initQuotePrice();
   renderCart();
 }
 

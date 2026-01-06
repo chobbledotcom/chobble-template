@@ -4,13 +4,10 @@
 import { formatPrice, getCart } from "#assets/cart-utils.js";
 import { IDS } from "#assets/selectors.js";
 import { getTemplate } from "#assets/template.js";
-import { filter, map, reduce } from "#utils/array-utils.js";
+import { map, reduce } from "#utils/array-utils.js";
 
 // Predicates
 const isHireItem = (item) => item.product_mode === "hire";
-
-// Get only hire items from cart
-const getHireItems = filter(isHireItem);
 
 // Parse a price string, extracting numeric value
 const parsePrice = (priceStr) => {
@@ -24,13 +21,12 @@ const parsePrice = (priceStr) => {
 const sum = reduce((acc, n) => acc + n, 0);
 
 // Get price for an item for a specific number of days
+// Returns null if hire item lacks price for that day count
 const getPriceForDays = (days) => (item) => {
   if (!isHireItem(item)) {
     return item.unit_price * item.quantity;
   }
-  const hirePrices = item.hire_prices;
-  if (!hirePrices) return null;
-  const price = hirePrices[days];
+  const price = item.hire_prices[days];
   return price ? parsePrice(price) * item.quantity : null;
 };
 
@@ -64,14 +60,11 @@ const countItems = (cart) => sum(map((item) => item.quantity)(cart));
 // Create an item element from template
 const createItemElement = (item, days) => {
   const template = getTemplate(IDS.QUOTE_PRICE_ITEM);
-  if (!template) return null;
-
   const price = getPriceForDays(days)(item);
   template.querySelector('[data-field="name"]').textContent =
     formatItemName(item);
   template.querySelector('[data-field="price"]').textContent =
     formatItemPrice(price);
-
   return template;
 };
 
@@ -79,8 +72,7 @@ const createItemElement = (item, days) => {
 const populateItems = (container, cart, days) => {
   container.innerHTML = "";
   for (const item of cart) {
-    const itemEl = createItemElement(item, days);
-    if (itemEl) container.appendChild(itemEl);
+    container.appendChild(createItemElement(item, days));
   }
 };
 
@@ -95,8 +87,6 @@ const renderQuotePrice = (container, days = 1) => {
   }
 
   const template = getTemplate(IDS.QUOTE_PRICE);
-  if (!template) return;
-
   const { total, canCalculate } = calculateTotal(cart, days);
   const itemCount = countItems(cart);
 
@@ -117,8 +107,8 @@ const renderQuotePrice = (container, days = 1) => {
 };
 
 // Initialize quote price display
-const initQuotePrice = (containerId, initialDays = 1) => {
-  const container = document.getElementById(containerId);
+const initQuotePrice = (initialDays = 1) => {
+  const container = document.getElementById("quote-price-container");
   if (!container) return null;
 
   renderQuotePrice(container, initialDays);
@@ -136,10 +126,7 @@ export {
   formatItemCount,
   formatItemName,
   formatItemPrice,
-  getHireItems,
   getPriceForDays,
   initQuotePrice,
-  isHireItem,
   parsePrice,
-  renderQuotePrice,
 };

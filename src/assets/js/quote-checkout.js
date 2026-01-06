@@ -55,10 +55,8 @@ const populateForm = () => {
 const init = () => {
   populateForm();
 
-  // Initialize quote price display (defaults to 1 day)
-  const quotePrice = initQuotePrice("quote-price-container", 1);
-
-  // Connect hire calculator to quote price updates
+  // Initialize quote price display and connect to hire calculator
+  const quotePrice = initQuotePrice();
   if (quotePrice) {
     initHireCalculator((days) => quotePrice.update(days));
   }
