@@ -4,6 +4,10 @@
 		"src/_lib/build/scss.js": [
 			40
 		],
+		"src/_lib/utils/console.js": [
+			15,
+			16
+		],
 		"src/_lib/eleventy/file-utils.js": [
 			20
 		],
