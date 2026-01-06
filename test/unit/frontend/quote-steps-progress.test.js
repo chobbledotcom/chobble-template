@@ -4,7 +4,7 @@ import { describe, expect, test } from "bun:test";
 import {
   renderStepProgress,
   updateStepProgress,
-} from "#assets/quote-steps-progress.js";
+} from "#public/ui/quote-steps-progress.js";
 
 describe("quote-steps-progress", () => {
   const steps = [

@@ -3,19 +3,18 @@
 	"entry": [
 		".eleventy.js",
 		"src/_data/**/*.{js,mjs}",
-		"src/**/*.11tydata.js"
+		"src/**/*.11tydata.js",
+		"src/_lib/public/bundle.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
-		"src/assets/js/**",
 		"ecommerce-backend/**",
 		"_site/**",
-		"test/**"
+		"test/**",
+		"src/_lib/public/theme/theme-editor-config.js"
 	],
 	"ignoreDependencies": [
 		"@zachleat/heading-anchors",
-		"@botpoison/browser",
-		"@hotwired/turbo",
 		"@happy-dom/global-registrator",
 		"happy-dom",
 		"@adobe/structured-data-validator",

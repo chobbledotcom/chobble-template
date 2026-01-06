@@ -5,7 +5,7 @@ import {
   getScopedVarNames,
   getScopes,
   SCOPED_INPUTS,
-} from "#assets/theme-editor-config.js";
+} from "#public/theme/theme-editor-config.js";
 import {
   collectActiveClasses,
   controlToVarEntry,
@@ -21,7 +21,7 @@ import {
   SCOPES,
   shouldIncludeScopedVar,
   toggleClassAndReturn,
-} from "#assets/theme-editor-lib.js";
+} from "#public/theme/theme-editor-lib.js";
 
 // ============================================
 // Unit Tests - parseCssBlock

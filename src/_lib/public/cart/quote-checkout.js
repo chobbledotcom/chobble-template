@@ -1,8 +1,8 @@
 // Quote checkout page
 // Populates form with cart items and displays summary
 
-import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { initHireCalculator } from "#public/cart/hire-calculator.js";
+import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { updateQuotePrice } from "#public/utils/quote-price-utils.js";
 import { IDS } from "#public/utils/selectors.js";
