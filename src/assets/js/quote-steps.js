@@ -40,7 +40,7 @@ function buildRadioRecapItem(id) {
 
 function buildFieldRecapItem(id) {
   const field = document.getElementById(id);
-  if (!field) {
+  if (field === null) {
     const radioField = document.querySelector(`input[name="${id}"]`);
     return radioField ? buildRadioRecapItem(id) : "";
   }
@@ -158,7 +158,7 @@ function getCurrentStep(container) {
 
 function initQuoteSteps() {
   const container = document.querySelector(".quote-steps");
-  if (!container) return;
+  if (container === null) return;
 
   const steps = container.querySelectorAll(".quote-step");
   const progressContainer = container.querySelector(".quote-steps-progress");
@@ -208,7 +208,7 @@ function initQuoteSteps() {
   // Set up click handlers for completed indicators
   progressContainer.addEventListener("click", (e) => {
     const indicator = e.target.closest(".quote-steps-indicator");
-    if (!indicator) return;
+    if (indicator === null) return;
     const stepIndex = parseInt(indicator.dataset.step, 10);
     const formStep = stepIndex - baseCompletedSteps;
     if (formStep >= 0 && formStep < getCurrentStep(container)) {
