@@ -214,8 +214,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/search.js:16", // keywordsDatalist
   "src/assets/js/availability-calendar.js:117", // content
   "src/assets/js/availability-calendar.js:138", // dialog
-  "src/assets/js/theme-switcher.js:87", // button
-  "src/assets/js/theme-editor.js:293", // target
+  "src/assets/js/theme-switcher.js:68", // button
+  "src/assets/js/theme-editor.js:284", // target
   "src/assets/js/theme-editor.js:384", // borderOutput
   "src/assets/js/cart.js:136", // cartItems
   "src/assets/js/shuffle-properties.js:49", // itemsList
@@ -250,9 +250,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/assets/js/cart-utils.js:8", // cart (from localStorage)
   "src/assets/js/cart-utils.js:66", // item
   "src/assets/js/theme-editor-lib.js:32", // cssText
-  "src/assets/js/theme-editor-lib.js:66", // themeContent
-  "src/assets/js/theme-editor-lib.js:89", // borderValue
-  "src/assets/js/theme-editor-lib.js:164", // value
+  "src/assets/js/theme-editor-lib.js:48", // themeContent
+  "src/assets/js/theme-editor-lib.js:85", // borderValue
+  "src/assets/js/theme-editor-lib.js:157", // value
   "src/assets/js/hire-calculator.js:22", // priceStr
   "src/assets/js/hire-calculator.js:40", // hirePrices
   "src/_lib/filters/spec-filters.js:11", // specName
@@ -325,8 +325,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/assets/js/stripe-checkout.js",
   "src/assets/js/tabs.js",
   "src/assets/js/theme-editor-lib.js",
-  "src/assets/js/theme-editor.js",
-  "src/assets/js/theme-switcher.js",
   "src/products/products.11tydata.js",
   "test/code-quality/array-push.test.js",
   "test/code-quality/method-aliasing.test.js",

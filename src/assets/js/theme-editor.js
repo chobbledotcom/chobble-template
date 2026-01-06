@@ -37,15 +37,6 @@ const SCOPED_VARS_TO_CLEAR = [
   "--border",
 ];
 
-const applyScopeToElement = (el, vars) => {
-  for (const varName of SCOPED_VARS_TO_CLEAR) {
-    el.style.removeProperty(varName);
-  }
-  for (const [varName, value] of Object.entries(vars)) {
-    el.style.setProperty(varName, value);
-  }
-};
-
 // Create form element selector for this form
 const formEl = createFormEl(ELEMENT_IDS.form);
 
@@ -314,6 +305,15 @@ const ThemeEditor = {
    * Apply scoped CSS variables to DOM elements for live preview
    */
   applyScopes(scopeVars) {
+    const applyScopeToElement = (el, vars) => {
+      for (const varName of SCOPED_VARS_TO_CLEAR) {
+        el.style.removeProperty(varName);
+      }
+      for (const [varName, value] of Object.entries(vars)) {
+        el.style.setProperty(varName, value);
+      }
+    };
+
     for (const scope of SCOPES) {
       const selector = SCOPE_DOM_SELECTORS[scope];
       const elements = document.querySelectorAll(selector);
@@ -449,8 +449,4 @@ const ThemeEditor = {
   },
 };
 
-function init() {
-  ThemeEditor.init.call(ThemeEditor);
-}
-
-onReady(init);
+onReady(() => ThemeEditor.init.call(ThemeEditor));
