@@ -4,6 +4,8 @@ layout: base
 
 {{ content }}
 
+{%- include "quote-header.html" -%}
+
 {%- if config.form_target and config.form_target != "" -%}
   <div class="quote-layout">
     {%- include "templates/quote-steps-progress.html", completed_steps: 1 -%}

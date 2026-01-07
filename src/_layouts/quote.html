@@ -4,6 +4,8 @@ layout: base
 
 {{ content }}
 
+{%- include "quote-header.html" -%}
+
 <div class="quote-layout">
   {%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
   <div class="quote-main">
