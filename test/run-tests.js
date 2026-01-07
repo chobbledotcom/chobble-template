@@ -2,7 +2,7 @@
 
 /**
  * Full test suite runner.
- * Runs lint, typecheck, cpd, build, and coverage tests in sequence.
+ * Runs lint, typecheck, cpd, build, and tests (with coverage) in sequence.
  * Use --verbose flag to see full output from all checks.
  */
 
@@ -21,7 +21,18 @@ const steps = [
     cmd: "bun",
     args: ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
   },
-  { name: "coverage", cmd: "bun", args: ["test/run-coverage.js"] },
+  {
+    name: "tests",
+    cmd: "bun",
+    args: [
+      "test",
+      "--coverage",
+      "--coverage-reporter=lcov",
+      "--concurrent",
+      "--timeout",
+      "30000",
+    ],
+  },
 ];
 
 const results = {};
