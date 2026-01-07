@@ -8,6 +8,13 @@ import {
 } from "#test/test-site-factory.js";
 import { rootDir } from "#test/test-utils.js";
 
+/** Minimal page file for tests that just need a valid site */
+const minimalPage = () => ({
+  path: "pages/index.md",
+  frontmatter: { title: "Home", permalink: "/" },
+  content: "Home",
+});
+
 describe("test-site-factory", () => {
   // Clean up any leftover test sites before and after all tests
   afterAll(() => {
@@ -195,57 +202,29 @@ describe("test-site-factory", () => {
     });
 
     test("addFile adds a new file to the site", async () => {
-      const site = await createTestSite({
-        files: [
-          {
-            path: "pages/index.md",
-            frontmatter: { title: "Home", permalink: "/" },
-            content: "Home",
-          },
-        ],
-      });
-
-      try {
-        // Add a new file after creation
+      await withTestSite({ files: [minimalPage()] }, (site) => {
         site.addFile("test-file.txt", "Test content");
 
-        // Verify file was created
         const filePath = path.join(site.srcDir, "test-file.txt");
         expect(fs.existsSync(filePath)).toBe(true);
         expect(fs.readFileSync(filePath, "utf-8")).toBe("Test content");
-      } finally {
-        site.cleanup();
-      }
+      });
     });
 
     test("addMarkdown adds a markdown file with frontmatter", async () => {
-      const site = await createTestSite({
-        files: [
-          {
-            path: "pages/index.md",
-            frontmatter: { title: "Home", permalink: "/" },
-            content: "Home",
-          },
-        ],
-      });
-
-      try {
-        // Add a markdown file after creation
+      await withTestSite({ files: [minimalPage()] }, (site) => {
         site.addMarkdown("pages/added.md", {
           frontmatter: { title: "Added Page" },
           content: "# Added Content",
         });
 
-        // Verify markdown file was created with frontmatter
         const filePath = path.join(site.srcDir, "pages/added.md");
         expect(fs.existsSync(filePath)).toBe(true);
 
         const fileContent = fs.readFileSync(filePath, "utf-8");
         expect(fileContent).toContain("title: Added Page");
         expect(fileContent).toContain("# Added Content");
-      } finally {
-        site.cleanup();
-      }
+      });
     });
 
     test("getDoc returns a DOM document for querying HTML", async () => {
