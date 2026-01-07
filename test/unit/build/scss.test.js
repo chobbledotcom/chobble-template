@@ -141,4 +141,19 @@ describe("scss", () => {
     expect(contentCopy).toBe(originalContent);
     expect(pathCopy).toBe(originalPath);
   });
+
+  test("SCSS extension skips non-bundle SCSS files", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureScss(mockConfig);
+
+    const scssExtension = mockConfig.extensions.scss;
+    const inputContent = ".test { color: red; }";
+    const inputPath = "/project/src/css/style.scss";
+
+    const compileFn = scssExtension.compile(inputContent, inputPath);
+    expect(typeof compileFn).toBe("function");
+
+    const result = compileFn({});
+    expect(result).toBeUndefined();
+  });
 });

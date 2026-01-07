@@ -271,9 +271,11 @@ export function configurePdf(eleventyConfig) {
     if (!state || !state.menus || state.menus.length === 0) return;
 
     const { menus, menuCategories, menuItems } = state;
-    for (const menu of menus) {
-      await generateMenuPdf(menu, menuCategories, menuItems, dir.output);
-    }
+    await Promise.all(
+      menus.map((menu) =>
+        generateMenuPdf(menu, menuCategories, menuItems, dir.output),
+      ),
+    );
   });
 }
 

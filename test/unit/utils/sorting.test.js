@@ -6,6 +6,12 @@ import {
 } from "#utils/sorting.js";
 
 describe("sorting", () => {
+  // Helper to test sorting results by title field
+  const testSortByTitle = (items, expectedTitles) => {
+    const sorted = [...items].sort(sortItems);
+    expect(sorted.map((i) => i.data.title)).toEqual(expectedTitles);
+  };
+
   // ============================================
   // sortItems Tests
   // ============================================
@@ -15,8 +21,7 @@ describe("sorting", () => {
       { data: { order: 1, title: "B" } },
       { data: { order: 3, title: "C" } },
     ];
-    const sorted = [...items].sort(sortItems);
-    expect(sorted.map((i) => i.data.title)).toEqual(["B", "A", "C"]);
+    testSortByTitle(items, ["B", "A", "C"]);
   });
 
   test("Items with identical order values fall back to alphabetical title sorting", () => {
@@ -25,12 +30,7 @@ describe("sorting", () => {
       { data: { order: 1, title: "Apple" } },
       { data: { order: 1, title: "Mango" } },
     ];
-    const sorted = [...items].sort(sortItems);
-    expect(sorted.map((i) => i.data.title)).toEqual([
-      "Apple",
-      "Mango",
-      "Zebra",
-    ]);
+    testSortByTitle(items, ["Apple", "Mango", "Zebra"]);
   });
 
   test("Items without an order field are treated as having order 0", () => {
@@ -39,8 +39,7 @@ describe("sorting", () => {
       { data: { title: "A" } },
       { data: { order: -1, title: "C" } },
     ];
-    const sorted = [...items].sort(sortItems);
-    expect(sorted.map((i) => i.data.title)).toEqual(["C", "A", "B"]);
+    testSortByTitle(items, ["C", "A", "B"]);
   });
 
   test("Uses name field for alphabetical sorting when title is absent", () => {

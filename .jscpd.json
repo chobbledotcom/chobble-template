@@ -5,18 +5,18 @@
 	"ignore": [
 		"**/node_modules/**",
 		"**/_site/**",
-		"**/src/assets/js/lib/**",
-		"**/*.min.js",
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
 		"**/scripts/**",
-		"**/.test-sites/**"
+		"**/.test-sites/**",
+		"**/test/precommit.js",
+		"**/test/run-tests.js"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
 	"gitignore": true,
 	"exitCode": 1,
-	"minLines": 3,
-	"minTokens": 50,
+	"minLines": 1,
+	"minTokens": 40,
 	"path": ["src", "test", ".eleventy.js"]
 }

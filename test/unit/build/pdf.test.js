@@ -61,6 +61,13 @@ const createDietaryKeyTestData = (dietaryKeysList) => ({
   ),
 });
 
+/** Lunch menu with single item for dietary key tests */
+const lunchMenuWithItem = (dietaryKeys) => ({
+  menu: createMockMenu("lunch", "Lunch"),
+  categories: [createMockCategory("apps", "Appetizers", ["lunch"])],
+  items: [createMockMenuItem("Item", ["apps"], "$5", null, dietaryKeys)],
+});
+
 describe("pdf", () => {
   // buildMenuPdfData tests
   describe("buildMenuPdfData", () => {
@@ -253,29 +260,19 @@ describe("pdf", () => {
     });
 
     test("Handles empty dietary keys array", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [createMockMenuItem("Item", ["apps"], "$5", null, [])];
-
+      const { menu, categories, items } = lunchMenuWithItem([]);
       const result = buildMenuPdfData(menu, categories, items);
-
       expect(result.categories[0].items[0].dietarySymbols).toBe("");
     });
 
     test("Filters out dietary keys missing symbol or label", () => {
-      const menu = createMockMenu("lunch", "Lunch");
-      const categories = [createMockCategory("apps", "Appetizers", ["lunch"])];
-      const items = [
-        createMockMenuItem("Item", ["apps"], "$5", null, [
-          { symbol: "V", label: "Vegetarian" },
-          { symbol: "", label: "Empty Symbol" },
-          { symbol: "GF" },
-          { label: "Missing Symbol" },
-        ]),
-      ];
-
+      const { menu, categories, items } = lunchMenuWithItem([
+        { symbol: "V", label: "Vegetarian" },
+        { symbol: "", label: "Empty Symbol" },
+        { symbol: "GF" },
+        { label: "Missing Symbol" },
+      ]);
       const result = buildMenuPdfData(menu, categories, items);
-
       expect(result.dietaryKeyString).toBe("(V) Vegetarian");
     });
   });

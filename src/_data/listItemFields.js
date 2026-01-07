@@ -16,7 +16,11 @@ const selectListItemFields = (configFields) =>
     ? configFields
     : DEFAULT_FIELDS;
 
+/**
+ * @type {Array<string> & { _helpers?: { DEFAULT_FIELDS: Array<string>, selectListItemFields: Function } }}
+ */
 const listItemFields = selectListItemFields(configJson.list_item_fields);
+// Adding helper methods for tests (Eleventy breaks with multiple exports)
 listItemFields._helpers = { DEFAULT_FIELDS, selectListItemFields };
 
 export default listItemFields;

@@ -4,19 +4,15 @@ import { onReady } from "#public/utils/on-ready.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
-function createIndicator(step, index) {
-  const template = getTemplate(IDS.QUOTE_STEP_INDICATOR, document);
-  const li = template.querySelector("li");
-  li.dataset.step = index;
-  li.querySelector('[data-name="name"]').textContent = step.name;
-  li.querySelector('[data-name="index"]').textContent = step.number;
-  return li;
-}
-
 export function renderStepProgress(container, steps, completedSteps) {
   const ul = document.createElement("ul");
   for (const [index, step] of steps.entries()) {
-    ul.appendChild(createIndicator(step, index));
+    const template = getTemplate(IDS.QUOTE_STEP_INDICATOR, document);
+    const li = template.querySelector("li");
+    li.dataset.step = index;
+    li.querySelector('[data-name="name"]').textContent = step.name;
+    li.querySelector('[data-name="index"]').textContent = step.number;
+    ul.appendChild(li);
   }
   container.innerHTML = "";
   container.appendChild(ul);

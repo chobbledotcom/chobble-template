@@ -70,18 +70,6 @@ function getStepFieldRefs(stepEl) {
   return uniqueById(extractFieldRefs(fields));
 }
 
-// Backward compatible wrapper - returns just the IDs as strings
-function getStepFieldIds(stepEl) {
-  return getStepFieldRefs(stepEl).map((ref) => ref.id);
-}
-
-// Backward compatible wrapper - takes string id, detects type
-function buildFieldRecapItem(id) {
-  const isRadio =
-    document.querySelector(`input[name="${id}"][type="radio"]`) !== null;
-  return buildRecapItem({ isRadio, id });
-}
-
 function populateRecap(steps) {
   const recapEvent = document.getElementById("recap-event");
   const recapContact = document.getElementById("recap-contact");
@@ -164,26 +152,45 @@ function validateStep(stepEl) {
   return invalidFields.length === 0;
 }
 
-function updateButtons(prevBtn, nextBtn, submitBtn, currentStep, totalSteps) {
+function updateButtons(
+  backToItemsBtn,
+  prevBtn,
+  nextBtn,
+  submitBtn,
+  currentStep,
+  totalSteps,
+) {
+  if (backToItemsBtn) {
+    backToItemsBtn.style.display = currentStep === 0 ? "" : "none";
+  }
   prevBtn.style.display = currentStep === 0 ? "none" : "";
   nextBtn.style.display = currentStep === totalSteps - 1 ? "none" : "";
   submitBtn.style.display = currentStep === totalSteps - 1 ? "" : "none";
 }
 
-function getCurrentStep(container) {
-  return parseInt(container.dataset.currentStep || "0", 10);
+function getCurrentStep() {
+  const stepsContainer = document.querySelector(".quote-steps");
+  return parseInt(stepsContainer?.dataset.currentStep || "0", 10);
+}
+
+function setCurrentStep(step) {
+  const stepsContainer = document.querySelector(".quote-steps");
+  if (stepsContainer) {
+    stepsContainer.dataset.currentStep = step;
+  }
 }
 
 function initQuoteSteps() {
-  const container = document.querySelector(".quote-steps");
-  if (container === null) return;
+  const stepsContainer = document.querySelector(".quote-steps");
+  if (stepsContainer === null) return;
 
-  const steps = container.querySelectorAll(".quote-step");
-  const progressContainer = container.querySelector(".quote-steps-progress");
-  const dataScript = container.querySelector(".quote-steps-data");
-  const prevBtn = container.querySelector(".quote-step-prev");
-  const nextBtn = container.querySelector(".quote-step-next");
-  const submitBtn = container.querySelector(".quote-step-submit");
+  const steps = document.querySelectorAll(".quote-step");
+  const progressContainer = document.querySelector(".quote-steps-progress");
+  const dataScript = document.querySelector(".quote-steps-data");
+  const backToItemsBtn = document.querySelector(".quote-step-back-to-items");
+  const prevBtn = document.querySelector(".quote-step-prev");
+  const nextBtn = document.querySelector(".quote-step-next");
+  const submitBtn = document.querySelector(".quote-step-submit");
   const stepsData = JSON.parse(dataScript.textContent);
   const baseCompletedSteps = parseInt(
     progressContainer.dataset.completedSteps,
@@ -194,30 +201,33 @@ function initQuoteSteps() {
   renderStepProgress(progressContainer, stepsData, baseCompletedSteps);
 
   function updateUI() {
-    const currentStep = getCurrentStep(container);
+    const currentStep = getCurrentStep();
     for (const [index, step] of steps.entries()) {
       step.classList.toggle("active", index === currentStep);
     }
     updateStepProgress(progressContainer, baseCompletedSteps + currentStep);
-    updateButtons(prevBtn, nextBtn, submitBtn, currentStep, totalSteps);
+    updateButtons(
+      backToItemsBtn,
+      prevBtn,
+      nextBtn,
+      submitBtn,
+      currentStep,
+      totalSteps,
+    );
     if (currentStep === totalSteps - 1) populateRecap(steps);
   }
 
   function goToStep(newStep) {
-    const currentStep = getCurrentStep(container);
+    const currentStep = getCurrentStep();
     if (newStep < 0 || newStep >= totalSteps) return;
     if (newStep > currentStep && !validateStep(steps[currentStep])) return;
-    container.dataset.currentStep = newStep;
+    setCurrentStep(newStep);
     updateUI();
-    container.scrollIntoView({ behavior: "smooth", block: "start" });
+    stepsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  prevBtn.addEventListener("click", () =>
-    goToStep(getCurrentStep(container) - 1),
-  );
-  nextBtn.addEventListener("click", () =>
-    goToStep(getCurrentStep(container) + 1),
-  );
+  prevBtn.addEventListener("click", () => goToStep(getCurrentStep() - 1));
+  nextBtn.addEventListener("click", () => goToStep(getCurrentStep() + 1));
 
   // Set up click handlers for completed indicators
   progressContainer.addEventListener("click", (e) => {
@@ -225,7 +235,7 @@ function initQuoteSteps() {
     if (indicator === null) return;
     const stepIndex = parseInt(indicator.dataset.step, 10);
     const formStep = stepIndex - baseCompletedSteps;
-    if (formStep >= 0 && formStep < getCurrentStep(container)) {
+    if (formStep >= 0 && formStep < getCurrentStep()) {
       goToStep(formStep);
     }
   });
@@ -237,7 +247,6 @@ onReady(initQuoteSteps);
 
 // Exports for testing
 export {
-  buildFieldRecapItem,
   buildRadioRecapItem,
   clearFieldError,
   getCurrentStep,
@@ -246,9 +255,9 @@ export {
   getFieldWrapper,
   getRadioLabel,
   getRadioValue,
-  getStepFieldIds,
   initQuoteSteps,
   populateRecap,
+  setCurrentStep,
   setFieldError,
   updateButtons,
   validateField,

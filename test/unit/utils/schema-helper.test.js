@@ -1,17 +1,33 @@
 import { describe, expect, test } from "bun:test";
+import { expectObjectProps } from "#test/test-utils.js";
 import {
   createMockReview,
   createPostSchemaData,
   createProductSchemaData,
   createSchemaData,
-  expectObjectProps,
-} from "#test/test-utils.js";
+} from "#test/unit/utils/schema-helper-utils.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+
+// Helper to test buildProductMeta with mock reviews
+const testProductMeta = (reviewSpecs) => {
+  const mockReviews = reviewSpecs.map((spec) =>
+    createMockReview({
+      name: spec.name,
+      rating: spec.rating,
+      ...(spec.date && { date: new Date(spec.date) }),
+    }),
+  );
+  const data = createProductSchemaData({
+    reviews: mockReviews,
+    reviewsField: "products",
+  });
+  return buildProductMeta(data);
+};
 
 describe("buildBaseMeta", () => {
   test("returns basic meta with url, title, and description", () => {
@@ -216,20 +232,10 @@ describe("buildProductMeta", () => {
   });
 
   test("includes reviews and rating when reviewsField and collections.reviews are provided", () => {
-    const mockReviews = [
-      createMockReview({ name: "Reviewer 1", rating: 5 }),
-      createMockReview({
-        name: "Reviewer 2",
-        rating: 4,
-        date: new Date("2024-02-20"),
-      }),
-    ];
-    const data = createProductSchemaData({
-      reviews: mockReviews,
-      reviewsField: "products",
-    });
-
-    const result = buildProductMeta(data);
+    const result = testProductMeta([
+      { name: "Reviewer 1", rating: 5 },
+      { name: "Reviewer 2", rating: 4, date: "2024-02-20" },
+    ]);
 
     expect(result.reviews).toBeTruthy();
     expect(result.reviews.length).toBe(2);
@@ -240,20 +246,10 @@ describe("buildProductMeta", () => {
   });
 
   test("calculates correct average rating", () => {
-    const mockReviews = [
-      createMockReview({ name: "Reviewer 1", rating: 5 }),
-      createMockReview({
-        name: "Reviewer 2",
-        rating: 3,
-        date: new Date("2024-02-20"),
-      }),
-    ];
-    const data = createProductSchemaData({
-      reviews: mockReviews,
-      reviewsField: "products",
-    });
-
-    const result = buildProductMeta(data);
+    const result = testProductMeta([
+      { name: "Reviewer 1", rating: 5 },
+      { name: "Reviewer 2", rating: 3, date: "2024-02-20" },
+    ]);
 
     expect(result.rating.ratingValue).toBe("4.0");
   });

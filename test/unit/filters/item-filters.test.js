@@ -74,6 +74,13 @@ const filterData = (definition) =>
     ),
   )(definition);
 
+/** Common type/size filter data used across multiple tests */
+const typeSizeData = () =>
+  filterData({
+    type: { display: "Type", values: { cottage: "Cottage" } },
+    size: { display: "Size", values: { small: "Small" } },
+  });
+
 /**
  * Create a mock Eleventy config that captures addCollection/addFilter calls
  */
@@ -456,10 +463,7 @@ describe("item-filters", () => {
   });
 
   test("Excludes groups with no valid options", () => {
-    const data = filterData({
-      type: { display: "Type", values: { cottage: "Cottage" } },
-      size: { display: "Size", values: { small: "Small" } },
-    });
+    const data = typeSizeData();
     // Only type/cottage is valid, size/small is not
     const validPages = pages(["type/cottage"]);
 
@@ -470,10 +474,7 @@ describe("item-filters", () => {
   });
 
   test("Remove URL for active filter keeps other filters", () => {
-    const data = filterData({
-      type: { display: "Type", values: { cottage: "Cottage" } },
-      size: { display: "Size", values: { small: "Small" } },
-    });
+    const data = typeSizeData();
     const currentFilters = { type: "cottage", size: "small" };
     const validPages = pages([
       "type/cottage",

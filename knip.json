@@ -9,7 +9,9 @@
 		"test/build-profiling.js",
 		"test/ensure-deps.js",
 		"test/setup.js",
-		"test/demo-precommit-errors.js"
+		"test/demo-precommit-errors.js",
+		"test/precommit.js",
+		"test/run-tests.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [

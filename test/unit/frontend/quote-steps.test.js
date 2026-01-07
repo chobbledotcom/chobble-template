@@ -3,7 +3,6 @@
 
 import { describe, expect, mock, test } from "bun:test";
 import {
-  buildFieldRecapItem,
   buildRadioRecapItem,
   clearFieldError,
   getCurrentStep,
@@ -12,7 +11,6 @@ import {
   getFieldWrapper,
   getRadioLabel,
   getRadioValue,
-  getStepFieldIds,
   initQuoteSteps,
   populateRecap,
   setFieldError,
@@ -21,6 +19,11 @@ import {
   validateRadioGroup,
   validateStep,
 } from "#public/cart/quote-steps.js";
+import {
+  createQuoteStepsHtml,
+  testNextButtonStep,
+  testValidateFieldWithHtml,
+} from "#test/unit/frontend/quote-steps-utils.js";
 
 describe("quote-steps", () => {
   // ----------------------------------------
@@ -178,58 +181,35 @@ describe("quote-steps", () => {
   // validateField Tests (with DOM)
   // ----------------------------------------
   test("validateField returns true for valid field", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="text" required value="filled" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(true);
+    testValidateFieldWithHtml(
+      '<input id="test" type="text" required value="filled" />',
+      true,
+    );
   });
 
   test("validateField returns false for empty required field", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="text" required value="" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(false);
+    testValidateFieldWithHtml(
+      '<input id="test" type="text" required value="" />',
+      false,
+    );
   });
 
   test("validateField returns true for empty non-required field", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="text" value="" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(true);
+    testValidateFieldWithHtml('<input id="test" type="text" value="" />', true);
   });
 
   test("validateField validates email format", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="email" required value="invalid-email" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(false);
+    testValidateFieldWithHtml(
+      '<input id="test" type="email" required value="invalid-email" />',
+      false,
+    );
   });
 
   test("validateField returns true for valid email", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="email" required value="test@example.com" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(true);
+    testValidateFieldWithHtml(
+      '<input id="test" type="email" required value="test@example.com" />',
+      true,
+    );
   });
 
   test("validateField delegates to validateRadioGroup for radio type", () => {
@@ -296,68 +276,108 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // getCurrentStep Tests
   // ----------------------------------------
+  test("getCurrentStep returns 0 when no quote-steps container exists", () => {
+    document.body.innerHTML = "<div>No steps</div>";
+    expect(getCurrentStep()).toBe(0);
+  });
+
   test("getCurrentStep returns 0 when dataset has no currentStep", () => {
-    const container = { dataset: {} };
-    expect(getCurrentStep(container)).toBe(0);
+    document.body.innerHTML = '<div class="quote-steps"></div>';
+    expect(getCurrentStep()).toBe(0);
   });
 
   test("getCurrentStep returns 0 when currentStep is empty string", () => {
-    const container = { dataset: { currentStep: "" } };
-    expect(getCurrentStep(container)).toBe(0);
+    document.body.innerHTML =
+      '<div class="quote-steps" data-current-step=""></div>';
+    expect(getCurrentStep()).toBe(0);
   });
 
   test("getCurrentStep parses numeric string from dataset", () => {
-    const container = { dataset: { currentStep: "2" } };
-    expect(getCurrentStep(container)).toBe(2);
+    document.body.innerHTML =
+      '<div class="quote-steps" data-current-step="2"></div>';
+    expect(getCurrentStep()).toBe(2);
   });
 
   test("getCurrentStep handles string '0' correctly", () => {
-    const container = { dataset: { currentStep: "0" } };
-    expect(getCurrentStep(container)).toBe(0);
+    document.body.innerHTML =
+      '<div class="quote-steps" data-current-step="0"></div>';
+    expect(getCurrentStep()).toBe(0);
   });
 
   // ----------------------------------------
-  // updateButtons Tests
+  // updateButtons Tests (data-driven)
   // ----------------------------------------
-  test("updateButtons hides prev on first step", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 0, 3);
-    expect(prevBtn.style.display).toBe("none");
-    expect(nextBtn.style.display).toBe("");
-    expect(submitBtn.style.display).toBe("none");
+  const createMockButtons = () => ({
+    backToItems: { style: {} },
+    prev: { style: {} },
+    next: { style: {} },
+    submit: { style: {} },
   });
 
-  test("updateButtons shows both nav buttons on middle step", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 1, 3);
-    expect(prevBtn.style.display).toBe("");
-    expect(nextBtn.style.display).toBe("");
-    expect(submitBtn.style.display).toBe("none");
-  });
+  const updateButtonsCases = [
+    {
+      name: "hides prev and shows backToItems on first step",
+      step: 0,
+      total: 3,
+      backToItems: "",
+      prev: "none",
+      next: "",
+      submit: "none",
+    },
+    {
+      name: "shows both nav and hides backToItems on middle step",
+      step: 1,
+      total: 3,
+      backToItems: "none",
+      prev: "",
+      next: "",
+      submit: "none",
+    },
+    {
+      name: "shows submit on last step",
+      step: 2,
+      total: 3,
+      backToItems: "none",
+      prev: "",
+      next: "none",
+      submit: "",
+    },
+    {
+      name: "handles single step form",
+      step: 0,
+      total: 1,
+      backToItems: "",
+      prev: "none",
+      next: "none",
+      submit: "",
+    },
+  ];
 
-  test("updateButtons shows submit on last step", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 2, 3);
-    expect(prevBtn.style.display).toBe("");
-    expect(nextBtn.style.display).toBe("none");
-    expect(submitBtn.style.display).toBe("");
-  });
-
-  test("updateButtons handles single step form", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 0, 1);
-    expect(prevBtn.style.display).toBe("none");
-    expect(nextBtn.style.display).toBe("none");
-    expect(submitBtn.style.display).toBe("");
-  });
+  for (const {
+    name,
+    step,
+    total,
+    backToItems,
+    prev,
+    next,
+    submit,
+  } of updateButtonsCases) {
+    test(`updateButtons ${name}`, () => {
+      const btns = createMockButtons();
+      updateButtons(
+        btns.backToItems,
+        btns.prev,
+        btns.next,
+        btns.submit,
+        step,
+        total,
+      );
+      expect(btns.backToItems.style.display).toBe(backToItems);
+      expect(btns.prev.style.display).toBe(prev);
+      expect(btns.next.style.display).toBe(next);
+      expect(btns.submit.style.display).toBe(submit);
+    });
+  }
 
   // ----------------------------------------
   // getFieldDisplayValue Tests
@@ -460,112 +480,6 @@ describe("quote-steps", () => {
   });
 
   // ----------------------------------------
-  // getStepFieldIds Tests (with DOM)
-  // ----------------------------------------
-  test("getStepFieldIds returns field ids from step", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="name" type="text" />
-        <input id="email" type="email" />
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids).toContain("name");
-    expect(ids).toContain("email");
-  });
-
-  test("getStepFieldIds returns radio name instead of id", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input type="radio" name="contact" value="Email" />
-        <input type="radio" name="contact" value="Phone" />
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids).toEqual(["contact"]);
-  });
-
-  test("getStepFieldIds deduplicates radio buttons", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input type="radio" name="pref" value="A" />
-        <input type="radio" name="pref" value="B" />
-        <input type="radio" name="pref" value="C" />
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids.length).toBe(1);
-    expect(ids[0]).toBe("pref");
-  });
-
-  test("getStepFieldIds includes select and textarea", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <select id="event_type"><option>Wedding</option></select>
-        <textarea id="message"></textarea>
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids).toContain("event_type");
-    expect(ids).toContain("message");
-  });
-
-  // ----------------------------------------
-  // buildFieldRecapItem Tests (with DOM)
-  // ----------------------------------------
-  // Note: We trust templates to always include the referenced fields
-  // No test for missing fields - that would be a template bug
-
-  test("buildFieldRecapItem returns empty string for empty value", () => {
-    document.body.innerHTML = `
-      <label for="name">Name</label>
-      <input type="text" id="name" value="" />
-    `;
-    expect(buildFieldRecapItem("name")).toBe("");
-  });
-
-  test("buildFieldRecapItem builds dt/dd for filled field", () => {
-    document.body.innerHTML = `
-      <label for="name">Your Name</label>
-      <input type="text" id="name" value="John Doe" />
-    `;
-    const result = buildFieldRecapItem("name");
-    expect(result).toContain("<dt>");
-    expect(result).toContain("Your Name");
-    expect(result).toContain("<dd>");
-    expect(result).toContain("John Doe");
-  });
-
-  test("buildFieldRecapItem works with select fields", () => {
-    document.body.innerHTML = `
-      <label for="event_type">Event Type</label>
-      <select id="event_type">
-        <option value="">Choose...</option>
-        <option value="wedding" selected>Wedding</option>
-      </select>
-    `;
-    const result = buildFieldRecapItem("event_type");
-    expect(result).toContain("Event Type");
-    expect(result).toContain("Wedding");
-  });
-
-  test("buildFieldRecapItem handles radio field via buildRadioRecapItem", () => {
-    document.body.innerHTML = `
-      <fieldset>
-        <legend>Contact Method</legend>
-        <input type="radio" name="contact_preference" value="Email" checked />
-      </fieldset>
-    `;
-    const result = buildFieldRecapItem("contact_preference");
-    expect(result).toContain("Contact Method");
-    expect(result).toContain("Email");
-  });
-
-  // ----------------------------------------
   // populateRecap Tests (with DOM)
   // ----------------------------------------
   // Note: We trust templates to always include recap elements and pass valid steps
@@ -595,43 +509,6 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // initQuoteSteps Tests (with DOM)
   // ----------------------------------------
-  const stepsData = JSON.stringify([
-    { name: "Items", number: 1 },
-    { name: "Event", number: 2 },
-    { name: "Contact", number: 3 },
-    { name: "Review", number: 4 },
-  ]);
-
-  // Template element required by renderStepProgress
-  const indicatorTemplate = `
-    <template id="quote-step-indicator-template">
-      <li><span data-name="name"></span><span data-name="index"></span></li>
-    </template>
-  `;
-
-  function createQuoteStepsHtml(options = {}) {
-    const currentStep = options.currentStep ?? 0;
-    const inputValue = options.inputValue ?? "filled";
-    const inputRequired = options.inputRequired !== false;
-    return `
-      ${indicatorTemplate}
-      <div class="quote-steps" data-current-step="${currentStep}">
-        <div class="quote-steps-progress" data-completed-steps="1"></div>
-        <script type="application/json" class="quote-steps-data">${stepsData}</script>
-        <div class="quote-step${currentStep === 0 ? " active" : ""}" data-step="0">
-          <input type="text" ${inputRequired ? "required" : ""} value="${inputValue}" />
-        </div>
-        <div class="quote-step${currentStep === 1 ? " active" : ""}" data-step="1">Step 2</div>
-        <div class="quote-step${currentStep === 2 ? " active" : ""}" data-step="2">
-          <dl id="recap-event"></dl>
-          <dl id="recap-contact"></dl>
-        </div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
-  }
 
   test("initQuoteSteps does nothing if no quote-steps container", () => {
     document.body.innerHTML = "<div>No steps here</div>";
@@ -656,21 +533,11 @@ describe("quote-steps", () => {
   });
 
   test("initQuoteSteps validates before advancing to next step", () => {
-    document.body.innerHTML = createQuoteStepsHtml({ inputValue: "" });
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    nextBtn.click();
-    const container = document.querySelector(".quote-steps");
-    expect(container.dataset.currentStep).toBe("0");
+    testNextButtonStep({ inputValue: "" }, "0");
   });
 
   test("initQuoteSteps advances when validation passes", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    nextBtn.click();
-    const container = document.querySelector(".quote-steps");
-    expect(container.dataset.currentStep).toBe("1");
+    testNextButtonStep({}, "1");
   });
 
   test("initQuoteSteps scrolls container into view after step change", () => {
@@ -683,37 +550,37 @@ describe("quote-steps", () => {
     expect(container.scrollIntoView).toHaveBeenCalled();
   });
 
-  test("initQuoteSteps sets up indicator click handlers", () => {
+  // Helper for initQuoteSteps tests that need navigation
+  const setupQuoteStepsNav = () => {
     document.body.innerHTML = createQuoteStepsHtml();
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = () => {};
     initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
+    return {
+      container,
+      nextBtn: document.querySelector(".quote-step-next"),
+      prevBtn: document.querySelector(".quote-step-prev"),
+      indicators: document.querySelectorAll(".quote-steps-progress li"),
+    };
+  };
+
+  test("initQuoteSteps sets up indicator click handlers", () => {
+    const { container, nextBtn, indicators } = setupQuoteStepsNav();
     nextBtn.click();
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("2");
-    const indicators = document.querySelectorAll(".quote-steps-progress li");
     indicators[1].click();
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps indicator click only navigates to completed steps", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    const container = document.querySelector(".quote-steps");
-    container.scrollIntoView = () => {};
-    initQuoteSteps();
-    const indicators = document.querySelectorAll(".quote-steps-progress li");
+    const { container, indicators } = setupQuoteStepsNav();
     indicators[2].click();
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps prev button navigates back", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    const container = document.querySelector(".quote-steps");
-    container.scrollIntoView = () => {};
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    const prevBtn = document.querySelector(".quote-step-prev");
+    const { container, nextBtn, prevBtn } = setupQuoteStepsNav();
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("1");
     prevBtn.click();

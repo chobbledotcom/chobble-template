@@ -2,12 +2,13 @@ import { describe, expect, test } from "bun:test";
 import {
   createCodeChecker,
   createPatternMatcher,
+  expectNoStaleExceptions,
   formatViolationReport,
   isCommentLine,
   scanFilesForViolations,
   validateExceptions,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { captureConsole, SRC_JS_FILES } from "#test/test-utils.js";
 
 describe("code-scanner", () => {
   describe("isCommentLine", () => {
@@ -72,27 +73,33 @@ describe("code-scanner", () => {
   });
 
   describe("createPatternMatcher", () => {
-    test("creates a matcher that finds patterns", () => {
-      const matcher = createPatternMatcher(/console\.log/, (line, num) => ({
+    const testMatcherResult = (matcher, input, expectedResult) => {
+      const result = matcher(input, 5, "", "test.js");
+      if (expectedResult === null) {
+        expect(result).toBeNull();
+      } else if (typeof expectedResult === "object") {
+        expect(result).not.toBeNull();
+        for (const [key, value] of Object.entries(expectedResult)) {
+          expect(result[key]).toBe(value);
+        }
+      }
+    };
+
+    const consoleLogMatcher = createPatternMatcher(
+      /console\.log/,
+      (line, num) => ({
         file: "test.js",
         line: num,
         code: line,
-      }));
+      }),
+    );
 
-      const result = matcher('console.log("test")', 5, "", "test.js");
-      expect(result).not.toBeNull();
-      expect(result.line).toBe(5);
+    test("creates a matcher that finds patterns", () => {
+      testMatcherResult(consoleLogMatcher, 'console.log("test")', { line: 5 });
     });
 
     test("returns null when pattern not found", () => {
-      const matcher = createPatternMatcher(/console\.log/, (line, num) => ({
-        file: "test.js",
-        line: num,
-        code: line,
-      }));
-
-      const result = matcher("const x = 1;", 5, "", "test.js");
-      expect(result).toBeNull();
+      testMatcherResult(consoleLogMatcher, "const x = 1;", null);
     });
 
     test("works with array of patterns", () => {
@@ -203,6 +210,19 @@ describe("code-scanner", () => {
   });
 
   describe("validateExceptions", () => {
+    // Helper to validate single stale exception
+    const testStaleException = (
+      allowlist,
+      patterns,
+      expectedEntry,
+      expectedReasonPattern,
+    ) => {
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe(expectedEntry);
+      expect(stale[0].reason).toMatch(expectedReasonPattern);
+    };
+
     test("returns empty array when all exceptions are valid", () => {
       const allowlist = new Set([
         "test/code-scanner.js:5", // import statement
@@ -226,23 +246,21 @@ describe("code-scanner", () => {
     });
 
     test("detects when line number exceeds file length", () => {
-      const allowlist = new Set(["test/code-scanner.js:999999"]);
-      const patterns = /./;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("test/code-scanner.js:999999");
-      expect(stale[0].reason).toMatch(/Line 999999 doesn't exist/);
+      testStaleException(
+        new Set(["test/code-scanner.js:999999"]),
+        /./,
+        "test/code-scanner.js:999999",
+        /Line 999999 doesn't exist/,
+      );
     });
 
     test("detects when line number is less than 1", () => {
-      const allowlist = new Set(["test/code-scanner.js:0"]);
-      const patterns = /./;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("test/code-scanner.js:0");
-      expect(stale[0].reason).toMatch(/Line 0 doesn't exist/);
+      testStaleException(
+        new Set(["test/code-scanner.js:0"]),
+        /./,
+        "test/code-scanner.js:0",
+        /Line 0 doesn't exist/,
+      );
     });
 
     test("detects when line no longer matches pattern", () => {
@@ -264,13 +282,12 @@ describe("code-scanner", () => {
     });
 
     test("detects when file does not exist", () => {
-      const allowlist = new Set(["non-existent-file.js:10"]);
-      const patterns = /./;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("non-existent-file.js:10");
-      expect(stale[0].reason).toBe("File not found: non-existent-file.js");
+      testStaleException(
+        new Set(["non-existent-file.js:10"]),
+        /./,
+        "non-existent-file.js:10",
+        /File not found: non-existent-file\.js/,
+      );
     });
 
     test("detects multiple stale entries", () => {
@@ -283,6 +300,29 @@ describe("code-scanner", () => {
 
       const stale = validateExceptions(allowlist, patterns);
       expect(stale.length).toBe(3);
+    });
+  });
+
+  describe("expectNoStaleExceptions", () => {
+    test("logs stale entries when exceptions are invalid", () => {
+      const allowlist = new Set([
+        "nonexistent-file.js:1", // file doesn't exist
+      ]);
+      const patterns = /test/;
+
+      const logs = captureConsole(() => {
+        // Call the function but catch the assertion error via expect().toThrow()
+        expect(() =>
+          expectNoStaleExceptions(allowlist, patterns, "TEST_ALLOWLIST"),
+        ).toThrow();
+      });
+
+      expect(
+        logs.some((log) => log.includes("Stale TEST_ALLOWLIST entries")),
+      ).toBe(true);
+      expect(logs.some((log) => log.includes("nonexistent-file.js:1"))).toBe(
+        true,
+      );
     });
   });
 });

@@ -20,6 +20,9 @@ const IGNORED_FUNCTIONS = new Set([
   "buildFilterUIData", // Complex filter UI data structure builder
 ]);
 
+// Test helper to join source code lines
+const testSource = (lines) => lines.join("\n");
+
 /**
  * Calculate "own lines" for each function by subtracting nested function lines.
  * A nested function is one that starts and ends within another function's range.
@@ -115,9 +118,11 @@ const formatViolations = (violations) => {
 
 describe("function-length", () => {
   test("extractFunctions finds simple function declarations", () => {
-    const source = ["function hello() {", '  console.log("hi");', "}"].join(
-      "\n",
-    );
+    const source = testSource([
+      "function hello() {",
+      '  console.log("hi");',
+      "}",
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].name).toBe("hello");
@@ -125,58 +130,58 @@ describe("function-length", () => {
   });
 
   test("extractFunctions finds arrow functions assigned to variables", () => {
-    const source = [
+    const source = testSource([
       "const greet = (name) => {",
       '  return "Hello " + name;',
       "};",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].name).toBe("greet");
   });
 
   test("extractFunctions finds async functions", () => {
-    const source = [
+    const source = testSource([
       "async function fetchData() {",
       "  const res = await fetch(url);",
       "  return res.json();",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].name).toBe("fetchData");
   });
 
   test("extractFunctions finds exported arrow functions", () => {
-    const source = [
+    const source = testSource([
       "export const helper = (x) => {",
       "  return x * 2;",
       "};",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].name).toBe("helper");
   });
 
   test("extractFunctions ignores braces inside strings", () => {
-    const source = [
+    const source = testSource([
       "function test() {",
       '  const a = "{ not a brace }";',
       "  const b = '{ also not }';",
       "  return true;",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].lineCount).toBe(5);
   });
 
   test("extractFunctions ignores braces inside template literals", () => {
-    const source = [
+    const source = testSource([
       "const render = (data) => {",
       "  return `<div>${ data.value }</div>`;",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].name).toBe("render");
@@ -184,40 +189,40 @@ describe("function-length", () => {
   });
 
   test("extractFunctions ignores braces inside single-line comments", () => {
-    const source = [
+    const source = testSource([
       "function process() {",
       "  // This comment has { braces } in it",
       "  return 42;",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].lineCount).toBe(4);
   });
 
   test("extractFunctions ignores braces inside multi-line comments", () => {
-    const source = [
+    const source = testSource([
       "function calculate() {",
       "  /* This is a comment",
       "     with { braces } spanning",
       "     multiple lines */",
       "  return 1 + 1;",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].lineCount).toBe(6);
   });
 
   test("extractFunctions handles nested functions correctly", () => {
-    const source = [
+    const source = testSource([
       "function outer() {",
       "  const inner = () => {",
       '    return "nested";',
       "  };",
       "  return inner();",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(2);
 
@@ -231,7 +236,7 @@ describe("function-length", () => {
   });
 
   test("extractFunctions finds multiple top-level functions", () => {
-    const source = [
+    const source = testSource([
       "function first() {",
       "  return 1;",
       "}",
@@ -243,7 +248,7 @@ describe("function-length", () => {
       "async function third() {",
       "  return 3;",
       "}",
-    ].join("\n");
+    ]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(3);
     expect(functions.map((f) => f.name).sort()).toEqual([
@@ -254,7 +259,7 @@ describe("function-length", () => {
   });
 
   test("extractFunctions reports accurate startLine and endLine", () => {
-    const source = ["const foo = () => {", '  return "bar";', "};"].join("\n");
+    const source = testSource(["const foo = () => {", '  return "bar";', "};"]);
     const functions = extractFunctions(source);
     expect(functions.length).toBe(1);
     expect(functions[0].startLine).toBe(1);

@@ -7,7 +7,11 @@ const getCategoryOrder = (configOrder) =>
     ? configOrder
     : DEFAULT_ORDER;
 
+/**
+ * @type {Array<string> & { _helpers?: { DEFAULT_ORDER: Array<string>, getCategoryOrder: Function } }}
+ */
 const categoryOrder = getCategoryOrder(configJson.category_order);
+// Adding helper methods for tests (Eleventy breaks with multiple exports)
 categoryOrder._helpers = { DEFAULT_ORDER, getCategoryOrder };
 
 export default categoryOrder;

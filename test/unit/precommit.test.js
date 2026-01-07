@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { memoize } from "#lib/utils/memoize.js";
-import { rootDir } from "#test/test-utils.js";
-import { pipe } from "#utils/array-utils.js";
+import { extractErrorsFromOutput } from "#test/test-runner-utils.js";
+import { expectErrorsInclude, rootDir } from "#test/test-utils.js";
 
 const precommitPath = join(rootDir, "test", "precommit.js");
 
@@ -24,29 +23,6 @@ const expectErrorsToInclude = (errors, ...expectedStrings) => {
 };
 
 /**
- * Memoized loader for the extractErrorsFromOutput function from precommit.js.
- * Uses pipe for functional composition. The file is read only once.
- */
-const extractErrorsFunction = memoize(() =>
-  pipe(
-    // Read file content from disk
-    (path) => require("node:fs").readFileSync(path, "utf-8"),
-    // Extract function source using regex
-    (content) =>
-      content.match(
-        /export function extractErrorsFromOutput\(output\) \{[\s\S]*?\n\}/,
-      )?.[0],
-    // Remove export keyword to prepare for eval
-    (source) => source?.replace("export ", ""),
-    // Evaluate and return the function
-    (source) => {
-      // biome-ignore lint/security/noGlobalEval: Testing our own trusted code
-      return eval(`${source}; extractErrorsFromOutput`);
-    },
-  )(precommitPath),
-);
-
-/**
  * Tests for the precommit script error output handling.
  *
  * The precommit script should:
@@ -57,8 +33,6 @@ const extractErrorsFunction = memoize(() =>
  */
 describe("precommit error output", () => {
   test("extractErrorsFromOutput correctly parses knip errors", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     // Simulate real knip error output
     const knipOutput = `
 $ knip --fix
@@ -96,8 +70,6 @@ Unlisted dependencies (1)
   });
 
   test("extractErrorsFromOutput correctly parses jscpd errors", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     // Simulate real jscpd error output
     const jscpdOutput = `
 $ jscpd
@@ -112,15 +84,10 @@ Total duplicates: 1250 lines across 15 files
     const errors = extractErrorsFromOutput(jscpdOutput);
 
     // Should capture error indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
-    expect(
-      errors.some((e) => e.includes("threshold") || e.includes("Duplication")),
-    ).toBe(true);
+    expectErrorsInclude("❌", ["threshold", "Duplication"])(errors);
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     // Simulate real bun test failure output
     const testOutput = `
 $ bun test test/unit
@@ -145,9 +112,7 @@ AssertionError: expected undefined to be defined
   });
 
   test("extractErrorsFromOutput correctly parses coverage errors", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
-    // Simulate real coverage error output from run-coverage.js
+    // Simulate real coverage error output from bun test --coverage
     const coverageOutput = `
 ❌ Coverage below threshold for statements: 85.5% < 90%
 ❌ Coverage below threshold for branches: 75.2% < 80%
@@ -179,8 +144,6 @@ src/utils/new-helper.js
   });
 
   test("extractErrorsFromOutput filters out noise but keeps errors", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const noisyOutput = `
 $ bun test
 
@@ -223,8 +186,6 @@ error: something went wrong
   });
 
   test("extractErrorsFromOutput handles multiline error messages", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const multilineOutput = `
 ❌ Test suite failed
 
@@ -239,23 +200,18 @@ Error: Cannot find module 'missing-dep'
     const errors = extractErrorsFromOutput(multilineOutput);
 
     // Should capture error indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
-    expect(errors.some((e) => e.startsWith("Error:"))).toBe(true);
+    expectErrorsInclude("❌", (e) => e.startsWith("Error:"))(errors);
 
     // Note: Stack traces might not all be captured, which is okay
     // as long as the main error message is captured
   });
 
   test("extractErrorsFromOutput handles empty output", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const errors = extractErrorsFromOutput("");
     expect(errors).toEqual([]);
   });
 
   test("extractErrorsFromOutput handles output with only whitespace", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const errors = extractErrorsFromOutput("   \n  \n   \t  \n  ");
     expect(errors).toEqual([]);
   });
@@ -276,16 +232,19 @@ Error: Cannot find module 'missing-dep'
   });
 
   test("precommit script limits errors to 10 by default", () => {
-    const precommitCode = require("node:fs").readFileSync(
-      precommitPath,
+    const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
+    const testRunnerUtilsCode = require("node:fs").readFileSync(
+      testRunnerUtilsPath,
       "utf-8",
     );
 
-    // Check that the script uses printTruncatedList with errors label
-    expect(precommitCode).toContain(
+    // Check that the shared utilities use printTruncatedList with errors label
+    expect(testRunnerUtilsCode).toContain(
       'import { printTruncatedList } from "#utils/array-utils.js"',
     );
-    expect(precommitCode).toContain('printTruncatedList({ moreLabel: "errors"');
+    expect(testRunnerUtilsCode).toContain(
+      'printTruncatedList({ moreLabel: "errors"',
+    );
   });
 
   test("precommit script shows verbose flag hint when errors are truncated", () => {
@@ -321,10 +280,18 @@ describe("precommit script integration", () => {
       precommitPath,
       "utf-8",
     );
+    const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
+    const testRunnerUtilsCode = require("node:fs").readFileSync(
+      testRunnerUtilsPath,
+      "utf-8",
+    );
 
-    // Should check for --verbose flag
+    // Precommit should check for --verbose flag
     expect(precommitCode).toContain("--verbose");
-    expect(precommitCode).toContain('verbose ? "inherit" : ["inherit", "pipe"');
+    // Shared utilities should handle verbose stdio
+    expect(testRunnerUtilsCode).toContain(
+      'verbose ? "inherit" : ["inherit", "pipe"',
+    );
   });
 });
 
@@ -333,8 +300,6 @@ describe("precommit script integration", () => {
  */
 describe("precommit error pattern edge cases", () => {
   test("extractErrorsFromOutput captures eslint/biome style errors", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const lintOutput = `
 src/components/Button.js:15:3
   error: 'useState' is not defined  no-undef
@@ -354,8 +319,6 @@ src/utils/helpers.js:42:10
   });
 
   test("extractErrorsFromOutput captures assertion errors", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const assertOutput = `
 ❌ test/unit/utils.test.js > formatDate
 AssertionError: expected 'foo' to equal 'bar'
@@ -371,8 +334,6 @@ AssertionError: expected 'foo' to equal 'bar'
   });
 
   test("extractErrorsFromOutput handles errors with colons in unexpected places", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     // Coverage errors with file:line patterns
     const coverageOutput = `
 ❌ Coverage failed
@@ -388,8 +349,6 @@ src/api/client.js: retryRequest, handleError
   });
 
   test("extractErrorsFromOutput captures stack traces for debugging", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const stackTraceOutput = `
 Error: Cannot find module 'missing-package'
   at Object.<anonymous> (src/index.js:15:32)
@@ -406,8 +365,6 @@ Error: Cannot find module 'missing-package'
   });
 
   test("extractErrorsFromOutput handles complex real-world knip output", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     // Real knip output format
     const realKnipOutput = `
 Unused files (3)
@@ -446,8 +403,6 @@ Unlisted dependencies (1)
   });
 
   test("extractErrorsFromOutput handles real jscpd duplication output", () => {
-    const extractErrorsFromOutput = extractErrorsFunction();
-
     const realJscpdOutput = `
 Clone found (src/components/Form.js[15:45] - src/components/ContactForm.js[20:50])
 

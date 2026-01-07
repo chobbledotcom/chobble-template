@@ -45,7 +45,9 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/integration/test-site-factory.test.js:346",
+  "test/integration/test-site-factory.test.js:135",
+  "test/integration/test-site-factory.test.js:155",
+  "test/integration/test-site-factory.test.js:277",
 
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
@@ -54,6 +56,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   // test/code-scanner.js - Exception validation
   // Needed: validates exception entries by reading files that might not exist
   "test/code-scanner.js:334",
+
+  // test/test-utils.js - Test utility definitions (test infrastructure)
+  // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
+  "test/test-utils.js",
 ]);
 
 // ============================================
@@ -103,8 +109,13 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/test-utils.js",
   "test/build-profiling.js",
   "test/precommit.js",
+  "test/run-tests.js",
+  "test/test-runner-utils.js",
   "test/code-scanner.js",
-  "test/run-coverage.js",
+  "test/unit/utils/schema-helper-utils.js",
+  "test/unit/collections/events-utils.js",
+  "test/unit/frontend/quote-steps-utils.js",
+  "test/unit/code-quality/code-quality-utils.js",
 
   // Test files - imperative accumulation patterns for test setup/assertions
   "test/unit/build/cache-buster.test.js",
@@ -176,7 +187,6 @@ const ALLOWED_LET = new Set([
   "test/test-site-factory.js",
   "test/integration/test-site-factory.test.js",
   "test/precommit.js",
-  "test/run-coverage.js",
   "test/test-utils.js",
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
@@ -216,7 +226,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/theme/theme-editor.js:284", // target
   "src/_lib/public/theme/theme-editor.js:384", // borderOutput
   "src/_lib/public/cart/cart.js:136", // cartItems
-  "src/_lib/public/ui/shuffle-properties.js:49", // itemsList
+  "src/_lib/public/ui/shuffle-properties.js:13", // itemsList
   "src/_lib/public/cart/quote.js:49", // container
   "src/_lib/public/ui/gallery.js:20", // imageLink
   "src/_lib/public/ui/gallery.js:30", // fullImage
@@ -250,7 +260,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:102", // path
-  "src/_lib/collections/products.js:71", // options
+  "src/_lib/collections/products.js:75", // options (line shifted by typedef comment)
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:13", // collection
   "src/_lib/collections/navigation.js:19", // result
@@ -260,11 +270,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
-  "test/integration/test-site-factory.test.js:108", // imageExists (file may not exist)
-  "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
-  "test/precommit.js:56", // trimmed (line processing)
-  "test/precommit.js:140", // result (skip if step wasn't run)
-  "test/precommit.js:187", // allPassed (check if all steps passed)
+  "test/test-runner-utils.js:49", // trimmed (line processing)
+  "test/test-runner-utils.js:139", // result (skip if step wasn't run)
+  "test/test-runner-utils.js:186", // allPassed (check if all steps passed)
   "test/demo-precommit-errors.js:26", // functionMatch (regex match can be null)
 ]);
 
@@ -276,9 +284,7 @@ const ALLOWED_NULL_CHECKS = new Set([
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
-  "src/_data/altTagsLookup.js",
   "src/_data/eleventyComputed.js",
-  "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
@@ -287,8 +293,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/search.js",
   "src/_lib/eleventy/responsive-tables.js",
   "src/_lib/filters/item-filters.js",
-  "src/_lib/utils/dom-builder.js",
-  "src/_lib/utils/lazy-loader.js",
+  "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
+  "src/_lib/utils/lazy-loader.js", // Kept separate to manage complexity
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -298,10 +304,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/public/cart/quote.js",
   "src/_lib/public/cart/quote-steps.js",
-  "src/_lib/public/ui/quote-steps-progress.js",
   "src/_lib/public/ui/scroll-fade.js",
   "src/_lib/public/ui/search.js",
-  "src/_lib/public/ui/shuffle-properties.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",

@@ -12,17 +12,21 @@
 </template>
 
 <template id="{{ selectors.IDS.QUOTE_CART_ITEM }}">
-  <div class="quote-cart-item" data-name="">
-    <div class="quote-cart-item-info">
-      <span data-field="name"></span>
-      <span data-field="price"></span>
-    </div>
-    <p data-field="specs"></p>
-    <div class="quote-cart-item-controls">
-      {% include "templates/quantity-controls.html" %}
-      <button data-action="remove" data-name="">Remove</button>
-    </div>
-  </div>
+  <li class="quote-cart-item" data-name="">
+    <ul>
+      <li class="quote-cart-item-info">
+        <span data-field="name"></span>
+        <span data-field="price"></span>
+      </li>
+      <li class="quote-cart-item-actions">
+        {% include "templates/quantity-controls.html" %}
+        <button data-action="remove" data-name="">Remove</button>
+      </li>
+      <li class="quote-cart-item-specs">
+        <span data-field="specs"></span>
+      </li>
+    </ul>
+  </li>
 </template>
 
 <template id="{{ selectors.IDS.QUOTE_CHECKOUT_ITEM }}">

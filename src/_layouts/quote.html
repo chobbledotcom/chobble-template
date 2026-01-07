@@ -4,9 +4,10 @@ layout: base
 
 {{ content }}
 
-{%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
+{%- include "quote-header.html" -%}
 
 <div class="quote-layout">
+  {%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
   <div class="quote-main">
     <noscript
       ><p>JavaScript is required to view and manage your quote cart.</p></noscript
@@ -17,13 +18,13 @@ layout: base
           Your cart is empty. <a href="/products/">Browse products</a> to add items.
         </p>
       </div>
-      <div class="quote-cart-items"></div>
+      <ul class="quote-cart-items"></ul>
       <div class="quote-cart-actions" style="display: none">
         <a href="/checkout/" class="button">Continue to Enquiry</a>
       </div>
     </div>
   </div>
-  <aside id="quote-price-container" class="quote-sidebar" style="display: none"></aside>
+  <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
 </div>
 
 {% include "templates/quote-price.html" %}

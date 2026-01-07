@@ -28,14 +28,33 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withMockedCwd",
   "expectValidScriptTag",
   // Fixture factories
+  "createProduct",
+  "createPropertyReviewFixture",
+  // events-utils.js - event fixture factories and assertion helpers
+  "expectEventCounts",
+  "expectShowState",
   "createOffsetDate",
   "formatDateString",
   "createEvent",
-  "createProduct",
-  "createPropertyReviewFixture",
+  "createEvents",
+  // schema-helper-utils.js - schema fixture builders
+  "addOptionalProps",
+  "createObjectBuilder",
+  "createSchemaPage",
+  "createSchemaSite",
   "createSchemaData",
-  // quote-steps.test.js - test fixture factory
+  "createProductSchemaData",
+  "createPostSchemaData",
+  "createMockReview",
+  // quote-steps.test.js - test fixture factory and assertion helpers
   "createQuoteStepsHtml",
+  "testNextButtonStep",
+  "testIndicatorStates",
+  "testValidateFieldWithHtml",
+  // quote-price-utils.test.js - DOM setup and template rendering
+  "setupFullDOM",
+  "setupBlurTestDOM",
+  "renderQuotePriceTemplates",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
@@ -50,6 +69,14 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
+  // config.test.js - frontmatter validation helpers
+  "testFrontmatterFieldThrows",
+  // responsive-tables.test.js - assertion helpers
+  "testScrollableTableCount",
+  // autosizes.test.js - integration test helpers
+  "testRemoteUrlNotProcessed",
+  // code-scanner.test.js - matcher assertion helpers
+  "testMatcherResult",
   // function-length.test.js - analysis helpers
   "calculateOwnLines",
   "analyzeFunctionLengths",
@@ -64,6 +91,16 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
+  // code-scanner.js - stale exception validation helper
+  "expectNoStaleExceptions",
+  // feed.test.js - test site factory
+  "setupTestSiteWithFeed",
+  // quote-steps.test.js - navigation test setup
+  "setupQuoteStepsNav",
+  // hire-calculator.test.js - callback tracking setup
+  "initHireWithCallback",
+  // unused-images.test.js - eleventy after handler runner
+  "runEleventyAfter",
   "findUndefinedVariables",
   // strings.test.js
   "findStringsUsage",
@@ -99,6 +136,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "assertEntityValid",
   "findHtmlFiles",
   "relativePath",
+  // schema-helper.test.js - test fixtures
+  "testProductMeta",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "findNextNonEmptyLine",
@@ -157,6 +196,32 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "verifyPdfHeader",
   // reviews.test.js - test fixtures helpers
   "itemsFor",
+  "createProductReviews",
+  "createTruncatePair",
+  "createLimitTestData",
+  // test-site-factory.test.js - test page fixtures
+  "minimalPage",
+  "testPage",
+  // array-utils.test.js - test fixtures
+  "testTruncatedList",
+  // sorting.test.js - test fixtures
+  "testSortByTitle",
+  // tags.test.js - test fixtures
+  "testTagExtraction",
+  // function-length.test.js - test fixtures
+  "testSource",
+  // code-scanner.test.js - test fixtures
+  "testStaleException",
+  // quote-steps.test.js - test fixtures
+  "testNextButtonStep",
+  // quote-steps-progress.test.js - test fixtures
+  "testIndicatorStates",
+  // code-quality-utils.js - logging helper
+  "logAllowedItems",
+  // build-profiling.js - profiling helper
+  "profileScript",
+  // jsonld-validation.test.js - test fixtures
+  "getCommonFrontmatter",
   // code-scanner.js - code scanning utilities
   "matchesAny",
   "isCommentLine",
@@ -237,31 +302,14 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // build-profiling.js - performance profiling utilities
   "profileNodeStartup",
   "profileConfigImports",
-  "profileConfigLoad",
-  "profileEleventyModuleLoad",
   "profileSingleImport",
   "profileBuild",
   "hrtimeToMs",
-  // run-coverage.js - coverage utilities
-  "parseLcov",
-  "parseLine",
-  "parseDA",
-  "ratchetExceptions",
-  "runCoverage",
-  "checkExceptions",
-  "diffByFile",
-  "difference",
-  "intersection",
-  "toSet",
-  "isNonEmpty",
-  "isMainCI",
-  "readJson",
-  // precommit.js - precommit utilities
+  "profileScript",
+  // test-runner-utils.js / precommit.js - test runner utilities
   "runStep",
   "extractErrorsFromOutput",
   "printSummary",
-  // precommit.test.js - memoized function loader
-  "extractErrorsFunction",
   // precommit.test.js - functional test helper
   "expectErrorsToInclude",
   // test-utils.js - test utilities (internal functions)
@@ -286,6 +334,16 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runKnip",
   "logFailureDetails",
   "extractStatus",
+  // test-utils.js - curried assertion helper for error checking
+  "expectErrorsInclude",
+  // test-utils.js - async error testing helper
+  "expectAsyncThrows",
+  // hire-calculator.test.js - DOM query helper
+  "getDateInputs",
+  // jsonld-validation.test.js - JSON-LD assertion helper
+  "assertValidJsonLdWithContext",
+  // test-site-factory.test.js - test fixture
+  "defaultTestFiles",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

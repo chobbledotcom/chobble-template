@@ -6,7 +6,30 @@ import {
   createTestSite,
   withTestSite,
 } from "#test/test-site-factory.js";
-import { rootDir } from "#test/test-utils.js";
+import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
+
+/** Minimal page file for tests that just need a valid site */
+const minimalPage = () => ({
+  path: "pages/index.md",
+  frontmatter: { title: "Home", permalink: "/" },
+  content: "Home",
+});
+
+/** Basic test page file with common defaults */
+const testPage = (options = {}) => ({
+  path: options.path || "pages/test.md",
+  frontmatter: { title: options.title || "Test", ...options.frontmatter },
+  content: options.content || "Test",
+});
+
+/** Common test file configuration */
+const defaultTestFiles = [
+  {
+    path: "pages/test.md",
+    frontmatter: { title: "Test" },
+    content: "Test",
+  },
+];
 
 describe("test-site-factory", () => {
   // Clean up any leftover test sites before and after all tests
@@ -100,25 +123,13 @@ describe("test-site-factory", () => {
     });
 
     test("creates test site with images from src/images", async () => {
-      // First, create a test image file in src/images
+      // Create a test image file in src/images for this test
       const testImagePath = path.join(rootDir, "src/images/test-image.jpg");
-      const imageExists = fs.existsSync(testImagePath);
-
-      // Only run this test if the test image exists, otherwise skip
-      if (!imageExists) {
-        // Create a minimal test image
-        fs.writeFileSync(testImagePath, "fake image content");
-      }
+      fs.writeFileSync(testImagePath, "fake image content");
 
       const site = await createTestSite({
         images: ["test-image.jpg"],
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
+        files: defaultTestFiles,
       });
 
       try {
@@ -127,10 +138,7 @@ describe("test-site-factory", () => {
         expect(fs.existsSync(copiedImagePath)).toBe(true);
       } finally {
         site.cleanup();
-        // Clean up test image if we created it
-        if (!imageExists) {
-          fs.unlinkSync(testImagePath);
-        }
+        fs.unlinkSync(testImagePath);
       }
     });
 
@@ -141,13 +149,7 @@ describe("test-site-factory", () => {
 
       const site = await createTestSite({
         images: [{ src: testImagePath, dest: "custom.jpg" }],
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
+        files: defaultTestFiles,
       });
 
       try {
@@ -178,74 +180,35 @@ describe("test-site-factory", () => {
     });
 
     test("hasOutput returns false for non-existing files", async () => {
-      await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: { title: "Test" },
-              content: "Test",
-            },
-          ],
-        },
-        (site) => {
-          expect(site.hasOutput("nonexistent/file.html")).toBe(false);
-        },
-      );
+      await withTestSite({ files: [testPage()] }, (site) => {
+        expect(site.hasOutput("nonexistent/file.html")).toBe(false);
+      });
     });
 
     test("addFile adds a new file to the site", async () => {
-      const site = await createTestSite({
-        files: [
-          {
-            path: "pages/index.md",
-            frontmatter: { title: "Home", permalink: "/" },
-            content: "Home",
-          },
-        ],
-      });
-
-      try {
-        // Add a new file after creation
+      await withTestSite({ files: [minimalPage()] }, (site) => {
         site.addFile("test-file.txt", "Test content");
 
-        // Verify file was created
         const filePath = path.join(site.srcDir, "test-file.txt");
         expect(fs.existsSync(filePath)).toBe(true);
         expect(fs.readFileSync(filePath, "utf-8")).toBe("Test content");
-      } finally {
-        site.cleanup();
-      }
+      });
     });
 
     test("addMarkdown adds a markdown file with frontmatter", async () => {
-      const site = await createTestSite({
-        files: [
-          {
-            path: "pages/index.md",
-            frontmatter: { title: "Home", permalink: "/" },
-            content: "Home",
-          },
-        ],
-      });
-
-      try {
-        // Add a markdown file after creation
+      await withTestSite({ files: [minimalPage()] }, (site) => {
         site.addMarkdown("pages/added.md", {
           frontmatter: { title: "Added Page" },
           content: "# Added Content",
         });
 
-        // Verify markdown file was created with frontmatter
         const filePath = path.join(site.srcDir, "pages/added.md");
         expect(fs.existsSync(filePath)).toBe(true);
 
         const fileContent = fs.readFileSync(filePath, "utf-8");
         expect(fileContent).toContain("title: Added Page");
         expect(fileContent).toContain("# Added Content");
-      } finally {
-        site.cleanup();
-      }
+      });
     });
 
     test("getDoc returns a DOM document for querying HTML", async () => {
@@ -297,35 +260,18 @@ describe("test-site-factory", () => {
     });
 
     test("getOutput throws error when file does not exist", async () => {
-      await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: { title: "Test" },
-              content: "Test",
-            },
-          ],
-        },
-        (site) => {
-          expect(() => {
-            site.getOutput("nonexistent/file.html");
-          }).toThrow("Output file not found: nonexistent/file.html");
-        },
-      );
+      await withTestSite({ files: [testPage()] }, (site) => {
+        expect(() => {
+          site.getOutput("nonexistent/file.html");
+        }).toThrow("Output file not found: nonexistent/file.html");
+      });
     });
   });
 
   describe("build error handling", () => {
     test("build throws error with stderr when Eleventy build fails", async () => {
       const site = await createTestSite({
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
+        files: [testPage()],
       });
 
       try {
@@ -342,14 +288,7 @@ describe("test-site-factory", () => {
         );
 
         // Build should fail and throw an error
-        let error;
-        try {
-          await site.build();
-        } catch (e) {
-          error = e;
-        }
-
-        expect(error).toBeDefined();
+        const error = await expectAsyncThrows(() => site.build());
         expect(error.message).toContain("Eleventy build failed");
         // Error should include stdout or stderr
         expect(error.stdout || error.stderr).toBeTruthy();

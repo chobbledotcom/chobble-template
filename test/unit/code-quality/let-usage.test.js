@@ -6,10 +6,11 @@ import {
 import {
   assertNoViolations,
   createCodeChecker,
+  expectNoStaleExceptions,
   matchesAny,
-  validateExceptions,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
+import { logAllowedItems } from "#test/unit/code-quality/code-quality-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [
@@ -150,29 +151,17 @@ const config = { key: 'value' };
 
   test("Reports allowlisted mutable const usage for tracking", () => {
     const { allowed } = mutableConstAnalysis();
-    console.log(`\n  Allowlisted mutable const usages: ${allowed.length}`);
-    if (allowed.length > 0) {
-      console.log("  Locations:");
-      for (const loc of allowed) {
-        console.log(`    - ${loc.location} (${loc.reason})`);
-      }
-    }
+    logAllowedItems(allowed, "Allowlisted mutable const usages", true);
     expect(true).toBe(true);
   });
 
   // Exception validation tests
   test("ALLOWED_MUTABLE_CONST entries still exist and match pattern", () => {
-    const stale = validateExceptions(
+    expectNoStaleExceptions(
       ALLOWED_MUTABLE_CONST,
       MUTABLE_CONST_PATTERNS,
+      "ALLOWED_MUTABLE_CONST",
     );
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_MUTABLE_CONST entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
   });
 
   test("Reports allowlisted let usage for tracking", () => {
@@ -194,13 +183,6 @@ const config = { key: 'value' };
   });
 
   test("ALLOWED_LET entries still exist and match pattern", () => {
-    const stale = validateExceptions(ALLOWED_LET, /^\s*let\s+\w+/);
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_LET entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
+    expectNoStaleExceptions(ALLOWED_LET, /^\s*let\s+\w+/, "ALLOWED_LET");
   });
 });

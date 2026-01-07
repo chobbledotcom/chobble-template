@@ -28,10 +28,14 @@ export const categoriseEvents = memoize((events) => {
   });
 
   const upcoming = sort(
-    (a, b) => new Date(a.data.event_date) - new Date(b.data.event_date),
+    (a, b) =>
+      new Date(a.data.event_date).getTime() -
+      new Date(b.data.event_date).getTime(),
   )(fromMap(grouped, "upcoming"));
   const past = sort(
-    (a, b) => new Date(b.data.event_date) - new Date(a.data.event_date),
+    (a, b) =>
+      new Date(b.data.event_date).getTime() -
+      new Date(a.data.event_date).getTime(),
   )(fromMap(grouped, "past"));
   const regular = sort(sortItems)(fromMap(grouped, "regular"));
 

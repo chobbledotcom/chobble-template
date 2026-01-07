@@ -75,7 +75,7 @@ const omit = (keys) => filterObject(notMemberOf(keys));
  * This is a functional alternative to building objects with for-loops and mutation.
  *
  * @param {Array} items - Array of items to transform
- * @param {Function} toEntry - Function that returns [key, value] for each item
+ * @param {(item: any, index: number) => [string, any]} toEntry - Function that returns [key, value] for each item
  * @returns {Object} Object built from the entries
  *
  * @example

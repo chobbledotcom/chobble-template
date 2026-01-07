@@ -96,7 +96,7 @@ const chunk = (arr, size) =>
  * This curried form works perfectly with map(): arr.map(pick(['a', 'b']))
  *
  * @param {string[]} keys - Keys to include
- * @returns {Function} (obj) => picked object
+ * @returns {(obj: Object) => Object} Function that picks specified keys from an object
  *
  * @example
  * pick(['a', 'c'])({ a: 1, b: 2, c: 3 })  // { a: 1, c: 3 }
@@ -153,7 +153,7 @@ const listSeparator = (length) => (index) =>
  * Uses pure functional approach with no mutable state.
  *
  * @param {Array} items - Array to check for duplicates
- * @param {Function} getKey - Optional key extractor (defaults to identity)
+ * @param {(item: any) => any} [getKey] - Optional key extractor (defaults to identity)
  * @returns {*} First duplicate item, or undefined
  *
  * @example
@@ -291,16 +291,20 @@ const pluralize = (singular, plural) => {
 };
 
 /**
+ * @typedef {Object} TruncateOptions
+ * @property {number} [maxItems=10] - Maximum items to show
+ * @property {string} [prefix="  "] - Prefix for each line
+ * @property {string} [moreLabel="more"] - Label for "more" message
+ * @property {string} [suffix="(use --verbose to see all)"] - Suffix for "more" message
+ */
+
+/**
  * Print items with truncation and "more" message.
  * Logs each item (up to maxItems) with a prefix, then shows "more" message if truncated.
  * Curried: configure options first, then pass items.
  *
- * @param {Object} options
- * @param {number} options.maxItems - Maximum items to show (default: 10)
- * @param {string} options.prefix - Prefix for each line (default: "  ")
- * @param {string} options.moreLabel - Label for "more" message (default: "more")
- * @param {string} options.suffix - Suffix for "more" message (default: "(use --verbose to see all)")
- * @returns {Function} (items) => void
+ * @param {TruncateOptions} [options] - Truncation options
+ * @returns {(items: Array) => void} Function that prints items
  *
  * @example
  * printTruncatedList()(errors);  // uses defaults
