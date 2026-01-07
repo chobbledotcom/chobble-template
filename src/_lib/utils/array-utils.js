@@ -311,22 +311,20 @@ const pluralize = (singular, plural) => {
  * printTruncatedList({ moreLabel: "errors" })(errors);
  */
 const printTruncatedList =
-    ({
-      maxItems = 10,
-      prefix = "  ",
-      moreLabel = "more",
-      suffix = "(use --verbose to see all)",
-    } = {}) =>
-    (items) => {
-      for (const item of items.slice(0, maxItems)) {
-        log(`${prefix}${item}`);
-      }
-      if (items.length > maxItems) {
-        log(
-          `${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`,
-        );
-      }
-    };
+  ({
+    maxItems = 10,
+    prefix = "  ",
+    moreLabel = "more",
+    suffix = "(use --verbose to see all)",
+  } = {}) =>
+  (items) => {
+    for (const item of items.slice(0, maxItems)) {
+      log(`${prefix}${item}`);
+    }
+    if (items.length > maxItems) {
+      log(`${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`);
+    }
+  };
 
 export {
   accumulate,
