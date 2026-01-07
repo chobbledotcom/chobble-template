@@ -16,6 +16,17 @@ const expectAllImagesUsed = expectLogContains(
   "All images in /src/images/ are being used",
 );
 
+/** Run eleventy.after handler and capture logs */
+const runEleventyAfter = async (tempDir) => {
+  const mockConfig = createMockEleventyConfig();
+  configureUnusedImages(mockConfig);
+  return captureConsoleLogAsync(async () => {
+    await mockConfig.eventHandlers["eleventy.after"]({
+      dir: { input: tempDir },
+    });
+  });
+};
+
 /**
  * Helper to run unused images test with common setup/teardown.
  * @param {string} testName - Name for temp directory
@@ -29,14 +40,7 @@ const runUnusedImagesTest = async (testName, setup, assertion) => {
 
   if (setup) setup(tempDir, imagesDir);
 
-  const mockConfig = createMockEleventyConfig();
-  configureUnusedImages(mockConfig);
-
-  const logs = await captureConsoleLogAsync(async () => {
-    await mockConfig.eventHandlers["eleventy.after"]({
-      dir: { input: tempDir },
-    });
-  });
+  const logs = await runEleventyAfter(tempDir);
 
   assertion(logs);
   cleanupTempDir(tempDir);
@@ -51,13 +55,7 @@ describe("unused-images", () => {
 
   test("Handles missing images directory gracefully", async () => {
     const tempDir = createTempDir("unused-images-no-dir");
-    const mockConfig = createMockEleventyConfig();
-    configureUnusedImages(mockConfig);
-    const logs = await captureConsoleLogAsync(async () => {
-      await mockConfig.eventHandlers["eleventy.after"]({
-        dir: { input: tempDir },
-      });
-    });
+    const logs = await runEleventyAfter(tempDir);
     expect(logs.some((log) => log.includes("No images directory found"))).toBe(
       true,
     );
