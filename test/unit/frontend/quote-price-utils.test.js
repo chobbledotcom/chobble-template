@@ -206,9 +206,202 @@ describe("quote-price-utils", () => {
   // updateQuotePrice Tests (with DOM)
   // ----------------------------------------
   describe("updateQuotePrice", () => {
+    const STORAGE_KEY = "shopping_cart";
+
+    const setupFullDOM = (cart = [], formFields = "") => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+      document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email"}</script>
+
+        <template id="quote-price-template">
+          <div class="quote-price">
+            <span data-field="item-count"></span>
+            <span data-field="hire-length"></span>
+            <span data-field="total"></span>
+            <div data-field="items"></div>
+            <div data-field="details"></div>
+          </div>
+        </template>
+
+        <template id="quote-price-item-template">
+          <div class="quote-price-item">
+            <span data-field="name"></span>
+            <span data-field="price"></span>
+          </div>
+        </template>
+
+        <template id="quote-price-detail-template">
+          <div class="quote-price-detail">
+            <span data-field="key"></span>
+            <span data-field="value"></span>
+          </div>
+        </template>
+
+        <div id="quote-price-container"></div>
+
+        <form>
+          ${formFields}
+        </form>
+      `;
+    };
+
     test("does nothing when container not found", () => {
       document.body.innerHTML = "<div>No container</div>";
       expect(() => updateQuotePrice()).not.toThrow();
+    });
+
+    test("hides container when cart is empty", () => {
+      setupFullDOM([]);
+      updateQuotePrice();
+      const container = document.getElementById("quote-price-container");
+      expect(container.style.display).toBe("none");
+      expect(container.innerHTML).toBe("");
+    });
+
+    test("renders cart items with prices", () => {
+      const cart = [
+        { item_name: "Bouncy Castle", product_mode: "hire", hire_prices: { 1: "£50" }, quantity: 1 },
+        { item_name: "Slide", product_mode: "hire", hire_prices: { 1: "£30" }, quantity: 2 },
+      ];
+      setupFullDOM(cart);
+      updateQuotePrice(1);
+
+      const container = document.getElementById("quote-price-container");
+      expect(container.style.display).toBe("block");
+
+      const items = container.querySelectorAll(".quote-price-item");
+      expect(items).toHaveLength(2);
+
+      const firstItemName = items[0].querySelector('[data-field="name"]');
+      expect(firstItemName.textContent).toBe("Bouncy Castle");
+
+      const secondItemName = items[1].querySelector('[data-field="name"]');
+      expect(secondItemName.textContent).toBe("Slide (×2)");
+    });
+
+    test("displays total price when all prices available", () => {
+      const cart = [
+        { item_name: "Item A", product_mode: "hire", hire_prices: { 1: "£20" }, quantity: 1 },
+        { item_name: "Item B", product_mode: "hire", hire_prices: { 1: "£30" }, quantity: 1 },
+      ];
+      setupFullDOM(cart);
+      updateQuotePrice(1);
+
+      const total = document.querySelector('[data-field="total"]');
+      expect(total.textContent).toBe("£50.00");
+    });
+
+    test("displays TBC for total when price unavailable", () => {
+      const cart = [
+        { item_name: "Item", product_mode: "hire", hire_prices: { 1: "£20" }, quantity: 1 },
+      ];
+      setupFullDOM(cart);
+      updateQuotePrice(5); // No price for 5 days
+
+      const total = document.querySelector('[data-field="total"]');
+      expect(total.textContent).toBe("TBC");
+
+      const itemPrice = document.querySelector('.quote-price-item [data-field="price"]');
+      expect(itemPrice.textContent).toBe("TBC");
+    });
+
+    test("displays item count and hire length", () => {
+      const cart = [
+        { item_name: "Item A", product_mode: "hire", hire_prices: { 3: "£50" }, quantity: 2 },
+        { item_name: "Item B", product_mode: "hire", hire_prices: { 3: "£25" }, quantity: 1 },
+      ];
+      setupFullDOM(cart);
+      updateQuotePrice(3);
+
+      const itemCount = document.querySelector('[data-field="item-count"]');
+      expect(itemCount.textContent).toBe("3 items in order");
+
+      const hireLength = document.querySelector('[data-field="hire-length"]');
+      expect(hireLength.textContent).toBe("3 days");
+    });
+
+    test("renders field details from form", () => {
+      const cart = [
+        { item_name: "Item", product_mode: "buy", unit_price: 10, quantity: 1 },
+      ];
+      const formFields = `
+        <input id="name" name="name" type="text" value="John Doe" />
+        <input id="email" name="email" type="email" value="john@example.com" />
+      `;
+      setupFullDOM(cart, formFields);
+      updateQuotePrice(1);
+
+      const details = document.querySelectorAll(".quote-price-detail");
+      expect(details).toHaveLength(2);
+
+      const firstKey = details[0].querySelector('[data-field="key"]');
+      expect(firstKey.textContent).toBe("Your Name");
+
+      const firstValue = details[0].querySelector('[data-field="value"]');
+      expect(firstValue.textContent).toBe("John Doe");
+    });
+
+    test("handles non-hire items correctly", () => {
+      const cart = [
+        { item_name: "Purchase Item", product_mode: "buy", unit_price: 25, quantity: 3 },
+      ];
+      setupFullDOM(cart);
+      updateQuotePrice(1);
+
+      const itemPrice = document.querySelector('.quote-price-item [data-field="price"]');
+      expect(itemPrice.textContent).toBe("£75.00");
+
+      const total = document.querySelector('[data-field="total"]');
+      expect(total.textContent).toBe("£75.00");
+    });
+
+    test("uses quote-steps container for field details when available", () => {
+      const cart = [
+        { item_name: "Item", product_mode: "buy", unit_price: 10, quantity: 1 },
+      ];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+      document.body.innerHTML = `
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
+
+        <template id="quote-price-template">
+          <div class="quote-price">
+            <span data-field="item-count"></span>
+            <span data-field="hire-length"></span>
+            <span data-field="total"></span>
+            <div data-field="items"></div>
+            <div data-field="details"></div>
+          </div>
+        </template>
+
+        <template id="quote-price-item-template">
+          <div class="quote-price-item">
+            <span data-field="name"></span>
+            <span data-field="price"></span>
+          </div>
+        </template>
+
+        <template id="quote-price-detail-template">
+          <div class="quote-price-detail">
+            <span data-field="key"></span>
+            <span data-field="value"></span>
+          </div>
+        </template>
+
+        <div id="quote-price-container"></div>
+
+        <div class="quote-steps">
+          <input id="name" name="name" type="text" value="Quote Steps Name" />
+        </div>
+
+        <form>
+          <input id="other" name="other" type="text" value="Form Field" />
+        </form>
+      `;
+      updateQuotePrice(1);
+
+      const detail = document.querySelector(".quote-price-detail");
+      const value = detail.querySelector('[data-field="value"]');
+      expect(value.textContent).toBe("Quote Steps Name");
     });
   });
 
@@ -465,13 +658,23 @@ describe("quote-price-utils", () => {
     // Note: We trust form container always exists on quote pages
     // No test for missing container - that would be a template bug
 
-    test("attaches blur handler to form container", () => {
+    const STORAGE_KEY = "shopping_cart";
+
+    const setupBlurTestDOM = (formHtml, useQuoteSteps = false) => {
+      // Empty cart so updateQuotePrice just hides the container
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      const containerHtml = useQuoteSteps
+        ? `<div class="quote-steps">${formHtml}</div>`
+        : `<form>${formHtml}</form>`;
       document.body.innerHTML = `
-        <form>
-          <input id="name" type="text" />
-        </form>
+        <script class="quote-field-labels" type="application/json">{}</script>
+        ${containerHtml}
         <div id="quote-price-container"></div>
       `;
+    };
+
+    test("attaches blur handler to form container", () => {
+      setupBlurTestDOM('<input id="name" type="text" />');
       const getDays = mock(() => 1);
       setupDetailsBlurHandlers(getDays);
       const field = document.getElementById("name");
@@ -484,13 +687,10 @@ describe("quote-price-utils", () => {
     });
 
     test("attaches change handler for radio buttons", () => {
-      document.body.innerHTML = `
-        <form>
-          <input type="radio" name="pref" value="A" />
-          <input type="radio" name="pref" value="B" />
-        </form>
-        <div id="quote-price-container"></div>
-      `;
+      setupBlurTestDOM(`
+        <input type="radio" name="pref" value="A" />
+        <input type="radio" name="pref" value="B" />
+      `);
       const getDays = mock(() => 2);
       setupDetailsBlurHandlers(getDays);
       const radio = document.querySelector('input[type="radio"]');
@@ -502,15 +702,12 @@ describe("quote-price-utils", () => {
     });
 
     test("attaches change handler for select elements", () => {
-      document.body.innerHTML = `
-        <form>
-          <select id="event">
-            <option value="a">A</option>
-            <option value="b">B</option>
-          </select>
-        </form>
-        <div id="quote-price-container"></div>
-      `;
+      setupBlurTestDOM(`
+        <select id="event">
+          <option value="a">A</option>
+          <option value="b">B</option>
+        </select>
+      `);
       const getDays = mock(() => 3);
       setupDetailsBlurHandlers(getDays);
       const select = document.getElementById("event");
@@ -522,12 +719,7 @@ describe("quote-price-utils", () => {
     });
 
     test("uses quote-steps container if available", () => {
-      document.body.innerHTML = `
-        <div class="quote-steps">
-          <input id="name" type="text" />
-        </div>
-        <div id="quote-price-container"></div>
-      `;
+      setupBlurTestDOM('<input id="name" type="text" />', true);
       const getDays = mock(() => 1);
       setupDetailsBlurHandlers(getDays);
       const field = document.getElementById("name");
