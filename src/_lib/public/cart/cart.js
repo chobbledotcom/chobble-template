@@ -181,6 +181,7 @@ const addItem = (
   specs = null,
   hirePrices = null,
   productMode = null,
+  subtitle,
 ) => {
   const cart = getCart();
   const existingIndex = cart.findIndex((item) => item.item_name === itemName);
@@ -194,6 +195,7 @@ const addItem = (
     specs,
     hire_prices: hirePrices,
     product_mode: productMode,
+    subtitle,
   };
 
   const newCart =
@@ -314,6 +316,7 @@ const extractItemFromButton = (button) => {
     specs: itemData.specs || null,
     hirePrices: itemData.hire_prices || null,
     productMode: itemData.product_mode || null,
+    subtitle: itemData.subtitle,
   };
 };
 
@@ -335,6 +338,7 @@ const handleAddToCart = (e) => {
     item.specs,
     item.hirePrices,
     item.productMode,
+    item.subtitle,
   );
 };
 

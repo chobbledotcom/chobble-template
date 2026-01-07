@@ -29,6 +29,13 @@ function renderQuoteItem(item) {
 
   populateItemFields(template, item.item_name, formatPrice(item.unit_price));
 
+  const subtitleLi = template.querySelector('[data-field="subtitle"]');
+  if (item.subtitle) {
+    subtitleLi.textContent = item.subtitle;
+  } else {
+    subtitleLi.style.display = "none";
+  }
+
   const specsLi = template.querySelector(".quote-cart-item-specs");
   if (item.specs && item.specs.length > 0) {
     specsLi.querySelector('[data-field="specs"]').textContent = item.specs

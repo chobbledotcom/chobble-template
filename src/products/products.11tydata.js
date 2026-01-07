@@ -76,6 +76,7 @@ export default {
 
       return JSON.stringify({
         name: data.title,
+        subtitle: data.subtitle,
         options: options.map((opt) => ({
           name: opt.name,
           unit_price:
