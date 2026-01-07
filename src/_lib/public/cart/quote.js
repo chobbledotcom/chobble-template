@@ -72,8 +72,8 @@ function renderCart() {
       itemsEl.appendChild(renderQuoteItem(item));
     }
 
-    attachQuantityHandlers(itemsEl, handleQuantityUpdate);
-    attachRemoveHandlers(itemsEl, '[data-action="remove"]', () => {
+    attachQuantityHandlers(handleQuantityUpdate);
+    attachRemoveHandlers(() => {
       renderCart();
       updateCartIcon();
     });

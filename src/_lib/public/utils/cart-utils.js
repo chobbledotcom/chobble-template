@@ -37,6 +37,10 @@ export function getItemCount() {
   return cart.reduce((count, item) => count + item.quantity, 0);
 }
 
+export function getCheckoutItems() {
+  return getCart().map(({ sku, quantity }) => ({ sku, quantity }));
+}
+
 export function updateCartIcon() {
   const count = getItemCount();
   for (const icon of document.querySelectorAll(".cart-icon")) {
@@ -69,24 +73,28 @@ export function updateItemQuantity(itemName, quantity) {
   return true;
 }
 
-export function attachQuantityHandlers(container, onUpdate) {
+function forEachClick(selector, handler) {
+  for (const el of document.querySelectorAll(selector)) {
+    el.addEventListener("click", () => handler(el));
+  }
+}
+
+export function attachQuantityHandlers(onUpdate) {
   const cart = getCart();
 
-  const addQtyHandler = (selector, delta) => {
-    for (const btn of container.querySelectorAll(selector)) {
-      btn.addEventListener("click", () => {
-        const itemName = btn.dataset.name;
-        const item = cart.find((i) => i.item_name === itemName);
-        if (item) {
-          onUpdate(itemName, item.quantity + delta);
-        }
-      });
+  const handleQtyClick = (delta) => (btn) => {
+    const item = cart.find((i) => i.item_name === btn.dataset.name);
+    if (item) {
+      onUpdate(btn.dataset.name, item.quantity + delta);
     }
   };
-  addQtyHandler('[data-action="decrease"]', -1);
-  addQtyHandler('[data-action="increase"]', 1);
 
-  for (const input of container.querySelectorAll("input[type='number']")) {
+  forEachClick('[data-action="decrease"]', handleQtyClick(-1));
+  forEachClick('[data-action="increase"]', handleQtyClick(1));
+
+  for (const input of document.querySelectorAll(
+    "input[type='number'][data-name]",
+  )) {
     input.addEventListener("change", () => {
       const itemName = input.dataset.name;
       const quantity = parseInt(input.value, 10);
@@ -97,11 +105,9 @@ export function attachQuantityHandlers(container, onUpdate) {
   }
 }
 
-export function attachRemoveHandlers(container, selector, onRemove) {
-  for (const btn of container.querySelectorAll(selector)) {
-    btn.addEventListener("click", () => {
-      removeItem(btn.dataset.name);
-      onRemove();
-    });
-  }
+export function attachRemoveHandlers(onRemove) {
+  forEachClick('[data-action="remove"]', (btn) => {
+    removeItem(btn.dataset.name);
+    onRemove();
+  });
 }

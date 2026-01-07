@@ -1,7 +1,7 @@
 // Stripe Checkout Page
 // Handles the redirect flow: checks cart and redirects to Stripe or homepage
 
-import { getCart } from "#public/utils/cart-utils.js";
+import { getCart, getCheckoutItems } from "#public/utils/cart-utils.js";
 
 function showError(message) {
   const statusMessage = document.getElementById("status-message");
@@ -49,8 +49,7 @@ async function checkout() {
   }
 
   statusMessage.textContent = "Redirecting to Stripe...";
-  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
-  const result = await createStripeSession(checkoutApiUrl, items);
+  const result = await createStripeSession(checkoutApiUrl, getCheckoutItems());
 
   if (result.error) {
     showError(result.error);

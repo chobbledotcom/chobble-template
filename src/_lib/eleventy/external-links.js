@@ -1,5 +1,5 @@
 import configModule from "#data/config.js";
-import { loadDOM } from "#utils/lazy-dom.js";
+import { transformDOM } from "#utils/lazy-dom.js";
 
 const isExternalUrl = (url) => {
   if (!url || typeof url !== "string") {
@@ -27,17 +27,14 @@ const transformExternalLinks = async (content, config) => {
     return content;
   }
 
-  const dom = await loadDOM(content);
-  const { document } = dom.window;
-
-  for (const link of document.querySelectorAll("a[href]")) {
-    if (isExternalUrl(link.getAttribute("href"))) {
-      link.setAttribute("target", "_blank");
-      link.setAttribute("rel", "noopener noreferrer");
+  return transformDOM(content, (document) => {
+    for (const link of document.querySelectorAll("a[href]")) {
+      if (isExternalUrl(link.getAttribute("href"))) {
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+      }
     }
-  }
-
-  return dom.serialize();
+  });
 };
 
 const createExternalLinksTransform = (config) => {

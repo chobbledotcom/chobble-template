@@ -29,4 +29,11 @@ const loadDOM = async (html = "") => {
   return new DOM(html);
 };
 
-export { loadDOM };
+// Transform HTML content via DOM manipulation
+const transformDOM = async (content, manipulate) => {
+  const dom = await loadDOM(content);
+  manipulate(dom.window.document);
+  return dom.serialize();
+};
+
+export { loadDOM, transformDOM };

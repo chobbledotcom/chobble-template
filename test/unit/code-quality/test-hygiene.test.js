@@ -93,6 +93,20 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractDefinedVariables",
   // code-scanner.js - stale exception validation helper
   "expectNoStaleExceptions",
+  // code-scanner.js - export detection utility
+  "extractExports",
+  // test-only-exports.test.js - analysis helpers
+  "resolveImportPath",
+  "extractImports",
+  "buildSrcExportsMap",
+  "buildImportUsageMap",
+  "analyzeTestOnlyExports",
+  // test-only-exports.test.js - test fixture source code strings (parser test data)
+  "foo",
+  "a",
+  "b",
+  "c",
+  "original",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
   // quote-steps.test.js - navigation test setup
