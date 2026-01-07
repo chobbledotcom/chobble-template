@@ -77,7 +77,7 @@ describe("spec-filters", () => {
   // ============================================
   // computeSpecs - Transformation
   // ============================================
-  test("Adds icon property to each spec object", () => {
+  test("Adds icon and highlight properties to each spec", () => {
     const data = {
       specs: [{ name: KNOWN_SPEC, value: "Yes" }],
     };
@@ -86,6 +86,7 @@ describe("spec-filters", () => {
 
     expect(result.length).toBe(1);
     expect("icon" in result[0]).toBe(true);
+    expect("highlight" in result[0]).toBe(true);
   });
 
   test("Preserves all original spec properties", () => {
@@ -106,7 +107,7 @@ describe("spec-filters", () => {
     expect(result[0].customProp).toBe("custom");
   });
 
-  test("Returns empty string icon for specs without matching icon", () => {
+  test("Returns empty icon and false highlight for specs without config", () => {
     const data = {
       specs: [{ name: "nonexistent-spec", value: "test" }],
     };
@@ -114,6 +115,7 @@ describe("spec-filters", () => {
     const result = computeSpecs(data);
 
     expect(result[0].icon).toBe("");
+    expect(result[0].highlight).toBe(false);
   });
 
   test("Returns SVG content for specs with matching icon", () => {
@@ -137,27 +139,6 @@ describe("spec-filters", () => {
     const result = computeSpecs(data);
 
     expect(result[0].icon).toBe(result[1].icon);
-  });
-
-  test("Adds highlight property to each spec", () => {
-    const data = {
-      specs: [{ name: KNOWN_SPEC, value: "Yes" }],
-    };
-
-    const result = computeSpecs(data);
-
-    expect(result.length).toBe(1);
-    expect("highlight" in result[0]).toBe(true);
-  });
-
-  test("Sets highlight to false for specs without highlight config", () => {
-    const data = {
-      specs: [{ name: "nonexistent-spec", value: "test" }],
-    };
-
-    const result = computeSpecs(data);
-
-    expect(result[0].highlight).toBe(false);
   });
 
   // ============================================
