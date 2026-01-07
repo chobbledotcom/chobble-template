@@ -1,5 +1,16 @@
-import specsIcons from "#data/specs_icons.js";
+import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
+
+/**
+ * Get the spec icon config for a spec name
+ * Normalizes the spec name (lowercase, trimmed) before lookup
+ * @param {string} specName - The spec name to look up
+ * @returns {{ icon: string, highlight: boolean }|undefined} - The spec config or undefined if not found
+ */
+const getSpecConfig = (specName) => {
+  const normalized = specName?.toLowerCase().trim();
+  return normalized ? specsIcons[normalized] : undefined;
+};
 
 /**
  * Get the icon SVG content for a spec name
@@ -8,24 +19,41 @@ import { inlineAsset } from "#media/inline-asset.js";
  * @returns {string} - The icon SVG content or empty string if not found
  */
 const getSpecIcon = (specName) => {
-  if (!specName) return "";
-  const normalized = specName.toLowerCase().trim();
-  const iconFile = specsIcons[normalized];
-  if (!iconFile) return "";
-  return inlineAsset(`icons/${iconFile}`);
+  const config = getSpecConfig(specName);
+  return config ? inlineAsset(`icons/${config.icon}`) : "";
 };
 
 /**
- * Transform specs array to include icon content
+ * Transform specs array to include icon and highlight properties
  * @param {Object} data - Eleventy data object
- * @returns {Array|undefined} - Specs array with icon property added
+ * @returns {Array|undefined} - Specs array with icon and highlight properties added
  */
 const computeSpecs = (data) => {
   if (!data.specs) return undefined;
-  return data.specs.map((spec) => ({
-    ...spec,
-    icon: getSpecIcon(spec.name),
-  }));
+  return data.specs.map((spec) => {
+    const config = getSpecConfig(spec.name);
+    return {
+      ...spec,
+      icon: config ? inlineAsset(`icons/${config.icon}`) : "",
+      highlight: config?.highlight ?? false,
+    };
+  });
 };
 
-export { getSpecIcon, computeSpecs };
+/**
+ * Filter specs to only show highlighted ones if any spec has highlight set
+ * If no specs have highlight: true, returns all specs
+ * @param {Array} specs - Array of spec objects with highlight property
+ * @returns {Array} - Filtered specs array
+ */
+const getHighlightedSpecs = (specs) => {
+  if (!specs || specs.length === 0) return specs;
+
+  const hasAnyHighlighted = specs.some((spec) => spec.highlight === true);
+
+  return hasAnyHighlighted
+    ? specs.filter((spec) => spec.highlight === true)
+    : specs;
+};
+
+export { getSpecIcon, computeSpecs, getHighlightedSpecs };

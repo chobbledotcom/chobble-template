@@ -49,8 +49,10 @@ specs:
     value: 1TB Bubble Drive
   - name: Graphics
     value: Integrated Rainbow Projector
-  - name: Power Cell
+  - name: Battery Life
     value: Up to 12 hours
+  - name: Waterproof
+    value: Splash resistant
   - name: Has dongle
     value: "No"
 features:
