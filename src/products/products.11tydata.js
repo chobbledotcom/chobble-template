@@ -1,7 +1,7 @@
 import { computeGallery } from "#collections/products.js";
 import getConfig from "#data/config.js";
 import strings from "#data/strings.js";
-import { computeSpecs } from "#filters/spec-filters.js";
+import { computeSpecs, getHighlightedSpecs } from "#filters/spec-filters.js";
 import { findDuplicate, pick } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 import { buildPermalink, normaliseSlug } from "#utils/slug-utils.js";
@@ -46,6 +46,10 @@ export default {
     options: computeOptions,
     permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
     specs: computeSpecs,
+    highlighted_specs: (data) => {
+      const specs = computeSpecs(data);
+      return getHighlightedSpecs(specs);
+    },
     cart_attributes: (data) => {
       const options = computeOptions(data);
       if (options.length === 0) {
