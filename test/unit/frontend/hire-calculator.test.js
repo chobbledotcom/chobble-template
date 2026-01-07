@@ -22,6 +22,40 @@ const withMockStorage = (fn) => {
   }
 };
 
+/** Get today's date in YYYY-MM-DD format */
+const getToday = () => new Date().toISOString().split("T")[0];
+
+/** Create hire calculator DOM with optional date values */
+const createHireDatesHtml = ({ start = "", end = "", days = "" } = {}) => `
+  <input type="date" name="start_date" value="${start}" />
+  <input type="date" name="end_date" value="${end}" />
+  <input type="hidden" id="hire_days" value="${days}" />
+`;
+
+/** Set up test with hire item in cart and hire date inputs */
+const withHireTestSetup = (dates, fn) =>
+  withMockStorage((storage) => {
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+    );
+    document.body.innerHTML = createHireDatesHtml(dates);
+    return fn({ storage });
+  });
+
+/** Initialize hire calculator with callback tracking, return elements and callback getter */
+const initHireWithCallback = () => {
+  let callbackDays = null;
+  initHireCalculator((days) => {
+    callbackDays = days;
+  });
+  return {
+    endInput: document.querySelector('input[name="end_date"]'),
+    daysInput: document.getElementById("hire_days"),
+    getCallbackDays: () => callbackDays,
+  };
+};
+
 describe("hire-calculator", () => {
   // ----------------------------------------
   // calculateDays Tests
@@ -116,8 +150,7 @@ describe("hire-calculator", () => {
 
     setMinDate(input);
 
-    const today = new Date().toISOString().split("T")[0];
-    expect(input.min).toBe(today);
+    expect(input.min).toBe(getToday());
   });
 
   test("setMinDate works on multiple inputs", () => {
@@ -131,9 +164,8 @@ describe("hire-calculator", () => {
     setMinDate(startInput);
     setMinDate(endInput);
 
-    const today = new Date().toISOString().split("T")[0];
-    expect(startInput.min).toBe(today);
-    expect(endInput.min).toBe(today);
+    expect(startInput.min).toBe(getToday());
+    expect(endInput.min).toBe(getToday());
   });
 
   // ----------------------------------------
@@ -174,41 +206,18 @@ describe("hire-calculator", () => {
   });
 
   test("initHireCalculator sets min dates when cart has hire items", () => {
-    withMockStorage((storage) => {
-      storage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-      );
-
-      document.body.innerHTML = `
-        <input type="date" name="start_date" />
-        <input type="date" name="end_date" />
-        <input type="hidden" id="hire_days" />
-      `;
-
+    withHireTestSetup({}, () => {
       initHireCalculator();
 
       const startInput = document.querySelector('input[name="start_date"]');
       const endInput = document.querySelector('input[name="end_date"]');
-      const today = new Date().toISOString().split("T")[0];
-      expect(startInput.min).toBe(today);
-      expect(endInput.min).toBe(today);
+      expect(startInput.min).toBe(getToday());
+      expect(endInput.min).toBe(getToday());
     });
   });
 
   test("initHireCalculator updates end min when start date changes", () => {
-    withMockStorage((storage) => {
-      storage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-      );
-
-      document.body.innerHTML = `
-        <input type="date" name="start_date" />
-        <input type="date" name="end_date" />
-        <input type="hidden" id="hire_days" />
-      `;
-
+    withHireTestSetup({}, () => {
       initHireCalculator(() => {});
 
       const startInput = document.querySelector('input[name="start_date"]');
@@ -222,18 +231,7 @@ describe("hire-calculator", () => {
   });
 
   test("initHireCalculator adjusts end date when it becomes before start date", () => {
-    withMockStorage((storage) => {
-      storage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-      );
-
-      document.body.innerHTML = `
-        <input type="date" name="start_date" value="2025-01-10" />
-        <input type="date" name="end_date" value="2025-01-15" />
-        <input type="hidden" id="hire_days" />
-      `;
-
+    withHireTestSetup({ start: "2025-01-10", end: "2025-01-15" }, () => {
       initHireCalculator(() => {});
 
       const startInput = document.querySelector('input[name="start_date"]');
@@ -247,61 +245,27 @@ describe("hire-calculator", () => {
   });
 
   test("initHireCalculator calls onDaysChange callback when dates change", () => {
-    withMockStorage((storage) => {
-      storage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-      );
-
-      document.body.innerHTML = `
-        <input type="date" name="start_date" value="2025-01-15" />
-        <input type="date" name="end_date" value="" />
-        <input type="hidden" id="hire_days" value="" />
-      `;
-
-      let callbackDays = null;
-      initHireCalculator((days) => {
-        callbackDays = days;
-      });
-
-      const endInput = document.querySelector('input[name="end_date"]');
-      const daysInput = document.getElementById("hire_days");
+    withHireTestSetup({ start: "2025-01-15" }, () => {
+      const { endInput, daysInput, getCallbackDays } = initHireWithCallback();
 
       endInput.value = "2025-01-17";
       endInput.dispatchEvent(new Event("change"));
 
       expect(daysInput.value).toBe("3");
-      expect(callbackDays).toBe(3);
+      expect(getCallbackDays()).toBe(3);
     });
   });
 
   test("initHireCalculator calls callback with 1 when dates incomplete", () => {
-    withMockStorage((storage) => {
-      storage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
-      );
-
-      document.body.innerHTML = `
-        <input type="date" name="start_date" value="2025-01-15" />
-        <input type="date" name="end_date" value="2025-01-17" />
-        <input type="hidden" id="hire_days" value="3" />
-      `;
-
-      let callbackDays = null;
-      initHireCalculator((days) => {
-        callbackDays = days;
-      });
-
-      const endInput = document.querySelector('input[name="end_date"]');
-      const daysInput = document.getElementById("hire_days");
+    withHireTestSetup({ start: "2025-01-15", end: "2025-01-17", days: "3" }, () => {
+      const { endInput, daysInput, getCallbackDays } = initHireWithCallback();
 
       // Clear end date
       endInput.value = "";
       endInput.dispatchEvent(new Event("change"));
 
       expect(daysInput.value).toBe("");
-      expect(callbackDays).toBe(1);
+      expect(getCallbackDays()).toBe(1);
     });
   });
 });
