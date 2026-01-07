@@ -276,6 +276,15 @@ const assertEntityValid = (site, pagePath, entityType) => {
   expect(hasRequiredProperties(entity, entityType)).toBe(true);
 };
 
+const assertValidJsonLdWithContext = async (site, pagePath, label) => {
+  const html = site.getOutput(pagePath);
+  const jsonLd = extractJsonLd(html);
+
+  expect(jsonLd).not.toBeNull();
+  expect(hasValidContext(jsonLd)).toBe(true);
+  await assertSchemaOrgValid(html, label);
+};
+
 // ============================================
 // Tests
 // ============================================
@@ -459,12 +468,11 @@ describe("JSON-LD structured data validation", () => {
           images: ["placeholder.jpg"],
         },
         async (site) => {
-          const html = site.getOutput("/news/special-chars/index.html");
-          const jsonLd = extractJsonLd(html);
-
-          expect(jsonLd).not.toBeNull();
-          expect(hasValidContext(jsonLd)).toBe(true);
-          await assertSchemaOrgValid(html, "Special chars");
+          await assertValidJsonLdWithContext(
+            site,
+            "/news/special-chars/index.html",
+            "Special chars",
+          );
         },
       );
     });
@@ -509,12 +517,11 @@ describe("JSON-LD structured data validation", () => {
           ],
         },
         async (site) => {
-          const html = site.getOutput("/simple/index.html");
-          const jsonLd = extractJsonLd(html);
-
-          expect(jsonLd).not.toBeNull();
-          expect(hasValidContext(jsonLd)).toBe(true);
-          await assertSchemaOrgValid(html, "No image");
+          await assertValidJsonLdWithContext(
+            site,
+            "/simple/index.html",
+            "No image",
+          );
         },
       );
     });
