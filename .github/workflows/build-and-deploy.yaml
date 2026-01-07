@@ -2,6 +2,8 @@ name: Build and Deploy to Neocities and Bunny CDN
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
