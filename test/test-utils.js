@@ -701,6 +701,31 @@ const expectErrorsInclude =
     }
   };
 
+/**
+ * Test helper that expects an async function to throw and returns the error.
+ * Idiomatic replacement for try/catch in tests.
+ *
+ * @param {Function} asyncFn - Async function to call (returns promise)
+ * @returns {Promise<Error>} The thrown error for further assertions
+ *
+ * @example
+ * const error = await expectAsyncThrows(() => site.build());
+ * expect(error.message).toContain("Build failed");
+ * expect(error.stdout || error.stderr).toBeTruthy();
+ */
+const expectAsyncThrows = async (asyncFn) => {
+  let threwError = false;
+  let error;
+  try {
+    await asyncFn();
+  } catch (e) {
+    threwError = true;
+    error = e;
+  }
+  expect(threwError).toBe(true);
+  return error;
+};
+
 export {
   DOM,
   expect,
@@ -733,6 +758,7 @@ export {
   expectDataArray,
   expectGalleries,
   expectErrorsInclude,
+  expectAsyncThrows,
   // Generic item builder
   item,
   items,

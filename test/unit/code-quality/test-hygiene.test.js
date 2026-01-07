@@ -336,6 +336,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractStatus",
   // test-utils.js - curried assertion helper for error checking
   "expectErrorsInclude",
+  // test-utils.js - async error testing helper
+  "expectAsyncThrows",
   // hire-calculator.test.js - DOM query helper
   "getDateInputs",
   // jsonld-validation.test.js - JSON-LD assertion helper

@@ -6,7 +6,7 @@ import {
   createTestSite,
   withTestSite,
 } from "#test/test-site-factory.js";
-import { rootDir } from "#test/test-utils.js";
+import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
 const minimalPage = () => ({
@@ -288,14 +288,7 @@ describe("test-site-factory", () => {
         );
 
         // Build should fail and throw an error
-        let error;
-        try {
-          await site.build();
-        } catch (e) {
-          error = e;
-        }
-
-        expect(error).toBeDefined();
+        const error = await expectAsyncThrows(() => site.build());
         expect(error.message).toContain("Eleventy build failed");
         // Error should include stdout or stderr
         expect(error.stdout || error.stderr).toBeTruthy();
