@@ -52,17 +52,19 @@ const computeWrappedImageHtml = memoize(
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
 
     const { default: Image } = await getEleventyImg();
-    const innerHTML = await Image(finalPath, {
-      ...DEFAULT_OPTIONS,
-      widths: parsedWidths,
-      fixOrientation: true,
-      returnType: "html",
-      htmlOptions: { imgAttributes, pictureAttributes },
-    });
 
-    // Build wrapper div with LQIP background and aspect ratio
-    const thumbPromise = getThumbnailOrNull(imagePath, metadata);
-    const bgImage = thumbPromise !== null ? await thumbPromise : null;
+    // Run Image generation and thumbnail in parallel (they're independent operations)
+    const [innerHTML, bgImage] = await Promise.all([
+      Image(finalPath, {
+        ...DEFAULT_OPTIONS,
+        widths: parsedWidths,
+        fixOrientation: true,
+        returnType: "html",
+        htmlOptions: { imgAttributes, pictureAttributes },
+      }),
+      getThumbnailOrNull(imagePath, metadata),
+    ]);
+
     const styles = compact([
       bgImage && `background-image: ${bgImage}`,
       `aspect-ratio: ${getAspectRatio(aspectRatio, metadata)}`,
