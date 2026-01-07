@@ -1,6 +1,7 @@
 // Quote price display utilities
 // Renders a price summary for cart items with hire pricing
 
+import { getRadioValue } from "#public/cart/quote-steps.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
@@ -78,11 +79,6 @@ const hasValue = (field) =>
   isRadio(field) ? getRadioValue(field.name) !== "" : field.value !== "";
 
 // Get the display value for a field
-const getRadioValue = (name) => {
-  const checked = document.querySelector(`input[name="${name}"]:checked`);
-  return checked ? checked.value : "";
-};
-
 const getSelectDisplayValue = (field) =>
   field.options[field.selectedIndex]?.text || "";
 

@@ -32,7 +32,7 @@ const getReviewsFor = (reviews, slug, field) =>
  * @param {string} field - The field to check
  */
 const countReviews = (reviews, slug, field) =>
-  reviews.filter((review) => review.data[field]?.includes(slug)).length;
+  getReviewsFor(reviews, slug, field).length;
 
 /**
  * Calculate average rating for reviews matching a specific item
@@ -112,88 +112,58 @@ const reviewerAvatar = (name) => {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 
-/**
- * Default reviews truncate limit when not configured
- */
 const DEFAULT_REVIEWS_LIMIT = 10;
 
-/**
- * Helper to get items and reviews data for review page filtering
- * @param {string} tag - The tag to filter items by
- * @param {number} limitOverride - Optional limit override for testing
- * @param {Object} collectionApi - Eleventy collection API
- * @returns {Object} Object containing items, visibleReviews, and limit
- */
-const getReviewData = (tag, limitOverride, collectionApi) => ({
-  items: collectionApi.getFilteredByTag(tag) || [],
-  visibleReviews: createReviewsCollection(collectionApi),
-  limit:
-    limitOverride !== undefined
-      ? limitOverride
-      : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT),
-});
+/** Map item to redirect data */
+const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
+
+/** Factory helper for review-based collections */
+const reviewsFactory =
+  (tag, reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag) || [];
+    const visibleReviews = createReviewsCollection(collectionApi);
+    const limit =
+      limitOverride !== undefined
+        ? limitOverride
+        : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT);
+
+    if (limit === -1) return onNoLimit(items);
+
+    const hasEnoughReviews = (item) =>
+      countReviews(visibleReviews, item.fileSlug, reviewsField) > limit;
+
+    return onLimit(items, hasEnoughReviews);
+  };
 
 /**
  * Factory: items with enough reviews for a separate /reviews page
- * @param {string} tag - The tag to filter items by
- * @param {string} reviewsField - The field to check for reviews
- * @param {(item: any) => any} [processItem] - Optional function to transform items
- * @param {number} [limitOverride] - Optional limit override for testing
- * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns filtered items
  */
-const withReviewsPage =
-  (tag, reviewsField, processItem = (item) => item, limitOverride) =>
-  (collectionApi) => {
-    const { items, visibleReviews, limit } = getReviewData(
-      tag,
-      limitOverride,
-      collectionApi,
-    );
-
-    // If limit is -1, no truncation occurs so no separate page needed
-    if (limit === -1) return [];
-
-    return items
-      .map(processItem)
-      .filter(
-        (item) =>
-          countReviews(visibleReviews, item.fileSlug, reviewsField) > limit,
-      );
-  };
+const withReviewsPage = (
+  tag,
+  reviewsField,
+  processItem = (item) => item,
+  limitOverride,
+) =>
+  reviewsFactory(
+    tag,
+    reviewsField,
+    limitOverride,
+    () => [],
+    (items, hasEnough) => items.map(processItem).filter(hasEnough),
+  );
 
 /**
  * Factory: redirect data for items without enough reviews for a separate page
- * @param {string} tag - The tag to filter items by
- * @param {string} reviewsField - The field to check for reviews
- * @param {number} [limitOverride] - Optional limit override for testing
- * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns redirect data
  */
-const reviewsRedirects =
-  (tag, reviewsField, limitOverride) => (collectionApi) => {
-    const { items, visibleReviews, limit } = getReviewData(
-      tag,
-      limitOverride,
-      collectionApi,
-    );
-
-    // If limit is -1, no truncation occurs so all items need redirects
-    if (limit === -1) {
-      return items.map((item) => ({
-        item,
-        fileSlug: item.fileSlug,
-      }));
-    }
-
-    return items
-      .filter(
-        (item) =>
-          countReviews(visibleReviews, item.fileSlug, reviewsField) <= limit,
-      )
-      .map((item) => ({
-        item,
-        fileSlug: item.fileSlug,
-      }));
-  };
+const reviewsRedirects = (tag, reviewsField, limitOverride) =>
+  reviewsFactory(
+    tag,
+    reviewsField,
+    limitOverride,
+    (items) => items.map(toRedirectData),
+    (items, hasEnough) =>
+      items.filter((item) => !hasEnough(item)).map(toRedirectData),
+  );
 
 /**
  * Configure reviews collection and filters for Eleventy

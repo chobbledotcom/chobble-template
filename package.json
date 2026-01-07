@@ -23,7 +23,7 @@
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
-		"cpd": "jscpd",
+		"cpd": "jscpd && jscpd src/_lib --min-tokens 25",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
 		"lint": "bunx @biomejs/biome check --error-on-warnings .",

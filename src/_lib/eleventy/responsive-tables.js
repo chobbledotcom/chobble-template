@@ -1,4 +1,4 @@
-import { loadDOM } from "#utils/lazy-dom.js";
+import { transformDOM } from "#utils/lazy-dom.js";
 
 async function transformHtmlForResponsiveTables(content, outputPath) {
   if (
@@ -10,21 +10,17 @@ async function transformHtmlForResponsiveTables(content, outputPath) {
     return content;
   }
 
-  const dom = await loadDOM(content);
-  const { document } = dom.window;
+  return transformDOM(content, (document) => {
+    for (const table of document.querySelectorAll("table")) {
+      if (table.parentElement?.classList?.contains("scrollable-table"))
+        continue;
 
-  const tables = document.querySelectorAll("table");
-
-  for (const table of tables) {
-    if (table.parentElement?.classList?.contains("scrollable-table")) continue;
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "scrollable-table";
-    table.parentNode.insertBefore(wrapper, table);
-    wrapper.appendChild(table);
-  }
-
-  return dom.serialize();
+      const wrapper = document.createElement("div");
+      wrapper.className = "scrollable-table";
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    }
+  });
 }
 
 const configureResponsiveTables = (eleventyConfig) => {

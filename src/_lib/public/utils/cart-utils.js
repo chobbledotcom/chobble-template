@@ -37,6 +37,10 @@ export function getItemCount() {
   return cart.reduce((count, item) => count + item.quantity, 0);
 }
 
+export function getCheckoutItems() {
+  return getCart().map(({ sku, quantity }) => ({ sku, quantity }));
+}
+
 export function updateCartIcon() {
   const count = getItemCount();
   for (const icon of document.querySelectorAll(".cart-icon")) {

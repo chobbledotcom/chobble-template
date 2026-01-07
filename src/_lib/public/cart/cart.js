@@ -7,6 +7,7 @@ import {
   attachRemoveHandlers,
   formatPrice,
   getCart,
+  getCheckoutItems,
   saveCart,
   updateCartIcon,
   updateItemQuantity,
@@ -213,8 +214,7 @@ const addItem = (
 
 // PayPal checkout via backend API
 const paypalCheckout = async (apiUrl) => {
-  const cart = getCart();
-  const items = cart.map(({ sku, quantity }) => ({ sku, quantity }));
+  const items = getCheckoutItems();
   const order = await postJson(apiUrl, { items });
 
   if (order?.url) {
