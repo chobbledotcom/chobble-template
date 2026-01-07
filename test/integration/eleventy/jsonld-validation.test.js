@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Validator from "@adobe/structured-data-validator";
 import WebAutoExtractor from "@marbec/web-auto-extractor";
-import { createTestSite, withTestSite } from "#test/test-site-factory.js";
+import { createTestSite } from "#test/test-site-factory.js";
 import { rootDir } from "#test/test-utils.js";
 
 /**
@@ -457,72 +457,62 @@ describe("JSON-LD structured data validation", () => {
   // --- Edge Cases ---
 
   describe("edge cases", () => {
+    // Consolidate edge cases into a single site build for performance
+    const EDGE_CASE_CONFIG = {
+      files: [
+        newsFile("special-chars", 'Test "Quotes" & Ampersands', {
+          description: 'A post with special chars: <tag> & "quotes"',
+        }),
+        productFile("free-product", "Free Product", {
+          description: "A free product",
+        }),
+        createFile(
+          "pages/simple.md",
+          {
+            title: "Simple Page",
+            layout: "page",
+            permalink: "/simple/",
+            meta_description: "A simple page without image",
+          },
+          "# Simple\n\nNo image here.",
+        ),
+      ],
+      images: ["placeholder.jpg"],
+    };
+
+    let edgeCaseSite;
+
+    beforeAll(async () => {
+      edgeCaseSite = await createTestSite(EDGE_CASE_CONFIG);
+      await edgeCaseSite.build();
+    });
+
+    afterAll(() => edgeCaseSite?.cleanup());
+
     test("JSON-LD handles special characters in title", async () => {
-      await withTestSite(
-        {
-          files: [
-            newsFile("special-chars", 'Test "Quotes" & Ampersands', {
-              description: 'A post with special chars: <tag> & "quotes"',
-            }),
-          ],
-          images: ["placeholder.jpg"],
-        },
-        async (site) => {
-          await assertValidJsonLdWithContext(
-            site,
-            "/news/special-chars/index.html",
-            "Special chars",
-          );
-        },
+      await assertValidJsonLdWithContext(
+        edgeCaseSite,
+        "/news/special-chars/index.html",
+        "Special chars",
       );
     });
 
     test("Product without price has valid JSON-LD", async () => {
-      await withTestSite(
-        {
-          files: [
-            productFile("free-product", "Free Product", {
-              description: "A free product",
-            }),
-          ],
-          images: ["placeholder.jpg"],
-        },
-        async (site) => {
-          const html = site.getOutput("/products/free-product/index.html");
-          const jsonLd = extractJsonLd(html);
-          const product = findEntityByType(jsonLd, "Product");
+      const html = edgeCaseSite.getOutput("/products/free-product/index.html");
+      const jsonLd = extractJsonLd(html);
+      const product = findEntityByType(jsonLd, "Product");
 
-          expect(jsonLd).not.toBeNull();
-          expect(product).not.toBeNull();
-          expect(product["@type"]).toBe("Product");
-          await assertSchemaOrgValid(html, "Free product");
-        },
-      );
+      expect(jsonLd).not.toBeNull();
+      expect(product).not.toBeNull();
+      expect(product["@type"]).toBe("Product");
+      await assertSchemaOrgValid(html, "Free product");
     });
 
     test("Page without header_image has valid JSON-LD", async () => {
-      await withTestSite(
-        {
-          files: [
-            createFile(
-              "pages/simple.md",
-              {
-                title: "Simple Page",
-                layout: "page",
-                permalink: "/simple/",
-                meta_description: "A simple page without image",
-              },
-              "# Simple\n\nNo image here.",
-            ),
-          ],
-        },
-        async (site) => {
-          await assertValidJsonLdWithContext(
-            site,
-            "/simple/index.html",
-            "No image",
-          );
-        },
+      await assertValidJsonLdWithContext(
+        edgeCaseSite,
+        "/simple/index.html",
+        "No image",
       );
     });
   });
