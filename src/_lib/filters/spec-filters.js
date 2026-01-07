@@ -8,9 +8,8 @@ import { inlineAsset } from "#media/inline-asset.js";
  * @returns {{ icon: string, highlight: boolean }|undefined} - The spec config or undefined if not found
  */
 const getSpecConfig = (specName) => {
-  if (!specName) return undefined;
-  const normalized = specName.toLowerCase().trim();
-  return specsIcons[normalized];
+  const normalized = specName?.toLowerCase().trim();
+  return normalized ? specsIcons[normalized] : undefined;
 };
 
 /**
@@ -21,8 +20,7 @@ const getSpecConfig = (specName) => {
  */
 const getSpecIcon = (specName) => {
   const config = getSpecConfig(specName);
-  if (!config) return "";
-  return inlineAsset(`icons/${config.icon}`);
+  return config ? inlineAsset(`icons/${config.icon}`) : "";
 };
 
 /**
