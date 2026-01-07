@@ -644,6 +644,16 @@ describe("quote-steps", () => {
     `;
   }
 
+  // Helper to test next button step advancement
+  const testNextButtonStep = (setupOptions, expectedStep) => {
+    document.body.innerHTML = createQuoteStepsHtml(setupOptions);
+    initQuoteSteps();
+    const nextBtn = document.querySelector(".quote-step-next");
+    nextBtn.click();
+    const container = document.querySelector(".quote-steps");
+    expect(container.dataset.currentStep).toBe(expectedStep);
+  };
+
   test("initQuoteSteps does nothing if no quote-steps container", () => {
     document.body.innerHTML = "<div>No steps here</div>";
     expect(() => initQuoteSteps()).not.toThrow();
@@ -667,21 +677,11 @@ describe("quote-steps", () => {
   });
 
   test("initQuoteSteps validates before advancing to next step", () => {
-    document.body.innerHTML = createQuoteStepsHtml({ inputValue: "" });
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    nextBtn.click();
-    const container = document.querySelector(".quote-steps");
-    expect(container.dataset.currentStep).toBe("0");
+    testNextButtonStep({ inputValue: "" }, "0");
   });
 
   test("initQuoteSteps advances when validation passes", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    nextBtn.click();
-    const container = document.querySelector(".quote-steps");
-    expect(container.dataset.currentStep).toBe("1");
+    testNextButtonStep({}, "1");
   });
 
   test("initQuoteSteps scrolls container into view after step change", () => {

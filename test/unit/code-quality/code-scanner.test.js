@@ -205,7 +205,12 @@ describe("code-scanner", () => {
 
   describe("validateExceptions", () => {
     // Helper to validate single stale exception
-    const testStaleException = (allowlist, patterns, expectedEntry, expectedReasonPattern) => {
+    const testStaleException = (
+      allowlist,
+      patterns,
+      expectedEntry,
+      expectedReasonPattern,
+    ) => {
       const stale = validateExceptions(allowlist, patterns);
       expect(stale.length).toBe(1);
       expect(stale[0].entry).toBe(expectedEntry);
