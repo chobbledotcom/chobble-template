@@ -15,6 +15,7 @@ import {
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
   // Test utilities from test-utils.js pattern
+  "createObjectBuilder",
   "captureConsole",
   "execScript",
   "createMockEleventyConfig",
@@ -35,6 +36,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createSchemaData",
   // quote-steps.test.js - test fixture factory
   "createQuoteStepsHtml",
+  // quote-price-utils.test.js - DOM setup and template rendering
+  "setupFullDOM",
+  "setupBlurTestDOM",
+  "renderQuotePriceTemplates",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
@@ -243,23 +248,22 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "hrtimeToMs",
   // run-coverage.js - coverage utilities
   "parseLcov",
-  "parseUncovered",
-  "findNew",
-  "findRemaining",
+  "parseLine",
+  "parseDA",
   "ratchetExceptions",
   "runCoverage",
-  "printSummary",
   "checkExceptions",
   "diffByFile",
   "difference",
   "intersection",
+  "toSet",
   "isNonEmpty",
-  "mapTypes",
+  "isMainCI",
   "readJson",
-  "writeJson",
   // precommit.js - precommit utilities
   "runStep",
   "extractErrorsFromOutput",
+  "printSummary",
   // precommit.test.js - memoized function loader
   "extractErrorsFunction",
   // precommit.test.js - functional test helper
@@ -335,7 +339,8 @@ describe("test-hygiene", () => {
   test("Test files should not contain production logic - only test and import real code", () => {
     const issues = analyzeTestFiles();
     assertNoViolations(issues, {
-      message: "non-whitelisted function(s) in test files",
+      singular: "non-whitelisted function in test file",
+      plural: "non-whitelisted functions in test files",
       fixHint: "add to ALLOWED_TEST_FUNCTIONS or import from source",
     });
   });

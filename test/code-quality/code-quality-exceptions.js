@@ -53,7 +53,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/code-scanner.js - Exception validation
   // Needed: validates exception entries by reading files that might not exist
-  "test/code-scanner.js:319",
+  "test/code-scanner.js:334",
 ]);
 
 // ============================================
@@ -238,7 +238,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/theme/theme-editor-lib.js:48", // themeContent
   "src/_lib/public/theme/theme-editor-lib.js:85", // borderValue
   "src/_lib/public/theme/theme-editor-lib.js:157", // value
-  "src/_lib/public/utils/quote-price-utils.js:15", // priceStr
+  "src/_lib/public/utils/quote-price-utils.js:22", // priceStr
   "src/_lib/filters/spec-filters.js:11", // specName
   "src/_lib/filters/spec-filters.js:14", // iconFile
   "ecommerce-backend/server.js:118", // sku (request param)
@@ -250,9 +250,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/filters/item-filters.js:33", // filterAttributes
   "src/_lib/filters/item-filters.js:62", // attrs
   "src/_lib/filters/item-filters.js:102", // path
-  "src/_lib/collections/products.js:6", // gallery
-  "src/_lib/collections/products.js:72", // options
-  "src/_lib/collections/search.js:9", // category
+  "src/_lib/collections/products.js:71", // options
   "src/_lib/collections/reviews.js:88", // name
   "src/_lib/collections/navigation.js:13", // collection
   "src/_lib/collections/navigation.js:19", // result
@@ -264,7 +262,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
   "test/integration/test-site-factory.test.js:108", // imageExists (file may not exist)
   "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
-  "test/run-coverage.js:74", // file (iteration over files)
   "test/precommit.js:56", // trimmed (line processing)
   "test/precommit.js:140", // result (skip if step wasn't run)
   "test/precommit.js:187", // allPassed (check if all steps passed)
@@ -292,7 +289,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js",
   "src/_lib/utils/lazy-loader.js",
-  "src/_lib/utils/schema-helper.js",
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -308,9 +304,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/shuffle-properties.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
-  "src/_lib/public/ui/tabs.js",
   "src/_lib/public/theme/theme-editor-lib.js",
-  "src/products/products.11tydata.js",
   "test/unit/code-quality/knip.test.js",
 ]);
 

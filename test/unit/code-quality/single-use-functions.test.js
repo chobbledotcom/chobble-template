@@ -465,7 +465,7 @@ const z = add(5, 6);
     const { violations } = analyzeSingleUseFunctions();
 
     assertNoViolations(violations, {
-      message: "single-use unexported function(s)",
+      singular: "single-use unexported function",
       fixHint:
         "Nest the function inside its caller if it's specific to it, or add to ALLOWED_SINGLE_USE_FUNCTIONS if it's intentionally kept separate",
     });

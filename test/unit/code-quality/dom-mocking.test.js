@@ -66,7 +66,7 @@ document.createElement("div");
   test("No bad DOM patterns in test files", () => {
     const { violations } = domPatternAnalysis();
     assertNoViolations(violations, {
-      message: "bad DOM mocking pattern(s)",
+      singular: "bad DOM mocking pattern",
       fixHint:
         "Use document directly (happy-dom provides globals via test/setup.js). " +
         "Set DOM with document.body.innerHTML = '...' instead of new DOM()",

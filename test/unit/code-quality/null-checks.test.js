@@ -48,7 +48,7 @@ if (!getValue()) return;
   test("No new null checks outside the allowlist", () => {
     const { violations } = analyzeNullChecks();
     assertNoViolations(violations, {
-      message: "non-allowlisted null check(s)",
+      singular: "non-allowlisted null check",
       fixHint:
         "Consider if null check is truly necessary, or add to ALLOWED_NULL_CHECKS in code-quality-exceptions.js",
     });

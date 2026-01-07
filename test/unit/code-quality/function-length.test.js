@@ -6,7 +6,7 @@ import {
   rootDir,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
-import { filterMap, map, pipe } from "#utils/array-utils.js";
+import { filterMap, map, pipe, pluralize } from "#utils/array-utils.js";
 
 // Configuration
 const MAX_LINES = 30;
@@ -92,8 +92,9 @@ const formatViolations = (violations) => {
   // Sort by line count (descending)
   violations.sort((a, b) => b.lineCount - a.lineCount);
 
+  const formatFunctions = pluralize("function");
   const lines = [
-    `Found ${violations.length} function(s) exceeding ${MAX_LINES} lines:\n`,
+    `Found ${formatFunctions(violations.length)} exceeding ${MAX_LINES} lines:\n`,
   ];
 
   for (const v of violations) {

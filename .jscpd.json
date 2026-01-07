@@ -7,6 +7,7 @@
 		"**/_site/**",
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
+		"**/scripts/**",
 		"**/.test-sites/**"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],

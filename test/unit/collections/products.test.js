@@ -35,11 +35,6 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
 });
 
 describe("products", () => {
-  test("Returns null/undefined gallery unchanged", () => {
-    expect(processGallery(null)).toBe(null);
-    expect(processGallery(undefined)).toBe(undefined);
-  });
-
   test("Converts object galleries to arrays of filenames", () => {
     const input = {
       0: "image1.jpg",

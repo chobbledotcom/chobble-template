@@ -4,7 +4,14 @@
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
-import { map, reduce } from "#utils/array-utils.js";
+import {
+  filter,
+  map,
+  pipe,
+  pluralize,
+  reduce,
+  uniqueBy,
+} from "#utils/array-utils.js";
 
 // Predicates
 const isHireItem = (item) => item.product_mode === "hire";
@@ -47,15 +54,66 @@ const calculateTotal = (cart, days) => {
   return { total: sum(prices), canCalculate: true };
 };
 
-// Format hire length display
-const formatHireLength = (days) => (days === 1 ? "1 day" : `${days} days`);
+// Format hire length display - uses curried pluralize
+const formatHireLength = pluralize("day");
 
-// Format item count display
-const formatItemCount = (count) =>
-  count === 1 ? "1 item in order" : `${count} items in order`;
+// Format item count display - uses curried pluralize
+const formatItemCount = pluralize("item in order", "items in order");
 
 // Count total items including quantities
 const countItems = (cart) => sum(map((item) => item.quantity)(cart));
+
+// ============================================================================
+// Field Details Collection
+// ============================================================================
+
+// Get field labels mapping from config
+const getFieldLabels = () =>
+  JSON.parse(document.querySelector(".quote-field-labels").textContent);
+
+// Predicates for field types
+const isRadio = (field) => field.type === "radio";
+const isSelect = (field) => field.tagName === "SELECT";
+const hasValue = (field) =>
+  isRadio(field) ? getRadioValue(field.name) !== "" : field.value !== "";
+
+// Get the display value for a field
+const getRadioValue = (name) => {
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  return checked ? checked.value : "";
+};
+
+const getSelectDisplayValue = (field) =>
+  field.options[field.selectedIndex]?.text || "";
+
+const getFieldValue = (field) => {
+  if (isRadio(field)) return getRadioValue(field.name);
+  if (isSelect(field)) return getSelectDisplayValue(field);
+  return field.value;
+};
+
+// Get the label for a field from config mapping
+const getFieldLabel = (field) => getFieldLabels()[field.name || field.id];
+
+// Get unique identifier for a field (name for radios, id for others)
+const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
+
+// Transform a field to a detail object { key, value }
+const fieldToDetail = (field) => ({
+  key: getFieldLabel(field),
+  value: getFieldValue(field),
+});
+
+// Collect all filled fields from a container and transform to details
+// Returns array of { key, value } objects for fields with non-empty values
+const collectFieldDetails = (container) => {
+  const fields = [...container.querySelectorAll("input, select, textarea")];
+  return pipe(
+    filter(hasValue),
+    uniqueBy(getFieldId),
+    map(fieldToDetail),
+  )(fields);
+};
 
 // Create an item element from template
 const createItemElement = (item, days) => {
@@ -75,6 +133,26 @@ const populateItems = (container, cart, days) => {
     container.appendChild(createItemElement(item, days));
   }
 };
+
+// Create a detail element from template
+const createDetailElement = (detail) => {
+  const template = getTemplate(IDS.QUOTE_PRICE_DETAIL);
+  template.querySelector('[data-field="key"]').textContent = detail.key;
+  template.querySelector('[data-field="value"]').textContent = detail.value;
+  return template;
+};
+
+// Populate the details list
+const populateDetails = (container, details) => {
+  container.innerHTML = "";
+  for (const detail of details) {
+    container.appendChild(createDetailElement(detail));
+  }
+};
+
+// Get form container for field details collection
+const getFormContainer = () =>
+  document.querySelector(".quote-steps") || document.querySelector("form");
 
 // Render the quote price display
 const renderQuotePrice = (container, days = 1) => {
@@ -101,6 +179,10 @@ const renderQuotePrice = (container, days = 1) => {
   const itemsContainer = template.querySelector('[data-field="items"]');
   populateItems(itemsContainer, cart, days);
 
+  const detailsContainer = template.querySelector('[data-field="details"]');
+  const details = collectFieldDetails(getFormContainer());
+  populateDetails(detailsContainer, details);
+
   container.innerHTML = "";
   container.appendChild(template);
   container.style.display = "block";
@@ -112,14 +194,41 @@ const updateQuotePrice = (days = 1) => {
   if (container) renderQuotePrice(container, days);
 };
 
+// Set up blur handlers on form fields to update details on blur
+// Uses event delegation for efficiency
+const setupDetailsBlurHandlers = (getDays = () => 1) => {
+  const formContainer = getFormContainer();
+  const handleBlur = (event) => {
+    const target = event.target;
+    if (target.matches("input, select, textarea")) {
+      updateQuotePrice(getDays());
+    }
+  };
+
+  // Use capture phase to catch blur events which don't bubble
+  formContainer.addEventListener("blur", handleBlur, true);
+
+  // Also handle change for radios/selects which may not blur naturally
+  formContainer.addEventListener("change", (event) => {
+    const target = event.target;
+    if (target.matches('input[type="radio"], select')) {
+      updateQuotePrice(getDays());
+    }
+  });
+};
+
 export {
   calculateTotal,
+  collectFieldDetails,
   countItems,
   formatHireLength,
   formatItemCount,
   formatItemName,
   formatItemPrice,
+  getFieldLabel,
+  getFieldValue,
   getPriceForDays,
   parsePrice,
+  setupDetailsBlurHandlers,
   updateQuotePrice,
 };

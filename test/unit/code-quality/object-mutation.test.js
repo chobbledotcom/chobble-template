@@ -77,7 +77,8 @@ obj[ key ] = value;
   test("No object mutation outside allowlist", () => {
     const { violations } = analyzeObjectMutation();
     assertNoViolations(violations, {
-      message: "object mutation(s) via bracket assignment",
+      singular: "object mutation via bracket assignment",
+      plural: "object mutations via bracket assignment",
       fixHint:
         "use functional patterns (reduce with spread, Object.fromEntries, toObject), or add to ALLOWED_OBJECT_MUTATION in code-quality-exceptions.js",
     });

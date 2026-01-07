@@ -15,10 +15,6 @@ class DOM {
       this.window.document.write(html);
     }
   }
-
-  serialize() {
-    return this.window.document.documentElement.outerHTML;
-  }
 }
 
 const rootDir = ROOT_DIR;
@@ -33,6 +29,44 @@ const ALWAYS_SKIP = new Set([
   "result", // Nix build output symlink
 ]);
 
+// ============================================
+// Curried Factory Functions for Mock Config
+// ============================================
+
+/**
+ * Create a method that adds items to an object map.
+ * Curried: (propName) => function(name, value) that assigns this[propName][name] = value
+ *
+ * @param {string} propName - The property name for the object map
+ * @returns {Function} Method that adds name/value pairs to the map
+ *
+ * @example
+ * const addFilter = createMapMethod("filters");
+ * // Later: addFilter.call(config, "myFilter", fn)
+ */
+const createMapMethod = (propName) =>
+  function (name, value) {
+    this[propName] = this[propName] || {};
+    this[propName][name] = value;
+  };
+
+/**
+ * Create a method that pushes items to an array.
+ * Curried: (propName) => function(item) that pushes to this[propName]
+ *
+ * @param {string} propName - The property name for the array
+ * @returns {Function} Method that pushes items to the array
+ *
+ * @example
+ * const addWatchTarget = createArrayMethod("watchTargets");
+ * // Later: addWatchTarget.call(config, "src/**")
+ */
+const createArrayMethod = (propName) =>
+  function (item) {
+    this[propName] = this[propName] || [];
+    this[propName].push(item);
+  };
+
 // Define createMockEleventyConfig BEFORE getFiles() to avoid TDZ issues
 // when getFiles() triggers circular imports during module initialization
 const createMockEleventyConfig = () => ({
@@ -40,73 +74,21 @@ const createMockEleventyConfig = () => ({
     this.pluginCalls = this.pluginCalls || [];
     this.pluginCalls.push({ plugin, config });
   },
-  addCollection: function (name, fn) {
-    this.collections = this.collections || {};
-    this.collections[name] = fn;
-  },
-  addFilter: function (name, fn) {
-    this.filters = this.filters || {};
-    this.filters[name] = fn;
-  },
-  addAsyncFilter: function (name, fn) {
-    this.asyncFilters = this.asyncFilters || {};
-    this.asyncFilters[name] = fn;
-  },
-  addShortcode: function (name, fn) {
-    this.shortcodes = this.shortcodes || {};
-    this.shortcodes[name] = fn;
-  },
-  addAsyncShortcode: function (name, fn) {
-    this.asyncShortcodes = this.asyncShortcodes || {};
-    this.asyncShortcodes[name] = fn;
-  },
-  addTemplateFormats: function (format) {
-    this.templateFormats = this.templateFormats || [];
-    this.templateFormats.push(format);
-  },
-  addExtension: function (ext, config) {
-    this.extensions = this.extensions || {};
-    this.extensions[ext] = config;
-  },
-  addTransform: function (name, fn) {
-    this.transforms = this.transforms || {};
-    this.transforms[name] = fn;
-  },
-  setLayoutsDirectory: function (dir) {
-    this.layoutsDirectory = dir;
-  },
-  addWatchTarget: function (target) {
-    this.watchTargets = this.watchTargets || [];
-    this.watchTargets.push(target);
-  },
-  addPassthroughCopy: function (path) {
-    this.passthroughCopies = this.passthroughCopies || [];
-    this.passthroughCopies.push(path);
-  },
-  on: function (eventName, handler) {
-    this.eventHandlers = this.eventHandlers || {};
-    this.eventHandlers[eventName] = handler;
-  },
-  resolvePlugin: (pluginName) => {
-    // Return a mock plugin function that does nothing
-    return function mockPlugin(config, _options) {
-      // Mock HTML Base plugin - adds filters that tests might need
-      if (pluginName === "@11ty/eleventy/html-base-plugin") {
-        config.addFilter("htmlBaseUrl", (url, base) => {
-          if (base && url && !url.startsWith("http")) {
-            return base + url;
-          }
-          return url;
-        });
-        config.addAsyncFilter(
-          "transformWithHtmlBase",
-          async (content, _base) => {
-            return content; // Just return content unchanged in tests
-          },
-        );
-      }
-    };
-  },
+  // Object map methods - use curried factory
+  addCollection: createMapMethod("collections"),
+  addFilter: createMapMethod("filters"),
+  addAsyncFilter: createMapMethod("asyncFilters"),
+  addShortcode: createMapMethod("shortcodes"),
+  addAsyncShortcode: createMapMethod("asyncShortcodes"),
+  addExtension: createMapMethod("extensions"),
+  addTransform: createMapMethod("transforms"),
+  on: createMapMethod("eventHandlers"),
+  // Array push methods - use curried factory
+  addTemplateFormats: createArrayMethod("templateFormats"),
+  addWatchTarget: createArrayMethod("watchTargets"),
+  addPassthroughCopy: createArrayMethod("passthroughCopies"),
+  // Mock plugin resolution (used by feed.js)
+  resolvePlugin: () => () => {},
   pathPrefix: "/",
 });
 
@@ -144,46 +126,73 @@ const getFiles = (pattern) => {
 
 // Memoized file list getters - defer getFiles() call until first use
 // to avoid TDZ issues during circular imports at module load time
-const SRC_JS_FILES = memoize(() => getFiles(/^src\/.*\.js$/));
-const ECOMMERCE_JS_FILES = memoize(() =>
-  getFiles(/^ecommerce-backend\/.*\.js$/),
-);
-const SRC_HTML_FILES = memoize(() =>
-  getFiles(/^src\/(_includes|_layouts)\/.*\.html$/),
-);
-const SRC_SCSS_FILES = memoize(() => getFiles(/^src\/css\/.*\.scss$/));
-const TEST_FILES = memoize(() => getFiles(/^test\/.*\.js$/));
-// Test utility scripts (non-test files in test directory)
-const TEST_UTILITY_FILES = memoize(() =>
-  getFiles(/^test\/[^/]+\.js$/).filter((f) => !f.endsWith(".test.js")),
-);
-// Source files plus test utilities (for code quality checks)
-const SRC_AND_TEST_UTILS_FILES = memoize(() => [
-  ...SRC_JS_FILES(),
-  ...TEST_UTILITY_FILES(),
-]);
-const ALL_JS_FILES = memoize(() =>
-  getFiles(/^(src|ecommerce-backend|test)\/.*\.js$/),
-);
+
+/**
+ * Create a memoized file getter for a given pattern.
+ * Curried: (pattern) => () => files
+ *
+ * @param {RegExp} pattern - Regex pattern for file matching
+ * @returns {Function} Memoized function that returns matching files
+ *
+ * @example
+ * const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
+ * const files = SRC_JS_FILES(); // Returns array of matching files
+ */
+const memoizedFiles = (pattern) => memoize(() => getFiles(pattern));
+
+const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
+const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
+const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
+const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
+const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src|ecommerce-backend|test)\/.*\.js$/);
 
 // Console capture utilities for testing output
-const captureConsoleLogAsync = async (fn) => {
+// Uses curried factory to eliminate duplication between sync and async versions
+
+/**
+ * Create a console capture function with a given executor.
+ * Curried: (executor) => (fn) => logs
+ *
+ * The executor receives (fn, cleanup, logs) where:
+ * - fn: the function to execute
+ * - cleanup: function to restore console.log
+ * - logs: array of captured log strings
+ *
+ * @param {Function} executor - (fn, cleanup, logs) => result
+ * @returns {Function} (fn) => logs - Console capture function
+ *
+ * @example
+ * const captureSync = createConsoleCapture((fn, cleanup, logs) => { fn(); cleanup(); return logs; });
+ */
+const createConsoleCapture = (executor) => (fn) => {
   const logs = [];
   const originalLog = console.log;
   console.log = (...args) => logs.push(args.join(" "));
-  await fn();
-  console.log = originalLog;
-  return logs;
+  return executor(
+    fn,
+    () => {
+      console.log = originalLog;
+    },
+    logs,
+  );
 };
 
-const captureConsole = (fn) => {
-  const logs = [];
-  const originalLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
+// Sync version: run fn(), restore console, return logs
+const captureConsole = createConsoleCapture((fn, cleanup, logs) => {
   fn();
-  console.log = originalLog;
+  cleanup();
   return logs;
-};
+});
+
+// Async version: await fn(), restore console, return logs
+const captureConsoleLogAsync = createConsoleCapture(
+  async (fn, cleanup, logs) => {
+    await fn();
+    cleanup();
+    return logs;
+  },
+);
 
 const createTempDir = (testName, suffix = "") => {
   const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}`;
@@ -211,27 +220,46 @@ const cleanupTempDir = (tempDir) => {
   }
 };
 
-const withTempDir = (testName, callback) => {
-  const tempDir = createTempDir(testName);
-  const result = callback(tempDir);
-  cleanupTempDir(tempDir);
-  return result;
-};
+/**
+ * Bracket pattern for resource management.
+ * Curried: (setup, teardown, passResource) => (arg, callback) => result
+ *
+ * Implements: acquire resource, use it, release it.
+ *
+ * @param {Function} setup - (arg) => resource - Acquire the resource
+ * @param {Function} teardown - (resource) => void - Release the resource
+ * @param {boolean} passResource - Whether to pass resource to callback
+ * @returns {Function} (arg, callback) => result
+ */
+const bracket =
+  (setup, teardown, passResource = true) =>
+  (arg, callback) => {
+    const resource = setup(arg);
+    const result = passResource ? callback(resource) : callback();
+    teardown(resource);
+    return result;
+  };
 
-const withTempFile = (testName, filename, content, callback) => {
-  return withTempDir(testName, (tempDir) => {
+// Bracket-based resource management using curried factory
+const withTempDir = bracket(createTempDir, cleanupTempDir);
+
+const withTempFile = (testName, filename, content, callback) =>
+  withTempDir(testName, (tempDir) => {
     const filePath = createTempFile(tempDir, filename, content);
     return callback(tempDir, filePath);
   });
-};
 
-const withMockedCwd = (newCwd, callback) => {
-  const originalCwd = process.cwd;
-  process.cwd = () => newCwd;
-  const result = callback();
-  process.cwd = originalCwd;
-  return result;
-};
+const withMockedCwd = bracket(
+  (newCwd) => {
+    const original = process.cwd;
+    process.cwd = () => newCwd;
+    return original;
+  },
+  (original) => {
+    process.cwd = original;
+  },
+  false,
+);
 
 /**
  * Assert that a result is a valid script tag with correct id and type.
@@ -243,21 +271,6 @@ const expectValidScriptTag = (result) => {
   expect(result.startsWith('<script id="site-config"')).toBe(true);
   expect(result.includes('type="application/json"')).toBe(true);
   expect(result.endsWith("</script>")).toBe(true);
-};
-
-/**
- * Assert that a result array has expected titles in order.
- * A functional, declarative helper for the common pattern of checking
- * result.length and result[i].data.title across collection tests.
- *
- * @param {Array} result - Array of items with data.title properties
- * @param {Array<string>} expectedTitles - Titles in expected order
- */
-const expectResultTitles = (result, expectedTitles) => {
-  expect(result.length).toBe(expectedTitles.length);
-  expectedTitles.forEach((title, i) => {
-    expect(result[i].data.title).toBe(title);
-  });
 };
 
 /**
@@ -335,7 +348,9 @@ const expectProp = (key) => expectArrayProp((item) => item[key]);
  */
 const expectDataArray = (key) => expectArrayProp((item) => item.data[key]);
 
+// Pre-built data array checkers using curried factory
 const expectGalleries = expectDataArray("gallery");
+const expectResultTitles = expectDataArray("title");
 
 /**
  * Assert that categorised events have expected counts.
@@ -521,7 +536,7 @@ const extractFunctions = (source) => {
     const patterns = [
       /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/, // function declarations
       /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/, // arrow functions
-      /^\s*(?:async\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/, // method definitions
+      /^\s*(?:async\s+)?(?!function\s)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/, // method definitions (exclude anonymous functions)
       /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/, // object methods
     ];
     const match = patterns.reduce(
@@ -699,26 +714,62 @@ const extractFunctions = (source) => {
 };
 
 // Schema-helper test fixtures
-const createSchemaPage = ({
-  url = "/page/",
-  fileSlug = null,
-  date = null,
-} = {}) => {
-  const page = { url };
-  if (fileSlug) page.fileSlug = fileSlug;
-  if (date) page.date = date;
-  return page;
+
+/**
+ * Add optional properties to an object if they are truthy.
+ * Curried: (keys) => (obj, options) => obj
+ * Mutates and returns the object for chaining.
+ *
+ * @param {Array<string>} keys - Property keys to conditionally add
+ * @returns {Function} (obj, options) => obj
+ *
+ * @example
+ * const addContactInfo = addOptionalProps(["email", "phone"]);
+ * addContactInfo({ name: "Alice" }, { email: "a@b.com" }); // { name: "Alice", email: "a@b.com" }
+ */
+const addOptionalProps = (keys) => (obj, options) => {
+  for (const key of keys) {
+    if (options[key]) obj[key] = options[key];
+  }
+  return obj;
 };
 
-const createSchemaSite = ({
-  url = "https://example.com",
-  name = "Test Site",
-  logo = null,
-} = {}) => {
-  const site = { url, name };
-  if (logo) site.logo = logo;
-  return site;
+/**
+ * Create an object builder with required and optional properties.
+ * Curried: (requiredDefaults, optionalKeys) => (options) => object
+ *
+ * Required properties are always included (with defaults if not provided).
+ * Optional properties are only added if their value is truthy.
+ *
+ * @param {Object} requiredDefaults - Map of required property names to default values
+ * @param {Array<string>} optionalKeys - Array of optional property names
+ * @returns {Function} (options) => object
+ *
+ * @example
+ * const createPerson = createObjectBuilder({ name: "Anonymous" }, ["age", "email"]);
+ * createPerson({ name: "Alice", age: 30 }); // { name: "Alice", age: 30 }
+ * createPerson({ email: null }); // { name: "Anonymous" }
+ */
+const createObjectBuilder = (requiredDefaults, optionalKeys) => {
+  const addOptionals = addOptionalProps(optionalKeys);
+  return (options = {}) => {
+    const obj = {};
+    for (const [key, defaultVal] of Object.entries(requiredDefaults)) {
+      obj[key] = options[key] ?? defaultVal;
+    }
+    return addOptionals(obj, options);
+  };
 };
+
+const createSchemaPage = createObjectBuilder({ url: "/page/" }, [
+  "fileSlug",
+  "date",
+]);
+
+const createSchemaSite = createObjectBuilder(
+  { url: "https://example.com", name: "Test Site" },
+  ["logo"],
+);
 
 const createSchemaData = (options = {}) => {
   const {
@@ -851,8 +902,6 @@ export {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,
-  TEST_UTILITY_FILES,
-  SRC_AND_TEST_UTILS_FILES,
   ALL_JS_FILES,
   createMockEleventyConfig,
   captureConsole,

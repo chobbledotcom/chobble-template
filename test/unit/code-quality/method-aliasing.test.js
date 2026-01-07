@@ -155,7 +155,7 @@ const empty = null;
       files: SRC_JS_FILES,
     });
     assertNoViolations(violations, {
-      message: "method alias(es)",
+      singular: "method alias",
       fixHint:
         "use the original name directly, or give it a generic name that fits all contexts",
     });
