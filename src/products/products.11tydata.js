@@ -89,7 +89,6 @@ export default {
           sku: opt.sku || null,
           days: opt.days || null,
         })),
-        // @ts-expect-error - pick is a valid mapper function
         specs: specs ? specs.map(pick(["name", "value"])) : null,
         hire_prices: hirePrices,
         product_mode: mode,

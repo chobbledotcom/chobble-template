@@ -16,7 +16,6 @@ import { createLazyLoader } from "#utils/lazy-loader.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-// @ts-expect-error - Lazy loader config is valid
 const getPdfRenderer = createLazyLoader("json-to-pdf", {
   property: "renderPdfTemplate",
 });
