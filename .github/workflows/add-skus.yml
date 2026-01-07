@@ -2,6 +2,8 @@ name: Add SKUs to Products
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "src/products/**"
   workflow_dispatch:

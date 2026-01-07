@@ -3,11 +3,14 @@
 import { addFieldTemplates } from "#config/form-helpers.js";
 import { toObject } from "#utils/object-entries.js";
 
-// Build sections with metadata, adding templates to fields
+// Build sections with metadata, adding templates and fieldClass to fields
 export function buildSections(sections) {
   return sections.map((section, index) => ({
     title: section.title,
-    fields: addFieldTemplates(section.fields),
+    fields: addFieldTemplates(section.fields).map((field) => ({
+      ...field,
+      fieldClass: field.half ? "field-half" : undefined,
+    })),
     stepNumber: index,
     isFirst: index === 0,
     isLast: index === sections.length - 1,

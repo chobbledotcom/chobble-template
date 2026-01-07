@@ -31,6 +31,7 @@ const steps = [
       "--concurrent",
       "--timeout",
       "30000",
+      ...(verbose ? ["--verbose"] : []),
     ],
   },
 ];
