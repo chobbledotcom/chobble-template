@@ -104,7 +104,10 @@ const configureExample = (eleventyConfig) => {
  * @returns {number} Total price
  */
 const calculateTotal = (items, method) => {
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
   // Add processing fee for certain payment methods
   const fee = method === "paypal" ? subtotal * 0.029 : 0;
@@ -138,7 +141,7 @@ const getUpcomingEventsAt = (events, locationSlug) => {
     map((event) => ({
       ...event,
       daysUntil: Math.ceil((event.date - now) / (1000 * 60 * 60 * 24)),
-    }))
+    })),
   )(events);
 };
 
