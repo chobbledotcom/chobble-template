@@ -28,12 +28,6 @@ const sortByDateDescending = (a, b) =>
   new Date(b.date).getTime() - new Date(a.date).getTime();
 
 /**
- * Get the most recent items from an array, sorted by date descending.
- */
-const getLatestItems = (items, limit = 3) =>
-  (items || []).sort(sortByDateDescending).slice(0, limit);
-
-/**
  * Comparator for sorting navigation items by order then by key.
  * Assumes items have item.data.eleventyNavigation with order property,
  * and fallback to item.data.title for the secondary sort.
@@ -43,4 +37,4 @@ const sortNavigationItems = createOrderThenStringComparator(
   (item) => item.data.eleventyNavigation.key || item.data.title || "",
 );
 
-export { sortItems, sortByDateDescending, getLatestItems, sortNavigationItems };
+export { sortItems, sortByDateDescending, sortNavigationItems };

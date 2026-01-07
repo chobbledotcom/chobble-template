@@ -1,61 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import specsIcons from "#data/specs-icons.json" with { type: "json" };
-import {
-  computeSpecs,
-  getHighlightedSpecs,
-  getSpecIcon,
-} from "#filters/spec-filters.js";
+import { computeSpecs, getHighlightedSpecs } from "#filters/spec-filters.js";
 
 // Use actual spec name from config so tests stay in sync
 const KNOWN_SPEC = Object.keys(specsIcons)[0];
 
 describe("spec-filters", () => {
-  // ============================================
-  // getSpecIcon - Input Validation
-  // ============================================
-  test("Returns empty string for null input", () => {
-    const result = getSpecIcon(null);
-    expect(result).toBe("");
-  });
-
-  test("Returns empty string for undefined input", () => {
-    const result = getSpecIcon(undefined);
-    expect(result).toBe("");
-  });
-
-  test("Returns empty string for empty string input", () => {
-    const result = getSpecIcon("");
-    expect(result).toBe("");
-  });
-
-  test("Returns empty string for non-existent spec name", () => {
-    const result = getSpecIcon("nonexistent-spec-name");
-    expect(result).toBe("");
-  });
-
-  // ============================================
-  // getSpecIcon - Normalization
-  // ============================================
-  test("Normalizes spec name to lowercase before lookup", () => {
-    const lowerResult = getSpecIcon(KNOWN_SPEC);
-    const upperResult = getSpecIcon(KNOWN_SPEC.toUpperCase());
-
-    expect(lowerResult).toBe(upperResult);
-  });
-
-  test("Trims whitespace from spec name before lookup", () => {
-    const normalResult = getSpecIcon(KNOWN_SPEC);
-    const paddedResult = getSpecIcon(`  ${KNOWN_SPEC}  `);
-
-    expect(normalResult).toBe(paddedResult);
-  });
-
-  test("Returns SVG content for spec with defined icon", () => {
-    const result = getSpecIcon(KNOWN_SPEC);
-
-    expect(result.startsWith("<svg")).toBe(true);
-  });
-
   // ============================================
   // computeSpecs - Input Validation
   // ============================================
@@ -133,6 +83,52 @@ describe("spec-filters", () => {
       specs: [
         { name: KNOWN_SPEC, value: "lowercase" },
         { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
+      ],
+    };
+
+    const result = computeSpecs(data);
+
+    expect(result[0].icon).toBe(result[1].icon);
+  });
+
+  // ============================================
+  // computeSpecs - Icon resolution edge cases
+  // ============================================
+  test("Returns empty icon for null spec name", () => {
+    const data = {
+      specs: [{ name: null, value: "test" }],
+    };
+
+    const result = computeSpecs(data);
+
+    expect(result[0].icon).toBe("");
+  });
+
+  test("Returns empty icon for undefined spec name", () => {
+    const data = {
+      specs: [{ name: undefined, value: "test" }],
+    };
+
+    const result = computeSpecs(data);
+
+    expect(result[0].icon).toBe("");
+  });
+
+  test("Returns empty icon for empty string spec name", () => {
+    const data = {
+      specs: [{ name: "", value: "test" }],
+    };
+
+    const result = computeSpecs(data);
+
+    expect(result[0].icon).toBe("");
+  });
+
+  test("Trims whitespace from spec name before lookup", () => {
+    const data = {
+      specs: [
+        { name: KNOWN_SPEC, value: "normal" },
+        { name: `  ${KNOWN_SPEC}  `, value: "padded" },
       ],
     };
 

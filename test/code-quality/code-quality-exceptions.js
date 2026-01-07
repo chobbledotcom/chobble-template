@@ -290,9 +290,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
   "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
 
-  // Filter helpers - tested for spec icon logic
-  "src/_lib/filters/spec-filters.js:getSpecIcon",
-
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",
   "src/_lib/media/image.js:createImageTransform",
@@ -324,10 +321,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
   "src/_lib/public/utils/cart-utils.js:getItemCount",
   "src/_lib/public/utils/cart-utils.js:removeItem",
-
-  // Utility functions - tested for algorithm correctness
-  "src/_lib/utils/math-utils.js:gcd",
-  "src/_lib/utils/sorting.js:getLatestItems",
 ]);
 
 // ============================================

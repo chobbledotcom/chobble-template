@@ -35,4 +35,4 @@ const simplifyRatio = (a, b) => {
   return `${a / divisor}/${b / divisor}`;
 };
 
-export { gcd, simplifyRatio };
+export { simplifyRatio };
