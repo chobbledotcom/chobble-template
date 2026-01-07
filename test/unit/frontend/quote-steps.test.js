@@ -308,6 +308,7 @@ describe("quote-steps", () => {
   // updateButtons Tests (data-driven)
   // ----------------------------------------
   const createMockButtons = () => ({
+    backToItems: { style: {} },
     prev: { style: {} },
     next: { style: {} },
     submit: { style: {} },
@@ -315,17 +316,19 @@ describe("quote-steps", () => {
 
   const updateButtonsCases = [
     {
-      name: "hides prev on first step",
+      name: "hides prev and shows backToItems on first step",
       step: 0,
       total: 3,
+      backToItems: "",
       prev: "none",
       next: "",
       submit: "none",
     },
     {
-      name: "shows both nav on middle step",
+      name: "shows both nav and hides backToItems on middle step",
       step: 1,
       total: 3,
+      backToItems: "none",
       prev: "",
       next: "",
       submit: "none",
@@ -334,6 +337,7 @@ describe("quote-steps", () => {
       name: "shows submit on last step",
       step: 2,
       total: 3,
+      backToItems: "none",
       prev: "",
       next: "none",
       submit: "",
@@ -342,16 +346,33 @@ describe("quote-steps", () => {
       name: "handles single step form",
       step: 0,
       total: 1,
+      backToItems: "",
       prev: "none",
       next: "none",
       submit: "",
     },
   ];
 
-  for (const { name, step, total, prev, next, submit } of updateButtonsCases) {
+  for (const {
+    name,
+    step,
+    total,
+    backToItems,
+    prev,
+    next,
+    submit,
+  } of updateButtonsCases) {
     test(`updateButtons ${name}`, () => {
       const btns = createMockButtons();
-      updateButtons(btns.prev, btns.next, btns.submit, step, total);
+      updateButtons(
+        btns.backToItems,
+        btns.prev,
+        btns.next,
+        btns.submit,
+        step,
+        total,
+      );
+      expect(btns.backToItems.style.display).toBe(backToItems);
       expect(btns.prev.style.display).toBe(prev);
       expect(btns.next.style.display).toBe(next);
       expect(btns.submit.style.display).toBe(submit);

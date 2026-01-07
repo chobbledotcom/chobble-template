@@ -7,9 +7,11 @@ Renders multi-step quote form using pre-processed sections from quote-fields.js
   {%- for section in quoteFields.sections -%}
     <div class="quote-step{% if section.isFirst %} active{% endif %}" data-step="{{ section.stepNumber }}">
       <h3 class="quote-step-title">{{ section.title }}</h3>
-      {%- for field in section.fields -%}
-        {%- include field.template, field: field -%}
-      {%- endfor -%}
+      <div class="quote-step-fields">
+        {%- for field in section.fields -%}
+          {%- include field.template, field: field -%}
+        {%- endfor -%}
+      </div>
     </div>
   {%- endfor -%}
 
@@ -37,6 +39,7 @@ Renders multi-step quote form using pre-processed sections from quote-fields.js
   </div>
 
   <div class="quote-steps-nav">
+    <a href="/quote/" class="button quote-step-back-to-items">Back to Items</a>
     <button type="button" class="button quote-step-prev" style="display: none;">Back</button>
     <button type="button" class="button quote-step-next">Continue</button>
     <button type="submit" class="button quote-step-submit" style="display: none;">{{ quoteFields.submitButtonText }}</button>

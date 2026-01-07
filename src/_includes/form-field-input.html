@@ -1,4 +1,4 @@
-<label for="{{ field.name }}">
+<label for="{{ field.name }}"{% if field.fieldClass %} class="{{ field.fieldClass }}"{% endif %}>
   {{ field.label }}
   <input
     type="{% if field.type %}{{ field.type }}{% else %}text{% endif %}"
