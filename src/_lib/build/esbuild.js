@@ -2,6 +2,7 @@ export function configureEsbuild(eleventyConfig) {
   eleventyConfig.on("eleventy.before", async () => {
     const isDevelopment = process.env.ELEVENTY_RUN_MODE === "serve";
 
+    /** @type {import('bun').BuildConfig} */
     const buildConfig = {
       entrypoints: ["src/_lib/public/bundle.js"],
       outdir: "_site/assets/js",
@@ -13,7 +14,6 @@ export function configureEsbuild(eleventyConfig) {
       minify: !isDevelopment,
     };
 
-    // @ts-expect-error - Bun build config is compatible
     await Bun.build(buildConfig);
 
     if (isDevelopment) {

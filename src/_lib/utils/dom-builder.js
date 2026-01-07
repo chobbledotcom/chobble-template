@@ -2,7 +2,6 @@ import { loadDOM } from "#utils/lazy-dom.js";
 import { createLazyLoader } from "#utils/lazy-loader.js";
 
 // Shared DOM instance for building elements
-// @ts-expect-error - Lazy loader config is valid
 const getSharedDocument = createLazyLoader(null, {
   init: async () => {
     const dom = await loadDOM("");

@@ -11,13 +11,15 @@ const require = createRequire(import.meta.url);
 
 const configData = require("./config.json");
 const products = { ...DEFAULT_PRODUCT_DATA, ...getProducts(configData) };
-const config = {
+const baseConfig = {
   ...DEFAULTS,
   ...configData,
   products,
 };
-// @ts-expect-error - Dynamically computed property
-config.form_target = getFormTarget(config);
+const config = {
+  ...baseConfig,
+  form_target: getFormTarget(baseConfig),
+};
 
 validateCartConfig(config);
 

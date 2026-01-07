@@ -14,16 +14,20 @@ const loadModule = async (modulePath, options) => {
 };
 
 /**
+ * @typedef {Object} LazyLoaderOptions
+ * @property {string} [property] - Optional property to extract from the imported module
+ * @property {Function} [transform] - Optional function to transform the imported module
+ * @property {Function} [init] - Optional initialization function (no module import)
+ */
+
+/**
  * Lazy module loader utility
  *
  * Creates a lazy-loading getter function for heavy dependencies.
  * Modules are only imported when first accessed, not at startup.
  *
  * @param {string|null} modulePath - The module to import (e.g., "sass", "sharp"), or null when using init
- * @param {Object} options - Configuration options
- * @param {string} options.property - Optional property to extract from the imported module
- * @param {Function} options.transform - Optional function to transform the imported module
- * @param {Function} options.init - Optional initialization function (no module import)
+ * @param {LazyLoaderOptions} [options] - Configuration options
  * @returns {Function} An async getter function that returns the lazily-loaded module
  *
  * @example
@@ -61,7 +65,6 @@ const loadModule = async (modulePath, options) => {
  *   }
  * });
  */
-// @ts-expect-error - Default empty object for lazy loading
 const createLazyLoader = (modulePath, options = {}) => {
   let cached = null;
 
