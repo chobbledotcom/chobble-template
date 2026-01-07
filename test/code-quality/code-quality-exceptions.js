@@ -200,6 +200,81 @@ const ALLOWED_LET = new Set([
 const ALLOWED_OBJECT_MUTATION = "src/_lib/public/ui/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
 
 // ============================================
+// Null check exceptions (if (!x) patterns)
+// ============================================
+
+// Simple null/undefined checks that are legitimate because the value
+// can genuinely be null/undefined from external sources.
+// New code should avoid this pattern unless truly necessary.
+const ALLOWED_NULL_CHECKS = new Set([
+  // === Environment variables / Config (can be undefined) ===
+  "ecommerce-backend/server.js:31", // SITE_HOST
+  "ecommerce-backend/server.js:35", // BRAND_NAME
+  "ecommerce-backend/server.js:51", // origin (CORS)
+  "src/_lib/config/helpers.js:107", // product_mode
+  "src/_lib/config/helpers.js:125", // formTarget
+  "src/_lib/config/helpers.js:138", // cart_mode
+  "src/_lib/public/cart/stripe-checkout.js:46", // checkoutApiUrl
+
+  // === DOM element lookups (querySelector can return null) ===
+  "src/_lib/public/ui/search.js:13", // form
+  "src/_lib/public/ui/search.js:16", // keywordsDatalist
+  "src/_lib/public/ui/availability-calendar.js:117", // content
+  "src/_lib/public/ui/availability-calendar.js:138", // dialog
+  "src/_lib/public/theme/theme-switcher.js:68", // button
+  "src/_lib/public/theme/theme-editor.js:284", // target
+  "src/_lib/public/theme/theme-editor.js:384", // borderOutput
+  "src/_lib/public/cart/cart.js:136", // cartItems
+  "src/_lib/public/ui/shuffle-properties.js:13", // itemsList
+  "src/_lib/public/cart/quote.js:56", // container
+  "src/_lib/public/ui/gallery.js:20", // imageLink
+  "src/_lib/public/ui/gallery.js:30", // fullImage
+  "src/_lib/public/ui/gallery.js:45", // imageWrapper
+  "src/_lib/public/ui/gallery.js:56", // content
+  "src/_lib/public/cart/stripe-checkout.js:34", // main
+  "src/_lib/public/ui/slider.js:19", // firstItem
+  "src/_lib/public/ui/scroll-fade.js:35", // selectors
+
+  // === Regex match results (match() returns null on no match) ===
+  "src/products/products.11tydata.js:11", // match
+  "src/_lib/build/theme-compiler.js:33", // rootMatch
+  "src/_lib/public/ui/autosizes.js:40", // chromeMatch
+
+  // === External/parsed data (localStorage, API responses, etc) ===
+  "src/_lib/public/utils/cart-utils.js:10", // cart (from localStorage)
+  "src/_lib/public/utils/cart-utils.js:55", // item (from array find)
+  "src/_lib/public/theme/theme-editor-lib.js:32", // cssText
+  "src/_lib/public/theme/theme-editor-lib.js:48", // themeContent
+  "src/_lib/public/theme/theme-editor-lib.js:85", // borderValue
+  "src/_lib/public/theme/theme-editor-lib.js:157", // value
+  "src/_lib/public/utils/quote-price-utils.js:22", // priceStr
+  "src/_lib/filters/spec-filters.js:11", // specName
+  "ecommerce-backend/server.js:118", // sku (request param)
+  "ecommerce-backend/server.js:121", // skuData (lookup result)
+  "src/_lib/public/cart/stripe-checkout.js:19", // response
+  "src/_lib/eleventy/pdf.js:229", // pdfDoc (renderer result)
+
+  // === Optional function parameters ===
+  "src/_lib/filters/item-filters.js:33", // filterAttributes
+  "src/_lib/filters/item-filters.js:62", // attrs
+  "src/_lib/filters/item-filters.js:102", // path
+  "src/_lib/collections/products.js:75", // options (line shifted by typedef comment)
+  "src/_lib/collections/reviews.js:88", // name
+  "src/_lib/collections/navigation.js:13", // collection
+  "src/_lib/collections/navigation.js:19", // result
+  "src/_lib/utils/slug-utils.js:12", // reference
+  "src/_lib/eleventy/area-list.js:19", // url
+
+  // === Test infrastructure ===
+  "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
+  "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
+  "test/test-runner-utils.js:49", // trimmed (line processing)
+  "test/test-runner-utils.js:139", // result (skip if step wasn't run)
+  "test/test-runner-utils.js:186", // allPassed (check if all steps passed)
+  "test/demo-precommit-errors.js:26", // functionMatch (regex match can be null)
+]);
+
+// ============================================
 // Single-use unexported function exceptions
 // ============================================
 

@@ -53,11 +53,9 @@ const getHighlightedSpecs = (specs) => {
 
   const hasAnyHighlighted = specs.some((spec) => spec.highlight === true);
 
-  if (!hasAnyHighlighted) {
-    return specs;
-  }
-
-  return specs.filter((spec) => spec.highlight === true);
+  return hasAnyHighlighted
+    ? specs.filter((spec) => spec.highlight === true)
+    : specs;
 };
 
 export { getSpecIcon, computeSpecs, getHighlightedSpecs };
