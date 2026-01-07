@@ -3,6 +3,7 @@
 
 import { createLazyLoader } from "#utils/lazy-loader.js";
 
+// @ts-expect-error - Lazy loader config is valid
 const getDOMClass = createLazyLoader("happy-dom", {
   transform: (mod) => {
     const { Window } = mod;

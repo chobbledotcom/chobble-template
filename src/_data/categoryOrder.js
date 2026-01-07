@@ -8,6 +8,7 @@ const getCategoryOrder = (configOrder) =>
     : DEFAULT_ORDER;
 
 const categoryOrder = getCategoryOrder(configJson.category_order);
+// @ts-expect-error - Adding helper methods for tests (Eleventy breaks with multiple exports)
 categoryOrder._helpers = { DEFAULT_ORDER, getCategoryOrder };
 
 export default categoryOrder;

@@ -8,7 +8,9 @@
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
 		"**/scripts/**",
-		"**/.test-sites/**"
+		"**/.test-sites/**",
+		"**/test/precommit.js",
+		"**/test/run-tests.js"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,

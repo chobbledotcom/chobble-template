@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "baseUrl": ".",
+    "paths": {
+      "#data/*": ["./src/_data/*"],
+      "#lib/*": ["./src/_lib/*"],
+      "#collections/*": ["./src/_lib/collections/*"],
+      "#config/*": ["./src/_lib/config/*"],
+      "#filters/*": ["./src/_lib/filters/*"],
+      "#eleventy/*": ["./src/_lib/eleventy/*"],
+      "#build/*": ["./src/_lib/build/*"],
+      "#media/*": ["./src/_lib/media/*"],
+      "#utils/*": ["./src/_lib/utils/*"],
+      "#public/*": ["./src/_lib/public/*"],
+      "#test/*": ["./test/*"]
+    },
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.js", ".eleventy.js"],
+  "exclude": ["node_modules", "_site", "coverage", "src/_lib/public/**/*.js"]
+}

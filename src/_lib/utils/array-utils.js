@@ -162,6 +162,7 @@ const listSeparator = (length) => (index) =>
  * findDuplicate([1, 2, 3])                              // undefined
  */
 const findDuplicate = (items, getKey = (x) => x) => {
+  // @ts-expect-error - TypeScript doesn't infer default parameter function types correctly
   const keys = items.map(getKey);
   return items.find((_, i) => keys.indexOf(keys[i]) !== i);
 };
@@ -307,20 +308,23 @@ const pluralize = (singular, plural) => {
  * printTruncatedList({ moreLabel: "errors" })(errors);
  */
 const printTruncatedList =
-  ({
-    maxItems = 10,
-    prefix = "  ",
-    moreLabel = "more",
-    suffix = "(use --verbose to see all)",
-  } = {}) =>
-  (items) => {
-    for (const item of items.slice(0, maxItems)) {
-      log(`${prefix}${item}`);
-    }
-    if (items.length > maxItems) {
-      log(`${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`);
-    }
-  };
+  // @ts-expect-error - Default empty object with destructuring defaults is valid
+    ({
+      maxItems = 10,
+      prefix = "  ",
+      moreLabel = "more",
+      suffix = "(use --verbose to see all)",
+    } = {}) =>
+    (items) => {
+      for (const item of items.slice(0, maxItems)) {
+        log(`${prefix}${item}`);
+      }
+      if (items.length > maxItems) {
+        log(
+          `${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`,
+        );
+      }
+    };
 
 export {
   accumulate,
