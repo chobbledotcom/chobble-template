@@ -306,20 +306,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "profileBuild",
   "hrtimeToMs",
   "profileScript",
-  // run-coverage.js - coverage utilities
-  "parseLcov",
-  "parseLine",
-  "parseDA",
-  "ratchetExceptions",
-  "runCoverage",
-  "checkExceptions",
-  "diffByFile",
-  "difference",
-  "intersection",
-  "toSet",
-  "isNonEmpty",
-  "isMainCI",
-  "readJson",
   // test-runner-utils.js / precommit.js - test runner utilities
   "runStep",
   "extractErrorsFromOutput",
@@ -348,6 +334,16 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runKnip",
   "logFailureDetails",
   "extractStatus",
+  // test-utils.js - curried assertion helper for error checking
+  "expectErrorsInclude",
+  // test-utils.js - async error testing helper
+  "expectAsyncThrows",
+  // hire-calculator.test.js - DOM query helper
+  "getDateInputs",
+  // jsonld-validation.test.js - JSON-LD assertion helper
+  "assertValidJsonLdWithContext",
+  // test-site-factory.test.js - test fixture
+  "defaultTestFiles",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

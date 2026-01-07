@@ -94,18 +94,50 @@
   font-size: 1.25rem;
 }
 
+.quote-step-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+
+  > * {
+    width: 100%;
+  }
+
+  > .field-half {
+    @include breakpoints.up("sm") {
+      width: calc(50% - 0.5rem);
+    }
+  }
+}
+
 .quote-steps-nav {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: var(--border);
 
   .button {
-    flex: 1;
+    width: 100%;
+  }
 
-    @include breakpoints.up("sm") {
-      flex: 0 0 auto;
+  @include breakpoints.up("sm") {
+    flex-direction: row;
+
+    .button {
+      width: auto;
+    }
+
+    .quote-step-back-to-items,
+    .quote-step-prev {
+      order: 1;
+    }
+
+    .quote-step-next,
+    .quote-step-submit {
+      order: 2;
+      margin-left: auto;
     }
   }
 }

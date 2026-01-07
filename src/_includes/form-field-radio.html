@@ -1,4 +1,4 @@
-<fieldset class="radio-group">
+<fieldset class="radio-group{% if field.fieldClass %} {{ field.fieldClass }}{% endif %}">
   <legend>{{ field.label }}</legend>
   {%- for option in field.options -%}
     {%- assign optionId = field.name | append: "_" | append: forloop.index -%}

@@ -11,8 +11,7 @@
 		"test/setup.js",
 		"test/demo-precommit-errors.js",
 		"test/precommit.js",
-		"test/run-tests.js",
-		"test/run-coverage.js"
+		"test/run-tests.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
