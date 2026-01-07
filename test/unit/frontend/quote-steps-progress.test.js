@@ -6,30 +6,14 @@ import {
   renderStepProgress,
   updateStepProgress,
 } from "#public/ui/quote-steps-progress.js";
-import { QUOTE_STEPS } from "#test/test-utils.js";
+import {
+  indicatorTemplate,
+  QUOTE_STEPS,
+  testIndicatorStates,
+} from "#test/unit/frontend/quote-steps-utils.js";
 
 describe("quote-steps-progress", () => {
   const steps = QUOTE_STEPS;
-
-  // Template element required by renderStepProgress
-  const indicatorTemplate = `
-    <template id="quote-step-indicator-template">
-      <li><span data-name="name"></span><span data-name="index"></span></li>
-    </template>
-  `;
-
-  // Helper to test indicator completion/active states
-  const testIndicatorStates = (completedCount, expectedAriaStep) => {
-    const indicators = [...document.querySelectorAll("li")];
-    expect(indicators.map((el) => el.classList.contains("completed"))).toEqual(
-      Array.from({ length: 4 }, (_, i) => i < completedCount),
-    );
-    expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual(
-      Array.from({ length: 4 }, (_, i) =>
-        i === expectedAriaStep ? "step" : "false",
-      ),
-    );
-  };
 
   describe("renderStepProgress", () => {
     test("renders all steps as list items", () => {

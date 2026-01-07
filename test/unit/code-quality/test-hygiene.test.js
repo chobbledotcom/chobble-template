@@ -28,12 +28,23 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withMockedCwd",
   "expectValidScriptTag",
   // Fixture factories
+  "createProduct",
+  "createPropertyReviewFixture",
+  // events-utils.js - event fixture factories
+  "expectEventCounts",
   "createOffsetDate",
   "formatDateString",
   "createEvent",
-  "createProduct",
-  "createPropertyReviewFixture",
+  "createEvents",
+  // schema-helper-utils.js - schema fixture builders
+  "addOptionalProps",
+  "createObjectBuilder",
+  "createSchemaPage",
+  "createSchemaSite",
   "createSchemaData",
+  "createProductSchemaData",
+  "createPostSchemaData",
+  "createMockReview",
   // quote-steps.test.js - test fixture factory
   "createQuoteStepsHtml",
   // quote-price-utils.test.js - DOM setup and template rendering
@@ -191,7 +202,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "testNextButtonStep",
   // quote-steps-progress.test.js - test fixtures
   "testIndicatorStates",
-  // test-utils.js - logging helper
+  // code-quality-utils.js - logging helper
   "logAllowedItems",
   // build-profiling.js - profiling helper
   "profileScript",

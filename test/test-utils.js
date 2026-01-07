@@ -352,19 +352,6 @@ const expectDataArray = (key) => expectArrayProp((item) => item.data[key]);
 const expectGalleries = expectDataArray("gallery");
 const expectResultTitles = expectDataArray("title");
 
-/**
- * Assert that categorised events have expected counts.
- * Reduces boilerplate in event categorisation tests.
- *
- * @param {Object} result - Result from categoriseEvents with upcoming/past/regular arrays
- * @param {Object} counts - Expected counts { upcoming, past, regular }
- */
-const expectEventCounts = (result, { upcoming = 0, past = 0, regular = 0 }) => {
-  expect(result.upcoming.length).toBe(upcoming);
-  expect(result.past.length).toBe(past);
-  expect(result.regular.length).toBe(regular);
-};
-
 // ============================================
 // Test Fixture Factories
 // ============================================
@@ -412,70 +399,6 @@ const items = map(([title, options]) => item(title, options));
 
 const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
-
-// Date helpers
-const createOffsetDate = (daysOffset = 30) => {
-  const date = new Date();
-  date.setDate(date.getDate() + daysOffset);
-  return date;
-};
-
-const formatDateString = (date) => date.toISOString().split("T")[0];
-
-/**
- * Unified event fixture factory using functional options pattern.
- *
- * @param {Object} options
- * @param {string} [options.title] - Event title (defaults based on event type)
- * @param {Date} [options.date] - Explicit date for the event
- * @param {number} [options.daysOffset=30] - Days from today (positive=future, negative=past)
- * @param {string} [options.recurring] - Recurring date string (e.g., "Every Monday")
- * @returns {Object} Event fixture with { data: { title, event_date|recurring_date, ... } }
- */
-const createEvent = ({
-  title,
-  date,
-  daysOffset = 30,
-  recurring,
-  ...extraData
-} = {}) => {
-  if (recurring !== undefined) {
-    return {
-      data: {
-        title: title ?? "Recurring Event",
-        recurring_date: recurring,
-        ...extraData,
-      },
-    };
-  }
-
-  const eventDate = date ?? createOffsetDate(daysOffset);
-
-  return {
-    data: {
-      title: title ?? (daysOffset < 0 ? "Past Event" : "Future Event"),
-      event_date:
-        eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
-      ...extraData,
-    },
-  };
-};
-
-/**
- * Create multiple events from an array of options.
- * Functional composition using curried map.
- *
- * @param {Array<Object>} optionsArray - Array of createEvent option objects
- * @returns {Array<Object>} Array of event fixtures
- *
- * @example
- * createEvents([
- *   { title: "Event 1", daysOffset: 30 },
- *   { title: "Event 2", daysOffset: -30 },
- *   { recurring: "Every Monday" }
- * ])
- */
-const createEvents = map(createEvent);
 
 // Product fixtures
 const createProduct = ({
@@ -713,145 +636,6 @@ const extractFunctions = (source) => {
   return finalState.functions;
 };
 
-// Schema-helper test fixtures
-
-/**
- * Add optional properties to an object if they are truthy.
- * Curried: (keys) => (obj, options) => obj
- * Mutates and returns the object for chaining.
- *
- * @param {Array<string>} keys - Property keys to conditionally add
- * @returns {Function} (obj, options) => obj
- *
- * @example
- * const addContactInfo = addOptionalProps(["email", "phone"]);
- * addContactInfo({ name: "Alice" }, { email: "a@b.com" }); // { name: "Alice", email: "a@b.com" }
- */
-const addOptionalProps = (keys) => (obj, options) => {
-  for (const key of keys) {
-    if (options[key]) obj[key] = options[key];
-  }
-  return obj;
-};
-
-/**
- * Create an object builder with required and optional properties.
- * Curried: (requiredDefaults, optionalKeys) => (options) => object
- *
- * Required properties are always included (with defaults if not provided).
- * Optional properties are only added if their value is truthy.
- *
- * @param {Object} requiredDefaults - Map of required property names to default values
- * @param {Array<string>} optionalKeys - Array of optional property names
- * @returns {Function} (options) => object
- *
- * @example
- * const createPerson = createObjectBuilder({ name: "Anonymous" }, ["age", "email"]);
- * createPerson({ name: "Alice", age: 30 }); // { name: "Alice", age: 30 }
- * createPerson({ email: null }); // { name: "Anonymous" }
- */
-const createObjectBuilder = (requiredDefaults, optionalKeys) => {
-  const addOptionals = addOptionalProps(optionalKeys);
-  return (options = {}) => {
-    const obj = {};
-    for (const [key, defaultVal] of Object.entries(requiredDefaults)) {
-      obj[key] = options[key] ?? defaultVal;
-    }
-    return addOptionals(obj, options);
-  };
-};
-
-const createSchemaPage = createObjectBuilder({ url: "/page/" }, [
-  "fileSlug",
-  "date",
-]);
-
-const createSchemaSite = createObjectBuilder(
-  { url: "https://example.com", name: "Test Site" },
-  ["logo"],
-);
-
-const createSchemaData = (options = {}) => {
-  const {
-    pageUrl = "/page/",
-    pageFileSlug = null,
-    pageDate = null,
-    siteUrl = "https://example.com",
-    siteName = "Test Site",
-    siteLogo = null,
-    ...extraData
-  } = options;
-  const data = {
-    page: createSchemaPage({
-      url: pageUrl,
-      fileSlug: pageFileSlug,
-      date: pageDate,
-    }),
-    site: createSchemaSite({ url: siteUrl, name: siteName, logo: siteLogo }),
-    ...extraData,
-  };
-  // Only add title if not explicitly set to undefined
-  if (!("title" in options) || options.title !== undefined) {
-    data.title = options.title ?? "Test";
-  }
-  return data;
-};
-
-const createProductSchemaData = ({
-  fileSlug = "test",
-  title = "Test Product",
-  siteName = "Test Store",
-  price = null,
-  reviews = null,
-  reviewsField = null,
-  ...extraData
-} = {}) => {
-  const data = createSchemaData({
-    pageUrl: `/products/${fileSlug}/`,
-    pageFileSlug: fileSlug,
-    title,
-    siteName,
-    ...extraData,
-  });
-  if (price) data.price = price;
-  if (reviews && reviewsField) {
-    data.collections = { reviews };
-    data.reviewsField = reviewsField;
-  }
-  return data;
-};
-
-const createPostSchemaData = ({
-  title = "Test Post",
-  author = null,
-  date = new Date("2024-03-15"),
-  siteName = "Test Site",
-  siteLogo = null,
-  ...extraData
-} = {}) => {
-  const data = createSchemaData({
-    pageUrl: "/news/test-post/",
-    pageDate: date,
-    title,
-    siteName,
-    siteLogo,
-    ...extraData,
-  });
-  if (author) data.author = author;
-  return data;
-};
-
-const createMockReview = ({
-  name = "Reviewer",
-  rating = 5,
-  field = "products",
-  items = ["test"],
-  date = new Date("2024-01-15"),
-} = {}) => ({
-  data: { name, rating, [field]: items },
-  date,
-});
-
 // ============================================
 // Mock Collection API Helpers
 // ============================================
@@ -920,24 +704,12 @@ export {
   expectProp,
   expectDataArray,
   expectGalleries,
-  expectEventCounts,
   // Generic item builder
   item,
   items,
   // Test fixture factories
   createFrontmatter,
-  createOffsetDate,
-  formatDateString,
-  createEvent,
-  createEvents,
   createProduct,
-  // Schema-helper fixtures
-  createSchemaPage,
-  createSchemaSite,
-  createSchemaData,
-  createProductSchemaData,
-  createPostSchemaData,
-  createMockReview,
   // Code analysis utilities
   createExtractor,
   extractFunctions,
@@ -945,27 +717,3 @@ export {
   collectionApi,
   taggedCollectionApi,
 };
-
-// Shared test data for quote steps UI tests
-const QUOTE_STEPS = [
-  { name: "Items", number: 1 },
-  { name: "Event", number: 2 },
-  { name: "Contact", number: 3 },
-  { name: "Review", number: 4 },
-];
-
-const QUOTE_STEPS_JSON = JSON.stringify(QUOTE_STEPS);
-
-// Helper to log allowed items with optional reason field
-const logAllowedItems = (items, label, showReason = false) => {
-  console.log(`\n  ${label}: ${items.length}`);
-  if (items.length > 0) {
-    console.log("  Locations:");
-    for (const item of items) {
-      const reason = showReason && item.reason ? ` (${item.reason})` : "";
-      console.log(`    - ${item.location}${reason}`);
-    }
-  }
-};
-
-export { QUOTE_STEPS, QUOTE_STEPS_JSON, logAllowedItems };

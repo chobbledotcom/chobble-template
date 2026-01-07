@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { expectObjectProps } from "#test/test-utils.js";
 import {
   createMockReview,
   createPostSchemaData,
   createProductSchemaData,
   createSchemaData,
-  expectObjectProps,
-} from "#test/test-utils.js";
+} from "#test/unit/utils/schema-helper-utils.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,

@@ -9,7 +9,8 @@ import {
   expectNoStaleExceptions,
   matchesAny,
 } from "#test/code-scanner.js";
-import { ALL_JS_FILES, logAllowedItems } from "#test/test-utils.js";
+import { ALL_JS_FILES } from "#test/test-utils.js";
+import { logAllowedItems } from "#test/unit/code-quality/code-quality-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [
