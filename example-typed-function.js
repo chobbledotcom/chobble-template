@@ -59,12 +59,11 @@ const filterByCategory = (categorySlug) => (products) => {
 };
 
 // ==============================================================================
-// Approach 4: Using Imported Types from .d.ts Files
+// Approach 4: Using Imported Types from 11ty.ts Package
 // ==============================================================================
 
 /**
- * @typedef {import('#lib/types/eleventy.js').EleventyConfig} EleventyConfig
- * @typedef {import('#lib/types/eleventy.js').CollectionItem} CollectionItem
+ * @typedef {import('11ty.ts').EleventyConfig} EleventyConfig
  */
 
 /**

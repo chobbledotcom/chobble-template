@@ -5,12 +5,44 @@ This repo now supports TypeScript type checking **while keeping all code as `.js
 ## What's Set Up
 
 1. **TypeScript compiler** (`typescript` and `@types/bun` installed)
-2. **tsconfig.json** configured for JSDoc type checking
-3. **Import aliases** (`#utils/*`, `#lib/*`, etc.) work in both runtime and type checking
+2. **11ty.ts package** - Official Eleventy type definitions
+3. **tsconfig.json** configured for JSDoc type checking
+4. **Import aliases** (`#utils/*`, `#lib/*`, etc.) work in both runtime and type checking
+5. **Example file** demonstrating 8 different typing patterns
 
 ## How It Works
 
 TypeScript's `checkJs` mode analyzes JavaScript files and respects JSDoc type annotations. Your code stays as tidy `.js` files, but you get type safety.
+
+## Quick Start
+
+**For Eleventy configuration functions:**
+```javascript
+/**
+ * @typedef {import('11ty.ts').EleventyConfig} EleventyConfig
+ */
+
+/**
+ * @param {EleventyConfig} eleventyConfig
+ */
+export const configureProducts = (eleventyConfig) => {
+  // Full autocomplete and type checking!
+  eleventyConfig.addCollection("products", (collectionApi) => {
+    return collectionApi.getFilteredByTag("product");
+  });
+};
+```
+
+**For your utility functions:**
+```javascript
+/**
+ * Calculate total with tax
+ * @param {number} price
+ * @param {number} taxRate
+ * @returns {number}
+ */
+const calculateTotal = (price, taxRate) => price * (1 + taxRate);
+```
 
 ---
 
@@ -111,51 +143,37 @@ export const filterMap: FilterMapFn;
 
 ---
 
-### Approach 3: Shared Type Definitions
+### Approach 3: Using the 11ty.ts Package
 
-Create central type definition files that multiple modules import.
+This repo includes the **`11ty.ts`** package which provides official TypeScript definitions for Eleventy's API.
 
-**Example - `src/_lib/types/collections.d.ts`:**
-```typescript
-export interface CollectionItem {
-  url: string;
-  date: Date;
-  data: {
-    title?: string;
-    categories?: string[];
-    featured?: boolean;
-    [key: string]: any;
-  };
-}
-
-export interface EleventyCollectionApi {
-  getAll(): CollectionItem[];
-  getFilteredByTag(tag: string): CollectionItem[];
-  getFilteredByGlob(glob: string): CollectionItem[];
-}
-
-export interface EleventyConfig {
-  addCollection(name: string, fn: (api: EleventyCollectionApi) => any): void;
-  addFilter(name: string, fn: Function): void;
-  addShortcode(name: string, fn: Function): void;
-  // ... more as needed
-}
-```
-
-**Then use in your JS files:**
+**Import types from 11ty.ts:**
 ```javascript
 /**
- * @typedef {import('#lib/types/collections.js').EleventyConfig} EleventyConfig
- * @typedef {import('#lib/types/collections.js').CollectionItem} CollectionItem
+ * @typedef {import('11ty.ts').EleventyConfig} EleventyConfig
  */
 
 /**
+ * Configure products collection
  * @param {EleventyConfig} eleventyConfig
  */
 export const configureProducts = (eleventyConfig) => {
-  // TypeScript now knows the shape of eleventyConfig
+  // TypeScript now knows all Eleventy methods!
+  eleventyConfig.addCollection("products", (collectionApi) => {
+    // collectionApi is also typed with autocomplete
+    return collectionApi.getFilteredByTag("product");
+  });
 };
 ```
+
+**Available types from 11ty.ts:**
+- `EleventyConfig` - Main config object
+- `EleventyScope` - Template scope
+- `ReturnConfig` - Config return value
+- `EleventySuppliedData` - Global data
+- And more...
+
+This gives you **full autocomplete and type safety** for all Eleventy APIs!
 
 ---
 
@@ -293,7 +311,7 @@ const pipe = (...fns) => (x) => fns.reduce((v, f) => f(v), x);
 ### Pattern: Eleventy Config Functions
 ```javascript
 /**
- * @typedef {import('#lib/types/eleventy.js').EleventyConfig} EleventyConfig
+ * @typedef {import('11ty.ts').EleventyConfig} EleventyConfig
  */
 
 /**

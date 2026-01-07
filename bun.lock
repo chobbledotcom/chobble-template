@@ -23,6 +23,7 @@
         "sharp": "^0.34.5",
       },
       "devDependencies": {
+        "11ty.ts": "^0.0.7",
         "@adobe/structured-data-validator": "^1.5.0",
         "@happy-dom/global-registrator": "^20.0.11",
         "@marbec/web-auto-extractor": "^2.2.1",
@@ -38,6 +39,8 @@
     "@parcel/watcher",
   ],
   "packages": {
+    "11ty.ts": ["11ty.ts@0.0.7", "", { "peerDependencies": { "@11ty/eleventy": "^3.0.0" } }, "sha512-71Jqaimpefof8pt51lIy59Ea2GqU9Bmp3mejWznxVPxxhKBbWBIKBdVsxWSRJSoudUw3KPzpSaThw+KqR3yo3w=="],
+
     "@11ty/dependency-tree": ["@11ty/dependency-tree@4.0.1", "", { "dependencies": { "@11ty/eleventy-utils": "^2.0.1" } }, "sha512-6EPI9ZkGU4BX2KNZpWlf4WdV3vrmIWQpn//nAXicTzdPubI3jZlmFdqEv0Yj5M7oavRUGNzw9GbV9cBxhulZWw=="],
 
     "@11ty/dependency-tree-esm": ["@11ty/dependency-tree-esm@2.0.4", "", { "dependencies": { "@11ty/eleventy-utils": "^2.0.7", "acorn": "^8.15.0", "dependency-graph": "^1.0.0", "normalize-path": "^3.0.0" } }, "sha512-MYKC0Ac77ILr1HnRJalzKDlb9Z8To3kXQCltx299pUXXUFtJ1RIONtULlknknqW8cLe19DLVgmxVCtjEFm7h0A=="],
