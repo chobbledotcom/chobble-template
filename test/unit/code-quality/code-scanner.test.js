@@ -8,8 +8,7 @@ import {
   scanFilesForViolations,
   validateExceptions,
 } from "#test/code-scanner.js";
-import { captureConsole } from "#test/test-utils.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { captureConsole, SRC_JS_FILES } from "#test/test-utils.js";
 
 describe("code-scanner", () => {
   describe("isCommentLine", () => {
@@ -302,8 +301,12 @@ describe("code-scanner", () => {
         ).toThrow();
       });
 
-      expect(logs.some((log) => log.includes("Stale TEST_ALLOWLIST entries"))).toBe(true);
-      expect(logs.some((log) => log.includes("nonexistent-file.js:1"))).toBe(true);
+      expect(
+        logs.some((log) => log.includes("Stale TEST_ALLOWLIST entries")),
+      ).toBe(true);
+      expect(logs.some((log) => log.includes("nonexistent-file.js:1"))).toBe(
+        true,
+      );
     });
   });
 });
