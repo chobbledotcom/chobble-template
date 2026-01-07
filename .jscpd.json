@@ -5,8 +5,6 @@
 	"ignore": [
 		"**/node_modules/**",
 		"**/_site/**",
-		"**/src/assets/js/lib/**",
-		"**/*.min.js",
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
 		"**/scripts/**",
@@ -16,7 +14,7 @@
 	"absolute": false,
 	"gitignore": true,
 	"exitCode": 1,
-	"minLines": 3,
+	"minLines": 1,
 	"minTokens": 50,
 	"path": ["src", "test", ".eleventy.js"]
 }
