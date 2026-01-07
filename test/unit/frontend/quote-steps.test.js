@@ -317,47 +317,58 @@ describe("quote-steps", () => {
   });
 
   // ----------------------------------------
-  // updateButtons Tests
+  // updateButtons Tests (data-driven)
   // ----------------------------------------
-  test("updateButtons hides prev on first step", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 0, 3);
-    expect(prevBtn.style.display).toBe("none");
-    expect(nextBtn.style.display).toBe("");
-    expect(submitBtn.style.display).toBe("none");
+  const createMockButtons = () => ({
+    prev: { style: {} },
+    next: { style: {} },
+    submit: { style: {} },
   });
 
-  test("updateButtons shows both nav buttons on middle step", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 1, 3);
-    expect(prevBtn.style.display).toBe("");
-    expect(nextBtn.style.display).toBe("");
-    expect(submitBtn.style.display).toBe("none");
-  });
+  const updateButtonsCases = [
+    {
+      name: "hides prev on first step",
+      step: 0,
+      total: 3,
+      prev: "none",
+      next: "",
+      submit: "none",
+    },
+    {
+      name: "shows both nav on middle step",
+      step: 1,
+      total: 3,
+      prev: "",
+      next: "",
+      submit: "none",
+    },
+    {
+      name: "shows submit on last step",
+      step: 2,
+      total: 3,
+      prev: "",
+      next: "none",
+      submit: "",
+    },
+    {
+      name: "handles single step form",
+      step: 0,
+      total: 1,
+      prev: "none",
+      next: "none",
+      submit: "",
+    },
+  ];
 
-  test("updateButtons shows submit on last step", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 2, 3);
-    expect(prevBtn.style.display).toBe("");
-    expect(nextBtn.style.display).toBe("none");
-    expect(submitBtn.style.display).toBe("");
-  });
-
-  test("updateButtons handles single step form", () => {
-    const prevBtn = { style: {} };
-    const nextBtn = { style: {} };
-    const submitBtn = { style: {} };
-    updateButtons(prevBtn, nextBtn, submitBtn, 0, 1);
-    expect(prevBtn.style.display).toBe("none");
-    expect(nextBtn.style.display).toBe("none");
-    expect(submitBtn.style.display).toBe("");
-  });
+  for (const { name, step, total, prev, next, submit } of updateButtonsCases) {
+    test(`updateButtons ${name}`, () => {
+      const btns = createMockButtons();
+      updateButtons(btns.prev, btns.next, btns.submit, step, total);
+      expect(btns.prev.style.display).toBe(prev);
+      expect(btns.next.style.display).toBe(next);
+      expect(btns.submit.style.display).toBe(submit);
+    });
+  }
 
   // ----------------------------------------
   // getFieldDisplayValue Tests
@@ -683,37 +694,37 @@ describe("quote-steps", () => {
     expect(container.scrollIntoView).toHaveBeenCalled();
   });
 
-  test("initQuoteSteps sets up indicator click handlers", () => {
+  // Helper for initQuoteSteps tests that need navigation
+  const setupQuoteStepsNav = () => {
     document.body.innerHTML = createQuoteStepsHtml();
     const container = document.querySelector(".quote-steps");
     container.scrollIntoView = () => {};
     initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
+    return {
+      container,
+      nextBtn: document.querySelector(".quote-step-next"),
+      prevBtn: document.querySelector(".quote-step-prev"),
+      indicators: document.querySelectorAll(".quote-steps-progress li"),
+    };
+  };
+
+  test("initQuoteSteps sets up indicator click handlers", () => {
+    const { container, nextBtn, indicators } = setupQuoteStepsNav();
     nextBtn.click();
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("2");
-    const indicators = document.querySelectorAll(".quote-steps-progress li");
     indicators[1].click();
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps indicator click only navigates to completed steps", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    const container = document.querySelector(".quote-steps");
-    container.scrollIntoView = () => {};
-    initQuoteSteps();
-    const indicators = document.querySelectorAll(".quote-steps-progress li");
+    const { container, indicators } = setupQuoteStepsNav();
     indicators[2].click();
     expect(container.dataset.currentStep).toBe("0");
   });
 
   test("initQuoteSteps prev button navigates back", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    const container = document.querySelector(".quote-steps");
-    container.scrollIntoView = () => {};
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    const prevBtn = document.querySelector(".quote-step-prev");
+    const { container, nextBtn, prevBtn } = setupQuoteStepsNav();
     nextBtn.click();
     expect(container.dataset.currentStep).toBe("1");
     prevBtn.click();

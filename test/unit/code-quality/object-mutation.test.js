@@ -5,7 +5,7 @@ import {
   assertNoViolations,
   COMMENT_LINE_PATTERNS,
   createCodeChecker,
-  validateExceptions,
+  expectNoStaleExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -98,16 +98,10 @@ obj[ key ] = value;
 
   // Exception validation tests
   test("ALLOWED_OBJECT_MUTATION entries still exist and match pattern", () => {
-    const stale = validateExceptions(
+    expectNoStaleExceptions(
       new Set([ALLOWED_OBJECT_MUTATION]),
       OBJECT_MUTATION_PATTERN,
+      "ALLOWED_OBJECT_MUTATION",
     );
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_OBJECT_MUTATION entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
   });
 });

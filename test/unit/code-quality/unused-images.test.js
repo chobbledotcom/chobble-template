@@ -10,6 +10,25 @@ import {
   path,
 } from "#test/test-utils.js";
 
+/** Assert all images are used */
+const expectAllImagesUsed = (logs) =>
+  expect(
+    logs.some((log) =>
+      log.includes("All images in /src/images/ are being used"),
+    ),
+  ).toBe(true);
+
+/** Run eleventy.after handler and capture logs */
+const runEleventyAfter = async (tempDir) => {
+  const mockConfig = createMockEleventyConfig();
+  configureUnusedImages(mockConfig);
+  return captureConsoleLogAsync(async () => {
+    await mockConfig.eventHandlers["eleventy.after"]({
+      dir: { input: tempDir },
+    });
+  });
+};
+
 /**
  * Helper to run unused images test with common setup/teardown.
  * @param {string} testName - Name for temp directory
@@ -23,14 +42,7 @@ const runUnusedImagesTest = async (testName, setup, assertion) => {
 
   if (setup) setup(tempDir, imagesDir);
 
-  const mockConfig = createMockEleventyConfig();
-  configureUnusedImages(mockConfig);
-
-  const logs = await captureConsoleLogAsync(async () => {
-    await mockConfig.eventHandlers["eleventy.after"]({
-      dir: { input: tempDir },
-    });
-  });
+  const logs = await runEleventyAfter(tempDir);
 
   assertion(logs);
   cleanupTempDir(tempDir);
@@ -45,13 +57,7 @@ describe("unused-images", () => {
 
   test("Handles missing images directory gracefully", async () => {
     const tempDir = createTempDir("unused-images-no-dir");
-    const mockConfig = createMockEleventyConfig();
-    configureUnusedImages(mockConfig);
-    const logs = await captureConsoleLogAsync(async () => {
-      await mockConfig.eventHandlers["eleventy.after"]({
-        dir: { input: tempDir },
-      });
-    });
+    const logs = await runEleventyAfter(tempDir);
     expect(logs.some((log) => log.includes("No images directory found"))).toBe(
       true,
     );
@@ -96,13 +102,7 @@ describe("unused-images", () => {
           "![Banner](images/banner.png)",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -154,13 +154,7 @@ describe("unused-images", () => {
           "![Image](/images/nested-ref.jpg)",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -174,13 +168,7 @@ describe("unused-images", () => {
           "Some text with direct-ref.png in it",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -202,13 +190,7 @@ describe("unused-images", () => {
           "![Shared](images/shared.jpg)",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -240,13 +222,7 @@ describe("unused-images", () => {
           ),
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -260,13 +236,7 @@ describe("unused-images", () => {
           createFrontmatter({ image: "profile.png" }, "# Team member"),
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -280,13 +250,7 @@ describe("unused-images", () => {
           createFrontmatter({ thumbnail: "/images/thumb.webp" }, "# Blog post"),
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 

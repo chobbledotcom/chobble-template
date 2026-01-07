@@ -328,18 +328,7 @@ dialog.cart-overlay {
   animation: slideInFade 0.4s ease-out forwards;
 }
 
-.quote-checkout-summary {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  border: var(--border);
-  border-radius: var(--border-radius);
-  background: var(--color-accent);
-
-  h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-  }
-}
+// .quote-checkout-summary base styles are in style.scss (shared with .hire-dates-section)
 
 .quote-checkout-items {
   display: flex;

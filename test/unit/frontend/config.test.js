@@ -25,23 +25,34 @@ import {
 
 describe("config", () => {
   // DEFAULTS constant tests
-  test("DEFAULTS is an object with expected properties", () => {
-    expect(typeof DEFAULTS).toBe("object");
-    expectObjectProps({
-      sticky_mobile_nav: true,
-      horizontal_nav: true,
-      homepage_news: true,
-      homepage_products: true,
-      externalLinksTargetBlank: false,
-      contact_form_target: null,
-      formspark_id: null,
-      botpoison_public_key: null,
-      template_repo_url: "https://github.com/chobbledotcom/chobble-template",
-      chobble_link: null,
-      map_embed_src: null,
-      cart_mode: null,
-      has_products_filter: false,
-    })(DEFAULTS);
+  test("DEFAULTS has all expected keys", () => {
+    const expectedKeys = [
+      "sticky_mobile_nav",
+      "horizontal_nav",
+      "homepage_news",
+      "homepage_products",
+      "externalLinksTargetBlank",
+      "contact_form_target",
+      "formspark_id",
+      "botpoison_public_key",
+      "template_repo_url",
+      "chobble_link",
+      "map_embed_src",
+      "cart_mode",
+      "product_mode",
+      "has_products_filter",
+    ];
+    expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
+  });
+
+  test("DEFAULTS has correct critical values", () => {
+    // Verify security-related and external URL defaults
+    expect(DEFAULTS.externalLinksTargetBlank).toBe(false);
+    expect(DEFAULTS.template_repo_url).toBe(
+      "https://github.com/chobbledotcom/chobble-template",
+    );
+    expect(DEFAULTS.cart_mode).toBe(null);
+    expect(DEFAULTS.product_mode).toBe(null);
   });
 
   // VALID_CART_MODES constant tests

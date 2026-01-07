@@ -6,8 +6,8 @@ import {
 import {
   assertNoViolations,
   createCodeChecker,
+  expectNoStaleExceptions,
   matchesAny,
-  validateExceptions,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
 
@@ -162,17 +162,11 @@ const config = { key: 'value' };
 
   // Exception validation tests
   test("ALLOWED_MUTABLE_CONST entries still exist and match pattern", () => {
-    const stale = validateExceptions(
+    expectNoStaleExceptions(
       ALLOWED_MUTABLE_CONST,
       MUTABLE_CONST_PATTERNS,
+      "ALLOWED_MUTABLE_CONST",
     );
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_MUTABLE_CONST entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
   });
 
   test("Reports allowlisted let usage for tracking", () => {
@@ -194,13 +188,6 @@ const config = { key: 'value' };
   });
 
   test("ALLOWED_LET entries still exist and match pattern", () => {
-    const stale = validateExceptions(ALLOWED_LET, /^\s*let\s+\w+/);
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_LET entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
+    expectNoStaleExceptions(ALLOWED_LET, /^\s*let\s+\w+/, "ALLOWED_LET");
   });
 });

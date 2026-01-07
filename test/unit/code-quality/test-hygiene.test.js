@@ -68,6 +68,14 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
+  // code-scanner.js - stale exception validation helper
+  "expectNoStaleExceptions",
+  // quote-steps.test.js - navigation test setup
+  "setupQuoteStepsNav",
+  // hire-calculator.test.js - callback tracking setup
+  "initHireWithCallback",
+  // unused-images.test.js - eleventy after handler runner
+  "runEleventyAfter",
   "findUndefinedVariables",
   // strings.test.js
   "findStringsUsage",

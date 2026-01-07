@@ -2,12 +2,13 @@ import { describe, expect, test } from "bun:test";
 import {
   createCodeChecker,
   createPatternMatcher,
+  expectNoStaleExceptions,
   formatViolationReport,
   isCommentLine,
   scanFilesForViolations,
   validateExceptions,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { captureConsole, SRC_JS_FILES } from "#test/test-utils.js";
 
 describe("code-scanner", () => {
   describe("isCommentLine", () => {
@@ -283,6 +284,29 @@ describe("code-scanner", () => {
 
       const stale = validateExceptions(allowlist, patterns);
       expect(stale.length).toBe(3);
+    });
+  });
+
+  describe("expectNoStaleExceptions", () => {
+    test("logs stale entries when exceptions are invalid", () => {
+      const allowlist = new Set([
+        "nonexistent-file.js:1", // file doesn't exist
+      ]);
+      const patterns = /test/;
+
+      const logs = captureConsole(() => {
+        // Call the function but catch the assertion error via expect().toThrow()
+        expect(() =>
+          expectNoStaleExceptions(allowlist, patterns, "TEST_ALLOWLIST"),
+        ).toThrow();
+      });
+
+      expect(
+        logs.some((log) => log.includes("Stale TEST_ALLOWLIST entries")),
+      ).toBe(true);
+      expect(logs.some((log) => log.includes("nonexistent-file.js:1"))).toBe(
+        true,
+      );
     });
   });
 });

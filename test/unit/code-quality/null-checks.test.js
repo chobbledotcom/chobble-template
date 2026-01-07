@@ -5,7 +5,7 @@ import {
   assertNoViolations,
   combineFileLists,
   createCodeChecker,
-  validateExceptions,
+  expectNoStaleExceptions,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
 
@@ -71,13 +71,10 @@ if (!getValue()) return;
   });
 
   test("ALLOWED_NULL_CHECKS entries still exist and match pattern", () => {
-    const stale = validateExceptions(ALLOWED_NULL_CHECKS, NULL_CHECK_PATTERN);
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_NULL_CHECKS entries:");
-      for (const s of stale) {
-        console.log(`    - ${s.entry}: ${s.reason}`);
-      }
-    }
-    expect(stale.length).toBe(0);
+    expectNoStaleExceptions(
+      ALLOWED_NULL_CHECKS,
+      NULL_CHECK_PATTERN,
+      "ALLOWED_NULL_CHECKS",
+    );
   });
 });
