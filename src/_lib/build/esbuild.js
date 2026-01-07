@@ -1,11 +1,26 @@
 export function configureEsbuild(eleventyConfig) {
   eleventyConfig.on("eleventy.before", async () => {
-    await Bun.build({
+    const isDevelopment = process.env.ELEVENTY_RUN_MODE === "serve";
+
+    const buildConfig = {
       entrypoints: ["src/_lib/public/bundle.js"],
       outdir: "_site/assets/js",
       naming: "bundle.js",
-      minify: true,
       target: "browser",
-    });
+      // Source maps help with error diagnostics
+      sourcemap: "external",
+      // Environment-aware minification: dev keeps code readable, prod minifies
+      minify: !isDevelopment,
+    };
+
+    await Bun.build(buildConfig);
+
+    if (isDevelopment) {
+      console.log(
+        "✓ JavaScript built with source maps (unminified for easier debugging)",
+      );
+    } else {
+      console.log("✓ JavaScript built and minified with source maps");
+    }
   });
 }
