@@ -107,6 +107,7 @@ const fieldToDetail = (field) => ({
 // Collect all filled fields from a container and transform to details
 // Returns array of { key, value } objects for fields with non-empty values
 const collectFieldDetails = (container) => {
+  if (container === null) return []; // might be on /quote/
   const fields = [...container.querySelectorAll("input, select, textarea")];
   return pipe(
     filter(hasValue),
@@ -190,7 +191,7 @@ const renderQuotePrice = (container, days = 1) => {
 
 // Update quote price display (stateless - gets container fresh each time)
 const updateQuotePrice = (days = 1) => {
-  const container = document.getElementById("quote-price-container");
+  const container = document.getElementById("quote-price");
   if (container) renderQuotePrice(container, days);
 };
 
@@ -198,6 +199,7 @@ const updateQuotePrice = (days = 1) => {
 // Uses event delegation for efficiency
 const setupDetailsBlurHandlers = (getDays = () => 1) => {
   const formContainer = getFormContainer();
+  if (formContainer === null) return; // Might be on /quote/
   const handleBlur = (event) => {
     const target = event.target;
     if (target.matches("input, select, textarea")) {

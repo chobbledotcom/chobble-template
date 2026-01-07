@@ -4,9 +4,8 @@ layout: base
 
 {{ content }}
 
-{%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
-
 <div class="quote-layout">
+  {%- include "templates/quote-steps-progress.html", completed_steps: 0 -%}
   <div class="quote-main">
     <noscript
       ><p>JavaScript is required to view and manage your quote cart.</p></noscript
@@ -23,7 +22,7 @@ layout: base
       </div>
     </div>
   </div>
-  <aside id="quote-price-container" class="quote-sidebar" style="display: none"></aside>
+  <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
 </div>
 
 {% include "templates/quote-price.html" %}

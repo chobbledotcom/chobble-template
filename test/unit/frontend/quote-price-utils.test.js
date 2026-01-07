@@ -238,7 +238,7 @@ describe("quote-price-utils", () => {
 
         ${templates}
 
-        <div id="quote-price-container"></div>
+        <div id="quote-price"></div>
 
         <form>
           ${formFields}
@@ -254,7 +254,7 @@ describe("quote-price-utils", () => {
     test("hides container when cart is empty", async () => {
       await setupFullDOM([]);
       updateQuotePrice();
-      const container = document.getElementById("quote-price-container");
+      const container = document.getElementById("quote-price");
       expect(container.style.display).toBe("none");
       expect(container.innerHTML).toBe("");
     });
@@ -277,7 +277,7 @@ describe("quote-price-utils", () => {
       await setupFullDOM(cart);
       updateQuotePrice(1);
 
-      const container = document.getElementById("quote-price-container");
+      const container = document.getElementById("quote-price");
       expect(container.style.display).toBe("block");
 
       // Template uses <li> elements for items
@@ -414,7 +414,7 @@ describe("quote-price-utils", () => {
 
         ${templates}
 
-        <div id="quote-price-container"></div>
+        <div id="quote-price"></div>
 
         <div class="quote-steps">
           <input id="name" name="name" type="text" value="Quote Steps Name" />
@@ -695,7 +695,7 @@ describe("quote-price-utils", () => {
       document.body.innerHTML = `
         <script class="quote-field-labels" type="application/json">{}</script>
         ${containerHtml}
-        <div id="quote-price-container"></div>
+        <div id="quote-price"></div>
       `;
     };
 

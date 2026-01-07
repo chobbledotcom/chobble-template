@@ -276,24 +276,32 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // getCurrentStep Tests
   // ----------------------------------------
+  test("getCurrentStep returns 0 when no quote-steps container exists", () => {
+    document.body.innerHTML = "<div>No steps</div>";
+    expect(getCurrentStep()).toBe(0);
+  });
+
   test("getCurrentStep returns 0 when dataset has no currentStep", () => {
-    const container = { dataset: {} };
-    expect(getCurrentStep(container)).toBe(0);
+    document.body.innerHTML = '<div class="quote-steps"></div>';
+    expect(getCurrentStep()).toBe(0);
   });
 
   test("getCurrentStep returns 0 when currentStep is empty string", () => {
-    const container = { dataset: { currentStep: "" } };
-    expect(getCurrentStep(container)).toBe(0);
+    document.body.innerHTML =
+      '<div class="quote-steps" data-current-step=""></div>';
+    expect(getCurrentStep()).toBe(0);
   });
 
   test("getCurrentStep parses numeric string from dataset", () => {
-    const container = { dataset: { currentStep: "2" } };
-    expect(getCurrentStep(container)).toBe(2);
+    document.body.innerHTML =
+      '<div class="quote-steps" data-current-step="2"></div>';
+    expect(getCurrentStep()).toBe(2);
   });
 
   test("getCurrentStep handles string '0' correctly", () => {
-    const container = { dataset: { currentStep: "0" } };
-    expect(getCurrentStep(container)).toBe(0);
+    document.body.innerHTML =
+      '<div class="quote-steps" data-current-step="0"></div>';
+    expect(getCurrentStep()).toBe(0);
   });
 
   // ----------------------------------------

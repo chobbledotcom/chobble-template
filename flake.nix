@@ -11,6 +11,15 @@
         system:
         let
           pkgs = import <nixpkgs> { inherit system; };
+          bunScripts = pkgs.symlinkJoin {
+            name = "bun-scripts";
+            paths = map (cmd: pkgs.writeShellScriptBin cmd "bun run ${cmd}") [
+              "serve"
+              "build"
+              "test"
+              "profile"
+            ];
+          };
         in
         {
           default = pkgs.mkShell {
@@ -19,6 +28,7 @@
               biome
               vips
               stdenv.cc.cc.lib
+              bunScripts
             ];
 
             shellHook = ''
@@ -32,12 +42,12 @@
               Development environment ready!
 
               Available commands:
-               - 'bun run serve'  # Clean & start dev server with incremental builds
-               - 'bun run build'  # Clean & build the site in ./_site
-               - 'bun test'       # Run JavaScript tests
-               - 'lint'           # Format code with Biome (Nix-only)
-               - 'screenshot'     # Take website screenshots (Nix-only)
-               - 'profile'        # Profile build for performance bottlenecks
+               serve       - Clean & start dev server with incremental builds
+               build       - Clean & build the site in ./_site
+               test        - Run JavaScript tests
+               profile     - Profile build for performance bottlenecks
+               lint        - Format code with Biome (Nix-only)
+               screenshot  - Take website screenshots (Nix-only)
 
               EOF
 

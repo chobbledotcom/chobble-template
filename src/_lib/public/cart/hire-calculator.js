@@ -44,10 +44,11 @@ const syncEndDateConstraint = (startInput, endInput) => {
 // Initialize hire calculator
 // Sets up date inputs and calls onDaysChange when dates are selected
 const initHireCalculator = (onDaysChange) => {
-  if (!hasHireItems(getCart())) return;
-
   const startInput = document.querySelector('input[name="start_date"]');
   const endInput = document.querySelector('input[name="end_date"]');
+
+  if (startInput === null || !hasHireItems(getCart())) return;
+
   const daysInput = document.getElementById("hire_days");
 
   setMinDate(startInput);
