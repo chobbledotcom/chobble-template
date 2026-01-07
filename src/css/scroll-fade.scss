@@ -3,11 +3,6 @@
 
 @use "breakpoints";
 
-// Export selectors to CSS custom property for JavaScript to read
-:root {
-  --scroll-fade-selectors: ".items > li";
-}
-
 // Apply initial hidden state and transition to all configured selectors
 .items > li {
   opacity: 0;

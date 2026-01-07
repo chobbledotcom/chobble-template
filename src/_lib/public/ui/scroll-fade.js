@@ -1,16 +1,10 @@
 /**
  * Scroll Fade-In Effect
  * Uses IntersectionObserver for performant scroll-based animations.
- * Selectors are configured in theme.scss via --scroll-fade-selectors CSS custom property.
  */
 import { onReady } from "#public/utils/on-ready.js";
 
-const getScrollFadeSelectors = () => {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(
-    "--scroll-fade-selectors",
-  );
-  return value?.replace(/^["']|["']$/g, "").trim() || null;
-};
+const SCROLL_FADE_SELECTOR = ".items > li";
 
 const prefersReducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -31,10 +25,7 @@ const createScrollObserver = () => {
 };
 
 function initScrollFade() {
-  const selectors = getScrollFadeSelectors();
-  if (!selectors) return;
-
-  const elements = document.querySelectorAll(selectors);
+  const elements = document.querySelectorAll(SCROLL_FADE_SELECTOR);
   if (elements.length === 0) return;
 
   if (prefersReducedMotion()) {
