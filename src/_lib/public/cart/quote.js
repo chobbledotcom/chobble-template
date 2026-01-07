@@ -29,13 +29,13 @@ function renderQuoteItem(item) {
 
   populateItemFields(template, item.item_name, formatPrice(item.unit_price));
 
-  const specsEl = template.querySelector('[data-field="specs"]');
+  const specsLi = template.querySelector(".quote-cart-item-specs");
   if (item.specs && item.specs.length > 0) {
-    specsEl.textContent = item.specs
+    specsLi.querySelector('[data-field="specs"]').textContent = item.specs
       .map((s) => `${s.name}: ${s.value}`)
       .join(", ");
   } else {
-    specsEl.remove();
+    specsLi.remove();
   }
 
   populateQuantityControls(template, item);
