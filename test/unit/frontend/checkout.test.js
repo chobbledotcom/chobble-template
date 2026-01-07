@@ -366,23 +366,20 @@ describe("checkout", () => {
   test("attachQuantityHandlers attaches decrease button handlers", () => {
     withMockStorage(() => {
       document.body.innerHTML = `
-        <div id="container">
-          <button data-action="decrease" data-name="Widget">−</button>
-          <input type="number" data-name="Widget" value="3">
-          <button data-action="increase" data-name="Widget">+</button>
-        </div>
+        <button data-action="decrease" data-name="Widget">−</button>
+        <input type="number" data-name="Widget" value="3">
+        <button data-action="increase" data-name="Widget">+</button>
       `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = document.getElementById("container");
       const updates = [];
 
-      attachQuantityHandlers(container, (name, qty) => {
+      attachQuantityHandlers((name, qty) => {
         updates.push({ name, qty });
       });
 
       // Simulate click on decrease button
-      const decreaseBtn = container.querySelector('[data-action="decrease"]');
+      const decreaseBtn = document.querySelector('[data-action="decrease"]');
       decreaseBtn.click();
 
       expect(updates).toHaveLength(1);
@@ -394,23 +391,20 @@ describe("checkout", () => {
   test("attachQuantityHandlers attaches increase button handlers", () => {
     withMockStorage(() => {
       document.body.innerHTML = `
-        <div id="container">
-          <button data-action="decrease" data-name="Widget">−</button>
-          <input type="number" data-name="Widget" value="3">
-          <button data-action="increase" data-name="Widget">+</button>
-        </div>
+        <button data-action="decrease" data-name="Widget">−</button>
+        <input type="number" data-name="Widget" value="3">
+        <button data-action="increase" data-name="Widget">+</button>
       `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = document.getElementById("container");
       const updates = [];
 
-      attachQuantityHandlers(container, (name, qty) => {
+      attachQuantityHandlers((name, qty) => {
         updates.push({ name, qty });
       });
 
       // Simulate click on increase button
-      const increaseBtn = container.querySelector('[data-action="increase"]');
+      const increaseBtn = document.querySelector('[data-action="increase"]');
       increaseBtn.click();
 
       expect(updates).toHaveLength(1);
@@ -422,21 +416,18 @@ describe("checkout", () => {
   test("attachQuantityHandlers attaches input change handlers", () => {
     withMockStorage(() => {
       document.body.innerHTML = `
-        <div id="container">
-          <input type="number" data-name="Widget" value="3">
-        </div>
+        <input type="number" data-name="Widget" value="3">
       `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
-      const container = document.getElementById("container");
       const updates = [];
 
-      attachQuantityHandlers(container, (name, qty) => {
+      attachQuantityHandlers((name, qty) => {
         updates.push({ name, qty });
       });
 
       // Simulate input change
-      const input = container.querySelector("input[type='number']");
+      const input = document.querySelector("input[type='number']");
       input.value = "7";
       input.dispatchEvent(new Event("change"));
 
@@ -449,22 +440,19 @@ describe("checkout", () => {
   test("attachRemoveHandlers attaches remove button handlers", () => {
     withMockStorage(() => {
       document.body.innerHTML = `
-        <div id="container">
-          <button class="remove-btn" data-name="Widget">Remove</button>
-        </div>
+        <button data-action="remove" data-name="Widget">Remove</button>
       `;
       saveCart([
         { item_name: "Widget", unit_price: 10, quantity: 1 },
         { item_name: "Gadget", unit_price: 20, quantity: 2 },
       ]);
 
-      const container = document.getElementById("container");
       const removeCalled = mock(() => {});
 
-      attachRemoveHandlers(container, ".remove-btn", removeCalled);
+      attachRemoveHandlers(removeCalled);
 
       // Simulate click on remove button
-      const removeBtn = container.querySelector(".remove-btn");
+      const removeBtn = document.querySelector('[data-action="remove"]');
       removeBtn.click();
 
       expect(removeCalled).toHaveBeenCalled();

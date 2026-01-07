@@ -115,8 +115,8 @@ const renderCartItems = (cartItems, cart) => {
   for (const item of cart) {
     cartItems.appendChild(renderCartItem(item));
   }
-  attachQuantityHandlers(cartItems, (name, qty) => updateQuantity(name, qty));
-  attachRemoveHandlers(cartItems, '[data-action="remove"]', () => {
+  attachQuantityHandlers((name, qty) => updateQuantity(name, qty));
+  attachRemoveHandlers(() => {
     updateCartDisplay();
     updateCartCount();
   });
