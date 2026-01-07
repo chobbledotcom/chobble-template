@@ -249,6 +249,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/theme/theme-editor-lib.js:157", // value
   "src/_lib/public/utils/quote-price-utils.js:22", // priceStr
   "src/_lib/filters/spec-filters.js:11", // specName
+  "src/_lib/filters/spec-filters.js:24", // config (spec may not have icon entry)
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/_lib/public/cart/stripe-checkout.js:19", // response

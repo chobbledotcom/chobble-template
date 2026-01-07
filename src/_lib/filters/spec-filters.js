@@ -5,12 +5,12 @@ import { inlineAsset } from "#media/inline-asset.js";
  * Get the spec icon config for a spec name
  * Normalizes the spec name (lowercase, trimmed) before lookup
  * @param {string} specName - The spec name to look up
- * @returns {{ icon: string, highlight: boolean }|null} - The spec config or null if not found
+ * @returns {{ icon: string, highlight: boolean }|undefined} - The spec config or undefined if not found
  */
 const getSpecConfig = (specName) => {
-  if (!specName) return null;
+  if (!specName) return undefined;
   const normalized = specName.toLowerCase().trim();
-  return specsIcons[normalized] ?? null;
+  return specsIcons[normalized];
 };
 
 /**
@@ -21,7 +21,7 @@ const getSpecConfig = (specName) => {
  */
 const getSpecIcon = (specName) => {
   const config = getSpecConfig(specName);
-  if (!config?.icon) return "";
+  if (!config) return "";
   return inlineAsset(`icons/${config.icon}`);
 };
 
@@ -36,7 +36,7 @@ const computeSpecs = (data) => {
     const config = getSpecConfig(spec.name);
     return {
       ...spec,
-      icon: config?.icon ? inlineAsset(`icons/${config.icon}`) : "",
+      icon: config ? inlineAsset(`icons/${config.icon}`) : "",
       highlight: config?.highlight ?? false,
     };
   });
