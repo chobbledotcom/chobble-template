@@ -30,6 +30,9 @@ const compileScss = async (inputContent, inputPath) => {
 };
 
 const configureScss = (eleventyConfig) => {
+  // Explicitly watch CSS directory to trigger rebuilds when partials change
+  eleventyConfig.addWatchTarget("./src/css/");
+
   eleventyConfig.addTemplateFormats("scss");
   eleventyConfig.addExtension("scss", {
     outputFileExtension: "css",
