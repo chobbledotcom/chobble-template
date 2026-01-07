@@ -111,29 +111,29 @@ const pathToFilter = (path) => {
 };
 
 /**
- * Check if an item matches the given filters
- * Uses normalized comparison (lowercase, no special chars/spaces)
- */
-const itemMatchesFilters = (item, filters) => {
-  if (!filters || Object.keys(filters).length === 0) return true;
-
-  const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
-  return everyEntry(
-    (key, value) => normalize(itemAttrs[key] || "") === normalize(value),
-  )(filters);
-};
-
-/**
  * Get items matching the given filters
+ * Uses normalized comparison (lowercase, no special chars/spaces)
  */
 const getItemsByFilters = (items, filters) => {
   if (!filters || Object.keys(filters).length === 0) {
     return items.slice().sort(sortItems);
   }
 
-  return items
-    .filter((item) => itemMatchesFilters(item, filters))
-    .sort(sortItems);
+  // Pre-normalize filter values once, not per-item
+  const normalizedFilters = Object.entries(filters).map(([key, value]) => [
+    key,
+    normalize(value),
+  ]);
+
+  const matchesFilters = (item) => {
+    const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
+    for (const [key, normalizedValue] of normalizedFilters) {
+      if (normalize(itemAttrs[key] || "") !== normalizedValue) return false;
+    }
+    return true;
+  };
+
+  return items.filter(matchesFilters).sort(sortItems);
 };
 
 /**
@@ -383,7 +383,6 @@ export {
   buildDisplayLookup,
   filterToPath,
   pathToFilter,
-  itemMatchesFilters,
   getItemsByFilters,
   generateFilterCombinations,
   buildFilterDescription,

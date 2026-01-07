@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 #
 # Profile the Eleventy build to find performance bottlenecks
-# Captures both CPU time and call frequency
 #
 # Usage:
 #   ./bin/profile          # Run profiling and generate reports
-#   ./bin/profile --open   # Run profiling and open flamegraph in browser
+#   ./bin/profile --open   # Open in speedscope after profiling
 #
 
 set -e
@@ -13,124 +12,44 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 PROFILE_DIR="$PROJECT_DIR/.profile"
+PROFILE_FILE="$PROFILE_DIR/build.cpuprofile"
 
-# Clean up old profiles
+# Clean up and create profile directory
 rm -rf "$PROFILE_DIR"
 mkdir -p "$PROFILE_DIR"
 
 echo "=== Profiling Eleventy Build ==="
 echo ""
 
-# Run with CPU profiling
-echo "1. Running build with CPU profiler..."
 cd "$PROJECT_DIR"
 rm -rf _site
-node \
-  --cpu-prof \
-  --cpu-prof-dir="$PROFILE_DIR" \
-  --cpu-prof-name=build.cpuprofile \
-  node_modules/@11ty/eleventy/cmd.cjs 2>&1 | tail -5
+
+# Run build with CPU profiling
+# Note: --cpu-prof-dir and --cpu-prof-name don't work reliably in Bun,
+# so we find the generated file and move it manually
+bun --cpu-prof node_modules/@11ty/eleventy/cmd.cjs
 
 echo ""
-echo "2. Generating text report..."
 
-# Create a Node script to parse the cpuprofile and generate a readable report
-node --input-type=module -e "
-import { readFileSync, writeFileSync } from 'fs';
+# Find the generated profile (Bun creates CPU.*.cpuprofile in cwd)
+GENERATED_PROFILE=$(ls -t "$PROJECT_DIR"/CPU.*.cpuprofile 2>/dev/null | head -1)
 
-const profile = JSON.parse(readFileSync('$PROFILE_DIR/build.cpuprofile', 'utf8'));
+if [[ -z "$GENERATED_PROFILE" ]]; then
+  echo "Error: CPU profile not generated."
+  echo "Try running directly: bun --cpu-prof node_modules/@11ty/eleventy/cmd.cjs"
+  exit 1
+fi
 
-// Build a map of node IDs to their info
-const nodes = new Map();
-for (const node of profile.nodes) {
-  nodes.set(node.id, {
-    functionName: node.callFrame.functionName || '(anonymous)',
-    url: node.callFrame.url || '',
-    lineNumber: node.callFrame.lineNumber,
-    hitCount: node.hitCount || 0,
-    children: node.children || []
-  });
-}
+mv "$GENERATED_PROFILE" "$PROFILE_FILE"
 
-// Aggregate by function name + location
-const stats = new Map();
-
-for (const node of profile.nodes) {
-  const info = nodes.get(node.id);
-  const url = info.url.replace('file://$PROJECT_DIR/', '');
-
-  // Skip node internals and empty
-  if (!url || url.startsWith('node:') || url.includes('node_modules')) continue;
-
-  const key = \`\${info.functionName}|\${url}:\${info.lineNumber + 1}\`;
-
-  if (!stats.has(key)) {
-    stats.set(key, {
-      functionName: info.functionName,
-      location: \`\${url}:\${info.lineNumber + 1}\`,
-      hitCount: 0,
-      selfTime: 0
-    });
-  }
-
-  const stat = stats.get(key);
-  stat.hitCount += info.hitCount;
-}
-
-// Calculate timing from samples
-const sampleInterval = profile.samples ? (profile.endTime - profile.startTime) / profile.samples.length : 0;
-
-for (let i = 0; i < (profile.samples?.length || 0); i++) {
-  const nodeId = profile.samples[i];
-  const info = nodes.get(nodeId);
-  if (!info) continue;
-
-  const url = info.url.replace('file://$PROJECT_DIR/', '');
-  if (!url || url.startsWith('node:') || url.includes('node_modules')) continue;
-
-  const key = \`\${info.functionName}|\${url}:\${info.lineNumber + 1}\`;
-  if (stats.has(key)) {
-    stats.get(key).selfTime += sampleInterval;
-  }
-}
-
-// Sort by self time
-const sorted = [...stats.values()]
-  .filter(s => s.selfTime > 0 || s.hitCount > 0)
-  .sort((a, b) => b.selfTime - a.selfTime);
-
-// Generate report
-let report = 'ELEVENTY BUILD PROFILE REPORT\n';
-report += '='.repeat(80) + '\n\n';
-report += 'Top functions by self-time (your code only, excludes node_modules):\n\n';
-report += 'Self Time (ms) | Hit Count | Function | Location\n';
-report += '-'.repeat(80) + '\n';
-
-for (const stat of sorted.slice(0, 50)) {
-  const time = (stat.selfTime / 1000).toFixed(2).padStart(13);
-  const hits = String(stat.hitCount).padStart(10);
-  report += \`\${time} | \${hits} | \${stat.functionName.slice(0, 30).padEnd(30)} | \${stat.location}\n\`;
-}
-
-report += '\n' + '='.repeat(80) + '\n';
-report += '\nTo visualize the full profile:\n';
-report += '  1. Open Chrome DevTools -> Performance tab\n';
-report += '  2. Click \"Load profile...\" button\n';
-report += '  3. Select: .profile/build.cpuprofile\n';
-report += '\nOr use: bunx speedscope .profile/build.cpuprofile\n';
-
-writeFileSync('$PROFILE_DIR/report.txt', report);
-console.log(report);
-"
+echo "Generating report..."
+bun "$SCRIPT_DIR/profile-report.js" "$PROFILE_FILE" "$PROFILE_DIR/report.txt" "$PROJECT_DIR"
 
 echo ""
-echo "=== Profile files saved to .profile/ ==="
-echo "  - build.cpuprofile  (open in Chrome DevTools or speedscope)"
-echo "  - report.txt        (text summary)"
+echo "Profile saved to: .profile/build.cpuprofile"
+echo "Report saved to:  .profile/report.txt"
 
-# Open in speedscope if requested
 if [[ "$1" == "--open" ]]; then
   echo ""
-  echo "Opening in speedscope..."
-  bunx speedscope "$PROFILE_DIR/build.cpuprofile"
+  bunx speedscope "$PROFILE_FILE"
 fi

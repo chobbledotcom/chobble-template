@@ -1,8 +1,10 @@
 {
-  inputs = { };
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  };
 
   outputs =
-    { ... }:
+    { nixpkgs, ... }:
     let
       forAllSystems = f: { x86_64-linux = f "x86_64-linux"; };
     in
@@ -10,7 +12,7 @@
       devShells = forAllSystems (
         system:
         let
-          pkgs = import <nixpkgs> { inherit system; };
+          pkgs = nixpkgs.legacyPackages.${system};
           bunScripts = pkgs.symlinkJoin {
             name = "bun-scripts";
             paths = map (cmd: pkgs.writeShellScriptBin cmd "bun run ${cmd}") [
