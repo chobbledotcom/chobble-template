@@ -104,6 +104,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/test-utils.js",
   "test/build-profiling.js",
   "test/precommit.js",
+  "test/run-tests.js",
+  "test/test-runner-utils.js",
   "test/code-scanner.js",
   "test/run-coverage.js",
   "test/unit/utils/schema-helper-utils.js",
@@ -265,9 +267,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
-  "test/precommit.js:57", // trimmed (line processing)
-  "test/precommit.js:141", // result (skip if step wasn't run)
-  "test/precommit.js:188", // allPassed (check if all steps passed)
+  "test/test-runner-utils.js:49", // trimmed (line processing)
+  "test/test-runner-utils.js:139", // result (skip if step wasn't run)
+  "test/test-runner-utils.js:186", // allPassed (check if all steps passed)
   "test/demo-precommit-errors.js:26", // functionMatch (regex match can be null)
 ]);
 

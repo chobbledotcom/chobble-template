@@ -320,12 +320,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "isNonEmpty",
   "isMainCI",
   "readJson",
-  // precommit.js - precommit utilities
+  // test-runner-utils.js / precommit.js - test runner utilities
   "runStep",
   "extractErrorsFromOutput",
   "printSummary",
-  // precommit.test.js - memoized function loader
-  "extractErrorsFunction",
   // precommit.test.js - functional test helper
   "expectErrorsToInclude",
   // test-utils.js - test utilities (internal functions)
