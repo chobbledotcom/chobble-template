@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  getLatestItems,
-  sortByDateDescending,
-  sortItems,
-} from "#utils/sorting.js";
+import { sortByDateDescending, sortItems } from "#utils/sorting.js";
 
 describe("sorting", () => {
   // Helper to test sorting results by title field
@@ -81,49 +77,24 @@ describe("sorting", () => {
     ]);
   });
 
-  // ============================================
-  // getLatestItems Tests
-  // ============================================
-  test("Returns only the specified number of items", () => {
+  test("Can be used with slice to get latest N items", () => {
     const items = [
       { date: "2024-01-01" },
       { date: "2024-02-01" },
       { date: "2024-03-01" },
       { date: "2024-04-01" },
     ];
-    const latest = getLatestItems(items, 2);
+    const latest = [...items].sort(sortByDateDescending).slice(0, 2);
     expect(latest.length).toBe(2);
   });
 
-  test("Returned items are sorted with newest dates first", () => {
+  test("Latest items are sorted with newest dates first", () => {
     const items = [
       { date: "2024-01-01", title: "Old" },
       { date: "2024-06-15", title: "Newest" },
       { date: "2024-03-10", title: "Middle" },
     ];
-    const latest = getLatestItems(items, 3);
+    const latest = [...items].sort(sortByDateDescending).slice(0, 3);
     expect(latest[0].title).toBe("Newest");
-  });
-
-  test("Returns 3 items when no limit is specified", () => {
-    const items = [
-      { date: "2024-01-01" },
-      { date: "2024-02-01" },
-      { date: "2024-03-01" },
-      { date: "2024-04-01" },
-      { date: "2024-05-01" },
-    ];
-    const latest = getLatestItems(items);
-    expect(latest.length).toBe(3);
-  });
-
-  test("Returns empty array when input is null", () => {
-    const latest = getLatestItems(null);
-    expect(latest).toEqual([]);
-  });
-
-  test("Returns empty array when input array is empty", () => {
-    const latest = getLatestItems([]);
-    expect(latest).toEqual([]);
   });
 });

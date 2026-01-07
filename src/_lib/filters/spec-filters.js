@@ -2,28 +2,6 @@ import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
 
 /**
- * Get the spec icon config for a spec name
- * Normalizes the spec name (lowercase, trimmed) before lookup
- * @param {string} specName - The spec name to look up
- * @returns {{ icon: string, highlight: boolean }|undefined} - The spec config or undefined if not found
- */
-const getSpecConfig = (specName) => {
-  const normalized = specName?.toLowerCase().trim();
-  return normalized ? specsIcons[normalized] : undefined;
-};
-
-/**
- * Get the icon SVG content for a spec name
- * Normalizes the spec name (lowercase, trimmed) before lookup
- * @param {string} specName - The spec name to look up
- * @returns {string} - The icon SVG content or empty string if not found
- */
-const getSpecIcon = (specName) => {
-  const config = getSpecConfig(specName);
-  return config ? inlineAsset(`icons/${config.icon}`) : "";
-};
-
-/**
  * Transform specs array to include icon and highlight properties
  * @param {Object} data - Eleventy data object
  * @returns {Array|undefined} - Specs array with icon and highlight properties added
@@ -31,7 +9,8 @@ const getSpecIcon = (specName) => {
 const computeSpecs = (data) => {
   if (!data.specs) return undefined;
   return data.specs.map((spec) => {
-    const config = getSpecConfig(spec.name);
+    const normalized = spec.name?.toLowerCase().trim();
+    const config = normalized ? specsIcons[normalized] : undefined;
     return {
       ...spec,
       icon: config ? inlineAsset(`icons/${config.icon}`) : "",
@@ -56,4 +35,4 @@ const getHighlightedSpecs = (specs) => {
     : specs;
 };
 
-export { getSpecIcon, computeSpecs, getHighlightedSpecs };
+export { computeSpecs, getHighlightedSpecs };
