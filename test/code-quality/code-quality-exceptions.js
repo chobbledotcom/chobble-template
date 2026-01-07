@@ -45,9 +45,10 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/integration/test-site-factory.test.js:36", // withImageCleanup cleanup helper
-  "test/integration/test-site-factory.test.js:279",
-  "test/integration/test-site-factory.test.js:294",
+  "test/integration/test-site-factory.test.js:135",
+  "test/integration/test-site-factory.test.js:155",
+  "test/integration/test-site-factory.test.js:277",
+  "test/integration/test-site-factory.test.js:292",
 
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution

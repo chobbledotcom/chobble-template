@@ -673,6 +673,34 @@ const taggedCollectionApi = (tagMap) => ({
   getFilteredByTag: (tag) => tagMap[tag] ?? [],
 });
 
+/**
+ * Assert that errors contain expected conditions.
+ * Curried: (conditions) => (errors) => void
+ * Supports strings, arrays (any match), and predicate functions.
+ *
+ * @param {...(string|Array<string>|Function)} conditions - Conditions to check
+ * @returns {Function} (errors) => void
+ *
+ * @example
+ * expectErrorsInclude("❌", ["threshold", "Duplication"])(errors);
+ * expectErrorsInclude("FAIL", (e) => e.includes("timeout"))(errors);
+ */
+const expectErrorsInclude =
+  (...conditions) =>
+  (errors) => {
+    for (const condition of conditions) {
+      if (typeof condition === "function") {
+        expect(errors.some(condition)).toBe(true);
+      } else if (Array.isArray(condition)) {
+        expect(errors.some((e) => condition.some((c) => e.includes(c)))).toBe(
+          true,
+        );
+      } else {
+        expect(errors.some((e) => e.includes(condition))).toBe(true);
+      }
+    }
+  };
+
 export {
   DOM,
   expect,
@@ -704,6 +732,7 @@ export {
   expectProp,
   expectDataArray,
   expectGalleries,
+  expectErrorsInclude,
   // Generic item builder
   item,
   items,
