@@ -9,7 +9,7 @@ import {
   expectNoStaleExceptions,
   matchesAny,
 } from "#test/code-scanner.js";
-import { ALL_JS_FILES } from "#test/test-utils.js";
+import { ALL_JS_FILES, logAllowedItems } from "#test/test-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
 const ALLOWED_LET_PATTERNS = [
@@ -150,13 +150,7 @@ const config = { key: 'value' };
 
   test("Reports allowlisted mutable const usage for tracking", () => {
     const { allowed } = mutableConstAnalysis();
-    console.log(`\n  Allowlisted mutable const usages: ${allowed.length}`);
-    if (allowed.length > 0) {
-      console.log("  Locations:");
-      for (const loc of allowed) {
-        console.log(`    - ${loc.location} (${loc.reason})`);
-      }
-    }
+    logAllowedItems(allowed, "Allowlisted mutable const usages", true);
     expect(true).toBe(true);
   });
 

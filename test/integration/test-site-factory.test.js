@@ -15,6 +15,13 @@ const minimalPage = () => ({
   content: "Home",
 });
 
+/** Basic test page file with common defaults */
+const testPage = (options = {}) => ({
+  path: options.path || "pages/test.md",
+  frontmatter: { title: options.title || "Test", ...options.frontmatter },
+  content: options.content || "Test",
+});
+
 describe("test-site-factory", () => {
   // Clean up any leftover test sites before and after all tests
   afterAll(() => {
@@ -186,15 +193,7 @@ describe("test-site-factory", () => {
 
     test("hasOutput returns false for non-existing files", async () => {
       await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: { title: "Test" },
-              content: "Test",
-            },
-          ],
-        },
+        { files: [testPage()] },
         (site) => {
           expect(site.hasOutput("nonexistent/file.html")).toBe(false);
         },
@@ -277,15 +276,7 @@ describe("test-site-factory", () => {
 
     test("getOutput throws error when file does not exist", async () => {
       await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: { title: "Test" },
-              content: "Test",
-            },
-          ],
-        },
+        { files: [testPage()] },
         (site) => {
           expect(() => {
             site.getOutput("nonexistent/file.html");
@@ -298,13 +289,7 @@ describe("test-site-factory", () => {
   describe("build error handling", () => {
     test("build throws error with stderr when Eleventy build fails", async () => {
       const site = await createTestSite({
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
+        files: [testPage()],
       });
 
       try {

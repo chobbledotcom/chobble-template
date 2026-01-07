@@ -956,4 +956,16 @@ const QUOTE_STEPS = [
 
 const QUOTE_STEPS_JSON = JSON.stringify(QUOTE_STEPS);
 
-export { QUOTE_STEPS, QUOTE_STEPS_JSON };
+// Helper to log allowed items with optional reason field
+const logAllowedItems = (items, label, showReason = false) => {
+  console.log(`\n  ${label}: ${items.length}`);
+  if (items.length > 0) {
+    console.log("  Locations:");
+    for (const item of items) {
+      const reason = showReason && item.reason ? ` (${item.reason})` : "";
+      console.log(`    - ${item.location}${reason}`);
+    }
+  }
+};
+
+export { QUOTE_STEPS, QUOTE_STEPS_JSON, logAllowedItems };
