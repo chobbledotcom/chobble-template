@@ -72,7 +72,7 @@ export function extractErrorsFromOutput(output) {
       trimmed.includes("FAIL") ||
       trimmed.toLowerCase().includes("fail") ||
       trimmed.includes("below threshold") ||
-      // Coverage-specific errors from run-coverage.js
+      // Coverage-related errors
       trimmed.includes("Uncovered") ||
       trimmed.includes("must have test coverage");
 
