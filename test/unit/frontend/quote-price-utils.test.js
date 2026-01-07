@@ -1,7 +1,11 @@
 // Quote price utilities tests
 // Tests the field details collection and display functions
+// Uses actual Liquid templates to ensure tests match production
 
 import { describe, expect, mock, test } from "bun:test";
+import fs from "node:fs";
+import path from "node:path";
+import { Liquid } from "liquidjs";
 import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 import {
   calculateTotal,
@@ -18,6 +22,24 @@ import {
   setupDetailsBlurHandlers,
   updateQuotePrice,
 } from "#public/utils/quote-price-utils.js";
+import { IDS } from "#public/utils/selectors.js";
+import { rootDir } from "#test/test-utils.js";
+
+// Set up Liquid engine to render actual templates
+const liquid = new Liquid({
+  root: [path.join(rootDir, "src/_includes")],
+  extname: ".html",
+});
+
+// Render the actual quote-price template with selectors
+const renderQuotePriceTemplates = async () => {
+  const templatePath = path.join(
+    rootDir,
+    "src/_includes/templates/quote-price.html",
+  );
+  const template = fs.readFileSync(templatePath, "utf-8");
+  return liquid.parseAndRender(template, { selectors: { IDS } });
+};
 
 describe("quote-price-utils", () => {
   // ----------------------------------------
@@ -207,34 +229,14 @@ describe("quote-price-utils", () => {
   // updateQuotePrice Tests (with DOM)
   // ----------------------------------------
   describe("updateQuotePrice", () => {
-    const setupFullDOM = (cart = [], formFields = "") => {
+    // Use actual production templates to ensure tests match real behavior
+    const setupFullDOM = async (cart = [], formFields = "") => {
+      const templates = await renderQuotePriceTemplates();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
       document.body.innerHTML = `
         <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email"}</script>
 
-        <template id="quote-price-template">
-          <div class="quote-price">
-            <span data-field="item-count"></span>
-            <span data-field="hire-length"></span>
-            <span data-field="total"></span>
-            <div data-field="items"></div>
-            <div data-field="details"></div>
-          </div>
-        </template>
-
-        <template id="quote-price-item-template">
-          <div class="quote-price-item">
-            <span data-field="name"></span>
-            <span data-field="price"></span>
-          </div>
-        </template>
-
-        <template id="quote-price-detail-template">
-          <div class="quote-price-detail">
-            <span data-field="key"></span>
-            <span data-field="value"></span>
-          </div>
-        </template>
+        ${templates}
 
         <div id="quote-price-container"></div>
 
@@ -249,15 +251,15 @@ describe("quote-price-utils", () => {
       expect(() => updateQuotePrice()).not.toThrow();
     });
 
-    test("hides container when cart is empty", () => {
-      setupFullDOM([]);
+    test("hides container when cart is empty", async () => {
+      await setupFullDOM([]);
       updateQuotePrice();
       const container = document.getElementById("quote-price-container");
       expect(container.style.display).toBe("none");
       expect(container.innerHTML).toBe("");
     });
 
-    test("renders cart items with prices", () => {
+    test("renders cart items with prices", async () => {
       const cart = [
         {
           item_name: "Bouncy Castle",
@@ -272,13 +274,14 @@ describe("quote-price-utils", () => {
           quantity: 2,
         },
       ];
-      setupFullDOM(cart);
+      await setupFullDOM(cart);
       updateQuotePrice(1);
 
       const container = document.getElementById("quote-price-container");
       expect(container.style.display).toBe("block");
 
-      const items = container.querySelectorAll(".quote-price-item");
+      // Template uses <li> elements for items
+      const items = container.querySelectorAll('[data-field="items"] > li');
       expect(items).toHaveLength(2);
 
       const firstItemName = items[0].querySelector('[data-field="name"]');
@@ -288,7 +291,7 @@ describe("quote-price-utils", () => {
       expect(secondItemName.textContent).toBe("Slide (×2)");
     });
 
-    test("displays total price when all prices available", () => {
+    test("displays total price when all prices available", async () => {
       const cart = [
         {
           item_name: "Item A",
@@ -303,14 +306,14 @@ describe("quote-price-utils", () => {
           quantity: 1,
         },
       ];
-      setupFullDOM(cart);
+      await setupFullDOM(cart);
       updateQuotePrice(1);
 
       const total = document.querySelector('[data-field="total"]');
       expect(total.textContent).toBe("£50.00");
     });
 
-    test("displays TBC for total when price unavailable", () => {
+    test("displays TBC for total when price unavailable", async () => {
       const cart = [
         {
           item_name: "Item",
@@ -319,19 +322,20 @@ describe("quote-price-utils", () => {
           quantity: 1,
         },
       ];
-      setupFullDOM(cart);
+      await setupFullDOM(cart);
       updateQuotePrice(5); // No price for 5 days
 
       const total = document.querySelector('[data-field="total"]');
       expect(total.textContent).toBe("TBC");
 
+      // Template uses <li> elements, not .quote-price-item class
       const itemPrice = document.querySelector(
-        '.quote-price-item [data-field="price"]',
+        '[data-field="items"] > li [data-field="price"]',
       );
       expect(itemPrice.textContent).toBe("TBC");
     });
 
-    test("displays item count and hire length", () => {
+    test("displays item count and hire length", async () => {
       const cart = [
         {
           item_name: "Item A",
@@ -346,7 +350,7 @@ describe("quote-price-utils", () => {
           quantity: 1,
         },
       ];
-      setupFullDOM(cart);
+      await setupFullDOM(cart);
       updateQuotePrice(3);
 
       const itemCount = document.querySelector('[data-field="item-count"]');
@@ -356,7 +360,7 @@ describe("quote-price-utils", () => {
       expect(hireLength.textContent).toBe("3 days");
     });
 
-    test("renders field details from form", () => {
+    test("renders field details from form", async () => {
       const cart = [
         { item_name: "Item", product_mode: "buy", unit_price: 10, quantity: 1 },
       ];
@@ -364,10 +368,11 @@ describe("quote-price-utils", () => {
         <input id="name" name="name" type="text" value="John Doe" />
         <input id="email" name="email" type="email" value="john@example.com" />
       `;
-      setupFullDOM(cart, formFields);
+      await setupFullDOM(cart, formFields);
       updateQuotePrice(1);
 
-      const details = document.querySelectorAll(".quote-price-detail");
+      // Template uses <li> elements for details
+      const details = document.querySelectorAll('[data-field="details"] > li');
       expect(details).toHaveLength(2);
 
       const firstKey = details[0].querySelector('[data-field="key"]');
@@ -377,7 +382,7 @@ describe("quote-price-utils", () => {
       expect(firstValue.textContent).toBe("John Doe");
     });
 
-    test("handles non-hire items correctly", () => {
+    test("handles non-hire items correctly", async () => {
       const cart = [
         {
           item_name: "Purchase Item",
@@ -386,11 +391,11 @@ describe("quote-price-utils", () => {
           quantity: 3,
         },
       ];
-      setupFullDOM(cart);
+      await setupFullDOM(cart);
       updateQuotePrice(1);
 
       const itemPrice = document.querySelector(
-        '.quote-price-item [data-field="price"]',
+        '[data-field="items"] > li [data-field="price"]',
       );
       expect(itemPrice.textContent).toBe("£75.00");
 
@@ -398,37 +403,16 @@ describe("quote-price-utils", () => {
       expect(total.textContent).toBe("£75.00");
     });
 
-    test("uses quote-steps container for field details when available", () => {
+    test("uses quote-steps container for field details when available", async () => {
       const cart = [
         { item_name: "Item", product_mode: "buy", unit_price: 10, quantity: 1 },
       ];
+      const templates = await renderQuotePriceTemplates();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
       document.body.innerHTML = `
         <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
 
-        <template id="quote-price-template">
-          <div class="quote-price">
-            <span data-field="item-count"></span>
-            <span data-field="hire-length"></span>
-            <span data-field="total"></span>
-            <div data-field="items"></div>
-            <div data-field="details"></div>
-          </div>
-        </template>
-
-        <template id="quote-price-item-template">
-          <div class="quote-price-item">
-            <span data-field="name"></span>
-            <span data-field="price"></span>
-          </div>
-        </template>
-
-        <template id="quote-price-detail-template">
-          <div class="quote-price-detail">
-            <span data-field="key"></span>
-            <span data-field="value"></span>
-          </div>
-        </template>
+        ${templates}
 
         <div id="quote-price-container"></div>
 
@@ -442,7 +426,8 @@ describe("quote-price-utils", () => {
       `;
       updateQuotePrice(1);
 
-      const detail = document.querySelector(".quote-price-detail");
+      // Template uses <li> elements for details
+      const detail = document.querySelector('[data-field="details"] > li');
       const value = detail.querySelector('[data-field="value"]');
       expect(value.textContent).toBe("Quote Steps Name");
     });
