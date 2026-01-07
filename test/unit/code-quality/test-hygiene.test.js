@@ -36,6 +36,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createSchemaData",
   // quote-steps.test.js - test fixture factory
   "createQuoteStepsHtml",
+  // quote-price-utils.test.js - DOM setup and template rendering
+  "setupFullDOM",
+  "setupBlurTestDOM",
+  "renderQuotePriceTemplates",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
