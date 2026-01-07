@@ -11,6 +11,19 @@ import {
 } from "#test/test-utils.js";
 
 /**
+ * Curried assertion: check if any log contains the given message.
+ * @param {string} message - Message to search for in logs
+ * @returns {function} (logs) => void - Assertion function
+ */
+const expectLogContains = (message) => (logs) =>
+  expect(logs.some((log) => log.includes(message))).toBe(true);
+
+/** Common assertion: all images are used */
+const expectAllImagesUsed = expectLogContains(
+  "All images in /src/images/ are being used",
+);
+
+/**
  * Helper to run unused images test with common setup/teardown.
  * @param {string} testName - Name for temp directory
  * @param {function} setup - Function(tempDir, imagesDir) to set up files
@@ -96,13 +109,7 @@ describe("unused-images", () => {
           "![Banner](images/banner.png)",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -154,13 +161,7 @@ describe("unused-images", () => {
           "![Image](/images/nested-ref.jpg)",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -174,13 +175,7 @@ describe("unused-images", () => {
           "Some text with direct-ref.png in it",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -202,13 +197,7 @@ describe("unused-images", () => {
           "![Shared](images/shared.jpg)",
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -240,13 +229,7 @@ describe("unused-images", () => {
           ),
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -260,13 +243,7 @@ describe("unused-images", () => {
           createFrontmatter({ image: "profile.png" }, "# Team member"),
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 
@@ -280,13 +257,7 @@ describe("unused-images", () => {
           createFrontmatter({ thumbnail: "/images/thumb.webp" }, "# Blog post"),
         );
       },
-      (logs) => {
-        expect(
-          logs.some((log) =>
-            log.includes("All images in /src/images/ are being used"),
-          ),
-        ).toBe(true);
-      },
+      expectAllImagesUsed,
     );
   });
 

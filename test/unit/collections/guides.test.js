@@ -5,13 +5,18 @@ import {
   expectResultTitles,
 } from "#test/test-utils.js";
 
+/** Create a guide page with title and category */
+const guide = (title, category) => ({
+  data: { title, ...(category && { "guide-category": category }) },
+});
+
 describe("guides", () => {
   test("Filters guide pages by category slug", () => {
     const guidePages = [
-      { data: { title: "Guide 1", "guide-category": "getting-started" } },
-      { data: { title: "Guide 2", "guide-category": "advanced" } },
-      { data: { title: "Guide 3", "guide-category": "getting-started" } },
-      { data: { title: "Guide 4", "guide-category": "tips" } },
+      guide("Guide 1", "getting-started"),
+      guide("Guide 2", "advanced"),
+      guide("Guide 3", "getting-started"),
+      guide("Guide 4", "tips"),
     ];
 
     const result = guidesByCategory(guidePages, "getting-started");
@@ -21,9 +26,9 @@ describe("guides", () => {
 
   test("Returns single guide when only one matches", () => {
     const guidePages = [
-      { data: { title: "Guide 1", "guide-category": "getting-started" } },
-      { data: { title: "Guide 2", "guide-category": "advanced" } },
-      { data: { title: "Guide 3", "guide-category": "tips" } },
+      guide("Guide 1", "getting-started"),
+      guide("Guide 2", "advanced"),
+      guide("Guide 3", "tips"),
     ];
 
     const result = guidesByCategory(guidePages, "advanced");
@@ -33,8 +38,8 @@ describe("guides", () => {
 
   test("Returns empty array when no guides match category", () => {
     const guidePages = [
-      { data: { title: "Guide 1", "guide-category": "getting-started" } },
-      { data: { title: "Guide 2", "guide-category": "advanced" } },
+      guide("Guide 1", "getting-started"),
+      guide("Guide 2", "advanced"),
     ];
 
     const result = guidesByCategory(guidePages, "nonexistent");
@@ -48,9 +53,7 @@ describe("guides", () => {
   });
 
   test("Handles null/undefined category slug", () => {
-    const guidePages = [
-      { data: { title: "Guide 1", "guide-category": "getting-started" } },
-    ];
+    const guidePages = [guide("Guide 1", "getting-started")];
 
     expect(guidesByCategory(guidePages, null)).toEqual([]);
     expect(guidesByCategory(guidePages, undefined)).toEqual([]);
@@ -64,9 +67,9 @@ describe("guides", () => {
 
   test("Skips guides without guide-category field", () => {
     const guidePages = [
-      { data: { title: "Guide 1", "guide-category": "getting-started" } },
-      { data: { title: "Guide 2" } },
-      { data: { title: "Guide 3", "guide-category": "getting-started" } },
+      guide("Guide 1", "getting-started"),
+      guide("Guide 2"), // no category
+      guide("Guide 3", "getting-started"),
     ];
 
     const result = guidesByCategory(guidePages, "getting-started");
@@ -76,8 +79,8 @@ describe("guides", () => {
 
   test("Category matching is case-sensitive", () => {
     const guidePages = [
-      { data: { title: "Guide 1", "guide-category": "Getting-Started" } },
-      { data: { title: "Guide 2", "guide-category": "getting-started" } },
+      guide("Guide 1", "Getting-Started"),
+      guide("Guide 2", "getting-started"),
     ];
 
     const result = guidesByCategory(guidePages, "getting-started");
@@ -87,8 +90,8 @@ describe("guides", () => {
 
   test("Does not modify input array", () => {
     const originalPages = [
-      { data: { title: "Guide 1", "guide-category": "getting-started" } },
-      { data: { title: "Guide 2", "guide-category": "advanced" } },
+      guide("Guide 1", "getting-started"),
+      guide("Guide 2", "advanced"),
     ];
 
     const pagesCopy = structuredClone(originalPages);
