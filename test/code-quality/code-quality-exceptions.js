@@ -45,7 +45,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/integration/test-site-factory.test.js:346",
+  "test/integration/test-site-factory.test.js:325",
 
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
@@ -260,8 +260,8 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
-  "test/integration/test-site-factory.test.js:108", // imageExists (file may not exist)
-  "test/integration/test-site-factory.test.js:131", // imageExists (cleanup check)
+  "test/integration/test-site-factory.test.js:115", // imageExists (file may not exist)
+  "test/integration/test-site-factory.test.js:138", // imageExists (cleanup check)
   "test/precommit.js:56", // trimmed (line processing)
   "test/precommit.js:140", // result (skip if step wasn't run)
   "test/precommit.js:187", // allPassed (check if all steps passed)

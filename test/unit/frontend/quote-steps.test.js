@@ -326,13 +326,41 @@ describe("quote-steps", () => {
   });
 
   const updateButtonsCases = [
-    { name: "hides prev on first step", step: 0, total: 3, prev: "none", next: "", submit: "none" },
-    { name: "shows both nav on middle step", step: 1, total: 3, prev: "", next: "", submit: "none" },
-    { name: "shows submit on last step", step: 2, total: 3, prev: "", next: "none", submit: "" },
-    { name: "handles single step form", step: 0, total: 1, prev: "none", next: "none", submit: "" },
+    {
+      name: "hides prev on first step",
+      step: 0,
+      total: 3,
+      prev: "none",
+      next: "",
+      submit: "none",
+    },
+    {
+      name: "shows both nav on middle step",
+      step: 1,
+      total: 3,
+      prev: "",
+      next: "",
+      submit: "none",
+    },
+    {
+      name: "shows submit on last step",
+      step: 2,
+      total: 3,
+      prev: "",
+      next: "none",
+      submit: "",
+    },
+    {
+      name: "handles single step form",
+      step: 0,
+      total: 1,
+      prev: "none",
+      next: "none",
+      submit: "",
+    },
   ];
 
-  updateButtonsCases.forEach(({ name, step, total, prev, next, submit }) => {
+  for (const { name, step, total, prev, next, submit } of updateButtonsCases) {
     test(`updateButtons ${name}`, () => {
       const btns = createMockButtons();
       updateButtons(btns.prev, btns.next, btns.submit, step, total);
@@ -340,7 +368,7 @@ describe("quote-steps", () => {
       expect(btns.next.style.display).toBe(next);
       expect(btns.submit.style.display).toBe(submit);
     });
-  });
+  }
 
   // ----------------------------------------
   // getFieldDisplayValue Tests

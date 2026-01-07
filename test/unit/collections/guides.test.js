@@ -11,7 +11,8 @@ const guide = (title, category) => ({
 });
 
 /** Create multiple guides from [title, category] pairs */
-const guides = (pairs) => pairs.map(([title, category]) => guide(title, category));
+const guides = (pairs) =>
+  pairs.map(([title, category]) => guide(title, category));
 
 describe("guides", () => {
   test("Filters guide pages by category slug", () => {

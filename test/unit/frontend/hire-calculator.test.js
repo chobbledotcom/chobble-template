@@ -25,21 +25,18 @@ const withMockStorage = (fn) => {
 /** Get today's date in YYYY-MM-DD format */
 const getToday = () => new Date().toISOString().split("T")[0];
 
-/** Create hire calculator DOM with optional date values */
-const createHireDatesHtml = ({ start = "", end = "", days = "" } = {}) => `
-  <input type="date" name="start_date" value="${start}" />
-  <input type="date" name="end_date" value="${end}" />
-  <input type="hidden" id="hire_days" value="${days}" />
-`;
-
 /** Set up test with hire item in cart and hire date inputs */
-const withHireTestSetup = (dates, fn) =>
+const withHireTestSetup = ({ start = "", end = "", days = "" } = {}, fn) =>
   withMockStorage((storage) => {
     storage.setItem(
       STORAGE_KEY,
       JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
     );
-    document.body.innerHTML = createHireDatesHtml(dates);
+    document.body.innerHTML = `
+      <input type="date" name="start_date" value="${start}" />
+      <input type="date" name="end_date" value="${end}" />
+      <input type="hidden" id="hire_days" value="${days}" />
+    `;
     return fn({ storage });
   });
 
@@ -257,15 +254,18 @@ describe("hire-calculator", () => {
   });
 
   test("initHireCalculator calls callback with 1 when dates incomplete", () => {
-    withHireTestSetup({ start: "2025-01-15", end: "2025-01-17", days: "3" }, () => {
-      const { endInput, daysInput, getCallbackDays } = initHireWithCallback();
+    withHireTestSetup(
+      { start: "2025-01-15", end: "2025-01-17", days: "3" },
+      () => {
+        const { endInput, daysInput, getCallbackDays } = initHireWithCallback();
 
-      // Clear end date
-      endInput.value = "";
-      endInput.dispatchEvent(new Event("change"));
+        // Clear end date
+        endInput.value = "";
+        endInput.dispatchEvent(new Event("change"));
 
-      expect(daysInput.value).toBe("");
-      expect(getCallbackDays()).toBe(1);
-    });
+        expect(daysInput.value).toBe("");
+        expect(getCallbackDays()).toBe(1);
+      },
+    );
   });
 });
