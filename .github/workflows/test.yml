@@ -48,21 +48,22 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          git checkout -B coverage-ratchet
+          BRANCH_NAME="chore/ratchet-coverage-exceptions"
+          git checkout -B "$BRANCH_NAME"
           git add .coverage_exceptions.json
           git commit -m "Ratchet down coverage exceptions"
-          git push --force origin coverage-ratchet
+          git push --force origin "$BRANCH_NAME"
 
-          existing_pr=$(gh pr list --head coverage-ratchet --state open --json number --jq '.[0].number')
+          existing_pr=$(gh pr list --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')
 
           if [ -z "$existing_pr" ]; then
             gh pr create \
               --title "Ratchet down coverage exceptions" \
               --body "Automated PR to ratchet down coverage exceptions." \
-              --head coverage-ratchet \
+              --head "$BRANCH_NAME" \
               --base main
           else
             echo "PR #$existing_pr already exists and has been updated"
           fi
 
-          gh pr merge coverage-ratchet --auto --squash --delete-branch
+          gh pr merge "$BRANCH_NAME" --auto --squash --delete-branch
