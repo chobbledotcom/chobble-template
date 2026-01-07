@@ -2,7 +2,6 @@
 // Tests the production quote-steps.js functions directly
 
 import { describe, expect, mock, test } from "bun:test";
-import { QUOTE_STEPS_JSON } from "#test/test-utils.js";
 import {
   buildFieldRecapItem,
   buildRadioRecapItem,
@@ -22,6 +21,7 @@ import {
   validateRadioGroup,
   validateStep,
 } from "#public/cart/quote-steps.js";
+import { QUOTE_STEPS_JSON } from "#test/test-utils.js";
 
 describe("quote-steps", () => {
   // ----------------------------------------

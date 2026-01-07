@@ -7,7 +7,7 @@ import {
   createCodeChecker,
   expectNoStaleExceptions,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES, logAllowedItems } from "#test/test-utils.js";
+import { logAllowedItems, SRC_JS_FILES } from "#test/test-utils.js";
 
 // Pattern to detect obj[key] = value - object mutation via bracket notation
 // Matches: result[slug] = value, acc[key] = data, obj["prop"] = x

@@ -1,12 +1,12 @@
 // Tests for quote-steps-progress.js
 
 import { describe, expect, test } from "bun:test";
-import { QUOTE_STEPS } from "#test/test-utils.js";
 import {
   initStandaloneProgress,
   renderStepProgress,
   updateStepProgress,
 } from "#public/ui/quote-steps-progress.js";
+import { QUOTE_STEPS } from "#test/test-utils.js";
 
 describe("quote-steps-progress", () => {
   const steps = QUOTE_STEPS;
@@ -21,9 +21,7 @@ describe("quote-steps-progress", () => {
   // Helper to test indicator completion/active states
   const testIndicatorStates = (completedCount, expectedAriaStep) => {
     const indicators = [...document.querySelectorAll("li")];
-    expect(
-      indicators.map((el) => el.classList.contains("completed")),
-    ).toEqual(
+    expect(indicators.map((el) => el.classList.contains("completed"))).toEqual(
       Array.from({ length: 4 }, (_, i) => i < completedCount),
     );
     expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual(

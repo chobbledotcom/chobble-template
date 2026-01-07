@@ -79,9 +79,7 @@ const createProductReviews = (productId, ratingSpecs) =>
  * Create paired reviews and products for truncate limit testing.
  * Returns { reviews, products } pair.
  */
-const createTruncatePair = (
-  productSpecs,
-) => ({
+const createTruncatePair = (productSpecs) => ({
   reviews: productSpecs.flatMap(({ slug, count, rating, monthPrefix }) =>
     itemsFor(slug, count, rating, monthPrefix),
   ),
@@ -216,7 +214,9 @@ describe("reviews", () => {
     const productReviews = createProductReviews("product-a", [5, 3]);
     const testReviews = [
       ...productReviews,
-      ...items([["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }]]),
+      ...items([
+        ["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }],
+      ]),
     ];
 
     expect(getRating(testReviews, "product-a", "products")).toBe(4);
