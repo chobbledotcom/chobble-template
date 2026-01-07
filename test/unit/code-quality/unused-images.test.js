@@ -6,15 +6,17 @@ import {
   createFrontmatter,
   createMockEleventyConfig,
   createTempDir,
-  expectLogContains,
   fs,
   path,
 } from "#test/test-utils.js";
 
-/** Common assertion: all images are used */
-const expectAllImagesUsed = expectLogContains(
-  "All images in /src/images/ are being used",
-);
+/** Assert all images are used */
+const expectAllImagesUsed = (logs) =>
+  expect(
+    logs.some((log) =>
+      log.includes("All images in /src/images/ are being used"),
+    ),
+  ).toBe(true);
 
 /** Run eleventy.after handler and capture logs */
 const runEleventyAfter = async (tempDir) => {
