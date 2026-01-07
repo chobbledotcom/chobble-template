@@ -10,14 +10,17 @@ const guide = (title, category) => ({
   data: { title, ...(category && { "guide-category": category }) },
 });
 
+/** Create multiple guides from [title, category] pairs */
+const guides = (pairs) => pairs.map(([title, category]) => guide(title, category));
+
 describe("guides", () => {
   test("Filters guide pages by category slug", () => {
-    const guidePages = [
-      guide("Guide 1", "getting-started"),
-      guide("Guide 2", "advanced"),
-      guide("Guide 3", "getting-started"),
-      guide("Guide 4", "tips"),
-    ];
+    const guidePages = guides([
+      ["Guide 1", "getting-started"],
+      ["Guide 2", "advanced"],
+      ["Guide 3", "getting-started"],
+      ["Guide 4", "tips"],
+    ]);
 
     const result = guidesByCategory(guidePages, "getting-started");
 
@@ -25,11 +28,11 @@ describe("guides", () => {
   });
 
   test("Returns single guide when only one matches", () => {
-    const guidePages = [
-      guide("Guide 1", "getting-started"),
-      guide("Guide 2", "advanced"),
-      guide("Guide 3", "tips"),
-    ];
+    const guidePages = guides([
+      ["Guide 1", "getting-started"],
+      ["Guide 2", "advanced"],
+      ["Guide 3", "tips"],
+    ]);
 
     const result = guidesByCategory(guidePages, "advanced");
 
@@ -37,10 +40,10 @@ describe("guides", () => {
   });
 
   test("Returns empty array when no guides match category", () => {
-    const guidePages = [
-      guide("Guide 1", "getting-started"),
-      guide("Guide 2", "advanced"),
-    ];
+    const guidePages = guides([
+      ["Guide 1", "getting-started"],
+      ["Guide 2", "advanced"],
+    ]);
 
     const result = guidesByCategory(guidePages, "nonexistent");
 
@@ -53,7 +56,7 @@ describe("guides", () => {
   });
 
   test("Handles null/undefined category slug", () => {
-    const guidePages = [guide("Guide 1", "getting-started")];
+    const guidePages = guides([["Guide 1", "getting-started"]]);
 
     expect(guidesByCategory(guidePages, null)).toEqual([]);
     expect(guidesByCategory(guidePages, undefined)).toEqual([]);
@@ -66,11 +69,11 @@ describe("guides", () => {
   });
 
   test("Skips guides without guide-category field", () => {
-    const guidePages = [
-      guide("Guide 1", "getting-started"),
-      guide("Guide 2"), // no category
-      guide("Guide 3", "getting-started"),
-    ];
+    const guidePages = guides([
+      ["Guide 1", "getting-started"],
+      ["Guide 2"], // no category
+      ["Guide 3", "getting-started"],
+    ]);
 
     const result = guidesByCategory(guidePages, "getting-started");
 
@@ -78,10 +81,10 @@ describe("guides", () => {
   });
 
   test("Category matching is case-sensitive", () => {
-    const guidePages = [
-      guide("Guide 1", "Getting-Started"),
-      guide("Guide 2", "getting-started"),
-    ];
+    const guidePages = guides([
+      ["Guide 1", "Getting-Started"],
+      ["Guide 2", "getting-started"],
+    ]);
 
     const result = guidesByCategory(guidePages, "getting-started");
 
@@ -89,10 +92,10 @@ describe("guides", () => {
   });
 
   test("Does not modify input array", () => {
-    const originalPages = [
-      guide("Guide 1", "getting-started"),
-      guide("Guide 2", "advanced"),
-    ];
+    const originalPages = guides([
+      ["Guide 1", "getting-started"],
+      ["Guide 2", "advanced"],
+    ]);
 
     const pagesCopy = structuredClone(originalPages);
 

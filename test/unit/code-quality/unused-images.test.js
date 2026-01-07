@@ -6,17 +6,10 @@ import {
   createFrontmatter,
   createMockEleventyConfig,
   createTempDir,
+  expectLogContains,
   fs,
   path,
 } from "#test/test-utils.js";
-
-/**
- * Curried assertion: check if any log contains the given message.
- * @param {string} message - Message to search for in logs
- * @returns {function} (logs) => void - Assertion function
- */
-const expectLogContains = (message) => (logs) =>
-  expect(logs.some((log) => log.includes(message))).toBe(true);
 
 /** Common assertion: all images are used */
 const expectAllImagesUsed = expectLogContains(

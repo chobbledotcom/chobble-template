@@ -365,6 +365,25 @@ const expectEventCounts = (result, { upcoming = 0, past = 0, regular = 0 }) => {
   expect(result.regular.length).toBe(regular);
 };
 
+/**
+ * Curried assertion: check if any log line contains the given message.
+ * Useful with captureConsoleLogAsync for testing console output.
+ *
+ * @param {string} message - Message to search for in logs
+ * @returns {function} (logs) => void - Assertion function
+ *
+ * @example
+ * const logs = await captureConsoleLogAsync(async () => { ... });
+ * expectLogContains("Success")(logs);
+ *
+ * @example
+ * // Pre-apply for reusable assertions
+ * const expectAllUsed = expectLogContains("All images are used");
+ * expectAllUsed(logs);
+ */
+const expectLogContains = (message) => (logs) =>
+  expect(logs.some((log) => log.includes(message))).toBe(true);
+
 // ============================================
 // Test Fixture Factories
 // ============================================
@@ -921,6 +940,7 @@ export {
   expectDataArray,
   expectGalleries,
   expectEventCounts,
+  expectLogContains,
   // Generic item builder
   item,
   items,
