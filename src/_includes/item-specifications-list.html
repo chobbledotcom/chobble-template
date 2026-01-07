@@ -1,6 +1,11 @@
-{%- if specs -%}
+{%- if highlights -%}
+  {%- assign specs_to_show = highlighted_specs -%}
+{%- else -%}
+  {%- assign specs_to_show = specs -%}
+{%- endif -%}
+{%- if specs_to_show -%}
   <dl>
-    {%- for spec in specs -%}
+    {%- for spec in specs_to_show -%}
       <div>
         {%- if spec.icon -%}<span aria-hidden="true">{{- spec.icon -}}</span>{%- endif -%}
         <dt>{{ spec.name }}</dt>
