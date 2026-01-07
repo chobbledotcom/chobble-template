@@ -204,6 +204,14 @@ describe("code-scanner", () => {
   });
 
   describe("validateExceptions", () => {
+    // Helper to validate single stale exception
+    const testStaleException = (allowlist, patterns, expectedEntry, expectedReasonPattern) => {
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe(expectedEntry);
+      expect(stale[0].reason).toMatch(expectedReasonPattern);
+    };
+
     test("returns empty array when all exceptions are valid", () => {
       const allowlist = new Set([
         "test/code-scanner.js:5", // import statement
@@ -227,23 +235,21 @@ describe("code-scanner", () => {
     });
 
     test("detects when line number exceeds file length", () => {
-      const allowlist = new Set(["test/code-scanner.js:999999"]);
-      const patterns = /./;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("test/code-scanner.js:999999");
-      expect(stale[0].reason).toMatch(/Line 999999 doesn't exist/);
+      testStaleException(
+        new Set(["test/code-scanner.js:999999"]),
+        /./,
+        "test/code-scanner.js:999999",
+        /Line 999999 doesn't exist/,
+      );
     });
 
     test("detects when line number is less than 1", () => {
-      const allowlist = new Set(["test/code-scanner.js:0"]);
-      const patterns = /./;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("test/code-scanner.js:0");
-      expect(stale[0].reason).toMatch(/Line 0 doesn't exist/);
+      testStaleException(
+        new Set(["test/code-scanner.js:0"]),
+        /./,
+        "test/code-scanner.js:0",
+        /Line 0 doesn't exist/,
+      );
     });
 
     test("detects when line no longer matches pattern", () => {
@@ -265,13 +271,12 @@ describe("code-scanner", () => {
     });
 
     test("detects when file does not exist", () => {
-      const allowlist = new Set(["non-existent-file.js:10"]);
-      const patterns = /./;
-
-      const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(1);
-      expect(stale[0].entry).toBe("non-existent-file.js:10");
-      expect(stale[0].reason).toBe("File not found: non-existent-file.js");
+      testStaleException(
+        new Set(["non-existent-file.js:10"]),
+        /./,
+        "non-existent-file.js:10",
+        /File not found: non-existent-file\.js/,
+      );
     });
 
     test("detects multiple stale entries", () => {
