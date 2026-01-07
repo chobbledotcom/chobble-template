@@ -227,7 +227,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/theme/theme-editor.js:384", // borderOutput
   "src/_lib/public/cart/cart.js:136", // cartItems
   "src/_lib/public/ui/shuffle-properties.js:13", // itemsList
-  "src/_lib/public/cart/quote.js:49", // container
+  "src/_lib/public/cart/quote.js:56", // container
   "src/_lib/public/ui/gallery.js:20", // imageLink
   "src/_lib/public/ui/gallery.js:30", // fullImage
   "src/_lib/public/ui/gallery.js:45", // imageWrapper
