@@ -1,12 +1,11 @@
 {%- assign mode = product_mode | default: config.product_mode -%}
 {%- if config.cart_mode and cart_attributes -%}
-{%- if mode == "hire" -%}
 <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
+{%- if mode == "hire" -%}
 <button class="add-to-cart" data-item="{{ cart_attributes }}">
   Add to Quote - from £{{ options.first.unit_price }}
 </button>
 {%- elsif options.size == 1 -%}
-<noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
 <button class="add-to-cart" data-item="{{ cart_attributes }}">
   Add to Cart - £{{ options.first.unit_price }}
 </button>

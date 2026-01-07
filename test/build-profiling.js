@@ -49,6 +49,14 @@ const profileSingleImport = (moduleName) => {
   return Number.parseFloat(result.stdout.trim());
 };
 
+const profileScript = (script, nodeArgs, spawnArgs) => {
+  const start = hrtime();
+  const result = spawnSync("node", [...nodeArgs, "-e", script], spawnArgs);
+  const totalTime = hrtimeToMs(start, hrtime());
+  const loadTime = Number.parseFloat(result.stdout.trim());
+  return { loadTime, totalTime };
+};
+
 (async () => {
   console.log("=".repeat(60));
   console.log("Build Time Profiling for Minimal Test Site");
@@ -76,24 +84,15 @@ const profileSingleImport = (moduleName) => {
 
   // 3. Config loading profiling
   console.log("--- Config Loading ---");
-  const profileConfigLoad = (siteDir) => {
-    const script = `
-      const start = process.hrtime.bigint();
-      await import("./.eleventy.js");
-      console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
-    `;
-
-    const start = hrtime();
-    const result = spawnSync("node", ["--input-type=module", "-e", script], {
-      cwd: siteDir,
-      encoding: "utf-8",
-    });
-    const totalTime = hrtimeToMs(start, hrtime());
-    const loadTime = Number.parseFloat(result.stdout.trim());
-
-    return { loadTime, totalTime };
-  };
-  const configLoad = profileConfigLoad(site.dir);
+  const configScript = `
+    const start = process.hrtime.bigint();
+    await import("./.eleventy.js");
+    console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
+  `;
+  const configLoad = profileScript(configScript, ["--input-type=module"], {
+    cwd: site.dir,
+    encoding: "utf-8",
+  });
   console.log(
     `Config import time:         ${configLoad.loadTime.toFixed(2)} ms`,
   );
@@ -104,25 +103,16 @@ const profileSingleImport = (moduleName) => {
 
   // 4. Eleventy module loading
   console.log("--- Eleventy Module Load ---");
-  const profileEleventyModuleLoad = (siteDir) => {
-    const script = `
-      const start = process.hrtime.bigint();
-      require("@11ty/eleventy");
-      console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
-    `;
-
-    const start = hrtime();
-    const result = spawnSync("node", ["-e", script], {
-      cwd: siteDir,
-      encoding: "utf-8",
-      env: { ...process.env, NODE_PATH: path.join(siteDir, "node_modules") },
-    });
-    const totalTime = hrtimeToMs(start, hrtime());
-    const loadTime = Number.parseFloat(result.stdout.trim());
-
-    return { loadTime, totalTime };
-  };
-  const eleventyLoad = profileEleventyModuleLoad(site.dir);
+  const eleventyScript = `
+    const start = process.hrtime.bigint();
+    require("@11ty/eleventy");
+    console.log(Number(process.hrtime.bigint() - start) / 1_000_000);
+  `;
+  const eleventyLoad = profileScript(eleventyScript, [], {
+    cwd: site.dir,
+    encoding: "utf-8",
+    env: { ...process.env, NODE_PATH: path.join(site.dir, "node_modules") },
+  });
   console.log(
     `Eleventy require() time:    ${eleventyLoad.loadTime.toFixed(2)} ms`,
   );

@@ -15,6 +15,12 @@ import {
 } from "#utils/array-utils.js";
 
 describe("array-utils", () => {
+  // Helper to create numbered items and capture console output
+  const testTruncatedList = (count, options) => {
+    const items = Array.from({ length: count }, (_, i) => `item ${i + 1}`);
+    return captureConsole(() => printTruncatedList(options)(items));
+  };
+
   // ============================================
   // chunk Tests
   // ============================================
@@ -323,8 +329,7 @@ describe("array-utils", () => {
   });
 
   test("printTruncatedList truncates at 10 items by default", () => {
-    const items = Array.from({ length: 15 }, (_, i) => `item ${i + 1}`);
-    const logs = captureConsole(() => printTruncatedList()(items));
+    const logs = testTruncatedList(15);
 
     expect(logs.length).toBe(11); // 10 items + "more" message
     expect(logs[0]).toBe("  item 1");
@@ -375,8 +380,7 @@ describe("array-utils", () => {
   });
 
   test("printTruncatedList handles exactly maxItems", () => {
-    const items = Array.from({ length: 10 }, (_, i) => `item ${i + 1}`);
-    const logs = captureConsole(() => printTruncatedList()(items));
+    const logs = testTruncatedList(10);
 
     expect(logs.length).toBe(10); // No "more" message
     expect(logs[9]).toBe("  item 10");

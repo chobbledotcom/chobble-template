@@ -21,6 +21,10 @@ import {
   validateRadioGroup,
   validateStep,
 } from "#public/cart/quote-steps.js";
+import {
+  createQuoteStepsHtml,
+  testNextButtonStep,
+} from "#test/unit/frontend/quote-steps-utils.js";
 
 describe("quote-steps", () => {
   // ----------------------------------------
@@ -606,43 +610,6 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // initQuoteSteps Tests (with DOM)
   // ----------------------------------------
-  const stepsData = JSON.stringify([
-    { name: "Items", number: 1 },
-    { name: "Event", number: 2 },
-    { name: "Contact", number: 3 },
-    { name: "Review", number: 4 },
-  ]);
-
-  // Template element required by renderStepProgress
-  const indicatorTemplate = `
-    <template id="quote-step-indicator-template">
-      <li><span data-name="name"></span><span data-name="index"></span></li>
-    </template>
-  `;
-
-  function createQuoteStepsHtml(options = {}) {
-    const currentStep = options.currentStep ?? 0;
-    const inputValue = options.inputValue ?? "filled";
-    const inputRequired = options.inputRequired !== false;
-    return `
-      ${indicatorTemplate}
-      <div class="quote-steps" data-current-step="${currentStep}">
-        <div class="quote-steps-progress" data-completed-steps="1"></div>
-        <script type="application/json" class="quote-steps-data">${stepsData}</script>
-        <div class="quote-step${currentStep === 0 ? " active" : ""}" data-step="0">
-          <input type="text" ${inputRequired ? "required" : ""} value="${inputValue}" />
-        </div>
-        <div class="quote-step${currentStep === 1 ? " active" : ""}" data-step="1">Step 2</div>
-        <div class="quote-step${currentStep === 2 ? " active" : ""}" data-step="2">
-          <dl id="recap-event"></dl>
-          <dl id="recap-contact"></dl>
-        </div>
-        <button class="quote-step-prev">Back</button>
-        <button class="quote-step-next">Next</button>
-        <button class="quote-step-submit">Submit</button>
-      </div>
-    `;
-  }
 
   test("initQuoteSteps does nothing if no quote-steps container", () => {
     document.body.innerHTML = "<div>No steps here</div>";
@@ -667,21 +634,11 @@ describe("quote-steps", () => {
   });
 
   test("initQuoteSteps validates before advancing to next step", () => {
-    document.body.innerHTML = createQuoteStepsHtml({ inputValue: "" });
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    nextBtn.click();
-    const container = document.querySelector(".quote-steps");
-    expect(container.dataset.currentStep).toBe("0");
+    testNextButtonStep({ inputValue: "" }, "0");
   });
 
   test("initQuoteSteps advances when validation passes", () => {
-    document.body.innerHTML = createQuoteStepsHtml();
-    initQuoteSteps();
-    const nextBtn = document.querySelector(".quote-step-next");
-    nextBtn.click();
-    const container = document.querySelector(".quote-steps");
-    expect(container.dataset.currentStep).toBe("1");
+    testNextButtonStep({}, "1");
   });
 
   test("initQuoteSteps scrolls container into view after step change", () => {

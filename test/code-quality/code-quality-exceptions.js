@@ -45,7 +45,8 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/integration/test-site-factory.test.js:325",
+  "test/integration/test-site-factory.test.js:280",
+  "test/integration/test-site-factory.test.js:295",
 
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
@@ -105,6 +106,10 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/precommit.js",
   "test/code-scanner.js",
   "test/run-coverage.js",
+  "test/unit/utils/schema-helper-utils.js",
+  "test/unit/collections/events-utils.js",
+  "test/unit/frontend/quote-steps-utils.js",
+  "test/unit/code-quality/code-quality-utils.js",
 
   // Test files - imperative accumulation patterns for test setup/assertions
   "test/unit/build/cache-buster.test.js",
@@ -260,8 +265,6 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
-  "test/integration/test-site-factory.test.js:115", // imageExists (file may not exist)
-  "test/integration/test-site-factory.test.js:138", // imageExists (cleanup check)
   "test/precommit.js:56", // trimmed (line processing)
   "test/precommit.js:140", // result (skip if step wasn't run)
   "test/precommit.js:187", // allPassed (check if all steps passed)

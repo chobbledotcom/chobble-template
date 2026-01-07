@@ -62,6 +62,54 @@ const itemsFor = (productId, count, rating = 5, monthPrefix = "01") =>
     ),
   }));
 
+/**
+ * Create review items with product association and flexible ratings.
+ * Factory function for common test patterns.
+ */
+const createProductReviews = (productId, ratingSpecs) =>
+  items(
+    ratingSpecs.map((rating, i) => [
+      `R${i + 1}`,
+      `2024-01-0${i + 1}`,
+      { products: [productId], rating },
+    ]),
+  );
+
+/**
+ * Create paired reviews and products for truncate limit testing.
+ * Returns { reviews, products } pair.
+ */
+const createTruncatePair = (productSpecs) => ({
+  reviews: productSpecs.flatMap(({ slug, count, rating, monthPrefix }) =>
+    itemsFor(slug, count, rating, monthPrefix),
+  ),
+  products: productSpecs.map(({ slug, title }) =>
+    createProduct({ slug, title }),
+  ),
+});
+
+/**
+ * Create limit test data with products above and below truncate threshold.
+ * @param {boolean} aAboveLimit - whether product-a should be above limit
+ */
+const createLimitTestData = (aAboveLimit = true) =>
+  createTruncatePair([
+    {
+      slug: "product-a",
+      title: "Product A",
+      count: aAboveLimit ? TRUNCATE_LIMIT + 1 : TRUNCATE_LIMIT,
+      rating: 5,
+      monthPrefix: "01",
+    },
+    {
+      slug: "product-b",
+      title: "Product B",
+      count: aAboveLimit ? TRUNCATE_LIMIT : TRUNCATE_LIMIT + 1,
+      rating: 4,
+      monthPrefix: "02",
+    },
+  ]);
+
 describe("reviews", () => {
   test("Creates reviews collection excluding hidden and sorted newest first", () => {
     const testReviews = items([
@@ -163,21 +211,20 @@ describe("reviews", () => {
   });
 
   test("Calculates rating for any field type", () => {
-    const testReviews = items([
-      ["R1", "2024-01-01", { products: ["product-a"], rating: 5 }],
-      ["R2", "2024-01-02", { products: ["product-a"], rating: 3 }],
-      ["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }],
-    ]);
+    const productReviews = createProductReviews("product-a", [5, 3]);
+    const testReviews = [
+      ...productReviews,
+      ...items([
+        ["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }],
+      ]),
+    ];
 
     expect(getRating(testReviews, "product-a", "products")).toBe(4);
     expect(getRating(testReviews, "category-a", "categories")).toBe(4);
   });
 
   test("Returns ceiling of average rating", () => {
-    const testReviews = items([
-      ["R1", "2024-01-01", { products: ["product-a"], rating: 5 }],
-      ["R2", "2024-01-02", { products: ["product-a"], rating: 4 }],
-    ]);
+    const testReviews = createProductReviews("product-a", [5, 4]);
 
     expect(getRating(testReviews, "product-a", "products")).toBe(5);
   });
@@ -315,14 +362,7 @@ describe("reviews", () => {
 
   test("Returns only items exceeding the truncate limit", () => {
     // product-a gets limit+1 reviews (above limit), product-b gets limit reviews (at limit)
-    const testReviews = [
-      ...itemsFor("product-a", TRUNCATE_LIMIT + 1, 5, "01"),
-      ...itemsFor("product-b", TRUNCATE_LIMIT, 4, "02"),
-    ];
-    const products = [
-      createProduct({ slug: "product-a", title: "Product A" }),
-      createProduct({ slug: "product-b", title: "Product B" }),
-    ];
+    const { reviews: testReviews, products } = createLimitTestData(true);
 
     const factory = withReviewsPage("product", "products");
     const result = factory(
@@ -350,14 +390,7 @@ describe("reviews", () => {
 
   test("Returns redirect data for items not needing separate pages", () => {
     // product-a gets limit reviews (at limit), product-b gets limit+1 reviews (above limit)
-    const testReviews = [
-      ...itemsFor("product-a", TRUNCATE_LIMIT, 5, "01"),
-      ...itemsFor("product-b", TRUNCATE_LIMIT + 1, 4, "02"),
-    ];
-    const products = [
-      createProduct({ slug: "product-a", title: "Product A" }),
-      createProduct({ slug: "product-b", title: "Product B" }),
-    ];
+    const { reviews: testReviews, products } = createLimitTestData(false);
 
     const factory = reviewsRedirects("product", "products");
     const result = factory(
