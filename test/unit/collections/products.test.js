@@ -34,6 +34,15 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
   ...(max_quantity && { max_quantity }),
 });
 
+/** Products with various category setups for testing */
+const categorizedProducts = () =>
+  items([
+    ["Product 1", { categories: ["widgets", "gadgets"] }],
+    ["Product 2", { categories: ["tools"] }],
+    ["Product 3", { categories: ["widgets"] }],
+    ["Product 4", {}],
+  ]);
+
 describe("products", () => {
   test("Converts object galleries to arrays of filenames", () => {
     const input = {
@@ -109,14 +118,7 @@ describe("products", () => {
   });
 
   test("Filters products by category", () => {
-    const testProducts = items([
-      ["Product 1", { categories: ["widgets", "gadgets"] }],
-      ["Product 2", { categories: ["tools"] }],
-      ["Product 3", { categories: ["widgets"] }],
-      ["Product 4", {}],
-    ]);
-
-    const result = getProductsByCategory(testProducts, "widgets");
+    const result = getProductsByCategory(categorizedProducts(), "widgets");
 
     expectResultTitles(result, ["Product 1", "Product 3"]);
   });
@@ -150,13 +152,7 @@ describe("products", () => {
   });
 
   test("Returns unique products even if in multiple categories", () => {
-    const testProducts = items([
-      ["Product 1", { categories: ["widgets", "gadgets"] }],
-      ["Product 2", { categories: ["tools"] }],
-      ["Product 3", { categories: ["widgets"] }],
-    ]);
-
-    const result = getProductsByCategories(testProducts, [
+    const result = getProductsByCategories(categorizedProducts().slice(0, 3), [
       "widgets",
       "gadgets",
     ]);
