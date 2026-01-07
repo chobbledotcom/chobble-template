@@ -1,9 +1,6 @@
-import { createRequire } from "node:module";
 import { processQuoteFields } from "#config/quote-fields-helpers.js";
+import quoteFieldsData from "#data/quote-fields.json" with { type: "json" };
 
-const require = createRequire(import.meta.url);
-
-const quoteFieldsData = require("./quote-fields.json");
 const quoteFields = processQuoteFields(quoteFieldsData);
 
 export default function () {
