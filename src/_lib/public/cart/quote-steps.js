@@ -70,18 +70,6 @@ function getStepFieldRefs(stepEl) {
   return uniqueById(extractFieldRefs(fields));
 }
 
-// Backward compatible wrapper - returns just the IDs as strings
-function getStepFieldIds(stepEl) {
-  return getStepFieldRefs(stepEl).map((ref) => ref.id);
-}
-
-// Backward compatible wrapper - takes string id, detects type
-function buildFieldRecapItem(id) {
-  const isRadio =
-    document.querySelector(`input[name="${id}"][type="radio"]`) !== null;
-  return buildRecapItem({ isRadio, id });
-}
-
 function populateRecap(steps) {
   const recapEvent = document.getElementById("recap-event");
   const recapContact = document.getElementById("recap-contact");
@@ -237,7 +225,6 @@ onReady(initQuoteSteps);
 
 // Exports for testing
 export {
-  buildFieldRecapItem,
   buildRadioRecapItem,
   clearFieldError,
   getCurrentStep,
@@ -246,7 +233,6 @@ export {
   getFieldWrapper,
   getRadioLabel,
   getRadioValue,
-  getStepFieldIds,
   initQuoteSteps,
   populateRecap,
   setFieldError,

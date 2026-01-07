@@ -3,7 +3,6 @@
 
 import { describe, expect, mock, test } from "bun:test";
 import {
-  buildFieldRecapItem,
   buildRadioRecapItem,
   clearFieldError,
   getCurrentStep,
@@ -12,7 +11,6 @@ import {
   getFieldWrapper,
   getRadioLabel,
   getRadioValue,
-  getStepFieldIds,
   initQuoteSteps,
   populateRecap,
   setFieldError,
@@ -450,112 +448,6 @@ describe("quote-steps", () => {
     `;
     const stepEl = document.querySelector(".step");
     expect(validateStep(stepEl)).toBe(false);
-  });
-
-  // ----------------------------------------
-  // getStepFieldIds Tests (with DOM)
-  // ----------------------------------------
-  test("getStepFieldIds returns field ids from step", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="name" type="text" />
-        <input id="email" type="email" />
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids).toContain("name");
-    expect(ids).toContain("email");
-  });
-
-  test("getStepFieldIds returns radio name instead of id", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input type="radio" name="contact" value="Email" />
-        <input type="radio" name="contact" value="Phone" />
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids).toEqual(["contact"]);
-  });
-
-  test("getStepFieldIds deduplicates radio buttons", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input type="radio" name="pref" value="A" />
-        <input type="radio" name="pref" value="B" />
-        <input type="radio" name="pref" value="C" />
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids.length).toBe(1);
-    expect(ids[0]).toBe("pref");
-  });
-
-  test("getStepFieldIds includes select and textarea", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <select id="event_type"><option>Wedding</option></select>
-        <textarea id="message"></textarea>
-      </div>
-    `;
-    const stepEl = document.querySelector(".step");
-    const ids = getStepFieldIds(stepEl);
-    expect(ids).toContain("event_type");
-    expect(ids).toContain("message");
-  });
-
-  // ----------------------------------------
-  // buildFieldRecapItem Tests (with DOM)
-  // ----------------------------------------
-  // Note: We trust templates to always include the referenced fields
-  // No test for missing fields - that would be a template bug
-
-  test("buildFieldRecapItem returns empty string for empty value", () => {
-    document.body.innerHTML = `
-      <label for="name">Name</label>
-      <input type="text" id="name" value="" />
-    `;
-    expect(buildFieldRecapItem("name")).toBe("");
-  });
-
-  test("buildFieldRecapItem builds dt/dd for filled field", () => {
-    document.body.innerHTML = `
-      <label for="name">Your Name</label>
-      <input type="text" id="name" value="John Doe" />
-    `;
-    const result = buildFieldRecapItem("name");
-    expect(result).toContain("<dt>");
-    expect(result).toContain("Your Name");
-    expect(result).toContain("<dd>");
-    expect(result).toContain("John Doe");
-  });
-
-  test("buildFieldRecapItem works with select fields", () => {
-    document.body.innerHTML = `
-      <label for="event_type">Event Type</label>
-      <select id="event_type">
-        <option value="">Choose...</option>
-        <option value="wedding" selected>Wedding</option>
-      </select>
-    `;
-    const result = buildFieldRecapItem("event_type");
-    expect(result).toContain("Event Type");
-    expect(result).toContain("Wedding");
-  });
-
-  test("buildFieldRecapItem handles radio field via buildRadioRecapItem", () => {
-    document.body.innerHTML = `
-      <fieldset>
-        <legend>Contact Method</legend>
-        <input type="radio" name="contact_preference" value="Email" checked />
-      </fieldset>
-    `;
-    const result = buildFieldRecapItem("contact_preference");
-    expect(result).toContain("Contact Method");
-    expect(result).toContain("Email");
   });
 
   // ----------------------------------------
