@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { extractErrorsFromOutput } from "#test/test-runner-utils.js";
-import { rootDir } from "#test/test-utils.js";
+import { expectErrorsInclude, rootDir } from "#test/test-utils.js";
 
 const precommitPath = join(rootDir, "test", "precommit.js");
 
@@ -84,10 +84,7 @@ Total duplicates: 1250 lines across 15 files
     const errors = extractErrorsFromOutput(jscpdOutput);
 
     // Should capture error indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
-    expect(
-      errors.some((e) => e.includes("threshold") || e.includes("Duplication")),
-    ).toBe(true);
+    expectErrorsInclude("❌", ["threshold", "Duplication"])(errors);
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
@@ -203,8 +200,7 @@ Error: Cannot find module 'missing-dep'
     const errors = extractErrorsFromOutput(multilineOutput);
 
     // Should capture error indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
-    expect(errors.some((e) => e.startsWith("Error:"))).toBe(true);
+    expectErrorsInclude("❌", (e) => e.startsWith("Error:"))(errors);
 
     // Note: Stack traces might not all be captured, which is okay
     // as long as the main error message is captured

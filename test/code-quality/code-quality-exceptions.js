@@ -45,8 +45,9 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
-  "test/integration/test-site-factory.test.js:280",
-  "test/integration/test-site-factory.test.js:295",
+  "test/integration/test-site-factory.test.js:135",
+  "test/integration/test-site-factory.test.js:155",
+  "test/integration/test-site-factory.test.js:277",
 
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
@@ -55,6 +56,10 @@ const ALLOWED_TRY_CATCHES = new Set([
   // test/code-scanner.js - Exception validation
   // Needed: validates exception entries by reading files that might not exist
   "test/code-scanner.js:334",
+
+  // test/test-utils.js - Test utility definitions (test infrastructure)
+  // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
+  "test/test-utils.js",
 ]);
 
 // ============================================
