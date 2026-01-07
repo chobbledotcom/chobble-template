@@ -23,6 +23,31 @@ const expectErrorsToInclude = (errors, ...expectedStrings) => {
 };
 
 /**
+ * Assert that errors contain error indicator and at least one of the conditions.
+ * Supports arrays of alternatives (any match succeeds) and functions (custom checks).
+ *
+ * @param {Array<string>} errors - Array of error strings
+ * @param {...(string|Array<string>|Function)} conditions - One or more conditions to check
+ *
+ * @example
+ * expectErrorIndicator(errors, "❌", ["threshold", "Duplication"]);
+ * expectErrorIndicator(errors, "❌", (e) => e.startsWith("Error:"));
+ */
+const expectErrorIndicator = (errors, ...conditions) => {
+  for (const condition of conditions) {
+    if (typeof condition === "function") {
+      expect(errors.some(condition)).toBe(true);
+    } else if (Array.isArray(condition)) {
+      expect(errors.some((e) => condition.some((c) => e.includes(c)))).toBe(
+        true,
+      );
+    } else {
+      expect(errors.some((e) => e.includes(condition))).toBe(true);
+    }
+  }
+};
+
+/**
  * Tests for the precommit script error output handling.
  *
  * The precommit script should:
@@ -84,10 +109,7 @@ Total duplicates: 1250 lines across 15 files
     const errors = extractErrorsFromOutput(jscpdOutput);
 
     // Should capture error indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
-    expect(
-      errors.some((e) => e.includes("threshold") || e.includes("Duplication")),
-    ).toBe(true);
+    expectErrorIndicator(errors, "❌", ["threshold", "Duplication"]);
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
@@ -203,8 +225,7 @@ Error: Cannot find module 'missing-dep'
     const errors = extractErrorsFromOutput(multilineOutput);
 
     // Should capture error indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
-    expect(errors.some((e) => e.startsWith("Error:"))).toBe(true);
+    expectErrorIndicator(errors, "❌", (e) => e.startsWith("Error:"));
 
     // Note: Stack traces might not all be captured, which is okay
     // as long as the main error message is captured

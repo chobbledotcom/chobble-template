@@ -40,14 +40,21 @@ const withHireTestSetup = ({ start = "", end = "", days = "" } = {}, fn) =>
     return fn({ storage });
   });
 
+/** Get start and end date inputs */
+const getDateInputs = () => ({
+  startInput: document.querySelector('input[name="start_date"]'),
+  endInput: document.querySelector('input[name="end_date"]'),
+});
+
 /** Initialize hire calculator with callback tracking, return elements and callback getter */
 const initHireWithCallback = () => {
   let callbackDays = null;
   initHireCalculator((days) => {
     callbackDays = days;
   });
+  const { endInput } = getDateInputs();
   return {
-    endInput: document.querySelector('input[name="end_date"]'),
+    endInput,
     daysInput: document.getElementById("hire_days"),
     getCallbackDays: () => callbackDays,
   };
@@ -206,8 +213,7 @@ describe("hire-calculator", () => {
     withHireTestSetup({}, () => {
       initHireCalculator();
 
-      const startInput = document.querySelector('input[name="start_date"]');
-      const endInput = document.querySelector('input[name="end_date"]');
+      const { startInput, endInput } = getDateInputs();
       expect(startInput.min).toBe(getToday());
       expect(endInput.min).toBe(getToday());
     });
@@ -217,8 +223,7 @@ describe("hire-calculator", () => {
     withHireTestSetup({}, () => {
       initHireCalculator(() => {});
 
-      const startInput = document.querySelector('input[name="start_date"]');
-      const endInput = document.querySelector('input[name="end_date"]');
+      const { startInput, endInput } = getDateInputs();
 
       startInput.value = "2025-02-15";
       startInput.dispatchEvent(new Event("change"));
@@ -231,8 +236,7 @@ describe("hire-calculator", () => {
     withHireTestSetup({ start: "2025-01-10", end: "2025-01-15" }, () => {
       initHireCalculator(() => {});
 
-      const startInput = document.querySelector('input[name="start_date"]');
-      const endInput = document.querySelector('input[name="end_date"]');
+      const { startInput, endInput } = getDateInputs();
 
       startInput.value = "2025-01-20";
       startInput.dispatchEvent(new Event("change"));

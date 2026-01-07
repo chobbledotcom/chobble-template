@@ -22,6 +22,25 @@ const testPage = (options = {}) => ({
   content: options.content || "Test",
 });
 
+/** Common test file configuration */
+const defaultTestFiles = [
+  {
+    path: "pages/test.md",
+    frontmatter: { title: "Test" },
+    content: "Test",
+  },
+];
+
+/** Run assertions with cleanup of site and test file */
+const withImageCleanup = (site, copiedImagePath, testImagePath, assertion) => {
+  try {
+    assertion(copiedImagePath);
+  } finally {
+    site.cleanup();
+    fs.unlinkSync(testImagePath);
+  }
+};
+
 describe("test-site-factory", () => {
   // Clean up any leftover test sites before and after all tests
   afterAll(() => {
@@ -120,23 +139,13 @@ describe("test-site-factory", () => {
 
       const site = await createTestSite({
         images: ["test-image.jpg"],
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
+        files: defaultTestFiles,
       });
 
-      try {
-        // Verify image was copied to site
-        const copiedImagePath = path.join(site.srcDir, "images/test-image.jpg");
-        expect(fs.existsSync(copiedImagePath)).toBe(true);
-      } finally {
-        site.cleanup();
-        fs.unlinkSync(testImagePath);
-      }
+      const copiedImagePath = path.join(site.srcDir, "images/test-image.jpg");
+      withImageCleanup(site, copiedImagePath, testImagePath, (imagePath) => {
+        expect(fs.existsSync(imagePath)).toBe(true);
+      });
     });
 
     test("creates test site with images using object spec with absolute path", async () => {
@@ -146,23 +155,13 @@ describe("test-site-factory", () => {
 
       const site = await createTestSite({
         images: [{ src: testImagePath, dest: "custom.jpg" }],
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
+        files: defaultTestFiles,
       });
 
-      try {
-        // Verify image was copied with custom dest name
-        const copiedImagePath = path.join(site.srcDir, "images/custom.jpg");
-        expect(fs.existsSync(copiedImagePath)).toBe(true);
-      } finally {
-        site.cleanup();
-        fs.unlinkSync(testImagePath);
-      }
+      const copiedImagePath = path.join(site.srcDir, "images/custom.jpg");
+      withImageCleanup(site, copiedImagePath, testImagePath, (imagePath) => {
+        expect(fs.existsSync(imagePath)).toBe(true);
+      });
     });
 
     test("hasOutput returns true for existing files", async () => {

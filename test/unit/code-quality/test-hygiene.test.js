@@ -334,6 +334,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runKnip",
   "logFailureDetails",
   "extractStatus",
+  // hire-calculator.test.js - DOM query helper
+  "getDateInputs",
+  // precommit.test.js - error checking helper
+  "expectErrorIndicator",
+  // jsonld-validation.test.js - JSON-LD assertion helper
+  "assertValidJsonLdWithContext",
+  // test-site-factory.test.js - test fixtures and cleanup helper
+  "defaultTestFiles",
+  "withImageCleanup",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
