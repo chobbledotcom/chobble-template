@@ -176,11 +176,12 @@ const addItem = (
   itemName,
   unitPrice,
   quantity = 1,
-  maxQuantity = null,
-  sku = null,
-  specs = null,
-  hirePrices = null,
-  productMode = null,
+  maxQuantity,
+  sku,
+  specs,
+  hirePrices,
+  productMode,
+  subtitle,
 ) => {
   const cart = getCart();
   const existingIndex = cart.findIndex((item) => item.item_name === itemName);
@@ -194,6 +195,7 @@ const addItem = (
     specs,
     hire_prices: hirePrices,
     product_mode: productMode,
+    subtitle,
   };
 
   const newCart =
@@ -309,11 +311,12 @@ const extractItemFromButton = (button) => {
   return {
     name: buildFullItemName(itemData.name, option.name),
     unitPrice: option.unit_price,
-    maxQuantity: option.max_quantity || null,
-    sku: option.sku || null,
-    specs: itemData.specs || null,
-    hirePrices: itemData.hire_prices || null,
-    productMode: itemData.product_mode || null,
+    maxQuantity: option.max_quantity,
+    sku: option.sku,
+    specs: itemData.specs,
+    hirePrices: itemData.hire_prices,
+    productMode: itemData.product_mode,
+    subtitle: itemData.subtitle,
   };
 };
 
@@ -335,6 +338,7 @@ const handleAddToCart = (e) => {
     item.specs,
     item.hirePrices,
     item.productMode,
+    item.subtitle,
   );
 };
 
