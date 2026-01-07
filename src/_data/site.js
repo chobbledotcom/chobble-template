@@ -1,7 +1,5 @@
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
+import siteData from "#data/site.json" with { type: "json" };
 
 export default function () {
-  return require("./site.json");
+  return siteData;
 }

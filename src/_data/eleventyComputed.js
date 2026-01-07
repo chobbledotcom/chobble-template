@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
-import { createRequire } from "node:module";
 import { join } from "node:path";
+import contactFormFn from "#data/contact-form.js";
+import quoteFieldsFn from "#data/quote-fields.js";
 import { memoize } from "#utils/memoize.js";
 import {
   buildBaseMeta,
@@ -8,8 +9,6 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
-
-const require = createRequire(import.meta.url);
 
 // Memoize the file existence check since the same images are checked repeatedly
 const checkImageExists = memoize((fullPath) => existsSync(fullPath));
@@ -45,8 +44,8 @@ export default {
   meta_title: (data) => data.meta_title || data.title,
   description: (data) =>
     data.description || data.snippet || data.meta_description || "",
-  contactForm: () => require("./contact-form.js").default(),
-  quoteFields: () => require("./quote-fields.js").default(),
+  contactForm: () => contactFormFn(),
+  quoteFields: () => quoteFieldsFn(),
   thumbnail: findValidThumbnail,
   faqs: (data) => (Array.isArray(data.faqs) ? data.faqs : []),
   tabs: (data) => (Array.isArray(data.tabs) ? data.tabs : []),
