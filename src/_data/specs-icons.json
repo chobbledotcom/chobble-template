@@ -1,4 +1,7 @@
 {
+	"has dongle": {
+		"icon": "tick.svg"
+	},
 	"waterproof": {
 		"icon": "tick.svg",
 		"highlight": true

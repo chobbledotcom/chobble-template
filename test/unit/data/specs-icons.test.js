@@ -1,13 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import specsIcons from "#data/specs-icons.js";
-import specsIconsBase from "#data/specs-icons-base.json" with { type: "json" };
+import specsIcons from "#data/specs-icons.json" with { type: "json" };
 
 describe("specs-icons", () => {
   // ============================================
   // Structure Validation
   // ============================================
   test("All spec icon values are objects", () => {
-    const firstKey = Object.keys(specsIconsBase)[0];
+    const firstKey = Object.keys(specsIcons)[0];
     const result = specsIcons[firstKey];
 
     expect(typeof result).toBe("object");
@@ -21,29 +20,19 @@ describe("specs-icons", () => {
     expect(typeof result.icon).toBe("string");
   });
 
-  test("Base config uses object format with icon property", () => {
-    const firstKey = Object.keys(specsIconsBase)[0];
-    const baseValue = specsIconsBase[firstKey];
-
-    expect(typeof baseValue).toBe("object");
-    expect("icon" in baseValue).toBe(true);
-    expect(typeof baseValue.icon).toBe("string");
-  });
-
-  // ============================================
-  // Merging
-  // ============================================
-  test("Merges base and user icons", () => {
-    for (const key of Object.keys(specsIconsBase)) {
-      expect(key in specsIcons).toBe(true);
+  test("Icon property is a string filename", () => {
+    for (const value of Object.values(specsIcons)) {
+      expect(typeof value).toBe("object");
+      expect("icon" in value).toBe(true);
+      expect(typeof value.icon).toBe("string");
     }
   });
 
-  test("Preserves icon filenames from base config", () => {
-    for (const [key, value] of Object.entries(specsIconsBase)) {
-      const result = specsIcons[key];
-
-      expect(result.icon).toBe(value.icon);
+  test("Highlight property is optional and boolean when present", () => {
+    for (const value of Object.values(specsIcons)) {
+      if ("highlight" in value) {
+        expect(typeof value.highlight).toBe("boolean");
+      }
     }
   });
 });

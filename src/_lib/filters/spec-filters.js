@@ -1,4 +1,4 @@
-import specsIcons from "#data/specs-icons.js";
+import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
 
 /**

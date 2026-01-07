@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import specsIconsBase from "#data/specs-icons-base.json" with { type: "json" };
+import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import {
   computeSpecs,
   getHighlightedSpecs,
   getSpecIcon,
 } from "#filters/spec-filters.js";
 
-// Use actual spec name from base config so tests stay in sync
-const KNOWN_SPEC = Object.keys(specsIconsBase)[0];
+// Use actual spec name from config so tests stay in sync
+const KNOWN_SPEC = Object.keys(specsIcons)[0];
 
 describe("spec-filters", () => {
   // ============================================
