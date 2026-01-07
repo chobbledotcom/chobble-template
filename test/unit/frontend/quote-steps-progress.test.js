@@ -1,6 +1,7 @@
 // Tests for quote-steps-progress.js
 
 import { describe, expect, test } from "bun:test";
+import { QUOTE_STEPS } from "#test/test-utils.js";
 import {
   initStandaloneProgress,
   renderStepProgress,
@@ -8,12 +9,7 @@ import {
 } from "#public/ui/quote-steps-progress.js";
 
 describe("quote-steps-progress", () => {
-  const steps = [
-    { name: "Items", number: 1 },
-    { name: "Event", number: 2 },
-    { name: "Contact", number: 3 },
-    { name: "Review", number: 4 },
-  ];
+  const steps = QUOTE_STEPS;
 
   // Template element required by renderStepProgress
   const indicatorTemplate = `

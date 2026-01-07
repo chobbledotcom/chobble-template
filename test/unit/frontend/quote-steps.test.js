@@ -2,6 +2,7 @@
 // Tests the production quote-steps.js functions directly
 
 import { describe, expect, mock, test } from "bun:test";
+import { QUOTE_STEPS_JSON } from "#test/test-utils.js";
 import {
   buildFieldRecapItem,
   buildRadioRecapItem,
@@ -606,12 +607,7 @@ describe("quote-steps", () => {
   // ----------------------------------------
   // initQuoteSteps Tests (with DOM)
   // ----------------------------------------
-  const stepsData = JSON.stringify([
-    { name: "Items", number: 1 },
-    { name: "Event", number: 2 },
-    { name: "Contact", number: 3 },
-    { name: "Review", number: 4 },
-  ]);
+  const stepsData = QUOTE_STEPS_JSON;
 
   // Template element required by renderStepProgress
   const indicatorTemplate = `

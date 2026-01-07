@@ -945,3 +945,15 @@ export {
   collectionApi,
   taggedCollectionApi,
 };
+
+// Shared test data for quote steps UI tests
+const QUOTE_STEPS = [
+  { name: "Items", number: 1 },
+  { name: "Event", number: 2 },
+  { name: "Contact", number: 3 },
+  { name: "Review", number: 4 },
+];
+
+const QUOTE_STEPS_JSON = JSON.stringify(QUOTE_STEPS);
+
+export { QUOTE_STEPS, QUOTE_STEPS_JSON };
