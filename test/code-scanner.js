@@ -400,6 +400,82 @@ const createViolation = (reasonFn) => (context) => ({
   reason: reasonFn(context),
 });
 
+// ============================================
+// Export Detection Utilities
+// ============================================
+
+// Matches: export function name or export async function name
+const EXPORT_FUNCTION_PATTERN =
+  /^\s*export\s+(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
+
+// Matches: export const/let/var name
+const EXPORT_VAR_PATTERN =
+  /^\s*export\s+(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
+
+// Matches names inside: export { name1, name2, name3 as alias }
+const EXPORT_LIST_PATTERN = /^\s*export\s*\{([^}]+)\}/;
+
+// Matches: export default name or export default function name
+const EXPORT_DEFAULT_PATTERN =
+  /^\s*export\s+default\s+(?:function\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)/;
+
+/**
+ * Extract all named exports from source code.
+ * Returns a Set of exported identifiers.
+ *
+ * @param {string} source - Source code to analyze
+ * @returns {Set<string>} - Set of exported names
+ */
+const extractExports = (source) => {
+  const exported = new Set();
+
+  for (const line of source.split("\n")) {
+    // Skip comments
+    if (isCommentLine(line)) continue;
+
+    // Match function declaration exports
+    const funcMatch = line.match(EXPORT_FUNCTION_PATTERN);
+    if (funcMatch) {
+      exported.add(funcMatch[1]);
+      continue;
+    }
+
+    // Match variable declaration exports
+    const varMatch = line.match(EXPORT_VAR_PATTERN);
+    if (varMatch) {
+      exported.add(varMatch[1]);
+      continue;
+    }
+
+    // Match list-style exports
+    const listMatch = line.match(EXPORT_LIST_PATTERN);
+    if (listMatch) {
+      // Parse names from the list, handling "name as alias" syntax
+      const names = listMatch[1]
+        .split(",")
+        .map((n) =>
+          n
+            .trim()
+            .split(/\s+as\s+/)[0]
+            .trim(),
+        )
+        .filter((n) => n && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(n));
+      for (const name of names) {
+        exported.add(name);
+      }
+      continue;
+    }
+
+    // Match default exports
+    const defaultMatch = line.match(EXPORT_DEFAULT_PATTERN);
+    if (defaultMatch) {
+      exported.add(defaultMatch[1]);
+    }
+  }
+
+  return exported;
+};
+
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
@@ -431,4 +507,6 @@ export {
   // Exception validation
   validateExceptions,
   expectNoStaleExceptions,
+  // Export detection
+  extractExports,
 };
