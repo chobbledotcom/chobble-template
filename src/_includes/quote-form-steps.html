@@ -3,7 +3,6 @@ Renders multi-step quote form using pre-processed sections from quote-fields.js
 {%- endcomment -%}
 
 <div class="quote-steps" data-current-step="0">
-  {%- include "templates/quote-steps-progress.html", completed_steps: 1 -%}
 
   {%- for section in quoteFields.sections -%}
     <div class="quote-step{% if section.isFirst %} active{% endif %}" data-step="{{ section.stepNumber }}">
