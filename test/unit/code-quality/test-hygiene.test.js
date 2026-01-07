@@ -28,12 +28,23 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withMockedCwd",
   "expectValidScriptTag",
   // Fixture factories
+  "createProduct",
+  "createPropertyReviewFixture",
+  // events-utils.js - event fixture factories
+  "expectEventCounts",
   "createOffsetDate",
   "formatDateString",
   "createEvent",
-  "createProduct",
-  "createPropertyReviewFixture",
+  "createEvents",
+  // schema-helper-utils.js - schema fixture builders
+  "addOptionalProps",
+  "createObjectBuilder",
+  "createSchemaPage",
+  "createSchemaSite",
   "createSchemaData",
+  "createProductSchemaData",
+  "createPostSchemaData",
+  "createMockReview",
   // quote-steps.test.js - test fixture factory
   "createQuoteStepsHtml",
   // quote-price-utils.test.js - DOM setup and template rendering
@@ -111,6 +122,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "assertEntityValid",
   "findHtmlFiles",
   "relativePath",
+  // schema-helper.test.js - test fixtures
+  "testProductMeta",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "findNextNonEmptyLine",
@@ -169,6 +182,32 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "verifyPdfHeader",
   // reviews.test.js - test fixtures helpers
   "itemsFor",
+  "createProductReviews",
+  "createTruncatePair",
+  "createLimitTestData",
+  // test-site-factory.test.js - test page fixtures
+  "minimalPage",
+  "testPage",
+  // array-utils.test.js - test fixtures
+  "testTruncatedList",
+  // sorting.test.js - test fixtures
+  "testSortByTitle",
+  // tags.test.js - test fixtures
+  "testTagExtraction",
+  // function-length.test.js - test fixtures
+  "testSource",
+  // code-scanner.test.js - test fixtures
+  "testStaleException",
+  // quote-steps.test.js - test fixtures
+  "testNextButtonStep",
+  // quote-steps-progress.test.js - test fixtures
+  "testIndicatorStates",
+  // code-quality-utils.js - logging helper
+  "logAllowedItems",
+  // build-profiling.js - profiling helper
+  "profileScript",
+  // jsonld-validation.test.js - test fixtures
+  "getCommonFrontmatter",
   // code-scanner.js - code scanning utilities
   "matchesAny",
   "isCommentLine",
@@ -249,11 +288,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // build-profiling.js - performance profiling utilities
   "profileNodeStartup",
   "profileConfigImports",
-  "profileConfigLoad",
-  "profileEleventyModuleLoad",
   "profileSingleImport",
   "profileBuild",
   "hrtimeToMs",
+  "profileScript",
   // run-coverage.js - coverage utilities
   "parseLcov",
   "parseLine",

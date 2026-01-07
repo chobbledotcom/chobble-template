@@ -118,6 +118,12 @@ const createFile = (path, frontmatter, content) => ({
   content,
 });
 
+// Common frontmatter properties for files
+const getCommonFrontmatter = (title, options = {}) => ({
+  header_image: `src/images/${options.image || "placeholder.jpg"}`,
+  meta_description: options.description || `Description for ${title}`,
+});
+
 const productFile = (slug, title, options = {}) =>
   createFile(
     `products/${slug}.md`,
@@ -125,8 +131,7 @@ const productFile = (slug, title, options = {}) =>
       title,
       tags: ["product"],
       ...(options.price && { price: options.price }),
-      header_image: `src/images/${options.image || "placeholder.jpg"}`,
-      meta_description: options.description || `Description for ${title}`,
+      ...getCommonFrontmatter(title, options),
       ...options.extra,
     },
     options.content || `# ${title}\n\nProduct content.`,
@@ -138,8 +143,7 @@ const newsFile = (slug, title, options = {}) =>
     {
       title,
       ...(options.author && { author: options.author }),
-      header_image: `src/images/${options.image || "placeholder.jpg"}`,
-      meta_description: options.description || `Description for ${title}`,
+      ...getCommonFrontmatter(title, options),
       ...options.extra,
     },
     options.content || `# ${title}\n\nNews content.`,
@@ -152,7 +156,7 @@ const pageFile = (slug, title, options = {}) =>
       title,
       layout: options.layout || "page",
       permalink: options.permalink || `/${slug}/`,
-      meta_description: options.description || `Description for ${title}`,
+      meta_description: getCommonFrontmatter(title, options).meta_description,
       ...options.extra,
     },
     options.content || `# ${title}\n\nPage content.`,

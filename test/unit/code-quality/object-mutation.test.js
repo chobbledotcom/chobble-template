@@ -8,6 +8,7 @@ import {
   expectNoStaleExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
+import { logAllowedItems } from "#test/unit/code-quality/code-quality-utils.js";
 
 // Pattern to detect obj[key] = value - object mutation via bracket notation
 // Matches: result[slug] = value, acc[key] = data, obj["prop"] = x
@@ -86,13 +87,7 @@ obj[ key ] = value;
 
   test("Reports allowlisted object mutation for tracking", () => {
     const { allowed } = analyzeObjectMutation();
-    console.log(`\n  Allowlisted object mutations: ${allowed.length}`);
-    if (allowed.length > 0) {
-      console.log("  Locations:");
-      for (const loc of allowed) {
-        console.log(`    - ${loc.location}`);
-      }
-    }
+    logAllowedItems(allowed, "Allowlisted object mutations", false);
     expect(true).toBe(true);
   });
 

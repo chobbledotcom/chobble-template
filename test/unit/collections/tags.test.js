@@ -4,6 +4,13 @@ import { createMockEleventyConfig } from "#test/test-utils.js";
 
 const createCollectionItem = (url, tags) => ({ url, data: { tags } });
 
+// Helper to test tag extraction with length and value checks
+const testTagExtraction = (collection, expectedLength, expectedTags) => {
+  const result = extractTags(collection);
+  expect(result).toHaveLength(expectedLength);
+  expect(result).toEqual(expectedTags);
+};
+
 describe("tags", () => {
   test("Extracts unique tags from collection", () => {
     const collection = [
@@ -66,10 +73,7 @@ describe("tags", () => {
       ]),
     ];
 
-    const result = extractTags(collection);
-
-    expect(result).toHaveLength(2);
-    expect(result).toEqual(["javascript", "web"]);
+    testTagExtraction(collection, 2, ["javascript", "web"]);
   });
 
   test("Removes duplicate tags", () => {
@@ -78,10 +82,7 @@ describe("tags", () => {
       createCollectionItem("/post2/", ["javascript", "web", "javascript"]),
     ];
 
-    const result = extractTags(collection);
-
-    expect(result).toHaveLength(2);
-    expect(result).toEqual(["javascript", "web"]);
+    testTagExtraction(collection, 2, ["javascript", "web"]);
   });
 
   test("Returns tags in sorted order", () => {
