@@ -24,6 +24,7 @@ import {
 import {
   createQuoteStepsHtml,
   testNextButtonStep,
+  testValidateFieldWithHtml,
 } from "#test/unit/frontend/quote-steps-utils.js";
 
 describe("quote-steps", () => {
@@ -182,58 +183,35 @@ describe("quote-steps", () => {
   // validateField Tests (with DOM)
   // ----------------------------------------
   test("validateField returns true for valid field", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="text" required value="filled" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(true);
+    testValidateFieldWithHtml(
+      '<input id="test" type="text" required value="filled" />',
+      true,
+    );
   });
 
   test("validateField returns false for empty required field", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="text" required value="" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(false);
+    testValidateFieldWithHtml(
+      '<input id="test" type="text" required value="" />',
+      false,
+    );
   });
 
   test("validateField returns true for empty non-required field", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="text" value="" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(true);
+    testValidateFieldWithHtml('<input id="test" type="text" value="" />', true);
   });
 
   test("validateField validates email format", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="email" required value="invalid-email" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(false);
+    testValidateFieldWithHtml(
+      '<input id="test" type="email" required value="invalid-email" />',
+      false,
+    );
   });
 
   test("validateField returns true for valid email", () => {
-    document.body.innerHTML = `
-      <div class="step">
-        <input id="test" type="email" required value="test@example.com" />
-      </div>
-    `;
-    const field = document.getElementById("test");
-    const stepEl = document.querySelector(".step");
-    expect(validateField(field, stepEl)).toBe(true);
+    testValidateFieldWithHtml(
+      '<input id="test" type="email" required value="test@example.com" />',
+      true,
+    );
   });
 
   test("validateField delegates to validateRadioGroup for radio type", () => {

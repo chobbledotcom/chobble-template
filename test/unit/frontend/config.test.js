@@ -24,6 +24,31 @@ import {
 } from "#test/test-utils.js";
 
 describe("config", () => {
+  // Test helper for frontmatter field validation
+  const testFrontmatterFieldThrows = (
+    fieldName,
+    wrongData,
+    expectedValue,
+    throwsPattern,
+  ) => {
+    const tempDir = createTempDir(`config-wrong-${fieldName}`);
+    const content = createFrontmatter(wrongData, "Content");
+    const filePath = createTempFile(tempDir, "test.md", content);
+
+    expect(() => {
+      const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
+      checkFrontmatterField(
+        frontmatter,
+        fieldName,
+        expectedValue,
+        "stripe",
+        "test.md",
+      );
+    }).toThrow(throwsPattern);
+
+    cleanupTempDir(tempDir);
+  };
+
   // DEFAULTS constant tests
   test("DEFAULTS has all expected keys", () => {
     const expectedKeys = [
@@ -341,47 +366,21 @@ describe("config", () => {
   });
 
   test("validatePageFrontmatter throws when layout is incorrect", () => {
-    const tempDir = createTempDir("config-wrong-layout");
-    const content = createFrontmatter(
+    testFrontmatterFieldThrows(
+      "layout",
       { layout: "wrong.html", permalink: "/test/" },
-      "Content",
+      "expected.html",
+      /does not have layout: expected.html/,
     );
-    const filePath = createTempFile(tempDir, "test.md", content);
-
-    expect(() => {
-      const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
-      checkFrontmatterField(
-        frontmatter,
-        "layout",
-        "expected.html",
-        "stripe",
-        "test.md",
-      );
-    }).toThrow(/does not have layout: expected.html/);
-
-    cleanupTempDir(tempDir);
   });
 
   test("validatePageFrontmatter throws when permalink is incorrect", () => {
-    const tempDir = createTempDir("config-wrong-permalink");
-    const content = createFrontmatter(
+    testFrontmatterFieldThrows(
+      "permalink",
       { layout: "test.html", permalink: "/wrong/" },
-      "Content",
+      "/expected/",
+      /does not have permalink/,
     );
-    const filePath = createTempFile(tempDir, "test.md", content);
-
-    expect(() => {
-      const frontmatter = extractFrontmatter(filePath, "test.md", "stripe");
-      checkFrontmatterField(
-        frontmatter,
-        "permalink",
-        "/expected/",
-        "stripe",
-        "test.md",
-      );
-    }).toThrow(/does not have permalink/);
-
-    cleanupTempDir(tempDir);
   });
 
   // validatePageFrontmatter function tests
