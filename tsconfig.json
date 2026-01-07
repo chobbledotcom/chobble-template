@@ -1,16 +1,12 @@
 {
   "compilerOptions": {
-    // Type checking for JS files
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
-
-    // Module system
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-
-    // Subpath imports support (#data/*, #lib/*, etc.)
+    "baseUrl": ".",
     "paths": {
       "#data/*": ["./src/_data/*"],
       "#lib/*": ["./src/_lib/*"],
@@ -24,34 +20,9 @@
       "#public/*": ["./src/_lib/public/*"],
       "#test/*": ["./test/*"]
     },
-    "baseUrl": ".",
-
-    // Strictness (start lenient, can tighten later)
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-
-    // Helpful flags
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-
-    // Type checking behavior
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": false
+    "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*.js",
-    "test/**/*.js",
-    ".eleventy.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "_site",
-    "coverage"
-  ]
+  "include": ["src/**/*.js", ".eleventy.js"],
+  "exclude": ["node_modules", "_site", "coverage", "src/_lib/public/**/*.js"]
 }

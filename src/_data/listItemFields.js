@@ -17,6 +17,7 @@ const selectListItemFields = (configFields) =>
     : DEFAULT_FIELDS;
 
 const listItemFields = selectListItemFields(configJson.list_item_fields);
+// @ts-expect-error - Adding helper methods for tests (Eleventy breaks with multiple exports)
 listItemFields._helpers = { DEFAULT_FIELDS, selectListItemFields };
 
 export default listItemFields;

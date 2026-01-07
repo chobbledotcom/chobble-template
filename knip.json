@@ -14,8 +14,7 @@
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
 		"ecommerce-backend/**",
-		"_site/**",
-		"example-typed-function.js"
+		"_site/**"
 	],
 	"ignoreDependencies": [
 		"@zachleat/heading-anchors",

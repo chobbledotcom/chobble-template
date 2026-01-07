@@ -249,7 +249,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "ecommerce-backend/server.js:118", // sku (request param)
   "ecommerce-backend/server.js:121", // skuData (lookup result)
   "src/_lib/public/cart/stripe-checkout.js:19", // response
-  "src/_lib/eleventy/pdf.js:229", // pdfDoc (renderer result)
+  "src/_lib/eleventy/pdf.js:230", // pdfDoc (renderer result)
 
   // === Optional function parameters ===
   "src/_lib/filters/item-filters.js:33", // filterAttributes
@@ -265,9 +265,9 @@ const ALLOWED_NULL_CHECKS = new Set([
   // === Test infrastructure ===
   "test/unit/code-quality/method-aliasing.test.js:50", // match (in parseAlias)
   "test/unit/code-quality/method-aliasing.test.js:71", // alias (in parseAlias)
-  "test/precommit.js:56", // trimmed (line processing)
-  "test/precommit.js:140", // result (skip if step wasn't run)
-  "test/precommit.js:187", // allPassed (check if all steps passed)
+  "test/precommit.js:57", // trimmed (line processing)
+  "test/precommit.js:141", // result (skip if step wasn't run)
+  "test/precommit.js:188", // allPassed (check if all steps passed)
   "test/demo-precommit-errors.js:26", // functionMatch (regex match can be null)
 ]);
 

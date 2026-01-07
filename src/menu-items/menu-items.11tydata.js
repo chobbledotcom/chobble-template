@@ -6,9 +6,12 @@ export default {
     dietaryKeys: (data) => {
       const dietaryIndicators = data.dietaryIndicators || {};
 
-      return Object.values(dietaryIndicators)
-        .filter((indicator) => data[indicator.field])
-        .map(pick(["symbol", "label"]));
+      return (
+        Object.values(dietaryIndicators)
+          .filter((indicator) => data[indicator.field])
+          // @ts-expect-error - pick is a valid mapper function
+          .map(pick(["symbol", "label"]))
+      );
     },
     menu_categories: (data) => {
       const categories = data.menu_categories || [];

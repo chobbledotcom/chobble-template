@@ -61,6 +61,7 @@ const loadModule = async (modulePath, options) => {
  *   }
  * });
  */
+// @ts-expect-error - Default empty object for lazy loading
 const createLazyLoader = (modulePath, options = {}) => {
   let cached = null;
 
