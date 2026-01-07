@@ -57,7 +57,13 @@ describe("tags", () => {
 
   test("Filters out empty and whitespace-only tags", () => {
     const collection = [
-      createCollectionItem("/post1/", ["javascript", "", "  ", "web", "   \t  "]),
+      createCollectionItem("/post1/", [
+        "javascript",
+        "",
+        "  ",
+        "web",
+        "   \t  ",
+      ]),
     ];
 
     const result = extractTags(collection);
