@@ -1,0 +1,57 @@
+{
+  "compilerOptions": {
+    // Type checking for JS files
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+
+    // Module system
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+
+    // Subpath imports support (#data/*, #lib/*, etc.)
+    "paths": {
+      "#data/*": ["./src/_data/*"],
+      "#lib/*": ["./src/_lib/*"],
+      "#collections/*": ["./src/_lib/collections/*"],
+      "#config/*": ["./src/_lib/config/*"],
+      "#filters/*": ["./src/_lib/filters/*"],
+      "#eleventy/*": ["./src/_lib/eleventy/*"],
+      "#build/*": ["./src/_lib/build/*"],
+      "#media/*": ["./src/_lib/media/*"],
+      "#utils/*": ["./src/_lib/utils/*"],
+      "#public/*": ["./src/_lib/public/*"],
+      "#test/*": ["./test/*"]
+    },
+    "baseUrl": ".",
+
+    // Strictness (start lenient, can tighten later)
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+
+    // Helpful flags
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Type checking behavior
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "include": [
+    "src/**/*.js",
+    "test/**/*.js",
+    ".eleventy.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "_site",
+    "coverage"
+  ]
+}
