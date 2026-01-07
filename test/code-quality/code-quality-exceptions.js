@@ -216,7 +216,7 @@ const ALLOWED_NULL_CHECKS = new Set([
   "src/_lib/public/theme/theme-editor.js:284", // target
   "src/_lib/public/theme/theme-editor.js:384", // borderOutput
   "src/_lib/public/cart/cart.js:136", // cartItems
-  "src/_lib/public/ui/shuffle-properties.js:49", // itemsList
+  "src/_lib/public/ui/shuffle-properties.js:13", // itemsList
   "src/_lib/public/cart/quote.js:49", // container
   "src/_lib/public/ui/gallery.js:20", // imageLink
   "src/_lib/public/ui/gallery.js:30", // fullImage
@@ -276,9 +276,7 @@ const ALLOWED_NULL_CHECKS = new Set([
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
-  "src/_data/altTagsLookup.js",
   "src/_data/eleventyComputed.js",
-  "src/_data/metaComputed.js",
   "src/_lib/build/scss.js",
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
@@ -287,8 +285,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/search.js",
   "src/_lib/eleventy/responsive-tables.js",
   "src/_lib/filters/item-filters.js",
-  "src/_lib/utils/dom-builder.js",
-  "src/_lib/utils/lazy-loader.js",
+  "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
+  "src/_lib/utils/lazy-loader.js", // Kept separate to manage complexity
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -298,10 +296,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/public/cart/quote.js",
   "src/_lib/public/cart/quote-steps.js",
-  "src/_lib/public/ui/quote-steps-progress.js",
   "src/_lib/public/ui/scroll-fade.js",
   "src/_lib/public/ui/search.js",
-  "src/_lib/public/ui/shuffle-properties.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
