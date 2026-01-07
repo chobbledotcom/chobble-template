@@ -90,6 +90,28 @@ const createTruncatePair = (
   ),
 });
 
+/**
+ * Create limit test data with products above and below truncate threshold.
+ * @param {boolean} aAboveLimit - whether product-a should be above limit
+ */
+const createLimitTestData = (aAboveLimit = true) =>
+  createTruncatePair([
+    {
+      slug: "product-a",
+      title: "Product A",
+      count: aAboveLimit ? TRUNCATE_LIMIT + 1 : TRUNCATE_LIMIT,
+      rating: 5,
+      monthPrefix: "01",
+    },
+    {
+      slug: "product-b",
+      title: "Product B",
+      count: aAboveLimit ? TRUNCATE_LIMIT : TRUNCATE_LIMIT + 1,
+      rating: 4,
+      monthPrefix: "02",
+    },
+  ]);
+
 describe("reviews", () => {
   test("Creates reviews collection excluding hidden and sorted newest first", () => {
     const testReviews = items([
@@ -340,10 +362,7 @@ describe("reviews", () => {
 
   test("Returns only items exceeding the truncate limit", () => {
     // product-a gets limit+1 reviews (above limit), product-b gets limit reviews (at limit)
-    const { reviews: testReviews, products } = createTruncatePair([
-      { slug: "product-a", title: "Product A", count: TRUNCATE_LIMIT + 1, rating: 5, monthPrefix: "01" },
-      { slug: "product-b", title: "Product B", count: TRUNCATE_LIMIT, rating: 4, monthPrefix: "02" },
-    ]);
+    const { reviews: testReviews, products } = createLimitTestData(true);
 
     const factory = withReviewsPage("product", "products");
     const result = factory(
@@ -371,10 +390,7 @@ describe("reviews", () => {
 
   test("Returns redirect data for items not needing separate pages", () => {
     // product-a gets limit reviews (at limit), product-b gets limit+1 reviews (above limit)
-    const { reviews: testReviews, products } = createTruncatePair([
-      { slug: "product-a", title: "Product A", count: TRUNCATE_LIMIT, rating: 5, monthPrefix: "01" },
-      { slug: "product-b", title: "Product B", count: TRUNCATE_LIMIT + 1, rating: 4, monthPrefix: "02" },
-    ]);
+    const { reviews: testReviews, products } = createLimitTestData(false);
 
     const factory = reviewsRedirects("product", "products");
     const result = factory(
