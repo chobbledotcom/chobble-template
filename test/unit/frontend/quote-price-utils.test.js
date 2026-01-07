@@ -259,8 +259,18 @@ describe("quote-price-utils", () => {
 
     test("renders cart items with prices", () => {
       const cart = [
-        { item_name: "Bouncy Castle", product_mode: "hire", hire_prices: { 1: "£50" }, quantity: 1 },
-        { item_name: "Slide", product_mode: "hire", hire_prices: { 1: "£30" }, quantity: 2 },
+        {
+          item_name: "Bouncy Castle",
+          product_mode: "hire",
+          hire_prices: { 1: "£50" },
+          quantity: 1,
+        },
+        {
+          item_name: "Slide",
+          product_mode: "hire",
+          hire_prices: { 1: "£30" },
+          quantity: 2,
+        },
       ];
       setupFullDOM(cart);
       updateQuotePrice(1);
@@ -280,8 +290,18 @@ describe("quote-price-utils", () => {
 
     test("displays total price when all prices available", () => {
       const cart = [
-        { item_name: "Item A", product_mode: "hire", hire_prices: { 1: "£20" }, quantity: 1 },
-        { item_name: "Item B", product_mode: "hire", hire_prices: { 1: "£30" }, quantity: 1 },
+        {
+          item_name: "Item A",
+          product_mode: "hire",
+          hire_prices: { 1: "£20" },
+          quantity: 1,
+        },
+        {
+          item_name: "Item B",
+          product_mode: "hire",
+          hire_prices: { 1: "£30" },
+          quantity: 1,
+        },
       ];
       setupFullDOM(cart);
       updateQuotePrice(1);
@@ -292,7 +312,12 @@ describe("quote-price-utils", () => {
 
     test("displays TBC for total when price unavailable", () => {
       const cart = [
-        { item_name: "Item", product_mode: "hire", hire_prices: { 1: "£20" }, quantity: 1 },
+        {
+          item_name: "Item",
+          product_mode: "hire",
+          hire_prices: { 1: "£20" },
+          quantity: 1,
+        },
       ];
       setupFullDOM(cart);
       updateQuotePrice(5); // No price for 5 days
@@ -300,14 +325,26 @@ describe("quote-price-utils", () => {
       const total = document.querySelector('[data-field="total"]');
       expect(total.textContent).toBe("TBC");
 
-      const itemPrice = document.querySelector('.quote-price-item [data-field="price"]');
+      const itemPrice = document.querySelector(
+        '.quote-price-item [data-field="price"]',
+      );
       expect(itemPrice.textContent).toBe("TBC");
     });
 
     test("displays item count and hire length", () => {
       const cart = [
-        { item_name: "Item A", product_mode: "hire", hire_prices: { 3: "£50" }, quantity: 2 },
-        { item_name: "Item B", product_mode: "hire", hire_prices: { 3: "£25" }, quantity: 1 },
+        {
+          item_name: "Item A",
+          product_mode: "hire",
+          hire_prices: { 3: "£50" },
+          quantity: 2,
+        },
+        {
+          item_name: "Item B",
+          product_mode: "hire",
+          hire_prices: { 3: "£25" },
+          quantity: 1,
+        },
       ];
       setupFullDOM(cart);
       updateQuotePrice(3);
@@ -342,12 +379,19 @@ describe("quote-price-utils", () => {
 
     test("handles non-hire items correctly", () => {
       const cart = [
-        { item_name: "Purchase Item", product_mode: "buy", unit_price: 25, quantity: 3 },
+        {
+          item_name: "Purchase Item",
+          product_mode: "buy",
+          unit_price: 25,
+          quantity: 3,
+        },
       ];
       setupFullDOM(cart);
       updateQuotePrice(1);
 
-      const itemPrice = document.querySelector('.quote-price-item [data-field="price"]');
+      const itemPrice = document.querySelector(
+        '.quote-price-item [data-field="price"]',
+      );
       expect(itemPrice.textContent).toBe("£75.00");
 
       const total = document.querySelector('[data-field="total"]');
