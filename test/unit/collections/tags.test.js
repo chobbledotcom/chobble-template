@@ -2,21 +2,14 @@ import { describe, expect, test } from "bun:test";
 import { configureTags, extractTags } from "#collections/tags.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
+const createCollectionItem = (url, tags) => ({ url, data: { tags } });
+
 describe("tags", () => {
   test("Extracts unique tags from collection", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["javascript", "web"] },
-      },
-      {
-        url: "/post2/",
-        data: { tags: ["javascript", "nodejs"] },
-      },
-      {
-        url: "/post3/",
-        data: { tags: ["web", "css"] },
-      },
+      createCollectionItem("/post1/", ["javascript", "web"]),
+      createCollectionItem("/post2/", ["javascript", "nodejs"]),
+      createCollectionItem("/post3/", ["web", "css"]),
     ];
 
     const result = extractTags(collection);
@@ -51,18 +44,9 @@ describe("tags", () => {
 
   test("Handles null and undefined tags gracefully", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: null },
-      },
-      {
-        url: "/post2/",
-        data: { tags: undefined },
-      },
-      {
-        url: "/post3/",
-        data: { tags: ["javascript"] },
-      },
+      { url: "/post1/", data: { tags: null } },
+      { url: "/post2/", data: { tags: undefined } },
+      createCollectionItem("/post3/", ["javascript"]),
     ];
 
     const result = extractTags(collection);
@@ -73,10 +57,7 @@ describe("tags", () => {
 
   test("Filters out empty and whitespace-only tags", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["javascript", "", "  ", "web", "   \t  "] },
-      },
+      createCollectionItem("/post1/", ["javascript", "", "  ", "web", "   \t  "]),
     ];
 
     const result = extractTags(collection);
@@ -87,14 +68,8 @@ describe("tags", () => {
 
   test("Removes duplicate tags", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["javascript", "web"] },
-      },
-      {
-        url: "/post2/",
-        data: { tags: ["javascript", "web", "javascript"] },
-      },
+      createCollectionItem("/post1/", ["javascript", "web"]),
+      createCollectionItem("/post2/", ["javascript", "web", "javascript"]),
     ];
 
     const result = extractTags(collection);
@@ -105,10 +80,7 @@ describe("tags", () => {
 
   test("Returns tags in sorted order", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["zebra", "apple", "banana"] },
-      },
+      createCollectionItem("/post1/", ["zebra", "apple", "banana"]),
     ];
 
     const result = extractTags(collection);
@@ -121,10 +93,7 @@ describe("tags", () => {
       {
         data: { tags: ["hidden"] },
       },
-      {
-        url: "/visible/",
-        data: { tags: ["visible"] },
-      },
+      createCollectionItem("/visible/", ["visible"]),
     ];
 
     const result = extractTags(collection);
@@ -135,14 +104,8 @@ describe("tags", () => {
 
   test("Filters out pages marked as no_index", () => {
     const collection = [
-      {
-        url: "/indexed/",
-        data: { tags: ["indexed"] },
-      },
-      {
-        url: "/not-indexed/",
-        data: { tags: ["hidden"], no_index: true },
-      },
+      createCollectionItem("/indexed/", ["indexed"]),
+      { url: "/not-indexed/", data: { tags: ["hidden"], no_index: true } },
     ];
 
     const result = extractTags(collection);
@@ -153,26 +116,11 @@ describe("tags", () => {
 
   test("Handles mixed data scenarios", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["valid"] },
-      },
-      {
-        url: "/post2/",
-        data: { tags: ["another"], no_index: false },
-      },
-      {
-        url: "/post3/",
-        data: { tags: ["hidden"], no_index: true },
-      },
-      {
-        // No data property
-        url: "/post4/",
-      },
-      {
-        data: { tags: ["no-url"] },
-        // No url property
-      },
+      createCollectionItem("/post1/", ["valid"]),
+      { url: "/post2/", data: { tags: ["another"], no_index: false } },
+      { url: "/post3/", data: { tags: ["hidden"], no_index: true } },
+      { url: "/post4/" },
+      { data: { tags: ["no-url"] } },
     ];
 
     const result = extractTags(collection);
@@ -183,18 +131,9 @@ describe("tags", () => {
 
   test("Properly flattens tag arrays", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["tag1", "tag2"] },
-      },
-      {
-        url: "/post2/",
-        data: { tags: ["tag3"] },
-      },
-      {
-        url: "/post3/",
-        data: { tags: [] },
-      },
+      createCollectionItem("/post1/", ["tag1", "tag2"]),
+      createCollectionItem("/post2/", ["tag3"]),
+      createCollectionItem("/post3/", []),
     ];
 
     const result = extractTags(collection);
@@ -246,18 +185,9 @@ describe("tags", () => {
 
   test("Handles various edge cases including numbers", () => {
     const collection = [
-      {
-        url: "/post1/",
-        data: { tags: ["  spaced  ", "normal"] },
-      },
-      {
-        url: "/post2/",
-        data: { tags: [123, 0, "text"] },
-      },
-      {
-        url: "/post3/",
-        data: { tags: ["", null, undefined, "valid"] },
-      },
+      createCollectionItem("/post1/", ["  spaced  ", "normal"]),
+      createCollectionItem("/post2/", [123, 0, "text"]),
+      createCollectionItem("/post3/", ["", null, undefined, "valid"]),
     ];
 
     const result = extractTags(collection);
