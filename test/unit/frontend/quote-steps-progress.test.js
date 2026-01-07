@@ -22,6 +22,21 @@ describe("quote-steps-progress", () => {
     </template>
   `;
 
+  // Helper to test indicator completion/active states
+  const testIndicatorStates = (completedCount, expectedAriaStep) => {
+    const indicators = [...document.querySelectorAll("li")];
+    expect(
+      indicators.map((el) => el.classList.contains("completed")),
+    ).toEqual(
+      Array.from({ length: 4 }, (_, i) => i < completedCount),
+    );
+    expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual(
+      Array.from({ length: 4 }, (_, i) =>
+        i === expectedAriaStep ? "step" : "false",
+      ),
+    );
+  };
+
   describe("renderStepProgress", () => {
     test("renders all steps as list items", () => {
       document.body.innerHTML = `
@@ -78,16 +93,7 @@ describe("quote-steps-progress", () => {
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 1);
 
-      const indicators = [...container.querySelectorAll("li")];
-      expect(
-        indicators.map((el) => el.classList.contains("completed")),
-      ).toEqual([true, false, false, false]);
-      expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual([
-        "false",
-        "step",
-        "false",
-        "false",
-      ]);
+      testIndicatorStates(1, 1);
     });
   });
 
@@ -101,16 +107,7 @@ describe("quote-steps-progress", () => {
       renderStepProgress(container, steps, 0);
       updateStepProgress(container, 2);
 
-      const indicators = [...container.querySelectorAll("li")];
-      expect(
-        indicators.map((el) => el.classList.contains("completed")),
-      ).toEqual([true, true, false, false]);
-      expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual([
-        "false",
-        "false",
-        "step",
-        "false",
-      ]);
+      testIndicatorStates(2, 2);
     });
 
     test("clears previous active/completed states", () => {
@@ -122,16 +119,7 @@ describe("quote-steps-progress", () => {
       renderStepProgress(container, steps, 2);
       updateStepProgress(container, 0);
 
-      const indicators = [...container.querySelectorAll("li")];
-      expect(
-        indicators.map((el) => el.classList.contains("completed")),
-      ).toEqual([false, false, false, false]);
-      expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual([
-        "step",
-        "false",
-        "false",
-        "false",
-      ]);
+      testIndicatorStates(0, 0);
     });
   });
 
