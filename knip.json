@@ -5,13 +5,12 @@
 		"src/_data/**/*.{js,mjs}",
 		"src/**/*.11tydata.js",
 		"src/_lib/public/bundle.js",
+		"bin/profile-report.js",
 		"test/**/*.test.js",
 		"test/build-profiling.js",
 		"test/ensure-deps.js",
 		"test/setup.js",
-		"test/demo-precommit-errors.js",
-		"test/precommit.js",
-		"test/run-tests.js"
+		"test/demo-precommit-errors.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [

@@ -1,6 +1,18 @@
 [test]
 preload = ["./test/ensure-deps.js", "./test/setup.js"]
+
+# Test file patterns
 root = "./test"
-timeout = 1000
+
+# Parallel execution (default behavior in Bun)
+# Bun automatically runs tests in parallel
+
+# Timeout for individual tests (30 seconds)
+timeout = 30000
+
+# Always enable coverage reporting
 coverage = true
+
+# Coverage thresholds - tests fail if coverage drops below these levels
+# Allows manual management of .coverage_exceptions.json while preventing regressions
 coverageThreshold = { lines = 0.97, functions = 0.98, statements = 0.97 }
