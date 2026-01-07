@@ -11,20 +11,20 @@ const createMarkdownRenderer = (options = { html: true }) =>
 
 const cacheKeyFromArgs = (args) => args.join(",");
 
+const resolvePath = (relativePath, baseDir = process.cwd()) =>
+  path.join(baseDir, relativePath);
+
 const fileExists = memoize(
-  (relativePath, baseDir = process.cwd()) => {
-    const fullPath = path.join(baseDir, relativePath);
-    return fs.existsSync(fullPath);
-  },
+  (relativePath, baseDir) => fs.existsSync(resolvePath(relativePath, baseDir)),
   { cacheKey: cacheKeyFromArgs },
 );
 
-const fileMissing = (relativePath, baseDir = process.cwd()) =>
+const fileMissing = (relativePath, baseDir) =>
   !fileExists(relativePath, baseDir);
 
 const readFileContent = memoize(
-  (relativePath, baseDir = process.cwd()) => {
-    const fullPath = path.join(baseDir, relativePath);
+  (relativePath, baseDir) => {
+    const fullPath = resolvePath(relativePath, baseDir);
     if (!fs.existsSync(fullPath)) return "";
     return fs.readFileSync(fullPath, "utf8");
   },

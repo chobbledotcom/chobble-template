@@ -38,16 +38,17 @@ function initSliders() {
     // Store updateState for later recalculation
     slider._updateSliderState = updateState;
 
-    // Scroll handlers
-    prevBtn.addEventListener("click", (e) => {
+    // Scroll handler
+    const scroll = (direction) => (e) => {
       e.preventDefault();
-      slider.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
-    });
+      slider.scrollBy({
+        left: direction * getScrollAmount(),
+        behavior: "smooth",
+      });
+    };
 
-    nextBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      slider.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
-    });
+    prevBtn.addEventListener("click", scroll(-1));
+    nextBtn.addEventListener("click", scroll(1));
 
     // Update state on scroll and resize
     slider.addEventListener("scroll", updateState, { passive: true });
