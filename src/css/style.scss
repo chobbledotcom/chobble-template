@@ -1080,3 +1080,18 @@ main {
     font-size: 20px;
   }
 }
+
+// Shared checkout/form section box styles
+.quote-checkout-summary,
+.hire-dates-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: var(--border);
+  border-radius: var(--border-radius);
+  background: var(--color-accent);
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+  }
+}

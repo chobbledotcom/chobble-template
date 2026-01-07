@@ -362,6 +362,25 @@ const validateExceptions = (allowlist, patterns) => {
 };
 
 /**
+ * Assert no stale exception entries exist.
+ * Logs stale entries and fails test if any found.
+ *
+ * @param {Set<string>} allowlist - Set of "file:line" or "file" entries
+ * @param {RegExp|RegExp[]} patterns - Pattern(s) the line should match
+ * @param {string} label - Name of the allowlist for logging (e.g., "ALLOWED_NULL_CHECKS")
+ */
+const expectNoStaleExceptions = (allowlist, patterns, label) => {
+  const stale = validateExceptions(allowlist, patterns);
+  if (stale.length > 0) {
+    console.log(`\n  Stale ${label} entries:`);
+    for (const s of stale) {
+      console.log(`    - ${s.entry}: ${s.reason}`);
+    }
+  }
+  expect(stale.length).toBe(0);
+};
+
+/**
  * Curried violation factory for creating standardized violation objects.
  * Takes a reason function and returns a transformer for any context object.
  *
@@ -411,4 +430,5 @@ export {
   createViolation,
   // Exception validation
   validateExceptions,
+  expectNoStaleExceptions,
 };

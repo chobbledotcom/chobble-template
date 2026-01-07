@@ -14,18 +14,7 @@
   background: var(--color-accent);
 }
 
-.hire-dates-section {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  border: var(--border);
-  border-radius: var(--border-radius);
-  background: var(--color-accent);
-
-  h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-  }
-}
+// .hire-dates-section base styles are in style.scss (shared with .quote-checkout-summary)
 
 .hire-dates-fields {
   display: flex;
