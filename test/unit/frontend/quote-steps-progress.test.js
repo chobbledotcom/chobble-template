@@ -6,21 +6,14 @@ import {
   renderStepProgress,
   updateStepProgress,
 } from "#public/ui/quote-steps-progress.js";
+import {
+  indicatorTemplate,
+  QUOTE_STEPS,
+  testIndicatorStates,
+} from "#test/unit/frontend/quote-steps-utils.js";
 
 describe("quote-steps-progress", () => {
-  const steps = [
-    { name: "Items", number: 1 },
-    { name: "Event", number: 2 },
-    { name: "Contact", number: 3 },
-    { name: "Review", number: 4 },
-  ];
-
-  // Template element required by renderStepProgress
-  const indicatorTemplate = `
-    <template id="quote-step-indicator-template">
-      <li><span data-name="name"></span><span data-name="index"></span></li>
-    </template>
-  `;
+  const steps = QUOTE_STEPS;
 
   describe("renderStepProgress", () => {
     test("renders all steps as list items", () => {
@@ -78,16 +71,7 @@ describe("quote-steps-progress", () => {
       const container = document.querySelector(".quote-steps-progress");
       renderStepProgress(container, steps, 1);
 
-      const indicators = [...container.querySelectorAll("li")];
-      expect(
-        indicators.map((el) => el.classList.contains("completed")),
-      ).toEqual([true, false, false, false]);
-      expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual([
-        "false",
-        "step",
-        "false",
-        "false",
-      ]);
+      testIndicatorStates(1, 1);
     });
   });
 
@@ -101,16 +85,7 @@ describe("quote-steps-progress", () => {
       renderStepProgress(container, steps, 0);
       updateStepProgress(container, 2);
 
-      const indicators = [...container.querySelectorAll("li")];
-      expect(
-        indicators.map((el) => el.classList.contains("completed")),
-      ).toEqual([true, true, false, false]);
-      expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual([
-        "false",
-        "false",
-        "step",
-        "false",
-      ]);
+      testIndicatorStates(2, 2);
     });
 
     test("clears previous active/completed states", () => {
@@ -122,16 +97,7 @@ describe("quote-steps-progress", () => {
       renderStepProgress(container, steps, 2);
       updateStepProgress(container, 0);
 
-      const indicators = [...container.querySelectorAll("li")];
-      expect(
-        indicators.map((el) => el.classList.contains("completed")),
-      ).toEqual([false, false, false, false]);
-      expect(indicators.map((el) => el.getAttribute("aria-current"))).toEqual([
-        "step",
-        "false",
-        "false",
-        "false",
-      ]);
+      testIndicatorStates(0, 0);
     });
   });
 

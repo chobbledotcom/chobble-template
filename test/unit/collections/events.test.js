@@ -4,14 +4,14 @@ import {
   configureEvents,
   getFeaturedEvents,
 } from "#collections/events.js";
+import { expectResultTitles } from "#test/test-utils.js";
 import {
   createEvent,
   createEvents,
   createOffsetDate,
   expectEventCounts,
-  expectResultTitles,
   formatDateString,
-} from "#test/test-utils.js";
+} from "#test/unit/collections/events-utils.js";
 
 describe("events", () => {
   test("Handles empty events array", () => {
