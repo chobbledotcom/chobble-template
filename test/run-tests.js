@@ -22,7 +22,7 @@ const steps = [
     args: ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
   },
   {
-    name: "test",
+    name: "tests",
     cmd: "bun",
     args: [
       "test",
