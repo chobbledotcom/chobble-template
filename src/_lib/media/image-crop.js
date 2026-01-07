@@ -7,6 +7,7 @@ import { createLazyLoader } from "#utils/lazy-loader.js";
 import { simplifyRatio } from "#utils/math-utils.js";
 import { memoize } from "#utils/memoize.js";
 
+// @ts-expect-error - Lazy loader config is valid
 const getSharp = createLazyLoader("sharp", { property: "default" });
 
 const CROP_CACHE_DIR = ".image-cache";

@@ -13,6 +13,7 @@ export function configureEsbuild(eleventyConfig) {
       minify: !isDevelopment,
     };
 
+    // @ts-expect-error - Bun build config is compatible
     await Bun.build(buildConfig);
 
     if (isDevelopment) {

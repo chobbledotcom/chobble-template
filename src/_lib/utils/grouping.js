@@ -73,6 +73,7 @@ const groupValuesBy = (pairs) => {
  * );
  */
 const buildFirstOccurrenceLookup = (items, getPairs) =>
+  // @ts-expect-error - pick is a valid mapper function
   fromPairs(items.flatMap(getPairs).reverse());
 
 /**

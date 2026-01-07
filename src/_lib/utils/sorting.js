@@ -23,7 +23,8 @@ const sortItems = createOrderThenStringComparator(
  * Comparator for sorting by date descending (newest first).
  * Assumes items have a .date property.
  */
-const sortByDateDescending = (a, b) => new Date(b.date) - new Date(a.date);
+const sortByDateDescending = (a, b) =>
+  new Date(b.date).getTime() - new Date(a.date).getTime();
 
 /**
  * Get the most recent items from an array, sorted by date descending.

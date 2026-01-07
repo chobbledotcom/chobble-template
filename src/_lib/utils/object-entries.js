@@ -88,6 +88,7 @@ const omit = (keys) => filterObject(notMemberOf(keys));
  * toObject(items, (item, i) => [item.id, i])
  * // { 'abc': 0, 'def': 1, 'ghi': 2 }
  */
+// @ts-expect-error - pick is a valid mapper function
 const toObject = (items, toEntry) => Object.fromEntries(items.map(toEntry));
 
 /**

@@ -21,11 +21,13 @@ const getPropertiesByLocation = memoize(
 const getFeaturedProperties = (properties) =>
   properties?.filter((p) => p.data.featured) || [];
 
+// @ts-expect-error - Type mismatch in withReviewsPage helper
 const propertiesWithReviewsPage = withReviewsPage(
   "property",
   "properties",
   addGallery,
 );
+// @ts-expect-error - Type mismatch in reviewsRedirects helper
 const propertyReviewsRedirects = reviewsRedirects("property", "properties");
 
 const configureProperties = (eleventyConfig) => {

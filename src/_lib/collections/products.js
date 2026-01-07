@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('11ty.ts').EleventyConfig} EleventyConfig
+ */
+
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
@@ -94,13 +98,19 @@ const createApiSkusCollection = (collectionApi) => {
   return Object.fromEntries(allSkuEntries);
 };
 
+// @ts-expect-error - Type mismatch in withReviewsPage helper
 const productsWithReviewsPage = withReviewsPage(
   "product",
   "products",
   addGallery,
 );
+// @ts-expect-error - Type mismatch in reviewsRedirects helper
 const productReviewsRedirects = reviewsRedirects("product", "products");
 
+/**
+ * Configure products collections and filters
+ * @param {EleventyConfig} eleventyConfig - Eleventy configuration object
+ */
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);

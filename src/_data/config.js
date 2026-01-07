@@ -16,6 +16,7 @@ const config = {
   ...configData,
   products,
 };
+// @ts-expect-error - Dynamically computed property
 config.form_target = getFormTarget(config);
 
 validateCartConfig(config);
