@@ -70,12 +70,10 @@ function getStepFieldRefs(stepEl) {
   return uniqueById(extractFieldRefs(fields));
 }
 
-// Backward compatible wrapper - returns just the IDs as strings
 function getStepFieldIds(stepEl) {
   return getStepFieldRefs(stepEl).map((ref) => ref.id);
 }
 
-// Backward compatible wrapper - takes string id, detects type
 function buildFieldRecapItem(id) {
   const isRadio =
     document.querySelector(`input[name="${id}"][type="radio"]`) !== null;
