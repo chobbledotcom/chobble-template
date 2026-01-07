@@ -19,19 +19,6 @@
     margin: 0;
     padding: 0;
     position: relative;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 1.25rem;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 4rem);
-      height: 2px;
-      background: var(--color-text);
-      opacity: 0.3;
-      z-index: 0;
-    }
   }
 
   li {
