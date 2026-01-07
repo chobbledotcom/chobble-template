@@ -16,6 +16,7 @@ import { ALLOWED_SINGLE_USE_FUNCTIONS } from "#test/code-quality/code-quality-ex
 import {
   assertNoViolations,
   combineFileLists,
+  extractExports,
   readSource,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
@@ -35,25 +36,6 @@ const FUNCTION_DECL_PATTERN =
 // Also matches: const/let/var name = function(...)
 const ARROW_OR_EXPR_PATTERN =
   /^\s*(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\(|function\s*\(|[a-zA-Z_$][a-zA-Z0-9_$]*\s*=>)/;
-
-// ============================================
-// Export Detection Patterns
-// ============================================
-
-// Matches: export function name or export async function name
-const EXPORT_FUNCTION_PATTERN =
-  /^\s*export\s+(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
-
-// Matches: export const/let/var name
-const EXPORT_VAR_PATTERN =
-  /^\s*export\s+(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
-
-// Matches names inside: export { name1, name2, name3 as alias }
-const EXPORT_LIST_PATTERN = /^\s*export\s*\{([^}]+)\}/;
-
-// Matches: export default name or export default function name
-const EXPORT_DEFAULT_PATTERN =
-  /^\s*export\s+default\s+(?:function\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)/;
 
 // ============================================
 // Analysis Functions
@@ -161,55 +143,6 @@ const extractFunctionDefinitions = (source) => {
   const lines = source.split("\n");
   const finalState = lines.reduce(processLineForFuncDef, initialState);
   return finalState.functions;
-};
-
-/**
- * Extract exported function names from source code.
- * Returns a Set of exported names.
- */
-const extractExports = (source) => {
-  const exported = new Set();
-  const lines = source.split("\n");
-
-  for (const line of lines) {
-    // export function name
-    const funcMatch = line.match(EXPORT_FUNCTION_PATTERN);
-    if (funcMatch) {
-      exported.add(funcMatch[1]);
-      continue;
-    }
-
-    // export const/let/var name
-    const varMatch = line.match(EXPORT_VAR_PATTERN);
-    if (varMatch) {
-      exported.add(varMatch[1]);
-      continue;
-    }
-
-    // export { name1, name2 }
-    const listMatch = line.match(EXPORT_LIST_PATTERN);
-    if (listMatch) {
-      const names = listMatch[1].split(",").map((n) => {
-        // Handle "name as alias" - we want the original name
-        const parts = n.trim().split(/\s+as\s+/);
-        return parts[0].trim();
-      });
-      for (const name of names) {
-        if (name && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)) {
-          exported.add(name);
-        }
-      }
-      continue;
-    }
-
-    // export default name
-    const defaultMatch = line.match(EXPORT_DEFAULT_PATTERN);
-    if (defaultMatch) {
-      exported.add(defaultMatch[1]);
-    }
-  }
-
-  return exported;
 };
 
 /**
