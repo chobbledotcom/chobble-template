@@ -6,6 +6,16 @@ import { ALL_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 const THIS_FILE = "test/unit/code-quality/relative-paths.test.js";
 const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 
+// _data/*.js files legitimately use relative imports for sibling JSON files
+// This is required for test isolation - test sites copy these files and need
+// JSON imports to resolve relative to the copied location, not via path aliases
+const DATA_JS_FILES = [
+  "src/_data/config.js",
+  "src/_data/contact-form.js",
+  "src/_data/quote-fields.js",
+  "src/_data/site.js",
+];
+
 describe("relative-paths", () => {
   // Factory for import-style code checkers with common configuration
   const importCheckerConfig = (patterns) => ({
@@ -16,7 +26,7 @@ describe("relative-paths", () => {
       return { importPath: pathMatch ? pathMatch[1] : "unknown" };
     },
     files: ALL_JS_FILES(),
-    excludeFiles: [THIS_FILE],
+    excludeFiles: [THIS_FILE, ...DATA_JS_FILES],
   });
 
   // Create checkers inside describe block to ensure imports are resolved

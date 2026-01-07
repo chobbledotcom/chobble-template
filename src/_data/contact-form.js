@@ -1,9 +1,6 @@
-import { createRequire } from "node:module";
 import { processContactForm } from "#config/form-helpers.js";
+import contactFormData from "./contact-form.json" with { type: "json" };
 
-const require = createRequire(import.meta.url);
-
-const contactFormData = require("./contact-form.json");
 const contactForm = processContactForm(contactFormData);
 
 export default function () {

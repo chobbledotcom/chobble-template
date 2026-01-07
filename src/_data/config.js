@@ -1,4 +1,3 @@
-import { createRequire } from "node:module";
 import {
   DEFAULT_PRODUCT_DATA,
   DEFAULTS,
@@ -6,10 +5,8 @@ import {
   getProducts,
   validateCartConfig,
 } from "#config/helpers.js";
+import configData from "./config.json" with { type: "json" };
 
-const require = createRequire(import.meta.url);
-
-const configData = require("./config.json");
 const products = { ...DEFAULT_PRODUCT_DATA, ...getProducts(configData) };
 const baseConfig = {
   ...DEFAULTS,
