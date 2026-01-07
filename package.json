@@ -17,10 +17,9 @@
 		"#test/*": "./test/*"
 	},
 	"scripts": {
-		"preinstall": "node -e \"if(!process.env.npm_config_user_agent||!process.env.npm_config_user_agent.startsWith('bun')){console.error('\\n\\x1b[31mERROR: This project requires bun.\\x1b[0m\\nRun: bun install\\nInstall bun: https://bun.sh\\n');process.exit(1)}\"",
 		"build": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs",
 		"serve": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs --serve --incremental --quiet",
-		"test": "node -e \"if(process.env.npm_config_user_agent && !process.env.npm_config_user_agent.startsWith('bun')){console.error('\\n\\x1b[31mERROR: This project uses bun.\\x1b[0m\\nRun: bun test\\nInstall bun: https://bun.sh\\n'); process.exit(1)}\" && node test/run-tests.js",
+		"test": "bun test/run-tests.js",
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
