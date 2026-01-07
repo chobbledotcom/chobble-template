@@ -5,7 +5,7 @@ import {
   getProducts,
   validateCartConfig,
 } from "#config/helpers.js";
-import configData from "#data/config.json" with { type: "json" };
+import configData from "./config.json" with { type: "json" };
 
 const products = { ...DEFAULT_PRODUCT_DATA, ...getProducts(configData) };
 const baseConfig = {

@@ -1,4 +1,4 @@
-import siteData from "#data/site.json" with { type: "json" };
+import siteData from "./site.json" with { type: "json" };
 
 export default function () {
   return siteData;

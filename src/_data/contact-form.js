@@ -1,5 +1,5 @@
 import { processContactForm } from "#config/form-helpers.js";
-import contactFormData from "#data/contact-form.json" with { type: "json" };
+import contactFormData from "./contact-form.json" with { type: "json" };
 
 const contactForm = processContactForm(contactFormData);
 
