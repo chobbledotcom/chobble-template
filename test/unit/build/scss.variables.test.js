@@ -12,9 +12,7 @@ const STYLE_FILE = "src/css/style.scss";
 
 // Variables that are consumed outside SCSS (e.g., via JavaScript getPropertyValue)
 // These variables are defined in SCSS but not read via var() in CSS
-const CONSUMED_VIA_JS = [
-  "--scroll-fade-selectors", // Read by scroll-fade.js via getPropertyValue
-];
+const CONSUMED_VIA_JS = [];
 
 // ============================================
 // Helper functions
