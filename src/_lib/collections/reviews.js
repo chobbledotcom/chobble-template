@@ -137,8 +137,9 @@ const getReviewData = (tag, limitOverride, collectionApi) => ({
  * Factory: items with enough reviews for a separate /reviews page
  * @param {string} tag - The tag to filter items by
  * @param {string} reviewsField - The field to check for reviews
- * @param {Function} processItem - Optional function to transform items
- * @param {number} limitOverride - Optional limit override for testing
+ * @param {(item: any) => any} [processItem] - Optional function to transform items
+ * @param {number} [limitOverride] - Optional limit override for testing
+ * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns filtered items
  */
 const withReviewsPage =
   (tag, reviewsField, processItem = (item) => item, limitOverride) =>
@@ -164,7 +165,8 @@ const withReviewsPage =
  * Factory: redirect data for items without enough reviews for a separate page
  * @param {string} tag - The tag to filter items by
  * @param {string} reviewsField - The field to check for reviews
- * @param {number} limitOverride - Optional limit override for testing
+ * @param {number} [limitOverride] - Optional limit override for testing
+ * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns redirect data
  */
 const reviewsRedirects =
   (tag, reviewsField, limitOverride) => (collectionApi) => {

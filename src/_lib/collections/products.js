@@ -98,13 +98,11 @@ const createApiSkusCollection = (collectionApi) => {
   return Object.fromEntries(allSkuEntries);
 };
 
-// @ts-expect-error - Type mismatch in withReviewsPage helper
 const productsWithReviewsPage = withReviewsPage(
   "product",
   "products",
   addGallery,
 );
-// @ts-expect-error - Type mismatch in reviewsRedirects helper
 const productReviewsRedirects = reviewsRedirects("product", "products");
 
 /**

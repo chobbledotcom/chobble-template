@@ -63,7 +63,7 @@ const groupValuesBy = (pairs) => {
  * last, so it overwrites any later occurrences when building the object.
  *
  * @param {Array} items - Array of items to process
- * @param {Function} getPairs - Function that extracts [[key, value], ...] pairs from each item
+ * @param {(item: any) => Array<[string, any]>} getPairs - Function that extracts [[key, value], ...] pairs from each item
  * @returns {Object} { key: value, ... }
  *
  * @example
@@ -73,7 +73,6 @@ const groupValuesBy = (pairs) => {
  * );
  */
 const buildFirstOccurrenceLookup = (items, getPairs) =>
-  // @ts-expect-error - pick is a valid mapper function
   fromPairs(items.flatMap(getPairs).reverse());
 
 /**

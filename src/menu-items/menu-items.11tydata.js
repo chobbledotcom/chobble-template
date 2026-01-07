@@ -9,7 +9,6 @@ export default {
       return (
         Object.values(dietaryIndicators)
           .filter((indicator) => data[indicator.field])
-          // @ts-expect-error - pick is a valid mapper function
           .map(pick(["symbol", "label"]))
       );
     },

@@ -38,7 +38,6 @@ const renderRecurringEvents = (events) => {
 function recurringEventsShortcode(events = []) {
   const recurringEvents = events
     .filter((event) => event.data?.recurring_date)
-    // @ts-expect-error - sortItems is a valid comparator function
     .sort(sortItems);
 
   return renderRecurringEvents(recurringEvents);
@@ -83,7 +82,6 @@ const getRecurringEventsHtml = memoize(async () => {
       };
     })
     .filter(Boolean)
-    // @ts-expect-error - sortItems is a valid comparator function
     .sort(sortItems);
 
   return renderRecurringEvents(recurringEvents);
