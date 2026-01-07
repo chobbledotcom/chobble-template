@@ -8,7 +8,6 @@ import {
   generateFilterCombinations,
   getAllFilterAttributes,
   getItemsByFilters,
-  itemMatchesFilters,
   normalize,
   parseFilterAttributes,
   pathToFilter,
@@ -240,37 +239,6 @@ describe("item-filters", () => {
 
     expect("pet-friendly" in result).toBe(true);
     expect(result["pet-friendly"]).toEqual(["yes"]);
-  });
-
-  // itemMatchesFilters tests
-  test("All items match empty filters", () => {
-    const testItem = item(null, attr("Type", "Cottage"));
-
-    expect(itemMatchesFilters(testItem, null)).toBe(true);
-    expect(itemMatchesFilters(testItem, {})).toBe(true);
-  });
-
-  test("Returns true for matching filters", () => {
-    const testItem = item(
-      null,
-      attr("Pet Friendly", "Yes"),
-      attr("Type", "Cottage"),
-    );
-
-    const result = itemMatchesFilters(testItem, {
-      "pet-friendly": "yes",
-      type: "cottage",
-    });
-
-    expect(result).toBe(true);
-  });
-
-  test("Returns false for non-matching filters", () => {
-    const testItem = item(null, attr("Type", "Cottage"));
-
-    const result = itemMatchesFilters(testItem, { type: "apartment" });
-
-    expect(result).toBe(false);
   });
 
   // getItemsByFilters tests
@@ -655,15 +623,48 @@ describe("item-filters", () => {
     expect(generateFilterCombinations(testItems)).toEqual([]);
   });
 
-  // itemMatchesFilters with missing attribute
-  test("Returns false when item is missing a filtered attribute", () => {
-    const testItem = item(null, attr("Type", "Cottage"));
+  test("Returns empty when item is missing a filtered attribute", () => {
+    const testItems = [item("Cottage Only", attr("Type", "Cottage"))];
 
-    const result = itemMatchesFilters(testItem, {
+    const result = getItemsByFilters(testItems, {
       type: "cottage",
       size: "large",
     });
 
-    expect(result).toBe(false);
+    expect(result).toEqual([]);
+  });
+
+  test("Returns all items for null filters", () => {
+    const testItems = [item("Test", attr("Type", "Cottage"))];
+
+    expect(getItemsByFilters(testItems, null).length).toBe(1);
+  });
+
+  test("Returns all items for empty filters object", () => {
+    const testItems = [item("Test", attr("Type", "Cottage"))];
+
+    expect(getItemsByFilters(testItems, {}).length).toBe(1);
+  });
+
+  test("Matches items with multiple filter criteria", () => {
+    const testItems = items([
+      ["Match", attr("Pet Friendly", "Yes"), attr("Type", "Cottage")],
+      ["No Match", attr("Pet Friendly", "No"), attr("Type", "Cottage")],
+    ]);
+
+    const result = getItemsByFilters(testItems, {
+      "pet-friendly": "yes",
+      type: "cottage",
+    });
+
+    expectResultTitles(result, ["Match"]);
+  });
+
+  test("Excludes items that do not match filter", () => {
+    const testItems = [item("Cottage", attr("Type", "Cottage"))];
+
+    const result = getItemsByFilters(testItems, { type: "apartment" });
+
+    expect(result).toEqual([]);
   });
 });
