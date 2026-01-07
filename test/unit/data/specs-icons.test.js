@@ -4,68 +4,46 @@ import specsIconsBase from "#data/specs-icons-base.json" with { type: "json" };
 
 describe("specs-icons", () => {
   // ============================================
-  // Normalization - String Format
+  // Structure Validation
   // ============================================
-  test("Normalizes string values to object format with highlight false", () => {
-    // All base icons should be strings in the JSON
+  test("All spec icon values are objects", () => {
     const firstKey = Object.keys(specsIconsBase)[0];
     const result = specsIcons[firstKey];
 
     expect(typeof result).toBe("object");
-    expect(result.icon).toBe(specsIconsBase[firstKey]);
-    expect(result.highlight).toBe(false);
   });
 
-  test("Normalized icons have required properties", () => {
+  test("All spec icons have icon property", () => {
     const firstKey = Object.keys(specsIcons)[0];
     const result = specsIcons[firstKey];
 
     expect("icon" in result).toBe(true);
-    expect("highlight" in result).toBe(true);
     expect(typeof result.icon).toBe("string");
-    expect(typeof result.highlight).toBe("boolean");
+  });
+
+  test("Base config uses object format with icon property", () => {
+    const firstKey = Object.keys(specsIconsBase)[0];
+    const baseValue = specsIconsBase[firstKey];
+
+    expect(typeof baseValue).toBe("object");
+    expect("icon" in baseValue).toBe(true);
+    expect(typeof baseValue.icon).toBe("string");
   });
 
   // ============================================
-  // Normalization - Object Format
+  // Merging
   // ============================================
-  test("Preserves icon property from object format", () => {
-    // Mock a manual entry in memory to test object format
-    const testIcon = { icon: "test.svg", highlight: true };
-
-    expect(testIcon.icon).toBe("test.svg");
-    expect(testIcon.highlight).toBe(true);
-  });
-
-  test("Sets highlight to false when not specified in object format", () => {
-    const testIcon = { icon: "test.svg" };
-    const normalized = {
-      icon: testIcon.icon,
-      highlight: testIcon.highlight ?? false,
-    };
-
-    expect(normalized.icon).toBe("test.svg");
-    expect(normalized.highlight).toBe(false);
-  });
-
-  // ============================================
-  // Integration
-  // ============================================
-  test("All icons in base config are normalized", () => {
+  test("Merges base and user icons", () => {
     for (const key of Object.keys(specsIconsBase)) {
-      const result = specsIcons[key];
-
-      expect(typeof result).toBe("object");
-      expect("icon" in result).toBe(true);
-      expect("highlight" in result).toBe(true);
+      expect(key in specsIcons).toBe(true);
     }
   });
 
-  test("Normalized icons maintain original icon filenames", () => {
+  test("Preserves icon filenames from base config", () => {
     for (const [key, value] of Object.entries(specsIconsBase)) {
       const result = specsIcons[key];
 
-      expect(result.icon).toBe(value);
+      expect(result.icon).toBe(value.icon);
     }
   });
 });

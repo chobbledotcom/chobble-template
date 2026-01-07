@@ -1,1 +1,10 @@
-{}
+{
+	"waterproof": {
+		"icon": "tick.svg",
+		"highlight": true
+	},
+	"battery life": {
+		"icon": "tick.svg",
+		"highlight": true
+	}
+}

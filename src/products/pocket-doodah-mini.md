@@ -38,10 +38,10 @@ specs:
     value: 3.5cm x 2.5cm x 1cm
   - name: Weight
     value: 28g
-  - name: Battery
-    value: Rechargeable via USB-C
-  - name: Runtime
+  - name: Battery Life
     value: 48 hours per charge
+  - name: Waterproof
+    value: IPX4 rated
   - name: Colors
     value: 'Midnight, Pearl, Rose Gold, Forest'
 features:

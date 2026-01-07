@@ -48,8 +48,10 @@ specs:
     value: 'Wi-Fi 6, Bluetooth 5.3, 5G'
   - name: Display
     value: 4.3" OLED touchscreen
-  - name: Battery
-    value: 5000mAh with wireless charging
+  - name: Battery Life
+    value: Up to 48 hours
+  - name: Waterproof
+    value: IP68 rated
   - name: OS
     value: ThingyOS 3.0
 features:

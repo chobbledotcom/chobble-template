@@ -1,3 +1,5 @@
 {
-	"has dongle": "tick.svg"
+	"has dongle": {
+		"icon": "tick.svg"
+	}
 }
