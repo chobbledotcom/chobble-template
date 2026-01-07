@@ -115,7 +115,7 @@ AssertionError: expected undefined to be defined
   });
 
   test("extractErrorsFromOutput correctly parses coverage errors", () => {
-    // Simulate real coverage error output from run-coverage.js
+    // Simulate real coverage error output from bun test --coverage
     const coverageOutput = `
 ❌ Coverage below threshold for statements: 85.5% < 90%
 ❌ Coverage below threshold for branches: 75.2% < 80%
