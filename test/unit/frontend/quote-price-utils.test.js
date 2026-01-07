@@ -2,6 +2,7 @@
 // Tests the field details collection and display functions
 
 import { describe, expect, mock, test } from "bun:test";
+import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 import {
   calculateTotal,
   collectFieldDetails,
@@ -206,8 +207,6 @@ describe("quote-price-utils", () => {
   // updateQuotePrice Tests (with DOM)
   // ----------------------------------------
   describe("updateQuotePrice", () => {
-    const STORAGE_KEY = "shopping_cart";
-
     const setupFullDOM = (cart = [], formFields = "") => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
       document.body.innerHTML = `
@@ -657,8 +656,6 @@ describe("quote-price-utils", () => {
   describe("setupDetailsBlurHandlers", () => {
     // Note: We trust form container always exists on quote pages
     // No test for missing container - that would be a template bug
-
-    const STORAGE_KEY = "shopping_cart";
 
     const setupBlurTestDOM = (formHtml, useQuoteSteps = false) => {
       // Empty cart so updateQuotePrice just hides the container
