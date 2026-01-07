@@ -30,8 +30,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // Fixture factories
   "createProduct",
   "createPropertyReviewFixture",
-  // events-utils.js - event fixture factories
+  // events-utils.js - event fixture factories and assertion helpers
   "expectEventCounts",
+  "expectShowState",
   "createOffsetDate",
   "formatDateString",
   "createEvent",
@@ -45,8 +46,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProductSchemaData",
   "createPostSchemaData",
   "createMockReview",
-  // quote-steps.test.js - test fixture factory
+  // quote-steps.test.js - test fixture factory and assertion helpers
   "createQuoteStepsHtml",
+  "testNextButtonStep",
+  "testIndicatorStates",
+  "testValidateFieldWithHtml",
   // quote-price-utils.test.js - DOM setup and template rendering
   "setupFullDOM",
   "setupBlurTestDOM",
@@ -65,6 +69,14 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
+  // config.test.js - frontmatter validation helpers
+  "testFrontmatterFieldThrows",
+  // responsive-tables.test.js - assertion helpers
+  "testScrollableTableCount",
+  // autosizes.test.js - integration test helpers
+  "testRemoteUrlNotProcessed",
+  // code-scanner.test.js - matcher assertion helpers
+  "testMatcherResult",
   // function-length.test.js - analysis helpers
   "calculateOwnLines",
   "analyzeFunctionLengths",
@@ -81,6 +93,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractDefinedVariables",
   // code-scanner.js - stale exception validation helper
   "expectNoStaleExceptions",
+  // feed.test.js - test site factory
+  "setupTestSiteWithFeed",
   // quote-steps.test.js - navigation test setup
   "setupQuoteStepsNav",
   // hire-calculator.test.js - callback tracking setup

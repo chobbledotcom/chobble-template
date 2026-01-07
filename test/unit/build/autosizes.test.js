@@ -204,6 +204,14 @@ describe("autosizes", () => {
   });
 
   describe("Image filtering", () => {
+    const testRemoteUrlNotProcessed = (url) => {
+      const { window, img } = createTestEnv({
+        imgAttrs: { src: url, sizes: "auto", loading: "lazy" },
+      });
+      runAutosizes(window, img);
+      expect(img.hasAttribute("src")).toBe(true);
+    };
+
     test("Does not process images without sizes=auto", () => {
       const { window, img } = createTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "100vw", loading: "lazy" },
@@ -221,27 +229,11 @@ describe("autosizes", () => {
     });
 
     test("Does not process remote images with http:// URLs", () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "http://example.com/image.jpg",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      testRemoteUrlNotProcessed("http://example.com/image.jpg");
     });
 
     test("Does not process remote images with https:// URLs", () => {
-      const { window, img } = createTestEnv({
-        imgAttrs: {
-          src: "https://example.com/image.jpg",
-          sizes: "auto",
-          loading: "lazy",
-        },
-      });
-      runAutosizes(window, img);
-      expect(img.hasAttribute("src")).toBe(true);
+      testRemoteUrlNotProcessed("https://example.com/image.jpg");
     });
 
     test("Processes local images with relative paths", () => {

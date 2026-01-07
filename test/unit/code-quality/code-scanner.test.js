@@ -73,27 +73,33 @@ describe("code-scanner", () => {
   });
 
   describe("createPatternMatcher", () => {
-    test("creates a matcher that finds patterns", () => {
-      const matcher = createPatternMatcher(/console\.log/, (line, num) => ({
+    const testMatcherResult = (matcher, input, expectedResult) => {
+      const result = matcher(input, 5, "", "test.js");
+      if (expectedResult === null) {
+        expect(result).toBeNull();
+      } else if (typeof expectedResult === "object") {
+        expect(result).not.toBeNull();
+        for (const [key, value] of Object.entries(expectedResult)) {
+          expect(result[key]).toBe(value);
+        }
+      }
+    };
+
+    const consoleLogMatcher = createPatternMatcher(
+      /console\.log/,
+      (line, num) => ({
         file: "test.js",
         line: num,
         code: line,
-      }));
+      }),
+    );
 
-      const result = matcher('console.log("test")', 5, "", "test.js");
-      expect(result).not.toBeNull();
-      expect(result.line).toBe(5);
+    test("creates a matcher that finds patterns", () => {
+      testMatcherResult(consoleLogMatcher, 'console.log("test")', { line: 5 });
     });
 
     test("returns null when pattern not found", () => {
-      const matcher = createPatternMatcher(/console\.log/, (line, num) => ({
-        file: "test.js",
-        line: num,
-        code: line,
-      }));
-
-      const result = matcher("const x = 1;", 5, "", "test.js");
-      expect(result).toBeNull();
+      testMatcherResult(consoleLogMatcher, "const x = 1;", null);
     });
 
     test("works with array of patterns", () => {

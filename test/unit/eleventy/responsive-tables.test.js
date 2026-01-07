@@ -3,6 +3,18 @@ import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("responsive-tables", () => {
+  const testScrollableTableCount = async (html, expectedCount) => {
+    const mockConfig = createMockEleventyConfig();
+    configureResponsiveTables(mockConfig);
+    const result = await mockConfig.transforms.responsiveTables(
+      html,
+      "test.html",
+    );
+    const wrapperCount = (result.match(/class="scrollable-table"/g) || [])
+      .length;
+    expect(wrapperCount).toBe(expectedCount);
+  };
+
   test("Adds responsiveTables transform to Eleventy config", () => {
     const mockConfig = createMockEleventyConfig();
     configureResponsiveTables(mockConfig);
@@ -60,35 +72,15 @@ describe("responsive-tables", () => {
   });
 
   test("Wraps multiple tables", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureResponsiveTables(mockConfig);
-
     const html =
       "<html><body><table><tr><td>A</td></tr></table><table><tr><td>B</td></tr></table></body></html>";
-    const result = await mockConfig.transforms.responsiveTables(
-      html,
-      "test.html",
-    );
-
-    const wrapperCount = (result.match(/class="scrollable-table"/g) || [])
-      .length;
-    expect(wrapperCount).toBe(2);
+    await testScrollableTableCount(html, 2);
   });
 
   test("Does not double-wrap tables already in scrollable-table", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureResponsiveTables(mockConfig);
-
     const html =
       '<html><body><div class="scrollable-table"><table><tr><td>Cell</td></tr></table></div></body></html>';
-    const result = await mockConfig.transforms.responsiveTables(
-      html,
-      "test.html",
-    );
-
-    const wrapperCount = (result.match(/class="scrollable-table"/g) || [])
-      .length;
-    expect(wrapperCount).toBe(1);
+    await testScrollableTableCount(html, 1);
   });
 
   test("Preserves table attributes", async () => {

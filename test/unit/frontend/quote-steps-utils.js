@@ -4,7 +4,7 @@
  */
 
 import { expect } from "bun:test";
-import { initQuoteSteps } from "#public/cart/quote-steps.js";
+import { initQuoteSteps, validateField } from "#public/cart/quote-steps.js";
 
 // Quote steps fixture data
 const QUOTE_STEPS = [
@@ -86,6 +86,22 @@ const testIndicatorStates = (completedCount, expectedAriaStep) => {
   );
 };
 
+/**
+ * Test validateField with a given DOM setup
+ * @param {string} inputHtml - HTML content inside the .step div
+ * @param {boolean} expected - Expected return value
+ */
+const testValidateFieldWithHtml = (inputHtml, expected) => {
+  document.body.innerHTML = `
+    <div class="step">
+      ${inputHtml}
+    </div>
+  `;
+  const field = document.getElementById("test");
+  const stepEl = document.querySelector(".step");
+  expect(validateField(field, stepEl)).toBe(expected);
+};
+
 export {
   QUOTE_STEPS,
   QUOTE_STEPS_JSON,
@@ -93,4 +109,5 @@ export {
   createQuoteStepsHtml,
   testNextButtonStep,
   testIndicatorStates,
+  testValidateFieldWithHtml,
 };

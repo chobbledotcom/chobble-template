@@ -10,6 +10,7 @@ import {
   createEvents,
   createOffsetDate,
   expectEventCounts,
+  expectShowState,
   formatDateString,
 } from "#test/unit/collections/events-utils.js";
 
@@ -172,20 +173,13 @@ describe("events", () => {
 
   test("Show logic with no events shows nothing", () => {
     const result = categoriseEvents([]);
-
-    expect(result.show.upcoming).toBe(false);
-    expect(result.show.regular).toBe(false);
-    expect(result.show.past).toBe(false);
+    expectShowState(result, { upcoming: false, regular: false, past: false });
   });
 
   test("Show logic with only upcoming events", () => {
     const events = [createEvent()];
-
     const result = categoriseEvents(events);
-
-    expect(result.show.upcoming).toBe(true);
-    expect(result.show.regular).toBe(false);
-    expect(result.show.past).toBe(false);
+    expectShowState(result, { upcoming: true, regular: false, past: false });
   });
 
   test("Show logic shows both upcoming and regular when both exist", () => {
@@ -193,12 +187,8 @@ describe("events", () => {
       {},
       { title: "Weekly Meeting", recurring: "Every Monday" },
     ]);
-
     const result = categoriseEvents(events);
-
-    expect(result.show.upcoming).toBe(true);
-    expect(result.show.regular).toBe(true);
-    expect(result.show.past).toBe(false);
+    expectShowState(result, { upcoming: true, regular: true, past: false });
   });
 
   test("Show logic shows past and regular but not upcoming when no upcoming", () => {
@@ -206,22 +196,14 @@ describe("events", () => {
       { daysOffset: -30 },
       { title: "Weekly Meeting", recurring: "Every Monday" },
     ]);
-
     const result = categoriseEvents(events);
-
-    expect(result.show.upcoming).toBe(false);
-    expect(result.show.regular).toBe(true);
-    expect(result.show.past).toBe(true);
+    expectShowState(result, { upcoming: false, regular: true, past: true });
   });
 
   test("Show logic shows only past when only past events exist", () => {
     const events = [createEvent({ daysOffset: -30 })];
-
     const result = categoriseEvents(events);
-
-    expect(result.show.upcoming).toBe(false);
-    expect(result.show.regular).toBe(false);
-    expect(result.show.past).toBe(true);
+    expectShowState(result, { upcoming: false, regular: false, past: true });
   });
 
   test("Filters events by featured flag", () => {
