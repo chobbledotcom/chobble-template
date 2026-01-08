@@ -143,7 +143,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",
   "test/integration/eleventy/feed.test.js",
-  "test/integration/eleventy/jsonld-validation.test.js",
   "test/unit/eleventy/layout-aliases.test.js",
   "test/unit/filters/item-filters.test.js",
   "test/unit/frontend/checkout.test.js",
@@ -167,7 +166,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
 const ALLOWED_LET = new Set([
   // Test files with mutable state tracking
   "test/integration/build/pdf-integration.test.js",
-  "test/integration/eleventy/jsonld-validation.test.js",
   "test/integration/eleventy/feed.test.js",
   "test/unit/frontend/gallery.test.js",
   "test/unit/frontend/hire-calculator.test.js",
