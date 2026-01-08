@@ -14,7 +14,8 @@
 		"#media/*": "./src/_lib/media/*",
 		"#utils/*": "./src/_lib/utils/*",
 		"#public/*": "./src/_lib/public/*",
-		"#test/*": "./test/*"
+		"#test/*": "./test/*",
+		"#scripts/*": "./scripts/*"
 	},
 	"scripts": {
 		"build": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs",
@@ -28,7 +29,9 @@
 		"knip:fix": "knip --fix",
 		"lint": "bunx @biomejs/biome check --error-on-warnings .",
 		"lint:fix": "bunx @biomejs/biome check --write .",
-		"precommit": "node test/precommit.js"
+		"precommit": "node test/precommit.js",
+		"customise-cms": "bun scripts/customise-cms/index.js",
+		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js"
 	},
 	"devDependencies": {
 		"11ty.ts": "^0.0.7",
@@ -55,7 +58,8 @@
 		"liquidjs": "^10.24.0",
 		"markdown-it": "^14.1.0",
 		"sass": "^1.86.3",
-		"sharp": "^0.34.5"
+		"sharp": "^0.34.5",
+		"yaml": "^2.8.2"
 	},
 	"trustedDependencies": [
 		"@parcel/watcher"

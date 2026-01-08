@@ -61,7 +61,8 @@
       "includes": [
         "src/_lib/build/**/*.js",
         "ecommerce-backend/server.js",
-        "**/test/**/*.js"
+        "**/test/**/*.js",
+        "scripts/**/*.js"
       ],
       "linter": {
         "rules": {
