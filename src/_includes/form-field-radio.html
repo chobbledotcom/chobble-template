@@ -13,7 +13,5 @@
       <label for="{{ optionId }}">{{ option }}</label>
     </div>
   {%- endfor -%}
-  {%- if field.note -%}
-    <small>{{ field.note }}</small>
-  {%- endif -%}
+  {%- include "form-field-note.html" -%}
 </fieldset>

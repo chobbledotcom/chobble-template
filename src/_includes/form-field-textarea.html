@@ -7,7 +7,5 @@
     rows="{% if field.rows %}{{ field.rows }}{% else %}6{% endif %}"
     placeholder="{% if field.defaultFromPageTitle %}{{ pageTitle }}{% else %}{{ field.placeholder }}{% endif %}"
   >{% if field.defaultFromPageTitle %}{{ pageTitle }}{% endif %}</textarea>
-  {%- if field.note -%}
-    <small>{{ field.note }}</small>
-  {%- endif -%}
+  {%- include "form-field-note.html" -%}
 </label>
