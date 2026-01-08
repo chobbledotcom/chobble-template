@@ -125,7 +125,11 @@ const buildProductsFields = (config) => {
     hasCollection("events") &&
       createReferenceField("events", "Events", "events"),
     PRODUCT_OPTIONS_FIELD,
-    { name: "etsy_url", label: "Etsy URL", type: "string" },
+    config.features.external_purchases && {
+      name: "purchase_url",
+      label: "Purchase URL",
+      type: "string",
+    },
     COMMON_FIELDS.body,
     config.features.features && FEATURES_FIELD,
     FILTER_ATTRIBUTES_FIELD,

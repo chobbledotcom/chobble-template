@@ -122,12 +122,63 @@ const askCollectionQuestions = async (rl, defaultCollections) => {
 };
 
 /**
+ * Ask conditional feature questions for specs/features
+ */
+const askSpecsAndFeaturesQuestions = async (
+  rl,
+  collections,
+  defaultFeatures,
+) => {
+  const hasSpecsCollections = collections.some(
+    memberOf(["products", "properties"]),
+  );
+
+  return {
+    specs: hasSpecsCollections
+      ? await askYesNo(
+          rl,
+          "Do you want specifications on products/properties?",
+          defaultFeatures.specs ?? false,
+        )
+      : false,
+    features: hasSpecsCollections
+      ? await askYesNo(
+          rl,
+          "Do you want feature lists on products/properties?",
+          defaultFeatures.features ?? false,
+        )
+      : false,
+  };
+};
+
+/**
+ * Ask conditional feature questions for external purchases
+ */
+const askExternalPurchasesQuestion = async (
+  rl,
+  collections,
+  defaultFeatures,
+) => {
+  const hasProducts = collections.includes("products");
+
+  return {
+    external_purchases: hasProducts
+      ? await askYesNo(
+          rl,
+          "Are purchases handled externally (e.g., Etsy, external store)?",
+          defaultFeatures.external_purchases ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask feature questions
  */
 const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
   console.log("\n--- Optional Features ---\n");
 
-  const features = {
+  const baseFeatures = {
     permalinks: await askYesNo(
       rl,
       "Do you want custom permalinks on items?",
@@ -158,28 +209,20 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
       "Do you want to link to external URLs in your navigation?",
       defaultFeatures.external_navigation_urls ?? false,
     ),
-    specs: false,
-    features: false,
   };
 
-  const hasSpecsCollections = collections.some(
-    memberOf(["products", "properties"]),
+  const conditionalFeatures = await askSpecsAndFeaturesQuestions(
+    rl,
+    collections,
+    defaultFeatures,
+  );
+  const purchaseFeatures = await askExternalPurchasesQuestion(
+    rl,
+    collections,
+    defaultFeatures,
   );
 
-  if (hasSpecsCollections) {
-    features.specs = await askYesNo(
-      rl,
-      "Do you want specifications on products/properties?",
-      defaultFeatures.specs ?? false,
-    );
-    features.features = await askYesNo(
-      rl,
-      "Do you want feature lists on products/properties?",
-      defaultFeatures.features ?? false,
-    );
-  }
-
-  return features;
+  return { ...baseFeatures, ...conditionalFeatures, ...purchaseFeatures };
 };
 
 /**
