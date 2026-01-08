@@ -14,13 +14,9 @@ const SITE_JSON_PATH = join(process.cwd(), "src/_data/site.json");
  * Returns null if no config exists
  */
 export const loadCmsConfig = async () => {
-  try {
-    const content = await readFile(SITE_JSON_PATH, "utf-8");
-    const siteData = JSON.parse(content);
-    return siteData.cms_config || null;
-  } catch {
-    return null;
-  }
+  const content = await readFile(SITE_JSON_PATH, "utf-8");
+  const siteData = JSON.parse(content);
+  return siteData.cms_config || null;
 };
 
 /**
@@ -28,14 +24,8 @@ export const loadCmsConfig = async () => {
  * Preserves existing site.json data
  */
 export const saveCmsConfig = async (config) => {
-  let siteData = {};
-
-  try {
-    const content = await readFile(SITE_JSON_PATH, "utf-8");
-    siteData = JSON.parse(content);
-  } catch {
-    // File doesn't exist or is invalid, start fresh
-  }
+  const content = await readFile(SITE_JSON_PATH, "utf-8");
+  const siteData = JSON.parse(content);
 
   siteData.cms_config = config;
 
