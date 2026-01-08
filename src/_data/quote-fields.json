@@ -13,7 +13,8 @@
           "type": "date",
           "label": "Event Start Date",
           "required": true,
-          "half": true
+          "half": true,
+          "note": "Please provide at least 2 weeks notice for bookings"
         },
         {
           "name": "start_time",
@@ -47,7 +48,8 @@
             "School Fete",
             "Private Party",
             "Other"
-          ]
+          ],
+          "note": "Select 'Other' if your event type is not listed"
         },
         {
           "name": "event_location",
@@ -85,7 +87,8 @@
           "name": "contact_preference",
           "type": "radio",
           "label": "Preferred Contact Method",
-          "options": ["Email", "Phone", "Either"]
+          "options": ["Email", "Phone", "Either"],
+          "note": "We'll respond within 24 hours on business days"
         },
         {
           "name": "message",
