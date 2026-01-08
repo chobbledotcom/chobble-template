@@ -10,6 +10,7 @@
  * on subsequent runs.
  */
 
+import { compactYaml } from "#scripts/customise-cms/compact-yaml.js";
 import { loadCmsConfig, saveCmsConfig } from "#scripts/customise-cms/config.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 import { askQuestions } from "#scripts/customise-cms/prompts.js";
@@ -27,7 +28,8 @@ const main = async () => {
   }
 
   const config = await askQuestions(existingConfig);
-  const yaml = generatePagesYaml(config);
+  let yaml = generatePagesYaml(config);
+  yaml = compactYaml(yaml);
 
   await saveCmsConfig(config);
   await writePagesYaml(yaml);
