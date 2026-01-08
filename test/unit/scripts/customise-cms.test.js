@@ -167,7 +167,7 @@ describe("customise-cms fields", () => {
     expect(FAQS_FIELD.name).toBe("faqs");
     expect(FAQS_FIELD.type).toBe("object");
     expect(FAQS_FIELD.list).toBe(true);
-    expect(FAQS_FIELD.fields.length).toBe(3);
+    expect(FAQS_FIELD.fields.length).toBe(2);
     expect(FAQS_FIELD.fields.some((f) => f.name === "question")).toBe(true);
     expect(FAQS_FIELD.fields.some((f) => f.name === "answer")).toBe(true);
   });

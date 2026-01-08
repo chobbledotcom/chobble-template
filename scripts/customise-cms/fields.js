@@ -138,11 +138,6 @@ export const createEleventyNavigationField = (includeUrl = false) => {
 };
 
 /**
- * Default Eleventy navigation field (without external URLs)
- */
-export const ELEVENTY_NAVIGATION_FIELD = createEleventyNavigationField(false);
-
-/**
  * Product options field
  */
 export const PRODUCT_OPTIONS_FIELD = {
