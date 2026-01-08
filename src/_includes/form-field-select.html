@@ -10,4 +10,7 @@
       <option value="{{ option }}">{{ option }}</option>
     {%- endfor -%}
   </select>
+  {%- if field.note -%}
+    <small>{{ field.note }}</small>
+  {%- endif -%}
 </label>

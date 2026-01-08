@@ -13,4 +13,7 @@
       <label for="{{ optionId }}">{{ option }}</label>
     </div>
   {%- endfor -%}
+  {%- if field.note -%}
+    <small>{{ field.note }}</small>
+  {%- endif -%}
 </fieldset>

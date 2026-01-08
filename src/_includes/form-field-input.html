@@ -7,4 +7,7 @@
     placeholder="{{ field.placeholder }}"
     {%- if field.required %} required{%- endif %}
   />
+  {%- if field.note -%}
+    <small>{{ field.note }}</small>
+  {%- endif -%}
 </label>
