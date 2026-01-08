@@ -9,14 +9,6 @@ const expectStepNumbers = expectProp("stepNumber");
 const expectIsFirst = expectProp("isFirst");
 const expectIsLast = expectProp("isLast");
 
-// Helper to create minimal quote fields test data
-const createQuoteData = (sections) => ({
-  quoteStepName: "Items",
-  sections,
-  recapTitle: "Done",
-  submitButtonText: "Submit",
-});
-
 describe("quote-fields-helpers", () => {
   // buildSections function tests
   describe("buildSections", () => {
@@ -96,14 +88,16 @@ describe("quote-fields-helpers", () => {
         quoteStepName: "Your Items",
         sections: [
           {
+            title: "Event",
             fields: [
-              { type: "heading", title: "Event" },
+              { type: "heading", title: "Event Details" },
               { name: "date", type: "date" },
             ],
           },
           {
+            title: "Contact",
             fields: [
-              { type: "heading", title: "Contact" },
+              { type: "heading", title: "Your Details" },
               { name: "name", type: "text" },
             ],
           },
@@ -125,31 +119,20 @@ describe("quote-fields-helpers", () => {
       expect(result.submitButtonText).toBe("Send");
     });
 
-    test("extracts step names from heading fields", () => {
-      const result = processQuoteFields(
-        createQuoteData([
-          { fields: [{ type: "heading", title: "First" }, { name: "a" }] },
-          { fields: [{ type: "heading", title: "Second" }, { name: "b" }] },
-        ]),
-      );
-      expect(result.steps[1].name).toBe("First");
-      expect(result.steps[2].name).toBe("Second");
-    });
-
-    test("uses empty string for step name when no heading field exists", () => {
-      const result = processQuoteFields(
-        createQuoteData([{ fields: [{ name: "a", type: "text" }] }]),
-      );
-      expect(result.steps[1].name).toBe("");
-    });
-
-    test("finds heading title even if not first field in section", () => {
-      const result = processQuoteFields(
-        createQuoteData([
-          { fields: [{ name: "a" }, { type: "heading", title: "Later" }] },
-        ]),
-      );
-      expect(result.steps[1].name).toBe("Later");
+    test("uses section title for step names (not heading field title)", () => {
+      const data = {
+        quoteStepName: "Items",
+        sections: [
+          {
+            title: "Step Name",
+            fields: [{ type: "heading", title: "Different Heading" }],
+          },
+        ],
+        recapTitle: "Done",
+        submitButtonText: "Submit",
+      };
+      const result = processQuoteFields(data);
+      expect(result.steps[1].name).toBe("Step Name");
     });
 
     test("excludes heading fields from fieldLabels", () => {

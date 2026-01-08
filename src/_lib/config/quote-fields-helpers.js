@@ -32,10 +32,7 @@ export function processQuoteFields(data) {
 
   const stepNames = [
     data.quoteStepName || "Your Items",
-    ...data.sections.map((s) => {
-      const headingField = s.fields.find((field) => field.type === "heading");
-      return headingField?.title || "";
-    }),
+    ...data.sections.map((s) => s.title),
     data.recapTitle || "Review",
   ];
   const steps = stepNames.map((name, index) => ({

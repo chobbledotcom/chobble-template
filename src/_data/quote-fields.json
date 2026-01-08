@@ -3,6 +3,7 @@
   "recapTitle": "Review Your Request",
   "sections": [
     {
+      "title": "Event Details",
       "fields": [
         {
           "type": "heading",
@@ -60,6 +61,7 @@
       ]
     },
     {
+      "title": "Your Details",
       "fields": [
         {
           "type": "heading",
