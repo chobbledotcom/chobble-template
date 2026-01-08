@@ -132,25 +132,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findUnusedClassesAndIds",
   // naming-conventions.test.js - test fixture string
   "getUserById",
-  // jsonld-validation.test.js - JSON-LD extraction and validation helpers
-  "createValidator",
-  "createExtractor",
-  "collectValidationIssues",
-  "validateWithSchemaOrg",
-  "parseJsonSafe",
-  "extractJsonLd",
-  "getEntities",
-  "findEntityByType",
-  "hasValidContext",
-  "hasRequiredProperties",
-  "createFile",
-  "productFile",
-  "newsFile",
-  "pageFile",
-  "assertSchemaOrgValid",
-  "assertEntityValid",
-  "findHtmlFiles",
-  "relativePath",
   // schema-helper.test.js - test fixtures
   "testProductMeta",
   // try-catch-usage.test.js - analysis helpers
@@ -235,8 +216,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "logAllowedItems",
   // build-profiling.js - profiling helper
   "profileScript",
-  // jsonld-validation.test.js - test fixtures
-  "getCommonFrontmatter",
   // code-scanner.js - code scanning utilities
   "matchesAny",
   "isCommentLine",
@@ -355,8 +334,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectAsyncThrows",
   // hire-calculator.test.js - DOM query helper
   "getDateInputs",
-  // jsonld-validation.test.js - JSON-LD assertion helper
-  "assertValidJsonLdWithContext",
   // test-site-factory.test.js - test fixture
   "defaultTestFiles",
 ]);

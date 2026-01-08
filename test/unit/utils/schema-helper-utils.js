@@ -1,6 +1,6 @@
 /**
  * Schema helper fixture factories and builders
- * Shared test utilities for schema-helper.test.js and jsonld-validation.test.js
+ * Shared test utilities for schema-helper.test.js
  */
 
 /**
