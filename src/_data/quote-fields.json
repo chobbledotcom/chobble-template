@@ -6,6 +6,10 @@
       "title": "Event Details",
       "fields": [
         {
+          "type": "heading",
+          "title": "Event Details"
+        },
+        {
           "name": "start_date",
           "type": "date",
           "label": "Event Start Date",
@@ -59,6 +63,10 @@
     {
       "title": "Your Details",
       "fields": [
+        {
+          "type": "heading",
+          "title": "Your Details"
+        },
         {
           "name": "name",
           "label": "Your Name",
