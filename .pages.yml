@@ -1,103 +1,3 @@
-_field_definitions:
-  header_image: &header_image
-    name: header_image
-    type: image
-    label: Header Image
-  header_text: &header_text
-    name: header_text
-    type: string
-    label: Header Text
-  subtitle: &subtitle
-    name: subtitle
-    type: string
-    label: Subtitle
-  body: &body
-    name: body
-    label: Body
-    type: code
-    options:
-      language: markdown
-  meta_title: &meta_title
-    name: meta_title
-    type: string
-    label: Meta Title
-    maxlength: 55
-  meta_description: &meta_description
-    name: meta_description
-    type: string
-    label: Meta Description
-    maxlength: 155
-  permalink: &permalink
-    name: permalink
-    type: string
-    label: Permalink
-  redirect_from: &redirect_from
-    name: redirect_from
-    type: string
-    label: Redirect From
-    list: true
-  faqs: &faqs
-    name: faqs
-    label: FAQs
-    type: object
-    list: true
-    fields:
-      - name: question
-        type: string
-        label: Question
-        required: true
-      - name: answer
-        type: string
-        label: Answer
-        required: true
-      - name: order
-        type: number
-        label: Order
-  gallery: &gallery
-    name: gallery
-    type: image
-    label: Gallery
-    options:
-      multiple: true
-  title: &title
-    name: title
-    type: string
-    label: Title
-  thumbnail: &thumbnail
-    name: thumbnail
-    type: image
-    label: Thumbnail
-  features: &features
-    name: features
-    type: string
-    label: Features
-    list: true
-  specs: &specs
-    name: specs
-    label: Specifications
-    type: object
-    list: true
-    fields:
-      - name: name
-        type: string
-        label: Name
-        required: true
-      - name: value
-        type: string
-        label: Value
-        required: true
-  featured: &featured
-    name: featured
-    type: boolean
-    label: Featured
-  name: &name
-    name: name
-    type: string
-    label: Name
-  order: &order
-    name: order
-    type: number
-    label: Order
 media:
   input: src/images
   output: /images
@@ -123,36 +23,83 @@ content:
       sort:
         - header_text
     fields:
-      - *header_image
-      - *header_text
-      - *subtitle
-      - *body
-      - *meta_title
-      - *meta_description
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: header_text
+        type: string
+        label: Header Text
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
       - name: eleventyNavigation
         label: Navigation
         type: object
         fields:
           - name: key
             type: string
-          - *order
+          - name: order
+            type: number
           - name: url
             type: string
       - name: layout
         type: string
-      - *permalink
-      - *redirect_from
-      - *faqs
-      - *gallery
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: products
     label: Products
     path: src/products
     type: collection
     subfolders: false
     fields:
-      - *title
-      - *thumbnail
-      - source: a1
+      - name: title
+        type: string
+        label: Title
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: header_image
+        type: image
+        label: Header Image
       - name: categories
         label: Categories
         type: reference
@@ -176,7 +123,10 @@ content:
         type: object
         list: true
         fields:
-          - *name
+          - name: name
+            type: string
+            label: Option Name
+            required: true
           - name: max_quantity
             type: number
             label: Max Quantity
@@ -191,34 +141,98 @@ content:
       - name: etsy_url
         label: Etsy URL
         type: string
-      - source: a2
-      - *features
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: features
+        type: string
+        label: Features
+        list: true
       - name: filter_attributes
         label: Filter Attributes
         type: object
         list: true
         fields:
-          - *name
+          - name: name
+            type: string
+            label: Name
+            required: true
           - name: value
             type: string
             label: Value
             required: true
-      - source: a3
-      - source: a4
-      - source: a5
-      - source: a6
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
-      - *specs
+      - name: header_text
+        type: string
+        label: Header Text
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
+      - name: specs
+        label: Specifications
+        type: object
+        list: true
+        fields:
+          - name: name
+            type: string
+            label: Name
+            required: true
+          - name: value
+            type: string
+            label: Value
+            required: true
       - name: tabs
         label: Tabs
         type: object
         list: true
         fields:
-          - *title
-          - *body
+          - name: title
+            type: string
+            label: Title
+            required: true
+          - name: body
+            label: Body
+            type: code
+            options:
+              language: markdown
+            required: true
   - name: categories
     label: Categories
     path: src/categories
@@ -226,27 +240,77 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - source: a11
-      - source: a12
-      - source: a2
-      - *featured
-      - source: a1
-      - source: a3
-      - source: a4
-      - source: a5
-      - source: a6
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: title
+        type: string
+        label: Title
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: featured
+        type: boolean
+        label: Featured
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: header_text
+        type: string
+        label: Header Text
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: news
     label: News
     path: src/news
     type: collection
     subfolders: false
     fields:
-      - source: a11
-      - source: a1
+      - name: title
+        type: string
+        label: Title
+      - name: header_image
+        type: image
+        label: Header Image
       - name: date
         label: Date
         type: date
@@ -259,15 +323,53 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - source: a6
-      - source: a2
-      - source: a3
-      - source: a4
-      - source: a5
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: header_text
+        type: string
+        label: Header Text
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: events
     label: Events
     path: src/events
@@ -284,10 +386,18 @@ content:
       sort:
         - title
     fields:
-      - source: a12
-      - source: a1
-      - source: a11
-      - source: a6
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: title
+        type: string
+        label: Title
+      - name: subtitle
+        type: string
+        label: Subtitle
       - name: event_date
         label: Event Date
         type: date
@@ -303,14 +413,50 @@ content:
         type: string
         label: Map Embed URL
         required: false
-      - source: a2
-      - source: a3
-      - source: a4
-      - source: a5
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: header_text
+        type: string
+        label: Header Text
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: team
     label: Team
     path: src/team
@@ -318,35 +464,77 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - source: a11
-      - source: a12
+      - name: title
+        type: string
+        label: Title
+      - name: thumbnail
+        type: image
+        label: Thumbnail
       - name: snippet
         type: string
         label: Role
       - name: image
         type: image
         label: Profile Image
-      - source: a1
-      - *body
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: body
+        label: Biography
+        type: code
+        options:
+          language: markdown
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: reviews
     label: Reviews
     path: src/reviews
     type: collection
     subfolders: false
     fields:
-      - *name
+      - name: name
+        type: string
+        label: Name
       - name: url
         type: string
         label: URL
       - name: rating
         type: number
         label: Rating
-      - *thumbnail
-      - source: a2
+      - name: thumbnail
+        type: image
+        label: Reviewer Photo
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
       - name: products
         label: Products
         type: reference
@@ -356,9 +544,29 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - source: a7
-      - source: a8
-      - source: a9
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
   - name: locations
     label: Locations
     path: src/locations
@@ -373,9 +581,15 @@ content:
       sort:
         - title
     fields:
-      - source: a11
-      - source: a12
-      - source: a6
+      - name: title
+        type: string
+        label: Title
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: subtitle
+        type: string
+        label: Subtitle
       - name: categories
         label: Categories
         type: reference
@@ -385,13 +599,47 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - source: a4
-      - source: a5
-      - source: a2
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: properties
     label: Properties
     path: src/properties
@@ -408,11 +656,21 @@ content:
       sort:
         - title
     fields:
-      - source: a11
-      - source: a6
-      - source: a12
-      - source: a1
-      - source: a13
+      - name: title
+        type: string
+        label: Title
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: featured
+        type: boolean
+        label: Featured
       - name: locations
         label: Locations
         type: reference
@@ -434,15 +692,64 @@ content:
       - name: price_per_night
         type: number
         label: Price Per Night
-      - source: a14
-      - source: a2
-      - source: a4
-      - source: a5
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
-      - source: a15
+      - name: features
+        type: string
+        label: Features
+        list: true
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
+      - name: specs
+        label: Specifications
+        type: object
+        list: true
+        fields:
+          - name: name
+            type: string
+            label: Name
+            required: true
+          - name: value
+            type: string
+            label: Value
+            required: true
   - name: guides
     label: Guides
     path: src/guides
@@ -450,45 +757,139 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - source: a11
-      - source: a12
-      - source: a1
-      - source: a6
-      - source: a2
-      - source: a3
-      - source: a4
-      - source: a5
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: title
+        type: string
+        label: Title
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: header_text
+        type: string
+        label: Header Text
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: menus
     label: Menus
     path: src/menus
     type: collection
     subfolders: false
     fields:
-      - source: a11
-      - source: a12
-      - *order
-      - source: a1
-      - source: a6
-      - source: a2
-      - source: a4
-      - source: a5
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: title
+        type: string
+        label: Title
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: order
+        type: number
+        label: Order
+      - name: header_image
+        type: image
+        label: Header Image
+      - name: subtitle
+        type: string
+        label: Subtitle
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: meta_title
+        type: string
+        label: Meta Title
+        maxlength: 55
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: menu-categories
     label: Menu Categories
     path: src/menu-categories
     type: collection
     subfolders: false
     fields:
-      - source: a16
-      - source: a12
-      - source: a17
+      - name: name
+        type: string
+        label: Name
+      - name: thumbnail
+        type: image
+        label: Thumbnail
+      - name: order
+        type: number
+        label: Order
       - name: menus
         label: Menus
         type: reference
@@ -498,19 +899,51 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - source: a2
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: menu-items
     label: Menu Items
     path: src/menu-items
     type: collection
     subfolders: false
     fields:
-      - source: a16
-      - source: a12
+      - name: name
+        type: string
+        label: Name
+      - name: thumbnail
+        type: image
+        label: Thumbnail
       - name: price
         type: string
         label: Price
@@ -532,11 +965,39 @@ content:
       - name: description
         type: string
         label: Description
-      - source: a2
-      - source: a7
-      - source: a8
-      - source: a9
-      - source: a10
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - name: permalink
+        type: string
+        label: Permalink
+      - name: redirect_from
+        type: string
+        label: Redirect From
+        list: true
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - name: question
+            type: string
+            label: Question
+            required: true
+          - name: answer
+            type: string
+            label: Answer
+            required: true
+          - name: order
+            type: number
+            label: Order
+      - name: gallery
+        type: image
+        label: Gallery
+        options:
+          multiple: true
   - name: snippets
     label: Snippets
     path: src/snippets
@@ -544,8 +1005,14 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - source: a16
-      - source: a2
+      - name: name
+        type: string
+        label: Name
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
   - name: homepage
     label: Homepage Settings
     type: file
@@ -572,7 +1039,9 @@ content:
     type: file
     path: src/_data/site.json
     fields:
-      - *name
+      - name: name
+        type: string
+        label: Site Name
       - name: url
         type: string
         label: Site URL
@@ -647,7 +1116,9 @@ content:
             type: object
             list: true
             fields:
-              - *name
+              - name: name
+                type: string
+                label: Name
           - name: address
             label: Address
             type: object
