@@ -369,6 +369,29 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("name: pages");
   });
 
+  test("generatePagesYaml uses src paths when hasSrcFolder is true", () => {
+    const config = {
+      collections: ["pages"],
+      features: {
+        permalinks: false,
+        redirects: false,
+        faqs: false,
+        specs: false,
+        features: false,
+        galleries: false,
+      },
+      hasSrcFolder: true,
+    };
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("path: src/_data/site.json");
+    expect(yaml).toContain("path: src/_data/meta.json");
+    expect(yaml).toContain("path: src/_data/alt-tags.json");
+    expect(yaml).toContain("path: src/pages");
+    expect(yaml).toContain("input: src/images");
+    expect(yaml).toContain("path: src/images");
+  });
+
   test("generatePagesYaml adjusts paths when no src folder", () => {
     const config = {
       collections: ["pages"],
@@ -388,6 +411,8 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("path: _data/meta.json");
     expect(yaml).toContain("path: _data/alt-tags.json");
     expect(yaml).toContain("path: pages");
+    expect(yaml).toContain("input: images");
+    expect(yaml).toContain("path: images");
   });
 
   test("generatePagesYaml excludes homepage when customHomePage is true", () => {

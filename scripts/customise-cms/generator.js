@@ -522,6 +522,7 @@ export const generatePagesYaml = (config) => {
   const hasSrcFolder = config.hasSrcFolder ?? true;
   const customHomePage = config.customHomePage ?? false;
   const dataPath = getDataPath(hasSrcFolder);
+  const imagesPath = hasSrcFolder ? "src/images" : "images";
 
   // Build content array, conditionally including homepage
   const contentArray = [
@@ -534,9 +535,9 @@ export const generatePagesYaml = (config) => {
 
   const pagesConfig = {
     media: {
-      input: "src/images",
+      input: imagesPath,
       output: "/images",
-      path: "src/images",
+      path: imagesPath,
       categories: ["image"],
     },
     settings: {
