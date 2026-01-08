@@ -24,7 +24,9 @@ content:
         - header_text
     fields:
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
@@ -32,18 +34,25 @@ content:
         type: string
         label: Meta Description
         maxlength: 155
-      - { name: eleventyNavigation, label: Navigation, type: object }
+      - name: eleventyNavigation
+        label: Navigation
+        type: object
         fields:
           - { name: key, type: string }
           - { name: order, type: number }
       - { name: layout, type: string }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: products
@@ -54,21 +63,28 @@ content:
     fields:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
-      - { name: categories, label: Categories, type: reference }
+      - name: categories
+        label: Categories
+        type: reference
         options:
           collection: categories
           multiple: true
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: events, label: Events, type: reference }
+      - name: events
+        label: Events
+        type: reference
         options:
           collection: events
           multiple: true
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: options, label: Product Options, type: object, list: true }
+      - name: options
+        label: Product Options
+        type: object
+        list: true
         fields:
           - { name: name, type: string, label: Option Name, required: true }
           - name: max_quantity
@@ -80,7 +96,9 @@ content:
             label: Unit Price (£)
             required: true
           - { name: days, type: number, label: Days (for hire products) }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: features, type: string, label: Features, list: true }
@@ -99,21 +117,34 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
-      - { name: specs, label: Specifications, type: object, list: true }
+      - name: specs
+        label: Specifications
+        type: object
+        list: true
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
-      - { name: tabs, label: Tabs, type: object, list: true }
+      - name: tabs
+        label: Tabs
+        type: object
+        list: true
         fields:
           - { name: title, type: string, label: Title, required: true }
-          - { name: body, label: Body, type: code }
+          - name: body
+            label: Body
+            type: code
             options:
               language: markdown
             required: true
@@ -126,7 +157,9 @@ content:
     fields:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: featured, type: boolean, label: Featured }
@@ -138,11 +171,16 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: news
@@ -153,7 +191,9 @@ content:
     fields:
       - { name: title, type: string, label: Title }
       - { name: date, label: Date, type: date }
-      - { name: author, label: Author, type: reference }
+      - name: author
+        label: Author
+        type: reference
         options:
           collection: team
           multiple: false
@@ -161,7 +201,9 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
@@ -171,11 +213,16 @@ content:
         maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: events
@@ -207,7 +254,9 @@ content:
         type: string
         label: Map Embed URL
         required: false
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
@@ -217,11 +266,16 @@ content:
         maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: team
@@ -235,16 +289,23 @@ content:
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: snippet, type: string, label: Role }
       - { name: image, type: image, label: Profile Image }
-      - { name: body, label: Biography, type: code }
+      - name: body
+        label: Biography
+        type: code
         options:
           language: markdown
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: reviews
@@ -257,10 +318,14 @@ content:
       - { name: url, type: string, label: URL }
       - { name: rating, type: number, label: Rating }
       - { name: thumbnail, type: image, label: Reviewer Photo }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
-      - { name: products, label: Products, type: reference }
+      - name: products
+        label: Products
+        type: reference
         options:
           collection: products
           multiple: true
@@ -269,7 +334,10 @@ content:
           label: "{title}"
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
@@ -290,7 +358,9 @@ content:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: categories, label: Categories, type: reference }
+      - name: categories
+        label: Categories
+        type: reference
         options:
           collection: categories
           multiple: true
@@ -302,16 +372,23 @@ content:
         type: string
         label: Meta Description
         maxlength: 155
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: properties
@@ -334,7 +411,9 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: featured, type: boolean, label: Featured }
-      - { name: locations, label: Locations, type: reference }
+      - name: locations
+        label: Locations
+        type: reference
         options:
           collection: locations
           multiple: true
@@ -346,7 +425,9 @@ content:
       - { name: sleeps, type: number, label: Sleeps }
       - { name: price_per_night, type: number, label: Price Per Night }
       - { name: features, type: string, label: Features, list: true }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
@@ -356,14 +437,22 @@ content:
         maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
-      - { name: specs, label: Specifications, type: object, list: true }
+      - name: specs
+        label: Specifications
+        type: object
+        list: true
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
@@ -377,7 +466,9 @@ content:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
@@ -387,11 +478,16 @@ content:
         maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: menus
@@ -404,7 +500,9 @@ content:
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
@@ -414,11 +512,16 @@ content:
         maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: menu-categories
@@ -430,23 +533,32 @@ content:
       - { name: name, type: string, label: Name }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
-      - { name: menus, label: Menus, type: reference }
+      - name: menus
+        label: Menus
+        type: reference
         options:
           collection: menus
           multiple: true
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: menu-items
@@ -460,7 +572,9 @@ content:
       - { name: price, type: string, label: Price }
       - { name: is_vegan, type: boolean, label: Is Vegan }
       - { name: is_gluten_free, type: boolean, label: Is Gluten Free }
-      - { name: menu_categories, label: Menu Categories, type: reference }
+      - name: menu_categories
+        label: Menu Categories
+        type: reference
         options:
           collection: menu-categories
           multiple: true
@@ -468,16 +582,23 @@ content:
           value: "{path}"
           label: "{name}"
       - { name: description, type: string, label: Description }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
-      - { name: faqs, label: FAQs, type: object, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
           - { name: answer, type: string, label: Answer, required: true }
-      - { name: gallery, type: image, label: Gallery }
+      - name: gallery
+        type: image
+        label: Gallery
         options:
           multiple: true
   - name: snippets
@@ -488,7 +609,9 @@ content:
     filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
-      - { name: body, label: Body, type: code }
+      - name: body
+        label: Body
+        type: code
         options:
           language: markdown
   - name: homepage
@@ -519,11 +642,16 @@ content:
     fields:
       - { name: name, type: string, label: Site Name }
       - { name: url, type: string, label: Site URL }
-      - { name: opening_times, label: Opening Times, type: object, list: true }
+      - name: opening_times
+        label: Opening Times
+        type: object
+        list: true
         fields:
           - { name: day, type: string, label: Day, required: true }
           - { name: hours, type: string, label: Hours, required: true }
-      - { name: socials, label: Social Media Links, type: object }
+      - name: socials
+        label: Social Media Links
+        type: object
         fields:
           - { name: Github, type: string, label: Github }
           - { name: Forgejo, type: string, label: Forgejo }
@@ -540,15 +668,22 @@ content:
     path: src/_data/meta.json
     fields:
       - { name: language, type: string, label: Language Code, default: en-GB }
-      - { name: organization, label: Organization, type: object }
+      - name: organization
+        label: Organization
+        type: object
         fields:
           - { name: description, type: string, label: Organization Description }
           - { name: legalName, type: string, label: Legal Name }
           - { name: foundingDate, type: string, label: Founding Date }
-          - { name: founders, label: Founders, type: object, list: true }
+          - name: founders
+            label: Founders
+            type: object
+            list: true
             fields:
               - { name: name, type: string, label: Name }
-          - { name: address, label: Address, type: object }
+          - name: address
+            label: Address
+            type: object
             fields:
               - { name: streetAddress, type: string, label: Street Address }
               - { name: addressLocality, type: string, label: City }
@@ -572,7 +707,9 @@ content:
     type: file
     path: src/_data/alt-tags.json
     fields:
-      - { name: images, type: object, list: true }
+      - name: images
+        type: object
+        list: true
         fields:
           - { name: path, type: image, label: Image }
           - { name: alt, type: string, label: Alt Text }
