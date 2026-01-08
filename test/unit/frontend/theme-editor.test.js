@@ -1,26 +1,21 @@
 import { describe, expect, test } from "bun:test";
 import {
   GLOBAL_INPUTS,
-  getInputCounts,
-  getScopedVarNames,
-  getScopes,
+  SCOPE_DEFINITIONS,
   SCOPED_INPUTS,
 } from "#public/theme/theme-editor-config.js";
 import {
   collectActiveClasses,
   controlToVarEntry,
   createFormEl,
-  filterScopeVars,
   generateThemeCss,
   inputToScopedEntry,
   isControlEnabled,
   parseBorderValue,
-  parseCssBlock,
   parseThemeContent,
   SCOPE_SELECTORS,
   SCOPES,
   shouldIncludeScopedVar,
-  toggleClassAndReturn,
 } from "#public/theme/theme-editor-lib.js";
 
 // ============================================
@@ -54,47 +49,47 @@ const testScopedEntry = (varName, globalValue) => (inputValue) => {
 };
 
 // ============================================
-// Unit Tests - parseCssBlock
+// Unit Tests - parseThemeContent (CSS parsing)
 // ============================================
 
 describe("theme-editor", () => {
-  test("Parses CSS variables from block content", () => {
-    const css = `
-        --color-bg: #ffffff;
-        --color-text: #000000;
-        --border: 2px solid #333;
-      `;
-    const result = parseCssBlock(css);
-    expect(result).toEqual({
+  test("Parses CSS variables from :root block", () => {
+    const theme = `:root {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --border: 2px solid #333;
+}`;
+    const result = parseThemeContent(theme);
+    expect(result.root).toEqual({
       "--color-bg": "#ffffff",
       "--color-text": "#000000",
       "--border": "2px solid #333",
     });
   });
 
-  test("Ignores regular CSS properties", () => {
-    const css = `
-        --color-bg: #fff;
-        background: red;
-        --color-text: #000;
-      `;
-    const result = parseCssBlock(css);
-    expect(result).toEqual({
+  test("Ignores regular CSS properties when parsing", () => {
+    const theme = `:root {
+  --color-bg: #fff;
+  background: red;
+  --color-text: #000;
+}`;
+    const result = parseThemeContent(theme);
+    expect(result.root).toEqual({
       "--color-bg": "#fff",
       "--color-text": "#000",
     });
   });
 
-  test("Returns empty object for empty/null input", () => {
-    expect(parseCssBlock("")).toEqual({});
-    expect(parseCssBlock(null)).toEqual({});
-    expect(parseCssBlock(undefined)).toEqual({});
+  test("Returns empty object for empty theme", () => {
+    const result = parseThemeContent("");
+    expect(result.root).toEqual({});
+    expect(result.scopes).toEqual({});
   });
 
-  test("Handles various whitespace in CSS", () => {
-    const css = "--color-bg:#fff;--color-text:  #000  ;";
-    const result = parseCssBlock(css);
-    expect(result).toEqual({
+  test("Handles various whitespace in CSS variables", () => {
+    const theme = ":root { --color-bg:#fff;--color-text:  #000  ; }";
+    const result = parseThemeContent(theme);
+    expect(result.root).toEqual({
       "--color-bg": "#fff",
       "--color-text": "#000",
     });
@@ -254,94 +249,37 @@ input[type="submit"] {
   });
 
   // ============================================
-  // Unit Tests - filterScopeVars
+  // Unit Tests - Scope filtering via shouldIncludeScopedVar
   // ============================================
 
-  test("Only includes values that differ from global", () => {
-    const formData = {
-      "--color-bg": "#ff0000",
-      "--color-text": "#ffffff",
-      "--color-link": "#0000ff",
-    };
-    const globals = {
-      "--color-bg": "#ffffff",
-      "--color-text": "#ffffff",
-      "--color-link": "#000000",
-    };
-    const result = filterScopeVars(formData, globals);
-    expect(result).toEqual({
-      "--color-bg": "#ff0000",
-      "--color-link": "#0000ff",
-    });
+  test("Scope filtering only includes values that differ from global", () => {
+    // Test through shouldIncludeScopedVar - the production API
+    expect(shouldIncludeScopedVar("#ff0000", "#ffffff")).toBe(true); // Different
+    expect(shouldIncludeScopedVar("#ffffff", "#ffffff")).toBe(false); // Same
+    expect(shouldIncludeScopedVar("#0000ff", "#000000")).toBe(true); // Different
   });
 
-  test("Returns empty object when all values match global", () => {
-    const formData = {
-      "--color-bg": "#ffffff",
-      "--color-text": "#000000",
-    };
-    const globals = {
-      "--color-bg": "#ffffff",
-      "--color-text": "#000000",
-    };
-    const result = filterScopeVars(formData, globals);
-    expect(result).toEqual({});
+  test("Scope filtering returns false when values match global", () => {
+    expect(shouldIncludeScopedVar("#ffffff", "#ffffff")).toBe(false);
+    expect(shouldIncludeScopedVar("#000000", "#000000")).toBe(false);
+    expect(shouldIncludeScopedVar("2px solid #333", "2px solid #333")).toBe(
+      false,
+    );
   });
 
-  test("Returns all values when none match global", () => {
-    const formData = {
-      "--color-bg": "#ff0000",
-      "--color-text": "#00ff00",
-    };
-    const globals = {
-      "--color-bg": "#ffffff",
-      "--color-text": "#000000",
-    };
-    const result = filterScopeVars(formData, globals);
-    expect(result).toEqual(formData);
+  test("Scope filtering includes all values when none match global", () => {
+    // Each check is independent - verify each case
+    expect(shouldIncludeScopedVar("#ff0000", "#ffffff")).toBe(true);
+    expect(shouldIncludeScopedVar("#00ff00", "#000000")).toBe(true);
   });
 
-  test("Includes values when global is missing", () => {
-    const formData = {
-      "--color-bg": "#ff0000",
-      "--color-text": "#00ff00",
-    };
-    const globals = {
-      "--color-bg": "#ffffff",
-      // --color-text missing
-    };
-    const result = filterScopeVars(formData, globals);
-    expect(result).toEqual(formData);
+  test("Scope filtering includes values when global is undefined", () => {
+    expect(shouldIncludeScopedVar("#ff0000", undefined)).toBe(true);
   });
 
-  test("Works with empty globals object", () => {
-    const formData = {
-      "--color-bg": "#ff0000",
-    };
-    const result = filterScopeVars(formData, {});
-    expect(result).toEqual(formData);
-  });
-
-  test("After global change, scoped values matching NEW global are excluded", () => {
-    // This tests the cascade behavior:
-    // When global changes from #9a9996 to #000000, scoped inputs that were
-    // showing the OLD global value get updated to the NEW global value.
-    // Then when we filter, they match the new global and are excluded.
-
-    // Simulating: user changed global from #9a9996 to #000000
-    // Scoped inputs that were showing #9a9996 are now showing #000000
-    const scopedFormData = {
-      "--color-bg": "#ffffff", // Different from global - should be included
-      "--color-text": "#000000", // Same as NEW global - should be excluded
-      "--color-link": "#0066cc", // Same as global - should be excluded
-    };
-    const newGlobals = {
-      "--color-bg": "#ffffff",
-      "--color-text": "#000000", // NEW global value
-      "--color-link": "#0066cc",
-    };
-    const result = filterScopeVars(scopedFormData, newGlobals);
-    expect(result).toEqual({});
+  test("Scope filtering excludes empty values regardless of global", () => {
+    expect(shouldIncludeScopedVar("", "#ffffff")).toBe(false);
+    expect(shouldIncludeScopedVar(null, "#ffffff")).toBe(false);
   });
 
   // ============================================
@@ -471,9 +409,9 @@ nav {
   // Unit Tests - Config validation
   // ============================================
 
-  test("SCOPES constant matches config getScopes()", () => {
+  test("SCOPES constant matches SCOPE_DEFINITIONS keys", () => {
     expect(SCOPES).toEqual(["header", "nav", "article", "form", "button"]);
-    expect(getScopes()).toEqual(SCOPES);
+    expect(Object.keys(SCOPE_DEFINITIONS)).toEqual(SCOPES);
   });
 
   test("Header selector is correct", () => {
@@ -509,19 +447,20 @@ nav {
     expect(SCOPED_INPUTS.border.type).toBe("border");
   });
 
-  test("getScopedVarNames returns CSS variable names", () => {
-    const varNames = getScopedVarNames();
+  test("SCOPED_INPUTS defines CSS variables for scoped styles", () => {
+    const varNames = Object.keys(SCOPED_INPUTS).map((id) => `--${id}`);
     expect(varNames.includes("--color-bg")).toBe(true);
     expect(varNames.includes("--color-text")).toBe(true);
     expect(varNames.includes("--border")).toBe(true);
   });
 
-  test("getInputCounts returns consistent values", () => {
-    const counts = getInputCounts();
-    expect(counts.scopes).toBe(5);
-    expect(counts.global > 0).toBe(true);
-    expect(counts.scopedPerScope > 0).toBe(true);
-    expect(counts.totalScoped).toBe(counts.scopedPerScope * counts.scopes);
+  test("Config exports have consistent counts", () => {
+    const globalCount = Object.keys(GLOBAL_INPUTS).length;
+    const scopedPerScope = Object.keys(SCOPED_INPUTS).length;
+    const scopeCount = Object.keys(SCOPE_DEFINITIONS).length;
+    expect(scopeCount).toBe(5);
+    expect(globalCount > 0).toBe(true);
+    expect(scopedPerScope > 0).toBe(true);
   });
 
   // ============================================
@@ -611,39 +550,21 @@ header {
   });
 
   // ============================================
-  // Integration tests - filterScopeVars workflow
+  // Integration tests - generateThemeCss with scoped overrides
   // ============================================
 
-  test("filterScopeVars + generateThemeCss produces correct output", () => {
+  test("generateThemeCss includes only overridden scope variables", () => {
     const globalVars = {
       "--color-bg": "#ffffff",
       "--color-text": "#000000",
       "--color-link": "#0066cc",
     };
 
-    // Simulate form data for each scope
-    const headerFormData = {
-      "--color-bg": "#ff0000", // Different
-      "--color-text": "#000000", // Same as global
-      "--color-link": "#0066cc", // Same as global
+    // Header only overrides color-bg
+    const scopeVars = {
+      header: { "--color-bg": "#ff0000" },
+      nav: { "--color-link": "#00ff00" },
     };
-    const navFormData = {
-      "--color-bg": "#ffffff", // Same as global
-      "--color-text": "#000000", // Same as global
-      "--color-link": "#00ff00", // Different
-    };
-
-    // Filter to get only overrides
-    const headerVars = filterScopeVars(headerFormData, globalVars);
-    const navVars = filterScopeVars(navFormData, globalVars);
-
-    expect(headerVars).toEqual({ "--color-bg": "#ff0000" });
-    expect(navVars).toEqual({ "--color-link": "#00ff00" });
-
-    // Generate CSS
-    const scopeVars = {};
-    if (Object.keys(headerVars).length > 0) scopeVars.header = headerVars;
-    if (Object.keys(navVars).length > 0) scopeVars.nav = navVars;
 
     const css = generateThemeCss(globalVars, scopeVars, []);
 
@@ -654,51 +575,28 @@ header {
     expect(css.includes("article {")).toBe(false);
   });
 
-  test("When all scoped values match global, output is minimal", () => {
+  test("generateThemeCss outputs minimal CSS when no scopes are overridden", () => {
     const globalVars = {
       "--color-bg": "#ffffff",
       "--color-text": "#000000",
     };
 
-    // All scopes have values matching global
-    const headerFormData = {
-      "--color-bg": "#ffffff",
-      "--color-text": "#000000",
-    };
-
-    const headerVars = filterScopeVars(headerFormData, globalVars);
-    expect(headerVars).toEqual({});
-
-    const scopeVars = {};
-    if (Object.keys(headerVars).length > 0) scopeVars.header = headerVars;
-
-    const css = generateThemeCss(globalVars, scopeVars, []);
+    const css = generateThemeCss(globalVars, {}, []);
 
     expect(css.includes("header {")).toBe(false);
     expect(css.includes(":root {")).toBe(true);
   });
 
-  test("Border values are correctly filtered and generated", () => {
+  test("generateThemeCss handles border value overrides", () => {
     const globalVars = {
       "--border": "2px solid #000000",
     };
 
-    // Header has different border
-    const headerFormData = {
-      "--border": "3px solid #ff0000",
-    };
-    // Nav has same border as global
-    const navFormData = {
-      "--border": "2px solid #000000",
+    // Only header overrides border
+    const scopeVars = {
+      header: { "--border": "3px solid #ff0000" },
     };
 
-    const headerVars = filterScopeVars(headerFormData, globalVars);
-    const navVars = filterScopeVars(navFormData, globalVars);
-
-    expect(headerVars).toEqual({ "--border": "3px solid #ff0000" });
-    expect(navVars).toEqual({});
-
-    const scopeVars = { header: headerVars };
     const css = generateThemeCss(globalVars, scopeVars, []);
 
     expect(css.includes("header {")).toBe(true);
@@ -788,54 +686,34 @@ header {
     expect(testColorBg("#ffffff")).toBe(null);
   });
 
-  test("toggleClassAndReturn toggles body class and returns value when active", () => {
-    const select = document.createElement("select");
-    select.innerHTML = `
-      <option value="">None</option>
-      <option value="header-dark">Dark Header</option>
-      <option value="header-light">Light Header</option>
-    `;
-    select.value = "header-dark";
-
-    const toggleFn = toggleClassAndReturn(select, true);
-
-    expect(toggleFn("header-dark")).toBe("header-dark");
-    expect(document.body.classList.contains("header-dark")).toBe(true);
-
-    expect(toggleFn("header-light")).toBe(null);
-    expect(document.body.classList.contains("header-light")).toBe(false);
-  });
-
-  test("toggleClassAndReturn returns null when not enabled", () => {
-    const select = document.createElement("select");
-    select.innerHTML = `<option value="header-dark">Dark</option>`;
-    select.value = "header-dark";
-
-    const toggleFn = toggleClassAndReturn(select, false);
-
-    expect(toggleFn("header-dark")).toBe(null);
-    expect(document.body.classList.contains("header-dark")).toBe(false);
-  });
-
-  test("collectActiveClasses collects active class values from select", () => {
+  test("collectActiveClasses toggles body classes based on selection", () => {
     document.body.innerHTML = `
       <form id="test-form">
         <select id="header-style">
           <option value="">None</option>
-          <option value="header-dark">Dark</option>
-          <option value="header-light">Light</option>
+          <option value="header-dark">Dark Header</option>
+          <option value="header-light">Light Header</option>
         </select>
       </form>
     `;
-
     const formEl = createFormEl("test-form");
-    const select = formEl("header-style");
-    select.value = "header-light";
+    formEl("header-style").value = "header-dark";
+    expect(collectActiveClasses(formEl)(formEl("header-style"))).toEqual([
+      "header-dark",
+    ]);
+    expect(document.body.classList.contains("header-dark")).toBe(true);
+  });
 
-    const classes = collectActiveClasses(formEl)(select);
-
-    expect(classes).toEqual(["header-light"]);
-    expect(document.body.classList.contains("header-light")).toBe(true);
+  test("collectActiveClasses returns empty when checkbox control is disabled", () => {
+    document.body.innerHTML = `
+      <form id="test-form">
+        <select id="header-style"><option value="header-dark">Dark</option></select>
+        <input id="header-style-enabled" type="checkbox">
+      </form>
+    `;
+    const formEl = createFormEl("test-form");
+    formEl("header-style").value = "header-dark";
+    expect(collectActiveClasses(formEl)(formEl("header-style"))).toEqual([]);
     expect(document.body.classList.contains("header-dark")).toBe(false);
   });
 
