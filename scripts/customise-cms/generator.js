@@ -159,15 +159,24 @@ const buildEventsFields = (config) =>
     config.features.header_images && COMMON_FIELDS.header_image,
     COMMON_FIELDS.title,
     COMMON_FIELDS.subtitle,
-    { name: "event_date", label: "Event Date", type: "date", required: false },
-    {
+    config.features.event_locations_and_dates && {
+      name: "event_date",
+      label: "Event Date",
+      type: "date",
+      required: false,
+    },
+    config.features.event_locations_and_dates && {
       name: "recurring_date",
       type: "string",
       label: 'Recurring Date (e.g. "Every Friday at 2 PM")',
       required: false,
     },
-    { name: "event_location", type: "string", label: "Event Location" },
-    {
+    config.features.event_locations_and_dates && {
+      name: "event_location",
+      type: "string",
+      label: "Event Location",
+    },
+    config.features.event_locations_and_dates && {
       name: "map_embed_src",
       type: "string",
       label: "Map Embed URL",
@@ -285,14 +294,16 @@ const buildCollectionFields = (collectionName, config) => {
   return addOptionalFields(fields, collectionName, config);
 };
 
-const VIEW_CONFIGS = {
+const getViewConfigs = (config) => ({
   pages: {
     fields: ["permalink", "meta_title", "header_text"],
     primary: "header_text",
     sort: ["header_text"],
   },
   events: {
-    fields: ["title", "event_date", "recurring_date", "event_location"],
+    fields: config.features.event_locations_and_dates
+      ? ["title", "event_date", "recurring_date", "event_location"]
+      : ["title"],
     primary: "title",
     sort: ["title"],
   },
@@ -306,7 +317,7 @@ const VIEW_CONFIGS = {
     primary: "title",
     sort: ["title"],
   },
-};
+});
 
 const FILENAME_COLLECTIONS = [
   "categories",
@@ -339,8 +350,9 @@ const generateCollectionConfig = (collectionName, config) => {
     collectionConfig.filename = "{primary}.md";
   }
 
-  if (VIEW_CONFIGS[collectionName]) {
-    collectionConfig.view = VIEW_CONFIGS[collectionName];
+  const viewConfigs = getViewConfigs(config);
+  if (viewConfigs[collectionName]) {
+    collectionConfig.view = viewConfigs[collectionName];
   }
 
   collectionConfig.fields = buildCollectionFields(collectionName, config);
