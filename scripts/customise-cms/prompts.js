@@ -8,6 +8,14 @@ import {
   getSelectableCollections,
   resolveDependencies,
 } from "#scripts/customise-cms/collections.js";
+import {
+  filter,
+  map,
+  memberOf,
+  notMemberOf,
+  pipe,
+  unique,
+} from "#utils/array-utils.js";
 
 /**
  * Create readline interface
@@ -42,13 +50,18 @@ const parseSelection = (input, options, defaults) => {
   const trimmed = input.trim().toLowerCase();
 
   if (trimmed === "" && defaults.length > 0) return defaults;
-  if (trimmed === "all") return options.map((o) => o.name);
+  if (trimmed === "all") return map((o) => o.name)(options);
   if (trimmed === "none" || trimmed === "") return [];
 
-  const numbers = trimmed.split(",").map((n) => Number.parseInt(n.trim(), 10));
-  return numbers
-    .filter((n) => n >= 1 && n <= options.length)
-    .map((n) => options[n - 1].name);
+  const isValidIndex = (n) => n >= 1 && n <= options.length;
+  const toName = (n) => options[n - 1].name;
+  const toNumber = (n) => Number.parseInt(n.trim(), 10);
+
+  return pipe(
+    map(toNumber),
+    filter(isValidIndex),
+    map(toName),
+  )(trimmed.split(","));
 };
 
 /**
@@ -92,12 +105,12 @@ const askCollectionQuestions = async (rl, defaultCollections) => {
     defaultCollections,
   );
 
-  const requiredNames = getRequiredCollections().map((c) => c.name);
-  const allSelected = [...new Set([...requiredNames, ...selectedCollections])];
+  const requiredNames = map((c) => c.name)(getRequiredCollections());
+  const allSelected = unique([...requiredNames, ...selectedCollections]);
   const resolved = resolveDependencies(allSelected);
 
-  const addedDeps = resolved.filter(
-    (c) => !allSelected.includes(c) && !requiredNames.includes(c),
+  const addedDeps = filter(notMemberOf([...allSelected, ...requiredNames]))(
+    resolved,
   );
   if (addedDeps.length > 0) {
     console.log(
@@ -139,8 +152,8 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     features: false,
   };
 
-  const hasSpecsCollections = collections.some((c) =>
-    ["products", "properties"].includes(c),
+  const hasSpecsCollections = collections.some(
+    memberOf(["products", "properties"]),
   );
 
   if (hasSpecsCollections) {

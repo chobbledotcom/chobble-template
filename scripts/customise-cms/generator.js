@@ -19,6 +19,7 @@ import {
   SPECS_FIELD,
   TABS_FIELD,
 } from "#scripts/customise-cms/fields.js";
+import { compact, filterMap, memberOf } from "#utils/array-utils.js";
 
 // Field builders for each collection type
 const COLLECTION_FIELD_BUILDERS = {
@@ -85,68 +86,54 @@ const COLLECTION_FIELD_BUILDERS = {
 };
 
 const buildNewsFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.title,
     COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
-  ];
-  if (config.collections.includes("team")) {
-    fields.push(
+    hasCollection("team") &&
       createReferenceField("author", "Author", "team", "title", false),
-    );
-  }
-  fields.push(
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.body,
     COMMON_FIELDS.header_text,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
-  );
-  return fields;
+  ]);
 };
 
 const buildProductsFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.title,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.header_image,
-  ];
-  if (config.collections.includes("categories")) {
-    fields.push(createReferenceField("categories", "Categories", "categories"));
-  }
-  if (config.collections.includes("events")) {
-    fields.push(createReferenceField("events", "Events", "events"));
-  }
-  fields.push(
+    hasCollection("categories") &&
+      createReferenceField("categories", "Categories", "categories"),
+    hasCollection("events") &&
+      createReferenceField("events", "Events", "events"),
     PRODUCT_OPTIONS_FIELD,
     { name: "etsy_url", label: "Etsy URL", type: "string" },
     COMMON_FIELDS.body,
-  );
-  if (config.features.features) {
-    fields.push(FEATURES_FIELD);
-  }
-  fields.push(
+    config.features.features && FEATURES_FIELD,
     FILTER_ATTRIBUTES_FIELD,
     COMMON_FIELDS.header_text,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     COMMON_FIELDS.subtitle,
-  );
-  return fields;
+  ]);
 };
 
 const buildReviewsFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.name,
     { name: "url", type: "string", label: "URL" },
     { name: "rating", type: "number", label: "Rating" },
     { name: "thumbnail", type: "image", label: "Reviewer Photo" },
     COMMON_FIELDS.body,
-  ];
-  if (config.collections.includes("products")) {
-    fields.push(createReferenceField("products", "Products", "products"));
-  }
-  return fields;
+    hasCollection("products") &&
+      createReferenceField("products", "Products", "products"),
+  ]);
 };
 
 const buildEventsFields = () => [
@@ -175,86 +162,69 @@ const buildEventsFields = () => [
 ];
 
 const buildLocationsFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.title,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.subtitle,
-  ];
-  if (config.collections.includes("categories")) {
-    fields.push(createReferenceField("categories", "Categories", "categories"));
-  }
-  fields.push(
+    hasCollection("categories") &&
+      createReferenceField("categories", "Categories", "categories"),
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     COMMON_FIELDS.body,
-  );
-  return fields;
+  ]);
 };
 
 const buildPropertiesFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.title,
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.header_image,
     COMMON_FIELDS.featured,
-  ];
-  if (config.collections.includes("locations")) {
-    fields.push(createReferenceField("locations", "Locations", "locations"));
-  }
-  fields.push(
+    hasCollection("locations") &&
+      createReferenceField("locations", "Locations", "locations"),
     { name: "bedrooms", type: "number", label: "Bedrooms" },
     { name: "bathrooms", type: "number", label: "Bathrooms" },
     { name: "sleeps", type: "number", label: "Sleeps" },
     { name: "price_per_night", type: "number", label: "Price Per Night" },
-  );
-  if (config.features.features) {
-    fields.push(FEATURES_FIELD);
-  }
-  fields.push(
+    config.features.features && FEATURES_FIELD,
     COMMON_FIELDS.body,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
-  );
-  return fields;
+  ]);
 };
 
 const buildMenuCategoriesFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.order,
-  ];
-  if (config.collections.includes("menus")) {
-    fields.push(createReferenceField("menus", "Menus", "menus"));
-  }
-  fields.push(COMMON_FIELDS.body);
-  return fields;
+    hasCollection("menus") && createReferenceField("menus", "Menus", "menus"),
+    COMMON_FIELDS.body,
+  ]);
 };
 
 const buildMenuItemsFields = (config) => {
-  const fields = [
+  const hasCollection = memberOf(config.collections);
+  return compact([
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     { name: "price", type: "string", label: "Price" },
     { name: "is_vegan", type: "boolean", label: "Is Vegan" },
     { name: "is_gluten_free", type: "boolean", label: "Is Gluten Free" },
-  ];
-  if (config.collections.includes("menu-categories")) {
-    fields.push(
+    hasCollection("menu-categories") &&
       createReferenceField(
         "menu_categories",
         "Menu Categories",
         "menu-categories",
         "name",
       ),
-    );
-  }
-  fields.push(
     { name: "description", type: "string", label: "Description" },
     COMMON_FIELDS.body,
-  );
-  return fields;
+  ]);
 };
 
 const getCoreFields = (collectionName, config) => {
@@ -277,19 +247,18 @@ const getCoreFields = (collectionName, config) => {
 };
 
 const addOptionalFields = (fields, collectionName, config) => {
-  const collection = getCollection(collectionName);
   if (collectionName === "snippets") return fields;
 
-  if (config.features.permalinks) fields.push(COMMON_FIELDS.permalink);
-  if (config.features.redirects) fields.push(COMMON_FIELDS.redirect_from);
-  if (config.features.faqs) fields.push(FAQS_FIELD);
-  if (config.features.galleries && collection?.supportsGallery)
-    fields.push(GALLERY_FIELD);
-  if (config.features.specs && collection?.supportsSpecs)
-    fields.push(SPECS_FIELD);
-  if (collectionName === "products") fields.push(TABS_FIELD);
-
-  return fields;
+  const collection = getCollection(collectionName);
+  return compact([
+    ...fields,
+    config.features.permalinks && COMMON_FIELDS.permalink,
+    config.features.redirects && COMMON_FIELDS.redirect_from,
+    config.features.faqs && FAQS_FIELD,
+    config.features.galleries && collection?.supportsGallery && GALLERY_FIELD,
+    config.features.specs && collection?.supportsSpecs && SPECS_FIELD,
+    collectionName === "products" && TABS_FIELD,
+  ]);
 };
 
 const buildCollectionFields = (collectionName, config) => {
@@ -330,6 +299,8 @@ const FILENAME_COLLECTIONS = [
   "snippets",
 ];
 
+const hasFilenameConfig = memberOf(FILENAME_COLLECTIONS);
+
 const generateCollectionConfig = (collectionName, config) => {
   const collection = getCollection(collectionName);
   if (!collection) return null;
@@ -342,7 +313,7 @@ const generateCollectionConfig = (collectionName, config) => {
     subfolders: collectionName === "locations",
   };
 
-  if (FILENAME_COLLECTIONS.includes(collectionName)) {
+  if (hasFilenameConfig(collectionName)) {
     collectionConfig.filename = "{primary}.md";
   }
 
@@ -509,6 +480,11 @@ const getAltTagsConfig = () => ({
 });
 
 export const generatePagesYaml = (config) => {
+  const collectionConfigs = filterMap(
+    (name) => getCollection(name),
+    (name) => generateCollectionConfig(name, config),
+  )(config.collections);
+
   const pagesConfig = {
     media: {
       input: "src/images",
@@ -522,22 +498,14 @@ export const generatePagesYaml = (config) => {
         merge: true,
       },
     },
-    content: [],
+    content: [
+      ...collectionConfigs,
+      getHomepageConfig(),
+      getSiteConfig(),
+      getMetaConfig(),
+      getAltTagsConfig(),
+    ],
   };
-
-  // Add collections
-  for (const collectionName of config.collections) {
-    const collectionConfig = generateCollectionConfig(collectionName, config);
-    if (collectionConfig) {
-      pagesConfig.content.push(collectionConfig);
-    }
-  }
-
-  // Add file-based configurations
-  pagesConfig.content.push(getHomepageConfig());
-  pagesConfig.content.push(getSiteConfig());
-  pagesConfig.content.push(getMetaConfig());
-  pagesConfig.content.push(getAltTagsConfig());
 
   return YAML.stringify(pagesConfig, {
     indent: 2,

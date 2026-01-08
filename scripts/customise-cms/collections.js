@@ -12,6 +12,8 @@
  * - dependencies: Other collections this one requires
  */
 
+import { filter } from "#utils/array-utils.js";
+
 export const COLLECTIONS = [
   {
     name: "pages",
@@ -159,13 +161,13 @@ export const getCollection = (name) => COLLECTIONS.find((c) => c.name === name);
  * Get collections that can be selected by users (non-internal, non-required)
  */
 export const getSelectableCollections = () =>
-  COLLECTIONS.filter((c) => !c.internal && !c.required);
+  filter((c) => !c.internal && !c.required)(COLLECTIONS);
 
 /**
  * Get required collections
  */
 export const getRequiredCollections = () =>
-  COLLECTIONS.filter((c) => c.required);
+  filter((c) => c.required)(COLLECTIONS);
 
 /**
  * Get all dependencies for selected collections
