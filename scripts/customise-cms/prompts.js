@@ -226,6 +226,28 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
 };
 
 /**
+ * Ask about src folder structure
+ */
+const askSrcFolderQuestion = async (rl, defaultHasSrc) => {
+  return await askYesNo(
+    rl,
+    "Does your template have a 'src' folder?",
+    defaultHasSrc ?? true,
+  );
+};
+
+/**
+ * Ask about custom home.html layout
+ */
+const askCustomHomeLayoutQuestion = async (rl, defaultCustomHome) => {
+  return await askYesNo(
+    rl,
+    "Does your template have a custom home.html layout file?",
+    defaultCustomHome ?? false,
+  );
+};
+
+/**
  * Main question flow
  */
 export const askQuestions = async (existingConfig = null) => {
@@ -234,6 +256,15 @@ export const askQuestions = async (existingConfig = null) => {
   try {
     const defaultCollections = existingConfig?.collections || [];
     const defaultFeatures = existingConfig?.features || {};
+    const defaultHasSrc = existingConfig?.hasSrcFolder ?? true;
+    const defaultCustomHome = existingConfig?.customHomePage ?? false;
+
+    console.log("\n--- Template Configuration ---\n");
+    const hasSrcFolder = await askSrcFolderQuestion(rl, defaultHasSrc);
+    const customHomePage = await askCustomHomeLayoutQuestion(
+      rl,
+      defaultCustomHome,
+    );
 
     const collections = await askCollectionQuestions(rl, defaultCollections);
     const features = await askFeatureQuestions(
@@ -242,7 +273,7 @@ export const askQuestions = async (existingConfig = null) => {
       defaultFeatures,
     );
 
-    return { collections, features };
+    return { collections, features, hasSrcFolder, customHomePage };
   } finally {
     rl.close();
   }

@@ -261,6 +261,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -280,6 +281,7 @@ describe("customise-cms generator", () => {
         features: true,
         galleries: true,
       },
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -303,6 +305,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -336,6 +339,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -355,6 +359,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -362,6 +367,65 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("media:");
     expect(yaml).toContain("content:");
     expect(yaml).toContain("name: pages");
+  });
+
+  test("generatePagesYaml adjusts paths when no src folder", () => {
+    const config = {
+      collections: ["pages"],
+      features: {
+        permalinks: false,
+        redirects: false,
+        faqs: false,
+        specs: false,
+        features: false,
+        galleries: false,
+      },
+      hasSrcFolder: false,
+    };
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("path: _data/site.json");
+    expect(yaml).toContain("path: _data/meta.json");
+    expect(yaml).toContain("path: _data/alt-tags.json");
+    expect(yaml).toContain("path: pages");
+  });
+
+  test("generatePagesYaml excludes homepage when customHomePage is true", () => {
+    const config = {
+      collections: ["pages"],
+      features: {
+        permalinks: false,
+        redirects: false,
+        faqs: false,
+        specs: false,
+        features: false,
+        galleries: false,
+      },
+      hasSrcFolder: true,
+      customHomePage: true,
+    };
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).not.toContain("name: homepage");
+  });
+
+  test("generatePagesYaml includes homepage when customHomePage is false", () => {
+    const config = {
+      collections: ["pages"],
+      features: {
+        permalinks: false,
+        redirects: false,
+        faqs: false,
+        specs: false,
+        features: false,
+        galleries: false,
+      },
+      hasSrcFolder: true,
+      customHomePage: false,
+    };
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("name: homepage");
   });
 });
 
@@ -389,5 +453,12 @@ describe("customise-cms config", () => {
     expect(config.features.specs).toBe(true);
     expect(config.features.features).toBe(true);
     expect(config.features.galleries).toBe(true);
+  });
+
+  test("createDefaultConfig includes hasSrcFolder and customHomePage", () => {
+    const config = createDefaultConfig();
+
+    expect(config.hasSrcFolder).toBe(true);
+    expect(config.customHomePage).toBe(false);
   });
 });

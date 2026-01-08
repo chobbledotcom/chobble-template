@@ -65,4 +65,6 @@ export const createDefaultConfig = () => ({
     features: true,
     galleries: true,
   },
+  hasSrcFolder: true,
+  customHomePage: false,
 });

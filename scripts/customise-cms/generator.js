@@ -320,8 +320,11 @@ const FILENAME_COLLECTIONS = [
 
 const hasFilenameConfig = memberOf(FILENAME_COLLECTIONS);
 
+// Helper to get data path based on whether src folder exists
+const getDataPath = (hasSrcFolder) => (hasSrcFolder ? "src/_data" : "_data");
+
 const generateCollectionConfig = (collectionName, config) => {
-  const collection = getCollection(collectionName);
+  const collection = getCollection(collectionName, config.hasSrcFolder);
   if (!collection) return null;
 
   const collectionConfig = {
@@ -345,11 +348,11 @@ const generateCollectionConfig = (collectionName, config) => {
   return collectionConfig;
 };
 
-const getHomepageConfig = () => ({
+const getHomepageConfig = (dataPath) => ({
   name: "homepage",
   label: "Homepage Settings",
   type: "file",
-  path: "src/_data/homepage.json",
+  path: `${dataPath}/homepage.json`,
   fields: [
     {
       name: "show_products",
@@ -378,11 +381,11 @@ const getHomepageConfig = () => ({
   ],
 });
 
-const getSiteConfig = () => ({
+const getSiteConfig = (dataPath) => ({
   name: "site",
   label: "Site Configuration",
   type: "file",
-  path: "src/_data/site.json",
+  path: `${dataPath}/site.json`,
   fields: [
     { name: "name", type: "string", label: "Site Name" },
     { name: "url", type: "string", label: "Site URL" },
@@ -415,11 +418,11 @@ const getSiteConfig = () => ({
   ],
 });
 
-const getMetaConfig = () => ({
+const getMetaConfig = (dataPath) => ({
   name: "meta",
   label: "Meta Configuration",
   type: "file",
-  path: "src/_data/meta.json",
+  path: `${dataPath}/meta.json`,
   fields: [
     {
       name: "language",
@@ -480,11 +483,11 @@ const getMetaConfig = () => ({
   ],
 });
 
-const getAltTagsConfig = () => ({
+const getAltTagsConfig = (dataPath) => ({
   name: "alt-tags",
   label: "Image Alt Tags",
   type: "file",
-  path: "src/_data/alt-tags.json",
+  path: `${dataPath}/alt-tags.json`,
   fields: [
     {
       name: "images",
@@ -504,6 +507,19 @@ export const generatePagesYaml = (config) => {
     (name) => generateCollectionConfig(name, config),
   )(config.collections);
 
+  const hasSrcFolder = config.hasSrcFolder ?? true;
+  const customHomePage = config.customHomePage ?? false;
+  const dataPath = getDataPath(hasSrcFolder);
+
+  // Build content array, conditionally including homepage
+  const contentArray = [
+    ...collectionConfigs,
+    ...(customHomePage ? [] : [getHomepageConfig(dataPath)]),
+    getSiteConfig(dataPath),
+    getMetaConfig(dataPath),
+    getAltTagsConfig(dataPath),
+  ];
+
   const pagesConfig = {
     media: {
       input: "src/images",
@@ -517,13 +533,7 @@ export const generatePagesYaml = (config) => {
         merge: true,
       },
     },
-    content: [
-      ...collectionConfigs,
-      getHomepageConfig(),
-      getSiteConfig(),
-      getMetaConfig(),
-      getAltTagsConfig(),
-    ],
+    content: contentArray,
   };
 
   return YAML.stringify(pagesConfig, {
