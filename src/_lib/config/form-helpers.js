@@ -5,6 +5,7 @@ const FIELD_TYPE_TEMPLATES = {
   textarea: "form-field-textarea.html",
   select: "form-field-select.html",
   radio: "form-field-radio.html",
+  heading: "form-field-heading.html",
 };
 
 const DEFAULT_TEMPLATE = "form-field-input.html";

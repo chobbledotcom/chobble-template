@@ -6,10 +6,10 @@ import { toObject } from "#utils/object-entries.js";
 // Build sections with metadata, adding templates and fieldClass to fields
 export function buildSections(sections) {
   return sections.map((section, index) => ({
-    title: section.title,
-    fields: addFieldTemplates(section.fields).map((field) => ({
+    fields: addFieldTemplates(section.fields).map((field, fieldIndex) => ({
       ...field,
       fieldClass: field.half ? "field-half" : undefined,
+      fieldIndex,
     })),
     stepNumber: index,
     isFirst: index === 0,
@@ -18,8 +18,11 @@ export function buildSections(sections) {
 }
 
 // Build a flat mapping of field name -> label from all sections
+// Excludes heading fields which don't have name/label properties
 export function buildFieldLabels(sections) {
-  const allFields = sections.flatMap((section) => section.fields);
+  const allFields = sections.flatMap((section) =>
+    section.fields.filter((field) => field.type !== "heading"),
+  );
   return toObject(allFields, (field) => [field.name, field.label]);
 }
 
@@ -29,7 +32,10 @@ export function processQuoteFields(data) {
 
   const stepNames = [
     data.quoteStepName || "Your Items",
-    ...sections.map((s) => s.title),
+    ...data.sections.map((s) => {
+      const headingField = s.fields.find((field) => field.type === "heading");
+      return headingField?.title || "";
+    }),
     data.recapTitle || "Review",
   ];
   const steps = stepNames.map((name, index) => ({
