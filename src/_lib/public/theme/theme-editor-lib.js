@@ -9,7 +9,7 @@ import {
   pipe,
   split,
 } from "#utils/array-utils.js";
-import { filterObject, fromPairs } from "#utils/object-entries.js";
+import { fromPairs } from "#utils/object-entries.js";
 
 // Scopes that support local CSS variable overrides
 export const SCOPES = ["header", "nav", "article", "form", "button"];
@@ -28,7 +28,7 @@ export const SCOPE_SELECTORS = {
  * @param {string} cssText - CSS content inside a block
  * @returns {Object} - Map of CSS variable names to values
  */
-export function parseCssBlock(cssText) {
+const parseCssBlock = (cssText) => {
   if (!cssText) return {};
   return pipe(
     split(";"),
@@ -37,7 +37,7 @@ export function parseCssBlock(cssText) {
     map((match) => [match[1], match[2]]),
     Object.fromEntries,
   )(cssText);
-}
+};
 
 /**
  * Parse theme content from a theme.scss string
@@ -160,17 +160,6 @@ export function shouldIncludeScopedVar(value, globalValue) {
   return true;
 }
 
-/**
- * Collect scope variables from form data, filtering out values that match global
- * @param {Object} scopeFormData - Form values for this scope { varName: value }
- * @param {Object} globalValues - Global values for comparison { varName: value }
- * @returns {Object} - Filtered scope variables (only those differing from global)
- */
-export const filterScopeVars = (scopeFormData, globalValues = {}) =>
-  filterObject((varName, value) =>
-    shouldIncludeScopedVar(value, globalValues[varName]),
-  )(scopeFormData);
-
 // Pipeline helpers for theme editor UI
 
 /**
@@ -221,7 +210,7 @@ export const inputToScopedEntry = (docStyle) => (input) => {
  * @param {boolean} enabled - Whether the control is enabled
  * @returns {Function} (value) => value or null
  */
-export const toggleClassAndReturn = (el, enabled) => (value) => {
+const toggleClassAndReturn = (el, enabled) => (value) => {
   const isActive = value === el.value && enabled;
   document.body.classList.toggle(value, isActive);
   return isActive ? value : null;

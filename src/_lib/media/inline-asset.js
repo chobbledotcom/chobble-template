@@ -15,39 +15,38 @@ const ALLOWED_EXTENSIONS = [
  * @param {string} baseDir - Base directory (defaults to process.cwd())
  * @returns {string} Full path to the asset
  */
-export function getAssetPath(assetPath, baseDir = process.cwd()) {
-  return path.join(baseDir, "src", "assets", assetPath);
-}
+const getAssetPath = (assetPath, baseDir = process.cwd()) =>
+  path.join(baseDir, "src", "assets", assetPath);
 
 /**
  * Check if a file extension is allowed for inlining
  * @param {string} filePath - Path to the file
  * @returns {boolean} True if extension is allowed
  */
-export function isAllowedExtension(filePath) {
+const isAllowedExtension = (filePath) => {
   const ext = path.extname(filePath).toLowerCase();
   return ALLOWED_EXTENSIONS.includes(ext);
-}
+};
 
 /**
  * Check if a file is an SVG
  * @param {string} filePath - Path to the file
  * @returns {boolean} True if file is an SVG
  */
-export function isSvgFile(filePath) {
+const isSvgFile = (filePath) => {
   const ext = path.extname(filePath).toLowerCase();
   return ALLOWED_SVG_EXTENSIONS.includes(ext);
-}
+};
 
 /**
  * Check if a file is an image (non-SVG)
  * @param {string} filePath - Path to the file
  * @returns {boolean} True if file is an image
  */
-export function isImageFile(filePath) {
+const isImageFile = (filePath) => {
   const ext = path.extname(filePath).toLowerCase();
   return ALLOWED_IMAGE_EXTENSIONS.includes(ext);
-}
+};
 
 /**
  * Inline an asset file, returning its contents as a string

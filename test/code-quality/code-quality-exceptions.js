@@ -210,6 +210,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
+  "src/_lib/media/inline-asset.js", // Internal helpers for asset validation
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
@@ -295,10 +296,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/media/image.js:createImageTransform",
   "src/_lib/media/image.js:imageShortcode",
   "src/_lib/media/inline-asset.js:configureInlineAsset",
-  "src/_lib/media/inline-asset.js:getAssetPath",
-  "src/_lib/media/inline-asset.js:isAllowedExtension",
-  "src/_lib/media/inline-asset.js:isImageFile",
-  "src/_lib/media/inline-asset.js:isSvgFile",
   "src/_lib/media/unused-images.js:configureUnusedImages",
 
   // Path constants - used in test utilities
@@ -308,14 +305,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 
   // Theme editor internals - tested for UI component behavior
   "src/_lib/public/theme/theme-editor-config.js:GLOBAL_INPUTS",
+  "src/_lib/public/theme/theme-editor-config.js:SCOPE_DEFINITIONS",
   "src/_lib/public/theme/theme-editor-config.js:SCOPED_INPUTS",
-  "src/_lib/public/theme/theme-editor-config.js:getInputCounts",
-  "src/_lib/public/theme/theme-editor-config.js:getScopedVarNames",
-  "src/_lib/public/theme/theme-editor-config.js:getScopes",
   "src/_lib/public/theme/theme-editor-lib.js:SCOPE_SELECTORS",
-  "src/_lib/public/theme/theme-editor-lib.js:filterScopeVars",
-  "src/_lib/public/theme/theme-editor-lib.js:parseCssBlock",
-  "src/_lib/public/theme/theme-editor-lib.js:toggleClassAndReturn",
 
   // Public UI components - tested for frontend behavior
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",

@@ -128,39 +128,3 @@ export const SCOPE_DEFINITIONS = {
     extraInputs: {},
   },
 };
-
-/**
- * Get all scopes
- */
-export function getScopes() {
-  return Object.keys(SCOPE_DEFINITIONS);
-}
-
-/**
- * Get the list of CSS variable names that can be scoped
- */
-export function getScopedVarNames() {
-  return Object.keys(SCOPED_INPUTS).map((id) => `--${id}`);
-}
-
-/**
- * Total count of inputs for testing
- */
-export function getInputCounts() {
-  const globalCount = Object.keys(GLOBAL_INPUTS).length;
-  const scopedPerScope = Object.keys(SCOPED_INPUTS).length;
-  const scopes = Object.keys(SCOPE_DEFINITIONS).length;
-  const extraInputs = Object.values(SCOPE_DEFINITIONS).reduce(
-    (sum, def) => sum + Object.keys(def.extraInputs).length,
-    0,
-  );
-
-  return {
-    global: globalCount,
-    scopedPerScope,
-    scopes,
-    totalScoped: scopedPerScope * scopes,
-    extraInputs,
-    total: globalCount + scopedPerScope * scopes + extraInputs,
-  };
-}
