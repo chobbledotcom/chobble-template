@@ -153,9 +153,23 @@ export const COLLECTIONS = [
 ];
 
 /**
- * Get collection by name
+ * Get collection by name, optionally applying a path prefix
  */
-export const getCollection = (name) => COLLECTIONS.find((c) => c.name === name);
+export const getCollection = (name, dataPath = null) => {
+  const collection = COLLECTIONS.find((c) => c.name === name);
+  if (!collection || !dataPath) return collection;
+
+  // If dataPath is provided, prepend it to the collection path
+  // (remove "src/" from path if dataPath is "_data")
+  const basePath = collection.path.startsWith("src/")
+    ? collection.path.slice(4)
+    : collection.path;
+
+  return {
+    ...collection,
+    path: dataPath === "src/_data" ? `src/${basePath}` : basePath,
+  };
+};
 
 /**
  * Get collections that can be selected by users (non-internal, non-required)

@@ -226,6 +226,29 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
 };
 
 /**
+ * Ask about data folder structure
+ */
+const askDataPathQuestion = async (rl, defaultDataPath) => {
+  const hasSourceFolder = await askYesNo(
+    rl,
+    "Does your template have a 'src' folder structure?",
+    defaultDataPath === "src/_data",
+  );
+  return hasSourceFolder ? "src/_data" : "_data";
+};
+
+/**
+ * Ask about custom home.html layout
+ */
+const askCustomHomeLayoutQuestion = async (rl, defaultCustomHome) => {
+  return await askYesNo(
+    rl,
+    "Does your template have a custom home.html layout file?",
+    defaultCustomHome ?? false,
+  );
+};
+
+/**
  * Main question flow
  */
 export const askQuestions = async (existingConfig = null) => {
@@ -234,6 +257,12 @@ export const askQuestions = async (existingConfig = null) => {
   try {
     const defaultCollections = existingConfig?.collections || [];
     const defaultFeatures = existingConfig?.features || {};
+    const defaultDataPath = existingConfig?.dataPath || "src/_data";
+    const defaultCustomHome = existingConfig?.customHomePage || false;
+
+    console.log("\n--- Template Configuration ---\n");
+    const dataPath = await askDataPathQuestion(rl, defaultDataPath);
+    const customHomePage = await askCustomHomeLayoutQuestion(rl, defaultCustomHome);
 
     const collections = await askCollectionQuestions(rl, defaultCollections);
     const features = await askFeatureQuestions(
@@ -242,7 +271,7 @@ export const askQuestions = async (existingConfig = null) => {
       defaultFeatures,
     );
 
-    return { collections, features };
+    return { collections, features, dataPath, customHomePage };
   } finally {
     rl.close();
   }
