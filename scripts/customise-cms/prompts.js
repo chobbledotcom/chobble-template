@@ -173,6 +173,27 @@ const askExternalPurchasesQuestion = async (
 };
 
 /**
+ * Ask conditional feature questions for event locations and dates
+ */
+const askEventLocationsAndDatesQuestion = async (
+  rl,
+  collections,
+  defaultFeatures,
+) => {
+  const hasEvents = collections.includes("events");
+
+  return {
+    event_locations_and_dates: hasEvents
+      ? await askYesNo(
+          rl,
+          "Do your events have locations and dates (not just informational pages)?",
+          defaultFeatures.event_locations_and_dates ?? true,
+        )
+      : true,
+  };
+};
+
+/**
  * Ask feature questions
  */
 const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
@@ -221,8 +242,18 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const eventFeatures = await askEventLocationsAndDatesQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
 
-  return { ...baseFeatures, ...conditionalFeatures, ...purchaseFeatures };
+  return {
+    ...baseFeatures,
+    ...conditionalFeatures,
+    ...purchaseFeatures,
+    ...eventFeatures,
+  };
 };
 
 /**

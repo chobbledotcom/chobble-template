@@ -64,6 +64,7 @@ export const createDefaultConfig = () => ({
     specs: true,
     features: true,
     galleries: true,
+    event_locations_and_dates: true,
   },
   hasSrcFolder: true,
   customHomePage: false,

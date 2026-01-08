@@ -461,4 +461,107 @@ describe("customise-cms config", () => {
     expect(config.hasSrcFolder).toBe(true);
     expect(config.customHomePage).toBe(false);
   });
+
+  test("createDefaultConfig includes event_locations_and_dates feature", () => {
+    const config = createDefaultConfig();
+
+    expect(config.features.event_locations_and_dates).toBe(true);
+  });
+});
+
+describe("customise-cms events fields", () => {
+  test("events include location and date fields when event_locations_and_dates is true", () => {
+    const config = {
+      collections: ["pages", "events"],
+      features: {
+        permalinks: false,
+        redirects: false,
+        faqs: false,
+        specs: false,
+        features: false,
+        galleries: false,
+        header_images: false,
+        event_locations_and_dates: true,
+      },
+      hasSrcFolder: true,
+    };
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("name: events");
+    expect(yaml).toContain("name: event_date");
+    expect(yaml).toContain("name: recurring_date");
+    expect(yaml).toContain("name: event_location");
+    expect(yaml).toContain("name: map_embed_src");
+  });
+
+  test("events exclude location and date fields when event_locations_and_dates is false", () => {
+    const config = {
+      collections: ["pages", "events"],
+      features: {
+        permalinks: false,
+        redirects: false,
+        faqs: false,
+        specs: false,
+        features: false,
+        galleries: false,
+        header_images: false,
+        event_locations_and_dates: false,
+      },
+      hasSrcFolder: true,
+    };
+    const yaml = generatePagesYaml(config);
+
+    expect(yaml).toContain("name: events");
+
+    // Extract only the events section to avoid false positives from site.json
+    const eventsStart = yaml.indexOf("name: events");
+    const eventsEnd = yaml.indexOf("name: homepage");
+    const eventsSection = yaml.substring(eventsStart, eventsEnd);
+
+    expect(eventsSection).not.toContain("name: event_date");
+    expect(eventsSection).not.toContain("name: recurring_date");
+    expect(eventsSection).not.toContain("name: event_location");
+    expect(eventsSection).not.toContain("name: map_embed_src");
+  });
+
+  test("events view config includes location/date fields when event_locations_and_dates is true", () => {
+    const config = {
+      collections: ["pages", "events"],
+      features: {
+        event_locations_and_dates: true,
+      },
+      hasSrcFolder: true,
+    };
+    const yaml = generatePagesYaml(config);
+
+    const eventsSection = yaml.substring(
+      yaml.indexOf("name: events"),
+      yaml.indexOf("name: homepage"),
+    );
+    expect(eventsSection).toContain("event_date");
+    expect(eventsSection).toContain("recurring_date");
+    expect(eventsSection).toContain("event_location");
+  });
+
+  test("events view config excludes location/date fields when event_locations_and_dates is false", () => {
+    const config = {
+      collections: ["pages", "events"],
+      features: {
+        event_locations_and_dates: false,
+      },
+      hasSrcFolder: true,
+    };
+    const yaml = generatePagesYaml(config);
+
+    const eventsSection = yaml.substring(
+      yaml.indexOf("name: events"),
+      yaml.indexOf("name: homepage"),
+    );
+    // Should only have title in the view fields
+    expect(eventsSection).toContain("fields:");
+    expect(eventsSection).toContain("- title");
+    // Should not contain the date/location fields in the view
+    const viewFieldsMatch = eventsSection.match(/fields:\s*\n\s*- title/);
+    expect(viewFieldsMatch).toBeTruthy();
+  });
 });
