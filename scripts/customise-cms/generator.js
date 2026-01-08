@@ -321,8 +321,7 @@ const FILENAME_COLLECTIONS = [
 const hasFilenameConfig = memberOf(FILENAME_COLLECTIONS);
 
 // Helper to get data path based on whether src folder exists
-const getDataPath = (hasSrcFolder) =>
-  hasSrcFolder ? "src/_data" : "_data";
+const getDataPath = (hasSrcFolder) => (hasSrcFolder ? "src/_data" : "_data");
 
 const generateCollectionConfig = (collectionName, config) => {
   const collection = getCollection(collectionName, config.hasSrcFolder);

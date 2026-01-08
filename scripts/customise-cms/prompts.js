@@ -261,7 +261,10 @@ export const askQuestions = async (existingConfig = null) => {
 
     console.log("\n--- Template Configuration ---\n");
     const hasSrcFolder = await askSrcFolderQuestion(rl, defaultHasSrc);
-    const customHomePage = await askCustomHomeLayoutQuestion(rl, defaultCustomHome);
+    const customHomePage = await askCustomHomeLayoutQuestion(
+      rl,
+      defaultCustomHome,
+    );
 
     const collections = await askCollectionQuestions(rl, defaultCollections);
     const features = await askFeatureQuestions(
