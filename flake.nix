@@ -20,6 +20,8 @@
               "build"
               "test"
               "profile"
+              "customise-cms"
+              "generate-pages-yml"
             ];
           };
         in
@@ -44,12 +46,14 @@
               Development environment ready!
 
               Available commands:
-               serve       - Clean & start dev server with incremental builds
-               build       - Clean & build the site in ./_site
-               test        - Run JavaScript tests
-               profile     - Profile build for performance bottlenecks
-               lint        - Format code with Biome (Nix-only)
-               screenshot  - Take website screenshots (Nix-only)
+               serve              - Clean & start dev server with incremental builds
+               build              - Clean & build the site in ./_site
+               test               - Run JavaScript tests
+               profile            - Profile build for performance bottlenecks
+               lint               - Format code with Biome (Nix-only)
+               screenshot         - Take website screenshots (Nix-only)
+               customise-cms      - Interactive setup for PagesCMS collections
+               generate-pages-yml - Generate .pages.yml with all collections
 
               EOF
 
