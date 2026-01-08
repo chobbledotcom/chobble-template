@@ -153,9 +153,22 @@ export const COLLECTIONS = [
 ];
 
 /**
- * Get collection by name
+ * Get collection by name, optionally adjusting path based on src folder presence
  */
-export const getCollection = (name) => COLLECTIONS.find((c) => c.name === name);
+export const getCollection = (name, hasSrcFolder = null) => {
+  const collection = COLLECTIONS.find((c) => c.name === name);
+  if (!collection || hasSrcFolder === null) return collection;
+
+  // If hasSrcFolder is false, strip the "src/" prefix from the path
+  if (!hasSrcFolder && collection.path.startsWith("src/")) {
+    return {
+      ...collection,
+      path: collection.path.slice(4),
+    };
+  }
+
+  return collection;
+};
 
 /**
  * Get collections that can be selected by users (non-internal, non-required)
