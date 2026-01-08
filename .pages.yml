@@ -1,3 +1,103 @@
+_field_definitions:
+  header_image: &header_image
+    name: header_image
+    type: image
+    label: Header Image
+  header_text: &header_text
+    name: header_text
+    type: string
+    label: Header Text
+  subtitle: &subtitle
+    name: subtitle
+    type: string
+    label: Subtitle
+  body: &body
+    name: body
+    label: Body
+    type: code
+    options:
+      language: markdown
+  meta_title: &meta_title
+    name: meta_title
+    type: string
+    label: Meta Title
+    maxlength: 55
+  meta_description: &meta_description
+    name: meta_description
+    type: string
+    label: Meta Description
+    maxlength: 155
+  permalink: &permalink
+    name: permalink
+    type: string
+    label: Permalink
+  redirect_from: &redirect_from
+    name: redirect_from
+    type: string
+    label: Redirect From
+    list: true
+  faqs: &faqs
+    name: faqs
+    label: FAQs
+    type: object
+    list: true
+    fields:
+      - name: question
+        type: string
+        label: Question
+        required: true
+      - name: answer
+        type: string
+        label: Answer
+        required: true
+      - name: order
+        type: number
+        label: Order
+  gallery: &gallery
+    name: gallery
+    type: image
+    label: Gallery
+    options:
+      multiple: true
+  title: &title
+    name: title
+    type: string
+    label: Title
+  thumbnail: &thumbnail
+    name: thumbnail
+    type: image
+    label: Thumbnail
+  features: &features
+    name: features
+    type: string
+    label: Features
+    list: true
+  specs: &specs
+    name: specs
+    label: Specifications
+    type: object
+    list: true
+    fields:
+      - name: name
+        type: string
+        label: Name
+        required: true
+      - name: value
+        type: string
+        label: Value
+        required: true
+  featured: &featured
+    name: featured
+    type: boolean
+    label: Featured
+  name: &name
+    name: name
+    type: string
+    label: Name
+  order: &order
+    name: order
+    type: number
+    label: Order
 media:
   input: src/images
   output: /images
@@ -23,93 +123,36 @@ content:
       sort:
         - header_text
     fields:
-      - &a1
-        name: header_image
-        type: image
-        label: Header Image
-      - &a3
-        name: header_text
-        type: string
-        label: Header Text
-      - &a6
-        name: subtitle
-        type: string
-        label: Subtitle
-      - &a2
-        name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
-      - &a4
-        name: meta_title
-        type: string
-        label: Meta Title
-        maxlength: 55
-      - &a5
-        name: meta_description
-        type: string
-        label: Meta Description
-        maxlength: 155
+      - *header_image
+      - *header_text
+      - *subtitle
+      - *body
+      - *meta_title
+      - *meta_description
       - name: eleventyNavigation
         label: Navigation
         type: object
         fields:
           - name: key
             type: string
-          - name: order
-            type: number
+          - *order
           - name: url
             type: string
       - name: layout
         type: string
-      - &a7
-        name: permalink
-        type: string
-        label: Permalink
-      - &a8
-        name: redirect_from
-        type: string
-        label: Redirect From
-        list: true
-      - &a9
-        name: faqs
-        label: FAQs
-        type: object
-        list: true
-        fields:
-          - name: question
-            type: string
-            label: Question
-            required: true
-          - name: answer
-            type: string
-            label: Answer
-            required: true
-          - name: order
-            type: number
-            label: Order
-      - &a10
-        name: gallery
-        type: image
-        label: Gallery
-        options:
-          multiple: true
+      - *permalink
+      - *redirect_from
+      - *faqs
+      - *gallery
   - name: products
     label: Products
     path: src/products
     type: collection
     subfolders: false
     fields:
-      - &a11
-        name: title
-        type: string
-        label: Title
-      - &a12
-        name: thumbnail
-        type: image
-        label: Thumbnail
-      - *a1
+      - *title
+      - *thumbnail
+      - source: a1
       - name: categories
         label: Categories
         type: reference
@@ -133,10 +176,7 @@ content:
         type: object
         list: true
         fields:
-          - name: name
-            type: string
-            label: Option Name
-            required: true
+          - *name
           - name: max_quantity
             type: number
             label: Max Quantity
@@ -151,62 +191,34 @@ content:
       - name: etsy_url
         label: Etsy URL
         type: string
-      - *a2
-      - &a14
-        name: features
-        type: string
-        label: Features
-        list: true
+      - source: a2
+      - *features
       - name: filter_attributes
         label: Filter Attributes
         type: object
         list: true
         fields:
-          - name: name
-            type: string
-            label: Name
-            required: true
+          - *name
           - name: value
             type: string
             label: Value
             required: true
-      - *a3
-      - *a4
-      - *a5
-      - *a6
-      - *a7
-      - *a8
-      - *a9
-      - *a10
-      - &a15
-        name: specs
-        label: Specifications
-        type: object
-        list: true
-        fields:
-          - name: name
-            type: string
-            label: Name
-            required: true
-          - name: value
-            type: string
-            label: Value
-            required: true
+      - source: a3
+      - source: a4
+      - source: a5
+      - source: a6
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
+      - *specs
       - name: tabs
         label: Tabs
         type: object
         list: true
         fields:
-          - name: title
-            type: string
-            label: Title
-            required: true
-          - name: body
-            label: Body
-            type: code
-            options:
-              language: markdown
-            required: true
+          - *title
+          - *body
   - name: categories
     label: Categories
     path: src/categories
@@ -214,30 +226,27 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - *a11
-      - *a12
-      - *a2
-      - &a13
-        name: featured
-        type: boolean
-        label: Featured
-      - *a1
-      - *a3
-      - *a4
-      - *a5
-      - *a6
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a11
+      - source: a12
+      - source: a2
+      - *featured
+      - source: a1
+      - source: a3
+      - source: a4
+      - source: a5
+      - source: a6
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: news
     label: News
     path: src/news
     type: collection
     subfolders: false
     fields:
-      - *a11
-      - *a1
+      - source: a11
+      - source: a1
       - name: date
         label: Date
         type: date
@@ -250,15 +259,15 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - *a6
-      - *a2
-      - *a3
-      - *a4
-      - *a5
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a6
+      - source: a2
+      - source: a3
+      - source: a4
+      - source: a5
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: events
     label: Events
     path: src/events
@@ -275,10 +284,10 @@ content:
       sort:
         - title
     fields:
-      - *a12
-      - *a1
-      - *a11
-      - *a6
+      - source: a12
+      - source: a1
+      - source: a11
+      - source: a6
       - name: event_date
         label: Event Date
         type: date
@@ -294,14 +303,14 @@ content:
         type: string
         label: Map Embed URL
         required: false
-      - *a2
-      - *a3
-      - *a4
-      - *a5
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a2
+      - source: a3
+      - source: a4
+      - source: a5
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: team
     label: Team
     path: src/team
@@ -309,44 +318,35 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - *a11
-      - *a12
+      - source: a11
+      - source: a12
       - name: snippet
         type: string
         label: Role
       - name: image
         type: image
         label: Profile Image
-      - *a1
-      - name: body
-        label: Biography
-        type: code
-        options:
-          language: markdown
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a1
+      - *body
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: reviews
     label: Reviews
     path: src/reviews
     type: collection
     subfolders: false
     fields:
-      - &a16
-        name: name
-        type: string
-        label: Name
+      - *name
       - name: url
         type: string
         label: URL
       - name: rating
         type: number
         label: Rating
-      - name: thumbnail
-        type: image
-        label: Reviewer Photo
-      - *a2
+      - *thumbnail
+      - source: a2
       - name: products
         label: Products
         type: reference
@@ -356,9 +356,9 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - *a7
-      - *a8
-      - *a9
+      - source: a7
+      - source: a8
+      - source: a9
   - name: locations
     label: Locations
     path: src/locations
@@ -373,9 +373,9 @@ content:
       sort:
         - title
     fields:
-      - *a11
-      - *a12
-      - *a6
+      - source: a11
+      - source: a12
+      - source: a6
       - name: categories
         label: Categories
         type: reference
@@ -385,13 +385,13 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - *a4
-      - *a5
-      - *a2
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a4
+      - source: a5
+      - source: a2
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: properties
     label: Properties
     path: src/properties
@@ -408,11 +408,11 @@ content:
       sort:
         - title
     fields:
-      - *a11
-      - *a6
-      - *a12
-      - *a1
-      - *a13
+      - source: a11
+      - source: a6
+      - source: a12
+      - source: a1
+      - source: a13
       - name: locations
         label: Locations
         type: reference
@@ -434,15 +434,15 @@ content:
       - name: price_per_night
         type: number
         label: Price Per Night
-      - *a14
-      - *a2
-      - *a4
-      - *a5
-      - *a7
-      - *a8
-      - *a9
-      - *a10
-      - *a15
+      - source: a14
+      - source: a2
+      - source: a4
+      - source: a5
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
+      - source: a15
   - name: guides
     label: Guides
     path: src/guides
@@ -450,48 +450,45 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - *a11
-      - *a12
-      - *a1
-      - *a6
-      - *a2
-      - *a3
-      - *a4
-      - *a5
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a11
+      - source: a12
+      - source: a1
+      - source: a6
+      - source: a2
+      - source: a3
+      - source: a4
+      - source: a5
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: menus
     label: Menus
     path: src/menus
     type: collection
     subfolders: false
     fields:
-      - *a11
-      - *a12
-      - &a17
-        name: order
-        type: number
-        label: Order
-      - *a1
-      - *a6
-      - *a2
-      - *a4
-      - *a5
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a11
+      - source: a12
+      - *order
+      - source: a1
+      - source: a6
+      - source: a2
+      - source: a4
+      - source: a5
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: menu-categories
     label: Menu Categories
     path: src/menu-categories
     type: collection
     subfolders: false
     fields:
-      - *a16
-      - *a12
-      - *a17
+      - source: a16
+      - source: a12
+      - source: a17
       - name: menus
         label: Menus
         type: reference
@@ -501,19 +498,19 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - *a2
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a2
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: menu-items
     label: Menu Items
     path: src/menu-items
     type: collection
     subfolders: false
     fields:
-      - *a16
-      - *a12
+      - source: a16
+      - source: a12
       - name: price
         type: string
         label: Price
@@ -535,11 +532,11 @@ content:
       - name: description
         type: string
         label: Description
-      - *a2
-      - *a7
-      - *a8
-      - *a9
-      - *a10
+      - source: a2
+      - source: a7
+      - source: a8
+      - source: a9
+      - source: a10
   - name: snippets
     label: Snippets
     path: src/snippets
@@ -547,8 +544,8 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - *a16
-      - *a2
+      - source: a16
+      - source: a2
   - name: homepage
     label: Homepage Settings
     type: file
@@ -575,9 +572,7 @@ content:
     type: file
     path: src/_data/site.json
     fields:
-      - name: name
-        type: string
-        label: Site Name
+      - *name
       - name: url
         type: string
         label: Site URL
@@ -652,9 +647,7 @@ content:
             type: object
             list: true
             fields:
-              - name: name
-                type: string
-                label: Name
+              - *name
           - name: address
             label: Address
             type: object

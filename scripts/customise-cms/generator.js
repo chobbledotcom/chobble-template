@@ -479,6 +479,77 @@ const getAltTagsConfig = () => ({
   ],
 });
 
+/**
+ * Extract shared fields into a definitions section and use aliases everywhere
+ */
+const extractSharedFields = (doc) => {
+  const fieldOccurrences = new Map();
+  const nodesByAnchor = new Map();
+
+  // First pass: find all anchored nodes and count occurrences
+  YAML.visit(doc, {
+    Map(_, node) {
+      if (node.anchor) {
+        nodesByAnchor.set(node.anchor, node);
+      }
+    },
+    Alias(_, node) {
+      const count = fieldOccurrences.get(node.source) || 0;
+      fieldOccurrences.set(node.source, count + 1);
+    },
+  });
+
+  // Build definitions map for fields that are reused
+  const definitions = {};
+  const anchorRenames = new Map();
+
+  for (const [anchor, node] of nodesByAnchor) {
+    if (fieldOccurrences.has(anchor)) {
+      const nameItem = node.items.find(
+        (item) => item.key?.value === "name" && item.value?.value,
+      );
+      const fieldName = nameItem?.value?.value || anchor;
+      definitions[fieldName] = node.toJSON();
+      anchorRenames.set(anchor, fieldName);
+    }
+  }
+
+  // Create new document with _field_definitions at the top
+  const content = doc.get("content");
+  const newDoc = new YAML.Document({
+    _field_definitions: definitions,
+    media: doc.get("media").toJSON(),
+    settings: doc.get("settings").toJSON(),
+    content: content.toJSON(),
+  });
+
+  // Set anchors on definition fields
+  const defsNode = newDoc.get("_field_definitions");
+  for (const item of defsNode.items) {
+    item.value.anchor = item.key.value;
+  }
+
+  // Replace all field nodes with aliases in content
+  YAML.visit(newDoc, {
+    Map(_, node, path) {
+      // Skip the _field_definitions section
+      if (path.some((p) => p?.key?.value === "_field_definitions")) return;
+
+      const nameItem = node.items?.find(
+        (item) => item.key?.value === "name" && item.value?.value,
+      );
+      if (nameItem && definitions[nameItem.value.value]) {
+        return newDoc.createAlias(
+          defsNode.get(nameItem.value.value, true),
+          nameItem.value.value,
+        );
+      }
+    },
+  });
+
+  return newDoc;
+};
+
 export const generatePagesYaml = (config) => {
   const collectionConfigs = filterMap(
     (name) => getCollection(name),
@@ -507,7 +578,10 @@ export const generatePagesYaml = (config) => {
     ],
   };
 
-  return YAML.stringify(pagesConfig, {
+  const doc = new YAML.Document(pagesConfig);
+  const finalDoc = extractSharedFields(doc);
+
+  return finalDoc.toString({
     indent: 2,
     lineWidth: 0,
   });
