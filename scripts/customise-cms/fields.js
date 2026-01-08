@@ -45,6 +45,7 @@ export const COMMON_FIELDS = {
 
 /**
  * FAQs field configuration
+ * Note: FAQ order is determined by array order, not by the order field
  */
 export const FAQS_FIELD = {
   name: "faqs",
@@ -54,7 +55,6 @@ export const FAQS_FIELD = {
   fields: [
     { name: "question", type: "string", label: "Question", required: true },
     { name: "answer", type: "string", label: "Answer", required: true },
-    { name: "order", type: "number", label: "Order" },
   ],
 };
 
@@ -115,18 +115,32 @@ export const createReferenceField = (
 });
 
 /**
- * Eleventy navigation field
+ * Create an Eleventy navigation field with optional external URL support
+ * @param {boolean} includeUrl - Whether to include the url field for external URLs
+ * @returns {Object} Navigation field configuration
  */
-export const ELEVENTY_NAVIGATION_FIELD = {
-  name: "eleventyNavigation",
-  label: "Navigation",
-  type: "object",
-  fields: [
+export const createEleventyNavigationField = (includeUrl = false) => {
+  const fields = [
     { name: "key", type: "string" },
     { name: "order", type: "number" },
-    { name: "url", type: "string" },
-  ],
+  ];
+
+  if (includeUrl) {
+    fields.push({ name: "url", type: "string" });
+  }
+
+  return {
+    name: "eleventyNavigation",
+    label: "Navigation",
+    type: "object",
+    fields,
+  };
 };
+
+/**
+ * Default Eleventy navigation field (without external URLs)
+ */
+export const ELEVENTY_NAVIGATION_FIELD = createEleventyNavigationField(false);
 
 /**
  * Product options field

@@ -148,6 +148,16 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
       "Do you want image galleries on items?",
       defaultFeatures.galleries ?? false,
     ),
+    header_images: await askYesNo(
+      rl,
+      "Do you want header images and header text on items?",
+      defaultFeatures.header_images ?? true,
+    ),
+    external_navigation_urls: await askYesNo(
+      rl,
+      "Do you want to link to external URLs in your navigation?",
+      defaultFeatures.external_navigation_urls ?? false,
+    ),
     specs: false,
     features: false,
   };

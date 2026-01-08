@@ -9,8 +9,8 @@ import YAML from "yaml";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
+  createEleventyNavigationField,
   createReferenceField,
-  ELEVENTY_NAVIGATION_FIELD,
   FAQS_FIELD,
   FEATURES_FIELD,
   FILTER_ATTRIBUTES_FIELD,
@@ -21,81 +21,94 @@ import {
 } from "#scripts/customise-cms/fields.js";
 import { compact, filterMap, memberOf } from "#utils/array-utils.js";
 
-// Field builders for each collection type
-const COLLECTION_FIELD_BUILDERS = {
+// Helper function to conditionally include header image/text
+const withHeaderFields = (config, ...fields) =>
+  config.features.header_images
+    ? [...fields.flatMap((f) => (Array.isArray(f) ? f : [f]))]
+    : [];
+
+// Field builders for each collection type - functions that accept config
+const getCollectionFieldBuilders = (config) => ({
   pages: () => [
-    COMMON_FIELDS.header_image,
-    COMMON_FIELDS.header_text,
+    ...withHeaderFields(
+      config,
+      COMMON_FIELDS.header_image,
+      COMMON_FIELDS.header_text,
+    ),
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.body,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
-    ELEVENTY_NAVIGATION_FIELD,
+    createEleventyNavigationField(config.features.external_navigation_urls),
     { name: "layout", type: "string" },
   ],
 
-  categories: () => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.thumbnail,
-    COMMON_FIELDS.body,
-    COMMON_FIELDS.featured,
-    COMMON_FIELDS.header_image,
-    COMMON_FIELDS.header_text,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
-    COMMON_FIELDS.subtitle,
-  ],
+  categories: () =>
+    compact([
+      COMMON_FIELDS.title,
+      COMMON_FIELDS.thumbnail,
+      COMMON_FIELDS.body,
+      COMMON_FIELDS.featured,
+      config.features.header_images && COMMON_FIELDS.header_image,
+      config.features.header_images && COMMON_FIELDS.header_text,
+      COMMON_FIELDS.meta_title,
+      COMMON_FIELDS.meta_description,
+      COMMON_FIELDS.subtitle,
+    ]),
 
-  team: () => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.thumbnail,
-    { name: "snippet", type: "string", label: "Role" },
-    { name: "image", type: "image", label: "Profile Image" },
-    COMMON_FIELDS.header_image,
-    {
-      name: "body",
-      label: "Biography",
-      type: "code",
-      options: { language: "markdown" },
-    },
-  ],
+  team: () =>
+    compact([
+      COMMON_FIELDS.title,
+      COMMON_FIELDS.thumbnail,
+      { name: "snippet", type: "string", label: "Role" },
+      { name: "image", type: "image", label: "Profile Image" },
+      config.features.header_images && COMMON_FIELDS.header_image,
+      {
+        name: "body",
+        label: "Biography",
+        type: "code",
+        options: { language: "markdown" },
+      },
+    ]),
 
-  guides: () => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.thumbnail,
-    COMMON_FIELDS.header_image,
-    COMMON_FIELDS.subtitle,
-    COMMON_FIELDS.body,
-    COMMON_FIELDS.header_text,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
-  ],
+  guides: () =>
+    compact([
+      COMMON_FIELDS.title,
+      COMMON_FIELDS.thumbnail,
+      config.features.header_images && COMMON_FIELDS.header_image,
+      COMMON_FIELDS.subtitle,
+      COMMON_FIELDS.body,
+      config.features.header_images && COMMON_FIELDS.header_text,
+      COMMON_FIELDS.meta_title,
+      COMMON_FIELDS.meta_description,
+    ]),
 
   snippets: () => [COMMON_FIELDS.name, COMMON_FIELDS.body],
 
-  menus: () => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.thumbnail,
-    COMMON_FIELDS.order,
-    COMMON_FIELDS.header_image,
-    COMMON_FIELDS.subtitle,
-    COMMON_FIELDS.body,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
-  ],
-};
+  menus: () =>
+    compact([
+      COMMON_FIELDS.title,
+      COMMON_FIELDS.thumbnail,
+      COMMON_FIELDS.order,
+      config.features.header_images && COMMON_FIELDS.header_image,
+      COMMON_FIELDS.subtitle,
+      COMMON_FIELDS.body,
+      COMMON_FIELDS.meta_title,
+      COMMON_FIELDS.meta_description,
+    ]),
+});
 
 const buildNewsFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
     COMMON_FIELDS.title,
-    COMMON_FIELDS.header_image,
+    config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
     hasCollection("team") &&
       createReferenceField("author", "Author", "team", "title", false),
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.body,
-    COMMON_FIELDS.header_text,
+    config.features.header_images && COMMON_FIELDS.header_text,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
   ]);
@@ -106,7 +119,7 @@ const buildProductsFields = (config) => {
   return compact([
     COMMON_FIELDS.title,
     COMMON_FIELDS.thumbnail,
-    COMMON_FIELDS.header_image,
+    config.features.header_images && COMMON_FIELDS.header_image,
     hasCollection("categories") &&
       createReferenceField("categories", "Categories", "categories"),
     hasCollection("events") &&
@@ -116,7 +129,7 @@ const buildProductsFields = (config) => {
     COMMON_FIELDS.body,
     config.features.features && FEATURES_FIELD,
     FILTER_ATTRIBUTES_FIELD,
-    COMMON_FIELDS.header_text,
+    config.features.header_images && COMMON_FIELDS.header_text,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     COMMON_FIELDS.subtitle,
@@ -136,30 +149,31 @@ const buildReviewsFields = (config) => {
   ]);
 };
 
-const buildEventsFields = () => [
-  COMMON_FIELDS.thumbnail,
-  COMMON_FIELDS.header_image,
-  COMMON_FIELDS.title,
-  COMMON_FIELDS.subtitle,
-  { name: "event_date", label: "Event Date", type: "date", required: false },
-  {
-    name: "recurring_date",
-    type: "string",
-    label: 'Recurring Date (e.g. "Every Friday at 2 PM")',
-    required: false,
-  },
-  { name: "event_location", type: "string", label: "Event Location" },
-  {
-    name: "map_embed_src",
-    type: "string",
-    label: "Map Embed URL",
-    required: false,
-  },
-  COMMON_FIELDS.body,
-  COMMON_FIELDS.header_text,
-  COMMON_FIELDS.meta_title,
-  COMMON_FIELDS.meta_description,
-];
+const buildEventsFields = (config) =>
+  compact([
+    COMMON_FIELDS.thumbnail,
+    config.features.header_images && COMMON_FIELDS.header_image,
+    COMMON_FIELDS.title,
+    COMMON_FIELDS.subtitle,
+    { name: "event_date", label: "Event Date", type: "date", required: false },
+    {
+      name: "recurring_date",
+      type: "string",
+      label: 'Recurring Date (e.g. "Every Friday at 2 PM")',
+      required: false,
+    },
+    { name: "event_location", type: "string", label: "Event Location" },
+    {
+      name: "map_embed_src",
+      type: "string",
+      label: "Map Embed URL",
+      required: false,
+    },
+    COMMON_FIELDS.body,
+    config.features.header_images && COMMON_FIELDS.header_text,
+    COMMON_FIELDS.meta_title,
+    COMMON_FIELDS.meta_description,
+  ]);
 
 const buildLocationsFields = (config) => {
   const hasCollection = memberOf(config.collections);
@@ -181,7 +195,7 @@ const buildPropertiesFields = (config) => {
     COMMON_FIELDS.title,
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.thumbnail,
-    COMMON_FIELDS.header_image,
+    config.features.header_images && COMMON_FIELDS.header_image,
     COMMON_FIELDS.featured,
     hasCollection("locations") &&
       createReferenceField("locations", "Locations", "locations"),
@@ -228,7 +242,8 @@ const buildMenuItemsFields = (config) => {
 };
 
 const getCoreFields = (collectionName, config) => {
-  const staticBuilder = COLLECTION_FIELD_BUILDERS[collectionName];
+  const builders = getCollectionFieldBuilders(config);
+  const staticBuilder = builders[collectionName];
   if (staticBuilder) return staticBuilder();
 
   const dynamicBuilders = {
