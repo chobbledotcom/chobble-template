@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Generate Full .pages.yml Script
  *
@@ -8,6 +9,7 @@
  * Usage: bun run generate-pages-yml
  */
 
+import { compactYaml } from "#scripts/customise-cms/compact-yaml.js";
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 import { writePagesYaml } from "#scripts/customise-cms/writer.js";
@@ -18,7 +20,8 @@ const main = async () => {
   );
 
   const config = createDefaultConfig();
-  const yaml = generatePagesYaml(config);
+  let yaml = generatePagesYaml(config);
+  yaml = compactYaml(yaml);
 
   await writePagesYaml(yaml);
 
