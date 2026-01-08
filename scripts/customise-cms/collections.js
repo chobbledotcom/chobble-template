@@ -153,22 +153,21 @@ export const COLLECTIONS = [
 ];
 
 /**
- * Get collection by name, optionally applying a path prefix
+ * Get collection by name, optionally adjusting path based on src folder presence
  */
-export const getCollection = (name, dataPath = null) => {
+export const getCollection = (name, hasSrcFolder = null) => {
   const collection = COLLECTIONS.find((c) => c.name === name);
-  if (!collection || !dataPath) return collection;
+  if (!collection || hasSrcFolder === null) return collection;
 
-  // If dataPath is provided, prepend it to the collection path
-  // (remove "src/" from path if dataPath is "_data")
-  const basePath = collection.path.startsWith("src/")
-    ? collection.path.slice(4)
-    : collection.path;
+  // If hasSrcFolder is false, strip the "src/" prefix from the path
+  if (!hasSrcFolder && collection.path.startsWith("src/")) {
+    return {
+      ...collection,
+      path: collection.path.slice(4),
+    };
+  }
 
-  return {
-    ...collection,
-    path: dataPath === "src/_data" ? `src/${basePath}` : basePath,
-  };
+  return collection;
 };
 
 /**

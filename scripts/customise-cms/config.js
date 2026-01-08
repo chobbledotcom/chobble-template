@@ -65,6 +65,6 @@ export const createDefaultConfig = () => ({
     features: true,
     galleries: true,
   },
-  dataPath: "src/_data",
+  hasSrcFolder: true,
   customHomePage: false,
 });

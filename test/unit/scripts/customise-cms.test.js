@@ -261,7 +261,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -281,7 +281,7 @@ describe("customise-cms generator", () => {
         features: true,
         galleries: true,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -305,7 +305,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -339,7 +339,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -359,7 +359,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
     };
     const yaml = generatePagesYaml(config);
 
@@ -369,7 +369,7 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("name: pages");
   });
 
-  test("generatePagesYaml uses correct dataPath when no src folder", () => {
+  test("generatePagesYaml adjusts paths when no src folder", () => {
     const config = {
       collections: ["pages"],
       features: {
@@ -380,7 +380,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "_data",
+      hasSrcFolder: false,
     };
     const yaml = generatePagesYaml(config);
 
@@ -401,7 +401,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
       customHomePage: true,
     };
     const yaml = generatePagesYaml(config);
@@ -420,7 +420,7 @@ describe("customise-cms generator", () => {
         features: false,
         galleries: false,
       },
-      dataPath: "src/_data",
+      hasSrcFolder: true,
       customHomePage: false,
     };
     const yaml = generatePagesYaml(config);
@@ -455,10 +455,10 @@ describe("customise-cms config", () => {
     expect(config.features.galleries).toBe(true);
   });
 
-  test("createDefaultConfig includes dataPath and customHomePage", () => {
+  test("createDefaultConfig includes hasSrcFolder and customHomePage", () => {
     const config = createDefaultConfig();
 
-    expect(config.dataPath).toBe("src/_data");
+    expect(config.hasSrcFolder).toBe(true);
     expect(config.customHomePage).toBe(false);
   });
 });

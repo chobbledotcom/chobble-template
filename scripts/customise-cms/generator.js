@@ -320,8 +320,12 @@ const FILENAME_COLLECTIONS = [
 
 const hasFilenameConfig = memberOf(FILENAME_COLLECTIONS);
 
+// Helper to get data path based on whether src folder exists
+const getDataPath = (hasSrcFolder) =>
+  hasSrcFolder ? "src/_data" : "_data";
+
 const generateCollectionConfig = (collectionName, config) => {
-  const collection = getCollection(collectionName, config.dataPath);
+  const collection = getCollection(collectionName, config.hasSrcFolder);
   if (!collection) return null;
 
   const collectionConfig = {
@@ -504,8 +508,9 @@ export const generatePagesYaml = (config) => {
     (name) => generateCollectionConfig(name, config),
   )(config.collections);
 
-  const dataPath = config.dataPath || "src/_data";
-  const customHomePage = config.customHomePage || false;
+  const hasSrcFolder = config.hasSrcFolder ?? true;
+  const customHomePage = config.customHomePage ?? false;
+  const dataPath = getDataPath(hasSrcFolder);
 
   // Build content array, conditionally including homepage
   const contentArray = [
