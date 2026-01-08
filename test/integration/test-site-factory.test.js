@@ -1,10 +1,9 @@
-import { afterAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import {
   cleanupAllTestSites,
   createTestSite,
-  withTestSite,
 } from "#test/test-site-factory.js";
 import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 
@@ -32,12 +31,15 @@ const defaultTestFiles = [
 ];
 
 describe("test-site-factory", () => {
-  // Clean up any leftover test sites before and after all tests
+  // Clean up any leftover test sites after all tests
   afterAll(() => {
     cleanupAllTestSites();
   });
 
-  describe("createTestSite", () => {
+  // =========================================================================
+  // Tests that verify site SETUP (no build required)
+  // =========================================================================
+  describe("createTestSite setup", () => {
     test("creates test site with custom config merged with existing config", async () => {
       const site = await createTestSite({
         config: { custom_field: "test-value" },
@@ -161,113 +163,109 @@ describe("test-site-factory", () => {
         fs.unlinkSync(testImagePath);
       }
     });
+  });
 
-    test("hasOutput returns true for existing files", async () => {
-      await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: { title: "Test", permalink: "/test/" },
-              content: "# Test Content",
-            },
-          ],
-        },
-        (site) => {
-          expect(site.hasOutput("test/index.html")).toBe(true);
-        },
-      );
+  // =========================================================================
+  // Tests that verify file manipulation (no build required)
+  // =========================================================================
+  describe("file manipulation methods", () => {
+    let site;
+
+    beforeAll(async () => {
+      site = await createTestSite({ files: [minimalPage()] });
     });
 
-    test("hasOutput returns false for non-existing files", async () => {
-      await withTestSite({ files: [testPage()] }, (site) => {
-        expect(site.hasOutput("nonexistent/file.html")).toBe(false);
+    afterAll(() => site?.cleanup());
+
+    test("addFile adds a new file to the site", () => {
+      site.addFile("test-file.txt", "Test content");
+
+      const filePath = path.join(site.srcDir, "test-file.txt");
+      expect(fs.existsSync(filePath)).toBe(true);
+      expect(fs.readFileSync(filePath, "utf-8")).toBe("Test content");
+    });
+
+    test("addMarkdown adds a markdown file with frontmatter", () => {
+      site.addMarkdown("pages/added.md", {
+        frontmatter: { title: "Added Page" },
+        content: "# Added Content",
       });
-    });
 
-    test("addFile adds a new file to the site", async () => {
-      await withTestSite({ files: [minimalPage()] }, (site) => {
-        site.addFile("test-file.txt", "Test content");
+      const filePath = path.join(site.srcDir, "pages/added.md");
+      expect(fs.existsSync(filePath)).toBe(true);
 
-        const filePath = path.join(site.srcDir, "test-file.txt");
-        expect(fs.existsSync(filePath)).toBe(true);
-        expect(fs.readFileSync(filePath, "utf-8")).toBe("Test content");
-      });
-    });
-
-    test("addMarkdown adds a markdown file with frontmatter", async () => {
-      await withTestSite({ files: [minimalPage()] }, (site) => {
-        site.addMarkdown("pages/added.md", {
-          frontmatter: { title: "Added Page" },
-          content: "# Added Content",
-        });
-
-        const filePath = path.join(site.srcDir, "pages/added.md");
-        expect(fs.existsSync(filePath)).toBe(true);
-
-        const fileContent = fs.readFileSync(filePath, "utf-8");
-        expect(fileContent).toContain("title: Added Page");
-        expect(fileContent).toContain("# Added Content");
-      });
-    });
-
-    test("getDoc returns a DOM document for querying HTML", async () => {
-      await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/test.md",
-              frontmatter: { title: "Test Page", permalink: "/test/" },
-              content: "# Hello World",
-            },
-          ],
-        },
-        (site) => {
-          const doc = site.getDoc("test/index.html");
-
-          // Should return a document we can query
-          expect(doc.querySelector("h1")).toBeTruthy();
-          // The H1 contains the title from frontmatter
-          expect(doc.querySelector("h1").textContent).toContain("Test Page");
-        },
-      );
-    });
-
-    test("listOutputFiles returns all output files recursively", async () => {
-      await withTestSite(
-        {
-          files: [
-            {
-              path: "pages/index.md",
-              frontmatter: { title: "Home", permalink: "/" },
-              content: "Home",
-            },
-            {
-              path: "pages/about.md",
-              frontmatter: { title: "About", permalink: "/about/" },
-              content: "About",
-            },
-          ],
-        },
-        (site) => {
-          const files = site.listOutputFiles();
-
-          // Should list HTML files from the build
-          expect(files.length).toBeGreaterThan(0);
-          expect(files.some((f) => f.includes("index.html"))).toBe(true);
-        },
-      );
-    });
-
-    test("getOutput throws error when file does not exist", async () => {
-      await withTestSite({ files: [testPage()] }, (site) => {
-        expect(() => {
-          site.getOutput("nonexistent/file.html");
-        }).toThrow("Output file not found: nonexistent/file.html");
-      });
+      const fileContent = fs.readFileSync(filePath, "utf-8");
+      expect(fileContent).toContain("title: Added Page");
+      expect(fileContent).toContain("# Added Content");
     });
   });
 
+  // =========================================================================
+  // Tests that verify site OUTPUT (shared build for efficiency)
+  // =========================================================================
+  describe("site output methods", () => {
+    let site;
+
+    beforeAll(async () => {
+      site = await createTestSite({
+        files: [
+          {
+            path: "pages/index.md",
+            frontmatter: { title: "Home", permalink: "/" },
+            content: "Home",
+          },
+          {
+            path: "pages/test.md",
+            frontmatter: { title: "Test Page", permalink: "/test/" },
+            content: "# Hello World",
+          },
+          {
+            path: "pages/about.md",
+            frontmatter: { title: "About", permalink: "/about/" },
+            content: "About",
+          },
+        ],
+      });
+      await site.build();
+    });
+
+    afterAll(() => site?.cleanup());
+
+    test("hasOutput returns true for existing files", () => {
+      expect(site.hasOutput("test/index.html")).toBe(true);
+    });
+
+    test("hasOutput returns false for non-existing files", () => {
+      expect(site.hasOutput("nonexistent/file.html")).toBe(false);
+    });
+
+    test("getDoc returns a DOM document for querying HTML", () => {
+      const doc = site.getDoc("test/index.html");
+
+      // Should return a document we can query
+      expect(doc.querySelector("h1")).toBeTruthy();
+      // The H1 contains the title from frontmatter
+      expect(doc.querySelector("h1").textContent).toContain("Test Page");
+    });
+
+    test("listOutputFiles returns all output files recursively", () => {
+      const files = site.listOutputFiles();
+
+      // Should list HTML files from the build
+      expect(files.length).toBeGreaterThan(0);
+      expect(files.some((f) => f.includes("index.html"))).toBe(true);
+    });
+
+    test("getOutput throws error when file does not exist", () => {
+      expect(() => {
+        site.getOutput("nonexistent/file.html");
+      }).toThrow("Output file not found: nonexistent/file.html");
+    });
+  });
+
+  // =========================================================================
+  // Build error handling (needs separate site with broken config)
+  // =========================================================================
   describe("build error handling", () => {
     test("build throws error with stderr when Eleventy build fails", async () => {
       const site = await createTestSite({
@@ -298,6 +296,9 @@ describe("test-site-factory", () => {
     });
   });
 
+  // =========================================================================
+  // Cleanup functionality
+  // =========================================================================
   describe("cleanupAllTestSites", () => {
     test("removes all test site directories", async () => {
       // Create a couple of test sites
