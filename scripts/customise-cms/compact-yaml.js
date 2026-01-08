@@ -69,6 +69,20 @@ const objectToInline = (lines) => {
 };
 
 /**
+ * Check if object lines contain nested structures
+ */
+const hasNestedStructures = (lines) => {
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Check for lines that end with : and have no value (indicating nested block)
+    if (trimmed.endsWith(":") && !trimmed.includes(": ")) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
  * Collect lines that belong to a YAML list item object
  */
 const collectObjectLines = (lines, startIndex, listIndent) => {
@@ -85,11 +99,6 @@ const collectObjectLines = (lines, startIndex, listIndent) => {
       break;
     }
 
-    // Stop at nested complex structures (lines ending with : that start new blocks)
-    if (nextTrimmed.endsWith(":") && nextIndent > listIndent) {
-      break;
-    }
-
     objectLines.push(nextLine);
     j++;
   }
@@ -103,6 +112,11 @@ const collectObjectLines = (lines, startIndex, listIndent) => {
 const tryCompactLine = (objectLines, listIndent) => {
   if (objectLines.length < 2) {
     return null; // Single line, no benefit to compacting
+  }
+
+  // Don't compact objects with nested structures (e.g., options: { ... })
+  if (hasNestedStructures(objectLines)) {
+    return null;
   }
 
   const inlineVersion = objectToInline(objectLines);
