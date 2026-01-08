@@ -301,7 +301,7 @@ describe("recurring-events", () => {
     content,
   });
 
-  test("Recurring events are correctly rendered in Eleventy build", async () =>
+  test("Recurring events are correctly rendered with proper structure and permalinks in Eleventy build", async () =>
     withTestSite(
       {
         files: [
@@ -313,6 +313,9 @@ describe("recurring-events", () => {
             "Monthly Workshop",
             "First Saturday of each month",
           ),
+          eventFile("yoga-class", "Yoga Class", "Wednesdays at 6pm", {
+            permalink: "/classes/yoga/",
+          }),
           oneTimeEventFile("one-time-event", "One Time Event", "2024-06-15"),
           testPage(),
         ],
@@ -321,32 +324,29 @@ describe("recurring-events", () => {
         const html = site.getOutput("/test/index.html");
         const doc = site.getDoc("/test/index.html");
 
+        // Test 1: Recurring events render with location and timing info
         expect(html.includes("Weekly Meetup")).toBe(true);
         expect(html.includes("Monthly Workshop")).toBe(true);
         expect(html.includes("Every Tuesday at 7pm")).toBe(true);
         expect(html.includes("Community Center")).toBe(true);
+
+        // Test 2: One-time events are not included
         expect(!html.includes("One Time Event")).toBe(true);
         expect(!html.includes("/events/2024-03-15-")).toBe(true);
+
+        // Test 3: Correct number of event links rendered
         expect(doc.querySelectorAll("ul li a[href*='/events/']").length).toBe(
           2,
         );
-      },
-    ));
 
-  test("Events with custom permalinks use that URL", async () =>
-    withTestSite(
-      {
-        files: [
-          eventFile("yoga-class", "Yoga Class", "Wednesdays at 6pm", {
-            permalink: "/classes/yoga/",
-          }),
-          testPage(),
-        ],
-      },
-      (site) => {
-        const html = site.getOutput("/test/index.html");
+        // Test 4: Custom permalinks are respected
         expect(html.includes('href="/classes/yoga/"')).toBe(true);
         expect(!html.includes('href="/events/yoga-class/"')).toBe(true);
+
+        // Test 5: Correct HTML structure (ul > li > strong > a)
+        expect(doc.querySelector("ul li strong a")?.textContent).toBe(
+          "Weekly Meetup",
+        );
       },
     ));
 
@@ -362,19 +362,6 @@ describe("recurring-events", () => {
         const html = site.getOutput("/test/index.html");
         expect(!html.includes("<ul>") || !html.includes("One Time Only")).toBe(
           true,
-        );
-      },
-    ));
-
-  test("Recurring events render with correct HTML structure", async () =>
-    withTestSite(
-      {
-        files: [eventFile("test-event", "Test Event", "Daily"), testPage()],
-      },
-      (site) => {
-        const doc = site.getDoc("/test/index.html");
-        expect(doc.querySelector("ul li strong a")?.textContent).toBe(
-          "Test Event",
         );
       },
     ));

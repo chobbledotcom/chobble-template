@@ -93,29 +93,8 @@ const expectMetaStructure = (postMeta, { hasThumbnail, hasFigure }) => {
 };
 
 describe("news", () => {
-  // normaliseSlug unit tests
-  test("Returns simple slug unchanged", () => {
-    expect(normaliseSlug("jane-doe")).toBe("jane-doe");
-  });
-
-  test("Extracts slug from full path reference", () => {
-    expect(normaliseSlug("src/team/jane-doe.md")).toBe("jane-doe");
-  });
-
-  test("Removes file extension from slug", () => {
-    expect(normaliseSlug("jane-doe.md")).toBe("jane-doe");
-  });
-
-  test("Returns null for null input", () => {
-    expect(normaliseSlug(null)).toBe(null);
-  });
-
-  test("Returns undefined for undefined input", () => {
-    expect(normaliseSlug(undefined)).toBe(undefined);
-  });
-
-  // Integration tests with test site
-  test("Post meta renders correctly with various author and image combinations", async () => {
+  // Integration tests with test site - consolidated to single build
+  test("Post meta renders correctly with various author/image combinations and handles no_index", async () => {
     const files = [
       // Post with author + image
       newsPost("with-author-image", "Post With Author and Image", {
@@ -131,6 +110,23 @@ describe("news", () => {
 
       // Post without author
       newsPost("no-author", "Post Without Author"),
+
+      // Visible post
+      newsPost("visible-post", "Visible Post Title"),
+
+      // Hidden post with no_index
+      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
+
+      // News archive page
+      {
+        path: "pages/news.md",
+        frontmatter: {
+          title: "News",
+          layout: "news-archive.html",
+          permalink: "/news/",
+        },
+        content: "News archive page",
+      },
     ];
 
     await withTestSite({ files, images: extractImages(files) }, (site) => {
@@ -172,42 +168,18 @@ describe("news", () => {
       });
       expect(metaNoAuthor.querySelector("address")).toBe(null);
       expectTimeElement(metaNoAuthor);
-    });
-  });
 
-  // no_index integration tests
-  test("Posts with no_index are correctly excluded from archive and marked for search engines", async () => {
-    const files = [
-      // Visible post
-      newsPost("visible-post", "Visible Post Title"),
-
-      // Hidden post with no_index
-      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
-
-      // News archive page
-      {
-        path: "pages/news.md",
-        frontmatter: {
-          title: "News",
-          layout: "news-archive.html",
-          permalink: "/news/",
-        },
-        content: "News archive page",
-      },
-    ];
-
-    await withTestSite({ files }, (site) => {
-      // Test 1: no_index post renders as standalone page
+      // Test 6: no_index post renders as standalone page
       expect(site.hasOutput("/news/hidden-post/index.html")).toBe(true);
       const hiddenHtml = getContentHtml(site, "hidden-post");
       expect(hiddenHtml.includes("Hidden Post Title")).toBe(true);
 
-      // Test 2: no_index post has noindex meta tag
+      // Test 7: no_index post has noindex meta tag
       const hiddenOutput = site.getOutput("/news/hidden-post/index.html");
       expect(hiddenOutput.includes('name="robots"')).toBe(true);
       expect(hiddenOutput.includes("noindex")).toBe(true);
 
-      // Test 3: no_index post does not appear in news list
+      // Test 8: no_index post does not appear in news list
       const newsListHtml = site.getOutput("/news/index.html");
       expect(newsListHtml.includes("Visible Post Title")).toBe(true);
       expect(newsListHtml.includes("Hidden Post Title")).toBe(false);

@@ -280,48 +280,37 @@ describe("image", () => {
   // Integration tests using test-site-factory
   // ============================================
   describe("Integration tests", () => {
-    test("Image shortcode processes local images in full Eleventy build", async () => {
-      await withTestSite(
-        {
-          files: [testPage('{% image "test-image.jpg", "A test image" %}')],
-          images: [imageFile("test-image.jpg")],
-        },
-        (site) => {
-          const html = site.getOutput("/test/index.html");
-          const doc = site.getDoc("/test/index.html");
-
-          // Verify image was processed into picture element
-          expect(html.includes("<picture")).toBe(true);
-          expect(html.includes('alt="A test image"')).toBe(true);
-          expect(html.includes("image-wrapper")).toBe(true);
-
-          // Verify responsive images were generated
-          const sources = doc.querySelectorAll("picture source");
-          expect(sources.length > 0).toBe(true);
-
-          // Verify webp format was generated
-          const webpSource = doc.querySelector(
-            'picture source[type="image/webp"]',
-          );
-          expect(webpSource !== null).toBe(true);
-        },
-      );
-    });
-
-    test("Images collection returns image filenames from src/images", async () => {
+    test("Image shortcode and collections work in full Eleventy build", async () => {
       const galleryContent = `
+{% image "test-image.jpg", "A test image" %}
+<h2>Gallery</h2>
 {% for img in collections.images %}
 <div class="gallery-item">{{ img }}</div>
 {% endfor %}
 `;
       await withTestSite(
         {
-          files: [testPage(galleryContent, "/gallery/", "Gallery")],
-          images: imageFiles(["alpha.jpg", "beta.jpg"]),
+          files: [testPage(galleryContent, "/test/", "Test")],
+          images: imageFiles(["test-image.jpg", "alpha.jpg", "beta.jpg"]),
         },
         (site) => {
-          const html = site.getOutput("/gallery/index.html");
+          const html = site.getOutput("/test/index.html");
+          const doc = site.getDoc("/test/index.html");
 
+          // Test 1: Image shortcode processes local images into picture element
+          expect(html.includes("<picture")).toBe(true);
+          expect(html.includes('alt="A test image"')).toBe(true);
+          expect(html.includes("image-wrapper")).toBe(true);
+
+          // Test 2: Responsive images were generated with webp format
+          const sources = doc.querySelectorAll("picture source");
+          expect(sources.length > 0).toBe(true);
+          const webpSource = doc.querySelector(
+            'picture source[type="image/webp"]',
+          );
+          expect(webpSource !== null).toBe(true);
+
+          // Test 3: Images collection returns image filenames from src/images
           expect(html.includes("alpha.jpg")).toBe(true);
           expect(html.includes("beta.jpg")).toBe(true);
         },
