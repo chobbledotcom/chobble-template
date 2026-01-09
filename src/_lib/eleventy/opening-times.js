@@ -34,8 +34,6 @@ const getOpeningTimesHtml = memoize(async () => {
 
 const configureOpeningTimes = (eleventyConfig) => {
   eleventyConfig.addShortcode("opening_times", getOpeningTimesHtml);
-
-  eleventyConfig.addFilter("format_opening_times", renderOpeningTimes);
 };
 
 export { configureOpeningTimes, getOpeningTimesHtml, renderOpeningTimes };

@@ -61,29 +61,4 @@ describe("opening-times", () => {
 
     expect(typeof mockConfig.shortcodes.opening_times).toBe("function");
   });
-
-  test("Registers format_opening_times filter", () => {
-    const mockConfig = createMockEleventyConfig();
-    configureOpeningTimes(mockConfig);
-
-    expect(typeof mockConfig.filters.format_opening_times).toBe("function");
-  });
-
-  test("format_opening_times filter produces correct output", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureOpeningTimes(mockConfig);
-
-    const input = [{ day: "Saturday", hours: "10am - 2pm" }];
-    const result = await mockConfig.filters.format_opening_times(input);
-
-    expect(result.includes("<strong>Saturday:</strong> 10am - 2pm")).toBe(true);
-  });
-
-  test("format_opening_times filter handles empty input", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureOpeningTimes(mockConfig);
-
-    const result = await mockConfig.filters.format_opening_times([]);
-    expect(result).toBe("");
-  });
 });
