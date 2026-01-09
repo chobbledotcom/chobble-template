@@ -1,5 +1,10 @@
 import { memoize } from "#utils/memoize.js";
 
+/**
+ * Render opening times as HTML list
+ * @param {import("#lib/types/pages-cms-generated").PagesCMSOpeningTime[]} openingTimes
+ * @returns {string} HTML list or empty string
+ */
 const renderOpeningTimes = (openingTimes) => {
   if (!openingTimes || openingTimes.length === 0) {
     return "";

@@ -133,19 +133,3 @@ export interface PagesCMSImage {
   alt?: string;
 }
 
-/**
- * Mapping of PagesCMS field names to their type interfaces
- * Use to identify which fields have guaranteed schema validation
- */
-export interface PagesCMSCollections {
-  eleventyNavigation: PagesCMSEleventyNavigation[];
-  faqs: PagesCMSFaq[];
-  filter_attributes: PagesCMSFilterAttribute[];
-  images: PagesCMSImage[];
-  opening_times: PagesCMSOpeningTime[];
-  options: PagesCMSOption[];
-  organization: PagesCMSOrganization[];
-  socials: PagesCMSSocial[];
-  specs: PagesCMSSpec[];
-  tabs: PagesCMSTab[];
-}

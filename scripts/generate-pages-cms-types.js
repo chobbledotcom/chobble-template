@@ -177,46 +177,17 @@ const generateFileHeader = () => {
 };
 
 /**
- * Generate the PagesCMSCollections mapping interface
- */
-const generateCollectionsMapping = (typeMapping) => {
-  const lines = [];
-
-  if (Object.keys(typeMapping).length === 0) return lines;
-
-  lines.push("/**");
-  lines.push(" * Mapping of PagesCMS field names to their type interfaces");
-  lines.push(
-    " * Use to identify which fields have guaranteed schema validation",
-  );
-  lines.push(" */");
-  lines.push("export interface PagesCMSCollections {");
-
-  const entries = Object.entries(typeMapping).sort((a, b) =>
-    a[0].localeCompare(b[0]),
-  );
-
-  for (const [fieldName, interfaceName] of entries) {
-    lines.push(`  ${fieldName}: ${interfaceName}[];`);
-  }
-
-  lines.push("}");
-  return lines;
-};
-
-/**
  * Parse .pages.yml and generate type definitions
  */
 const generateTypes = () => {
   const yamlContent = readFileSync(PAGES_YML, "utf-8");
   const config = YAML.parse(yamlContent);
 
-  const { types, typeMapping } = extractAllTypes(config);
+  const { types } = extractAllTypes(config);
 
   const output = [
     ...generateFileHeader(),
     ...types.flatMap((type) => [type.code, ""]),
-    ...generateCollectionsMapping(typeMapping),
   ];
 
   // Write the file

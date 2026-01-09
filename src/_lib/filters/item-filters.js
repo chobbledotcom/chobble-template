@@ -28,6 +28,8 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
  * Parse filter attributes from item data
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
+ * @param {import("#lib/types/pages-cms-generated").PagesCMSFilterAttribute[]|undefined} filterAttributes
+ * @returns {Object} Parsed filter attributes as object
  */
 const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
@@ -67,6 +69,9 @@ const getAllFilterAttributes = memoize((items) => {
 
 /**
  * Extract (slug, display) pairs from an item's filter attributes
+ * @param {Object} item - Collection item with data property
+ * @param {import("#lib/types/pages-cms-generated").PagesCMSFilterAttribute[]|undefined} item.data.filter_attributes
+ * @returns {Array<Array<string>>} Array of [slug, display] pairs
  */
 const getDisplayPairs = (item) => {
   const attrs = item.data.filter_attributes;
