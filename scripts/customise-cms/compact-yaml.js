@@ -13,7 +13,21 @@
 import { accumulate } from "#utils/array-utils.js";
 
 /**
+ * @typedef {Object} KeyValuePair
+ * @property {string} key - The key name
+ * @property {string} value - The value
+ */
+
+/**
+ * @typedef {Object} CollectedObject
+ * @property {string[]} objectLines - Lines belonging to the object
+ * @property {number} nextIndex - Index of the next line after the object
+ */
+
+/**
  * Extract indentation level from a line
+ * @param {string} line - Line to check
+ * @returns {number} Number of spaces at start of line
  */
 const getIndent = (line) => {
   const match = line.match(/^( *)/);
@@ -22,6 +36,8 @@ const getIndent = (line) => {
 
 /**
  * Check if a line should be skipped when converting to inline format
+ * @param {string} trimmed - Trimmed line content
+ * @returns {boolean} Whether the line should be skipped
  */
 const shouldSkipLine = (trimmed) => {
   if (!trimmed || trimmed.startsWith("#")) return true;
@@ -32,6 +48,8 @@ const shouldSkipLine = (trimmed) => {
 
 /**
  * Extract a key-value pair from a YAML line
+ * @param {string} line - YAML line to parse
+ * @returns {KeyValuePair | null} Key-value pair or null if not parseable
  */
 const extractKeyValue = (line) => {
   const trimmed = line.trim();
@@ -53,6 +71,8 @@ const extractKeyValue = (line) => {
 /**
  * Convert a YAML object (as lines) to inline format
  * e.g., { name: foo, type: string, label: Foo }
+ * @param {string[]} lines - YAML lines representing the object
+ * @returns {string | null} Inline format string or null if conversion not possible
  */
 const objectToInline = (lines) => {
   const pairs = [];
@@ -72,6 +92,8 @@ const objectToInline = (lines) => {
 
 /**
  * Check if object lines contain nested structures
+ * @param {string[]} lines - YAML lines to check
+ * @returns {boolean} Whether the lines contain nested structures
  */
 const hasNestedStructures = (lines) => {
   for (const line of lines) {
@@ -86,6 +108,10 @@ const hasNestedStructures = (lines) => {
 
 /**
  * Collect lines that belong to a YAML list item object
+ * @param {string[]} lines - All YAML lines
+ * @param {number} startIndex - Index of the list item start
+ * @param {number} listIndent - Indentation level of the list
+ * @returns {CollectedObject} Object lines and next index
  */
 const collectObjectLines = (lines, startIndex, listIndent) => {
   const objectLines = [lines[startIndex]];
@@ -110,6 +136,9 @@ const collectObjectLines = (lines, startIndex, listIndent) => {
 
 /**
  * Try to create a compacted inline version of object lines
+ * @param {string[]} objectLines - Lines of the YAML object
+ * @param {number} listIndent - Indentation level of the list
+ * @returns {string | null} Compacted line or null if compaction not possible
  */
 const tryCompactLine = (objectLines, listIndent) => {
   if (objectLines.length < 2) {
@@ -164,6 +193,8 @@ const processLine = (lines, i) => {
 
 /**
  * Compact YAML by converting multi-line objects to inline format when appropriate
+ * @param {string} yamlString - YAML string to compact
+ * @returns {string} Compacted YAML string
  */
 export const compactYaml = (yamlString) => {
   const lines = yamlString.split("\n");
