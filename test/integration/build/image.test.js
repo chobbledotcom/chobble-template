@@ -395,6 +395,34 @@ describe("image", () => {
       expect(result.includes("eleventy:aspectRatio")).toBe(false);
     });
 
+    test("Transform skips images with eleventy:ignore attribute", async () => {
+      const result = await runTransform(
+        wrapHtml(img("/images/party.jpg", "Ignored", "eleventy:ignore")),
+      );
+
+      // Should not be wrapped or processed
+      expect(result.includes("image-wrapper")).toBe(false);
+      expect(result.includes("<picture")).toBe(false);
+      // Original img should remain but without the eleventy:ignore attribute
+      expect(result.includes('alt="Ignored"')).toBe(true);
+      expect(result.includes("eleventy:ignore")).toBe(false);
+    });
+
+    test("Transform processes other images when one has eleventy:ignore", async () => {
+      const result = await runTransform(
+        wrapHtml(`
+        ${img("/images/party.jpg", "Ignored", "eleventy:ignore")}
+        ${img("/images/menu.jpg", "Processed")}
+      `),
+      );
+
+      // One image should be processed, one should not
+      const pictureCount = (result.match(/<picture/g) || []).length;
+      expect(pictureCount).toBe(1);
+      expect(result.includes('alt="Ignored"')).toBe(true);
+      expect(result.includes('alt="Processed"')).toBe(true);
+    });
+
     test("Transform preserves class attribute on transformed images", async () => {
       const result = await runTransform(
         wrapHtml(
