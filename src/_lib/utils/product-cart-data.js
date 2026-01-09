@@ -36,13 +36,28 @@ export const computeOptions = (data, mode) => {
     return data.options;
   }
 
-  return data.options
+  const hireOptions = data.options
     .filter((opt) => opt.days != null)
     .map((opt) => ({
       ...opt,
       unit_price: parsePrice(opt.unit_price, `${data.title} days=${opt.days}`),
     }))
     .sort((a, b) => a.days - b.days);
+
+  // Validate hire options
+  const duplicate = findDuplicate(hireOptions, (opt) => opt.days);
+  if (duplicate) {
+    throw new Error(
+      `Product "${data.title}" has duplicate options for days=${duplicate.days}`,
+    );
+  }
+  if (!hireOptions.some((opt) => opt.days === 1)) {
+    throw new Error(
+      `Product "${data.title}" is hire mode but has no 1-day option`,
+    );
+  }
+
+  return hireOptions;
 };
 
 /**
@@ -50,7 +65,7 @@ export const computeOptions = (data, mode) => {
  * @param {Object} params - Parameters
  * @param {string} params.title - Product title
  * @param {string} params.subtitle - Product subtitle
- * @param {Array} params.options - Processed options
+ * @param {Array} params.options - Processed options (already validated if hire)
  * @param {Array} params.specs - Product specifications
  * @param {string} params.mode - Product mode
  * @returns {string} HTML-escaped JSON string for data attribute
@@ -63,20 +78,6 @@ export const buildCartAttributes = ({
   mode,
 }) => {
   if (options.length === 0) return null;
-
-  if (mode === "hire") {
-    const duplicate = findDuplicate(options, (opt) => opt.days);
-    if (duplicate) {
-      throw new Error(
-        `Product "${title}" has duplicate options for days=${duplicate.days}`,
-      );
-    }
-    if (!options.some((opt) => opt.days === 1)) {
-      throw new Error(
-        `Product "${title}" is hire mode but has no 1-day option`,
-      );
-    }
-  }
 
   return JSON.stringify({
     name: title,
