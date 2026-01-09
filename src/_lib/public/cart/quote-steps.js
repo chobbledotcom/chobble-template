@@ -10,7 +10,21 @@ import { filter, map, pipe, unique, uniqueBy } from "#utils/array-utils.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);
-  return label ? label.textContent.trim() : fieldId;
+  if (!label) return fieldId;
+
+  // Clone label to avoid modifying the DOM
+  const clone = label.cloneNode(true);
+
+  // Remove all form control elements to get only the label text
+  const formControls = clone.querySelectorAll(
+    "input, select, textarea, button",
+  );
+  for (const control of formControls) {
+    control.remove();
+  }
+
+  const text = clone.textContent.trim();
+  return text || fieldId;
 }
 
 function getRadioValue(name) {
