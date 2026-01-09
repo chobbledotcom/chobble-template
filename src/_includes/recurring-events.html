@@ -1,0 +1,18 @@
+{%- if recurring_events.size > 0 -%}
+<ul>
+{%- for event in recurring_events -%}
+  <li>
+    {%- if event.url -%}
+    <strong><a href="{{ event.url }}">{{ event.data.title }}</a></strong>
+    {%- else -%}
+    <strong>{{ event.data.title }}</strong>
+    {%- endif -%}<br>
+    {{ event.data.recurring_date }}
+    {%- if event.data.event_location -%}
+    <br>
+    {{ event.data.event_location }}
+    {%- endif -%}
+  </li>
+{%- endfor -%}
+</ul>
+{%- endif -%}

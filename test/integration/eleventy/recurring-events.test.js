@@ -6,7 +6,7 @@ import {
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
-import { map, pipe } from "#utils/array-utils.js";
+import { map } from "#utils/array-utils.js";
 
 // ============================================
 // Functional Test Fixture Builders
@@ -38,20 +38,21 @@ const events = map(([title, recurring, options]) =>
 /**
  * Render events and return parsed document
  */
-const renderAndParse = pipe(renderRecurringEvents, (html) => {
+const renderAndParse = async (events) => {
+  const html = await renderRecurringEvents(events);
   document.body.innerHTML = html;
   return document;
-});
+};
 
 describe("recurring-events", () => {
   // renderRecurringEvents - empty/null inputs
-  test("Returns empty string for empty events array", () => {
-    expect(renderRecurringEvents([])).toBe("");
+  test("Returns empty string for empty events array", async () => {
+    expect(await renderRecurringEvents([])).toBe("");
   });
 
   // renderRecurringEvents - single event
-  test("Renders single event with URL as linked title", () => {
-    const doc = renderAndParse([
+  test("Renders single event with URL as linked title", async () => {
+    const doc = await renderAndParse([
       event("Farmers Market", "Every Saturday", { url: "/events/market-day/" }),
     ]);
 
@@ -66,15 +67,17 @@ describe("recurring-events", () => {
     );
   });
 
-  test("Renders event without URL as plain text title", () => {
-    const doc = renderAndParse([event("Weekly Meeting", "Mondays at 9am")]);
+  test("Renders event without URL as plain text title", async () => {
+    const doc = await renderAndParse([
+      event("Weekly Meeting", "Mondays at 9am"),
+    ]);
 
     expect(doc.querySelector("a")).toBe(null);
     expect(doc.querySelector("strong").textContent).toBe("Weekly Meeting");
   });
 
-  test("Renders event location when provided", () => {
-    const doc = renderAndParse([
+  test("Renders event location when provided", async () => {
+    const doc = await renderAndParse([
       event("Yoga Class", "Wednesdays 6pm", {
         url: "/events/yoga/",
         location: "Community Center",
@@ -86,8 +89,8 @@ describe("recurring-events", () => {
     ).toBe(true);
   });
 
-  test("Does not render location span when not provided", () => {
-    const doc = renderAndParse([
+  test("Does not render location span when not provided", async () => {
+    const doc = await renderAndParse([
       event("Online Meetup", "First Friday of month"),
     ]);
 
@@ -97,8 +100,8 @@ describe("recurring-events", () => {
   });
 
   // renderRecurringEvents - multiple events
-  test("Renders multiple events as list items", () => {
-    const doc = renderAndParse([
+  test("Renders multiple events as list items", async () => {
+    const doc = await renderAndParse([
       event("Market", "Saturdays", { url: "/events/market/" }),
       event("Meetup", "Tuesdays", { url: "/events/meetup/" }),
       event("Class", "Daily"),
@@ -109,15 +112,15 @@ describe("recurring-events", () => {
   });
 
   // renderRecurringEvents - data structure variations
-  test("Handles nested event objects (data in .data property)", () => {
-    const doc = renderAndParse([
+  test("Handles nested event objects (data in .data property)", async () => {
+    const doc = await renderAndParse([
       event("Nested Event", "Monthly", { url: "/nested/" }),
     ]);
 
     expect(doc.querySelector("a").textContent).toBe("Nested Event");
   });
 
-  test("Falls back to URL in data object if not at top level", () => {
+  test("Falls back to URL in data object if not at top level", async () => {
     const testEvents = [
       {
         data: {
@@ -127,14 +130,14 @@ describe("recurring-events", () => {
         },
       },
     ];
-    const doc = renderAndParse(testEvents);
+    const doc = await renderAndParse(testEvents);
 
     expect(doc.querySelector("a").getAttribute("href")).toBe("/data-url/");
   });
 
   // renderRecurringEvents - HTML structure
-  test("Generates correct HTML structure", () => {
-    const result = renderRecurringEvents([
+  test("Generates correct HTML structure", async () => {
+    const result = await renderRecurringEvents([
       event("Test Event", "Daily", { url: "/test/", location: "Here" }),
     ]);
 
@@ -147,22 +150,22 @@ describe("recurring-events", () => {
   });
 
   // renderRecurringEvents - special characters
-  test("Preserves special characters in event title", () => {
-    const result = renderRecurringEvents([
+  test("Preserves special characters in event title", async () => {
+    const result = await renderRecurringEvents([
       event("Music & Arts Festival", "Annually"),
     ]);
     expect(result.includes("Music & Arts Festival")).toBe(true);
   });
 
-  test("Handles quotes in event title", () => {
-    const result = renderRecurringEvents([
+  test("Handles quotes in event title", async () => {
+    const result = await renderRecurringEvents([
       event('"Open Mic" Night', "Fridays"),
     ]);
     expect(result.includes('"Open Mic" Night')).toBe(true);
   });
 
-  test("Handles unicode characters in location", () => {
-    const doc = renderAndParse([
+  test("Handles unicode characters in location", async () => {
+    const doc = await renderAndParse([
       event("Café Meeting", "Tuesdays", { location: "Café René" }),
     ]);
 
@@ -198,7 +201,7 @@ describe("recurring-events", () => {
   });
 
   // recurringEventsShortcode tests
-  test("recurringEventsShortcode returns HTML when passed events with recurring_date", () => {
+  test("recurringEventsShortcode returns HTML when passed events with recurring_date", async () => {
     const events = [
       {
         data: {
@@ -210,13 +213,13 @@ describe("recurring-events", () => {
       },
     ];
 
-    const result = recurringEventsShortcode(events);
+    const result = await recurringEventsShortcode(events);
 
     expect(result.includes("Weekly Meetup")).toBe(true);
     expect(result.includes("Every Tuesday")).toBe(true);
   });
 
-  test("recurringEventsShortcode returns empty string when no recurring events exist", () => {
+  test("recurringEventsShortcode returns empty string when no recurring events exist", async () => {
     const events = [
       {
         data: { title: "One-time Event", event_date: "2024-01-01" },
@@ -224,29 +227,29 @@ describe("recurring-events", () => {
       },
     ];
 
-    const result = recurringEventsShortcode(events);
+    const result = await recurringEventsShortcode(events);
 
     expect(result).toBe("");
   });
 
-  test("recurringEventsShortcode handles empty array gracefully", () => {
-    const result = recurringEventsShortcode([]);
+  test("recurringEventsShortcode handles empty array gracefully", async () => {
+    const result = await recurringEventsShortcode([]);
 
     expect(result).toBe("");
   });
 
-  test("recurringEventsShortcode handles undefined gracefully", () => {
-    const result = recurringEventsShortcode();
+  test("recurringEventsShortcode handles undefined gracefully", async () => {
+    const result = await recurringEventsShortcode();
 
     expect(result).toBe("");
   });
 
   // renderRecurringEvents - immutability
-  test("Does not modify the input events array", () => {
+  test("Does not modify the input events array", async () => {
     const originalEvents = [event("Test", "Weekly", { url: "/test/" })];
     const eventsCopy = JSON.parse(JSON.stringify(originalEvents));
 
-    renderRecurringEvents(originalEvents);
+    await renderRecurringEvents(originalEvents);
 
     expect(JSON.stringify(originalEvents)).toBe(JSON.stringify(eventsCopy));
   });

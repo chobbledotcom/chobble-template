@@ -1,34 +1,37 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { Liquid } from "liquidjs";
 import strings from "#data/strings.js";
+import { SRC_DIR } from "#lib/paths.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
+
+const liquid = new Liquid();
+
+const templatePath = join(SRC_DIR, "_includes", "recurring-events.html");
+
+const getTemplate = memoize(async () => readFile(templatePath, "utf-8"));
 
 /**
  * Render recurring events as HTML list
  *
  * @param {import("#lib/types").EleventyCollectionItem[]} events
- * @returns {string}
+ * @returns {Promise<string>}
  */
-const renderRecurringEvents = (events) => {
-  if (events.length === 0) {
+const renderRecurringEvents = async (events) => {
+  if (!events || events.length === 0) {
     return "";
   }
 
-  const items = events.map((event) => {
-    const eventData = event.data;
-    const url = event.url || eventData.url;
-    const titleHtml = url
-      ? `<strong><a href="${url}">${eventData.title}</a></strong>`
-      : `<strong>${eventData.title}</strong>`;
-    const locationHtml = eventData.event_location
-      ? `<br>\n    ${eventData.event_location}`
-      : "";
-    return `  <li>
-    ${titleHtml}<br>
-    ${eventData.recurring_date}${locationHtml}
-  </li>`;
-  });
+  const normalizedEvents = events.map((event) => ({
+    url: event.url || event.data.url,
+    data: event.data,
+  }));
 
-  return `<ul>\n${items.join("\n")}\n</ul>`;
+  const template = await getTemplate();
+  return liquid.parseAndRender(template, {
+    recurring_events: normalizedEvents,
+  });
 };
 
 /**
@@ -37,9 +40,9 @@ const renderRecurringEvents = (events) => {
  * collection access limitations in shortcodes.
  *
  * @param {import("#lib/types").EleventyCollectionItem[]} events
- * @returns {string}
+ * @returns {Promise<string>}
  */
-function recurringEventsShortcode(events = []) {
+async function recurringEventsShortcode(events = []) {
   const recurringEvents = events
     .filter((event) => event.data.recurring_date)
     .sort(sortItems);

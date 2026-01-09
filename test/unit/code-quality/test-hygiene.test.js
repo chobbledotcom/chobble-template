@@ -38,6 +38,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "formatDateString",
   "createEvent",
   "createEvents",
+  // recurring-events.test.js - DOM parsing helper
+  "renderAndParse",
   // schema-helper-utils.js - schema fixture builders
   "addOptionalProps",
   "createObjectBuilder",
