@@ -53,6 +53,9 @@
       },
       "performance": {
         "noAccumulatingSpread": "error"
+      },
+      "nursery": {
+        "noUnnecessaryConditions": "error"
       }
     }
   },
@@ -93,6 +96,9 @@
           },
           "suspicious": {
             "noTemplateCurlyInString": "off"
+          },
+          "nursery": {
+            "noUnnecessaryConditions": "off"
           }
         }
       }
