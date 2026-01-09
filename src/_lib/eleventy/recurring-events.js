@@ -1,7 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Liquid } from "liquidjs";
-import strings from "#data/strings.js";
 import { SRC_DIR } from "#lib/paths.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
@@ -10,7 +9,7 @@ const liquid = new Liquid();
 
 const templatePath = join(SRC_DIR, "_includes", "recurring-events.html");
 
-const template = readFileSync(templatePath, "utf-8");
+const getTemplate = memoize(async () => readFile(templatePath, "utf-8"));
 
 /**
  * Render recurring events as HTML list
@@ -28,6 +27,7 @@ const renderRecurringEvents = async (events) => {
     data: event.data,
   }));
 
+  const template = await getTemplate();
   return liquid.parseAndRender(template, {
     recurring_events: normalizedEvents,
   });
@@ -57,6 +57,7 @@ const getRecurringEventsHtml = memoize(async () => {
   const fs = await import("node:fs");
   const path = await import("node:path");
   const matter = await import("gray-matter");
+  const strings = await import("#data/strings.js");
 
   const eventsDir = path.default.join(process.cwd(), "src/events");
 
@@ -79,7 +80,7 @@ const getRecurringEventsHtml = memoize(async () => {
         .replace(".md", "")
         .replace(/^\d{4}-\d{2}-\d{2}-/, "");
       return {
-        url: data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
+        url: data.permalink || `/${strings.default.event_permalink_dir}/${fileSlug}/`,
         data: {
           title: data.title,
           recurring_date: data.recurring_date,

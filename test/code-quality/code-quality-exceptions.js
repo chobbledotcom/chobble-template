@@ -314,7 +314,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:55",
-  "test/integration/eleventy/recurring-events.test.js:49",
+  "test/integration/eleventy/recurring-events.test.js:43",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",
