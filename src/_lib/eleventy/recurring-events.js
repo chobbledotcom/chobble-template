@@ -4,8 +4,9 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Render recurring events as HTML list
- * @param {import("#lib/types").EleventyCollectionItem[]} events - Events to render
- * @returns {string} HTML ul list of events, or empty string if no events
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} events
+ * @returns {string}
  */
 const renderRecurringEvents = (events) => {
   if (events.length === 0) {
@@ -35,8 +36,8 @@ const renderRecurringEvents = (events) => {
  * Used for testing with mock data. Not used directly in Eleventy due to
  * collection access limitations in shortcodes.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} events - Events collection to filter and render
- * @returns {string} HTML list of recurring events
+ * @param {import("#lib/types").EleventyCollectionItem[]} events
+ * @returns {string}
  */
 function recurringEventsShortcode(events = []) {
   const recurringEvents = events

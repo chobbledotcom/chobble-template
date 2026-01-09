@@ -24,8 +24,8 @@ const isTopLevelLocation = (url) => {
 /**
  * Sort locations by their navigation key.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations - Array of location objects
- * @returns {import("#lib/types").EleventyCollectionItem[]} Sorted array
+ * @param {import("#lib/types").EleventyCollectionItem[]} locations
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const sortByNavigationKey = (locations) => {
   if (!locations || !Array.isArray(locations)) return [];
@@ -39,9 +39,9 @@ const sortByNavigationKey = (locations) => {
 /**
  * Filter locations to only include top-level ones, excluding the current page.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations - Array of location objects
- * @param {string} currentUrl - URL of the current page to exclude
- * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array
+ * @param {import("#lib/types").EleventyCollectionItem[]} locations
+ * @param {string} currentUrl
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const filterTopLevelLocations = (locations, currentUrl) => {
   if (!locations || !Array.isArray(locations)) return [];
@@ -71,9 +71,9 @@ const formatListWithAnd = (items) => {
  * Prepare area list data for template rendering.
  * Filters, sorts, and adds separators so the template just loops and renders.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations - Array of location objects
- * @param {string} currentUrl - URL of the current page to exclude
- * @returns {Array<{url: string, name: string, separator: string}>} Array ready for template
+ * @param {import("#lib/types").EleventyCollectionItem[]} locations
+ * @param {string} currentUrl
+ * @returns {Array<{url: string, name: string, separator: string}>}
  */
 const prepareAreaList = (locations, currentUrl) => {
   const filtered = filterTopLevelLocations(locations, currentUrl);

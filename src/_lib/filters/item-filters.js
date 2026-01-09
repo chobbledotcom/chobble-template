@@ -28,8 +28,9 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
  * Parse filter attributes from item data
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
+ *
  * @param {import("#lib/types").FilterAttribute[]|undefined} filterAttributes
- * @returns {Object} Parsed filter attributes as object
+ * @returns {Object}
  */
 const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
@@ -72,8 +73,9 @@ const getAllFilterAttributes = memoize((items) => {
 
 /**
  * Extract (slug, display) pairs from an item's filter attributes
- * @param {import("#lib/types").EleventyCollectionItem} item - Collection item with data property
- * @returns {[string, any][]} Array of [slug, display] pairs
+ *
+ * @param {import("#lib/types").EleventyCollectionItem} item
+ * @returns {[string, any][]}
  */
 const getDisplayPairs = (item) => {
   const attrs = item.data.filter_attributes;
@@ -89,7 +91,9 @@ const getDisplayPairs = (item) => {
  * Build a lookup map from slugified keys to original display text
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
  * First occurrence wins when there are duplicates
+ *
  * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Object}
  */
 const buildDisplayLookup = memoize((items) =>
   buildFirstOccurrenceLookup(items, getDisplayPairs),
@@ -132,8 +136,10 @@ const pathToFilter = (path) => {
 /**
  * Get items matching the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
+ *
  * @param {import("#lib/types").EleventyCollectionItem[]} items
  * @param {Object} filters
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const getItemsByFilters = (items, filters) => {
   if (!filters || Object.keys(filters).length === 0) {
@@ -162,7 +168,9 @@ const normalizeAttrs = mapBoth(normalize);
 /**
  * Build a map of normalized filter attributes for all items (for fast lookups)
  * Returns: Map<item, { size: "small", capacity: "3" }>
+ *
  * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Map}
  */
 const buildItemAttributeMap = (items) => {
   return new Map(
@@ -179,7 +187,9 @@ const buildItemAttributeMap = (items) => {
  *
  * No duplicate tracking needed: we process keys in order and only
  * recurse to later keys, so each path is generated exactly once.
+ *
  * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Array}
  */
 const generateFilterCombinations = memoize((items) => {
   const allAttributes = getAllFilterAttributes(items);
