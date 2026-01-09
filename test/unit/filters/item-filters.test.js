@@ -271,7 +271,7 @@ describe("item-filters", () => {
   });
 
   // buildFilterDescription tests
-  test("Uses display lookup for human-readable descriptions", () => {
+  test("Returns structured data with display values for template rendering", () => {
     const filters = { "pet-friendly": "yes", type: "cottage" };
     const displayLookup = {
       "pet-friendly": "Pet Friendly",
@@ -282,8 +282,9 @@ describe("item-filters", () => {
 
     const result = buildFilterDescription(filters, displayLookup);
 
-    expect(result.includes("Pet Friendly: <strong>Yes</strong>")).toBe(true);
-    expect(result.includes("Type: <strong>Cottage</strong>")).toBe(true);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toContainEqual({ key: "Pet Friendly", value: "Yes" });
+    expect(result).toContainEqual({ key: "Type", value: "Cottage" });
   });
 
   // Integration test: URL generation with spaces
