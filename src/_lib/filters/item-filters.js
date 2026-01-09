@@ -256,6 +256,9 @@ const generateFilterCombinations = memoize((items) => {
  * Build filter description parts from filters using display lookup
  * Returns structured data for template rendering
  * { size: "compact", type: "pro" } => [{ key: "Size", value: "compact" }, ...]
+ * @param {Object} filters - Filter object with slugified keys and values
+ * @param {Object} displayLookup - Lookup map from slugs to display text
+ * @returns {Array<{key: string, value: string}>} Array of display key-value pairs
  */
 const buildFilterDescription = (filters, displayLookup) =>
   mapEntries((key, value) => ({
