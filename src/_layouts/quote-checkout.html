@@ -19,6 +19,7 @@ layout: base
     {%- include "quote-form-steps.html" -%}
   </form>
   {% push "templates" %}
+    {%- include "templates/quote-step-indicator.html" -%}
     {%- include "templates/quote-price.html" -%}
   {% endpush %}
   <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
