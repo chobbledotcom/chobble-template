@@ -17,7 +17,9 @@ layout: base
     <input type="hidden" id="cart-items" name="cart_items" value="" />
     <input type="hidden" id="hire_days" name="hire_days" value="" />
     {%- include "quote-form-steps.html" -%}
-    {%- include "templates/quote-price.html" -%}
   </form>
+  {% push "templates" %}
+    {%- include "templates/quote-price.html" -%}
+  {% endpush %}
   <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
 </div>

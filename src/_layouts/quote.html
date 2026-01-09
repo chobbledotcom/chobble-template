@@ -27,4 +27,6 @@ layout: base
   <aside id="quote-price" class="quote-sidebar" style="display: none"></aside>
 </div>
 
-{% include "templates/quote-price.html" %}
+{% push "templates" %}
+  {%- include "templates/quote-price.html" -%}
+{% endpush %}
