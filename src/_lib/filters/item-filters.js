@@ -253,14 +253,15 @@ const generateFilterCombinations = memoize((items) => {
 });
 
 /**
- * Build a filter description string from filters using display lookup
- * { size: "compact", type: "pro" } => "Size: compact, Type: pro"
+ * Build filter description parts from filters using display lookup
+ * Returns structured data for template rendering
+ * { size: "compact", type: "pro" } => [{ key: "Size", value: "compact" }, ...]
  */
 const buildFilterDescription = (filters, displayLookup) =>
-  mapEntries(
-    (key, value) =>
-      `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`,
-  )(filters).join(", ");
+  mapEntries((key, value) => ({
+    key: displayLookup[key],
+    value: displayLookup[value],
+  }))(filters);
 
 /**
  * Build pre-computed filter UI data for templates

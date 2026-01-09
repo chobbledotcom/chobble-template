@@ -77,9 +77,6 @@ const ALLOWED_HTML_IN_JS = new Set([
 
   // Collections with embedded HTML/SVG
   "src/_lib/collections/reviews.js",
-
-  // Filters with HTML formatting
-  "src/_lib/filters/item-filters.js",
 ]);
 
 // ============================================
