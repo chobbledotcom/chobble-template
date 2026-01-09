@@ -2,28 +2,28 @@ import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
 
 /**
- * @typedef {Object} Spec
- * @property {string} name - The spec name
- * @property {string} [description] - Optional spec description
- */
-
-/**
  * @typedef {Object} ComputedSpec
- * @property {string} name - The spec name
- * @property {string} [description] - Optional spec description
+ * @property {string} name - The spec name (guaranteed by PagesCMS schema)
+ * @property {string} value - The spec value (guaranteed by PagesCMS schema)
  * @property {string} icon - Inline SVG icon HTML
  * @property {boolean} highlight - Whether to highlight this spec
  */
 
 /**
  * Transform specs array to include icon and highlight properties
- * @param {{ specs?: Spec[] }} data - Eleventy data object
+ *
+ * @param {{ specs?: import("#lib/types/pages-cms").PagesCMSSpec[] }} data - Eleventy data object
  * @returns {ComputedSpec[] | undefined} - Specs array with icon and highlight properties added
+ *
+ * PagesCMS guarantees: If specs array exists, each item has required name and value fields.
+ * Therefore, no optional chaining needed on spec.name.
+ * See: .pages.yml lines 132-138
  */
 const computeSpecs = (data) => {
   if (!data.specs) return undefined;
   return data.specs.map((spec) => {
-    const normalized = spec.name?.toLowerCase().trim();
+    // spec.name is guaranteed to be a non-empty string by PagesCMS schema
+    const normalized = spec.name.toLowerCase().trim();
     const config = normalized ? specsIcons[normalized] : undefined;
     return {
       ...spec,
