@@ -18,7 +18,21 @@ import {
 } from "#utils/array-utils.js";
 
 /**
+ * @typedef {import('./config.js').CmsConfig} CmsConfig
+ * @typedef {import('./config.js').CmsFeatures} CmsFeatures
+ * @typedef {import('./collections.js').CollectionDefinition} CollectionDefinition
+ */
+
+/**
+ * @typedef {Object} SelectableOption
+ * @property {string} name - Option identifier
+ * @property {string} label - Display label
+ * @property {string} description - Human-readable description
+ */
+
+/**
  * Create readline interface
+ * @returns {readline.Interface} Readline interface for user input
  */
 const createInterface = () =>
   readline.createInterface({
@@ -28,6 +42,10 @@ const createInterface = () =>
 
 /**
  * Ask a yes/no question
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string} question - Question to ask
+ * @param {boolean} [defaultValue=false] - Default answer if user presses enter
+ * @returns {Promise<boolean>} User's answer
  */
 const askYesNo = async (rl, question, defaultValue = false) => {
   const defaultHint = defaultValue ? "[Y/n]" : "[y/N]";
@@ -45,6 +63,10 @@ const askYesNo = async (rl, question, defaultValue = false) => {
 
 /**
  * Parse selection input into array of selected names
+ * @param {string} input - User's input (comma-separated numbers, "all", "none", or empty)
+ * @param {SelectableOption[]} options - Available options to select from
+ * @param {string[]} defaults - Default selections if input is empty
+ * @returns {string[]} Array of selected option names
  */
 const parseSelection = (input, options, defaults) => {
   const trimmed = input.trim().toLowerCase();
@@ -66,6 +88,9 @@ const parseSelection = (input, options, defaults) => {
 
 /**
  * Display options list
+ * @param {SelectableOption[]} options - Options to display
+ * @param {string[]} defaults - Default selections (marked with *)
+ * @returns {void}
  */
 const displayOptions = (options, defaults) => {
   for (let i = 0; i < options.length; i++) {
@@ -80,6 +105,11 @@ const displayOptions = (options, defaults) => {
 
 /**
  * Ask user to select from a list of options
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string} question - Question to display
+ * @param {SelectableOption[]} options - Available options
+ * @param {string[]} [defaults=[]] - Default selections
+ * @returns {Promise<string[]>} Selected option names
  */
 const askMultiSelect = async (rl, question, options, defaults = []) => {
   console.log(`\n${question}`);
@@ -95,6 +125,9 @@ const askMultiSelect = async (rl, question, options, defaults = []) => {
 
 /**
  * Ask collection selection questions
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} defaultCollections - Previously selected collections
+ * @returns {Promise<string[]>} Selected collection names with dependencies resolved
  */
 const askCollectionQuestions = async (rl, defaultCollections) => {
   const selectableCollections = getSelectableCollections();
@@ -123,6 +156,10 @@ const askCollectionQuestions = async (rl, defaultCollections) => {
 
 /**
  * Ask conditional feature questions for specs/features
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{specs: boolean, features: boolean}>} Specs and features selections
  */
 const askSpecsAndFeaturesQuestions = async (
   rl,
@@ -153,6 +190,10 @@ const askSpecsAndFeaturesQuestions = async (
 
 /**
  * Ask conditional feature questions for external purchases
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{external_purchases: boolean}>} External purchases selection
  */
 const askExternalPurchasesQuestion = async (
   rl,
@@ -174,6 +215,10 @@ const askExternalPurchasesQuestion = async (
 
 /**
  * Ask conditional feature questions for event locations and dates
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{event_locations_and_dates: boolean}>} Event locations and dates selection
  */
 const askEventLocationsAndDatesQuestion = async (
   rl,
@@ -195,6 +240,10 @@ const askEventLocationsAndDatesQuestion = async (
 
 /**
  * Ask feature questions
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<CmsFeatures>} All feature selections
  */
 const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
   console.log("\n--- Optional Features ---\n");
@@ -258,6 +307,9 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
 
 /**
  * Ask about src folder structure
+ * @param {readline.Interface} rl - Readline interface
+ * @param {boolean} defaultHasSrc - Default answer
+ * @returns {Promise<boolean>} Whether template has src folder
  */
 const askSrcFolderQuestion = async (rl, defaultHasSrc) => {
   return await askYesNo(
@@ -269,6 +321,9 @@ const askSrcFolderQuestion = async (rl, defaultHasSrc) => {
 
 /**
  * Ask about custom home.html layout
+ * @param {readline.Interface} rl - Readline interface
+ * @param {boolean} defaultCustomHome - Default answer
+ * @returns {Promise<boolean>} Whether template has custom home layout
  */
 const askCustomHomeLayoutQuestion = async (rl, defaultCustomHome) => {
   return await askYesNo(
@@ -280,6 +335,8 @@ const askCustomHomeLayoutQuestion = async (rl, defaultCustomHome) => {
 
 /**
  * Main question flow
+ * @param {CmsConfig | null} [existingConfig=null] - Existing configuration to use as defaults
+ * @returns {Promise<CmsConfig>} Complete CMS configuration
  */
 export const askQuestions = async (existingConfig = null) => {
   const rl = createInterface();

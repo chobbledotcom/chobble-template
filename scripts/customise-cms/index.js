@@ -16,6 +16,10 @@ import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 import { askQuestions } from "#scripts/customise-cms/prompts.js";
 import { writePagesYaml } from "#scripts/customise-cms/writer.js";
 
+/**
+ * Main entry point for the interactive CMS customisation script
+ * @returns {Promise<void>}
+ */
 const main = async () => {
   const existingConfig = await loadCmsConfig();
 
