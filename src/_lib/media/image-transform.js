@@ -4,6 +4,7 @@
 import { loadDOM } from "#utils/lazy-dom.js";
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
+const IGNORE_ATTRIBUTE = "eleventy:ignore";
 
 // Fix invalid HTML where divs are sole child of paragraphs
 const fixDivsInParagraphs = (document) => {
@@ -37,6 +38,10 @@ const extractImageOptions = (img, document) => {
 
 // Process single image element
 const processImageElement = async (img, document, processAndWrapImage) => {
+  if (img.hasAttribute(IGNORE_ATTRIBUTE)) {
+    img.removeAttribute(IGNORE_ATTRIBUTE);
+    return;
+  }
   if (img.parentNode.classList.contains("image-wrapper")) return;
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
   img.parentNode.replaceChild(wrapped, img);
