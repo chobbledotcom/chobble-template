@@ -22,6 +22,23 @@ const parsePrice = (priceStr, context) => {
 };
 
 /**
+ * Validate hire options for cart use
+ * @param {Array} options - Hire options to validate
+ * @param {string} title - Product title for error messages
+ */
+const validateHireOptions = (options, title) => {
+  const duplicate = findDuplicate(options, (opt) => opt.days);
+  if (duplicate) {
+    throw new Error(
+      `Product "${title}" has duplicate options for days=${duplicate.days}`,
+    );
+  }
+  if (!options.some((opt) => opt.days === 1)) {
+    throw new Error(`Product "${title}" is hire mode but has no 1-day option`);
+  }
+};
+
+/**
  * Compute processed options for a product
  * @param {Object} data - Product data
  * @param {string} mode - Product mode ("hire", "buy", etc.)
@@ -64,31 +81,17 @@ export const buildCartAttributes = ({
 }) => {
   if (options.length === 0) return null;
 
-  if (mode === "hire") {
-    const duplicate = findDuplicate(options, (opt) => opt.days);
-    if (duplicate) {
-      throw new Error(
-        `Product "${title}" has duplicate options for days=${duplicate.days}`,
-      );
-    }
-    if (!options.some((opt) => opt.days === 1)) {
-      throw new Error(
-        `Product "${title}" is hire mode but has no 1-day option`,
-      );
-    }
-  }
-
-  const getPrice = (opt) =>
-    mode === "hire"
-      ? opt.unit_price
-      : parsePrice(opt.unit_price, `${title} option "${opt.name}"`);
+  if (mode === "hire") validateHireOptions(options, title);
 
   return JSON.stringify({
     name: title,
     subtitle,
     options: options.map((opt) => ({
       name: opt.name,
-      unit_price: getPrice(opt),
+      unit_price:
+        mode === "hire"
+          ? opt.unit_price
+          : parsePrice(opt.unit_price, `${title} option "${opt.name}"`),
       max_quantity: opt.max_quantity || null,
       sku: opt.sku || null,
       days: opt.days || null,
