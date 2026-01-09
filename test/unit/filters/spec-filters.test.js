@@ -94,9 +94,6 @@ describe("spec-filters", () => {
   // ============================================
   // computeSpecs - Icon resolution edge cases
   // ============================================
-  // Removed tests for null/undefined/empty spec.name because PagesCMS schema
-  // guarantees name is a required string (see .pages.yml line 137).
-  // These represent invalid data that would never reach this code.
 
   test("Trims whitespace from spec name before lookup", () => {
     const data = {
