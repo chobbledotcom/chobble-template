@@ -14,6 +14,10 @@ import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 import { writePagesYaml } from "#scripts/customise-cms/writer.js";
 
+/**
+ * Main entry point for the non-interactive .pages.yml generator
+ * @returns {Promise<void>}
+ */
 const main = async () => {
   console.log(
     "Generating complete .pages.yml with all collections and features...\n",
