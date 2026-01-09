@@ -22,42 +22,54 @@ const DEFAULT_OPTIONS = {
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_SIZE = "auto";
 
+// Normalize image path to resolve from project root (exported for reuse)
+export const normalizeImagePath = (imageName) => {
+  const name = imageName.toString();
+  if (name.startsWith("/")) return `./src${name}`;
+  if (name.startsWith("src/")) return `./${name}`;
+  if (name.startsWith("images/")) return `./src/${name}`;
+  return `./src/images/${name}`;
+};
+
+// Check if URL is external (exported for reuse)
+export const isExternalUrl = (url) =>
+  url.startsWith("http://") || url.startsWith("https://");
+
+// Parse widths - handles string "240,480" or array (exported for reuse)
+export const parseWidths = (widths) =>
+  typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
+
+// Build standard image attributes (exported for reuse)
+export const buildImgAttributes = (alt, sizes, loading) => ({
+  alt: alt || "",
+  sizes: sizes || DEFAULT_SIZE,
+  loading: loading || "lazy",
+  decoding: "async",
+});
+
+// Build wrapper styles for responsive images (exported for reuse)
+export const buildWrapperStyles = (bgImage, aspectRatio, metadata) =>
+  compact([
+    bgImage && `background-image: ${bgImage}`,
+    `aspect-ratio: ${getAspectRatio(aspectRatio, metadata)}`,
+    metadata.width && `max-width: min(${metadata.width}px, 100%)`,
+  ]).join("; ");
+
 // Compute wrapped image HTML for local images (memoized)
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
-    // Path normalization for image sources
-    const name = imageName.toString();
-    const imagePath = (() => {
-      if (name.startsWith("/")) return `./src${name}`;
-      if (name.startsWith("src/")) return `./${name}`;
-      if (name.startsWith("images/")) return `./src/${name}`;
-      return `./src/images/${name}`;
-    })();
-
+    const imagePath = normalizeImagePath(imageName);
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
-    // Parse widths - handles string "240,480" or array
-    const parsedWidths =
-      typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
-
-    // Generate responsive image HTML using eleventy-img
-    const imgAttributes = {
-      alt: alt || "",
-      sizes: sizes || DEFAULT_SIZE,
-      loading: loading || "lazy",
-      decoding: "async",
-    };
-
+    const imgAttributes = buildImgAttributes(alt, sizes, loading);
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
-
     const { default: Image } = await getEleventyImg();
 
-    // Run Image generation and thumbnail in parallel (they're independent operations)
     const [innerHTML, bgImage] = await Promise.all([
       Image(finalPath, {
         ...DEFAULT_OPTIONS,
-        widths: parsedWidths,
+        widths: parseWidths(widths),
         fixOrientation: true,
         returnType: "html",
         htmlOptions: { imgAttributes, pictureAttributes },
@@ -65,17 +77,11 @@ const computeWrappedImageHtml = memoize(
       getThumbnailOrNull(imagePath, metadata),
     ]);
 
-    const styles = compact([
-      bgImage && `background-image: ${bgImage}`,
-      `aspect-ratio: ${getAspectRatio(aspectRatio, metadata)}`,
-      metadata.width && `max-width: min(${metadata.width}px, 100%)`,
-    ]);
-
     return await createHtml(
       "div",
       {
         class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-        style: styles.join("; "),
+        style: buildWrapperStyles(bgImage, aspectRatio, metadata),
       },
       innerHTML,
     );
@@ -98,21 +104,16 @@ const processAndWrapImage = async ({
 }) => {
   const imageNameStr = imageName.toString();
 
-  // Check if URL is external
-  if (
-    imageNameStr.startsWith("http://") ||
-    imageNameStr.startsWith("https://")
-  ) {
-    // Handle external URLs - simple img tag without processing
+  // Handle external URLs with simple img tag
+  if (isExternalUrl(imageNameStr)) {
     const attributes = {
       src: imageNameStr,
       alt: alt || "",
       loading: loading || "lazy",
       decoding: "async",
       sizes: "auto",
+      ...(classes && { class: classes }),
     };
-    if (classes) attributes.class = classes;
-
     return returnElement
       ? await createElement("img", attributes, null, document)
       : await createHtml("img", attributes);

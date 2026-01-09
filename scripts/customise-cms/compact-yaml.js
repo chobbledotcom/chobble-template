@@ -135,6 +135,32 @@ const tryCompactLine = (objectLines, listIndent) => {
 };
 
 /**
+ * Check if a line is a list item start (- key: value pattern)
+ */
+const isListItemStart = (trimmed) =>
+  trimmed.startsWith("- ") && trimmed.includes(":");
+
+/**
+ * Process a single line or list item, returning the output line(s) and next index
+ */
+const processLine = (lines, i) => {
+  const line = lines[i];
+  const indent = getIndent(line);
+  const trimmed = line.trim();
+
+  if (!isListItemStart(trimmed)) {
+    return { output: [line], nextIndex: i + 1 };
+  }
+
+  const { objectLines, nextIndex } = collectObjectLines(lines, i, indent);
+  const compactedLine = tryCompactLine(objectLines, indent);
+
+  return compactedLine
+    ? { output: [compactedLine], nextIndex }
+    : { output: [line], nextIndex: i + 1 };
+};
+
+/**
  * Compact YAML by converting multi-line objects to inline format when appropriate
  */
 export const compactYaml = (yamlString) => {
@@ -143,26 +169,9 @@ export const compactYaml = (yamlString) => {
   let i = 0;
 
   while (i < lines.length) {
-    const line = lines[i];
-    const indent = getIndent(line);
-    const trimmed = line.trim();
-
-    // Look for list item start (- key: value pattern)
-    if (trimmed.startsWith("- ") && trimmed.includes(":")) {
-      const { objectLines, nextIndex } = collectObjectLines(lines, i, indent);
-      const compactedLine = tryCompactLine(objectLines, indent);
-
-      if (compactedLine) {
-        result.push(compactedLine);
-        i = nextIndex;
-      } else {
-        result.push(line);
-        i++;
-      }
-    } else {
-      result.push(line);
-      i++;
-    }
+    const { output, nextIndex } = processLine(lines, i);
+    result.push(...output);
+    i = nextIndex;
   }
 
   return result.join("\n");

@@ -183,25 +183,25 @@ export const getRequiredCollections = () =>
   filter((c) => c.required)(COLLECTIONS);
 
 /**
+ * Get direct dependencies for a collection (empty array if none)
+ */
+const getCollectionDeps = (name) => getCollection(name)?.dependencies || [];
+
+/**
  * Get all dependencies for selected collections
  */
 export const resolveDependencies = (selectedNames) => {
   const resolved = new Set(selectedNames);
+  const queue = [...selectedNames];
 
-  const addDeps = (name) => {
-    const collection = getCollection(name);
-    if (collection?.dependencies) {
-      for (const dep of collection.dependencies) {
-        if (!resolved.has(dep)) {
-          resolved.add(dep);
-          addDeps(dep);
-        }
+  while (queue.length > 0) {
+    const name = queue.pop();
+    for (const dep of getCollectionDeps(name)) {
+      if (!resolved.has(dep)) {
+        resolved.add(dep);
+        queue.push(dep);
       }
     }
-  };
-
-  for (const name of selectedNames) {
-    addDeps(name);
   }
 
   return [...resolved];

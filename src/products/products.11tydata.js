@@ -38,6 +38,19 @@ const computeOptions = (data) => {
     .sort((a, b) => a.days - b.days);
 };
 
+// Validate hire mode options have required fields (exported for testing)
+export const validateHireOptions = (options, title) => {
+  const duplicate = findDuplicate(options, (opt) => opt.days);
+  if (duplicate) {
+    throw new Error(
+      `Product "${title}" has duplicate options for days=${duplicate.days}`,
+    );
+  }
+  if (!options.some((opt) => opt.days === 1)) {
+    throw new Error(`Product "${title}" is hire mode but has no 1-day option`);
+  }
+};
+
 export default {
   eleventyComputed: {
     categories: (data) => (data.categories || []).map(normaliseSlug),
@@ -52,31 +65,12 @@ export default {
     },
     cart_attributes: (data) => {
       const options = computeOptions(data);
-      if (options.length === 0) {
-        return null;
-      }
+      if (options.length === 0) return null;
 
       const mode = getProductMode(data);
+      if (mode === "hire") validateHireOptions(options, data.title);
+
       const specs = computeSpecs(data);
-
-      if (mode === "hire") {
-        const duplicate = findDuplicate(options, (opt) => opt.days);
-        if (duplicate) {
-          throw new Error(
-            `Product "${data.title}" has duplicate options for days=${duplicate.days}`,
-          );
-        }
-        if (!options.some((opt) => opt.days === 1)) {
-          throw new Error(
-            `Product "${data.title}" is hire mode but has no 1-day option`,
-          );
-        }
-      }
-
-      const hirePrices =
-        mode === "hire"
-          ? toObject(options, (opt) => [opt.days, opt.unit_price])
-          : {};
 
       return JSON.stringify({
         name: data.title,
@@ -95,7 +89,10 @@ export default {
           days: opt.days || null,
         })),
         specs: specs ? specs.map(pick(["name", "value"])) : null,
-        hire_prices: hirePrices,
+        hire_prices:
+          mode === "hire"
+            ? toObject(options, (opt) => [opt.days, opt.unit_price])
+            : {},
         product_mode: mode,
       }).replace(/"/g, "&quot;");
     },
