@@ -60,8 +60,13 @@ const getProductsByEvent = (products, eventSlug) =>
     .filter((product) => product.data.events?.includes(eventSlug))
     .sort(sortItems);
 
+/**
+ * Get featured products from a products collection
+ * @param {import("#lib/types").EleventyCollectionItem[]} products - Products array from Eleventy collection
+ * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured products
+ */
 const getFeaturedProducts = (products) =>
-  products?.filter((p) => p.data.featured) || [];
+  products.filter((p) => p.data.featured);
 
 /**
  * Creates a collection of all SKUs with their pricing data for the API
