@@ -377,8 +377,8 @@ const addOptionalFields = (fields, collectionName, config) => {
     config.features.permalinks && COMMON_FIELDS.permalink,
     config.features.redirects && COMMON_FIELDS.redirect_from,
     config.features.faqs && FAQS_FIELD,
-    config.features.galleries && collection?.supportsGallery && GALLERY_FIELD,
-    config.features.specs && collection?.supportsSpecs && SPECS_FIELD,
+    config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
+    config.features.specs && collection.supportsSpecs && SPECS_FIELD,
     collectionName === "products" && TABS_FIELD,
   ]);
 };
@@ -453,13 +453,12 @@ const getDataPath = (hasSrcFolder) => (hasSrcFolder ? "src/_data" : "_data");
 
 /**
  * Generate configuration for a single collection
- * @param {string} collectionName - Name of the collection
+ * @param {string} collectionName - Name of the collection (must exist in COLLECTIONS)
  * @param {CmsConfig} config - CMS configuration
- * @returns {CollectionConfig | null} Collection configuration or null if not found
+ * @returns {CollectionConfig} Collection configuration
  */
 const generateCollectionConfig = (collectionName, config) => {
   const collection = getCollection(collectionName, config.hasSrcFolder);
-  if (!collection) return null;
 
   const collectionConfig = {
     name: collectionName,
