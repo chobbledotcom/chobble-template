@@ -4,6 +4,7 @@ import {
   compact,
   filter,
   filterMap,
+  flatMap,
   join,
   map,
   pipe,
@@ -54,11 +55,11 @@ export function parseThemeContent(themeContent) {
     scope === "button"
       ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
       : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
-  const parsedScopePairs = pipe(
-    map((scope) => [scope, themeContent.match(getScopePattern(scope))]),
-    filter(([_, match]) => match),
-    map(([scope, match]) => [scope, parseCssBlock(match[1])]),
-  )(SCOPES);
+  // Use flatMap to avoid intermediate tuple arrays: only emit pairs for matching scopes
+  const parsedScopePairs = flatMap((scope) => {
+    const match = themeContent.match(getScopePattern(scope));
+    return match ? [[scope, parseCssBlock(match[1])]] : [];
+  })(SCOPES);
 
   return {
     root: rootMatch ? parseCssBlock(rootMatch[1]) : {},

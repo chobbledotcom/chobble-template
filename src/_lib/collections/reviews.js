@@ -1,5 +1,5 @@
 import config from "#data/config.js";
-import { filter, map, pipe } from "#utils/array-utils.js";
+import { filter, filterMap, map, pipe } from "#utils/array-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 /**
@@ -156,11 +156,7 @@ const withReviewsPage = (
     reviewsField,
     limitOverride,
     () => [],
-    (items, hasEnough) =>
-      pipe(
-        map(processItem),
-        filter(hasEnough),
-      )(items),
+    (items, hasEnough) => pipe(map(processItem), filter(hasEnough))(items),
   );
 
 /**
@@ -177,9 +173,9 @@ const reviewsRedirects = (tag, reviewsField, limitOverride) =>
     limitOverride,
     (items) => pipe(map(toRedirectData))(items),
     (items, hasEnough) =>
-      pipe(
-        filter((item) => !hasEnough(item)),
-        map(toRedirectData),
+      filterMap(
+        (item) => !hasEnough(item),
+        toRedirectData,
       )(items),
   );
 
