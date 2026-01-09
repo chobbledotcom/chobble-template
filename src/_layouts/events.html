@@ -29,3 +29,7 @@ layout: base
     <p>No past {{ strings.event_name | downcase }} to display.</p>
   {% endif %}
 {% endif %}
+
+{% if categorisedEvents.show.undated %}
+  {%- include "items.html", items: categorisedEvents.undated -%}
+{% endif %}
