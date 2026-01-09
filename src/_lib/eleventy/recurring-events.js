@@ -4,6 +4,8 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Render recurring events as HTML list
+ * @param {Array<{url?: string, data?: {title: string, recurring_date: string, event_location?: string}}>} events - Events to render
+ * @returns {string} HTML ul list of events, or empty string if no events
  */
 const renderRecurringEvents = (events) => {
   if (!events || events.length === 0) {
@@ -33,7 +35,8 @@ const renderRecurringEvents = (events) => {
  * Used for testing with mock data. Not used directly in Eleventy due to
  * collection access limitations in shortcodes.
  *
- * @param {Array} events - Events collection to filter and render
+ * @param {Array<{data?: {recurring_date?: string, title: string, event_location?: string}}>} events - Events collection to filter and render
+ * @returns {string} HTML list of recurring events
  */
 function recurringEventsShortcode(events = []) {
   const recurringEvents = events
@@ -87,6 +90,10 @@ const getRecurringEventsHtml = memoize(async () => {
   return renderRecurringEvents(recurringEvents);
 });
 
+/**
+ * Configure Eleventy recurring events shortcode and filter
+ * @param {Object} eleventyConfig - Eleventy configuration object
+ */
 const configureRecurringEvents = (eleventyConfig) => {
   eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
   eleventyConfig.addFilter("format_recurring_events", renderRecurringEvents);
