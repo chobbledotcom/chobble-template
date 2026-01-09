@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Liquid } from "liquidjs";
 import strings from "#data/strings.js";
@@ -10,7 +10,7 @@ const liquid = new Liquid();
 
 const templatePath = join(SRC_DIR, "_includes", "recurring-events.html");
 
-const getTemplate = memoize(async () => readFile(templatePath, "utf-8"));
+const template = readFileSync(templatePath, "utf-8");
 
 /**
  * Render recurring events as HTML list
@@ -28,7 +28,6 @@ const renderRecurringEvents = async (events) => {
     data: event.data,
   }));
 
-  const template = await getTemplate();
   return liquid.parseAndRender(template, {
     recurring_events: normalizedEvents,
   });
