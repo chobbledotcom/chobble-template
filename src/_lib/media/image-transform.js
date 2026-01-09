@@ -52,7 +52,8 @@ const processImageElement = async (img, document, processAndWrapImage) => {
     img.removeAttribute(IGNORE_ATTRIBUTE);
     return;
   }
-  if (img.parentNode.classList.contains("image-wrapper")) return;
+  // Type guard: parentNode is Element when checking classList
+  if (img.parentNode instanceof Element && img.parentNode.classList.contains("image-wrapper")) return;
   // Pass extractImageOptions result where imageName is string | null from getAttribute
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
   img.parentNode.replaceChild(wrapped, img);
