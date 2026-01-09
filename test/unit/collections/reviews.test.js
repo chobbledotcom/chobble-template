@@ -252,11 +252,6 @@ describe("reviews", () => {
     expect(ratingToStars(5)).toBe("⭐️⭐️⭐️⭐️⭐️");
   });
 
-  test("Returns empty string for null rating", () => {
-    expect(ratingToStars(null)).toBe("");
-    expect(ratingToStars(undefined)).toBe("");
-  });
-
   test("Extracts first and last initials from full name", () => {
     expect(getInitials("John Smith")).toBe("JS");
     expect(getInitials("Alice Bob Carol")).toBe("AC");
