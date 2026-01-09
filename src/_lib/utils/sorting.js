@@ -40,12 +40,17 @@ const createOrderThenStringComparator = (getNumeric, getString) => (a, b) => {
 
 /**
  * Comparator for sorting by order then by title/name.
- * Default behavior assumes items have item.data.order and item.data.title/name.
- * @type {(a: any, b: any) => number}
+ * All Eleventy collection items always have a data property.
+ * @param {Object} item - Collection item
+ * @param {Object} item.data - Item data (always present from Eleventy)
+ * @param {number} [item.data.order] - Sort order (defaults to 0)
+ * @param {string} [item.data.title] - Item title
+ * @param {string} [item.data.name] - Item name (fallback)
+ * @returns {number} Comparator value
  */
 const sortItems = createOrderThenStringComparator(
-  (item) => item.data?.order ?? 0,
-  (item) => item.data?.title || item.data?.name || "",
+  (item) => item.data.order ?? 0,
+  (item) => item.data.title || item.data.name || "",
 );
 
 /**
