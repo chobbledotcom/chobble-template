@@ -55,13 +55,9 @@ export function parseThemeContent(themeContent) {
       ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
       : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
   const parsedScopePairs = pipe(
-    filterMap(
-      (scope) => themeContent.match(getScopePattern(scope)),
-      (scope) => [
-        scope,
-        parseCssBlock(themeContent.match(getScopePattern(scope))[1]),
-      ],
-    ),
+    map((scope) => [scope, themeContent.match(getScopePattern(scope))]),
+    filter(([_, match]) => match),
+    map(([scope, match]) => [scope, parseCssBlock(match[1])]),
   )(SCOPES);
 
   return {
