@@ -52,11 +52,15 @@ const processImageElement = async (img, document, processAndWrapImage) => {
     img.removeAttribute(IGNORE_ATTRIBUTE);
     return;
   }
-  // Type guard: parentNode is Element when checking classList
-  if (img.parentNode instanceof Element && img.parentNode.classList.contains("image-wrapper")) return;
+  // Type guard: ensure parentNode is Element (narrows type for subsequent uses)
+  if (!(img.parentNode instanceof Element)) return;
+  /** @type {Element} */
+  const parent = img.parentNode;
+
+  if (parent.classList.contains("image-wrapper")) return;
   // Pass extractImageOptions result where imageName is string | null from getAttribute
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
-  img.parentNode.replaceChild(wrapped, img);
+  parent.replaceChild(wrapped, img);
 };
 
 // Transform all images in HTML content
