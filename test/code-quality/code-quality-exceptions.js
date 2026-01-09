@@ -71,7 +71,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 const ALLOWED_HTML_IN_JS = new Set([
   // Server-side Eleventy plugins generating HTML
   "src/_lib/eleventy/recurring-events.js",
-  "src/_lib/eleventy/responsive-tables.js",
 ]);
 
 // ============================================
@@ -260,6 +259,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Eleventy plugin configure functions - tested for plugin registration
   "src/_lib/eleventy/cache-buster.js:cacheBust",
   "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
+  "src/_lib/eleventy/capture.js:configureCapture",
   "src/_lib/eleventy/feed.js:configureFeed",
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
