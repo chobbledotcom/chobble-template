@@ -71,7 +71,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 const ALLOWED_HTML_IN_JS = new Set([
   // Server-side Eleventy plugins generating HTML
   "src/_lib/eleventy/recurring-events.js",
-  "src/_lib/eleventy/responsive-tables.js",
 ]);
 
 // ============================================
