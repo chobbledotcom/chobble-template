@@ -10,6 +10,8 @@
  *   - { name: foo, type: string, label: Foo }
  */
 
+import { accumulate } from "#utils/array-utils.js";
+
 /**
  * @typedef {Object} KeyValuePair
  * @property {string} key - The key name
@@ -164,37 +166,44 @@ const tryCompactLine = (objectLines, listIndent) => {
 };
 
 /**
+ * Check if a line is a list item start (- key: value pattern)
+ */
+const isListItemStart = (trimmed) =>
+  trimmed.startsWith("- ") && trimmed.includes(":");
+
+/**
+ * Process a single line or list item, returning the output line(s) and next index
+ */
+const processLine = (lines, i) => {
+  const line = lines[i];
+  const indent = getIndent(line);
+  const trimmed = line.trim();
+
+  if (!isListItemStart(trimmed)) {
+    return { output: [line], nextIndex: i + 1 };
+  }
+
+  const { objectLines, nextIndex } = collectObjectLines(lines, i, indent);
+  const compactedLine = tryCompactLine(objectLines, indent);
+
+  return compactedLine
+    ? { output: [compactedLine], nextIndex }
+    : { output: [line], nextIndex: i + 1 };
+};
+
+/**
  * Compact YAML by converting multi-line objects to inline format when appropriate
  * @param {string} yamlString - YAML string to compact
  * @returns {string} Compacted YAML string
  */
 export const compactYaml = (yamlString) => {
   const lines = yamlString.split("\n");
-  const result = [];
-  let i = 0;
 
-  while (i < lines.length) {
-    const line = lines[i];
-    const indent = getIndent(line);
-    const trimmed = line.trim();
+  const processFrom = (index, acc) => {
+    if (index >= lines.length) return acc;
+    const { output, nextIndex } = processLine(lines, index);
+    return processFrom(nextIndex, accumulate(acc, ...output));
+  };
 
-    // Look for list item start (- key: value pattern)
-    if (trimmed.startsWith("- ") && trimmed.includes(":")) {
-      const { objectLines, nextIndex } = collectObjectLines(lines, i, indent);
-      const compactedLine = tryCompactLine(objectLines, indent);
-
-      if (compactedLine) {
-        result.push(compactedLine);
-        i = nextIndex;
-      } else {
-        result.push(line);
-        i++;
-      }
-    } else {
-      result.push(line);
-      i++;
-    }
-  }
-
-  return result.join("\n");
+  return processFrom(0, []).join("\n");
 };

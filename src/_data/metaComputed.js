@@ -4,6 +4,10 @@ import metaData from "#data/meta.json" with { type: "json" };
 import siteData from "#data/site.json" with { type: "json" };
 import { IMAGES_DIR } from "#lib/paths.js";
 
+/**
+ * Computes site metadata from configuration and social links
+ * @returns {Object} Computed metadata
+ */
 export default function () {
   const logoPath = join(IMAGES_DIR, "logo.png");
   const logoUrl = fs.existsSync(logoPath)

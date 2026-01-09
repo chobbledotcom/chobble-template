@@ -78,6 +78,7 @@ describe("array-utils", () => {
 
   test("Works with conditional elements", () => {
     const condition = false;
+    // biome-ignore lint/nursery/noUnnecessaryConditions: intentional test of falsy value removal
     expect(compact([condition && "value", "always"])).toEqual(["always"]);
   });
 

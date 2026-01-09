@@ -1,6 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import config from "#data/config.js";
-import { filter, map, pipe } from "#utils/array-utils.js";
+import { SRC_DIR } from "#lib/paths.js";
+import { filter, filterMap, map, pipe } from "#utils/array-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
+
+// Load SVG template once at module initialization
+const AVATAR_SVG_TEMPLATE = readFileSync(
+  join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg"),
+  "utf8",
+);
 
 /**
  * Creates the main reviews collection.
@@ -107,7 +116,10 @@ const reviewerAvatar = (name) => {
   );
   const color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
   const initials = getInitials(name);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="${color}"/><text x="20" y="20" text-anchor="middle" dominant-baseline="central" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="bold">${initials}</text></svg>`;
+  const svg = AVATAR_SVG_TEMPLATE.replace("{{color}}", color).replace(
+    "{{initials}}",
+    initials,
+  );
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 
@@ -156,7 +168,7 @@ const withReviewsPage = (
     reviewsField,
     limitOverride,
     () => [],
-    (items, hasEnough) => items.map(processItem).filter(hasEnough),
+    (items, hasEnough) => pipe(map(processItem), filter(hasEnough))(items),
   );
 
 /**
@@ -171,9 +183,9 @@ const reviewsRedirects = (tag, reviewsField, limitOverride) =>
     tag,
     reviewsField,
     limitOverride,
-    (items) => items.map(toRedirectData),
+    (items) => pipe(map(toRedirectData))(items),
     (items, hasEnough) =>
-      items.filter((item) => !hasEnough(item)).map(toRedirectData),
+      filterMap((item) => !hasEnough(item), toRedirectData)(items),
   );
 
 /**

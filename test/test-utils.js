@@ -80,6 +80,7 @@ const createMockEleventyConfig = () => ({
   addAsyncFilter: createMapMethod("asyncFilters"),
   addShortcode: createMapMethod("shortcodes"),
   addAsyncShortcode: createMapMethod("asyncShortcodes"),
+  addPairedShortcode: createMapMethod("pairedShortcodes"),
   addExtension: createMapMethod("extensions"),
   addTransform: createMapMethod("transforms"),
   on: createMapMethod("eventHandlers"),

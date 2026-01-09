@@ -42,6 +42,21 @@ describe("quote-steps", () => {
     expect(getFieldLabel("orphan")).toBe("orphan");
   });
 
+  test("getFieldLabel extracts only label text from label wrapping select", () => {
+    document.body.innerHTML = `
+      <label for="event_type">
+        Type of Event
+        <select id="event_type">
+          <option value="">Select an option</option>
+          <option value="Wedding">Wedding</option>
+          <option value="Birthday Party">Birthday Party</option>
+          <option value="Corporate Event">Corporate Event</option>
+        </select>
+      </label>
+    `;
+    expect(getFieldLabel("event_type")).toBe("Type of Event");
+  });
+
   // ----------------------------------------
   // getRadioValue Tests (with DOM)
   // ----------------------------------------

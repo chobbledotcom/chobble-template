@@ -70,16 +70,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
   // Server-side Eleventy plugins generating HTML
-  "src/_lib/eleventy/opening-times.js",
   "src/_lib/eleventy/recurring-events.js",
-  "src/_lib/eleventy/js-config.js",
-  "src/_lib/eleventy/responsive-tables.js",
-
-  // Collections with embedded HTML/SVG
-  "src/_lib/collections/reviews.js",
-
-  // Filters with HTML formatting
-  "src/_lib/filters/item-filters.js",
 ]);
 
 // ============================================
@@ -191,14 +182,6 @@ const ALLOWED_LET = new Set([
 ]);
 
 // ============================================
-// Object mutation via bracket assignment exceptions
-// ============================================
-
-// Files that use obj[key] = value for object mutation.
-// Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
-const ALLOWED_OBJECT_MUTATION = "src/_lib/public/ui/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
-
-// ============================================
 // Single-use unexported function exceptions
 // ============================================
 
@@ -218,6 +201,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/lazy-loader.js", // Kept separate to manage complexity
+  "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -275,11 +259,12 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Eleventy plugin configure functions - tested for plugin registration
   "src/_lib/eleventy/cache-buster.js:cacheBust",
   "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
+  "src/_lib/eleventy/capture.js:configureCapture",
   "src/_lib/eleventy/feed.js:configureFeed",
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
   "src/_lib/eleventy/ical.js:isOneOffEvent",
-  "src/_lib/eleventy/js-config.js:buildJsConfigScript",
+  "src/_lib/eleventy/js-config.js:buildJsConfigJson",
   "src/_lib/eleventy/js-config.js:configureJsConfig",
   "src/_lib/eleventy/layout-aliases.js:configureLayoutAliases",
   "src/_lib/eleventy/opening-times.js:configureOpeningTimes",
@@ -342,7 +327,6 @@ export {
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
-  ALLOWED_OBJECT_MUTATION,
   ALLOWED_SINGLE_USE_FUNCTIONS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,

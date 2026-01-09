@@ -60,7 +60,7 @@ const calendarTemplates = loadTemplate("calendar.html");
 const cartTemplates = loadTemplate("cart.html");
 const galleryTemplates = loadTemplate("gallery.html");
 const quotePriceTemplates = loadTemplate("quote-price.html");
-const quoteStepsProgressTemplates = loadTemplate("quote-steps-progress.html");
+const quoteStepIndicatorTemplates = loadTemplate("quote-step-indicator.html");
 
 describe("Template selector contracts", () => {
   describe("All template IDs exist in HTML", () => {
@@ -72,7 +72,7 @@ describe("Template selector contracts", () => {
           cartTemplates,
           galleryTemplates,
           quotePriceTemplates,
-          quoteStepsProgressTemplates,
+          quoteStepIndicatorTemplates,
         ]) {
           if (dom?.window.document.getElementById(id)) {
             found = true;

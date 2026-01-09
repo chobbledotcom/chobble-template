@@ -24,14 +24,15 @@
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
-		"cpd": "jscpd && jscpd src/{_lib,_data} --min-tokens 23",
+		"cpd": "jscpd && jscpd src/{_lib,_data} scripts --min-tokens 23",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
 		"lint": "bunx @biomejs/biome check --error-on-warnings .",
 		"lint:fix": "bunx @biomejs/biome check --write .",
 		"precommit": "node test/precommit.js",
 		"customise-cms": "bun scripts/customise-cms/index.js",
-		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js"
+		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js",
+		"generate-cms-types": "bun scripts/generate-pages-cms-types.js"
 	},
 	"devDependencies": {
 		"11ty.ts": "^0.0.7",

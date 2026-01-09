@@ -19,5 +19,5 @@ header_text: Search Results
   Showing
   <strong>{{ filterPage.count }}</strong>
   propert{% if filterPage.count == 1 %}y{% else %}ies{% endif %}
-  matching: {{ filterPage.filterDescription }}
+  matching: {% include 'filter-description.html' %}
 </p>

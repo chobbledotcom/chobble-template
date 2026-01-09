@@ -41,15 +41,19 @@ export function getCheckoutItems() {
   return getCart().map(({ sku, quantity }) => ({ sku, quantity }));
 }
 
+// Update a single cart icon's visibility based on count
+const updateSingleCartIcon = (icon, count) => {
+  icon.style.display = count > 0 ? "flex" : "none";
+  const badge = icon.querySelector(".cart-count");
+  if (!badge) return;
+  badge.textContent = count;
+  badge.style.display = count > 0 ? "block" : "none";
+};
+
 export function updateCartIcon() {
   const count = getItemCount();
   for (const icon of document.querySelectorAll(".cart-icon")) {
-    icon.style.display = count > 0 ? "flex" : "none";
-    const badge = icon.querySelector(".cart-count");
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "block" : "none";
-    }
+    updateSingleCartIcon(icon, count);
   }
 }
 

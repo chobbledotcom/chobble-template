@@ -28,6 +28,9 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
  * Parse filter attributes from item data
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
+ *
+ * @param {import("#lib/types").FilterAttribute[]|undefined} filterAttributes
+ * @returns {Object}
  */
 const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
@@ -38,24 +41,41 @@ const parseFilterAttributes = (filterAttributes) => {
 };
 
 /**
+ * Format a Map of values by key into a sorted object
+ * { key => Set(values) } => { key: [sorted_values], ... }
+ * Curried for composition
+ */
+const formatValueMap = (valuesByKey) =>
+  pipe(
+    (map) => [...map.keys()].sort(),
+    map((key) => [key, [...valuesByKey.get(key)].sort()]),
+    Object.fromEntries,
+  )(valuesByKey);
+
+/**
  * Build a map of all filter attributes and their possible values
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
+ * Uses pipe to show data flow: extract pairs -> group by key -> format for output
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Object}
  */
 const getAllFilterAttributes = memoize((items) => {
-  const allPairs = items.flatMap((item) =>
-    Object.entries(parseFilterAttributes(item.data.filter_attributes)),
-  );
+  const valuesByKey = pipe(
+    flatMap((item) =>
+      Object.entries(parseFilterAttributes(item.data.filter_attributes)),
+    ),
+    groupValuesBy,
+  )(items);
 
-  const valuesByKey = groupValuesBy(allPairs);
-
-  const sortedKeys = [...valuesByKey.keys()].sort();
-  return Object.fromEntries(
-    sortedKeys.map((key) => [key, [...valuesByKey.get(key)].sort()]),
-  );
+  return formatValueMap(valuesByKey);
 });
 
 /**
  * Extract (slug, display) pairs from an item's filter attributes
+ *
+ * @param {import("#lib/types").EleventyCollectionItem} item
+ * @returns {[string, any][]}
  */
 const getDisplayPairs = (item) => {
   const attrs = item.data.filter_attributes;
@@ -71,6 +91,9 @@ const getDisplayPairs = (item) => {
  * Build a lookup map from slugified keys to original display text
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
  * First occurrence wins when there are duplicates
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Object}
  */
 const buildDisplayLookup = memoize((items) =>
   buildFirstOccurrenceLookup(items, getDisplayPairs),
@@ -113,6 +136,10 @@ const pathToFilter = (path) => {
 /**
  * Get items matching the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @param {Object} filters
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const getItemsByFilters = (items, filters) => {
   if (!filters || Object.keys(filters).length === 0) {
@@ -136,12 +163,15 @@ const getItemsByFilters = (items, filters) => {
   return items.filter(matchesFilters).sort(sortItems);
 };
 
+const normalizeAttrs = mapBoth(normalize);
+
 /**
  * Build a map of normalized filter attributes for all items (for fast lookups)
  * Returns: Map<item, { size: "small", capacity: "3" }>
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Map}
  */
-const normalizeAttrs = mapBoth(normalize);
-
 const buildItemAttributeMap = (items) => {
   return new Map(
     items.map((item) => {
@@ -157,6 +187,9 @@ const buildItemAttributeMap = (items) => {
  *
  * No duplicate tracking needed: we process keys in order and only
  * recurse to later keys, so each path is generated exactly once.
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} items
+ * @returns {Array}
  */
 const generateFilterCombinations = memoize((items) => {
   const allAttributes = getAllFilterAttributes(items);
@@ -220,14 +253,15 @@ const generateFilterCombinations = memoize((items) => {
 });
 
 /**
- * Build a filter description string from filters using display lookup
- * { size: "compact", type: "pro" } => "Size: compact, Type: pro"
+ * Build filter description parts from filters using display lookup
+ * Returns structured data for template rendering
+ * { size: "compact", type: "pro" } => [{ key: "Size", value: "compact" }, ...]
  */
 const buildFilterDescription = (filters, displayLookup) =>
-  mapEntries(
-    (key, value) =>
-      `${displayLookup[key]}: <strong>${displayLookup[value]}</strong>`,
-  )(filters).join(", ");
+  mapEntries((key, value) => ({
+    key: displayLookup[key],
+    value: displayLookup[value],
+  }))(filters);
 
 /**
  * Build pre-computed filter UI data for templates

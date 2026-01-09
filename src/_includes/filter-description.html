@@ -1,0 +1,4 @@
+{%- for part in filterPage.filterDescription -%}
+  {%- if forloop.index0 > 0 -%}, {% endif -%}
+  {{ part.key }}: <strong>{{ part.value }}</strong>
+{%- endfor -%}
