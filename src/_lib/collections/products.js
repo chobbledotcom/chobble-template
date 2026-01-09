@@ -67,17 +67,19 @@ const getFeaturedProducts = (products) =>
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
  * Throws an error if duplicate SKUs are found
+ * @param {import("#lib/types").EleventyConfig} collectionApi - Eleventy collection API
  */
 const createApiSkusCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("product") || [];
   const allSkuEntries = products.flatMap((product) => {
+    /** @type {import("#lib/types").Option[]|undefined} */
     const options = product.data.options;
     if (!options) return [];
 
     const productTitle = product.data.title || "";
 
     return filterMap(
-      (option) => option.sku && option.unit_price !== undefined,
+      (option) => option.sku,
       (option) => [
         option.sku,
         {

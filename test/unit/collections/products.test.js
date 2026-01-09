@@ -298,14 +298,11 @@ describe("products", () => {
     });
   });
 
-  test("Skips products without options or incomplete SKUs", () => {
+  test("Skips products without options or options without SKUs", () => {
     const testProducts = [
       item("No Options"),
       item("Empty Options", { options: [] }),
       item("Missing SKU", { options: [{ name: "Test", unit_price: 100 }] }),
-      item("Missing Price", {
-        options: [{ sku: "TEST-001", name: "Test" }],
-      }),
     ];
 
     const result = createApiSkusCollection(collectionApi(testProducts));
