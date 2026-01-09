@@ -16,7 +16,7 @@ const getOpeningTimesHtml = memoize(async () => {
   const siteData = await import("#data/site.json", {
     with: { type: "json" },
   });
-  const openingTimes = siteData.default.opening_times || [];
+  const openingTimes = siteData.default.opening_times ?? [];
   return renderOpeningTimes(openingTimes);
 });
 
