@@ -6,9 +6,25 @@ import strings from "#data/strings.js";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
+import { accumulate } from "#utils/array-utils.js";
 
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
+
+/**
+ * Escape HTML special characters to prevent XSS
+ * @param {string} str - String to escape
+ * @returns {string} Escaped string safe for HTML
+ */
+const escapeHtml = (str) => {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
 
 const cacheKeyFromArgs = (args) => args.join(",");
 
@@ -43,23 +59,21 @@ const getRecurringEventsHtml = memoize(() => {
     return "";
   }
 
-  const recurringEvents = fs
-    .readdirSync(eventsDir)
-    .filter((file) => file.endsWith(".md"))
-    .map((filename) => {
-      const { data } = matter.read(path.join(eventsDir, filename));
-      if (!data.recurring_date) return null;
+  const recurringEvents = accumulate((acc, filename) => {
+    if (!filename.endsWith(".md")) return acc;
 
-      const fileSlug = filename
-        .replace(".md", "")
-        .replace(/^\d{4}-\d{2}-\d{2}-/, "");
-      return {
-        url: data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
-        data,
-      };
-    })
-    .filter(Boolean)
-    .sort(sortItems);
+    const { data } = matter.read(path.join(eventsDir, filename));
+    if (!data.recurring_date) return acc;
+
+    const fileSlug = filename
+      .replace(".md", "")
+      .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+    acc.push({
+      url: data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
+      data,
+    });
+    return acc;
+  })(fs.readdirSync(eventsDir)).sort(sortItems);
 
   if (recurringEvents.length === 0) {
     return "";
@@ -67,10 +81,14 @@ const getRecurringEventsHtml = memoize(() => {
 
   const items = recurringEvents.map((event) => {
     const { title, recurring_date, event_location } = event.data;
-    const locationHtml = event_location ? `<br>\n    ${event_location}` : "";
+    const escapedTitle = escapeHtml(title);
+    const escapedUrl = escapeHtml(event.url);
+    const escapedRecurringDate = escapeHtml(recurring_date);
+    const escapedLocation = event_location ? escapeHtml(event_location) : "";
+    const locationHtml = escapedLocation ? `<br>\n    ${escapedLocation}` : "";
     return `  <li>
-    <strong><a href="${event.url}">${title}</a></strong><br>
-    ${recurring_date}${locationHtml}
+    <strong><a href="${escapedUrl}#content">${escapedTitle}</a></strong><br>
+    ${escapedRecurringDate}${locationHtml}
   </li>`;
   });
 
