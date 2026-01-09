@@ -12,7 +12,7 @@
  * - dependencies: Other collections this one requires
  */
 
-import { filter } from "#utils/array-utils.js";
+import { filter, unique } from "#utils/array-utils.js";
 
 export const COLLECTIONS = [
   {
@@ -188,21 +188,12 @@ export const getRequiredCollections = () =>
 const getCollectionDeps = (name) => getCollection(name)?.dependencies || [];
 
 /**
- * Get all dependencies for selected collections
+ * Get all dependencies for selected collections (recursive expansion)
  */
 export const resolveDependencies = (selectedNames) => {
-  const resolved = new Set(selectedNames);
-  const queue = [...selectedNames];
-
-  while (queue.length > 0) {
-    const name = queue.pop();
-    for (const dep of getCollectionDeps(name)) {
-      if (!resolved.has(dep)) {
-        resolved.add(dep);
-        queue.push(dep);
-      }
-    }
-  }
-
-  return [...resolved];
+  const names = [...new Set(selectedNames)];
+  const withDeps = unique([...names, ...names.flatMap(getCollectionDeps)]);
+  return withDeps.length === names.length
+    ? names
+    : resolveDependencies(withDeps);
 };

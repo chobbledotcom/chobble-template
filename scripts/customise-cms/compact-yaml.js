@@ -10,6 +10,8 @@
  *   - { name: foo, type: string, label: Foo }
  */
 
+import { accumulate } from "#utils/array-utils.js";
+
 /**
  * Extract indentation level from a line
  */
@@ -165,14 +167,12 @@ const processLine = (lines, i) => {
  */
 export const compactYaml = (yamlString) => {
   const lines = yamlString.split("\n");
-  const result = [];
-  let i = 0;
 
-  while (i < lines.length) {
-    const { output, nextIndex } = processLine(lines, i);
-    result.push(...output);
-    i = nextIndex;
-  }
+  const processFrom = (index, acc) => {
+    if (index >= lines.length) return acc;
+    const { output, nextIndex } = processLine(lines, index);
+    return processFrom(nextIndex, accumulate(acc, ...output));
+  };
 
-  return result.join("\n");
+  return processFrom(0, []).join("\n");
 };
