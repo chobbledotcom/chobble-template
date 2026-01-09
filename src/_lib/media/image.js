@@ -6,7 +6,13 @@ import {
   getThumbnailOrNull,
 } from "#media/image-lqip.js";
 import { createImageTransform as createTransform } from "#media/image-transform.js";
-import { compact } from "#utils/array-utils.js";
+import {
+  buildImgAttributes,
+  buildWrapperStyles,
+  isExternalUrl,
+  normalizeImagePath,
+  parseWidths,
+} from "#media/image-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { jsonKey, memoize } from "#utils/memoize.js";
 
@@ -18,9 +24,6 @@ const DEFAULT_OPTIONS = {
   svgShortCircuit: true,
   filenameFormat,
 };
-
-const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
-const DEFAULT_SIZE = "auto";
 
 // Compute wrapped image HTML for local images (memoized)
 /**
@@ -40,41 +43,18 @@ const DEFAULT_SIZE = "auto";
  */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
-    // Path normalization for image sources
-    // imageName is string | null: from getAttribute in transform path, string in shortcode path
-    /** @type {string} */
-    const name = imageName.toString();
-    const imagePath = (() => {
-      if (name.startsWith("/")) return `./src${name}`;
-      if (name.startsWith("src/")) return `./${name}`;
-      if (name.startsWith("images/")) return `./src/${name}`;
-      return `./src/images/${name}`;
-    })();
-
+    const imagePath = normalizeImagePath(imageName);
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
-    // Parse widths - handles string "240,480" or array
-    const parsedWidths =
-      typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
-
-    // Generate responsive image HTML using eleventy-img
-    const imgAttributes = {
-      alt: alt || "",
-      sizes: sizes || DEFAULT_SIZE,
-      loading: loading || "lazy",
-      decoding: "async",
-    };
-
+    const imgAttributes = buildImgAttributes(alt, sizes, loading);
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
-
     const { default: Image } = await getEleventyImg();
 
-    // Run Image generation and thumbnail in parallel (they're independent operations)
     const [innerHTML, bgImage] = await Promise.all([
       Image(finalPath, {
         ...DEFAULT_OPTIONS,
-        widths: parsedWidths,
+        widths: parseWidths(widths),
         fixOrientation: true,
         returnType: "html",
         htmlOptions: { imgAttributes, pictureAttributes },
@@ -82,17 +62,16 @@ const computeWrappedImageHtml = memoize(
       getThumbnailOrNull(imagePath, metadata),
     ]);
 
-    const styles = compact([
-      bgImage && `background-image: ${bgImage}`,
-      `aspect-ratio: ${getAspectRatio(aspectRatio, metadata)}`,
-      metadata.width && `max-width: min(${metadata.width}px, 100%)`,
-    ]);
-
     return await createHtml(
       "div",
       {
         class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-        style: styles.join("; "),
+        style: buildWrapperStyles(
+          bgImage,
+          aspectRatio,
+          metadata,
+          getAspectRatio,
+        ),
       },
       innerHTML,
     );
@@ -136,21 +115,16 @@ const processAndWrapImage = async ({
   /** @type {string} */
   const imageNameStr = imageName.toString();
 
-  // Check if URL is external
-  if (
-    imageNameStr.startsWith("http://") ||
-    imageNameStr.startsWith("https://")
-  ) {
-    // Handle external URLs - simple img tag without processing
+  // Handle external URLs with simple img tag
+  if (isExternalUrl(imageNameStr)) {
     const attributes = {
       src: imageNameStr,
       alt: alt || "",
       loading: loading || "lazy",
       decoding: "async",
       sizes: "auto",
+      ...(classes && { class: classes }),
     };
-    if (classes) attributes.class = classes;
-
     return returnElement
       ? await createElement("img", attributes, null, document)
       : await createHtml("img", attributes);

@@ -12,7 +12,7 @@
  * - dependencies: Other collections this one requires
  */
 
-import { filter } from "#utils/array-utils.js";
+import { filter, unique } from "#utils/array-utils.js";
 
 /**
  * @typedef {Object} CollectionDefinition
@@ -206,28 +206,19 @@ export const getRequiredCollections = () =>
   filter((c) => c.required)(COLLECTIONS);
 
 /**
- * Get all dependencies for selected collections
+ * Get direct dependencies for a collection (empty array if none)
+ */
+const getCollectionDeps = (name) => getCollection(name)?.dependencies || [];
+
+/**
+ * Get all dependencies for selected collections (recursive expansion)
  * @param {string[]} selectedNames - Collection names selected by user
  * @returns {string[]} All collection names including resolved dependencies
  */
 export const resolveDependencies = (selectedNames) => {
-  const resolved = new Set(selectedNames);
-
-  const addDeps = (name) => {
-    const collection = getCollection(name);
-    if (collection?.dependencies) {
-      for (const dep of collection.dependencies) {
-        if (!resolved.has(dep)) {
-          resolved.add(dep);
-          addDeps(dep);
-        }
-      }
-    }
-  };
-
-  for (const name of selectedNames) {
-    addDeps(name);
-  }
-
-  return [...resolved];
+  const names = [...new Set(selectedNames)];
+  const withDeps = unique([...names, ...names.flatMap(getCollectionDeps)]);
+  return withDeps.length === names.length
+    ? names
+    : resolveDependencies(withDeps);
 };
