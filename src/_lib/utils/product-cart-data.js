@@ -8,8 +8,8 @@ import { findDuplicate, pick } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 
 /**
- * Parse a price string to a number
- * @param {string} priceStr - Price string like "£10.00" or "10"
+ * Parse a price string or number to a number
+ * @param {string|number} priceStr - Price string like "£10.00" or number like 1000
  * @param {string} context - Context for error messages
  * @returns {number} Parsed price
  */
@@ -41,8 +41,10 @@ const validateHireOptions = (options, title) => {
 /**
  * Compute processed options for a product
  * @param {Object} data - Product data
+ * @param {import("#lib/types").Option[]|undefined} data.options
+ * @param {string} data.title
  * @param {string} mode - Product mode ("hire", "buy", etc.)
- * @returns {Array} Processed options
+ * @returns {import("#lib/types").Option[]} Processed options
  */
 export const computeOptions = (data, mode) => {
   if (!data.options || data.options.length === 0) {

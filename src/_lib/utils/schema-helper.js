@@ -3,6 +3,11 @@ import { canonicalUrl } from "#utils/canonical-url.js";
 
 const toDateString = (date) => date.toISOString().split("T")[0];
 
+/**
+ * @param {string} imageInput - Image path or URL
+ * @param {string} siteUrl - Base site URL
+ * @returns {string} Full image URL
+ */
 function buildImageUrl(imageInput, siteUrl) {
   if (imageInput.startsWith("http://") || imageInput.startsWith("https://")) {
     return imageInput;
@@ -15,6 +20,11 @@ function buildImageUrl(imageInput, siteUrl) {
   return `${siteUrl}/images/${imageInput}`;
 }
 
+/**
+ * Builds base schema.org metadata from page data
+ * @param {Object} data - Page data object
+ * @returns {Object} Schema.org metadata object
+ */
 function buildBaseMeta(data) {
   const imageSource = data.header_image || data.image || null;
   const imageUrl = imageSource
@@ -31,6 +41,10 @@ function buildBaseMeta(data) {
   };
 }
 
+/**
+ * @param {Object} data - Product page data
+ * @returns {Object} Schema.org product metadata
+ */
 function buildProductMeta(data) {
   const meta = buildBaseMeta(data);
   meta.name = data.title;
@@ -82,6 +96,10 @@ function buildProductMeta(data) {
   return meta;
 }
 
+/**
+ * @param {Object} data - Post page data
+ * @returns {Object} Schema.org post metadata
+ */
 function buildPostMeta(data) {
   const meta = buildBaseMeta(data);
 
@@ -105,6 +123,10 @@ function buildPostMeta(data) {
   return meta;
 }
 
+/**
+ * @param {Object} data - Organization page data
+ * @returns {Object} Schema.org organization metadata
+ */
 function buildOrganizationMeta(data) {
   const meta = buildBaseMeta(data);
 

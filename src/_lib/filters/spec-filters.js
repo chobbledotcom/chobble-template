@@ -2,14 +2,28 @@ import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
 
 /**
+ * @typedef {Object} ComputedSpec
+ * @property {string} name - The spec name (guaranteed by PagesCMS schema)
+ * @property {string} value - The spec value (guaranteed by PagesCMS schema)
+ * @property {string} icon - Inline SVG icon HTML
+ * @property {boolean} highlight - Whether to highlight this spec
+ */
+
+/**
  * Transform specs array to include icon and highlight properties
- * @param {Object} data - Eleventy data object
- * @returns {Array|undefined} - Specs array with icon and highlight properties added
+ *
+ * @param {{ specs?: import("#lib/types/pages-cms-generated").PagesCMSSpec[] }} data - Eleventy data object
+ * @returns {ComputedSpec[] | undefined} - Specs array with icon and highlight properties added
+ *
+ * PagesCMS guarantees: If specs array exists, each item has required name and value fields.
+ * Therefore, no optional chaining needed on spec.name.
+ * See: .pages.yml lines 132-138, generated via scripts/generate-pages-cms-types.js
  */
 const computeSpecs = (data) => {
   if (!data.specs) return undefined;
   return data.specs.map((spec) => {
-    const normalized = spec.name?.toLowerCase().trim();
+    // spec.name is guaranteed to be a non-empty string by PagesCMS schema
+    const normalized = spec.name.toLowerCase().trim();
     const config = normalized ? specsIcons[normalized] : undefined;
     return {
       ...spec,
@@ -22,8 +36,8 @@ const computeSpecs = (data) => {
 /**
  * Filter specs to only show highlighted ones if any spec has highlight set
  * If no specs have highlight: true, returns all specs
- * @param {Array} specs - Array of spec objects with highlight property
- * @returns {Array} - Filtered specs array
+ * @param {ComputedSpec[] | undefined | null} specs - Array of spec objects with highlight property
+ * @returns {ComputedSpec[]} - Filtered specs array
  */
 const getHighlightedSpecs = (specs) => {
   if (!specs || specs.length === 0) return specs;

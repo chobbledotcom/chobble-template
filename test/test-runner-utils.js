@@ -70,7 +70,7 @@ export function extractErrorsFromOutput(output) {
       trimmed.startsWith("Error:") ||
       trimmed.startsWith("AssertionError:") ||
       trimmed.includes("FAIL") ||
-      trimmed.toLowerCase().includes("fail") ||
+      (trimmed.toLowerCase().includes("fail") && trimmed !== "0 fail") ||
       trimmed.includes("below threshold") ||
       // Coverage-related errors
       trimmed.includes("Uncovered") ||
