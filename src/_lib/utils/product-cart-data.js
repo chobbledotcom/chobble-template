@@ -41,10 +41,10 @@ const validateHireOptions = (options, title) => {
 /**
  * Compute processed options for a product
  * @param {Object} data - Product data
- * @param {import("#lib/types/pages-cms-generated").PagesCMSOption[]|undefined} data.options
+ * @param {import("#lib/types").Option[]|undefined} data.options
  * @param {string} data.title
  * @param {string} mode - Product mode ("hire", "buy", etc.)
- * @returns {import("#lib/types/pages-cms-generated").PagesCMSOption[]} Processed options
+ * @returns {import("#lib/types").Option[]} Processed options
  */
 export const computeOptions = (data, mode) => {
   if (!data.options || data.options.length === 0) {
