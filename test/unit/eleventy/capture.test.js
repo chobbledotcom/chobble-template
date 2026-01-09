@@ -2,12 +2,27 @@ import { describe, expect, test } from "bun:test";
 import { configureCapture } from "#eleventy/capture.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
+// Helper to create fresh config with reset state
+const setupCapture = () => {
+  const config = createMockEleventyConfig();
+  configureCapture(config);
+
+  // Reset state from any previous tests
+  config.eventHandlers["eleventy.before"]();
+
+  return {
+    push: config.pairedShortcodes.push,
+    slot: config.shortcodes.slot,
+    reset: config.eventHandlers["eleventy.before"],
+  };
+};
+
 describe("capture", () => {
   test("Registers paired shortcode and shortcode", () => {
     const config = createMockEleventyConfig();
     configureCapture(config);
 
-    expect(typeof config.shortcodes.push).toBe("function");
+    expect(typeof config.pairedShortcodes.push).toBe("function");
     expect(typeof config.shortcodes.slot).toBe("function");
   });
 
@@ -19,150 +34,101 @@ describe("capture", () => {
   });
 
   test("Push captures content for a named slot", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
-
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    const pushResult = pushFn.call(mockContext, "<div>Test Content</div>", "templates");
+    const pushResult = push.call(ctx, "<div>Test Content</div>", "templates");
     expect(pushResult).toBe("");
 
-    const slotResult = slotFn.call(mockContext, "templates");
+    const slotResult = slot.call(ctx, "templates");
     expect(slotResult).toBe("<div>Test Content</div>");
   });
 
   test("Multiple pushes accumulate content", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
+    push.call(ctx, "<div>First</div>", "templates");
+    push.call(ctx, "<div>Second</div>", "templates");
+    push.call(ctx, "<div>Third</div>", "templates");
 
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    pushFn.call(mockContext, "<div>First</div>", "templates");
-    pushFn.call(mockContext, "<div>Second</div>", "templates");
-    pushFn.call(mockContext, "<div>Third</div>", "templates");
-
-    const result = slotFn.call(mockContext, "templates");
+    const result = slot.call(ctx, "templates");
     expect(result).toBe("<div>First</div><div>Second</div><div>Third</div>");
   });
 
   test("Slot returns empty string for non-existent slot", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const slotFn = config.shortcodes.slot;
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    const result = slotFn.call(mockContext, "nonexistent");
+    const result = slot.call(ctx, "nonexistent");
     expect(result).toBe("");
   });
 
   test("Pages are isolated from each other", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
-
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
+    const { push, slot } = setupCapture();
 
     const page1 = { page: { inputPath: "/page1.html" } };
     const page2 = { page: { inputPath: "/page2.html" } };
 
-    pushFn.call(page1, "Content 1", "slot");
-    pushFn.call(page2, "Content 2", "slot");
+    push.call(page1, "Content 1", "slot");
+    push.call(page2, "Content 2", "slot");
 
-    expect(slotFn.call(page1, "slot")).toBe("Content 1");
-    expect(slotFn.call(page2, "slot")).toBe("Content 2");
+    expect(slot.call(page1, "slot")).toBe("Content 1");
+    expect(slot.call(page2, "slot")).toBe("Content 2");
   });
 
   test("Different slots on same page are independent", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
+    push.call(ctx, "Header content", "header");
+    push.call(ctx, "Footer content", "footer");
 
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    pushFn.call(mockContext, "Header content", "header");
-    pushFn.call(mockContext, "Footer content", "footer");
-
-    expect(slotFn.call(mockContext, "header")).toBe("Header content");
-    expect(slotFn.call(mockContext, "footer")).toBe("Footer content");
+    expect(slot.call(ctx, "header")).toBe("Header content");
+    expect(slot.call(ctx, "footer")).toBe("Footer content");
   });
 
   test("State resets on eleventy.before event", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot, reset } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
-    const resetFn = config.eventHandlers["eleventy.before"];
+    push.call(ctx, "Original content", "templates");
+    expect(slot.call(ctx, "templates")).toBe("Original content");
 
-    const mockContext = { page: { inputPath: "/test.html" } };
+    reset();
 
-    // Push content
-    pushFn.call(mockContext, "Original content", "templates");
-    expect(slotFn.call(mockContext, "templates")).toBe("Original content");
-
-    // Reset
-    resetFn();
-
-    // After reset, slot should be empty
-    expect(slotFn.call(mockContext, "templates")).toBe("");
+    expect(slot.call(ctx, "templates")).toBe("");
   });
 
-  test("Push returns empty string (doesn't leak content)", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+  test("Push returns empty string", () => {
+    const { push } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    const result = pushFn.call(mockContext, "<div>Content</div>", "templates");
+    const result = push.call(ctx, "<div>Content</div>", "templates");
     expect(result).toBe("");
   });
 
   test("Handles empty content", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
-
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    pushFn.call(mockContext, "", "templates");
-    const result = slotFn.call(mockContext, "templates");
+    push.call(ctx, "", "templates");
+    const result = slot.call(ctx, "templates");
     expect(result).toBe("");
   });
 
   test("Handles whitespace-only content", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
-
-    const mockContext = { page: { inputPath: "/test.html" } };
-
-    pushFn.call(mockContext, "   \n  \t  ", "templates");
-    const result = slotFn.call(mockContext, "templates");
+    push.call(ctx, "   \n  \t  ", "templates");
+    const result = slot.call(ctx, "templates");
     expect(result).toBe("   \n  \t  ");
   });
 
   test("Preserves HTML structure in content", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
-
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
-
-    const mockContext = { page: { inputPath: "/test.html" } };
+    const { push, slot } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
     const complexHtml = `
       <template id="test">
@@ -173,62 +139,45 @@ describe("capture", () => {
       </template>
     `;
 
-    pushFn.call(mockContext, complexHtml, "templates");
-    const result = slotFn.call(mockContext, "templates");
+    push.call(ctx, complexHtml, "templates");
+    const result = slot.call(ctx, "templates");
     expect(result).toBe(complexHtml);
   });
 
   test("Multiple pages can use same slot name independently", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
-
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
+    const { push, slot } = setupCapture();
 
     const page1 = { page: { inputPath: "/products/index.html" } };
     const page2 = { page: { inputPath: "/services/index.html" } };
     const page3 = { page: { inputPath: "/about/index.html" } };
 
-    pushFn.call(page1, "Products templates", "templates");
-    pushFn.call(page2, "Services templates", "templates");
-    pushFn.call(page3, "About templates", "templates");
+    push.call(page1, "Products templates", "templates");
+    push.call(page2, "Services templates", "templates");
+    push.call(page3, "About templates", "templates");
 
-    expect(slotFn.call(page1, "templates")).toBe("Products templates");
-    expect(slotFn.call(page2, "templates")).toBe("Services templates");
-    expect(slotFn.call(page3, "templates")).toBe("About templates");
+    expect(slot.call(page1, "templates")).toBe("Products templates");
+    expect(slot.call(page2, "templates")).toBe("Services templates");
+    expect(slot.call(page3, "templates")).toBe("About templates");
   });
 
   test("Slot before any push returns empty string", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { slot } = setupCapture();
+    const ctx = { page: { inputPath: "/new-page.html" } };
 
-    const slotFn = config.shortcodes.slot;
-    const mockContext = { page: { inputPath: "/new-page.html" } };
-
-    // Try to get slot before any push
-    const result = slotFn.call(mockContext, "templates");
+    const result = slot.call(ctx, "templates");
     expect(result).toBe("");
   });
 
   test("Reset and re-use works correctly", () => {
-    const config = createMockEleventyConfig();
-    configureCapture(config);
+    const { push, slot, reset } = setupCapture();
+    const ctx = { page: { inputPath: "/test.html" } };
 
-    const pushFn = config.pairedShortcodes.push;
-    const slotFn = config.shortcodes.slot;
-    const resetFn = config.eventHandlers["eleventy.before"];
+    push.call(ctx, "Build 1", "templates");
+    expect(slot.call(ctx, "templates")).toBe("Build 1");
 
-    const mockContext = { page: { inputPath: "/test.html" } };
+    reset();
 
-    // First build
-    pushFn.call(mockContext, "Build 1", "templates");
-    expect(slotFn.call(mockContext, "templates")).toBe("Build 1");
-
-    // Reset
-    resetFn();
-
-    // Second build
-    pushFn.call(mockContext, "Build 2", "templates");
-    expect(slotFn.call(mockContext, "templates")).toBe("Build 2");
+    push.call(ctx, "Build 2", "templates");
+    expect(slot.call(ctx, "templates")).toBe("Build 2");
   });
 });

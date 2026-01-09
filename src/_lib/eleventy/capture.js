@@ -25,14 +25,10 @@ const reset = () => {
   slots = new Map();
 };
 
-const getPageSlots = (inputPath) => {
+const push = (inputPath, name, content) => {
   if (!slots) slots = new Map();
   if (!slots.has(inputPath)) slots.set(inputPath, new Map());
-  return slots.get(inputPath);
-};
-
-const push = (inputPath, name, content) => {
-  const page = getPageSlots(inputPath);
+  const page = slots.get(inputPath);
   const existing = page.get(name) ?? "";
   page.set(name, existing + content);
   return "";
