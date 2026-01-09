@@ -1,0 +1,232 @@
+/**
+ * Generate PagesCMS type definitions from .pages.yml schema
+ *
+ * This script parses .pages.yml and generates src/_lib/types/pages-cms-generated.d.ts
+ * with TypeScript interfaces for all PagesCMS-validated data types.
+ *
+ * Fields marked as `required: true` in .pages.yml become non-optional properties.
+ * This allows JSDoc annotations to leverage PagesCMS schema validation.
+ *
+ * Run: bun scripts/generate-pages-cms-types.js
+ */
+
+import YAML from "yaml";
+import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.join(__dirname, "..");
+const PAGES_YML = path.join(ROOT_DIR, ".pages.yml");
+const OUTPUT_FILE = path.join(ROOT_DIR, "src/_lib/types/pages-cms-generated.d.ts");
+
+/**
+ * Map PagesCMS field types to TypeScript types
+ */
+const mapFieldType = (field) => {
+  if (!field.type) return "unknown";
+
+  switch (field.type) {
+    case "string":
+      return "string";
+    case "number":
+      return "number";
+    case "boolean":
+      return "boolean";
+    case "date":
+      return "string"; // Dates come as ISO strings
+    case "object":
+      return "Record<string, unknown>";
+    case "image":
+      return "string";
+    case "code":
+      return "string";
+    case "reference":
+      return "string"; // References store paths as strings
+    default:
+      return "unknown";
+  }
+};
+
+/**
+ * Generate an interface name from a field name
+ * e.g., "product_options" -> "PagesCMSProductOption"
+ */
+const generateInterfaceName = (fieldName) => {
+  // Remove common suffixes that indicate arrays
+  let singular = fieldName
+    .replace(/s$/, "") // Remove trailing 's' for plurals
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+
+  return `PagesCMS${singular}`;
+};
+
+/**
+ * Extract fields for a single object-type field
+ */
+const extractObjectFields = (field) => {
+  const properties = [];
+
+  if (field.fields) {
+    for (const subField of field.fields) {
+      const isRequired = subField.required === true;
+      const tsType = mapFieldType(subField);
+      const optionalMarker = isRequired ? "" : "?";
+
+      properties.push({
+        name: subField.name,
+        type: tsType,
+        required: isRequired,
+        optional: !isRequired,
+        label: subField.label || "",
+      });
+    }
+  }
+
+  return properties;
+};
+
+/**
+ * Generate TypeScript code for an object type
+ */
+const generateObjectTypeCode = (interfaceName, properties) => {
+  const lines = [
+    `/**`,
+    ` * @typedef {Object} ${interfaceName}`,
+  ];
+
+  for (const prop of properties) {
+    const requiredStr = prop.required ? "" : "?";
+    lines.push(
+      ` * @property {${prop.type}} ${requiredStr}${prop.name} - ${prop.label}`
+    );
+  }
+
+  lines.push(` */`);
+  lines.push(`export interface ${interfaceName} {`);
+
+  for (const prop of properties) {
+    const optionalMarker = prop.optional ? "?" : "";
+    lines.push(`  ${prop.name}${optionalMarker}: ${prop.type};`);
+  }
+
+  lines.push(`}`);
+  return lines.join("\n");
+};
+
+/**
+ * Parse .pages.yml and generate type definitions
+ */
+const generateTypes = () => {
+  const yamlContent = readFileSync(PAGES_YML, "utf-8");
+  const config = YAML.parse(yamlContent);
+
+  const types = [];
+  const typeMapping = {}; // For generating the PagesCMSCollections mapping
+
+  // Process all collections and files
+  const allItems = config.content || [];
+
+  for (const item of allItems) {
+    if (!item.fields) continue;
+
+    for (const field of item.fields) {
+      // Handle list of objects (array type)
+      if (field.list && field.type === "object" && field.fields) {
+        const interfaceName = generateInterfaceName(field.name);
+
+        // Skip if we've already generated this type
+        if (typeMapping[field.name]) continue;
+
+        const properties = extractObjectFields(field);
+        const typeCode = generateObjectTypeCode(interfaceName, properties);
+
+        types.push({
+          name: field.name,
+          interfaceName,
+          code: typeCode,
+        });
+
+        typeMapping[field.name] = interfaceName;
+      }
+
+      // Handle single object fields
+      if (!field.list && field.type === "object" && field.fields) {
+        const interfaceName = generateInterfaceName(field.name);
+
+        if (typeMapping[field.name]) continue;
+
+        const properties = extractObjectFields(field);
+        const typeCode = generateObjectTypeCode(interfaceName, properties);
+
+        types.push({
+          name: field.name,
+          interfaceName,
+          code: typeCode,
+        });
+
+        typeMapping[field.name] = interfaceName;
+      }
+    }
+  }
+
+  // Generate the output file
+  const output = [
+    '/**',
+    ' * @fileoverview Auto-generated PagesCMS types from .pages.yml',
+    ' *',
+    ' * Generated by: scripts/generate-pages-cms-types.js',
+    ' * Do not edit manually - regenerate using: bun scripts/generate-pages-cms-types.js',
+    ' *',
+    ' * These types represent data validated by PagesCMS schema (.pages.yml).',
+    ' * Fields marked as required: true in the schema are non-optional.',
+    ' * Use these in JSDoc annotations to leverage validation guarantees.',
+    ' *',
+    ' * @example',
+    ' * // In src/_lib/filters/my-filter.js',
+    ' * /**',
+    ' *  * @param {{ specs?: import("#lib/types/pages-cms-generated").PagesCMSSpec[] }} data',
+    ' *  */',
+    ' * const myFilter = (data) => {',
+    ' *   // spec.name is guaranteed to be a string (required in schema)',
+    ' *   const normalized = spec.name.toLowerCase();',
+    ' * };',
+    ' */',
+    '',
+  ];
+
+  // Add all generated types
+  for (const type of types) {
+    output.push(type.code);
+    output.push("");
+  }
+
+  // Generate the PagesCMSCollections mapping interface
+  if (Object.keys(typeMapping).length > 0) {
+    output.push("/**");
+    output.push(" * Mapping of PagesCMS field names to their type interfaces");
+    output.push(
+      " * Use to identify which fields have guaranteed schema validation"
+    );
+    output.push(" */");
+    output.push("export interface PagesCMSCollections {");
+
+    const entries = Object.entries(typeMapping)
+      .sort((a, b) => a[0].localeCompare(b[0]));
+
+    for (const [fieldName, interfaceName] of entries) {
+      output.push(`  ${fieldName}: ${interfaceName}[];`);
+    }
+
+    output.push("}");
+  }
+
+  // Write the file
+  writeFileSync(OUTPUT_FILE, output.join("\n") + "\n");
+  console.log(`✓ Generated types to ${OUTPUT_FILE}`);
+  console.log(`✓ Generated ${types.length} type interfaces`);
+};
+
+generateTypes();

@@ -31,7 +31,8 @@
 		"lint:fix": "bunx @biomejs/biome check --write .",
 		"precommit": "node test/precommit.js",
 		"customise-cms": "bun scripts/customise-cms/index.js",
-		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js"
+		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js",
+		"generate-cms-types": "bun scripts/generate-pages-cms-types.js"
 	},
 	"devDependencies": {
 		"11ty.ts": "^0.0.7",

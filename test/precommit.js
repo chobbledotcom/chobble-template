@@ -17,6 +17,7 @@ const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 // Define the steps to run
 const steps = [
   { name: "install", cmd: "bun", args: ["install"] },
+  { name: "generate-types", cmd: "bun", args: ["scripts/generate-pages-cms-types.js"] },
   { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
   { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
   { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },

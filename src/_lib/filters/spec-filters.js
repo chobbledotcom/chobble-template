@@ -12,12 +12,12 @@ import { inlineAsset } from "#media/inline-asset.js";
 /**
  * Transform specs array to include icon and highlight properties
  *
- * @param {{ specs?: import("#lib/types/pages-cms").PagesCMSSpec[] }} data - Eleventy data object
+ * @param {{ specs?: import("#lib/types/pages-cms-generated").PagesCMSSpec[] }} data - Eleventy data object
  * @returns {ComputedSpec[] | undefined} - Specs array with icon and highlight properties added
  *
  * PagesCMS guarantees: If specs array exists, each item has required name and value fields.
  * Therefore, no optional chaining needed on spec.name.
- * See: .pages.yml lines 132-138
+ * See: .pages.yml lines 132-138, generated via scripts/generate-pages-cms-types.js
  */
 const computeSpecs = (data) => {
   if (!data.specs) return undefined;
