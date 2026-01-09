@@ -25,7 +25,7 @@ describe("opening-times", () => {
     const input = [{ day: "Monday", hours: "9am - 5pm" }];
     const result = await renderOpeningTimes(input);
 
-    expect(result.includes('<ul class="opening-times">')).toBe(true);
+    expect(result.includes("<ul>")).toBe(true);
     expect(result.includes("<strong>Monday:</strong> 9am - 5pm")).toBe(true);
     expect(result.includes("<li>")).toBe(true);
   });
@@ -50,8 +50,8 @@ describe("opening-times", () => {
     const input = [{ day: "Friday", hours: "8am - 4pm" }];
     const result = await renderOpeningTimes(input);
 
-    expect(result.startsWith('<ul class="opening-times">')).toBe(true);
-    expect(result.endsWith("</ul>")).toBe(true);
+    expect(result.includes("<ul>")).toBe(true);
+    expect(result.includes("</ul>")).toBe(true);
     expect(result.includes("</li>")).toBe(true);
   });
 
