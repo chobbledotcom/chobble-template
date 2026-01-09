@@ -7,16 +7,6 @@
  * These types represent data validated by PagesCMS schema (.pages.yml).
  * Fields marked as required: true in the schema are non-optional.
  * Use these in JSDoc annotations to leverage validation guarantees.
- *
- * @example
- * // In src/_lib/filters/my-filter.js
- * /**
- *  * @param {{ specs?: import("#lib/types/pages-cms-generated").PagesCMSSpec[] }} data
- *  */
- * const myFilter = (data) => {
- *   // spec.name is guaranteed to be a string (required in schema)
- *   const normalized = spec.name.toLowerCase();
- * };
  */
 
 /**
