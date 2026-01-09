@@ -5,7 +5,7 @@
 import { describe, expect, mock, test } from "bun:test";
 import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
-import { buildJsConfigScript } from "#eleventy/js-config.js";
+import { buildJsConfigJson } from "#eleventy/js-config.js";
 // Import actual cart utilities
 import {
   attachQuantityHandlers,
@@ -105,8 +105,8 @@ const createCheckoutPage = async (options = {}) => {
       ).replace(/^---[\s\S]*?---\s*/, "")
     : "";
 
-  // Build config script using the same function as the Eleventy shortcode
-  const configScript = buildJsConfigScript(config);
+  // Build config script using the same function as the Eleventy filter
+  const configScript = `<script id="site-config" type="application/json">${buildJsConfigJson(config)}</script>`;
 
   // Build complete HTML page using real templates
   const html = `
