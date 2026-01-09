@@ -96,9 +96,6 @@
           },
           "suspicious": {
             "noTemplateCurlyInString": "off"
-          },
-          "nursery": {
-            "noUnnecessaryConditions": "off"
           }
         }
       }
