@@ -146,6 +146,9 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addShortcode("read_file", (relativePath) =>
     readFileContent(relativePath),
   );
+
+  // Register recurring_events shortcode for use in templates/snippets
+  eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
 };
 
 export {
