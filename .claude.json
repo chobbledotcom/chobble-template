@@ -1,0 +1,8 @@
+{
+  "hooks": {
+    "postToolUse": {
+      "Write": "bun run lint || true",
+      "Edit": "bun run lint || true"
+    }
+  }
+}
