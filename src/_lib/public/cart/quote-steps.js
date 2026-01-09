@@ -20,8 +20,7 @@ function getFieldLabel(fieldId) {
     child.remove();
   }
 
-  const text = clone.textContent.trim();
-  return text || fieldId;
+  return clone.textContent.trim();
 }
 
 function getRadioValue(name) {
