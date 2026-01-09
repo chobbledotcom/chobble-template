@@ -1,3 +1,5 @@
 {%- for review in reviews -%}
-  {%- include "reviews-list-item.html", review: review, product_links: product_links -%}
+  <ul>
+    {%- include "reviews-list-item.html", review: review, product_links: product_links -%}
+  </ul>
 {%- endfor -%}
