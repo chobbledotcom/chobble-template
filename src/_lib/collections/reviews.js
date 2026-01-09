@@ -156,7 +156,11 @@ const withReviewsPage = (
     reviewsField,
     limitOverride,
     () => [],
-    (items, hasEnough) => items.map(processItem).filter(hasEnough),
+    (items, hasEnough) =>
+      pipe(
+        map(processItem),
+        filter(hasEnough),
+      )(items),
   );
 
 /**
@@ -171,9 +175,12 @@ const reviewsRedirects = (tag, reviewsField, limitOverride) =>
     tag,
     reviewsField,
     limitOverride,
-    (items) => items.map(toRedirectData),
+    (items) => pipe(map(toRedirectData))(items),
     (items, hasEnough) =>
-      items.filter((item) => !hasEnough(item)).map(toRedirectData),
+      pipe(
+        filter((item) => !hasEnough(item)),
+        map(toRedirectData),
+      )(items),
   );
 
 /**

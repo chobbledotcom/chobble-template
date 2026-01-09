@@ -62,7 +62,10 @@ const formatHireLength = pluralize("day");
 const formatItemCount = pluralize("item in order", "items in order");
 
 // Count total items including quantities
-const countItems = (cart) => sum(map((item) => item.quantity)(cart));
+const countItems = pipe(
+  map((item) => item.quantity),
+  sum,
+);
 
 // ============================================================================
 // Field Details Collection
