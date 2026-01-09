@@ -338,6 +338,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "getDateInputs",
   // test-site-factory.test.js - test fixture
   "defaultTestFiles",
+  // capture.test.js - test harness for push/slot shortcodes
+  "setupCapture",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
