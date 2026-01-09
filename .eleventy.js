@@ -32,7 +32,6 @@ import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
-import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
 
 // Filters
@@ -78,7 +77,6 @@ export default async function (eleventyConfig) {
   await configureNavigation(eleventyConfig);
   configureNews(eleventyConfig);
   configureOpeningTimes(eleventyConfig);
-  configureRecurringEvents(eleventyConfig);
   configureResponsiveTables(eleventyConfig);
   configureProductFilters(eleventyConfig);
   configureProducts(eleventyConfig);

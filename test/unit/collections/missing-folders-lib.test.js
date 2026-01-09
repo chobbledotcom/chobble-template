@@ -5,7 +5,6 @@ import { configureNavigation } from "#collections/navigation.js";
 import { configureProducts } from "#collections/products.js";
 import { configureTags } from "#collections/tags.js";
 import { configureFeed } from "#eleventy/feed.js";
-import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("missing-folders-lib", () => {
@@ -88,20 +87,6 @@ describe("missing-folders-lib", () => {
     } else {
       // Tags module doesn't create collections, just filters
       expect(mockConfig.filters !== undefined).toBe(true);
-    }
-  });
-
-  test("Recurring events handles missing event files", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    // Should not throw when configuring
-    configureRecurringEvents(mockConfig);
-
-    // Test filter with empty data
-    const emptyEvents = [];
-    if (mockConfig.filters.generateRecurringEvents) {
-      const result = mockConfig.filters.generateRecurringEvents(emptyEvents);
-      expect(Array.isArray(result)).toBe(true);
     }
   });
 

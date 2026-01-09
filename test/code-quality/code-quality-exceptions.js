@@ -69,7 +69,9 @@ const ALLOWED_TRY_CATCHES = new Set([
 // Files that are allowed to contain HTML in JavaScript template literals.
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
-  // All files have been refactored to use external templates
+  // Snippet processing - can't use template files since snippets are processed
+  // outside Eleventy's template engine
+  "src/_lib/eleventy/file-utils.js",
 ]);
 
 // ============================================
@@ -314,7 +316,6 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:55",
-  "test/integration/eleventy/recurring-events.test.js:43",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",

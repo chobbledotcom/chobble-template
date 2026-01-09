@@ -24,7 +24,6 @@ const HARDCODED_URL_PATTERNS = buildHardcodedUrlPatterns();
 // Files that are allowed to have these patterns (with justification)
 const ALLOWED_FILES = [
   // Test files can have hardcoded URLs for test fixtures
-  "test/recurring-events.test.js",
   "test/url-construction.test.js",
   "test/events.test.js",
   "test/navigation.test.js",

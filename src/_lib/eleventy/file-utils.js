@@ -2,9 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
+import strings from "#data/strings.js";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
-import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#utils/memoize.js";
+import { sortItems } from "#utils/sorting.js";
 
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
@@ -30,6 +31,51 @@ const readFileContent = memoize(
   },
   { cacheKey: cacheKeyFromArgs },
 );
+
+/**
+ * Generate recurring events HTML by reading markdown files directly.
+ * Used for snippets which don't have access to Eleventy collections.
+ */
+const getRecurringEventsHtml = memoize(() => {
+  const eventsDir = path.join(process.cwd(), "src/events");
+
+  if (!fs.existsSync(eventsDir)) {
+    return "";
+  }
+
+  const recurringEvents = fs
+    .readdirSync(eventsDir)
+    .filter((file) => file.endsWith(".md"))
+    .map((filename) => {
+      const { data } = matter.read(path.join(eventsDir, filename));
+      if (!data.recurring_date) return null;
+
+      const fileSlug = filename
+        .replace(".md", "")
+        .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+      return {
+        url: data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
+        data,
+      };
+    })
+    .filter(Boolean)
+    .sort(sortItems);
+
+  if (recurringEvents.length === 0) {
+    return "";
+  }
+
+  const items = recurringEvents.map((event) => {
+    const { title, recurring_date, event_location } = event.data;
+    const locationHtml = event_location ? `<br>\n    ${event_location}` : "";
+    return `  <li>
+    <strong><a href="${event.url}">${title}</a></strong><br>
+    ${recurring_date}${locationHtml}
+  </li>`;
+  });
+
+  return `<ul>\n${items.join("\n")}\n</ul>`;
+});
 
 const renderSnippet = memoize(
   async (

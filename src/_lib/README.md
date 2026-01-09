@@ -84,7 +84,6 @@ Eleventy-specific configuration helpers:
 - `ical.js` - iCal generation for events
 - `layout-aliases.js` - Auto-registers layout aliases
 - `opening-times.js` - Opening times shortcode/filter
-- `recurring-events.js` - Recurring events shortcode/filter
 
 #### `filters/`
 URL-based filtering system:
