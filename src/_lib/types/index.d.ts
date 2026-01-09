@@ -13,3 +13,22 @@ export type { PagesCMSEleventyNavigation as EleventyNav, PagesCMSEleventyNavigat
 export type { PagesCMSSocial as Social } from './pages-cms-generated.d.ts';
 export type { PagesCMSOrganization as Organization } from './pages-cms-generated.d.ts';
 export type { PagesCMSImage as Image } from './pages-cms-generated.d.ts';
+
+/**
+ * Eleventy collection item with PagesCMS-validated data
+ * Represents items returned from collectionApi.getFilteredByTag()
+ */
+export type EleventyCollectionItem = {
+  url: string;
+  data: Record<string, unknown> & {
+    title?: string;
+    order?: number;
+    eleventyNavigation?: PagesCMSEleventyNavigation;
+    specs?: PagesCMSSpec[];
+    faqs?: PagesCMSFaq[];
+    tabs?: PagesCMSTab[];
+    options?: PagesCMSOption[];
+    filter_attributes?: PagesCMSFilterAttribute[];
+    opening_times?: PagesCMSOpeningTime[];
+  };
+};

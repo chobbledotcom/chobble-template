@@ -49,14 +49,6 @@ describe("recurring-events", () => {
     expect(renderRecurringEvents([])).toBe("");
   });
 
-  test("Returns empty string for null input", () => {
-    expect(renderRecurringEvents(null)).toBe("");
-  });
-
-  test("Returns empty string for undefined input", () => {
-    expect(renderRecurringEvents(undefined)).toBe("");
-  });
-
   // renderRecurringEvents - single event
   test("Renders single event with URL as linked title", () => {
     const doc = renderAndParse([
@@ -117,19 +109,6 @@ describe("recurring-events", () => {
   });
 
   // renderRecurringEvents - data structure variations
-  test("Handles flat event objects (data at top level)", () => {
-    const flatEvent = (title, recurring, url) => ({
-      title,
-      recurring_date: recurring,
-      url,
-    });
-    const doc = renderAndParse([flatEvent("Flat Event", "Weekly", "/flat/")]);
-
-    const link = doc.querySelector("a");
-    expect(link.textContent).toBe("Flat Event");
-    expect(link.getAttribute("href")).toBe("/flat/");
-  });
-
   test("Handles nested event objects (data in .data property)", () => {
     const doc = renderAndParse([
       event("Nested Event", "Monthly", { url: "/nested/" }),

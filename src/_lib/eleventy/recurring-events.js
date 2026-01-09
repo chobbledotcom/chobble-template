@@ -4,16 +4,16 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Render recurring events as HTML list
- * @param {any[]} events - Events to render
+ * @param {import("#lib/types").EleventyCollectionItem[]} events - Events to render
  * @returns {string} HTML ul list of events, or empty string if no events
  */
 const renderRecurringEvents = (events) => {
-  if (!events || events.length === 0) {
+  if (events.length === 0) {
     return "";
   }
 
   const items = events.map((event) => {
-    const eventData = event.data || event;
+    const eventData = event.data;
     const url = event.url || eventData.url;
     const titleHtml = url
       ? `<strong><a href="${url}">${eventData.title}</a></strong>`
@@ -35,12 +35,12 @@ const renderRecurringEvents = (events) => {
  * Used for testing with mock data. Not used directly in Eleventy due to
  * collection access limitations in shortcodes.
  *
- * @param {any[]} events - Events collection to filter and render
+ * @param {import("#lib/types").EleventyCollectionItem[]} events - Events collection to filter and render
  * @returns {string} HTML list of recurring events
  */
 function recurringEventsShortcode(events = []) {
   const recurringEvents = events
-    .filter((event) => event.data?.recurring_date)
+    .filter((event) => event.data.recurring_date)
     .sort(sortItems);
 
   return renderRecurringEvents(recurringEvents);
