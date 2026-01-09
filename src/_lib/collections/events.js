@@ -1,15 +1,17 @@
-import { sort } from "#utils/array-utils.js";
+import { pipe, sort } from "#utils/array-utils.js";
 import { groupBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
-import { sortItems } from "#utils/sorting.js";
+import { compareBy, descending, sortItems } from "#utils/sorting.js";
+
+const byEventDate = compareBy((e) => new Date(e.data.event_date).getTime());
 
 const getFeaturedEvents = (events) =>
   events?.filter((e) => e.data.featured) || [];
 
 /**
- * Safe lookup from Map with default value
+ * Curried Map lookup: getGroup(key)(map) => value or []
  */
-const fromMap = (map, key, defaultVal = []) => map.get(key) ?? defaultVal;
+const getGroup = (key) => (map) => map.get(key) ?? [];
 
 /**
  * Categorise events into upcoming, past, regular, and undated groups
@@ -27,18 +29,10 @@ export const categoriseEvents = memoize((events) => {
     return date >= now ? "upcoming" : "past";
   });
 
-  const upcoming = sort(
-    (a, b) =>
-      new Date(a.data.event_date).getTime() -
-      new Date(b.data.event_date).getTime(),
-  )(fromMap(grouped, "upcoming"));
-  const past = sort(
-    (a, b) =>
-      new Date(b.data.event_date).getTime() -
-      new Date(a.data.event_date).getTime(),
-  )(fromMap(grouped, "past"));
-  const regular = sort(sortItems)(fromMap(grouped, "regular"));
-  const undated = sort(sortItems)(fromMap(grouped, "undated"));
+  const upcoming = pipe(getGroup("upcoming"), sort(byEventDate))(grouped);
+  const past = pipe(getGroup("past"), sort(descending(byEventDate)))(grouped);
+  const regular = pipe(getGroup("regular"), sort(sortItems))(grouped);
+  const undated = pipe(getGroup("undated"), sort(sortItems))(grouped);
 
   return {
     upcoming,
