@@ -15,12 +15,9 @@ function getFieldLabel(fieldId) {
   // Clone label to avoid modifying the DOM
   const clone = label.cloneNode(true);
 
-  // Remove all form control elements to get only the label text
-  const formControls = clone.querySelectorAll(
-    "input, select, textarea, button",
-  );
-  for (const control of formControls) {
-    control.remove();
+  // Remove all child elements to get only the label text
+  for (const child of [...clone.children]) {
+    child.remove();
   }
 
   const text = clone.textContent.trim();
