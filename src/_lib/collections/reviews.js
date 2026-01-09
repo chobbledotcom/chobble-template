@@ -173,10 +173,7 @@ const reviewsRedirects = (tag, reviewsField, limitOverride) =>
     limitOverride,
     (items) => pipe(map(toRedirectData))(items),
     (items, hasEnough) =>
-      filterMap(
-        (item) => !hasEnough(item),
-        toRedirectData,
-      )(items),
+      filterMap((item) => !hasEnough(item), toRedirectData)(items),
   );
 
 /**

@@ -16,7 +16,9 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
   const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
     const entry = mapping[categorySlug];
     const shouldOverride = !entry || entry[1] < order;
-    return shouldOverride ? { ...mapping, [categorySlug]: [value, order] } : mapping;
+    return shouldOverride
+      ? { ...mapping, [categorySlug]: [value, order] }
+      : mapping;
   };
   return pipe(
     flatMap((product) => {
