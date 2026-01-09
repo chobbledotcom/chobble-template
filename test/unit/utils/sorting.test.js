@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { map, pipe, sort } from "#utils/array-utils.js";
 import {
   compareBy,
   descending,
@@ -8,11 +9,21 @@ import {
 } from "#utils/sorting.js";
 
 describe("sorting", () => {
-  // Helper to test sorting results by title field
-  const testSortByTitle = (items, expectedTitles) => {
-    const sorted = [...items].sort(sortItems);
-    expect(sorted.map((i) => i.data.title)).toEqual(expectedTitles);
-  };
+  // Functional helpers for sorting tests
+  const sortAndExtract = (comparator, extractor) =>
+    pipe(sort(comparator), map(extractor));
+
+  const sortItemsExtractTitles = sortAndExtract(sortItems, (i) => i.data.title);
+
+  const sortNavExtractKeys = sortAndExtract(
+    sortNavigationItems,
+    (i) => i.data.eleventyNavigation.key,
+  );
+
+  const sortNavExtractTitles = sortAndExtract(
+    sortNavigationItems,
+    (i) => i.data.title,
+  );
 
   // ============================================
   // sortItems Tests
@@ -23,7 +34,7 @@ describe("sorting", () => {
       { data: { order: 1, title: "B" } },
       { data: { order: 3, title: "C" } },
     ];
-    testSortByTitle(items, ["B", "A", "C"]);
+    expect(sortItemsExtractTitles(items)).toEqual(["B", "A", "C"]);
   });
 
   test("Items with identical order values fall back to alphabetical title sorting", () => {
@@ -32,7 +43,7 @@ describe("sorting", () => {
       { data: { order: 1, title: "Apple" } },
       { data: { order: 1, title: "Mango" } },
     ];
-    testSortByTitle(items, ["Apple", "Mango", "Zebra"]);
+    expect(sortItemsExtractTitles(items)).toEqual(["Apple", "Mango", "Zebra"]);
   });
 
   test("Items without an order field are treated as having order 0", () => {
@@ -41,7 +52,7 @@ describe("sorting", () => {
       { data: { title: "A" } },
       { data: { order: -1, title: "C" } },
     ];
-    testSortByTitle(items, ["C", "A", "B"]);
+    expect(sortItemsExtractTitles(items)).toEqual(["C", "A", "B"]);
   });
 
   test("Uses name field for alphabetical sorting when title is absent", () => {
@@ -181,12 +192,7 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1, key: "A" }, title: "Item A" } },
       { data: { eleventyNavigation: { order: 2, key: "B" }, title: "Item B" } },
     ];
-    const sorted = [...items].sort(sortNavigationItems);
-    expect(sorted.map((i) => i.data.eleventyNavigation.key)).toEqual([
-      "A",
-      "B",
-      "C",
-    ]);
+    expect(sortNavExtractKeys(items)).toEqual(["A", "B", "C"]);
   });
 
   test("sortNavigationItems falls back to key when orders are equal", () => {
@@ -195,12 +201,7 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1, key: "Apple" }, title: "A" } },
       { data: { eleventyNavigation: { order: 1, key: "Mango" }, title: "M" } },
     ];
-    const sorted = [...items].sort(sortNavigationItems);
-    expect(sorted.map((i) => i.data.eleventyNavigation.key)).toEqual([
-      "Apple",
-      "Mango",
-      "Zebra",
-    ]);
+    expect(sortNavExtractKeys(items)).toEqual(["Apple", "Mango", "Zebra"]);
   });
 
   test("sortNavigationItems defaults missing order to 999", () => {
@@ -211,12 +212,7 @@ describe("sorting", () => {
         data: { eleventyNavigation: { order: 500, key: "Middle" }, title: "M" },
       },
     ];
-    const sorted = [...items].sort(sortNavigationItems);
-    expect(sorted.map((i) => i.data.eleventyNavigation.key)).toEqual([
-      "First",
-      "Middle",
-      "NoOrder",
-    ]);
+    expect(sortNavExtractKeys(items)).toEqual(["First", "Middle", "NoOrder"]);
   });
 
   test("sortNavigationItems falls back to title when key is missing", () => {
@@ -224,10 +220,6 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1 }, title: "Zebra Title" } },
       { data: { eleventyNavigation: { order: 1 }, title: "Apple Title" } },
     ];
-    const sorted = [...items].sort(sortNavigationItems);
-    expect(sorted.map((i) => i.data.title)).toEqual([
-      "Apple Title",
-      "Zebra Title",
-    ]);
+    expect(sortNavExtractTitles(items)).toEqual(["Apple Title", "Zebra Title"]);
   });
 });
