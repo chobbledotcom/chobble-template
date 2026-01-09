@@ -16,8 +16,11 @@ const QUOTE_STEPS = [
 
 const QUOTE_STEPS_JSON = JSON.stringify(QUOTE_STEPS);
 
-// Template element required by renderStepProgress
+// Template elements required by renderStepProgress
 const indicatorTemplate = `
+  <template id="quote-step-list-template">
+    <ul></ul>
+  </template>
   <template id="quote-step-indicator-template">
     <li><span data-name="name"></span><span data-name="index"></span></li>
   </template>

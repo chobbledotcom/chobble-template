@@ -5,7 +5,8 @@ import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
 
 export function renderStepProgress(container, steps, completedSteps) {
-  const ul = document.createElement("ul");
+  const listTemplate = getTemplate(IDS.QUOTE_STEP_LIST, document);
+  const ul = listTemplate.querySelector("ul");
   for (const [index, step] of steps.entries()) {
     const template = getTemplate(IDS.QUOTE_STEP_INDICATOR, document);
     const li = template.querySelector("li");
