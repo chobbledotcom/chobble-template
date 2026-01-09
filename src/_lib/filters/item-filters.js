@@ -70,8 +70,7 @@ const getAllFilterAttributes = memoize((items) => {
 /**
  * Extract (slug, display) pairs from an item's filter attributes
  * @param {Object} item - Collection item with data property
- * @param {import("#lib/types").FilterAttribute[]|undefined} item.data.filter_attributes
- * @returns {Array<Array<string>>} Array of [slug, display] pairs
+ * @returns {[string, any][]} Array of [slug, display] pairs
  */
 const getDisplayPairs = (item) => {
   const attrs = item.data.filter_attributes;

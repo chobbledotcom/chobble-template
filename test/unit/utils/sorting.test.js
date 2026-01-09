@@ -47,6 +47,13 @@ describe("sorting", () => {
     expect(sorted.map((i) => i.data.name)).toEqual(["Apple", "Zebra"]);
   });
 
+  test("Handles items with missing or empty data objects without throwing", () => {
+    const items = [{ data: { order: 1, title: "B" } }, { data: {} }];
+    // This should not throw
+    const sorted = [...items].sort(sortItems);
+    expect(sorted.length).toBe(2);
+  });
+
   test("Items with empty data objects are treated as order 0", () => {
     const items = [
       { data: { order: 1, title: "B" } },

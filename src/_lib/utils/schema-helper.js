@@ -23,18 +23,6 @@ function buildImageUrl(imageInput, siteUrl) {
 /**
  * Builds base schema.org metadata from page data
  * @param {Object} data - Page data object
- * @param {string|import("#lib/types").Image|undefined} data.header_image - Optional header image
- * @param {string|import("#lib/types").Image|undefined} data.image - Optional image
- * @param {import("#lib/types").Faq[]|undefined} data.faqs - Optional FAQs array
- * @param {Object} data.site - Site configuration
- * @param {string} data.site.url - Site URL
- * @param {Object} data.page - Page metadata
- * @param {string} data.page.url - Page URL
- * @param {string} data.title - Page title
- * @param {string} [data.meta_title] - Optional meta title
- * @param {string} [data.meta_description] - Optional meta description
- * @param {string} [data.subtitle] - Optional subtitle
- * @param {Object} [data.metaComputed] - Optional computed metadata
  * @returns {Object} Schema.org metadata object
  */
 function buildBaseMeta(data) {
@@ -137,8 +125,6 @@ function buildPostMeta(data) {
 
 /**
  * @param {Object} data - Organization page data
- * @param {Object} [data.metaComputed] - Computed metadata with organization schema
- * @param {import("#lib/types").Organization} [data.metaComputed.organization] - Organization metadata
  * @returns {Object} Schema.org organization metadata
  */
 function buildOrganizationMeta(data) {

@@ -67,7 +67,7 @@ const getFeaturedProducts = (products) =>
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
  * Throws an error if duplicate SKUs are found
- * @param {import("#lib/types").EleventyConfig} collectionApi - Eleventy collection API
+ * @param {any} collectionApi - Eleventy collection API
  */
 const createApiSkusCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("product") || [];

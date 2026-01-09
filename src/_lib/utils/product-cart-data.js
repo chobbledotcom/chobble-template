@@ -8,8 +8,8 @@ import { findDuplicate, pick } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 
 /**
- * Parse a price string to a number
- * @param {string} priceStr - Price string like "£10.00" or "10"
+ * Parse a price string or number to a number
+ * @param {string|number} priceStr - Price string like "£10.00" or number like 1000
  * @param {string} context - Context for error messages
  * @returns {number} Parsed price
  */

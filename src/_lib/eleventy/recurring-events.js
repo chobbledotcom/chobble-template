@@ -4,7 +4,7 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Render recurring events as HTML list
- * @param {Array<{url?: string, data?: {title: string, recurring_date: string, event_location?: string}}>} events - Events to render
+ * @param {any[]} events - Events to render
  * @returns {string} HTML ul list of events, or empty string if no events
  */
 const renderRecurringEvents = (events) => {
@@ -35,7 +35,7 @@ const renderRecurringEvents = (events) => {
  * Used for testing with mock data. Not used directly in Eleventy due to
  * collection access limitations in shortcodes.
  *
- * @param {Array<{data?: {recurring_date?: string, title: string, event_location?: string}}>} events - Events collection to filter and render
+ * @param {any[]} events - Events collection to filter and render
  * @returns {string} HTML list of recurring events
  */
 function recurringEventsShortcode(events = []) {
