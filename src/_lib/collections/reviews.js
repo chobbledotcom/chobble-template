@@ -55,11 +55,10 @@ const getRating = (reviews, slug, field) => {
 
 /**
  * Convert numeric rating to star emojis
+ * @param {number} rating - The numeric rating (1-5)
+ * @returns {string} Star emojis repeated by the rating count
  */
-const ratingToStars = (rating) => {
-  if (rating === null || rating === undefined) return "";
-  return "⭐️".repeat(rating);
-};
+const ratingToStars = (rating) => "⭐️".repeat(rating);
 
 /**
  * Predefined list of slightly dark colors for avatar backgrounds
