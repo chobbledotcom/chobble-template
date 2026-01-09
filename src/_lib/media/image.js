@@ -23,9 +23,26 @@ const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_SIZE = "auto";
 
 // Compute wrapped image HTML for local images (memoized)
+/**
+ * Called from processAndWrapImage for local (non-external) images.
+ * Receives imageName from two paths:
+ * 1. From image-transform.js via extractImageOptions: getAttribute("src") = string | null
+ * 2. From imageShortcode: template string = string
+ *
+ * @param {Object} props
+ * @param {string | null} props.imageName - Image src (may be null from getAttribute in transform)
+ * @param {string | null} props.alt - From getAttribute or template
+ * @param {string | null} [props.classes] - From getAttribute or template
+ * @param {string | null} [props.sizes] - From getAttribute or template
+ * @param {string | string[] | null} [props.widths] - From getAttribute or template
+ * @param {string | null} [props.aspectRatio] - From getAttribute or template
+ * @param {string | null} [props.loading] - From imageShortcode
+ */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
     // Path normalization for image sources
+    // imageName is string | null: from getAttribute in transform path, string in shortcode path
+    /** @type {string} */
     const name = imageName.toString();
     const imagePath = (() => {
       if (name.startsWith("/")) return `./src${name}`;
@@ -84,6 +101,23 @@ const computeWrappedImageHtml = memoize(
 );
 
 // Main image processing function
+/**
+ * Called from two paths with different imageName types:
+ * 1. From image-transform.js: extractImageOptions passes getAttribute("src") = string | null
+ * 2. From imageShortcode: template syntax passes string directly
+ *
+ * @param {Object} props
+ * @param {string} [props.logName]
+ * @param {string | null} props.imageName - Image src (string from shortcode, string|null from DOM getAttribute)
+ * @param {string | null} props.alt - From getAttribute or shortcode
+ * @param {string | null} [props.classes] - From getAttribute or shortcode
+ * @param {string | null} [props.sizes] - From getAttribute or shortcode
+ * @param {string | string[] | null} [props.widths] - From getAttribute or shortcode
+ * @param {boolean} [props.returnElement] - true from transform, false from shortcode
+ * @param {string | null} [props.aspectRatio] - From getAttribute or shortcode
+ * @param {string | null} [props.loading] - Always null from transform, from shortcode param
+ * @param {Document | null} [props.document] - Document object from transform, null from shortcode
+ */
 const processAndWrapImage = async ({
   logName: _logName,
   imageName,
@@ -96,6 +130,10 @@ const processAndWrapImage = async ({
   loading = null,
   document = null,
 }) => {
+  // Call toString() on imageName to handle potential null from DOM getAttribute in transform path
+  // imageShortcode path: imageName is string from template, toString() is redundant but harmless
+  // image-transform path: imageName may be null from getAttribute, toString() converts to "null"
+  /** @type {string} */
   const imageNameStr = imageName.toString();
 
   // Check if URL is external
@@ -159,6 +197,15 @@ const configureImages = async (eleventyConfig) => {
 };
 
 // Image shortcode for use in templates
+/**
+ * @param {string} imageName - The image name/path from Eleventy template
+ * @param {string} alt
+ * @param {string | string[]} [widths]
+ * @param {string | null} [classes]
+ * @param {string | null} [sizes]
+ * @param {string | null} [aspectRatio]
+ * @param {string | null} [loading]
+ */
 const imageShortcode = async (
   imageName,
   alt,
