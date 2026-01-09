@@ -2,8 +2,9 @@ import { computeGallery } from "#collections/products.js";
 import getConfig from "#data/config.js";
 import strings from "#data/strings.js";
 import { computeSpecs, getHighlightedSpecs } from "#filters/spec-filters.js";
-import { findDuplicate, pick } from "#utils/array-utils.js";
+import { pick } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
+import { validateHireOptions } from "#utils/product-validation.js";
 import { buildPermalink, normaliseSlug } from "#utils/slug-utils.js";
 
 const parsePrice = (priceStr, context) => {
@@ -36,19 +37,6 @@ const computeOptions = (data) => {
       unit_price: parsePrice(opt.unit_price, `${data.title} days=${opt.days}`),
     }))
     .sort((a, b) => a.days - b.days);
-};
-
-// Validate hire mode options have required fields (exported for testing)
-export const validateHireOptions = (options, title) => {
-  const duplicate = findDuplicate(options, (opt) => opt.days);
-  if (duplicate) {
-    throw new Error(
-      `Product "${title}" has duplicate options for days=${duplicate.days}`,
-    );
-  }
-  if (!options.some((opt) => opt.days === 1)) {
-    throw new Error(`Product "${title}" is hire mode but has no 1-day option`);
-  }
 };
 
 export default {

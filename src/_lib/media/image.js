@@ -6,7 +6,13 @@ import {
   getThumbnailOrNull,
 } from "#media/image-lqip.js";
 import { createImageTransform as createTransform } from "#media/image-transform.js";
-import { compact } from "#utils/array-utils.js";
+import {
+  buildImgAttributes,
+  buildWrapperStyles,
+  isExternalUrl,
+  normalizeImagePath,
+  parseWidths,
+} from "#media/image-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { jsonKey, memoize } from "#utils/memoize.js";
 
@@ -18,42 +24,6 @@ const DEFAULT_OPTIONS = {
   svgShortCircuit: true,
   filenameFormat,
 };
-
-const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
-const DEFAULT_SIZE = "auto";
-
-// Normalize image path to resolve from project root (exported for reuse)
-export const normalizeImagePath = (imageName) => {
-  const name = imageName.toString();
-  if (name.startsWith("/")) return `./src${name}`;
-  if (name.startsWith("src/")) return `./${name}`;
-  if (name.startsWith("images/")) return `./src/${name}`;
-  return `./src/images/${name}`;
-};
-
-// Check if URL is external (exported for reuse)
-export const isExternalUrl = (url) =>
-  url.startsWith("http://") || url.startsWith("https://");
-
-// Parse widths - handles string "240,480" or array (exported for reuse)
-export const parseWidths = (widths) =>
-  typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
-
-// Build standard image attributes (exported for reuse)
-export const buildImgAttributes = (alt, sizes, loading) => ({
-  alt: alt || "",
-  sizes: sizes || DEFAULT_SIZE,
-  loading: loading || "lazy",
-  decoding: "async",
-});
-
-// Build wrapper styles for responsive images (exported for reuse)
-export const buildWrapperStyles = (bgImage, aspectRatio, metadata) =>
-  compact([
-    bgImage && `background-image: ${bgImage}`,
-    `aspect-ratio: ${getAspectRatio(aspectRatio, metadata)}`,
-    metadata.width && `max-width: min(${metadata.width}px, 100%)`,
-  ]).join("; ");
 
 // Compute wrapped image HTML for local images (memoized)
 const computeWrappedImageHtml = memoize(
@@ -81,7 +51,12 @@ const computeWrappedImageHtml = memoize(
       "div",
       {
         class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-        style: buildWrapperStyles(bgImage, aspectRatio, metadata),
+        style: buildWrapperStyles(
+          bgImage,
+          aspectRatio,
+          metadata,
+          getAspectRatio,
+        ),
       },
       innerHTML,
     );
