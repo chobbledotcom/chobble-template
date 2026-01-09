@@ -1,4 +1,32 @@
 /**
+ * Create a comparator from a key-extraction function.
+ * Returns a comparator that sorts by the extracted numeric values (ascending).
+ *
+ * @param {(item: any) => number} getKey - Function to extract a numeric value
+ * @returns {(a: any, b: any) => number} Comparator function
+ *
+ * @example
+ * const byAge = compareBy(user => user.age);
+ * users.sort(byAge);
+ *
+ * @example
+ * const byDate = compareBy(event => new Date(event.date).getTime());
+ * events.sort(byDate);
+ */
+const compareBy = (getKey) => (a, b) => getKey(a) - getKey(b);
+
+/**
+ * Reverse a comparator (flip ascending to descending or vice versa).
+ *
+ * @param {(a: any, b: any) => number} comparator - Comparator to reverse
+ * @returns {(a: any, b: any) => number} Reversed comparator
+ *
+ * @example
+ * const byAgeDesc = descending(compareBy(user => user.age));
+ */
+const descending = (comparator) => (a, b) => comparator(b, a);
+
+/**
  * Factory function to create a comparator that sorts by numeric value first,
  * then by string value as a secondary sort key.
  * @param {(item: any) => number} getNumeric - Function to extract numeric value from item
@@ -37,4 +65,10 @@ const sortNavigationItems = createOrderThenStringComparator(
   (item) => item.data.eleventyNavigation.key || item.data.title || "",
 );
 
-export { sortItems, sortByDateDescending, sortNavigationItems };
+export {
+  compareBy,
+  descending,
+  sortByDateDescending,
+  sortItems,
+  sortNavigationItems,
+};

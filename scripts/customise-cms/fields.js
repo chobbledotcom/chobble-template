@@ -5,7 +5,31 @@
  */
 
 /**
+ * @typedef {Object} FieldOptions
+ * @property {string} [language] - Code language for code fields
+ * @property {boolean} [multiple] - Allow multiple values for image fields
+ * @property {string} [collection] - Referenced collection for reference fields
+ * @property {string} [search] - Search field for reference fields
+ * @property {string} [value] - Value template for reference fields
+ * @property {string} [label] - Label template for reference fields
+ */
+
+/**
+ * @typedef {Object} CmsField
+ * @property {string} name - Field name
+ * @property {string} type - Field type (string, number, boolean, image, date, code, object, reference)
+ * @property {string} [label] - Display label
+ * @property {boolean} [required] - Whether field is required
+ * @property {boolean} [list] - Whether field allows multiple values
+ * @property {number} [maxlength] - Maximum string length
+ * @property {*} [default] - Default value
+ * @property {FieldOptions} [options] - Type-specific options
+ * @property {CmsField[]} [fields] - Nested fields for object types
+ */
+
+/**
  * Common field definitions reused across collections
+ * @type {Record<string, CmsField>}
  */
 export const COMMON_FIELDS = {
   title: { name: "title", type: "string", label: "Title" },
@@ -46,6 +70,7 @@ export const COMMON_FIELDS = {
 /**
  * FAQs field configuration
  * Note: FAQ order is determined by array order, not by the order field
+ * @type {CmsField}
  */
 export const FAQS_FIELD = {
   name: "faqs",
@@ -60,6 +85,7 @@ export const FAQS_FIELD = {
 
 /**
  * Gallery field configuration
+ * @type {CmsField}
  */
 export const GALLERY_FIELD = {
   name: "gallery",
@@ -70,6 +96,7 @@ export const GALLERY_FIELD = {
 
 /**
  * Specs field configuration
+ * @type {CmsField}
  */
 export const SPECS_FIELD = {
   name: "specs",
@@ -84,6 +111,7 @@ export const SPECS_FIELD = {
 
 /**
  * Features list field configuration
+ * @type {CmsField}
  */
 export const FEATURES_FIELD = {
   name: "features",
@@ -94,6 +122,12 @@ export const FEATURES_FIELD = {
 
 /**
  * Create a reference field
+ * @param {string} name - Field name
+ * @param {string} label - Display label
+ * @param {string} collection - Referenced collection name
+ * @param {string} [searchField="title"] - Field to search by
+ * @param {boolean} [multiple=true] - Allow multiple references
+ * @returns {CmsField} Reference field configuration
  */
 export const createReferenceField = (
   name,
@@ -116,8 +150,8 @@ export const createReferenceField = (
 
 /**
  * Create an Eleventy navigation field with optional external URL support
- * @param {boolean} includeUrl - Whether to include the url field for external URLs
- * @returns {Object} Navigation field configuration
+ * @param {boolean} [includeUrl=false] - Whether to include the url field for external URLs
+ * @returns {CmsField} Navigation field configuration
  */
 export const createEleventyNavigationField = (includeUrl = false) => {
   const fields = [
@@ -139,6 +173,7 @@ export const createEleventyNavigationField = (includeUrl = false) => {
 
 /**
  * Product options field
+ * @type {CmsField}
  */
 export const PRODUCT_OPTIONS_FIELD = {
   name: "options",
@@ -165,6 +200,7 @@ export const PRODUCT_OPTIONS_FIELD = {
 
 /**
  * Filter attributes field
+ * @type {CmsField}
  */
 export const FILTER_ATTRIBUTES_FIELD = {
   name: "filter_attributes",
@@ -179,6 +215,7 @@ export const FILTER_ATTRIBUTES_FIELD = {
 
 /**
  * Tabs field
+ * @type {CmsField}
  */
 export const TABS_FIELD = {
   name: "tabs",

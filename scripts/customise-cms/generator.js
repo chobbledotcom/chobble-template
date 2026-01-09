@@ -21,13 +21,54 @@ import {
 } from "#scripts/customise-cms/fields.js";
 import { compact, filterMap, memberOf } from "#utils/array-utils.js";
 
-// Helper function to conditionally include header image/text
+/**
+ * @typedef {import('./config.js').CmsConfig} CmsConfig
+ * @typedef {import('./fields.js').CmsField} CmsField
+ * @typedef {import('./collections.js').CollectionDefinition} CollectionDefinition
+ */
+
+/**
+ * @typedef {Object} ViewConfig
+ * @property {string[]} fields - Fields to display in list view
+ * @property {string} primary - Primary display field
+ * @property {string[]} sort - Fields to sort by
+ */
+
+/**
+ * @typedef {Object} CollectionConfig
+ * @property {string} name - Collection name
+ * @property {string} label - Display label
+ * @property {string} path - Content path
+ * @property {string} type - Config type ("collection" | "file")
+ * @property {boolean} [subfolders] - Enable subfolders
+ * @property {string} [filename] - Filename template
+ * @property {ViewConfig} [view] - View configuration
+ * @property {CmsField[]} fields - Field configurations
+ */
+
+/**
+ * @typedef {Object} PagesConfig
+ * @property {Object} media - Media configuration
+ * @property {Object} settings - Settings configuration
+ * @property {CollectionConfig[]} content - Content configurations
+ */
+
+/**
+ * Helper function to conditionally include header image/text
+ * @param {CmsConfig} config - CMS configuration
+ * @param {...(CmsField | CmsField[])} fields - Fields to include if header_images enabled
+ * @returns {CmsField[]} Fields if header_images is enabled, empty array otherwise
+ */
 const withHeaderFields = (config, ...fields) =>
   config.features.header_images
     ? [...fields.flatMap((f) => (Array.isArray(f) ? f : [f]))]
     : [];
 
-// Field builders for each collection type - functions that accept config
+/**
+ * Field builders for each collection type - functions that accept config
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {Record<string, () => CmsField[]>} Map of collection names to field builder functions
+ */
 const getCollectionFieldBuilders = (config) => ({
   pages: () => [
     ...withHeaderFields(
@@ -98,6 +139,11 @@ const getCollectionFieldBuilders = (config) => ({
     ]),
 });
 
+/**
+ * Build fields for the news collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} News collection fields
+ */
 const buildNewsFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -114,6 +160,11 @@ const buildNewsFields = (config) => {
   ]);
 };
 
+/**
+ * Build fields for the products collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Products collection fields
+ */
 const buildProductsFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -140,6 +191,11 @@ const buildProductsFields = (config) => {
   ]);
 };
 
+/**
+ * Build fields for the reviews collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Reviews collection fields
+ */
 const buildReviewsFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -153,6 +209,11 @@ const buildReviewsFields = (config) => {
   ]);
 };
 
+/**
+ * Build fields for the events collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Events collection fields
+ */
 const buildEventsFields = (config) =>
   compact([
     COMMON_FIELDS.thumbnail,
@@ -188,6 +249,11 @@ const buildEventsFields = (config) =>
     COMMON_FIELDS.meta_description,
   ]);
 
+/**
+ * Build fields for the locations collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Locations collection fields
+ */
 const buildLocationsFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -202,6 +268,11 @@ const buildLocationsFields = (config) => {
   ]);
 };
 
+/**
+ * Build fields for the properties collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Properties collection fields
+ */
 const buildPropertiesFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -223,6 +294,11 @@ const buildPropertiesFields = (config) => {
   ]);
 };
 
+/**
+ * Build fields for the menu-categories collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Menu categories collection fields
+ */
 const buildMenuCategoriesFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -234,6 +310,11 @@ const buildMenuCategoriesFields = (config) => {
   ]);
 };
 
+/**
+ * Build fields for the menu-items collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Menu items collection fields
+ */
 const buildMenuItemsFields = (config) => {
   const hasCollection = memberOf(config.collections);
   return compact([
@@ -254,6 +335,12 @@ const buildMenuItemsFields = (config) => {
   ]);
 };
 
+/**
+ * Get core fields for a collection
+ * @param {string} collectionName - Name of the collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Core fields for the collection
+ */
 const getCoreFields = (collectionName, config) => {
   const builders = getCollectionFieldBuilders(config);
   const staticBuilder = builders[collectionName];
@@ -274,6 +361,13 @@ const getCoreFields = (collectionName, config) => {
   return builder ? builder(config) : [];
 };
 
+/**
+ * Add optional fields based on configuration
+ * @param {CmsField[]} fields - Existing fields
+ * @param {string} collectionName - Name of the collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Fields with optional fields added
+ */
 const addOptionalFields = (fields, collectionName, config) => {
   if (collectionName === "snippets") return fields;
 
@@ -283,17 +377,28 @@ const addOptionalFields = (fields, collectionName, config) => {
     config.features.permalinks && COMMON_FIELDS.permalink,
     config.features.redirects && COMMON_FIELDS.redirect_from,
     config.features.faqs && FAQS_FIELD,
-    config.features.galleries && collection?.supportsGallery && GALLERY_FIELD,
-    config.features.specs && collection?.supportsSpecs && SPECS_FIELD,
+    config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
+    config.features.specs && collection.supportsSpecs && SPECS_FIELD,
     collectionName === "products" && TABS_FIELD,
   ]);
 };
 
+/**
+ * Build all fields for a collection
+ * @param {string} collectionName - Name of the collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Complete field configuration for the collection
+ */
 const buildCollectionFields = (collectionName, config) => {
   const fields = getCoreFields(collectionName, config);
   return addOptionalFields(fields, collectionName, config);
 };
 
+/**
+ * Get view configurations for collections
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {Record<string, ViewConfig>} View configurations by collection name
+ */
 const getViewConfigs = (config) => ({
   pages: {
     fields: ["permalink", "meta_title", "header_text"],
@@ -319,6 +424,10 @@ const getViewConfigs = (config) => ({
   },
 });
 
+/**
+ * Collections that use filename-based primary key
+ * @type {string[]}
+ */
 const FILENAME_COLLECTIONS = [
   "categories",
   "team",
@@ -329,14 +438,27 @@ const FILENAME_COLLECTIONS = [
   "snippets",
 ];
 
+/**
+ * Check if a collection uses filename-based primary key
+ * @type {(name: string) => boolean}
+ */
 const hasFilenameConfig = memberOf(FILENAME_COLLECTIONS);
 
-// Helper to get data path based on whether src folder exists
+/**
+ * Helper to get data path based on whether src folder exists
+ * @param {boolean} hasSrcFolder - Whether template has src/ folder
+ * @returns {string} Data path
+ */
 const getDataPath = (hasSrcFolder) => (hasSrcFolder ? "src/_data" : "_data");
 
+/**
+ * Generate configuration for a single collection
+ * @param {string} collectionName - Name of the collection (must exist in COLLECTIONS)
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CollectionConfig} Collection configuration
+ */
 const generateCollectionConfig = (collectionName, config) => {
   const collection = getCollection(collectionName, config.hasSrcFolder);
-  if (!collection) return null;
 
   const collectionConfig = {
     name: collectionName,
@@ -360,6 +482,11 @@ const generateCollectionConfig = (collectionName, config) => {
   return collectionConfig;
 };
 
+/**
+ * Generate homepage settings configuration
+ * @param {string} dataPath - Path to data directory
+ * @returns {CollectionConfig} Homepage settings configuration
+ */
 const getHomepageConfig = (dataPath) => ({
   name: "homepage",
   label: "Homepage Settings",
@@ -393,6 +520,11 @@ const getHomepageConfig = (dataPath) => ({
   ],
 });
 
+/**
+ * Generate site configuration
+ * @param {string} dataPath - Path to data directory
+ * @returns {CollectionConfig} Site configuration
+ */
 const getSiteConfig = (dataPath) => ({
   name: "site",
   label: "Site Configuration",
@@ -430,6 +562,11 @@ const getSiteConfig = (dataPath) => ({
   ],
 });
 
+/**
+ * Generate meta configuration
+ * @param {string} dataPath - Path to data directory
+ * @returns {CollectionConfig} Meta configuration
+ */
 const getMetaConfig = (dataPath) => ({
   name: "meta",
   label: "Meta Configuration",
@@ -495,6 +632,11 @@ const getMetaConfig = (dataPath) => ({
   ],
 });
 
+/**
+ * Generate alt tags configuration
+ * @param {string} dataPath - Path to data directory
+ * @returns {CollectionConfig} Alt tags configuration
+ */
 const getAltTagsConfig = (dataPath) => ({
   name: "alt-tags",
   label: "Image Alt Tags",
@@ -513,6 +655,11 @@ const getAltTagsConfig = (dataPath) => ({
   ],
 });
 
+/**
+ * Generate complete .pages.yml configuration
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {string} YAML string for .pages.yml
+ */
 export const generatePagesYaml = (config) => {
   const collectionConfigs = filterMap(
     (name) => getCollection(name),

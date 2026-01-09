@@ -14,6 +14,24 @@
 
 import { filter } from "#utils/array-utils.js";
 
+/**
+ * @typedef {Object} CollectionDefinition
+ * @property {string} name - Internal collection name
+ * @property {string} label - Display label in CMS
+ * @property {string} path - Path to content files
+ * @property {string} description - Human-readable description for prompts
+ * @property {boolean} supportsFeatures - Whether collection can have features list
+ * @property {boolean} supportsSpecs - Whether collection can have specifications
+ * @property {boolean} supportsGallery - Whether collection can have image gallery
+ * @property {string[]} [dependencies] - Other collections this one requires
+ * @property {boolean} [required] - Whether collection is required (cannot be disabled)
+ * @property {boolean} [internal] - Whether collection is internal (not shown to users)
+ */
+
+/**
+ * All available collection definitions
+ * @type {CollectionDefinition[]}
+ */
 export const COLLECTIONS = [
   {
     name: "pages",
@@ -154,6 +172,9 @@ export const COLLECTIONS = [
 
 /**
  * Get collection by name, optionally adjusting path based on src folder presence
+ * @param {string} name - Collection name to find
+ * @param {boolean | null} [hasSrcFolder=null] - Whether template has src/ folder (null to return unmodified path)
+ * @returns {CollectionDefinition | undefined} The collection definition or undefined if not found
  */
 export const getCollection = (name, hasSrcFolder = null) => {
   const collection = COLLECTIONS.find((c) => c.name === name);
@@ -172,18 +193,22 @@ export const getCollection = (name, hasSrcFolder = null) => {
 
 /**
  * Get collections that can be selected by users (non-internal, non-required)
+ * @returns {CollectionDefinition[]} Selectable collections
  */
 export const getSelectableCollections = () =>
   filter((c) => !c.internal && !c.required)(COLLECTIONS);
 
 /**
  * Get required collections
+ * @returns {CollectionDefinition[]} Required collections
  */
 export const getRequiredCollections = () =>
   filter((c) => c.required)(COLLECTIONS);
 
 /**
  * Get all dependencies for selected collections
+ * @param {string[]} selectedNames - Collection names selected by user
+ * @returns {string[]} All collection names including resolved dependencies
  */
 export const resolveDependencies = (selectedNames) => {
   const resolved = new Set(selectedNames);
