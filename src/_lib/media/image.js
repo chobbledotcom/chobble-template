@@ -23,9 +23,21 @@ const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_SIZE = "auto";
 
 // Compute wrapped image HTML for local images (memoized)
+/**
+ * @param {Object} props
+ * @param {string | null} props.imageName - Image src from DOM (getAttribute returns string | null)
+ * @param {string} props.alt
+ * @param {string} [props.classes]
+ * @param {string} [props.sizes]
+ * @param {string | string[]} [props.widths]
+ * @param {string} [props.aspectRatio]
+ * @param {string} [props.loading]
+ */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
     // Path normalization for image sources
+    // imageName comes from img.getAttribute("src") which can be string | null
+    /** @type {string} */
     const name = imageName.toString();
     const imagePath = (() => {
       if (name.startsWith("/")) return `./src${name}`;
@@ -84,6 +96,19 @@ const computeWrappedImageHtml = memoize(
 );
 
 // Main image processing function
+/**
+ * @param {Object} props
+ * @param {string} [props.logName]
+ * @param {string | null} props.imageName - Image src: either a string or null (from DOM getAttribute or template string)
+ * @param {string} props.alt
+ * @param {string} [props.classes]
+ * @param {string | null} [props.sizes]
+ * @param {string | string[] | null} [props.widths]
+ * @param {boolean} [props.returnElement]
+ * @param {string | null} [props.aspectRatio]
+ * @param {string | null} [props.loading]
+ * @param {any} [props.document]
+ */
 const processAndWrapImage = async ({
   logName: _logName,
   imageName,
@@ -96,6 +121,8 @@ const processAndWrapImage = async ({
   loading = null,
   document = null,
 }) => {
+  // Call toString() on imageName to handle potential null values from DOM getAttribute
+  /** @type {string} */
   const imageNameStr = imageName.toString();
 
   // Check if URL is external
@@ -159,6 +186,15 @@ const configureImages = async (eleventyConfig) => {
 };
 
 // Image shortcode for use in templates
+/**
+ * @param {string} imageName - The image name/path from Eleventy template
+ * @param {string} alt
+ * @param {string | string[]} [widths]
+ * @param {string | null} [classes]
+ * @param {string | null} [sizes]
+ * @param {string | null} [aspectRatio]
+ * @param {string | null} [loading]
+ */
 const imageShortcode = async (
   imageName,
   alt,
