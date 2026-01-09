@@ -42,28 +42,13 @@ describe("product-cart-data", () => {
       );
     });
 
-    test("throws when hire options missing 1-day option", () => {
+    test("does not validate hire options (validation happens in buildCartAttributes)", () => {
       const data = {
-        title: "Bad Hire",
+        title: "No Day One",
         options: [{ days: 3, unit_price: "£30" }],
       };
-      expect(() => computeOptions(data, "hire")).toThrow(
-        'Product "Bad Hire" is hire mode but has no 1-day option',
-      );
-    });
-
-    test("throws when hire options have duplicate days", () => {
-      const data = {
-        title: "Dupe Hire",
-        options: [
-          { days: 1, unit_price: "£10" },
-          { days: 3, unit_price: "£25" },
-          { days: 3, unit_price: "£30" },
-        ],
-      };
-      expect(() => computeOptions(data, "hire")).toThrow(
-        'Product "Dupe Hire" has duplicate options for days=3',
-      );
+      // Should not throw - validation only happens when building cart attributes
+      expect(() => computeOptions(data, "hire")).not.toThrow();
     });
   });
 
@@ -110,6 +95,34 @@ describe("product-cart-data", () => {
       const parsed = JSON.parse(result.replace(/&quot;/g, '"'));
       expect(parsed.hire_prices).toEqual({ 1: 10, 3: 25 });
       expect(parsed.product_mode).toBe("hire");
+    });
+
+    test("throws when hire options missing 1-day option", () => {
+      expect(() =>
+        buildCartAttributes({
+          title: "Bad Hire",
+          subtitle: null,
+          options: [{ days: 3, unit_price: 30 }],
+          specs: null,
+          mode: "hire",
+        }),
+      ).toThrow('Product "Bad Hire" is hire mode but has no 1-day option');
+    });
+
+    test("throws when hire options have duplicate days", () => {
+      expect(() =>
+        buildCartAttributes({
+          title: "Dupe Hire",
+          subtitle: null,
+          options: [
+            { days: 1, unit_price: 10 },
+            { days: 3, unit_price: 25 },
+            { days: 3, unit_price: 30 },
+          ],
+          specs: null,
+          mode: "hire",
+        }),
+      ).toThrow('Product "Dupe Hire" has duplicate options for days=3');
     });
   });
 });
