@@ -1,20 +1,29 @@
 import { memoize } from "#utils/memoize.js";
+import { createElement, getSharedDocument } from "#utils/dom-builder.js";
 
 /**
  * Render opening times as HTML list
  * @param {import("#lib/types").OpeningTime[]} openingTimes
- * @returns {string} HTML list or empty string
+ * @returns {Promise<string>} HTML list or empty string
  */
-const renderOpeningTimes = (openingTimes) => {
+const renderOpeningTimes = async (openingTimes) => {
   if (!openingTimes || openingTimes.length === 0) {
     return "";
   }
 
-  const items = openingTimes
-    .map((item) => `  <li><strong>${item.day}:</strong> ${item.hours}</li>`)
-    .join("\n");
+  const doc = await getSharedDocument();
+  const ul = await createElement("ul", { class: "opening-times" });
 
-  return `<ul class="opening-times">\n${items}\n</ul>`;
+  for (const item of openingTimes) {
+    const li = doc.createElement("li");
+    const strong = doc.createElement("strong");
+    strong.textContent = `${item.day}:`;
+    li.appendChild(strong);
+    li.appendChild(doc.createTextNode(` ${item.hours}`));
+    ul.appendChild(li);
+  }
+
+  return ul.outerHTML;
 };
 
 const getOpeningTimesHtml = memoize(async () => {

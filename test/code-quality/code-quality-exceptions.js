@@ -70,7 +70,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
   // Server-side Eleventy plugins generating HTML
-  "src/_lib/eleventy/opening-times.js",
   "src/_lib/eleventy/recurring-events.js",
   "src/_lib/eleventy/responsive-tables.js",
 
