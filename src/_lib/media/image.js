@@ -24,19 +24,24 @@ const DEFAULT_SIZE = "auto";
 
 // Compute wrapped image HTML for local images (memoized)
 /**
+ * Called from processAndWrapImage for local (non-external) images.
+ * Receives imageName from two paths:
+ * 1. From image-transform.js via extractImageOptions: getAttribute("src") = string | null
+ * 2. From imageShortcode: template string = string
+ *
  * @param {Object} props
- * @param {string | null} props.imageName - Image src from DOM (getAttribute returns string | null)
- * @param {string} props.alt
- * @param {string} [props.classes]
- * @param {string} [props.sizes]
- * @param {string | string[]} [props.widths]
- * @param {string} [props.aspectRatio]
- * @param {string} [props.loading]
+ * @param {string | null} props.imageName - Image src (may be null from getAttribute in transform)
+ * @param {string | null} props.alt - From getAttribute or template
+ * @param {string | null} [props.classes] - From getAttribute or template
+ * @param {string | null} [props.sizes] - From getAttribute or template
+ * @param {string | string[] | null} [props.widths] - From getAttribute or template
+ * @param {string | null} [props.aspectRatio] - From getAttribute or template
+ * @param {string | null} [props.loading] - From imageShortcode
  */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
     // Path normalization for image sources
-    // imageName comes from img.getAttribute("src") which can be string | null
+    // imageName is string | null: from getAttribute in transform path, string in shortcode path
     /** @type {string} */
     const name = imageName.toString();
     const imagePath = (() => {
@@ -97,17 +102,21 @@ const computeWrappedImageHtml = memoize(
 
 // Main image processing function
 /**
+ * Called from two paths with different imageName types:
+ * 1. From image-transform.js: extractImageOptions passes getAttribute("src") = string | null
+ * 2. From imageShortcode: template syntax passes string directly
+ *
  * @param {Object} props
  * @param {string} [props.logName]
- * @param {string | null} props.imageName - Image src: either a string or null (from DOM getAttribute or template string)
- * @param {string} props.alt
- * @param {string} [props.classes]
- * @param {string | null} [props.sizes]
- * @param {string | string[] | null} [props.widths]
- * @param {boolean} [props.returnElement]
- * @param {string | null} [props.aspectRatio]
- * @param {string | null} [props.loading]
- * @param {any} [props.document]
+ * @param {string | null} props.imageName - Image src (string from shortcode, string|null from DOM getAttribute)
+ * @param {string | null} props.alt - From getAttribute or shortcode
+ * @param {string | null} [props.classes] - From getAttribute or shortcode
+ * @param {string | null} [props.sizes] - From getAttribute or shortcode
+ * @param {string | string[] | null} [props.widths] - From getAttribute or shortcode
+ * @param {boolean} [props.returnElement] - true from transform, false from shortcode
+ * @param {string | null} [props.aspectRatio] - From getAttribute or shortcode
+ * @param {string | null} [props.loading] - Always null from transform, from shortcode param
+ * @param {Document | null} [props.document] - Document object from transform, null from shortcode
  */
 const processAndWrapImage = async ({
   logName: _logName,
@@ -121,7 +130,9 @@ const processAndWrapImage = async ({
   loading = null,
   document = null,
 }) => {
-  // Call toString() on imageName to handle potential null values from DOM getAttribute
+  // Call toString() on imageName to handle potential null from DOM getAttribute in transform path
+  // imageShortcode path: imageName is string from template, toString() is redundant but harmless
+  // image-transform path: imageName may be null from getAttribute, toString() converts to "null"
   /** @type {string} */
   const imageNameStr = imageName.toString();
 
