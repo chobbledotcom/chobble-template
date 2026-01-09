@@ -26,7 +26,7 @@ const steps = [
   { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
   { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
   { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
-  { name: "test:unit", cmd: "bun", args: ["run", "test:unit"] },
+  { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
 ];
 
 const results = {};
