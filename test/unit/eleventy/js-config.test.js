@@ -1,17 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import getConfig from "#data/config.js";
-import { buildJsConfigScript, configureJsConfig } from "#eleventy/js-config.js";
-import {
-  createMockEleventyConfig,
-  expectValidScriptTag,
-} from "#test/test-utils.js";
+import { buildJsConfigJson, configureJsConfig } from "#eleventy/js-config.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("js-config", () => {
   test("Returns empty JSON object for empty config", () => {
-    const result = buildJsConfigScript({});
-    expect(result).toBe(
-      '<script id="site-config" type="application/json">{}</script>',
-    );
+    const result = buildJsConfigJson({});
+    expect(result).toBe("{}");
   });
 
   test("Excludes keys with null values", () => {
@@ -19,10 +14,8 @@ describe("js-config", () => {
       cart_mode: null,
       checkout_api_url: null,
     };
-    const result = buildJsConfigScript(config);
-    expect(result).toBe(
-      '<script id="site-config" type="application/json">{}</script>',
-    );
+    const result = buildJsConfigJson(config);
+    expect(result).toBe("{}");
   });
 
   test("Includes only cart_mode when checkout_api_url is null", () => {
@@ -30,10 +23,8 @@ describe("js-config", () => {
       cart_mode: "quote",
       checkout_api_url: null,
     };
-    const result = buildJsConfigScript(config);
-    expect(result).toBe(
-      '<script id="site-config" type="application/json">{"cart_mode":"quote"}</script>',
-    );
+    const result = buildJsConfigJson(config);
+    expect(result).toBe('{"cart_mode":"quote"}');
   });
 
   test("Includes only checkout_api_url when cart_mode is null", () => {
@@ -41,10 +32,8 @@ describe("js-config", () => {
       cart_mode: null,
       checkout_api_url: "https://api.example.com",
     };
-    const result = buildJsConfigScript(config);
-    expect(result).toBe(
-      '<script id="site-config" type="application/json">{"checkout_api_url":"https://api.example.com"}</script>',
-    );
+    const result = buildJsConfigJson(config);
+    expect(result).toBe('{"checkout_api_url":"https://api.example.com"}');
   });
 
   test("Includes both cart_mode and checkout_api_url when set", () => {
@@ -52,7 +41,7 @@ describe("js-config", () => {
       cart_mode: "stripe",
       checkout_api_url: "https://api.example.com",
     };
-    const result = buildJsConfigScript(config);
+    const result = buildJsConfigJson(config);
     expect(result.includes('"cart_mode":"stripe"')).toBe(true);
     expect(
       result.includes('"checkout_api_url":"https://api.example.com"'),
@@ -66,7 +55,7 @@ describe("js-config", () => {
       extra_key: "should be ignored",
       formspark_id: "also ignored",
     };
-    const result = buildJsConfigScript(config);
+    const result = buildJsConfigJson(config);
     expect(result.includes("extra_key")).toBe(false);
     expect(result.includes("formspark_id")).toBe(false);
     expect(result.includes("cart_mode")).toBe(true);
@@ -76,48 +65,43 @@ describe("js-config", () => {
   test("Works with all valid cart modes", () => {
     const validModes = ["paypal", "stripe", "quote"];
     for (const mode of validModes) {
-      const result = buildJsConfigScript({ cart_mode: mode });
+      const result = buildJsConfigJson({ cart_mode: mode });
       expect(result.includes(`"cart_mode":"${mode}"`)).toBe(true);
     }
   });
 
-  test("Generates script tag with correct id and type", () => {
-    const result = buildJsConfigScript({ cart_mode: "quote" });
-    expectValidScriptTag(result);
+  test("Returns valid JSON string", () => {
+    const result = buildJsConfigJson({ cart_mode: "quote" });
+    expect(() => JSON.parse(result)).not.toThrow();
   });
 
-  test("Registers jsConfigScript shortcode on eleventyConfig", () => {
+  test("Registers jsConfigJson filter on eleventyConfig", () => {
     const mockConfig = createMockEleventyConfig();
     configureJsConfig(mockConfig);
 
-    expect(typeof mockConfig.shortcodes.jsConfigScript).toBe("function");
+    expect(typeof mockConfig.filters.jsConfigJson).toBe("function");
   });
 
-  test("Shortcode returns script based on actual config", () => {
+  test("Filter returns JSON based on config input", () => {
     const mockConfig = createMockEleventyConfig();
     configureJsConfig(mockConfig);
 
-    // Call the shortcode with a mock context (the shortcode imports config directly)
-    const shortcodeFn = mockConfig.shortcodes.jsConfigScript;
-    const result = shortcodeFn.call({});
+    const filterFn = mockConfig.filters.jsConfigJson;
+    const result = filterFn({ cart_mode: "stripe" });
 
-    // The result should be a valid script tag
-    expectValidScriptTag(result);
+    expect(() => JSON.parse(result)).not.toThrow();
+    expect(result.includes('"cart_mode":"stripe"')).toBe(true);
   });
 
-  test("Shortcode output matches expected values from config", () => {
+  test("Filter output matches expected values from config", () => {
     const mockConfig = createMockEleventyConfig();
     configureJsConfig(mockConfig);
 
-    const shortcodeFn = mockConfig.shortcodes.jsConfigScript;
-    const result = shortcodeFn.call({});
-
-    // Parse the JSON from the result
-    const jsonMatch = result.match(/<script[^>]*>(.*)<\/script>/);
-    expect(jsonMatch !== null).toBe(true);
-
-    const parsed = JSON.parse(jsonMatch[1]);
+    const filterFn = mockConfig.filters.jsConfigJson;
     const actualConfig = getConfig();
+    const result = filterFn(actualConfig);
+
+    const parsed = JSON.parse(result);
 
     // Check that the values match the actual config
     if (actualConfig.cart_mode) {
@@ -133,9 +117,8 @@ describe("js-config", () => {
       cart_mode: "stripe",
       checkout_api_url: "https://api.example.com/path?foo=bar&baz=qux",
     };
-    const result = buildJsConfigScript(config);
-    const jsonMatch = result.match(/<script[^>]*>(.*)<\/script>/);
-    const parsed = JSON.parse(jsonMatch[1]);
+    const result = buildJsConfigJson(config);
+    const parsed = JSON.parse(result);
 
     expect(parsed.checkout_api_url).toBe(
       "https://api.example.com/path?foo=bar&baz=qux",
@@ -147,9 +130,8 @@ describe("js-config", () => {
       cart_mode: undefined,
       checkout_api_url: "https://api.example.com",
     };
-    const result = buildJsConfigScript(config);
-    const jsonMatch = result.match(/<script[^>]*>(.*)<\/script>/);
-    const parsed = JSON.parse(jsonMatch[1]);
+    const result = buildJsConfigJson(config);
+    const parsed = JSON.parse(result);
 
     expect(parsed.cart_mode).toBe(undefined);
     expect(parsed.checkout_api_url).toBe("https://api.example.com");
@@ -163,7 +145,7 @@ describe("js-config", () => {
     };
     const configCopy = JSON.stringify(config);
 
-    buildJsConfigScript(config);
+    buildJsConfigJson(config);
 
     expect(JSON.stringify(config)).toBe(configCopy);
   });

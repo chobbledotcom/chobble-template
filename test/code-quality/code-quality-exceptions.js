@@ -70,9 +70,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
   // Server-side Eleventy plugins generating HTML
-  "src/_lib/eleventy/opening-times.js",
   "src/_lib/eleventy/recurring-events.js",
-  "src/_lib/eleventy/js-config.js",
   "src/_lib/eleventy/responsive-tables.js",
 
   // Collections with embedded HTML/SVG
@@ -269,7 +267,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
   "src/_lib/eleventy/ical.js:isOneOffEvent",
-  "src/_lib/eleventy/js-config.js:buildJsConfigScript",
+  "src/_lib/eleventy/js-config.js:buildJsConfigJson",
   "src/_lib/eleventy/js-config.js:configureJsConfig",
   "src/_lib/eleventy/layout-aliases.js:configureLayoutAliases",
   "src/_lib/eleventy/opening-times.js:configureOpeningTimes",
