@@ -12,7 +12,7 @@ const getFeaturedEvents = (events) =>
 const fromMap = (map, key, defaultVal = []) => map.get(key) ?? defaultVal;
 
 /**
- * Categorise events into upcoming, past, and regular groups
+ * Categorise events into upcoming, past, regular, and undated groups
  * Uses functional groupBy - no mutable objects or loops
  */
 export const categoriseEvents = memoize((events) => {
@@ -21,7 +21,7 @@ export const categoriseEvents = memoize((events) => {
 
   const grouped = groupBy(events, (event) => {
     if (event.data.recurring_date) return "regular";
-    if (!event.data.event_date) return null;
+    if (!event.data.event_date) return "undated";
     const date = new Date(event.data.event_date);
     date.setHours(0, 0, 0, 0);
     return date >= now ? "upcoming" : "past";
@@ -38,15 +38,18 @@ export const categoriseEvents = memoize((events) => {
       new Date(a.data.event_date).getTime(),
   )(fromMap(grouped, "past"));
   const regular = sort(sortItems)(fromMap(grouped, "regular"));
+  const undated = sort(sortItems)(fromMap(grouped, "undated"));
 
   return {
     upcoming,
     past,
     regular,
+    undated,
     show: {
       upcoming: upcoming.length > 0,
       regular: regular.length > 0,
       past: past.length > 0,
+      undated: undated.length > 0,
     },
   };
 });
