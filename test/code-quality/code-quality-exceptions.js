@@ -72,9 +72,6 @@ const ALLOWED_HTML_IN_JS = new Set([
   // Server-side Eleventy plugins generating HTML
   "src/_lib/eleventy/recurring-events.js",
   "src/_lib/eleventy/responsive-tables.js",
-
-  // Collections with embedded HTML/SVG
-  "src/_lib/collections/reviews.js",
 ]);
 
 // ============================================
