@@ -1,14 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_OBJECT_MUTATION } from "#test/code-quality/code-quality-exceptions.js";
 import {
   analyzeWithAllowlist,
   assertNoViolations,
   COMMENT_LINE_PATTERNS,
   createCodeChecker,
-  expectNoStaleExceptions,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { logAllowedItems } from "#test/unit/code-quality/code-quality-utils.js";
 
 // Pattern to detect obj[key] = value - object mutation via bracket notation
 // Matches: result[slug] = value, acc[key] = data, obj["prop"] = x
@@ -29,14 +26,6 @@ const { find: findObjectMutation } = createCodeChecker({
   extractData: () => ({ reason: "Object mutation via bracket assignment" }),
   files: [],
 });
-
-/** Analyze all JS files for object mutation. */
-const analyzeObjectMutation = () =>
-  analyzeWithAllowlist({
-    findFn: findObjectMutation,
-    allowlist: new Set([ALLOWED_OBJECT_MUTATION]),
-    files: SRC_JS_FILES,
-  });
 
 describe("object-mutation", () => {
   test("Detects obj[key] = value patterns", () => {
@@ -76,27 +65,16 @@ obj[ key ] = value;
   });
 
   test("No object mutation outside allowlist", () => {
-    const { violations } = analyzeObjectMutation();
+    const { violations } = analyzeWithAllowlist({
+      findFn: findObjectMutation,
+      allowlist: new Set(),
+      files: SRC_JS_FILES,
+    });
     assertNoViolations(violations, {
       singular: "object mutation via bracket assignment",
       plural: "object mutations via bracket assignment",
       fixHint:
-        "use functional patterns (reduce with spread, Object.fromEntries, toObject), or add to ALLOWED_OBJECT_MUTATION in code-quality-exceptions.js",
+        "use functional patterns (reduce with spread, Object.fromEntries, toObject)",
     });
-  });
-
-  test("Reports allowlisted object mutation for tracking", () => {
-    const { allowed } = analyzeObjectMutation();
-    logAllowedItems(allowed, "Allowlisted object mutations", false);
-    expect(true).toBe(true);
-  });
-
-  // Exception validation tests
-  test("ALLOWED_OBJECT_MUTATION entries still exist and match pattern", () => {
-    expectNoStaleExceptions(
-      new Set([ALLOWED_OBJECT_MUTATION]),
-      OBJECT_MUTATION_PATTERN,
-      "ALLOWED_OBJECT_MUTATION",
-    );
   });
 });

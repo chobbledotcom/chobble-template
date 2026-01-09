@@ -191,14 +191,6 @@ const ALLOWED_LET = new Set([
 ]);
 
 // ============================================
-// Object mutation via bracket assignment exceptions
-// ============================================
-
-// Files that use obj[key] = value for object mutation.
-// Prefer functional patterns: reduce with spread, Object.fromEntries, toObject, etc.
-const ALLOWED_OBJECT_MUTATION = "src/_lib/public/ui/autosizes.js:123"; // Browser-side image lazy loading - setting DOM element attributes (img[attribute] = img.getAttribute)
-
-// ============================================
 // Single-use unexported function exceptions
 // ============================================
 
@@ -343,7 +335,6 @@ export {
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
-  ALLOWED_OBJECT_MUTATION,
   ALLOWED_SINGLE_USE_FUNCTIONS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,

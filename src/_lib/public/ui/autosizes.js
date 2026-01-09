@@ -120,7 +120,7 @@
     for (const attribute of attributes) {
       const tempAttribute = `${prefix}${attribute}`;
       if (!img.hasAttribute(tempAttribute)) continue;
-      img[attribute] = img.getAttribute(tempAttribute);
+      img.setAttribute(attribute, img.getAttribute(tempAttribute));
       img.removeAttribute(tempAttribute);
     }
   };
