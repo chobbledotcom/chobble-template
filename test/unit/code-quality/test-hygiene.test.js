@@ -200,8 +200,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "testPage",
   // array-utils.test.js - test fixtures
   "testTruncatedList",
-  // sorting.test.js - test fixtures
-  "testSortByTitle",
+  // sorting.test.js - functional helpers for sorting and extracting
+  "sortAndExtract",
+  "sortItemsExtractTitles",
+  "sortNavExtractKeys",
+  "sortNavExtractTitles",
   // tags.test.js - test fixtures
   "testTagExtraction",
   // function-length.test.js - test fixtures

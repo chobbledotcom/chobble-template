@@ -32,8 +32,12 @@ const addGallery = (item) => {
   return item;
 };
 
+/**
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
+ */
 const createProductsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
+  const products = collectionApi.getFilteredByTag("product");
   return products.map(addGallery);
 };
 
@@ -60,17 +64,22 @@ const getProductsByEvent = (products, eventSlug) =>
     .filter((product) => product.data.events?.includes(eventSlug))
     .sort(sortItems);
 
+/**
+ * Get featured products from a products collection
+ * @param {import("#lib/types").EleventyCollectionItem[]} products - Products array from Eleventy collection
+ * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured products
+ */
 const getFeaturedProducts = (products) =>
-  products?.filter((p) => p.data.featured) || [];
+  products.filter((p) => p.data.featured);
 
 /**
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
  * Throws an error if duplicate SKUs are found
- * @param {any} collectionApi - Eleventy collection API
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  */
 const createApiSkusCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
+  const products = collectionApi.getFilteredByTag("product");
   const allSkuEntries = products.flatMap((product) => {
     /** @type {import("#lib/types").Option[]|undefined} */
     const options = product.data.options;
@@ -126,6 +135,7 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
+  // @ts-expect-error - Filter returns array, not string (used for data transformation in templates)
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 

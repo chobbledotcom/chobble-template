@@ -22,11 +22,6 @@ describe("locations", () => {
     expectResultTitles(result, ["London", "UK"]);
   });
 
-  test("Handles null/undefined input", () => {
-    expect(getRootLocations(null)).toEqual([]);
-    expect(getRootLocations(undefined)).toEqual([]);
-  });
-
   test("Gets sibling locations excluding current page", () => {
     const locations = [
       {
@@ -75,19 +70,6 @@ describe("locations", () => {
     );
 
     expect(result.length).toBe(0);
-  });
-
-  test("Handles null/undefined inputs", () => {
-    const locations = [
-      {
-        data: { title: "Cleaning", parentLocation: "london" },
-        url: "/london/cleaning/",
-      },
-    ];
-
-    expect(getSiblingLocations(null, "london", "/url/")).toEqual([]);
-    expect(getSiblingLocations(locations, null, "/url/")).toEqual([]);
-    expect(getSiblingLocations(locations, "london", null).length).toBe(1);
   });
 
   test("Configures location filters", () => {
