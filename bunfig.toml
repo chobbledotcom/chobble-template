@@ -15,4 +15,4 @@ coverage = true
 
 # Coverage thresholds - tests fail if coverage drops below these levels
 # Allows manual management of .coverage_exceptions.json while preventing regressions
-coverageThreshold = { lines = 0.975, functions = 0.978, statements = 0.975 }
+coverageThreshold = { lines = 0.983, functions = 0.986, statements = 0.983 }

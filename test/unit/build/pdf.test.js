@@ -10,6 +10,7 @@ import {
 import {
   createMockEleventyConfig,
   expectObjectProps,
+  rootDir,
 } from "#test/test-utils.js";
 
 // Helper to create mock menu
@@ -478,7 +479,7 @@ describe("pdf", () => {
 
     beforeEach(() => {
       // Create temp output directory for tests
-      testOutputDir = join(process.cwd(), `temp-pdf-test-${Date.now()}`);
+      testOutputDir = join(rootDir, `temp-pdf-test-${Date.now()}`);
       mkdirSync(testOutputDir, { recursive: true });
 
       // Mock console methods

@@ -20,6 +20,7 @@
 	"ignoreDependencies": [
 		"@zachleat/heading-anchors",
 		"@11ty/eleventy-img",
+		"bun-types",
 		"json-to-pdf",
 		"sass",
 		"sharp"

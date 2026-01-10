@@ -226,6 +226,7 @@ const cleanupTempDir = (tempDir) => {
  * Curried: (setup, teardown, passResource) => (arg, callback) => result
  *
  * Implements: acquire resource, use it, release it.
+ * Uses try-finally to ensure teardown runs even if callback throws.
  *
  * @param {Function} setup - (arg) => resource - Acquire the resource
  * @param {Function} teardown - (resource) => void - Release the resource
@@ -236,9 +237,11 @@ const bracket =
   (setup, teardown, passResource = true) =>
   (arg, callback) => {
     const resource = setup(arg);
-    const result = passResource ? callback(resource) : callback();
-    teardown(resource);
-    return result;
+    try {
+      return passResource ? callback(resource) : callback();
+    } finally {
+      teardown(resource);
+    }
   };
 
 // Bracket-based resource management using curried factory
@@ -258,6 +261,18 @@ const withMockedCwd = bracket(
   },
   (original) => {
     process.cwd = original;
+  },
+  false,
+);
+
+const withMockedProcessExit = bracket(
+  () => {
+    const original = process.exit;
+    process.exit = () => {}; // Mock to do nothing
+    return original;
+  },
+  (original) => {
+    process.exit = original;
   },
   false,
 );
@@ -751,6 +766,7 @@ export {
   withTempDir,
   withTempFile,
   withMockedCwd,
+  withMockedProcessExit,
   expectValidScriptTag,
   expectResultTitles,
   expectObjectProps,

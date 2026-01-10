@@ -4,7 +4,11 @@ import {
   printSummary,
   runStep,
 } from "#test/test-runner-utils.js";
-import { captureConsole } from "#test/test-utils.js";
+import {
+  captureConsole,
+  withMockedProcessExit,
+} from "#test/test-utils.js";
+import { mapObject } from "#utils/object-entries.js";
 
 // ============================================
 // Test Helpers
@@ -21,39 +25,25 @@ const createBasicSteps = () => [
 /**
  * Creates results object with the given status and output for each step
  */
-const createResults = (stepResults) => {
-  const results = {};
-  for (const [name, config] of Object.entries(stepResults)) {
-    results[name] = {
-      status: config.status ?? 0,
-      stdout: config.stdout ?? "",
-      stderr: config.stderr ?? "",
-    };
-  }
-  return results;
-};
+const createResults = mapObject((name, config) => [
+  name,
+  {
+    status: config.status ?? 0,
+    stdout: config.stdout ?? "",
+    stderr: config.stderr ?? "",
+  },
+]);
 
 /**
- * Captures console output from printSummary, handling process.exit(1)
+ * Captures console output from printSummary, mocking process.exit
  */
-const captureSummaryOutput = (steps, results, title) => {
-  return captureConsole(() => {
-    try {
-      printSummary(steps, results, title);
-    } catch {
-      // printSummary calls process.exit(1) on failure, which we can't prevent
-    }
+const captureSummaryOutput = (steps, results, title) =>
+  withMockedProcessExit(null, () => {
+    const output = captureConsole(() => printSummary(steps, results, title));
+    // captureConsole returns an array of lines, join them into a string
+    return output.join("\n");
   });
-};
 
-/**
- * Creates multi-line output string for testing
- */
-const createMultiLineOutput = (lineCount) => {
-  return Array.from({ length: lineCount }, (_, i) => `line ${i + 1}`).join(
-    "\n",
-  );
-};
 
 /**
  * Creates a single build step for testing
@@ -72,43 +62,16 @@ const createThreeSteps = () => [
 ];
 
 /**
- * Creates a failed build step result with stdout
+ * Creates a step that runs a bun script
  */
-const createFailedBuildResult = (stdout) =>
-  createResults({
-    build: {
-      status: 1,
-      stdout,
-    },
-  });
+const createBunScriptStep = (name, script) => ({
+  name,
+  cmd: "bun",
+  args: ["-e", script],
+});
 
-/**
- * Creates a failed build step result with stderr (empty stdout)
- */
-const createFailedBuildResultStderr = (stderr) =>
-  createResults({
-    build: {
-      status: 1,
-      stdout: "",
-      stderr,
-    },
-  });
 
-/**
- * Tests output for last N lines display and specific content
- */
-const expectLastLinesOutput = (output, expectedContent, notExpectedContent) => {
-  expect(output).toContain("No specific errors extracted");
-  expect(output).toContain("Last 15 lines of output:");
-  for (const content of expectedContent) {
-    expect(output).toContain(content);
-  }
-  for (const content of notExpectedContent) {
-    expect(output).not.toContain(content);
-  }
-  expect(output).toContain("Run with --verbose");
-  expect(output).toContain("Exit code: 1");
-};
+
 
 describe("test-runner-utils", () => {
   // ============================================
@@ -144,11 +107,10 @@ describe("test-runner-utils", () => {
     });
 
     test("Captures stdout and stderr in non-verbose mode", () => {
-      const step = {
-        name: "error-step",
-        cmd: "node",
-        args: ["-e", "console.error('error message'); console.log('output')"],
-      };
+      const step = createBunScriptStep(
+        "error-step",
+        "console.error('error message'); console.log('output')",
+      );
 
       const result = runStep(step, false);
 
@@ -158,11 +120,7 @@ describe("test-runner-utils", () => {
     });
 
     test("Returns non-zero status for failed command", () => {
-      const step = {
-        name: "failing-step",
-        cmd: "node",
-        args: ["-e", "process.exit(1)"],
-      };
+      const step = createBunScriptStep("failing-step", "process.exit(1)");
 
       const result = runStep(step, false);
 
@@ -170,11 +128,7 @@ describe("test-runner-utils", () => {
     });
 
     test("Sets VERBOSE environment variable based on verbose flag", () => {
-      const step = {
-        name: "env-check",
-        cmd: "node",
-        args: ["-e", "console.log(process.env.VERBOSE)"],
-      };
+      const step = createBunScriptStep("env-check", "console.log(process.env.VERBOSE)");
 
       const verboseResult = runStep(step, true);
       const quietResult = runStep(step, false);
@@ -410,17 +364,38 @@ Failed to compile
 
     test("Shows last 15 lines when no specific errors extracted", () => {
       const steps = createBuildStep();
-      const results = createFailedBuildResult(createMultiLineOutput(20));
+      const multiLineOutput = Array.from(
+        { length: 20 },
+        (_, i) => `line ${i + 1}`,
+      ).join("\n");
+      const results = createResults({
+        build: {
+          status: 1,
+          stdout: multiLineOutput,
+        },
+      });
 
       const output = captureSummaryOutput(steps, results);
 
-      expectLastLinesOutput(output, ["line 20", "line 6"], ["line 5"]);
+      expect(output).toContain("No specific errors extracted");
+      expect(output).toContain("Last 15 lines of output:");
+      expect(output).toContain("line 20");
+      expect(output).toContain("line 6");
+      expect(output).not.toContain("line 5");
+      expect(output).toContain("Run with --verbose");
+      expect(output).toContain("Exit code: 1");
     });
 
     test("Uses stderr when stdout is empty for last lines display", () => {
       const steps = createBuildStep();
       const stderr = "Error line 1\nError line 2\nError line 3";
-      const results = createFailedBuildResultStderr(stderr);
+      const results = createResults({
+        build: {
+          status: 1,
+          stdout: "",
+          stderr,
+        },
+      });
 
       const output = captureSummaryOutput(steps, results);
 

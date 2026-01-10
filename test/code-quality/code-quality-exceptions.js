@@ -158,6 +158,7 @@ const ALLOWED_LET = new Set([
   // Test files with mutable state tracking
   "test/integration/build/pdf-integration.test.js",
   "test/integration/eleventy/feed.test.js",
+  "test/unit/build/pdf.test.js",
   "test/unit/frontend/gallery.test.js",
   "test/unit/frontend/hire-calculator.test.js",
   "test/unit/frontend/scroll-fade.test.js",
@@ -272,6 +273,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/pdf.js:buildMenuPdfData",
   "src/_lib/eleventy/pdf.js:configurePdf",
   "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
+  "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
 
   // Media processing - tested for image handling
