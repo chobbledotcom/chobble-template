@@ -527,7 +527,10 @@ describe("pdf", () => {
     });
 
     test("Generates PDF file with correct filename", async () => {
-      const { menu, categories, items } = createMinimalMenu("dinner", "Dinner Menu");
+      const { menu, categories, items } = createMinimalMenu(
+        "dinner",
+        "Dinner Menu",
+      );
 
       const result = await generateMenuPdf(
         menu,
