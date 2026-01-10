@@ -1,6 +1,9 @@
 [test]
 preload = ["./test/ensure-deps.js", "./test/setup.js"]
 
+# Exclude infrastructure scripts from coverage (defensive code that can't be meaningfully tested)
+coveragePathIgnorePatterns = ["test/ensure-deps.js"]
+
 # Test file patterns
 root = "./test"
 
