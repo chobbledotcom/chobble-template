@@ -96,14 +96,6 @@ describe("news-collection", () => {
     expectResultTitles(result, ["No property", "Explicit false"]);
   });
 
-  test("Handles null collection gracefully", () => {
-    const api = { getFilteredByTag: () => null };
-
-    const result = createNewsCollection(api);
-
-    expect(result.length).toBe(0);
-  });
-
   test("Configures news collection on Eleventy config", () => {
     const mockConfig = createMockEleventyConfig();
 

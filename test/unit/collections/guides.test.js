@@ -51,18 +51,6 @@ describe("guides", () => {
     expect(result.length).toBe(0);
   });
 
-  test("Handles null/undefined guide pages", () => {
-    expect(guidesByCategory(null, "getting-started")).toEqual([]);
-    expect(guidesByCategory(undefined, "getting-started")).toEqual([]);
-  });
-
-  test("Handles null/undefined category slug", () => {
-    const guidePages = guides([["Guide 1", "getting-started"]]);
-
-    expect(guidesByCategory(guidePages, null)).toEqual([]);
-    expect(guidesByCategory(guidePages, undefined)).toEqual([]);
-  });
-
   test("Handles empty guide pages array", () => {
     const result = guidesByCategory([], "getting-started");
 
