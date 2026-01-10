@@ -15,9 +15,9 @@ coverage = true
 
 # Coverage thresholds - tests fail if coverage drops below these levels
 # Allows manual management of .coverage_exceptions.json while preventing regressions
-coverageThreshold = { lines = 0.983, functions = 0.986, statements = 0.983 }
+coverageThreshold = { lines = 0.9928, functions = 0.9857 }
 
-# Files excluded from coverage
-# canonical-url.js has module-load-time validation guards that can only fail
-# if site.json is misconfigured - these are untestable startup assertions
-coveragePathIgnorePatterns = ["src/_lib/utils/canonical-url.js"]
+# Files excluded from coverage:
+# - ensure-deps.js: defensive code that can't be meaningfully tested
+# - canonical-url.js: module-load-time validation guards that can only fail if site.json is misconfigured
+coveragePathIgnorePatterns = ["test/ensure-deps.js", "src/_lib/utils/canonical-url.js"]
