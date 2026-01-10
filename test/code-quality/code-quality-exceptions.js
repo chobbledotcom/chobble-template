@@ -194,7 +194,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
-  "src/_lib/media/inline-asset.js", // Internal helpers for asset validation
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
