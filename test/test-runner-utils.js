@@ -76,6 +76,20 @@ export function extractErrorsFromOutput(output) {
       trimmed.includes("Uncovered") ||
       trimmed.includes("must have test coverage");
 
+    // Detect coverage table rows with uncovered lines (Bun coverage output format)
+    // Format: " src/file.js | 95.00 | 90.00 | 21-22,41" or "All files | 99.00 | 98.00 |"
+    const coverageTableMatch = trimmed.match(
+      /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
+    );
+    if (coverageTableMatch) {
+      const [, , , , uncoveredLines] = coverageTableMatch;
+      // Include rows that have uncovered lines listed
+      if (uncoveredLines?.trim()) {
+        errors.push(trimmed);
+        continue;
+      }
+    }
+
     // Look for tool-specific error patterns
     const hasToolPattern =
       // Knip outputs: "Unused files (3)", "Unused exports (5)", etc.
@@ -166,17 +180,35 @@ export function printSummary(steps, results, title = "SUMMARY") {
       if (errors.length > 0) {
         printTruncatedList({ moreLabel: "errors" })(errors);
       } else {
-        // Show last 15 lines of output when no specific errors extracted
-        console.log("  No specific errors extracted. Last 15 lines of output:");
-        const allOutput = (result.stderr || result.stdout || "").split("\n");
-        const lastLines = allOutput.slice(-15).filter((l) => l.trim());
-        for (const line of lastLines) {
-          console.log(`  ${line}`);
+        // Check if this looks like a coverage threshold failure
+        // (tests passed but exit code 1, with coverage table in output)
+        const allOutput = result.stderr || result.stdout || "";
+        const hasPassingTests = /\d+ pass/.test(allOutput);
+        const hasZeroFail = /0 fail/.test(allOutput);
+        const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
+
+        if (hasPassingTests && hasZeroFail && hasCoverageTable) {
+          console.log(
+            "  Coverage threshold not met. Check coverage output above.",
+          );
+          console.log(
+            "  Thresholds are defined in bunfig.toml (coverageThreshold).",
+          );
+        } else {
+          // Show last 15 lines of output when no specific errors extracted
+          console.log(
+            "  No specific errors extracted. Last 15 lines of output:",
+          );
+          const outputLines = allOutput.split("\n");
+          const lastLines = outputLines.slice(-15).filter((l) => l.trim());
+          for (const line of lastLines) {
+            console.log(`  ${line}`);
+          }
+          console.log(
+            "\n  Run with --verbose to see full output, or check exit code:",
+          );
+          console.log(`  Exit code: ${result.status}`);
         }
-        console.log(
-          "\n  Run with --verbose to see full output, or check exit code:",
-        );
-        console.log(`  Exit code: ${result.status}`);
       }
     }
   }
