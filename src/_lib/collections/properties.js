@@ -4,7 +4,7 @@ import { arraySlugKey, memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
 const createPropertiesCollection = (collectionApi) => {
-  const properties = collectionApi.getFilteredByTag("property") || [];
+  const properties = collectionApi.getFilteredByTag("properties") || [];
   return properties.map(addGallery);
 };
 
@@ -27,11 +27,11 @@ const getFeaturedProperties = (properties) =>
   properties.filter((p) => p.data.featured);
 
 const propertiesWithReviewsPage = withReviewsPage(
-  "property",
+  "properties",
   "properties",
   addGallery,
 );
-const propertyReviewsRedirects = reviewsRedirects("property", "properties");
+const propertyReviewsRedirects = reviewsRedirects("properties", "properties");
 
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", createPropertiesCollection);

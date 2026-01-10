@@ -359,9 +359,9 @@ describe("reviews", () => {
     // product-a gets limit+1 reviews (above limit), product-b gets limit reviews (at limit)
     const { reviews: testReviews, products } = createLimitTestData(true);
 
-    const factory = withReviewsPage("product", "products");
+    const factory = withReviewsPage("products", "products");
     const result = factory(
-      taggedCollectionApi({ product: products, review: testReviews }),
+      taggedCollectionApi({ products: products, reviews: testReviews }),
     );
 
     // Only product-a (above limit) should be included, not product-b (at limit)
@@ -374,9 +374,9 @@ describe("reviews", () => {
     const products = [createProduct({ slug: "product-a", title: "Product A" })];
 
     const processItem = (item) => ({ ...item, transformed: true });
-    const factory = withReviewsPage("product", "products", processItem);
+    const factory = withReviewsPage("products", "products", processItem);
     const result = factory(
-      taggedCollectionApi({ product: products, review: testReviews }),
+      taggedCollectionApi({ products: products, reviews: testReviews }),
     );
 
     expect(result.length).toBe(1);
@@ -387,9 +387,9 @@ describe("reviews", () => {
     // product-a gets limit reviews (at limit), product-b gets limit+1 reviews (above limit)
     const { reviews: testReviews, products } = createLimitTestData(false);
 
-    const factory = reviewsRedirects("product", "products");
+    const factory = reviewsRedirects("products", "products");
     const result = factory(
-      taggedCollectionApi({ product: products, review: testReviews }),
+      taggedCollectionApi({ products: products, reviews: testReviews }),
     );
 
     // Only product-a (at limit) should get redirect, not product-b (above limit)
@@ -402,9 +402,9 @@ describe("reviews", () => {
     const testReviews = itemsFor("product-a", 100);
     const products = [createProduct({ slug: "product-a", title: "Product A" })];
 
-    const factory = withReviewsPage("product", "products", (i) => i, -1);
+    const factory = withReviewsPage("products", "products", (i) => i, -1);
     const result = factory(
-      taggedCollectionApi({ product: products, review: testReviews }),
+      taggedCollectionApi({ products: products, reviews: testReviews }),
     );
 
     // Even with 100 reviews, limit=-1 means no separate pages
@@ -418,9 +418,9 @@ describe("reviews", () => {
       createProduct({ slug: "product-b", title: "Product B" }),
     ];
 
-    const factory = reviewsRedirects("product", "products", -1);
+    const factory = reviewsRedirects("products", "products", -1);
     const result = factory(
-      taggedCollectionApi({ product: products, review: testReviews }),
+      taggedCollectionApi({ products: products, reviews: testReviews }),
     );
 
     // All items get redirects when limit=-1

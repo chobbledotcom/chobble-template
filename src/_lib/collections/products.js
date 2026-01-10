@@ -33,7 +33,7 @@ const addGallery = (item) => {
 };
 
 const createProductsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
+  const products = collectionApi.getFilteredByTag("products") || [];
   return products.map(addGallery);
 };
 
@@ -75,7 +75,7 @@ const getFeaturedProducts = (products) =>
  * @param {any} collectionApi - Eleventy collection API
  */
 const createApiSkusCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
+  const products = collectionApi.getFilteredByTag("products") || [];
   const allSkuEntries = products.flatMap((product) => {
     /** @type {import("#lib/types").Option[]|undefined} */
     const options = product.data.options;
@@ -106,11 +106,11 @@ const createApiSkusCollection = (collectionApi) => {
 };
 
 const productsWithReviewsPage = withReviewsPage(
-  "product",
+  "products",
   "products",
   addGallery,
 );
-const productReviewsRedirects = reviewsRedirects("product", "products");
+const productReviewsRedirects = reviewsRedirects("products", "products");
 
 /**
  * Configure products collections and filters

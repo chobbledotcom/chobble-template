@@ -213,7 +213,7 @@ describe("categories", () => {
   });
 
   test("createCategoriesCollection-empty", () => {
-    const mockApi = taggedCollectionApi({ category: [], product: [] });
+    const mockApi = taggedCollectionApi({ categories: [], products: [] });
 
     const result = createCategoriesCollection(mockApi);
 
@@ -222,11 +222,11 @@ describe("categories", () => {
 
   test("createCategoriesCollection-integration", () => {
     const mockApi = taggedCollectionApi({
-      category: categories([
+      categories: categories([
         ["widgets", "default-widget.jpg", { title: "Widgets" }],
         ["gadgets", undefined, { title: "Gadgets" }],
       ]),
-      product: products([
+      products: products([
         { order: 5, cats: ["widgets"], headerImage: "premium-widget.jpg" },
         { order: 2, cats: ["gadgets"], headerImage: "basic-gadget.jpg" },
       ]),

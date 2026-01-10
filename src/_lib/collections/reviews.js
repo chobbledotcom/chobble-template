@@ -16,7 +16,7 @@ const AVATAR_SVG_TEMPLATE = readFileSync(
  * Fetches all items tagged with "review", filters out hidden ones, and sorts by date.
  */
 const createReviewsCollection = (collectionApi) => {
-  const reviews = collectionApi.getFilteredByTag("review") || [];
+  const reviews = collectionApi.getFilteredByTag("reviews") || [];
   return reviews
     .filter((review) => review.data.hidden !== true)
     .sort(sortByDateDescending);
