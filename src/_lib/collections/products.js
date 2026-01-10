@@ -131,6 +131,7 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
+  // @ts-expect-error - Filter returns array, not string (used for data transformation in templates)
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 
