@@ -14,6 +14,13 @@ const STYLE_FILE = "src/css/style.scss";
 // These variables are defined in SCSS but not read via var() in CSS
 const CONSUMED_VIA_JS = [];
 
+// Files that have their own isolated :root definitions (e.g., standalone bundles)
+const ISOLATED_BUNDLES = [
+  "landing-bundle.scss",
+  "_landing-variables.scss",
+  "_landing-mixins.scss",
+];
+
 // ============================================
 // Helper functions
 // ============================================
@@ -45,12 +52,18 @@ const findUndefinedVariables = (used, defined) => {
 // Load data for tests
 // ============================================
 
-const scssFiles = [
+const allScssFiles = [
   ...new Bun.Glob("**/*.scss").scanSync({
     cwd: `${rootDir}/${SCSS_DIR}`,
     absolute: true,
   }),
 ];
+
+// Exclude isolated bundle files from main variable validation
+const scssFiles = allScssFiles.filter(
+  (file) => !ISOLATED_BUNDLES.some((bundle) => file.endsWith(bundle)),
+);
+
 const usedVariables = extractUsedVariables(scssFiles);
 const definedVariables = extractDefinedVariables(`${rootDir}/${STYLE_FILE}`);
 const allDefinedVariables = extractDefinedVariables(scssFiles);

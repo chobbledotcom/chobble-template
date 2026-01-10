@@ -1,0 +1,744 @@
+// Landing Page Bundle - Standalone CSS for landing pages
+// Uses Gutenberg-style spacing and consistent design patterns
+
+@use "landing-variables" as *;
+@use "landing-mixins" as *;
+
+// =============================================================================
+// CSS CUSTOM PROPERTIES (Theme Variables)
+// =============================================================================
+
+:root {
+  // Colors
+  --landing-bg: #fafafa;
+  --landing-bg-alt: #f3f4f6;
+  --landing-card-bg: #ffffff;
+  --landing-text: #1f2937;
+  --landing-text-muted: #6b7280;
+  --landing-primary: #2563eb;
+  --landing-primary-dark: #1d4ed8;
+  --landing-primary-light: #dbeafe;
+  --landing-secondary: #7c3aed;
+  --landing-accent: #10b981;
+  --landing-hover-bg: rgba(0, 0, 0, 0.05);
+
+  // Typography
+  --landing-font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --landing-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  // Shadows
+  --landing-shadow-sm: #{$shadow-sm};
+  --landing-shadow-md: #{$shadow-md};
+  --landing-shadow-lg: #{$shadow-lg};
+  --landing-shadow-xl: #{$shadow-xl};
+}
+
+// =============================================================================
+// BASE RESET & DEFAULTS
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+
+  @include reduced-motion {
+    scroll-behavior: auto;
+  }
+}
+
+body.landing-page {
+  margin: 0;
+  padding: 0;
+  font-family: var(--landing-font-sans);
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: var(--landing-text);
+  background: var(--landing-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// =============================================================================
+// TYPOGRAPHY
+// =============================================================================
+
+.landing-page {
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 $space-md;
+    font-weight: 700;
+    line-height: $line-height-tight;
+    color: var(--landing-text);
+    @include text-balance;
+  }
+
+  h1 {
+    @include heading-xl;
+  }
+
+  h2 {
+    @include heading-lg;
+    margin-bottom: $space-lg;
+  }
+
+  h3 {
+    @include heading-md;
+  }
+
+  h4 {
+    @include heading-sm;
+  }
+
+  p {
+    margin: 0 0 $space-md;
+    line-height: $line-height-relaxed;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  a {
+    color: var(--landing-primary);
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: var(--landing-primary-dark);
+      text-decoration: underline;
+    }
+  }
+
+  code {
+    font-family: var(--landing-font-mono);
+    font-size: 0.9em;
+    padding: 0.2em 0.4em;
+    background: var(--landing-bg-alt);
+    border-radius: $radius-sm;
+  }
+
+  pre {
+    margin: $space-lg 0;
+    padding: $space-md;
+    background: #1f2937;
+    color: #f9fafb;
+    border-radius: $radius-md;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+// =============================================================================
+// LAYOUT COMPONENTS
+// =============================================================================
+
+.landing-container {
+  @include container($width-wide);
+}
+
+.landing-container--narrow {
+  @include container($width-narrow);
+}
+
+.landing-container--default {
+  @include container($width-default);
+}
+
+.landing-section {
+  @include section;
+}
+
+.landing-section--compact {
+  @include section($space-2xl);
+}
+
+.landing-section--hero {
+  @include section($space-4xl);
+}
+
+.landing-section--alt {
+  background: var(--landing-bg-alt);
+}
+
+.landing-section--dark {
+  background: #1f2937;
+  color: #f9fafb;
+
+  --landing-text: #f9fafb;
+  --landing-text-muted: #9ca3af;
+  --landing-card-bg: #374151;
+}
+
+.landing-section--gradient {
+  background: linear-gradient(135deg, var(--landing-primary-light) 0%, #faf5ff 100%);
+}
+
+// =============================================================================
+// HERO SECTION
+// =============================================================================
+
+.landing-hero {
+  @include flex-col($space-lg, center, center);
+  text-align: center;
+  min-height: 60vh;
+  padding: $space-4xl $space-md;
+
+  @include tablet-up {
+    min-height: 70vh;
+    padding: $space-4xl $space-lg;
+  }
+}
+
+.landing-hero__badge {
+  @include body-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-xs;
+  padding: $space-xs $space-sm;
+  background: var(--landing-primary-light);
+  color: var(--landing-primary);
+  border-radius: $radius-full;
+  font-weight: 600;
+  margin-bottom: $space-md;
+}
+
+.landing-hero__title {
+  @include heading-xl;
+  max-width: 900px;
+  margin-bottom: $space-lg;
+}
+
+.landing-hero__subtitle {
+  @include body-lg;
+  color: var(--landing-text-muted);
+  max-width: 700px;
+  margin-bottom: $space-xl;
+}
+
+.landing-hero__actions {
+  @include flex-row($space-md, center, center);
+  flex-wrap: wrap;
+}
+
+// =============================================================================
+// BUTTONS
+// =============================================================================
+
+.landing-btn {
+  @include button-base;
+  @include focus-ring;
+}
+
+.landing-btn--primary {
+  @include button-primary;
+}
+
+.landing-btn--secondary {
+  @include button-secondary;
+}
+
+.landing-btn--ghost {
+  @include button-ghost;
+}
+
+.landing-btn--lg {
+  padding: $space-md $space-xl;
+  font-size: $font-size-md;
+}
+
+.landing-btn--sm {
+  padding: $space-xs $space-md;
+  font-size: $font-size-sm;
+}
+
+// =============================================================================
+// FEATURE CARDS
+// =============================================================================
+
+.landing-features {
+  @include grid-auto(300px, $space-lg);
+}
+
+.landing-feature {
+  @include card;
+  @include card-hover;
+  @include scroll-reveal;
+  @include stagger-children(0.1s);
+}
+
+.landing-feature__icon {
+  @include flex-center;
+  width: 56px;
+  height: 56px;
+  background: var(--landing-primary-light);
+  color: var(--landing-primary);
+  border-radius: $radius-lg;
+  font-size: $font-size-xl;
+  margin-bottom: $space-md;
+}
+
+.landing-feature__title {
+  @include heading-sm;
+  margin-bottom: $space-xs;
+}
+
+.landing-feature__description {
+  @include body-base;
+  color: var(--landing-text-muted);
+  margin: 0;
+}
+
+// =============================================================================
+// GRID LAYOUTS
+// =============================================================================
+
+.landing-grid {
+  @include grid(1, $space-lg);
+
+  @include tablet-up {
+    @include grid(2, $space-lg);
+  }
+
+  @include desktop-up {
+    @include grid(3, $space-xl);
+  }
+}
+
+.landing-grid--2col {
+  @include grid(1, $space-lg);
+
+  @include tablet-up {
+    @include grid(2, $space-xl);
+  }
+}
+
+.landing-grid--4col {
+  @include grid(2, $space-md);
+
+  @include tablet-up {
+    @include grid(4, $space-lg);
+  }
+}
+
+// =============================================================================
+// SPLIT SECTIONS (Text + Image)
+// =============================================================================
+
+.landing-split {
+  @include grid(1, $space-2xl);
+  align-items: center;
+
+  @include tablet-up {
+    @include grid(2, $space-3xl);
+  }
+}
+
+.landing-split--reverse {
+  @include tablet-up {
+    > :first-child {
+      order: 2;
+    }
+    > :last-child {
+      order: 1;
+    }
+  }
+}
+
+.landing-split__content {
+  @include scroll-reveal-left;
+}
+
+.landing-split--reverse .landing-split__content {
+  @include scroll-reveal-right;
+}
+
+.landing-split__image {
+  @include scroll-reveal-scale;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  box-shadow: $shadow-xl;
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+// =============================================================================
+// STATS/NUMBERS
+// =============================================================================
+
+.landing-stats {
+  @include flex-wrap($space-xl);
+  justify-content: center;
+}
+
+.landing-stat {
+  text-align: center;
+  min-width: 150px;
+
+  @include scroll-reveal;
+  @include stagger-children(0.15s);
+}
+
+.landing-stat__number {
+  font-size: $font-size-4xl;
+  font-weight: 700;
+  color: var(--landing-primary);
+  line-height: 1;
+  margin-bottom: $space-xs;
+
+  @include tablet-up {
+    font-size: $font-size-5xl;
+  }
+}
+
+.landing-stat__label {
+  @include body-base;
+  color: var(--landing-text-muted);
+}
+
+// =============================================================================
+// CTA SECTION
+// =============================================================================
+
+.landing-cta {
+  @include flex-col($space-lg, center, center);
+  text-align: center;
+  @include card($space-3xl, $radius-2xl, $shadow-xl);
+  background: linear-gradient(135deg, var(--landing-primary) 0%, var(--landing-secondary) 100%);
+  color: #fff;
+
+  --landing-text: #fff;
+  --landing-text-muted: rgba(255, 255, 255, 0.8);
+}
+
+.landing-cta__title {
+  @include heading-lg;
+  margin-bottom: $space-sm;
+}
+
+.landing-cta__description {
+  @include body-lg;
+  opacity: 0.9;
+  max-width: 600px;
+  margin-bottom: $space-lg;
+}
+
+.landing-cta .landing-btn--secondary {
+  border-color: #fff;
+  color: #fff;
+
+  &:hover {
+    background: #fff;
+    color: var(--landing-primary);
+  }
+}
+
+// =============================================================================
+// TESTIMONIALS
+// =============================================================================
+
+.landing-testimonial {
+  @include card($space-xl, $radius-xl);
+  @include scroll-reveal;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.landing-testimonial__quote {
+  @include body-lg;
+  font-style: italic;
+  margin-bottom: $space-lg;
+
+  &::before {
+    content: '"';
+    font-size: 3rem;
+    color: var(--landing-primary);
+    line-height: 0;
+    vertical-align: -0.4em;
+    margin-right: $space-xs;
+  }
+}
+
+.landing-testimonial__author {
+  @include flex-col($space-xs, center);
+}
+
+.landing-testimonial__name {
+  font-weight: 600;
+}
+
+.landing-testimonial__role {
+  @include body-sm;
+  color: var(--landing-text-muted);
+}
+
+// =============================================================================
+// LOGO CLOUD
+// =============================================================================
+
+.landing-logos {
+  @include flex-row($space-xl, center, center);
+  flex-wrap: wrap;
+  opacity: 0.6;
+  filter: grayscale(100%);
+  transition: all $transition-normal;
+
+  &:hover {
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  img {
+    height: 32px;
+    width: auto;
+
+    @include tablet-up {
+      height: 40px;
+    }
+  }
+}
+
+// =============================================================================
+// CODE BLOCKS (for tech landing pages)
+// =============================================================================
+
+.landing-code {
+  position: relative;
+  @include scroll-reveal;
+}
+
+.landing-code__header {
+  @include flex-between;
+  padding: $space-sm $space-md;
+  background: #374151;
+  border-radius: $radius-md $radius-md 0 0;
+  color: #9ca3af;
+  font-size: $font-size-sm;
+}
+
+.landing-code__dots {
+  @include flex-row($space-xs);
+
+  span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #6b7280;
+
+    &:nth-child(1) { background: #ef4444; }
+    &:nth-child(2) { background: #f59e0b; }
+    &:nth-child(3) { background: #10b981; }
+  }
+}
+
+.landing-code__body {
+  padding: $space-md;
+  background: #1f2937;
+  border-radius: 0 0 $radius-md $radius-md;
+  overflow-x: auto;
+
+  pre {
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+
+  code {
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+  }
+}
+
+// =============================================================================
+// PRICING (optional for SAAS pages)
+// =============================================================================
+
+.landing-pricing {
+  @include grid-auto(280px, $space-lg);
+  align-items: stretch;
+}
+
+.landing-pricing-card {
+  @include card($space-xl, $radius-xl);
+  @include flex-col($space-md);
+  @include scroll-reveal;
+  @include stagger-children(0.15s);
+  position: relative;
+}
+
+.landing-pricing-card--featured {
+  border: 2px solid var(--landing-primary);
+  transform: scale(1.02);
+
+  @include tablet-up {
+    transform: scale(1.05);
+  }
+}
+
+.landing-pricing-card__badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: $space-xs $space-md;
+  background: var(--landing-primary);
+  color: #fff;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  border-radius: $radius-full;
+}
+
+.landing-pricing-card__name {
+  @include heading-sm;
+  margin: 0;
+}
+
+.landing-pricing-card__price {
+  font-size: $font-size-4xl;
+  font-weight: 700;
+  color: var(--landing-primary);
+
+  span {
+    font-size: $font-size-base;
+    font-weight: normal;
+    color: var(--landing-text-muted);
+  }
+}
+
+.landing-pricing-card__features {
+  @include flex-col($space-sm);
+  list-style: none;
+  padding: 0;
+  margin: $space-md 0;
+  flex-grow: 1;
+
+  li {
+    @include flex-row($space-sm, center, flex-start);
+
+    &::before {
+      content: "✓";
+      color: var(--landing-accent);
+      font-weight: bold;
+    }
+  }
+}
+
+// =============================================================================
+// FOOTER
+// =============================================================================
+
+.landing-footer {
+  padding: $space-2xl 0;
+  background: #1f2937;
+  color: #9ca3af;
+
+  a {
+    color: #d1d5db;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.landing-footer__inner {
+  @include container($width-wide);
+  @include flex-col($space-lg, center);
+  text-align: center;
+
+  @include tablet-up {
+    @include flex-between;
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+.landing-footer__links {
+  @include flex-row($space-lg);
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @include tablet-up {
+    justify-content: flex-start;
+  }
+}
+
+// =============================================================================
+// SCROLL ANIMATIONS (JavaScript-activated)
+// =============================================================================
+
+.landing-page {
+  .scroll-reveal,
+  [data-scroll-reveal] {
+    @include scroll-reveal;
+  }
+
+  .scroll-reveal-left,
+  [data-scroll-reveal="left"] {
+    @include scroll-reveal-left;
+  }
+
+  .scroll-reveal-right,
+  [data-scroll-reveal="right"] {
+    @include scroll-reveal-right;
+  }
+
+  .scroll-reveal-scale,
+  [data-scroll-reveal="scale"] {
+    @include scroll-reveal-scale;
+  }
+
+  // Disable animations for reduced motion
+  @include reduced-motion {
+    .scroll-reveal,
+    .scroll-reveal-left,
+    .scroll-reveal-right,
+    .scroll-reveal-scale,
+    [data-scroll-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
+// =============================================================================
+// UTILITY CLASSES
+// =============================================================================
+
+.landing-text-center { text-align: center; }
+.landing-text-left { text-align: left; }
+.landing-text-right { text-align: right; }
+
+.landing-text-muted { color: var(--landing-text-muted); }
+.landing-text-primary { color: var(--landing-primary); }
+
+.landing-mt-0 { margin-top: 0; }
+.landing-mb-0 { margin-bottom: 0; }
+.landing-mt-md { margin-top: $space-md; }
+.landing-mb-md { margin-bottom: $space-md; }
+.landing-mt-lg { margin-top: $space-lg; }
+.landing-mb-lg { margin-bottom: $space-lg; }
+.landing-mt-xl { margin-top: $space-xl; }
+.landing-mb-xl { margin-bottom: $space-xl; }
+
+.landing-sr-only { @include sr-only; }

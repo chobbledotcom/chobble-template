@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {%- include "head-meta.html" -%}
+
+  <link
+    rel="stylesheet"
+    href="{{ '/css/landing-bundle.css' | cacheBust }}"
+  >
+
+  <script
+    type="module"
+    src="{{ '/assets/js/landing-bundle.js' | cacheBust }}"
+  ></script>
+
+  {%- include "head-schema.html" -%}
+</head>
+<body class="landing-page {{ body_class }}">
+  {{- content -}}
+</body>
+</html>

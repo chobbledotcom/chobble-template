@@ -2,19 +2,27 @@ export function configureEsbuild(eleventyConfig) {
   eleventyConfig.on("eleventy.before", async () => {
     const isDevelopment = process.env.ELEVENTY_RUN_MODE === "serve";
 
-    /** @type {import('bun').BuildConfig} */
-    const buildConfig = {
-      entrypoints: ["src/_lib/public/bundle.js"],
-      outdir: "_site/assets/js",
-      naming: "bundle.js",
+    const commonConfig = {
       target: "browser",
-      // Source maps help with error diagnostics
       sourcemap: "external",
-      // Environment-aware minification: dev keeps code readable, prod minifies
       minify: !isDevelopment,
     };
 
-    await Bun.build(buildConfig);
+    // Build main site bundle
+    await Bun.build({
+      ...commonConfig,
+      entrypoints: ["src/_lib/public/bundle.js"],
+      outdir: "_site/assets/js",
+      naming: "bundle.js",
+    });
+
+    // Build landing page bundle
+    await Bun.build({
+      ...commonConfig,
+      entrypoints: ["src/_lib/public/landing-bundle.js"],
+      outdir: "_site/assets/js",
+      naming: "landing-bundle.js",
+    });
 
     if (isDevelopment) {
       console.log(

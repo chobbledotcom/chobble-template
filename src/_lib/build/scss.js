@@ -5,6 +5,9 @@ import { createLazyLoader } from "#utils/lazy-loader.js";
 
 const getSass = createLazyLoader("sass");
 
+// Files that should be compiled (not just imported as partials)
+const COMPILED_BUNDLES = ["bundle.scss", "landing-bundle.scss"];
+
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
 
@@ -29,6 +32,9 @@ const compileScss = async (inputContent, inputPath) => {
   return await compiler({});
 };
 
+const shouldCompileScss = (inputPath) =>
+  COMPILED_BUNDLES.some((bundle) => inputPath.endsWith(bundle));
+
 const configureScss = (eleventyConfig) => {
   // Explicitly watch CSS directory to trigger rebuilds when partials change
   eleventyConfig.addWatchTarget("./src/css/");
@@ -38,8 +44,8 @@ const configureScss = (eleventyConfig) => {
     outputFileExtension: "css",
     useLayouts: false,
     compile: (inputContent, inputPath) => {
-      // Only compile bundle.scss, skip all other scss files
-      if (!inputPath.endsWith("bundle.scss")) {
+      // Only compile specified bundles, skip all other scss files
+      if (!shouldCompileScss(inputPath)) {
         return () => undefined;
       }
       return createScssCompiler(inputContent, inputPath);
@@ -47,4 +53,4 @@ const configureScss = (eleventyConfig) => {
   });
 };
 
-export { createScssCompiler, compileScss, configureScss };
+export { createScssCompiler, compileScss, configureScss, shouldCompileScss };
