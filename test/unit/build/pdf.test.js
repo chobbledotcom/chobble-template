@@ -515,7 +515,10 @@ describe("pdf", () => {
     });
 
     test("Creates output directory if it doesn't exist", async () => {
-      const { menu, categories, items } = createMinimalMenu("lunch", "Lunch Menu");
+      const { menu, categories, items } = createMinimalMenu(
+        "lunch",
+        "Lunch Menu",
+      );
 
       await generateMenuPdf(menu, categories, items, testOutputDir);
 
