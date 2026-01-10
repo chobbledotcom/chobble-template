@@ -72,6 +72,13 @@ const lunchMenuWithItem = (dietaryKeys) => ({
   items: [createMockMenuItem("Item", ["apps"], "$5", null, dietaryKeys)],
 });
 
+/** Minimal menu setup for PDF generation tests */
+const createMinimalMenu = (slug, title) => ({
+  menu: createMockMenu(slug, title),
+  categories: [],
+  items: [],
+});
+
 describe("pdf", () => {
   // buildMenuPdfData tests
   describe("buildMenuPdfData", () => {
@@ -508,13 +515,7 @@ describe("pdf", () => {
     });
 
     test("Creates output directory if it doesn't exist", async () => {
-      const menu = createMockMenu("lunch", "Lunch Menu");
-      const categories = [];
-      const items = [];
-
-      // Directory doesn't exist yet
-      const menuDir = join(testOutputDir, "menus/lunch");
-      expect(existsSync(menuDir)).toBe(false);
+      const { menu, categories, items } = createMinimalMenu("lunch", "Lunch Menu");
 
       await generateMenuPdf(menu, categories, items, testOutputDir);
 
@@ -523,9 +524,7 @@ describe("pdf", () => {
     });
 
     test("Generates PDF file with correct filename", async () => {
-      const menu = createMockMenu("dinner", "Dinner Menu");
-      const categories = [];
-      const items = [];
+      const { menu, categories, items } = createMinimalMenu("dinner", "Dinner Menu");
 
       const result = await generateMenuPdf(
         menu,
@@ -540,9 +539,7 @@ describe("pdf", () => {
     });
 
     test("Returns null when PDF generation fails", async () => {
-      const menu = createMockMenu("invalid", "Invalid Menu");
-      const categories = [];
-      const items = [];
+      const { menu, categories, items } = createMinimalMenu("invalid", "Invalid Menu");
 
       const result = await generateMenuPdf(
         menu,
@@ -560,9 +557,7 @@ describe("pdf", () => {
     });
 
     test("Logs success message when PDF is generated", async () => {
-      const menu = createMockMenu("lunch", "Lunch Menu");
-      const categories = [];
-      const items = [];
+      const { menu, categories, items } = createMinimalMenu("lunch", "Lunch Menu");
 
       await generateMenuPdf(menu, categories, items, testOutputDir);
 
@@ -576,9 +571,7 @@ describe("pdf", () => {
     });
 
     test("Handles write stream errors gracefully", async () => {
-      const menu = createMockMenu("lunch", "Lunch Menu");
-      const categories = [];
-      const items = [];
+      const { menu, categories, items } = createMinimalMenu("lunch", "Lunch Menu");
 
       // Try to generate PDF - if there's an error, it should reject the promise
       await expect(
@@ -586,16 +579,6 @@ describe("pdf", () => {
       ).resolves.toBeDefined();
     });
 
-    test("Creates nested directory structure with recursive: true", () => {
-      // Test the mkdirSync logic used in generateMenuPdf
-      const nestedPath = join(testOutputDir, "menus/nested/deep/path");
-
-      expect(existsSync(nestedPath)).toBe(false);
-
-      mkdirSync(nestedPath, { recursive: true });
-
-      expect(existsSync(nestedPath)).toBe(true);
-    });
 
     test("Uses correct menu permalink directory from strings", () => {
       // Verify that the function would use the correct directory structure

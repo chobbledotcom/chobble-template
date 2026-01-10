@@ -196,7 +196,8 @@ const captureConsoleLogAsync = createConsoleCapture(
 );
 
 const createTempDir = (testName, suffix = "") => {
-  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}`;
+  const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
+  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
   const tempDir = path.join(__dirname, dirName);
   fs.mkdirSync(tempDir, { recursive: true });
   return tempDir;
