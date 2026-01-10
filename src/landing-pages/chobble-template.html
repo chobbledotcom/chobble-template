@@ -3,178 +3,147 @@ title: Chobble Template - Modern Static Site Generator for Small Businesses
 meta_title: Chobble Template - Complete Eleventy Starter for Small Business Websites
 meta_description: A free, open-source Eleventy template with e-commerce, 10 themes, 14 content types, and everything small businesses need to succeed online.
 permalink: /chobble-template/
-body_class: chobble-landing
 ---
 
-<!-- Hero Section -->
-<section class="landing-section--hero landing-section--gradient">
-  <div class="landing-hero">
-    <span class="landing-hero__badge">
-      Open Source & Free
-    </span>
-    <h1 class="landing-hero__title">
-      The Complete Website Solution for Small Businesses
-    </h1>
-    <p class="landing-hero__subtitle">
+<main>
+  <!-- Hero -->
+  <header class="hero gradient">
+    <span class="badge">Open Source & Free</span>
+    <h1>The Complete Website Solution for Small Businesses</h1>
+    <p class="lead">
       A production-ready Eleventy template with e-commerce, 10 themes, 14 content types,
       and everything you need to build a professional website. No recurring fees. Full control.
     </p>
-    <div class="landing-hero__actions">
-      <a href="https://github.com/chobbledotcom/chobble-template" class="landing-btn landing-btn--primary landing-btn--lg">
+    <div class="actions">
+      <a href="https://github.com/chobbledotcom/chobble-template" class="btn btn--primary btn--lg">
         View on GitHub
       </a>
-      <a href="https://example.chobble.com" class="landing-btn landing-btn--secondary landing-btn--lg">
+      <a href="https://example.chobble.com" class="btn btn--secondary btn--lg">
         Live Demo
       </a>
     </div>
-  </div>
-</section>
+  </header>
 
-<!-- Stats Section -->
-<section class="landing-section landing-section--alt">
-  <div class="landing-container">
-    <div class="landing-stats">
-      <div class="landing-stat" data-scroll-reveal>
-        <div class="landing-stat__number">14</div>
-        <div class="landing-stat__label">Content Types</div>
-      </div>
-      <div class="landing-stat" data-scroll-reveal>
-        <div class="landing-stat__number">10</div>
-        <div class="landing-stat__label">Built-in Themes</div>
-      </div>
-      <div class="landing-stat" data-scroll-reveal>
-        <div class="landing-stat__number">125+</div>
-        <div class="landing-stat__label">Pre-built Components</div>
-      </div>
-      <div class="landing-stat" data-scroll-reveal>
-        <div class="landing-stat__number">$0</div>
-        <div class="landing-stat__label">Monthly Cost</div>
+  <!-- Stats -->
+  <section class="alt">
+    <div class="container">
+      <div class="stats">
+        <div class="stat" data-reveal>
+          <strong>14</strong>
+          <span>Content Types</span>
+        </div>
+        <div class="stat" data-reveal>
+          <strong>10</strong>
+          <span>Built-in Themes</span>
+        </div>
+        <div class="stat" data-reveal>
+          <strong>125+</strong>
+          <span>Pre-built Components</span>
+        </div>
+        <div class="stat" data-reveal>
+          <strong>$0</strong>
+          <span>Monthly Cost</span>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Features Grid -->
-<section class="landing-section">
-  <div class="landing-container">
-    <div class="landing-text-center landing-mb-xl">
-      <h2>Everything Your Business Needs</h2>
-      <p class="landing-text-muted" style="max-width: 600px; margin: 0 auto;">
-        From product catalogs to event calendars, holiday lets to restaurant menus.
-        One template, endless possibilities.
-      </p>
-    </div>
-
-    <div class="landing-features">
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#128722;</div>
-        <h3 class="landing-feature__title">E-Commerce Ready</h3>
-        <p class="landing-feature__description">
-          Built-in shopping cart with Stripe and PayPal integration. Or use quote mode for service businesses.
+  <!-- Features -->
+  <section>
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Everything Your Business Needs</h2>
+        <p class="text-muted">
+          From product catalogs to event calendars, holiday lets to restaurant menus.
+          One template, endless possibilities.
         </p>
-      </div>
+      </header>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#127912;</div>
-        <h3 class="landing-feature__title">10 Beautiful Themes</h3>
-        <p class="landing-feature__description">
-          From professional to playful. Live theme editor lets visitors preview looks instantly.
-        </p>
-      </div>
+      <div class="features">
+        <article class="feature" data-reveal>
+          <div class="icon">&#128722;</div>
+          <h3>E-Commerce Ready</h3>
+          <p>Built-in shopping cart with Stripe and PayPal integration. Or use quote mode for service businesses.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#128444;</div>
-        <h3 class="landing-feature__title">Smart Image Handling</h3>
-        <p class="landing-feature__description">
-          Automatic responsive images, WebP conversion, and blurred placeholders for lightning-fast loads.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <div class="icon">&#127912;</div>
+          <h3>10 Beautiful Themes</h3>
+          <p>From professional to playful. Live theme editor lets visitors preview looks instantly.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#128197;</div>
-        <h3 class="landing-feature__title">Events & Calendars</h3>
-        <p class="landing-feature__description">
-          One-off or recurring events. iCal export. Property availability calendars built-in.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <div class="icon">&#128444;</div>
+          <h3>Smart Image Handling</h3>
+          <p>Automatic responsive images, WebP conversion, and blurred placeholders for lightning-fast loads.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#127869;</div>
-        <h3 class="landing-feature__title">Restaurant Menus</h3>
-        <p class="landing-feature__description">
-          Full menu management with dietary indicators, categories, and pricing display.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <div class="icon">&#128197;</div>
+          <h3>Events & Calendars</h3>
+          <p>One-off or recurring events. iCal export. Property availability calendars built-in.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#127968;</div>
-        <h3 class="landing-feature__title">Property Listings</h3>
-        <p class="landing-feature__description">
-          Perfect for holiday lets. Bedrooms, amenities, price per night, and booking calendars.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <div class="icon">&#127869;</div>
+          <h3>Restaurant Menus</h3>
+          <p>Full menu management with dietary indicators, categories, and pricing display.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#11088;</div>
-        <h3 class="landing-feature__title">Reviews & Ratings</h3>
-        <p class="landing-feature__description">
-          Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <div class="icon">&#127968;</div>
+          <h3>Property Listings</h3>
+          <p>Perfect for holiday lets. Bedrooms, amenities, price per night, and booking calendars.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#128270;</div>
-        <h3 class="landing-feature__title">SEO Optimized</h3>
-        <p class="landing-feature__description">
-          Schema.org markup, RSS feeds, sitemaps, canonical URLs, and meta descriptions.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <div class="icon">&#11088;</div>
+          <h3>Reviews & Ratings</h3>
+          <p>Product reviews with 1-5 star ratings. Automatic aggregate scores for SEO.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <div class="landing-feature__icon">&#128187;</div>
-        <h3 class="landing-feature__title">No-Code CMS</h3>
-        <p class="landing-feature__description">
-          PagesCMS integration lets non-technical users edit content with a visual interface.
-        </p>
+        <article class="feature" data-reveal>
+          <div class="icon">&#128270;</div>
+          <h3>SEO Optimized</h3>
+          <p>Schema.org markup, RSS feeds, sitemaps, canonical URLs, and meta descriptions.</p>
+        </article>
+
+        <article class="feature" data-reveal>
+          <div class="icon">&#128187;</div>
+          <h3>No-Code CMS</h3>
+          <p>PagesCMS integration lets non-technical users edit content with a visual interface.</p>
+        </article>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Content Types Section -->
-<section class="landing-section landing-section--dark">
-  <div class="landing-container">
-    <div class="landing-split">
-      <div class="landing-split__content" data-scroll-reveal="left">
-        <h2>14 Content Types, One Template</h2>
-        <p class="landing-text-muted">
-          Most templates give you pages and posts. We give you a complete business toolkit.
-        </p>
-        <ul style="list-style: none; padding: 0; margin: 1.5rem 0;">
-          <li style="padding: 0.5rem 0;"><strong>Products</strong> - Galleries, variants, SKUs, specifications</li>
-          <li style="padding: 0.5rem 0;"><strong>Categories</strong> - Hierarchical organization with subcategories</li>
-          <li style="padding: 0.5rem 0;"><strong>Events</strong> - One-off and recurring with iCal export</li>
-          <li style="padding: 0.5rem 0;"><strong>News</strong> - Blog posts with RSS feed</li>
-          <li style="padding: 0.5rem 0;"><strong>Menus</strong> - Restaurant menus with dietary info</li>
-          <li style="padding: 0.5rem 0;"><strong>Locations</strong> - Multi-site support with maps</li>
-          <li style="padding: 0.5rem 0;"><strong>Properties</strong> - Holiday lets with availability</li>
-          <li style="padding: 0.5rem 0;"><strong>Reviews</strong> - Ratings linked to products</li>
-          <li style="padding: 0.5rem 0;"><strong>Team</strong> - Staff profiles</li>
-          <li style="padding: 0.5rem 0;"><strong>Guides</strong> - Documentation and help articles</li>
-        </ul>
-      </div>
-      <div class="landing-split__image" data-scroll-reveal="scale">
-        <div class="landing-code">
-          <div class="landing-code__header">
-            <div class="landing-code__dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <span>products/my-product.md</span>
-          </div>
-          <div class="landing-code__body">
-<pre><code>---
+  <!-- Content Types -->
+  <section class="dark">
+    <div class="container">
+      <div class="split">
+        <article data-reveal="left">
+          <h2>14 Content Types, One Template</h2>
+          <p class="text-muted">Most templates give you pages and posts. We give you a complete business toolkit.</p>
+          <ul>
+            <li><strong>Products</strong> - Galleries, variants, SKUs, specifications</li>
+            <li><strong>Categories</strong> - Hierarchical organization with subcategories</li>
+            <li><strong>Events</strong> - One-off and recurring with iCal export</li>
+            <li><strong>News</strong> - Blog posts with RSS feed</li>
+            <li><strong>Menus</strong> - Restaurant menus with dietary info</li>
+            <li><strong>Locations</strong> - Multi-site support with maps</li>
+            <li><strong>Properties</strong> - Holiday lets with availability</li>
+            <li><strong>Reviews</strong> - Ratings linked to products</li>
+            <li><strong>Team</strong> - Staff profiles</li>
+            <li><strong>Guides</strong> - Documentation and help articles</li>
+          </ul>
+        </article>
+        <figure data-reveal="scale">
+          <div class="code-block">
+            <header>
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>products/my-product.md</span>
+            </header>
+            <pre><code>---
 title: Organic Coffee Beans
 price: 12.99
 categories:
@@ -185,217 +154,170 @@ gallery:
   - src/images/coffee-2.jpg
 options:
   - name: Size
-    values:
-      - 250g
-      - 500g
-      - 1kg
+    values: [250g, 500g, 1kg]
 featured: true
 ---
 
 Premium single-origin beans
 from ethical farms.</code></pre>
           </div>
-        </div>
+        </figure>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Theme Showcase -->
-<section class="landing-section">
-  <div class="landing-container">
-    <div class="landing-split landing-split--reverse">
-      <div class="landing-split__content" data-scroll-reveal="right">
-        <h2>10 Themes. Zero Design Skills Needed.</h2>
-        <p>
-          Choose from professionally designed themes that work out of the box.
-          From sleek and modern to retro and playful.
-        </p>
-        <p class="landing-text-muted">
-          <strong>Default</strong> - Clean and professional<br>
-          <strong>Ocean</strong> - Cool blues and waves<br>
-          <strong>Sunset</strong> - Warm gradients<br>
-          <strong>Neon</strong> - Bold and vibrant<br>
-          <strong>Monochrome</strong> - Minimalist grayscale<br>
-          <strong>Floral</strong> - Soft and botanical<br>
-          <strong>Hacker</strong> - Green-on-black terminal<br>
-          <strong>90s Computer</strong> - Nostalgic retro<br>
-          <strong>Old Mac</strong> - Classic system look<br>
-          <strong>Rainbow</strong> - Colorful and fun
-        </p>
-        <p>
-          <a href="https://example.chobble.com/theme-editor/" class="landing-btn landing-btn--secondary">
+  <!-- Themes -->
+  <section>
+    <div class="container">
+      <div class="split split--reverse">
+        <article data-reveal="right">
+          <h2>10 Themes. Zero Design Skills Needed.</h2>
+          <p>Choose from professionally designed themes that work out of the box. From sleek and modern to retro and playful.</p>
+          <p class="text-muted">
+            <strong>Default</strong> - Clean and professional<br>
+            <strong>Ocean</strong> - Cool blues and waves<br>
+            <strong>Sunset</strong> - Warm gradients<br>
+            <strong>Neon</strong> - Bold and vibrant<br>
+            <strong>Monochrome</strong> - Minimalist grayscale<br>
+            <strong>Floral</strong> - Soft and botanical<br>
+            <strong>Hacker</strong> - Green-on-black terminal<br>
+            <strong>90s Computer</strong> - Nostalgic retro<br>
+            <strong>Old Mac</strong> - Classic system look<br>
+            <strong>Rainbow</strong> - Colorful and fun
+          </p>
+          <a href="https://example.chobble.com/theme-editor/" class="btn btn--secondary">
             Try the Live Theme Editor
           </a>
-        </p>
-      </div>
-      <div class="landing-split__image" data-scroll-reveal="scale">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 12px; text-align: center; color: white;">
-          <div style="font-size: 4rem; margin-bottom: 1rem;">&#127912;</div>
-          <div style="font-size: 1.5rem; font-weight: 600;">Theme Switcher</div>
-          <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">Let visitors preview themes instantly</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- E-Commerce Section -->
-<section class="landing-section landing-section--alt">
-  <div class="landing-container">
-    <div class="landing-text-center landing-mb-xl">
-      <h2>Flexible Commerce Options</h2>
-      <p class="landing-text-muted" style="max-width: 600px; margin: 0 auto;">
-        Sell products, take quotes, or both. Multiple payment integrations built in.
-      </p>
-    </div>
-
-    <div class="landing-grid--4col" style="text-align: center;">
-      <div class="landing-feature" data-scroll-reveal style="text-align: center;">
-        <div class="landing-feature__icon" style="margin: 0 auto 1rem;">&#128179;</div>
-        <h4 style="margin: 0 0 0.5rem;">Stripe Checkout</h4>
-        <p class="landing-feature__description">Secure card payments with minimal setup</p>
-      </div>
-
-      <div class="landing-feature" data-scroll-reveal style="text-align: center;">
-        <div class="landing-feature__icon" style="margin: 0 auto 1rem; background: #fef3c7; color: #d97706;">&#128176;</div>
-        <h4 style="margin: 0 0 0.5rem;">PayPal</h4>
-        <p class="landing-feature__description">Accept PayPal payments globally</p>
-      </div>
-
-      <div class="landing-feature" data-scroll-reveal style="text-align: center;">
-        <div class="landing-feature__icon" style="margin: 0 auto 1rem; background: #d1fae5; color: #059669;">&#128221;</div>
-        <h4 style="margin: 0 0 0.5rem;">Quote Mode</h4>
-        <p class="landing-feature__description">Collect enquiries instead of payments</p>
-      </div>
-
-      <div class="landing-feature" data-scroll-reveal style="text-align: center;">
-        <div class="landing-feature__icon" style="margin: 0 auto 1rem; background: #fce7f3; color: #db2777;">&#128197;</div>
-        <h4 style="margin: 0 0 0.5rem;">Hire Calculator</h4>
-        <p class="landing-feature__description">Time-based rental pricing engine</p>
+        </article>
+        <figure data-reveal="scale">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">&#127912;</div>
+            <strong style="font-size: 1.5rem;">Theme Switcher</strong>
+            <p style="opacity: 0.8; margin: 0.5rem 0 0;">Let visitors preview themes instantly</p>
+          </div>
+        </figure>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Performance Section -->
-<section class="landing-section">
-  <div class="landing-container">
-    <div class="landing-split">
-      <div class="landing-split__content" data-scroll-reveal="left">
-        <h2>Fast. Really Fast.</h2>
-        <p>
-          Static sites are inherently fast, but we go further. Every image is
-          automatically optimized with responsive sizes, WebP conversion, and
-          blurred placeholders that load instantly.
-        </p>
-        <ul style="list-style: none; padding: 0;">
-          <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
-            <strong>LQIP Placeholders</strong> - Blurred previews load in milliseconds
-          </li>
-          <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
-            <strong>Responsive Images</strong> - Right size for every screen
-          </li>
-          <li style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
-            <strong>Turbo Navigation</strong> - Instant page transitions
-          </li>
-          <li style="padding: 0.75rem 0;">
-            <strong>Static Output</strong> - No server processing, pure HTML
-          </li>
-        </ul>
+  <!-- E-Commerce -->
+  <section class="alt">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Flexible Commerce Options</h2>
+        <p class="text-muted">Sell products, take quotes, or both. Multiple payment integrations built in.</p>
+      </header>
+
+      <div class="grid--4 text-center">
+        <article class="feature" data-reveal>
+          <div class="icon">&#128179;</div>
+          <h4>Stripe Checkout</h4>
+          <p>Secure card payments with minimal setup</p>
+        </article>
+
+        <article class="feature" data-reveal style="--primary-light: #fef3c7; --primary: #d97706;">
+          <div class="icon">&#128176;</div>
+          <h4>PayPal</h4>
+          <p>Accept PayPal payments globally</p>
+        </article>
+
+        <article class="feature" data-reveal style="--primary-light: #d1fae5; --primary: #059669;">
+          <div class="icon">&#128221;</div>
+          <h4>Quote Mode</h4>
+          <p>Collect enquiries instead of payments</p>
+        </article>
+
+        <article class="feature" data-reveal style="--primary-light: #fce7f3; --primary: #db2777;">
+          <div class="icon">&#128197;</div>
+          <h4>Hire Calculator</h4>
+          <p>Time-based rental pricing engine</p>
+        </article>
       </div>
-      <div class="landing-split__image" data-scroll-reveal="scale">
-        <div style="background: #f3f4f6; padding: 2rem; border-radius: 12px;">
-          <div style="font-family: monospace; font-size: 0.9rem;">
-            <div style="margin-bottom: 1rem;">
-              <span style="color: #6b7280;">Image optimization:</span>
-            </div>
-            <div style="background: #1f2937; color: #10b981; padding: 1rem; border-radius: 8px; overflow-x: auto;">
-<pre style="margin: 0; font-size: 0.85rem;">srcset="
+    </div>
+  </section>
+
+  <!-- Performance -->
+  <section>
+    <div class="container">
+      <div class="split">
+        <article data-reveal="left">
+          <h2>Fast. Really Fast.</h2>
+          <p>Static sites are inherently fast, but we go further. Every image is automatically optimized with responsive sizes, WebP conversion, and blurred placeholders that load instantly.</p>
+          <ul>
+            <li><strong>LQIP Placeholders</strong> - Blurred previews load in milliseconds</li>
+            <li><strong>Responsive Images</strong> - Right size for every screen</li>
+            <li><strong>Turbo Navigation</strong> - Instant page transitions</li>
+            <li><strong>Static Output</strong> - No server processing, pure HTML</li>
+          </ul>
+        </article>
+        <figure data-reveal="scale">
+          <div class="code-block">
+            <header>
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>Image optimization</span>
+            </header>
+            <pre><code>srcset="
   /img/abc-240.webp 240w,
   /img/abc-480.webp 480w,
   /img/abc-900.webp 900w"
-sizes="(max-width: 768px) 100vw, 50vw"</pre>
-            </div>
-            <div style="margin-top: 1rem; color: #059669; font-weight: 600;">
-              Automatic. No configuration needed.
-            </div>
+sizes="(max-width: 768px) 100vw, 50vw"
+
+Automatic. No configuration needed.</code></pre>
           </div>
-        </div>
+        </figure>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- SEO Section -->
-<section class="landing-section landing-section--alt">
-  <div class="landing-container">
-    <div class="landing-text-center landing-mb-xl">
-      <h2>SEO That Works</h2>
-      <p class="landing-text-muted" style="max-width: 600px; margin: 0 auto;">
-        Rich structured data helps search engines understand your content.
-      </p>
-    </div>
+  <!-- SEO -->
+  <section class="alt">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>SEO That Works</h2>
+        <p class="text-muted">Rich structured data helps search engines understand your content.</p>
+      </header>
 
-    <div class="landing-grid">
-      <div class="landing-feature" data-scroll-reveal>
-        <h4 style="margin-top: 0;">Schema.org Markup</h4>
-        <p class="landing-feature__description">
-          Products, events, FAQs, organizations, and breadcrumbs - all with proper JSON-LD.
-        </p>
-      </div>
+      <div class="grid">
+        <article class="feature" data-reveal>
+          <h4>Schema.org Markup</h4>
+          <p>Products, events, FAQs, organizations, and breadcrumbs - all with proper JSON-LD.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <h4 style="margin-top: 0;">RSS & iCal Feeds</h4>
-        <p class="landing-feature__description">
-          Atom feeds for news, iCal exports for events. Let people subscribe to your content.
-        </p>
-      </div>
+        <article class="feature" data-reveal>
+          <h4>RSS & iCal Feeds</h4>
+          <p>Atom feeds for news, iCal exports for events. Let people subscribe to your content.</p>
+        </article>
 
-      <div class="landing-feature" data-scroll-reveal>
-        <h4 style="margin-top: 0;">Aggregate Ratings</h4>
-        <p class="landing-feature__description">
-          Product reviews automatically generate aggregate ratings for rich snippets.
-        </p>
+        <article class="feature" data-reveal>
+          <h4>Aggregate Ratings</h4>
+          <p>Product reviews automatically generate aggregate ratings for rich snippets.</p>
+        </article>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Deployment Section -->
-<section class="landing-section">
-  <div class="landing-container">
-    <div class="landing-split landing-split--reverse">
-      <div class="landing-split__content" data-scroll-reveal="right">
-        <h2>Deploy Anywhere. Free.</h2>
-        <p>
-          GitHub Actions workflow included. Push to deploy on Neocities (free)
-          or Bunny CDN (fast). No ongoing server costs.
-        </p>
-        <p>
-          <strong>Included deployment targets:</strong>
-        </p>
-        <ul style="padding-left: 1.5rem;">
-          <li>Neocities (free static hosting)</li>
-          <li>Bunny CDN (global edge network)</li>
-          <li>Any static host (Netlify, Vercel, etc.)</li>
-        </ul>
-        <p class="landing-text-muted">
-          Optional Docker-based backend for advanced checkout workflows.
-        </p>
-      </div>
-      <div class="landing-split__image" data-scroll-reveal="scale">
-        <div class="landing-code">
-          <div class="landing-code__header">
-            <div class="landing-code__dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <span>Terminal</span>
-          </div>
-          <div class="landing-code__body">
-<pre><code style="color: #9ca3af;"><span style="color: #10b981;">$</span> git push origin main
+  <!-- Deployment -->
+  <section>
+    <div class="container">
+      <div class="split split--reverse">
+        <article data-reveal="right">
+          <h2>Deploy Anywhere. Free.</h2>
+          <p>GitHub Actions workflow included. Push to deploy on Neocities (free) or Bunny CDN (fast). No ongoing server costs.</p>
+          <p><strong>Included deployment targets:</strong></p>
+          <ul>
+            <li>Neocities (free static hosting)</li>
+            <li>Bunny CDN (global edge network)</li>
+            <li>Any static host (Netlify, Vercel, etc.)</li>
+          </ul>
+          <p class="text-muted">Optional Docker-based backend for advanced checkout workflows.</p>
+        </article>
+        <figure data-reveal="scale">
+          <div class="code-block">
+            <header>
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>Terminal</span>
+            </header>
+            <pre><code style="color: #9ca3af;"><span style="color: #10b981;">$</span> git push origin main
 
 <span style="color: #fbbf24;">[GitHub Actions]</span>
 Building site...
@@ -404,41 +326,33 @@ Deploying to Neocities...
 
 <span style="color: #10b981;">Done!</span> Site live in 47 seconds.</code></pre>
           </div>
-        </div>
+        </figure>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- CTA Section -->
-<section class="landing-section">
-  <div class="landing-container--default">
-    <div class="landing-cta">
-      <h2 class="landing-cta__title">Ready to Build Something Great?</h2>
-      <p class="landing-cta__description">
-        Fork the repository, customize your content, and deploy.
-        It's that simple.
-      </p>
-      <div class="landing-hero__actions">
-        <a href="https://github.com/chobbledotcom/chobble-template" class="landing-btn landing-btn--secondary landing-btn--lg">
+  <!-- CTA -->
+  <section>
+    <div class="container--default">
+      <aside class="cta">
+        <h2>Ready to Build Something Great?</h2>
+        <p>Fork the repository, customize your content, and deploy. It's that simple.</p>
+        <a href="https://github.com/chobbledotcom/chobble-template" class="btn btn--secondary btn--lg">
           Get Started on GitHub
         </a>
-      </div>
+      </aside>
     </div>
-  </div>
-</section>
+  </section>
+</main>
 
-<!-- Footer -->
-<footer class="landing-footer">
-  <div class="landing-footer__inner">
-    <div>
-      <strong>Chobble Template</strong> - Open source, MIT licensed
-    </div>
-    <div class="landing-footer__links">
+<footer class="site-footer">
+  <div class="container">
+    <p><strong>Chobble Template</strong> - Open source, MIT licensed</p>
+    <nav>
       <a href="https://github.com/chobbledotcom/chobble-template">GitHub</a>
       <a href="https://git.chobble.com/chobble/chobble-template">Forgejo</a>
       <a href="https://example.chobble.com">Demo Site</a>
       <a href="https://chobble.com">Chobble</a>
-    </div>
+    </nav>
   </div>
 </footer>
