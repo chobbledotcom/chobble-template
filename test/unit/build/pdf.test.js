@@ -557,7 +557,10 @@ describe("pdf", () => {
     });
 
     test("Logs success message when PDF is generated", async () => {
-      const { menu, categories, items } = createMinimalMenu("lunch", "Lunch Menu");
+      const { menu, categories, items } = createMinimalMenu(
+        "lunch",
+        "Lunch Menu",
+      );
 
       await generateMenuPdf(menu, categories, items, testOutputDir);
 
