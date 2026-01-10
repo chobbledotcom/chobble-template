@@ -3,11 +3,10 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { createLazyLoader } from "#utils/lazy-loader.js";
 import { simplifyRatio } from "#utils/math-utils.js";
 import { memoize } from "#utils/memoize.js";
 
-const getSharp = createLazyLoader("sharp", { property: "default" });
+const getSharp = memoize(async () => (await import("sharp")).default);
 
 const CROP_CACHE_DIR = ".image-cache";
 
