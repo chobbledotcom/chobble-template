@@ -1,12 +1,10 @@
 import { loadDOM } from "#utils/lazy-dom.js";
-import { createLazyLoader } from "#utils/lazy-loader.js";
+import { memoize } from "#utils/memoize.js";
 
 // Shared DOM instance for building elements
-const getSharedDocument = createLazyLoader(null, {
-  init: async () => {
-    const dom = await loadDOM("");
-    return dom.window.document;
-  },
+const getSharedDocument = memoize(async () => {
+  const dom = await loadDOM("");
+  return dom.window.document;
 });
 
 // Apply attributes to an element

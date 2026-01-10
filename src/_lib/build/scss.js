@@ -1,9 +1,9 @@
 import path from "node:path";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import config from "#data/config.json" with { type: "json" };
-import { createLazyLoader } from "#utils/lazy-loader.js";
+import { memoize } from "#utils/memoize.js";
 
-const getSass = createLazyLoader("sass");
+const getSass = memoize(() => import("sass"));
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
