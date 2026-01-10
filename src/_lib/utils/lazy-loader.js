@@ -1,18 +1,3 @@
-// Load and process a module based on options
-const loadModule = async (modulePath, options) => {
-  const imported = await import(modulePath);
-
-  if (options.transform) {
-    return await options.transform(imported);
-  }
-
-  if (options.property) {
-    return imported[options.property];
-  }
-
-  return imported;
-};
-
 /**
  * @typedef {Object} LazyLoaderOptions
  * @property {string} [property] - Optional property to extract from the imported module
@@ -68,13 +53,18 @@ const loadModule = async (modulePath, options) => {
 const createLazyLoader = (modulePath, options = {}) => {
   let cached = null;
 
-  return async () => {
-    if (cached === null) {
-      cached = options.init
-        ? await options.init()
-        : await loadModule(modulePath, options);
-    }
+  // Pre-determine how to extract the value from the imported module
+  const extractValue = options.transform
+    ? (imported) => options.transform(imported)
+    : options.property
+      ? (imported) => imported[options.property]
+      : (imported) => imported;
 
+  return async () => {
+    if (cached !== null) return cached;
+    cached = options.init
+      ? await options.init()
+      : await extractValue(await import(modulePath));
     return cached;
   };
 };
