@@ -1,9 +1,9 @@
 import path from "node:path";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import config from "#data/config.json" with { type: "json" };
-import { createLazyLoader } from "#utils/lazy-loader.js";
+import { memoize } from "#utils/memoize.js";
 
-const getSass = createLazyLoader("sass");
+const getSass = memoize(() => import("sass"));
 
 // Files that should be compiled (not just imported as partials)
 const COMPILED_BUNDLES = ["bundle.scss", "landing-bundle.scss"];
