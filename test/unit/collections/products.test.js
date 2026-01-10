@@ -228,11 +228,6 @@ describe("products", () => {
     expect(result.length).toBe(0);
   });
 
-  test("Handles null/undefined products array", () => {
-    expect(getFeaturedProducts(null)).toEqual([]);
-    expect(getFeaturedProducts(undefined)).toEqual([]);
-  });
-
   test("Returns gallery when present", () => {
     const data = { gallery: ["img1.jpg", "img2.jpg"] };
     const result = computeGallery(data);

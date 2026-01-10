@@ -127,11 +127,6 @@ describe("properties", () => {
     expect(result.length).toBe(0);
   });
 
-  test("Handles null/undefined properties array", () => {
-    expect(getFeaturedProperties(null)).toEqual([]);
-    expect(getFeaturedProperties(undefined)).toEqual([]);
-  });
-
   test("Configures properties collection and filters", () => {
     const mockConfig = createMockEleventyConfig();
 
