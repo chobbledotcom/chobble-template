@@ -571,7 +571,10 @@ describe("pdf", () => {
     });
 
     test("Handles write stream errors gracefully", async () => {
-      const { menu, categories, items } = createMinimalMenu("lunch", "Lunch Menu");
+      const { menu, categories, items } = createMinimalMenu(
+        "lunch",
+        "Lunch Menu",
+      );
 
       // Try to generate PDF - if there's an error, it should reject the promise
       await expect(
