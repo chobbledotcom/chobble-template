@@ -55,6 +55,22 @@ const createMultiLineOutput = (lineCount) => {
   );
 };
 
+/**
+ * Creates a single build step for testing
+ */
+const createBuildStep = () => [
+  { name: "build", cmd: "bun", args: ["run", "build"] },
+];
+
+/**
+ * Creates three standard steps (lint, test, build)
+ */
+const createThreeSteps = () => [
+  { name: "lint", cmd: "bun", args: ["run", "lint"] },
+  { name: "test", cmd: "bun", args: ["test"] },
+  { name: "build", cmd: "bun", args: ["run", "build"] },
+];
+
 describe("test-runner-utils", () => {
   // ============================================
   // runStep Tests
@@ -354,7 +370,7 @@ Failed to compile
     });
 
     test("Shows last 15 lines when no specific errors extracted", () => {
-      const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
+      const steps = createBuildStep();
       const results = createResults({
         build: {
           status: 1,
@@ -374,7 +390,7 @@ Failed to compile
     });
 
     test("Uses stderr when stdout is empty for last lines display", () => {
-      const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
+      const steps = createBuildStep();
       const results = createResults({
         build: {
           status: 1,
@@ -391,11 +407,7 @@ Failed to compile
     });
 
     test("Skips steps that were not run", () => {
-      const steps = [
-        { name: "lint", cmd: "bun", args: ["run", "lint"] },
-        { name: "test", cmd: "bun", args: ["test"] },
-        { name: "build", cmd: "bun", args: ["run", "build"] },
-      ];
+      const steps = createThreeSteps();
       const results = createResults({
         lint: {},
         // test was not run (missing from results)
@@ -423,11 +435,7 @@ Failed to compile
     });
 
     test("Handles mix of passed and failed steps", () => {
-      const steps = [
-        { name: "lint", cmd: "bun", args: ["run", "lint"] },
-        { name: "test", cmd: "bun", args: ["test"] },
-        { name: "build", cmd: "bun", args: ["run", "build"] },
-      ];
+      const steps = createThreeSteps();
       const results = createResults({
         lint: {},
         test: {
@@ -444,7 +452,7 @@ Failed to compile
     });
 
     test("Filters out empty lines from last lines display", () => {
-      const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
+      const steps = createBuildStep();
       const outputWithBlanks = [
         "line 1",
         "",
