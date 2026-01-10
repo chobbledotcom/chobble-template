@@ -102,7 +102,7 @@ describe("search", () => {
   test("Creates collection of unique keywords from products", () => {
     const mockCollectionApi = {
       getFilteredByTag: (tag) => {
-        expect(tag).toBe("product");
+        expect(tag).toBe("products");
         return [
           { data: { title: "Product 1", keywords: ["zebra", "apple"] } },
           { data: { title: "Product 2", keywords: ["banana"] } },

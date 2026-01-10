@@ -19,7 +19,7 @@ const AVATAR_SVG_TEMPLATE = readFileSync(
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const createReviewsCollection = (collectionApi) => {
-  const reviews = collectionApi.getFilteredByTag("review");
+  const reviews = collectionApi.getFilteredByTag("reviews");
   return reviews
     .filter((review) => review.data.hidden !== true)
     .sort(sortByDateDescending);
@@ -136,8 +136,8 @@ const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
 
 /** Factory helper for review-based collections */
 const reviewsFactory =
-  (tag, reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag);
+  (reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(reviewsField);
     const visibleReviews = createReviewsCollection(collectionApi);
     const limit =
       limitOverride !== undefined
@@ -154,20 +154,17 @@ const reviewsFactory =
 
 /**
  * Factory: items with enough reviews for a separate /reviews page
- * @param {string} tag - The tag to filter items by
- * @param {string} reviewsField - The field to check for reviews
+ * @param {string} reviewsField - The collection tag and field to check for reviews
  * @param {(item: any) => any} [processItem] - Optional function to transform items
  * @param {number} [limitOverride] - Optional limit override for testing
  * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns filtered items
  */
 const withReviewsPage = (
-  tag,
   reviewsField,
   processItem = (item) => item,
   limitOverride,
 ) =>
   reviewsFactory(
-    tag,
     reviewsField,
     limitOverride,
     () => [],
@@ -176,14 +173,12 @@ const withReviewsPage = (
 
 /**
  * Factory: redirect data for items without enough reviews for a separate page
- * @param {string} tag - The tag to filter items by
- * @param {string} reviewsField - The field to check for reviews
+ * @param {string} reviewsField - The collection tag and field to check for reviews
  * @param {number} [limitOverride] - Optional limit override for testing
  * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns redirect data
  */
-const reviewsRedirects = (tag, reviewsField, limitOverride) =>
+const reviewsRedirects = (reviewsField, limitOverride) =>
   reviewsFactory(
-    tag,
     reviewsField,
     limitOverride,
     (items) => pipe(map(toRedirectData))(items),
