@@ -171,8 +171,8 @@ describe("properties", () => {
     ];
     return {
       getFilteredByTag: (tag) => {
-        if (tag === "property") return properties;
-        if (tag === "review") return reviews;
+        if (tag === "properties") return properties;
+        if (tag === "reviews") return reviews;
         return [];
       },
     };

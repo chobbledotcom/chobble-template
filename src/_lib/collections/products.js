@@ -37,7 +37,7 @@ const addGallery = (item) => {
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const createProductsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product");
+  const products = collectionApi.getFilteredByTag("products");
   return products.map(addGallery);
 };
 
@@ -79,7 +79,7 @@ const getFeaturedProducts = (products) =>
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  */
 const createApiSkusCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product");
+  const products = collectionApi.getFilteredByTag("products");
   const allSkuEntries = products.flatMap((product) => {
     /** @type {import("#lib/types").Option[]|undefined} */
     const options = product.data.options;
@@ -109,12 +109,8 @@ const createApiSkusCollection = (collectionApi) => {
   return Object.fromEntries(allSkuEntries);
 };
 
-const productsWithReviewsPage = withReviewsPage(
-  "product",
-  "products",
-  addGallery,
-);
-const productReviewsRedirects = reviewsRedirects("product", "products");
+const productsWithReviewsPage = withReviewsPage("products", addGallery);
+const productReviewsRedirects = reviewsRedirects("products");
 
 /**
  * Configure products collections and filters
