@@ -4,7 +4,7 @@ import matter from "gray-matter";
 import markdownIt from "markdown-it";
 import strings from "#data/strings.js";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
-import { accumulate } from "#utils/array-utils.js";
+import { filter, map, pipe } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -59,21 +59,25 @@ const getRecurringEventsHtml = memoize(() => {
     return "";
   }
 
-  const recurringEvents = accumulate((acc, filename) => {
-    if (!filename.endsWith(".md")) return acc;
-
-    const { data } = matter.read(path.join(eventsDir, filename));
-    if (!data.recurring_date) return acc;
-
-    const fileSlug = filename
-      .replace(".md", "")
-      .replace(/^\d{4}-\d{2}-\d{2}-/, "");
-    acc.push({
-      url: data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
-      data,
-    });
-    return acc;
-  })(fs.readdirSync(eventsDir)).sort(sortItems);
+  const recurringEvents = pipe(
+    filter((filename) => filename.endsWith(".md")),
+    map((filename) => ({
+      filename,
+      ...matter.read(path.join(eventsDir, filename)),
+    })),
+    filter((file) => file.data.recurring_date),
+    map((file) => {
+      const fileSlug = file.filename
+        .replace(".md", "")
+        .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+      return {
+        url:
+          file.data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`,
+        data: file.data,
+      };
+    }),
+    (arr) => arr.sort(sortItems),
+  )(fs.readdirSync(eventsDir));
 
   if (recurringEvents.length === 0) {
     return "";
@@ -155,6 +159,7 @@ export {
   createMarkdownRenderer,
   fileExists,
   fileMissing,
+  getRecurringEventsHtml,
   readFileContent,
   renderSnippet,
   configureFileUtils,

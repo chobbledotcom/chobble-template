@@ -262,6 +262,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
   "src/_lib/eleventy/capture.js:configureCapture",
   "src/_lib/eleventy/feed.js:configureFeed",
+  "src/_lib/eleventy/file-utils.js:getRecurringEventsHtml",
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
   "src/_lib/eleventy/ical.js:isOneOffEvent",

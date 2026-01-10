@@ -15,35 +15,38 @@ import {
  */
 
 /**
+ * Create event files in the events directory from fixtures
+ */
+const createEventFiles = (eventsDir, eventFixtures) => {
+  eventFixtures.forEach((fixture, index) => {
+    const filename = fixture.filename || `event${index}.md`;
+    const eventContent = createFrontmatter(fixture, "");
+    fs.writeFileSync(`${eventsDir}/${filename}`, eventContent);
+  });
+};
+
+/**
+ * Set up test environment with event fixtures
+ */
+const setupEventsDir = (tempDir, eventFixtures, options) => {
+  if (options.skipEventsDir) return;
+
+  const eventsDir = path.join(tempDir, "src/events");
+  fs.mkdirSync(eventsDir, { recursive: true });
+  createEventFiles(eventsDir, eventFixtures);
+
+  if (options.setup) {
+    options.setup(eventsDir);
+  }
+};
+
+/**
  * Test helper that creates event fixtures and renders recurring events snippet.
  * Follows bracket pattern for resource management.
  * Curried: (testName) => (eventFixtures, options?) => (testFn) => Promise<void>
  *
  * @param {string} testName - Unique name for temp directory
  * @returns {Function} (eventFixtures, options?) => (testFn) => Promise<void>
- *
- * @example
- * await withRecurringEventsTest("xss-title")(
- *   [{ title: '<script>alert("XSS")</script>', recurring_date: "Weekly" }]
- * )((result) => {
- *   expect(result.includes("<script>")).toBe(false);
- *   expect(result.includes("&lt;script&gt;")).toBe(true);
- * });
- *
- * @example
- * // Test without creating events directory
- * await withRecurringEventsTest("no-dir")([], { skipEventsDir: true })((result) => {
- *   expect(result.trim()).toBe("");
- * });
- *
- * @example
- * // Test with additional setup function
- * await withRecurringEventsTest("filter")(
- *   [{ title: "Valid Event", recurring_date: "Mon" }],
- *   { setup: (eventsDir) => {
- *     fs.writeFileSync(`${eventsDir}/readme.txt`, "Not an event");
- *   }}
- * )((result) => { ... });
  */
 const withRecurringEventsTest =
   (testName) =>
@@ -54,25 +57,8 @@ const withRecurringEventsTest =
     );
 
     try {
-      // Only create events directory if not skipped
-      if (!options.skipEventsDir) {
-        const eventsDir = path.join(tempDir, "src/events");
-        fs.mkdirSync(eventsDir, { recursive: true });
+      setupEventsDir(tempDir, eventFixtures, options);
 
-        // Create event files from fixtures
-        eventFixtures.forEach((fixture, index) => {
-          const filename = fixture.filename || `event${index}.md`;
-          const eventContent = createFrontmatter(fixture, "");
-          fs.writeFileSync(`${eventsDir}/${filename}`, eventContent);
-        });
-
-        // Run optional setup function for additional files
-        if (options.setup) {
-          options.setup(eventsDir);
-        }
-      }
-
-      // Create snippet that uses recurring_events shortcode
       const snippetContent = "{% recurring_events %}";
       fs.writeFileSync(`${snippetsDir}/events.md`, snippetContent);
 
