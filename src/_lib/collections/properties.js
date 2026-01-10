@@ -8,7 +8,7 @@ import { sortItems } from "#utils/sorting.js";
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const createPropertiesCollection = (collectionApi) => {
-  const properties = collectionApi.getFilteredByTag("property");
+  const properties = collectionApi.getFilteredByTag("properties");
   return properties.map(addGallery);
 };
 
@@ -30,12 +30,8 @@ const getPropertiesByLocation = memoize(
 const getFeaturedProperties = (properties) =>
   properties.filter((p) => p.data.featured);
 
-const propertiesWithReviewsPage = withReviewsPage(
-  "properties",
-  "properties",
-  addGallery,
-);
-const propertyReviewsRedirects = reviewsRedirects("properties", "properties");
+const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
+const propertyReviewsRedirects = reviewsRedirects("properties");
 
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", createPropertiesCollection);
