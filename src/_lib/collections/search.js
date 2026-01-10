@@ -34,7 +34,7 @@ const getProductsByKeyword = (products, keyword) => {
 };
 
 const createSearchKeywordsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product");
+  const products = collectionApi.getFilteredByTag("products");
   return getAllKeywords(products);
 };
 

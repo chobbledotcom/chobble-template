@@ -55,11 +55,11 @@ const assignCategoryImages = (
 };
 
 const createCategoriesCollection = (collectionApi) => {
-  const categories = collectionApi.getFilteredByTag("category");
+  const categories = collectionApi.getFilteredByTag("categories");
 
   if (!categories || categories.length === 0) return [];
 
-  const products = collectionApi.getFilteredByTag("product");
+  const products = collectionApi.getFilteredByTag("products");
   const categoryImages = buildCategoryImageMap(categories, products);
   const categoryThumbnails = buildCategoryPropertyMap(
     categories,
