@@ -12,13 +12,13 @@ import {
   uniqueBy,
 } from "#utils/array-utils.js";
 import { log, error as logError } from "#utils/console.js";
-import { createLazyLoader } from "#utils/lazy-loader.js";
+import { memoize } from "#utils/memoize.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-const getPdfRenderer = createLazyLoader("json-to-pdf", {
-  property: "renderPdfTemplate",
-});
+const getPdfRenderer = memoize(
+  async () => (await import("json-to-pdf")).renderPdfTemplate,
+);
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
   const menuSlug = menu.fileSlug;
