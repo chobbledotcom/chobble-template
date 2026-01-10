@@ -307,6 +307,13 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runStep",
   "extractErrorsFromOutput",
   "printSummary",
+  // test-runner-utils.test.js - test fixture factories
+  "createBasicSteps",
+  "createResults",
+  "captureSummaryOutput",
+  "createThreeSteps",
+  "createBunScriptStep",
+  "createBuildTestOutput",
   // precommit.test.js - functional test helper
   "expectErrorsToInclude",
   // test-utils.js - test utilities (internal functions)
