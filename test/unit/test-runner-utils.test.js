@@ -6,6 +6,55 @@ import {
 } from "#test/test-runner-utils.js";
 import { captureConsole } from "#test/test-utils.js";
 
+// ============================================
+// Test Helpers
+// ============================================
+
+/**
+ * Creates a standard set of test steps (lint and test)
+ */
+const createBasicSteps = () => [
+  { name: "lint", cmd: "bun", args: ["run", "lint"] },
+  { name: "test", cmd: "bun", args: ["test"] },
+];
+
+/**
+ * Creates results object with the given status and output for each step
+ */
+const createResults = (stepResults) => {
+  const results = {};
+  for (const [name, config] of Object.entries(stepResults)) {
+    results[name] = {
+      status: config.status ?? 0,
+      stdout: config.stdout ?? "",
+      stderr: config.stderr ?? "",
+    };
+  }
+  return results;
+};
+
+/**
+ * Captures console output from printSummary, handling process.exit(1)
+ */
+const captureSummaryOutput = (steps, results, title) => {
+  return captureConsole(() => {
+    try {
+      printSummary(steps, results, title);
+    } catch {
+      // printSummary calls process.exit(1) on failure, which we can't prevent
+    }
+  });
+};
+
+/**
+ * Creates multi-line output string for testing
+ */
+const createMultiLineOutput = (lineCount) => {
+  return Array.from({ length: lineCount }, (_, i) => `line ${i + 1}`).join(
+    "\n",
+  );
+};
+
 describe("test-runner-utils", () => {
   // ============================================
   // runStep Tests
@@ -269,14 +318,11 @@ Failed to compile
   // ============================================
   describe("printSummary", () => {
     test("Prints summary with all passing steps", () => {
-      const steps = [
-        { name: "lint", cmd: "bun", args: ["run", "lint"] },
-        { name: "test", cmd: "bun", args: ["test"] },
-      ];
-      const results = {
-        lint: { status: 0, stdout: "", stderr: "" },
-        test: { status: 0, stdout: "", stderr: "" },
-      };
+      const steps = createBasicSteps();
+      const results = createResults({
+        lint: {},
+        test: {},
+      });
 
       const output = captureConsole(() => printSummary(steps, results));
 
@@ -287,27 +333,17 @@ Failed to compile
     });
 
     test("Prints summary with failing steps and extracted errors", () => {
-      const steps = [
-        { name: "lint", cmd: "bun", args: ["run", "lint"] },
-        { name: "test", cmd: "bun", args: ["test"] },
-      ];
-      const results = {
-        lint: { status: 0, stdout: "", stderr: "" },
+      const steps = createBasicSteps();
+      const results = createResults({
+        lint: {},
         test: {
           status: 1,
           stdout: "❌ Test failed\n2 tests failed\nsome normal output",
           stderr: "Error: Assertion failed",
         },
-      };
-
-      const output = captureConsole(() => {
-        try {
-          printSummary(steps, results);
-        } catch {
-          // printSummary calls process.exit(1), which we can't prevent
-          // but we can catch it to continue testing
-        }
       });
+
+      const output = captureSummaryOutput(steps, results);
 
       expect(output).toContain("✅ Passed: lint");
       expect(output).toContain("❌ Failed: test");
@@ -319,22 +355,14 @@ Failed to compile
 
     test("Shows last 15 lines when no specific errors extracted", () => {
       const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
-      const lastLines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`);
-      const results = {
+      const results = createResults({
         build: {
           status: 1,
-          stdout: lastLines.join("\n"),
-          stderr: "",
+          stdout: createMultiLineOutput(20),
         },
-      };
-
-      const output = captureConsole(() => {
-        try {
-          printSummary(steps, results);
-        } catch {
-          // Ignore process.exit(1)
-        }
       });
+
+      const output = captureSummaryOutput(steps, results);
 
       expect(output).toContain("No specific errors extracted");
       expect(output).toContain("Last 15 lines of output:");
@@ -347,21 +375,15 @@ Failed to compile
 
     test("Uses stderr when stdout is empty for last lines display", () => {
       const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
-      const results = {
+      const results = createResults({
         build: {
           status: 1,
           stdout: "",
           stderr: "Error line 1\nError line 2\nError line 3",
         },
-      };
-
-      const output = captureConsole(() => {
-        try {
-          printSummary(steps, results);
-        } catch {
-          // Ignore process.exit(1)
-        }
       });
+
+      const output = captureSummaryOutput(steps, results);
 
       expect(output).toContain("Error line 1");
       expect(output).toContain("Error line 2");
@@ -374,11 +396,11 @@ Failed to compile
         { name: "test", cmd: "bun", args: ["test"] },
         { name: "build", cmd: "bun", args: ["run", "build"] },
       ];
-      const results = {
-        lint: { status: 0, stdout: "", stderr: "" },
+      const results = createResults({
+        lint: {},
         // test was not run (missing from results)
-        build: { status: 0, stdout: "", stderr: "" },
-      };
+        build: {},
+      });
 
       const output = captureConsole(() => printSummary(steps, results));
 
@@ -388,9 +410,9 @@ Failed to compile
 
     test("Uses custom title when provided", () => {
       const steps = [{ name: "lint", cmd: "bun", args: ["run", "lint"] }];
-      const results = {
-        lint: { status: 0, stdout: "", stderr: "" },
-      };
+      const results = createResults({
+        lint: {},
+      });
 
       const output = captureConsole(() =>
         printSummary(steps, results, "CUSTOM TITLE"),
@@ -406,23 +428,16 @@ Failed to compile
         { name: "test", cmd: "bun", args: ["test"] },
         { name: "build", cmd: "bun", args: ["run", "build"] },
       ];
-      const results = {
-        lint: { status: 0, stdout: "", stderr: "" },
+      const results = createResults({
+        lint: {},
         test: {
           status: 1,
           stdout: "❌ Test failed",
-          stderr: "",
         },
-        build: { status: 0, stdout: "", stderr: "" },
-      };
-
-      const output = captureConsole(() => {
-        try {
-          printSummary(steps, results);
-        } catch {
-          // Ignore process.exit(1)
-        }
+        build: {},
       });
+
+      const output = captureSummaryOutput(steps, results);
 
       expect(output).toContain("✅ Passed: lint, build");
       expect(output).toContain("❌ Failed: test");
@@ -439,21 +454,14 @@ Failed to compile
         "line 3",
         "",
       ].join("\n");
-      const results = {
+      const results = createResults({
         build: {
           status: 1,
           stdout: outputWithBlanks,
-          stderr: "",
         },
-      };
-
-      const output = captureConsole(() => {
-        try {
-          printSummary(steps, results);
-        } catch {
-          // Ignore process.exit(1)
-        }
       });
+
+      const output = captureSummaryOutput(steps, results);
 
       expect(output).toContain("line 1");
       expect(output).toContain("line 2");
