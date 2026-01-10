@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import path from "node:path";
 import { renderSnippet } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
@@ -6,7 +7,6 @@ import {
   createTempSnippetsDir,
   fs,
 } from "#test/test-utils.js";
-import path from "node:path";
 
 /**
  * Targeted tests for recurring events HTML generation.

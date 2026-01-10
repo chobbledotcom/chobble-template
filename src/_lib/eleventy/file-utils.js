@@ -4,9 +4,9 @@ import matter from "gray-matter";
 import markdownIt from "markdown-it";
 import strings from "#data/strings.js";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
+import { accumulate } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
-import { accumulate } from "#utils/array-utils.js";
 
 const createMarkdownRenderer = (options = { html: true }) =>
   new markdownIt(options);
