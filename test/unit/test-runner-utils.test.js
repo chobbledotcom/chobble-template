@@ -71,6 +71,45 @@ const createThreeSteps = () => [
   { name: "build", cmd: "bun", args: ["run", "build"] },
 ];
 
+/**
+ * Creates a failed build step result with stdout
+ */
+const createFailedBuildResult = (stdout) =>
+  createResults({
+    build: {
+      status: 1,
+      stdout,
+    },
+  });
+
+/**
+ * Creates a failed build step result with stderr (empty stdout)
+ */
+const createFailedBuildResultStderr = (stderr) =>
+  createResults({
+    build: {
+      status: 1,
+      stdout: "",
+      stderr,
+    },
+  });
+
+/**
+ * Tests output for last N lines display and specific content
+ */
+const expectLastLinesOutput = (output, expectedContent, notExpectedContent) => {
+  expect(output).toContain("No specific errors extracted");
+  expect(output).toContain("Last 15 lines of output:");
+  for (const content of expectedContent) {
+    expect(output).toContain(content);
+  }
+  for (const content of notExpectedContent) {
+    expect(output).not.toContain(content);
+  }
+  expect(output).toContain("Run with --verbose");
+  expect(output).toContain("Exit code: 1");
+};
+
 describe("test-runner-utils", () => {
   // ============================================
   // runStep Tests
@@ -371,33 +410,17 @@ Failed to compile
 
     test("Shows last 15 lines when no specific errors extracted", () => {
       const steps = createBuildStep();
-      const results = createResults({
-        build: {
-          status: 1,
-          stdout: createMultiLineOutput(20),
-        },
-      });
+      const results = createFailedBuildResult(createMultiLineOutput(20));
 
       const output = captureSummaryOutput(steps, results);
 
-      expect(output).toContain("No specific errors extracted");
-      expect(output).toContain("Last 15 lines of output:");
-      expect(output).toContain("line 20");
-      expect(output).toContain("line 6");
-      expect(output).not.toContain("line 5");
-      expect(output).toContain("Run with --verbose");
-      expect(output).toContain("Exit code: 1");
+      expectLastLinesOutput(output, ["line 20", "line 6"], ["line 5"]);
     });
 
     test("Uses stderr when stdout is empty for last lines display", () => {
       const steps = createBuildStep();
-      const results = createResults({
-        build: {
-          status: 1,
-          stdout: "",
-          stderr: "Error line 1\nError line 2\nError line 3",
-        },
-      });
+      const stderr = "Error line 1\nError line 2\nError line 3";
+      const results = createFailedBuildResultStderr(stderr);
 
       const output = captureSummaryOutput(steps, results);
 

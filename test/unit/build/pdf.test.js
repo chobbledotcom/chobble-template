@@ -515,11 +515,7 @@ describe("pdf", () => {
       const menuDir = join(testOutputDir, "menus/lunch");
       expect(existsSync(menuDir)).toBe(false);
 
-      try {
-        await generateMenuPdf(menu, categories, items, testOutputDir);
-      } catch {
-        // PDF generation may fail without proper setup, but directory should be created
-      }
+      await generateMenuPdf(menu, categories, items, testOutputDir);
 
       // Directory should now exist (created by mkdirSync with recursive: true)
       expect(existsSync(join(testOutputDir, "menus"))).toBe(true);
@@ -530,23 +526,16 @@ describe("pdf", () => {
       const categories = [];
       const items = [];
 
-      try {
-        const result = await generateMenuPdf(
-          menu,
-          categories,
-          items,
-          testOutputDir,
-        );
+      const result = await generateMenuPdf(
+        menu,
+        categories,
+        items,
+        testOutputDir,
+      );
 
-        if (result) {
-          // Should contain the menu slug in the path
-          expect(result).toContain("dinner");
-          expect(result).toContain(".pdf");
-        }
-      } catch {
-        // PDF generation may fail in test environment without full PDF library setup
-        // This is acceptable - we're testing the logic, not the PDF library
-      }
+      // Should contain the menu slug in the path
+      expect(result).toContain("dinner");
+      expect(result).toContain(".pdf");
     });
 
     test("Returns null when PDF generation fails", async () => {
@@ -554,24 +543,18 @@ describe("pdf", () => {
       const categories = [];
       const items = [];
 
-      // Force a failure by using an invalid setup
-      // The PDF renderer might not be available or configured in test environment
-      try {
-        const result = await generateMenuPdf(
-          menu,
-          categories,
-          items,
-          testOutputDir,
-        );
+      const result = await generateMenuPdf(
+        menu,
+        categories,
+        items,
+        testOutputDir,
+      );
 
-        // If getPdfRenderer returns null, generateMenuPdf should return null
-        if (result === null) {
-          expect(result).toBeNull();
-          // Should have logged an error
-          expect(errorCalls.length).toBeGreaterThan(0);
-        }
-      } catch {
-        // Exception is also acceptable in test environment
+      // If getPdfRenderer returns null, generateMenuPdf should return null
+      if (result === null) {
+        expect(result).toBeNull();
+        // Should have logged an error
+        expect(errorCalls.length).toBeGreaterThan(0);
       }
     });
 
@@ -580,18 +563,14 @@ describe("pdf", () => {
       const categories = [];
       const items = [];
 
-      try {
-        await generateMenuPdf(menu, categories, items, testOutputDir);
+      await generateMenuPdf(menu, categories, items, testOutputDir);
 
-        // If generation succeeded, should have log message
-        if (logCalls.length > 0) {
-          const hasSuccessLog = logCalls.some((call) =>
-            call.join("").includes("Generated PDF"),
-          );
-          expect(hasSuccessLog).toBe(true);
-        }
-      } catch {
-        // PDF generation may fail in test environment
+      // If generation succeeded, should have log message
+      if (logCalls.length > 0) {
+        const hasSuccessLog = logCalls.some((call) =>
+          call.join("").includes("Generated PDF"),
+        );
+        expect(hasSuccessLog).toBe(true);
       }
     });
 
@@ -600,14 +579,10 @@ describe("pdf", () => {
       const categories = [];
       const items = [];
 
-      try {
-        // Try to generate PDF
-        await generateMenuPdf(menu, categories, items, testOutputDir);
-      } catch (error) {
-        // If there's an error, it should be caught and logged
-        // The function should reject the promise
-        expect(error).toBeDefined();
-      }
+      // Try to generate PDF - if there's an error, it should reject the promise
+      await expect(
+        generateMenuPdf(menu, categories, items, testOutputDir),
+      ).resolves.toBeDefined();
     });
 
     test("Creates nested directory structure with recursive: true", () => {
