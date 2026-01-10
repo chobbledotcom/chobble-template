@@ -594,7 +594,6 @@ describe("pdf", () => {
       ).resolves.toBeDefined();
     });
 
-
     test("Uses correct menu permalink directory from strings", () => {
       // Verify that the function would use the correct directory structure
       // This tests the logic at line 235: const menuDir = strings.menu_permalink_dir;
