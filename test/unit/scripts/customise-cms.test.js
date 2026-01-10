@@ -570,84 +570,104 @@ describe("customise-cms config", () => {
   // saveCmsConfig
   // ============================================
   test("saveCmsConfig writes cms_config to site.json while preserving other data", async () => {
-    const { readFileSync, writeFileSync } = await import("node:fs");
-    const siteJsonPath = "/home/user/chobble-template/src/_data/site.json";
+    const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
+    const { withTempDir } = await import("#test/test-utils.js");
 
-    // Save original content
-    const originalContent = readFileSync(siteJsonPath, "utf-8");
-    const originalData = JSON.parse(originalContent);
+    return withTempDir("saveCmsConfig-preserve", async (tempDir) => {
+      mkdirSync(`${tempDir}/_data`, { recursive: true });
+      writeFileSync(
+        `${tempDir}/_data/site.json`,
+        JSON.stringify({
+          name: "Test Site",
+          url: "https://example.com",
+        }),
+      );
 
-    try {
-      const newConfig = {
-        collections: ["pages", "products"],
-        features: { permalinks: true },
-        hasSrcFolder: true,
-      };
+      return withMockedCwd(tempDir, async () => {
+        const newConfig = {
+          collections: ["pages", "products"],
+          features: { permalinks: true },
+          hasSrcFolder: true,
+        };
 
-      await saveCmsConfig(newConfig);
+        await saveCmsConfig(newConfig);
 
-      // Verify by reading the file
-      const saved = JSON.parse(readFileSync(siteJsonPath, "utf-8"));
+        // Verify by reading the file
+        const saved = JSON.parse(
+          readFileSync(`${tempDir}/_data/site.json`, "utf-8"),
+        );
 
-      expect(saved.cms_config).toEqual(newConfig);
-      // Preserve any other original properties
-      expect(Object.keys(saved).length).toBeGreaterThan(1);
-    } finally {
-      // Restore original
-      writeFileSync(siteJsonPath, originalContent);
-    }
+        expect(saved.cms_config).toEqual(newConfig);
+        // Preserve any other original properties
+        expect(saved.name).toBe("Test Site");
+        expect(saved.url).toBe("https://example.com");
+        expect(Object.keys(saved).length).toBeGreaterThan(1);
+      });
+    });
   });
 
   test("saveCmsConfig updates existing cms_config", async () => {
-    const { readFileSync, writeFileSync } = await import("node:fs");
-    const siteJsonPath = "/home/user/chobble-template/src/_data/site.json";
+    const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
+    const { withTempDir } = await import("#test/test-utils.js");
 
-    // Save original content
-    const originalContent = readFileSync(siteJsonPath, "utf-8");
+    return withTempDir("saveCmsConfig-update", async (tempDir) => {
+      mkdirSync(`${tempDir}/_data`, { recursive: true });
+      writeFileSync(
+        `${tempDir}/_data/site.json`,
+        JSON.stringify({
+          name: "Test Site",
+          cms_config: {
+            collections: ["pages"],
+            features: { permalinks: false },
+          },
+        }),
+      );
 
-    try {
-      const updatedConfig = {
-        collections: ["pages", "products", "news"],
-        features: { permalinks: true, faqs: true },
-        hasSrcFolder: true,
-      };
+      return withMockedCwd(tempDir, async () => {
+        const updatedConfig = {
+          collections: ["pages", "products", "news"],
+          features: { permalinks: true, faqs: true },
+          hasSrcFolder: true,
+        };
 
-      await saveCmsConfig(updatedConfig);
+        await saveCmsConfig(updatedConfig);
 
-      // Verify by reading the file
-      const saved = JSON.parse(readFileSync(siteJsonPath, "utf-8"));
+        // Verify by reading the file
+        const saved = JSON.parse(
+          readFileSync(`${tempDir}/_data/site.json`, "utf-8"),
+        );
 
-      expect(saved.cms_config).toEqual(updatedConfig);
-      expect(saved.cms_config.collections.length).toBe(3);
-    } finally {
-      // Restore original
-      writeFileSync(siteJsonPath, originalContent);
-    }
+        expect(saved.cms_config).toEqual(updatedConfig);
+        expect(saved.cms_config.collections.length).toBe(3);
+      });
+    });
   });
 
   test("saveCmsConfig preserves JSON formatting with tabs and newline", async () => {
-    const { readFileSync, writeFileSync } = await import("node:fs");
-    const siteJsonPath = "/home/user/chobble-template/src/_data/site.json";
+    const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
+    const { withTempDir } = await import("#test/test-utils.js");
 
-    // Save original content
-    const originalContent = readFileSync(siteJsonPath, "utf-8");
+    return withTempDir("saveCmsConfig-format", async (tempDir) => {
+      mkdirSync(`${tempDir}/_data`, { recursive: true });
+      writeFileSync(
+        `${tempDir}/_data/site.json`,
+        JSON.stringify({ name: "Test Site" }),
+      );
 
-    try {
-      const config = { collections: ["pages"] };
+      return withMockedCwd(tempDir, async () => {
+        const config = { collections: ["pages"] };
 
-      await saveCmsConfig(config);
+        await saveCmsConfig(config);
 
-      // Verify the file format
-      const content = readFileSync(siteJsonPath, "utf-8");
+        // Verify the file format
+        const content = readFileSync(`${tempDir}/_data/site.json`, "utf-8");
 
-      // Should have tabs for indentation
-      expect(content).toContain("\t");
-      // Should end with newline
-      expect(content.endsWith("\n")).toBe(true);
-    } finally {
-      // Restore original
-      writeFileSync(siteJsonPath, originalContent);
-    }
+        // Should have tabs for indentation
+        expect(content).toContain("\t");
+        // Should end with newline
+        expect(content.endsWith("\n")).toBe(true);
+      });
+    });
   });
 
   // ============================================
@@ -709,24 +729,41 @@ describe("customise-cms config", () => {
   });
 
   test("saveCmsConfig writes to src/_data when it exists", async () => {
-    const { readFileSync, writeFileSync } = await import("node:fs");
-    const siteJsonPath = "/home/user/chobble-template/src/_data/site.json";
+    const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
+    const { withTempDir } = await import("#test/test-utils.js");
 
-    // Save original content
-    const originalContent = readFileSync(siteJsonPath, "utf-8");
+    return withTempDir("saveCmsConfig-src", async (tempDir) => {
+      // Create both _data and src/_data directories
+      mkdirSync(`${tempDir}/_data`, { recursive: true });
+      mkdirSync(`${tempDir}/src/_data`, { recursive: true });
 
-    try {
-      const config = { collections: ["products"] };
-      await saveCmsConfig(config);
+      // Write to both locations
+      writeFileSync(
+        `${tempDir}/_data/site.json`,
+        JSON.stringify({ name: "Root Site" }),
+      );
+      writeFileSync(
+        `${tempDir}/src/_data/site.json`,
+        JSON.stringify({ name: "Src Site" }),
+      );
 
-      // Verify it was written to src/_data (the one we're testing with)
-      const srcData = JSON.parse(readFileSync(siteJsonPath, "utf-8"));
+      return withMockedCwd(tempDir, async () => {
+        const config = { collections: ["products"] };
+        await saveCmsConfig(config);
 
-      expect(srcData.cms_config).toEqual(config);
-    } finally {
-      // Restore original
-      writeFileSync(siteJsonPath, originalContent);
-    }
+        // Verify it was written to src/_data (preferred location)
+        const srcData = JSON.parse(
+          readFileSync(`${tempDir}/src/_data/site.json`, "utf-8"),
+        );
+        expect(srcData.cms_config).toEqual(config);
+
+        // Verify root _data was NOT modified
+        const rootData = JSON.parse(
+          readFileSync(`${tempDir}/_data/site.json`, "utf-8"),
+        );
+        expect(rootData.cms_config).toBeUndefined();
+      });
+    });
   });
 });
 
