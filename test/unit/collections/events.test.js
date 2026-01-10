@@ -324,11 +324,6 @@ describe("events", () => {
     expect(result.length).toBe(0);
   });
 
-  test("Handles null/undefined events array", () => {
-    expect(getFeaturedEvents(null)).toEqual([]);
-    expect(getFeaturedEvents(undefined)).toEqual([]);
-  });
-
   test("Registers getFeaturedEvents as an Eleventy filter", () => {
     const mockConfig = {
       filters: {},

@@ -3,8 +3,12 @@ import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import { arraySlugKey, memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
+/**
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
+ */
 const createPropertiesCollection = (collectionApi) => {
-  const properties = collectionApi.getFilteredByTag("property") || [];
+  const properties = collectionApi.getFilteredByTag("property");
   return properties.map(addGallery);
 };
 
@@ -18,8 +22,13 @@ const getPropertiesByLocation = memoize(
   { cacheKey: arraySlugKey },
 );
 
+/**
+ * Get featured properties from a properties collection
+ * @param {import("#lib/types").EleventyCollectionItem[]} properties - Properties array from Eleventy collection
+ * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured properties
+ */
 const getFeaturedProperties = (properties) =>
-  properties?.filter((p) => p.data.featured) || [];
+  properties.filter((p) => p.data.featured);
 
 const propertiesWithReviewsPage = withReviewsPage(
   "property",

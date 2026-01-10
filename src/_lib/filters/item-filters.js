@@ -348,8 +348,11 @@ const createFilterConfig = (options) => {
     options;
   const baseUrl = `/${permalinkDir}`;
 
+  /**
+   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+   */
   const pagesCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
+    const items = collectionApi.getFilteredByTag(tag);
     const combinations = generateFilterCombinations(items);
     const displayLookup = buildDisplayLookup(items);
 
@@ -366,8 +369,11 @@ const createFilterConfig = (options) => {
     });
   };
 
+  /**
+   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+   */
   const redirectsCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
+    const items = collectionApi.getFilteredByTag(tag);
     const attrKeys = Object.keys(getAllFilterAttributes(items));
     const searchUrl = `${baseUrl}/search`;
 
@@ -390,8 +396,11 @@ const createFilterConfig = (options) => {
     return [...simpleRedirects, ...comboRedirects];
   };
 
+  /**
+   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+   */
   const attributesCollection = (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
+    const items = collectionApi.getFilteredByTag(tag);
     return {
       attributes: getAllFilterAttributes(items),
       displayLookup: buildDisplayLookup(items),
