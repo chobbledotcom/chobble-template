@@ -1,0 +1,744 @@
+---
+title: Landing Page CSS Guide
+meta_title: Landing Page CSS Guide - Chobble Template
+meta_description: Developer guide for the landing page CSS system. Gutenberg-style spacing, semantic HTML patterns, and component reference.
+permalink: /landing-css-guide/
+---
+
+<main>
+  <header class="hero">
+    <span class="badge">Developer Reference</span>
+    <h1>Landing Page CSS Guide</h1>
+    <p class="lead">
+      A Gutenberg-style CSS system for standalone landing pages.
+      Consistent spacing, semantic HTML, and simple class names.
+    </p>
+    <div class="actions">
+      <a href="#variables" class="btn btn--primary">CSS Variables</a>
+      <a href="#components" class="btn btn--secondary">Components</a>
+    </div>
+  </header>
+
+  <!-- Quick Start -->
+  <section class="alt" id="quickstart">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Quick Start</h2>
+        <p class="text-muted">Landing pages use a standalone layout with isolated CSS/JS bundles.</p>
+      </header>
+
+      <div class="split">
+        <article data-reveal="left">
+          <h3>1. Create Your Page</h3>
+          <p>Add a file to <code>src/landing-pages/</code> with this frontmatter:</p>
+          <div class="code-block">
+            <header>
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>src/landing-pages/my-page.html</span>
+            </header>
+            <pre><code>---
+title: My Landing Page
+meta_description: Page description for SEO
+permalink: /my-page/
+---
+
+&lt;main&gt;
+  &lt;header class="hero"&gt;
+    &lt;h1&gt;Your Content Here&lt;/h1&gt;
+  &lt;/header&gt;
+&lt;/main&gt;</code></pre>
+          </div>
+        </article>
+        <article data-reveal="right">
+          <h3>Key Differences from Main Site</h3>
+          <ul>
+            <li><strong>No base.html inheritance</strong> - Uses <code>landing-page.html</code> layout</li>
+            <li><strong>Isolated CSS</strong> - <code>landing-bundle.css</code> only</li>
+            <li><strong>Isolated JS</strong> - <code>landing-bundle.js</code> for scroll animations</li>
+            <li><strong>No navigation/footer</strong> - You build the full page</li>
+            <li><strong>Semantic HTML</strong> - Use <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;figure&gt;</code></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CSS Variables -->
+  <section id="variables">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>CSS Variables</h2>
+        <p class="text-muted">Override these in your HTML with inline styles or custom CSS.</p>
+      </header>
+
+      <div class="grid">
+        <article class="feature" data-reveal>
+          <h4>Colors</h4>
+          <pre><code>--bg: #fafafa
+--bg-alt: #f3f4f6
+--card-bg: #ffffff
+--text: #1f2937
+--text-muted: #6b7280
+--primary: #2563eb
+--primary-dark: #1d4ed8
+--primary-light: #dbeafe
+--secondary: #7c3aed
+--accent: #10b981</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Typography</h4>
+          <pre><code>--font-sans: system-ui, ...
+--font-mono: ui-monospace, ...
+
+Font sizes (SCSS):
+$font-size-xs:   0.75rem  (12px)
+$font-size-sm:   0.875rem (14px)
+$font-size-base: 1rem     (16px)
+$font-size-md:   1.125rem (18px)
+$font-size-lg:   1.25rem  (20px)
+$font-size-xl:   1.5rem   (24px)
+$font-size-2xl:  2rem     (32px)
+$font-size-3xl:  2.5rem   (40px)
+$font-size-4xl:  3rem     (48px)
+$font-size-5xl:  4rem     (64px)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Spacing Scale</h4>
+          <pre><code>Base unit: 8px
+
+$space-xs:  8px
+$space-sm:  16px
+$space-md:  24px
+$space-lg:  32px
+$space-xl:  48px
+$space-2xl: 64px
+$space-3xl: 96px
+$space-4xl: 128px</code></pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layout -->
+  <section class="alt" id="layout">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Layout Classes</h2>
+      </header>
+
+      <div class="split">
+        <article data-reveal="left">
+          <h3>Containers</h3>
+          <p>Center content with max-width and responsive padding.</p>
+          <div class="code-block">
+            <header>
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>HTML</span>
+            </header>
+            <pre><code>&lt;div class="container"&gt;
+  Wide container (1200px)
+&lt;/div&gt;
+
+&lt;div class="container--default"&gt;
+  Default container (900px)
+&lt;/div&gt;
+
+&lt;div class="container--narrow"&gt;
+  Narrow container (680px)
+&lt;/div&gt;</code></pre>
+          </div>
+        </article>
+        <article data-reveal="right">
+          <h3>Section Modifiers</h3>
+          <p>Add classes to <code>&lt;section&gt;</code> elements.</p>
+          <div class="code-block">
+            <header>
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>HTML</span>
+            </header>
+            <pre><code>&lt;section&gt;
+  Default padding (96px vertical)
+&lt;/section&gt;
+
+&lt;section class="compact"&gt;
+  Compact padding (64px)
+&lt;/section&gt;
+
+&lt;section class="alt"&gt;
+  Gray background
+&lt;/section&gt;
+
+&lt;section class="dark"&gt;
+  Dark background, light text
+&lt;/section&gt;
+
+&lt;section class="gradient"&gt;
+  Primary-to-purple gradient
+&lt;/section&gt;</code></pre>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Examples -->
+  <section class="compact">
+    <div class="container--narrow text-center">
+      <p class="text-muted">This is a <code>section.compact</code> with <code>container--narrow</code></p>
+    </div>
+  </section>
+
+  <section class="dark compact">
+    <div class="container--narrow text-center">
+      <p>This is <code>section.dark.compact</code> - text color automatically inverts</p>
+    </div>
+  </section>
+
+  <section class="gradient compact">
+    <div class="container--narrow text-center">
+      <p>This is <code>section.gradient.compact</code></p>
+    </div>
+  </section>
+
+  <!-- Components -->
+  <section id="components">
+    <div class="container">
+      <h2 class="text-center mb-xl">Components</h2>
+
+      <!-- Hero -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Hero</h3>
+        <p>Full-width header with centered content. Use inside a <code>&lt;header&gt;</code> element.</p>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;header class="hero gradient"&gt;
+  &lt;span class="badge"&gt;Optional Badge&lt;/span&gt;
+  &lt;h1&gt;Main Headline&lt;/h1&gt;
+  &lt;p class="lead"&gt;Subtitle text with larger font&lt;/p&gt;
+  &lt;div class="actions"&gt;
+    &lt;a href="#" class="btn btn--primary btn--lg"&gt;Primary&lt;/a&gt;
+    &lt;a href="#" class="btn btn--secondary btn--lg"&gt;Secondary&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Classes: <code>.hero</code>, <code>.badge</code>, <code>.lead</code>, <code>.actions</code></p>
+      </article>
+
+      <!-- Buttons -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Buttons</h3>
+        <div class="actions mb-lg">
+          <a href="#" class="btn btn--primary">Primary</a>
+          <a href="#" class="btn btn--secondary">Secondary</a>
+          <a href="#" class="btn btn--ghost">Ghost</a>
+          <a href="#" class="btn btn--primary btn--lg">Large</a>
+          <a href="#" class="btn btn--primary btn--sm">Small</a>
+        </div>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;a class="btn btn--primary"&gt;Primary&lt;/a&gt;
+&lt;a class="btn btn--secondary"&gt;Secondary&lt;/a&gt;
+&lt;a class="btn btn--ghost"&gt;Ghost&lt;/a&gt;
+
+&lt;!-- Sizes --&gt;
+&lt;a class="btn btn--primary btn--lg"&gt;Large&lt;/a&gt;
+&lt;a class="btn btn--primary btn--sm"&gt;Small&lt;/a&gt;</code></pre>
+        </div>
+      </article>
+
+      <!-- Feature Cards -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Feature Cards</h3>
+        <p>Use <code>&lt;article class="feature"&gt;</code> inside a <code>.features</code> grid.</p>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="features"&gt;
+  &lt;article class="feature" data-reveal&gt;
+    &lt;div class="icon"&gt;&amp;#128640;&lt;/div&gt;
+    &lt;h3&gt;Feature Title&lt;/h3&gt;
+    &lt;p&gt;Feature description text.&lt;/p&gt;
+  &lt;/article&gt;
+  &lt;!-- more features... --&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">The <code>.features</code> container auto-fits cards at 300px minimum width.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Feature Demo -->
+  <section class="alt">
+    <div class="container">
+      <h3 class="text-center mb-lg">Feature Cards Demo</h3>
+      <div class="features">
+        <article class="feature" data-reveal>
+          <div class="icon">&#128640;</div>
+          <h3>Fast</h3>
+          <p>Static HTML, no server processing.</p>
+        </article>
+        <article class="feature" data-reveal>
+          <div class="icon">&#127912;</div>
+          <h3>Themed</h3>
+          <p>Override CSS variables per-card.</p>
+        </article>
+        <article class="feature" data-reveal style="--primary-light: #d1fae5; --primary: #059669;">
+          <div class="icon">&#9989;</div>
+          <h3>Custom Colors</h3>
+          <p>Set <code>--primary</code> inline to change icon color.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grids -->
+  <section id="grids">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Grid Layouts</h2>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <h3>Grid Classes</h3>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;!-- Auto 1/2/3 columns based on screen --&gt;
+&lt;div class="grid"&gt;...&lt;/div&gt;
+
+&lt;!-- Force 2 columns on tablet+ --&gt;
+&lt;div class="grid--2"&gt;...&lt;/div&gt;
+
+&lt;!-- Force 4 columns on tablet+ --&gt;
+&lt;div class="grid--4"&gt;...&lt;/div&gt;</code></pre>
+        </div>
+      </article>
+
+      <h4 class="mb-lg">.grid (responsive 1→2→3)</h4>
+      <div class="grid mb-xl">
+        <div class="feature">Column 1</div>
+        <div class="feature">Column 2</div>
+        <div class="feature">Column 3</div>
+      </div>
+
+      <h4 class="mb-lg">.grid--4 (2→4 columns)</h4>
+      <div class="grid--4 mb-xl">
+        <div class="feature text-center">1</div>
+        <div class="feature text-center">2</div>
+        <div class="feature text-center">3</div>
+        <div class="feature text-center">4</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Split -->
+  <section class="alt" id="split">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Split Layouts</h2>
+        <p class="text-muted">Two-column layouts for text + image sections.</p>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="split"&gt;
+  &lt;article data-reveal="left"&gt;
+    &lt;h2&gt;Text Content&lt;/h2&gt;
+    &lt;p&gt;Description...&lt;/p&gt;
+  &lt;/article&gt;
+  &lt;figure data-reveal="scale"&gt;
+    &lt;img src="..." alt="..."&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+&lt;!-- Reverse order (image left) --&gt;
+&lt;div class="split split--reverse"&gt;
+  &lt;article data-reveal="right"&gt;...&lt;/article&gt;
+  &lt;figure data-reveal="scale"&gt;...&lt;/figure&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and shadow automatically.</p>
+      </article>
+
+      <!-- Demo -->
+      <div class="split">
+        <article data-reveal="left">
+          <h3>Default Split</h3>
+          <p>Text on left, image/content on right. Stacks vertically on mobile.</p>
+          <p class="text-muted">The <code>data-reveal="left"</code> makes it slide in from the left.</p>
+        </article>
+        <figure data-reveal="scale">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
+            <strong>Figure Content</strong>
+            <p style="margin: 0.5rem 0 0; opacity: 0.8;">Images, code blocks, or any content</p>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section id="stats">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Stats Display</h2>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="stats"&gt;
+  &lt;div class="stat" data-reveal&gt;
+    &lt;strong&gt;99%&lt;/strong&gt;
+    &lt;span&gt;Uptime&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="stat" data-reveal&gt;
+    &lt;strong&gt;50k&lt;/strong&gt;
+    &lt;span&gt;Users&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </article>
+
+      <div class="stats">
+        <div class="stat" data-reveal>
+          <strong>99%</strong>
+          <span>Uptime</span>
+        </div>
+        <div class="stat" data-reveal>
+          <strong>50k</strong>
+          <span>Users</span>
+        </div>
+        <div class="stat" data-reveal>
+          <strong>24/7</strong>
+          <span>Support</span>
+        </div>
+        <div class="stat" data-reveal>
+          <strong>&lt;1s</strong>
+          <span>Load Time</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code Blocks -->
+  <section class="alt" id="code">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Code Blocks</h2>
+        <p class="text-muted">Terminal-style code display with colored window dots.</p>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML Structure</span>
+          </header>
+          <pre><code>&lt;div class="code-block"&gt;
+  &lt;header&gt;
+    &lt;div class="dots"&gt;
+      &lt;span&gt;&lt;/span&gt;
+      &lt;span&gt;&lt;/span&gt;
+      &lt;span&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span&gt;filename.js&lt;/span&gt;
+  &lt;/header&gt;
+  &lt;pre&gt;&lt;code&gt;your code here&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">The dots auto-color red/yellow/green. Use <code>&lt;span&gt;</code> with inline styles for syntax highlighting.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Call to Action</h2>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;aside class="cta"&gt;
+  &lt;h2&gt;Ready to Start?&lt;/h2&gt;
+  &lt;p&gt;Call to action description.&lt;/p&gt;
+  &lt;a href="#" class="btn btn--secondary btn--lg"&gt;
+    Get Started
+  &lt;/a&gt;
+&lt;/aside&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Use <code>&lt;aside&gt;</code> for semantic markup. The CTA has a gradient background and inverted colors.</p>
+      </article>
+
+      <aside class="cta">
+        <h2>This is a CTA Block</h2>
+        <p>Gradient background, white text, centered content.</p>
+        <a href="#" class="btn btn--secondary btn--lg">Action Button</a>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Scroll Animations -->
+  <section class="alt" id="animations">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Scroll Animations</h2>
+        <p class="text-muted">Add <code>data-reveal</code> to animate elements on scroll.</p>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;!-- Fade up (default) --&gt;
+&lt;div data-reveal&gt;...&lt;/div&gt;
+
+&lt;!-- Slide from left --&gt;
+&lt;article data-reveal="left"&gt;...&lt;/article&gt;
+
+&lt;!-- Slide from right --&gt;
+&lt;article data-reveal="right"&gt;...&lt;/article&gt;
+
+&lt;!-- Scale up --&gt;
+&lt;figure data-reveal="scale"&gt;...&lt;/figure&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Animations respect <code>prefers-reduced-motion</code>. Elements get <code>.is-visible</code> class when in viewport.</p>
+      </article>
+
+      <div class="grid">
+        <div class="feature text-center" data-reveal>
+          <p><code>data-reveal</code></p>
+          <p class="text-muted">Fades up</p>
+        </div>
+        <div class="feature text-center" data-reveal="left">
+          <p><code>data-reveal="left"</code></p>
+          <p class="text-muted">Slides from left</p>
+        </div>
+        <div class="feature text-center" data-reveal="right">
+          <p><code>data-reveal="right"</code></p>
+          <p class="text-muted">Slides from right</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Utilities -->
+  <section id="utilities">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Utility Classes</h2>
+      </header>
+
+      <div class="grid--2">
+        <article class="feature" data-reveal>
+          <h4>Text</h4>
+          <pre><code>.text-center
+.text-muted
+.text-primary</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Spacing</h4>
+          <pre><code>.mt-0    margin-top: 0
+.mb-0    margin-bottom: 0
+.mt-lg   margin-top: 32px
+.mb-lg   margin-bottom: 32px
+.mt-xl   margin-top: 48px
+.mb-xl   margin-bottom: 48px</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Accessibility</h4>
+          <pre><code>.sr-only
+  Visually hidden but
+  accessible to screen readers</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Lists in Content</h4>
+          <p>Standard <code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code> have default styling with proper spacing.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <section class="alt" id="footer">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Footer</h2>
+      </header>
+
+      <article class="feature" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;footer class="site-footer"&gt;
+  &lt;div class="container"&gt;
+    &lt;p&gt;Copyright text&lt;/p&gt;
+    &lt;nav&gt;
+      &lt;a href="#"&gt;Link 1&lt;/a&gt;
+      &lt;a href="#"&gt;Link 2&lt;/a&gt;
+      &lt;a href="#"&gt;Link 3&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SCSS Reference -->
+  <section class="dark" id="scss">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>SCSS Reference</h2>
+        <p class="text-muted">Available mixins in <code>_landing-mixins.scss</code></p>
+      </header>
+
+      <div class="grid--2">
+        <article class="feature" data-reveal>
+          <h4>Layout Mixins</h4>
+          <pre><code>@include flex-row($gap, $align, $justify)
+@include flex-col($gap, $align, $justify)
+@include flex-center
+@include flex-between
+@include flex-wrap($gap)
+@include grid($columns, $gap)
+@include grid-auto($min-width, $gap)
+@include container($max-width)
+@include section($padding-y)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Component Mixins</h4>
+          <pre><code>@include card($padding, $radius, $shadow)
+@include card-hover
+@include button-base
+@include button-primary
+@include button-secondary
+@include button-ghost
+@include focus-ring</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Typography Mixins</h4>
+          <pre><code>@include heading-xl
+@include heading-lg
+@include heading-md
+@include heading-sm
+@include body-lg
+@include body-base
+@include body-sm</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Animation Mixins</h4>
+          <pre><code>@include scroll-reveal
+@include scroll-reveal-left
+@include scroll-reveal-right
+@include scroll-reveal-scale
+@include stagger-children($delay, $max)
+@include hover-float($distance)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Media Query Mixins</h4>
+          <pre><code>@include mobile-only { }
+@include tablet-up { }
+@include desktop-up { }
+@include large-desktop { }
+@include reduced-motion { }
+
+Breakpoints:
+$bp-sm: 650px
+$bp-md: 768px
+$bp-lg: 1000px
+$bp-xl: 1200px</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Utility Mixins</h4>
+          <pre><code>@include sr-only
+@include aspect-ratio($w, $h)
+@include truncate($lines)
+@include glass($blur, $opacity)</code></pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- File Structure -->
+  <section id="files">
+    <div class="container--default">
+      <header class="text-center mb-xl">
+        <h2>File Structure</h2>
+      </header>
+
+      <div class="code-block" data-reveal>
+        <header>
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span>Project Structure</span>
+        </header>
+        <pre><code>src/
+├── landing-pages/
+│   ├── landing-pages.json    # Default frontmatter
+│   └── *.html                # Your landing pages
+│
+├── _layouts/
+│   └── landing-page.html     # Standalone layout
+│
+├── _includes/
+│   ├── head-meta.html        # Shared meta tags
+│   └── head-schema.html      # Shared JSON-LD
+│
+├── css/
+│   ├── landing-bundle.scss   # Main stylesheet
+│   ├── _landing-variables.scss
+│   └── _landing-mixins.scss
+│
+└── _lib/public/
+    └── landing-bundle.js     # Scroll animations</code></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>Landing Page CSS Guide - Chobble Template</p>
+    <nav>
+      <a href="/chobble-template/">Main Landing Page</a>
+      <a href="/">Back to Site</a>
+    </nav>
+  </div>
+</footer>
