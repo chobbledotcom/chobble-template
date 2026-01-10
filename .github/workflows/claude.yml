@@ -46,5 +46,5 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr:*)'
+          claude_args: '--allowed-tools "Bash(bun install),Bash(bun run build),Bash(bun run serve),Bash(bun test),Bash(bun run test:*),Bash(bun run lint),Bash(bun run lint:fix),Bash(bun run precommit),Bash(bun run typecheck),Bash(gh pr:*)"'
 
