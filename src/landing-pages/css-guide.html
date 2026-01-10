@@ -284,20 +284,25 @@ $space-4xl: 128px</code></pre>
       <div class="features">
         <article class="feature" data-reveal>
           <div class="icon">&#128640;</div>
-          <h3>Fast</h3>
+          <h4>Fast</h4>
           <p>Static HTML, no server processing.</p>
         </article>
         <article class="feature" data-reveal>
           <div class="icon">&#127912;</div>
-          <h3>Themed</h3>
+          <h4>Themed</h4>
           <p>Override CSS variables per-card.</p>
         </article>
         <article class="feature" data-reveal style="--primary-light: #d1fae5; --primary: #059669;">
           <div class="icon">&#9989;</div>
-          <h3>Custom Colors</h3>
+          <h4>Custom Colors</h4>
           <p>Set <code>--primary</code> inline to change icon color.</p>
         </article>
       </div>
+
+      <h3 class="text-center mt-xl mb-lg">Grid with Real Products</h3>
+      {%- assign gridProducts = collections.products | slice: 0, 3 -%}
+      {%- assign listItemFields = "thumbnail,link,price" | split: "," -%}
+      {%- include "items.html", items: gridProducts -%}
     </div>
   </section>
 
@@ -374,50 +379,10 @@ $space-4xl: 128px</code></pre>
         <p class="text-muted mt-lg">Navigation buttons auto-hide when content doesn't overflow. Button states (disabled) update on scroll.</p>
       </article>
 
-      <h3 class="mb-lg">Live Demo</h3>
-      <div class="slider-container">
-        <div class="slider">
-          <article class="feature">
-            <div class="icon">&#128640;</div>
-            <h4>Card One</h4>
-            <p>First card in the slider.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">&#127912;</div>
-            <h4>Card Two</h4>
-            <p>Second card in the slider.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">&#128444;</div>
-            <h4>Card Three</h4>
-            <p>Third card in the slider.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">&#128197;</div>
-            <h4>Card Four</h4>
-            <p>Fourth card in the slider.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">&#127869;</div>
-            <h4>Card Five</h4>
-            <p>Fifth card in the slider.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">&#127968;</div>
-            <h4>Card Six</h4>
-            <p>Sixth card in the slider.</p>
-          </article>
-          <article class="feature">
-            <div class="icon">&#11088;</div>
-            <h4>Card Seven</h4>
-            <p>Seventh card in the slider.</p>
-          </article>
-        </div>
-        <nav class="slider-nav">
-          <button class="slider-prev">&larr;</button>
-          <button class="slider-next">&rarr;</button>
-        </nav>
-      </div>
+      <h3 class="mb-lg">Live Demo (with real products)</h3>
+      {%- assign sliderProducts = collections.products | slice: 0, 8 -%}
+      {%- assign listItemFields = "thumbnail,link,price" | split: "," -%}
+      {%- include "items.html", items: sliderProducts, horizontal: true -%}
 
       <article class="feature mt-xl" data-reveal>
         <h3>Key Features</h3>
