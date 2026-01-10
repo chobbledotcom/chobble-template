@@ -343,8 +343,114 @@ $space-4xl: 128px</code></pre>
     </div>
   </section>
 
+  <!-- Slider -->
+  <section class="alt" id="slider">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Horizontal Slider</h2>
+        <p class="text-muted">Scrollable card rows with prev/next navigation.</p>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <h3>HTML Structure</h3>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="slider-container"&gt;
+  &lt;div class="slider"&gt;
+    &lt;article class="feature"&gt;Card 1&lt;/article&gt;
+    &lt;article class="feature"&gt;Card 2&lt;/article&gt;
+    &lt;article class="feature"&gt;Card 3&lt;/article&gt;
+    &lt;!-- Add more cards... --&gt;
+  &lt;/div&gt;
+  &lt;nav class="slider-nav"&gt;
+    &lt;button class="slider-prev"&gt;&amp;larr;&lt;/button&gt;
+    &lt;button class="slider-next"&gt;&amp;rarr;&lt;/button&gt;
+  &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Navigation buttons auto-hide when content doesn't overflow. Button states (disabled) update on scroll.</p>
+      </article>
+
+      <h3 class="mb-lg">Live Demo</h3>
+      <div class="slider-container">
+        <div class="slider">
+          <article class="feature">
+            <div class="icon">&#128640;</div>
+            <h4>Card One</h4>
+            <p>First card in the slider.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">&#127912;</div>
+            <h4>Card Two</h4>
+            <p>Second card in the slider.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">&#128444;</div>
+            <h4>Card Three</h4>
+            <p>Third card in the slider.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">&#128197;</div>
+            <h4>Card Four</h4>
+            <p>Fourth card in the slider.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">&#127869;</div>
+            <h4>Card Five</h4>
+            <p>Fifth card in the slider.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">&#127968;</div>
+            <h4>Card Six</h4>
+            <p>Sixth card in the slider.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">&#11088;</div>
+            <h4>Card Seven</h4>
+            <p>Seventh card in the slider.</p>
+          </article>
+        </div>
+        <nav class="slider-nav">
+          <button class="slider-prev">&larr;</button>
+          <button class="slider-next">&rarr;</button>
+        </nav>
+      </div>
+
+      <article class="feature mt-xl" data-reveal>
+        <h3>Key Features</h3>
+        <ul>
+          <li><strong>Auto-hide nav</strong> - Buttons only show when content overflows</li>
+          <li><strong>Scroll snap</strong> - Cards snap to start position</li>
+          <li><strong>Disabled states</strong> - Prev disabled at start, next disabled at end</li>
+          <li><strong>Touch-friendly</strong> - Native horizontal scroll on mobile</li>
+          <li><strong>Keyboard accessible</strong> - Buttons are focusable</li>
+          <li><strong>Reduced motion</strong> - Respects <code>prefers-reduced-motion</code></li>
+        </ul>
+      </article>
+
+      <article class="feature mt-xl" data-reveal>
+        <h3>Custom Card Width</h3>
+        <p>Override the default 300px/340px card width with inline styles:</p>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="slider"&gt;
+  &lt;article class="feature" style="width: 400px;"&gt;
+    Wider card
+  &lt;/article&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </article>
+    </div>
+  </section>
+
   <!-- Split -->
-  <section class="alt" id="split">
+  <section id="split">
     <div class="container">
       <header class="text-center mb-xl">
         <h2>Split Layouts</h2>
