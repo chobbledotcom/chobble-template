@@ -3,10 +3,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { createLazyLoader } from "#utils/lazy-loader.js";
 import { memoize } from "#utils/memoize.js";
 
-const getEleventyImg = createLazyLoader("@11ty/eleventy-img");
+const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
 
 // Shared filename format for eleventy-img output
 const filenameFormat = (_id, src, width, format) => {
