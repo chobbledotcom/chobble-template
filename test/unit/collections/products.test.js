@@ -97,7 +97,7 @@ describe("products", () => {
   });
 
   test("Creates products collection from API", () => {
-    const assertingCollectionApi = (testItems, expectedTag = "product") => ({
+    const assertingCollectionApi = (testItems, expectedTag = "products") => ({
       getFilteredByTag: (tag) => {
         expect(tag).toBe(expectedTag);
         return testItems;

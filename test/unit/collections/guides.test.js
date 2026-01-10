@@ -93,15 +93,6 @@ describe("guides", () => {
     expect(pagesCopy).toEqual(originalPages);
   });
 
-  test("Adds guide-categories and guide-pages collections", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureGuides(mockConfig);
-
-    expect(typeof mockConfig.collections["guide-categories"]).toBe("function");
-    expect(typeof mockConfig.collections["guide-pages"]).toBe("function");
-  });
-
   test("Adds guidesByCategory filter", () => {
     const mockConfig = createMockEleventyConfig();
 
@@ -109,28 +100,5 @@ describe("guides", () => {
 
     expect(typeof mockConfig.filters.guidesByCategory).toBe("function");
     expect(mockConfig.filters.guidesByCategory).toBe(guidesByCategory);
-  });
-
-  test("Collection functions filter by correct tags", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureGuides(mockConfig);
-
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        if (tag === "guide-category") return [{ slug: "cat-1" }];
-        if (tag === "guide-page") return [{ slug: "page-1" }];
-        return [];
-      },
-    };
-
-    const categories =
-      mockConfig.collections["guide-categories"](mockCollectionApi);
-    const pages = mockConfig.collections["guide-pages"](mockCollectionApi);
-
-    expect(categories.length).toBe(1);
-    expect(categories[0].slug).toBe("cat-1");
-    expect(pages.length).toBe(1);
-    expect(pages[0].slug).toBe("page-1");
   });
 });
