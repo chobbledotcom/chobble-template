@@ -3,8 +3,12 @@ import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import { arraySlugKey, memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
+/**
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
+ */
 const createPropertiesCollection = (collectionApi) => {
-  const properties = collectionApi.getFilteredByTag("properties") || [];
+  const properties = collectionApi.getFilteredByTag("property");
   return properties.map(addGallery);
 };
 

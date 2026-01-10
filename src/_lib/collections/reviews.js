@@ -14,9 +14,12 @@ const AVATAR_SVG_TEMPLATE = readFileSync(
 /**
  * Creates the main reviews collection.
  * Fetches all items tagged with "review", filters out hidden ones, and sorts by date.
+ *
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const createReviewsCollection = (collectionApi) => {
-  const reviews = collectionApi.getFilteredByTag("reviews") || [];
+  const reviews = collectionApi.getFilteredByTag("review");
   return reviews
     .filter((review) => review.data.hidden !== true)
     .sort(sortByDateDescending);
@@ -134,7 +137,7 @@ const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
 /** Factory helper for review-based collections */
 const reviewsFactory =
   (tag, reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
-    const items = collectionApi.getFilteredByTag(tag) || [];
+    const items = collectionApi.getFilteredByTag(tag);
     const visibleReviews = createReviewsCollection(collectionApi);
     const limit =
       limitOverride !== undefined
