@@ -5,8 +5,12 @@ import { compareBy, descending, sortItems } from "#utils/sorting.js";
 
 const byEventDate = compareBy((e) => new Date(e.data.event_date).getTime());
 
-const getFeaturedEvents = (events) =>
-  events?.filter((e) => e.data.featured) || [];
+/**
+ * Get featured events from an events collection
+ * @param {import("#lib/types").EleventyCollectionItem[]} events - Events array from Eleventy collection
+ * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured events
+ */
+const getFeaturedEvents = (events) => events.filter((e) => e.data.featured);
 
 /**
  * Curried Map lookup: getGroup(key)(map) => value or []

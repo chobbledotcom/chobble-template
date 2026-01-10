@@ -250,11 +250,6 @@ describe("categories", () => {
     expectResultTitles(result, ["Featured Category"]);
   });
 
-  test("getFeaturedCategories-null-safe", () => {
-    expect(getFeaturedCategories(null)).toEqual([]);
-    expect(getFeaturedCategories(undefined)).toEqual([]);
-  });
-
   test("configureCategories-basic", () => {
     const mockConfig = createMockEleventyConfig();
 

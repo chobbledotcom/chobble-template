@@ -70,8 +70,13 @@ const createCategoriesCollection = (collectionApi) => {
   return assignCategoryImages(categories, categoryImages, categoryThumbnails);
 };
 
+/**
+ * Get featured categories from a categories collection
+ * @param {import("#lib/types").EleventyCollectionItem[]} categories - Categories array from Eleventy collection
+ * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured categories
+ */
 const getFeaturedCategories = (categories) =>
-  categories?.filter((c) => c.data.featured) || [];
+  categories.filter((c) => c.data.featured);
 
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
