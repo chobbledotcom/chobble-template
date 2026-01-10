@@ -19,8 +19,8 @@ describe("missing-folders-lib", () => {
     // Test with empty collections
     const mockCollectionApi = {
       getFilteredByTag: (tag) => {
-        if (tag === "category") return [];
-        if (tag === "product") return [];
+        if (tag === "categories") return [];
+        if (tag === "products") return [];
         return [];
       },
     };
@@ -62,7 +62,7 @@ describe("missing-folders-lib", () => {
     // Test with empty collections
     const mockCollectionApi = {
       getFilteredByTag: (tag) => {
-        if (tag === "product") return [];
+        if (tag === "products") return [];
         return [];
       },
     };

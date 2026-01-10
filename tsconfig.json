@@ -6,6 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
+    "types": ["bun-types"],
     "baseUrl": ".",
     "paths": {
       "#data/*": ["./src/_data/*"],
