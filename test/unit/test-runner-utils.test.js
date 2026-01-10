@@ -4,10 +4,7 @@ import {
   printSummary,
   runStep,
 } from "#test/test-runner-utils.js";
-import {
-  captureConsole,
-  withMockedProcessExit,
-} from "#test/test-utils.js";
+import { captureConsole, withMockedProcessExit } from "#test/test-utils.js";
 import { mapObject } from "#utils/object-entries.js";
 
 // ============================================
@@ -44,7 +41,6 @@ const captureSummaryOutput = (steps, results, title) =>
     return output.join("\n");
   });
 
-
 /**
  * Creates a single build step for testing
  */
@@ -69,9 +65,6 @@ const createBunScriptStep = (name, script) => ({
   cmd: "bun",
   args: ["-e", script],
 });
-
-
-
 
 describe("test-runner-utils", () => {
   // ============================================
@@ -128,7 +121,10 @@ describe("test-runner-utils", () => {
     });
 
     test("Sets VERBOSE environment variable based on verbose flag", () => {
-      const step = createBunScriptStep("env-check", "console.log(process.env.VERBOSE)");
+      const step = createBunScriptStep(
+        "env-check",
+        "console.log(process.env.VERBOSE)",
+      );
 
       const verboseResult = runStep(step, true);
       const quietResult = runStep(step, false);
