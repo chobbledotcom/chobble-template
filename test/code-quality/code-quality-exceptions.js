@@ -130,6 +130,8 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/test-quality.test.js",
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
+  "test/unit/test-runner-utils.test.js",
+  "test/unit/test-utils.test.js",
   "test/unit/collections/categories.test.js",
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",

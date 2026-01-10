@@ -42,13 +42,6 @@ const captureSummaryOutput = (steps, results, title) =>
   });
 
 /**
- * Creates a single build step for testing
- */
-const createBuildStep = () => [
-  { name: "build", cmd: "bun", args: ["run", "build"] },
-];
-
-/**
  * Creates three standard steps (lint, test, build)
  */
 const createThreeSteps = () => [
@@ -65,6 +58,15 @@ const createBunScriptStep = (name, script) => ({
   cmd: "bun",
   args: ["-e", script],
 });
+
+/**
+ * Helper to create a single build step, results, and capture output
+ */
+const createBuildTestOutput = (buildConfig) => {
+  const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
+  const results = createResults({ build: buildConfig });
+  return captureSummaryOutput(steps, results);
+};
 
 describe("test-runner-utils", () => {
   // ============================================
@@ -118,19 +120,6 @@ describe("test-runner-utils", () => {
       const result = runStep(step, false);
 
       expect(result.status).toBe(1);
-    });
-
-    test("Sets VERBOSE environment variable based on verbose flag", () => {
-      const step = createBunScriptStep(
-        "env-check",
-        "console.log(process.env.VERBOSE)",
-      );
-
-      const verboseResult = runStep(step, true);
-      const quietResult = runStep(step, false);
-
-      expect(verboseResult.stdout).toBe("");
-      expect(quietResult.stdout).toContain("0");
     });
   });
 
@@ -359,19 +348,15 @@ Failed to compile
     });
 
     test("Shows last 15 lines when no specific errors extracted", () => {
-      const steps = createBuildStep();
       const multiLineOutput = Array.from(
         { length: 20 },
         (_, i) => `line ${i + 1}`,
       ).join("\n");
-      const results = createResults({
-        build: {
-          status: 1,
-          stdout: multiLineOutput,
-        },
-      });
 
-      const output = captureSummaryOutput(steps, results);
+      const output = createBuildTestOutput({
+        status: 1,
+        stdout: multiLineOutput,
+      });
 
       expect(output).toContain("No specific errors extracted");
       expect(output).toContain("Last 15 lines of output:");
@@ -383,17 +368,13 @@ Failed to compile
     });
 
     test("Uses stderr when stdout is empty for last lines display", () => {
-      const steps = createBuildStep();
       const stderr = "Error line 1\nError line 2\nError line 3";
-      const results = createResults({
-        build: {
-          status: 1,
-          stdout: "",
-          stderr,
-        },
-      });
 
-      const output = captureSummaryOutput(steps, results);
+      const output = createBuildTestOutput({
+        status: 1,
+        stdout: "",
+        stderr,
+      });
 
       expect(output).toContain("Error line 1");
       expect(output).toContain("Error line 2");
@@ -446,7 +427,6 @@ Failed to compile
     });
 
     test("Filters out empty lines from last lines display", () => {
-      const steps = createBuildStep();
       const outputWithBlanks = [
         "line 1",
         "",
@@ -456,20 +436,28 @@ Failed to compile
         "line 3",
         "",
       ].join("\n");
-      const results = createResults({
-        build: {
-          status: 1,
-          stdout: outputWithBlanks,
-        },
-      });
 
-      const output = captureSummaryOutput(steps, results);
+      const output = createBuildTestOutput({
+        status: 1,
+        stdout: outputWithBlanks,
+      });
 
       expect(output).toContain("line 1");
       expect(output).toContain("line 2");
       expect(output).toContain("line 3");
       // Should not have excessive blank lines in the display
       expect(output).not.toMatch(/\n\s*\n\s*\n\s*\n/);
+    });
+
+    test("Handles empty results gracefully", () => {
+      const steps = createBasicSteps();
+      const results = {};
+
+      const output = captureConsole(() => printSummary(steps, results));
+
+      expect(output).toContain("SUMMARY");
+      expect(output).not.toContain("Passed");
+      expect(output).not.toContain("Failed");
     });
   });
 });

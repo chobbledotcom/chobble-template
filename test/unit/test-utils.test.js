@@ -14,27 +14,6 @@ describe("test-utils", () => {
       expect(() => expectValidScriptTag(validTag)).not.toThrow();
     });
 
-    test("Validates script tag starts with correct id", () => {
-      const validTag =
-        '<script id="site-config" type="application/json"></script>';
-
-      expect(() => expectValidScriptTag(validTag)).not.toThrow();
-    });
-
-    test("Validates script tag includes correct type", () => {
-      const validTag =
-        '<script id="site-config" type="application/json"></script>';
-
-      expect(() => expectValidScriptTag(validTag)).not.toThrow();
-    });
-
-    test("Validates script tag ends correctly", () => {
-      const validTag =
-        '<script id="site-config" type="application/json"></script>';
-
-      expect(() => expectValidScriptTag(validTag)).not.toThrow();
-    });
-
     test("Throws when script tag has wrong id", () => {
       const invalidTag =
         '<script id="wrong-id" type="application/json"></script>';
