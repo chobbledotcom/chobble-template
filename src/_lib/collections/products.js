@@ -32,8 +32,12 @@ const addGallery = (item) => {
   return item;
 };
 
+/**
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
+ */
 const createProductsCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
+  const products = collectionApi.getFilteredByTag("product");
   return products.map(addGallery);
 };
 
@@ -67,10 +71,10 @@ const getFeaturedProducts = (products) =>
  * Creates a collection of all SKUs with their pricing data for the API
  * Returns an object mapping SKU -> { name, unit_price, max_quantity }
  * Throws an error if duplicate SKUs are found
- * @param {any} collectionApi - Eleventy collection API
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  */
 const createApiSkusCollection = (collectionApi) => {
-  const products = collectionApi.getFilteredByTag("product") || [];
+  const products = collectionApi.getFilteredByTag("product");
   const allSkuEntries = products.flatMap((product) => {
     /** @type {import("#lib/types").Option[]|undefined} */
     const options = product.data.options;
