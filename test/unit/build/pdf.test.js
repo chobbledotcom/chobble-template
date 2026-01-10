@@ -539,7 +539,10 @@ describe("pdf", () => {
     });
 
     test("Returns null when PDF generation fails", async () => {
-      const { menu, categories, items } = createMinimalMenu("invalid", "Invalid Menu");
+      const { menu, categories, items } = createMinimalMenu(
+        "invalid",
+        "Invalid Menu",
+      );
 
       const result = await generateMenuPdf(
         menu,
