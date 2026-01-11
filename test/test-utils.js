@@ -289,6 +289,18 @@ const withMockedCwd = bracket(
   false,
 );
 
+const withMockedCwdAsync = bracketAsync(
+  (newCwd) => {
+    const original = process.cwd;
+    process.cwd = () => newCwd;
+    return original;
+  },
+  (original) => {
+    process.cwd = original;
+  },
+  false,
+);
+
 const withMockedProcessExit = bracket(
   () => {
     const original = process.exit;
@@ -791,6 +803,7 @@ export {
   withTempDirAsync,
   withTempFile,
   withMockedCwd,
+  withMockedCwdAsync,
   withMockedProcessExit,
   expectValidScriptTag,
   expectResultTitles,

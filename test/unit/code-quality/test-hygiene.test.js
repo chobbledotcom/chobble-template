@@ -26,6 +26,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempDir",
   "withTempFile",
   "withMockedCwd",
+  "withMockedCwdAsync",
   "withMockedConsole",
   "withAssetDir",
   "expectValidScriptTag",

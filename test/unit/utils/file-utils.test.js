@@ -12,7 +12,7 @@ import {
   createMockEleventyConfig,
   createTempSnippetsDir,
   fs,
-  withMockedCwd,
+  withMockedCwdAsyncAsync,
   withTempDir,
   withTempFile,
 } from "#test/test-utils.js";
@@ -178,7 +178,7 @@ World`;
       const mockConfig = createMockEleventyConfig();
       configureFileUtils(mockConfig);
 
-      await withMockedCwd(tempDir, async () => {
+      await withMockedCwdAsync(tempDir, async () => {
         const readResult = mockConfig.shortcodes.read_file("test.txt");
         expect(readResult).toBe(content);
 

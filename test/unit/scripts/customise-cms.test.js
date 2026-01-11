@@ -20,7 +20,7 @@ import {
   SPECS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
-import { withMockedCwd } from "#test/test-utils.js";
+import { withMockedCwdAsyncAsync } from "#test/test-utils.js";
 
 describe("customise-cms collections", () => {
   // ============================================
@@ -518,7 +518,7 @@ describe("customise-cms config", () => {
         }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = await loadCmsConfig();
 
         expect(config).toBeDefined();
@@ -542,7 +542,7 @@ describe("customise-cms config", () => {
         }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = await loadCmsConfig();
 
         expect(config).toBeNull();
@@ -558,7 +558,7 @@ describe("customise-cms config", () => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(`${tempDir}/_data/site.json`, "{}");
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = await loadCmsConfig();
 
         expect(config).toBeNull();
@@ -583,7 +583,7 @@ describe("customise-cms config", () => {
         }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const newConfig = {
           collections: ["pages", "products"],
           features: { permalinks: true },
@@ -623,7 +623,7 @@ describe("customise-cms config", () => {
         }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const updatedConfig = {
           collections: ["pages", "products", "news"],
           features: { permalinks: true, faqs: true },
@@ -654,7 +654,7 @@ describe("customise-cms config", () => {
         JSON.stringify({ name: "Test Site" }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = { collections: ["pages"] };
 
         await saveCmsConfig(config);
@@ -696,7 +696,7 @@ describe("customise-cms config", () => {
         }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = await loadCmsConfig();
 
         // Should have loaded from src/_data/site.json (preferred over _data)
@@ -719,7 +719,7 @@ describe("customise-cms config", () => {
         }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = await loadCmsConfig();
 
         // Should have loaded from _data/site.json (fallback)
@@ -747,7 +747,7 @@ describe("customise-cms config", () => {
         JSON.stringify({ name: "Src Site" }),
       );
 
-      return withMockedCwd(tempDir, async () => {
+      return withMockedCwdAsync(tempDir, async () => {
         const config = { collections: ["products"] };
         await saveCmsConfig(config);
 
