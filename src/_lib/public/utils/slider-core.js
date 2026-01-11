@@ -1,5 +1,5 @@
 // Slider Core - shared slider initialization logic
-// Used by both main bundle (slider.js) and landing bundle (landing-bundle.js)
+// Used by both main bundle (slider.js) and design system bundle (design-system.js)
 
 /**
  * Get scroll amount for a slider (width of first child + gap)
