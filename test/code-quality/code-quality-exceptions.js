@@ -130,6 +130,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/test-quality.test.js",
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
+  "test/unit/code-quality/design-system-scoping.test.js",
   "test/unit/test-runner-utils.test.js",
   "test/unit/test-utils.test.js",
   "test/unit/collections/categories.test.js",
@@ -176,6 +177,7 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
   "test/unit/code-quality/unused-classes.test.js",
+  "test/unit/code-quality/design-system-scoping.test.js",
   "test/test-site-factory.js",
   "test/integration/test-site-factory.test.js",
   "test/precommit.js",
@@ -191,6 +193,8 @@ const ALLOWED_LET = new Set([
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
+  // Helper functions to reduce complexity in getBodyClasses
+  "src/_lib/eleventy/style-bundle.js",
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
@@ -275,6 +279,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
   "src/_lib/eleventy/style-bundle.js:configureStyleBundle",
+  "src/_lib/eleventy/style-bundle.js:getBodyClasses",
   "src/_lib/eleventy/style-bundle.js:getCssBundle",
   "src/_lib/eleventy/style-bundle.js:getJsBundle",
   "src/_lib/eleventy/style-bundle.js:usesDesignSystem",

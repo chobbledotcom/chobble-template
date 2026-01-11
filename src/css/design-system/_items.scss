@@ -6,109 +6,111 @@
 // ITEMS LIST (for list-item.html)
 // =============================================================================
 
-ul.items {
-  display: flex;
-  flex-wrap: wrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: $space-lg;
-
-  // Grid layout for non-slider
-  &:not(.slider) {
-    > li {
-      flex: 1 1 280px;
-      max-width: 100%;
-
-      @include tablet-up {
-        max-width: calc(50% - #{math.div($space-lg, 2)});
-      }
-
-      @include desktop-up {
-        max-width: calc(33.333% - #{math.div($space-lg * 2, 3)});
-      }
-    }
-  }
-
-  &.slider {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: $space-sm;
-    scrollbar-width: thin;
-    scrollbar-color: var(--text-muted) transparent;
-
-    @include reduced-motion {
-      scroll-behavior: auto;
-    }
-
-    > li {
-      flex-shrink: 0;
-      scroll-snap-align: start;
-      width: 280px;
-
-      @include tablet-up {
-        width: 320px;
-      }
-    }
-  }
-}
-
-ul.items > li {
-  @include card;
-  @include card-hover;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0;
-
-  .image-link {
-    display: block;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      transition: transform $transition-fast;
-    }
-
-    &:hover img {
-      transform: scale(1.05);
-    }
-  }
-
-  h3 {
-    @include heading-sm;
+.design-system {
+  ul.items {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
     margin: 0;
-    padding: $space-md $space-md 0;
+    padding: 0;
+    gap: $space-lg;
 
-    a {
-      color: var(--text);
-      text-decoration: none;
+    // Grid layout for non-slider
+    &:not(.slider) {
+      > li {
+        flex: 1 1 280px;
+        max-width: 100%;
 
-      &:hover {
-        color: var(--primary);
+        @include tablet-up {
+          max-width: calc(50% - #{math.div($space-lg, 2)});
+        }
+
+        @include desktop-up {
+          max-width: calc(33.333% - #{math.div($space-lg * 2, 3)});
+        }
       }
     }
-  }
 
-  .price {
-    @include body-base;
-    font-weight: 600;
-    color: var(--primary);
-    margin: $space-xs 0 0;
-    padding: 0 $space-md $space-md;
-  }
+    &.slider {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: $space-sm;
+      scrollbar-width: thin;
+      scrollbar-color: var(--text-muted) transparent;
 
-  p:not(.price) {
-    @include body-sm;
-    color: var(--text-muted);
-    margin: $space-xs 0 0;
-    padding: 0 $space-md $space-md;
+      @include reduced-motion {
+        scroll-behavior: auto;
+      }
+
+      > li {
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        width: 280px;
+
+        @include tablet-up {
+          width: 320px;
+        }
+      }
+    }
+
+    > li {
+      @include card;
+      @include card-hover;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+
+      .image-link {
+        display: block;
+        overflow: hidden;
+
+        img {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 4 / 3;
+          object-fit: cover;
+          transition: transform $transition-fast;
+        }
+
+        &:hover img {
+          transform: scale(1.05);
+        }
+      }
+
+      h3 {
+        @include heading-sm;
+        margin: 0;
+        padding: $space-md $space-md 0;
+
+        a {
+          color: var(--text);
+          text-decoration: none;
+
+          &:hover {
+            color: var(--primary);
+          }
+        }
+      }
+
+      .price {
+        @include body-base;
+        font-weight: 600;
+        color: var(--primary);
+        margin: $space-xs 0 0;
+        padding: 0 $space-md $space-md;
+      }
+
+      p:not(.price) {
+        @include body-sm;
+        color: var(--text-muted);
+        margin: $space-xs 0 0;
+        padding: 0 $space-md $space-md;
+      }
+    }
   }
 }
