@@ -50,18 +50,21 @@ export const getBodyClasses = (
 
   const parseConfig = () => {
     if (isOptionsObject(designSystemLayoutsOrOptions)) {
+      const opts = /** @type {Record<string, unknown>} */ (
+        /** @type {unknown} */ (designSystemLayoutsOrOptions)
+      );
       return {
         designSystemLayouts:
-          designSystemLayoutsOrOptions.designSystemLayouts || [],
-        forceDesignSystem:
-          designSystemLayoutsOrOptions.forceDesignSystem || false,
-        stickyMobileNav: designSystemLayoutsOrOptions.stickyMobileNav || false,
-        horizontalNav: designSystemLayoutsOrOptions.horizontalNav !== false,
-        hasRightContent: designSystemLayoutsOrOptions.hasRightContent || false,
+          /** @type {string[]} */ (opts.designSystemLayouts) || [],
+        forceDesignSystem: Boolean(opts.forceDesignSystem),
+        stickyMobileNav: Boolean(opts.stickyMobileNav),
+        horizontalNav: opts.horizontalNav !== false,
+        hasRightContent: Boolean(opts.hasRightContent),
       };
     }
     return {
-      designSystemLayouts: designSystemLayoutsOrOptions || [],
+      designSystemLayouts:
+        /** @type {string[]} */ (designSystemLayoutsOrOptions) || [],
       forceDesignSystem: forceDesignSystemArg,
       stickyMobileNav: stickyMobileNavArg,
       horizontalNav: horizontalNavArg,
