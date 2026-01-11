@@ -5,33 +5,35 @@
 // CTA
 // =============================================================================
 
-.cta {
-  @include flex-col($space-lg, center, center);
-  text-align: center;
-  @include card($space-3xl, $radius-2xl);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  border: none;
-  color: #fff;
-  --text: #fff;
-  --text-muted: rgba(255, 255, 255, 0.8);
-
-  h2 {
-    margin-bottom: $space-sm;
-  }
-
-  p {
-    @include body-lg;
-    opacity: 0.9;
-    max-width: 600px;
-    margin-bottom: $space-lg;
-  }
-
-  .btn--secondary {
-    border-color: #fff;
+.design-system {
+  .cta {
+    @include flex-col($space-lg, center, center);
+    text-align: center;
+    @include card($space-3xl, $radius-2xl);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border: none;
     color: #fff;
-    &:hover {
-      background: #fff;
-      color: var(--primary);
+    --text: #fff;
+    --text-muted: rgba(255, 255, 255, 0.8);
+
+    h2 {
+      margin-bottom: $space-sm;
+    }
+
+    p {
+      @include body-lg;
+      opacity: 0.9;
+      max-width: 600px;
+      margin-bottom: $space-lg;
+    }
+
+    .btn--secondary {
+      border-color: #fff;
+      color: #fff;
+      &:hover {
+        background: #fff;
+        color: var(--primary);
+      }
     }
   }
 }

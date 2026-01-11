@@ -97,6 +97,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectNoStaleExceptions",
   // code-scanner.js - export detection utility
   "extractExports",
+  // design-system-scoping.test.js - SCSS analysis helpers
+  "findUnscopedSelectors",
+  "hasDesignSystemWrapper",
   // test-only-exports.test.js - analysis helpers
   "resolveImportPath",
   "extractImports",
