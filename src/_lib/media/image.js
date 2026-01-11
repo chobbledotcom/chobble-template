@@ -5,6 +5,7 @@ import {
   getEleventyImg,
   getThumbnailOrNull,
 } from "#media/image-lqip.js";
+import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import { createImageTransform as createTransform } from "#media/image-transform.js";
 import {
   buildImgAttributes,
@@ -15,6 +16,9 @@ import {
 } from "#media/image-utils.js";
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { jsonKey, memoize } from "#utils/memoize.js";
+
+// Placeholder mode: skip all image processing for faster builds
+const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 
 // Image processing configuration
 const DEFAULT_OPTIONS = {
@@ -43,6 +47,17 @@ const DEFAULT_OPTIONS = {
  */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
+    // Skip all image processing in placeholder mode
+    if (PLACEHOLDER_MODE) {
+      return generatePlaceholderHtml({
+        alt,
+        classes,
+        sizes,
+        loading,
+        aspectRatio,
+      });
+    }
+
     const imagePath = normalizeImagePath(imageName);
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
