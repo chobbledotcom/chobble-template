@@ -124,6 +124,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/method-aliasing.test.js",
   "test/unit/code-quality/naming-conventions.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
+  "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
   "test/unit/code-quality/test-hygiene.test.js",
@@ -172,6 +173,7 @@ const ALLOWED_LET = new Set([
   "test/unit/frontend/quote-checkout.test.js",
   "test/unit/code-quality/code-scanner.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
+  "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/html-in-js.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
@@ -193,8 +195,6 @@ const ALLOWED_LET = new Set([
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
-  // Helper functions to reduce complexity in getBodyClasses
-  "src/_lib/eleventy/style-bundle.js",
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
