@@ -221,7 +221,7 @@ const profileScript = (script, nodeArgs, spawnArgs) => {
 
       await measure("@11ty/eleventy_RenderPlugin", () => import("@11ty/eleventy"));
       await measure("@quasibit/eleventy-plugin-schema", () => import("@quasibit/eleventy-plugin-schema"));
-      await measure("#build/esbuild.js", () => import("#build/esbuild.js"));
+      await measure("#build/js-bundler.js", () => import("#build/js-bundler.js"));
       await measure("#build/scss.js", () => import("#build/scss.js"));
       await measure("#collections/categories.js", () => import("#collections/categories.js"));
       await measure("#collections/events.js", () => import("#collections/events.js"));
