@@ -13,53 +13,6 @@ export const getJsBundle = (layout, designSystemLayouts) =>
     ? "/assets/js/landing-bundle.js"
     : "/assets/js/bundle.js";
 
-// Option keys for detecting options object vs positional arguments
-const BODY_CLASS_OPTION_KEYS = [
-  "designSystemLayouts",
-  "forceDesignSystem",
-  "stickyMobileNav",
-  "horizontalNav",
-  "hasRightContent",
-];
-
-/**
- * Detects if the value is an options object rather than a positional array.
- */
-const isOptionsObject = (value) =>
-  value !== null &&
-  typeof value === "object" &&
-  !Array.isArray(value) &&
-  (Object.keys(value).length === 0 ||
-    Object.keys(value).some((k) => BODY_CLASS_OPTION_KEYS.includes(k)));
-
-/**
- * Parse options from an options object.
- */
-const parseOptionsObject = (opts) => ({
-  designSystemLayouts: opts.designSystemLayouts || [],
-  forceDesignSystem: opts.forceDesignSystem || false,
-  stickyMobileNav: opts.stickyMobileNav || false,
-  horizontalNav: opts.horizontalNav !== false,
-  hasRightContent: opts.hasRightContent || false,
-});
-
-/**
- * Parse options from positional arguments.
- */
-const parsePositionalArgs = (
-  designSystemLayoutsArg,
-  forceDesignSystemArg,
-  stickyMobileNavArg,
-  horizontalNavArg,
-  hasRightContentArg,
-) => ({
-  designSystemLayouts: designSystemLayoutsArg || [],
-  forceDesignSystem: forceDesignSystemArg,
-  stickyMobileNav: stickyMobileNavArg,
-  horizontalNav: horizontalNavArg,
-  hasRightContent: hasRightContentArg,
-});
-
 /**
  * Generates body CSS classes based on layout and config.
  * This function unifies body class generation for all layouts.
@@ -80,15 +33,46 @@ export const getBodyClasses = (
   horizontalNavArg = true,
   hasRightContentArg = false,
 ) => {
-  const config = isOptionsObject(designSystemLayoutsOrOptions)
-    ? parseOptionsObject(designSystemLayoutsOrOptions)
-    : parsePositionalArgs(
-        designSystemLayoutsOrOptions,
-        forceDesignSystemArg,
-        stickyMobileNavArg,
-        horizontalNavArg,
-        hasRightContentArg,
+  const optionKeys = [
+    "designSystemLayouts",
+    "forceDesignSystem",
+    "stickyMobileNav",
+    "horizontalNav",
+    "hasRightContent",
+  ];
+
+  const isOptionsObject = (value) =>
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (Object.keys(value).length === 0 ||
+      Object.keys(value).some((k) => optionKeys.includes(k)));
+
+  const parseConfig = () => {
+    if (isOptionsObject(designSystemLayoutsOrOptions)) {
+      const opts = /** @type {Record<string, unknown>} */ (
+        /** @type {unknown} */ (designSystemLayoutsOrOptions)
       );
+      return {
+        designSystemLayouts:
+          /** @type {string[]} */ (opts.designSystemLayouts) || [],
+        forceDesignSystem: Boolean(opts.forceDesignSystem),
+        stickyMobileNav: Boolean(opts.stickyMobileNav),
+        horizontalNav: opts.horizontalNav !== false,
+        hasRightContent: Boolean(opts.hasRightContent),
+      };
+    }
+    return {
+      designSystemLayouts:
+        /** @type {string[]} */ (designSystemLayoutsOrOptions) || [],
+      forceDesignSystem: forceDesignSystemArg,
+      stickyMobileNav: stickyMobileNavArg,
+      horizontalNav: horizontalNavArg,
+      hasRightContent: hasRightContentArg,
+    };
+  };
+
+  const config = parseConfig();
 
   const showDesignSystem =
     config.forceDesignSystem ||

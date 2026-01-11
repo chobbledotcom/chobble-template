@@ -44,10 +44,13 @@ export function inlineAsset(assetPath, baseDir = process.cwd()) {
   return `data:image/${mimeType};base64,${base64}`;
 }
 
+// Memoized at module level for consistent caching
+const memoizedInlineAsset = memoize(inlineAsset);
+
 /**
  * Configure the inline_asset filter for Eleventy
  * @param {object} eleventyConfig - Eleventy configuration object
  */
 export function configureInlineAsset(eleventyConfig) {
-  eleventyConfig.addFilter("inline_asset", memoize(inlineAsset));
+  eleventyConfig.addFilter("inline_asset", memoizedInlineAsset);
 }
