@@ -19,11 +19,10 @@ Example usage:
 {%- assign error_text = error_text | default: "Please select a keyword from the list." -%}
 
 <noscript><p>JavaScript is required to search.</p></noscript>
-<form id="search-form" action="/search/" method="get" class="search-box">
-  <label for="keyword">{{ label }}</label>
+<form action="/search/" method="get" class="search-box">
+  <label>{{ label }}</label>
   <input
     list="keywords"
-    id="keyword"
     name="q"
     placeholder="{{ placeholder }}"
     autocomplete="off"
@@ -34,7 +33,7 @@ Example usage:
     {%- endfor -%}
   </datalist>
   <button type="submit">{{ button_text }}</button>
-  <p id="search-error">{{ error_text }}</p>
+  <p class="search-error">{{ error_text }}</p>
 </form>
 
 <link rel="stylesheet" href="{{ '/css/search.css' | cacheBust }}">
