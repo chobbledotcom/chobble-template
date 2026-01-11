@@ -464,6 +464,74 @@ $space-4xl: 128px</code></pre>
     </div>
   </section>
 
+  <!-- Split Full-Width -->
+  <section class="alt" id="split-full">
+    <div class="container">
+      <header class="text-center mb-xl">
+        <h2>Split Full-Width Sections</h2>
+        <p class="text-muted">Two-tone sections that span the full viewport width.</p>
+      </header>
+
+      <article class="feature mb-xl" data-reveal>
+        <h3>HTML Structure</h3>
+        <div class="code-block">
+          <header>
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="split-full split-full--dark-left"&gt;
+  &lt;div class="split-full__left"&gt;
+    &lt;div&gt;
+      &lt;h2&gt;Left Content&lt;/h2&gt;
+      &lt;p&gt;Dark background section.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="split-full__right"&gt;
+    &lt;div&gt;
+      &lt;h2&gt;Right Content&lt;/h2&gt;
+      &lt;p&gt;Light background section.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Variants: <code>.split-full--dark-left</code>, <code>.split-full--dark-right</code>, <code>.split-full--primary-left</code>, <code>.split-full--primary-right</code></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Split Full Demo -->
+  <div class="split-full split-full--dark-left">
+    <div class="split-full__left">
+      <div>
+        <h2>Dark Side</h2>
+        <p>This is the left half with a dark background. Content is automatically aligned to the right edge to meet the center.</p>
+        <a href="#" class="btn btn--secondary">Learn More</a>
+      </div>
+    </div>
+    <div class="split-full__right">
+      <div>
+        <h2>Light Side</h2>
+        <p>This is the right half with a light background. Content aligns to the left edge from center.</p>
+        <a href="#" class="btn btn--primary">Get Started</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="split-full split-full--primary-right">
+    <div class="split-full__left">
+      <div>
+        <h2>Default Background</h2>
+        <p>The left side uses the default background color.</p>
+      </div>
+    </div>
+    <div class="split-full__right">
+      <div>
+        <h2>Primary Color</h2>
+        <p>The right side uses the primary brand color. Text automatically inverts to white.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Stats -->
   <section id="stats">
     <div class="container">
@@ -693,7 +761,7 @@ $space-4xl: 128px</code></pre>
     <div class="container">
       <header class="text-center mb-xl">
         <h2>SCSS Reference</h2>
-        <p class="text-muted">Available mixins in <code>_landing-mixins.scss</code></p>
+        <p class="text-muted">Available mixins in <code>_mixins.scss</code></p>
       </header>
 
       <div class="grid--2">
@@ -712,7 +780,7 @@ $space-4xl: 128px</code></pre>
 
         <article class="feature" data-reveal>
           <h4>Component Mixins</h4>
-          <pre><code>@include card($padding, $radius, $shadow)
+          <pre><code>@include card($padding, $radius)
 @include card-hover
 @include button-base
 @include button-primary
@@ -794,8 +862,8 @@ $bp-xl: 1200px</code></pre>
 │
 ├── css/
 │   ├── landing-bundle.scss   # Main stylesheet
-│   ├── _landing-variables.scss
-│   └── _landing-mixins.scss
+│   ├── _variables.scss       # Spacing, typography, borders
+│   └── _mixins.scss          # Layout, card, button mixins
 │
 └── _lib/public/
     └── landing-bundle.js     # Scroll animations</code></pre>

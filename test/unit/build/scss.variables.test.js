@@ -17,8 +17,8 @@ const CONSUMED_VIA_JS = [];
 // Files that have their own isolated :root definitions (e.g., standalone bundles)
 const ISOLATED_BUNDLES = [
   "landing-bundle.scss",
-  "_landing-variables.scss",
-  "_landing-mixins.scss",
+  "_variables.scss",
+  "_mixins.scss",
 ];
 
 // ============================================

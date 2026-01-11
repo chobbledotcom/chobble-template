@@ -86,21 +86,21 @@
 // CARD & BOX MIXINS
 // =============================================================================
 
-@mixin card($padding: $space-lg, $radius: $radius-lg, $shadow: $shadow-md) {
+@mixin card($padding: $space-lg, $radius: $radius-lg) {
   padding: $padding;
   border-radius: $radius;
-  box-shadow: $shadow;
+  border: $border-light;
   background: var(--card-bg, #fff);
 }
 
 @mixin card-hover {
   transition:
     transform $transition-normal,
-    box-shadow $transition-normal;
+    border-color $transition-normal;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-xl;
+    transform: translateY(-2px);
+    border-color: rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -309,14 +309,11 @@
 }
 
 // Hover float effect
-@mixin hover-float($distance: -8px) {
-  transition:
-    transform $transition-normal,
-    box-shadow $transition-normal;
+@mixin hover-float($distance: -4px) {
+  transition: transform $transition-normal;
 
   &:hover {
     transform: translateY($distance);
-    box-shadow: $shadow-xl;
   }
 }
 
