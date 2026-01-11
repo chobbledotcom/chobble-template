@@ -202,6 +202,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-site-factory.test.js - test page fixtures
   "minimalPage",
   "testPage",
+  // recurring-events.test.js - test fixtures and helpers
+  "event",
+  "renderAndParse",
   // array-utils.test.js - test fixtures
   "testTruncatedList",
   // sorting.test.js - functional helpers for sorting and extracting

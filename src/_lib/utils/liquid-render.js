@@ -1,0 +1,34 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { Liquid } from "liquidjs";
+import { SRC_DIR } from "#lib/paths.js";
+import { memoize } from "#utils/memoize.js";
+
+const liquid = new Liquid();
+
+/**
+ * Create a memoized template loader for a given include file
+ * @param {string} templateName - Name of the template file (without path)
+ * @returns {Function} Memoized async function that returns template content
+ */
+const createTemplateLoader = (templateName) =>
+  memoize(async () =>
+    readFile(join(SRC_DIR, "_includes", templateName), "utf-8"),
+  );
+
+/**
+ * Create a template renderer function
+ * @param {Function} getTemplate - Memoized template loader function
+ * @param {string} dataKey - Key name for the data in the template context
+ * @returns {Function} Async function that renders the template with data
+ */
+const createTemplateRenderer = (getTemplate, dataKey) => async (data) => {
+  if (!data || data.length === 0) {
+    return "";
+  }
+
+  const template = await getTemplate();
+  return liquid.parseAndRender(template, { [dataKey]: data });
+};
+
+export { createTemplateLoader, createTemplateRenderer };

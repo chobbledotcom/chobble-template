@@ -69,8 +69,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 // Files that are allowed to contain HTML in JavaScript template literals.
 // These should be refactored over time to use external templates.
 const ALLOWED_HTML_IN_JS = new Set([
-  // Server-side Eleventy plugins generating HTML
-  "src/_lib/eleventy/recurring-events.js",
+  // No exceptions - all HTML has been moved to templates
 ]);
 
 // ============================================

@@ -1,7 +1,13 @@
 import strings from "#data/strings.js";
 import { flatMap, pipe, sort } from "#utils/array-utils.js";
+import {
+  createTemplateLoader,
+  createTemplateRenderer,
+} from "#utils/liquid-render.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
+
+const getTemplate = createTemplateLoader("recurring-events-list.html");
 
 /**
  * Strip date prefix and extension from event filename
@@ -25,49 +31,12 @@ const getEventUrl = (data, fileSlug, permalinkDir) =>
   data.permalink || `/${permalinkDir}/${fileSlug}/`;
 
 /**
- * Render recurring events as HTML list
+ * Render recurring events as HTML list using Liquid template
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} events
- * @returns {string}
+ * @param {Array<{url: string, data: {title: string, recurring_date: string, event_location?: string}}>} events
+ * @returns {Promise<string>}
  */
-const renderRecurringEvents = (events) => {
-  if (events.length === 0) {
-    return "";
-  }
-
-  const items = events.map((event) => {
-    const eventData = event.data;
-    const url = event.url || eventData.url;
-    const titleHtml = url
-      ? `<strong><a href="${url}">${eventData.title}</a></strong>`
-      : `<strong>${eventData.title}</strong>`;
-    const locationHtml = eventData.event_location
-      ? `<br>\n    ${eventData.event_location}`
-      : "";
-    return `  <li>
-    ${titleHtml}<br>
-    ${eventData.recurring_date}${locationHtml}
-  </li>`;
-  });
-
-  return `<ul>\n${items.join("\n")}\n</ul>`;
-};
-
-/**
- * Shortcode function that renders recurring events from a provided collection.
- * Used for testing with mock data. Not used directly in Eleventy due to
- * collection access limitations in shortcodes.
- *
- * @param {import("#lib/types").EleventyCollectionItem[]} events
- * @returns {string}
- */
-function recurringEventsShortcode(events = []) {
-  const recurringEvents = events
-    .filter((event) => event.data.recurring_date)
-    .sort(sortItems);
-
-  return renderRecurringEvents(recurringEvents);
-}
+const renderRecurringEvents = createTemplateRenderer(getTemplate, "events");
 
 /**
  * Get recurring events HTML for direct use in file-utils
@@ -88,7 +57,7 @@ const getRecurringEventsHtml = memoize(async () => {
     .readdirSync(eventsDir)
     .filter((file) => file.endsWith(".md"));
 
-  return pipe(
+  const events = pipe(
     flatMap((filename) => {
       const filePath = path.default.join(eventsDir, filename);
       const { data } = matter.default.read(filePath);
@@ -107,17 +76,17 @@ const getRecurringEventsHtml = memoize(async () => {
       ];
     }),
     sort(sortItems),
-    renderRecurringEvents,
   )(markdownFiles);
+
+  return renderRecurringEvents(events);
 });
 
 /**
- * Configure Eleventy recurring events shortcode and filter
+ * Configure Eleventy recurring events shortcode
  * @param {Object} eleventyConfig - Eleventy configuration object
  */
 const configureRecurringEvents = (eleventyConfig) => {
   eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
-  eleventyConfig.addFilter("format_recurring_events", renderRecurringEvents);
 };
 
 export {
@@ -125,6 +94,5 @@ export {
   getEventUrl,
   getRecurringEventsHtml,
   renderRecurringEvents,
-  recurringEventsShortcode,
   stripDatePrefix,
 };
