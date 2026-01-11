@@ -1,4 +1,4 @@
-// Main JS bundle - processed by esbuild during build
+// Main JS bundle - processed by Bun during build
 
 // NPM dependencies
 import "@hotwired/turbo";
