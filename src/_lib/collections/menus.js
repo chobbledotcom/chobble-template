@@ -7,12 +7,7 @@ const buildMenuCategoryMap = memoize((categories) =>
 );
 
 const buildCategoryItemMap = memoize((items) =>
-  buildReverseIndex(
-    items,
-    (item) =>
-      item.data.menu_categories ||
-      (item.data.menu_category ? [item.data.menu_category] : []),
-  ),
+  buildReverseIndex(items, (item) => item.data.menu_categories || []),
 );
 
 const getCategoriesByMenu = (categories, menuSlug) => {

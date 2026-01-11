@@ -93,13 +93,13 @@ describe("menus", () => {
   test("Returns items for a given category slug", () => {
     const items = [
       {
-        data: { menu_category: "appetizers", title: "Spring Rolls" },
+        data: { menu_categories: ["appetizers"], title: "Spring Rolls" },
       },
       {
-        data: { menu_category: "appetizers", title: "Soup" },
+        data: { menu_categories: ["appetizers"], title: "Soup" },
       },
       {
-        data: { menu_category: "mains", title: "Steak" },
+        data: { menu_categories: ["mains"], title: "Steak" },
       },
     ];
 
@@ -108,7 +108,7 @@ describe("menus", () => {
     expectResultTitles(result, ["Spring Rolls", "Soup"]);
   });
 
-  test("Handles menu_categories array", () => {
+  test("Handles menu_categories array with multiple categories", () => {
     const items = [
       {
         data: {
@@ -128,25 +128,10 @@ describe("menus", () => {
     expect(shareables).toHaveLength(1);
   });
 
-  test("Handles mix of menu_category and menu_categories", () => {
-    const items = [
-      {
-        data: { menu_category: "drinks", title: "Soda" },
-      },
-      {
-        data: { menu_categories: ["drinks", "specials"], title: "Cocktail" },
-      },
-    ];
-
-    const result = getItemsByCategory(items, "drinks");
-
-    expect(result).toHaveLength(2);
-  });
-
   test("Returns empty array when no items match category", () => {
     const items = [
       {
-        data: { menu_category: "appetizers", title: "Spring Rolls" },
+        data: { menu_categories: ["appetizers"], title: "Spring Rolls" },
       },
     ];
 
@@ -169,19 +154,16 @@ describe("menus", () => {
     expect(result).toEqual([]);
   });
 
-  test("Skips items without category properties", () => {
+  test("Skips items without menu_categories property", () => {
     const items = [
       {
         data: { title: "No Category" },
       },
       {
-        data: { menu_category: "appetizers", title: "Has Category" },
+        data: { menu_categories: ["appetizers"], title: "Has Category" },
       },
       {
-        data: { menu_category: null, title: "Null Category" },
-      },
-      {
-        data: { menu_categories: null, title: "Null Categories Array" },
+        data: { menu_categories: null, title: "Null Categories" },
       },
     ];
 
@@ -196,7 +178,7 @@ describe("menus", () => {
         data: { menu_categories: [], title: "Empty Categories" },
       },
       {
-        data: { menu_category: "appetizers", title: "Has Category" },
+        data: { menu_categories: ["appetizers"], title: "Has Category" },
       },
     ];
 
@@ -227,7 +209,7 @@ describe("menus", () => {
 
     const items = [
       {
-        data: { menu_category: "sandwiches", title: "BLT" },
+        data: { menu_categories: ["sandwiches"], title: "BLT" },
       },
     ];
 
@@ -245,7 +227,7 @@ describe("menus", () => {
   });
 
   // Memoization tests
-  test("Returns consistent results for same input", () => {
+  test("Returns consistent results for same category input", () => {
     const categories = [
       {
         data: { menus: ["lunch"], title: "Sandwiches" },
@@ -262,13 +244,13 @@ describe("menus", () => {
     expect(result1).toHaveLength(2);
   });
 
-  test("Returns consistent results for same input", () => {
+  test("Returns consistent results for same item input", () => {
     const items = [
       {
-        data: { menu_category: "appetizers", title: "Wings" },
+        data: { menu_categories: ["appetizers"], title: "Wings" },
       },
       {
-        data: { menu_category: "appetizers", title: "Fries" },
+        data: { menu_categories: ["appetizers"], title: "Fries" },
       },
     ];
 
@@ -301,13 +283,13 @@ describe("menus", () => {
   test("Preserves order of items as encountered", () => {
     const items = [
       {
-        data: { menu_category: "appetizers", title: "First" },
+        data: { menu_categories: ["appetizers"], title: "First" },
       },
       {
-        data: { menu_category: "appetizers", title: "Second" },
+        data: { menu_categories: ["appetizers"], title: "Second" },
       },
       {
-        data: { menu_category: "appetizers", title: "Third" },
+        data: { menu_categories: ["appetizers"], title: "Third" },
       },
     ];
 
