@@ -5,36 +5,38 @@
 // FOOTER
 // =============================================================================
 
-footer.site-footer {
-  padding: $space-2xl 0;
-  background: #1f2937;
-  color: #9ca3af;
+.design-system {
+  footer.site-footer {
+    padding: $space-2xl 0;
+    background: #1f2937;
+    color: #9ca3af;
 
-  a {
-    color: #d1d5db;
-    &:hover {
-      color: #fff;
+    a {
+      color: #d1d5db;
+      &:hover {
+        color: #fff;
+      }
     }
-  }
 
-  .container {
-    @include flex-col($space-lg, center);
-    text-align: center;
+    .container {
+      @include flex-col($space-lg, center);
+      text-align: center;
 
-    @include tablet-up {
-      @include flex-between;
-      flex-direction: row;
-      text-align: left;
+      @include tablet-up {
+        @include flex-between;
+        flex-direction: row;
+        text-align: left;
+      }
     }
-  }
 
-  nav {
-    @include flex-row($space-lg);
-    flex-wrap: wrap;
-    justify-content: center;
+    nav {
+      @include flex-row($space-lg);
+      flex-wrap: wrap;
+      justify-content: center;
 
-    @include tablet-up {
-      justify-content: flex-start;
+      @include tablet-up {
+        justify-content: flex-start;
+      }
     }
   }
 }
