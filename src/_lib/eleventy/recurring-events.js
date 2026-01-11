@@ -88,7 +88,7 @@ const getRecurringEventsHtml = memoize(async () => {
     .readdirSync(eventsDir)
     .filter((file) => file.endsWith(".md"));
 
-  const recurringEvents = pipe(
+  return pipe(
     flatMap((filename) => {
       const filePath = path.default.join(eventsDir, filename);
       const { data } = matter.default.read(filePath);
@@ -107,9 +107,8 @@ const getRecurringEventsHtml = memoize(async () => {
       ];
     }),
     sort(sortItems),
+    renderRecurringEvents,
   )(markdownFiles);
-
-  return renderRecurringEvents(recurringEvents);
 });
 
 /**
