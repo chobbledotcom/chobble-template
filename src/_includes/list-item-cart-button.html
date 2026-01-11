@@ -1,15 +1,15 @@
 {%- if config.cart_mode and item.data.cart_attributes -%}
   {%- assign mode = item.data.product_mode | default: config.product_mode -%}
-  {%- if item.data.options.size == 1 -%}
-    <button
-      class="add-to-cart"
-      data-item="{{ item.data.cart_attributes }}"
-    >Add to Cart</button>
-  {%- elsif mode == "hire" -%}
+  {%- if mode == "hire" -%}
     <button
       class="add-to-cart"
       data-item="{{ item.data.cart_attributes }}"
     >Add To Quote</button>
+  {%- elsif item.data.options.size == 1 -%}
+    <button
+      class="add-to-cart"
+      data-item="{{ item.data.cart_attributes }}"
+    >Add to Cart</button>
   {%- else -%}
     <a href="{{ item.url }}#content" class="button">Select Options</a>
   {%- endif -%}
