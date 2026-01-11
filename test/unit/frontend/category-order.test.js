@@ -13,25 +13,25 @@ describe("category-order", () => {
     expect(categoryOrder.length > 0).toBe(true);
   });
 
-  test("categoryOrder contains only valid section names", () => {
+  test("categoryOrder contains only valid include files", () => {
     for (const section of categoryOrder) {
       expect(DEFAULT_ORDER.includes(section)).toBe(true);
     }
   });
 
   // DEFAULT_ORDER constant tests
-  test("DEFAULT_ORDER contains the four expected section names", () => {
+  test("DEFAULT_ORDER contains the four expected include files", () => {
     expect(DEFAULT_ORDER).toEqual([
-      "content",
-      "faqs",
-      "subcategories",
-      "products",
+      "category-content.html",
+      "category-faqs.html",
+      "category-subcategories.html",
+      "category-products.html",
     ]);
   });
 
   // getCategoryOrder function tests - covers all branches
   test("getCategoryOrder returns the input when it is a valid array", () => {
-    const customOrder = ["products", "content"];
+    const customOrder = ["category-products.html", "category-content.html"];
     const result = getCategoryOrder(customOrder);
     expect(result).toEqual(customOrder);
   });
@@ -62,7 +62,7 @@ describe("category-order", () => {
   });
 
   test("getCategoryOrder returns single-element arrays", () => {
-    const singleElement = ["products"];
+    const singleElement = ["category-products.html"];
     const result = getCategoryOrder(singleElement);
     expect(result).toEqual(singleElement);
   });

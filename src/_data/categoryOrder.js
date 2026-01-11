@@ -1,6 +1,11 @@
 import configJson from "#data/config.json" with { type: "json" };
 
-const DEFAULT_ORDER = ["content", "faqs", "subcategories", "products"];
+const DEFAULT_ORDER = [
+  "category-content.html",
+  "category-faqs.html",
+  "category-subcategories.html",
+  "category-products.html",
+];
 
 const getCategoryOrder = (configOrder) =>
   Array.isArray(configOrder) && configOrder.length > 0
