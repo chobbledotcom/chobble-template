@@ -1,52 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
+import { memberOf } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 
-const ALLOWED_SVG_EXTENSIONS = [".svg"];
-const ALLOWED_IMAGE_EXTENSIONS = [".webp", ".jpeg", ".jpg", ".png", ".gif"];
-const ALLOWED_EXTENSIONS = [
-  ...ALLOWED_SVG_EXTENSIONS,
-  ...ALLOWED_IMAGE_EXTENSIONS,
-];
+const SVG_EXTENSIONS = [".svg"];
+const IMAGE_EXTENSIONS = [".webp", ".jpeg", ".jpg", ".png", ".gif"];
+const ALLOWED_EXTENSIONS = [...SVG_EXTENSIONS, ...IMAGE_EXTENSIONS];
 
-/**
- * Get the full path to an asset file
- * @param {string} assetPath - Path relative to assets directory
- * @param {string} baseDir - Base directory (defaults to process.cwd())
- * @returns {string} Full path to the asset
- */
-const getAssetPath = (assetPath, baseDir = process.cwd()) =>
-  path.join(baseDir, "src", "assets", assetPath);
-
-/**
- * Check if a file extension is allowed for inlining
- * @param {string} filePath - Path to the file
- * @returns {boolean} True if extension is allowed
- */
-const isAllowedExtension = (filePath) => {
-  const ext = path.extname(filePath).toLowerCase();
-  return ALLOWED_EXTENSIONS.includes(ext);
-};
-
-/**
- * Check if a file is an SVG
- * @param {string} filePath - Path to the file
- * @returns {boolean} True if file is an SVG
- */
-const isSvgFile = (filePath) => {
-  const ext = path.extname(filePath).toLowerCase();
-  return ALLOWED_SVG_EXTENSIONS.includes(ext);
-};
-
-/**
- * Check if a file is an image (non-SVG)
- * @param {string} filePath - Path to the file
- * @returns {boolean} True if file is an image
- */
-const isImageFile = (filePath) => {
-  const ext = path.extname(filePath).toLowerCase();
-  return ALLOWED_IMAGE_EXTENSIONS.includes(ext);
-};
+const isSvgExtension = memberOf(SVG_EXTENSIONS);
+const isAllowedExtension = memberOf(ALLOWED_EXTENSIONS);
 
 /**
  * Inline an asset file, returning its contents as a string
@@ -58,10 +20,10 @@ const isImageFile = (filePath) => {
  * @throws {Error} If file doesn't exist or has unsupported extension
  */
 export function inlineAsset(assetPath, baseDir = process.cwd()) {
-  const fullPath = getAssetPath(assetPath, baseDir);
+  const fullPath = path.join(baseDir, "src", "assets", assetPath);
+  const ext = path.extname(assetPath).toLowerCase();
 
-  if (!isAllowedExtension(assetPath)) {
-    const ext = path.extname(assetPath).toLowerCase();
+  if (!isAllowedExtension(ext)) {
     throw new Error(
       `Unsupported file extension "${ext}" for inline_asset. Allowed extensions: ${ALLOWED_EXTENSIONS.join(", ")}`,
     );
@@ -71,19 +33,15 @@ export function inlineAsset(assetPath, baseDir = process.cwd()) {
     throw new Error(`Asset file not found: ${assetPath}`);
   }
 
-  if (isSvgFile(assetPath)) {
+  if (isSvgExtension(ext)) {
     return fs.readFileSync(fullPath, "utf-8");
   }
 
-  if (isImageFile(assetPath)) {
-    const imageBuffer = fs.readFileSync(fullPath);
-    const base64 = imageBuffer.toString("base64");
-    const ext = path.extname(assetPath).toLowerCase().slice(1);
-    const mimeType = ext === "jpg" ? "jpeg" : ext;
-    return `data:image/${mimeType};base64,${base64}`;
-  }
-
-  throw new Error(`Unsupported file type: ${assetPath}`);
+  // All allowed extensions are either SVG or image
+  const imageBuffer = fs.readFileSync(fullPath);
+  const base64 = imageBuffer.toString("base64");
+  const mimeType = ext.slice(1) === "jpg" ? "jpeg" : ext.slice(1);
+  return `data:image/${mimeType};base64,${base64}`;
 }
 
 /**
