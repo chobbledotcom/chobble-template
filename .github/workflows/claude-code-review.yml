@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
       id-token: write
 
     steps:
@@ -50,9 +50,23 @@ jobs:
 
             Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
 
-            Provide detailed feedback using inline comments for specific issues.
+            IMPORTANT: To avoid cluttering the PR with multiple comments, you MUST update an existing review comment if one exists:
+
+            1. First, find your previous review comment by running:
+               gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[] | select(.body | contains("<!-- claude-code-review -->")) | .id'
+
+            2. If a comment ID is returned, UPDATE that comment:
+               gh api repos/${{ github.repository }}/issues/comments/COMMENT_ID -X PATCH -f body='YOUR_REVIEW_CONTENT'
+
+            3. If no comment is found, create a NEW comment:
+               gh pr comment ${{ github.event.pull_request.number }} --body 'YOUR_REVIEW_CONTENT'
+
+            Your review comment MUST start with this hidden marker on the first line:
+            <!-- claude-code-review -->
+
+            You may still use inline PR review comments for specific line-level issues.
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh api:*)"'
 

@@ -1,0 +1,25 @@
+// =============================================================================
+// LANDING PAGE BUNDLE
+// =============================================================================
+// This file imports the complete design system.
+// Any landing-page-specific styles go below the import.
+//
+// The design system provides all the core components. This bundle adds:
+// - Landing page specific theme overrides (if any)
+// - Page-specific component variations (if any)
+//
+// For most pages, the design system alone is sufficient.
+// =============================================================================
+
+@use "design-system";
+
+// =============================================================================
+// LANDING PAGE OVERRIDES (if needed)
+// =============================================================================
+// Add any landing-page-specific customizations here.
+// For example, different color schemes, custom components, etc.
+//
+// Example:
+// .landing-page-custom-section {
+//   background: linear-gradient(...);
+// }

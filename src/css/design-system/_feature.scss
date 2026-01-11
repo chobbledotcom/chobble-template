@@ -1,0 +1,55 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// FEATURES
+// =============================================================================
+// Semantic markup: <ul class="features"> with <li> wrapping each <article class="feature">
+
+ul.features {
+  @include grid-auto(300px, $space-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  > li {
+    // Reset list item styles - the article inside handles the card styling
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// Also support legacy div.features
+div.features {
+  @include grid-auto(300px, $space-lg);
+}
+
+.feature {
+  @include card;
+  @include card-hover;
+  // When inside a list, ensure full height for grid alignment
+  height: 100%;
+}
+
+.feature .icon {
+  @include flex-center;
+  width: 56px;
+  height: 56px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: $radius-lg;
+  font-size: $font-size-xl;
+  margin-bottom: $space-md;
+}
+
+.feature h3,
+.feature h4 {
+  @include heading-sm;
+  margin-bottom: $space-xs;
+}
+
+.feature p {
+  @include body-base;
+  color: var(--text-muted);
+  margin: 0;
+}
