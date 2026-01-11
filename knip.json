@@ -5,7 +5,7 @@
 		"src/_data/**/*.{js,mjs}",
 		"src/**/*.11tydata.js",
 		"src/_lib/public/bundle.js",
-		"src/_lib/public/landing-bundle.js",
+		"src/_lib/public/design-system.js",
 		"bin/profile-report.js",
 		"test/**/*.test.js",
 		"test/build-profiling.js",

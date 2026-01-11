@@ -14,24 +14,24 @@ Or with objects:
   (where page.stats = [{value: "99%", label: "Uptime"}, ...])
 {%- endcomment -%}
 
-{%- assign doReveal = reveal | default: true -%}
+{%- assign reveal = reveal | default: true -%}
 
 <dl class="stats" role="list">
   {%- for item in items -%}
     {%- comment -%} Handle both "value|label" strings and {value, label} objects {%- endcomment -%}
     {%- if item.value -%}
-      {%- assign statValue = item.value -%}
-      {%- assign statLabel = item.label -%}
+      {%- assign value = item.value -%}
+      {%- assign label = item.label -%}
     {%- else -%}
       {%- assign parts = item | split: "|" -%}
-      {%- assign statValue = parts[0] -%}
-      {%- assign statLabel = parts[1] -%}
+      {%- assign value = parts[0] -%}
+      {%- assign label = parts[1] -%}
     {%- endif -%}
-    <div class="stat"{% if doReveal %} data-reveal{% endif %}>
-      <dt class="sr-only">{{ statLabel }}</dt>
+    <div class="stat"{% if reveal %} data-reveal{% endif %}>
+      <dt class="sr-only">{{ label }}</dt>
       <dd>
-        <strong>{{ statValue }}</strong>
-        <span>{{ statLabel }}</span>
+        <strong>{{ value }}</strong>
+        <span>{{ label }}</span>
       </dd>
     </div>
   {%- endfor -%}

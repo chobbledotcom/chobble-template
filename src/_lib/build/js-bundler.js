@@ -12,11 +12,11 @@ export function configureJsBundler(eleventyConfig) {
       minify: !isDevelopment,
     });
 
-    // Build landing page bundle
+    // Build design system bundle
     await Bun.build({
-      entrypoints: ["src/_lib/public/landing-bundle.js"],
+      entrypoints: ["src/_lib/public/design-system.js"],
       outdir: "_site/assets/js",
-      naming: "landing-bundle.js",
+      naming: "design-system.js",
       target: "browser",
       sourcemap: "external",
       minify: !isDevelopment,

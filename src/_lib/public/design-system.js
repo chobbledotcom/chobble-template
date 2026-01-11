@@ -1,4 +1,4 @@
-// Landing Page JavaScript
+// Design System JavaScript
 // Scroll animations and slider functionality
 
 import { initSliders } from "#public/utils/slider-core.js";
