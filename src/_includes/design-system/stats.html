@@ -1,0 +1,38 @@
+{%- comment -%}
+Stats display as an accessible description list.
+
+Parameters:
+  - items: Array of stat objects with 'value' and 'label' properties
+  - reveal: If true, adds data-reveal to each item (default: true)
+
+Usage:
+  {% assign myStats = "99%|Uptime,50k|Users,24/7|Support" | split: "," %}
+  {% include "design-system/stats.html", items: myStats %}
+
+Or with objects:
+  {% include "design-system/stats.html", items: page.stats %}
+  (where page.stats = [{value: "99%", label: "Uptime"}, ...])
+{%- endcomment -%}
+
+{%- assign reveal = reveal | default: true -%}
+
+<dl class="stats" role="list">
+  {%- for item in items -%}
+    {%- comment -%} Handle both "value|label" strings and {value, label} objects {%- endcomment -%}
+    {%- if item.value -%}
+      {%- assign value = item.value -%}
+      {%- assign label = item.label -%}
+    {%- else -%}
+      {%- assign parts = item | split: "|" -%}
+      {%- assign value = parts[0] -%}
+      {%- assign label = parts[1] -%}
+    {%- endif -%}
+    <div class="stat"{% if reveal %} data-reveal{% endif %}>
+      <dt class="sr-only">{{ label }}</dt>
+      <dd>
+        <strong>{{ value }}</strong>
+        <span>{{ label }}</span>
+      </dd>
+    </div>
+  {%- endfor -%}
+</dl>

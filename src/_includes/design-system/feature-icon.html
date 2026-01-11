@@ -1,0 +1,22 @@
+{%- comment -%}
+Accessible icon display for feature cards.
+
+Parameters:
+  - icon: The icon content (emoji, HTML entity, or SVG)
+  - label: Accessible label (if omitted, icon is treated as decorative)
+
+Usage (meaningful icon):
+  {% include "design-system/feature-icon.html",
+     icon: "&#128640;",
+     label: "Rocket ship representing speed"
+  %}
+
+Usage (decorative icon):
+  {% include "design-system/feature-icon.html", icon: "&#128640;" %}
+{%- endcomment -%}
+
+{%- if label -%}
+<div class="icon" role="img" aria-label="{{ label }}">{{ icon }}</div>
+{%- else -%}
+<div class="icon" aria-hidden="true">{{ icon }}</div>
+{%- endif -%}

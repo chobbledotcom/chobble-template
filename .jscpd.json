@@ -10,7 +10,8 @@
 		"**/scripts/**",
 		"**/.test-sites/**",
 		"**/test/precommit.js",
-		"**/test/run-tests.js"
+		"**/test/run-tests.js",
+		"**/landing-pages/**"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,

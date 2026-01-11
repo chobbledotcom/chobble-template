@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { describe, expect, mock, test } from "bun:test";
+import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import {
   buildMenuPdfData,
@@ -10,7 +10,7 @@ import {
 import {
   createMockEleventyConfig,
   expectObjectProps,
-  rootDir,
+  withTempDirAsync,
 } from "#test/test-utils.js";
 
 // Helper to create mock menu
@@ -478,22 +478,12 @@ describe("pdf", () => {
 
   // generateMenuPdf tests
   describe("generateMenuPdf", () => {
-    let testOutputDir;
-    let originalConsoleLog;
-    let originalConsoleError;
-    let logCalls;
-    let errorCalls;
-
-    beforeEach(() => {
-      // Create temp output directory for tests
-      testOutputDir = join(rootDir, `temp-pdf-test-${Date.now()}`);
-      mkdirSync(testOutputDir, { recursive: true });
-
-      // Mock console methods
-      originalConsoleLog = console.log;
-      originalConsoleError = console.error;
-      logCalls = [];
-      errorCalls = [];
+    // Helper to run tests with mocked console and temp directory
+    const withMockedConsole = async (callback) => {
+      const originalConsoleLog = console.log;
+      const originalConsoleError = console.error;
+      const logCalls = [];
+      const errorCalls = [];
 
       console.log = mock((...args) => {
         logCalls.push(args);
@@ -501,114 +491,124 @@ describe("pdf", () => {
       console.error = mock((...args) => {
         errorCalls.push(args);
       });
-    });
 
-    afterEach(() => {
-      // Cleanup temp directory
-      if (existsSync(testOutputDir)) {
-        rmSync(testOutputDir, { recursive: true, force: true });
+      try {
+        return await callback(logCalls, errorCalls);
+      } finally {
+        console.log = originalConsoleLog;
+        console.error = originalConsoleError;
       }
+    };
 
-      // Restore console
-      console.log = originalConsoleLog;
-      console.error = originalConsoleError;
-    });
-
-    test("Creates output directory if it doesn't exist", async () => {
-      const { menu, categories, items } = createMinimalMenu(
-        "lunch",
-        "Lunch Menu",
-      );
-
-      await generateMenuPdf(menu, categories, items, testOutputDir);
-
-      // Directory should now exist (created by mkdirSync with recursive: true)
-      expect(existsSync(join(testOutputDir, "menus"))).toBe(true);
-    });
-
-    test("Generates PDF file with correct filename", async () => {
-      const { menu, categories, items } = createMinimalMenu(
-        "dinner",
-        "Dinner Menu",
-      );
-
-      const result = await generateMenuPdf(
-        menu,
-        categories,
-        items,
-        testOutputDir,
-      );
-
-      // Should contain the menu slug in the path
-      expect(result).toContain("dinner");
-      expect(result).toContain(".pdf");
-    });
-
-    test("Returns null when PDF generation fails", async () => {
-      const { menu, categories, items } = createMinimalMenu(
-        "invalid",
-        "Invalid Menu",
-      );
-
-      const result = await generateMenuPdf(
-        menu,
-        categories,
-        items,
-        testOutputDir,
-      );
-
-      // If getPdfRenderer returns null, generateMenuPdf should return null
-      if (result === null) {
-        expect(result).toBeNull();
-        // Should have logged an error
-        expect(errorCalls.length).toBeGreaterThan(0);
-      }
-    });
-
-    test("Logs success message when PDF is generated", async () => {
-      const { menu, categories, items } = createMinimalMenu(
-        "lunch",
-        "Lunch Menu",
-      );
-
-      await generateMenuPdf(menu, categories, items, testOutputDir);
-
-      // If generation succeeded, should have log message
-      if (logCalls.length > 0) {
-        const hasSuccessLog = logCalls.some((call) =>
-          call.join("").includes("Generated PDF"),
+    test("Creates output directory if it doesn't exist", () =>
+      withTempDirAsync("pdf-test", async (testOutputDir) => {
+        const { menu, categories, items } = createMinimalMenu(
+          "lunch",
+          "Lunch Menu",
         );
-        expect(hasSuccessLog).toBe(true);
-      }
-    });
 
-    test("Handles write stream errors gracefully", async () => {
-      const { menu, categories, items } = createMinimalMenu(
-        "lunch",
-        "Lunch Menu",
-      );
+        await generateMenuPdf(menu, categories, items, testOutputDir);
 
-      // Try to generate PDF - if there's an error, it should reject the promise
-      await expect(
-        generateMenuPdf(menu, categories, items, testOutputDir),
-      ).resolves.toBeDefined();
-    });
+        // Directory should now exist (created by mkdirSync with recursive: true)
+        expect(existsSync(join(testOutputDir, "menus"))).toBe(true);
+      }));
 
-    test("Uses correct menu permalink directory from strings", () => {
-      // Verify that the function would use the correct directory structure
-      // This tests the logic at line 235: const menuDir = strings.menu_permalink_dir;
-      const menu = createMockMenu("test", "Test");
+    test("Generates PDF file with correct filename", () =>
+      withTempDirAsync("pdf-test", async (testOutputDir) =>
+        withMockedConsole(async () => {
+          const { menu, categories, items } = createMinimalMenu(
+            "dinner",
+            "Dinner Menu",
+          );
 
-      // The path should include the menu permalink directory
-      // Format: ${outputDir}/${menuDir}/${menu.fileSlug}/${filename}
-      const expectedPathPattern = /menus\/test/;
+          const result = await generateMenuPdf(
+            menu,
+            categories,
+            items,
+            testOutputDir,
+          );
 
-      // Create the expected path structure
-      const testPath = join(testOutputDir, "menus/test");
-      mkdirSync(testPath, { recursive: true });
+          // Should contain the menu slug in the path
+          expect(result).toContain("dinner");
+          expect(result).toContain(".pdf");
+        }),
+      ));
 
-      expect(existsSync(testPath)).toBe(true);
-      expect(expectedPathPattern.test(testPath)).toBe(true);
-    });
+    test("Returns null when PDF generation fails", () =>
+      withTempDirAsync("pdf-test", async (testOutputDir) =>
+        withMockedConsole(async (_logCalls, errorCalls) => {
+          const { menu, categories, items } = createMinimalMenu(
+            "invalid",
+            "Invalid Menu",
+          );
+
+          const result = await generateMenuPdf(
+            menu,
+            categories,
+            items,
+            testOutputDir,
+          );
+
+          // If getPdfRenderer returns null, generateMenuPdf should return null
+          if (result === null) {
+            expect(result).toBeNull();
+            // Should have logged an error
+            expect(errorCalls.length).toBeGreaterThan(0);
+          }
+        }),
+      ));
+
+    test("Logs success message when PDF is generated", () =>
+      withTempDirAsync("pdf-test", async (testOutputDir) =>
+        withMockedConsole(async (logCalls) => {
+          const { menu, categories, items } = createMinimalMenu(
+            "lunch",
+            "Lunch Menu",
+          );
+
+          await generateMenuPdf(menu, categories, items, testOutputDir);
+
+          // If generation succeeded, should have log message
+          if (logCalls.length > 0) {
+            const hasSuccessLog = logCalls.some((call) =>
+              call.join("").includes("Generated PDF"),
+            );
+            expect(hasSuccessLog).toBe(true);
+          }
+        }),
+      ));
+
+    test("Handles write stream errors gracefully", () =>
+      withTempDirAsync("pdf-test", async (testOutputDir) =>
+        withMockedConsole(async () => {
+          const { menu, categories, items } = createMinimalMenu(
+            "lunch",
+            "Lunch Menu",
+          );
+
+          // Try to generate PDF - if there's an error, it should reject the promise
+          await expect(
+            generateMenuPdf(menu, categories, items, testOutputDir),
+          ).resolves.toBeDefined();
+        }),
+      ));
+
+    test("Uses correct menu permalink directory from strings", () =>
+      withTempDirAsync("pdf-test", (testOutputDir) => {
+        // Verify that the function would use the correct directory structure
+        // This tests the logic at line 235: const menuDir = strings.menu_permalink_dir;
+        const menu = createMockMenu("test", "Test");
+
+        // The path should include the menu permalink directory
+        // Format: ${outputDir}/${menuDir}/${menu.fileSlug}/${filename}
+        const expectedPathPattern = /menus\/test/;
+
+        // Create the expected path structure
+        const testPath = join(testOutputDir, "menus/test");
+        mkdirSync(testPath, { recursive: true });
+
+        expect(existsSync(testPath)).toBe(true);
+        expect(expectedPathPattern.test(testPath)).toBe(true);
+      }));
   });
 });

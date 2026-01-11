@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureRecurringEvents,
+  getEventUrl,
   recurringEventsShortcode,
   renderRecurringEvents,
+  stripDatePrefix,
 } from "#eleventy/recurring-events.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -252,6 +254,49 @@ describe("recurring-events", () => {
   });
 
   // ============================================
+  // stripDatePrefix - filename slug extraction
+  // ============================================
+
+  test("stripDatePrefix removes date prefix from filename", () => {
+    expect(stripDatePrefix("2024-03-15-my-event.md")).toBe("my-event");
+  });
+
+  test("stripDatePrefix handles filename without date prefix", () => {
+    expect(stripDatePrefix("my-event.md")).toBe("my-event");
+  });
+
+  test("stripDatePrefix handles various date formats", () => {
+    expect(stripDatePrefix("2024-01-01-new-years.md")).toBe("new-years");
+    expect(stripDatePrefix("2025-12-31-end-of-year.md")).toBe("end-of-year");
+  });
+
+  test("stripDatePrefix preserves slug with numbers", () => {
+    expect(stripDatePrefix("2024-03-15-event-2024.md")).toBe("event-2024");
+  });
+
+  // ============================================
+  // getEventUrl - permalink resolution
+  // ============================================
+
+  test("getEventUrl uses custom permalink when provided", () => {
+    const data = { permalink: "/custom/path/" };
+    expect(getEventUrl(data, "my-event", "events")).toBe("/custom/path/");
+  });
+
+  test("getEventUrl falls back to default URL when no permalink", () => {
+    expect(getEventUrl({}, "my-event", "events")).toBe("/events/my-event/");
+  });
+
+  test("getEventUrl constructs URL with provided permalink dir", () => {
+    expect(getEventUrl({}, "concert", "gigs")).toBe("/gigs/concert/");
+  });
+
+  test("getEventUrl prefers explicit permalink over default", () => {
+    const data = { permalink: "/special/" };
+    expect(getEventUrl(data, "ignored-slug", "ignored-dir")).toBe("/special/");
+  });
+
+  // ============================================
   // Integration Tests using Test Site Factory
   // ============================================
 
@@ -308,52 +353,6 @@ describe("recurring-events", () => {
         expect(!html.includes("/events/2024-03-15-")).toBe(true);
         expect(doc.querySelectorAll("ul li a[href*='/events/']").length).toBe(
           2,
-        );
-      },
-    ));
-
-  test("Events with custom permalinks use that URL", async () =>
-    withTestSite(
-      {
-        files: [
-          eventFile("yoga-class", "Yoga Class", "Wednesdays at 6pm", {
-            permalink: "/classes/yoga/",
-          }),
-          testPage(),
-        ],
-      },
-      (site) => {
-        const html = site.getOutput("/test/index.html");
-        expect(html.includes('href="/classes/yoga/"')).toBe(true);
-        expect(!html.includes('href="/events/yoga-class/"')).toBe(true);
-      },
-    ));
-
-  test("Returns empty content when no recurring events exist", async () =>
-    withTestSite(
-      {
-        files: [
-          oneTimeEventFile("one-time", "One Time Only", "2024-12-25"),
-          testPage("START{% recurring_events %}END"),
-        ],
-      },
-      (site) => {
-        const html = site.getOutput("/test/index.html");
-        expect(!html.includes("<ul>") || !html.includes("One Time Only")).toBe(
-          true,
-        );
-      },
-    ));
-
-  test("Recurring events render with correct HTML structure", async () =>
-    withTestSite(
-      {
-        files: [eventFile("test-event", "Test Event", "Daily"), testPage()],
-      },
-      (site) => {
-        const doc = site.getDoc("/test/index.html");
-        expect(doc.querySelector("ul li strong a")?.textContent).toBe(
-          "Test Event",
         );
       },
     ));

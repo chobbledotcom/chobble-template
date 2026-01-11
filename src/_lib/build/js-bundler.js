@@ -1,20 +1,26 @@
-export function configureEsbuild(eleventyConfig) {
+export function configureJsBundler(eleventyConfig) {
   eleventyConfig.on("eleventy.before", async () => {
     const isDevelopment = process.env.ELEVENTY_RUN_MODE === "serve";
 
-    /** @type {import('bun').BuildConfig} */
-    const buildConfig = {
+    // Build main site bundle
+    await Bun.build({
       entrypoints: ["src/_lib/public/bundle.js"],
       outdir: "_site/assets/js",
       naming: "bundle.js",
       target: "browser",
-      // Source maps help with error diagnostics
       sourcemap: "external",
-      // Environment-aware minification: dev keeps code readable, prod minifies
       minify: !isDevelopment,
-    };
+    });
 
-    await Bun.build(buildConfig);
+    // Build design system bundle
+    await Bun.build({
+      entrypoints: ["src/_lib/public/design-system.js"],
+      outdir: "_site/assets/js",
+      naming: "design-system.js",
+      target: "browser",
+      sourcemap: "external",
+      minify: !isDevelopment,
+    });
 
     if (isDevelopment) {
       console.log(

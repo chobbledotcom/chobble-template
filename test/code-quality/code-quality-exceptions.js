@@ -194,16 +194,13 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
-  "src/_lib/media/inline-asset.js", // Internal helpers for asset validation
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/search.js",
-  "src/_lib/eleventy/responsive-tables.js",
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
-  "src/_lib/utils/lazy-loader.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
@@ -277,6 +274,10 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
+  "src/_lib/eleventy/style-bundle.js:configureStyleBundle",
+  "src/_lib/eleventy/style-bundle.js:getCssBundle",
+  "src/_lib/eleventy/style-bundle.js:getJsBundle",
+  "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
 
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",

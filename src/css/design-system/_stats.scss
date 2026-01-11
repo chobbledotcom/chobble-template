@@ -1,0 +1,48 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// STATS
+// =============================================================================
+// Semantic markup: <dl class="stats"> with <div class="stat"> containing
+// <dt class="sr-only"> and <dd> with <strong> (value) and <span> (label)
+
+dl.stats {
+  @include flex-wrap($space-xl);
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+// Also support legacy div.stats
+div.stats {
+  @include flex-wrap($space-xl);
+  justify-content: center;
+}
+
+.stat {
+  text-align: center;
+  min-width: 150px;
+}
+
+.stat dd {
+  margin: 0;
+}
+
+.stat strong {
+  display: block;
+  font-size: $font-size-4xl;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: $space-xs;
+
+  @include tablet-up {
+    font-size: $font-size-5xl;
+  }
+}
+
+.stat span {
+  @include body-base;
+  color: var(--text-muted);
+}

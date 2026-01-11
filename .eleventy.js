@@ -2,13 +2,14 @@ import { RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
 // Build tools
-import { configureEsbuild } from "#build/esbuild.js";
+import { configureJsBundler } from "#build/js-bundler.js";
 import { configureScss } from "#build/scss.js";
 
 // Collections
 import { configureCategories } from "#collections/categories.js";
 import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
+import { configureLandingPages } from "#collections/landing-pages.js";
 import { configureLocations } from "#collections/locations.js";
 import { configureNews } from "#collections/news.js";
 import { configureMenus } from "#collections/menus.js";
@@ -34,6 +35,7 @@ import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
+import { configureStyleBundle } from "#eleventy/style-bundle.js";
 
 // Filters
 import { configureProductFilters } from "#filters/product-filters.js";
@@ -69,6 +71,7 @@ export default async function (eleventyConfig) {
   configureFileUtils(eleventyConfig);
   configureGuides(eleventyConfig);
   configureICal(eleventyConfig);
+  configureLandingPages(eleventyConfig);
   await configureImages(eleventyConfig);
   configurePdf(eleventyConfig);
   configureJsConfig(eleventyConfig);
@@ -87,10 +90,11 @@ export default async function (eleventyConfig) {
   configurePropertyFilters(eleventyConfig);
   configureScss(eleventyConfig);
   configureSearch(eleventyConfig);
+  configureStyleBundle(eleventyConfig);
   configureTags(eleventyConfig);
   configureUnusedImages(eleventyConfig);
   configureEvents(eleventyConfig);
-  configureEsbuild(eleventyConfig);
+  configureJsBundler(eleventyConfig);
 
   return {
     dir: {

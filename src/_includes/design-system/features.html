@@ -1,0 +1,42 @@
+{%- comment -%}
+Features grid with proper list semantics.
+
+Parameters:
+  - items: Array of feature objects with properties:
+    - icon: Icon content (emoji or HTML)
+    - icon_label: Accessible label for icon (optional, defaults to decorative)
+    - title: Feature title
+    - description: Feature description
+    - style: Optional inline styles (e.g., for custom colors)
+  - reveal: If true, adds data-reveal animation (default: true)
+  - heading_level: Heading level for titles, defaults to 3 (h3)
+
+Usage:
+  {% include "design-system/features.html", items: page.features %}
+
+  Where page.features = [
+    { icon: "&#128640;", title: "Fast", description: "Static HTML" },
+    ...
+  ]
+{%- endcomment -%}
+
+{%- assign reveal = reveal | default: true -%}
+{%- assign heading_level = heading_level | default: 3 -%}
+
+<ul class="features" role="list">
+  {%- for item in items -%}
+  <li>
+    <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
+      {%- if item.icon -%}
+        {%- if item.icon_label -%}
+          <div class="icon" role="img" aria-label="{{ item.icon_label }}">{{ item.icon }}</div>
+        {%- else -%}
+          <div class="icon" aria-hidden="true">{{ item.icon }}</div>
+        {%- endif -%}
+      {%- endif -%}
+      <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
+      <p>{{ item.description }}</p>
+    </article>
+  </li>
+  {%- endfor -%}
+</ul>

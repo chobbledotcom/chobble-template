@@ -1,0 +1,16 @@
+{%- assign schemaType = "page" -%}
+{%- if layout == "item.html" and tags and tags contains "product" -%}
+  {%- assign schemaType = "product" -%}
+{%- elsif layout == "item.html" and tags and tags contains "event" -%}
+  {%- assign schemaType = "event" -%}
+{%- elsif layout == "news-post.html" -%}
+  {%- assign schemaType = "post" -%}
+{%- elsif layout == "home.html" -%}
+  {%- assign schemaType = "website" -%}
+{%- elsif layout == "contact.html" -%}
+  {%- assign schemaType = "organization" -%}
+{%- elsif layout == "design-system-base.html" -%}
+  {%- assign schemaType = "website" -%}
+{%- endif -%}
+
+{% jsonLdScript metaComputed, schemaType, tags %}

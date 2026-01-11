@@ -1,0 +1,982 @@
+---
+title: Landing Page CSS Guide
+meta_title: Landing Page CSS Guide - Chobble Template
+meta_description: Developer guide for the landing page CSS system. Gutenberg-style spacing, semantic HTML patterns, and component reference.
+permalink: /css-guide/
+---
+
+<main>
+  <header class="hero">
+    <span class="badge">Developer Reference</span>
+    <h1>Landing Page CSS Guide</h1>
+    <p class="lead">
+      A Gutenberg-style CSS system for standalone landing pages.
+      Consistent spacing, semantic HTML, and simple class names.
+    </p>
+    <div class="actions">
+      <a href="#theming" class="btn btn--primary">Theming</a>
+      <a href="#variables" class="btn btn--secondary">CSS Variables</a>
+      <a href="#components" class="btn btn--ghost">Components</a>
+    </div>
+  </header>
+
+  <!-- Quick Start -->
+  <section class="alt" id="quickstart">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Quick Start",
+          subtitle: "Landing pages use a standalone layout with isolated CSS/JS bundles."
+      -%}
+
+      <div class="split">
+        <article data-reveal="left">
+          <h3>1. Create Your Page</h3>
+          <p>Add a file to <code>src/landing-pages/</code> with this frontmatter:</p>
+          <div class="code-block">
+            <header>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span>src/landing-pages/my-page.html</span>
+            </header>
+            <pre><code>---
+title: My Landing Page
+meta_description: Page description for SEO
+permalink: /my-page/
+---
+
+&lt;main&gt;
+  &lt;header class="hero"&gt;
+    &lt;h1&gt;Your Content Here&lt;/h1&gt;
+  &lt;/header&gt;
+&lt;/main&gt;</code></pre>
+          </div>
+        </article>
+        <article data-reveal="right">
+          <h3>Key Differences from Main Site</h3>
+          <ul>
+            <li><strong>No base.html inheritance</strong> - Uses <code>design-system-base.html</code> layout</li>
+            <li><strong>Isolated CSS</strong> - <code>design-system-bundle.css</code> only</li>
+            <li><strong>Isolated JS</strong> - <code>design-system.js</code> for scroll animations</li>
+            <li><strong>No navigation/footer</strong> - You build the full page</li>
+            <li><strong>Semantic HTML</strong> - Use <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;figure&gt;</code></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CSS Variables -->
+  <section id="variables">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "CSS Variables",
+          subtitle: "Override these in your HTML with inline styles or custom CSS."
+      -%}
+
+      <div class="grid">
+        <article class="feature" data-reveal>
+          <h4>Colors</h4>
+          <pre><code>--bg: #fafafa
+--bg-alt: #f3f4f6
+--card-bg: #ffffff
+--text: #1f2937
+--text-muted: #6b7280
+--primary: #2563eb
+--primary-dark: #1d4ed8
+--primary-light: #dbeafe
+--secondary: #7c3aed
+--accent: #10b981</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Typography</h4>
+          <pre><code>--font-sans: system-ui, ...
+--font-mono: ui-monospace, ...
+
+Font sizes (SCSS):
+$font-size-xs:   0.75rem  (12px)
+$font-size-sm:   0.875rem (14px)
+$font-size-base: 1rem     (16px)
+$font-size-md:   1.125rem (18px)
+$font-size-lg:   1.25rem  (20px)
+$font-size-xl:   1.5rem   (24px)
+$font-size-2xl:  2rem     (32px)
+$font-size-3xl:  2.5rem   (40px)
+$font-size-4xl:  3rem     (48px)
+$font-size-5xl:  4rem     (64px)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Spacing Scale</h4>
+          <pre><code>Base unit: 8px
+
+$space-xs:  8px
+$space-sm:  16px
+$space-md:  24px
+$space-lg:  32px
+$space-xl:  48px
+$space-2xl: 64px
+$space-3xl: 96px
+$space-4xl: 128px</code></pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Theming -->
+  <section class="alt" id="theming">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Theming Your Site",
+          subtitle: "Override design tokens in <code>_theme-variables.scss</code> to customize the entire design system."
+      -%}
+
+      <div class="split">
+        <article data-reveal="left">
+          <h3>How It Works</h3>
+          <p>The design system uses SCSS variables with <code>!default</code> flags, allowing you to override any value by setting it <em>before</em> the default is defined.</p>
+          <ol>
+            <li>Open <code>src/css/_theme-variables.scss</code></li>
+            <li>Uncomment and modify the variables you want to change</li>
+            <li>Rebuild - your values flow through to all components</li>
+          </ol>
+          <p class="text-muted">This file is unique per-site - it's where site owners customize the template.</p>
+        </article>
+        <article data-reveal="right">
+          <div class="code-block">
+            <header>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span>src/css/_theme-variables.scss</span>
+            </header>
+            <pre><code>// Uncomment to customize colors
+$color-primary: #059669;
+$color-primary-dark: #047857;
+$color-primary-light: #d1fae5;
+
+// Uncomment to change spacing
+$space-unit: 10px;
+
+// Uncomment for custom fonts
+$font-sans: "Inter", sans-serif;</code></pre>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid mt-xl">
+        <article class="feature" data-reveal>
+          <h4>Available Overrides</h4>
+          <pre><code>Colors:
+  $color-bg, $color-bg-alt
+  $color-text, $color-text-muted
+  $color-primary, $color-primary-dark
+  $color-primary-light
+  $color-secondary, $color-accent
+
+Spacing (8px base):
+  $space-unit (scales all)
+  $space-xs → $space-4xl
+
+Widths:
+  $width-narrow (680px)
+  $width-default (900px)
+  $width-wide (1200px)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Typography</h4>
+          <pre><code>Font families:
+  $font-sans
+  $font-mono
+
+Font sizes:
+  $font-size-xs → $font-size-5xl
+
+Line heights:
+  $line-height-tight (1.2)
+  $line-height-normal (1.5)
+  $line-height-relaxed (1.625)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Other Tokens</h4>
+          <pre><code>Border radius:
+  $radius-sm → $radius-full
+
+Borders:
+  $border-light
+  $border-medium
+  $border-dark
+
+Transitions:
+  $transition-fast (150ms)
+  $transition-normal (250ms)
+  $transition-slow (350ms)
+
+Breakpoints:
+  $bp-sm → $bp-xl</code></pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layout -->
+  <section id="layout">
+    <div class="container">
+      {%- include "design-system/section-header.html", title: "Layout Classes" -%}
+
+      <div class="split">
+        <article data-reveal="left">
+          <h3>Containers</h3>
+          <p>Center content with max-width and responsive padding.</p>
+          <div class="code-block">
+            <header>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span>HTML</span>
+            </header>
+            <pre><code>&lt;div class="container"&gt;
+  Wide container (1200px)
+&lt;/div&gt;
+
+&lt;div class="container--default"&gt;
+  Default container (900px)
+&lt;/div&gt;
+
+&lt;div class="container--narrow"&gt;
+  Narrow container (680px)
+&lt;/div&gt;</code></pre>
+          </div>
+        </article>
+        <article data-reveal="right">
+          <h3>Section Modifiers</h3>
+          <p>Add classes to <code>&lt;section&gt;</code> elements.</p>
+          <div class="code-block">
+            <header>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span>HTML</span>
+            </header>
+            <pre><code>&lt;section&gt;
+  Default padding (96px vertical)
+&lt;/section&gt;
+
+&lt;section class="compact"&gt;
+  Compact padding (64px)
+&lt;/section&gt;
+
+&lt;section class="alt"&gt;
+  Gray background
+&lt;/section&gt;
+
+&lt;section class="dark"&gt;
+  Dark background, light text
+&lt;/section&gt;
+
+&lt;section class="gradient"&gt;
+  Primary-to-purple gradient
+&lt;/section&gt;</code></pre>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Examples -->
+  <section class="compact">
+    <div class="container--narrow text-center">
+      <p class="text-muted">This is a <code>section.compact</code> with <code>container--narrow</code></p>
+    </div>
+  </section>
+
+  <section class="dark compact">
+    <div class="container--narrow text-center">
+      <p>This is <code>section.dark.compact</code> - text color automatically inverts</p>
+    </div>
+  </section>
+
+  <section class="gradient compact">
+    <div class="container--narrow text-center">
+      <p>This is <code>section.gradient.compact</code></p>
+    </div>
+  </section>
+
+  <!-- Components -->
+  <section id="components">
+    <div class="container">
+      <h2 class="text-center mb-xl">Components</h2>
+
+      <!-- Hero -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Hero</h3>
+        <p>Full-width header with centered content. Use inside a <code>&lt;header&gt;</code> element.</p>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;header class="hero gradient"&gt;
+  &lt;span class="badge"&gt;Optional Badge&lt;/span&gt;
+  &lt;h1&gt;Main Headline&lt;/h1&gt;
+  &lt;p class="lead"&gt;Subtitle text with larger font&lt;/p&gt;
+  &lt;div class="actions"&gt;
+    &lt;a href="#" class="btn btn--primary btn--lg"&gt;Primary&lt;/a&gt;
+    &lt;a href="#" class="btn btn--secondary btn--lg"&gt;Secondary&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Classes: <code>.hero</code>, <code>.badge</code>, <code>.lead</code>, <code>.actions</code></p>
+      </article>
+
+      <!-- Buttons -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Buttons</h3>
+        <div class="actions mb-lg">
+          <a href="#" class="btn btn--primary">Primary</a>
+          <a href="#" class="btn btn--secondary">Secondary</a>
+          <a href="#" class="btn btn--ghost">Ghost</a>
+          <a href="#" class="btn btn--primary btn--lg">Large</a>
+          <a href="#" class="btn btn--primary btn--sm">Small</a>
+        </div>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;a class="btn btn--primary"&gt;Primary&lt;/a&gt;
+&lt;a class="btn btn--secondary"&gt;Secondary&lt;/a&gt;
+&lt;a class="btn btn--ghost"&gt;Ghost&lt;/a&gt;
+
+&lt;!-- Sizes --&gt;
+&lt;a class="btn btn--primary btn--lg"&gt;Large&lt;/a&gt;
+&lt;a class="btn btn--primary btn--sm"&gt;Small&lt;/a&gt;</code></pre>
+        </div>
+      </article>
+
+      <!-- Feature Cards -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Feature Cards</h3>
+        <p>Use <code>&lt;article class="feature"&gt;</code> inside a <code>.features</code> grid.</p>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="features"&gt;
+  &lt;article class="feature" data-reveal&gt;
+    &lt;div class="icon"&gt;&amp;#128640;&lt;/div&gt;
+    &lt;h3&gt;Feature Title&lt;/h3&gt;
+    &lt;p&gt;Feature description text.&lt;/p&gt;
+  &lt;/article&gt;
+  &lt;!-- more features... --&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">The <code>.features</code> container auto-fits cards at 300px minimum width.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Feature Demo -->
+  <section class="alt">
+    <div class="container">
+      <h3 class="text-center mb-lg">Feature Cards Demo</h3>
+      {%- comment -%} Features demo using accessible list template {%- endcomment -%}
+      <ul class="features" role="list">
+        <li>
+          <article class="feature" data-reveal>
+            {%- include "design-system/feature-icon.html", icon: "&#128640;", label: "Rocket representing speed" -%}
+            <h4>Fast</h4>
+            <p>Static HTML, no server processing.</p>
+          </article>
+        </li>
+        <li>
+          <article class="feature" data-reveal>
+            {%- include "design-system/feature-icon.html", icon: "&#127912;", label: "Artist palette representing theming" -%}
+            <h4>Themed</h4>
+            <p>Override CSS variables per-card.</p>
+          </article>
+        </li>
+        <li>
+          <article class="feature" data-reveal style="--primary-light: #d1fae5; --primary: #059669;">
+            {%- include "design-system/feature-icon.html", icon: "&#9989;", label: "Checkmark representing customization" -%}
+            <h4>Custom Colors</h4>
+            <p>Set <code>--primary</code> inline to change icon color.</p>
+          </article>
+        </li>
+      </ul>
+
+      <h3 class="text-center mt-xl mb-lg">Grid with Real Products</h3>
+      {%- assign gridProducts = collections.products | slice: 0, 3 -%}
+      {%- assign listItemFields = "thumbnail,link,price" | split: "," -%}
+      {%- include "items.html", items: gridProducts -%}
+    </div>
+  </section>
+
+  <!-- Grids -->
+  <section id="grids">
+    <div class="container">
+      {%- include "design-system/section-header.html", title: "Grid Layouts" -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <h3>Grid Classes</h3>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;!-- Auto 1/2/3 columns based on screen --&gt;
+&lt;div class="grid"&gt;...&lt;/div&gt;
+
+&lt;!-- Force 2 columns on tablet+ --&gt;
+&lt;div class="grid--2"&gt;...&lt;/div&gt;
+
+&lt;!-- Force 4 columns on tablet+ --&gt;
+&lt;div class="grid--4"&gt;...&lt;/div&gt;</code></pre>
+        </div>
+      </article>
+
+      <h4 class="mb-lg">.grid (responsive 1→2→3)</h4>
+      <div class="grid mb-xl">
+        <div class="feature">Column 1</div>
+        <div class="feature">Column 2</div>
+        <div class="feature">Column 3</div>
+      </div>
+
+      <h4 class="mb-lg">.grid--4 (2→4 columns)</h4>
+      <div class="grid--4 mb-xl">
+        <div class="feature text-center">1</div>
+        <div class="feature text-center">2</div>
+        <div class="feature text-center">3</div>
+        <div class="feature text-center">4</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slider -->
+  <section class="alt" id="slider">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Horizontal Slider",
+          subtitle: "Scrollable card rows with prev/next navigation."
+      -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <h3>HTML Structure</h3>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="slider-container"&gt;
+  &lt;div class="slider"&gt;
+    &lt;article class="feature"&gt;Card 1&lt;/article&gt;
+    &lt;article class="feature"&gt;Card 2&lt;/article&gt;
+    &lt;article class="feature"&gt;Card 3&lt;/article&gt;
+    &lt;!-- Add more cards... --&gt;
+  &lt;/div&gt;
+  &lt;nav class="slider-nav"&gt;
+    &lt;button class="slider-prev"&gt;&amp;larr;&lt;/button&gt;
+    &lt;button class="slider-next"&gt;&amp;rarr;&lt;/button&gt;
+  &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Navigation buttons auto-hide when content doesn't overflow. Button states (disabled) update on scroll.</p>
+      </article>
+
+      <h3 class="mb-lg">Live Demo (with real products)</h3>
+      {%- assign sliderProducts = collections.products | slice: 0, 8 -%}
+      {%- assign listItemFields = "thumbnail,link,price" | split: "," -%}
+      {%- include "items.html", items: sliderProducts, horizontal: true -%}
+
+      <article class="feature mt-xl" data-reveal>
+        <h3>Key Features</h3>
+        <ul>
+          <li><strong>Auto-hide nav</strong> - Buttons only show when content overflows</li>
+          <li><strong>Scroll snap</strong> - Cards snap to start position</li>
+          <li><strong>Disabled states</strong> - Prev disabled at start, next disabled at end</li>
+          <li><strong>Touch-friendly</strong> - Native horizontal scroll on mobile</li>
+          <li><strong>Keyboard accessible</strong> - Buttons are focusable</li>
+          <li><strong>Reduced motion</strong> - Respects <code>prefers-reduced-motion</code></li>
+        </ul>
+      </article>
+
+      <article class="feature mt-xl" data-reveal>
+        <h3>Custom Card Width</h3>
+        <p>Override the default 300px/340px card width with inline styles:</p>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="slider"&gt;
+  &lt;article class="feature" style="width: 400px;"&gt;
+    Wider card
+  &lt;/article&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Split -->
+  <section id="split">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Split Layouts",
+          subtitle: "Two-column layouts for text + image sections."
+      -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="split"&gt;
+  &lt;article data-reveal="left"&gt;
+    &lt;h2&gt;Text Content&lt;/h2&gt;
+    &lt;p&gt;Description...&lt;/p&gt;
+  &lt;/article&gt;
+  &lt;figure data-reveal="scale"&gt;
+    &lt;img src="..." alt="..."&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+&lt;!-- Reverse order (image left) --&gt;
+&lt;div class="split split--reverse"&gt;
+  &lt;article data-reveal="right"&gt;...&lt;/article&gt;
+  &lt;figure data-reveal="scale"&gt;...&lt;/figure&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and border automatically.</p>
+      </article>
+
+      <!-- Demo -->
+      <div class="split">
+        <article data-reveal="left">
+          <h3>Default Split</h3>
+          <p>Text on left, image/content on right. Stacks vertically on mobile.</p>
+          <p class="text-muted">The <code>data-reveal="left"</code> makes it slide in from the left.</p>
+        </article>
+        <figure data-reveal="scale">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; text-align: center; color: white;">
+            <strong>Figure Content</strong>
+            <p style="margin: 0.5rem 0 0; opacity: 0.8;">Images, code blocks, or any content</p>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Split Full-Width -->
+  <section class="alt" id="split-full">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Split Full-Width Sections",
+          subtitle: "Two-tone sections that span the full viewport width."
+      -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <h3>HTML Structure</h3>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="split-full split-full--dark-left"&gt;
+  &lt;div class="split-full__left"&gt;
+    &lt;div&gt;
+      &lt;h2&gt;Left Content&lt;/h2&gt;
+      &lt;p&gt;Dark background section.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="split-full__right"&gt;
+    &lt;div&gt;
+      &lt;h2&gt;Right Content&lt;/h2&gt;
+      &lt;p&gt;Light background section.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Variants: <code>.split-full--dark-left</code>, <code>.split-full--dark-right</code>, <code>.split-full--primary-left</code>, <code>.split-full--primary-right</code></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Split Full Demo -->
+  <div class="split-full split-full--dark-left">
+    <div class="split-full__left">
+      <div>
+        <h2>Dark Side</h2>
+        <p>This is the left half with a dark background. Content is automatically aligned to the right edge to meet the center.</p>
+        <a href="#" class="btn btn--secondary">Learn More</a>
+      </div>
+    </div>
+    <div class="split-full__right">
+      <div>
+        <h2>Light Side</h2>
+        <p>This is the right half with a light background. Content aligns to the left edge from center.</p>
+        <a href="#" class="btn btn--primary">Get Started</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="split-full split-full--primary-right">
+    <div class="split-full__left">
+      <div>
+        <h2>Default Background</h2>
+        <p>The left side uses the default background color.</p>
+      </div>
+    </div>
+    <div class="split-full__right">
+      <div>
+        <h2>Primary Color</h2>
+        <p>The right side uses the primary brand color. Text automatically inverts to white.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <section id="stats">
+    <div class="container">
+      {%- include "design-system/section-header.html", title: "Stats Display" -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;div class="stats"&gt;
+  &lt;div class="stat" data-reveal&gt;
+    &lt;strong&gt;99%&lt;/strong&gt;
+    &lt;span&gt;Uptime&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="stat" data-reveal&gt;
+    &lt;strong&gt;50k&lt;/strong&gt;
+    &lt;span&gt;Users&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </article>
+
+      {%- comment -%} Stats demo using accessible template {%- endcomment -%}
+      {%- assign demoStats = "99%|Uptime,50k|Users,24/7|Support,<1s|Load Time" | split: "," -%}
+      {%- include "design-system/stats.html", items: demoStats -%}
+    </div>
+  </section>
+
+  <!-- Code Blocks -->
+  <section class="alt" id="code">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Code Blocks",
+          subtitle: "Terminal-style code display with colored window dots."
+      -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML Structure</span>
+          </header>
+          <pre><code>&lt;div class="code-block"&gt;
+  &lt;header&gt;
+    &lt;div class="dots"&gt;
+      &lt;span&gt;&lt;/span&gt;
+      &lt;span&gt;&lt;/span&gt;
+      &lt;span&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span&gt;filename.js&lt;/span&gt;
+  &lt;/header&gt;
+  &lt;pre&gt;&lt;code&gt;your code here&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">The dots auto-color red/yellow/green. Use <code>&lt;span&gt;</code> with inline styles for syntax highlighting.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="container">
+      {%- include "design-system/section-header.html", title: "Call to Action" -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;aside class="cta"&gt;
+  &lt;h2&gt;Ready to Start?&lt;/h2&gt;
+  &lt;p&gt;Call to action description.&lt;/p&gt;
+  &lt;a href="#" class="btn btn--secondary btn--lg"&gt;
+    Get Started
+  &lt;/a&gt;
+&lt;/aside&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Use <code>&lt;aside&gt;</code> for semantic markup. The CTA has a gradient background and inverted colors.</p>
+      </article>
+
+      <aside class="cta">
+        <h2>This is a CTA Block</h2>
+        <p>Gradient background, white text, centered content.</p>
+        <a href="#" class="btn btn--secondary btn--lg">Action Button</a>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Scroll Animations -->
+  <section class="alt" id="animations">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Scroll Animations",
+          subtitle: "Add <code>data-reveal</code> to animate elements on scroll."
+      -%}
+
+      <article class="feature mb-xl" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;!-- Fade up (default) --&gt;
+&lt;div data-reveal&gt;...&lt;/div&gt;
+
+&lt;!-- Slide from left --&gt;
+&lt;article data-reveal="left"&gt;...&lt;/article&gt;
+
+&lt;!-- Slide from right --&gt;
+&lt;article data-reveal="right"&gt;...&lt;/article&gt;
+
+&lt;!-- Scale up --&gt;
+&lt;figure data-reveal="scale"&gt;...&lt;/figure&gt;</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Animations respect <code>prefers-reduced-motion</code>. Elements get <code>.is-visible</code> class when in viewport.</p>
+      </article>
+
+      <div class="grid">
+        <div class="feature text-center" data-reveal>
+          <p><code>data-reveal</code></p>
+          <p class="text-muted">Fades up</p>
+        </div>
+        <div class="feature text-center" data-reveal="left">
+          <p><code>data-reveal="left"</code></p>
+          <p class="text-muted">Slides from left</p>
+        </div>
+        <div class="feature text-center" data-reveal="right">
+          <p><code>data-reveal="right"</code></p>
+          <p class="text-muted">Slides from right</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Utilities -->
+  <section id="utilities">
+    <div class="container">
+      {%- include "design-system/section-header.html", title: "Utility Classes" -%}
+
+      <div class="grid--2">
+        <article class="feature" data-reveal>
+          <h4>Text</h4>
+          <pre><code>.text-center
+.text-muted
+.text-primary</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Spacing</h4>
+          <pre><code>.mt-0    margin-top: 0
+.mb-0    margin-bottom: 0
+.mt-lg   margin-top: 32px
+.mb-lg   margin-bottom: 32px
+.mt-xl   margin-top: 48px
+.mb-xl   margin-bottom: 48px</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Accessibility</h4>
+          <pre><code>.sr-only
+  Visually hidden but
+  accessible to screen readers</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Lists in Content</h4>
+          <p>Standard <code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code> have default styling with proper spacing.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <section class="alt" id="footer">
+    <div class="container">
+      {%- include "design-system/section-header.html", title: "Footer" -%}
+
+      <article class="feature" data-reveal>
+        <div class="code-block">
+          <header>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </header>
+          <pre><code>&lt;footer class="site-footer"&gt;
+  &lt;div class="container"&gt;
+    &lt;p&gt;Copyright text&lt;/p&gt;
+    &lt;nav&gt;
+      &lt;a href="#"&gt;Link 1&lt;/a&gt;
+      &lt;a href="#"&gt;Link 2&lt;/a&gt;
+      &lt;a href="#"&gt;Link 3&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;</code></pre>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SCSS Reference -->
+  <section class="dark" id="scss">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "SCSS Reference",
+          subtitle: "Available mixins in <code>_mixins.scss</code>"
+      -%}
+
+      <div class="grid--2">
+        <article class="feature" data-reveal>
+          <h4>Layout Mixins</h4>
+          <pre><code>@include flex-row($gap, $align, $justify)
+@include flex-col($gap, $align, $justify)
+@include flex-center
+@include flex-between
+@include flex-wrap($gap)
+@include grid($columns, $gap)
+@include grid-auto($min-width, $gap)
+@include container($max-width)
+@include section($padding-y)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Component Mixins</h4>
+          <pre><code>@include card($padding, $radius)
+@include card-hover
+@include button-base
+@include button-primary
+@include button-secondary
+@include button-ghost
+@include focus-ring</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Typography Mixins</h4>
+          <pre><code>@include heading-xl
+@include heading-lg
+@include heading-md
+@include heading-sm
+@include body-lg
+@include body-base
+@include body-sm</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Animation Mixins</h4>
+          <pre><code>@include scroll-reveal
+@include scroll-reveal-left
+@include scroll-reveal-right
+@include scroll-reveal-scale
+@include stagger-children($delay, $max)
+@include hover-float($distance)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Media Query Mixins</h4>
+          <pre><code>@include mobile-only { }
+@include tablet-up { }
+@include desktop-up { }
+@include large-desktop { }
+@include reduced-motion { }
+
+Breakpoints:
+$bp-sm: 650px
+$bp-md: 768px
+$bp-lg: 1000px
+$bp-xl: 1200px</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Utility Mixins</h4>
+          <pre><code>@include sr-only
+@include aspect-ratio($w, $h)
+@include truncate($lines)
+@include glass($blur, $opacity)</code></pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- File Structure -->
+  <section id="files">
+    <div class="container--default">
+      {%- include "design-system/section-header.html", title: "File Structure" -%}
+
+      <div class="code-block" data-reveal>
+        <header>
+          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span>Project Structure</span>
+        </header>
+        <pre><code>src/
+├── landing-pages/
+│   ├── landing-pages.json    # Default frontmatter
+│   └── *.html                # Your landing pages
+│
+├── _layouts/
+│   └── design-system-base.html  # Standalone layout (.design-system)
+│
+├── _includes/
+│   ├── head-meta.html        # Shared meta tags
+│   ├── head-schema.html      # Shared JSON-LD
+│   │
+│   └── design-system/        # Accessible component templates
+│       ├── code-block.html   # Terminal-style code display
+│       ├── feature-icon.html # Accessible icon with aria
+│       ├── features.html     # Features as semantic list
+│       ├── section-header.html # Section title + subtitle
+│       └── stats.html        # Stats as description list
+│
+├── css/
+│   ├── design-system-bundle.scss  # Entry point for design system styles
+│   ├── _theme-variables.scss # YOUR SITE OVERRIDES (edit this!)
+│   ├── _variables.scss       # Default values (don't edit)
+│   ├── _mixins.scss          # Layout, card, button mixins
+│   │
+│   └── design-system/        # Modular SCSS components
+│       ├── _index.scss       # Imports all components
+│       ├── _base.scss        # Reset, typography, .design-system
+│       ├── _buttons.scss     # Button styles
+│       ├── _hero.scss        # Hero section
+│       ├── _feature.scss     # Feature cards
+│       ├── _stats.scss       # Stats display
+│       ├── _cta.scss         # Call to action
+│       ├── _split.scss       # Split layouts (+ full-width)
+│       ├── _grid.scss        # Grid layouts
+│       ├── _slider.scss      # Horizontal slider
+│       ├── _items.scss       # Item lists
+│       ├── _code-block.scss  # Code display
+│       ├── _footer.scss      # Footer
+│       └── _utilities.scss   # Utility classes
+│
+└── _lib/public/
+    └── design-system.js      # Scroll animations</code></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>Landing Page CSS Guide - Chobble Template</p>
+    <nav aria-label="Footer navigation">
+      <a href="/chobble-template/">Main Landing Page</a>
+      <a href="/">Back to Site</a>
+    </nav>
+  </div>
+</footer>

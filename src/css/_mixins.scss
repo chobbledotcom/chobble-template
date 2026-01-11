@@ -1,0 +1,401 @@
+@use "variables" as *;
+
+// =============================================================================
+// LAYOUT MIXINS
+// =============================================================================
+
+// Flex container with common configurations
+@mixin flex-row($gap: $space-md, $align: center, $justify: flex-start) {
+  display: flex;
+  flex-direction: row;
+  gap: $gap;
+  align-items: $align;
+  justify-content: $justify;
+}
+
+@mixin flex-col($gap: $space-md, $align: stretch, $justify: flex-start) {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  align-items: $align;
+  justify-content: $justify;
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-wrap($gap: $space-md) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gap;
+}
+
+// Grid layouts
+@mixin grid($columns: 1, $gap: $space-lg) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+@mixin grid-auto($min-width: 280px, $gap: $space-lg) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $gap;
+}
+
+// =============================================================================
+// CONTAINER & SPACING MIXINS
+// =============================================================================
+
+// Content container with consistent margins
+@mixin container($max-width: $width-default) {
+  width: 100%;
+  max-width: $max-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $space-md;
+  padding-right: $space-md;
+
+  @media (min-width: $bp-md) {
+    padding-left: $space-lg;
+    padding-right: $space-lg;
+  }
+}
+
+// Full-width section with inner container
+@mixin section($padding-y: $space-3xl) {
+  padding-top: $padding-y;
+  padding-bottom: $padding-y;
+
+  @media (max-width: $bp-md) {
+    padding-top: calc($padding-y * 0.6);
+    padding-bottom: calc($padding-y * 0.6);
+  }
+}
+
+// =============================================================================
+// CARD & BOX MIXINS
+// =============================================================================
+
+@mixin card($padding: $space-lg, $radius: $radius-lg) {
+  padding: $padding;
+  border-radius: $radius;
+  border: $border-light;
+  background: var(--card-bg, #fff);
+}
+
+@mixin card-hover {
+  transition:
+    transform $transition-normal,
+    border-color $transition-normal;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+}
+
+@mixin glass($blur: 10px, $opacity: 0.8) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+}
+
+// =============================================================================
+// TYPOGRAPHY MIXINS
+// =============================================================================
+
+@mixin heading-xl {
+  font-size: $font-size-3xl;
+  line-height: $line-height-tight;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+
+  @media (min-width: $bp-md) {
+    font-size: $font-size-4xl;
+  }
+
+  @media (min-width: $bp-lg) {
+    font-size: $font-size-5xl;
+  }
+}
+
+@mixin heading-lg {
+  font-size: $font-size-2xl;
+  line-height: $line-height-tight;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  @media (min-width: $bp-md) {
+    font-size: $font-size-3xl;
+  }
+}
+
+@mixin heading-md {
+  font-size: $font-size-xl;
+  line-height: $line-height-snug;
+  font-weight: 600;
+
+  @media (min-width: $bp-md) {
+    font-size: $font-size-2xl;
+  }
+}
+
+@mixin heading-sm {
+  font-size: $font-size-lg;
+  line-height: $line-height-snug;
+  font-weight: 600;
+}
+
+@mixin body-lg {
+  font-size: $font-size-md;
+  line-height: $line-height-relaxed;
+
+  @media (min-width: $bp-md) {
+    font-size: $font-size-lg;
+  }
+}
+
+@mixin body-base {
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+}
+
+@mixin body-sm {
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+}
+
+// Text balance for headings
+@mixin text-balance {
+  text-wrap: balance;
+}
+
+// =============================================================================
+// BUTTON MIXINS
+// =============================================================================
+
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-xs;
+  padding: $space-sm $space-lg;
+  font-size: $font-size-base;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: $radius-md;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: var(--primary, #2563eb);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: var(--primary-dark, #1d4ed8);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: transparent;
+  border-color: var(--primary, #2563eb);
+  color: var(--primary, #2563eb);
+
+  &:hover:not(:disabled) {
+    background: var(--primary, #2563eb);
+    color: #fff;
+  }
+}
+
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  color: var(--text, #1f2937);
+
+  &:hover:not(:disabled) {
+    background: var(--hover-bg, rgba(0, 0, 0, 0.05));
+  }
+}
+
+// =============================================================================
+// ANIMATION MIXINS
+// =============================================================================
+
+// Scroll reveal animation (use with IntersectionObserver)
+@mixin scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@mixin scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@mixin scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@mixin scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Staggered children animation
+@mixin stagger-children($delay: 0.1s, $max: 10) {
+  @for $i from 1 through $max {
+    &:nth-child(#{$i}) {
+      transition-delay: calc(#{$delay} * #{$i - 1});
+    }
+  }
+}
+
+// Hover float effect
+@mixin hover-float($distance: -4px) {
+  transition: transform $transition-normal;
+
+  &:hover {
+    transform: translateY($distance);
+  }
+}
+
+// =============================================================================
+// MEDIA QUERY HELPERS
+// =============================================================================
+
+@mixin mobile-only {
+  @media (max-width: $bp-md) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: $bp-md + 1) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (min-width: $bp-lg + 1) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: $bp-xl + 1) {
+    @content;
+  }
+}
+
+// Reduced motion
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// =============================================================================
+// UTILITY MIXINS
+// =============================================================================
+
+// Screen reader only
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Aspect ratio container
+@mixin aspect-ratio($width: 16, $height: 9) {
+  aspect-ratio: $width / $height;
+}
+
+// Truncate text
+@mixin truncate($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// Focus visible ring
+@mixin focus-ring {
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary, #2563eb);
+    outline-offset: 2px;
+  }
+}
