@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
       id-token: write
 
     steps:
@@ -30,6 +30,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Find or create review comment
+        id: find-comment
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: "<!-- claude-code-review -->"
+
+      - name: Create or update review comment placeholder
+        id: review-comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- claude-code-review -->
+            ## Claude Code Review
+
+            *Review in progress...*
+
+            > Last updated: ${{ github.event.pull_request.updated_at }}
+          edit-mode: replace
 
       - name: Run Claude Code Review
         id: claude-review
@@ -40,6 +63,7 @@ jobs:
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
+            REVIEW_COMMENT_ID: ${{ steps.review-comment.outputs.comment-id }}
 
             Please review this pull request and provide feedback on:
             - Code quality and best practices
@@ -50,9 +74,16 @@ jobs:
 
             Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
 
-            Provide detailed feedback using inline comments for specific issues.
+            IMPORTANT: Instead of creating new comments, UPDATE the existing review comment (ID: ${{ steps.review-comment.outputs.comment-id }}).
+            Use this command to update the review comment:
+            gh api repos/${{ github.repository }}/issues/comments/${{ steps.review-comment.outputs.comment-id }} -X PATCH -f body='<!-- claude-code-review -->
+            ## Claude Code Review
+
+            YOUR REVIEW CONTENT HERE'
+
+            You may still use inline PR review comments for specific line-level issues, but your main summary should update the existing comment above.
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh api:*)"'
 
