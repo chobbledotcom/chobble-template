@@ -503,9 +503,9 @@ describe("customise-cms config", () => {
   // ============================================
   test("loadCmsConfig reads cms_config from site.json", async () => {
     const { writeFileSync, mkdirSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsyncAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("loadCmsConfig", async (tempDir) => {
+    return withTempDirAsyncAsync("loadCmsConfig", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
         `${tempDir}/_data/site.json`,
@@ -530,9 +530,9 @@ describe("customise-cms config", () => {
 
   test("loadCmsConfig returns null when cms_config doesn't exist", async () => {
     const { writeFileSync, mkdirSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("loadCmsConfig-no-config", async (tempDir) => {
+    return withTempDirAsync("loadCmsConfig-no-config", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
         `${tempDir}/_data/site.json`,
@@ -552,9 +552,9 @@ describe("customise-cms config", () => {
 
   test("loadCmsConfig handles empty site.json gracefully", async () => {
     const { writeFileSync, mkdirSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("loadCmsConfig-empty", async (tempDir) => {
+    return withTempDirAsync("loadCmsConfig-empty", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(`${tempDir}/_data/site.json`, "{}");
 
@@ -571,9 +571,9 @@ describe("customise-cms config", () => {
   // ============================================
   test("saveCmsConfig writes cms_config to site.json while preserving other data", async () => {
     const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("saveCmsConfig-preserve", async (tempDir) => {
+    return withTempDirAsync("saveCmsConfig-preserve", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
         `${tempDir}/_data/site.json`,
@@ -608,9 +608,9 @@ describe("customise-cms config", () => {
 
   test("saveCmsConfig updates existing cms_config", async () => {
     const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("saveCmsConfig-update", async (tempDir) => {
+    return withTempDirAsync("saveCmsConfig-update", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
         `${tempDir}/_data/site.json`,
@@ -645,9 +645,9 @@ describe("customise-cms config", () => {
 
   test("saveCmsConfig preserves JSON formatting with tabs and newline", async () => {
     const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("saveCmsConfig-format", async (tempDir) => {
+    return withTempDirAsync("saveCmsConfig-format", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
         `${tempDir}/_data/site.json`,
@@ -675,9 +675,9 @@ describe("customise-cms config", () => {
   // ============================================
   test("loadCmsConfig finds site.json in src/_data folder when it exists", async () => {
     const { mkdirSync, writeFileSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("getSiteJsonPath-src", async (tempDir) => {
+    return withTempDirAsync("getSiteJsonPath-src", async (tempDir) => {
       // Create both _data and src/_data directories
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       mkdirSync(`${tempDir}/src/_data`, { recursive: true });
@@ -707,9 +707,9 @@ describe("customise-cms config", () => {
 
   test("loadCmsConfig falls back to _data/site.json when src folder doesn't exist", async () => {
     const { mkdirSync, writeFileSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("getSiteJsonPath-no-src", async (tempDir) => {
+    return withTempDirAsync("getSiteJsonPath-no-src", async (tempDir) => {
       // Create only _data directory (no src folder)
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
@@ -730,9 +730,9 @@ describe("customise-cms config", () => {
 
   test("saveCmsConfig writes to src/_data when it exists", async () => {
     const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
-    const { withTempDir } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDir("saveCmsConfig-src", async (tempDir) => {
+    return withTempDirAsync("saveCmsConfig-src", async (tempDir) => {
       // Create both _data and src/_data directories
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       mkdirSync(`${tempDir}/src/_data`, { recursive: true });
