@@ -1,0 +1,23 @@
+{%- comment -%}
+Code block with terminal-style header and decorative dots.
+
+Parameters:
+  - filename: The filename to display in header (required)
+  - code: The code content (required)
+  - language: Optional language for future syntax highlighting
+  - reveal: Optional data-reveal animation value
+
+Usage:
+  {% include "design-system/code-block.html",
+     filename: "example.js",
+     code: "const x = 1;"
+  %}
+{%- endcomment -%}
+
+<div class="code-block"{% if reveal %} data-reveal="{{ reveal }}"{% endif %}>
+  <header>
+    <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    <span>{{ filename }}</span>
+  </header>
+  <pre><code{% if language %} data-language="{{ language }}"{% endif %}>{{ code }}</code></pre>
+</div>

@@ -1,0 +1,39 @@
+{%- comment -%}
+Section header with title and optional subtitle.
+
+Parameters:
+  - title: The section title (required)
+  - subtitle: Optional description text
+  - level: Heading level, defaults to 2 (h2)
+  - align: Text alignment, defaults to "center"
+  - class: Additional CSS classes
+
+Usage:
+  {% include "design-system/section-header.html",
+     title: "My Section",
+     subtitle: "Optional description here"
+  %}
+{%- endcomment -%}
+
+{%- assign headingLevel = level | default: 2 -%}
+{%- assign textAlign = align | default: "center" -%}
+{%- assign headerClass = "mb-xl" -%}
+{%- if textAlign == "center" -%}
+  {%- assign headerClass = headerClass | append: " text-center" -%}
+{%- endif -%}
+{%- if class -%}
+  {%- assign headerClass = headerClass | append: " " | append: class -%}
+{%- endif -%}
+
+<header class="{{ headerClass }}">
+  {% case headingLevel %}
+    {% when 1 %}<h1>{{ title }}</h1>
+    {% when 2 %}<h2>{{ title }}</h2>
+    {% when 3 %}<h3>{{ title }}</h3>
+    {% when 4 %}<h4>{{ title }}</h4>
+    {% else %}<h2>{{ title }}</h2>
+  {% endcase %}
+  {%- if subtitle -%}
+    <p class="text-muted">{{ subtitle }}</p>
+  {%- endif -%}
+</header>

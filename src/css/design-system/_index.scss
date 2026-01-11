@@ -1,0 +1,36 @@
+// =============================================================================
+// DESIGN SYSTEM
+// =============================================================================
+// A modular, flat design system built on the 8px spacing grid.
+// Import this file to get all design system components.
+//
+// Usage in HTML:
+//   <body class="design-system">
+//     ...your content using design system classes...
+//   </body>
+//
+// Or wrap any element:
+//   <div class="design-system">
+//     ...your content using design system classes...
+//   </div>
+//
+// =============================================================================
+
+// Core
+@forward "base";
+
+// Components
+@forward "buttons";
+@forward "hero";
+@forward "feature";
+@forward "stats";
+@forward "cta";
+@forward "split";
+@forward "grid";
+@forward "slider";
+@forward "items";
+@forward "code-block";
+@forward "footer";
+
+// Utilities (last to allow overrides)
+@forward "utilities";
