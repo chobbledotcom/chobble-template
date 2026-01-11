@@ -31,29 +31,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Find or create review comment
-        id: find-comment
-        uses: peter-evans/find-comment@v3
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: "github-actions[bot]"
-          body-includes: "<!-- claude-code-review -->"
-
-      - name: Create or update review comment placeholder
-        id: review-comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            <!-- claude-code-review -->
-            ## Claude Code Review
-
-            *Review in progress...*
-
-            > Last updated: ${{ github.event.pull_request.updated_at }}
-          edit-mode: replace
-
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@v1
@@ -63,7 +40,6 @@ jobs:
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
-            REVIEW_COMMENT_ID: ${{ steps.review-comment.outputs.comment-id }}
 
             Please review this pull request and provide feedback on:
             - Code quality and best practices
@@ -74,14 +50,21 @@ jobs:
 
             Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
 
-            IMPORTANT: Instead of creating new comments, UPDATE the existing review comment (ID: ${{ steps.review-comment.outputs.comment-id }}).
-            Use this command to update the review comment:
-            gh api repos/${{ github.repository }}/issues/comments/${{ steps.review-comment.outputs.comment-id }} -X PATCH -f body='<!-- claude-code-review -->
-            ## Claude Code Review
+            IMPORTANT: To avoid cluttering the PR with multiple comments, you MUST update an existing review comment if one exists:
 
-            YOUR REVIEW CONTENT HERE'
+            1. First, find your previous review comment by running:
+               gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[] | select(.body | contains("<!-- claude-code-review -->")) | .id'
 
-            You may still use inline PR review comments for specific line-level issues, but your main summary should update the existing comment above.
+            2. If a comment ID is returned, UPDATE that comment:
+               gh api repos/${{ github.repository }}/issues/comments/COMMENT_ID -X PATCH -f body='YOUR_REVIEW_CONTENT'
+
+            3. If no comment is found, create a NEW comment:
+               gh pr comment ${{ github.event.pull_request.number }} --body 'YOUR_REVIEW_CONTENT'
+
+            Your review comment MUST start with this hidden marker on the first line:
+            <!-- claude-code-review -->
+
+            You may still use inline PR review comments for specific line-level issues.
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
