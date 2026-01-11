@@ -8,7 +8,11 @@
  * @param {number} defaultWidth - Default width if no items found
  * @returns {number} Scroll amount in pixels
  */
-export const getScrollAmount = (slider, itemSelector = ":scope > *", defaultWidth = 240) => {
+export const getScrollAmount = (
+  slider,
+  itemSelector = ":scope > *",
+  defaultWidth = 240,
+) => {
   const firstItem = slider.querySelector(itemSelector);
   if (!firstItem) return defaultWidth;
   const gap = parseFloat(getComputedStyle(slider).gap) || 16;
@@ -27,7 +31,8 @@ export const createStateUpdater = (slider, prevBtn, nextBtn) => () => {
   slider.classList.toggle("overflowing", overflows);
 
   const atStart = slider.scrollLeft <= 0;
-  const atEnd = slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 1;
+  const atEnd =
+    slider.scrollLeft >= slider.scrollWidth - slider.clientWidth - 1;
 
   prevBtn.toggleAttribute("disabled", atStart);
   nextBtn.toggleAttribute("disabled", atEnd);

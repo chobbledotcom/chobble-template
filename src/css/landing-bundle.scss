@@ -1,6 +1,7 @@
 // Landing Page Bundle - Standalone CSS for landing pages
 // General-purpose SCSS with Gutenberg-style spacing
 
+@use "sass:math";
 @use "landing-variables" as *;
 @use "landing-mixins" as *;
 
@@ -588,11 +589,11 @@ ul.items {
       max-width: 100%;
 
       @include tablet-up {
-        max-width: calc(50% - #{$space-lg / 2});
+        max-width: calc(50% - #{math.div($space-lg, 2)});
       }
 
       @include desktop-up {
-        max-width: calc(33.333% - #{$space-lg * 2 / 3});
+        max-width: calc(33.333% - #{math.div($space-lg * 2, 3)});
       }
     }
   }

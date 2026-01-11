@@ -51,7 +51,10 @@ const init = () => {
   }
 
   // Initialize sliders with landing page defaults
-  initSliders(".slider-container", { itemSelector: ":scope > *", defaultWidth: 340 });
+  initSliders(".slider-container", {
+    itemSelector: ":scope > *",
+    defaultWidth: 340,
+  });
 };
 
 if (document.readyState === "loading") {
