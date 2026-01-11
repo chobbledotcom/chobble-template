@@ -39,10 +39,11 @@ export const createStateUpdater = (slider, prevBtn, nextBtn) => () => {
  * @param {Function} getAmount - Function returning scroll amount
  * @returns {Function} Curried scroll handler (direction => event => void)
  */
-export const createScrollHandler = (slider, getAmount) => (direction) => (e) => {
-  e.preventDefault();
-  slider.scrollBy({ left: direction * getAmount(), behavior: "smooth" });
-};
+export const createScrollHandler =
+  (slider, getAmount) => (direction) => (e) => {
+    e.preventDefault();
+    slider.scrollBy({ left: direction * getAmount(), behavior: "smooth" });
+  };
 
 /**
  * Initialize a single slider container
