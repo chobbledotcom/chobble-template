@@ -72,6 +72,9 @@ export function extractErrorsFromOutput(output) {
     // Skip long command lines that start with "node -e"
     if (trimmed.startsWith("node -e")) continue;
 
+    // Skip Bun's passing test output lines (they may contain words like "error" or "FAIL" in test names)
+    if (trimmed.startsWith("(pass)")) continue;
+
     // Look for error indicators
     const hasErrorIndicator =
       trimmed.startsWith("❌") ||
