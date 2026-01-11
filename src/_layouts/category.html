@@ -2,11 +2,7 @@
 layout: base
 ---
 
-{%- include "products-header.html" -%}
-
 {% assign products = collections.products | getProductsByCategory: page.fileSlug %}
-
-
 
 {%- for section in categoryOrder -%}
   {%- include section -%}
