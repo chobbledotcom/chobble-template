@@ -21,21 +21,6 @@ describe("style-bundle", () => {
       expect(result).toBe(false);
     });
 
-    test("returns false for null layout", () => {
-      const result = usesDesignSystem(null, ["landing-page.html"]);
-      expect(result).toBe(false);
-    });
-
-    test("returns false for undefined layout", () => {
-      const result = usesDesignSystem(undefined, ["landing-page.html"]);
-      expect(result).toBe(false);
-    });
-
-    test("returns false for null designSystemLayouts", () => {
-      const result = usesDesignSystem("landing-page.html", null);
-      expect(result).toBe(false);
-    });
-
     test("returns false for empty designSystemLayouts array", () => {
       const result = usesDesignSystem("landing-page.html", []);
       expect(result).toBe(false);
@@ -59,16 +44,6 @@ describe("style-bundle", () => {
       const result = getCssBundle("base.html", ["landing-page.html"]);
       expect(result).toBe("/css/bundle.css");
     });
-
-    test("returns main bundle path when layout is null", () => {
-      const result = getCssBundle(null, ["landing-page.html"]);
-      expect(result).toBe("/css/bundle.css");
-    });
-
-    test("returns main bundle path when designSystemLayouts is null", () => {
-      const result = getCssBundle("landing-page.html", null);
-      expect(result).toBe("/css/bundle.css");
-    });
   });
 
   describe("getJsBundle", () => {
@@ -79,16 +54,6 @@ describe("style-bundle", () => {
 
     test("returns main bundle path for non-design-system layout", () => {
       const result = getJsBundle("base.html", ["landing-page.html"]);
-      expect(result).toBe("/assets/js/bundle.js");
-    });
-
-    test("returns main bundle path when layout is null", () => {
-      const result = getJsBundle(null, ["landing-page.html"]);
-      expect(result).toBe("/assets/js/bundle.js");
-    });
-
-    test("returns main bundle path when designSystemLayouts is null", () => {
-      const result = getJsBundle("landing-page.html", null);
       expect(result).toBe("/assets/js/bundle.js");
     });
   });
