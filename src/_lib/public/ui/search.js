@@ -9,11 +9,14 @@ const normalise = (str) =>
     .trim();
 
 const initSearch = () => {
-  const form = document.getElementById("search-form");
+  const form = document.querySelector(".search-box");
   if (!form) return;
 
-  const keywordsDatalist = document.getElementById("keywords");
-  if (!keywordsDatalist) return;
+  const input = form.querySelector("input[name='q']");
+  const keywordsDatalist = form.querySelector("datalist");
+  const errorEl = form.querySelector(".search-error");
+
+  if (!input || !keywordsDatalist || !errorEl) return;
 
   const validKeywords = Array.from(keywordsDatalist.options).map((opt) =>
     normalise(opt.value),
@@ -21,9 +24,7 @@ const initSearch = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const input = document.getElementById("keyword");
     const keyword = normalise(input.value);
-    const errorEl = document.getElementById("search-error");
 
     if (keyword && validKeywords.includes(keyword)) {
       errorEl.style.display = "none";

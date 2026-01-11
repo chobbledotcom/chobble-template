@@ -316,6 +316,8 @@ describe("unused-classes", () => {
           new RegExp(`href=["'][^"']*#${escaped}["']`),
           // for="id" label associations
           new RegExp(`for=["']${escaped}["']`),
+          // list="id" datalist associations
+          new RegExp(`list=["']${escaped}["']`),
         ];
 
         return patterns.some((pattern) => pattern.test(content));
