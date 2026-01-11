@@ -334,6 +334,10 @@ describe("DEFAULTS", () => {
       formspark_id: null,
     })(DEFAULTS);
   });
+
+  test("has design_system_layouts default with landing-page.html", () => {
+    expect(DEFAULTS.design_system_layouts).toEqual(["landing-page.html"]);
+  });
 });
 
 describe("VALID_CART_MODES", () => {

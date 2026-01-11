@@ -1,16 +1,19 @@
 <head>
   {%- include "head-meta.html" -%}
 
+  {%- assign css_bundle = layout | getCssBundle: config.design_system_layouts -%}
+  {%- assign js_bundle = layout | getJsBundle: config.design_system_layouts -%}
+
   <link
     rel="stylesheet"
-    href="{{ '/css/bundle.css' | cacheBust }}"
+    href="{{ css_bundle | cacheBust }}"
   >
 
   {%- include "js-config-script.html" -%}
 
   <script
     type="module"
-    src="{{ '/assets/js/bundle.js' | cacheBust }}"
+    src="{{ js_bundle | cacheBust }}"
   ></script>
 
   {%- if collections.news.size > 0 -%}
