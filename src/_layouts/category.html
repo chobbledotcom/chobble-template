@@ -20,14 +20,5 @@ layout: base
 {% endif %}
 
 {%- for section in categoryOrder -%}
-  {%- case section -%}
-    {%- when "content" -%}
-      {%- include "category-content.html" -%}
-    {%- when "faqs" -%}
-      {%- include "category-faqs.html" -%}
-    {%- when "subcategories" -%}
-      {%- include "category-subcategories.html" -%}
-    {%- when "products" -%}
-      {%- include "category-products.html" -%}
-  {%- endcase -%}
+  {%- include section -%}
 {%- endfor -%}
