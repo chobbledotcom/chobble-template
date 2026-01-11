@@ -6,15 +6,15 @@ import { memoize } from "#utils/memoize.js";
 
 const liquid = new Liquid();
 
+const INCLUDES_DIR = join(SRC_DIR, "_includes");
+
 /**
  * Create a memoized template loader for a given include file
  * @param {string} templateName - Name of the template file (without path)
  * @returns {Function} Memoized async function that returns template content
  */
 const createTemplateLoader = (templateName) =>
-  memoize(async () =>
-    readFile(join(SRC_DIR, "_includes", templateName), "utf-8"),
-  );
+  memoize(async () => readFile(join(INCLUDES_DIR, templateName), "utf-8"));
 
 /**
  * Create a template renderer function

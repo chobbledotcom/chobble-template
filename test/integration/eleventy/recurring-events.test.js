@@ -32,6 +32,10 @@ const event = (title, recurring, { url, location } = {}) => ({
  */
 const renderAndParse = async (events) => {
   const html = await renderRecurringEvents(events);
+  // Debug: log rendered HTML to help diagnose CI failures
+  if (!html || html.length === 0) {
+    console.log("DEBUG: renderRecurringEvents returned empty:", { events, html });
+  }
   document.body.innerHTML = html;
   return document;
 };
