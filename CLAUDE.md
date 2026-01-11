@@ -34,13 +34,13 @@ src/
 ├── _includes/       # Reusable HTML components (~85 files)
 ├── _layouts/        # Page layout templates (~34 layouts)
 ├── _lib/            # Core JavaScript library
-│   ├── build/       # esbuild, SCSS, theme compilation
+│   ├── build/       # JS bundling, SCSS, theme compilation
 │   ├── collections/ # Eleventy collections (12 types)
 │   ├── config/      # Configuration helpers
 │   ├── eleventy/    # Eleventy plugins (~13 configs)
 │   ├── filters/     # URL-based filtering for products/properties
 │   ├── media/       # Image processing (sharp, eleventy-img)
-│   ├── public/      # Frontend JavaScript (bundled by esbuild)
+│   ├── public/      # Frontend JavaScript (bundled by Bun)
 │   └── utils/       # Pure utility functions
 ├── css/             # SCSS stylesheets
 ├── products/        # Product markdown files
