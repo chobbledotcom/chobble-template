@@ -503,9 +503,9 @@ describe("customise-cms config", () => {
   // ============================================
   test("loadCmsConfig reads cms_config from site.json", async () => {
     const { writeFileSync, mkdirSync } = await import("node:fs");
-    const { withTempDirAsyncAsync } = await import("#test/test-utils.js");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
 
-    return withTempDirAsyncAsync("loadCmsConfig", async (tempDir) => {
+    return withTempDirAsync("loadCmsConfig", async (tempDir) => {
       mkdirSync(`${tempDir}/_data`, { recursive: true });
       writeFileSync(
         `${tempDir}/_data/site.json`,
