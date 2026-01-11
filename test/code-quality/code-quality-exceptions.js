@@ -193,8 +193,6 @@ const ALLOWED_LET = new Set([
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
-  // Helper functions to reduce complexity in getBodyClasses
-  "src/_lib/eleventy/style-bundle.js",
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
