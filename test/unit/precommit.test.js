@@ -288,10 +288,8 @@ describe("precommit script integration", () => {
 
     // Precommit should check for --verbose flag
     expect(precommitCode).toContain("--verbose");
-    // Shared utilities should handle verbose stdio
-    expect(testRunnerUtilsCode).toContain(
-      'verbose ? "inherit" : ["inherit", "pipe"',
-    );
+    // Shared utilities should always capture output for error extraction
+    expect(testRunnerUtilsCode).toContain('stdio: ["inherit", "pipe", "pipe"]');
   });
 });
 
