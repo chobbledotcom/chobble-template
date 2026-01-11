@@ -444,7 +444,7 @@ $space-4xl: 128px</code></pre>
   &lt;figure data-reveal="scale"&gt;...&lt;/figure&gt;
 &lt;/div&gt;</code></pre>
         </div>
-        <p class="text-muted mt-lg">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and shadow automatically.</p>
+        <p class="text-muted mt-lg">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and border automatically.</p>
       </article>
 
       <!-- Demo -->
@@ -854,16 +854,32 @@ $bp-xl: 1200px</code></pre>
 │   └── *.html                # Your landing pages
 │
 ├── _layouts/
-│   └── landing-page.html     # Standalone layout
+│   └── landing-page.html     # Standalone layout (.design-system)
 │
 ├── _includes/
 │   ├── head-meta.html        # Shared meta tags
 │   └── head-schema.html      # Shared JSON-LD
 │
 ├── css/
-│   ├── landing-bundle.scss   # Main stylesheet
+│   ├── landing-bundle.scss   # Imports design-system + overrides
 │   ├── _variables.scss       # Spacing, typography, borders
-│   └── _mixins.scss          # Layout, card, button mixins
+│   ├── _mixins.scss          # Layout, card, button mixins
+│   │
+│   └── design-system/        # Modular component library
+│       ├── _index.scss       # Imports all components
+│       ├── _base.scss        # Reset, typography, .design-system
+│       ├── _buttons.scss     # Button styles
+│       ├── _hero.scss        # Hero section
+│       ├── _feature.scss     # Feature cards
+│       ├── _stats.scss       # Stats display
+│       ├── _cta.scss         # Call to action
+│       ├── _split.scss       # Split layouts (+ full-width)
+│       ├── _grid.scss        # Grid layouts
+│       ├── _slider.scss      # Horizontal slider
+│       ├── _items.scss       # Item lists
+│       ├── _code-block.scss  # Code display
+│       ├── _footer.scss      # Footer
+│       └── _utilities.scss   # Utility classes
 │
 └── _lib/public/
     └── landing-bundle.js     # Scroll animations</code></pre>

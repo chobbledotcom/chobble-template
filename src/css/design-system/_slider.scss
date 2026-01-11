@@ -1,0 +1,111 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// SLIDER (Horizontal Scrolling Cards)
+// =============================================================================
+
+.slider-container {
+  position: relative;
+
+  // Hide nav when content fits (no overflow)
+  &:not(:has(.slider.overflowing)) .slider-nav {
+    display: none;
+  }
+}
+
+.slider {
+  display: flex;
+  gap: $space-lg;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: $space-sm;
+  margin: 0;
+  list-style: none;
+
+  // Hide scrollbar but keep functionality
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: $radius-full;
+  }
+
+  @include reduced-motion {
+    scroll-behavior: auto;
+  }
+
+  > * {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  // Default card width - can be overridden
+  > .feature,
+  > article,
+  > li {
+    width: 300px;
+
+    @include tablet-up {
+      width: 340px;
+    }
+  }
+}
+
+.slider-nav {
+  @include flex-row($space-md, center, center);
+  margin-top: $space-md;
+}
+
+.slider-prev,
+.slider-next {
+  @include button-base;
+  @include focus-ring;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--bg-alt);
+  border-radius: $radius-full;
+  color: var(--text);
+  font-size: $font-size-lg;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover:not([disabled]) {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  &[disabled] {
+    opacity: 0.3;
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+// Dark section variant
+.dark .slider-prev,
+.dark .slider-next {
+  background: var(--card-bg);
+  border-color: #4b5563;
+  color: #f9fafb;
+
+  &:hover:not([disabled]) {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+}

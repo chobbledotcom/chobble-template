@@ -1,0 +1,39 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// UTILITIES
+// =============================================================================
+
+.text-center {
+  text-align: center;
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-primary {
+  color: var(--primary);
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+.mb-0 {
+  margin-bottom: 0;
+}
+.mt-lg {
+  margin-top: $space-lg;
+}
+.mb-lg {
+  margin-bottom: $space-lg;
+}
+.mt-xl {
+  margin-top: $space-xl;
+}
+.mb-xl {
+  margin-bottom: $space-xl;
+}
+
+.sr-only {
+  @include sr-only;
+}

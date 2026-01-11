@@ -1,0 +1,37 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// FEATURES
+// =============================================================================
+
+.features {
+  @include grid-auto(300px, $space-lg);
+}
+
+.feature {
+  @include card;
+  @include card-hover;
+}
+
+.feature .icon {
+  @include flex-center;
+  width: 56px;
+  height: 56px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: $radius-lg;
+  font-size: $font-size-xl;
+  margin-bottom: $space-md;
+}
+
+.feature h3 {
+  @include heading-sm;
+  margin-bottom: $space-xs;
+}
+
+.feature p {
+  @include body-base;
+  color: var(--text-muted);
+  margin: 0;
+}

@@ -1,0 +1,34 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// STATS
+// =============================================================================
+
+.stats {
+  @include flex-wrap($space-xl);
+  justify-content: center;
+}
+
+.stat {
+  text-align: center;
+  min-width: 150px;
+}
+
+.stat strong {
+  display: block;
+  font-size: $font-size-4xl;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: $space-xs;
+
+  @include tablet-up {
+    font-size: $font-size-5xl;
+  }
+}
+
+.stat span {
+  @include body-base;
+  color: var(--text-muted);
+}

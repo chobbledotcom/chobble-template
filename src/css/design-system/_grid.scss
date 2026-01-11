@@ -1,0 +1,30 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// GRID LAYOUTS
+// =============================================================================
+
+.grid {
+  @include grid(1, $space-lg);
+  @include tablet-up {
+    @include grid(2, $space-lg);
+  }
+  @include desktop-up {
+    @include grid(3, $space-xl);
+  }
+
+  &--2 {
+    @include grid(1, $space-lg);
+    @include tablet-up {
+      @include grid(2, $space-xl);
+    }
+  }
+
+  &--4 {
+    @include grid(2, $space-md);
+    @include tablet-up {
+      @include grid(4, $space-lg);
+    }
+  }
+}

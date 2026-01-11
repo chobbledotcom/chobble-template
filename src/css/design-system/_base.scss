@@ -1,0 +1,212 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// CSS CUSTOM PROPERTIES
+// =============================================================================
+
+:root {
+  --bg: #fafafa;
+  --bg-alt: #f3f4f6;
+  --card-bg: #ffffff;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #dbeafe;
+  --secondary: #7c3aed;
+  --accent: #10b981;
+  --hover-bg: rgba(0, 0, 0, 0.05);
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+// =============================================================================
+// BASE RESET
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+
+  @include reduced-motion {
+    scroll-behavior: auto;
+  }
+}
+
+// =============================================================================
+// DESIGN SYSTEM ROOT
+// =============================================================================
+
+.design-system {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+
+  // =========================================================================
+  // TYPOGRAPHY
+  // =========================================================================
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0 0 $space-md;
+    font-weight: 700;
+    line-height: $line-height-tight;
+    text-wrap: balance;
+  }
+
+  h1 {
+    @include heading-xl;
+  }
+  h2 {
+    @include heading-lg;
+    margin-bottom: $space-lg;
+  }
+  h3 {
+    @include heading-md;
+  }
+  h4 {
+    @include heading-sm;
+  }
+
+  p {
+    margin: 0 0 $space-md;
+    line-height: $line-height-relaxed;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Links - exclude buttons
+  a:not(.btn) {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color $transition-fast;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 0.2em 0.4em;
+    background: var(--bg-alt);
+    border-radius: $radius-sm;
+  }
+
+  pre {
+    margin: $space-lg 0;
+    padding: $space-md;
+    background: #1f2937;
+    color: #f9fafb;
+    border-radius: $radius-md;
+    overflow-x: auto;
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 $space-md;
+    padding-left: $space-lg;
+  }
+
+  li {
+    margin-bottom: $space-xs;
+  }
+
+  // =========================================================================
+  // SCROLL ANIMATIONS
+  // =========================================================================
+
+  [data-reveal] {
+    @include scroll-reveal;
+  }
+
+  [data-reveal="left"] {
+    @include scroll-reveal-left;
+  }
+
+  [data-reveal="right"] {
+    @include scroll-reveal-right;
+  }
+
+  [data-reveal="scale"] {
+    @include scroll-reveal-scale;
+  }
+
+  @include reduced-motion {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
+// =============================================================================
+// CONTAINER
+// =============================================================================
+
+.container {
+  @include container($width-wide);
+
+  &--narrow {
+    @include container($width-narrow);
+  }
+  &--default {
+    @include container($width-default);
+  }
+}
+
+// =============================================================================
+// SECTION
+// =============================================================================
+
+section {
+  @include section;
+
+  &.compact {
+    @include section($space-2xl);
+  }
+  &.alt {
+    background: var(--bg-alt);
+  }
+  &.dark {
+    background: #1f2937;
+    color: #f9fafb;
+    --text: #f9fafb;
+    --text-muted: #9ca3af;
+    --card-bg: #374151;
+  }
+  &.gradient {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);
+  }
+}

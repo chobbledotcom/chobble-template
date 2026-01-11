@@ -15,11 +15,15 @@ const STYLE_FILE = "src/css/style.scss";
 const CONSUMED_VIA_JS = [];
 
 // Files that have their own isolated :root definitions (e.g., standalone bundles)
-const ISOLATED_BUNDLES = [
+// These files use their own CSS variables separate from the main site's style.scss
+const ISOLATED_FILES = [
   "landing-bundle.scss",
   "_variables.scss",
   "_mixins.scss",
 ];
+
+// Directories that have their own isolated CSS (design-system for landing pages)
+const ISOLATED_DIRS = ["design-system/"];
 
 // ============================================
 // Helper functions
@@ -60,8 +64,11 @@ const allScssFiles = [
 ];
 
 // Exclude isolated bundle files from main variable validation
+// These files have their own :root definitions separate from the main site
 const scssFiles = allScssFiles.filter(
-  (file) => !ISOLATED_BUNDLES.some((bundle) => file.endsWith(bundle)),
+  (file) =>
+    !ISOLATED_FILES.some((f) => file.endsWith(f)) &&
+    !ISOLATED_DIRS.some((d) => file.includes(d)),
 );
 
 const usedVariables = extractUsedVariables(scssFiles);
