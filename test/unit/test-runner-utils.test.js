@@ -73,30 +73,14 @@ describe("test-runner-utils", () => {
   // runStep Tests
   // ============================================
   describe("runStep", () => {
-    test("Executes command successfully with verbose mode", () => {
-      const step = {
-        name: "test-step",
-        cmd: "echo",
-        args: ["hello"],
-      };
+    // Output is captured in both modes (for error extraction)
+    test.each([
+      true,
+      false,
+    ])("Executes command and captures output (verbose=%s)", (verbose) => {
+      const step = { name: "test-step", cmd: "echo", args: ["hello"] };
 
-      const result = runStep(step, true);
-
-      // Output is captured even in verbose mode (for error extraction)
-      // and also printed to console
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("hello");
-      expect(result.stderr).toBe("");
-    });
-
-    test("Executes command successfully with non-verbose mode", () => {
-      const step = {
-        name: "test-step",
-        cmd: "echo",
-        args: ["hello"],
-      };
-
-      const result = runStep(step, false);
+      const result = runStep(step, verbose);
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("hello");
