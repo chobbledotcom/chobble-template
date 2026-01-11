@@ -4,7 +4,13 @@
  * Functions for computing product options and cart attributes,
  * extracted from products.11tydata.js for testability and reuse.
  */
-import { findDuplicate, pick } from "#utils/array-utils.js";
+import {
+  filterMap,
+  findDuplicate,
+  pick,
+  pipe,
+  sort,
+} from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 
 /**
@@ -55,13 +61,19 @@ export const computeOptions = (data, mode) => {
     return data.options;
   }
 
-  return data.options
-    .filter((opt) => opt.days != null)
-    .map((opt) => ({
-      ...opt,
-      unit_price: parsePrice(opt.unit_price, `${data.title} days=${opt.days}`),
-    }))
-    .sort((a, b) => a.days - b.days);
+  return pipe(
+    filterMap(
+      (opt) => opt.days != null,
+      (opt) => ({
+        ...opt,
+        unit_price: parsePrice(
+          opt.unit_price,
+          `${data.title} days=${opt.days}`,
+        ),
+      }),
+    ),
+    sort((a, b) => a.days - b.days),
+  )(data.options);
 };
 
 /**
