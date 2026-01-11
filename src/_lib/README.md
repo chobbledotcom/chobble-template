@@ -6,7 +6,7 @@ This directory contains all JavaScript modules for the Eleventy build system, or
 
 ```
 _lib/
-├── build/          # Build tooling (esbuild, SCSS compilation)
+├── build/          # Build tooling (JS bundling, SCSS compilation)
 ├── collections/    # Domain collections (products, events, etc.)
 ├── config/         # Configuration helpers (used by data files)
 ├── eleventy/       # Eleventy-specific plugins and config helpers
@@ -54,7 +54,7 @@ export function configureProducts(eleventyConfig) {
 
 #### `build/`
 Build-time tooling that runs during the Eleventy build process:
-- `esbuild.js` - JavaScript bundling
+- `js-bundler.js` - JavaScript bundling
 - `scss.js` - SCSS compilation
 - `theme-compiler.js` - Compiles theme SCSS files for theme-switcher
 
