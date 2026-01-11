@@ -1,7 +1,7 @@
 {%- unless events -%}
   {%- assign events = collections.events | where: "data.recurring_date" | sort: "data.title" -%}
 {%- endunless -%}
-{%- if events.size > 0 -%}
+{%- if events.length > 0 -%}
 <ul>
   {%- for event in events -%}
   {%- assign event_data = event.data -%}
