@@ -15,21 +15,30 @@ const rootDir = ROOT_DIR;
  * @returns {Object} Result with status and output
  */
 export function runStep(step, verbose) {
-  const stdio = verbose ? "inherit" : ["inherit", "pipe", "pipe"];
-
+  // Always capture stdout/stderr so we can extract errors for the summary
+  // If verbose, we'll print the output after capturing it
   const result = spawnSync(step.cmd, step.args, {
     cwd: rootDir,
-    stdio,
+    stdio: ["inherit", "pipe", "pipe"],
     env: {
       ...process.env,
       VERBOSE: verbose ? "1" : "0",
     },
   });
 
+  const stdout = result.stdout?.toString() || "";
+  const stderr = result.stderr?.toString() || "";
+
+  // In verbose mode, print captured output to console
+  if (verbose) {
+    if (stdout) process.stdout.write(stdout);
+    if (stderr) process.stderr.write(stderr);
+  }
+
   return {
     status: result.status,
-    stdout: result.stdout?.toString() || "",
-    stderr: result.stderr?.toString() || "",
+    stdout,
+    stderr,
   };
 }
 
@@ -72,9 +81,9 @@ export function extractErrorsFromOutput(output) {
       trimmed.includes("FAIL") ||
       (trimmed.toLowerCase().includes("fail") && trimmed !== "0 fail") ||
       trimmed.includes("below threshold") ||
-      // Coverage-related errors
-      trimmed.includes("Uncovered") ||
-      trimmed.includes("must have test coverage");
+      trimmed.includes("must have test coverage") ||
+      // Coverage errors like "Uncovered lines: 10-15" but not table header "Uncovered Line #s"
+      /Uncovered lines?:/i.test(trimmed);
 
     // Detect coverage table rows with uncovered lines (Bun coverage output format)
     // Format: " src/file.js | 95.00 | 90.00 | 21-22,41" or "All files | 99.00 | 98.00 |"

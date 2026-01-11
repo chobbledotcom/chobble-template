@@ -82,8 +82,10 @@ describe("test-runner-utils", () => {
 
       const result = runStep(step, true);
 
+      // Output is captured even in verbose mode (for error extraction)
+      // and also printed to console
       expect(result.status).toBe(0);
-      expect(result.stdout).toBe("");
+      expect(result.stdout).toContain("hello");
       expect(result.stderr).toBe("");
     });
 
