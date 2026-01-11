@@ -6,22 +6,19 @@
 // =============================================================================
 
 :root {
-  --bg: #fafafa;
-  --bg-alt: #f3f4f6;
-  --card-bg: #ffffff;
-  --text: #1f2937;
-  --text-muted: #6b7280;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-light: #dbeafe;
-  --secondary: #7c3aed;
-  --accent: #10b981;
-  --hover-bg: rgba(0, 0, 0, 0.05);
-  --font-sans:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono:
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --bg: #{$color-bg};
+  --bg-alt: #{$color-bg-alt};
+  --card-bg: #{$color-card-bg};
+  --text: #{$color-text};
+  --text-muted: #{$color-text-muted};
+  --primary: #{$color-primary};
+  --primary-dark: #{$color-primary-dark};
+  --primary-light: #{$color-primary-light};
+  --secondary: #{$color-secondary};
+  --accent: #{$color-accent};
+  --hover-bg: #{$color-hover-bg};
+  --font-sans: #{$font-sans};
+  --font-mono: #{$font-mono};
 }
 
 // =============================================================================
@@ -115,8 +112,8 @@ html {
   pre {
     margin: $space-lg 0;
     padding: $space-md;
-    background: #1f2937;
-    color: #f9fafb;
+    background: #{$color-dark-bg};
+    color: #{$color-dark-text};
     border-radius: $radius-md;
     overflow-x: auto;
     code {
@@ -200,11 +197,11 @@ section {
     background: var(--bg-alt);
   }
   &.dark {
-    background: #1f2937;
-    color: #f9fafb;
-    --text: #f9fafb;
-    --text-muted: #9ca3af;
-    --card-bg: #374151;
+    background: #{$color-dark-bg};
+    color: #{$color-dark-text};
+    --text: #{$color-dark-text};
+    --text-muted: #{$color-dark-text-muted};
+    --card-bg: #{$color-dark-card-bg};
   }
   &.gradient {
     background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);

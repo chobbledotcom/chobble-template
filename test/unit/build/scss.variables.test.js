@@ -18,6 +18,7 @@ const CONSUMED_VIA_JS = [];
 // These files use their own CSS variables separate from the main site's style.scss
 const ISOLATED_FILES = [
   "landing-bundle.scss",
+  "_theme-variables.scss",
   "_variables.scss",
   "_mixins.scss",
 ];

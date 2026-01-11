@@ -1,0 +1,116 @@
+// =============================================================================
+// THEME VARIABLES
+// =============================================================================
+// Override default design system values here. This file is loaded BEFORE
+// _variables.scss, so any values you set here will take precedence.
+//
+// INSTRUCTIONS FOR SITE OWNERS:
+// 1. Uncomment the variables you want to customize
+// 2. Change the values to match your brand
+// 3. The design system will use your values throughout
+//
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// COLORS (CSS Custom Properties)
+// -----------------------------------------------------------------------------
+// These become CSS variables like var(--primary) in your styles.
+// They're defined here as SCSS variables so they flow through to :root.
+
+// $color-bg: #fafafa;                    // Main background
+// $color-bg-alt: #f3f4f6;                // Alternate background (sections)
+// $color-card-bg: #ffffff;               // Card backgrounds
+// $color-text: #1f2937;                  // Main text color
+// $color-text-muted: #6b7280;            // Secondary text
+// $color-primary: #2563eb;               // Primary brand color
+// $color-primary-dark: #1d4ed8;          // Darker primary (hover states)
+// $color-primary-light: #dbeafe;         // Lighter primary (backgrounds)
+// $color-secondary: #7c3aed;             // Secondary brand color
+// $color-accent: #10b981;                // Accent color (success, highlights)
+
+// -----------------------------------------------------------------------------
+// SPACING
+// -----------------------------------------------------------------------------
+// The spacing scale is based on multiples of $space-unit.
+// Change the base unit to scale all spacing proportionally.
+
+// $space-unit: 8px;                      // Base unit (default: 8px)
+
+// Or override individual spacing values:
+// $space-xs: 8px;                        // Extra small
+// $space-sm: 16px;                       // Small
+// $space-md: 24px;                       // Medium
+// $space-lg: 32px;                       // Large
+// $space-xl: 48px;                       // Extra large
+// $space-2xl: 64px;                      // 2x Extra large
+// $space-3xl: 96px;                      // 3x Extra large (section padding)
+// $space-4xl: 128px;                     // 4x Extra large
+
+// -----------------------------------------------------------------------------
+// CONTENT WIDTHS
+// -----------------------------------------------------------------------------
+
+// $width-narrow: 680px;                  // Narrow containers (text-heavy)
+// $width-default: 900px;                 // Default containers
+// $width-wide: 1200px;                   // Wide containers (grids)
+
+// -----------------------------------------------------------------------------
+// TYPOGRAPHY
+// -----------------------------------------------------------------------------
+
+// Font families (set as CSS custom properties)
+// $font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+// $font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+// Font sizes
+// $font-size-base: 1rem;                 // Base size (16px)
+// $font-size-xs: 0.75rem;                // 12px
+// $font-size-sm: 0.875rem;               // 14px
+// $font-size-md: 1.125rem;               // 18px
+// $font-size-lg: 1.25rem;                // 20px
+// $font-size-xl: 1.5rem;                 // 24px
+// $font-size-2xl: 2rem;                  // 32px
+// $font-size-3xl: 2.5rem;                // 40px
+// $font-size-4xl: 3rem;                  // 48px
+// $font-size-5xl: 4rem;                  // 64px
+
+// Line heights
+// $line-height-tight: 1.2;               // Headings
+// $line-height-normal: 1.5;              // Default
+// $line-height-relaxed: 1.625;           // Body text
+
+// -----------------------------------------------------------------------------
+// BORDER RADIUS
+// -----------------------------------------------------------------------------
+
+// $radius-sm: 4px;                       // Small elements
+// $radius-md: 8px;                       // Medium elements
+// $radius-lg: 12px;                      // Cards, buttons
+// $radius-xl: 16px;                      // Large cards
+// $radius-2xl: 24px;                     // Hero elements
+// $radius-full: 9999px;                  // Pills, circles
+
+// -----------------------------------------------------------------------------
+// BORDERS
+// -----------------------------------------------------------------------------
+
+// $border-light: 1px solid rgba(0, 0, 0, 0.1);
+// $border-medium: 1px solid rgba(0, 0, 0, 0.15);
+// $border-dark: 1px solid rgba(0, 0, 0, 0.2);
+
+// -----------------------------------------------------------------------------
+// TRANSITIONS
+// -----------------------------------------------------------------------------
+
+// $transition-fast: 150ms ease;          // Hover states
+// $transition-normal: 250ms ease;        // Default animations
+// $transition-slow: 350ms ease;          // Larger animations
+
+// -----------------------------------------------------------------------------
+// BREAKPOINTS
+// -----------------------------------------------------------------------------
+
+// $bp-sm: 650px;                         // Small tablets
+// $bp-md: 768px;                         // Tablets
+// $bp-lg: 1000px;                        // Small desktops
+// $bp-xl: 1200px;                        // Large desktops

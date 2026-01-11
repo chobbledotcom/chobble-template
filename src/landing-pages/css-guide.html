@@ -14,8 +14,9 @@ permalink: /css-guide/
       Consistent spacing, semantic HTML, and simple class names.
     </p>
     <div class="actions">
-      <a href="#variables" class="btn btn--primary">CSS Variables</a>
-      <a href="#components" class="btn btn--secondary">Components</a>
+      <a href="#theming" class="btn btn--primary">Theming</a>
+      <a href="#variables" class="btn btn--secondary">CSS Variables</a>
+      <a href="#components" class="btn btn--ghost">Components</a>
     </div>
   </header>
 
@@ -121,8 +122,104 @@ $space-4xl: 128px</code></pre>
     </div>
   </section>
 
+  <!-- Theming -->
+  <section class="alt" id="theming">
+    <div class="container">
+      {%- include "design-system/section-header.html",
+          title: "Theming Your Site",
+          subtitle: "Override design tokens in <code>_theme-variables.scss</code> to customize the entire design system."
+      -%}
+
+      <div class="split">
+        <article data-reveal="left">
+          <h3>How It Works</h3>
+          <p>The design system uses SCSS variables with <code>!default</code> flags, allowing you to override any value by setting it <em>before</em> the default is defined.</p>
+          <ol>
+            <li>Open <code>src/css/_theme-variables.scss</code></li>
+            <li>Uncomment and modify the variables you want to change</li>
+            <li>Rebuild - your values flow through to all components</li>
+          </ol>
+          <p class="text-muted">This file is unique per-site - it's where site owners customize the template.</p>
+        </article>
+        <article data-reveal="right">
+          <div class="code-block">
+            <header>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span>src/css/_theme-variables.scss</span>
+            </header>
+            <pre><code>// Uncomment to customize colors
+$color-primary: #059669;
+$color-primary-dark: #047857;
+$color-primary-light: #d1fae5;
+
+// Uncomment to change spacing
+$space-unit: 10px;
+
+// Uncomment for custom fonts
+$font-sans: "Inter", sans-serif;</code></pre>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid mt-xl">
+        <article class="feature" data-reveal>
+          <h4>Available Overrides</h4>
+          <pre><code>Colors:
+  $color-bg, $color-bg-alt
+  $color-text, $color-text-muted
+  $color-primary, $color-primary-dark
+  $color-primary-light
+  $color-secondary, $color-accent
+
+Spacing (8px base):
+  $space-unit (scales all)
+  $space-xs → $space-4xl
+
+Widths:
+  $width-narrow (680px)
+  $width-default (900px)
+  $width-wide (1200px)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Typography</h4>
+          <pre><code>Font families:
+  $font-sans
+  $font-mono
+
+Font sizes:
+  $font-size-xs → $font-size-5xl
+
+Line heights:
+  $line-height-tight (1.2)
+  $line-height-normal (1.5)
+  $line-height-relaxed (1.625)</code></pre>
+        </article>
+
+        <article class="feature" data-reveal>
+          <h4>Other Tokens</h4>
+          <pre><code>Border radius:
+  $radius-sm → $radius-full
+
+Borders:
+  $border-light
+  $border-medium
+  $border-dark
+
+Transitions:
+  $transition-fast (150ms)
+  $transition-normal (250ms)
+  $transition-slow (350ms)
+
+Breakpoints:
+  $bp-sm → $bp-xl</code></pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- Layout -->
-  <section class="alt" id="layout">
+  <section id="layout">
     <div class="container">
       {%- include "design-system/section-header.html", title: "Layout Classes" -%}
 
@@ -847,7 +944,8 @@ $bp-xl: 1200px</code></pre>
 │
 ├── css/
 │   ├── landing-bundle.scss   # Imports design-system + overrides
-│   ├── _variables.scss       # Spacing, typography, borders
+│   ├── _theme-variables.scss # YOUR SITE OVERRIDES (edit this!)
+│   ├── _variables.scss       # Default values (don't edit)
 │   ├── _mixins.scss          # Layout, card, button mixins
 │   │
 │   └── design-system/        # Modular SCSS components
