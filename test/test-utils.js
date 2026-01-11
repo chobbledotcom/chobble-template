@@ -245,8 +245,31 @@ const bracket =
     }
   };
 
+/**
+ * Async bracket pattern for resource management.
+ * Same as bracket but properly awaits async callbacks before teardown.
+ *
+ * @param {Function} setup - (arg) => resource - Acquire the resource
+ * @param {Function} teardown - (resource) => void - Release the resource
+ * @param {boolean} passResource - Whether to pass resource to callback
+ * @returns {Function} async (arg, callback) => result
+ */
+const bracketAsync =
+  (setup, teardown, passResource = true) =>
+  async (arg, callback) => {
+    const resource = setup(arg);
+    try {
+      return passResource ? await callback(resource) : await callback();
+    } finally {
+      teardown(resource);
+    }
+  };
+
 // Bracket-based resource management using curried factory
 const withTempDir = bracket(createTempDir, cleanupTempDir);
+
+// Async version for use with async test functions
+const withTempDirAsync = bracketAsync(createTempDir, cleanupTempDir);
 
 const withTempFile = (testName, filename, content, callback) =>
   withTempDir(testName, (tempDir) => {
@@ -765,6 +788,7 @@ export {
   createTempSnippetsDir,
   cleanupTempDir,
   withTempDir,
+  withTempDirAsync,
   withTempFile,
   withMockedCwd,
   withMockedProcessExit,

@@ -1,4 +1,4 @@
-@use "landing-variables" as *;
+@use "variables" as *;
 
 // =============================================================================
 // LAYOUT MIXINS
@@ -94,7 +94,9 @@
 }
 
 @mixin card-hover {
-  transition: transform $transition-normal, box-shadow $transition-normal;
+  transition:
+    transform $transition-normal,
+    box-shadow $transition-normal;
 
   &:hover {
     transform: translateY(-4px);
@@ -248,7 +250,9 @@
 @mixin scroll-reveal {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 
   &.is-visible {
     opacity: 1;
@@ -259,7 +263,9 @@
 @mixin scroll-reveal-left {
   opacity: 0;
   transform: translateX(-30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 
   &.is-visible {
     opacity: 1;
@@ -270,7 +276,9 @@
 @mixin scroll-reveal-right {
   opacity: 0;
   transform: translateX(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 
   &.is-visible {
     opacity: 1;
@@ -281,7 +289,9 @@
 @mixin scroll-reveal-scale {
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 
   &.is-visible {
     opacity: 1;
@@ -300,7 +310,9 @@
 
 // Hover float effect
 @mixin hover-float($distance: -8px) {
-  transition: transform $transition-normal, box-shadow $transition-normal;
+  transition:
+    transform $transition-normal,
+    box-shadow $transition-normal;
 
   &:hover {
     transform: translateY($distance);

@@ -1,13 +1,6 @@
-// Landing Page Bundle - Standalone CSS for landing pages
-// General-purpose SCSS with Gutenberg-style spacing
-
 @use "sass:math";
-@use "landing-variables" as *;
-@use "landing-mixins" as *;
-
-// =============================================================================
-// CSS CUSTOM PROPERTIES
-// =============================================================================
+@use "variables" as *;
+@use "mixins" as *;
 
 :root {
   --bg: #fafafa;
@@ -21,8 +14,11 @@
   --secondary: #7c3aed;
   --accent: #10b981;
   --hover-bg: rgba(0, 0, 0, 0.05);
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 // =============================================================================
@@ -59,29 +55,47 @@ body.landing-page {
 // =============================================================================
 
 .landing-page {
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin: 0 0 $space-md;
     font-weight: 700;
     line-height: $line-height-tight;
     text-wrap: balance;
   }
 
-  h1 { @include heading-xl; }
-  h2 { @include heading-lg; margin-bottom: $space-lg; }
-  h3 { @include heading-md; }
-  h4 { @include heading-sm; }
+  h1 {
+    @include heading-xl;
+  }
+  h2 {
+    @include heading-lg;
+    margin-bottom: $space-lg;
+  }
+  h3 {
+    @include heading-md;
+  }
+  h4 {
+    @include heading-sm;
+  }
 
   p {
     margin: 0 0 $space-md;
     line-height: $line-height-relaxed;
-    &:last-child { margin-bottom: 0; }
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   a {
     color: var(--primary);
     text-decoration: none;
     transition: color $transition-fast;
-    &:hover { text-decoration: underline; }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   code {
@@ -99,7 +113,11 @@ body.landing-page {
     color: #f9fafb;
     border-radius: $radius-md;
     overflow-x: auto;
-    code { background: none; padding: 0; color: inherit; }
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
   }
 
   img {
@@ -108,7 +126,8 @@ body.landing-page {
     display: block;
   }
 
-  ul, ol {
+  ul,
+  ol {
     margin: 0 0 $space-md;
     padding-left: $space-lg;
   }
@@ -125,15 +144,23 @@ body.landing-page {
 .container {
   @include container($width-wide);
 
-  &--narrow { @include container($width-narrow); }
-  &--default { @include container($width-default); }
+  &--narrow {
+    @include container($width-narrow);
+  }
+  &--default {
+    @include container($width-default);
+  }
 }
 
 section {
   @include section;
 
-  &.compact { @include section($space-2xl); }
-  &.alt { background: var(--bg-alt); }
+  &.compact {
+    @include section($space-2xl);
+  }
+  &.alt {
+    background: var(--bg-alt);
+  }
   &.dark {
     background: #1f2937;
     color: #f9fafb;
@@ -200,11 +227,23 @@ section {
   @include button-base;
   @include focus-ring;
 
-  &--primary { @include button-primary; }
-  &--secondary { @include button-secondary; }
-  &--ghost { @include button-ghost; }
-  &--lg { padding: $space-md $space-xl; font-size: $font-size-md; }
-  &--sm { padding: $space-xs $space-md; font-size: $font-size-sm; }
+  &--primary {
+    @include button-primary;
+  }
+  &--secondary {
+    @include button-secondary;
+  }
+  &--ghost {
+    @include button-ghost;
+  }
+  &--lg {
+    padding: $space-md $space-xl;
+    font-size: $font-size-md;
+  }
+  &--sm {
+    padding: $space-xs $space-md;
+    font-size: $font-size-sm;
+  }
 }
 
 // =============================================================================
@@ -248,17 +287,25 @@ section {
 
 .grid {
   @include grid(1, $space-lg);
-  @include tablet-up { @include grid(2, $space-lg); }
-  @include desktop-up { @include grid(3, $space-xl); }
+  @include tablet-up {
+    @include grid(2, $space-lg);
+  }
+  @include desktop-up {
+    @include grid(3, $space-xl);
+  }
 
   &--2 {
     @include grid(1, $space-lg);
-    @include tablet-up { @include grid(2, $space-xl); }
+    @include tablet-up {
+      @include grid(2, $space-xl);
+    }
   }
 
   &--4 {
     @include grid(2, $space-md);
-    @include tablet-up { @include grid(4, $space-lg); }
+    @include tablet-up {
+      @include grid(4, $space-lg);
+    }
   }
 }
 
@@ -276,8 +323,12 @@ section {
 
   &--reverse {
     @include tablet-up {
-      > :first-child { order: 2; }
-      > :last-child { order: 1; }
+      > :first-child {
+        order: 2;
+      }
+      > :last-child {
+        order: 1;
+      }
     }
   }
 }
@@ -288,7 +339,10 @@ section {
   overflow: hidden;
   box-shadow: $shadow-xl;
 
-  img { width: 100%; height: auto; }
+  img {
+    width: 100%;
+    height: auto;
+  }
 }
 
 // =============================================================================
@@ -313,7 +367,9 @@ section {
   line-height: 1;
   margin-bottom: $space-xs;
 
-  @include tablet-up { font-size: $font-size-5xl; }
+  @include tablet-up {
+    font-size: $font-size-5xl;
+  }
 }
 
 .stat span {
@@ -334,7 +390,9 @@ section {
   --text: #fff;
   --text-muted: rgba(255, 255, 255, 0.8);
 
-  h2 { margin-bottom: $space-sm; }
+  h2 {
+    margin-bottom: $space-sm;
+  }
 
   p {
     @include body-lg;
@@ -346,7 +404,10 @@ section {
   .btn--secondary {
     border-color: #fff;
     color: #fff;
-    &:hover { background: #fff; color: var(--primary); }
+    &:hover {
+      background: #fff;
+      color: var(--primary);
+    }
   }
 }
 
@@ -374,9 +435,15 @@ section {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    &:nth-child(1) { background: #ef4444; }
-    &:nth-child(2) { background: #f59e0b; }
-    &:nth-child(3) { background: #10b981; }
+    &:nth-child(1) {
+      background: #ef4444;
+    }
+    &:nth-child(2) {
+      background: #f59e0b;
+    }
+    &:nth-child(3) {
+      background: #10b981;
+    }
   }
 }
 
@@ -408,7 +475,9 @@ footer.site-footer {
 
   a {
     color: #d1d5db;
-    &:hover { color: #fff; }
+    &:hover {
+      color: #fff;
+    }
   }
 
   .container {
@@ -427,7 +496,9 @@ footer.site-footer {
     flex-wrap: wrap;
     justify-content: center;
 
-    @include tablet-up { justify-content: flex-start; }
+    @include tablet-up {
+      justify-content: flex-start;
+    }
   }
 }
 
@@ -684,15 +755,35 @@ ul.items > li {
 // UTILITIES
 // =============================================================================
 
-.text-center { text-align: center; }
-.text-muted { color: var(--text-muted); }
-.text-primary { color: var(--primary); }
+.text-center {
+  text-align: center;
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-primary {
+  color: var(--primary);
+}
 
-.mt-0 { margin-top: 0; }
-.mb-0 { margin-bottom: 0; }
-.mt-lg { margin-top: $space-lg; }
-.mb-lg { margin-bottom: $space-lg; }
-.mt-xl { margin-top: $space-xl; }
-.mb-xl { margin-bottom: $space-xl; }
+.mt-0 {
+  margin-top: 0;
+}
+.mb-0 {
+  margin-bottom: 0;
+}
+.mt-lg {
+  margin-top: $space-lg;
+}
+.mb-lg {
+  margin-bottom: $space-lg;
+}
+.mt-xl {
+  margin-top: $space-xl;
+}
+.mb-xl {
+  margin-bottom: $space-xl;
+}
 
-.sr-only { @include sr-only; }
+.sr-only {
+  @include sr-only;
+}
