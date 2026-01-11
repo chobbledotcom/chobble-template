@@ -81,7 +81,10 @@ export const initSlider = (container, options = {}) => {
  * @param {string} containerSelector - Selector for slider containers
  * @param {Object} options - Configuration options passed to initSlider
  */
-export const initSliders = (containerSelector = ".slider-container", options = {}) => {
+export const initSliders = (
+  containerSelector = ".slider-container",
+  options = {},
+) => {
   for (const container of document.querySelectorAll(containerSelector)) {
     const updateState = initSlider(container, options);
     if (updateState) {
