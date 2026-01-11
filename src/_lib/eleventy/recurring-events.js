@@ -1,4 +1,5 @@
 import strings from "#data/strings.js";
+import { flatMap, pipe, sort } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -87,25 +88,26 @@ const getRecurringEventsHtml = memoize(async () => {
     .readdirSync(eventsDir)
     .filter((file) => file.endsWith(".md"));
 
-  const recurringEvents = markdownFiles
-    .map((filename) => {
+  const recurringEvents = pipe(
+    flatMap((filename) => {
       const filePath = path.default.join(eventsDir, filename);
       const { data } = matter.default.read(filePath);
-
-      if (!data.recurring_date) return null;
+      if (!data.recurring_date) return [];
 
       const fileSlug = stripDatePrefix(filename);
-      return {
-        url: getEventUrl(data, fileSlug, strings.event_permalink_dir),
-        data: {
-          title: data.title,
-          recurring_date: data.recurring_date,
-          event_location: data.event_location,
+      return [
+        {
+          url: getEventUrl(data, fileSlug, strings.event_permalink_dir),
+          data: {
+            title: data.title,
+            recurring_date: data.recurring_date,
+            event_location: data.event_location,
+          },
         },
-      };
-    })
-    .filter(Boolean)
-    .sort(sortItems);
+      ];
+    }),
+    sort(sortItems),
+  )(markdownFiles);
 
   return renderRecurringEvents(recurringEvents);
 });
