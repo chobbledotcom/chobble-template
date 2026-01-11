@@ -1,0 +1,8 @@
+{% if parent %}
+  {% assign parentCategory = collections.categories | where: "fileSlug", parent | first %}
+  {% if parentCategory %}
+    <a href="{{ parentCategory.url }}/">
+      Back to {{ parentCategory.data.title }}
+    </a>
+  {% endif %}
+{% endif %}

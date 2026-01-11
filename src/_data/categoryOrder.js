@@ -1,6 +1,8 @@
 import configJson from "#data/config.json" with { type: "json" };
 
 const DEFAULT_ORDER = [
+  "category-title.html",
+  "category-parent-link.html",
   "category-content.html",
   "category-faqs.html",
   "category-subcategories.html",

@@ -22,11 +22,5 @@
   },
   "timezone": "Europe/London",
   "reviews_truncate_limit": 10,
-  "list_item_fields": ["link", "subtitle", "thumbnail"],
-  "category_order": [
-    "category-content.html",
-    "category-faqs.html",
-    "category-subcategories.html",
-    "category-products.html"
-  ]
+  "list_item_fields": ["link", "subtitle", "thumbnail"]
 }

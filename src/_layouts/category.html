@@ -6,18 +6,7 @@ layout: base
 
 {% assign products = collections.products | getProductsByCategory: page.fileSlug %}
 
-{% if products.size > 0 %}
-  <h1>{{ title }}</h1>
-{% endif %}
 
-{% if parent %}
-  {% assign parentCategory = collections.categories | where: "fileSlug", parent | first %}
-  {% if parentCategory %}
-    <a href="{{ parentCategory.url }}/">
-      Back to {{ parentCategory.data.title }}
-    </a>
-  {% endif %}
-{% endif %}
 
 {%- for section in categoryOrder -%}
   {%- include section -%}
