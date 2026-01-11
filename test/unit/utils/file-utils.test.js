@@ -12,7 +12,7 @@ import {
   createMockEleventyConfig,
   createTempSnippetsDir,
   fs,
-  withMockedCwdAsyncAsync,
+  withMockedCwdAsync,
   withTempDir,
   withTempFile,
 } from "#test/test-utils.js";

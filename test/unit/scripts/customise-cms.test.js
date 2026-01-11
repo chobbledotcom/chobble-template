@@ -20,7 +20,7 @@ import {
   SPECS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
-import { withMockedCwdAsyncAsync } from "#test/test-utils.js";
+import { withMockedCwdAsync } from "#test/test-utils.js";
 
 describe("customise-cms collections", () => {
   // ============================================
