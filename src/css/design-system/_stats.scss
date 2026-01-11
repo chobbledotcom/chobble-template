@@ -4,8 +4,18 @@
 // =============================================================================
 // STATS
 // =============================================================================
+// Semantic markup: <dl class="stats"> with <div class="stat"> containing
+// <dt class="sr-only"> and <dd> with <strong> (value) and <span> (label)
 
-.stats {
+dl.stats {
+  @include flex-wrap($space-xl);
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+// Also support legacy div.stats
+div.stats {
   @include flex-wrap($space-xl);
   justify-content: center;
 }
@@ -13,6 +23,10 @@
 .stat {
   text-align: center;
   min-width: 150px;
+}
+
+.stat dd {
+  margin: 0;
 }
 
 .stat strong {

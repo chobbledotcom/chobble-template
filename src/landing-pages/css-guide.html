@@ -22,10 +22,10 @@ permalink: /css-guide/
   <!-- Quick Start -->
   <section class="alt" id="quickstart">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Quick Start</h2>
-        <p class="text-muted">Landing pages use a standalone layout with isolated CSS/JS bundles.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "Quick Start",
+          subtitle: "Landing pages use a standalone layout with isolated CSS/JS bundles."
+      -%}
 
       <div class="split">
         <article data-reveal="left">
@@ -33,7 +33,7 @@ permalink: /css-guide/
           <p>Add a file to <code>src/landing-pages/</code> with this frontmatter:</p>
           <div class="code-block">
             <header>
-              <div class="dots"><span></span><span></span><span></span></div>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>src/landing-pages/my-page.html</span>
             </header>
             <pre><code>---
@@ -66,10 +66,10 @@ permalink: /my-page/
   <!-- CSS Variables -->
   <section id="variables">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>CSS Variables</h2>
-        <p class="text-muted">Override these in your HTML with inline styles or custom CSS.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "CSS Variables",
+          subtitle: "Override these in your HTML with inline styles or custom CSS."
+      -%}
 
       <div class="grid">
         <article class="feature" data-reveal>
@@ -124,9 +124,7 @@ $space-4xl: 128px</code></pre>
   <!-- Layout -->
   <section class="alt" id="layout">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Layout Classes</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "Layout Classes" -%}
 
       <div class="split">
         <article data-reveal="left">
@@ -134,7 +132,7 @@ $space-4xl: 128px</code></pre>
           <p>Center content with max-width and responsive padding.</p>
           <div class="code-block">
             <header>
-              <div class="dots"><span></span><span></span><span></span></div>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>HTML</span>
             </header>
             <pre><code>&lt;div class="container"&gt;
@@ -155,7 +153,7 @@ $space-4xl: 128px</code></pre>
           <p>Add classes to <code>&lt;section&gt;</code> elements.</p>
           <div class="code-block">
             <header>
-              <div class="dots"><span></span><span></span><span></span></div>
+              <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>HTML</span>
             </header>
             <pre><code>&lt;section&gt;
@@ -213,7 +211,7 @@ $space-4xl: 128px</code></pre>
         <p>Full-width header with centered content. Use inside a <code>&lt;header&gt;</code> element.</p>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;header class="hero gradient"&gt;
@@ -241,7 +239,7 @@ $space-4xl: 128px</code></pre>
         </div>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;a class="btn btn--primary"&gt;Primary&lt;/a&gt;
@@ -260,7 +258,7 @@ $space-4xl: 128px</code></pre>
         <p>Use <code>&lt;article class="feature"&gt;</code> inside a <code>.features</code> grid.</p>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;div class="features"&gt;
@@ -281,23 +279,30 @@ $space-4xl: 128px</code></pre>
   <section class="alt">
     <div class="container">
       <h3 class="text-center mb-lg">Feature Cards Demo</h3>
-      <div class="features">
-        <article class="feature" data-reveal>
-          <div class="icon">&#128640;</div>
-          <h4>Fast</h4>
-          <p>Static HTML, no server processing.</p>
-        </article>
-        <article class="feature" data-reveal>
-          <div class="icon">&#127912;</div>
-          <h4>Themed</h4>
-          <p>Override CSS variables per-card.</p>
-        </article>
-        <article class="feature" data-reveal style="--primary-light: #d1fae5; --primary: #059669;">
-          <div class="icon">&#9989;</div>
-          <h4>Custom Colors</h4>
-          <p>Set <code>--primary</code> inline to change icon color.</p>
-        </article>
-      </div>
+      {%- comment -%} Features demo using accessible list template {%- endcomment -%}
+      <ul class="features" role="list">
+        <li>
+          <article class="feature" data-reveal>
+            {%- include "design-system/feature-icon.html", icon: "&#128640;", label: "Rocket representing speed" -%}
+            <h4>Fast</h4>
+            <p>Static HTML, no server processing.</p>
+          </article>
+        </li>
+        <li>
+          <article class="feature" data-reveal>
+            {%- include "design-system/feature-icon.html", icon: "&#127912;", label: "Artist palette representing theming" -%}
+            <h4>Themed</h4>
+            <p>Override CSS variables per-card.</p>
+          </article>
+        </li>
+        <li>
+          <article class="feature" data-reveal style="--primary-light: #d1fae5; --primary: #059669;">
+            {%- include "design-system/feature-icon.html", icon: "&#9989;", label: "Checkmark representing customization" -%}
+            <h4>Custom Colors</h4>
+            <p>Set <code>--primary</code> inline to change icon color.</p>
+          </article>
+        </li>
+      </ul>
 
       <h3 class="text-center mt-xl mb-lg">Grid with Real Products</h3>
       {%- assign gridProducts = collections.products | slice: 0, 3 -%}
@@ -309,15 +314,13 @@ $space-4xl: 128px</code></pre>
   <!-- Grids -->
   <section id="grids">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Grid Layouts</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "Grid Layouts" -%}
 
       <article class="feature mb-xl" data-reveal>
         <h3>Grid Classes</h3>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;!-- Auto 1/2/3 columns based on screen --&gt;
@@ -351,16 +354,16 @@ $space-4xl: 128px</code></pre>
   <!-- Slider -->
   <section class="alt" id="slider">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Horizontal Slider</h2>
-        <p class="text-muted">Scrollable card rows with prev/next navigation.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "Horizontal Slider",
+          subtitle: "Scrollable card rows with prev/next navigation."
+      -%}
 
       <article class="feature mb-xl" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;div class="slider-container"&gt;
@@ -401,7 +404,7 @@ $space-4xl: 128px</code></pre>
         <p>Override the default 300px/340px card width with inline styles:</p>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;div class="slider"&gt;
@@ -417,15 +420,15 @@ $space-4xl: 128px</code></pre>
   <!-- Split -->
   <section id="split">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Split Layouts</h2>
-        <p class="text-muted">Two-column layouts for text + image sections.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "Split Layouts",
+          subtitle: "Two-column layouts for text + image sections."
+      -%}
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;div class="split"&gt;
@@ -467,16 +470,16 @@ $space-4xl: 128px</code></pre>
   <!-- Split Full-Width -->
   <section class="alt" id="split-full">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Split Full-Width Sections</h2>
-        <p class="text-muted">Two-tone sections that span the full viewport width.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "Split Full-Width Sections",
+          subtitle: "Two-tone sections that span the full viewport width."
+      -%}
 
       <article class="feature mb-xl" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;div class="split-full split-full--dark-left"&gt;
@@ -535,14 +538,12 @@ $space-4xl: 128px</code></pre>
   <!-- Stats -->
   <section id="stats">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Stats Display</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "Stats Display" -%}
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;div class="stats"&gt;
@@ -558,39 +559,24 @@ $space-4xl: 128px</code></pre>
         </div>
       </article>
 
-      <div class="stats">
-        <div class="stat" data-reveal>
-          <strong>99%</strong>
-          <span>Uptime</span>
-        </div>
-        <div class="stat" data-reveal>
-          <strong>50k</strong>
-          <span>Users</span>
-        </div>
-        <div class="stat" data-reveal>
-          <strong>24/7</strong>
-          <span>Support</span>
-        </div>
-        <div class="stat" data-reveal>
-          <strong>&lt;1s</strong>
-          <span>Load Time</span>
-        </div>
-      </div>
+      {%- comment -%} Stats demo using accessible template {%- endcomment -%}
+      {%- assign demoStats = "99%|Uptime,50k|Users,24/7|Support,<1s|Load Time" | split: "," -%}
+      {%- include "design-system/stats.html", items: demoStats -%}
     </div>
   </section>
 
   <!-- Code Blocks -->
   <section class="alt" id="code">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Code Blocks</h2>
-        <p class="text-muted">Terminal-style code display with colored window dots.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "Code Blocks",
+          subtitle: "Terminal-style code display with colored window dots."
+      -%}
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML Structure</span>
           </header>
           <pre><code>&lt;div class="code-block"&gt;
@@ -613,14 +599,12 @@ $space-4xl: 128px</code></pre>
   <!-- CTA -->
   <section id="cta">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Call to Action</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "Call to Action" -%}
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;aside class="cta"&gt;
@@ -645,15 +629,15 @@ $space-4xl: 128px</code></pre>
   <!-- Scroll Animations -->
   <section class="alt" id="animations">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Scroll Animations</h2>
-        <p class="text-muted">Add <code>data-reveal</code> to animate elements on scroll.</p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "Scroll Animations",
+          subtitle: "Add <code>data-reveal</code> to animate elements on scroll."
+      -%}
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;!-- Fade up (default) --&gt;
@@ -691,9 +675,7 @@ $space-4xl: 128px</code></pre>
   <!-- Utilities -->
   <section id="utilities">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Utility Classes</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "Utility Classes" -%}
 
       <div class="grid--2">
         <article class="feature" data-reveal>
@@ -731,14 +713,12 @@ $space-4xl: 128px</code></pre>
   <!-- Footer -->
   <section class="alt" id="footer">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>Footer</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "Footer" -%}
 
       <article class="feature" data-reveal>
         <div class="code-block">
           <header>
-            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
           </header>
           <pre><code>&lt;footer class="site-footer"&gt;
@@ -759,10 +739,10 @@ $space-4xl: 128px</code></pre>
   <!-- SCSS Reference -->
   <section class="dark" id="scss">
     <div class="container">
-      <header class="text-center mb-xl">
-        <h2>SCSS Reference</h2>
-        <p class="text-muted">Available mixins in <code>_mixins.scss</code></p>
-      </header>
+      {%- include "design-system/section-header.html",
+          title: "SCSS Reference",
+          subtitle: "Available mixins in <code>_mixins.scss</code>"
+      -%}
 
       <div class="grid--2">
         <article class="feature" data-reveal>
@@ -839,13 +819,11 @@ $bp-xl: 1200px</code></pre>
   <!-- File Structure -->
   <section id="files">
     <div class="container--default">
-      <header class="text-center mb-xl">
-        <h2>File Structure</h2>
-      </header>
+      {%- include "design-system/section-header.html", title: "File Structure" -%}
 
       <div class="code-block" data-reveal>
         <header>
-          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
           <span>Project Structure</span>
         </header>
         <pre><code>src/
@@ -858,14 +836,21 @@ $bp-xl: 1200px</code></pre>
 │
 ├── _includes/
 │   ├── head-meta.html        # Shared meta tags
-│   └── head-schema.html      # Shared JSON-LD
+│   ├── head-schema.html      # Shared JSON-LD
+│   │
+│   └── design-system/        # Accessible component templates
+│       ├── code-block.html   # Terminal-style code display
+│       ├── feature-icon.html # Accessible icon with aria
+│       ├── features.html     # Features as semantic list
+│       ├── section-header.html # Section title + subtitle
+│       └── stats.html        # Stats as description list
 │
 ├── css/
 │   ├── landing-bundle.scss   # Imports design-system + overrides
 │   ├── _variables.scss       # Spacing, typography, borders
 │   ├── _mixins.scss          # Layout, card, button mixins
 │   │
-│   └── design-system/        # Modular component library
+│   └── design-system/        # Modular SCSS components
 │       ├── _index.scss       # Imports all components
 │       ├── _base.scss        # Reset, typography, .design-system
 │       ├── _buttons.scss     # Button styles
@@ -891,7 +876,7 @@ $bp-xl: 1200px</code></pre>
 <footer class="site-footer">
   <div class="container">
     <p>Landing Page CSS Guide - Chobble Template</p>
-    <nav>
+    <nav aria-label="Footer navigation">
       <a href="/chobble-template/">Main Landing Page</a>
       <a href="/">Back to Site</a>
     </nav>

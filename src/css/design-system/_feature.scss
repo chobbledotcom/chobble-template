@@ -4,14 +4,31 @@
 // =============================================================================
 // FEATURES
 // =============================================================================
+// Semantic markup: <ul class="features"> with <li> wrapping each <article class="feature">
 
-.features {
+ul.features {
+  @include grid-auto(300px, $space-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  > li {
+    // Reset list item styles - the article inside handles the card styling
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// Also support legacy div.features
+div.features {
   @include grid-auto(300px, $space-lg);
 }
 
 .feature {
   @include card;
   @include card-hover;
+  // When inside a list, ensure full height for grid alignment
+  height: 100%;
 }
 
 .feature .icon {
@@ -25,7 +42,8 @@
   margin-bottom: $space-md;
 }
 
-.feature h3 {
+.feature h3,
+.feature h4 {
   @include heading-sm;
   margin-bottom: $space-xs;
 }
