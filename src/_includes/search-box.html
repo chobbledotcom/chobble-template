@@ -1,0 +1,37 @@
+{%- comment -%}
+Search box component for product keyword search.
+Include this component in any template to add a product search form.
+
+Optional parameters:
+  - label: Custom label text (default: "Search for products:")
+  - placeholder: Custom placeholder text (default: "Type to search...")
+  - button_text: Custom button text (default: "Search")
+  - error_text: Custom error message (default: "Please select a keyword from the list.")
+
+Example usage:
+  {% include "search-box.html" %}
+  {% include "search-box.html", label: "Find products", button_text: "Go" %}
+{%- endcomment -%}
+
+{%- assign label = label | default: "Search for products:" -%}
+{%- assign placeholder = placeholder | default: "Type to search..." -%}
+{%- assign button_text = button_text | default: "Search" -%}
+{%- assign error_text = error_text | default: "Please select a keyword from the list." -%}
+
+<noscript><p>JavaScript is required to search.</p></noscript>
+<form action="/search/" method="get" class="search-box">
+  <label>{{ label }}</label>
+  <input
+    list="keywords"
+    name="q"
+    placeholder="{{ placeholder }}"
+    autocomplete="off"
+  >
+  <datalist id="keywords">
+    {%- for keyword in collections.searchKeywords -%}
+      <option value="{{ keyword }}">
+    {%- endfor -%}
+  </datalist>
+  <button type="submit">{{ button_text }}</button>
+  <p class="search-error">{{ error_text }}</p>
+</form>
