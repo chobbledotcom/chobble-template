@@ -66,6 +66,7 @@ describe("config", () => {
       "cart_mode",
       "product_mode",
       "has_products_filter",
+      "design_system_layouts",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });

@@ -19,6 +19,7 @@ const DEFAULTS = {
   cart_mode: null,
   product_mode: null,
   has_products_filter: false,
+  design_system_layouts: ["landing-page.html"],
 };
 
 const VALID_CART_MODES = ["paypal", "stripe", "quote"];

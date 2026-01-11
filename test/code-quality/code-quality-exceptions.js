@@ -274,6 +274,10 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
+  "src/_lib/eleventy/style-bundle.js:configureStyleBundle",
+  "src/_lib/eleventy/style-bundle.js:getCssBundle",
+  "src/_lib/eleventy/style-bundle.js:getJsBundle",
+  "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
 
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",
