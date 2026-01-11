@@ -2,7 +2,7 @@ import { RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 
 // Build tools
-import { configureEsbuild } from "#build/esbuild.js";
+import { configureJsBundler } from "#build/js-bundler.js";
 import { configureScss } from "#build/scss.js";
 
 // Collections
@@ -90,7 +90,7 @@ export default async function (eleventyConfig) {
   configureTags(eleventyConfig);
   configureUnusedImages(eleventyConfig);
   configureEvents(eleventyConfig);
-  configureEsbuild(eleventyConfig);
+  configureJsBundler(eleventyConfig);
 
   return {
     dir: {
