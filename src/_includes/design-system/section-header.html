@@ -15,24 +15,18 @@ Usage:
   %}
 {%- endcomment -%}
 
-{%- assign headingLevel = level | default: 2 -%}
-{%- assign textAlign = align | default: "center" -%}
-{%- assign headerClass = "mb-xl" -%}
-{%- if textAlign == "center" -%}
-  {%- assign headerClass = headerClass | append: " text-center" -%}
+{%- assign level = level | default: 2 -%}
+{%- assign align = align | default: "center" -%}
+{%- assign classes = "mb-xl" -%}
+{%- if align == "center" -%}
+  {%- assign classes = classes | append: " text-center" -%}
 {%- endif -%}
 {%- if class -%}
-  {%- assign headerClass = headerClass | append: " " | append: class -%}
+  {%- assign classes = classes | append: " " | append: class -%}
 {%- endif -%}
 
-<header class="{{ headerClass }}">
-  {% case headingLevel %}
-    {% when 1 %}<h1>{{ title }}</h1>
-    {% when 2 %}<h2>{{ title }}</h2>
-    {% when 3 %}<h3>{{ title }}</h3>
-    {% when 4 %}<h4>{{ title }}</h4>
-    {% else %}<h2>{{ title }}</h2>
-  {% endcase %}
+<header class="{{ classes }}">
+  <h{{ level }}>{{ title }}</h{{ level }}>
   {%- if subtitle -%}
     <p class="text-muted">{{ subtitle }}</p>
   {%- endif -%}
