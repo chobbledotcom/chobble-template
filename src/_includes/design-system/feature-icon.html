@@ -3,8 +3,7 @@ Accessible icon display for feature cards.
 
 Parameters:
   - icon: The icon content (emoji, HTML entity, or SVG)
-  - label: Accessible label describing the icon (required for meaningful icons)
-  - decorative: If true, icon is purely decorative and hidden from screen readers
+  - label: Accessible label (if omitted, icon is treated as decorative)
 
 Usage (meaningful icon):
   {% include "design-system/feature-icon.html",
@@ -13,17 +12,11 @@ Usage (meaningful icon):
   %}
 
 Usage (decorative icon):
-  {% include "design-system/feature-icon.html",
-     icon: "&#128640;",
-     decorative: true
-  %}
+  {% include "design-system/feature-icon.html", icon: "&#128640;" %}
 {%- endcomment -%}
 
-{%- if decorative -%}
-<div class="icon" aria-hidden="true">{{ icon }}</div>
-{%- elsif label -%}
+{%- if label -%}
 <div class="icon" role="img" aria-label="{{ label }}">{{ icon }}</div>
 {%- else -%}
-{%- comment -%} Fallback: treat as decorative if no label provided {%- endcomment -%}
 <div class="icon" aria-hidden="true">{{ icon }}</div>
 {%- endif -%}

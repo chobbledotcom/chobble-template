@@ -6,7 +6,7 @@ import { memoize } from "#utils/memoize.js";
 const getSass = memoize(() => import("sass"));
 
 // Files that should be compiled (not just imported as partials)
-const COMPILED_BUNDLES = ["bundle.scss", "landing-bundle.scss"];
+const COMPILED_BUNDLES = ["bundle.scss", "design-system-bundle.scss"];
 
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);

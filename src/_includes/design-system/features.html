@@ -20,13 +20,13 @@ Usage:
   ]
 {%- endcomment -%}
 
-{%- assign doReveal = reveal | default: true -%}
-{%- assign hLevel = heading_level | default: 3 -%}
+{%- assign reveal = reveal | default: true -%}
+{%- assign heading_level = heading_level | default: 3 -%}
 
 <ul class="features" role="list">
   {%- for item in items -%}
   <li>
-    <article class="feature"{% if doReveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
+    <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
         {%- if item.icon_label -%}
           <div class="icon" role="img" aria-label="{{ item.icon_label }}">{{ item.icon }}</div>
@@ -34,12 +34,7 @@ Usage:
           <div class="icon" aria-hidden="true">{{ item.icon }}</div>
         {%- endif -%}
       {%- endif -%}
-      {% case hLevel %}
-        {% when 3 %}<h3>{{ item.title }}</h3>
-        {% when 4 %}<h4>{{ item.title }}</h4>
-        {% when 5 %}<h5>{{ item.title }}</h5>
-        {% else %}<h3>{{ item.title }}</h3>
-      {% endcase %}
+      <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
       <p>{{ item.description }}</p>
     </article>
   </li>

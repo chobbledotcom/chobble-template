@@ -53,9 +53,9 @@ permalink: /my-page/
         <article data-reveal="right">
           <h3>Key Differences from Main Site</h3>
           <ul>
-            <li><strong>No base.html inheritance</strong> - Uses <code>landing-page.html</code> layout</li>
-            <li><strong>Isolated CSS</strong> - <code>landing-bundle.css</code> only</li>
-            <li><strong>Isolated JS</strong> - <code>landing-bundle.js</code> for scroll animations</li>
+            <li><strong>No base.html inheritance</strong> - Uses <code>design-system-base.html</code> layout</li>
+            <li><strong>Isolated CSS</strong> - <code>design-system-bundle.css</code> only</li>
+            <li><strong>Isolated JS</strong> - <code>design-system.js</code> for scroll animations</li>
             <li><strong>No navigation/footer</strong> - You build the full page</li>
             <li><strong>Semantic HTML</strong> - Use <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;figure&gt;</code></li>
           </ul>
@@ -929,7 +929,7 @@ $bp-xl: 1200px</code></pre>
 │   └── *.html                # Your landing pages
 │
 ├── _layouts/
-│   └── landing-page.html     # Standalone layout (.design-system)
+│   └── design-system-base.html  # Standalone layout (.design-system)
 │
 ├── _includes/
 │   ├── head-meta.html        # Shared meta tags
@@ -943,7 +943,7 @@ $bp-xl: 1200px</code></pre>
 │       └── stats.html        # Stats as description list
 │
 ├── css/
-│   ├── landing-bundle.scss   # Imports design-system + overrides
+│   ├── design-system-bundle.scss  # Entry point for design system styles
 │   ├── _theme-variables.scss # YOUR SITE OVERRIDES (edit this!)
 │   ├── _variables.scss       # Default values (don't edit)
 │   ├── _mixins.scss          # Layout, card, button mixins
@@ -965,7 +965,7 @@ $bp-xl: 1200px</code></pre>
 │       └── _utilities.scss   # Utility classes
 │
 └── _lib/public/
-    └── landing-bundle.js     # Scroll animations</code></pre>
+    └── design-system.js      # Scroll animations</code></pre>
       </div>
     </div>
   </section>
