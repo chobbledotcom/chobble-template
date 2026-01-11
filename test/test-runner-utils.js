@@ -15,21 +15,30 @@ const rootDir = ROOT_DIR;
  * @returns {Object} Result with status and output
  */
 export function runStep(step, verbose) {
-  const stdio = verbose ? "inherit" : ["inherit", "pipe", "pipe"];
-
+  // Always capture stdout/stderr so we can extract errors for the summary
+  // If verbose, we'll print the output after capturing it
   const result = spawnSync(step.cmd, step.args, {
     cwd: rootDir,
-    stdio,
+    stdio: ["inherit", "pipe", "pipe"],
     env: {
       ...process.env,
       VERBOSE: verbose ? "1" : "0",
     },
   });
 
+  const stdout = result.stdout?.toString() || "";
+  const stderr = result.stderr?.toString() || "";
+
+  // In verbose mode, print captured output to console
+  if (verbose) {
+    if (stdout) process.stdout.write(stdout);
+    if (stderr) process.stderr.write(stderr);
+  }
+
   return {
     status: result.status,
-    stdout: result.stdout?.toString() || "",
-    stderr: result.stderr?.toString() || "",
+    stdout,
+    stderr,
   };
 }
 
@@ -63,6 +72,9 @@ export function extractErrorsFromOutput(output) {
     // Skip long command lines that start with "node -e"
     if (trimmed.startsWith("node -e")) continue;
 
+    // Skip Bun's passing test output lines (they may contain words like "error" or "FAIL" in test names)
+    if (trimmed.startsWith("(pass)")) continue;
+
     // Look for error indicators
     const hasErrorIndicator =
       trimmed.startsWith("❌") ||
@@ -72,9 +84,23 @@ export function extractErrorsFromOutput(output) {
       trimmed.includes("FAIL") ||
       (trimmed.toLowerCase().includes("fail") && trimmed !== "0 fail") ||
       trimmed.includes("below threshold") ||
-      // Coverage-related errors
-      trimmed.includes("Uncovered") ||
-      trimmed.includes("must have test coverage");
+      trimmed.includes("must have test coverage") ||
+      // Coverage errors like "Uncovered lines: 10-15" but not table header "Uncovered Line #s"
+      /Uncovered lines?:/i.test(trimmed);
+
+    // Detect coverage table rows with uncovered lines (Bun coverage output format)
+    // Format: " src/file.js | 95.00 | 90.00 | 21-22,41" or "All files | 99.00 | 98.00 |"
+    const coverageTableMatch = trimmed.match(
+      /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
+    );
+    if (coverageTableMatch) {
+      const [, , , , uncoveredLines] = coverageTableMatch;
+      // Include rows that have uncovered lines listed
+      if (uncoveredLines?.trim()) {
+        errors.push(trimmed);
+        continue;
+      }
+    }
 
     // Look for tool-specific error patterns
     const hasToolPattern =
@@ -166,17 +192,35 @@ export function printSummary(steps, results, title = "SUMMARY") {
       if (errors.length > 0) {
         printTruncatedList({ moreLabel: "errors" })(errors);
       } else {
-        // Show last 15 lines of output when no specific errors extracted
-        console.log("  No specific errors extracted. Last 15 lines of output:");
-        const allOutput = (result.stderr || result.stdout || "").split("\n");
-        const lastLines = allOutput.slice(-15).filter((l) => l.trim());
-        for (const line of lastLines) {
-          console.log(`  ${line}`);
+        // Check if this looks like a coverage threshold failure
+        // (tests passed but exit code 1, with coverage table in output)
+        const allOutput = result.stderr || result.stdout || "";
+        const hasPassingTests = /\d+ pass/.test(allOutput);
+        const hasZeroFail = /0 fail/.test(allOutput);
+        const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
+
+        if (hasPassingTests && hasZeroFail && hasCoverageTable) {
+          console.log(
+            "  Coverage threshold not met. Check coverage output above.",
+          );
+          console.log(
+            "  Thresholds are defined in bunfig.toml (coverageThreshold).",
+          );
+        } else {
+          // Show last 15 lines of output when no specific errors extracted
+          console.log(
+            "  No specific errors extracted. Last 15 lines of output:",
+          );
+          const outputLines = allOutput.split("\n");
+          const lastLines = outputLines.slice(-15).filter((l) => l.trim());
+          for (const line of lastLines) {
+            console.log(`  ${line}`);
+          }
+          console.log(
+            "\n  Run with --verbose to see full output, or check exit code:",
+          );
+          console.log(`  Exit code: ${result.status}`);
         }
-        console.log(
-          "\n  Run with --verbose to see full output, or check exit code:",
-        );
-        console.log(`  Exit code: ${result.status}`);
       }
     }
   }

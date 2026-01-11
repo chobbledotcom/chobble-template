@@ -28,6 +28,7 @@ const steps = [
       "test",
       "--coverage",
       "--coverage-reporter=lcov",
+      "--coverage-reporter=text",
       "--concurrent",
       "--timeout",
       "30000",
