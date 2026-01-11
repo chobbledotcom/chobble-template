@@ -2,8 +2,6 @@
 layout: base
 ---
 
-{% assign products = collections.products | getProductsByCategory: page.fileSlug %}
-
 {%- for section in categoryOrder -%}
   {%- include section -%}
 {%- endfor -%}
