@@ -18,10 +18,9 @@ content:
       fields:
         - permalink
         - meta_title
-        - header_text
-      primary: header_text
+      primary: meta_title
       sort:
-        - header_text
+        - meta_title
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - name: body
@@ -235,6 +234,7 @@ content:
     filename: "{primary}.md"
     view:
       fields:
+        - thumbnail
         - title
         - event_date
         - recurring_date
@@ -352,6 +352,7 @@ content:
     filename: "{primary}.md"
     view:
       fields:
+        - thumbnail
         - title
         - subtitle
       primary: title
@@ -403,6 +404,7 @@ content:
     filename: "{primary}.md"
     view:
       fields:
+        - thumbnail
         - title
         - subtitle
         - bedrooms
@@ -474,27 +476,55 @@ content:
             options:
               language: markdown
             required: true
-  - name: guides
-    label: Guides
-    path: src/guides
+  - name: guide-categories
+    label: Guide Categories
+    path: src/guide-categories
     type: collection
     subfolders: false
     filename: "{primary}.md"
     fields:
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
+      - { name: icon, type: image, label: Icon }
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
+      - { name: permalink, type: string, label: Permalink }
+      - { name: redirect_from, type: string, label: Redirect From, list: true }
+      - name: faqs
+        label: FAQs
+        type: object
+        list: true
+        fields:
+          - { name: question, type: string, label: Question, required: true }
+          - { name: answer, type: string, label: Answer, required: true }
+  - name: guide-pages
+    label: Guide Pages
+    path: src/guide-pages
+    type: collection
+    subfolders: false
+    filename: "{primary}.md"
+    fields:
+      - { name: title, type: string, label: Title }
+      - { name: subtitle, type: string, label: Subtitle }
+      - name: guide-category
+        label: Guide Category
+        type: reference
+        options:
+          collection: guide-categories
+          multiple: false
+          search: title
+          value: "{path}"
+          label: "{title}"
       - { name: order, type: number, label: Order }
       - name: body
         label: Body
         type: code
         options:
           language: markdown
-      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - name: meta_description
-        type: string
-        label: Meta Description
-        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
