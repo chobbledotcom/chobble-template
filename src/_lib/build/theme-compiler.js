@@ -38,7 +38,7 @@ const extractRootVariables = (content) => {
 
 // Generate compiled theme CSS for theme-switcher
 const generateThemeSwitcherContent = memoize(() => {
-  const themes = getThemeFiles(); // Already sorted alphabetically
+  const themes = getThemeFiles();
 
   const header = `// Auto-generated theme definitions for theme switcher
 // Generated from individual theme-*.scss files
