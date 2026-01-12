@@ -70,8 +70,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
-  // config.test.js - frontmatter validation helpers
-  "testFrontmatterFieldThrows",
   // responsive-tables.test.js - assertion helpers
   "testScrollableTableCount",
   // autosizes.test.js - integration test helpers
