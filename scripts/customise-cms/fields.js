@@ -105,18 +105,28 @@ const NAME_VALUE_FIELDS = [
 ];
 
 /**
+ * Create an object list field with custom nested fields
+ * @param {string} name - Field name
+ * @param {string} label - Display label
+ * @param {CmsField[]} nestedFields - Fields within each list item
+ * @returns {CmsField} Object list field configuration
+ */
+export const createObjectListField = (name, label, nestedFields) => ({
+  name,
+  label,
+  type: "object",
+  list: true,
+  fields: nestedFields,
+});
+
+/**
  * Create an object list field with name/value pairs
  * @param {string} name - Field name
  * @param {string} label - Display label
  * @returns {CmsField} Object list field configuration
  */
-const createNameValueListField = (name, label) => ({
-  name,
-  label,
-  type: "object",
-  list: true,
-  fields: NAME_VALUE_FIELDS,
-});
+const createNameValueListField = (name, label) =>
+  createObjectListField(name, label, NAME_VALUE_FIELDS);
 
 /**
  * Specs field configuration

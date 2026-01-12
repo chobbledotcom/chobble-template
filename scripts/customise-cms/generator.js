@@ -10,6 +10,7 @@ import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
   createEleventyNavigationField,
+  createObjectListField,
   createReferenceField,
   FAQS_FIELD,
   FEATURES_FIELD,
@@ -26,6 +27,50 @@ import { compact, filterMap, memberOf } from "#utils/array-utils.js";
  * @typedef {import('./fields.js').CmsField} CmsField
  * @typedef {import('./collections.js').CollectionDefinition} CollectionDefinition
  */
+
+/**
+ * Common meta fields added to most collections
+ * @type {CmsField[]}
+ */
+const META_FIELDS = [COMMON_FIELDS.meta_title, COMMON_FIELDS.meta_description];
+
+/**
+ * Get optional header fields based on config
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {(false | CmsField)[]} Header fields or false values to be compacted
+ */
+const getHeaderFields = (config) => [
+  config.features.header_images && COMMON_FIELDS.header_image,
+  config.features.header_images && COMMON_FIELDS.header_text,
+];
+
+/**
+ * Get common trailing content fields (subtitle, body, header_text, meta)
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {(false | CmsField)[]} Content fields with optional header_text
+ */
+const getContentFields = (config) => [
+  COMMON_FIELDS.subtitle,
+  COMMON_FIELDS.body,
+  config.features.header_images && COMMON_FIELDS.header_text,
+  ...META_FIELDS,
+];
+
+/**
+ * Create a collection membership checker from config
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {(name: string) => boolean} Collection membership predicate
+ */
+const hasCollectionIn = (config) => memberOf(config.collections);
+
+/**
+ * Create a collection field builder with hasCollection helper
+ * @param {CmsConfig} config - CMS configuration
+ * @param {(hasCollection: (name: string) => boolean) => (false | CmsField)[]} buildFn - Builder function
+ * @returns {CmsField[]} Compacted field array
+ */
+const buildWithCollections = (config, buildFn) =>
+  compact(buildFn(hasCollectionIn(config)));
 
 /**
  * @typedef {Object} ViewConfig
@@ -90,10 +135,8 @@ const getCollectionFieldBuilders = (config) => ({
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.body,
       COMMON_FIELDS.featured,
-      config.features.header_images && COMMON_FIELDS.header_image,
-      config.features.header_images && COMMON_FIELDS.header_text,
-      COMMON_FIELDS.meta_title,
-      COMMON_FIELDS.meta_description,
+      ...getHeaderFields(config),
+      ...META_FIELDS,
       COMMON_FIELDS.subtitle,
     ]),
 
@@ -117,11 +160,7 @@ const getCollectionFieldBuilders = (config) => ({
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
       config.features.header_images && COMMON_FIELDS.header_image,
-      COMMON_FIELDS.subtitle,
-      COMMON_FIELDS.body,
-      config.features.header_images && COMMON_FIELDS.header_text,
-      COMMON_FIELDS.meta_title,
-      COMMON_FIELDS.meta_description,
+      ...getContentFields(config),
     ]),
 
   snippets: () => [COMMON_FIELDS.name, COMMON_FIELDS.body],
@@ -134,8 +173,7 @@ const getCollectionFieldBuilders = (config) => ({
       config.features.header_images && COMMON_FIELDS.header_image,
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.body,
-      COMMON_FIELDS.meta_title,
-      COMMON_FIELDS.meta_description,
+      ...META_FIELDS,
     ]),
 });
 
@@ -144,30 +182,23 @@ const getCollectionFieldBuilders = (config) => ({
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} News collection fields
  */
-const buildNewsFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildNewsFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.title,
     config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
     hasCollection("team") &&
       createReferenceField("author", "Author", "team", "title", false),
-    COMMON_FIELDS.subtitle,
-    COMMON_FIELDS.body,
-    config.features.header_images && COMMON_FIELDS.header_text,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
+    ...getContentFields(config),
   ]);
-};
 
 /**
  * Build fields for the products collection
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Products collection fields
  */
-const buildProductsFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildProductsFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.title,
     COMMON_FIELDS.thumbnail,
     config.features.header_images && COMMON_FIELDS.header_image,
@@ -185,20 +216,17 @@ const buildProductsFields = (config) => {
     config.features.features && FEATURES_FIELD,
     FILTER_ATTRIBUTES_FIELD,
     config.features.header_images && COMMON_FIELDS.header_text,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
+    ...META_FIELDS,
     COMMON_FIELDS.subtitle,
   ]);
-};
 
 /**
  * Build fields for the reviews collection
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Reviews collection fields
  */
-const buildReviewsFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildReviewsFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.name,
     { name: "url", type: "string", label: "URL" },
     { name: "rating", type: "number", label: "Rating" },
@@ -207,7 +235,6 @@ const buildReviewsFields = (config) => {
     hasCollection("products") &&
       createReferenceField("products", "Products", "products"),
   ]);
-};
 
 /**
  * Build fields for the events collection
@@ -245,8 +272,7 @@ const buildEventsFields = (config) =>
     },
     COMMON_FIELDS.body,
     config.features.header_images && COMMON_FIELDS.header_text,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
+    ...META_FIELDS,
   ]);
 
 /**
@@ -254,28 +280,24 @@ const buildEventsFields = (config) =>
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Locations collection fields
  */
-const buildLocationsFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildLocationsFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.title,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.subtitle,
     hasCollection("categories") &&
       createReferenceField("categories", "Categories", "categories"),
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
+    ...META_FIELDS,
     COMMON_FIELDS.body,
   ]);
-};
 
 /**
  * Build fields for the properties collection
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Properties collection fields
  */
-const buildPropertiesFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildPropertiesFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.title,
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.thumbnail,
@@ -289,35 +311,30 @@ const buildPropertiesFields = (config) => {
     { name: "price_per_night", type: "number", label: "Price Per Night" },
     config.features.features && FEATURES_FIELD,
     COMMON_FIELDS.body,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
+    ...META_FIELDS,
   ]);
-};
 
 /**
  * Build fields for the menu-categories collection
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Menu categories collection fields
  */
-const buildMenuCategoriesFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildMenuCategoriesFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.order,
     hasCollection("menus") && createReferenceField("menus", "Menus", "menus"),
     COMMON_FIELDS.body,
   ]);
-};
 
 /**
  * Build fields for the menu-items collection
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Menu items collection fields
  */
-const buildMenuItemsFields = (config) => {
-  const hasCollection = memberOf(config.collections);
-  return compact([
+const buildMenuItemsFields = (config) =>
+  buildWithCollections(config, (hasCollection) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     { name: "price", type: "string", label: "Price" },
@@ -333,7 +350,6 @@ const buildMenuItemsFields = (config) => {
     { name: "description", type: "string", label: "Description" },
     COMMON_FIELDS.body,
   ]);
-};
 
 /**
  * Get core fields for a collection
@@ -591,13 +607,9 @@ const getMetaConfig = (dataPath) => ({
         },
         { name: "legalName", type: "string", label: "Legal Name" },
         { name: "foundingDate", type: "string", label: "Founding Date" },
-        {
-          name: "founders",
-          label: "Founders",
-          type: "object",
-          list: true,
-          fields: [{ name: "name", type: "string", label: "Name" }],
-        },
+        createObjectListField("founders", "Founders", [
+          { name: "name", type: "string", label: "Name" },
+        ]),
         {
           name: "address",
           label: "Address",
