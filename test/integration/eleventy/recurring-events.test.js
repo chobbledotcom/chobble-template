@@ -80,7 +80,9 @@ describe("recurring-events", () => {
     ]);
 
     if (!html.includes("Community Center")) {
-      throw new Error(`Expected HTML to contain "Community Center", got: ${html}`);
+      throw new Error(
+        `Expected HTML to contain "Community Center", got: ${html}`,
+      );
     }
 
     document.body.innerHTML = html;
