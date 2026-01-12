@@ -58,9 +58,10 @@ const getContentFields = (config) => [
 
 /**
  * Top of every item: title, subtitle, thumbnail
- * @type {CmsField[]}
+ * @param {CmsConfig} _config - unused for now, but here for future flexibility
+ * @returns {CmsField[]}
  */
-const ITEM_TOP = [
+const getItemTop = (_config) => [
   COMMON_FIELDS.title,
   COMMON_FIELDS.subtitle,
   COMMON_FIELDS.thumbnail,
@@ -78,23 +79,23 @@ const getItemBottom = (config) => [
 ];
 
 /**
- * Build fields with a "has" helper that checks if a collection is enabled
- * @param {(has: (name: string) => boolean) => (false | CmsField)[]} buildFn - Builder function
- * @returns {(config: CmsConfig) => CmsField[]} Field builder
+ * Build fields with an "enabled" helper that checks if a collection is enabled
+ * @param {(enabled: (name: string) => boolean) => (false | CmsField)[]} buildFn
+ * @returns {(config: CmsConfig) => CmsField[]}
  */
-const withHas = (buildFn) => (config) =>
+const withEnabled = (buildFn) => (config) =>
   pipe(memberOf, buildFn, compact)(config.collections);
 
 /**
- * Build fields for an item (title, subtitle, thumbnail, header_image, [middle], body, meta)
- * @param {(has: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} middle - Collection-specific fields
- * @returns {(config: CmsConfig) => CmsField[]} Item fields builder
+ * Build fields for an item (top, header_image, [middle], bottom)
+ * @param {(enabled: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} middle
+ * @returns {(config: CmsConfig) => CmsField[]}
  */
 const buildItem = (middle) => (config) =>
-  withHas((has) => [
-    ...ITEM_TOP,
+  withEnabled((enabled) => [
+    ...getItemTop(config),
     config.features.header_images && COMMON_FIELDS.header_image,
-    ...middle(has, config),
+    ...middle(enabled, config),
     ...getItemBottom(config),
   ])(config);
 
@@ -183,7 +184,7 @@ const getCollectionFieldBuilders = (config) => ({
 
   guides: () =>
     compact([
-      ...ITEM_TOP,
+      ...getItemTop(config),
       config.features.header_images && COMMON_FIELDS.header_image,
       ...getItemBottom(config),
     ]),
@@ -192,7 +193,7 @@ const getCollectionFieldBuilders = (config) => ({
 
   menus: () =>
     compact([
-      ...ITEM_TOP,
+      ...getItemTop(config),
       COMMON_FIELDS.order,
       config.features.header_images && COMMON_FIELDS.header_image,
       ...getItemBottom(config),
@@ -205,11 +206,11 @@ const getCollectionFieldBuilders = (config) => ({
  * @returns {CmsField[]} News collection fields
  */
 const buildNewsFields = (config) =>
-  withHas((has) => [
+  withEnabled((enabled) => [
     COMMON_FIELDS.title,
     config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
-    has("team") &&
+    enabled("team") &&
       createReferenceField("author", "Author", "team", "title", false),
     ...getContentFields(config),
   ])(config);
@@ -219,10 +220,10 @@ const buildNewsFields = (config) =>
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Products collection fields
  */
-const buildProductsFields = buildItem((has, config) => [
-  has("categories") &&
+const buildProductsFields = buildItem((enabled, config) => [
+  enabled("categories") &&
     createReferenceField("categories", "Categories", "categories"),
-  has("events") && createReferenceField("events", "Events", "events"),
+  enabled("events") && createReferenceField("events", "Events", "events"),
   PRODUCT_OPTIONS_FIELD,
   config.features.external_purchases && {
     name: "purchase_url",
@@ -239,13 +240,14 @@ const buildProductsFields = buildItem((has, config) => [
  * @returns {CmsField[]} Reviews collection fields
  */
 const buildReviewsFields = (config) =>
-  withHas((has) => [
+  withEnabled((enabled) => [
     COMMON_FIELDS.name,
     { name: "url", type: "string", label: "URL" },
     { name: "rating", type: "number", label: "Rating" },
     { name: "thumbnail", type: "image", label: "Reviewer Photo" },
     COMMON_FIELDS.body,
-    has("products") && createReferenceField("products", "Products", "products"),
+    enabled("products") &&
+      createReferenceField("products", "Products", "products"),
   ])(config);
 
 /**
@@ -284,8 +286,8 @@ const buildEventsFields = buildItem((_, config) => [
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Locations collection fields
  */
-const buildLocationsFields = buildItem((has) => [
-  has("categories") &&
+const buildLocationsFields = buildItem((enabled) => [
+  enabled("categories") &&
     createReferenceField("categories", "Categories", "categories"),
 ]);
 
@@ -294,9 +296,9 @@ const buildLocationsFields = buildItem((has) => [
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Properties collection fields
  */
-const buildPropertiesFields = buildItem((has, config) => [
+const buildPropertiesFields = buildItem((enabled, config) => [
   COMMON_FIELDS.featured,
-  has("locations") &&
+  enabled("locations") &&
     createReferenceField("locations", "Locations", "locations"),
   { name: "bedrooms", type: "number", label: "Bedrooms" },
   { name: "bathrooms", type: "number", label: "Bathrooms" },
@@ -311,11 +313,11 @@ const buildPropertiesFields = buildItem((has, config) => [
  * @returns {CmsField[]} Menu categories collection fields
  */
 const buildMenuCategoriesFields = (config) =>
-  withHas((has) => [
+  withEnabled((enabled) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.order,
-    has("menus") && createReferenceField("menus", "Menus", "menus"),
+    enabled("menus") && createReferenceField("menus", "Menus", "menus"),
     COMMON_FIELDS.body,
   ])(config);
 
@@ -325,13 +327,13 @@ const buildMenuCategoriesFields = (config) =>
  * @returns {CmsField[]} Menu items collection fields
  */
 const buildMenuItemsFields = (config) =>
-  withHas((has) => [
+  withEnabled((enabled) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     { name: "price", type: "string", label: "Price" },
     { name: "is_vegan", type: "boolean", label: "Is Vegan" },
     { name: "is_gluten_free", type: "boolean", label: "Is Gluten Free" },
-    has("menu-categories") &&
+    enabled("menu-categories") &&
       createReferenceField(
         "menu_categories",
         "Menu Categories",
