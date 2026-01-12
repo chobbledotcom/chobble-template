@@ -94,14 +94,14 @@ const buildWithCollections = (buildFn) => (config) =>
 
 /**
  * Build fields for an item collection with standard header/footer
- * @param {(hasCollection: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} middleFn - Middle fields builder
+ * @param {(hasCollection: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} specificFields - Collection-specific fields builder
  * @returns {(config: CmsConfig) => CmsField[]} Item fields builder
  */
-const buildItemFields = (middleFn) => (config) =>
+const buildItemFields = (specificFields) => (config) =>
   buildWithCollections((hasCollection) => [
     ...ITEM_HEADER,
     config.features.header_images && COMMON_FIELDS.header_image,
-    ...middleFn(hasCollection, config),
+    ...specificFields(hasCollection, config),
     ...getItemFooter(config),
   ])(config);
 
