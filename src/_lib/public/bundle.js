@@ -1,7 +1,7 @@
 // Main JS bundle - processed by Bun during build
 
 // NPM dependencies
-import "@hotwired/turbo";
+import "instant.page";
 import Botpoison from "@botpoison/browser";
 
 window.Botpoison = Botpoison;
