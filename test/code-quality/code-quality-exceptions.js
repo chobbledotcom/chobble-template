@@ -105,6 +105,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/array-push.test.js",
   "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
   "test/unit/code-quality/function-length.test.js",
@@ -163,6 +164,7 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/html-in-js.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
@@ -208,6 +210,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/knip.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
 ]);
@@ -297,6 +300,35 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 ]);
 
 // ============================================
+// Excessive comments exceptions
+// ============================================
+
+// Files allowed to exceed the inline comment limit (5 lines).
+// Header comments at file start and JSDoc type annotations are always excluded.
+// These legacy files use section-header comments for code organization.
+// Remove entries as files are refactored to be self-documenting.
+const ALLOWED_EXCESSIVE_COMMENTS = new Set([
+  "src/_data/dietaryIndicators.js",
+  "src/_lib/build/theme-compiler.js",
+  "src/_lib/filters/item-filters.js",
+  "src/_lib/media/image-crop.js",
+  "src/_lib/media/image-lqip.js",
+  "src/_lib/media/image-transform.js",
+  "src/_lib/media/image.js",
+  "src/_lib/public/cart/cart.js",
+  "src/_lib/public/cart/hire-calculator.js",
+  "src/_lib/public/cart/quote-steps.js",
+  "src/_lib/public/design-system.js",
+  "src/_lib/public/theme/theme-editor-lib.js",
+  "src/_lib/public/theme/theme-editor.js",
+  "src/_lib/public/ui/autosizes.js",
+  "src/_lib/public/utils/quote-price-utils.js",
+  "src/_lib/utils/memoize.js",
+  "src/_lib/utils/navigation-utils.js",
+  "src/_lib/utils/slug-utils.js",
+]);
+
+// ============================================
 // DOM class constructor exceptions
 // ============================================
 
@@ -324,6 +356,7 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
+  ALLOWED_EXCESSIVE_COMMENTS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
 };
