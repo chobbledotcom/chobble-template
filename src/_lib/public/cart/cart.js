@@ -22,15 +22,12 @@ import {
   populateQuantityControls,
 } from "#public/utils/template.js";
 
-// Constants
 const CART_OVERLAY_ID = "cart-overlay";
 const IS_ENQUIRY_MODE = Config.cart_mode === "quote";
 const MINIMUM_CHECKOUT_AMOUNT = Config.cart_mode === "stripe" ? 0.3 : 0;
 
-// Helper to get cart overlay element fresh each time
 const getCartOverlay = () => document.getElementById(CART_OVERLAY_ID);
 
-// Reset product option selects on page load
 const resetProductSelects = () => {
   const selects = document.querySelectorAll(".product-options-select");
   for (const select of selects) {
@@ -43,7 +40,6 @@ const resetProductSelects = () => {
   }
 };
 
-// Calculate cart total
 const getCartTotal = () => {
   const cart = getCart();
   return cart.reduce(
@@ -52,12 +48,6 @@ const getCartTotal = () => {
   );
 };
 
-// Update cart count badge
-const updateCartCount = () => {
-  updateCartIcon();
-};
-
-// Show "added to cart" feedback
 const showAddedFeedback = () => {
   for (const icon of document.querySelectorAll(".cart-icon")) {
     icon.classList.add("cart-bounce");
@@ -65,7 +55,6 @@ const showAddedFeedback = () => {
   }
 };
 
-// Open cart overlay
 const openCart = () => {
   const cartOverlay = getCartOverlay();
   if (cartOverlay) {
@@ -73,7 +62,6 @@ const openCart = () => {
   }
 };
 
-// Close cart overlay
 const closeCart = () => {
   const cartOverlay = getCartOverlay();
   if (cartOverlay) {
@@ -81,7 +69,6 @@ const closeCart = () => {
   }
 };
 
-// Render a single cart item using template
 const renderCartItem = (item) => {
   const template = getTemplate(IDS.CART_ITEM, document);
 
@@ -96,7 +83,6 @@ const updateStripeBtn = (btn, isBelowMinimum) => {
   btn.disabled = isBelowMinimum;
 };
 
-// Update checkout button states based on cart total
 const updateCheckoutButtons = (cartOverlay, total) => {
   const isBelowMinimum = total <= MINIMUM_CHECKOUT_AMOUNT;
   const paypalBtn = cartOverlay.querySelector(".cart-checkout-paypal");
@@ -109,7 +95,6 @@ const updateCheckoutButtons = (cartOverlay, total) => {
     minMsg.style.display = isBelowMinimum && total > 0 ? "block" : "none";
 };
 
-// Render cart items and attach handlers
 const renderCartItems = (cartItems, cart) => {
   cartItems.innerHTML = "";
   for (const item of cart) {
@@ -118,7 +103,7 @@ const renderCartItems = (cartItems, cart) => {
   attachQuantityHandlers((name, qty) => updateQuantity(name, qty));
   attachRemoveHandlers(() => {
     updateCartDisplay();
-    updateCartCount();
+    updateCartIcon();
   });
 };
 
@@ -130,7 +115,6 @@ const updateCartVisibility = (cartOverlay, isEmpty, total) => {
   updateCheckoutButtons(cartOverlay, total);
 };
 
-// Update cart display in overlay
 const updateCartDisplay = () => {
   const cartOverlay = getCartOverlay();
   const cartItems = cartOverlay?.querySelector(".cart-items");
@@ -143,21 +127,18 @@ const updateCartDisplay = () => {
   updateCartVisibility(cartOverlay, isEmpty, getCartTotal());
 };
 
-// Update item quantity using shared utility
 const updateQuantity = (itemName, quantity) => {
   updateItemQuantity(itemName, quantity);
   updateCartDisplay();
-  updateCartCount();
+  updateCartIcon();
 };
 
-// Clamp quantity to max, alerting if exceeded
 const clampQuantity = (quantity, maxQuantity) => {
   if (!maxQuantity || quantity <= maxQuantity) return quantity;
   alert(`The maximum quantity for this item is ${maxQuantity}`);
   return maxQuantity;
 };
 
-// Create updated item with added quantity
 const withAddedQuantity = (item, quantity, maxQuantity, sku) => ({
   ...item,
   quantity: clampQuantity(item.quantity + quantity, maxQuantity),
@@ -165,14 +146,6 @@ const withAddedQuantity = (item, quantity, maxQuantity, sku) => ({
   sku: sku ?? item.sku,
 });
 
-// Update item at index, keeping others unchanged
-const updateItemAt = (cart, index, updateFn) =>
-  cart.map((item, i) => (i === index ? updateFn(item) : item));
-
-// Append new item to cart
-const appendItem = (cart, newItem) => [...cart, newItem];
-
-// Add item to cart (functional - no mutation)
 const addItem = (
   itemName,
   unitPrice,
@@ -201,21 +174,25 @@ const addItem = (
 
   const newCart =
     existingIndex >= 0
-      ? updateItemAt(cart, existingIndex, (item) =>
-          withAddedQuantity(item, quantity, maxQuantity, sku),
+      ? cart.map((item, i) =>
+          i === existingIndex
+            ? withAddedQuantity(item, quantity, maxQuantity, sku)
+            : item,
         )
-      : appendItem(cart, newItem);
+      : [...cart, newItem];
 
   saveCart(newCart);
   updateCartDisplay();
-  updateCartCount();
+  updateCartIcon();
   showAddedFeedback();
 };
 
-// PayPal checkout via backend API
-const paypalCheckout = async (apiUrl) => {
+const checkoutWithPayPal = async () => {
+  const cart = getCart();
+  if (cart.length === 0) return;
+
   const items = getCheckoutItems();
-  const order = await postJson(apiUrl, { items });
+  const order = await postJson(Config.checkout_api_url, { items });
 
   if (order?.url) {
     window.location.href = order.url;
@@ -224,16 +201,6 @@ const paypalCheckout = async (apiUrl) => {
   }
 };
 
-// Checkout with PayPal
-const checkoutWithPayPal = async () => {
-  const cart = getCart();
-  if (cart.length === 0) return;
-
-  const checkoutApiUrl = Config.checkout_api_url;
-  await paypalCheckout(checkoutApiUrl);
-};
-
-// Checkout with Stripe - redirects to dedicated checkout page
 const checkoutWithStripe = () => {
   const cart = getCart();
   if (cart.length === 0) return;
@@ -241,14 +208,12 @@ const checkoutWithStripe = () => {
   window.location.href = "/stripe-checkout/";
 };
 
-// Clear cart (useful after successful checkout)
 const clearCart = () => {
   saveCart([]);
   updateCartDisplay();
-  updateCartCount();
+  updateCartIcon();
 };
 
-// Get the selected option index from a product button
 const getOptionIndex = (button) =>
   button.classList.contains("product-option-button")
     ? parseInt(
@@ -257,13 +222,11 @@ const getOptionIndex = (button) =>
       )
     : 0;
 
-// Build full item name from base name and option
 const buildFullItemName = (itemName, optionName) =>
   optionName && optionName !== itemName
     ? `${itemName} - ${optionName}`
     : itemName;
 
-// Handle product option select change - update button text with price
 const handleOptionChange = (e) => {
   if (!e.target.classList.contains("product-options-select")) return;
 
@@ -279,7 +242,6 @@ const handleOptionChange = (e) => {
   }
 };
 
-// Handle cart icon click - open cart or navigate to quote page
 const handleCartIconClick = (e) => {
   if (!e.target.closest(".cart-icon")) return false;
 
@@ -292,7 +254,6 @@ const handleCartIconClick = (e) => {
   return true;
 };
 
-// Validate product option selection
 const validateProductOption = (button) => {
   if (!button.classList.contains("product-option-button")) return true;
   const select = button.parentElement.querySelector(".product-options-select");
@@ -303,7 +264,6 @@ const validateProductOption = (button) => {
   return true;
 };
 
-// Extract item details from add-to-cart button
 const extractItemFromButton = (button) => {
   const itemData = JSON.parse(button.dataset.item);
   const option = itemData.options[getOptionIndex(button)];
@@ -320,7 +280,6 @@ const extractItemFromButton = (button) => {
   };
 };
 
-// Handle add to cart button click
 const handleAddToCart = (e) => {
   if (!e.target.classList.contains("add-to-cart")) return;
   e.preventDefault();
@@ -342,7 +301,6 @@ const handleAddToCart = (e) => {
   );
 };
 
-// Set up cart overlay listeners (checkout buttons, backdrop click)
 const setupOverlayListeners = () => {
   const cartOverlay = getCartOverlay();
   if (IS_ENQUIRY_MODE || !cartOverlay) return;
@@ -358,7 +316,6 @@ const setupOverlayListeners = () => {
   if (stripeBtn) stripeBtn.addEventListener("click", checkoutWithStripe);
 };
 
-// Set up document-level event listeners (only once)
 const setupDocumentListeners = () => {
   if (document.documentElement.dataset.cartListenersAttached) return;
   document.documentElement.dataset.cartListenersAttached = "true";
@@ -370,13 +327,6 @@ const setupDocumentListeners = () => {
   });
 };
 
-// Set up all event listeners
-const setupEventListeners = () => {
-  setupOverlayListeners();
-  setupDocumentListeners();
-};
-
-// Setup cart on page load
 const setup = () => {
   // No cart functionality if cart_mode is not set
   if (!Config.cart_mode) {
@@ -384,16 +334,15 @@ const setup = () => {
   }
 
   resetProductSelects();
-  setupEventListeners();
+  setupOverlayListeners();
+  setupDocumentListeners();
 
   if (IS_ENQUIRY_MODE === false) {
     updateCartDisplay();
   }
-  updateCartCount();
+  updateCartIcon();
 };
 
-// Initialize cart when module loads
 onReady(() => setup());
 
-// Export for use in other modules if needed
 export { addItem, clearCart, getCartTotal, openCart, closeCart };

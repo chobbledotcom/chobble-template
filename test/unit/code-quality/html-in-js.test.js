@@ -387,8 +387,5 @@ const check = value < 10;
       console.log(`     ${file}: ${lines.length} instance(s)`);
     }
     console.log("");
-
-    // This test always passes - it's informational
-    expect(true).toBe(true);
   });
 });
