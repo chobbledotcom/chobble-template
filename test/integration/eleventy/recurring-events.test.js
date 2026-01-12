@@ -33,7 +33,11 @@ const event = (title, recurring, { url, location } = {}) => ({
 const renderAndParse = async (events) => {
   const html = await renderRecurringEvents(events);
   // Always log for CI debugging
-  console.log("DEBUG renderAndParse:", { inputCount: events.length, htmlLength: html.length, html: html.slice(0, 200) });
+  console.log("DEBUG renderAndParse:", {
+    inputCount: events.length,
+    htmlLength: html.length,
+    html: html.slice(0, 200),
+  });
   document.body.innerHTML = html;
   return document;
 };
