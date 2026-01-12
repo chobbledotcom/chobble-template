@@ -142,6 +142,7 @@ content:
         list: true
         fields:
           - { name: title, type: string, label: Title, required: true }
+          - { name: image, type: image, label: Image }
           - name: body
             label: Body
             type: code
@@ -456,6 +457,19 @@ content:
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
+      - name: tabs
+        label: Tabs
+        type: object
+        list: true
+        fields:
+          - { name: title, type: string, label: Title, required: true }
+          - { name: image, type: image, label: Image }
+          - name: body
+            label: Body
+            type: code
+            options:
+              language: markdown
+            required: true
   - name: guides
     label: Guides
     path: src/guides
