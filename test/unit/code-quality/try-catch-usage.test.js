@@ -167,8 +167,5 @@ try {
       console.log(`     ${file}: lines ${lines.join(", ")}`);
     }
     console.log("");
-
-    // This test always passes - it's informational
-    expect(true).toBe(true);
   });
 });

@@ -14,10 +14,8 @@ import {
   uniqueBy,
 } from "#utils/array-utils.js";
 
-// Predicates
 const isHireItem = (item) => item.product_mode === "hire";
 
-// Parse a price string, extracting numeric value
 const parsePrice = (priceStr) => {
   if (typeof priceStr === "number") return priceStr;
   if (!priceStr) return 0;
@@ -25,10 +23,8 @@ const parsePrice = (priceStr) => {
   return matches ? Number.parseFloat(matches[0]) : 0;
 };
 
-// Sum an array of numbers
 const sum = reduce((acc, n) => acc + n, 0);
 
-// Get price for an item for a specific number of days
 // Returns null if hire item lacks price for that day count
 const getPriceForDays = (days) => (item) => {
   if (!isHireItem(item)) {
@@ -38,15 +34,12 @@ const getPriceForDays = (days) => (item) => {
   return price ? parsePrice(price) * item.quantity : null;
 };
 
-// Format item display name with quantity
 const formatItemName = (item) =>
   item.quantity > 1 ? `${item.item_name} (×${item.quantity})` : item.item_name;
 
-// Format price for display, handling null values
 const formatItemPrice = (price) =>
   price === null ? "TBC" : formatPrice(price);
 
-// Calculate total for all items
 const calculateTotal = (cart, days) => {
   const prices = map(getPriceForDays(days))(cart);
   if (prices.includes(null)) {
@@ -55,33 +48,22 @@ const calculateTotal = (cart, days) => {
   return { total: sum(prices), canCalculate: true };
 };
 
-// Format hire length display - uses curried pluralize
 const formatHireLength = pluralize("day");
-
-// Format item count display - uses curried pluralize
 const formatItemCount = pluralize("item in order", "items in order");
 
-// Count total items including quantities
 const countItems = pipe(
   map((item) => item.quantity),
   sum,
 );
 
-// ============================================================================
-// Field Details Collection
-// ============================================================================
-
-// Get field labels mapping from config
 const getFieldLabels = () =>
   JSON.parse(document.querySelector(".quote-field-labels").textContent);
 
-// Predicates for field types
 const isRadio = (field) => field.type === "radio";
 const isSelect = (field) => field.tagName === "SELECT";
 const hasValue = (field) =>
   isRadio(field) ? getRadioValue(field.name) !== "" : field.value !== "";
 
-// Get the display value for a field
 const getSelectDisplayValue = (field) =>
   field.options[field.selectedIndex]?.text || "";
 
@@ -91,22 +73,17 @@ const getFieldValue = (field) => {
   return field.value;
 };
 
-// Get the label for a field from config mapping
 const getFieldLabel = (field) => getFieldLabels()[field.name || field.id];
 
-// Get unique identifier for a field (name for radios, id for others)
 const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
 
-// Transform a field to a detail object { key, value }
 const fieldToDetail = (field) => ({
   key: getFieldLabel(field),
   value: getFieldValue(field),
 });
 
-// Collect all filled fields from a container and transform to details
-// Returns array of { key, value } objects for fields with non-empty values
 const collectFieldDetails = (container) => {
-  if (container === null) return []; // might be on /quote/
+  if (container === null) return [];
   const fields = [...container.querySelectorAll("input, select, textarea")];
   return pipe(
     filter(hasValue),
@@ -115,7 +92,6 @@ const collectFieldDetails = (container) => {
   )(fields);
 };
 
-// Create an item element from template
 const createItemElement = (item, days) => {
   const template = getTemplate(IDS.QUOTE_PRICE_ITEM, document);
   const price = getPriceForDays(days)(item);
@@ -126,7 +102,6 @@ const createItemElement = (item, days) => {
   return template;
 };
 
-// Populate the items list
 const populateItems = (container, cart, days) => {
   container.innerHTML = "";
   for (const item of cart) {
@@ -134,7 +109,6 @@ const populateItems = (container, cart, days) => {
   }
 };
 
-// Create a detail element from template
 const createDetailElement = (detail) => {
   const template = getTemplate(IDS.QUOTE_PRICE_DETAIL);
   template.querySelector('[data-field="key"]').textContent = detail.key;
@@ -142,7 +116,6 @@ const createDetailElement = (detail) => {
   return template;
 };
 
-// Populate the details list
 const populateDetails = (container, details) => {
   container.innerHTML = "";
   for (const detail of details) {
@@ -150,11 +123,9 @@ const populateDetails = (container, details) => {
   }
 };
 
-// Get form container for field details collection
 const getFormContainer = () =>
   document.querySelector(".quote-steps") || document.querySelector("form");
 
-// Render the quote price display
 const renderQuotePrice = (container, days = 1) => {
   const cart = getCart();
 
@@ -188,17 +159,14 @@ const renderQuotePrice = (container, days = 1) => {
   container.style.display = "block";
 };
 
-// Update quote price display (stateless - gets container fresh each time)
 const updateQuotePrice = (days = 1) => {
   const container = document.getElementById("quote-price");
   if (container) renderQuotePrice(container, days);
 };
 
-// Set up blur handlers on form fields to update details on blur
-// Uses event delegation for efficiency
 const setupDetailsBlurHandlers = (getDays = () => 1) => {
   const formContainer = getFormContainer();
-  if (formContainer === null) return; // Might be on /quote/
+  if (formContainer === null) return;
   const handleBlur = (event) => {
     const target = event.target;
     if (target.matches("input, select, textarea")) {
