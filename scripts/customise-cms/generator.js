@@ -189,7 +189,13 @@ const getCollectionFieldBuilders = (config) => ({
       },
     ]),
 
-  guides: () => compact([...getItemTop(config), ...getItemBottom(config)]),
+  "guide-categories": () => [
+    COMMON_FIELDS.title,
+    COMMON_FIELDS.subtitle,
+    COMMON_FIELDS.order,
+    { name: "icon", type: "image", label: "Icon" },
+    COMMON_FIELDS.body,
+  ],
 
   snippets: () => [COMMON_FIELDS.name, COMMON_FIELDS.body],
 
@@ -341,6 +347,27 @@ const buildMenuItemsFields = (config) =>
   ])(config);
 
 /**
+ * Build fields for the guide-pages collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {CmsField[]} Guide pages collection fields
+ */
+const buildGuidePagesFields = (config) =>
+  withEnabled((enabled) => [
+    COMMON_FIELDS.title,
+    COMMON_FIELDS.subtitle,
+    enabled("guide-categories") &&
+      createReferenceField(
+        "guide-category",
+        "Guide Category",
+        "guide-categories",
+        "title",
+        false,
+      ),
+    COMMON_FIELDS.order,
+    COMMON_FIELDS.body,
+  ])(config);
+
+/**
  * Get core fields for a collection
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
@@ -358,6 +385,7 @@ const getCoreFields = (collectionName, config) => {
     events: buildEventsFields,
     locations: buildLocationsFields,
     properties: buildPropertiesFields,
+    "guide-pages": buildGuidePagesFields,
     "menu-categories": buildMenuCategoriesFields,
     "menu-items": buildMenuItemsFields,
   };
@@ -499,7 +527,8 @@ const FILENAME_COLLECTIONS = [
   "events",
   "locations",
   "properties",
-  "guides",
+  "guide-categories",
+  "guide-pages",
   "snippets",
 ];
 
