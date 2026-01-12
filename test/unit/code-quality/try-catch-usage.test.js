@@ -27,94 +27,52 @@ const nextLineHasCatch = (lines, lineIndex) => {
 };
 
 /**
- * Check if catch follows the closing brace at this position
- */
-const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
-  const afterBrace = searchLine.slice(charIndex + 1);
-  if (/\s*catch\b/.test(afterBrace)) return true;
-  return nextLineHasCatch(lines, lineIndex);
-};
-
-/**
- * Process characters in a line to track brace depth
- * Returns { depth, foundCatch: boolean | null, startedCounting }
- */
-const processLineChars = (
-  searchLine,
-  initialDepth,
-  initialStartedCounting,
-  lines,
-  lineIndex,
-) => {
-  const chars = searchLine.split("");
-  const state = {
-    depth: initialDepth,
-    startedCounting: initialStartedCounting,
-    foundCatch: null,
-    finished: false,
-  };
-
-  for (const [charIndex, char] of chars.entries()) {
-    if (state.finished) break;
-
-    if (char === "{") {
-      state.depth++;
-      state.startedCounting = true;
-      continue;
-    }
-
-    if (char !== "}") continue;
-
-    state.depth--;
-
-    // When we close back to depth 0, check what follows
-    if (state.startedCounting && state.depth === 0) {
-      state.foundCatch = catchFollowsClosingBrace(
-        searchLine,
-        charIndex,
-        lines,
-        lineIndex,
-      );
-      state.finished = true;
-    }
-  }
-
-  return {
-    depth: state.depth,
-    foundCatch: state.foundCatch,
-    startedCounting: state.startedCounting,
-  };
-};
-
-/**
  * Track brace depth and find if try block has a catch
  * Returns true if catch is found
  */
 const tryBlockHasCatch = (lines, startLineIndex) => {
-  const state = { depth: 0, startedCounting: false, hasCatch: false };
+  const result = lines.slice(startLineIndex).reduce(
+    (state, searchLine, index) => {
+      if (state.done) return state;
 
-  for (const [index, line] of lines.slice(startLineIndex).entries()) {
-    const lineResult = processLineChars(
-      line,
-      state.depth,
-      state.startedCounting,
-      lines,
-      startLineIndex + index,
-    );
+      const lineIndex = startLineIndex + index;
+      const chars = searchLine.split("");
 
-    state.depth = lineResult.depth;
-    state.startedCounting = lineResult.startedCounting;
+      for (const [charIndex, char] of chars.entries()) {
+        if (char === "{") {
+          state.depth++;
+          state.startedCounting = true;
+          continue;
+        }
 
-    if (lineResult.foundCatch !== null) {
-      return lineResult.foundCatch;
-    }
+        if (char !== "}") continue;
 
-    if (state.startedCounting && state.depth === 0) {
-      return false;
-    }
-  }
+        state.depth--;
 
-  return state.hasCatch;
+        // When we close back to depth 0, check what follows
+        if (state.startedCounting && state.depth === 0) {
+          // Check if catch follows the closing brace
+          const afterBrace = searchLine.slice(charIndex + 1);
+          if (/\s*catch\b/.test(afterBrace)) {
+            state.hasCatch = true;
+          } else {
+            state.hasCatch = nextLineHasCatch(lines, lineIndex);
+          }
+          state.done = true;
+          return state;
+        }
+      }
+
+      if (state.startedCounting && state.depth === 0) {
+        state.done = true;
+      }
+
+      return state;
+    },
+    { depth: 0, startedCounting: false, hasCatch: false, done: false },
+  );
+
+  return result.hasCatch;
 };
 
 /**

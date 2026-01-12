@@ -156,7 +156,6 @@ const ALLOWED_LET = new Set([
   "test/unit/frontend/hire-calculator.test.js",
   "test/unit/frontend/scroll-fade.test.js",
   "test/unit/frontend/cart.test.js",
-  "test/unit/frontend/turbo.test.js",
   "test/unit/frontend/slider.test.js",
   "test/unit/frontend/search.test.js",
   "test/unit/frontend/quote-checkout.test.js",
@@ -313,7 +312,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:55",
+  "test/unit/code-quality/template-selectors.test.js:41",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",

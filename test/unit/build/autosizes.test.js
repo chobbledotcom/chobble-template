@@ -338,23 +338,4 @@ describe("autosizes", () => {
       expect(img3.hasAttribute("src")).toBe(true);
     });
   });
-
-  describe("Turbo navigation", () => {
-    test("Re-initializes on turbo:load event", () => {
-      const { window } = createTestEnv({ imgAttrs: {} });
-      execScript(window, AUTOSIZES_SCRIPT);
-
-      const img = makeImg(window, {
-        src: "/new-image.jpg",
-        sizes: "auto",
-        loading: "lazy",
-      });
-      window.document.getElementById("container").appendChild(img);
-
-      const turboEvent = new window.Event("turbo:load");
-      window.document.dispatchEvent(turboEvent);
-
-      expect(true).toBe(true);
-    });
-  });
 });

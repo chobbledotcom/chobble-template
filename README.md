@@ -86,7 +86,7 @@ An Eleventy starter for business websites. The GitHub action deploys to both Neo
 - [jscpd](https://github.com/kucherenko/jscpd) duplicate detection
 - [Knip](https://knip.dev/) unused code detection
 - 17+ test files with custom runner
-- [Turbo](https://turbo.hotwired.dev/) for instant page navigation
+- [instant.page](https://instant.page/) for link prefetching on hover
 
 ## Deployment
 
