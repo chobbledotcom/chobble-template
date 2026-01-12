@@ -128,11 +128,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // unused-classes.test.js - analysis helpers
   "extractFromHtml",
   "extractClassesFromJs",
-  "findIdReferencesInHtml",
   "findSelectorReferencesInScss",
   "findReferencesInJs",
-  "collectAllClassesAndIds",
-  "findUnusedClassesAndIds",
   // naming-conventions.test.js - test fixture string
   "getUserById",
   // schema-helper.test.js - test fixtures
@@ -141,8 +138,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findTryCatches",
   "findNextNonEmptyLine",
   "nextLineHasCatch",
-  "catchFollowsClosingBrace",
-  "processLineChars",
   "tryBlockHasCatch",
   // commented-code.test.js - analysis helpers
   "buildTemplateLiteralState",
@@ -157,23 +152,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runAutosizes",
   "makeImg",
   "setupAndRun",
-  // unused-classes.test.js - helper to add classes from string
-  "addClasses",
-  // unused-classes.test.js - helper to add items to Map
-  "addToMap",
-  // unused-classes.test.js - helper to log unused items
-  "logUnused",
   // html-in-js.test.js - analysis helpers
   "extractStringContent",
-  "extractTagName",
-  "hasKnownHtmlTag",
-  "matchesHtmlPattern",
-  "createPreview",
-  "toHtmlResult",
   "findHtmlInJs",
   // template-selectors.test.js - analysis helpers
-  "buildLiquidLookup",
-  "expandLiquidVars",
   "loadTemplate",
   // layout-aliases.test.js - test helpers
   "withTempLayouts",

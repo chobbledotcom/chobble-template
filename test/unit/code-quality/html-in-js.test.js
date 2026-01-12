@@ -276,52 +276,31 @@ const HTML_TAGS = new Set([
 ]);
 
 /**
- * Extract and verify tag name from content
- */
-const extractTagName = (content) => {
-  const match = content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
-  return match ? match[1].toLowerCase() : null;
-};
-
-/**
- * Check if content contains a known HTML tag
- */
-const hasKnownHtmlTag = (content) => {
-  const tagName = extractTagName(content);
-  return tagName ? HTML_TAGS.has(tagName) : false;
-};
-
-/**
- * Check if content matches any HTML pattern and contains a known tag
- */
-const matchesHtmlPattern = (content) =>
-  HTML_PATTERNS.some((pattern) => pattern.test(content)) &&
-  hasKnownHtmlTag(content);
-
-/**
- * Create a preview of HTML content (first 60 chars, normalized whitespace)
- */
-const createPreview = (content) => {
-  const preview = content.replace(/\s+/g, " ").trim().substring(0, 60);
-  return preview + (content.length > 60 ? "..." : "");
-};
-
-/**
- * Transform string content item to result format
- */
-const toHtmlResult = (item) => ({
-  lineNumber: item.lineNumber,
-  line: createPreview(item.content),
-});
-
-/**
  * Find HTML content in JavaScript file.
  * Returns array of { lineNumber, line } for use with analyzeWithAllowlist.
  */
 const findHtmlInJs = (source) =>
   filterMap(
-    (item) => matchesHtmlPattern(item.content),
-    toHtmlResult,
+    (item) => {
+      // Check if content matches any HTML pattern
+      const matchesPattern = HTML_PATTERNS.some((pattern) =>
+        pattern.test(item.content),
+      );
+      if (!matchesPattern) return false;
+
+      // Check if content contains a known HTML tag
+      const tagMatch = item.content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
+      const tagName = tagMatch ? tagMatch[1].toLowerCase() : null;
+      return tagName ? HTML_TAGS.has(tagName) : false;
+    },
+    (item) => {
+      // Create a preview of HTML content (first 60 chars, normalized whitespace)
+      const preview = item.content.replace(/\s+/g, " ").trim().substring(0, 60);
+      return {
+        lineNumber: item.lineNumber,
+        line: preview + (item.content.length > 60 ? "..." : ""),
+      };
+    },
   )(extractStringContent(source));
 
 // Complete analyzer - find + allowlist + files in one definition

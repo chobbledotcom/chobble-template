@@ -61,6 +61,15 @@ features:
   - Biometric scanner
   - Universal connectivity ports
   - Surround sound resonators
+tabs:
+  - title: Setup Guide
+    image: src/images/placeholder-square-1.jpg
+    body: |
+      Getting started with your UltraWidget Pro is easy. Simply connect the power adapter, press the holographic power button, and follow the on-screen setup wizard. The biometric scanner will guide you through fingerprint registration for secure access.
+  - title: Warranty Info
+    image: src/images/placeholder-square-2.jpg
+    body: |
+      Your UltraWidget Pro comes with a 2-year comprehensive warranty covering all manufacturing defects. Extended warranty options are available for up to 5 years of coverage including accidental damage protection.
 ---
 
 The UltraWidget Pro is designed for professionals who demand performance without sacrificing portability. Weighing just 2.8 pounds with a sleek 0.6" profile, this widget is perfect for creating on the go.
