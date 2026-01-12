@@ -51,7 +51,7 @@
 
   const attributes = ["src", "srcset"];
   const prefix = "data-auto-sizes-";
-  const state = { fcpDone: false, initialized: false };
+  const FCP_ATTR = "data-autosizes-fcp";
 
   function elemWidth(elem) {
     const width = elem ? Math.round(elem.getBoundingClientRect().width) : 0;
@@ -100,7 +100,7 @@
   // Process a single image for deferred loading
   const processImageForDefer = (img) => {
     if (!shouldProcessImage(img)) return;
-    if (state.fcpDone) {
+    if (document.documentElement.hasAttribute(FCP_ATTR)) {
       calculateAndSetSizes(img);
     } else {
       storeAndRemoveAttributes(img);
@@ -171,12 +171,6 @@
   });
 
   function initAutosizes() {
-    if (state.initialized) {
-      return;
-    }
-
-    state.initialized = true;
-
     // Start observing the document
     observer.observe(document.documentElement, {
       childList: true,
@@ -192,7 +186,7 @@
 
     new PerformanceObserver((entries, perfObserver) => {
       for (const _ of entries.getEntriesByName("first-contentful-paint")) {
-        state.fcpDone = true;
+        document.documentElement.setAttribute(FCP_ATTR, "");
         setTimeout(restoreImageAttributes, 0);
         perfObserver.disconnect();
       }
