@@ -25,10 +25,6 @@ const THUMBNAIL_OPTIONS = {
 // Minimum file size to bother with a placeholder (5KB)
 const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
-// SVGs don't need placeholders (vector), small images aren't worth the overhead
-const shouldSkipPlaceholder = (metadata, fileSizeBytes) =>
-  metadata.format === "svg" || fileSizeBytes < PLACEHOLDER_SIZE_THRESHOLD;
-
 const generateThumbnail = memoize(async (imagePath) => {
   const { default: Image } = await getEleventyImg();
   const thumbnails = await Image(imagePath, THUMBNAIL_OPTIONS);
@@ -38,19 +34,11 @@ const generateThumbnail = memoize(async (imagePath) => {
   return `url('data:image/webp;base64,${base64}')`;
 });
 
-const getFileSize = memoize((filePath) => fs.statSync(filePath).size);
-
+// SVGs don't need placeholders (vector), small images aren't worth the overhead
 const getThumbnailOrNull = (imagePath, metadata) =>
-  shouldSkipPlaceholder(metadata, getFileSize(imagePath))
+  metadata.format === "svg" ||
+  fs.statSync(imagePath).size < PLACEHOLDER_SIZE_THRESHOLD
     ? null
     : generateThumbnail(imagePath);
 
-export {
-  shouldSkipPlaceholder,
-  generateThumbnail,
-  getFileSize,
-  getThumbnailOrNull,
-  getEleventyImg,
-  filenameFormat,
-  THUMBNAIL_OPTIONS,
-};
+export { getThumbnailOrNull, getEleventyImg, filenameFormat };
