@@ -338,5 +338,4 @@ describe("autosizes", () => {
       expect(img3.hasAttribute("src")).toBe(true);
     });
   });
-
 });
