@@ -98,6 +98,7 @@ nav {
       & > ul {
         position: fixed;
         background: var(--color-bg);
+        border-top: 3rem var(--color-bg);
         top: 0;
         right: -100%; /* Start off-screen */
         bottom: 0;
@@ -105,7 +106,7 @@ nav {
         overflow-x: scroll;
         max-width: 300px;
         flex-direction: column;
-        padding: 4rem 1rem 1rem 1rem;
+        padding: 1rem;
         transition: right 0.3s ease-in-out;
         margin: 0;
         list-style-type: none;
