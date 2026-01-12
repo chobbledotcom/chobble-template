@@ -20,7 +20,13 @@ import {
   SPECS_FIELD,
   TABS_FIELD,
 } from "#scripts/customise-cms/fields.js";
-import { compact, filterMap, memberOf, pipe } from "#utils/array-utils.js";
+import {
+  compact,
+  filter,
+  filterMap,
+  memberOf,
+  pipe,
+} from "#utils/array-utils.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig
@@ -394,34 +400,94 @@ const buildCollectionFields = (collectionName, config) => {
 };
 
 /**
- * Get view configurations for collections
- * @param {CmsConfig} config - CMS configuration
- * @returns {Record<string, ViewConfig>} View configurations by collection name
+ * Extract field names from an array of CmsField objects
+ * @param {CmsField[]} fields - Array of field configurations
+ * @returns {string[]} Array of field names
  */
-const getViewConfigs = (config) => ({
+const extractFieldNames = (fields) => fields.map((f) => f.name);
+
+/**
+ * Filter a list of field names to only include those that are available
+ * @param {string[]} requestedFields - Fields to filter
+ * @param {string[]} availableFields - Fields that are actually available
+ * @returns {string[]} Filtered list of available fields
+ */
+const filterToAvailable = (requestedFields, availableFields) =>
+  filter(memberOf(availableFields))(requestedFields);
+
+/**
+ * Create a validated view config with only available fields
+ * @param {ViewConfig} rawConfig - Raw view configuration
+ * @param {string[]} availableFields - Fields that are actually available
+ * @returns {ViewConfig} Validated view configuration
+ */
+const createValidatedViewConfig = (rawConfig, availableFields) => {
+  const validFields = filterToAvailable(rawConfig.fields, availableFields);
+  const validSort = filterToAvailable(rawConfig.sort, availableFields);
+
+  // Use first valid field as primary if original primary is unavailable
+  const validPrimary = availableFields.includes(rawConfig.primary)
+    ? rawConfig.primary
+    : validFields[0] || availableFields[0] || "title";
+
+  return {
+    fields: validFields.length > 0 ? validFields : ["title"],
+    primary: validPrimary,
+    sort: validSort.length > 0 ? validSort : [validPrimary],
+  };
+};
+
+/**
+ * Get raw view configurations for collections (before validation)
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {Record<string, ViewConfig>} Raw view configurations by collection name
+ */
+const getRawViewConfigs = (_config) => ({
   pages: {
-    fields: ["permalink", "meta_title", "header_text"],
-    primary: "header_text",
-    sort: ["header_text"],
+    fields: ["thumbnail", "permalink", "meta_title", "header_text"],
+    primary: "meta_title",
+    sort: ["meta_title"],
   },
   events: {
-    fields: config.features.event_locations_and_dates
-      ? ["title", "event_date", "recurring_date", "event_location"]
-      : ["title"],
+    fields: [
+      "thumbnail",
+      "title",
+      "event_date",
+      "recurring_date",
+      "event_location",
+    ],
     primary: "title",
     sort: ["title"],
   },
   locations: {
-    fields: ["title", "subtitle"],
+    fields: ["thumbnail", "title", "subtitle"],
     primary: "title",
     sort: ["title"],
   },
   properties: {
-    fields: ["title", "subtitle", "bedrooms", "sleeps"],
+    fields: ["thumbnail", "title", "subtitle", "bedrooms", "sleeps"],
     primary: "title",
     sort: ["title"],
   },
 });
+
+/**
+ * Get validated view configuration for a collection
+ * @param {string} collectionName - Name of the collection
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {ViewConfig | undefined} Validated view configuration or undefined
+ */
+const getValidatedViewConfig = (collectionName, config) => {
+  const rawConfigs = getRawViewConfigs(config);
+  const rawConfig = rawConfigs[collectionName];
+
+  if (!rawConfig) return undefined;
+
+  const fields = buildCollectionFields(collectionName, config);
+  const availableFieldNames = extractFieldNames(fields);
+
+  return createValidatedViewConfig(rawConfig, availableFieldNames);
+};
 
 /**
  * Collections that use filename-based primary key
@@ -471,9 +537,9 @@ const generateCollectionConfig = (collectionName, config) => {
     collectionConfig.filename = "{primary}.md";
   }
 
-  const viewConfigs = getViewConfigs(config);
-  if (viewConfigs[collectionName]) {
-    collectionConfig.view = viewConfigs[collectionName];
+  const viewConfig = getValidatedViewConfig(collectionName, config);
+  if (viewConfig) {
+    collectionConfig.view = viewConfig;
   }
 
   collectionConfig.fields = buildCollectionFields(collectionName, config);
