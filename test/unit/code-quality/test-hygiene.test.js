@@ -41,7 +41,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createEvents",
   // schema-helper-utils.js - schema fixture builders
   "addOptionalProps",
-  "createObjectBuilder",
   "createSchemaPage",
   "createSchemaSite",
   "createSchemaData",
@@ -169,7 +168,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractTagName",
   "hasKnownHtmlTag",
   "matchesHtmlPattern",
-  "containsHtml",
   "createPreview",
   "toHtmlResult",
   "findHtmlInJs",
@@ -213,10 +211,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "testSource",
   // code-scanner.test.js - test fixtures
   "testStaleException",
-  // quote-steps.test.js - test fixtures
-  "testNextButtonStep",
-  // quote-steps-progress.test.js - test fixtures
-  "testIndicatorStates",
   // code-quality-utils.js - logging helper
   "logAllowedItems",
   // build-profiling.js - profiling helper
@@ -327,7 +321,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectProp",
   "expectDataArray",
   "expectGalleries",
-  "expectEventCounts",
   "handleOpeningBrace",
   "handleClosingBrace",
   "handleComments",
