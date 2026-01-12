@@ -1,6 +1,4 @@
-{% assign categories = collections.categories %}
-{% assign categories = categories | where: "data.parent", page.fileSlug %}
+{% assign categories = collections.categories | where: "data.parent", page.fileSlug %}
 {% if categories.size > 0 %}
-  <h2>Subcategories</h2>
   {%- include "items.html", items: categories -%}
 {% endif %}
