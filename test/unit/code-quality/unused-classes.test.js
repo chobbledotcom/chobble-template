@@ -3,6 +3,7 @@
 // This helps identify dead code and potential cleanup opportunities
 
 import { describe, expect, test } from "bun:test";
+import { buildReverseIndex } from "#lib/utils/grouping.js";
 import {
   filter,
   filterMap,
@@ -260,40 +261,24 @@ describe("unused-classes", () => {
     const scssFiles = SRC_SCSS_FILES().map((f) => join(rootDir, f));
     const jsFiles = PUBLIC_JS_FILES.map((f) => join(rootDir, f));
 
-    // Collect entries as [item, file] pairs using flatMap, then build maps
-    const htmlClassEntries = htmlFiles.flatMap((file) =>
-      [...extractFromHtml("class", readFileSync(file, "utf-8"))].map((c) => [
-        c,
-        file,
-      ]),
-    );
-    const jsClassEntries = jsFiles.flatMap((file) =>
-      [...extractClassesFromJs(readFileSync(file, "utf-8"))].map((c) => [
-        c,
-        file,
-      ]),
-    );
-    const idEntries = htmlFiles.flatMap((file) =>
-      [...extractFromHtml("id", readFileSync(file, "utf-8"))].map((id) => [
-        id,
-        file,
-      ]),
-    );
+    // Build reverse indexes: class/id name -> files where defined
+    // Using buildReverseIndex which handles the grouping cleanly
+    const htmlClasses = buildReverseIndex(htmlFiles, (file) => [
+      ...extractFromHtml("class", readFileSync(file, "utf-8")),
+    ]);
+    const jsClasses = buildReverseIndex(jsFiles, (file) => [
+      ...extractClassesFromJs(readFileSync(file, "utf-8")),
+    ]);
 
-    // Build maps from entries (item -> files where defined) using groupBy pattern
-    const allClasses = new Map(
-      Object.entries(
-        Object.groupBy(
-          [...htmlClassEntries, ...jsClassEntries],
-          ([item]) => item,
-        ),
-      ).map(([key, entries]) => [key, entries.map(([, file]) => file)]),
-    );
-    const allIds = new Map(
-      Object.entries(Object.groupBy(idEntries, ([item]) => item)).map(
-        ([key, entries]) => [key, entries.map(([, file]) => file)],
-      ),
-    );
+    // Merge HTML and JS classes into a single map
+    const allClasses = new Map(htmlClasses);
+    for (const [cls, files] of jsClasses) {
+      allClasses.set(cls, [...(allClasses.get(cls) || []), ...files]);
+    }
+
+    const allIds = buildReverseIndex(htmlFiles, (file) => [
+      ...extractFromHtml("id", readFileSync(file, "utf-8")),
+    ]);
 
     // Load all SCSS, JS, and HTML content for reference checking
     const scssContent = scssFiles
