@@ -84,6 +84,5 @@ document.createElement("div");
         console.log(`    - ${loc.location}`);
       }
     }
-    expect(true).toBe(true);
   });
 });

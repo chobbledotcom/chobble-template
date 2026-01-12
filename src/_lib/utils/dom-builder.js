@@ -7,7 +7,6 @@ const getSharedDocument = memoize(async () => {
   return dom.window.document;
 });
 
-// Apply attributes to an element
 const applyAttributes = (element, attributes) => {
   for (const [key, value] of Object.entries(attributes)) {
     if (value !== null && value !== undefined) {
@@ -16,7 +15,6 @@ const applyAttributes = (element, attributes) => {
   }
 };
 
-// Append children to an element
 const appendChildren = (element, children) => {
   if (children === null) return;
   if (typeof children === "string") {

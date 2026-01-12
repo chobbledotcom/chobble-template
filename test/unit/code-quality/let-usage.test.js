@@ -152,7 +152,6 @@ const config = { key: 'value' };
   test("Reports allowlisted mutable const usage for tracking", () => {
     const { allowed } = mutableConstAnalysis();
     logAllowedItems(allowed, "Allowlisted mutable const usages", true);
-    expect(true).toBe(true);
   });
 
   // Exception validation tests
@@ -179,7 +178,6 @@ const config = { key: 'value' };
         console.log(`    - ${file}: ${count} usage(s)`);
       }
     }
-    expect(true).toBe(true);
   });
 
   test("ALLOWED_LET entries still exist and match pattern", () => {
