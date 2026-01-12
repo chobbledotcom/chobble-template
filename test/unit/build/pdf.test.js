@@ -450,9 +450,6 @@ describe("pdf", () => {
       await mockConfig.eventHandlers["eleventy.after"]({
         dir: { output: "/tmp" },
       });
-
-      // If we get here without error, the early return worked
-      expect(true).toBe(true);
     });
 
     test("eleventy.after handler skips PDF generation when menus array is empty", async () => {
@@ -466,13 +463,9 @@ describe("pdf", () => {
       };
       mockConfig.collections._pdfMenuData(mockCollectionApi);
 
-      // Call eleventy.after - should skip because no menus
       await mockConfig.eventHandlers["eleventy.after"]({
         dir: { output: "/tmp" },
       });
-
-      // If we get here without error, the early return worked
-      expect(true).toBe(true);
     });
   });
 
