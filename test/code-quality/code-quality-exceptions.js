@@ -82,7 +82,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+  "src/_lib/utils/memoize.js:13", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
@@ -300,35 +300,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 ]);
 
 // ============================================
-// Excessive comments exceptions
-// ============================================
-
-// Files allowed to exceed the inline comment limit (5 lines).
-// Header comments at file start and JSDoc type annotations are always excluded.
-// These legacy files use section-header comments for code organization.
-// Remove entries as files are refactored to be self-documenting.
-const ALLOWED_EXCESSIVE_COMMENTS = new Set([
-  "src/_data/dietaryIndicators.js",
-  "src/_lib/build/theme-compiler.js",
-  "src/_lib/filters/item-filters.js",
-  "src/_lib/media/image-crop.js",
-  "src/_lib/media/image-lqip.js",
-  "src/_lib/media/image-transform.js",
-  "src/_lib/media/image.js",
-  "src/_lib/public/cart/cart.js",
-  "src/_lib/public/cart/hire-calculator.js",
-  "src/_lib/public/cart/quote-steps.js",
-  "src/_lib/public/design-system.js",
-  "src/_lib/public/theme/theme-editor-lib.js",
-  "src/_lib/public/theme/theme-editor.js",
-  "src/_lib/public/ui/autosizes.js",
-  "src/_lib/public/utils/quote-price-utils.js",
-  "src/_lib/utils/memoize.js",
-  "src/_lib/utils/navigation-utils.js",
-  "src/_lib/utils/slug-utils.js",
-]);
-
-// ============================================
 // DOM class constructor exceptions
 // ============================================
 
@@ -356,7 +327,6 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
-  ALLOWED_EXCESSIVE_COMMENTS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
 };

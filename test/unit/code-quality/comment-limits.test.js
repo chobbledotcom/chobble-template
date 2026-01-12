@@ -1,10 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_EXCESSIVE_COMMENTS } from "#test/code-quality/code-quality-exceptions.js";
 import {
+  analyzeFiles,
   assertNoViolations,
   combineFileLists,
   toLines,
-  withAllowlist,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -160,11 +159,15 @@ const expectExcessiveComments = (source, expectedCount) => {
 
 const THIS_FILE = "test/unit/code-quality/comment-limits.test.js";
 
-const excessiveCommentsAnalysis = withAllowlist({
-  find: findExcessiveComments,
-  allowlist: ALLOWED_EXCESSIVE_COMMENTS,
-  files: () => combineFileLists([SRC_JS_FILES()], [THIS_FILE]),
-});
+const getExcessiveCommentViolations = () =>
+  analyzeFiles(
+    combineFileLists([SRC_JS_FILES()], [THIS_FILE]),
+    (source, relativePath) =>
+      findExcessiveComments(source).map((v) => ({
+        ...v,
+        file: relativePath,
+      })),
+  );
 
 describe("comment-limits", () => {
   test("Allows header comment block at file start", () => {
@@ -294,7 +297,7 @@ const b = 2;
   });
 
   test("No excessive inline comments in src/ files", () => {
-    const { violations } = excessiveCommentsAnalysis();
+    const violations = getExcessiveCommentViolations();
     assertNoViolations(violations, {
       singular: "file with excessive comments",
       plural: "files with excessive comments",
