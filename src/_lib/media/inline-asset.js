@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 import { memberOf } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 
@@ -15,11 +16,11 @@ const isAllowedExtension = memberOf(ALLOWED_EXTENSIONS);
  * For SVG files, returns the raw SVG text
  * For images (webp, jpeg, png, gif), returns base64 data URI
  * @param {string} assetPath - Path relative to assets directory
- * @param {string} baseDir - Base directory (defaults to process.cwd())
+ * @param {string} baseDir - Base directory (defaults to ROOT_DIR)
  * @returns {string} Inlined asset content
  * @throws {Error} If file doesn't exist or has unsupported extension
  */
-export function inlineAsset(assetPath, baseDir = process.cwd()) {
+export function inlineAsset(assetPath, baseDir = ROOT_DIR) {
   const fullPath = path.join(baseDir, "src", "assets", assetPath);
   const ext = path.extname(assetPath).toLowerCase();
 
