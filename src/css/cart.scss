@@ -336,6 +336,7 @@ dialog.cart-overlay {
   margin-top: 1.5rem;
   text-align: center;
   animation: slideInFade 0.4s ease-out forwards;
+  justify-content: end;
 }
 
 // .quote-checkout-summary base styles are in style.scss (shared with .hire-dates-section)

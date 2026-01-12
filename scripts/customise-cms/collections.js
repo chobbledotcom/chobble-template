@@ -23,6 +23,7 @@ import { filter, unique } from "#utils/array-utils.js";
  * @property {boolean} supportsFeatures - Whether collection can have features list
  * @property {boolean} supportsSpecs - Whether collection can have specifications
  * @property {boolean} supportsGallery - Whether collection can have image gallery
+ * @property {boolean} supportsTabs - Whether collection can have tabbed content
  * @property {string[]} [dependencies] - Other collections this one requires
  * @property {boolean} [required] - Whether collection is required (cannot be disabled)
  * @property {boolean} [internal] - Whether collection is internal (not shown to users)
@@ -41,6 +42,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
     required: true,
   },
   {
@@ -51,6 +53,7 @@ export const COLLECTIONS = [
     supportsFeatures: true,
     supportsSpecs: true,
     supportsGallery: true,
+    supportsTabs: true,
     dependencies: ["categories"],
   },
   {
@@ -61,6 +64,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
   },
   {
     name: "news",
@@ -70,6 +74,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
     dependencies: ["team"],
   },
   {
@@ -80,6 +85,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
   },
   {
     name: "team",
@@ -89,6 +95,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
   },
   {
     name: "reviews",
@@ -98,6 +105,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: false,
+    supportsTabs: false,
     dependencies: ["products"],
   },
   {
@@ -108,6 +116,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
     dependencies: ["categories"],
   },
   {
@@ -118,6 +127,7 @@ export const COLLECTIONS = [
     supportsFeatures: true,
     supportsSpecs: true,
     supportsGallery: true,
+    supportsTabs: true,
     dependencies: ["locations"],
   },
   {
@@ -128,6 +138,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
   },
   {
     name: "menus",
@@ -137,6 +148,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
   },
   {
     name: "menu-categories",
@@ -146,6 +158,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
     dependencies: ["menus"],
   },
   {
@@ -156,6 +169,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: true,
+    supportsTabs: false,
     dependencies: ["menu-categories"],
   },
   {
@@ -166,6 +180,7 @@ export const COLLECTIONS = [
     supportsFeatures: false,
     supportsSpecs: false,
     supportsGallery: false,
+    supportsTabs: false,
     internal: true,
   },
 ];
