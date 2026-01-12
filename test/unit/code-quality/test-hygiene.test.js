@@ -136,12 +136,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "testProductMeta",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
-  "findNextNonEmptyLine",
-  "nextLineHasCatch",
   "tryBlockHasCatch",
   // commented-code.test.js - analysis helpers
-  "buildTemplateLiteralState",
-  "isDocumentationComment",
   "findCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
@@ -168,9 +164,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAssertionsWithoutMessages",
   "findTautologiesInSource",
   "findTautologicalAssertions",
-  // test-quality.test.js - functional utilities
-  "matchesAnyVaguePattern",
-  "countAnds",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
@@ -217,15 +210,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCodeChecker",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // data-exports.test.js - analysis helpers
-  "hasProblematicNamedExports",
-  "hasWrongHelperName",
   // method-aliasing.test.js - analysis helpers
-  "parseAlias",
   "findAliases",
   // short-circuit-order.test.js - analysis helpers
-  "buildPattern",
-  "hasSuboptimalOrder",
   "findSuboptimalOrder",
   // image.test.js - functional test helpers
   "expectPassthrough",
@@ -311,10 +298,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractFunctions",
   // build-profiling.js - measurement utilities
   "measure",
-  // knip.test.js - functional pipeline helpers
-  "runKnip",
-  "logFailureDetails",
-  "extractStatus",
   // test-utils.js - curried assertion helper for error checking
   "expectErrorsInclude",
   // test-utils.js - async error testing helper

@@ -24,8 +24,6 @@ import {
 
 import { map } from "#utils/array-utils.js";
 
-const expectFileSlugs = expectProp("fileSlug");
-
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
@@ -424,6 +422,6 @@ describe("reviews", () => {
     );
 
     // All items get redirects when limit=-1
-    expectFileSlugs(result, ["product-a", "product-b"]);
+    expectProp("fileSlug")(result, ["product-a", "product-b"]);
   });
 });
