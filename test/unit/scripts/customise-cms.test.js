@@ -170,6 +170,30 @@ describe("customise-cms collections", () => {
     const productCount = resolved.filter((c) => c === "products").length;
     expect(productCount).toBe(1);
   });
+
+  test("resolveDependencies does not add dependencies for news, reviews, locations, or properties", () => {
+    const selected = ["news", "reviews", "locations", "properties"];
+    const resolved = resolveDependencies(selected);
+
+    // These collections should not pull in additional dependencies
+    expect(resolved.sort()).toEqual(selected.sort());
+    expect(resolved).not.toContain("team");
+    expect(resolved).not.toContain("products");
+    expect(resolved).not.toContain("categories");
+  });
+
+  test("resolveDependencies only adds dependencies for products, menu-categories, and menu-items", () => {
+    // Products should still require categories
+    expect(resolveDependencies(["products"])).toContain("categories");
+
+    // Menu-categories should still require menus
+    expect(resolveDependencies(["menu-categories"])).toContain("menus");
+
+    // Menu-items should still require menu-categories and menus
+    const menuItemsDeps = resolveDependencies(["menu-items"]);
+    expect(menuItemsDeps).toContain("menu-categories");
+    expect(menuItemsDeps).toContain("menus");
+  });
 });
 
 describe("customise-cms fields", () => {
@@ -334,7 +358,7 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("name: alt-tags");
   });
 
-  test("generatePagesYaml handles collection dependencies", () => {
+  test("generatePagesYaml includes reference fields when target collection is selected", () => {
     const config = createTestConfig({
       collections: ["pages", "reviews", "products", "categories"],
     });
@@ -343,6 +367,21 @@ describe("customise-cms generator", () => {
     // Reviews should have products reference since products is included
     expect(yaml).toContain("name: reviews");
     expect(yaml).toContain("collection: products");
+  });
+
+  test("generatePagesYaml excludes reference fields when target collection is not selected", () => {
+    const config = createTestConfig({
+      collections: ["pages", "reviews"],
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Reviews should NOT have products reference since products is not included
+    expect(yaml).toContain("name: reviews");
+    const reviewsSection = yaml.substring(
+      yaml.indexOf("name: reviews"),
+      yaml.indexOf("name: homepage"),
+    );
+    expect(reviewsSection).not.toContain("collection: products");
   });
 
   test("generatePagesYaml handles minimal configuration", () => {
@@ -487,11 +526,99 @@ describe("customise-cms events fields", () => {
     });
     const eventsSection = getEventsSection(generatePagesYaml(config));
 
-    // Should only have title in the view fields
+    // Should have available view fields (thumbnail and title)
     expect(eventsSection).toContain("fields:");
     expect(eventsSection).toContain("- title");
+    expect(eventsSection).toContain("- thumbnail");
     // Should not contain the date/location fields in the view
-    const viewFieldsMatch = eventsSection.match(/fields:\s*\n\s*- title/);
-    expect(viewFieldsMatch).toBeTruthy();
+    expect(eventsSection).not.toContain("- event_date");
+    expect(eventsSection).not.toContain("- recurring_date");
+    expect(eventsSection).not.toContain("- event_location");
+  });
+});
+
+describe("customise-cms view config validation", () => {
+  /**
+   * Helper to extract a collection's view section from generated YAML
+   * @param {string} yaml - Full YAML string
+   * @param {string} collectionName - Name of the collection
+   * @returns {string | null} View section or null if not found
+   */
+  const getViewSection = (yaml, collectionName) => {
+    const collectionPattern = new RegExp(
+      `name: ${collectionName}[\\s\\S]*?view:[\\s\\S]*?(?=\\n  - name:|\\n  - type:|$)`,
+    );
+    const match = yaml.match(collectionPattern);
+    return match ? match[0] : null;
+  };
+
+  test("pages view config excludes permalink when permalinks feature is disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { permalinks: false },
+    });
+    const yaml = generatePagesYaml(config);
+    const pagesView = getViewSection(yaml, "pages");
+
+    expect(pagesView).not.toContain("- permalink");
+    expect(pagesView).toContain("- meta_title");
+  });
+
+  test("pages view config includes permalink when permalinks feature is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { permalinks: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const pagesView = getViewSection(yaml, "pages");
+
+    expect(pagesView).toContain("- permalink");
+    expect(pagesView).toContain("- meta_title");
+  });
+
+  test("pages view config validates fields/sort/primary when header_images disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { header_images: false },
+    });
+    const yaml = generatePagesYaml(config);
+    const pagesView = getViewSection(yaml, "pages");
+
+    // Excludes unavailable fields
+    expect(pagesView).not.toContain("- header_text");
+    // Includes available fields
+    expect(pagesView).toContain("- meta_title");
+    // Sort is filtered to available fields
+    expect(pagesView).toContain("sort:");
+    // Primary falls back to available field
+    expect(yaml).toContain("primary: meta_title");
+  });
+
+  test("pages view config includes header_text when header_images feature is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { header_images: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const pagesView = getViewSection(yaml, "pages");
+
+    expect(pagesView).toContain("- header_text");
+    expect(pagesView).toContain("- meta_title");
+  });
+
+  test("pages view config has valid fields even with minimal features", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: {
+        permalinks: false,
+        header_images: false,
+      },
+    });
+    const yaml = generatePagesYaml(config);
+    const pagesView = getViewSection(yaml, "pages");
+
+    // Should still have meta_title as a valid field
+    expect(pagesView).toContain("fields:");
+    expect(pagesView).toContain("- meta_title");
   });
 });

@@ -75,7 +75,6 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
-    dependencies: ["team"],
   },
   {
     name: "events",
@@ -106,7 +105,6 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: false,
     supportsTabs: false,
-    dependencies: ["products"],
   },
   {
     name: "locations",
@@ -117,7 +115,6 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
-    dependencies: ["categories"],
   },
   {
     name: "properties",
@@ -128,7 +125,6 @@ export const COLLECTIONS = [
     supportsSpecs: true,
     supportsGallery: true,
     supportsTabs: true,
-    dependencies: ["locations"],
   },
   {
     name: "guides",

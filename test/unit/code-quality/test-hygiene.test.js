@@ -320,6 +320,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "defaultTestFiles",
   // capture.test.js - test harness for push/slot shortcodes
   "setupCapture",
+  // customise-cms.test.js - YAML section extraction helpers
+  "getEventsSection",
+  "getViewSection",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
