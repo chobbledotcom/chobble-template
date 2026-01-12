@@ -10,8 +10,6 @@
  *   - { name: foo, type: string, label: Foo }
  */
 
-import { accumulate } from "#utils/array-utils.js";
-
 /**
  * @typedef {Object} KeyValuePair
  * @property {string} key - The key name
@@ -202,7 +200,7 @@ export const compactYaml = (yamlString) => {
   const processFrom = (index, acc) => {
     if (index >= lines.length) return acc;
     const { output, nextIndex } = processLine(lines, index);
-    return processFrom(nextIndex, accumulate(acc, ...output));
+    return processFrom(nextIndex, [...acc, ...output]);
   };
 
   return processFrom(0, []).join("\n");
