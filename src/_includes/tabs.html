@@ -3,10 +3,7 @@
     <ul>
       {%- for tab in tabs -%}
         <li class="tab">
-          <a
-            href="#tab-{{ forloop.index }}"
-            data-turbo="false"
-          >
+          <a href="#tab-{{ forloop.index }}">
             {{- tab.title -}}
           </a>
         </li>

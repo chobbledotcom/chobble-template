@@ -156,7 +156,6 @@ const ALLOWED_LET = new Set([
   "test/unit/frontend/hire-calculator.test.js",
   "test/unit/frontend/scroll-fade.test.js",
   "test/unit/frontend/cart.test.js",
-  "test/unit/frontend/turbo.test.js",
   "test/unit/frontend/slider.test.js",
   "test/unit/frontend/search.test.js",
   "test/unit/frontend/quote-checkout.test.js",

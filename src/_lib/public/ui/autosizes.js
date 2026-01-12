@@ -171,15 +171,7 @@
   });
 
   function initAutosizes() {
-    // On Turbo navigations, FCP has already happened, so process images directly
     if (state.initialized) {
-      state.fcpDone = true;
-      const images = document.querySelectorAll(
-        'img[sizes^="auto"][loading="lazy"]',
-      );
-      for (const img of images) {
-        calculateAndSetSizes(img);
-      }
       return;
     }
 
@@ -213,7 +205,4 @@
   } else {
     initAutosizes();
   }
-
-  // Re-initialize on Turbo navigation (for SPA-like page transitions)
-  document.addEventListener("turbo:load", initAutosizes);
 })();
