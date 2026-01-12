@@ -17,6 +17,37 @@ import {
 } from "#scripts/customise-cms/fields.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 
+/**
+ * Default features object with all features disabled
+ * @type {import('#scripts/customise-cms/config.js').CmsFeatures}
+ */
+const DISABLED_FEATURES = {
+  permalinks: false,
+  redirects: false,
+  faqs: false,
+  specs: false,
+  features: false,
+  galleries: false,
+  header_images: false,
+  event_locations_and_dates: false,
+};
+
+/**
+ * Create a minimal test configuration with optional overrides
+ * @param {Object} [overrides={}] - Properties to override
+ * @param {string[]} [overrides.collections] - Collections to include
+ * @param {Object} [overrides.features] - Feature flags to merge with disabled defaults
+ * @param {boolean} [overrides.hasSrcFolder] - Whether template has src folder
+ * @param {boolean} [overrides.customHomePage] - Whether template has custom home layout
+ * @returns {import('#scripts/customise-cms/config.js').CmsConfig}
+ */
+const createTestConfig = (overrides = {}) => ({
+  collections: overrides.collections ?? ["pages"],
+  features: { ...DISABLED_FEATURES, ...(overrides.features ?? {}) },
+  hasSrcFolder: overrides.hasSrcFolder ?? true,
+  customHomePage: overrides.customHomePage ?? false,
+});
+
 describe("customise-cms collections", () => {
   // ============================================
   // COLLECTIONS constant
@@ -251,19 +282,7 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml includes pages collection", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig());
 
     expect(yaml).toContain("name: pages");
     expect(yaml).toContain("label: Pages");
@@ -271,7 +290,7 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml includes products with features when enabled", () => {
-    const config = {
+    const config = createTestConfig({
       collections: ["pages", "products", "categories"],
       features: {
         permalinks: true,
@@ -281,8 +300,7 @@ describe("customise-cms generator", () => {
         features: true,
         galleries: true,
       },
-      hasSrcFolder: true,
-    };
+    });
     const yaml = generatePagesYaml(config);
 
     expect(yaml).toContain("name: products");
@@ -295,19 +313,7 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml excludes optional fields when disabled", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig());
 
     // These should NOT appear in pages collection
     // Note: they might appear in file configs, so we check the pages section
@@ -329,18 +335,9 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml handles collection dependencies", () => {
-    const config = {
+    const config = createTestConfig({
       collections: ["pages", "reviews", "products", "categories"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-    };
+    });
     const yaml = generatePagesYaml(config);
 
     // Reviews should have products reference since products is included
@@ -349,19 +346,7 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml handles minimal configuration", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig());
 
     // Should still produce valid output
     expect(yaml).toContain("media:");
@@ -370,19 +355,7 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml uses src paths when hasSrcFolder is true", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig({ hasSrcFolder: true }));
 
     expect(yaml).toContain("path: src/_data/site.json");
     expect(yaml).toContain("path: src/_data/meta.json");
@@ -393,19 +366,7 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml adjusts paths when no src folder", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: false,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig({ hasSrcFolder: false }));
 
     expect(yaml).toContain("path: _data/site.json");
     expect(yaml).toContain("path: _data/meta.json");
@@ -416,39 +377,13 @@ describe("customise-cms generator", () => {
   });
 
   test("generatePagesYaml excludes homepage when customHomePage is true", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-      customHomePage: true,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig({ customHomePage: true }));
 
     expect(yaml).not.toContain("name: homepage");
   });
 
   test("generatePagesYaml includes homepage when customHomePage is false", () => {
-    const config = {
-      collections: ["pages"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-      },
-      hasSrcFolder: true,
-      customHomePage: false,
-    };
-    const yaml = generatePagesYaml(config);
+    const yaml = generatePagesYaml(createTestConfig({ customHomePage: false }));
 
     expect(yaml).toContain("name: homepage");
   });
@@ -495,21 +430,22 @@ describe("customise-cms config", () => {
 });
 
 describe("customise-cms events fields", () => {
+  /**
+   * Helper to extract the events section from generated YAML
+   * @param {string} yaml - Full YAML string
+   * @returns {string} Events section of the YAML
+   */
+  const getEventsSection = (yaml) =>
+    yaml.substring(
+      yaml.indexOf("name: events"),
+      yaml.indexOf("name: homepage"),
+    );
+
   test("events include location and date fields when event_locations_and_dates is true", () => {
-    const config = {
+    const config = createTestConfig({
       collections: ["pages", "events"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-        header_images: false,
-        event_locations_and_dates: true,
-      },
-      hasSrcFolder: true,
-    };
+      features: { event_locations_and_dates: true },
+    });
     const yaml = generatePagesYaml(config);
 
     expect(yaml).toContain("name: events");
@@ -520,29 +456,13 @@ describe("customise-cms events fields", () => {
   });
 
   test("events exclude location and date fields when event_locations_and_dates is false", () => {
-    const config = {
+    const config = createTestConfig({
       collections: ["pages", "events"],
-      features: {
-        permalinks: false,
-        redirects: false,
-        faqs: false,
-        specs: false,
-        features: false,
-        galleries: false,
-        header_images: false,
-        event_locations_and_dates: false,
-      },
-      hasSrcFolder: true,
-    };
+    });
     const yaml = generatePagesYaml(config);
+    const eventsSection = getEventsSection(yaml);
 
     expect(yaml).toContain("name: events");
-
-    // Extract only the events section to avoid false positives from site.json
-    const eventsStart = yaml.indexOf("name: events");
-    const eventsEnd = yaml.indexOf("name: homepage");
-    const eventsSection = yaml.substring(eventsStart, eventsEnd);
-
     expect(eventsSection).not.toContain("name: event_date");
     expect(eventsSection).not.toContain("name: recurring_date");
     expect(eventsSection).not.toContain("name: event_location");
@@ -550,38 +470,23 @@ describe("customise-cms events fields", () => {
   });
 
   test("events view config includes location/date fields when event_locations_and_dates is true", () => {
-    const config = {
+    const config = createTestConfig({
       collections: ["pages", "events"],
-      features: {
-        event_locations_and_dates: true,
-      },
-      hasSrcFolder: true,
-    };
-    const yaml = generatePagesYaml(config);
+      features: { event_locations_and_dates: true },
+    });
+    const eventsSection = getEventsSection(generatePagesYaml(config));
 
-    const eventsSection = yaml.substring(
-      yaml.indexOf("name: events"),
-      yaml.indexOf("name: homepage"),
-    );
     expect(eventsSection).toContain("event_date");
     expect(eventsSection).toContain("recurring_date");
     expect(eventsSection).toContain("event_location");
   });
 
   test("events view config excludes location/date fields when event_locations_and_dates is false", () => {
-    const config = {
+    const config = createTestConfig({
       collections: ["pages", "events"],
-      features: {
-        event_locations_and_dates: false,
-      },
-      hasSrcFolder: true,
-    };
-    const yaml = generatePagesYaml(config);
+    });
+    const eventsSection = getEventsSection(generatePagesYaml(config));
 
-    const eventsSection = yaml.substring(
-      yaml.indexOf("name: events"),
-      yaml.indexOf("name: homepage"),
-    );
     // Should only have title in the view fields
     expect(eventsSection).toContain("fields:");
     expect(eventsSection).toContain("- title");

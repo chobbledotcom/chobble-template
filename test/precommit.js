@@ -6,30 +6,24 @@
  */
 
 import {
+  COMMON_STEPS,
   extractErrorsFromOutput,
-  printSummary,
-  runStep,
+  runSteps,
 } from "#test/test-runner-utils.js";
 
 const verbose = process.argv.includes("--verbose");
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 
-// Define the steps to run
+// Precommit uses fix variants of lint/knip plus basic test (no coverage)
 const steps = [
-  { name: "install", cmd: "bun", args: ["install"] },
-  {
-    name: "generate-types",
-    cmd: "bun",
-    args: ["scripts/generate-pages-cms-types.js"],
-  },
-  { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
-  { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
-  { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
-  { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
-  { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
+  COMMON_STEPS.install,
+  COMMON_STEPS.generateTypes,
+  COMMON_STEPS.lintFix,
+  COMMON_STEPS.knipFix,
+  COMMON_STEPS.typecheck,
+  COMMON_STEPS.cpd,
+  COMMON_STEPS.test,
 ];
-
-const results = {};
 
 // Export extractErrorsFromOutput for backwards compatibility with tests
 export { extractErrorsFromOutput };
@@ -42,15 +36,5 @@ if (isMainModule) {
       : "Running precommit checks...",
   );
 
-  for (const step of steps) {
-    const result = runStep(step, verbose);
-    results[step.name] = result;
-
-    if (result.status !== 0) {
-      printSummary(steps, results, "PRECOMMIT SUMMARY");
-      process.exit(1);
-    }
-  }
-
-  printSummary(steps, results, "PRECOMMIT SUMMARY");
+  runSteps({ steps, verbose, title: "PRECOMMIT SUMMARY" });
 }

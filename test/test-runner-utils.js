@@ -9,6 +9,50 @@ import { printTruncatedList } from "#utils/array-utils.js";
 const rootDir = ROOT_DIR;
 
 /**
+ * Common step definitions used by test runners
+ * @type {Object.<string, Object>}
+ */
+export const COMMON_STEPS = {
+  install: { name: "install", cmd: "bun", args: ["install"] },
+  generateTypes: {
+    name: "generate-types",
+    cmd: "bun",
+    args: ["scripts/generate-pages-cms-types.js"],
+  },
+  lint: { name: "lint", cmd: "bun", args: ["run", "lint"] },
+  lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
+  knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
+  typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
+  cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
+  test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
+  build: {
+    name: "build",
+    cmd: "bun",
+    args: ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
+  },
+};
+
+/**
+ * Create a tests step with coverage and optional verbose flag
+ * @param {boolean} verbose - Whether to include verbose flag
+ * @returns {Object} Tests step configuration
+ */
+export const createTestsWithCoverageStep = (verbose) => ({
+  name: "tests",
+  cmd: "bun",
+  args: [
+    "test",
+    "--coverage",
+    "--coverage-reporter=lcov",
+    "--coverage-reporter=text",
+    "--concurrent",
+    "--timeout",
+    "30000",
+    ...(verbose ? ["--verbose"] : []),
+  ],
+});
+
+/**
  * Run a single test step
  * @param {Object} step - Step configuration
  * @param {boolean} verbose - Whether to show full output
@@ -144,6 +188,31 @@ export function extractErrorsFromOutput(output) {
   }
 
   return errors;
+}
+
+/**
+ * Run all steps in sequence, stopping on first failure
+ * @param {Object} options - Runner options
+ * @param {Object[]} options.steps - Array of step configurations
+ * @param {boolean} options.verbose - Whether to show full output
+ * @param {string} options.title - Title for summary output
+ * @returns {Object} Results map from step names to results
+ */
+export function runSteps({ steps, verbose, title }) {
+  const results = {};
+
+  for (const step of steps) {
+    const result = runStep(step, verbose);
+    results[step.name] = result;
+
+    if (result.status !== 0) {
+      printSummary(steps, results, title);
+      process.exit(1);
+    }
+  }
+
+  printSummary(steps, results, title);
+  return results;
 }
 
 /**
