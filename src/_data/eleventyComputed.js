@@ -3,6 +3,7 @@ import { join } from "node:path";
 import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
 import { memoize } from "#utils/memoize.js";
+import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
   buildOrganizationMeta,
@@ -90,6 +91,14 @@ export default {
    * @returns {import("#lib/types").Tab[]} Tabs array (guaranteed non-empty semantically)
    */
   tabs: (data) => data.tabs ?? [],
+
+  /**
+   * Adds #content anchor to navigation URLs if config flag is enabled
+   * @param {Object} data - Page data
+   * @returns {Object|boolean|undefined} Navigation object with optional url anchor
+   */
+  eleventyNavigation: (data) =>
+    withNavigationAnchor(data, data.eleventyNavigation),
 
   /**
    * @param {Object} data - Page data
