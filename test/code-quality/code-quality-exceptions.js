@@ -63,16 +63,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 ]);
 
 // ============================================
-// HTML in JavaScript exceptions
-// ============================================
-
-// Files that are allowed to contain HTML in JavaScript template literals.
-// These should be refactored over time to use external templates.
-const ALLOWED_HTML_IN_JS = new Set([
-  // No exceptions - all HTML has been moved to templates
-]);
-
-// ============================================
 // process.cwd() exceptions (test files only)
 // ============================================
 
@@ -331,7 +321,6 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
 
 export {
   ALLOWED_TRY_CATCHES,
-  ALLOWED_HTML_IN_JS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
