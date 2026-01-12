@@ -21,13 +21,6 @@ const setMinDate = (input) => {
   input.min = today;
 };
 
-const areDatesValid = (startValue, endValue) => Boolean(startValue && endValue);
-
-const notifyDaysChange = (daysInput, onDaysChange, days) => {
-  if (daysInput) daysInput.value = days;
-  onDaysChange(days);
-};
-
 const syncEndDateConstraint = (startInput, endInput) => {
   endInput.min = startInput.value;
   if (endInput.value && endInput.value < startInput.value) {
@@ -46,14 +39,18 @@ const initHireCalculator = (onDaysChange) => {
   setMinDate(startInput);
   setMinDate(endInput);
 
+  const setDays = (value) => {
+    if (daysInput) daysInput.value = value;
+  };
+
   const handleChange = () => {
-    if (!areDatesValid(startInput.value, endInput.value)) {
-      if (daysInput) daysInput.value = "";
-      onDaysChange(1);
-      return;
+    if (!startInput.value || !endInput.value) {
+      setDays("");
+      return onDaysChange(1);
     }
     const days = calculateDays(startInput.value, endInput.value);
-    notifyDaysChange(daysInput, onDaysChange, days);
+    setDays(days);
+    onDaysChange(days);
   };
 
   startInput.addEventListener("change", () => {
