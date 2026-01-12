@@ -328,6 +328,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "defaultTestFiles",
   // capture.test.js - test harness for push/slot shortcodes
   "setupCapture",
+  // customise-cms.test.js - test setup helpers
+  "setupSiteJson",
+  "setupSiteJsonWithSrc",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
