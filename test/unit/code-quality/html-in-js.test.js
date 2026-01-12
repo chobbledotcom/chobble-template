@@ -299,11 +299,6 @@ const matchesHtmlPattern = (content) =>
   hasKnownHtmlTag(content);
 
 /**
- * Check if content contains HTML
- */
-const containsHtml = (content) => matchesHtmlPattern(content);
-
-/**
  * Create a preview of HTML content (first 60 chars, normalized whitespace)
  */
 const createPreview = (content) => {
@@ -325,7 +320,7 @@ const toHtmlResult = (item) => ({
  */
 const findHtmlInJs = (source) =>
   filterMap(
-    (item) => containsHtml(item.content),
+    (item) => matchesHtmlPattern(item.content),
     toHtmlResult,
   )(extractStringContent(source));
 
