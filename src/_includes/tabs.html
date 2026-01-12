@@ -11,10 +11,17 @@
           </a>
         </li>
         <li
-          class="body"
+          class="body{% if tab.image %} has-image{% endif %}"
           id="tab-{{ forloop.index }}"
         >
-          {{- tab.body | renderContent: "md" -}}
+          {%- if tab.image -%}
+            <div class="tab-image">
+              {% image tab.image, tab.title, "240,480,640", "", "", "1/1" %}
+            </div>
+          {%- endif -%}
+          <div class="tab-content">
+            {{- tab.body | renderContent: "md" -}}
+          </div>
         </li>
       {%- endfor -%}
     </ul>
