@@ -57,6 +57,23 @@ const getContentFields = (config) => [
 ];
 
 /**
+ * Common leading fields for item collections
+ * @type {CmsField[]}
+ */
+const ITEM_HEADER = [COMMON_FIELDS.title, COMMON_FIELDS.thumbnail];
+
+/**
+ * Common trailing fields for item collections
+ * @param {CmsConfig} config - CMS configuration
+ * @returns {(false | CmsField)[]} body, optional header_text, meta
+ */
+const getItemFooter = (config) => [
+  COMMON_FIELDS.body,
+  config.features.header_images && COMMON_FIELDS.header_text,
+  ...META_FIELDS,
+];
+
+/**
  * Create a collection membership checker from config
  * @param {CmsConfig} config - CMS configuration
  * @returns {(name: string) => boolean} Collection membership predicate
@@ -156,8 +173,7 @@ const getCollectionFieldBuilders = (config) => ({
 
   guides: () =>
     compact([
-      COMMON_FIELDS.title,
-      COMMON_FIELDS.thumbnail,
+      ...ITEM_HEADER,
       config.features.header_images && COMMON_FIELDS.header_image,
       ...getContentFields(config),
     ]),
@@ -166,8 +182,7 @@ const getCollectionFieldBuilders = (config) => ({
 
   menus: () =>
     compact([
-      COMMON_FIELDS.title,
-      COMMON_FIELDS.thumbnail,
+      ...ITEM_HEADER,
       COMMON_FIELDS.order,
       config.features.header_images && COMMON_FIELDS.header_image,
       COMMON_FIELDS.subtitle,
@@ -198,8 +213,7 @@ const buildNewsFields = (config) =>
  */
 const buildProductsFields = (config) =>
   buildWithCollections((hasCollection) => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.thumbnail,
+    ...ITEM_HEADER,
     config.features.header_images && COMMON_FIELDS.header_image,
     hasCollection("categories") &&
       createReferenceField("categories", "Categories", "categories"),
@@ -269,9 +283,7 @@ const buildEventsFields = (config) =>
       label: "Map Embed URL",
       required: false,
     },
-    COMMON_FIELDS.body,
-    config.features.header_images && COMMON_FIELDS.header_text,
-    ...META_FIELDS,
+    ...getItemFooter(config),
   ]);
 
 /**
@@ -281,8 +293,7 @@ const buildEventsFields = (config) =>
  */
 const buildLocationsFields = (config) =>
   buildWithCollections((hasCollection) => [
-    COMMON_FIELDS.title,
-    COMMON_FIELDS.thumbnail,
+    ...ITEM_HEADER,
     COMMON_FIELDS.subtitle,
     hasCollection("categories") &&
       createReferenceField("categories", "Categories", "categories"),
