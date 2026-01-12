@@ -26,6 +26,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempDir",
   "withTempFile",
   "withMockedCwd",
+  "withMockedCwdAsync",
+  "mockCwdSetup",
+  "mockCwdTeardown",
   "withMockedConsole",
   "withAssetDir",
   "expectValidScriptTag",
@@ -306,6 +309,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "defaultTestFiles",
   // capture.test.js - test harness for push/slot shortcodes
   "setupCapture",
+  // customise-cms.test.js - test setup helpers
+  "setupSiteJson",
+  "setupSiteJsonWithSrc",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
