@@ -95,19 +95,44 @@ export const GALLERY_FIELD = {
 };
 
 /**
+ * Common nested fields for name/value pair objects
+ * Used by specs, filter attributes, and similar list fields
+ * @type {CmsField[]}
+ */
+const NAME_VALUE_FIELDS = [
+  { name: "name", type: "string", label: "Name", required: true },
+  { name: "value", type: "string", label: "Value", required: true },
+];
+
+/**
+ * Create an object list field with custom nested fields
+ * @param {string} name - Field name
+ * @param {string} label - Display label
+ * @param {CmsField[]} nestedFields - Fields within each list item
+ * @returns {CmsField} Object list field configuration
+ */
+export const createObjectListField = (name, label, nestedFields) => ({
+  name,
+  label,
+  type: "object",
+  list: true,
+  fields: nestedFields,
+});
+
+/**
+ * Create an object list field with name/value pairs
+ * @param {string} name - Field name
+ * @param {string} label - Display label
+ * @returns {CmsField} Object list field configuration
+ */
+const createNameValueListField = (name, label) =>
+  createObjectListField(name, label, NAME_VALUE_FIELDS);
+
+/**
  * Specs field configuration
  * @type {CmsField}
  */
-export const SPECS_FIELD = {
-  name: "specs",
-  label: "Specifications",
-  type: "object",
-  list: true,
-  fields: [
-    { name: "name", type: "string", label: "Name", required: true },
-    { name: "value", type: "string", label: "Value", required: true },
-  ],
-};
+export const SPECS_FIELD = createNameValueListField("specs", "Specifications");
 
 /**
  * Features list field configuration
@@ -202,16 +227,10 @@ export const PRODUCT_OPTIONS_FIELD = {
  * Filter attributes field
  * @type {CmsField}
  */
-export const FILTER_ATTRIBUTES_FIELD = {
-  name: "filter_attributes",
-  label: "Filter Attributes",
-  type: "object",
-  list: true,
-  fields: [
-    { name: "name", type: "string", label: "Name", required: true },
-    { name: "value", type: "string", label: "Value", required: true },
-  ],
-};
+export const FILTER_ATTRIBUTES_FIELD = createNameValueListField(
+  "filter_attributes",
+  "Filter Attributes",
+);
 
 /**
  * Tabs field
