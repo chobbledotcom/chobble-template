@@ -1,4 +1,4 @@
-{%- if opening_times.size > 0 -%}
+{%- if opening_times.length > 0 -%}
 <ul>
   {%- for item in opening_times -%}
   <li><strong>{{ item.day }}:</strong> {{ item.hours }}</li>

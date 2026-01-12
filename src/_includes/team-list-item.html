@@ -4,9 +4,8 @@
       {% image person.data.image, "", "240,480,640" %}
     </a>
   {%- endif -%}
-  <a href="{{ person.url }}#content">{{- person.data.title -}}</a>
+  <h2><a href="{{ person.url }}#content">{{- person.data.title -}}</a></h2>
   {%- if  person.data.snippet -%}
-    <br>
-    {{- person.data.snippet -}}
+    <p>{{- person.data.snippet -}}</p>
   {%- endif -%}
 </li>

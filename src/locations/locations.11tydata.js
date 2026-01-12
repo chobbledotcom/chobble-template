@@ -1,4 +1,5 @@
 import strings from "#data/strings.js";
+import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
 const locationDir = strings.location_permalink_dir;
@@ -20,20 +21,22 @@ export default {
       return `/${locationDir}/${data.page.fileSlug}/`;
     },
     eleventyNavigation: (data) => {
-      if (data.eleventyNavigation) return data.eleventyNavigation;
+      if (data.eleventyNavigation) {
+        return withNavigationAnchor(data, data.eleventyNavigation);
+      }
       if (data.parentLocation) {
         // Service-location: add as child of parent location
-        return {
+        return withNavigationAnchor(data, {
           key: data.title,
           parent: slugToTitle(data.parentLocation),
           order: data.link_order || 0,
-        };
+        });
       }
-      return {
+      return withNavigationAnchor(data, {
         key: data.title,
         parent: strings.location_name,
         order: data.link_order || 0,
-      };
+      });
     },
   },
 };

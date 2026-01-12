@@ -28,13 +28,22 @@
       bottom: 0;
       height: 17rem;
       display: none;
-      overflow-y: scroll;
+      flex-direction: row;
+      gap: 1rem;
       &:target {
-        display: block;
+        display: flex;
+      }
+      .image-wrapper {
+        flex-shrink: 0;
+        height: 100%;
+      }
+      .tab-content {
+        flex: 1;
+        overflow-y: auto;
       }
     }
     &:not(:has(.body:target)) .body:nth-of-type(2) {
-      display: block;
+      display: flex;
     }
   }
 }

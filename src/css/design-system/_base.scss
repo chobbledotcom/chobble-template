@@ -2,10 +2,15 @@
 @use "../mixins" as *;
 
 // =============================================================================
-// CSS CUSTOM PROPERTIES
+// DESIGN SYSTEM ROOT
 // =============================================================================
+// All styles are scoped to .design-system to avoid affecting other page content
 
-:root {
+.design-system {
+  // ===========================================================================
+  // CSS CUSTOM PROPERTIES (scoped)
+  // ===========================================================================
+
   --bg: #{$color-bg};
   --bg-alt: #{$color-bg-alt};
   --card-bg: #{$color-card-bg};
@@ -19,31 +24,27 @@
   --hover-bg: #{$color-hover-bg};
   --font-sans: #{$font-sans};
   --font-mono: #{$font-mono};
-}
 
-// =============================================================================
-// BASE RESET
-// =============================================================================
+  // ===========================================================================
+  // BASE RESET (scoped)
+  // ===========================================================================
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html {
   scroll-behavior: smooth;
 
   @include reduced-motion {
     scroll-behavior: auto;
   }
-}
 
-// =============================================================================
-// DESIGN SYSTEM ROOT
-// =============================================================================
+  // ===========================================================================
+  // ROOT STYLES
+  // ===========================================================================
 
-.design-system {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
@@ -53,9 +54,9 @@ html {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
 
-  // =========================================================================
+  // ===========================================================================
   // TYPOGRAPHY
-  // =========================================================================
+  // ===========================================================================
 
   h1,
   h2,
@@ -139,9 +140,9 @@ html {
     margin-bottom: $space-xs;
   }
 
-  // =========================================================================
+  // ===========================================================================
   // SCROLL ANIMATIONS
-  // =========================================================================
+  // ===========================================================================
 
   [data-reveal] {
     @include scroll-reveal;
@@ -166,44 +167,44 @@ html {
       transition: none;
     }
   }
-}
 
-// =============================================================================
-// CONTAINER
-// =============================================================================
+  // ===========================================================================
+  // CONTAINER
+  // ===========================================================================
 
-.container {
-  @include container($width-wide);
+  .container {
+    @include container($width-wide);
 
-  &--narrow {
-    @include container($width-narrow);
+    &--narrow {
+      @include container($width-narrow);
+    }
+    &--default {
+      @include container($width-default);
+    }
   }
-  &--default {
-    @include container($width-default);
-  }
-}
 
-// =============================================================================
-// SECTION
-// =============================================================================
+  // ===========================================================================
+  // SECTION
+  // ===========================================================================
 
-section {
-  @include section;
+  section {
+    @include section;
 
-  &.compact {
-    @include section($space-2xl);
-  }
-  &.alt {
-    background: var(--bg-alt);
-  }
-  &.dark {
-    background: #{$color-dark-bg};
-    color: #{$color-dark-text};
-    --text: #{$color-dark-text};
-    --text-muted: #{$color-dark-text-muted};
-    --card-bg: #{$color-dark-card-bg};
-  }
-  &.gradient {
-    background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);
+    &.compact {
+      @include section($space-2xl);
+    }
+    &.alt {
+      background: var(--bg-alt);
+    }
+    &.dark {
+      background: #{$color-dark-bg};
+      color: #{$color-dark-text};
+      --text: #{$color-dark-text};
+      --text-muted: #{$color-dark-text-muted};
+      --card-bg: #{$color-dark-card-bg};
+    }
+    &.gradient {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);
+    }
   }
 }

@@ -335,8 +335,8 @@ describe("DEFAULTS", () => {
     })(DEFAULTS);
   });
 
-  test("has design_system_layouts default with landing-page.html", () => {
-    expect(DEFAULTS.design_system_layouts).toEqual(["landing-page.html"]);
+  test("has design_system_layouts default with design-system-base.html", () => {
+    expect(DEFAULTS.design_system_layouts).toEqual(["design-system-base.html"]);
   });
 });
 

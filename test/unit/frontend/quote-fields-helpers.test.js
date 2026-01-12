@@ -5,17 +5,9 @@ import {
 } from "#config/quote-fields-helpers.js";
 import { expectProp } from "#test/test-utils.js";
 
-const expectStepNumbers = expectProp("stepNumber");
-const expectIsFirst = expectProp("isFirst");
-const expectIsLast = expectProp("isLast");
-const expectFieldIndex = expectProp("fieldIndex");
-const expectTemplate = expectProp("template");
-
-// Field factories
+// Simple field fixture factories
 const heading = (title) => ({ type: "heading", title });
 const field = (name, type = "text") => ({ name, type });
-
-// Section factory
 const section = (fields, title) => (title ? { title, fields } : { fields });
 
 // Quote data factory with defaults
@@ -35,9 +27,9 @@ describe("quote-fields-helpers", () => {
         section([heading("Section 2"), field("b", "email")]),
       ]);
 
-      expectStepNumbers(result, [0, 1]);
-      expectIsFirst(result, [true, false]);
-      expectIsLast(result, [false, true]);
+      expectProp("stepNumber")(result, [0, 1]);
+      expectProp("isFirst")(result, [true, false]);
+      expectProp("isLast")(result, [false, true]);
     });
 
     test("adds templates to fields", () => {
@@ -45,7 +37,7 @@ describe("quote-fields-helpers", () => {
         section([heading("Test"), field("text"), field("area", "textarea")]),
       ]);
 
-      expectTemplate(result[0].fields, [
+      expectProp("template")(result[0].fields, [
         "form-field-heading.html",
         "form-field-input.html",
         "form-field-textarea.html",
@@ -57,14 +49,14 @@ describe("quote-fields-helpers", () => {
         section([heading("Test"), field("a"), field("b")]),
       ]);
 
-      expectFieldIndex(result[0].fields, [0, 1, 2]);
+      expectProp("fieldIndex")(result[0].fields, [0, 1, 2]);
     });
 
     test("single section is both first and last", () => {
       const result = buildSections([section([heading("Only"), field("solo")])]);
 
-      expectIsFirst(result, [true]);
-      expectIsLast(result, [true]);
+      expectProp("isFirst")(result, [true]);
+      expectProp("isLast")(result, [true]);
     });
   });
 
@@ -120,11 +112,11 @@ describe("quote-fields-helpers", () => {
         ]),
       );
 
-      expectTemplate(result.sections[0].fields, [
+      expectProp("template")(result.sections[0].fields, [
         "form-field-heading.html",
         "form-field-input.html",
       ]);
-      expectTemplate(result.sections[1].fields, [
+      expectProp("template")(result.sections[1].fields, [
         "form-field-heading.html",
         "form-field-textarea.html",
       ]);

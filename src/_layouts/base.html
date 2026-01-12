@@ -1,25 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include "head.html" %}
-<body class="
-  {{- layout | replace: ".html", "" }}
-  {% if config.sticky_mobile_nav %}
-    sticky-mobile-nav
-  {% endif %}
-  {% if config.horizontal_nav %}
-    horizontal-nav
-  {% else %}
-    left-nav
-  {% endif %}
-  {% if "src/snippets/right-content.md" | file_exists -%}
-    two-columns
-  {% else -%}
-    one-column
-  {% endif %}
-  {% for class in body-classes %}
-   {{ class }}
-  {% endfor %}
-">
+{%- assign has_right_content = "src/snippets/right-content.md" | file_exists -%}
+<body class="{{ layout | getBodyClasses: config.design_system_layouts, false, config.sticky_mobile_nav, config.horizontal_nav, has_right_content }}{% for class in body-classes %} {{ class }}{% endfor %}">
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}

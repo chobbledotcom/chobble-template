@@ -1,3 +1,5 @@
+{% assign products = collections.products | getProductsByCategory: page.fileSlug %}
+
 {% if products.size > 0 %}
   <h2>{{ strings.product_name }}</h2>
   {%- include "items.html", items: products -%}

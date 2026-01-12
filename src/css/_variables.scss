@@ -5,8 +5,9 @@
 // Site owners should edit _theme-variables.scss, NOT this file.
 // =============================================================================
 
-// Import theme overrides first - these will take precedence over !default values
-@use "theme-variables" as *;
+// Forward theme overrides first - these will take precedence over !default values
+// Using @forward ensures theme variables are properly re-exported
+@forward "theme-variables";
 
 // -----------------------------------------------------------------------------
 // COLORS

@@ -63,17 +63,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 ]);
 
 // ============================================
-// HTML in JavaScript exceptions
-// ============================================
-
-// Files that are allowed to contain HTML in JavaScript template literals.
-// These should be refactored over time to use external templates.
-const ALLOWED_HTML_IN_JS = new Set([
-  // Server-side Eleventy plugins generating HTML
-  "src/_lib/eleventy/recurring-events.js",
-]);
-
-// ============================================
 // process.cwd() exceptions (test files only)
 // ============================================
 
@@ -124,12 +113,14 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/method-aliasing.test.js",
   "test/unit/code-quality/naming-conventions.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
+  "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
   "test/unit/code-quality/test-hygiene.test.js",
   "test/unit/code-quality/test-quality.test.js",
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
+  "test/unit/code-quality/design-system-scoping.test.js",
   "test/unit/test-runner-utils.test.js",
   "test/unit/test-utils.test.js",
   "test/unit/collections/categories.test.js",
@@ -165,17 +156,18 @@ const ALLOWED_LET = new Set([
   "test/unit/frontend/hire-calculator.test.js",
   "test/unit/frontend/scroll-fade.test.js",
   "test/unit/frontend/cart.test.js",
-  "test/unit/frontend/turbo.test.js",
   "test/unit/frontend/slider.test.js",
   "test/unit/frontend/search.test.js",
   "test/unit/frontend/quote-checkout.test.js",
   "test/unit/code-quality/code-scanner.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
+  "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/html-in-js.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
   "test/unit/code-quality/unused-classes.test.js",
+  "test/unit/code-quality/design-system-scoping.test.js",
   "test/test-site-factory.js",
   "test/integration/test-site-factory.test.js",
   "test/precommit.js",
@@ -275,6 +267,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
   "src/_lib/eleventy/style-bundle.js:configureStyleBundle",
+  "src/_lib/eleventy/style-bundle.js:getBodyClasses",
   "src/_lib/eleventy/style-bundle.js:getCssBundle",
   "src/_lib/eleventy/style-bundle.js:getJsBundle",
   "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
@@ -319,8 +312,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:55",
-  "test/integration/eleventy/recurring-events.test.js:49",
+  "test/unit/code-quality/template-selectors.test.js:41",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",
@@ -328,7 +320,6 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
 
 export {
   ALLOWED_TRY_CATCHES,
-  ALLOWED_HTML_IN_JS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,

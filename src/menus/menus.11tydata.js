@@ -1,17 +1,17 @@
 import { filter, flatMap, pipe, sort, uniqueBy } from "#utils/array-utils.js";
+import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 export default {
   eleventyComputed: {
     pdfFilename: (data) => buildPdfFilename(data.site.name, data.page.fileSlug),
-    eleventyNavigation: (data) => {
-      return {
+    eleventyNavigation: (data) =>
+      withNavigationAnchor(data, {
         key: data.title,
         parent: data.strings.menus_name,
         order: data.order || 0,
-      };
-    },
+      }),
     allDietaryKeys: (data) => {
       const menuCategories = pipe(
         filter((cat) => cat.data.menus?.includes(data.page.fileSlug)),

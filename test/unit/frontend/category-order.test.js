@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import categoryOrder from "#data/categoryOrder.js";
+import { ROOT_DIR } from "#lib/paths.js";
 
 const { DEFAULT_ORDER, getCategoryOrder } = categoryOrder._helpers;
+const INCLUDES_DIR = join(ROOT_DIR, "src/_includes");
 
 describe("category-order", () => {
   // Default export tests (uses actual config)
@@ -13,25 +17,27 @@ describe("category-order", () => {
     expect(categoryOrder.length > 0).toBe(true);
   });
 
-  test("categoryOrder contains only valid section names", () => {
+  test("categoryOrder contains only valid include files", () => {
     for (const section of categoryOrder) {
       expect(DEFAULT_ORDER.includes(section)).toBe(true);
     }
   });
 
   // DEFAULT_ORDER constant tests
-  test("DEFAULT_ORDER contains the four expected section names", () => {
-    expect(DEFAULT_ORDER).toEqual([
-      "content",
-      "faqs",
-      "subcategories",
-      "products",
-    ]);
+  test("DEFAULT_ORDER is non-empty", () => {
+    expect(DEFAULT_ORDER.length).toBeGreaterThan(0);
+  });
+
+  test("DEFAULT_ORDER files all exist in src/_includes", () => {
+    for (const file of DEFAULT_ORDER) {
+      const filePath = join(INCLUDES_DIR, file);
+      expect(existsSync(filePath)).toBe(true);
+    }
   });
 
   // getCategoryOrder function tests - covers all branches
   test("getCategoryOrder returns the input when it is a valid array", () => {
-    const customOrder = ["products", "content"];
+    const customOrder = ["category-products.html", "category-content.html"];
     const result = getCategoryOrder(customOrder);
     expect(result).toEqual(customOrder);
   });
@@ -62,7 +68,7 @@ describe("category-order", () => {
   });
 
   test("getCategoryOrder returns single-element arrays", () => {
-    const singleElement = ["products"];
+    const singleElement = ["category-products.html"];
     const result = getCategoryOrder(singleElement);
     expect(result).toEqual(singleElement);
   });

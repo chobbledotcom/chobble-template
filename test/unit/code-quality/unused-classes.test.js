@@ -11,6 +11,7 @@ import {
   pipe,
   split,
 } from "#lib/utils/array-utils.js";
+import { buildReverseIndex } from "#lib/utils/grouping.js";
 import {
   fs,
   getFiles,
@@ -76,41 +77,22 @@ const extractFromHtml = (type, content) => {
 // ============================================
 
 const extractClassesFromJs = (content) => {
-  const classes = new Set();
+  // Pattern definitions: [regex, capture group index]
+  const patterns = [
+    [/class="([^"$]+)"/g, 1], // class="..." in template literals
+    [/\.classList\.(add|remove|toggle)\("([^"]+)"/g, 2], // classList methods
+    [/classes\s*\+=\s*["']([^"']+)["']/g, 1], // classes += "..."
+    [/(?:let|const|var)\s+classes\s*=\s*["']([^"']+)["']/g, 1], // let classes = "..."
+  ];
 
-  const addClasses = (str) => {
-    for (const cls of str.split(" ")) {
-      if (cls.trim()) {
-        classes.add(cls.trim());
-      }
-    }
-  };
-
-  // Match class="..." in template literals
-  for (const match of content.matchAll(/class="([^"$]+)"/g)) {
-    addClasses(match[1]);
-  }
-
-  // Match classList.add/remove/toggle("className")
-  for (const match of content.matchAll(
-    /\.classList\.(add|remove|toggle)\("([^"]+)"/g,
-  )) {
-    addClasses(match[2]);
-  }
-
-  // Match string concatenation for classes: classes += " past"
-  for (const match of content.matchAll(/classes\s*\+=\s*["']([^"']+)["']/g)) {
-    addClasses(match[1]);
-  }
-
-  // Match initial class assignment: let classes = "calendar-day"
-  for (const match of content.matchAll(
-    /(?:let|const|var)\s+classes\s*=\s*["']([^"']+)["']/g,
-  )) {
-    addClasses(match[1]);
-  }
-
-  return classes;
+  // Extract all classes using flatMap to avoid repeated loops
+  return new Set(
+    patterns.flatMap(([regex, groupIdx]) =>
+      [...content.matchAll(regex)].flatMap((match) =>
+        match[groupIdx].split(" ").filter((cls) => cls.trim()),
+      ),
+    ),
+  );
 };
 
 // ============================================
@@ -274,122 +256,87 @@ describe("unused-classes", () => {
   });
 
   test("Scans project files and reports unused classes/IDs", () => {
-    const addToMap = (map, items, file) => {
-      for (const item of items) {
-        if (!map.has(item)) map.set(item, []);
-        map.get(item).push(file);
-      }
-    };
-
-    const collectAllClassesAndIds = (htmlFiles, jsFiles) => {
-      const allClasses = new Map(); // class -> [files where defined]
-      const allIds = new Map(); // id -> [files where defined]
-
-      // Extract from HTML files
-      for (const file of htmlFiles) {
-        const content = readFileSync(file, "utf-8");
-        addToMap(allClasses, extractFromHtml("class", content), file);
-        addToMap(allIds, extractFromHtml("id", content), file);
-      }
-
-      // Extract from JS files (dynamically created HTML)
-      for (const file of jsFiles) {
-        const content = readFileSync(file, "utf-8");
-        addToMap(allClasses, extractClassesFromJs(content), file);
-      }
-
-      return { allClasses, allIds };
-    };
-
-    const findUnusedClassesAndIds = (
-      allClasses,
-      allIds,
-      scssFiles,
-      jsFiles,
-      htmlFiles,
-    ) => {
-      const findIdReferencesInHtml = (content, idName) => {
-        const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-        const patterns = [
-          // href="#id" or href="/path/#id" anchor links
-          new RegExp(`href=["'][^"']*#${escaped}["']`),
-          // for="id" label associations
-          new RegExp(`for=["']${escaped}["']`),
-        ];
-
-        return patterns.some((pattern) => pattern.test(content));
-      };
-
-      // Load all SCSS, JS, and HTML content
-      const scssContent = scssFiles
-        .map((f) => readFileSync(f, "utf-8"))
-        .join("\n");
-      const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-      const htmlContent = htmlFiles
-        .map((f) => readFileSync(f, "utf-8"))
-        .join("\n");
-
-      const unusedClasses = [];
-      const unusedIds = [];
-
-      // Check each class
-      for (const [className, definedIn] of allClasses) {
-        const inScss = findSelectorReferencesInScss(
-          scssContent,
-          className,
-          "\\.",
-        );
-        const inJs = findReferencesInJs("class")(className)(jsContent);
-
-        if (!inScss && !inJs) {
-          unusedClasses.push({ name: className, definedIn });
-        }
-      }
-
-      // Check each ID
-      for (const [idName, definedIn] of allIds) {
-        const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
-        const inJs = findReferencesInJs("id")(idName)(jsContent);
-        const inHtml = findIdReferencesInHtml(htmlContent, idName);
-
-        if (!inScss && !inJs && !inHtml) {
-          unusedIds.push({ name: idName, definedIn });
-        }
-      }
-
-      return { unusedClasses, unusedIds };
-    };
-
     // Use pre-computed file lists
     const htmlFiles = SRC_HTML_FILES().map((f) => join(rootDir, f));
     const scssFiles = SRC_SCSS_FILES().map((f) => join(rootDir, f));
     const jsFiles = PUBLIC_JS_FILES.map((f) => join(rootDir, f));
 
-    // Collect all classes and IDs defined in HTML and JS
-    const { allClasses, allIds } = collectAllClassesAndIds(htmlFiles, jsFiles);
+    // Build reverse indexes: class/id name -> files where defined
+    // Using buildReverseIndex which handles the grouping cleanly
+    const htmlClasses = buildReverseIndex(htmlFiles, (file) => [
+      ...extractFromHtml("class", readFileSync(file, "utf-8")),
+    ]);
+    const jsClasses = buildReverseIndex(jsFiles, (file) => [
+      ...extractClassesFromJs(readFileSync(file, "utf-8")),
+    ]);
 
-    // Find unused ones
-    const { unusedClasses, unusedIds } = findUnusedClassesAndIds(
-      allClasses,
-      allIds,
-      scssFiles,
-      jsFiles,
-      htmlFiles,
-    );
+    // Merge HTML and JS classes into a single map
+    const allClasses = new Map(htmlClasses);
+    for (const [cls, files] of jsClasses) {
+      allClasses.set(cls, [...(allClasses.get(cls) || []), ...files]);
+    }
+
+    const allIds = buildReverseIndex(htmlFiles, (file) => [
+      ...extractFromHtml("id", readFileSync(file, "utf-8")),
+    ]);
+
+    // Load all SCSS, JS, and HTML content for reference checking
+    const scssContent = scssFiles
+      .map((f) => readFileSync(f, "utf-8"))
+      .join("\n");
+    const jsContent = jsFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+    const htmlContent = htmlFiles
+      .map((f) => readFileSync(f, "utf-8"))
+      .join("\n");
+
+    const unusedClasses = [];
+    const unusedIds = [];
+
+    // Check each class for references
+    for (const [className, definedIn] of allClasses) {
+      const inScss = findSelectorReferencesInScss(
+        scssContent,
+        className,
+        "\\.",
+      );
+      const inJs = findReferencesInJs("class")(className)(jsContent);
+
+      if (!inScss && !inJs) {
+        unusedClasses.push({ name: className, definedIn });
+      }
+    }
+
+    // Check each ID for references
+    for (const [idName, definedIn] of allIds) {
+      const escaped = idName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const inScss = findSelectorReferencesInScss(scssContent, idName, "#");
+      const inJs = findReferencesInJs("id")(idName)(jsContent);
+      // Check HTML references: href="#id", for="id", list="id"
+      const htmlPatterns = [
+        new RegExp(`href=["'][^"']*#${escaped}["']`),
+        new RegExp(`for=["']${escaped}["']`),
+        new RegExp(`list=["']${escaped}["']`),
+      ];
+      const inHtml = htmlPatterns.some((pattern) => pattern.test(htmlContent));
+
+      if (!inScss && !inJs && !inHtml) {
+        unusedIds.push({ name: idName, definedIn });
+      }
+    }
 
     // Report results
-    const totalClasses = allClasses.size;
-    const totalIds = allIds.size;
-
     console.log("\n  📊 Analysis Results:");
-    console.log(`     Total classes found: ${totalClasses}`);
-    console.log(`     Total IDs found: ${totalIds}`);
+    console.log(`     Total classes found: ${allClasses.size}`);
+    console.log(`     Total IDs found: ${allIds.size}`);
     console.log(`     Unused classes: ${unusedClasses.length}`);
     console.log(`     Unused IDs: ${unusedIds.length}`);
 
-    const logUnused = (items, label) => {
-      if (items.length === 0) return;
+    // Log unused items
+    for (const [items, label] of [
+      [unusedClasses, "Classes"],
+      [unusedIds, "IDs"],
+    ]) {
+      if (items.length === 0) continue;
       console.log(`\n  ⚠️  Unused ${label}:`);
       for (const { name, definedIn } of items.sort((a, b) =>
         a.name.localeCompare(b.name),
@@ -397,10 +344,7 @@ describe("unused-classes", () => {
         const shortPaths = definedIn.map((f) => f.replace(/^src\//, ""));
         console.log(`     - "${name}" in: ${shortPaths.join(", ")}`);
       }
-    };
-
-    logUnused(unusedClasses, "Classes");
-    logUnused(unusedIds, "IDs");
+    }
 
     // Fail the test if there are unused classes
     expect(unusedClasses.length).toBe(0);

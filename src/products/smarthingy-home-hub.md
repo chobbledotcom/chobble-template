@@ -53,6 +53,15 @@ features:
   - Local processing for privacy
   - Automatic device discovery
 stripe_url: 'https://buy.stripe.com/example'
+tabs:
+  - title: Installation
+    image: src/images/placeholder-square-3.jpg
+    body: |
+      Mount your SmarThingy Home Hub in a central location for optimal coverage. The device requires a standard power outlet and Wi-Fi connection. Use the companion app to complete the initial setup and begin pairing your smart devices.
+  - title: Compatibility
+    image: src/images/placeholder-square-4.jpg
+    body: |
+      The Home Hub works with over 10,000 smart devices including lights, thermostats, locks, cameras, and more. Supports Wi-Fi, Zigbee, Z-Wave, and Matter protocols for maximum compatibility with your existing smart home ecosystem.
 ---
 
 Transform your home into a unified smart ecosystem with the SmarThingy Home Hub. This powerful central command center brings together all your smart thingies and compatible devices under one intuitive interface.
