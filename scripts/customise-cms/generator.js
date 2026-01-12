@@ -378,7 +378,7 @@ const addOptionalFields = (fields, collectionName, config) => {
     config.features.faqs && FAQS_FIELD,
     config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
     config.features.specs && collection.supportsSpecs && SPECS_FIELD,
-    collectionName === "products" && TABS_FIELD,
+    collection.supportsTabs && TABS_FIELD,
   ]);
 };
 

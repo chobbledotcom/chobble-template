@@ -243,6 +243,7 @@ export const TABS_FIELD = {
   list: true,
   fields: [
     { name: "title", type: "string", label: "Title", required: true },
+    { name: "image", type: "image", label: "Image" },
     {
       name: "body",
       label: "Body",

@@ -62,7 +62,9 @@ content:
     subfolders: false
     fields:
       - { name: title, type: string, label: Title }
+      - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
       - name: categories
         label: Categories
         type: reference
@@ -96,11 +98,6 @@ content:
             label: Unit Price (£)
             required: true
           - { name: days, type: number, label: Days (for hire products) }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
       - { name: features, type: string, label: Features, list: true }
       - name: filter_attributes
         label: Filter Attributes
@@ -109,12 +106,16 @@ content:
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
+      - name: body
+        label: Body
+        type: code
+        options:
+          language: markdown
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
         label: Meta Description
         maxlength: 155
-      - { name: subtitle, type: string, label: Subtitle }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -242,9 +243,10 @@ content:
       sort:
         - title
     fields:
-      - { name: thumbnail, type: image, label: Thumbnail }
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
       - { name: event_date, label: Event Date, type: date, required: false }
       - name: recurring_date
         type: string
@@ -357,8 +359,9 @@ content:
         - title
     fields:
       - { name: title, type: string, label: Title }
-      - { name: thumbnail, type: image, label: Thumbnail }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
       - name: categories
         label: Categories
         type: reference
@@ -368,16 +371,16 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - name: meta_description
-        type: string
-        label: Meta Description
-        maxlength: 155
       - name: body
         label: Body
         type: code
         options:
           language: markdown
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -411,6 +414,7 @@ content:
       - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
       - { name: featured, type: boolean, label: Featured }
       - name: locations
         label: Locations
@@ -478,8 +482,9 @@ content:
     filename: "{primary}.md"
     fields:
       - { name: title, type: string, label: Title }
-      - { name: thumbnail, type: image, label: Thumbnail }
       - { name: subtitle, type: string, label: Subtitle }
+      - { name: thumbnail, type: image, label: Thumbnail }
+      - { name: order, type: number, label: Order }
       - name: body
         label: Body
         type: code
@@ -511,9 +516,9 @@ content:
     subfolders: false
     fields:
       - { name: title, type: string, label: Title }
+      - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
-      - { name: subtitle, type: string, label: Subtitle }
       - name: body
         label: Body
         type: code
