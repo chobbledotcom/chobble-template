@@ -82,7 +82,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+  "src/_lib/utils/memoize.js:13", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
@@ -105,6 +105,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/array-push.test.js",
   "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
   "test/unit/code-quality/function-length.test.js",
@@ -163,6 +164,7 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/html-in-js.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
@@ -208,6 +210,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/knip.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
 ]);

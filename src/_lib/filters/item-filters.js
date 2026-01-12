@@ -1,3 +1,16 @@
+/**
+ * Generic filtering library for items with filter_attributes.
+ *
+ * Used by both products and properties to provide URL-based filtering.
+ *
+ * Key functions:
+ * - createFilterConfig(): Factory that creates Eleventy collections/filters
+ * - generateFilterCombinations(): Pre-computes all valid filter combinations
+ * - getItemsByFilters(): Returns items matching filter criteria
+ * - buildFilterUIData(): Generates data for filter UI templates
+ *
+ * URL format: /products/search/size/small/color/red/ (keys sorted alphabetically)
+ */
 import {
   chunk,
   compact,
@@ -13,11 +26,6 @@ import { memoize } from "#utils/memoize.js";
 import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
-
-/**
- * Generic filtering library for items with filter_attributes
- * Used by both products and properties
- */
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
@@ -146,15 +154,13 @@ const getItemsByFilters = (items, filters) => {
     return items.slice().sort(sortItems);
   }
 
-  // Pre-normalize filter values once, not per-item
-  const normalizedFilters = Object.entries(filters).map(([key, value]) => [
-    key,
-    normalize(value),
-  ]);
+  const preNormalizedFilterEntries = Object.entries(filters).map(
+    ([key, value]) => [key, normalize(value)],
+  );
 
   const matchesFilters = (item) => {
     const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
-    for (const [key, normalizedValue] of normalizedFilters) {
+    for (const [key, normalizedValue] of preNormalizedFilterEntries) {
       if (normalize(itemAttrs[key] || "") !== normalizedValue) return false;
     }
     return true;
@@ -199,7 +205,6 @@ const generateFilterCombinations = memoize((items) => {
 
   const itemAttrMap = buildItemAttributeMap(items);
 
-  // Count items matching these filters
   const countMatches = (filters) => {
     const normalized = normalizeAttrs(filters);
     return items.filter((item) =>
@@ -209,14 +214,12 @@ const generateFilterCombinations = memoize((items) => {
     ).length;
   };
 
-  // Create a combo result object
   const toCombo = (filters, count) => ({
     filters,
     path: filterToPath(filters),
     count,
   });
 
-  // Try one filter value: skip if no matches, else include with children
   const tryValue =
     (recurse, keyIndex, baseFilters) => (results, value, key) => {
       const filters = { ...baseFilters, [key]: value };
@@ -228,14 +231,12 @@ const generateFilterCombinations = memoize((items) => {
       return [...results, toCombo(filters, count), ...childResults];
     };
 
-  // Process all values for one attribute key
   const processKey = (recurse, baseFilters, keyIndex) => (results, key) =>
     allAttributes[key].reduce(
       (acc, value) => tryValue(recurse, keyIndex, baseFilters)(acc, value, key),
       results,
     );
 
-  // Generate all combinations starting from given filters and key index
   const generateFrom = (baseFilters, startIndex) =>
     attributeKeys
       .slice(startIndex)
@@ -283,7 +284,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 
-  // Build active filters with remove URLs
   const activeFilters = Object.entries(filters).map(([key, value]) => {
     const withoutThis = { ...filters };
     delete withoutThis[key];
@@ -299,7 +299,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
     };
   });
 
-  // Build filter groups with options (only include options that lead to valid pages)
   const groups = Object.entries(allAttributes)
     .map(([attrName, attrValues]) => {
       const currentValue = filters[attrName];
@@ -310,7 +309,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
           const newFilters = { ...filters, [attrName]: value };
           const path = filterToPath(newFilters);
 
-          // Only include if this path exists (has items)
           if (!isActive && !validPaths.includes(path)) {
             return null;
           }
@@ -320,7 +318,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
         })
         .filter(Boolean);
 
-      // Only include group if it has options
       if (options.length === 0) return null;
 
       return {

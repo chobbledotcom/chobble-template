@@ -1,5 +1,22 @@
-// Functions for theme editor - can be tested with DOM mocking
-
+/**
+ * Theme editor library - parsing and generation of theme CSS.
+ *
+ * Scopes for local CSS variable overrides: header, nav, article, form, button.
+ * The button scope uses a multi-selector (button, .button, input[type="submit"]).
+ *
+ * Functions:
+ * - parseThemeContent(): Parse theme SCSS into { root, scopes, bodyClasses }
+ * - generateThemeCss(): Generate SCSS from controls data
+ * - parseBorderValue(): Parse "2px solid #000" into components
+ * - shouldIncludeScopedVar(): Check if scoped value differs from global
+ *
+ * Pipeline helpers for theme-editor.js UI:
+ * - createFormEl(): Factory for form element selector
+ * - isControlEnabled(): Check if checkbox enables the control
+ * - controlToVarEntry(): Convert control to [varName, value] and apply to DOM
+ * - inputToScopedEntry(): Convert scoped input to entry if differs from global
+ * - collectActiveClasses(): Collect active body classes from select element
+ */
 import {
   compact,
   filter,
@@ -12,10 +29,8 @@ import {
 } from "#utils/array-utils.js";
 import { fromPairs } from "#utils/object-entries.js";
 
-// Scopes that support local CSS variable overrides
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 
-// The button selector needs special handling for CSS output
 export const SCOPE_SELECTORS = {
   header: "header",
   nav: "nav",
@@ -55,7 +70,6 @@ export function parseThemeContent(themeContent) {
     scope === "button"
       ? /button\s*,[\s\S]*?input\[type="submit"\]\s*\{([^}]*)\}/
       : new RegExp(`(?:^|[\\s;{}])${scope}\\s*\\{([^}]*)\\}`, "s");
-  // Use flatMap to avoid intermediate tuple arrays: only emit pairs for matching scopes
   const parsedScopePairs = flatMap((scope) => {
     const match = themeContent.match(getScopePattern(scope));
     return match ? [[scope, parseCssBlock(match[1])]] : [];
@@ -150,14 +164,10 @@ export function generateThemeCss(globalVars, scopeVars, bodyClasses) {
  * @returns {boolean}
  */
 export function shouldIncludeScopedVar(value, globalValue) {
-  // Don't include if value is empty
   if (!value) return false;
-  // Don't include if same as global (no override needed)
   if (value === globalValue) return false;
   return true;
 }
-
-// Pipeline helpers for theme editor UI
 
 /**
  * Create a form element selector for a given form ID

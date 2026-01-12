@@ -135,6 +135,20 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "tryBlockHasCatch",
+  // comment-limits.test.js - analysis helpers
+  "findExcessiveComments",
+  "findHeaderEndLine",
+  "countInlineComments",
+  "isJSDocTypeLine",
+  "isBlockEnd",
+  "isBlockStart",
+  "isSingleLine",
+  "isJSDocStart",
+  "isSingleLineBlock",
+  // comment-limits.test.js - test fixture function name
+  "validate",
+  // comment-limits.test.js - test assertion helper
+  "expectExcessiveComments",
   // commented-code.test.js - analysis helpers
   "findCommentedCode",
   // commented-code.test.js - test fixture strings

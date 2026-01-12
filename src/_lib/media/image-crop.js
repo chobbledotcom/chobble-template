@@ -1,5 +1,9 @@
-// Image cropping utilities for aspect ratio manipulation
-
+/**
+ * Image cropping utilities for aspect ratio manipulation.
+ *
+ * Caches cropped images in .image-cache/ using MD5 hash of source+ratio.
+ * Handles EXIF orientation by swapping width/height for rotated images.
+ */
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -10,17 +14,14 @@ const getSharp = memoize(async () => (await import("sharp")).default);
 
 const CROP_CACHE_DIR = ".image-cache";
 
-// Get aspect ratio - use provided or calculate from metadata
 const getAspectRatio = (aspectRatio, metadata) =>
   aspectRatio || simplifyRatio(metadata.width, metadata.height);
 
-// Crop image to aspect ratio (memoized, returns cached path if exists)
 const cropImage = memoize(
   async (aspectRatio, sourcePath, metadata) => {
     if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
 
-    // Build cache path for cropped image
-    const hash = crypto
+    const cacheHash = crypto
       .createHash("md5")
       .update(`${sourcePath}:${aspectRatio}`)
       .digest("hex")
@@ -28,23 +29,24 @@ const cropImage = memoize(
     const basename = path.basename(sourcePath, path.extname(sourcePath));
     const cachedPath = path.join(
       CROP_CACHE_DIR,
-      `${basename}-crop-${hash}.jpeg`,
+      `${basename}-crop-${cacheHash}.jpeg`,
     );
 
     if (fs.existsSync(cachedPath)) return cachedPath;
 
-    // Parse aspect ratio string (e.g., "16/9") into crop dimensions
-    const [w, h] = aspectRatio.split("/").map(Number.parseFloat);
-    const { width, height } = {
+    const [ratioWidth, ratioHeight] = aspectRatio
+      .split("/")
+      .map(Number.parseFloat);
+    const cropDimensions = {
       width: metadata.width,
-      height: Math.round(metadata.width / (w / h)),
+      height: Math.round(metadata.width / (ratioWidth / ratioHeight)),
     };
 
     fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
 
     const sharp = await getSharp();
     await sharp(sourcePath)
-      .resize(width, height, { fit: "cover" })
+      .resize(cropDimensions.width, cropDimensions.height, { fit: "cover" })
       .toFile(cachedPath);
 
     return cachedPath;
@@ -52,14 +54,12 @@ const cropImage = memoize(
   { cacheKey: (args) => `${args[0]}:${args[1]}` },
 );
 
-// Get image metadata (memoized)
 const getMetadata = memoize(async (imagePath) => {
   const sharp = await getSharp();
   const metadata = await sharp(imagePath).metadata();
 
-  // Handle EXIF orientation - if rotated 90/270 degrees, swap width/height
-  const needsSwap = [5, 6, 7, 8].includes(metadata.orientation || 1);
-  if (needsSwap) {
+  const exifRotated90Or270 = [5, 6, 7, 8].includes(metadata.orientation || 1);
+  if (exifRotated90Or270) {
     return { ...metadata, width: metadata.height, height: metadata.width };
   }
 

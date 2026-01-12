@@ -1,13 +1,19 @@
-// Low Quality Image Placeholder (LQIP) generation
-// Creates tiny base64-encoded thumbnails for progressive image loading
-
+/**
+ * Low Quality Image Placeholder (LQIP) generation.
+ *
+ * Creates tiny base64-encoded 32px webp thumbnails for progressive image loading.
+ * These are used as CSS background-image placeholders while the full image loads.
+ *
+ * Skips placeholder generation for:
+ * - SVG images (vector, don't need placeholders)
+ * - Small images under 5KB (overhead not worth it)
+ */
 import fs from "node:fs";
 import path from "node:path";
 import { memoize } from "#utils/memoize.js";
 
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
 
-// Shared filename format for eleventy-img output
 const filenameFormat = (_id, src, width, format) => {
   const basename = path.basename(src, path.extname(src));
   return `${basename}-${width}.${format}`;
@@ -22,7 +28,6 @@ const THUMBNAIL_OPTIONS = {
   filenameFormat,
 };
 
-// Minimum file size to bother with a placeholder (5KB)
 const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
 const generateThumbnail = memoize(async (imagePath) => {
@@ -34,7 +39,6 @@ const generateThumbnail = memoize(async (imagePath) => {
   return `url('data:image/webp;base64,${base64}')`;
 });
 
-// SVGs don't need placeholders (vector), small images aren't worth the overhead
 const getThumbnailOrNull = (imagePath, metadata) =>
   metadata.format === "svg" ||
   fs.statSync(imagePath).size < PLACEHOLDER_SIZE_THRESHOLD
