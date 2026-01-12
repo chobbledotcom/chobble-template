@@ -313,7 +313,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:55",
+  "test/unit/code-quality/template-selectors.test.js:41",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",
