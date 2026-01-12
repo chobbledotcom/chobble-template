@@ -176,8 +176,5 @@ describe("naming-conventions", () => {
         `⚠️  Warning: ${violationCount} identifier(s) exceed ${MAX_WORDS} words.`,
       );
     }
-
-    // This is informational - doesn't fail
-    expect(true).toBe(true);
   });
 });
