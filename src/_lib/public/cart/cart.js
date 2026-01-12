@@ -48,10 +48,6 @@ const getCartTotal = () => {
   );
 };
 
-const updateCartCount = () => {
-  updateCartIcon();
-};
-
 const showAddedFeedback = () => {
   for (const icon of document.querySelectorAll(".cart-icon")) {
     icon.classList.add("cart-bounce");
@@ -107,7 +103,7 @@ const renderCartItems = (cartItems, cart) => {
   attachQuantityHandlers((name, qty) => updateQuantity(name, qty));
   attachRemoveHandlers(() => {
     updateCartDisplay();
-    updateCartCount();
+    updateCartIcon();
   });
 };
 
@@ -134,7 +130,7 @@ const updateCartDisplay = () => {
 const updateQuantity = (itemName, quantity) => {
   updateItemQuantity(itemName, quantity);
   updateCartDisplay();
-  updateCartCount();
+  updateCartIcon();
 };
 
 const clampQuantity = (quantity, maxQuantity) => {
@@ -149,11 +145,6 @@ const withAddedQuantity = (item, quantity, maxQuantity, sku) => ({
   max_quantity: maxQuantity ?? item.max_quantity,
   sku: sku ?? item.sku,
 });
-
-const updateItemAt = (cart, index, updateFn) =>
-  cart.map((item, i) => (i === index ? updateFn(item) : item));
-
-const appendItem = (cart, newItem) => [...cart, newItem];
 
 const addItem = (
   itemName,
@@ -183,34 +174,31 @@ const addItem = (
 
   const newCart =
     existingIndex >= 0
-      ? updateItemAt(cart, existingIndex, (item) =>
-          withAddedQuantity(item, quantity, maxQuantity, sku),
+      ? cart.map((item, i) =>
+          i === existingIndex
+            ? withAddedQuantity(item, quantity, maxQuantity, sku)
+            : item,
         )
-      : appendItem(cart, newItem);
+      : [...cart, newItem];
 
   saveCart(newCart);
   updateCartDisplay();
-  updateCartCount();
+  updateCartIcon();
   showAddedFeedback();
-};
-
-const paypalCheckout = async (apiUrl) => {
-  const items = getCheckoutItems();
-  const order = await postJson(apiUrl, { items });
-
-  if (order?.url) {
-    window.location.href = order.url;
-  } else {
-    alert("Failed to start checkout. Please try again.");
-  }
 };
 
 const checkoutWithPayPal = async () => {
   const cart = getCart();
   if (cart.length === 0) return;
 
-  const checkoutApiUrl = Config.checkout_api_url;
-  await paypalCheckout(checkoutApiUrl);
+  const items = getCheckoutItems();
+  const order = await postJson(Config.checkout_api_url, { items });
+
+  if (order?.url) {
+    window.location.href = order.url;
+  } else {
+    alert("Failed to start checkout. Please try again.");
+  }
 };
 
 const checkoutWithStripe = () => {
@@ -223,7 +211,7 @@ const checkoutWithStripe = () => {
 const clearCart = () => {
   saveCart([]);
   updateCartDisplay();
-  updateCartCount();
+  updateCartIcon();
 };
 
 const getOptionIndex = (button) =>
@@ -339,11 +327,6 @@ const setupDocumentListeners = () => {
   });
 };
 
-const setupEventListeners = () => {
-  setupOverlayListeners();
-  setupDocumentListeners();
-};
-
 const setup = () => {
   // No cart functionality if cart_mode is not set
   if (!Config.cart_mode) {
@@ -351,12 +334,13 @@ const setup = () => {
   }
 
   resetProductSelects();
-  setupEventListeners();
+  setupOverlayListeners();
+  setupDocumentListeners();
 
   if (IS_ENQUIRY_MODE === false) {
     updateCartDisplay();
   }
-  updateCartCount();
+  updateCartIcon();
 };
 
 onReady(() => setup());
