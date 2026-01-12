@@ -13,7 +13,6 @@ const filenameFormat = (_id, src, width, format) => {
   return `${basename}-${width}.${format}`;
 };
 
-// Shared options for thumbnail generation
 const THUMBNAIL_OPTIONS = {
   formats: ["webp"],
   outputDir: ".image-cache",
@@ -26,12 +25,10 @@ const THUMBNAIL_OPTIONS = {
 // Minimum file size to bother with a placeholder (5KB)
 const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
-// Check if image should skip placeholder generation
 // SVGs don't need placeholders (vector), small images aren't worth the overhead
 const shouldSkipPlaceholder = (metadata, fileSizeBytes) =>
   metadata.format === "svg" || fileSizeBytes < PLACEHOLDER_SIZE_THRESHOLD;
 
-// Generate a base64 data URL for a tiny thumbnail
 const generateThumbnail = memoize(async (imagePath) => {
   const { default: Image } = await getEleventyImg();
   const thumbnails = await Image(imagePath, THUMBNAIL_OPTIONS);
@@ -41,11 +38,8 @@ const generateThumbnail = memoize(async (imagePath) => {
   return `url('data:image/webp;base64,${base64}')`;
 });
 
-// Get file size (memoized for performance)
 const getFileSize = memoize((filePath) => fs.statSync(filePath).size);
 
-// Get thumbnail or null if not needed
-// Returns null for SVGs or small files, otherwise generates and returns base64 thumbnail
 const getThumbnailOrNull = (imagePath, metadata) =>
   shouldSkipPlaceholder(metadata, getFileSize(imagePath))
     ? null
