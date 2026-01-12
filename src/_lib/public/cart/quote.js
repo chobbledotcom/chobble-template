@@ -65,7 +65,7 @@ function renderCart() {
     actionsEl.style.display = "none";
   } else {
     emptyEl.style.display = "none";
-    actionsEl.style.display = "block";
+    actionsEl.style.display = "flex";
 
     itemsEl.innerHTML = "";
     for (const item of cart) {
