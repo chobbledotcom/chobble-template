@@ -170,6 +170,30 @@ describe("customise-cms collections", () => {
     const productCount = resolved.filter((c) => c === "products").length;
     expect(productCount).toBe(1);
   });
+
+  test("resolveDependencies does not add dependencies for news, reviews, locations, or properties", () => {
+    const selected = ["news", "reviews", "locations", "properties"];
+    const resolved = resolveDependencies(selected);
+
+    // These collections should not pull in additional dependencies
+    expect(resolved.sort()).toEqual(selected.sort());
+    expect(resolved).not.toContain("team");
+    expect(resolved).not.toContain("products");
+    expect(resolved).not.toContain("categories");
+  });
+
+  test("resolveDependencies only adds dependencies for products, menu-categories, and menu-items", () => {
+    // Products should still require categories
+    expect(resolveDependencies(["products"])).toContain("categories");
+
+    // Menu-categories should still require menus
+    expect(resolveDependencies(["menu-categories"])).toContain("menus");
+
+    // Menu-items should still require menu-categories and menus
+    const menuItemsDeps = resolveDependencies(["menu-items"]);
+    expect(menuItemsDeps).toContain("menu-categories");
+    expect(menuItemsDeps).toContain("menus");
+  });
 });
 
 describe("customise-cms fields", () => {
@@ -334,7 +358,7 @@ describe("customise-cms generator", () => {
     expect(yaml).toContain("name: alt-tags");
   });
 
-  test("generatePagesYaml handles collection dependencies", () => {
+  test("generatePagesYaml includes reference fields when target collection is selected", () => {
     const config = createTestConfig({
       collections: ["pages", "reviews", "products", "categories"],
     });
@@ -343,6 +367,21 @@ describe("customise-cms generator", () => {
     // Reviews should have products reference since products is included
     expect(yaml).toContain("name: reviews");
     expect(yaml).toContain("collection: products");
+  });
+
+  test("generatePagesYaml excludes reference fields when target collection is not selected", () => {
+    const config = createTestConfig({
+      collections: ["pages", "reviews"],
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Reviews should NOT have products reference since products is not included
+    expect(yaml).toContain("name: reviews");
+    const reviewsSection = yaml.substring(
+      yaml.indexOf("name: reviews"),
+      yaml.indexOf("name: homepage"),
+    );
+    expect(reviewsSection).not.toContain("collection: products");
   });
 
   test("generatePagesYaml handles minimal configuration", () => {
