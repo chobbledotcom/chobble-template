@@ -57,7 +57,7 @@ const getContentFields = (config) => [
 ];
 
 /**
- * Top of every item: title, subtitle, thumbnail
+ * Top of every item: title, subtitle, thumbnail, order
  * @param {CmsConfig} _config - unused for now, but here for future flexibility
  * @returns {CmsField[]}
  */
@@ -65,15 +65,17 @@ const getItemTop = (_config) => [
   COMMON_FIELDS.title,
   COMMON_FIELDS.subtitle,
   COMMON_FIELDS.thumbnail,
+  COMMON_FIELDS.order,
 ];
 
 /**
- * Bottom of every item: body, header_text (if enabled), meta
+ * Bottom of every item: body, header_image, header_text (if enabled), meta
  * @param {CmsConfig} config
  * @returns {(false | CmsField)[]}
  */
 const getItemBottom = (config) => [
   COMMON_FIELDS.body,
+  config.features.header_images && COMMON_FIELDS.header_image,
   config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
 ];
@@ -87,14 +89,13 @@ const withEnabled = (buildFn) => (config) =>
   pipe(memberOf, buildFn, compact)(config.collections);
 
 /**
- * Build fields for an item (top, header_image, [middle], bottom)
+ * Build fields for an item (top, [middle], bottom)
  * @param {(enabled: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} middle
  * @returns {(config: CmsConfig) => CmsField[]}
  */
 const buildItem = (middle) => (config) =>
   withEnabled((enabled) => [
     ...getItemTop(config),
-    config.features.header_images && COMMON_FIELDS.header_image,
     ...middle(enabled, config),
     ...getItemBottom(config),
   ])(config);
@@ -182,22 +183,11 @@ const getCollectionFieldBuilders = (config) => ({
       },
     ]),
 
-  guides: () =>
-    compact([
-      ...getItemTop(config),
-      config.features.header_images && COMMON_FIELDS.header_image,
-      ...getItemBottom(config),
-    ]),
+  guides: () => compact([...getItemTop(config), ...getItemBottom(config)]),
 
   snippets: () => [COMMON_FIELDS.name, COMMON_FIELDS.body],
 
-  menus: () =>
-    compact([
-      ...getItemTop(config),
-      COMMON_FIELDS.order,
-      config.features.header_images && COMMON_FIELDS.header_image,
-      ...getItemBottom(config),
-    ]),
+  menus: () => compact([...getItemTop(config), ...getItemBottom(config)]),
 });
 
 /**
