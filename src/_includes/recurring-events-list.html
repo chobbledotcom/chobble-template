@@ -1,7 +1,10 @@
-{%- assign recurring_events = collections.events | where: "data.recurring_date"
-| sort: "data.title" -%} {%- if recurring_events.size > 0 -%}
+{%- unless events -%}
+  {%- assign events = collections.events | where: "data.recurring_date" | sort: "data.title" -%}
+{%- endunless -%}
+{%- if events.length > 0 -%}
 <ul>
-  {%- for event in recurring_events -%} {%- assign event_data = event.data -%}
+  {%- for event in events -%}
+  {%- assign event_data = event.data -%}
   <li>
     <strong><a href="{{ event.url }}#content">{{ event_data.title }}</a></strong
     ><br />
