@@ -3,6 +3,7 @@
 // This helps identify dead code and potential cleanup opportunities
 
 import { describe, expect, test } from "bun:test";
+import { buildReverseIndex } from "#lib/utils/grouping.js";
 import {
   filter,
   filterMap,
