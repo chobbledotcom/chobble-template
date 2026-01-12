@@ -66,10 +66,12 @@ export interface PagesCMSSpec {
 /**
  * @typedef {Object} PagesCMSTab
  * @property {string} title - Title
+ * @property {string} ?image - Image
  * @property {string} body - Body
  */
 export interface PagesCMSTab {
   title: string;
+  image?: string;
   body: string;
 }
 
