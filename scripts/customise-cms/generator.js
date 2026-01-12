@@ -57,52 +57,45 @@ const getContentFields = (config) => [
 ];
 
 /**
- * Common leading fields for item collections
+ * Top of every item: title, subtitle, thumbnail
  * @type {CmsField[]}
  */
-const ITEM_HEADER = [
+const ITEM_TOP = [
   COMMON_FIELDS.title,
   COMMON_FIELDS.subtitle,
   COMMON_FIELDS.thumbnail,
 ];
 
 /**
- * Common trailing fields for item collections
- * @param {CmsConfig} config - CMS configuration
- * @returns {(false | CmsField)[]} body, optional header_text, meta
+ * Bottom of every item: body, header_text (if enabled), meta
+ * @param {CmsConfig} config
+ * @returns {(false | CmsField)[]}
  */
-const getItemFooter = (config) => [
+const getItemBottom = (config) => [
   COMMON_FIELDS.body,
   config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
 ];
 
 /**
- * Create a collection membership checker from config
- * @param {CmsConfig} config - CMS configuration
- * @returns {(name: string) => boolean} Collection membership predicate
+ * Build fields with a "has" helper that checks if a collection is enabled
+ * @param {(has: (name: string) => boolean) => (false | CmsField)[]} buildFn - Builder function
+ * @returns {(config: CmsConfig) => CmsField[]} Field builder
  */
-const hasCollectionIn = (config) => memberOf(config.collections);
+const withHas = (buildFn) => (config) =>
+  pipe(memberOf, buildFn, compact)(config.collections);
 
 /**
- * Create a curried collection field builder with hasCollection helper
- * @param {(hasCollection: (name: string) => boolean) => (false | CmsField)[]} buildFn - Builder function
- * @returns {(config: CmsConfig) => CmsField[]} Curried function that takes config
- */
-const buildWithCollections = (buildFn) => (config) =>
-  pipe(hasCollectionIn, buildFn, compact)(config);
-
-/**
- * Build fields for an item collection with standard header/footer
- * @param {(hasCollection: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} specificFields - Collection-specific fields builder
+ * Build fields for an item (title, subtitle, thumbnail, header_image, [middle], body, meta)
+ * @param {(has: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} middle - Collection-specific fields
  * @returns {(config: CmsConfig) => CmsField[]} Item fields builder
  */
-const buildItemFields = (specificFields) => (config) =>
-  buildWithCollections((hasCollection) => [
-    ...ITEM_HEADER,
+const buildItem = (middle) => (config) =>
+  withHas((has) => [
+    ...ITEM_TOP,
     config.features.header_images && COMMON_FIELDS.header_image,
-    ...specificFields(hasCollection, config),
-    ...getItemFooter(config),
+    ...middle(has, config),
+    ...getItemBottom(config),
   ])(config);
 
 /**
@@ -190,19 +183,19 @@ const getCollectionFieldBuilders = (config) => ({
 
   guides: () =>
     compact([
-      ...ITEM_HEADER,
+      ...ITEM_TOP,
       config.features.header_images && COMMON_FIELDS.header_image,
-      ...getItemFooter(config),
+      ...getItemBottom(config),
     ]),
 
   snippets: () => [COMMON_FIELDS.name, COMMON_FIELDS.body],
 
   menus: () =>
     compact([
-      ...ITEM_HEADER,
+      ...ITEM_TOP,
       COMMON_FIELDS.order,
       config.features.header_images && COMMON_FIELDS.header_image,
-      ...getItemFooter(config),
+      ...getItemBottom(config),
     ]),
 });
 
@@ -212,11 +205,11 @@ const getCollectionFieldBuilders = (config) => ({
  * @returns {CmsField[]} News collection fields
  */
 const buildNewsFields = (config) =>
-  buildWithCollections((hasCollection) => [
+  withHas((has) => [
     COMMON_FIELDS.title,
     config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
-    hasCollection("team") &&
+    has("team") &&
       createReferenceField("author", "Author", "team", "title", false),
     ...getContentFields(config),
   ])(config);
@@ -226,10 +219,10 @@ const buildNewsFields = (config) =>
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Products collection fields
  */
-const buildProductsFields = buildItemFields((hasCollection, config) => [
-  hasCollection("categories") &&
+const buildProductsFields = buildItem((has, config) => [
+  has("categories") &&
     createReferenceField("categories", "Categories", "categories"),
-  hasCollection("events") && createReferenceField("events", "Events", "events"),
+  has("events") && createReferenceField("events", "Events", "events"),
   PRODUCT_OPTIONS_FIELD,
   config.features.external_purchases && {
     name: "purchase_url",
@@ -246,14 +239,13 @@ const buildProductsFields = buildItemFields((hasCollection, config) => [
  * @returns {CmsField[]} Reviews collection fields
  */
 const buildReviewsFields = (config) =>
-  buildWithCollections((hasCollection) => [
+  withHas((has) => [
     COMMON_FIELDS.name,
     { name: "url", type: "string", label: "URL" },
     { name: "rating", type: "number", label: "Rating" },
     { name: "thumbnail", type: "image", label: "Reviewer Photo" },
     COMMON_FIELDS.body,
-    hasCollection("products") &&
-      createReferenceField("products", "Products", "products"),
+    has("products") && createReferenceField("products", "Products", "products"),
   ])(config);
 
 /**
@@ -261,7 +253,7 @@ const buildReviewsFields = (config) =>
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Events collection fields
  */
-const buildEventsFields = buildItemFields((_, config) => [
+const buildEventsFields = buildItem((_, config) => [
   config.features.event_locations_and_dates && {
     name: "event_date",
     label: "Event Date",
@@ -292,8 +284,8 @@ const buildEventsFields = buildItemFields((_, config) => [
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Locations collection fields
  */
-const buildLocationsFields = buildItemFields((hasCollection) => [
-  hasCollection("categories") &&
+const buildLocationsFields = buildItem((has) => [
+  has("categories") &&
     createReferenceField("categories", "Categories", "categories"),
 ]);
 
@@ -302,9 +294,9 @@ const buildLocationsFields = buildItemFields((hasCollection) => [
  * @param {CmsConfig} config - CMS configuration
  * @returns {CmsField[]} Properties collection fields
  */
-const buildPropertiesFields = buildItemFields((hasCollection, config) => [
+const buildPropertiesFields = buildItem((has, config) => [
   COMMON_FIELDS.featured,
-  hasCollection("locations") &&
+  has("locations") &&
     createReferenceField("locations", "Locations", "locations"),
   { name: "bedrooms", type: "number", label: "Bedrooms" },
   { name: "bathrooms", type: "number", label: "Bathrooms" },
@@ -319,11 +311,11 @@ const buildPropertiesFields = buildItemFields((hasCollection, config) => [
  * @returns {CmsField[]} Menu categories collection fields
  */
 const buildMenuCategoriesFields = (config) =>
-  buildWithCollections((hasCollection) => [
+  withHas((has) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.order,
-    hasCollection("menus") && createReferenceField("menus", "Menus", "menus"),
+    has("menus") && createReferenceField("menus", "Menus", "menus"),
     COMMON_FIELDS.body,
   ])(config);
 
@@ -333,13 +325,13 @@ const buildMenuCategoriesFields = (config) =>
  * @returns {CmsField[]} Menu items collection fields
  */
 const buildMenuItemsFields = (config) =>
-  buildWithCollections((hasCollection) => [
+  withHas((has) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     { name: "price", type: "string", label: "Price" },
     { name: "is_vegan", type: "boolean", label: "Is Vegan" },
     { name: "is_gluten_free", type: "boolean", label: "Is Gluten Free" },
-    hasCollection("menu-categories") &&
+    has("menu-categories") &&
       createReferenceField(
         "menu_categories",
         "Menu Categories",
