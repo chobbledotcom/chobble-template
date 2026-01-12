@@ -37,14 +37,12 @@ export function inlineAsset(assetPath, baseDir = process.cwd()) {
     return fs.readFileSync(fullPath, "utf-8");
   }
 
-  // All allowed extensions are either SVG or image
   const imageBuffer = fs.readFileSync(fullPath);
   const base64 = imageBuffer.toString("base64");
   const mimeType = ext.slice(1) === "jpg" ? "jpeg" : ext.slice(1);
   return `data:image/${mimeType};base64,${base64}`;
 }
 
-// Memoized at module level for consistent caching
 const memoizedInlineAsset = memoize(inlineAsset);
 
 /**
