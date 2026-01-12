@@ -11,6 +11,7 @@ import {
   pipe,
   split,
 } from "#lib/utils/array-utils.js";
+import { buildReverseIndex } from "#lib/utils/grouping.js";
 import {
   fs,
   getFiles,
