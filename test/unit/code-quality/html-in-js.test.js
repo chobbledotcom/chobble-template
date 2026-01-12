@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_HTML_IN_JS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   isCommentLine,
@@ -333,7 +332,7 @@ const findHtmlInJs = (source) =>
 // Complete analyzer - find + allowlist + files in one definition
 const htmlInJsAnalysis = withAllowlist({
   find: findHtmlInJs,
-  allowlist: ALLOWED_HTML_IN_JS,
+  allowlist: new Set(),
   files: () => [...SRC_JS_FILES(), ...ECOMMERCE_JS_FILES()],
 });
 
@@ -392,8 +391,7 @@ const check = value < 10;
     const { violations } = htmlInJsAnalysis();
     assertNoViolations(violations, {
       message: "files with HTML in JavaScript",
-      fixHint:
-        "extract HTML to template files, or add to ALLOWED_HTML_IN_JS in code-quality-exceptions.js",
+      fixHint: "extract HTML to template files",
     });
   });
 
