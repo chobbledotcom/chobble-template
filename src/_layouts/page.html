@@ -2,5 +2,8 @@
 layout: base
 ---
 
+{%- if blocks -%}
+  {%- include "design-system/blocks.html", blocks: blocks -%}
+{%- endif -%}
 {{ content }}
 {%- include "faq.html" -%}

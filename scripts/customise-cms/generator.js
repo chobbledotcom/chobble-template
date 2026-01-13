@@ -6,6 +6,7 @@
  */
 
 import YAML from "yaml";
+import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
@@ -571,6 +572,13 @@ const generateCollectionConfig = (collectionName, config) => {
     collectionConfig.view = viewConfig;
   }
 
+  if (collectionName === "pages") {
+    const pageLayoutSlugs = Object.keys(pageLayouts);
+    if (pageLayoutSlugs.length > 0) {
+      collectionConfig.exclude = pageLayoutSlugs.map((slug) => `${slug}.md`);
+    }
+  }
+
   collectionConfig.fields = buildCollectionFields(collectionName, config);
 
   return collectionConfig;
@@ -746,6 +754,89 @@ const getAltTagsConfig = (dataPath) => ({
 });
 
 /**
+ * Get page layout schemas from pageLayouts data
+ * @returns {Array<{slug: string, schema: object}>} Array of page layout definitions
+ */
+const getPageLayoutSchemas = () =>
+  Object.entries(pageLayouts).map(([slug, schema]) => ({ slug, schema }));
+
+/**
+ * Convert a page layout block schema field to a CMS field
+ * @param {string} name - Field name
+ * @param {object} fieldSchema - Field schema from JSON
+ * @returns {object} CMS field configuration
+ */
+const schemaFieldToCmsField = (name, fieldSchema) => ({
+  name,
+  type: fieldSchema.type,
+  label: fieldSchema.label || name,
+  ...(fieldSchema.required && { required: true }),
+  ...(fieldSchema.default !== undefined && { default: fieldSchema.default }),
+  ...(fieldSchema.list && { list: true }),
+  ...(fieldSchema.fields && {
+    fields: Object.entries(fieldSchema.fields).map(([n, f]) =>
+      schemaFieldToCmsField(n, f),
+    ),
+  }),
+});
+
+/**
+ * Deduplicate fields by name, keeping first occurrence
+ * @param {object[]} fields - Array of field objects
+ * @returns {object[]} Deduplicated fields
+ */
+const uniqueByName = (fields) =>
+  fields.filter(
+    (field, index, arr) =>
+      arr.findIndex((f) => f.name === field.name) === index,
+  );
+
+/**
+ * Generate CMS fields for a blocks array based on schema
+ * @param {object} schema - Layout schema with blocks array
+ * @returns {object} CMS blocks field configuration
+ */
+const generateBlocksField = (schema) => ({
+  name: "blocks",
+  label: "Content Blocks",
+  type: "object",
+  list: true,
+  fields: uniqueByName(
+    schema.blocks.flatMap((block) => [
+      {
+        name: "type",
+        type: "string",
+        label: "Block Type",
+        default: block.type,
+      },
+      ...Object.entries(block.fields).map(([name, fieldSchema]) =>
+        schemaFieldToCmsField(name, fieldSchema),
+      ),
+    ]),
+  ),
+});
+
+/**
+ * Generate page layout configuration for CMS
+ * Edits the markdown file's front matter blocks, using schema from JSON
+ * @param {string} slug - Page slug
+ * @param {object} schema - Layout schema
+ * @returns {object} Collection configuration for this page layout
+ */
+const generatePageLayoutConfig = (slug, schema) => ({
+  name: `page-${slug}`,
+  label: schema.label,
+  type: "file",
+  path: `src/pages/${slug}.md`,
+  fields: [
+    COMMON_FIELDS.meta_title,
+    COMMON_FIELDS.meta_description,
+    generateBlocksField(schema),
+    COMMON_FIELDS.body,
+  ],
+});
+
+/**
  * Generate complete .pages.yml configuration
  * @param {CmsConfig} config - CMS configuration
  * @returns {string} YAML string for .pages.yml
@@ -761,9 +852,16 @@ export const generatePagesYaml = (config) => {
   const dataPath = getDataPath(hasSrcFolder);
   const imagesPath = hasSrcFolder ? "src/images" : "images";
 
+  // Load page layout schemas and generate their configs
+  const pageLayoutSchemas = getPageLayoutSchemas();
+  const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
+    generatePageLayoutConfig(slug, schema),
+  );
+
   // Build content array, conditionally including homepage
   const contentArray = [
     ...collectionConfigs,
+    ...pageLayoutConfigs,
     ...(customHomePage ? [] : [getHomepageConfig(dataPath)]),
     getSiteConfig(dataPath),
     getMetaConfig(dataPath),
