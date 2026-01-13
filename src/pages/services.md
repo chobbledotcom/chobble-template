@@ -2,9 +2,6 @@
 meta_title: Our Services
 meta_description: Explore our range of services for widgets, wotzits, and gizmos.
 layout: page.html
-eleventyNavigation:
-  key: Services
-  order: 3
 blocks:
   - type: section-header
     title: Our Services
