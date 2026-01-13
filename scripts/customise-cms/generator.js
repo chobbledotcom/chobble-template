@@ -5,10 +5,8 @@
  * using proper YAML serialization
  */
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
 import YAML from "yaml";
-import { ROOT_DIR } from "#lib/paths.js";
+import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
@@ -749,32 +747,11 @@ const getAltTagsConfig = (dataPath) => ({
 });
 
 /**
- * Load page layout schemas from _data/page-layouts/
- * @param {boolean} hasSrcFolder - Whether template has src/ folder
+ * Get page layout schemas from pageLayouts data
  * @returns {Array<{slug: string, schema: object}>} Array of page layout definitions
  */
-const loadPageLayoutSchemas = (hasSrcFolder) => {
-  const basePath = hasSrcFolder
-    ? "src/_data/page-layouts"
-    : "_data/page-layouts";
-  const layoutsDir = join(ROOT_DIR, basePath);
-
-  if (!existsSync(layoutsDir)) {
-    return [];
-  }
-
-  const files = readdirSync(layoutsDir).filter((f) => f.endsWith(".json"));
-  const layouts = [];
-
-  for (const file of files) {
-    const slug = basename(file, ".json");
-    const filePath = join(layoutsDir, file);
-    const content = readFileSync(filePath, "utf-8");
-    layouts.push({ slug, schema: JSON.parse(content) });
-  }
-
-  return layouts;
-};
+const getPageLayoutSchemas = () =>
+  Object.entries(pageLayouts).map(([slug, schema]) => ({ slug, schema }));
 
 /**
  * Convert a page layout block schema field to a CMS field
@@ -782,42 +759,43 @@ const loadPageLayoutSchemas = (hasSrcFolder) => {
  * @param {object} fieldSchema - Field schema from JSON
  * @returns {object} CMS field configuration
  */
-const schemaFieldToCmsField = (name, fieldSchema) => {
-  const field = {
-    name,
-    type: fieldSchema.type,
-    label: fieldSchema.label || name,
-  };
-
-  if (fieldSchema.required) {
-    field.required = true;
-  }
-
-  if (fieldSchema.default !== undefined) {
-    field.default = fieldSchema.default;
-  }
-
-  if (fieldSchema.list) {
-    field.list = true;
-  }
-
-  if (fieldSchema.fields) {
-    field.fields = Object.entries(fieldSchema.fields).map(([n, f]) =>
+const schemaFieldToCmsField = (name, fieldSchema) => ({
+  name,
+  type: fieldSchema.type,
+  label: fieldSchema.label || name,
+  ...(fieldSchema.required && { required: true }),
+  ...(fieldSchema.default !== undefined && { default: fieldSchema.default }),
+  ...(fieldSchema.list && { list: true }),
+  ...(fieldSchema.fields && {
+    fields: Object.entries(fieldSchema.fields).map(([n, f]) =>
       schemaFieldToCmsField(n, f),
-    );
-  }
+    ),
+  }),
+});
 
-  return field;
-};
+/**
+ * Deduplicate fields by name, keeping first occurrence
+ * @param {object[]} fields - Array of field objects
+ * @returns {object[]} Deduplicated fields
+ */
+const uniqueByName = (fields) =>
+  fields.filter(
+    (field, index, arr) =>
+      arr.findIndex((f) => f.name === field.name) === index,
+  );
 
 /**
  * Generate CMS fields for a blocks array based on schema
  * @param {object} schema - Layout schema with blocks array
  * @returns {object} CMS blocks field configuration
  */
-const generateBlocksField = (schema) => {
-  const blockTypeFields = schema.blocks.map((block) => {
-    const blockFields = [
+const generateBlocksField = (schema) => ({
+  name: "blocks",
+  label: "Content Blocks",
+  type: "object",
+  list: true,
+  fields: uniqueByName(
+    schema.blocks.flatMap((block) => [
       {
         name: "type",
         type: "string",
@@ -827,54 +805,29 @@ const generateBlocksField = (schema) => {
       ...Object.entries(block.fields).map(([name, fieldSchema]) =>
         schemaFieldToCmsField(name, fieldSchema),
       ),
-    ];
-    return blockFields;
-  });
-
-  const allFields = blockTypeFields.flat();
-  const uniqueFields = [];
-  const seenNames = new Set();
-
-  for (const field of allFields) {
-    if (!seenNames.has(field.name)) {
-      seenNames.add(field.name);
-      uniqueFields.push(field);
-    }
-  }
-
-  return {
-    name: "blocks",
-    label: "Content Blocks",
-    type: "object",
-    list: true,
-    fields: uniqueFields,
-  };
-};
+    ]),
+  ),
+});
 
 /**
  * Generate page layout configuration for CMS
  * Edits the markdown file's front matter blocks, using schema from JSON
  * @param {string} slug - Page slug
  * @param {object} schema - Layout schema
- * @param {boolean} hasSrcFolder - Whether template has src/ folder
  * @returns {object} Collection configuration for this page layout
  */
-const generatePageLayoutConfig = (slug, schema, hasSrcFolder) => {
-  const pagesPath = hasSrcFolder ? "src/pages" : "pages";
-
-  return {
-    name: `page-${slug}`,
-    label: `${slug.charAt(0).toUpperCase() + slug.slice(1)} Page`,
-    type: "file",
-    path: `${pagesPath}/${slug}.md`,
-    fields: [
-      COMMON_FIELDS.meta_title,
-      COMMON_FIELDS.meta_description,
-      generateBlocksField(schema),
-      COMMON_FIELDS.body,
-    ],
-  };
-};
+const generatePageLayoutConfig = (slug, schema) => ({
+  name: `page-${slug}`,
+  label: schema.label,
+  type: "file",
+  path: `src/pages/${slug}.md`,
+  fields: [
+    COMMON_FIELDS.meta_title,
+    COMMON_FIELDS.meta_description,
+    generateBlocksField(schema),
+    COMMON_FIELDS.body,
+  ],
+});
 
 /**
  * Generate complete .pages.yml configuration
@@ -893,9 +846,9 @@ export const generatePagesYaml = (config) => {
   const imagesPath = hasSrcFolder ? "src/images" : "images";
 
   // Load page layout schemas and generate their configs
-  const pageLayoutSchemas = loadPageLayoutSchemas(hasSrcFolder);
+  const pageLayoutSchemas = getPageLayoutSchemas();
   const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
-    generatePageLayoutConfig(slug, schema, hasSrcFolder),
+    generatePageLayoutConfig(slug, schema),
   );
 
   // Build content array, conditionally including homepage
