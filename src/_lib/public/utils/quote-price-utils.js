@@ -153,6 +153,8 @@ const renderQuotePrice = (container, days = 1) => {
   const detailsContainer = template.querySelector('[data-field="details"]');
   const details = collectFieldDetails(getFormContainer());
   populateDetails(detailsContainer, details);
+  detailsContainer.parentElement.style.display =
+    details.length === 0 ? "none" : "";
 
   container.innerHTML = "";
   container.appendChild(template);
