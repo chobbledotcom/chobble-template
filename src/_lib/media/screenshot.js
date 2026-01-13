@@ -21,18 +21,19 @@ const DEFAULT_OPTIONS = {
   virtualTimeBudget: 5000,
 };
 
-const findChromium = () => {
-  const candidates = [
-    "chromium",
-    "chromium-browser",
-    "google-chrome",
-    "google-chrome-stable",
-    "/usr/bin/chromium",
-    "/usr/bin/chromium-browser",
-    "/usr/bin/google-chrome",
-  ];
+const CHROMIUM_CANDIDATES = [
+  "chromium",
+  "chromium-browser",
+  "google-chrome",
+  "google-chrome-stable",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+  "/usr/bin/google-chrome",
+  "/nix/store/*/bin/chromium",
+];
 
-  for (const candidate of candidates) {
+const findChromium = () => {
+  for (const candidate of CHROMIUM_CANDIDATES) {
     try {
       const result = Bun.spawnSync(["which", candidate]);
       if (result.exitCode === 0) {
@@ -40,7 +41,17 @@ const findChromium = () => {
       }
     } catch {}
   }
-  return "chromium";
+  return null;
+};
+
+const requireChromium = () => {
+  const chromiumPath = findChromium();
+  if (!chromiumPath) {
+    throw new Error(
+      "Chromium not found. Install via: apt install chromium, brew install chromium, or use nix-shell -p chromium",
+    );
+  }
+  return chromiumPath;
 };
 
 const buildOutputFilename = (pagePath, viewport, outputDir) => {
@@ -159,7 +170,7 @@ const takeScreenshotWithChromium = (url, outputPath, viewport, options) => {
     prepareOutputDir(outputPath);
 
     const args = buildChromiumArgs(url, outputPath, width, height, options);
-    const chromiumProcess = spawn(findChromium(), args, {
+    const chromiumProcess = spawn(requireChromium(), args, {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
