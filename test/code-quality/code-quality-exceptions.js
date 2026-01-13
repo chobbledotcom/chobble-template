@@ -275,6 +275,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/style-bundle.js:getJsBundle",
   "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
 
+  // Eleventy screenshot plugin - used in .eleventy.js (not scanned)
+  "src/_lib/eleventy/screenshots.js:configureScreenshots",
+
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",
   "src/_lib/media/image.js:createImageTransform",

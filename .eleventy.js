@@ -35,6 +35,7 @@ import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
+import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 
 // Filters
@@ -83,6 +84,7 @@ export default async function (eleventyConfig) {
   configureOpeningTimes(eleventyConfig);
   configureRecurringEvents(eleventyConfig);
   configureResponsiveTables(eleventyConfig);
+  configureScreenshots(eleventyConfig);
   configureProductFilters(eleventyConfig);
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);

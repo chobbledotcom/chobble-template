@@ -83,6 +83,7 @@ const createMockEleventyConfig = () => ({
   addPairedShortcode: createMapMethod("pairedShortcodes"),
   addExtension: createMapMethod("extensions"),
   addTransform: createMapMethod("transforms"),
+  addGlobalData: createMapMethod("globalData"),
   on: createMapMethod("eventHandlers"),
   // Array push methods - use curried factory
   addTemplateFormats: createArrayMethod("templateFormats"),
