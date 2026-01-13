@@ -4,5 +4,5 @@ layout: base
 
 {{- content -}}
 
-{%- assign locations = collections.location | getRootLocations -%}
+{%- assign locations = collections.locations | getRootLocations -%}
 {%- include "items.html", items: locations -%}

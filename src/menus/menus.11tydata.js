@@ -16,9 +16,9 @@ export default {
       const menuCategories = pipe(
         filter((cat) => cat.data.menus?.includes(data.page.fileSlug)),
         sort(sortItems),
-      )(data.collections.menu_category || []);
+      )(data.collections["menu-categories"] || []);
 
-      const menuItems = data.collections.menu_item || [];
+      const menuItems = data.collections["menu-items"] || [];
       const itemInCategory = (category) => (item) =>
         item.data.menu_categories?.includes(category.fileSlug);
 

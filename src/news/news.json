@@ -1,5 +1,5 @@
 {
 	"layout": "news-post.html",
-	"tags": "news",
+	"tags": ["news"],
 	"navigationParent": "News"
 }
