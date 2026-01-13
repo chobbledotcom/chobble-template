@@ -158,6 +158,13 @@ const createTestSite = async (options = {}) => {
     "utils",
   ]);
 
+  // Copy placeholder images for thumbnail fallbacks
+  const placeholdersDir = path.join(templateSrc, "images/placeholders");
+  if (fs.existsSync(placeholdersDir)) {
+    const destDir = ensureDir(path.join(srcDir, "images/placeholders"));
+    copyDirFiles(placeholdersDir, destDir);
+  }
+
   // Setup data directory
   const setupDataDir = (templateSrc, srcDir, options) => {
     const dataSource = path.join(templateSrc, "_data");
