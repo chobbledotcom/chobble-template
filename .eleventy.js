@@ -45,6 +45,7 @@ import { configurePropertyFilters } from "#filters/property-filters.js";
 // Media
 import { configureImages } from "#media/image.js";
 import { configureInlineAsset } from "#media/inline-asset.js";
+import { configureThumbnailPlaceholder } from "#media/thumbnail-placeholder.js";
 import { configureUnusedImages } from "#media/unused-images.js";
 
 export default async function (eleventyConfig) {
@@ -94,6 +95,7 @@ export default async function (eleventyConfig) {
   configureSearch(eleventyConfig);
   configureStyleBundle(eleventyConfig);
   configureTags(eleventyConfig);
+  configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
   configureEvents(eleventyConfig);
   configureJsBundler(eleventyConfig);
