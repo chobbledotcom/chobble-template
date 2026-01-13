@@ -1,6 +1,7 @@
 {
   "has_products_filter": true,
   "has_properties_filter": true,
+  "placeholder_images": true,
   "product_mode": null,
   "contact_form_target": null,
   "formspark_id": null,
