@@ -23,7 +23,8 @@ export function saveCart(cart) {
 }
 
 export function formatPrice(price) {
-  return `£${price.toFixed(2)}`;
+  const fixed = price.toFixed(2);
+  return `£${fixed.replace(/\.00$/, "")}`;
 }
 
 export function removeItem(itemName) {
