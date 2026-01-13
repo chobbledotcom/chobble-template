@@ -3,6 +3,7 @@
  */
 
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
+import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -21,13 +22,22 @@ const computeGallery = (data) => {
 };
 
 /**
+ * Limit gallery images if max_images is configured
+ */
+const applyMaxImages = (gallery) => {
+  const maxImages = config().products?.max_images;
+  if (maxImages === null || maxImages === undefined) return gallery;
+  return gallery.slice(0, maxImages);
+};
+
+/**
  * Process gallery data for an item
  * NOTE: Mutates item.data directly because Eleventy template objects have
  * special getters/internal state that break with spread operators
  */
 const addGallery = (item) => {
   if (item.data.gallery) {
-    item.data.gallery = processGallery(item.data.gallery);
+    item.data.gallery = applyMaxImages(processGallery(item.data.gallery));
   }
   return item;
 };
@@ -138,6 +148,7 @@ const configureProducts = (eleventyConfig) => {
 export {
   processGallery,
   computeGallery,
+  applyMaxImages,
   addGallery,
   createProductsCollection,
   createApiSkusCollection,
