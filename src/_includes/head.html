@@ -10,7 +10,6 @@
     href="{{ css_bundle | cacheBust }}"
   >
 
-  {%- comment -%}Include design system bundle when blocks are present but not using full design system layout{%- endcomment -%}
   {%- if blocks.size > 0 and uses_design_system == false -%}
   <link
     rel="stylesheet"
