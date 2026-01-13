@@ -34,4 +34,53 @@ describe("category-products", () => {
       },
     );
   });
+
+  test("Product without thumbnail shows placeholder by default", async () => {
+    await withTestSite(
+      {
+        files: [
+          {
+            path: "categories/widgets.md",
+            frontmatter: { title: "Widgets" },
+            content: "",
+          },
+          {
+            path: "products/no-image.md",
+            frontmatter: { title: "No Image Product", categories: ["widgets"] },
+            content: "",
+          },
+        ],
+      },
+      (site) => {
+        const doc = site.getDoc("/categories/widgets/index.html");
+        // With placeholder_images: true (default), products get placeholder thumbnails
+        expect(doc.querySelector(".image-link") !== null).toBe(true);
+      },
+    );
+  });
+
+  test("Product without thumbnail shows no image when placeholder_images disabled", async () => {
+    await withTestSite(
+      {
+        config: { placeholder_images: false },
+        files: [
+          {
+            path: "categories/widgets.md",
+            frontmatter: { title: "Widgets" },
+            content: "",
+          },
+          {
+            path: "products/no-image.md",
+            frontmatter: { title: "No Image Product", categories: ["widgets"] },
+            content: "",
+          },
+        ],
+      },
+      (site) => {
+        const doc = site.getDoc("/categories/widgets/index.html");
+        // With placeholder_images: false, no thumbnail means no image rendered
+        expect(doc.querySelector(".image-link")).toBe(null);
+      },
+    );
+  });
 });
