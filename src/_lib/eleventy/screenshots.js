@@ -16,9 +16,6 @@ import { log, error as logError } from "#utils/console.js";
 
 const getScreenshotConfig = () => config.screenshots || {};
 
-const resolveOutputDir = (outputDir) =>
-  isAbsolute(outputDir) ? outputDir : join(process.cwd(), outputDir);
-
 const extractPagePaths = (collection) =>
   pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(
     Boolean,
@@ -57,10 +54,13 @@ export const captureScreenshots = async (
   outputDir,
 ) => {
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
+  const configOutputDir = screenshotConfig.outputDir || "screenshots";
 
   const options = {
     baseUrl: server.baseUrl,
-    outputDir: resolveOutputDir(screenshotConfig.outputDir || "screenshots"),
+    outputDir: isAbsolute(configOutputDir)
+      ? configOutputDir
+      : join(process.cwd(), configOutputDir),
     viewport: screenshotConfig.viewport || "desktop",
     timeout: screenshotConfig.timeout || 10000,
   };
