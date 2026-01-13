@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
 import { log } from "#utils/console.js";
 
@@ -28,20 +28,14 @@ const BROWSER_ARGS = [
   "--single-process",
 ];
 
-export const buildOutputFilename = (pagePath, viewport, outputDir) => {
-  const sanitizedPath =
-    pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") ||
-    "home";
+export const sanitizePagePath = (pagePath) =>
+  pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") || "home";
 
-  const viewportSuffix = viewport !== "desktop" ? `-${viewport}` : "";
-  return join(outputDir, `${sanitizedPath}${viewportSuffix}.png`);
-};
+export const buildViewportSuffix = (viewport) =>
+  viewport !== "desktop" ? `-${viewport}` : "";
 
 export const prepareOutputDir = (outputPath) => {
-  const dir = dirname(outputPath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
+  ensureDir(dirname(outputPath));
 };
 
 export const buildUrl = (pagePath, baseUrl) =>
@@ -91,7 +85,10 @@ export const screenshot = async (pagePath, options = {}) => {
 
   const outputPath =
     opts.outputPath ||
-    buildOutputFilename(pagePath, opts.viewport, opts.outputDir);
+    join(
+      opts.outputDir,
+      `${sanitizePagePath(pagePath)}${buildViewportSuffix(opts.viewport)}.png`,
+    );
 
   log(`Taking screenshot of ${url} (${opts.viewport})`);
 
@@ -164,4 +161,4 @@ export const startServer = async (siteDir, port = 8080) => {
 export const getViewports = () => ({ ...VIEWPORTS });
 export const getDefaultOptions = () => ({ ...DEFAULT_OPTIONS });
 
-export { VIEWPORTS, DEFAULT_OPTIONS };
+export { VIEWPORTS };

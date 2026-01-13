@@ -1,8 +1,10 @@
 import { join } from "node:path";
 import config from "#data/config.json" with { type: "json" };
 import {
+  buildViewportSuffix,
   getDefaultOptions,
   getViewports,
+  sanitizePagePath,
   screenshot,
   screenshotAllViewports,
   screenshotMultiple,
@@ -19,13 +21,8 @@ const extractPagePaths = (collection) =>
     Boolean,
   );
 
-export const buildScreenshotPath = (pagePath, viewport = "desktop") => {
-  const sanitizedPath =
-    pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") ||
-    "home";
-  const viewportSuffix = viewport !== "desktop" ? `-${viewport}` : "";
-  return `/screenshots/${sanitizedPath}${viewportSuffix}.png`;
-};
+export const buildScreenshotPath = (pagePath, viewport = "desktop") =>
+  `/screenshots/${sanitizePagePath(pagePath)}${buildViewportSuffix(viewport)}.png`;
 
 export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   const screenshotConfig = getScreenshotConfig();
