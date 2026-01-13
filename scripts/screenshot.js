@@ -103,21 +103,29 @@ const logErrors = (errors, getKey) => {
   return true;
 };
 
-const handleAllViewports = async (pagePath, options) => {
-  console.log(`\nTaking screenshots of ${pagePath} in all viewports...`);
-  const { results, errors } = await screenshotAllViewports(pagePath, options);
-  console.log(`\nCompleted: ${results.length} screenshots`);
-  logResults(results, (r) => r.viewport);
-  return logErrors(errors, (e) => e.viewport);
-};
+const createBatchHandler =
+  (screenshotFn, getDescription, resultKey, errorKey) =>
+  async (input, options) => {
+    console.log(`\nTaking screenshots of ${getDescription(input)}...`);
+    const { results, errors } = await screenshotFn(input, options);
+    console.log(`\nCompleted: ${results.length} screenshots`);
+    logResults(results, resultKey);
+    return logErrors(errors, errorKey);
+  };
 
-const handleMultiplePages = async (pagePaths, options) => {
-  console.log(`\nTaking screenshots of ${pagePaths.length} pages...`);
-  const { results, errors } = await screenshotMultiple(pagePaths, options);
-  console.log(`\nCompleted: ${results.length} screenshots`);
-  logResults(results, (r) => r.url);
-  return logErrors(errors, (e) => e.pagePath);
-};
+const handleAllViewports = createBatchHandler(
+  screenshotAllViewports,
+  (p) => `${p} in all viewports`,
+  (r) => r.viewport,
+  (e) => e.viewport,
+);
+
+const handleMultiplePages = createBatchHandler(
+  screenshotMultiple,
+  (ps) => `${ps.length} pages`,
+  (r) => r.url,
+  (e) => e.pagePath,
+);
 
 const handleSinglePage = async (pagePath, options) => {
   const result = await screenshot(pagePath, options);

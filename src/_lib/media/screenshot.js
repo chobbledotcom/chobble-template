@@ -103,42 +103,38 @@ export const screenshot = async (pagePath, options = {}) => {
   return result;
 };
 
-const partitionSettledResults = (settled, makeErrorInfo) => {
-  const results = settled
-    .map((r) => (r.status === "fulfilled" ? r.value : null))
-    .filter(Boolean);
-
-  const errors = settled
-    .map((r, i) =>
-      r.status === "rejected" ? makeErrorInfo(i, r.reason) : null,
-    )
-    .filter(Boolean);
-
-  return { results, errors };
+const runBatchScreenshots = async (items, screenshotFn, makeErrorInfo) => {
+  const settled = await Promise.allSettled(items.map(screenshotFn));
+  return {
+    results: settled
+      .map((r) => (r.status === "fulfilled" ? r.value : null))
+      .filter(Boolean),
+    errors: settled
+      .map((r, i) =>
+        r.status === "rejected" ? makeErrorInfo(i, r.reason) : null,
+      )
+      .filter(Boolean),
+  };
 };
 
-export const screenshotMultiple = async (pagePaths, options = {}) => {
-  const promises = pagePaths.map((pagePath) => screenshot(pagePath, options));
-  const settled = await Promise.allSettled(promises);
-
-  return partitionSettledResults(settled, (index, reason) => ({
-    pagePath: pagePaths[index],
-    error: reason.message,
-  }));
-};
-
-export const screenshotAllViewports = async (pagePath, options = {}) => {
-  const viewportNames = Object.keys(VIEWPORTS);
-  const promises = viewportNames.map((viewport) =>
-    screenshot(pagePath, { ...options, viewport }),
+export const screenshotMultiple = (pagePaths, options = {}) =>
+  runBatchScreenshots(
+    pagePaths,
+    (pagePath) => screenshot(pagePath, options),
+    (i, reason) => ({ pagePath: pagePaths[i], error: reason.message }),
   );
-  const settled = await Promise.allSettled(promises);
 
-  return partitionSettledResults(settled, (index, reason) => ({
-    pagePath,
-    viewport: viewportNames[index],
-    error: reason.message,
-  }));
+export const screenshotAllViewports = (pagePath, options = {}) => {
+  const viewportNames = Object.keys(VIEWPORTS);
+  return runBatchScreenshots(
+    viewportNames,
+    (viewport) => screenshot(pagePath, { ...options, viewport }),
+    (i, reason) => ({
+      pagePath,
+      viewport: viewportNames[i],
+      error: reason.message,
+    }),
+  );
 };
 
 export const startServer = async (siteDir, port = 8080) => {
