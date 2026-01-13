@@ -5,10 +5,14 @@ import { flatMap, pipe, reduce } from "#utils/array-utils.js";
  * Uses pipe composition to show clear data flow:
  * 1. FlatMap products with conditional - only emit entries for products with property
  * 2. Reduce to merge into mapping, keeping highest order
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} categories - Categories from getFilteredByTag
+ * @param {import("#lib/types").EleventyCollectionItem[]} products - Products from getFilteredByTag
+ * @param {string} propertyName - Property to extract (e.g., "header_image", "thumbnail")
  */
 const buildCategoryPropertyMap = (categories, products, propertyName) => {
   const initialMapping = Object.fromEntries(
-    (categories || []).map((category) => [
+    categories.map((category) => [
       category.fileSlug,
       [category.data[propertyName], -1],
     ]),
@@ -30,7 +34,7 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
       }));
     }),
     reduce(mergeByHighestOrder, initialMapping),
-  )(products || []);
+  )(products);
 };
 
 const buildCategoryImageMap = (categories, products) =>
@@ -54,10 +58,15 @@ const assignCategoryImages = (
   });
 };
 
+/**
+ * Create the categories collection with inherited images from products
+ * @param {import("#lib/types").EleventyCollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
+ */
 const createCategoriesCollection = (collectionApi) => {
   const categories = collectionApi.getFilteredByTag("categories");
 
-  if (!categories || categories.length === 0) return [];
+  if (categories.length === 0) return [];
 
   const products = collectionApi.getFilteredByTag("products");
   const categoryImages = buildCategoryImageMap(categories, products);

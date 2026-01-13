@@ -24,11 +24,11 @@ const isTopLevelLocation = (url) => {
 /**
  * Sort locations by their navigation key.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations
+ * @param {import("#lib/types").EleventyCollectionItem[]} locations - Always an array from Eleventy
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const sortByNavigationKey = (locations) => {
-  if (!locations || !Array.isArray(locations)) return [];
+  if (locations.length === 0) return [];
   return [...locations].sort((a, b) => {
     const keyA = a.data?.eleventyNavigation?.key || "";
     const keyB = b.data?.eleventyNavigation?.key || "";
@@ -39,12 +39,11 @@ const sortByNavigationKey = (locations) => {
 /**
  * Filter locations to only include top-level ones, excluding the current page.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations
+ * @param {import("#lib/types").EleventyCollectionItem[]} locations - Always an array from Eleventy
  * @param {string} currentUrl
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const filterTopLevelLocations = (locations, currentUrl) => {
-  if (!locations || !Array.isArray(locations)) return [];
   return locations.filter(
     (loc) => isTopLevelLocation(loc.url) && loc.url !== currentUrl,
   );

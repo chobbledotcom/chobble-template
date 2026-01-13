@@ -120,11 +120,6 @@ describe("spec-filters", () => {
     expect(result).toBe(undefined);
   });
 
-  test("Returns null when specs is null", () => {
-    const result = getHighlightedSpecs(null);
-    expect(result).toBe(null);
-  });
-
   test("Returns empty array when specs is empty", () => {
     const result = getHighlightedSpecs([]);
     expect(result).toEqual([]);
@@ -217,11 +212,6 @@ describe("spec-filters", () => {
   // ============================================
   test("getListItemSpecs returns empty array when specs is undefined", () => {
     const result = getListItemSpecs(undefined);
-    expect(result).toEqual([]);
-  });
-
-  test("getListItemSpecs returns empty array when specs is null", () => {
-    const result = getListItemSpecs(null);
     expect(result).toEqual([]);
   });
 

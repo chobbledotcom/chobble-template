@@ -68,9 +68,7 @@ describe("area-list", () => {
     expectNavKeys(sorted, ["Alpha City", "Metro Area", "Zebra Town"]);
   });
 
-  test("Returns empty array for null/undefined/empty input", () => {
-    expect(sortByNavigationKey(null)).toEqual([]);
-    expect(sortByNavigationKey(undefined)).toEqual([]);
+  test("Returns empty array for empty input", () => {
     expect(sortByNavigationKey([])).toEqual([]);
   });
 
@@ -137,9 +135,7 @@ describe("area-list", () => {
     );
   });
 
-  test("filterTopLevelLocations returns empty array for null/undefined/empty", () => {
-    expect(filterTopLevelLocations(null, "/page/")).toEqual([]);
-    expect(filterTopLevelLocations(undefined, "/page/")).toEqual([]);
+  test("filterTopLevelLocations returns empty array for empty input", () => {
     expect(filterTopLevelLocations([], "/page/")).toEqual([]);
   });
 

@@ -40,8 +40,8 @@ const computeSpecs = (data) => {
 /**
  * Filter specs to only show highlighted ones if any spec has highlight set
  * If no specs have highlight: true, returns all specs
- * @param {ComputedSpec[] | undefined | null} specs - Array of spec objects with highlight property
- * @returns {ComputedSpec[]} - Filtered specs array
+ * @param {ComputedSpec[] | undefined} specs - Array of spec objects with highlight property
+ * @returns {ComputedSpec[] | undefined} - Filtered specs array, or undefined if input was undefined
  */
 const getHighlightedSpecs = (specs) => {
   if (!specs || specs.length === 0) return specs;
@@ -56,7 +56,7 @@ const getHighlightedSpecs = (specs) => {
 /**
  * Get specs for list item display - filtered by list_items config,
  * sorted by order in specs-icons.json, limited to first 2
- * @param {ComputedSpec[] | undefined | null} specs - Array of computed spec objects
+ * @param {ComputedSpec[] | undefined} specs - Array of computed spec objects
  * @returns {ComputedSpec[]} - Filtered and sorted specs array (max 2)
  */
 const getListItemSpecs = (specs) => {
