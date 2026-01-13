@@ -24,6 +24,8 @@ export type EleventyCollectionItem = {
   data: Record<string, unknown> & {
     title?: string;
     order?: number;
+    tags?: string[];
+    no_index?: boolean;
     eleventyNavigation?: PagesCMSEleventyNavigation;
     specs?: PagesCMSSpec[];
     faqs?: PagesCMSFaq[];
