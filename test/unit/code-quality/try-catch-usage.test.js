@@ -10,111 +10,63 @@ import { ALL_JS_FILES } from "#test/test-utils.js";
 import { groupBy } from "#utils/grouping.js";
 
 /**
- * Find the first non-empty line starting from index
- */
-const findNextNonEmptyLine = (lines, startIndex) => {
-  const line = lines.slice(startIndex).find((l) => l.trim() !== "");
-  return line?.trim() ?? "";
-};
-
-/**
- * Check if the line following a closing brace has a catch
- */
-const nextLineHasCatch = (lines, lineIndex) => {
-  const nextLine = findNextNonEmptyLine(lines, lineIndex + 1);
-  if (nextLine === "") return false;
-  return /^catch\b/.test(nextLine) || /^\}\s*catch\b/.test(nextLine);
-};
-
-/**
- * Check if catch follows the closing brace at this position
- */
-const catchFollowsClosingBrace = (searchLine, charIndex, lines, lineIndex) => {
-  const afterBrace = searchLine.slice(charIndex + 1);
-  if (/\s*catch\b/.test(afterBrace)) return true;
-  return nextLineHasCatch(lines, lineIndex);
-};
-
-/**
- * Process characters in a line to track brace depth
- * Returns { depth, foundCatch: boolean | null, startedCounting }
- */
-const processLineChars = (
-  searchLine,
-  initialDepth,
-  initialStartedCounting,
-  lines,
-  lineIndex,
-) => {
-  const chars = searchLine.split("");
-  const state = {
-    depth: initialDepth,
-    startedCounting: initialStartedCounting,
-    foundCatch: null,
-    finished: false,
-  };
-
-  for (const [charIndex, char] of chars.entries()) {
-    if (state.finished) break;
-
-    if (char === "{") {
-      state.depth++;
-      state.startedCounting = true;
-      continue;
-    }
-
-    if (char !== "}") continue;
-
-    state.depth--;
-
-    // When we close back to depth 0, check what follows
-    if (state.startedCounting && state.depth === 0) {
-      state.foundCatch = catchFollowsClosingBrace(
-        searchLine,
-        charIndex,
-        lines,
-        lineIndex,
-      );
-      state.finished = true;
-    }
-  }
-
-  return {
-    depth: state.depth,
-    foundCatch: state.foundCatch,
-    startedCounting: state.startedCounting,
-  };
-};
-
-/**
- * Track brace depth and find if try block has a catch
- * Returns true if catch is found
+ * Track brace depth and find if try block has a catch.
+ * Returns true if catch is found.
  */
 const tryBlockHasCatch = (lines, startLineIndex) => {
-  const state = { depth: 0, startedCounting: false, hasCatch: false };
+  // Find first non-empty line starting from index
+  const findNextNonEmpty = (idx) =>
+    lines
+      .slice(idx)
+      .find((l) => l.trim() !== "")
+      ?.trim() ?? "";
 
-  for (const [index, line] of lines.slice(startLineIndex).entries()) {
-    const lineResult = processLineChars(
-      line,
-      state.depth,
-      state.startedCounting,
-      lines,
-      startLineIndex + index,
-    );
+  const result = lines.slice(startLineIndex).reduce(
+    (state, searchLine, index) => {
+      if (state.done) return state;
 
-    state.depth = lineResult.depth;
-    state.startedCounting = lineResult.startedCounting;
+      const lineIndex = startLineIndex + index;
+      const chars = searchLine.split("");
 
-    if (lineResult.foundCatch !== null) {
-      return lineResult.foundCatch;
-    }
+      for (const [charIndex, char] of chars.entries()) {
+        if (char === "{") {
+          state.depth++;
+          state.startedCounting = true;
+          continue;
+        }
 
-    if (state.startedCounting && state.depth === 0) {
-      return false;
-    }
-  }
+        if (char !== "}") continue;
 
-  return state.hasCatch;
+        state.depth--;
+
+        // When we close back to depth 0, check what follows
+        if (state.startedCounting && state.depth === 0) {
+          // Check if catch follows the closing brace
+          const afterBrace = searchLine.slice(charIndex + 1);
+          if (/\s*catch\b/.test(afterBrace)) {
+            state.hasCatch = true;
+          } else {
+            // Check if catch follows after a closing brace (inline)
+            const nextLine = findNextNonEmpty(lineIndex + 1);
+            state.hasCatch =
+              nextLine !== "" &&
+              (/^catch\b/.test(nextLine) || /^\}\s*catch\b/.test(nextLine));
+          }
+          state.done = true;
+          return state;
+        }
+      }
+
+      if (state.startedCounting && state.depth === 0) {
+        state.done = true;
+      }
+
+      return state;
+    },
+    { depth: 0, startedCounting: false, hasCatch: false, done: false },
+  );
+
+  return result.hasCatch;
 };
 
 /**
@@ -215,8 +167,5 @@ try {
       console.log(`     ${file}: lines ${lines.join(", ")}`);
     }
     console.log("");
-
-    // This test always passes - it's informational
-    expect(true).toBe(true);
   });
 });

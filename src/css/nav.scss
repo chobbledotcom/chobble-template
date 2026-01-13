@@ -94,8 +94,7 @@ nav {
       & > ul {
         position: fixed;
         background: var(--color-bg);
-        border-top: 3rem var(--color-bg);
-        top: 0;
+        top: 3rem;
         right: -100%; /* Start off-screen */
         bottom: 0;
         width: 70%;

@@ -5,12 +5,12 @@ export const usesDesignSystem = (layout, designSystemLayouts) =>
 
 export const getCssBundle = (layout, designSystemLayouts) =>
   usesDesignSystem(layout, designSystemLayouts)
-    ? "/css/landing-bundle.css"
+    ? "/css/design-system-bundle.css"
     : "/css/bundle.css";
 
 export const getJsBundle = (layout, designSystemLayouts) =>
   usesDesignSystem(layout, designSystemLayouts)
-    ? "/assets/js/landing-bundle.js"
+    ? "/assets/js/design-system.js"
     : "/assets/js/bundle.js";
 
 /**

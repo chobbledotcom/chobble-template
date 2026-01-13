@@ -1,3 +1,18 @@
+/**
+ * Image processing for Eleventy - wraps eleventy-img with cropping and LQIP.
+ *
+ * Entry points:
+ * - configureImages(): Registers Eleventy plugin with shortcode, transform, and collection
+ * - imageShortcode(): Template shortcode for manual image processing
+ * - createImageTransform(): Returns HTML transform that processes <img> elements
+ *
+ * Processing flow:
+ * - processAndWrapImage(): Main function, handles external URLs with simple img tag
+ * - computeWrappedImageHtml(): Memoized, generates wrapped picture element with LQIP
+ *
+ * PLACEHOLDER_MODE (env PLACEHOLDER_IMAGES=1): Skip processing for faster builds.
+ * Image cache is copied to _site/img/ after Eleventy build completes.
+ */
 import fs from "node:fs";
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import {
@@ -17,10 +32,8 @@ import {
 import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { jsonKey, memoize } from "#utils/memoize.js";
 
-// Placeholder mode: skip all image processing for faster builds
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 
-// Image processing configuration
 const DEFAULT_OPTIONS = {
   formats: ["webp", "jpeg"],
   outputDir: ".image-cache",
@@ -29,7 +42,6 @@ const DEFAULT_OPTIONS = {
   filenameFormat,
 };
 
-// Compute wrapped image HTML for local images (memoized)
 /**
  * Called from processAndWrapImage for local (non-external) images.
  * Receives imageName from two paths:
@@ -47,7 +59,6 @@ const DEFAULT_OPTIONS = {
  */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
-    // Skip all image processing in placeholder mode
     if (PLACEHOLDER_MODE) {
       return generatePlaceholderHtml({
         alt,
@@ -94,7 +105,6 @@ const computeWrappedImageHtml = memoize(
   { cacheKey: jsonKey },
 );
 
-// Main image processing function
 /**
  * Called from two paths with different imageName types:
  * 1. From image-transform.js: extractImageOptions passes getAttribute("src") = string | null
@@ -124,13 +134,9 @@ const processAndWrapImage = async ({
   loading = null,
   document = null,
 }) => {
-  // Call toString() on imageName to handle potential null from DOM getAttribute in transform path
-  // imageShortcode path: imageName is string from template, toString() is redundant but harmless
-  // image-transform path: imageName may be null from getAttribute, toString() converts to "null"
   /** @type {string} */
   const imageNameStr = imageName.toString();
 
-  // Handle external URLs with simple img tag
   if (isExternalUrl(imageNameStr)) {
     const attributes = {
       src: imageNameStr,
@@ -158,12 +164,9 @@ const processAndWrapImage = async ({
   return returnElement ? await parseHtml(html, document) : html;
 };
 
-// Create image transform - wraps the low-level transform with processAndWrapImage
 const createImageTransform = () => createTransform(processAndWrapImage);
 
-// Configure Eleventy with image processing
 const configureImages = async (eleventyConfig) => {
-  // Find image files matching patterns
   const imageFiles = ["src/images/*.jpg"].flatMap((pattern) => [
     ...new Bun.Glob(pattern).scanSync("."),
   ]);
@@ -173,11 +176,9 @@ const configureImages = async (eleventyConfig) => {
 
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
   eleventyConfig.addTransform("processImages", createImageTransform());
-  // Create images collection for Eleventy
   eleventyConfig.addCollection("images", () =>
     (imageFiles ?? []).map((i) => i.split("/")[2]).reverse(),
   );
-  // Copy image cache to output directory
   eleventyConfig.on("eleventy.after", () => {
     if (fs.existsSync(".image-cache/")) {
       fs.cpSync(".image-cache/", "_site/img/", { recursive: true });
@@ -185,7 +186,6 @@ const configureImages = async (eleventyConfig) => {
   });
 };
 
-// Image shortcode for use in templates
 /**
  * @param {string} imageName - The image name/path from Eleventy template
  * @param {string} alt

@@ -1,0 +1,48 @@
+{%- if blocks.size > 0 -%}
+<div class="design-system">
+{%- for block in blocks -%}
+  {%- case block.type -%}
+
+    {%- when "section-header" -%}
+      {%- assign _level = block.level | default: 2 -%}
+      {%- assign _align = block.align | default: "center" -%}
+      {%- include "design-system/section-header.html",
+          title: block.title,
+          subtitle: block.subtitle,
+          level: _level,
+          align: _align,
+          class: block.class
+      -%}
+
+    {%- when "features" -%}
+      {%- assign _heading_level = block.heading_level | default: 3 -%}
+      {%- include "design-system/features.html",
+          items: block.items,
+          reveal: block.reveal,
+          heading_level: _heading_level
+      -%}
+
+    {%- when "stats" -%}
+      {%- include "design-system/stats.html",
+          items: block.items,
+          reveal: block.reveal
+      -%}
+
+    {%- when "code-block" -%}
+      {%- include "design-system/code-block.html",
+          filename: block.filename,
+          code: block.code,
+          language: block.language,
+          reveal: block.reveal
+      -%}
+
+    {%- when "markdown" -%}
+      {{ block.content | renderContent: "md" }}
+
+    {%- when "html" -%}
+      {{ block.content }}
+
+  {%- endcase -%}
+{%- endfor -%}
+</div>
+{%- endif -%}

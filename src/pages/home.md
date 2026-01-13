@@ -31,7 +31,7 @@ You can check out [the source code for this template]({{ config.template_repo_ur
 - It's built with Node and [Github Actions]({{ config.template_repo_url }}/blob/main/.github/workflows/build-and-deploy.yaml)
 - It's hosted on [Neocities](https://neocities.org/site/chobble-example) and [Bunny.net](https://chobble-example.b-cdn.net/), and can be adapted for any static host
 - With a Formspark & Botpoison spam-protected [contact form]({{ config.template_repo_url }}/blob/main/src/\_includes/contact-form.html)
-- Using [Turbo](https://turbo.hotwired.dev/) for instant page loads
+- Using [instant.page](https://instant.page/) for link prefetching on hover
 - With social media links in the footer
 - And customisable snippets to use wherever
 - And a pretty RSS feed and a Sitemap

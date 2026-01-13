@@ -122,12 +122,14 @@ describe("tags", () => {
   });
 
   test("Handles mixed data scenarios", () => {
+    // Note: All items have a data property since Eleventy collection items
+    // are guaranteed to have data. See: src/_lib/types/index.d.ts
     const collection = [
       createCollectionItem("/post1/", ["valid"]),
       { url: "/post2/", data: { tags: ["another"], no_index: false } },
       { url: "/post3/", data: { tags: ["hidden"], no_index: true } },
-      { url: "/post4/" },
-      { data: { tags: ["no-url"] } },
+      { url: "/post4/", data: {} }, // Has data but no tags
+      { data: { tags: ["no-url"] } }, // No url, filtered out
     ];
 
     const result = extractTags(collection);

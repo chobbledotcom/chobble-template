@@ -5,32 +5,15 @@ import { describe, expect, test } from "bun:test";
 import { IDS } from "#public/utils/selectors.js";
 import { DOM, fs, path, rootDir } from "#test/test-utils.js";
 
-// Build a lookup for Liquid variable expansion
-function buildLiquidLookup() {
-  const lookup = {};
-
-  // Add IDS
-  for (const [key, value] of Object.entries(IDS)) {
-    lookup[`selectors.IDS.${key}`] = value;
-  }
-
-  return lookup;
-}
-
-const LIQUID_LOOKUP = buildLiquidLookup();
-
-// Expand Liquid variables in template content
-function expandLiquidVars(content) {
-  return content.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (match, varName) => {
-    const value = LIQUID_LOOKUP[varName.trim()];
-    return value !== undefined ? value : match;
-  });
-}
+// Build a lookup for Liquid variable expansion (IDS from selectors.js)
+const LIQUID_LOOKUP = Object.fromEntries(
+  Object.entries(IDS).map(([key, value]) => [`selectors.IDS.${key}`, value]),
+);
 
 // Load and parse HTML template files
 const templatesDir = path.join(rootDir, "src/_includes/templates");
 
-function loadTemplate(filename) {
+const loadTemplate = (filename) => {
   const filepath = path.join(templatesDir, filename);
   if (!fs.existsSync(filepath)) {
     return null;
@@ -50,10 +33,13 @@ function loadTemplate(filename) {
   );
 
   // Expand Liquid variables
-  content = expandLiquidVars(content);
+  content = content.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (match, varName) => {
+    const value = LIQUID_LOOKUP[varName.trim()];
+    return value !== undefined ? value : match;
+  });
 
   return new DOM(content);
-}
+};
 
 // Load all template files
 const calendarTemplates = loadTemplate("calendar.html");

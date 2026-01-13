@@ -1,7 +1,8 @@
-import { createWriteStream, existsSync, mkdirSync } from "node:fs";
+import { createWriteStream } from "node:fs";
 import { dirname } from "node:path";
 import site from "#data/site.json" with { type: "json" };
 import strings from "#data/strings.js";
+import { ensureDir } from "#eleventy/file-utils.js";
 import {
   filter,
   flatMap,
@@ -234,11 +235,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const filename = buildPdfFilename(site.name, menu.fileSlug);
   const menuDir = strings.menu_permalink_dir;
   const outputPath = `${outputDir}/${menuDir}/${menu.fileSlug}/${filename}`;
-  const dir = dirname(outputPath);
-
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
+  ensureDir(dirname(outputPath));
 
   return new Promise((resolve, reject) => {
     const stream = createWriteStream(outputPath);

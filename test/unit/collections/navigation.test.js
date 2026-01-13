@@ -197,13 +197,9 @@ describe("navigation", () => {
     ]);
   });
 
-  test("Handles edge cases gracefully", () => {
-    const expectNotFound = (collection) =>
-      expect(findPageUrl(collection, "post", "test")).toBe("#");
-
-    expectNotFound([]); // Empty
-    expectNotFound([{ fileSlug: "test", url: "/test/" }]); // Missing data
-    expectNotFound(null);
-    expectNotFound(undefined);
+  test("Returns # for empty collection", () => {
+    // Empty array returns "#" (no match found)
+    // Note: null/undefined will throw - we don't swallow those errors
+    expect(findPageUrl([], "post", "test")).toBe("#");
   });
 });

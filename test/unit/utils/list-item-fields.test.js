@@ -47,6 +47,7 @@ describe("list-item-fields", () => {
       "subtitle",
       "location",
       "event-date",
+      "specs",
       "cart-button",
     ];
     expect(DEFAULT_FIELDS).toHaveLength(expected.length);

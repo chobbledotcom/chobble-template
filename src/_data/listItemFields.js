@@ -8,6 +8,7 @@ const DEFAULT_FIELDS = [
   "subtitle",
   "location",
   "event-date",
+  "specs",
   "cart-button",
 ];
 

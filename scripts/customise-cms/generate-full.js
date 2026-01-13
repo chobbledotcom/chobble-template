@@ -9,10 +9,12 @@
  * Usage: bun run generate-pages-yml
  */
 
-import { compactYaml } from "#scripts/customise-cms/compact-yaml.js";
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
-import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
-import { writePagesYaml } from "#scripts/customise-cms/writer.js";
+import {
+  generateCompactYaml,
+  runWithErrorHandling,
+  writePagesYaml,
+} from "#scripts/customise-cms/writer.js";
 
 /**
  * Main entry point for the non-interactive .pages.yml generator
@@ -24,10 +26,7 @@ const main = async () => {
   );
 
   const config = createDefaultConfig();
-  let yaml = generatePagesYaml(config);
-  yaml = compactYaml(yaml);
-
-  await writePagesYaml(yaml);
+  await writePagesYaml(generateCompactYaml(config));
 
   console.log(".pages.yml has been generated with:");
   console.log(`  - ${config.collections.length} collections`);
@@ -36,7 +35,4 @@ const main = async () => {
   );
 };
 
-main().catch((error) => {
-  console.error("Error:", error.message);
-  process.exit(1);
-});
+runWithErrorHandling(main);

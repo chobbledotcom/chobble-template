@@ -14,11 +14,18 @@ const normaliseCategory = (category) => {
 
 /**
  * Build a memoized reverse index: keyword -> [products]
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} products - Products collection
+ * @returns {Map<string, import("#lib/types").EleventyCollectionItem[]>} Keyword to products map
+ *
+ * Eleventy guarantees: Collection items always have a `data` property.
+ * Therefore, no optional chaining needed on `product.data`.
+ * See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
  */
 const buildProductKeywordMap = memoize((products) =>
   buildReverseIndex(products, (product) => {
-    const explicitKeywords = product.data?.keywords || [];
-    const categoryKeywords = (product.data?.categories || []).map(
+    const explicitKeywords = product.data.keywords || [];
+    const categoryKeywords = (product.data.categories || []).map(
       normaliseCategory,
     );
     return [...new Set([...explicitKeywords, ...categoryKeywords])];
@@ -29,7 +36,7 @@ const getAllKeywords = (products) =>
   [...buildProductKeywordMap(products).keys()].sort();
 
 const getProductsByKeyword = (products, keyword) => {
-  if (!products || !keyword) return [];
+  if (!keyword) return [];
   return buildProductKeywordMap(products).get(keyword) || [];
 };
 

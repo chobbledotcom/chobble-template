@@ -36,9 +36,9 @@ describe("style-bundle", () => {
   });
 
   describe("getCssBundle", () => {
-    test("returns landing bundle path for design system layout", () => {
+    test("returns design system bundle path for design system layout", () => {
       const result = getCssBundle("landing-page.html", ["landing-page.html"]);
-      expect(result).toBe("/css/landing-bundle.css");
+      expect(result).toBe("/css/design-system-bundle.css");
     });
 
     test("returns main bundle path for non-design-system layout", () => {
@@ -48,9 +48,9 @@ describe("style-bundle", () => {
   });
 
   describe("getJsBundle", () => {
-    test("returns landing bundle path for design system layout", () => {
+    test("returns design system bundle path for design system layout", () => {
       const result = getJsBundle("landing-page.html", ["landing-page.html"]);
-      expect(result).toBe("/assets/js/landing-bundle.js");
+      expect(result).toBe("/assets/js/design-system.js");
     });
 
     test("returns main bundle path for non-design-system layout", () => {
@@ -200,7 +200,7 @@ describe("style-bundle", () => {
 
       const filterFn = mockConfig.filters.getCssBundle;
       expect(filterFn("landing-page.html", ["landing-page.html"])).toBe(
-        "/css/landing-bundle.css",
+        "/css/design-system-bundle.css",
       );
       expect(filterFn("base.html", ["landing-page.html"])).toBe(
         "/css/bundle.css",
@@ -213,7 +213,7 @@ describe("style-bundle", () => {
 
       const filterFn = mockConfig.filters.getJsBundle;
       expect(filterFn("landing-page.html", ["landing-page.html"])).toBe(
-        "/assets/js/landing-bundle.js",
+        "/assets/js/design-system.js",
       );
       expect(filterFn("base.html", ["landing-page.html"])).toBe(
         "/assets/js/bundle.js",

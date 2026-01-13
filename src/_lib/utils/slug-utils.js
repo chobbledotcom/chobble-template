@@ -1,12 +1,13 @@
-// Use the same slugify that Eleventy uses internally
-// (available as transitive dependency of @11ty/eleventy)
+/**
+ * Slug utilities for URL generation and title formatting.
+ *
+ * Uses @sindresorhus/slugify (same as Eleventy) for consistent slug generation.
+ * normaliseSlug handles PagesCMS references which use full paths - extracts
+ * just the filename minus extension for simpler URLs.
+ */
 import slugify from "@sindresorhus/slugify";
 
 import { join, map, pipe, split } from "#utils/array-utils.js";
-
-// The 'reference' type objects in PagesCMS use the full
-// path as the reference, but it's nicer to use just the
-// filename minus extension - so we support both.
 
 const normaliseSlug = (reference) => {
   if (!reference) return reference;
@@ -17,18 +18,14 @@ const normaliseSlug = (reference) => {
   )(reference);
 };
 
-// Build a permalink for a collection item
-// Returns existing permalink if set, otherwise builds from dir + fileSlug
 const buildPermalink = (data, dir) => {
   if (data.permalink) return data.permalink;
   return `/${dir}/${data.page.fileSlug}/`;
 };
 
-// Build a PDF filename from business name and menu slug
 const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
-// Convert a slug to title case (e.g., "90s-computer" -> "90s Computer")
 const slugToTitle = (slug) =>
   pipe(
     split("-"),

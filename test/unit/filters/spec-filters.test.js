@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import specsIcons from "#data/specs-icons.json" with { type: "json" };
-import { computeSpecs, getHighlightedSpecs } from "#filters/spec-filters.js";
+import {
+  computeSpecs,
+  getHighlightedSpecs,
+  getListItemSpecs,
+} from "#filters/spec-filters.js";
 
 // Use actual spec name from config so tests stay in sync
 const KNOWN_SPEC = Object.keys(specsIcons)[0];
@@ -116,11 +120,6 @@ describe("spec-filters", () => {
     expect(result).toBe(undefined);
   });
 
-  test("Returns null when specs is null", () => {
-    const result = getHighlightedSpecs(null);
-    expect(result).toBe(null);
-  });
-
   test("Returns empty array when specs is empty", () => {
     const result = getHighlightedSpecs([]);
     expect(result).toEqual([]);
@@ -206,5 +205,71 @@ describe("spec-filters", () => {
     expect(result[0]).toEqual(specs[0]);
     expect(result[0].customProp).toBe("custom1");
     expect(result[0].icon).toBe("<svg>test</svg>");
+  });
+
+  // ============================================
+  // getListItemSpecs - Input Validation
+  // ============================================
+  test("getListItemSpecs returns empty array when specs is undefined", () => {
+    const result = getListItemSpecs(undefined);
+    expect(result).toEqual([]);
+  });
+
+  test("getListItemSpecs returns empty array when specs is empty", () => {
+    const result = getListItemSpecs([]);
+    expect(result).toEqual([]);
+  });
+
+  // ============================================
+  // getListItemSpecs - Filtering Logic
+  // ============================================
+  test("getListItemSpecs returns only specs with list_items true", () => {
+    const specs = [
+      { name: "spec1", value: "val1", list_items: true },
+      { name: "spec2", value: "val2", list_items: false },
+      { name: "spec3", value: "val3", list_items: true },
+    ];
+
+    const result = getListItemSpecs(specs);
+    const names = result.map((s) => s.name);
+
+    expect(names).toEqual(["spec1", "spec3"]);
+  });
+
+  test("getListItemSpecs returns empty array when no specs have list_items true", () => {
+    const specs = [
+      { name: "spec1", value: "val1", list_items: false },
+      { name: "spec2", value: "val2", list_items: false },
+    ];
+
+    const result = getListItemSpecs(specs);
+
+    expect(result).toEqual([]);
+  });
+
+  test("getListItemSpecs limits results to first 2 specs", () => {
+    const specs = [
+      { name: "spec1", value: "val1", list_items: true },
+      { name: "spec2", value: "val2", list_items: true },
+      { name: "spec3", value: "val3", list_items: true },
+      { name: "spec4", value: "val4", list_items: true },
+    ];
+
+    const result = getListItemSpecs(specs);
+
+    expect(result.length).toBe(2);
+  });
+
+  test("getListItemSpecs sorts by order in specs-icons.json", () => {
+    const specsIconsKeys = Object.keys(specsIcons);
+    const specs = [
+      { name: specsIconsKeys[1], value: "second", list_items: true },
+      { name: specsIconsKeys[0], value: "first", list_items: true },
+    ];
+
+    const result = getListItemSpecs(specs);
+
+    expect(result[0].name).toBe(specsIconsKeys[0]);
+    expect(result[1].name).toBe(specsIconsKeys[1]);
   });
 });

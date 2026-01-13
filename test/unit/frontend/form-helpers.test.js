@@ -6,8 +6,6 @@ import {
 } from "#config/form-helpers.js";
 import { expectObjectProps, expectProp } from "#test/test-utils.js";
 
-const expectTemplates = expectProp("template");
-
 describe("form-helpers", () => {
   // getFieldTemplate function tests
   describe("getFieldTemplate", () => {
@@ -65,7 +63,7 @@ describe("form-helpers", () => {
         { name: "email", type: "email" },
       ];
       const result = addFieldTemplates(fields);
-      expectTemplates(result, [
+      expectProp("template")(result, [
         "form-field-input.html",
         "form-field-input.html",
       ]);
@@ -96,7 +94,7 @@ describe("form-helpers", () => {
         { name: "contact", type: "radio" },
       ];
       const result = addFieldTemplates(fields);
-      expectTemplates(result, [
+      expectProp("template")(result, [
         "form-field-input.html",
         "form-field-textarea.html",
         "form-field-select.html",

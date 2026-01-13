@@ -7,11 +7,9 @@
 		"**/_site/**",
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
-		"**/scripts/**",
 		"**/.test-sites/**",
-		"**/test/precommit.js",
-		"**/test/run-tests.js",
-		"**/landing-pages/**"
+		"**/landing-pages/**",
+		"**/page-layouts/**"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
@@ -19,5 +17,5 @@
 	"exitCode": 1,
 	"minLines": 1,
 	"minTokens": 40,
-	"path": ["src", "test", ".eleventy.js"]
+	"path": ["src", "test", "scripts", ".eleventy.js"]
 }

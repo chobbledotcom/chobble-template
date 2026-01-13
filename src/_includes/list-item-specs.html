@@ -1,0 +1,10 @@
+{%- if item.data.list_item_specs.size > 0 -%}
+  <ul class="list-item-specs">
+    {%- for spec in item.data.list_item_specs -%}
+      <li>
+        {%- if spec.icon -%}{{ spec.icon }}{%- endif -%}
+        <span>{{ spec.value }}</span>
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

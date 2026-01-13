@@ -41,7 +41,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createEvents",
   // schema-helper-utils.js - schema fixture builders
   "addOptionalProps",
-  "createObjectBuilder",
   "createSchemaPage",
   "createSchemaSite",
   "createSchemaData",
@@ -71,8 +70,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
-  // config.test.js - frontmatter validation helpers
-  "testFrontmatterFieldThrows",
   // responsive-tables.test.js - assertion helpers
   "testScrollableTableCount",
   // autosizes.test.js - integration test helpers
@@ -129,25 +126,30 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // unused-classes.test.js - analysis helpers
   "extractFromHtml",
   "extractClassesFromJs",
-  "findIdReferencesInHtml",
   "findSelectorReferencesInScss",
   "findReferencesInJs",
-  "collectAllClassesAndIds",
-  "findUnusedClassesAndIds",
   // naming-conventions.test.js - test fixture string
   "getUserById",
   // schema-helper.test.js - test fixtures
   "testProductMeta",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
-  "findNextNonEmptyLine",
-  "nextLineHasCatch",
-  "catchFollowsClosingBrace",
-  "processLineChars",
   "tryBlockHasCatch",
+  // comment-limits.test.js - analysis helpers
+  "findExcessiveComments",
+  "findHeaderEndLine",
+  "countInlineComments",
+  "isJSDocTypeLine",
+  "isBlockEnd",
+  "isBlockStart",
+  "isSingleLine",
+  "isJSDocStart",
+  "isSingleLineBlock",
+  // comment-limits.test.js - test fixture function name
+  "validate",
+  // comment-limits.test.js - test assertion helper
+  "expectExcessiveComments",
   // commented-code.test.js - analysis helpers
-  "buildTemplateLiteralState",
-  "isDocumentationComment",
   "findCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
@@ -158,24 +160,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "runAutosizes",
   "makeImg",
   "setupAndRun",
-  // unused-classes.test.js - helper to add classes from string
-  "addClasses",
-  // unused-classes.test.js - helper to add items to Map
-  "addToMap",
-  // unused-classes.test.js - helper to log unused items
-  "logUnused",
   // html-in-js.test.js - analysis helpers
   "extractStringContent",
-  "extractTagName",
-  "hasKnownHtmlTag",
-  "matchesHtmlPattern",
-  "containsHtml",
-  "createPreview",
-  "toHtmlResult",
   "findHtmlInJs",
   // template-selectors.test.js - analysis helpers
-  "buildLiquidLookup",
-  "expandLiquidVars",
   "loadTemplate",
   // layout-aliases.test.js - test helpers
   "withTempLayouts",
@@ -188,9 +176,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAssertionsWithoutMessages",
   "findTautologiesInSource",
   "findTautologicalAssertions",
-  // test-quality.test.js - functional utilities
-  "matchesAnyVaguePattern",
-  "countAnds",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
@@ -202,23 +187,17 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-site-factory.test.js - test page fixtures
   "minimalPage",
   "testPage",
+  // recurring-events.test.js - test fixtures and helpers
+  "event",
+  "renderAndParse",
   // array-utils.test.js - test fixtures
   "testTruncatedList",
-  // sorting.test.js - functional helpers for sorting and extracting
-  "sortAndExtract",
-  "sortItemsExtractTitles",
-  "sortNavExtractKeys",
-  "sortNavExtractTitles",
   // tags.test.js - test fixtures
   "testTagExtraction",
   // function-length.test.js - test fixtures
   "testSource",
   // code-scanner.test.js - test fixtures
   "testStaleException",
-  // quote-steps.test.js - test fixtures
-  "testNextButtonStep",
-  // quote-steps-progress.test.js - test fixtures
-  "testIndicatorStates",
   // code-quality-utils.js - logging helper
   "logAllowedItems",
   // build-profiling.js - profiling helper
@@ -243,15 +222,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCodeChecker",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // data-exports.test.js - analysis helpers
-  "hasProblematicNamedExports",
-  "hasWrongHelperName",
   // method-aliasing.test.js - analysis helpers
-  "parseAlias",
   "findAliases",
   // short-circuit-order.test.js - analysis helpers
-  "buildPattern",
-  "hasSuboptimalOrder",
   "findSuboptimalOrder",
   // image.test.js - functional test helpers
   "expectPassthrough",
@@ -329,7 +302,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectProp",
   "expectDataArray",
   "expectGalleries",
-  "expectEventCounts",
   "handleOpeningBrace",
   "handleClosingBrace",
   "handleComments",
@@ -338,10 +310,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractFunctions",
   // build-profiling.js - measurement utilities
   "measure",
-  // knip.test.js - functional pipeline helpers
-  "runKnip",
-  "logFailureDetails",
-  "extractStatus",
   // test-utils.js - curried assertion helper for error checking
   "expectErrorsInclude",
   // test-utils.js - async error testing helper
@@ -352,6 +320,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "defaultTestFiles",
   // capture.test.js - test harness for push/slot shortcodes
   "setupCapture",
+  // customise-cms.test.js - YAML section extraction helpers
+  "getEventsSection",
+  "getViewSection",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

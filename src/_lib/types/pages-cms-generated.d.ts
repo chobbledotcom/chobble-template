@@ -66,11 +66,27 @@ export interface PagesCMSSpec {
 /**
  * @typedef {Object} PagesCMSTab
  * @property {string} title - Title
+ * @property {string} ?image - Image
  * @property {string} body - Body
  */
 export interface PagesCMSTab {
   title: string;
+  image?: string;
   body: string;
+}
+
+/**
+ * @typedef {Object} PagesCMSBlock
+ * @property {string} ?type - Block Type
+ * @property {string} title - Title
+ * @property {string} ?subtitle - Subtitle
+ * @property {Record<string, unknown>} ?items - Features
+ */
+export interface PagesCMSBlock {
+  type?: string;
+  title: string;
+  subtitle?: string;
+  items?: Record<string, unknown>;
 }
 
 /**

@@ -1,3 +1,26 @@
+/**
+ * Theme editor - live CSS variable editor with scoped styling support.
+ *
+ * Provides interactive controls for customizing theme colors, borders, and body
+ * classes. Changes are applied immediately to the DOM for live preview and
+ * exported as SCSS for download.
+ *
+ * Architecture:
+ * - Global controls: Edit :root CSS variables applied to document.documentElement
+ * - Scoped controls: Override variables for specific elements (header, nav, etc.)
+ * - Cascading: When global values change, scoped inputs "following" the old value update
+ * - Body classes: Toggle CSS classes on document.body via select controls
+ *
+ * DOM selectors for scoped variables:
+ * - header: "header"
+ * - nav: "nav"
+ * - article: "article"
+ * - form: "form"
+ * - button: "button, .button, input[type='submit']"
+ *
+ * CSS variables cleared when applying scoped styles:
+ * --color-bg, --color-text, --color-link, --color-link-hover, --border
+ */
 import {
   collectActiveClasses,
   controlToVarEntry,
@@ -19,7 +42,6 @@ const ELEMENT_IDS = {
   download: "download-theme",
 };
 
-// DOM selectors for applying scoped variables
 const SCOPE_DOM_SELECTORS = {
   header: "header",
   nav: "nav",
@@ -28,7 +50,6 @@ const SCOPE_DOM_SELECTORS = {
   button: "button, .button, input[type='submit']",
 };
 
-// CSS variables to clear when applying scoped styles
 const SCOPED_VARS_TO_CLEAR = [
   "--color-bg",
   "--color-text",
@@ -37,7 +58,6 @@ const SCOPED_VARS_TO_CLEAR = [
   "--border",
 ];
 
-// Create form element selector for this form
 const formEl = createFormEl(ELEMENT_IDS.form);
 
 const ThemeEditor = {
@@ -80,11 +100,8 @@ const ThemeEditor = {
   },
 
   init() {
-    // Only run on theme-editor page
     if (!document.getElementById(ELEMENT_IDS.form)) return;
     if (!document.getElementById(ELEMENT_IDS.output)) return;
-
-    // Skip if already initialized
     if (this.initialized) return;
     this.initialized = true;
 
@@ -120,26 +137,15 @@ const ThemeEditor = {
       document.getElementById(ELEMENT_IDS.output).value,
     );
 
-    // Initialize global :root variables
     this.initGlobalControls(parsed.root);
-
-    // Initialize scoped controls - ALWAYS init all scopes to attach event listeners
-    for (const scope of SCOPES) {
-      this.initScopedControls(scope, parsed.scopes[scope] || {});
-    }
-
-    // Apply initial scoped values to DOM for live preview
+    this.initAllScopedControls(parsed.scopes);
     this.applyScopes(parsed.scopes);
 
-    // Initialize body classes
     for (const cssClass of parsed.bodyClasses) {
       document.body.classList.add(cssClass);
     }
 
-    // Initialize select-class controls
     this.initSelectClassControls();
-
-    // Set up checkbox controls for global variables
     this.initCheckboxControls(parsed.root);
   },
 
@@ -195,6 +201,12 @@ const ThemeEditor = {
     this.initBorderControl(scope, scopeVars["--border"]);
   },
 
+  initAllScopedControls(parsedScopes) {
+    for (const scope of SCOPES) {
+      this.initScopedControls(scope, parsedScopes[scope] || {});
+    }
+  },
+
   /**
    * Initialize border controls for global or scoped borders
    * @param {string} scope - Empty string for global, or scope name (e.g., "header")
@@ -211,7 +223,6 @@ const ThemeEditor = {
 
     if (!widthInput || !styleSelect || !colorInput) return;
 
-    // Parse provided value or fall back to global computed value
     const parsed =
       parseBorderValue(borderValue) ||
       parseBorderValue(
@@ -229,7 +240,6 @@ const ThemeEditor = {
     const updateBorder = () => {
       const borderVal = `${widthInput.value}px ${styleSelect.value} ${colorInput.value}`;
       if (outputInput) outputInput.value = borderVal;
-      // Only apply to document root for global border
       if (isGlobal) {
         document.documentElement.style.setProperty("--border", borderVal);
       }
@@ -326,12 +336,10 @@ const ThemeEditor = {
   },
 
   updateThemeFromControls() {
-    // Read previous global values from textarea for cascade comparison
     const oldGlobalVars = parseThemeContent(
       document.getElementById(ELEMENT_IDS.output).value,
     ).root;
 
-    // Collect global :root variables
     const globalVars = pipe(
       Array.from,
       filter(isControlEnabled(formEl)),
@@ -339,32 +347,25 @@ const ThemeEditor = {
       Object.fromEntries,
     )(this.formQuery("[data-var]:not([data-scope])"));
 
-    // Cascade global changes to scoped inputs that were "following" the old global value
-    // This prevents unchanged scoped inputs from appearing as overrides when global changes
     this.cascadeChanges(oldGlobalVars, globalVars);
 
-    // Collect scoped variables
     const scopeVars = pipe(
       map((scope) => [scope, this.collectScopeVars(scope)]),
       filter(([, vars]) => Object.keys(vars).length > 0),
       Object.fromEntries,
     )(SCOPES);
 
-    // Apply scoped variables to DOM for live preview
     this.applyScopes(scopeVars);
 
-    // Handle body classes - toggle DOM classes and collect active ones
     const bodyClasses = pipe(
       Array.from,
       flatMap(collectActiveClasses(formEl)),
     )(this.formQuery("[data-class]"));
 
-    // Generate CSS and write to textarea
     const themeText = generateThemeCss(globalVars, scopeVars, bodyClasses);
     document.getElementById(ELEMENT_IDS.output).value = themeText;
   },
 
-  // Update color inputs that were following old global value
   cascadeColorInputs(scope, oldGlobalVars, newGlobalVars) {
     for (const input of this.formQuery(
       `input[type="color"][data-var][data-scope="${scope}"]`,
@@ -378,7 +379,6 @@ const ThemeEditor = {
     }
   },
 
-  // Update border inputs that were following old global value
   cascadeBorderInputs(scope, oldGlobalVars, newGlobalVars) {
     const borderOutput = formEl(`${scope}-border`);
     if (!borderOutput) return;
@@ -410,8 +410,6 @@ const ThemeEditor = {
   collectScopeVars(scope) {
     const docStyle = getComputedStyle(document.documentElement);
 
-    // Color inputs for this scope - compare against global value for same var
-    // Require [data-var] to exclude border-color inputs (which don't represent CSS vars)
     const colorVars = pipe(
       Array.from,
       map(inputToScopedEntry(docStyle)),
@@ -419,7 +417,6 @@ const ThemeEditor = {
       Object.fromEntries,
     )(this.formQuery(`input[type="color"][data-var][data-scope="${scope}"]`));
 
-    // Border for this scope - include if different from global border
     const borderOutput = formEl(`${scope}-border`);
     const globalBorder = docStyle.getPropertyValue("--border").trim();
     const borderVar =

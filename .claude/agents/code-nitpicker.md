@@ -68,7 +68,6 @@ This project enforces strict functional programming patterns and code quality ru
    ```
 
 5. **HTML in JavaScript strings** - Move to external templates in _includes/
-   - Exception: Specific files listed in ALLOWED_HTML_IN_JS
 
 6. **Try/catch blocks** - Return error results instead
    - Exception: External API calls, localStorage parsing, test infrastructure

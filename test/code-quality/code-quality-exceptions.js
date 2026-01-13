@@ -63,17 +63,6 @@ const ALLOWED_TRY_CATCHES = new Set([
 ]);
 
 // ============================================
-// HTML in JavaScript exceptions
-// ============================================
-
-// Files that are allowed to contain HTML in JavaScript template literals.
-// These should be refactored over time to use external templates.
-const ALLOWED_HTML_IN_JS = new Set([
-  // Server-side Eleventy plugins generating HTML
-  "src/_lib/eleventy/recurring-events.js",
-]);
-
-// ============================================
 // process.cwd() exceptions (test files only)
 // ============================================
 
@@ -93,7 +82,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+  "src/_lib/utils/memoize.js:13", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
@@ -116,6 +105,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/array-push.test.js",
   "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
   "test/unit/code-quality/function-length.test.js",
@@ -167,7 +157,6 @@ const ALLOWED_LET = new Set([
   "test/unit/frontend/hire-calculator.test.js",
   "test/unit/frontend/scroll-fade.test.js",
   "test/unit/frontend/cart.test.js",
-  "test/unit/frontend/turbo.test.js",
   "test/unit/frontend/slider.test.js",
   "test/unit/frontend/search.test.js",
   "test/unit/frontend/quote-checkout.test.js",
@@ -175,6 +164,7 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/html-in-js.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
@@ -220,6 +210,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/knip.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
 ]);
@@ -284,6 +275,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/style-bundle.js:getJsBundle",
   "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
 
+  // Eleventy screenshot plugin - used in .eleventy.js (not scanned)
+  "src/_lib/eleventy/screenshots.js:configureScreenshots",
+
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",
   "src/_lib/media/image.js:createImageTransform",
@@ -321,11 +315,10 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:327",
+  "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:55",
-  "test/integration/eleventy/recurring-events.test.js:49",
+  "test/unit/code-quality/template-selectors.test.js:41",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",
@@ -333,7 +326,6 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
 
 export {
   ALLOWED_TRY_CATCHES,
-  ALLOWED_HTML_IN_JS,
   ALLOWED_PROCESS_CWD,
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,

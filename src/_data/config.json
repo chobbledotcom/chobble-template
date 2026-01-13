@@ -1,6 +1,7 @@
 {
   "has_products_filter": true,
   "has_properties_filter": true,
+  "placeholder_images": true,
   "product_mode": null,
   "contact_form_target": null,
   "formspark_id": null,
@@ -18,10 +19,13 @@
     "item_widths": "240,480,640",
     "gallery_thumb_widths": "240,480",
     "gallery_image_widths": "900,1300,1800",
-    "header_image_widths": "640,900,1300"
+    "header_image_widths": "640,900,1300",
+    "max_images": null
   },
   "timezone": "Europe/London",
   "reviews_truncate_limit": 10,
   "list_item_fields": ["link", "subtitle", "thumbnail"],
-  "category_order": null
+  "category_order": null,
+  "navigation_content_anchor": false,
+  "screenshots": null
 }

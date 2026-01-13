@@ -111,6 +111,33 @@
         margin: $space-xs 0 0;
         padding: 0 $space-md $space-md;
       }
+
+      ul.list-item-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $space-sm;
+        padding: 0 $space-md $space-md;
+        margin-top: auto;
+        list-style: none;
+
+        li {
+          display: flex;
+          align-items: center;
+          gap: $space-xs;
+          @include body-sm;
+          color: var(--text-muted);
+
+          svg {
+            width: 1em;
+            height: 1em;
+            fill: currentColor;
+          }
+
+          span {
+            white-space: nowrap;
+          }
+        }
+      }
     }
   }
 }

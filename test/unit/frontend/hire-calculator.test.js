@@ -176,16 +176,17 @@ describe("hire-calculator", () => {
   // initHireCalculator Tests
   // ----------------------------------------
   test("initHireCalculator does nothing when start input missing", () => {
-    withMockStorage(() => {
+    withMockStorage((storage) => {
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
+      );
       document.body.innerHTML = '<input type="date" name="end_date" />';
-      expect(() => initHireCalculator()).not.toThrow();
-    });
-  });
 
-  test("initHireCalculator does nothing when end input missing", () => {
-    withMockStorage(() => {
-      document.body.innerHTML = '<input type="date" name="start_date" />';
-      expect(() => initHireCalculator()).not.toThrow();
+      initHireCalculator(() => {});
+
+      const endInput = document.querySelector('input[name="end_date"]');
+      expect(endInput.min).toBe("");
     });
   });
 

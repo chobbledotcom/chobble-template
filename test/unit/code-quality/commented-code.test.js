@@ -53,65 +53,38 @@ const COMMENTED_CODE_PATTERNS = [
 ];
 
 /**
- * Build template literal state for all lines in a single O(n) pass
- * Returns an array where each index indicates if that line is inside a template literal
- * This replaces the O(n²) approach of checking each line independently
- */
-const buildTemplateLiteralState = (lines) => {
-  let backtickCount = 0;
-  return lines.map((line) => {
-    const isInside = backtickCount % 2 === 1;
-    // Count unescaped backticks in this line
-    const matches = line.match(/(?<!\\)`/g);
-    if (matches) {
-      backtickCount += matches.length;
-    }
-    return isInside;
-  });
-};
-
-/**
- * Check if a comment is documentation (explaining a pattern) vs disabled code
- * Returns true only if this appears to be a documentation comment for a regex pattern
- */
-const isDocumentationComment = (_line, _prevLine, nextLine) => {
-  // Comments followed by regex patterns are documentation (explaining what regex matches)
-  // Match lines starting with / but not // (so /pattern/ but not // comment)
-  if (nextLine && /^\s*\/[^/]/.test(nextLine)) {
-    return true;
-  }
-
-  return false;
-};
-
-/**
- * Find all commented-out code in a file
- * Optimized using pipe() and filterMap() for single-pass processing
+ * Find all commented-out code in a file.
+ * Optimized using pipe() and filterMap() for single-pass processing.
  */
 const findCommentedCode = (source, _relativePath) => {
   const lines = toLines(source);
   const rawLines = lines.map((l) => l.line);
-  const insideTemplateLiteral = buildTemplateLiteralState(rawLines);
+
+  // Build template literal state in O(n) - tracks if each line is inside a template literal
+  let backtickCount = 0;
+  const insideTemplateLiteral = rawLines.map((line) => {
+    const isInside = backtickCount % 2 === 1;
+    const matches = line.match(/(?<!\\)`/g);
+    if (matches) backtickCount += matches.length;
+    return isInside;
+  });
+
+  // Check if a comment is documentation (comment before a regex pattern)
+  const isDocumentation = (nextLine) => nextLine && /^\s*\/[^/]/.test(nextLine);
 
   // Enrich lines with context needed for filtering
   const enrichedLines = lines.map((item, i) => ({
     ...item,
     inTemplate: insideTemplateLiteral[i],
-    prevLine: i > 0 ? rawLines[i - 1] : "",
     nextLine: i < rawLines.length - 1 ? rawLines[i + 1] : "",
   }));
 
   return pipe(
     filterMap(
-      ({ line, inTemplate, prevLine, nextLine }) => {
-        // Skip lines inside template literals
+      ({ line, inTemplate, nextLine }) => {
         if (inTemplate) return false;
-
-        // Check if line matches any pattern and isn't documentation
         return COMMENTED_CODE_PATTERNS.some(
-          (pattern) =>
-            pattern.test(line) &&
-            !isDocumentationComment(line, prevLine, nextLine),
+          (pattern) => pattern.test(line) && !isDocumentation(nextLine),
         );
       },
       ({ line, num }) => ({ lineNumber: num, line: line.trim() }),

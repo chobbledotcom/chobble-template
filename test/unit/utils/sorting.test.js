@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { map, pipe, sort } from "#utils/array-utils.js";
 import {
   compareBy,
   descending,
@@ -8,23 +7,11 @@ import {
   sortNavigationItems,
 } from "#utils/sorting.js";
 
+// Generic helper: sort items and assert extracted values match expected
+const expectSortedValues = (items, comparator, extractor, expected) =>
+  expect([...items].sort(comparator).map(extractor)).toEqual(expected);
+
 describe("sorting", () => {
-  // Functional helpers for sorting tests
-  const sortAndExtract = (comparator, extractor) =>
-    pipe(sort(comparator), map(extractor));
-
-  const sortItemsExtractTitles = sortAndExtract(sortItems, (i) => i.data.title);
-
-  const sortNavExtractKeys = sortAndExtract(
-    sortNavigationItems,
-    (i) => i.data.eleventyNavigation.key,
-  );
-
-  const sortNavExtractTitles = sortAndExtract(
-    sortNavigationItems,
-    (i) => i.data.title,
-  );
-
   // ============================================
   // sortItems Tests
   // ============================================
@@ -34,7 +21,7 @@ describe("sorting", () => {
       { data: { order: 1, title: "B" } },
       { data: { order: 3, title: "C" } },
     ];
-    expect(sortItemsExtractTitles(items)).toEqual(["B", "A", "C"]);
+    expectSortedValues(items, sortItems, (i) => i.data.title, ["B", "A", "C"]);
   });
 
   test("Items with identical order values fall back to alphabetical title sorting", () => {
@@ -43,7 +30,11 @@ describe("sorting", () => {
       { data: { order: 1, title: "Apple" } },
       { data: { order: 1, title: "Mango" } },
     ];
-    expect(sortItemsExtractTitles(items)).toEqual(["Apple", "Mango", "Zebra"]);
+    expectSortedValues(items, sortItems, (i) => i.data.title, [
+      "Apple",
+      "Mango",
+      "Zebra",
+    ]);
   });
 
   test("Items without an order field are treated as having order 0", () => {
@@ -52,7 +43,7 @@ describe("sorting", () => {
       { data: { title: "A" } },
       { data: { order: -1, title: "C" } },
     ];
-    expect(sortItemsExtractTitles(items)).toEqual(["C", "A", "B"]);
+    expectSortedValues(items, sortItems, (i) => i.data.title, ["C", "A", "B"]);
   });
 
   test("Uses name field for alphabetical sorting when title is absent", () => {
@@ -60,8 +51,10 @@ describe("sorting", () => {
       { data: { order: 1, name: "Zebra" } },
       { data: { order: 1, name: "Apple" } },
     ];
-    const sorted = [...items].sort(sortItems);
-    expect(sorted.map((i) => i.data.name)).toEqual(["Apple", "Zebra"]);
+    expectSortedValues(items, sortItems, (i) => i.data.name, [
+      "Apple",
+      "Zebra",
+    ]);
   });
 
   test("Handles items with missing or empty data objects without throwing", () => {
@@ -186,13 +179,16 @@ describe("sorting", () => {
   // ============================================
   // sortNavigationItems Tests
   // ============================================
+  // Common extractor for nav key
+  const navKey = (i) => i.data.eleventyNavigation.key;
+
   test("sortNavigationItems sorts by eleventyNavigation.order ascending", () => {
     const items = [
       { data: { eleventyNavigation: { order: 3, key: "C" }, title: "Item C" } },
       { data: { eleventyNavigation: { order: 1, key: "A" }, title: "Item A" } },
       { data: { eleventyNavigation: { order: 2, key: "B" }, title: "Item B" } },
     ];
-    expect(sortNavExtractKeys(items)).toEqual(["A", "B", "C"]);
+    expectSortedValues(items, sortNavigationItems, navKey, ["A", "B", "C"]);
   });
 
   test("sortNavigationItems falls back to key when orders are equal", () => {
@@ -201,7 +197,11 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1, key: "Apple" }, title: "A" } },
       { data: { eleventyNavigation: { order: 1, key: "Mango" }, title: "M" } },
     ];
-    expect(sortNavExtractKeys(items)).toEqual(["Apple", "Mango", "Zebra"]);
+    expectSortedValues(items, sortNavigationItems, navKey, [
+      "Apple",
+      "Mango",
+      "Zebra",
+    ]);
   });
 
   test("sortNavigationItems defaults missing order to 999", () => {
@@ -212,7 +212,11 @@ describe("sorting", () => {
         data: { eleventyNavigation: { order: 500, key: "Middle" }, title: "M" },
       },
     ];
-    expect(sortNavExtractKeys(items)).toEqual(["First", "Middle", "NoOrder"]);
+    expectSortedValues(items, sortNavigationItems, navKey, [
+      "First",
+      "Middle",
+      "NoOrder",
+    ]);
   });
 
   test("sortNavigationItems falls back to title when key is missing", () => {
@@ -220,6 +224,9 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1 }, title: "Zebra Title" } },
       { data: { eleventyNavigation: { order: 1 }, title: "Apple Title" } },
     ];
-    expect(sortNavExtractTitles(items)).toEqual(["Apple Title", "Zebra Title"]);
+    expectSortedValues(items, sortNavigationItems, (i) => i.data.title, [
+      "Apple Title",
+      "Zebra Title",
+    ]);
   });
 });
