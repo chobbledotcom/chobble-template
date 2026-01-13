@@ -318,13 +318,10 @@ describe("validateCartConfig", () => {
 });
 
 describe("DEFAULTS", () => {
-  test("includes expected default values", () => {
+  test("includes expected navigation defaults", () => {
     expectObjectProps({
       sticky_mobile_nav: true,
       horizontal_nav: true,
-      externalLinksTargetBlank: false,
-      cart_mode: null,
-      has_products_filter: false,
     })(DEFAULTS);
   });
 

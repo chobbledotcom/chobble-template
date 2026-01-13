@@ -17,8 +17,18 @@ const DEFAULTS = {
   chobble_link: null,
   map_embed_src: null,
   cart_mode: null,
+  checkout_api_url: null,
   product_mode: null,
   has_products_filter: false,
+  has_properties_filter: false,
+  placeholder_images: true,
+  enable_theme_switcher: true,
+  timezone: "Europe/London",
+  reviews_truncate_limit: 10,
+  list_item_fields: ["link", "subtitle", "thumbnail"],
+  navigation_content_anchor: false,
+  category_order: null,
+  screenshots: null,
   design_system_layouts: ["design-system-base.html"],
 };
 
