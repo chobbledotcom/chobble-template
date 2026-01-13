@@ -4,6 +4,11 @@ no_index: true
 ---
 
 {%- assign currentFilters = filterPage.filters -%}
-{%- include "products-filter.html" -%}
 
-{%- include "filtered-items-section.html", items: filterPage.products -%}
+<div class="products-layout">
+  {%- include "products-filter.html" -%}
+
+  <div class="products-content">
+    {%- include "filtered-items-section.html", items: filterPage.products -%}
+  </div>
+</div>
