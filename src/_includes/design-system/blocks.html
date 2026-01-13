@@ -1,6 +1,7 @@
 {%- comment -%}
 Block renderer for page layouts.
 Loops through blocks and renders the appropriate design system component.
+Wraps output in design-system class for proper theming.
 
 Parameters:
   - blocks: Array of block objects from page-layouts JSON
@@ -9,6 +10,8 @@ Usage:
   {% include "design-system/blocks.html", blocks: pageLayouts[page.fileSlug].blocks %}
 {%- endcomment -%}
 
+{%- if blocks.size > 0 -%}
+<div class="design-system">
 {%- for block in blocks -%}
   {%- case block.type -%}
 
@@ -53,3 +56,5 @@ Usage:
 
   {%- endcase -%}
 {%- endfor -%}
+</div>
+{%- endif -%}
