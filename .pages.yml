@@ -21,6 +21,9 @@ content:
       primary: meta_title
       sort:
         - meta_title
+    exclude:
+      - about.md
+      - services.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
       - name: body

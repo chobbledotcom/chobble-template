@@ -572,6 +572,13 @@ const generateCollectionConfig = (collectionName, config) => {
     collectionConfig.view = viewConfig;
   }
 
+  if (collectionName === "pages") {
+    const pageLayoutSlugs = Object.keys(pageLayouts);
+    if (pageLayoutSlugs.length > 0) {
+      collectionConfig.exclude = pageLayoutSlugs.map((slug) => `${slug}.md`);
+    }
+  }
+
   collectionConfig.fields = buildCollectionFields(collectionName, config);
 
   return collectionConfig;
