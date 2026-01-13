@@ -197,12 +197,15 @@ describe("navigation", () => {
     ]);
   });
 
-  test("Handles edge cases gracefully", () => {
+  test("Handles empty and missing collection gracefully", () => {
+    // Empty array, null, and undefined return "#"
+    // Note: Items with missing data property are not tested since
+    // Eleventy collection items always have a data property.
+    // See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
     const expectNotFound = (collection) =>
       expect(findPageUrl(collection, "post", "test")).toBe("#");
 
     expectNotFound([]); // Empty
-    expectNotFound([{ fileSlug: "test", url: "/test/" }]); // Missing data
     expectNotFound(null);
     expectNotFound(undefined);
   });
