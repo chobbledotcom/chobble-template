@@ -12,6 +12,7 @@ keywords:
   - portable
   - colorful
   - self cleaning
+order: 1
 options:
   - name: Standard
     max_quantity: 10
@@ -40,4 +41,5 @@ features:
 categories:
   - src/categories/compact-doodahs.md
 ---
+
 This is a mini gizmo that demonstrates using a local image path. The system should look for the image in the /images/ directory.
