@@ -14,6 +14,12 @@ const cacheKeyFromArgs = (args) => args.join(",");
 const resolvePath = (relativePath, baseDir = process.cwd()) =>
   path.join(baseDir, relativePath);
 
+const ensureDir = (dirPath) => {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+};
+
 const fileExists = memoize(
   (relativePath, baseDir) => fs.existsSync(resolvePath(relativePath, baseDir)),
   { cacheKey: cacheKeyFromArgs },
@@ -86,6 +92,7 @@ const configureFileUtils = (eleventyConfig) => {
 
 export {
   createMarkdownRenderer,
+  ensureDir,
   fileExists,
   fileMissing,
   readFileContent,
