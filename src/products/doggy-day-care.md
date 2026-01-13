@@ -7,6 +7,7 @@ keywords:
   - care
   - boarding
 product_mode: hire
+order: 2
 options:
   - name: 1 Day
     unit_price: "£30"
@@ -24,8 +25,6 @@ options:
     unit_price: "£65"
     days: 4
     sku: IEI6S8
-gallery:
-  - /images/placeholder-wide-3.jpg
 categories:
   - compact-doodahs
 ---
