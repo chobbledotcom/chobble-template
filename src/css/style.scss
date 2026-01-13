@@ -732,6 +732,33 @@ ul.items {
   .image-link img {
     object-fit: cover;
   }
+  ul.list-item-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.875rem;
+      color: var(--color-text);
+      opacity: 0.7;
+
+      svg {
+        width: 1em;
+        height: 1em;
+        fill: currentColor;
+      }
+
+      span {
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 a.image-link {

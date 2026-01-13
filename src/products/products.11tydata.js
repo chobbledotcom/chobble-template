@@ -1,7 +1,11 @@
 import { computeGallery } from "#collections/products.js";
 import getConfig from "#data/config.js";
 import strings from "#data/strings.js";
-import { computeSpecs, getHighlightedSpecs } from "#filters/spec-filters.js";
+import {
+  computeSpecs,
+  getHighlightedSpecs,
+  getListItemSpecs,
+} from "#filters/spec-filters.js";
 import {
   buildCartAttributes,
   computeOptions,
@@ -24,6 +28,10 @@ export default {
     highlighted_specs: (data) => {
       const specs = computeSpecs(data);
       return getHighlightedSpecs(specs);
+    },
+    list_item_specs: (data) => {
+      const specs = computeSpecs(data);
+      return getListItemSpecs(specs);
     },
     cart_attributes: (data) => {
       const mode = getProductMode(data);

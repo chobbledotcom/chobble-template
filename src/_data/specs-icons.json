@@ -4,10 +4,12 @@
 	},
 	"waterproof": {
 		"icon": "tick.svg",
-		"highlight": true
+		"highlight": true,
+		"list_items": true
 	},
 	"battery life": {
 		"icon": "tick.svg",
-		"highlight": true
+		"highlight": true,
+		"list_items": true
 	}
 }

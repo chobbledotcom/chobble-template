@@ -1,12 +1,15 @@
 import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
 
+const specsIconsOrder = Object.keys(specsIcons);
+
 /**
  * @typedef {Object} ComputedSpec
  * @property {string} name - The spec name (guaranteed by PagesCMS schema)
  * @property {string} value - The spec value (guaranteed by PagesCMS schema)
  * @property {string} icon - Inline SVG icon HTML
  * @property {boolean} highlight - Whether to highlight this spec
+ * @property {boolean} list_items - Whether to show this spec in list items
  */
 
 /**
@@ -29,6 +32,7 @@ const computeSpecs = (data) => {
       ...spec,
       icon: config ? inlineAsset(`icons/${config.icon}`) : "",
       highlight: config?.highlight ?? false,
+      list_items: config?.list_items ?? false,
     };
   });
 };
@@ -49,4 +53,23 @@ const getHighlightedSpecs = (specs) => {
     : specs;
 };
 
-export { computeSpecs, getHighlightedSpecs };
+/**
+ * Get specs for list item display - filtered by list_items config,
+ * sorted by order in specs-icons.json, limited to first 2
+ * @param {ComputedSpec[] | undefined | null} specs - Array of computed spec objects
+ * @returns {ComputedSpec[]} - Filtered and sorted specs array (max 2)
+ */
+const getListItemSpecs = (specs) => {
+  if (!specs || specs.length === 0) return [];
+
+  return specs
+    .filter((spec) => spec.list_items === true)
+    .sort((a, b) => {
+      const aIndex = specsIconsOrder.indexOf(a.name.toLowerCase().trim());
+      const bIndex = specsIconsOrder.indexOf(b.name.toLowerCase().trim());
+      return aIndex - bIndex;
+    })
+    .slice(0, 2);
+};
+
+export { computeSpecs, getHighlightedSpecs, getListItemSpecs };
