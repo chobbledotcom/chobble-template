@@ -1,5 +1,5 @@
 {
-  "has_products_filter": null,
+  "has_products_filter": true,
   "has_properties_filter": null,
   "placeholder_images": null,
   "product_mode": null,
