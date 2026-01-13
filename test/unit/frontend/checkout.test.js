@@ -255,10 +255,12 @@ describe("checkout", () => {
     });
   });
 
-  test("formatPrice formats with £ symbol and 2 decimals", () => {
-    expect(formatPrice(10)).toBe("£10.00");
+  test("formatPrice formats with £ symbol, stripping trailing .00", () => {
+    expect(formatPrice(10)).toBe("£10");
     expect(formatPrice(5.5)).toBe("£5.50");
     expect(formatPrice(0.3)).toBe("£0.30");
+    expect(formatPrice(100)).toBe("£100");
+    expect(formatPrice(99.99)).toBe("£99.99");
   });
 
   test("getItemCount sums all quantities", () => {
