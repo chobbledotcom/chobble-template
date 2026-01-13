@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import config from "#data/config.json" with { type: "json" };
 import {
   buildViewportSuffix,
@@ -40,16 +40,27 @@ export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   return [];
 };
 
+export const logScreenshotErrors = (errors) => {
+  if (errors.length === 0) return;
+  logError(`Screenshot errors: ${errors.length}`);
+  for (const err of errors) {
+    logError(`  - ${err.pagePath}: ${err.error}`);
+  }
+};
+
 export const captureScreenshots = async (
   pageUrls,
   screenshotConfig,
   outputDir,
 ) => {
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
+  const configOutputDir = screenshotConfig.outputDir || "screenshots";
 
   const options = {
     baseUrl: server.baseUrl,
-    outputDir: join(process.cwd(), "screenshots"),
+    outputDir: isAbsolute(configOutputDir)
+      ? configOutputDir
+      : join(process.cwd(), configOutputDir),
     viewport: screenshotConfig.viewport || "desktop",
     timeout: screenshotConfig.timeout || 10000,
   };
@@ -61,12 +72,7 @@ export const captureScreenshots = async (
   const { results, errors } = await screenshotMultiple(pagesToCapture, options);
 
   log(`Screenshots captured: ${results.length}`);
-  if (errors.length > 0) {
-    logError(`Screenshot errors: ${errors.length}`);
-    for (const err of errors) {
-      logError(`  - ${err.pagePath}: ${err.error}`);
-    }
-  }
+  logScreenshotErrors(errors);
   server.stop();
 };
 
