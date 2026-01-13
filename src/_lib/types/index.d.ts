@@ -20,6 +20,7 @@ export type { PagesCMSImage as Image } from './pages-cms-generated.d.ts';
  */
 export type EleventyCollectionItem = {
   url: string;
+  fileSlug: string;
   data: Record<string, unknown> & {
     title?: string;
     order?: number;
@@ -31,4 +32,12 @@ export type EleventyCollectionItem = {
     filter_attributes?: PagesCMSFilterAttribute[];
     opening_times?: PagesCMSOpeningTime[];
   };
+};
+
+/**
+ * Eleventy CollectionApi - passed to collection callbacks
+ * getFilteredByTag always returns an array (empty if no matches)
+ */
+export type EleventyCollectionApi = {
+  getFilteredByTag(tag: string): EleventyCollectionItem[];
 };
