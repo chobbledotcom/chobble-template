@@ -111,6 +111,40 @@
         margin: $space-xs 0 0;
         padding: 0 $space-md $space-md;
       }
+
+      .list-item-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $space-sm;
+        padding: 0 $space-md $space-md;
+        margin-top: auto;
+
+        .list-item-spec {
+          display: flex;
+          align-items: center;
+          gap: $space-xs;
+          @include body-sm;
+          color: var(--text-muted);
+
+          .list-item-spec-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1em;
+            height: 1em;
+
+            svg {
+              width: 100%;
+              height: 100%;
+              fill: currentColor;
+            }
+          }
+
+          .list-item-spec-value {
+            white-space: nowrap;
+          }
+        }
+      }
     }
   }
 }
