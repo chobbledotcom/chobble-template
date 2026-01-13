@@ -310,7 +310,7 @@ describe("quote-price-utils", () => {
       updateQuotePrice(1);
 
       const total = document.querySelector('[data-field="total"]');
-      expect(total.textContent).toBe("£50.00");
+      expect(total.textContent).toBe("£50");
     });
 
     test("displays TBC for total when price unavailable", async () => {
@@ -397,10 +397,10 @@ describe("quote-price-utils", () => {
       const itemPrice = document.querySelector(
         '[data-field="items"] > li [data-field="price"]',
       );
-      expect(itemPrice.textContent).toBe("£75.00");
+      expect(itemPrice.textContent).toBe("£75");
 
       const total = document.querySelector('[data-field="total"]');
-      expect(total.textContent).toBe("£75.00");
+      expect(total.textContent).toBe("£75");
     });
 
     test("uses quote-steps container for field details when available", async () => {
