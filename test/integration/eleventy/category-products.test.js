@@ -1,6 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
 
+const categoryWithProduct = [
+  {
+    path: "categories/widgets.md",
+    frontmatter: { title: "Widgets" },
+    content: "",
+  },
+  {
+    path: "products/no-image.md",
+    frontmatter: { title: "No Image Product", categories: ["widgets"] },
+    content: "",
+  },
+];
+
 describe("category-products", () => {
   test("Category page renders products assigned to that category", async () => {
     await withTestSite(
@@ -37,20 +50,7 @@ describe("category-products", () => {
 
   test("Product without thumbnail shows placeholder by default", async () => {
     await withTestSite(
-      {
-        files: [
-          {
-            path: "categories/widgets.md",
-            frontmatter: { title: "Widgets" },
-            content: "",
-          },
-          {
-            path: "products/no-image.md",
-            frontmatter: { title: "No Image Product", categories: ["widgets"] },
-            content: "",
-          },
-        ],
-      },
+      { files: categoryWithProduct },
       (site) => {
         const doc = site.getDoc("/categories/widgets/index.html");
         // With placeholder_images: true (default), products get placeholder thumbnails
@@ -61,21 +61,7 @@ describe("category-products", () => {
 
   test("Product without thumbnail shows no image when placeholder_images disabled", async () => {
     await withTestSite(
-      {
-        config: { placeholder_images: false },
-        files: [
-          {
-            path: "categories/widgets.md",
-            frontmatter: { title: "Widgets" },
-            content: "",
-          },
-          {
-            path: "products/no-image.md",
-            frontmatter: { title: "No Image Product", categories: ["widgets"] },
-            content: "",
-          },
-        ],
-      },
+      { config: { placeholder_images: false }, files: categoryWithProduct },
       (site) => {
         const doc = site.getDoc("/categories/widgets/index.html");
         // With placeholder_images: false, no thumbnail means no image rendered
