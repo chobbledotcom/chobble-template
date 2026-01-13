@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import config from "#data/config.json" with { type: "json" };
 import {
   buildViewportSuffix,
@@ -15,6 +15,16 @@ import { map, pipe } from "#utils/array-utils.js";
 import { log, error as logError } from "#utils/console.js";
 
 const getScreenshotConfig = () => config.screenshots || {};
+
+export const resolveOutputDir = (outputDir) =>
+  isAbsolute(outputDir) ? outputDir : join(process.cwd(), outputDir);
+
+const buildCaptureOptions = (baseUrl, screenshotConfig) => ({
+  baseUrl,
+  outputDir: resolveOutputDir(screenshotConfig.outputDir || "screenshots"),
+  viewport: screenshotConfig.viewport || "desktop",
+  timeout: screenshotConfig.timeout || 10000,
+});
 
 const extractPagePaths = (collection) =>
   pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(
@@ -46,13 +56,7 @@ export const captureScreenshots = async (
   outputDir,
 ) => {
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
-
-  const options = {
-    baseUrl: server.baseUrl,
-    outputDir: join(process.cwd(), "screenshots"),
-    viewport: screenshotConfig.viewport || "desktop",
-    timeout: screenshotConfig.timeout || 10000,
-  };
+  const options = buildCaptureOptions(server.baseUrl, screenshotConfig);
 
   const pagesToCapture = screenshotConfig.limit
     ? pageUrls.slice(0, screenshotConfig.limit)

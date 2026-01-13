@@ -3,6 +3,7 @@ import {
   configureScreenshots,
   getDefaultOptions,
   getViewports,
+  resolveOutputDir,
   VIEWPORTS,
 } from "#eleventy/screenshots.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -112,6 +113,25 @@ describe("screenshots eleventy plugin", () => {
       await mockConfig.eventHandlers["eleventy.after"]({
         dir: { output: "_site" },
       });
+    });
+  });
+
+  describe("resolveOutputDir", () => {
+    test("Returns absolute path unchanged", () => {
+      const absolutePath = "/absolute/path/to/screenshots";
+      expect(resolveOutputDir(absolutePath)).toBe(absolutePath);
+    });
+
+    test("Joins relative path with cwd", () => {
+      const relativePath = "screenshots";
+      const result = resolveOutputDir(relativePath);
+      expect(result).toBe(`${process.cwd()}/screenshots`);
+    });
+
+    test("Handles nested relative path", () => {
+      const relativePath = "output/screenshots";
+      const result = resolveOutputDir(relativePath);
+      expect(result).toBe(`${process.cwd()}/output/screenshots`);
     });
   });
 
