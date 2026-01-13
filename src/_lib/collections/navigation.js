@@ -22,16 +22,10 @@ const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
  * See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
  */
 const findPageUrl = (collection, tag, slug) => {
-  if (!collection || collection.length === 0) {
-    return "#";
-  }
   const result = collection.find(
     (item) => item.fileSlug === slug && item.data.tags?.includes(tag),
   );
-  if (!result) {
-    return "#";
-  }
-  return result.url;
+  return result?.url ?? "#";
 };
 
 const configureNavigation = async (eleventyConfig) => {

@@ -36,7 +36,7 @@ const getAllKeywords = (products) =>
   [...buildProductKeywordMap(products).keys()].sort();
 
 const getProductsByKeyword = (products, keyword) => {
-  if (!products || !keyword) return [];
+  if (!keyword) return [];
   return buildProductKeywordMap(products).get(keyword) || [];
 };
 

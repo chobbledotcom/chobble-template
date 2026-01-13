@@ -197,16 +197,9 @@ describe("navigation", () => {
     ]);
   });
 
-  test("Handles empty and missing collection gracefully", () => {
-    // Empty array, null, and undefined return "#"
-    // Note: Items with missing data property are not tested since
-    // Eleventy collection items always have a data property.
-    // See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
-    const expectNotFound = (collection) =>
-      expect(findPageUrl(collection, "post", "test")).toBe("#");
-
-    expectNotFound([]); // Empty
-    expectNotFound(null);
-    expectNotFound(undefined);
+  test("Returns # for empty collection", () => {
+    // Empty array returns "#" (no match found)
+    // Note: null/undefined will throw - we don't swallow those errors
+    expect(findPageUrl([], "post", "test")).toBe("#");
   });
 });

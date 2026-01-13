@@ -60,8 +60,9 @@ describe("search", () => {
     expect(getAllKeywords(products)).toEqual(["alpha", "beta"]);
   });
 
-  test("Returns empty array for null/undefined inputs", () => {
-    expect(getProductsByKeyword(null, "test")).toEqual([]);
+  test("Returns empty array for missing keyword", () => {
+    // null/undefined/empty keyword returns empty array
+    // Note: null/undefined products will throw - we don't swallow those errors
     expect(getProductsByKeyword([], null)).toEqual([]);
     expect(getProductsByKeyword([], "")).toEqual([]);
   });
