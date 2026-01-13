@@ -139,19 +139,26 @@ export const screenshotAllViewports = (pagePath, options = {}) => {
 
 export const startServer = async (siteDir, port = 8080) => {
   const serverProcess = Bun.spawn(
-    ["bun", "x", "serve", siteDir, "-p", String(port)],
+    [
+      "bun",
+      "-e",
+      `Bun.serve({port:${port},fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';return new Response(Bun.file('${siteDir}'+p))}})`,
+    ],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
 
-  await new Promise((r) => setTimeout(r, 2000));
+  const baseUrl = `http://localhost:${port}`;
+  for (let i = 0; i < 20; i++) {
+    const [result] = await Promise.allSettled([fetch(baseUrl)]);
+    if (result.status === "fulfilled" && result.value.ok) break;
+    await new Promise((r) => setTimeout(r, 250));
+  }
 
   return {
     process: serverProcess,
     port,
-    baseUrl: `http://localhost:${port}`,
-    stop: () => {
-      serverProcess.kill();
-    },
+    baseUrl,
+    stop: () => serverProcess.kill(),
   };
 };
 
