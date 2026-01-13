@@ -19,38 +19,7 @@ const extractPagePaths = (collection) =>
     Boolean,
   );
 
-const getPageUrlsFromConfig = (screenshotConfig, collectionApi) => {
-  if (screenshotConfig.pages) {
-    return screenshotConfig.pages;
-  }
-  return extractPagePaths(collectionApi.getAll());
-};
-
-const getPageUrlsFromCollections = (collectionNames, collectionApi) => {
-  const urls = [];
-  for (const collectionName of collectionNames) {
-    const items = collectionApi.getFilteredByTag(collectionName);
-    urls.push(...extractPagePaths(items));
-  }
-  return urls;
-};
-
-const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
-  const screenshotConfig = getScreenshotConfig();
-
-  if (screenshotConfig.collections) {
-    pageUrlsRef.urls = getPageUrlsFromCollections(
-      screenshotConfig.collections,
-      collectionApi,
-    );
-  } else {
-    pageUrlsRef.urls = getPageUrlsFromConfig(screenshotConfig, collectionApi);
-  }
-
-  return [];
-};
-
-const buildScreenshotPath = (pagePath, viewport = "desktop") => {
+export const buildScreenshotPath = (pagePath, viewport = "desktop") => {
   const sanitizedPath =
     pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") ||
     "home";
@@ -58,39 +27,50 @@ const buildScreenshotPath = (pagePath, viewport = "desktop") => {
   return `/screenshots/${sanitizedPath}${viewportSuffix}.png`;
 };
 
-const logScreenshotErrors = (errors) => {
-  if (errors.length === 0) return;
-  logError(`Screenshot errors: ${errors.length}`);
-  for (const err of errors) {
-    logError(`  - ${err.pagePath}: ${err.error}`);
+export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
+  const screenshotConfig = getScreenshotConfig();
+
+  if (screenshotConfig.collections) {
+    pageUrlsRef.urls = screenshotConfig.collections.flatMap((name) =>
+      extractPagePaths(collectionApi.getFilteredByTag(name)),
+    );
+  } else if (screenshotConfig.pages) {
+    pageUrlsRef.urls = screenshotConfig.pages;
+  } else {
+    pageUrlsRef.urls = extractPagePaths(collectionApi.getAll());
   }
+
+  return [];
 };
 
-const captureScreenshots = async (pageUrls, screenshotConfig, outputDir) => {
+export const captureScreenshots = async (
+  pageUrls,
+  screenshotConfig,
+  outputDir,
+) => {
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
 
-  try {
-    const options = {
-      baseUrl: server.baseUrl,
-      outputDir: join(process.cwd(), "screenshots"),
-      viewport: screenshotConfig.viewport || "desktop",
-      timeout: screenshotConfig.timeout || 10000,
-    };
+  const options = {
+    baseUrl: server.baseUrl,
+    outputDir: join(process.cwd(), "screenshots"),
+    viewport: screenshotConfig.viewport || "desktop",
+    timeout: screenshotConfig.timeout || 10000,
+  };
 
-    const pagesToCapture = screenshotConfig.limit
-      ? pageUrls.slice(0, screenshotConfig.limit)
-      : pageUrls;
+  const pagesToCapture = screenshotConfig.limit
+    ? pageUrls.slice(0, screenshotConfig.limit)
+    : pageUrls;
 
-    const { results, errors } = await screenshotMultiple(
-      pagesToCapture,
-      options,
-    );
+  const { results, errors } = await screenshotMultiple(pagesToCapture, options);
 
-    log(`Screenshots captured: ${results.length}`);
-    logScreenshotErrors(errors);
-  } finally {
-    server.stop();
+  log(`Screenshots captured: ${results.length}`);
+  if (errors.length > 0) {
+    logError(`Screenshot errors: ${errors.length}`);
+    for (const err of errors) {
+      logError(`  - ${err.pagePath}: ${err.error}`);
+    }
   }
+  server.stop();
 };
 
 export function configureScreenshots(eleventyConfig) {

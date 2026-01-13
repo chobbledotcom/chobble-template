@@ -1,8 +1,7 @@
-import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, statSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import { log, error as logError } from "#utils/console.js";
+import { log } from "#utils/console.js";
 
 const VIEWPORTS = {
   mobile: { width: 375, height: 667, name: "mobile" },
@@ -21,40 +20,15 @@ const DEFAULT_OPTIONS = {
   virtualTimeBudget: 5000,
 };
 
-const CHROMIUM_CANDIDATES = [
-  "chromium",
-  "chromium-browser",
-  "google-chrome",
-  "google-chrome-stable",
-  "/usr/bin/chromium",
-  "/usr/bin/chromium-browser",
-  "/usr/bin/google-chrome",
-  "/nix/store/*/bin/chromium",
+const BROWSER_ARGS = [
+  "--no-sandbox",
+  "--disable-setuid-sandbox",
+  "--disable-dev-shm-usage",
+  "--disable-gpu",
+  "--single-process",
 ];
 
-const findChromium = () => {
-  for (const candidate of CHROMIUM_CANDIDATES) {
-    try {
-      const result = Bun.spawnSync(["which", candidate]);
-      if (result.exitCode === 0) {
-        return result.stdout.toString().trim();
-      }
-    } catch {}
-  }
-  return null;
-};
-
-const requireChromium = () => {
-  const chromiumPath = findChromium();
-  if (!chromiumPath) {
-    throw new Error(
-      "Chromium not found. Install via: apt install chromium, brew install chromium, or use nix-shell -p chromium",
-    );
-  }
-  return chromiumPath;
-};
-
-const buildOutputFilename = (pagePath, viewport, outputDir) => {
+export const buildOutputFilename = (pagePath, viewport, outputDir) => {
   const sanitizedPath =
     pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") ||
     "home";
@@ -63,146 +37,57 @@ const buildOutputFilename = (pagePath, viewport, outputDir) => {
   return join(outputDir, `${sanitizedPath}${viewportSuffix}.png`);
 };
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-const getFileSize = (filePath) =>
-  existsSync(filePath) ? statSync(filePath).size : 0;
-
-const waitForFileToExist = async (filePath, timeout, checkInterval) => {
-  const startTime = Date.now();
-  while (!existsSync(filePath) && Date.now() - startTime < timeout) {
-    await sleep(checkInterval);
-  }
-  return existsSync(filePath);
-};
-
-const waitForFileSizeStable = async (
-  filePath,
-  timeout,
-  checkInterval,
-  stableThreshold,
-) => {
-  const startTime = Date.now();
-  let stableTime = 0;
-  let prevSize = 0;
-
-  while (stableTime < stableThreshold && Date.now() - startTime < timeout) {
-    await sleep(checkInterval);
-    const currentSize = getFileSize(filePath);
-    stableTime =
-      currentSize === prevSize && currentSize > 0
-        ? stableTime + checkInterval
-        : 0;
-    prevSize = currentSize;
-  }
-
-  return stableTime >= stableThreshold;
-};
-
-const waitForFileStable = async (filePath, timeout = 10000) => {
-  const checkInterval = 100;
-  const stableThreshold = 500;
-
-  const exists = await waitForFileToExist(filePath, timeout, checkInterval);
-  if (!exists) return false;
-
-  return waitForFileSizeStable(
-    filePath,
-    timeout,
-    checkInterval,
-    stableThreshold,
-  );
-};
-
-const prepareOutputDir = (outputPath) => {
+export const prepareOutputDir = (outputPath) => {
   const dir = dirname(outputPath);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
-  if (existsSync(outputPath)) {
-    unlinkSync(outputPath);
-  }
 };
 
-const buildChromiumArgs = (url, outputPath, width, height, options) => [
-  "--headless",
-  "--disable-gpu",
-  "--no-sandbox",
-  "--disable-dev-shm-usage",
-  `--screenshot=${outputPath}`,
-  `--window-size=${width},${height}`,
-  "--hide-scrollbars",
-  `--default-background-color=${options.backgroundColor}`,
-  `--virtual-time-budget=${options.virtualTimeBudget}`,
-  "--run-all-compositor-stages-before-draw",
-  "--disable-extensions",
-  "--disable-background-networking",
-  url,
-];
+export const buildUrl = (pagePath, baseUrl) =>
+  pagePath.startsWith("http")
+    ? pagePath
+    : `${baseUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`;
 
-const handleChromiumClose = async (
-  code,
+export const takeScreenshotWithPlaywright = async (
+  url,
   outputPath,
-  stderr,
-  options,
   viewport,
-  url,
+  options,
 ) => {
-  if (options.waitForStable) {
-    await waitForFileStable(outputPath, 5000);
-  }
+  const { chromium } = await import("playwright");
+  const { width, height } = VIEWPORTS[viewport] || VIEWPORTS.desktop;
 
-  const fileExists = existsSync(outputPath);
-  const fileSize = fileExists ? statSync(outputPath).size : 0;
+  prepareOutputDir(outputPath);
 
-  if (fileExists && fileSize > 0) {
-    return { success: true, path: outputPath, url, viewport };
-  }
-  if (code !== 0) {
-    throw new Error(`Chromium exited with code ${code}: ${stderr}`);
-  }
-  throw new Error(`Screenshot file not created: ${outputPath}`);
-};
-
-const takeScreenshotWithChromium = (url, outputPath, viewport, options) => {
-  return new Promise((resolve, reject) => {
-    const { width, height } = VIEWPORTS[viewport] || VIEWPORTS.desktop;
-    prepareOutputDir(outputPath);
-
-    const args = buildChromiumArgs(url, outputPath, width, height, options);
-    const chromiumProcess = spawn(requireChromium(), args, {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    let stderr = "";
-    chromiumProcess.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    const timeoutId = setTimeout(() => {
-      chromiumProcess.kill("SIGKILL");
-      reject(new Error(`Screenshot timeout after ${options.timeout}ms`));
-    }, options.timeout);
-
-    chromiumProcess.on("close", (code) => {
-      clearTimeout(timeoutId);
-      handleChromiumClose(code, outputPath, stderr, options, viewport, url)
-        .then(resolve)
-        .catch(reject);
-    });
-
-    chromiumProcess.on("error", (err) => {
-      clearTimeout(timeoutId);
-      reject(new Error(`Failed to spawn Chromium: ${err.message}`));
-    });
+  const browser = await chromium.launch({
+    headless: true,
+    args: BROWSER_ARGS,
   });
+  const context = await browser.newContext({
+    viewport: { width, height },
+    deviceScaleFactor: 1,
+  });
+  const page = await context.newPage();
+
+  await page.goto(url, {
+    waitUntil: "domcontentloaded",
+    timeout: options.timeout,
+  });
+
+  await page.screenshot({
+    path: outputPath,
+    fullPage: viewport === "full-page",
+  });
+
+  await browser.close();
+
+  return { success: true, path: outputPath, url, viewport };
 };
 
 export const screenshot = async (pagePath, options = {}) => {
   const opts = { ...DEFAULT_OPTIONS, ...options };
-  const url = pagePath.startsWith("http")
-    ? pagePath
-    : `${opts.baseUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`;
+  const url = buildUrl(pagePath, opts.baseUrl);
 
   const outputPath =
     opts.outputPath ||
@@ -210,52 +95,52 @@ export const screenshot = async (pagePath, options = {}) => {
 
   log(`Taking screenshot of ${url} (${opts.viewport})`);
 
-  try {
-    const result = await takeScreenshotWithChromium(
-      url,
-      outputPath,
-      opts.viewport,
-      opts,
-    );
-    log(`Screenshot saved: ${result.path}`);
-    return result;
-  } catch (err) {
-    logError(`Screenshot failed for ${url}: ${err.message}`);
-    throw err;
-  }
+  const result = await takeScreenshotWithPlaywright(
+    url,
+    outputPath,
+    opts.viewport,
+    opts,
+  );
+  log(`Screenshot saved: ${result.path}`);
+  return result;
+};
+
+const partitionSettledResults = (settled, makeErrorInfo) => {
+  const results = settled
+    .map((r) => (r.status === "fulfilled" ? r.value : null))
+    .filter(Boolean);
+
+  const errors = settled
+    .map((r, i) =>
+      r.status === "rejected" ? makeErrorInfo(i, r.reason) : null,
+    )
+    .filter(Boolean);
+
+  return { results, errors };
 };
 
 export const screenshotMultiple = async (pagePaths, options = {}) => {
-  const results = [];
-  const errors = [];
+  const promises = pagePaths.map((pagePath) => screenshot(pagePath, options));
+  const settled = await Promise.allSettled(promises);
 
-  for (const pagePath of pagePaths) {
-    try {
-      const result = await screenshot(pagePath, options);
-      results.push(result);
-    } catch (err) {
-      errors.push({ pagePath, error: err.message });
-    }
-  }
-
-  return { results, errors };
+  return partitionSettledResults(settled, (index, reason) => ({
+    pagePath: pagePaths[index],
+    error: reason.message,
+  }));
 };
 
 export const screenshotAllViewports = async (pagePath, options = {}) => {
   const viewportNames = Object.keys(VIEWPORTS);
-  const results = [];
-  const errors = [];
+  const promises = viewportNames.map((viewport) =>
+    screenshot(pagePath, { ...options, viewport }),
+  );
+  const settled = await Promise.allSettled(promises);
 
-  for (const viewport of viewportNames) {
-    try {
-      const result = await screenshot(pagePath, { ...options, viewport });
-      results.push(result);
-    } catch (err) {
-      errors.push({ pagePath, viewport, error: err.message });
-    }
-  }
-
-  return { results, errors };
+  return partitionSettledResults(settled, (index, reason) => ({
+    pagePath,
+    viewport: viewportNames[index],
+    error: reason.message,
+  }));
 };
 
 export const startServer = async (siteDir, port = 8080) => {
@@ -264,7 +149,7 @@ export const startServer = async (siteDir, port = 8080) => {
     { stdio: ["ignore", "pipe", "pipe"] },
   );
 
-  await sleep(1000);
+  await new Promise((r) => setTimeout(r, 2000));
 
   return {
     process: serverProcess,
@@ -279,10 +164,4 @@ export const startServer = async (siteDir, port = 8080) => {
 export const getViewports = () => ({ ...VIEWPORTS });
 export const getDefaultOptions = () => ({ ...DEFAULT_OPTIONS });
 
-export {
-  VIEWPORTS,
-  DEFAULT_OPTIONS,
-  buildOutputFilename,
-  waitForFileStable,
-  findChromium,
-};
+export { VIEWPORTS, DEFAULT_OPTIONS };
