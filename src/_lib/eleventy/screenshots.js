@@ -16,7 +16,7 @@ import { log, error as logError } from "#utils/console.js";
 
 const getScreenshotConfig = () => config.screenshots || {};
 
-export const resolveOutputDir = (outputDir) =>
+const resolveOutputDir = (outputDir) =>
   isAbsolute(outputDir) ? outputDir : join(process.cwd(), outputDir);
 
 const extractPagePaths = (collection) =>
