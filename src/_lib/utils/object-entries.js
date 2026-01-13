@@ -59,6 +59,14 @@ const mapBoth = (fn) => mapObject((k, v) => [fn(k), fn(v)]);
 const pickTruthy = filterObject((_k, v) => v);
 
 /**
+ * Keep only entries with non-null values (keeps false, 0, '', etc.)
+ * Useful for config merging where null means "use default"
+ * @example
+ * pickNonNull({ a: 1, b: null, c: false }) // { a: 1, c: false }
+ */
+const pickNonNull = filterObject((_k, v) => v !== null);
+
+/**
  * Create a curried function that omits specified keys from an object
  * Inverse of pick() - excludes keys instead of including them
  * Uses notMemberOf for functional composition with the membership predicate factory.
@@ -118,6 +126,7 @@ export {
   filterObject,
   mapBoth,
   pickTruthy,
+  pickNonNull,
   omit,
   toObject,
   fromPairs,

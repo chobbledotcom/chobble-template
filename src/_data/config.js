@@ -5,12 +5,14 @@ import {
   getProducts,
   validateCartConfig,
 } from "#config/helpers.js";
+import { pickNonNull } from "#utils/object-entries.js";
 import configData from "./config.json" with { type: "json" };
 
 const products = { ...DEFAULT_PRODUCT_DATA, ...getProducts(configData) };
+const userConfig = pickNonNull(configData);
 const baseConfig = {
   ...DEFAULTS,
-  ...configData,
+  ...userConfig,
   products,
 };
 const config = {

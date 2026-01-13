@@ -22,6 +22,7 @@ import {
   createTempFile,
   expectObjectProps,
 } from "#test/test-utils.js";
+import { pickNonNull } from "#utils/object-entries.js";
 
 describe("config", () => {
   test("DEFAULTS has all expected keys", () => {
@@ -38,8 +39,18 @@ describe("config", () => {
       "chobble_link",
       "map_embed_src",
       "cart_mode",
+      "checkout_api_url",
       "product_mode",
       "has_products_filter",
+      "has_properties_filter",
+      "placeholder_images",
+      "enable_theme_switcher",
+      "timezone",
+      "reviews_truncate_limit",
+      "list_item_fields",
+      "navigation_content_anchor",
+      "category_order",
+      "screenshots",
       "design_system_layouts",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
@@ -370,5 +381,41 @@ describe("config", () => {
     expect(() => validateProductMode(config)).toThrow(
       /Invalid product_mode: "invalid"/,
     );
+  });
+
+  test("config merging uses defaults when config values are null", () => {
+    const userConfig = {
+      placeholder_images: null,
+      sticky_mobile_nav: null,
+      custom_setting: "custom_value",
+    };
+
+    const filtered = pickNonNull(userConfig);
+    const merged = { ...DEFAULTS, ...filtered };
+
+    // null values should not override defaults
+    expect(merged.placeholder_images).toBe(DEFAULTS.placeholder_images);
+    expect(merged.sticky_mobile_nav).toBe(DEFAULTS.sticky_mobile_nav);
+    // explicit values should override defaults
+    expect(merged.custom_setting).toBe("custom_value");
+  });
+
+  test("config merging preserves falsy but non-null values", () => {
+    const userConfig = {
+      externalLinksTargetBlank: false,
+      reviews_truncate_limit: 0,
+      empty_string: "",
+      null_value: null,
+    };
+
+    const filtered = pickNonNull(userConfig);
+    const merged = { ...DEFAULTS, ...filtered };
+
+    // false, 0, and "" should override defaults
+    expect(merged.externalLinksTargetBlank).toBe(false);
+    expect(merged.reviews_truncate_limit).toBe(0);
+    expect(merged.empty_string).toBe("");
+    // null should not override
+    expect(merged).not.toHaveProperty("null_value");
   });
 });
