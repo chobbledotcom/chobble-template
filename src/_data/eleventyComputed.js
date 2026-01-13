@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import getConfig from "#data/config.js";
 import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
+import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { memoize } from "#utils/memoize.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
@@ -39,11 +41,14 @@ function hasTag(data, tag) {
 }
 
 /**
- * Finds the first valid thumbnail from available images
+ * Finds the first valid thumbnail from available images, or returns a
+ * placeholder if configured
  * @param {Object} data - Page data
  * @param {string|import("#lib/types").Image} [data.thumbnail] - Thumbnail image
  * @param {Array} [data.gallery] - Gallery images
  * @param {string|import("#lib/types").Image} [data.header_image] - Header image
+ * @param {Object} [data.page] - Eleventy page object
+ * @param {string} [data.page.url] - Page URL
  * @returns {string|import("#lib/types").Image|null} Valid image or null
  */
 function findValidThumbnail(data) {
@@ -51,6 +56,9 @@ function findValidThumbnail(data) {
   if (data.gallery?.[0] && isValidImage(data.gallery[0]))
     return data.gallery[0];
   if (isValidImage(data.header_image)) return data.header_image;
+  if (getConfig().placeholder_images) {
+    return getPlaceholderForPath(data.page?.url || "");
+  }
   return null;
 }
 
