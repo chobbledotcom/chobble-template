@@ -142,7 +142,7 @@ export const startServer = async (siteDir, port = 8080) => {
     [
       "bun",
       "-e",
-      `Bun.serve({port:${port},fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';return new Response(Bun.file('${siteDir}'+p))}})`,
+      `Bun.serve({port:${port},async fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';const file=Bun.file('${siteDir}'+p);const exists=await file.exists();return exists?new Response(file):new Response('Not found',{status:404})}})`,
     ],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
