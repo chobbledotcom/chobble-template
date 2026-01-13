@@ -19,13 +19,6 @@ const getScreenshotConfig = () => config.screenshots || {};
 export const resolveOutputDir = (outputDir) =>
   isAbsolute(outputDir) ? outputDir : join(process.cwd(), outputDir);
 
-const buildCaptureOptions = (baseUrl, screenshotConfig) => ({
-  baseUrl,
-  outputDir: resolveOutputDir(screenshotConfig.outputDir || "screenshots"),
-  viewport: screenshotConfig.viewport || "desktop",
-  timeout: screenshotConfig.timeout || 10000,
-});
-
 const extractPagePaths = (collection) =>
   pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(
     Boolean,
@@ -50,13 +43,27 @@ export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   return [];
 };
 
+export const logScreenshotErrors = (errors) => {
+  if (errors.length === 0) return;
+  logError(`Screenshot errors: ${errors.length}`);
+  for (const err of errors) {
+    logError(`  - ${err.pagePath}: ${err.error}`);
+  }
+};
+
 export const captureScreenshots = async (
   pageUrls,
   screenshotConfig,
   outputDir,
 ) => {
   const server = await startServer(outputDir, screenshotConfig.port || 8080);
-  const options = buildCaptureOptions(server.baseUrl, screenshotConfig);
+
+  const options = {
+    baseUrl: server.baseUrl,
+    outputDir: resolveOutputDir(screenshotConfig.outputDir || "screenshots"),
+    viewport: screenshotConfig.viewport || "desktop",
+    timeout: screenshotConfig.timeout || 10000,
+  };
 
   const pagesToCapture = screenshotConfig.limit
     ? pageUrls.slice(0, screenshotConfig.limit)
@@ -65,12 +72,7 @@ export const captureScreenshots = async (
   const { results, errors } = await screenshotMultiple(pagesToCapture, options);
 
   log(`Screenshots captured: ${results.length}`);
-  if (errors.length > 0) {
-    logError(`Screenshot errors: ${errors.length}`);
-    for (const err of errors) {
-      logError(`  - ${err.pagePath}: ${err.error}`);
-    }
-  }
+  logScreenshotErrors(errors);
   server.stop();
 };
 

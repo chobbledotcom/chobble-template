@@ -6,7 +6,7 @@ import {
   resolveOutputDir,
   VIEWPORTS,
 } from "#eleventy/screenshots.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { createMockEleventyConfig, rootDir } from "#test/test-utils.js";
 
 describe("screenshots eleventy plugin", () => {
   describe("configureScreenshots", () => {
@@ -125,13 +125,13 @@ describe("screenshots eleventy plugin", () => {
     test("Joins relative path with cwd", () => {
       const relativePath = "screenshots";
       const result = resolveOutputDir(relativePath);
-      expect(result).toBe(`${process.cwd()}/screenshots`);
+      expect(result).toBe(`${rootDir}/screenshots`);
     });
 
     test("Handles nested relative path", () => {
       const relativePath = "output/screenshots";
       const result = resolveOutputDir(relativePath);
-      expect(result).toBe(`${process.cwd()}/output/screenshots`);
+      expect(result).toBe(`${rootDir}/output/screenshots`);
     });
   });
 
