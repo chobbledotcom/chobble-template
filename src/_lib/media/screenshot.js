@@ -13,6 +13,7 @@ const VIEWPORTS = {
 const DEFAULT_OPTIONS = {
   viewport: "desktop",
   outputDir: join(ROOT_DIR, "screenshots"),
+  outputPath: null,
   baseUrl: "http://localhost:8080",
   timeout: 10000,
   waitForStable: true,

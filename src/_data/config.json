@@ -24,5 +24,6 @@
   "reviews_truncate_limit": 10,
   "list_item_fields": ["link", "subtitle", "thumbnail"],
   "category_order": null,
-  "navigation_content_anchor": false
+  "navigation_content_anchor": false,
+  "screenshots": null
 }
