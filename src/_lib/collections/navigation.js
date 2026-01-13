@@ -9,17 +9,23 @@ const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
     activeKey: activeKey,
   });
 
+/**
+ * Find URL for a page matching tag and slug
+ *
+ * @param {import("#lib/types").EleventyCollectionItem[]} collection - Eleventy collection
+ * @param {string} tag - Tag to match
+ * @param {string} slug - File slug to match
+ * @returns {string} Page URL or "#" if not found
+ *
+ * Eleventy guarantees: Collection items always have a `data` property.
+ * Therefore, no optional chaining needed on `item.data`.
+ * See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
+ */
 const findPageUrl = (collection, tag, slug) => {
-  if (!collection) {
-    return "#";
-  }
   const result = collection.find(
-    (item) => item.fileSlug === slug && item.data?.tags?.includes(tag),
+    (item) => item.fileSlug === slug && item.data.tags?.includes(tag),
   );
-  if (!result) {
-    return "#";
-  }
-  return result.url;
+  return result?.url ?? "#";
 };
 
 const configureNavigation = async (eleventyConfig) => {
