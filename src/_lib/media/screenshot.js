@@ -137,13 +137,24 @@ export const screenshotAllViewports = (pagePath, options = {}) => {
   );
 };
 
+// Inline server code for Bun.spawn - handles 404s for missing files
+const buildServerCode = (siteDir, port) =>
+  // prettier-ignore
+  "Bun.serve({" +
+  `port:${port},` +
+  "async fetch(req){" +
+  "const url=new URL(req.url);" +
+  "let p=url.pathname;" +
+  "if(p.endsWith('/'))p+='index.html';" +
+  `const file=Bun.file('${siteDir}'+p);` +
+  "if(await file.exists())return new Response(file);" +
+  "return new Response('Not found',{status:404})" +
+  "}" +
+  "})";
+
 export const startServer = async (siteDir, port = 8080) => {
   const serverProcess = Bun.spawn(
-    [
-      "bun",
-      "-e",
-      `Bun.serve({port:${port},fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';return new Response(Bun.file('${siteDir}'+p))}})`,
-    ],
+    ["bun", "-e", buildServerCode(siteDir, port)],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
 
