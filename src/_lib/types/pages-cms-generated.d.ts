@@ -76,6 +76,20 @@ export interface PagesCMSTab {
 }
 
 /**
+ * @typedef {Object} PagesCMSBlock
+ * @property {string} ?type - Block Type
+ * @property {string} title - Title
+ * @property {string} ?subtitle - Subtitle
+ * @property {Record<string, unknown>} ?items - Features
+ */
+export interface PagesCMSBlock {
+  type?: string;
+  title: string;
+  subtitle?: string;
+  items?: Record<string, unknown>;
+}
+
+/**
  * @typedef {Object} PagesCMSOpeningTime
  * @property {string} day - Day
  * @property {string} hours - Hours
