@@ -1,10 +1,5 @@
 {%- if item.data.thumbnail -%}
-  {%- assign imagePath = item.data.thumbnail -%}
-{%- elsif config.placeholder_images -%}
-  {%- assign imagePath = item.url | thumbnailPlaceholder -%}
-{%- endif -%}
-{%- if imagePath -%}
   <a class="image-link" href="{{ item.url }}#content" aria-hidden="true" tabindex="-1">
-    {%- image imagePath, "", widths, "", "", config.products.item_list_aspect_ratio -%}
+    {%- image item.data.thumbnail, "", widths, "", "", config.products.item_list_aspect_ratio -%}
   </a>
 {%- endif -%}
