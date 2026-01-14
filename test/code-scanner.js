@@ -412,26 +412,66 @@ const EXPORT_FUNCTION_PATTERN =
 const EXPORT_VAR_PATTERN =
   /^\s*export\s+(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
 
-// Matches names inside: export { name1, name2, name3 as alias }
+// Matches names inside: export { name1, name2, name3 as alias } (single-line only)
 const EXPORT_LIST_PATTERN = /^\s*export\s*\{([^}]+)\}/;
+
+// Matches start of export list: export {
+const EXPORT_BRACE_START = /^\s*export\s*\{/;
 
 // Matches: export default name or export default function name
 const EXPORT_DEFAULT_PATTERN =
   /^\s*export\s+default\s+(?:function\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)/;
 
 /**
+ * Parse export names from export list content.
+ * Handles: "name1, name2, name3 as alias"
+ * @param {string} content - Content between { and }
+ * @param {Set<string>} exported - Set to add exports to
+ */
+const parseExportListContent = (content, exported) => {
+  const names = content
+    .split(",")
+    .map((n) =>
+      n
+        .trim()
+        .split(/\s+as\s+/)[0]
+        .trim(),
+    )
+    .filter((n) => n && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(n));
+  for (const name of names) {
+    exported.add(name);
+  }
+};
+
+/**
  * Extract all named exports from source code.
  * Returns a Set of exported identifiers.
+ * Handles both single-line and multi-line export lists.
  *
  * @param {string} source - Source code to analyze
  * @returns {Set<string>} - Set of exported names
  */
 const extractExports = (source) => {
   const exported = new Set();
+  const lines = source.split("\n");
+  let multiLineBuffer = null;
 
-  for (const line of source.split("\n")) {
+  for (const line of lines) {
     // Skip comments
     if (isCommentLine(line)) continue;
+
+    // If we're accumulating a multi-line export
+    if (multiLineBuffer !== null) {
+      const closeIndex = line.indexOf("}");
+      if (closeIndex !== -1) {
+        multiLineBuffer += line.slice(0, closeIndex);
+        parseExportListContent(multiLineBuffer, exported);
+        multiLineBuffer = null;
+      } else {
+        multiLineBuffer += line;
+      }
+      continue;
+    }
 
     // Match function declaration exports
     const funcMatch = line.match(EXPORT_FUNCTION_PATTERN);
@@ -447,21 +487,17 @@ const extractExports = (source) => {
       continue;
     }
 
-    // Match list-style exports
-    const listMatch = line.match(EXPORT_LIST_PATTERN);
-    if (listMatch) {
-      // Parse names from the list, handling "name as alias" syntax
-      const names = listMatch[1]
-        .split(",")
-        .map((n) =>
-          n
-            .trim()
-            .split(/\s+as\s+/)[0]
-            .trim(),
-        )
-        .filter((n) => n && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(n));
-      for (const name of names) {
-        exported.add(name);
+    // Check for export list (single or multi-line)
+    if (EXPORT_BRACE_START.test(line)) {
+      const braceStart = line.indexOf("{");
+      const braceEnd = line.indexOf("}");
+
+      if (braceEnd !== -1) {
+        // Single-line export: export { a, b, c };
+        parseExportListContent(line.slice(braceStart + 1, braceEnd), exported);
+      } else {
+        // Multi-line export starts here
+        multiLineBuffer = line.slice(braceStart + 1);
       }
       continue;
     }
