@@ -203,10 +203,10 @@
   // ===========================================================================
   // SECTION HEADERS
   // ===========================================================================
-  // Section headers are card-styled blocks with centered text
-  // Use --section-header-style: gradient to enable gradient text (default: solid)
+  // Section headers use <hgroup class="section-header"> for semantic markup
+  // Use .gradient class to enable gradient text (default: solid for readability)
 
-  > header {
+  > .section-header {
     @include card($space-xl, $radius-lg);
     text-align: center;
 
@@ -221,7 +221,7 @@
       margin-bottom: 0;
     }
 
-    // Gradient text style (opt-in via --section-header-style: gradient)
+    // Gradient text style (opt-in via .gradient class)
     // Default is solid for better readability and contrast
     &.gradient h1,
     &.gradient h2,
@@ -242,7 +242,7 @@
   // Consistent vertical rhythm between block-level components (features, stats,
   // code-block, etc.) when used as direct children of .design-system
 
-  > header,
+  > .section-header,
   > .features,
   > ul.features,
   > .stats,
@@ -258,11 +258,11 @@
   }
 
   // Extra spacing before section headers that follow content blocks
-  > .features + header,
-  > ul.features + header,
-  > .stats + header,
-  > dl.stats + header,
-  > .code-block + header {
+  > .features + .section-header,
+  > ul.features + .section-header,
+  > .stats + .section-header,
+  > dl.stats + .section-header,
+  > .code-block + .section-header {
     margin-top: $space-xl;
   }
 }
