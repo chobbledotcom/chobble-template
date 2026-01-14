@@ -239,23 +239,21 @@ Error: Cannot find module 'missing-dep'
     );
 
     // Check that the shared utilities use printTruncatedList with errors label
-    expect(testRunnerUtilsCode).toContain(
-      'import { printTruncatedList } from "#utils/array-utils.js"',
-    );
+    expect(testRunnerUtilsCode).toContain("export const printTruncatedList");
     expect(testRunnerUtilsCode).toContain(
       'printTruncatedList({ moreLabel: "errors"',
     );
   });
 
   test("precommit script shows verbose flag hint when errors are truncated", () => {
-    const arrayUtilsPath = join(rootDir, "src/_lib/utils/array-utils.js");
-    const arrayUtilsCode = require("node:fs").readFileSync(
-      arrayUtilsPath,
+    const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
+    const testRunnerUtilsCode = require("node:fs").readFileSync(
+      testRunnerUtilsPath,
       "utf-8",
     );
 
     // Verify the printTruncatedList utility has the verbose hint as default
-    expect(arrayUtilsCode).toContain("use --verbose to see all");
+    expect(testRunnerUtilsCode).toContain("use --verbose to see all");
   });
 });
 

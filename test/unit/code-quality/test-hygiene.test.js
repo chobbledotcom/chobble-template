@@ -47,11 +47,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProductSchemaData",
   "createPostSchemaData",
   "createMockReview",
-  // quote-steps.test.js - test fixture factory and assertion helpers
+  // quote-steps.test.js - test fixture factory and setup helpers
   "createQuoteStepsHtml",
-  "testNextButtonStep",
+  "setupQuoteSteps",
+  "triggerValidationError",
+  // quote-steps-utils.js - shared test helpers for progress tests
   "testIndicatorStates",
-  "testValidateFieldWithHtml",
   // quote-price-utils.test.js - DOM setup and template rendering
   "setupFullDOM",
   "setupBlurTestDOM",
@@ -114,8 +115,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "another",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
-  // quote-steps.test.js - navigation test setup
-  "setupQuoteStepsNav",
   // hire-calculator.test.js - callback tracking setup
   "initHireWithCallback",
   // unused-images.test.js - eleventy after handler runner

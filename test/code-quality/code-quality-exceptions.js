@@ -189,6 +189,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
+  "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
@@ -230,9 +231,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/build/scss.js:compileScss",
   "src/_lib/build/scss.js:configureScss",
   "src/_lib/build/scss.js:createScssCompiler",
-  "src/_lib/build/theme-compiler.js:extractRootVariables",
-  "src/_lib/build/theme-compiler.js:getThemeFiles",
-  "src/_lib/build/theme-compiler.js:slugToTitle",
 
   // Collection configure functions - tested to verify Eleventy registration
   "src/_lib/collections/categories.js:assignCategoryImages",
@@ -386,20 +384,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/cart/hire-calculator.js:hasHireItems",
   "src/_lib/public/cart/hire-calculator.js:isHireItem",
   "src/_lib/public/cart/hire-calculator.js:setMinDate",
-  "src/_lib/public/cart/quote-steps.js:buildRadioRecapItem",
-  "src/_lib/public/cart/quote-steps.js:clearFieldError",
-  "src/_lib/public/cart/quote-steps.js:getCurrentStep",
-  "src/_lib/public/cart/quote-steps.js:getFieldDisplayValue",
-  "src/_lib/public/cart/quote-steps.js:getFieldLabel",
-  "src/_lib/public/cart/quote-steps.js:getFieldWrapper",
-  "src/_lib/public/cart/quote-steps.js:getRadioLabel",
-  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
-  "src/_lib/public/cart/quote-steps.js:populateRecap",
-  "src/_lib/public/cart/quote-steps.js:setFieldError",
-  "src/_lib/public/cart/quote-steps.js:updateButtons",
-  "src/_lib/public/cart/quote-steps.js:validateField",
-  "src/_lib/public/cart/quote-steps.js:validateRadioGroup",
-  "src/_lib/public/cart/quote-steps.js:validateStep",
+  "src/_lib/public/cart/quote-steps.js:initQuoteSteps", // Public API, auto-called via onReady
 
   // Public UI components - tested for frontend behavior
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
@@ -418,7 +403,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/utils/quote-price-utils.js:parsePrice",
 
   // Utility functions - tested for shared logic
-  "src/_lib/utils/array-utils.js:printTruncatedList",
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
   "src/_lib/utils/grouping.js:createLookup",

@@ -71,9 +71,4 @@ ${displayNames.join("\n")}
   return [header, ...themeRules, metadata].join("\n\n");
 });
 
-export {
-  extractRootVariables,
-  generateThemeSwitcherContent,
-  getThemeFiles,
-  slugToTitle,
-};
+export { generateThemeSwitcherContent };
