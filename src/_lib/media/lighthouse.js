@@ -1,16 +1,18 @@
-import { log } from "#utils/console.js";
 import {
-  BROWSER_ARGS,
   buildOutputPath,
   buildUrl,
+  createOperationContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
+  getChromePath,
   getDefaultOutputDir,
+  launchChromeHeadless,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
   startServer,
-} from "./browser-utils.js";
+} from "#media/browser-utils.js";
+import { log } from "#utils/console.js";
 
 const CATEGORIES = {
   performance: "performance",
@@ -30,55 +32,10 @@ const DEFAULT_OPTIONS = {
   thresholds: null,
 };
 
-const formatScore = (score) =>
-  score === null ? "N/A" : `${Math.round(score * 100)}`;
-
-const extractScores = (lhr) => ({
-  performance: lhr.categories.performance?.score,
-  accessibility: lhr.categories.accessibility?.score,
-  "best-practices": lhr.categories["best-practices"]?.score,
-  seo: lhr.categories.seo?.score,
-});
-
-const checkThresholds = (scores, thresholds) => {
-  if (!thresholds) return { passed: true, failures: [] };
-
-  const failures = [];
-  for (const [category, minScore] of Object.entries(thresholds)) {
-    const score = scores[category];
-    if (score !== null && score < minScore) {
-      failures.push({
-        category,
-        actual: Math.round(score * 100),
-        expected: Math.round(minScore * 100),
-      });
-    }
-  }
-  return { passed: failures.length === 0, failures };
-};
-
-const getPlaywrightChromiumPath = async () => {
-  const { chromium } = await import("playwright");
-  return chromium.executablePath();
-};
-
 export const runLighthouse = async (url, outputPath, options) => {
-  const lighthouse = (await import("lighthouse")).default;
-  const chromeLauncher = await import("chrome-launcher");
-
-  prepareOutputDir(outputPath);
-
-  // Use Playwright's bundled Chromium if CHROME_PATH not set
-  const chromePath =
-    process.env.CHROME_PATH || (await getPlaywrightChromiumPath());
-
-  const chrome = await chromeLauncher.launch({
-    chromePath,
-    chromeFlags: ["--headless", ...BROWSER_ARGS],
-  });
-
-  try {
-    const runnerResult = await lighthouse(
+  const runLighthouseAudit = async (chrome) => {
+    const lighthouseFn = (await import("lighthouse")).default;
+    return lighthouseFn(
       url,
       {
         port: chrome.port,
@@ -94,21 +51,40 @@ export const runLighthouse = async (url, outputPath, options) => {
         },
       },
     );
+  };
 
-    const report = runnerResult.report;
-    const lhr = runnerResult.lhr;
+  const extractScores = (lhr) => ({
+    performance: lhr.categories.performance?.score,
+    accessibility: lhr.categories.accessibility?.score,
+    "best-practices": lhr.categories["best-practices"]?.score,
+    seo: lhr.categories.seo?.score,
+  });
 
+  const checkThresholds = (scores, thresholds) => {
+    if (!thresholds) return { passed: true, failures: [] };
+    const failures = Object.entries(thresholds)
+      .filter(([cat, min]) => scores[cat] !== null && scores[cat] < min)
+      .map(([cat, min]) => ({
+        category: cat,
+        actual: Math.round(scores[cat] * 100),
+        expected: Math.round(min * 100),
+      }));
+    return { passed: failures.length === 0, failures };
+  };
+
+  prepareOutputDir(outputPath);
+  const chrome = await launchChromeHeadless(await getChromePath());
+
+  try {
+    const { report, lhr } = await runLighthouseAudit(chrome);
     await Bun.write(outputPath, report);
-
     const scores = extractScores(lhr);
-    const thresholdResult = checkThresholds(scores, options.thresholds);
-
     return {
       success: true,
       path: outputPath,
       url,
       scores,
-      thresholds: thresholdResult,
+      thresholds: checkThresholds(scores, options.thresholds),
       finalUrl: lhr.finalDisplayedUrl,
     };
   } finally {
@@ -116,30 +92,28 @@ export const runLighthouse = async (url, outputPath, options) => {
   }
 };
 
-const formatExtension = (format) => {
-  const extensions = { html: "html", json: "json", csv: "csv" };
-  return extensions[format] || "html";
-};
-
 export const lighthouse = async (pagePath, options = {}) => {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
-  const url = buildUrl(pagePath, opts.baseUrl);
+  const formatExtension = (fmt) =>
+    ({ html: "html", json: "json", csv: "csv" })[fmt] || "html";
+  const buildReportPath = (opts, path) =>
+    buildOutputPath(opts.outputDir, path, "", formatExtension(opts.format));
 
-  const outputPath =
-    opts.outputPath ||
-    buildOutputPath(opts.outputDir, pagePath, "", formatExtension(opts.format));
-
+  const { opts, url, outputPath } = createOperationContext(
+    pagePath,
+    DEFAULT_OPTIONS,
+    options,
+    buildReportPath,
+  );
   log(`Running Lighthouse on ${url}`);
 
   const result = await runLighthouse(url, outputPath, opts);
-
+  const formatScore = (s) => (s === null ? "N/A" : `${Math.round(s * 100)}`);
   const scoreStr = Object.entries(result.scores)
     .map(([k, v]) => `${k}: ${formatScore(v)}`)
     .join(", ");
 
   log(`Lighthouse complete: ${scoreStr}`);
   log(`Report saved: ${result.path}`);
-
   return result;
 };
 
@@ -150,20 +124,7 @@ export const lighthouseMultiple = (pagePaths, options = {}) =>
     (i, reason) => ({ pagePath: pagePaths[i], error: reason.message }),
   );
 
-export const lighthouseAllCategories = async (pagePath, options = {}) => {
-  // Run lighthouse once - it includes all categories by default
-  const result = await lighthouse(pagePath, {
-    ...options,
-    categories: Object.keys(CATEGORIES),
-  });
-  return {
-    results: [result],
-    errors: [],
-  };
-};
-
 export const getCategories = () => ({ ...CATEGORIES });
-export const getDefaultOptions = () => ({ ...DEFAULT_OPTIONS });
 
 // Re-export shared utilities
 export { buildUrl, sanitizePagePath, startServer };

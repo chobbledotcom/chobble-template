@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import {
   getCategories,
   lighthouse,
   lighthouseMultiple,
-  startServer,
 } from "#media/lighthouse.js";
+import { createCliRunner, logErrors, showHelp } from "#scripts/cli-utils.js";
 
 const USAGE = `
 Lighthouse Tool - Run Lighthouse audits on rendered pages
@@ -77,11 +76,6 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
 });
 
-const showHelp = () => {
-  console.log(USAGE);
-  process.exit(0);
-};
-
 const showCategories = () => {
   console.log("\nAvailable categories:");
   for (const name of Object.keys(getCategories())) {
@@ -103,13 +97,10 @@ const logResults = (results) => {
   }
 };
 
-const logErrors = (errors, getKey) => {
-  if (errors.length === 0) return false;
-  console.error(`\nErrors: ${errors.length}`);
-  for (const err of errors) {
-    console.error(`  ${getKey(err)}: ${err.error}`);
+const logFailures = (failures, prefix = "") => {
+  for (const f of failures) {
+    console.error(`${prefix}${f.category}: ${f.actual} < ${f.expected}`);
   }
-  return true;
 };
 
 const logThresholdFailures = (results) => {
@@ -118,9 +109,7 @@ const logThresholdFailures = (results) => {
     if (!result.thresholds.passed) {
       hasFailures = true;
       console.error(`\nThreshold failures for ${result.url}:`);
-      for (const f of result.thresholds.failures) {
-        console.error(`  ${f.category}: ${f.actual} < ${f.expected}`);
-      }
+      logFailures(result.thresholds.failures, "  ");
     }
   }
   return hasFailures;
@@ -146,25 +135,10 @@ const handleSinglePage = async (pagePath, options) => {
 
   if (!result.thresholds.passed) {
     console.error("\nThreshold failures:");
-    for (const f of result.thresholds.failures) {
-      console.error(`  ${f.category}: ${f.actual} < ${f.expected}`);
-    }
+    logFailures(result.thresholds.failures, "  ");
     return true;
   }
   return false;
-};
-
-const maybeStartServer = async (siteDir, port, options) => {
-  if (!siteDir) return null;
-  if (!existsSync(siteDir)) {
-    console.error(`Error: Directory not found: ${siteDir}`);
-    process.exit(1);
-  }
-  console.log(`Starting server for ${siteDir} on port ${port}...`);
-  const server = await startServer(siteDir, port);
-  options.baseUrl = server.baseUrl;
-  console.log(`Server running at ${server.baseUrl}`);
-  return server;
 };
 
 const selectHandler = (isMultiplePages) =>
@@ -196,55 +170,22 @@ const buildOptions = () => ({
   thresholds: parseThresholds(values.threshold),
 });
 
+const doShowHelp = () => showHelp(USAGE);
+
 const handleEarlyExit = () => {
-  if (values.help) showHelp();
+  if (values.help) doShowHelp();
   if (values["list-categories"]) showCategories();
 };
 
-const validatePagePaths = (pagePaths) => {
-  if (pagePaths.length === 0) {
-    console.error("Error: No page path provided");
-    showHelp();
-  }
-};
+const getInput = ({ positionals, isMultiple }) =>
+  isMultiple ? positionals : positionals[0];
 
-const getInputForHandler = (pagePaths, isMultiplePages) =>
-  isMultiplePages ? pagePaths : pagePaths[0];
+const selectHandlerFromCtx = ({ isMultiple }) => selectHandler(isMultiple);
 
-const stopServerIfRunning = (server) => {
-  if (server) {
-    server.stop();
-    console.log("\nServer stopped.");
-  }
-};
-
-const runLighthouse = async (handler, input, options, server) => {
-  try {
-    const hasErrors = await handler(input, options);
-    if (hasErrors) process.exit(1);
-  } catch (err) {
-    console.error(`\nError: ${err.message}`);
-    process.exit(1);
-  } finally {
-    stopServerIfRunning(server);
-  }
-};
-
-const main = async () => {
-  handleEarlyExit();
-  validatePagePaths(positionals);
-
-  const options = buildOptions();
-  const server = await maybeStartServer(
-    values.serve,
-    Number.parseInt(values.port, 10),
-    options,
-  );
-  const isMultiple = values.pages || positionals.length > 1;
-  const handler = selectHandler(isMultiple);
-  const input = getInputForHandler(positionals, isMultiple);
-
-  await runLighthouse(handler, input, options, server);
-};
-
-main();
+createCliRunner({
+  selectHandler: selectHandlerFromCtx,
+  getInput,
+  buildOptions,
+  handleEarlyExit,
+  doShowHelp,
+})(values, positionals);

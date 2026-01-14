@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import {
@@ -8,8 +7,8 @@ import {
   screenshot,
   screenshotAllViewports,
   screenshotMultiple,
-  startServer,
 } from "#media/screenshot.js";
+import { createCliRunner, logErrors, showHelp } from "#scripts/cli-utils.js";
 
 const USAGE = `
 Screenshot Tool - Capture screenshots of rendered pages
@@ -75,11 +74,6 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
 });
 
-const showHelp = () => {
-  console.log(USAGE);
-  process.exit(0);
-};
-
 const showViewports = () => {
   console.log("\nAvailable viewports:");
   for (const [name, vp] of Object.entries(getViewports())) {
@@ -92,15 +86,6 @@ const logResults = (results, getKey) => {
   for (const result of results) {
     console.log(`  ${getKey(result)}: ${result.path}`);
   }
-};
-
-const logErrors = (errors, getKey) => {
-  if (errors.length === 0) return false;
-  console.error(`\nErrors: ${errors.length}`);
-  for (const err of errors) {
-    console.error(`  ${getKey(err)}: ${err.error}`);
-  }
-  return true;
 };
 
 const createBatchHandler =
@@ -133,19 +118,6 @@ const handleSinglePage = async (pagePath, options) => {
   return false;
 };
 
-const maybeStartServer = async (siteDir, port, options) => {
-  if (!siteDir) return null;
-  if (!existsSync(siteDir)) {
-    console.error(`Error: Directory not found: ${siteDir}`);
-    process.exit(1);
-  }
-  console.log(`Starting server for ${siteDir} on port ${port}...`);
-  const server = await startServer(siteDir, port);
-  options.baseUrl = server.baseUrl;
-  console.log(`Server running at ${server.baseUrl}`);
-  return server;
-};
-
 const selectHandler = (isAllViewports, isMultiplePages) => {
   if (isAllViewports) return handleAllViewports;
   if (isMultiplePages) return handleMultiplePages;
@@ -160,59 +132,23 @@ const buildOptions = () => ({
   outputPath: values.output,
 });
 
+const doShowHelp = () => showHelp(USAGE);
+
 const handleEarlyExit = () => {
-  if (values.help) showHelp();
+  if (values.help) doShowHelp();
   if (values["list-viewports"]) showViewports();
 };
 
-const validatePagePaths = (pagePaths) => {
-  if (pagePaths.length === 0) {
-    console.error("Error: No page path provided");
-    showHelp();
-  }
-};
+const getInput = ({ positionals, isMultiple, values }) =>
+  isMultiple && !values["all-viewports"] ? positionals : positionals[0];
 
-const getInputForHandler = (pagePaths, isMultiplePages, isAllViewports) =>
-  isMultiplePages && !isAllViewports ? pagePaths : pagePaths[0];
+const selectHandlerFromCtx = ({ isMultiple, values }) =>
+  selectHandler(values["all-viewports"], isMultiple);
 
-const stopServerIfRunning = (server) => {
-  if (server) {
-    server.stop();
-    console.log("\nServer stopped.");
-  }
-};
-
-const runScreenshots = async (handler, input, options, server) => {
-  try {
-    const hasErrors = await handler(input, options);
-    if (hasErrors) process.exit(1);
-  } catch (err) {
-    console.error(`\nError: ${err.message}`);
-    process.exit(1);
-  } finally {
-    stopServerIfRunning(server);
-  }
-};
-
-const main = async () => {
-  handleEarlyExit();
-  validatePagePaths(positionals);
-
-  const options = buildOptions();
-  const server = await maybeStartServer(
-    values.serve,
-    Number.parseInt(values.port, 10),
-    options,
-  );
-  const isMultiple = values.pages || positionals.length > 1;
-  const handler = selectHandler(values["all-viewports"], isMultiple);
-  const input = getInputForHandler(
-    positionals,
-    isMultiple,
-    values["all-viewports"],
-  );
-
-  await runScreenshots(handler, input, options, server);
-};
-
-main();
+createCliRunner({
+  selectHandler: selectHandlerFromCtx,
+  getInput,
+  buildOptions,
+  handleEarlyExit,
+  doShowHelp,
+})(values, positionals);

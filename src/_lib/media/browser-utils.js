@@ -28,6 +28,20 @@ export const buildUrl = (pagePath, baseUrl) =>
 export const buildOutputPath = (outputDir, pagePath, suffix, extension) =>
   join(outputDir, `${sanitizePagePath(pagePath)}${suffix}.${extension}`);
 
+export const createOperationContext = (
+  pagePath,
+  defaultOpts,
+  userOptions,
+  buildPath,
+) => {
+  const mergedOptions = { ...defaultOpts, ...userOptions };
+  return {
+    opts: mergedOptions,
+    url: buildUrl(pagePath, mergedOptions.baseUrl),
+    outputPath: mergedOptions.outputPath || buildPath(mergedOptions, pagePath),
+  };
+};
+
 export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   const settled = await Promise.allSettled(items.map(operationFn));
   return {
@@ -68,3 +82,17 @@ export const startServer = async (siteDir, port = 8080) => {
 };
 
 export const getDefaultOutputDir = (subdir) => join(ROOT_DIR, subdir);
+
+export const getChromePath = async () => {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const { chromium } = await import("playwright");
+  return chromium.executablePath();
+};
+
+export const launchChromeHeadless = async (chromePath) => {
+  const chromeLauncher = await import("chrome-launcher");
+  return chromeLauncher.launch({
+    chromePath,
+    chromeFlags: ["--headless", ...BROWSER_ARGS],
+  });
+};

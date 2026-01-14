@@ -1,8 +1,8 @@
-import { log } from "#utils/console.js";
 import {
   BROWSER_ARGS,
   buildOutputPath,
   buildUrl,
+  createOperationContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   getDefaultOutputDir,
@@ -10,7 +10,8 @@ import {
   runBatchOperations,
   sanitizePagePath,
   startServer,
-} from "./browser-utils.js";
+} from "#media/browser-utils.js";
+import { log } from "#utils/console.js";
 
 const VIEWPORTS = {
   mobile: { width: 375, height: 667, name: "mobile" },
@@ -70,18 +71,20 @@ export const takeScreenshotWithPlaywright = async (
 };
 
 export const screenshot = async (pagePath, options = {}) => {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
-  const url = buildUrl(pagePath, opts.baseUrl);
-
-  const outputPath =
-    opts.outputPath ||
+  const buildScreenshotPath = (opts, path) =>
     buildOutputPath(
       opts.outputDir,
-      pagePath,
+      path,
       buildViewportSuffix(opts.viewport),
       "png",
     );
 
+  const { opts, url, outputPath } = createOperationContext(
+    pagePath,
+    DEFAULT_OPTIONS,
+    options,
+    buildScreenshotPath,
+  );
   log(`Taking screenshot of ${url} (${opts.viewport})`);
 
   const result = await takeScreenshotWithPlaywright(
