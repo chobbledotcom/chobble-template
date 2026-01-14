@@ -13,10 +13,6 @@ const getExternalLinkAttributes = (url, config) =>
     ? ' target="_blank" rel="noopener noreferrer"'
     : "";
 
-const externalLinkFilter = (url, config) => {
-  return getExternalLinkAttributes(url, config);
-};
-
 const transformExternalLinks = async (content, config) => {
   if (
     !content ||
@@ -47,11 +43,11 @@ const createExternalLinksTransform = (config) => {
   };
 };
 
-const configureExternalLinks = async (eleventyConfig) => {
-  const config = await configModule();
+const configureExternalLinks = async (eleventyConfig, testConfig = null) => {
+  const config = testConfig ?? (await configModule());
 
   eleventyConfig.addFilter("externalLinkAttrs", (url) => {
-    return externalLinkFilter(url, config);
+    return getExternalLinkAttributes(url, config);
   });
 
   eleventyConfig.addTransform(
@@ -60,11 +56,4 @@ const configureExternalLinks = async (eleventyConfig) => {
   );
 };
 
-export {
-  isExternalUrl,
-  getExternalLinkAttributes,
-  externalLinkFilter,
-  transformExternalLinks,
-  createExternalLinksTransform,
-  configureExternalLinks,
-};
+export { configureExternalLinks };
