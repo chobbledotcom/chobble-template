@@ -152,3 +152,4 @@ _site
 # ---> Test artifacts
 test/.test-sites/
 screenshots/
+lighthouse-reports/
