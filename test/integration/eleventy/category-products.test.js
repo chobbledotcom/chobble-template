@@ -66,4 +66,26 @@ describe("category-products", () => {
       },
     );
   });
+
+  test("News post without thumbnail gets no placeholder when placeholder_images disabled", async () => {
+    await withTestSite(
+      {
+        config: { placeholder_images: false },
+        files: [
+          {
+            path: "news/2024-01-01-no-thumb.md",
+            frontmatter: { title: "News Without Thumbnail" },
+            content: "News content without any images",
+          },
+        ],
+      },
+      (site) => {
+        // News posts without thumbnails should have no placeholder image when placeholder_images: false
+        // This exercises the return null path in getPlaceholderIfEnabled (lines 51-52)
+        const newsDoc = site.getDoc("/news/no-thumb/index.html");
+        expect(newsDoc.querySelector(".post-meta figure")).toBe(null);
+        expect(newsDoc.querySelector(".post-meta img")).toBe(null);
+      },
+    );
+  });
 });
