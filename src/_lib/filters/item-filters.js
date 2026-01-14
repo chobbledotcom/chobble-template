@@ -127,15 +127,13 @@ const filterToPath = (filters) => {
  * Get items matching the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
  *
+ * Only called from generateFilterCombinations with non-empty filters.
+ *
  * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @param {Object} filters
+ * @param {Object} filters - Non-empty filter object
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const getItemsByFilters = (items, filters) => {
-  if (!filters || Object.keys(filters).length === 0) {
-    return items.slice().sort(sortItems);
-  }
-
   const preNormalizedFilterEntries = Object.entries(filters).map(
     ([key, value]) => [key, normalize(value)],
   );
