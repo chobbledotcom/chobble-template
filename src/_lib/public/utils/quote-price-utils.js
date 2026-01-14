@@ -188,18 +188,4 @@ const setupDetailsBlurHandlers = (getDays = () => 1) => {
   });
 };
 
-export {
-  calculateTotal,
-  collectFieldDetails,
-  countItems,
-  formatHireLength,
-  formatItemCount,
-  formatItemName,
-  formatItemPrice,
-  getFieldLabel,
-  getFieldValue,
-  getPriceForDays,
-  parsePrice,
-  setupDetailsBlurHandlers,
-  updateQuotePrice,
-};
+export { setupDetailsBlurHandlers, updateQuotePrice };

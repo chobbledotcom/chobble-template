@@ -57,6 +57,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "setupFullDOM",
   "setupBlurTestDOM",
   "renderQuotePriceTemplates",
+  "getDetails",
+  "expectSingleDetail",
+  "triggerAndExpectCallback",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
