@@ -9,7 +9,11 @@
 		"**/ecommerce-backend/**",
 		"**/.test-sites/**",
 		"**/landing-pages/**",
-		"**/page-layouts/**"
+		"**/page-layouts/**",
+		"**/browser-utils.js",
+		"**/lighthouse.js",
+		"**/screenshot.js",
+		"**/cli-utils.js"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
