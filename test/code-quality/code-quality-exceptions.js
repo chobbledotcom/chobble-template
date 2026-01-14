@@ -383,20 +383,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/cart/hire-calculator.js:hasHireItems",
   "src/_lib/public/cart/hire-calculator.js:isHireItem",
   "src/_lib/public/cart/hire-calculator.js:setMinDate",
-  "src/_lib/public/cart/quote-steps.js:buildRadioRecapItem",
-  "src/_lib/public/cart/quote-steps.js:clearFieldError",
-  "src/_lib/public/cart/quote-steps.js:getCurrentStep",
-  "src/_lib/public/cart/quote-steps.js:getFieldDisplayValue",
-  "src/_lib/public/cart/quote-steps.js:getFieldLabel",
-  "src/_lib/public/cart/quote-steps.js:getFieldWrapper",
-  "src/_lib/public/cart/quote-steps.js:getRadioLabel",
-  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
-  "src/_lib/public/cart/quote-steps.js:populateRecap",
-  "src/_lib/public/cart/quote-steps.js:setFieldError",
-  "src/_lib/public/cart/quote-steps.js:updateButtons",
-  "src/_lib/public/cart/quote-steps.js:validateField",
-  "src/_lib/public/cart/quote-steps.js:validateRadioGroup",
-  "src/_lib/public/cart/quote-steps.js:validateStep",
+  "src/_lib/public/cart/quote-steps.js:initQuoteSteps", // Public API, auto-called via onReady
 
   // Public UI components - tested for frontend behavior
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
