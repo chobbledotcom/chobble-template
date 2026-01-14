@@ -106,7 +106,6 @@ const configureFileUtils = (eleventyConfig) => {
 export {
   createMarkdownRenderer,
   ensureDir,
-  escapeHtml,
   fileExists,
   fileMissing,
   readFileContent,
