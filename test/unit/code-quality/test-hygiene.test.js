@@ -63,6 +63,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockConfig",
   // item-filters.test.js - preset config factory
   "itemsConfig",
+  // external-links.test.js - getter helpers following area-list.test.js pattern
+  "getFilter",
+  "getTransform",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
