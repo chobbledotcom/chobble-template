@@ -346,18 +346,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/style-bundle.js:getJsBundle",
   "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
 
-  // Filter utilities - tested for URL-based filtering logic
-  "src/_lib/filters/item-filters.js:buildDisplayLookup",
-  "src/_lib/filters/item-filters.js:buildFilterDescription",
-  "src/_lib/filters/item-filters.js:buildFilterUIData",
-  "src/_lib/filters/item-filters.js:filterToPath",
-  "src/_lib/filters/item-filters.js:generateFilterCombinations",
-  "src/_lib/filters/item-filters.js:getAllFilterAttributes",
-  "src/_lib/filters/item-filters.js:getItemsByFilters",
-  "src/_lib/filters/item-filters.js:normalize",
-  "src/_lib/filters/item-filters.js:parseFilterAttributes",
-  "src/_lib/filters/item-filters.js:pathToFilter",
-
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",
   "src/_lib/media/image.js:createImageTransform",
