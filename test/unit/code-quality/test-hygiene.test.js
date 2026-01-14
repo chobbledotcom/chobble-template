@@ -53,13 +53,16 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "triggerValidationError",
   // quote-steps-utils.js - shared test helpers for progress tests
   "testIndicatorStates",
-  // quote-price-utils.test.js - DOM setup and template rendering
-  "setupFullDOM",
+  // quote-price-utils.test.js - DOM setup, fixtures, and template rendering
+  "setupDOM",
   "setupBlurTestDOM",
   "renderQuotePriceTemplates",
+  "cartItem",
+  "buyItem",
   "getDetails",
-  "expectSingleDetail",
-  "triggerAndExpectCallback",
+  "getDetailKey",
+  "getDetailValue",
+  "testEventTriggersDays",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",

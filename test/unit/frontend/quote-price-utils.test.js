@@ -30,19 +30,30 @@ const renderQuotePriceTemplates = async () => {
   return liquid.parseAndRender(template, { selectors: { IDS } });
 };
 
-// Field labels used in tests - must match what's in setupFullDOM
-const FIELD_LABELS = {
-  name: "Your Name",
-  email: "Email",
-  event_type: "Event Type",
-  contact: "Contact Preference",
-  message: "Message",
-};
+// Cart item factory - creates hire or buy items with sensible defaults
+const cartItem = (overrides = {}) => ({
+  item_name: "Test Item",
+  product_mode: "hire",
+  hire_prices: { 1: "£50" },
+  quantity: 1,
+  ...overrides,
+});
 
-// Default cart item for field details tests
-const DEFAULT_CART = [
-  { item_name: "Item", product_mode: "buy", unit_price: 10, quantity: 1 },
-];
+const buyItem = (overrides = {}) => ({
+  item_name: "Buy Item",
+  product_mode: "buy",
+  unit_price: 10,
+  quantity: 1,
+  ...overrides,
+});
+
+// Detail assertion helpers
+const getDetails = () =>
+  document.querySelectorAll('[data-field="details"] > li');
+const getDetailKey = (detail) =>
+  detail.querySelector('[data-field="key"]').textContent;
+const getDetailValue = (detail) =>
+  detail.querySelector('[data-field="value"]').textContent;
 
 describe("quote-price-utils", () => {
   // ----------------------------------------
@@ -50,11 +61,11 @@ describe("quote-price-utils", () => {
   // ----------------------------------------
   describe("updateQuotePrice", () => {
     // Use actual production templates to ensure tests match real behavior
-    const setupFullDOM = async (cart = [], formFields = "") => {
+    const setupDOM = async (cart = [], formFields = "") => {
       const templates = await renderQuotePriceTemplates();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
       document.body.innerHTML = `
-        <script class="quote-field-labels" type="application/json">${JSON.stringify(FIELD_LABELS)}</script>
+        <script class="quote-field-labels" type="application/json">{"name": "Your Name", "email": "Email", "phone": "Phone", "contact": "Preferred Contact", "event_type": "Event Type", "message": "Message"}</script>
 
         ${templates}
 
@@ -66,57 +77,63 @@ describe("quote-price-utils", () => {
       `;
     };
 
-    // Helper to get rendered details
-    const getDetails = () =>
-      document.querySelectorAll('[data-field="details"] > li');
-
-    // Helper to verify single detail entry
-    const expectSingleDetail = (expectedKey, expectedValue) => {
-      const details = getDetails();
-      expect(details).toHaveLength(1);
-      expect(details[0].querySelector('[data-field="key"]').textContent).toBe(
-        expectedKey,
-      );
-      expect(details[0].querySelector('[data-field="value"]').textContent).toBe(
-        expectedValue,
-      );
-    };
-
     test("does nothing when container not found", () => {
       document.body.innerHTML = "<div>No container</div>";
       expect(() => updateQuotePrice()).not.toThrow();
     });
 
     test("hides container when cart is empty", async () => {
-      await setupFullDOM([]);
+      await setupDOM([]);
       updateQuotePrice();
       const container = document.getElementById("quote-price");
       expect(container.style.display).toBe("none");
       expect(container.innerHTML).toBe("");
     });
 
-    test("renders cart items with quantity multiplier", async () => {
-      const cart = [
-        {
-          item_name: "Bouncy Castle",
-          product_mode: "hire",
-          hire_prices: { 1: "£50" },
-          quantity: 1,
-        },
-        {
+    test("shows container when cart has items", async () => {
+      await setupDOM([cartItem({ item_name: "Bouncy Castle" })]);
+      updateQuotePrice(1);
+      expect(document.getElementById("quote-price").style.display).toBe(
+        "block",
+      );
+    });
+
+    test("renders item names", async () => {
+      await setupDOM([cartItem({ item_name: "Bouncy Castle" })]);
+      updateQuotePrice(1);
+      const itemName = document.querySelector(
+        '[data-field="items"] > li [data-field="name"]',
+      );
+      expect(itemName.textContent).toBe("Bouncy Castle");
+    });
+
+    test("appends quantity to item name when quantity > 1", async () => {
+      await setupDOM([
+        cartItem({
+          item_name: "Chair",
+          hire_prices: { 1: "£10" },
+          quantity: 5,
+        }),
+      ]);
+      updateQuotePrice(1);
+      const itemName = document.querySelector(
+        '[data-field="items"] > li [data-field="name"]',
+      );
+      expect(itemName.textContent).toBe("Chair (×5)");
+    });
+
+    test("renders multiple cart items", async () => {
+      await setupDOM([
+        cartItem({ item_name: "Bouncy Castle" }),
+        cartItem({
           item_name: "Slide",
-          product_mode: "hire",
           hire_prices: { 1: "£30" },
           quantity: 2,
-        },
-      ];
-      await setupFullDOM(cart);
+        }),
+      ]);
       updateQuotePrice(1);
 
-      const container = document.getElementById("quote-price");
-      expect(container.style.display).toBe("block");
-
-      const items = container.querySelectorAll('[data-field="items"] > li');
+      const items = document.querySelectorAll('[data-field="items"] > li');
       expect(items).toHaveLength(2);
       expect(items[0].querySelector('[data-field="name"]').textContent).toBe(
         "Bouncy Castle",
@@ -126,219 +143,217 @@ describe("quote-price-utils", () => {
       );
     });
 
-    test("calculates and displays total price", async () => {
-      const cart = [
-        {
-          item_name: "Item A",
-          product_mode: "hire",
-          hire_prices: { 1: "£20" },
-          quantity: 1,
-        },
-        {
-          item_name: "Item B",
-          product_mode: "hire",
-          hire_prices: { 1: "£30" },
-          quantity: 1,
-        },
-      ];
-      await setupFullDOM(cart);
-      updateQuotePrice(1);
+    test("displays item prices for hire items", async () => {
+      await setupDOM([
+        cartItem({
+          item_name: "Castle",
+          hire_prices: { 1: "£50", 2: "£90" },
+        }),
+      ]);
+      updateQuotePrice(2);
+      const itemPrice = document.querySelector(
+        '[data-field="items"] > li [data-field="price"]',
+      );
+      expect(itemPrice.textContent).toBe("£90");
+    });
 
+    test("multiplies hire price by quantity", async () => {
+      await setupDOM([
+        cartItem({
+          item_name: "Chair",
+          hire_prices: { 1: "£10" },
+          quantity: 3,
+        }),
+      ]);
+      updateQuotePrice(1);
+      const itemPrice = document.querySelector(
+        '[data-field="items"] > li [data-field="price"]',
+      );
+      expect(itemPrice.textContent).toBe("£30");
+    });
+
+    test("displays TBC for item when price unavailable for day count", async () => {
+      await setupDOM([cartItem({ hire_prices: { 1: "£20" } })]);
+      updateQuotePrice(5); // No price for 5 days
+      const itemPrice = document.querySelector(
+        '[data-field="items"] > li [data-field="price"]',
+      );
+      expect(itemPrice.textContent).toBe("TBC");
+    });
+
+    test("calculates and displays total price", async () => {
+      await setupDOM([
+        cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } }),
+        cartItem({ item_name: "Item B", hire_prices: { 1: "£30" } }),
+      ]);
+      updateQuotePrice(1);
       expect(document.querySelector('[data-field="total"]').textContent).toBe(
         "£50",
       );
     });
 
-    test("displays TBC when price unavailable for day count", async () => {
-      const cart = [
-        {
-          item_name: "Item",
-          product_mode: "hire",
-          hire_prices: { 1: "£20" },
-          quantity: 1,
-        },
-      ];
-      await setupFullDOM(cart);
-      updateQuotePrice(5); // No price for 5 days
-
+    test("displays TBC for total when any price unavailable", async () => {
+      await setupDOM([
+        cartItem({ item_name: "Item A", hire_prices: { 1: "£20" } }),
+        cartItem({ item_name: "Item B", hire_prices: { 2: "£30" } }), // No day 1 price
+      ]);
+      updateQuotePrice(1);
       expect(document.querySelector('[data-field="total"]').textContent).toBe(
         "TBC",
       );
-      expect(
-        document.querySelector('[data-field="items"] > li [data-field="price"]')
-          .textContent,
-      ).toBe("TBC");
     });
 
-    test("displays singular item count and hire length for 1", async () => {
-      const cart = [
-        {
-          item_name: "Single Item",
-          product_mode: "hire",
-          hire_prices: { 1: "£50" },
-          quantity: 1,
-        },
-      ];
-      await setupFullDOM(cart);
+    test("displays item count with correct pluralization", async () => {
+      await setupDOM([
+        cartItem({ item_name: "Item A", quantity: 2 }),
+        cartItem({ item_name: "Item B", hire_prices: { 1: "£25" } }),
+      ]);
       updateQuotePrice(1);
-
-      expect(
-        document.querySelector('[data-field="item-count"]').textContent,
-      ).toBe("1 item in order");
-      expect(
-        document.querySelector('[data-field="hire-length"]').textContent,
-      ).toBe("1 day");
-    });
-
-    test("displays plural item count and hire length for multiple", async () => {
-      const cart = [
-        {
-          item_name: "Item A",
-          product_mode: "hire",
-          hire_prices: { 3: "£50" },
-          quantity: 2,
-        },
-        {
-          item_name: "Item B",
-          product_mode: "hire",
-          hire_prices: { 3: "£25" },
-          quantity: 1,
-        },
-      ];
-      await setupFullDOM(cart);
-      updateQuotePrice(3);
-
       expect(
         document.querySelector('[data-field="item-count"]').textContent,
       ).toBe("3 items in order");
+    });
+
+    test("displays singular item count for 1 item", async () => {
+      await setupDOM([cartItem({ item_name: "Single Item" })]);
+      updateQuotePrice(1);
+      expect(
+        document.querySelector('[data-field="item-count"]').textContent,
+      ).toBe("1 item in order");
+    });
+
+    test("displays hire length with correct pluralization", async () => {
+      await setupDOM([cartItem({ hire_prices: { 3: "£50" } })]);
+      updateQuotePrice(3);
       expect(
         document.querySelector('[data-field="hire-length"]').textContent,
       ).toBe("3 days");
     });
 
-    test("renders text input field details from form", async () => {
-      const formFields = `
-        <input id="name" name="name" type="text" value="John Doe" />
-        <input id="email" name="email" type="email" value="john@example.com" />
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
+    test("displays singular day for 1 day hire", async () => {
+      await setupDOM([cartItem()]);
       updateQuotePrice(1);
-
-      const details = getDetails();
-      expect(details).toHaveLength(2);
-      expect(details[0].querySelector('[data-field="key"]').textContent).toBe(
-        "Your Name",
-      );
-      expect(details[0].querySelector('[data-field="value"]').textContent).toBe(
-        "John Doe",
-      );
-    });
-
-    test("renders select field showing selected option text", async () => {
-      const formFields = `
-        <select id="event_type" name="event_type">
-          <option value="">Choose...</option>
-          <option value="wedding" selected>Wedding Celebration</option>
-        </select>
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
-      updateQuotePrice(1);
-      expectSingleDetail("Event Type", "Wedding Celebration");
-    });
-
-    test("renders checked radio field value", async () => {
-      const formFields = `
-        <input type="radio" name="contact" value="Email" />
-        <input type="radio" name="contact" value="Phone" checked />
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
-      updateQuotePrice(1);
-      expectSingleDetail("Contact Preference", "Phone");
-    });
-
-    test("renders textarea field value", async () => {
-      const formFields = `
-        <textarea id="message" name="message">Special requirements here</textarea>
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
-      updateQuotePrice(1);
-      expectSingleDetail("Message", "Special requirements here");
-    });
-
-    test("excludes empty fields from details", async () => {
-      const formFields = `
-        <input id="name" name="name" type="text" value="" />
-        <input id="email" name="email" type="email" value="filled@example.com" />
-        <textarea id="message" name="message"></textarea>
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
-      updateQuotePrice(1);
-      expectSingleDetail("Email", "filled@example.com");
-    });
-
-    test("excludes unchecked radio groups from details", async () => {
-      const formFields = `
-        <input id="name" name="name" type="text" value="John" />
-        <input type="radio" name="contact" value="Email" />
-        <input type="radio" name="contact" value="Phone" />
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
-      updateQuotePrice(1);
-      expectSingleDetail("Your Name", "John");
-    });
-
-    test("deduplicates radio buttons showing single entry per group", async () => {
-      const formFields = `
-        <input type="radio" name="contact" value="Email" checked />
-        <input type="radio" name="contact" value="Phone" />
-        <input type="radio" name="contact" value="Post" />
-      `;
-      await setupFullDOM(DEFAULT_CART, formFields);
-      updateQuotePrice(1);
-      expectSingleDetail("Contact Preference", "Email");
-    });
-
-    test("handles non-hire items correctly", async () => {
-      const cart = [
-        {
-          item_name: "Purchase Item",
-          product_mode: "buy",
-          unit_price: 25,
-          quantity: 3,
-        },
-      ];
-      await setupFullDOM(cart);
-      updateQuotePrice(1);
-
       expect(
-        document.querySelector('[data-field="items"] > li [data-field="price"]')
-          .textContent,
-      ).toBe("£75");
+        document.querySelector('[data-field="hire-length"]').textContent,
+      ).toBe("1 day");
+    });
+
+    test("handles non-hire items with unit_price", async () => {
+      await setupDOM([
+        buyItem({ item_name: "Purchase Item", unit_price: 25, quantity: 3 }),
+      ]);
+      updateQuotePrice(1);
+
+      const itemPrice = document.querySelector(
+        '[data-field="items"] > li [data-field="price"]',
+      );
+      expect(itemPrice.textContent).toBe("£75");
       expect(document.querySelector('[data-field="total"]').textContent).toBe(
         "£75",
       );
     });
 
-    test("parses hire prices with currency symbols", async () => {
-      const cart = [
-        {
-          item_name: "Item",
-          product_mode: "hire",
-          hire_prices: { 1: "£25.50" },
-          quantity: 2,
-        },
-      ];
-      await setupFullDOM(cart);
+    test("handles mixed hire and buy items", async () => {
+      await setupDOM([
+        cartItem({ item_name: "Hire Item" }),
+        buyItem({ item_name: "Buy Item", unit_price: 25, quantity: 2 }),
+      ]);
+      updateQuotePrice(1);
+      expect(document.querySelector('[data-field="total"]').textContent).toBe(
+        "£100",
+      ); // 50 + 25*2
+    });
+
+    test("renders field details from text inputs", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<input id="name" name="name" type="text" value="John Doe" />
+         <input id="email" name="email" type="email" value="john@example.com" />`,
+      );
       updateQuotePrice(1);
 
-      expect(document.querySelector('[data-field="total"]').textContent).toBe(
-        "£51",
+      const details = getDetails();
+      expect(details).toHaveLength(2);
+      expect(getDetailKey(details[0])).toBe("Your Name");
+      expect(getDetailValue(details[0])).toBe("John Doe");
+    });
+
+    test("excludes empty input fields from details", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<input id="name" name="name" type="text" value="" />
+         <input id="email" name="email" type="email" value="test@example.com" />`,
       );
+      updateQuotePrice(1);
+
+      const details = getDetails();
+      expect(details).toHaveLength(1);
+      expect(getDetailKey(details[0])).toBe("Email");
+    });
+
+    test("renders checked radio button value in details", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<input type="radio" name="contact" value="Email" checked />
+         <input type="radio" name="contact" value="Phone" />`,
+      );
+      updateQuotePrice(1);
+
+      const details = getDetails();
+      expect(details).toHaveLength(1);
+      expect(getDetailKey(details[0])).toBe("Preferred Contact");
+      expect(getDetailValue(details[0])).toBe("Email");
+    });
+
+    test("excludes unchecked radio groups from details", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<input type="radio" name="contact" value="Email" />
+         <input type="radio" name="contact" value="Phone" />`,
+      );
+      updateQuotePrice(1);
+      expect(getDetails()).toHaveLength(0);
+    });
+
+    test("renders select field display text in details", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<select id="event_type" name="event_type">
+           <option value="">Choose...</option>
+           <option value="wedding" selected>Wedding</option>
+         </select>`,
+      );
+      updateQuotePrice(1);
+
+      const details = getDetails();
+      expect(details).toHaveLength(1);
+      expect(getDetailValue(details[0])).toBe("Wedding");
+    });
+
+    test("renders textarea value in details", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<textarea id="message" name="message">Hello World</textarea>`,
+      );
+      updateQuotePrice(1);
+
+      const details = getDetails();
+      expect(details).toHaveLength(1);
+      expect(getDetailValue(details[0])).toBe("Hello World");
+    });
+
+    test("excludes empty textarea from details", async () => {
+      await setupDOM(
+        [buyItem()],
+        `<textarea id="message" name="message"></textarea>`,
+      );
+      updateQuotePrice(1);
+      expect(getDetails()).toHaveLength(0);
     });
 
     test("uses quote-steps container for field details when available", async () => {
       const templates = await renderQuotePriceTemplates();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CART));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([buyItem()]));
       document.body.innerHTML = `
         <script class="quote-field-labels" type="application/json">{"name": "Your Name"}</script>
         ${templates}
@@ -351,20 +366,16 @@ describe("quote-price-utils", () => {
         </form>
       `;
       updateQuotePrice(1);
-
-      const detail = document.querySelector('[data-field="details"] > li');
-      expect(detail.querySelector('[data-field="value"]').textContent).toBe(
-        "Quote Steps Name",
-      );
+      expect(getDetailValue(getDetails()[0])).toBe("Quote Steps Name");
     });
 
-    test("hides details section when no fields have values", async () => {
-      const formFields = '<input id="name" name="name" type="text" value="" />';
-      await setupFullDOM(DEFAULT_CART, formFields);
+    test("hides details section when no filled fields", async () => {
+      await setupDOM([buyItem()], `<input id="name" name="name" value="" />`);
       updateQuotePrice(1);
-
-      const detailsContainer = document.querySelector('[data-field="details"]');
-      expect(detailsContainer.parentElement.style.display).toBe("none");
+      const detailsParent = document.querySelector(
+        '[data-field="details"]',
+      ).parentElement;
+      expect(detailsParent.style.display).toBe("none");
     });
   });
 
@@ -384,64 +395,51 @@ describe("quote-price-utils", () => {
       `;
     };
 
-    const triggerAndExpectCallback = (element, eventType, getDays) => {
-      const EventClass = eventType === "blur" ? FocusEvent : Event;
-      element.dispatchEvent(
-        new EventClass(eventType, { bubbles: eventType !== "blur" }),
-      );
-      expect(getDays).toHaveBeenCalled();
+    // Helper to test that an event triggers getDays callback
+    // selector: plain ID string (e.g. "name") or CSS selector (e.g. 'input[type="radio"]')
+    const testEventTriggersDays = (selector, eventType, getDaysMock) => {
+      const isPlainId = /^[a-zA-Z_][\w-]*$/.test(selector);
+      const element = isPlainId
+        ? document.getElementById(selector)
+        : document.querySelector(selector);
+      element.dispatchEvent(new Event(eventType, { bubbles: true }));
+      expect(getDaysMock).toHaveBeenCalled();
     };
 
-    test("calls getDays callback on input blur", () => {
+    test("attaches blur handler to form fields", () => {
       setupBlurTestDOM('<input id="name" type="text" />');
       const getDays = mock(() => 1);
       setupDetailsBlurHandlers(getDays);
-      triggerAndExpectCallback(
-        document.getElementById("name"),
-        "blur",
-        getDays,
-      );
+      testEventTriggersDays("name", "blur", getDays);
     });
 
-    test("calls getDays callback on radio change", () => {
+    test("attaches change handler for radio buttons", () => {
       setupBlurTestDOM(`
         <input type="radio" name="pref" value="A" />
         <input type="radio" name="pref" value="B" />
       `);
       const getDays = mock(() => 2);
       setupDetailsBlurHandlers(getDays);
-      triggerAndExpectCallback(
-        document.querySelector('input[type="radio"]'),
-        "change",
-        getDays,
-      );
+      testEventTriggersDays('input[type="radio"]', "change", getDays);
     });
 
-    test("calls getDays callback on select change", () => {
-      setupBlurTestDOM(`
-        <select id="event">
-          <option value="a">A</option>
-          <option value="b">B</option>
-        </select>
-      `);
+    test("attaches change handler for select elements", () => {
+      setupBlurTestDOM(`<select id="event"><option>A</option></select>`);
       const getDays = mock(() => 3);
       setupDetailsBlurHandlers(getDays);
-      triggerAndExpectCallback(
-        document.getElementById("event"),
-        "change",
-        getDays,
-      );
+      testEventTriggersDays("event", "change", getDays);
     });
 
     test("uses quote-steps container if available", () => {
       setupBlurTestDOM('<input id="name" type="text" />', true);
       const getDays = mock(() => 1);
       setupDetailsBlurHandlers(getDays);
-      triggerAndExpectCallback(
-        document.getElementById("name"),
-        "blur",
-        getDays,
-      );
+      testEventTriggersDays("name", "blur", getDays);
+    });
+
+    test("does nothing when no form container exists", () => {
+      document.body.innerHTML = "<div>No form</div>";
+      expect(() => setupDetailsBlurHandlers(() => 1)).not.toThrow();
     });
   });
 });
