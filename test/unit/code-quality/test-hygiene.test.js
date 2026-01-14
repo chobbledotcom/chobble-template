@@ -119,6 +119,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "c",
   "original",
   "another",
+  // categories.test.js - collection setup helpers
+  "getCategoriesCollection",
+  "getFeaturedFilter",
+  // area-list.test.js - filter setup helper
+  "getFilter",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
   // hire-calculator.test.js - callback tracking setup

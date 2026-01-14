@@ -123,7 +123,6 @@ export {
   mapEntries,
   everyEntry,
   mapObject,
-  filterObject,
   mapBoth,
   pickTruthy,
   pickNonNull,

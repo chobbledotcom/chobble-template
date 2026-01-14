@@ -50,23 +50,6 @@ const filterTopLevelLocations = (locations, currentUrl) => {
 };
 
 /**
- * Format a list of items with commas and "and" before the last item.
- * e.g., ["a", "b", "c"] => "a, b and c"
- *
- * @param {Array<string>} items - Array of strings to join
- * @returns {string} Formatted string
- */
-const formatListWithAnd = (items) => {
-  if (!items || items.length === 0) return "";
-  if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-
-  const allButLast = items.slice(0, -1);
-  const last = items[items.length - 1];
-  return `${allButLast.join(", ")} and ${last}`;
-};
-
-/**
  * Prepare area list data for template rendering.
  * Filters, sorts, and adds separators so the template just loops and renders.
  *
@@ -95,11 +78,4 @@ const configureAreaList = (eleventyConfig) => {
   eleventyConfig.addFilter("prepareAreaList", prepareAreaList);
 };
 
-export {
-  isTopLevelLocation,
-  sortByNavigationKey,
-  filterTopLevelLocations,
-  formatListWithAnd,
-  prepareAreaList,
-  configureAreaList,
-};
+export { configureAreaList };
