@@ -1,4 +1,4 @@
 {
 	"layout": "guide-page.html",
-	"tags": "guide-pages"
+	"tags": ["guide-pages"]
 }

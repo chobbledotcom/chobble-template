@@ -31,24 +31,38 @@ function isValidImage(imagePath) {
 
 /**
  * @param {Object} data - Page data
- * @param {string|string[]} [data.tags] - Page tags
+ * @param {string[]} [data.tags] - Page tags
  * @param {string} tag - Tag to check for
  * @returns {boolean} Whether data has the given tag
  */
 function hasTag(data, tag) {
-  const tags = data.tags || [];
-  return Array.isArray(tags) ? tags.includes(tag) : tags === tag;
+  return (data.tags || []).includes(tag);
+}
+
+/**
+ * Gets placeholder image if enabled in config
+ * @param {Object} data - Page data
+ * @returns {string|null} Placeholder image or null
+ */
+function getPlaceholderIfEnabled(data) {
+  const config = data.config || getConfig();
+  if (config.placeholder_images) {
+    return getPlaceholderForPath(data.page?.url || "");
+  }
+  return null;
 }
 
 /**
  * Finds the first valid thumbnail from available images, or returns a
  * placeholder if configured
  * @param {Object} data - Page data
+ * @param {string[]} [data.tags] - Page tags
  * @param {string|import("#lib/types").Image} [data.thumbnail] - Thumbnail image
  * @param {Array} [data.gallery] - Gallery images
  * @param {string|import("#lib/types").Image} [data.header_image] - Header image
  * @param {Object} [data.page] - Eleventy page object
  * @param {string} [data.page.url] - Page URL
+ * @param {Object} [data.config] - Site config from data cascade
  * @returns {string|import("#lib/types").Image|null} Valid image or null
  */
 function findValidThumbnail(data) {
@@ -56,10 +70,9 @@ function findValidThumbnail(data) {
   if (data.gallery?.[0] && isValidImage(data.gallery[0]))
     return data.gallery[0];
   if (isValidImage(data.header_image)) return data.header_image;
-  if (getConfig().placeholder_images) {
-    return getPlaceholderForPath(data.page?.url || "");
-  }
-  return null;
+  // Reviews use initials-based avatars as fallback, not placeholder images
+  if (hasTag(data, "reviews")) return null;
+  return getPlaceholderIfEnabled(data);
 }
 
 export default {
@@ -113,7 +126,7 @@ export default {
    * @returns {Object} Schema.org metadata
    */
   meta: (data) => {
-    if (hasTag(data, "product")) return buildProductMeta(data);
+    if (hasTag(data, "products")) return buildProductMeta(data);
     if (hasTag(data, "news")) return buildPostMeta(data);
     if (data.layout === "contact.html") return buildOrganizationMeta(data);
     return buildBaseMeta(data);

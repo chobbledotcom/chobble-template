@@ -257,9 +257,9 @@ export function configurePdf(eleventyConfig) {
 
   eleventyConfig.addCollection("_pdfMenuData", (collectionApi) => {
     state = {
-      menus: collectionApi.getFilteredByTag("menu"),
-      menuCategories: collectionApi.getFilteredByTag("menu_category"),
-      menuItems: collectionApi.getFilteredByTag("menu_item"),
+      menus: collectionApi.getFilteredByTag("menus"),
+      menuCategories: collectionApi.getFilteredByTag("menu-categories"),
+      menuItems: collectionApi.getFilteredByTag("menu-items"),
     };
     return [];
   });

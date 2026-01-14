@@ -425,9 +425,9 @@ describe("pdf", () => {
 
       const mockCollectionApi = {
         getFilteredByTag: (tag) => {
-          if (tag === "menu") return mockMenus;
-          if (tag === "menu_category") return mockCategories;
-          if (tag === "menu_item") return mockItems;
+          if (tag === "menus") return mockMenus;
+          if (tag === "menu-categories") return mockCategories;
+          if (tag === "menu-items") return mockItems;
           return [];
         },
       };
