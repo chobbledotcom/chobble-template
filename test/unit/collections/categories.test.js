@@ -1,11 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  assignCategoryImages,
-  buildCategoryImageMap,
-  configureCategories,
-  createCategoriesCollection,
-  getFeaturedCategories,
-} from "#collections/categories.js";
+import { configureCategories } from "#collections/categories.js";
 import {
   createMockEleventyConfig,
   expectDataArray,
@@ -18,14 +12,11 @@ import { map } from "#utils/array-utils.js";
 const expectHeaderImages = expectDataArray("header_image");
 
 // ============================================
-// Functional Test Fixture Builders
+// Test Fixture Builders
 // ============================================
 
 /**
  * Create a category with fileSlug and data
- * @param {string} slug - The fileSlug
- * @param {string|null} headerImage - The header_image (null/undefined to omit)
- * @param {Object} extraData - Additional data properties
  */
 const category = (slug, headerImage, extraData = {}) => ({
   fileSlug: slug,
@@ -37,7 +28,6 @@ const category = (slug, headerImage, extraData = {}) => ({
 
 /**
  * Create categories from an array of [slug, headerImage, extraData] tuples
- * Curried for use with pipe
  */
 const categories = map(([slug, headerImage, extraData]) =>
   category(slug, headerImage, extraData),
@@ -45,7 +35,6 @@ const categories = map(([slug, headerImage, extraData]) =>
 
 /**
  * Create a product for category image tests
- * @param {Object} options - Product options
  */
 const product = ({ order, cats = [], headerImage, ...extraData } = {}) => ({
   data: {
@@ -58,307 +47,210 @@ const product = ({ order, cats = [], headerImage, ...extraData } = {}) => ({
 
 /**
  * Create products from an array of option objects
- * Curried for use with pipe
  */
 const products = map(product);
 
+/**
+ * Helper to get the categories collection from a configured mock
+ */
+const getCategoriesCollection = (categoryData, productData) => {
+  const mockConfig = createMockEleventyConfig();
+  configureCategories(mockConfig);
+
+  const mockApi = taggedCollectionApi({
+    categories: categoryData,
+    products: productData,
+  });
+
+  return mockConfig.collections.categories(mockApi);
+};
+
+/**
+ * Helper to get the getFeaturedCategories filter
+ */
+const getFeaturedFilter = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureCategories(mockConfig);
+  return mockConfig.filters.getFeaturedCategories;
+};
+
 describe("categories", () => {
-  test("buildCategoryImageMap-empty-data", () => {
-    const result = buildCategoryImageMap([], []);
+  describe("configureCategories", () => {
+    test("registers collection and filter with Eleventy", () => {
+      const mockConfig = createMockEleventyConfig();
 
-    expect(result).toEqual({});
-  });
+      configureCategories(mockConfig);
 
-  test("buildCategoryImageMap-categories-only", () => {
-    const testCategories = categories([
-      ["widgets", "widget-header.jpg"],
-      ["gadgets", "gadget-header.jpg"],
-    ]);
-
-    const result = buildCategoryImageMap(testCategories, []);
-
-    expect(result).toEqual({
-      widgets: ["widget-header.jpg", -1],
-      gadgets: ["gadget-header.jpg", -1],
+      expect(typeof mockConfig.collections.categories).toBe("function");
+      expect(typeof mockConfig.filters.getFeaturedCategories).toBe("function");
     });
   });
 
-  test("buildCategoryImageMap-no-category-images", () => {
-    const testCategories = [
-      category("widgets", undefined),
-      category("gadgets", null),
-    ];
+  describe("categories collection", () => {
+    test("returns empty array when no categories exist", () => {
+      const result = getCategoriesCollection([], []);
 
-    const result = buildCategoryImageMap(testCategories, []);
-
-    expect(result).toEqual({
-      widgets: [undefined, -1],
-      gadgets: [null, -1],
+      expect(result).toEqual([]);
     });
-  });
 
-  test("buildCategoryImageMap-product-override", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = [
-      product({
-        order: 5,
-        cats: ["widgets"],
-        headerImage: "product-image.jpg",
-      }),
-    ];
+    test("returns categories with their own header images when no products", () => {
+      const testCategories = categories([
+        ["widgets", "widget-header.jpg", { title: "Widgets" }],
+        ["gadgets", "gadget-header.jpg", { title: "Gadgets" }],
+      ]);
 
-    const result = buildCategoryImageMap(testCategories, testProducts);
+      const result = getCategoriesCollection(testCategories, []);
 
-    expect(result).toEqual({
-      widgets: ["product-image.jpg", 5],
+      expectHeaderImages(result, ["widget-header.jpg", "gadget-header.jpg"]);
     });
-  });
 
-  test("buildCategoryImageMap-product-no-override", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = products([
-      { order: 2, cats: ["widgets"], headerImage: "low-priority.jpg" },
-      { order: 5, cats: ["widgets"], headerImage: "high-priority.jpg" },
-    ]);
-
-    const result = buildCategoryImageMap(testCategories, testProducts);
-
-    expect(result).toEqual({
-      widgets: ["high-priority.jpg", 5],
-    });
-  });
-
-  test("buildCategoryImageMap-default-order", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = [
-      product({ cats: ["widgets"], headerImage: "product-image.jpg" }),
-    ];
-
-    const result = buildCategoryImageMap(testCategories, testProducts);
-
-    expect(result).toEqual({
-      widgets: ["product-image.jpg", 0],
-    });
-  });
-
-  test("buildCategoryImageMap-multiple-categories", () => {
-    const testCategories = categories([
-      ["widgets", "widget-header.jpg"],
-      ["gadgets", "gadget-header.jpg"],
-    ]);
-    const testProducts = [
-      product({
-        order: 3,
-        cats: ["widgets", "gadgets"],
-        headerImage: "multi-category.jpg",
-      }),
-    ];
-
-    const result = buildCategoryImageMap(testCategories, testProducts);
-
-    expect(result).toEqual({
-      widgets: ["multi-category.jpg", 3],
-      gadgets: ["multi-category.jpg", 3],
-    });
-  });
-
-  test("buildCategoryImageMap-no-product-image", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = [product({ order: 10, cats: ["widgets"] })];
-
-    const result = buildCategoryImageMap(testCategories, testProducts);
-
-    expect(result).toEqual({
-      widgets: ["widget-header.jpg", -1],
-    });
-  });
-
-  test("assignCategoryImages-basic", () => {
-    const testCategories = categories([
-      ["widgets", undefined, { title: "Widgets" }],
-      ["gadgets", undefined, { title: "Gadgets" }],
-    ]);
-    const categoryImages = {
-      widgets: ["widget-final.jpg", 5],
-      gadgets: ["gadget-final.jpg", 3],
-    };
-
-    const result = assignCategoryImages(testCategories, categoryImages);
-
-    expectHeaderImages(result, ["widget-final.jpg", "gadget-final.jpg"]);
-    expect(result[0].data.title).toBe("Widgets");
-  });
-
-  test("assignCategoryImages-missing-mapping", () => {
-    const testCategories = [
-      category("widgets", undefined, { title: "Widgets" }),
-    ];
-    const categoryImages = {};
-
-    const result = assignCategoryImages(testCategories, categoryImages);
-
-    expectHeaderImages(result, [undefined]);
-  });
-
-  test("assignCategoryImages-mutates-original", () => {
-    const testCategories = [
-      category("widgets", undefined, { title: "Widgets" }),
-    ];
-    const categoryImages = { widgets: ["widget.jpg", 1] };
-
-    const result = assignCategoryImages(testCategories, categoryImages);
-
-    expect(result[0]).toBe(testCategories[0]);
-    expect(testCategories[0].data.header_image).toBe("widget.jpg");
-  });
-
-  test("createCategoriesCollection-empty", () => {
-    const mockApi = taggedCollectionApi({ categories: [], products: [] });
-
-    const result = createCategoriesCollection(mockApi);
-
-    expect(result).toEqual([]);
-  });
-
-  test("createCategoriesCollection-integration", () => {
-    const mockApi = taggedCollectionApi({
-      categories: categories([
+    test("inherits header image from highest-order product in category", () => {
+      const testCategories = categories([
         ["widgets", "default-widget.jpg", { title: "Widgets" }],
-        ["gadgets", undefined, { title: "Gadgets" }],
-      ]),
-      products: products([
-        { order: 5, cats: ["widgets"], headerImage: "premium-widget.jpg" },
-        { order: 2, cats: ["gadgets"], headerImage: "basic-gadget.jpg" },
-      ]),
+      ]);
+      const testProducts = products([
+        { order: 2, cats: ["widgets"], headerImage: "low-priority.jpg" },
+        { order: 5, cats: ["widgets"], headerImage: "high-priority.jpg" },
+        { order: 3, cats: ["widgets"], headerImage: "mid-priority.jpg" },
+      ]);
+
+      const result = getCategoriesCollection(testCategories, testProducts);
+
+      expectHeaderImages(result, ["high-priority.jpg"]);
     });
 
-    const result = createCategoriesCollection(mockApi);
+    test("uses category default when products have no header images", () => {
+      const testCategories = [
+        category("widgets", "widget-header.jpg", { title: "Widgets" }),
+      ];
+      const testProducts = [product({ order: 10, cats: ["widgets"] })];
 
-    expectHeaderImages(result, ["premium-widget.jpg", "basic-gadget.jpg"]);
-    expect(result[0].data.title).toBe("Widgets");
-  });
+      const result = getCategoriesCollection(testCategories, testProducts);
 
-  test("getFeaturedCategories-basic", () => {
-    const testCategories = categories([
-      ["featured", undefined, { title: "Featured Category", featured: true }],
-      ["regular", undefined, { title: "Regular Category", featured: false }],
-      ["another", undefined, { title: "Another Category" }],
-    ]);
+      expectHeaderImages(result, ["widget-header.jpg"]);
+    });
 
-    const result = getFeaturedCategories(testCategories);
+    test("product with order 0 (default) can override category image", () => {
+      const testCategories = [category("widgets", "widget-header.jpg")];
+      const testProducts = [
+        product({ cats: ["widgets"], headerImage: "product-image.jpg" }),
+      ];
 
-    expectResultTitles(result, ["Featured Category"]);
-  });
+      const result = getCategoriesCollection(testCategories, testProducts);
 
-  test("configureCategories-basic", () => {
-    const mockConfig = createMockEleventyConfig();
+      expectHeaderImages(result, ["product-image.jpg"]);
+    });
 
-    configureCategories(mockConfig);
+    test("handles products in multiple categories", () => {
+      const testCategories = categories([
+        ["widgets", "widget-default.jpg"],
+        ["gadgets", "gadget-default.jpg"],
+      ]);
+      const testProducts = [
+        product({
+          order: 5,
+          cats: ["widgets", "gadgets"],
+          headerImage: "shared-image.jpg",
+        }),
+      ];
 
-    expect(mockConfig.collections.categories).toBeTruthy();
-    expect(typeof mockConfig.collections.categories).toBe("function");
-    expect(mockConfig.collections.categories).toBe(createCategoriesCollection);
+      const result = getCategoriesCollection(testCategories, testProducts);
 
-    expect(mockConfig.filters.getFeaturedCategories).toBeTruthy();
-    expect(typeof mockConfig.filters.getFeaturedCategories).toBe("function");
-    expect(mockConfig.filters.getFeaturedCategories).toBe(
-      getFeaturedCategories,
-    );
-  });
+      expectHeaderImages(result, ["shared-image.jpg", "shared-image.jpg"]);
+    });
 
-  test("buildCategoryImageMap-order-precedence", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = products([
-      { order: 5, cats: ["widgets"], headerImage: "first-image.jpg" },
-      { order: 5, cats: ["widgets"], headerImage: "second-image.jpg" },
-    ]);
+    test("ignores products without categories", () => {
+      const testCategories = [category("widgets", "widget-header.jpg")];
+      const testProducts = [
+        product({ order: 10, headerImage: "orphan-image.jpg" }),
+      ];
 
-    const result = buildCategoryImageMap(testCategories, testProducts);
+      const result = getCategoriesCollection(testCategories, testProducts);
 
-    expect(result).toEqual({
-      widgets: ["first-image.jpg", 5],
+      expectHeaderImages(result, ["widget-header.jpg"]);
+    });
+
+    test("preserves category data properties", () => {
+      const testCategories = categories([
+        ["widgets", undefined, { title: "Widgets", featured: true }],
+      ]);
+      const testProducts = products([
+        { order: 5, cats: ["widgets"], headerImage: "product.jpg" },
+      ]);
+
+      const result = getCategoriesCollection(testCategories, testProducts);
+
+      expect(result[0].data.title).toBe("Widgets");
+      expect(result[0].data.featured).toBe(true);
+      expect(result[0].data.header_image).toBe("product.jpg");
+    });
+
+    test("handles complex scenario with multiple categories and products", () => {
+      const testCategories = categories([
+        ["widgets", "widget-default.jpg"],
+        ["gadgets", "gadget-default.jpg"],
+        ["tools", undefined],
+      ]);
+      const testProducts = products([
+        {
+          order: 3,
+          cats: ["widgets", "gadgets"],
+          headerImage: "cross-category.jpg",
+        },
+        { order: 1, cats: ["widgets"], headerImage: "low-priority-widget.jpg" },
+        { order: 5, cats: ["tools"], headerImage: "high-priority-tool.jpg" },
+        { cats: ["gadgets"], headerImage: "default-order-gadget.jpg" },
+      ]);
+
+      const result = getCategoriesCollection(testCategories, testProducts);
+
+      // widgets: order 3 > order 1, so cross-category wins
+      // gadgets: order 3 > order 0, so cross-category wins
+      // tools: order 5 is highest
+      expectHeaderImages(result, [
+        "cross-category.jpg",
+        "cross-category.jpg",
+        "high-priority-tool.jpg",
+      ]);
     });
   });
 
-  test("buildCategoryImageMap-products-without-categories", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = [
-      product({ order: 5, headerImage: "orphan-image.jpg" }),
-    ];
+  describe("getFeaturedCategories filter", () => {
+    test("returns only categories with featured: true", () => {
+      const getFeaturedCategories = getFeaturedFilter();
+      const testCategories = categories([
+        ["featured", undefined, { title: "Featured Category", featured: true }],
+        ["regular", undefined, { title: "Regular Category", featured: false }],
+        ["another", undefined, { title: "Another Category" }],
+      ]);
 
-    const result = buildCategoryImageMap(testCategories, testProducts);
+      const result = getFeaturedCategories(testCategories);
 
-    expect(result).toEqual({
-      widgets: ["widget-header.jpg", -1],
+      expectResultTitles(result, ["Featured Category"]);
     });
-  });
 
-  test("buildCategoryImageMap-unknown-categories", () => {
-    const testCategories = [category("widgets", "widget-header.jpg")];
-    const testProducts = [
-      product({
-        order: 5,
-        cats: ["widgets", "unknown-category"],
-        headerImage: "product-image.jpg",
-      }),
-    ];
+    test("returns empty array when no featured categories", () => {
+      const getFeaturedCategories = getFeaturedFilter();
+      const testCategories = categories([
+        ["a", undefined, { featured: false }],
+        ["b", undefined, {}],
+      ]);
 
-    const result = buildCategoryImageMap(testCategories, testProducts);
+      const result = getFeaturedCategories(testCategories);
 
-    expect(result).toEqual({
-      widgets: ["product-image.jpg", 5],
-      "unknown-category": ["product-image.jpg", 5],
+      expect(result).toEqual([]);
     });
-  });
 
-  test("buildCategoryImageMap-functional-immutability", () => {
-    const originalCategories = [
-      category("widgets", "original.jpg", { title: "Widgets" }),
-    ];
-    const originalProducts = [
-      product({ order: 1, cats: ["widgets"], headerImage: "test.jpg" }),
-    ];
+    test("returns all categories when all are featured", () => {
+      const getFeaturedCategories = getFeaturedFilter();
+      const testCategories = categories([
+        ["a", undefined, { title: "A", featured: true }],
+        ["b", undefined, { title: "B", featured: true }],
+      ]);
 
-    const categoriesCopy = JSON.parse(JSON.stringify(originalCategories));
-    const productsCopy = JSON.parse(JSON.stringify(originalProducts));
+      const result = getFeaturedCategories(testCategories);
 
-    const result1 = buildCategoryImageMap(categoriesCopy, productsCopy);
-    const result2 = buildCategoryImageMap(categoriesCopy, productsCopy);
-
-    // Verify inputs are unchanged
-    expect(categoriesCopy).toEqual(originalCategories);
-    expect(productsCopy).toEqual(originalProducts);
-
-    // Verify function is pure (same inputs = same outputs)
-    expect(result1).toEqual(result2);
-
-    // Verify results are new objects
-    expect(result1).not.toBe(result2);
-  });
-
-  test("buildCategoryImageMap-complex-scenario", () => {
-    const testCategories = categories([
-      ["widgets", "widget-default.jpg"],
-      ["gadgets", "gadget-default.jpg"],
-      ["tools", undefined],
-    ]);
-    const testProducts = products([
-      {
-        order: 3,
-        cats: ["widgets", "gadgets"],
-        headerImage: "cross-category.jpg",
-      },
-      { order: 1, cats: ["widgets"], headerImage: "low-priority-widget.jpg" },
-      { order: 5, cats: ["tools"], headerImage: "high-priority-tool.jpg" },
-      { cats: ["gadgets"], headerImage: "default-order-gadget.jpg" },
-    ]);
-
-    const result = buildCategoryImageMap(testCategories, testProducts);
-
-    expect(result).toEqual({
-      widgets: ["cross-category.jpg", 3],
-      gadgets: ["cross-category.jpg", 3],
-      tools: ["high-priority-tool.jpg", 5],
+      expectResultTitles(result, ["A", "B"]);
     });
   });
 });

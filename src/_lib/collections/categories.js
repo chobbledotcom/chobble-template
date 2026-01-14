@@ -92,11 +92,4 @@ const configureCategories = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeaturedCategories", getFeaturedCategories);
 };
 
-export {
-  buildCategoryPropertyMap,
-  buildCategoryImageMap,
-  assignCategoryImages,
-  createCategoriesCollection,
-  getFeaturedCategories,
-  configureCategories,
-};
+export { configureCategories };

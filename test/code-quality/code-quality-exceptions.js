@@ -191,6 +191,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/build/scss.js",
   "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/collections/categories.js",
+  "src/_lib/eleventy/area-list.js", // Internal helpers kept separate for readability
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
@@ -234,11 +235,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/build/scss.js:createScssCompiler",
 
   // Collection configure functions - tested to verify Eleventy registration
-  "src/_lib/collections/categories.js:assignCategoryImages",
-  "src/_lib/collections/categories.js:buildCategoryImageMap",
   "src/_lib/collections/categories.js:configureCategories",
-  "src/_lib/collections/categories.js:createCategoriesCollection",
-  "src/_lib/collections/categories.js:getFeaturedCategories",
   "src/_lib/collections/events.js:configureEvents",
   "src/_lib/collections/events.js:getFeaturedEvents",
   "src/_lib/collections/guides.js:configureGuides",
@@ -289,11 +286,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 
   // Eleventy plugin configure functions - tested for plugin registration
   "src/_lib/eleventy/area-list.js:configureAreaList",
-  "src/_lib/eleventy/area-list.js:filterTopLevelLocations",
-  "src/_lib/eleventy/area-list.js:formatListWithAnd",
-  "src/_lib/eleventy/area-list.js:isTopLevelLocation",
-  "src/_lib/eleventy/area-list.js:prepareAreaList",
-  "src/_lib/eleventy/area-list.js:sortByNavigationKey",
   "src/_lib/eleventy/cache-buster.js:cacheBust",
   "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
   "src/_lib/eleventy/capture.js:configureCapture",
@@ -372,7 +364,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
   "src/_lib/utils/grouping.js:createLookup",
-  "src/_lib/utils/object-entries.js:filterObject",
   "src/_lib/utils/object-entries.js:mapObject",
   "src/_lib/utils/object-entries.js:omit",
 ]);
