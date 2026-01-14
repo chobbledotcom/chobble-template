@@ -201,6 +201,27 @@
   }
 
   // ===========================================================================
+  // SECTION HEADERS
+  // ===========================================================================
+  // Section headers are card-styled blocks with centered text
+
+  > header {
+    @include card($space-xl, $radius-lg);
+    text-align: center;
+
+    h1, h2, h3, h4, h5, h6 {
+      margin-bottom: $space-sm;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
+  // ===========================================================================
   // BLOCK SPACING
   // ===========================================================================
   // Consistent vertical rhythm between block-level components (features, stats,
