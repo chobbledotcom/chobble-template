@@ -43,9 +43,7 @@ const expectDatesSorted = expectSorted(sortByDateDescending)((i) => i.date);
 const expectNavByKey = expectSorted(sortNavigationItems)(
   (i) => i.data.eleventyNavigation.key,
 );
-const expectNavByTitle = expectSorted(sortNavigationItems)(
-  (i) => i.data.title,
-);
+const expectNavByTitle = expectSorted(sortNavigationItems)((i) => i.data.title);
 
 // Test that a comparator returns 0 for equal values
 const expectZeroForEqual = (comparator) =>
