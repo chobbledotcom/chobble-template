@@ -367,17 +367,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
   "src/_lib/public/utils/cart-utils.js:getItemCount",
   "src/_lib/public/utils/cart-utils.js:removeItem",
-  "src/_lib/public/utils/quote-price-utils.js:calculateTotal",
-  "src/_lib/public/utils/quote-price-utils.js:collectFieldDetails",
-  "src/_lib/public/utils/quote-price-utils.js:countItems",
-  "src/_lib/public/utils/quote-price-utils.js:formatHireLength",
-  "src/_lib/public/utils/quote-price-utils.js:formatItemCount",
-  "src/_lib/public/utils/quote-price-utils.js:formatItemName",
-  "src/_lib/public/utils/quote-price-utils.js:formatItemPrice",
-  "src/_lib/public/utils/quote-price-utils.js:getFieldLabel",
-  "src/_lib/public/utils/quote-price-utils.js:getFieldValue",
-  "src/_lib/public/utils/quote-price-utils.js:getPriceForDays",
-  "src/_lib/public/utils/quote-price-utils.js:parsePrice",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
