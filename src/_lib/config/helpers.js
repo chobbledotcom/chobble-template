@@ -47,9 +47,18 @@ const DEFAULT_PRODUCT_DATA = {
 const cartModeError = (cartMode, filename, issue) =>
   `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
 
-const getPagePath = (filename) => path.join(PAGES_DIR, filename);
+const checkFrontmatterField = (frontmatter, field, value, cartMode, filename) =>
+  frontmatter[field] !== value &&
+  (() => {
+    throw new Error(
+      cartModeError(cartMode, filename, `does not have ${field}: ${value}`),
+    );
+  })();
 
-const extractFrontmatter = (pagePath, filename, cartMode) => {
+const validatePageFrontmatter = (filename, layout, permalink, cartMode) => {
+  const pagePath = path.isAbsolute(filename)
+    ? filename
+    : path.join(PAGES_DIR, filename);
   if (!fs.existsSync(pagePath)) {
     throw new Error(cartModeError(cartMode, filename, "does not exist"));
   }
@@ -57,40 +66,16 @@ const extractFrontmatter = (pagePath, filename, cartMode) => {
   if (Object.keys(data).length === 0) {
     throw new Error(cartModeError(cartMode, filename, "has no frontmatter"));
   }
-  return data;
+  checkFrontmatterField(data, "layout", layout, cartMode, filename);
+  checkFrontmatterField(data, "permalink", permalink, cartMode, filename);
 };
 
-const checkFrontmatterField = (
-  frontmatter,
-  field,
-  value,
-  cartMode,
-  filename,
-) => {
-  if (frontmatter[field] !== value) {
+const validateStripeMode = (checkoutApiUrl) => {
+  if (!checkoutApiUrl) {
     throw new Error(
-      cartModeError(cartMode, filename, `does not have ${field}: ${value}`),
+      'cart_mode is "stripe" but checkout_api_url is not set in config.json',
     );
   }
-};
-
-function validatePageFrontmatter(filename, layout, permalink, cartMode) {
-  const frontmatter = extractFrontmatter(
-    getPagePath(filename),
-    filename,
-    cartMode,
-  );
-  checkFrontmatterField(frontmatter, "layout", layout, cartMode, filename);
-  checkFrontmatterField(
-    frontmatter,
-    "permalink",
-    permalink,
-    cartMode,
-    filename,
-  );
-}
-
-function validateStripePages() {
   validatePageFrontmatter(
     "stripe-checkout.md",
     "stripe-checkout.html",
@@ -103,50 +88,44 @@ function validateStripePages() {
     "/order-complete/",
     "stripe",
   );
-}
+};
 
-function validateQuotePages() {
+const validatePaypalMode = (checkoutApiUrl) => {
+  if (!checkoutApiUrl) {
+    throw new Error(
+      'cart_mode is "paypal" but checkout_api_url is not set in config.json',
+    );
+  }
+};
+
+const validateQuoteMode = (formTarget) => {
+  if (!formTarget) {
+    throw new Error(
+      'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
+    );
+  }
   validatePageFrontmatter(
     "checkout.md",
     "quote-checkout.html",
     "/checkout/",
     "quote",
   );
-}
+};
 
-function validateProductMode(config) {
-  const { product_mode } = config;
+const CART_MODE_VALIDATORS = {
+  stripe: validateStripeMode,
+  paypal: validatePaypalMode,
+  quote: validateQuoteMode,
+};
 
-  if (!product_mode) return;
+function validateCartConfig(config) {
+  const { cart_mode, checkout_api_url, form_target, product_mode } = config;
 
-  if (!VALID_PRODUCT_MODES.includes(product_mode)) {
+  if (product_mode && !VALID_PRODUCT_MODES.includes(product_mode)) {
     throw new Error(
       `Invalid product_mode: "${product_mode}". Must be one of: ${VALID_PRODUCT_MODES.join(", ")}, or null/omitted for default (buy).`,
     );
   }
-}
-
-function validateCheckoutApiUrl(cartMode, checkoutApiUrl) {
-  if ((cartMode === "paypal" || cartMode === "stripe") && !checkoutApiUrl) {
-    throw new Error(
-      `cart_mode is "${cartMode}" but checkout_api_url is not set in config.json`,
-    );
-  }
-}
-
-function validateQuoteConfig(formTarget) {
-  if (!formTarget) {
-    throw new Error(
-      'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
-    );
-  }
-  validateQuotePages();
-}
-
-function validateCartConfig(config) {
-  const { cart_mode, checkout_api_url, form_target } = config;
-
-  validateProductMode(config);
 
   if (!cart_mode) return;
 
@@ -156,15 +135,8 @@ function validateCartConfig(config) {
     );
   }
 
-  validateCheckoutApiUrl(cart_mode, checkout_api_url);
-
-  if (cart_mode === "stripe") {
-    validateStripePages();
-  }
-
-  if (cart_mode === "quote") {
-    validateQuoteConfig(form_target);
-  }
+  const validatorArg = cart_mode === "quote" ? form_target : checkout_api_url;
+  CART_MODE_VALIDATORS[cart_mode](validatorArg);
 }
 
 /**
@@ -187,20 +159,9 @@ const getFormTarget = (configData) => {
 
 export {
   DEFAULTS,
-  VALID_CART_MODES,
-  VALID_PRODUCT_MODES,
   DEFAULT_PRODUCT_DATA,
   getProducts,
   getFormTarget,
-  extractFrontmatter,
-  checkFrontmatterField,
-  validatePageFrontmatter,
-  validateStripePages,
-  validateQuotePages,
-  validateProductMode,
-  validateCheckoutApiUrl,
-  validateQuoteConfig,
   validateCartConfig,
-  getPagePath,
-  cartModeError,
+  validatePageFrontmatter,
 };
