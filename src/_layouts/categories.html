@@ -3,9 +3,12 @@
 layout: base.html
 ---
 
-{%- include "products-filter.html" -%}
+<div class="products-layout">
+  {%- include "products-filter.html" -%}
 
-{{- content -}}
-
-{%- assign categories = collections.categories | getFeaturedCategories -%}
-{%- include "items.html", items: categories -%}
+  <div class="products-content">
+    {{- content -}}
+    {%- assign categories = collections.categories | getFeaturedCategories -%}
+    {%- include "items.html", items: categories -%}
+  </div>
+</div>
