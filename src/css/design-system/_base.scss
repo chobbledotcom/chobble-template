@@ -36,8 +36,8 @@
   // ROOT STYLES
   // ===========================================================================
 
-  margin: 0;
-  padding: 0;
+  margin: 0 0 $space-xs;
+  padding: $space-xl $space-md;
   font-family: var(--font-sans);
   font-size: $font-size-base;
   line-height: $line-height-normal;
@@ -203,14 +203,16 @@
   // ===========================================================================
   // SECTION HEADERS
   // ===========================================================================
-  // Section headers are card-styled blocks with centered text
+  // Section headers use <hgroup class="section-header"> for semantic markup
+  // Use .gradient class to enable gradient text (default: solid for readability)
 
-  > header {
+  > .section-header {
     @include card($space-xl, $radius-lg);
     text-align: center;
 
     h1, h2, h3, h4, h5, h6 {
       margin-bottom: $space-sm;
+
       &:last-child {
         margin-bottom: 0;
       }
@@ -218,6 +220,17 @@
 
     p {
       margin-bottom: 0;
+    }
+
+    // Gradient text style (opt-in via .gradient class)
+    // Default is solid for better readability and contrast
+    &.gradient {
+      h1, h2, h3, h4, h5, h6 {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
     }
   }
 
@@ -227,7 +240,7 @@
   // Consistent vertical rhythm between block-level components (features, stats,
   // code-block, etc.) when used as direct children of .design-system
 
-  > header,
+  > .section-header,
   > .features,
   > ul.features,
   > .stats,
@@ -243,11 +256,24 @@
   }
 
   // Extra spacing before section headers that follow content blocks
-  > .features + header,
-  > ul.features + header,
-  > .stats + header,
-  > dl.stats + header,
-  > .code-block + header {
+  > .features + .section-header,
+  > ul.features + .section-header,
+  > .stats + .section-header,
+  > dl.stats + .section-header,
+  > .code-block + .section-header {
     margin-top: $space-xl;
   }
+}
+
+// =============================================================================
+// ALTERNATING SECTION BACKGROUNDS
+// =============================================================================
+// Built-in way to alternate backgrounds when using multiple .design-system sections
+
+.design-system:nth-child(odd) {
+  background: var(--bg);
+}
+
+.design-system:nth-child(even) {
+  background: var(--bg-alt);
 }

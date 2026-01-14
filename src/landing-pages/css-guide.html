@@ -33,10 +33,10 @@ permalink: /css-guide/
           <h3>1. Create Your Page</h3>
           <p>Add a file to <code>src/landing-pages/</code> with this frontmatter:</p>
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>src/landing-pages/my-page.html</span>
-            </header>
+            </div>
             <pre><code>{% read_code "src/landing-pages/code-examples/quickstart-frontmatter.html" %}</code></pre>
           </div>
         </article>
@@ -133,10 +133,10 @@ $space-4xl: 128px</code></pre>
         </article>
         <article data-reveal="right">
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>src/css/_theme-variables.scss</span>
-            </header>
+            </div>
             <pre><code>// Uncomment to customize colors
 $color-primary: #059669;
 $color-primary-dark: #047857;
@@ -218,10 +218,10 @@ Breakpoints:
           <h3>Containers</h3>
           <p>Center content with max-width and responsive padding.</p>
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>HTML</span>
-            </header>
+            </div>
             <pre><code>{% read_code "src/landing-pages/code-examples/containers.html" %}</code></pre>
           </div>
         </article>
@@ -229,10 +229,10 @@ Breakpoints:
           <h3>Section Modifiers</h3>
           <p>Add classes to <code>&lt;section&gt;</code> elements.</p>
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>HTML</span>
-            </header>
+            </div>
             <pre><code>{% read_code "src/landing-pages/code-examples/section-modifiers.html" %}</code></pre>
           </div>
         </article>
@@ -269,10 +269,10 @@ Breakpoints:
         <h3>Hero</h3>
         <p>Full-width header with centered content. Use inside a <code>&lt;header&gt;</code> element.</p>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/hero.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">Classes: <code>.hero</code>, <code>.badge</code>, <code>.lead</code>, <code>.actions</code></p>
@@ -289,10 +289,10 @@ Breakpoints:
           <a href="#" class="btn btn--primary btn--sm">Small</a>
         </div>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/buttons.html" %}</code></pre>
         </div>
       </article>
@@ -302,10 +302,10 @@ Breakpoints:
         <h3>Feature Cards</h3>
         <p>Use <code>&lt;article class="feature"&gt;</code> inside a <code>.features</code> grid.</p>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/feature-cards.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">The <code>.features</code> container auto-fits cards at 300px minimum width.</p>
@@ -357,10 +357,10 @@ Breakpoints:
       <article class="feature mb-xl" data-reveal>
         <h3>Grid Classes</h3>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/grid.html" %}</code></pre>
         </div>
       </article>
@@ -393,10 +393,10 @@ Breakpoints:
       <article class="feature mb-xl" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/slider.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">Navigation buttons auto-hide when content doesn't overflow. Button states (disabled) update on scroll.</p>
@@ -423,10 +423,10 @@ Breakpoints:
         <h3>Custom Card Width</h3>
         <p>Override the default 300px/340px card width with inline styles:</p>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/slider-custom-width.html" %}</code></pre>
         </div>
       </article>
@@ -443,10 +443,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/split.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and border automatically.</p>
@@ -480,10 +480,10 @@ Breakpoints:
       <article class="feature mb-xl" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/split-full.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">Variants: <code>.split-full--dark-left</code>, <code>.split-full--dark-right</code>, <code>.split-full--primary-left</code>, <code>.split-full--primary-right</code></p>
@@ -531,10 +531,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/stats.html" %}</code></pre>
         </div>
       </article>
@@ -555,10 +555,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML Structure</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/code-block.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">The dots auto-color red/yellow/green. Use <code>&lt;span&gt;</code> with inline styles for syntax highlighting.</p>
@@ -573,10 +573,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/cta.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">Use <code>&lt;aside&gt;</code> for semantic markup. The CTA has a gradient background and inverted colors.</p>
@@ -600,10 +600,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/animations.html" %}</code></pre>
         </div>
         <p class="text-muted mt-lg">Animations respect <code>prefers-reduced-motion</code>. Elements get <code>.is-visible</code> class when in viewport.</p>
@@ -671,10 +671,10 @@ Breakpoints:
 
       <article class="feature" data-reveal>
         <div class="code-block">
-          <header>
+            <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/footer.html" %}</code></pre>
         </div>
       </article>
@@ -767,10 +767,10 @@ $bp-xl: 1200px</code></pre>
       {%- include "design-system/section-header.html", title: "File Structure" -%}
 
       <div class="code-block" data-reveal>
-        <header>
+        <div class="code-block-toolbar">
           <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
           <span>Project Structure</span>
-        </header>
+        </div>
         <pre><code>src/
 ├── landing-pages/
 │   ├── landing-pages.json    # Default frontmatter
