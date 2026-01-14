@@ -35,6 +35,18 @@ describe("eleventyComputed", () => {
       expect(result).toMatch(/^images\/placeholders\/\w+\.svg$/);
     });
 
+    test("Returns null when placeholder_images disabled and no thumbnail", () => {
+      const data = {
+        tags: ["products"],
+        title: "Test Product",
+        page: { url: "/products/test-product/" },
+        config: { placeholder_images: false },
+      };
+      const result = eleventyComputed.thumbnail(data);
+      // With placeholder_images: false, we should get null (not a placeholder)
+      expect(result).toBe(null);
+    });
+
     test("Returns placeholder for items without tags", () => {
       const data = {
         title: "Test Page",
