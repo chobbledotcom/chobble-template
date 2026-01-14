@@ -21,10 +21,15 @@ const getThumbnailHtml = async (entry) => {
   );
 };
 
-/** Renders a single navigation entry with optional thumbnail */
-const renderNavEntry = async (entry, activeKey, renderChildren) => {
+/** Renders a single navigation entry with optional thumbnail (not at root level) */
+const renderNavEntry = async (
+  entry,
+  activeKey,
+  renderChildren,
+  isRootLevel,
+) => {
   const [thumbnailHtml, childrenHtml] = await Promise.all([
-    getThumbnailHtml(entry),
+    isRootLevel ? Promise.resolve("") : getThumbnailHtml(entry),
     entry.children?.length
       ? renderChildren(entry.children)
       : Promise.resolve(""),
@@ -47,12 +52,16 @@ const toNavigation = async (pages, activeKey = "") => {
   }
   const renderChildren = async (children) => {
     const items = await Promise.all(
-      children.map((child) => renderNavEntry(child, activeKey, renderChildren)),
+      children.map((child) =>
+        renderNavEntry(child, activeKey, renderChildren, false),
+      ),
     );
     return createHtml("ul", {}, items.join("\n"));
   };
   const items = await Promise.all(
-    pages.map((entry) => renderNavEntry(entry, activeKey, renderChildren)),
+    pages.map((entry) =>
+      renderNavEntry(entry, activeKey, renderChildren, true),
+    ),
   );
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
 };

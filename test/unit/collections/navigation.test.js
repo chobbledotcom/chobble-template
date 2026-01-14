@@ -243,10 +243,25 @@ describe("toNavigation", () => {
     expect(result).not.toContain("href=");
   });
 
-  test("Renders thumbnail when entry has thumbnail data", async () => {
+  test("Skips thumbnails for root-level navigation items", async () => {
     const pages = [
       navEntry("Products", {
         data: { thumbnail: "src/images/placeholder-square-1.jpg" },
+      }),
+    ];
+    const result = await toNavigation(pages, "");
+    expect(result).not.toContain("<picture");
+    expect(result).not.toContain("<img");
+  });
+
+  test("Renders thumbnail for child navigation items", async () => {
+    const pages = [
+      navEntry("Products", {
+        children: [
+          navEntry("Category A", {
+            data: { thumbnail: "src/images/placeholder-square-1.jpg" },
+          }),
+        ],
       }),
     ];
     const result = await toNavigation(pages, "");
