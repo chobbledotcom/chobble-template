@@ -94,6 +94,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectNoStaleExceptions",
   // code-scanner.js - export detection utility
   "extractExports",
+  // code-scanner.js - export list parsing helper
+  "parseExportListContent",
   // design-system-scoping.test.js - SCSS analysis helpers
   "findUnscopedSelectors",
   "hasDesignSystemWrapper",
@@ -109,6 +111,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "b",
   "c",
   "original",
+  "another",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
   // quote-steps.test.js - navigation test setup
