@@ -189,6 +189,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
+  "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/collections/categories.js",
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
@@ -229,9 +230,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/build/scss.js:compileScss",
   "src/_lib/build/scss.js:configureScss",
   "src/_lib/build/scss.js:createScssCompiler",
-  "src/_lib/build/theme-compiler.js:extractRootVariables",
-  "src/_lib/build/theme-compiler.js:getThemeFiles",
-  "src/_lib/build/theme-compiler.js:slugToTitle",
 
   // Collection configure functions - tested to verify Eleventy registration
   "src/_lib/collections/categories.js:assignCategoryImages",
