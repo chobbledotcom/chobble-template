@@ -269,16 +269,11 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
   // Eleventy plugin configure functions - tested for plugin registration
+  "src/_lib/eleventy/external-links.js:configureExternalLinks",
   "src/_lib/eleventy/area-list.js:configureAreaList",
   "src/_lib/eleventy/cache-buster.js:cacheBust",
   "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
   "src/_lib/eleventy/capture.js:configureCapture",
-  "src/_lib/eleventy/external-links.js:configureExternalLinks",
-  "src/_lib/eleventy/external-links.js:createExternalLinksTransform",
-  "src/_lib/eleventy/external-links.js:externalLinkFilter",
-  "src/_lib/eleventy/external-links.js:getExternalLinkAttributes",
-  "src/_lib/eleventy/external-links.js:isExternalUrl",
-  "src/_lib/eleventy/external-links.js:transformExternalLinks",
   "src/_lib/eleventy/feed.js:configureFeed",
   "src/_lib/eleventy/file-utils.js:configureFileUtils",
   "src/_lib/eleventy/file-utils.js:createMarkdownRenderer",
