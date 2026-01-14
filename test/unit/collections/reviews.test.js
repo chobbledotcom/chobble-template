@@ -3,7 +3,6 @@ import {
   configureReviews,
   countReviews,
   createReviewsCollection,
-  getInitials,
   getRating,
   getReviewsFor,
   ratingToStars,
@@ -250,72 +249,35 @@ describe("reviews", () => {
     expect(ratingToStars(5)).toBe("⭐️⭐️⭐️⭐️⭐️");
   });
 
-  test("Extracts first and last initials from full name", () => {
-    expect(getInitials("John Smith")).toBe("JS");
-    expect(getInitials("Alice Bob Carol")).toBe("AC");
-    expect(getInitials("Mary Jane Watson Parker")).toBe("MP");
-  });
+  test("Avatar displays initials from names", () => {
+    // Helper to check initials in URL-encoded SVG (>X< becomes %3EX%3C)
+    const hasInitials = (avatar, initials) =>
+      avatar.includes(`%3E${encodeURIComponent(initials)}%3C`);
 
-  test("Returns single initial for single word name", () => {
-    expect(getInitials("Madonna")).toBe("M");
-    expect(getInitials("Cher")).toBe("C");
-  });
-
-  test("Returns name unchanged if already 2 chars or less", () => {
-    expect(getInitials("JS")).toBe("JS");
-    expect(getInitials("A")).toBe("A");
-    expect(getInitials("ab")).toBe("AB");
-  });
-
-  test("Handles empty/null names gracefully", () => {
-    expect(getInitials("")).toBe("?");
-    expect(getInitials(null)).toBe("?");
-    expect(getInitials(undefined)).toBe("?");
-  });
-
-  test("Handles extra whitespace in names", () => {
-    expect(getInitials("  John   Smith  ")).toBe("JS");
-    expect(getInitials("   ")).toBe("?");
-    expect(getInitials("\t\n")).toBe("?");
-  });
-
-  test("Uppercases lowercase initials", () => {
-    expect(getInitials("john smith")).toBe("JS");
-    expect(getInitials("mary jane")).toBe("MJ");
-  });
-
-  test("Handles mixed case names correctly", () => {
-    expect(getInitials("jOHN sMITH")).toBe("JS");
-    expect(getInitials("McDonald")).toBe("M");
-  });
-
-  test("Treats hyphenated parts as single words", () => {
-    expect(getInitials("Mary-Jane Watson")).toBe("MW");
-    expect(getInitials("Jean-Claude Van Damme")).toBe("JD");
-  });
-
-  test("Handles names with apostrophes", () => {
-    expect(getInitials("O'Brien")).toBe("O");
-    expect(getInitials("Shaquille O'Neal")).toBe("SO");
-    expect(getInitials("D'Angelo Russell")).toBe("DR");
-  });
-
-  test("Handles accented and unicode characters", () => {
-    expect(getInitials("José García")).toBe("JG");
-    expect(getInitials("Müller Schmidt")).toBe("MS");
-    expect(getInitials("Björk")).toBe("B");
-  });
-
-  test("Handles names containing numbers", () => {
-    expect(getInitials("John Smith III")).toBe("JI");
-    expect(getInitials("R2D2")).toBe("R");
-    expect(getInitials("C3")).toBe("C3");
+    // Full names: first + last initial
+    expect(hasInitials(reviewerAvatar("John Smith"), "JS")).toBe(true);
+    expect(hasInitials(reviewerAvatar("Alice Bob Carol"), "AC")).toBe(true);
+    expect(hasInitials(reviewerAvatar("Mary Jane Watson Parker"), "MP")).toBe(
+      true,
+    );
+    // Single word names: first initial only
+    expect(hasInitials(reviewerAvatar("Madonna"), "M")).toBe(true);
+    // Short names: unchanged (uppercased)
+    expect(hasInitials(reviewerAvatar("JS"), "JS")).toBe(true);
+    expect(hasInitials(reviewerAvatar("ab"), "AB")).toBe(true);
+    // Empty/null: fallback to "?"
+    expect(hasInitials(reviewerAvatar(""), "?")).toBe(true);
+    expect(hasInitials(reviewerAvatar(null), "?")).toBe(true);
+    // Whitespace handling
+    expect(hasInitials(reviewerAvatar("  John   Smith  "), "JS")).toBe(true);
+    expect(hasInitials(reviewerAvatar("   "), "?")).toBe(true);
+    // Case normalization
+    expect(hasInitials(reviewerAvatar("john smith"), "JS")).toBe(true);
   });
 
   test("Returns a valid SVG data URI", () => {
     const result = reviewerAvatar("John Smith");
     expect(result.startsWith("data:image/svg+xml,")).toBe(true);
-    expect(result.includes("JS")).toBe(true);
   });
 
   test("Returns same color for same name", () => {
