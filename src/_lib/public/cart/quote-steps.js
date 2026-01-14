@@ -197,6 +197,10 @@ function initQuoteSteps() {
   const prevBtn = document.querySelector(".quote-step-prev");
   const nextBtn = document.querySelector(".quote-step-next");
   const submitBtn = document.querySelector(".quote-step-submit");
+
+  // Required elements for multi-step form functionality
+  if (prevBtn === null || nextBtn === null || dataScript === null) return;
+
   const stepsData = JSON.parse(dataScript.textContent);
   const baseCompletedSteps = parseInt(
     progressContainer.dataset.completedSteps,
@@ -250,21 +254,4 @@ function initQuoteSteps() {
 
 onReady(initQuoteSteps);
 
-export {
-  buildRadioRecapItem,
-  clearFieldError,
-  getCurrentStep,
-  getFieldDisplayValue,
-  getFieldLabel,
-  getFieldWrapper,
-  getRadioLabel,
-  getRadioValue,
-  initQuoteSteps,
-  populateRecap,
-  setCurrentStep,
-  setFieldError,
-  updateButtons,
-  validateField,
-  validateRadioGroup,
-  validateStep,
-};
+export { getRadioValue, initQuoteSteps };
