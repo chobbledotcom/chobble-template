@@ -132,7 +132,10 @@ describe("sorting", () => {
   // compareBy Tests
   // ============================================
   test("compareBy creates comparator that sorts ascending by extracted numeric values", () => {
-    expectAgesSorted(compareBy((i) => i.age), [10, 20, 30]);
+    expectAgesSorted(
+      compareBy((i) => i.age),
+      [10, 20, 30],
+    );
   });
 
   test("compareBy handles negative numbers correctly", () => {
