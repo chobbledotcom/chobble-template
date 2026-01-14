@@ -31,27 +31,40 @@
     // When inside a list, ensure full height for grid alignment
     height: 100%;
 
+    // Grid layout: icon + heading on row 1, description spans full width on row 2
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+    gap: $space-xs $space-md;
+    align-items: start;
+
     .icon {
       @include flex-center;
-      width: 56px;
-      height: 56px;
+      width: 48px;
+      height: 48px;
       background: var(--primary-light);
       color: var(--primary);
-      border-radius: $radius-lg;
-      font-size: $font-size-xl;
-      margin-bottom: $space-md;
+      border-radius: $radius-md;
+      font-size: $font-size-lg;
+      grid-row: 1;
+      grid-column: 1;
     }
 
     h3,
     h4 {
       @include heading-sm;
-      margin-bottom: $space-xs;
+      margin: 0;
+      grid-row: 1;
+      grid-column: 2;
+      align-self: center;
     }
 
     p {
       @include body-base;
       color: var(--text-muted);
       margin: 0;
+      grid-row: 2;
+      grid-column: 1 / -1;
     }
   }
 }
