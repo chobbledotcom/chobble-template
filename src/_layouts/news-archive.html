@@ -7,7 +7,7 @@ layout: base
 {%- assign posts = collections.news -%}
 
 {%- if posts.size > 0 -%}
-  <div class="news-archive">
+  <div class="design-system">
 
     {%- comment -%} Featured latest post {%- endcomment -%}
     {%- assign featured = posts | first -%}
@@ -15,13 +15,13 @@ layout: base
       {%- assign featuredAuthor = collections.team | where: "fileSlug", featured.data.authorSlug | first -%}
     {%- endif -%}
 
-    <article class="featured" data-reveal>
+    <article class="split" data-reveal>
       {%- if featured.data.header_image -%}
-        <a href="{{ featured.url }}#content">
-          <figure>
+        <figure>
+          <a href="{{ featured.url }}#content">
             {%- image featured.data.header_image, featured.data.header_text, "400, 600, 800, 1200", "", "", "16/9" -%}
-          </figure>
-        </a>
+          </a>
+        </figure>
       {%- endif -%}
       <div>
         <header>
@@ -32,11 +32,6 @@ layout: base
             <span aria-hidden="true">·</span>
             <address>
               <a rel="author" href="{{ featuredAuthor.url }}">
-                {%- if featuredAuthor.data.image -%}
-                  <figure>
-                    {%- image featuredAuthor.data.image, featuredAuthor.data.title, "32,64", "", "", "1/1" -%}
-                  </figure>
-                {%- endif -%}
                 {{ featuredAuthor.data.title }}
               </a>
             </address>
@@ -56,7 +51,7 @@ layout: base
     {%- assign older_posts = posts | slice: 1, 999 -%}
     {%- if older_posts.size > 0 -%}
       <h2>More Articles</h2>
-      <ul>
+      <ul class="items">
         {%- for post in older_posts -%}
           {%- if post.data.authorSlug -%}
             {%- assign postAuthor = collections.team | where: "fileSlug", post.data.authorSlug | first -%}
@@ -64,33 +59,22 @@ layout: base
             {%- assign postAuthor = nil -%}
           {%- endif -%}
 
-          <li>
-            <article data-reveal>
-              {%- if post.data.header_image -%}
-                <a href="{{ post.url }}#content">
-                  <figure>
-                    {%- image post.data.header_image, post.data.header_text, "200, 300, 400, 600", "", "", "16/9" -%}
-                  </figure>
-                </a>
-              {%- endif -%}
-              <div>
-                <header>
-                  <time datetime="{{ post.date | date: '%Y-%m-%d' }}">
-                    {{ post.date | date: "%b %-d, %Y" }}
-                  </time>
-                  {%- if postAuthor -%}
-                    <span aria-hidden="true">·</span>
-                    <address>{{ postAuthor.data.title }}</address>
-                  {%- endif -%}
-                </header>
-                <h3>
-                  <a href="{{ post.url }}#content">{{ post.data.header_text | escape }}</a>
-                </h3>
-                {%- if post.data.subtitle and post.data.subtitle != "" -%}
-                  <p>{{ post.data.subtitle | escape }}</p>
-                {%- endif -%}
-              </div>
-            </article>
+          <li data-reveal>
+            {%- if post.data.header_image -%}
+              <a href="{{ post.url }}#content" class="image-link">
+                {%- image post.data.header_image, post.data.header_text, "200, 300, 400, 600", "", "", "4/3" -%}
+              </a>
+            {%- endif -%}
+            <h3>
+              <a href="{{ post.url }}#content">{{ post.data.header_text | escape }}</a>
+            </h3>
+            <p>
+              <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+              {%- if postAuthor %} · {{ postAuthor.data.title }}{%- endif -%}
+            </p>
+            {%- if post.data.subtitle and post.data.subtitle != "" -%}
+              <p>{{ post.data.subtitle | escape }}</p>
+            {%- endif -%}
           </li>
         {%- endfor -%}
       </ul>
