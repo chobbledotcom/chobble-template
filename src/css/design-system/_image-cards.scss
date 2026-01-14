@@ -12,7 +12,9 @@
     @include grid-auto(150px);
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: $space-md;
+    background: var(--bg-alt);
+    border-radius: $radius-lg;
 
     > li {
       margin: 0;
@@ -27,6 +29,7 @@
       flex-direction: column;
       padding: 0;
       overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.15);
 
       // Edge-to-edge image at top
       > a:first-child {
@@ -34,6 +37,11 @@
         overflow: hidden;
 
         figure {
+          margin: 0;
+        }
+
+        .image-wrapper {
+          max-width: 100%;
           margin: 0;
         }
 
