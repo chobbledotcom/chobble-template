@@ -47,14 +47,15 @@
   gap: $gap;
 }
 
-@mixin grid-auto($min-width: $card-min-width, $gap: $space-lg) {
+@mixin grid-auto($min-width: 280px, $gap: $space-lg) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
   gap: $gap;
 }
 
-// Responsive flex grid: 1 col mobile, 2 col tablet, 3 col desktop
-@mixin flex-grid-3col($min-width: $card-min-width, $gap: $space-lg) {
+// Responsive flex grid with configurable column count
+// 1 col on mobile, 2 cols on tablet, up to $cols on desktop
+@mixin flex-grid($cols: 3, $gap: $space-lg, $min-width: 250px) {
   display: flex;
   flex-wrap: wrap;
   gap: $gap;
@@ -63,12 +64,22 @@
     flex: 1 1 $min-width;
     max-width: 100%;
 
-    @include tablet-up {
-      max-width: calc(50% - math.div($gap, 2));
+    @if $cols >= 2 {
+      @include tablet-up {
+        max-width: calc(50% - math.div($gap, 2));
+      }
     }
 
-    @include desktop-up {
-      max-width: calc(33.333% - math.div($gap * 2, 3));
+    @if $cols >= 3 {
+      @include desktop-up {
+        max-width: calc(33.333% - math.div($gap * 2, 3));
+      }
+    }
+
+    @if $cols >= 4 {
+      @include large-desktop {
+        max-width: calc(25% - math.div($gap * 3, 4));
+      }
     }
   }
 }

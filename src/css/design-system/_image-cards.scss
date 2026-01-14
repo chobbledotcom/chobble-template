@@ -42,11 +42,6 @@
           height: auto;
           aspect-ratio: 16/9;
           object-fit: cover;
-          transition: transform $transition-fast;
-        }
-
-        &:hover img {
-          transform: scale(1.05);
         }
       }
 
