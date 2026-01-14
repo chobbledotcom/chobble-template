@@ -8,9 +8,9 @@
 
 .design-system {
   ul.features {
-    @include grid-auto(300px, $space-lg);
+    @include grid-auto(300px, $space-md);
     list-style: none;
-    margin: 0;
+    margin: $space-md 0 0;
     padding: 0;
 
     > li {
@@ -22,11 +22,12 @@
 
   // Also support legacy div.features
   div.features {
-    @include grid-auto(300px, $space-lg);
+    @include grid-auto(300px, $space-md);
+    margin-top: $space-md;
   }
 
   .feature {
-    @include card;
+    @include card($space-md, $radius-lg);
     @include card-hover;
     // When inside a list, ensure full height for grid alignment
     height: 100%;
