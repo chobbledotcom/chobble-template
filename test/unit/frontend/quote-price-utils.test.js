@@ -165,9 +165,8 @@ describe("quote-price-utils", () => {
         "TBC",
       );
       expect(
-        document.querySelector(
-          '[data-field="items"] > li [data-field="price"]',
-        ).textContent,
+        document.querySelector('[data-field="items"] > li [data-field="price"]')
+          .textContent,
       ).toBe("TBC");
     });
 
