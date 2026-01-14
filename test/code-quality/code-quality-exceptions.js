@@ -192,7 +192,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/collections/categories.js",
   "src/_lib/eleventy/area-list.js", // Internal helpers kept separate for readability
-  "src/_lib/eleventy/external-links.js", // Internal helpers kept separate for readability
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
