@@ -191,6 +191,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/build/scss.js",
   "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/collections/categories.js",
+  "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
@@ -283,18 +284,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 
   // Config helpers - tested for form/quote field logic and validation
   "src/_lib/config/form-helpers.js:getFieldTemplate",
-  "src/_lib/config/helpers.js:VALID_CART_MODES",
-  "src/_lib/config/helpers.js:VALID_PRODUCT_MODES",
-  "src/_lib/config/helpers.js:cartModeError",
-  "src/_lib/config/helpers.js:checkFrontmatterField",
-  "src/_lib/config/helpers.js:extractFrontmatter",
-  "src/_lib/config/helpers.js:getPagePath",
-  "src/_lib/config/helpers.js:validateCheckoutApiUrl",
   "src/_lib/config/helpers.js:validatePageFrontmatter",
-  "src/_lib/config/helpers.js:validateProductMode",
-  "src/_lib/config/helpers.js:validateQuoteConfig",
-  "src/_lib/config/helpers.js:validateQuotePages",
-  "src/_lib/config/helpers.js:validateStripePages",
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
   // Eleventy plugin configure functions - tested for plugin registration
