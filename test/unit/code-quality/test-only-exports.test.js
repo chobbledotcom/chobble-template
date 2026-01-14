@@ -259,6 +259,39 @@ export { original as renamed };
       const exports = extractExports(source);
       expect(exports.has("original")).toBe(true);
     });
+
+    test("finds multi-line export list", () => {
+      const source = `
+function a() {}
+function b() {}
+const c = () => {};
+
+export {
+  a,
+  b,
+  c,
+};
+`;
+      const exports = extractExports(source);
+      expect(exports.has("a")).toBe(true);
+      expect(exports.has("b")).toBe(true);
+      expect(exports.has("c")).toBe(true);
+    });
+
+    test("handles multi-line export with aliases", () => {
+      const source = `
+function original() {}
+function another() {}
+
+export {
+  original as renamed,
+  another,
+};
+`;
+      const exports = extractExports(source);
+      expect(exports.has("original")).toBe(true);
+      expect(exports.has("another")).toBe(true);
+    });
   });
 
   describe("extractImports", () => {
