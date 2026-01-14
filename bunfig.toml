@@ -29,9 +29,11 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
+# - navigation.js: thumbnail integration depends on image.js (already ignored)
 coveragePathIgnorePatterns = [
   "test/ensure-deps.js",
   "src/_lib/utils/canonical-url.js",
+  "src/_lib/collections/navigation.js",
   "src/_lib/public/utils/on-ready.js",
   "scripts/customise-cms/config.js",
   "scripts/customise-cms/fields.js",
@@ -40,6 +42,8 @@ coveragePathIgnorePatterns = [
   "src/_lib/eleventy/recurring-events.js",
   "src/_lib/media/image.js",
   "src/_lib/media/image-crop.js",
+  "src/_lib/media/image-lqip.js",
+  "src/_lib/media/image-transform.js",
   "src/_lib/public/cart/quote-steps.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/utils/quote-price-utils.js",

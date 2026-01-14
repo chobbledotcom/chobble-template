@@ -253,6 +253,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/collections/navigation.js:configureNavigation",
   "src/_lib/collections/navigation.js:createNavigationFilter",
   "src/_lib/collections/navigation.js:findPageUrl",
+  "src/_lib/collections/navigation.js:toNavigationThumbnails",
   "src/_lib/collections/news.js:configureNews",
   "src/_lib/collections/news.js:createNewsCollection",
   "src/_lib/collections/products.js:configureProducts",

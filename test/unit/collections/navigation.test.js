@@ -3,6 +3,7 @@ import {
   configureNavigation,
   createNavigationFilter,
   findPageUrl,
+  toNavigationThumbnails,
 } from "#collections/navigation.js";
 import {
   createMockEleventyConfig,
@@ -48,6 +49,16 @@ const withNavigation = async () => {
   await configureNavigation(mockConfig);
   return mockConfig;
 };
+
+/** Create a navigation entry as returned by eleventyNavigation filter */
+const navEntry = (key, options = {}) => ({
+  key,
+  title: options.title ?? key,
+  url: options.url ?? `/${key.toLowerCase()}/`,
+  pluginType: "eleventy-navigation",
+  data: options.data ?? {},
+  children: options.children ?? [],
+});
 
 describe("navigation", () => {
   test("Creates navigation filter function", () => {
@@ -198,8 +209,69 @@ describe("navigation", () => {
   });
 
   test("Returns # for empty collection", () => {
-    // Empty array returns "#" (no match found)
-    // Note: null/undefined will throw - we don't swallow those errors
     expect(findPageUrl([], "post", "test")).toBe("#");
+  });
+
+  test("Configures toNavigationThumbnails async filter", async () => {
+    const mockConfig = await withNavigation();
+    expect(typeof mockConfig.asyncFilters.toNavigationThumbnails).toBe(
+      "function",
+    );
+  });
+});
+
+describe("toNavigationThumbnails", () => {
+  test("Returns empty string for empty pages", async () => {
+    const result = await toNavigationThumbnails([]);
+    expect(result).toBe("");
+  });
+
+  test("Throws error for invalid input without pluginType", async () => {
+    const invalidPages = [{ key: "Home", title: "Home" }];
+    await expect(toNavigationThumbnails(invalidPages)).rejects.toThrow(
+      "toNavigationThumbnails requires eleventyNavigation filter first",
+    );
+  });
+
+  test("Renders navigation with active class", async () => {
+    const pages = [navEntry("Home", { url: "/" })];
+    const result = await toNavigationThumbnails(pages, "Home");
+    expect(result).toContain("nav-link active");
+  });
+
+  test("Renders multiple nav items with hrefs", async () => {
+    const pages = [navEntry("Home", { url: "/" }), navEntry("About")];
+    const result = await toNavigationThumbnails(pages, "");
+    expect(result).toContain("Home");
+    expect(result).toContain("About");
+    expect(result).toContain('href="/"');
+    expect(result).toContain('href="/about/"');
+  });
+
+  test("Renders nested children", async () => {
+    const pages = [
+      navEntry("Products", {
+        children: [navEntry("Category A"), navEntry("Category B")],
+      }),
+    ];
+    const result = await toNavigationThumbnails(pages, "");
+    expect(result).toContain("Products");
+    expect(result).toContain("Category A");
+    expect(result.match(/<ul/g).length).toBeGreaterThan(1);
+  });
+
+  test("Renders entry without href when url is missing", async () => {
+    const pages = [
+      {
+        key: "No Link",
+        title: "No Link",
+        pluginType: "eleventy-navigation",
+        data: {},
+        children: [],
+      },
+    ];
+    const result = await toNavigationThumbnails(pages, "");
+    expect(result).toContain("No Link");
+    expect(result).not.toContain("href=");
   });
 });
