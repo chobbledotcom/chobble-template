@@ -448,7 +448,8 @@ h6 {
   margin-bottom: 0.5rem;
 }
 
-header {
+header,
+.site-header {
   background: var(--color-bg);
   border-radius: var(--border-radius);
   border: var(--border);

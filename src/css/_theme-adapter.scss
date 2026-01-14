@@ -51,4 +51,7 @@
   --font-sans: var(--font-family-body, #{$font-sans});
   --font-heading: var(--font-family-heading, #{$font-sans});
   --font-mono: #{$font-mono};
+
+  // Section header style: solid (default for readability) or gradient
+  --section-header-style: solid;
 }
