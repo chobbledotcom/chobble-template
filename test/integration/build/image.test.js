@@ -507,4 +507,51 @@ describe("image", () => {
       );
     });
   });
+
+  // ============================================
+  // LQIP aspect ratio tests
+  // ============================================
+  describe("LQIP aspect ratio", () => {
+    /**
+     * Extract base64 LQIP data from HTML style attribute
+     */
+    const extractLqipBase64 = (html) => {
+      const match = html.match(
+        /background-image:\s*url\('data:image\/webp;base64,([^']+)'\)/,
+      );
+      return match ? match[1] : null;
+    };
+
+    /**
+     * Assert LQIP matches expected aspect ratio
+     */
+    const expectLqipRatio = async (targetRatio, expectedNumeric) => {
+      const result = await imageShortcode(
+        "party.jpg",
+        "Test",
+        null,
+        null,
+        null,
+        targetRatio,
+      );
+
+      const base64 = extractLqipBase64(result);
+      expect(base64).not.toBeNull();
+
+      const { default: sharp } = await import("sharp");
+      const buffer = Buffer.from(base64, "base64");
+      const { width, height } = await sharp(buffer).metadata();
+
+      // Allow small tolerance for rounding at 32px thumbnail size
+      expect(Math.abs(width / height - expectedNumeric)).toBeLessThan(0.1);
+    };
+
+    test("LQIP matches 16/9 crop aspect ratio", () =>
+      expectLqipRatio("16/9", 16 / 9));
+
+    test("LQIP matches 1/1 crop aspect ratio", () => expectLqipRatio("1/1", 1));
+
+    test("LQIP matches 4/3 crop aspect ratio", () =>
+      expectLqipRatio("4/3", 4 / 3));
+  });
 });
