@@ -212,6 +212,7 @@
 
     h1, h2, h3, h4, h5, h6 {
       margin-bottom: $space-sm;
+
       &:last-child {
         margin-bottom: 0;
       }
@@ -223,16 +224,13 @@
 
     // Gradient text style (opt-in via .gradient class)
     // Default is solid for better readability and contrast
-    &.gradient h1,
-    &.gradient h2,
-    &.gradient h3,
-    &.gradient h4,
-    &.gradient h5,
-    &.gradient h6 {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    &.gradient {
+      h1, h2, h3, h4, h5, h6 {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
     }
   }
 
