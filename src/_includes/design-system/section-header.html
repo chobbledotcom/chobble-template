@@ -25,9 +25,9 @@ Usage:
   {%- assign classes = classes | append: " " | append: class -%}
 {%- endif -%}
 
-<header class="{{ classes }}">
+<hgroup class="section-header {{ classes }}">
   <h{{ level }}>{{ title }}</h{{ level }}>
   {%- if subtitle -%}
     <p class="text-muted">{{ subtitle }}</p>
   {%- endif -%}
-</header>
+</hgroup>

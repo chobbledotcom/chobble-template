@@ -33,10 +33,10 @@ permalink: /css-guide/
           <h3>1. Create Your Page</h3>
           <p>Add a file to <code>src/landing-pages/</code> with this frontmatter:</p>
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>src/landing-pages/my-page.html</span>
-            </header>
+            </div>
             <pre><code>---
 title: My Landing Page
 meta_description: Page description for SEO
@@ -143,10 +143,10 @@ $space-4xl: 128px</code></pre>
         </article>
         <article data-reveal="right">
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>src/css/_theme-variables.scss</span>
-            </header>
+            </div>
             <pre><code>// Uncomment to customize colors
 $color-primary: #059669;
 $color-primary-dark: #047857;
@@ -228,10 +228,10 @@ Breakpoints:
           <h3>Containers</h3>
           <p>Center content with max-width and responsive padding.</p>
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>HTML</span>
-            </header>
+            </div>
             <pre><code>&lt;div class="container"&gt;
   Wide container (1200px)
 &lt;/div&gt;
@@ -249,10 +249,10 @@ Breakpoints:
           <h3>Section Modifiers</h3>
           <p>Add classes to <code>&lt;section&gt;</code> elements.</p>
           <div class="code-block">
-            <header>
+            <div class="code-block-toolbar">
               <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
               <span>HTML</span>
-            </header>
+            </div>
             <pre><code>&lt;section&gt;
   Default padding (96px vertical)
 &lt;/section&gt;
@@ -307,10 +307,10 @@ Breakpoints:
         <h3>Hero</h3>
         <p>Full-width header with centered content. Use inside a <code>&lt;header&gt;</code> element.</p>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;header class="hero gradient"&gt;
   &lt;span class="badge"&gt;Optional Badge&lt;/span&gt;
   &lt;h1&gt;Main Headline&lt;/h1&gt;
@@ -335,10 +335,10 @@ Breakpoints:
           <a href="#" class="btn btn--primary btn--sm">Small</a>
         </div>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;a class="btn btn--primary"&gt;Primary&lt;/a&gt;
 &lt;a class="btn btn--secondary"&gt;Secondary&lt;/a&gt;
 &lt;a class="btn btn--ghost"&gt;Ghost&lt;/a&gt;
@@ -354,10 +354,10 @@ Breakpoints:
         <h3>Feature Cards</h3>
         <p>Use <code>&lt;article class="feature"&gt;</code> inside a <code>.features</code> grid.</p>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="features"&gt;
   &lt;article class="feature" data-reveal&gt;
     &lt;div class="icon"&gt;&amp;#128640;&lt;/div&gt;
@@ -416,10 +416,10 @@ Breakpoints:
       <article class="feature mb-xl" data-reveal>
         <h3>Grid Classes</h3>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;!-- Auto 1/2/3 columns based on screen --&gt;
 &lt;div class="grid"&gt;...&lt;/div&gt;
 
@@ -459,10 +459,10 @@ Breakpoints:
       <article class="feature mb-xl" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="slider-container"&gt;
   &lt;div class="slider"&gt;
     &lt;article class="feature"&gt;Card 1&lt;/article&gt;
@@ -500,10 +500,10 @@ Breakpoints:
         <h3>Custom Card Width</h3>
         <p>Override the default 300px/340px card width with inline styles:</p>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="slider"&gt;
   &lt;article class="feature" style="width: 400px;"&gt;
     Wider card
@@ -524,10 +524,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="split"&gt;
   &lt;article data-reveal="left"&gt;
     &lt;h2&gt;Text Content&lt;/h2&gt;
@@ -575,10 +575,10 @@ Breakpoints:
       <article class="feature mb-xl" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="split-full split-full--dark-left"&gt;
   &lt;div class="split-full__left"&gt;
     &lt;div&gt;
@@ -639,10 +639,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="stats"&gt;
   &lt;div class="stat" data-reveal&gt;
     &lt;strong&gt;99%&lt;/strong&gt;
@@ -672,19 +672,19 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML Structure</span>
-          </header>
+          </div>
           <pre><code>&lt;div class="code-block"&gt;
-  &lt;header&gt;
+  &lt;div class="code-block-toolbar"&gt;
     &lt;div class="dots"&gt;
       &lt;span&gt;&lt;/span&gt;
       &lt;span&gt;&lt;/span&gt;
       &lt;span&gt;&lt;/span&gt;
     &lt;/div&gt;
     &lt;span&gt;filename.js&lt;/span&gt;
-  &lt;/header&gt;
+  &lt;/div&gt;
   &lt;pre&gt;&lt;code&gt;your code here&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;</code></pre>
         </div>
@@ -700,10 +700,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;aside class="cta"&gt;
   &lt;h2&gt;Ready to Start?&lt;/h2&gt;
   &lt;p&gt;Call to action description.&lt;/p&gt;
@@ -733,10 +733,10 @@ Breakpoints:
 
       <article class="feature mb-xl" data-reveal>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;!-- Fade up (default) --&gt;
 &lt;div data-reveal&gt;...&lt;/div&gt;
 
@@ -801,7 +801,7 @@ Breakpoints:
 
         <article class="feature" data-reveal>
           <h4>Lists in Content</h4>
-          <p>Standard <code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code> have default styling with proper spacing.</p>
+          <p>Standard <code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code> have default styling with spacing.</p>
         </article>
       </div>
     </div>
@@ -814,10 +814,10 @@ Breakpoints:
 
       <article class="feature" data-reveal>
         <div class="code-block">
-          <header>
+          <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <span>HTML</span>
-          </header>
+          </div>
           <pre><code>&lt;footer class="site-footer"&gt;
   &lt;div class="container"&gt;
     &lt;p&gt;Copyright text&lt;/p&gt;
@@ -919,10 +919,10 @@ $bp-xl: 1200px</code></pre>
       {%- include "design-system/section-header.html", title: "File Structure" -%}
 
       <div class="code-block" data-reveal>
-        <header>
+        <div class="code-block-toolbar">
           <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
           <span>Project Structure</span>
-        </header>
+        </div>
         <pre><code>src/
 ├── landing-pages/
 │   ├── landing-pages.json    # Default frontmatter
