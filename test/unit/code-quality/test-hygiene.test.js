@@ -19,6 +19,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "captureConsole",
   "execScript",
   "createMockEleventyConfig",
+  "createConfiguredMock", // reviews.test.js - creates mock config with registered filters
   "createTempDir",
   "createTempFile",
   "createTempSnippetsDir",
