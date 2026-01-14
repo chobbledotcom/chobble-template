@@ -5,10 +5,6 @@ no_index: true
 
 {%- assign currentFilters = filterPage.filters -%}
 
-<div class="products-layout">
-  {%- include "products-filter.html" -%}
-
-  <div class="products-content">
-    {%- include "filtered-items-section.html", items: filterPage.products -%}
-  </div>
-</div>
+{%- include "products-layout-start.html" -%}
+{%- include "filtered-items-section.html", items: filterPage.products -%}
+{%- include "products-layout-end.html" -%}
