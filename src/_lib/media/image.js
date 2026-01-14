@@ -85,7 +85,7 @@ const computeWrappedImageHtml = memoize(
         returnType: "html",
         htmlOptions: { imgAttributes, pictureAttributes },
       }),
-      getThumbnailOrNull(imagePath, metadata),
+      getThumbnailOrNull(finalPath, metadata),
     ]);
 
     return await createHtml(
