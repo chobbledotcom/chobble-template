@@ -57,13 +57,23 @@ const checkThresholds = (scores, thresholds) => {
   return { passed: failures.length === 0, failures };
 };
 
+const getPlaywrightChromiumPath = async () => {
+  const { chromium } = await import("playwright");
+  return chromium.executablePath();
+};
+
 export const runLighthouse = async (url, outputPath, options) => {
   const lighthouse = (await import("lighthouse")).default;
   const chromeLauncher = await import("chrome-launcher");
 
   prepareOutputDir(outputPath);
 
+  // Use Playwright's bundled Chromium if CHROME_PATH not set
+  const chromePath =
+    process.env.CHROME_PATH || (await getPlaywrightChromiumPath());
+
   const chrome = await chromeLauncher.launch({
+    chromePath,
     chromeFlags: ["--headless", ...BROWSER_ARGS],
   });
 
