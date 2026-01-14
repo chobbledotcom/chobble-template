@@ -41,6 +41,12 @@ nav {
     span {
       flex: 1;
     }
+
+    @include breakpoints.down("sm") {
+      .image-wrapper {
+        display: none;
+      }
+    }
   }
 }
 
