@@ -259,6 +259,42 @@ export { original as renamed };
       const exports = extractExports(source);
       expect(exports.has("original")).toBe(true);
     });
+
+    test.each([
+      {
+        name: "without aliases",
+        source: `
+function a() {}
+function b() {}
+const c = () => {};
+
+export {
+  a,
+  b,
+  c,
+};
+`,
+        expectedExports: ["a", "b", "c"],
+      },
+      {
+        name: "with aliases",
+        source: `
+function original() {}
+function another() {}
+
+export {
+  original as renamed,
+  another,
+};
+`,
+        expectedExports: ["original", "another"],
+      },
+    ])("finds multi-line export list $name", ({ source, expectedExports }) => {
+      const exports = extractExports(source);
+      for (const name of expectedExports) {
+        expect(exports.has(name)).toBe(true);
+      }
+    });
   });
 
   describe("extractImports", () => {
