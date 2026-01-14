@@ -199,4 +199,25 @@
       background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);
     }
   }
+
+  // ===========================================================================
+  // BLOCK SPACING
+  // ===========================================================================
+  // Consistent vertical rhythm between block-level components (features, stats,
+  // code-block, etc.) when used as direct children of .design-system
+
+  > header,
+  > .features,
+  > ul.features,
+  > .stats,
+  > dl.stats,
+  > .code-block,
+  > .split,
+  > .grid {
+    margin-bottom: $space-xl;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
