@@ -1,0 +1,110 @@
+// =============================================================================
+// THEME ADAPTER
+// =============================================================================
+// This file bridges legacy theme CSS variables with the design system.
+// It provides CSS fallback chains so design-system components work with both
+// legacy themes and new design-system-aware themes.
+//
+// PRIORITY ORDER (highest to lowest):
+// 1. Design-system theme variables (--ds-*) - for themes fully using design system
+// 2. Legacy theme variables (--color-*, --font-family-*, etc.) - existing themes
+// 3. SCSS defaults from _variables.scss - fallback values
+//
+// VARIABLE MAPPING:
+// | Design System    | Legacy Theme          | SCSS Default        |
+// |------------------|-----------------------|---------------------|
+// | --bg             | --color-bg            | $color-bg           |
+// | --bg-alt         | --color-accent        | $color-bg-alt       |
+// | --card-bg        | --color-bg            | $color-card-bg      |
+// | --text           | --color-text          | $color-text         |
+// | --text-muted     | --color-text (70%)    | $color-text-muted   |
+// | --primary        | --color-link          | $color-primary      |
+// | --primary-dark   | --color-link-hover    | $color-primary-dark |
+// | --secondary      | --color-link          | $color-secondary    |
+// | --accent         | --color-accent        | $color-accent       |
+// | --font-sans      | --font-family-body    | $font-sans          |
+// | --font-heading   | --font-family-heading | $font-sans          |
+//
+// =============================================================================
+
+@use "variables" as *;
+
+// Mixin to apply the theme adapter CSS variables
+// This is used in _base.scss to set up the fallback chain
+@mixin theme-adapter-properties {
+  // Colors - use 3-tier fallback: ds-* → legacy → SCSS default
+  --bg: var(--ds-bg, var(--color-bg, #{$color-bg}));
+  --bg-alt: var(--ds-bg-alt, var(--color-accent, #{$color-bg-alt}));
+  --card-bg: var(--ds-card-bg, var(--color-bg, #{$color-card-bg}));
+  --text: var(--ds-text, var(--color-text, #{$color-text}));
+  --text-muted: var(--ds-text-muted, #{$color-text-muted});
+  --primary: var(--ds-primary, var(--color-link, #{$color-primary}));
+  --primary-dark: var(--ds-primary-dark, var(--color-link-hover, #{$color-primary-dark}));
+  --primary-light: var(--ds-primary-light, #{$color-primary-light});
+  --secondary: var(--ds-secondary, var(--color-link, #{$color-secondary}));
+  --accent: var(--ds-accent, var(--color-accent, #{$color-accent}));
+  --hover-bg: var(--ds-hover-bg, #{$color-hover-bg});
+
+  // Typography - use legacy font-family if available
+  --font-sans: var(--ds-font-sans, var(--font-family-body, #{$font-sans}));
+  --font-heading: var(--ds-font-heading, var(--font-family-heading, #{$font-sans}));
+  --font-mono: var(--ds-font-mono, #{$font-mono});
+}
+
+// Mixin to set design-system-aware theme variables
+// Themes can use this to set values that take highest priority
+@mixin design-system-theme(
+  $bg: null,
+  $bg-alt: null,
+  $card-bg: null,
+  $text: null,
+  $text-muted: null,
+  $primary: null,
+  $primary-dark: null,
+  $primary-light: null,
+  $secondary: null,
+  $accent: null,
+  $font-sans: null,
+  $font-heading: null,
+  $font-mono: null
+) {
+  @if $bg {
+    --ds-bg: #{$bg};
+  }
+  @if $bg-alt {
+    --ds-bg-alt: #{$bg-alt};
+  }
+  @if $card-bg {
+    --ds-card-bg: #{$card-bg};
+  }
+  @if $text {
+    --ds-text: #{$text};
+  }
+  @if $text-muted {
+    --ds-text-muted: #{$text-muted};
+  }
+  @if $primary {
+    --ds-primary: #{$primary};
+  }
+  @if $primary-dark {
+    --ds-primary-dark: #{$primary-dark};
+  }
+  @if $primary-light {
+    --ds-primary-light: #{$primary-light};
+  }
+  @if $secondary {
+    --ds-secondary: #{$secondary};
+  }
+  @if $accent {
+    --ds-accent: #{$accent};
+  }
+  @if $font-sans {
+    --ds-font-sans: #{$font-sans};
+  }
+  @if $font-heading {
+    --ds-font-heading: #{$font-heading};
+  }
+  @if $font-mono {
+    --ds-font-mono: #{$font-mono};
+  }
+}
