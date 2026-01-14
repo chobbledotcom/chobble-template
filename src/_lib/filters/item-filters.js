@@ -12,8 +12,6 @@
  * URL format: /products/search/size/small/color/red/ (keys sorted alphabetically)
  */
 import {
-  chunk,
-  compact,
   filterMap,
   flatMap,
   join,
@@ -126,34 +124,16 @@ const filterToPath = (filters) => {
 };
 
 /**
- * Parse URL path back to filter object
- * "capacity/3/size/small" => { capacity: "3", size: "small" }
- */
-const pathToFilter = (path) => {
-  if (!path) return {};
-
-  return pipe(
-    (s) => s.split("/"),
-    compact,
-    (arr) => chunk(arr, 2),
-    map(([key, value]) => [decodeURIComponent(key), decodeURIComponent(value)]),
-    Object.fromEntries,
-  )(path);
-};
-
-/**
  * Get items matching the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
  *
+ * Only called from generateFilterCombinations with non-empty filters.
+ *
  * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @param {Object} filters
+ * @param {Object} filters - Non-empty filter object
  * @returns {import("#lib/types").EleventyCollectionItem[]}
  */
 const getItemsByFilters = (items, filters) => {
-  if (!filters || Object.keys(filters).length === 0) {
-    return items.slice().sort(sortItems);
-  }
-
   const preNormalizedFilterEntries = Object.entries(filters).map(
     ([key, value]) => [key, normalize(value)],
   );
@@ -416,16 +396,4 @@ const createFilterConfig = (options) => {
   return { configure };
 };
 
-export {
-  normalize,
-  parseFilterAttributes,
-  getAllFilterAttributes,
-  buildDisplayLookup,
-  filterToPath,
-  pathToFilter,
-  getItemsByFilters,
-  generateFilterCombinations,
-  buildFilterDescription,
-  buildFilterUIData,
-  createFilterConfig,
-};
+export { createFilterConfig };

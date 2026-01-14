@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
-  chunk,
   compact,
   filterMap,
   findDuplicate,
@@ -14,28 +13,6 @@ import {
 } from "#utils/array-utils.js";
 
 describe("array-utils", () => {
-  // ============================================
-  // chunk Tests
-  // ============================================
-  test("Splits array into chunks of specified size", () => {
-    expect(chunk([1, 2, 3, 4], 2)).toEqual([
-      [1, 2],
-      [3, 4],
-    ]);
-  });
-
-  test("Drops incomplete chunks", () => {
-    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([
-      [1, 2],
-      [3, 4],
-    ]);
-    expect(chunk(["a", "b", "c"], 2)).toEqual([["a", "b"]]);
-  });
-
-  test("Returns empty array when input too small for one chunk", () => {
-    expect(chunk([1], 2)).toEqual([]);
-  });
-
   // ============================================
   // pick Tests
   // ============================================
