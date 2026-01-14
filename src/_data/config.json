@@ -9,7 +9,7 @@
   "map_embed_src": null,
   "sticky_mobile_nav": null,
   "horizontal_nav": null,
-  "enable_theme_switcher": null,
+  "enable_theme_switcher": true,
   "externalLinksTargetBlank": null,
   "template_repo_url": null,
   "chobble_link": null,

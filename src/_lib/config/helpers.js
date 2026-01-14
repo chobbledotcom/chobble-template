@@ -22,7 +22,7 @@ const DEFAULTS = {
   has_products_filter: false,
   has_properties_filter: false,
   placeholder_images: true,
-  enable_theme_switcher: true,
+  enable_theme_switcher: false,
   timezone: "Europe/London",
   reviews_truncate_limit: 10,
   list_item_fields: ["link", "subtitle", "thumbnail"],
