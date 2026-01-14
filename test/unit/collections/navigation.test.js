@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureNavigation,
-  createNavigationFilter,
   findPageUrl,
-  toNavigationThumbnails,
+  toNavigation,
 } from "#collections/navigation.js";
 import {
   createMockEleventyConfig,
@@ -61,17 +60,6 @@ const navEntry = (key, options = {}) => ({
 });
 
 describe("navigation", () => {
-  test("Creates navigation filter function", () => {
-    const filter = createNavigationFilter({});
-    expect(typeof filter).toBe("function");
-    expect(typeof filter([], "test-key")).toBe("string");
-  });
-
-  test("Passes collection to navUtil correctly", () => {
-    const filter = createNavigationFilter({});
-    filter([], "home"); // Empty collection should work without throwing
-  });
-
   test("Finds page URL by tag and slug", () => {
     const collection = [
       pageItem("hello-world", "/posts/hello-world/", ["post"]),
@@ -125,22 +113,9 @@ describe("navigation", () => {
   test("Configures navigation filters in Eleventy", async () => {
     const mockConfig = await withNavigation();
 
-    expect(typeof mockConfig.filters.toNavigation).toBe("function");
+    expect(typeof mockConfig.asyncFilters.toNavigation).toBe("function");
     expect(typeof mockConfig.filters.pageUrl).toBe("function");
     expect(mockConfig.filters.pageUrl).toBe(findPageUrl);
-  });
-
-  test("Configured filters work correctly", async () => {
-    const mockConfig = await withNavigation();
-
-    expect(typeof mockConfig.filters.toNavigation([], "home")).toBe("string");
-    expect(
-      mockConfig.filters.pageUrl(
-        [pageItem("test", "/test/", ["post"])],
-        "post",
-        "test",
-      ),
-    ).toBe("/test/");
   });
 
   test("Creates navigationLinks collection that filters items", async () => {
@@ -211,37 +186,30 @@ describe("navigation", () => {
   test("Returns # for empty collection", () => {
     expect(findPageUrl([], "post", "test")).toBe("#");
   });
-
-  test("Configures toNavigationThumbnails async filter", async () => {
-    const mockConfig = await withNavigation();
-    expect(typeof mockConfig.asyncFilters.toNavigationThumbnails).toBe(
-      "function",
-    );
-  });
 });
 
-describe("toNavigationThumbnails", () => {
+describe("toNavigation", () => {
   test("Returns empty string for empty pages", async () => {
-    const result = await toNavigationThumbnails([]);
+    const result = await toNavigation([]);
     expect(result).toBe("");
   });
 
   test("Throws error for invalid input without pluginType", async () => {
     const invalidPages = [{ key: "Home", title: "Home" }];
-    await expect(toNavigationThumbnails(invalidPages)).rejects.toThrow(
-      "toNavigationThumbnails requires eleventyNavigation filter first",
+    await expect(toNavigation(invalidPages)).rejects.toThrow(
+      "toNavigation requires eleventyNavigation filter first",
     );
   });
 
   test("Renders navigation with active class", async () => {
     const pages = [navEntry("Home", { url: "/" })];
-    const result = await toNavigationThumbnails(pages, "Home");
+    const result = await toNavigation(pages, "Home");
     expect(result).toContain('class="active"');
   });
 
   test("Renders multiple nav items with hrefs", async () => {
     const pages = [navEntry("Home", { url: "/" }), navEntry("About")];
-    const result = await toNavigationThumbnails(pages, "");
+    const result = await toNavigation(pages, "");
     expect(result).toContain("Home");
     expect(result).toContain("About");
     expect(result).toContain('href="/"');
@@ -254,7 +222,7 @@ describe("toNavigationThumbnails", () => {
         children: [navEntry("Category A"), navEntry("Category B")],
       }),
     ];
-    const result = await toNavigationThumbnails(pages, "");
+    const result = await toNavigation(pages, "");
     expect(result).toContain("Products");
     expect(result).toContain("Category A");
     expect(result.match(/<ul/g).length).toBeGreaterThan(1);
@@ -270,7 +238,7 @@ describe("toNavigationThumbnails", () => {
         children: [],
       },
     ];
-    const result = await toNavigationThumbnails(pages, "");
+    const result = await toNavigation(pages, "");
     expect(result).toContain("No Link");
     expect(result).not.toContain("href=");
   });
@@ -281,7 +249,7 @@ describe("toNavigationThumbnails", () => {
         data: { thumbnail: "src/images/placeholder-square-1.jpg" },
       }),
     ];
-    const result = await toNavigationThumbnails(pages, "");
+    const result = await toNavigation(pages, "");
     expect(result).toContain("<picture");
     expect(result).toContain("<img");
   });

@@ -1,15 +1,7 @@
-import navUtil from "@11ty/eleventy-navigation/eleventy-navigation.js";
-
 import { imageShortcode } from "#media/image.js";
 import { filter, pipe, sort } from "#utils/array-utils.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { sortNavigationItems } from "#utils/sorting.js";
-
-const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
-  navUtil.toHtml.call(eleventyConfig, collection, {
-    activeAnchorClass: "active",
-    activeKey: activeKey,
-  });
 
 const NAV_THUMBNAIL_WIDTHS = ["64", "128"];
 const NAV_THUMBNAIL_ASPECT = "1/1";
@@ -47,13 +39,11 @@ const renderNavEntry = async (entry, activeKey, renderChildren) => {
   return createHtml("li", {}, anchor + childrenHtml);
 };
 
-/** Filter: renders navigation with thumbnails. Usage: {{ navItems | toNavigationThumbnails: activeKey }} */
-const toNavigationThumbnails = async (pages, activeKey = "") => {
+/** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
+const toNavigation = async (pages, activeKey = "") => {
   if (!pages?.length) return "";
   if (pages[0]?.pluginType !== "eleventy-navigation") {
-    throw new Error(
-      "toNavigationThumbnails requires eleventyNavigation filter first",
-    );
+    throw new Error("toNavigation requires eleventyNavigation filter first");
   }
   const renderChildren = async (children) => {
     const items = await Promise.all(
@@ -67,9 +57,7 @@ const toNavigationThumbnails = async (pages, activeKey = "") => {
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
 };
 
-/**
- * Find URL for a page matching tag and slug
- */
+/** Find URL for a page matching tag and slug */
 const findPageUrl = (collection, tag, slug) => {
   const result = collection.find(
     (item) => item.fileSlug === slug && item.data.tags?.includes(tag),
@@ -87,24 +75,12 @@ const createNavigationLinksCollection = (collectionApi) =>
 const configureNavigation = async (eleventyConfig) => {
   const nav = await import("@11ty/eleventy-navigation");
   eleventyConfig.addPlugin(nav.default);
-  eleventyConfig.addFilter(
-    "toNavigation",
-    createNavigationFilter(eleventyConfig),
-  );
+  eleventyConfig.addAsyncFilter("toNavigation", toNavigation);
   eleventyConfig.addFilter("pageUrl", findPageUrl);
-  eleventyConfig.addAsyncFilter(
-    "toNavigationThumbnails",
-    toNavigationThumbnails,
-  );
   eleventyConfig.addCollection(
     "navigationLinks",
     createNavigationLinksCollection,
   );
 };
 
-export {
-  createNavigationFilter,
-  findPageUrl,
-  configureNavigation,
-  toNavigationThumbnails,
-};
+export { findPageUrl, configureNavigation, toNavigation };
