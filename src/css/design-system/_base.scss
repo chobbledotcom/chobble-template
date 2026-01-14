@@ -214,10 +214,19 @@
   > .code-block,
   > .split,
   > .grid {
-    margin-bottom: $space-xl;
+    margin-bottom: $space-2xl;
 
     &:last-child {
       margin-bottom: 0;
     }
+  }
+
+  // Extra spacing before section headers that follow content blocks
+  > .features + header,
+  > ul.features + header,
+  > .stats + header,
+  > dl.stats + header,
+  > .code-block + header {
+    margin-top: $space-xl;
   }
 }
