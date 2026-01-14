@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "variables" as *;
 
 // =============================================================================
@@ -46,10 +47,30 @@
   gap: $gap;
 }
 
-@mixin grid-auto($min-width: 280px, $gap: $space-lg) {
+@mixin grid-auto($min-width: $card-min-width, $gap: $space-lg) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
   gap: $gap;
+}
+
+// Responsive flex grid: 1 col mobile, 2 col tablet, 3 col desktop
+@mixin flex-grid-3col($min-width: $card-min-width, $gap: $space-lg) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gap;
+
+  > * {
+    flex: 1 1 $min-width;
+    max-width: 100%;
+
+    @include tablet-up {
+      max-width: calc(50% - math.div($gap, 2));
+    }
+
+    @include desktop-up {
+      max-width: calc(33.333% - math.div($gap * 2, 3));
+    }
+  }
 }
 
 // =============================================================================

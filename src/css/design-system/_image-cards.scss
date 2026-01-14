@@ -9,7 +9,7 @@
 
 .design-system {
   ul.image-cards {
-    @include grid-auto(280px, $space-lg);
+    @include grid-auto;
     list-style: none;
     margin: 0;
     padding: 0;

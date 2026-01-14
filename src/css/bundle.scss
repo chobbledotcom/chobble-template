@@ -18,5 +18,6 @@
 @use "theme-editor";
 @use "property-gallery";
 @use "search";
+@use "design-system"; // scoped to .design-system, safe to include always
 
 @use "theme"; // goes last so client sites can override the base with it
