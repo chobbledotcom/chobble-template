@@ -260,8 +260,10 @@ export { original as renamed };
       expect(exports.has("original")).toBe(true);
     });
 
-    test("finds multi-line export list", () => {
-      const source = `
+    test.each([
+      {
+        name: "without aliases",
+        source: `
 function a() {}
 function b() {}
 const c = () => {};
@@ -271,15 +273,12 @@ export {
   b,
   c,
 };
-`;
-      const exports = extractExports(source);
-      expect(exports.has("a")).toBe(true);
-      expect(exports.has("b")).toBe(true);
-      expect(exports.has("c")).toBe(true);
-    });
-
-    test("handles multi-line export with aliases", () => {
-      const source = `
+`,
+        expectedExports: ["a", "b", "c"],
+      },
+      {
+        name: "with aliases",
+        source: `
 function original() {}
 function another() {}
 
@@ -287,10 +286,14 @@ export {
   original as renamed,
   another,
 };
-`;
+`,
+        expectedExports: ["original", "another"],
+      },
+    ])("finds multi-line export list $name", ({ source, expectedExports }) => {
       const exports = extractExports(source);
-      expect(exports.has("original")).toBe(true);
-      expect(exports.has("another")).toBe(true);
+      for (const name of expectedExports) {
+        expect(exports.has(name)).toBe(true);
+      }
     });
   });
 
