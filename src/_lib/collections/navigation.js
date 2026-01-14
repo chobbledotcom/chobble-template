@@ -12,7 +12,7 @@ const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
   });
 
 const NAV_THUMBNAIL_WIDTHS = ["64", "128"];
-const NAV_THUMBNAIL_ASPECT = "1:1";
+const NAV_THUMBNAIL_ASPECT = "1/1";
 
 /** Get thumbnail HTML if available */
 const getThumbnailHtml = async (entry) => {

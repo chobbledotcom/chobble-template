@@ -274,4 +274,15 @@ describe("toNavigationThumbnails", () => {
     expect(result).toContain("No Link");
     expect(result).not.toContain("href=");
   });
+
+  test("Renders thumbnail when entry has thumbnail data", async () => {
+    const pages = [
+      navEntry("Products", {
+        data: { thumbnail: "src/images/placeholder-square-1.jpg" },
+      }),
+    ];
+    const result = await toNavigationThumbnails(pages, "");
+    expect(result).toContain("<picture");
+    expect(result).toContain("<img");
+  });
 });
