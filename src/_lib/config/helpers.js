@@ -5,6 +5,7 @@ import { PAGES_DIR } from "#lib/paths.js";
 import { pickTruthy } from "#utils/object-entries.js";
 
 const DEFAULTS = {
+  has_header: true,
   sticky_mobile_nav: true,
   horizontal_nav: true,
   homepage_news: true,

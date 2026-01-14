@@ -27,6 +27,7 @@ import { pickNonNull } from "#utils/object-entries.js";
 describe("config", () => {
   test("DEFAULTS has all expected keys", () => {
     const expectedKeys = [
+      "has_header",
       "sticky_mobile_nav",
       "horizontal_nav",
       "homepage_news",

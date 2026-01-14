@@ -3,7 +3,7 @@
 {% include "head.html" %}
 {%- assign has_right_content = "src/snippets/right-content.md" | file_exists -%}
 <body class="{{ layout | getBodyClasses: config.design_system_layouts, false, config.sticky_mobile_nav, config.horizontal_nav, has_right_content }}{% for class in body-classes %} {{ class }}{% endfor %}">
-  {%- include "header.html" -%}
+  {%- if config.has_header -%}{%- include "header.html" -%}{%- endif -%}
   <main>
     {%- include "navigation.html" -%}
     <article class="content" id="content">
