@@ -236,7 +236,7 @@ describe("toNavigationThumbnails", () => {
   test("Renders navigation with active class", async () => {
     const pages = [navEntry("Home", { url: "/" })];
     const result = await toNavigationThumbnails(pages, "Home");
-    expect(result).toContain("nav-link active");
+    expect(result).toContain('class="active"');
   });
 
   test("Renders multiple nav items with hrefs", async () => {

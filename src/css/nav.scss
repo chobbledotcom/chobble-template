@@ -16,24 +16,19 @@ nav {
 
   // Navigation with thumbnail images
   .nav-thumbnails {
-    .nav-link {
+    a {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
     }
 
-    .nav-thumbnail {
+    .image-wrapper {
       flex-shrink: 0;
       width: 2rem;
       height: 2rem;
       border-radius: var(--border-radius);
       overflow: hidden;
-
-      .image-wrapper {
-        width: 100%;
-        height: 100%;
-      }
 
       picture,
       img {
@@ -43,7 +38,7 @@ nav {
       }
     }
 
-    .nav-text {
+    span {
       flex: 1;
     }
   }

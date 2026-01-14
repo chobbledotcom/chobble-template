@@ -22,7 +22,7 @@ const getThumbnailHtml = async (entry) => {
     thumbnail,
     "",
     NAV_THUMBNAIL_WIDTHS,
-    "nav-thumbnail",
+    "",
     null,
     NAV_THUMBNAIL_ASPECT,
     "lazy",
@@ -37,13 +37,13 @@ const renderNavEntry = async (entry, activeKey, renderChildren) => {
       ? renderChildren(entry.children)
       : Promise.resolve(""),
   ]);
-  const activeClass = activeKey === entry.key ? " active" : "";
-  const textSpan = await createHtml("span", { class: "nav-text" }, entry.title);
-  const anchor = await createHtml(
-    "a",
-    { class: `nav-link${activeClass}`, ...(entry.url && { href: entry.url }) },
-    thumbnailHtml + textSpan,
-  );
+  const isActive = activeKey === entry.key;
+  const textSpan = await createHtml("span", {}, entry.title);
+  const anchorAttrs = {
+    ...(isActive && { class: "active" }),
+    ...(entry.url && { href: entry.url }),
+  };
+  const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + textSpan);
   return createHtml("li", {}, anchor + childrenHtml);
 };
 
