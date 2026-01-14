@@ -9,7 +9,7 @@
 
 .design-system {
   ul.image-cards {
-    @include grid-auto(150px);
+    @include grid-auto(200px);
     list-style: none;
     margin: 0;
     padding: $space-md;
@@ -19,6 +19,7 @@
     > li {
       margin: 0;
       padding: 0;
+      min-width: 0; // Prevent grid blowout
     }
 
     article {
