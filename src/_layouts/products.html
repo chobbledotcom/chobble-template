@@ -5,12 +5,8 @@ title: All Products
 
 {%- include "products-header.html" -%}
 
-<div class="products-layout">
-  {%- include "products-filter.html" -%}
-
-  <div class="products-content">
-    {{- content -}}
-    {% assign products = collections.products %}
-    {%- include "items.html", items: products -%}
-  </div>
-</div>
+{%- include "products-layout-start.html" -%}
+{{- content -}}
+{% assign products = collections.products %}
+{%- include "items.html", items: products -%}
+{%- include "products-layout-end.html" -%}

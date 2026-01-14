@@ -3,12 +3,8 @@
 layout: base.html
 ---
 
-<div class="products-layout">
-  {%- include "products-filter.html" -%}
-
-  <div class="products-content">
-    {{- content -}}
-    {%- assign categories = collections.categories | getFeaturedCategories -%}
-    {%- include "items.html", items: categories -%}
-  </div>
-</div>
+{%- include "products-layout-start.html" -%}
+{{- content -}}
+{%- assign categories = collections.categories | getFeaturedCategories -%}
+{%- include "items.html", items: categories -%}
+{%- include "products-layout-end.html" -%}
