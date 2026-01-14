@@ -19,6 +19,7 @@ const CONSUMED_VIA_JS = [];
 const ISOLATED_FILES = [
   "design-system-bundle.scss",
   "_theme-variables.scss",
+  "_theme-adapter.scss",
   "_variables.scss",
   "_mixins.scss",
 ];
