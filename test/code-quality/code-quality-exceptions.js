@@ -193,6 +193,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
+  "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
   "src/_lib/collections/search.js",
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
@@ -270,7 +271,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/collections/reviews.js:configureReviews",
   "src/_lib/collections/reviews.js:countReviews",
   "src/_lib/collections/reviews.js:createReviewsCollection",
-  "src/_lib/collections/reviews.js:getInitials",
   "src/_lib/collections/reviews.js:getRating",
   "src/_lib/collections/reviews.js:ratingToStars",
   "src/_lib/collections/reviews.js:reviewerAvatar",
@@ -366,7 +366,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/media/image.js:imageShortcode",
   "src/_lib/media/inline-asset.js:configureInlineAsset",
   "src/_lib/media/thumbnail-placeholder.js:configureThumbnailPlaceholder",
-  "src/_lib/media/thumbnail-placeholder.js:hashString",
   "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",
   "src/_lib/media/unused-images.js:configureUnusedImages",
 
