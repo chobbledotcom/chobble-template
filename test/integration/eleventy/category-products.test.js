@@ -49,14 +49,11 @@ describe("category-products", () => {
   });
 
   test("Product without thumbnail shows placeholder by default", async () => {
-    await withTestSite(
-      { files: categoryWithProduct },
-      (site) => {
-        const doc = site.getDoc("/categories/widgets/index.html");
-        // With placeholder_images: true (default), products get placeholder thumbnails
-        expect(doc.querySelector(".image-link") !== null).toBe(true);
-      },
-    );
+    await withTestSite({ files: categoryWithProduct }, (site) => {
+      const doc = site.getDoc("/categories/widgets/index.html");
+      // With placeholder_images: true (default), products get placeholder thumbnails
+      expect(doc.querySelector(".image-link") !== null).toBe(true);
+    });
   });
 
   test("Product without thumbnail shows no image when placeholder_images disabled", async () => {
