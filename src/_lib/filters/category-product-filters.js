@@ -25,66 +25,6 @@ import {
 } from "#filters/item-filters.js";
 
 /**
- * Generate filter pages for a single category
- * @param {string} categorySlug - The category's file slug
- * @param {import("#lib/types").EleventyCollectionItem[]} categoryProducts - Products in this category
- * @returns {Array} Filter page objects for this category
- */
-const generateCategoryFilterPages = (categorySlug, categoryProducts) => {
-  if (categoryProducts.length === 0) return [];
-
-  const combinations = generateFilterCombinations(categoryProducts);
-  const displayLookup = buildDisplayLookup(categoryProducts);
-  const filterData = {
-    attributes: getAllFilterAttributes(categoryProducts),
-    displayLookup,
-  };
-  const baseUrl = `/categories/${categorySlug}`;
-
-  const pages = combinations.map((combo) => {
-    const matchedProducts = getItemsByFilters(categoryProducts, combo.filters);
-    return {
-      categorySlug,
-      categoryUrl: baseUrl,
-      ...buildFilterPageBase(combo, matchedProducts, displayLookup),
-      products: matchedProducts,
-    };
-  });
-
-  addFilterUIToPages(pages, filterData, baseUrl);
-  return pages;
-};
-
-/**
- * Generate filter attributes for a single category
- * @param {import("#lib/types").EleventyCollectionItem[]} categoryProducts - Products in this category
- * @returns {Object|null} Filter attributes object or null if no attributes
- */
-const generateCategoryFilterAttributes = (categoryProducts) => {
-  if (categoryProducts.length === 0) return null;
-
-  const attributes = getAllFilterAttributes(categoryProducts);
-  if (Object.keys(attributes).length === 0) return null;
-
-  return {
-    attributes,
-    displayLookup: buildDisplayLookup(categoryProducts),
-  };
-};
-
-/**
- * Generate redirects for invalid filter paths within a category
- * @param {string} categorySlug - The category's file slug
- * @param {import("#lib/types").EleventyCollectionItem[]} categoryProducts - Products in this category
- * @returns {Array} Redirect objects for this category
- */
-const generateCategoryFilterRedirects = (categorySlug, categoryProducts) =>
-  generateFilterRedirects(
-    categoryProducts,
-    `/categories/${categorySlug}/search`,
-  );
-
-/**
  * Build category-scoped filter UI data
  * @param {Object} categoryFilterAttrs - { [categorySlug]: { attributes, displayLookup } }
  * @param {string} categorySlug - The category to build UI for
@@ -133,7 +73,30 @@ const mapCategoriesWithProducts = (collectionApi, mapFn) => {
  * @returns {Array} All filter pages across all categories
  */
 const createFilteredCategoryProductPages = (collectionApi) =>
-  mapCategoriesWithProducts(collectionApi, generateCategoryFilterPages).flat();
+  mapCategoriesWithProducts(collectionApi, (categorySlug, categoryProducts) => {
+    if (categoryProducts.length === 0) return [];
+
+    const combinations = generateFilterCombinations(categoryProducts);
+    const displayLookup = buildDisplayLookup(categoryProducts);
+    const filterData = {
+      attributes: getAllFilterAttributes(categoryProducts),
+      displayLookup,
+    };
+    const baseUrl = `/categories/${categorySlug}`;
+
+    const pages = combinations.map((combo) => {
+      const matchedProducts = getItemsByFilters(categoryProducts, combo.filters);
+      return {
+        categorySlug,
+        categoryUrl: baseUrl,
+        ...buildFilterPageBase(combo, matchedProducts, displayLookup),
+        products: matchedProducts,
+      };
+    });
+
+    addFilterUIToPages(pages, filterData, baseUrl);
+    return pages;
+  }).flat();
 
 /**
  * Create the category filter attributes collection
@@ -141,10 +104,20 @@ const createFilteredCategoryProductPages = (collectionApi) =>
  * @returns {Object} Map of categorySlug -> { attributes, displayLookup }
  */
 const createCategoryFilterAttributes = (collectionApi) => {
-  const entries = mapCategoriesWithProducts(collectionApi, (slug, products) => {
-    const attrs = generateCategoryFilterAttributes(products);
-    return attrs ? [slug, attrs] : null;
-  }).filter(Boolean);
+  const entries = mapCategoriesWithProducts(
+    collectionApi,
+    (slug, categoryProducts) => {
+      if (categoryProducts.length === 0) return null;
+
+      const attributes = getAllFilterAttributes(categoryProducts);
+      if (Object.keys(attributes).length === 0) return null;
+
+      return [
+        slug,
+        { attributes, displayLookup: buildDisplayLookup(categoryProducts) },
+      ];
+    },
+  ).filter(Boolean);
   return Object.fromEntries(entries);
 };
 
@@ -154,9 +127,11 @@ const createCategoryFilterAttributes = (collectionApi) => {
  * @returns {Array} All redirects across all categories
  */
 const createCategoryFilterRedirects = (collectionApi) =>
-  mapCategoriesWithProducts(
-    collectionApi,
-    generateCategoryFilterRedirects,
+  mapCategoriesWithProducts(collectionApi, (categorySlug, categoryProducts) =>
+    generateFilterRedirects(
+      categoryProducts,
+      `/categories/${categorySlug}/search`,
+    ),
   ).flat();
 
 /**
@@ -180,9 +155,6 @@ const createCategoryListingFilterUI = (collectionApi) => {
 };
 
 export {
-  generateCategoryFilterPages,
-  generateCategoryFilterAttributes,
-  generateCategoryFilterRedirects,
   buildCategoryFilterUIDataFn,
   createFilteredCategoryProductPages,
   createCategoryFilterAttributes,
