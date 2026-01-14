@@ -247,8 +247,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/collections/tags.js:configureTags",
   "src/_lib/collections/tags.js:extractTags",
 
-  // Config helpers - tested for form/quote field logic
-  "src/_lib/config/form-helpers.js:getFieldTemplate",
+  // Config helpers - tested for quote field logic
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
   // Eleventy plugin configure functions - tested for plugin registration

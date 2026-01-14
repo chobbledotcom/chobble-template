@@ -7,7 +7,7 @@ const FIELD_TYPE_TEMPLATES = {
 
 const DEFAULT_TEMPLATE = "form-field-input.html";
 
-export function getFieldTemplate(field) {
+function getFieldTemplate(field) {
   return FIELD_TYPE_TEMPLATES[field.type] || DEFAULT_TEMPLATE;
 }
 
