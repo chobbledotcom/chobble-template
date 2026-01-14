@@ -260,7 +260,10 @@ describe("category-product-filters", () => {
       const result = createCategoryFilterAttributes(
         mockCollectionApi(
           [category("widgets")],
-          [widgetWithSize("small", "Widget A"), widgetWithSize("large", "Widget B")],
+          [
+            widgetWithSize("small", "Widget A"),
+            widgetWithSize("large", "Widget B"),
+          ],
         ),
       );
       expect(result.widgets.attributes.size).toEqual(["large", "small"]);

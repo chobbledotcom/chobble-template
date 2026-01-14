@@ -85,7 +85,10 @@ const createFilteredCategoryProductPages = (collectionApi) =>
     const baseUrl = `/categories/${categorySlug}`;
 
     const pages = combinations.map((combo) => {
-      const matchedProducts = getItemsByFilters(categoryProducts, combo.filters);
+      const matchedProducts = getItemsByFilters(
+        categoryProducts,
+        combo.filters,
+      );
       return {
         categorySlug,
         categoryUrl: baseUrl,

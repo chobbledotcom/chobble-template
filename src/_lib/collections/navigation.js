@@ -1,26 +1,72 @@
-import navUtil from "@11ty/eleventy-navigation/eleventy-navigation.js";
-
+import { imageShortcode } from "#media/image.js";
 import { filter, pipe, sort } from "#utils/array-utils.js";
+import { createHtml } from "#utils/dom-builder.js";
 import { sortNavigationItems } from "#utils/sorting.js";
 
-const createNavigationFilter = (eleventyConfig) => (collection, activeKey) =>
-  navUtil.toHtml.call(eleventyConfig, collection, {
-    activeAnchorClass: "active",
-    activeKey: activeKey,
-  });
+const NAV_THUMBNAIL_WIDTHS = ["64", "128"];
+const NAV_THUMBNAIL_ASPECT = "1/1";
 
-/**
- * Find URL for a page matching tag and slug
- *
- * @param {import("#lib/types").EleventyCollectionItem[]} collection - Eleventy collection
- * @param {string} tag - Tag to match
- * @param {string} slug - File slug to match
- * @returns {string} Page URL or "#" if not found
- *
- * Eleventy guarantees: Collection items always have a `data` property.
- * Therefore, no optional chaining needed on `item.data`.
- * See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
- */
+/** Get thumbnail HTML if available */
+const getThumbnailHtml = async (entry) => {
+  const thumbnail = entry.data?.thumbnail;
+  if (!thumbnail) return "";
+  return imageShortcode(
+    thumbnail,
+    "",
+    NAV_THUMBNAIL_WIDTHS,
+    "",
+    null,
+    NAV_THUMBNAIL_ASPECT,
+    "lazy",
+  );
+};
+
+/** Renders a single navigation entry with optional thumbnail (not at root level) */
+const renderNavEntry = async (
+  entry,
+  activeKey,
+  renderChildren,
+  isRootLevel,
+) => {
+  const [thumbnailHtml, childrenHtml] = await Promise.all([
+    isRootLevel ? Promise.resolve("") : getThumbnailHtml(entry),
+    entry.children?.length
+      ? renderChildren(entry.children)
+      : Promise.resolve(""),
+  ]);
+  const isActive = activeKey === entry.key;
+  const textSpan = await createHtml("span", {}, entry.title);
+  const anchorAttrs = {
+    ...(isActive && { class: "active" }),
+    ...(entry.url && { href: entry.url }),
+  };
+  const anchor = await createHtml("a", anchorAttrs, thumbnailHtml + textSpan);
+  return createHtml("li", {}, anchor + childrenHtml);
+};
+
+/** Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }} */
+const toNavigation = async (pages, activeKey = "") => {
+  if (!pages?.length) return "";
+  if (pages[0]?.pluginType !== "eleventy-navigation") {
+    throw new Error("toNavigation requires eleventyNavigation filter first");
+  }
+  const renderChildren = async (children) => {
+    const items = await Promise.all(
+      children.map((child) =>
+        renderNavEntry(child, activeKey, renderChildren, false),
+      ),
+    );
+    return createHtml("ul", {}, items.join("\n"));
+  };
+  const items = await Promise.all(
+    pages.map((entry) =>
+      renderNavEntry(entry, activeKey, renderChildren, true),
+    ),
+  );
+  return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
+};
+
+/** Find URL for a page matching tag and slug */
 const findPageUrl = (collection, tag, slug) => {
   const result = collection.find(
     (item) => item.fileSlug === slug && item.data.tags?.includes(tag),
@@ -28,23 +74,22 @@ const findPageUrl = (collection, tag, slug) => {
   return result?.url ?? "#";
 };
 
+/** Collection of navigation links sorted by order, then by key */
+const createNavigationLinksCollection = (collectionApi) =>
+  pipe(
+    filter((item) => item.data.eleventyNavigation),
+    sort(sortNavigationItems),
+  )(collectionApi.getAll());
+
 const configureNavigation = async (eleventyConfig) => {
   const nav = await import("@11ty/eleventy-navigation");
   eleventyConfig.addPlugin(nav.default);
-
-  eleventyConfig.addFilter(
-    "toNavigation",
-    createNavigationFilter(eleventyConfig),
-  );
+  eleventyConfig.addAsyncFilter("toNavigation", toNavigation);
   eleventyConfig.addFilter("pageUrl", findPageUrl);
-
-  // Add custom collection for navigation links sorted by order, then by key
-  eleventyConfig.addCollection("navigationLinks", (collectionApi) =>
-    pipe(
-      filter((item) => item.data.eleventyNavigation),
-      sort(sortNavigationItems),
-    )(collectionApi.getAll()),
+  eleventyConfig.addCollection(
+    "navigationLinks",
+    createNavigationLinksCollection,
   );
 };
 
-export { createNavigationFilter, findPageUrl, configureNavigation };
+export { findPageUrl, configureNavigation, toNavigation };

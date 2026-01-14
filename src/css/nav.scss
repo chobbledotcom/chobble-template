@@ -13,6 +13,41 @@ nav {
       color: var(--color-text);
     }
   }
+
+  // Navigation with thumbnail images
+  .nav-thumbnails {
+    a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .image-wrapper {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+
+      picture,
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    span {
+      flex: 1;
+    }
+
+    @include breakpoints.down("sm") {
+      .image-wrapper {
+        display: none;
+      }
+    }
+  }
 }
 
 @include breakpoints.down("md") {
