@@ -1,3 +1,12 @@
+import { sortItems } from "#utils/sorting.js";
+
+/**
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EleventyCollectionItem[]}
+ */
+const createLocationsCollection = (collectionApi) =>
+  collectionApi.getFilteredByTag("locations").sort(sortItems);
+
 /**
  * @param {import("#lib/types").EleventyCollectionItem[]} locations
  * @returns {import("#lib/types").EleventyCollectionItem[]}
@@ -21,8 +30,10 @@ const getSiblingLocations = (locations, parentLocationSlug, currentUrl) =>
   );
 
 const configureLocations = (eleventyConfig) => {
+  eleventyConfig.addCollection("locations", createLocationsCollection);
   eleventyConfig.addFilter("getRootLocations", getRootLocations);
   eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);
 };
 
-export { getRootLocations, getSiblingLocations, configureLocations };
+// biome-ignore format: Single-line export required for code-scanner detection
+export { createLocationsCollection, getRootLocations, getSiblingLocations, configureLocations };
