@@ -28,7 +28,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - cart/quote utilities: browser-specific edge cases
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
-# - screenshot.js, screenshots.js: Playwright browser automation requires running browser
+# - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
 coveragePathIgnorePatterns = [
   "test/ensure-deps.js",
   "src/_lib/utils/canonical-url.js",
@@ -49,4 +49,6 @@ coveragePathIgnorePatterns = [
   "test/test-utils.js",
   "src/_lib/eleventy/screenshots.js",
   "src/_lib/media/screenshot.js",
+  "src/_lib/media/browser-utils.js",
+  "src/_lib/media/lighthouse.js",
 ]
