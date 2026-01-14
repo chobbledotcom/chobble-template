@@ -4,9 +4,46 @@
 
 import { spawnSync } from "node:child_process";
 import { ROOT_DIR } from "#lib/paths.js";
-import { printTruncatedList } from "#utils/array-utils.js";
 
 const rootDir = ROOT_DIR;
+
+/**
+ * @typedef {Object} TruncateOptions
+ * @property {number} [maxItems=10] - Maximum items to show
+ * @property {string} [prefix="  "] - Prefix for each line
+ * @property {string} [moreLabel="more"] - Label for "more" message
+ * @property {string} [suffix="(use --verbose to see all)"] - Suffix for "more" message
+ */
+
+/**
+ * Print items with truncation and "more" message.
+ * Logs each item (up to maxItems) with a prefix, then shows "more" message if truncated.
+ * Curried: configure options first, then pass items.
+ *
+ * @param {TruncateOptions} [options] - Truncation options
+ * @returns {(items: Array) => void} Function that prints items
+ *
+ * @example
+ * printTruncatedList()(errors);  // uses defaults
+ * printTruncatedList({ moreLabel: "errors" })(errors);
+ */
+export const printTruncatedList =
+  ({
+    maxItems = 10,
+    prefix = "  ",
+    moreLabel = "more",
+    suffix = "(use --verbose to see all)",
+  } = {}) =>
+  (items) => {
+    for (const item of items.slice(0, maxItems)) {
+      console.log(`${prefix}${item}`);
+    }
+    if (items.length > maxItems) {
+      console.log(
+        `${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`,
+      );
+    }
+  };
 
 /**
  * Common step definitions used by test runners

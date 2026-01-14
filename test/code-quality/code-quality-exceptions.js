@@ -402,7 +402,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/utils/quote-price-utils.js:parsePrice",
 
   // Utility functions - tested for shared logic
-  "src/_lib/utils/array-utils.js:printTruncatedList",
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
   "src/_lib/utils/grouping.js:createLookup",
