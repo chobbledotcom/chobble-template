@@ -49,6 +49,7 @@ function hasTag(data, tag) {
  * @param {string|import("#lib/types").Image} [data.header_image] - Header image
  * @param {Object} [data.page] - Eleventy page object
  * @param {string} [data.page.url] - Page URL
+ * @param {Object} [data.config] - Site config from data cascade
  * @returns {string|import("#lib/types").Image|null} Valid image or null
  */
 function findValidThumbnail(data) {
@@ -58,7 +59,9 @@ function findValidThumbnail(data) {
   if (isValidImage(data.header_image)) return data.header_image;
   // Reviews use initials-based avatars as fallback, not placeholder images
   if (hasTag(data, "reviews")) return null;
-  if (getConfig().placeholder_images) {
+  // Check placeholder_images from data cascade first, fall back to getConfig()
+  const config = data.config || getConfig();
+  if (config.placeholder_images) {
     return getPlaceholderForPath(data.page?.url || "");
   }
   return null;
