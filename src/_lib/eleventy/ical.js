@@ -50,15 +50,12 @@ export function eventIcal(event) {
 
 /**
  * Check if an event is a one-off event (not recurring)
- * @param {Object} event - Event object
- * @param {Object} event.data - Event data
- * @param {string} [event.data.event_date] - Optional event date
- * @param {string} [event.data.recurring_date] - Optional recurring date
- * @returns {boolean} True if event is one-off (has event_date but no recurring_date)
+ * Internal helper for the oneOffEvents collection - not exported.
+ * @param {Object} event - Event object with data property
+ * @returns {boolean} True if event has event_date but no recurring_date
  */
-export function isOneOffEvent(event) {
-  return Boolean(event.data.event_date && !event.data.recurring_date);
-}
+const isOneOffEvent = (event) =>
+  Boolean(event.data.event_date && !event.data.recurring_date);
 
 /**
  * Configure Eleventy iCal filters and collections

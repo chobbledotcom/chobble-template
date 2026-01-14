@@ -1,34 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { configureICal, eventIcal, isOneOffEvent } from "#eleventy/ical.js";
+import { configureICal, eventIcal } from "#eleventy/ical.js";
 import {
   createMockEleventyConfig,
   expectResultTitles,
 } from "#test/test-utils.js";
 
 describe("ical", () => {
-  // isOneOffEvent tests
-  test("Returns true for events with event_date but no recurring_date", () => {
-    const event = { data: { event_date: "2025-06-15" } };
-    expect(isOneOffEvent(event)).toBe(true);
-  });
-
-  test("Returns false for events with recurring_date", () => {
-    const event = { data: { recurring_date: "Every Monday" } };
-    expect(isOneOffEvent(event)).toBe(false);
-  });
-
-  test("Returns false for events with both event_date and recurring_date", () => {
-    const event = {
-      data: { event_date: "2025-06-15", recurring_date: "Weekly" },
-    };
-    expect(isOneOffEvent(event)).toBe(false);
-  });
-
-  test("Returns false for events with no dates", () => {
-    const event = { data: { title: "No dates" } };
-    expect(isOneOffEvent(event)).toBe(false);
-  });
-
   // eventIcal - falsy ical_url handling (consolidated)
   test("Returns null when ical_url is missing, undefined, or empty", () => {
     const baseEvent = {
@@ -238,6 +215,8 @@ describe("ical", () => {
         },
       },
       { data: { title: "Another One-off", event_date: "2025-07-01" } },
+      { data: { title: "No dates" } },
+      { data: {} },
     ];
 
     const mockCollectionApi = {
@@ -300,10 +279,5 @@ describe("ical", () => {
     const result = eventIcal(event);
     expect(result.includes("DTSTART")).toBe(true);
     expect(result.includes("20251225")).toBe(true);
-  });
-
-  test("isOneOffEvent handles events with empty data object", () => {
-    const event = { data: {} };
-    expect(isOneOffEvent(event)).toBe(false);
   });
 });

@@ -195,6 +195,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
   "src/_lib/collections/search.js",
+  "src/_lib/eleventy/ical.js", // isOneOffEvent kept separate for clarity
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
@@ -323,7 +324,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/file-utils.js:renderSnippet",
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
-  "src/_lib/eleventy/ical.js:isOneOffEvent",
   "src/_lib/eleventy/js-config.js:buildJsConfigJson",
   "src/_lib/eleventy/js-config.js:configureJsConfig",
   "src/_lib/eleventy/layout-aliases.js:configureLayoutAliases",
