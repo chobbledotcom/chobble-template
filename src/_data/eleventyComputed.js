@@ -40,6 +40,19 @@ function hasTag(data, tag) {
 }
 
 /**
+ * Gets placeholder image if enabled in config
+ * @param {Object} data - Page data
+ * @returns {string|null} Placeholder image or null
+ */
+function getPlaceholderIfEnabled(data) {
+  const config = data.config || getConfig();
+  if (config.placeholder_images) {
+    return getPlaceholderForPath(data.page?.url || "");
+  }
+  return null;
+}
+
+/**
  * Finds the first valid thumbnail from available images, or returns a
  * placeholder if configured
  * @param {Object} data - Page data
@@ -59,12 +72,7 @@ function findValidThumbnail(data) {
   if (isValidImage(data.header_image)) return data.header_image;
   // Reviews use initials-based avatars as fallback, not placeholder images
   if (hasTag(data, "reviews")) return null;
-  // Check placeholder_images from data cascade first, fall back to getConfig()
-  const config = data.config || getConfig();
-  if (config.placeholder_images) {
-    return getPlaceholderForPath(data.page?.url || "");
-  }
-  return null;
+  return getPlaceholderIfEnabled(data);
 }
 
 export default {
