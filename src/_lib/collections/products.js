@@ -145,18 +145,4 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 
-export {
-  processGallery,
-  computeGallery,
-  applyMaxImages,
-  addGallery,
-  createProductsCollection,
-  createApiSkusCollection,
-  productsWithReviewsPage,
-  productReviewsRedirects,
-  getProductsByCategory,
-  getProductsByCategories,
-  getProductsByEvent,
-  getFeaturedProducts,
-  configureProducts,
-};
+export { configureProducts, computeGallery, addGallery };
