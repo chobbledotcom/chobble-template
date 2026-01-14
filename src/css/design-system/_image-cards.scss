@@ -9,12 +9,16 @@
 
 .design-system {
   ul.image-cards {
-    @include grid-auto(200px);
+    @include grid(1, $space-lg);
     list-style: none;
     margin: 0;
     padding: $space-md;
     background: var(--bg-alt);
     border-radius: $radius-lg;
+
+    @include tablet-up {
+      @include grid(2, $space-lg);
+    }
 
     > li {
       margin: 0;
