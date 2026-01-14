@@ -274,10 +274,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/collections/reviews.js:ratingToStars",
   "src/_lib/collections/reviews.js:reviewerAvatar",
   "src/_lib/collections/search.js:configureSearch",
-  "src/_lib/collections/search.js:createSearchKeywordsCollection",
-  "src/_lib/collections/search.js:getAllKeywords",
-  "src/_lib/collections/search.js:getProductsByKeyword",
-  "src/_lib/collections/search.js:normaliseCategory",
   "src/_lib/collections/tags.js:configureTags",
   "src/_lib/collections/tags.js:extractTags",
 
