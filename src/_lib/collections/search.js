@@ -54,10 +54,4 @@ const configureSearch = (eleventyConfig) => {
   eleventyConfig.addFilter("getAllKeywords", getAllKeywords);
 };
 
-export {
-  normaliseCategory,
-  getAllKeywords,
-  getProductsByKeyword,
-  createSearchKeywordsCollection,
-  configureSearch,
-};
+export { configureSearch };
