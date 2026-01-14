@@ -1,9 +1,9 @@
 ---
 pagination:
-  data: collections.filteredProductPages
+  data: collections.filteredCategoryProductPages
   size: 1
   alias: filterPage
-permalink: "/{{ strings.product_permalink_dir }}/search/{{ filterPage.path }}/"
+permalink: "/categories/{{ filterPage.categorySlug }}/search/{{ filterPage.path }}/"
 layout: filtered-products
 eleventyExcludeFromCollections: true
 meta_title: Search Results

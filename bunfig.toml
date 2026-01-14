@@ -29,7 +29,9 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
+# - configure-filters.js: Eleventy registration wiring (functions it calls are fully tested)
 coveragePathIgnorePatterns = [
+  "src/_lib/filters/configure-filters.js",
   "test/ensure-deps.js",
   "src/_lib/utils/canonical-url.js",
   "src/_lib/public/utils/on-ready.js",

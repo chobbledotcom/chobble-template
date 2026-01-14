@@ -6,7 +6,7 @@ title: All Products
 {%- include "products-header.html" -%}
 
 <div class="products-layout">
-  {%- include "products-filter.html" -%}
+  {%- include "products-filter.html", filterUI: collections.filteredProductPagesListingFilterUI -%}
 
   <div class="products-content">
     {{- content -}}

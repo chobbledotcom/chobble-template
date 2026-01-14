@@ -7,6 +7,7 @@ import {
   filterToPath,
   generateFilterCombinations,
   getAllFilterAttributes,
+  getFilterUI,
   getItemsByFilters,
   normalize,
   parseFilterAttributes,
@@ -530,7 +531,7 @@ describe("item-filters", () => {
 
     config.configure(mock);
 
-    expect(mock.getCollections().length).toBe(3);
+    expect(mock.getCollections().length).toBe(4);
     expect(mock.getFilters().length).toBe(1);
     expect(mock.getFilters()[0].name).toBe("propertyFilterUIData");
 
@@ -538,6 +539,9 @@ describe("item-filters", () => {
     expect(collectionNames.includes("propertyFilterPages")).toBe(true);
     expect(collectionNames.includes("propertyRedirects")).toBe(true);
     expect(collectionNames.includes("propertyFilterAttributes")).toBe(true);
+    expect(collectionNames.includes("propertyFilterPagesListingFilterUI")).toBe(
+      true,
+    );
   });
 
   test("Pages collection returns filter combinations with items", () => {
@@ -667,5 +671,64 @@ describe("item-filters", () => {
     const result = getItemsByFilters(testItems, { type: "apartment" });
 
     expect(result).toEqual([]);
+  });
+
+  test("Listing filterUI collection returns filterUI with no active filters", () => {
+    const mock = mockConfig();
+    testFilterConfig().configure(mock);
+
+    const listingUI = mock.getCollection("testFilterPagesListingFilterUI")(
+      collectionApi([item("Widget", attr("Size", "Large"))]),
+    );
+
+    expect(listingUI.hasFilters).toBe(true);
+    expect(listingUI.hasActiveFilters).toBe(false);
+    expect(listingUI.groups.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getFilterUI", () => {
+  test("Returns filterPage.filterUI when present", () => {
+    const mockFilterUI = { hasFilters: true, groups: [] };
+    const collections = {};
+    const page = {};
+    const filterPage = { filterUI: mockFilterUI };
+
+    const result = getFilterUI(collections, page, filterPage);
+
+    expect(result).toBe(mockFilterUI);
+  });
+
+  test("Returns categoryListingFilterUI for category pages", () => {
+    const categoryUI = { hasFilters: true, categorySpecific: true };
+    const collections = {
+      categoryListingFilterUI: { widgets: categoryUI },
+    };
+    const page = { fileSlug: "widgets" };
+
+    const result = getFilterUI(collections, page, undefined);
+
+    expect(result).toBe(categoryUI);
+  });
+
+  test("Returns global listing filterUI when no category match", () => {
+    const globalUI = { hasFilters: true, isGlobal: true };
+    const collections = {
+      filteredProductPagesListingFilterUI: globalUI,
+    };
+    const page = { fileSlug: "some-page" };
+
+    const result = getFilterUI(collections, page, undefined);
+
+    expect(result).toBe(globalUI);
+  });
+
+  test("Returns default when no filterUI available", () => {
+    const collections = {};
+    const page = {};
+
+    const result = getFilterUI(collections, page, undefined);
+
+    expect(result).toEqual({ hasFilters: false });
   });
 });
