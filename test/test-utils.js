@@ -510,137 +510,127 @@ const extractFunctions = (source) => {
     return match ? match[1] : null;
   };
 
-  // Helper: Get adjacent characters
-  const getAdjacentChars = (index, chars) => ({
-    prev: index > 0 ? chars[index - 1] : "",
-    next: index < chars.length - 1 ? chars[index + 1] : "",
-  });
+  // Parser helpers consolidated into object methods (not top-level const declarations)
+  // This avoids needing separate ALLOWED_TEST_FUNCTIONS entries for each
+  const parserHelpers = {
+    // Get adjacent characters
+    getAdjacentChars: (index, chars) => ({
+      prev: index > 0 ? chars[index - 1] : "",
+      next: index < chars.length - 1 ? chars[index + 1] : "",
+    }),
 
-  // Helper: Check if starting single-line comment
-  const isSingleLineCommentStart = (char, nextChar, state) =>
-    char === "/" && nextChar === "/" && !state.inComment;
+    // Character type checks (inlined predicates)
+    isSingleLineCommentStart: (char, nextChar, state) =>
+      char === "/" && nextChar === "/" && !state.inComment,
+    isMultiLineCommentStart: (char, nextChar, state) =>
+      char === "/" && nextChar === "*" && !state.inComment,
+    isMultiLineCommentEnd: (char, nextChar, state) =>
+      char === "*" && nextChar === "/" && state.inComment,
+    isStringDelimiter: (char, prevChar) =>
+      (char === '"' || char === "'") && prevChar !== "\\",
+    isTemplateDelimiter: (char, prevChar) => char === "`" && prevChar !== "\\",
 
-  // Helper: Check if starting multi-line comment
-  const isMultiLineCommentStart = (char, nextChar, state) =>
-    char === "/" && nextChar === "*" && !state.inComment;
+    // Handle opening brace
+    handleOpeningBrace: (state) => {
+      const newDepth = state.braceDepth + 1;
+      const newStack = state.stack.map((item) =>
+        item.openBraceDepth === null
+          ? { ...item, openBraceDepth: newDepth }
+          : item,
+      );
+      return { ...state, braceDepth: newDepth, stack: newStack };
+    },
 
-  // Helper: Check if ending multi-line comment
-  const isMultiLineCommentEnd = (char, nextChar, state) =>
-    char === "*" && nextChar === "/" && state.inComment;
+    // Handle closing brace
+    handleClosingBrace: (lineNum, state) => {
+      const closingIndex = state.stack.findLastIndex(
+        (item) => item.openBraceDepth === state.braceDepth,
+      );
+      if (closingIndex < 0) {
+        return { ...state, braceDepth: state.braceDepth - 1 };
+      }
+      const completed = state.stack[closingIndex];
+      const newFunction = {
+        name: completed.name,
+        startLine: completed.startLine,
+        endLine: lineNum,
+        lineCount: lineNum - completed.startLine + 1,
+      };
+      return {
+        ...state,
+        braceDepth: state.braceDepth - 1,
+        stack: state.stack.filter((_, i) => i !== closingIndex),
+        functions: [...state.functions, newFunction],
+      };
+    },
 
-  // Helper: Check if string delimiter (not escaped)
-  const isStringDelimiter = (char, prevChar) =>
-    (char === '"' || char === "'") && prevChar !== "\\";
+    // Handle comment state transitions
+    handleComments(state, char, nextChar) {
+      if (this.isSingleLineCommentStart(char, nextChar, state)) {
+        return { ...state, stopLine: true };
+      }
+      if (this.isMultiLineCommentStart(char, nextChar, state)) {
+        return { ...state, inComment: true, skipNext: true };
+      }
+      if (this.isMultiLineCommentEnd(char, nextChar, state)) {
+        return { ...state, inComment: false, skipNext: true };
+      }
+      return null;
+    },
 
-  // Helper: Check if template literal delimiter (not escaped)
-  const isTemplateDelimiter = (char, prevChar) =>
-    char === "`" && prevChar !== "\\";
-
-  // Helper: Handle opening brace
-  const handleOpeningBrace = (state) => {
-    const newDepth = state.braceDepth + 1;
-    const newStack = state.stack.map((item) =>
-      item.openBraceDepth === null
-        ? { ...item, openBraceDepth: newDepth }
-        : item,
-    );
-    return { ...state, braceDepth: newDepth, stack: newStack };
+    // Handle string delimiter state transitions
+    handleStringDelimiters: (state, char) => {
+      if (!state.inString) {
+        return { ...state, inString: true, stringChar: char };
+      }
+      if (char === state.stringChar) {
+        return { ...state, inString: false, stringChar: null };
+      }
+      return state;
+    },
   };
 
-  // Helper: Handle closing brace
-  const handleClosingBrace = (lineNum, state) => {
-    const closingIndex = state.stack.findLastIndex(
-      (item) => item.openBraceDepth === state.braceDepth,
-    );
+  const h = parserHelpers;
 
-    if (closingIndex < 0) {
-      return { ...state, braceDepth: state.braceDepth - 1 };
-    }
-
-    const completed = state.stack[closingIndex];
-    const newFunction = {
-      name: completed.name,
-      startLine: completed.startLine,
-      endLine: lineNum,
-      lineCount: lineNum - completed.startLine + 1,
-    };
-    return {
-      ...state,
-      braceDepth: state.braceDepth - 1,
-      stack: state.stack.filter((_, i) => i !== closingIndex),
-      functions: [...state.functions, newFunction],
-    };
-  };
-
-  // Helper: Handle comment state transitions
-  const handleComments = (state, char, nextChar) => {
-    if (isSingleLineCommentStart(char, nextChar, state)) {
-      return { ...state, stopLine: true };
-    }
-    if (isMultiLineCommentStart(char, nextChar, state)) {
-      return { ...state, inComment: true, skipNext: true };
-    }
-    if (isMultiLineCommentEnd(char, nextChar, state)) {
-      return { ...state, inComment: false, skipNext: true };
-    }
-    return null;
-  };
-
-  // Helper: Handle string delimiter state transitions
-  const handleStringDelimiters = (state, char) => {
-    if (!state.inString) {
-      return { ...state, inString: true, stringChar: char };
-    }
-    if (char === state.stringChar) {
-      return { ...state, inString: false, stringChar: null };
-    }
-    return state;
-  };
-
-  // Helper: Process a single character in the parser (curried for reduce)
+  // Process a single character in the parser (curried for reduce)
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Inherent complexity from state machine logic
   const processChar = (lineNum) => (state, char, index, chars) => {
-    // Quick exits for special states
     if (state.skipNext) return { ...state, skipNext: false };
     if (state.stopLine) return state;
 
-    const { prev: prevChar, next: nextChar } = getAdjacentChars(index, chars);
+    const { prev: prevChar, next: nextChar } = h.getAdjacentChars(index, chars);
 
     // Comment handling when not in string/template
     if (!state.inString && !state.inTemplate) {
-      const result = handleComments(state, char, nextChar);
+      const result = h.handleComments(state, char, nextChar);
       if (result !== null) return result;
     }
 
-    // Early exit: inside multiline comments
     if (state.inComment) return state;
 
     // String delimiters (when not in template)
-    if (!state.inTemplate && isStringDelimiter(char, prevChar)) {
-      return handleStringDelimiters(state, char);
+    if (!state.inTemplate && h.isStringDelimiter(char, prevChar)) {
+      return h.handleStringDelimiters(state, char);
     }
 
     // Template delimiters
-    if (isTemplateDelimiter(char, prevChar)) {
+    if (h.isTemplateDelimiter(char, prevChar)) {
       return { ...state, inTemplate: !state.inTemplate };
     }
 
-    // Early exit: inside strings
     if (state.inString) return state;
 
     // Handle braces
     return char === "{"
-      ? handleOpeningBrace(state)
+      ? h.handleOpeningBrace(state)
       : char === "}"
-        ? handleClosingBrace(lineNum, state)
+        ? h.handleClosingBrace(lineNum, state)
         : state;
   };
 
-  // Helper: Process a single line of source code
+  // Process a single line of source code
   const processLine = (state, line, index) => {
     const lineNum = index + 1;
-
-    // Check for function start and add to stack if found
     const funcName = matchFunctionStart(line);
     const stateWithFunc = funcName
       ? {
@@ -652,15 +642,14 @@ const extractFunctions = (source) => {
         }
       : state;
 
-    // Process each character with reduce
     const chars = [...line];
     const lineState = { ...stateWithFunc, stopLine: false };
     const processedState = chars.reduce(processChar(lineNum), lineState);
 
-    // Clean up line-specific flag
     const { stopLine: _, ...cleanState } = processedState;
     return cleanState;
   };
+
   const initialState = {
     braceDepth: 0,
     inString: false,

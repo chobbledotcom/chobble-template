@@ -11,13 +11,21 @@ import { mapObject } from "#utils/object-entries.js";
 // Test Helpers
 // ============================================
 
+// Step configurations - maps step name to bun args
+const STEP_CONFIGS = {
+  lint: ["run", "lint"],
+  test: ["test"],
+  build: ["run", "build"],
+};
+
 /**
- * Creates a standard set of test steps (lint and test)
+ * Curried factory: creates steps from step names
+ * Consolidates createBasicSteps and createThreeSteps into one function
+ * @param {...string} stepNames - Step names to include (e.g., "lint", "test", "build")
+ * @returns {Array} Array of step objects
  */
-const createBasicSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
-];
+const createSteps = (...stepNames) =>
+  stepNames.map((name) => ({ name, cmd: "bun", args: STEP_CONFIGS[name] }));
 
 /**
  * Creates results object with the given status and output for each step
@@ -40,15 +48,6 @@ const captureSummaryOutput = (steps, results, title) =>
     // captureConsole returns an array of lines, join them into a string
     return output.join("\n");
   });
-
-/**
- * Creates three standard steps (lint, test, build)
- */
-const createThreeSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
-  { name: "build", cmd: "bun", args: ["run", "build"] },
-];
 
 /**
  * Creates a step that runs a bun script
@@ -298,7 +297,7 @@ Failed to compile
   // ============================================
   describe("printSummary", () => {
     test("Prints summary with all passing steps", () => {
-      const steps = createBasicSteps();
+      const steps = createSteps("lint", "test");
       const results = createResults({
         lint: {},
         test: {},
@@ -313,7 +312,7 @@ Failed to compile
     });
 
     test("Prints summary with failing steps and extracted errors", () => {
-      const steps = createBasicSteps();
+      const steps = createSteps("lint", "test");
       const results = createResults({
         lint: {},
         test: {
@@ -368,7 +367,7 @@ Failed to compile
     });
 
     test("Skips steps that were not run", () => {
-      const steps = createThreeSteps();
+      const steps = createSteps("lint", "test", "build");
       const results = createResults({
         lint: {},
         // test was not run (missing from results)
@@ -396,7 +395,7 @@ Failed to compile
     });
 
     test("Handles mix of passed and failed steps", () => {
-      const steps = createThreeSteps();
+      const steps = createSteps("lint", "test", "build");
       const results = createResults({
         lint: {},
         test: {
@@ -436,7 +435,7 @@ Failed to compile
     });
 
     test("Handles empty results gracefully", () => {
-      const steps = createBasicSteps();
+      const steps = createSteps("lint", "test");
       const results = {};
 
       const output = captureConsole(() => printSummary(steps, results));

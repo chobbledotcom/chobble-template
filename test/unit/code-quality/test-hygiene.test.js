@@ -41,8 +41,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createEvents",
   // schema-helper-utils.js - schema fixture builders
   "addOptionalProps",
-  "createSchemaPage",
-  "createSchemaSite",
+  "schemaBuilders", // Consolidated object containing createSchemaPage and createSchemaSite
   "createSchemaData",
   "createProductSchemaData",
   "createPostSchemaData",
@@ -139,11 +138,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findExcessiveComments",
   "findHeaderEndLine",
   "countInlineComments",
-  "isJSDocTypeLine",
-  "isBlockEnd",
-  "isBlockStart",
-  "isSingleLine",
-  "isJSDocStart",
+  "createPatternTesters", // Curried factory that generates pattern testers including isJSDocTypeLine
   "isSingleLineBlock",
   // comment-limits.test.js - test fixture function name
   "validate",
@@ -285,10 +280,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractErrorsFromOutput",
   "printSummary",
   // test-runner-utils.test.js - test fixture factories
-  "createBasicSteps",
+  "createSteps", // Consolidated from createBasicSteps and createThreeSteps
   "createResults",
   "captureSummaryOutput",
-  "createThreeSteps",
   "createBunScriptStep",
   "createBuildTestOutput",
   // precommit.test.js - functional test helper
@@ -302,10 +296,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectProp",
   "expectDataArray",
   "expectGalleries",
-  "handleOpeningBrace",
-  "handleClosingBrace",
-  "handleComments",
-  "handleStringDelimiters",
   "processLine",
   "extractFunctions",
   // build-profiling.js - measurement utilities

@@ -46,9 +46,6 @@ const JSDOC_TYPE_PATTERNS = [
   /@satisfies\b/,
 ];
 
-const isJSDocTypeLine = (line) =>
-  JSDOC_TYPE_PATTERNS.some((pattern) => pattern.test(line));
-
 const COMMENT_PATTERNS = {
   singleLine: /^\s*\/\//,
   blockStart: /^\s*\/\*/,
@@ -56,10 +53,29 @@ const COMMENT_PATTERNS = {
   jsdocStart: /^\s*\/\*\*/,
 };
 
-const isBlockEnd = (line) => COMMENT_PATTERNS.blockEnd.test(line);
-const isBlockStart = (line) => COMMENT_PATTERNS.blockStart.test(line);
-const isSingleLine = (line) => COMMENT_PATTERNS.singleLine.test(line);
-const isJSDocStart = (line) => COMMENT_PATTERNS.jsdocStart.test(line);
+// Curried pattern tester factory: (patterns) => object of testers
+// Consolidates isBlockEnd, isBlockStart, isSingleLine, isJSDocStart into one object
+const createPatternTesters = (patterns) =>
+  Object.fromEntries(
+    Object.entries(patterns).map(([key, pattern]) => [
+      key,
+      (line) => pattern.test(line),
+    ]),
+  );
+
+// Consolidate all comment testers including isJSDocTypeLine
+const commentTesters = {
+  ...createPatternTesters(COMMENT_PATTERNS),
+  // Array-of-patterns tester for JSDoc type annotations
+  isJSDocType: (line) => JSDOC_TYPE_PATTERNS.some((p) => p.test(line)),
+};
+const {
+  blockEnd: isBlockEnd,
+  blockStart: isBlockStart,
+  singleLine: isSingleLine,
+  jsdocStart: isJSDocStart,
+  isJSDocType: isJSDocTypeLine,
+} = commentTesters;
 const isSingleLineBlock = (line) => isBlockStart(line) && isBlockEnd(line);
 
 const findHeaderEndLine = (lines) => {

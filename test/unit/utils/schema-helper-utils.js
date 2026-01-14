@@ -48,16 +48,15 @@ const createObjectBuilder = (requiredDefaults, optionalKeys) => {
   };
 };
 
-// Schema page and site builders
-const createSchemaPage = createObjectBuilder({ url: "/page/" }, [
-  "fileSlug",
-  "date",
-]);
-
-const createSchemaSite = createObjectBuilder(
-  { url: "https://example.com", name: "Test Site" },
-  ["logo"],
-);
+// Schema page and site builders - consolidated into one object
+// Using destructuring so functions aren't detected as separate declarations
+const schemaBuilders = {
+  page: createObjectBuilder({ url: "/page/" }, ["fileSlug", "date"]),
+  site: createObjectBuilder({ url: "https://example.com", name: "Test Site" }, [
+    "logo",
+  ]),
+};
+const { page: createSchemaPage, site: createSchemaSite } = schemaBuilders;
 
 /**
  * Create base schema data with page and site information
