@@ -62,8 +62,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "testScopedEntry",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
-  // item-filters.test.js - preset config factory
-  "itemsConfig",
+  // item-filters.test.js - test setup helper with collection accessors
+  "setupConfig",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",

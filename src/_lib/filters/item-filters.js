@@ -12,8 +12,6 @@
  * URL format: /products/search/size/small/color/red/ (keys sorted alphabetically)
  */
 import {
-  chunk,
-  compact,
   filterMap,
   flatMap,
   join,
@@ -123,22 +121,6 @@ const filterToPath = (filters) => {
     ]),
     join("/"),
   )(Object.keys(filters));
-};
-
-/**
- * Parse URL path back to filter object
- * "capacity/3/size/small" => { capacity: "3", size: "small" }
- */
-const pathToFilter = (path) => {
-  if (!path) return {};
-
-  return pipe(
-    (s) => s.split("/"),
-    compact,
-    (arr) => chunk(arr, 2),
-    map(([key, value]) => [decodeURIComponent(key), decodeURIComponent(value)]),
-    Object.fromEntries,
-  )(path);
 };
 
 /**
@@ -416,16 +398,4 @@ const createFilterConfig = (options) => {
   return { configure };
 };
 
-export {
-  normalize,
-  parseFilterAttributes,
-  getAllFilterAttributes,
-  buildDisplayLookup,
-  filterToPath,
-  pathToFilter,
-  getItemsByFilters,
-  generateFilterCombinations,
-  buildFilterDescription,
-  buildFilterUIData,
-  createFilterConfig,
-};
+export { createFilterConfig };
