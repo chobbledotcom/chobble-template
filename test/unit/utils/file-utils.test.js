@@ -201,4 +201,52 @@ World`;
     expect(name).toBe("test-name");
     expect(defaultStr).toBe("default");
   });
+
+  test("escape_html filter escapes HTML special characters", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureFileUtils(mockConfig);
+    const escapeHtml = mockConfig.filters.escape_html;
+
+    expect(escapeHtml("<div>")).toBe("&lt;div&gt;");
+    expect(escapeHtml("a & b")).toBe("a &amp; b");
+    expect(escapeHtml('"quoted"')).toBe("&quot;quoted&quot;");
+    expect(escapeHtml('<a href="test">link</a>')).toBe(
+      "&lt;a href=&quot;test&quot;&gt;link&lt;/a&gt;",
+    );
+  });
+
+  test("escape_html filter handles empty string", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureFileUtils(mockConfig);
+
+    expect(mockConfig.filters.escape_html("")).toBe("");
+  });
+
+  test("escape_html filter leaves plain text unchanged", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureFileUtils(mockConfig);
+
+    expect(mockConfig.filters.escape_html("Hello World")).toBe("Hello World");
+  });
+
+  test("Configures read_code shortcode", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureFileUtils(mockConfig);
+
+    expect(typeof mockConfig.shortcodes.read_code).toBe("function");
+  });
+
+  test("read_code shortcode reads and escapes file content", () => {
+    const htmlContent = "<div>Hello</div>";
+
+    withTempFile("read_code", "test.html", htmlContent, (tempDir) => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+
+      withMockedCwd(tempDir, () => {
+        const result = mockConfig.shortcodes.read_code("test.html");
+        expect(result).toBe("&lt;div&gt;Hello&lt;/div&gt;");
+      });
+    });
+  });
 });
