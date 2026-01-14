@@ -1,0 +1,93 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// IMAGE CARDS
+// =============================================================================
+// Cards with edge-to-edge images at top. Used for news, blog posts, etc.
+// Semantic markup: <ul class="image-cards"> with <li> wrapping each <article>
+
+.design-system {
+  ul.image-cards {
+    @include grid-auto(280px, $space-lg);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    > li {
+      margin: 0;
+      padding: 0;
+    }
+
+    article {
+      @include card;
+      @include card-hover;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+
+      // Edge-to-edge image at top
+      > a:first-child {
+        display: block;
+        overflow: hidden;
+
+        figure {
+          margin: 0;
+        }
+
+        img {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 16/9;
+          object-fit: cover;
+          transition: transform $transition-fast;
+        }
+
+        &:hover img {
+          transform: scale(1.05);
+        }
+      }
+
+      // Content area with padding
+      header {
+        padding: $space-md $space-md 0;
+
+        h3 {
+          @include heading-sm;
+          margin: 0 0 $space-xs;
+
+          a {
+            color: var(--text);
+            text-decoration: none;
+
+            &:hover {
+              color: var(--primary);
+            }
+          }
+        }
+
+        p {
+          @include body-sm;
+          color: var(--text-muted);
+          margin: 0;
+
+          time {
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+          }
+        }
+      }
+
+      // Description/subtitle
+      > p {
+        @include body-sm;
+        color: var(--text-muted);
+        margin: $space-xs 0 0;
+        padding: 0 $space-md $space-md;
+        flex: 1;
+      }
+    }
+  }
+}

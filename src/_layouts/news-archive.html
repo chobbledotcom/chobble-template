@@ -8,63 +8,24 @@ layout: base
 
 {%- if posts.size > 0 -%}
   <div class="design-system">
-
-    {%- comment -%} Featured latest post {%- endcomment -%}
-    {%- assign featured = posts | first -%}
-    {%- if featured.data.authorSlug -%}
-      {%- assign featuredAuthor = collections.team | where: "fileSlug", featured.data.authorSlug | first -%}
-    {%- endif -%}
-
-    <article class="split" data-reveal>
-      {%- if featured.data.header_image -%}
-        <figure>
-          <a href="{{ featured.url }}#content">
-            {%- image featured.data.header_image, featured.data.header_text, "400, 600, 800, 1200", "", "", "16/9" -%}
-          </a>
-        </figure>
+  <ul class="image-cards">
+    {%- for post in posts -%}
+      {%- if post.data.authorSlug -%}
+        {%- assign postAuthor = collections.team | where: "fileSlug", post.data.authorSlug | first -%}
+      {%- else -%}
+        {%- assign postAuthor = nil -%}
       {%- endif -%}
-      <div>
-        <header>
-          <time datetime="{{ featured.date | date: '%Y-%m-%d' }}">
-            {{ featured.date | date: "%B %-d, %Y" }}
-          </time>
-          {%- if featuredAuthor -%}
-            <span aria-hidden="true">·</span>
-            <address>
-              <a rel="author" href="{{ featuredAuthor.url }}">
-                {{ featuredAuthor.data.title }}
-              </a>
-            </address>
-          {%- endif -%}
-        </header>
-        <h3>
-          <a href="{{ featured.url }}#content">{{ featured.data.header_text | escape }}</a>
-        </h3>
-        {%- if featured.data.subtitle and featured.data.subtitle != "" -%}
-          <p>{{ featured.data.subtitle | escape }}</p>
-        {%- endif -%}
-        <a href="{{ featured.url }}#content" class="button">Read Article</a>
-      </div>
-    </article>
 
-    {%- comment -%} Older posts grid {%- endcomment -%}
-    {%- assign older_posts = posts | slice: 1, 999 -%}
-    {%- if older_posts.size > 0 -%}
-      <h2>More Articles</h2>
-      <ul class="items">
-        {%- for post in older_posts -%}
-          {%- if post.data.authorSlug -%}
-            {%- assign postAuthor = collections.team | where: "fileSlug", post.data.authorSlug | first -%}
-          {%- else -%}
-            {%- assign postAuthor = nil -%}
+      <li>
+        <article data-reveal>
+          {%- if post.data.header_image -%}
+            <a href="{{ post.url }}#content">
+              <figure>
+                {%- image post.data.header_image, post.data.header_text, "300, 400, 600, 800", "", "", "16/9" -%}
+              </figure>
+            </a>
           {%- endif -%}
-
-          <li data-reveal>
-            {%- if post.data.header_image -%}
-              <a href="{{ post.url }}#content" class="image-link">
-                {%- image post.data.header_image, post.data.header_text, "200, 300, 400, 600", "", "", "4/3" -%}
-              </a>
-            {%- endif -%}
+          <header>
             <h3>
               <a href="{{ post.url }}#content">{{ post.data.header_text | escape }}</a>
             </h3>
@@ -72,14 +33,14 @@ layout: base
               <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%b %-d, %Y" }}</time>
               {%- if postAuthor %} · {{ postAuthor.data.title }}{%- endif -%}
             </p>
-            {%- if post.data.subtitle and post.data.subtitle != "" -%}
-              <p>{{ post.data.subtitle | escape }}</p>
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
-      </ul>
-    {%- endif -%}
-
+          </header>
+          {%- if post.data.subtitle and post.data.subtitle != "" -%}
+            <p>{{ post.data.subtitle | escape }}</p>
+          {%- endif -%}
+        </article>
+      </li>
+    {%- endfor -%}
+  </ul>
   </div>
 {%- else -%}
   <p>No news articles yet. Check back soon!</p>
