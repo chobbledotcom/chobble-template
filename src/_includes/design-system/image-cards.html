@@ -1,0 +1,51 @@
+{%- comment -%}
+Image cards grid - similar to features but with images instead of emoji icons.
+
+Parameters:
+  - items: Array of card objects with properties:
+    - image: Image path (required)
+    - title: Card title (required)
+    - description: Card description (optional)
+    - link: URL to link to (optional)
+  - reveal: If true, adds data-reveal animation (default: true)
+  - heading_level: Heading level for titles, defaults to 3 (h3)
+
+Usage:
+  {% include "design-system/image-cards.html", items: page.image_cards %}
+
+  Where page.image_cards = [
+    { image: "/images/photo.jpg", title: "Title", description: "Description", link: "/page/" },
+    ...
+  ]
+{%- endcomment -%}
+
+{%- assign reveal = reveal | default: true -%}
+{%- assign heading_level = heading_level | default: 3 -%}
+
+<ul class="items" role="list">
+  {%- for item in items -%}
+  <li{% if reveal %} data-reveal{% endif %}>
+    {%- if item.image -%}
+      {%- if item.link -%}
+        <a class="image-link" href="{{ item.link }}" aria-hidden="true" tabindex="-1">
+          <img src="{{ item.image }}" alt="" loading="lazy" decoding="async">
+        </a>
+      {%- else -%}
+        <div class="image-link">
+          <img src="{{ item.image }}" alt="" loading="lazy" decoding="async">
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+    <h{{ heading_level }}>
+      {%- if item.link -%}
+        <a href="{{ item.link }}">{{ item.title }}</a>
+      {%- else -%}
+        {{ item.title }}
+      {%- endif -%}
+    </h{{ heading_level }}>
+    {%- if item.description -%}
+      <p>{{ item.description }}</p>
+    {%- endif -%}
+  </li>
+  {%- endfor -%}
+</ul>
