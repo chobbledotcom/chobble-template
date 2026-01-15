@@ -52,6 +52,7 @@ export const takeScreenshotWithPlaywright = async (
   const context = await browser.newContext({
     viewport: { width, height },
     deviceScaleFactor: 1,
+    reducedMotion: "reduce",
   });
   const page = await context.newPage();
 
@@ -59,6 +60,9 @@ export const takeScreenshotWithPlaywright = async (
     waitUntil: "domcontentloaded",
     timeout: options.timeout,
   });
+
+  // Allow JS to initialize (scroll reveals, sliders, etc.)
+  await page.waitForTimeout(100);
 
   await page.screenshot({
     path: outputPath,

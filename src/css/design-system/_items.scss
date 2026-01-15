@@ -69,6 +69,11 @@
         display: block;
         overflow: hidden;
 
+        // Image wrapper with LQIP background support
+        .image-wrapper {
+          @include image-wrapper;
+        }
+
         img {
           width: 100%;
           height: auto;
