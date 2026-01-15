@@ -28,7 +28,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempFile",
   "withMockedCwd",
   "withMockedConsole",
-  "withAssetDir",
+  "getIconFilter",
   "expectValidScriptTag",
   // Fixture factories
   "createProduct",
@@ -334,6 +334,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectErrorsInclude",
   // test-utils.js - async error testing helper
   "expectAsyncThrows",
+  // test-utils.js - temp directory and mock fetch helpers
+  "withSubDir",
+  "withSubDirAsync",
+  "mockFetch",
+  "withMockFetch",
   // hire-calculator.test.js - DOM query helper
   "getDateInputs",
   // test-site-factory.test.js - test fixture

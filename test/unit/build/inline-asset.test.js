@@ -1,16 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import { configureInlineAsset, inlineAsset } from "#media/inline-asset.js";
 import {
-  cleanupTempDir,
   createMockEleventyConfig,
-  createTempDir,
   fs,
   path,
+  withSubDirAsync,
 } from "#test/test-utils.js";
 
 // ============================================
 // Test Fixtures
 // ============================================
+
+const ASSETS_PATH = "src/assets";
 
 /** Minimal 1x1 PNG header bytes for testing */
 const MINIMAL_PNG_HEADER = [
@@ -60,26 +61,19 @@ const MINIMAL_PNG_COMPLETE = [
   0x82,
 ];
 
-/** Create temp assets directory and return cleanup function */
-const withAssetDir = (name, subPath = "") => {
-  const tempDir = createTempDir(name);
-  const assetsDir = path.join(tempDir, "src", "assets", subPath);
-  fs.mkdirSync(assetsDir, { recursive: true });
-  return { tempDir, assetsDir, cleanup: () => cleanupTempDir(tempDir) };
-};
-
 describe("inline-asset", () => {
-  test("Finds asset in nested directory path", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir(
+  test("Finds asset in nested directory path", () =>
+    withSubDirAsync(
       "inline-asset-nested",
-      "icons/social",
-    );
-    const svgContent = '<svg><circle r="5"/></svg>';
-    fs.writeFileSync(path.join(assetsDir, "twitter.svg"), svgContent);
-
-    expect(inlineAsset("icons/social/twitter.svg", tempDir)).toBe(svgContent);
-    cleanup();
-  });
+      `${ASSETS_PATH}/icons/social`,
+      ({ tempDir, subDir }) => {
+        const svgContent = '<svg><circle r="5"/></svg>';
+        fs.writeFileSync(path.join(subDir, "twitter.svg"), svgContent);
+        expect(inlineAsset("icons/social/twitter.svg", tempDir)).toBe(
+          svgContent,
+        );
+      },
+    ));
 
   test("Rejects files with disallowed extensions", () => {
     const disallowed = [
@@ -96,68 +90,71 @@ describe("inline-asset", () => {
     }
   });
 
-  test("Returns raw SVG content for SVG files", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir(
+  test("Returns raw SVG content for SVG files", () =>
+    withSubDirAsync(
       "inline-asset-svg-type",
-    );
-    const svgContent = '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>';
-    fs.writeFileSync(path.join(assetsDir, "icon.svg"), svgContent);
+      ASSETS_PATH,
+      ({ tempDir, subDir }) => {
+        const svgContent =
+          '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>';
+        fs.writeFileSync(path.join(subDir, "icon.svg"), svgContent);
 
-    const result = inlineAsset("icon.svg", tempDir);
-    expect(result).toBe(svgContent);
-    expect(result.startsWith("<svg")).toBe(true);
-    cleanup();
-  });
+        const result = inlineAsset("icon.svg", tempDir);
+        expect(result).toBe(svgContent);
+        expect(result.startsWith("<svg")).toBe(true);
+      },
+    ));
 
-  test("Returns base64 data URI for image files", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir(
+  test("Returns base64 data URI for image files", () =>
+    withSubDirAsync(
       "inline-asset-image-type",
-    );
-    fs.writeFileSync(
-      path.join(assetsDir, "test.png"),
-      Buffer.from(MINIMAL_PNG_HEADER),
-    );
+      ASSETS_PATH,
+      ({ tempDir, subDir }) => {
+        fs.writeFileSync(
+          path.join(subDir, "test.png"),
+          Buffer.from(MINIMAL_PNG_HEADER),
+        );
 
-    const result = inlineAsset("test.png", tempDir);
-    expect(result.startsWith("data:image/png;base64,")).toBe(true);
-    cleanup();
-  });
+        const result = inlineAsset("test.png", tempDir);
+        expect(result.startsWith("data:image/png;base64,")).toBe(true);
+      },
+    ));
 
-  test("Inlines SVG file content", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir(
+  test("Inlines SVG file content", () =>
+    withSubDirAsync(
       "inline-asset-svg",
-      "icons",
-    );
-    const svgContent =
-      '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
-    fs.writeFileSync(path.join(assetsDir, "test.svg"), svgContent);
+      `${ASSETS_PATH}/icons`,
+      ({ tempDir, subDir }) => {
+        const svgContent =
+          '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
+        fs.writeFileSync(path.join(subDir, "test.svg"), svgContent);
 
-    expect(inlineAsset("icons/test.svg", tempDir)).toBe(svgContent);
-    cleanup();
-  });
+        expect(inlineAsset("icons/test.svg", tempDir)).toBe(svgContent);
+      },
+    ));
 
-  test("Inlines multiline SVG file content", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir(
+  test("Inlines multiline SVG file content", () =>
+    withSubDirAsync(
       "inline-asset-svg-multiline",
-    );
-    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+      ASSETS_PATH,
+      ({ tempDir, subDir }) => {
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
   <g fill="none" stroke="currentColor">
     <path d="M2 5l6.913 3.925"/>
   </g>
 </svg>`;
-    fs.writeFileSync(path.join(assetsDir, "multiline.svg"), svgContent);
+        fs.writeFileSync(path.join(subDir, "multiline.svg"), svgContent);
 
-    expect(inlineAsset("multiline.svg", tempDir)).toBe(svgContent);
-    cleanup();
-  });
+        expect(inlineAsset("multiline.svg", tempDir)).toBe(svgContent);
+      },
+    ));
 
-  test("Throws error when file not found", () => {
-    const { tempDir, cleanup } = withAssetDir("inline-asset-not-found");
-    expect(() => inlineAsset("nonexistent.svg", tempDir)).toThrow(
-      /Asset file not found/,
-    );
-    cleanup();
-  });
+  test("Throws error when file not found", () =>
+    withSubDirAsync("inline-asset-not-found", ASSETS_PATH, ({ tempDir }) => {
+      expect(() => inlineAsset("nonexistent.svg", tempDir)).toThrow(
+        /Asset file not found/,
+      );
+    }));
 
   test("Throws error for unsupported file extensions", () => {
     expect(() => inlineAsset("script.js", "/tmp")).toThrow(
@@ -177,83 +174,85 @@ describe("inline-asset", () => {
     expect(typeof mockConfig.filters.inline_asset).toBe("function");
   });
 
-  test("Configured filter works correctly", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir("inline-asset-filter");
-    const svgContent = '<svg><rect width="100" height="100"/></svg>';
-    fs.writeFileSync(path.join(assetsDir, "rect.svg"), svgContent);
+  test("Configured filter works correctly", () =>
+    withSubDirAsync(
+      "inline-asset-filter",
+      ASSETS_PATH,
+      ({ tempDir, subDir }) => {
+        const svgContent = '<svg><rect width="100" height="100"/></svg>';
+        fs.writeFileSync(path.join(subDir, "rect.svg"), svgContent);
 
-    const mockConfig = createMockEleventyConfig();
-    configureInlineAsset(mockConfig);
+        const mockConfig = createMockEleventyConfig();
+        configureInlineAsset(mockConfig);
 
-    const originalCwd = process.cwd;
-    process.cwd = () => tempDir;
+        const originalCwd = process.cwd;
+        process.cwd = () => tempDir;
 
-    expect(mockConfig.filters.inline_asset("rect.svg")).toBe(svgContent);
-    process.cwd = originalCwd;
-    cleanup();
-  });
+        try {
+          expect(mockConfig.filters.inline_asset("rect.svg")).toBe(svgContent);
+        } finally {
+          process.cwd = originalCwd;
+        }
+      },
+    ));
 
   test("Inlines actual SVG from project assets", () => {
-    // Test against actual project file
     const result = inlineAsset("icons/email.svg");
     expect(result.includes("<svg")).toBe(true);
     expect(result.includes("</svg>")).toBe(true);
     expect(result.includes('xmlns="http://www.w3.org/2000/svg"')).toBe(true);
   });
 
-  test("Inlines PNG file as base64 data URI with correct round-trip", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir("inline-asset-png");
-    const pngBuffer = Buffer.from(MINIMAL_PNG_COMPLETE);
-    fs.writeFileSync(path.join(assetsDir, "test.png"), pngBuffer);
+  test("Inlines PNG file as base64 data URI with correct round-trip", () =>
+    withSubDirAsync("inline-asset-png", ASSETS_PATH, ({ tempDir, subDir }) => {
+      const pngBuffer = Buffer.from(MINIMAL_PNG_COMPLETE);
+      fs.writeFileSync(path.join(subDir, "test.png"), pngBuffer);
 
-    const result = inlineAsset("test.png", tempDir);
-    expect(result.startsWith("data:image/png;base64,")).toBe(true);
-    const decoded = Buffer.from(
-      result.replace("data:image/png;base64,", ""),
-      "base64",
-    );
-    expect(decoded.equals(pngBuffer)).toBe(true);
-    cleanup();
-  });
+      const result = inlineAsset("test.png", tempDir);
+      expect(result.startsWith("data:image/png;base64,")).toBe(true);
+      const decoded = Buffer.from(
+        result.replace("data:image/png;base64,", ""),
+        "base64",
+      );
+      expect(decoded.equals(pngBuffer)).toBe(true);
+    }));
 
-  test("Inlines JPG file with correct MIME type (jpeg)", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir("inline-asset-jpg");
-    fs.writeFileSync(
-      path.join(assetsDir, "test.jpg"),
-      Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]),
-    );
+  test("Inlines JPG file with correct MIME type (jpeg)", () =>
+    withSubDirAsync("inline-asset-jpg", ASSETS_PATH, ({ tempDir, subDir }) => {
+      fs.writeFileSync(
+        path.join(subDir, "test.jpg"),
+        Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]),
+      );
 
-    expect(
-      inlineAsset("test.jpg", tempDir).startsWith("data:image/jpeg;base64,"),
-    ).toBe(true);
-    cleanup();
-  });
+      expect(
+        inlineAsset("test.jpg", tempDir).startsWith("data:image/jpeg;base64,"),
+      ).toBe(true);
+    }));
 
-  test("Inlines WebP file as base64 data URI", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir("inline-asset-webp");
-    fs.writeFileSync(
-      path.join(assetsDir, "test.webp"),
-      Buffer.from([
-        0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
-      ]),
-    );
+  test("Inlines WebP file as base64 data URI", () =>
+    withSubDirAsync("inline-asset-webp", ASSETS_PATH, ({ tempDir, subDir }) => {
+      fs.writeFileSync(
+        path.join(subDir, "test.webp"),
+        Buffer.from([
+          0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42,
+          0x50,
+        ]),
+      );
 
-    expect(
-      inlineAsset("test.webp", tempDir).startsWith("data:image/webp;base64,"),
-    ).toBe(true);
-    cleanup();
-  });
+      expect(
+        inlineAsset("test.webp", tempDir).startsWith("data:image/webp;base64,"),
+      ).toBe(true);
+    }));
 
-  test("Inlines GIF file as base64 data URI", () => {
-    const { tempDir, assetsDir, cleanup } = withAssetDir("inline-asset-gif");
-    fs.writeFileSync(
-      path.join(assetsDir, "test.gif"),
-      Buffer.from([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]),
-    );
+  test("Inlines GIF file as base64 data URI", () =>
+    withSubDirAsync("inline-asset-gif", ASSETS_PATH, ({ tempDir, subDir }) => {
+      fs.writeFileSync(
+        path.join(subDir, "test.gif"),
+        Buffer.from([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]),
+      );
 
-    expect(
-      inlineAsset("test.gif", tempDir).startsWith("data:image/gif;base64,"),
-    ).toBe(true);
-    cleanup();
-  });
+      expect(
+        inlineAsset("test.gif", tempDir).startsWith("data:image/gif;base64,"),
+      ).toBe(true);
+    }));
 });

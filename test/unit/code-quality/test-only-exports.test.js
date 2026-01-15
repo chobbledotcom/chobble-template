@@ -162,11 +162,15 @@ const analyzeTestOnlyExports = () => {
   const srcFiles = SRC_JS_FILES();
   const testFiles = TEST_FILES().filter((f) => f !== THIS_FILE);
 
+  // Include .eleventy.js as production code since it's the main config file
+  // that imports all configure* functions
+  const productionFiles = [...srcFiles, ".eleventy.js"];
+
   // Build exports map for all src files
   const srcExportsMap = buildSrcExportsMap();
 
-  // Build import usage from src files (production usage)
-  const srcImportUsage = buildImportUsageMap(srcFiles);
+  // Build import usage from production files (src/ + .eleventy.js)
+  const srcImportUsage = buildImportUsageMap(productionFiles);
 
   // Build import usage from test files
   const testImportUsage = buildImportUsageMap(testFiles);
