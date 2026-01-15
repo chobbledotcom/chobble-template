@@ -211,21 +211,15 @@ describe("iconify", () => {
       );
     });
 
-    test("Fetches SVG for Iconify IDs", () =>
-      withSubDirAsync(
-        "render-iconify",
-        `${ICONS_SUBDIR}/mdi`,
-        async ({ tempDir, subDir }) => {
-          fs.writeFileSync(path.join(subDir, "home.svg"), SAMPLE_SVG);
+    test("Fetches SVG for Iconify IDs via renderIcon", () =>
+      withSubDirAsync("render-iconify", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
           const mockConfig = createMockEleventyConfig();
           configureIconify(mockConfig);
-          // Access the internal getIcon with tempDir by calling icon filter
-          const result = await mockConfig.asyncFilters.icon(
-            "mdi:home",
-            tempDir,
-          );
+          const { renderIcon } = mockConfig.asyncFilters;
+          const result = await renderIcon("test:icon");
           expect(result).toBe(SAMPLE_SVG);
-        },
+        }),
       ));
   });
 });
