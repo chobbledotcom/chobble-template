@@ -1,19 +1,29 @@
 {%- comment -%}
-Renders an icon as either an image or raw HTML content.
+Renders an icon as an image, Iconify SVG, or raw HTML content.
 
 Parameters:
-  - icon: The icon content (emoji, HTML entity, SVG, or path starting with /)
+  - icon: The icon content. Supported formats:
+    - Iconify ID: "prefix:name" (e.g., "mdi:home", "lucide:settings")
+    - Image path: starts with "/" (e.g., "/images/icon.svg")
+    - Raw content: emoji, HTML entity, or inline SVG
 
-If the icon starts with /, it renders as an <img> tag.
-Otherwise, it outputs the icon content directly.
+Detection logic:
+  - Contains ":" but no "/" → Iconify icon (fetched via API, cached locally)
+  - Starts with "/" → image path
+  - Otherwise → raw content output
 
 Usage:
+  {% include "design-system/icon.html", icon: "mdi:home" %}
   {% include "design-system/icon.html", icon: "&#128640;" %}
   {% include "design-system/icon.html", icon: "/images/icon.svg" %}
 {%- endcomment -%}
 
 {%- assign icon_first_char = icon | slice: 0 -%}
-{%- if icon_first_char == "/" -%}
+{%- assign icon_has_colon = icon | split: ":" | size | minus: 1 -%}
+{%- assign icon_has_slash = icon | split: "/" | size | minus: 1 -%}
+{%- if icon_has_colon > 0 and icon_has_slash == 0 -%}
+{{- icon | icon -}}
+{%- elsif icon_first_char == "/" -%}
 <img src="{{ icon }}" alt="">
 {%- else -%}
 {{- icon -}}
