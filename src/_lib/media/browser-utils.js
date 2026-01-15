@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
-import { log, error as logError } from "#utils/console.js";
+import { error as logError } from "#utils/console.js";
 
 export const BROWSER_ARGS = [
   "--no-sandbox",
@@ -60,14 +60,11 @@ export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
 
 export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
   for (let i = 0; i < maxAttempts; i++) {
-    try {
-      const response = await fetch(baseUrl);
-      if (response.ok || response.status === 404) {
-        return true;
-      }
-    } catch {
-      // Connection refused, keep trying
-    }
+    const [result] = await Promise.allSettled([fetch(baseUrl)]);
+    const isReady =
+      result.status === "fulfilled" &&
+      (result.value.ok || result.value.status === 404);
+    if (isReady) return true;
     await new Promise((r) => setTimeout(r, delay));
   }
   throw new Error(
@@ -112,45 +109,17 @@ export const launchChromeHeadless = async (chromePath) => {
   });
 };
 
+const BROWSER_NOT_INSTALLED_MSG =
+  "Playwright browsers not installed.\n" +
+  "Run: bunx playwright install chromium\n" +
+  "(Use bunx to ensure the correct version is installed)";
+
 export const ensurePlaywrightBrowsers = async () => {
   const { chromium } = await import("playwright");
-  try {
-    const execPath = chromium.executablePath();
-    if (!existsSync(execPath)) {
-      throw new Error("Browser not found");
-    }
-    return true;
-  } catch {
-    const msg =
-      "Playwright browsers not installed.\n" +
-      "Run: bunx playwright install chromium\n" +
-      "(Use bunx to ensure the correct version is installed)";
-    logError(msg);
-    throw new Error(msg);
+  const execPath = chromium.executablePath();
+  if (!existsSync(execPath)) {
+    logError(BROWSER_NOT_INSTALLED_MSG);
+    throw new Error(BROWSER_NOT_INSTALLED_MSG);
   }
-};
-
-const isConnectionError = (err) =>
-  err.message?.includes("ERR_CONNECTION_REFUSED") ||
-  err.message?.includes("ECONNREFUSED") ||
-  err.message?.includes("net::ERR_");
-
-export const withRetry = async (fn, maxRetries = 3, delay = 1000) => {
-  let lastError;
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (err) {
-      lastError = err;
-      const isLastAttempt = attempt === maxRetries - 1;
-      if (!isConnectionError(err) || isLastAttempt) {
-        throw err;
-      }
-      log(
-        `Connection failed, retrying in ${delay}ms... (${attempt + 1}/${maxRetries})`,
-      );
-      await new Promise((r) => setTimeout(r, delay));
-    }
-  }
-  throw lastError;
+  return true;
 };

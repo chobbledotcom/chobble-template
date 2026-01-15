@@ -11,7 +11,6 @@ import {
   runBatchOperations,
   sanitizePagePath,
   startServer,
-  withRetry,
 } from "#media/browser-utils.js";
 import { log } from "#utils/console.js";
 
@@ -95,10 +94,11 @@ export const screenshot = async (pagePath, options = {}) => {
   );
   log(`Taking screenshot of ${url} (${opts.viewport})`);
 
-  const result = await withRetry(
-    () => takeScreenshotWithPlaywright(url, outputPath, opts.viewport, opts),
-    3,
-    1000,
+  const result = await takeScreenshotWithPlaywright(
+    url,
+    outputPath,
+    opts.viewport,
+    opts,
   );
   log(`Screenshot saved: ${result.path}`);
   return result;
