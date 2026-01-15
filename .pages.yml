@@ -693,11 +693,12 @@ content:
             list: true
             fields:
               - { name: icon, type: string, label: Icon (HTML entity) }
+              - { name: image, type: image, label: Image }
               - { name: title, type: string, label: Title, required: true }
               - name: description
                 type: string
                 label: Description
-                required: true
+              - { name: link, type: string, label: Link URL }
       - name: body
         label: Body
         type: code
@@ -734,11 +735,12 @@ content:
             list: true
             fields:
               - { name: icon, type: string, label: Icon (HTML entity) }
+              - { name: image, type: image, label: Image }
               - { name: title, type: string, label: Title, required: true }
               - name: description
                 type: string
                 label: Description
-                required: true
+              - { name: link, type: string, label: Link URL }
           - { name: filename, type: string, label: Filename, required: true }
           - { name: code, type: string, label: Code, required: true }
       - name: body
