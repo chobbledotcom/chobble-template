@@ -5,11 +5,13 @@ import {
   createOperationContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
+  ensurePlaywrightBrowsers,
   getDefaultOutputDir,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
   startServer,
+  withRetry,
 } from "#media/browser-utils.js";
 import { log } from "#utils/console.js";
 
@@ -75,6 +77,8 @@ export const takeScreenshotWithPlaywright = async (
 };
 
 export const screenshot = async (pagePath, options = {}) => {
+  await ensurePlaywrightBrowsers();
+
   const buildScreenshotPath = (opts, path) =>
     buildOutputPath(
       opts.outputDir,
@@ -91,11 +95,10 @@ export const screenshot = async (pagePath, options = {}) => {
   );
   log(`Taking screenshot of ${url} (${opts.viewport})`);
 
-  const result = await takeScreenshotWithPlaywright(
-    url,
-    outputPath,
-    opts.viewport,
-    opts,
+  const result = await withRetry(
+    () => takeScreenshotWithPlaywright(url, outputPath, opts.viewport, opts),
+    3,
+    1000,
   );
   log(`Screenshot saved: ${result.path}`);
   return result;
