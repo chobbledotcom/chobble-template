@@ -7,7 +7,7 @@ Parameters:
     - Image path: starts with "/" (e.g., "/images/icon.svg")
     - Raw content: emoji, HTML entity, or inline SVG
 
-Detection logic:
+Detection logic (handled by renderIcon filter):
   - Contains ":" but no "/" → Iconify icon (fetched via API, cached locally)
   - Starts with "/" → image path
   - Otherwise → raw content output
@@ -18,13 +18,4 @@ Usage:
   {% include "design-system/icon.html", icon: "/images/icon.svg" %}
 {%- endcomment -%}
 
-{%- assign icon_first_char = icon | slice: 0 -%}
-{%- assign icon_has_colon = icon | split: ":" | size | minus: 1 -%}
-{%- assign icon_has_slash = icon | split: "/" | size | minus: 1 -%}
-{%- if icon_has_colon > 0 and icon_has_slash == 0 -%}
-{{- icon | icon -}}
-{%- elsif icon_first_char == "/" -%}
-<img src="{{ icon }}" alt="">
-{%- else -%}
-{{- icon -}}
-{%- endif -%}
+{{- icon | renderIcon -}}

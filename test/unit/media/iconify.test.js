@@ -165,4 +165,67 @@ describe("iconify", () => {
         }),
       ));
   });
+
+  describe("renderIcon filter", () => {
+    test("Registers renderIcon as an async filter", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureIconify(mockConfig);
+      expect(typeof mockConfig.asyncFilters.renderIcon).toBe("function");
+    });
+
+    test("Returns empty string for falsy values", async () => {
+      const mockConfig = createMockEleventyConfig();
+      configureIconify(mockConfig);
+      const { renderIcon } = mockConfig.asyncFilters;
+      expect(await renderIcon(null)).toBe("");
+      expect(await renderIcon(undefined)).toBe("");
+      expect(await renderIcon("")).toBe("");
+    });
+
+    test("Returns img tag for paths starting with /", async () => {
+      const mockConfig = createMockEleventyConfig();
+      configureIconify(mockConfig);
+      const { renderIcon } = mockConfig.asyncFilters;
+      const result = await renderIcon("/images/icon.svg");
+      expect(result).toBe('<img src="/images/icon.svg" alt="">');
+    });
+
+    test("Passes through raw content unchanged", async () => {
+      const mockConfig = createMockEleventyConfig();
+      configureIconify(mockConfig);
+      const { renderIcon } = mockConfig.asyncFilters;
+      expect(await renderIcon("&#128640;")).toBe("&#128640;");
+      expect(await renderIcon("🚀")).toBe("🚀");
+      expect(await renderIcon("plain text")).toBe("plain text");
+    });
+
+    test("Passes through URLs with colons and slashes", async () => {
+      const mockConfig = createMockEleventyConfig();
+      configureIconify(mockConfig);
+      const { renderIcon } = mockConfig.asyncFilters;
+      expect(await renderIcon("https://example.com")).toBe(
+        "https://example.com",
+      );
+      expect(await renderIcon("http://test.com/icon")).toBe(
+        "http://test.com/icon",
+      );
+    });
+
+    test("Fetches SVG for Iconify IDs", () =>
+      withSubDirAsync(
+        "render-iconify",
+        `${ICONS_SUBDIR}/mdi`,
+        async ({ tempDir, subDir }) => {
+          fs.writeFileSync(path.join(subDir, "home.svg"), SAMPLE_SVG);
+          const mockConfig = createMockEleventyConfig();
+          configureIconify(mockConfig);
+          // Access the internal getIcon with tempDir by calling icon filter
+          const result = await mockConfig.asyncFilters.icon(
+            "mdi:home",
+            tempDir,
+          );
+          expect(result).toBe(SAMPLE_SVG);
+        },
+      ));
+  });
 });
