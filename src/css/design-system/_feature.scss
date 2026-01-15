@@ -67,5 +67,17 @@
       grid-row: 2;
       grid-column: 1 / -1;
     }
+
+    // Code blocks in features should span full width below heading
+    pre {
+      margin: 0;
+      grid-column: 1 / -1;
+    }
+
+    // When feature has no icon, heading should span full width
+    h3:first-child,
+    h4:first-child {
+      grid-column: 1 / -1;
+    }
   }
 }
