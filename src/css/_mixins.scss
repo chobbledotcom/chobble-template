@@ -399,3 +399,29 @@
     outline-offset: 2px;
   }
 }
+
+// =============================================================================
+// IMAGE WRAPPER (LQIP support)
+// =============================================================================
+// Wrapper for images with low-quality image placeholder backgrounds.
+// The background shows the LQIP while the full image loads.
+
+@mixin image-wrapper($border-radius: $radius-sm) {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: $border-radius;
+  // LQIP background settings
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: transparent;
+  }
+}
