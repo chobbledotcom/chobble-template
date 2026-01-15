@@ -10,8 +10,8 @@
     },
     {
       "type": "features",
+      "heading_level": 2,
       "fields": {
-        "heading_level": { "type": "number", "label": "Heading Level", "default": 3 },
         "items": {
           "type": "object",
           "list": true,

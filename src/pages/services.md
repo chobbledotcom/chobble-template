@@ -7,7 +7,6 @@ blocks:
     title: Our Services
     subtitle: What we can do for you
   - type: features
-    heading_level: 2
     items:
       - icon: "&#128736;"
         title: Custom Widgets
