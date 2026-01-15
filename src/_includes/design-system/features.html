@@ -3,7 +3,7 @@ Features grid with list semantics.
 
 Parameters:
   - items: Array of feature objects with properties:
-    - icon: Icon content (emoji or HTML)
+    - icon: Icon content (emoji, HTML entity, or path starting with /)
     - icon_label: Accessible label for icon (optional, defaults to decorative)
     - title: Feature title
     - description: Feature description
@@ -16,6 +16,7 @@ Usage:
 
   Where page.features = [
     { icon: "&#128640;", title: "Fast", description: "Static HTML" },
+    { icon: "/images/icon.svg", title: "Custom", description: "Path-based icon" },
     ...
   ]
 {%- endcomment -%}
@@ -28,10 +29,23 @@ Usage:
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
+        {%- assign icon_first_char = item.icon | slice: 0 -%}
         {%- if item.icon_label -%}
-          <div class="icon" role="img" aria-label="{{ item.icon_label }}">{{ item.icon }}</div>
+          <div class="icon" role="img" aria-label="{{ item.icon_label }}">
+            {%- if icon_first_char == "/" -%}
+              <img src="{{ item.icon }}" alt="">
+            {%- else -%}
+              {{- item.icon -}}
+            {%- endif -%}
+          </div>
         {%- else -%}
-          <div class="icon" aria-hidden="true">{{ item.icon }}</div>
+          <div class="icon" aria-hidden="true">
+            {%- if icon_first_char == "/" -%}
+              <img src="{{ item.icon }}" alt="">
+            {%- else -%}
+              {{- item.icon -}}
+            {%- endif -%}
+          </div>
         {%- endif -%}
       {%- endif -%}
       <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
