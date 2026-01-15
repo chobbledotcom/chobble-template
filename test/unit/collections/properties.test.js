@@ -1,12 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  configureProperties,
-  createPropertiesCollection,
-  getFeaturedProperties,
-  getPropertiesByLocation,
-  propertiesWithReviewsPage,
-  propertyReviewsRedirects,
-} from "#collections/properties.js";
+import { configureProperties } from "#collections/properties.js";
 import configData from "#data/config.json" with { type: "json" };
 import {
   collectionApi,
@@ -16,29 +9,49 @@ import {
   items,
 } from "#test/test-utils.js";
 
+// Helper: create a configured mock and extract the registered functions
+const createConfiguredMock = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureProperties(mockConfig);
+  return {
+    mockConfig,
+    // Collection functions (called with collectionApi)
+    propertiesCollection: mockConfig.collections.properties,
+    propertiesWithReviewsPage: mockConfig.collections.propertiesWithReviewsPage,
+    propertyReviewsRedirects: mockConfig.collections.propertyReviewsRedirects,
+    // Filter functions (called directly)
+    getPropertiesByLocation: mockConfig.filters.getPropertiesByLocation,
+    getFeaturedProperties: mockConfig.filters.getFeaturedProperties,
+  };
+};
+
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 describe("properties", () => {
   test("Creates properties collection from API", () => {
+    const { propertiesCollection } = createConfiguredMock();
     const testItems = items([
       ["Property 1", { gallery: ["img1.jpg"] }],
       ["Property 2", {}],
       ["Property 3", { gallery: ["img3.jpg"] }],
     ]);
 
-    const result = createPropertiesCollection(collectionApi(testItems));
+    const result = propertiesCollection(collectionApi(testItems));
 
     expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
   });
 
   test("Handles empty property collection", () => {
-    const result = createPropertiesCollection(collectionApi([]));
+    const { propertiesCollection } = createConfiguredMock();
+
+    const result = propertiesCollection(collectionApi([]));
 
     expect(result.length).toBe(0);
   });
 
   test("Filters properties by location slug", () => {
+    const { getPropertiesByLocation } = createConfiguredMock();
     const properties = [
       {
         data: {
@@ -57,6 +70,7 @@ describe("properties", () => {
   });
 
   test("Handles properties without locations", () => {
+    const { getPropertiesByLocation } = createConfiguredMock();
     const properties = [
       { data: { title: "Property 1" } },
       { data: { title: "Property 2", locations: null } },
@@ -69,6 +83,7 @@ describe("properties", () => {
   });
 
   test("Handles null/undefined inputs", () => {
+    const { getPropertiesByLocation } = createConfiguredMock();
     const properties = [
       { data: { title: "Property 1", locations: ["springfield"] } },
     ];
@@ -80,6 +95,7 @@ describe("properties", () => {
   });
 
   test("Returns empty when no properties match location", () => {
+    const { getPropertiesByLocation } = createConfiguredMock();
     const properties = [
       { data: { title: "Property 1", locations: ["springfield"] } },
       { data: { title: "Property 2", locations: ["shelbyville"] } },
@@ -91,6 +107,7 @@ describe("properties", () => {
   });
 
   test("Sorts properties by order field", () => {
+    const { getPropertiesByLocation } = createConfiguredMock();
     // Use unique slug to avoid memoization cache collision with other tests
     const properties = [
       { data: { title: "Property C", locations: ["shelbyville"], order: 3 } },
@@ -104,6 +121,7 @@ describe("properties", () => {
   });
 
   test("Filters properties by featured flag", () => {
+    const { getFeaturedProperties } = createConfiguredMock();
     const properties = [
       { data: { title: "Property 1", featured: true } },
       { data: { title: "Property 2", featured: false } },
@@ -117,6 +135,7 @@ describe("properties", () => {
   });
 
   test("Returns empty array when no properties are featured", () => {
+    const { getFeaturedProperties } = createConfiguredMock();
     const properties = [
       { data: { title: "Property 1", featured: false } },
       { data: { title: "Property 2" } },
@@ -132,6 +151,7 @@ describe("properties", () => {
 
     configureProperties(mockConfig);
 
+    // Verify all expected collections and filters are registered
     expect(typeof mockConfig.collections.properties).toBe("function");
     expect(typeof mockConfig.collections.propertiesWithReviewsPage).toBe(
       "function",
@@ -141,13 +161,6 @@ describe("properties", () => {
     );
     expect(typeof mockConfig.filters.getPropertiesByLocation).toBe("function");
     expect(typeof mockConfig.filters.getFeaturedProperties).toBe("function");
-
-    expect(mockConfig.filters.getPropertiesByLocation).toBe(
-      getPropertiesByLocation,
-    );
-    expect(mockConfig.filters.getFeaturedProperties).toBe(
-      getFeaturedProperties,
-    );
   });
 
   // Helper to create property review test fixtures
@@ -179,6 +192,7 @@ describe("properties", () => {
   };
 
   test("Returns only properties exceeding the truncate limit", () => {
+    const { propertiesWithReviewsPage } = createConfiguredMock();
     // property-a gets limit+1 reviews (above limit), property-b gets limit reviews (at limit)
     const mockCollectionApi = createPropertyReviewFixture(
       TRUNCATE_LIMIT + 1,
@@ -192,6 +206,7 @@ describe("properties", () => {
   });
 
   test("Returns redirect data for properties not needing separate pages", () => {
+    const { propertyReviewsRedirects } = createConfiguredMock();
     // property-a gets limit reviews (at limit), property-b gets limit+1 reviews (above limit)
     const mockCollectionApi = createPropertyReviewFixture(
       TRUNCATE_LIMIT,
@@ -207,6 +222,7 @@ describe("properties", () => {
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
+    const { getPropertiesByLocation } = createConfiguredMock();
     const originalProperties = [
       { data: { title: "Property 1", locations: ["springfield"] } },
     ];

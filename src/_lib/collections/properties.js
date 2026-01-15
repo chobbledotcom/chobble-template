@@ -3,15 +3,6 @@ import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import { arraySlugKey, memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
-/**
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {import("#lib/types").EleventyCollectionItem[]}
- */
-const createPropertiesCollection = (collectionApi) => {
-  const properties = collectionApi.getFilteredByTag("properties");
-  return properties.map(addGallery);
-};
-
 const getPropertiesByLocation = memoize(
   (properties, locationSlug) => {
     if (!properties || !locationSlug) return [];
@@ -34,7 +25,9 @@ const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
 const configureProperties = (eleventyConfig) => {
-  eleventyConfig.addCollection("properties", createPropertiesCollection);
+  eleventyConfig.addCollection("properties", (collectionApi) =>
+    collectionApi.getFilteredByTag("properties").map(addGallery),
+  );
   eleventyConfig.addCollection(
     "propertiesWithReviewsPage",
     propertiesWithReviewsPage,
@@ -47,11 +40,4 @@ const configureProperties = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeaturedProperties", getFeaturedProperties);
 };
 
-export {
-  createPropertiesCollection,
-  propertiesWithReviewsPage,
-  propertyReviewsRedirects,
-  getPropertiesByLocation,
-  getFeaturedProperties,
-  configureProperties,
-};
+export { configureProperties };
