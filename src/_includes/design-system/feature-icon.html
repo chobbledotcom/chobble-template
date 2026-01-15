@@ -18,21 +18,8 @@ Usage (path-based icon):
   {% include "design-system/feature-icon.html", icon: "/images/icon.svg" %}
 {%- endcomment -%}
 
-{%- assign icon_first_char = icon | slice: 0 -%}
 {%- if label -%}
-<div class="icon" role="img" aria-label="{{ label }}">
-  {%- if icon_first_char == "/" -%}
-    <img src="{{ icon }}" alt="">
-  {%- else -%}
-    {{- icon -}}
-  {%- endif -%}
-</div>
+<div class="icon" role="img" aria-label="{{ label }}">{%- include "design-system/icon.html", icon: icon -%}</div>
 {%- else -%}
-<div class="icon" aria-hidden="true">
-  {%- if icon_first_char == "/" -%}
-    <img src="{{ icon }}" alt="">
-  {%- else -%}
-    {{- icon -}}
-  {%- endif -%}
-</div>
+<div class="icon" aria-hidden="true">{%- include "design-system/icon.html", icon: icon -%}</div>
 {%- endif -%}

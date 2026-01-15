@@ -29,23 +29,10 @@ Usage:
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
-        {%- assign icon_first_char = item.icon | slice: 0 -%}
         {%- if item.icon_label -%}
-          <div class="icon" role="img" aria-label="{{ item.icon_label }}">
-            {%- if icon_first_char == "/" -%}
-              <img src="{{ item.icon }}" alt="">
-            {%- else -%}
-              {{- item.icon -}}
-            {%- endif -%}
-          </div>
+          <div class="icon" role="img" aria-label="{{ item.icon_label }}">{%- include "design-system/icon.html", icon: item.icon -%}</div>
         {%- else -%}
-          <div class="icon" aria-hidden="true">
-            {%- if icon_first_char == "/" -%}
-              <img src="{{ item.icon }}" alt="">
-            {%- else -%}
-              {{- item.icon -}}
-            {%- endif -%}
-          </div>
+          <div class="icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</div>
         {%- endif -%}
       {%- endif -%}
       <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>
