@@ -1,38 +1,51 @@
+import fs from "node:fs";
+import path from "node:path";
 import { memoize } from "#utils/memoize.js";
 
 const ICONIFY_API_BASE = "https://api.iconify.design";
-
-const INVALID_ICON_ERROR = (iconId) =>
-  `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`;
+const ICONS_DIR = "src/assets/icons/iconify";
 
 /**
- * Fetch an icon SVG from the Iconify API.
- * Results are memoized to avoid repeated HTTP requests.
+ * Get an icon SVG, reading from disk cache or fetching from Iconify API.
+ * Icons are saved to src/assets/icons/iconify/{prefix}/{name}.svg
  *
  * @param {string} iconId - Icon identifier in format "prefix:name"
+ * @param {string} baseDir - Base directory (defaults to process.cwd())
  * @returns {Promise<string>} SVG content
  * @throws {Error} If icon ID is invalid or fetch fails
  */
-const fetchIcon = memoize(async (iconId) => {
+const getIcon = memoize(async (iconId, baseDir = process.cwd()) => {
   // Validate and parse icon identifier
   if (typeof iconId !== "string" || !iconId.includes(":")) {
-    throw new Error(INVALID_ICON_ERROR(iconId));
+    throw new Error(
+      `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
+    );
   }
 
-  const [prefix, ...nameParts] = iconId.split(":");
-  const name = nameParts.join(":");
+  const [rawPrefix, ...nameParts] = iconId.split(":");
+  const rawName = nameParts.join(":");
 
-  if (!prefix || !name) {
-    throw new Error(INVALID_ICON_ERROR(iconId));
+  if (!rawPrefix || !rawName) {
+    throw new Error(
+      `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
+    );
   }
 
-  // Build URL with normalized name (lowercase, underscores/spaces to hyphens)
-  const normalizedName = name
+  // Normalize: trim, lowercase, convert underscores/spaces to hyphens
+  const prefix = rawPrefix.trim().toLowerCase();
+  const name = rawName
     .trim()
     .toLowerCase()
     .replace(/[_\s]+/g, "-");
-  const url = `${ICONIFY_API_BASE}/${prefix.trim()}/${normalizedName}.svg`;
+  const filePath = path.join(baseDir, ICONS_DIR, prefix, `${name}.svg`);
 
+  // Return cached icon if it exists on disk
+  if (fs.existsSync(filePath)) {
+    return fs.readFileSync(filePath, "utf-8");
+  }
+
+  // Fetch from Iconify API
+  const url = `${ICONIFY_API_BASE}/${prefix}/${name}.svg`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -49,6 +62,10 @@ const fetchIcon = memoize(async (iconId) => {
     );
   }
 
+  // Save to disk for future builds
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, svg, "utf-8");
+
   return svg;
 });
 
@@ -60,8 +77,10 @@ const fetchIcon = memoize(async (iconId) => {
  *   {{ "mdi:home" | icon }}
  *   {{ "lucide:settings" | icon }}
  *
+ * Icons are cached to src/assets/icons/iconify/ and can be committed to git.
+ *
  * @param {object} eleventyConfig - Eleventy configuration object
  */
 export const configureIconify = (eleventyConfig) => {
-  eleventyConfig.addAsyncFilter("icon", fetchIcon);
+  eleventyConfig.addAsyncFilter("icon", getIcon);
 };
