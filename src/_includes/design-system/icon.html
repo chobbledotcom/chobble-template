@@ -1,0 +1,20 @@
+{%- comment -%}
+Renders an icon as either an image or raw HTML content.
+
+Parameters:
+  - icon: The icon content (emoji, HTML entity, SVG, or path starting with /)
+
+If the icon starts with /, it renders as an <img> tag.
+Otherwise, it outputs the icon content directly.
+
+Usage:
+  {% include "design-system/icon.html", icon: "&#128640;" %}
+  {% include "design-system/icon.html", icon: "/images/icon.svg" %}
+{%- endcomment -%}
+
+{%- assign icon_first_char = icon | slice: 0 -%}
+{%- if icon_first_char == "/" -%}
+<img src="{{ icon }}" alt="">
+{%- else -%}
+{{- icon -}}
+{%- endif -%}
