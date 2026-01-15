@@ -1,11 +1,13 @@
 {%- if blocks.size > 0 -%}
 <div class="design-system">
+{%- assign _layout = pageLayouts[page.fileSlug] -%}
 {%- for block in blocks -%}
+  {%- assign _layoutBlock = _layout.blocks[forloop.index0] -%}
   {%- case block.type -%}
 
     {%- when "section-header" -%}
-      {%- assign _level = block.level | default: 2 -%}
-      {%- assign _align = block.align | default: "center" -%}
+      {%- assign _level = _layoutBlock.level | default: block.level | default: 2 -%}
+      {%- assign _align = _layoutBlock.align | default: block.align | default: "center" -%}
       {%- include "design-system/section-header.html",
           title: block.title,
           subtitle: block.subtitle,
@@ -15,11 +17,21 @@
       -%}
 
     {%- when "features" -%}
-      {%- assign _heading_level = block.heading_level | default: 3 -%}
+      {%- assign _heading_level = _layoutBlock.heading_level | default: block.heading_level | default: 3 -%}
       {%- include "design-system/features.html",
           items: block.items,
           reveal: block.reveal,
           heading_level: _heading_level
+      -%}
+
+    {%- when "image-cards" -%}
+      {%- assign _heading_level = _layoutBlock.heading_level | default: block.heading_level | default: 3 -%}
+      {%- assign _image_aspect_ratio = _layoutBlock.image_aspect_ratio | default: block.image_aspect_ratio -%}
+      {%- include "design-system/image-cards.html",
+          items: block.items,
+          reveal: block.reveal,
+          heading_level: _heading_level,
+          image_aspect_ratio: _image_aspect_ratio
       -%}
 
     {%- when "stats" -%}
