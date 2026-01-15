@@ -14,60 +14,62 @@ const ICONS_DIR = "src/assets/icons/iconify";
  * @returns {Promise<string>} SVG content
  * @throws {Error} If icon ID is invalid or fetch fails
  */
-const getIcon = memoize(async (iconId, baseDir = process.cwd()) => {
-  // Validate and parse icon identifier
-  if (typeof iconId !== "string" || !iconId.includes(":")) {
-    throw new Error(
-      `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
-    );
-  }
+const getIcon = memoize(
+  async (iconId, baseDir = process.cwd()) => {
+    if (typeof iconId !== "string" || !iconId.includes(":")) {
+      throw new Error(
+        `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
+      );
+    }
 
-  const [rawPrefix, ...nameParts] = iconId.split(":");
-  const rawName = nameParts.join(":");
+    const [rawPrefix, ...nameParts] = iconId.split(":");
+    const rawName = nameParts.join(":");
 
-  if (!rawPrefix || !rawName) {
-    throw new Error(
-      `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
-    );
-  }
+    if (!rawPrefix || !rawName) {
+      throw new Error(
+        `Invalid icon identifier "${iconId}". Expected format: "prefix:name" (e.g., "hugeicons:help-circle")`,
+      );
+    }
 
-  // Normalize: trim, lowercase, convert underscores/spaces to hyphens
-  const prefix = rawPrefix.trim().toLowerCase();
-  const name = rawName
-    .trim()
-    .toLowerCase()
-    .replace(/[_\s]+/g, "-");
-  const filePath = path.join(baseDir, ICONS_DIR, prefix, `${name}.svg`);
+    // Normalize: trim, lowercase, convert underscores/spaces to hyphens
+    const prefix = rawPrefix.trim().toLowerCase();
+    const name = rawName
+      .trim()
+      .toLowerCase()
+      .replace(/[_\s]+/g, "-");
+    const filePath = path.join(baseDir, ICONS_DIR, prefix, `${name}.svg`);
 
-  // Return cached icon if it exists on disk
-  if (fs.existsSync(filePath)) {
-    return fs.readFileSync(filePath, "utf-8");
-  }
+    // Return cached icon if it exists on disk
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, "utf-8");
+    }
 
-  // Fetch from Iconify API
-  const url = `${ICONIFY_API_BASE}/${prefix}/${name}.svg`;
-  const response = await fetch(url);
+    // Fetch from Iconify API
+    const url = `${ICONIFY_API_BASE}/${prefix}/${name}.svg`;
+    const response = await fetch(url);
 
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch icon "${iconId}" from Iconify API. Status: ${response.status}. URL: ${url}`,
-    );
-  }
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch icon "${iconId}" from Iconify API. Status: ${response.status}. URL: ${url}`,
+      );
+    }
 
-  const svg = await response.text();
+    const svg = await response.text();
 
-  if (!svg.includes("<svg")) {
-    throw new Error(
-      `Invalid response for icon "${iconId}". Expected SVG but got: ${svg.slice(0, 100)}...`,
-    );
-  }
+    if (!svg.includes("<svg")) {
+      throw new Error(
+        `Invalid response for icon "${iconId}". Expected SVG but got: ${svg.slice(0, 100)}...`,
+      );
+    }
 
-  // Save to disk for future builds
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, svg, "utf-8");
+    // Save to disk for future builds
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, svg, "utf-8");
 
-  return svg;
-});
+    return svg;
+  },
+  { cacheKey: ([iconId, baseDir]) => `${iconId}:${baseDir || process.cwd()}` },
+);
 
 /**
  * Configure the icon filter for Eleventy.

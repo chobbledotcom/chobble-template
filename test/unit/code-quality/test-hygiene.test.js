@@ -29,6 +29,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withMockedCwd",
   "withMockedConsole",
   "withAssetDir",
+  "withIconDir",
+  "getIconFilter",
+  "mockFetch",
   "expectValidScriptTag",
   // Fixture factories
   "createProduct",
