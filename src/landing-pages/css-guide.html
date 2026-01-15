@@ -310,6 +310,20 @@ Breakpoints:
         </div>
         <p class="text-muted mt-lg">The <code>.features</code> container auto-fits cards at 300px minimum width.</p>
       </article>
+
+      <!-- Image Cards -->
+      <article class="feature mb-xl" data-reveal>
+        <h3>Image Cards</h3>
+        <p>Similar to features but with images instead of emoji icons. Use <code>ul.items</code> for the grid.</p>
+        <div class="code-block">
+            <div class="code-block-toolbar">
+            <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>HTML</span>
+          </div>
+          <pre><code>{% read_code "src/landing-pages/code-examples/image-cards.html" %}</code></pre>
+        </div>
+        <p class="text-muted mt-lg">Images have hover zoom effect. The grid is responsive (1→2→3 columns). Also available as a frontmatter block type.</p>
+      </article>
     </div>
   </section>
 
@@ -787,6 +801,7 @@ $bp-xl: 1200px</code></pre>
 │       ├── code-block.html   # Terminal-style code display
 │       ├── feature-icon.html # Accessible icon with aria
 │       ├── features.html     # Features as semantic list
+│       ├── image-cards.html  # Image cards grid
 │       ├── section-header.html # Section title + subtitle
 │       └── stats.html        # Stats as description list
 │

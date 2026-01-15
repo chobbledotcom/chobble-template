@@ -22,6 +22,14 @@
           heading_level: _heading_level
       -%}
 
+    {%- when "image-cards" -%}
+      {%- assign _heading_level = block.heading_level | default: 3 -%}
+      {%- include "design-system/image-cards.html",
+          items: block.items,
+          reveal: block.reveal,
+          heading_level: _heading_level
+      -%}
+
     {%- when "stats" -%}
       {%- include "design-system/stats.html",
           items: block.items,
