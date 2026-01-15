@@ -214,6 +214,8 @@ nav {
             position: relative;
             /* First-level dropdown - only direct child ul */
             & > ul {
+              flex-direction: column;
+              gap: 0.5rem;
               background: var(--color-bg);
               border: var(--border);
               border-radius: var(--border-radius);
@@ -221,7 +223,7 @@ nav {
               display: none;
               height: auto;
               left: -2px;
-              padding: 0.5rem 1rem;
+              padding: 0.5rem;
               position: absolute;
               top: 1.7rem;
               white-space: nowrap;
@@ -236,14 +238,12 @@ nav {
                 top: -0.5rem;
                 height: 0.5rem;
               }
-              li,
-              li a {
-                display: block;
-              }
               /* Second-level dropdown - positioned to the right */
               li {
                 position: relative;
                 & > ul {
+                  flex-direction: column;
+                  gap: 0.5rem;
                   top: -0.5rem;
                   left: 100%;
                   margin-left: 0.5rem;
@@ -257,12 +257,12 @@ nav {
                   }
                 }
                 &:hover > ul {
-                  display: block;
+                  display: flex;
                 }
               }
             }
             &:hover > ul {
-              display: block;
+              display: flex;
             }
           }
         }
