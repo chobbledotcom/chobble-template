@@ -6,9 +6,6 @@ import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#utils/memoize.js";
 
-const createMarkdownRenderer = (options = { html: true }) =>
-  new markdownIt(options);
-
 const cacheKeyFromArgs = (args) => args.join(",");
 
 const resolvePath = (relativePath, baseDir = process.cwd()) =>
@@ -25,9 +22,6 @@ const fileExists = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
-const fileMissing = (relativePath, baseDir) =>
-  !fileExists(relativePath, baseDir);
-
 const readFileContent = memoize(
   (relativePath, baseDir) => {
     const fullPath = resolvePath(relativePath, baseDir);
@@ -42,7 +36,7 @@ const renderSnippet = memoize(
     name,
     defaultString = "",
     baseDir = process.cwd(),
-    mdRenderer = createMarkdownRenderer(),
+    mdRenderer = new markdownIt({ html: true }),
   ) => {
     const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
 
@@ -84,7 +78,7 @@ const configureFileUtils = (eleventyConfig) => {
 
   eleventyConfig.addFilter("file_exists", (name) => fileExists(name));
 
-  eleventyConfig.addFilter("file_missing", (name) => fileMissing(name));
+  eleventyConfig.addFilter("file_missing", (name) => !fileExists(name));
 
   eleventyConfig.addFilter("escape_html", escapeHtml);
 
@@ -103,12 +97,4 @@ const configureFileUtils = (eleventyConfig) => {
   );
 };
 
-export {
-  createMarkdownRenderer,
-  ensureDir,
-  fileExists,
-  fileMissing,
-  readFileContent,
-  renderSnippet,
-  configureFileUtils,
-};
+export { configureFileUtils, ensureDir };
