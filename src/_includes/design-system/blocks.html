@@ -27,7 +27,8 @@
       {%- include "design-system/image-cards.html",
           items: block.items,
           reveal: block.reveal,
-          heading_level: _heading_level
+          heading_level: _heading_level,
+          image_aspect_ratio: block.image_aspect_ratio
       -%}
 
     {%- when "stats" -%}

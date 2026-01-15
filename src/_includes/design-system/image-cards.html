@@ -9,9 +9,10 @@ Parameters:
     - link: URL to link to (optional)
   - reveal: If true, adds data-reveal animation (default: true)
   - heading_level: Heading level for titles, defaults to 3 (h3)
+  - image_aspect_ratio: Aspect ratio for images (e.g., "16/9", "1/1", "4/3"). Default: uses CSS default
 
 Usage:
-  {% include "design-system/image-cards.html", items: page.image_cards %}
+  {% include "design-system/image-cards.html", items: page.image_cards, image_aspect_ratio: "16/9" %}
 
   Where page.image_cards = [
     { image: "/images/photo.jpg", title: "Title", description: "Description", link: "/page/" },
@@ -28,11 +29,11 @@ Usage:
     {%- if item.image -%}
       {%- if item.link -%}
         <a class="image-link" href="{{ item.link }}" aria-hidden="true" tabindex="-1">
-          <img src="{{ item.image }}" alt="" loading="lazy" decoding="async">
+          {%- image item.image, "", "", "", "", image_aspect_ratio -%}
         </a>
       {%- else -%}
         <div class="image-link">
-          <img src="{{ item.image }}" alt="" loading="lazy" decoding="async">
+          {%- image item.image, "", "", "", "", image_aspect_ratio -%}
         </div>
       {%- endif -%}
     {%- endif -%}
