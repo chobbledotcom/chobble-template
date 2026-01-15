@@ -3,7 +3,10 @@ Features grid with list semantics.
 
 Parameters:
   - items: Array of feature objects with properties:
-    - icon: Icon content (emoji, HTML entity, or path starting with /)
+    - icon: Icon content. Supported formats:
+        - Iconify ID: "prefix:name" (e.g., "mdi:home", "lucide:settings")
+        - Image path: starts with "/" (e.g., "/images/icon.svg")
+        - Raw content: emoji or HTML entity (e.g., "&#128640;")
     - icon_label: Accessible label for icon (optional, defaults to decorative)
     - title: Feature title
     - description: Feature description
@@ -15,7 +18,8 @@ Usage:
   {% include "design-system/features.html", items: page.features %}
 
   Where page.features = [
-    { icon: "&#128640;", title: "Fast", description: "Static HTML" },
+    { icon: "mdi:rocket-launch", title: "Fast", description: "Static HTML" },
+    { icon: "&#128640;", title: "Emoji", description: "HTML entity icon" },
     { icon: "/images/icon.svg", title: "Custom", description: "Path-based icon" },
     ...
   ]
