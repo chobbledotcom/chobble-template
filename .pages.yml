@@ -725,10 +725,6 @@ content:
             default: section-header
           - { name: title, type: string, label: Title, required: true }
           - { name: subtitle, type: string, label: Subtitle }
-          - name: heading_level
-            type: number
-            label: Heading Level
-            default: 3
           - name: items
             type: object
             label: Features
