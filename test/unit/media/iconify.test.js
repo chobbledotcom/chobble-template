@@ -1,54 +1,22 @@
 import { describe, expect, test } from "bun:test";
 import { configureIconify } from "#media/iconify.js";
 import {
-  cleanupTempDir,
   createMockEleventyConfig,
-  createTempDir,
   fs,
   path,
+  withMockFetch,
+  withSubDirAsync,
 } from "#test/test-utils.js";
-
-// ============================================
-// Test Fixtures
-// ============================================
 
 const SAMPLE_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
 const ICONS_SUBDIR = "src/assets/icons/iconify";
 
-/** Create temp directory with icons subdirectory structure */
-const withIconDir = (name, prefix = "") => {
-  const tempDir = createTempDir(name);
-  const iconsDir = path.join(tempDir, ICONS_SUBDIR, prefix);
-  if (prefix) {
-    fs.mkdirSync(iconsDir, { recursive: true });
-  }
-  return { tempDir, iconsDir, cleanup: () => cleanupTempDir(tempDir) };
-};
-
-/** Mock fetch for testing network calls */
-const mockFetch = (responseData, options = {}) => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => ({
-    ok: options.ok !== false,
-    status: options.status || 200,
-    text: async () => responseData,
-  });
-  return () => {
-    globalThis.fetch = originalFetch;
-  };
-};
-
-/** Get configured icon filter for testing */
 const getIconFilter = () => {
   const mockConfig = createMockEleventyConfig();
   configureIconify(mockConfig);
   return mockConfig.asyncFilters.icon;
 };
-
-// ============================================
-// Tests
-// ============================================
 
 describe("iconify", () => {
   describe("configureIconify", () => {
@@ -84,143 +52,117 @@ describe("iconify", () => {
   });
 
   describe("icon filter disk cache", () => {
-    test("Reads icon from disk when cached", async () => {
-      const { tempDir, iconsDir, cleanup } = withIconDir(
+    test("Reads icon from disk when cached", () =>
+      withSubDirAsync(
         "iconify-cached",
-        "mdi",
-      );
-      fs.writeFileSync(path.join(iconsDir, "home.svg"), SAMPLE_SVG);
+        `${ICONS_SUBDIR}/mdi`,
+        async ({ tempDir, subDir }) => {
+          fs.writeFileSync(path.join(subDir, "home.svg"), SAMPLE_SVG);
+          const result = await getIconFilter()("mdi:home", tempDir);
+          expect(result).toBe(SAMPLE_SVG);
+        },
+      ));
 
-      const icon = getIconFilter();
-      const result = await icon("mdi:home", tempDir);
-      expect(result).toBe(SAMPLE_SVG);
-      cleanup();
-    });
-
-    test("Normalizes icon name with underscores to hyphens", async () => {
-      const { tempDir, iconsDir, cleanup } = withIconDir(
+    test("Normalizes icon name with underscores to hyphens", () =>
+      withSubDirAsync(
         "iconify-underscore",
-        "hugeicons",
-      );
-      fs.writeFileSync(path.join(iconsDir, "help-circle.svg"), SAMPLE_SVG);
+        `${ICONS_SUBDIR}/hugeicons`,
+        async ({ tempDir, subDir }) => {
+          fs.writeFileSync(path.join(subDir, "help-circle.svg"), SAMPLE_SVG);
+          const result = await getIconFilter()(
+            "hugeicons:help_circle",
+            tempDir,
+          );
+          expect(result).toBe(SAMPLE_SVG);
+        },
+      ));
 
-      const icon = getIconFilter();
-      const result = await icon("hugeicons:help_circle", tempDir);
-      expect(result).toBe(SAMPLE_SVG);
-      cleanup();
-    });
-
-    test("Normalizes icon name to lowercase", async () => {
-      const { tempDir, iconsDir, cleanup } = withIconDir(
+    test("Normalizes icon name to lowercase", () =>
+      withSubDirAsync(
         "iconify-lowercase",
-        "mdi",
-      );
-      fs.writeFileSync(path.join(iconsDir, "arrow-left.svg"), SAMPLE_SVG);
+        `${ICONS_SUBDIR}/mdi`,
+        async ({ tempDir, subDir }) => {
+          fs.writeFileSync(path.join(subDir, "arrow-left.svg"), SAMPLE_SVG);
+          const result = await getIconFilter()("MDI:Arrow_Left", tempDir);
+          expect(result).toBe(SAMPLE_SVG);
+        },
+      ));
 
-      const icon = getIconFilter();
-      const result = await icon("MDI:Arrow_Left", tempDir);
-      expect(result).toBe(SAMPLE_SVG);
-      cleanup();
-    });
-
-    test("Trims whitespace from prefix and name", async () => {
-      const { tempDir, iconsDir, cleanup } = withIconDir(
+    test("Trims whitespace from prefix and name", () =>
+      withSubDirAsync(
         "iconify-trim",
-        "lucide",
-      );
-      fs.writeFileSync(path.join(iconsDir, "settings.svg"), SAMPLE_SVG);
+        `${ICONS_SUBDIR}/lucide`,
+        async ({ tempDir, subDir }) => {
+          fs.writeFileSync(path.join(subDir, "settings.svg"), SAMPLE_SVG);
+          const result = await getIconFilter()(
+            "  lucide : settings  ",
+            tempDir,
+          );
+          expect(result).toBe(SAMPLE_SVG);
+        },
+      ));
 
-      const icon = getIconFilter();
-      const result = await icon("  lucide : settings  ", tempDir);
-      expect(result).toBe(SAMPLE_SVG);
-      cleanup();
-    });
-
-    test("Converts spaces in name to hyphens", async () => {
-      const { tempDir, iconsDir, cleanup } = withIconDir(
+    test("Converts spaces in name to hyphens", () =>
+      withSubDirAsync(
         "iconify-spaces",
-        "custom",
-      );
-      fs.writeFileSync(path.join(iconsDir, "icon-name.svg"), SAMPLE_SVG);
-
-      const icon = getIconFilter();
-      const result = await icon("custom:icon name", tempDir);
-      expect(result).toBe(SAMPLE_SVG);
-      cleanup();
-    });
+        `${ICONS_SUBDIR}/custom`,
+        async ({ tempDir, subDir }) => {
+          fs.writeFileSync(path.join(subDir, "icon-name.svg"), SAMPLE_SVG);
+          const result = await getIconFilter()("custom:icon name", tempDir);
+          expect(result).toBe(SAMPLE_SVG);
+        },
+      ));
   });
 
   describe("icon filter fetch and save", () => {
-    test("Fetches icon from API when not cached", async () => {
-      const { tempDir, cleanup } = withIconDir("iconify-fetch");
-      const restoreFetch = mockFetch(SAMPLE_SVG);
+    test("Fetches icon from API when not cached", () =>
+      withSubDirAsync("iconify-fetch", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
+          const result = await getIconFilter()("test:icon", tempDir);
+          expect(result).toBe(SAMPLE_SVG);
+        }),
+      ));
 
-      const icon = getIconFilter();
-      const result = await icon("test:icon", tempDir);
+    test("Saves fetched icon to disk", () =>
+      withSubDirAsync("iconify-save", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
+          await getIconFilter()("newprefix:newicon", tempDir);
+          const savedPath = path.join(
+            tempDir,
+            ICONS_SUBDIR,
+            "newprefix",
+            "newicon.svg",
+          );
+          expect(fs.existsSync(savedPath)).toBe(true);
+          expect(fs.readFileSync(savedPath, "utf-8")).toBe(SAMPLE_SVG);
+        }),
+      ));
 
-      expect(result).toBe(SAMPLE_SVG);
-      restoreFetch();
-      cleanup();
-    });
+    test("Creates directory structure when saving", () =>
+      withSubDirAsync("iconify-mkdir", "", async ({ tempDir }) =>
+        withMockFetch(SAMPLE_SVG, {}, async () => {
+          await getIconFilter()("brand:newicon", tempDir);
+          const expectedDir = path.join(tempDir, ICONS_SUBDIR, "brand");
+          expect(fs.existsSync(expectedDir)).toBe(true);
+        }),
+      ));
 
-    test("Saves fetched icon to disk", async () => {
-      const { tempDir, cleanup } = withIconDir("iconify-save");
-      const restoreFetch = mockFetch(SAMPLE_SVG);
+    test("Throws when API returns error status", () =>
+      withSubDirAsync("iconify-error", "", async ({ tempDir }) =>
+        withMockFetch("Not Found", { ok: false, status: 404 }, async () => {
+          await expect(
+            getIconFilter()("notfound:icon", tempDir),
+          ).rejects.toThrow(/Failed to fetch icon.*Status: 404/);
+        }),
+      ));
 
-      const icon = getIconFilter();
-      await icon("newprefix:newicon", tempDir);
-
-      const savedPath = path.join(
-        tempDir,
-        ICONS_SUBDIR,
-        "newprefix",
-        "newicon.svg",
-      );
-      expect(fs.existsSync(savedPath)).toBe(true);
-      expect(fs.readFileSync(savedPath, "utf-8")).toBe(SAMPLE_SVG);
-
-      restoreFetch();
-      cleanup();
-    });
-
-    test("Creates directory structure when saving", async () => {
-      const { tempDir, cleanup } = withIconDir("iconify-mkdir");
-      const restoreFetch = mockFetch(SAMPLE_SVG);
-
-      const icon = getIconFilter();
-      await icon("brand:newicon", tempDir);
-
-      const expectedDir = path.join(tempDir, ICONS_SUBDIR, "brand");
-      expect(fs.existsSync(expectedDir)).toBe(true);
-
-      restoreFetch();
-      cleanup();
-    });
-
-    test("Throws when API returns error status", async () => {
-      const { tempDir, cleanup } = withIconDir("iconify-error");
-      const restoreFetch = mockFetch("Not Found", { ok: false, status: 404 });
-
-      const icon = getIconFilter();
-      await expect(icon("notfound:icon", tempDir)).rejects.toThrow(
-        /Failed to fetch icon.*Status: 404/,
-      );
-
-      restoreFetch();
-      cleanup();
-    });
-
-    test("Throws when API returns invalid SVG", async () => {
-      const { tempDir, cleanup } = withIconDir("iconify-invalid");
-      const restoreFetch = mockFetch("This is not an SVG");
-
-      const icon = getIconFilter();
-      await expect(icon("invalid:response", tempDir)).rejects.toThrow(
-        /Invalid response.*Expected SVG/,
-      );
-
-      restoreFetch();
-      cleanup();
-    });
+    test("Throws when API returns invalid SVG", () =>
+      withSubDirAsync("iconify-invalid", "", async ({ tempDir }) =>
+        withMockFetch("This is not an SVG", {}, async () => {
+          await expect(
+            getIconFilter()("invalid:response", tempDir),
+          ).rejects.toThrow(/Invalid response.*Expected SVG/);
+        }),
+      ));
   });
 });

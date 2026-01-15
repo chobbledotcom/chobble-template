@@ -303,6 +303,98 @@ const withMockedProcessExit = bracket(
 );
 
 /**
+ * Create a temp directory with a specific subdirectory structure.
+ * Manual version - returns cleanup function for explicit control.
+ *
+ * @param {string} testName - Unique name for the temp directory
+ * @param {string} subPath - Subdirectory path to create (e.g., "src/assets/icons")
+ * @returns {{ tempDir: string, subDir: string, cleanup: () => void }}
+ */
+const withSubDir = (testName, subPath = "") => {
+  const tempDir = createTempDir(testName);
+  const subDir = subPath ? path.join(tempDir, subPath) : tempDir;
+  if (subPath) {
+    fs.mkdirSync(subDir, { recursive: true });
+  }
+  return { tempDir, subDir, cleanup: () => cleanupTempDir(tempDir) };
+};
+
+/**
+ * Bracket-based temp directory with subdirectory.
+ * Automatically cleans up after callback completes.
+ *
+ * @param {string} testName - Unique name for the temp directory
+ * @param {string} subPath - Subdirectory path to create
+ * @param {Function} callback - ({ tempDir, subDir }) => result
+ * @returns {Promise<any>} Result of callback
+ *
+ * @example
+ * await withSubDirAsync("my-test", "src/assets/icons", async ({ tempDir, subDir }) => {
+ *   fs.writeFileSync(path.join(subDir, "icon.svg"), svg);
+ *   const result = await myFunction(tempDir);
+ *   expect(result).toBe(expected);
+ * });
+ */
+const withSubDirAsync = async (testName, subPath, callback) => {
+  const { tempDir, subDir, cleanup } = withSubDir(testName, subPath);
+  try {
+    return await callback({ tempDir, subDir });
+  } finally {
+    cleanup();
+  }
+};
+
+/**
+ * Mock globalThis.fetch for testing network calls.
+ * Manual version - returns restore function for explicit control.
+ *
+ * @param {string|Object} response - Response data
+ * @param {Object} options - { ok?: boolean, status?: number }
+ * @returns {() => void} Function to restore original fetch
+ */
+const mockFetch = (response, options = {}) => {
+  const originalFetch = globalThis.fetch;
+  const responseText =
+    typeof response === "string" ? response : JSON.stringify(response);
+
+  globalThis.fetch = async () => ({
+    ok: options.ok !== false,
+    status: options.status || 200,
+    text: async () => responseText,
+    json: async () =>
+      typeof response === "string" ? JSON.parse(response) : response,
+  });
+
+  return () => {
+    globalThis.fetch = originalFetch;
+  };
+};
+
+/**
+ * Bracket-based fetch mock.
+ * Automatically restores original fetch after callback completes.
+ *
+ * @param {string|Object} response - Response data
+ * @param {Object} options - { ok?: boolean, status?: number }
+ * @param {Function} callback - async () => result
+ * @returns {Promise<any>} Result of callback
+ *
+ * @example
+ * await withMockFetch('<svg>...</svg>', {}, async () => {
+ *   const result = await fetchIcon("mdi:home");
+ *   expect(result).toContain("<svg");
+ * });
+ */
+const withMockFetch = async (response, options, callback) => {
+  const restore = mockFetch(response, options);
+  try {
+    return await callback();
+  } finally {
+    restore();
+  }
+};
+
+/**
  * Assert that a result is a valid script tag with correct id and type.
  * Functional helper to reduce duplication in script tag validation.
  *
@@ -793,6 +885,10 @@ export {
   withTempFile,
   withMockedCwd,
   withMockedProcessExit,
+  withSubDir,
+  withSubDirAsync,
+  mockFetch,
+  withMockFetch,
   expectValidScriptTag,
   expectResultTitles,
   expectObjectProps,
