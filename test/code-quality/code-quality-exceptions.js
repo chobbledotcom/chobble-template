@@ -268,7 +268,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/config/helpers.js:validatePageFrontmatter",
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
-  // Eleventy plugin configure functions - tested for plugin registration
+  // Eleventy plugin configure functions - called from .eleventy.js at root (outside src/)
   "src/_lib/eleventy/external-links.js:configureExternalLinks",
   "src/_lib/eleventy/area-list.js:configureAreaList",
   "src/_lib/eleventy/cache-buster.js:cacheBust",
@@ -276,11 +276,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/capture.js:configureCapture",
   "src/_lib/eleventy/feed.js:configureFeed",
   "src/_lib/eleventy/file-utils.js:configureFileUtils",
-  "src/_lib/eleventy/file-utils.js:createMarkdownRenderer",
-  "src/_lib/eleventy/file-utils.js:fileExists",
-  "src/_lib/eleventy/file-utils.js:fileMissing",
-  "src/_lib/eleventy/file-utils.js:readFileContent",
-  "src/_lib/eleventy/file-utils.js:renderSnippet",
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
   "src/_lib/eleventy/js-config.js:buildJsConfigJson",
