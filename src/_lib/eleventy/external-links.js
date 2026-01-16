@@ -84,13 +84,6 @@ const configureExternalLinks = async (eleventyConfig, testConfig = null) => {
 
   eleventyConfig.addFilter("externalLinkAttrs", getExternalLinkAttrs);
 
-  eleventyConfig.addFilter("linkify", (url) => {
-    if (!url || typeof url !== "string") return "";
-    const displayText = formatUrlForDisplay(url);
-    const attrs = getExternalLinkAttrs(url);
-    return `<a href="${url}"${attrs}>${displayText}</a>`;
-  });
-
   // Transform that auto-linkifies URLs in text content
   eleventyConfig.addTransform("linkifyUrls", async (content, outputPath) => {
     if (

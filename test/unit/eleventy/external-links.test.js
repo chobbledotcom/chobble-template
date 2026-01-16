@@ -271,15 +271,6 @@ describe("external-links", () => {
       expect(typeof mockConfig.transforms.externalLinks).toBe("function");
     });
 
-    test("registers linkify filter", async () => {
-      const mockConfig = createMockEleventyConfig();
-      await configureExternalLinks(mockConfig, {
-        externalLinksTargetBlank: true,
-      });
-
-      expect(typeof mockConfig.filters.linkify).toBe("function");
-    });
-
     test("registers linkifyUrls transform", async () => {
       const mockConfig = createMockEleventyConfig();
       await configureExternalLinks(mockConfig, {
@@ -489,98 +480,6 @@ describe("external-links", () => {
 
     test("returns empty string for non-string", () => {
       expect(formatUrlForDisplay(123)).toBe("");
-    });
-  });
-
-  describe("linkify filter", () => {
-    const getLinkifyFilter = async (config) => {
-      const mockConfig = createMockEleventyConfig();
-      await configureExternalLinks(mockConfig, config);
-      return mockConfig.filters.linkify;
-    };
-
-    describe("when externalLinksTargetBlank is true", () => {
-      test("creates anchor tag with cleaned display text", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        const result = linkify("https://www.example.com");
-        expect(result).toBe(
-          '<a href="https://www.example.com" target="_blank" rel="noopener noreferrer">example.com</a>',
-        );
-      });
-
-      test("preserves path in display text", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        const result = linkify("https://example.com/page");
-        expect(result).toBe(
-          '<a href="https://example.com/page" target="_blank" rel="noopener noreferrer">example.com/page</a>',
-        );
-      });
-
-      test("strips trailing slash from display", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        const result = linkify("https://example.com/");
-        expect(result).toBe(
-          '<a href="https://example.com/" target="_blank" rel="noopener noreferrer">example.com</a>',
-        );
-      });
-    });
-
-    describe("when externalLinksTargetBlank is false", () => {
-      test("creates anchor tag without target attributes", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: false,
-        });
-        const result = linkify("https://www.example.com");
-        expect(result).toBe(
-          '<a href="https://www.example.com">example.com</a>',
-        );
-      });
-    });
-
-    describe("with internal URLs", () => {
-      test("does not add target attributes for relative URLs", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        const result = linkify("/about");
-        expect(result).toBe('<a href="/about">/about</a>');
-      });
-    });
-
-    describe("edge cases", () => {
-      test("returns empty string for null", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        expect(linkify(null)).toBe("");
-      });
-
-      test("returns empty string for undefined", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        expect(linkify(undefined)).toBe("");
-      });
-
-      test("returns empty string for non-string", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        expect(linkify(123)).toBe("");
-      });
-
-      test("returns empty string for empty string", async () => {
-        const linkify = await getLinkifyFilter({
-          externalLinksTargetBlank: true,
-        });
-        expect(linkify("")).toBe("");
-      });
     });
   });
 });
