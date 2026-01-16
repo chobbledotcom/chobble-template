@@ -2,14 +2,12 @@ import { isAbsolute, join } from "node:path";
 import { getConfig } from "#config/site-config.js";
 import {
   buildViewportSuffix,
-  getDefaultOptions,
   getViewports,
   sanitizePagePath,
   screenshot,
   screenshotAllViewports,
   screenshotMultiple,
   startServer,
-  VIEWPORTS,
 } from "#media/screenshot.js";
 import { map, pipe } from "#utils/array-utils.js";
 import { log, error as logError } from "#utils/console.js";
@@ -98,12 +96,4 @@ export function configureScreenshots(eleventyConfig) {
   });
 }
 
-export {
-  screenshot,
-  screenshotMultiple,
-  screenshotAllViewports,
-  startServer,
-  getViewports,
-  getDefaultOptions,
-  VIEWPORTS,
-};
+export { screenshot, screenshotMultiple, screenshotAllViewports, startServer };

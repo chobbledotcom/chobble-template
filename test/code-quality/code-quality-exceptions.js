@@ -231,30 +231,18 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
 const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:compileScss",
-  "src/_lib/build/scss.js:configureScss",
   "src/_lib/build/scss.js:createScssCompiler",
 
-  // Collection configure functions - tested to verify Eleventy registration
-  "src/_lib/collections/categories.js:configureCategories",
-  "src/_lib/collections/events.js:configureEvents",
+  // Collection helper functions - tested for specific behavior
   "src/_lib/collections/events.js:getFeaturedEvents",
-  "src/_lib/collections/guides.js:configureGuides",
   "src/_lib/collections/guides.js:guidesByCategory",
-  "src/_lib/collections/locations.js:configureLocations",
   "src/_lib/collections/locations.js:getRootLocations",
   "src/_lib/collections/locations.js:getSiblingLocations",
-  "src/_lib/collections/menus.js:configureMenus",
   "src/_lib/collections/menus.js:getCategoriesByMenu",
   "src/_lib/collections/menus.js:getItemsByCategory",
-  "src/_lib/collections/navigation.js:configureNavigation",
   "src/_lib/collections/navigation.js:findPageUrl",
   "src/_lib/collections/navigation.js:toNavigation",
-  "src/_lib/collections/news.js:configureNews",
   "src/_lib/collections/news.js:createNewsCollection",
-  "src/_lib/collections/products.js:configureProducts",
-  "src/_lib/collections/reviews.js:configureReviews",
-  "src/_lib/collections/search.js:configureSearch",
-  "src/_lib/collections/tags.js:configureTags",
   "src/_lib/collections/tags.js:extractTags",
 
   // Config helpers - tested for form/quote field logic and validation
@@ -262,55 +250,28 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/config/helpers.js:validatePageFrontmatter",
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
-  // Eleventy plugin configure functions - called from .eleventy.js at root (outside src/)
-  "src/_lib/eleventy/external-links.js:configureExternalLinks",
-  "src/_lib/eleventy/area-list.js:configureAreaList",
+  // Eleventy plugin helpers - internal functions tested directly
   "src/_lib/eleventy/cache-buster.js:cacheBust",
-  "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
-  "src/_lib/eleventy/capture.js:configureCapture",
-  "src/_lib/eleventy/feed.js:configureFeed",
-  "src/_lib/eleventy/file-utils.js:configureFileUtils",
-  "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
   "src/_lib/eleventy/js-config.js:buildJsConfigJson",
-  "src/_lib/eleventy/js-config.js:configureJsConfig",
-  "src/_lib/eleventy/layout-aliases.js:configureLayoutAliases",
-  "src/_lib/eleventy/opening-times.js:configureOpeningTimes",
   "src/_lib/eleventy/opening-times.js:renderOpeningTimes",
   "src/_lib/eleventy/pdf.js:buildMenuPdfData",
-  "src/_lib/eleventy/pdf.js:configurePdf",
   "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
-  "src/_lib/eleventy/recurring-events.js:configureRecurringEvents",
   "src/_lib/eleventy/recurring-events.js:getEventUrl",
   "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
   "src/_lib/eleventy/recurring-events.js:stripDatePrefix",
-  "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
-  "src/_lib/eleventy/screenshots.js:configureScreenshots",
-  "src/_lib/eleventy/screenshots.js:getDefaultOptions",
-  "src/_lib/eleventy/screenshots.js:getViewports",
-  "src/_lib/eleventy/screenshots.js:VIEWPORTS",
 
   // Media processing - tested for image handling
-  "src/_lib/media/image.js:configureImages",
   "src/_lib/media/image.js:createImageTransform",
   "src/_lib/media/image.js:imageShortcode",
   "src/_lib/media/image-utils.js:getPathAwareBasename",
-  "src/_lib/media/inline-asset.js:configureInlineAsset",
-  "src/_lib/media/thumbnail-placeholder.js:configureThumbnailPlaceholder",
   "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",
-  "src/_lib/media/unused-images.js:configureUnusedImages",
 
   // Path constants - used in test utilities
   "src/_lib/paths.js:DATA_DIR",
   "src/_lib/paths.js:ROOT_DIR",
   "src/_lib/paths.js:SRC_DIR",
-
-  // Theme editor internals - tested for UI component behavior
-  "src/_lib/public/theme/theme-editor-config.js:GLOBAL_INPUTS",
-  "src/_lib/public/theme/theme-editor-config.js:SCOPE_DEFINITIONS",
-  "src/_lib/public/theme/theme-editor-config.js:SCOPED_INPUTS",
-  "src/_lib/public/theme/theme-editor-lib.js:SCOPE_SELECTORS",
 
   // Public cart/hire functionality - tested for frontend behavior
   "src/_lib/public/cart/hire-calculator.js:getHireItems",
@@ -328,7 +289,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
   "src/_lib/utils/grouping.js:createLookup",
-  "src/_lib/utils/object-entries.js:mapObject",
   "src/_lib/utils/object-entries.js:omit",
 ]);
 
