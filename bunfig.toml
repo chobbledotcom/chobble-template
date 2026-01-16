@@ -25,7 +25,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - console.js: console output utilities
 # - test-runner-utils.js, test-utils.js: test infrastructure
 # - recurring-events.js: date edge cases
-# - cart/quote utilities: browser-specific edge cases
+# - cart-utils.js, quote-price-utils.js: browser-specific edge cases
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
@@ -42,7 +42,6 @@ coveragePathIgnorePatterns = [
   "src/_lib/eleventy/recurring-events.js",
   "src/_lib/media/image.js",
   "src/_lib/media/image-crop.js",
-  "src/_lib/public/cart/quote-steps.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/utils/array-utils.js",
