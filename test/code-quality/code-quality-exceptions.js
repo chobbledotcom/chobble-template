@@ -55,7 +55,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/code-scanner.js - Exception validation
   // Needed: validates exception entries by reading files that might not exist
-  "test/code-scanner.js:334",
+  "test/code-scanner.js:333",
 
   // test/test-utils.js - Test utility definitions (test infrastructure)
   // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
@@ -223,22 +223,12 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
 // Exports from src/ that are only used in test/ files.
 // These indicate tests of implementation details rather than public API.
 // Format: "path/to/file.js:exportName"
+//
+// NOTE: The scanner now detects Eleventy registrations (addFilter, addShortcode, etc.)
+// so exports registered with Eleventy no longer need to be listed here.
 const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Build utilities - tested directly for build pipeline verification
-  "src/_lib/build/scss.js:compileScss",
   "src/_lib/build/scss.js:createScssCompiler",
-
-  // Collection helper functions - tested for specific behavior
-  "src/_lib/collections/events.js:getFeaturedEvents",
-  "src/_lib/collections/guides.js:guidesByCategory",
-  "src/_lib/collections/locations.js:getRootLocations",
-  "src/_lib/collections/locations.js:getSiblingLocations",
-  "src/_lib/collections/menus.js:getCategoriesByMenu",
-  "src/_lib/collections/menus.js:getItemsByCategory",
-  "src/_lib/collections/navigation.js:findPageUrl",
-  "src/_lib/collections/navigation.js:toNavigation",
-  "src/_lib/collections/news.js:createNewsCollection",
-  "src/_lib/collections/tags.js:extractTags",
 
   // Config helpers - tested for form/quote field logic and validation
   "src/_lib/config/form-helpers.js:getFieldTemplate",
@@ -251,15 +241,12 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/js-config.js:buildJsConfigJson",
   "src/_lib/eleventy/opening-times.js:renderOpeningTimes",
   "src/_lib/eleventy/pdf.js:buildMenuPdfData",
-  "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
   "src/_lib/eleventy/recurring-events.js:getEventUrl",
   "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
   "src/_lib/eleventy/recurring-events.js:stripDatePrefix",
 
   // Media processing - tested for image handling
-  "src/_lib/media/image.js:createImageTransform",
-  "src/_lib/media/image.js:imageShortcode",
   "src/_lib/media/image-utils.js:getPathAwareBasename",
   "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",
 
@@ -283,8 +270,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
-  "src/_lib/utils/grouping.js:createLookup",
-  "src/_lib/utils/object-entries.js:omit",
 ]);
 
 // ============================================

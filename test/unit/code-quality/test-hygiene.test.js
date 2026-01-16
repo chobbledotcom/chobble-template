@@ -15,6 +15,7 @@ import {
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
   // Test utilities from test-utils.js pattern
+  "compileScss",
   "createObjectBuilder",
   "captureConsole",
   "execScript",
@@ -113,8 +114,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // test-only-exports.test.js - analysis helpers
   "resolveImportPath",
   "extractImports",
+  "extractEleventyRegistrations",
   "buildSrcExportsMap",
   "buildImportUsageMap",
+  "buildEleventyRegistrationMap",
   "analyzeTestOnlyExports",
   // test-only-exports.test.js - test fixture source code strings (parser test data)
   "foo",

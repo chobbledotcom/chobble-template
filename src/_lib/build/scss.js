@@ -27,11 +27,6 @@ const createScssCompiler = (inputContent, inputPath) => {
   };
 };
 
-const compileScss = async (inputContent, inputPath) => {
-  const compiler = createScssCompiler(inputContent, inputPath);
-  return await compiler({});
-};
-
 const shouldCompileScss = (inputPath) =>
   COMPILED_BUNDLES.some((bundle) => inputPath.endsWith(bundle));
 
@@ -53,4 +48,4 @@ const configureScss = (eleventyConfig) => {
   });
 };
 
-export { createScssCompiler, compileScss, configureScss, shouldCompileScss };
+export { createScssCompiler, configureScss, shouldCompileScss };
