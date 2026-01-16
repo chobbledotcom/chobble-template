@@ -1,39 +1,43 @@
 import configModule from "#data/config.js";
 import { transformDOM } from "#utils/lazy-dom.js";
 
-const isExternalUrl = (url) => {
-  if (!url || typeof url !== "string") return false;
-  return url.startsWith("http://") || url.startsWith("https://");
-};
+/** @param {string} url */
+const isExternalUrl = (url) =>
+  url.startsWith("http://") || url.startsWith("https://");
 
-const formatUrlForDisplay = (url) => {
-  if (!url || typeof url !== "string") return "";
-  return url
+/** @param {string} url */
+const formatUrlForDisplay = (url) =>
+  url
     .replace(/^https?:\/\//, "")
     .replace(/^www\./, "")
     .replace(/\/$/, "");
-};
 
-// Matches http:// or https:// URLs in text
+/** Matches http:// or https:// URLs in text */
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/g;
 
 const SKIP_TAGS = new Set(["a", "script", "style"]);
 
+/** @param {Text} node */
 const shouldSkipNode = (node) => {
   const parent = node.parentElement;
   if (!parent) return true;
-  const tag = parent.tagName?.toLowerCase();
-  return SKIP_TAGS.has(tag);
+  return SKIP_TAGS.has(parent.tagName.toLowerCase());
 };
 
-const hasUrl = (node) => URL_PATTERN.test(node.textContent);
+/** @param {Text} node */
+const hasUrl = (node) => URL_PATTERN.test(node.textContent ?? "");
 
+/**
+ * @typedef {{ type: "text" | "url", value: string }} TextPart
+ * @param {string} text
+ * @returns {TextPart[]}
+ */
 const parseTextForUrls = (text) => {
+  /** @type {TextPart[]} */
   const parts = [];
   let lastIndex = 0;
   URL_PATTERN.lastIndex = 0;
-  const matches = text.matchAll(URL_PATTERN);
-  for (const match of matches) {
+  for (const match of text.matchAll(URL_PATTERN)) {
     if (match.index > lastIndex) {
       parts.push({ type: "text", value: text.slice(lastIndex, match.index) });
     }
@@ -46,6 +50,11 @@ const parseTextForUrls = (text) => {
   return parts;
 };
 
+/**
+ * @param {Document} document
+ * @param {TextPart[]} parts
+ * @param {boolean} addTargetBlank
+ */
 const createLinkFragment = (document, parts, addTargetBlank) => {
   const fragment = document.createDocumentFragment();
   for (const part of parts) {
@@ -65,69 +74,86 @@ const createLinkFragment = (document, parts, addTargetBlank) => {
   return fragment;
 };
 
+/** @param {Document} document */
 const collectTextNodes = (document) => {
   const walker = document.createTreeWalker(document.body, 4, {
-    acceptNode: (node) => (shouldSkipNode(node) || !hasUrl(node) ? 2 : 1),
+    acceptNode: (node) =>
+      shouldSkipNode(/** @type {Text} */ (node)) ||
+      !hasUrl(/** @type {Text} */ (node))
+        ? 2
+        : 1,
   });
+  /** @type {Text[]} */
   const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
+  while (walker.nextNode()) {
+    nodes.push(/** @type {Text} */ (walker.currentNode));
+  }
   return nodes;
 };
 
+/**
+ * @param {Document} document
+ * @param {boolean} targetBlank
+ */
+const linkifyTextNodes = (document, targetBlank) => {
+  for (const textNode of collectTextNodes(document)) {
+    const parts = parseTextForUrls(textNode.textContent ?? "");
+    if (parts.some((p) => p.type === "url")) {
+      const fragment = createLinkFragment(document, parts, targetBlank);
+      textNode.parentNode?.replaceChild(fragment, textNode);
+    }
+  }
+};
+
+/** @param {Document} document */
+const addTargetBlankToExternalLinks = (document) => {
+  for (const link of document.querySelectorAll("a[href]")) {
+    const href = link.getAttribute("href");
+    if (href && isExternalUrl(href)) {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+    }
+  }
+};
+
+/** @param {string} content */
+const hasUrlInContent = (content) =>
+  content.includes("http://") || content.includes("https://");
+
 const configureExternalLinks = async (eleventyConfig, testConfig = null) => {
   const config = testConfig ?? (await configModule());
+  const targetBlank = config?.externalLinksTargetBlank ?? false;
 
-  const getExternalLinkAttrs = (url) =>
-    config?.externalLinksTargetBlank && isExternalUrl(url)
+  eleventyConfig.addFilter("externalLinkAttrs", (url) =>
+    targetBlank && typeof url === "string" && isExternalUrl(url)
       ? ' target="_blank" rel="noopener noreferrer"'
-      : "";
+      : "",
+  );
 
-  eleventyConfig.addFilter("externalLinkAttrs", getExternalLinkAttrs);
-
-  // Transform that auto-linkifies URLs in text content
   eleventyConfig.addTransform("linkifyUrls", async (content, outputPath) => {
     if (
       typeof outputPath !== "string" ||
       !outputPath.endsWith(".html") ||
-      !content ||
-      (!content.includes("http://") && !content.includes("https://"))
+      typeof content !== "string" ||
+      !hasUrlInContent(content)
     ) {
       return content;
     }
-    return transformDOM(content, (document) => {
-      const textNodes = collectTextNodes(document);
-      for (const textNode of textNodes) {
-        const parts = parseTextForUrls(textNode.textContent);
-        if (parts.some((p) => p.type === "url")) {
-          const fragment = createLinkFragment(
-            document,
-            parts,
-            config?.externalLinksTargetBlank,
-          );
-          textNode.parentNode.replaceChild(fragment, textNode);
-        }
-      }
-    });
+    return transformDOM(content, (doc) => linkifyTextNodes(doc, targetBlank));
   });
 
   eleventyConfig.addTransform("externalLinks", async (content, outputPath) => {
     if (
       typeof outputPath !== "string" ||
       !outputPath.endsWith(".html") ||
-      !content?.includes("<a") ||
-      !config?.externalLinksTargetBlank ||
-      (!content.includes("http://") && !content.includes("https://"))
+      typeof content !== "string" ||
+      !content.includes("<a") ||
+      !targetBlank ||
+      !hasUrlInContent(content)
     ) {
       return content;
     }
-    return transformDOM(content, (document) => {
-      for (const link of document.querySelectorAll("a[href]")) {
-        if (isExternalUrl(link.getAttribute("href"))) {
-          link.setAttribute("target", "_blank");
-          link.setAttribute("rel", "noopener noreferrer");
-        }
-      }
-    });
+    return transformDOM(content, addTargetBlankToExternalLinks);
   });
 };
 

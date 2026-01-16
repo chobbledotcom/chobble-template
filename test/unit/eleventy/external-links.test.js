@@ -469,17 +469,5 @@ describe("external-links", () => {
     test("handles URLs without protocol", () => {
       expect(formatUrlForDisplay("www.example.com")).toBe("example.com");
     });
-
-    test("returns empty string for null", () => {
-      expect(formatUrlForDisplay(null)).toBe("");
-    });
-
-    test("returns empty string for undefined", () => {
-      expect(formatUrlForDisplay(undefined)).toBe("");
-    });
-
-    test("returns empty string for non-string", () => {
-      expect(formatUrlForDisplay(123)).toBe("");
-    });
   });
 });
