@@ -1,8 +1,8 @@
 import { loadDOM } from "#utils/lazy-dom.js";
 import { memoize } from "#utils/memoize.js";
 
-/** @typedef {import("#lib/types.js").ElementAttributes} ElementAttributes */
-/** @typedef {import("#lib/types.js").ElementChildren} ElementChildren */
+/** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
+/** @typedef {import("#lib/types").ElementChildren} ElementChildren */
 
 /**
  * Get shared DOM document instance for building elements

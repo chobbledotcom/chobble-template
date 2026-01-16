@@ -9,8 +9,8 @@
  */
 import { loadDOM } from "#utils/lazy-dom.js";
 
-/** @typedef {import("#lib/types.js").ImageTransformOptions} ImageTransformOptions */
-/** @typedef {import("#lib/types.js").ProcessImageFn} ProcessImageFn */
+/** @typedef {import("#lib/types").ImageTransformOptions} ImageTransformOptions */
+/** @typedef {import("#lib/types").ProcessImageFn} ProcessImageFn */
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";

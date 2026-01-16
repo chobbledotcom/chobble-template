@@ -25,13 +25,13 @@ import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-/** @typedef {import("#lib/types.js").FilterAttribute} FilterAttribute */
-/** @typedef {import("#lib/types.js").EleventyCollectionItem} EleventyCollectionItem */
-/** @typedef {import("#lib/types.js").FilterSet} FilterSet */
-/** @typedef {import("#lib/types.js").FilterCombination} FilterCombination */
-/** @typedef {import("#lib/types.js").FilterAttributeData} FilterAttributeData */
-/** @typedef {import("#lib/types.js").FilterUIData} FilterUIData */
-/** @typedef {import("#lib/types.js").FilterConfigOptions} FilterConfigOptions */
+/** @typedef {import("#lib/types").FilterAttribute} FilterAttribute */
+/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+/** @typedef {import("#lib/types").FilterSet} FilterSet */
+/** @typedef {import("#lib/types").FilterCombination} FilterCombination */
+/** @typedef {import("#lib/types").FilterAttributeData} FilterAttributeData */
+/** @typedef {import("#lib/types").FilterUIData} FilterUIData */
+/** @typedef {import("#lib/types").FilterConfigOptions} FilterConfigOptions */
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
@@ -364,7 +364,7 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
 /**
  * Generate filter redirects for invalid filter paths.
  * Shared logic used by both global and category-scoped filters.
- * @param {import("#lib/types").EleventyCollectionItem[]} items - Items to generate redirects for
+ * @param {EleventyCollectionItem[]} items - Items to generate redirects for
  * @param {string} searchUrl - Base search URL (e.g., "/products/search" or "/categories/widgets/search")
  * @returns {Array} Redirect objects { from, to }
  */

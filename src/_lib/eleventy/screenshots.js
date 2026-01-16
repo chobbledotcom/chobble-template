@@ -14,7 +14,7 @@ import {
 import { map, pipe } from "#utils/array-utils.js";
 import { log, error as logError } from "#utils/console.js";
 
-/** @returns {import("#lib/types.js").ScreenshotConfig} */
+/** @returns {import("#lib/types").ScreenshotConfig} */
 const getScreenshotConfig = () => getConfig().screenshots ?? {};
 
 const extractPagePaths = (collection) =>

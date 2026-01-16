@@ -15,8 +15,8 @@
  */
 import fs from "node:fs";
 
-/** @typedef {import("#lib/types.js").ImageProps} ImageProps */
-/** @typedef {import("#lib/types.js").ComputeImageProps} ComputeImageProps */
+/** @typedef {import("#lib/types").ImageProps} ImageProps */
+/** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import {
   filenameFormat,

@@ -1,4 +1,4 @@
-/** @typedef {import("#lib/types.js").SiteConfig} SiteConfig */
+/** @typedef {import("#lib/types").SiteConfig} SiteConfig */
 
 import {
   DEFAULT_PRODUCT_DATA,

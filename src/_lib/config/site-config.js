@@ -5,7 +5,7 @@
  * @module #config/site-config
  */
 
-/** @typedef {import("#lib/types.js").SiteConfig} SiteConfig */
+/** @typedef {import("#lib/types").SiteConfig} SiteConfig */
 
 import configFn from "#data/config.js";
 
