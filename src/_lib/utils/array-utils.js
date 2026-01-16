@@ -3,13 +3,24 @@
  */
 
 /**
+ * @template T
+ * @template R
+ * @typedef {(value: T) => R} UnaryFunction
+ */
+
+/**
+ * @template T, U
+ * @typedef {(a: T, b: T) => U} BinaryFunction
+ */
+
+/**
  * Left-to-right function composition
  *
  * Passes a value through a sequence of functions, where each function
  * receives the result of the previous one.
  *
- * @param {...Function} fns - Functions to compose
- * @returns {Function} (value) => transformed value
+ * @param {...UnaryFunction<any, any>} fns - Functions to compose
+ * @returns {UnaryFunction<any, any>} (value) => transformed value
  *
  * @example
  * pipe(addOne, double, toString)(5)  // "12"
@@ -30,16 +41,78 @@ const pipe =
  *   sort((a, b) => a - b)
  * )(numbers)
  */
+
+/**
+ * Curried filter function
+ * @template T
+ * @param {(item: T, index: number, array: T[]) => boolean} predicate - Filter predicate
+ * @returns {(arr: T[]) => T[]} Function that filters array
+ */
 const filter = (predicate) => (arr) => arr.filter(predicate);
+
+/**
+ * Curried map function
+ * @template T, R
+ * @param {(item: T, index: number, array: T[]) => R} fn - Transform function
+ * @returns {(arr: T[]) => R[]} Function that maps array
+ */
 const map = (fn) => (arr) => arr.map(fn);
+
+/**
+ * Curried flatMap function
+ * @template T, R
+ * @param {(item: T, index: number, array: T[]) => R | R[]} fn - Transform function
+ * @returns {(arr: T[]) => R[]} Function that flat-maps array
+ */
 const flatMap = (fn) => (arr) => arr.flatMap(fn);
+
+/**
+ * Curried reduce function
+ * @template T, R
+ * @param {(acc: R, item: T, index: number, array: T[]) => R} fn - Reducer function
+ * @param {R} initial - Initial value
+ * @returns {(arr: T[]) => R} Function that reduces array
+ */
 const reduce = (fn, initial) => (arr) => arr.reduce(fn, initial);
+
+/**
+ * Non-mutating sort function
+ * @template T
+ * @param {(a: T, b: T) => number} comparator - Comparison function
+ * @returns {(arr: T[]) => T[]} Function that sorts array
+ */
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
+
+/**
+ * Remove duplicate values
+ * @template T
+ * @param {T[]} arr - Array to deduplicate
+ * @returns {T[]} Array with unique values
+ */
 const unique = (arr) => [...new Set(arr)];
+
+/**
+ * Remove duplicates by key extraction function
+ * @template T, K
+ * @param {(item: T) => K} getKey - Key extraction function
+ * @returns {(arr: T[]) => T[]} Function that deduplicates array by key
+ */
 const uniqueBy = (getKey) => (arr) => [
   ...new Map(arr.map((item) => [getKey(item), item])).values(),
 ];
+
+/**
+ * Curried join function
+ * @param {string} separator - Separator string
+ * @returns {(arr: string[]) => string} Function that joins array
+ */
 const join = (separator) => (arr) => arr.join(separator);
+
+/**
+ * Curried split function
+ * @param {string | RegExp} separator - Separator to split by
+ * @returns {(str: string) => string[]} Function that splits string
+ */
 const split = (separator) => (str) => str.split(separator);
 
 /**
@@ -49,9 +122,10 @@ const split = (separator) => (str) => str.split(separator);
  * More expressive than chaining filter().map() when both operate
  * on the same items. Uses flatMap for a pure implementation.
  *
- * @param {Function} predicate - (item) => boolean
- * @param {Function} transform - (item) => result
- * @returns {Function} (array) => filtered and mapped array
+ * @template T, R
+ * @param {(item: T) => boolean} predicate - Filter predicate
+ * @param {(item: T) => R} transform - Transform function
+ * @returns {(arr: T[]) => R[]} Function that filters and maps array
  *
  * @example
  * // Get names of active users
@@ -73,8 +147,10 @@ const filterMap = (predicate, transform) => (arr) =>
  * Returns a function that extracts only the specified keys from an object.
  * This curried form works perfectly with map(): arr.map(pick(['a', 'b']))
  *
- * @param {string[]} keys - Keys to include
- * @returns {(obj: Object) => Object} Function that picks specified keys from an object
+ * @template {string} K
+ * @template {Record<K, unknown>} T
+ * @param {K[]} keys - Keys to include
+ * @returns {(obj: T) => Pick<T, K>} Function that picks specified keys from an object
  *
  * @example
  * pick(['a', 'c'])({ a: 1, b: 2, c: 3 })  // { a: 1, c: 3 }
@@ -94,8 +170,9 @@ const pick = (keys) => (obj) =>
  * Filters out null, undefined, false, 0, '', and NaN.
  * Perfect for building arrays with conditional elements.
  *
- * @param {Array} arr - Array potentially containing falsy values
- * @returns {Array} Array with only truthy values
+ * @template T
+ * @param {(T | null | undefined | false | 0 | '')[]} arr - Array potentially containing falsy values
+ * @returns {NonNullable<T>[]} Array with only truthy values
  *
  * @example
  * compact([1, null, 2, undefined, 3])        // [1, 2, 3]
@@ -130,9 +207,11 @@ const listSeparator = (length) => (index) =>
  *
  * Uses pure functional approach with no mutable state.
  *
- * @param {Array} items - Array to check for duplicates
- * @param {(item: any) => any} [getKey] - Optional key extractor (defaults to identity)
- * @returns {*} First duplicate item, or undefined
+ * @template T
+ * @template K
+ * @param {T[]} items - Array to check for duplicates
+ * @param {(item: T) => K} [getKey] - Optional key extractor (defaults to identity)
+ * @returns {T | undefined} First duplicate item, or undefined
  *
  * @example
  * findDuplicate([1, 2, 1])                              // 1
@@ -153,8 +232,10 @@ const findDuplicate = (items, getKey = (x) => x) => {
  *
  * This enables safe imperative patterns like acc.push() within the callback.
  *
- * @param {Function} fn - (accumulator, item) => accumulator callback
- * @returns {Function} (array) => result (fresh array per call)
+ * @template T
+ * @template R
+ * @param {(acc: R[], item: T, index: number, array: T[]) => R[]} fn - Accumulator callback
+ * @returns {(arr: T[]) => R[]} Function that accumulates array
  *
  * @example
  * // Collect unique IDs from fields
@@ -185,8 +266,9 @@ const accumulate = (fn) => (arr) => arr.reduce(fn, []);
  *
  * This factory unifies memberOf and notMemberOf into a single pattern.
  *
+ * @template T
  * @param {boolean} negate - Whether to negate the membership test
- * @returns {Function} (values) => (value) => boolean
+ * @returns {(values: T[]) => (value: T) => boolean} Membership predicate factory
  *
  * @example
  * const memberOf = membershipPredicate(false);
@@ -200,8 +282,9 @@ const membershipPredicate = (negate) => (values) => (value) =>
  *
  * Returns a predicate function that tests if a value is in the collection.
  *
- * @param {Iterable} values - Values to check membership against
- * @returns {Function} (value) => boolean
+ * @template T
+ * @param {T[]} values - Values to check membership against
+ * @returns {(value: T) => boolean} Membership predicate function
  *
  * @example
  * const isWeekend = memberOf(['saturday', 'sunday']);
@@ -223,8 +306,9 @@ const memberOf = membershipPredicate(false);
  *
  * Returns a predicate function that tests if a value is NOT in the collection.
  *
- * @param {Iterable} values - Values to exclude
- * @returns {Function} (value) => boolean
+ * @template T
+ * @param {T[]} values - Values to exclude
+ * @returns {(value: T) => boolean} Negated membership predicate function
  *
  * @example
  * const isNotReserved = notMemberOf(['admin', 'root', 'system']);
@@ -245,7 +329,7 @@ const notMemberOf = membershipPredicate(true);
  *
  * @param {string} singular - Singular form (e.g., "day", "item in order")
  * @param {string} [plural] - Plural form (optional, auto-derived if omitted)
- * @returns {Function} (count) => formatted string
+ * @returns {(count: number) => string} Function that formats count with plural form
  *
  * @example
  * const formatDays = pluralize("day");

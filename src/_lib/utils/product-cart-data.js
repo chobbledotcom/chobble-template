@@ -14,8 +14,38 @@ import {
 import { toObject } from "#utils/object-entries.js";
 
 /**
+ * @typedef {Object} ProductOption
+ * @property {string} name - Option name
+ * @property {string | number} unit_price - Unit price
+ * @property {number} [days] - Hire duration in days
+ * @property {number} [max_quantity] - Maximum quantity
+ * @property {string} [sku] - Stock keeping unit
+ */
+
+/**
+ * @typedef {Object} ProductSpec
+ * @property {string} name - Specification name
+ * @property {string} value - Specification value
+ */
+
+/**
+ * @typedef {Object} ProductData
+ * @property {ProductOption[]} [options] - Product options
+ * @property {string} title - Product title
+ */
+
+/**
+ * @typedef {Object} CartAttributesParams
+ * @property {string} title - Product title
+ * @property {string} subtitle - Product subtitle
+ * @property {ProductOption[]} options - Processed options
+ * @property {ProductSpec[]} [specs] - Product specifications
+ * @property {string} mode - Product mode (hire, buy, etc.)
+ */
+
+/**
  * Parse a price string or number to a number
- * @param {string|number} priceStr - Price string like "£10.00" or number like 1000
+ * @param {string | number} priceStr - Price string like "£10.00" or number like 1000
  * @param {string} context - Context for error messages
  * @returns {number} Parsed price
  */
@@ -29,8 +59,10 @@ const parsePrice = (priceStr, context) => {
 
 /**
  * Validate hire options for cart use
- * @param {Array} options - Hire options to validate
+ * @param {ProductOption[]} options - Hire options to validate
  * @param {string} title - Product title for error messages
+ * @returns {void}
+ * @throws {Error} If validation fails
  */
 const validateHireOptions = (options, title) => {
   const duplicate = findDuplicate(options, (opt) => opt.days);
@@ -46,11 +78,9 @@ const validateHireOptions = (options, title) => {
 
 /**
  * Compute processed options for a product
- * @param {Object} data - Product data
- * @param {import("#lib/types").Option[]|undefined} data.options
- * @param {string} data.title
+ * @param {ProductData} data - Product data
  * @param {string} mode - Product mode ("hire", "buy", etc.)
- * @returns {import("#lib/types").Option[]} Processed options
+ * @returns {ProductOption[]} Processed options
  */
 export const computeOptions = (data, mode) => {
   if (!data.options || data.options.length === 0) {
@@ -78,13 +108,8 @@ export const computeOptions = (data, mode) => {
 
 /**
  * Build cart attributes JSON for a product
- * @param {Object} params - Parameters
- * @param {string} params.title - Product title
- * @param {string} params.subtitle - Product subtitle
- * @param {Array} params.options - Processed options
- * @param {Array} params.specs - Product specifications
- * @param {string} params.mode - Product mode
- * @returns {string} HTML-escaped JSON string for data attribute
+ * @param {CartAttributesParams} params - Parameters
+ * @returns {string | null} HTML-escaped JSON string for data attribute, or null if no options
  */
 export const buildCartAttributes = ({
   title,

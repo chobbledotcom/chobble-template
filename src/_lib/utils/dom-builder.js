@@ -1,12 +1,29 @@
 import { loadDOM } from "#utils/lazy-dom.js";
 import { memoize } from "#utils/memoize.js";
 
-// Shared DOM instance for building elements
+/**
+ * @typedef {Record<string, string | null | undefined>} ElementAttributes
+ */
+
+/**
+ * @typedef {string | Element | Element[] | null} ElementChildren
+ */
+
+/**
+ * Get shared DOM document instance for building elements
+ * @returns {Promise<Document>} Shared document instance
+ */
 const getSharedDocument = memoize(async () => {
   const dom = await loadDOM("");
   return dom.window.document;
 });
 
+/**
+ * Apply attributes to an element
+ * @param {Element} element - Element to modify
+ * @param {ElementAttributes} attributes - Attributes to apply
+ * @returns {void}
+ */
 const applyAttributes = (element, attributes) => {
   for (const [key, value] of Object.entries(attributes)) {
     if (value !== null && value !== undefined) {
@@ -15,6 +32,12 @@ const applyAttributes = (element, attributes) => {
   }
 };
 
+/**
+ * Append children to an element
+ * @param {Element} element - Element to modify
+ * @param {ElementChildren} children - Children to append
+ * @returns {void}
+ */
 const appendChildren = (element, children) => {
   if (children === null) return;
   if (typeof children === "string") {
@@ -31,9 +54,9 @@ const appendChildren = (element, children) => {
 /**
  * Create an HTML element with attributes and optional children
  * @param {string} tagName - The tag name (e.g., 'div', 'img')
- * @param {Object} attributes - Key-value pairs of attributes
- * @param {string|Element|Array} children - Inner content or child elements
- * @param {Document} document - Optional existing document to use
+ * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
+ * @param {ElementChildren} [children=null] - Inner content or child elements
+ * @param {Document | null} [document=null] - Optional existing document to use
  * @returns {Promise<Element>} The created element
  */
 const createElement = async (
@@ -61,8 +84,8 @@ const elementToHtml = (element) => {
 /**
  * Create an element and return its HTML string
  * @param {string} tagName - The tag name
- * @param {Object} attributes - Key-value pairs of attributes
- * @param {string|Element|Array} children - Inner content or child elements
+ * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
+ * @param {ElementChildren} [children=null] - Inner content or child elements
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = null) => {
@@ -72,8 +95,8 @@ const createHtml = async (tagName, attributes = {}, children = null) => {
 /**
  * Parse an HTML string into a DOM element
  * @param {string} html - The HTML string to parse
- * @param {Document} document - Optional existing document to use
- * @returns {Promise<Element>} The parsed element
+ * @param {Document | null} [document=null] - Optional existing document to use
+ * @returns {Promise<Element | null>} The parsed element
  */
 const parseHtml = async (html, document = null) => {
   const doc = document || (await getSharedDocument());
