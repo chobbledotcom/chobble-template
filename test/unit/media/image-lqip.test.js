@@ -19,15 +19,15 @@ describe("image-lqip", () => {
       ).toBe("products-featured-photo");
     });
 
-    test("handles paths without ./src prefix", () => {
-      expect(getPathAwareBasename("images/products/photo.jpg")).toBe(
+    test("handles paths without ./ prefix", () => {
+      expect(getPathAwareBasename("src/images/products/photo.jpg")).toBe(
         "products-photo",
       );
     });
 
-    test("handles paths with /images/ anywhere", () => {
-      expect(getPathAwareBasename("/some/path/images/news/photo.jpg")).toBe(
-        "news-photo",
+    test("handles paths starting with images/", () => {
+      expect(getPathAwareBasename("images/products/photo.jpg")).toBe(
+        "products-photo",
       );
     });
 
@@ -37,8 +37,16 @@ describe("image-lqip", () => {
       );
     });
 
-    test("falls back to basename for paths without images directory", () => {
-      expect(getPathAwareBasename("/other/path/photo.jpg")).toBe("photo");
+    test("preserves path for non-images directories", () => {
+      expect(getPathAwareBasename("./src/assets/icons/logo.png")).toBe(
+        "assets-icons-logo",
+      );
+    });
+
+    test("handles paths outside src directory", () => {
+      expect(getPathAwareBasename("/other/path/photo.jpg")).toBe(
+        "other-path-photo",
+      );
     });
 
     test("handles various image extensions", () => {
@@ -73,6 +81,12 @@ describe("image-lqip", () => {
           "jpeg",
         ),
       ).toBe("products-featured-photo-480.jpeg");
+    });
+
+    test("generates correct filename for non-images directories", () => {
+      expect(
+        filenameFormat("id", "./src/assets/icons/logo.png", 240, "webp"),
+      ).toBe("assets-icons-logo-240.webp");
     });
 
     test("different paths with same filename produce different output", () => {

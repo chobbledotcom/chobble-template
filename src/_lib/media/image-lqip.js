@@ -15,18 +15,20 @@ import { memoize } from "#utils/memoize.js";
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
 
 /**
- * Extracts the path relative to images/ directory and converts to filename-safe prefix.
+ * Converts a file path to a unique, filename-safe basename.
+ * Strips common prefixes (./src/, src/) and the images/ directory name,
+ * then converts remaining path segments to hyphen-separated format.
+ *
  * E.g., "./src/images/products/photo.jpg" -> "products-photo"
  *       "./src/images/photo.jpg" -> "photo"
+ *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
  */
 const getPathAwareBasename = (src) => {
-  const normalized = src.replace(/\\/g, "/");
-  const match = normalized.match(/images\/(.+)$/);
-  if (!match) {
-    return path.basename(src, path.extname(src));
-  }
-  const relativePath = match[1];
-  const withoutExt = relativePath.replace(/\.[^.]+$/, "");
+  const normalized = src
+    .replace(/\\/g, "/")
+    .replace(/^\.?\/?(src\/)?/, "")
+    .replace(/^images\//, "");
+  const withoutExt = normalized.replace(/\.[^.]+$/, "");
   return withoutExt.replace(/\//g, "-");
 };
 
