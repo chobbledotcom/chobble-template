@@ -41,6 +41,56 @@
  * @property {Date} [date] - Item date
  */
 
+/**
+ * Eleventy Collection API interface
+ * @typedef {Object} EleventyCollectionApi
+ * @property {(tag: string) => EleventyCollectionItem[]} getFilteredByTag - Get items by tag
+ * @property {() => EleventyCollectionItem[]} getAll - Get all collection items
+ */
+
+// =============================================================================
+// Content Types (from PagesCMS schema)
+// =============================================================================
+
+/**
+ * Image object from PagesCMS
+ * @typedef {Object} Image
+ * @property {string} [path] - Image path
+ * @property {string} [alt] - Alt text
+ */
+
+/**
+ * FAQ item
+ * @typedef {Object} Faq
+ * @property {string} question - FAQ question
+ * @property {string} answer - FAQ answer
+ */
+
+/**
+ * Tab content item
+ * @typedef {Object} Tab
+ * @property {string} title - Tab title
+ * @property {string} [image] - Tab image
+ * @property {string} body - Tab body content
+ */
+
+/**
+ * Opening time entry
+ * @typedef {Object} OpeningTime
+ * @property {string} day - Day of the week
+ * @property {string} hours - Opening hours
+ */
+
+/**
+ * Product option (alias used in some files)
+ * @typedef {Object} Option
+ * @property {string} name - Option name
+ * @property {string | number} unit_price - Unit price
+ * @property {number} [days] - Hire duration in days
+ * @property {number} [max_quantity] - Maximum quantity
+ * @property {string} [sku] - Stock keeping unit
+ */
+
 // =============================================================================
 // Site Configuration Types
 // =============================================================================
