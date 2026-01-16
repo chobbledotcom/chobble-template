@@ -10,6 +10,7 @@ export const BROWSER_ARGS = [
   "--disable-dev-shm-usage",
   "--disable-gpu",
   "--no-zygote",
+  "--single-process",
 ];
 
 export const DEFAULT_BASE_URL = "http://localhost:8080";
