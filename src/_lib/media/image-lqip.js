@@ -9,33 +9,10 @@
  * - Small images under 5KB (overhead not worth it)
  */
 import fs from "node:fs";
-import path from "node:path";
+import { filenameFormat } from "#media/image-utils.js";
 import { memoize } from "#utils/memoize.js";
 
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
-
-/**
- * Converts a file path to a unique, filename-safe basename.
- * Strips common prefixes (./src/, src/) and the images/ directory name,
- * then converts remaining path segments to hyphen-separated format.
- *
- * E.g., "./src/images/products/photo.jpg" -> "products-photo"
- *       "./src/images/photo.jpg" -> "photo"
- *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
- */
-const getPathAwareBasename = (src) => {
-  const normalized = src
-    .replace(/\\/g, "/")
-    .replace(/^\.?\/?(src\/)?/, "")
-    .replace(/^images\//, "");
-  const withoutExt = normalized.replace(/\.[^.]+$/, "");
-  return withoutExt.replace(/\//g, "-");
-};
-
-const filenameFormat = (_id, src, width, format) => {
-  const basename = getPathAwareBasename(src);
-  return `${basename}-${width}.${format}`;
-};
 
 const THUMBNAIL_OPTIONS = {
   formats: ["webp"],
@@ -63,9 +40,4 @@ const getThumbnailOrNull = (imagePath, metadata) =>
     ? null
     : generateThumbnail(imagePath);
 
-export {
-  getThumbnailOrNull,
-  getEleventyImg,
-  filenameFormat,
-  getPathAwareBasename,
-};
+export { getThumbnailOrNull, getEleventyImg };
