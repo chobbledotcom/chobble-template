@@ -5,7 +5,7 @@
 import { describe, expect, mock, test } from "bun:test";
 import { Window } from "happy-dom";
 import { Liquid } from "liquidjs";
-import { buildJsConfigJson } from "#eleventy/js-config.js";
+import { configureJsConfig } from "#eleventy/js-config.js";
 // Import actual cart utilities
 import {
   attachQuantityHandlers,
@@ -19,7 +19,20 @@ import {
   updateCartIcon,
   updateItemQuantity,
 } from "#public/utils/cart-utils.js";
-import { expectObjectProps, fs, path, rootDir } from "#test/test-utils.js";
+import {
+  createMockEleventyConfig,
+  expectObjectProps,
+  fs,
+  path,
+  rootDir,
+} from "#test/test-utils.js";
+
+// Get the jsConfigJson filter via Eleventy registration
+const getJsConfigFilter = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureJsConfig(mockConfig);
+  return mockConfig.filters.jsConfigJson;
+};
 
 // ============================================
 // Template Rendering
@@ -105,8 +118,9 @@ const createCheckoutPage = async (options = {}) => {
       ).replace(/^---[\s\S]*?---\s*/, "")
     : "";
 
-  // Build config script using the same function as the Eleventy filter
-  const configScript = `<script id="site-config" type="application/json">${buildJsConfigJson(config)}</script>`;
+  // Build config script using the Eleventy filter
+  const jsConfigJson = getJsConfigFilter();
+  const configScript = `<script id="site-config" type="application/json">${jsConfigJson(config)}</script>`;
 
   // Build complete HTML page using real templates
   const html = `
