@@ -6,7 +6,6 @@ import {
   runStep,
 } from "#test/test-runner-utils.js";
 import { captureConsole, withMockedProcessExit } from "#test/test-utils.js";
-import { mapObject } from "#utils/object-entries.js";
 
 // ============================================
 // Test Helpers
@@ -23,14 +22,17 @@ const createBasicSteps = () => [
 /**
  * Creates results object with the given status and output for each step
  */
-const createResults = mapObject((name, config) => [
-  name,
-  {
-    status: config.status ?? 0,
-    stdout: config.stdout ?? "",
-    stderr: config.stderr ?? "",
-  },
-]);
+const createResults = (configs) =>
+  Object.fromEntries(
+    Object.entries(configs).map(([name, config]) => [
+      name,
+      {
+        status: config.status ?? 0,
+        stdout: config.stdout ?? "",
+        stderr: config.stderr ?? "",
+      },
+    ]),
+  );
 
 /**
  * Captures console output from printSummary, mocking process.exit
