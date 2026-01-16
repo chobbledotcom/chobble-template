@@ -295,6 +295,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/media/image.js:configureImages",
   "src/_lib/media/image.js:createImageTransform",
   "src/_lib/media/image.js:imageShortcode",
+  "src/_lib/media/image-lqip.js:getPathAwareBasename",
   "src/_lib/media/inline-asset.js:configureInlineAsset",
   "src/_lib/media/thumbnail-placeholder.js:configureThumbnailPlaceholder",
   "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",

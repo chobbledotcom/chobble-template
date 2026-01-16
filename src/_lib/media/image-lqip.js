@@ -14,8 +14,24 @@ import { memoize } from "#utils/memoize.js";
 
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
 
+/**
+ * Extracts the path relative to images/ directory and converts to filename-safe prefix.
+ * E.g., "./src/images/products/photo.jpg" -> "products-photo"
+ *       "./src/images/photo.jpg" -> "photo"
+ */
+const getPathAwareBasename = (src) => {
+  const normalized = src.replace(/\\/g, "/");
+  const match = normalized.match(/images\/(.+)$/);
+  if (!match) {
+    return path.basename(src, path.extname(src));
+  }
+  const relativePath = match[1];
+  const withoutExt = relativePath.replace(/\.[^.]+$/, "");
+  return withoutExt.replace(/\//g, "-");
+};
+
 const filenameFormat = (_id, src, width, format) => {
-  const basename = path.basename(src, path.extname(src));
+  const basename = getPathAwareBasename(src);
   return `${basename}-${width}.${format}`;
 };
 
@@ -45,4 +61,9 @@ const getThumbnailOrNull = (imagePath, metadata) =>
     ? null
     : generateThumbnail(imagePath);
 
-export { getThumbnailOrNull, getEleventyImg, filenameFormat };
+export {
+  getThumbnailOrNull,
+  getEleventyImg,
+  filenameFormat,
+  getPathAwareBasename,
+};
