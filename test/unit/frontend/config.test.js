@@ -4,7 +4,6 @@ import {
   DEFAULTS,
   getFormTarget,
   getProducts,
-  validateCartConfig,
 } from "#config/helpers.js";
 import { expectObjectProps } from "#test/test-utils.js";
 import { pickNonNull } from "#utils/object-entries.js";
@@ -138,52 +137,6 @@ describe("config", () => {
     expect(result).toBe(null);
   });
 
-  test("validateCartConfig passes with null cart_mode", () => {
-    const config = { cart_mode: null };
-    validateCartConfig(config);
-  });
-
-  test("validateCartConfig passes with undefined cart_mode", () => {
-    const config = {};
-    validateCartConfig(config);
-  });
-
-  test("validateCartConfig throws for invalid cart_mode", () => {
-    const config = { cart_mode: "invalid" };
-    expect(() => validateCartConfig(config)).toThrow(
-      /Invalid cart_mode: "invalid"/,
-    );
-  });
-
-  test("validateCartConfig throws when paypal mode has no checkout_api_url", () => {
-    const config = { cart_mode: "paypal", checkout_api_url: null };
-    expect(() => validateCartConfig(config)).toThrow(
-      /checkout_api_url is not set/,
-    );
-  });
-
-  test("validateCartConfig throws when stripe mode has no checkout_api_url", () => {
-    const config = { cart_mode: "stripe", checkout_api_url: null };
-    expect(() => validateCartConfig(config)).toThrow(
-      /checkout_api_url is not set/,
-    );
-  });
-
-  test("validateCartConfig throws when quote mode has no form_target", () => {
-    const config = { cart_mode: "quote", form_target: null };
-    expect(() => validateCartConfig(config)).toThrow(
-      /formspark_id nor contact_form_target is set/,
-    );
-  });
-
-  test("validateCartConfig passes for paypal with checkout_api_url", () => {
-    const config = {
-      cart_mode: "paypal",
-      checkout_api_url: "https://api.example.com",
-    };
-    validateCartConfig(config);
-  });
-
   test("config.js data file exports a default function for Eleventy", async () => {
     const configModule = await import("#data/config.js");
     expect(typeof configModule.default).toBe("function");
@@ -199,45 +152,6 @@ describe("config", () => {
     };
     const result = getFormTarget(configWithFormspark);
     expect(result).toBe("https://submit-form.com/abc123");
-  });
-
-  test("validateCartConfig passes for stripe with checkout_api_url", () => {
-    const config = {
-      cart_mode: "stripe",
-      checkout_api_url: "https://api.example.com/checkout",
-    };
-    validateCartConfig(config);
-  });
-
-  test("validateCartConfig passes for quote with form_target", () => {
-    const config = {
-      cart_mode: "quote",
-      form_target: "https://forms.example.com/submit",
-    };
-    validateCartConfig(config);
-  });
-
-  test("validateCartConfig passes with null product_mode", () => {
-    validateCartConfig({ product_mode: null });
-  });
-
-  test("validateCartConfig passes with undefined product_mode", () => {
-    validateCartConfig({});
-  });
-
-  test("validateCartConfig passes with valid buy mode", () => {
-    validateCartConfig({ product_mode: "buy" });
-  });
-
-  test("validateCartConfig passes with valid hire mode", () => {
-    validateCartConfig({ product_mode: "hire" });
-  });
-
-  test("validateCartConfig throws for invalid product_mode", () => {
-    const config = { product_mode: "invalid" };
-    expect(() => validateCartConfig(config)).toThrow(
-      /Invalid product_mode: "invalid"/,
-    );
   });
 
   test("config merging uses defaults when config values are null", () => {

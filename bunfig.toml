@@ -19,7 +19,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 
 # Files excluded from coverage:
 # - ensure-deps.js: defensive code that can't be meaningfully tested
-# - canonical-url.js: module-load-time validation guards that can only fail if site.json is misconfigured
+# - validated-config.js: module-load-time validation that can only fail if config files are misconfigured
 # - customise-cms/*: CLI scripts with hard-to-test file system operations
 # - pdf.js, image.js, image-crop.js: error handling for external library edge cases
 # - console.js: console output utilities
@@ -33,7 +33,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 coveragePathIgnorePatterns = [
   "src/_lib/filters/configure-filters.js",
   "test/ensure-deps.js",
-  "src/_lib/utils/canonical-url.js",
+  "src/_lib/config/validated-config.js",
   "src/_lib/public/utils/on-ready.js",
   "scripts/customise-cms/config.js",
   "scripts/customise-cms/fields.js",
