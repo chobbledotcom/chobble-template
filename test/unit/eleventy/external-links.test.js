@@ -227,16 +227,8 @@ describe("external-links", () => {
         const transform = await getTransform({
           externalLinksTargetBlank: true,
         });
-        const result = await transform(null, "index.html");
-        expect(result).toBe(null);
-      });
-
-      test("handles empty content gracefully", async () => {
-        const transform = await getTransform({
-          externalLinksTargetBlank: true,
-        });
-        const result = await transform("", "index.html");
-        expect(result).toBe("");
+        expect(await transform(null, "index.html")).toBe(null);
+        expect(await transform("", "index.html")).toBe("");
       });
     });
   });
@@ -266,6 +258,161 @@ describe("external-links", () => {
 
       expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
       expect(typeof mockConfig.transforms.externalLinks).toBe("function");
+    });
+
+    test("registers linkifyUrls transform", async () => {
+      const mockConfig = createMockEleventyConfig();
+      await configureExternalLinks(mockConfig, {
+        externalLinksTargetBlank: true,
+      });
+
+      expect(typeof mockConfig.transforms.linkifyUrls).toBe("function");
+    });
+  });
+
+  describe("linkifyUrls transform", () => {
+    const getLinkifyUrlsTransform = async (config) => {
+      const mockConfig = createMockEleventyConfig();
+      await configureExternalLinks(mockConfig, config);
+      return mockConfig.transforms.linkifyUrls;
+    };
+
+    describe("when externalLinksTargetBlank is true", () => {
+      test("converts plain URLs to anchor tags", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          "<html><body><p>Visit https://www.example.com for more</p></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result).toContain('href="https://www.example.com"');
+        expect(result).toContain(">example.com</a>");
+        expect(result).toContain('target="_blank"');
+        expect(result).toContain('rel="noopener noreferrer"');
+      });
+
+      test("handles multiple URLs in text", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          "<html><body><p>See https://foo.com and https://bar.com</p></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result).toContain('href="https://foo.com"');
+        expect(result).toContain('href="https://bar.com"');
+      });
+
+      test("strips www. from display text", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          "<html><body><p>Visit https://www.example.com/page</p></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result).toContain(">example.com/page</a>");
+      });
+
+      test("does not linkify URLs inside existing anchor tags", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          '<html><body><a href="https://example.com">Click here</a></body></html>';
+        const result = await transform(html, "index.html");
+
+        // Should not create nested anchors
+        expect(result.match(/<a /g)?.length).toBe(1);
+      });
+
+      test("does not linkify URLs inside script tags", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          '<html><body><script>const url = "https://example.com";</script></body></html>';
+        const result = await transform(html, "index.html");
+
+        expect(result).not.toContain("<a href");
+      });
+
+      test("does not linkify URLs inside style tags", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          "<html><body><style>/* https://example.com */</style></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result).not.toContain("<a href");
+      });
+
+      test("preserves surrounding text", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          "<html><body><p>Before https://example.com after</p></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result).toContain("Before ");
+        expect(result).toContain(" after");
+      });
+    });
+
+    describe("when externalLinksTargetBlank is false", () => {
+      test("creates links without target attributes", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: false,
+        });
+        const html =
+          "<html><body><p>Visit https://example.com</p></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result).toContain('href="https://example.com"');
+        expect(result).not.toContain('target="_blank"');
+      });
+    });
+
+    describe("file type handling", () => {
+      test("only processes HTML files", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const content = "Visit https://example.com";
+        const result = await transform(content, "file.txt");
+        expect(result).toBe(content);
+      });
+
+      test("skips non-HTML files", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const content = "https://example.com";
+        const result = await transform(content, "feed.xml");
+        expect(result).toBe(content);
+      });
+    });
+
+    describe("edge cases", () => {
+      test("returns content unchanged when no URLs present", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html = "<html><body><p>No links here</p></body></html>";
+        const result = await transform(html, "index.html");
+        expect(result).toBe(html);
+      });
+
+      test("passes through null and empty content unchanged", async () => {
+        const linkify = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        expect(await linkify(null, "index.html")).toBeNull();
+        expect(await linkify("", "index.html")).toBe("");
+      });
     });
   });
 });
