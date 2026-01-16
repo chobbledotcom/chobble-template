@@ -4,15 +4,8 @@ import {
   DEFAULTS,
   getFormTarget,
   getProducts,
-  validateCartConfig,
-  validatePageFrontmatter,
 } from "#config/helpers.js";
-import {
-  cleanupTempDir,
-  createTempDir,
-  createTempFile,
-  expectObjectProps,
-} from "#test/test-utils.js";
+import { expectObjectProps } from "#test/test-utils.js";
 
 describe("getProducts", () => {
   test("returns empty object when no products key", () => {
@@ -98,83 +91,6 @@ describe("getFormTarget", () => {
   });
 });
 
-describe("validateCartConfig", () => {
-  test("does nothing when cart_mode is not set", () => {
-    expect(() => validateCartConfig({})).not.toThrow();
-    expect(() => validateCartConfig({ cart_mode: null })).not.toThrow();
-  });
-
-  test("throws for invalid cart_mode with available options in message", () => {
-    expect(() => validateCartConfig({ cart_mode: "invalid" })).toThrow(
-      /Invalid cart_mode: "invalid". Must be one of: paypal, stripe, quote/,
-    );
-  });
-
-  test("throws for paypal mode without checkout_api_url", () => {
-    expect(() => validateCartConfig({ cart_mode: "paypal" })).toThrow(
-      /cart_mode is "paypal" but checkout_api_url is not set/,
-    );
-  });
-
-  test("throws for stripe mode without checkout_api_url", () => {
-    expect(() => validateCartConfig({ cart_mode: "stripe" })).toThrow(
-      /cart_mode is "stripe" but checkout_api_url is not set/,
-    );
-  });
-
-  test("throws for quote mode without form_target", () => {
-    expect(() => validateCartConfig({ cart_mode: "quote" })).toThrow(
-      /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
-    );
-  });
-
-  test("passes for paypal with checkout_api_url", () => {
-    expect(() =>
-      validateCartConfig({
-        cart_mode: "paypal",
-        checkout_api_url: "https://api.example.com",
-      }),
-    ).not.toThrow();
-  });
-
-  test("passes for stripe with checkout_api_url", () => {
-    expect(() =>
-      validateCartConfig({
-        cart_mode: "stripe",
-        checkout_api_url: "https://api.example.com",
-      }),
-    ).not.toThrow();
-  });
-
-  test("passes for quote with form_target", () => {
-    expect(() =>
-      validateCartConfig({
-        cart_mode: "quote",
-        form_target: "https://forms.example.com",
-      }),
-    ).not.toThrow();
-  });
-
-  test("validates product_mode when set to invalid value", () => {
-    expect(() => validateCartConfig({ product_mode: "invalid" })).toThrow(
-      /Invalid product_mode: "invalid". Must be one of: buy, hire/,
-    );
-  });
-
-  test("accepts valid product_mode buy", () => {
-    expect(() => validateCartConfig({ product_mode: "buy" })).not.toThrow();
-  });
-
-  test("accepts valid product_mode hire", () => {
-    expect(() => validateCartConfig({ product_mode: "hire" })).not.toThrow();
-  });
-
-  test("accepts null or undefined product_mode", () => {
-    expect(() => validateCartConfig({ product_mode: null })).not.toThrow();
-    expect(() => validateCartConfig({ product_mode: undefined })).not.toThrow();
-  });
-});
-
 describe("DEFAULTS", () => {
   test("includes expected navigation defaults", () => {
     expectObjectProps({
@@ -211,98 +127,5 @@ describe("DEFAULT_PRODUCT_DATA", () => {
       gallery_image_widths: "900,1300,1800",
       header_image_widths: "640,900,1300",
     })(DEFAULT_PRODUCT_DATA);
-  });
-});
-
-describe("validatePageFrontmatter", () => {
-  test("throws when page file does not exist", () => {
-    expect(() =>
-      validatePageFrontmatter(
-        "nonexistent-page.md",
-        "some-layout.html",
-        "/some-path/",
-        "stripe",
-      ),
-    ).toThrow(/does not exist/);
-  });
-
-  test("throws when page has no frontmatter", () => {
-    const tempDir = createTempDir("validate-page-test");
-    try {
-      createTempFile(tempDir, "no-frontmatter.md", "Just content, no YAML");
-      expect(() =>
-        validatePageFrontmatter(
-          `${tempDir}/no-frontmatter.md`,
-          "layout.html",
-          "/path/",
-          "test",
-        ),
-      ).toThrow(/has no frontmatter/);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
-
-  test("throws when layout does not match", () => {
-    const tempDir = createTempDir("validate-page-layout");
-    try {
-      createTempFile(
-        tempDir,
-        "wrong-layout.md",
-        "---\nlayout: wrong.html\npermalink: /correct/\n---\nContent",
-      );
-      expect(() =>
-        validatePageFrontmatter(
-          `${tempDir}/wrong-layout.md`,
-          "expected.html",
-          "/correct/",
-          "test",
-        ),
-      ).toThrow(/does not have layout: expected.html/);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
-
-  test("throws when permalink does not match", () => {
-    const tempDir = createTempDir("validate-page-permalink");
-    try {
-      createTempFile(
-        tempDir,
-        "wrong-permalink.md",
-        "---\nlayout: correct.html\npermalink: /wrong/\n---\nContent",
-      );
-      expect(() =>
-        validatePageFrontmatter(
-          `${tempDir}/wrong-permalink.md`,
-          "correct.html",
-          "/expected/",
-          "test",
-        ),
-      ).toThrow(/does not have permalink: \/expected\//);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
-
-  test("passes when frontmatter matches expected values", () => {
-    const tempDir = createTempDir("validate-page-success");
-    try {
-      createTempFile(
-        tempDir,
-        "correct.md",
-        "---\nlayout: expected.html\npermalink: /expected/\n---\nContent",
-      );
-      expect(() =>
-        validatePageFrontmatter(
-          `${tempDir}/correct.md`,
-          "expected.html",
-          "/expected/",
-          "test",
-        ),
-      ).not.toThrow();
-    } finally {
-      cleanupTempDir(tempDir);
-    }
   });
 });

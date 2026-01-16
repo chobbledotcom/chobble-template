@@ -230,9 +230,8 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:createScssCompiler",
 
-  // Config helpers - tested for form/quote field logic and validation
+  // Config helpers - tested for form/quote field logic
   "src/_lib/config/form-helpers.js:getFieldTemplate",
-  "src/_lib/config/helpers.js:validatePageFrontmatter",
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
   // Eleventy plugin helpers - internal functions tested directly

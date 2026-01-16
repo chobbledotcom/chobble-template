@@ -1,11 +1,12 @@
 /** @typedef {import("#lib/types").SiteConfig} SiteConfig */
 
+// Import validated-config to trigger validation at startup
+import "#config/validated-config.js";
 import {
   DEFAULT_PRODUCT_DATA,
   DEFAULTS,
   getFormTarget,
   getProducts,
-  validateCartConfig,
 } from "#config/helpers.js";
 import { pickNonNull } from "#utils/object-entries.js";
 import configData from "./config.json" with { type: "json" };
@@ -23,8 +24,6 @@ const config = {
   ...baseConfig,
   form_target: getFormTarget(baseConfig),
 };
-
-validateCartConfig(config);
 
 /**
  * Get site configuration with defaults applied.
