@@ -63,7 +63,7 @@ const prepareAreaList = (locations, currentUrl) => {
   const separator = listSeparator(sorted.length);
 
   return sorted.map((loc, index) => ({
-    url: loc.url || "",
+    url: loc.url,
     name: loc.data?.eleventyNavigation?.key || "",
     separator: separator(index),
   }));

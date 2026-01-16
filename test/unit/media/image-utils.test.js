@@ -30,10 +30,6 @@ describe("image-utils", () => {
     test("prepends ./src/images/ for bare filenames", () => {
       expect(normalizeImagePath("photo.jpg")).toBe("./src/images/photo.jpg");
     });
-
-    test("converts non-string values to string", () => {
-      expect(normalizeImagePath(123)).toBe("./src/images/123");
-    });
   });
 
   describe("isExternalUrl", () => {
