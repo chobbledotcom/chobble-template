@@ -170,9 +170,8 @@ const pick = (keys) => (obj) =>
  * Filters out null, undefined, false, 0, '', and NaN.
  * Perfect for building arrays with conditional elements.
  *
- * @template T
- * @param {(T | null | undefined | false | 0 | '')[]} arr - Array potentially containing falsy values
- * @returns {NonNullable<T>[]} Array with only truthy values
+ * @param {unknown[]} arr - Array potentially containing falsy values
+ * @returns {unknown[]} Array with only truthy values (falsy values filtered out)
  *
  * @example
  * compact([1, null, 2, undefined, 3])        // [1, 2, 3]
@@ -208,9 +207,8 @@ const listSeparator = (length) => (index) =>
  * Uses pure functional approach with no mutable state.
  *
  * @template T
- * @template K
  * @param {T[]} items - Array to check for duplicates
- * @param {(item: T) => K} [getKey] - Optional key extractor (defaults to identity)
+ * @param {(item: T) => unknown} [getKey] - Optional key extractor (defaults to identity)
  * @returns {T | undefined} First duplicate item, or undefined
  *
  * @example

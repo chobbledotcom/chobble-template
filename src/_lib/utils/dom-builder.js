@@ -15,7 +15,7 @@ const getSharedDocument = memoize(async () => {
 
 /**
  * Apply attributes to an element
- * @param {Element} element - Element to modify
+ * @param {HTMLElement} element - Element to modify
  * @param {ElementAttributes} attributes - Attributes to apply
  * @returns {void}
  */
@@ -29,7 +29,7 @@ const applyAttributes = (element, attributes) => {
 
 /**
  * Append children to an element
- * @param {Element} element - Element to modify
+ * @param {HTMLElement} element - Element to modify
  * @param {ElementChildren} children - Children to append
  * @returns {void}
  */
@@ -52,7 +52,7 @@ const appendChildren = (element, children) => {
  * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
  * @param {ElementChildren} [children=null] - Inner content or child elements
  * @param {Document | null} [document=null] - Optional existing document to use
- * @returns {Promise<Element>} The created element
+ * @returns {Promise<HTMLElement>} The created element
  */
 const createElement = async (
   tagName,
@@ -61,7 +61,8 @@ const createElement = async (
   document = null,
 ) => {
   const doc = document || (await getSharedDocument());
-  const element = doc.createElement(tagName);
+  /** @type {HTMLElement} */
+  const element = /** @type {HTMLElement} */ (doc.createElement(tagName));
   applyAttributes(element, attributes);
   appendChildren(element, children);
   return element;
@@ -69,7 +70,7 @@ const createElement = async (
 
 /**
  * Convert an element to its HTML string representation
- * @param {Element} element - The element to serialize
+ * @param {HTMLElement} element - The element to serialize
  * @returns {string} The outer HTML of the element
  */
 const elementToHtml = (element) => {
@@ -95,9 +96,12 @@ const createHtml = async (tagName, attributes = {}, children = null) => {
  */
 const parseHtml = async (html, document = null) => {
   const doc = document || (await getSharedDocument());
-  const template = doc.createElement("template");
+  /** @type {HTMLTemplateElement} */
+  const template = /** @type {HTMLTemplateElement} */ (
+    doc.createElement("template")
+  );
   template.innerHTML = html;
-  return template.content.firstChild;
+  return /** @type {Element | null} */ (template.content.firstChild);
 };
 
 export {

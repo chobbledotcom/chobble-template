@@ -111,7 +111,7 @@ const omit = (keys) => filterObject(notMemberOf(keys));
  * @template T
  * @template V
  * @param {T[]} items - Array of items to transform
- * @param {(item: T, index: number) => [string, V]} toEntry - Function that returns [key, value] for each item
+ * @param {(item: T, index: number) => [string | number, V]} toEntry - Function that returns [key, value] for each item (numbers coerced to strings)
  * @returns {Record<string, V>} Object built from the entries
  *
  * @example

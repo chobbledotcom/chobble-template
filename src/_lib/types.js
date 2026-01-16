@@ -1,9 +1,7 @@
 /**
  * Shared type definitions for the Chobble Template project.
  *
- * Import types in other files using:
- * @example
- * /** @typedef {import("#lib/types.js").EleventyCollectionItem} EleventyCollectionItem *\/
+ * Import types in other files using JSDoc typedef with import syntax.
  */
 
 // =============================================================================
@@ -39,6 +37,7 @@
  * @typedef {Object} EleventyCollectionItem
  * @property {EleventyCollectionItemData & Record<string, unknown>} data - Item data from frontmatter
  * @property {string} url - Item URL
+ * @property {string} fileSlug - File slug (filename without extension)
  * @property {Date} [date] - Item date
  */
 
@@ -163,7 +162,7 @@
  */
 
 /**
- * @typedef {(options: ImageTransformOptions) => Promise<Element>} ProcessImageFn
+ * @typedef {(options: ImageTransformOptions) => Promise<string | Element>} ProcessImageFn
  */
 
 // =============================================================================
