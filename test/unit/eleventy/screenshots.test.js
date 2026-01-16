@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  configureScreenshots,
-  getDefaultOptions,
-  getViewports,
-  VIEWPORTS,
-} from "#eleventy/screenshots.js";
+import { configureScreenshots } from "#eleventy/screenshots.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("screenshots eleventy plugin", () => {
@@ -112,26 +107,6 @@ describe("screenshots eleventy plugin", () => {
       await mockConfig.eventHandlers["eleventy.after"]({
         dir: { output: "_site" },
       });
-    });
-  });
-
-  describe("re-exports", () => {
-    test("Exports getViewports function", () => {
-      expect(typeof getViewports).toBe("function");
-      expect(getViewports()).toHaveProperty("mobile");
-      expect(getViewports()).toHaveProperty("desktop");
-    });
-
-    test("Exports getDefaultOptions function", () => {
-      expect(typeof getDefaultOptions).toBe("function");
-      expect(getDefaultOptions()).toHaveProperty("viewport");
-      expect(getDefaultOptions()).toHaveProperty("baseUrl");
-    });
-
-    test("Exports VIEWPORTS constant", () => {
-      expect(VIEWPORTS).toBeDefined();
-      expect(VIEWPORTS.mobile).toBeDefined();
-      expect(VIEWPORTS.desktop).toBeDefined();
     });
   });
 });

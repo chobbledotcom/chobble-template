@@ -31,7 +31,7 @@ import { fromPairs } from "#utils/object-entries.js";
 
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 
-export const SCOPE_SELECTORS = {
+const SCOPE_SELECTORS = {
   header: "header",
   nav: "nav",
   article: "article",

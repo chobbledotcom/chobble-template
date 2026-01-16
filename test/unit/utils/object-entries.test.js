@@ -4,7 +4,6 @@ import {
   fromPairs,
   mapBoth,
   mapEntries,
-  mapObject,
   omit,
   pickNonNull,
   pickTruthy,
@@ -52,18 +51,6 @@ describe("object-entries utilities", () => {
         ["x", 10],
         ["y", 20],
       ]);
-    });
-  });
-
-  describe("mapObject", () => {
-    test("transforms keys and values", () => {
-      const uppercase = mapObject((k, v) => [k.toUpperCase(), v * 2]);
-      expect(uppercase(testObj)).toEqual({ A: 2, B: 4, C: 6 });
-    });
-
-    test("can swap keys and values", () => {
-      const swap = mapObject((k, v) => [String(v), k]);
-      expect(swap(testObj)).toEqual({ 1: "a", 2: "b", 3: "c" });
     });
   });
 

@@ -125,7 +125,6 @@ export const screenshotAllViewports = (pagePath, options = {}) => {
 };
 
 export const getViewports = () => ({ ...VIEWPORTS });
-export const getDefaultOptions = () => ({ ...DEFAULT_OPTIONS });
 
 // Re-export shared utilities for backwards compatibility
-export { buildUrl, prepareOutputDir, sanitizePagePath, startServer, VIEWPORTS };
+export { buildUrl, prepareOutputDir, sanitizePagePath, startServer };
