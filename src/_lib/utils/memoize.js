@@ -10,19 +10,10 @@ import { map, pipe } from "#utils/array-utils.js";
 import { fromPairs } from "#utils/object-entries.js";
 
 /**
- * @template {unknown[]} Args
- * @template R
- * @typedef {Object} MemoizeOptions
- * @property {(args: Args) => string | number} [cacheKey] - Custom cache key function
- */
-
-/**
  * Memoize a function with optional custom cache key
- * @template {unknown[]} Args
- * @template R
- * @param {(...args: Args) => R} fn - Function to memoize
- * @param {MemoizeOptions<Args, R>} [options] - Memoization options
- * @returns {(...args: Args) => R} Memoized function
+ * @param {Function} fn - Function to memoize
+ * @param {{ cacheKey?: (args: unknown[]) => string | number }} [options] - Memoization options
+ * @returns {Function} Memoized function
  */
 const memoize = (fn, options = {}) => {
   const cache = new Map();

@@ -17,7 +17,7 @@ const IGNORE_ATTRIBUTE = "eleventy:ignore";
 
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
- * @param {Document} document - DOM document to modify
+ * @param {*} document - DOM document to modify (happy-dom)
  * @returns {void}
  */
 const fixDivsInParagraphs = (document) => {
@@ -32,8 +32,8 @@ const fixDivsInParagraphs = (document) => {
 
 /**
  * Extract image options from an img element
- * @param {HTMLImageElement} img - The img DOM element
- * @param {Document} document - The DOM document
+ * @param {Element} img - The img DOM element
+ * @param {*} document - The DOM document (happy-dom)
  * @returns {ImageTransformOptions} Options object with imageName from getAttribute (string | null)
  */
 const extractImageOptions = (img, document) => {
@@ -56,8 +56,8 @@ const extractImageOptions = (img, document) => {
 
 /**
  * Process a single image element
- * @param {HTMLImageElement} img - The img DOM element
- * @param {Document} document - The DOM document
+ * @param {Element} img - The img DOM element
+ * @param {*} document - The DOM document (happy-dom)
  * @param {ProcessImageFn} processAndWrapImage - Callback that receives options with imageName: string | null
  * @returns {Promise<void>}
  */
@@ -69,7 +69,9 @@ const processImageElement = async (img, document, processAndWrapImage) => {
   const parent = img.parentElement;
   if (parent?.classList?.contains("image-wrapper")) return;
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
-  parent.replaceChild(wrapped, img);
+  if (typeof wrapped !== "string") {
+    parent.replaceChild(wrapped, img);
+  }
 };
 
 /**
@@ -90,7 +92,7 @@ const transformImages = async (content, processAndWrapImage) => {
 
   await Promise.all(
     Array.from(images).map((img) =>
-      processImageElement(img, document, processAndWrapImage),
+      processImageElement(/** @type {*} */ (img), document, processAndWrapImage),
     ),
   );
 

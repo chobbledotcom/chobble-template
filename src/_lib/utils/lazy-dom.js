@@ -48,7 +48,7 @@ const loadDOM = async (html = "") => {
 /**
  * Transform HTML content via DOM manipulation
  * @param {string} content - HTML content to transform
- * @param {(document: Document) => void} manipulate - DOM manipulation callback
+ * @param {(document: *) => void} manipulate - DOM manipulation callback (receives happy-dom Document)
  * @returns {Promise<string>} Transformed HTML string
  */
 const transformDOM = async (content, manipulate) => {

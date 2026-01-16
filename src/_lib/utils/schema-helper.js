@@ -55,7 +55,7 @@ import { canonicalUrl } from "#utils/canonical-url.js";
 
 /**
  * @typedef {Object} OrganizationPageData
- * @property {Record<string, unknown>} [metaComputed] - Computed metadata including organization
+ * @property {{ organization?: Record<string, unknown> }} [metaComputed] - Computed metadata including organization
  */
 
 /**
