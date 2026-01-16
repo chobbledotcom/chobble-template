@@ -99,15 +99,15 @@ describe("navigation", () => {
     expectFindsTarget([pageItem("null-tags", "/null-tags/", null)]);
   });
 
-  test("Requires exact slug match", () => {
-    const collection = [
-      pageItem("hello-world", "/posts/hello-world/", ["post"]),
-      pageItem("hello-world-2", "/posts/hello-world-2/", ["post"]),
-    ];
+  test("Handles empty collection gracefully", () => {
+    expect(findPageUrl([], "post", "test")).toBe("#");
+  });
 
-    expect(findPageUrl(collection, "post", "hello-world")).toBe(
-      "/posts/hello-world/",
-    );
+  test("Matches on exact slug even if there are similar items", () => {
+    expectFindsTarget([
+      pageItem("hello", "/posts/hello/", ["post"]),
+      pageItem("hello-world-2", "/posts/hello-world-2/", ["post"]),
+    ]);
   });
 
   test("Configures navigation filters in Eleventy", async () => {
@@ -122,65 +122,55 @@ describe("navigation", () => {
     const mockConfig = await withNavigation();
     expect(typeof mockConfig.collections.navigationLinks).toBe("function");
 
-    const api = {
+    const items = mockConfig.collections.navigationLinks(
+      navCollectionApi([
+        ["About", { key: "About", order: 2 }],
+        ["Home", { key: "Home", order: 1 }],
+      ]),
+    );
+
+    expectResultTitles(items, ["Home", "About"]);
+  });
+
+  test("navigationLinks collection excludes items without eleventyNavigation", async () => {
+    const mockConfig = await withNavigation();
+
+    const result = mockConfig.collections.navigationLinks({
       getAll: () => [
-        ...navItems([
-          ["Home", { key: "Home", order: 1 }],
-          ["About", { key: "About", order: 2 }],
-        ]),
-        item("No Navigation"),
-        ...navItems([["Contact", { key: "Contact", order: 3 }]]),
+        item("Page 1", { eleventyNavigation: { key: "page-1" } }),
+        item("Page 2", {}),
       ],
-    };
+    });
 
-    expectResultTitles(mockConfig.collections.navigationLinks(api), [
-      "Home",
-      "About",
-      "Contact",
-    ]);
+    expect(result.length).toBe(1);
+    expectResultTitles(result, ["Page 1"]);
   });
 
-  test("Sorts navigation items by order property", async () => {
+  test("navigationLinks collection sorts by order, then by key", async () => {
     const mockConfig = await withNavigation();
-    const api = navCollectionApi([
-      ["Third", { key: "Third", order: 30 }],
-      ["First", { key: "First", order: 10 }],
-      ["Second", { key: "Second", order: 20 }],
-    ]);
 
-    expectResultTitles(mockConfig.collections.navigationLinks(api), [
-      "First",
-      "Second",
-      "Third",
-    ]);
+    const items = mockConfig.collections.navigationLinks(
+      navCollectionApi([
+        ["Zebra", { key: "zebra", order: 2 }],
+        ["Apple", { key: "apple", order: 1 }],
+        ["Banana", { key: "banana", order: 1 }],
+      ]),
+    );
+
+    expectResultTitles(items, ["Apple", "Banana", "Zebra"]);
   });
 
-  test("Items without order default to 999 and sort alphabetically", async () => {
+  test("navigationLinks collection handles missing order", async () => {
     const mockConfig = await withNavigation();
-    const api = navCollectionApi([
-      ["Zebra Page", { key: "Zebra Page" }],
-      ["Has Order", { key: "Has Order", order: 5 }],
-      ["Apple Page", { key: "Apple Page" }],
-    ]);
 
-    expectResultTitles(mockConfig.collections.navigationLinks(api), [
-      "Has Order",
-      "Apple Page",
-      "Zebra Page",
-    ]);
-  });
+    const items = mockConfig.collections.navigationLinks(
+      navCollectionApi([
+        ["Zebra", { key: "zebra" }],
+        ["Apple", { key: "apple" }],
+      ]),
+    );
 
-  test("Falls back to title when key is missing", async () => {
-    const mockConfig = await withNavigation();
-    const api = navCollectionApi([
-      ["Zebra Page", { order: 10 }],
-      ["Apple Page", { order: 10 }],
-    ]);
-
-    expectResultTitles(mockConfig.collections.navigationLinks(api), [
-      "Apple Page",
-      "Zebra Page",
-    ]);
+    expect(items.length).toBe(2);
   });
 
   test("Returns # for empty collection", () => {

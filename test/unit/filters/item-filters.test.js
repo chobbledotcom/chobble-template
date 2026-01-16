@@ -147,13 +147,16 @@ describe("item-filters", () => {
       const mock = mockConfig();
       testFilterConfig().configure(mock);
 
-      expect(mock.getCollections().length).toBe(3);
+      expect(mock.getCollections().length).toBe(4);
       expect(mock.getFilters().length).toBe(1);
 
       const collectionNames = mock.getCollections().map((c) => c.name);
       expect(collectionNames.includes("testFilterPages")).toBe(true);
       expect(collectionNames.includes("testRedirects")).toBe(true);
       expect(collectionNames.includes("testAttributes")).toBe(true);
+      expect(collectionNames.includes("testFilterPagesListingFilterUI")).toBe(
+        true,
+      );
     });
   });
 
@@ -625,5 +628,18 @@ describe("item-filters", () => {
       expect(pagesResult.length).toBe(1);
       expect(pagesResult[0].count).toBe(3);
     });
+  });
+
+  test("Listing filterUI collection returns filterUI with no active filters", () => {
+    const mock = mockConfig();
+    testFilterConfig().configure(mock);
+
+    const listingUI = mock.getCollection("testFilterPagesListingFilterUI")(
+      collectionApi([item("Widget", attr("Size", "Large"))]),
+    );
+
+    expect(listingUI.hasFilters).toBe(true);
+    expect(listingUI.hasActiveFilters).toBe(false);
+    expect(listingUI.groups.length).toBeGreaterThan(0);
   });
 });

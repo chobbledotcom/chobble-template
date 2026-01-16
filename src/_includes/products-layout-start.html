@@ -1,6 +1,6 @@
 {% if config.has_products_filter %}
 <div class="products-layout">
-  {%- include "products-filter.html" -%}
+  {%- include "products-filter.html", filterUI: filterUI -%}
 
   <div class="products-content">
 {% endif %}
