@@ -189,7 +189,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
-  "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
