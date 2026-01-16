@@ -9,6 +9,17 @@ import slugify from "@sindresorhus/slugify";
 
 import { join, map, pipe, split } from "#utils/array-utils.js";
 
+/**
+ * @typedef {Object} PageData
+ * @property {string} [permalink] - Custom permalink
+ * @property {{ fileSlug: string }} page - Page info from Eleventy
+ */
+
+/**
+ * Normalize a PagesCMS reference to just the filename without extension
+ * @param {string | null | undefined} reference - Full path reference
+ * @returns {string | null | undefined} Normalized slug
+ */
 const normaliseSlug = (reference) => {
   if (!reference) return reference;
   return pipe(
@@ -18,14 +29,31 @@ const normaliseSlug = (reference) => {
   )(reference);
 };
 
+/**
+ * Build a permalink for a page
+ * @param {PageData} data - Page data from Eleventy
+ * @param {string} dir - Directory name for URL
+ * @returns {string} Permalink URL
+ */
 const buildPermalink = (data, dir) => {
   if (data.permalink) return data.permalink;
   return `/${dir}/${data.page.fileSlug}/`;
 };
 
+/**
+ * Build a PDF filename from business name and menu slug
+ * @param {string} businessName - Business name to slugify
+ * @param {string} menuSlug - Menu slug
+ * @returns {string} PDF filename
+ */
 const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
+/**
+ * Convert a slug to a title-case string
+ * @param {string} slug - Slug to convert
+ * @returns {string} Title-case string
+ */
 const slugToTitle = (slug) =>
   pipe(
     split("-"),
