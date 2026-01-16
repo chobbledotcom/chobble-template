@@ -1,0 +1,21 @@
+{%- comment -%}
+Renders an icon as an image, Iconify SVG, or raw HTML content.
+
+Parameters:
+  - icon: The icon content. Supported formats:
+    - Iconify ID: "prefix:name" (e.g., "mdi:home", "lucide:settings")
+    - Image path: starts with "/" (e.g., "/images/icon.svg")
+    - Raw content: emoji, HTML entity, or inline SVG
+
+Detection logic (handled by renderIcon filter):
+  - Contains ":" but no "/" → Iconify icon (fetched via API, cached locally)
+  - Starts with "/" → image path
+  - Otherwise → raw content output
+
+Usage:
+  {% include "design-system/icon.html", icon: "mdi:home" %}
+  {% include "design-system/icon.html", icon: "&#128640;" %}
+  {% include "design-system/icon.html", icon: "/images/icon.svg" %}
+{%- endcomment -%}
+
+{{- icon | renderIcon -}}

@@ -1,5 +1,5 @@
 /**
- * Central registration for category filter collections and the unified getFilterUI.
+ * Central registration for category filter collections.
  *
  * This file is excluded from coverage because it contains only wiring code
  * that registers already-tested functions with Eleventy. The actual logic
@@ -12,10 +12,9 @@ import {
   createCategoryListingFilterUI,
   createFilteredCategoryProductPages,
 } from "#filters/category-product-filters.js";
-import { getFilterUI } from "#filters/item-filters.js";
 
 /**
- * Configure category filter collections and unified getFilterUI
+ * Configure category filter collections
  * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  */
 export const configureCategoryFilters = (eleventyConfig) => {
@@ -39,5 +38,4 @@ export const configureCategoryFilters = (eleventyConfig) => {
     "buildCategoryFilterUIData",
     buildCategoryFilterUIDataFn,
   );
-  eleventyConfig.addFilter("getFilterUI", getFilterUI);
 };

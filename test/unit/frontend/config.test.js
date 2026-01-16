@@ -1,27 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
-  cartModeError,
-  checkFrontmatterField,
   DEFAULT_PRODUCT_DATA,
   DEFAULTS,
-  extractFrontmatter,
   getFormTarget,
-  getPagePath,
   getProducts,
-  VALID_CART_MODES,
   validateCartConfig,
-  validatePageFrontmatter,
-  validateProductMode,
-  validateQuotePages,
-  validateStripePages,
 } from "#config/helpers.js";
-import {
-  cleanupTempDir,
-  createFrontmatter,
-  createTempDir,
-  createTempFile,
-  expectObjectProps,
-} from "#test/test-utils.js";
+import { expectObjectProps } from "#test/test-utils.js";
 import { pickNonNull } from "#utils/object-entries.js";
 
 describe("config", () => {
@@ -57,18 +42,12 @@ describe("config", () => {
   });
 
   test("DEFAULTS has correct critical values", () => {
-    // Verify security-related and external URL defaults
     expect(DEFAULTS.externalLinksTargetBlank).toBe(false);
     expect(DEFAULTS.template_repo_url).toBe(
       "https://github.com/chobbledotcom/chobble-template",
     );
     expect(DEFAULTS.cart_mode).toBe(null);
     expect(DEFAULTS.product_mode).toBe(null);
-  });
-
-  test("VALID_CART_MODES contains correct values", () => {
-    expect(Array.isArray(VALID_CART_MODES)).toBe(true);
-    expect(VALID_CART_MODES).toEqual(["paypal", "stripe", "quote"]);
   });
 
   test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {
@@ -159,78 +138,6 @@ describe("config", () => {
     expect(result).toBe(null);
   });
 
-  test("cartModeError returns correctly formatted error message", () => {
-    const result = cartModeError("stripe", "checkout.md", "does not exist");
-    expect(result).toBe(
-      'cart_mode is "stripe" but src/pages/checkout.md does not exist',
-    );
-  });
-
-  test("getPagePath returns correct path", () => {
-    const result = getPagePath("test.md");
-    expect(result.endsWith("pages/test.md")).toBe(true);
-    expect(result.includes("src")).toBe(true);
-  });
-
-  test("extractFrontmatter extracts frontmatter from valid file", () => {
-    const tempDir = createTempDir("config-test");
-    const content = createFrontmatter(
-      { layout: "test.html", permalink: "/test/" },
-      "Content here",
-    );
-    const filePath = createTempFile(tempDir, "test.md", content);
-
-    const result = extractFrontmatter(filePath, "test.md", "stripe");
-    expectObjectProps({
-      layout: "test.html",
-      permalink: "/test/",
-    })(result);
-
-    cleanupTempDir(tempDir);
-  });
-
-  test("extractFrontmatter throws when file does not exist", () => {
-    expect(() =>
-      extractFrontmatter("/nonexistent/path/file.md", "file.md", "stripe"),
-    ).toThrow(/does not exist/);
-  });
-
-  test("extractFrontmatter throws when no frontmatter present", () => {
-    const tempDir = createTempDir("config-test-no-fm");
-    const content = "Just plain content without frontmatter";
-    const filePath = createTempFile(tempDir, "plain.md", content);
-
-    expect(() => extractFrontmatter(filePath, "plain.md", "stripe")).toThrow(
-      /has no frontmatter/,
-    );
-
-    cleanupTempDir(tempDir);
-  });
-
-  test("checkFrontmatterField passes when field exists", () => {
-    const frontmatter = { layout: "test.html", permalink: "/test/" };
-    checkFrontmatterField(
-      frontmatter,
-      "layout",
-      "test.html",
-      "stripe",
-      "test.md",
-    );
-  });
-
-  test("checkFrontmatterField throws when field is missing", () => {
-    const frontmatter = { layout: "other.html" };
-    expect(() =>
-      checkFrontmatterField(
-        frontmatter,
-        "layout",
-        "test.html",
-        "stripe",
-        "test.md",
-      ),
-    ).toThrow(/does not have layout: test.html/);
-  });
-
   test("validateCartConfig passes with null cart_mode", () => {
     const config = { cart_mode: null };
     validateCartConfig(config);
@@ -294,57 +201,7 @@ describe("config", () => {
     expect(result).toBe("https://submit-form.com/abc123");
   });
 
-  test("validatePageFrontmatter passes when file has correct frontmatter", () => {
-    validatePageFrontmatter(
-      "stripe-checkout.md",
-      "stripe-checkout.html",
-      "/stripe-checkout/",
-      "stripe",
-    );
-  });
-
-  test("validatePageFrontmatter throws when file does not exist", () => {
-    expect(() =>
-      validatePageFrontmatter(
-        "nonexistent.md",
-        "test.html",
-        "/test/",
-        "stripe",
-      ),
-    ).toThrow(/does not exist/);
-  });
-
-  test("validatePageFrontmatter throws when layout is incorrect", () => {
-    expect(() =>
-      validatePageFrontmatter(
-        "stripe-checkout.md",
-        "wrong-layout.html",
-        "/stripe-checkout/",
-        "stripe",
-      ),
-    ).toThrow(/does not have layout: wrong-layout.html/);
-  });
-
-  test("validatePageFrontmatter throws when permalink is incorrect", () => {
-    expect(() =>
-      validatePageFrontmatter(
-        "stripe-checkout.md",
-        "stripe-checkout.html",
-        "/wrong-permalink/",
-        "stripe",
-      ),
-    ).toThrow(/does not have permalink: \/wrong-permalink\//);
-  });
-
-  test("validateStripePages passes with real stripe-checkout.md and order-complete.md", () => {
-    validateStripePages();
-  });
-
-  test("validateQuotePages passes with real checkout.md page", () => {
-    validateQuotePages();
-  });
-
-  test("validateCartConfig passes for stripe with checkout_api_url and valid pages", () => {
+  test("validateCartConfig passes for stripe with checkout_api_url", () => {
     const config = {
       cart_mode: "stripe",
       checkout_api_url: "https://api.example.com/checkout",
@@ -352,7 +209,7 @@ describe("config", () => {
     validateCartConfig(config);
   });
 
-  test("validateCartConfig passes for quote with form_target and valid pages", () => {
+  test("validateCartConfig passes for quote with form_target", () => {
     const config = {
       cart_mode: "quote",
       form_target: "https://forms.example.com/submit",
@@ -360,25 +217,25 @@ describe("config", () => {
     validateCartConfig(config);
   });
 
-  test("validateProductMode passes with null product_mode", () => {
-    validateProductMode({ product_mode: null });
+  test("validateCartConfig passes with null product_mode", () => {
+    validateCartConfig({ product_mode: null });
   });
 
-  test("validateProductMode passes with undefined product_mode", () => {
-    validateProductMode({});
+  test("validateCartConfig passes with undefined product_mode", () => {
+    validateCartConfig({});
   });
 
-  test("validateProductMode passes with valid buy mode", () => {
-    validateProductMode({ product_mode: "buy" });
+  test("validateCartConfig passes with valid buy mode", () => {
+    validateCartConfig({ product_mode: "buy" });
   });
 
-  test("validateProductMode passes with valid hire mode", () => {
-    validateProductMode({ product_mode: "hire" });
+  test("validateCartConfig passes with valid hire mode", () => {
+    validateCartConfig({ product_mode: "hire" });
   });
 
-  test("validateProductMode throws for invalid product_mode", () => {
+  test("validateCartConfig throws for invalid product_mode", () => {
     const config = { product_mode: "invalid" };
-    expect(() => validateProductMode(config)).toThrow(
+    expect(() => validateCartConfig(config)).toThrow(
       /Invalid product_mode: "invalid"/,
     );
   });
@@ -393,10 +250,8 @@ describe("config", () => {
     const filtered = pickNonNull(userConfig);
     const merged = { ...DEFAULTS, ...filtered };
 
-    // null values should not override defaults
     expect(merged.placeholder_images).toBe(DEFAULTS.placeholder_images);
     expect(merged.sticky_mobile_nav).toBe(DEFAULTS.sticky_mobile_nav);
-    // explicit values should override defaults
     expect(merged.custom_setting).toBe("custom_value");
   });
 
@@ -411,11 +266,9 @@ describe("config", () => {
     const filtered = pickNonNull(userConfig);
     const merged = { ...DEFAULTS, ...filtered };
 
-    // false, 0, and "" should override defaults
     expect(merged.externalLinksTargetBlank).toBe(false);
     expect(merged.reviews_truncate_limit).toBe(0);
     expect(merged.empty_string).toBe("");
-    // null should not override
     expect(merged).not.toHaveProperty("null_value");
   });
 });

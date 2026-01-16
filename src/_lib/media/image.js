@@ -14,6 +14,9 @@
  * Image cache is copied to _site/img/ after Eleventy build completes.
  */
 import fs from "node:fs";
+
+/** @typedef {import("#lib/types.js").ImageProps} ImageProps */
+/** @typedef {import("#lib/types.js").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import {
   filenameFormat,
@@ -48,14 +51,8 @@ const DEFAULT_OPTIONS = {
  * 1. From image-transform.js via extractImageOptions: getAttribute("src") = string | null
  * 2. From imageShortcode: template string = string
  *
- * @param {Object} props
- * @param {string | null} props.imageName - Image src (may be null from getAttribute in transform)
- * @param {string | null} props.alt - From getAttribute or template
- * @param {string | null} [props.classes] - From getAttribute or template
- * @param {string | null} [props.sizes] - From getAttribute or template
- * @param {string | string[] | null} [props.widths] - From getAttribute or template
- * @param {string | null} [props.aspectRatio] - From getAttribute or template
- * @param {string | null} [props.loading] - From imageShortcode
+ * @param {ComputeImageProps} props - Image processing properties
+ * @returns {Promise<string>} Wrapped image HTML
  */
 const computeWrappedImageHtml = memoize(
   async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
@@ -110,17 +107,8 @@ const computeWrappedImageHtml = memoize(
  * 1. From image-transform.js: extractImageOptions passes getAttribute("src") = string | null
  * 2. From imageShortcode: template syntax passes string directly
  *
- * @param {Object} props
- * @param {string} [props.logName]
- * @param {string | null} props.imageName - Image src (string from shortcode, string|null from DOM getAttribute)
- * @param {string | null} props.alt - From getAttribute or shortcode
- * @param {string | null} [props.classes] - From getAttribute or shortcode
- * @param {string | null} [props.sizes] - From getAttribute or shortcode
- * @param {string | string[] | null} [props.widths] - From getAttribute or shortcode
- * @param {boolean} [props.returnElement] - true from transform, false from shortcode
- * @param {string | null} [props.aspectRatio] - From getAttribute or shortcode
- * @param {string | null} [props.loading] - Always null from transform, from shortcode param
- * @param {Document | null} [props.document] - Document object from transform, null from shortcode
+ * @param {ImageProps} props - Image processing properties
+ * @returns {Promise<string | Element>} Wrapped image HTML or Element
  */
 const processAndWrapImage = async ({
   logName: _logName,
@@ -134,12 +122,9 @@ const processAndWrapImage = async ({
   loading = null,
   document = null,
 }) => {
-  /** @type {string} */
-  const imageNameStr = imageName.toString();
-
-  if (isExternalUrl(imageNameStr)) {
+  if (isExternalUrl(imageName)) {
     const attributes = {
-      src: imageNameStr,
+      src: imageName,
       alt: alt || "",
       loading: loading || "lazy",
       decoding: "async",

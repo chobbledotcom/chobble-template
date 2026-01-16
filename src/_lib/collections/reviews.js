@@ -188,14 +188,4 @@ const configureReviews = (eleventyConfig) => {
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);
 };
 
-export {
-  createReviewsCollection,
-  getReviewsFor,
-  countReviews,
-  getRating,
-  ratingToStars,
-  reviewerAvatar,
-  withReviewsPage,
-  reviewsRedirects,
-  configureReviews,
-};
+export { getReviewsFor, withReviewsPage, reviewsRedirects, configureReviews };

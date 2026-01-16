@@ -3,7 +3,10 @@ Features grid with list semantics.
 
 Parameters:
   - items: Array of feature objects with properties:
-    - icon: Icon content (emoji or HTML)
+    - icon: Icon content. Supported formats:
+        - Iconify ID: "prefix:name" (e.g., "mdi:home", "lucide:settings")
+        - Image path: starts with "/" (e.g., "/images/icon.svg")
+        - Raw content: emoji or HTML entity (e.g., "&#128640;")
     - icon_label: Accessible label for icon (optional, defaults to decorative)
     - title: Feature title
     - description: Feature description
@@ -15,7 +18,9 @@ Usage:
   {% include "design-system/features.html", items: page.features %}
 
   Where page.features = [
-    { icon: "&#128640;", title: "Fast", description: "Static HTML" },
+    { icon: "mdi:rocket-launch", title: "Fast", description: "Static HTML" },
+    { icon: "&#128640;", title: "Emoji", description: "HTML entity icon" },
+    { icon: "/images/icon.svg", title: "Custom", description: "Path-based icon" },
     ...
   ]
 {%- endcomment -%}
@@ -29,9 +34,9 @@ Usage:
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
         {%- if item.icon_label -%}
-          <div class="icon" role="img" aria-label="{{ item.icon_label }}">{{ item.icon }}</div>
+          <div class="icon" role="img" aria-label="{{ item.icon_label }}">{%- include "design-system/icon.html", icon: item.icon -%}</div>
         {%- else -%}
-          <div class="icon" aria-hidden="true">{{ item.icon }}</div>
+          <div class="icon" aria-hidden="true">{%- include "design-system/icon.html", icon: item.icon -%}</div>
         {%- endif -%}
       {%- endif -%}
       <h{{ heading_level }}>{{ item.title }}</h{{ heading_level }}>

@@ -1,18 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
-  cartModeError,
-  checkFrontmatterField,
   DEFAULT_PRODUCT_DATA,
   DEFAULTS,
-  extractFrontmatter,
   getFormTarget,
   getProducts,
-  VALID_CART_MODES,
-  VALID_PRODUCT_MODES,
   validateCartConfig,
-  validateCheckoutApiUrl,
-  validateProductMode,
-  validateQuoteConfig,
+  validatePageFrontmatter,
 } from "#config/helpers.js";
 import {
   cleanupTempDir,
@@ -20,22 +13,6 @@ import {
   createTempFile,
   expectObjectProps,
 } from "#test/test-utils.js";
-
-describe("cartModeError", () => {
-  test("builds error message with cart mode, filename, and issue", () => {
-    const result = cartModeError("stripe", "checkout.md", "does not exist");
-    expect(result).toBe(
-      'cart_mode is "stripe" but src/pages/checkout.md does not exist',
-    );
-  });
-
-  test("handles different cart modes", () => {
-    const result = cartModeError("quote", "order.md", "is missing layout");
-    expect(result).toBe(
-      'cart_mode is "quote" but src/pages/order.md is missing layout',
-    );
-  });
-});
 
 describe("getProducts", () => {
   test("returns empty object when no products key", () => {
@@ -121,178 +98,13 @@ describe("getFormTarget", () => {
   });
 });
 
-describe("checkFrontmatterField", () => {
-  test("does not throw when field matches expected value", () => {
-    const frontmatter = { layout: "checkout.html", permalink: "/checkout/" };
-    expect(() =>
-      checkFrontmatterField(
-        frontmatter,
-        "layout",
-        "checkout.html",
-        "stripe",
-        "checkout.md",
-      ),
-    ).not.toThrow();
-  });
-
-  test("throws when field does not match expected value", () => {
-    const frontmatter = { layout: "wrong-layout.html" };
-    expect(() =>
-      checkFrontmatterField(
-        frontmatter,
-        "layout",
-        "checkout.html",
-        "stripe",
-        "checkout.md",
-      ),
-    ).toThrow(
-      /cart_mode is "stripe" but src\/pages\/checkout.md does not have layout: checkout.html/,
-    );
-  });
-
-  test("throws when field is missing from frontmatter", () => {
-    const frontmatter = {};
-    expect(() =>
-      checkFrontmatterField(
-        frontmatter,
-        "permalink",
-        "/checkout/",
-        "quote",
-        "checkout.md",
-      ),
-    ).toThrow(/does not have permalink/);
-  });
-});
-
-describe("extractFrontmatter", () => {
-  test("throws when file does not exist", () => {
-    expect(() =>
-      extractFrontmatter(
-        "/nonexistent/path/to/file.md",
-        "nonexistent.md",
-        "stripe",
-      ),
-    ).toThrow(/does not exist/);
-  });
-
-  test("throws when file has no frontmatter", () => {
-    const tempDir = createTempDir("extractFrontmatter");
-    try {
-      const filePath = createTempFile(
-        tempDir,
-        "empty.md",
-        "Just content, no frontmatter",
-      );
-      expect(() => extractFrontmatter(filePath, "empty.md", "stripe")).toThrow(
-        /has no frontmatter/,
-      );
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
-
-  test("returns frontmatter data when file has valid frontmatter", () => {
-    const tempDir = createTempDir("extractFrontmatter-valid");
-    try {
-      const content = `---
-layout: test-layout.html
-permalink: /test/
----
-Content here`;
-      const filePath = createTempFile(tempDir, "valid.md", content);
-      const result = extractFrontmatter(filePath, "valid.md", "stripe");
-      expect(result).toEqual({
-        layout: "test-layout.html",
-        permalink: "/test/",
-      });
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
-});
-
-describe("validateProductMode", () => {
-  test("does not throw when product_mode is not set", () => {
-    expect(() => validateProductMode({})).not.toThrow();
-    expect(() => validateProductMode({ product_mode: null })).not.toThrow();
-    expect(() =>
-      validateProductMode({ product_mode: undefined }),
-    ).not.toThrow();
-  });
-
-  test("does not throw for valid product_mode buy", () => {
-    expect(() => validateProductMode({ product_mode: "buy" })).not.toThrow();
-  });
-
-  test("does not throw for valid product_mode hire", () => {
-    expect(() => validateProductMode({ product_mode: "hire" })).not.toThrow();
-  });
-
-  test("throws for invalid product_mode", () => {
-    expect(() => validateProductMode({ product_mode: "invalid" })).toThrow(
-      /Invalid product_mode: "invalid". Must be one of: buy, hire/,
-    );
-  });
-
-  test("throws for misspelled product_mode", () => {
-    expect(() => validateProductMode({ product_mode: "hyre" })).toThrow(
-      /Invalid product_mode/,
-    );
-  });
-});
-
-describe("validateCheckoutApiUrl", () => {
-  test("does not throw when cart_mode is paypal and checkout_api_url is set", () => {
-    expect(() =>
-      validateCheckoutApiUrl("paypal", "https://api.example.com"),
-    ).not.toThrow();
-  });
-
-  test("does not throw when cart_mode is stripe and checkout_api_url is set", () => {
-    expect(() =>
-      validateCheckoutApiUrl("stripe", "https://api.example.com"),
-    ).not.toThrow();
-  });
-
-  test("throws when cart_mode is paypal and checkout_api_url is missing", () => {
-    expect(() => validateCheckoutApiUrl("paypal", null)).toThrow(
-      /cart_mode is "paypal" but checkout_api_url is not set/,
-    );
-  });
-
-  test("throws when cart_mode is stripe and checkout_api_url is missing", () => {
-    expect(() => validateCheckoutApiUrl("stripe", undefined)).toThrow(
-      /cart_mode is "stripe" but checkout_api_url is not set/,
-    );
-  });
-
-  test("does not throw for quote mode regardless of checkout_api_url", () => {
-    expect(() => validateCheckoutApiUrl("quote", null)).not.toThrow();
-    expect(() => validateCheckoutApiUrl("quote", undefined)).not.toThrow();
-  });
-});
-
-describe("validateQuoteConfig", () => {
-  test("throws when form_target is missing", () => {
-    expect(() => validateQuoteConfig(null)).toThrow(
-      /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
-    );
-  });
-
-  test("throws when form_target is undefined", () => {
-    expect(() => validateQuoteConfig(undefined)).toThrow(
-      /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
-    );
-  });
-});
-
 describe("validateCartConfig", () => {
   test("does nothing when cart_mode is not set", () => {
     expect(() => validateCartConfig({})).not.toThrow();
     expect(() => validateCartConfig({ cart_mode: null })).not.toThrow();
   });
 
-  test("throws for invalid cart_mode", () => {
+  test("throws for invalid cart_mode with available options in message", () => {
     expect(() => validateCartConfig({ cart_mode: "invalid" })).toThrow(
       /Invalid cart_mode: "invalid". Must be one of: paypal, stripe, quote/,
     );
@@ -315,6 +127,52 @@ describe("validateCartConfig", () => {
       /cart_mode is "quote" but neither formspark_id nor contact_form_target is set/,
     );
   });
+
+  test("passes for paypal with checkout_api_url", () => {
+    expect(() =>
+      validateCartConfig({
+        cart_mode: "paypal",
+        checkout_api_url: "https://api.example.com",
+      }),
+    ).not.toThrow();
+  });
+
+  test("passes for stripe with checkout_api_url", () => {
+    expect(() =>
+      validateCartConfig({
+        cart_mode: "stripe",
+        checkout_api_url: "https://api.example.com",
+      }),
+    ).not.toThrow();
+  });
+
+  test("passes for quote with form_target", () => {
+    expect(() =>
+      validateCartConfig({
+        cart_mode: "quote",
+        form_target: "https://forms.example.com",
+      }),
+    ).not.toThrow();
+  });
+
+  test("validates product_mode when set to invalid value", () => {
+    expect(() => validateCartConfig({ product_mode: "invalid" })).toThrow(
+      /Invalid product_mode: "invalid". Must be one of: buy, hire/,
+    );
+  });
+
+  test("accepts valid product_mode buy", () => {
+    expect(() => validateCartConfig({ product_mode: "buy" })).not.toThrow();
+  });
+
+  test("accepts valid product_mode hire", () => {
+    expect(() => validateCartConfig({ product_mode: "hire" })).not.toThrow();
+  });
+
+  test("accepts null or undefined product_mode", () => {
+    expect(() => validateCartConfig({ product_mode: null })).not.toThrow();
+    expect(() => validateCartConfig({ product_mode: undefined })).not.toThrow();
+  });
 });
 
 describe("DEFAULTS", () => {
@@ -335,17 +193,13 @@ describe("DEFAULTS", () => {
   test("has design_system_layouts default with design-system-base.html", () => {
     expect(DEFAULTS.design_system_layouts).toEqual(["design-system-base.html"]);
   });
-});
 
-describe("VALID_CART_MODES", () => {
-  test("contains exactly paypal, stripe, and quote", () => {
-    expect(VALID_CART_MODES).toEqual(["paypal", "stripe", "quote"]);
+  test("has null cart_mode by default", () => {
+    expect(DEFAULTS.cart_mode).toBe(null);
   });
-});
 
-describe("VALID_PRODUCT_MODES", () => {
-  test("contains exactly buy and hire", () => {
-    expect(VALID_PRODUCT_MODES).toEqual(["buy", "hire"]);
+  test("has null product_mode by default", () => {
+    expect(DEFAULTS.product_mode).toBe(null);
   });
 });
 
@@ -357,5 +211,98 @@ describe("DEFAULT_PRODUCT_DATA", () => {
       gallery_image_widths: "900,1300,1800",
       header_image_widths: "640,900,1300",
     })(DEFAULT_PRODUCT_DATA);
+  });
+});
+
+describe("validatePageFrontmatter", () => {
+  test("throws when page file does not exist", () => {
+    expect(() =>
+      validatePageFrontmatter(
+        "nonexistent-page.md",
+        "some-layout.html",
+        "/some-path/",
+        "stripe",
+      ),
+    ).toThrow(/does not exist/);
+  });
+
+  test("throws when page has no frontmatter", () => {
+    const tempDir = createTempDir("validate-page-test");
+    try {
+      createTempFile(tempDir, "no-frontmatter.md", "Just content, no YAML");
+      expect(() =>
+        validatePageFrontmatter(
+          `${tempDir}/no-frontmatter.md`,
+          "layout.html",
+          "/path/",
+          "test",
+        ),
+      ).toThrow(/has no frontmatter/);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("throws when layout does not match", () => {
+    const tempDir = createTempDir("validate-page-layout");
+    try {
+      createTempFile(
+        tempDir,
+        "wrong-layout.md",
+        "---\nlayout: wrong.html\npermalink: /correct/\n---\nContent",
+      );
+      expect(() =>
+        validatePageFrontmatter(
+          `${tempDir}/wrong-layout.md`,
+          "expected.html",
+          "/correct/",
+          "test",
+        ),
+      ).toThrow(/does not have layout: expected.html/);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("throws when permalink does not match", () => {
+    const tempDir = createTempDir("validate-page-permalink");
+    try {
+      createTempFile(
+        tempDir,
+        "wrong-permalink.md",
+        "---\nlayout: correct.html\npermalink: /wrong/\n---\nContent",
+      );
+      expect(() =>
+        validatePageFrontmatter(
+          `${tempDir}/wrong-permalink.md`,
+          "correct.html",
+          "/expected/",
+          "test",
+        ),
+      ).toThrow(/does not have permalink: \/expected\//);
+    } finally {
+      cleanupTempDir(tempDir);
+    }
+  });
+
+  test("passes when frontmatter matches expected values", () => {
+    const tempDir = createTempDir("validate-page-success");
+    try {
+      createTempFile(
+        tempDir,
+        "correct.md",
+        "---\nlayout: expected.html\npermalink: /expected/\n---\nContent",
+      );
+      expect(() =>
+        validatePageFrontmatter(
+          `${tempDir}/correct.md`,
+          "expected.html",
+          "/expected/",
+          "test",
+        ),
+      ).not.toThrow();
+    } finally {
+      cleanupTempDir(tempDir);
+    }
   });
 });

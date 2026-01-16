@@ -19,6 +19,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "captureConsole",
   "execScript",
   "createMockEleventyConfig",
+  "createConfiguredMock", // reviews.test.js - creates mock config with registered filters
   "createTempDir",
   "createTempFile",
   "createTempSnippetsDir",
@@ -27,7 +28,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempFile",
   "withMockedCwd",
   "withMockedConsole",
-  "withAssetDir",
+  "getIconFilter",
   "expectValidScriptTag",
   // Fixture factories
   "createProduct",
@@ -47,22 +48,29 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProductSchemaData",
   "createPostSchemaData",
   "createMockReview",
-  // quote-steps.test.js - test fixture factory and assertion helpers
+  // quote-steps.test.js - test fixture factory and setup helpers
   "createQuoteStepsHtml",
-  "testNextButtonStep",
+  "setupQuoteSteps",
+  "triggerValidationError",
+  // quote-steps-utils.js - shared test helpers for progress tests
   "testIndicatorStates",
-  "testValidateFieldWithHtml",
-  // quote-price-utils.test.js - DOM setup and template rendering
-  "setupFullDOM",
+  // quote-price-utils.test.js - DOM setup, fixtures, and template rendering
+  "setupDOM",
   "setupBlurTestDOM",
   "renderQuotePriceTemplates",
+  "cartItem",
+  "buyItem",
+  "getDetails",
+  "getDetailKey",
+  "getDetailValue",
+  "testEventTriggersDays",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
-  // item-filters.test.js - preset config factory
-  "itemsConfig",
+  // item-filters.test.js - test setup helper with collection accessors
+  "setupConfig",
   // external-links.test.js - getter helpers following area-list.test.js pattern
   "getFilter",
   "getTransform",
@@ -115,10 +123,16 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "c",
   "original",
   "another",
+  // categories.test.js - collection setup helpers
+  "getCategoriesCollection",
+  "getFeaturedFilter",
+  // products.test.js - test setup helpers
+  "setupProductsConfig",
+  "categorizedProducts",
+  // area-list.test.js - filter setup helper
+  "getFilter",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
-  // quote-steps.test.js - navigation test setup
-  "setupQuoteStepsNav",
   // hire-calculator.test.js - callback tracking setup
   "initHireWithCallback",
   // unused-images.test.js - eleventy after handler runner
@@ -320,6 +334,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectErrorsInclude",
   // test-utils.js - async error testing helper
   "expectAsyncThrows",
+  // test-utils.js - temp directory and mock fetch helpers
+  "withSubDir",
+  "withSubDirAsync",
+  "mockFetch",
+  "withMockFetch",
   // hire-calculator.test.js - DOM query helper
   "getDateInputs",
   // test-site-factory.test.js - test fixture

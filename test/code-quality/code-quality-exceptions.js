@@ -82,7 +82,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:13", // memoization cache (fundamental to memoize utility)
+  "src/_lib/utils/memoize.js:19", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
@@ -191,6 +191,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/build/scss.js",
   "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/collections/categories.js",
+  "src/_lib/eleventy/area-list.js", // Internal helpers kept separate for readability
+  "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
@@ -233,11 +235,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/build/scss.js:createScssCompiler",
 
   // Collection configure functions - tested to verify Eleventy registration
-  "src/_lib/collections/categories.js:assignCategoryImages",
-  "src/_lib/collections/categories.js:buildCategoryImageMap",
   "src/_lib/collections/categories.js:configureCategories",
-  "src/_lib/collections/categories.js:createCategoriesCollection",
-  "src/_lib/collections/categories.js:getFeaturedCategories",
   "src/_lib/collections/events.js:configureEvents",
   "src/_lib/collections/events.js:getFeaturedEvents",
   "src/_lib/collections/guides.js:configureGuides",
@@ -254,63 +252,24 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/collections/news.js:configureNews",
   "src/_lib/collections/news.js:createNewsCollection",
   "src/_lib/collections/products.js:configureProducts",
-  "src/_lib/collections/products.js:createApiSkusCollection",
-  "src/_lib/collections/products.js:createProductsCollection",
-  "src/_lib/collections/products.js:getFeaturedProducts",
-  "src/_lib/collections/products.js:getProductsByCategories",
-  "src/_lib/collections/products.js:getProductsByCategory",
-  "src/_lib/collections/products.js:getProductsByEvent",
-  "src/_lib/collections/products.js:processGallery",
-  "src/_lib/collections/properties.js:configureProperties",
-  "src/_lib/collections/properties.js:createPropertiesCollection",
-  "src/_lib/collections/properties.js:getFeaturedProperties",
-  "src/_lib/collections/properties.js:getPropertiesByLocation",
-  "src/_lib/collections/properties.js:propertiesWithReviewsPage",
-  "src/_lib/collections/properties.js:propertyReviewsRedirects",
   "src/_lib/collections/reviews.js:configureReviews",
-  "src/_lib/collections/reviews.js:countReviews",
-  "src/_lib/collections/reviews.js:createReviewsCollection",
-  "src/_lib/collections/reviews.js:getRating",
-  "src/_lib/collections/reviews.js:ratingToStars",
-  "src/_lib/collections/reviews.js:reviewerAvatar",
   "src/_lib/collections/search.js:configureSearch",
   "src/_lib/collections/tags.js:configureTags",
   "src/_lib/collections/tags.js:extractTags",
 
   // Config helpers - tested for form/quote field logic and validation
   "src/_lib/config/form-helpers.js:getFieldTemplate",
-  "src/_lib/config/helpers.js:VALID_CART_MODES",
-  "src/_lib/config/helpers.js:VALID_PRODUCT_MODES",
-  "src/_lib/config/helpers.js:cartModeError",
-  "src/_lib/config/helpers.js:checkFrontmatterField",
-  "src/_lib/config/helpers.js:extractFrontmatter",
-  "src/_lib/config/helpers.js:getPagePath",
-  "src/_lib/config/helpers.js:validateCheckoutApiUrl",
   "src/_lib/config/helpers.js:validatePageFrontmatter",
-  "src/_lib/config/helpers.js:validateProductMode",
-  "src/_lib/config/helpers.js:validateQuoteConfig",
-  "src/_lib/config/helpers.js:validateQuotePages",
-  "src/_lib/config/helpers.js:validateStripePages",
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
-  // Eleventy plugin configure functions - tested for plugin registration
+  // Eleventy plugin configure functions - called from .eleventy.js at root (outside src/)
+  "src/_lib/eleventy/external-links.js:configureExternalLinks",
   "src/_lib/eleventy/area-list.js:configureAreaList",
-  "src/_lib/eleventy/area-list.js:filterTopLevelLocations",
-  "src/_lib/eleventy/area-list.js:formatListWithAnd",
-  "src/_lib/eleventy/area-list.js:isTopLevelLocation",
-  "src/_lib/eleventy/area-list.js:prepareAreaList",
-  "src/_lib/eleventy/area-list.js:sortByNavigationKey",
   "src/_lib/eleventy/cache-buster.js:cacheBust",
   "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
   "src/_lib/eleventy/capture.js:configureCapture",
-  "src/_lib/eleventy/external-links.js:configureExternalLinks",
   "src/_lib/eleventy/feed.js:configureFeed",
   "src/_lib/eleventy/file-utils.js:configureFileUtils",
-  "src/_lib/eleventy/file-utils.js:createMarkdownRenderer",
-  "src/_lib/eleventy/file-utils.js:fileExists",
-  "src/_lib/eleventy/file-utils.js:fileMissing",
-  "src/_lib/eleventy/file-utils.js:readFileContent",
-  "src/_lib/eleventy/file-utils.js:renderSnippet",
   "src/_lib/eleventy/ical.js:configureICal",
   "src/_lib/eleventy/ical.js:eventIcal",
   "src/_lib/eleventy/js-config.js:buildJsConfigJson",
@@ -331,23 +290,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/screenshots.js:getDefaultOptions",
   "src/_lib/eleventy/screenshots.js:getViewports",
   "src/_lib/eleventy/screenshots.js:VIEWPORTS",
-  "src/_lib/eleventy/style-bundle.js:configureStyleBundle",
-  "src/_lib/eleventy/style-bundle.js:getBodyClasses",
-  "src/_lib/eleventy/style-bundle.js:getCssBundle",
-  "src/_lib/eleventy/style-bundle.js:getJsBundle",
-  "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
-
-  // Filter utilities - tested for URL-based filtering logic
-  "src/_lib/filters/item-filters.js:buildDisplayLookup",
-  "src/_lib/filters/item-filters.js:buildFilterDescription",
-  "src/_lib/filters/item-filters.js:buildFilterUIData",
-  "src/_lib/filters/item-filters.js:filterToPath",
-  "src/_lib/filters/item-filters.js:generateFilterCombinations",
-  "src/_lib/filters/item-filters.js:getAllFilterAttributes",
-  "src/_lib/filters/item-filters.js:getItemsByFilters",
-  "src/_lib/filters/item-filters.js:normalize",
-  "src/_lib/filters/item-filters.js:parseFilterAttributes",
-  "src/_lib/filters/item-filters.js:pathToFilter",
 
   // Media processing - tested for image handling
   "src/_lib/media/image.js:configureImages",
@@ -374,42 +316,17 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/public/cart/hire-calculator.js:hasHireItems",
   "src/_lib/public/cart/hire-calculator.js:isHireItem",
   "src/_lib/public/cart/hire-calculator.js:setMinDate",
-  "src/_lib/public/cart/quote-steps.js:buildRadioRecapItem",
-  "src/_lib/public/cart/quote-steps.js:clearFieldError",
-  "src/_lib/public/cart/quote-steps.js:getCurrentStep",
-  "src/_lib/public/cart/quote-steps.js:getFieldDisplayValue",
-  "src/_lib/public/cart/quote-steps.js:getFieldLabel",
-  "src/_lib/public/cart/quote-steps.js:getFieldWrapper",
-  "src/_lib/public/cart/quote-steps.js:getRadioLabel",
-  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
-  "src/_lib/public/cart/quote-steps.js:populateRecap",
-  "src/_lib/public/cart/quote-steps.js:setFieldError",
-  "src/_lib/public/cart/quote-steps.js:updateButtons",
-  "src/_lib/public/cart/quote-steps.js:validateField",
-  "src/_lib/public/cart/quote-steps.js:validateRadioGroup",
-  "src/_lib/public/cart/quote-steps.js:validateStep",
+  "src/_lib/public/cart/quote-steps.js:initQuoteSteps", // Public API, auto-called via onReady
 
   // Public UI components - tested for frontend behavior
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
   "src/_lib/public/utils/cart-utils.js:getItemCount",
   "src/_lib/public/utils/cart-utils.js:removeItem",
-  "src/_lib/public/utils/quote-price-utils.js:calculateTotal",
-  "src/_lib/public/utils/quote-price-utils.js:collectFieldDetails",
-  "src/_lib/public/utils/quote-price-utils.js:countItems",
-  "src/_lib/public/utils/quote-price-utils.js:formatHireLength",
-  "src/_lib/public/utils/quote-price-utils.js:formatItemCount",
-  "src/_lib/public/utils/quote-price-utils.js:formatItemName",
-  "src/_lib/public/utils/quote-price-utils.js:formatItemPrice",
-  "src/_lib/public/utils/quote-price-utils.js:getFieldLabel",
-  "src/_lib/public/utils/quote-price-utils.js:getFieldValue",
-  "src/_lib/public/utils/quote-price-utils.js:getPriceForDays",
-  "src/_lib/public/utils/quote-price-utils.js:parsePrice",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
   "src/_lib/utils/grouping.js:createLookup",
-  "src/_lib/utils/object-entries.js:filterObject",
   "src/_lib/utils/object-entries.js:mapObject",
   "src/_lib/utils/object-entries.js:omit",
 ]);

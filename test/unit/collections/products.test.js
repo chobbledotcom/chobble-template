@@ -3,30 +3,20 @@ import {
   addGallery,
   computeGallery,
   configureProducts,
-  createApiSkusCollection,
-  createProductsCollection,
-  getFeaturedProducts,
-  getProductsByCategories,
-  getProductsByCategory,
-  getProductsByEvent,
-  processGallery,
 } from "#collections/products.js";
 import {
-  collectionApi,
   createMockEleventyConfig,
-  expectGalleries,
   expectResultTitles,
   item,
   items,
+  taggedCollectionApi,
 } from "#test/test-utils.js";
 
 // ============================================
-// Functional Test Fixture Builders
+// Test Fixture Builders
 // ============================================
 
-/**
- * Create a product option (SKU variant)
- */
+/** Create a product option (SKU variant) */
 const option = (sku, name, unit_price, max_quantity = null) => ({
   sku,
   ...(name && { name }),
@@ -34,7 +24,7 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
   ...(max_quantity && { max_quantity }),
 });
 
-/** Products with various category setups for testing */
+/** Standard categorized products for filter testing */
 const categorizedProducts = () =>
   items([
     ["Product 1", { categories: ["widgets", "gadgets"] }],
@@ -43,300 +33,340 @@ const categorizedProducts = () =>
     ["Product 4", {}],
   ]);
 
+/** Get a configured mock with products registered */
+const setupProductsConfig = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureProducts(mockConfig);
+  return mockConfig;
+};
+
 describe("products", () => {
-  test("Converts object galleries to arrays of filenames", () => {
-    const input = {
-      0: "image1.jpg",
-      1: "image2.jpg",
-      2: "image3.jpg",
-      3: "image4.jpg",
-    };
+  describe("configureProducts", () => {
+    test("registers collections and filters with Eleventy", () => {
+      const mockConfig = setupProductsConfig();
 
-    const result = processGallery(input);
-
-    expect(result.length).toBe(4);
-    expect(result).toEqual([
-      "image1.jpg",
-      "image2.jpg",
-      "image3.jpg",
-      "image4.jpg",
-    ]);
+      expect(typeof mockConfig.collections.products).toBe("function");
+      expect(typeof mockConfig.collections.apiSkus).toBe("function");
+      expect(typeof mockConfig.collections.productsWithReviewsPage).toBe(
+        "function",
+      );
+      expect(typeof mockConfig.collections.productReviewsRedirects).toBe(
+        "function",
+      );
+      expect(typeof mockConfig.filters.getProductsByCategory).toBe("function");
+      expect(typeof mockConfig.filters.getProductsByCategories).toBe(
+        "function",
+      );
+      expect(typeof mockConfig.filters.getProductsByEvent).toBe("function");
+      expect(typeof mockConfig.filters.getFeaturedProducts).toBe("function");
+    });
   });
 
-  test("Handles items without gallery", () => {
-    const testProduct = item("Test Product", { price: 100 });
+  describe("products collection", () => {
+    test("processes gallery data in products", () => {
+      const mockConfig = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", { gallery: ["img1.jpg"] }],
+        ["Product 2", {}],
+        ["Product 3", { gallery: ["img3.jpg", "img3b.jpg"] }],
+      ]);
 
-    const result = addGallery(testProduct);
+      const result = mockConfig.collections.products(
+        taggedCollectionApi({ products: testProducts }),
+      );
 
-    expect(result.data.gallery).toBe(undefined);
-    expect(result.data.title).toBe(testProduct.data.title);
-    expect(result).toBe(testProduct);
-  });
-
-  test("Processes gallery in item data", () => {
-    const testProduct = item("Test Product", {
-      gallery: ["product.jpg", "gallery1.jpg"],
+      expect(result[0].data.gallery).toEqual(["img1.jpg"]);
+      expect(result[1].data.gallery).toBe(undefined);
+      expect(result[2].data.gallery).toEqual(["img3.jpg", "img3b.jpg"]);
     });
 
-    const result = addGallery(testProduct);
+    test("converts object galleries to arrays", () => {
+      const mockConfig = setupProductsConfig();
+      const testProducts = [
+        item("Product", {
+          gallery: { 0: "image1.jpg", 1: "image2.jpg", 2: "image3.jpg" },
+        }),
+      ];
 
-    expect(result.data.gallery.length).toBe(2);
-    expect(result.data.gallery).toEqual(["product.jpg", "gallery1.jpg"]);
-    expect(result.data.title).toBe(testProduct.data.title);
-    expect(result).toBe(testProduct);
+      const result = mockConfig.collections.products(
+        taggedCollectionApi({ products: testProducts }),
+      );
+
+      expect(result[0].data.gallery).toEqual([
+        "image1.jpg",
+        "image2.jpg",
+        "image3.jpg",
+      ]);
+    });
   });
 
-  test("Processes gallery correctly while preserving object reference", () => {
-    const testProduct = item("Test Product", { gallery: ["image.jpg"] });
-    const productCopy = JSON.parse(JSON.stringify(testProduct));
+  describe("apiSkus collection", () => {
+    test("creates SKU mapping from products with options", () => {
+      const mockConfig = setupProductsConfig();
+      const testProducts = [
+        item("T-Shirt", {
+          options: [
+            option("TSHIRT-S", "Small", 1999, 10),
+            option("TSHIRT-M", "Medium", 1999),
+          ],
+        }),
+        item("Mug", { options: [option("MUG-001", null, 999)] }),
+      ];
 
-    const result = addGallery(productCopy);
+      const result = mockConfig.collections.apiSkus(
+        taggedCollectionApi({ products: testProducts }),
+      );
 
-    expect(result).toBe(productCopy);
-    expect(productCopy.data.gallery).toEqual(["image.jpg"]);
-  });
+      expect(result["TSHIRT-S"]).toEqual({
+        name: "T-Shirt - Small",
+        unit_price: 1999,
+        max_quantity: 10,
+      });
+      expect(result["TSHIRT-M"]).toEqual({
+        name: "T-Shirt - Medium",
+        unit_price: 1999,
+        max_quantity: null,
+      });
+      expect(result["MUG-001"]).toEqual({
+        name: "Mug",
+        unit_price: 999,
+        max_quantity: null,
+      });
+    });
 
-  test("Creates products collection from API", () => {
-    const assertingCollectionApi = (testItems, expectedTag = "products") => ({
-      getFilteredByTag: (tag) => {
-        expect(tag).toBe(expectedTag);
-        return testItems;
+    test("skips products without options or options without SKUs", () => {
+      const mockConfig = setupProductsConfig();
+      const testProducts = [
+        item("No Options"),
+        item("Empty Options", { options: [] }),
+        item("Missing SKU", { options: [{ name: "Test", unit_price: 100 }] }),
+      ];
+
+      const result = mockConfig.collections.apiSkus(
+        taggedCollectionApi({ products: testProducts }),
+      );
+
+      expect(result).toEqual({});
+    });
+
+    test.each([
+      {
+        name: "across products",
+        products: () => [
+          item("Product A", { options: [option("DUPE", "Option A", 100)] }),
+          item("Product B", { options: [option("DUPE", "Option B", 200)] }),
+        ],
+        error: 'Duplicate SKU "DUPE"',
       },
-    });
-
-    const testProducts = items([
-      ["Product 1", { gallery: ["img1.jpg"] }],
-      ["Product 2", {}],
-      ["Product 3", { gallery: ["img3.jpg"] }],
-    ]);
-
-    const result = createProductsCollection(
-      assertingCollectionApi(testProducts),
-    );
-
-    expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
-  });
-
-  test("Filters products by category", () => {
-    const result = getProductsByCategory(categorizedProducts(), "widgets");
-
-    expectResultTitles(result, ["Product 1", "Product 3"]);
-  });
-
-  test("Handles products without categories", () => {
-    const testProducts = items([
-      ["Product 1", {}],
-      ["Product 2", { categories: null }],
-      ["Product 3", { categories: [] }],
-    ]);
-
-    const result = getProductsByCategory(testProducts, "widgets");
-
-    expect(result.length).toBe(0);
-  });
-
-  test("Gets products from multiple categories", () => {
-    const testProducts = items([
-      ["Product 1", { categories: ["widgets"] }],
-      ["Product 2", { categories: ["tools"] }],
-      ["Product 3", { categories: ["gadgets"] }],
-      ["Product 4", { categories: ["other"] }],
-    ]);
-
-    const result = getProductsByCategories(testProducts, [
-      "widgets",
-      "gadgets",
-    ]);
-
-    expectResultTitles(result, ["Product 1", "Product 3"]);
-  });
-
-  test("Returns unique products even if in multiple categories", () => {
-    const result = getProductsByCategories(categorizedProducts().slice(0, 3), [
-      "widgets",
-      "gadgets",
-    ]);
-
-    expectResultTitles(result, ["Product 1", "Product 3"]);
-  });
-
-  test("Handles empty or null inputs", () => {
-    const testProducts = [item("Product 1", { categories: ["widgets"] })];
-
-    expect(getProductsByCategories(null, ["widgets"])).toEqual([]);
-    expect(getProductsByCategories(testProducts, null)).toEqual([]);
-    expect(getProductsByCategories(testProducts, [])).toEqual([]);
-  });
-
-  test("Returns empty when no products match categories", () => {
-    const testProducts = items([
-      ["Product 1", { categories: ["widgets"] }],
-      ["Product 2", {}],
-    ]);
-
-    const result = getProductsByCategories(testProducts, ["nonexistent"]);
-
-    expect(result.length).toBe(0);
-  });
-
-  test("Configures products collection and filters", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureProducts(mockConfig);
-
-    expect(typeof mockConfig.collections.products).toBe("function");
-    expect(typeof mockConfig.collections.productsWithReviewsPage).toBe(
-      "function",
-    );
-    expect(typeof mockConfig.collections.productReviewsRedirects).toBe(
-      "function",
-    );
-    expect(typeof mockConfig.filters.getProductsByCategory).toBe("function");
-    expect(typeof mockConfig.filters.getProductsByCategories).toBe("function");
-    expect(typeof mockConfig.filters.getFeaturedProducts).toBe("function");
-
-    expect(mockConfig.filters.getProductsByCategory).toBe(
-      getProductsByCategory,
-    );
-    expect(mockConfig.filters.getProductsByCategories).toBe(
-      getProductsByCategories,
-    );
-    expect(mockConfig.filters.getFeaturedProducts).toBe(getFeaturedProducts);
-  });
-
-  test("Filters products by featured flag", () => {
-    const testProducts = items([
-      ["Product 1", { featured: true }],
-      ["Product 2", { featured: false }],
-      ["Product 3", { featured: true }],
-      ["Product 4", {}],
-    ]);
-
-    const result = getFeaturedProducts(testProducts);
-
-    expectResultTitles(result, ["Product 1", "Product 3"]);
-  });
-
-  test("Returns empty array when no products are featured", () => {
-    const testProducts = items([
-      ["Product 1", { featured: false }],
-      ["Product 2", {}],
-    ]);
-
-    const result = getFeaturedProducts(testProducts);
-
-    expect(result.length).toBe(0);
-  });
-
-  test("Returns gallery when present", () => {
-    const data = { gallery: ["img1.jpg", "img2.jpg"] };
-    const result = computeGallery(data);
-    expect(result).toEqual(["img1.jpg", "img2.jpg"]);
-  });
-
-  test("Wraps header_image in array when no gallery", () => {
-    const data = { header_image: "header.jpg" };
-    const result = computeGallery(data);
-    expect(result).toEqual(["header.jpg"]);
-  });
-
-  test("Returns undefined when no gallery or header_image", () => {
-    const data = { title: "Product" };
-    const result = computeGallery(data);
-    expect(result).toBe(undefined);
-  });
-
-  test("Filters products by event slug", () => {
-    const testProducts = items([
-      ["Product 1", { events: ["summer-sale", "black-friday"] }],
-      ["Product 2", { events: ["winter-sale"] }],
-      ["Product 3", { events: ["summer-sale"] }],
-      ["Product 4", {}],
-    ]);
-
-    const result = getProductsByEvent(testProducts, "summer-sale");
-
-    expectResultTitles(result, ["Product 1", "Product 3"]);
-  });
-
-  test("Creates SKU mapping from products with options", () => {
-    const testProducts = [
-      item("T-Shirt", {
-        options: [
-          option("TSHIRT-S", "Small", 1999, 10),
-          option("TSHIRT-M", "Medium", 1999),
+      {
+        name: "within same product",
+        products: () => [
+          item("Product", {
+            options: [
+              option("DUPE", "Opt 1", 100),
+              option("DUPE", "Opt 2", 150),
+            ],
+          }),
         ],
-      }),
-      item("Mug", {
-        options: [option("MUG-001", null, 999)],
-      }),
-    ];
-
-    const result = createApiSkusCollection(collectionApi(testProducts));
-
-    expect(result["TSHIRT-S"]).toEqual({
-      name: "T-Shirt - Small",
-      unit_price: 1999,
-      max_quantity: 10,
-    });
-
-    expect(result["TSHIRT-M"]).toEqual({
-      name: "T-Shirt - Medium",
-      unit_price: 1999,
-      max_quantity: null,
-    });
-
-    expect(result["MUG-001"]).toEqual({
-      name: "Mug",
-      unit_price: 999,
-      max_quantity: null,
+        error: 'Duplicate SKU "DUPE"',
+      },
+    ])("throws error for duplicate SKUs $name", ({ products, error }) => {
+      const mockConfig = setupProductsConfig();
+      expect(() =>
+        mockConfig.collections.apiSkus(
+          taggedCollectionApi({ products: products() }),
+        ),
+      ).toThrow(error);
     });
   });
 
-  test("Skips products without options or options without SKUs", () => {
-    const testProducts = [
-      item("No Options"),
-      item("Empty Options", { options: [] }),
-      item("Missing SKU", { options: [{ name: "Test", unit_price: 100 }] }),
-    ];
+  describe("getProductsByCategory filter", () => {
+    test("filters products by single category", () => {
+      const { filters } = setupProductsConfig();
 
-    const result = createApiSkusCollection(collectionApi(testProducts));
+      const result = filters.getProductsByCategory(
+        categorizedProducts(),
+        "widgets",
+      );
 
-    expect(result).toEqual({});
+      expectResultTitles(result, ["Product 1", "Product 3"]);
+    });
+
+    test("handles products without categories", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", {}],
+        ["Product 2", { categories: null }],
+        ["Product 3", { categories: [] }],
+      ]);
+
+      const result = filters.getProductsByCategory(testProducts, "widgets");
+
+      expect(result.length).toBe(0);
+    });
   });
 
-  test("Throws error for duplicate SKUs across products", () => {
-    const testProducts = [
-      item("Product A", { options: [option("DUPE-001", "Option A", 100)] }),
-      item("Product B", { options: [option("DUPE-001", "Option B", 200)] }),
-    ];
+  describe("getProductsByCategories filter", () => {
+    test("filters products from multiple categories", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", { categories: ["widgets"] }],
+        ["Product 2", { categories: ["tools"] }],
+        ["Product 3", { categories: ["gadgets"] }],
+        ["Product 4", { categories: ["other"] }],
+      ]);
 
-    expect(() => createApiSkusCollection(collectionApi(testProducts))).toThrow(
-      'Duplicate SKU "DUPE-001" found in product "Product B - Option B"',
-    );
+      const result = filters.getProductsByCategories(testProducts, [
+        "widgets",
+        "gadgets",
+      ]);
+
+      expectResultTitles(result, ["Product 1", "Product 3"]);
+    });
+
+    test("returns unique products even if in multiple selected categories", () => {
+      const { filters } = setupProductsConfig();
+      // categorizedProducts() has Product 1 in both widgets AND gadgets
+      const result = filters.getProductsByCategories(categorizedProducts(), [
+        "widgets",
+        "gadgets",
+      ]);
+      // Product 1 matches both but should only appear once
+      expectResultTitles(result, ["Product 1", "Product 3"]);
+    });
+
+    test("handles empty or null inputs", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [item("Product 1", { categories: ["widgets"] })];
+
+      expect(filters.getProductsByCategories(null, ["widgets"])).toEqual([]);
+      expect(filters.getProductsByCategories(testProducts, null)).toEqual([]);
+      expect(filters.getProductsByCategories(testProducts, [])).toEqual([]);
+    });
+
+    test("returns empty array when no products match categories", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", { categories: ["widgets"] }],
+        ["Product 2", {}],
+      ]);
+
+      const result = filters.getProductsByCategories(testProducts, [
+        "nonexistent",
+      ]);
+
+      expect(result.length).toBe(0);
+    });
   });
 
-  test("Throws error for duplicate SKUs within same product", () => {
-    const testProducts = [
-      item("Product A", {
-        options: [
-          option("SAME-SKU", "Option 1", 100),
-          option("SAME-SKU", "Option 2", 150),
-        ],
-      }),
-    ];
+  describe("getProductsByEvent filter", () => {
+    test("filters products by event slug", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", { events: ["summer-sale", "black-friday"] }],
+        ["Product 2", { events: ["winter-sale"] }],
+        ["Product 3", { events: ["summer-sale"] }],
+        ["Product 4", {}],
+      ]);
 
-    expect(() => createApiSkusCollection(collectionApi(testProducts))).toThrow(
-      'Duplicate SKU "SAME-SKU"',
-    );
+      const result = filters.getProductsByEvent(testProducts, "summer-sale");
+
+      expectResultTitles(result, ["Product 1", "Product 3"]);
+    });
   });
 
-  test("Filter functions should be pure and not modify inputs", () => {
-    const testProducts = [item("Product 1", { categories: ["widgets"] })];
-    const productsCopy = structuredClone(testProducts);
+  describe("getFeaturedProducts filter", () => {
+    test("filters products by featured flag", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", { featured: true }],
+        ["Product 2", { featured: false }],
+        ["Product 3", { featured: true }],
+        ["Product 4", {}],
+      ]);
 
-    getProductsByCategory(productsCopy, "widgets");
+      const result = filters.getFeaturedProducts(testProducts);
 
-    expect(productsCopy).toEqual(testProducts);
+      expectResultTitles(result, ["Product 1", "Product 3"]);
+    });
+
+    test("returns empty array when no products are featured", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", { featured: false }],
+        ["Product 2", {}],
+      ]);
+
+      const result = filters.getFeaturedProducts(testProducts);
+
+      expect(result.length).toBe(0);
+    });
+  });
+
+  describe("addGallery helper", () => {
+    test("handles items without gallery", () => {
+      const testProduct = item("Test Product", { price: 100 });
+
+      const result = addGallery(testProduct);
+
+      expect(result.data.gallery).toBe(undefined);
+      expect(result.data.title).toBe(testProduct.data.title);
+      expect(result).toBe(testProduct);
+    });
+
+    test("processes gallery in item data", () => {
+      const testProduct = item("Test Product", {
+        gallery: ["product.jpg", "gallery1.jpg"],
+      });
+
+      const result = addGallery(testProduct);
+
+      expect(result.data.gallery.length).toBe(2);
+      expect(result.data.gallery).toEqual(["product.jpg", "gallery1.jpg"]);
+      expect(result.data.title).toBe(testProduct.data.title);
+      expect(result).toBe(testProduct);
+    });
+
+    test("preserves object reference while processing gallery", () => {
+      const testProduct = item("Test Product", { gallery: ["image.jpg"] });
+      const productCopy = JSON.parse(JSON.stringify(testProduct));
+
+      const result = addGallery(productCopy);
+
+      expect(result).toBe(productCopy);
+      expect(productCopy.data.gallery).toEqual(["image.jpg"]);
+    });
+  });
+
+  describe("computeGallery helper", () => {
+    test("returns gallery when present", () => {
+      const data = { gallery: ["img1.jpg", "img2.jpg"] };
+      const result = computeGallery(data);
+      expect(result).toEqual(["img1.jpg", "img2.jpg"]);
+    });
+
+    test("wraps header_image in array when no gallery", () => {
+      const data = { header_image: "header.jpg" };
+      const result = computeGallery(data);
+      expect(result).toEqual(["header.jpg"]);
+    });
+
+    test("returns undefined when no gallery or header_image", () => {
+      const data = { title: "Product" };
+      const result = computeGallery(data);
+      expect(result).toBe(undefined);
+    });
+  });
+
+  describe("filter purity", () => {
+    test("filter functions do not modify inputs", () => {
+      const { filters } = setupProductsConfig();
+      const testProducts = [item("Product 1", { categories: ["widgets"] })];
+      const productsCopy = structuredClone(testProducts);
+
+      filters.getProductsByCategory(productsCopy, "widgets");
+
+      expect(productsCopy).toEqual(testProducts);
+    });
   });
 });

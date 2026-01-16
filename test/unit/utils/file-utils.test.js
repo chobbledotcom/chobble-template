@@ -1,12 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  configureFileUtils,
-  createMarkdownRenderer,
-  fileExists,
-  fileMissing,
-  readFileContent,
-  renderSnippet,
-} from "#eleventy/file-utils.js";
+import { configureFileUtils } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
   createMockEleventyConfig,
@@ -18,235 +11,328 @@ import {
 } from "#test/test-utils.js";
 
 describe("file-utils", () => {
-  test("Creates markdown renderer with default options", () => {
-    const renderer = createMarkdownRenderer();
-    expect(typeof renderer.render).toBe("function");
+  describe("configureFileUtils", () => {
+    test("Registers all expected filters and shortcodes", () => {
+      const mockConfig = createMockEleventyConfig();
 
-    const result = renderer.render("# Hello\n\nWorld");
-    expect(result.includes("<h1>")).toBe(true);
-    expect(result.includes("Hello")).toBe(true);
-  });
+      configureFileUtils(mockConfig);
 
-  test("Creates markdown renderer with custom options", () => {
-    const renderer = createMarkdownRenderer({ html: false });
-    expect(typeof renderer.render).toBe("function");
-
-    const result = renderer.render("<div>HTML</div>");
-    expect(result.includes("<div>")).toBe(false);
-  });
-
-  test("Returns true for existing files", () => {
-    withTempFile("fileExists", "test.txt", "test content", (tempDir) => {
-      const result = fileExists("test.txt", tempDir);
-      expect(result).toBe(true);
+      expect(typeof mockConfig.filters.file_exists).toBe("function");
+      expect(typeof mockConfig.filters.file_missing).toBe("function");
+      expect(typeof mockConfig.filters.escape_html).toBe("function");
+      expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
+      expect(typeof mockConfig.shortcodes.read_file).toBe("function");
+      expect(typeof mockConfig.shortcodes.read_code).toBe("function");
     });
   });
 
-  test("Returns false for non-existing files", () => {
-    withTempDir("fileExists-false", (tempDir) => {
-      const result = fileExists("nonexistent.txt", tempDir);
-      expect(result).toBe(false);
-    });
-  });
+  describe("file_exists filter", () => {
+    test("Returns true for existing files", () => {
+      withTempFile("file_exists", "test.txt", "test content", (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
 
-  test("Uses process.cwd() as default base directory", () => {
-    // Create a temp file in current working directory to test
-    withTempFile(
-      "default-cwd",
-      "test-file.txt",
-      "content",
-      (tempDir, _filePath) => {
-        // Change to temp dir and test without specifying baseDir
-        const originalCwd = process.cwd();
-        try {
-          process.chdir(tempDir);
-          const result = fileExists("test-file.txt");
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.filters.file_exists("test.txt");
           expect(result).toBe(true);
-        } finally {
-          process.chdir(originalCwd);
-        }
-      },
-    );
-  });
+        });
+      });
+    });
 
-  test("Returns inverse of fileExists", () => {
-    withTempFile("fileMissing", "test.txt", "test content", (tempDir) => {
-      expect(fileMissing("test.txt", tempDir)).toBe(false);
-      expect(fileMissing("nonexistent.txt", tempDir)).toBe(true);
+    test("Returns false for non-existing files", () => {
+      withTempDir("file_exists-false", (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.filters.file_exists("nonexistent.txt");
+          expect(result).toBe(false);
+        });
+      });
     });
   });
 
-  test("Reads content from existing file", () => {
-    const content = "Hello, World!";
-    withTempFile("readFile", "test.txt", content, (tempDir) => {
-      const result = readFileContent("test.txt", tempDir);
-      expect(result).toBe(content);
+  describe("file_missing filter", () => {
+    test("Returns false for existing files", () => {
+      withTempFile("file_missing", "test.txt", "test content", (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.filters.file_missing("test.txt");
+          expect(result).toBe(false);
+        });
+      });
+    });
+
+    test("Returns true for non-existing files", () => {
+      withTempDir("file_missing-true", (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.filters.file_missing("nonexistent.txt");
+          expect(result).toBe(true);
+        });
+      });
     });
   });
 
-  test("Returns empty string for missing file", () => {
-    withTempDir("readFile-missing", (tempDir) => {
-      const result = readFileContent("nonexistent.txt", tempDir);
-      expect(result).toBe("");
+  describe("escape_html filter", () => {
+    test("Escapes HTML special characters", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+      const escapeHtml = mockConfig.filters.escape_html;
+
+      expect(escapeHtml("<div>")).toBe("&lt;div&gt;");
+      expect(escapeHtml("a & b")).toBe("a &amp; b");
+      expect(escapeHtml('"quoted"')).toBe("&quot;quoted&quot;");
+      expect(escapeHtml('<a href="test">link</a>')).toBe(
+        "&lt;a href=&quot;test&quot;&gt;link&lt;/a&gt;",
+      );
+    });
+
+    test("Handles empty string", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+
+      expect(mockConfig.filters.escape_html("")).toBe("");
+    });
+
+    test("Leaves plain text unchanged", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureFileUtils(mockConfig);
+
+      expect(mockConfig.filters.escape_html("Hello World")).toBe("Hello World");
     });
   });
 
-  test("Renders existing snippet file", async () => {
-    const { tempDir, snippetsDir } = createTempSnippetsDir("renderSnippet");
-    const content = `---
+  describe("read_file shortcode", () => {
+    test("Reads content from existing file", () => {
+      const content = "Hello, World!";
+      withTempFile("read_file", "test.txt", content, (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.shortcodes.read_file("test.txt");
+          expect(result).toBe(content);
+        });
+      });
+    });
+
+    test("Returns empty string for missing file", () => {
+      withTempDir("read_file-missing", (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.shortcodes.read_file("nonexistent.txt");
+          expect(result).toBe("");
+        });
+      });
+    });
+  });
+
+  describe("read_code shortcode", () => {
+    test("Reads and escapes file content", () => {
+      const htmlContent = "<div>Hello</div>";
+
+      withTempFile("read_code", "test.html", htmlContent, (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.shortcodes.read_code("test.html");
+          expect(result).toBe("&lt;div&gt;Hello&lt;/div&gt;");
+        });
+      });
+    });
+
+    test("Returns empty string for missing file", () => {
+      withTempDir("read_code-missing", (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        withMockedCwd(tempDir, () => {
+          const result = mockConfig.shortcodes.read_code("nonexistent.txt");
+          expect(result).toBe("");
+        });
+      });
+    });
+  });
+
+  describe("render_snippet shortcode", () => {
+    test("Renders markdown from snippet file", async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir("render_snippet");
+      const content = `---
 title: Test
 ---
 # Hello
 
 World`;
 
-    try {
-      // fs already imported from test-utils
-      fs.writeFileSync(`${snippetsDir}/test.md`, content);
+      try {
+        fs.writeFileSync(`${snippetsDir}/test.md`, content);
 
-      const result = await renderSnippet("test", "default", tempDir);
-      expect(result.includes("<h1>")).toBe(true);
-      expect(result.includes("Hello")).toBe(true);
-      expect(result.includes("title: Test")).toBe(false);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
 
-  test("Returns default string for missing snippet", async () => {
-    withTempDir("renderSnippet-missing", async (tempDir) => {
-      const result = await renderSnippet(
-        "nonexistent",
-        "Default content",
-        tempDir,
-      );
-      expect(result).toBe("Default content");
+        await withMockedCwd(tempDir, async () => {
+          const result =
+            await mockConfig.asyncShortcodes.render_snippet("test");
+          expect(result.includes("<h1>")).toBe(true);
+          expect(result.includes("Hello")).toBe(true);
+          // Frontmatter should be stripped
+          expect(result.includes("title: Test")).toBe(false);
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
     });
-  });
 
-  test("Uses custom markdown renderer", async () => {
-    const { tempDir, snippetsDir } = createTempSnippetsDir(
-      "renderSnippet-custom",
-    );
-    const content = "# Hello\n\nWorld";
+    test("Returns default string for missing snippet", async () => {
+      withTempDir("render_snippet-missing", async (tempDir) => {
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
 
-    try {
-      // fs already imported from test-utils
-      fs.writeFileSync(`${snippetsDir}/test.md`, content);
-
-      const customRenderer = createMarkdownRenderer({ html: false });
-      const result = await renderSnippet(
-        "test",
-        "default",
-        tempDir,
-        customRenderer,
-      );
-      expect(result.includes("<h1>")).toBe(true);
-    } finally {
-      cleanupTempDir(tempDir);
-    }
-  });
-
-  test("Configures file utility filters and shortcodes", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureFileUtils(mockConfig);
-
-    expect(typeof mockConfig.filters.file_exists).toBe("function");
-    expect(typeof mockConfig.filters.file_missing).toBe("function");
-    expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
-    expect(typeof mockConfig.shortcodes.read_file).toBe("function");
-  });
-
-  test("Configured filters work correctly", () => {
-    const mockConfig = createMockEleventyConfig();
-    configureFileUtils(mockConfig);
-
-    const existsResult = mockConfig.filters.file_exists("package.json");
-    const missingResult = mockConfig.filters.file_missing(
-      "nonexistent-file.txt",
-    );
-
-    expect(existsResult).toBe(true);
-    expect(missingResult).toBe(true);
-  });
-
-  test("Configured shortcodes work correctly", async () => {
-    const content = "Test content";
-
-    withTempFile("shortcodes", "test.txt", content, async (tempDir) => {
-      const mockConfig = createMockEleventyConfig();
-      configureFileUtils(mockConfig);
-
-      await withMockedCwd(tempDir, async () => {
-        const readResult = mockConfig.shortcodes.read_file("test.txt");
-        expect(readResult).toBe(content);
-
-        const snippetResult = await mockConfig.asyncShortcodes.render_snippet(
-          "nonexistent",
-          "default",
-        );
-        expect(snippetResult).toBe("default");
+        await withMockedCwd(tempDir, async () => {
+          const result = await mockConfig.asyncShortcodes.render_snippet(
+            "nonexistent",
+            "Default content",
+          );
+          expect(result).toBe("Default content");
+        });
       });
     });
-  });
 
-  test("Functions should be pure and not modify inputs", () => {
-    const name = "test-name";
-    const defaultStr = "default";
+    test("Renders HTML when markdown contains HTML", async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render_snippet-html",
+      );
+      const content = `<div class="custom">Custom HTML</div>
 
-    fileExists(name);
-    fileMissing(name);
+Some **bold** text.`;
 
-    expect(name).toBe("test-name");
-    expect(defaultStr).toBe("default");
-  });
+      try {
+        fs.writeFileSync(`${snippetsDir}/html-test.md`, content);
 
-  test("escape_html filter escapes HTML special characters", () => {
-    const mockConfig = createMockEleventyConfig();
-    configureFileUtils(mockConfig);
-    const escapeHtml = mockConfig.filters.escape_html;
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
 
-    expect(escapeHtml("<div>")).toBe("&lt;div&gt;");
-    expect(escapeHtml("a & b")).toBe("a &amp; b");
-    expect(escapeHtml('"quoted"')).toBe("&quot;quoted&quot;");
-    expect(escapeHtml('<a href="test">link</a>')).toBe(
-      "&lt;a href=&quot;test&quot;&gt;link&lt;/a&gt;",
-    );
-  });
+        await withMockedCwd(tempDir, async () => {
+          const result =
+            await mockConfig.asyncShortcodes.render_snippet("html-test");
+          expect(result.includes('<div class="custom">')).toBe(true);
+          expect(result.includes("<strong>bold</strong>")).toBe(true);
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    });
 
-  test("escape_html filter handles empty string", () => {
-    const mockConfig = createMockEleventyConfig();
-    configureFileUtils(mockConfig);
+    test("Preprocesses {% opening_times %} shortcode", async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render_snippet-opening",
+      );
+      const content = `# Our Hours
 
-    expect(mockConfig.filters.escape_html("")).toBe("");
-  });
+{% opening_times %}
 
-  test("escape_html filter leaves plain text unchanged", () => {
-    const mockConfig = createMockEleventyConfig();
-    configureFileUtils(mockConfig);
+Come visit us!`;
 
-    expect(mockConfig.filters.escape_html("Hello World")).toBe("Hello World");
-  });
+      try {
+        fs.writeFileSync(`${snippetsDir}/hours.md`, content);
 
-  test("Configures read_code shortcode", () => {
-    const mockConfig = createMockEleventyConfig();
-    configureFileUtils(mockConfig);
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
 
-    expect(typeof mockConfig.shortcodes.read_code).toBe("function");
-  });
+        await withMockedCwd(tempDir, async () => {
+          const result =
+            await mockConfig.asyncShortcodes.render_snippet("hours");
+          expect(result.includes("<h1>")).toBe(true);
+          expect(result.includes("Come visit us")).toBe(true);
+          // The shortcode should be processed (replaced with actual content or empty)
+          expect(result.includes("{% opening_times %}")).toBe(false);
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    });
 
-  test("read_code shortcode reads and escapes file content", () => {
-    const htmlContent = "<div>Hello</div>";
+    test("Preprocesses {% recurring_events %} shortcode", async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render_snippet-recurring",
+      );
+      const content = `# Regular Events
 
-    withTempFile("read_code", "test.html", htmlContent, (tempDir) => {
-      const mockConfig = createMockEleventyConfig();
-      configureFileUtils(mockConfig);
+{% recurring_events %}
 
-      withMockedCwd(tempDir, () => {
-        const result = mockConfig.shortcodes.read_code("test.html");
-        expect(result).toBe("&lt;div&gt;Hello&lt;/div&gt;");
-      });
+Join us weekly!`;
+
+      try {
+        fs.writeFileSync(`${snippetsDir}/events.md`, content);
+
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        await withMockedCwd(tempDir, async () => {
+          const result =
+            await mockConfig.asyncShortcodes.render_snippet("events");
+          expect(result.includes("<h1>")).toBe(true);
+          expect(result.includes("Join us weekly")).toBe(true);
+          // The shortcode should be processed
+          expect(result.includes("{% recurring_events %}")).toBe(false);
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    });
+
+    test("Handles empty snippet content", async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render_snippet-empty",
+      );
+
+      try {
+        fs.writeFileSync(`${snippetsDir}/empty.md`, "");
+
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        await withMockedCwd(tempDir, async () => {
+          const result =
+            await mockConfig.asyncShortcodes.render_snippet("empty");
+          // Empty markdown renders to empty string
+          expect(result.trim()).toBe("");
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
+    });
+
+    test("Handles special characters in content", async () => {
+      const { tempDir, snippetsDir } = createTempSnippetsDir(
+        "render_snippet-special",
+      );
+      const content = `# Special Characters
+
+Unicode: café résumé naïve`;
+
+      try {
+        fs.writeFileSync(`${snippetsDir}/special.md`, content);
+
+        const mockConfig = createMockEleventyConfig();
+        configureFileUtils(mockConfig);
+
+        await withMockedCwd(tempDir, async () => {
+          const result =
+            await mockConfig.asyncShortcodes.render_snippet("special");
+          expect(result.includes("café")).toBe(true);
+        });
+      } finally {
+        cleanupTempDir(tempDir);
+      }
     });
   });
 });

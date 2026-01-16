@@ -44,6 +44,7 @@ import { configureProductFilters } from "#filters/product-filters.js";
 import { configurePropertyFilters } from "#filters/property-filters.js";
 
 // Media
+import { configureIconify } from "#media/iconify.js";
 import { configureImages } from "#media/image.js";
 import { configureInlineAsset } from "#media/inline-asset.js";
 import { configureThumbnailPlaceholder } from "#media/thumbnail-placeholder.js";
@@ -78,6 +79,7 @@ export default async function (eleventyConfig) {
   await configureImages(eleventyConfig);
   configurePdf(eleventyConfig);
   configureJsConfig(eleventyConfig);
+  configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
   configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);

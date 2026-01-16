@@ -5,6 +5,7 @@ import {
   createOperationContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
+  ensurePlaywrightBrowsers,
   getDefaultOutputDir,
   prepareOutputDir,
   runBatchOperations,
@@ -52,6 +53,7 @@ export const takeScreenshotWithPlaywright = async (
   const context = await browser.newContext({
     viewport: { width, height },
     deviceScaleFactor: 1,
+    reducedMotion: "reduce",
   });
   const page = await context.newPage();
 
@@ -59,6 +61,9 @@ export const takeScreenshotWithPlaywright = async (
     waitUntil: "domcontentloaded",
     timeout: options.timeout,
   });
+
+  // Allow JS to initialize (scroll reveals, sliders, etc.)
+  await page.waitForTimeout(100);
 
   await page.screenshot({
     path: outputPath,
@@ -71,6 +76,8 @@ export const takeScreenshotWithPlaywright = async (
 };
 
 export const screenshot = async (pagePath, options = {}) => {
+  await ensurePlaywrightBrowsers();
+
   const buildScreenshotPath = (opts, path) =>
     buildOutputPath(
       opts.outputDir,

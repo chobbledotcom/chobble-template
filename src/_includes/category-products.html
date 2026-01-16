@@ -2,17 +2,8 @@
 
 {% if products.size > 0 %}
   {%- assign filterUI = collections.categoryListingFilterUI[page.fileSlug] -%}
-
-  {% if config.has_products_filter and filterUI %}
-    <div class="products-layout">
-      {%- include "products-filter.html", filterUI: filterUI -%}
-      <div class="products-content">
-        <h2>{{ strings.product_name }}</h2>
-        {%- include "items.html", items: products -%}
-      </div>
-    </div>
-  {% else %}
-    <h2>{{ strings.product_name }}</h2>
-    {%- include "items.html", items: products -%}
-  {% endif %}
+  {%- include "products-layout-start.html", filterUI: filterUI -%}
+  <h2>{{ strings.product_name }}</h2>
+  {%- include "items.html", items: products -%}
+  {%- include "products-layout-end.html" -%}
 {% endif %}
