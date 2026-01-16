@@ -6,14 +6,30 @@ const isExternalUrl = (url) => {
   return url.startsWith("http://") || url.startsWith("https://");
 };
 
+const formatUrlForDisplay = (url) => {
+  if (!url || typeof url !== "string") return "";
+  return url
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/$/, "");
+};
+
 const configureExternalLinks = async (eleventyConfig, testConfig = null) => {
   const config = testConfig ?? (await configModule());
 
-  eleventyConfig.addFilter("externalLinkAttrs", (url) =>
+  const getExternalLinkAttrs = (url) =>
     config?.externalLinksTargetBlank && isExternalUrl(url)
       ? ' target="_blank" rel="noopener noreferrer"'
-      : "",
-  );
+      : "";
+
+  eleventyConfig.addFilter("externalLinkAttrs", getExternalLinkAttrs);
+
+  eleventyConfig.addFilter("linkify", (url) => {
+    if (!url || typeof url !== "string") return "";
+    const displayText = formatUrlForDisplay(url);
+    const attrs = getExternalLinkAttrs(url);
+    return `<a href="${url}"${attrs}>${displayText}</a>`;
+  });
 
   eleventyConfig.addTransform("externalLinks", async (content, outputPath) => {
     if (
@@ -36,4 +52,4 @@ const configureExternalLinks = async (eleventyConfig, testConfig = null) => {
   });
 };
 
-export { configureExternalLinks };
+export { configureExternalLinks, formatUrlForDisplay };

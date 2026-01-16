@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { configureExternalLinks } from "#eleventy/external-links.js";
+import {
+  configureExternalLinks,
+  formatUrlForDisplay,
+} from "#eleventy/external-links.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("external-links", () => {
@@ -266,6 +269,155 @@ describe("external-links", () => {
 
       expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
       expect(typeof mockConfig.transforms.externalLinks).toBe("function");
+    });
+
+    test("registers linkify filter", async () => {
+      const mockConfig = createMockEleventyConfig();
+      await configureExternalLinks(mockConfig, {
+        externalLinksTargetBlank: true,
+      });
+
+      expect(typeof mockConfig.filters.linkify).toBe("function");
+    });
+  });
+
+  describe("formatUrlForDisplay", () => {
+    test("strips https:// from URL", () => {
+      expect(formatUrlForDisplay("https://example.com")).toBe("example.com");
+    });
+
+    test("strips http:// from URL", () => {
+      expect(formatUrlForDisplay("http://example.com")).toBe("example.com");
+    });
+
+    test("strips www. from URL", () => {
+      expect(formatUrlForDisplay("https://www.example.com")).toBe(
+        "example.com",
+      );
+    });
+
+    test("strips trailing slash", () => {
+      expect(formatUrlForDisplay("https://example.com/")).toBe("example.com");
+    });
+
+    test("preserves path after domain", () => {
+      expect(formatUrlForDisplay("https://www.example.com/page")).toBe(
+        "example.com/page",
+      );
+    });
+
+    test("preserves query parameters", () => {
+      expect(formatUrlForDisplay("https://example.com?foo=bar")).toBe(
+        "example.com?foo=bar",
+      );
+    });
+
+    test("handles URLs without protocol", () => {
+      expect(formatUrlForDisplay("www.example.com")).toBe("example.com");
+    });
+
+    test("returns empty string for null", () => {
+      expect(formatUrlForDisplay(null)).toBe("");
+    });
+
+    test("returns empty string for undefined", () => {
+      expect(formatUrlForDisplay(undefined)).toBe("");
+    });
+
+    test("returns empty string for non-string", () => {
+      expect(formatUrlForDisplay(123)).toBe("");
+    });
+  });
+
+  describe("linkify filter", () => {
+    const getLinkifyFilter = async (config) => {
+      const mockConfig = createMockEleventyConfig();
+      await configureExternalLinks(mockConfig, config);
+      return mockConfig.filters.linkify;
+    };
+
+    describe("when externalLinksTargetBlank is true", () => {
+      test("creates anchor tag with cleaned display text", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        const result = linkify("https://www.example.com");
+        expect(result).toBe(
+          '<a href="https://www.example.com" target="_blank" rel="noopener noreferrer">example.com</a>',
+        );
+      });
+
+      test("preserves path in display text", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        const result = linkify("https://example.com/page");
+        expect(result).toBe(
+          '<a href="https://example.com/page" target="_blank" rel="noopener noreferrer">example.com/page</a>',
+        );
+      });
+
+      test("strips trailing slash from display", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        const result = linkify("https://example.com/");
+        expect(result).toBe(
+          '<a href="https://example.com/" target="_blank" rel="noopener noreferrer">example.com</a>',
+        );
+      });
+    });
+
+    describe("when externalLinksTargetBlank is false", () => {
+      test("creates anchor tag without target attributes", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: false,
+        });
+        const result = linkify("https://www.example.com");
+        expect(result).toBe(
+          '<a href="https://www.example.com">example.com</a>',
+        );
+      });
+    });
+
+    describe("with internal URLs", () => {
+      test("does not add target attributes for relative URLs", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        const result = linkify("/about");
+        expect(result).toBe('<a href="/about">/about</a>');
+      });
+    });
+
+    describe("edge cases", () => {
+      test("returns empty string for null", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        expect(linkify(null)).toBe("");
+      });
+
+      test("returns empty string for undefined", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        expect(linkify(undefined)).toBe("");
+      });
+
+      test("returns empty string for non-string", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        expect(linkify(123)).toBe("");
+      });
+
+      test("returns empty string for empty string", async () => {
+        const linkify = await getLinkifyFilter({
+          externalLinksTargetBlank: true,
+        });
+        expect(linkify("")).toBe("");
+      });
     });
   });
 });
