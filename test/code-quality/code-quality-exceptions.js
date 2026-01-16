@@ -190,15 +190,11 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_data/eleventyComputed.js",
   "src/_lib/build/scss.js",
   "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
-  "src/_lib/collections/categories.js",
-  "src/_lib/eleventy/area-list.js", // Internal helpers kept separate for readability
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
-  "src/_lib/collections/search.js",
-  "src/_lib/eleventy/ical.js", // isOneOffEvent kept separate for clarity
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building

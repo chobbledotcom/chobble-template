@@ -5,49 +5,9 @@
  * Logic lives here; HTML markup lives in area-list.html template.
  */
 
-import { listSeparator } from "#utils/array-utils.js";
+import { filter, listSeparator, map, pipe, sort } from "#utils/array-utils.js";
 
-/**
- * Check if a URL represents a top-level location.
- * Top-level locations have exactly 2 path segments.
- * e.g., "/locations/springfield/" -> ["locations", "springfield"]
- *
- * @param {string} url - The URL to check
- * @returns {boolean} True if top-level location
- */
-const isTopLevelLocation = (url) => {
-  if (!url) return false;
-  const segments = url.split("/").filter((s) => s !== "");
-  return segments.length === 2;
-};
-
-/**
- * Sort locations by their navigation key.
- *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations - Always an array from Eleventy
- * @returns {import("#lib/types").EleventyCollectionItem[]}
- */
-const sortByNavigationKey = (locations) => {
-  if (locations.length === 0) return [];
-  return [...locations].sort((a, b) => {
-    const keyA = a.data?.eleventyNavigation?.key || "";
-    const keyB = b.data?.eleventyNavigation?.key || "";
-    return keyA.localeCompare(keyB);
-  });
-};
-
-/**
- * Filter locations to only include top-level ones, excluding the current page.
- *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations - Always an array from Eleventy
- * @param {string} currentUrl
- * @returns {import("#lib/types").EleventyCollectionItem[]}
- */
-const filterTopLevelLocations = (locations, currentUrl) => {
-  return locations.filter(
-    (loc) => isTopLevelLocation(loc.url) && loc.url !== currentUrl,
-  );
-};
+const navKey = (loc) => loc.data?.eleventyNavigation?.key || "";
 
 /**
  * Prepare area list data for template rendering.
@@ -58,15 +18,24 @@ const filterTopLevelLocations = (locations, currentUrl) => {
  * @returns {Array<{url: string, name: string, separator: string}>}
  */
 const prepareAreaList = (locations, currentUrl) => {
-  const filtered = filterTopLevelLocations(locations, currentUrl);
-  const sorted = sortByNavigationKey(filtered);
-  const separator = listSeparator(sorted.length);
+  // Top-level locations have exactly 2 path segments: /locations/springfield/
+  const isTopLevel = (url) =>
+    url && url.split("/").filter(Boolean).length === 2;
 
-  return sorted.map((loc, index) => ({
-    url: loc.url,
-    name: loc.data?.eleventyNavigation?.key || "",
-    separator: separator(index),
-  }));
+  const filtered = pipe(
+    filter((loc) => isTopLevel(loc.url) && loc.url !== currentUrl),
+    sort((a, b) => navKey(a).localeCompare(navKey(b))),
+  )(locations);
+
+  const separator = listSeparator(filtered.length);
+
+  return pipe(
+    map((loc, index) => ({
+      url: loc.url,
+      name: navKey(loc),
+      separator: separator(index),
+    })),
+  )(filtered);
 };
 
 /**

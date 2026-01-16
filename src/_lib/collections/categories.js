@@ -37,48 +37,6 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
   )(products);
 };
 
-const buildCategoryImageMap = (categories, products) =>
-  buildCategoryPropertyMap(categories, products, "header_image");
-
-/**
- * Assign images to categories from the property maps
- * NOTE: Mutates category.data directly because Eleventy template objects have
- * special getters/internal state that break with spread operators
- */
-const assignCategoryImages = (
-  categories,
-  categoryImages,
-  categoryThumbnails = {},
-) => {
-  return categories.map((category) => {
-    category.data.header_image = categoryImages[category.fileSlug]?.[0];
-    const thumbnail = categoryThumbnails[category.fileSlug]?.[0];
-    if (thumbnail) category.data.thumbnail = thumbnail;
-    return category;
-  });
-};
-
-/**
- * Create the categories collection with inherited images from products
- * @param {import("#lib/types").EleventyCollectionApi} collectionApi
- * @returns {import("#lib/types").EleventyCollectionItem[]}
- */
-const createCategoriesCollection = (collectionApi) => {
-  const categories = collectionApi.getFilteredByTag("categories");
-
-  if (categories.length === 0) return [];
-
-  const products = collectionApi.getFilteredByTag("products");
-  const categoryImages = buildCategoryImageMap(categories, products);
-  const categoryThumbnails = buildCategoryPropertyMap(
-    categories,
-    products,
-    "thumbnail",
-  );
-
-  return assignCategoryImages(categories, categoryImages, categoryThumbnails);
-};
-
 /**
  * Get featured categories from a categories collection
  * @param {import("#lib/types").EleventyCollectionItem[]} categories - Categories array from Eleventy collection
@@ -87,8 +45,37 @@ const createCategoriesCollection = (collectionApi) => {
 const getFeaturedCategories = (categories) =>
   categories.filter((c) => c.data.featured);
 
+/**
+ * Configure categories collection and filters.
+ * The collection inherits images from products.
+ * NOTE: Mutates category.data directly because Eleventy template objects have
+ * special getters/internal state that break with spread operators.
+ */
 const configureCategories = (eleventyConfig) => {
-  eleventyConfig.addCollection("categories", createCategoriesCollection);
+  eleventyConfig.addCollection("categories", (collectionApi) => {
+    const categories = collectionApi.getFilteredByTag("categories");
+
+    if (categories.length === 0) return [];
+
+    const products = collectionApi.getFilteredByTag("products");
+    const categoryImages = buildCategoryPropertyMap(
+      categories,
+      products,
+      "header_image",
+    );
+    const categoryThumbnails = buildCategoryPropertyMap(
+      categories,
+      products,
+      "thumbnail",
+    );
+
+    return categories.map((category) => {
+      category.data.header_image = categoryImages[category.fileSlug]?.[0];
+      const thumbnail = categoryThumbnails[category.fileSlug]?.[0];
+      if (thumbnail) category.data.thumbnail = thumbnail;
+      return category;
+    });
+  });
   eleventyConfig.addFilter("getFeaturedCategories", getFeaturedCategories);
 };
 
