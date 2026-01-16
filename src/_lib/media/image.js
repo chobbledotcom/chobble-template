@@ -15,30 +15,8 @@
  */
 import fs from "node:fs";
 
-/**
- * @typedef {Object} ImageProps
- * @property {string} [logName] - Debug logging name
- * @property {string | null} imageName - Image src (string from shortcode, string|null from DOM getAttribute)
- * @property {string | null} alt - Alt text
- * @property {string | null} [classes] - CSS classes
- * @property {string | null} [sizes] - Responsive sizes attribute
- * @property {string | string[] | null} [widths] - Image widths to generate
- * @property {boolean} [returnElement] - Return Element instead of HTML string
- * @property {string | null} [aspectRatio] - Target aspect ratio
- * @property {string | null} [loading] - Loading attribute
- * @property {Document | null} [document] - DOM document for element creation
- */
-
-/**
- * @typedef {Object} ComputeImageProps
- * @property {string | null} imageName - Image src
- * @property {string | null} alt - Alt text
- * @property {string | null} [classes] - CSS classes
- * @property {string | null} [sizes] - Responsive sizes attribute
- * @property {string | string[] | null} [widths] - Image widths to generate
- * @property {string | null} [aspectRatio] - Target aspect ratio
- * @property {string | null} [loading] - Loading attribute
- */
+/** @typedef {import("#lib/types.js").ImageProps} ImageProps */
+/** @typedef {import("#lib/types.js").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import {
   filenameFormat,

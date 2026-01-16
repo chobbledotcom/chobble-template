@@ -9,23 +9,8 @@
  */
 import { loadDOM } from "#utils/lazy-dom.js";
 
-/**
- * @typedef {Object} ImageOptions
- * @property {string} logName - Debug logging name
- * @property {string | null} imageName - Image src from getAttribute (string | null)
- * @property {string | null} alt - Alt text from getAttribute
- * @property {string | null} classes - CSS classes from getAttribute
- * @property {string | null} sizes - Responsive sizes from getAttribute
- * @property {string | null} widths - Image widths from getAttribute
- * @property {string | null} aspectRatio - Aspect ratio from custom attribute
- * @property {null} loading - Always null from transform
- * @property {true} returnElement - Always true for transform
- * @property {Document} document - DOM document for element creation
- */
-
-/**
- * @typedef {(options: ImageOptions) => Promise<Element>} ProcessImageFn
- */
+/** @typedef {import("#lib/types.js").ImageTransformOptions} ImageTransformOptions */
+/** @typedef {import("#lib/types.js").ProcessImageFn} ProcessImageFn */
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";
@@ -49,7 +34,7 @@ const fixDivsInParagraphs = (document) => {
  * Extract image options from an img element
  * @param {HTMLImageElement} img - The img DOM element
  * @param {Document} document - The DOM document
- * @returns {ImageOptions} Options object with imageName from getAttribute (string | null)
+ * @returns {ImageTransformOptions} Options object with imageName from getAttribute (string | null)
  */
 const extractImageOptions = (img, document) => {
   const aspectRatio = img.getAttribute(ASPECT_RATIO_ATTRIBUTE);

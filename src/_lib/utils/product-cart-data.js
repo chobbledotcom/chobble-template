@@ -13,35 +13,10 @@ import {
 } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 
-/**
- * @typedef {Object} ProductOption
- * @property {string} name - Option name
- * @property {string | number} unit_price - Unit price
- * @property {number} [days] - Hire duration in days
- * @property {number} [max_quantity] - Maximum quantity
- * @property {string} [sku] - Stock keeping unit
- */
-
-/**
- * @typedef {Object} ProductSpec
- * @property {string} name - Specification name
- * @property {string} value - Specification value
- */
-
-/**
- * @typedef {Object} ProductData
- * @property {ProductOption[]} [options] - Product options
- * @property {string} title - Product title
- */
-
-/**
- * @typedef {Object} CartAttributesParams
- * @property {string} title - Product title
- * @property {string} subtitle - Product subtitle
- * @property {ProductOption[]} options - Processed options
- * @property {ProductSpec[]} [specs] - Product specifications
- * @property {string} mode - Product mode (hire, buy, etc.)
- */
+/** @typedef {import("#lib/types.js").ProductOption} ProductOption */
+/** @typedef {import("#lib/types.js").ProductSpec} ProductSpec */
+/** @typedef {import("#lib/types.js").ProductData} ProductData */
+/** @typedef {import("#lib/types.js").CartAttributesParams} CartAttributesParams */
 
 /**
  * Parse a price string or number to a number

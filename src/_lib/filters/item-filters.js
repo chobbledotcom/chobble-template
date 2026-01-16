@@ -25,73 +25,13 @@ import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-/**
- * @typedef {Object} FilterAttribute
- * @property {string} name - Attribute name
- * @property {string} value - Attribute value
- */
-
-/**
- * @typedef {Object} EleventyCollectionItem
- * @property {{ filter_attributes?: FilterAttribute[], [key: string]: unknown }} data - Item data
- * @property {string} url - Item URL
- */
-
-/**
- * @typedef {Record<string, string>} FilterSet
- */
-
-/**
- * @typedef {Object} FilterCombination
- * @property {FilterSet} filters - Filter key-value pairs
- * @property {string} path - URL path segment
- * @property {number} count - Number of matching items
- */
-
-/**
- * @typedef {Object} FilterAttributeData
- * @property {Record<string, string[]>} attributes - Attribute name to possible values
- * @property {Record<string, string>} displayLookup - Slug to display text lookup
- */
-
-/**
- * @typedef {Object} FilterOption
- * @property {string} value - Display value
- * @property {string} url - Filter URL
- * @property {boolean} active - Whether option is active
- */
-
-/**
- * @typedef {Object} FilterGroup
- * @property {string} name - Group attribute name
- * @property {string} label - Display label
- * @property {FilterOption[]} options - Available options
- */
-
-/**
- * @typedef {Object} ActiveFilter
- * @property {string} key - Display key
- * @property {string} value - Display value
- * @property {string} removeUrl - URL to remove this filter
- */
-
-/**
- * @typedef {Object} FilterUIData
- * @property {boolean} hasFilters - Whether any filters exist
- * @property {boolean} [hasActiveFilters] - Whether any filters are active
- * @property {ActiveFilter[]} [activeFilters] - Currently active filters
- * @property {string} [clearAllUrl] - URL to clear all filters
- * @property {FilterGroup[]} [groups] - Filter groups for UI
- */
-
-/**
- * @typedef {Object} FilterConfigOptions
- * @property {string} tag - Eleventy collection tag
- * @property {string} permalinkDir - Base permalink directory
- * @property {string} itemsKey - Key for items in page data
- * @property {{ pages: string, redirects: string, attributes: string }} collections - Collection names
- * @property {string} uiDataFilterName - Filter name for UI data
- */
+/** @typedef {import("#lib/types.js").FilterAttribute} FilterAttribute */
+/** @typedef {import("#lib/types.js").EleventyCollectionItem} EleventyCollectionItem */
+/** @typedef {import("#lib/types.js").FilterSet} FilterSet */
+/** @typedef {import("#lib/types.js").FilterCombination} FilterCombination */
+/** @typedef {import("#lib/types.js").FilterAttributeData} FilterAttributeData */
+/** @typedef {import("#lib/types.js").FilterUIData} FilterUIData */
+/** @typedef {import("#lib/types.js").FilterConfigOptions} FilterConfigOptions */
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
