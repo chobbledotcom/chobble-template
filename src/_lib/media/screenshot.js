@@ -5,6 +5,7 @@ import {
   createOperationContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
+  ensurePlaywrightBrowsers,
   getDefaultOutputDir,
   prepareOutputDir,
   runBatchOperations,
@@ -75,6 +76,8 @@ export const takeScreenshotWithPlaywright = async (
 };
 
 export const screenshot = async (pagePath, options = {}) => {
+  await ensurePlaywrightBrowsers();
+
   const buildScreenshotPath = (opts, path) =>
     buildOutputPath(
       opts.outputDir,

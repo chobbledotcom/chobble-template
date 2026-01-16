@@ -1,6 +1,8 @@
+import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
+import { error as logError } from "#utils/console.js";
 
 export const BROWSER_ARGS = [
   "--no-sandbox",
@@ -56,6 +58,20 @@ export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   };
 };
 
+export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
+  for (let i = 0; i < maxAttempts; i++) {
+    const [result] = await Promise.allSettled([fetch(baseUrl)]);
+    const isReady =
+      result.status === "fulfilled" &&
+      (result.value.ok || result.value.status === 404);
+    if (isReady) return true;
+    await new Promise((r) => setTimeout(r, delay));
+  }
+  throw new Error(
+    `Server at ${baseUrl} did not respond after ${maxAttempts} attempts`,
+  );
+};
+
 export const startServer = async (siteDir, port = 8080) => {
   const serverProcess = Bun.spawn(
     [
@@ -67,11 +83,7 @@ export const startServer = async (siteDir, port = 8080) => {
   );
 
   const baseUrl = `http://localhost:${port}`;
-  for (let i = 0; i < 20; i++) {
-    const [result] = await Promise.allSettled([fetch(baseUrl)]);
-    if (result.status === "fulfilled" && result.value.ok) break;
-    await new Promise((r) => setTimeout(r, 250));
-  }
+  await waitForServer(baseUrl, 30, 250);
 
   return {
     process: serverProcess,
@@ -95,4 +107,19 @@ export const launchChromeHeadless = async (chromePath) => {
     chromePath,
     chromeFlags: ["--headless", ...BROWSER_ARGS],
   });
+};
+
+const BROWSER_NOT_INSTALLED_MSG =
+  "Playwright browsers not installed.\n" +
+  "Run: bunx playwright install chromium\n" +
+  "(Use bunx to ensure the correct version is installed)";
+
+export const ensurePlaywrightBrowsers = async () => {
+  const { chromium } = await import("playwright");
+  const execPath = chromium.executablePath();
+  if (!existsSync(execPath)) {
+    logError(BROWSER_NOT_INSTALLED_MSG);
+    throw new Error(BROWSER_NOT_INSTALLED_MSG);
+  }
+  return true;
 };
