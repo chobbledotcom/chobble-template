@@ -1,4 +1,3 @@
-{%- if config.has_products_filter -%}
-{%- assign filterUI = collections.filterAttributes | buildFilterUIData: currentFilters, collections.filteredProductPages -%}
-{%- include "item-filter.html", filterUI: filterUI -%}
+{%- if config.has_products_filter and filterUI -%}
+  {%- include "item-filter.html", filterUI: filterUI -%}
 {%- endif -%}

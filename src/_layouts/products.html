@@ -5,7 +5,8 @@ title: All Products
 
 {%- include "products-header.html" -%}
 
-{%- include "products-layout-start.html" -%}
+{%- assign filterUI = collections.filteredProductPagesListingFilterUI -%}
+{%- include "products-layout-start.html", filterUI: filterUI -%}
 {{- content -}}
 {% assign products = collections.products %}
 {%- include "items.html", items: products -%}

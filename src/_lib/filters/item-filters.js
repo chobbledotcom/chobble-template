@@ -262,6 +262,33 @@ const buildFilterDescription = (filters, displayLookup) =>
   }))(filters);
 
 /**
+ * Add filterUI to each page object (mutates pages in place)
+ * @param {Array} pages - Page objects to enhance
+ * @param {Object} filterData - { attributes, displayLookup }
+ * @param {string} baseUrl - Base URL for filter links
+ */
+const addFilterUIToPages = (pages, filterData, baseUrl) => {
+  for (const page of pages) {
+    page.filterUI = buildFilterUIData(filterData, page.filters, pages, baseUrl);
+  }
+};
+
+/**
+ * Build base page object from a filter combination
+ * @param {Object} combo - { filters, path, count }
+ * @param {Array} matchedItems - Items matching the filters
+ * @param {Object} displayLookup - Display text lookup
+ * @returns {Object} Base page properties
+ */
+const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
+  filters: combo.filters,
+  path: combo.path,
+  count: combo.count,
+  items: matchedItems,
+  filterDescription: buildFilterDescription(combo.filters, displayLookup),
+});
+
+/**
  * Build pre-computed filter UI data for templates
  * @param {FilterAttributeData} filterData - Filter attribute data
  * @param {FilterSet | null | undefined} currentFilters - Current active filters
@@ -335,6 +362,36 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
 };
 
 /**
+ * Generate filter redirects for invalid filter paths.
+ * Shared logic used by both global and category-scoped filters.
+ * @param {import("#lib/types").EleventyCollectionItem[]} items - Items to generate redirects for
+ * @param {string} searchUrl - Base search URL (e.g., "/products/search" or "/categories/widgets/search")
+ * @returns {Array} Redirect objects { from, to }
+ */
+const generateFilterRedirects = (items, searchUrl) => {
+  const attrKeys = Object.keys(getAllFilterAttributes(items));
+  if (attrKeys.length === 0) return [];
+
+  const toRedirect = (basePath, key) => ({
+    from: `${searchUrl}${basePath}/${key}/`,
+    to: `${searchUrl}${basePath}/#content`,
+  });
+
+  const simpleRedirects = map((key) => toRedirect("", key))(attrKeys);
+
+  const comboRedirects = pipe(
+    flatMap((combo) =>
+      filterMap(
+        (key) => !combo.filters[key],
+        (key) => toRedirect(`/${combo.path}`, key),
+      )(attrKeys),
+    ),
+  )(generateFilterCombinations(items));
+
+  return [...simpleRedirects, ...comboRedirects];
+};
+
+/**
  * Create a filter system for a specific item type
  * @param {FilterConfigOptions} options - Configuration options
  * @returns {{ configure: (eleventyConfig: import("@11ty/eleventy").UserConfig) => void }} Filter configuration
@@ -351,18 +408,21 @@ const createFilterConfig = (options) => {
     const items = collectionApi.getFilteredByTag(tag);
     const combinations = generateFilterCombinations(items);
     const displayLookup = buildDisplayLookup(items);
+    const filterData = {
+      attributes: getAllFilterAttributes(items),
+      displayLookup,
+    };
 
-    return combinations.map((combo) => {
+    const pages = combinations.map((combo) => {
       const matchedItems = getItemsByFilters(items, combo.filters);
       return {
-        filters: combo.filters,
-        path: combo.path,
-        count: combo.count,
-        items: matchedItems,
+        ...buildFilterPageBase(combo, matchedItems, displayLookup),
         [itemsKey]: matchedItems,
-        filterDescription: buildFilterDescription(combo.filters, displayLookup),
       };
     });
+
+    addFilterUIToPages(pages, filterData, baseUrl);
+    return pages;
   };
 
   /**
@@ -370,26 +430,7 @@ const createFilterConfig = (options) => {
    */
   const redirectsCollection = (collectionApi) => {
     const items = collectionApi.getFilteredByTag(tag);
-    const attrKeys = Object.keys(getAllFilterAttributes(items));
-    const searchUrl = `${baseUrl}/search`;
-
-    const toRedirect = (basePath, key) => ({
-      from: `${searchUrl}${basePath}/${key}/`,
-      to: `${searchUrl}${basePath}/#content`,
-    });
-
-    const simpleRedirects = map((key) => toRedirect("", key))(attrKeys);
-
-    const comboRedirects = pipe(
-      flatMap((combo) =>
-        filterMap(
-          (key) => !combo.filters[key],
-          (key) => toRedirect(`/${combo.path}`, key),
-        )(attrKeys),
-      ),
-    )(generateFilterCombinations(items));
-
-    return [...simpleRedirects, ...comboRedirects];
+    return generateFilterRedirects(items, `${baseUrl}/search`);
   };
 
   /**
@@ -403,10 +444,28 @@ const createFilterConfig = (options) => {
     };
   };
 
+  /**
+   * Build filterUI for listing page (no active filters)
+   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+   */
+  const listingFilterUICollection = (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag);
+    const filterData = {
+      attributes: getAllFilterAttributes(items),
+      displayLookup: buildDisplayLookup(items),
+    };
+    const pages = pagesCollection(collectionApi);
+    return buildFilterUIData(filterData, null, pages, baseUrl);
+  };
+
   const configure = (eleventyConfig) => {
     eleventyConfig.addCollection(collections.pages, pagesCollection);
     eleventyConfig.addCollection(collections.redirects, redirectsCollection);
     eleventyConfig.addCollection(collections.attributes, attributesCollection);
+    eleventyConfig.addCollection(
+      `${collections.pages}ListingFilterUI`,
+      listingFilterUICollection,
+    );
     eleventyConfig.addFilter(uiDataFilterName, (filterData, filters, pages) =>
       buildFilterUIData(filterData, filters, pages, baseUrl),
     );
@@ -415,4 +474,15 @@ const createFilterConfig = (options) => {
   return { configure };
 };
 
-export { createFilterConfig };
+export {
+  createFilterConfig,
+  // Used by category-product-filters.js for category-scoped filtering
+  addFilterUIToPages,
+  buildDisplayLookup,
+  buildFilterPageBase,
+  buildFilterUIData,
+  generateFilterCombinations,
+  generateFilterRedirects,
+  getAllFilterAttributes,
+  getItemsByFilters,
+};
