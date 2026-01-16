@@ -3,7 +3,7 @@ import { filter, pipe, sort } from "#utils/array-utils.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { sortNavigationItems } from "#utils/sorting.js";
 
-const NAV_THUMBNAIL_WIDTHS = ["64", "128"];
+const NAV_THUMBNAIL_WIDTHS = ["64", "128", "480", "600"];
 const NAV_THUMBNAIL_ASPECT = "1/1";
 
 /** Get thumbnail HTML if available */
