@@ -65,3 +65,30 @@ export const buildWrapperStyles = (
     `aspect-ratio: ${getAspectRatioFn(aspectRatio, metadata)}`,
     metadata.width && `max-width: min(${metadata.width}px, 100%)`,
   ]).join("; ");
+
+/**
+ * Converts a file path to a unique, filename-safe basename.
+ * Strips common prefixes (./src/, src/) and the images/ directory name,
+ * then converts remaining path segments to hyphen-separated format.
+ *
+ * E.g., "./src/images/products/photo.jpg" -> "products-photo"
+ *       "./src/images/photo.jpg" -> "photo"
+ *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
+ */
+export const getPathAwareBasename = (src) => {
+  const normalized = src
+    .replace(/\\/g, "/")
+    .replace(/^\.?\/?(src\/)?/, "")
+    .replace(/^images\//, "");
+  const withoutExt = normalized.replace(/\.[^.]+$/, "");
+  return withoutExt.replace(/\//g, "-");
+};
+
+/**
+ * Generate filename for resized images.
+ * Used by eleventy-img for both regular images and LQIP thumbnails.
+ */
+export const filenameFormat = (_id, src, width, format) => {
+  const basename = getPathAwareBasename(src);
+  return `${basename}-${width}.${format}`;
+};

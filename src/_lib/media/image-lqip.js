@@ -9,15 +9,10 @@
  * - Small images under 5KB (overhead not worth it)
  */
 import fs from "node:fs";
-import path from "node:path";
+import { filenameFormat } from "#media/image-utils.js";
 import { memoize } from "#utils/memoize.js";
 
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
-
-const filenameFormat = (_id, src, width, format) => {
-  const basename = path.basename(src, path.extname(src));
-  return `${basename}-${width}.${format}`;
-};
 
 const THUMBNAIL_OPTIONS = {
   formats: ["webp"],
@@ -45,4 +40,4 @@ const getThumbnailOrNull = (imagePath, metadata) =>
     ? null
     : generateThumbnail(imagePath);
 
-export { getThumbnailOrNull, getEleventyImg, filenameFormat };
+export { getThumbnailOrNull, getEleventyImg };

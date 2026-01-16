@@ -18,16 +18,13 @@ import fs from "node:fs";
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
-import {
-  filenameFormat,
-  getEleventyImg,
-  getThumbnailOrNull,
-} from "#media/image-lqip.js";
+import { getEleventyImg, getThumbnailOrNull } from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import { createImageTransform as createTransform } from "#media/image-transform.js";
 import {
   buildImgAttributes,
   buildWrapperStyles,
+  filenameFormat,
   isExternalUrl,
   normalizeImagePath,
   parseWidths,
