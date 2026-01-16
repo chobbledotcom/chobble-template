@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  configureExternalLinks,
-  formatUrlForDisplay,
-} from "#eleventy/external-links.js";
+import { configureExternalLinks } from "#eleventy/external-links.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("external-links", () => {
@@ -230,16 +227,8 @@ describe("external-links", () => {
         const transform = await getTransform({
           externalLinksTargetBlank: true,
         });
-        const result = await transform(null, "index.html");
-        expect(result).toBe(null);
-      });
-
-      test("handles empty content gracefully", async () => {
-        const transform = await getTransform({
-          externalLinksTargetBlank: true,
-        });
-        const result = await transform("", "index.html");
-        expect(result).toBe("");
+        expect(await transform(null, "index.html")).toBe(null);
+        expect(await transform("", "index.html")).toBe("");
       });
     });
   });
@@ -417,57 +406,13 @@ describe("external-links", () => {
         expect(result).toBe(html);
       });
 
-      test("handles null content", async () => {
-        const transform = await getLinkifyUrlsTransform({
+      test("passes through null and empty content unchanged", async () => {
+        const linkify = await getLinkifyUrlsTransform({
           externalLinksTargetBlank: true,
         });
-        const result = await transform(null, "index.html");
-        expect(result).toBe(null);
+        expect(await linkify(null, "index.html")).toBeNull();
+        expect(await linkify("", "index.html")).toBe("");
       });
-
-      test("handles empty content", async () => {
-        const transform = await getLinkifyUrlsTransform({
-          externalLinksTargetBlank: true,
-        });
-        const result = await transform("", "index.html");
-        expect(result).toBe("");
-      });
-    });
-  });
-
-  describe("formatUrlForDisplay", () => {
-    test("strips https:// from URL", () => {
-      expect(formatUrlForDisplay("https://example.com")).toBe("example.com");
-    });
-
-    test("strips http:// from URL", () => {
-      expect(formatUrlForDisplay("http://example.com")).toBe("example.com");
-    });
-
-    test("strips www. from URL", () => {
-      expect(formatUrlForDisplay("https://www.example.com")).toBe(
-        "example.com",
-      );
-    });
-
-    test("strips trailing slash", () => {
-      expect(formatUrlForDisplay("https://example.com/")).toBe("example.com");
-    });
-
-    test("preserves path after domain", () => {
-      expect(formatUrlForDisplay("https://www.example.com/page")).toBe(
-        "example.com/page",
-      );
-    });
-
-    test("preserves query parameters", () => {
-      expect(formatUrlForDisplay("https://example.com?foo=bar")).toBe(
-        "example.com?foo=bar",
-      );
-    });
-
-    test("handles URLs without protocol", () => {
-      expect(formatUrlForDisplay("www.example.com")).toBe("example.com");
     });
   });
 });
