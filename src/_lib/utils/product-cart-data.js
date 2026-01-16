@@ -13,10 +13,10 @@ import {
 } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 
-/** @typedef {import("#lib/types.js").ProductOption} ProductOption */
-/** @typedef {import("#lib/types.js").ProductSpec} ProductSpec */
-/** @typedef {import("#lib/types.js").ProductData} ProductData */
-/** @typedef {import("#lib/types.js").CartAttributesParams} CartAttributesParams */
+/** @typedef {import("#lib/types").ProductOption} ProductOption */
+/** @typedef {import("#lib/types").ProductSpec} ProductSpec */
+/** @typedef {import("#lib/types").ProductData} ProductData */
+/** @typedef {import("#lib/types").CartAttributesParams} CartAttributesParams */
 
 /**
  * Parse a price string or number to a number

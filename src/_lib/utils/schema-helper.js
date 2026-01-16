@@ -42,7 +42,7 @@ import { canonicalUrl } from "#utils/canonical-url.js";
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
  * @property {string} [reviewsField] - Field name for reviews lookup
- * @property {{ reviews: import("#lib/types.js").EleventyCollectionItem[] }} [collections] - Collections data
+ * @property {{ reviews: import("#lib/types").EleventyCollectionItem[] }} [collections] - Collections data
  */
 
 /**
