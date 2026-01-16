@@ -39,9 +39,7 @@ import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 
 // Filters
-import { configureCategoryFilters } from "#filters/configure-filters.js";
-import { configureProductFilters } from "#filters/product-filters.js";
-import { configurePropertyFilters } from "#filters/property-filters.js";
+import { configureFilters } from "#filters/configure-filters.js";
 
 // Media
 import { configureIconify } from "#media/iconify.js";
@@ -89,12 +87,10 @@ export default async function (eleventyConfig) {
   configureRecurringEvents(eleventyConfig);
   configureResponsiveTables(eleventyConfig);
   configureScreenshots(eleventyConfig);
-  configureCategoryFilters(eleventyConfig);
-  configureProductFilters(eleventyConfig);
+  configureFilters(eleventyConfig);
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
   configureReviews(eleventyConfig);
-  configurePropertyFilters(eleventyConfig);
   configureScss(eleventyConfig);
   configureSearch(eleventyConfig);
   configureStyleBundle(eleventyConfig);
