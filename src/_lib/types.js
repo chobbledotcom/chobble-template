@@ -26,16 +26,45 @@
  * @property {number} [order] - Sort order
  * @property {string} [title] - Item title
  * @property {string} [name] - Item name (fallback)
+ * @property {string} [subtitle] - Item subtitle
  * @property {boolean} [hidden] - Whether item is hidden
+ * @property {boolean} [no_index] - Exclude from search index
+ * @property {boolean} [featured] - Whether item is featured
  * @property {EleventyNavigation} [eleventyNavigation] - Navigation data
  * @property {FilterAttribute[]} [filter_attributes] - Filter attributes
  * @property {string[]} [categories] - Category references
  * @property {string} [permalink] - Custom permalink
+ * @property {string} [meta_description] - Meta description
+ * @property {string[]} [tags] - Content tags
+ * @property {Image} [thumbnail] - Thumbnail image
+ * @property {Image} [image] - Main image
+ * @property {Option[]} [options] - Product options
+ * @property {ProductSpec[]} [specs] - Specifications
+ * @property {Faq[]} [faqs] - FAQs
+ * @property {Tab[]} [tabs] - Tabs
+ * @property {Image[] | Record<string, Image>} [gallery] - Image gallery
+ * @property {string} [event_date] - Event date
+ * @property {string} [recurring_date] - Recurring event date
+ * @property {string} [event_location] - Event location
+ * @property {string} [ical_url] - iCal URL
+ * @property {number} [rating] - Review rating
+ * @property {string} [reviewer] - Reviewer name
+ * @property {string} [review_date] - Review date
+ * @property {string} [product] - Related product slug
+ * @property {string} [location] - Related location slug
+ * @property {string} [event] - Related event slug
+ * @property {OpeningTime[]} [opening_times] - Opening times
+ * @property {string} [address] - Address
+ * @property {string} [phone] - Phone number
+ * @property {string} [email] - Email address
+ * @property {string} [role] - Team member role
+ * @property {string} [bio] - Team member bio
+ * @property {string} [parentLocation] - Parent location slug (for nested locations)
  */
 
 /**
  * @typedef {Object} EleventyCollectionItem
- * @property {EleventyCollectionItemData & Record<string, unknown>} data - Item data from frontmatter
+ * @property {EleventyCollectionItemData} data - Item data from frontmatter
  * @property {string} url - Item URL
  * @property {string} fileSlug - File slug (filename without extension)
  * @property {Date} [date] - Item date
@@ -100,6 +129,70 @@
  * @property {string} url - Base site URL
  * @property {string} name - Site name
  * @property {string} [logo] - Site logo path
+ */
+
+/**
+ * @typedef {Object} ProductConfig
+ * @property {string} item_widths - Item image widths
+ * @property {string} gallery_thumb_widths - Gallery thumbnail widths
+ * @property {string} gallery_image_widths - Gallery image widths
+ * @property {string} header_image_widths - Header image widths
+ * @property {string | null} item_list_aspect_ratio - Item list aspect ratio
+ * @property {number | null} max_images - Maximum images to show
+ */
+
+/**
+ * @typedef {Object} ScreenshotConfig
+ * @property {boolean} [enabled] - Whether screenshots are enabled
+ * @property {boolean} [autoCapture] - Auto capture on build
+ * @property {string[]} [collections] - Collections to screenshot
+ * @property {string[]} [pages] - Specific pages to screenshot
+ * @property {string} [outputDir] - Output directory
+ * @property {number} [port] - Server port
+ * @property {string} [viewport] - Viewport size
+ * @property {number} [timeout] - Timeout in ms
+ * @property {number} [limit] - Limit number of screenshots
+ */
+
+/**
+ * @typedef {'stripe' | 'paypal' | 'quote' | null} CartMode
+ */
+
+/**
+ * @typedef {'buy' | 'hire' | null} ProductMode
+ */
+
+/**
+ * Site configuration after defaults are applied.
+ * Values with defaults in DEFAULTS are guaranteed non-null.
+ * @typedef {Object} SiteConfig
+ * @property {boolean} sticky_mobile_nav - Enable sticky mobile nav
+ * @property {boolean} horizontal_nav - Enable horizontal nav
+ * @property {boolean} homepage_news - Show news on homepage
+ * @property {boolean} homepage_products - Show products on homepage
+ * @property {boolean} externalLinksTargetBlank - Open external links in new tab
+ * @property {string} template_repo_url - Template repository URL
+ * @property {boolean} has_products_filter - Enable products filter
+ * @property {boolean} has_properties_filter - Enable properties filter
+ * @property {boolean} placeholder_images - Use placeholder images
+ * @property {boolean} enable_theme_switcher - Enable theme switcher
+ * @property {string} timezone - Site timezone
+ * @property {number} reviews_truncate_limit - Reviews truncate limit
+ * @property {string[]} list_item_fields - Fields to show in list items
+ * @property {boolean} navigation_content_anchor - Add content anchor to nav
+ * @property {string[]} design_system_layouts - Design system layouts
+ * @property {ProductConfig} products - Product configuration
+ * @property {string | null} contact_form_target - Contact form target URL
+ * @property {string | null} formspark_id - Formspark ID
+ * @property {string | null} botpoison_public_key - Botpoison public key
+ * @property {string | null} chobble_link - Chobble link
+ * @property {string | null} map_embed_src - Map embed source
+ * @property {CartMode} cart_mode - Cart mode
+ * @property {string | null} checkout_api_url - Checkout API URL
+ * @property {ProductMode} product_mode - Product mode
+ * @property {string[] | null} category_order - Category display order
+ * @property {ScreenshotConfig | null} screenshots - Screenshot configuration
+ * @property {string | null} form_target - Computed form target URL
  */
 
 // =============================================================================
