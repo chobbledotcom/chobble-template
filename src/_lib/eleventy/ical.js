@@ -49,21 +49,14 @@ export function eventIcal(event) {
 }
 
 /**
- * Check if an event is a one-off event (not recurring)
- * Internal helper for the oneOffEvents collection - not exported.
- * @param {Object} event - Event object with data property
- * @returns {boolean} True if event has event_date but no recurring_date
- */
-const isOneOffEvent = (event) =>
-  Boolean(event.data.event_date && !event.data.recurring_date);
-
-/**
  * Configure Eleventy iCal filters and collections
  * @param {Object} eleventyConfig - Eleventy configuration object
  */
 export function configureICal(eleventyConfig) {
   eleventyConfig.addFilter("eventIcal", eventIcal);
   eleventyConfig.addCollection("oneOffEvents", (collectionApi) =>
-    collectionApi.getFilteredByTag("events").filter(isOneOffEvent),
+    collectionApi
+      .getFilteredByTag("events")
+      .filter((event) => event.data.event_date && !event.data.recurring_date),
   );
 }
