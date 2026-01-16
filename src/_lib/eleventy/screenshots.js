@@ -1,5 +1,5 @@
 import { isAbsolute, join } from "node:path";
-import config from "#data/config.json" with { type: "json" };
+import { getConfig } from "#config/site-config.js";
 import {
   buildViewportSuffix,
   getDefaultOptions,
@@ -14,7 +14,8 @@ import {
 import { map, pipe } from "#utils/array-utils.js";
 import { log, error as logError } from "#utils/console.js";
 
-const getScreenshotConfig = () => config.screenshots || {};
+/** @returns {import("#lib/types.js").ScreenshotConfig} */
+const getScreenshotConfig = () => getConfig().screenshots ?? {};
 
 const extractPagePaths = (collection) =>
   pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(
