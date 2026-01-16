@@ -126,7 +126,7 @@
 /**
  * @typedef {Object} ImageProps
  * @property {string} [logName] - Debug logging name
- * @property {string | null} imageName - Image src (string from shortcode, string|null from DOM getAttribute)
+ * @property {string} imageName - Image src (always string: shortcode provides string, transform selector guarantees it)
  * @property {string | null} alt - Alt text
  * @property {string | null} [classes] - CSS classes
  * @property {string | null} [sizes] - Responsive sizes attribute
@@ -139,7 +139,7 @@
 
 /**
  * @typedef {Object} ComputeImageProps
- * @property {string | null} imageName - Image src
+ * @property {string} imageName - Image src (always string after validation)
  * @property {string | null} alt - Alt text
  * @property {string | null} [classes] - CSS classes
  * @property {string | null} [sizes] - Responsive sizes attribute
@@ -151,7 +151,7 @@
 /**
  * @typedef {Object} ImageTransformOptions
  * @property {string} logName - Debug logging name
- * @property {string | null} imageName - Image src from getAttribute (string | null)
+ * @property {string} imageName - Image src (guaranteed by selector [src^="/images/"])
  * @property {string | null} alt - Alt text from getAttribute
  * @property {string | null} classes - CSS classes from getAttribute
  * @property {string | null} sizes - Responsive sizes from getAttribute
@@ -194,7 +194,7 @@
 /**
  * @typedef {Object} CartAttributesParams
  * @property {string} title - Product title
- * @property {string} subtitle - Product subtitle
+ * @property {string} [subtitle] - Product subtitle (optional in frontmatter)
  * @property {ProductOption[]} options - Processed options
  * @property {ProductSpec[]} [specs] - Product specifications
  * @property {string} mode - Product mode (hire, buy, etc.)

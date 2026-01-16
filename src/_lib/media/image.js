@@ -122,12 +122,9 @@ const processAndWrapImage = async ({
   loading = null,
   document = null,
 }) => {
-  /** @type {string} */
-  const imageNameStr = imageName.toString();
-
-  if (isExternalUrl(imageNameStr)) {
+  if (isExternalUrl(imageName)) {
     const attributes = {
-      src: imageNameStr,
+      src: imageName,
       alt: alt || "",
       loading: loading || "lazy",
       decoding: "async",

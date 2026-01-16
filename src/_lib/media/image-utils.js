@@ -16,13 +16,15 @@ const DEFAULT_SIZE = "auto";
  * - "src/images/photo.jpg" -> "./src/images/photo.jpg"
  * - "images/photo.jpg" -> "./src/images/photo.jpg"
  * - "photo.jpg" -> "./src/images/photo.jpg"
+ *
+ * @param {string} imageName - Image path (always string from shortcode or transform)
+ * @returns {string} Normalized path
  */
 export const normalizeImagePath = (imageName) => {
-  const name = imageName.toString();
-  if (name.startsWith("/")) return `./src${name}`;
-  if (name.startsWith("src/")) return `./${name}`;
-  if (name.startsWith("images/")) return `./src/${name}`;
-  return `./src/images/${name}`;
+  if (imageName.startsWith("/")) return `./src${imageName}`;
+  if (imageName.startsWith("src/")) return `./${imageName}`;
+  if (imageName.startsWith("images/")) return `./src/${imageName}`;
+  return `./src/images/${imageName}`;
 };
 
 /**
