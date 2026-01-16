@@ -3,9 +3,8 @@
  * Written in a functional, immutable style.
  */
 import { expect } from "bun:test";
-import { fs, path, rootDir } from "#test/test-utils.js";
+import { fs, omit, path, rootDir } from "#test/test-utils.js";
 import { notMemberOf, pluralize } from "#utils/array-utils.js";
-import { omit } from "#utils/object-entries.js";
 
 // Standard fields returned by find functions (everything else is extra data)
 const STANDARD_HIT_FIELDS = ["lineNumber", "line"];

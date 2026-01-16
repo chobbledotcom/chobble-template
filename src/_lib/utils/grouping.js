@@ -109,28 +109,9 @@ const groupBy = (items, getKey) =>
     reduce(appendToMap, new Map()),
   )(items);
 
-/**
- * Create a lookup helper for a reverse index
- *
- * Returns a function that safely retrieves items by key, returning empty array
- * if key not found. Useful for creating filter functions.
- *
- * @template K
- * @template V
- * @param {Map<K, V[]>} index - The reverse index map
- * @returns {(key: K) => V[]} Lookup function returning items or empty array
- *
- * @example
- * const index = buildReverseIndex(products, getCategories);
- * const lookup = createLookup(index);
- * const widgets = lookup("widgets"); // Returns [] if not found
- */
-const createLookup = (index) => (key) => index.get(key) || [];
-
 export {
   buildReverseIndex,
   groupValuesBy,
   buildFirstOccurrenceLookup,
   groupBy,
-  createLookup,
 };

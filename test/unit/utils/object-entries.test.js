@@ -4,7 +4,6 @@ import {
   fromPairs,
   mapBoth,
   mapEntries,
-  omit,
   pickNonNull,
   pickTruthy,
   toObject,
@@ -51,33 +50,6 @@ describe("object-entries utilities", () => {
         ["x", 10],
         ["y", 20],
       ]);
-    });
-  });
-
-  describe("omit", () => {
-    test("removes specified keys from object", () => {
-      const omitA = omit(["a"]);
-      expect(omitA(testObj)).toEqual({ b: 2, c: 3 });
-    });
-
-    test("removes multiple keys", () => {
-      const omitAC = omit(["a", "c"]);
-      expect(omitAC(testObj)).toEqual({ b: 2 });
-    });
-
-    test("returns same object when no keys match", () => {
-      const omitNone = omit(["x", "y"]);
-      expect(omitNone(testObj)).toEqual({ a: 1, b: 2, c: 3 });
-    });
-
-    test("returns empty object when all keys omitted", () => {
-      const omitAll = omit(["a", "b", "c"]);
-      expect(omitAll(testObj)).toEqual({});
-    });
-
-    test("works with empty omit list", () => {
-      const omitNone = omit([]);
-      expect(omitNone(testObj)).toEqual({ a: 1, b: 2, c: 3 });
     });
   });
 

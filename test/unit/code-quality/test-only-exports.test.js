@@ -68,6 +68,37 @@ const resolveImportPath = (importPath) => {
 // Captures: group 1 = names, group 2 = path
 const IMPORT_PATTERN = /import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
 
+// ============================================
+// Eleventy Registration Detection
+// ============================================
+
+// Matches calls that register functions with Eleventy config.
+// These count as "production usage" even if the function isn't imported elsewhere.
+// Patterns:
+//   eleventyConfig.addFilter("name", functionRef)
+//   eleventyConfig.addAsyncFilter("name", functionRef)
+//   eleventyConfig.addShortcode("name", functionRef)
+//   eleventyConfig.addAsyncShortcode("name", functionRef)
+//   eleventyConfig.addCollection("name", functionRef)
+//   eleventyConfig.addTransform("name", functionRef)
+const ELEVENTY_REGISTRATION_PATTERN =
+  /eleventyConfig\.(?:addFilter|addAsyncFilter|addShortcode|addAsyncShortcode|addCollection|addTransform)\s*\(\s*["'][^"']+["']\s*,\s*([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+
+/**
+ * Extract function names registered with Eleventy in a source file.
+ * These are considered "production usage" since they're used via templates.
+ * @param {string} source - Source code to scan
+ * @returns {Set<string>} - Set of function names registered with Eleventy
+ */
+const extractEleventyRegistrations = (source) => {
+  const registered = new Set();
+  const matches = source.matchAll(ELEVENTY_REGISTRATION_PATTERN);
+  for (const match of matches) {
+    registered.add(match[1]);
+  }
+  return registered;
+};
+
 // Matches: import name from "path" (default imports)
 const DEFAULT_IMPORT_PATTERN =
   /import\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s+from\s*["']([^"']+)["']/g;
@@ -155,6 +186,26 @@ const buildImportUsageMap = (files) => {
 };
 
 /**
+ * Build a map of exports registered with Eleventy for each src/ file.
+ * These are functions passed to addFilter, addShortcode, addCollection, etc.
+ * @returns {Map<string, Set<string>>} - Map of file path to registered function names
+ */
+const buildEleventyRegistrationMap = () => {
+  const registrationMap = new Map();
+  const srcFiles = SRC_JS_FILES();
+
+  for (const file of srcFiles) {
+    const source = readSource(file);
+    const registrations = extractEleventyRegistrations(source);
+    if (registrations.size > 0) {
+      registrationMap.set(file, registrations);
+    }
+  }
+
+  return registrationMap;
+};
+
+/**
  * Analyze for test-only exports.
  * Returns exports from src/ that are only imported in test/ files.
  */
@@ -175,22 +226,32 @@ const analyzeTestOnlyExports = () => {
   // Build import usage from test files
   const testImportUsage = buildImportUsageMap(testFiles);
 
+  // Build Eleventy registration map - functions registered with addFilter, etc.
+  // count as "production usage" since they're used via templates
+  const eleventyRegistrations = buildEleventyRegistrationMap();
+
   const violations = [];
   const allowed = [];
 
   // Check each export from src/
   for (const [file, exports] of srcExportsMap) {
+    // Get functions registered with Eleventy in this file
+    const registeredInFile = eleventyRegistrations.get(file) || new Set();
+
     for (const exportName of exports) {
       const key = `${file}:${exportName}`;
 
-      // Check if used in src/ (production)
+      // Check if used in src/ (production) via import
       const usedInSrc = srcImportUsage.has(key);
+
+      // Check if registered with Eleventy (counts as production usage)
+      const registeredWithEleventy = registeredInFile.has(exportName);
 
       // Check if used in test/
       const usedInTest = testImportUsage.has(key);
 
-      // If only used in test, it's a potential violation
-      if (!usedInSrc && usedInTest) {
+      // If only used in test (not imported in src, not registered with Eleventy)
+      if (!usedInSrc && !registeredWithEleventy && usedInTest) {
         const testFilesUsing = [...testImportUsage.get(key)];
 
         const violation = {
