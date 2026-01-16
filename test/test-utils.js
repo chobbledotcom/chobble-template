@@ -7,6 +7,36 @@ import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
 import { map } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 
+// ============================================
+// Object Utilities (for test infrastructure)
+// ============================================
+
+/**
+ * Create a curried function that omits specified keys from an object.
+ * Moved here from production code since it's only used in tests.
+ * @param {string[]} keys - Keys to omit
+ * @returns {(obj: Record<string, any>) => Record<string, any>} Function that omits specified keys
+ */
+const omit = (keys) => (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
+
+// ============================================
+// SCSS Compilation (for testing SCSS behavior)
+// ============================================
+
+/**
+ * Compile SCSS content to CSS (test utility).
+ * Moved here from production code since it's only used in tests.
+ * @param {string} inputContent - SCSS source code
+ * @param {string} inputPath - Path for import resolution
+ * @returns {Promise<string>} Compiled CSS
+ */
+const compileScss = async (inputContent, inputPath) => {
+  const { createScssCompiler } = await import("#build/scss.js");
+  const compiler = createScssCompiler(inputContent, inputPath);
+  return await compiler({});
+};
+
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
   constructor(html = "", _options = {}) {
@@ -861,8 +891,10 @@ const expectAsyncThrows = async (asyncFn) => {
 
 export {
   DOM,
+  compileScss,
   expect,
   fs,
+  omit,
   path,
   rootDir,
   srcDir,

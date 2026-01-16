@@ -276,4 +276,4 @@ export function configurePdf(eleventyConfig) {
   });
 }
 
-export { generateMenuPdf, buildMenuPdfData, createMenuPdfTemplate };
+export { generateMenuPdf, buildMenuPdfData };
