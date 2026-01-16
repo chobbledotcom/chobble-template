@@ -1,3 +1,5 @@
+/** @typedef {import("#lib/types.js").SiteConfig} SiteConfig */
+
 import {
   DEFAULT_PRODUCT_DATA,
   DEFAULTS,
@@ -15,6 +17,8 @@ const baseConfig = {
   ...userConfig,
   products,
 };
+
+/** @type {SiteConfig} */
 const config = {
   ...baseConfig,
   form_target: getFormTarget(baseConfig),
@@ -22,6 +26,11 @@ const config = {
 
 validateCartConfig(config);
 
+/**
+ * Get site configuration with defaults applied.
+ * For use in Eleventy data cascade (called as function).
+ * @returns {SiteConfig} Fully merged site configuration
+ */
 export default function () {
   return config;
 }

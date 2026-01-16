@@ -23,10 +23,11 @@ const computeGallery = (data) => {
 
 /**
  * Limit gallery images if max_images is configured
+ * config().products is guaranteed by DEFAULTS (always ProductConfig)
  */
 const applyMaxImages = (gallery) => {
-  const maxImages = config().products?.max_images;
-  if (maxImages === null || maxImages === undefined) return gallery;
+  const maxImages = config().products.max_images;
+  if (maxImages === null) return gallery;
   return gallery.slice(0, maxImages);
 };
 

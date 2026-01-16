@@ -1,5 +1,5 @@
 import ical from "ical-generator";
-import config from "#data/config.json" with { type: "json" };
+import { getConfig } from "#config/site-config.js";
 import site from "#data/site.json" with { type: "json" };
 import { canonicalUrl } from "#utils/canonical-url.js";
 
@@ -23,7 +23,7 @@ export function eventIcal(event) {
   }
 
   const siteName = site.name;
-  const timezone = config.timezone || "Europe/London";
+  const timezone = getConfig().timezone;
   const calendar = ical({
     prodId: `//${siteName}//Event Calendar//EN`,
     name: siteName,

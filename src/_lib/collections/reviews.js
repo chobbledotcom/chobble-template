@@ -117,11 +117,6 @@ const reviewerAvatar = (name) => {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 
-/**
- * Default reviews truncate limit when not configured
- */
-const DEFAULT_REVIEWS_LIMIT = 10;
-
 /** Map item to redirect data */
 const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
 
@@ -130,10 +125,11 @@ const reviewsFactory =
   (reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
     const items = collectionApi.getFilteredByTag(reviewsField);
     const visibleReviews = createReviewsCollection(collectionApi);
+    // config().reviews_truncate_limit is guaranteed by DEFAULTS (always number)
     const limit =
       limitOverride !== undefined
         ? limitOverride
-        : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT);
+        : config().reviews_truncate_limit;
 
     if (limit === -1) return onNoLimit(items);
 
