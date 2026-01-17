@@ -30,7 +30,9 @@ const getDOMClass = memoize(async () => {
     }
 
     serialize() {
-      return this.window.document.documentElement.outerHTML;
+      const { doctype, documentElement } = this.window.document;
+      const doctypeString = doctype ? `<!DOCTYPE ${doctype.name}>` : "";
+      return doctypeString + documentElement.outerHTML;
     }
   };
 });

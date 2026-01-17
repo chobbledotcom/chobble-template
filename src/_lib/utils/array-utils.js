@@ -1,6 +1,7 @@
 /**
  * Functional array utilities
  */
+import { compareBy } from "#utils/sorting.js";
 
 /**
  * @template T
@@ -82,6 +83,29 @@ const reduce = (fn, initial) => (arr) => arr.reduce(fn, initial);
  * @returns {(arr: T[]) => T[]} Function that sorts array
  */
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
+
+/**
+ * Sort by a property or getter function.
+ * Auto-detects type: uses localeCompare for strings, subtraction for numbers.
+ *
+ * @template T
+ * @param {string | ((item: T) => string | number)} key - Property name or getter
+ * @returns {(arr: T[]) => T[]} Function that sorts array
+ *
+ * @example
+ * // By property name
+ * sortBy("name")(users)
+ * pipe(sortBy("age"))(users)
+ *
+ * @example
+ * // By getter function
+ * sortBy(x => x.name)(users)
+ * pipe(sortBy(x => x.data.order))(items)
+ */
+const sortBy = (key) => {
+  const getKey = typeof key === "function" ? key : (obj) => obj[key];
+  return sort(compareBy(getKey));
+};
 
 /**
  * Remove duplicate values
@@ -319,6 +343,26 @@ const memberOf = membershipPredicate(false);
 const notMemberOf = membershipPredicate(true);
 
 /**
+ * Filter out items that are in the exclusion list.
+ * Shorthand for filter(notMemberOf(values)).
+ *
+ * @template T
+ * @param {T[]} values - Values to exclude
+ * @returns {(arr: T[]) => T[]} Function that filters out excluded values
+ *
+ * @example
+ * exclude(['a', 'b'])(['a', 'b', 'c', 'd'])  // ['c', 'd']
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   exclude(EXCLUDED_FILES),
+ *   map(toData),
+ * )(files)
+ */
+const exclude = (values) => filter(notMemberOf(values));
+
+/**
  * Create a pluralization formatter.
  * Curried: (singular, plural?) => (count) => string
  *
@@ -350,9 +394,123 @@ const pluralize = (singular, plural) => {
   return (count) => (count === 1 ? `1 ${singular}` : `${count} ${pluralForm}`);
 };
 
+/**
+ * Curried data transform for creating collections of objects.
+ *
+ * Creates a factory that transforms rows of values into objects with
+ * a consistent structure. Perfect for test fixtures where you need
+ * many similar objects with slight variations.
+ *
+ * Curried as: (defaults) => (...fields) => (...rows) => items
+ *
+ * @template T
+ * @param {T} defaults - Default properties merged into every item's data
+ * @returns {(...fields: string[]) => (...rows: any[][]) => Array<{data: T & Record<string, any>}>}
+ *
+ * @example
+ * // Define a product factory with default categories
+ * const product = data({ categories: [] });
+ *
+ * // Create products with title and keywords fields
+ * const products = product("title", "keywords")(
+ *   ["Widget A", ["portable"]],
+ *   ["Widget B", ["stationary"]],
+ * );
+ * // Returns: [
+ * //   { data: { categories: [], title: "Widget A", keywords: ["portable"] } },
+ * //   { data: { categories: [], title: "Widget B", keywords: ["stationary"] } },
+ * // ]
+ *
+ * @example
+ * // Create events with date and title
+ * const event = data({ hidden: false });
+ * const events = event("title", "date", "recurring")(
+ *   ["Meeting", "2024-01-15", true],
+ *   ["Workshop", "2024-02-20", false],
+ * );
+ *
+ * @example
+ * // Compose with map for additional transformations
+ * import { map } from "#utils/array-utils.js";
+ *
+ * const addDate = map(item => ({ ...item, date: new Date(item.data.dateStr) }));
+ * const review = data({ rating: 5 });
+ * const rawReviews = review("title", "dateStr")(
+ *   ["Great!", "2024-01-01"],
+ *   ["Good", "2024-01-02"]
+ * );
+ * const reviews = addDate(rawReviews);
+ */
+
+/**
+ * Pipeable curried data transform for creating collections of objects.
+ *
+ * Transforms an array of value tuples into objects with a `data` property.
+ * Use this when you need to chain transformations with pipe().
+ *
+ * Curried as: (defaults) => (...fields) => (rows) => items
+ *
+ * @template T
+ * @param {T} defaults - Default properties merged into every item's data
+ * @returns {(...fields: string[]) => (rows: any[][]) => Array<{data: T & Record<string, any>}>}
+ *
+ * @example
+ * // Use with pipe to transform input before creating objects
+ * const csvRows = [
+ *   ["Widget A", "100"],
+ *   ["Widget B", "200"],
+ * ];
+ *
+ * const product = toData({ categories: [] });
+ * const parsePrice = map(([title, price]) => [title, Number(price)]);
+ *
+ * const products = pipe(
+ *   parsePrice,
+ *   product("title", "price"),
+ * )(csvRows);
+ * // Returns: [
+ * //   { data: { categories: [], title: "Widget A", price: 100 } },
+ * //   { data: { categories: [], title: "Widget B", price: 200 } },
+ * // ]
+ *
+ * @example
+ * // Chain with filter to create objects from matching rows only
+ * const rows = [
+ *   ["Active Item", true],
+ *   ["Inactive Item", false],
+ *   ["Another Active", true],
+ * ];
+ *
+ * const item = toData({});
+ * const products = pipe(
+ *   filter(([_, active]) => active),
+ *   item("title", "active"),
+ * )(rows);
+ * // Returns only the active items as data objects
+ */
+const toData =
+  (defaults) =>
+  (...fields) =>
+  (rows) =>
+    rows.map((values) => ({
+      data: {
+        ...defaults,
+        ...Object.fromEntries(fields.map((f, i) => [f, values[i]])),
+      },
+    }));
+
+// data is toData but with rest params: (...rows) instead of (rows)
+const data =
+  (defaults) =>
+  (...fields) =>
+  (...rows) =>
+    toData(defaults)(...fields)(rows);
+
 export {
   accumulate,
   compact,
+  data,
+  exclude,
   filter,
   filterMap,
   findDuplicate,
@@ -368,7 +526,9 @@ export {
   pluralize,
   reduce,
   sort,
+  sortBy,
   split,
+  toData,
   unique,
   uniqueBy,
 };

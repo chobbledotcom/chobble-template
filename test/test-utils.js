@@ -4,7 +4,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
-import { map } from "#utils/array-utils.js";
+import { data, map, toData } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 
 // ============================================
@@ -930,6 +930,9 @@ export {
   expectGalleries,
   expectErrorsInclude,
   expectAsyncThrows,
+  // Curried data transform (re-exported from array-utils)
+  data,
+  toData,
   // Generic item builder
   item,
   items,

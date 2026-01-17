@@ -6,11 +6,28 @@ import {
 } from "#collections/products.js";
 import {
   createMockEleventyConfig,
+  data,
   expectResultTitles,
   item,
   items,
   taggedCollectionApi,
 } from "#test/test-utils.js";
+
+// ============================================
+// Curried Data Factories
+// ============================================
+
+/** Product factory with default empty categories */
+const product = data({ categories: [] });
+
+/** Products with title and categories */
+const categoryProduct = product("title", "categories");
+
+/** Products with title and featured flag */
+const featuredProduct = product("title", "featured");
+
+/** Products with title and events list */
+const eventProduct = product("title", "events");
 
 // ============================================
 // Test Fixture Builders
@@ -26,12 +43,12 @@ const option = (sku, name, unit_price, max_quantity = null) => ({
 
 /** Standard categorized products for filter testing */
 const categorizedProducts = () =>
-  items([
-    ["Product 1", { categories: ["widgets", "gadgets"] }],
-    ["Product 2", { categories: ["tools"] }],
-    ["Product 3", { categories: ["widgets"] }],
-    ["Product 4", {}],
-  ]);
+  categoryProduct(
+    ["Product 1", ["widgets", "gadgets"]],
+    ["Product 2", ["tools"]],
+    ["Product 3", ["widgets"]],
+    ["Product 4", []],
+  );
 
 /** Get a configured mock with products registered */
 const setupProductsConfig = () => {
@@ -194,11 +211,11 @@ describe("products", () => {
 
     test("handles products without categories", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = items([
-        ["Product 1", {}],
-        ["Product 2", { categories: null }],
-        ["Product 3", { categories: [] }],
-      ]);
+      const testProducts = categoryProduct(
+        ["Product 1", []],
+        ["Product 2", null],
+        ["Product 3", []],
+      );
 
       const result = filters.getProductsByCategory(testProducts, "widgets");
 
@@ -209,12 +226,12 @@ describe("products", () => {
   describe("getProductsByCategories filter", () => {
     test("filters products from multiple categories", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = items([
-        ["Product 1", { categories: ["widgets"] }],
-        ["Product 2", { categories: ["tools"] }],
-        ["Product 3", { categories: ["gadgets"] }],
-        ["Product 4", { categories: ["other"] }],
-      ]);
+      const testProducts = categoryProduct(
+        ["Product 1", ["widgets"]],
+        ["Product 2", ["tools"]],
+        ["Product 3", ["gadgets"]],
+        ["Product 4", ["other"]],
+      );
 
       const result = filters.getProductsByCategories(testProducts, [
         "widgets",
@@ -237,7 +254,7 @@ describe("products", () => {
 
     test("handles empty or null inputs", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = [item("Product 1", { categories: ["widgets"] })];
+      const testProducts = categoryProduct(["Product 1", ["widgets"]]);
 
       expect(filters.getProductsByCategories(null, ["widgets"])).toEqual([]);
       expect(filters.getProductsByCategories(testProducts, null)).toEqual([]);
@@ -246,10 +263,10 @@ describe("products", () => {
 
     test("returns empty array when no products match categories", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = items([
-        ["Product 1", { categories: ["widgets"] }],
-        ["Product 2", {}],
-      ]);
+      const testProducts = categoryProduct(
+        ["Product 1", ["widgets"]],
+        ["Product 2", []],
+      );
 
       const result = filters.getProductsByCategories(testProducts, [
         "nonexistent",
@@ -262,12 +279,12 @@ describe("products", () => {
   describe("getProductsByEvent filter", () => {
     test("filters products by event slug", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = items([
-        ["Product 1", { events: ["summer-sale", "black-friday"] }],
-        ["Product 2", { events: ["winter-sale"] }],
-        ["Product 3", { events: ["summer-sale"] }],
-        ["Product 4", {}],
-      ]);
+      const testProducts = eventProduct(
+        ["Product 1", ["summer-sale", "black-friday"]],
+        ["Product 2", ["winter-sale"]],
+        ["Product 3", ["summer-sale"]],
+        ["Product 4", undefined],
+      );
 
       const result = filters.getProductsByEvent(testProducts, "summer-sale");
 
@@ -278,12 +295,12 @@ describe("products", () => {
   describe("getFeaturedProducts filter", () => {
     test("filters products by featured flag", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = items([
-        ["Product 1", { featured: true }],
-        ["Product 2", { featured: false }],
-        ["Product 3", { featured: true }],
-        ["Product 4", {}],
-      ]);
+      const testProducts = featuredProduct(
+        ["Product 1", true],
+        ["Product 2", false],
+        ["Product 3", true],
+        ["Product 4", undefined],
+      );
 
       const result = filters.getFeaturedProducts(testProducts);
 
@@ -292,10 +309,10 @@ describe("products", () => {
 
     test("returns empty array when no products are featured", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = items([
-        ["Product 1", { featured: false }],
-        ["Product 2", {}],
-      ]);
+      const testProducts = featuredProduct(
+        ["Product 1", false],
+        ["Product 2", undefined],
+      );
 
       const result = filters.getFeaturedProducts(testProducts);
 
@@ -351,17 +368,17 @@ describe("products", () => {
       expect(result).toEqual(["header.jpg"]);
     });
 
-    test("returns undefined when no gallery or header_image", () => {
+    test("returns empty array when no gallery or header_image", () => {
       const data = { title: "Product" };
       const result = computeGallery(data);
-      expect(result).toBe(undefined);
+      expect(result).toEqual([]);
     });
   });
 
   describe("filter purity", () => {
     test("filter functions do not modify inputs", () => {
       const { filters } = setupProductsConfig();
-      const testProducts = [item("Product 1", { categories: ["widgets"] })];
+      const testProducts = categoryProduct(["Product 1", ["widgets"]]);
       const productsCopy = structuredClone(testProducts);
 
       filters.getProductsByCategory(productsCopy, "widgets");

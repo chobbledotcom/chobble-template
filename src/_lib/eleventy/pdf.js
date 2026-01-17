@@ -40,7 +40,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
         dietarySymbols: pipe(
           map((k) => k.symbol),
           join(" "),
-        )(item.data.dietaryKeys || []),
+        )(item.data.dietaryKeys),
       })),
     )(items);
 
@@ -58,7 +58,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
         .filter((item) =>
           item.data.menu_categories?.includes(category.fileSlug),
         )
-        .flatMap((item) => item.data.dietaryKeys || []),
+        .flatMap((item) => item.data.dietaryKeys),
     ),
     filter((key) => key.symbol && key.label),
     uniqueBy((key) => key.symbol),

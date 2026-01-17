@@ -13,30 +13,25 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { exclude, filter, map, pipe, sortBy } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
-const getThemeFiles = memoize(() => {
-  const themesDir = path.resolve("src/css");
-  const files = fs.readdirSync(themesDir);
+const THEMES_DIR = path.resolve("src/css");
+const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
 
-  const themes = files
-    .filter(
-      (file) =>
-        file.startsWith("theme-") &&
-        file !== "theme-switcher.scss" &&
-        file !== "theme-switcher-compiled.scss" &&
-        file.endsWith(".scss"),
-    )
-    .map((file) => {
-      const name = file.replace("theme-", "").replace(".scss", "");
-      const content = fs.readFileSync(path.join(themesDir, file), "utf8");
-      return { name, file, content };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  return themes;
-});
+const getThemeFiles = memoize(() =>
+  pipe(
+    filter((file) => file.startsWith("theme-") && file.endsWith(".scss")),
+    exclude(EXCLUDED_FILES),
+    map((file) => ({
+      name: file.replace("theme-", "").replace(".scss", ""),
+      file,
+      content: fs.readFileSync(path.join(THEMES_DIR, file), "utf8"),
+    })),
+    sortBy("name"),
+  )(fs.readdirSync(THEMES_DIR)),
+);
 
 const generateThemeSwitcherContent = memoize(() => {
   const themes = getThemeFiles();

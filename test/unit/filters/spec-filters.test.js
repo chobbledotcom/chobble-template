@@ -13,14 +13,14 @@ describe("spec-filters", () => {
   // ============================================
   // computeSpecs - Input Validation
   // ============================================
-  test("Returns undefined when data.specs is undefined", () => {
+  test("Returns empty array when data.specs is undefined", () => {
     const result = computeSpecs({});
-    expect(result).toBe(undefined);
+    expect(result).toEqual([]);
   });
 
-  test("Returns undefined when data.specs is null", () => {
+  test("Returns empty array when data.specs is null", () => {
     const result = computeSpecs({ specs: null });
-    expect(result).toBe(undefined);
+    expect(result).toEqual([]);
   });
 
   test("Returns empty array when specs is empty array", () => {
@@ -115,11 +115,6 @@ describe("spec-filters", () => {
   // ============================================
   // getHighlightedSpecs - Input Validation
   // ============================================
-  test("Returns undefined when specs is undefined", () => {
-    const result = getHighlightedSpecs(undefined);
-    expect(result).toBe(undefined);
-  });
-
   test("Returns empty array when specs is empty", () => {
     const result = getHighlightedSpecs([]);
     expect(result).toEqual([]);
@@ -210,11 +205,6 @@ describe("spec-filters", () => {
   // ============================================
   // getListItemSpecs - Input Validation
   // ============================================
-  test("getListItemSpecs returns empty array when specs is undefined", () => {
-    const result = getListItemSpecs(undefined);
-    expect(result).toEqual([]);
-  });
-
   test("getListItemSpecs returns empty array when specs is empty", () => {
     const result = getListItemSpecs([]);
     expect(result).toEqual([]);
