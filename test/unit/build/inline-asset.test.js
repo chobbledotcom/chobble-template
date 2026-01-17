@@ -185,14 +185,9 @@ describe("inline-asset", () => {
         const mockConfig = createMockEleventyConfig();
         configureInlineAsset(mockConfig);
 
-        const originalCwd = process.cwd;
-        process.cwd = () => tempDir;
-
-        try {
-          expect(mockConfig.filters.inline_asset("rect.svg")).toBe(svgContent);
-        } finally {
-          process.cwd = originalCwd;
-        }
+        expect(mockConfig.filters.inline_asset("rect.svg", tempDir)).toBe(
+          svgContent,
+        );
       },
     ));
 

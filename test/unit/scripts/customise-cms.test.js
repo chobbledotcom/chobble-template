@@ -6,7 +6,11 @@ import {
   getSelectableCollections,
   resolveDependencies,
 } from "#scripts/customise-cms/collections.js";
-import { createDefaultConfig } from "#scripts/customise-cms/config.js";
+import {
+  createDefaultConfig,
+  loadCmsConfig,
+  saveCmsConfig,
+} from "#scripts/customise-cms/config.js";
 import {
   COMMON_FIELDS,
   createReferenceField,
@@ -16,6 +20,7 @@ import {
   SPECS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
+import { withMockedCwdAsync } from "#test/test-utils.js";
 
 /**
  * Default features object with all features disabled
@@ -47,6 +52,31 @@ const createTestConfig = (overrides = {}) => ({
   hasSrcFolder: overrides.hasSrcFolder ?? true,
   customHomePage: overrides.customHomePage ?? false,
 });
+
+/**
+ * Set up a test directory with _data folder and site.json file
+ * @param {string} tempDir - The temporary directory path
+ * @param {Object} siteData - The data to write to site.json
+ */
+const setupSiteJson = async (tempDir, siteData) => {
+  const { writeFileSync, mkdirSync } = await import("node:fs");
+  mkdirSync(`${tempDir}/_data`, { recursive: true });
+  writeFileSync(`${tempDir}/_data/site.json`, JSON.stringify(siteData));
+};
+
+/**
+ * Set up a test directory with both _data and src/_data folders and site.json files
+ * @param {string} tempDir - The temporary directory path
+ * @param {Object} rootData - The data to write to _data/site.json
+ * @param {Object} srcData - The data to write to src/_data/site.json
+ */
+const setupSiteJsonWithSrc = async (tempDir, rootData, srcData) => {
+  const { writeFileSync, mkdirSync } = await import("node:fs");
+  mkdirSync(`${tempDir}/_data`, { recursive: true });
+  mkdirSync(`${tempDir}/src/_data`, { recursive: true });
+  writeFileSync(`${tempDir}/_data/site.json`, JSON.stringify(rootData));
+  writeFileSync(`${tempDir}/src/_data/site.json`, JSON.stringify(srcData));
+};
 
 describe("customise-cms collections", () => {
   // ============================================
@@ -465,6 +495,226 @@ describe("customise-cms config", () => {
     const config = createDefaultConfig();
 
     expect(config.features.event_locations_and_dates).toBe(true);
+  });
+
+  // ============================================
+  // loadCmsConfig
+  // ============================================
+  test("loadCmsConfig reads cms_config from site.json", async () => {
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("loadCmsConfig", async (tempDir) => {
+      await setupSiteJson(tempDir, {
+        name: "Test Site",
+        cms_config: {
+          collections: ["pages", "products"],
+          features: { permalinks: true },
+        },
+      });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = await loadCmsConfig();
+
+        expect(config).toBeDefined();
+        expect(config.collections).toEqual(["pages", "products"]);
+        expect(config.features.permalinks).toBe(true);
+      });
+    });
+  });
+
+  test("loadCmsConfig returns null when cms_config doesn't exist", async () => {
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("loadCmsConfig-no-config", async (tempDir) => {
+      await setupSiteJson(tempDir, {
+        name: "Test Site",
+        url: "https://example.com",
+      });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = await loadCmsConfig();
+
+        expect(config).toBeNull();
+      });
+    });
+  });
+
+  test("loadCmsConfig handles empty site.json gracefully", async () => {
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("loadCmsConfig-empty", async (tempDir) => {
+      await setupSiteJson(tempDir, {});
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = await loadCmsConfig();
+
+        expect(config).toBeNull();
+      });
+    });
+  });
+
+  // ============================================
+  // saveCmsConfig
+  // ============================================
+  test("saveCmsConfig writes cms_config to site.json while preserving other data", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("saveCmsConfig-preserve", async (tempDir) => {
+      await setupSiteJson(tempDir, {
+        name: "Test Site",
+        url: "https://example.com",
+      });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const newConfig = {
+          collections: ["pages", "products"],
+          features: { permalinks: true },
+          hasSrcFolder: true,
+        };
+
+        await saveCmsConfig(newConfig);
+
+        // Verify by reading the file
+        const saved = JSON.parse(
+          readFileSync(`${tempDir}/_data/site.json`, "utf-8"),
+        );
+
+        expect(saved.cms_config).toEqual(newConfig);
+        // Preserve any other original properties
+        expect(saved.name).toBe("Test Site");
+        expect(saved.url).toBe("https://example.com");
+        expect(Object.keys(saved).length).toBeGreaterThan(1);
+      });
+    });
+  });
+
+  test("saveCmsConfig updates existing cms_config", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("saveCmsConfig-update", async (tempDir) => {
+      await setupSiteJson(tempDir, {
+        name: "Test Site",
+        cms_config: {
+          collections: ["pages"],
+          features: { permalinks: false },
+        },
+      });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const updatedConfig = {
+          collections: ["pages", "products", "news"],
+          features: { permalinks: true, faqs: true },
+          hasSrcFolder: true,
+        };
+
+        await saveCmsConfig(updatedConfig);
+
+        // Verify by reading the file
+        const saved = JSON.parse(
+          readFileSync(`${tempDir}/_data/site.json`, "utf-8"),
+        );
+
+        expect(saved.cms_config).toEqual(updatedConfig);
+        expect(saved.cms_config.collections.length).toBe(3);
+      });
+    });
+  });
+
+  test("saveCmsConfig preserves JSON formatting with tabs and newline", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("saveCmsConfig-format", async (tempDir) => {
+      await setupSiteJson(tempDir, { name: "Test Site" });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = { collections: ["pages"] };
+
+        await saveCmsConfig(config);
+
+        // Verify the file format
+        const content = readFileSync(`${tempDir}/_data/site.json`, "utf-8");
+
+        // Should have tabs for indentation
+        expect(content).toContain("\t");
+        // Should end with newline
+        expect(content.endsWith("\n")).toBe(true);
+      });
+    });
+  });
+
+  // ============================================
+  // getSiteJsonPath (via loadCmsConfig and saveCmsConfig)
+  // ============================================
+  test("loadCmsConfig finds site.json in src/_data folder when it exists", async () => {
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("getSiteJsonPath-src", async (tempDir) => {
+      // Write to both locations - src/_data/site.json should be preferred
+      await setupSiteJsonWithSrc(
+        tempDir,
+        { cms_config: { collections: ["pages"] } },
+        { cms_config: { collections: ["products"] } },
+      );
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = await loadCmsConfig();
+
+        // Should have loaded from src/_data/site.json (preferred over _data)
+        expect(config.collections).toEqual(["products"]);
+      });
+    });
+  });
+
+  test("loadCmsConfig falls back to _data/site.json when src folder doesn't exist", async () => {
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("getSiteJsonPath-no-src", async (tempDir) => {
+      // Create only _data directory (no src folder)
+      await setupSiteJson(tempDir, {
+        cms_config: { collections: ["events"] },
+      });
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = await loadCmsConfig();
+
+        // Should have loaded from _data/site.json (fallback)
+        expect(config.collections).toEqual(["events"]);
+      });
+    });
+  });
+
+  test("saveCmsConfig writes to src/_data when it exists", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { withTempDirAsync } = await import("#test/test-utils.js");
+
+    return withTempDirAsync("saveCmsConfig-src", async (tempDir) => {
+      // Write to both locations
+      await setupSiteJsonWithSrc(
+        tempDir,
+        { name: "Root Site" },
+        { name: "Src Site" },
+      );
+
+      return withMockedCwdAsync(tempDir, async () => {
+        const config = { collections: ["products"] };
+        await saveCmsConfig(config);
+
+        // Verify it was written to src/_data (preferred location)
+        const srcData = JSON.parse(
+          readFileSync(`${tempDir}/src/_data/site.json`, "utf-8"),
+        );
+        expect(srcData.cms_config).toEqual(config);
+
+        // Verify root _data was NOT modified
+        const rootData = JSON.parse(
+          readFileSync(`${tempDir}/_data/site.json`, "utf-8"),
+        );
+        expect(rootData.cms_config).toBeUndefined();
+      });
+    });
   });
 });
 

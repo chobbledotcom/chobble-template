@@ -308,17 +308,19 @@ const withTempFile = (testName, filename, content, callback) =>
     return callback(tempDir, filePath);
   });
 
-const withMockedCwd = bracket(
-  (newCwd) => {
-    const original = process.cwd;
-    process.cwd = () => newCwd;
-    return original;
-  },
-  (original) => {
-    process.cwd = original;
-  },
-  false,
-);
+// Shared setup/teardown for mocking process.cwd
+const mockCwdSetup = (newCwd) => {
+  const original = process.cwd;
+  process.cwd = () => newCwd;
+  return original;
+};
+
+const mockCwdTeardown = (original) => {
+  process.cwd = original;
+};
+
+const withMockedCwd = bracket(mockCwdSetup, mockCwdTeardown, false);
+const withMockedCwdAsync = bracketAsync(mockCwdSetup, mockCwdTeardown, false);
 
 const withMockedProcessExit = bracket(
   () => {
@@ -916,6 +918,7 @@ export {
   withTempDirAsync,
   withTempFile,
   withMockedCwd,
+  withMockedCwdAsync,
   withMockedProcessExit,
   withSubDir,
   withSubDirAsync,

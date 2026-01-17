@@ -1,8 +1,9 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { SRC_DIR } from "#lib/paths.js";
 
-export function configureLayoutAliases(eleventyConfig) {
-  const layoutsDir = join(process.cwd(), "src/_layouts");
+export function configureLayoutAliases(eleventyConfig, baseDir = SRC_DIR) {
+  const layoutsDir = join(baseDir, "_layouts");
   const htmlFiles = readdirSync(layoutsDir).filter((file) =>
     file.endsWith(".html"),
   );
