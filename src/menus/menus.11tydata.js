@@ -24,7 +24,7 @@ export default {
 
       return pipe(
         flatMap((category) => menuItems.filter(itemInCategory(category))),
-        flatMap((item) => item.data.dietaryKeys || []),
+        flatMap((item) => item.data.dietaryKeys),
         filter((key) => key.symbol && key.label),
         uniqueBy((key) => key.symbol),
       )(menuCategories);

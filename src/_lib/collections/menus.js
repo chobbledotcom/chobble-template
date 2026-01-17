@@ -3,11 +3,11 @@ import { memoize } from "#utils/memoize.js";
 
 // Memoized at module level so the cache persists across calls
 const buildMenuCategoryMap = memoize((categories) =>
-  buildReverseIndex(categories, (category) => category.data.menus || []),
+  buildReverseIndex(categories, (category) => category.data.menus),
 );
 
 const buildCategoryItemMap = memoize((items) =>
-  buildReverseIndex(items, (item) => item.data.menu_categories || []),
+  buildReverseIndex(items, (item) => item.data.menu_categories),
 );
 
 const getCategoriesByMenu = (categories, menuSlug) => {
