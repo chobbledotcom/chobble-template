@@ -20,29 +20,18 @@ import { slugToTitle } from "#utils/slug-utils.js";
 const THEMES_DIR = path.resolve("src/css");
 const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
 
-const isThemeFile = (file) =>
-  file.startsWith("theme-") && file.endsWith(".scss");
-
-const toThemeData = (file) => ({
-  name: file.replace("theme-", "").replace(".scss", ""),
-  file,
-  content: fs.readFileSync(path.join(THEMES_DIR, file), "utf8"),
-});
-
 const getThemeFiles = memoize(() =>
   pipe(
-    filter(isThemeFile),
+    filter((file) => file.startsWith("theme-") && file.endsWith(".scss")),
     exclude(EXCLUDED_FILES),
-    map(toThemeData),
+    map((file) => ({
+      name: file.replace("theme-", "").replace(".scss", ""),
+      file,
+      content: fs.readFileSync(path.join(THEMES_DIR, file), "utf8"),
+    })),
     sortBy("name"),
   )(fs.readdirSync(THEMES_DIR)),
 );
-
-const extractRootVariables = (content) => {
-  const rootMatch = content.match(/:root\s*{([^}]+)}/);
-  if (!rootMatch) return "";
-  return rootMatch[1];
-};
 
 const generateThemeSwitcherContent = memoize(() => {
   const themes = getThemeFiles();
