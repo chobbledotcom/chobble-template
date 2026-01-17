@@ -39,8 +39,8 @@ export type BaseItemData = {
   permalink?: string;
   eleventyNavigation?: PagesCMSEleventyNavigation;
   meta_description?: string;
-  thumbnail?: PagesCMSImage;
-  image?: PagesCMSImage;
+  thumbnail?: string;
+  image?: string;
 };
 
 /**
@@ -53,7 +53,7 @@ export type ProductItemData = BaseItemData & {
   tabs?: PagesCMSTab[];
   filter_attributes?: PagesCMSFilterAttribute[];
   categories?: string[];
-  gallery?: PagesCMSImage[] | Record<string, PagesCMSImage>;
+  gallery?: string[];
 };
 
 /**
@@ -144,4 +144,20 @@ export type EleventyCollectionApi = {
 export type EleventyNavigation = {
   order?: number;
   key?: string;
+};
+
+/**
+ * Page data available to eleventyComputed functions.
+ * Combines Eleventy's page object with frontmatter data.
+ */
+export type EleventyComputedData = EleventyCollectionItemData & {
+  page: EleventyPageData;
+  site: import('./config.d.ts').SiteInfo;
+  config?: import('./config.d.ts').SiteConfig;
+  header_image?: string;
+  header_text?: string;
+  meta_title?: string;
+  description?: string;
+  snippet?: string;
+  layout?: string;
 };

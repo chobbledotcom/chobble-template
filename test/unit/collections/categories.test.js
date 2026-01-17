@@ -39,7 +39,7 @@ const categories = map(([slug, headerImage, extraData]) =>
 const product = ({ order, cats = [], headerImage, ...extraData } = {}) => ({
   data: {
     ...(order !== undefined && { order }),
-    ...(cats.length > 0 && { categories: cats }),
+    categories: cats,
     ...(headerImage && { header_image: headerImage }),
     ...extraData,
   },

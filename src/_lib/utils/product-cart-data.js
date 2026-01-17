@@ -9,7 +9,7 @@ import {
   findDuplicate,
   pick,
   pipe,
-  sort,
+  sortBy,
 } from "#utils/array-utils.js";
 import { toObject } from "#utils/object-entries.js";
 
@@ -77,7 +77,7 @@ export const computeOptions = (data, mode) => {
         ),
       }),
     ),
-    sort((a, b) => a.days - b.days),
+    sortBy("days"),
   )(data.options);
 };
 

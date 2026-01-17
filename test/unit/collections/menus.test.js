@@ -6,23 +6,28 @@ import {
 } from "#collections/menus.js";
 import {
   createMockEleventyConfig,
+  data,
   expectResultTitles,
 } from "#test/test-utils.js";
+
+// ============================================
+// Curried Data Factories
+// ============================================
+
+/** Category factory: creates { data: { title, menus } } items */
+const category = data({})("title", "menus");
+
+/** Menu item factory: creates { data: { title, menu_categories } } items */
+const menuItem = data({})("title", "menu_categories");
 
 describe("menus", () => {
   // getCategoriesByMenu tests
   test("Returns categories for a given menu slug", () => {
-    const categories = [
-      {
-        data: { menus: ["lunch", "dinner"], title: "Appetizers" },
-      },
-      {
-        data: { menus: ["lunch"], title: "Sandwiches" },
-      },
-      {
-        data: { menus: ["dinner"], title: "Entrees" },
-      },
-    ];
+    const categories = category(
+      ["Appetizers", ["lunch", "dinner"]],
+      ["Sandwiches", ["lunch"]],
+      ["Entrees", ["dinner"]],
+    );
 
     const lunchCategories = getCategoriesByMenu(categories, "lunch");
 
@@ -30,11 +35,7 @@ describe("menus", () => {
   });
 
   test("Returns empty array when no categories match menu", () => {
-    const categories = [
-      {
-        data: { menus: ["lunch"], title: "Sandwiches" },
-      },
-    ];
+    const categories = category(["Sandwiches", ["lunch"]]);
 
     const result = getCategoriesByMenu(categories, "breakfast");
 
@@ -55,18 +56,12 @@ describe("menus", () => {
     expect(result).toEqual([]);
   });
 
-  test("Skips categories without menus property", () => {
-    const categories = [
-      {
-        data: { title: "No Menus" },
-      },
-      {
-        data: { menus: ["lunch"], title: "Has Menus" },
-      },
-      {
-        data: { menus: null, title: "Null Menus" },
-      },
-    ];
+  test("Skips categories with empty menus array", () => {
+    const categories = category(
+      ["No Menus", []],
+      ["Has Menus", ["lunch"]],
+      ["Empty Menus", []],
+    );
 
     const result = getCategoriesByMenu(categories, "lunch");
 
@@ -74,11 +69,7 @@ describe("menus", () => {
   });
 
   test("Category can belong to multiple menus", () => {
-    const categories = [
-      {
-        data: { menus: ["breakfast", "lunch", "dinner"], title: "All Day" },
-      },
-    ];
+    const categories = category(["All Day", ["breakfast", "lunch", "dinner"]]);
 
     const breakfast = getCategoriesByMenu(categories, "breakfast");
     const lunch = getCategoriesByMenu(categories, "lunch");
@@ -91,17 +82,11 @@ describe("menus", () => {
 
   // getItemsByCategory tests
   test("Returns items for a given category slug", () => {
-    const items = [
-      {
-        data: { menu_categories: ["appetizers"], title: "Spring Rolls" },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Soup" },
-      },
-      {
-        data: { menu_categories: ["mains"], title: "Steak" },
-      },
-    ];
+    const items = menuItem(
+      ["Spring Rolls", ["appetizers"]],
+      ["Soup", ["appetizers"]],
+      ["Steak", ["mains"]],
+    );
 
     const result = getItemsByCategory(items, "appetizers");
 
@@ -109,17 +94,10 @@ describe("menus", () => {
   });
 
   test("Handles menu_categories array with multiple categories", () => {
-    const items = [
-      {
-        data: {
-          menu_categories: ["appetizers", "shareables"],
-          title: "Nachos",
-        },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Wings" },
-      },
-    ];
+    const items = menuItem(
+      ["Nachos", ["appetizers", "shareables"]],
+      ["Wings", ["appetizers"]],
+    );
 
     const appetizers = getItemsByCategory(items, "appetizers");
     const shareables = getItemsByCategory(items, "shareables");
@@ -129,11 +107,7 @@ describe("menus", () => {
   });
 
   test("Returns empty array when no items match category", () => {
-    const items = [
-      {
-        data: { menu_categories: ["appetizers"], title: "Spring Rolls" },
-      },
-    ];
+    const items = menuItem(["Spring Rolls", ["appetizers"]]);
 
     const result = getItemsByCategory(items, "desserts");
 
@@ -154,18 +128,12 @@ describe("menus", () => {
     expect(result).toEqual([]);
   });
 
-  test("Skips items without menu_categories property", () => {
-    const items = [
-      {
-        data: { title: "No Category" },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Has Category" },
-      },
-      {
-        data: { menu_categories: null, title: "Null Categories" },
-      },
-    ];
+  test("Skips items with empty menu_categories array", () => {
+    const items = menuItem(
+      ["No Category", []],
+      ["Has Category", ["appetizers"]],
+      ["Empty Categories", []],
+    );
 
     const result = getItemsByCategory(items, "appetizers");
 
@@ -173,14 +141,10 @@ describe("menus", () => {
   });
 
   test("Handles empty menu_categories array", () => {
-    const items = [
-      {
-        data: { menu_categories: [], title: "Empty Categories" },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Has Category" },
-      },
-    ];
+    const items = menuItem(
+      ["Empty Categories", []],
+      ["Has Category", ["appetizers"]],
+    );
 
     const result = getItemsByCategory(items, "appetizers");
 
@@ -201,17 +165,8 @@ describe("menus", () => {
     const mockConfig = createMockEleventyConfig();
     configureMenus(mockConfig);
 
-    const categories = [
-      {
-        data: { menus: ["lunch"], title: "Sandwiches" },
-      },
-    ];
-
-    const items = [
-      {
-        data: { menu_categories: ["sandwiches"], title: "BLT" },
-      },
-    ];
+    const categories = category(["Sandwiches", ["lunch"]]);
+    const items = menuItem(["BLT", ["sandwiches"]]);
 
     const categoryResult = mockConfig.filters.getCategoriesByMenu(
       categories,
@@ -228,14 +183,10 @@ describe("menus", () => {
 
   // Memoization tests
   test("Returns consistent results for same category input", () => {
-    const categories = [
-      {
-        data: { menus: ["lunch"], title: "Sandwiches" },
-      },
-      {
-        data: { menus: ["lunch", "dinner"], title: "Salads" },
-      },
-    ];
+    const categories = category(
+      ["Sandwiches", ["lunch"]],
+      ["Salads", ["lunch", "dinner"]],
+    );
 
     const result1 = getCategoriesByMenu(categories, "lunch");
     const result2 = getCategoriesByMenu(categories, "lunch");
@@ -245,14 +196,10 @@ describe("menus", () => {
   });
 
   test("Returns consistent results for same item input", () => {
-    const items = [
-      {
-        data: { menu_categories: ["appetizers"], title: "Wings" },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Fries" },
-      },
-    ];
+    const items = menuItem(
+      ["Wings", ["appetizers"]],
+      ["Fries", ["appetizers"]],
+    );
 
     const result1 = getItemsByCategory(items, "appetizers");
     const result2 = getItemsByCategory(items, "appetizers");
@@ -263,17 +210,11 @@ describe("menus", () => {
 
   // Edge cases
   test("Preserves order of categories as encountered", () => {
-    const categories = [
-      {
-        data: { menus: ["lunch"], title: "First" },
-      },
-      {
-        data: { menus: ["lunch"], title: "Second" },
-      },
-      {
-        data: { menus: ["lunch"], title: "Third" },
-      },
-    ];
+    const categories = category(
+      ["First", ["lunch"]],
+      ["Second", ["lunch"]],
+      ["Third", ["lunch"]],
+    );
 
     const result = getCategoriesByMenu(categories, "lunch");
 
@@ -281,17 +222,11 @@ describe("menus", () => {
   });
 
   test("Preserves order of items as encountered", () => {
-    const items = [
-      {
-        data: { menu_categories: ["appetizers"], title: "First" },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Second" },
-      },
-      {
-        data: { menu_categories: ["appetizers"], title: "Third" },
-      },
-    ];
+    const items = menuItem(
+      ["First", ["appetizers"]],
+      ["Second", ["appetizers"]],
+      ["Third", ["appetizers"]],
+    );
 
     const result = getItemsByCategory(items, "appetizers");
 
@@ -299,14 +234,10 @@ describe("menus", () => {
   });
 
   test("Same item can appear in multiple category lookups", () => {
-    const items = [
-      {
-        data: {
-          menu_categories: ["appetizers", "shareables", "specials"],
-          title: "Popular Item",
-        },
-      },
-    ];
+    const items = menuItem([
+      "Popular Item",
+      ["appetizers", "shareables", "specials"],
+    ]);
 
     const appetizers = getItemsByCategory(items, "appetizers");
     const shareables = getItemsByCategory(items, "shareables");

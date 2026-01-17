@@ -71,7 +71,11 @@ describe("image-utils", () => {
 
   describe("buildImgAttributes", () => {
     test("builds attributes with provided values", () => {
-      const attrs = buildImgAttributes("A photo", "100vw", "eager");
+      const attrs = buildImgAttributes({
+        alt: "A photo",
+        sizes: "100vw",
+        loading: "eager",
+      });
       expect(attrs).toEqual({
         alt: "A photo",
         sizes: "100vw",
@@ -81,10 +85,30 @@ describe("image-utils", () => {
     });
 
     test("uses defaults for missing values", () => {
-      const attrs = buildImgAttributes(null, null, null);
+      const attrs = buildImgAttributes({});
       expect(attrs.alt).toBe("");
       expect(attrs.loading).toBe("lazy");
       expect(attrs.decoding).toBe("async");
+    });
+
+    test("includes src when provided", () => {
+      const attrs = buildImgAttributes({
+        src: "https://example.com/image.jpg",
+        alt: "External image",
+      });
+      expect(attrs.src).toBe("https://example.com/image.jpg");
+      expect(attrs.alt).toBe("External image");
+    });
+
+    test("includes class when provided", () => {
+      const attrs = buildImgAttributes({ alt: "Photo", classes: "featured" });
+      expect(attrs.class).toBe("featured");
+    });
+
+    test("omits src and class when not provided", () => {
+      const attrs = buildImgAttributes({ alt: "Photo" });
+      expect(attrs).not.toHaveProperty("src");
+      expect(attrs).not.toHaveProperty("class");
     });
   });
 

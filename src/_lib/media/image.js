@@ -18,6 +18,7 @@ import fs from "node:fs";
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
+import { processExternalImage } from "#media/image-external.js";
 import { getEleventyImg, getThumbnailOrNull } from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import { createImageTransform as createTransform } from "#media/image-transform.js";
@@ -29,7 +30,7 @@ import {
   normalizeImagePath,
   parseWidths,
 } from "#media/image-utils.js";
-import { buildElement, createHtml, parseHtml } from "#utils/dom-builder.js";
+import { createHtml, parseHtml } from "#utils/dom-builder.js";
 import { jsonKey, memoize } from "#utils/memoize.js";
 
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
@@ -67,7 +68,7 @@ const computeWrappedImageHtml = memoize(
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
-    const imgAttributes = buildImgAttributes(alt, sizes, loading);
+    const imgAttributes = buildImgAttributes({ alt, sizes, loading });
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
     const { default: Image } = await getEleventyImg();
 
@@ -120,17 +121,14 @@ const processAndWrapImage = async ({
   document = null,
 }) => {
   if (isExternalUrl(imageName)) {
-    const attributes = {
+    return await processExternalImage({
       src: imageName,
-      alt: alt || "",
-      loading: loading || "lazy",
-      decoding: "async",
-      sizes: "auto",
-      ...(classes && { class: classes }),
-    };
-    return returnElement
-      ? await buildElement("img", attributes, null, document)
-      : await createHtml("img", attributes);
+      alt,
+      loading,
+      classes,
+      returnElement,
+      document,
+    });
   }
 
   const html = await computeWrappedImageHtml({

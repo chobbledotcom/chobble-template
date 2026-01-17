@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { data } from "#test/test-utils.js";
 import {
   compareBy,
   descending,
@@ -6,6 +7,16 @@ import {
   sortItems,
   sortNavigationItems,
 } from "#utils/sorting.js";
+
+// ============================================
+// Curried Data Factories
+// ============================================
+
+/** Item factory for order/title sorting */
+const orderedItem = data({})("title", "order");
+
+/** Navigation item factory */
+const navItem = data({})("eleventyNavigation", "title");
 
 // Generic helper: sort items and assert extracted values match expected
 const expectSortedValues = (items, comparator, extractor, expected) =>
@@ -16,20 +27,12 @@ describe("sorting", () => {
   // sortItems Tests
   // ============================================
   test("Items with different order values sort by order, ignoring title", () => {
-    const items = [
-      { data: { order: 2, title: "A" } },
-      { data: { order: 1, title: "B" } },
-      { data: { order: 3, title: "C" } },
-    ];
+    const items = orderedItem(["A", 2], ["B", 1], ["C", 3]);
     expectSortedValues(items, sortItems, (i) => i.data.title, ["B", "A", "C"]);
   });
 
   test("Items with identical order values fall back to alphabetical title sorting", () => {
-    const items = [
-      { data: { order: 1, title: "Zebra" } },
-      { data: { order: 1, title: "Apple" } },
-      { data: { order: 1, title: "Mango" } },
-    ];
+    const items = orderedItem(["Zebra", 1], ["Apple", 1], ["Mango", 1]);
     expectSortedValues(items, sortItems, (i) => i.data.title, [
       "Apple",
       "Mango",
@@ -38,11 +41,7 @@ describe("sorting", () => {
   });
 
   test("Items without an order field are treated as having order 0", () => {
-    const items = [
-      { data: { order: 1, title: "B" } },
-      { data: { title: "A" } },
-      { data: { order: -1, title: "C" } },
-    ];
+    const items = orderedItem(["B", 1], ["A", undefined], ["C", -1]);
     expectSortedValues(items, sortItems, (i) => i.data.title, ["C", "A", "B"]);
   });
 
@@ -183,11 +182,11 @@ describe("sorting", () => {
   const extractNavKey = (i) => i.data.eleventyNavigation.key;
 
   test("sortNavigationItems sorts by eleventyNavigation.order ascending", () => {
-    const items = [
-      { data: { eleventyNavigation: { order: 3, key: "C" }, title: "Item C" } },
-      { data: { eleventyNavigation: { order: 1, key: "A" }, title: "Item A" } },
-      { data: { eleventyNavigation: { order: 2, key: "B" }, title: "Item B" } },
-    ];
+    const items = navItem(
+      [{ order: 3, key: "C" }, "Item C"],
+      [{ order: 1, key: "A" }, "Item A"],
+      [{ order: 2, key: "B" }, "Item B"],
+    );
     expectSortedValues(items, sortNavigationItems, extractNavKey, [
       "A",
       "B",
@@ -196,11 +195,11 @@ describe("sorting", () => {
   });
 
   test("sortNavigationItems falls back to key when orders are equal", () => {
-    const items = [
-      { data: { eleventyNavigation: { order: 1, key: "Zebra" }, title: "Z" } },
-      { data: { eleventyNavigation: { order: 1, key: "Apple" }, title: "A" } },
-      { data: { eleventyNavigation: { order: 1, key: "Mango" }, title: "M" } },
-    ];
+    const items = navItem(
+      [{ order: 1, key: "Zebra" }, "Z"],
+      [{ order: 1, key: "Apple" }, "A"],
+      [{ order: 1, key: "Mango" }, "M"],
+    );
     expectSortedValues(items, sortNavigationItems, extractNavKey, [
       "Apple",
       "Mango",
@@ -209,13 +208,11 @@ describe("sorting", () => {
   });
 
   test("sortNavigationItems defaults missing order to 999", () => {
-    const items = [
-      { data: { eleventyNavigation: { key: "NoOrder" }, title: "No Order" } },
-      { data: { eleventyNavigation: { order: 1, key: "First" }, title: "F" } },
-      {
-        data: { eleventyNavigation: { order: 500, key: "Middle" }, title: "M" },
-      },
-    ];
+    const items = navItem(
+      [{ key: "NoOrder" }, "No Order"],
+      [{ order: 1, key: "First" }, "F"],
+      [{ order: 500, key: "Middle" }, "M"],
+    );
     expectSortedValues(items, sortNavigationItems, extractNavKey, [
       "First",
       "Middle",
@@ -224,10 +221,10 @@ describe("sorting", () => {
   });
 
   test("sortNavigationItems falls back to title when key is missing", () => {
-    const items = [
-      { data: { eleventyNavigation: { order: 1 }, title: "Zebra Title" } },
-      { data: { eleventyNavigation: { order: 1 }, title: "Apple Title" } },
-    ];
+    const items = navItem(
+      [{ order: 1 }, "Zebra Title"],
+      [{ order: 1 }, "Apple Title"],
+    );
     expectSortedValues(items, sortNavigationItems, (i) => i.data.title, [
       "Apple Title",
       "Zebra Title",

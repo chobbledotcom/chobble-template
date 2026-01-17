@@ -77,12 +77,12 @@ describe("image-frontmatter", () => {
   });
 
   describe("getFirstValidImage", () => {
-    test("returns null for empty array", () => {
-      expect(getFirstValidImage([])).toBe(null);
+    test("returns undefined for empty array", () => {
+      expect(getFirstValidImage([])).toBeUndefined();
     });
 
-    test("returns null for array of falsy values", () => {
-      expect(getFirstValidImage([null, undefined, ""])).toBe(null);
+    test("returns undefined for array of falsy values", () => {
+      expect(getFirstValidImage([null, undefined, ""])).toBeUndefined();
     });
 
     test("returns first external URL from candidates", () => {
