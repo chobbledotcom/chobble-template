@@ -17,26 +17,28 @@ import { filter, map, notMemberOf, pipe, sort } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
+const THEMES_DIR = path.resolve("src/css");
 const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
 
 const isThemeFile = (file) =>
   file.startsWith("theme-") && file.endsWith(".scss");
 
-const getThemeFiles = memoize(() => {
-  const themesDir = path.resolve("src/css");
-  const files = fs.readdirSync(themesDir);
+const toThemeData = (file) => ({
+  name: file.replace("theme-", "").replace(".scss", ""),
+  file,
+  content: fs.readFileSync(path.join(THEMES_DIR, file), "utf8"),
+});
 
-  return pipe(
+const byName = (a, b) => a.name.localeCompare(b.name);
+
+const getThemeFiles = memoize(() =>
+  pipe(
     filter(isThemeFile),
     filter(notMemberOf(EXCLUDED_FILES)),
-    map((file) => ({
-      name: file.replace("theme-", "").replace(".scss", ""),
-      file,
-      content: fs.readFileSync(path.join(themesDir, file), "utf8"),
-    })),
-    sort((a, b) => a.name.localeCompare(b.name)),
-  )(files);
-});
+    map(toThemeData),
+    sort(byName),
+  )(fs.readdirSync(THEMES_DIR)),
+);
 
 const extractRootVariables = (content) => {
   const rootMatch = content.match(/:root\s*{([^}]+)}/);
