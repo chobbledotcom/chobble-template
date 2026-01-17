@@ -4,7 +4,7 @@ import {
   configureEvents,
   getFeaturedEvents,
 } from "#collections/events.js";
-import { expectResultTitles } from "#test/test-utils.js";
+import { data, expectResultTitles } from "#test/test-utils.js";
 import {
   createEvent,
   createEvents,
@@ -13,6 +13,9 @@ import {
   expectShowState,
   formatDateString,
 } from "#test/unit/collections/events-utils.js";
+
+/** Featured event factory for getFeaturedEvents tests */
+const featuredEvent = data({})("title", "featured");
 
 describe("events", () => {
   test("Handles empty events array", () => {
@@ -301,12 +304,12 @@ describe("events", () => {
   });
 
   test("Filters events by featured flag", () => {
-    const events = [
-      { data: { title: "Event 1", featured: true } },
-      { data: { title: "Event 2", featured: false } },
-      { data: { title: "Event 3", featured: true } },
-      { data: { title: "Event 4" } },
-    ];
+    const events = featuredEvent(
+      ["Event 1", true],
+      ["Event 2", false],
+      ["Event 3", true],
+      ["Event 4", undefined],
+    );
 
     const result = getFeaturedEvents(events);
 
@@ -314,10 +317,7 @@ describe("events", () => {
   });
 
   test("Returns empty array when no events are featured", () => {
-    const events = [
-      { data: { title: "Event 1", featured: false } },
-      { data: { title: "Event 2" } },
-    ];
+    const events = featuredEvent(["Event 1", false], ["Event 2", undefined]);
 
     const result = getFeaturedEvents(events);
 

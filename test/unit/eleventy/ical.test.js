@@ -2,8 +2,27 @@ import { describe, expect, test } from "bun:test";
 import { configureICal } from "#eleventy/ical.js";
 import {
   createMockEleventyConfig,
+  data,
   expectResultTitles,
 } from "#test/test-utils.js";
+
+// ============================================
+// Curried Data Factories
+// ============================================
+
+/** iCal event factory with url field support */
+const icalEvent = (title, eventDate, icalUrl, url, extra = {}) => ({
+  data: {
+    title,
+    event_date: eventDate,
+    ...(icalUrl && { ical_url: icalUrl }),
+    ...extra,
+  },
+  url,
+});
+
+/** Event for oneOffEvents collection tests */
+const eventItem = data({})("title", "event_date", "recurring_date");
 
 /**
  * Helper to get the eventIcal filter via Eleventy registration
@@ -18,39 +37,38 @@ describe("ical", () => {
   // eventIcal - falsy ical_url handling (consolidated)
   test("Returns null when ical_url is missing, undefined, or empty", () => {
     const eventIcal = getEventIcalFilter();
-    const baseEvent = {
-      data: { title: "Test Event", event_date: "2025-06-15" },
-      url: "/events/test/",
-    };
+    const baseEvent = icalEvent(
+      "Test Event",
+      "2025-06-15",
+      null,
+      "/events/test/",
+    );
 
     // No ical_url property
-    expect(eventIcal({ ...baseEvent })).toBe(null);
+    expect(eventIcal(baseEvent)).toBe(null);
 
     // ical_url is undefined
     expect(
-      eventIcal({
-        ...baseEvent,
-        data: { ...baseEvent.data, ical_url: undefined },
-      }),
+      eventIcal(
+        icalEvent("Test Event", "2025-06-15", undefined, "/events/test/"),
+      ),
     ).toBe(null);
 
     // ical_url is empty string
     expect(
-      eventIcal({ ...baseEvent, data: { ...baseEvent.data, ical_url: "" } }),
+      eventIcal(icalEvent("Test Event", "2025-06-15", "", "/events/test/")),
     ).toBe(null);
   });
 
   // eventIcal - valid iCal generation
   test("Generates iCal with required VCALENDAR and VEVENT blocks", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Summer Expo",
-        event_date: "2025-06-19",
-        ical_url: "/events/summer-expo/summer-expo.ics",
-      },
-      url: "/events/summer-expo/",
-    };
+    const event = icalEvent(
+      "Summer Expo",
+      "2025-06-19",
+      "/events/summer-expo/summer-expo.ics",
+      "/events/summer-expo/",
+    );
     const result = eventIcal(event);
 
     expect(result !== null).toBe(true);
@@ -62,43 +80,37 @@ describe("ical", () => {
 
   test("iCal SUMMARY field contains the event title", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Annual Conference",
-        event_date: "2025-08-15",
-        ical_url: "/events/conference/conference.ics",
-      },
-      url: "/events/conference/",
-    };
+    const event = icalEvent(
+      "Annual Conference",
+      "2025-08-15",
+      "/events/conference/conference.ics",
+      "/events/conference/",
+    );
     const result = eventIcal(event);
     expect(result.includes("SUMMARY:Annual Conference")).toBe(true);
   });
 
   test("iCal LOCATION field is present when event_location exists", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Meetup",
-        event_date: "2025-09-01",
-        event_location: "City Hall, Main Street",
-        ical_url: "/events/meetup/meetup.ics",
-      },
-      url: "/events/meetup/",
-    };
+    const event = icalEvent(
+      "Meetup",
+      "2025-09-01",
+      "/events/meetup/meetup.ics",
+      "/events/meetup/",
+      { event_location: "City Hall, Main Street" },
+    );
     const result = eventIcal(event);
     expect(result.includes("LOCATION:City Hall")).toBe(true);
   });
 
   test("iCal has empty LOCATION when event_location not provided", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Online Event",
-        event_date: "2025-09-15",
-        ical_url: "/events/online/online.ics",
-      },
-      url: "/events/online/",
-    };
+    const event = icalEvent(
+      "Online Event",
+      "2025-09-15",
+      "/events/online/online.ics",
+      "/events/online/",
+    );
     const result = eventIcal(event);
     // When location is not provided, it will be empty string in output
     expect(
@@ -109,46 +121,39 @@ describe("ical", () => {
 
   test("DESCRIPTION uses subtitle when provided", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Workshop",
-        event_date: "2025-10-01",
-        subtitle: "Learn new skills today",
-        ical_url: "/events/workshop/workshop.ics",
-      },
-      url: "/events/workshop/",
-    };
+    const event = icalEvent(
+      "Workshop",
+      "2025-10-01",
+      "/events/workshop/workshop.ics",
+      "/events/workshop/",
+      { subtitle: "Learn new skills today" },
+    );
     const result = eventIcal(event);
     expect(result.includes("DESCRIPTION:Learn new skills today")).toBe(true);
   });
 
   test("DESCRIPTION falls back to meta_description when no subtitle", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Seminar",
-        event_date: "2025-10-15",
-        meta_description: "A great seminar event",
-        ical_url: "/events/seminar/seminar.ics",
-      },
-      url: "/events/seminar/",
-    };
+    const event = icalEvent(
+      "Seminar",
+      "2025-10-15",
+      "/events/seminar/seminar.ics",
+      "/events/seminar/",
+      { meta_description: "A great seminar event" },
+    );
     const result = eventIcal(event);
     expect(result.includes("DESCRIPTION:A great seminar event")).toBe(true);
   });
 
   test("subtitle is used when both subtitle and meta_description exist", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Priority Test",
-        event_date: "2025-10-20",
-        subtitle: "Subtitle wins",
-        meta_description: "Meta description loses",
-        ical_url: "/events/priority/priority.ics",
-      },
-      url: "/events/priority/",
-    };
+    const event = icalEvent(
+      "Priority Test",
+      "2025-10-20",
+      "/events/priority/priority.ics",
+      "/events/priority/",
+      { subtitle: "Subtitle wins", meta_description: "Meta description loses" },
+    );
     const result = eventIcal(event);
     expect(result.includes("DESCRIPTION:Subtitle wins")).toBe(true);
     expect(result.includes("Meta description loses")).toBe(false);
@@ -156,14 +161,12 @@ describe("ical", () => {
 
   test("iCal contains PRODID identifying the calendar producer", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Test",
-        event_date: "2025-12-01",
-        ical_url: "/events/test/test.ics",
-      },
-      url: "/events/test/",
-    };
+    const event = icalEvent(
+      "Test",
+      "2025-12-01",
+      "/events/test/test.ics",
+      "/events/test/",
+    );
     const result = eventIcal(event);
     expect(result.includes("PRODID:")).toBe(true);
     expect(result.includes("//") && result.includes("//EN")).toBe(true);
@@ -171,14 +174,12 @@ describe("ical", () => {
 
   test("Event is formatted as all-day event with date (not datetime)", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "All Day Event",
-        event_date: "2025-06-19",
-        ical_url: "/events/allday/allday.ics",
-      },
-      url: "/events/allday/",
-    };
+    const event = icalEvent(
+      "All Day Event",
+      "2025-06-19",
+      "/events/allday/allday.ics",
+      "/events/allday/",
+    );
     const result = eventIcal(event);
     expect(result.includes("DTSTART")).toBe(true);
     // All-day events in ical-generator use VALUE=DATE format
@@ -189,14 +190,12 @@ describe("ical", () => {
 
   test("iCal URL field contains the event's canonical URL", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Public Event",
-        event_date: "2025-11-15",
-        ical_url: "/events/public/public.ics",
-      },
-      url: "/events/public/",
-    };
+    const event = icalEvent(
+      "Public Event",
+      "2025-11-15",
+      "/events/public/public.ics",
+      "/events/public/",
+    );
     const result = eventIcal(event);
     expect(result.includes("URL")).toBe(true);
     expect(result.includes("/events/public/")).toBe(true);
@@ -223,20 +222,14 @@ describe("ical", () => {
     const mockConfig = createMockEleventyConfig();
     configureICal(mockConfig);
 
-    const allEvents = [
-      { data: { title: "One-off", event_date: "2025-06-15" } },
-      { data: { title: "Recurring", recurring_date: "Every Monday" } },
-      {
-        data: {
-          title: "Both",
-          event_date: "2025-06-16",
-          recurring_date: "Weekly",
-        },
-      },
-      { data: { title: "Another One-off", event_date: "2025-07-01" } },
-      { data: { title: "No dates" } },
-      { data: {} },
-    ];
+    const allEvents = eventItem(
+      ["One-off", "2025-06-15", undefined],
+      ["Recurring", undefined, "Every Monday"],
+      ["Both", "2025-06-16", "Weekly"],
+      ["Another One-off", "2025-07-01", undefined],
+      ["No dates", undefined, undefined],
+    );
+    allEvents.push({ data: {} });
 
     const mockCollectionApi = {
       getFilteredByTag: (tag) => {
@@ -254,10 +247,10 @@ describe("ical", () => {
     const mockConfig = createMockEleventyConfig();
     configureICal(mockConfig);
 
-    const allEvents = [
-      { data: { title: "Recurring 1", recurring_date: "Every Monday" } },
-      { data: { title: "Recurring 2", recurring_date: "Weekly" } },
-    ];
+    const allEvents = eventItem(
+      ["Recurring 1", undefined, "Every Monday"],
+      ["Recurring 2", undefined, "Weekly"],
+    );
 
     const mockCollectionApi = {
       getFilteredByTag: () => allEvents,
@@ -271,14 +264,12 @@ describe("ical", () => {
   // Edge cases
   test("iCal properly handles special characters in event title", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "Event with, comma & ampersand",
-        event_date: "2025-07-01",
-        ical_url: "/events/special/special.ics",
-      },
-      url: "/events/special/",
-    };
+    const event = icalEvent(
+      "Event with, comma & ampersand",
+      "2025-07-01",
+      "/events/special/special.ics",
+      "/events/special/",
+    );
     const result = eventIcal(event);
     expect(
       result.includes("SUMMARY:") &&
@@ -289,14 +280,12 @@ describe("ical", () => {
 
   test("iCal parses standard ISO date format correctly", () => {
     const eventIcal = getEventIcalFilter();
-    const event = {
-      data: {
-        title: "ISO Date Event",
-        event_date: "2025-12-25",
-        ical_url: "/events/christmas/christmas.ics",
-      },
-      url: "/events/christmas/",
-    };
+    const event = icalEvent(
+      "ISO Date Event",
+      "2025-12-25",
+      "/events/christmas/christmas.ics",
+      "/events/christmas/",
+    );
     const result = eventIcal(event);
     expect(result.includes("DTSTART")).toBe(true);
     expect(result.includes("20251225")).toBe(true);

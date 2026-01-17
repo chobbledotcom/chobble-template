@@ -31,8 +31,8 @@ const appendToMap = (map, [key, item]) =>
  *
  * @example
  * // Build category -> products index
- * const index = buildReverseIndex(products, (p) => p.data.categories || []);
- * const widgetProducts = index.get("widgets") || [];
+ * const index = buildReverseIndex(products, (p) => p.data.categories);
+ * const widgetProducts = index.get("widgets") ?? [];
  */
 const buildReverseIndex = (items, getKeys) =>
   pipe(

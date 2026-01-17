@@ -42,12 +42,27 @@ export const parseWidths = (widths) =>
 
 /**
  * Build standard image attributes object.
+ * @param {Object} options - Attribute options
+ * @param {string | null} [options.src] - Image source (for external images)
+ * @param {string | null} [options.alt] - Alt text
+ * @param {string | null} [options.sizes] - Sizes attribute
+ * @param {string | null} [options.loading] - Loading attribute
+ * @param {string | null} [options.classes] - CSS classes
+ * @returns {Record<string, string>} Image attributes
  */
-export const buildImgAttributes = (alt, sizes, loading) => ({
+export const buildImgAttributes = ({
+  src = null,
+  alt = null,
+  sizes = null,
+  loading = null,
+  classes = null,
+} = {}) => ({
+  ...(src && { src }),
   alt: alt || "",
   sizes: sizes || DEFAULT_SIZE,
   loading: loading || "lazy",
   decoding: "async",
+  ...(classes && { class: classes }),
 });
 
 /**
