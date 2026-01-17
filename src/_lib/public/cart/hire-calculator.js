@@ -2,11 +2,9 @@
 // Manages date inputs and notifies when hire days change
 
 import { getCart } from "#public/utils/cart-utils.js";
-import { filter } from "#utils/array-utils.js";
 
 const isHireItem = (item) => item.product_mode === "hire";
 const hasHireItems = (cart) => cart.some(isHireItem);
-const getHireItems = filter(isHireItem);
 
 const calculateDays = (startDate, endDate) => {
   const start = new Date(startDate);
@@ -61,11 +59,4 @@ const initHireCalculator = (onDaysChange) => {
   endInput.addEventListener("change", handleChange);
 };
 
-export {
-  calculateDays,
-  getHireItems,
-  hasHireItems,
-  initHireCalculator,
-  isHireItem,
-  setMinDate,
-};
+export { calculateDays, initHireCalculator };

@@ -27,16 +27,16 @@ export function formatPrice(price) {
   return `£${fixed.replace(/\.00$/, "")}`;
 }
 
-export function removeItem(itemName) {
+const removeItem = (itemName) => {
   const cart = getCart().filter((item) => item.item_name !== itemName);
   saveCart(cart);
   return cart;
-}
+};
 
-export function getItemCount() {
+const getItemCount = () => {
   const cart = getCart();
   return cart.reduce((count, item) => count + item.quantity, 0);
-}
+};
 
 export function getCheckoutItems() {
   return getCart().map(({ sku, quantity }) => ({ sku, quantity }));

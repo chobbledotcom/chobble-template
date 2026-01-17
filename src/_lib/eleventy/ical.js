@@ -16,7 +16,7 @@ import { canonicalUrl } from "#utils/canonical-url.js";
  * @param {string} event.url - Event URL
  * @returns {string|null} iCal string or null if no ical_url
  */
-export function eventIcal(event) {
+const eventIcal = (event) => {
   // Only generate iCal for one-off events (not recurring)
   if (!event.data.ical_url) {
     return null;
@@ -46,17 +46,17 @@ export function eventIcal(event) {
   });
 
   return calendar.toString();
-}
+};
 
 /**
  * Configure Eleventy iCal filters and collections
  * @param {Object} eleventyConfig - Eleventy configuration object
  */
-export function configureICal(eleventyConfig) {
+export const configureICal = (eleventyConfig) => {
   eleventyConfig.addFilter("eventIcal", eventIcal);
   eleventyConfig.addCollection("oneOffEvents", (collectionApi) =>
     collectionApi
       .getFilteredByTag("events")
       .filter((event) => event.data.event_date && !event.data.recurring_date),
   );
-}
+};

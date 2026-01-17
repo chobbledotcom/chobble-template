@@ -1,13 +1,23 @@
 import { describe, expect, test } from "bun:test";
-import { configureICal, eventIcal } from "#eleventy/ical.js";
+import { configureICal } from "#eleventy/ical.js";
 import {
   createMockEleventyConfig,
   expectResultTitles,
 } from "#test/test-utils.js";
 
+/**
+ * Helper to get the eventIcal filter via Eleventy registration
+ */
+const getEventIcalFilter = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureICal(mockConfig);
+  return mockConfig.filters.eventIcal;
+};
+
 describe("ical", () => {
   // eventIcal - falsy ical_url handling (consolidated)
   test("Returns null when ical_url is missing, undefined, or empty", () => {
+    const eventIcal = getEventIcalFilter();
     const baseEvent = {
       data: { title: "Test Event", event_date: "2025-06-15" },
       url: "/events/test/",
@@ -32,6 +42,7 @@ describe("ical", () => {
 
   // eventIcal - valid iCal generation
   test("Generates iCal with required VCALENDAR and VEVENT blocks", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Summer Expo",
@@ -50,6 +61,7 @@ describe("ical", () => {
   });
 
   test("iCal SUMMARY field contains the event title", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Annual Conference",
@@ -63,6 +75,7 @@ describe("ical", () => {
   });
 
   test("iCal LOCATION field is present when event_location exists", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Meetup",
@@ -77,6 +90,7 @@ describe("ical", () => {
   });
 
   test("iCal has empty LOCATION when event_location not provided", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Online Event",
@@ -94,6 +108,7 @@ describe("ical", () => {
   });
 
   test("DESCRIPTION uses subtitle when provided", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Workshop",
@@ -108,6 +123,7 @@ describe("ical", () => {
   });
 
   test("DESCRIPTION falls back to meta_description when no subtitle", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Seminar",
@@ -122,6 +138,7 @@ describe("ical", () => {
   });
 
   test("subtitle is used when both subtitle and meta_description exist", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Priority Test",
@@ -138,6 +155,7 @@ describe("ical", () => {
   });
 
   test("iCal contains PRODID identifying the calendar producer", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Test",
@@ -152,6 +170,7 @@ describe("ical", () => {
   });
 
   test("Event is formatted as all-day event with date (not datetime)", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "All Day Event",
@@ -169,6 +188,7 @@ describe("ical", () => {
   });
 
   test("iCal URL field contains the event's canonical URL", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Public Event",
@@ -189,7 +209,6 @@ describe("ical", () => {
     configureICal(mockConfig);
 
     expect(typeof mockConfig.filters.eventIcal).toBe("function");
-    expect(mockConfig.filters.eventIcal).toBe(eventIcal);
   });
 
   test("Configures oneOffEvents as an Eleventy collection", () => {
@@ -251,6 +270,7 @@ describe("ical", () => {
 
   // Edge cases
   test("iCal properly handles special characters in event title", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "Event with, comma & ampersand",
@@ -268,6 +288,7 @@ describe("ical", () => {
   });
 
   test("iCal parses standard ISO date format correctly", () => {
+    const eventIcal = getEventIcalFilter();
     const event = {
       data: {
         title: "ISO Date Event",

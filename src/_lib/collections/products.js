@@ -7,11 +7,6 @@ import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-const processGallery = (gallery) => {
-  if (Array.isArray(gallery)) return gallery;
-  return Object.values(gallery);
-};
-
 /**
  * Compute gallery array from gallery or header_image (for eleventyComputed)
  */
@@ -22,23 +17,18 @@ const computeGallery = (data) => {
 };
 
 /**
- * Limit gallery images if max_images is configured
- * config().products is guaranteed by DEFAULTS (always ProductConfig)
- */
-const applyMaxImages = (gallery) => {
-  const maxImages = config().products.max_images;
-  if (maxImages === null) return gallery;
-  return gallery.slice(0, maxImages);
-};
-
-/**
  * Process gallery data for an item
  * NOTE: Mutates item.data directly because Eleventy template objects have
  * special getters/internal state that break with spread operators
  */
 const addGallery = (item) => {
   if (item.data.gallery) {
-    item.data.gallery = applyMaxImages(processGallery(item.data.gallery));
+    const gallery = Array.isArray(item.data.gallery)
+      ? item.data.gallery
+      : Object.values(item.data.gallery);
+    const maxImages = config().products.max_images;
+    item.data.gallery =
+      maxImages === null ? gallery : gallery.slice(0, maxImages);
   }
   return item;
 };
