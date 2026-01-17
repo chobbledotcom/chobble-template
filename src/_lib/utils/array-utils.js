@@ -84,6 +84,34 @@ const reduce = (fn, initial) => (arr) => arr.reduce(fn, initial);
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
 
 /**
+ * Sort by a property or getter function.
+ * Auto-detects type: uses localeCompare for strings, subtraction for numbers.
+ *
+ * @template T
+ * @param {string | ((item: T) => string | number)} key - Property name or getter
+ * @returns {(arr: T[]) => T[]} Function that sorts array
+ *
+ * @example
+ * // By property name
+ * sortBy("name")(users)
+ * pipe(sortBy("age"))(users)
+ *
+ * @example
+ * // By getter function
+ * sortBy(x => x.name)(users)
+ * pipe(sortBy(x => x.data.order))(items)
+ */
+const sortBy = (key) => {
+  const getKey = typeof key === "function" ? key : (obj) => obj[key];
+  return (arr) =>
+    [...arr].sort((a, b) => {
+      const keyA = getKey(a);
+      const keyB = getKey(b);
+      return typeof keyA === "string" ? keyA.localeCompare(keyB) : keyA - keyB;
+    });
+};
+
+/**
  * Remove duplicate values
  * @template T
  * @param {T[]} arr - Array to deduplicate
@@ -368,6 +396,7 @@ export {
   pluralize,
   reduce,
   sort,
+  sortBy,
   split,
   unique,
   uniqueBy,

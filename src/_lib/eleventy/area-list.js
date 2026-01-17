@@ -5,8 +5,13 @@
  * Logic lives here; HTML markup lives in area-list.html template.
  */
 
-import { filter, listSeparator, map, pipe, sort } from "#utils/array-utils.js";
-import { compareBy } from "#utils/sorting.js";
+import {
+  filter,
+  listSeparator,
+  map,
+  pipe,
+  sortBy,
+} from "#utils/array-utils.js";
 
 const navKey = (loc) => loc.data?.eleventyNavigation?.key || "";
 
@@ -25,7 +30,7 @@ const prepareAreaList = (locations, currentUrl) => {
 
   const filtered = pipe(
     filter((loc) => isTopLevel(loc.url) && loc.url !== currentUrl),
-    sort(compareBy(navKey)),
+    sortBy(navKey),
   )(locations);
 
   const separator = listSeparator(filtered.length);
