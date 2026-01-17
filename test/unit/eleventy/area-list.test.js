@@ -21,7 +21,7 @@ const createLocations = (tuples) =>
 
 describe("area-list", () => {
   // Get the filter from a configured mock
-  const getFilter = () => {
+  const getAreaListFilter = () => {
     const mockConfig = createMockEleventyConfig();
     configureAreaList(mockConfig);
     return mockConfig.filters.prepareAreaList;
@@ -35,7 +35,7 @@ describe("area-list", () => {
   });
 
   test("Returns single location with no separator", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([
       ["Alpha", "/locations/alpha/"],
       ["Beta", "/locations/beta/"],
@@ -50,7 +50,7 @@ describe("area-list", () => {
   });
 
   test("Returns two locations with 'and' separator", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([
       ["Alpha", "/locations/alpha/"],
       ["Beta", "/locations/beta/"],
@@ -64,7 +64,7 @@ describe("area-list", () => {
   });
 
   test("Returns three locations with comma and 'and' separators", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([
       ["Delta", "/locations/delta/"],
       ["Alpha", "/locations/alpha/"],
@@ -79,7 +79,7 @@ describe("area-list", () => {
   });
 
   test("Excludes nested locations (non-top-level)", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([
       ["Alpha", "/locations/alpha/"],
       ["Nested", "/locations/alpha/nested/"],
@@ -94,7 +94,7 @@ describe("area-list", () => {
   });
 
   test("Excludes current page from results", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([
       ["Springfield", "/locations/springfield/"],
       ["Fulchester", "/locations/fulchester/"],
@@ -108,7 +108,7 @@ describe("area-list", () => {
   });
 
   test("Sorts locations alphabetically by navigation key", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([
       ["Zebra Town", "/locations/zebra-town/"],
       ["Alpha City", "/locations/alpha-city/"],
@@ -121,7 +121,7 @@ describe("area-list", () => {
   });
 
   test("Returns empty array when no locations remain after filtering", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = createLocations([["Alpha", "/locations/alpha/"]]);
 
     const result = prepareAreaList(locations, "/locations/alpha/");
@@ -130,7 +130,7 @@ describe("area-list", () => {
   });
 
   test("Returns empty array for empty input", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
 
     const result = prepareAreaList([], "/locations/alpha/");
 
@@ -138,7 +138,7 @@ describe("area-list", () => {
   });
 
   test("Handles locations with missing navigation data gracefully", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = [
       { url: "/locations/alpha/" },
       createLocation("Beta", "/locations/beta/"),
@@ -153,7 +153,7 @@ describe("area-list", () => {
   });
 
   test("Excludes root locations URL", () => {
-    const prepareAreaList = getFilter();
+    const prepareAreaList = getAreaListFilter();
     const locations = [
       { url: "/locations/", data: { eleventyNavigation: { key: "All" } } },
       createLocation("Alpha", "/locations/alpha/"),

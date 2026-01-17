@@ -15,23 +15,23 @@ import { map, pipe, reduce } from "#utils/array-utils.js";
 /**
  * Create a filter attribute { name, value }
  */
-const attr = (name, value) => ({ name, value });
+const filterAttr = (name, value) => ({ name, value });
 
 /**
  * Create an item with filter_attributes using rest params syntax.
  * Wraps the shared baseItem for filter-specific convenience.
  *
  * @param {string|null} title - Item title (null for no title)
- * @param {...Object} attrs - Filter attributes created with attr()
+ * @param {...Object} attrs - Filter attributes created with filterAttr()
  */
-const item = (title, ...attrs) =>
+const filterItem = (title, ...attrs) =>
   baseItem(title, attrs.length > 0 ? { filter_attributes: attrs } : {});
 
 /**
  * Create items from an array of [title, ...attrs] tuples
  * Curried for use with pipe
  */
-const items = map(([title, ...attrs]) => item(title, ...attrs));
+const filterItems = map(([title, ...attrs]) => filterItem(title, ...attrs));
 
 /**
  * Create validPages array from path strings
@@ -70,14 +70,30 @@ const typeSizeData = () =>
 
 /** Common item with Pet Friendly and Type attributes */
 const petTypeItem = (petValue = "Yes", typeValue = "Cottage") =>
-  item(null, attr("Pet Friendly", petValue), attr("Type", typeValue));
+  filterItem(
+    null,
+    filterAttr("Pet Friendly", petValue),
+    filterAttr("Type", typeValue),
+  );
 
 /** Common property-style items for filter testing */
 const propertyItems = () =>
-  items([
-    ["Beach Cottage", attr("Pet Friendly", "Yes"), attr("Type", "Cottage")],
-    ["City Apartment", attr("Pet Friendly", "No"), attr("Type", "Apartment")],
-    ["Pet Apartment", attr("Pet Friendly", "Yes"), attr("Type", "Apartment")],
+  filterItems([
+    [
+      "Beach Cottage",
+      filterAttr("Pet Friendly", "Yes"),
+      filterAttr("Type", "Cottage"),
+    ],
+    [
+      "City Apartment",
+      filterAttr("Pet Friendly", "No"),
+      filterAttr("Type", "Apartment"),
+    ],
+    [
+      "Pet Apartment",
+      filterAttr("Pet Friendly", "Yes"),
+      filterAttr("Type", "Apartment"),
+    ],
   ]);
 
 /**
@@ -168,7 +184,7 @@ describe("item-filters", () => {
   describe("attributes collection", () => {
     test("returns attributes and display lookup structure", () => {
       const { getAttributes } = setupConfig();
-      const testItems = [item(null, attr("Pet Friendly", "Yes"))];
+      const testItems = [filterItem(null, filterAttr("Pet Friendly", "Yes"))];
 
       const attrs = getAttributes(testItems);
 
@@ -179,10 +195,10 @@ describe("item-filters", () => {
     test("converts attribute names and values to slugified keys", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
-        item(
+        filterItem(
           null,
-          attr("Pet Friendly", "Yes"),
-          attr("Beach Access", "Private Beach"),
+          filterAttr("Pet Friendly", "Yes"),
+          filterAttr("Beach Access", "Private Beach"),
         ),
       ];
 
@@ -195,7 +211,11 @@ describe("item-filters", () => {
     test("builds display lookup from slugified keys to original values", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
-        item(null, attr("Pet Friendly", "Yes"), attr("Type", "Cottage")),
+        filterItem(
+          null,
+          filterAttr("Pet Friendly", "Yes"),
+          filterAttr("Type", "Cottage"),
+        ),
       ];
 
       const attrs = getAttributes(testItems);
@@ -211,8 +231,8 @@ describe("item-filters", () => {
     test("first capitalization wins for duplicate keys in display lookup", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
-        item(null, attr("Pet Friendly", "YES")),
-        item(null, attr("pet friendly", "yes")),
+        filterItem(null, filterAttr("Pet Friendly", "YES")),
+        filterItem(null, filterAttr("pet friendly", "yes")),
       ];
 
       const attrs = getAttributes(testItems);
@@ -225,7 +245,10 @@ describe("item-filters", () => {
 
     test("handles items without filter_attributes", () => {
       const { getAttributes } = setupConfig();
-      const testItems = [item("No filters"), item(null, attr("Size", "Large"))];
+      const testItems = [
+        filterItem("No filters"),
+        filterItem(null, filterAttr("Size", "Large")),
+      ];
 
       const attrs = getAttributes(testItems);
 
@@ -238,8 +261,16 @@ describe("item-filters", () => {
     test("collects all unique filter values across items", () => {
       const { getAttributes } = setupConfig();
       const testItems = [
-        item(null, attr("Type", "Cottage"), attr("Bedrooms", "2")),
-        item(null, attr("Type", "Apartment"), attr("Bedrooms", "3")),
+        filterItem(
+          null,
+          filterAttr("Type", "Cottage"),
+          filterAttr("Bedrooms", "2"),
+        ),
+        filterItem(
+          null,
+          filterAttr("Type", "Apartment"),
+          filterAttr("Bedrooms", "3"),
+        ),
       ];
 
       const attrs = getAttributes(testItems);
@@ -250,7 +281,7 @@ describe("item-filters", () => {
 
     test("handles whitespace in attribute names and values via slugify", () => {
       const { getAttributes } = setupConfig();
-      const testItems = [item(null, attr("  Size  ", "  Large  "))];
+      const testItems = [filterItem(null, filterAttr("  Size  ", "  Large  "))];
 
       const attrs = getAttributes(testItems);
 
@@ -268,9 +299,9 @@ describe("item-filters", () => {
   describe("pages collection", () => {
     test("returns filter combinations with items", () => {
       const { getPages } = setupConfig();
-      const testItems = items([
-        ["Item 1", attr("Type", "A")],
-        ["Item 2", attr("Type", "B")],
+      const testItems = filterItems([
+        ["Item 1", filterAttr("Type", "A")],
+        ["Item 2", filterAttr("Type", "B")],
       ]);
 
       const pagesResult = getPages(testItems);
@@ -284,7 +315,7 @@ describe("item-filters", () => {
 
     test("generates paths for single filter values", () => {
       const { getPages } = setupConfig();
-      const testItems = [item(null, attr("Type", "Cottage"))];
+      const testItems = [filterItem(null, filterAttr("Type", "Cottage"))];
 
       const pagesResult = getPages(testItems);
       const paths = pagesResult.map((p) => p.path);
@@ -316,7 +347,7 @@ describe("item-filters", () => {
 
     test("returns empty array when items have no filter attributes", () => {
       const { getPages } = setupConfig();
-      const testItems = [item("No attrs")];
+      const testItems = [filterItem("No attrs")];
 
       const pagesResult = getPages(testItems);
 
@@ -357,9 +388,9 @@ describe("item-filters", () => {
     test("only generates combinations with matching items", () => {
       const { getPages } = setupConfig();
       // Two items with different types - no item has both values
-      const testItems = items([
-        ["A Only", attr("Type", "A")],
-        ["B Only", attr("Type", "B")],
+      const testItems = filterItems([
+        ["A Only", filterAttr("Type", "A")],
+        ["B Only", filterAttr("Type", "B")],
       ]);
 
       const pagesResult = getPages(testItems);
@@ -372,9 +403,17 @@ describe("item-filters", () => {
 
     test("handles multiple filter criteria correctly", () => {
       const { getPages } = setupConfig();
-      const testItems = items([
-        ["Match", attr("Pet Friendly", "Yes"), attr("Type", "Cottage")],
-        ["No Match", attr("Pet Friendly", "No"), attr("Type", "Cottage")],
+      const testItems = filterItems([
+        [
+          "Match",
+          filterAttr("Pet Friendly", "Yes"),
+          filterAttr("Type", "Cottage"),
+        ],
+        [
+          "No Match",
+          filterAttr("Pet Friendly", "No"),
+          filterAttr("Type", "Cottage"),
+        ],
       ]);
 
       const pagesResult = getPages(testItems);
@@ -387,10 +426,10 @@ describe("item-filters", () => {
 
     test("returns correct count for each combination", () => {
       const { getPages } = setupConfig();
-      const testItems = items([
-        ["Item 1", attr("Type", "A")],
-        ["Item 2", attr("Type", "A")],
-        ["Item 3", attr("Type", "B")],
+      const testItems = filterItems([
+        ["Item 1", filterAttr("Type", "A")],
+        ["Item 2", filterAttr("Type", "A")],
+        ["Item 3", filterAttr("Type", "B")],
       ]);
 
       const pagesResult = getPages(testItems);
@@ -409,7 +448,9 @@ describe("item-filters", () => {
   describe("redirects collection", () => {
     test("generates redirects for partial paths", () => {
       const { getRedirects } = setupConfig({ permalinkDir: "items" });
-      const testItems = [item(null, attr("Type", "A"), attr("Size", "Large"))];
+      const testItems = [
+        filterItem(null, filterAttr("Type", "A"), filterAttr("Size", "Large")),
+      ];
 
       const redirects = getRedirects(testItems);
 
@@ -420,7 +461,7 @@ describe("item-filters", () => {
 
     test("redirects point to search URLs", () => {
       const { getRedirects } = setupConfig({ permalinkDir: "items" });
-      const testItems = [item(null, attr("Type", "A"))];
+      const testItems = [filterItem(null, filterAttr("Type", "A"))];
 
       const redirects = getRedirects(testItems);
 
@@ -432,7 +473,7 @@ describe("item-filters", () => {
 
     test("generates redirects for attribute keys without values", () => {
       const { getRedirects } = setupConfig({ permalinkDir: "products" });
-      const testItems = [item(null, attr("Type", "A"))];
+      const testItems = [filterItem(null, filterAttr("Type", "A"))];
 
       const redirects = getRedirects(testItems);
 
@@ -615,10 +656,10 @@ describe("item-filters", () => {
     test("case-insensitive matching via normalization", () => {
       const { getPages } = setupConfig();
       // Items with different casings that should match
-      const testItems = items([
-        ["Item 1", attr("Type", "COTTAGE")],
-        ["Item 2", attr("Type", "cottage")],
-        ["Item 3", attr("Type", "Cottage")],
+      const testItems = filterItems([
+        ["Item 1", filterAttr("Type", "COTTAGE")],
+        ["Item 2", filterAttr("Type", "cottage")],
+        ["Item 3", filterAttr("Type", "Cottage")],
       ]);
 
       const pagesResult = getPages(testItems);
@@ -635,7 +676,7 @@ describe("item-filters", () => {
     testFilterConfig().configure(mock);
 
     const listingUI = mock.getCollection("testFilterPagesListingFilterUI")(
-      collectionApi([item("Widget", attr("Size", "Large"))]),
+      collectionApi([filterItem("Widget", filterAttr("Size", "Large"))]),
     );
 
     expect(listingUI.hasFilters).toBe(true);

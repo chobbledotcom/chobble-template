@@ -180,7 +180,7 @@ describe("sorting", () => {
   // sortNavigationItems Tests
   // ============================================
   // Common extractor for nav key
-  const navKey = (i) => i.data.eleventyNavigation.key;
+  const extractNavKey = (i) => i.data.eleventyNavigation.key;
 
   test("sortNavigationItems sorts by eleventyNavigation.order ascending", () => {
     const items = [
@@ -188,7 +188,11 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1, key: "A" }, title: "Item A" } },
       { data: { eleventyNavigation: { order: 2, key: "B" }, title: "Item B" } },
     ];
-    expectSortedValues(items, sortNavigationItems, navKey, ["A", "B", "C"]);
+    expectSortedValues(items, sortNavigationItems, extractNavKey, [
+      "A",
+      "B",
+      "C",
+    ]);
   });
 
   test("sortNavigationItems falls back to key when orders are equal", () => {
@@ -197,7 +201,7 @@ describe("sorting", () => {
       { data: { eleventyNavigation: { order: 1, key: "Apple" }, title: "A" } },
       { data: { eleventyNavigation: { order: 1, key: "Mango" }, title: "M" } },
     ];
-    expectSortedValues(items, sortNavigationItems, navKey, [
+    expectSortedValues(items, sortNavigationItems, extractNavKey, [
       "Apple",
       "Mango",
       "Zebra",
@@ -212,7 +216,7 @@ describe("sorting", () => {
         data: { eleventyNavigation: { order: 500, key: "Middle" }, title: "M" },
       },
     ];
-    expectSortedValues(items, sortNavigationItems, navKey, [
+    expectSortedValues(items, sortNavigationItems, extractNavKey, [
       "First",
       "Middle",
       "NoOrder",

@@ -3,7 +3,7 @@
 
 import { getCart, getCheckoutItems } from "#public/utils/cart-utils.js";
 
-function showError(message) {
+function showStatusError(message) {
   const statusMessage = document.getElementById("status-message");
   statusMessage.textContent = message;
   statusMessage.classList.add("error");
@@ -44,7 +44,7 @@ async function checkout() {
   }
 
   if (!checkoutApiUrl) {
-    showError("Checkout backend is not configured");
+    showStatusError("Checkout backend is not configured");
     return;
   }
 
@@ -52,7 +52,7 @@ async function checkout() {
   const result = await createStripeSession(checkoutApiUrl, getCheckoutItems());
 
   if (result.error) {
-    showError(result.error);
+    showStatusError(result.error);
     return;
   }
   window.location.href = result.url;

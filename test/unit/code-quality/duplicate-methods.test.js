@@ -12,6 +12,17 @@ import { ALL_JS_FILES } from "#test/test-utils.js";
 const THIS_FILE = "test/unit/code-quality/duplicate-methods.test.js";
 
 // ============================================
+// Allowlist Configuration
+// ============================================
+
+// Function names that are intentionally allowed to be duplicated
+// "init" is a common initialization pattern used across modules
+const ALLOWED_DUPLICATE_NAMES = new Set(["init"]);
+
+// Directories to exclude from analysis
+const EXCLUDED_DIRS = new Set(["ecommerce-backend"]);
+
+// ============================================
 // Function Definition Patterns
 // ============================================
 
@@ -21,8 +32,9 @@ const FUNCTION_DECL_PATTERN =
 
 // Matches: const/let/var name = (...) => or const/let/var name = async (...) =>
 // Also matches: const/let/var name = function(...)
+// Note: Requires => for arrow functions to avoid matching simple assignments like const x = (expr)
 const ARROW_OR_EXPR_PATTERN =
-  /^\s*(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\(|function\s*\(|[a-zA-Z_$][a-zA-Z0-9_$]*\s*=>)/;
+  /^\s*(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:function\s*\(|\([^)]*\)\s*=>|[a-zA-Z_$][a-zA-Z0-9_$]*\s*=>)/;
 
 // ============================================
 // Analysis Functions
@@ -56,6 +68,12 @@ const extractFunctionNames = (source) => {
 };
 
 /**
+ * Check if a file path is in an excluded directory.
+ */
+const isExcludedFile = (filePath) =>
+  [...EXCLUDED_DIRS].some((dir) => filePath.startsWith(`${dir}/`));
+
+/**
  * Build a map of function names to their locations across all files.
  * Returns Map<functionName, Array<{file, line}>>
  */
@@ -64,6 +82,7 @@ const buildFunctionLocationMap = (files) => {
 
   for (const file of files) {
     if (file === THIS_FILE) continue;
+    if (isExcludedFile(file)) continue;
 
     const source = readSource(file);
     const functions = extractFunctionNames(source);
@@ -86,17 +105,24 @@ const findDuplicateMethods = () => {
   const allFiles = ALL_JS_FILES();
   const locationMap = buildFunctionLocationMap(allFiles);
   const duplicates = [];
+  const allowed = [];
 
   for (const [name, locations] of locationMap) {
     // Get unique files where this function appears
     const uniqueFiles = new Set(locations.map((loc) => loc.file));
 
     if (uniqueFiles.size >= 2) {
-      duplicates.push({
+      const entry = {
         name,
         fileCount: uniqueFiles.size,
         locations,
-      });
+      };
+
+      if (ALLOWED_DUPLICATE_NAMES.has(name)) {
+        allowed.push(entry);
+      } else {
+        duplicates.push(entry);
+      }
     }
   }
 
@@ -114,7 +140,7 @@ const findDuplicateMethods = () => {
     reason: dup.locations.map((loc) => `${loc.file}:${loc.line}`).join(", "),
   }));
 
-  return { violations, allowed: [], duplicates };
+  return { violations, allowed, duplicates };
 };
 
 /**

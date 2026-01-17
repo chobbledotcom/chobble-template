@@ -15,7 +15,7 @@ const minimalPage = () => ({
 });
 
 /** Basic test page file with common defaults */
-const testPage = (options = {}) => ({
+const factoryTestPage = (options = {}) => ({
   path: options.path || "pages/test.md",
   frontmatter: { title: options.title || "Test", ...options.frontmatter },
   content: options.content || "Test",
@@ -269,7 +269,7 @@ describe("test-site-factory", () => {
   describe("build error handling", () => {
     test("build throws error with stderr when Eleventy build fails", async () => {
       const site = await createTestSite({
-        files: [testPage()],
+        files: [factoryTestPage()],
       });
 
       try {

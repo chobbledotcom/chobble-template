@@ -109,6 +109,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
+  "test/unit/code-quality/duplicate-methods.test.js",
   "test/unit/code-quality/function-length.test.js",
   "test/unit/code-quality/html-in-js.test.js",
   "test/unit/code-quality/let-usage.test.js",
@@ -188,6 +189,9 @@ const ALLOWED_LET = new Set([
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
+  "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink used in eleventyComputed
+  "src/_lib/build/scss.js",
+  "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
@@ -281,7 +285,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:334",
+  "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:41",

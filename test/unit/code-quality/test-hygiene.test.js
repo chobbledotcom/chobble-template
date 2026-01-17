@@ -20,7 +20,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "captureConsole",
   "execScript",
   "createMockEleventyConfig",
-  "createConfiguredMock", // reviews.test.js - creates mock config with registered filters
+  "createPropertiesMock", // properties.test.js - creates mock config with registered filters
+  "createReviewsMock", // reviews.test.js - creates mock config with registered filters
+  "createSearchMock", // search.test.js - creates mock config with registered filters
+  "createStyleBundleMock", // style-bundle.test.js - creates mock config with registered filters
   "createTempDir",
   "createTempFile",
   "createTempSnippetsDir",
@@ -73,7 +76,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // item-filters.test.js - test setup helper with collection accessors
   "setupConfig",
   // external-links.test.js - getter helpers following area-list.test.js pattern
-  "getFilter",
   "getTransform",
   "getLinkifyUrlsTransform",
   // checkout.test.js - template rendering and mocks
@@ -81,8 +83,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCheckoutPage",
   "createMockFetch",
   "mockFetch",
+  "fetchMock",
   "createLocationTracker",
-  "withMockStorage",
+  "withCheckoutMockStorage",
   // responsive-tables.test.js - assertion helpers
   "testScrollableTableCount",
   // autosizes.test.js - integration test helpers
@@ -92,7 +95,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // function-length.test.js - analysis helpers
   "calculateOwnLines",
   "analyzeFunctionLengths",
-  "formatViolations",
+  "formatLengthViolations",
   // let-usage.test.js - analysis helpers
   "findMutableVarDeclarations",
   "findMutableConstDeclarations",
@@ -126,7 +129,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "b",
   "c",
   "original",
-  "another",
+  "exportAlpha",
+  "exportBeta",
+  "exportGamma",
+  "baseExport",
+  "multiAlpha",
+  "multiBeta",
+  "multiGamma",
+  "aliasBase",
+  "aliasKeep",
   // categories.test.js - collection setup helpers
   "getCategoriesCollection",
   "getFeaturedFilter",
@@ -134,11 +145,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "setupProductsConfig",
   "categorizedProducts",
   // area-list.test.js - filter setup helper
-  "getFilter",
+  "getAreaListFilter",
+  // external-links.test.js - filter setup helper
+  "getExternalLinksFilter",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
   // hire-calculator.test.js - callback tracking setup
   "initHireWithCallback",
+  // hire-calculator.test.js - mock storage setup
+  "withHireMockStorage",
   // unused-images.test.js - eleventy after handler runner
   "runEleventyAfter",
   "findUndefinedVariables",
@@ -156,6 +171,20 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "getUserById",
   // schema-helper.test.js - test fixtures
   "testProductMeta",
+  // duplicate-methods.test.js - analysis helpers
+  "extractFunctionNames",
+  "isExcludedFile",
+  "buildFunctionLocationMap",
+  "findDuplicateMethods",
+  "printDuplicateReport",
+  // duplicate-methods.test.js - test fixture function names
+  "hello",
+  "greet",
+  "fetchData",
+  "getData",
+  "actual",
+  // memoize-inside-function.test.js - test fixture function name
+  "innerNested",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
   "tryBlockHasCatch",
@@ -179,8 +208,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "active",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
+  // template.test.js - test environment setup helpers
+  "createTemplateTestEnv",
   // autosizes.test.js - test environment setup helpers
-  "createTestEnv",
+  "createAutosizesTestEnv",
   "runAutosizes",
   "makeImg",
   "setupAndRun",
@@ -204,13 +235,18 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findPdfInMenuDir",
   "verifyPdfHeader",
   // reviews.test.js - test fixtures helpers
+  "reviewItem",
   "itemsFor",
   "createProductReviews",
   "createTruncatePair",
   "createLimitTestData",
   // test-site-factory.test.js - test page fixtures
   "minimalPage",
-  "testPage",
+  "factoryTestPage",
+  // image.test.js - test page fixture
+  "imageTestPage",
+  // recurring-events.test.js - test page fixture
+  "eventsTestPage",
   // recurring-events.test.js - test fixtures and helpers
   "event",
   "renderAndParse",
@@ -255,7 +291,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectIncludes",
   "runTransform",
   // news.test.js - functional test fixture builders
-  "newsPost",
+  "newsPostItem",
+  "newsPostItems",
   "teamMember",
   "getPostMeta",
   "getContentHtml",
@@ -272,7 +309,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withNavigation",
   // test-site-factory.js - test site utilities
   "randomId",
-  "ensureDir",
   "symlinkDirs",
   "setupDataDir",
   "createContentFiles",

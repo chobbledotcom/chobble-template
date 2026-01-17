@@ -13,7 +13,7 @@ import { normaliseSlug } from "#utils/slug-utils.js";
  * @param {string} title - Post title
  * @param {Object} options - Additional frontmatter (author, etc.)
  */
-const newsPost = (slug, title, { author, ...extras } = {}) => ({
+const newsPostFile = (slug, title, { author, ...extras } = {}) => ({
   path: `news/2024-01-01-${slug}.md`,
   frontmatter: {
     title,
@@ -118,19 +118,19 @@ describe("news", () => {
   test("Post meta renders correctly with various author and image combinations", async () => {
     const files = [
       // Post with author + image
-      newsPost("with-author-image", "Post With Author and Image", {
+      newsPostFile("with-author-image", "Post With Author and Image", {
         author: "jane-doe",
       }),
       teamMember("jane-doe", "Jane Doe", { image: "placeholder-square-1.jpg" }),
 
       // Post with author but no image
-      newsPost("with-author-no-image", "Post With Author No Image", {
+      newsPostFile("with-author-no-image", "Post With Author No Image", {
         author: "john-smith",
       }),
       teamMember("john-smith", "John Smith"),
 
       // Post without author
-      newsPost("no-author", "Post Without Author"),
+      newsPostFile("no-author", "Post Without Author"),
     ];
 
     await withTestSite({ files, images: extractImages(files) }, (site) => {
@@ -179,10 +179,10 @@ describe("news", () => {
   test("Posts with no_index are correctly excluded from archive and marked for search engines", async () => {
     const files = [
       // Visible post
-      newsPost("visible-post", "Visible Post Title"),
+      newsPostFile("visible-post", "Visible Post Title"),
 
       // Hidden post with no_index
-      newsPost("hidden-post", "Hidden Post Title", { no_index: true }),
+      newsPostFile("hidden-post", "Hidden Post Title", { no_index: true }),
 
       // News archive page
       {

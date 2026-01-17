@@ -15,6 +15,7 @@ const ensureDir = (dirPath) => {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
+  return dirPath;
 };
 
 const fileExists = memoize(

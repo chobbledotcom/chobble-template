@@ -54,7 +54,7 @@ const appendChildren = (element, children) => {
  * @param {Document | null} [document=null] - Optional existing document to use
  * @returns {Promise<HTMLElement>} The created element
  */
-const createElement = async (
+const buildElement = async (
   tagName,
   attributes = {},
   children = null,
@@ -85,7 +85,7 @@ const elementToHtml = (element) => {
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = null) => {
-  return elementToHtml(await createElement(tagName, attributes, children));
+  return elementToHtml(await buildElement(tagName, attributes, children));
 };
 
 /**
@@ -105,7 +105,7 @@ const parseHtml = async (html, document = null) => {
 };
 
 export {
-  createElement,
+  buildElement,
   elementToHtml,
   createHtml,
   parseHtml,

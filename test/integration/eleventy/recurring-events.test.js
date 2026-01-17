@@ -238,7 +238,7 @@ describe("recurring-events", () => {
   /**
    * Create a test page that renders recurring events
    */
-  const testPage = (content = "{% recurring_events %}") => ({
+  const eventsTestPage = (content = "{% recurring_events %}") => ({
     path: "pages/test.md",
     frontmatter: { title: "Test", layout: "page", permalink: "/test/" },
     content,
@@ -257,7 +257,7 @@ describe("recurring-events", () => {
             "First Saturday of each month",
           ),
           oneTimeEventFile("one-time-event", "One Time Event", "2024-06-15"),
-          testPage(),
+          eventsTestPage(),
         ],
       },
       (site) => {

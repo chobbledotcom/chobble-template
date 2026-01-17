@@ -40,7 +40,7 @@ const setContent = (element) => {
 const showLoading = () =>
   setContent(createElement("p", "calendar-loading", "Loading..."));
 
-const showError = (message) =>
+const showCalendarError = (message) =>
   setContent(createElement("p", "calendar-error", message));
 
 const formatDate = (date) => {
@@ -144,7 +144,7 @@ const openCalendar = async (apiUrl) => {
   if (dates) {
     renderCalendar(dates);
   } else {
-    showError("Unable to load availability. Please try again.");
+    showCalendarError("Unable to load availability. Please try again.");
   }
 };
 

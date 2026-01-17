@@ -87,7 +87,7 @@ const analyzeFunctionLengths = () => {
 /**
  * Format violations for readable output.
  */
-const formatViolations = (violations) => {
+const formatLengthViolations = (violations) => {
   if (violations.length === 0) {
     return "No function length violations found.";
   }
@@ -272,7 +272,7 @@ describe("function-length", () => {
 
     // Log violations for visibility
     if (violations.length > 0) {
-      console.log(`\n${formatViolations(violations)}\n`);
+      console.log(`\n${formatLengthViolations(violations)}\n`);
     }
 
     expect(violations.length).toBe(0);

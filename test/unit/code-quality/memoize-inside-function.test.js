@@ -146,9 +146,9 @@ const useIt = (x) => cached(x);`;
     });
 
     test("detects memoize in deeply nested function", () => {
-      const source = `const a = () => {
-  const b = () => {
-    const c = memoize((x) => x);
+      const source = `const outerNested = () => {
+  const innerNested = () => {
+    const deepMemo = memoize((x) => x);
   };
 };`;
       const results = findMemoizeInsideFunction(source);
@@ -157,7 +157,7 @@ const useIt = (x) => cached(x);`;
     });
 
     test("ignores memoize in comments", () => {
-      const source = `const fn = () => {
+      const source = `const commentFn = () => {
   // Example: memoize((x) => x)
   return 42;
 };`;
@@ -166,7 +166,7 @@ const useIt = (x) => cached(x);`;
     });
 
     test("handles braces in strings correctly", () => {
-      const source = `const fn = () => {
+      const source = `const stringFn = () => {
   const str = "{ memoize( }";
   return str;
 };
@@ -176,10 +176,10 @@ const good = memoize((x) => x);`;
     });
 
     test("detects multiple violations", () => {
-      const source = `const a = () => {
+      const source = `const firstViolation = () => {
   const x = memoize((i) => i);
 };
-const b = () => {
+const secondViolation = () => {
   const y = memoize((j) => j);
 };`;
       const results = findMemoizeInsideFunction(source);

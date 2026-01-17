@@ -29,7 +29,7 @@ import {
   normalizeImagePath,
   parseWidths,
 } from "#media/image-utils.js";
-import { createElement, createHtml, parseHtml } from "#utils/dom-builder.js";
+import { buildElement, createHtml, parseHtml } from "#utils/dom-builder.js";
 import { jsonKey, memoize } from "#utils/memoize.js";
 
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
@@ -129,7 +129,7 @@ const processAndWrapImage = async ({
       ...(classes && { class: classes }),
     };
     return returnElement
-      ? await createElement("img", attributes, null, document)
+      ? await buildElement("img", attributes, null, document)
       : await createHtml("img", attributes);
   }
 

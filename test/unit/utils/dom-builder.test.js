@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
-  createElement,
+  buildElement,
   createHtml,
   elementToHtml,
   getSharedDocument,
@@ -10,18 +10,18 @@ import {
 
 describe("dom-builder", () => {
   // ============================================
-  // createElement Tests
+  // buildElement Tests
   // ============================================
 
   test("Creates element with tag name only", async () => {
-    const element = await createElement("div");
+    const element = await buildElement("div");
 
     expect(element.tagName.toLowerCase()).toBe("div");
     expect(element.outerHTML).toBe("<div></div>");
   });
 
   test("Creates element with attributes", async () => {
-    const element = await createElement("img", {
+    const element = await buildElement("img", {
       src: "/image.png",
       alt: "Test image",
       width: "100",
@@ -33,7 +33,7 @@ describe("dom-builder", () => {
   });
 
   test("Ignores null and undefined attributes", async () => {
-    const element = await createElement("div", {
+    const element = await buildElement("div", {
       class: "valid",
       id: null,
       "data-test": undefined,
@@ -45,11 +45,7 @@ describe("dom-builder", () => {
   });
 
   test("Creates element with string children (innerHTML)", async () => {
-    const element = await createElement(
-      "p",
-      {},
-      "Hello <strong>world</strong>",
-    );
+    const element = await buildElement("p", {}, "Hello <strong>world</strong>");
 
     expect(element.innerHTML).toBe("Hello <strong>world</strong>");
   });
@@ -59,7 +55,7 @@ describe("dom-builder", () => {
     const child = doc.createElement("span");
     child.textContent = "Child content";
 
-    const element = await createElement("div", { class: "parent" }, child);
+    const element = await buildElement("div", { class: "parent" }, child);
 
     expect(element.childNodes.length).toBe(1);
     expect(element.firstChild.tagName.toLowerCase()).toBe("span");
@@ -77,7 +73,7 @@ describe("dom-builder", () => {
     children[1].textContent = "Second";
     children[2].textContent = "Third";
 
-    const element = await createElement("div", {}, children);
+    const element = await buildElement("div", {}, children);
 
     expect(element.childNodes.length).toBe(3);
     expect(element.children[0].tagName.toLowerCase()).toBe("span");
@@ -87,7 +83,7 @@ describe("dom-builder", () => {
   });
 
   test("Handles null children gracefully", async () => {
-    const element = await createElement("div", {}, null);
+    const element = await buildElement("div", {}, null);
 
     expect(element.childNodes.length).toBe(0);
     expect(element.outerHTML).toBe("<div></div>");
@@ -95,7 +91,7 @@ describe("dom-builder", () => {
 
   test("Uses provided document instead of shared", async () => {
     const doc = await getSharedDocument();
-    const element = await createElement("span", { id: "test" }, "Content", doc);
+    const element = await buildElement("span", { id: "test" }, "Content", doc);
 
     expectObjectProps({
       ownerDocument: doc,
@@ -108,7 +104,7 @@ describe("dom-builder", () => {
   // ============================================
 
   test("Converts element to HTML string", async () => {
-    const element = await createElement("div", { class: "test" }, "Content");
+    const element = await buildElement("div", { class: "test" }, "Content");
     const html = elementToHtml(element);
 
     expect(html).toBe('<div class="test">Content</div>');
@@ -119,7 +115,7 @@ describe("dom-builder", () => {
     const child = doc.createElement("span");
     child.textContent = "Nested";
 
-    const element = await createElement(
+    const element = await buildElement(
       "div",
       { id: "parent", class: "wrapper" },
       child,
