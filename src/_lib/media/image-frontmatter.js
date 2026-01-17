@@ -16,7 +16,7 @@ const checkImageExists = memoize((fullPath) => existsSync(fullPath));
  * Returns true for valid external URLs or existing local files.
  * Throws an error if a local file path is provided but doesn't exist.
  *
- * @param {import("#lib/types").ImagePath | null | undefined} imagePath - Image path to validate
+ * @param {string | undefined} imagePath - Image path to validate
  * @returns {boolean} True if image is valid (external URL or exists on disk)
  * @throws {Error} If local file path doesn't exist
  */
@@ -36,8 +36,8 @@ export const isValidImage = (imagePath) => {
 /**
  * Returns the first valid image from an array of candidates.
  *
- * @param {(import("#lib/types").ImagePath | null | undefined)[]} candidates - Array of image paths to check
- * @returns {import("#lib/types").ImagePath | null} First valid image path, or null if none are valid
+ * @param {(string | undefined)[]} candidates - Array of image paths to check
+ * @returns {string | null} First valid image path, or null if none are valid
  */
 export const getFirstValidImage = (candidates) =>
   candidates.find(isValidImage) ?? null;

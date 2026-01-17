@@ -22,7 +22,6 @@ export type {
 // =============================================================================
 export type {
   EleventyPageData,
-  ImagePath,
   BaseItemData,
   ProductItemData,
   EventItemData,
