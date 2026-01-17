@@ -22,6 +22,7 @@ export type {
 // =============================================================================
 export type {
   EleventyPageData,
+  ImagePath,
   BaseItemData,
   ProductItemData,
   EventItemData,
@@ -33,6 +34,7 @@ export type {
   EleventyCollectionItem,
   EleventyCollectionApi,
   EleventyNavigation,
+  EleventyComputedData,
 } from './eleventy.d.ts';
 
 // =============================================================================

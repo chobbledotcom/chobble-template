@@ -25,6 +25,12 @@ export type EleventyPageData = {
 };
 
 /**
+ * Image path - always a string in frontmatter.
+ * Alt text comes from alt-tags.json lookup, not from frontmatter.
+ */
+export type ImagePath = string;
+
+/**
  * Base data fields present on all collection items
  */
 export type BaseItemData = {
@@ -39,8 +45,8 @@ export type BaseItemData = {
   permalink?: string;
   eleventyNavigation?: PagesCMSEleventyNavigation;
   meta_description?: string;
-  thumbnail?: PagesCMSImage;
-  image?: PagesCMSImage;
+  thumbnail?: ImagePath;
+  image?: ImagePath;
 };
 
 /**
@@ -53,7 +59,7 @@ export type ProductItemData = BaseItemData & {
   tabs?: PagesCMSTab[];
   filter_attributes?: PagesCMSFilterAttribute[];
   categories?: string[];
-  gallery?: PagesCMSImage[] | Record<string, PagesCMSImage>;
+  gallery?: ImagePath[];
 };
 
 /**
@@ -144,4 +150,18 @@ export type EleventyCollectionApi = {
 export type EleventyNavigation = {
   order?: number;
   key?: string;
+};
+
+/**
+ * Page data available to eleventyComputed functions.
+ * Combines Eleventy's page object with frontmatter data.
+ */
+export type EleventyComputedData = EleventyCollectionItemData & {
+  page: EleventyPageData;
+  config?: import('./config.d.ts').SiteConfig;
+  header_image?: ImagePath;
+  header_text?: string;
+  meta_title?: string;
+  snippet?: string;
+  layout?: string;
 };
