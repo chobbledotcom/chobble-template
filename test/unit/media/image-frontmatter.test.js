@@ -1,25 +1,20 @@
 import { describe, expect, test } from "bun:test";
 import { getFirstValidImage, isValidImage } from "#media/image-frontmatter.js";
-import {
-  createTempFile,
-  fs,
-  path,
-  withMockedCwd,
-  withTempDir,
-} from "#test/test-utils.js";
+import { createTempFile, fs, path, withTempDir } from "#test/test-utils.js";
 
 /**
  * Creates a temp directory with src/images structure and optional test files.
- * Returns a function to run assertions with mocked cwd.
+ * Returns srcDir to pass as baseDir to isValidImage/getFirstValidImage.
  */
 const withImageTestDir = (name, filenames, callback) =>
   withTempDir(name, (tempDir) => {
-    const imagesDir = path.join(tempDir, "src", "images");
+    const srcDir = path.join(tempDir, "src");
+    const imagesDir = path.join(srcDir, "images");
     fs.mkdirSync(imagesDir, { recursive: true });
     for (const filename of filenames) {
       createTempFile(imagesDir, filename, "test content");
     }
-    withMockedCwd(tempDir, () => callback(imagesDir));
+    callback(srcDir);
   });
 
 describe("image-frontmatter", () => {
@@ -49,30 +44,34 @@ describe("image-frontmatter", () => {
     });
 
     test("returns true for existing local file", () => {
-      withImageTestDir("isValidImage-existing", ["test.jpg"], () => {
-        expect(isValidImage("/images/test.jpg")).toBe(true);
+      withImageTestDir("isValidImage-existing", ["test.jpg"], (srcDir) => {
+        expect(isValidImage("/images/test.jpg", srcDir)).toBe(true);
       });
     });
 
     test("returns true for existing file with src/ prefix", () => {
-      withImageTestDir("isValidImage-src-prefix", ["photo.jpg"], () => {
-        expect(isValidImage("src/images/photo.jpg")).toBe(true);
+      withImageTestDir("isValidImage-src-prefix", ["photo.jpg"], (srcDir) => {
+        expect(isValidImage("src/images/photo.jpg", srcDir)).toBe(true);
       });
     });
 
     test("throws error for non-existent local file", () => {
-      withImageTestDir("isValidImage-nonexistent", [], () => {
-        expect(() => isValidImage("/images/missing.jpg")).toThrow(
+      withImageTestDir("isValidImage-nonexistent", [], (srcDir) => {
+        expect(() => isValidImage("/images/missing.jpg", srcDir)).toThrow(
           /Image file not found/,
         );
       });
     });
 
     test("strips leading slash from path", () => {
-      withImageTestDir("isValidImage-leading-slash", ["slash-test.jpg"], () => {
-        expect(isValidImage("/images/slash-test.jpg")).toBe(true);
-        expect(isValidImage("images/slash-test.jpg")).toBe(true);
-      });
+      withImageTestDir(
+        "isValidImage-leading-slash",
+        ["slash-test.jpg"],
+        (srcDir) => {
+          expect(isValidImage("/images/slash-test.jpg", srcDir)).toBe(true);
+          expect(isValidImage("images/slash-test.jpg", srcDir)).toBe(true);
+        },
+      );
     });
   });
 
@@ -108,17 +107,19 @@ describe("image-frontmatter", () => {
       withImageTestDir(
         "getFirstValidImage-local",
         ["first.jpg", "second.jpg"],
-        () => {
+        (srcDir) => {
           const candidates = [null, "/images/first.jpg", "/images/second.jpg"];
-          expect(getFirstValidImage(candidates)).toBe("/images/first.jpg");
+          expect(getFirstValidImage(candidates, srcDir)).toBe(
+            "/images/first.jpg",
+          );
         },
       );
     });
 
     test("returns external URL when no local files provided", () => {
-      withImageTestDir("getFirstValidImage-fallback", [], () => {
+      withImageTestDir("getFirstValidImage-fallback", [], (srcDir) => {
         const candidates = ["https://example.com/fallback.jpg"];
-        expect(getFirstValidImage(candidates)).toBe(
+        expect(getFirstValidImage(candidates, srcDir)).toBe(
           "https://example.com/fallback.jpg",
         );
       });

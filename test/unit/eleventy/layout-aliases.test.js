@@ -10,7 +10,6 @@ import {
   createTempFile,
   fs,
   path,
-  withMockedCwd,
 } from "#test/test-utils.js";
 
 // ============================================
@@ -27,7 +26,8 @@ const runLayoutAliases = (tempDir) => {
   config.addLayoutAlias = (alias, file) => aliases.push({ alias, file });
 
   try {
-    withMockedCwd(tempDir, () => configureLayoutAliases(config));
+    const srcDir = path.join(tempDir, "src");
+    configureLayoutAliases(config, srcDir);
     return aliases;
   } finally {
     cleanupTempDir(tempDir);
@@ -120,17 +120,13 @@ describe("layout-aliases", () => {
     const tempDir = createTempDir("layout-aliases-missing");
     // Intentionally NOT creating src/_layouts
 
-    const originalCwd = process.cwd;
     try {
       const config = createMockEleventyConfig();
       config.addLayoutAlias = () => {};
 
-      // Manually mock CWD since withMockedCwd doesn't restore on throw
-      process.cwd = () => tempDir;
-
-      expect(() => configureLayoutAliases(config)).toThrow(/ENOENT/);
+      const srcDir = path.join(tempDir, "src");
+      expect(() => configureLayoutAliases(config, srcDir)).toThrow(/ENOENT/);
     } finally {
-      process.cwd = originalCwd;
       cleanupTempDir(tempDir);
     }
   });

@@ -309,6 +309,203 @@ describe("external-links", () => {
     });
   });
 
+  describe("linkifyEmails transform", () => {
+    const getLinkifyEmailsTransform = async (config) => {
+      const mockConfig = createMockEleventyConfig();
+      await configureExternalLinks(mockConfig, config);
+      return mockConfig.transforms.linkifyEmails;
+    };
+
+    test("converts plain email addresses to mailto links", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html =
+        "<html><body><p>Contact us at hello@example.com for more info</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="mailto:hello@example.com"');
+      expect(result).toContain(">hello@example.com</a>");
+    });
+
+    test("handles multiple email addresses in text", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html =
+        "<html><body><p>Email support@foo.com or sales@bar.co.uk</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="mailto:support@foo.com"');
+      expect(result).toContain('href="mailto:sales@bar.co.uk"');
+    });
+
+    test("does not linkify emails inside existing anchor tags", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html =
+        '<html><body><a href="mailto:test@example.com">Contact us</a></body></html>';
+      const result = await transform(html, "index.html");
+
+      expect(result.match(/<a /g)?.length).toBe(1);
+    });
+
+    test("does not linkify emails inside script tags", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html =
+        '<html><body><script>const email = "test@example.com";</script></body></html>';
+      const result = await transform(html, "index.html");
+
+      expect(result).not.toContain('href="mailto:');
+    });
+
+    test("preserves surrounding text", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html =
+        "<html><body><p>Before test@example.com after</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain("Before ");
+      expect(result).toContain(" after");
+    });
+
+    test("handles emails with subdomains", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html =
+        "<html><body><p>Email user@mail.example.co.uk</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="mailto:user@mail.example.co.uk"');
+    });
+
+    test("only processes HTML files", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const content = "Contact test@example.com";
+      const result = await transform(content, "file.txt");
+      expect(result).toBe(content);
+    });
+
+    test("returns content unchanged when no @ symbol present", async () => {
+      const transform = await getLinkifyEmailsTransform({});
+      const html = "<html><body><p>No emails here</p></body></html>";
+      const result = await transform(html, "index.html");
+      expect(result).toBe(html);
+    });
+  });
+
+  describe("linkifyPhones transform", () => {
+    const getLinkifyPhonesTransform = async (config) => {
+      const mockConfig = createMockEleventyConfig();
+      await configureExternalLinks(mockConfig, config);
+      return mockConfig.transforms.linkifyPhones;
+    };
+
+    test("converts phone numbers to tel links with default length 11", async () => {
+      const transform = await getLinkifyPhonesTransform({});
+      const html = "<html><body><p>Call us on 01234 567 890</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="tel:01234567890"');
+      expect(result).toContain(">01234 567 890</a>");
+    });
+
+    test("converts phone numbers with spaces", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html = "<html><body><p>Call 01234 567 890</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="tel:01234567890"');
+    });
+
+    test("converts phone numbers without spaces", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html = "<html><body><p>Call 01234567890</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="tel:01234567890"');
+    });
+
+    test("handles different phone length configs", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 10,
+      });
+      const html = "<html><body><p>Call 0123456789</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain('href="tel:0123456789"');
+    });
+
+    test("does not link shorter numbers", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html = "<html><body><p>Call 0123456</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).not.toContain('href="tel:');
+    });
+
+    test("disables phone linking when phoneNumberLength is -1", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: -1,
+      });
+      const html = "<html><body><p>Call 01234567890</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).not.toContain('href="tel:');
+    });
+
+    test("does not linkify phones inside existing anchor tags", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html =
+        '<html><body><a href="tel:01234567890">Call us</a></body></html>';
+      const result = await transform(html, "index.html");
+
+      expect(result.match(/<a /g)?.length).toBe(1);
+    });
+
+    test("does not linkify phones inside script tags", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html =
+        '<html><body><script>const phone = "01234567890";</script></body></html>';
+      const result = await transform(html, "index.html");
+
+      expect(result).not.toContain('<a href="tel:');
+    });
+
+    test("preserves surrounding text", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html = "<html><body><p>Before 01234567890 after</p></body></html>";
+      const result = await transform(html, "index.html");
+
+      expect(result).toContain("Before ");
+      expect(result).toContain(" after");
+    });
+
+    test("only processes HTML files", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const content = "Call 01234567890";
+      const result = await transform(content, "file.txt");
+      expect(result).toBe(content);
+    });
+
+    test("returns content unchanged when no digits present", async () => {
+      const transform = await getLinkifyPhonesTransform({
+        phoneNumberLength: 11,
+      });
+      const html = "<html><body><p>No phones here</p></body></html>";
+      const result = await transform(html, "index.html");
+      expect(result).toBe(html);
+    });
+  });
+
   describe("linkifyUrls transform", () => {
     const getLinkifyUrlsTransform = async (config) => {
       const mockConfig = createMockEleventyConfig();

@@ -31,6 +31,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "withTempDir",
   "withTempFile",
   "withMockedCwd",
+  "withMockedCwdAsync",
+  "mockCwdSetup",
+  "mockCwdTeardown",
   "withMockedConsole",
   "getIconFilter",
   "expectValidScriptTag",
@@ -78,6 +81,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // external-links.test.js - getter helpers following area-list.test.js pattern
   "getTransform",
   "getLinkifyUrlsTransform",
+  "getLinkifyEmailsTransform",
+  "getLinkifyPhonesTransform",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -390,6 +395,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "defaultTestFiles",
   // capture.test.js - test harness for push/slot shortcodes
   "setupCapture",
+  // customise-cms.test.js - test setup helpers
+  "setupSiteJson",
+  "setupSiteJsonWithSrc",
   // customise-cms.test.js - YAML section extraction helpers
   "getEventsSection",
   "getViewSection",
