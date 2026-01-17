@@ -12,8 +12,7 @@ import {
 } from "#utils/schema-helper.js";
 
 /**
- * @param {Object} data - Page data
- * @param {string[]} [data.tags] - Page tags
+ * @param {import("#lib/types").EleventyComputedData} data - Page data
  * @param {string} tag - Tag to check for
  * @returns {boolean} Whether data has the given tag
  */
@@ -21,19 +20,19 @@ const hasTag = (data, tag) => (data.tags || []).includes(tag);
 
 export default {
   /**
-   * @param {Object} data - Page data
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {string} Header text
    */
   header_text: (data) => data.header_text || data.title,
 
   /**
-   * @param {Object} data - Page data
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {string} Meta title
    */
   meta_title: (data) => data.meta_title || data.title,
 
   /**
-   * @param {Object} data - Page data
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {string} Description
    */
   description: (data) =>
@@ -45,8 +44,8 @@ export default {
   /**
    * Finds the first valid thumbnail from available images, or returns a
    * placeholder if configured
-   * @param {Object} data - Page data
-   * @returns {string|import("#lib/types").Image|null} Valid image or null
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {string|null} Valid image path or null
    */
   thumbnail: (data) => {
     const image = getFirstValidImage([
@@ -63,30 +62,28 @@ export default {
   },
 
   /**
-   * @param {Object} data - Page data
-   * @param {import("#lib/types").Faq[]|undefined} data.faqs - Optional FAQs
-   * @returns {import("#lib/types").Faq[]} FAQs array (guaranteed non-empty semantically)
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {import("#lib/types").Faq[]} FAQs array (empty if not defined)
    */
   faqs: (data) => data.faqs ?? [],
 
   /**
-   * @param {Object} data - Page data
-   * @param {import("#lib/types").Tab[]|undefined} data.tabs - Optional tabs
-   * @returns {import("#lib/types").Tab[]} Tabs array (guaranteed non-empty semantically)
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {import("#lib/types").Tab[]} Tabs array (empty if not defined)
    */
   tabs: (data) => data.tabs ?? [],
 
   /**
    * Adds #content anchor to navigation URLs if config flag is enabled
-   * @param {Object} data - Page data
-   * @returns {Object|boolean|undefined} Navigation object with optional url anchor
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {import("#lib/types").EleventyNav|boolean|undefined} Navigation object with optional url anchor
    */
   eleventyNavigation: (data) =>
     withNavigationAnchor(data, data.eleventyNavigation),
 
   /**
-   * @param {Object} data - Page data
-   * @returns {Object} Schema.org metadata
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {import("#lib/types").SchemaOrgMeta} Schema.org metadata
    */
   meta: (data) => {
     if (hasTag(data, "products")) return buildProductMeta(data);
