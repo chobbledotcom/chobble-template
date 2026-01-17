@@ -53,10 +53,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
 
-  // test/code-scanner.js - Exception validation
-  // Needed: validates exception entries by reading files that might not exist
-  "test/code-scanner.js:333",
-
   // test/test-utils.js - Test utility definitions (test infrastructure)
   // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
   "test/test-utils.js",
@@ -88,22 +84,17 @@ const ALLOWED_MUTABLE_CONST = new Set([
   // Test utilities - entire files allowed for imperative test patterns
   "test/test-utils.js",
   "test/build-profiling.js",
-  "test/precommit.js",
-  "test/run-tests.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
   "test/unit/data/eleventy-computed.test.js",
 
   // Test files - imperative accumulation patterns for test setup/assertions
-  "test/unit/build/cache-buster.test.js",
-  "test/integration/build/pdf-integration.test.js",
   "test/unit/build/pdf.test.js",
   "test/unit/build/scss.variables.test.js",
   "test/unit/code-quality/array-push.test.js",
   "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
   "test/unit/code-quality/comment-limits.test.js",
-  "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
   "test/unit/code-quality/function-length.test.js",
   "test/unit/code-quality/html-in-js.test.js",
@@ -112,7 +103,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/naming-conventions.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
-  "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
   "test/unit/code-quality/test-hygiene.test.js",
   "test/unit/code-quality/test-quality.test.js",
@@ -120,22 +110,14 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
   "test/unit/test-runner-utils.test.js",
-  "test/unit/test-utils.test.js",
-  "test/unit/collections/categories.test.js",
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",
-  "test/integration/eleventy/feed.test.js",
   "test/unit/eleventy/layout-aliases.test.js",
   "test/unit/filters/item-filters.test.js",
   "test/unit/frontend/checkout.test.js",
   "test/unit/frontend/config.test.js",
-  "test/unit/frontend/quote-steps.test.js",
-  "test/unit/frontend/theme-editor.test.js",
-  "test/unit/utils/grouping.test.js",
-  "test/unit/utils/helpers.test.js",
   "test/unit/utils/object-entries.test.js",
   "test/unit/utils/strings.test.js",
-  "ecommerce-backend/server.test.js",
 ]);
 
 // ============================================
@@ -149,27 +131,15 @@ const ALLOWED_LET = new Set([
   // Test files with mutable state tracking
   "test/integration/build/pdf-integration.test.js",
   "test/integration/eleventy/feed.test.js",
-  "test/unit/build/pdf.test.js",
-  "test/unit/frontend/gallery.test.js",
   "test/unit/frontend/hire-calculator.test.js",
-  "test/unit/frontend/scroll-fade.test.js",
-  "test/unit/frontend/cart.test.js",
-  "test/unit/frontend/slider.test.js",
-  "test/unit/frontend/search.test.js",
-  "test/unit/frontend/quote-checkout.test.js",
-  "test/unit/code-quality/code-scanner.test.js",
-  "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
-  "test/unit/code-quality/html-in-js.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
-  "test/test-site-factory.js",
   "test/integration/test-site-factory.test.js",
-  "test/precommit.js",
   "test/test-utils.js",
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
