@@ -37,12 +37,6 @@ const appendChildren = (element, children) => {
   if (children === null) return;
   if (typeof children === "string") {
     element.innerHTML = children;
-  } else if (Array.isArray(children)) {
-    for (const child of children) {
-      element.appendChild(child);
-    }
-  } else {
-    element.appendChild(children);
   }
 };
 
