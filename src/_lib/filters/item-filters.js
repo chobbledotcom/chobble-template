@@ -57,20 +57,6 @@ const parseFilterAttributes = (filterAttributes) => {
 };
 
 /**
- * Format a Map of values by key into a sorted object
- * { key => Set(values) } => { key: [sorted_values], ... }
- * Curried for composition
- * @param {Map<string, string[]>} valuesByKey - Map of keys to values
- * @returns {Record<string, string[]>} Formatted attribute object
- */
-const formatValueMap = (valuesByKey) =>
-  pipe(
-    (map) => [...map.keys()].sort(),
-    map((key) => [key, [...valuesByKey.get(key)].sort()]),
-    Object.fromEntries,
-  )(valuesByKey);
-
-/**
  * Build a map of all filter attributes and their possible values
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
  * Uses pipe to show data flow: extract pairs -> group by key -> format for output
@@ -86,7 +72,10 @@ const getAllFilterAttributes = memoize((items) => {
     groupValuesBy,
   )(items);
 
-  return formatValueMap(valuesByKey);
+  const sortedKeys = [...valuesByKey.keys()].sort();
+  return Object.fromEntries(
+    sortedKeys.map((key) => [key, [...valuesByKey.get(key)].sort()]),
+  );
 });
 
 /**
