@@ -243,11 +243,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/media/image-utils.js:getPathAwareBasename",
   "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",
 
-  // Path constants - used in test utilities
-  "src/_lib/paths.js:DATA_DIR",
-  "src/_lib/paths.js:ROOT_DIR",
-  "src/_lib/paths.js:SRC_DIR",
-
   // DOM init functions - auto-called via onReady in production, but exported for unit tests
   // (ES modules execute at import time before tests can set up DOM)
   "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
@@ -258,7 +253,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/utils/dom-builder.js:getSharedDocument",
 
   // Curried data transforms - designed for test fixtures but exported from production
-  // for reuse across test files. Similar pattern to ROOT_DIR/SRC_DIR.
+  // for reuse across test files.
   "src/_lib/utils/array-utils.js:data",
   "src/_lib/utils/array-utils.js:toData",
 ]);
