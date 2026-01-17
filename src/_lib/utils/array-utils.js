@@ -1,6 +1,7 @@
 /**
  * Functional array utilities
  */
+import { compareBy } from "#utils/sorting.js";
 
 /**
  * @template T
@@ -82,6 +83,29 @@ const reduce = (fn, initial) => (arr) => arr.reduce(fn, initial);
  * @returns {(arr: T[]) => T[]} Function that sorts array
  */
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
+
+/**
+ * Sort by a property or getter function.
+ * Auto-detects type: uses localeCompare for strings, subtraction for numbers.
+ *
+ * @template T
+ * @param {string | ((item: T) => string | number)} key - Property name or getter
+ * @returns {(arr: T[]) => T[]} Function that sorts array
+ *
+ * @example
+ * // By property name
+ * sortBy("name")(users)
+ * pipe(sortBy("age"))(users)
+ *
+ * @example
+ * // By getter function
+ * sortBy(x => x.name)(users)
+ * pipe(sortBy(x => x.data.order))(items)
+ */
+const sortBy = (key) => {
+  const getKey = typeof key === "function" ? key : (obj) => obj[key];
+  return sort(compareBy(getKey));
+};
 
 /**
  * Remove duplicate values
@@ -319,6 +343,26 @@ const memberOf = membershipPredicate(false);
 const notMemberOf = membershipPredicate(true);
 
 /**
+ * Filter out items that are in the exclusion list.
+ * Shorthand for filter(notMemberOf(values)).
+ *
+ * @template T
+ * @param {T[]} values - Values to exclude
+ * @returns {(arr: T[]) => T[]} Function that filters out excluded values
+ *
+ * @example
+ * exclude(['a', 'b'])(['a', 'b', 'c', 'd'])  // ['c', 'd']
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   exclude(EXCLUDED_FILES),
+ *   map(toData),
+ * )(files)
+ */
+const exclude = (values) => filter(notMemberOf(values));
+
+/**
  * Create a pluralization formatter.
  * Curried: (singular, plural?) => (count) => string
  *
@@ -466,6 +510,7 @@ export {
   accumulate,
   compact,
   data,
+  exclude,
   filter,
   filterMap,
   findDuplicate,
@@ -481,6 +526,7 @@ export {
   pluralize,
   reduce,
   sort,
+  sortBy,
   split,
   toData,
   unique,

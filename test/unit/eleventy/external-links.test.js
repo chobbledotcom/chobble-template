@@ -124,6 +124,17 @@ describe("external-links", () => {
         expect(result.includes('rel="noopener noreferrer"')).toBe(true);
       });
 
+      test("preserves doctype declaration", async () => {
+        const transform = await getTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          '<!DOCTYPE html><html><body><a href="https://example.com">Link</a></body></html>';
+        const result = await transform(html, "index.html");
+
+        expect(result.startsWith("<!DOCTYPE html>")).toBe(true);
+      });
+
       test("does not modify internal links", async () => {
         const transform = await getTransform({
           externalLinksTargetBlank: true,
@@ -290,6 +301,17 @@ describe("external-links", () => {
         expect(result).toContain(">example.com</a>");
         expect(result).toContain('target="_blank"');
         expect(result).toContain('rel="noopener noreferrer"');
+      });
+
+      test("preserves doctype declaration", async () => {
+        const transform = await getLinkifyUrlsTransform({
+          externalLinksTargetBlank: true,
+        });
+        const html =
+          "<!DOCTYPE html><html><body><p>Visit https://example.com</p></body></html>";
+        const result = await transform(html, "index.html");
+
+        expect(result.startsWith("<!DOCTYPE html>")).toBe(true);
       });
 
       test("handles multiple URLs in text", async () => {
