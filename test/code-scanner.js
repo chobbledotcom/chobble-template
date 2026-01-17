@@ -324,36 +324,43 @@ const validateExceptions = (allowlist, patterns) => {
   const stale = [];
 
   for (const entry of allowlist) {
-    // Skip file-only entries (no line number)
-    if (!entry.includes(":")) continue;
+    // File-only entries (no line number) - verify file has at least one match
+    if (!entry.includes(":")) {
+      const source = readSource(entry);
+      const hasMatch = source
+        .split("\n")
+        .some((line) => patternList.some((p) => p.test(line)));
+      if (!hasMatch) {
+        stale.push({
+          entry,
+          reason: "File contains no lines matching pattern",
+        });
+      }
+      continue;
+    }
 
     const [filePath, lineNumStr] = entry.split(":");
     const lineNum = parseInt(lineNumStr, 10);
+    const source = readSource(filePath);
+    const lines = source.split("\n");
 
-    try {
-      const source = readSource(filePath);
-      const lines = source.split("\n");
+    // Check if line exists
+    if (lineNum > lines.length || lineNum < 1) {
+      stale.push({
+        entry,
+        reason: `Line ${lineNum} doesn't exist (file has ${lines.length} lines)`,
+      });
+      continue;
+    }
 
-      // Check if line exists
-      if (lineNum > lines.length || lineNum < 1) {
-        stale.push({
-          entry,
-          reason: `Line ${lineNum} doesn't exist (file has ${lines.length} lines)`,
-        });
-        continue;
-      }
+    // Check if line matches pattern
+    const line = lines[lineNum - 1];
 
-      // Check if line matches pattern
-      const line = lines[lineNum - 1];
-
-      if (!patternList.some((p) => p.test(line))) {
-        stale.push({
-          entry,
-          reason: `Line no longer matches pattern: "${line.trim().slice(0, 50)}..."`,
-        });
-      }
-    } catch {
-      stale.push({ entry, reason: `File not found: ${filePath}` });
+    if (!patternList.some((p) => p.test(line))) {
+      stale.push({
+        entry,
+        reason: `Line no longer matches pattern: "${line.trim().slice(0, 50)}..."`,
+      });
     }
   }
 
