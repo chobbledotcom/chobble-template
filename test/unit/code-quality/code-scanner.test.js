@@ -3,10 +3,13 @@ import {
   createCodeChecker,
   createPatternMatcher,
   expectNoStaleExceptions,
+  expectNoStaleFunctionAllowlist,
   formatViolationReport,
   isCommentLine,
+  isFunctionDefined,
   scanFilesForViolations,
   validateExceptions,
+  validateFunctionAllowlist,
 } from "#test/code-scanner.js";
 import { captureConsole, SRC_JS_FILES } from "#test/test-utils.js";
 
@@ -324,6 +327,90 @@ describe("code-scanner", () => {
       expect(logs.some((log) => log.includes("test/code-scanner.js:1"))).toBe(
         true,
       );
+    });
+  });
+
+  describe("isFunctionDefined", () => {
+    test("detects const function declarations", () => {
+      const source = "const myFunc = () => {}";
+      expect(isFunctionDefined("myFunc", source)).toBe(true);
+      expect(isFunctionDefined("otherFunc", source)).toBe(false);
+    });
+
+    test("detects let function declarations", () => {
+      const source = "let myFunc = function() {}";
+      expect(isFunctionDefined("myFunc", source)).toBe(true);
+    });
+
+    test("detects var function declarations", () => {
+      const source = "var myFunc = () => {}";
+      expect(isFunctionDefined("myFunc", source)).toBe(true);
+    });
+
+    test("detects function keyword declarations", () => {
+      const source = "function myFunc() {}";
+      expect(isFunctionDefined("myFunc", source)).toBe(true);
+    });
+
+    test("detects destructuring assignments", () => {
+      const source = "const { x: myFunc } = obj";
+      expect(isFunctionDefined("myFunc", source)).toBe(true);
+    });
+  });
+
+  describe("validateFunctionAllowlist", () => {
+    test("returns empty array when all functions are defined", () => {
+      const allowlist = new Set(["funcA", "funcB"]);
+      const source = "const funcA = () => {}\nconst funcB = () => {}";
+      const stale = validateFunctionAllowlist(allowlist, source);
+      expect(stale).toEqual([]);
+    });
+
+    test("returns stale entries for undefined functions", () => {
+      const allowlist = new Set(["funcA", "missingFunc"]);
+      const source = "const funcA = () => {}";
+      const stale = validateFunctionAllowlist(allowlist, source);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe("missingFunc");
+      expect(stale[0].reason).toBe("Function is not defined in any file");
+    });
+
+    test("returns all stale entries when none are defined", () => {
+      const allowlist = new Set(["missing1", "missing2"]);
+      const source = "const other = () => {}";
+      const stale = validateFunctionAllowlist(allowlist, source);
+      expect(stale.length).toBe(2);
+    });
+  });
+
+  describe("expectNoStaleFunctionAllowlist", () => {
+    test("logs stale entries when functions are not defined", () => {
+      const allowlist = new Set(["missingFunc"]);
+      const source = "const other = () => {}";
+
+      const logs = captureConsole(() => {
+        expect(() =>
+          expectNoStaleFunctionAllowlist(
+            allowlist,
+            source,
+            "TEST_FUNCTION_ALLOWLIST",
+          ),
+        ).toThrow();
+      });
+
+      expect(
+        logs.some((log) => log.includes("Stale TEST_FUNCTION_ALLOWLIST")),
+      ).toBe(true);
+      expect(logs.some((log) => log.includes("missingFunc"))).toBe(true);
+    });
+
+    test("passes when all functions are defined", () => {
+      const allowlist = new Set(["myFunc"]);
+      const source = "const myFunc = () => {}";
+
+      expect(() =>
+        expectNoStaleFunctionAllowlist(allowlist, source, "TEST_ALLOWLIST"),
+      ).not.toThrow();
     });
   });
 });

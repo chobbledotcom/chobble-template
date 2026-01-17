@@ -407,6 +407,67 @@ const createViolation = (reasonFn) => (context) => ({
 });
 
 // ============================================
+// Function Name Allowlist Validation
+// ============================================
+
+// Common patterns for detecting function definitions
+const FUNCTION_DEFINITION_PATTERNS = {
+  const: (name) => new RegExp(`\\bconst\\s+${name}\\s*=`),
+  let: (name) => new RegExp(`\\blet\\s+${name}\\s*=`),
+  var: (name) => new RegExp(`\\bvar\\s+${name}\\s*=`),
+  function: (name) => new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
+  destructuring: (name) => new RegExp(`:\\s*${name}\\s*[,})]`),
+};
+
+/**
+ * Check if a function name is defined in the given source code.
+ * Looks for common definition patterns: const/let/var/function declarations and destructuring.
+ *
+ * @param {string} name - Function name to search for
+ * @param {string} source - Source code to search in
+ * @returns {boolean} True if the function is defined
+ */
+const isFunctionDefined = (name, source) =>
+  Object.values(FUNCTION_DEFINITION_PATTERNS).some((createPattern) =>
+    createPattern(name).test(source),
+  );
+
+/**
+ * Validate that function names in an allowlist are actually defined in source files.
+ * Returns entries that are no longer defined anywhere.
+ *
+ * @param {Set<string>} allowlist - Set of function names
+ * @param {string} combinedSource - Combined source code from all files to search
+ * @returns {Array<{entry: string, reason: string}>} Stale entries
+ */
+const validateFunctionAllowlist = (allowlist, combinedSource) =>
+  [...allowlist]
+    .filter((name) => !isFunctionDefined(name, combinedSource))
+    .map((name) => ({
+      entry: name,
+      reason: "Function is not defined in any file",
+    }));
+
+/**
+ * Assert no stale function allowlist entries exist.
+ * Logs stale entries and fails test if any found.
+ *
+ * @param {Set<string>} allowlist - Set of function names
+ * @param {string} combinedSource - Combined source code to search
+ * @param {string} label - Name of the allowlist for logging
+ */
+const expectNoStaleFunctionAllowlist = (allowlist, combinedSource, label) => {
+  const stale = validateFunctionAllowlist(allowlist, combinedSource);
+  if (stale.length > 0) {
+    console.log(`\n  Stale ${label} entries:`);
+    for (const s of stale) {
+      console.log(`    - ${s.entry}`);
+    }
+  }
+  expect(stale.length).toBe(0);
+};
+
+// ============================================
 // Export Detection Utilities
 // ============================================
 
@@ -549,6 +610,10 @@ export {
   // Exception validation
   validateExceptions,
   expectNoStaleExceptions,
+  // Function allowlist validation
+  isFunctionDefined,
+  validateFunctionAllowlist,
+  expectNoStaleFunctionAllowlist,
   // Export detection
   extractExports,
 };
