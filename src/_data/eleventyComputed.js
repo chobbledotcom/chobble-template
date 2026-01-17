@@ -39,40 +39,28 @@ function hasTag(data, tag) {
   return (data.tags || []).includes(tag);
 }
 
-/**
- * Gets placeholder image if enabled in config
- * @param {Object} data - Page data
- * @returns {string|null} Placeholder image or null
- */
-function getPlaceholderIfEnabled(data) {
-  const config = data.config || getConfig();
-  if (config.placeholder_images) {
-    return getPlaceholderForPath(data.page?.url || "");
-  }
-  return null;
-}
+/** Returns first valid image from candidates, or null */
+const getFirstValidImage = (candidates) =>
+  candidates.find(isValidImage) ?? null;
 
 /**
  * Finds the first valid thumbnail from available images, or returns a
  * placeholder if configured
  * @param {Object} data - Page data
- * @param {string[]} [data.tags] - Page tags
- * @param {string|import("#lib/types").Image} [data.thumbnail] - Thumbnail image
- * @param {Array} [data.gallery] - Gallery images
- * @param {string|import("#lib/types").Image} [data.header_image] - Header image
- * @param {Object} [data.page] - Eleventy page object
- * @param {string} [data.page.url] - Page URL
- * @param {Object} [data.config] - Site config from data cascade
  * @returns {string|import("#lib/types").Image|null} Valid image or null
  */
 function findValidThumbnail(data) {
-  if (isValidImage(data.thumbnail)) return data.thumbnail;
-  if (data.gallery?.[0] && isValidImage(data.gallery[0]))
-    return data.gallery[0];
-  if (isValidImage(data.header_image)) return data.header_image;
-  // Reviews use initials-based avatars as fallback, not placeholder images
+  const image = getFirstValidImage([
+    data.thumbnail,
+    data.gallery?.[0],
+    data.header_image,
+  ]);
+  if (image) return image;
   if (hasTag(data, "reviews")) return null;
-  return getPlaceholderIfEnabled(data);
+  const config = data.config || getConfig();
+  return config.placeholder_images
+    ? getPlaceholderForPath(data.page.url)
+    : null;
 }
 
 export default {
