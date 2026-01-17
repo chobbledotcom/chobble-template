@@ -11,7 +11,7 @@ Parameters:
     {%- for filter in filterUI.activeFilters -%}
     <li>
       <span>{{ filter.key }}: {{ filter.value }}</span>
-      <a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter">&times;</a>
+      <a href="{{ filter.removeUrl }}" aria-label="Remove {{ filter.key }} filter">×</a>
     </li>
     {%- endfor -%}
     <li><a href="{{ filterUI.clearAllUrl }}">Clear all</a></li>
