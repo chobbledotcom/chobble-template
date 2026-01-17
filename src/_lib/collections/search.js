@@ -27,7 +27,7 @@ const buildProductKeywordMap = memoize((products) =>
         ...categoryKeywords,
       ],
       unique,
-    )(product.data.categories || []),
+    )(product.data.categories),
   ),
 );
 

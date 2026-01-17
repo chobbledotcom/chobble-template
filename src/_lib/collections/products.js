@@ -9,11 +9,12 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Compute gallery array from gallery or header_image (for eleventyComputed)
+ * @returns {string[]} - Gallery array (empty if no images)
  */
 const computeGallery = (data) => {
   if (data.gallery) return data.gallery;
   if (data.header_image) return [data.header_image];
-  return undefined;
+  return [];
 };
 
 /**
