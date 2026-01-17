@@ -1,6 +1,5 @@
 import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
-import { filter, pipe, sortBy } from "#utils/array-utils.js";
 
 const specsIconsOrder = Object.keys(specsIcons);
 
