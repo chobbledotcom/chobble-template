@@ -33,6 +33,7 @@ export type {
   EleventyCollectionItem,
   EleventyCollectionApi,
   EleventyNavigation,
+  EleventyComputedData,
 } from './eleventy.d.ts';
 
 // =============================================================================
