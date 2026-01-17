@@ -92,11 +92,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/run-tests.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
-  "test/unit/utils/schema-helper-utils.js",
   "test/unit/data/eleventy-computed.test.js",
-  "test/unit/collections/events-utils.js",
-  "test/unit/frontend/quote-steps-utils.js",
-  "test/unit/code-quality/code-quality-utils.js",
 
   // Test files - imperative accumulation patterns for test setup/assertions
   "test/unit/build/cache-buster.test.js",
