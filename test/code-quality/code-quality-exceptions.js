@@ -187,7 +187,6 @@ const ALLOWED_LET = new Set([
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
-  "src/_data/eleventyComputed.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
@@ -243,6 +242,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/eleventy/recurring-events.js:stripDatePrefix",
 
   // Media processing - tested for image handling
+  "src/_lib/media/image-frontmatter.js:isValidImage", // Used by getFirstValidImage, tested directly for edge cases
   "src/_lib/media/image-utils.js:getPathAwareBasename",
   "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",
 
