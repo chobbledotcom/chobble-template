@@ -37,14 +37,21 @@ describe("ical", () => {
   // eventIcal - falsy ical_url handling (consolidated)
   test("Returns null when ical_url is missing, undefined, or empty", () => {
     const eventIcal = getEventIcalFilter();
-    const baseEvent = icalEvent("Test Event", "2025-06-15", null, "/events/test/");
+    const baseEvent = icalEvent(
+      "Test Event",
+      "2025-06-15",
+      null,
+      "/events/test/",
+    );
 
     // No ical_url property
     expect(eventIcal(baseEvent)).toBe(null);
 
     // ical_url is undefined
     expect(
-      eventIcal(icalEvent("Test Event", "2025-06-15", undefined, "/events/test/")),
+      eventIcal(
+        icalEvent("Test Event", "2025-06-15", undefined, "/events/test/"),
+      ),
     ).toBe(null);
 
     // ical_url is empty string
