@@ -351,10 +351,10 @@ describe("products", () => {
       expect(result).toEqual(["header.jpg"]);
     });
 
-    test("returns undefined when no gallery or header_image", () => {
+    test("returns empty array when no gallery or header_image", () => {
       const data = { title: "Product" };
       const result = computeGallery(data);
-      expect(result).toBe(undefined);
+      expect(result).toEqual([]);
     });
   });
 
