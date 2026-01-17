@@ -248,17 +248,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/paths.js:ROOT_DIR",
   "src/_lib/paths.js:SRC_DIR",
 
-  // Public cart/hire functionality - tested for frontend behavior
-  "src/_lib/public/cart/hire-calculator.js:getHireItems",
-  "src/_lib/public/cart/hire-calculator.js:hasHireItems",
-  "src/_lib/public/cart/hire-calculator.js:isHireItem",
-  "src/_lib/public/cart/hire-calculator.js:setMinDate",
-  "src/_lib/public/cart/quote-steps.js:initQuoteSteps", // Public API, auto-called via onReady
-
-  // Public UI components - tested for frontend behavior
+  // Public initialization functions - auto-called via onReady, exported for testing
+  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
-  "src/_lib/public/utils/cart-utils.js:getItemCount",
-  "src/_lib/public/utils/cart-utils.js:removeItem",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",

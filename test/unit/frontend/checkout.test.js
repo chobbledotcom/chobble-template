@@ -12,8 +12,6 @@ import {
   attachRemoveHandlers,
   formatPrice,
   getCart,
-  getItemCount,
-  removeItem,
   STORAGE_KEY,
   saveCart,
   updateCartIcon,
@@ -257,18 +255,6 @@ describe("checkout", () => {
     });
   });
 
-  test("removeItem removes item by name", () => {
-    withMockStorage(() => {
-      saveCart([
-        { item_name: "Keep", unit_price: 10, quantity: 1 },
-        { item_name: "Remove", unit_price: 5, quantity: 2 },
-      ]);
-      const result = removeItem("Remove");
-      expect(result).toHaveLength(1);
-      expect(result[0].item_name).toBe("Keep");
-    });
-  });
-
   test("formatPrice formats with £ symbol, stripping trailing .00", () => {
     expect(formatPrice(10)).toBe("£10");
     expect(formatPrice(5.5)).toBe("£5.50");
@@ -277,13 +263,24 @@ describe("checkout", () => {
     expect(formatPrice(99.99)).toBe("£99.99");
   });
 
-  test("getItemCount sums all quantities", () => {
+  test("attachRemoveHandlers removes item from cart when button clicked", () => {
     withMockStorage(() => {
       saveCart([
-        { item_name: "A", unit_price: 10, quantity: 3 },
-        { item_name: "B", unit_price: 5, quantity: 2 },
+        { item_name: "Keep", unit_price: 10, quantity: 1 },
+        { item_name: "Remove", unit_price: 5, quantity: 2 },
       ]);
-      expect(getItemCount()).toBe(5);
+      document.body.innerHTML = `
+        <button data-action="remove" data-name="Remove">Remove</button>
+      `;
+      const tracker = { called: false };
+      attachRemoveHandlers(() => {
+        tracker.called = true;
+      });
+      document.querySelector('[data-action="remove"]').click();
+      expect(tracker.called).toBe(true);
+      const cart = getCart();
+      expect(cart).toHaveLength(1);
+      expect(cart[0].item_name).toBe("Keep");
     });
   });
 
