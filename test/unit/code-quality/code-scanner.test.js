@@ -281,34 +281,35 @@ describe("code-scanner", () => {
       expect(stale).toEqual([]);
     });
 
-    test("detects when file does not exist", () => {
-      testStaleException(
-        new Set(["non-existent-file.js:10"]),
-        /./,
-        "non-existent-file.js:10",
-        /File not found: non-existent-file\.js/,
-      );
+    test("detects file-only entry with no matching lines", () => {
+      // test/code-scanner.js exists but won't have this pattern
+      const allowlist = new Set(["test/code-scanner.js"]);
+      const patterns = /this-pattern-definitely-wont-match-anything-12345/;
+
+      const stale = validateExceptions(allowlist, patterns);
+      expect(stale.length).toBe(1);
+      expect(stale[0].entry).toBe("test/code-scanner.js");
+      expect(stale[0].reason).toBe("File contains no lines matching pattern");
     });
 
     test("detects multiple stale entries", () => {
       const allowlist = new Set([
         "test/code-scanner.js:999999", // line doesn't exist
-        "non-existent-file.js:10", // file doesn't exist
         "test/code-scanner.js:1", // line doesn't match pattern
       ]);
       const patterns = /console\.log/; // Line 1 won't match this
 
       const stale = validateExceptions(allowlist, patterns);
-      expect(stale.length).toBe(3);
+      expect(stale.length).toBe(2);
     });
   });
 
   describe("expectNoStaleExceptions", () => {
     test("logs stale entries when exceptions are invalid", () => {
       const allowlist = new Set([
-        "nonexistent-file.js:1", // file doesn't exist
+        "test/code-scanner.js:1", // line doesn't match pattern
       ]);
-      const patterns = /test/;
+      const patterns = /this-pattern-wont-match-anything/;
 
       const logs = captureConsole(() => {
         // Call the function but catch the assertion error via expect().toThrow()
@@ -320,7 +321,7 @@ describe("code-scanner", () => {
       expect(
         logs.some((log) => log.includes("Stale TEST_ALLOWLIST entries")),
       ).toBe(true);
-      expect(logs.some((log) => log.includes("nonexistent-file.js:1"))).toBe(
+      expect(logs.some((log) => log.includes("test/code-scanner.js:1"))).toBe(
         true,
       );
     });
