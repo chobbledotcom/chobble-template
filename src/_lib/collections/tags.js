@@ -6,6 +6,7 @@ import {
   sort,
   unique,
 } from "#utils/array-utils.js";
+import { compareStrings } from "#utils/sorting.js";
 
 /**
  * Extract unique tags from a collection
@@ -25,7 +26,7 @@ const extractTags = (collection) =>
     map((tag) => String(tag).trim()),
     filter((tag) => tag !== ""),
     unique,
-    sort((a, b) => a.localeCompare(b)),
+    sort(compareStrings),
   )(collection);
 
 const configureTags = (eleventyConfig) => {

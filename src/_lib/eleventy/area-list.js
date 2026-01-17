@@ -6,6 +6,7 @@
  */
 
 import { filter, listSeparator, map, pipe, sort } from "#utils/array-utils.js";
+import { compareByLocale } from "#utils/sorting.js";
 
 const navKey = (loc) => loc.data?.eleventyNavigation?.key || "";
 
@@ -24,7 +25,7 @@ const prepareAreaList = (locations, currentUrl) => {
 
   const filtered = pipe(
     filter((loc) => isTopLevel(loc.url) && loc.url !== currentUrl),
-    sort((a, b) => navKey(a).localeCompare(navKey(b))),
+    sort(compareByLocale(navKey)),
   )(locations);
 
   const separator = listSeparator(filtered.length);

@@ -13,6 +13,20 @@
  */
 
 /**
+ * Comparator for sorting strings alphabetically using locale-aware comparison.
+ * Use directly with sort() for string arrays.
+ *
+ * @param {string} a - First string
+ * @param {string} b - Second string
+ * @returns {number} Comparison result
+ *
+ * @example
+ * ['banana', 'apple', 'cherry'].sort(compareStrings)  // ['apple', 'banana', 'cherry']
+ * pipe(sort(compareStrings))(names)
+ */
+const compareStrings = (a, b) => a.localeCompare(b);
+
+/**
  * Create a comparator from a key-extraction function.
  * Returns a comparator that sorts by the extracted numeric values (ascending).
  *
@@ -29,6 +43,25 @@
  * events.sort(byDate);
  */
 const compareBy = (getKey) => (a, b) => getKey(a) - getKey(b);
+
+/**
+ * Create a locale-aware string comparator from a key-extraction function.
+ * Returns a comparator that sorts by the extracted string values alphabetically.
+ *
+ * @template T
+ * @param {(item: T) => string} getKey - Function to extract a string value
+ * @returns {(a: T, b: T) => number} Comparator function
+ *
+ * @example
+ * const byName = compareByLocale(user => user.name);
+ * users.sort(byName);
+ *
+ * @example
+ * // With pipe and sort from array-utils
+ * pipe(sort(compareByLocale(x => x.title)))(items)
+ */
+const compareByLocale = (getKey) => (a, b) =>
+  getKey(a).localeCompare(getKey(b));
 
 /**
  * Reverse a comparator (flip ascending to descending or vice versa).
@@ -52,7 +85,7 @@ const descending = (comparator) => (a, b) => comparator(b, a);
  */
 const createOrderThenStringComparator = (getNumeric, getString) => (a, b) => {
   const diff = getNumeric(a) - getNumeric(b);
-  return diff !== 0 ? diff : getString(a).localeCompare(getString(b));
+  return diff !== 0 ? diff : compareByLocale(getString)(a, b);
 };
 
 /**
@@ -91,6 +124,8 @@ const sortNavigationItems = createOrderThenStringComparator(
 
 export {
   compareBy,
+  compareByLocale,
+  compareStrings,
   descending,
   sortByDateDescending,
   sortItems,
