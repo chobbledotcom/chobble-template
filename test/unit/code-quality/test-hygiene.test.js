@@ -75,6 +75,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // external-links.test.js - getter helpers following area-list.test.js pattern
   "getFilter",
   "getTransform",
+  "getLinkifyUrlsTransform",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
