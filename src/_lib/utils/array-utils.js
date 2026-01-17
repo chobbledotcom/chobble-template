@@ -107,7 +107,9 @@ const sortBy = (key) => {
     [...arr].sort((a, b) => {
       const keyA = getKey(a);
       const keyB = getKey(b);
-      return typeof keyA === "string" ? keyA.localeCompare(keyB) : keyA - keyB;
+      return typeof keyA === "string"
+        ? keyA.localeCompare(/** @type {string} */ (keyB))
+        : /** @type {number} */ (keyA) - /** @type {number} */ (keyB);
     });
 };
 
