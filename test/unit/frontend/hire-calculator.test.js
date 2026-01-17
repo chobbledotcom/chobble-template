@@ -1,14 +1,10 @@
 // Hire Calculator Tests
-// Tests the hire-calculator.js functions for date management
+// Tests the hire-calculator.js public API via DOM simulation
 
 import { describe, expect, test } from "bun:test";
 import {
   calculateDays,
-  getHireItems,
-  hasHireItems,
   initHireCalculator,
-  isHireItem,
-  setMinDate,
 } from "#public/cart/hire-calculator.js";
 import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 
@@ -79,97 +75,6 @@ describe("hire-calculator", () => {
 
   test("calculateDays returns 0 when end is before start", () => {
     expect(calculateDays("2025-01-20", "2025-01-15")).toBe(0);
-  });
-
-  // ----------------------------------------
-  // isHireItem Tests
-  // ----------------------------------------
-  test("isHireItem returns true for hire mode items", () => {
-    expect(isHireItem({ product_mode: "hire" })).toBe(true);
-  });
-
-  test("isHireItem returns false for buy mode items", () => {
-    expect(isHireItem({ product_mode: "buy" })).toBe(false);
-  });
-
-  test("isHireItem returns false for null product_mode", () => {
-    expect(isHireItem({ product_mode: null })).toBe(false);
-  });
-
-  test("isHireItem returns false for undefined product_mode", () => {
-    expect(isHireItem({})).toBe(false);
-  });
-
-  // ----------------------------------------
-  // hasHireItems Tests
-  // ----------------------------------------
-  test("hasHireItems returns true if any item has product_mode hire", () => {
-    const cart = [
-      { item_name: "Widget", product_mode: "buy" },
-      { item_name: "Doggy Care", product_mode: "hire" },
-    ];
-    expect(hasHireItems(cart)).toBe(true);
-  });
-
-  test("hasHireItems returns false if no items have hire mode", () => {
-    const cart = [
-      { item_name: "Widget", product_mode: "buy" },
-      { item_name: "Gadget", product_mode: null },
-    ];
-    expect(hasHireItems(cart)).toBe(false);
-  });
-
-  test("hasHireItems returns false for empty cart", () => {
-    expect(hasHireItems([])).toBe(false);
-  });
-
-  // ----------------------------------------
-  // getHireItems Tests
-  // ----------------------------------------
-  test("getHireItems returns only items with product_mode hire", () => {
-    const cart = [
-      { item_name: "Widget", product_mode: "buy" },
-      { item_name: "Doggy Care", product_mode: "hire" },
-      { item_name: "Gadget", product_mode: null },
-      { item_name: "Equipment", product_mode: "hire" },
-    ];
-    const hireItems = getHireItems(cart);
-    expect(hireItems).toHaveLength(2);
-    expect(hireItems[0].item_name).toBe("Doggy Care");
-    expect(hireItems[1].item_name).toBe("Equipment");
-  });
-
-  test("getHireItems returns empty array when no hire items", () => {
-    const cart = [{ item_name: "Widget", product_mode: "buy" }];
-    const hireItems = getHireItems(cart);
-    expect(hireItems).toHaveLength(0);
-  });
-
-  // ----------------------------------------
-  // setMinDate Tests
-  // ----------------------------------------
-  test("setMinDate sets min attribute to today's date", () => {
-    document.body.innerHTML = '<input type="date" id="test-date" />';
-    const input = document.getElementById("test-date");
-
-    setMinDate(input);
-
-    expect(input.min).toBe(getToday());
-  });
-
-  test("setMinDate works on multiple inputs", () => {
-    document.body.innerHTML = `
-      <input type="date" id="start" />
-      <input type="date" id="end" />
-    `;
-    const startInput = document.getElementById("start");
-    const endInput = document.getElementById("end");
-
-    setMinDate(startInput);
-    setMinDate(endInput);
-
-    expect(startInput.min).toBe(getToday());
-    expect(endInput.min).toBe(getToday());
   });
 
   // ----------------------------------------

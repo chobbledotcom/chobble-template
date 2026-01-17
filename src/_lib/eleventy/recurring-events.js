@@ -91,8 +91,6 @@ const configureRecurringEvents = (eleventyConfig) => {
 
 export {
   configureRecurringEvents,
-  getEventUrl,
   getRecurringEventsHtml,
   renderRecurringEvents,
-  stripDatePrefix,
 };
