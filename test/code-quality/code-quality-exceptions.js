@@ -248,7 +248,8 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/paths.js:ROOT_DIR",
   "src/_lib/paths.js:SRC_DIR",
 
-  // Public initialization functions - auto-called via onReady, exported for testing
+  // DOM init functions - auto-called via onReady in production, but exported for unit tests
+  // (ES modules execute at import time before tests can set up DOM)
   "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
 
