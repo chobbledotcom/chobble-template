@@ -105,7 +105,7 @@ const parseHtml = async (html, document = null) => {
 };
 
 export {
-  createElement,
+  applyAttributes,
   elementToHtml,
   createHtml,
   parseHtml,
