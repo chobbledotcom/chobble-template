@@ -36,6 +36,7 @@ describe("config", () => {
       "category_order",
       "screenshots",
       "design_system_layouts",
+      "phoneNumberLength",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });
@@ -47,6 +48,7 @@ describe("config", () => {
     );
     expect(DEFAULTS.cart_mode).toBe(null);
     expect(DEFAULTS.product_mode).toBe(null);
+    expect(DEFAULTS.phoneNumberLength).toBe(11);
   });
 
   test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {

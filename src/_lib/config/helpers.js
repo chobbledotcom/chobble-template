@@ -26,6 +26,7 @@ const DEFAULTS = {
   category_order: null,
   screenshots: null,
   design_system_layouts: ["design-system-base.html"],
+  phoneNumberLength: 11,
 };
 
 const DEFAULT_PRODUCT_DATA = {
