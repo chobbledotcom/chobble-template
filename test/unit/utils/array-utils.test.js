@@ -2,14 +2,18 @@ import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
   compact,
+  data,
+  filter,
   filterMap,
   findDuplicate,
   listSeparator,
+  map,
   memberOf,
   notMemberOf,
   pick,
   pipe,
   sort,
+  toData,
 } from "#utils/array-utils.js";
 
 describe("array-utils", () => {
@@ -286,5 +290,199 @@ describe("array-utils", () => {
 
     expect(getActiveNames(team1)).toEqual(["A"]);
     expect(getActiveNames(team2)).toEqual(["D"]);
+  });
+
+  // ============================================
+  // data Tests
+  // ============================================
+  test("data creates items with defaults and field mappings", () => {
+    const product = data({ categories: [] });
+    const products = product("title", "keywords")(
+      ["Widget A", ["portable"]],
+      ["Widget B", ["stationary"]],
+    );
+
+    expect(products).toEqual([
+      { data: { categories: [], title: "Widget A", keywords: ["portable"] } },
+      { data: { categories: [], title: "Widget B", keywords: ["stationary"] } },
+    ]);
+  });
+
+  test("data merges field values over defaults", () => {
+    const event = data({ hidden: false, featured: true });
+    const events = event("title", "hidden")(
+      ["Visible Event", false],
+      ["Hidden Event", true],
+    );
+
+    expect(events[0].data.hidden).toBe(false);
+    expect(events[1].data.hidden).toBe(true);
+    expect(events[0].data.featured).toBe(true);
+    expect(events[1].data.featured).toBe(true);
+  });
+
+  test("data works with empty defaults", () => {
+    const item = data({});
+    const items = item("name", "value")(["foo", 42], ["bar", 100]);
+
+    expect(items).toEqual([
+      { data: { name: "foo", value: 42 } },
+      { data: { name: "bar", value: 100 } },
+    ]);
+  });
+
+  test("data handles single row", () => {
+    const review = data({ rating: 5 });
+    const reviews = review("title", "author")(["Great product!", "Alice"]);
+
+    expect(reviews).toEqual([
+      { data: { rating: 5, title: "Great product!", author: "Alice" } },
+    ]);
+  });
+
+  test("data handles many fields", () => {
+    const product = data({});
+    const products = product(
+      "title",
+      "price",
+      "category",
+      "featured",
+      "stock",
+    )(["Widget", 999, "tools", true, 50]);
+
+    expect(products[0].data).toEqual({
+      title: "Widget",
+      price: 999,
+      category: "tools",
+      featured: true,
+      stock: 50,
+    });
+  });
+
+  test("data is reusable with different field configurations", () => {
+    const baseItem = data({ active: true });
+    const byTitle = baseItem("title");
+    const byTitleAndPrice = baseItem("title", "price");
+
+    const items1 = byTitle(["Item A"], ["Item B"]);
+    const items2 = byTitleAndPrice(["Product X", 100], ["Product Y", 200]);
+
+    expect(items1).toEqual([
+      { data: { active: true, title: "Item A" } },
+      { data: { active: true, title: "Item B" } },
+    ]);
+    expect(items2).toEqual([
+      { data: { active: true, title: "Product X", price: 100 } },
+      { data: { active: true, title: "Product Y", price: 200 } },
+    ]);
+  });
+
+  test("data composes with map for post-processing", () => {
+    const addDate = map((item) => ({
+      ...item,
+      date: new Date(item.data.dateStr),
+    }));
+    const review = data({ rating: 5 });
+
+    // Create items first, then apply transformation
+    const rawReviews = review("title", "dateStr")(
+      ["Great!", "2024-01-01"],
+      ["Good", "2024-01-02"],
+    );
+    const reviews = addDate(rawReviews);
+
+    expect(reviews[0].data.title).toBe("Great!");
+    expect(reviews[0].date).toBeInstanceOf(Date);
+    expect(reviews[1].date.toISOString()).toContain("2024-01-02");
+  });
+
+  test("data handles undefined values in rows", () => {
+    const item = data({ defaultVal: "default" });
+    const items = item("a", "b")(["first", undefined], [undefined, "second"]);
+
+    expect(items[0].data.a).toBe("first");
+    expect(items[0].data.b).toBe(undefined);
+    expect(items[1].data.a).toBe(undefined);
+    expect(items[1].data.b).toBe("second");
+  });
+
+  test("data returns empty array when no rows provided", () => {
+    const item = data({ active: true });
+    const items = item("title")();
+
+    expect(items).toEqual([]);
+  });
+
+  // ============================================
+  // toData Tests (pipeable version)
+  // ============================================
+  test("toData accepts array input for piping", () => {
+    const product = toData({ stock: 10 });
+    const rows = [
+      ["Gadget X", 49.99],
+      ["Gadget Y", 29.99],
+    ];
+
+    const products = product("name", "price")(rows);
+
+    expect(products).toEqual([
+      { data: { stock: 10, name: "Gadget X", price: 49.99 } },
+      { data: { stock: 10, name: "Gadget Y", price: 29.99 } },
+    ]);
+  });
+
+  test("toData works with pipe for pre-processing", () => {
+    const parsePrice = map(([title, price]) => [title, Number(price)]);
+    const product = toData({ inStock: true });
+    const csvRows = [
+      ["Phone", "299"],
+      ["Tablet", "499"],
+    ];
+
+    const products = pipe(parsePrice, product("item", "cost"))(csvRows);
+
+    expect(products[0].data.cost).toBe(299);
+    expect(products[1].data.cost).toBe(499);
+  });
+
+  test("toData works with filter in pipe", () => {
+    const onlyActive = filter(([_, active]) => active);
+    const item = toData({ type: "record" });
+    const rows = [
+      ["Entry A", true],
+      ["Entry B", false],
+      ["Entry C", true],
+    ];
+
+    const items = pipe(onlyActive, item("label", "enabled"))(rows);
+
+    expect(items.length).toBe(2);
+    expect(items[0].data.label).toBe("Entry A");
+    expect(items[1].data.label).toBe("Entry C");
+  });
+
+  test("toData returns empty array for empty input", () => {
+    const item = toData({ ready: false });
+    const items = item("id")([]);
+
+    expect(items).toEqual([]);
+  });
+
+  test("toData handles complex pipe chains with post-processing", () => {
+    const addTimestamp = map((item) => ({
+      ...item,
+      created: new Date(item.data.isoDate),
+    }));
+    const entry = toData({ version: 1 });
+    const rawRows = [
+      ["Log A", "2024-03-01"],
+      ["Log B", "2024-03-15"],
+    ];
+
+    const entries = pipe(entry("name", "isoDate"), addTimestamp)(rawRows);
+
+    expect(entries[0].data.name).toBe("Log A");
+    expect(entries[0].created).toBeInstanceOf(Date);
+    expect(entries[1].created.toISOString()).toContain("2024-03-15");
   });
 });
