@@ -152,10 +152,12 @@ export type EleventyNavigation = {
  */
 export type EleventyComputedData = EleventyCollectionItemData & {
   page: EleventyPageData;
+  site: import('./config.d.ts').SiteInfo;
   config?: import('./config.d.ts').SiteConfig;
   header_image?: string;
   header_text?: string;
   meta_title?: string;
+  description?: string;
   snippet?: string;
   layout?: string;
 };
