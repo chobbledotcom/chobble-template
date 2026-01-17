@@ -1,6 +1,7 @@
 /**
  * Functional array utilities
  */
+import { compareBy } from "#utils/sorting.js";
 
 /**
  * @template T
@@ -103,14 +104,7 @@ const sort = (comparator) => (arr) => [...arr].sort(comparator);
  */
 const sortBy = (key) => {
   const getKey = typeof key === "function" ? key : (obj) => obj[key];
-  return (arr) =>
-    [...arr].sort((a, b) => {
-      const keyA = getKey(a);
-      const keyB = getKey(b);
-      return typeof keyA === "string"
-        ? keyA.localeCompare(/** @type {string} */ (keyB))
-        : /** @type {number} */ (keyA) - /** @type {number} */ (keyB);
-    });
+  return sort(compareBy(getKey));
 };
 
 /**

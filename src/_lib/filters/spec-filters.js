@@ -4,9 +4,6 @@ import { filter, pipe, sortBy } from "#utils/array-utils.js";
 
 const specsIconsOrder = Object.keys(specsIcons);
 
-const specOrderIndex = (spec) =>
-  specsIconsOrder.indexOf(spec.name.toLowerCase().trim());
-
 /**
  * @typedef {Object} ComputedSpec
  * @property {string} name - The spec name (guaranteed by PagesCMS schema)
@@ -68,7 +65,9 @@ const getListItemSpecs = (specs) =>
     ? []
     : pipe(
         filter((spec) => spec.list_items === true),
-        sortBy(specOrderIndex),
+        sortBy((spec) =>
+          specsIconsOrder.indexOf(spec.name.toLowerCase().trim()),
+        ),
         (arr) => arr.slice(0, 2),
       )(specs);
 
