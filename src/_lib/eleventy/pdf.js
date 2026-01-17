@@ -1,7 +1,8 @@
-import { createWriteStream, existsSync, mkdirSync } from "node:fs";
+import { createWriteStream } from "node:fs";
 import { dirname } from "node:path";
 import site from "#data/site.json" with { type: "json" };
 import strings from "#data/strings.js";
+import { ensureDir } from "#eleventy/file-utils.js";
 import {
   filter,
   flatMap,
@@ -39,7 +40,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
         dietarySymbols: pipe(
           map((k) => k.symbol),
           join(" "),
-        )(item.data.dietaryKeys || []),
+        )(item.data.dietaryKeys),
       })),
     )(items);
 
@@ -57,7 +58,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
         .filter((item) =>
           item.data.menu_categories?.includes(category.fileSlug),
         )
-        .flatMap((item) => item.data.dietaryKeys || []),
+        .flatMap((item) => item.data.dietaryKeys),
     ),
     filter((key) => key.symbol && key.label),
     uniqueBy((key) => key.symbol),
@@ -234,11 +235,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   const filename = buildPdfFilename(site.name, menu.fileSlug);
   const menuDir = strings.menu_permalink_dir;
   const outputPath = `${outputDir}/${menuDir}/${menu.fileSlug}/${filename}`;
-  const dir = dirname(outputPath);
-
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
+  ensureDir(dirname(outputPath));
 
   return new Promise((resolve, reject) => {
     const stream = createWriteStream(outputPath);
@@ -260,9 +257,9 @@ export function configurePdf(eleventyConfig) {
 
   eleventyConfig.addCollection("_pdfMenuData", (collectionApi) => {
     state = {
-      menus: collectionApi.getFilteredByTag("menu"),
-      menuCategories: collectionApi.getFilteredByTag("menu_category"),
-      menuItems: collectionApi.getFilteredByTag("menu_item"),
+      menus: collectionApi.getFilteredByTag("menus"),
+      menuCategories: collectionApi.getFilteredByTag("menu-categories"),
+      menuItems: collectionApi.getFilteredByTag("menu-items"),
     };
     return [];
   });
@@ -279,4 +276,4 @@ export function configurePdf(eleventyConfig) {
   });
 }
 
-export { generateMenuPdf, buildMenuPdfData, createMenuPdfTemplate };
+export { generateMenuPdf, buildMenuPdfData };

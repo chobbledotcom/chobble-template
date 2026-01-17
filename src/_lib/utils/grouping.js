@@ -8,6 +8,11 @@ import { fromPairs } from "#utils/object-entries.js";
 /**
  * Append item to array at key in Map, creating array if needed
  * Accepts [key, item] pair for direct use with reduce
+ * @template K
+ * @template V
+ * @param {Map<K, V[]>} map - Map to append to
+ * @param {[K, V]} pair - Key-value pair
+ * @returns {Map<K, V[]>} Updated map
  */
 const appendToMap = (map, [key, item]) =>
   map.set(key, [...(map.get(key) || []), item]);
@@ -18,14 +23,16 @@ const appendToMap = (map, [key, item]) =>
  * Each item can map to multiple keys via the getKeys function.
  * Returns a Map where each key points to an array of items that have that key.
  *
- * @param {Array} items - Array of items to index
- * @param {Function} getKeys - Function that extracts an array of keys from each item
- * @returns {Map} Map<key, items[]>
+ * @template T
+ * @template K
+ * @param {T[]} items - Array of items to index
+ * @param {(item: T) => K[]} getKeys - Function that extracts an array of keys from each item
+ * @returns {Map<K, T[]>} Map from key to array of items
  *
  * @example
  * // Build category -> products index
- * const index = buildReverseIndex(products, (p) => p.data.categories || []);
- * const widgetProducts = index.get("widgets") || [];
+ * const index = buildReverseIndex(products, (p) => p.data.categories);
+ * const widgetProducts = index.get("widgets") ?? [];
  */
 const buildReverseIndex = (items, getKeys) =>
   pipe(
@@ -39,8 +46,10 @@ const buildReverseIndex = (items, getKeys) =>
  * Takes an array of (key, value) pairs and groups unique values by key.
  * Returns a Map where each key points to an array of unique values.
  *
- * @param {Array} pairs - Array of [key, value] pairs
- * @returns {Map} Map<key, value[]>
+ * @template K
+ * @template V
+ * @param {[K, V][]} pairs - Array of [key, value] pairs
+ * @returns {Map<K, V[]>} Map from key to unique values
  *
  * @example
  * // Group attribute values by attribute name
@@ -62,9 +71,11 @@ const groupValuesBy = (pairs) => {
  * Uses reverse + fromPairs: reversing makes the first occurrence end up
  * last, so it overwrites any later occurrences when building the object.
  *
- * @param {Array} items - Array of items to process
- * @param {(item: any) => Array<[string, any]>} getPairs - Function that extracts [[key, value], ...] pairs from each item
- * @returns {Object} { key: value, ... }
+ * @template T
+ * @template V
+ * @param {T[]} items - Array of items to process
+ * @param {(item: T) => [string, V][]} getPairs - Function that extracts [[key, value], ...] pairs from each item
+ * @returns {Record<string, V>} Lookup object with first occurrence of each key
  *
  * @example
  * // Build slug -> display text lookup
@@ -81,9 +92,11 @@ const buildFirstOccurrenceLookup = (items, getPairs) =>
  * Each item maps to exactly one key. Simpler version of buildReverseIndex
  * for when items don't have multiple keys.
  *
- * @param {Array} items - Array of items to group
- * @param {Function} getKey - Function that extracts a single key from each item
- * @returns {Map} Map<key, items[]>
+ * @template T
+ * @template K
+ * @param {T[]} items - Array of items to group
+ * @param {(item: T) => K | null | undefined} getKey - Function that extracts a single key from each item
+ * @returns {Map<K, T[]>} Map from key to array of items
  *
  * @example
  * // Group events by date
@@ -96,26 +109,9 @@ const groupBy = (items, getKey) =>
     reduce(appendToMap, new Map()),
   )(items);
 
-/**
- * Create a lookup helper for a reverse index
- *
- * Returns a function that safely retrieves items by key, returning empty array
- * if key not found. Useful for creating filter functions.
- *
- * @param {Map} index - The reverse index map
- * @returns {Function} (key) => items[]
- *
- * @example
- * const index = buildReverseIndex(products, getCategories);
- * const lookup = createLookup(index);
- * const widgets = lookup("widgets"); // Returns [] if not found
- */
-const createLookup = (index) => (key) => index.get(key) || [];
-
 export {
   buildReverseIndex,
   groupValuesBy,
   buildFirstOccurrenceLookup,
   groupBy,
-  createLookup,
 };

@@ -10,27 +10,17 @@ import { ALL_JS_FILES } from "#test/test-utils.js";
 import { groupBy } from "#utils/grouping.js";
 
 /**
- * Find the first non-empty line starting from index
- */
-const findNextNonEmptyLine = (lines, startIndex) => {
-  const line = lines.slice(startIndex).find((l) => l.trim() !== "");
-  return line?.trim() ?? "";
-};
-
-/**
- * Check if the line following a closing brace has a catch
- */
-const nextLineHasCatch = (lines, lineIndex) => {
-  const nextLine = findNextNonEmptyLine(lines, lineIndex + 1);
-  if (nextLine === "") return false;
-  return /^catch\b/.test(nextLine) || /^\}\s*catch\b/.test(nextLine);
-};
-
-/**
- * Track brace depth and find if try block has a catch
- * Returns true if catch is found
+ * Track brace depth and find if try block has a catch.
+ * Returns true if catch is found.
  */
 const tryBlockHasCatch = (lines, startLineIndex) => {
+  // Find first non-empty line starting from index
+  const findNextNonEmpty = (idx) =>
+    lines
+      .slice(idx)
+      .find((l) => l.trim() !== "")
+      ?.trim() ?? "";
+
   const result = lines.slice(startLineIndex).reduce(
     (state, searchLine, index) => {
       if (state.done) return state;
@@ -56,7 +46,11 @@ const tryBlockHasCatch = (lines, startLineIndex) => {
           if (/\s*catch\b/.test(afterBrace)) {
             state.hasCatch = true;
           } else {
-            state.hasCatch = nextLineHasCatch(lines, lineIndex);
+            // Check if catch follows after a closing brace (inline)
+            const nextLine = findNextNonEmpty(lineIndex + 1);
+            state.hasCatch =
+              nextLine !== "" &&
+              (/^catch\b/.test(nextLine) || /^\}\s*catch\b/.test(nextLine));
           }
           state.done = true;
           return state;
@@ -173,8 +167,5 @@ try {
       console.log(`     ${file}: lines ${lines.join(", ")}`);
     }
     console.log("");
-
-    // This test always passes - it's informational
-    expect(true).toBe(true);
   });
 });

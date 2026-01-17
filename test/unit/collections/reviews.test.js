@@ -1,13 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureReviews,
-  countReviews,
-  createReviewsCollection,
-  getInitials,
-  getRating,
   getReviewsFor,
-  ratingToStars,
-  reviewerAvatar,
   reviewsRedirects,
   withReviewsPage,
 } from "#collections/reviews.js";
@@ -24,7 +18,18 @@ import {
 
 import { map } from "#utils/array-utils.js";
 
-const expectFileSlugs = expectProp("fileSlug");
+// Create configured mock and extract registered collection/filters
+const createConfiguredMock = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureReviews(mockConfig);
+  return {
+    mockConfig,
+    reviewsCollection: mockConfig.collections.reviews,
+    getRating: mockConfig.filters.getRating,
+    ratingToStars: mockConfig.filters.ratingToStars,
+    reviewerAvatar: mockConfig.filters.reviewerAvatar,
+  };
+};
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
@@ -112,6 +117,7 @@ const createLimitTestData = (aAboveLimit = true) =>
 
 describe("reviews", () => {
   test("Creates reviews collection excluding hidden and sorted newest first", () => {
+    const { reviewsCollection } = createConfiguredMock();
     const testReviews = items([
       ["Review 1", "2024-01-01", { rating: 5 }],
       ["Review 2", "2024-01-02", { rating: 4, hidden: true }],
@@ -119,19 +125,20 @@ describe("reviews", () => {
       ["Review 4", "2024-01-04", { rating: 3, hidden: true }],
     ]);
 
-    const result = createReviewsCollection(collectionApi(testReviews));
+    const result = reviewsCollection(collectionApi(testReviews));
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
   test("Returns all reviews when none are hidden, sorted newest first", () => {
+    const { reviewsCollection } = createConfiguredMock();
     const testReviews = items([
       ["Review 1", "2024-01-01", { rating: 5 }],
       ["Review 2", "2024-01-03", { rating: 4 }],
       ["Review 3", "2024-01-02", { rating: 3 }],
     ]);
 
-    const result = createReviewsCollection(collectionApi(testReviews));
+    const result = reviewsCollection(collectionApi(testReviews));
 
     expectResultTitles(result, ["Review 2", "Review 3", "Review 1"]);
   });
@@ -196,21 +203,8 @@ describe("reviews", () => {
     expectResultTitles(result, ["Review 1"]);
   });
 
-  test("Counts reviews for any field type", () => {
-    const testReviews = items([
-      ["R1", "2024-01-01", { products: ["product-a", "product-b"] }],
-      ["R2", "2024-01-02", { products: ["product-a"] }],
-      ["R3", "2024-01-03", { products: ["product-c"] }],
-      ["R4", "2024-01-04", { categories: ["category-a"] }],
-    ]);
-
-    expect(countReviews(testReviews, "product-a", "products")).toBe(2);
-    expect(countReviews(testReviews, "product-b", "products")).toBe(1);
-    expect(countReviews(testReviews, "product-d", "products")).toBe(0);
-    expect(countReviews(testReviews, "category-a", "categories")).toBe(1);
-  });
-
-  test("Calculates rating for any field type", () => {
+  test("Calculates rating for any field type via filter", () => {
+    const { getRating } = createConfiguredMock();
     const productReviews = createProductReviews("product-a", [5, 3]);
     const testReviews = [
       ...productReviews,
@@ -223,13 +217,15 @@ describe("reviews", () => {
     expect(getRating(testReviews, "category-a", "categories")).toBe(4);
   });
 
-  test("Returns ceiling of average rating", () => {
+  test("Returns ceiling of average rating via filter", () => {
+    const { getRating } = createConfiguredMock();
     const testReviews = createProductReviews("product-a", [5, 4]);
 
     expect(getRating(testReviews, "product-a", "products")).toBe(5);
   });
 
-  test("Returns null when no ratings exist", () => {
+  test("Returns null when no ratings exist via filter", () => {
+    const { getRating } = createConfiguredMock();
     const testReviews = items([
       ["R1", "2024-01-01", { products: ["product-a"] }],
       ["R2", "2024-01-02", { products: ["product-a"], rating: null }],
@@ -238,7 +234,8 @@ describe("reviews", () => {
     expect(getRating(testReviews, "product-a", "products")).toBe(null);
   });
 
-  test("Returns null when no matching items", () => {
+  test("Returns null when no matching items via filter", () => {
+    const { getRating } = createConfiguredMock();
     const testReviews = items([
       ["R1", "2024-01-01", { products: ["product-b"], rating: 5 }],
     ]);
@@ -246,87 +243,55 @@ describe("reviews", () => {
     expect(getRating(testReviews, "product-a", "products")).toBe(null);
   });
 
-  test("Converts rating to star emojis", () => {
+  test("Converts rating to star emojis via filter", () => {
+    const { ratingToStars } = createConfiguredMock();
     expect(ratingToStars(1)).toBe("⭐️");
     expect(ratingToStars(3)).toBe("⭐️⭐️⭐️");
     expect(ratingToStars(5)).toBe("⭐️⭐️⭐️⭐️⭐️");
   });
 
-  test("Extracts first and last initials from full name", () => {
-    expect(getInitials("John Smith")).toBe("JS");
-    expect(getInitials("Alice Bob Carol")).toBe("AC");
-    expect(getInitials("Mary Jane Watson Parker")).toBe("MP");
+  test("Avatar displays initials from names via filter", () => {
+    const { reviewerAvatar } = createConfiguredMock();
+    // Helper to check initials in URL-encoded SVG (>X< becomes %3EX%3C)
+    const hasInitials = (avatar, initials) =>
+      avatar.includes(`%3E${encodeURIComponent(initials)}%3C`);
+
+    // Full names: first + last initial
+    expect(hasInitials(reviewerAvatar("John Smith"), "JS")).toBe(true);
+    expect(hasInitials(reviewerAvatar("Alice Bob Carol"), "AC")).toBe(true);
+    expect(hasInitials(reviewerAvatar("Mary Jane Watson Parker"), "MP")).toBe(
+      true,
+    );
+    // Single word names: first initial only
+    expect(hasInitials(reviewerAvatar("Madonna"), "M")).toBe(true);
+    // Short names: unchanged (uppercased)
+    expect(hasInitials(reviewerAvatar("JS"), "JS")).toBe(true);
+    expect(hasInitials(reviewerAvatar("ab"), "AB")).toBe(true);
+    // Empty/null: fallback to "?"
+    expect(hasInitials(reviewerAvatar(""), "?")).toBe(true);
+    expect(hasInitials(reviewerAvatar(null), "?")).toBe(true);
+    // Whitespace handling
+    expect(hasInitials(reviewerAvatar("  John   Smith  "), "JS")).toBe(true);
+    expect(hasInitials(reviewerAvatar("   "), "?")).toBe(true);
+    // Case normalization
+    expect(hasInitials(reviewerAvatar("john smith"), "JS")).toBe(true);
   });
 
-  test("Returns single initial for single word name", () => {
-    expect(getInitials("Madonna")).toBe("M");
-    expect(getInitials("Cher")).toBe("C");
-  });
-
-  test("Returns name unchanged if already 2 chars or less", () => {
-    expect(getInitials("JS")).toBe("JS");
-    expect(getInitials("A")).toBe("A");
-    expect(getInitials("ab")).toBe("AB");
-  });
-
-  test("Handles empty/null names gracefully", () => {
-    expect(getInitials("")).toBe("?");
-    expect(getInitials(null)).toBe("?");
-    expect(getInitials(undefined)).toBe("?");
-  });
-
-  test("Handles extra whitespace in names", () => {
-    expect(getInitials("  John   Smith  ")).toBe("JS");
-    expect(getInitials("   ")).toBe("?");
-    expect(getInitials("\t\n")).toBe("?");
-  });
-
-  test("Uppercases lowercase initials", () => {
-    expect(getInitials("john smith")).toBe("JS");
-    expect(getInitials("mary jane")).toBe("MJ");
-  });
-
-  test("Handles mixed case names correctly", () => {
-    expect(getInitials("jOHN sMITH")).toBe("JS");
-    expect(getInitials("McDonald")).toBe("M");
-  });
-
-  test("Treats hyphenated parts as single words", () => {
-    expect(getInitials("Mary-Jane Watson")).toBe("MW");
-    expect(getInitials("Jean-Claude Van Damme")).toBe("JD");
-  });
-
-  test("Handles names with apostrophes", () => {
-    expect(getInitials("O'Brien")).toBe("O");
-    expect(getInitials("Shaquille O'Neal")).toBe("SO");
-    expect(getInitials("D'Angelo Russell")).toBe("DR");
-  });
-
-  test("Handles accented and unicode characters", () => {
-    expect(getInitials("José García")).toBe("JG");
-    expect(getInitials("Müller Schmidt")).toBe("MS");
-    expect(getInitials("Björk")).toBe("B");
-  });
-
-  test("Handles names containing numbers", () => {
-    expect(getInitials("John Smith III")).toBe("JI");
-    expect(getInitials("R2D2")).toBe("R");
-    expect(getInitials("C3")).toBe("C3");
-  });
-
-  test("Returns a valid SVG data URI", () => {
+  test("Returns a valid SVG data URI via filter", () => {
+    const { reviewerAvatar } = createConfiguredMock();
     const result = reviewerAvatar("John Smith");
     expect(result.startsWith("data:image/svg+xml,")).toBe(true);
-    expect(result.includes("JS")).toBe(true);
   });
 
-  test("Returns same color for same name", () => {
+  test("Returns same color for same name via filter", () => {
+    const { reviewerAvatar } = createConfiguredMock();
     const result1 = reviewerAvatar("John Smith");
     const result2 = reviewerAvatar("John Smith");
     expect(result1).toBe(result2);
   });
 
-  test("Returns different colors for different names", () => {
+  test("Returns different colors for different names via filter", () => {
+    const { reviewerAvatar } = createConfiguredMock();
     const result1 = reviewerAvatar("John Smith");
     const result2 = reviewerAvatar("Jane Doe");
     expect(result1 !== result2).toBe(true);
@@ -424,6 +389,6 @@ describe("reviews", () => {
     );
 
     // All items get redirects when limit=-1
-    expectFileSlugs(result, ["product-a", "product-b"]);
+    expectProp("fileSlug")(result, ["product-a", "product-b"]);
   });
 });

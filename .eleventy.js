@@ -35,15 +35,17 @@ import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureResponsiveTables } from "#eleventy/responsive-tables.js";
+import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
 
 // Filters
-import { configureProductFilters } from "#filters/product-filters.js";
-import { configurePropertyFilters } from "#filters/property-filters.js";
+import { configureFilters } from "#filters/configure-filters.js";
 
 // Media
+import { configureIconify } from "#media/iconify.js";
 import { configureImages } from "#media/image.js";
 import { configureInlineAsset } from "#media/inline-asset.js";
+import { configureThumbnailPlaceholder } from "#media/thumbnail-placeholder.js";
 import { configureUnusedImages } from "#media/unused-images.js";
 
 export default async function (eleventyConfig) {
@@ -75,6 +77,7 @@ export default async function (eleventyConfig) {
   await configureImages(eleventyConfig);
   configurePdf(eleventyConfig);
   configureJsConfig(eleventyConfig);
+  configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
   configureLocations(eleventyConfig);
   configureMenus(eleventyConfig);
@@ -83,15 +86,16 @@ export default async function (eleventyConfig) {
   configureOpeningTimes(eleventyConfig);
   configureRecurringEvents(eleventyConfig);
   configureResponsiveTables(eleventyConfig);
-  configureProductFilters(eleventyConfig);
+  configureScreenshots(eleventyConfig);
+  configureFilters(eleventyConfig);
   configureProducts(eleventyConfig);
   configureProperties(eleventyConfig);
   configureReviews(eleventyConfig);
-  configurePropertyFilters(eleventyConfig);
   configureScss(eleventyConfig);
   configureSearch(eleventyConfig);
   configureStyleBundle(eleventyConfig);
   configureTags(eleventyConfig);
+  configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
   configureEvents(eleventyConfig);
   configureJsBundler(eleventyConfig);

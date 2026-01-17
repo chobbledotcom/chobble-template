@@ -3,7 +3,6 @@ import { expectObjectProps } from "#test/test-utils.js";
 import {
   buildFirstOccurrenceLookup,
   buildReverseIndex,
-  createLookup,
   groupBy,
   groupValuesBy,
 } from "#utils/grouping.js";
@@ -190,42 +189,5 @@ describe("grouping", () => {
 
     expect(grouped.get("x")[0].order).toBe(1);
     expect(grouped.get("x")[2].order).toBe(3);
-  });
-
-  // ============================================
-  // createLookup Tests
-  // ============================================
-  test("Returns items from index when key exists", () => {
-    const index = new Map([
-      ["widgets", [{ id: 1 }, { id: 2 }]],
-      ["gadgets", [{ id: 3 }]],
-    ]);
-
-    const lookup = createLookup(index);
-
-    expect(lookup("widgets").length).toBe(2);
-    expect(lookup("gadgets")[0].id).toBe(3);
-  });
-
-  test("Returns empty array when key not in index", () => {
-    const index = new Map([["existing", [{ id: 1 }]]]);
-
-    const lookup = createLookup(index);
-
-    expect(lookup("missing")).toEqual([]);
-  });
-
-  test("Works correctly with buildReverseIndex output", () => {
-    const products = [
-      { name: "A", categories: ["tools"] },
-      { name: "B", categories: ["tools", "hardware"] },
-    ];
-
-    const index = buildReverseIndex(products, (p) => p.categories);
-    const getByCategory = createLookup(index);
-
-    expect(getByCategory("tools").length).toBe(2);
-    expect(getByCategory("hardware").length).toBe(1);
-    expect(getByCategory("nonexistent")).toEqual([]);
   });
 });

@@ -1,12 +1,25 @@
-// HTML image transformation for Eleventy build output
-// Finds <img> tags and replaces them with responsive picture elements
-
+/**
+ * HTML image transformation for Eleventy build output.
+ *
+ * Finds <img src="/images/..."> tags and replaces them with responsive
+ * picture elements using eleventy-img. Also handles:
+ * - eleventy:aspectRatio attribute for custom aspect ratios
+ * - eleventy:ignore attribute to skip processing
+ * - Fixing invalid HTML where divs are sole children of paragraphs
+ */
 import { loadDOM } from "#utils/lazy-dom.js";
+
+/** @typedef {import("#lib/types").ImageTransformOptions} ImageTransformOptions */
+/** @typedef {import("#lib/types").ProcessImageFn} ProcessImageFn */
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";
 
-// Fix invalid HTML where divs are sole child of paragraphs
+/**
+ * Fix invalid HTML where divs are sole children of paragraphs
+ * @param {*} document - DOM document to modify (happy-dom)
+ * @returns {void}
+ */
 const fixDivsInParagraphs = (document) => {
   const invalidParagraphs = Array.from(document.querySelectorAll("p")).filter(
     (p) => p.childNodes.length === 1 && p.firstChild.nodeName === "DIV",
@@ -17,11 +30,11 @@ const fixDivsInParagraphs = (document) => {
   }
 };
 
-// Extract image options from img element
 /**
- * @param {HTMLImageElement} img - The img DOM element
- * @param {Document} document - The DOM document
- * @returns {Object} Options object with imageName from getAttribute (string | null)
+ * Extract image options from an img element
+ * @param {Element} img - The img DOM element
+ * @param {*} document - The DOM document (happy-dom)
+ * @returns {ImageTransformOptions} Options object with imageName from getAttribute (string | null)
  */
 const extractImageOptions = (img, document) => {
   const aspectRatio = img.getAttribute(ASPECT_RATIO_ATTRIBUTE);
@@ -41,29 +54,31 @@ const extractImageOptions = (img, document) => {
   };
 };
 
-// Process single image element
 /**
- * @param {HTMLImageElement} img - The img DOM element
- * @param {Document} document - The DOM document
- * @param {Function} processAndWrapImage - Callback that receives options with imageName: string | null
+ * Process a single image element
+ * @param {Element} img - The img DOM element
+ * @param {*} document - The DOM document (happy-dom)
+ * @param {ProcessImageFn} processAndWrapImage - Callback that receives options with imageName: string | null
+ * @returns {Promise<void>}
  */
 const processImageElement = async (img, document, processAndWrapImage) => {
   if (img.hasAttribute(IGNORE_ATTRIBUTE)) {
     img.removeAttribute(IGNORE_ATTRIBUTE);
     return;
   }
-  // parentNode is Element in normal DOM trees (safely cast to access classList)
-  const parent = /** @type {Element} */ (img.parentNode);
+  const parent = img.parentElement;
   if (parent?.classList?.contains("image-wrapper")) return;
-  // Pass extractImageOptions result where imageName is string | null from getAttribute
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
-  parent.replaceChild(wrapped, img);
+  if (typeof wrapped !== "string") {
+    parent.replaceChild(wrapped, img);
+  }
 };
 
-// Transform all images in HTML content
 /**
+ * Transform images in HTML content
  * @param {string} content - The HTML content to transform
- * @param {Function} processAndWrapImage - Callback receiving options with imageName: string | null
+ * @param {ProcessImageFn} processAndWrapImage - Callback receiving options with imageName: string | null
+ * @returns {Promise<string>} Transformed HTML content
  */
 const transformImages = async (content, processAndWrapImage) => {
   if (!content?.includes("<img")) return content;
@@ -77,8 +92,11 @@ const transformImages = async (content, processAndWrapImage) => {
 
   await Promise.all(
     Array.from(images).map((img) =>
-      // Passes img elements where getAttribute returns string | null
-      processImageElement(img, document, processAndWrapImage),
+      processImageElement(
+        /** @type {*} */ (img),
+        document,
+        processAndWrapImage,
+      ),
     ),
   );
 
@@ -86,17 +104,16 @@ const transformImages = async (content, processAndWrapImage) => {
   return dom.serialize();
 };
 
-// Create image transform for Eleventy
 /**
- * @param {Function} processAndWrapImage - Callback receiving options with imageName: string | null
- * @returns {Function} Transform function for Eleventy
+ * Create an Eleventy transform for image processing
+ * @param {ProcessImageFn} processAndWrapImage - Callback receiving options with imageName: string | null
+ * @returns {(content: string, outputPath: string) => Promise<string>} Transform function for Eleventy
  */
 const createImageTransform =
   (processAndWrapImage) => async (content, outputPath) => {
     if (typeof outputPath !== "string" || !outputPath.endsWith(".html"))
       return content;
     if (outputPath.includes("/feed.")) return content;
-    // Passes processAndWrapImage to transformImages, which calls it with imageName: string | null
     return await transformImages(content, processAndWrapImage);
   };
 

@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../theme-adapter" as adapter;
 
 // =============================================================================
 // DESIGN SYSTEM ROOT
@@ -10,20 +11,10 @@
   // ===========================================================================
   // CSS CUSTOM PROPERTIES (scoped)
   // ===========================================================================
+  // Uses theme-adapter to bridge legacy theme variables with design system.
+  // Priority: design-system theme (--ds-*) → legacy theme (--color-*) → defaults
 
-  --bg: #{$color-bg};
-  --bg-alt: #{$color-bg-alt};
-  --card-bg: #{$color-card-bg};
-  --text: #{$color-text};
-  --text-muted: #{$color-text-muted};
-  --primary: #{$color-primary};
-  --primary-dark: #{$color-primary-dark};
-  --primary-light: #{$color-primary-light};
-  --secondary: #{$color-secondary};
-  --accent: #{$color-accent};
-  --hover-bg: #{$color-hover-bg};
-  --font-sans: #{$font-sans};
-  --font-mono: #{$font-mono};
+  @include adapter.theme-adapter-properties;
 
   // ===========================================================================
   // BASE RESET (scoped)
@@ -45,8 +36,8 @@
   // ROOT STYLES
   // ===========================================================================
 
-  margin: 0;
-  padding: 0;
+  margin: 0 0 $space-xs;
+  padding: $space-xl $space-md;
   font-family: var(--font-sans);
   font-size: $font-size-base;
   line-height: $line-height-normal;
@@ -65,6 +56,7 @@
   h5,
   h6 {
     margin: 0 0 $space-md;
+    font-family: var(--font-heading, var(--font-sans));
     font-weight: 700;
     line-height: $line-height-tight;
     text-wrap: balance;
@@ -207,4 +199,81 @@
       background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);
     }
   }
+
+  // ===========================================================================
+  // SECTION HEADERS
+  // ===========================================================================
+  // Section headers use <hgroup class="section-header"> for semantic markup
+  // Use .gradient class to enable gradient text (default: solid for readability)
+
+  > .section-header {
+    @include card($space-xl, $radius-lg);
+    text-align: center;
+
+    h1, h2, h3, h4, h5, h6 {
+      margin-bottom: $space-sm;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+
+    // Gradient text style (opt-in via .gradient class)
+    // Default is solid for better readability and contrast
+    &.gradient {
+      h1, h2, h3, h4, h5, h6 {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // BLOCK SPACING
+  // ===========================================================================
+  // Consistent vertical rhythm between block-level components (features, stats,
+  // code-block, etc.) when used as direct children of .design-system
+
+  > .section-header,
+  > .features,
+  > ul.features,
+  > .stats,
+  > dl.stats,
+  > .code-block,
+  > .split,
+  > .grid {
+    margin-bottom: $space-2xl;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // Extra spacing before section headers that follow content blocks
+  > .features + .section-header,
+  > ul.features + .section-header,
+  > .stats + .section-header,
+  > dl.stats + .section-header,
+  > .code-block + .section-header {
+    margin-top: $space-xl;
+  }
+}
+
+// =============================================================================
+// ALTERNATING SECTION BACKGROUNDS
+// =============================================================================
+// Built-in way to alternate backgrounds when using multiple .design-system sections
+
+.design-system:nth-child(odd) {
+  background: var(--bg);
+}
+
+.design-system:nth-child(even) {
+  background: var(--bg-alt);
 }

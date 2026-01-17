@@ -31,11 +31,6 @@ const PUBLIC_JS_FILES = getFiles(/^src\/_lib\/public\/.*\.js$/);
 // Class/ID Extraction from HTML
 // ============================================
 
-// Helper function shared between multiple test cases
-const matchAll = (regex) => (content) => [...content.matchAll(regex)];
-const getMatch = (index) => (match) => match[index];
-const toSet = (arr) => new Set(arr);
-
 /**
  * Extract classes or IDs from HTML content.
  * Uses pipe and functional composition for clean data flow.
@@ -44,31 +39,30 @@ const toSet = (arr) => new Set(arr);
  * @returns {Set<string>} - Set of extracted values
  */
 const extractFromHtml = (type, content) => {
-  const cleanLiquid = (content) =>
-    content
-      .replace(/\{\{-?[\s\S]*?-?\}\}/g, " ")
-      .replace(/\{%-?[\s\S]*?-?%\}/g, " ");
-
+  const cleanLiquid = (c) =>
+    c.replace(/\{\{-?[\s\S]*?-?\}\}/g, " ").replace(/\{%-?[\s\S]*?-?%\}/g, " ");
   const normalizeWhitespace = (str) => str.replace(/\s+/g, " ").trim();
   const isValidClass = (cls) => cls && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls);
   const isDynamicId = (val) => val.includes("{{") || val.includes("{%");
   const isNotEmpty = (val) => val.trim() !== "";
-  const trim = (str) => str.trim();
 
   return type === "class"
     ? pipe(
         cleanLiquid,
-        matchAll(/class="([^"]*)"/g),
-        map(getMatch(1)),
+        (c) => [...c.matchAll(/class="([^"]*)"/g)],
+        map((m) => m[1]),
         flatMap(pipe(normalizeWhitespace, split(" "))),
         filter(isValidClass),
-        toSet,
+        (arr) => new Set(arr),
       )(content)
     : pipe(
-        matchAll(/id="([^"]*)"/g),
-        map(getMatch(1)),
-        filterMap((val) => !isDynamicId(val) && isNotEmpty(val), trim),
-        toSet,
+        (c) => [...c.matchAll(/id="([^"]*)"/g)],
+        map((m) => m[1]),
+        filterMap(
+          (val) => !isDynamicId(val) && isNotEmpty(val),
+          (s) => s.trim(),
+        ),
+        (arr) => new Set(arr),
       )(content);
 };
 

@@ -37,13 +37,12 @@
 
             shellHook = ''
               export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
-              [ ! -d node_modules ] && bun install
-
               export PATH="$PWD/bin:$PATH"
 
-              cat <<EOF
+              # Run setup tasks in background
+              (bun install && git pull && echo "Environment ready <3") &
 
-              Development environment ready!
+              cat <<EOF
 
               Available commands:
                serve              - Clean & start dev server with incremental builds
@@ -56,9 +55,6 @@
                generate-pages-yml - Generate .pages.yml with all collections
 
               EOF
-
-              bun install
-              git pull
             '';
           };
         }

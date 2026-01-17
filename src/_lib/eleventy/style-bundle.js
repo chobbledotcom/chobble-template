@@ -1,16 +1,16 @@
 // Determines which CSS/JS bundle to use based on layout and config
 
-export const usesDesignSystem = (layout, designSystemLayouts) =>
+const usesDesignSystem = (layout, designSystemLayouts) =>
   designSystemLayouts.includes(layout);
 
-export const getCssBundle = (layout, designSystemLayouts) =>
+const getCssBundle = (layout, designSystemLayouts) =>
   usesDesignSystem(layout, designSystemLayouts)
-    ? "/css/landing-bundle.css"
+    ? "/css/design-system-bundle.css"
     : "/css/bundle.css";
 
-export const getJsBundle = (layout, designSystemLayouts) =>
+const getJsBundle = (layout, designSystemLayouts) =>
   usesDesignSystem(layout, designSystemLayouts)
-    ? "/assets/js/landing-bundle.js"
+    ? "/assets/js/design-system.js"
     : "/assets/js/bundle.js";
 
 /**
@@ -25,7 +25,7 @@ export const getJsBundle = (layout, designSystemLayouts) =>
  * 2. Positional arguments (for Liquid filter):
  *    layout | getBodyClasses: designSystemLayouts, forceDesignSystem, stickyMobileNav, horizontalNav, hasRightContent
  */
-export const getBodyClasses = (
+const getBodyClasses = (
   layout,
   designSystemLayoutsOrOptions = [],
   forceDesignSystemArg = false,

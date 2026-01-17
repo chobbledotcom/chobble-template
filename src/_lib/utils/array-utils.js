@@ -1,8 +1,18 @@
 /**
  * Functional array utilities
  */
+import { compareBy } from "#utils/sorting.js";
 
-import { log } from "#utils/console.js";
+/**
+ * @template T
+ * @template R
+ * @typedef {(value: T) => R} UnaryFunction
+ */
+
+/**
+ * @template T, U
+ * @typedef {(a: T, b: T) => U} BinaryFunction
+ */
 
 /**
  * Left-to-right function composition
@@ -10,8 +20,8 @@ import { log } from "#utils/console.js";
  * Passes a value through a sequence of functions, where each function
  * receives the result of the previous one.
  *
- * @param {...Function} fns - Functions to compose
- * @returns {Function} (value) => transformed value
+ * @param {...UnaryFunction<any, any>} fns - Functions to compose
+ * @returns {UnaryFunction<any, any>} (value) => transformed value
  *
  * @example
  * pipe(addOne, double, toString)(5)  // "12"
@@ -32,16 +42,101 @@ const pipe =
  *   sort((a, b) => a - b)
  * )(numbers)
  */
+
+/**
+ * Curried filter function
+ * @template T
+ * @param {(item: T, index: number, array: T[]) => boolean} predicate - Filter predicate
+ * @returns {(arr: T[]) => T[]} Function that filters array
+ */
 const filter = (predicate) => (arr) => arr.filter(predicate);
+
+/**
+ * Curried map function
+ * @template T, R
+ * @param {(item: T, index: number, array: T[]) => R} fn - Transform function
+ * @returns {(arr: T[]) => R[]} Function that maps array
+ */
 const map = (fn) => (arr) => arr.map(fn);
+
+/**
+ * Curried flatMap function
+ * @template T, R
+ * @param {(item: T, index: number, array: T[]) => R | R[]} fn - Transform function
+ * @returns {(arr: T[]) => R[]} Function that flat-maps array
+ */
 const flatMap = (fn) => (arr) => arr.flatMap(fn);
+
+/**
+ * Curried reduce function
+ * @template T, R
+ * @param {(acc: R, item: T, index: number, array: T[]) => R} fn - Reducer function
+ * @param {R} initial - Initial value
+ * @returns {(arr: T[]) => R} Function that reduces array
+ */
 const reduce = (fn, initial) => (arr) => arr.reduce(fn, initial);
+
+/**
+ * Non-mutating sort function
+ * @template T
+ * @param {(a: T, b: T) => number} comparator - Comparison function
+ * @returns {(arr: T[]) => T[]} Function that sorts array
+ */
 const sort = (comparator) => (arr) => [...arr].sort(comparator);
+
+/**
+ * Sort by a property or getter function.
+ * Auto-detects type: uses localeCompare for strings, subtraction for numbers.
+ *
+ * @template T
+ * @param {string | ((item: T) => string | number)} key - Property name or getter
+ * @returns {(arr: T[]) => T[]} Function that sorts array
+ *
+ * @example
+ * // By property name
+ * sortBy("name")(users)
+ * pipe(sortBy("age"))(users)
+ *
+ * @example
+ * // By getter function
+ * sortBy(x => x.name)(users)
+ * pipe(sortBy(x => x.data.order))(items)
+ */
+const sortBy = (key) => {
+  const getKey = typeof key === "function" ? key : (obj) => obj[key];
+  return sort(compareBy(getKey));
+};
+
+/**
+ * Remove duplicate values
+ * @template T
+ * @param {T[]} arr - Array to deduplicate
+ * @returns {T[]} Array with unique values
+ */
 const unique = (arr) => [...new Set(arr)];
+
+/**
+ * Remove duplicates by key extraction function
+ * @template T, K
+ * @param {(item: T) => K} getKey - Key extraction function
+ * @returns {(arr: T[]) => T[]} Function that deduplicates array by key
+ */
 const uniqueBy = (getKey) => (arr) => [
   ...new Map(arr.map((item) => [getKey(item), item])).values(),
 ];
+
+/**
+ * Curried join function
+ * @param {string} separator - Separator string
+ * @returns {(arr: string[]) => string} Function that joins array
+ */
 const join = (separator) => (arr) => arr.join(separator);
+
+/**
+ * Curried split function
+ * @param {string | RegExp} separator - Separator to split by
+ * @returns {(str: string) => string[]} Function that splits string
+ */
 const split = (separator) => (str) => str.split(separator);
 
 /**
@@ -51,9 +146,10 @@ const split = (separator) => (str) => str.split(separator);
  * More expressive than chaining filter().map() when both operate
  * on the same items. Uses flatMap for a pure implementation.
  *
- * @param {Function} predicate - (item) => boolean
- * @param {Function} transform - (item) => result
- * @returns {Function} (array) => filtered and mapped array
+ * @template T, R
+ * @param {(item: T) => boolean} predicate - Filter predicate
+ * @param {(item: T) => R} transform - Transform function
+ * @returns {(arr: T[]) => R[]} Function that filters and maps array
  *
  * @example
  * // Get names of active users
@@ -70,33 +166,15 @@ const filterMap = (predicate, transform) => (arr) =>
   arr.flatMap((item) => (predicate(item) ? [transform(item)] : []));
 
 /**
- * Split an array into groups of a specified size
- *
- * Incomplete groups at the end are dropped (strict chunking).
- * For example, chunk([1,2,3,4,5], 2) returns [[1,2], [3,4]] - the 5 is dropped.
- *
- * @param {Array} arr - Array to split
- * @param {number} size - Size of each chunk
- * @returns {Array[]} Array of chunks
- *
- * @example
- * chunk([1, 2, 3, 4], 2)     // [[1, 2], [3, 4]]
- * chunk(['a', 'b', 'c'], 2)  // [['a', 'b']]
- * chunk([1, 2, 3, 4, 5], 3)  // [[1, 2, 3]]
- */
-const chunk = (arr, size) =>
-  Array.from({ length: Math.floor(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, i * size + size),
-  );
-
-/**
  * Create a picker function for the specified keys (curried form)
  *
  * Returns a function that extracts only the specified keys from an object.
  * This curried form works perfectly with map(): arr.map(pick(['a', 'b']))
  *
- * @param {string[]} keys - Keys to include
- * @returns {(obj: Object) => Object} Function that picks specified keys from an object
+ * @template {string} K
+ * @template {Record<K, unknown>} T
+ * @param {K[]} keys - Keys to include
+ * @returns {(obj: T) => Pick<T, K>} Function that picks specified keys from an object
  *
  * @example
  * pick(['a', 'c'])({ a: 1, b: 2, c: 3 })  // { a: 1, c: 3 }
@@ -116,8 +194,8 @@ const pick = (keys) => (obj) =>
  * Filters out null, undefined, false, 0, '', and NaN.
  * Perfect for building arrays with conditional elements.
  *
- * @param {Array} arr - Array potentially containing falsy values
- * @returns {Array} Array with only truthy values
+ * @param {unknown[]} arr - Array potentially containing falsy values
+ * @returns {unknown[]} Array with only truthy values (falsy values filtered out)
  *
  * @example
  * compact([1, null, 2, undefined, 3])        // [1, 2, 3]
@@ -152,9 +230,10 @@ const listSeparator = (length) => (index) =>
  *
  * Uses pure functional approach with no mutable state.
  *
- * @param {Array} items - Array to check for duplicates
- * @param {(item: any) => any} [getKey] - Optional key extractor (defaults to identity)
- * @returns {*} First duplicate item, or undefined
+ * @template T
+ * @param {T[]} items - Array to check for duplicates
+ * @param {(item: T) => unknown} [getKey] - Optional key extractor (defaults to identity)
+ * @returns {T | undefined} First duplicate item, or undefined
  *
  * @example
  * findDuplicate([1, 2, 1])                              // 1
@@ -175,8 +254,10 @@ const findDuplicate = (items, getKey = (x) => x) => {
  *
  * This enables safe imperative patterns like acc.push() within the callback.
  *
- * @param {Function} fn - (accumulator, item) => accumulator callback
- * @returns {Function} (array) => result (fresh array per call)
+ * @template T
+ * @template R
+ * @param {(acc: R[], item: T, index: number, array: T[]) => R[]} fn - Accumulator callback
+ * @returns {(arr: T[]) => R[]} Function that accumulates array
  *
  * @example
  * // Collect unique IDs from fields
@@ -207,8 +288,9 @@ const accumulate = (fn) => (arr) => arr.reduce(fn, []);
  *
  * This factory unifies memberOf and notMemberOf into a single pattern.
  *
+ * @template T
  * @param {boolean} negate - Whether to negate the membership test
- * @returns {Function} (values) => (value) => boolean
+ * @returns {(values: T[]) => (value: T) => boolean} Membership predicate factory
  *
  * @example
  * const memberOf = membershipPredicate(false);
@@ -222,8 +304,9 @@ const membershipPredicate = (negate) => (values) => (value) =>
  *
  * Returns a predicate function that tests if a value is in the collection.
  *
- * @param {Iterable} values - Values to check membership against
- * @returns {Function} (value) => boolean
+ * @template T
+ * @param {T[]} values - Values to check membership against
+ * @returns {(value: T) => boolean} Membership predicate function
  *
  * @example
  * const isWeekend = memberOf(['saturday', 'sunday']);
@@ -245,8 +328,9 @@ const memberOf = membershipPredicate(false);
  *
  * Returns a predicate function that tests if a value is NOT in the collection.
  *
- * @param {Iterable} values - Values to exclude
- * @returns {Function} (value) => boolean
+ * @template T
+ * @param {T[]} values - Values to exclude
+ * @returns {(value: T) => boolean} Negated membership predicate function
  *
  * @example
  * const isNotReserved = notMemberOf(['admin', 'root', 'system']);
@@ -259,6 +343,26 @@ const memberOf = membershipPredicate(false);
 const notMemberOf = membershipPredicate(true);
 
 /**
+ * Filter out items that are in the exclusion list.
+ * Shorthand for filter(notMemberOf(values)).
+ *
+ * @template T
+ * @param {T[]} values - Values to exclude
+ * @returns {(arr: T[]) => T[]} Function that filters out excluded values
+ *
+ * @example
+ * exclude(['a', 'b'])(['a', 'b', 'c', 'd'])  // ['c', 'd']
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   exclude(EXCLUDED_FILES),
+ *   map(toData),
+ * )(files)
+ */
+const exclude = (values) => filter(notMemberOf(values));
+
+/**
  * Create a pluralization formatter.
  * Curried: (singular, plural?) => (count) => string
  *
@@ -267,7 +371,7 @@ const notMemberOf = membershipPredicate(true);
  *
  * @param {string} singular - Singular form (e.g., "day", "item in order")
  * @param {string} [plural] - Plural form (optional, auto-derived if omitted)
- * @returns {Function} (count) => formatted string
+ * @returns {(count: number) => string} Function that formats count with plural form
  *
  * @example
  * const formatDays = pluralize("day");
@@ -291,45 +395,122 @@ const pluralize = (singular, plural) => {
 };
 
 /**
- * @typedef {Object} TruncateOptions
- * @property {number} [maxItems=10] - Maximum items to show
- * @property {string} [prefix="  "] - Prefix for each line
- * @property {string} [moreLabel="more"] - Label for "more" message
- * @property {string} [suffix="(use --verbose to see all)"] - Suffix for "more" message
+ * Curried data transform for creating collections of objects.
+ *
+ * Creates a factory that transforms rows of values into objects with
+ * a consistent structure. Perfect for test fixtures where you need
+ * many similar objects with slight variations.
+ *
+ * Curried as: (defaults) => (...fields) => (...rows) => items
+ *
+ * @template T
+ * @param {T} defaults - Default properties merged into every item's data
+ * @returns {(...fields: string[]) => (...rows: any[][]) => Array<{data: T & Record<string, any>}>}
+ *
+ * @example
+ * // Define a product factory with default categories
+ * const product = data({ categories: [] });
+ *
+ * // Create products with title and keywords fields
+ * const products = product("title", "keywords")(
+ *   ["Widget A", ["portable"]],
+ *   ["Widget B", ["stationary"]],
+ * );
+ * // Returns: [
+ * //   { data: { categories: [], title: "Widget A", keywords: ["portable"] } },
+ * //   { data: { categories: [], title: "Widget B", keywords: ["stationary"] } },
+ * // ]
+ *
+ * @example
+ * // Create events with date and title
+ * const event = data({ hidden: false });
+ * const events = event("title", "date", "recurring")(
+ *   ["Meeting", "2024-01-15", true],
+ *   ["Workshop", "2024-02-20", false],
+ * );
+ *
+ * @example
+ * // Compose with map for additional transformations
+ * import { map } from "#utils/array-utils.js";
+ *
+ * const addDate = map(item => ({ ...item, date: new Date(item.data.dateStr) }));
+ * const review = data({ rating: 5 });
+ * const rawReviews = review("title", "dateStr")(
+ *   ["Great!", "2024-01-01"],
+ *   ["Good", "2024-01-02"]
+ * );
+ * const reviews = addDate(rawReviews);
  */
 
 /**
- * Print items with truncation and "more" message.
- * Logs each item (up to maxItems) with a prefix, then shows "more" message if truncated.
- * Curried: configure options first, then pass items.
+ * Pipeable curried data transform for creating collections of objects.
  *
- * @param {TruncateOptions} [options] - Truncation options
- * @returns {(items: Array) => void} Function that prints items
+ * Transforms an array of value tuples into objects with a `data` property.
+ * Use this when you need to chain transformations with pipe().
+ *
+ * Curried as: (defaults) => (...fields) => (rows) => items
+ *
+ * @template T
+ * @param {T} defaults - Default properties merged into every item's data
+ * @returns {(...fields: string[]) => (rows: any[][]) => Array<{data: T & Record<string, any>}>}
  *
  * @example
- * printTruncatedList()(errors);  // uses defaults
- * printTruncatedList({ moreLabel: "errors" })(errors);
+ * // Use with pipe to transform input before creating objects
+ * const csvRows = [
+ *   ["Widget A", "100"],
+ *   ["Widget B", "200"],
+ * ];
+ *
+ * const product = toData({ categories: [] });
+ * const parsePrice = map(([title, price]) => [title, Number(price)]);
+ *
+ * const products = pipe(
+ *   parsePrice,
+ *   product("title", "price"),
+ * )(csvRows);
+ * // Returns: [
+ * //   { data: { categories: [], title: "Widget A", price: 100 } },
+ * //   { data: { categories: [], title: "Widget B", price: 200 } },
+ * // ]
+ *
+ * @example
+ * // Chain with filter to create objects from matching rows only
+ * const rows = [
+ *   ["Active Item", true],
+ *   ["Inactive Item", false],
+ *   ["Another Active", true],
+ * ];
+ *
+ * const item = toData({});
+ * const products = pipe(
+ *   filter(([_, active]) => active),
+ *   item("title", "active"),
+ * )(rows);
+ * // Returns only the active items as data objects
  */
-const printTruncatedList =
-  ({
-    maxItems = 10,
-    prefix = "  ",
-    moreLabel = "more",
-    suffix = "(use --verbose to see all)",
-  } = {}) =>
-  (items) => {
-    for (const item of items.slice(0, maxItems)) {
-      log(`${prefix}${item}`);
-    }
-    if (items.length > maxItems) {
-      log(`${prefix}... and ${items.length - maxItems} ${moreLabel} ${suffix}`);
-    }
-  };
+const toData =
+  (defaults) =>
+  (...fields) =>
+  (rows) =>
+    rows.map((values) => ({
+      data: {
+        ...defaults,
+        ...Object.fromEntries(fields.map((f, i) => [f, values[i]])),
+      },
+    }));
+
+// data is toData but with rest params: (...rows) instead of (rows)
+const data =
+  (defaults) =>
+  (...fields) =>
+  (...rows) =>
+    toData(defaults)(...fields)(rows);
 
 export {
   accumulate,
-  chunk,
   compact,
+  data,
+  exclude,
   filter,
   filterMap,
   findDuplicate,
@@ -343,10 +524,11 @@ export {
   pick,
   pipe,
   pluralize,
-  printTruncatedList,
   reduce,
   sort,
+  sortBy,
   split,
+  toData,
   unique,
   uniqueBy,
 };

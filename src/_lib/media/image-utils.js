@@ -16,13 +16,15 @@ const DEFAULT_SIZE = "auto";
  * - "src/images/photo.jpg" -> "./src/images/photo.jpg"
  * - "images/photo.jpg" -> "./src/images/photo.jpg"
  * - "photo.jpg" -> "./src/images/photo.jpg"
+ *
+ * @param {string} imageName - Image path (always string from shortcode or transform)
+ * @returns {string} Normalized path
  */
 export const normalizeImagePath = (imageName) => {
-  const name = imageName.toString();
-  if (name.startsWith("/")) return `./src${name}`;
-  if (name.startsWith("src/")) return `./${name}`;
-  if (name.startsWith("images/")) return `./src/${name}`;
-  return `./src/images/${name}`;
+  if (imageName.startsWith("/")) return `./src${imageName}`;
+  if (imageName.startsWith("src/")) return `./${imageName}`;
+  if (imageName.startsWith("images/")) return `./src/${imageName}`;
+  return `./src/images/${imageName}`;
 };
 
 /**
@@ -40,12 +42,27 @@ export const parseWidths = (widths) =>
 
 /**
  * Build standard image attributes object.
+ * @param {Object} options - Attribute options
+ * @param {string | null} [options.src] - Image source (for external images)
+ * @param {string | null} [options.alt] - Alt text
+ * @param {string | null} [options.sizes] - Sizes attribute
+ * @param {string | null} [options.loading] - Loading attribute
+ * @param {string | null} [options.classes] - CSS classes
+ * @returns {Record<string, string>} Image attributes
  */
-export const buildImgAttributes = (alt, sizes, loading) => ({
+export const buildImgAttributes = ({
+  src = null,
+  alt = null,
+  sizes = null,
+  loading = null,
+  classes = null,
+} = {}) => ({
+  ...(src && { src }),
   alt: alt || "",
   sizes: sizes || DEFAULT_SIZE,
   loading: loading || "lazy",
   decoding: "async",
+  ...(classes && { class: classes }),
 });
 
 /**
@@ -63,3 +80,30 @@ export const buildWrapperStyles = (
     `aspect-ratio: ${getAspectRatioFn(aspectRatio, metadata)}`,
     metadata.width && `max-width: min(${metadata.width}px, 100%)`,
   ]).join("; ");
+
+/**
+ * Converts a file path to a unique, filename-safe basename.
+ * Strips common prefixes (./src/, src/) and the images/ directory name,
+ * then converts remaining path segments to hyphen-separated format.
+ *
+ * E.g., "./src/images/products/photo.jpg" -> "products-photo"
+ *       "./src/images/photo.jpg" -> "photo"
+ *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
+ */
+export const getPathAwareBasename = (src) => {
+  const normalized = src
+    .replace(/\\/g, "/")
+    .replace(/^\.?\/?(src\/)?/, "")
+    .replace(/^images\//, "");
+  const withoutExt = normalized.replace(/\.[^.]+$/, "");
+  return withoutExt.replace(/\//g, "-");
+};
+
+/**
+ * Generate filename for resized images.
+ * Used by eleventy-img for both regular images and LQIP thumbnails.
+ */
+export const filenameFormat = (_id, src, width, format) => {
+  const basename = getPathAwareBasename(src);
+  return `${basename}-${width}.${format}`;
+};

@@ -6,21 +6,21 @@ import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#utils/memoize.js";
 
-const createMarkdownRenderer = (options = { html: true }) =>
-  new markdownIt(options);
-
 const cacheKeyFromArgs = (args) => args.join(",");
 
 const resolvePath = (relativePath, baseDir = process.cwd()) =>
   path.join(baseDir, relativePath);
 
+const ensureDir = (dirPath) => {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+};
+
 const fileExists = memoize(
   (relativePath, baseDir) => fs.existsSync(resolvePath(relativePath, baseDir)),
   { cacheKey: cacheKeyFromArgs },
 );
-
-const fileMissing = (relativePath, baseDir) =>
-  !fileExists(relativePath, baseDir);
 
 const readFileContent = memoize(
   (relativePath, baseDir) => {
@@ -36,7 +36,7 @@ const renderSnippet = memoize(
     name,
     defaultString = "",
     baseDir = process.cwd(),
-    mdRenderer = createMarkdownRenderer(),
+    mdRenderer = new markdownIt({ html: true }),
   ) => {
     const snippetPath = path.join(baseDir, "src/snippets", `${name}.md`);
 
@@ -66,12 +66,21 @@ const renderSnippet = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
+const escapeHtml = (str) =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
 const configureFileUtils = (eleventyConfig) => {
   const mdRenderer = new markdownIt({ html: true });
 
   eleventyConfig.addFilter("file_exists", (name) => fileExists(name));
 
-  eleventyConfig.addFilter("file_missing", (name) => fileMissing(name));
+  eleventyConfig.addFilter("file_missing", (name) => !fileExists(name));
+
+  eleventyConfig.addFilter("escape_html", escapeHtml);
 
   eleventyConfig.addAsyncShortcode(
     "render_snippet",
@@ -82,13 +91,10 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addShortcode("read_file", (relativePath) =>
     readFileContent(relativePath),
   );
+
+  eleventyConfig.addShortcode("read_code", (relativePath) =>
+    escapeHtml(readFileContent(relativePath)),
+  );
 };
 
-export {
-  createMarkdownRenderer,
-  fileExists,
-  fileMissing,
-  readFileContent,
-  renderSnippet,
-  configureFileUtils,
-};
+export { configureFileUtils, ensureDir };

@@ -1,11 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
   everyEntry,
-  filterObject,
   fromPairs,
   mapBoth,
   mapEntries,
-  mapObject,
+  pickNonNull,
   pickTruthy,
   toObject,
 } from "#utils/object-entries.js";
@@ -54,35 +53,6 @@ describe("object-entries utilities", () => {
     });
   });
 
-  describe("mapObject", () => {
-    test("transforms keys and values", () => {
-      const uppercase = mapObject((k, v) => [k.toUpperCase(), v * 2]);
-      expect(uppercase(testObj)).toEqual({ A: 2, B: 4, C: 6 });
-    });
-
-    test("can swap keys and values", () => {
-      const swap = mapObject((k, v) => [String(v), k]);
-      expect(swap(testObj)).toEqual({ 1: "a", 2: "b", 3: "c" });
-    });
-  });
-
-  describe("filterObject", () => {
-    test("filters entries and returns object", () => {
-      const keepPositive = filterObject((_k, v) => v > 1);
-      expect(keepPositive(testObj)).toEqual({ b: 2, c: 3 });
-    });
-
-    test("can filter by key", () => {
-      const notA = filterObject((k) => k !== "a");
-      expect(notA(testObj)).toEqual({ b: 2, c: 3 });
-    });
-
-    test("returns empty object when nothing matches", () => {
-      const keepHuge = filterObject((_k, v) => v > 100);
-      expect(keepHuge(testObj)).toEqual({});
-    });
-  });
-
   describe("mapBoth", () => {
     test("applies same transform to keys and values", () => {
       const lower = mapBoth((s) => s.toLowerCase());
@@ -108,6 +78,31 @@ describe("object-entries utilities", () => {
 
     test("returns empty object when all falsy", () => {
       expect(pickTruthy({ a: null, b: 0, c: "" })).toEqual({});
+    });
+  });
+
+  describe("pickNonNull", () => {
+    test("keeps values that are not null", () => {
+      expect(pickNonNull({ a: 1, b: null, c: 0, d: "x", e: "" })).toEqual({
+        a: 1,
+        c: 0,
+        d: "x",
+        e: "",
+      });
+    });
+
+    test("keeps false values", () => {
+      expect(pickNonNull({ enabled: false, disabled: null })).toEqual({
+        enabled: false,
+      });
+    });
+
+    test("returns empty object when all null", () => {
+      expect(pickNonNull({ a: null, b: null, c: null })).toEqual({});
+    });
+
+    test("keeps undefined (only filters null)", () => {
+      expect(pickNonNull({ a: undefined, b: null })).toEqual({ a: undefined });
     });
   });
 

@@ -1,3 +1,13 @@
+/**
+ * Dietary indicator definitions for menu items.
+ *
+ * Each indicator has:
+ * - symbol: Short code displayed on menu (e.g., "VE", "GF")
+ * - label: Full name for accessibility and tooltips
+ * - field: Field name in menu item data (e.g., "is_vegan")
+ *
+ * Add new indicators by adding entries with the same structure.
+ */
 export default {
   vegan: {
     symbol: "VE",
@@ -9,10 +19,4 @@ export default {
     label: "Gluten Free",
     field: "is_gluten_free",
   },
-  // Easy to add more indicators in the future:
-  // nutFree: {
-  //   symbol: "NF",
-  //   label: "Nut Free",
-  //   field: "is_nut_free"
-  // }
 };

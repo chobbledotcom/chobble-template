@@ -3,21 +3,18 @@
  */
 
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
+import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
-const processGallery = (gallery) => {
-  if (Array.isArray(gallery)) return gallery;
-  return Object.values(gallery);
-};
-
 /**
  * Compute gallery array from gallery or header_image (for eleventyComputed)
+ * @returns {string[]} - Gallery array (empty if no images)
  */
 const computeGallery = (data) => {
   if (data.gallery) return data.gallery;
   if (data.header_image) return [data.header_image];
-  return undefined;
+  return [];
 };
 
 /**
@@ -27,7 +24,12 @@ const computeGallery = (data) => {
  */
 const addGallery = (item) => {
   if (item.data.gallery) {
-    item.data.gallery = processGallery(item.data.gallery);
+    const gallery = Array.isArray(item.data.gallery)
+      ? item.data.gallery
+      : Object.values(item.data.gallery);
+    const maxImages = config().products.max_images;
+    item.data.gallery =
+      maxImages === null ? gallery : gallery.slice(0, maxImages);
   }
   return item;
 };
@@ -135,17 +137,4 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 
-export {
-  processGallery,
-  computeGallery,
-  addGallery,
-  createProductsCollection,
-  createApiSkusCollection,
-  productsWithReviewsPage,
-  productReviewsRedirects,
-  getProductsByCategory,
-  getProductsByCategories,
-  getProductsByEvent,
-  getFeaturedProducts,
-  configureProducts,
-};
+export { configureProducts, computeGallery, addGallery, getProductsByCategory };

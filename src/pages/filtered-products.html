@@ -9,9 +9,4 @@ eleventyExcludeFromCollections: true
 meta_title: Search Results
 header_text: Search Results
 ---
-{%- assign products = filterPage.products -%}
-{%- assign currentFilters = filterPage.filters -%}
-
-<h1>{{ strings.product_name }}</h1>
-
-<p>Showing {{ filterPage.count }} product{% if filterPage.count != 1 %}s{% endif %} matching: {% include 'filter-description.html' %}</p>
+{%- include "filter-results-heading.html" -%}

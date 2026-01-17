@@ -24,26 +24,27 @@ const ALIAS_PATTERN = /^\s*const\s+(\w+)\s*=\s*([a-z_]\w*)\s*;\s*$/i;
 // Pattern to match local definitions (const/let/var/function)
 const DEF_PATTERN = /^\s*(?:const|let|var|function)\s+(\w+)(?:\s*=|\s*\()/;
 
+// Identifiers that are commonly assigned (not aliases)
+const BUILTIN_IDENTIFIERS = new Set([
+  "null",
+  "undefined",
+  "true",
+  "false",
+  "NaN",
+  "Infinity",
+]);
+
 /**
  * Find aliases in source, checking that the original is defined locally.
  */
 const findAliases = (source) => {
-  // Identifiers that are commonly assigned (not aliases)
-  const isBuiltinIdentifier = (name) =>
-    ["null", "undefined", "true", "false", "NaN", "Infinity"].includes(name);
+  const lines = source.split("\n");
+  // Collect all local definitions from source lines
+  const localDefs = new Set(
+    lines.map((line) => DEF_PATTERN.exec(line)?.[1]).filter(Boolean),
+  );
 
-  // Extract definition name from a line, or null if not a definition
-  const extractDefName = (line) => DEF_PATTERN.exec(line)?.[1] ?? null;
-
-  // Collect all local definitions from source lines (functional style)
-  const collectLocalDefs = (lines) =>
-    new Set(lines.map(extractDefName).filter(Boolean));
-
-  /**
-   * Check if a line is a method alias.
-   * Returns the alias info or null if not an alias.
-   */
-  const parseAlias = (line) => {
+  return scanLines(source, (line, lineNum) => {
     if (isCommentLine(line)) return null;
 
     const match = line.match(ALIAS_PATTERN);
@@ -51,32 +52,19 @@ const findAliases = (source) => {
 
     const [, newName, originalName] = match;
 
-    // Skip if names are the same
+    // Skip if names are the same, or if it's a builtin/primitive
     if (newName === originalName) return null;
-
-    // Skip known primitives/builtins
-    if (isBuiltinIdentifier(originalName)) return null;
-
-    // Skip single-letter variables (loop indices, etc.)
+    if (BUILTIN_IDENTIFIERS.has(originalName)) return null;
     if (originalName.length === 1) return null;
 
-    return { newName, originalName };
-  };
-
-  const lines = source.split("\n");
-  const localDefs = collectLocalDefs(lines);
-
-  return scanLines(source, (line, lineNum) => {
-    const alias = parseAlias(line);
-    if (!alias) return null;
-
     // Only flag if the original is defined locally (not an import)
-    if (!localDefs.has(alias.originalName)) return null;
+    if (!localDefs.has(originalName)) return null;
 
     return {
       lineNumber: lineNum,
       line: line.trim(),
-      ...alias,
+      newName,
+      originalName,
     };
   });
 };

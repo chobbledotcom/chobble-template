@@ -15,10 +15,12 @@ import {
 // Allowed function names in test files (utilities, not production logic)
 const ALLOWED_TEST_FUNCTIONS = new Set([
   // Test utilities from test-utils.js pattern
+  "compileScss",
   "createObjectBuilder",
   "captureConsole",
   "execScript",
   "createMockEleventyConfig",
+  "createConfiguredMock", // reviews.test.js - creates mock config with registered filters
   "createTempDir",
   "createTempFile",
   "createTempSnippetsDir",
@@ -30,7 +32,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockCwdSetup",
   "mockCwdTeardown",
   "withMockedConsole",
-  "withAssetDir",
+  "getIconFilter",
   "expectValidScriptTag",
   // Fixture factories
   "createProduct",
@@ -50,22 +52,33 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createProductSchemaData",
   "createPostSchemaData",
   "createMockReview",
-  // quote-steps.test.js - test fixture factory and assertion helpers
+  // quote-steps.test.js - test fixture factory and setup helpers
   "createQuoteStepsHtml",
-  "testNextButtonStep",
+  "setupQuoteSteps",
+  "triggerValidationError",
+  // quote-steps-utils.js - shared test helpers for progress tests
   "testIndicatorStates",
-  "testValidateFieldWithHtml",
-  // quote-price-utils.test.js - DOM setup and template rendering
-  "setupFullDOM",
+  // quote-price-utils.test.js - DOM setup, fixtures, and template rendering
+  "setupDOM",
   "setupBlurTestDOM",
   "renderQuotePriceTemplates",
+  "cartItem",
+  "buyItem",
+  "getDetails",
+  "getDetailKey",
+  "getDetailValue",
+  "testEventTriggersDays",
   // theme-editor.test.js - functional test helpers
   "roundTripTheme",
   "testScopedEntry",
   // item-filters.test.js - mock eleventy config with getters
   "mockConfig",
-  // item-filters.test.js - preset config factory
-  "itemsConfig",
+  // item-filters.test.js - test setup helper with collection accessors
+  "setupConfig",
+  // external-links.test.js - getter helpers following area-list.test.js pattern
+  "getFilter",
+  "getTransform",
+  "getLinkifyUrlsTransform",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -73,8 +86,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockFetch",
   "createLocationTracker",
   "withMockStorage",
-  // config.test.js - frontmatter validation helpers
-  "testFrontmatterFieldThrows",
   // responsive-tables.test.js - assertion helpers
   "testScrollableTableCount",
   // autosizes.test.js - integration test helpers
@@ -99,14 +110,18 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "expectNoStaleExceptions",
   // code-scanner.js - export detection utility
   "extractExports",
+  // code-scanner.js - export list parsing helper
+  "parseExportListContent",
   // design-system-scoping.test.js - SCSS analysis helpers
   "findUnscopedSelectors",
   "hasDesignSystemWrapper",
   // test-only-exports.test.js - analysis helpers
   "resolveImportPath",
   "extractImports",
+  "extractEleventyRegistrations",
   "buildSrcExportsMap",
   "buildImportUsageMap",
+  "buildEleventyRegistrationMap",
   "analyzeTestOnlyExports",
   // test-only-exports.test.js - test fixture source code strings (parser test data)
   "foo",
@@ -114,10 +129,21 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "b",
   "c",
   "original",
+  "another",
+  // categories.test.js - collection setup helpers
+  "getCategoriesCollection",
+  "getFeaturedFilter",
+  // products.test.js - test setup helpers
+  "setupProductsConfig",
+  "categorizedProducts",
+  // area-list.test.js - filter setup helper
+  "getFilter",
+  // Eleventy filter getter helpers - get filter via config registration
+  "getCacheBustFilter",
+  "getJsConfigFilter",
+  "getEventIcalFilter",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
-  // quote-steps.test.js - navigation test setup
-  "setupQuoteStepsNav",
   // hire-calculator.test.js - callback tracking setup
   "initHireWithCallback",
   // unused-images.test.js - eleventy after handler runner
@@ -139,12 +165,22 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "testProductMeta",
   // try-catch-usage.test.js - analysis helpers
   "findTryCatches",
-  "findNextNonEmptyLine",
-  "nextLineHasCatch",
   "tryBlockHasCatch",
+  // comment-limits.test.js - analysis helpers
+  "findExcessiveComments",
+  "findHeaderEndLine",
+  "countInlineComments",
+  "isJSDocTypeLine",
+  "isBlockEnd",
+  "isBlockStart",
+  "isSingleLine",
+  "isJSDocStart",
+  "isSingleLineBlock",
+  // comment-limits.test.js - test fixture function name
+  "validate",
+  // comment-limits.test.js - test assertion helper
+  "expectExcessiveComments",
   // commented-code.test.js - analysis helpers
-  "buildTemplateLiteralState",
-  "isDocumentationComment",
   "findCommentedCode",
   // commented-code.test.js - test fixture strings
   "active",
@@ -171,9 +207,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "findAssertionsWithoutMessages",
   "findTautologiesInSource",
   "findTautologicalAssertions",
-  // test-quality.test.js - functional utilities
-  "matchesAnyVaguePattern",
-  "countAnds",
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
@@ -220,15 +253,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createCodeChecker",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // data-exports.test.js - analysis helpers
-  "hasProblematicNamedExports",
-  "hasWrongHelperName",
   // method-aliasing.test.js - analysis helpers
-  "parseAlias",
   "findAliases",
   // short-circuit-order.test.js - analysis helpers
-  "buildPattern",
-  "hasSuboptimalOrder",
   "findSuboptimalOrder",
   // image.test.js - functional test helpers
   "expectPassthrough",
@@ -314,14 +341,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractFunctions",
   // build-profiling.js - measurement utilities
   "measure",
-  // knip.test.js - functional pipeline helpers
-  "runKnip",
-  "logFailureDetails",
-  "extractStatus",
   // test-utils.js - curried assertion helper for error checking
   "expectErrorsInclude",
   // test-utils.js - async error testing helper
   "expectAsyncThrows",
+  // test-utils.js - temp directory and mock fetch helpers
+  "withSubDir",
+  "withSubDirAsync",
+  "mockFetch",
+  "withMockFetch",
   // hire-calculator.test.js - DOM query helper
   "getDateInputs",
   // test-site-factory.test.js - test fixture
@@ -331,6 +359,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // customise-cms.test.js - test setup helpers
   "setupSiteJson",
   "setupSiteJsonWithSrc",
+  // customise-cms.test.js - YAML section extraction helpers
+  "getEventsSection",
+  "getViewSection",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)

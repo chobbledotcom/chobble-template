@@ -9,7 +9,7 @@
   .code-block {
     position: relative;
 
-    header {
+    .code-block-toolbar {
       @include flex-between;
       padding: $space-sm $space-md;
       background: #374151;

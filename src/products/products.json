@@ -1,5 +1,5 @@
 {
 	"layout": "item.html",
-	"tags": "products",
+	"tags": ["products"],
 	"reviewsField": "products"
 }

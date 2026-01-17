@@ -1,34 +1,113 @@
 /**
- * Type aliases for PagesCMS-validated data structures
- * Re-exports from pages-cms-generated.d.ts with shorter names for cleaner JSDoc annotations
+ * Chobble Template Type Definitions
+ *
+ * Central export for all type definitions.
+ * Import from '#lib/types' to access any type.
  */
 
-export type { PagesCMSSpec as Spec } from './pages-cms-generated.d.ts';
-export type { PagesCMSFaq as Faq } from './pages-cms-generated.d.ts';
-export type { PagesCMSTab as Tab } from './pages-cms-generated.d.ts';
-export type { PagesCMSOption as Option } from './pages-cms-generated.d.ts';
-export type { PagesCMSFilterAttribute as FilterAttribute } from './pages-cms-generated.d.ts';
-export type { PagesCMSOpeningTime as OpeningTime } from './pages-cms-generated.d.ts';
-export type { PagesCMSEleventyNavigation as EleventyNav, PagesCMSEleventyNavigation } from './pages-cms-generated.d.ts';
-export type { PagesCMSSocial as Social } from './pages-cms-generated.d.ts';
-export type { PagesCMSOrganization as Organization } from './pages-cms-generated.d.ts';
-export type { PagesCMSImage as Image } from './pages-cms-generated.d.ts';
+// =============================================================================
+// Configuration Types
+// =============================================================================
+export type {
+  ProductConfig,
+  ScreenshotConfig,
+  CartMode,
+  ProductMode,
+  SiteConfig,
+  SiteInfo,
+} from './config.d.ts';
 
-/**
- * Eleventy collection item with PagesCMS-validated data
- * Represents items returned from collectionApi.getFilteredByTag()
- */
-export type EleventyCollectionItem = {
-  url: string;
-  data: Record<string, unknown> & {
-    title?: string;
-    order?: number;
-    eleventyNavigation?: PagesCMSEleventyNavigation;
-    specs?: PagesCMSSpec[];
-    faqs?: PagesCMSFaq[];
-    tabs?: PagesCMSTab[];
-    options?: PagesCMSOption[];
-    filter_attributes?: PagesCMSFilterAttribute[];
-    opening_times?: PagesCMSOpeningTime[];
-  };
-};
+// =============================================================================
+// Eleventy Types
+// =============================================================================
+export type {
+  EleventyPageData,
+  BaseItemData,
+  ProductItemData,
+  EventItemData,
+  ReviewItemData,
+  PropertyItemData,
+  LocationItemData,
+  TeamItemData,
+  EleventyCollectionItemData,
+  EleventyCollectionItem,
+  EleventyCollectionApi,
+  EleventyNavigation,
+  EleventyComputedData,
+} from './eleventy.d.ts';
+
+// =============================================================================
+// Content Types (from PagesCMS + extensions)
+// =============================================================================
+export type {
+  // Short names
+  Spec,
+  Faq,
+  Tab,
+  Option,
+  FilterAttribute,
+  OpeningTime,
+  EleventyNav,
+  Social,
+  Organization,
+  Image,
+  Block,
+  // PagesCMS prefixed names
+  PagesCMSEleventyNavigation,
+  PagesCMSImage,
+  PagesCMSOption,
+  PagesCMSSpec,
+  PagesCMSFaq,
+  PagesCMSTab,
+  PagesCMSFilterAttribute,
+  PagesCMSOpeningTime,
+  // Extended types
+  ProductOption,
+  ProductSpec,
+  ProductData,
+  CartAttributesParams,
+} from './content.d.ts';
+
+// =============================================================================
+// Filter System Types
+// =============================================================================
+export type {
+  FilterSet,
+  FilterCombination,
+  FilterAttributeData,
+  FilterOption,
+  FilterGroup,
+  ActiveFilter,
+  FilterUIData,
+  FilterConfigOptions,
+} from './filters.d.ts';
+
+// =============================================================================
+// Media/Image Types
+// =============================================================================
+export type {
+  ImageProps,
+  ComputeImageProps,
+  ImageTransformOptions,
+  ProcessImageFn,
+} from './media.d.ts';
+
+// =============================================================================
+// DOM Types
+// =============================================================================
+export type {
+  ElementAttributes,
+  ElementChildren,
+  HappyDOMWindow,
+  DOM,
+} from './dom.d.ts';
+
+// =============================================================================
+// Schema.org Types
+// =============================================================================
+export type { SchemaOrgMeta } from './schema.d.ts';
+
+// =============================================================================
+// Utility Types
+// =============================================================================
+export type { MemoizeOptions } from './utils.d.ts';

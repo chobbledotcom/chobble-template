@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test";
 import {
   extractErrorsFromOutput,
   printSummary,
+  printTruncatedList,
   runStep,
 } from "#test/test-runner-utils.js";
 import { captureConsole, withMockedProcessExit } from "#test/test-utils.js";
-import { mapObject } from "#utils/object-entries.js";
 
 // ============================================
 // Test Helpers
@@ -22,14 +22,17 @@ const createBasicSteps = () => [
 /**
  * Creates results object with the given status and output for each step
  */
-const createResults = mapObject((name, config) => [
-  name,
-  {
-    status: config.status ?? 0,
-    stdout: config.stdout ?? "",
-    stderr: config.stderr ?? "",
-  },
-]);
+const createResults = (configs) =>
+  Object.fromEntries(
+    Object.entries(configs).map(([name, config]) => [
+      name,
+      {
+        status: config.status ?? 0,
+        stdout: config.stdout ?? "",
+        stderr: config.stderr ?? "",
+      },
+    ]),
+  );
 
 /**
  * Captures console output from printSummary, mocking process.exit
@@ -444,6 +447,82 @@ Failed to compile
       expect(output).toContain("SUMMARY");
       expect(output).not.toContain("Passed");
       expect(output).not.toContain("Failed");
+    });
+  });
+
+  // ============================================
+  // printTruncatedList Tests
+  // ============================================
+  describe("printTruncatedList", () => {
+    // Helper to create numbered items and capture console output
+    const testTruncatedList = (count, options) => {
+      const items = Array.from({ length: count }, (_, i) => `item ${i + 1}`);
+      return captureConsole(() => printTruncatedList(options)(items));
+    };
+
+    test("prints all items when under maxItems", () => {
+      const items = ["error 1", "error 2", "error 3"];
+      const logs = captureConsole(() => printTruncatedList()(items));
+
+      expect(logs).toEqual(["  error 1", "  error 2", "  error 3"]);
+    });
+
+    test("truncates at 10 items by default", () => {
+      const logs = testTruncatedList(15);
+
+      expect(logs.length).toBe(11); // 10 items + "more" message
+      expect(logs[0]).toBe("  item 1");
+      expect(logs[9]).toBe("  item 10");
+      expect(logs[10]).toBe("  ... and 5 more (use --verbose to see all)");
+    });
+
+    test("respects custom maxItems", () => {
+      const items = ["a", "b", "c", "d", "e"];
+      const logs = captureConsole(() =>
+        printTruncatedList({ maxItems: 3 })(items),
+      );
+
+      expect(logs.length).toBe(4);
+      expect(logs[3]).toBe("  ... and 2 more (use --verbose to see all)");
+    });
+
+    test("respects custom prefix", () => {
+      const items = ["item"];
+      const logs = captureConsole(() =>
+        printTruncatedList({ prefix: ">>> " })(items),
+      );
+
+      expect(logs[0]).toBe(">>> item");
+    });
+
+    test("respects custom moreLabel", () => {
+      const items = Array.from({ length: 12 }, (_, i) => `err ${i}`);
+      const logs = captureConsole(() =>
+        printTruncatedList({ moreLabel: "errors" })(items),
+      );
+
+      expect(logs[10]).toBe("  ... and 2 errors (use --verbose to see all)");
+    });
+
+    test("respects custom suffix", () => {
+      const items = Array.from({ length: 12 }, (_, i) => `item ${i}`);
+      const logs = captureConsole(() =>
+        printTruncatedList({ suffix: "(run with -v)" })(items),
+      );
+
+      expect(logs[10]).toBe("  ... and 2 more (run with -v)");
+    });
+
+    test("handles empty array", () => {
+      const logs = captureConsole(() => printTruncatedList()([]));
+      expect(logs).toEqual([]);
+    });
+
+    test("handles exactly maxItems", () => {
+      const logs = testTruncatedList(10);
+
+      expect(logs.length).toBe(10); // No "more" message
+      expect(logs[9]).toBe("  item 10");
     });
   });
 });

@@ -15,9 +15,9 @@ Usage:
 {%- endcomment -%}
 
 <div class="code-block"{% if reveal %} data-reveal="{{ reveal }}"{% endif %}>
-  <header>
+  <div class="code-block-toolbar">
     <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
     <span>{{ filename }}</span>
-  </header>
+  </div>
   <pre><code{% if language %} data-language="{{ language }}"{% endif %}>{{ code }}</code></pre>
 </div>

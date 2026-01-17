@@ -1,7 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
-import { PAGES_DIR } from "#lib/paths.js";
 import { pickTruthy } from "#utils/object-entries.js";
 
 const DEFAULTS = {
@@ -17,13 +13,20 @@ const DEFAULTS = {
   chobble_link: null,
   map_embed_src: null,
   cart_mode: null,
+  checkout_api_url: null,
   product_mode: null,
   has_products_filter: false,
+  has_properties_filter: false,
+  placeholder_images: true,
+  enable_theme_switcher: false,
+  timezone: "Europe/London",
+  reviews_truncate_limit: 10,
+  list_item_fields: ["link", "subtitle", "thumbnail"],
+  navigation_content_anchor: false,
+  category_order: null,
+  screenshots: null,
   design_system_layouts: ["design-system-base.html"],
 };
-
-const VALID_CART_MODES = ["paypal", "stripe", "quote"];
-const VALID_PRODUCT_MODES = ["buy", "hire"];
 
 const DEFAULT_PRODUCT_DATA = {
   item_widths: "240,480,640",
@@ -31,130 +34,8 @@ const DEFAULT_PRODUCT_DATA = {
   gallery_image_widths: "900,1300,1800",
   header_image_widths: "640,900,1300",
   item_list_aspect_ratio: null,
+  max_images: null,
 };
-
-const cartModeError = (cartMode, filename, issue) =>
-  `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
-
-const getPagePath = (filename) => path.join(PAGES_DIR, filename);
-
-const extractFrontmatter = (pagePath, filename, cartMode) => {
-  if (!fs.existsSync(pagePath)) {
-    throw new Error(cartModeError(cartMode, filename, "does not exist"));
-  }
-  const { data } = matter.read(pagePath);
-  if (Object.keys(data).length === 0) {
-    throw new Error(cartModeError(cartMode, filename, "has no frontmatter"));
-  }
-  return data;
-};
-
-const checkFrontmatterField = (
-  frontmatter,
-  field,
-  value,
-  cartMode,
-  filename,
-) => {
-  if (frontmatter[field] !== value) {
-    throw new Error(
-      cartModeError(cartMode, filename, `does not have ${field}: ${value}`),
-    );
-  }
-};
-
-function validatePageFrontmatter(filename, layout, permalink, cartMode) {
-  const frontmatter = extractFrontmatter(
-    getPagePath(filename),
-    filename,
-    cartMode,
-  );
-  checkFrontmatterField(frontmatter, "layout", layout, cartMode, filename);
-  checkFrontmatterField(
-    frontmatter,
-    "permalink",
-    permalink,
-    cartMode,
-    filename,
-  );
-}
-
-function validateStripePages() {
-  validatePageFrontmatter(
-    "stripe-checkout.md",
-    "stripe-checkout.html",
-    "/stripe-checkout/",
-    "stripe",
-  );
-  validatePageFrontmatter(
-    "order-complete.md",
-    "checkout-complete.html",
-    "/order-complete/",
-    "stripe",
-  );
-}
-
-function validateQuotePages() {
-  validatePageFrontmatter(
-    "checkout.md",
-    "quote-checkout.html",
-    "/checkout/",
-    "quote",
-  );
-}
-
-function validateProductMode(config) {
-  const { product_mode } = config;
-
-  if (!product_mode) return;
-
-  if (!VALID_PRODUCT_MODES.includes(product_mode)) {
-    throw new Error(
-      `Invalid product_mode: "${product_mode}". Must be one of: ${VALID_PRODUCT_MODES.join(", ")}, or null/omitted for default (buy).`,
-    );
-  }
-}
-
-function validateCheckoutApiUrl(cartMode, checkoutApiUrl) {
-  if ((cartMode === "paypal" || cartMode === "stripe") && !checkoutApiUrl) {
-    throw new Error(
-      `cart_mode is "${cartMode}" but checkout_api_url is not set in config.json`,
-    );
-  }
-}
-
-function validateQuoteConfig(formTarget) {
-  if (!formTarget) {
-    throw new Error(
-      'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
-    );
-  }
-  validateQuotePages();
-}
-
-function validateCartConfig(config) {
-  const { cart_mode, checkout_api_url, form_target } = config;
-
-  validateProductMode(config);
-
-  if (!cart_mode) return;
-
-  if (!VALID_CART_MODES.includes(cart_mode)) {
-    throw new Error(
-      `Invalid cart_mode: "${cart_mode}". Must be one of: ${VALID_CART_MODES.join(", ")}, or null/omitted for no cart.`,
-    );
-  }
-
-  validateCheckoutApiUrl(cart_mode, checkout_api_url);
-
-  if (cart_mode === "stripe") {
-    validateStripePages();
-  }
-
-  if (cart_mode === "quote") {
-    validateQuoteConfig(form_target);
-  }
-}
 
 /**
  * Extract non-null product settings from config
@@ -174,22 +55,4 @@ const getFormTarget = (configData) => {
   return null;
 };
 
-export {
-  DEFAULTS,
-  VALID_CART_MODES,
-  VALID_PRODUCT_MODES,
-  DEFAULT_PRODUCT_DATA,
-  getProducts,
-  getFormTarget,
-  extractFrontmatter,
-  checkFrontmatterField,
-  validatePageFrontmatter,
-  validateStripePages,
-  validateQuotePages,
-  validateProductMode,
-  validateCheckoutApiUrl,
-  validateQuoteConfig,
-  validateCartConfig,
-  getPagePath,
-  cartModeError,
-};
+export { DEFAULTS, DEFAULT_PRODUCT_DATA, getProducts, getFormTarget };

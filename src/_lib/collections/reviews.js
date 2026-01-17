@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import config from "#data/config.js";
 import { SRC_DIR } from "#lib/paths.js";
+import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#utils/array-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
@@ -91,14 +92,10 @@ const AVATAR_COLORS = [
   "#42A5F5", // Blue
 ];
 
-/**
- * Extract initials from a name
- * Handles: "John Smith" -> "JS", "JS" -> "JS", "John" -> "J"
- */
-const getInitials = (name) => {
-  if (!name) return "?";
-  const trimmed = name.trim();
-  if (trimmed === "") return "?";
+/** Extract initials: "John Smith" -> "JS", "JS" -> "JS", "John" -> "J" */
+const extractInitials = (str) => {
+  const trimmed = str.trim();
+  if (trimmed.length === 0) return "?";
   if (trimmed.length <= 2) return trimmed.toUpperCase();
   const words = trimmed.split(/\s+/).filter(Boolean);
   if (words.length === 1) return words[0].charAt(0).toUpperCase();
@@ -111,25 +108,14 @@ const getInitials = (name) => {
  */
 const reviewerAvatar = (name) => {
   const str = name || "";
-  const hash = Math.abs(
-    [...str].reduce((h, char) => {
-      const next = (h << 5) - h + char.charCodeAt(0);
-      return next & next;
-    }, 0),
-  );
-  const color = AVATAR_COLORS[hash % AVATAR_COLORS.length];
-  const initials = getInitials(name);
+  const color = AVATAR_COLORS[hashString(str) % AVATAR_COLORS.length];
+  const initials = extractInitials(str);
   const svg = AVATAR_SVG_TEMPLATE.replace("{{color}}", color).replace(
     "{{initials}}",
     initials,
   );
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
-
-/**
- * Default reviews truncate limit when not configured
- */
-const DEFAULT_REVIEWS_LIMIT = 10;
 
 /** Map item to redirect data */
 const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
@@ -139,10 +125,11 @@ const reviewsFactory =
   (reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
     const items = collectionApi.getFilteredByTag(reviewsField);
     const visibleReviews = createReviewsCollection(collectionApi);
+    // config().reviews_truncate_limit is guaranteed by DEFAULTS (always number)
     const limit =
       limitOverride !== undefined
         ? limitOverride
-        : (config().reviews_truncate_limit ?? DEFAULT_REVIEWS_LIMIT);
+        : config().reviews_truncate_limit;
 
     if (limit === -1) return onNoLimit(items);
 
@@ -197,15 +184,4 @@ const configureReviews = (eleventyConfig) => {
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);
 };
 
-export {
-  createReviewsCollection,
-  getReviewsFor,
-  countReviews,
-  getRating,
-  ratingToStars,
-  getInitials,
-  reviewerAvatar,
-  withReviewsPage,
-  reviewsRedirects,
-  configureReviews,
-};
+export { getReviewsFor, withReviewsPage, reviewsRedirects, configureReviews };

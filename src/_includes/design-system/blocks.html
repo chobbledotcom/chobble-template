@@ -1,0 +1,60 @@
+{%- if blocks.size > 0 -%}
+<div class="design-system">
+{%- assign _layout = pageLayouts[page.fileSlug] -%}
+{%- for block in blocks -%}
+  {%- assign _layoutBlock = _layout.blocks[forloop.index0] -%}
+  {%- case block.type -%}
+
+    {%- when "section-header" -%}
+      {%- assign _level = _layoutBlock.level | default: block.level | default: 2 -%}
+      {%- assign _align = _layoutBlock.align | default: block.align | default: "center" -%}
+      {%- include "design-system/section-header.html",
+          title: block.title,
+          subtitle: block.subtitle,
+          level: _level,
+          align: _align,
+          class: block.class
+      -%}
+
+    {%- when "features" -%}
+      {%- assign _heading_level = _layoutBlock.heading_level | default: block.heading_level | default: 3 -%}
+      {%- include "design-system/features.html",
+          items: block.items,
+          reveal: block.reveal,
+          heading_level: _heading_level
+      -%}
+
+    {%- when "image-cards" -%}
+      {%- assign _heading_level = _layoutBlock.heading_level | default: block.heading_level | default: 3 -%}
+      {%- assign _image_aspect_ratio = _layoutBlock.image_aspect_ratio | default: block.image_aspect_ratio -%}
+      {%- include "design-system/image-cards.html",
+          items: block.items,
+          reveal: block.reveal,
+          heading_level: _heading_level,
+          image_aspect_ratio: _image_aspect_ratio
+      -%}
+
+    {%- when "stats" -%}
+      {%- include "design-system/stats.html",
+          items: block.items,
+          reveal: block.reveal
+      -%}
+
+    {%- when "code-block" -%}
+      {%- include "design-system/code-block.html",
+          filename: block.filename,
+          code: block.code,
+          language: block.language,
+          reveal: block.reveal
+      -%}
+
+    {%- when "markdown" -%}
+      {{ block.content | renderContent: "md" }}
+
+    {%- when "html" -%}
+      {{ block.content }}
+
+  {%- endcase -%}
+{%- endfor -%}
+</div>
+{%- endif -%}

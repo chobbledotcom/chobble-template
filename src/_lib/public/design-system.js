@@ -3,10 +3,6 @@
 
 import { initSliders } from "#public/utils/slider-core.js";
 
-// =============================================================================
-// INIT
-// =============================================================================
-
 const init = () => {
   // Scroll reveal - animate elements as they enter viewport
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -24,7 +20,6 @@ const init = () => {
         }
       },
       {
-        root: null,
         rootMargin: "0px 0px -50px 0px",
         threshold: 0.1,
       },

@@ -8,7 +8,7 @@
 .design-system {
   .split {
     @include grid(1, $space-2xl);
-    align-items: center;
+    align-items: start;
 
     @include tablet-up {
       @include grid(2, $space-3xl);

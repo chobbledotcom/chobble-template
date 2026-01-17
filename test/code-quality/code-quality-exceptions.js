@@ -55,7 +55,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
   // test/code-scanner.js - Exception validation
   // Needed: validates exception entries by reading files that might not exist
-  "test/code-scanner.js:334",
+  "test/code-scanner.js:333",
 
   // test/test-utils.js - Test utility definitions (test infrastructure)
   // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
@@ -82,7 +82,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:8", // memoization cache (fundamental to memoize utility)
+  "src/_lib/utils/memoize.js:19", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
@@ -93,6 +93,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/test-runner-utils.js",
   "test/code-scanner.js",
   "test/unit/utils/schema-helper-utils.js",
+  "test/unit/data/eleventy-computed.test.js",
   "test/unit/collections/events-utils.js",
   "test/unit/frontend/quote-steps-utils.js",
   "test/unit/code-quality/code-quality-utils.js",
@@ -105,6 +106,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/array-push.test.js",
   "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
   "test/unit/code-quality/function-length.test.js",
@@ -163,6 +165,7 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/html-in-js.test.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
@@ -184,13 +187,12 @@ const ALLOWED_LET = new Set([
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
-  "src/_data/eleventyComputed.js",
-  "src/_lib/build/scss.js",
-  "src/_lib/collections/categories.js",
+  "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
-  "src/_lib/collections/navigation.js",
   "src/_lib/collections/products.js",
-  "src/_lib/collections/search.js",
+  "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
+  "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
+  "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
@@ -203,11 +205,11 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/public/cart/quote.js",
   "src/_lib/public/cart/quote-steps.js",
-  "src/_lib/public/ui/scroll-fade.js",
   "src/_lib/public/ui/search.js",
   "src/_lib/public/ui/slider.js",
   "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
+  "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/knip.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
 ]);
@@ -219,81 +221,41 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
 // Exports from src/ that are only used in test/ files.
 // These indicate tests of implementation details rather than public API.
 // Format: "path/to/file.js:exportName"
+//
+// NOTE: The scanner now detects Eleventy registrations (addFilter, addShortcode, etc.)
+// so exports registered with Eleventy no longer need to be listed here.
 const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Build utilities - tested directly for build pipeline verification
-  "src/_lib/build/scss.js:compileScss",
-  "src/_lib/build/scss.js:configureScss",
   "src/_lib/build/scss.js:createScssCompiler",
-
-  // Collection configure functions - tested to verify Eleventy registration
-  "src/_lib/collections/events.js:configureEvents",
-  "src/_lib/collections/events.js:getFeaturedEvents",
-  "src/_lib/collections/guides.js:configureGuides",
-  "src/_lib/collections/guides.js:guidesByCategory",
-  "src/_lib/collections/locations.js:configureLocations",
-  "src/_lib/collections/locations.js:getRootLocations",
-  "src/_lib/collections/locations.js:getSiblingLocations",
-  "src/_lib/collections/menus.js:configureMenus",
-  "src/_lib/collections/menus.js:getCategoriesByMenu",
-  "src/_lib/collections/menus.js:getItemsByCategory",
-  "src/_lib/collections/navigation.js:configureNavigation",
-  "src/_lib/collections/navigation.js:createNavigationFilter",
-  "src/_lib/collections/navigation.js:findPageUrl",
-  "src/_lib/collections/news.js:configureNews",
-  "src/_lib/collections/news.js:createNewsCollection",
-  "src/_lib/collections/tags.js:configureTags",
-  "src/_lib/collections/tags.js:extractTags",
 
   // Config helpers - tested for form/quote field logic
   "src/_lib/config/form-helpers.js:getFieldTemplate",
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
-  // Eleventy plugin configure functions - tested for plugin registration
-  "src/_lib/eleventy/cache-buster.js:cacheBust",
-  "src/_lib/eleventy/cache-buster.js:configureCacheBuster",
-  "src/_lib/eleventy/capture.js:configureCapture",
-  "src/_lib/eleventy/feed.js:configureFeed",
-  "src/_lib/eleventy/ical.js:configureICal",
-  "src/_lib/eleventy/ical.js:eventIcal",
-  "src/_lib/eleventy/ical.js:isOneOffEvent",
-  "src/_lib/eleventy/js-config.js:buildJsConfigJson",
-  "src/_lib/eleventy/js-config.js:configureJsConfig",
-  "src/_lib/eleventy/layout-aliases.js:configureLayoutAliases",
-  "src/_lib/eleventy/opening-times.js:configureOpeningTimes",
+  // Eleventy plugin helpers - internal functions tested directly
   "src/_lib/eleventy/opening-times.js:renderOpeningTimes",
   "src/_lib/eleventy/pdf.js:buildMenuPdfData",
-  "src/_lib/eleventy/pdf.js:configurePdf",
-  "src/_lib/eleventy/pdf.js:createMenuPdfTemplate",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
-  "src/_lib/eleventy/responsive-tables.js:configureResponsiveTables",
-  "src/_lib/eleventy/style-bundle.js:configureStyleBundle",
-  "src/_lib/eleventy/style-bundle.js:getBodyClasses",
-  "src/_lib/eleventy/style-bundle.js:getCssBundle",
-  "src/_lib/eleventy/style-bundle.js:getJsBundle",
-  "src/_lib/eleventy/style-bundle.js:usesDesignSystem",
+  "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
 
   // Media processing - tested for image handling
-  "src/_lib/media/image.js:configureImages",
-  "src/_lib/media/image.js:createImageTransform",
-  "src/_lib/media/image.js:imageShortcode",
-  "src/_lib/media/inline-asset.js:configureInlineAsset",
-  "src/_lib/media/unused-images.js:configureUnusedImages",
+  "src/_lib/media/image-frontmatter.js:isValidImage", // Used by getFirstValidImage, tested directly for edge cases
+  "src/_lib/media/image-utils.js:getPathAwareBasename",
+  "src/_lib/media/thumbnail-placeholder.js:PLACEHOLDER_COLORS",
 
-  // Path constants - used in test utilities
-  "src/_lib/paths.js:DATA_DIR",
-  "src/_lib/paths.js:ROOT_DIR",
-  "src/_lib/paths.js:SRC_DIR",
-
-  // Theme editor internals - tested for UI component behavior
-  "src/_lib/public/theme/theme-editor-config.js:GLOBAL_INPUTS",
-  "src/_lib/public/theme/theme-editor-config.js:SCOPE_DEFINITIONS",
-  "src/_lib/public/theme/theme-editor-config.js:SCOPED_INPUTS",
-  "src/_lib/public/theme/theme-editor-lib.js:SCOPE_SELECTORS",
-
-  // Public UI components - tested for frontend behavior
+  // DOM init functions - auto-called via onReady in production, but exported for unit tests
+  // (ES modules execute at import time before tests can set up DOM)
+  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
-  "src/_lib/public/utils/cart-utils.js:getItemCount",
-  "src/_lib/public/utils/cart-utils.js:removeItem",
+
+  // Utility functions - tested for shared logic
+  "src/_lib/utils/dom-builder.js:elementToHtml",
+  "src/_lib/utils/dom-builder.js:getSharedDocument",
+
+  // Curried data transforms - designed for test fixtures but exported from production
+  // for reuse across test files.
+  "src/_lib/utils/array-utils.js:data",
+  "src/_lib/utils/array-utils.js:toData",
 ]);
 
 // ============================================
@@ -309,7 +271,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:327",
+  "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:41",

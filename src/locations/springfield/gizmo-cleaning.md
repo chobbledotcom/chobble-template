@@ -8,7 +8,7 @@ meta_description: "Expert gizmo cleaning services in Springfield. We clean all t
 
 # Gizmo Cleaning in Springfield
 
-Springfield's premier gizmo cleaning service! We'll have your gizmos looking cleaner than Mr. Burns' conscience... well, much cleaner than that, actually.
+Springfield's premier gizmo cleaning service! We'll have your gizmos looking cleaner than Mr. Burns' conscience... well, much cleaner than that, when you consider the wotzit quotient of our process.
 
 ## Why Springfield Chooses Us for Gizmo Cleaning
 

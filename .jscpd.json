@@ -8,7 +8,12 @@
 		"**/package-lock.json",
 		"**/ecommerce-backend/**",
 		"**/.test-sites/**",
-		"**/landing-pages/**"
+		"**/landing-pages/**",
+		"**/page-layouts/**",
+		"**/browser-utils.js",
+		"**/lighthouse.js",
+		"**/screenshot.js",
+		"**/cli-utils.js"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,

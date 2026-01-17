@@ -3,9 +3,9 @@
 layout: base.html
 ---
 
-{%- include "products-filter.html" -%}
-
+{%- assign filterUI = collections.filteredProductPagesListingFilterUI -%}
+{%- include "products-layout-start.html", filterUI: filterUI -%}
 {{- content -}}
-
 {%- assign categories = collections.categories | getFeaturedCategories -%}
 {%- include "items.html", items: categories -%}
+{%- include "products-layout-end.html" -%}

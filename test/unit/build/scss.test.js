@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { compileScss, configureScss, createScssCompiler } from "#build/scss.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { configureScss, createScssCompiler } from "#build/scss.js";
+import { compileScss, createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("scss", () => {
   test("Creates SCSS compiler function for given input path", async () => {

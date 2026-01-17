@@ -41,38 +41,25 @@ const EXPENSIVE_METHODS = [
 
 // Pattern: expr.method(...) && identifier === something
 // or: expr.method(...) && identifier !== something
-const buildPattern = () => {
-  const methods = EXPENSIVE_METHODS.join("|");
-  // Left: something.method(...)
-  // Right: identifier === or !== simple value
-  return new RegExp(
-    `\\.[\\w?]*(${methods})\\s*\\([^)]*\\)\\s*&&\\s*\\w+(\\.\\w+)*\\s*[!=]==\\s*\\w+`,
-    "i",
-  );
-};
-
-const EXPENSIVE_THEN_EQUALITY = buildPattern();
+// Left: something.method(...)
+// Right: identifier === or !== simple value
+const EXPENSIVE_THEN_EQUALITY = new RegExp(
+  `\\.[\\w?]*(${EXPENSIVE_METHODS.join("|")})\\s*\\([^)]*\\)\\s*&&\\s*\\w+(\\.\\w+)*\\s*[!=]==\\s*\\w+`,
+  "i",
+);
 
 // Also catch the reverse in || expressions (cheap first still wins)
 // Pattern: identifier === something || expensive
 // This is actually correct, so we don't flag it
 
 /**
- * Check if a line has suboptimal short-circuit ordering.
- */
-const hasSuboptimalOrder = (line) => {
-  if (isCommentLine(line)) return false;
-
-  // Check for expensive method before simple equality in &&
-  return EXPENSIVE_THEN_EQUALITY.test(line);
-};
-
-/**
  * Find all lines with suboptimal short-circuit ordering.
+ * Checks for expensive method before simple equality in &&
  */
 const findSuboptimalOrder = (source) =>
   scanLines(source, (line, lineNum) => {
-    if (!hasSuboptimalOrder(line)) return null;
+    if (isCommentLine(line)) return null;
+    if (!EXPENSIVE_THEN_EQUALITY.test(line)) return null;
     return {
       lineNumber: lineNum,
       line: line.trim(),

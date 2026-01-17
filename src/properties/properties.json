@@ -1,5 +1,5 @@
 {
 	"layout": "property.html",
-	"tags": "properties",
+	"tags": ["properties"],
 	"reviewsField": "properties"
 }

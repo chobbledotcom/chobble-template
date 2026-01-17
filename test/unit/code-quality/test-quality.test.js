@@ -41,17 +41,6 @@ const VAGUE_NAME_PATTERNS = [
 ];
 
 // ============================================
-// Functional Utilities
-// ============================================
-
-// Curried predicate: checks if name matches any vague pattern
-const matchesAnyVaguePattern = (name) =>
-  VAGUE_NAME_PATTERNS.some((p) => p.test(name));
-
-// Curried predicate: counts "and" occurrences in name
-const countAnds = (name) => (name.match(/-and-/g) || []).length;
-
-// ============================================
 // Test Name Extraction
 // ============================================
 
@@ -76,6 +65,9 @@ const extractTestNames = (source, relativePath) =>
 // Analysis Functions (Pure + Composable)
 // ============================================
 
+// Helper: Check if name matches any vague pattern
+const isVagueName = (name) => VAGUE_NAME_PATTERNS.some((p) => p.test(name));
+
 /**
  * Check for vague test names.
  * Pure: () => violations[]
@@ -83,7 +75,7 @@ const extractTestNames = (source, relativePath) =>
 const findVagueTestNames = () =>
   analyzeFiles(TEST_FILES(), (source, relativePath) =>
     filterMap(
-      (tc) => matchesAnyVaguePattern(tc.name),
+      (tc) => isVagueName(tc.name),
       createViolation(
         (tc) => `Vague test name "${tc.name}" - use descriptive name`,
       ),
@@ -99,11 +91,14 @@ const findMultiConcernTestNames = () =>
     TEST_FILES().filter((f) => !AND_NAME_EXCEPTIONS.has(f)),
     (source, relativePath) =>
       filterMap(
-        (tc) => countAnds(tc.name) >= 2,
-        createViolation(
-          (tc) =>
-            `Test name has ${countAnds(tc.name)} "and"s - consider splitting`,
-        ),
+        (tc) => {
+          const andCount = (tc.name.match(/-and-/g) || []).length;
+          return andCount >= 2;
+        },
+        createViolation((tc) => {
+          const andCount = (tc.name.match(/-and-/g) || []).length;
+          return `Test name has ${andCount} "and"s - consider splitting`;
+        }),
       )(extractTestNames(source, relativePath)),
   );
 
@@ -316,7 +311,7 @@ describe("module", () => {
       "simple",
     ];
     for (const name of testPatterns) {
-      expect(matchesAnyVaguePattern(name)).toBe(true);
+      expect(isVagueName(name)).toBe(true);
     }
   });
 
@@ -328,7 +323,7 @@ describe("module", () => {
       "basic-functionality-works",
     ];
     for (const name of goodNames) {
-      expect(matchesAnyVaguePattern(name)).toBe(false);
+      expect(isVagueName(name)).toBe(false);
     }
   });
 

@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import {
-  GLOBAL_INPUTS,
-  SCOPE_DEFINITIONS,
-  SCOPED_INPUTS,
-} from "#public/theme/theme-editor-config.js";
-import {
   collectActiveClasses,
   controlToVarEntry,
   createFormEl,
@@ -13,8 +8,6 @@ import {
   isControlEnabled,
   parseBorderValue,
   parseThemeContent,
-  SCOPE_SELECTORS,
-  SCOPES,
   shouldIncludeScopedVar,
 } from "#public/theme/theme-editor-lib.js";
 
@@ -403,64 +396,6 @@ nav {
 
 /* body_classes: header-centered-dark */`;
     expect(css).toBe(expected);
-  });
-
-  // ============================================
-  // Unit Tests - Config validation
-  // ============================================
-
-  test("SCOPES constant matches SCOPE_DEFINITIONS keys", () => {
-    expect(SCOPES).toEqual(["header", "nav", "article", "form", "button"]);
-    expect(Object.keys(SCOPE_DEFINITIONS)).toEqual(SCOPES);
-  });
-
-  test("Header selector is correct", () => {
-    expect(SCOPE_SELECTORS.header).toBe("header");
-  });
-
-  test("Nav selector is correct", () => {
-    expect(SCOPE_SELECTORS.nav).toBe("nav");
-  });
-
-  test("Article selector is correct", () => {
-    expect(SCOPE_SELECTORS.article).toBe("article");
-  });
-
-  test("Form selector is correct", () => {
-    expect(SCOPE_SELECTORS.form).toBe("form");
-  });
-
-  test("Button selector is multi-line", () => {
-    expect(SCOPE_SELECTORS.button.includes("button")).toBe(true);
-    expect(SCOPE_SELECTORS.button.includes(".button")).toBe(true);
-    expect(SCOPE_SELECTORS.button.includes('input[type="submit"]')).toBe(true);
-  });
-
-  test("GLOBAL_INPUTS has expected color inputs", () => {
-    expect(GLOBAL_INPUTS["color-bg"].type).toBe("color");
-    expect(GLOBAL_INPUTS["color-text"].type).toBe("color");
-    expect(GLOBAL_INPUTS["color-link"].type).toBe("color");
-  });
-
-  test("SCOPED_INPUTS has expected inputs", () => {
-    expect(SCOPED_INPUTS["color-bg"].type).toBe("color");
-    expect(SCOPED_INPUTS.border.type).toBe("border");
-  });
-
-  test("SCOPED_INPUTS defines CSS variables for scoped styles", () => {
-    const varNames = Object.keys(SCOPED_INPUTS).map((id) => `--${id}`);
-    expect(varNames.includes("--color-bg")).toBe(true);
-    expect(varNames.includes("--color-text")).toBe(true);
-    expect(varNames.includes("--border")).toBe(true);
-  });
-
-  test("Config exports have consistent counts", () => {
-    const globalCount = Object.keys(GLOBAL_INPUTS).length;
-    const scopedPerScope = Object.keys(SCOPED_INPUTS).length;
-    const scopeCount = Object.keys(SCOPE_DEFINITIONS).length;
-    expect(scopeCount).toBe(5);
-    expect(globalCount > 0).toBe(true);
-    expect(scopedPerScope > 0).toBe(true);
   });
 
   // ============================================

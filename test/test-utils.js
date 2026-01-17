@@ -4,8 +4,38 @@ import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
-import { map } from "#utils/array-utils.js";
+import { data, map, toData } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
+
+// ============================================
+// Object Utilities (for test infrastructure)
+// ============================================
+
+/**
+ * Create a curried function that omits specified keys from an object.
+ * Moved here from production code since it's only used in tests.
+ * @param {string[]} keys - Keys to omit
+ * @returns {(obj: Record<string, any>) => Record<string, any>} Function that omits specified keys
+ */
+const omit = (keys) => (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
+
+// ============================================
+// SCSS Compilation (for testing SCSS behavior)
+// ============================================
+
+/**
+ * Compile SCSS content to CSS (test utility).
+ * Moved here from production code since it's only used in tests.
+ * @param {string} inputContent - SCSS source code
+ * @param {string} inputPath - Path for import resolution
+ * @returns {Promise<string>} Compiled CSS
+ */
+const compileScss = async (inputContent, inputPath) => {
+  const { createScssCompiler } = await import("#build/scss.js");
+  const compiler = createScssCompiler(inputContent, inputPath);
+  return await compiler({});
+};
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -83,6 +113,7 @@ const createMockEleventyConfig = () => ({
   addPairedShortcode: createMapMethod("pairedShortcodes"),
   addExtension: createMapMethod("extensions"),
   addTransform: createMapMethod("transforms"),
+  addGlobalData: createMapMethod("globalData"),
   on: createMapMethod("eventHandlers"),
   // Array push methods - use curried factory
   addTemplateFormats: createArrayMethod("templateFormats"),
@@ -302,6 +333,98 @@ const withMockedProcessExit = bracket(
   },
   false,
 );
+
+/**
+ * Create a temp directory with a specific subdirectory structure.
+ * Manual version - returns cleanup function for explicit control.
+ *
+ * @param {string} testName - Unique name for the temp directory
+ * @param {string} subPath - Subdirectory path to create (e.g., "src/assets/icons")
+ * @returns {{ tempDir: string, subDir: string, cleanup: () => void }}
+ */
+const withSubDir = (testName, subPath = "") => {
+  const tempDir = createTempDir(testName);
+  const subDir = subPath ? path.join(tempDir, subPath) : tempDir;
+  if (subPath) {
+    fs.mkdirSync(subDir, { recursive: true });
+  }
+  return { tempDir, subDir, cleanup: () => cleanupTempDir(tempDir) };
+};
+
+/**
+ * Bracket-based temp directory with subdirectory.
+ * Automatically cleans up after callback completes.
+ *
+ * @param {string} testName - Unique name for the temp directory
+ * @param {string} subPath - Subdirectory path to create
+ * @param {Function} callback - ({ tempDir, subDir }) => result
+ * @returns {Promise<any>} Result of callback
+ *
+ * @example
+ * await withSubDirAsync("my-test", "src/assets/icons", async ({ tempDir, subDir }) => {
+ *   fs.writeFileSync(path.join(subDir, "icon.svg"), svg);
+ *   const result = await myFunction(tempDir);
+ *   expect(result).toBe(expected);
+ * });
+ */
+const withSubDirAsync = async (testName, subPath, callback) => {
+  const { tempDir, subDir, cleanup } = withSubDir(testName, subPath);
+  try {
+    return await callback({ tempDir, subDir });
+  } finally {
+    cleanup();
+  }
+};
+
+/**
+ * Mock globalThis.fetch for testing network calls.
+ * Manual version - returns restore function for explicit control.
+ *
+ * @param {string|Object} response - Response data
+ * @param {Object} options - { ok?: boolean, status?: number }
+ * @returns {() => void} Function to restore original fetch
+ */
+const mockFetch = (response, options = {}) => {
+  const originalFetch = globalThis.fetch;
+  const responseText =
+    typeof response === "string" ? response : JSON.stringify(response);
+
+  globalThis.fetch = async () => ({
+    ok: options.ok !== false,
+    status: options.status || 200,
+    text: async () => responseText,
+    json: async () =>
+      typeof response === "string" ? JSON.parse(response) : response,
+  });
+
+  return () => {
+    globalThis.fetch = originalFetch;
+  };
+};
+
+/**
+ * Bracket-based fetch mock.
+ * Automatically restores original fetch after callback completes.
+ *
+ * @param {string|Object} response - Response data
+ * @param {Object} options - { ok?: boolean, status?: number }
+ * @param {Function} callback - async () => result
+ * @returns {Promise<any>} Result of callback
+ *
+ * @example
+ * await withMockFetch('<svg>...</svg>', {}, async () => {
+ *   const result = await fetchIcon("mdi:home");
+ *   expect(result).toContain("<svg");
+ * });
+ */
+const withMockFetch = async (response, options, callback) => {
+  const restore = mockFetch(response, options);
+  try {
+    return await callback();
+  } finally {
+    restore();
+  }
+};
 
 /**
  * Assert that a result is a valid script tag with correct id and type.
@@ -770,8 +893,10 @@ const expectAsyncThrows = async (asyncFn) => {
 
 export {
   DOM,
+  compileScss,
   expect,
   fs,
+  omit,
   path,
   rootDir,
   srcDir,
@@ -795,6 +920,10 @@ export {
   withMockedCwd,
   withMockedCwdAsync,
   withMockedProcessExit,
+  withSubDir,
+  withSubDirAsync,
+  mockFetch,
+  withMockFetch,
   expectValidScriptTag,
   expectResultTitles,
   expectObjectProps,
@@ -804,6 +933,9 @@ export {
   expectGalleries,
   expectErrorsInclude,
   expectAsyncThrows,
+  // Curried data transform (re-exported from array-utils)
+  data,
+  toData,
   // Generic item builder
   item,
   items,

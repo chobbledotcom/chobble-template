@@ -19,18 +19,21 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 
 # Files excluded from coverage:
 # - ensure-deps.js: defensive code that can't be meaningfully tested
-# - canonical-url.js: module-load-time validation guards that can only fail if site.json is misconfigured
+# - validated-config.js: module-load-time validation that can only fail if config files are misconfigured
 # - customise-cms/*: CLI scripts with hard-to-test file system operations
 # - pdf.js, image.js, image-crop.js: error handling for external library edge cases
 # - console.js: console output utilities
 # - test-runner-utils.js, test-utils.js: test infrastructure
 # - recurring-events.js: date edge cases
-# - cart/quote utilities: browser-specific edge cases
+# - cart-utils.js, quote-price-utils.js: browser-specific edge cases
 # - array-utils.js: some utility functions only used in specific contexts
 # - on-ready.js: document.readyState branch requires complex mocking
+# - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
+# - configure-filters.js: Eleventy registration wiring (functions it calls are fully tested)
 coveragePathIgnorePatterns = [
+  "src/_lib/filters/configure-filters.js",
   "test/ensure-deps.js",
-  "src/_lib/utils/canonical-url.js",
+  "src/_lib/config/validated-config.js",
   "src/_lib/public/utils/on-ready.js",
   "scripts/customise-cms/config.js",
   "scripts/customise-cms/fields.js",
@@ -39,11 +42,14 @@ coveragePathIgnorePatterns = [
   "src/_lib/eleventy/recurring-events.js",
   "src/_lib/media/image.js",
   "src/_lib/media/image-crop.js",
-  "src/_lib/public/cart/quote-steps.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/utils/array-utils.js",
   "src/_lib/utils/console.js",
   "test/test-runner-utils.js",
   "test/test-utils.js",
+  "src/_lib/eleventy/screenshots.js",
+  "src/_lib/media/screenshot.js",
+  "src/_lib/media/browser-utils.js",
+  "src/_lib/media/lighthouse.js",
 ]

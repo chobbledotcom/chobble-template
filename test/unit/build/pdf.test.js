@@ -4,7 +4,6 @@ import { join } from "node:path";
 import {
   buildMenuPdfData,
   configurePdf,
-  createMenuPdfTemplate,
   generateMenuPdf,
 } from "#eleventy/pdf.js";
 import {
@@ -288,93 +287,6 @@ describe("pdf", () => {
     });
   });
 
-  // createMenuPdfTemplate tests
-  describe("createMenuPdfTemplate", () => {
-    test("Returns a valid PDF template object", () => {
-      const template = createMenuPdfTemplate();
-
-      expect(typeof template).toBe("object");
-      expect(template.pageSize).toBe("A4");
-    });
-
-    test("Template has page margins defined", () => {
-      const template = createMenuPdfTemplate();
-
-      expect(template.pageMargins).toEqual([40, 40, 40, 40]);
-    });
-
-    test("Template has content array with required sections", () => {
-      const template = createMenuPdfTemplate();
-
-      expect(Array.isArray(template.content)).toBe(true);
-      expect(template.content.length > 0).toBe(true);
-    });
-
-    test("Template includes business name placeholder", () => {
-      const template = createMenuPdfTemplate();
-
-      const businessNameSection = template.content.find(
-        (section) => section.text === "{{businessName}}",
-      );
-      expect(businessNameSection !== undefined).toBe(true);
-      expect(businessNameSection.style).toBe("businessName");
-    });
-
-    test("Template includes menu title placeholder", () => {
-      const template = createMenuPdfTemplate();
-
-      const menuTitleSection = template.content.find(
-        (section) => section.text === "{{menuTitle}}",
-      );
-      expect(menuTitleSection !== undefined).toBe(true);
-      expect(menuTitleSection.style).toBe("menuTitle");
-    });
-
-    test("Template has all required styles defined", () => {
-      const template = createMenuPdfTemplate();
-
-      expect(template.styles !== undefined).toBe(true);
-      expect(template.styles.businessName !== undefined).toBe(true);
-      expect(template.styles.menuTitle !== undefined).toBe(true);
-      expect(template.styles.categoryHeader !== undefined).toBe(true);
-      expect(template.styles.itemName !== undefined).toBe(true);
-      expect(template.styles.price !== undefined).toBe(true);
-    });
-
-    test("Styles have appropriate font sizes", () => {
-      const template = createMenuPdfTemplate();
-
-      expect(template.styles.businessName.fontSize).toBe(24);
-      expect(template.styles.menuTitle.fontSize).toBe(18);
-      expect(template.styles.categoryHeader.fontSize).toBe(16);
-      expect(template.styles.itemName.fontSize).toBe(11);
-    });
-
-    test("Template uses Helvetica as default font", () => {
-      const template = createMenuPdfTemplate();
-
-      expect(template.defaultStyle.font).toBe("Helvetica");
-    });
-
-    test("Template has categories loop structure", () => {
-      const template = createMenuPdfTemplate();
-
-      const categoriesSection = template.content.find(
-        (section) => section["{{#each categories:category}}"],
-      );
-      expect(categoriesSection !== undefined).toBe(true);
-    });
-
-    test("Template has conditional dietary key section", () => {
-      const template = createMenuPdfTemplate();
-
-      const dietarySection = template.content.find(
-        (section) => section["{{#if hasDietaryKeys}}"],
-      );
-      expect(dietarySection !== undefined).toBe(true);
-    });
-  });
-
   // configurePdf tests
   describe("configurePdf", () => {
     test("Adds _pdfMenuData collection", () => {
@@ -425,9 +337,9 @@ describe("pdf", () => {
 
       const mockCollectionApi = {
         getFilteredByTag: (tag) => {
-          if (tag === "menu") return mockMenus;
-          if (tag === "menu_category") return mockCategories;
-          if (tag === "menu_item") return mockItems;
+          if (tag === "menus") return mockMenus;
+          if (tag === "menu-categories") return mockCategories;
+          if (tag === "menu-items") return mockItems;
           return [];
         },
       };
@@ -450,9 +362,6 @@ describe("pdf", () => {
       await mockConfig.eventHandlers["eleventy.after"]({
         dir: { output: "/tmp" },
       });
-
-      // If we get here without error, the early return worked
-      expect(true).toBe(true);
     });
 
     test("eleventy.after handler skips PDF generation when menus array is empty", async () => {
@@ -466,13 +375,9 @@ describe("pdf", () => {
       };
       mockConfig.collections._pdfMenuData(mockCollectionApi);
 
-      // Call eleventy.after - should skip because no menus
       await mockConfig.eventHandlers["eleventy.after"]({
         dir: { output: "/tmp" },
       });
-
-      // If we get here without error, the early return worked
-      expect(true).toBe(true);
     });
   });
 

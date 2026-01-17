@@ -1,5 +1,5 @@
 import ical from "ical-generator";
-import config from "#data/config.json" with { type: "json" };
+import { getConfig } from "#config/site-config.js";
 import site from "#data/site.json" with { type: "json" };
 import { canonicalUrl } from "#utils/canonical-url.js";
 
@@ -16,14 +16,14 @@ import { canonicalUrl } from "#utils/canonical-url.js";
  * @param {string} event.url - Event URL
  * @returns {string|null} iCal string or null if no ical_url
  */
-export function eventIcal(event) {
+const eventIcal = (event) => {
   // Only generate iCal for one-off events (not recurring)
   if (!event.data.ical_url) {
     return null;
   }
 
   const siteName = site.name;
-  const timezone = config.timezone || "Europe/London";
+  const timezone = getConfig().timezone;
   const calendar = ical({
     prodId: `//${siteName}//Event Calendar//EN`,
     name: siteName,
@@ -46,27 +46,17 @@ export function eventIcal(event) {
   });
 
   return calendar.toString();
-}
-
-/**
- * Check if an event is a one-off event (not recurring)
- * @param {Object} event - Event object
- * @param {Object} event.data - Event data
- * @param {string} [event.data.event_date] - Optional event date
- * @param {string} [event.data.recurring_date] - Optional recurring date
- * @returns {boolean} True if event is one-off (has event_date but no recurring_date)
- */
-export function isOneOffEvent(event) {
-  return Boolean(event.data.event_date && !event.data.recurring_date);
-}
+};
 
 /**
  * Configure Eleventy iCal filters and collections
  * @param {Object} eleventyConfig - Eleventy configuration object
  */
-export function configureICal(eleventyConfig) {
+export const configureICal = (eleventyConfig) => {
   eleventyConfig.addFilter("eventIcal", eventIcal);
   eleventyConfig.addCollection("oneOffEvents", (collectionApi) =>
-    collectionApi.getFilteredByTag("events").filter(isOneOffEvent),
+    collectionApi
+      .getFilteredByTag("events")
+      .filter((event) => event.data.event_date && !event.data.recurring_date),
   );
-}
+};

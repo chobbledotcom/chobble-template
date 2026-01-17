@@ -1,6 +1,17 @@
+/**
+ * Generic filtering library for items with filter_attributes.
+ *
+ * Used by both products and properties to provide URL-based filtering.
+ *
+ * Key functions:
+ * - createFilterConfig(): Factory that creates Eleventy collections/filters
+ * - generateFilterCombinations(): Pre-computes all valid filter combinations
+ * - getItemsByFilters(): Returns items matching filter criteria
+ * - buildFilterUIData(): Generates data for filter UI templates
+ *
+ * URL format: /products/search/size/small/color/red/ (keys sorted alphabetically)
+ */
 import {
-  chunk,
-  compact,
   filterMap,
   flatMap,
   join,
@@ -12,15 +23,20 @@ import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
-import { sortItems } from "#utils/sorting.js";
+import { compareStrings, sortItems } from "#utils/sorting.js";
 
-/**
- * Generic filtering library for items with filter_attributes
- * Used by both products and properties
- */
+/** @typedef {import("#lib/types").FilterAttribute} FilterAttribute */
+/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+/** @typedef {import("#lib/types").FilterSet} FilterSet */
+/** @typedef {import("#lib/types").FilterCombination} FilterCombination */
+/** @typedef {import("#lib/types").FilterAttributeData} FilterAttributeData */
+/** @typedef {import("#lib/types").FilterUIData} FilterUIData */
+/** @typedef {import("#lib/types").FilterConfigOptions} FilterConfigOptions */
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
+ * @param {string} str - String to normalize
+ * @returns {string} Normalized string
  */
 const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -29,8 +45,8 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
  * Expects format: [{name: "Size", value: "small"}, {name: "Capacity", value: "3"}]
  * Returns: { size: "small", capacity: "3" }
  *
- * @param {import("#lib/types").FilterAttribute[]|undefined} filterAttributes
- * @returns {Object}
+ * @param {FilterAttribute[] | undefined} filterAttributes - Raw filter attributes
+ * @returns {FilterSet} Parsed filter object
  */
 const parseFilterAttributes = (filterAttributes) => {
   if (!filterAttributes) return {};
@@ -41,24 +57,12 @@ const parseFilterAttributes = (filterAttributes) => {
 };
 
 /**
- * Format a Map of values by key into a sorted object
- * { key => Set(values) } => { key: [sorted_values], ... }
- * Curried for composition
- */
-const formatValueMap = (valuesByKey) =>
-  pipe(
-    (map) => [...map.keys()].sort(),
-    map((key) => [key, [...valuesByKey.get(key)].sort()]),
-    Object.fromEntries,
-  )(valuesByKey);
-
-/**
  * Build a map of all filter attributes and their possible values
  * Returns: { size: ["small", "medium", "large"], capacity: ["1", "2", "3"] }
  * Uses pipe to show data flow: extract pairs -> group by key -> format for output
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @returns {Object}
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @returns {Record<string, string[]>} Attribute names to possible values
  */
 const getAllFilterAttributes = memoize((items) => {
   const valuesByKey = pipe(
@@ -68,14 +72,17 @@ const getAllFilterAttributes = memoize((items) => {
     groupValuesBy,
   )(items);
 
-  return formatValueMap(valuesByKey);
+  const sortedKeys = [...valuesByKey.keys()].sort();
+  return Object.fromEntries(
+    sortedKeys.map((key) => [key, [...valuesByKey.get(key)].sort()]),
+  );
 });
 
 /**
  * Extract (slug, display) pairs from an item's filter attributes
  *
- * @param {import("#lib/types").EleventyCollectionItem} item
- * @returns {[string, any][]}
+ * @param {EleventyCollectionItem} item - Collection item
+ * @returns {[string, string][]} Array of [slug, displayText] pairs
  */
 const getDisplayPairs = (item) => {
   const attrs = item.data.filter_attributes;
@@ -92,8 +99,8 @@ const getDisplayPairs = (item) => {
  * Returns: { "size": "Size", "compact": "Compact", "pro": "Pro" }
  * First occurrence wins when there are duplicates
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @returns {Object}
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @returns {Record<string, string>} Slug to display text lookup
  */
 const buildDisplayLookup = memoize((items) =>
   buildFirstOccurrenceLookup(items, getDisplayPairs),
@@ -103,12 +110,14 @@ const buildDisplayLookup = memoize((items) =>
  * Convert filter object to URL path segment
  * { size: "small", capacity: "3" } => "capacity/3/size/small"
  * Keys are sorted alphabetically
+ * @param {FilterSet | null | undefined} filters - Filter object
+ * @returns {string} URL path segment
  */
 const filterToPath = (filters) => {
   if (!filters || Object.keys(filters).length === 0) return "";
 
   return pipe(
-    sort((a, b) => a.localeCompare(b)),
+    sort(compareStrings),
     flatMap((key) => [
       encodeURIComponent(key),
       encodeURIComponent(filters[key]),
@@ -118,43 +127,23 @@ const filterToPath = (filters) => {
 };
 
 /**
- * Parse URL path back to filter object
- * "capacity/3/size/small" => { capacity: "3", size: "small" }
- */
-const pathToFilter = (path) => {
-  if (!path) return {};
-
-  return pipe(
-    (s) => s.split("/"),
-    compact,
-    (arr) => chunk(arr, 2),
-    map(([key, value]) => [decodeURIComponent(key), decodeURIComponent(value)]),
-    Object.fromEntries,
-  )(path);
-};
-
-/**
  * Get items matching the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @param {Object} filters
- * @returns {import("#lib/types").EleventyCollectionItem[]}
+ * Only called from generateFilterCombinations with non-empty filters.
+ *
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @param {FilterSet} filters - Non-empty filter object
+ * @returns {EleventyCollectionItem[]} Filtered items
  */
 const getItemsByFilters = (items, filters) => {
-  if (!filters || Object.keys(filters).length === 0) {
-    return items.slice().sort(sortItems);
-  }
-
-  // Pre-normalize filter values once, not per-item
-  const normalizedFilters = Object.entries(filters).map(([key, value]) => [
-    key,
-    normalize(value),
-  ]);
+  const preNormalizedFilterEntries = Object.entries(filters).map(
+    ([key, value]) => [key, normalize(value)],
+  );
 
   const matchesFilters = (item) => {
     const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
-    for (const [key, normalizedValue] of normalizedFilters) {
+    for (const [key, normalizedValue] of preNormalizedFilterEntries) {
       if (normalize(itemAttrs[key] || "") !== normalizedValue) return false;
     }
     return true;
@@ -169,8 +158,8 @@ const normalizeAttrs = mapBoth(normalize);
  * Build a map of normalized filter attributes for all items (for fast lookups)
  * Returns: Map<item, { size: "small", capacity: "3" }>
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @returns {Map}
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @returns {Map<EleventyCollectionItem, FilterSet>} Item to normalized attributes map
  */
 const buildItemAttributeMap = (items) => {
   return new Map(
@@ -188,8 +177,8 @@ const buildItemAttributeMap = (items) => {
  * No duplicate tracking needed: we process keys in order and only
  * recurse to later keys, so each path is generated exactly once.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} items
- * @returns {Array}
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @returns {FilterCombination[]} All valid filter combinations
  */
 const generateFilterCombinations = memoize((items) => {
   const allAttributes = getAllFilterAttributes(items);
@@ -199,7 +188,6 @@ const generateFilterCombinations = memoize((items) => {
 
   const itemAttrMap = buildItemAttributeMap(items);
 
-  // Count items matching these filters
   const countMatches = (filters) => {
     const normalized = normalizeAttrs(filters);
     return items.filter((item) =>
@@ -209,14 +197,12 @@ const generateFilterCombinations = memoize((items) => {
     ).length;
   };
 
-  // Create a combo result object
   const toCombo = (filters, count) => ({
     filters,
     path: filterToPath(filters),
     count,
   });
 
-  // Try one filter value: skip if no matches, else include with children
   const tryValue =
     (recurse, keyIndex, baseFilters) => (results, value, key) => {
       const filters = { ...baseFilters, [key]: value };
@@ -228,14 +214,12 @@ const generateFilterCombinations = memoize((items) => {
       return [...results, toCombo(filters, count), ...childResults];
     };
 
-  // Process all values for one attribute key
   const processKey = (recurse, baseFilters, keyIndex) => (results, key) =>
     allAttributes[key].reduce(
       (acc, value) => tryValue(recurse, keyIndex, baseFilters)(acc, value, key),
       results,
     );
 
-  // Generate all combinations starting from given filters and key index
   const generateFrom = (baseFilters, startIndex) =>
     attributeKeys
       .slice(startIndex)
@@ -256,6 +240,9 @@ const generateFilterCombinations = memoize((items) => {
  * Build filter description parts from filters using display lookup
  * Returns structured data for template rendering
  * { size: "compact", type: "pro" } => [{ key: "Size", value: "compact" }, ...]
+ * @param {FilterSet} filters - Current filters
+ * @param {Record<string, string>} displayLookup - Slug to display text lookup
+ * @returns {{ key: string, value: string }[]} Filter description parts
  */
 const buildFilterDescription = (filters, displayLookup) =>
   mapEntries((key, value) => ({
@@ -264,12 +251,39 @@ const buildFilterDescription = (filters, displayLookup) =>
   }))(filters);
 
 /**
+ * Add filterUI to each page object (mutates pages in place)
+ * @param {Array} pages - Page objects to enhance
+ * @param {Object} filterData - { attributes, displayLookup }
+ * @param {string} baseUrl - Base URL for filter links
+ */
+const addFilterUIToPages = (pages, filterData, baseUrl) => {
+  for (const page of pages) {
+    page.filterUI = buildFilterUIData(filterData, page.filters, pages, baseUrl);
+  }
+};
+
+/**
+ * Build base page object from a filter combination
+ * @param {Object} combo - { filters, path, count }
+ * @param {Array} matchedItems - Items matching the filters
+ * @param {Object} displayLookup - Display text lookup
+ * @returns {Object} Base page properties
+ */
+const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
+  filters: combo.filters,
+  path: combo.path,
+  count: combo.count,
+  items: matchedItems,
+  filterDescription: buildFilterDescription(combo.filters, displayLookup),
+});
+
+/**
  * Build pre-computed filter UI data for templates
- * @param {Object} filterData - { attributes: {...}, displayLookup: {...} }
- * @param {Object} currentFilters - { size: "compact" } or null/undefined
- * @param {Array} validPages - Array of { path: "..." } objects for pages that exist
+ * @param {FilterAttributeData} filterData - Filter attribute data
+ * @param {FilterSet | null | undefined} currentFilters - Current active filters
+ * @param {{ path: string }[]} validPages - Array of valid page paths
  * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
- * @returns {Object} Complete UI data ready for simple template loops
+ * @returns {FilterUIData} Complete UI data ready for simple template loops
  */
 const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   const allAttributes = filterData.attributes;
@@ -283,7 +297,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 
-  // Build active filters with remove URLs
   const activeFilters = Object.entries(filters).map(([key, value]) => {
     const withoutThis = { ...filters };
     delete withoutThis[key];
@@ -299,7 +312,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
     };
   });
 
-  // Build filter groups with options (only include options that lead to valid pages)
   const groups = Object.entries(allAttributes)
     .map(([attrName, attrValues]) => {
       const currentValue = filters[attrName];
@@ -310,7 +322,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
           const newFilters = { ...filters, [attrName]: value };
           const path = filterToPath(newFilters);
 
-          // Only include if this path exists (has items)
           if (!isActive && !validPaths.includes(path)) {
             return null;
           }
@@ -320,7 +331,6 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
         })
         .filter(Boolean);
 
-      // Only include group if it has options
       if (options.length === 0) return null;
 
       return {
@@ -341,7 +351,39 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
 };
 
 /**
+ * Generate filter redirects for invalid filter paths.
+ * Shared logic used by both global and category-scoped filters.
+ * @param {EleventyCollectionItem[]} items - Items to generate redirects for
+ * @param {string} searchUrl - Base search URL (e.g., "/products/search" or "/categories/widgets/search")
+ * @returns {Array} Redirect objects { from, to }
+ */
+const generateFilterRedirects = (items, searchUrl) => {
+  const attrKeys = Object.keys(getAllFilterAttributes(items));
+  if (attrKeys.length === 0) return [];
+
+  const toRedirect = (basePath, key) => ({
+    from: `${searchUrl}${basePath}/${key}/`,
+    to: `${searchUrl}${basePath}/#content`,
+  });
+
+  const simpleRedirects = map((key) => toRedirect("", key))(attrKeys);
+
+  const comboRedirects = pipe(
+    flatMap((combo) =>
+      filterMap(
+        (key) => !combo.filters[key],
+        (key) => toRedirect(`/${combo.path}`, key),
+      )(attrKeys),
+    ),
+  )(generateFilterCombinations(items));
+
+  return [...simpleRedirects, ...comboRedirects];
+};
+
+/**
  * Create a filter system for a specific item type
+ * @param {FilterConfigOptions} options - Configuration options
+ * @returns {{ configure: (eleventyConfig: import("@11ty/eleventy").UserConfig) => void }} Filter configuration
  */
 const createFilterConfig = (options) => {
   const { tag, permalinkDir, itemsKey, collections, uiDataFilterName } =
@@ -355,18 +397,21 @@ const createFilterConfig = (options) => {
     const items = collectionApi.getFilteredByTag(tag);
     const combinations = generateFilterCombinations(items);
     const displayLookup = buildDisplayLookup(items);
+    const filterData = {
+      attributes: getAllFilterAttributes(items),
+      displayLookup,
+    };
 
-    return combinations.map((combo) => {
+    const pages = combinations.map((combo) => {
       const matchedItems = getItemsByFilters(items, combo.filters);
       return {
-        filters: combo.filters,
-        path: combo.path,
-        count: combo.count,
-        items: matchedItems,
+        ...buildFilterPageBase(combo, matchedItems, displayLookup),
         [itemsKey]: matchedItems,
-        filterDescription: buildFilterDescription(combo.filters, displayLookup),
       };
     });
+
+    addFilterUIToPages(pages, filterData, baseUrl);
+    return pages;
   };
 
   /**
@@ -374,26 +419,7 @@ const createFilterConfig = (options) => {
    */
   const redirectsCollection = (collectionApi) => {
     const items = collectionApi.getFilteredByTag(tag);
-    const attrKeys = Object.keys(getAllFilterAttributes(items));
-    const searchUrl = `${baseUrl}/search`;
-
-    const toRedirect = (basePath, key) => ({
-      from: `${searchUrl}${basePath}/${key}/`,
-      to: `${searchUrl}${basePath}/#content`,
-    });
-
-    const simpleRedirects = map((key) => toRedirect("", key))(attrKeys);
-
-    const comboRedirects = pipe(
-      flatMap((combo) =>
-        filterMap(
-          (key) => !combo.filters[key],
-          (key) => toRedirect(`/${combo.path}`, key),
-        )(attrKeys),
-      ),
-    )(generateFilterCombinations(items));
-
-    return [...simpleRedirects, ...comboRedirects];
+    return generateFilterRedirects(items, `${baseUrl}/search`);
   };
 
   /**
@@ -407,10 +433,28 @@ const createFilterConfig = (options) => {
     };
   };
 
+  /**
+   * Build filterUI for listing page (no active filters)
+   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+   */
+  const listingFilterUICollection = (collectionApi) => {
+    const items = collectionApi.getFilteredByTag(tag);
+    const filterData = {
+      attributes: getAllFilterAttributes(items),
+      displayLookup: buildDisplayLookup(items),
+    };
+    const pages = pagesCollection(collectionApi);
+    return buildFilterUIData(filterData, null, pages, baseUrl);
+  };
+
   const configure = (eleventyConfig) => {
     eleventyConfig.addCollection(collections.pages, pagesCollection);
     eleventyConfig.addCollection(collections.redirects, redirectsCollection);
     eleventyConfig.addCollection(collections.attributes, attributesCollection);
+    eleventyConfig.addCollection(
+      `${collections.pages}ListingFilterUI`,
+      listingFilterUICollection,
+    );
     eleventyConfig.addFilter(uiDataFilterName, (filterData, filters, pages) =>
       buildFilterUIData(filterData, filters, pages, baseUrl),
     );
@@ -420,15 +464,14 @@ const createFilterConfig = (options) => {
 };
 
 export {
-  normalize,
-  parseFilterAttributes,
-  getAllFilterAttributes,
-  buildDisplayLookup,
-  filterToPath,
-  pathToFilter,
-  getItemsByFilters,
-  generateFilterCombinations,
-  buildFilterDescription,
-  buildFilterUIData,
   createFilterConfig,
+  // Used by category-product-filters.js for category-scoped filtering
+  addFilterUIToPages,
+  buildDisplayLookup,
+  buildFilterPageBase,
+  buildFilterUIData,
+  generateFilterCombinations,
+  generateFilterRedirects,
+  getAllFilterAttributes,
+  getItemsByFilters,
 };

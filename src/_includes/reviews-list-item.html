@@ -1,6 +1,7 @@
-<blockquote>
-  {{- review.content -}}
-  <footer>
+<li>
+  <blockquote>
+    {{- review.content -}}
+    <footer>
     {%- if review.data.url -%}
       <a
         href="{{ review.data.url }}"
@@ -26,5 +27,6 @@
     {%- else -%}
       <img src="{{ review.data.name | reviewerAvatar }}" alt="" class="reviewer-avatar" width="40" height="40">
     {%- endif -%}
-  </footer>
-</blockquote>
+    </footer>
+  </blockquote>
+</li>

@@ -1,9 +1,9 @@
 import path from "node:path";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
-import config from "#data/config.json" with { type: "json" };
-import { memoize } from "#utils/memoize.js";
+import getConfig from "#data/config.js";
 
-const getSass = memoize(() => import("sass"));
+// Lazy-loaded sass module
+let sass = null;
 
 // Files that should be compiled (not just imported as partials)
 const COMPILED_BUNDLES = ["bundle.scss", "design-system-bundle.scss"];
@@ -14,22 +14,17 @@ const createScssCompiler = (inputContent, inputPath) => {
   return async (_data) => {
     if (inputPath.endsWith("bundle.scss")) {
       // Inject compiled themes only if theme-switcher is enabled
-      if (config.enable_theme_switcher) {
+      if (getConfig().enable_theme_switcher) {
         const compiledThemes = generateThemeSwitcherContent();
         inputContent = `${inputContent}\n\n${compiledThemes}`;
       }
     }
 
-    const sassModule = await getSass();
-    return sassModule.compileString(inputContent, {
+    sass ??= await import("sass");
+    return sass.compileString(inputContent, {
       loadPaths: [dir],
     }).css;
   };
-};
-
-const compileScss = async (inputContent, inputPath) => {
-  const compiler = createScssCompiler(inputContent, inputPath);
-  return await compiler({});
 };
 
 const shouldCompileScss = (inputPath) =>
@@ -53,4 +48,4 @@ const configureScss = (eleventyConfig) => {
   });
 };
 
-export { createScssCompiler, compileScss, configureScss, shouldCompileScss };
+export { createScssCompiler, configureScss, shouldCompileScss };

@@ -1,4 +1,4 @@
-{%- if tags and tags contains "event" -%}
+{%- if tags and tags contains "events" -%}
   {% assign eventProducts = collections.products | getProductsByEvent: page.fileSlug %}
   {%- if eventProducts.size > 0 -%}
     <div>
