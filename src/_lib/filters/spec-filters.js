@@ -1,7 +1,11 @@
 import specsIcons from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
+import { filter, pipe, sortBy } from "#utils/array-utils.js";
 
 const specsIconsOrder = Object.keys(specsIcons);
+
+const specOrderIndex = (spec) =>
+  specsIconsOrder.indexOf(spec.name.toLowerCase().trim());
 
 /**
  * @typedef {Object} ComputedSpec
@@ -59,17 +63,13 @@ const getHighlightedSpecs = (specs) => {
  * @param {ComputedSpec[] | undefined} specs - Array of computed spec objects
  * @returns {ComputedSpec[]} - Filtered and sorted specs array (max 2)
  */
-const getListItemSpecs = (specs) => {
-  if (!specs || specs.length === 0) return [];
-
-  return specs
-    .filter((spec) => spec.list_items === true)
-    .sort((a, b) => {
-      const aIndex = specsIconsOrder.indexOf(a.name.toLowerCase().trim());
-      const bIndex = specsIconsOrder.indexOf(b.name.toLowerCase().trim());
-      return aIndex - bIndex;
-    })
-    .slice(0, 2);
-};
+const getListItemSpecs = (specs) =>
+  !specs || specs.length === 0
+    ? []
+    : pipe(
+        filter((spec) => spec.list_items === true),
+        sortBy(specOrderIndex),
+        (arr) => arr.slice(0, 2),
+      )(specs);
 
 export { computeSpecs, getHighlightedSpecs, getListItemSpecs };

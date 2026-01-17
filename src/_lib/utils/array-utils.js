@@ -347,6 +347,26 @@ const memberOf = membershipPredicate(false);
 const notMemberOf = membershipPredicate(true);
 
 /**
+ * Filter out items that are in the exclusion list.
+ * Shorthand for filter(notMemberOf(values)).
+ *
+ * @template T
+ * @param {T[]} values - Values to exclude
+ * @returns {(arr: T[]) => T[]} Function that filters out excluded values
+ *
+ * @example
+ * exclude(['a', 'b'])(['a', 'b', 'c', 'd'])  // ['c', 'd']
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   exclude(EXCLUDED_FILES),
+ *   map(toData),
+ * )(files)
+ */
+const exclude = (values) => filter(notMemberOf(values));
+
+/**
  * Create a pluralization formatter.
  * Curried: (singular, plural?) => (count) => string
  *
@@ -381,6 +401,7 @@ const pluralize = (singular, plural) => {
 export {
   accumulate,
   compact,
+  exclude,
   filter,
   filterMap,
   findDuplicate,

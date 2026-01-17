@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { filter, map, notMemberOf, pipe, sortBy } from "#utils/array-utils.js";
+import { exclude, filter, map, pipe, sortBy } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
@@ -32,7 +32,7 @@ const toThemeData = (file) => ({
 const getThemeFiles = memoize(() =>
   pipe(
     filter(isThemeFile),
-    filter(notMemberOf(EXCLUDED_FILES)),
+    exclude(EXCLUDED_FILES),
     map(toThemeData),
     sortBy("name"),
   )(fs.readdirSync(THEMES_DIR)),
