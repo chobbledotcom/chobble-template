@@ -27,7 +27,7 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
   return pipe(
     flatMap((product) => {
       if (!product.data[propertyName]) return [];
-      return (product.data.categories || []).map((slug) => ({
+      return product.data.categories.map((slug) => ({
         categorySlug: slug,
         value: product.data[propertyName],
         order: product.data.order || 0,

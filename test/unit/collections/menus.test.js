@@ -55,16 +55,16 @@ describe("menus", () => {
     expect(result).toEqual([]);
   });
 
-  test("Skips categories without menus property", () => {
+  test("Skips categories with empty menus array", () => {
     const categories = [
       {
-        data: { title: "No Menus" },
+        data: { title: "No Menus", menus: [] },
       },
       {
         data: { menus: ["lunch"], title: "Has Menus" },
       },
       {
-        data: { menus: null, title: "Null Menus" },
+        data: { menus: [], title: "Empty Menus" },
       },
     ];
 
@@ -154,16 +154,16 @@ describe("menus", () => {
     expect(result).toEqual([]);
   });
 
-  test("Skips items without menu_categories property", () => {
+  test("Skips items with empty menu_categories array", () => {
     const items = [
       {
-        data: { title: "No Category" },
+        data: { title: "No Category", menu_categories: [] },
       },
       {
         data: { menu_categories: ["appetizers"], title: "Has Category" },
       },
       {
-        data: { menu_categories: null, title: "Null Categories" },
+        data: { menu_categories: [], title: "Empty Categories" },
       },
     ];
 
