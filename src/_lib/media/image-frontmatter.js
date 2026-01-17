@@ -37,7 +37,6 @@ export const isValidImage = (imagePath) => {
  * Returns the first valid image from an array of candidates.
  *
  * @param {(string | undefined)[]} candidates - Array of image paths to check
- * @returns {string | null} First valid image path, or null if none are valid
+ * @returns {string | undefined} First valid image path, or undefined if none found
  */
-export const getFirstValidImage = (candidates) =>
-  candidates.find(isValidImage) ?? null;
+export const getFirstValidImage = (candidates) => candidates.find(isValidImage);
