@@ -368,6 +368,28 @@ const validateExceptions = (allowlist, patterns) => {
 };
 
 /**
+ * Log stale entries and assert none exist.
+ * Common helper for stale allowlist validation functions.
+ *
+ * @param {Array<{entry: string, reason?: string}>} stale - Stale entries to report
+ * @param {string} label - Name of the allowlist for logging
+ * @param {function} [formatEntry] - Optional entry formatter (default: entry with reason if present)
+ */
+const assertNoStaleEntries = (
+  stale,
+  label,
+  formatEntry = (s) => (s.reason ? `${s.entry}: ${s.reason}` : s.entry),
+) => {
+  if (stale.length > 0) {
+    console.log(`\n  Stale ${label} entries:`);
+    for (const s of stale) {
+      console.log(`    - ${formatEntry(s)}`);
+    }
+  }
+  expect(stale.length).toBe(0);
+};
+
+/**
  * Assert no stale exception entries exist.
  * Logs stale entries and fails test if any found.
  *
@@ -375,16 +397,8 @@ const validateExceptions = (allowlist, patterns) => {
  * @param {RegExp|RegExp[]} patterns - Pattern(s) the line should match
  * @param {string} label - Name of the allowlist for logging (e.g., "ALLOWED_NULL_CHECKS")
  */
-const expectNoStaleExceptions = (allowlist, patterns, label) => {
-  const stale = validateExceptions(allowlist, patterns);
-  if (stale.length > 0) {
-    console.log(`\n  Stale ${label} entries:`);
-    for (const s of stale) {
-      console.log(`    - ${s.entry}: ${s.reason}`);
-    }
-  }
-  expect(stale.length).toBe(0);
-};
+const expectNoStaleExceptions = (allowlist, patterns, label) =>
+  assertNoStaleEntries(validateExceptions(allowlist, patterns), label);
 
 /**
  * Curried violation factory for creating standardized violation objects.
@@ -456,16 +470,12 @@ const validateFunctionAllowlist = (allowlist, combinedSource) =>
  * @param {string} combinedSource - Combined source code to search
  * @param {string} label - Name of the allowlist for logging
  */
-const expectNoStaleFunctionAllowlist = (allowlist, combinedSource, label) => {
-  const stale = validateFunctionAllowlist(allowlist, combinedSource);
-  if (stale.length > 0) {
-    console.log(`\n  Stale ${label} entries:`);
-    for (const s of stale) {
-      console.log(`    - ${s.entry}`);
-    }
-  }
-  expect(stale.length).toBe(0);
-};
+const expectNoStaleFunctionAllowlist = (allowlist, combinedSource, label) =>
+  assertNoStaleEntries(
+    validateFunctionAllowlist(allowlist, combinedSource),
+    label,
+    (s) => s.entry,
+  );
 
 // ============================================
 // Export Detection Utilities
