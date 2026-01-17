@@ -264,7 +264,7 @@ describe("checkout", () => {
   });
 
   test("attachRemoveHandlers removes item from cart when button clicked", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([
         { item_name: "Keep", unit_price: 10, quantity: 1 },
         { item_name: "Remove", unit_price: 5, quantity: 2 },

@@ -17,7 +17,13 @@ const THIS_FILE = "test/unit/code-quality/duplicate-methods.test.js";
 
 // Function names that are intentionally allowed to be duplicated
 // "init" is a common initialization pattern used across modules
-const ALLOWED_DUPLICATE_NAMES = new Set(["init"]);
+// "createElement" - generic DOM helper name used in different contexts
+// "getJsConfigFilter" - test helper for getting the filter via config registration
+const ALLOWED_DUPLICATE_NAMES = new Set([
+  "init",
+  "createElement",
+  "getJsConfigFilter",
+]);
 
 // Directories to exclude from analysis
 const EXCLUDED_DIRS = new Set(["ecommerce-backend"]);
