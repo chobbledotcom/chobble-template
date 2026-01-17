@@ -16,7 +16,7 @@ import path from "node:path";
 import { filter, map, notMemberOf, pipe, sort } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
 import { slugToTitle } from "#utils/slug-utils.js";
-import { compareByLocale } from "#utils/sorting.js";
+import { compareBy } from "#utils/sorting.js";
 
 const THEMES_DIR = path.resolve("src/css");
 const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
@@ -35,7 +35,7 @@ const getThemeFiles = memoize(() =>
     filter(isThemeFile),
     filter(notMemberOf(EXCLUDED_FILES)),
     map(toThemeData),
-    sort(compareByLocale((t) => t.name)),
+    sort(compareBy((t) => t.name)),
   )(fs.readdirSync(THEMES_DIR)),
 );
 

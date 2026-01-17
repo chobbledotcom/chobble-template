@@ -28,40 +28,31 @@ const compareStrings = (a, b) => a.localeCompare(b);
 
 /**
  * Create a comparator from a key-extraction function.
- * Returns a comparator that sorts by the extracted numeric values (ascending).
+ * Auto-detects type: uses localeCompare for strings, subtraction for numbers.
  *
  * @template T
- * @param {(item: T) => number} getKey - Function to extract a numeric value
+ * @param {(item: T) => string | number} getKey - Function to extract a value
  * @returns {(a: T, b: T) => number} Comparator function
  *
  * @example
+ * // Strings - uses localeCompare automatically
+ * const byName = compareBy(user => user.name);
+ * users.sort(byName);
+ *
+ * @example
+ * // Numbers - uses subtraction automatically
  * const byAge = compareBy(user => user.age);
  * users.sort(byAge);
  *
  * @example
- * const byDate = compareBy(event => new Date(event.date).getTime());
- * events.sort(byDate);
- */
-const compareBy = (getKey) => (a, b) => getKey(a) - getKey(b);
-
-/**
- * Create a locale-aware string comparator from a key-extraction function.
- * Returns a comparator that sorts by the extracted string values alphabetically.
- *
- * @template T
- * @param {(item: T) => string} getKey - Function to extract a string value
- * @returns {(a: T, b: T) => number} Comparator function
- *
- * @example
- * const byName = compareByLocale(user => user.name);
- * users.sort(byName);
- *
- * @example
  * // With pipe and sort from array-utils
- * pipe(sort(compareByLocale(x => x.title)))(items)
+ * pipe(sort(compareBy(x => x.title)))(items)
  */
-const compareByLocale = (getKey) => (a, b) =>
-  getKey(a).localeCompare(getKey(b));
+const compareBy = (getKey) => (a, b) => {
+  const keyA = getKey(a);
+  const keyB = getKey(b);
+  return typeof keyA === "string" ? keyA.localeCompare(keyB) : keyA - keyB;
+};
 
 /**
  * Reverse a comparator (flip ascending to descending or vice versa).
@@ -85,7 +76,7 @@ const descending = (comparator) => (a, b) => comparator(b, a);
  */
 const createOrderThenStringComparator = (getNumeric, getString) => (a, b) => {
   const diff = getNumeric(a) - getNumeric(b);
-  return diff !== 0 ? diff : compareByLocale(getString)(a, b);
+  return diff !== 0 ? diff : compareBy(getString)(a, b);
 };
 
 /**
@@ -124,7 +115,6 @@ const sortNavigationItems = createOrderThenStringComparator(
 
 export {
   compareBy,
-  compareByLocale,
   compareStrings,
   descending,
   sortByDateDescending,
