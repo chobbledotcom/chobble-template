@@ -76,6 +76,8 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "getFilter",
   "getTransform",
   "getLinkifyUrlsTransform",
+  "getLinkifyEmailsTransform",
+  "getLinkifyPhonesTransform",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
