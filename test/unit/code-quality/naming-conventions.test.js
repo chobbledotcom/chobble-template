@@ -92,7 +92,7 @@ const analyzeNamingConventions = () => {
 /**
  * Format violations for readable output.
  */
-const formatViolations = (violations) => {
+const formatNamingViolations = (violations) => {
   const entries = Object.entries(violations);
 
   if (entries.length === 0) {
@@ -171,7 +171,7 @@ describe("naming-conventions", () => {
 
     // Log violations for visibility
     if (violationCount > 0) {
-      console.log(`\n${formatViolations(violations)}\n`);
+      console.log(`\n${formatNamingViolations(violations)}\n`);
       console.warn(
         `⚠️  Warning: ${violationCount} identifier(s) exceed ${MAX_WORDS} words.`,
       );

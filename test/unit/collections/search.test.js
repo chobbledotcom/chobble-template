@@ -17,7 +17,7 @@ const product = data({ categories: [] })("title", "keywords");
 const productWithCats = data({})("title", "keywords", "categories");
 
 // Create configured mock and extract registered collection/filters
-const createConfiguredMock = () => {
+const createSearchMock = () => {
   const mockConfig = createMockEleventyConfig();
   configureSearch(mockConfig);
   return {
@@ -30,19 +30,19 @@ const createConfiguredMock = () => {
 
 describe("search", () => {
   test("Returns empty array for empty products array", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     expect(getAllKeywords([])).toEqual([]);
   });
 
   test("Returns empty array when products have no keywords", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     const products = product(["Product 1", undefined], ["Product 2", null]);
 
     expect(getAllKeywords(products)).toEqual([]);
   });
 
   test("Extracts and sorts keywords from products", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     const products = product(
       ["Product 1", ["widgets", "blue"]],
       ["Product 2", ["gadgets", "red"]],
@@ -57,7 +57,7 @@ describe("search", () => {
   });
 
   test("Deduplicates keywords across products", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     const products = product(
       ["Product 1", ["portable", "blue"]],
       ["Product 2", ["portable", "red"]],
@@ -68,7 +68,7 @@ describe("search", () => {
   });
 
   test("Handles mix of products with and without keywords", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     const products = product(
       ["Product 1", ["alpha"]],
       ["Product 2", undefined],
@@ -80,7 +80,7 @@ describe("search", () => {
   });
 
   test("Returns empty array for missing keyword", () => {
-    const { getProductsByKeyword } = createConfiguredMock();
+    const { getProductsByKeyword } = createSearchMock();
     // null/undefined/empty keyword returns empty array
     // Note: null/undefined products will throw - we don't swallow those errors
     expect(getProductsByKeyword([], null)).toEqual([]);
@@ -88,7 +88,7 @@ describe("search", () => {
   });
 
   test("Filters products by keyword", () => {
-    const { getProductsByKeyword } = createConfiguredMock();
+    const { getProductsByKeyword } = createSearchMock();
     const products = product(
       ["Widget A", ["portable", "blue"]],
       ["Widget B", ["stationary", "blue"]],
@@ -101,14 +101,14 @@ describe("search", () => {
   });
 
   test("Returns empty array when no products match", () => {
-    const { getProductsByKeyword } = createConfiguredMock();
+    const { getProductsByKeyword } = createSearchMock();
     const products = product(["Product 1", ["alpha"]], ["Product 2", ["beta"]]);
 
     expect(getProductsByKeyword(products, "gamma")).toEqual([]);
   });
 
   test("Handles products without keywords field", () => {
-    const { getProductsByKeyword } = createConfiguredMock();
+    const { getProductsByKeyword } = createSearchMock();
     const products = product(
       ["Product 1", undefined],
       ["Product 2", ["test"]],
@@ -121,7 +121,7 @@ describe("search", () => {
   });
 
   test("Creates collection of unique keywords from products", () => {
-    const { searchKeywordsCollection } = createConfiguredMock();
+    const { searchKeywordsCollection } = createSearchMock();
     const mockCollectionApi = {
       getFilteredByTag: (tag) => {
         expect(tag).toBe("products");
@@ -138,7 +138,7 @@ describe("search", () => {
   });
 
   test("Returns empty array when no products have keywords", () => {
-    const { searchKeywordsCollection } = createConfiguredMock();
+    const { searchKeywordsCollection } = createSearchMock();
     const mockCollectionApi = {
       getFilteredByTag: () =>
         product(["Product 1", undefined], ["Product 2", undefined]),
@@ -160,7 +160,7 @@ describe("search", () => {
   });
 
   test("Extracts keywords from product categories", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     const products = productWithCats(
       ["Product 1", undefined, ["/categories/premium-widgets.md"]],
       ["Product 2", undefined, ["/categories/basic-gadgets.md", "simple"]],
@@ -172,7 +172,7 @@ describe("search", () => {
   });
 
   test("Finds products by normalized category name", () => {
-    const { getProductsByKeyword } = createConfiguredMock();
+    const { getProductsByKeyword } = createSearchMock();
     const products = productWithCats(
       ["Widget Pro", undefined, ["/categories/premium-widgets.md"]],
       ["Basic Widget", undefined, ["/categories/basic-widgets.md"]],
@@ -184,7 +184,7 @@ describe("search", () => {
   });
 
   test("Combines explicit keywords with category-derived keywords", () => {
-    const { getAllKeywords } = createConfiguredMock();
+    const { getAllKeywords } = createSearchMock();
     const products = productWithCats([
       "Product 1",
       ["sale", "featured"],

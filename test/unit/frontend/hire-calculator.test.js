@@ -9,7 +9,7 @@ import {
 import { STORAGE_KEY } from "#public/utils/cart-utils.js";
 
 // Helper to run tests with isolated localStorage
-const withMockStorage = (fn) => {
+const withHireMockStorage = (fn) => {
   globalThis.localStorage.clear();
   try {
     return fn(globalThis.localStorage);
@@ -19,11 +19,11 @@ const withMockStorage = (fn) => {
 };
 
 /** Get today's date in YYYY-MM-DD format */
-const getToday = () => new Date().toISOString().split("T")[0];
+const getTodayIso = () => new Date().toISOString().split("T")[0];
 
 /** Set up test with hire item in cart and hire date inputs */
 const withHireTestSetup = ({ start = "", end = "", days = "" } = {}, fn) =>
-  withMockStorage((storage) => {
+  withHireMockStorage((storage) => {
     storage.setItem(
       STORAGE_KEY,
       JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
@@ -81,7 +81,7 @@ describe("hire-calculator", () => {
   // initHireCalculator Tests
   // ----------------------------------------
   test("initHireCalculator does nothing when start input missing", () => {
-    withMockStorage((storage) => {
+    withHireMockStorage((storage) => {
       storage.setItem(
         STORAGE_KEY,
         JSON.stringify([{ item_name: "Equipment", product_mode: "hire" }]),
@@ -96,7 +96,7 @@ describe("hire-calculator", () => {
   });
 
   test("initHireCalculator does nothing when cart has no hire items", () => {
-    withMockStorage((storage) => {
+    withHireMockStorage((storage) => {
       storage.setItem(
         STORAGE_KEY,
         JSON.stringify([{ item_name: "Widget", product_mode: "buy" }]),
@@ -120,8 +120,8 @@ describe("hire-calculator", () => {
       initHireCalculator();
 
       const { startInput, endInput } = getDateInputs();
-      expect(startInput.min).toBe(getToday());
-      expect(endInput.min).toBe(getToday());
+      expect(startInput.min).toBe(getTodayIso());
+      expect(endInput.min).toBe(getTodayIso());
     });
   });
 

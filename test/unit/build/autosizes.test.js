@@ -84,7 +84,7 @@ const execScript = (window, script) => {
  * @param {Object} options.imgAttrs - Image attributes { src, sizes, loading, srcset }
  * @returns {{ window, img }} The happy-dom window and created image element
  */
-const createTestEnv = (options = {}) => {
+const createAutosizesTestEnv = (options = {}) => {
   const {
     userAgent = "Mozilla/5.0 Firefox/120",
     hasPerfObserver = true,
@@ -152,7 +152,7 @@ const SRC_SRCSET_ATTRS = {
  * Returns { window, img } for assertions.
  */
 const setupAndRun = (imgAttrs) => {
-  const { window, img } = createTestEnv({ imgAttrs });
+  const { window, img } = createAutosizesTestEnv({ imgAttrs });
   runAutosizes(window, img);
   return { window, img };
 };
@@ -160,7 +160,7 @@ const setupAndRun = (imgAttrs) => {
 describe("autosizes", () => {
   describe("Feature detection", () => {
     test("Does not run polyfill when PerformanceObserver is missing", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Chrome/120",
         hasPerfObserver: false,
       });
@@ -169,7 +169,7 @@ describe("autosizes", () => {
     });
 
     test("Does not run polyfill when paint timing not supported", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Chrome/120",
         supportsPaint: false,
       });
@@ -178,7 +178,7 @@ describe("autosizes", () => {
     });
 
     test("Does not run polyfill for Chrome 126+", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Chrome/126",
       });
       runAutosizes(window, img);
@@ -186,7 +186,7 @@ describe("autosizes", () => {
     });
 
     test("Runs polyfill for Chrome 125 (older than 126)", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Chrome/125",
       });
       runAutosizes(window, img);
@@ -195,7 +195,7 @@ describe("autosizes", () => {
     });
 
     test("Runs polyfill for non-Chrome browsers (Firefox, Safari)", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         userAgent: "Mozilla/5.0 Firefox/120",
       });
       runAutosizes(window, img);
@@ -205,7 +205,7 @@ describe("autosizes", () => {
 
   describe("Image filtering", () => {
     const testRemoteUrlNotProcessed = (url) => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         imgAttrs: { src: url, sizes: "auto", loading: "lazy" },
       });
       runAutosizes(window, img);
@@ -213,7 +213,7 @@ describe("autosizes", () => {
     };
 
     test("Does not process images without sizes=auto", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "100vw", loading: "lazy" },
       });
       runAutosizes(window, img);
@@ -221,7 +221,7 @@ describe("autosizes", () => {
     });
 
     test("Does not process images without loading=lazy", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "auto", loading: "eager" },
       });
       runAutosizes(window, img);
@@ -237,7 +237,7 @@ describe("autosizes", () => {
     });
 
     test("Processes local images with relative paths", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         imgAttrs: { src: "/images/photo.jpg", sizes: "auto", loading: "lazy" },
       });
       runAutosizes(window, img);
@@ -246,7 +246,7 @@ describe("autosizes", () => {
     });
 
     test("Processes images with sizes='auto, 100vw' format", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         imgAttrs: { src: "/image.jpg", sizes: "auto, 100vw", loading: "lazy" },
       });
       runAutosizes(window, img);
@@ -256,14 +256,14 @@ describe("autosizes", () => {
 
   describe("Attribute deferral", () => {
     test("Moves src to data-auto-sizes-src before FCP", () => {
-      const { window, img } = createTestEnv();
+      const { window, img } = createAutosizesTestEnv();
       runAutosizes(window, img);
       expect(img.hasAttribute("src")).toBe(false);
       expect(img.getAttribute("data-auto-sizes-src")).toBe("/image.jpg");
     });
 
     test("Moves srcset to data-auto-sizes-srcset before FCP", () => {
-      const { window, img } = createTestEnv({
+      const { window, img } = createAutosizesTestEnv({
         imgAttrs: {
           src: "/image.jpg",
           srcset: "/image-300.jpg 300w, /image-600.jpg 600w",
@@ -299,7 +299,7 @@ describe("autosizes", () => {
     });
 
     test("Cleans up data-auto-sizes-* attributes after restoration", async () => {
-      const { window, img } = createTestEnv();
+      const { window, img } = createAutosizesTestEnv();
       runAutosizes(window, img);
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(img.hasAttribute("data-auto-sizes-src")).toBe(false);
@@ -308,7 +308,7 @@ describe("autosizes", () => {
 
   describe("Multiple images", () => {
     test("Defers all images with sizes=auto and loading=lazy", () => {
-      const { window } = createTestEnv({ imgAttrs: {} });
+      const { window } = createAutosizesTestEnv({ imgAttrs: {} });
       const container = window.document.getElementById("container");
 
       const img1 = makeImg(window, {

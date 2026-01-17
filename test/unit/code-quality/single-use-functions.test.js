@@ -234,11 +234,11 @@ const analyzeSingleUseFunctions = () => {
   }
 
   // Filter by allowlist (file-level only)
-  const isAllowlisted = (v) => ALLOWED_SINGLE_USE_FUNCTIONS.has(v.file);
+  const isSingleUseAllowed = (v) => ALLOWED_SINGLE_USE_FUNCTIONS.has(v.file);
 
   return {
-    violations: allViolations.filter((v) => !isAllowlisted(v)),
-    allowed: allViolations.filter(isAllowlisted),
+    violations: allViolations.filter((v) => !isSingleUseAllowed(v)),
+    allowed: allViolations.filter(isSingleUseAllowed),
   };
 };
 
@@ -334,25 +334,25 @@ export var baz = 42;
 
     test("finds export list", () => {
       const source = `
-function a() {}
-function b() {}
-const c = () => {};
+function funcAlpha() {}
+function funcBeta() {}
+const funcGamma = () => {};
 
-export { a, b, c };
+export { funcAlpha, funcBeta, funcGamma };
 `;
       const exports = extractExports(source);
-      expect(exports.has("a")).toBe(true);
-      expect(exports.has("b")).toBe(true);
-      expect(exports.has("c")).toBe(true);
+      expect(exports.has("funcAlpha")).toBe(true);
+      expect(exports.has("funcBeta")).toBe(true);
+      expect(exports.has("funcGamma")).toBe(true);
     });
 
     test("handles export with aliases", () => {
       const source = `
-function original() {}
-export { original as renamed };
+function originalFunc() {}
+export { originalFunc as renamed };
 `;
       const exports = extractExports(source);
-      expect(exports.has("original")).toBe(true);
+      expect(exports.has("originalFunc")).toBe(true);
     });
 
     test("finds export default", () => {

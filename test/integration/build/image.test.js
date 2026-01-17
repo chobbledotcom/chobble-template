@@ -41,7 +41,7 @@ const imageFile = (dest, src = "src/images/party.jpg") => ({ src, dest });
 /**
  * Create a test page file for test site
  */
-const testPage = (content, permalink = "/test/", title = "Test") => ({
+const imageTestPage = (content, permalink = "/test/", title = "Test") => ({
   path: "pages/test.md",
   frontmatter: { title, layout: "page", permalink },
   content,
@@ -283,7 +283,9 @@ describe("image", () => {
     test("Image shortcode processes local images in full Eleventy build", async () => {
       await withTestSite(
         {
-          files: [testPage('{% image "test-image.jpg", "A test image" %}')],
+          files: [
+            imageTestPage('{% image "test-image.jpg", "A test image" %}'),
+          ],
           images: [imageFile("test-image.jpg")],
         },
         (site) => {
@@ -316,7 +318,7 @@ describe("image", () => {
 `;
       await withTestSite(
         {
-          files: [testPage(galleryContent, "/gallery/", "Gallery")],
+          files: [imageTestPage(galleryContent, "/gallery/", "Gallery")],
           images: imageFiles(["alpha.jpg", "beta.jpg"]),
         },
         (site) => {
@@ -494,7 +496,7 @@ describe("image", () => {
     test("Standard markdown images with /images/ path are transformed in build", async () => {
       await withTestSite(
         {
-          files: [testPage("![A test scene](/images/scene.jpg)")],
+          files: [imageTestPage("![A test scene](/images/scene.jpg)")],
           images: [imageFile("scene.jpg")],
         },
         (site) => {

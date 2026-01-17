@@ -20,6 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
+import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
 import { filter, flatMap, map, pipe, unique } from "#utils/array-utils.js";
 import { memoize } from "#utils/memoize.js";
@@ -56,14 +57,6 @@ const getCachedDirList = memoize((dir) =>
 // -----------------------------------------------------------------------------
 // Curried File Operations - Enable composition and partial application
 // -----------------------------------------------------------------------------
-
-/** Ensure directory exists (side effect, but curried for composition) */
-const ensureDir = (dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  return dir;
-};
 
 /** Curried file writer: writeToDir(dir)(filename, content) */
 const writeToDir = (dir) => (filename, content) => {

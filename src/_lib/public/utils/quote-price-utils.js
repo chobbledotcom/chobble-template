@@ -1,6 +1,7 @@
 // Quote price display utilities
 // Renders a price summary for cart items with hire pricing
 
+import { isHireItem } from "#public/cart/hire-calculator.js";
 import { getRadioValue } from "#public/cart/quote-steps.js";
 import { formatPrice, getCart } from "#public/utils/cart-utils.js";
 import { IDS } from "#public/utils/selectors.js";
@@ -13,8 +14,6 @@ import {
   reduce,
   uniqueBy,
 } from "#utils/array-utils.js";
-
-const isHireItem = (item) => item.product_mode === "hire";
 
 const parsePrice = (priceStr) => {
   if (typeof priceStr === "number") return priceStr;
@@ -73,12 +72,13 @@ const getFieldValue = (field) => {
   return field.value;
 };
 
-const getFieldLabel = (field) => getFieldLabels()[field.name || field.id];
+const getLabelFromFieldMap = (field) =>
+  getFieldLabels()[field.name || field.id];
 
 const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
 
 const fieldToDetail = (field) => ({
-  key: getFieldLabel(field),
+  key: getLabelFromFieldMap(field),
   value: getFieldValue(field),
 });
 

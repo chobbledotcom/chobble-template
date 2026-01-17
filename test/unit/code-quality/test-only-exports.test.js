@@ -304,55 +304,55 @@ export var baz = 42;
 
     test("finds export list", () => {
       const source = `
-function a() {}
-function b() {}
-const c = () => {};
+function exportAlpha() {}
+function exportBeta() {}
+const exportGamma = () => {};
 
-export { a, b, c };
+export { exportAlpha, exportBeta, exportGamma };
 `;
       const exports = extractExports(source);
-      expect(exports.has("a")).toBe(true);
-      expect(exports.has("b")).toBe(true);
-      expect(exports.has("c")).toBe(true);
+      expect(exports.has("exportAlpha")).toBe(true);
+      expect(exports.has("exportBeta")).toBe(true);
+      expect(exports.has("exportGamma")).toBe(true);
     });
 
     test("handles export with aliases", () => {
       const source = `
-function original() {}
-export { original as renamed };
+function baseExport() {}
+export { baseExport as renamed };
 `;
       const exports = extractExports(source);
-      expect(exports.has("original")).toBe(true);
+      expect(exports.has("baseExport")).toBe(true);
     });
 
     test.each([
       {
         name: "without aliases",
         source: `
-function a() {}
-function b() {}
-const c = () => {};
+function multiAlpha() {}
+function multiBeta() {}
+const multiGamma = () => {};
 
 export {
-  a,
-  b,
-  c,
+  multiAlpha,
+  multiBeta,
+  multiGamma,
 };
 `,
-        expectedExports: ["a", "b", "c"],
+        expectedExports: ["multiAlpha", "multiBeta", "multiGamma"],
       },
       {
         name: "with aliases",
         source: `
-function original() {}
-function another() {}
+function aliasBase() {}
+function aliasKeep() {}
 
 export {
-  original as renamed,
-  another,
+  aliasBase as renamed,
+  aliasKeep,
 };
 `,
-        expectedExports: ["original", "another"],
+        expectedExports: ["aliasBase", "aliasKeep"],
       },
     ])("finds multi-line export list $name", ({ source, expectedExports }) => {
       const exports = extractExports(source);

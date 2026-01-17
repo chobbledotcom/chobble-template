@@ -24,7 +24,7 @@ import { toObject } from "#utils/object-entries.js";
  * @param {string} context - Context for error messages
  * @returns {number} Parsed price
  */
-const parsePrice = (priceStr, context) => {
+const parsePriceStrict = (priceStr, context) => {
   const match = String(priceStr).match(/[\d.]+/);
   if (!match) {
     throw new Error(`Cannot parse price "${priceStr}" in ${context}`);
@@ -71,7 +71,7 @@ export const computeOptions = (data, mode) => {
       (opt) => opt.days != null,
       (opt) => ({
         ...opt,
-        unit_price: parsePrice(
+        unit_price: parsePriceStrict(
           opt.unit_price,
           `${data.title} days=${opt.days}`,
         ),
@@ -105,7 +105,7 @@ export const buildCartAttributes = ({
       unit_price:
         mode === "hire"
           ? opt.unit_price
-          : parsePrice(opt.unit_price, `${title} option "${opt.name}"`),
+          : parsePriceStrict(opt.unit_price, `${title} option "${opt.name}"`),
       max_quantity: opt.max_quantity || null,
       sku: opt.sku || null,
       days: opt.days || null,
