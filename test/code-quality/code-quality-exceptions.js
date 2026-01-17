@@ -255,6 +255,11 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
+
+  // Curried data transforms - designed for test fixtures but exported from production
+  // for reuse across test files. Similar pattern to ROOT_DIR/SRC_DIR.
+  "src/_lib/utils/array-utils.js:data",
+  "src/_lib/utils/array-utils.js:toData",
 ]);
 
 // ============================================

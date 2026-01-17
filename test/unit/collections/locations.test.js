@@ -6,15 +6,28 @@ import {
 } from "#collections/locations.js";
 import {
   createMockEleventyConfig,
+  data,
   expectResultTitles,
 } from "#test/test-utils.js";
+
+// ============================================
+// Curried Data Factories
+// ============================================
+
+/** Root location factory (no parent, no url needed) */
+const rootLocation = data({})("title");
+
+/** Child location factory with parent and url */
+const childLocation = (title, parent, url) => ({
+  data: { title, parentLocation: parent },
+  url,
+});
 
 describe("locations", () => {
   test("Filters locations without parent", () => {
     const locations = [
-      { data: { title: "London" } },
+      ...rootLocation(["London"], ["UK"]),
       { data: { title: "Manchester", parentLocation: "uk" } },
-      { data: { title: "UK" } },
     ];
 
     const result = getRootLocations(locations);
@@ -24,22 +37,10 @@ describe("locations", () => {
 
   test("Gets sibling locations excluding current page", () => {
     const locations = [
-      {
-        data: { title: "Cleaning", parentLocation: "london" },
-        url: "/london/cleaning/",
-      },
-      {
-        data: { title: "Repairs", parentLocation: "london" },
-        url: "/london/repairs/",
-      },
-      {
-        data: { title: "Painting", parentLocation: "london" },
-        url: "/london/painting/",
-      },
-      {
-        data: { title: "Plumbing", parentLocation: "manchester" },
-        url: "/manchester/plumbing/",
-      },
+      childLocation("Cleaning", "london", "/london/cleaning/"),
+      childLocation("Repairs", "london", "/london/repairs/"),
+      childLocation("Painting", "london", "/london/painting/"),
+      childLocation("Plumbing", "manchester", "/manchester/plumbing/"),
     ];
 
     const result = getSiblingLocations(
@@ -53,14 +54,8 @@ describe("locations", () => {
 
   test("Returns empty when no siblings exist", () => {
     const locations = [
-      {
-        data: { title: "Cleaning", parentLocation: "london" },
-        url: "/london/cleaning/",
-      },
-      {
-        data: { title: "Plumbing", parentLocation: "manchester" },
-        url: "/manchester/plumbing/",
-      },
+      childLocation("Cleaning", "london", "/london/cleaning/"),
+      childLocation("Plumbing", "manchester", "/manchester/plumbing/"),
     ];
 
     const result = getSiblingLocations(
