@@ -23,7 +23,7 @@ import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
 import { memoize } from "#utils/memoize.js";
 import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
 import { slugify } from "#utils/slug-utils.js";
-import { sortItems } from "#utils/sorting.js";
+import { compareStrings, sortItems } from "#utils/sorting.js";
 
 /** @typedef {import("#lib/types").FilterAttribute} FilterAttribute */
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
@@ -117,7 +117,7 @@ const filterToPath = (filters) => {
   if (!filters || Object.keys(filters).length === 0) return "";
 
   return pipe(
-    sort((a, b) => a.localeCompare(b)),
+    sort(compareStrings),
     flatMap((key) => [
       encodeURIComponent(key),
       encodeURIComponent(filters[key]),

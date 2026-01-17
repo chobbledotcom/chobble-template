@@ -3,6 +3,8 @@
  * Shared test utilities for schema-helper.test.js
  */
 
+import { filterMap, map } from "#utils/array-utils.js";
+
 /**
  * Create a curried optional property adder
  * Returns a function that adds optional properties to an object
@@ -14,12 +16,15 @@
  * const addContactInfo = addOptionalProps(["email", "phone"]);
  * addContactInfo({ name: "Alice" }, { email: "a@b.com" }); // { name: "Alice", email: "a@b.com" }
  */
-const addOptionalProps = (keys) => (obj, options) => {
-  for (const key of keys) {
-    if (options[key]) obj[key] = options[key];
-  }
-  return obj;
-};
+const addOptionalProps = (keys) => (obj, options) => ({
+  ...obj,
+  ...Object.fromEntries(
+    filterMap(
+      (key) => options[key],
+      (key) => [key, options[key]],
+    )(keys),
+  ),
+});
 
 /**
  * Create an object builder with required and optional properties.
@@ -40,11 +45,12 @@ const addOptionalProps = (keys) => (obj, options) => {
 const createObjectBuilder = (requiredDefaults, optionalKeys) => {
   const addOptionals = addOptionalProps(optionalKeys);
   return (options = {}) => {
-    const obj = {};
-    for (const [key, defaultVal] of Object.entries(requiredDefaults)) {
-      obj[key] = options[key] ?? defaultVal;
-    }
-    return addOptionals(obj, options);
+    const baseObj = Object.fromEntries(
+      map(([key, defaultVal]) => [key, options[key] ?? defaultVal])(
+        Object.entries(requiredDefaults),
+      ),
+    );
+    return addOptionals(baseObj, options);
   };
 };
 
