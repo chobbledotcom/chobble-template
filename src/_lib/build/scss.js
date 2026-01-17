@@ -1,9 +1,9 @@
 import path from "node:path";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 import getConfig from "#data/config.js";
-import { memoize } from "#utils/memoize.js";
 
-const getSass = memoize(() => import("sass"));
+// Lazy-loaded sass module
+let sass = null;
 
 // Files that should be compiled (not just imported as partials)
 const COMPILED_BUNDLES = ["bundle.scss", "design-system-bundle.scss"];
@@ -20,8 +20,8 @@ const createScssCompiler = (inputContent, inputPath) => {
       }
     }
 
-    const sassModule = await getSass();
-    return sassModule.compileString(inputContent, {
+    sass ??= await import("sass");
+    return sass.compileString(inputContent, {
       loadPaths: [dir],
     }).css;
   };

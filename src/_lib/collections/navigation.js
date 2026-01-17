@@ -6,21 +6,6 @@ import { sortNavigationItems } from "#utils/sorting.js";
 const NAV_THUMBNAIL_WIDTHS = ["64", "128", "480", "600"];
 const NAV_THUMBNAIL_ASPECT = "1/1";
 
-/** Get thumbnail HTML if available */
-const getThumbnailHtml = async (entry) => {
-  const thumbnail = entry.data?.thumbnail;
-  if (!thumbnail) return "";
-  return imageShortcode(
-    thumbnail,
-    "",
-    NAV_THUMBNAIL_WIDTHS,
-    "",
-    null,
-    NAV_THUMBNAIL_ASPECT,
-    "lazy",
-  );
-};
-
 /** Renders a single navigation entry with optional thumbnail (not at root level) */
 const renderNavEntry = async (
   entry,
@@ -29,7 +14,17 @@ const renderNavEntry = async (
   isRootLevel,
 ) => {
   const [thumbnailHtml, childrenHtml] = await Promise.all([
-    isRootLevel ? Promise.resolve("") : getThumbnailHtml(entry),
+    isRootLevel || !entry.data?.thumbnail
+      ? Promise.resolve("")
+      : imageShortcode(
+          entry.data.thumbnail,
+          "",
+          NAV_THUMBNAIL_WIDTHS,
+          "",
+          null,
+          NAV_THUMBNAIL_ASPECT,
+          "lazy",
+        ),
     entry.children?.length
       ? renderChildren(entry.children)
       : Promise.resolve(""),
@@ -74,21 +69,16 @@ const findPageUrl = (collection, tag, slug) => {
   return result?.url ?? "#";
 };
 
-/** Collection of navigation links sorted by order, then by key */
-const createNavigationLinksCollection = (collectionApi) =>
-  pipe(
-    filter((item) => item.data.eleventyNavigation),
-    sort(sortNavigationItems),
-  )(collectionApi.getAll());
-
 const configureNavigation = async (eleventyConfig) => {
   const nav = await import("@11ty/eleventy-navigation");
   eleventyConfig.addPlugin(nav.default);
   eleventyConfig.addAsyncFilter("toNavigation", toNavigation);
   eleventyConfig.addFilter("pageUrl", findPageUrl);
-  eleventyConfig.addCollection(
-    "navigationLinks",
-    createNavigationLinksCollection,
+  eleventyConfig.addCollection("navigationLinks", (collectionApi) =>
+    pipe(
+      filter((item) => item.data.eleventyNavigation),
+      sort(sortNavigationItems),
+    )(collectionApi.getAll()),
   );
 };
 
