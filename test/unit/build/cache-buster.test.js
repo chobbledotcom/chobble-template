@@ -1,11 +1,22 @@
 import { describe, expect, test } from "bun:test";
-import { cacheBust, configureCacheBuster } from "#eleventy/cache-buster.js";
+import { configureCacheBuster } from "#eleventy/cache-buster.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
+
+/**
+ * Helper to get the cacheBust filter via Eleventy registration
+ */
+const getCacheBustFilter = () => {
+  const mockConfig = createMockEleventyConfig();
+  configureCacheBuster(mockConfig);
+  return mockConfig.filters.cacheBust;
+};
 
 describe("cache-buster", () => {
   test("Returns URL unchanged in development mode", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
     process.env.ELEVENTY_RUN_MODE = "serve";
 
+    const cacheBust = getCacheBustFilter();
     const result = cacheBust("/styles.css");
     expect(result).toBe("/styles.css");
 
@@ -16,6 +27,7 @@ describe("cache-buster", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
     delete process.env.ELEVENTY_RUN_MODE;
 
+    const cacheBust = getCacheBustFilter();
     const result = cacheBust("/script.js");
     expect(result).toBe("/script.js");
 
@@ -26,6 +38,7 @@ describe("cache-buster", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
     process.env.ELEVENTY_RUN_MODE = "build";
 
+    const cacheBust = getCacheBustFilter();
     const result = cacheBust("/styles.css");
     expect(result.startsWith("/styles.css?cached=")).toBe(true);
 
@@ -36,6 +49,7 @@ describe("cache-buster", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
     process.env.ELEVENTY_RUN_MODE = "build";
 
+    const cacheBust = getCacheBustFilter();
     const result = cacheBust("/app.js");
     const match = result.match(/\?cached=(\d+)$/);
     expect(match !== null).toBe(true);
@@ -48,6 +62,7 @@ describe("cache-buster", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
     process.env.ELEVENTY_RUN_MODE = "build";
 
+    const cacheBust = getCacheBustFilter();
     const result1 = cacheBust("/styles.css");
     const result2 = cacheBust("/script.js");
 
@@ -63,6 +78,7 @@ describe("cache-buster", () => {
     const originalRunMode = process.env.ELEVENTY_RUN_MODE;
     process.env.ELEVENTY_RUN_MODE = "build";
 
+    const cacheBust = getCacheBustFilter();
     const urls = [
       "/css/main.css",
       "/js/bundle.js",
@@ -79,15 +95,9 @@ describe("cache-buster", () => {
   });
 
   test("configureCacheBuster registers the filter", () => {
-    const filters = {};
-    const mockConfig = {
-      addFilter: (name, fn) => {
-        filters[name] = fn;
-      },
-    };
-
+    const mockConfig = createMockEleventyConfig();
     configureCacheBuster(mockConfig);
 
-    expect(filters.cacheBust).toBe(cacheBust);
+    expect(typeof mockConfig.filters.cacheBust).toBe("function");
   });
 });

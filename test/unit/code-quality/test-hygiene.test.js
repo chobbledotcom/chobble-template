@@ -148,6 +148,11 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "getAreaListFilter",
   // external-links.test.js - filter setup helper
   "getExternalLinksFilter",
+  "getFilter",
+  // Eleventy filter getter helpers - get filter via config registration
+  "getCacheBustFilter",
+  "getJsConfigFilter",
+  "getEventIcalFilter",
   // feed.test.js - test site factory
   "setupTestSiteWithFeed",
   // hire-calculator.test.js - callback tracking setup

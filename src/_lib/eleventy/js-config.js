@@ -14,7 +14,5 @@ const buildJsConfigJson = (config) => {
 };
 
 export const configureJsConfig = (eleventyConfig) => {
-  eleventyConfig.addFilter("jsConfigJson", (config) =>
-    buildJsConfigJson(config),
-  );
+  eleventyConfig.addFilter("jsConfigJson", buildJsConfigJson);
 };
