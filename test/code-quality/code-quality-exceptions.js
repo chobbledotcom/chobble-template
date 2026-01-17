@@ -109,7 +109,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/data-exports.test.js",
-  "test/unit/code-quality/duplicate-methods.test.js",
   "test/unit/code-quality/function-length.test.js",
   "test/unit/code-quality/html-in-js.test.js",
   "test/unit/code-quality/let-usage.test.js",
@@ -189,13 +188,12 @@ const ALLOWED_LET = new Set([
 const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "ecommerce-backend/server.js",
   "src/_data/eleventyComputed.js",
-  "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink used in eleventyComputed
-  "src/_lib/build/scss.js",
-  "src/_lib/build/theme-compiler.js", // extractRootVariables kept separate for clarity
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
+  "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
+  "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
@@ -236,15 +234,10 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
   // Eleventy plugin helpers - internal functions tested directly
-  "src/_lib/eleventy/cache-buster.js:cacheBust",
-  "src/_lib/eleventy/ical.js:eventIcal",
-  "src/_lib/eleventy/js-config.js:buildJsConfigJson",
   "src/_lib/eleventy/opening-times.js:renderOpeningTimes",
   "src/_lib/eleventy/pdf.js:buildMenuPdfData",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",
-  "src/_lib/eleventy/recurring-events.js:getEventUrl",
   "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
-  "src/_lib/eleventy/recurring-events.js:stripDatePrefix",
 
   // Media processing - tested for image handling
   "src/_lib/media/image-utils.js:getPathAwareBasename",
@@ -255,17 +248,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/paths.js:ROOT_DIR",
   "src/_lib/paths.js:SRC_DIR",
 
-  // Public cart/hire functionality - tested for frontend behavior
-  "src/_lib/public/cart/hire-calculator.js:getHireItems",
-  "src/_lib/public/cart/hire-calculator.js:hasHireItems",
-  "src/_lib/public/cart/hire-calculator.js:isHireItem",
-  "src/_lib/public/cart/hire-calculator.js:setMinDate",
-  "src/_lib/public/cart/quote-steps.js:initQuoteSteps", // Public API, auto-called via onReady
-
-  // Public UI components - tested for frontend behavior
+  // Public initialization functions - auto-called via onReady, exported for testing
+  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
-  "src/_lib/public/utils/cart-utils.js:getItemCount",
-  "src/_lib/public/utils/cart-utils.js:removeItem",
 
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
@@ -285,7 +270,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:327",
+  "test/test-site-factory.js:334",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:41",
