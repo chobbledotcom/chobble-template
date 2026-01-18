@@ -4,7 +4,7 @@ import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("external-links", () => {
   // Get filter with specified config - follows area-list.test.js pattern
-  const getFilter = async (config) => {
+  const getExternalLinksFilter = async (config) => {
     const mockConfig = createMockEleventyConfig();
     await configureExternalLinks(mockConfig, config);
     return mockConfig.filters.externalLinkAttrs;
@@ -20,55 +20,73 @@ describe("external-links", () => {
   describe("externalLinkAttrs filter", () => {
     describe("when externalLinksTargetBlank is true", () => {
       test("returns target and rel attributes for HTTPS URLs", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("https://example.com");
         expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
       });
 
       test("returns target and rel attributes for HTTP URLs", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("http://example.com");
         expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
       });
 
       test("returns empty string for relative URLs", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("/about");
         expect(result).toBe("");
       });
 
       test("returns empty string for absolute paths", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("/pages/about");
         expect(result).toBe("");
       });
 
       test("returns empty string for hash links", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("#section");
         expect(result).toBe("");
       });
 
       test("returns empty string for mailto links", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("mailto:test@example.com");
         expect(result).toBe("");
       });
 
       test("handles URLs with query parameters", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("https://example.com?foo=bar&baz=qux");
         expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
       });
 
       test("handles URLs with fragments", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("https://example.com#section");
         expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
       });
 
       test("handles URLs with spaces", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("https://example.com/path with spaces");
         expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
       });
@@ -76,7 +94,9 @@ describe("external-links", () => {
 
     describe("when externalLinksTargetBlank is false", () => {
       test("returns empty string for external URLs", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: false });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: false,
+        });
         const result = filter("https://example.com");
         expect(result).toBe("");
       });
@@ -84,25 +104,33 @@ describe("external-links", () => {
 
     describe("edge cases", () => {
       test("handles null input gracefully", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter(null);
         expect(result).toBe("");
       });
 
       test("handles undefined input gracefully", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter(undefined);
         expect(result).toBe("");
       });
 
       test("handles empty string gracefully", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         const result = filter("");
         expect(result).toBe("");
       });
 
       test("handles non-string input gracefully", async () => {
-        const filter = await getFilter({ externalLinksTargetBlank: true });
+        const filter = await getExternalLinksFilter({
+          externalLinksTargetBlank: true,
+        });
         expect(filter(123)).toBe("");
         expect(filter({ url: "http://example.com" })).toBe("");
         expect(filter(["http://example.com"])).toBe("");

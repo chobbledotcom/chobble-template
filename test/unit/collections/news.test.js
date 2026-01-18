@@ -16,7 +16,7 @@ import {
  * @param {string} dateStr - Date string (YYYY-MM-DD format)
  * @param {Object} options - Additional options (no_index, etc.)
  */
-const newsPost = (title, dateStr, options = {}) => ({
+const newsPostItem = (title, dateStr, options = {}) => ({
   data: {
     title,
     ...options,
@@ -27,12 +27,14 @@ const newsPost = (title, dateStr, options = {}) => ({
 /**
  * Create news posts from an array of [title, dateStr, options] tuples
  */
-const newsPosts = (tuples) =>
-  tuples.map(([title, dateStr, options]) => newsPost(title, dateStr, options));
+const newsPostItems = (tuples) =>
+  tuples.map(([title, dateStr, options]) =>
+    newsPostItem(title, dateStr, options),
+  );
 
 describe("news-collection", () => {
   test("Creates collection excluding no_index posts", () => {
-    const posts = newsPosts([
+    const posts = newsPostItems([
       ["Post 1", "2024-01-01"],
       ["Post 2", "2024-01-02", { no_index: true }],
       ["Post 3", "2024-01-03"],
@@ -44,7 +46,7 @@ describe("news-collection", () => {
   });
 
   test("Sorts posts by date descending (newest first)", () => {
-    const posts = newsPosts([
+    const posts = newsPostItems([
       ["Oldest", "2024-01-01"],
       ["Middle", "2024-01-15"],
       ["Newest", "2024-01-30"],
@@ -56,7 +58,7 @@ describe("news-collection", () => {
   });
 
   test("Returns all posts when none have no_index", () => {
-    const posts = newsPosts([
+    const posts = newsPostItems([
       ["Post 1", "2024-01-01"],
       ["Post 2", "2024-01-02"],
       ["Post 3", "2024-01-03"],
@@ -68,7 +70,7 @@ describe("news-collection", () => {
   });
 
   test("Returns empty array when all posts have no_index", () => {
-    const posts = newsPosts([
+    const posts = newsPostItems([
       ["Post 1", "2024-01-01", { no_index: true }],
       ["Post 2", "2024-01-02", { no_index: true }],
     ]);
@@ -85,7 +87,7 @@ describe("news-collection", () => {
   });
 
   test("Treats no_index: false as visible", () => {
-    const posts = newsPosts([
+    const posts = newsPostItems([
       ["Hidden", "2024-01-01", { no_index: true }],
       ["Explicit false", "2024-01-02", { no_index: false }],
       ["No property", "2024-01-03"],
@@ -105,7 +107,7 @@ describe("news-collection", () => {
   });
 
   test("Collection function is pure and does not modify inputs", () => {
-    const posts = newsPosts([
+    const posts = newsPostItems([
       ["Post 1", "2024-01-01"],
       ["Post 2", "2024-01-02", { no_index: true }],
     ]);

@@ -59,4 +59,4 @@ const initHireCalculator = (onDaysChange) => {
   endInput.addEventListener("change", handleChange);
 };
 
-export { calculateDays, initHireCalculator };
+export { calculateDays, initHireCalculator, isHireItem };

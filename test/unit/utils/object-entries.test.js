@@ -209,8 +209,8 @@ describe("object-entries utilities", () => {
     });
 
     test("normalizing object with mapBoth", () => {
-      const normalize = (s) => s.toLowerCase().replace(/\s+/g, "-");
-      expect(mapBoth(normalize)({ "Size Type": "Extra Large" })).toEqual({
+      const toSlug = (s) => s.toLowerCase().replace(/\s+/g, "-");
+      expect(mapBoth(toSlug)({ "Size Type": "Extra Large" })).toEqual({
         "size-type": "extra-large",
       });
     });

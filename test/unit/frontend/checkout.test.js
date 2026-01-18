@@ -155,7 +155,7 @@ const createCheckoutPage = async (options = {}) => {
 const createMockFetch = (responses = {}) => {
   const calls = [];
 
-  const mockFetch = async (url, options = {}) => {
+  const fetchMock = async (url, options = {}) => {
     calls.push({ url, options });
 
     for (const [pattern, response] of Object.entries(responses)) {
@@ -175,8 +175,8 @@ const createMockFetch = (responses = {}) => {
     throw new Error(`No mock for URL: ${url}`);
   };
 
-  mockFetch.calls = calls;
-  return mockFetch;
+  fetchMock.calls = calls;
+  return fetchMock;
 };
 
 const createLocationTracker = () => {
@@ -203,7 +203,7 @@ const createLocationTracker = () => {
 
 // Helper to run tests with isolated localStorage
 // Uses the global localStorage (from happy-dom) but clears it before/after each test
-const withMockStorage = (fn) => {
+const withCheckoutMockStorage = (fn) => {
   globalThis.localStorage.clear();
   try {
     return fn(globalThis.localStorage);
@@ -221,14 +221,14 @@ describe("checkout", () => {
   // cart-utils.js Direct Tests
   // ----------------------------------------
   test("getCart returns empty array when localStorage is empty", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       const cart = getCart();
       expect(cart).toEqual([]);
     });
   });
 
   test("saveCart persists cart and getCart retrieves it", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       const items = [
         { item_name: "Widget", unit_price: 15.0, quantity: 2, sku: "W1" },
       ];
@@ -239,7 +239,7 @@ describe("checkout", () => {
   });
 
   test("getCart logs error and returns empty array for corrupt JSON", () => {
-    withMockStorage((storage) => {
+    withCheckoutMockStorage((storage) => {
       storage.setItem(STORAGE_KEY, "not valid json {{{");
       const errors = [];
       const originalError = console.error;
@@ -264,7 +264,7 @@ describe("checkout", () => {
   });
 
   test("attachRemoveHandlers removes item from cart when button clicked", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([
         { item_name: "Keep", unit_price: 10, quantity: 1 },
         { item_name: "Remove", unit_price: 5, quantity: 2 },
@@ -285,7 +285,7 @@ describe("checkout", () => {
   });
 
   test("updateCartIcon shows cart icon when items in cart", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       document.body.innerHTML = `
         <div class="cart-icon" style="display: none;">
           <span class="cart-count" style="display: none;">0</span>
@@ -305,7 +305,7 @@ describe("checkout", () => {
   });
 
   test("updateCartIcon hides cart icon when cart is empty", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       document.body.innerHTML = `
         <div class="cart-icon" style="display: flex;">
           <span class="cart-count" style="display: block;">5</span>
@@ -321,7 +321,7 @@ describe("checkout", () => {
   });
 
   test("updateItemQuantity updates item quantity correctly", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
       const result = updateItemQuantity("Widget", 5);
       expect(result).toBe(true);
@@ -331,7 +331,7 @@ describe("checkout", () => {
   });
 
   test("updateItemQuantity removes item when quantity is 0 or less", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([
         { item_name: "Keep", unit_price: 10, quantity: 1 },
         { item_name: "Remove", unit_price: 5, quantity: 3 },
@@ -348,7 +348,7 @@ describe("checkout", () => {
     const origAlert = global.alert;
     global.alert = (msg) => alerts.push(msg);
     try {
-      withMockStorage(() => {
+      withCheckoutMockStorage(() => {
         saveCart([
           {
             item_name: "Limited",
@@ -369,7 +369,7 @@ describe("checkout", () => {
   });
 
   test("updateItemQuantity returns false for non-existent item", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
       const result = updateItemQuantity("NonExistent", 5);
       expect(result).toBe(false);
@@ -377,7 +377,7 @@ describe("checkout", () => {
   });
 
   test("attachQuantityHandlers attaches decrease button handlers", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       document.body.innerHTML = `
         <button data-action="decrease" data-name="Widget">−</button>
         <input type="number" data-name="Widget" value="3">
@@ -402,7 +402,7 @@ describe("checkout", () => {
   });
 
   test("attachQuantityHandlers attaches increase button handlers", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       document.body.innerHTML = `
         <button data-action="decrease" data-name="Widget">−</button>
         <input type="number" data-name="Widget" value="3">
@@ -427,7 +427,7 @@ describe("checkout", () => {
   });
 
   test("attachQuantityHandlers attaches input change handlers", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       document.body.innerHTML = `
         <input type="number" data-name="Widget" value="3">
       `;
@@ -451,7 +451,7 @@ describe("checkout", () => {
   });
 
   test("attachRemoveHandlers attaches remove button handlers", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       document.body.innerHTML = `
         <button data-action="remove" data-name="Widget">Remove</button>
       `;
@@ -777,7 +777,7 @@ describe("checkout", () => {
   // Stripe Checkout Flow Tests
   // ----------------------------------------
   test("Stripe checkout redirects to homepage when cart is empty", () => {
-    const result = withMockStorage(() => {
+    const result = withCheckoutMockStorage(() => {
       saveCart([]);
       const locationTracker = createLocationTracker();
 
@@ -794,7 +794,7 @@ describe("checkout", () => {
   });
 
   test("Checkout sends only sku and quantity to API, not prices", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([
         {
           item_name: "Product A",
@@ -826,7 +826,7 @@ describe("checkout", () => {
   });
 
   test("Successful Stripe session creation redirects to Stripe URL", async () => {
-    const redirected = await withMockStorage(async () => {
+    const redirected = await withCheckoutMockStorage(async () => {
       saveCart([
         { item_name: "Widget", unit_price: 15, quantity: 1, sku: "W1" },
       ]);
@@ -917,7 +917,7 @@ describe("checkout", () => {
   // Business Logic Tests
   // ----------------------------------------
   test("Cart preserves special characters in product names", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([
         { item_name: 'Widget "Deluxe" & More', unit_price: 10, quantity: 1 },
       ]);
@@ -931,7 +931,7 @@ describe("checkout", () => {
   // updateItemQuantity Tests (using actual production function)
   // ----------------------------------------
   test("updateItemQuantity changes quantity for existing item", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
 
       const result = updateItemQuantity("Widget", 5);
@@ -943,7 +943,7 @@ describe("checkout", () => {
   });
 
   test("updateItemQuantity removes item when quantity is 0", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([
         { item_name: "Keep", unit_price: 10, quantity: 1 },
         { item_name: "Remove", unit_price: 5, quantity: 3 },
@@ -958,7 +958,7 @@ describe("checkout", () => {
   });
 
   test("updateItemQuantity returns false for non-existent item", () => {
-    withMockStorage(() => {
+    withCheckoutMockStorage(() => {
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 2 }]);
 
       const result = updateItemQuantity("NonExistent", 5);

@@ -15,14 +15,14 @@ import { item as baseItem, expectResultTitles } from "#test/test-utils.js";
 /**
  * Create a filter attribute { name, value }
  */
-const attr = (name, value) => ({ name, value });
+const catFilterAttr = (name, value) => ({ name, value });
 
 /**
  * Create an item with filter_attributes and categories
  * @param {string|null} title - Item title
  * @param {Object} options - { attrs: [...], categories: [...] }
  */
-const item = (title, { attrs = [], categories = [] } = {}) =>
+const catProductItem = (title, { attrs = [], categories = [] } = {}) =>
   baseItem(title, {
     ...(attrs.length > 0 ? { filter_attributes: attrs } : {}),
     ...(categories.length > 0 ? { categories } : {}),
@@ -31,7 +31,7 @@ const item = (title, { attrs = [], categories = [] } = {}) =>
 /**
  * Create a category item with a fileSlug
  */
-const category = (slug) => ({
+const categoryFixture = (slug) => ({
   fileSlug: slug,
   data: {},
 });
@@ -53,11 +53,14 @@ const mockCollectionApi = (categories, products) => ({
 
 /** Product with no filter attributes */
 const unfilteredProduct = (cat = "widgets") =>
-  item("Product 1", { categories: [cat] });
+  catProductItem("Product 1", { categories: [cat] });
 
 /** Single widget product with size attribute */
 const widgetWithSize = (size, title = "Widget A") =>
-  item(title, { attrs: [attr("Size", size)], categories: ["widgets"] });
+  catProductItem(title, {
+    attrs: [catFilterAttr("Size", size)],
+    categories: ["widgets"],
+  });
 
 /** Standard widget filter UI attributes */
 const widgetFilterAttrs = (sizes = ["small", "large"]) => ({
@@ -137,18 +140,18 @@ describe("category-product-filters", () => {
 
     test("Returns empty array for category with no filterable products", () => {
       const result = createFilteredCategoryProductPages(
-        mockCollectionApi([category("widgets")], [unfilteredProduct()]),
+        mockCollectionApi([categoryFixture("widgets")], [unfilteredProduct()]),
       );
       expect(result).toEqual([]);
     });
 
     test("Generates pages for each category with filterable products", () => {
       const api = mockCollectionApi(
-        [category("widgets"), category("gadgets")],
+        [categoryFixture("widgets"), categoryFixture("gadgets")],
         [
           widgetWithSize("small"),
-          item("Gadget A", {
-            attrs: [attr("Color", "red")],
+          catProductItem("Gadget A", {
+            attrs: [catFilterAttr("Color", "red")],
             categories: ["gadgets"],
           }),
         ],
@@ -164,7 +167,10 @@ describe("category-product-filters", () => {
 
     test("Filter pages include category context", () => {
       const result = createFilteredCategoryProductPages(
-        mockCollectionApi([category("widgets")], [widgetWithSize("small")]),
+        mockCollectionApi(
+          [categoryFixture("widgets")],
+          [widgetWithSize("small")],
+        ),
       );
       const page = result[0];
       expect(page.categorySlug).toBe("widgets");
@@ -175,10 +181,13 @@ describe("category-product-filters", () => {
 
     test("Generates all valid filter combinations", () => {
       const api = mockCollectionApi(
-        [category("widgets")],
+        [categoryFixture("widgets")],
         [
-          item("Small Classic", {
-            attrs: [attr("Size", "small"), attr("Type", "classic")],
+          catProductItem("Small Classic", {
+            attrs: [
+              catFilterAttr("Size", "small"),
+              catFilterAttr("Type", "classic"),
+            ],
             categories: ["widgets"],
           }),
         ],
@@ -192,10 +201,10 @@ describe("category-product-filters", () => {
     test("Filter pages include filter description with display values", () => {
       const result = createFilteredCategoryProductPages(
         mockCollectionApi(
-          [category("widgets")],
+          [categoryFixture("widgets")],
           [
-            item("Widget", {
-              attrs: [attr("Pet Friendly", "Yes")],
+            catProductItem("Widget", {
+              attrs: [catFilterAttr("Pet Friendly", "Yes")],
               categories: ["widgets"],
             }),
           ],
@@ -208,11 +217,11 @@ describe("category-product-filters", () => {
 
     test("Only includes products belonging to each category", () => {
       const api = mockCollectionApi(
-        [category("widgets")],
+        [categoryFixture("widgets")],
         [
           widgetWithSize("small"),
-          item("Gadget A", {
-            attrs: [attr("Size", "small")],
+          catProductItem("Gadget A", {
+            attrs: [catFilterAttr("Size", "small")],
             categories: ["gadgets"],
           }),
         ],
@@ -233,7 +242,10 @@ describe("category-product-filters", () => {
 
     test("Returns attributes keyed by category slug", () => {
       const result = createCategoryFilterAttributes(
-        mockCollectionApi([category("widgets")], [widgetWithSize("small")]),
+        mockCollectionApi(
+          [categoryFixture("widgets")],
+          [widgetWithSize("small")],
+        ),
       );
       expect(result.widgets).toBeDefined();
       expect(result.widgets.attributes.size).toEqual(["small"]);
@@ -242,10 +254,13 @@ describe("category-product-filters", () => {
     test("Includes displayLookup for attribute keys and values", () => {
       const result = createCategoryFilterAttributes(
         mockCollectionApi(
-          [category("widgets")],
+          [categoryFixture("widgets")],
           [
-            item("Widget", {
-              attrs: [attr("Size", "small"), attr("Type", "classic")],
+            catProductItem("Widget", {
+              attrs: [
+                catFilterAttr("Size", "small"),
+                catFilterAttr("Type", "classic"),
+              ],
               categories: ["widgets"],
             }),
           ],
@@ -259,7 +274,7 @@ describe("category-product-filters", () => {
     test("Collects attributes from multiple products", () => {
       const result = createCategoryFilterAttributes(
         mockCollectionApi(
-          [category("widgets")],
+          [categoryFixture("widgets")],
           [
             widgetWithSize("small", "Widget A"),
             widgetWithSize("large", "Widget B"),
@@ -272,7 +287,7 @@ describe("category-product-filters", () => {
     test("Excludes categories with no filterable products", () => {
       const result = createCategoryFilterAttributes(
         mockCollectionApi(
-          [category("widgets"), category("gadgets")],
+          [categoryFixture("widgets"), categoryFixture("gadgets")],
           [widgetWithSize("small"), unfilteredProduct("gadgets")],
         ),
       );
@@ -290,14 +305,17 @@ describe("category-product-filters", () => {
 
     test("Returns empty array for category with no filterable products", () => {
       const result = createCategoryFilterRedirects(
-        mockCollectionApi([category("widgets")], [unfilteredProduct()]),
+        mockCollectionApi([categoryFixture("widgets")], [unfilteredProduct()]),
       );
       expect(result).toEqual([]);
     });
 
     test("Generates redirects with category-scoped URLs", () => {
       const result = createCategoryFilterRedirects(
-        mockCollectionApi([category("widgets")], [widgetWithSize("small")]),
+        mockCollectionApi(
+          [categoryFixture("widgets")],
+          [widgetWithSize("small")],
+        ),
       );
       expect(result.length).toBeGreaterThan(0);
       expect(result[0].from).toContain("/categories/widgets/search/");
@@ -316,7 +334,10 @@ describe("category-product-filters", () => {
 
     test("Returns filterUI keyed by category slug", () => {
       const result = createCategoryListingFilterUI(
-        mockCollectionApi([category("widgets")], [widgetWithSize("small")]),
+        mockCollectionApi(
+          [categoryFixture("widgets")],
+          [widgetWithSize("small")],
+        ),
       );
       expect(result.widgets).toBeDefined();
       expect(result.widgets.hasFilters).toBe(true);
@@ -324,14 +345,20 @@ describe("category-product-filters", () => {
 
     test("FilterUI has no active filters for listing pages", () => {
       const result = createCategoryListingFilterUI(
-        mockCollectionApi([category("widgets")], [widgetWithSize("small")]),
+        mockCollectionApi(
+          [categoryFixture("widgets")],
+          [widgetWithSize("small")],
+        ),
       );
       expect(result.widgets.hasActiveFilters).toBe(false);
     });
 
     test("FilterUI includes category-scoped URLs", () => {
       const result = createCategoryListingFilterUI(
-        mockCollectionApi([category("widgets")], [widgetWithSize("small")]),
+        mockCollectionApi(
+          [categoryFixture("widgets")],
+          [widgetWithSize("small")],
+        ),
       );
       expect(result.widgets.clearAllUrl).toBe("/categories/widgets/#content");
     });

@@ -109,6 +109,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
+  "test/unit/code-quality/duplicate-methods.test.js",
   "test/unit/test-runner-utils.test.js",
   "test/unit/collections/missing-folders-lib.test.js",
   "test/unit/collections/properties.test.js",
@@ -160,6 +161,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/eleventy/external-links.js", // Text processing pipeline helpers kept separate for function-length
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
   "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
+  "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
   "src/_lib/filters/item-filters.js",
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
@@ -238,7 +240,7 @@ const ALLOWED_DOM_CONSTRUCTOR = new Set([
   "test/test-utils.js:10",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:334",
+  "test/test-site-factory.js:327",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:41",

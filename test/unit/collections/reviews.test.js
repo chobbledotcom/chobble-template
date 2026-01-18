@@ -19,7 +19,7 @@ import {
 import { map } from "#utils/array-utils.js";
 
 // Create configured mock and extract registered collection/filters
-const createConfiguredMock = () => {
+const createReviewsMock = () => {
   const mockConfig = createMockEleventyConfig();
   configureReviews(mockConfig);
   return {
@@ -44,7 +44,7 @@ const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
  * @param {string} dateStr - Date string (YYYY-MM-DD format)
  * @param {Object} options - Additional options (rating, hidden, products, etc.)
  */
-const item = (title, dateStr, options = {}) => ({
+const reviewItem = (title, dateStr, options = {}) => ({
   ...baseItem(title, options),
   date: new Date(dateStr),
 });
@@ -53,7 +53,9 @@ const item = (title, dateStr, options = {}) => ({
  * Create items from an array of [title, dateStr, options] tuples
  * Curried for use with pipe
  */
-const items = map(([title, dateStr, options]) => item(title, dateStr, options));
+const reviewItems = map(([title, dateStr, options]) =>
+  reviewItem(title, dateStr, options),
+);
 
 /**
  * Create multiple reviews for a product with sequential dates.
@@ -72,7 +74,7 @@ const itemsFor = (productId, count, rating = 5, monthPrefix = "01") =>
  * Factory function for common test patterns.
  */
 const createProductReviews = (productId, ratingSpecs) =>
-  items(
+  reviewItems(
     ratingSpecs.map((rating, i) => [
       `R${i + 1}`,
       `2024-01-0${i + 1}`,
@@ -117,8 +119,8 @@ const createLimitTestData = (aAboveLimit = true) =>
 
 describe("reviews", () => {
   test("Creates reviews collection excluding hidden and sorted newest first", () => {
-    const { reviewsCollection } = createConfiguredMock();
-    const testReviews = items([
+    const { reviewsCollection } = createReviewsMock();
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", { rating: 5 }],
       ["Review 2", "2024-01-02", { rating: 4, hidden: true }],
       ["Review 3", "2024-01-03", { rating: 5 }],
@@ -131,8 +133,8 @@ describe("reviews", () => {
   });
 
   test("Returns all reviews when none are hidden, sorted newest first", () => {
-    const { reviewsCollection } = createConfiguredMock();
-    const testReviews = items([
+    const { reviewsCollection } = createReviewsMock();
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", { rating: 5 }],
       ["Review 2", "2024-01-03", { rating: 4 }],
       ["Review 3", "2024-01-02", { rating: 3 }],
@@ -144,7 +146,7 @@ describe("reviews", () => {
   });
 
   test("Filters reviews by products field and sorts newest first", () => {
-    const testReviews = items([
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", { products: ["product-a", "product-b"] }],
       ["Review 2", "2024-01-02", { products: ["product-c"] }],
       ["Review 3", "2024-01-03", { products: ["product-a"] }],
@@ -157,7 +159,7 @@ describe("reviews", () => {
   });
 
   test("Handles reviews without matching field", () => {
-    const testReviews = items([
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", {}],
       ["Review 2", "2024-01-02", { products: null }],
       ["Review 3", "2024-01-03", { products: [] }],
@@ -169,7 +171,7 @@ describe("reviews", () => {
   });
 
   test("Filters reviews by categories field", () => {
-    const testReviews = items([
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", { categories: ["category-a", "category-b"] }],
       ["Review 2", "2024-01-02", { categories: ["category-c"] }],
       ["Review 3", "2024-01-03", { categories: ["category-a"] }],
@@ -181,7 +183,7 @@ describe("reviews", () => {
   });
 
   test("Filters reviews by properties field", () => {
-    const testReviews = items([
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", { properties: ["property-a"] }],
       ["Review 2", "2024-01-02", { properties: ["property-b"] }],
       ["Review 3", "2024-01-03", { properties: ["property-a", "property-b"] }],
@@ -193,7 +195,7 @@ describe("reviews", () => {
   });
 
   test("Generic function works with any field", () => {
-    const testReviews = items([
+    const testReviews = reviewItems([
       ["Review 1", "2024-01-01", { customField: ["item-a"] }],
       ["Review 2", "2024-01-02", { customField: ["item-b"] }],
     ]);
@@ -204,11 +206,11 @@ describe("reviews", () => {
   });
 
   test("Calculates rating for any field type via filter", () => {
-    const { getRating } = createConfiguredMock();
+    const { getRating } = createReviewsMock();
     const productReviews = createProductReviews("product-a", [5, 3]);
     const testReviews = [
       ...productReviews,
-      ...items([
+      ...reviewItems([
         ["R3", "2024-01-03", { categories: ["category-a"], rating: 4 }],
       ]),
     ];
@@ -218,15 +220,15 @@ describe("reviews", () => {
   });
 
   test("Returns ceiling of average rating via filter", () => {
-    const { getRating } = createConfiguredMock();
+    const { getRating } = createReviewsMock();
     const testReviews = createProductReviews("product-a", [5, 4]);
 
     expect(getRating(testReviews, "product-a", "products")).toBe(5);
   });
 
   test("Returns null when no ratings exist via filter", () => {
-    const { getRating } = createConfiguredMock();
-    const testReviews = items([
+    const { getRating } = createReviewsMock();
+    const testReviews = reviewItems([
       ["R1", "2024-01-01", { products: ["product-a"] }],
       ["R2", "2024-01-02", { products: ["product-a"], rating: null }],
     ]);
@@ -235,8 +237,8 @@ describe("reviews", () => {
   });
 
   test("Returns null when no matching items via filter", () => {
-    const { getRating } = createConfiguredMock();
-    const testReviews = items([
+    const { getRating } = createReviewsMock();
+    const testReviews = reviewItems([
       ["R1", "2024-01-01", { products: ["product-b"], rating: 5 }],
     ]);
 
@@ -244,14 +246,14 @@ describe("reviews", () => {
   });
 
   test("Converts rating to star emojis via filter", () => {
-    const { ratingToStars } = createConfiguredMock();
+    const { ratingToStars } = createReviewsMock();
     expect(ratingToStars(1)).toBe("⭐️");
     expect(ratingToStars(3)).toBe("⭐️⭐️⭐️");
     expect(ratingToStars(5)).toBe("⭐️⭐️⭐️⭐️⭐️");
   });
 
   test("Avatar displays initials from names via filter", () => {
-    const { reviewerAvatar } = createConfiguredMock();
+    const { reviewerAvatar } = createReviewsMock();
     // Helper to check initials in URL-encoded SVG (>X< becomes %3EX%3C)
     const hasInitials = (avatar, initials) =>
       avatar.includes(`%3E${encodeURIComponent(initials)}%3C`);
@@ -278,20 +280,20 @@ describe("reviews", () => {
   });
 
   test("Returns a valid SVG data URI via filter", () => {
-    const { reviewerAvatar } = createConfiguredMock();
+    const { reviewerAvatar } = createReviewsMock();
     const result = reviewerAvatar("John Smith");
     expect(result.startsWith("data:image/svg+xml,")).toBe(true);
   });
 
   test("Returns same color for same name via filter", () => {
-    const { reviewerAvatar } = createConfiguredMock();
+    const { reviewerAvatar } = createReviewsMock();
     const result1 = reviewerAvatar("John Smith");
     const result2 = reviewerAvatar("John Smith");
     expect(result1).toBe(result2);
   });
 
   test("Returns different colors for different names via filter", () => {
-    const { reviewerAvatar } = createConfiguredMock();
+    const { reviewerAvatar } = createReviewsMock();
     const result1 = reviewerAvatar("John Smith");
     const result2 = reviewerAvatar("Jane Doe");
     expect(result1 !== result2).toBe(true);
@@ -310,7 +312,7 @@ describe("reviews", () => {
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
-    const originalReviews = items([
+    const originalReviews = reviewItems([
       ["Review 1", "2024-01-01", { products: ["product-1"] }],
     ]);
     const reviewsCopy = structuredClone(originalReviews);
