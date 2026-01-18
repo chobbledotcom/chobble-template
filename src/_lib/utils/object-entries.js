@@ -136,6 +136,7 @@ const fromPairs = (pairs) => Object.fromEntries(pairs);
 export {
   mapEntries,
   everyEntry,
+  mapObject,
   mapBoth,
   pickTruthy,
   pickNonNull,
