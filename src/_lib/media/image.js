@@ -35,8 +35,8 @@ import {
   normalizeImagePath,
   parseWidths,
 } from "#media/image-utils.js";
+import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
-import { jsonKey, memoize } from "#utils/memoize.js";
 
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 

@@ -5,13 +5,7 @@
  * Logic lives here; HTML markup lives in area-list.html template.
  */
 
-import {
-  filter,
-  listSeparator,
-  map,
-  pipe,
-  sortBy,
-} from "#utils/array-utils.js";
+import { filter, listSeparator, map, pipe, sortBy } from "#toolkit/fp/array.js";
 
 const navKey = (loc) => loc.data?.eleventyNavigation?.key || "";
 

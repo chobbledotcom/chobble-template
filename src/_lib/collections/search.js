@@ -1,6 +1,6 @@
-import { map, pipe, unique } from "#utils/array-utils.js";
-import { buildReverseIndex } from "#utils/grouping.js";
-import { memoize } from "#utils/memoize.js";
+import { map, pipe, unique } from "#toolkit/fp/array.js";
+import { buildReverseIndex } from "#toolkit/fp/grouping.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 /**
  * Build a memoized reverse index: keyword -> [products]

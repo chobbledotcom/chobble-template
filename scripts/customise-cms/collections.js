@@ -12,7 +12,7 @@
  * - dependencies: Other collections this one requires
  */
 
-import { filter, unique } from "#utils/array-utils.js";
+import { filter, unique } from "#toolkit/fp/array.js";
 
 /**
  * @typedef {Object} CollectionDefinition

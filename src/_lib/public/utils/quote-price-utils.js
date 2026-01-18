@@ -13,7 +13,7 @@ import {
   pluralize,
   reduce,
   uniqueBy,
-} from "#utils/array-utils.js";
+} from "#toolkit/fp/array.js";
 
 const parsePrice = (priceStr) => {
   if (typeof priceStr === "number") return priceStr;

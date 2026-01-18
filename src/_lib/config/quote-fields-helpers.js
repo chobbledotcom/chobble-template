@@ -1,7 +1,7 @@
 // Quote fields processing helpers
 
 import { addFieldTemplates } from "#config/form-helpers.js";
-import { toObject } from "#utils/object-entries.js";
+import { toObject } from "#toolkit/fp/object.js";
 
 export function buildSections(sections) {
   return sections.map((section, index) => ({

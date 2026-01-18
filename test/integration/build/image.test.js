@@ -7,7 +7,7 @@ import {
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
-import { map } from "#utils/array-utils.js";
+import { map } from "#toolkit/fp/array.js";
 
 // ============================================
 // Functional Test Fixture Builders

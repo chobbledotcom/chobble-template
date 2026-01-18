@@ -10,6 +10,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
+import { data, map, toData } from "#toolkit/fp/array.js";
 import {
   expectArrayProp,
   expectAsyncThrows,
@@ -24,7 +25,6 @@ import {
   memoizedFileGetter,
   getFiles as toolkitGetFiles,
 } from "#toolkit/test-utils/code-analysis.js";
-
 import {
   captureConsole,
   captureConsoleLogAsync,
@@ -44,7 +44,6 @@ import {
   withSubDir,
   withSubDirAsync,
 } from "#toolkit/test-utils/resource.js";
-import { data, map, toData } from "#utils/array-utils.js";
 
 // ============================================
 // Project-specific path utilities

@@ -95,7 +95,7 @@ The file `test/code-quality/code-quality-exceptions.js` contains ONLY grandfathe
 
 ### 1. Array.push() violations
 - Replace with: `[...array, newItem]`, `array.concat(newItem)`, or `accumulate()` helper
-- In reduce: Use `accumulate((acc, item) => [...acc, transformed])` from #utils/array-utils.js
+- In reduce: Use `accumulate((acc, item) => [...acc, transformed])` from #toolkit/fp/array.js
 
 ### 2. Let declarations
 - Convert to const with functional patterns
@@ -137,7 +137,7 @@ bun test test/unit/code-quality/let-usage.test.js
 
 ## Functional Utilities Available
 
-Import from `#utils/array-utils.js`:
+Import from `#toolkit/fp/array.js`:
 - `pipe(...fns)` - Compose functions left-to-right
 - `filter(predicate)`, `map(fn)`, `reduce(fn, initial)` - Curried array methods
 - `accumulate(fn)` - Safe array building in reduce (O(1) amortized)

@@ -7,7 +7,7 @@ import {
   pickNonNull,
   pickTruthy,
   toObject,
-} from "#utils/object-entries.js";
+} from "#toolkit/fp/object.js";
 
 describe("object-entries utilities", () => {
   const testObj = { a: 1, b: 2, c: 3 };

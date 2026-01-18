@@ -1,4 +1,4 @@
-import { pick } from "#utils/array-utils.js";
+import { pick } from "#toolkit/fp/array.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 export default {

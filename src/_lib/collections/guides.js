@@ -1,4 +1,4 @@
-import { groupByWithCache } from "#utils/memoize.js";
+import { groupByWithCache } from "#toolkit/fp/memoize.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
 const indexByGuideCategory = groupByWithCache((page) => {

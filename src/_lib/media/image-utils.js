@@ -4,7 +4,7 @@
  * Helpers for image path normalization, URL detection, and attribute building.
  * Extracted to reduce complexity in image.js and provide reusable utilities.
  */
-import { compact } from "#utils/array-utils.js";
+import { compact } from "#toolkit/fp/array.js";
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
 const DEFAULT_SIZE = "auto";

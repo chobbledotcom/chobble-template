@@ -104,7 +104,7 @@ The codebase uses curried, composable functions extensively:
 
 ```javascript
 // Use pipe() for function composition
-import { pipe, filter, map, sort } from "#utils/array-utils.js";
+import { pipe, filter, map, sort } from "#toolkit/fp/array.js";
 
 pipe(
   filter(x => x > 0),
@@ -127,7 +127,7 @@ const expensiveComputation = memoize(
 );
 ```
 
-### Available Array Utilities (`#utils/array-utils.js`)
+### Available Array Utilities (`#toolkit/fp/array.js`)
 - `pipe(...fns)` - Left-to-right function composition
 - `filter(predicate)`, `map(fn)`, `flatMap(fn)`, `reduce(fn, initial)` - Curried array methods
 - `sort(comparator)` - Non-mutating sort

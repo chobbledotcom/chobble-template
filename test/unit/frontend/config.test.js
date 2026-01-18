@@ -6,7 +6,7 @@ import {
   getProducts,
 } from "#config/helpers.js";
 import { expectObjectProps } from "#test/test-utils.js";
-import { pickNonNull } from "#utils/object-entries.js";
+import { pickNonNull } from "#toolkit/fp/object.js";
 
 describe("config", () => {
   test("DEFAULTS has all expected keys", () => {

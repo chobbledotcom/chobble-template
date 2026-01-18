@@ -23,7 +23,7 @@ import {
   getAllFilterAttributes,
   getItemsByFilters,
 } from "#filters/item-filters.js";
-import { groupByWithCache } from "#utils/memoize.js";
+import { groupByWithCache } from "#toolkit/fp/memoize.js";
 
 /**
  * Index filtered pages by categorySlug for O(1) lookups.

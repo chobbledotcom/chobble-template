@@ -14,7 +14,7 @@ import {
   pipe,
   sort,
   toData,
-} from "#utils/array-utils.js";
+} from "#toolkit/fp/array.js";
 
 describe("array-utils", () => {
   // ============================================

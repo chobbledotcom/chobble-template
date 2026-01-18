@@ -13,7 +13,7 @@ import {
   updateStepProgress,
 } from "#public/ui/quote-steps-progress.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { filter, map, pipe, uniqueBy } from "#utils/array-utils.js";
+import { filter, map, pipe, uniqueBy } from "#toolkit/fp/array.js";
 
 function getFieldLabel(fieldId) {
   const label = document.querySelector(`label[for="${fieldId}"]`);

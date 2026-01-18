@@ -8,7 +8,7 @@ import {
   getFormTarget,
   getProducts,
 } from "#config/helpers.js";
-import { pickNonNull } from "#utils/object-entries.js";
+import { pickNonNull } from "#toolkit/fp/object.js";
 import configData from "./config.json" with { type: "json" };
 
 const products = { ...DEFAULT_PRODUCT_DATA, ...getProducts(configData) };

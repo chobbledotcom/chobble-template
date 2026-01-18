@@ -18,12 +18,16 @@ import {
   map,
   pipe,
   sort,
-} from "#utils/array-utils.js";
-import { buildFirstOccurrenceLookup, groupValuesBy } from "#utils/grouping.js";
-import { memoize } from "#utils/memoize.js";
-import { everyEntry, mapBoth, mapEntries } from "#utils/object-entries.js";
+} from "#toolkit/fp/array.js";
+import {
+  buildFirstOccurrenceLookup,
+  groupValuesBy,
+} from "#toolkit/fp/grouping.js";
+import { memoize } from "#toolkit/fp/memoize.js";
+import { everyEntry, mapBoth, mapEntries } from "#toolkit/fp/object.js";
+import { compareStrings } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
-import { compareStrings, sortItems } from "#utils/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 /** @typedef {import("#lib/types").FilterAttribute} FilterAttribute */
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */

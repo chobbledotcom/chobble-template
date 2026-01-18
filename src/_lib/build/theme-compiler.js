@@ -13,8 +13,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { exclude, filter, map, pipe, sortBy } from "#utils/array-utils.js";
-import { memoize } from "#utils/memoize.js";
+import { exclude, filter, map, pipe, sortBy } from "#toolkit/fp/array.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
 const THEMES_DIR = path.resolve("src/css");

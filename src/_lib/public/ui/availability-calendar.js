@@ -6,7 +6,7 @@ import { fetchJson } from "#public/utils/http.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { IDS } from "#public/utils/selectors.js";
 import { getTemplate } from "#public/utils/template.js";
-import { memberOf } from "#utils/array-utils.js";
+import { memberOf } from "#toolkit/fp/array.js";
 
 const MONTHS = [
   "January",

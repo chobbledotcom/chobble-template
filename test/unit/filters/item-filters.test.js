@@ -6,7 +6,7 @@ import {
   expectObjectProps,
   expectResultTitles,
 } from "#test/test-utils.js";
-import { map, pipe, reduce } from "#utils/array-utils.js";
+import { map, pipe, reduce } from "#toolkit/fp/array.js";
 
 // ============================================
 // Functional Test Fixture Builders

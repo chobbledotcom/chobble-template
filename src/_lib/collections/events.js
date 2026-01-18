@@ -1,7 +1,8 @@
-import { pipe, sort } from "#utils/array-utils.js";
-import { groupBy } from "#utils/grouping.js";
-import { memoize } from "#utils/memoize.js";
-import { compareBy, descending, sortItems } from "#utils/sorting.js";
+import { pipe, sort } from "#toolkit/fp/array.js";
+import { groupBy } from "#toolkit/fp/grouping.js";
+import { memoize } from "#toolkit/fp/memoize.js";
+import { compareBy, descending } from "#toolkit/fp/sorting.js";
+import { sortItems } from "#utils/sorting.js";
 
 const byEventDate = compareBy((e) => new Date(e.data.event_date).getTime());
 

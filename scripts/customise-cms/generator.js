@@ -27,7 +27,7 @@ import {
   filterMap,
   memberOf,
   pipe,
-} from "#utils/array-utils.js";
+} from "#toolkit/fp/array.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig

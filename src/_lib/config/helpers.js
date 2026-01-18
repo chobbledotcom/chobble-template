@@ -1,4 +1,4 @@
-import { pickTruthy } from "#utils/object-entries.js";
+import { pickTruthy } from "#toolkit/fp/object.js";
 
 const DEFAULTS = {
   sticky_mobile_nav: true,

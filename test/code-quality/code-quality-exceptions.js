@@ -77,7 +77,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:115", // createExtractor accumulates results in a Set
+  "test/test-utils.js:114", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -218,11 +218,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
-
-  // Curried data transforms - designed for test fixtures but exported from production
-  // for reuse across test files.
-  "src/_lib/utils/array-utils.js:data",
-  "src/_lib/utils/array-utils.js:toData",
 ]);
 
 // ============================================
@@ -235,10 +230,10 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = new Set([
   // Infrastructure: DOM class definition
-  "test/test-utils.js:142",
+  "test/test-utils.js:154",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:327",
+  "test/test-site-factory.js:331",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:41",

@@ -7,7 +7,7 @@
  */
 import slugify from "@sindresorhus/slugify";
 
-import { join, map, pipe, split } from "#utils/array-utils.js";
+import { join, map, pipe, split } from "#toolkit/fp/array.js";
 
 /**
  * @typedef {Object} PageData

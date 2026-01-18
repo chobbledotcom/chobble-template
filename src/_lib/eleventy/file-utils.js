@@ -4,7 +4,7 @@ import matter from "gray-matter";
 import markdownIt from "markdown-it";
 import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
 import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
-import { memoize } from "#utils/memoize.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 const cacheKeyFromArgs = (args) => args.join(",");
 

@@ -1,8 +1,8 @@
+import { memoize } from "#toolkit/fp/memoize.js";
 import {
   createTemplateLoader,
   createTemplateRenderer,
 } from "#utils/liquid-render.js";
-import { memoize } from "#utils/memoize.js";
 
 const getTemplate = createTemplateLoader("opening-times.html");
 

@@ -3,9 +3,9 @@
  */
 
 import configModule from "#data/config.js";
-import { compact } from "#utils/array-utils.js";
+import { compact } from "#toolkit/fp/array.js";
+import { indexBy, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
-import { indexBy, memoize } from "#utils/memoize.js";
 
 const getConfig = memoize(configModule);
 

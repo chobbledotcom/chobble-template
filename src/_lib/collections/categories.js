@@ -1,4 +1,4 @@
-import { flatMap, pipe, reduce } from "#utils/array-utils.js";
+import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 
 /**
  * Build a map of category slugs to property values, preferring highest order

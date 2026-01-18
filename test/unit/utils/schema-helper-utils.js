@@ -3,7 +3,7 @@
  * Shared test utilities for schema-helper.test.js
  */
 
-import { filterMap, map } from "#utils/array-utils.js";
+import { filterMap, map } from "#toolkit/fp/array.js";
 
 /**
  * Create a curried optional property adder

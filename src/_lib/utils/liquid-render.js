@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Liquid } from "liquidjs";
 import { SRC_DIR } from "#lib/paths.js";
-import { memoize } from "#utils/memoize.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 const liquid = new Liquid();
 

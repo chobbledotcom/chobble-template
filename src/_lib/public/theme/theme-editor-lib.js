@@ -26,8 +26,8 @@ import {
   map,
   pipe,
   split,
-} from "#utils/array-utils.js";
-import { fromPairs } from "#utils/object-entries.js";
+} from "#toolkit/fp/array.js";
+import { fromPairs } from "#toolkit/fp/object.js";
 
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 
