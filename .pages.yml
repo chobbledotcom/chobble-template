@@ -22,15 +22,11 @@ content:
       sort:
         - meta_title
     exclude:
-      - services.md
       - about.md
+      - services.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -108,11 +104,7 @@ content:
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -146,12 +138,7 @@ content:
         fields:
           - { name: title, type: string, label: Title, required: true }
           - { name: image, type: image, label: Image }
-          - name: body
-            label: Body
-            type: code
-            options:
-              language: markdown
-            required: true
+          - { name: body, label: Body, type: rich-text, required: true }
   - name: categories
     label: Categories
     path: src/categories
@@ -161,11 +148,7 @@ content:
     fields:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: featured, type: boolean, label: Featured }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
@@ -205,11 +188,7 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: subtitle, type: string, label: Subtitle }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -260,11 +239,7 @@ content:
         type: string
         label: Map Embed URL
         required: false
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -295,11 +270,7 @@ content:
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: snippet, type: string, label: Role }
       - { name: image, type: image, label: Profile Image }
-      - name: body
-        label: Biography
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Biography, type: rich-text }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -324,11 +295,7 @@ content:
       - { name: url, type: string, label: URL }
       - { name: rating, type: number, label: Rating }
       - { name: thumbnail, type: image, label: Reviewer Photo }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - name: products
         label: Products
         type: reference
@@ -375,11 +342,7 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -435,11 +398,7 @@ content:
       - { name: sleeps, type: number, label: Sleeps }
       - { name: price_per_night, type: number, label: Price Per Night }
       - { name: features, type: string, label: Features, list: true }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -473,12 +432,7 @@ content:
         fields:
           - { name: title, type: string, label: Title, required: true }
           - { name: image, type: image, label: Image }
-          - name: body
-            label: Body
-            type: code
-            options:
-              language: markdown
-            required: true
+          - { name: body, label: Body, type: rich-text, required: true }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -490,11 +444,7 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: order, type: number, label: Order }
       - { name: icon, type: image, label: Icon }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -523,11 +473,7 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: order, type: number, label: Order }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -552,11 +498,7 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -594,11 +536,7 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -634,11 +572,7 @@ content:
           value: "{path}"
           label: "{name}"
       - { name: description, type: string, label: Description }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -661,11 +595,40 @@ content:
     filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
+  - name: page-about
+    label: About Page
+    type: file
+    path: src/pages/about.md
+    fields:
+      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
+      - name: meta_description
+        type: string
+        label: Meta Description
+        maxlength: 155
+      - name: blocks
+        label: Content Blocks
+        type: object
+        list: true
+        fields:
+          - name: type
+            type: string
+            label: Block Type
+            default: section-header
+          - { name: title, type: string, label: Title, required: true }
+          - { name: subtitle, type: string, label: Subtitle }
+          - name: items
+            type: object
+            label: Features
+            list: true
+            fields:
+              - { name: icon, type: string, label: Icon (HTML entity) }
+              - { name: title, type: string, label: Title, required: true }
+              - name: description
+                type: string
+                label: Description
+                required: true
+      - { name: body, label: Body, type: rich-text }
   - name: page-services
     label: Services Page
     type: file
@@ -700,48 +663,7 @@ content:
                 required: true
           - { name: filename, type: string, label: Filename, required: true }
           - { name: code, type: string, label: Code, required: true }
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
-  - name: page-about
-    label: About Page
-    type: file
-    path: src/pages/about.md
-    fields:
-      - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
-      - name: meta_description
-        type: string
-        label: Meta Description
-        maxlength: 155
-      - name: blocks
-        label: Content Blocks
-        type: object
-        list: true
-        fields:
-          - name: type
-            type: string
-            label: Block Type
-            default: section-header
-          - { name: title, type: string, label: Title, required: true }
-          - { name: subtitle, type: string, label: Subtitle }
-          - name: items
-            type: object
-            label: Features
-            list: true
-            fields:
-              - { name: icon, type: string, label: Icon (HTML entity) }
-              - { name: title, type: string, label: Title, required: true }
-              - name: description
-                type: string
-                label: Description
-                required: true
-      - name: body
-        label: Body
-        type: code
-        options:
-          language: markdown
+      - { name: body, label: Body, type: rich-text }
   - name: homepage
     label: Homepage Settings
     type: file

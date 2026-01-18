@@ -10,7 +10,6 @@ import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
-  createBodyField,
   createEleventyNavigationField,
   createObjectListField,
   createReferenceField,
@@ -44,6 +43,27 @@ import {
 const META_FIELDS = [COMMON_FIELDS.meta_title, COMMON_FIELDS.meta_description];
 
 /**
+ * @typedef {Object} FieldContext
+ * @property {CmsField} body - Body field (code or rich-text based on config)
+ * @property {CmsField} tabs - Tabs field with appropriate body type
+ * @property {(label: string) => CmsField} bodyWithLabel - Create body field with custom label
+ */
+
+/**
+ * Create precomputed fields based on visual editor setting
+ * @param {boolean} useVisualEditor - Whether to use rich-text editor
+ * @returns {FieldContext} Precomputed field context
+ */
+const createFieldContext = (useVisualEditor) => {
+  const body = getBodyField(useVisualEditor);
+  return {
+    body,
+    tabs: createTabsField(useVisualEditor),
+    bodyWithLabel: (label) => ({ ...body, label }),
+  };
+};
+
+/**
  * Get optional header fields based on config
  * @param {CmsConfig} config - CMS configuration
  * @returns {(false | CmsField)[]} Header fields or false values to be compacted
@@ -56,21 +76,21 @@ const getHeaderFields = (config) => [
 /**
  * Get common trailing content fields (subtitle, body, header_text, meta)
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {(false | CmsField)[]} Content fields with optional header_text
  */
-const getContentFields = (config) => [
+const getContentFields = (config, fields) => [
   COMMON_FIELDS.subtitle,
-  getBodyField(config.features.use_visual_editor),
+  fields.body,
   config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
 ];
 
 /**
  * Top of every item: title, subtitle, thumbnail, order
- * @param {CmsConfig} _config - unused for now, but here for future flexibility
  * @returns {CmsField[]}
  */
-const getItemTop = (_config) => [
+const getItemTop = () => [
   COMMON_FIELDS.title,
   COMMON_FIELDS.subtitle,
   COMMON_FIELDS.thumbnail,
@@ -80,10 +100,11 @@ const getItemTop = (_config) => [
 /**
  * Bottom of every item: body, header_image, header_text (if enabled), meta
  * @param {CmsConfig} config
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {(false | CmsField)[]}
  */
-const getItemBottom = (config) => [
-  getBodyField(config.features.use_visual_editor),
+const getItemBottom = (config, fields) => [
+  fields.body,
   config.features.header_images && COMMON_FIELDS.header_image,
   config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
@@ -99,14 +120,14 @@ const withEnabled = (buildFn) => (config) =>
 
 /**
  * Build fields for an item (top, [middle], bottom)
- * @param {(enabled: (name: string) => boolean, config: CmsConfig) => (false | CmsField)[]} middle
- * @returns {(config: CmsConfig) => CmsField[]}
+ * @param {(enabled: (name: string) => boolean) => (false | CmsField)[]} middle
+ * @returns {(config: CmsConfig, fields: FieldContext) => CmsField[]}
  */
-const buildItem = (middle) => (config) =>
+const buildItem = (middle) => (config, fields) =>
   withEnabled((enabled) => [
-    ...getItemTop(config),
-    ...middle(enabled, config),
-    ...getItemBottom(config),
+    ...getItemTop(),
+    ...middle(enabled),
+    ...getItemBottom(config, fields),
   ])(config);
 
 /**
@@ -147,11 +168,12 @@ const withHeaderFields = (config, ...fields) =>
     : [];
 
 /**
- * Field builders for each collection type - functions that accept config
+ * Field builders for each collection type - functions that accept config and fields
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {Record<string, () => CmsField[]>} Map of collection names to field builder functions
  */
-const getCollectionFieldBuilders = (config) => ({
+const getCollectionFieldBuilders = (config, fields) => ({
   pages: () => [
     ...withHeaderFields(
       config,
@@ -159,7 +181,7 @@ const getCollectionFieldBuilders = (config) => ({
       COMMON_FIELDS.header_text,
     ),
     COMMON_FIELDS.subtitle,
-    getBodyField(config.features.use_visual_editor),
+    fields.body,
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     createEleventyNavigationField(config.features.external_navigation_urls),
@@ -170,7 +192,7 @@ const getCollectionFieldBuilders = (config) => ({
     compact([
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
-      getBodyField(config.features.use_visual_editor),
+      fields.body,
       COMMON_FIELDS.featured,
       ...getHeaderFields(config),
       ...META_FIELDS,
@@ -184,7 +206,7 @@ const getCollectionFieldBuilders = (config) => ({
       { name: "snippet", type: "string", label: "Role" },
       { name: "image", type: "image", label: "Profile Image" },
       config.features.header_images && COMMON_FIELDS.header_image,
-      createBodyField("Biography", config.features.use_visual_editor),
+      fields.bodyWithLabel("Biography"),
     ]),
 
   "guide-categories": () => [
@@ -192,63 +214,72 @@ const getCollectionFieldBuilders = (config) => ({
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.order,
     { name: "icon", type: "image", label: "Icon" },
-    getBodyField(config.features.use_visual_editor),
+    fields.body,
   ],
 
-  snippets: () => [
-    COMMON_FIELDS.name,
-    getBodyField(config.features.use_visual_editor),
-  ],
+  snippets: () => [COMMON_FIELDS.name, fields.body],
 
-  menus: () => compact([...getItemTop(config), ...getItemBottom(config)]),
+  menus: () => compact([...getItemTop(), ...getItemBottom(config, fields)]),
 });
 
 /**
  * Build fields for the news collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} News collection fields
  */
-const buildNewsFields = (config) =>
+const buildNewsFields = (config, fields) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.title,
     config.features.header_images && COMMON_FIELDS.header_image,
     { name: "date", label: "Date", type: "date" },
     enabled("team") &&
       createReferenceField("author", "Author", "team", "title", false),
-    ...getContentFields(config),
+    ...getContentFields(config, fields),
   ])(config);
+
+/**
+ * Create a categories reference field predicate
+ * @param {(name: string) => boolean} enabled - Collection enablement checker
+ * @returns {false | CmsField} Categories reference field or false
+ */
+const categoriesRef = (enabled) =>
+  enabled("categories") &&
+  createReferenceField("categories", "Categories", "categories");
 
 /**
  * Build fields for the products collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Products collection fields
  */
-const buildProductsFields = buildItem((enabled, config) => [
-  enabled("categories") &&
-    createReferenceField("categories", "Categories", "categories"),
-  enabled("events") && createReferenceField("events", "Events", "events"),
-  PRODUCT_OPTIONS_FIELD,
-  config.features.external_purchases && {
-    name: "purchase_url",
-    label: "Purchase URL",
-    type: "string",
-  },
-  config.features.features && FEATURES_FIELD,
-  FILTER_ATTRIBUTES_FIELD,
-]);
+const buildProductsFields = (config, fields) =>
+  buildItem((enabled) => [
+    categoriesRef(enabled),
+    enabled("events") && createReferenceField("events", "Events", "events"),
+    PRODUCT_OPTIONS_FIELD,
+    config.features.external_purchases && {
+      name: "purchase_url",
+      label: "Purchase URL",
+      type: "string",
+    },
+    config.features.features && FEATURES_FIELD,
+    FILTER_ATTRIBUTES_FIELD,
+  ])(config, fields);
 
 /**
  * Build fields for the reviews collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Reviews collection fields
  */
-const buildReviewsFields = (config) =>
+const buildReviewsFields = (config, fields) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.name,
     { name: "url", type: "string", label: "URL" },
     { name: "rating", type: "number", label: "Rating" },
     { name: "thumbnail", type: "image", label: "Reviewer Photo" },
-    getBodyField(config.features.use_visual_editor),
+    fields.body,
     enabled("products") &&
       createReferenceField("products", "Products", "products"),
   ])(config);
@@ -256,80 +287,85 @@ const buildReviewsFields = (config) =>
 /**
  * Build fields for the events collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Events collection fields
  */
-const buildEventsFields = buildItem((_, config) => [
-  config.features.event_locations_and_dates && {
-    name: "event_date",
-    label: "Event Date",
-    type: "date",
-    required: false,
-  },
-  config.features.event_locations_and_dates && {
-    name: "recurring_date",
-    type: "string",
-    label: 'Recurring Date (e.g. "Every Friday at 2 PM")',
-    required: false,
-  },
-  config.features.event_locations_and_dates && {
-    name: "event_location",
-    type: "string",
-    label: "Event Location",
-  },
-  config.features.event_locations_and_dates && {
-    name: "map_embed_src",
-    type: "string",
-    label: "Map Embed URL",
-    required: false,
-  },
-]);
+const buildEventsFields = (config, fields) =>
+  buildItem(() => [
+    config.features.event_locations_and_dates && {
+      name: "event_date",
+      label: "Event Date",
+      type: "date",
+      required: false,
+    },
+    config.features.event_locations_and_dates && {
+      name: "recurring_date",
+      type: "string",
+      label: 'Recurring Date (e.g. "Every Friday at 2 PM")',
+      required: false,
+    },
+    config.features.event_locations_and_dates && {
+      name: "event_location",
+      type: "string",
+      label: "Event Location",
+    },
+    config.features.event_locations_and_dates && {
+      name: "map_embed_src",
+      type: "string",
+      label: "Map Embed URL",
+      required: false,
+    },
+  ])(config, fields);
 
 /**
  * Build fields for the locations collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Locations collection fields
  */
-const buildLocationsFields = buildItem((enabled) => [
-  enabled("categories") &&
-    createReferenceField("categories", "Categories", "categories"),
-]);
+const buildLocationsFields = (config, fields) =>
+  buildItem((enabled) => [categoriesRef(enabled)])(config, fields);
 
 /**
  * Build fields for the properties collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Properties collection fields
  */
-const buildPropertiesFields = buildItem((enabled, config) => [
-  COMMON_FIELDS.featured,
-  enabled("locations") &&
-    createReferenceField("locations", "Locations", "locations"),
-  { name: "bedrooms", type: "number", label: "Bedrooms" },
-  { name: "bathrooms", type: "number", label: "Bathrooms" },
-  { name: "sleeps", type: "number", label: "Sleeps" },
-  { name: "price_per_night", type: "number", label: "Price Per Night" },
-  config.features.features && FEATURES_FIELD,
-]);
+const buildPropertiesFields = (config, fields) =>
+  buildItem((enabled) => [
+    COMMON_FIELDS.featured,
+    enabled("locations") &&
+      createReferenceField("locations", "Locations", "locations"),
+    { name: "bedrooms", type: "number", label: "Bedrooms" },
+    { name: "bathrooms", type: "number", label: "Bathrooms" },
+    { name: "sleeps", type: "number", label: "Sleeps" },
+    { name: "price_per_night", type: "number", label: "Price Per Night" },
+    config.features.features && FEATURES_FIELD,
+  ])(config, fields);
 
 /**
  * Build fields for the menu-categories collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Menu categories collection fields
  */
-const buildMenuCategoriesFields = (config) =>
+const buildMenuCategoriesFields = (config, fields) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.order,
     enabled("menus") && createReferenceField("menus", "Menus", "menus"),
-    getBodyField(config.features.use_visual_editor),
+    fields.body,
   ])(config);
 
 /**
  * Build fields for the menu-items collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Menu items collection fields
  */
-const buildMenuItemsFields = (config) =>
+const buildMenuItemsFields = (config, fields) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.thumbnail,
@@ -344,15 +380,16 @@ const buildMenuItemsFields = (config) =>
         "name",
       ),
     { name: "description", type: "string", label: "Description" },
-    getBodyField(config.features.use_visual_editor),
+    fields.body,
   ])(config);
 
 /**
  * Build fields for the guide-pages collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Guide pages collection fields
  */
-const buildGuidePagesFields = (config) =>
+const buildGuidePagesFields = (config, fields) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.title,
     COMMON_FIELDS.subtitle,
@@ -365,17 +402,18 @@ const buildGuidePagesFields = (config) =>
         false,
       ),
     COMMON_FIELDS.order,
-    getBodyField(config.features.use_visual_editor),
+    fields.body,
   ])(config);
 
 /**
  * Get core fields for a collection
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Core fields for the collection
  */
-const getCoreFields = (collectionName, config) => {
-  const builders = getCollectionFieldBuilders(config);
+const getCoreFields = (collectionName, config, fields) => {
+  const builders = getCollectionFieldBuilders(config, fields);
   const staticBuilder = builders[collectionName];
   if (staticBuilder) return staticBuilder();
 
@@ -392,29 +430,34 @@ const getCoreFields = (collectionName, config) => {
   };
 
   const builder = dynamicBuilders[collectionName];
-  return builder ? builder(config) : [];
+  return builder ? builder(config, fields) : [];
 };
 
 /**
  * Add optional fields based on configuration
- * @param {CmsField[]} fields - Existing fields
+ * @param {CmsField[]} coreFields - Existing fields
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CmsField[]} Fields with optional fields added
  */
-const addOptionalFields = (fields, collectionName, config) => {
-  if (collectionName === "snippets") return fields;
+const addOptionalFields = (
+  coreFields,
+  collectionName,
+  config,
+  fieldContext,
+) => {
+  if (collectionName === "snippets") return coreFields;
 
   const collection = getCollection(collectionName);
   return compact([
-    ...fields,
+    ...coreFields,
     config.features.permalinks && COMMON_FIELDS.permalink,
     config.features.redirects && COMMON_FIELDS.redirect_from,
     config.features.faqs && FAQS_FIELD,
     config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
     config.features.specs && collection.supportsSpecs && SPECS_FIELD,
-    collection.supportsTabs &&
-      createTabsField(config.features.use_visual_editor),
+    collection.supportsTabs && fieldContext.tabs,
   ]);
 };
 
@@ -422,11 +465,12 @@ const addOptionalFields = (fields, collectionName, config) => {
  * Build all fields for a collection
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CmsField[]} Complete field configuration for the collection
  */
-const buildCollectionFields = (collectionName, config) => {
-  const fields = getCoreFields(collectionName, config);
-  return addOptionalFields(fields, collectionName, config);
+const buildCollectionFields = (collectionName, config, fieldContext) => {
+  const coreFields = getCoreFields(collectionName, config, fieldContext);
+  return addOptionalFields(coreFields, collectionName, config, fieldContext);
 };
 
 /**
@@ -505,16 +549,21 @@ const getRawViewConfigs = (_config) => ({
  * Get validated view configuration for a collection
  * @param {string} collectionName - Name of the collection
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {ViewConfig | undefined} Validated view configuration or undefined
  */
-const getValidatedViewConfig = (collectionName, config) => {
+const getValidatedViewConfig = (collectionName, config, fieldContext) => {
   const rawConfigs = getRawViewConfigs(config);
   const rawConfig = rawConfigs[collectionName];
 
   if (!rawConfig) return undefined;
 
-  const fields = buildCollectionFields(collectionName, config);
-  const availableFieldNames = extractFieldNames(fields);
+  const collectionFields = buildCollectionFields(
+    collectionName,
+    config,
+    fieldContext,
+  );
+  const availableFieldNames = extractFieldNames(collectionFields);
 
   return createValidatedViewConfig(rawConfig, availableFieldNames);
 };
@@ -551,9 +600,10 @@ const getDataPath = (hasSrcFolder) => (hasSrcFolder ? "src/_data" : "_data");
  * Generate configuration for a single collection
  * @param {string} collectionName - Name of the collection (must exist in COLLECTIONS)
  * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CollectionConfig} Collection configuration
  */
-const generateCollectionConfig = (collectionName, config) => {
+const generateCollectionConfig = (collectionName, config, fieldContext) => {
   const collection = getCollection(collectionName, config.hasSrcFolder);
 
   const collectionConfig = {
@@ -568,7 +618,11 @@ const generateCollectionConfig = (collectionName, config) => {
     collectionConfig.filename = "{primary}.md";
   }
 
-  const viewConfig = getValidatedViewConfig(collectionName, config);
+  const viewConfig = getValidatedViewConfig(
+    collectionName,
+    config,
+    fieldContext,
+  );
   if (viewConfig) {
     collectionConfig.view = viewConfig;
   }
@@ -580,7 +634,11 @@ const generateCollectionConfig = (collectionName, config) => {
     }
   }
 
-  collectionConfig.fields = buildCollectionFields(collectionName, config);
+  collectionConfig.fields = buildCollectionFields(
+    collectionName,
+    config,
+    fieldContext,
+  );
 
   return collectionConfig;
 };
@@ -822,10 +880,10 @@ const generateBlocksField = (schema) => ({
  * Edits the markdown file's front matter blocks, using schema from JSON
  * @param {string} slug - Page slug
  * @param {object} schema - Layout schema
- * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {object} Collection configuration for this page layout
  */
-const generatePageLayoutConfig = (slug, schema, config) => ({
+const generatePageLayoutConfig = (slug, schema, fieldContext) => ({
   name: `page-${slug}`,
   label: schema.label,
   type: "file",
@@ -834,7 +892,7 @@ const generatePageLayoutConfig = (slug, schema, config) => ({
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     generateBlocksField(schema),
-    getBodyField(config.features.use_visual_editor),
+    fieldContext.body,
   ],
 });
 
@@ -844,9 +902,12 @@ const generatePageLayoutConfig = (slug, schema, config) => ({
  * @returns {string} YAML string for .pages.yml
  */
 export const generatePagesYaml = (config) => {
+  // Create field context once - precomputes body and tabs fields based on visual editor setting
+  const fieldContext = createFieldContext(config.features.use_visual_editor);
+
   const collectionConfigs = filterMap(
     (name) => getCollection(name),
-    (name) => generateCollectionConfig(name, config),
+    (name) => generateCollectionConfig(name, config, fieldContext),
   )(config.collections);
 
   const hasSrcFolder = config.hasSrcFolder ?? true;
@@ -857,7 +918,7 @@ export const generatePagesYaml = (config) => {
   // Load page layout schemas and generate their configs
   const pageLayoutSchemas = getPageLayoutSchemas();
   const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
-    generatePageLayoutConfig(slug, schema, config),
+    generatePageLayoutConfig(slug, schema, fieldContext),
   );
 
   // Build content array, conditionally including homepage
