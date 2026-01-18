@@ -12,6 +12,7 @@
 		"#eleventy/*": "./src/_lib/eleventy/*",
 		"#build/*": "./src/_lib/build/*",
 		"#media/*": "./src/_lib/media/*",
+		"#transforms/*": "./src/_lib/transforms/*",
 		"#utils/*": "./src/_lib/utils/*",
 		"#public/*": "./src/_lib/public/*",
 		"#test/*": "./test/*",

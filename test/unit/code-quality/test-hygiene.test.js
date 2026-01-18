@@ -79,11 +79,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "mockConfig",
   // item-filters.test.js - test setup helper with collection accessors
   "setupConfig",
-  // external-links.test.js - getter helpers following area-list.test.js pattern
-  "getTransform",
-  "getLinkifyUrlsTransform",
-  "getLinkifyEmailsTransform",
-  "getLinkifyPhonesTransform",
   // checkout.test.js - template rendering and mocks
   "renderTemplate",
   "createCheckoutPage",
@@ -92,8 +87,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "fetchMock",
   "createLocationTracker",
   "withCheckoutMockStorage",
-  // responsive-tables.test.js - assertion helpers
-  "testScrollableTableCount",
+  // transforms/*.test.js - DOM transform test helpers
+  "transformHtml",
+  "countScrollableTables",
+  // html-transform.test.js - mock image processor
+  "mockImageProcessor",
+  // images.test.js - test helpers
+  "getImageOptions",
+  "createWrapper",
+  "expectSkipped",
   // autosizes.test.js - integration test helpers
   "testRemoteUrlNotProcessed",
   // code-scanner.test.js - matcher assertion helpers
@@ -157,8 +159,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "categorizedProducts",
   // area-list.test.js - filter setup helper
   "getAreaListFilter",
-  // external-links.test.js - filter setup helper
-  "getExternalLinksFilter",
   // Eleventy filter getter helpers - get filter via config registration
   "getCacheBustFilter",
   "getJsConfigFilter",

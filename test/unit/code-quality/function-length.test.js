@@ -19,6 +19,7 @@ const IGNORED_FUNCTIONS = new Set([
   "buildMenuPdfData", // PDF data structure with many fields
   "buildFilterUIData", // Complex filter UI data structure builder
   "registerTransforms", // Eleventy config registration with multiple transforms
+  "acceptNode", // Inline callback in tree walker (false positive)
 ]);
 
 // Test helper to join source code lines

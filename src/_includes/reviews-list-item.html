@@ -8,11 +8,7 @@
   <span class="review">{{ review.content }}</span>
   {%- if product_links and review.data.products.size > 0 -%}
     <span class="products">
-      {%- for slug in review.data.products -%}
-        {%- assign product = collections.products | where: "fileSlug", slug | first -%}
-        <a href="{{ product.url }}">{{ product.data.title }}</a>
-        {%- unless forloop.last -%}, {% endunless -%}
-      {%- endfor -%}
+      {{ review.data.products | linkList: collections.products }}
     </span>
   {%- endif -%}
   <div class="author-info">

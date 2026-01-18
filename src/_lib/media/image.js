@@ -2,9 +2,9 @@
  * Image processing for Eleventy - wraps eleventy-img with cropping and LQIP.
  *
  * Entry points:
- * - configureImages(): Registers Eleventy plugin with shortcode, transform, and collection
+ * - configureImages(): Registers Eleventy plugin with shortcode and collection
  * - imageShortcode(): Template shortcode for manual image processing
- * - createImageTransform(): Returns HTML transform that processes <img> elements
+ * - processAndWrapImage(): Main function for image processing (used by html-transform)
  *
  * Processing flow:
  * - processAndWrapImage(): Main function, handles external URLs with simple img tag
@@ -19,9 +19,14 @@ import fs from "node:fs";
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
-import { getEleventyImg, getThumbnailOrNull } from "#media/image-lqip.js";
+import {
+  extractLqipFromMetadata,
+  filterOutLqipFromMetadata,
+  getEleventyImg,
+  LQIP_WIDTH,
+  shouldGenerateLqip,
+} from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
-import { createImageTransform as createTransform } from "#media/image-transform.js";
 import {
   buildImgAttributes,
   buildWrapperStyles,
@@ -49,6 +54,10 @@ const DEFAULT_OPTIONS = {
  * 1. From image-transform.js via extractImageOptions: getAttribute("src") = string | null
  * 2. From imageShortcode: template string = string
  *
+ * Optimization: LQIP and responsive images are generated in a single eleventy-img call.
+ * The 32px thumbnail for LQIP is included in the widths array, then extracted from
+ * the resulting metadata and filtered out before generating HTML.
+ *
  * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<string>} Wrapped image HTML
  */
@@ -70,18 +79,39 @@ const computeWrappedImageHtml = memoize(
 
     const imgAttributes = buildImgAttributes({ alt, sizes, loading });
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
-    const { default: Image } = await getEleventyImg();
+    const { default: Image, generateHTML } = await getEleventyImg();
 
-    const [innerHTML, bgImage] = await Promise.all([
-      Image(finalPath, {
-        ...DEFAULT_OPTIONS,
-        widths: parseWidths(widths),
-        fixOrientation: true,
-        returnType: "html",
-        htmlOptions: { imgAttributes, pictureAttributes },
-      }),
-      getThumbnailOrNull(finalPath, metadata),
-    ]);
+    // Check if LQIP should be generated (skip for SVGs and small files)
+    const generateLqip = shouldGenerateLqip(finalPath, metadata);
+
+    // Include LQIP width in the main Image() call for single-pass processing
+    const requestedWidths = parseWidths(widths);
+    const allWidths = generateLqip
+      ? [LQIP_WIDTH, ...requestedWidths]
+      : requestedWidths;
+
+    // Single eleventy-img call generates all sizes at once
+    const imageMetadata = await Image(finalPath, {
+      ...DEFAULT_OPTIONS,
+      widths: allWidths,
+      fixOrientation: true,
+    });
+
+    // Extract LQIP from the 32px webp before filtering it out
+    const bgImage = generateLqip
+      ? extractLqipFromMetadata(imageMetadata)
+      : null;
+
+    // Filter out LQIP width from metadata so it doesn't appear in srcset
+    const htmlMetadata = generateLqip
+      ? filterOutLqipFromMetadata(imageMetadata)
+      : imageMetadata;
+
+    const innerHTML = generateHTML(
+      htmlMetadata,
+      imgAttributes,
+      pictureAttributes,
+    );
 
     return await createHtml(
       "div",
@@ -144,8 +174,6 @@ const processAndWrapImage = async ({
   return returnElement ? await parseHtml(html, document) : html;
 };
 
-const createImageTransform = () => createTransform(processAndWrapImage);
-
 const configureImages = async (eleventyConfig) => {
   const imageFiles = ["src/images/*.jpg"].flatMap((pattern) => [
     ...new Bun.Glob(pattern).scanSync("."),
@@ -155,7 +183,6 @@ const configureImages = async (eleventyConfig) => {
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
-  eleventyConfig.addTransform("processImages", createImageTransform());
   eleventyConfig.addCollection("images", () =>
     (imageFiles ?? []).map((i) => i.split("/")[2]).reverse(),
   );
@@ -196,4 +223,4 @@ const imageShortcode = async (
     returnElement: false,
   });
 
-export { createImageTransform, configureImages, imageShortcode };
+export { configureImages, imageShortcode, processAndWrapImage };
