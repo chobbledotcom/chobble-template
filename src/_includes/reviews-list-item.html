@@ -1,46 +1,48 @@
 <li>
   <span class="review">{{ review.content }}</span>
-  <span class="name">
-    {%- if review.data.thumbnail -%}
-      <img
-        src="{{ review.data.thumbnail }}"
-        alt=""
-        class="reviewer-avatar"
-        width="80"
-        height="80"
-        eleventy:widths="40,80"
-        loading="lazy"
-      >
-    {%- elsif review.data.name -%}
-      <img
-        src="{{ review.data.name | reviewerAvatar }}"
-        alt=""
-        class="reviewer-avatar"
-        width="80"
-        height="80"
-        loading="lazy"
-      >
-    {%- endif -%}
-    <span>
-      {{ review.data.name }}
-      {%- if review.data.url -%}
-        {%- assign link_text = "View review" -%}
-        {%- if review.data.url contains "google.com" -%}
-          {%- assign link_text = "View on Google" -%}
-        {%- elsif review.data.url contains "facebook.com" -%}
-          {%- assign link_text = "View on Facebook" -%}
-        {%- endif -%}
-        <br><a href="{{ review.data.url }}" target="_blank" rel="nofollow">{{ link_text }}</a>
+  <div class="meta">
+    <span class="name">
+      {%- if review.data.thumbnail -%}
+        <img
+          src="{{ review.data.thumbnail }}"
+          alt=""
+          class="reviewer-avatar"
+          width="80"
+          height="80"
+          eleventy:widths="40,80"
+          loading="lazy"
+        >
+      {%- elsif review.data.name -%}
+        <img
+          src="{{ review.data.name | reviewerAvatar }}"
+          alt=""
+          class="reviewer-avatar"
+          width="80"
+          height="80"
+          loading="lazy"
+        >
       {%- endif -%}
+      <span>
+        {{ review.data.name }}
+        {%- if review.data.url -%}
+          {%- assign link_text = "View review" -%}
+          {%- if review.data.url contains "google.com" -%}
+            {%- assign link_text = "View on Google" -%}
+          {%- elsif review.data.url contains "facebook.com" -%}
+            {%- assign link_text = "View on Facebook" -%}
+          {%- endif -%}
+          <br><a href="{{ review.data.url }}" target="_blank" rel="nofollow">{{ link_text }}</a>
+        {%- endif -%}
+      </span>
     </span>
-  </span>
-  {%- if review.data.rating -%}
-    <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">
-      {%- for i in (1..5) -%}
-        {%- if i <= review.data.rating -%}★{%- else -%}☆{%- endif -%}
-      {%- endfor -%}
-    </span>
-  {%- endif -%}
+    {%- if review.data.rating -%}
+      <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">
+        {%- for i in (1..5) -%}
+          {%- if i <= review.data.rating -%}★{%- else -%}☆{%- endif -%}
+        {%- endfor -%}
+      </span>
+    {%- endif -%}
+  </div>
   <span class="date">{{ review.page.date | date: "%b '%y" }}</span>
   {%- if product_links and review.data.products.size > 0 -%}
     <span class="products">

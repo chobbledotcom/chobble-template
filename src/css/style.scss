@@ -381,6 +381,7 @@ blockquote {
   list-style: none;
   margin: 0;
   padding: 0;
+  align-items: stretch;
 
   @include breakpoints.down("lg") {
     grid-template-columns: repeat(2, 1fr);
@@ -399,52 +400,39 @@ blockquote {
   }
 
   li {
-    display: grid;
-    grid-template-columns: auto 110px;
-    grid-template-areas:
-      "review review"
-      "name rating"
-      "date date"
-      "products products";
+    display: flex;
+    flex-direction: column;
     gap: 0.75rem;
-    height: min-content;
     padding: 1rem;
     background: var(--color-accent);
     border: var(--border);
     border-radius: var(--border-radius);
 
     @include breakpoints.down("sm") {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "review"
-        "name"
-        "rating"
-        "date"
-        "products";
       text-align: center;
     }
   }
 
   .review {
-    grid-area: review;
+    flex: 1;
     font-size: 1rem;
     line-height: var(--line-height);
+  }
 
-    &::before {
-      content: "\201C";
-      font-size: 1.5em;
-      opacity: 0.5;
-    }
+  .meta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: auto;
 
-    &::after {
-      content: "\201D";
-      font-size: 1.5em;
-      opacity: 0.5;
+    @include breakpoints.down("sm") {
+      grid-template-columns: 1fr;
+      justify-items: center;
     }
   }
 
   .name {
-    grid-area: name;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -472,7 +460,6 @@ blockquote {
   }
 
   .rating {
-    grid-area: rating;
     color: #f5a623;
     font-size: 1.1rem;
     text-align: right;
@@ -483,14 +470,12 @@ blockquote {
   }
 
   .date {
-    grid-area: date;
     font-size: 0.8rem;
     font-style: italic;
     opacity: 0.7;
   }
 
   .products {
-    grid-area: products;
     font-size: 0.85rem;
     font-style: italic;
 
