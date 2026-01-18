@@ -413,15 +413,36 @@ blockquote {
     }
   }
 
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .rating {
-    color: #f5a623;
     font-size: 1.1rem;
   }
 
+  .date {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
   .review {
-    flex: 1;
     font-size: 1rem;
     line-height: var(--line-height);
+  }
+
+  .products {
+    flex: 1;
+    font-size: 0.85rem;
+    font-style: italic;
+
+    a {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   .author-info {
@@ -455,24 +476,8 @@ blockquote {
     font-weight: bold;
   }
 
-  .date {
-    font-size: 0.8rem;
-    opacity: 0.7;
-  }
-
   .review-link {
     font-size: 0.8rem;
-  }
-
-  .products {
-    font-size: 0.85rem;
-    font-style: italic;
-
-    a {
-      &:hover {
-        text-decoration: underline;
-      }
-    }
   }
 }
 

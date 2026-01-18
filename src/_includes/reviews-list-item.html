@@ -1,8 +1,20 @@
 <li>
-  {%- if review.data.rating -%}
-    <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">{{ review.data.rating | ratingToStars }}</span>
-  {%- endif -%}
+  <div class="review-header">
+    {%- if review.data.rating -%}
+      <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">{{ review.data.rating | ratingToStars }}</span>
+    {%- endif -%}
+    <span class="date">{{ review.page.date | date: "%b '%y" }}</span>
+  </div>
   <span class="review">{{ review.content }}</span>
+  {%- if product_links and review.data.products.size > 0 -%}
+    <span class="products">
+      {%- for slug in review.data.products -%}
+        {%- assign product = collections.products | where: "fileSlug", slug | first -%}
+        <a href="{{ product.url }}">{{ product.data.title }}</a>
+        {%- unless forloop.last -%}, {% endunless -%}
+      {%- endfor -%}
+    </span>
+  {%- endif -%}
   <div class="author-info">
     {%- if review.data.thumbnail -%}
       <img
@@ -26,7 +38,6 @@
     {%- endif -%}
     <div class="author-details">
       <span class="name">{{ review.data.name }}</span>
-      <span class="date">{{ review.page.date | date: "%b '%y" }}</span>
       {%- if review.data.url -%}
         {%- assign link_text = "View review" -%}
         {%- if review.data.url contains "google.com" -%}
@@ -38,13 +49,4 @@
       {%- endif -%}
     </div>
   </div>
-  {%- if product_links and review.data.products.size > 0 -%}
-    <span class="products">
-      {%- for slug in review.data.products -%}
-        {%- assign product = collections.products | where: "fileSlug", slug | first -%}
-        <a href="{{ product.url }}">{{ product.data.title }}</a>
-        {%- unless forloop.last -%}, {% endunless -%}
-      {%- endfor -%}
-    </span>
-  {%- endif -%}
 </li>
