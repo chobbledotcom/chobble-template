@@ -31,18 +31,6 @@ const memoize = (fn, options = {}) => {
 };
 
 /**
- * Cache key generator for (array, string) signatures
- * Uses array.length + slug for efficient keying
- * @param {[unknown[] | null | undefined, string]} args - Arguments tuple
- * @returns {string} Cache key
- */
-const arraySlugKey = (args) => {
-  const arr = args[0];
-  const slug = args[1];
-  return `${arr?.length || 0}:${slug}`;
-};
-
-/**
  * Recursively sort object keys for stable JSON serialization
  * @param {unknown} obj - Object to sort
  * @returns {unknown} Object with sorted keys
