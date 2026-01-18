@@ -161,7 +161,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
-  "src/_lib/eleventy/linked-list.js", // Helpers kept separate for clarity
+  "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
   "src/_lib/filters/item-filters.js",
@@ -184,7 +184,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/knip.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
-  "test/unit/eleventy/linked-list.test.js", // Factory helpers for test fixtures
+  "test/unit/eleventy/link-list.test.js", // Factory helpers for test fixtures
 ]);
 
 // ============================================

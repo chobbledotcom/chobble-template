@@ -30,7 +30,7 @@ import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureICal } from "#eleventy/ical.js";
 import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
-import { configureLinkedList } from "#eleventy/linked-list.js";
+import { configureLinkList } from "#eleventy/link-list.js";
 
 import { configureOpeningTimes } from "#eleventy/opening-times.js";
 import { configurePdf } from "#eleventy/pdf.js";
@@ -74,7 +74,7 @@ export default async function (eleventyConfig) {
   configureHtmlTransform(eleventyConfig, processAndWrapImage);
   configureICal(eleventyConfig);
   configureLandingPages(eleventyConfig);
-  configureLinkedList(eleventyConfig);
+  configureLinkList(eleventyConfig);
   await configureImages(eleventyConfig);
   configurePdf(eleventyConfig);
   configureJsConfig(eleventyConfig);

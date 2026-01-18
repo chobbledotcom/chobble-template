@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { configureLinkedList, linkedList } from "#eleventy/linked-list.js";
+import { configureLinkList, linkList } from "#eleventy/link-list.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 const createItem = (slug, title, url) => ({
@@ -11,18 +11,18 @@ const createItem = (slug, title, url) => ({
 const createCollection = (items) =>
   items.map(([slug, title, url]) => createItem(slug, title, url));
 
-describe("linked-list", () => {
-  test("Registers linkedList filter with Eleventy", () => {
+describe("link-list", () => {
+  test("Registers linkList filter with Eleventy", () => {
     const mockConfig = createMockEleventyConfig();
-    configureLinkedList(mockConfig);
+    configureLinkList(mockConfig);
 
-    expect(typeof mockConfig.filters.linkedList).toBe("function");
+    expect(typeof mockConfig.filters.linkList).toBe("function");
   });
 
   test("Returns empty string for null slugs", async () => {
     const collection = createCollection([]);
 
-    const result = await linkedList(null, collection);
+    const result = await linkList(null, collection);
 
     expect(result).toBe("");
   });
@@ -30,19 +30,19 @@ describe("linked-list", () => {
   test("Returns empty string for empty slugs array", async () => {
     const collection = createCollection([]);
 
-    const result = await linkedList([], collection);
+    const result = await linkList([], collection);
 
     expect(result).toBe("");
   });
 
   test("Returns empty string for null collection", async () => {
-    const result = await linkedList(["test"], null);
+    const result = await linkList(["test"], null);
 
     expect(result).toBe("");
   });
 
   test("Returns empty string for non-array collection", async () => {
-    const result = await linkedList(["test"], "not an array");
+    const result = await linkList(["test"], "not an array");
 
     expect(result).toBe("");
   });
@@ -52,7 +52,7 @@ describe("linked-list", () => {
       ["widget", "Widget Pro", "/products/widget/"],
     ]);
 
-    const result = await linkedList(["widget"], collection);
+    const result = await linkList(["widget"], collection);
 
     expect(result).toBe('<a href="/products/widget/">Widget Pro</a>');
   });
@@ -64,7 +64,7 @@ describe("linked-list", () => {
       ["gizmo", "Gizmo Max", "/products/gizmo/"],
     ]);
 
-    const result = await linkedList(["widget", "gadget", "gizmo"], collection);
+    const result = await linkList(["widget", "gadget", "gizmo"], collection);
 
     expect(result).toBe(
       '<a href="/products/widget/">Widget Pro</a>, ' +
@@ -79,10 +79,7 @@ describe("linked-list", () => {
       ["gadget", "Gadget Plus", "/products/gadget/"],
     ]);
 
-    const result = await linkedList(
-      ["widget", "missing", "gadget"],
-      collection,
-    );
+    const result = await linkList(["widget", "missing", "gadget"], collection);
 
     expect(result).toBe(
       '<a href="/products/widget/">Widget Pro</a>, ' +
@@ -99,7 +96,7 @@ describe("linked-list", () => {
       },
     ];
 
-    const result = await linkedList(["untitled"], collection);
+    const result = await linkList(["untitled"], collection);
 
     expect(result).toBe('<a href="/products/untitled/">untitled</a>');
   });
@@ -111,7 +108,7 @@ describe("linked-list", () => {
       ["gamma", "Gamma", "/products/gamma/"],
     ]);
 
-    const result = await linkedList(["gamma", "alpha", "beta"], collection);
+    const result = await linkList(["gamma", "alpha", "beta"], collection);
 
     expect(result).toBe(
       '<a href="/products/gamma/">Gamma</a>, ' +

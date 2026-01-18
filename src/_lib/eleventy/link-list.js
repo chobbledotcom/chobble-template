@@ -1,5 +1,5 @@
 /**
- * Linked list filter for creating comma-separated link lists from slugs
+ * Link list filter for creating comma-separated link lists from slugs
  */
 
 import configModule from "#data/config.js";
@@ -60,16 +60,16 @@ const isValidInput = (slugs, collection) =>
   Array.isArray(slugs) && slugs.length > 0 && Array.isArray(collection);
 
 /**
- * Create a linked list from an array of slugs
+ * Create a link list from an array of slugs
  * @param {string[]} slugs - Array of fileSlug values to look up
  * @param {Array} collection - The collection to search for items
  * @returns {Promise<string>} Comma-separated HTML links
  *
  * @example
  * // In Liquid template:
- * {{ review.data.products | linkedList: collections.products }}
+ * {{ review.data.products | linkList: collections.products }}
  */
-const linkedList = async (slugs, collection) => {
+const linkList = async (slugs, collection) => {
   if (!isValidInput(slugs, collection)) {
     return "";
   }
@@ -79,11 +79,11 @@ const linkedList = async (slugs, collection) => {
 };
 
 /**
- * Configure the linked list filter for Eleventy
+ * Configure the link list filter for Eleventy
  * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  */
-const configureLinkedList = (eleventyConfig) => {
-  eleventyConfig.addFilter("linkedList", linkedList);
+const configureLinkList = (eleventyConfig) => {
+  eleventyConfig.addFilter("linkList", linkList);
 };
 
-export { linkedList, configureLinkedList };
+export { linkList, configureLinkList };
