@@ -1,0 +1,113 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// =============================================================================
+// REVIEWS GRID
+// =============================================================================
+
+.design-system {
+  .reviews-grid {
+    @include grid(1, $space-lg);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    @include tablet-up {
+      @include grid(2, $space-lg);
+    }
+
+    @include desktop-up {
+      @include grid(3, $space-lg);
+    }
+
+    // On item pages, show 2 columns max
+    body.item & {
+      @include grid(2, $space-lg);
+      @include mobile-only {
+        @include grid(1, $space-lg);
+      }
+    }
+
+    > li {
+      @include card($space-md, $radius-lg);
+      @include flex-col($space-sm);
+
+      @include mobile-only {
+        text-align: center;
+      }
+    }
+
+    .review-header {
+      @include flex-between;
+    }
+
+    .rating {
+      font-size: $font-size-lg;
+    }
+
+    .date {
+      @include body-sm;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .review {
+      @include body-base;
+      line-height: $line-height-relaxed;
+    }
+
+    .products {
+      flex: 1;
+      @include body-sm;
+      font-style: italic;
+      color: var(--text-muted);
+
+      a {
+        color: var(--primary);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .author-info {
+      @include flex-row($space-sm, flex-start);
+      margin-top: auto;
+
+      @include mobile-only {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .reviewer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: $radius-full;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+    }
+
+    .author-details {
+      @include flex-col($space-xs);
+      font-size: $font-size-sm;
+    }
+
+    .name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .review-link {
+      @include body-sm;
+      color: var(--primary);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
