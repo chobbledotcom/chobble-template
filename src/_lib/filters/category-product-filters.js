@@ -23,6 +23,15 @@ import {
   getAllFilterAttributes,
   getItemsByFilters,
 } from "#filters/item-filters.js";
+import { groupByWithCache } from "#utils/memoize.js";
+
+/**
+ * Index filtered pages by categorySlug for O(1) lookups.
+ * Cached per pages array using WeakMap.
+ */
+const indexPagesByCategorySlug = groupByWithCache((page) => [
+  page.categorySlug,
+]);
 
 /**
  * Build category-scoped filter UI data
@@ -43,9 +52,8 @@ const buildCategoryFilterUIDataFn = (
     return { hasFilters: false };
   }
 
-  const categoryPages = filteredPages.filter(
-    (p) => p.categorySlug === categorySlug,
-  );
+  const pagesByCategorySlug = indexPagesByCategorySlug(filteredPages);
+  const categoryPages = pagesByCategorySlug[categorySlug] ?? [];
   const baseUrl = `/categories/${categorySlug}`;
 
   return buildFilterUIData(filterData, currentFilters, categoryPages, baseUrl);
@@ -145,12 +153,11 @@ const createCategoryFilterRedirects = (collectionApi) =>
 const createCategoryListingFilterUI = (collectionApi) => {
   const filteredPages = createFilteredCategoryProductPages(collectionApi);
   const filterAttrs = createCategoryFilterAttributes(collectionApi);
+  const pagesByCategorySlug = indexPagesByCategorySlug(filteredPages);
 
   return Object.fromEntries(
     Object.entries(filterAttrs).map(([slug, attrs]) => {
-      const categoryPages = filteredPages.filter(
-        (p) => p.categorySlug === slug,
-      );
+      const categoryPages = pagesByCategorySlug[slug] ?? [];
       const baseUrl = `/categories/${slug}`;
       return [slug, buildFilterUIData(attrs, null, categoryPages, baseUrl)];
     }),

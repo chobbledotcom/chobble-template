@@ -27,6 +27,7 @@ const DEFAULTS = {
   screenshots: null,
   design_system_layouts: ["design-system-base.html"],
   phoneNumberLength: 11,
+  use_visual_editor: false,
 };
 
 const DEFAULT_PRODUCT_DATA = {

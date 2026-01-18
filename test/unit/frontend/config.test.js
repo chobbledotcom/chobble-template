@@ -37,6 +37,7 @@ describe("config", () => {
       "screenshots",
       "design_system_layouts",
       "phoneNumberLength",
+      "use_visual_editor",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });
