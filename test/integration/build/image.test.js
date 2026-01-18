@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { createHtmlTransform } from "#eleventy/html-transform.js";
 import {
   configureImages,
-  createImageTransform,
   imageShortcode,
+  processAndWrapImage,
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -28,7 +29,7 @@ const passthroughs = map(([content, path]) => passthrough(content, path));
  * Test that transform passes content through unchanged
  */
 const expectPassthrough = async ({ content, path }) => {
-  const transform = createImageTransform();
+  const transform = createHtmlTransform(processAndWrapImage);
   const result = await transform(content, path);
   expect(result).toBe(content);
 };
@@ -54,11 +55,11 @@ const imageFiles = map((dest) => imageFile(dest));
 
 describe("image", () => {
   // ============================================
-  // createImageTransform tests
+  // createHtmlTransform tests
   // ============================================
-  describe("createImageTransform", () => {
-    test("createImageTransform returns a transform function", () => {
-      const transform = createImageTransform();
+  describe("createHtmlTransform", () => {
+    test("createHtmlTransform returns a transform function", () => {
+      const transform = createHtmlTransform(processAndWrapImage);
 
       expect(typeof transform).toBe("function");
     });
@@ -66,13 +67,15 @@ describe("image", () => {
     test("Transform passes through non-HTML files unchanged", () =>
       expectPassthrough(passthrough("body { margin: 0; }", "/test/style.css")));
 
-    test("Transform passes through HTML without local images", () =>
-      expectPassthrough(
-        passthrough(
-          "<html><body><p>Hello world</p></body></html>",
-          "/test/page.html",
-        ),
-      ));
+    test("Transform preserves HTML content without local images", async () => {
+      const transform = createHtmlTransform(processAndWrapImage);
+      const result = await transform(
+        "<html><body><p>Hello world</p></body></html>",
+        "/test/page.html",
+      );
+      expect(result.includes("<p>Hello world</p>")).toBe(true);
+      expect(result.includes("<picture")).toBe(false);
+    });
   });
 
   // ============================================
@@ -86,15 +89,6 @@ describe("image", () => {
 
       expect("image" in mockConfig.asyncShortcodes).toBe(true);
       expect(typeof mockConfig.asyncShortcodes.image).toBe("function");
-    });
-
-    test("Registers processImages transform with Eleventy config", async () => {
-      const mockConfig = createMockEleventyConfig();
-
-      await configureImages(mockConfig);
-
-      expect("processImages" in mockConfig.transforms).toBe(true);
-      expect(typeof mockConfig.transforms.processImages).toBe("function");
     });
 
     test("Registers images collection with Eleventy config", async () => {
@@ -332,14 +326,14 @@ describe("image", () => {
   });
 
   // ============================================
-  // createImageTransform tests - actual transformation
+  // createHtmlTransform tests - actual transformation
   // ============================================
-  describe("createImageTransform - transformations", () => {
+  describe("createHtmlTransform - transformations", () => {
     /**
      * Run transform on HTML content and return result
      */
     const runTransform = async (html) => {
-      const transform = createImageTransform();
+      const transform = createHtmlTransform(processAndWrapImage);
       return transform(html, "/test/page.html");
     };
 
@@ -462,18 +456,21 @@ describe("image", () => {
       expect(result.includes("<picture")).toBe(true);
     });
 
-    test("Transform returns content unchanged when no img tags present", async () => {
-      const content = wrapHtml("<p>No images here</p>");
-      const result = await runTransform(content);
+    test("Transform preserves content when no img tags present", async () => {
+      const result = await runTransform(wrapHtml("<p>No images here</p>"));
 
-      expect(result).toBe(content);
+      expect(result.includes("<p>No images here</p>")).toBe(true);
+      expect(result.includes("<picture")).toBe(false);
     });
 
-    test("Transform returns content unchanged when only non-local images present", async () => {
-      const content = wrapHtml(img("/assets/logo.png", "Logo"));
-      const result = await runTransform(content);
+    test("Transform preserves non-local images without wrapping", async () => {
+      const result = await runTransform(
+        wrapHtml(img("/assets/logo.png", "Logo")),
+      );
 
-      expect(result).toBe(content);
+      expect(result.includes('src="/assets/logo.png"')).toBe(true);
+      expect(result.includes("<picture")).toBe(false);
+      expect(result.includes("image-wrapper")).toBe(false);
     });
 
     test("Transform efficiently reuses cached results for duplicate images", async () => {

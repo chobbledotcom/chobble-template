@@ -23,6 +23,7 @@ const ALLOWED_DUPLICATE_NAMES = new Set([
   "init",
   "createElement",
   "getJsConfigFilter",
+  "transformHtml", // test helper with same name but different implementations
 ]);
 
 // Directories to exclude from analysis
