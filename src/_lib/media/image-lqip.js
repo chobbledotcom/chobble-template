@@ -9,35 +9,55 @@
  * - Small images under 5KB (overhead not worth it)
  */
 import fs from "node:fs";
-import { filenameFormat } from "#media/image-utils.js";
 import { memoize } from "#utils/memoize.js";
+import { mapObject } from "#utils/object-entries.js";
 
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
 
-const THUMBNAIL_OPTIONS = {
-  formats: ["webp"],
-  outputDir: ".image-cache",
-  urlPath: "/img/",
-  svgShortCircuit: true,
-  widths: [32],
-  filenameFormat,
-};
-
+const LQIP_WIDTH = 32;
 const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
-const generateThumbnail = memoize(async (imagePath) => {
-  const { default: Image } = await getEleventyImg();
-  const thumbnails = await Image(imagePath, THUMBNAIL_OPTIONS);
-  const [thumbnail] = thumbnails.webp;
-  const file = fs.readFileSync(thumbnail.outputPath);
+/**
+ * Check if LQIP should be generated for an image.
+ * @param {string} imagePath - Path to the image file
+ * @param {Object} metadata - Image metadata from sharp
+ * @returns {boolean} Whether to generate LQIP
+ */
+const shouldGenerateLqip = (imagePath, metadata) =>
+  metadata.format !== "svg" &&
+  fs.statSync(imagePath).size >= PLACEHOLDER_SIZE_THRESHOLD;
+
+/**
+ * Extract LQIP data URL from eleventy-img metadata.
+ * Finds the 32px webp image and converts it to a base64 data URL.
+ * @param {Object} imageMetadata - Metadata returned by eleventy-img
+ * @returns {string | null} CSS url() with base64 data, or null if not found
+ */
+const extractLqipFromMetadata = (imageMetadata) => {
+  if (!imageMetadata.webp) return null;
+
+  const lqipImage = imageMetadata.webp.find((img) => img.width === LQIP_WIDTH);
+  if (!lqipImage) return null;
+
+  const file = fs.readFileSync(lqipImage.outputPath);
   const base64 = file.toString("base64");
   return `url('data:image/webp;base64,${base64}')`;
-});
+};
 
-const getThumbnailOrNull = (imagePath, metadata) =>
-  metadata.format === "svg" ||
-  fs.statSync(imagePath).size < PLACEHOLDER_SIZE_THRESHOLD
-    ? null
-    : generateThumbnail(imagePath);
+/**
+ * Filter out LQIP width from image metadata for HTML generation.
+ * @param {Object} imageMetadata - Metadata returned by eleventy-img
+ * @returns {Object} Filtered metadata without LQIP-sized images
+ */
+const filterOutLqipFromMetadata = mapObject((format, images) => [
+  format,
+  images.filter((img) => img.width !== LQIP_WIDTH),
+]);
 
-export { getThumbnailOrNull, getEleventyImg };
+export {
+  getEleventyImg,
+  shouldGenerateLqip,
+  extractLqipFromMetadata,
+  filterOutLqipFromMetadata,
+  LQIP_WIDTH,
+};

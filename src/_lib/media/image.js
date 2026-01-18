@@ -19,7 +19,13 @@ import fs from "node:fs";
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
-import { getEleventyImg, getThumbnailOrNull } from "#media/image-lqip.js";
+import {
+  extractLqipFromMetadata,
+  filterOutLqipFromMetadata,
+  getEleventyImg,
+  LQIP_WIDTH,
+  shouldGenerateLqip,
+} from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
   buildImgAttributes,
@@ -48,6 +54,10 @@ const DEFAULT_OPTIONS = {
  * 1. From image-transform.js via extractImageOptions: getAttribute("src") = string | null
  * 2. From imageShortcode: template string = string
  *
+ * Optimization: LQIP and responsive images are generated in a single eleventy-img call.
+ * The 32px thumbnail for LQIP is included in the widths array, then extracted from
+ * the resulting metadata and filtered out before generating HTML.
+ *
  * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<string>} Wrapped image HTML
  */
@@ -69,18 +79,39 @@ const computeWrappedImageHtml = memoize(
 
     const imgAttributes = buildImgAttributes({ alt, sizes, loading });
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
-    const { default: Image } = await getEleventyImg();
+    const { default: Image, generateHTML } = await getEleventyImg();
 
-    const [innerHTML, bgImage] = await Promise.all([
-      Image(finalPath, {
-        ...DEFAULT_OPTIONS,
-        widths: parseWidths(widths),
-        fixOrientation: true,
-        returnType: "html",
-        htmlOptions: { imgAttributes, pictureAttributes },
-      }),
-      getThumbnailOrNull(finalPath, metadata),
-    ]);
+    // Check if LQIP should be generated (skip for SVGs and small files)
+    const generateLqip = shouldGenerateLqip(finalPath, metadata);
+
+    // Include LQIP width in the main Image() call for single-pass processing
+    const requestedWidths = parseWidths(widths);
+    const allWidths = generateLqip
+      ? [LQIP_WIDTH, ...requestedWidths]
+      : requestedWidths;
+
+    // Single eleventy-img call generates all sizes at once
+    const imageMetadata = await Image(finalPath, {
+      ...DEFAULT_OPTIONS,
+      widths: allWidths,
+      fixOrientation: true,
+    });
+
+    // Extract LQIP from the 32px webp before filtering it out
+    const bgImage = generateLqip
+      ? extractLqipFromMetadata(imageMetadata)
+      : null;
+
+    // Filter out LQIP width from metadata so it doesn't appear in srcset
+    const htmlMetadata = generateLqip
+      ? filterOutLqipFromMetadata(imageMetadata)
+      : imageMetadata;
+
+    const innerHTML = generateHTML(
+      htmlMetadata,
+      imgAttributes,
+      pictureAttributes,
+    );
 
     return await createHtml(
       "div",
