@@ -4,6 +4,7 @@ import config from "#data/config.js";
 import { SRC_DIR } from "#lib/paths.js";
 import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#utils/array-utils.js";
+import { groupByWithCache } from "#utils/memoize.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 // Load SVG template once at module initialization
@@ -11,6 +12,28 @@ const AVATAR_SVG_TEMPLATE = readFileSync(
   join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg"),
   "utf8",
 );
+
+/** Index reviews by products for O(1) lookups, cached per reviews array */
+const indexByProducts = groupByWithCache(
+  (review) => review.data.products ?? [],
+);
+
+/** Index reviews by categories for O(1) lookups, cached per reviews array */
+const indexByCategories = groupByWithCache(
+  (review) => review.data.categories ?? [],
+);
+
+/** Index reviews by properties for O(1) lookups, cached per reviews array */
+const indexByProperties = groupByWithCache(
+  (review) => review.data.properties ?? [],
+);
+
+/** Map field names to their respective indexers */
+const fieldIndexers = {
+  products: indexByProducts,
+  categories: indexByCategories,
+  properties: indexByProperties,
+};
 
 /**
  * Creates the main reviews collection.
@@ -28,15 +51,22 @@ const createReviewsCollection = (collectionApi) => {
 
 /**
  * Generic function to filter reviews by a specific field (products, categories, properties).
+ * Uses cached indexes for O(1) lookups when available.
  * @param {Array} reviews - Array of review objects
  * @param {string} slug - The slug to filter by
  * @param {string} field - The field to check (e.g., 'products', 'categories', 'properties')
  * @returns {Array} Filtered and sorted reviews
  */
-const getReviewsFor = (reviews, slug, field) =>
-  reviews
+const getReviewsFor = (reviews, slug, field) => {
+  const indexer = fieldIndexers[field];
+  if (indexer) {
+    return (indexer(reviews)[slug] ?? []).sort(sortByDateDescending);
+  }
+  // Fallback for unknown fields
+  return reviews
     .filter((review) => review.data[field]?.includes(slug))
     .sort(sortByDateDescending);
+};
 
 /**
  * Count reviews for a specific item
@@ -48,18 +78,19 @@ const countReviews = (reviews, slug, field) =>
   getReviewsFor(reviews, slug, field).length;
 
 /**
- * Calculate average rating for reviews matching a specific item
+ * Calculate average rating for reviews matching a specific item.
+ * Uses cached indexes via getReviewsFor for O(1) lookups.
  * @param {Array} reviews - Array of review objects
  * @param {string} slug - The slug to calculate rating for
  * @param {string} field - The field to check
  * @returns {number|null} Ceiling of average rating, or null if no ratings
  */
 const getRating = (reviews, slug, field) => {
+  const matchingReviews = getReviewsFor(reviews, slug, field);
   const ratings = pipe(
-    filter((review) => review.data[field]?.includes(slug)),
     map((r) => r.data.rating),
     filter((r) => r !== null && r !== undefined && !Number.isNaN(r)),
-  )(reviews);
+  )(matchingReviews);
 
   if (ratings.length === 0) return null;
   const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
