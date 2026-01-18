@@ -1,15 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "files": {
-    "includes": [
-      "**/*.js",
-      "**/*.mjs",
-      "!_site",
-      "!coverage",
-      "!result",
-      "!bin",
-      "!**/.*"
-    ],
+    "includes": ["**/*.js", "**/*.mjs", "!_site", "!coverage", "!result", "!bin", "!**/.*"],
     "ignoreUnknown": true
   },
   "formatter": {
@@ -61,32 +53,11 @@
   },
   "overrides": [
     {
-      "includes": [
-        "src/_lib/build/**/*.js",
-        "ecommerce-backend/server.js",
-        "**/test/**/*.js",
-        "scripts/**/*.js",
-        "packages/js-toolkit/**/*.js"
-      ],
+      "includes": ["**/test/**/*.js", "scripts/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
             "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["packages/js-toolkit/**/*.js"],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noExcessiveCognitiveComplexity": {
-              "level": "error",
-              "options": {
-                "maxAllowedComplexity": 30
-              }
-            }
           }
         }
       }

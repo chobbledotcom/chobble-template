@@ -18,6 +18,7 @@ coverage = true
 coverageThreshold = { lines = 1.0, functions = 1.0 }
 
 # Files excluded from coverage:
+# - packages/js-toolkit/*: separate package with its own coverage tracking
 # - ensure-deps.js: defensive code that can't be meaningfully tested
 # - validated-config.js: module-load-time validation that can only fail if config files are misconfigured
 # - customise-cms/*: CLI scripts with hard-to-test file system operations
@@ -31,6 +32,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - screenshot.js, screenshots.js, lighthouse.js, browser-utils.js: Playwright/Chrome browser automation
 # - configure-filters.js: Eleventy registration wiring (functions it calls are fully tested)
 coveragePathIgnorePatterns = [
+  "packages/js-toolkit/**/*.js",
   "src/_lib/filters/configure-filters.js",
   "test/ensure-deps.js",
   "src/_lib/config/validated-config.js",

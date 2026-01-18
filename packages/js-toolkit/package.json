@@ -1,0 +1,46 @@
+{
+  "name": "@chobble/js-toolkit",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Functional JS utilities, test infrastructure, and code quality tools",
+  "exports": {
+    "./fp": "./fp/index.js",
+    "./fp/array": "./fp/array.js",
+    "./fp/object": "./fp/object.js",
+    "./fp/sorting": "./fp/sorting.js",
+    "./fp/grouping": "./fp/grouping.js",
+    "./fp/memoize": "./fp/memoize.js",
+    "./test-utils": "./test-utils/index.js",
+    "./test-utils/resource": "./test-utils/resource.js",
+    "./test-utils/assertions": "./test-utils/assertions.js",
+    "./test-utils/mocking": "./test-utils/mocking.js",
+    "./test-utils/code-analysis": "./test-utils/code-analysis.js",
+    "./code-quality": "./code-quality/index.js",
+    "./code-quality/scanner": "./code-quality/scanner.js",
+    "./code-quality/runner": "./code-quality/runner.js",
+    "./configs/*": "./configs/*"
+  },
+  "files": [
+    "fp",
+    "test-utils",
+    "code-quality",
+    "configs",
+    "CLAUDE.md"
+  ],
+  "peerDependencies": {
+    "bun": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "bun": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "functional",
+    "testing",
+    "code-quality",
+    "biome",
+    "bun"
+  ],
+  "license": "MIT"
+}

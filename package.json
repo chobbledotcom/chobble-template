@@ -16,7 +16,8 @@
 		"#utils/*": "./src/_lib/utils/*",
 		"#public/*": "./src/_lib/public/*",
 		"#test/*": "./test/*",
-		"#scripts/*": "./scripts/*"
+		"#scripts/*": "./scripts/*",
+		"#toolkit/*": "./packages/js-toolkit/*"
 	},
 	"scripts": {
 		"build": "rm -rf _site && bun ./node_modules/@11ty/eleventy/cmd.cjs",
