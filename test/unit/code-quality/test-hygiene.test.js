@@ -3,6 +3,7 @@ import {
   analyzeFiles,
   assertNoViolations,
   createViolation,
+  expectNoStaleFunctionAllowlist,
 } from "#test/code-scanner.js";
 import {
   extractFunctions,
@@ -111,8 +112,13 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
-  // code-scanner.js - stale exception validation helper
+  // code-scanner.js - stale exception validation helpers
+  "assertNoStaleEntries",
+  "withStaleAssertion",
   "expectNoStaleExceptions",
+  "isFunctionDefined",
+  "validateFunctionAllowlist",
+  "expectNoStaleFunctionAllowlist",
   // code-scanner.js - export detection utility
   "extractExports",
   // code-scanner.js - export list parsing helper
@@ -461,27 +467,11 @@ describe("test-hygiene", () => {
       "\n",
     );
 
-    // Find allowlisted functions that aren't defined anywhere in test files
-    // Look for common definition patterns: const/let/var/function name, or : name (destructuring)
-    const stale = [...ALLOWED_TEST_FUNCTIONS].filter((name) => {
-      const patterns = [
-        new RegExp(`\\bconst\\s+${name}\\s*=`),
-        new RegExp(`\\blet\\s+${name}\\s*=`),
-        new RegExp(`\\bvar\\s+${name}\\s*=`),
-        new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
-        new RegExp(`:\\s*${name}\\s*[,}\\)]`), // destructuring: { x: name } or (name)
-      ];
-      return !patterns.some((p) => p.test(allTestSource));
-    });
-
-    if (stale.length > 0) {
-      console.log("\n  Stale ALLOWED_TEST_FUNCTIONS entries:");
-      for (const name of stale) {
-        console.log(`    - ${name}`);
-      }
-    }
-
-    expect(stale.length).toBe(0);
+    expectNoStaleFunctionAllowlist(
+      ALLOWED_TEST_FUNCTIONS,
+      allTestSource,
+      "ALLOWED_TEST_FUNCTIONS",
+    );
   });
 
   test("ALLOWED_TEST_FUNCTIONS entries are actually used in test files", () => {

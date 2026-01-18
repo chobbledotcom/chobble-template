@@ -368,6 +368,43 @@ const validateExceptions = (allowlist, patterns) => {
 };
 
 /**
+ * Log stale entries and assert none exist.
+ * Common helper for stale allowlist validation functions.
+ *
+ * @param {Array<{entry: string, reason?: string}>} stale - Stale entries to report
+ * @param {string} label - Name of the allowlist for logging
+ * @param {function} [formatEntry] - Optional entry formatter (default: entry with reason if present)
+ */
+const assertNoStaleEntries = (
+  stale,
+  label,
+  formatEntry = (s) => (s.reason ? `${s.entry}: ${s.reason}` : s.entry),
+) => {
+  if (stale.length > 0) {
+    console.log(`\n  Stale ${label} entries:`);
+    for (const s of stale) {
+      console.log(`    - ${formatEntry(s)}`);
+    }
+  }
+  expect(stale.length).toBe(0);
+};
+
+/**
+ * Create a stale entry assertion function from a validation function.
+ * Composes validation with assertNoStaleEntries for consistent behavior.
+ *
+ * @param {function} validateFn - Validation function returning stale entries array
+ * @param {function} [formatEntry] - Optional entry formatter for logging
+ * @returns {function} Assertion function that validates and asserts no stale entries
+ */
+const withStaleAssertion =
+  (validateFn, formatEntry) =>
+  (...args) => {
+    const label = args.pop();
+    return assertNoStaleEntries(validateFn(...args), label, formatEntry);
+  };
+
+/**
  * Assert no stale exception entries exist.
  * Logs stale entries and fails test if any found.
  *
@@ -375,16 +412,7 @@ const validateExceptions = (allowlist, patterns) => {
  * @param {RegExp|RegExp[]} patterns - Pattern(s) the line should match
  * @param {string} label - Name of the allowlist for logging (e.g., "ALLOWED_NULL_CHECKS")
  */
-const expectNoStaleExceptions = (allowlist, patterns, label) => {
-  const stale = validateExceptions(allowlist, patterns);
-  if (stale.length > 0) {
-    console.log(`\n  Stale ${label} entries:`);
-    for (const s of stale) {
-      console.log(`    - ${s.entry}: ${s.reason}`);
-    }
-  }
-  expect(stale.length).toBe(0);
-};
+const expectNoStaleExceptions = withStaleAssertion(validateExceptions);
 
 /**
  * Curried violation factory for creating standardized violation objects.
@@ -405,6 +433,61 @@ const createViolation = (reasonFn) => (context) => ({
   code: context.code ?? context.name,
   reason: reasonFn(context),
 });
+
+// ============================================
+// Function Name Allowlist Validation
+// ============================================
+
+// Common patterns for detecting function definitions
+const FUNCTION_DEFINITION_PATTERNS = {
+  const: (name) => new RegExp(`\\bconst\\s+${name}\\s*=`),
+  let: (name) => new RegExp(`\\blet\\s+${name}\\s*=`),
+  var: (name) => new RegExp(`\\bvar\\s+${name}\\s*=`),
+  function: (name) => new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
+  destructuring: (name) => new RegExp(`:\\s*${name}\\s*[,})]`),
+};
+
+/**
+ * Check if a function name is defined in the given source code.
+ * Looks for common definition patterns: const/let/var/function declarations and destructuring.
+ *
+ * @param {string} name - Function name to search for
+ * @param {string} source - Source code to search in
+ * @returns {boolean} True if the function is defined
+ */
+const isFunctionDefined = (name, source) =>
+  Object.values(FUNCTION_DEFINITION_PATTERNS).some((createPattern) =>
+    createPattern(name).test(source),
+  );
+
+/**
+ * Validate that function names in an allowlist are actually defined in source files.
+ * Returns entries that are no longer defined anywhere.
+ *
+ * @param {Set<string>} allowlist - Set of function names
+ * @param {string} combinedSource - Combined source code from all files to search
+ * @returns {Array<{entry: string, reason: string}>} Stale entries
+ */
+const validateFunctionAllowlist = (allowlist, combinedSource) =>
+  [...allowlist]
+    .filter((name) => !isFunctionDefined(name, combinedSource))
+    .map((name) => ({
+      entry: name,
+      reason: "Function is not defined in any file",
+    }));
+
+/**
+ * Assert no stale function allowlist entries exist.
+ * Logs stale entries and fails test if any found.
+ *
+ * @param {Set<string>} allowlist - Set of function names
+ * @param {string} combinedSource - Combined source code to search
+ * @param {string} label - Name of the allowlist for logging
+ */
+const expectNoStaleFunctionAllowlist = withStaleAssertion(
+  validateFunctionAllowlist,
+  (s) => s.entry,
+);
 
 // ============================================
 // Export Detection Utilities
@@ -549,6 +632,10 @@ export {
   // Exception validation
   validateExceptions,
   expectNoStaleExceptions,
+  // Function allowlist validation
+  isFunctionDefined,
+  validateFunctionAllowlist,
+  expectNoStaleFunctionAllowlist,
   // Export detection
   extractExports,
 };
