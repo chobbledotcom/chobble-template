@@ -24,7 +24,7 @@
     {%- endif %}
     {%- if review.data.thumbnail -%}
       <img src="{{ review.data.thumbnail }}" alt="" class="reviewer-avatar" width="40" height="40" loading="lazy">
-    {%- else -%}
+    {%- elsif review.data.name -%}
       <img src="{{ review.data.name | reviewerAvatar }}" alt="" class="reviewer-avatar" width="40" height="40">
     {%- endif -%}
     </footer>
