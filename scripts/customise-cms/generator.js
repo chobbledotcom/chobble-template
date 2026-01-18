@@ -10,16 +10,18 @@ import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
+  createBodyField,
   createEleventyNavigationField,
   createObjectListField,
   createReferenceField,
+  createTabsField,
   FAQS_FIELD,
   FEATURES_FIELD,
   FILTER_ATTRIBUTES_FIELD,
   GALLERY_FIELD,
+  getBodyField,
   PRODUCT_OPTIONS_FIELD,
   SPECS_FIELD,
-  TABS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import {
   compact,
@@ -58,7 +60,7 @@ const getHeaderFields = (config) => [
  */
 const getContentFields = (config) => [
   COMMON_FIELDS.subtitle,
-  COMMON_FIELDS.body,
+  getBodyField(config.features.use_visual_editor),
   config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
 ];
@@ -81,7 +83,7 @@ const getItemTop = (_config) => [
  * @returns {(false | CmsField)[]}
  */
 const getItemBottom = (config) => [
-  COMMON_FIELDS.body,
+  getBodyField(config.features.use_visual_editor),
   config.features.header_images && COMMON_FIELDS.header_image,
   config.features.header_images && COMMON_FIELDS.header_text,
   ...META_FIELDS,
@@ -157,7 +159,7 @@ const getCollectionFieldBuilders = (config) => ({
       COMMON_FIELDS.header_text,
     ),
     COMMON_FIELDS.subtitle,
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     createEleventyNavigationField(config.features.external_navigation_urls),
@@ -168,7 +170,7 @@ const getCollectionFieldBuilders = (config) => ({
     compact([
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
-      COMMON_FIELDS.body,
+      getBodyField(config.features.use_visual_editor),
       COMMON_FIELDS.featured,
       ...getHeaderFields(config),
       ...META_FIELDS,
@@ -182,12 +184,7 @@ const getCollectionFieldBuilders = (config) => ({
       { name: "snippet", type: "string", label: "Role" },
       { name: "image", type: "image", label: "Profile Image" },
       config.features.header_images && COMMON_FIELDS.header_image,
-      {
-        name: "body",
-        label: "Biography",
-        type: "code",
-        options: { language: "markdown" },
-      },
+      createBodyField("Biography", config.features.use_visual_editor),
     ]),
 
   "guide-categories": () => [
@@ -195,10 +192,13 @@ const getCollectionFieldBuilders = (config) => ({
     COMMON_FIELDS.subtitle,
     COMMON_FIELDS.order,
     { name: "icon", type: "image", label: "Icon" },
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
   ],
 
-  snippets: () => [COMMON_FIELDS.name, COMMON_FIELDS.body],
+  snippets: () => [
+    COMMON_FIELDS.name,
+    getBodyField(config.features.use_visual_editor),
+  ],
 
   menus: () => compact([...getItemTop(config), ...getItemBottom(config)]),
 });
@@ -248,7 +248,7 @@ const buildReviewsFields = (config) =>
     { name: "url", type: "string", label: "URL" },
     { name: "rating", type: "number", label: "Rating" },
     { name: "thumbnail", type: "image", label: "Reviewer Photo" },
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
     enabled("products") &&
       createReferenceField("products", "Products", "products"),
   ])(config);
@@ -321,7 +321,7 @@ const buildMenuCategoriesFields = (config) =>
     COMMON_FIELDS.thumbnail,
     COMMON_FIELDS.order,
     enabled("menus") && createReferenceField("menus", "Menus", "menus"),
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
   ])(config);
 
 /**
@@ -344,7 +344,7 @@ const buildMenuItemsFields = (config) =>
         "name",
       ),
     { name: "description", type: "string", label: "Description" },
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
   ])(config);
 
 /**
@@ -365,7 +365,7 @@ const buildGuidePagesFields = (config) =>
         false,
       ),
     COMMON_FIELDS.order,
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
   ])(config);
 
 /**
@@ -413,7 +413,8 @@ const addOptionalFields = (fields, collectionName, config) => {
     config.features.faqs && FAQS_FIELD,
     config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
     config.features.specs && collection.supportsSpecs && SPECS_FIELD,
-    collection.supportsTabs && TABS_FIELD,
+    collection.supportsTabs &&
+      createTabsField(config.features.use_visual_editor),
   ]);
 };
 
@@ -821,9 +822,10 @@ const generateBlocksField = (schema) => ({
  * Edits the markdown file's front matter blocks, using schema from JSON
  * @param {string} slug - Page slug
  * @param {object} schema - Layout schema
+ * @param {CmsConfig} config - CMS configuration
  * @returns {object} Collection configuration for this page layout
  */
-const generatePageLayoutConfig = (slug, schema) => ({
+const generatePageLayoutConfig = (slug, schema, config) => ({
   name: `page-${slug}`,
   label: schema.label,
   type: "file",
@@ -832,7 +834,7 @@ const generatePageLayoutConfig = (slug, schema) => ({
     COMMON_FIELDS.meta_title,
     COMMON_FIELDS.meta_description,
     generateBlocksField(schema),
-    COMMON_FIELDS.body,
+    getBodyField(config.features.use_visual_editor),
   ],
 });
 
@@ -855,7 +857,7 @@ export const generatePagesYaml = (config) => {
   // Load page layout schemas and generate their configs
   const pageLayoutSchemas = getPageLayoutSchemas();
   const pageLayoutConfigs = pageLayoutSchemas.map(({ slug, schema }) =>
-    generatePageLayoutConfig(slug, schema),
+    generatePageLayoutConfig(slug, schema, config),
   );
 
   // Build content array, conditionally including homepage

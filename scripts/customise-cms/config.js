@@ -20,6 +20,7 @@ import { join } from "node:path";
  * @property {boolean} external_navigation_urls - Enable external URLs in navigation
  * @property {boolean} external_purchases - Enable external purchase URLs for products
  * @property {boolean} event_locations_and_dates - Enable locations and dates for events
+ * @property {boolean} use_visual_editor - Use rich-text visual editor instead of markdown code editor
  */
 
 /**
@@ -102,6 +103,7 @@ export const createDefaultConfig = () => ({
     features: true,
     galleries: true,
     event_locations_and_dates: true,
+    use_visual_editor: false,
   },
   hasSrcFolder: true,
   customHomePage: false,
