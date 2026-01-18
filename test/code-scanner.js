@@ -390,6 +390,21 @@ const assertNoStaleEntries = (
 };
 
 /**
+ * Create a stale entry assertion function from a validation function.
+ * Composes validation with assertNoStaleEntries for consistent behavior.
+ *
+ * @param {function} validateFn - Validation function returning stale entries array
+ * @param {function} [formatEntry] - Optional entry formatter for logging
+ * @returns {function} Assertion function that validates and asserts no stale entries
+ */
+const withStaleAssertion =
+  (validateFn, formatEntry) =>
+  (...args) => {
+    const label = args.pop();
+    return assertNoStaleEntries(validateFn(...args), label, formatEntry);
+  };
+
+/**
  * Assert no stale exception entries exist.
  * Logs stale entries and fails test if any found.
  *
@@ -397,8 +412,7 @@ const assertNoStaleEntries = (
  * @param {RegExp|RegExp[]} patterns - Pattern(s) the line should match
  * @param {string} label - Name of the allowlist for logging (e.g., "ALLOWED_NULL_CHECKS")
  */
-const expectNoStaleExceptions = (allowlist, patterns, label) =>
-  assertNoStaleEntries(validateExceptions(allowlist, patterns), label);
+const expectNoStaleExceptions = withStaleAssertion(validateExceptions);
 
 /**
  * Curried violation factory for creating standardized violation objects.
@@ -470,12 +484,10 @@ const validateFunctionAllowlist = (allowlist, combinedSource) =>
  * @param {string} combinedSource - Combined source code to search
  * @param {string} label - Name of the allowlist for logging
  */
-const expectNoStaleFunctionAllowlist = (allowlist, combinedSource, label) =>
-  assertNoStaleEntries(
-    validateFunctionAllowlist(allowlist, combinedSource),
-    label,
-    (s) => s.entry,
-  );
+const expectNoStaleFunctionAllowlist = withStaleAssertion(
+  validateFunctionAllowlist,
+  (s) => s.entry,
+);
 
 // ============================================
 // Export Detection Utilities

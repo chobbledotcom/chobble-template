@@ -114,6 +114,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "extractDefinedVariables",
   // code-scanner.js - stale exception validation helpers
   "assertNoStaleEntries",
+  "withStaleAssertion",
   "expectNoStaleExceptions",
   "isFunctionDefined",
   "validateFunctionAllowlist",
