@@ -5,42 +5,24 @@
 import configModule from "#data/config.js";
 import { compact } from "#utils/array-utils.js";
 import { createHtml } from "#utils/dom-builder.js";
-import { memoize } from "#utils/memoize.js";
+import { indexBy, memoize } from "#utils/memoize.js";
 
 const getConfig = memoize(configModule);
 
 /**
- * Cache for collection slug lookup maps.
- * Uses WeakMap so collections can be garbage collected after build.
- * @type {WeakMap<Array, Map<string, Object>>}
+ * Create a cached index for O(1) slug lookups.
+ * Uses indexBy which caches the index per array reference using WeakMap.
  */
-const slugMapCache = new WeakMap();
+const indexBySlug = indexBy((item) => item.fileSlug);
 
 /**
- * Get or create a slug→item lookup map for a collection.
- * Builds the map once per collection, then reuses it for O(1) lookups.
- * @param {Array} collection - The collection to index
- * @returns {Map<string, Object>} Map of fileSlug to item
- */
-const getSlugMap = (collection) => {
-  let slugMap = slugMapCache.get(collection);
-  if (!slugMap) {
-    slugMap = new Map();
-    for (const item of collection) {
-      slugMap.set(item.fileSlug, item);
-    }
-    slugMapCache.set(collection, slugMap);
-  }
-  return slugMap;
-};
-
-/**
- * Look up an item in a collection by its fileSlug
+ * Look up an item in a collection by its fileSlug.
+ * Uses cached index for O(1) lookups across all pages during build.
  * @param {Array} collection - The collection to search
  * @param {string} slug - The fileSlug to find
  * @returns {Object|undefined} The matching item or undefined
  */
-const findBySlug = (collection, slug) => getSlugMap(collection).get(slug);
+const findBySlug = (collection, slug) => indexBySlug(collection)[slug];
 
 /**
  * Get the anchor suffix based on config
