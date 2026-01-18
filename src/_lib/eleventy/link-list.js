@@ -10,14 +10,14 @@ import { indexBy, memoize } from "#utils/memoize.js";
 const getConfig = memoize(configModule);
 
 /**
- * Create a cached index for O(1) slug lookups.
- * Uses indexBy which caches the index per array reference using WeakMap.
+ * Index collections by fileSlug for O(1) lookups.
+ * Cached per collection reference during the build.
  */
 const indexBySlug = indexBy((item) => item.fileSlug);
 
 /**
  * Look up an item in a collection by its fileSlug.
- * Uses cached index for O(1) lookups across all pages during build.
+ * Uses cached index for O(1) lookups across all pages.
  * @param {Array} collection - The collection to search
  * @param {string} slug - The fileSlug to find
  * @returns {Object|undefined} The matching item or undefined
