@@ -1,8 +1,6 @@
 {%- if event_categories and event_categories.size > 0 -%}
   <p>
     <strong>Event Type:</strong>
-    {% for cat in event_categories -%}
-      {{ cat }}{%- unless forloop.last -%}, {% endunless -%}
-    {%- endfor -%}
+    {{ event_categories | join: ", " }}
   </p>
 {%- endif -%}
