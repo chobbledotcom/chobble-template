@@ -1,9 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
   everyEntry,
+  filterObject,
   fromPairs,
   mapBoth,
   mapEntries,
+  mapObject,
+  omit,
   pickNonNull,
   pickTruthy,
   toObject,
@@ -50,6 +53,39 @@ describe("object-entries utilities", () => {
         ["x", 10],
         ["y", 20],
       ]);
+    });
+  });
+
+  describe("mapObject", () => {
+    test("transforms keys and values via callback returning [newKey, newValue]", () => {
+      const result = mapObject((k, v) => [k.toUpperCase(), v * 2])({ a: 1 });
+      expect(result).toEqual({ A: 2 });
+    });
+
+    test("works with empty object", () => {
+      expect(mapObject((k, v) => [k, v])({})).toEqual({});
+    });
+
+    test("can transform keys only", () => {
+      const prefix = mapObject((k, v) => [`prefix_${k}`, v]);
+      expect(prefix({ name: "test" })).toEqual({ prefix_name: "test" });
+    });
+  });
+
+  describe("filterObject", () => {
+    test("keeps entries where predicate returns true", () => {
+      const onlyPositive = filterObject((k, v) => v > 0);
+      expect(onlyPositive({ a: 1, b: -1, c: 2 })).toEqual({ a: 1, c: 2 });
+    });
+
+    test("returns empty object when nothing matches", () => {
+      const noneMatch = filterObject(() => false);
+      expect(noneMatch({ a: 1, b: 2 })).toEqual({});
+    });
+
+    test("can filter by key", () => {
+      const onlyA = filterObject((k) => k.startsWith("a"));
+      expect(onlyA({ a1: 1, b1: 2, a2: 3 })).toEqual({ a1: 1, a2: 3 });
     });
   });
 
@@ -189,6 +225,33 @@ describe("object-entries utilities", () => {
         [1, "value2"],
       ];
       expect(fromPairs(pairs)).toEqual({ string: "value1", 1: "value2" });
+    });
+  });
+
+  describe("omit", () => {
+    test("removes specified keys from object", () => {
+      const obj = { a: 1, b: 2, c: 3 };
+      expect(omit(["b"])(obj)).toEqual({ a: 1, c: 3 });
+    });
+
+    test("handles multiple keys to omit", () => {
+      const obj = { a: 1, b: 2, c: 3, d: 4 };
+      expect(omit(["a", "c"])(obj)).toEqual({ b: 2, d: 4 });
+    });
+
+    test("returns same object when omitting non-existent keys", () => {
+      const obj = { a: 1, b: 2 };
+      expect(omit(["x", "y"])(obj)).toEqual({ a: 1, b: 2 });
+    });
+
+    test("returns empty object when omitting all keys", () => {
+      const obj = { a: 1, b: 2 };
+      expect(omit(["a", "b"])(obj)).toEqual({});
+    });
+
+    test("works with empty keys array", () => {
+      const obj = { a: 1, b: 2 };
+      expect(omit([])(obj)).toEqual({ a: 1, b: 2 });
     });
   });
 
