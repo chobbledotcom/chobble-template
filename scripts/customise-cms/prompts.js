@@ -279,6 +279,11 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
       "Do you want to link to external URLs in your navigation?",
       defaultFeatures.external_navigation_urls ?? false,
     ),
+    use_visual_editor: await askYesNo(
+      rl,
+      "Do you want to use a visual rich-text editor instead of markdown?",
+      defaultFeatures.use_visual_editor ?? false,
+    ),
   };
 
   const conditionalFeatures = await askSpecsAndFeaturesQuestions(

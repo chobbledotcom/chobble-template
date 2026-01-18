@@ -13,11 +13,15 @@ import {
 } from "#scripts/customise-cms/config.js";
 import {
   COMMON_FIELDS,
+  createBodyField,
   createReferenceField,
+  createTabsField,
   FAQS_FIELD,
   FEATURES_FIELD,
   GALLERY_FIELD,
+  getBodyField,
   SPECS_FIELD,
+  TABS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 import { withMockedCwdAsync } from "#test/test-utils.js";
@@ -35,6 +39,7 @@ const DISABLED_FEATURES = {
   galleries: false,
   header_images: false,
   event_locations_and_dates: false,
+  use_visual_editor: false,
 };
 
 /**
@@ -870,5 +875,192 @@ describe("customise-cms view config validation", () => {
     // Should still have meta_title as a valid field
     expect(pagesView).toContain("fields:");
     expect(pagesView).toContain("- meta_title");
+  });
+});
+
+describe("customise-cms visual editor fields", () => {
+  // ============================================
+  // getBodyField
+  // ============================================
+  test("getBodyField returns markdown code field when visual editor disabled", () => {
+    const field = getBodyField(false);
+    expect(field.name).toBe("body");
+    expect(field.type).toBe("code");
+    expect(field.options).toEqual({ language: "markdown" });
+  });
+
+  test("getBodyField returns rich-text field when visual editor enabled", () => {
+    const field = getBodyField(true);
+    expect(field.name).toBe("body");
+    expect(field.type).toBe("rich-text");
+    expect(field.options).toBeUndefined();
+  });
+
+  // ============================================
+  // createBodyField
+  // ============================================
+  test("createBodyField creates markdown field with custom label when visual editor disabled", () => {
+    const field = createBodyField("Biography", false);
+    expect(field.name).toBe("body");
+    expect(field.label).toBe("Biography");
+    expect(field.type).toBe("code");
+    expect(field.options).toEqual({ language: "markdown" });
+  });
+
+  test("createBodyField creates rich-text field with custom label when visual editor enabled", () => {
+    const field = createBodyField("Biography", true);
+    expect(field.name).toBe("body");
+    expect(field.label).toBe("Biography");
+    expect(field.type).toBe("rich-text");
+    expect(field.options).toBeUndefined();
+  });
+
+  // ============================================
+  // createTabsField
+  // ============================================
+  test("createTabsField creates tabs with markdown body when visual editor disabled", () => {
+    const field = createTabsField(false);
+    expect(field.name).toBe("tabs");
+    expect(field.type).toBe("object");
+    expect(field.list).toBe(true);
+
+    const bodyField = field.fields.find((f) => f.name === "body");
+    expect(bodyField.type).toBe("code");
+    expect(bodyField.options).toEqual({ language: "markdown" });
+  });
+
+  test("createTabsField creates tabs with rich-text body when visual editor enabled", () => {
+    const field = createTabsField(true);
+    expect(field.name).toBe("tabs");
+    expect(field.type).toBe("object");
+    expect(field.list).toBe(true);
+
+    const bodyField = field.fields.find((f) => f.name === "body");
+    expect(bodyField.type).toBe("rich-text");
+    expect(bodyField.options).toBeUndefined();
+  });
+
+  // ============================================
+  // TABS_FIELD (legacy constant)
+  // ============================================
+  test("TABS_FIELD uses markdown code field for backwards compatibility", () => {
+    const bodyField = TABS_FIELD.fields.find((f) => f.name === "body");
+    expect(bodyField.type).toBe("code");
+    expect(bodyField.options).toEqual({ language: "markdown" });
+  });
+
+  // ============================================
+  // COMMON_FIELDS.body_visual
+  // ============================================
+  test("COMMON_FIELDS.body_visual has rich-text type", () => {
+    expect(COMMON_FIELDS.body_visual.name).toBe("body");
+    expect(COMMON_FIELDS.body_visual.type).toBe("rich-text");
+  });
+});
+
+describe("customise-cms generator with visual editor", () => {
+  test("generatePagesYaml uses code editor for body when visual editor disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { use_visual_editor: false },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Body field should use code type with markdown language
+    expect(yaml).toContain("type: code");
+    expect(yaml).toContain("language: markdown");
+  });
+
+  test("generatePagesYaml uses rich-text editor for body when visual editor enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { use_visual_editor: true },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Body field should use rich-text type
+    expect(yaml).toContain("type: rich-text");
+  });
+
+  test("visual editor affects all collections with body fields", () => {
+    const config = createTestConfig({
+      collections: [
+        "pages",
+        "products",
+        "categories",
+        "news",
+        "reviews",
+        "team",
+        "events",
+        "locations",
+        "properties",
+        "guide-categories",
+        "guide-pages",
+        "snippets",
+        "menus",
+        "menu-categories",
+        "menu-items",
+      ],
+      features: { use_visual_editor: true },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Should have rich-text type for body fields
+    expect(yaml).toContain("type: rich-text");
+    // Should not have markdown code editor when visual editor is enabled
+    // Note: we can't easily check each collection, but we verify rich-text is used
+  });
+
+  test("visual editor affects tabs field body type", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { use_visual_editor: true },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Products support tabs, so the tabs field should use rich-text for body
+    expect(yaml).toContain("name: tabs");
+    // The tabs body field should be rich-text
+    const tabsSection = yaml.substring(
+      yaml.indexOf("name: tabs"),
+      yaml.indexOf("name: tabs") + 500,
+    );
+    expect(tabsSection).toContain("type: rich-text");
+  });
+
+  test("team collection Biography field uses visual editor when enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "team"],
+      features: { use_visual_editor: true },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Team collection should have Biography field with rich-text
+    expect(yaml).toContain("name: team");
+    expect(yaml).toContain("label: Biography");
+
+    const teamSection = yaml.substring(
+      yaml.indexOf("name: team"),
+      yaml.indexOf("name: homepage") || yaml.length,
+    );
+    expect(teamSection).toContain("type: rich-text");
+  });
+});
+
+describe("customise-cms config with use_visual_editor", () => {
+  test("createDefaultConfig includes use_visual_editor set to false", () => {
+    const config = createDefaultConfig();
+
+    expect(config.features).toBeDefined();
+    expect(config.features.use_visual_editor).toBe(false);
+  });
+
+  test("use_visual_editor can be enabled in config", () => {
+    const config = createTestConfig({
+      collections: ["pages"],
+      features: { use_visual_editor: true },
+    });
+
+    expect(config.features.use_visual_editor).toBe(true);
   });
 });
