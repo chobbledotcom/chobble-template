@@ -66,7 +66,9 @@ describe("external-links transform", () => {
     test("adds target and rel to external links when enabled", async () => {
       const html =
         '<html><body><a href="https://example.com">Link</a></body></html>';
-      const result = await transformHtml(html, { externalLinksTargetBlank: true });
+      const result = await transformHtml(html, {
+        externalLinksTargetBlank: true,
+      });
 
       expect(result).toContain('target="_blank"');
       expect(result).toContain('rel="noopener noreferrer"');
@@ -75,14 +77,18 @@ describe("external-links transform", () => {
     test("does not modify links when disabled", async () => {
       const html =
         '<html><body><a href="https://example.com">Link</a></body></html>';
-      const result = await transformHtml(html, { externalLinksTargetBlank: false });
+      const result = await transformHtml(html, {
+        externalLinksTargetBlank: false,
+      });
 
       expect(result).not.toContain('target="_blank"');
     });
 
     test("does not modify internal links", async () => {
       const html = '<html><body><a href="/about">About</a></body></html>';
-      const result = await transformHtml(html, { externalLinksTargetBlank: true });
+      const result = await transformHtml(html, {
+        externalLinksTargetBlank: true,
+      });
 
       expect(result).not.toContain('target="_blank"');
     });
@@ -90,7 +96,9 @@ describe("external-links transform", () => {
     test("handles mix of external and internal links", async () => {
       const html =
         '<html><body><a href="https://example.com">External</a><a href="/about">Internal</a></body></html>';
-      const result = await transformHtml(html, { externalLinksTargetBlank: true });
+      const result = await transformHtml(html, {
+        externalLinksTargetBlank: true,
+      });
 
       expect(result).toContain('target="_blank"');
       expect(result).not.toContain('/about" target="_blank"');
@@ -99,7 +107,9 @@ describe("external-links transform", () => {
     test("handles both HTTP and HTTPS URLs", async () => {
       const html =
         '<html><body><a href="http://example.com">HTTP</a><a href="https://example.com">HTTPS</a></body></html>';
-      const result = await transformHtml(html, { externalLinksTargetBlank: true });
+      const result = await transformHtml(html, {
+        externalLinksTargetBlank: true,
+      });
 
       expect(result).toContain('http://example.com" target="_blank"');
       expect(result).toContain('https://example.com" target="_blank"');
@@ -108,7 +118,9 @@ describe("external-links transform", () => {
     test("preserves other link attributes", async () => {
       const html =
         '<html><body><a href="https://example.com" class="button" id="link1">Link</a></body></html>';
-      const result = await transformHtml(html, { externalLinksTargetBlank: true });
+      const result = await transformHtml(html, {
+        externalLinksTargetBlank: true,
+      });
 
       expect(result).toContain('class="button"');
       expect(result).toContain('id="link1"');

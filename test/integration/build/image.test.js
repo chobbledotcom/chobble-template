@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { createHtmlTransform } from "#eleventy/html-transform.js";
 import {
   configureImages,
   imageShortcode,
   processAndWrapImage,
 } from "#media/image.js";
-import { createHtmlTransform } from "#eleventy/html-transform.js";
 import { withTestSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 import { map } from "#utils/array-utils.js";
@@ -464,7 +464,9 @@ describe("image", () => {
     });
 
     test("Transform preserves non-local images without wrapping", async () => {
-      const result = await runTransform(wrapHtml(img("/assets/logo.png", "Logo")));
+      const result = await runTransform(
+        wrapHtml(img("/assets/logo.png", "Logo")),
+      );
 
       expect(result.includes('src="/assets/logo.png"')).toBe(true);
       expect(result.includes("<picture")).toBe(false);

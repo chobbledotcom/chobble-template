@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { createHtmlTransform } from "#eleventy/html-transform.js";
+import {
+  configureHtmlTransform,
+  createHtmlTransform,
+} from "#eleventy/html-transform.js";
+import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("html-transform", () => {
   // Mock image processor that returns a simple div
@@ -23,13 +27,6 @@ describe("html-transform", () => {
       const transform = createHtmlTransform(mockImageProcessor);
       const content = "body { color: red; }";
       const result = await transform(content, "style.css");
-      expect(result).toBe(content);
-    });
-
-    test("skips feed files", async () => {
-      const transform = createHtmlTransform(mockImageProcessor);
-      const content = '<a href="https://example.com">Link</a>';
-      const result = await transform(content, "_site/feed.xml.html");
       expect(result).toBe(content);
     });
 
@@ -58,8 +55,7 @@ describe("html-transform", () => {
 
     test("linkifies email addresses", async () => {
       const transform = createHtmlTransform(mockImageProcessor);
-      const html =
-        "<html><body><p>Contact hello@example.com</p></body></html>";
+      const html = "<html><body><p>Contact hello@example.com</p></body></html>";
       const result = await transform(html, "index.html");
 
       expect(result).toContain('href="mailto:hello@example.com"');
@@ -119,6 +115,38 @@ describe("html-transform", () => {
       expect(result).toContain('class="scrollable-table"');
       // Images processed
       expect(result).toContain('class="image-wrapper"');
+    });
+  });
+
+  describe("configureHtmlTransform", () => {
+    test("registers htmlTransform transform", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureHtmlTransform(mockConfig, mockImageProcessor);
+
+      expect("htmlTransform" in mockConfig.transforms).toBe(true);
+      expect(typeof mockConfig.transforms.htmlTransform).toBe("function");
+    });
+
+    test("registers externalLinkAttrs filter", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureHtmlTransform(mockConfig, mockImageProcessor);
+
+      expect("externalLinkAttrs" in mockConfig.filters).toBe(true);
+      expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
+    });
+
+    test("externalLinkAttrs filter returns string for any URL", async () => {
+      const mockConfig = createMockEleventyConfig();
+      configureHtmlTransform(mockConfig, mockImageProcessor);
+
+      const externalAttrs = await mockConfig.filters.externalLinkAttrs(
+        "https://example.com",
+      );
+      const internalAttrs =
+        await mockConfig.filters.externalLinkAttrs("/about");
+
+      expect(typeof externalAttrs).toBe("string");
+      expect(typeof internalAttrs).toBe("string");
     });
   });
 });

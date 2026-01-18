@@ -15,7 +15,7 @@ const isExternalUrl = (url) =>
 
 /**
  * Add target="_blank" and rel="noopener noreferrer" to external links
- * @param {Document} document
+ * @param {*} document
  * @param {{ externalLinksTargetBlank?: boolean }} config
  */
 const addExternalLinkAttrs = (document, config) => {

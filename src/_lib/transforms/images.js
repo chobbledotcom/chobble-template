@@ -16,7 +16,7 @@ const IGNORE_ATTRIBUTE = "eleventy:ignore";
 
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
- * @param {Document} document
+ * @param {*} document
  */
 const fixDivsInParagraphs = (document) => {
   const invalidParagraphs = Array.from(document.querySelectorAll("p")).filter(
@@ -31,7 +31,7 @@ const fixDivsInParagraphs = (document) => {
 /**
  * Extract image options from an img element
  * @param {Element} img
- * @param {Document} document
+ * @param {*} document
  * @returns {ImageTransformOptions}
  */
 const extractImageOptions = (img, document) => {
@@ -55,7 +55,7 @@ const extractImageOptions = (img, document) => {
 /**
  * Process a single image element
  * @param {Element} img
- * @param {Document} document
+ * @param {*} document
  * @param {ProcessImageFn} processAndWrapImage
  * @returns {Promise<void>}
  */
@@ -74,7 +74,7 @@ const processImageElement = async (img, document, processAndWrapImage) => {
 
 /**
  * Process all images in document
- * @param {Document} document
+ * @param {*} document
  * @param {object} _config - Unused, included for consistent transform signature
  * @param {ProcessImageFn} processAndWrapImage - Image processing function
  * @returns {Promise<void>}

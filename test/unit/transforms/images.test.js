@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
-  processImages,
-  fixDivsInParagraphs,
-  extractImageOptions,
   ASPECT_RATIO_ATTRIBUTE,
+  extractImageOptions,
+  fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
+  processImages,
 } from "#transforms/images.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -46,7 +46,11 @@ describe("images transform", () => {
     const getImageOptions = async (html) => {
       const dom = await loadDOM(html);
       const img = dom.window.document.querySelector("img");
-      return { options: extractImageOptions(img, dom.window.document), img, dom };
+      return {
+        options: extractImageOptions(img, dom.window.document),
+        img,
+        dom,
+      };
     };
 
     test("extracts basic image attributes", async () => {
@@ -135,7 +139,9 @@ describe("images transform", () => {
       const dom = await expectSkipped(
         `<html><body><img src="/images/test.jpg" ${IGNORE_ATTRIBUTE}></body></html>`,
       );
-      expect(dom.window.document.querySelector("img").hasAttribute(IGNORE_ATTRIBUTE)).toBe(false);
+      expect(
+        dom.window.document.querySelector("img").hasAttribute(IGNORE_ATTRIBUTE),
+      ).toBe(false);
     });
 
     test("skips images already wrapped", async () => {
@@ -145,7 +151,9 @@ describe("images transform", () => {
     });
 
     test("skips images without /images/ prefix", async () => {
-      await expectSkipped('<html><body><img src="/assets/test.jpg" alt="Test"></body></html>');
+      await expectSkipped(
+        '<html><body><img src="/assets/test.jpg" alt="Test"></body></html>',
+      );
     });
 
     test("processes multiple images", async () => {

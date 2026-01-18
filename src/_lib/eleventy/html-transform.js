@@ -11,9 +11,16 @@
  */
 
 import configModule from "#data/config.js";
-import { addExternalLinkAttrs, getExternalLinkAttrs } from "#transforms/external-links.js";
+import {
+  addExternalLinkAttrs,
+  getExternalLinkAttrs,
+} from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
-import { linkifyEmails, linkifyPhones, linkifyUrls } from "#transforms/linkify.js";
+import {
+  linkifyEmails,
+  linkifyPhones,
+  linkifyUrls,
+} from "#transforms/linkify.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 import { memoize } from "#utils/memoize.js";
@@ -31,7 +38,6 @@ const createHtmlTransform = (processAndWrapImage) => {
       return content;
     }
     if (!content) return content;
-    if (outputPath.includes("/feed.")) return content;
 
     const config = await getConfig();
     const dom = await loadDOM(content);
@@ -54,7 +60,10 @@ const createHtmlTransform = (processAndWrapImage) => {
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage - Image processing function
  */
 const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
-  eleventyConfig.addTransform("htmlTransform", createHtmlTransform(processAndWrapImage));
+  eleventyConfig.addTransform(
+    "htmlTransform",
+    createHtmlTransform(processAndWrapImage),
+  );
   eleventyConfig.addFilter("externalLinkAttrs", async (url) => {
     const config = await getConfig();
     return getExternalLinkAttrs(url, config?.externalLinksTargetBlank ?? false);

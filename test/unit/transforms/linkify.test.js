@@ -1,12 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
-  linkifyUrls,
   linkifyEmails,
   linkifyPhones,
+  linkifyUrls,
   parseTextByPattern,
-  URL_PATTERN,
-  EMAIL_PATTERN,
   SKIP_TAGS,
+  URL_PATTERN,
 } from "#transforms/linkify.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -96,8 +95,7 @@ describe("linkify transforms", () => {
     });
 
     test("adds target=_blank when config enabled", async () => {
-      const html =
-        "<html><body><p>Visit https://example.com</p></body></html>";
+      const html = "<html><body><p>Visit https://example.com</p></body></html>";
       const result = await transformHtml(html, linkifyUrls, {
         externalLinksTargetBlank: true,
       });
@@ -107,8 +105,7 @@ describe("linkify transforms", () => {
     });
 
     test("does not add target=_blank when config disabled", async () => {
-      const html =
-        "<html><body><p>Visit https://example.com</p></body></html>";
+      const html = "<html><body><p>Visit https://example.com</p></body></html>";
       const result = await transformHtml(html, linkifyUrls, {
         externalLinksTargetBlank: false,
       });
@@ -167,8 +164,7 @@ describe("linkify transforms", () => {
     });
 
     test("does not linkify URLs inside code tags", async () => {
-      const html =
-        "<html><body><code>https://example.com</code></body></html>";
+      const html = "<html><body><code>https://example.com</code></body></html>";
       const result = await transformHtml(html, linkifyUrls, {});
 
       expect(result).not.toContain("<a href");
@@ -200,8 +196,7 @@ describe("linkify transforms", () => {
 
   describe("linkifyEmails", () => {
     test("converts plain email addresses to mailto links", async () => {
-      const html =
-        "<html><body><p>Contact hello@example.com</p></body></html>";
+      const html = "<html><body><p>Contact hello@example.com</p></body></html>";
       const result = await transformHtml(html, linkifyEmails, {});
 
       expect(result).toContain('href="mailto:hello@example.com"');

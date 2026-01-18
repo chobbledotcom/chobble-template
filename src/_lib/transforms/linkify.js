@@ -16,9 +16,13 @@ const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.[\w-]+/g;
 /** Tags to skip when processing text nodes */
 const SKIP_TAGS = ["a", "script", "style", "code", "pre"];
 
+/** @type {(value: string) => TextPart} */
 const textPart = (value) => ({ type: "text", value });
+/** @type {(value: string) => TextPart} */
 const urlPart = (value) => ({ type: "url", value });
+/** @type {(value: string) => TextPart} */
 const emailPart = (value) => ({ type: "email", value });
+/** @type {(value: string) => TextPart} */
 const phonePart = (value) => ({ type: "phone", value });
 
 /**
@@ -69,7 +73,7 @@ const shouldProcessNode = (node, pattern) => {
 
 /**
  * Collect text nodes matching a pattern using recursive walker
- * @param {Document} document
+ * @param {*} document
  * @param {RegExp} pattern
  * @returns {Text[]}
  */
@@ -87,7 +91,7 @@ const collectTextNodes = (document, pattern) => {
 
 /**
  * Create link element for a URL
- * @param {Document} document
+ * @param {*} document
  * @param {string} url
  * @param {boolean} targetBlank
  * @returns {HTMLAnchorElement}
@@ -108,7 +112,7 @@ const createUrlLink = (document, url, targetBlank) => {
 
 /**
  * Create link element for an email
- * @param {Document} document
+ * @param {*} document
  * @param {string} email
  * @returns {HTMLAnchorElement}
  */
@@ -121,7 +125,7 @@ const createEmailLink = (document, email) => {
 
 /**
  * Create link element for a phone number
- * @param {Document} document
+ * @param {*} document
  * @param {string} phone
  * @returns {HTMLAnchorElement}
  */
@@ -134,13 +138,14 @@ const createPhoneLink = (document, phone) => {
 
 /**
  * Create DOM node for a text part
- * @param {Document} document
+ * @param {*} document
  * @param {TextPart} part
  * @param {boolean} targetBlank
  * @returns {Node}
  */
 const createNodeForPart = (document, part, targetBlank) => {
-  if (part.type === "url") return createUrlLink(document, part.value, targetBlank);
+  if (part.type === "url")
+    return createUrlLink(document, part.value, targetBlank);
   if (part.type === "email") return createEmailLink(document, part.value);
   if (part.type === "phone") return createPhoneLink(document, part.value);
   return document.createTextNode(part.value);
@@ -148,7 +153,7 @@ const createNodeForPart = (document, part, targetBlank) => {
 
 /**
  * Create document fragment from parts
- * @param {Document} document
+ * @param {*} document
  * @param {TextPart[]} parts
  * @param {boolean} targetBlank
  * @returns {DocumentFragment}
@@ -163,7 +168,7 @@ const createLinkFragment = (document, parts, targetBlank) => {
 
 /**
  * Process text nodes and replace with linkified content
- * @param {Document} document
+ * @param {*} document
  * @param {RegExp} pattern
  * @param {(text: string) => TextPart[]} parser
  * @param {string} linkType
@@ -183,7 +188,7 @@ const processTextNodes = (document, pattern, parser, linkType, targetBlank) => {
 
 /**
  * Linkify URLs in document
- * @param {Document} document
+ * @param {*} document
  * @param {{ externalLinksTargetBlank?: boolean }} config
  */
 const linkifyUrls = (document, config) => {
@@ -199,7 +204,7 @@ const linkifyUrls = (document, config) => {
 
 /**
  * Linkify email addresses in document
- * @param {Document} document
+ * @param {*} document
  * @param {{ externalLinksTargetBlank?: boolean }} _config
  */
 const linkifyEmails = (document, _config) => {
@@ -214,7 +219,7 @@ const linkifyEmails = (document, _config) => {
 
 /**
  * Linkify phone numbers in document
- * @param {Document} document
+ * @param {*} document
  * @param {{ phoneNumberLength?: number }} config
  */
 const linkifyPhones = (document, config) => {

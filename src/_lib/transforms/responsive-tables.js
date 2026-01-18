@@ -7,7 +7,7 @@
 
 /**
  * Wrap tables in scrollable containers
- * @param {Document} document
+ * @param {*} document
  * @param {object} _config - Unused, included for consistent transform signature
  */
 const wrapTables = (document, _config) => {
