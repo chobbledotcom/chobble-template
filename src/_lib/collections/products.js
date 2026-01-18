@@ -5,7 +5,16 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
+import { groupByWithCache } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
+
+/** Index products by category for O(1) lookups, cached per products array */
+const indexByCategory = groupByWithCache(
+  (product) => product.data.categories ?? [],
+);
+
+/** Index products by event for O(1) lookups, cached per products array */
+const indexByEvent = groupByWithCache((product) => product.data.events ?? []);
 
 /**
  * Compute gallery array from gallery or header_image (for eleventyComputed)
@@ -44,9 +53,7 @@ const createProductsCollection = (collectionApi) => {
 };
 
 const getProductsByCategory = (products, categorySlug) =>
-  products
-    .filter((product) => product.data.categories?.includes(categorySlug))
-    .sort(sortItems);
+  (indexByCategory(products)[categorySlug] ?? []).sort(sortItems);
 
 /**
  * Get unique products that belong to any of the given categories
@@ -62,9 +69,7 @@ const getProductsByCategories = (products, categorySlugs) => {
 };
 
 const getProductsByEvent = (products, eventSlug) =>
-  products
-    .filter((product) => product.data.events?.includes(eventSlug))
-    .sort(sortItems);
+  (indexByEvent(products)[eventSlug] ?? []).sort(sortItems);
 
 /**
  * Get featured products from a products collection
@@ -130,10 +135,12 @@ const configureProducts = (eleventyConfig) => {
     productReviewsRedirects,
   );
 
+  // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
   eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
+  // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
-  // @ts-expect-error - Filter returns array, not string (used for data transformation in templates)
+  // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 
