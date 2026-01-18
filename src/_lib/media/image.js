@@ -2,9 +2,9 @@
  * Image processing for Eleventy - wraps eleventy-img with cropping and LQIP.
  *
  * Entry points:
- * - configureImages(): Registers Eleventy plugin with shortcode, transform, and collection
+ * - configureImages(): Registers Eleventy plugin with shortcode and collection
  * - imageShortcode(): Template shortcode for manual image processing
- * - createImageTransform(): Returns HTML transform that processes <img> elements
+ * - processAndWrapImage(): Main function for image processing (used by html-transform)
  *
  * Processing flow:
  * - processAndWrapImage(): Main function, handles external URLs with simple img tag
@@ -21,7 +21,6 @@ import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
 import { getEleventyImg, getThumbnailOrNull } from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
-import { createImageTransform as createTransform } from "#media/image-transform.js";
 import {
   buildImgAttributes,
   buildWrapperStyles,
@@ -144,8 +143,6 @@ const processAndWrapImage = async ({
   return returnElement ? await parseHtml(html, document) : html;
 };
 
-const createImageTransform = () => createTransform(processAndWrapImage);
-
 const configureImages = async (eleventyConfig) => {
   const imageFiles = ["src/images/*.jpg"].flatMap((pattern) => [
     ...new Bun.Glob(pattern).scanSync("."),
@@ -155,7 +152,6 @@ const configureImages = async (eleventyConfig) => {
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);
 
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
-  eleventyConfig.addTransform("processImages", createImageTransform());
   eleventyConfig.addCollection("images", () =>
     (imageFiles ?? []).map((i) => i.split("/")[2]).reverse(),
   );
@@ -196,4 +192,4 @@ const imageShortcode = async (
     returnElement: false,
   });
 
-export { createImageTransform, configureImages, imageShortcode };
+export { configureImages, imageShortcode, processAndWrapImage };

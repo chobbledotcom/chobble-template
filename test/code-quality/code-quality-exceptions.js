@@ -119,6 +119,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/frontend/config.test.js",
   "test/unit/utils/object-entries.test.js",
   "test/unit/utils/strings.test.js",
+  "test/unit/transforms/images.test.js",
 ]);
 
 // ============================================
@@ -144,6 +145,7 @@ const ALLOWED_LET = new Set([
   "test/test-utils.js",
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
+  "test/unit/transforms/images.test.js",
 ]);
 
 // ============================================
@@ -158,11 +160,11 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
-  "src/_lib/eleventy/external-links.js", // Text processing pipeline helpers kept separate for function-length
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
   "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
   "src/_lib/filters/item-filters.js",
+  "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/public/ui/availability-calendar.js",
