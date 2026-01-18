@@ -1,9 +1,9 @@
 ---
-name: Ms NotARealPerson
+name: Sarah Example
 url: https://example.com
 products:
   - pocket-doodah-mini
 rating: 5
 ---
 
-Despite being entirely fictional, I can confirm the Pocket Doodah Mini is sprocket-certified - no faff, just quality gizmo that operates with wotzit-grade precision.
+There are lots of collection types. Products, categories, events, news, menus, locations, properties, reviews, and team profiles are all supported out of the box.

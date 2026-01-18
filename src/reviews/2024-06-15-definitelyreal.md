@@ -1,6 +1,6 @@
 ---
-name: Dr Definitely Real PhD
+name: James Example
 url: https://example.com
 ---
 
-Scientific assessment from the University of Made-Up Places: Chobble template = game changer. Would recommend to all my imaginary colleagues at our weekly séance... I mean, seminar.
+The code is quite tidy. Functions are small, imports use aliases, and the linter keeps everything consistent.
