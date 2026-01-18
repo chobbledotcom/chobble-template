@@ -1,17 +1,17 @@
 import { addGallery } from "#collections/products.js";
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
-import { arraySlugKey, memoize } from "#utils/memoize.js";
+import { groupByWithCache } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
-const getPropertiesByLocation = memoize(
-  (properties, locationSlug) => {
-    if (!properties || !locationSlug) return [];
-    return properties
-      .filter((property) => property.data.locations?.includes(locationSlug))
-      .sort(sortItems);
-  },
-  { cacheKey: arraySlugKey },
+/** Index properties by location for O(1) lookups, cached per properties array */
+const indexByLocation = groupByWithCache(
+  (property) => property.data.locations ?? [],
 );
+
+const getPropertiesByLocation = (properties, locationSlug) => {
+  if (!properties || !locationSlug) return [];
+  return (indexByLocation(properties)[locationSlug] ?? []).sort(sortItems);
+};
 
 /**
  * Get featured properties from a properties collection

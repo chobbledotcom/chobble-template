@@ -2,8 +2,10 @@
  * Memoization utilities for caching function results.
  *
  * Supports configurable cache key functions with helpers:
- * - arraySlugKey: for (array, string) signatures
  * - jsonKey: for objects via sorted JSON stringify
+ *
+ * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
+ * caching for automatic garbage collection.
  */
 import { map, pipe } from "#utils/array-utils.js";
 import { buildReverseIndex } from "#utils/grouping.js";
@@ -26,18 +28,6 @@ const memoize = (fn, options = {}) => {
     cache.set(key, result);
     return result;
   };
-};
-
-/**
- * Cache key generator for (array, string) signatures
- * Uses array.length + slug for efficient keying
- * @param {[unknown[] | null | undefined, string]} args - Arguments tuple
- * @returns {string} Cache key
- */
-const arraySlugKey = (args) => {
-  const arr = args[0];
-  const slug = args[1];
-  return `${arr?.length || 0}:${slug}`;
 };
 
 /**
@@ -155,4 +145,4 @@ const groupByWithCache = (getKeys) =>
     Object.fromEntries(buildReverseIndex(arr, getKeys)),
   );
 
-export { memoize, arraySlugKey, jsonKey, indexBy, groupByWithCache };
+export { memoize, jsonKey, indexBy, groupByWithCache };

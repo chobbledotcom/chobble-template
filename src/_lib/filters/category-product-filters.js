@@ -153,7 +153,6 @@ const createCategoryFilterRedirects = (collectionApi) =>
 const createCategoryListingFilterUI = (collectionApi) => {
   const filteredPages = createFilteredCategoryProductPages(collectionApi);
   const filterAttrs = createCategoryFilterAttributes(collectionApi);
-
   const pagesByCategorySlug = indexPagesByCategorySlug(filteredPages);
 
   return Object.fromEntries(

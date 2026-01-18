@@ -78,7 +78,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:19", // memoization cache (fundamental to memoize utility)
+  "src/_lib/utils/memoize.js:21", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
