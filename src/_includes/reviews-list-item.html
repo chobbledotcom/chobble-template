@@ -1,27 +1,48 @@
 <li>
-  <blockquote>
-    {{- review.content -}}
-    <footer>
-    {%- if review.data.url -%}
-      <a
-        href="{{ review.data.url }}"
-        rel="nofollow"
-      >
-        {{- review.data.name -}}
-      </a>
-    {%- else -%}
-      {{- review.data.name -}}
+  <div class="review-header">
+    {%- if review.data.rating -%}
+      <span class="rating" aria-label="{{ review.data.rating }} out of 5 stars">{{ review.data.rating | ratingToStars }}</span>
     {%- endif -%}
-
-    {%- if product_links and review.data.products.size > 0 -%}
-      <br>
+    <span class="date">{{ review.page.date | date: "%b '%y" }}</span>
+  </div>
+  <span class="review">{{ review.content }}</span>
+  {%- if product_links and review.data.products.size > 0 -%}
+    <span class="products">
       {{ review.data.products | linkList: collections.products }}
-    {%- endif %}
+    </span>
+  {%- endif -%}
+  <div class="author-info">
     {%- if review.data.thumbnail -%}
-      <img src="{{ review.data.thumbnail }}" alt="" class="reviewer-avatar" width="40" height="40" loading="lazy">
+      <img
+        src="{{ review.data.thumbnail }}"
+        alt=""
+        class="reviewer-avatar"
+        width="80"
+        height="80"
+        eleventy:widths="40,80"
+        loading="lazy"
+      >
     {%- elsif review.data.name -%}
-      <img src="{{ review.data.name | reviewerAvatar }}" alt="" class="reviewer-avatar" width="40" height="40">
+      <img
+        src="{{ review.data.name | reviewerAvatar }}"
+        alt=""
+        class="reviewer-avatar"
+        width="80"
+        height="80"
+        loading="lazy"
+      >
     {%- endif -%}
-    </footer>
-  </blockquote>
+    <div class="author-details">
+      <span class="name">{{ review.data.name }}</span>
+      {%- if review.data.url -%}
+        {%- assign link_text = "View review" -%}
+        {%- if review.data.url contains "google.com" -%}
+          {%- assign link_text = "View on Google" -%}
+        {%- elsif review.data.url contains "facebook.com" -%}
+          {%- assign link_text = "View on Facebook" -%}
+        {%- endif -%}
+        <a href="{{ review.data.url }}" class="review-link" target="_blank" rel="nofollow">{{ link_text }}</a>
+      {%- endif -%}
+    </div>
+  </div>
 </li>

@@ -1,0 +1,117 @@
+@use "variables" as *;
+@use "breakpoints";
+
+// =============================================================================
+// REVIEWS GRID
+// =============================================================================
+// Responsive grid layout for customer reviews.
+// Uses design-system patterns and variables.
+// =============================================================================
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-lg;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: stretch;
+
+  @include breakpoints.down("lg") {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include breakpoints.down("sm") {
+    grid-template-columns: 1fr;
+  }
+
+  // On item pages, show 2 columns max
+  body.item & {
+    grid-template-columns: repeat(2, 1fr);
+    @include breakpoints.down("md") {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  > li {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+    padding: $space-md;
+    background: var(--color-accent);
+    border: var(--border);
+    border-radius: var(--border-radius);
+
+    @include breakpoints.down("sm") {
+      text-align: center;
+    }
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .rating {
+    font-size: $font-size-lg;
+  }
+
+  .date {
+    font-size: $font-size-sm;
+    opacity: 0.7;
+    margin-left: auto;
+  }
+
+  .review {
+    font-size: $font-size-base;
+    line-height: var(--line-height);
+  }
+
+  .products {
+    flex: 1;
+    font-size: $font-size-sm;
+    font-style: italic;
+
+    a {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .author-info {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-sm;
+    margin-top: auto;
+
+    @include breakpoints.down("sm") {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .reviewer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+  }
+
+  .author-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: $font-size-sm;
+  }
+
+  .name {
+    font-weight: bold;
+  }
+
+  .review-link {
+    font-size: $font-size-sm;
+  }
+}
