@@ -413,33 +413,26 @@ blockquote {
     }
   }
 
+  .rating {
+    color: #f5a623;
+    font-size: 1.1rem;
+  }
+
   .review {
     flex: 1;
     font-size: 1rem;
     line-height: var(--line-height);
   }
 
-  .meta {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.5rem;
-    align-items: center;
+  .author-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
     margin-top: auto;
 
     @include breakpoints.down("sm") {
-      grid-template-columns: 1fr;
-      justify-items: center;
-    }
-  }
-
-  .name {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: bold;
-
-    @include breakpoints.down("sm") {
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
     }
 
     .reviewer-avatar {
@@ -449,30 +442,26 @@ blockquote {
       object-fit: cover;
       flex-shrink: 0;
     }
-
-    span {
-      font-size: 0.9rem;
-      a {
-        font-weight: normal;
-        font-size: 0.8rem;
-      }
-    }
   }
 
-  .rating {
-    color: #f5a623;
-    font-size: 1.1rem;
-    text-align: right;
+  .author-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.9rem;
+  }
 
-    @include breakpoints.down("sm") {
-      text-align: center;
-    }
+  .name {
+    font-weight: bold;
   }
 
   .date {
     font-size: 0.8rem;
-    font-style: italic;
     opacity: 0.7;
+  }
+
+  .review-link {
+    font-size: 0.8rem;
   }
 
   .products {
