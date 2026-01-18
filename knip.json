@@ -16,7 +16,8 @@
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [
 		"ecommerce-backend/**",
-		"_site/**"
+		"_site/**",
+		"packages/**"
 	],
 	"ignoreDependencies": [
 		"bun-types"
