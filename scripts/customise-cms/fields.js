@@ -43,6 +43,11 @@ export const COMMON_FIELDS = {
     type: "code",
     options: { language: "markdown" },
   },
+  body_visual: {
+    name: "body",
+    label: "Body",
+    type: "rich-text",
+  },
   header_text: { name: "header_text", type: "string", label: "Header Text" },
   meta_title: {
     name: "meta_title",
@@ -233,10 +238,11 @@ export const FILTER_ATTRIBUTES_FIELD = createNameValueListField(
 );
 
 /**
- * Tabs field
- * @type {CmsField}
+ * Create tabs field with appropriate body type based on config
+ * @param {boolean} useVisualEditor - Whether to use visual editor
+ * @returns {CmsField} Tabs field configuration
  */
-export const TABS_FIELD = {
+export const createTabsField = (useVisualEditor) => ({
   name: "tabs",
   label: "Tabs",
   type: "object",
@@ -244,12 +250,39 @@ export const TABS_FIELD = {
   fields: [
     { name: "title", type: "string", label: "Title", required: true },
     { name: "image", type: "image", label: "Image" },
-    {
-      name: "body",
-      label: "Body",
-      type: "code",
-      options: { language: "markdown" },
-      required: true,
-    },
+    useVisualEditor
+      ? { name: "body", label: "Body", type: "rich-text", required: true }
+      : {
+          name: "body",
+          label: "Body",
+          type: "code",
+          options: { language: "markdown" },
+          required: true,
+        },
   ],
-};
+});
+
+/**
+ * Tabs field (legacy, uses markdown)
+ * @type {CmsField}
+ */
+export const TABS_FIELD = createTabsField(false);
+
+/**
+ * Get body field based on visual editor configuration
+ * @param {boolean} useVisualEditor - Whether to use visual editor
+ * @returns {CmsField} Body field configuration
+ */
+export const getBodyField = (useVisualEditor) =>
+  useVisualEditor ? COMMON_FIELDS.body_visual : COMMON_FIELDS.body;
+
+/**
+ * Create a body field with custom label
+ * @param {string} label - Custom label for the body field
+ * @param {boolean} useVisualEditor - Whether to use visual editor
+ * @returns {CmsField} Body field configuration with custom label
+ */
+export const createBodyField = (label, useVisualEditor) => ({
+  ...getBodyField(useVisualEditor),
+  label,
+});

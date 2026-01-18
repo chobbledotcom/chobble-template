@@ -117,6 +117,10 @@ describe("DEFAULTS", () => {
   test("has null product_mode by default", () => {
     expect(DEFAULTS.product_mode).toBe(null);
   });
+
+  test("has use_visual_editor disabled by default", () => {
+    expect(DEFAULTS.use_visual_editor).toBe(false);
+  });
 });
 
 describe("DEFAULT_PRODUCT_DATA", () => {
