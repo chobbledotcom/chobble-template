@@ -52,10 +52,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
-
-  // test/test-utils.js - Test utility definitions (test infrastructure)
-  // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
-  "test/test-utils.js",
 ]);
 
 // ============================================
@@ -81,7 +77,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js",
+  "test/test-utils.js:115", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -141,7 +137,6 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
   "test/integration/test-site-factory.test.js",
-  "test/test-utils.js",
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
   "test/unit/transforms/images.test.js",
@@ -240,7 +235,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = new Set([
   // Infrastructure: DOM class definition
-  "test/test-utils.js:10",
+  "test/test-utils.js:142",
 
   // Parsing build output into queryable documents
   "test/test-site-factory.js:327",

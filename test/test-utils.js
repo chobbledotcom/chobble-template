@@ -1,11 +1,130 @@
+/**
+ * Test utilities for chobble-template
+ *
+ * Re-exports generic utilities from @chobble/js-toolkit with project-specific
+ * wrappers, plus Eleventy-specific test helpers.
+ */
 import { expect } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
+import {
+  expectArrayProp,
+  expectAsyncThrows,
+  expectDataArray,
+  expectErrorsInclude,
+  expectObjectProps,
+  expectProp,
+} from "#toolkit/test-utils/assertions.js";
+import {
+  ALWAYS_SKIP,
+  extractFunctions,
+  memoizedFileGetter,
+  getFiles as toolkitGetFiles,
+} from "#toolkit/test-utils/code-analysis.js";
+
+import {
+  captureConsole,
+  captureConsoleLogAsync,
+  createConsoleCapture,
+  mockFetch,
+  withMockFetch,
+} from "#toolkit/test-utils/mocking.js";
+// Import from toolkit for internal use and re-export
+import {
+  bracket,
+  bracketAsync,
+  cleanupTempDir,
+  createTempFile,
+  withMockedCwd,
+  withMockedCwdAsync,
+  withMockedProcessExit,
+  withSubDir,
+  withSubDirAsync,
+} from "#toolkit/test-utils/resource.js";
 import { data, map, toData } from "#utils/array-utils.js";
-import { memoize } from "#utils/memoize.js";
+
+// ============================================
+// Project-specific path utilities
+// ============================================
+
+const rootDir = ROOT_DIR;
+const srcDir = SRC_DIR;
+
+// Wrap toolkit's createTempDir to use test directory (not cwd)
+const createTempDir = (testName, suffix = "") => {
+  const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
+  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
+  const tempDir = path.join(__dirname, dirName);
+  fs.mkdirSync(tempDir, { recursive: true });
+  return tempDir;
+};
+
+const createTempSnippetsDir = (testName) => {
+  const tempDir = createTempDir(testName);
+  const snippetsDir = path.join(tempDir, "src/snippets");
+  fs.mkdirSync(snippetsDir, { recursive: true });
+  return { tempDir, snippetsDir };
+};
+
+// Create project-specific withTempDir functions using our createTempDir
+const withTempDir = bracket(createTempDir, cleanupTempDir);
+const withTempDirAsync = bracketAsync(createTempDir, cleanupTempDir);
+
+const withTempFile = (testName, filename, content, callback) =>
+  withTempDir(testName, (tempDir) => {
+    const filePath = path.join(tempDir, filename);
+    fs.writeFileSync(filePath, content);
+    return callback(tempDir, filePath);
+  });
+
+// ============================================
+// File discovery utilities (project-specific ROOT_DIR)
+// ============================================
+
+/**
+ * Get all files matching a pattern from the project root.
+ * Wrapper around toolkit's getFiles with implicit ROOT_DIR.
+ */
+const getFiles = (pattern) => toolkitGetFiles(pattern, rootDir);
+
+/**
+ * Create a memoized file getter for a given pattern.
+ * Uses project's ROOT_DIR implicitly.
+ */
+const memoizedFiles = memoizedFileGetter(rootDir);
+
+const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
+const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
+const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
+const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
+const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
+const ALL_JS_FILES = memoizedFiles(/^(src|ecommerce-backend|test)\/.*\.js$/);
+
+/**
+ * Create a pattern extractor for files.
+ * Reads files directly (supports both absolute and relative paths).
+ * For relative paths, prepends rootDir.
+ */
+const createExtractor =
+  (pattern, transform = (m) => m[1]) =>
+  (files) => {
+    const fileList = Array.isArray(files) ? files : [files];
+    const results = new Set();
+
+    for (const file of fileList) {
+      // Support both absolute and relative paths
+      const filePath = path.isAbsolute(file) ? file : path.join(rootDir, file);
+      const content = fs.readFileSync(filePath, "utf-8");
+      for (const match of content.matchAll(pattern)) {
+        results.add(transform(match));
+      }
+    }
+
+    return results;
+  };
 
 // ============================================
 // Object Utilities (for test infrastructure)
@@ -14,8 +133,6 @@ import { memoize } from "#utils/memoize.js";
 /**
  * Create a curried function that omits specified keys from an object.
  * Moved here from production code since it's only used in tests.
- * @param {string[]} keys - Keys to omit
- * @returns {(obj: Record<string, any>) => Record<string, any>} Function that omits specified keys
  */
 const omit = (keys) => (obj) =>
   Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
@@ -27,9 +144,6 @@ const omit = (keys) => (obj) =>
 /**
  * Compile SCSS content to CSS (test utility).
  * Moved here from production code since it's only used in tests.
- * @param {string} inputContent - SCSS source code
- * @param {string} inputPath - Path for import resolution
- * @returns {Promise<string>} Compiled CSS
  */
 const compileScss = async (inputContent, inputPath) => {
   const { createScssCompiler } = await import("#build/scss.js");
@@ -47,64 +161,27 @@ class DOM {
   }
 }
 
-const rootDir = ROOT_DIR;
-const srcDir = SRC_DIR;
-
-// Directories always skipped during file discovery
-const ALWAYS_SKIP = new Set([
-  "node_modules",
-  ".git",
-  "_site",
-  ".test-sites",
-  "result", // Nix build output symlink
-]);
-
 // ============================================
 // Curried Factory Functions for Mock Config
 // ============================================
 
-/**
- * Create a method that adds items to an object map.
- * Curried: (propName) => function(name, value) that assigns this[propName][name] = value
- *
- * @param {string} propName - The property name for the object map
- * @returns {Function} Method that adds name/value pairs to the map
- *
- * @example
- * const addFilter = createMapMethod("filters");
- * // Later: addFilter.call(config, "myFilter", fn)
- */
 const createMapMethod = (propName) =>
   function (name, value) {
     this[propName] = this[propName] || {};
     this[propName][name] = value;
   };
 
-/**
- * Create a method that pushes items to an array.
- * Curried: (propName) => function(item) that pushes to this[propName]
- *
- * @param {string} propName - The property name for the array
- * @returns {Function} Method that pushes items to the array
- *
- * @example
- * const addWatchTarget = createArrayMethod("watchTargets");
- * // Later: addWatchTarget.call(config, "src/**")
- */
 const createArrayMethod = (propName) =>
   function (item) {
     this[propName] = this[propName] || [];
     this[propName].push(item);
   };
 
-// Define createMockEleventyConfig BEFORE getFiles() to avoid TDZ issues
-// when getFiles() triggers circular imports during module initialization
 const createMockEleventyConfig = () => ({
   addPlugin: function (plugin, config) {
     this.pluginCalls = this.pluginCalls || [];
     this.pluginCalls.push({ plugin, config });
   },
-  // Object map methods - use curried factory
   addCollection: createMapMethod("collections"),
   addFilter: createMapMethod("filters"),
   addAsyncFilter: createMapMethod("asyncFilters"),
@@ -115,429 +192,19 @@ const createMockEleventyConfig = () => ({
   addTransform: createMapMethod("transforms"),
   addGlobalData: createMapMethod("globalData"),
   on: createMapMethod("eventHandlers"),
-  // Array push methods - use curried factory
   addTemplateFormats: createArrayMethod("templateFormats"),
   addWatchTarget: createArrayMethod("watchTargets"),
   addPassthroughCopy: createArrayMethod("passthroughCopies"),
-  // Mock plugin resolution (used by feed.js)
   resolvePlugin: () => () => {},
   pathPrefix: "/",
 });
-
-/**
- * Get all files matching a pattern from the project root.
- * Returns relative paths from root that match the regex.
- */
-const getFiles = (pattern) => {
-  const results = [];
-
-  const walk = (dir) => {
-    for (const entry of fs.readdirSync(dir)) {
-      // Skip hidden files, known skip dirs, and temp test directories
-      if (
-        entry.startsWith(".") ||
-        entry.startsWith("temp-") ||
-        ALWAYS_SKIP.has(entry)
-      )
-        continue;
-
-      const fullPath = path.join(dir, entry);
-      const relativePath = path.relative(rootDir, fullPath);
-
-      if (fs.statSync(fullPath).isDirectory()) {
-        walk(fullPath);
-      } else if (pattern.test(relativePath)) {
-        results.push(relativePath);
-      }
-    }
-  };
-
-  walk(rootDir);
-  return results;
-};
-
-// Memoized file list getters - defer getFiles() call until first use
-// to avoid TDZ issues during circular imports at module load time
-
-/**
- * Create a memoized file getter for a given pattern.
- * Curried: (pattern) => () => files
- *
- * @param {RegExp} pattern - Regex pattern for file matching
- * @returns {Function} Memoized function that returns matching files
- *
- * @example
- * const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
- * const files = SRC_JS_FILES(); // Returns array of matching files
- */
-const memoizedFiles = (pattern) => memoize(() => getFiles(pattern));
-
-const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
-const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
-const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
-const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
-const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src|ecommerce-backend|test)\/.*\.js$/);
-
-// Console capture utilities for testing output
-// Uses curried factory to eliminate duplication between sync and async versions
-
-/**
- * Create a console capture function with a given executor.
- * Curried: (executor) => (fn) => logs
- *
- * The executor receives (fn, cleanup, logs) where:
- * - fn: the function to execute
- * - cleanup: function to restore console.log
- * - logs: array of captured log strings
- *
- * @param {Function} executor - (fn, cleanup, logs) => result
- * @returns {Function} (fn) => logs - Console capture function
- *
- * @example
- * const captureSync = createConsoleCapture((fn, cleanup, logs) => { fn(); cleanup(); return logs; });
- */
-const createConsoleCapture = (executor) => (fn) => {
-  const logs = [];
-  const originalLog = console.log;
-  console.log = (...args) => logs.push(args.join(" "));
-  return executor(
-    fn,
-    () => {
-      console.log = originalLog;
-    },
-    logs,
-  );
-};
-
-// Sync version: run fn(), restore console, return logs
-const captureConsole = createConsoleCapture((fn, cleanup, logs) => {
-  fn();
-  cleanup();
-  return logs;
-});
-
-// Async version: await fn(), restore console, return logs
-const captureConsoleLogAsync = createConsoleCapture(
-  async (fn, cleanup, logs) => {
-    await fn();
-    cleanup();
-    return logs;
-  },
-);
-
-const createTempDir = (testName, suffix = "") => {
-  const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
-  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
-  const tempDir = path.join(__dirname, dirName);
-  fs.mkdirSync(tempDir, { recursive: true });
-  return tempDir;
-};
-
-const createTempFile = (dir, filename, content) => {
-  const filePath = path.join(dir, filename);
-  fs.writeFileSync(filePath, content);
-  return filePath;
-};
-
-const createTempSnippetsDir = (testName) => {
-  const tempDir = createTempDir(testName);
-  const snippetsDir = path.join(tempDir, "src/snippets");
-  fs.mkdirSync(snippetsDir, { recursive: true });
-  return { tempDir, snippetsDir };
-};
-
-const cleanupTempDir = (tempDir) => {
-  if (fs.existsSync(tempDir)) {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  }
-};
-
-/**
- * Bracket pattern for resource management.
- * Curried: (setup, teardown, passResource) => (arg, callback) => result
- *
- * Implements: acquire resource, use it, release it.
- * Uses try-finally to ensure teardown runs even if callback throws.
- *
- * @param {Function} setup - (arg) => resource - Acquire the resource
- * @param {Function} teardown - (resource) => void - Release the resource
- * @param {boolean} passResource - Whether to pass resource to callback
- * @returns {Function} (arg, callback) => result
- */
-const bracket =
-  (setup, teardown, passResource = true) =>
-  (arg, callback) => {
-    const resource = setup(arg);
-    try {
-      return passResource ? callback(resource) : callback();
-    } finally {
-      teardown(resource);
-    }
-  };
-
-/**
- * Async bracket pattern for resource management.
- * Same as bracket but properly awaits async callbacks before teardown.
- *
- * @param {Function} setup - (arg) => resource - Acquire the resource
- * @param {Function} teardown - (resource) => void - Release the resource
- * @param {boolean} passResource - Whether to pass resource to callback
- * @returns {Function} async (arg, callback) => result
- */
-const bracketAsync =
-  (setup, teardown, passResource = true) =>
-  async (arg, callback) => {
-    const resource = setup(arg);
-    try {
-      return passResource ? await callback(resource) : await callback();
-    } finally {
-      teardown(resource);
-    }
-  };
-
-// Bracket-based resource management using curried factory
-const withTempDir = bracket(createTempDir, cleanupTempDir);
-
-// Async version for use with async test functions
-const withTempDirAsync = bracketAsync(createTempDir, cleanupTempDir);
-
-const withTempFile = (testName, filename, content, callback) =>
-  withTempDir(testName, (tempDir) => {
-    const filePath = createTempFile(tempDir, filename, content);
-    return callback(tempDir, filePath);
-  });
-
-// Shared setup/teardown for mocking process.cwd
-const mockCwdSetup = (newCwd) => {
-  const original = process.cwd;
-  process.cwd = () => newCwd;
-  return original;
-};
-
-const mockCwdTeardown = (original) => {
-  process.cwd = original;
-};
-
-const withMockedCwd = bracket(mockCwdSetup, mockCwdTeardown, false);
-const withMockedCwdAsync = bracketAsync(mockCwdSetup, mockCwdTeardown, false);
-
-const withMockedProcessExit = bracket(
-  () => {
-    const original = process.exit;
-    process.exit = () => {}; // Mock to do nothing
-    return original;
-  },
-  (original) => {
-    process.exit = original;
-  },
-  false,
-);
-
-/**
- * Create a temp directory with a specific subdirectory structure.
- * Manual version - returns cleanup function for explicit control.
- *
- * @param {string} testName - Unique name for the temp directory
- * @param {string} subPath - Subdirectory path to create (e.g., "src/assets/icons")
- * @returns {{ tempDir: string, subDir: string, cleanup: () => void }}
- */
-const withSubDir = (testName, subPath = "") => {
-  const tempDir = createTempDir(testName);
-  const subDir = subPath ? path.join(tempDir, subPath) : tempDir;
-  if (subPath) {
-    fs.mkdirSync(subDir, { recursive: true });
-  }
-  return { tempDir, subDir, cleanup: () => cleanupTempDir(tempDir) };
-};
-
-/**
- * Bracket-based temp directory with subdirectory.
- * Automatically cleans up after callback completes.
- *
- * @param {string} testName - Unique name for the temp directory
- * @param {string} subPath - Subdirectory path to create
- * @param {Function} callback - ({ tempDir, subDir }) => result
- * @returns {Promise<any>} Result of callback
- *
- * @example
- * await withSubDirAsync("my-test", "src/assets/icons", async ({ tempDir, subDir }) => {
- *   fs.writeFileSync(path.join(subDir, "icon.svg"), svg);
- *   const result = await myFunction(tempDir);
- *   expect(result).toBe(expected);
- * });
- */
-const withSubDirAsync = async (testName, subPath, callback) => {
-  const { tempDir, subDir, cleanup } = withSubDir(testName, subPath);
-  try {
-    return await callback({ tempDir, subDir });
-  } finally {
-    cleanup();
-  }
-};
-
-/**
- * Mock globalThis.fetch for testing network calls.
- * Manual version - returns restore function for explicit control.
- *
- * @param {string|Object} response - Response data
- * @param {Object} options - { ok?: boolean, status?: number }
- * @returns {() => void} Function to restore original fetch
- */
-const mockFetch = (response, options = {}) => {
-  const originalFetch = globalThis.fetch;
-  const responseText =
-    typeof response === "string" ? response : JSON.stringify(response);
-
-  globalThis.fetch = async () => ({
-    ok: options.ok !== false,
-    status: options.status || 200,
-    text: async () => responseText,
-    json: async () =>
-      typeof response === "string" ? JSON.parse(response) : response,
-  });
-
-  return () => {
-    globalThis.fetch = originalFetch;
-  };
-};
-
-/**
- * Bracket-based fetch mock.
- * Automatically restores original fetch after callback completes.
- *
- * @param {string|Object} response - Response data
- * @param {Object} options - { ok?: boolean, status?: number }
- * @param {Function} callback - async () => result
- * @returns {Promise<any>} Result of callback
- *
- * @example
- * await withMockFetch('<svg>...</svg>', {}, async () => {
- *   const result = await fetchIcon("mdi:home");
- *   expect(result).toContain("<svg");
- * });
- */
-const withMockFetch = async (response, options, callback) => {
-  const restore = mockFetch(response, options);
-  try {
-    return await callback();
-  } finally {
-    restore();
-  }
-};
-
-/**
- * Assert that a result is a valid script tag with correct id and type.
- * Functional helper to reduce duplication in script tag validation.
- *
- * @param {string} result - The script tag string to validate
- */
-const expectValidScriptTag = (result) => {
-  expect(result.startsWith('<script id="site-config"')).toBe(true);
-  expect(result.includes('type="application/json"')).toBe(true);
-  expect(result.endsWith("</script>")).toBe(true);
-};
-
-/**
- * Assert that an object has expected property values.
- * Curried for use with pipe: first call with expected props map.
- *
- * @param {Object} propMap - Map of property names to expected values
- * @returns {Function} (obj) => obj (returns obj for chaining in pipe)
- *
- * @example
- * expectObjectProps({ name: "foo", count: 42 })(myObj);
- *
- * @example
- * // Use with pipe
- * pipe(
- *   expectObjectProps({ item_widths: "240,480,640" }),
- *   expectObjectProps({ gallery_thumb_widths: "240,480" })
- * )(DEFAULT_PRODUCT_DATA);
- */
-const expectObjectProps = (propMap) => (obj) => {
-  for (const [key, value] of Object.entries(propMap)) {
-    expect(obj[key]).toBe(value);
-  }
-  return obj;
-};
-
-/**
- * Assert that a result array has expected values for a given property getter.
- * The most generic form - accepts any getter function.
- * Curried: first call with getter, returns assertion function.
- *
- * @param {Function} getter - (item) => value to extract from each item
- * @returns {Function} (result, expectedValues) => void
- *
- * @example
- * expectArrayProp(item => item.name)(result, ["Alpha", "Beta"]);
- * expectArrayProp(item => item.data.title)(result, ["Product 1", "Product 2"]);
- */
-const expectArrayProp = (getter) => (result, expectedValues) => {
-  expect(result.length).toBe(expectedValues.length);
-  expectedValues.forEach((value, i) => {
-    const actual = getter(result[i]);
-    if (value === undefined) {
-      expect(actual).toBe(undefined);
-    } else {
-      expect(actual).toEqual(value);
-    }
-  });
-};
-
-/**
- * Assert that a result array has expected values for a top-level property.
- * Curried: first call with key name, returns assertion function.
- *
- * @param {string} key - The property key to check (e.g., "name", "template")
- * @returns {Function} (result, expectedValues) => void
- *
- * @example
- * expectProp("name")(result, ["Alpha", "Beta"]);
- * expectProp("template")(result, ["input.html", "textarea.html"]);
- */
-const expectProp = (key) => expectArrayProp((item) => item[key]);
-
-/**
- * Assert that a result array has expected data values for a given key.
- * Curried: first call with key name, returns assertion function.
- * For checking result[i].data[key] patterns.
- *
- * @param {string} key - The data key to check (e.g., "gallery", "categories")
- * @returns {Function} (result, expectedValues) => void
- *
- * @example
- * const expectGalleries = expectDataArray("gallery");
- * expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
- */
-const expectDataArray = (key) => expectArrayProp((item) => item.data[key]);
-
-// Pre-built data array checkers using curried factory
-const expectGalleries = expectDataArray("gallery");
-const expectResultTitles = expectDataArray("title");
 
 // ============================================
 // Test Fixture Factories
 // ============================================
 
-// ----------------------------------------
-// Generic Item Builder
-// ----------------------------------------
-
 /**
  * Create a collection item with nested data structure.
- * This is the universal builder for products, properties, events, pages, etc.
- * All collection items share this pattern: { data: { title?, ...options } }
- *
- * @param {string|null} title - Item title (null/undefined to omit title)
- * @param {Object} options - Additional data (categories, featured, filter_attributes, etc.)
- * @returns {Object} Item with { data: { title?, ...options } }
- *
- * @example
- * item("My Product", { categories: ["widgets"], featured: true })
- * item("Beach House", { locations: ["coast"], filter_attributes: [...] })
- * item(null, { filter_attributes: [attr("Size", "Large")] })
  */
 const item = (title, options = {}) => ({
   data: {
@@ -548,24 +215,12 @@ const item = (title, options = {}) => ({
 
 /**
  * Create items from an array of [title, options] tuples.
- * Curried for use with pipe.
- *
- * @example
- * items([
- *   ["Product 1", { categories: ["widgets"] }],
- *   ["Product 2", { featured: true }],
- * ])
  */
 const items = map(([title, options]) => item(title, options));
-
-// ----------------------------------------
-// Frontmatter helpers
-// ----------------------------------------
 
 const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
 
-// Product fixtures
 const createProduct = ({
   slug = null,
   title = "Test Product",
@@ -585,313 +240,71 @@ const createProduct = ({
 });
 
 // ============================================
-// Code Analysis Utilities
+// Eleventy-specific assertion helpers
 // ============================================
 
 /**
- * Create a pattern extractor for files.
- * Curried: (pattern, transform) => (files) => Set
- * @param {RegExp} pattern - Regex with capture group
- * @param {function} [transform] - Transform match to value (default: m => m[1])
- * @returns {function} - files => Set of extracted values
+ * Assert that a result is a valid script tag with correct id and type.
  */
-const createExtractor =
-  (pattern, transform = (m) => m[1]) =>
-  (files) => {
-    const fileList = Array.isArray(files) ? files : [files];
-    const results = new Set();
-
-    for (const file of fileList) {
-      const content = fs.readFileSync(file, "utf-8");
-      for (const match of content.matchAll(pattern)) {
-        results.add(transform(match));
-      }
-    }
-
-    return results;
-  };
-
-/**
- * Extract all function definitions from JavaScript source code.
- * Uses a stack to properly handle nested functions.
- * Returns an array of { name, startLine, endLine, lineCount }.
- *
- * Pure functional implementation using reduce with immutable state.
- */
-const extractFunctions = (source) => {
-  // Helper: Match function declaration patterns in a line of code
-  const matchFunctionStart = (line) => {
-    const patterns = [
-      /^\s*(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/, // function declarations
-      /^\s*(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[a-zA-Z_$][a-zA-Z0-9_$]*)\s*=>\s*\{/, // arrow functions
-      /^\s*(?:async\s+)?(?!function\s)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\([^)]*\)\s*\{/, // method definitions (exclude anonymous functions)
-      /^\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*(?:async\s+)?(?:function\s*)?\(/, // object methods
-    ];
-    const match = patterns.reduce(
-      (found, pattern) => found || line.match(pattern),
-      null,
-    );
-    return match ? match[1] : null;
-  };
-
-  // Helper: Get adjacent characters
-  const getAdjacentChars = (index, chars) => ({
-    prev: index > 0 ? chars[index - 1] : "",
-    next: index < chars.length - 1 ? chars[index + 1] : "",
-  });
-
-  // Helper: Check if starting single-line comment
-  const isSingleLineCommentStart = (char, nextChar, state) =>
-    char === "/" && nextChar === "/" && !state.inComment;
-
-  // Helper: Check if starting multi-line comment
-  const isMultiLineCommentStart = (char, nextChar, state) =>
-    char === "/" && nextChar === "*" && !state.inComment;
-
-  // Helper: Check if ending multi-line comment
-  const isMultiLineCommentEnd = (char, nextChar, state) =>
-    char === "*" && nextChar === "/" && state.inComment;
-
-  // Helper: Check if string delimiter (not escaped)
-  const isStringDelimiter = (char, prevChar) =>
-    (char === '"' || char === "'") && prevChar !== "\\";
-
-  // Helper: Check if template literal delimiter (not escaped)
-  const isTemplateDelimiter = (char, prevChar) =>
-    char === "`" && prevChar !== "\\";
-
-  // Helper: Handle opening brace
-  const handleOpeningBrace = (state) => {
-    const newDepth = state.braceDepth + 1;
-    const newStack = state.stack.map((item) =>
-      item.openBraceDepth === null
-        ? { ...item, openBraceDepth: newDepth }
-        : item,
-    );
-    return { ...state, braceDepth: newDepth, stack: newStack };
-  };
-
-  // Helper: Handle closing brace
-  const handleClosingBrace = (lineNum, state) => {
-    const closingIndex = state.stack.findLastIndex(
-      (item) => item.openBraceDepth === state.braceDepth,
-    );
-
-    if (closingIndex < 0) {
-      return { ...state, braceDepth: state.braceDepth - 1 };
-    }
-
-    const completed = state.stack[closingIndex];
-    const newFunction = {
-      name: completed.name,
-      startLine: completed.startLine,
-      endLine: lineNum,
-      lineCount: lineNum - completed.startLine + 1,
-    };
-    return {
-      ...state,
-      braceDepth: state.braceDepth - 1,
-      stack: state.stack.filter((_, i) => i !== closingIndex),
-      functions: [...state.functions, newFunction],
-    };
-  };
-
-  // Helper: Handle comment state transitions
-  const handleComments = (state, char, nextChar) => {
-    if (isSingleLineCommentStart(char, nextChar, state)) {
-      return { ...state, stopLine: true };
-    }
-    if (isMultiLineCommentStart(char, nextChar, state)) {
-      return { ...state, inComment: true, skipNext: true };
-    }
-    if (isMultiLineCommentEnd(char, nextChar, state)) {
-      return { ...state, inComment: false, skipNext: true };
-    }
-    return null;
-  };
-
-  // Helper: Handle string delimiter state transitions
-  const handleStringDelimiters = (state, char) => {
-    if (!state.inString) {
-      return { ...state, inString: true, stringChar: char };
-    }
-    if (char === state.stringChar) {
-      return { ...state, inString: false, stringChar: null };
-    }
-    return state;
-  };
-
-  // Helper: Process a single character in the parser (curried for reduce)
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Inherent complexity from state machine logic
-  const processChar = (lineNum) => (state, char, index, chars) => {
-    // Quick exits for special states
-    if (state.skipNext) return { ...state, skipNext: false };
-    if (state.stopLine) return state;
-
-    const { prev: prevChar, next: nextChar } = getAdjacentChars(index, chars);
-
-    // Comment handling when not in string/template
-    if (!state.inString && !state.inTemplate) {
-      const result = handleComments(state, char, nextChar);
-      if (result !== null) return result;
-    }
-
-    // Early exit: inside multiline comments
-    if (state.inComment) return state;
-
-    // String delimiters (when not in template)
-    if (!state.inTemplate && isStringDelimiter(char, prevChar)) {
-      return handleStringDelimiters(state, char);
-    }
-
-    // Template delimiters
-    if (isTemplateDelimiter(char, prevChar)) {
-      return { ...state, inTemplate: !state.inTemplate };
-    }
-
-    // Early exit: inside strings
-    if (state.inString) return state;
-
-    // Handle braces
-    return char === "{"
-      ? handleOpeningBrace(state)
-      : char === "}"
-        ? handleClosingBrace(lineNum, state)
-        : state;
-  };
-
-  // Helper: Process a single line of source code
-  const processLine = (state, line, index) => {
-    const lineNum = index + 1;
-
-    // Check for function start and add to stack if found
-    const funcName = matchFunctionStart(line);
-    const stateWithFunc = funcName
-      ? {
-          ...state,
-          stack: [
-            ...state.stack,
-            { name: funcName, startLine: lineNum, openBraceDepth: null },
-          ],
-        }
-      : state;
-
-    // Process each character with reduce
-    const chars = [...line];
-    const lineState = { ...stateWithFunc, stopLine: false };
-    const processedState = chars.reduce(processChar(lineNum), lineState);
-
-    // Clean up line-specific flag
-    const { stopLine: _, ...cleanState } = processedState;
-    return cleanState;
-  };
-  const initialState = {
-    braceDepth: 0,
-    inString: false,
-    stringChar: null,
-    inTemplate: false,
-    inComment: false,
-    skipNext: false,
-    functions: [],
-    stack: [],
-  };
-
-  const lines = source.split("\n");
-  const finalState = lines.reduce(processLine, initialState);
-  return finalState.functions;
+const expectValidScriptTag = (result) => {
+  expect(result.startsWith('<script id="site-config"')).toBe(true);
+  expect(result.includes('type="application/json"')).toBe(true);
+  expect(result.endsWith("</script>")).toBe(true);
 };
+
+// Pre-built data array checkers
+const expectGalleries = expectDataArray("gallery");
+const expectResultTitles = expectDataArray("title");
 
 // ============================================
 // Mock Collection API Helpers
 // ============================================
 
-/**
- * Create a mock collection API that returns items for any tag.
- * Simple version with no tag assertion.
- *
- * @param {Array} items - Items to return from getFilteredByTag
- * @returns {Object} Mock collection API with getFilteredByTag method
- *
- * @example
- * const api = collectionApi([product1, product2]);
- * createProductsCollection(api);
- */
 const collectionApi = (items) => ({
   getFilteredByTag: () => items,
 });
 
-/**
- * Create a mock collection API that returns different items based on tag.
- * Uses an object map for clean multi-tag scenarios.
- *
- * @param {Object} tagMap - Map of tag names to item arrays
- * @returns {Object} Mock collection API with getFilteredByTag method
- *
- * @example
- * const api = taggedCollectionApi({
- *   product: [product1, product2],
- *   review: [review1],
- *   category: []
- * });
- */
 const taggedCollectionApi = (tagMap) => ({
   getFilteredByTag: (tag) => tagMap[tag] ?? [],
 });
 
-/**
- * Assert that errors contain expected conditions.
- * Curried: (conditions) => (errors) => void
- * Supports strings, arrays (any match), and predicate functions.
- *
- * @param {...(string|Array<string>|Function)} conditions - Conditions to check
- * @returns {Function} (errors) => void
- *
- * @example
- * expectErrorsInclude("❌", ["threshold", "Duplication"])(errors);
- * expectErrorsInclude("FAIL", (e) => e.includes("timeout"))(errors);
- */
-const expectErrorsInclude =
-  (...conditions) =>
-  (errors) => {
-    for (const condition of conditions) {
-      if (typeof condition === "function") {
-        expect(errors.some(condition)).toBe(true);
-      } else if (Array.isArray(condition)) {
-        expect(errors.some((e) => condition.some((c) => e.includes(c)))).toBe(
-          true,
-        );
-      } else {
-        expect(errors.some((e) => e.includes(condition))).toBe(true);
-      }
-    }
-  };
+// ============================================
+// Exports
+// ============================================
 
-/**
- * Test helper that expects an async function to throw and returns the error.
- * Idiomatic replacement for try/catch in tests.
- *
- * @param {Function} asyncFn - Async function to call (returns promise)
- * @returns {Promise<Error>} The thrown error for further assertions
- *
- * @example
- * const error = await expectAsyncThrows(() => site.build());
- * expect(error.message).toContain("Build failed");
- * expect(error.stdout || error.stderr).toBeTruthy();
- */
-const expectAsyncThrows = async (asyncFn) => {
-  let threwError = false;
-  let error;
-  try {
-    await asyncFn();
-  } catch (e) {
-    threwError = true;
-    error = e;
-  }
-  expect(threwError).toBe(true);
-  return error;
+// Re-export toolkit utilities
+export {
+  // Resource management (from toolkit)
+  bracket,
+  bracketAsync,
+  cleanupTempDir,
+  createTempFile,
+  withMockedCwd,
+  withMockedCwdAsync,
+  withMockedProcessExit,
+  withSubDir,
+  withSubDirAsync,
+  // Mocking (from toolkit)
+  captureConsole,
+  captureConsoleLogAsync,
+  createConsoleCapture,
+  mockFetch,
+  withMockFetch,
+  // Assertions (from toolkit)
+  expectArrayProp,
+  expectAsyncThrows,
+  expectDataArray,
+  expectErrorsInclude,
+  expectObjectProps,
+  expectProp,
+  // Code analysis (from toolkit)
+  ALWAYS_SKIP,
+  extractFunctions,
 };
 
+// Export project-specific utilities
 export {
+  // Core
   DOM,
   compileScss,
   expect,
@@ -900,6 +313,7 @@ export {
   path,
   rootDir,
   srcDir,
+  // File discovery
   getFiles,
   SRC_JS_FILES,
   ECOMMERCE_JS_FILES,
@@ -907,45 +321,27 @@ export {
   SRC_SCSS_FILES,
   TEST_FILES,
   ALL_JS_FILES,
+  createExtractor,
+  // Temp file management
   createMockEleventyConfig,
-  captureConsole,
-  captureConsoleLogAsync,
   createTempDir,
-  createTempFile,
   createTempSnippetsDir,
-  cleanupTempDir,
   withTempDir,
   withTempDirAsync,
   withTempFile,
-  withMockedCwd,
-  withMockedCwdAsync,
-  withMockedProcessExit,
-  withSubDir,
-  withSubDirAsync,
-  mockFetch,
-  withMockFetch,
+  // Assertions
   expectValidScriptTag,
   expectResultTitles,
-  expectObjectProps,
-  expectArrayProp,
-  expectProp,
-  expectDataArray,
   expectGalleries,
-  expectErrorsInclude,
-  expectAsyncThrows,
-  // Curried data transform (re-exported from array-utils)
+  // Data transforms
   data,
   toData,
-  // Generic item builder
+  // Fixture factories
   item,
   items,
-  // Test fixture factories
   createFrontmatter,
   createProduct,
-  // Code analysis utilities
-  createExtractor,
-  extractFunctions,
-  // Mock collection API helpers
+  // Collection API mocks
   collectionApi,
   taggedCollectionApi,
 };
