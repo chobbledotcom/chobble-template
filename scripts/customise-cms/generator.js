@@ -174,20 +174,21 @@ const withHeaderFields = (config, ...fields) =>
  * @returns {Record<string, () => CmsField[]>} Map of collection names to field builder functions
  */
 const getCollectionFieldBuilders = (config, fields) => ({
-  pages: () => [
-    ...withHeaderFields(
-      config,
-      COMMON_FIELDS.header_image,
-      COMMON_FIELDS.header_text,
-    ),
-    COMMON_FIELDS.subtitle,
-    fields.body,
-    COMMON_FIELDS.meta_title,
-    COMMON_FIELDS.meta_description,
-    createEleventyNavigationField(config.features.external_navigation_urls),
-    { name: "layout", type: "string" },
-    COMMON_FIELDS.no_index,
-  ],
+  pages: () =>
+    compact([
+      ...withHeaderFields(
+        config,
+        COMMON_FIELDS.header_image,
+        COMMON_FIELDS.header_text,
+      ),
+      COMMON_FIELDS.subtitle,
+      fields.body,
+      COMMON_FIELDS.meta_title,
+      COMMON_FIELDS.meta_description,
+      createEleventyNavigationField(config.features.external_navigation_urls),
+      { name: "layout", type: "string" },
+      config.features.no_index && COMMON_FIELDS.no_index,
+    ]),
 
   categories: () =>
     compact([
@@ -237,7 +238,7 @@ const buildNewsFields = (config, fields) =>
     enabled("team") &&
       createReferenceField("author", "Author", "team", "title", false),
     ...getContentFields(config, fields),
-    COMMON_FIELDS.no_index,
+    config.features.no_index && COMMON_FIELDS.no_index,
   ])(config);
 
 /**

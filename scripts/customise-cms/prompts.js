@@ -239,6 +239,27 @@ const askEventLocationsAndDatesQuestion = async (
 };
 
 /**
+ * Ask conditional feature questions for no_index (hiding from listings)
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{no_index: boolean}>} No index selection
+ */
+const askNoIndexQuestion = async (rl, collections, defaultFeatures) => {
+  const hasPagesOrNews = collections.some(memberOf(["pages", "news"]));
+
+  return {
+    no_index: hasPagesOrNews
+      ? await askYesNo(
+          rl,
+          "Do you want to hide pages/news from listings (no_index field)?",
+          defaultFeatures.no_index ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask feature questions
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -301,12 +322,18 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const noIndexFeatures = await askNoIndexQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
 
   return {
     ...baseFeatures,
     ...conditionalFeatures,
     ...purchaseFeatures,
     ...eventFeatures,
+    ...noIndexFeatures,
   };
 };
 
