@@ -38,6 +38,7 @@ describe("config", () => {
       "design_system_layouts",
       "phoneNumberLength",
       "use_visual_editor",
+      "default_image_widths",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });
@@ -52,12 +53,10 @@ describe("config", () => {
     expect(DEFAULTS.phoneNumberLength).toBe(11);
   });
 
-  test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {
+  test("DEFAULT_PRODUCT_DATA has correct product display defaults", () => {
     expectObjectProps({
-      item_widths: "240,480,640",
-      gallery_thumb_widths: "240,480",
-      gallery_image_widths: "900,1300,1800",
-      header_image_widths: "640,900,1300",
+      item_list_aspect_ratio: null,
+      max_images: null,
     })(DEFAULT_PRODUCT_DATA);
   });
 
@@ -74,15 +73,15 @@ describe("config", () => {
   test("getProducts filters out null values", () => {
     const configData = {
       products: {
-        item_widths: "100,200",
-        gallery_thumb_widths: null,
+        item_list_aspect_ratio: "1/1",
+        max_images: null,
         custom_field: "value",
       },
     };
     const result = getProducts(configData);
     expectObjectProps({
-      item_widths: "100,200",
-      gallery_thumb_widths: undefined,
+      item_list_aspect_ratio: "1/1",
+      max_images: undefined,
       custom_field: "value",
     })(result);
   });

@@ -5,13 +5,9 @@
  */
 
 /**
- * Product image width configuration
+ * Product configuration
  */
 export type ProductConfig = {
-  item_widths: string;
-  gallery_thumb_widths: string;
-  gallery_image_widths: string;
-  header_image_widths: string;
   item_list_aspect_ratio: string | null;
   max_images: number | null;
 };
@@ -62,6 +58,7 @@ export type SiteConfig = {
   list_item_fields: string[];
   navigation_content_anchor: boolean;
   design_system_layouts: string[];
+  default_image_widths: number[];
   products: ProductConfig;
 
   // Optional (may be null)
