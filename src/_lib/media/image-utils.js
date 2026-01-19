@@ -6,7 +6,7 @@
  */
 import { compact } from "#toolkit/fp/array.js";
 
-const DEFAULT_WIDTHS = [240, 480, 900, 1300, "auto"];
+const DEFAULT_WIDTHS = [240, 480, 900, 1300];
 const DEFAULT_SIZE = "auto";
 
 /**
@@ -34,11 +34,15 @@ export const isExternalUrl = (url) =>
   url.startsWith("http://") || url.startsWith("https://");
 
 /**
- * Parse widths parameter.
+ * Parse widths parameter and add "auto" for original source image.
  * Handles comma-separated string "240,480,900" or array [240, 480, 900].
+ * Always appends "auto" to include the original source image.
  */
-export const parseWidths = (widths) =>
-  typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
+export const parseWidths = (widths) => {
+  const parsed =
+    typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
+  return [...parsed, "auto"];
+};
 
 /**
  * Build standard image attributes object.

@@ -11,6 +11,8 @@
 - [ukegroupnorth.com](https://www.ukegroupnorth.com)
 - [myalarmsecurity.co.uk](https://www.myalarmsecurity.co.uk)
 - [c-results.uk](https://www.c-results.uk)
+- [playsafeplayinspection.co.uk](https://www.playsafeplayinspection.co.uk)
+- [garsdalecottages.co.uk](https://www.garsdalecottages.co.uk)
 
 **Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
 
