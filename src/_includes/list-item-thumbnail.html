@@ -1,5 +1,5 @@
 {%- if item.data.thumbnail -%}
   <a class="image-link" href="{{ item.url }}#content" aria-hidden="true" tabindex="-1">
-    {%- image item.data.thumbnail, "", widths, "", "", config.products.item_list_aspect_ratio -%}
+    {%- image item.data.thumbnail, "", "", "", "", config.products.item_list_aspect_ratio -%}
   </a>
 {%- endif -%}

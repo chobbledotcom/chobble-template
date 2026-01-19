@@ -21,29 +21,28 @@ describe("getProducts", () => {
   test("filters out null values", () => {
     const result = getProducts({
       products: {
-        gallery_thumb_widths: "240,480",
-        gallery_widths: null,
+        item_list_aspect_ratio: "1/1",
+        max_images: null,
       },
     });
-    expect(result).toEqual({ gallery_thumb_widths: "240,480" });
+    expect(result).toEqual({ item_list_aspect_ratio: "1/1" });
   });
 
   test("filters out undefined values", () => {
     const result = getProducts({
       products: {
-        header_image_widths: "640,900",
-        gallery_thumb_widths: undefined,
+        max_images: 5,
+        item_list_aspect_ratio: undefined,
       },
     });
-    expect(result).toEqual({ header_image_widths: "640,900" });
+    expect(result).toEqual({ max_images: 5 });
   });
 
   test("preserves all non-null values", () => {
     const input = {
       products: {
-        gallery_thumb_widths: "240,480",
-        gallery_image_widths: "900,1300,1800",
-        header_image_widths: "640,900,1300",
+        item_list_aspect_ratio: "16/9",
+        max_images: 10,
       },
     };
     const result = getProducts(input);
@@ -128,11 +127,10 @@ describe("DEFAULTS", () => {
 });
 
 describe("DEFAULT_PRODUCT_DATA", () => {
-  test("has image width configurations", () => {
+  test("has product display configurations", () => {
     expectObjectProps({
-      gallery_thumb_widths: "240,480",
-      gallery_image_widths: "900,1300,1800",
-      header_image_widths: "640,900,1300",
+      item_list_aspect_ratio: null,
+      max_images: null,
     })(DEFAULT_PRODUCT_DATA);
   });
 });

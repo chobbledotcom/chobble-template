@@ -5,12 +5,9 @@
  */
 
 /**
- * Product image width configuration
+ * Product configuration
  */
 export type ProductConfig = {
-  gallery_thumb_widths: string;
-  gallery_image_widths: string;
-  header_image_widths: string;
   item_list_aspect_ratio: string | null;
   max_images: number | null;
 };

@@ -32,9 +32,6 @@ const DEFAULTS = {
 };
 
 const DEFAULT_PRODUCT_DATA = {
-  gallery_thumb_widths: "240,480",
-  gallery_image_widths: "900,1300,1800",
-  header_image_widths: "640,900,1300",
   item_list_aspect_ratio: null,
   max_images: null,
 };

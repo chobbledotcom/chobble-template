@@ -17,9 +17,6 @@
   "checkout_api_url": null,
   "default_image_widths": null,
   "products": {
-    "gallery_thumb_widths": null,
-    "gallery_image_widths": null,
-    "header_image_widths": null,
     "max_images": null
   },
   "timezone": null,

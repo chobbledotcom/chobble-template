@@ -1,6 +1,6 @@
 {% if gallery %}
   {% for image in gallery %}
     {%- capture alt_text -%}{%- include "get-alt-text.html" -%}{%- endcapture -%}
-    {% image image, alt_text, config.products.gallery_image_widths %}
+    {% image image, alt_text %}
   {% endfor %}
 {% endif %}
