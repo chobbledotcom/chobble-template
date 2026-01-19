@@ -200,6 +200,18 @@ describe("image-utils", () => {
         "news-banner",
       );
     });
+
+    test("strips .image-cache/ prefix from cropped images", () => {
+      expect(getPathAwareBasename(".image-cache/photo-crop-abc123.jpeg")).toBe(
+        "photo-crop-abc123",
+      );
+    });
+
+    test("strips image-cache/ prefix without leading dot", () => {
+      expect(getPathAwareBasename("image-cache/photo-crop-abc123.jpeg")).toBe(
+        "photo-crop-abc123",
+      );
+    });
   });
 
   describe("filenameFormat", () => {
@@ -248,6 +260,17 @@ describe("image-utils", () => {
       expect(productsResult).not.toBe(newsResult);
       expect(productsResult).toBe("products-photo-240.webp");
       expect(newsResult).toBe("news-photo-240.webp");
+    });
+
+    test("generates correct filename for .image-cache paths (cropped images)", () => {
+      expect(
+        filenameFormat(
+          "id",
+          ".image-cache/photo-crop-abc123.jpeg",
+          240,
+          "webp",
+        ),
+      ).toBe("photo-crop-abc123-240.webp");
     });
   });
 });
