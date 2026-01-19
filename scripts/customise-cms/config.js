@@ -21,6 +21,7 @@ import { join } from "node:path";
  * @property {boolean} external_purchases - Enable external purchase URLs for products
  * @property {boolean} event_locations_and_dates - Enable locations and dates for events
  * @property {boolean} use_visual_editor - Use rich-text visual editor instead of markdown code editor
+ * @property {boolean} no_index - Enable hiding pages/news from listings
  */
 
 /**
@@ -104,6 +105,7 @@ export const createDefaultConfig = () => ({
     galleries: true,
     event_locations_and_dates: true,
     use_visual_editor: false,
+    no_index: true,
   },
   hasSrcFolder: true,
   customHomePage: false,
