@@ -186,6 +186,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
     COMMON_FIELDS.meta_description,
     createEleventyNavigationField(config.features.external_navigation_urls),
     { name: "layout", type: "string" },
+    COMMON_FIELDS.no_index,
   ],
 
   categories: () =>
@@ -236,6 +237,7 @@ const buildNewsFields = (config, fields) =>
     enabled("team") &&
       createReferenceField("author", "Author", "team", "title", false),
     ...getContentFields(config, fields),
+    COMMON_FIELDS.no_index,
   ])(config);
 
 /**

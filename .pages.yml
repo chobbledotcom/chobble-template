@@ -39,6 +39,7 @@ content:
           - { name: key, type: string }
           - { name: order, type: number }
       - { name: layout, type: string }
+      - { name: no_index, type: boolean, label: Hide from listings }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -194,6 +195,7 @@ content:
         type: string
         label: Meta Description
         maxlength: 155
+      - { name: no_index, type: boolean, label: Hide from listings }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs

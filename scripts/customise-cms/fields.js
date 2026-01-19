@@ -70,6 +70,7 @@ export const COMMON_FIELDS = {
   },
   order: { name: "order", type: "number", label: "Order" },
   featured: { name: "featured", type: "boolean", label: "Featured" },
+  no_index: { name: "no_index", type: "boolean", label: "Hide from listings" },
 };
 
 /**
