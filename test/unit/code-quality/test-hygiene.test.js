@@ -125,7 +125,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "resolveImportPath",
   "extractImports",
   "extractEleventyRegistrations",
-  "buildSrcExportsMap",
+  "buildExportsMap",
   "buildImportUsageMap",
   "buildEleventyRegistrationMap",
   "analyzeTestOnlyExports",

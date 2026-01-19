@@ -10,7 +10,35 @@ import path from "node:path";
 import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
-import { data, map, toData } from "#toolkit/fp/array.js";
+import { map } from "#toolkit/fp/array.js";
+
+// Test fixture helpers for creating Eleventy-style collection items
+// (These are test-only utilities, not general FP functions)
+
+/**
+ * Pipeable data transform for creating test fixture collections.
+ * Transforms arrays of value tuples into objects with a `data` property.
+ */
+const toData =
+  (defaults) =>
+  (...fields) =>
+  (rows) =>
+    rows.map((values) => ({
+      data: {
+        ...defaults,
+        ...Object.fromEntries(fields.map((f, i) => [f, values[i]])),
+      },
+    }));
+
+/**
+ * Curried data transform for creating test fixture collections.
+ * Creates a factory that transforms rows of values into Eleventy-style items.
+ */
+const data =
+  (defaults) =>
+  (...fields) =>
+  (...rows) =>
+    toData(defaults)(...fields)(rows);
 import {
   expectArrayProp,
   expectAsyncThrows,
@@ -97,6 +125,8 @@ const memoizedFiles = memoizedFileGetter(rootDir);
 
 const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
 const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
+const PACKAGES_FP_FILES = memoizedFiles(/^packages\/js-toolkit\/fp\/.*\.js$/);
+const PACKAGES_ALL_FILES = memoizedFiles(/^packages\/.*\.js$/);
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
@@ -316,6 +346,8 @@ export {
   getFiles,
   SRC_JS_FILES,
   ECOMMERCE_JS_FILES,
+  PACKAGES_FP_FILES,
+  PACKAGES_ALL_FILES,
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
   TEST_FILES,

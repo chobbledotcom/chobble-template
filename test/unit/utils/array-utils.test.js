@@ -1,23 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { expectObjectProps } from "#test/test-utils.js";
+import { data, expectObjectProps, toData } from "#test/test-utils.js";
 import {
-  accumulate,
   compact,
-  data,
   filter,
   filterMap,
   findDuplicate,
   listSeparator,
   map,
   memberOf,
-  membershipPredicate,
   notMemberOf,
   pick,
   pipe,
   pluralize,
   sort,
   sortBy,
-  toData,
   uniqueBy,
 } from "#toolkit/fp/array.js";
 
@@ -177,23 +173,6 @@ describe("array-utils", () => {
   test("memberOf handles empty collection", () => {
     const isEmpty = memberOf([]);
     expect(isEmpty("anything")).toBe(false);
-  });
-
-  // ============================================
-  // membershipPredicate Tests
-  // ============================================
-  test("membershipPredicate with negate=false is same as memberOf", () => {
-    const customMemberOf = membershipPredicate(false);
-    const isWeekend = customMemberOf(["saturday", "sunday"]);
-    expect(isWeekend("saturday")).toBe(true);
-    expect(isWeekend("monday")).toBe(false);
-  });
-
-  test("membershipPredicate with negate=true is same as notMemberOf", () => {
-    const customNotMemberOf = membershipPredicate(true);
-    const isNotWeekend = customNotMemberOf(["saturday", "sunday"]);
-    expect(isNotWeekend("monday")).toBe(true);
-    expect(isNotWeekend("saturday")).toBe(false);
   });
 
   // ============================================
@@ -589,48 +568,5 @@ describe("array-utils", () => {
   test("pluralize handles zero", () => {
     const formatItems = pluralize("item");
     expect(formatItems(0)).toBe("0 items");
-  });
-
-  // ============================================
-  // accumulate Tests
-  // ============================================
-  test("accumulate collects values with push pattern", () => {
-    const collectNames = accumulate((acc, user) => {
-      acc.push(user.name);
-      return acc;
-    });
-    const users = [{ name: "Alice" }, { name: "Bob" }];
-    expect(collectNames(users)).toEqual(["Alice", "Bob"]);
-  });
-
-  test("accumulate filters while collecting", () => {
-    const collectActiveNames = accumulate((acc, user) => {
-      if (user.active) acc.push(user.name);
-      return acc;
-    });
-    const users = [
-      { name: "Alice", active: true },
-      { name: "Bob", active: false },
-      { name: "Charlie", active: true },
-    ];
-    expect(collectActiveNames(users)).toEqual(["Alice", "Charlie"]);
-  });
-
-  test("accumulate handles empty array", () => {
-    const collect = accumulate((acc, x) => {
-      acc.push(x);
-      return acc;
-    });
-    expect(collect([])).toEqual([]);
-  });
-
-  test("accumulate works with pipe", () => {
-    const getUniqueIds = accumulate((acc, item) => {
-      if (!acc.includes(item.id)) acc.push(item.id);
-      return acc;
-    });
-    const items = [{ id: 1 }, { id: 2 }, { id: 1 }, { id: 3 }];
-    const result = pipe(getUniqueIds)(items);
-    expect(result).toEqual([1, 2, 3]);
   });
 });

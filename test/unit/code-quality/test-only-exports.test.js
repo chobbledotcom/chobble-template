@@ -1,7 +1,7 @@
 /**
- * Detects exports from src/ that are only imported in test/ files.
+ * Detects exports from src/ and packages/ that are only imported in test/ files.
  *
- * When a function is exported from src/ but only ever imported in test/,
+ * When a function is exported but only ever imported in test/,
  * it suggests the tests are testing implementation details rather than
  * the public API. These exports should either:
  * - Be made private (unexported) if they're truly internal
@@ -15,7 +15,12 @@ import {
   extractExports,
   readSource,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
+import {
+  PACKAGES_ALL_FILES,
+  PACKAGES_FP_FILES,
+  SRC_JS_FILES,
+  TEST_FILES,
+} from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/test-only-exports.test.js";
 
@@ -140,14 +145,14 @@ const extractImports = (source) => {
 };
 
 /**
- * Build a map of exports for each src/ file.
+ * Build a map of exports for each src/ and packages/ file.
  * @returns {Map<string, Set<string>>} - Map of file path to exported names
  */
-const buildSrcExportsMap = () => {
+const buildExportsMap = () => {
   const exportsMap = new Map();
-  const srcFiles = SRC_JS_FILES();
+  const allProductionFiles = [...SRC_JS_FILES(), ...PACKAGES_FP_FILES()];
 
-  for (const file of srcFiles) {
+  for (const file of allProductionFiles) {
     const source = readSource(file);
     const exports = extractExports(source);
     if (exports.size > 0) {
@@ -208,18 +213,20 @@ const buildEleventyRegistrationMap = () => {
 
 /**
  * Analyze for test-only exports.
- * Returns exports from src/ that are only imported in test/ files.
+ * Returns exports from src/ and packages/fp/ that are only imported in test/ files.
  */
 const analyzeTestOnlyExports = () => {
   const srcFiles = SRC_JS_FILES();
+  const packagesFpFiles = PACKAGES_FP_FILES();
+  const packagesAllFiles = PACKAGES_ALL_FILES();
   const testFiles = TEST_FILES().filter((f) => f !== THIS_FILE);
 
-  // Include .eleventy.js as production code since it's the main config file
-  // that imports all configure* functions
-  const productionFiles = [...srcFiles, ".eleventy.js"];
+  // Production files for import usage analysis includes all of packages/
+  // (code-quality scanner uses fp utilities, that counts as production usage)
+  const productionFiles = [...srcFiles, ...packagesAllFiles, ".eleventy.js"];
 
   // Build exports map for all src files
-  const srcExportsMap = buildSrcExportsMap();
+  const exportsMap = buildExportsMap();
 
   // Build import usage from production files (src/ + .eleventy.js)
   const srcImportUsage = buildImportUsageMap(productionFiles);
@@ -235,7 +242,7 @@ const analyzeTestOnlyExports = () => {
   const allowed = [];
 
   // Check each export from src/
-  for (const [file, exports] of srcExportsMap) {
+  for (const [file, exports] of exportsMap) {
     // Get functions registered with Eleventy in this file
     const registeredInFile = eleventyRegistrations.get(file) || new Set();
 
@@ -431,7 +438,10 @@ import { orig as alias } from "#utils/test.js";
   });
 
   test("ALLOWED_TEST_ONLY_EXPORTS entries are valid", () => {
-    const srcFiles = new Set(SRC_JS_FILES());
+    const allProductionFiles = new Set([
+      ...SRC_JS_FILES(),
+      ...PACKAGES_FP_FILES(),
+    ]);
     const invalid = [];
 
     for (const entry of ALLOWED_TEST_ONLY_EXPORTS) {
@@ -443,7 +453,7 @@ import { orig as alias } from "#utils/test.js";
         });
         continue;
       }
-      if (!srcFiles.has(file)) {
+      if (!allProductionFiles.has(file)) {
         invalid.push({ entry, reason: `File not found: ${file}` });
         continue;
       }

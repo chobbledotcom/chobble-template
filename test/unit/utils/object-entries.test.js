@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
   everyEntry,
-  filterObject,
   fromPairs,
   mapBoth,
   mapEntries,
@@ -69,23 +68,6 @@ describe("object-entries utilities", () => {
     test("can transform keys only", () => {
       const prefix = mapObject((k, v) => [`prefix_${k}`, v]);
       expect(prefix({ name: "test" })).toEqual({ prefix_name: "test" });
-    });
-  });
-
-  describe("filterObject", () => {
-    test("keeps entries where predicate returns true", () => {
-      const onlyPositive = filterObject((k, v) => v > 0);
-      expect(onlyPositive({ a: 1, b: -1, c: 2 })).toEqual({ a: 1, c: 2 });
-    });
-
-    test("returns empty object when nothing matches", () => {
-      const noneMatch = filterObject(() => false);
-      expect(noneMatch({ a: 1, b: 2 })).toEqual({});
-    });
-
-    test("can filter by key", () => {
-      const onlyA = filterObject((k) => k.startsWith("a"));
-      expect(onlyA({ a1: 1, b1: 2, a2: 3 })).toEqual({ a1: 1, a2: 3 });
     });
   });
 
