@@ -15,12 +15,7 @@ import {
   extractExports,
   readSource,
 } from "#test/code-scanner.js";
-import {
-  PACKAGES_ALL_FILES,
-  PACKAGES_FP_FILES,
-  SRC_JS_FILES,
-  TEST_FILES,
-} from "#test/test-utils.js";
+import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/test-only-exports.test.js";
 
@@ -150,9 +145,9 @@ const extractImports = (source) => {
  */
 const buildExportsMap = () => {
   const exportsMap = new Map();
-  const allProductionFiles = [...SRC_JS_FILES(), ...PACKAGES_FP_FILES()];
+  const allFiles = SRC_JS_FILES();
 
-  for (const file of allProductionFiles) {
+  for (const file of allFiles) {
     const source = readSource(file);
     const exports = extractExports(source);
     if (exports.size > 0) {
@@ -213,22 +208,18 @@ const buildEleventyRegistrationMap = () => {
 
 /**
  * Analyze for test-only exports.
- * Returns exports from src/ and packages/fp/ that are only imported in test/ files.
+ * Returns exports from src/ and packages/ that are only imported in test/ files.
  */
 const analyzeTestOnlyExports = () => {
-  const srcFiles = SRC_JS_FILES();
-  const packagesFpFiles = PACKAGES_FP_FILES();
-  const packagesAllFiles = PACKAGES_ALL_FILES();
   const testFiles = TEST_FILES().filter((f) => f !== THIS_FILE);
 
-  // Production files for import usage analysis includes all of packages/
-  // (code-quality scanner uses fp utilities, that counts as production usage)
-  const productionFiles = [...srcFiles, ...packagesAllFiles, ".eleventy.js"];
+  // Production files: src/, packages/, and .eleventy.js
+  const productionFiles = [...SRC_JS_FILES(), ".eleventy.js"];
 
-  // Build exports map for all src files
+  // Build exports map for all src/packages files
   const exportsMap = buildExportsMap();
 
-  // Build import usage from production files (src/ + .eleventy.js)
+  // Build import usage from production files
   const srcImportUsage = buildImportUsageMap(productionFiles);
 
   // Build import usage from test files
@@ -438,10 +429,7 @@ import { orig as alias } from "#utils/test.js";
   });
 
   test("ALLOWED_TEST_ONLY_EXPORTS entries are valid", () => {
-    const allProductionFiles = new Set([
-      ...SRC_JS_FILES(),
-      ...PACKAGES_FP_FILES(),
-    ]);
+    const allProductionFiles = new Set(SRC_JS_FILES());
     const invalid = [];
 
     for (const entry of ALLOWED_TEST_ONLY_EXPORTS) {

@@ -5,7 +5,7 @@ import {
   COMMENT_LINE_PATTERNS,
   createCodeChecker,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SRC_ONLY_JS_FILES } from "#test/test-utils.js";
 
 // Pattern to detect obj[key] = value - object mutation via bracket notation
 // Matches: result[slug] = value, acc[key] = data, obj["prop"] = x
@@ -68,7 +68,7 @@ obj[ key ] = value;
     const { violations } = analyzeWithAllowlist({
       findFn: findObjectMutation,
       allowlist: new Set(),
-      files: SRC_JS_FILES,
+      files: SRC_ONLY_JS_FILES,
     });
     assertNoViolations(violations, {
       singular: "object mutation via bracket assignment",

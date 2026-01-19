@@ -4,7 +4,7 @@ import {
   assertNoViolations,
   createCodeChecker,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SRC_ONLY_JS_FILES } from "#test/test-utils.js";
 
 // Pattern to detect .push() calls - array mutation
 const ARRAY_PUSH_PATTERN = /\.push\s*\(/;
@@ -53,7 +53,7 @@ arr. push(3);
     const { violations } = analyzeWithAllowlist({
       findFn: findArrayPush,
       allowlist: new Set(), // No exceptions - prefer functional patterns
-      files: SRC_JS_FILES,
+      files: SRC_ONLY_JS_FILES,
     });
 
     assertNoViolations(violations, {

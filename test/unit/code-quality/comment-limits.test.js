@@ -5,7 +5,7 @@ import {
   combineFileLists,
   toLines,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SRC_ONLY_JS_FILES } from "#test/test-utils.js";
 
 /**
  * Comment limits scanner
@@ -161,7 +161,7 @@ const THIS_FILE = "test/unit/code-quality/comment-limits.test.js";
 
 const getExcessiveCommentViolations = () =>
   analyzeFiles(
-    combineFileLists([SRC_JS_FILES()], [THIS_FILE]),
+    combineFileLists([SRC_ONLY_JS_FILES()], [THIS_FILE]),
     (source, relativePath) =>
       findExcessiveComments(source).map((v) => ({
         ...v,

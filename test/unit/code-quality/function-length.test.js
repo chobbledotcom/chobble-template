@@ -4,7 +4,7 @@ import {
   fs,
   path,
   rootDir,
-  SRC_JS_FILES,
+  SRC_ONLY_JS_FILES,
 } from "#test/test-utils.js";
 import { filterMap, map, pipe, pluralize } from "#toolkit/fp/array.js";
 
@@ -56,7 +56,7 @@ const calculateOwnLines = (functions) =>
  * Returns violations using functional composition.
  */
 const analyzeFunctionLengths = () => {
-  const filesToCheck = SRC_JS_FILES().filter(
+  const filesToCheck = SRC_ONLY_JS_FILES().filter(
     (f) => !f.startsWith("src/_lib/public/"),
   );
 
