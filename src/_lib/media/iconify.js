@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
-import { memoize } from "#utils/memoize.js";
 
 const ICONIFY_API_BASE = "https://api.iconify.design";
 const ICONS_DIR = "src/assets/icons/iconify";

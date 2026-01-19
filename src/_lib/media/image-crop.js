@@ -7,8 +7,8 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { simplifyRatio } from "#utils/math-utils.js";
-import { memoize } from "#utils/memoize.js";
 
 const getSharp = memoize(async () => (await import("sharp")).default);
 

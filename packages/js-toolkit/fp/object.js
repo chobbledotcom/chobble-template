@@ -133,13 +133,23 @@ const toObject = (items, toEntry) => Object.fromEntries(items.map(toEntry));
  */
 const fromPairs = (pairs) => Object.fromEntries(pairs);
 
+/**
+ * Create a curried function that omits specified keys from an object.
+ * @param {string[]} keys - Keys to omit
+ * @returns {(obj: Record<string, any>) => Record<string, any>} Function that omits specified keys
+ */
+const omit = (keys) => (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
+
 export {
   mapEntries,
   everyEntry,
   mapObject,
+  filterObject,
   mapBoth,
   pickTruthy,
   pickNonNull,
   toObject,
   fromPairs,
+  omit,
 };

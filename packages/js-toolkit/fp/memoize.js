@@ -7,9 +7,9 @@
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
  */
-import { map, pipe } from "#utils/array-utils.js";
-import { buildReverseIndex } from "#utils/grouping.js";
-import { fromPairs } from "#utils/object-entries.js";
+import { map, pipe } from "./array.js";
+import { buildReverseIndex } from "./grouping.js";
+import { fromPairs } from "./object.js";
 
 /**
  * Memoize a function with optional custom cache key
@@ -81,7 +81,7 @@ const withWeakMapCache = (buildFn) => {
  * - Different arrays each get their own object
  * - Arrays can be garbage collected (no memory leaks)
  *
- * Perfect for Eleventy collections that are reused across many pages.
+ * Perfect for collections that are reused across many operations.
  *
  * @template T
  * @param {(item: T) => string} getKey - Key extraction function (must return string)
@@ -123,7 +123,7 @@ const indexBy = (getKey) =>
  * - Different arrays each get their own index
  * - Arrays can be garbage collected (no memory leaks)
  *
- * Perfect for "get items by category/tag" patterns in Eleventy.
+ * Perfect for "get items by category/tag" patterns.
  *
  * @template T
  * @param {(item: T) => string[]} getKeys - Function that extracts group keys from each item
@@ -145,4 +145,4 @@ const groupByWithCache = (getKeys) =>
     Object.fromEntries(buildReverseIndex(arr, getKeys)),
   );
 
-export { memoize, jsonKey, indexBy, groupByWithCache };
+export { memoize, jsonKey, indexBy, groupByWithCache, withWeakMapCache };

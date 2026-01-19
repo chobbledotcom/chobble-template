@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { withTestSite } from "#test/test-site-factory.js";
-import { filter, pipe } from "#utils/array-utils.js";
+import { filter, pipe } from "#toolkit/fp/array.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 // ============================================

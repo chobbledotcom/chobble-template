@@ -7,7 +7,7 @@ import {
   notMemberOf,
   pipe,
   pluralize,
-} from "#utils/array-utils.js";
+} from "#toolkit/fp/array.js";
 import { log } from "#utils/console.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;

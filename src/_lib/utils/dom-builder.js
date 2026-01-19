@@ -1,5 +1,5 @@
+import { memoize } from "#toolkit/fp/memoize.js";
 import { loadDOM } from "#utils/lazy-dom.js";
-import { memoize } from "#utils/memoize.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
 /** @typedef {import("#lib/types").ElementChildren} ElementChildren */

@@ -9,12 +9,16 @@ import {
   listSeparator,
   map,
   memberOf,
+  membershipPredicate,
   notMemberOf,
   pick,
   pipe,
+  pluralize,
   sort,
+  sortBy,
   toData,
-} from "#utils/array-utils.js";
+  uniqueBy,
+} from "#toolkit/fp/array.js";
 
 describe("array-utils", () => {
   // ============================================
@@ -172,6 +176,23 @@ describe("array-utils", () => {
   test("memberOf handles empty collection", () => {
     const isEmpty = memberOf([]);
     expect(isEmpty("anything")).toBe(false);
+  });
+
+  // ============================================
+  // membershipPredicate Tests
+  // ============================================
+  test("membershipPredicate with negate=false is same as memberOf", () => {
+    const customMemberOf = membershipPredicate(false);
+    const isWeekend = customMemberOf(["saturday", "sunday"]);
+    expect(isWeekend("saturday")).toBe(true);
+    expect(isWeekend("monday")).toBe(false);
+  });
+
+  test("membershipPredicate with negate=true is same as notMemberOf", () => {
+    const customNotMemberOf = membershipPredicate(true);
+    const isNotWeekend = customNotMemberOf(["saturday", "sunday"]);
+    expect(isNotWeekend("monday")).toBe(true);
+    expect(isNotWeekend("saturday")).toBe(false);
   });
 
   // ============================================
@@ -484,5 +505,88 @@ describe("array-utils", () => {
     expect(entries[0].data.name).toBe("Log A");
     expect(entries[0].created).toBeInstanceOf(Date);
     expect(entries[1].created.toISOString()).toContain("2024-03-15");
+  });
+
+  // ============================================
+  // sortBy Tests
+  // ============================================
+  test("sortBy sorts by property name", () => {
+    const users = [{ name: "Charlie" }, { name: "Alice" }, { name: "Bob" }];
+    const sorted = sortBy("name")(users);
+    expect(sorted.map((u) => u.name)).toEqual(["Alice", "Bob", "Charlie"]);
+  });
+
+  test("sortBy sorts by getter function", () => {
+    const items = [
+      { data: { order: 3 } },
+      { data: { order: 1 } },
+      { data: { order: 2 } },
+    ];
+    const sorted = sortBy((x) => x.data.order)(items);
+    expect(sorted.map((x) => x.data.order)).toEqual([1, 2, 3]);
+  });
+
+  test("sortBy works with pipe", () => {
+    const numbers = [{ val: 5 }, { val: 2 }, { val: 8 }];
+    const result = pipe(sortBy("val"))(numbers);
+    expect(result.map((n) => n.val)).toEqual([2, 5, 8]);
+  });
+
+  // ============================================
+  // uniqueBy Tests
+  // ============================================
+  test("uniqueBy removes duplicates by key", () => {
+    const items = [
+      { id: 1, name: "first" },
+      { id: 2, name: "second" },
+      { id: 1, name: "duplicate" },
+    ];
+    const result = uniqueBy((x) => x.id)(items);
+    expect(result.length).toBe(2);
+    expect(result.map((x) => x.id)).toEqual([1, 2]);
+  });
+
+  test("uniqueBy keeps last occurrence (Map behavior)", () => {
+    const items = [
+      { id: "a", val: 1 },
+      { id: "a", val: 2 },
+    ];
+    const result = uniqueBy((x) => x.id)(items);
+    expect(result[0].val).toBe(2);
+  });
+
+  test("uniqueBy handles empty array", () => {
+    const result = uniqueBy((x) => x)([]);
+    expect(result).toEqual([]);
+  });
+
+  // ============================================
+  // pluralize Tests
+  // ============================================
+  test("pluralize formats singular count", () => {
+    const formatDays = pluralize("day");
+    expect(formatDays(1)).toBe("1 day");
+  });
+
+  test("pluralize formats plural count", () => {
+    const formatDays = pluralize("day");
+    expect(formatDays(5)).toBe("5 days");
+  });
+
+  test("pluralize adds 'es' for words ending in 's'", () => {
+    const formatClasses = pluralize("class");
+    expect(formatClasses(1)).toBe("1 class");
+    expect(formatClasses(2)).toBe("2 classes");
+  });
+
+  test("pluralize uses custom plural form", () => {
+    const formatItems = pluralize("item in order", "items in order");
+    expect(formatItems(1)).toBe("1 item in order");
+    expect(formatItems(3)).toBe("3 items in order");
+  });
+
+  test("pluralize handles zero", () => {
+    const formatItems = pluralize("item");
+    expect(formatItems(0)).toBe("0 items");
   });
 });

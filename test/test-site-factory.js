@@ -22,8 +22,8 @@ import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
-import { filter, flatMap, map, pipe, unique } from "#utils/array-utils.js";
-import { memoize } from "#utils/memoize.js";
+import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 // JSDOM-compatible wrapper for happy-dom
 class DOM {
@@ -266,6 +266,10 @@ const createTestSite = async (options = {}) => {
   fs.symlinkSync(
     path.join(rootDir, "node_modules"),
     path.join(siteDir, "node_modules"),
+  );
+  fs.symlinkSync(
+    path.join(rootDir, "packages"),
+    path.join(siteDir, "packages"),
   );
 
   // Create the site object with all methods

@@ -1,0 +1,28 @@
+# Base Bun test configuration
+# Copy and customize for your project
+
+[test]
+# Test file patterns - adjust root for your project
+root = "./test"
+
+# Parallel execution (default behavior in Bun)
+# Bun automatically runs tests in parallel
+
+# Timeout for individual tests (30 seconds)
+timeout = 30000
+
+# Always enable coverage reporting
+coverage = true
+
+# Coverage thresholds - tests fail if coverage drops below these levels
+# Set to 1.0 (100%) for strict enforcement, or lower for gradual adoption
+coverageThreshold = { lines = 1.0, functions = 1.0 }
+
+# Add preload scripts for your project:
+# preload = ["./test/setup.js"]
+
+# Add coverage exclusions for your project:
+# coveragePathIgnorePatterns = [
+#   "test/test-utils.js",
+#   "scripts/**/*.js",
+# ]

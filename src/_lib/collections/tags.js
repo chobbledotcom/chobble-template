@@ -1,12 +1,5 @@
-import {
-  filter,
-  flatMap,
-  map,
-  pipe,
-  sort,
-  unique,
-} from "#utils/array-utils.js";
-import { compareStrings } from "#utils/sorting.js";
+import { filter, flatMap, map, pipe, sort, unique } from "#toolkit/fp/array.js";
+import { compareStrings } from "#toolkit/fp/sorting.js";
 
 /**
  * Extract unique tags from a collection

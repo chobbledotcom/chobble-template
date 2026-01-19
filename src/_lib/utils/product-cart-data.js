@@ -10,8 +10,8 @@ import {
   pick,
   pipe,
   sortBy,
-} from "#utils/array-utils.js";
-import { toObject } from "#utils/object-entries.js";
+} from "#toolkit/fp/array.js";
+import { toObject } from "#toolkit/fp/object.js";
 
 /** @typedef {import("#lib/types").ProductOption} ProductOption */
 /** @typedef {import("#lib/types").ProductSpec} ProductSpec */

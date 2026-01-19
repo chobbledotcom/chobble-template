@@ -1,7 +1,7 @@
 /**
  * Functional array utilities
  */
-import { compareBy } from "#utils/sorting.js";
+import { compareBy } from "./sorting.js";
 
 /**
  * @template T
@@ -395,54 +395,6 @@ const pluralize = (singular, plural) => {
 };
 
 /**
- * Curried data transform for creating collections of objects.
- *
- * Creates a factory that transforms rows of values into objects with
- * a consistent structure. Perfect for test fixtures where you need
- * many similar objects with slight variations.
- *
- * Curried as: (defaults) => (...fields) => (...rows) => items
- *
- * @template T
- * @param {T} defaults - Default properties merged into every item's data
- * @returns {(...fields: string[]) => (...rows: any[][]) => Array<{data: T & Record<string, any>}>}
- *
- * @example
- * // Define a product factory with default categories
- * const product = data({ categories: [] });
- *
- * // Create products with title and keywords fields
- * const products = product("title", "keywords")(
- *   ["Widget A", ["portable"]],
- *   ["Widget B", ["stationary"]],
- * );
- * // Returns: [
- * //   { data: { categories: [], title: "Widget A", keywords: ["portable"] } },
- * //   { data: { categories: [], title: "Widget B", keywords: ["stationary"] } },
- * // ]
- *
- * @example
- * // Create events with date and title
- * const event = data({ hidden: false });
- * const events = event("title", "date", "recurring")(
- *   ["Meeting", "2024-01-15", true],
- *   ["Workshop", "2024-02-20", false],
- * );
- *
- * @example
- * // Compose with map for additional transformations
- * import { map } from "#utils/array-utils.js";
- *
- * const addDate = map(item => ({ ...item, date: new Date(item.data.dateStr) }));
- * const review = data({ rating: 5 });
- * const rawReviews = review("title", "dateStr")(
- *   ["Great!", "2024-01-01"],
- *   ["Good", "2024-01-02"]
- * );
- * const reviews = addDate(rawReviews);
- */
-
-/**
  * Pipeable curried data transform for creating collections of objects.
  *
  * Transforms an array of value tuples into objects with a `data` property.
@@ -472,21 +424,6 @@ const pluralize = (singular, plural) => {
  * //   { data: { categories: [], title: "Widget A", price: 100 } },
  * //   { data: { categories: [], title: "Widget B", price: 200 } },
  * // ]
- *
- * @example
- * // Chain with filter to create objects from matching rows only
- * const rows = [
- *   ["Active Item", true],
- *   ["Inactive Item", false],
- *   ["Another Active", true],
- * ];
- *
- * const item = toData({});
- * const products = pipe(
- *   filter(([_, active]) => active),
- *   item("title", "active"),
- * )(rows);
- * // Returns only the active items as data objects
  */
 const toData =
   (defaults) =>
@@ -499,7 +436,33 @@ const toData =
       },
     }));
 
-// data is toData but with rest params: (...rows) instead of (rows)
+/**
+ * Curried data transform for creating collections of objects.
+ *
+ * Creates a factory that transforms rows of values into objects with
+ * a consistent structure. Perfect for test fixtures where you need
+ * many similar objects with slight variations.
+ *
+ * Curried as: (defaults) => (...fields) => (...rows) => items
+ *
+ * @template T
+ * @param {T} defaults - Default properties merged into every item's data
+ * @returns {(...fields: string[]) => (...rows: any[][]) => Array<{data: T & Record<string, any>}>}
+ *
+ * @example
+ * // Define a product factory with default categories
+ * const product = data({ categories: [] });
+ *
+ * // Create products with title and keywords fields
+ * const products = product("title", "keywords")(
+ *   ["Widget A", ["portable"]],
+ *   ["Widget B", ["stationary"]],
+ * );
+ * // Returns: [
+ * //   { data: { categories: [], title: "Widget A", keywords: ["portable"] } },
+ * //   { data: { categories: [], title: "Widget B", keywords: ["stationary"] } },
+ * // ]
+ */
 const data =
   (defaults) =>
   (...fields) =>

@@ -52,10 +52,6 @@ const ALLOWED_TRY_CATCHES = new Set([
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
-
-  // test/test-utils.js - Test utility definitions (test infrastructure)
-  // Needed: expectAsyncThrows helper uses try/catch for idiomatic async error testing
-  "test/test-utils.js",
 ]);
 
 // ============================================
@@ -78,11 +74,10 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
-  "src/_lib/utils/memoize.js:21", // memoization cache (fundamental to memoize utility)
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js",
+  "test/test-utils.js:114", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -142,7 +137,6 @@ const ALLOWED_LET = new Set([
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
   "test/integration/test-site-factory.test.js",
-  "test/test-utils.js",
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
   "test/unit/transforms/images.test.js",
@@ -224,11 +218,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
-
-  // Curried data transforms - designed for test fixtures but exported from production
-  // for reuse across test files.
-  "src/_lib/utils/array-utils.js:data",
-  "src/_lib/utils/array-utils.js:toData",
 ]);
 
 // ============================================
@@ -241,10 +230,10 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = new Set([
   // Infrastructure: DOM class definition
-  "test/test-utils.js:10",
+  "test/test-utils.js:154",
 
   // Parsing build output into queryable documents
-  "test/test-site-factory.js:327",
+  "test/test-site-factory.js:331",
 
   // Parsing generated HTML for assertions
   "test/unit/code-quality/template-selectors.test.js:41",

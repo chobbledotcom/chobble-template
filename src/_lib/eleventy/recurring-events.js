@@ -1,10 +1,10 @@
 import strings from "#data/strings.js";
-import { flatMap, pipe, sort } from "#utils/array-utils.js";
+import { flatMap, pipe, sort } from "#toolkit/fp/array.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import {
   createTemplateLoader,
   createTemplateRenderer,
 } from "#utils/liquid-render.js";
-import { memoize } from "#utils/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
 const getTemplate = createTemplateLoader("recurring-events-list.html");

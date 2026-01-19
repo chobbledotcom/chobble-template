@@ -34,7 +34,7 @@ import {
   shouldIncludeScopedVar,
 } from "#public/theme/theme-editor-lib.js";
 import { onReady } from "#public/utils/on-ready.js";
-import { compact, filter, flatMap, map, pipe } from "#utils/array-utils.js";
+import { compact, filter, flatMap, map, pipe } from "#toolkit/fp/array.js";
 
 const ELEMENT_IDS = {
   form: "theme-editor-form",

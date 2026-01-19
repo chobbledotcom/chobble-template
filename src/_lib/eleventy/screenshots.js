@@ -9,7 +9,7 @@ import {
   screenshotMultiple,
   startServer,
 } from "#media/screenshot.js";
-import { map, pipe } from "#utils/array-utils.js";
+import { map, pipe } from "#toolkit/fp/array.js";
 import { log, error as logError } from "#utils/console.js";
 
 /** @returns {import("#lib/types").ScreenshotConfig} */

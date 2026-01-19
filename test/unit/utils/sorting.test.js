@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { data } from "#test/test-utils.js";
+import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import {
-  compareBy,
-  descending,
   sortByDateDescending,
   sortItems,
   sortNavigationItems,

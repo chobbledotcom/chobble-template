@@ -4,8 +4,8 @@
 
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
-import { filterMap, findDuplicate, memberOf } from "#utils/array-utils.js";
-import { groupByWithCache } from "#utils/memoize.js";
+import { filterMap, findDuplicate, memberOf } from "#toolkit/fp/array.js";
+import { groupByWithCache } from "#toolkit/fp/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** Index products by category for O(1) lookups, cached per products array */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { groupByWithCache, indexBy, jsonKey } from "#utils/memoize.js";
+import { groupByWithCache, indexBy, jsonKey } from "#toolkit/fp/memoize.js";
 
 describe("jsonKey", () => {
   test("Creates cache key from object by stringifying", () => {

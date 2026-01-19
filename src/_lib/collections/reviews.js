@@ -3,8 +3,8 @@ import { join } from "node:path";
 import config from "#data/config.js";
 import { SRC_DIR } from "#lib/paths.js";
 import { hashString } from "#media/thumbnail-placeholder.js";
-import { filter, filterMap, map, pipe } from "#utils/array-utils.js";
-import { groupByWithCache } from "#utils/memoize.js";
+import { filter, filterMap, map, pipe } from "#toolkit/fp/array.js";
+import { groupByWithCache } from "#toolkit/fp/memoize.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 // Load SVG template once at module initialization

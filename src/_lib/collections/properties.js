@@ -1,6 +1,6 @@
 import { addGallery } from "#collections/products.js";
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
-import { groupByWithCache } from "#utils/memoize.js";
+import { groupByWithCache } from "#toolkit/fp/memoize.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** Index properties by location for O(1) lookups, cached per properties array */

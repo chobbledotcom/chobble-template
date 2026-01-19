@@ -1,5 +1,5 @@
 import { imageShortcode } from "#media/image.js";
-import { filter, pipe, sort } from "#utils/array-utils.js";
+import { filter, pipe, sort } from "#toolkit/fp/array.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { sortNavigationItems } from "#utils/sorting.js";
 

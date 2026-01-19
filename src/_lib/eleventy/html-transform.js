@@ -11,6 +11,7 @@
  */
 
 import configModule from "#data/config.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import {
   addExternalLinkAttrs,
   getExternalLinkAttrs,
@@ -23,7 +24,6 @@ import {
 } from "#transforms/linkify.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
 import { loadDOM } from "#utils/lazy-dom.js";
-import { memoize } from "#utils/memoize.js";
 
 const getConfig = memoize(configModule);
 

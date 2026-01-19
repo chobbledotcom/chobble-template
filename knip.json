@@ -11,7 +11,10 @@
 		"test/build-profiling.js",
 		"test/ensure-deps.js",
 		"test/setup.js",
-		"test/demo-precommit-errors.js"
+		"test/demo-precommit-errors.js",
+		"packages/js-toolkit/fp/index.js",
+		"packages/js-toolkit/test-utils/index.js",
+		"packages/js-toolkit/code-quality/index.js"
 	],
 	"project": ["**/*.{js,mjs}"],
 	"ignore": [

@@ -36,11 +36,12 @@ const IMPORT_ALIASES = {
   "#utils/": "src/_lib/utils/",
   "#public/": "src/_lib/public/",
   "#test/": "test/",
+  "#toolkit/": "packages/js-toolkit/",
 };
 
 /**
  * Resolve an import path to a relative file path.
- * @param {string} importPath - The import path (e.g., "#utils/memoize.js")
+ * @param {string} importPath - The import path (e.g., "#toolkit/fp/memoize.js")
  * @returns {string|null} - The resolved path or null if not a src/ file
  */
 const resolveImportPath = (importPath) => {
@@ -386,9 +387,15 @@ import { orig as alias } from "#utils/test.js";
   });
 
   describe("resolveImportPath", () => {
+    test("resolves #toolkit/ alias", () => {
+      expect(resolveImportPath("#toolkit/fp/memoize.js")).toBe(
+        "packages/js-toolkit/fp/memoize.js",
+      );
+    });
+
     test("resolves #utils/ alias", () => {
-      expect(resolveImportPath("#utils/memoize.js")).toBe(
-        "src/_lib/utils/memoize.js",
+      expect(resolveImportPath("#utils/sorting.js")).toBe(
+        "src/_lib/utils/sorting.js",
       );
     });
 

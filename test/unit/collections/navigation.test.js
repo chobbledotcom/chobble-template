@@ -9,7 +9,7 @@ import {
   expectResultTitles,
   item,
 } from "#test/test-utils.js";
-import { map } from "#utils/array-utils.js";
+import { map } from "#toolkit/fp/array.js";
 
 // ============================================
 // Functional Test Fixture Builders

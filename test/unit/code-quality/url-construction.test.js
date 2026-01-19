@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import stringsBase from "#data/strings-base.json" with { type: "json" };
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { memoize } from "#utils/memoize.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 // Build hardcoded URL patterns dynamically from strings-base.json
 // Any key ending in _dir defines a collection directory that shouldn't be hardcoded

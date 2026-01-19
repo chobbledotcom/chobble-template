@@ -1,4 +1,4 @@
-import { filter, flatMap, pipe, sort, uniqueBy } from "#utils/array-utils.js";
+import { filter, flatMap, pipe, sort, uniqueBy } from "#toolkit/fp/array.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";

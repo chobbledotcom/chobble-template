@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import { memberOf } from "#utils/array-utils.js";
-import { memoize } from "#utils/memoize.js";
+import { memberOf } from "#toolkit/fp/array.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 const SVG_EXTENSIONS = [".svg"];
 const IMAGE_EXTENSIONS = [".webp", ".jpeg", ".jpg", ".png", ".gif"];

@@ -7,7 +7,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { SRC_DIR } from "#lib/paths.js";
-import { memoize } from "#utils/memoize.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 // Memoize the file existence check since the same images are checked repeatedly
 const checkImageExists = memoize((fullPath) => existsSync(fullPath));

@@ -16,7 +16,7 @@ import {
   taggedCollectionApi,
 } from "#test/test-utils.js";
 
-import { map } from "#utils/array-utils.js";
+import { map } from "#toolkit/fp/array.js";
 
 // Create configured mock and extract registered collection/filters
 const createReviewsMock = () => {

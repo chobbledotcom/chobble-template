@@ -1,0 +1,16 @@
+{
+  "threshold": 0,
+  "reporters": ["console", "json"],
+  "output": ".jscpd-report",
+  "ignore": [
+    "**/node_modules/**",
+    "**/_site/**",
+    "**/package-lock.json"
+  ],
+  "format": ["javascript", "json", "markup", "css", "scss"],
+  "absolute": false,
+  "gitignore": true,
+  "exitCode": 1,
+  "minLines": 1,
+  "minTokens": 40
+}

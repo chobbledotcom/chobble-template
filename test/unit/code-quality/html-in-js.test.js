@@ -5,7 +5,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
-import { filterMap } from "#utils/array-utils.js";
+import { filterMap } from "#toolkit/fp/array.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.

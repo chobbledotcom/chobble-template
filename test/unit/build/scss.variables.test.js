@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { createExtractor, rootDir } from "#test/test-utils.js";
-import { pluralize } from "#utils/array-utils.js";
+import { pluralize } from "#toolkit/fp/array.js";
 
 // ============================================
 // Constants

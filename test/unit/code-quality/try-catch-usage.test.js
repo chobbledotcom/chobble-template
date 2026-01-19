@@ -7,7 +7,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
-import { groupBy } from "#utils/grouping.js";
+import { groupBy } from "#toolkit/fp/grouping.js";
 
 /**
  * Track brace depth and find if try block has a catch.

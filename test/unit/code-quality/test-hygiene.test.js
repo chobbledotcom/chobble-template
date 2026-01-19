@@ -18,7 +18,6 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   // Test utilities from test-utils.js pattern
   "compileScss",
   "createObjectBuilder",
-  "captureConsole",
   "execScript",
   "createMockEleventyConfig",
   "createPropertiesMock", // properties.test.js - creates mock config with registered filters
@@ -26,15 +25,9 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createSearchMock", // search.test.js - creates mock config with registered filters
   "createStyleBundleMock", // style-bundle.test.js - creates mock config with registered filters
   "createTempDir",
-  "createTempFile",
   "createTempSnippetsDir",
-  "cleanupTempDir",
   "withTempDir",
   "withTempFile",
-  "withMockedCwd",
-  "withMockedCwdAsync",
-  "mockCwdSetup",
-  "mockCwdTeardown",
   "withMockedConsole",
   "getIconFilter",
   "expectValidScriptTag",
@@ -368,32 +361,15 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createBuildTestOutput",
   // precommit.test.js - functional test helper
   "expectErrorsToInclude",
-  // test-utils.js - test utilities (internal functions)
-  "walk",
+  // test-utils.js - project-specific test utilities
   "getFiles",
-  "captureConsoleLogAsync",
   "expectResultTitles",
-  "expectArrayProp",
-  "expectProp",
-  "expectDataArray",
   "expectGalleries",
-  "handleOpeningBrace",
-  "handleClosingBrace",
-  "handleComments",
-  "handleStringDelimiters",
-  "processLine",
-  "extractFunctions",
   // build-profiling.js - measurement utilities
   "measure",
-  // test-utils.js - curried assertion helper for error checking
-  "expectErrorsInclude",
-  // test-utils.js - async error testing helper
-  "expectAsyncThrows",
-  // test-utils.js - temp directory and mock fetch helpers
-  "withSubDir",
-  "withSubDirAsync",
-  "mockFetch",
-  "withMockFetch",
+  // NOTE: captureConsole, expectArrayProp, expectProp, expectDataArray,
+  // extractFunctions, expectErrorsInclude, expectAsyncThrows, withSubDir,
+  // withSubDirAsync, mockFetch, withMockFetch are now imported from toolkit
   // hire-calculator.test.js - DOM query helper
   "getDateInputs",
   // test-site-factory.test.js - test fixture

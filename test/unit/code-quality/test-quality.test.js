@@ -7,7 +7,7 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
-import { compact, filterMap } from "#utils/array-utils.js";
+import { compact, filterMap } from "#toolkit/fp/array.js";
 
 /**
  * Test Quality Enforcement

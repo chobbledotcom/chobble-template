@@ -4,7 +4,7 @@
  */
 
 import { expect } from "bun:test";
-import { map } from "#utils/array-utils.js";
+import { map } from "#toolkit/fp/array.js";
 
 /**
  * Assert event categorization counts

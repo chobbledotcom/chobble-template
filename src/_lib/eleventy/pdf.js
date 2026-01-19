@@ -11,9 +11,9 @@ import {
   pipe,
   sort,
   uniqueBy,
-} from "#utils/array-utils.js";
+} from "#toolkit/fp/array.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { log, error as logError } from "#utils/console.js";
-import { memoize } from "#utils/memoize.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 

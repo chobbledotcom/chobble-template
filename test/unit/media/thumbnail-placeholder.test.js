@@ -6,7 +6,7 @@ import {
   PLACEHOLDER_COLORS,
 } from "#media/thumbnail-placeholder.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
-import { unique } from "#utils/array-utils.js";
+import { unique } from "#toolkit/fp/array.js";
 
 describe("thumbnail-placeholder", () => {
   describe("hashString", () => {

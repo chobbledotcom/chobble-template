@@ -2,8 +2,8 @@
  * Functional grouping utilities for building indices and lookups
  */
 
-import { filter, flatMap, pipe, reduce } from "#utils/array-utils.js";
-import { fromPairs } from "#utils/object-entries.js";
+import { filter, flatMap, pipe, reduce } from "./array.js";
+import { fromPairs } from "./object.js";
 
 /**
  * Append item to array at key in Map, creating array if needed

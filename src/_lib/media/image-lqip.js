@@ -9,8 +9,8 @@
  * - Small images under 5KB (overhead not worth it)
  */
 import fs from "node:fs";
-import { memoize } from "#utils/memoize.js";
-import { mapObject } from "#utils/object-entries.js";
+import { memoize } from "#toolkit/fp/memoize.js";
+import { mapObject } from "#toolkit/fp/object.js";
 
 const getEleventyImg = memoize(() => import("@11ty/eleventy-img"));
 

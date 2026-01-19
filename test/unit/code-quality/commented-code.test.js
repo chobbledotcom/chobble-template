@@ -6,7 +6,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
-import { filterMap, pipe } from "#utils/array-utils.js";
+import { filterMap, pipe } from "#toolkit/fp/array.js";
 
 /**
  * Patterns that indicate commented-out code (not documentation)

@@ -4,15 +4,6 @@
 
 import { describe, expect, test } from "bun:test";
 import {
-  filter,
-  filterMap,
-  flatMap,
-  map,
-  pipe,
-  split,
-} from "#lib/utils/array-utils.js";
-import { buildReverseIndex } from "#lib/utils/grouping.js";
-import {
   fs,
   getFiles,
   path,
@@ -20,6 +11,15 @@ import {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
 } from "#test/test-utils.js";
+import {
+  filter,
+  filterMap,
+  flatMap,
+  map,
+  pipe,
+  split,
+} from "#toolkit/fp/array.js";
+import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 
 const { readFileSync } = fs;
 const { join } = path;

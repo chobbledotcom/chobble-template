@@ -1,5 +1,5 @@
-import { buildReverseIndex } from "#utils/grouping.js";
-import { memoize } from "#utils/memoize.js";
+import { buildReverseIndex } from "#toolkit/fp/grouping.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 
 // Memoized at module level so the cache persists across calls
 const buildMenuCategoryMap = memoize((categories) =>
