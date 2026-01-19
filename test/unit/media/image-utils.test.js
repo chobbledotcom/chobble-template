@@ -53,19 +53,21 @@ describe("image-utils", () => {
   });
 
   describe("parseWidths", () => {
-    test("splits comma-separated string into array", () => {
-      expect(parseWidths("240,480,900")).toEqual(["240", "480", "900"]);
+    test("splits comma-separated string into array and appends auto", () => {
+      expect(parseWidths("240,480,900")).toEqual(["240", "480", "900", "auto"]);
     });
 
-    test("returns array as-is", () => {
+    test("spreads input array and appends auto", () => {
       const widths = [240, 480, 900];
-      expect(parseWidths(widths)).toBe(widths);
+      const result = parseWidths(widths);
+      expect(result).toEqual([240, 480, 900, "auto"]);
+      expect(result).not.toBe(widths);
     });
 
-    test("returns default widths for null/undefined", () => {
+    test("returns default widths with auto appended for null/undefined", () => {
       const result = parseWidths(null);
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toEqual([240, 480, 900, 1300, "auto"]);
     });
   });
 

@@ -28,10 +28,10 @@ const DEFAULTS = {
   design_system_layouts: ["design-system-base.html"],
   phoneNumberLength: 11,
   use_visual_editor: false,
+  default_image_widths: [240, 480, 900, 1300],
 };
 
 const DEFAULT_PRODUCT_DATA = {
-  item_widths: "240,480,640",
   gallery_thumb_widths: "240,480",
   gallery_image_widths: "900,1300,1800",
   header_image_widths: "640,900,1300",

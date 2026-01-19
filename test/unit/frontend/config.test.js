@@ -38,6 +38,7 @@ describe("config", () => {
       "design_system_layouts",
       "phoneNumberLength",
       "use_visual_editor",
+      "default_image_widths",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });
@@ -54,7 +55,6 @@ describe("config", () => {
 
   test("DEFAULT_PRODUCT_DATA has correct image width defaults", () => {
     expectObjectProps({
-      item_widths: "240,480,640",
       gallery_thumb_widths: "240,480",
       gallery_image_widths: "900,1300,1800",
       header_image_widths: "640,900,1300",
@@ -74,15 +74,15 @@ describe("config", () => {
   test("getProducts filters out null values", () => {
     const configData = {
       products: {
-        item_widths: "100,200",
-        gallery_thumb_widths: null,
+        gallery_thumb_widths: "100,200",
+        gallery_image_widths: null,
         custom_field: "value",
       },
     };
     const result = getProducts(configData);
     expectObjectProps({
-      item_widths: "100,200",
-      gallery_thumb_widths: undefined,
+      gallery_thumb_widths: "100,200",
+      gallery_image_widths: undefined,
       custom_field: "value",
     })(result);
   });

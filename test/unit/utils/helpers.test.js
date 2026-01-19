@@ -21,11 +21,11 @@ describe("getProducts", () => {
   test("filters out null values", () => {
     const result = getProducts({
       products: {
-        item_widths: "240,480",
+        gallery_thumb_widths: "240,480",
         gallery_widths: null,
       },
     });
-    expect(result).toEqual({ item_widths: "240,480" });
+    expect(result).toEqual({ gallery_thumb_widths: "240,480" });
   });
 
   test("filters out undefined values", () => {
@@ -41,9 +41,9 @@ describe("getProducts", () => {
   test("preserves all non-null values", () => {
     const input = {
       products: {
-        item_widths: "240,480,640",
         gallery_thumb_widths: "240,480",
         gallery_image_widths: "900,1300,1800",
+        header_image_widths: "640,900,1300",
       },
     };
     const result = getProducts(input);
@@ -121,12 +121,15 @@ describe("DEFAULTS", () => {
   test("has use_visual_editor disabled by default", () => {
     expect(DEFAULTS.use_visual_editor).toBe(false);
   });
+
+  test("has default_image_widths array", () => {
+    expect(DEFAULTS.default_image_widths).toEqual([240, 480, 900, 1300]);
+  });
 });
 
 describe("DEFAULT_PRODUCT_DATA", () => {
   test("has image width configurations", () => {
     expectObjectProps({
-      item_widths: "240,480,640",
       gallery_thumb_widths: "240,480",
       gallery_image_widths: "900,1300,1800",
       header_image_widths: "640,900,1300",

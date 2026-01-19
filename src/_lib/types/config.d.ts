@@ -8,7 +8,6 @@
  * Product image width configuration
  */
 export type ProductConfig = {
-  item_widths: string;
   gallery_thumb_widths: string;
   gallery_image_widths: string;
   header_image_widths: string;
@@ -62,6 +61,7 @@ export type SiteConfig = {
   list_item_fields: string[];
   navigation_content_anchor: boolean;
   design_system_layouts: string[];
+  default_image_widths: number[];
   products: ProductConfig;
 
   // Optional (may be null)
