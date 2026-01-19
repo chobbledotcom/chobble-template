@@ -15,8 +15,8 @@ coverage = true
 
 # Coverage thresholds - tests fail if coverage drops below these levels
 # Allows manual management of .coverage_exceptions.json while preventing regressions
-# Function threshold at 0.98 to allow for conditional inner closures in utility libraries
-coverageThreshold = { lines = 1.0, functions = 0.98 }
+# Full 100% coverage required for both lines and functions
+coverageThreshold = { lines = 1.0, functions = 1.0 }
 
 # Files excluded from coverage:
 # - ensure-deps.js: defensive code that can't be meaningfully tested

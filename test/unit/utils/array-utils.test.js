@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
+  accumulate,
   compact,
   data,
   filter,
@@ -588,5 +589,48 @@ describe("array-utils", () => {
   test("pluralize handles zero", () => {
     const formatItems = pluralize("item");
     expect(formatItems(0)).toBe("0 items");
+  });
+
+  // ============================================
+  // accumulate Tests
+  // ============================================
+  test("accumulate collects values with push pattern", () => {
+    const collectNames = accumulate((acc, user) => {
+      acc.push(user.name);
+      return acc;
+    });
+    const users = [{ name: "Alice" }, { name: "Bob" }];
+    expect(collectNames(users)).toEqual(["Alice", "Bob"]);
+  });
+
+  test("accumulate filters while collecting", () => {
+    const collectActiveNames = accumulate((acc, user) => {
+      if (user.active) acc.push(user.name);
+      return acc;
+    });
+    const users = [
+      { name: "Alice", active: true },
+      { name: "Bob", active: false },
+      { name: "Charlie", active: true },
+    ];
+    expect(collectActiveNames(users)).toEqual(["Alice", "Charlie"]);
+  });
+
+  test("accumulate handles empty array", () => {
+    const collect = accumulate((acc, x) => {
+      acc.push(x);
+      return acc;
+    });
+    expect(collect([])).toEqual([]);
+  });
+
+  test("accumulate works with pipe", () => {
+    const getUniqueIds = accumulate((acc, item) => {
+      if (!acc.includes(item.id)) acc.push(item.id);
+      return acc;
+    });
+    const items = [{ id: 1 }, { id: 2 }, { id: 1 }, { id: 3 }];
+    const result = pipe(getUniqueIds)(items);
+    expect(result).toEqual([1, 2, 3]);
   });
 });
