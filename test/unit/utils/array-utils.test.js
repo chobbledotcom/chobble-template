@@ -1,22 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { expectObjectProps } from "#test/test-utils.js";
+import { data, expectObjectProps, toData } from "#test/test-utils.js";
 import {
   compact,
-  data,
   filter,
   filterMap,
   findDuplicate,
   listSeparator,
   map,
   memberOf,
-  membershipPredicate,
   notMemberOf,
   pick,
   pipe,
   pluralize,
   sort,
   sortBy,
-  toData,
   uniqueBy,
 } from "#toolkit/fp/array.js";
 
@@ -176,23 +173,6 @@ describe("array-utils", () => {
   test("memberOf handles empty collection", () => {
     const isEmpty = memberOf([]);
     expect(isEmpty("anything")).toBe(false);
-  });
-
-  // ============================================
-  // membershipPredicate Tests
-  // ============================================
-  test("membershipPredicate with negate=false is same as memberOf", () => {
-    const customMemberOf = membershipPredicate(false);
-    const isWeekend = customMemberOf(["saturday", "sunday"]);
-    expect(isWeekend("saturday")).toBe(true);
-    expect(isWeekend("monday")).toBe(false);
-  });
-
-  test("membershipPredicate with negate=true is same as notMemberOf", () => {
-    const customNotMemberOf = membershipPredicate(true);
-    const isNotWeekend = customNotMemberOf(["saturday", "sunday"]);
-    expect(isNotWeekend("monday")).toBe(true);
-    expect(isNotWeekend("saturday")).toBe(false);
   });
 
   // ============================================

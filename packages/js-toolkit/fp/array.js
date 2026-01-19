@@ -246,43 +246,6 @@ const findDuplicate = (items, getKey = (x) => x) => {
 };
 
 /**
- * Safe array accumulation in reduce callbacks
- *
- * Use this for building arrays within reduce operations.
- * Each call gets a fresh array, providing O(1) push operations
- * instead of O(n²) complexity from repeated spread syntax.
- *
- * This enables safe imperative patterns like acc.push() within the callback.
- *
- * @template T
- * @template R
- * @param {(acc: R[], item: T, index: number, array: T[]) => R[]} fn - Accumulator callback
- * @returns {(arr: T[]) => R[]} Function that accumulates array
- *
- * @example
- * // Collect unique IDs from fields
- * const getFieldIds = accumulate((acc, field) => {
- *   const id = field.type === "radio" ? field.name : field.id;
- *   if (id && !acc.includes(id)) {
- *     acc.push(id);  // Safe: array only accessible within callback
- *   }
- *   return acc;
- * });
- *
- * getFieldIds(fields)  // Returns array
- *
- * @example
- * // Use with pipe for functional composition
- * pipe(
- *   accumulate((acc, user) => {
- *     if (user.active) acc.push(user.name);
- *     return acc;
- *   })
- * )(users)
- */
-const accumulate = (fn) => (arr) => arr.reduce(fn, []);
-
-/**
  * Create a membership predicate factory with configurable negation.
  * Curried: (negate) => (values) => (value) => boolean
  *
@@ -394,85 +357,8 @@ const pluralize = (singular, plural) => {
   return (count) => (count === 1 ? `1 ${singular}` : `${count} ${pluralForm}`);
 };
 
-/**
- * Pipeable curried data transform for creating collections of objects.
- *
- * Transforms an array of value tuples into objects with a `data` property.
- * Use this when you need to chain transformations with pipe().
- *
- * Curried as: (defaults) => (...fields) => (rows) => items
- *
- * @template T
- * @param {T} defaults - Default properties merged into every item's data
- * @returns {(...fields: string[]) => (rows: any[][]) => Array<{data: T & Record<string, any>}>}
- *
- * @example
- * // Use with pipe to transform input before creating objects
- * const csvRows = [
- *   ["Widget A", "100"],
- *   ["Widget B", "200"],
- * ];
- *
- * const product = toData({ categories: [] });
- * const parsePrice = map(([title, price]) => [title, Number(price)]);
- *
- * const products = pipe(
- *   parsePrice,
- *   product("title", "price"),
- * )(csvRows);
- * // Returns: [
- * //   { data: { categories: [], title: "Widget A", price: 100 } },
- * //   { data: { categories: [], title: "Widget B", price: 200 } },
- * // ]
- */
-const toData =
-  (defaults) =>
-  (...fields) =>
-  (rows) =>
-    rows.map((values) => ({
-      data: {
-        ...defaults,
-        ...Object.fromEntries(fields.map((f, i) => [f, values[i]])),
-      },
-    }));
-
-/**
- * Curried data transform for creating collections of objects.
- *
- * Creates a factory that transforms rows of values into objects with
- * a consistent structure. Perfect for test fixtures where you need
- * many similar objects with slight variations.
- *
- * Curried as: (defaults) => (...fields) => (...rows) => items
- *
- * @template T
- * @param {T} defaults - Default properties merged into every item's data
- * @returns {(...fields: string[]) => (...rows: any[][]) => Array<{data: T & Record<string, any>}>}
- *
- * @example
- * // Define a product factory with default categories
- * const product = data({ categories: [] });
- *
- * // Create products with title and keywords fields
- * const products = product("title", "keywords")(
- *   ["Widget A", ["portable"]],
- *   ["Widget B", ["stationary"]],
- * );
- * // Returns: [
- * //   { data: { categories: [], title: "Widget A", keywords: ["portable"] } },
- * //   { data: { categories: [], title: "Widget B", keywords: ["stationary"] } },
- * // ]
- */
-const data =
-  (defaults) =>
-  (...fields) =>
-  (...rows) =>
-    toData(defaults)(...fields)(rows);
-
 export {
-  accumulate,
   compact,
-  data,
   exclude,
   filter,
   filterMap,
@@ -482,7 +368,6 @@ export {
   listSeparator,
   map,
   memberOf,
-  membershipPredicate,
   notMemberOf,
   pick,
   pipe,
@@ -491,7 +376,6 @@ export {
   sort,
   sortBy,
   split,
-  toData,
   unique,
   uniqueBy,
 };

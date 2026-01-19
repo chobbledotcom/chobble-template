@@ -13,9 +13,7 @@
 
 // Array utilities
 export {
-  accumulate,
   compact,
-  data,
   exclude,
   filter,
   filterMap,
@@ -25,7 +23,6 @@ export {
   listSeparator,
   map,
   memberOf,
-  membershipPredicate,
   notMemberOf,
   pick,
   pipe,
@@ -34,7 +31,6 @@ export {
   sort,
   sortBy,
   split,
-  toData,
   unique,
   uniqueBy,
 } from "./array.js";
@@ -56,7 +52,6 @@ export {
 // Object utilities
 export {
   everyEntry,
-  filterObject,
   fromPairs,
   mapBoth,
   mapEntries,

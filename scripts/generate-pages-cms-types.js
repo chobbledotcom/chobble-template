@@ -44,6 +44,8 @@ const mapFieldType = (field) => {
       return "string";
     case "code":
       return "string";
+    case "rich-text":
+      return "string"; // Rich text is markdown/HTML string
     case "reference":
       return "string"; // References store paths as strings
     default:

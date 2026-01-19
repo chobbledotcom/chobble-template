@@ -84,8 +84,6 @@ const createTestsWithCoverageStep = (verbose) => ({
  * @returns {Object} Result with status and output
  */
 const runStep = (step, verbose, rootDir) => {
-  // Always capture stdout/stderr so we can extract errors for the summary
-  // If verbose, we'll print the output after capturing it
   const result = spawnSync(step.cmd, step.args, {
     cwd: rootDir,
     stdio: ["inherit", "pipe", "pipe"],
@@ -98,7 +96,6 @@ const runStep = (step, verbose, rootDir) => {
   const stdout = result.stdout?.toString() || "";
   const stderr = result.stderr?.toString() || "";
 
-  // In verbose mode, print captured output to console
   if (verbose) {
     if (stdout) process.stdout.write(stdout);
     if (stderr) process.stderr.write(stderr);
@@ -112,108 +109,96 @@ const runStep = (step, verbose, rootDir) => {
 };
 
 /**
+ * Check if a line should be skipped (not an error)
+ * @param {string} trimmed - Trimmed line
+ * @returns {boolean} True if line should be skipped
+ */
+const shouldSkipLine = (trimmed) =>
+  !trimmed ||
+  trimmed.startsWith("$") ||
+  trimmed.startsWith("/") ||
+  trimmed.endsWith(".jpg") ||
+  trimmed.endsWith(".png") ||
+  trimmed.endsWith(".gif") ||
+  trimmed.startsWith("node -e") ||
+  trimmed.startsWith("(pass)");
+
+/**
+ * Check if line has error indicators
+ * @param {string} trimmed - Trimmed line
+ * @returns {boolean} True if line has error indicators
+ */
+const hasErrorIndicator = (trimmed) =>
+  trimmed.startsWith("❌") ||
+  trimmed.startsWith("error:") ||
+  trimmed.startsWith("Error:") ||
+  trimmed.startsWith("AssertionError:") ||
+  trimmed.includes("FAIL") ||
+  (trimmed.toLowerCase().includes("fail") && trimmed !== "0 fail") ||
+  trimmed.includes("below threshold") ||
+  trimmed.includes("must have test coverage") ||
+  /Uncovered lines?:/i.test(trimmed);
+
+/**
+ * Check if line matches tool-specific error patterns
+ * @param {string} trimmed - Trimmed line
+ * @returns {boolean} True if line matches tool patterns
+ */
+const hasToolPattern = (trimmed) =>
+  /^Unused (files|exports|dependencies|types)/i.test(trimmed) ||
+  /^Unlisted dependencies/i.test(trimmed) ||
+  /^(Clone found|Duplication detected|Total duplicates)/i.test(trimmed) ||
+  /\d+ (tests?|errors?) (failed|found)/i.test(trimmed) ||
+  /coverage.*\d+%/i.test(trimmed);
+
+/**
+ * Check if line is a coverage violation detail
+ * @param {string} trimmed - Trimmed line
+ * @returns {boolean} True if line is coverage detail
+ */
+const isCoverageViolationDetail = (trimmed) =>
+  /^[\w./-]+\.\w+:\s*.+$/.test(trimmed) &&
+  !trimmed.includes("instance(s)") &&
+  !trimmed.includes("usage(s)") &&
+  !/:\s*lines\s+\d/.test(trimmed);
+
+/**
+ * Check if line is a stack trace
+ * @param {string} trimmed - Trimmed line
+ * @returns {boolean} True if line is stack trace
+ */
+const isStackTrace = (trimmed) => /^at .+\(.+:\d+:\d+\)/.test(trimmed);
+
+/**
+ * Check if line is a coverage table row with uncovered lines
+ * @param {string} trimmed - Trimmed line
+ * @returns {boolean} True if coverage row with uncovered lines
+ */
+const isCoverageRowWithUncovered = (trimmed) => {
+  const match = trimmed.match(
+    /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
+  );
+  return match?.[4]?.trim();
+};
+
+/**
  * Extract error messages from test output
  * @param {string} output - Raw output text
  * @returns {string[]} Array of error messages
  */
-const extractErrorsFromOutput = (output) => {
-  const lines = output.split("\n");
-  const errors = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    // Skip empty lines and cruft
-    if (!trimmed) continue;
-
-    // Skip command outputs and file paths at the start
-    if (trimmed.startsWith("$") || trimmed.startsWith("/")) continue;
-
-    // Skip image filenames and other generic file paths
-    if (
-      trimmed.endsWith(".jpg") ||
-      trimmed.endsWith(".png") ||
-      trimmed.endsWith(".gif")
-    ) {
-      continue;
-    }
-
-    // Skip long command lines that start with "node -e"
-    if (trimmed.startsWith("node -e")) continue;
-
-    // Skip Bun's passing test output lines (they may contain words like "error" or "FAIL" in test names)
-    if (trimmed.startsWith("(pass)")) continue;
-
-    // Look for error indicators
-    const hasErrorIndicator =
-      trimmed.startsWith("❌") ||
-      trimmed.startsWith("error:") ||
-      trimmed.startsWith("Error:") ||
-      trimmed.startsWith("AssertionError:") ||
-      trimmed.includes("FAIL") ||
-      (trimmed.toLowerCase().includes("fail") && trimmed !== "0 fail") ||
-      trimmed.includes("below threshold") ||
-      trimmed.includes("must have test coverage") ||
-      // Coverage errors like "Uncovered lines: 10-15" but not table header "Uncovered Line #s"
-      /Uncovered lines?:/i.test(trimmed);
-
-    // Detect coverage table rows with uncovered lines (Bun coverage output format)
-    // Format: " src/file.js | 95.00 | 90.00 | 21-22,41" or "All files | 99.00 | 98.00 |"
-    const coverageTableMatch = trimmed.match(
-      /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
+const extractErrorsFromOutput = (output) =>
+  output
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((trimmed) => !shouldSkipLine(trimmed))
+    .filter(
+      (trimmed) =>
+        isCoverageRowWithUncovered(trimmed) ||
+        hasErrorIndicator(trimmed) ||
+        hasToolPattern(trimmed) ||
+        isCoverageViolationDetail(trimmed) ||
+        isStackTrace(trimmed),
     );
-    if (coverageTableMatch) {
-      const [, , , , uncoveredLines] = coverageTableMatch;
-      // Include rows that have uncovered lines listed
-      if (uncoveredLines?.trim()) {
-        errors.push(trimmed);
-        continue;
-      }
-    }
-
-    // Look for tool-specific error patterns
-    const hasToolPattern =
-      // Knip outputs: "Unused files (3)", "Unused exports (5)", etc.
-      /^Unused (files|exports|dependencies|types)/i.test(trimmed) ||
-      /^Unlisted dependencies/i.test(trimmed) ||
-      // Duplication/jscpd: "Clone found", "Duplication detected"
-      /^(Clone found|Duplication detected|Total duplicates)/i.test(trimmed) ||
-      // Test counts: "2 tests failed", "15 errors found"
-      /\d+ (tests?|errors?) (failed|found)/i.test(trimmed) ||
-      // Coverage patterns
-      /coverage.*\d+%/i.test(trimmed);
-
-    if (hasErrorIndicator || hasToolPattern) {
-      errors.push(trimmed);
-    }
-
-    // Include coverage violation details (path/file.ext: items)
-    // These lines show which specific files/lines/functions/branches need coverage
-    // Matches patterns like: src/file.js: 10, 20 or src/file.js: funcName, otherFunc
-    // BUT skip informational test output from allowlist tracking:
-    //   - HTML-in-JS allowlist: "file.js: N instance(s)"
-    //   - try-catch allowlist: "file.js: lines N, N, N"
-    //   - let/const allowlist: "file.js: N usage(s)"
-    if (
-      /^[\w./-]+\.\w+:\s*.+$/.test(trimmed) &&
-      !trimmed.includes("instance(s)") &&
-      !trimmed.includes("usage(s)") &&
-      !/:\s*lines\s+\d/.test(trimmed) // Skip "file.js: lines 12, 28" pattern
-    ) {
-      errors.push(trimmed);
-    }
-
-    // Include stack trace lines that provide context (but not all of them)
-    // Match lines like "at Object.<anonymous> (src/index.js:5:15)"
-    // Note: trimmed already has leading whitespace removed
-    if (/^at .+\(.+:\d+:\d+\)/.test(trimmed)) {
-      // Only include the first few stack frames (limit added when displaying)
-      errors.push(trimmed);
-    }
-  }
-
-  return errors;
-};
 
 /**
  * Run all steps in sequence, stopping on first failure
@@ -225,17 +210,19 @@ const extractErrorsFromOutput = (output) => {
  * @returns {Object} Results map from step names to results
  */
 const runSteps = ({ steps, verbose, title, rootDir }) => {
-  const results = {};
+  const results = steps.reduce((acc, step) => {
+    if (Object.values(acc).some((r) => r.status !== 0)) return acc;
 
-  for (const step of steps) {
     const result = runStep(step, verbose, rootDir);
-    results[step.name] = result;
+    Object.assign(acc, { [step.name]: result });
 
     if (result.status !== 0) {
-      printSummary(steps, results, title);
+      printSummary(steps, acc, title);
       process.exit(1);
     }
-  }
+
+    return acc;
+  }, Object.create(null));
 
   printSummary(steps, results, title);
   return results;
@@ -252,27 +239,20 @@ const printSummary = (steps, results, title = "SUMMARY") => {
   console.log(title);
   console.log("=".repeat(60));
 
-  const passedSteps = [];
-  const failedSteps = [];
-
-  for (const step of steps) {
-    const result = results[step.name];
-    if (!result) continue; // Skip if step wasn't run
-    if (result.status === 0) {
-      passedSteps.push(step.name);
-    } else {
-      failedSteps.push(step.name);
-    }
-  }
+  const ranSteps = steps.filter((step) => results[step.name]);
+  const passedSteps = ranSteps
+    .filter((step) => results[step.name].status === 0)
+    .map((s) => s.name);
+  const failedSteps = ranSteps
+    .filter((step) => results[step.name].status !== 0)
+    .map((s) => s.name);
 
   const allPassed = failedSteps.length === 0;
 
-  // Print passed checks
   if (passedSteps.length > 0) {
     console.log(`✅ Passed: ${passedSteps.join(", ")}`);
   }
 
-  // Print failed checks with errors
   if (failedSteps.length > 0) {
     console.log(`\n❌ Failed: ${failedSteps.join(", ")}`);
 
@@ -287,14 +267,13 @@ const printSummary = (steps, results, title = "SUMMARY") => {
       if (errors.length > 0) {
         printTruncatedList({ moreLabel: "errors" })(errors);
       } else {
-        // Check if this looks like a coverage threshold failure
-        // (tests passed but exit code 1, with coverage table in output)
         const allOutput = result.stderr || result.stdout || "";
-        const hasPassingTests = /\d+ pass/.test(allOutput);
-        const hasZeroFail = /0 fail/.test(allOutput);
-        const hasCoverageTable = /% Funcs.*% Lines/.test(allOutput);
+        const isCoverageFailure =
+          /\d+ pass/.test(allOutput) &&
+          /0 fail/.test(allOutput) &&
+          /% Funcs.*% Lines/.test(allOutput);
 
-        if (hasPassingTests && hasZeroFail && hasCoverageTable) {
+        if (isCoverageFailure) {
           console.log(
             "  Coverage threshold not met. Check coverage output above.",
           );
@@ -302,7 +281,6 @@ const printSummary = (steps, results, title = "SUMMARY") => {
             "  Thresholds are defined in bunfig.toml (coverageThreshold).",
           );
         } else {
-          // Show last 15 lines of output when no specific errors extracted
           console.log(
             "  No specific errors extracted. Last 15 lines of output:",
           );

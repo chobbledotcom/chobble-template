@@ -77,7 +77,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:114", // createExtractor accumulates results in a Set
+  "test/test-utils.js:146", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -192,6 +192,10 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
 // NOTE: The scanner now detects Eleventy registrations (addFilter, addShortcode, etc.)
 // so exports registered with Eleventy no longer need to be listed here.
 const ALLOWED_TEST_ONLY_EXPORTS = new Set([
+  // FP toolkit utilities - used by code-quality/scanner.js via relative import
+  // (relative imports aren't detected by our analysis)
+  "packages/js-toolkit/fp/object.js:omit",
+
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:createScssCompiler",
 
@@ -230,7 +234,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = new Set([
   // Infrastructure: DOM class definition
-  "test/test-utils.js:154",
+  "test/test-utils.js:184",
 
   // Parsing build output into queryable documents
   "test/test-site-factory.js:331",
