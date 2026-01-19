@@ -147,6 +147,14 @@ describe("linkify transforms", () => {
       expect(result.match(/<a /g)?.length).toBe(1);
     });
 
+    test("does not linkify URLs nested inside anchor tags", async () => {
+      const html =
+        '<html><body><a href="https://example.com">Visit <span>https://example.com</span></a></body></html>';
+      const result = await transformHtml(html, linkifyUrls, {});
+
+      expect(result.match(/<a /g)?.length).toBe(1);
+    });
+
     test("does not linkify URLs inside script tags", async () => {
       const html =
         '<html><body><script>const url = "https://example.com";</script></body></html>';
@@ -215,6 +223,14 @@ describe("linkify transforms", () => {
     test("does not linkify emails inside anchor tags", async () => {
       const html =
         '<html><body><a href="mailto:test@example.com">Contact</a></body></html>';
+      const result = await transformHtml(html, linkifyEmails, {});
+
+      expect(result.match(/<a /g)?.length).toBe(1);
+    });
+
+    test("does not linkify emails nested inside anchor tags", async () => {
+      const html =
+        '<html><body><a href="mailto:test@example.com">Contact <span>test@example.com</span></a></body></html>';
       const result = await transformHtml(html, linkifyEmails, {});
 
       expect(result.match(/<a /g)?.length).toBe(1);
@@ -316,6 +332,17 @@ describe("linkify transforms", () => {
       });
 
       expect(result.match(/<a /g)?.length).toBe(1);
+    });
+
+    test("does not linkify phones nested inside anchor tags", async () => {
+      const html =
+        '<html><body><a href="tel:+441234567890">Call <span>01234567890</span></a></body></html>';
+      const result = await transformHtml(html, linkifyPhones, {
+        phoneNumberLength: 11,
+      });
+
+      expect(result.match(/<a /g)?.length).toBe(1);
+      expect(result).not.toContain("<a><a");
     });
 
     test("does not linkify phones inside script tags", async () => {

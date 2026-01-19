@@ -57,6 +57,17 @@ const parseTextByPattern = (text, pattern, partFactory) => {
 };
 
 /**
+ * Check if any ancestor element is in SKIP_TAGS
+ * @param {Element | null} element
+ * @returns {boolean}
+ */
+const hasSkipAncestor = (element) =>
+  element
+    ? SKIP_TAGS.includes(element.tagName.toLowerCase()) ||
+      hasSkipAncestor(element.parentElement)
+    : false;
+
+/**
  * Check if a text node should be processed
  * @param {Text} node
  * @param {RegExp} pattern
@@ -64,7 +75,7 @@ const parseTextByPattern = (text, pattern, partFactory) => {
  */
 const shouldProcessNode = (node, pattern) => {
   const parent = node.parentElement;
-  if (!parent || SKIP_TAGS.includes(parent.tagName.toLowerCase())) {
+  if (!parent || hasSkipAncestor(parent)) {
     return false;
   }
   pattern.lastIndex = 0;
