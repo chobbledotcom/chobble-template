@@ -7,13 +7,8 @@ import path from "node:path";
 import { notMemberOf, pluralize } from "../fp/array.js";
 import { omit } from "../fp/object.js";
 
-// Standard fields returned by find functions (everything else is extra data)
 const STANDARD_HIT_FIELDS = ["lineNumber", "line"];
 const omitStandardFields = omit(STANDARD_HIT_FIELDS);
-
-// ============================================
-// Common patterns for skipping non-code lines
-// ============================================
 
 /**
  * Curried pattern matcher - returns the first match result or null.
@@ -141,8 +136,6 @@ const formatViolationReport = (violations, options = {}) => {
 
   if (violations.length === 0) return { count: 0, report: "" };
 
-  // Use pluralize if singular provided (plural is optional, auto-derived if omitted)
-  // Fall back to legacy message format if neither provided
   const formatCount = singular
     ? pluralize(singular, plural)
     : (n) => `${n} ${message || "violation(s)"}`;
@@ -206,6 +199,14 @@ const createPatternMatcher = (patterns, toViolation) => {
  * @param {string} config.rootDir - Root directory for file reading
  * @returns {{ violations: Array, allowed: Array }}
  */
+const hitToResult = (hit, relativePath) => ({
+  file: relativePath,
+  line: hit.lineNumber,
+  code: hit.line,
+  location: `${relativePath}:${hit.lineNumber}`,
+  ...omitStandardFields(hit),
+});
+
 const analyzeWithAllowlist = (config) => {
   const {
     findFn,
@@ -219,37 +220,41 @@ const analyzeWithAllowlist = (config) => {
   const results = analyzeFiles(
     fileList,
     (source, relativePath) =>
-      findFn(source).map((hit) => ({
-        file: relativePath,
-        line: hit.lineNumber,
-        code: hit.line,
-        location: `${relativePath}:${hit.lineNumber}`,
-        ...omitStandardFields(hit),
-      })),
+      findFn(source).map((hit) => hitToResult(hit, relativePath)),
     { excludeFiles, rootDir },
   );
 
   const isAllowlisted = (decl) =>
     allowlist.has(decl.location) || allowlist.has(decl.file);
-
   return {
-    violations: results.filter((decl) => !isAllowlisted(decl)),
+    violations: results.filter((d) => !isAllowlisted(d)),
     allowed: results.filter(isAllowlisted),
   };
 };
 
 /**
+ * Create a line scanner function for pattern matching.
+ * @param {function} shouldSkip - Predicate to skip lines
+ * @param {function} matcher - Pattern matcher function
+ * @param {function} extractData - Data extractor function
+ */
+const createLineMatcher =
+  (shouldSkip, matcher, extractData) => (line, lineNum) => {
+    const trimmed = line.trim();
+    if (shouldSkip(trimmed)) return null;
+
+    const result = matcher(line);
+    if (result === null) return null;
+
+    const extra = extractData(line, lineNum, result.match);
+    return extra === null
+      ? null
+      : { lineNumber: lineNum, line: trimmed, ...extra };
+  };
+
+/**
  * Create a reusable code checker with find and analyze functions.
- * Consolidates the common find-X/analyze-X pattern into a single factory.
- *
- * @param {object} config
- * @param {RegExp|RegExp[]} config.patterns - Pattern(s) to match in source lines
- * @param {RegExp[]} [config.skipPatterns] - Patterns that indicate lines to skip
- * @param {function} [config.extractData] - (line, lineNum, match) => additional data | null
- * @param {string[]|function} [config.files] - File list or function returning file list
- * @param {string[]} [config.excludeFiles] - Files to exclude from analysis
- * @param {Set<string>} [config.allowlist] - Optional allowlist for filtering results
- * @param {string} config.rootDir - Root directory for file reading
+ * @param {object} config - Configuration object
  * @returns {{ find: (source: string) => Array, analyze: () => Object }}
  */
 const createCodeChecker = (config) => {
@@ -264,29 +269,13 @@ const createCodeChecker = (config) => {
   } = config;
 
   const matcher = matchesAny([patterns].flat());
-  const shouldSkip = matchesAny(skipPatterns);
+  const lineMatcher = createLineMatcher(
+    matchesAny(skipPatterns),
+    matcher,
+    extractData,
+  );
+  const find = (source) => scanLines(source, lineMatcher);
 
-  // Pure function: find matches in source code
-  const find = (source) =>
-    scanLines(source, (line, lineNum) => {
-      const trimmed = line.trim();
-
-      // Skip lines matching skip patterns
-      if (shouldSkip(trimmed)) return null;
-
-      // Check for pattern match (matcher returns { match, pattern } or null)
-      const result = matcher(line);
-      if (result === null) return null;
-
-      // Extract additional data from match
-      const extra = extractData(line, lineNum, result.match);
-      return extra === null
-        ? null
-        : { lineNumber: lineNum, line: trimmed, ...extra };
-    });
-
-  // Pure function: analyze files and collect results
-  // Delegates to analyzeWithAllowlist for consistent behavior
   const analyze = () =>
     analyzeWithAllowlist({
       findFn: find,
@@ -327,10 +316,44 @@ const withAllowlist = (config) => () =>
     rootDir: config.rootDir,
   });
 
+const validateFileEntry = (entry, patternList, rootDir) => {
+  const source = readSource(entry, rootDir);
+  const hasMatch = source
+    .split("\n")
+    .some((line) => patternList.some((p) => p.test(line)));
+  return hasMatch
+    ? []
+    : [{ entry, reason: "File contains no lines matching pattern" }];
+};
+
+const validateLineEntry = (entry, patternList, rootDir) => {
+  const [filePath, lineNumStr] = entry.split(":");
+  const lineNum = parseInt(lineNumStr, 10);
+  const lines = readSource(filePath, rootDir).split("\n");
+
+  if (lineNum > lines.length || lineNum < 1) {
+    return [
+      {
+        entry,
+        reason: `Line ${lineNum} doesn't exist (file has ${lines.length} lines)`,
+      },
+    ];
+  }
+
+  const line = lines[lineNum - 1];
+  if (!patternList.some((p) => p.test(line))) {
+    return [
+      {
+        entry,
+        reason: `Line no longer matches pattern: "${line.trim().slice(0, 50)}..."`,
+      },
+    ];
+  }
+  return [];
+};
+
 /**
  * Validate that exception entries still refer to lines containing the expected pattern.
- * Returns stale entries that no longer exist or no longer match.
- *
  * @param {Set<string>} allowlist - Set of "file:line" or "file" entries
  * @param {RegExp|RegExp[]} patterns - Pattern(s) the line should match
  * @param {string} rootDir - Root directory for file reading
@@ -338,50 +361,11 @@ const withAllowlist = (config) => () =>
  */
 const validateExceptions = (allowlist, patterns, rootDir) => {
   const patternList = [patterns].flat();
-  const stale = [];
-
-  for (const entry of allowlist) {
-    // File-only entries (no line number) - verify file has at least one match
-    if (!entry.includes(":")) {
-      const source = readSource(entry, rootDir);
-      const hasMatch = source
-        .split("\n")
-        .some((line) => patternList.some((p) => p.test(line)));
-      if (!hasMatch) {
-        stale.push({
-          entry,
-          reason: "File contains no lines matching pattern",
-        });
-      }
-      continue;
-    }
-
-    const [filePath, lineNumStr] = entry.split(":");
-    const lineNum = parseInt(lineNumStr, 10);
-    const source = readSource(filePath, rootDir);
-    const lines = source.split("\n");
-
-    // Check if line exists
-    if (lineNum > lines.length || lineNum < 1) {
-      stale.push({
-        entry,
-        reason: `Line ${lineNum} doesn't exist (file has ${lines.length} lines)`,
-      });
-      continue;
-    }
-
-    // Check if line matches pattern
-    const line = lines[lineNum - 1];
-
-    if (!patternList.some((p) => p.test(line))) {
-      stale.push({
-        entry,
-        reason: `Line no longer matches pattern: "${line.trim().slice(0, 50)}..."`,
-      });
-    }
-  }
-
-  return stale;
+  return [...allowlist].flatMap((entry) =>
+    entry.includes(":")
+      ? validateLineEntry(entry, patternList, rootDir)
+      : validateFileEntry(entry, patternList, rootDir),
+  );
 };
 
 /**
@@ -453,11 +437,6 @@ const createViolation = (reasonFn) => (context) => ({
   reason: reasonFn(context),
 });
 
-// ============================================
-// Function Name Allowlist Validation
-// ============================================
-
-// Common patterns for detecting function definitions
 const FUNCTION_DEFINITION_PATTERNS = {
   const: (name) => new RegExp(`\\bconst\\s+${name}\\s*=`),
   let: (name) => new RegExp(`\\blet\\s+${name}\\s*=`),
@@ -508,24 +487,14 @@ const expectNoStaleFunctionAllowlist = withStaleAssertion(
   (s) => s.entry,
 );
 
-// ============================================
-// Export Detection Utilities
-// ============================================
-
-// Matches: export function name or export async function name
 const EXPORT_FUNCTION_PATTERN =
   /^\s*export\s+(?:async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
 
-// Matches: export const/let/var name
 const EXPORT_VAR_PATTERN =
   /^\s*export\s+(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/;
 
-// Note: export list parsing is handled by parseExportListContent + EXPORT_BRACE_START
-
-// Matches start of export list: export {
 const EXPORT_BRACE_START = /^\s*export\s*\{/;
 
-// Matches: export default name or export default function name
 const EXPORT_DEFAULT_PATTERN =
   /^\s*export\s+default\s+(?:function\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)/;
 
@@ -564,10 +533,8 @@ const extractExports = (source) => {
   let multiLineBuffer = null;
 
   for (const line of lines) {
-    // Skip comments
     if (isCommentLine(line)) continue;
 
-    // If we're accumulating a multi-line export
     if (multiLineBuffer !== null) {
       const closeIndex = line.indexOf("}");
       if (closeIndex !== -1) {
@@ -580,36 +547,30 @@ const extractExports = (source) => {
       continue;
     }
 
-    // Match function declaration exports
     const funcMatch = line.match(EXPORT_FUNCTION_PATTERN);
     if (funcMatch) {
       exported.add(funcMatch[1]);
       continue;
     }
 
-    // Match variable declaration exports
     const varMatch = line.match(EXPORT_VAR_PATTERN);
     if (varMatch) {
       exported.add(varMatch[1]);
       continue;
     }
 
-    // Check for export list (single or multi-line)
     if (EXPORT_BRACE_START.test(line)) {
       const braceStart = line.indexOf("{");
       const braceEnd = line.indexOf("}");
 
       if (braceEnd !== -1) {
-        // Single-line export: export { a, b, c };
         parseExportListContent(line.slice(braceStart + 1, braceEnd), exported);
       } else {
-        // Multi-line export starts here
         multiLineBuffer = line.slice(braceStart + 1);
       }
       continue;
     }
 
-    // Match default exports
     const defaultMatch = line.match(EXPORT_DEFAULT_PATTERN);
     if (defaultMatch) {
       exported.add(defaultMatch[1]);
@@ -620,40 +581,28 @@ const extractExports = (source) => {
 };
 
 export {
-  // Common patterns
-  COMMENT_LINE_PATTERNS,
-  isCommentLine,
-  // File reading
-  readSource,
-  toLines,
-  // File list utilities
-  excludeFiles,
-  combineFileLists,
-  // Pattern matching
-  matchesAny,
-  scanLines,
-  findPatterns,
-  createPatternMatcher,
-  // File analysis
   analyzeFiles,
-  scanFilesForViolations,
-  // Code checker factory
-  createCodeChecker,
-  // Allowlist analysis
   analyzeWithAllowlist,
-  withAllowlist,
-  // Violation reporting
-  formatViolationReport,
   assertNoViolations,
-  // Violation factory
+  COMMENT_LINE_PATTERNS,
+  combineFileLists,
+  createCodeChecker,
+  createPatternMatcher,
   createViolation,
-  // Exception validation
-  validateExceptions,
+  excludeFiles,
   expectNoStaleExceptions,
-  // Function allowlist validation
-  isFunctionDefined,
-  validateFunctionAllowlist,
   expectNoStaleFunctionAllowlist,
-  // Export detection
   extractExports,
+  findPatterns,
+  formatViolationReport,
+  isCommentLine,
+  isFunctionDefined,
+  matchesAny,
+  readSource,
+  scanFilesForViolations,
+  scanLines,
+  toLines,
+  validateExceptions,
+  validateFunctionAllowlist,
+  withAllowlist,
 };

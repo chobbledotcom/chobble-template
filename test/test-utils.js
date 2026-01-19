@@ -128,8 +128,6 @@ const memoizedFiles = memoizedFileGetter(rootDir);
 const SRC_JS_FILES = memoizedFiles(
   /^(src\/|packages\/js-toolkit\/(?!test-utils\/)).*\.js$/,
 );
-// src/ only (for src/-specific style enforcement like no .push(), comment limits)
-const SRC_ONLY_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
 const ECOMMERCE_JS_FILES = memoizedFiles(/^ecommerce-backend\/.*\.js$/);
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
@@ -349,7 +347,6 @@ export {
   // File discovery
   getFiles,
   SRC_JS_FILES,
-  SRC_ONLY_JS_FILES,
   ECOMMERCE_JS_FILES,
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
