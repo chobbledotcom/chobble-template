@@ -87,18 +87,20 @@ export const buildWrapperStyles = (
 
 /**
  * Converts a file path to a unique, filename-safe basename.
- * Strips common prefixes (./src/, src/) and the images/ directory name,
+ * Strips common prefixes (./src/, src/, .image-cache/) and the images/ directory,
  * then converts remaining path segments to hyphen-separated format.
  *
  * E.g., "./src/images/products/photo.jpg" -> "products-photo"
  *       "./src/images/photo.jpg" -> "photo"
  *       "./src/assets/icons/logo.png" -> "assets-icons-logo"
+ *       ".image-cache/photo-crop-abc123.jpeg" -> "photo-crop-abc123"
  */
 export const getPathAwareBasename = (src) => {
   const normalized = src
     .replace(/\\/g, "/")
     .replace(/^\.?\/?(src\/)?/, "")
-    .replace(/^images\//, "");
+    .replace(/^images\//, "")
+    .replace(/^\.?image-cache\//, "");
   const withoutExt = normalized.replace(/\.[^.]+$/, "");
   return withoutExt.replace(/\//g, "-");
 };
