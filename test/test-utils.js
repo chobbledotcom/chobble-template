@@ -39,6 +39,7 @@ const data =
   (...fields) =>
   (...rows) =>
     toData(defaults)(...fields)(rows);
+
 import {
   expectArrayProp,
   expectAsyncThrows,

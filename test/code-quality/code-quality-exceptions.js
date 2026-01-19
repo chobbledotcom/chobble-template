@@ -77,7 +77,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:144", // createExtractor accumulates results in a Set
+  "test/test-utils.js:145", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
