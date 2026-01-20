@@ -16,6 +16,7 @@ import {
   flatMap,
   join,
   map,
+  mapFilter,
   pipe,
   sort,
 } from "#toolkit/fp/array.js";
@@ -23,8 +24,8 @@ import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
 } from "#toolkit/fp/grouping.js";
-import { memoize } from "#toolkit/fp/memoize.js";
-import { mapBoth, mapEntries } from "#toolkit/fp/object.js";
+import { memoize, withWeakMapCache } from "#toolkit/fp/memoize.js";
+import { mapBoth, mapEntries, omit, toObject } from "#toolkit/fp/object.js";
 import { compareStrings } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
@@ -39,10 +40,30 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
+ * Memoized since the same attribute names/values are processed many times.
  * @param {string} str - String to normalize
  * @returns {string} Normalized string
  */
-const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+const normalize = memoize(
+  /** @param {string} str */
+  (str) => str.toLowerCase().replace(/[^a-z0-9]/g, ""),
+  { cacheKey: (args) => /** @type {string} */ (args[0]) },
+);
+
+/**
+ * Parse filter attributes from item data (inner implementation).
+ * Uses WeakMap caching since the same filter_attributes array is processed
+ * multiple times per item across different operations.
+ *
+ * @param {FilterAttribute[]} filterAttributes - Raw filter attributes array
+ * @returns {FilterSet} Parsed filter object
+ */
+const parseFilterAttributesInner = withWeakMapCache((filterAttributes) =>
+  toObject(filterAttributes, (attr) => [
+    slugify(attr.name),
+    slugify(attr.value),
+  ]),
+);
 
 /**
  * Parse filter attributes from item data
@@ -52,13 +73,8 @@ const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
  * @param {FilterAttribute[] | undefined} filterAttributes - Raw filter attributes
  * @returns {FilterSet} Parsed filter object
  */
-const parseFilterAttributes = (filterAttributes) => {
-  if (!filterAttributes) return {};
-
-  return Object.fromEntries(
-    filterAttributes.map((attr) => [slugify(attr.name), slugify(attr.value)]),
-  );
-};
+const parseFilterAttributes = (filterAttributes) =>
+  filterAttributes ? parseFilterAttributesInner(filterAttributes) : {};
 
 /**
  * Build a map of all filter attributes and their possible values
@@ -134,51 +150,49 @@ const filterToPath = (filters) => {
  * Get items matching the given filters
  * Uses normalized comparison (lowercase, no special chars/spaces)
  *
- * Only called from generateFilterCombinations with non-empty filters.
+ * Leverages the memoized buildItemLookup for O(1) lookups instead of
+ * O(n) filtering on each call.
  *
  * @param {EleventyCollectionItem[]} items - Collection items
  * @param {FilterSet} filters - Non-empty filter object
  * @returns {EleventyCollectionItem[]} Filtered items
  */
-const getItemsByFilters = (items, filters) => {
-  const preNormalizedFilterEntries = Object.entries(filters).map(
-    ([key, value]) => [key, normalize(value)],
+const getItemsByFilters = (items, filters) =>
+  getItemsWithLookup(items, filters, buildItemLookup(items));
+
+const normalizeAttrs = mapBoth(/** @param {string} s */ (s) => normalize(s));
+
+/**
+ * Add a single item's attributes to the lookup table (mutates lookup in place).
+ * Helper for buildItemLookup's reduce.
+ */
+const addItemToLookup = (lookup, item, position) => {
+  const attrs = normalizeAttrs(
+    parseFilterAttributes(item.data.filter_attributes),
   );
 
-  const matchesFilters = (item) => {
-    const itemAttrs = parseFilterAttributes(item.data.filter_attributes);
-    for (const [key, normalizedValue] of preNormalizedFilterEntries) {
-      if (normalize(itemAttrs[key] || "") !== normalizedValue) return false;
-    }
-    return true;
-  };
+  for (const [key, value] of Object.entries(attrs)) {
+    lookup[key] ??= {};
+    lookup[key][value] ??= new Set();
+    lookup[key][value].add(position);
+  }
 
-  return items.filter(matchesFilters).sort(sortItems);
+  return lookup;
 };
-
-const normalizeAttrs = mapBoth(normalize);
 
 /**
  * Build a lookup table: filter key → filter value → Set of item positions.
  * Example: { color: { red: Set([0, 2]), blue: Set([1]) }, size: { large: Set([0, 1]) } }
  *
+ * Memoized per items array reference since the same items are processed
+ * multiple times (once in generateFilterCombinations, again in getItemsByFilters).
+ *
  * @param {EleventyCollectionItem[]} items - Items to index
  * @returns {Object} Lookup table for fast filtering
  */
-const buildItemLookup = (items) =>
-  items.reduce((lookup, item, position) => {
-    const attrs = normalizeAttrs(
-      parseFilterAttributes(item.data.filter_attributes),
-    );
-
-    for (const [key, value] of Object.entries(attrs)) {
-      lookup[key] ??= {};
-      lookup[key][value] ??= new Set();
-      lookup[key][value].add(position);
-    }
-
-    return lookup;
-  }, {});
+const buildItemLookup = withWeakMapCache((items) =>
+  items.reduce(addItemToLookup, {}),
+);
 
 /**
  * Find item positions that match ALL the given filters.
@@ -219,11 +233,11 @@ const countMatches = (lookup, filters, totalItems) =>
  * @param {Object} lookup - Lookup table from buildItemLookup
  * @returns {EleventyCollectionItem[]} Matching items, sorted
  */
-const getItemsWithLookup = (items, filters, lookup) => {
-  const normalized = normalizeAttrs(filters);
-  const positions = findMatchingPositions(lookup, normalized);
-  return positions.map((pos) => items[pos]).sort(sortItems);
-};
+const getItemsWithLookup = (items, filters, lookup) =>
+  pipe(
+    map((pos) => items[pos]),
+    sort(sortItems),
+  )(findMatchingPositions(lookup, normalizeAttrs(filters)));
 
 /**
  * Try adding a filter and return all valid combinations that include it.
@@ -325,6 +339,66 @@ const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
 });
 
 /**
+ * Build active filter data for the UI
+ * @param {FilterSet} filters - Current filters
+ * @param {Record<string, string>} display - Display lookup
+ * @param {string} baseUrl - Base URL
+ * @returns {Array} Active filter objects with removeUrl
+ */
+const buildActiveFilters = (filters, display, baseUrl) =>
+  mapEntries((key, value) => {
+    const removePath = filterToPath(omit([key])(filters));
+    return {
+      key: display[key],
+      value: display[value],
+      removeUrl: removePath
+        ? `${baseUrl}/search/${removePath}/#content`
+        : `${baseUrl}/#content`,
+    };
+  })(filters);
+
+/**
+ * Build filter option from a value
+ * @param {Object} ctx - Context with filters, validPathLookup, display, baseUrl
+ * @param {string} attrName - Attribute name
+ * @param {string} value - Option value
+ * @returns {Object|null} Option object or null if invalid
+ */
+const buildFilterOption = (ctx, attrName, value) => {
+  const { filters, validPathLookup, display, baseUrl } = ctx;
+  const isActive = filters[attrName] === value;
+  const path = filterToPath({ ...filters, [attrName]: value });
+
+  if (!isActive && !validPathLookup[path]) return null;
+
+  return {
+    value: display[value],
+    url: `${baseUrl}/search/${path}/#content`,
+    active: isActive,
+  };
+};
+
+/**
+ * Build filter group from attribute
+ * @param {Object} ctx - Context object
+ * @param {string} attrName - Attribute name
+ * @param {string[]} attrValues - Attribute values
+ * @returns {Object|null} Group object or null if no valid options
+ */
+const buildFilterGroup = (ctx, attrName, attrValues) => {
+  const options = mapFilter((value) => buildFilterOption(ctx, attrName, value))(
+    attrValues,
+  );
+  if (options.length === 0) return null;
+
+  return {
+    name: attrName,
+    label: ctx.display[attrName],
+    options,
+  };
+};
+
+/**
  * Build pre-computed filter UI data for templates
  * @param {FilterAttributeData} filterData - Filter attribute data
  * @param {FilterSet | null | undefined} currentFilters - Current active filters
@@ -340,58 +414,20 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
     return { hasFilters: false };
   }
 
-  const validPaths = validPages.map((p) => p.path);
+  // Use lookup object for O(1) path lookups instead of O(n) array includes
+  const validPathLookup = toObject(validPages, (p) => [p.path, true]);
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
+  const ctx = { filters, validPathLookup, display, baseUrl };
 
-  const activeFilters = Object.entries(filters).map(([key, value]) => {
-    const withoutThis = { ...filters };
-    delete withoutThis[key];
-    const removePath = filterToPath(withoutThis);
-    const removeUrl = removePath
-      ? `${baseUrl}/search/${removePath}/#content`
-      : `${baseUrl}/#content`;
-
-    return {
-      key: display[key],
-      value: display[value],
-      removeUrl,
-    };
-  });
-
-  const groups = Object.entries(allAttributes)
-    .map(([attrName, attrValues]) => {
-      const currentValue = filters[attrName];
-
-      const options = attrValues
-        .map((value) => {
-          const isActive = currentValue === value;
-          const newFilters = { ...filters, [attrName]: value };
-          const path = filterToPath(newFilters);
-
-          if (!isActive && !validPaths.includes(path)) {
-            return null;
-          }
-
-          const url = `${baseUrl}/search/${path}/#content`;
-          return { value: display[value], url, active: isActive };
-        })
-        .filter(Boolean);
-
-      if (options.length === 0) return null;
-
-      return {
-        name: attrName,
-        label: display[attrName],
-        options,
-      };
-    })
-    .filter(Boolean);
+  const groups = mapFilter(([attrName, attrValues]) =>
+    buildFilterGroup(ctx, attrName, attrValues),
+  )(Object.entries(allAttributes));
 
   return {
     hasFilters: groups.length > 0,
     hasActiveFilters,
-    activeFilters,
+    activeFilters: buildActiveFilters(filters, display, baseUrl),
     clearAllUrl: `${baseUrl}/#content`,
     groups,
   };
