@@ -22,6 +22,7 @@ import { configureTags } from "#collections/tags.js";
 import { configureAreaList } from "#eleventy/area-list.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
+import { configureCachedListItem } from "#eleventy/cached-list-item.js";
 import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
 import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
@@ -59,6 +60,9 @@ export default async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
+
+  // Must be after RenderPlugin (depends on this.renderFile)
+  configureCachedListItem(eleventyConfig);
 
   // configureLayoutAliases(eleventyConfig);
 

@@ -6,7 +6,7 @@
 <ul class="items">
 {%- endif -%}
   {%- for item in items -%}
-    {%- include "list-item.html" -%}
+    {%- cachedBlock item.url -%}{%- include "list-item.html" -%}{%- endcachedBlock -%}
   {%- endfor -%}
 </ul>
 {%- if horizontal -%}
