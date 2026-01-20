@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import {
-  createCachedBlockTag,
-  resetCache,
-} from "#eleventy/cached-list-item.js";
+import { createCachedBlockTag, resetCache } from "#eleventy/cached-block.js";
 
 /**
  * Creates a mock liquidjs stream that simulates the parseStream API.
@@ -37,7 +34,7 @@ const createMockStream = (tokens = [], triggerEnd = false) => {
   };
 };
 
-describe("cached-list-item", () => {
+describe("cached-block", () => {
   beforeEach(() => {
     resetCache();
   });

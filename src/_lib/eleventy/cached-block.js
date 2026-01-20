@@ -1,27 +1,37 @@
 /**
- * Cached list-item rendering for Eleventy.
+ * Cached block rendering for Eleventy.
  *
- * Memoizes list-item.html output per item URL, dramatically reducing
- * redundant template renders when the same product appears on multiple
- * pages (e.g., category pages, filtered pages, featured sections).
+ * A generic caching mechanism for Liquid templates. Memoizes block content
+ * by a user-provided cache key, skipping re-rendering when the same key
+ * is encountered again during a build.
  *
- * Uses a custom Liquid tag that skips rendering on cache hit.
- * Cache key: item.url (unique per item)
+ * Use cases:
+ * - List items that appear on multiple pages (products, events, news)
+ * - Expensive template fragments that don't change per-page
+ * - Any content where the output is deterministic based on a key
+ *
+ * Usage: {% cachedBlock someUniqueKey %}...{% endcachedBlock %}
+ *
  * Cache lifetime: Single build (reset via eleventy.before hook)
  */
 
 // Module-level cache, reset per build
-let listItemCache = null;
+let blockCache = null;
 
 const resetCache = () => {
-  listItemCache = new Map();
+  blockCache = new Map();
 };
 
 /**
  * Create a custom Liquid tag that caches block content.
  * Unlike paired shortcodes, this can skip rendering entirely on cache hit.
  *
- * Usage: {% cachedBlock item.url %}...{% endcachedBlock %}
+ * @example
+ * // Cache a list item by URL
+ * {% cachedBlock item.url %}{% include "list-item.html" %}{% endcachedBlock %}
+ *
+ * // Cache an expensive component by ID
+ * {% cachedBlock "sidebar-" | append: category.slug %}...{% endcachedBlock %}
  *
  * @param {object} liquidEngine - The Liquid engine instance
  * @returns {object} Liquid tag definition
@@ -49,14 +59,14 @@ const createCachedBlockTag = (liquidEngine) => ({
   },
 
   *render(ctx, emitter) {
-    if (!listItemCache) listItemCache = new Map();
+    if (!blockCache) blockCache = new Map();
 
     // Evaluate the cache key expression
     const cacheKey = yield liquidEngine.evalValue(this.keyExpression, ctx);
 
     // Check cache first - if hit, output cached content and skip rendering
-    if (listItemCache.has(cacheKey)) {
-      emitter.write(listItemCache.get(cacheKey));
+    if (blockCache.has(cacheKey)) {
+      emitter.write(blockCache.get(cacheKey));
       return;
     }
 
@@ -65,7 +75,7 @@ const createCachedBlockTag = (liquidEngine) => ({
     const content = yield liquidEngine.renderer.renderTemplates(templates, ctx);
 
     // Cache the rendered content
-    listItemCache.set(cacheKey, content);
+    blockCache.set(cacheKey, content);
 
     // Output the content
     emitter.write(content);
@@ -73,10 +83,10 @@ const createCachedBlockTag = (liquidEngine) => ({
 });
 
 /**
- * Configure the cached block tag.
+ * Configure the cachedBlock Liquid tag.
  * @param {import('@11ty/eleventy').UserConfig} eleventyConfig
  */
-export const configureCachedListItem = (eleventyConfig) => {
+export const configureCachedBlock = (eleventyConfig) => {
   eleventyConfig.on("eleventy.before", resetCache);
 
   eleventyConfig.addLiquidTag("cachedBlock", (liquidEngine) =>
