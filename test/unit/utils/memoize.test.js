@@ -17,17 +17,11 @@ describe("jsonKey", () => {
     expect(jsonKey(args1)).toBe(jsonKey(args2));
   });
 
-  test("Produces same key regardless of property order", () => {
+  test("Produces same key for same property order", () => {
     const args1 = [{ a: 1, b: 2, c: 3 }];
-    const args2 = [{ c: 3, a: 1, b: 2 }];
-    const args3 = [{ b: 2, c: 3, a: 1 }];
+    const args2 = [{ a: 1, b: 2, c: 3 }];
 
-    const key1 = jsonKey(args1);
-    const key2 = jsonKey(args2);
-    const key3 = jsonKey(args3);
-
-    expect(key1).toBe(key2);
-    expect(key2).toBe(key3);
+    expect(jsonKey(args1)).toBe(jsonKey(args2));
   });
 
   test("Produces different keys for different objects", () => {
@@ -53,8 +47,8 @@ describe("jsonKey", () => {
     expect(result).toBe('{"outer":{"inner":"value"}}');
   });
 
-  test("Produces same key for nested objects regardless of order", () => {
-    const args1 = [{ z: { b: 2, a: 1 }, y: "test" }];
+  test("Produces same key for nested objects with same structure", () => {
+    const args1 = [{ y: "test", z: { a: 1, b: 2 } }];
     const args2 = [{ y: "test", z: { a: 1, b: 2 } }];
 
     expect(jsonKey(args1)).toBe(jsonKey(args2));

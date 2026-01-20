@@ -2,7 +2,7 @@
  * Memoization utilities for caching function results.
  *
  * Supports configurable cache key functions with helpers:
- * - jsonKey: for objects via sorted JSON stringify
+ * - jsonKey: for objects via JSON stringify
  *
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
@@ -29,27 +29,11 @@ const memoize = (fn, options = {}) => {
 };
 
 /**
- * Recursively sort object keys for stable JSON serialization
- * @param {unknown} obj - Object to sort
- * @returns {unknown} Object with sorted keys
- */
-const sortKeys = (obj) => {
-  if (obj === null || typeof obj !== "object") return obj;
-  if (Array.isArray(obj)) return obj.map(sortKeys);
-  const keys = Object.keys(obj).sort();
-  const sorted = {};
-  for (const key of keys) {
-    sorted[key] = sortKeys(obj[key]);
-  }
-  return sorted;
-};
-
-/**
- * Cache key generator for object arguments via sorted JSON stringify
+ * Cache key generator for object arguments via JSON stringify
  * @param {[unknown]} args - Arguments tuple with object as first element
  * @returns {string} Cache key (JSON string)
  */
-const jsonKey = (args) => JSON.stringify(sortKeys(args[0]));
+const jsonKey = (args) => JSON.stringify(args[0]);
 
 /**
  * Create a cached function using WeakMap for object identity caching.
