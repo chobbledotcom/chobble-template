@@ -65,8 +65,16 @@ const createCachedBlockTag = (liquidEngine) => ({
       return;
     }
 
-    const templates = liquidEngine.parser.parseTokens(this.tokens);
-    const content = yield liquidEngine.renderer.renderTemplates(templates, ctx);
+    // Parse tokens ONCE and cache the templates.
+    // LiquidJS's parseTokens consumes/modifies the tokens array, so we must
+    // only call it once per tag instance and reuse the parsed templates.
+    if (!this.templates) {
+      this.templates = liquidEngine.parser.parseTokens(this.tokens);
+    }
+    const content = yield liquidEngine.renderer.renderTemplates(
+      this.templates,
+      ctx,
+    );
 
     blockCache.set(cacheKey, content);
     emitter.write(content);
