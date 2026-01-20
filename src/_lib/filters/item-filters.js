@@ -192,6 +192,28 @@ const buildInvertedIndex = (items) =>
   }, {});
 
 /**
+ * Get matching item indices using set intersection on inverted index.
+ * Core lookup function used by both counting and item retrieval.
+ *
+ * @param {Object} index - Inverted index
+ * @param {FilterSet} filters - Normalized filter criteria
+ * @returns {number[]} Indices of matching items
+ */
+const getMatchingIndices = (index, filters) => {
+  const entries = Object.entries(filters);
+  if (entries.length === 0) return [];
+
+  const [firstKey, firstValue] = entries[0];
+  const firstSet = index[firstKey]?.[firstValue];
+  if (!firstSet) return [];
+
+  const remainingEntries = entries.slice(1);
+  return [...firstSet].filter((idx) =>
+    remainingEntries.every(([key, value]) => index[key]?.[value]?.has(idx)),
+  );
+};
+
+/**
  * Count matching items using set intersection on inverted index.
  * Much faster than iterating all items for each combination.
  *
@@ -200,18 +222,26 @@ const buildInvertedIndex = (items) =>
  * @param {number} itemCount - Total item count for empty filter case
  * @returns {number} Count of matching items
  */
-const countMatchesWithIndex = (index, filters, itemCount) => {
-  const entries = Object.entries(filters);
-  if (entries.length === 0) return itemCount;
+const countMatchesWithIndex = (index, filters, itemCount) =>
+  Object.keys(filters).length === 0
+    ? itemCount
+    : getMatchingIndices(index, filters).length;
 
-  const [firstKey, firstValue] = entries[0];
-  const firstSet = index[firstKey]?.[firstValue];
-  if (!firstSet) return 0;
+/**
+ * Get items matching filters using a pre-built inverted index.
+ * O(matching items) instead of O(all items) for lookups.
+ *
+ * @param {EleventyCollectionItem[]} items - Collection items (same array used to build index)
+ * @param {FilterSet} filters - Filter criteria
+ * @param {Object} index - Pre-built inverted index from buildInvertedIndex
+ * @returns {EleventyCollectionItem[]} Filtered and sorted items
+ */
+const getItemsByFiltersWithIndex = (items, filters, index) => {
+  if (Object.keys(filters).length === 0) return [...items].sort(sortItems);
 
-  const remainingEntries = entries.slice(1);
-  return [...firstSet].filter((idx) =>
-    remainingEntries.every(([key, value]) => index[key]?.[value]?.has(idx)),
-  ).length;
+  const normalizedFilters = normalizeAttrs(filters);
+  const indices = getMatchingIndices(index, normalizedFilters);
+  return indices.map((i) => items[i]).sort(sortItems);
 };
 
 /**
@@ -514,8 +544,10 @@ export {
   buildDisplayLookup,
   buildFilterPageBase,
   buildFilterUIData,
+  buildInvertedIndex,
   generateFilterCombinations,
   generateFilterRedirects,
   getAllFilterAttributes,
   getItemsByFilters,
+  getItemsByFiltersWithIndex,
 };
