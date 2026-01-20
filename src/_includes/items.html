@@ -5,8 +5,10 @@
 {%- else -%}
 <ul class="items">
 {%- endif -%}
+  {%- assign cacheKeySuffix = listItemFields | join: "," -%}
   {%- for item in items -%}
-    {%- cachedBlock item.url -%}{%- include "list-item.html" -%}{%- endcachedBlock -%}
+    {%- assign cacheKey = item.url | append: "|" | append: cacheKeySuffix -%}
+    {%- cachedBlock cacheKey -%}{%- include "list-item.html" -%}{%- endcachedBlock -%}
   {%- endfor -%}
 </ul>
 {%- if horizontal -%}
