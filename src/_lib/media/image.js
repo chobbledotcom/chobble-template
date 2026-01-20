@@ -40,8 +40,10 @@ import { createHtml, parseHtml } from "#utils/dom-builder.js";
 
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 
+// JPEG fallback width - only generate one JPEG size since nearly all browsers support webp
+const JPEG_FALLBACK_WIDTH = 1300;
+
 const DEFAULT_OPTIONS = {
-  formats: ["webp", "jpeg"],
   outputDir: ".image-cache",
   urlPath: "/img/",
   svgShortCircuit: true,
@@ -93,18 +95,28 @@ const computeWrappedImageHtml = memoize(
     // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
     const generateLqip = !noLqip && shouldGenerateLqip(finalPath, metadata);
 
-    // Include LQIP width in the main Image() call for single-pass processing
+    // Include LQIP width in the webp widths for single-pass processing
     const requestedWidths = parseWidths(widths);
-    const allWidths = generateLqip
+    const webpWidths = generateLqip
       ? [LQIP_WIDTH, ...requestedWidths]
       : requestedWidths;
 
-    // Single eleventy-img call generates all sizes at once
-    const imageMetadata = await Image(finalPath, {
-      ...DEFAULT_OPTIONS,
-      widths: allWidths,
-      fixOrientation: true,
-    });
+    const [webpMetadata, jpegMetadata] = await Promise.all([
+      Image(finalPath, {
+        ...DEFAULT_OPTIONS,
+        formats: ["webp"],
+        widths: webpWidths,
+        fixOrientation: true,
+      }),
+      Image(finalPath, {
+        ...DEFAULT_OPTIONS,
+        formats: ["jpeg"],
+        widths: [JPEG_FALLBACK_WIDTH],
+        fixOrientation: true,
+      }),
+    ]);
+
+    const imageMetadata = { ...webpMetadata, ...jpegMetadata };
 
     // Extract LQIP from the 32px webp before filtering it out
     const bgImage = generateLqip
