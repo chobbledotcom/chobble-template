@@ -16,6 +16,14 @@ import { map } from "#toolkit/fp/array.js";
 // (These are test-only utilities, not general FP functions)
 
 /**
+ * Curried every check over object entries.
+ * @param {(key: string, value: any) => boolean} predicate
+ * @returns {(obj: Record<string, any>) => boolean}
+ */
+const everyEntry = (predicate) => (obj) =>
+  Object.entries(obj).every(([k, v]) => predicate(k, v));
+
+/**
  * Pipeable data transform for creating test fixture collections.
  * Transforms arrays of value tuples into objects with a `data` property.
  */
@@ -338,6 +346,7 @@ export {
   // Core
   DOM,
   compileScss,
+  everyEntry,
   expect,
   fs,
   omit,

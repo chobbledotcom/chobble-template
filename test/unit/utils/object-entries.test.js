@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { everyEntry } from "#test/test-utils.js";
 import {
-  everyEntry,
   fromPairs,
   mapBoth,
   mapEntries,

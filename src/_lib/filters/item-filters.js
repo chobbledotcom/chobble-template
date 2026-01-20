@@ -24,7 +24,7 @@ import {
   groupValuesBy,
 } from "#toolkit/fp/grouping.js";
 import { memoize } from "#toolkit/fp/memoize.js";
-import { everyEntry, mapBoth, mapEntries } from "#toolkit/fp/object.js";
+import { mapBoth, mapEntries } from "#toolkit/fp/object.js";
 import { compareStrings } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
@@ -159,85 +159,128 @@ const getItemsByFilters = (items, filters) => {
 const normalizeAttrs = mapBoth(normalize);
 
 /**
- * Build a map of normalized filter attributes for all items (for fast lookups)
- * Returns: Map<item, { size: "small", capacity: "3" }>
+ * Build a lookup table: filter key → filter value → Set of item positions.
+ * Example: { color: { red: Set([0, 2]), blue: Set([1]) }, size: { large: Set([0, 1]) } }
  *
- * @param {EleventyCollectionItem[]} items - Collection items
- * @returns {Map<EleventyCollectionItem, FilterSet>} Item to normalized attributes map
+ * @param {EleventyCollectionItem[]} items - Items to index
+ * @returns {Object} Lookup table for fast filtering
  */
-const buildItemAttributeMap = (items) => {
-  return new Map(
-    items.map((item) => {
-      const attrs = parseFilterAttributes(item.data.filter_attributes);
-      return [item, normalizeAttrs(attrs)];
-    }),
+const buildItemLookup = (items) =>
+  items.reduce((lookup, item, position) => {
+    const attrs = normalizeAttrs(
+      parseFilterAttributes(item.data.filter_attributes),
+    );
+
+    for (const [key, value] of Object.entries(attrs)) {
+      lookup[key] ??= {};
+      lookup[key][value] ??= new Set();
+      lookup[key][value].add(position);
+    }
+
+    return lookup;
+  }, {});
+
+/**
+ * Find item positions that match ALL the given filters.
+ *
+ * @param {Object} lookup - Lookup table from buildItemLookup
+ * @param {FilterSet} filters - Filters to match (already normalized)
+ * @returns {number[]} Positions of matching items
+ */
+const findMatchingPositions = (lookup, filters) => {
+  const filterEntries = Object.entries(filters);
+  const [firstKey, firstValue] = filterEntries[0];
+  const candidates = [...lookup[firstKey][firstValue]];
+
+  // Keep only candidates that match ALL other filters
+  return candidates.filter((pos) =>
+    filterEntries.slice(1).every(([key, value]) => lookup[key][value].has(pos)),
   );
 };
 
 /**
- * Generate all filter combinations that have matching items
- * Returns array of { filters: {...}, path: "...", count: N }
+ * Count items matching the given filters.
  *
- * No duplicate tracking needed: we process keys in order and only
- * recurse to later keys, so each path is generated exactly once.
+ * @param {Object} lookup - Lookup table from buildItemLookup
+ * @param {FilterSet} filters - Filters to match (already normalized)
+ * @param {number} totalItems - Total item count (returned when no filters)
+ * @returns {number} Number of matching items
+ */
+const countMatches = (lookup, filters, totalItems) =>
+  Object.keys(filters).length === 0
+    ? totalItems
+    : findMatchingPositions(lookup, filters).length;
+
+/**
+ * Get items matching the given filters using a pre-built lookup.
  *
- * @param {EleventyCollectionItem[]} items - Collection items
+ * @param {EleventyCollectionItem[]} items - Original items array
+ * @param {FilterSet} filters - Filters to apply
+ * @param {Object} lookup - Lookup table from buildItemLookup
+ * @returns {EleventyCollectionItem[]} Matching items, sorted
+ */
+const getItemsWithLookup = (items, filters, lookup) => {
+  const normalized = normalizeAttrs(filters);
+  const positions = findMatchingPositions(lookup, normalized);
+  return positions.map((pos) => items[pos]).sort(sortItems);
+};
+
+/**
+ * Try adding a filter and return all valid combinations that include it.
+ */
+const tryFilter = (state, currentFilters, key, value, nextKeyIndex) => {
+  const filters = { ...currentFilters, [key]: value };
+  const count = countMatches(
+    state.lookup,
+    normalizeAttrs(filters),
+    state.itemCount,
+  );
+
+  if (count === 0) return [];
+
+  const combo = { filters, path: filterToPath(filters), count };
+  return [combo, ...buildCombosFrom(state, filters, nextKeyIndex)];
+};
+
+/**
+ * Build all valid filter combinations starting from a given attribute key.
+ */
+const buildCombosFrom = (state, currentFilters, startKeyIndex) =>
+  state.keys
+    .slice(startKeyIndex)
+    .flatMap((key, offset) =>
+      state.values[key].flatMap((value) =>
+        tryFilter(
+          state,
+          currentFilters,
+          key,
+          value,
+          startKeyIndex + offset + 1,
+        ),
+      ),
+    );
+
+/**
+ * Generate all filter combinations that have matching items.
+ * Returns: [{ filters: { color: "red" }, path: "color/red", count: 5 }, ...]
+ *
+ * @param {EleventyCollectionItem[]} items - Items to generate combinations for
  * @returns {FilterCombination[]} All valid filter combinations
  */
 const generateFilterCombinations = memoize((items) => {
-  const allAttributes = getAllFilterAttributes(items);
-  const attributeKeys = Object.keys(allAttributes);
+  const values = getAllFilterAttributes(items);
+  const keys = Object.keys(values);
 
-  if (attributeKeys.length === 0) return [];
+  if (keys.length === 0) return [];
 
-  const itemAttrMap = buildItemAttributeMap(items);
-
-  const countMatches = (filters) => {
-    const normalized = normalizeAttrs(filters);
-    return items.filter((item) =>
-      everyEntry((key, value) => itemAttrMap.get(item)[key] === value)(
-        normalized,
-      ),
-    ).length;
+  const state = {
+    values,
+    keys,
+    lookup: buildItemLookup(items),
+    itemCount: items.length,
   };
 
-  const toCombo = (filters, count) => ({
-    filters,
-    path: filterToPath(filters),
-    count,
-  });
-
-  const tryValue =
-    (recurse, keyIndex, baseFilters) => (results, value, key) => {
-      const filters = { ...baseFilters, [key]: value };
-      const count = countMatches(filters);
-
-      if (count === 0) return results;
-
-      const childResults = recurse(filters, keyIndex + 1);
-      return [...results, toCombo(filters, count), ...childResults];
-    };
-
-  const processKey = (recurse, baseFilters, keyIndex) => (results, key) =>
-    allAttributes[key].reduce(
-      (acc, value) => tryValue(recurse, keyIndex, baseFilters)(acc, value, key),
-      results,
-    );
-
-  const generateFrom = (baseFilters, startIndex) =>
-    attributeKeys
-      .slice(startIndex)
-      .reduce(
-        (results, key, offset) =>
-          processKey(
-            generateFrom,
-            baseFilters,
-            startIndex + offset,
-          )(results, key),
-        [],
-      );
-
-  return generateFrom({}, 0);
+  return buildCombosFrom(state, {}, 0);
 });
 
 /**
@@ -474,8 +517,10 @@ export {
   buildDisplayLookup,
   buildFilterPageBase,
   buildFilterUIData,
+  buildItemLookup,
   generateFilterCombinations,
   generateFilterRedirects,
   getAllFilterAttributes,
   getItemsByFilters,
+  getItemsWithLookup,
 };
