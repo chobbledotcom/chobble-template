@@ -12,7 +12,6 @@
  * URL format: /products/search/size/small/color/red/ (keys sorted alphabetically)
  */
 import {
-  compact,
   filterMap,
   flatMap,
   join,
@@ -45,8 +44,9 @@ import { sortItems } from "#utils/sorting.js";
  * @returns {string} Normalized string
  */
 const normalize = memoize(
+  /** @param {string} str */
   (str) => str.toLowerCase().replace(/[^a-z0-9]/g, ""),
-  { cacheKey: (args) => args[0] },
+  { cacheKey: (args) => /** @type {string} */ (args[0]) },
 );
 
 /**
@@ -159,7 +159,7 @@ const filterToPath = (filters) => {
 const getItemsByFilters = (items, filters) =>
   getItemsWithLookup(items, filters, buildItemLookup(items));
 
-const normalizeAttrs = mapBoth(normalize);
+const normalizeAttrs = mapBoth(/** @param {string} s */ (s) => normalize(s));
 
 /**
  * Add a single item's attributes to the lookup table (mutates lookup in place).
@@ -385,9 +385,9 @@ const buildFilterOption = (ctx, attrName, value) => {
  * @returns {Object|null} Group object or null if no valid options
  */
 const buildFilterGroup = (ctx, attrName, attrValues) => {
-  const options = compact(
-    attrValues.map((value) => buildFilterOption(ctx, attrName, value)),
-  );
+  const options = attrValues
+    .map((value) => buildFilterOption(ctx, attrName, value))
+    .filter(Boolean);
   if (options.length === 0) return null;
 
   return {
@@ -419,11 +419,11 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   const hasActiveFilters = Object.keys(filters).length > 0;
   const ctx = { filters, validPathLookup, display, baseUrl };
 
-  const groups = compact(
-    Object.entries(allAttributes).map(([attrName, attrValues]) =>
+  const groups = Object.entries(allAttributes)
+    .map(([attrName, attrValues]) =>
       buildFilterGroup(ctx, attrName, attrValues),
-    ),
-  );
+    )
+    .filter(Boolean);
 
   return {
     hasFilters: groups.length > 0,
