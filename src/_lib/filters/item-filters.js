@@ -16,6 +16,7 @@ import {
   flatMap,
   join,
   map,
+  mapFilter,
   pipe,
   sort,
 } from "#toolkit/fp/array.js";
@@ -385,9 +386,9 @@ const buildFilterOption = (ctx, attrName, value) => {
  * @returns {Object|null} Group object or null if no valid options
  */
 const buildFilterGroup = (ctx, attrName, attrValues) => {
-  const options = attrValues
-    .map((value) => buildFilterOption(ctx, attrName, value))
-    .filter(Boolean);
+  const options = mapFilter((value) => buildFilterOption(ctx, attrName, value))(
+    attrValues,
+  );
   if (options.length === 0) return null;
 
   return {
@@ -419,11 +420,9 @@ const buildFilterUIData = (filterData, currentFilters, validPages, baseUrl) => {
   const hasActiveFilters = Object.keys(filters).length > 0;
   const ctx = { filters, validPathLookup, display, baseUrl };
 
-  const groups = Object.entries(allAttributes)
-    .map(([attrName, attrValues]) =>
-      buildFilterGroup(ctx, attrName, attrValues),
-    )
-    .filter(Boolean);
+  const groups = mapFilter(([attrName, attrValues]) =>
+    buildFilterGroup(ctx, attrName, attrValues),
+  )(Object.entries(allAttributes));
 
   return {
     hasFilters: groups.length > 0,
