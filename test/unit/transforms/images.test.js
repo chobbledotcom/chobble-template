@@ -4,6 +4,7 @@ import {
   extractImageOptions,
   fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
+  NO_LQIP_ATTRIBUTE,
   processImages,
 } from "#transforms/images.js";
 import { loadDOM } from "#utils/lazy-dom.js";
@@ -87,6 +88,27 @@ describe("images transform", () => {
       expect(options.aspectRatio).toBeNull();
     });
 
+    test("extracts no-lqip attribute as true", async () => {
+      const { options } = await getImageOptions(
+        `<html><body><img src="/images/test.jpg" ${NO_LQIP_ATTRIBUTE}></body></html>`,
+      );
+      expect(options.noLqip).toBe(true);
+    });
+
+    test("removes no-lqip attribute from element", async () => {
+      const { img } = await getImageOptions(
+        `<html><body><img src="/images/test.jpg" ${NO_LQIP_ATTRIBUTE}></body></html>`,
+      );
+      expect(img.hasAttribute(NO_LQIP_ATTRIBUTE)).toBe(false);
+    });
+
+    test("noLqip defaults to false when attribute is absent", async () => {
+      const { options } = await getImageOptions(
+        '<html><body><img src="/images/test.jpg"></body></html>',
+      );
+      expect(options.noLqip).toBe(false);
+    });
+
     test("sets returnElement to true and includes document", async () => {
       const { options, dom } = await getImageOptions(
         '<html><body><img src="/images/test.jpg"></body></html>',
@@ -114,10 +136,8 @@ describe("images transform", () => {
       return dom;
     };
 
-    test("processes images with /images/ src", async () => {
-      const dom = await loadDOM(
-        '<html><body><img src="/images/test.jpg" alt="Test"></body></html>',
-      );
+    const processAndCapture = async (html) => {
+      const dom = await loadDOM(html);
       let captured = null;
       await processImages(dom.window.document, {}, async (opts) => {
         captured = opts;
@@ -125,6 +145,13 @@ describe("images transform", () => {
         div.innerHTML = "<picture>processed</picture>";
         return div;
       });
+      return { captured, dom };
+    };
+
+    test("processes images with /images/ src", async () => {
+      const { captured } = await processAndCapture(
+        '<html><body><img src="/images/test.jpg" alt="Test"></body></html>',
+      );
       expect(captured).not.toBeNull();
       expect(captured.imageName).toBe("/images/test.jpg");
     });
@@ -142,6 +169,14 @@ describe("images transform", () => {
       expect(
         dom.window.document.querySelector("img").hasAttribute(IGNORE_ATTRIBUTE),
       ).toBe(false);
+    });
+
+    test("processes images with no-lqip attribute and passes noLqip option", async () => {
+      const { captured } = await processAndCapture(
+        `<html><body><img src="/images/test.jpg" ${NO_LQIP_ATTRIBUTE}></body></html>`,
+      );
+      expect(captured).not.toBeNull();
+      expect(captured.noLqip).toBe(true);
     });
 
     test("skips images already wrapped", async () => {
