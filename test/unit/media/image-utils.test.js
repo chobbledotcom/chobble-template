@@ -212,6 +212,24 @@ describe("image-utils", () => {
         "photo-crop-abc123",
       );
     });
+
+    test("strips .image-cache/ from absolute paths", () => {
+      expect(
+        getPathAwareBasename("/abs/path/.image-cache/photo-crop-abc123.jpeg"),
+      ).toBe("photo-crop-abc123");
+    });
+
+    test("strips .image-cache/ from paths with parent directory references", () => {
+      expect(
+        getPathAwareBasename("../.image-cache/photo-crop-abc123.jpeg"),
+      ).toBe("photo-crop-abc123");
+    });
+
+    test("strips .image-cache/ from paths with other prefixes", () => {
+      expect(
+        getPathAwareBasename("foo/.image-cache/photo-crop-abc123.jpeg"),
+      ).toBe("photo-crop-abc123");
+    });
   });
 
   describe("filenameFormat", () => {
