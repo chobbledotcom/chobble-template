@@ -1,8 +1,57 @@
 import { memoize } from "#toolkit/fp/memoize.js";
+import { filterObject, mapEntries } from "#toolkit/fp/object.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
-/** @typedef {import("#lib/types").ElementChildren} ElementChildren */
+
+/**
+ * HTML5 void elements that cannot have children and are self-closing.
+ * @type {ReadonlySet<string>}
+ */
+const VOID_ELEMENTS = frozenSet([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
+
+/**
+ * Escape a string for use in HTML attribute values
+ * @param {string} value - The value to escape
+ * @returns {string} The escaped value
+ */
+const escapeAttrValue = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+/** Filter out null and undefined attribute values */
+const filterDefinedAttrs = filterObject((_k, v) => v != null);
+
+/**
+ * Format attributes object into HTML attribute string
+ * @param {ElementAttributes} attributes - Attributes to format
+ * @returns {string} Formatted attribute string (with leading space if non-empty)
+ */
+const formatAttributes = (attributes) => {
+  const parts = mapEntries(
+    (key, value) => `${key}="${escapeAttrValue(value)}"`,
+  )(filterDefinedAttrs(attributes));
+  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
+};
 
 /**
  * Get shared DOM document instance for building elements
@@ -20,46 +69,9 @@ const getSharedDocument = memoize(async () => {
  * @returns {void}
  */
 const applyAttributes = (element, attributes) => {
-  for (const [key, value] of Object.entries(attributes)) {
-    if (value !== null && value !== undefined) {
-      element.setAttribute(key, value);
-    }
+  for (const [key, value] of Object.entries(filterDefinedAttrs(attributes))) {
+    element.setAttribute(key, value);
   }
-};
-
-/**
- * Append children to an element
- * @param {HTMLElement} element - Element to modify
- * @param {ElementChildren} children - Children to append
- * @returns {void}
- */
-const appendChildren = (element, children) => {
-  if (children === null) return;
-  if (typeof children === "string") {
-    element.innerHTML = children;
-  }
-};
-
-/**
- * Create an HTML element with attributes and optional children
- * @param {string} tagName - The tag name (e.g., 'div', 'img')
- * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
- * @param {ElementChildren} [children=null] - Inner content or child elements
- * @param {Document | null} [document=null] - Optional existing document to use
- * @returns {Promise<HTMLElement>} The created element
- */
-const buildElement = async (
-  tagName,
-  attributes = {},
-  children = null,
-  document = null,
-) => {
-  const doc = document || (await getSharedDocument());
-  /** @type {HTMLElement} */
-  const element = /** @type {HTMLElement} */ (doc.createElement(tagName));
-  applyAttributes(element, attributes);
-  appendChildren(element, children);
-  return element;
 };
 
 /**
@@ -72,14 +84,19 @@ const elementToHtml = (element) => {
 };
 
 /**
- * Create an element and return its HTML string
+ * Create an element and return its HTML string.
+ * Uses fast string concatenation (no DOM loading required).
  * @param {string} tagName - The tag name
  * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
- * @param {ElementChildren} [children=null] - Inner content or child elements
+ * @param {string | null} [children=null] - Inner HTML content
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = null) => {
-  return elementToHtml(await buildElement(tagName, attributes, children));
+  const attrs = formatAttributes(attributes);
+  if (VOID_ELEMENTS.has(tagName)) {
+    return `<${tagName}${attrs}>`;
+  }
+  return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
 };
 
 /**
