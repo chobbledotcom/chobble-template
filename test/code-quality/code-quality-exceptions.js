@@ -77,7 +77,6 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Maps - used as caches/indexes being populated via set
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
-  "packages/js-toolkit/fp/set.js:32", // Per-instance method cache for frozenSet proxy
 
   // Test utilities - entire files allowed for imperative test patterns
   "test/test-utils.js:154", // createExtractor accumulates results in a Set
