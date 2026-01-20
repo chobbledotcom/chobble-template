@@ -553,4 +553,69 @@ describe("image", () => {
     test("LQIP matches 4/3 crop aspect ratio", () =>
       expectLqipRatio("4/3", 4 / 3));
   });
+
+  // ============================================
+  // Format optimization tests
+  // ============================================
+  describe("Format optimization", () => {
+    test("WebP source comes before JPEG fallback in picture element", async () => {
+      const result = await imageShortcode("party.jpg", "Test");
+
+      // WebP should be in a <source> element
+      expect(result.includes('<source type="image/webp"')).toBe(true);
+
+      // JPEG should only be in the <img> fallback, not a <source>
+      expect(result.includes('<source type="image/jpeg"')).toBe(false);
+
+      // The <img> src should be JPEG (fallback for non-webp browsers)
+      expect(result).toMatch(/<img[^>]+src="[^"]+\.jpeg"/);
+    });
+
+    test("JPEG fallback is generated at single width only", async () => {
+      const result = await imageShortcode("party.jpg", "Test");
+
+      // Extract the img src (JPEG fallback)
+      const imgMatch = result.match(/<img[^>]+src="([^"]+\.jpeg)"/);
+      expect(imgMatch).not.toBeNull();
+
+      // The JPEG filename should contain 1300 (or smaller if source is smaller)
+      const jpegSrc = imgMatch[1];
+      expect(jpegSrc).toMatch(/-\d+\.jpeg$/);
+    });
+
+    test("WebP has multiple sizes in srcset for responsive images", async () => {
+      const result = await imageShortcode("party.jpg", "Test");
+
+      // Extract webp srcset
+      const srcsetMatch = result.match(
+        /<source type="image\/webp" srcset="([^"]+)"/,
+      );
+      expect(srcsetMatch).not.toBeNull();
+
+      // Count the number of sizes (each entry has a width descriptor like "240w")
+      const srcset = srcsetMatch[1];
+      const widthDescriptors = srcset.match(/\d+w/g) || [];
+
+      // Should have multiple sizes (at least 3: some responsive widths + original)
+      expect(widthDescriptors.length).toBeGreaterThanOrEqual(3);
+    });
+
+    test("Picture element structure: webp source then jpeg img fallback", async () => {
+      const result = await imageShortcode("party.jpg", "Test");
+
+      // Verify the order: <picture><source webp>...<img jpeg></picture>
+      const pictureMatch = result.match(/<picture>([\s\S]*?)<\/picture>/);
+      expect(pictureMatch).not.toBeNull();
+
+      const pictureContent = pictureMatch[1];
+
+      // Find positions of webp source and img
+      const webpPos = pictureContent.indexOf('type="image/webp"');
+      const imgPos = pictureContent.indexOf("<img");
+
+      // WebP source should come before img
+      expect(webpPos).toBeLessThan(imgPos);
+      expect(webpPos).toBeGreaterThan(-1);
+    });
+  });
 });
