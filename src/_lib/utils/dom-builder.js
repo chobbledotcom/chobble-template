@@ -121,4 +121,5 @@ export {
   createHtml,
   parseHtml,
   getSharedDocument,
+  VOID_ELEMENTS,
 };
