@@ -20,6 +20,10 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createObjectBuilder",
   "execScript",
   "createMockEleventyConfig",
+  "createMockEngine", // cached-block.test.js - mock liquidjs engine
+  "createRenderContext", // cached-block.test.js - render test setup
+  "parseWithTag", // cached-block.test.js - parse helper for tag testing
+  "renderWithKey", // cached-block.test.js - render helper for caching tests
   "createPropertiesMock", // properties.test.js - creates mock config with registered filters
   "createReviewsMock", // reviews.test.js - creates mock config with registered filters
   "createSearchMock", // search.test.js - creates mock config with registered filters
