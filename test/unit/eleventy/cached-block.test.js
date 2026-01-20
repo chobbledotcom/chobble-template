@@ -106,7 +106,8 @@ const createTestMockEngine = ({ mutateTokens = false } = {}) => {
 const createRealisticMockEngine = () => createTestMockEngine();
 
 /** Creates a mock engine that mutates tokens (simulates the bug scenario) */
-const createMutatingMockEngine = () => createTestMockEngine({ mutateTokens: true });
+const createMutatingMockEngine = () =>
+  createTestMockEngine({ mutateTokens: true });
 
 /**
  * Simulates how the tag is actually used in production:
