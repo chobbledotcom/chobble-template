@@ -4,7 +4,6 @@ import { frozenSet } from "#toolkit/fp/set.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
-/** @typedef {import("#lib/types").ElementChildren} ElementChildren */
 
 /**
  * HTML5 void elements that cannot have children and are self-closing.
@@ -91,41 +90,6 @@ const applyAttributes = (element, attributes) => {
 };
 
 /**
- * Append children to an element
- * @param {HTMLElement} element - Element to modify
- * @param {ElementChildren} children - Children to append
- * @returns {void}
- */
-const appendChildren = (element, children) => {
-  if (children === null) return;
-  if (typeof children === "string") {
-    element.innerHTML = children;
-  }
-};
-
-/**
- * Create an HTML element with attributes and optional children
- * @param {string} tagName - The tag name (e.g., 'div', 'img')
- * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
- * @param {ElementChildren} [children=null] - Inner content or child elements
- * @param {Document | null} [document=null] - Optional existing document to use
- * @returns {Promise<HTMLElement>} The created element
- */
-const buildElement = async (
-  tagName,
-  attributes = {},
-  children = null,
-  document = null,
-) => {
-  const doc = document || (await getSharedDocument());
-  /** @type {HTMLElement} */
-  const element = /** @type {HTMLElement} */ (doc.createElement(tagName));
-  applyAttributes(element, attributes);
-  appendChildren(element, children);
-  return element;
-};
-
-/**
  * Convert an element to its HTML string representation
  * @param {HTMLElement} element - The element to serialize
  * @returns {string} The outer HTML of the element
@@ -136,24 +100,14 @@ const elementToHtml = (element) => {
 
 /**
  * Create an element and return its HTML string
- * Uses fast string concatenation when children is a string or null,
- * falls back to DOM manipulation for complex cases.
+ * Uses fast string concatenation (no DOM loading required).
  * @param {string} tagName - The tag name
  * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
- * @param {ElementChildren} [children=null] - Inner content or child elements
+ * @param {string | null} [children=null] - Inner HTML content
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = null) => {
-  // Fast path: use string concatenation for simple cases (string or null children)
-  if (children === null || typeof children === "string") {
-    return createHtmlFast(
-      tagName,
-      attributes,
-      /** @type {string | null} */ (children),
-    );
-  }
-  // Fallback to DOM for complex cases (future Element children support)
-  return elementToHtml(await buildElement(tagName, attributes, children));
+  return createHtmlFast(tagName, attributes, children);
 };
 
 /**
