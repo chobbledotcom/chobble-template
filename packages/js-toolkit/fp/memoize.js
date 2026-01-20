@@ -7,9 +7,7 @@
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
  */
-import { map, pipe } from "./array.js";
 import { buildReverseIndex } from "./grouping.js";
-import { fromPairs } from "./object.js";
 
 /**
  * Memoize a function with optional custom cache key
@@ -38,11 +36,12 @@ const memoize = (fn, options = {}) => {
 const sortKeys = (obj) => {
   if (obj === null || typeof obj !== "object") return obj;
   if (Array.isArray(obj)) return obj.map(sortKeys);
-  return pipe(
-    (o) => Object.keys(o).sort(),
-    map((key) => [key, sortKeys(obj[key])]),
-    fromPairs,
-  )(obj);
+  const keys = Object.keys(obj).sort();
+  const sorted = {};
+  for (const key of keys) {
+    sorted[key] = sortKeys(obj[key]);
+  }
+  return sorted;
 };
 
 /**
