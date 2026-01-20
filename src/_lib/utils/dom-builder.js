@@ -54,21 +54,6 @@ const formatAttributes = (attributes) => {
 };
 
 /**
- * Create HTML string using fast string concatenation (no DOM)
- * @param {string} tagName - The tag name
- * @param {ElementAttributes} attributes - Key-value pairs of attributes
- * @param {string | null} children - Inner HTML content (must be string or null)
- * @returns {string} The HTML string
- */
-const createHtmlFast = (tagName, attributes, children) => {
-  const attrs = formatAttributes(attributes);
-  if (VOID_ELEMENTS.has(tagName)) {
-    return `<${tagName}${attrs}>`;
-  }
-  return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
-};
-
-/**
  * Get shared DOM document instance for building elements
  * @returns {Promise<Document>} Shared document instance
  */
@@ -99,7 +84,7 @@ const elementToHtml = (element) => {
 };
 
 /**
- * Create an element and return its HTML string
+ * Create an element and return its HTML string.
  * Uses fast string concatenation (no DOM loading required).
  * @param {string} tagName - The tag name
  * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
@@ -107,7 +92,11 @@ const elementToHtml = (element) => {
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = null) => {
-  return createHtmlFast(tagName, attributes, children);
+  const attrs = formatAttributes(attributes);
+  if (VOID_ELEMENTS.has(tagName)) {
+    return `<${tagName}${attrs}>`;
+  }
+  return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
 };
 
 /**
