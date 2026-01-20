@@ -89,6 +89,7 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "getImageOptions",
   "createWrapper",
   "expectSkipped",
+  "processAndCapture",
   // autosizes.test.js - integration test helpers
   "testRemoteUrlNotProcessed",
   // code-scanner.test.js - matcher assertion helpers

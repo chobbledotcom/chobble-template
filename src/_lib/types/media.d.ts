@@ -17,6 +17,7 @@ export type ImageProps = {
   returnElement?: boolean;
   aspectRatio?: string | null;
   loading?: string | null;
+  noLqip?: boolean;
   document?: Document | null;
 };
 
@@ -31,6 +32,7 @@ export type ComputeImageProps = {
   widths?: string | string[] | null;
   aspectRatio?: string | null;
   loading?: string | null;
+  noLqip?: boolean;
 };
 
 /**
@@ -46,6 +48,7 @@ export type ImageTransformOptions = {
   widths: string | null;
   aspectRatio: string | null;
   loading: null;
+  noLqip: boolean;
   returnElement: true;
   document: Document;
 };

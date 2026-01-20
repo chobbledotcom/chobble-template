@@ -5,6 +5,7 @@
  * picture elements. Also handles:
  * - eleventy:aspectRatio attribute for custom aspect ratios
  * - eleventy:ignore attribute to skip processing
+ * - chobble:no-lqip attribute to skip LQIP generation
  * - Fixing invalid HTML where divs are sole children of paragraphs
  */
 
@@ -13,6 +14,7 @@
 
 const ASPECT_RATIO_ATTRIBUTE = "eleventy:aspectRatio";
 const IGNORE_ATTRIBUTE = "eleventy:ignore";
+const NO_LQIP_ATTRIBUTE = "chobble:no-lqip";
 
 /**
  * Fix invalid HTML where divs are sole children of paragraphs
@@ -38,6 +40,9 @@ const extractImageOptions = (img, document) => {
   const aspectRatio = img.getAttribute(ASPECT_RATIO_ATTRIBUTE);
   if (aspectRatio) img.removeAttribute(ASPECT_RATIO_ATTRIBUTE);
 
+  const noLqip = img.hasAttribute(NO_LQIP_ATTRIBUTE);
+  if (noLqip) img.removeAttribute(NO_LQIP_ATTRIBUTE);
+
   return {
     logName: `transformImages: ${img}`,
     imageName: img.getAttribute("src"),
@@ -47,6 +52,7 @@ const extractImageOptions = (img, document) => {
     widths: img.getAttribute("widths"),
     aspectRatio,
     loading: null,
+    noLqip,
     returnElement: true,
     document,
   };
@@ -104,4 +110,5 @@ export {
   processImageElement,
   ASPECT_RATIO_ATTRIBUTE,
   IGNORE_ATTRIBUTE,
+  NO_LQIP_ATTRIBUTE,
 };

@@ -62,7 +62,16 @@ const DEFAULT_OPTIONS = {
  * @returns {Promise<string>} Wrapped image HTML
  */
 const computeWrappedImageHtml = memoize(
-  async ({ imageName, alt, classes, sizes, widths, aspectRatio, loading }) => {
+  async ({
+    imageName,
+    alt,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+    loading,
+    noLqip = false,
+  }) => {
     if (PLACEHOLDER_MODE) {
       return generatePlaceholderHtml({
         alt,
@@ -81,8 +90,8 @@ const computeWrappedImageHtml = memoize(
     const pictureAttributes = classes?.trim() ? { class: classes } : {};
     const { default: Image, generateHTML } = await getEleventyImg();
 
-    // Check if LQIP should be generated (skip for SVGs and small files)
-    const generateLqip = shouldGenerateLqip(finalPath, metadata);
+    // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
+    const generateLqip = !noLqip && shouldGenerateLqip(finalPath, metadata);
 
     // Include LQIP width in the main Image() call for single-pass processing
     const requestedWidths = parseWidths(widths);
@@ -148,6 +157,7 @@ const processAndWrapImage = async ({
   returnElement = false,
   aspectRatio = null,
   loading = null,
+  noLqip = false,
   document = null,
 }) => {
   if (isExternalUrl(imageName)) {
@@ -169,6 +179,7 @@ const processAndWrapImage = async ({
     widths,
     aspectRatio,
     loading,
+    noLqip,
   });
 
   return returnElement ? await parseHtml(html, document) : html;
@@ -201,6 +212,7 @@ const configureImages = async (eleventyConfig) => {
  * @param {string | null} [sizes]
  * @param {string | null} [aspectRatio]
  * @param {string | null} [loading]
+ * @param {boolean} [noLqip]
  */
 const imageShortcode = async (
   imageName,
@@ -210,6 +222,7 @@ const imageShortcode = async (
   sizes = null,
   aspectRatio = null,
   loading = null,
+  noLqip = false,
 ) =>
   processAndWrapImage({
     logName: `imageShortcode: ${imageName}`,
@@ -220,6 +233,7 @@ const imageShortcode = async (
     widths,
     aspectRatio,
     loading,
+    noLqip,
     returnElement: false,
   });
 
