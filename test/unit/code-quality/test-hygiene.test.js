@@ -24,6 +24,12 @@ const ALLOWED_TEST_FUNCTIONS = new Set([
   "createRenderContext", // cached-block.test.js - render test setup
   "parseWithTag", // cached-block.test.js - parse helper for tag testing
   "renderWithKey", // cached-block.test.js - render helper for caching tests
+  "createTestMockEngine", // cached-block.test.js - configurable mock engine factory
+  "createRealisticMockEngine", // cached-block.test.js - mock engine with parseCallCount
+  "createMutatingMockEngine", // cached-block.test.js - mock engine simulating token mutation
+  "simulateProductionUsage", // cached-block.test.js - production-like render simulation
+  "testCacheKeyCollision", // cached-block.test.js - helper for cache key collision tests
+  "createLiquidWithCachedBlock", // cached-block.test.js - creates Liquid with tag registered
   "createPropertiesMock", // properties.test.js - creates mock config with registered filters
   "createReviewsMock", // reviews.test.js - creates mock config with registered filters
   "createSearchMock", // search.test.js - creates mock config with registered filters
