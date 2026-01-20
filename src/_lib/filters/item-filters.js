@@ -232,11 +232,11 @@ const countMatches = (lookup, filters, totalItems) =>
  * @param {Object} lookup - Lookup table from buildItemLookup
  * @returns {EleventyCollectionItem[]} Matching items, sorted
  */
-const getItemsWithLookup = (items, filters, lookup) => {
-  const normalized = normalizeAttrs(filters);
-  const positions = findMatchingPositions(lookup, normalized);
-  return positions.map((pos) => items[pos]).sort(sortItems);
-};
+const getItemsWithLookup = (items, filters, lookup) =>
+  pipe(
+    map((pos) => items[pos]),
+    sort(sortItems),
+  )(findMatchingPositions(lookup, normalizeAttrs(filters)));
 
 /**
  * Try adding a filter and return all valid combinations that include it.
