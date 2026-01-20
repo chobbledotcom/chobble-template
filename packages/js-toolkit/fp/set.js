@@ -1,19 +1,46 @@
 /**
  * Frozen set utilities for immutable membership lookups
  *
- * Frozen sets provide O(1) membership checks and signal immutability intent.
+ * Frozen sets provide O(1) membership checks with true immutability.
  * Use for constants that define valid values, blocklists, etc.
  *
- * Note: Object.freeze() prevents property additions but doesn't prevent
- * Set internal mutations in all JS engines. The freeze primarily serves
- * to signal intent and works with TypeScript's ReadonlySet type.
+ * Uses a Proxy to intercept mutation methods and throw TypeErrors,
+ * while delegating all read operations to the underlying Set.
+ * Passes `instanceof Set` checks.
  */
 
+const MUTATION_METHODS = new Set(["add", "delete", "clear"]);
+
 /**
- * Create a frozen Set from values
+ * Create proxy handler that blocks mutation methods
+ * @param {string} methodName - Name of the blocked method
+ * @returns {() => never} Function that throws TypeError
+ */
+const blockedMethod = (methodName) => () => {
+  throw new TypeError(`Cannot call ${methodName}() on a frozen set`);
+};
+
+/**
+ * Proxy handler for frozen sets
+ * @type {ProxyHandler<Set<unknown>>}
+ */
+const frozenSetHandler = {
+  get(target, prop) {
+    if (MUTATION_METHODS.has(prop)) {
+      return blockedMethod(prop);
+    }
+    const value = target[prop];
+    // Bind methods to the target so they work correctly
+    return typeof value === "function" ? value.bind(target) : value;
+  },
+};
+
+/**
+ * Create a frozen (immutable) Set from values
  *
- * Returns a frozen Set for use as an immutable constant. The freeze
- * signals that this set shouldn't be modified and enables ReadonlySet typing.
+ * Returns a Set wrapped in a Proxy that throws TypeError on mutation
+ * attempts (add, delete, clear). All read operations work normally.
+ * Passes `instanceof Set` checks.
  *
  * @template T
  * @param {T[]} values - Values to include in the set
@@ -23,8 +50,10 @@
  * const VALID_TYPES = frozenSet(['image', 'video', 'audio']);
  * VALID_TYPES.has('image')  // true
  * VALID_TYPES.has('text')   // false
+ * VALID_TYPES.add('text')   // throws TypeError
+ * VALID_TYPES instanceof Set  // true
  */
-const frozenSet = (values) => Object.freeze(new Set(values));
+const frozenSet = (values) => new Proxy(new Set(values), frozenSetHandler);
 
 /**
  * Create a frozen Set from any iterable
@@ -40,7 +69,8 @@ const frozenSet = (values) => Object.freeze(new Set(values));
  * frozenSetFrom(existingSet)
  * frozenSetFrom(generator())
  */
-const frozenSetFrom = (iterable) => Object.freeze(new Set(iterable));
+const frozenSetFrom = (iterable) =>
+  new Proxy(new Set(iterable), frozenSetHandler);
 
 /**
  * Create a membership predicate using a Set for O(1) lookups

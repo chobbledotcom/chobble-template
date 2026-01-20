@@ -20,19 +20,33 @@ describe("frozenSet", () => {
     expect(set.size).toBe(3);
   });
 
-  test("creates a frozen (immutable) set", () => {
+  test("passes instanceof Set check", () => {
     const set = frozenSet(["a", "b"]);
 
-    expect(Object.isFrozen(set)).toBe(true);
+    expect(set instanceof Set).toBe(true);
   });
 
-  test("prevents property additions on frozen set", () => {
+  test("throws TypeError on add()", () => {
     const set = frozenSet(["a", "b"]);
 
-    // Object.freeze prevents adding properties to the set object itself
-    expect(() => {
-      set.customProp = "value";
-    }).toThrow(TypeError);
+    expect(() => set.add("c")).toThrow(TypeError);
+    expect(() => set.add("c")).toThrow("Cannot call add() on a frozen set");
+  });
+
+  test("throws TypeError on delete()", () => {
+    const set = frozenSet(["a", "b"]);
+
+    expect(() => set.delete("a")).toThrow(TypeError);
+    expect(() => set.delete("a")).toThrow(
+      "Cannot call delete() on a frozen set",
+    );
+  });
+
+  test("throws TypeError on clear()", () => {
+    const set = frozenSet(["a", "b"]);
+
+    expect(() => set.clear()).toThrow(TypeError);
+    expect(() => set.clear()).toThrow("Cannot call clear() on a frozen set");
   });
 
   test("handles empty array", () => {
@@ -48,6 +62,23 @@ describe("frozenSet", () => {
     expect(set.has(1)).toBe(true);
     expect(set.has(4)).toBe(false);
   });
+
+  test("supports iteration with for...of", () => {
+    const set = frozenSet(["x", "y", "z"]);
+    const values = [];
+
+    for (const v of set) {
+      values.push(v);
+    }
+
+    expect(values).toEqual(["x", "y", "z"]);
+  });
+
+  test("supports spread operator", () => {
+    const set = frozenSet([1, 2, 3]);
+
+    expect([...set]).toEqual([1, 2, 3]);
+  });
 });
 
 describe("frozenSetFrom", () => {
@@ -60,7 +91,7 @@ describe("frozenSetFrom", () => {
 
     expect(set.has("a")).toBe(true);
     expect(set.has("b")).toBe(true);
-    expect(Object.isFrozen(set)).toBe(true);
+    expect(set instanceof Set).toBe(true);
   });
 
   test("creates from another Set", () => {
@@ -70,7 +101,7 @@ describe("frozenSetFrom", () => {
     expect(frozen.has(1)).toBe(true);
     expect(frozen.has(2)).toBe(true);
     expect(frozen.has(3)).toBe(true);
-    expect(Object.isFrozen(frozen)).toBe(true);
+    expect(() => frozen.add(4)).toThrow(TypeError);
   });
 
   test("creates from a generator", () => {
