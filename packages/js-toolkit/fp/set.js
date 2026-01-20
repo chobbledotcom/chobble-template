@@ -23,15 +23,18 @@ const blockedMethod = (methodName) => () => {
 
 /**
  * Create a proxy handler with cached bound methods for performance
- * @param {Set<unknown>} target - The underlying Set
- * @returns {ProxyHandler<Set<unknown>>} Proxy handler with method caching
+ * @template T
+ * @param {Set<T>} target - The underlying Set
+ * @returns {ProxyHandler<Set<T>>} Proxy handler with method caching
  */
 const createFrozenSetHandler = (target) => {
+  /** @type {Map<string | symbol, unknown>} */
   const methodCache = new Map();
 
   return {
     get(_, prop) {
-      if (MUTATION_METHODS.has(prop)) {
+      // Only block string method names (not symbols like Symbol.iterator)
+      if (typeof prop === "string" && MUTATION_METHODS.has(prop)) {
         return blockedMethod(prop);
       }
 
@@ -41,7 +44,7 @@ const createFrozenSetHandler = (target) => {
         return cached;
       }
 
-      const value = target[prop];
+      const value = target[/** @type {keyof Set<T>} */ (prop)];
       if (typeof value === "function") {
         const bound = value.bind(target);
         methodCache.set(prop, bound);
@@ -72,7 +75,9 @@ const createFrozenSetHandler = (target) => {
  */
 const frozenSet = (values) => {
   const set = new Set(values);
-  return new Proxy(set, createFrozenSetHandler(set));
+  return /** @type {ReadonlySet<T>} */ (
+    new Proxy(set, createFrozenSetHandler(set))
+  );
 };
 
 /**
@@ -91,7 +96,9 @@ const frozenSet = (values) => {
  */
 const frozenSetFrom = (iterable) => {
   const set = new Set(iterable);
-  return new Proxy(set, createFrozenSetHandler(set));
+  return /** @type {ReadonlySet<T>} */ (
+    new Proxy(set, createFrozenSetHandler(set))
+  );
 };
 
 /**
