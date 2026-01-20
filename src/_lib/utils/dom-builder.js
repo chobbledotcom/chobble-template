@@ -6,24 +6,26 @@ import { loadDOM } from "#utils/lazy-dom.js";
 /** @typedef {import("#lib/types").ElementChildren} ElementChildren */
 
 /**
- * HTML5 void elements that cannot have children and are self-closing
+ * HTML5 void elements that cannot have children and are self-closing.
+ * Using frozen object for O(1) lookup without mutable container.
+ * @type {Readonly<Record<string, true>>}
  */
-const VOID_ELEMENTS = new Set([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
-]);
+const VOID_ELEMENTS = Object.freeze({
+  area: true,
+  base: true,
+  br: true,
+  col: true,
+  embed: true,
+  hr: true,
+  img: true,
+  input: true,
+  link: true,
+  meta: true,
+  param: true,
+  source: true,
+  track: true,
+  wbr: true,
+});
 
 /**
  * Escape a string for use in HTML attribute values
@@ -61,7 +63,7 @@ const formatAttributes = (attributes) => {
  */
 const createHtmlFast = (tagName, attributes, children) => {
   const attrs = formatAttributes(attributes);
-  if (VOID_ELEMENTS.has(tagName)) {
+  if (VOID_ELEMENTS[tagName]) {
     return `<${tagName}${attrs}>`;
   }
   return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
