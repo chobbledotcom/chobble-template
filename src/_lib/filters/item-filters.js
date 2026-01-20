@@ -159,17 +159,21 @@ const getItemsByFilters = (items, filters) => {
 const normalizeAttrs = mapBoth(normalize);
 
 /**
- * Add an item to the inverted index for all its attributes.
- * @param {Object} index - The index to update
+ * Add a single item's attributes to the inverted index.
+ * Ensures index structure exists and adds item index to appropriate sets.
+ *
+ * @param {Object} index - Index to update (mutated in reduce context)
  * @param {number} itemIndex - Index of the item
- * @param {FilterSet} normalizedAttrs - Normalized attributes
+ * @param {FilterSet} normalizedAttrs - Normalized attribute key-value pairs
+ * @returns {Object} The updated index
  */
-const addToIndex = (index, itemIndex, normalizedAttrs) => {
+const addItemToIndex = (index, itemIndex, normalizedAttrs) => {
   for (const [key, value] of Object.entries(normalizedAttrs)) {
     if (!index[key]) index[key] = {};
     if (!index[key][value]) index[key][value] = new Set();
     index[key][value].add(itemIndex);
   }
+  return index;
 };
 
 /**
@@ -179,96 +183,84 @@ const addToIndex = (index, itemIndex, normalizedAttrs) => {
  * This enables O(filters) counting per combination instead of O(items × filters).
  *
  * @param {EleventyCollectionItem[]} items - Collection items
- * @returns {{ index: Object, itemCount: number }} Inverted index and item count
+ * @returns {Object} Inverted index mapping attr -> value -> Set<itemIndex>
  */
-const buildInvertedIndex = (items) => {
-  const index = {};
-  for (let i = 0; i < items.length; i++) {
-    const attrs = parseFilterAttributes(items[i].data.filter_attributes);
-    addToIndex(index, i, normalizeAttrs(attrs));
-  }
-  return { index, itemCount: items.length };
-};
-
-/**
- * Check if an item matches all filter criteria beyond the first.
- * @param {Object} index - Inverted index
- * @param {number} idx - Item index to check
- * @param {[string, string][]} entries - Filter entries (skip first)
- * @returns {boolean} True if item matches all criteria
- */
-const matchesRemainingFilters = (index, idx, entries) => {
-  for (let i = 1; i < entries.length; i++) {
-    const [key, value] = entries[i];
-    if (!index[key]?.[value]?.has(idx)) return false;
-  }
-  return true;
-};
+const buildInvertedIndex = (items) =>
+  items.reduce((index, item, i) => {
+    const attrs = parseFilterAttributes(item.data.filter_attributes);
+    return addItemToIndex(index, i, normalizeAttrs(attrs));
+  }, {});
 
 /**
  * Count matching items using set intersection on inverted index.
  * Much faster than iterating all items for each combination.
  *
- * @param {{ index: Object, itemCount: number }} invertedIndex
+ * @param {Object} index - Inverted index
  * @param {FilterSet} filters - Normalized filter criteria
+ * @param {number} itemCount - Total item count for empty filter case
  * @returns {number} Count of matching items
  */
-const countMatchesWithIndex = (invertedIndex, filters) => {
+const countMatchesWithIndex = (index, filters, itemCount) => {
   const entries = Object.entries(filters);
-  if (entries.length === 0) return invertedIndex.itemCount;
+  if (entries.length === 0) return itemCount;
 
   const [firstKey, firstValue] = entries[0];
-  const firstSet = invertedIndex.index[firstKey]?.[firstValue];
+  const firstSet = index[firstKey]?.[firstValue];
   if (!firstSet) return 0;
 
-  let count = 0;
-  for (const idx of firstSet) {
-    if (matchesRemainingFilters(invertedIndex.index, idx, entries)) count++;
-  }
-  return count;
+  const remainingEntries = entries.slice(1);
+  return [...firstSet].filter((idx) =>
+    remainingEntries.every(([key, value]) => index[key]?.[value]?.has(idx)),
+  ).length;
 };
 
 /**
- * Try adding a filter value and recurse if it has matches.
- * @param {Object} ctx - Generation context
+ * Try a filter value and return combinations if it has matches.
+ * Returns empty array if no matches, otherwise returns this combo plus recursive results.
+ *
+ * @param {Object} ctx - Context with index, attributes, and keys
  * @param {FilterSet} baseFilters - Current filter combination
- * @param {string} key - Attribute key
- * @param {string} value - Attribute value
+ * @param {string} key - Attribute key to add
+ * @param {string} value - Attribute value to add
  * @param {number} nextIndex - Next attribute index for recursion
+ * @returns {FilterCombination[]} Combinations including this filter
  */
 const tryFilterValue = (ctx, baseFilters, key, value, nextIndex) => {
   const filters = { ...baseFilters, [key]: value };
   const normalized = normalizeAttrs(filters);
-  const count = countMatchesWithIndex(ctx.invertedIndex, normalized);
+  const count = countMatchesWithIndex(ctx.index, normalized, ctx.itemCount);
 
-  if (count > 0) {
-    ctx.results.push({ filters, path: filterToPath(filters), count });
-    generateCombosFrom(ctx, filters, nextIndex);
-  }
+  if (count === 0) return [];
+
+  const combo = { filters, path: filterToPath(filters), count };
+  const childCombos = generateCombosFrom(ctx, filters, nextIndex);
+  return [combo, ...childCombos];
 };
 
 /**
- * Generate combinations from a starting index.
- * @param {Object} ctx - Generation context
+ * Generate combinations from a starting index using flatMap.
+ * Pure functional: each call returns an array, no mutation.
+ *
+ * @param {Object} ctx - Context with index, attributes, and keys
  * @param {FilterSet} baseFilters - Current filter combination
  * @param {number} startIndex - Starting attribute index
+ * @returns {FilterCombination[]} All valid combinations from this point
  */
-const generateCombosFrom = (ctx, baseFilters, startIndex) => {
-  for (let i = startIndex; i < ctx.attributeKeys.length; i++) {
-    const key = ctx.attributeKeys[i];
-    for (const value of ctx.allAttributes[key]) {
-      tryFilterValue(ctx, baseFilters, key, value, i + 1);
-    }
-  }
-};
+const generateCombosFrom = (ctx, baseFilters, startIndex) =>
+  ctx.attributeKeys
+    .slice(startIndex)
+    .flatMap((key, offset) =>
+      ctx.allAttributes[key].flatMap((value) =>
+        tryFilterValue(ctx, baseFilters, key, value, startIndex + offset + 1),
+      ),
+    );
 
 /**
  * Generate all filter combinations that have matching items
  * Returns array of { filters: {...}, path: "...", count: N }
  *
- * Optimizations:
- * - Uses inverted index for O(1) set-intersection counting instead of O(n) iteration
- * - Uses push-based accumulation instead of O(n²) spread accumulation
+ * Uses inverted index for O(1) set-intersection counting and
+ * flatMap recursion for purely functional combination generation.
  *
  * @param {EleventyCollectionItem[]} items - Collection items
  * @returns {FilterCombination[]} All valid filter combinations
@@ -281,12 +273,11 @@ const generateFilterCombinations = memoize((items) => {
   const ctx = {
     allAttributes,
     attributeKeys,
-    invertedIndex: buildInvertedIndex(items),
-    results: [],
+    index: buildInvertedIndex(items),
+    itemCount: items.length,
   };
 
-  generateCombosFrom(ctx, {}, 0);
-  return ctx.results;
+  return generateCombosFrom(ctx, {}, 0);
 });
 
 /**
