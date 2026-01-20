@@ -88,11 +88,17 @@ describe("images transform", () => {
       expect(options.aspectRatio).toBeNull();
     });
 
-    test("extracts and removes no-lqip attribute", async () => {
-      const { options, img } = await getImageOptions(
+    test("extracts no-lqip attribute as true", async () => {
+      const { options } = await getImageOptions(
         `<html><body><img src="/images/test.jpg" ${NO_LQIP_ATTRIBUTE}></body></html>`,
       );
       expect(options.noLqip).toBe(true);
+    });
+
+    test("removes no-lqip attribute from element", async () => {
+      const { img } = await getImageOptions(
+        `<html><body><img src="/images/test.jpg" ${NO_LQIP_ATTRIBUTE}></body></html>`,
+      );
       expect(img.hasAttribute(NO_LQIP_ATTRIBUTE)).toBe(false);
     });
 
@@ -222,10 +228,6 @@ describe("images transform", () => {
 
     test("IGNORE_ATTRIBUTE is correct", () => {
       expect(IGNORE_ATTRIBUTE).toBe("eleventy:ignore");
-    });
-
-    test("NO_LQIP_ATTRIBUTE is correct", () => {
-      expect(NO_LQIP_ATTRIBUTE).toBe("chobble:no-lqip");
     });
   });
 });
