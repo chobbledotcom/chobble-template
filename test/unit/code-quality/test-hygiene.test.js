@@ -12,9 +12,10 @@ import {
   SRC_SCSS_FILES,
   TEST_FILES,
 } from "#test/test-utils.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 // Allowed function names in test files (utilities, not production logic)
-const ALLOWED_TEST_FUNCTIONS = new Set([
+const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // Test utilities from test-utils.js pattern
   "compileScss",
   "createObjectBuilder",

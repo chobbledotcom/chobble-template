@@ -8,6 +8,7 @@ import {
 } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
 import { compact, filterMap } from "#toolkit/fp/array.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 /**
  * Test Quality Enforcement
@@ -24,7 +25,7 @@ import { compact, filterMap } from "#toolkit/fp/array.js";
 // ============================================
 
 // Files that are allowed to have tests with "and" in names
-const AND_NAME_EXCEPTIONS = new Set([
+const AND_NAME_EXCEPTIONS = frozenSet([
   "test/theme-editor.test.js", // e2e tests that test workflows
 ]);
 

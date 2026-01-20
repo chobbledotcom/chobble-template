@@ -6,6 +6,7 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 /**
  * Detect method/function aliasing like:
@@ -25,7 +26,7 @@ const ALIAS_PATTERN = /^\s*const\s+(\w+)\s*=\s*([a-z_]\w*)\s*;\s*$/i;
 const DEF_PATTERN = /^\s*(?:const|let|var|function)\s+(\w+)(?:\s*=|\s*\()/;
 
 // Identifiers that are commonly assigned (not aliases)
-const BUILTIN_IDENTIFIERS = new Set([
+const BUILTIN_IDENTIFIERS = frozenSet([
   "null",
   "undefined",
   "true",

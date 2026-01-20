@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 // Configuration
 const MAX_WORDS = 4;
 const _PREFERRED_WORDS = 3;
 
 // External APIs we can't control (only those exceeding 4 words)
-const IGNORED_IDENTIFIERS = new Set([
+const IGNORED_IDENTIFIERS = frozenSet([
   // Eleventy plugin APIs
   "eleventyImageOnRequestDuringServePlugin", // 7 words
   "getNewestCollectionItemDate", // 5 words

@@ -24,12 +24,14 @@
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { frozenSet } from "#toolkit/fp/set.js";
+
 // ============================================
 // try/catch exceptions
 // ============================================
 
 // Add file:line for specific locations, or just file path to allow all try/catch in that file
-const ALLOWED_TRY_CATCHES = new Set([
+const ALLOWED_TRY_CATCHES = frozenSet([
   // ecommerce-backend/server.js - PayPal API calls
   "ecommerce-backend/server.js:185",
   "ecommerce-backend/server.js:213",
@@ -60,7 +62,7 @@ const ALLOWED_TRY_CATCHES = new Set([
 
 // Test files that legitimately need process.cwd() instead of rootDir.
 // Most tests should import rootDir from test-utils.js instead.
-const ALLOWED_PROCESS_CWD = new Set([
+const ALLOWED_PROCESS_CWD = frozenSet([
   // Tests that specifically test file-utils.js which uses process.cwd() internally
   "test/unit/utils/file-utils.test.js",
 ]);
@@ -72,7 +74,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 // Const declarations that create mutable containers (arrays, objects, Sets, Maps).
 // While const prevents reassignment, these containers can still be mutated.
 // Prefer functional patterns: map, filter, reduce, spread, etc.
-const ALLOWED_MUTABLE_CONST = new Set([
+const ALLOWED_MUTABLE_CONST = frozenSet([
   // Maps - used as caches/indexes being populated via set
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
   "packages/js-toolkit/fp/set.js:32", // Per-instance method cache for frozenSet proxy
@@ -88,7 +90,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/build/pdf.test.js",
   "test/unit/build/scss.variables.test.js",
   "test/unit/code-quality/array-push.test.js",
-  "test/code-quality/code-quality-exceptions.js",
   "test/unit/code-quality/code-scanner.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/data-exports.test.js",
@@ -101,7 +102,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
   "test/unit/code-quality/test-hygiene.test.js",
-  "test/unit/code-quality/test-quality.test.js",
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
@@ -114,7 +114,6 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/frontend/checkout.test.js",
   "test/unit/frontend/config.test.js",
   "test/unit/utils/object-entries.test.js",
-  "test/unit/utils/strings.test.js",
   "test/unit/transforms/images.test.js",
   "test/unit/eleventy/cached-block.test.js",
   "test/unit/toolkit/set.test.js",
@@ -127,7 +126,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
 // Files that use 'let' for mutable variables.
 // Prefer functional patterns (map/filter/reduce) or const with immutable updates.
 // Only 'let moduleName = null;' is allowed for lazy loading without exceptions.
-const ALLOWED_LET = new Set([
+const ALLOWED_LET = frozenSet([
   // Test files with mutable state tracking
   "test/integration/build/pdf-integration.test.js",
   "test/integration/eleventy/feed.test.js",
@@ -151,7 +150,7 @@ const ALLOWED_LET = new Set([
 
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
-const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
+const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "ecommerce-backend/server.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/menus.js",
@@ -194,7 +193,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = new Set([
 //
 // NOTE: The scanner now detects Eleventy registrations (addFilter, addShortcode, etc.)
 // so exports registered with Eleventy no longer need to be listed here.
-const ALLOWED_TEST_ONLY_EXPORTS = new Set([
+const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // FP toolkit utilities - used by code-quality/scanner.js via relative import
   // (relative imports aren't detected by our analysis)
   "packages/js-toolkit/fp/object.js:omit",
@@ -240,7 +239,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
 // Most DOM tests should use `document` directly (via happy-dom GlobalRegistrator).
 // Use `new DOM(html)` only when parsing generated HTML for assertions,
 // NOT for mocking the global document.
-const ALLOWED_DOM_CONSTRUCTOR = new Set([
+const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
   // Infrastructure: DOM class definition
   "test/test-utils.js:184",
 

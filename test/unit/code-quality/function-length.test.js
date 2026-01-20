@@ -7,6 +7,7 @@ import {
   SRC_JS_FILES,
 } from "#test/test-utils.js";
 import { filterMap, map, pipe, pluralize } from "#toolkit/fp/array.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 // Configuration
 const MAX_LINES = 30;
@@ -14,7 +15,7 @@ const PREFERRED_LINES = 20;
 
 // Functions that are intentionally long (e.g., complex templates, data builders)
 // These are baseline exceptions - new long functions should be refactored
-const IGNORED_FUNCTIONS = new Set([
+const IGNORED_FUNCTIONS = frozenSet([
   "createMenuPdfTemplate", // PDF template with many HTML sections
   "buildMenuPdfData", // PDF data structure with many fields
   "buildFilterUIData", // Complex filter UI data structure builder

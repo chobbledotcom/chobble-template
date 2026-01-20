@@ -7,9 +7,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { memoize } from "../fp/memoize.js";
+import { frozenSet } from "../fp/set.js";
 
 // Directories always skipped during file discovery
-const ALWAYS_SKIP = new Set([
+const ALWAYS_SKIP = frozenSet([
   "node_modules",
   ".git",
   "_site",

@@ -8,6 +8,7 @@
 import { describe, expect, test } from "bun:test";
 import { assertNoViolations, readSource } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 const THIS_FILE = "test/unit/code-quality/duplicate-methods.test.js";
 
@@ -19,7 +20,7 @@ const THIS_FILE = "test/unit/code-quality/duplicate-methods.test.js";
 // "init" is a common initialization pattern used across modules
 // "createElement" - generic DOM helper name used in different contexts
 // "getJsConfigFilter" - test helper for getting the filter via config registration
-const ALLOWED_DUPLICATE_NAMES = new Set([
+const ALLOWED_DUPLICATE_NAMES = frozenSet([
   "init",
   "createElement",
   "getJsConfigFilter",
@@ -27,7 +28,7 @@ const ALLOWED_DUPLICATE_NAMES = new Set([
 ]);
 
 // Directories to exclude from analysis
-const EXCLUDED_DIRS = new Set(["ecommerce-backend"]);
+const EXCLUDED_DIRS = frozenSet(["ecommerce-backend"]);
 
 // ============================================
 // Function Definition Patterns
