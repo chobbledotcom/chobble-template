@@ -60,6 +60,8 @@ export {
   pickTruthy,
   toObject,
 } from "./object.js";
+// Set utilities
+export { frozenSet, frozenSetFrom, setHas, setLacks } from "./set.js";
 // Sorting utilities
 export {
   compareBy,
