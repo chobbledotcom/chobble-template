@@ -6,6 +6,7 @@ import {
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 import { filterMap } from "#toolkit/fp/array.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.
@@ -210,7 +211,7 @@ const extractStringContent = (source) => {
 /**
  * Known HTML/SVG tag names for verification
  */
-const HTML_TAGS = new Set([
+const HTML_TAGS = frozenSet([
   "div",
   "span",
   "p",
