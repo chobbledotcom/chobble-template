@@ -1,0 +1,262 @@
+#!/usr/bin/env bun
+/**
+ * Benchmark filter attribute combinations performance
+ *
+ * Usage:
+ *   ./bin/benchmark-filters                    # Default: 3 attrs, 4 values each, 50 products
+ *   ./bin/benchmark-filters --attrs 5          # 5 attributes
+ *   ./bin/benchmark-filters --values 6         # 6 values per attribute
+ *   ./bin/benchmark-filters --products 200     # 200 products
+ *   ./bin/benchmark-filters --categories 10    # 10 categories
+ *   ./bin/benchmark-filters --verbose          # Show detailed output
+ */
+
+import {
+  generateFilterCombinations,
+  getAllFilterAttributes,
+  buildDisplayLookup,
+  getItemsByFilters,
+} from "../src/_lib/filters/item-filters.js";
+import {
+  createFilteredCategoryProductPages,
+  createCategoryFilterAttributes,
+} from "../src/_lib/filters/category-product-filters.js";
+
+// ============================================
+// CLI Argument Parsing
+// ============================================
+
+const args = process.argv.slice(2);
+const getArg = (name, defaultValue) => {
+  const index = args.indexOf(`--${name}`);
+  return index !== -1 ? Number.parseInt(args[index + 1], 10) : defaultValue;
+};
+const hasFlag = (name) => args.includes(`--${name}`);
+
+const config = {
+  numAttributes: getArg("attrs", 3),
+  valuesPerAttribute: getArg("values", 4),
+  numProducts: getArg("products", 50),
+  numCategories: getArg("categories", 5),
+  verbose: hasFlag("verbose"),
+};
+
+// ============================================
+// Synthetic Data Generation
+// ============================================
+
+const ATTRIBUTE_NAMES = [
+  "Size",
+  "Color",
+  "Material",
+  "Style",
+  "Brand",
+  "Weight",
+  "Capacity",
+  "Type",
+  "Quality",
+  "Finish",
+];
+
+const VALUE_POOLS = {
+  Size: ["Small", "Medium", "Large", "XL", "XXL", "Compact", "Standard", "Oversized"],
+  Color: ["Red", "Blue", "Green", "Black", "White", "Yellow", "Purple", "Orange"],
+  Material: ["Wood", "Metal", "Plastic", "Glass", "Fabric", "Leather", "Stone", "Carbon"],
+  Style: ["Modern", "Classic", "Vintage", "Minimalist", "Industrial", "Rustic", "Contemporary", "Traditional"],
+  Brand: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta"],
+  Weight: ["Light", "Medium", "Heavy", "Ultralight", "Featherweight", "Standard", "Dense", "Massive"],
+  Capacity: ["1L", "2L", "5L", "10L", "20L", "50L", "100L", "500L"],
+  Type: ["Basic", "Pro", "Premium", "Elite", "Standard", "Advanced", "Expert", "Master"],
+  Quality: ["Economy", "Standard", "Premium", "Luxury", "Budget", "Professional", "Industrial", "Commercial"],
+  Finish: ["Matte", "Gloss", "Satin", "Brushed", "Polished", "Textured", "Smooth", "Rough"],
+};
+
+/**
+ * Create synthetic products with random filter attributes
+ */
+const createSyntheticProducts = (numProducts, numAttributes, valuesPerAttribute) => {
+  const attrNames = ATTRIBUTE_NAMES.slice(0, numAttributes);
+  const attrValues = attrNames.map((name) =>
+    VALUE_POOLS[name].slice(0, valuesPerAttribute)
+  );
+
+  return Array.from({ length: numProducts }, (_, i) => ({
+    fileSlug: `product-${i}`,
+    data: {
+      title: `Product ${i}`,
+      order: i,
+      filter_attributes: attrNames.map((name, attrIndex) => ({
+        name,
+        value: attrValues[attrIndex][i % valuesPerAttribute],
+      })),
+    },
+  }));
+};
+
+/**
+ * Create synthetic categories
+ */
+const createSyntheticCategories = (numCategories) =>
+  Array.from({ length: numCategories }, (_, i) => ({
+    fileSlug: `category-${i}`,
+    data: { title: `Category ${i}`, order: i },
+  }));
+
+/**
+ * Assign products to categories (each product to 1-2 categories)
+ */
+const assignProductsToCategories = (products, numCategories) =>
+  products.map((product, i) => ({
+    ...product,
+    data: {
+      ...product.data,
+      categories: [
+        `category-${i % numCategories}`,
+        ...(i % 3 === 0 ? [`category-${(i + 1) % numCategories}`] : []),
+      ],
+    },
+  }));
+
+// ============================================
+// Benchmark Utilities
+// ============================================
+
+const benchmark = (name, fn, iterations = 1) => {
+  const times = [];
+  for (const _ of Array(iterations)) {
+    const start = performance.now();
+    const result = fn();
+    times.push(performance.now() - start);
+  }
+  const avg = times.reduce((a, b) => a + b, 0) / times.length;
+  const min = Math.min(...times);
+  const max = Math.max(...times);
+  return { name, avg, min, max, iterations };
+};
+
+const formatMs = (ms) => `${ms.toFixed(2)}ms`;
+
+// ============================================
+// Mock Collection API for category filters
+// ============================================
+
+const createMockCollectionApi = (products, categories) => ({
+  getFilteredByTag: (tag) => {
+    if (tag === "products") return products;
+    if (tag === "categories") return categories;
+    return [];
+  },
+});
+
+// ============================================
+// Main Benchmark
+// ============================================
+
+console.log("=== Filter Benchmark ===\n");
+console.log("Configuration:");
+console.log(`  Attributes:        ${config.numAttributes}`);
+console.log(`  Values/Attribute:  ${config.valuesPerAttribute}`);
+console.log(`  Products:          ${config.numProducts}`);
+console.log(`  Categories:        ${config.numCategories}`);
+console.log("");
+
+// Generate test data
+const products = createSyntheticProducts(
+  config.numProducts,
+  config.numAttributes,
+  config.valuesPerAttribute
+);
+const productsWithCategories = assignProductsToCategories(products, config.numCategories);
+const categories = createSyntheticCategories(config.numCategories);
+const collectionApi = createMockCollectionApi(productsWithCategories, categories);
+
+if (config.verbose) {
+  console.log("Sample product:");
+  console.log(JSON.stringify(products[0], null, 2));
+  console.log("");
+}
+
+// Run benchmarks
+const results = [];
+
+// 1. getAllFilterAttributes
+results.push(
+  benchmark("getAllFilterAttributes", () => getAllFilterAttributes(products), 3)
+);
+
+// 2. buildDisplayLookup
+results.push(
+  benchmark("buildDisplayLookup", () => buildDisplayLookup(products), 3)
+);
+
+// 3. generateFilterCombinations (the big one)
+results.push(
+  benchmark("generateFilterCombinations", () => generateFilterCombinations(products), 1)
+);
+
+// Get combo count for reporting
+const combos = generateFilterCombinations(products);
+console.log(`Generated ${combos.length} filter combinations\n`);
+
+// 4. getItemsByFilters (sample filter)
+if (combos.length > 0) {
+  const sampleFilter = combos[Math.floor(combos.length / 2)].filters;
+  results.push(
+    benchmark(
+      "getItemsByFilters (sample)",
+      () => getItemsByFilters(products, sampleFilter),
+      10
+    )
+  );
+}
+
+// 5. Category filter pages (full category-product-filters flow)
+results.push(
+  benchmark(
+    "createFilteredCategoryProductPages",
+    () => createFilteredCategoryProductPages(collectionApi),
+    1
+  )
+);
+
+// 6. Category filter attributes
+results.push(
+  benchmark(
+    "createCategoryFilterAttributes",
+    () => createCategoryFilterAttributes(collectionApi),
+    1
+  )
+);
+
+// Print results
+console.log("Results:");
+console.log("-".repeat(70));
+console.log(
+  "Function".padEnd(35) +
+    "Avg".padStart(12) +
+    "Min".padStart(12) +
+    "Max".padStart(12)
+);
+console.log("-".repeat(70));
+
+for (const r of results) {
+  console.log(
+    r.name.padEnd(35) +
+      formatMs(r.avg).padStart(12) +
+      formatMs(r.min).padStart(12) +
+      formatMs(r.max).padStart(12)
+  );
+}
+
+console.log("-".repeat(70));
+
+// Complexity analysis
+const theoreticalCombos = Array.from(
+  { length: config.numAttributes },
+  () => config.valuesPerAttribute
+).reduce((a, b) => a * (b + 1), 1) - 1;
+
+console.log("\nComplexity Analysis:");
+console.log(`  Theoretical max combinations: ${theoreticalCombos}`);
+console.log(`  Actual combinations:          ${combos.length}`);
+console.log(`  Reduction factor:             ${(theoreticalCombos / combos.length).toFixed(1)}x`);
