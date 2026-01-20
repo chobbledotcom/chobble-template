@@ -18,11 +18,11 @@ import {
   buildDisplayLookup,
   buildFilterPageBase,
   buildFilterUIData,
-  buildInvertedIndex,
+  buildItemLookup,
   generateFilterCombinations,
   generateFilterRedirects,
   getAllFilterAttributes,
-  getItemsByFiltersWithIndex,
+  getItemsWithLookup,
 } from "#filters/item-filters.js";
 import { groupByWithCache } from "#toolkit/fp/memoize.js";
 
@@ -87,8 +87,7 @@ const createFilteredCategoryProductPages = (collectionApi) =>
   mapCategoriesWithProducts(collectionApi, (categorySlug, categoryProducts) => {
     if (categoryProducts.length === 0) return [];
 
-    // Build index once, reuse for both combination generation and item retrieval
-    const index = buildInvertedIndex(categoryProducts);
+    const lookup = buildItemLookup(categoryProducts);
     const combinations = generateFilterCombinations(categoryProducts);
     const displayLookup = buildDisplayLookup(categoryProducts);
     const filterData = {
@@ -98,10 +97,10 @@ const createFilteredCategoryProductPages = (collectionApi) =>
     const baseUrl = `/categories/${categorySlug}`;
 
     const pages = combinations.map((combo) => {
-      const matchedProducts = getItemsByFiltersWithIndex(
+      const matchedProducts = getItemsWithLookup(
         categoryProducts,
         combo.filters,
-        index,
+        lookup,
       );
       return {
         categorySlug,
