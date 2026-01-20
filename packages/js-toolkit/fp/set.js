@@ -9,7 +9,8 @@
  * Passes `instanceof Set` checks.
  */
 
-const MUTATION_METHODS = new Set(["add", "delete", "clear"]);
+// Use Object.freeze here (not frozenSet) to avoid circular dependency
+const MUTATION_METHODS = Object.freeze(new Set(["add", "delete", "clear"]));
 
 /**
  * Create proxy handler that blocks mutation methods

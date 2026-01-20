@@ -4,6 +4,7 @@
  * These transforms walk the DOM tree looking for text nodes that contain
  * linkable content and replace them with anchor elements.
  */
+import { frozenSet } from "#toolkit/fp/set.js";
 
 /** @typedef {{ type: "text" | "url" | "email" | "phone", value: string }} TextPart */
 
@@ -14,10 +15,10 @@ const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
 const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.[\w-]+/g;
 
 /** Tags to skip when processing text nodes */
-const SKIP_TAGS = ["a", "script", "style", "code", "pre"];
+const SKIP_TAGS = frozenSet(["a", "script", "style", "code", "pre"]);
 
 /** Block-level elements - stop ancestor search when we hit one */
-const BLOCK_TAGS = [
+const BLOCK_TAGS = frozenSet([
   "p",
   "div",
   "section",
@@ -42,7 +43,7 @@ const BLOCK_TAGS = [
   "th",
   "form",
   "body",
-];
+]);
 
 /** @type {(value: string) => TextPart} */
 const textPart = (value) => ({ type: "text", value });
@@ -92,8 +93,8 @@ const parseTextByPattern = (text, pattern, partFactory) => {
 const hasSkipAncestor = (element) => {
   if (!element) return false;
   const tag = element.tagName.toLowerCase();
-  if (SKIP_TAGS.includes(tag)) return true;
-  if (BLOCK_TAGS.includes(tag)) return false;
+  if (SKIP_TAGS.has(tag)) return true;
+  if (BLOCK_TAGS.has(tag)) return false;
   return hasSkipAncestor(element.parentElement);
 };
 
