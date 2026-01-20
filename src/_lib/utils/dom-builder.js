@@ -1,5 +1,6 @@
 import { memoize } from "#toolkit/fp/memoize.js";
 import { filterObject, mapEntries } from "#toolkit/fp/object.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
@@ -7,25 +8,24 @@ import { loadDOM } from "#utils/lazy-dom.js";
 
 /**
  * HTML5 void elements that cannot have children and are self-closing.
- * Using frozen object for O(1) lookup without mutable container.
- * @type {Readonly<Record<string, true>>}
+ * @type {ReadonlySet<string>}
  */
-const VOID_ELEMENTS = Object.freeze({
-  area: true,
-  base: true,
-  br: true,
-  col: true,
-  embed: true,
-  hr: true,
-  img: true,
-  input: true,
-  link: true,
-  meta: true,
-  param: true,
-  source: true,
-  track: true,
-  wbr: true,
-});
+const VOID_ELEMENTS = frozenSet([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
 
 /**
  * Escape a string for use in HTML attribute values
@@ -63,7 +63,7 @@ const formatAttributes = (attributes) => {
  */
 const createHtmlFast = (tagName, attributes, children) => {
   const attrs = formatAttributes(attributes);
-  if (VOID_ELEMENTS[tagName]) {
+  if (VOID_ELEMENTS.has(tagName)) {
     return `<${tagName}${attrs}>`;
   }
   return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
