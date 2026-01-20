@@ -53,7 +53,7 @@ arr. push(3);
     // Liquid tag implementations require streaming token accumulation via .push()
     // This is the standard liquidjs API pattern for paired tags
     const LIQUID_TAG_PUSH_ALLOWLIST = new Set([
-      "src/_lib/eleventy/cached-block.js:52",
+      "src/_lib/eleventy/cached-block.js:49",
     ]);
 
     const { violations } = analyzeWithAllowlist({

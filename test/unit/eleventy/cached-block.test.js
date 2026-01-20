@@ -1,37 +1,71 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import { createCachedBlockTag, resetCache } from "#eleventy/cached-block.js";
+import {
+  configureCachedBlock,
+  createCachedBlockTag,
+  resetCache,
+} from "#eleventy/cached-block.js";
 
 /**
- * Creates a mock liquidjs stream that simulates the parseStream API.
- * Callbacks are stored and invoked when start() is called.
- *
- * @param {Array} tokens - Tokens to emit, last should be { name: "endcachedBlock" }
- * @param {boolean} triggerEnd - Whether to trigger "end" event without finding closing tag
- * @returns {object} Mock stream object
+ * Creates a mock liquid engine for testing the cachedBlock tag.
  */
-const createMockStream = (tokens = [], triggerEnd = false) => {
-  const callbacks = {};
+const createMockEngine = (tokens = [], triggerEnd = false) => ({
+  parser: {
+    parseStream: () => {
+      let tokenCallback = null;
+      let endCallback = null;
 
+      return {
+        on(event, callback) {
+          if (event === "token") tokenCallback = callback;
+          if (event === "end") endCallback = callback;
+          return this;
+        },
+        start() {
+          if (triggerEnd && endCallback) {
+            endCallback();
+            return;
+          }
+          if (tokenCallback) {
+            for (const token of tokens) {
+              tokenCallback(token);
+            }
+          }
+        },
+        stop() {},
+      };
+    },
+    parseTokens: (toks) => toks,
+  },
+  evalValue: (expr) => expr,
+  renderer: {
+    renderTemplates: (templates) => templates.map((t) => t.value).join(""),
+  },
+});
+
+/** Parses with a cached block tag and returns the resulting context. */
+const parseWithTag = (tokens, args = "item.url") => {
+  const tag = createCachedBlockTag(createMockEngine(tokens));
+  const context = { tokens: [], keyExpression: "" };
+  tag.parse.call(context, { args }, []);
+  return context;
+};
+
+/** Creates a render test context with tag, emitter, and emitted array. */
+const createRenderContext = () => {
+  const emitted = [];
   return {
-    on(event, callback) {
-      callbacks[event] = callback;
-      return this;
-    },
-    start() {
-      if (triggerEnd && callbacks.end) {
-        callbacks.end();
-        return;
-      }
-      if (callbacks.token) {
-        for (const token of tokens) {
-          callbacks.token(token);
-        }
-      }
-    },
-    stop() {
-      // Stream stopped - no more tokens will be processed
-    },
+    tag: createCachedBlockTag(createMockEngine()),
+    emitted,
+    emitter: { write: (c) => emitted.push(c) },
   };
+};
+
+/** Runs a render cycle, returning the generator and intermediate result. */
+const renderWithKey = (tag, emitter, value, key) => {
+  const tagContext = { tokens: [{ value }], keyExpression: key };
+  const gen = tag.render.call(tagContext, {}, emitter);
+  gen.next();
+  return { gen, result: gen.next(key) };
 };
 
 describe("cached-block", () => {
@@ -39,88 +73,114 @@ describe("cached-block", () => {
     resetCache();
   });
 
-  describe("resetCache", () => {
-    test("creates a fresh Map", () => {
-      resetCache();
-      resetCache();
-      expect(true).toBe(true);
-    });
-  });
-
-  describe("createCachedBlockTag", () => {
+  describe("parse", () => {
     test("returns object with parse and render methods", () => {
-      const mockLiquidEngine = {
-        parser: {
-          parseStream: () => createMockStream(),
-        },
-      };
-
-      const tag = createCachedBlockTag(mockLiquidEngine);
+      const tag = createCachedBlockTag(createMockEngine());
 
       expect(typeof tag.parse).toBe("function");
       expect(typeof tag.render).toBe("function");
     });
 
-    test("parse method stores keyExpression from tag arguments", () => {
-      const mockLiquidEngine = {
-        parser: {
-          parseStream: () => createMockStream([{ name: "endcachedBlock" }]),
-        },
-      };
+    test("stores keyExpression from tag arguments", () => {
+      const context = parseWithTag([{ name: "endcachedBlock" }]);
 
-      const tag = createCachedBlockTag(mockLiquidEngine);
-      const tagContext = { tokens: [], keyExpression: "" };
-
-      tag.parse.call(tagContext, { args: "item.url" }, []);
-
-      expect(tagContext.keyExpression).toBe("item.url");
+      expect(context.keyExpression).toBe("item.url");
     });
 
-    test("parse method collects tokens until endcachedBlock", () => {
+    test("collects tokens until endcachedBlock", () => {
       const tokens = [
         { name: "html", value: "<li>" },
         { name: "tag", value: "include" },
         { name: "endcachedBlock" },
       ];
+      const context = parseWithTag(tokens);
 
-      const mockLiquidEngine = {
-        parser: {
-          parseStream: () => createMockStream(tokens),
-        },
-      };
-
-      const tag = createCachedBlockTag(mockLiquidEngine);
-      const tagContext = { tokens: [], keyExpression: "" };
-
-      tag.parse.call(tagContext, { args: "item.url" }, []);
-
-      // Should have collected the first two tokens (not the endcachedBlock)
-      expect(tagContext.tokens.length).toBe(2);
-      expect(tagContext.tokens[0].name).toBe("html");
-      expect(tagContext.tokens[1].name).toBe("tag");
+      expect(context.tokens.length).toBe(2);
+      expect(context.tokens[0].name).toBe("html");
+      expect(context.tokens[1].name).toBe("tag");
     });
 
     test("throws error if tag is not closed", () => {
-      const mockLiquidEngine = {
-        parser: {
-          parseStream: () => createMockStream([], true),
-        },
-      };
-
-      const tag = createCachedBlockTag(mockLiquidEngine);
-      const tagContext = { tokens: [], keyExpression: "" };
+      const tag = createCachedBlockTag(createMockEngine([], true));
+      const context = { tokens: [], keyExpression: "" };
 
       expect(() => {
-        tag.parse.call(tagContext, { args: "item.url" }, []);
+        tag.parse.call(context, { args: "item.url" }, []);
       }).toThrow("tag cachedBlock not closed");
     });
   });
 
-  describe("caching behavior", () => {
-    test("cache is reset by resetCache", () => {
+  describe("render", () => {
+    test("renders and emits content for new cache key", () => {
+      const { tag, emitter, emitted } = createRenderContext();
+
+      renderWithKey(tag, emitter, "Hello", "test-key").gen.next("Hello");
+
+      expect(emitted).toEqual(["Hello"]);
+    });
+
+    test("returns cached content without re-rendering for same key", () => {
+      const { tag, emitter, emitted } = createRenderContext();
+
+      renderWithKey(tag, emitter, "First", "same-key").gen.next("First");
+      const { result } = renderWithKey(tag, emitter, "Different", "same-key");
+
+      expect(result.done).toBe(true);
+      expect(emitted).toEqual(["First", "First"]);
+    });
+
+    test("caches different content for different keys", () => {
+      const { tag, emitter, emitted } = createRenderContext();
+
+      renderWithKey(tag, emitter, "A", "key-a").gen.next("A");
+      renderWithKey(tag, emitter, "B", "key-b").gen.next("B");
+
+      expect(emitted).toEqual(["A", "B"]);
+    });
+
+    test("resetCache clears cached content", () => {
+      const { tag, emitter } = createRenderContext();
+
+      renderWithKey(tag, emitter, "Original", "key").gen.next("Original");
       resetCache();
-      resetCache();
-      expect(true).toBe(true);
+
+      const { result } = renderWithKey(tag, emitter, "New", "key");
+      expect(result.done).toBe(false);
+    });
+  });
+
+  describe("configureCachedBlock", () => {
+    test("registers eleventy.before event and cachedBlock tag", () => {
+      const registrations = { events: {}, tags: {} };
+      const config = {
+        on: (event, handler) => {
+          registrations.events[event] = handler;
+        },
+        addLiquidTag: (name, factory) => {
+          registrations.tags[name] = factory;
+        },
+      };
+
+      configureCachedBlock(config);
+
+      expect(registrations.events["eleventy.before"]).toBeDefined();
+      expect(registrations.tags.cachedBlock).toBeDefined();
+    });
+
+    test("tag factory creates valid tag when called", () => {
+      const registrations = { tags: {} };
+      const config = {
+        on: () => {},
+        addLiquidTag: (name, factory) => {
+          registrations.tags[name] = factory;
+        },
+      };
+
+      configureCachedBlock(config);
+      const tag = registrations.tags.cachedBlock(createMockEngine());
+
+      expect(typeof tag.parse).toBe("function");
+      expect(typeof tag.render).toBe("function");
     });
   });
 });

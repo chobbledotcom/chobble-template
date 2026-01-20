@@ -115,6 +115,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/utils/object-entries.test.js",
   "test/unit/utils/strings.test.js",
   "test/unit/transforms/images.test.js",
+  "test/unit/eleventy/cached-block.test.js",
 ]);
 
 // ============================================
@@ -204,6 +205,8 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   "src/_lib/config/quote-fields-helpers.js:buildSections",
 
   // Eleventy plugin helpers - internal functions tested directly
+  "src/_lib/eleventy/cached-block.js:resetCache",
+  "src/_lib/eleventy/cached-block.js:createCachedBlockTag",
   "src/_lib/eleventy/opening-times.js:renderOpeningTimes",
   "src/_lib/eleventy/pdf.js:buildMenuPdfData",
   "src/_lib/eleventy/pdf.js:generateMenuPdf",

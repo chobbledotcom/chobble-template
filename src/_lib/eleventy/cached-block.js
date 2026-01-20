@@ -15,7 +15,6 @@
  * Cache lifetime: Single build (reset via eleventy.before hook)
  */
 
-// Module-level cache, reset per build
 let blockCache = null;
 
 const resetCache = () => {
@@ -38,11 +37,9 @@ const resetCache = () => {
  */
 const createCachedBlockTag = (liquidEngine) => ({
   parse(tagToken, remainTokens) {
-    // Parse the cache key expression from tag arguments
     this.keyExpression = tagToken.args;
-
-    // Collect tokens until we hit endcachedBlock
     this.tokens = [];
+
     const stream = liquidEngine.parser
       .parseStream(remainTokens)
       .on("token", (token) => {
@@ -61,23 +58,17 @@ const createCachedBlockTag = (liquidEngine) => ({
   *render(ctx, emitter) {
     if (!blockCache) blockCache = new Map();
 
-    // Evaluate the cache key expression
     const cacheKey = yield liquidEngine.evalValue(this.keyExpression, ctx);
 
-    // Check cache first - if hit, output cached content and skip rendering
     if (blockCache.has(cacheKey)) {
       emitter.write(blockCache.get(cacheKey));
       return;
     }
 
-    // Parse and render the block content to a string (no emitter = returns string)
     const templates = liquidEngine.parser.parseTokens(this.tokens);
     const content = yield liquidEngine.renderer.renderTemplates(templates, ctx);
 
-    // Cache the rendered content
     blockCache.set(cacheKey, content);
-
-    // Output the content
     emitter.write(content);
   },
 });
@@ -94,5 +85,4 @@ export const configureCachedBlock = (eleventyConfig) => {
   );
 };
 
-// Export for testing
 export { resetCache, createCachedBlockTag };
