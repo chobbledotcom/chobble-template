@@ -61,6 +61,32 @@ describe("dom-builder", () => {
     expect(html).toContain('alt="Test"');
   });
 
+  test("Handles void elements without closing tag", async () => {
+    const img = await createHtml("img", { src: "photo.jpg" });
+    const br = await createHtml("br");
+    const input = await createHtml("input", { type: "text" });
+
+    expect(img).toBe('<img src="photo.jpg">');
+    expect(br).toBe("<br>");
+    expect(input).toBe('<input type="text">');
+  });
+
+  test("Escapes special characters in attribute values", async () => {
+    const html = await createHtml("div", {
+      "data-value": 'test "quoted" & <special>',
+    });
+
+    expect(html).toBe(
+      '<div data-value="test &quot;quoted&quot; &amp; &lt;special&gt;"></div>',
+    );
+  });
+
+  test("Handles empty string children", async () => {
+    const html = await createHtml("span", {}, "");
+
+    expect(html).toBe("<span></span>");
+  });
+
   // ============================================
   // elementToHtml Tests
   // ============================================

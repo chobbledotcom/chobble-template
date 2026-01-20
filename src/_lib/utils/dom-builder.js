@@ -5,6 +5,68 @@ import { loadDOM } from "#utils/lazy-dom.js";
 /** @typedef {import("#lib/types").ElementChildren} ElementChildren */
 
 /**
+ * HTML5 void elements that cannot have children and are self-closing
+ */
+const VOID_ELEMENTS = new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
+
+/**
+ * Escape a string for use in HTML attribute values
+ * @param {string} value - The value to escape
+ * @returns {string} The escaped value
+ */
+const escapeAttrValue = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+/**
+ * Format attributes object into HTML attribute string
+ * @param {ElementAttributes} attributes - Attributes to format
+ * @returns {string} Formatted attribute string (with leading space if non-empty)
+ */
+const formatAttributes = (attributes) => {
+  const parts = [];
+  for (const [key, value] of Object.entries(attributes)) {
+    if (value !== null && value !== undefined) {
+      parts.push(`${key}="${escapeAttrValue(value)}"`);
+    }
+  }
+  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
+};
+
+/**
+ * Create HTML string using fast string concatenation (no DOM)
+ * @param {string} tagName - The tag name
+ * @param {ElementAttributes} attributes - Key-value pairs of attributes
+ * @param {string | null} children - Inner HTML content (must be string or null)
+ * @returns {string} The HTML string
+ */
+const createHtmlFast = (tagName, attributes, children) => {
+  const attrs = formatAttributes(attributes);
+  if (VOID_ELEMENTS.has(tagName)) {
+    return `<${tagName}${attrs}>`;
+  }
+  return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
+};
+
+/**
  * Get shared DOM document instance for building elements
  * @returns {Promise<Document>} Shared document instance
  */
@@ -73,12 +135,19 @@ const elementToHtml = (element) => {
 
 /**
  * Create an element and return its HTML string
+ * Uses fast string concatenation when children is a string or null,
+ * falls back to DOM manipulation for complex cases.
  * @param {string} tagName - The tag name
  * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
  * @param {ElementChildren} [children=null] - Inner content or child elements
  * @returns {Promise<string>} The HTML string
  */
 const createHtml = async (tagName, attributes = {}, children = null) => {
+  // Fast path: use string concatenation for simple cases (string or null children)
+  if (children === null || typeof children === "string") {
+    return createHtmlFast(tagName, attributes, /** @type {string | null} */ (children));
+  }
+  // Fallback to DOM for complex cases (future Element children support)
   return elementToHtml(await buildElement(tagName, attributes, children));
 };
 
