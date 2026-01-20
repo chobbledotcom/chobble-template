@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
+  applyAttributes,
   createHtml,
   elementToHtml,
   getSharedDocument,
@@ -59,6 +60,57 @@ describe("dom-builder", () => {
 
     expect(html).toContain('src="test.png"');
     expect(html).toContain('alt="Test"');
+  });
+
+  test("Handles void elements without closing tag", async () => {
+    const img = await createHtml("img", { src: "photo.jpg" });
+    const br = await createHtml("br");
+    const input = await createHtml("input", { type: "text" });
+
+    expect(img).toBe('<img src="photo.jpg">');
+    expect(br).toBe("<br>");
+    expect(input).toBe('<input type="text">');
+  });
+
+  test("Escapes special characters in attribute values", async () => {
+    const html = await createHtml("div", {
+      "data-value": 'test "quoted" & <special>',
+    });
+
+    expect(html).toBe(
+      '<div data-value="test &quot;quoted&quot; &amp; &lt;special&gt;"></div>',
+    );
+  });
+
+  test("Handles empty string children", async () => {
+    const html = await createHtml("span", {}, "");
+
+    expect(html).toBe("<span></span>");
+  });
+
+  // ============================================
+  // applyAttributes Tests
+  // ============================================
+
+  test("Applies attributes to element", async () => {
+    const doc = await getSharedDocument();
+    const element = doc.createElement("div");
+
+    applyAttributes(element, { class: "test", id: "main" });
+
+    expect(element.getAttribute("class")).toBe("test");
+    expect(element.getAttribute("id")).toBe("main");
+  });
+
+  test("Filters null and undefined when applying attributes", async () => {
+    const doc = await getSharedDocument();
+    const element = doc.createElement("div");
+
+    applyAttributes(element, { class: "valid", id: null, "data-x": undefined });
+
+    expect(element.getAttribute("class")).toBe("valid");
+    expect(element.hasAttribute("id")).toBe(false);
+    expect(element.hasAttribute("data-x")).toBe(false);
   });
 
   // ============================================
