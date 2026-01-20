@@ -131,6 +131,7 @@ const omit = (keys) => (obj) =>
   Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
 
 export {
+  filterObject,
   mapEntries,
   mapObject,
   mapBoth,

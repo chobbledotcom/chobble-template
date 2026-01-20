@@ -1,4 +1,5 @@
 import { memoize } from "#toolkit/fp/memoize.js";
+import { filterObject, mapEntries } from "#toolkit/fp/object.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */
@@ -36,18 +37,18 @@ const escapeAttrValue = (value) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
+/** Filter out null and undefined attribute values */
+const filterDefinedAttrs = filterObject((_k, v) => v != null);
+
 /**
  * Format attributes object into HTML attribute string
  * @param {ElementAttributes} attributes - Attributes to format
  * @returns {string} Formatted attribute string (with leading space if non-empty)
  */
 const formatAttributes = (attributes) => {
-  const parts = [];
-  for (const [key, value] of Object.entries(attributes)) {
-    if (value !== null && value !== undefined) {
-      parts.push(`${key}="${escapeAttrValue(value)}"`);
-    }
-  }
+  const parts = mapEntries(
+    (key, value) => `${key}="${escapeAttrValue(value)}"`,
+  )(filterDefinedAttrs(attributes));
   return parts.length > 0 ? ` ${parts.join(" ")}` : "";
 };
 
@@ -82,10 +83,8 @@ const getSharedDocument = memoize(async () => {
  * @returns {void}
  */
 const applyAttributes = (element, attributes) => {
-  for (const [key, value] of Object.entries(attributes)) {
-    if (value !== null && value !== undefined) {
-      element.setAttribute(key, value);
-    }
+  for (const [key, value] of Object.entries(filterDefinedAttrs(attributes))) {
+    element.setAttribute(key, value);
   }
 };
 
@@ -145,7 +144,11 @@ const elementToHtml = (element) => {
 const createHtml = async (tagName, attributes = {}, children = null) => {
   // Fast path: use string concatenation for simple cases (string or null children)
   if (children === null || typeof children === "string") {
-    return createHtmlFast(tagName, attributes, /** @type {string | null} */ (children));
+    return createHtmlFast(
+      tagName,
+      attributes,
+      /** @type {string | null} */ (children),
+    );
   }
   // Fallback to DOM for complex cases (future Element children support)
   return elementToHtml(await buildElement(tagName, attributes, children));
