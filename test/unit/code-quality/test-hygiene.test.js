@@ -470,7 +470,7 @@ describe("test-hygiene", () => {
 
     // Find allowlisted functions that are defined but never called/referenced
     // Skip some special cases that might be used in non-obvious ways
-    const skipUsageCheck = new Set([
+    const skipUsageCheck = frozenSet([
       // Exported from test-utils.js but may only be imported elsewhere
       "rootDir",
       "srcDir",
