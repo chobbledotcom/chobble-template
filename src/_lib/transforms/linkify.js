@@ -16,6 +16,34 @@ const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.[\w-]+/g;
 /** Tags to skip when processing text nodes */
 const SKIP_TAGS = ["a", "script", "style", "code", "pre"];
 
+/** Block-level elements - stop ancestor search when we hit one */
+const BLOCK_TAGS = [
+  "p",
+  "div",
+  "section",
+  "article",
+  "aside",
+  "main",
+  "header",
+  "footer",
+  "nav",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "li",
+  "dd",
+  "dt",
+  "blockquote",
+  "figure",
+  "td",
+  "th",
+  "form",
+  "body",
+];
+
 /** @type {(value: string) => TextPart} */
 const textPart = (value) => ({ type: "text", value });
 /** @type {(value: string) => TextPart} */
@@ -57,15 +85,17 @@ const parseTextByPattern = (text, pattern, partFactory) => {
 };
 
 /**
- * Check if any ancestor element is in SKIP_TAGS
+ * Check if any ancestor element is in SKIP_TAGS (stops at block-level elements)
  * @param {Element | null} element
  * @returns {boolean}
  */
-const hasSkipAncestor = (element) =>
-  element
-    ? SKIP_TAGS.includes(element.tagName.toLowerCase()) ||
-      hasSkipAncestor(element.parentElement)
-    : false;
+const hasSkipAncestor = (element) => {
+  if (!element) return false;
+  const tag = element.tagName.toLowerCase();
+  if (SKIP_TAGS.includes(tag)) return true;
+  if (BLOCK_TAGS.includes(tag)) return false;
+  return hasSkipAncestor(element.parentElement);
+};
 
 /**
  * Check if a text node should be processed
@@ -260,4 +290,5 @@ export {
   URL_PATTERN,
   EMAIL_PATTERN,
   SKIP_TAGS,
+  BLOCK_TAGS,
 };
