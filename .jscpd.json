@@ -13,7 +13,8 @@
 		"**/browser-utils.js",
 		"**/lighthouse.js",
 		"**/screenshot.js",
-		"**/cli-utils.js"
+		"**/cli-utils.js",
+		"**/packages/**/index.js"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
 	"absolute": false,
