@@ -51,7 +51,6 @@ export {
 } from "./memoize.js";
 // Object utilities
 export {
-  everyEntry,
   fromPairs,
   mapBoth,
   mapEntries,

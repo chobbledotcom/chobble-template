@@ -20,17 +20,6 @@ const mapEntries = (fn) => (obj) =>
   Object.entries(obj).map(([k, v]) => fn(k, v));
 
 /**
- * Curried every check over entries -> returns boolean
- * @template V
- * @param {(key: string, value: V) => boolean} predicate - Predicate function
- * @returns {(obj: Record<string, V>) => boolean} Function that tests all entries
- * @example
- * everyEntry((k, v) => v > 0)({ a: 1, b: 2 }) // true
- */
-const everyEntry = (predicate) => (obj) =>
-  Object.entries(obj).every(([k, v]) => predicate(k, v));
-
-/**
  * Curried object transformation -> returns new object
  * Callback must return [newKey, newValue] tuple
  * @template V
@@ -143,7 +132,6 @@ const omit = (keys) => (obj) =>
 
 export {
   mapEntries,
-  everyEntry,
   mapObject,
   mapBoth,
   pickTruthy,
