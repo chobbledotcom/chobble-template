@@ -13,36 +13,42 @@ const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
 /** Matches email addresses: chars@charswithatleastonedot */
 const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.[\w-]+/g;
 
-/** Tags to skip when processing text nodes */
-const SKIP_TAGS = ["a", "script", "style", "code", "pre"];
+/** Tags to skip when processing text nodes (object for O(1) lookup) */
+const SKIP_TAGS = {
+  a: true,
+  script: true,
+  style: true,
+  code: true,
+  pre: true,
+};
 
-/** Block-level elements - stop ancestor search when we hit one */
-const BLOCK_TAGS = [
-  "p",
-  "div",
-  "section",
-  "article",
-  "aside",
-  "main",
-  "header",
-  "footer",
-  "nav",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "li",
-  "dd",
-  "dt",
-  "blockquote",
-  "figure",
-  "td",
-  "th",
-  "form",
-  "body",
-];
+/** Block-level elements - stop ancestor search when we hit one (object for O(1) lookup) */
+const BLOCK_TAGS = {
+  p: true,
+  div: true,
+  section: true,
+  article: true,
+  aside: true,
+  main: true,
+  header: true,
+  footer: true,
+  nav: true,
+  h1: true,
+  h2: true,
+  h3: true,
+  h4: true,
+  h5: true,
+  h6: true,
+  li: true,
+  dd: true,
+  dt: true,
+  blockquote: true,
+  figure: true,
+  td: true,
+  th: true,
+  form: true,
+  body: true,
+};
 
 /** @type {(value: string) => TextPart} */
 const textPart = (value) => ({ type: "text", value });
@@ -92,8 +98,8 @@ const parseTextByPattern = (text, pattern, partFactory) => {
 const hasSkipAncestor = (element) => {
   if (!element) return false;
   const tag = element.tagName.toLowerCase();
-  if (SKIP_TAGS.includes(tag)) return true;
-  if (BLOCK_TAGS.includes(tag)) return false;
+  if (SKIP_TAGS[tag]) return true;
+  if (BLOCK_TAGS[tag]) return false;
   return hasSkipAncestor(element.parentElement);
 };
 
