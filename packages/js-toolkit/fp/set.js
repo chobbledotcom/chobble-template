@@ -21,18 +21,34 @@ const blockedMethod = (methodName) => () => {
 };
 
 /**
- * Proxy handler for frozen sets
- * @type {ProxyHandler<Set<unknown>>}
+ * Create a proxy handler with cached bound methods for performance
+ * @param {Set<unknown>} target - The underlying Set
+ * @returns {ProxyHandler<Set<unknown>>} Proxy handler with method caching
  */
-const frozenSetHandler = {
-  get(target, prop) {
-    if (MUTATION_METHODS.has(prop)) {
-      return blockedMethod(prop);
-    }
-    const value = target[prop];
-    // Bind methods to the target so they work correctly
-    return typeof value === "function" ? value.bind(target) : value;
-  },
+const createFrozenSetHandler = (target) => {
+  const methodCache = new Map();
+
+  return {
+    get(_, prop) {
+      if (MUTATION_METHODS.has(prop)) {
+        return blockedMethod(prop);
+      }
+
+      // Check cache first
+      const cached = methodCache.get(prop);
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      const value = target[prop];
+      if (typeof value === "function") {
+        const bound = value.bind(target);
+        methodCache.set(prop, bound);
+        return bound;
+      }
+      return value;
+    },
+  };
 };
 
 /**
@@ -53,7 +69,10 @@ const frozenSetHandler = {
  * VALID_TYPES.add('text')   // throws TypeError
  * VALID_TYPES instanceof Set  // true
  */
-const frozenSet = (values) => new Proxy(new Set(values), frozenSetHandler);
+const frozenSet = (values) => {
+  const set = new Set(values);
+  return new Proxy(set, createFrozenSetHandler(set));
+};
 
 /**
  * Create a frozen Set from any iterable
@@ -69,8 +88,10 @@ const frozenSet = (values) => new Proxy(new Set(values), frozenSetHandler);
  * frozenSetFrom(existingSet)
  * frozenSetFrom(generator())
  */
-const frozenSetFrom = (iterable) =>
-  new Proxy(new Set(iterable), frozenSetHandler);
+const frozenSetFrom = (iterable) => {
+  const set = new Set(iterable);
+  return new Proxy(set, createFrozenSetHandler(set));
+};
 
 /**
  * Create a membership predicate using a Set for O(1) lookups
