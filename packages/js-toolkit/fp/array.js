@@ -166,6 +166,34 @@ const filterMap = (predicate, transform) => (arr) =>
   arr.flatMap((item) => (predicate(item) ? [transform(item)] : []));
 
 /**
+ * Map then filter: transform items, then remove falsy results (curried)
+ *
+ * The inverse of filterMap: maps first, then filters out null/undefined/false.
+ * Perfect for transforms that may return null to indicate "skip this item".
+ *
+ * @template T
+ * @template R
+ * @param {(item: T) => R | null | undefined} transform - Transform that may return null/undefined to skip
+ * @returns {(arr: T[]) => R[]} Function that maps and filters array
+ *
+ * @example
+ * // Parse numbers, skip invalid
+ * mapFilter(s => parseInt(s) || null)(['1', 'bad', '3'])  // [1, 3]
+ *
+ * @example
+ * // Build options, skip invalid combinations
+ * mapFilter(value => buildOption(value))(values)  // only valid options
+ *
+ * @example
+ * // Use with pipe
+ * pipe(
+ *   mapFilter(x => x > 0 ? x * 2 : null),
+ *   sort((a, b) => a - b)
+ * )(numbers)
+ */
+const mapFilter = (transform) => (arr) => arr.map(transform).filter(Boolean);
+
+/**
  * Create a picker function for the specified keys (curried form)
  *
  * Returns a function that extracts only the specified keys from an object.
@@ -367,6 +395,7 @@ export {
   join,
   listSeparator,
   map,
+  mapFilter,
   memberOf,
   notMemberOf,
   pick,
