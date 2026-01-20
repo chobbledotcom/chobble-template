@@ -75,6 +75,7 @@ const ALLOWED_PROCESS_CWD = new Set([
 const ALLOWED_MUTABLE_CONST = new Set([
   // Maps - used as caches/indexes being populated via set
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
+  "packages/js-toolkit/fp/set.js:32", // Per-instance method cache for frozenSet proxy
 
   // Test utilities - entire files allowed for imperative test patterns
   "test/test-utils.js:154", // createExtractor accumulates results in a Set
@@ -116,6 +117,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/utils/strings.test.js",
   "test/unit/transforms/images.test.js",
   "test/unit/eleventy/cached-block.test.js",
+  "test/unit/toolkit/set.test.js",
 ]);
 
 // ============================================
@@ -196,6 +198,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = new Set([
   // FP toolkit utilities - used by code-quality/scanner.js via relative import
   // (relative imports aren't detected by our analysis)
   "packages/js-toolkit/fp/object.js:omit",
+  "packages/js-toolkit/fp/set.js:frozenSetFrom", // Available for iterable sources
+  "packages/js-toolkit/fp/set.js:setHas", // Curried predicate for filter/some/every
+  "packages/js-toolkit/fp/set.js:setLacks", // Negated predicate for exclusion
 
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:createScssCompiler",

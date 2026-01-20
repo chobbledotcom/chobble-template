@@ -74,11 +74,11 @@ describe("linkify transforms", () => {
 
   describe("SKIP_TAGS constant", () => {
     test("includes expected tags", () => {
-      expect(SKIP_TAGS.a).toBe(true);
-      expect(SKIP_TAGS.script).toBe(true);
-      expect(SKIP_TAGS.style).toBe(true);
-      expect(SKIP_TAGS.code).toBe(true);
-      expect(SKIP_TAGS.pre).toBe(true);
+      expect(SKIP_TAGS.has("a")).toBe(true);
+      expect(SKIP_TAGS.has("script")).toBe(true);
+      expect(SKIP_TAGS.has("style")).toBe(true);
+      expect(SKIP_TAGS.has("code")).toBe(true);
+      expect(SKIP_TAGS.has("pre")).toBe(true);
     });
   });
 

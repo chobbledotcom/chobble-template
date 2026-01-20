@@ -10,6 +10,7 @@
     "./fp/sorting": "./fp/sorting.js",
     "./fp/grouping": "./fp/grouping.js",
     "./fp/memoize": "./fp/memoize.js",
+    "./fp/set": "./fp/set.js",
     "./test-utils": "./test-utils/index.js",
     "./test-utils/resource": "./test-utils/resource.js",
     "./test-utils/assertions": "./test-utils/assertions.js",
