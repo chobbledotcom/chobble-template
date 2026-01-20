@@ -117,6 +117,7 @@ const ALLOWED_MUTABLE_CONST = new Set([
   "test/unit/utils/strings.test.js",
   "test/unit/transforms/images.test.js",
   "test/unit/eleventy/cached-block.test.js",
+  "test/unit/toolkit/set.test.js",
 ]);
 
 // ============================================
