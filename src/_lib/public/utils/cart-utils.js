@@ -44,7 +44,8 @@ export function getCheckoutItems() {
 
 // Update a single cart icon's visibility based on count
 const updateSingleCartIcon = (icon, count) => {
-  icon.style.display = count > 0 ? "flex" : "none";
+  const alwaysShow = icon.classList.contains("always-show");
+  icon.style.display = count > 0 || alwaysShow ? "flex" : "none";
   const badge = icon.querySelector(".cart-count");
   if (!badge) return;
   badge.textContent = count;
