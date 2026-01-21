@@ -31,18 +31,23 @@ const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
 /**
+ * Get properties from collection API (typed wrapper).
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {PropertyCollectionItem[]}
+ */
+const getProperties = (collectionApi) =>
+  collectionApi.getFilteredByTag("properties");
+
+/**
  * Configure properties collection and filters for Eleventy.
  *
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureProperties = (eleventyConfig) => {
-  eleventyConfig.addCollection("properties", (collectionApi) => {
-    const properties =
-      /** @type {PropertyCollectionItem[]} */
-      (/** @type {unknown} */ (collectionApi.getFilteredByTag("properties")));
+  eleventyConfig.addCollection("properties", (collectionApi) =>
     // @ts-expect-error - addGallery works on any item with gallery data
-    return properties.map(addGallery);
-  });
+    getProperties(collectionApi).map(addGallery),
+  );
   eleventyConfig.addCollection(
     "propertiesWithReviewsPage",
     propertiesWithReviewsPage,

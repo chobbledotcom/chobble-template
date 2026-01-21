@@ -22,14 +22,28 @@ const blockedMethod = (methodName) => () => {
 };
 
 /**
+ * Create a new method cache map.
+ * @returns {Map<string | symbol, unknown>}
+ */
+const createMethodCache = () => new Map();
+
+/**
+ * Get a Set property by key.
+ * @template T
+ * @param {Set<T>} target
+ * @param {string | symbol} prop
+ * @returns {unknown}
+ */
+const getSetProperty = (target, prop) => target[prop];
+
+/**
  * Create a proxy handler with cached bound methods for performance
  * @template T
  * @param {Set<T>} target - The underlying Set
  * @returns {ProxyHandler<Set<T>>} Proxy handler with method caching
  */
 const createFrozenSetHandler = (target) => {
-  /** @type {Map<string | symbol, unknown>} */
-  const methodCache = new Map();
+  const methodCache = createMethodCache();
 
   return {
     get(_, prop) {
@@ -44,7 +58,7 @@ const createFrozenSetHandler = (target) => {
         return cached;
       }
 
-      const value = target[/** @type {keyof Set<T>} */ (prop)];
+      const value = getSetProperty(target, prop);
       if (typeof value === "function") {
         const bound = value.bind(target);
         methodCache.set(prop, bound);
@@ -54,6 +68,15 @@ const createFrozenSetHandler = (target) => {
     },
   };
 };
+
+/**
+ * Create a frozen proxy wrapping a Set.
+ * @template T
+ * @param {Set<T>} set
+ * @returns {ReadonlySet<T>}
+ */
+const createFrozenSetProxy = (set) =>
+  new Proxy(set, createFrozenSetHandler(set));
 
 /**
  * Create a frozen Set from any iterable
@@ -69,12 +92,7 @@ const createFrozenSetHandler = (target) => {
  * frozenSetFrom(existingSet)
  * frozenSetFrom(generator())
  */
-const frozenSetFrom = (iterable) => {
-  const set = new Set(iterable);
-  return /** @type {ReadonlySet<T>} */ (
-    new Proxy(set, createFrozenSetHandler(set))
-  );
-};
+const frozenSetFrom = (iterable) => createFrozenSetProxy(new Set(iterable));
 
 /**
  * Create a frozen (immutable) Set from values

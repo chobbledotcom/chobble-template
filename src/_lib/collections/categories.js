@@ -5,6 +5,10 @@
  */
 
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
+import {
+  getCategoriesFromApi,
+  getProductsFromApi,
+} from "#utils/collection-utils.js";
 
 /** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
@@ -20,39 +24,56 @@ import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
  */
 
 /**
+ * Build initial mapping from categories to [value, order] tuples.
+ * @param {CategoryCollectionItem[]} categories
+ * @param {"header_image" | "thumbnail"} propertyName
+ * @returns {CategoryPropertyMap}
+ */
+const buildInitialMapping = (categories, propertyName) =>
+  Object.fromEntries(
+    categories.map((c) => [c.fileSlug, [c.data[propertyName], -1]]),
+  );
+
+/**
+ * Merge a property entry into mapping, preferring higher order values.
+ * @param {CategoryPropertyMap} mapping
+ * @param {PropertyMapEntry} entry
+ * @returns {CategoryPropertyMap}
+ */
+const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
+  const entry = mapping[categorySlug];
+  return !entry || entry[1] < order
+    ? { ...mapping, [categorySlug]: [value, order] }
+    : mapping;
+};
+
+/**
+ * Extract property entries from a product for all its categories.
+ * @param {"header_image" | "thumbnail"} propertyName
+ * @returns {(product: ProductCollectionItem) => PropertyMapEntry[]}
+ */
+const extractProductPropertyEntries = (propertyName) => (product) => {
+  const value = product.data[propertyName];
+  if (!value) return [];
+  return product.data.categories.map((slug) => ({
+    categorySlug: slug,
+    value,
+    order: product.data.order ?? 0,
+  }));
+};
+
+/**
  * Build a map of category slugs to property values, preferring highest order.
  * @param {CategoryCollectionItem[]} categories
  * @param {ProductCollectionItem[]} products
  * @param {"header_image" | "thumbnail"} propertyName
  * @returns {CategoryPropertyMap}
  */
-const buildCategoryPropertyMap = (categories, products, propertyName) => {
-  /** @type {CategoryPropertyMap} */
-  const initialMapping = Object.fromEntries(
-    categories.map((c) => [c.fileSlug, [c.data[propertyName], -1]]),
-  );
-
-  /** @type {(m: CategoryPropertyMap, e: PropertyMapEntry) => CategoryPropertyMap} */
-  const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
-    const entry = mapping[categorySlug];
-    return !entry || entry[1] < order
-      ? { ...mapping, [categorySlug]: [value, order] }
-      : mapping;
-  };
-
-  return pipe(
-    flatMap((/** @type {ProductCollectionItem} */ product) => {
-      const value = product.data[propertyName];
-      if (!value) return [];
-      return product.data.categories.map((slug) => ({
-        categorySlug: slug,
-        value,
-        order: product.data.order ?? 0,
-      }));
-    }),
-    reduce(mergeByHighestOrder, initialMapping),
+const buildCategoryPropertyMap = (categories, products, propertyName) =>
+  pipe(
+    flatMap(extractProductPropertyEntries(propertyName)),
+    reduce(mergeByHighestOrder, buildInitialMapping(categories, propertyName)),
   )(products);
-};
 
 /**
  * Create the categories collection with inherited images from products.
@@ -62,13 +83,9 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
  * @returns {CategoryCollectionItem[]}
  */
 const createCategoriesCollection = (collectionApi) => {
-  const categories =
-    /** @type {CategoryCollectionItem[]} */
-    (/** @type {unknown} */ (collectionApi.getFilteredByTag("categories")));
+  const categories = getCategoriesFromApi(collectionApi);
   if (categories.length === 0) return [];
-  const products =
-    /** @type {ProductCollectionItem[]} */
-    (/** @type {unknown} */ (collectionApi.getFilteredByTag("products")));
+  const products = getProductsFromApi(collectionApi);
   const images = buildCategoryPropertyMap(categories, products, "header_image");
   const thumbnails = buildCategoryPropertyMap(
     categories,

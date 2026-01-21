@@ -55,6 +55,12 @@ const emailPart = (value) => ({ type: "email", value });
 const phonePart = (value) => ({ type: "phone", value });
 
 /**
+ * Create initial accumulator for parseTextByPattern.
+ * @returns {{ parts: TextPart[], lastIndex: number }}
+ */
+const createParseAccumulator = () => ({ parts: [], lastIndex: 0 });
+
+/**
  * Parse text into parts based on a pattern
  * @param {string} text
  * @param {RegExp} pattern
@@ -77,7 +83,7 @@ const parseTextByPattern = (text, pattern, partFactory) => {
       ],
       lastIndex: match.index + match[0].length,
     }),
-    { parts: /** @type {TextPart[]} */ ([]), lastIndex: 0 },
+    createParseAccumulator(),
   );
 
   return lastIndex < text.length
@@ -113,6 +119,21 @@ const shouldProcessNode = (node, pattern) => {
 };
 
 /**
+ * Check if a node should be accepted by the tree walker.
+ * @param {RegExp} pattern
+ * @returns {(node: Text) => number}
+ */
+const createNodeFilter = (pattern) => (node) =>
+  shouldProcessNode(node, pattern) ? 1 : 2;
+
+/**
+ * Get current node from walker as Text.
+ * @param {TreeWalker} walker
+ * @returns {Text}
+ */
+const getCurrentTextNode = (walker) => walker.currentNode;
+
+/**
  * Collect text nodes matching a pattern using recursive walker
  * @param {*} document
  * @param {RegExp} pattern
@@ -120,13 +141,10 @@ const shouldProcessNode = (node, pattern) => {
  */
 const collectTextNodes = (document, pattern) => {
   const walker = document.createTreeWalker(document.body, 4, {
-    acceptNode: (node) =>
-      shouldProcessNode(/** @type {Text} */ (node), pattern) ? 1 : 2,
+    acceptNode: createNodeFilter(pattern),
   });
   const walkNodes = (acc) =>
-    walker.nextNode()
-      ? walkNodes([...acc, /** @type {Text} */ (walker.currentNode)])
-      : acc;
+    walker.nextNode() ? walkNodes([...acc, getCurrentTextNode(walker)]) : acc;
   return walkNodes([]);
 };
 

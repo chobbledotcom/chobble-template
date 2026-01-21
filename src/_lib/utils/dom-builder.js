@@ -100,6 +100,20 @@ const createHtml = async (tagName, attributes = {}, children = null) => {
 };
 
 /**
+ * Create a template element from a document.
+ * @param {Document} doc
+ * @returns {HTMLTemplateElement}
+ */
+const createTemplateElement = (doc) => doc.createElement("template");
+
+/**
+ * Get the first child of template content as Element.
+ * @param {HTMLTemplateElement} template
+ * @returns {Element | null}
+ */
+const getTemplateContent = (template) => template.content.firstChild;
+
+/**
  * Parse an HTML string into a DOM element
  * @param {string} html - The HTML string to parse
  * @param {Document | null} [document=null] - Optional existing document to use
@@ -107,12 +121,9 @@ const createHtml = async (tagName, attributes = {}, children = null) => {
  */
 const parseHtml = async (html, document = null) => {
   const doc = document || (await getSharedDocument());
-  /** @type {HTMLTemplateElement} */
-  const template = /** @type {HTMLTemplateElement} */ (
-    doc.createElement("template")
-  );
+  const template = createTemplateElement(doc);
   template.innerHTML = html;
-  return /** @type {Element | null} */ (template.content.firstChild);
+  return getTemplateContent(template);
 };
 
 export {
