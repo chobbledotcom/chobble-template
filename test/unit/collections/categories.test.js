@@ -72,6 +72,49 @@ describe("categories", () => {
       configureCategories(mockConfig);
 
       expect(typeof mockConfig.collections.categories).toBe("function");
+      expect(typeof mockConfig.filters.getFeaturedCategories).toBe("function");
+    });
+  });
+
+  describe("getFeaturedCategories filter", () => {
+    test("returns only featured categories", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureCategories(mockConfig);
+
+      const testCategories = categories([
+        ["widgets", undefined, { title: "Widgets", featured: true }],
+        ["gadgets", undefined, { title: "Gadgets" }],
+        ["tools", undefined, { title: "Tools", featured: true }],
+      ]);
+
+      const result = mockConfig.filters.getFeaturedCategories(testCategories);
+
+      expect(result.length).toBe(2);
+      expect(result[0].data.title).toBe("Widgets");
+      expect(result[1].data.title).toBe("Tools");
+    });
+
+    test("returns empty array when no categories are featured", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureCategories(mockConfig);
+
+      const testCategories = categories([
+        ["widgets", undefined, { title: "Widgets" }],
+        ["gadgets", undefined, { title: "Gadgets" }],
+      ]);
+
+      const result = mockConfig.filters.getFeaturedCategories(testCategories);
+
+      expect(result).toEqual([]);
+    });
+
+    test("returns empty array for empty input", () => {
+      const mockConfig = createMockEleventyConfig();
+      configureCategories(mockConfig);
+
+      const result = mockConfig.filters.getFeaturedCategories([]);
+
+      expect(result).toEqual([]);
     });
   });
 

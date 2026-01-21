@@ -140,6 +140,42 @@ describe("properties", () => {
       "function",
     );
     expect(typeof mockConfig.filters.getPropertiesByLocation).toBe("function");
+    expect(typeof mockConfig.filters.getFeaturedProperties).toBe("function");
+  });
+
+  describe("getFeaturedProperties filter", () => {
+    test("returns only featured properties", () => {
+      const { mockConfig } = createPropertiesMock();
+      const testProperties = items([
+        ["Featured Property", { featured: true }],
+        ["Normal Property", {}],
+        ["Another Featured", { featured: true }],
+      ]);
+
+      const result = mockConfig.filters.getFeaturedProperties(testProperties);
+
+      expectResultTitles(result, ["Featured Property", "Another Featured"]);
+    });
+
+    test("returns empty array when no properties are featured", () => {
+      const { mockConfig } = createPropertiesMock();
+      const testProperties = items([
+        ["Property 1", {}],
+        ["Property 2", {}],
+      ]);
+
+      const result = mockConfig.filters.getFeaturedProperties(testProperties);
+
+      expect(result).toEqual([]);
+    });
+
+    test("returns empty array for empty input", () => {
+      const { mockConfig } = createPropertiesMock();
+
+      const result = mockConfig.filters.getFeaturedProperties([]);
+
+      expect(result).toEqual([]);
+    });
   });
 
   // Helper to create property review test fixtures

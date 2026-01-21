@@ -72,6 +72,42 @@ describe("products", () => {
         "function",
       );
       expect(typeof mockConfig.filters.getProductsByEvent).toBe("function");
+      expect(typeof mockConfig.filters.getFeaturedProducts).toBe("function");
+    });
+  });
+
+  describe("getFeaturedProducts filter", () => {
+    test("returns only featured products", () => {
+      const mockConfig = setupProductsConfig();
+      const testProducts = items([
+        ["Featured Product", { featured: true }],
+        ["Normal Product", {}],
+        ["Another Featured", { featured: true }],
+      ]);
+
+      const result = mockConfig.filters.getFeaturedProducts(testProducts);
+
+      expectResultTitles(result, ["Featured Product", "Another Featured"]);
+    });
+
+    test("returns empty array when no products are featured", () => {
+      const mockConfig = setupProductsConfig();
+      const testProducts = items([
+        ["Product 1", {}],
+        ["Product 2", {}],
+      ]);
+
+      const result = mockConfig.filters.getFeaturedProducts(testProducts);
+
+      expect(result).toEqual([]);
+    });
+
+    test("returns empty array for empty input", () => {
+      const mockConfig = setupProductsConfig();
+
+      const result = mockConfig.filters.getFeaturedProducts([]);
+
+      expect(result).toEqual([]);
     });
   });
 
