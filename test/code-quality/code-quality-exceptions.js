@@ -77,7 +77,6 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Maps - used as caches/indexes being populated via set
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
-  "packages/js-toolkit/fp/set.js:32", // Per-instance method cache for frozenSet proxy
 
   // Test utilities - entire files allowed for imperative test patterns
   "test/test-utils.js:154", // createExtractor accumulates results in a Set
@@ -90,18 +89,13 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/build/pdf.test.js",
   "test/unit/build/scss.variables.test.js",
   "test/unit/code-quality/array-push.test.js",
-  "test/unit/code-quality/code-scanner.test.js",
   "test/unit/code-quality/comment-limits.test.js",
-  "test/unit/code-quality/data-exports.test.js",
-  "test/unit/code-quality/function-length.test.js",
-  "test/unit/code-quality/html-in-js.test.js",
   "test/unit/code-quality/let-usage.test.js",
   "test/unit/code-quality/method-aliasing.test.js",
   "test/unit/code-quality/naming-conventions.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
-  "test/unit/code-quality/test-hygiene.test.js",
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",

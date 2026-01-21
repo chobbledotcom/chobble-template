@@ -6,6 +6,7 @@ import {
 } from "#test/code-scanner.js";
 import { ECOMMERCE_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 import { filterMap } from "#toolkit/fp/array.js";
+import { mapObject } from "#toolkit/fp/object.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
 /**
@@ -374,11 +375,10 @@ const check = value < 10;
     const { allowed } = htmlInJsAnalysis();
 
     // Group by file for cleaner output
-    const byFile = {};
-    for (const a of allowed) {
-      if (!byFile[a.file]) byFile[a.file] = [];
-      byFile[a.file].push(a.line);
-    }
+    const grouped = Object.groupBy(allowed, (a) => a.file);
+    const byFile = mapObject((file, items) => [file, items.map((a) => a.line)])(
+      grouped,
+    );
 
     const fileCount = Object.keys(byFile).length;
     console.log(`\n  Allowlisted HTML-in-JS files: ${fileCount}`);
