@@ -132,6 +132,17 @@ const collectTextNodes = (document, pattern) => {
 };
 
 /**
+ * Format URL for display (strip protocol, www, trailing slash)
+ * @param {string} url
+ * @returns {string}
+ */
+const formatUrlDisplay = (url) =>
+  url
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/$/, "");
+
+/**
  * Create link element for a URL
  * @param {*} document
  * @param {string} url
@@ -141,10 +152,7 @@ const collectTextNodes = (document, pattern) => {
 const createUrlLink = (document, url, targetBlank) => {
   const link = document.createElement("a");
   link.href = url;
-  link.textContent = url
-    .replace(/^https?:\/\//, "")
-    .replace(/^www\./, "")
-    .replace(/\/$/, "");
+  link.textContent = formatUrlDisplay(url);
   if (targetBlank) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -282,6 +290,7 @@ export {
   linkifyUrls,
   linkifyEmails,
   linkifyPhones,
+  formatUrlDisplay,
   // Exported for testing
   parseTextByPattern,
   collectTextNodes,
