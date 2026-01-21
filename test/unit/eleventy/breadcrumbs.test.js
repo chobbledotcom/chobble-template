@@ -58,6 +58,34 @@ describe("breadcrumbsFilter", () => {
     ]);
   });
 
+  describe("index pages without navigationParent", () => {
+    const testCases = [
+      { url: "/products/", title: "Products", navParent: undefined },
+      { url: "/events/", title: "Events", navParent: undefined },
+      { url: "/products/", title: "Our Products", navParent: null },
+      { url: "/events/", title: "All Events", navParent: "" },
+    ];
+
+    for (const { url, title, navParent } of testCases) {
+      const navParentDesc =
+        navParent === undefined
+          ? "undefined"
+          : navParent === null
+            ? "null"
+            : "empty string";
+
+      test(`uses title "${title}" when navigationParent is ${navParentDesc}`, () => {
+        const mockConfig = setupFilter();
+        const crumbs = callFilter(mockConfig, { url }, title, navParent, null);
+
+        expect(crumbs).toEqual([
+          { label: "Home", url: "/" },
+          { label: title, url: null },
+        ]);
+      });
+    }
+  });
+
   test("returns Home, collection link, and item for product page", () => {
     const mockConfig = setupFilter();
     const crumbs = callFilter(
