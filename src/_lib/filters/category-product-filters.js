@@ -13,16 +13,18 @@
  * - buildCategoryFilterUIData: Generates UI data for category-scoped filter display
  */
 import { getProductsByCategory } from "#collections/products.js";
+import { enhanceWithFilterUI } from "#filters/filter-ui.js";
 import {
-  addFilterUI,
   buildDisplayLookup,
   buildFilterPageBase,
   buildFilterUIData,
   buildItemLookup,
+  expandWithSortVariants,
   generateFilterCombinations,
   generateFilterRedirects,
+  generateSortOnlyPages,
   getAllFilterAttributes,
-  getItemsWithLookup,
+  matchWithSort,
 } from "#filters/item-filters.js";
 import { groupByWithCache } from "#toolkit/fp/memoize.js";
 
@@ -32,12 +34,17 @@ import { groupByWithCache } from "#toolkit/fp/memoize.js";
  */
 const pagesByCategory = groupByWithCache((page) => [page.categorySlug]);
 
+/** Filter to base paths (without sort variants) */
+const getBasePaths = (pages) =>
+  pages.filter((p) => !p.sortKey || p.sortKey === "default");
+
 /**
  * Build category-scoped filter UI data
  * @param {Object} categoryFilterAttrs - { [categorySlug]: { attributes, displayLookup } }
  * @param {string} categorySlug - The category to build UI for
  * @param {Object|null} currentFilters - Currently active filters
  * @param {Array} filteredPages - All filtered category product pages
+ * @param {string} [currentSortKey="default"] - Current sort key
  * @returns {Object} Filter UI data for templates
  */
 const categoryFilterData = (
@@ -45,17 +52,23 @@ const categoryFilterData = (
   categorySlug,
   currentFilters,
   filteredPages,
+  currentSortKey = "default",
 ) => {
   const filterData = categoryFilterAttrs[categorySlug];
   if (!filterData) {
     return { hasFilters: false };
   }
 
-  const pagesByCategorySlug = pagesByCategory(filteredPages);
-  const categoryPages = pagesByCategorySlug[categorySlug] ?? [];
+  const categoryPages = pagesByCategory(filteredPages)[categorySlug] ?? [];
   const baseUrl = `/categories/${categorySlug}`;
 
-  return buildFilterUIData(filterData, currentFilters, categoryPages, baseUrl);
+  return buildFilterUIData(
+    filterData,
+    currentFilters,
+    getBasePaths(categoryPages),
+    baseUrl,
+    currentSortKey,
+  );
 };
 
 /**
@@ -85,8 +98,12 @@ const filteredCategoryPages = (collectionApi) =>
   mapCategoriesWithProducts(collectionApi, (categorySlug, categoryProducts) => {
     if (categoryProducts.length === 0) return [];
 
+    const baseCombinations = generateFilterCombinations(categoryProducts);
+
+    // No filter attributes = no pages (sort-only pages require filter attributes)
+    if (baseCombinations.length === 0) return [];
+
     const lookup = buildItemLookup(categoryProducts);
-    const combinations = generateFilterCombinations(categoryProducts);
     const displayLookup = buildDisplayLookup(categoryProducts);
     const filterData = {
       attributes: getAllFilterAttributes(categoryProducts),
@@ -94,21 +111,32 @@ const filteredCategoryPages = (collectionApi) =>
     };
     const baseUrl = `/categories/${categorySlug}`;
 
-    const pages = combinations.map((combo) => {
-      const matchedProducts = getItemsWithLookup(
+    // Expand with sort variants
+    const combinationsWithSort = expandWithSortVariants(baseCombinations);
+
+    // Add sort-only pages (only when we have filter attributes)
+    const sortOnlyPages = generateSortOnlyPages(categoryProducts.length);
+
+    // Combine all pages
+    const allCombinations = [...combinationsWithSort, ...sortOnlyPages];
+
+    const pages = allCombinations.map((combo) => {
+      const matchedProducts = matchWithSort(
         categoryProducts,
         combo.filters,
         lookup,
+        combo.sortKey,
       );
       return {
         categorySlug,
         categoryUrl: baseUrl,
+        sortKey: combo.sortKey,
         ...buildFilterPageBase(combo, matchedProducts, displayLookup),
         products: matchedProducts,
       };
     });
 
-    return addFilterUI(pages, filterData, baseUrl);
+    return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);
   }).flat();
 
 /**
@@ -161,7 +189,10 @@ const categoryListingUI = (collectionApi) => {
     Object.entries(filterAttrs).map(([slug, attrs]) => {
       const categoryPages = pagesByCategorySlug[slug] ?? [];
       const baseUrl = `/categories/${slug}`;
-      return [slug, buildFilterUIData(attrs, null, categoryPages, baseUrl)];
+      return [
+        slug,
+        buildFilterUIData(attrs, null, getBasePaths(categoryPages), baseUrl),
+      ];
     }),
   );
 };

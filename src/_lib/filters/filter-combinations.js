@@ -4,6 +4,7 @@
  * Functions for generating all valid filter combinations and redirects:
  * - Pre-computing filter combinations with matching item counts
  * - Generating redirect rules for invalid filter paths
+ * - Generating sort variants for each combination
  */
 
 import {
@@ -12,6 +13,8 @@ import {
   filterToPath,
   getAllFilterAttributes,
   normalizeAttrs,
+  SORT_OPTIONS,
+  toSortedPath,
 } from "#filters/filter-core.js";
 import { filterMap, flatMap, map, pipe } from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
@@ -54,6 +57,38 @@ export const generateFilterCombinations = memoize((items) => {
 
   return buildCombosFrom({}, 0);
 });
+
+/**
+ * Expand filter combinations to include sort variants.
+ * Each combination gets one page per sort option.
+ * Default sort has no suffix, others have suffixes like "price-asc".
+ *
+ * @param {FilterCombination[]} combinations - Base filter combinations
+ * @returns {Array<FilterCombination & { sortKey: string }>} Expanded combinations with sort
+ */
+export const expandWithSortVariants = (combinations) =>
+  combinations.flatMap((combo) =>
+    SORT_OPTIONS.map((sortOption) => ({
+      ...combo,
+      sortKey: sortOption.key,
+      path: toSortedPath(combo.filters, sortOption.key),
+    })),
+  );
+
+/**
+ * Generate sort-only pages (no filter attributes, just sort).
+ * These are for the base listing page with sort applied.
+ *
+ * @param {number} totalCount - Total item count
+ * @returns {Array<FilterCombination & { sortKey: string }>} Sort-only pages
+ */
+export const generateSortOnlyPages = (totalCount) =>
+  SORT_OPTIONS.filter((o) => o.key !== "default").map((sortOption) => ({
+    filters: {},
+    sortKey: sortOption.key,
+    path: sortOption.key,
+    count: totalCount,
+  }));
 
 /**
  * Generate filter redirects for invalid filter paths.
