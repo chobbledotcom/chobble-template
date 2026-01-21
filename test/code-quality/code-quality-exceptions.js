@@ -271,7 +271,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/eleventy/capture.js:39",
   "src/_lib/eleventy/html-transform.js:61",
   "src/_lib/eleventy/html-transform.js:89",
-  "src/_lib/eleventy/opening-times.js:20",
   "src/_lib/eleventy/screenshots.js:16",
 
   // src/_lib/filters - URL-based filtering
@@ -283,9 +282,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/filter-core.js:208",
   "src/_lib/filters/spec-filters.js:34",
   "src/_lib/filters/spec-filters.js:35",
-
-  // src/_lib/media - image processing
-  "src/_lib/media/image.js:211",
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",
