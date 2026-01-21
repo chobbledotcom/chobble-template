@@ -28,14 +28,6 @@ const byEventDate = compareBy((e) =>
 );
 
 /**
- * Get featured events from an events collection.
- *
- * @param {EventCollectionItem[]} events - Events array from Eleventy collection
- * @returns {EventCollectionItem[]} Filtered array of featured events
- */
-const getFeaturedEvents = (events) => events.filter((e) => e.data.featured);
-
-/**
  * Curried Map lookup: getGroup(key)(map) => value or [].
  *
  * @template K, V
@@ -77,15 +69,3 @@ export const categoriseEvents = memoize((events) => {
 
   return { upcoming, past, regular, undated };
 });
-
-/**
- * Configure events filters for Eleventy.
- *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
-const configureEvents = (eleventyConfig) => {
-  // @ts-expect-error - Filter returns array for data transformation, not string
-  eleventyConfig.addFilter("getFeaturedEvents", getFeaturedEvents);
-};
-
-export { configureEvents, getFeaturedEvents };

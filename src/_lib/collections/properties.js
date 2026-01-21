@@ -27,15 +27,6 @@ const getPropertiesByLocation = (properties, locationSlug) => {
   return (indexByLocation(properties)[locationSlug] ?? []).sort(sortItems);
 };
 
-/**
- * Get featured properties from a properties collection.
- *
- * @param {PropertyCollectionItem[]} properties - Properties array from Eleventy collection
- * @returns {PropertyCollectionItem[]} Filtered array of featured properties
- */
-const getFeaturedProperties = (properties) =>
-  properties.filter((p) => p.data.featured);
-
 const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
@@ -62,8 +53,6 @@ const configureProperties = (eleventyConfig) => {
   );
   // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
-  // @ts-expect-error - Filter returns array for data transformation, not string
-  eleventyConfig.addFilter("getFeaturedProperties", getFeaturedProperties);
 };
 
 export { configureProperties };

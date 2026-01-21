@@ -104,15 +104,6 @@ const getProductsByCategories = (products, categorySlugs) => {
 const getProductsByEvent = (products, eventSlug) =>
   (indexByEvent(products)[eventSlug] ?? []).sort(sortItems);
 
-/**
- * Get featured products from a products collection.
- *
- * @param {ProductCollectionItem[]} products - Products array from Eleventy collection
- * @returns {ProductCollectionItem[]} Filtered array of featured products
- */
-const getFeaturedProducts = (products) =>
-  products.filter((p) => p.data.featured);
-
 /** @typedef {[string, { name: string, unit_price: string | number, max_quantity: number | null }]} SkuEntry */
 
 /** Extract SKU entries from a product's options */
@@ -180,8 +171,6 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
   // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
-  // @ts-expect-error - Filter returns array, not string (used for data transformation)
-  eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 
 export { configureProducts, computeGallery, addGallery, getProductsByCategory };

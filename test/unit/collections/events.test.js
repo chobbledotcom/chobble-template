@@ -1,13 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import {
-  categoriseEvents,
-  configureEvents,
-  getFeaturedEvents,
-} from "#collections/events.js";
-import {
-  createMockEleventyConfig,
-  expectResultTitles,
-} from "#test/test-utils.js";
+import { categoriseEvents } from "#collections/events.js";
+import { expectResultTitles } from "#test/test-utils.js";
 import {
   createEvent,
   createEvents,
@@ -187,43 +180,5 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { upcoming: 1, past: 1, regular: 1, undated: 1 });
-  });
-});
-
-describe("configureEvents", () => {
-  test("registers getFeaturedEvents filter", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureEvents(mockConfig);
-
-    expect(typeof mockConfig.filters.getFeaturedEvents).toBe("function");
-  });
-});
-
-describe("getFeaturedEvents", () => {
-  test("returns only featured events", () => {
-    const events = createEvents([
-      { title: "Featured Event", featured: true },
-      { title: "Normal Event" },
-      { title: "Another Featured", featured: true },
-    ]);
-
-    const result = getFeaturedEvents(events);
-
-    expectResultTitles(result, ["Featured Event", "Another Featured"]);
-  });
-
-  test("returns empty array when no events are featured", () => {
-    const events = createEvents([{ title: "Event 1" }, { title: "Event 2" }]);
-
-    const result = getFeaturedEvents(events);
-
-    expect(result).toEqual([]);
-  });
-
-  test("returns empty array for empty input", () => {
-    const result = getFeaturedEvents([]);
-
-    expect(result).toEqual([]);
   });
 });
