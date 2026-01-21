@@ -1,7 +1,7 @@
-import { groupByWithCache } from "#toolkit/fp/memoize.js";
+import { createIndexer } from "#utils/collection-utils.js";
 
 /** Index guides by category for O(1) lookups, cached per guides array */
-const indexByGuideCategory = groupByWithCache((page) => {
+const indexByGuideCategory = createIndexer((page) => {
   const category = page.data["guide-category"];
   return category ? [category] : [];
 });
