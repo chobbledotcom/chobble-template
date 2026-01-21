@@ -142,7 +142,10 @@ describe("breadcrumbsFilter", () => {
       );
 
       expect(crumbs).toHaveLength(4);
-      expect(crumbs[2]).toEqual({ label: "Widgets", url: "/products/widgets/" });
+      expect(crumbs[2]).toEqual({
+        label: "Widgets",
+        url: "/products/widgets/",
+      });
       expect(crumbs[3]).toEqual({ label: "Premium Widgets", url: null });
     });
 
