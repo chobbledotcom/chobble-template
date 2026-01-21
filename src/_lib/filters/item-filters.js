@@ -312,16 +312,17 @@ const buildFilterDescription = (filters, displayLookup) =>
   }))(filters);
 
 /**
- * Add filterUI to each page object (mutates pages in place)
+ * Add filterUI to each page object
  * @param {Array} pages - Page objects to enhance
  * @param {Object} filterData - { attributes, displayLookup }
  * @param {string} baseUrl - Base URL for filter links
+ * @returns {Array} New pages array with filterUI added
  */
-const addFilterUI = (pages, filterData, baseUrl) => {
-  for (const page of pages) {
-    page.filterUI = buildFilterUIData(filterData, page.filters, pages, baseUrl);
-  }
-};
+const addFilterUI = (pages, filterData, baseUrl) =>
+  map((page) => ({
+    ...page,
+    filterUI: buildFilterUIData(filterData, page.filters, pages, baseUrl),
+  }))(pages);
 
 /**
  * Build base page object from a filter combination
@@ -493,8 +494,7 @@ const createFilterConfig = (options) => {
       };
     });
 
-    addFilterUI(pages, filterData, baseUrl);
-    return pages;
+    return addFilterUI(pages, filterData, baseUrl);
   };
 
   /**
