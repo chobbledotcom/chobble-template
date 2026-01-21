@@ -3,7 +3,7 @@
  */
 
 import configModule from "#data/config.js";
-import { compact } from "#toolkit/fp/array.js";
+import { compact, mapAsync } from "#toolkit/fp/array.js";
 import { indexBy, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
 
@@ -53,7 +53,7 @@ const createItemLink = (anchor) => async (item) => {
  */
 const buildLinks = async (slugs, collection, anchor) => {
   const items = compact(slugs.map((slug) => findBySlug(collection, slug)));
-  return Promise.all(items.map(createItemLink(anchor)));
+  return mapAsync(createItemLink(anchor))(items);
 };
 
 /**
