@@ -10,6 +10,7 @@
         "@11ty/eleventy-navigation": "^1.0.4",
         "@11ty/eleventy-plugin-rss": "^2.0.2",
         "@botpoison/browser": "^0.1.30",
+        "@nfrasser/simple-html-tokenizer": "^0.5.11-3",
         "@quasibit/eleventy-plugin-schema": "^1.11.1",
         "@sindresorhus/slugify": "^3.0.0",
         "chrome-launcher": "^1.1.2",
@@ -167,6 +168,8 @@
     "@jscpd/tokenizer": ["@jscpd/tokenizer@4.0.1", "", { "dependencies": { "@jscpd/core": "4.0.1", "reprism": "^0.0.11", "spark-md5": "^3.0.2" } }, "sha512-l/CPeEigadYcQUsUxf1wdCBfNjyAxYcQU04KciFNmSZAMY+ykJ8fZsiuyfjb+oOuDgsIPZZ9YvbvsCr6NBXueg=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.1", "", { "dependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1", "@tybys/wasm-util": "^0.10.1" } }, "sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A=="],
+
+    "@nfrasser/simple-html-tokenizer": ["@nfrasser/simple-html-tokenizer@0.5.11-3", "https://registry.npmmirror.com/@nfrasser/simple-html-tokenizer/-/simple-html-tokenizer-0.5.11-3.tgz", {}, "sha512-tUemqaUnZHJM1yhggdJGS8qEwDUy0sYMdF6nmu50ePzj9WdbbwVW3Q+AH+pFO8VGXxfFSCGU6L358fdTmoY82A=="],
 
     "@nodelib/fs.scandir": ["@nodelib/fs.scandir@2.1.5", "", { "dependencies": { "@nodelib/fs.stat": "2.0.5", "run-parallel": "^1.1.9" } }, "sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g=="],
 

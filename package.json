@@ -53,6 +53,7 @@
 		"@11ty/eleventy-navigation": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^2.0.2",
 		"@botpoison/browser": "^0.1.30",
+		"@nfrasser/simple-html-tokenizer": "^0.5.11-3",
 		"@quasibit/eleventy-plugin-schema": "^1.11.1",
 		"@sindresorhus/slugify": "^3.0.0",
 		"chrome-launcher": "^1.1.2",

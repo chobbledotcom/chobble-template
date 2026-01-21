@@ -13,16 +13,17 @@ import {
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
+import { frozenObject } from "#toolkit/fp/object.js";
 import { log } from "#utils/console.js";
 
-const CATEGORIES = {
+const CATEGORIES = frozenObject({
   performance: "performance",
   accessibility: "accessibility",
   "best-practices": "best-practices",
   seo: "seo",
-};
+});
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS = frozenObject({
   outputDir: getDefaultOutputDir("lighthouse-reports"),
   outputPath: null,
   baseUrl: DEFAULT_BASE_URL,
@@ -31,7 +32,7 @@ const DEFAULT_OPTIONS = {
   format: "html",
   onlyCategories: null,
   thresholds: null,
-};
+});
 
 export const runLighthouse = async (url, outputPath, options) => {
   const runLighthouseAudit = async (chrome) => {

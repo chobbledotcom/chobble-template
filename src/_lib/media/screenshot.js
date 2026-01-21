@@ -13,16 +13,17 @@ import {
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
+import { frozenObject } from "#toolkit/fp/object.js";
 import { log } from "#utils/console.js";
 
-const VIEWPORTS = {
+const VIEWPORTS = frozenObject({
   mobile: { width: 375, height: 667, name: "mobile" },
   tablet: { width: 768, height: 1024, name: "tablet" },
   desktop: { width: 1280, height: 800, name: "desktop" },
   "full-page": { width: 1280, height: 4000, name: "full-page" },
-};
+});
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS = frozenObject({
   viewport: "desktop",
   outputDir: getDefaultOutputDir("screenshots"),
   outputPath: null,
@@ -31,7 +32,7 @@ const DEFAULT_OPTIONS = {
   waitForStable: true,
   backgroundColor: "FFFFFF",
   virtualTimeBudget: 5000,
-};
+});
 
 export const buildViewportSuffix = (viewport) =>
   viewport !== "desktop" ? `-${viewport}` : "";

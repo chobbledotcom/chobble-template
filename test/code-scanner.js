@@ -5,6 +5,7 @@
 import { expect } from "bun:test";
 import { fs, omit, path, rootDir } from "#test/test-utils.js";
 import { notMemberOf, pluralize } from "#toolkit/fp/array.js";
+import { frozenObject } from "#toolkit/fp/object.js";
 
 // Standard fields returned by find functions (everything else is extra data)
 const STANDARD_HIT_FIELDS = ["lineNumber", "line"];
@@ -439,13 +440,13 @@ const createViolation = (reasonFn) => (context) => ({
 // ============================================
 
 // Common patterns for detecting function definitions
-const FUNCTION_DEFINITION_PATTERNS = {
+const FUNCTION_DEFINITION_PATTERNS = frozenObject({
   const: (name) => new RegExp(`\\bconst\\s+${name}\\s*=`),
   let: (name) => new RegExp(`\\blet\\s+${name}\\s*=`),
   var: (name) => new RegExp(`\\bvar\\s+${name}\\s*=`),
   function: (name) => new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
   destructuring: (name) => new RegExp(`:\\s*${name}\\s*[,})]`),
-};
+});
 
 /**
  * Check if a function name is defined in the given source code.

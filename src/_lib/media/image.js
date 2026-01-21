@@ -36,6 +36,7 @@ import {
   parseWidths,
 } from "#media/image-utils.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
+import { frozenObject } from "#toolkit/fp/object.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
 
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
@@ -43,12 +44,12 @@ const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 // JPEG fallback width - only generate one JPEG size since nearly all browsers support webp
 const JPEG_FALLBACK_WIDTH = 1300;
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS = frozenObject({
   outputDir: ".image-cache",
   urlPath: "/img/",
   svgShortCircuit: true,
   filenameFormat,
-};
+});
 
 /**
  * Called from processAndWrapImage for local (non-external) images.
