@@ -15,6 +15,7 @@ import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
 import {
   formatUrlDisplay,
+  hasPhonePattern,
   linkifyPhones,
   SKIP_TAGS,
 } from "#transforms/linkify.js";
@@ -23,24 +24,57 @@ import { loadDOM } from "#utils/lazy-dom.js";
 
 const getConfig = memoize(configModule);
 
-/** @param {boolean} targetBlank */
-const buildLinkifyOptions = (targetBlank) => ({
-  ignoreTags: [...SKIP_TAGS],
-  target: targetBlank ? "_blank" : null,
-  rel: targetBlank ? "noopener noreferrer" : null,
-  format: { url: formatUrlDisplay },
-});
+/**
+ * Check if content requires DOM parsing (has tables, images, or phone patterns)
+ * @param {string} content
+ * @param {number} phoneLen
+ * @returns {boolean}
+ */
+const needsDomParsing = (content, phoneLen) =>
+  hasPhonePattern(content, phoneLen) ||
+  content.includes("<table") ||
+  content.includes('src="/images/');
 
-/** @param {string} content @param {number} phoneLen */
-const hasPhonePattern = (content, phoneLen) =>
-  phoneLen > 0 &&
-  new RegExp(`\\b\\d(?:\\s*\\d){${phoneLen - 1}}\\b`).test(content);
+/**
+ * Apply DOM-based transforms (phone links, table wrappers, image processing)
+ * @param {string} html
+ * @param {object} config
+ * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
+ * @returns {Promise<string>}
+ */
+const applyDomTransforms = async (html, config, processAndWrapImage) => {
+  const dom = await loadDOM(html);
+  const { document } = dom.window;
+  linkifyPhones(document, config);
+  wrapTables(document, config);
+  await processImages(document, config, processAndWrapImage);
+  return dom.serialize();
+};
 
-/** @param {string} c @param {number} phoneLen */
-const needsDom = (c, phoneLen) =>
-  hasPhonePattern(c, phoneLen) ||
-  c.includes("<table") ||
-  c.includes('src="/images/');
+/**
+ * Apply string-based transforms (URL/email linkification, external link attrs)
+ * @param {string} content
+ * @param {object} config
+ * @returns {string}
+ */
+const applyStringTransforms = (content, config) => {
+  const targetBlank = config?.externalLinksTargetBlank ?? false;
+  const linkified = linkifyHtmlLib(content, {
+    ignoreTags: [...SKIP_TAGS],
+    target: targetBlank ? "_blank" : null,
+    rel: targetBlank ? "noopener noreferrer" : null,
+    format: { url: formatUrlDisplay },
+  });
+  return addExternalLinkAttrs(linkified, config);
+};
+
+/**
+ * Check if path is an HTML file
+ * @param {unknown} outputPath
+ * @returns {outputPath is string}
+ */
+const isHtmlPath = (outputPath) =>
+  typeof outputPath === "string" && outputPath.endsWith(".html");
 
 /**
  * Create the unified HTML transform
@@ -49,29 +83,14 @@ const needsDom = (c, phoneLen) =>
  */
 const createHtmlTransform =
   (processAndWrapImage) => async (content, outputPath) => {
-    if (
-      typeof outputPath !== "string" ||
-      !outputPath.endsWith(".html") ||
-      !content
-    ) {
-      return content;
-    }
+    if (!isHtmlPath(outputPath) || !content) return content;
+
     const config = await getConfig();
-    const targetBlank = config?.externalLinksTargetBlank ?? false;
     const phoneLen = config?.phoneNumberLength ?? 11;
+    const result = applyStringTransforms(content, config);
 
-    // Phase 1: String-based transforms (no DOM)
-    const linkified = linkifyHtmlLib(content, buildLinkifyOptions(targetBlank));
-    const result = addExternalLinkAttrs(linkified, config);
-
-    // Phase 2: DOM-based transforms (only if needed)
-    if (!needsDom(result, phoneLen)) return result;
-    const dom = await loadDOM(result);
-    const { document } = dom.window;
-    linkifyPhones(document, config);
-    wrapTables(document, config);
-    await processImages(document, config, processAndWrapImage);
-    return dom.serialize();
+    if (!needsDomParsing(result, phoneLen)) return result;
+    return applyDomTransforms(result, config, processAndWrapImage);
   };
 
 /**
@@ -86,10 +105,4 @@ const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
   );
 };
 
-export {
-  buildLinkifyOptions,
-  configureHtmlTransform,
-  createHtmlTransform,
-  hasPhonePattern,
-  needsDom,
-};
+export { configureHtmlTransform, createHtmlTransform };

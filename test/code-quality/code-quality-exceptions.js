@@ -159,6 +159,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
+  "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
   "src/_lib/filters/item-filters.js",
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity

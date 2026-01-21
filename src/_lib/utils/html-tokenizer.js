@@ -42,4 +42,4 @@ const tokensToHtml = (tokens) =>
 const transformHtml = (html, transformFn) =>
   tokensToHtml(tokenize(html).map(transformFn));
 
-export { tokenize, tokensToHtml, transformHtml };
+export { transformHtml };

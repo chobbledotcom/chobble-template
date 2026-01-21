@@ -140,5 +140,25 @@ describe("external-links transform", () => {
       expect(result).toContain("<img");
       expect(result).toContain('target="_blank"');
     });
+
+    test("overwrites existing target attribute on external links", () => {
+      const html = '<a href="https://example.com" target="_self">Link</a>';
+      const result = addExternalLinkAttrs(html, {
+        externalLinksTargetBlank: true,
+      });
+
+      expect(result).toContain('target="_blank"');
+      expect(result).not.toContain('target="_self"');
+    });
+
+    test("overwrites existing rel attribute on external links", () => {
+      const html = '<a href="https://example.com" rel="author">Link</a>';
+      const result = addExternalLinkAttrs(html, {
+        externalLinksTargetBlank: true,
+      });
+
+      expect(result).toContain('rel="noopener noreferrer"');
+      expect(result).not.toContain('rel="author"');
+    });
   });
 });
