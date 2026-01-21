@@ -9,6 +9,8 @@
  * - Fixing invalid HTML where divs are sole children of paragraphs
  */
 
+import { mapAsync } from "#toolkit/fp/array.js";
+
 /** @typedef {import("#lib/types").ImageTransformOptions} ImageTransformOptions */
 /** @typedef {import("#lib/types").ProcessImageFn} ProcessImageFn */
 
@@ -89,11 +91,9 @@ const processImages = async (document, _config, processAndWrapImage) => {
 
   if (images.length === 0) return;
 
-  await Promise.all(
-    Array.from(images).map((img) =>
-      processImageElement(img, document, processAndWrapImage),
-    ),
-  );
+  await mapAsync((img) =>
+    processImageElement(img, document, processAndWrapImage),
+  )(images);
 
   fixDivsInParagraphs(document);
 };
