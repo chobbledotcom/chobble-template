@@ -37,9 +37,9 @@ const propertyReviewsRedirects = reviewsRedirects("properties");
  */
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", (collectionApi) =>
-    // @ts-expect-error - addGallery works on any item with gallery data
     collectionApi
       .getFilteredByTag("properties")
+      // @ts-expect-error - addGallery works on any item with gallery data
       .map(addGallery),
   );
   eleventyConfig.addCollection(

@@ -107,11 +107,11 @@ const createHtml = async (tagName, attributes = {}, children = null) => {
 const createTemplateElement = (doc) => doc.createElement("template");
 
 /**
- * Get the first child of template content as Element.
+ * Get the first element child of template content.
  * @param {HTMLTemplateElement} template
  * @returns {Element | null}
  */
-const getTemplateContent = (template) => template.content.firstChild;
+const getTemplateContent = (template) => template.content.firstElementChild;
 
 /**
  * Parse an HTML string into a DOM element

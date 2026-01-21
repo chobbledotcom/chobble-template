@@ -128,9 +128,11 @@ const createNodeFilter = (pattern) => (node) =>
 
 /**
  * Get current node from walker as Text.
+ * TreeWalker with SHOW_TEXT filter only visits Text nodes.
  * @param {TreeWalker} walker
  * @returns {Text}
  */
+// @ts-expect-error - walker.currentNode is Text when using SHOW_TEXT filter
 const getCurrentTextNode = (walker) => walker.currentNode;
 
 /**

@@ -57,9 +57,9 @@ const compareNumberKeys = (keyA, keyB) => keyA - keyB;
 const compareBy = (getKey) => (a, b) => {
   const keyA = getKey(a);
   const keyB = getKey(b);
-  return typeof keyA === "string"
+  return typeof keyA === "string" && typeof keyB === "string"
     ? compareStringKeys(keyA, keyB)
-    : compareNumberKeys(keyA, keyB);
+    : compareNumberKeys(Number(keyA), Number(keyB));
 };
 
 /**

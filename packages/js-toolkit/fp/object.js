@@ -159,7 +159,8 @@ const frozenError = (action, prep) => (_, prop) => {
 
 /**
  * Create a frozen proxy handler for an object.
- * @returns {ProxyHandler<Record<string, unknown>>}
+ * @template {Record<string, unknown>} T
+ * @returns {ProxyHandler<T>}
  */
 const createFrozenObjectHandler = () => ({
   set: frozenError("set", "on"),
