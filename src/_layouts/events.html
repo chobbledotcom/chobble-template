@@ -4,32 +4,24 @@ layout: base
 
 {{ content }}
 
-{% if categorisedEvents.show.upcoming %}
+{% if categorisedEvents.upcoming.size > 0 %}
   <h2>Upcoming {{ strings.event_name }}</h2>
-  {% if categorisedEvents.upcoming.size > 0 %}
-    {%- include "items.html", items: categorisedEvents.upcoming -%}
-  {% else %}
-    <p>No upcoming {{ strings.event_name | downcase }} scheduled. Check back soon!</p>
-  {% endif %}
+  {%- include "items.html", items: categorisedEvents.upcoming -%}
 {% endif %}
 
-{% if categorisedEvents.show.regular %}
+{% if categorisedEvents.regular.size > 0 %}
   <h2>Regular {{ strings.event_name }}</h2>
   {%- include "items.html", items: categorisedEvents.regular -%}
 {% endif %}
 
-{% if categorisedEvents.show.past %}
-  {% if categorisedEvents.show.upcoming or categorisedEvents.show.regular %}
+{% if categorisedEvents.past.size > 0 %}
+  {% if categorisedEvents.upcoming.size > 0 or categorisedEvents.regular.size > 0 %}
     <hr>
   {% endif %}
   <h2>Past {{ strings.event_name }}</h2>
-  {% if categorisedEvents.past.size > 0 %}
-    {%- include "items.html", items: categorisedEvents.past -%}
-  {% else %}
-    <p>No past {{ strings.event_name | downcase }} to display.</p>
-  {% endif %}
+  {%- include "items.html", items: categorisedEvents.past -%}
 {% endif %}
 
-{% if categorisedEvents.show.undated %}
+{% if categorisedEvents.undated.size > 0 %}
   {%- include "items.html", items: categorisedEvents.undated -%}
 {% endif %}
