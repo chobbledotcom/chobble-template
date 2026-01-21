@@ -1,5 +1,5 @@
 {%- assign navKey = eleventyNavigation.key | default: page.fileSlug -%}
-{%- assign breadcrumbItems = collections.navigationLinks | eleventyNavigationBreadcrumb: navKey, { includeSelf: true } -%}
+{%- assign breadcrumbItems = collections.navigationLinks | eleventyNavigationBreadcrumb: navKey, includeSelf: true -%}
 {%- if breadcrumbItems.size > 0 -%}
 <div class="design-system">
   <nav aria-label="Breadcrumb" class="breadcrumbs">
