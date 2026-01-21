@@ -62,6 +62,7 @@ export const COMMON_STEPS = {
   typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
   cpdFp: { name: "cpd:fp", cmd: "bun", args: ["run", "cpd:fp"] },
   cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
+  cpdRatchet: { name: "cpd:ratchet", cmd: "bun", args: ["run", "cpd:ratchet"] },
   test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
   build: {
     name: "build",
