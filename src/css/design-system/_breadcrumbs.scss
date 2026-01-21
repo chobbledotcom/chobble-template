@@ -6,22 +6,20 @@
 // Navigation breadcrumbs using design system tokens.
 
 .design-system {
-  .breadcrumbs {
+  ol.breadcrumbs {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    margin: 0 0 $space-md 0;
     padding: $space-sm $space-md;
+    gap: $space-xs;
     font-size: $font-size-sm;
-
-    ol {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      gap: $space-xs;
-    }
 
     li {
       display: flex;
+      flex-direction: row;
       align-items: center;
       gap: $space-xs;
     }
