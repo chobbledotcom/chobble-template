@@ -36,13 +36,12 @@ const propertyReviewsRedirects = reviewsRedirects("properties");
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureProperties = (eleventyConfig) => {
-  eleventyConfig.addCollection("properties", (collectionApi) => {
-    const properties =
-      /** @type {PropertyCollectionItem[]} */
-      (/** @type {unknown} */ (collectionApi.getFilteredByTag("properties")));
-    // @ts-expect-error - addGallery works on any item with gallery data
-    return properties.map(addGallery);
-  });
+  eleventyConfig.addCollection("properties", (collectionApi) =>
+    collectionApi
+      .getFilteredByTag("properties")
+      // @ts-expect-error - addGallery works on any item with gallery data
+      .map(addGallery),
+  );
   eleventyConfig.addCollection(
     "propertiesWithReviewsPage",
     propertiesWithReviewsPage,

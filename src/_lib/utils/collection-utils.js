@@ -9,6 +9,24 @@
 import { groupByWithCache } from "#toolkit/fp/memoize.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+/** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
+/** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
+
+/**
+ * Get products from collection API (typed wrapper).
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {ProductCollectionItem[]}
+ */
+export const getProductsFromApi = (collectionApi) =>
+  collectionApi.getFilteredByTag("products");
+
+/**
+ * Get categories from collection API (typed wrapper).
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {CategoryCollectionItem[]}
+ */
+export const getCategoriesFromApi = (collectionApi) =>
+  collectionApi.getFilteredByTag("categories");
 
 /**
  * Get featured items from a collection.

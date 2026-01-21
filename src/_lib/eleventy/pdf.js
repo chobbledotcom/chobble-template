@@ -3,7 +3,15 @@ import { dirname } from "node:path";
 import site from "#data/site.json" with { type: "json" };
 import strings from "#data/strings.js";
 import { ensureDir } from "#eleventy/file-utils.js";
-import { filter, flatMap, join, map, pipe, sort } from "#toolkit/fp/array.js";
+import {
+  filter,
+  flatMap,
+  join,
+  map,
+  mapAsync,
+  pipe,
+  sort,
+} from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { log, error as logError } from "#utils/console.js";
 import { uniqueDietaryKeys } from "#utils/dietary-utils.js";
@@ -250,11 +258,9 @@ export const configurePdf = (eleventyConfig) => {
     if (!state || !state.menus || state.menus.length === 0) return;
 
     const { menus, menuCategories, menuItems } = state;
-    await Promise.all(
-      menus.map((menu) =>
-        generateMenuPdf(menu, menuCategories, menuItems, dir.output),
-      ),
-    );
+    await mapAsync((menu) =>
+      generateMenuPdf(menu, menuCategories, menuItems, dir.output),
+    )(menus);
   });
 };
 

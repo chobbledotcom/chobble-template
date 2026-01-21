@@ -95,6 +95,8 @@ export type ProductItemData = BaseItemData & {
 export type CategoryItemData = BaseItemData & {
   /** Menu slugs this category belongs to */
   menus?: string[];
+  /** Parent category slug for hierarchical categories */
+  parent?: string;
 };
 
 /**

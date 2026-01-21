@@ -158,6 +158,17 @@ const frozenError = (action, prep) => (_, prop) => {
 };
 
 /**
+ * Create a frozen proxy handler for an object.
+ * @template {Record<string, unknown>} T
+ * @returns {ProxyHandler<T>}
+ */
+const createFrozenObjectHandler = () => ({
+  set: frozenError("set", "on"),
+  deleteProperty: frozenError("delete", "from"),
+  defineProperty: frozenError("define", "on"),
+});
+
+/**
  * Create a frozen (deeply immutable) object from key-value pairs
  *
  * Returns an object wrapped in a Proxy that throws TypeError on mutation
@@ -174,15 +185,7 @@ const frozenError = (action, prep) => (_, prop) => {
  * CONFIG.timeout = 1000   // throws TypeError
  * delete CONFIG.maxRetries // throws TypeError
  */
-const frozenObject = (obj) => {
-  return /** @type {Readonly<T>} */ (
-    new Proxy(obj, {
-      set: frozenError("set", "on"),
-      deleteProperty: frozenError("delete", "from"),
-      defineProperty: frozenError("define", "on"),
-    })
-  );
-};
+const frozenObject = (obj) => new Proxy(obj, createFrozenObjectHandler());
 
 export {
   filterObject,

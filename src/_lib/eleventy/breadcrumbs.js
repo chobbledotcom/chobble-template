@@ -4,8 +4,8 @@
  * Breadcrumb structure:
  * 1. Home (always first, always a link)
  * 2. Collection index (link unless we're at it, then span)
- * 3. Item or subfolder (link if subfolder and not current, otherwise span)
- * 4. Sub-item (span, only if in subfolder)
+ * 3. Parent category/location (if has parent)
+ * 4. Item (span, current page)
  */
 
 import strings from "#data/strings.js";
@@ -24,34 +24,64 @@ const PARENT_URL_MAP = {
 /** Get URL for crumb - null if we're at that URL, otherwise the URL */
 const crumbUrl = (pageUrl, url) => (pageUrl === url ? null : url);
 
+/** Create crumbs array with parent between index and current page */
+const withParent = (baseCrumbs, parentCrumb, title, isAtParent) =>
+  isAtParent
+    ? [...baseCrumbs, parentCrumb]
+    : [...baseCrumbs, parentCrumb, { label: title, url: null }];
+
 /**
  * Build breadcrumbs data array
  * Returns array of { label, url } objects (url is null for current page)
  */
-const breadcrumbsFilter = (page, title, navigationParent, parentLocation) => {
+const breadcrumbsFilter = (
+  page,
+  title,
+  navigationParent,
+  parentLocation,
+  parentCategory,
+  categories,
+) => {
   if (page.url === "/") return [];
 
   const indexUrl =
     PARENT_URL_MAP[navigationParent] ||
     `/${page.url.split("/").filter(Boolean)[0]}/`;
-  const crumbs = [
+  const baseCrumbs = [
     { label: "Home", url: "/" },
     { label: navigationParent, url: crumbUrl(page.url, indexUrl) },
   ];
 
-  if (page.url === indexUrl) return crumbs;
+  if (page.url === indexUrl) return baseCrumbs;
 
-  if (!parentLocation) return [...crumbs, { label: title, url: null }];
+  // Category parent lookup
+  const categoryParent =
+    parentCategory &&
+    categories &&
+    categories.find((c) => c.fileSlug === parentCategory);
 
-  const parentUrl = `/${strings.location_permalink_dir}/${parentLocation}/`;
-  const parentCrumb = {
-    label: slugToTitle(parentLocation),
-    url: crumbUrl(page.url, parentUrl),
-  };
+  if (categoryParent) {
+    const label = categoryParent.data.title || slugToTitle(parentCategory);
+    const crumb = { label, url: crumbUrl(page.url, categoryParent.url) };
+    return withParent(
+      baseCrumbs,
+      crumb,
+      title,
+      page.url === categoryParent.url,
+    );
+  }
 
-  if (page.url === parentUrl) return [...crumbs, parentCrumb];
+  // Location parent
+  if (parentLocation) {
+    const parentUrl = `/${strings.location_permalink_dir}/${parentLocation}/`;
+    const crumb = {
+      label: slugToTitle(parentLocation),
+      url: crumbUrl(page.url, parentUrl),
+    };
+    return withParent(baseCrumbs, crumb, title, page.url === parentUrl);
+  }
 
-  return [...crumbs, parentCrumb, { label: title, url: null }];
+  return [...baseCrumbs, { label: title, url: null }];
 };
 
 /**

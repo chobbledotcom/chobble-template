@@ -35,13 +35,15 @@ import { canonicalUrl } from "#utils/canonical-url.js";
  * @property {Record<string, unknown>} [metaComputed] - Computed metadata
  */
 
+/** @typedef {"products" | "categories" | "properties"} ReviewIndexField */
+
 /**
  * @typedef {Object} ProductPageData
  * @property {string} [title] - Product title
  * @property {string | number} [price] - Product price
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
- * @property {string} [reviewsField] - Field name for reviews lookup
+ * @property {ReviewIndexField} [reviewsField] - Field name for reviews lookup
  * @property {{ reviews: import("#lib/types").EleventyCollectionItem[] }} [collections] - Collections data
  */
 
@@ -164,9 +166,7 @@ const buildProductMeta = (data) => {
     const reviews = getReviewsFor(
       data.collections.reviews,
       data.page.fileSlug,
-      /** @type {"products" | "categories" | "properties"} */ (
-        data.reviewsField
-      ),
+      data.reviewsField,
     );
 
     if (reviews.length === 0) return {};
