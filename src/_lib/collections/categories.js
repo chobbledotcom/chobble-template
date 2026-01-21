@@ -38,9 +38,6 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
   )(products);
 };
 
-/** Get featured categories - uses shared getFeatured utility */
-const getFeaturedCategories = getFeatured;
-
 /**
  * Configure categories collection and filters.
  * The collection inherits images from products.
@@ -72,7 +69,7 @@ const configureCategories = (eleventyConfig) => {
       return category;
     });
   });
-  eleventyConfig.addFilter("getFeaturedCategories", getFeaturedCategories);
+  eleventyConfig.addFilter("getFeaturedCategories", getFeatured);
 };
 
 export { configureCategories };

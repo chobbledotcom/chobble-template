@@ -14,9 +14,6 @@ const getPropertiesByLocation = (properties, locationSlug) => {
   return (indexByLocation(properties)[locationSlug] ?? []).sort(sortItems);
 };
 
-/** Get featured properties - uses shared getFeatured utility */
-const getFeaturedProperties = getFeatured;
-
 const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
@@ -33,7 +30,7 @@ const configureProperties = (eleventyConfig) => {
     propertyReviewsRedirects,
   );
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
-  eleventyConfig.addFilter("getFeaturedProperties", getFeaturedProperties);
+  eleventyConfig.addFilter("getFeaturedProperties", getFeatured);
 };
 
 export { configureProperties };
