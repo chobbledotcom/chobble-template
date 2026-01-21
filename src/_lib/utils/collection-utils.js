@@ -25,7 +25,7 @@ export const getFeatured = (items) =>
 
 /**
  * Configure shared collection utilities as Eleventy filters.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  */
 export const configureCollectionUtils = (eleventyConfig) => {
   eleventyConfig.addFilter("getFeatured", getFeatured);
