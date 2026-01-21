@@ -16,14 +16,11 @@ import { sortByDateDescending } from "#utils/sorting.js";
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {NewsCollectionItem[]}
  */
-const createNewsCollection = (collectionApi) => {
-  const news =
-    /** @type {NewsCollectionItem[]} */
-    (collectionApi.getFilteredByTag("news"));
-  return news
+const createNewsCollection = (collectionApi) =>
+  collectionApi
+    .getFilteredByTag("news")
     .filter((post) => post.data.no_index !== true)
     .sort(sortByDateDescending);
-};
 
 /**
  * Configure news collection for Eleventy.

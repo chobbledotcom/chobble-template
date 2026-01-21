@@ -354,6 +354,28 @@ const notMemberOf = membershipPredicate(true);
 const exclude = (values) => filter(notMemberOf(values));
 
 /**
+ * Async map with Promise.all (curried)
+ *
+ * Maps an async function over an iterable and waits for all results.
+ * Handles iterables automatically (no need for Array.from).
+ *
+ * @template T, R
+ * @param {(item: T, index: number) => Promise<R>} asyncFn - Async transform function
+ * @returns {(iterable: Iterable<T>) => Promise<R[]>} Function that async-maps iterable
+ *
+ * @example
+ * // Instead of: await Promise.all(Array.from(images).map(fn))
+ * await mapAsync(processImage)(images)
+ *
+ * @example
+ * // Use with pipe (note: pipe doesn't await, so use for sync filtering before async)
+ * const items = pipe(filter(isValid), Array.from)(rawItems);
+ * await mapAsync(fetchData)(items)
+ */
+const mapAsync = (asyncFn) => (iterable) =>
+  Promise.all(Array.from(iterable, asyncFn));
+
+/**
  * Create a pluralization formatter.
  * Curried: (singular, plural?) => (count) => string
  *
@@ -395,6 +417,7 @@ export {
   join,
   listSeparator,
   map,
+  mapAsync,
   mapFilter,
   memberOf,
   notMemberOf,

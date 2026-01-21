@@ -17,6 +17,22 @@
 const compareStrings = (a, b) => a.localeCompare(b);
 
 /**
+ * Compare two string keys using locale comparison.
+ * @param {string} keyA
+ * @param {string} keyB
+ * @returns {number}
+ */
+const compareStringKeys = (keyA, keyB) => keyA.localeCompare(keyB);
+
+/**
+ * Compare two number keys using subtraction.
+ * @param {number} keyA
+ * @param {number} keyB
+ * @returns {number}
+ */
+const compareNumberKeys = (keyA, keyB) => keyA - keyB;
+
+/**
  * Create a comparator from a key-extraction function.
  * Auto-detects type: uses localeCompare for strings, subtraction for numbers.
  *
@@ -41,9 +57,9 @@ const compareStrings = (a, b) => a.localeCompare(b);
 const compareBy = (getKey) => (a, b) => {
   const keyA = getKey(a);
   const keyB = getKey(b);
-  return typeof keyA === "string"
-    ? keyA.localeCompare(/** @type {string} */ (keyB))
-    : /** @type {number} */ (keyA) - /** @type {number} */ (keyB);
+  return typeof keyA === "string" && typeof keyB === "string"
+    ? compareStringKeys(keyA, keyB)
+    : compareNumberKeys(Number(keyA), Number(keyB));
 };
 
 /**

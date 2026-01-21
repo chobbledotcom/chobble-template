@@ -1,5 +1,5 @@
 import { imageShortcode } from "#media/image.js";
-import { filter, pipe, sort } from "#toolkit/fp/array.js";
+import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { sortNavigationItems } from "#utils/sorting.js";
 
@@ -46,18 +46,14 @@ const toNavigation = async (pages, activeKey = "") => {
     throw new Error("toNavigation requires eleventyNavigation filter first");
   }
   const renderChildren = async (children) => {
-    const items = await Promise.all(
-      children.map((child) =>
-        renderNavEntry(child, activeKey, renderChildren, false),
-      ),
-    );
+    const items = await mapAsync((child) =>
+      renderNavEntry(child, activeKey, renderChildren, false),
+    )(children);
     return createHtml("ul", {}, items.join("\n"));
   };
-  const items = await Promise.all(
-    pages.map((entry) =>
-      renderNavEntry(entry, activeKey, renderChildren, true),
-    ),
-  );
+  const items = await mapAsync((entry) =>
+    renderNavEntry(entry, activeKey, renderChildren, true),
+  )(pages);
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
 };
 
