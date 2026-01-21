@@ -115,6 +115,22 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "countCamelCaseWords",
   "extractCamelCaseIdentifiers",
   "analyzeNamingConventions",
+  // inline-type-annotations.test.js - scanner config and analysis helpers
+  "isSingleLineComment",
+  "shouldSkipLine",
+  "extractTypeName",
+  "toTypeAnnotationViolation",
+  "isAllowed",
+  "analyzeInlineTypeAnnotations",
+  // memoize-inside-function.test.js - scanner config and analysis helpers
+  "toMemoizeViolation",
+  "analyzeMemoizeInsideFunction",
+  // Template fixture function names in code-quality tests
+  "outer",
+  "second",
+  "secondViolation",
+  "innerNested",
+  "useIt",
   // scss.variables.test.js
   "extractUsedVariables",
   "extractDefinedVariables",
