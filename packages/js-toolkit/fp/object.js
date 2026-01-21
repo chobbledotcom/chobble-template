@@ -20,6 +20,15 @@ const mapEntries = (fn) => (obj) =>
   Object.entries(obj).map(([k, v]) => fn(k, v));
 
 /**
+ * Base transform over entries - applies a transform function to entries and rebuilds object
+ * @template V
+ * @param {(entries: [string, V][]) => [string, any][]} transform - Transform function on entries array
+ * @returns {(obj: Record<string, V>) => Record<string, any>} Function that transforms object
+ */
+const transformEntries = (transform) => (obj) =>
+  Object.fromEntries(transform(Object.entries(obj)));
+
+/**
  * Curried object transformation -> returns new object
  * Callback must return [newKey, newValue] tuple
  * @template V
@@ -30,8 +39,7 @@ const mapEntries = (fn) => (obj) =>
  * @example
  * mapObject((k, v) => [k.toUpperCase(), v * 2])({ a: 1 }) // { A: 2 }
  */
-const mapObject = (fn) => (obj) =>
-  Object.fromEntries(Object.entries(obj).map(([k, v]) => fn(k, v)));
+const mapObject = (fn) => (obj) => Object.fromEntries(mapEntries(fn)(obj));
 
 /**
  * Base filter over entries - takes a predicate on [key, value] tuples
@@ -39,8 +47,8 @@ const mapObject = (fn) => (obj) =>
  * @param {(entry: [string, V]) => boolean} predicate - Filter predicate on entry tuple
  * @returns {(obj: Record<string, V>) => Record<string, V>} Function that filters object
  */
-const filterEntries = (predicate) => (obj) =>
-  Object.fromEntries(Object.entries(obj).filter(predicate));
+const filterEntries = (predicate) =>
+  transformEntries((entries) => entries.filter(predicate));
 
 /**
  * Curried object filtering -> returns new object
@@ -138,6 +146,18 @@ const fromPairs = (pairs) => Object.fromEntries(pairs);
 const omit = (keys) => filterEntries(([k]) => !keys.includes(k));
 
 /**
+ * Create a proxy handler that throws a TypeError for mutation attempts
+ * @param {string} action - The action being attempted (set, delete, define)
+ * @param {string} prep - Preposition for error message (on, from)
+ * @returns {(target: any, prop: string | symbol) => never} Handler that always throws
+ */
+const frozenError = (action, prep) => (_, prop) => {
+  throw new TypeError(
+    `Cannot ${action} property '${String(prop)}' ${prep} a frozen object`,
+  );
+};
+
+/**
  * Create a frozen (deeply immutable) object from key-value pairs
  *
  * Returns an object wrapped in a Proxy that throws TypeError on mutation
@@ -157,21 +177,9 @@ const omit = (keys) => filterEntries(([k]) => !keys.includes(k));
 const frozenObject = (obj) => {
   return /** @type {Readonly<T>} */ (
     new Proxy(obj, {
-      set(_, prop) {
-        throw new TypeError(
-          `Cannot set property '${String(prop)}' on a frozen object`,
-        );
-      },
-      deleteProperty(_, prop) {
-        throw new TypeError(
-          `Cannot delete property '${String(prop)}' from a frozen object`,
-        );
-      },
-      defineProperty(_, prop) {
-        throw new TypeError(
-          `Cannot define property '${String(prop)}' on a frozen object`,
-        );
-      },
+      set: frozenError("set", "on"),
+      deleteProperty: frozenError("delete", "from"),
+      defineProperty: frozenError("define", "on"),
     })
   );
 };

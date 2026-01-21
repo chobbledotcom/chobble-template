@@ -56,31 +56,6 @@ const createFrozenSetHandler = (target) => {
 };
 
 /**
- * Create a frozen (immutable) Set from values
- *
- * Returns a Set wrapped in a Proxy that throws TypeError on mutation
- * attempts (add, delete, clear). All read operations work normally.
- * Passes `instanceof Set` checks.
- *
- * @template T
- * @param {T[]} values - Values to include in the set
- * @returns {ReadonlySet<T>} Frozen set
- *
- * @example
- * const VALID_TYPES = frozenSet(['image', 'video', 'audio']);
- * VALID_TYPES.has('image')  // true
- * VALID_TYPES.has('text')   // false
- * VALID_TYPES.add('text')   // throws TypeError
- * VALID_TYPES instanceof Set  // true
- */
-const frozenSet = (values) => {
-  const set = new Set(values);
-  return /** @type {ReadonlySet<T>} */ (
-    new Proxy(set, createFrozenSetHandler(set))
-  );
-};
-
-/**
  * Create a frozen Set from any iterable
  *
  * Useful for creating frozen sets from generators, Maps, other Sets, etc.
@@ -100,6 +75,26 @@ const frozenSetFrom = (iterable) => {
     new Proxy(set, createFrozenSetHandler(set))
   );
 };
+
+/**
+ * Create a frozen (immutable) Set from values
+ *
+ * Returns a Set wrapped in a Proxy that throws TypeError on mutation
+ * attempts (add, delete, clear). All read operations work normally.
+ * Passes `instanceof Set` checks.
+ *
+ * @template T
+ * @param {T[]} values - Values to include in the set
+ * @returns {ReadonlySet<T>} Frozen set
+ *
+ * @example
+ * const VALID_TYPES = frozenSet(['image', 'video', 'audio']);
+ * VALID_TYPES.has('image')  // true
+ * VALID_TYPES.has('text')   // false
+ * VALID_TYPES.add('text')   // throws TypeError
+ * VALID_TYPES instanceof Set  // true
+ */
+const frozenSet = (values) => frozenSetFrom(values);
 
 /**
  * Create a membership predicate using a Set for O(1) lookups
