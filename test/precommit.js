@@ -23,6 +23,7 @@ const steps = [
   COMMON_STEPS.typecheck,
   COMMON_STEPS.cpdFp,
   COMMON_STEPS.cpd,
+  COMMON_STEPS.cpdRatchet,
   COMMON_STEPS.test,
 ];
 
