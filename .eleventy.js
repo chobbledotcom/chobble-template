@@ -6,8 +6,8 @@ import { configureJsBundler } from "#build/js-bundler.js";
 import { configureScss } from "#build/scss.js";
 
 // Collections
+import { configureCollectionUtils } from "#utils/collection-utils.js";
 import { configureCategories } from "#collections/categories.js";
-import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
 import { configureLandingPages } from "#collections/landing-pages.js";
 import { configureLocations } from "#collections/locations.js";
@@ -70,6 +70,7 @@ export default async function (eleventyConfig) {
   configureAreaList(eleventyConfig);
   configureBreadcrumbs(eleventyConfig);
   configureCacheBuster(eleventyConfig);
+  configureCollectionUtils(eleventyConfig);
   configureCanonicalUrl(eleventyConfig);
   configureCapture(eleventyConfig);
   configureCategories(eleventyConfig);
@@ -103,7 +104,6 @@ export default async function (eleventyConfig) {
   configureTags(eleventyConfig);
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
-  configureEvents(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
   return {

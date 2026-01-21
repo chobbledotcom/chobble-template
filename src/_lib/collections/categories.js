@@ -38,14 +38,6 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
 };
 
 /**
- * Get featured categories from a categories collection
- * @param {import("#lib/types").EleventyCollectionItem[]} categories - Categories array from Eleventy collection
- * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured categories
- */
-const getFeaturedCategories = (categories) =>
-  categories.filter((c) => c.data.featured);
-
-/**
  * Configure categories collection and filters.
  * The collection inherits images from products.
  * NOTE: Mutates category.data directly because Eleventy template objects have
@@ -76,7 +68,6 @@ const configureCategories = (eleventyConfig) => {
       return category;
     });
   });
-  eleventyConfig.addFilter("getFeaturedCategories", getFeaturedCategories);
 };
 
 export { configureCategories };

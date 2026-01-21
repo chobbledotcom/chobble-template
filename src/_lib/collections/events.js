@@ -7,13 +7,6 @@ import { sortItems } from "#utils/sorting.js";
 const byEventDate = compareBy((e) => new Date(e.data.event_date).getTime());
 
 /**
- * Get featured events from an events collection
- * @param {import("#lib/types").EleventyCollectionItem[]} events - Events array from Eleventy collection
- * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured events
- */
-const getFeaturedEvents = (events) => events.filter((e) => e.data.featured);
-
-/**
  * Curried Map lookup: getGroup(key)(map) => value or []
  */
 const getGroup = (key) => (map) => map.get(key) ?? [];
@@ -41,9 +34,3 @@ export const categoriseEvents = memoize((events) => {
 
   return { upcoming, past, regular, undated };
 });
-
-const configureEvents = (eleventyConfig) => {
-  eleventyConfig.addFilter("getFeaturedEvents", getFeaturedEvents);
-};
-
-export { configureEvents, getFeaturedEvents };

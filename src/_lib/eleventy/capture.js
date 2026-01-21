@@ -43,7 +43,7 @@ const render = (inputPath, name) => {
  * Configures the capture/slot system for Eleventy.
  * @param {import('@11ty/eleventy').UserConfig} eleventyConfig
  */
-export function configureCapture(eleventyConfig) {
+export const configureCapture = (eleventyConfig) => {
   eleventyConfig.on("eleventy.before", reset);
 
   eleventyConfig.addPairedShortcode("push", function (content, name) {
@@ -53,4 +53,4 @@ export function configureCapture(eleventyConfig) {
   eleventyConfig.addShortcode("slot", function (name) {
     return render(this.page.inputPath, name);
   });
-}
+};

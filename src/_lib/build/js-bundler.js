@@ -1,4 +1,4 @@
-export function configureJsBundler(eleventyConfig) {
+export const configureJsBundler = (eleventyConfig) => {
   eleventyConfig.on("eleventy.before", async () => {
     const isDevelopment = process.env.ELEVENTY_RUN_MODE === "serve";
 
@@ -30,4 +30,4 @@ export function configureJsBundler(eleventyConfig) {
       console.log("✓ JavaScript built and minified with source maps");
     }
   });
-}
+};
