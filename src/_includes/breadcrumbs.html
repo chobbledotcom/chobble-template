@@ -1,6 +1,7 @@
-{%- assign navKey = eleventyNavigation.key | default: page.fileSlug -%}
-{%- assign breadcrumbItems = collections.navigationLinks | eleventyNavigationBreadcrumb: navKey, includeSelf: true -%}
-{%- if breadcrumbItems.size > 0 -%}
+{%- assign navKey = eleventyNavigation.key | default: navigationParent -%}
+{%- if navKey -%}
+  {%- assign breadcrumbItems = collections.navigationLinks | eleventyNavigationBreadcrumb: navKey, includeSelf: true -%}
+  {%- if breadcrumbItems.size > 0 -%}
 <div class="design-system">
   <nav aria-label="Breadcrumb" class="breadcrumbs">
     <ol>
@@ -17,4 +18,5 @@
     </ol>
   </nav>
 </div>
+  {%- endif -%}
 {%- endif -%}
