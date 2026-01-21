@@ -6,13 +6,7 @@ import {
   screenshotAllViewports,
   screenshotMultiple,
 } from "#media/screenshot.js";
-import {
-  buildCommonOptions,
-  createCliRunner,
-  logErrors,
-  parseCliArgs,
-  showHelp,
-} from "#scripts/cli-utils.js";
+import { buildCommonOptions, logErrors, runCli } from "#scripts/cli-utils.js";
 
 const USAGE = `
 Screenshot Tool - Capture screenshots of rendered pages
@@ -56,12 +50,12 @@ Examples:
   bun scripts/screenshot.js -o my-screenshot.png /
 `;
 
-const { values, positionals } = parseCliArgs({
+const PARSE_OPTIONS = {
   viewport: { type: "string", short: "v", default: "desktop" },
   "output-dir": { type: "string", short: "d", default: "screenshots" },
   "all-viewports": { type: "boolean", short: "a" },
   "list-viewports": { type: "boolean" },
-});
+};
 
 const showViewports = () => {
   console.log("\nAvailable viewports:");
@@ -113,16 +107,13 @@ const selectHandler = (isAllViewports, isMultiplePages) => {
   return handleSinglePage;
 };
 
-const buildOptions = () => ({
+const buildOptions = (values) => ({
   ...buildCommonOptions(values, "screenshots"),
   viewport: values.viewport,
 });
 
-const doShowHelp = () => showHelp(USAGE);
-
-const handleEarlyExit = () => {
-  if (values.help) doShowHelp();
-  if (values["list-viewports"]) showViewports();
+const extraExitChecks = (v) => {
+  if (v["list-viewports"]) showViewports();
 };
 
 const getInput = ({ positionals, isMultiple, values }) =>
@@ -131,10 +122,11 @@ const getInput = ({ positionals, isMultiple, values }) =>
 const selectHandlerFromCtx = ({ isMultiple, values }) =>
   selectHandler(values["all-viewports"], isMultiple);
 
-createCliRunner({
-  selectHandler: selectHandlerFromCtx,
+runCli(
+  PARSE_OPTIONS,
+  USAGE,
+  selectHandlerFromCtx,
   getInput,
   buildOptions,
-  handleEarlyExit,
-  doShowHelp,
-})(values, positionals);
+  extraExitChecks,
+);

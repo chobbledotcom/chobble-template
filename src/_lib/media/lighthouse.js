@@ -5,16 +5,16 @@ import {
   createPagePathErrorInfo,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
+  frozenObject,
   getChromePath,
   getDefaultOutputDir,
   launchChromeHeadless,
+  log,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
-import { frozenObject } from "#toolkit/fp/object.js";
-import { log } from "#utils/console.js";
 
 const CATEGORIES = frozenObject({
   performance: "performance",

@@ -5,13 +5,7 @@ import {
   lighthouse,
   lighthouseMultiple,
 } from "#media/lighthouse.js";
-import {
-  buildCommonOptions,
-  createCliRunner,
-  logErrors,
-  parseCliArgs,
-  showHelp,
-} from "#scripts/cli-utils.js";
+import { buildCommonOptions, logErrors, runCli } from "#scripts/cli-utils.js";
 
 const USAGE = `
 Lighthouse Tool - Run Lighthouse audits on rendered pages
@@ -57,13 +51,13 @@ Examples:
   bun scripts/lighthouse.js -o my-report.html /
 `;
 
-const { values, positionals } = parseCliArgs({
+const PARSE_OPTIONS = {
   category: { type: "string", short: "c", multiple: true },
   "output-dir": { type: "string", short: "d", default: "lighthouse-reports" },
   format: { type: "string", short: "f", default: "html" },
   threshold: { type: "string", multiple: true },
   "list-categories": { type: "boolean" },
-});
+};
 
 const showCategories = () => {
   console.log("\nAvailable categories:");
@@ -76,12 +70,16 @@ const showCategories = () => {
 const formatScore = (score) =>
   score === null ? "N/A" : `${Math.round(score * 100)}`;
 
+const logScores = (scores, indent = "") => {
+  for (const [cat, score] of Object.entries(scores)) {
+    console.log(`${indent}${cat}: ${formatScore(score)}`);
+  }
+};
+
 const logResults = (results) => {
   for (const result of results) {
     console.log(`\n  ${result.url}:`);
-    for (const [cat, score] of Object.entries(result.scores)) {
-      console.log(`    ${cat}: ${formatScore(score)}`);
-    }
+    logScores(result.scores, "    ");
     console.log(`    Report: ${result.path}`);
   }
 };
@@ -117,9 +115,7 @@ const handleMultiplePages = async (pagePaths, options) => {
 const handleSinglePage = async (pagePath, options) => {
   const result = await lighthouse(pagePath, options);
   console.log(`\nLighthouse audit complete for ${result.url}:`);
-  for (const [cat, score] of Object.entries(result.scores)) {
-    console.log(`  ${cat}: ${formatScore(score)}`);
-  }
+  logScores(result.scores, "  ");
   console.log(`\nReport saved: ${result.path}`);
 
   if (!result.thresholds.passed) {
@@ -149,18 +145,15 @@ const parseThresholds = (thresholdArgs) => {
   return thresholds;
 };
 
-const buildOptions = () => ({
+const buildOptions = (values) => ({
   ...buildCommonOptions(values, "lighthouse-reports"),
   onlyCategories: values.category?.length > 0 ? values.category : null,
   format: values.format,
   thresholds: parseThresholds(values.threshold),
 });
 
-const doShowHelp = () => showHelp(USAGE);
-
-const handleEarlyExit = () => {
-  if (values.help) doShowHelp();
-  if (values["list-categories"]) showCategories();
+const extraExitChecks = (v) => {
+  if (v["list-categories"]) showCategories();
 };
 
 const getInput = ({ positionals, isMultiple }) =>
@@ -168,10 +161,11 @@ const getInput = ({ positionals, isMultiple }) =>
 
 const selectHandlerFromCtx = ({ isMultiple }) => selectHandler(isMultiple);
 
-createCliRunner({
-  selectHandler: selectHandlerFromCtx,
+runCli(
+  PARSE_OPTIONS,
+  USAGE,
+  selectHandlerFromCtx,
   getInput,
   buildOptions,
-  handleEarlyExit,
-  doShowHelp,
-})(values, positionals);
+  extraExitChecks,
+);

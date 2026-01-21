@@ -7,14 +7,14 @@ import {
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   ensurePlaywrightBrowsers,
+  frozenObject,
   getDefaultOutputDir,
+  log,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
-import { frozenObject } from "#toolkit/fp/object.js";
-import { log } from "#utils/console.js";
 
 const VIEWPORTS = frozenObject({
   mobile: { width: 375, height: 667, name: "mobile" },

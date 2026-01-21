@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { withNavigationAnchor } from "#utils/navigation-utils.js";
+import {
+  buildNavigation,
+  withNavigationAnchor,
+} from "#utils/navigation-utils.js";
 
 describe("withNavigationAnchor", () => {
   const createData = (overrides = {}) => ({
@@ -115,5 +118,54 @@ describe("withNavigationAnchor", () => {
 
       expect(result.url).toBe("/#content");
     });
+  });
+});
+
+describe("buildNavigation", () => {
+  const createData = (overrides = {}) => ({
+    config: { navigation_content_anchor: true },
+    page: { url: "/test/" },
+    ...overrides,
+  });
+
+  test("uses withNavigationAnchor when eleventyNavigation is present", () => {
+    const data = createData({
+      eleventyNavigation: { key: "Test", order: 1 },
+    });
+
+    const result = buildNavigation(data, () => ({ key: "Fallback" }));
+
+    expect(result).toEqual({
+      key: "Test",
+      order: 1,
+      url: "/test/#content",
+    });
+  });
+
+  test("calls buildNav function when eleventyNavigation is not present", () => {
+    const data = createData();
+
+    const result = buildNavigation(data, (d) => ({
+      key: "Built",
+      url: d.page.url,
+    }));
+
+    expect(result).toEqual({
+      key: "Built",
+      url: "/test/",
+    });
+  });
+
+  test("passes data to buildNav function", () => {
+    const data = createData({ customField: "value" });
+    let receivedData = null;
+
+    buildNavigation(data, (d) => {
+      receivedData = d;
+      return { key: "Test" };
+    });
+
+    expect(receivedData).toBe(data);
+    expect(receivedData.customField).toBe("value");
   });
 });

@@ -2,7 +2,10 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
-import { error as logError } from "#utils/console.js";
+import { log, error as logError } from "#utils/console.js";
+
+export { frozenObject } from "#toolkit/fp/object.js";
+export { log };
 
 export const BROWSER_ARGS = [
   "--no-sandbox",
