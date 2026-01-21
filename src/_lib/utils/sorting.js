@@ -45,16 +45,19 @@ const sortItems = orderThenString(
 
 /**
  * @typedef {Object} DateItem
- * @property {Date | string} date - Item date
+ * @property {Date | string | undefined} [date] - Item date (optional, items without dates sort to end)
  */
 
 /**
  * Comparator for sorting by date descending (newest first).
- * Assumes items have a .date property.
+ * Items without dates are sorted to the end.
  * @type {(a: DateItem, b: DateItem) => number}
  */
-const sortByDateDescending = (a, b) =>
-  new Date(b.date).getTime() - new Date(a.date).getTime();
+const sortByDateDescending = (a, b) => {
+  const aTime = a.date ? new Date(a.date).getTime() : 0;
+  const bTime = b.date ? new Date(b.date).getTime() : 0;
+  return bTime - aTime;
+};
 
 /**
  * Comparator for sorting navigation items by order then by key.

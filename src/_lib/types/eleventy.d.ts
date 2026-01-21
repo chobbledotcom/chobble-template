@@ -2,6 +2,11 @@
  * Eleventy types
  *
  * Types for Eleventy's collection system and page data.
+ *
+ * Design principles:
+ * - Fields guaranteed by Eleventy are non-optional (e.g., `tags` is always an array)
+ * - Fields from frontmatter that may be absent use `?:`
+ * - Specific collection item types (e.g., ProductCollectionItem) reduce need for defensive code
  */
 
 import type {
@@ -25,44 +30,84 @@ export type EleventyPageData = {
 };
 
 /**
- * Base data fields present on all collection items
+ * Base data fields present on all collection items.
+ * Fields guaranteed by Eleventy are non-optional.
  */
 export type BaseItemData = {
+  /** Item title from frontmatter */
   title?: string;
+  /** Item name (alternative to title) */
   name?: string;
+  /** Subtitle for display */
   subtitle?: string;
+  /** Sort order (lower numbers first) */
   order?: number;
-  tags?: string[];
+  /**
+   * Tags array - guaranteed by Eleventy to be an array (empty if unset).
+   * Using `string[]` instead of `string[] | undefined` eliminates `?? []` patterns.
+   */
+  tags: string[];
+  /** Whether item is hidden from listings */
   hidden?: boolean;
+  /** Whether item should be excluded from search/index */
   no_index?: boolean;
+  /** Whether item is featured */
   featured?: boolean;
+  /** Custom permalink */
   permalink?: string;
+  /** Eleventy navigation configuration */
   eleventyNavigation?: PagesCMSEleventyNavigation;
+  /** Meta description for SEO */
   meta_description?: string;
+  /** Thumbnail image path */
   thumbnail?: string;
+  /** Main image path */
   image?: string;
+  /** Header image path */
+  header_image?: string;
 };
 
 /**
  * Product-specific data fields
  */
 export type ProductItemData = BaseItemData & {
+  /** Product options (sizes, variants, etc.) */
   options?: PagesCMSOption[];
+  /** Product specifications */
   specs?: PagesCMSSpec[];
+  /** Frequently asked questions */
   faqs?: PagesCMSFaq[];
+  /** Additional content tabs */
   tabs?: PagesCMSTab[];
+  /** Filter attributes for faceted search */
   filter_attributes?: PagesCMSFilterAttribute[];
-  categories?: string[];
-  gallery?: string[];
+  /** Category slugs this product belongs to */
+  categories: string[];
+  /** Gallery image paths */
+  gallery: string[];
+  /** Event slugs this product is associated with */
+  events?: string[];
+};
+
+/**
+ * Category-specific data fields
+ */
+export type CategoryItemData = BaseItemData & {
+  /** Menu slugs this category belongs to */
+  menus?: string[];
 };
 
 /**
  * Event-specific data fields
  */
 export type EventItemData = BaseItemData & {
+  /** Event date (ISO string) */
   event_date?: string;
+  /** Recurring date pattern */
   recurring_date?: string;
+  /** Event location description */
   event_location?: string;
+  /** iCal URL */
   ical_url?: string;
 };
 
@@ -70,30 +115,47 @@ export type EventItemData = BaseItemData & {
  * Review-specific data fields
  */
 export type ReviewItemData = BaseItemData & {
+  /** Rating (typically 1-5) */
   rating?: number;
+  /** Reviewer name */
   reviewer?: string;
+  /** Review date */
   review_date?: string;
-  product?: string;
-  location?: string;
-  event?: string;
+  /** Product slugs this review is for */
+  products?: string[];
+  /** Category slugs this review is for */
+  categories?: string[];
+  /** Property slugs this review is for */
+  properties?: string[];
 };
 
 /**
  * Property-specific data fields
  */
 export type PropertyItemData = BaseItemData & {
+  /** Filter attributes for faceted search */
   filter_attributes?: PagesCMSFilterAttribute[];
+  /** Property specifications */
   specs?: PagesCMSSpec[];
+  /** Location slugs this property belongs to */
+  locations: string[];
+  /** Gallery image paths */
+  gallery: string[];
 };
 
 /**
  * Location-specific data fields
  */
 export type LocationItemData = BaseItemData & {
+  /** Opening times */
   opening_times?: PagesCMSOpeningTime[];
+  /** Address */
   address?: string;
+  /** Phone number */
   phone?: string;
+  /** Email address */
   email?: string;
+  /** Parent location slug for hierarchical locations */
   parentLocation?: string;
 };
 
@@ -101,26 +163,148 @@ export type LocationItemData = BaseItemData & {
  * Team member data fields
  */
 export type TeamItemData = BaseItemData & {
+  /** Job title/role */
   role?: string;
+  /** Biography */
   bio?: string;
 };
 
 /**
- * Union of all collection item data types
+ * News/blog post data fields
+ */
+export type NewsItemData = BaseItemData & {
+  /** Publication date (from Eleventy's date) */
+  date?: Date;
+};
+
+/**
+ * Menu item data fields (for restaurant menus, etc.)
+ */
+export type MenuItemData = BaseItemData & {
+  /** Menu categories this item belongs to */
+  menu_categories?: string[];
+};
+
+/**
+ * Menu category data fields
+ */
+export type MenuCategoryItemData = BaseItemData & {
+  /** Menu slugs this category belongs to */
+  menus?: string[];
+};
+
+// =============================================================================
+// Specific Collection Item Types
+// These eliminate defensive code by providing precise typing per collection.
+// Defined explicitly (not with generics) for better JSDoc compatibility.
+// =============================================================================
+
+/** Product collection item - use with products collection */
+export type ProductCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: ProductItemData;
+};
+
+/** Category collection item - use with categories collection */
+export type CategoryCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: CategoryItemData;
+};
+
+/** Event collection item - use with events collection */
+export type EventCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: EventItemData;
+};
+
+/** Review collection item - use with reviews collection */
+export type ReviewCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: ReviewItemData;
+};
+
+/** Property collection item - use with properties collection */
+export type PropertyCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: PropertyItemData;
+};
+
+/** Location collection item - use with locations collection */
+export type LocationCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: LocationItemData;
+};
+
+/** Team collection item - use with team collection */
+export type TeamCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: TeamItemData;
+};
+
+/** News collection item - use with news collection */
+export type NewsCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: NewsItemData;
+};
+
+/** Menu item collection item - use with menu_items collection */
+export type MenuItemCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: MenuItemData;
+};
+
+/** Menu category collection item - use with menu_categories collection */
+export type MenuCategoryCollectionItem = {
+  url: string;
+  fileSlug: string;
+  date?: Date;
+  data: MenuCategoryItemData;
+};
+
+// =============================================================================
+// Backward Compatibility Types
+// =============================================================================
+
+/**
+ * Union of all collection item data types.
+ * @deprecated Prefer specific data types (ProductItemData, EventItemData, etc.)
+ * for better type safety. This union makes all fields optional.
  */
 export type EleventyCollectionItemData = BaseItemData &
   Partial<
     ProductItemData &
+      CategoryItemData &
       EventItemData &
       ReviewItemData &
       PropertyItemData &
       LocationItemData &
-      TeamItemData
+      TeamItemData &
+      NewsItemData &
+      MenuItemData &
+      MenuCategoryItemData
   >;
 
 /**
- * Eleventy collection item
- * Represents items returned from collectionApi.getFilteredByTag()
+ * Generic Eleventy collection item (backward compatible).
+ * @deprecated Prefer specific types (ProductCollectionItem, etc.) for better type safety.
  */
 export type EleventyCollectionItem = {
   url: string;

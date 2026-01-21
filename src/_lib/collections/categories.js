@@ -1,36 +1,53 @@
+/**
+ * Categories collection and filters
+ *
+ * @module #collections/categories
+ */
+
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 
+/** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
+/** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
+
 /**
- * Build a map of category slugs to property values, preferring highest order
- * Uses pipe composition to show clear data flow:
- * 1. FlatMap products with conditional - only emit entries for products with property
- * 2. Reduce to merge into mapping, keeping highest order
- *
- * @param {import("#lib/types").EleventyCollectionItem[]} categories - Categories from getFilteredByTag
- * @param {import("#lib/types").EleventyCollectionItem[]} products - Products from getFilteredByTag
- * @param {string} propertyName - Property to extract (e.g., "header_image", "thumbnail")
+ * Entry for building category property map.
+ * @typedef {{ categorySlug: string, value: string, order: number }} PropertyMapEntry
+ */
+
+/**
+ * Map of category slug to [value, order] tuple.
+ * @typedef {Record<string, [string | undefined, number]>} CategoryPropertyMap
+ */
+
+/**
+ * Build a map of category slugs to property values, preferring highest order.
+ * @param {CategoryCollectionItem[]} categories
+ * @param {ProductCollectionItem[]} products
+ * @param {"header_image" | "thumbnail"} propertyName
+ * @returns {CategoryPropertyMap}
  */
 const buildCategoryPropertyMap = (categories, products, propertyName) => {
+  /** @type {CategoryPropertyMap} */
   const initialMapping = Object.fromEntries(
-    categories.map((category) => [
-      category.fileSlug,
-      [category.data[propertyName], -1],
-    ]),
+    categories.map((c) => [c.fileSlug, [c.data[propertyName], -1]]),
   );
+
+  /** @type {(m: CategoryPropertyMap, e: PropertyMapEntry) => CategoryPropertyMap} */
   const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
     const entry = mapping[categorySlug];
-    const shouldOverride = !entry || entry[1] < order;
-    return shouldOverride
+    return !entry || entry[1] < order
       ? { ...mapping, [categorySlug]: [value, order] }
       : mapping;
   };
+
   return pipe(
-    flatMap((product) => {
-      if (!product.data[propertyName]) return [];
+    flatMap((/** @type {ProductCollectionItem} */ product) => {
+      const value = product.data[propertyName];
+      if (!value) return [];
       return product.data.categories.map((slug) => ({
         categorySlug: slug,
-        value: product.data[propertyName],
-        order: product.data.order || 0,
+        value,
+        order: product.data.order ?? 0,
       }));
     }),
     reduce(mergeByHighestOrder, initialMapping),
@@ -38,36 +55,40 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
 };
 
 /**
- * Configure categories collection and filters.
- * The collection inherits images from products.
+ * Create the categories collection with inherited images from products.
  * NOTE: Mutates category.data directly because Eleventy template objects have
  * special getters/internal state that break with spread operators.
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {CategoryCollectionItem[]}
  */
-const configureCategories = (eleventyConfig) => {
-  eleventyConfig.addCollection("categories", (collectionApi) => {
-    const categories = collectionApi.getFilteredByTag("categories");
-
-    if (categories.length === 0) return [];
-
-    const products = collectionApi.getFilteredByTag("products");
-    const categoryImages = buildCategoryPropertyMap(
-      categories,
-      products,
-      "header_image",
-    );
-    const categoryThumbnails = buildCategoryPropertyMap(
-      categories,
-      products,
-      "thumbnail",
-    );
-
-    return categories.map((category) => {
-      category.data.header_image = categoryImages[category.fileSlug]?.[0];
-      const thumbnail = categoryThumbnails[category.fileSlug]?.[0];
-      if (thumbnail) category.data.thumbnail = thumbnail;
-      return category;
-    });
+const createCategoriesCollection = (collectionApi) => {
+  const categories =
+    /** @type {CategoryCollectionItem[]} */
+    (/** @type {unknown} */ (collectionApi.getFilteredByTag("categories")));
+  if (categories.length === 0) return [];
+  const products =
+    /** @type {ProductCollectionItem[]} */
+    (/** @type {unknown} */ (collectionApi.getFilteredByTag("products")));
+  const images = buildCategoryPropertyMap(categories, products, "header_image");
+  const thumbnails = buildCategoryPropertyMap(
+    categories,
+    products,
+    "thumbnail",
+  );
+  return categories.map((category) => {
+    category.data.header_image = images[category.fileSlug]?.[0];
+    const thumb = thumbnails[category.fileSlug]?.[0];
+    if (thumb) category.data.thumbnail = thumb;
+    return category;
   });
 };
 
-export { configureCategories };
+/**
+ * Configure categories collection and filters.
+ * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ */
+const configureCategories = (eleventyConfig) => {
+  eleventyConfig.addCollection("categories", createCategoriesCollection);
+};
+
+export { configureCategories, createCategoriesCollection };
