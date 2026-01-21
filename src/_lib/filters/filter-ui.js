@@ -58,10 +58,7 @@ export const buildFilterUIData = (
   validPages,
   baseUrl,
 ) => {
-  const allAttributes = filterData.attributes;
-  const display = filterData.displayLookup;
-
-  if (Object.keys(allAttributes).length === 0) {
+  if (Object.keys(filterData.attributes).length === 0) {
     return { hasFilters: false };
   }
 
@@ -74,8 +71,8 @@ export const buildFilterUIData = (
   const activeFilters = mapEntries((key, value) => {
     const removePath = filterToPath(omit([key])(filters));
     return {
-      key: display[key],
-      value: display[value],
+      key: filterData.displayLookup[key],
+      value: filterData.displayLookup[value],
       removeUrl: removePath
         ? `${baseUrl}/search/${removePath}/#content`
         : `${baseUrl}/#content`,
@@ -89,15 +86,19 @@ export const buildFilterUIData = (
       const path = filterToPath({ ...filters, [attrName]: value });
       if (!isActive && !validPathLookup[path]) return null;
       return {
-        value: display[value],
+        value: filterData.displayLookup[value],
         url: `${baseUrl}/search/${path}/#content`,
         active: isActive,
       };
     })(attrValues);
 
     if (options.length === 0) return null;
-    return { name: attrName, label: display[attrName], options };
-  })(Object.entries(allAttributes));
+    return {
+      name: attrName,
+      label: filterData.displayLookup[attrName],
+      options,
+    };
+  })(Object.entries(filterData.attributes));
 
   return {
     hasFilters: groups.length > 0,

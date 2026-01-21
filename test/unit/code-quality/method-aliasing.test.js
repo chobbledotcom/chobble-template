@@ -80,8 +80,10 @@ const findAliases = (source) => {
 };
 
 /**
- * Find property access aliasing where variable name matches property name.
- * E.g., const name = obj.name; should be const { name } = obj;
+ * Find property access aliasing like:
+ *   const value = obj.property;
+ *
+ * Should use obj.property directly instead of creating an alias.
  */
 const findPropertyAliases = (source) => {
   return scanLines(source, (line, lineNum) => {
@@ -92,19 +94,12 @@ const findPropertyAliases = (source) => {
 
     const [, varName, objName, propName] = match;
 
-    // Only flag when variable name matches property name exactly
-    if (varName !== propName) return null;
-
-    // Skip if accessing a method (convention: methods are camelCase, properties can be any)
-    // We can't reliably detect this, so we'll rely on the name match heuristic
-
     return {
       lineNumber: lineNum,
       line: line.trim(),
       varName,
       objName,
       propName,
-      suggestion: `const { ${propName} } = ${objName};`,
     };
   });
 };
@@ -186,17 +181,22 @@ const empty = null;
     expect(results[0].varName).toBe("name");
     expect(results[0].objName).toBe("item");
     expect(results[0].propName).toBe("name");
-    expect(results[0].suggestion).toBe("const { name } = item;");
   });
 
-  test("Does not flag property access with different names", () => {
+  test("Detects property aliasing with different names", () => {
     const source = `
 const parent = node.parentElement;
 const handler = console.log;
 const target = event.currentTarget;
 `;
     const results = findPropertyAliases(source);
-    expect(results.length).toBe(0);
+    expect(results.length).toBe(3);
+    expect(results[0].varName).toBe("parent");
+    expect(results[0].propName).toBe("parentElement");
+    expect(results[1].varName).toBe("handler");
+    expect(results[1].propName).toBe("log");
+    expect(results[2].varName).toBe("target");
+    expect(results[2].propName).toBe("currentTarget");
   });
 
   test("Detects multiple property aliases", () => {
@@ -246,7 +246,7 @@ const items = array.slice();
     });
     assertNoViolations(violations, {
       singular: "property alias",
-      fixHint: "use destructuring instead: const { prop } = obj;",
+      fixHint: "use obj.property directly instead of creating an alias",
     });
   });
 });

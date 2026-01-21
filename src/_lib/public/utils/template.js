@@ -11,10 +11,8 @@ export const populateItemFields = (template, name, price) => {
 
 // Populate quantity controls in a template with item data
 export const populateQuantityControls = (template, item) => {
-  const name = item.item_name;
-
   for (const el of template.querySelectorAll("[data-name]")) {
-    el.dataset.name = name;
+    el.dataset.name = item.item_name;
   }
 
   const input = template.querySelector("input[type='number']");

@@ -9,8 +9,7 @@ export default {
     ical_url: (data) => {
       // Only provide iCal URL for one-off events
       if (data.event_date && !data.recurring_date) {
-        const dir = strings.event_permalink_dir;
-        return `/${dir}/${data.page.fileSlug}.ics`;
+        return `/${strings.event_permalink_dir}/${data.page.fileSlug}.ics`;
       }
       return null;
     },

@@ -235,9 +235,8 @@ const buildFullItemName = (itemName, optionName) =>
 const handleOptionChange = (e) => {
   if (!e.target.classList.contains("product-options-select")) return;
 
-  const select = e.target;
-  const selectedOption = select.options[select.selectedIndex];
-  const button = select.parentElement.querySelector(".product-option-button");
+  const selectedOption = e.target.options[e.target.selectedIndex];
+  const button = e.target.parentElement.querySelector(".product-option-button");
 
   if (button && selectedOption && selectedOption.value !== "") {
     const { option } = buttonOption(button, parseInt(selectedOption.value, 10));
@@ -287,10 +286,9 @@ const handleAddToCart = (e) => {
   if (!e.target.classList.contains("add-to-cart")) return;
   e.preventDefault();
 
-  const button = e.target;
-  if (!validateProductOption(button)) return;
+  if (!validateProductOption(e.target)) return;
 
-  const item = extractItemFromButton(button);
+  const item = extractItemFromButton(e.target);
   addItem(
     item.name,
     item.unitPrice,
