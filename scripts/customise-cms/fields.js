@@ -253,13 +253,7 @@ export const createTabsField = (useVisualEditor) => ({
     { name: "image", type: "image", label: "Image" },
     useVisualEditor
       ? { name: "body", label: "Body", type: "rich-text", required: true }
-      : {
-          name: "body",
-          label: "Body",
-          type: "code",
-          options: { language: "markdown" },
-          required: true,
-        },
+      : { ...COMMON_FIELDS.body, required: true },
   ],
 });
 

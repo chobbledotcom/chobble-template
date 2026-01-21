@@ -1,14 +1,12 @@
 #!/usr/bin/env bun
 
-import { join } from "node:path";
-import { parseArgs } from "node:util";
 import {
   getViewports,
   screenshot,
   screenshotAllViewports,
   screenshotMultiple,
 } from "#media/screenshot.js";
-import { createCliRunner, logErrors, showHelp } from "#scripts/cli-utils.js";
+import { buildCommonOptions, logErrors, runCli } from "#scripts/cli-utils.js";
 
 const USAGE = `
 Screenshot Tool - Capture screenshots of rendered pages
@@ -52,27 +50,12 @@ Examples:
   bun scripts/screenshot.js -o my-screenshot.png /
 `;
 
-const { values, positionals } = parseArgs({
-  args: process.argv.slice(2),
-  options: {
-    help: { type: "boolean", short: "h" },
-    viewport: { type: "string", short: "v", default: "desktop" },
-    output: { type: "string", short: "o" },
-    "output-dir": { type: "string", short: "d", default: "screenshots" },
-    "base-url": {
-      type: "string",
-      short: "u",
-      default: "http://localhost:8080",
-    },
-    timeout: { type: "string", short: "t", default: "10000" },
-    pages: { type: "boolean", short: "p" },
-    "all-viewports": { type: "boolean", short: "a" },
-    serve: { type: "string", short: "s" },
-    port: { type: "string", default: "8080" },
-    "list-viewports": { type: "boolean" },
-  },
-  allowPositionals: true,
-});
+const PARSE_OPTIONS = {
+  viewport: { type: "string", short: "v", default: "desktop" },
+  "output-dir": { type: "string", short: "d", default: "screenshots" },
+  "all-viewports": { type: "boolean", short: "a" },
+  "list-viewports": { type: "boolean" },
+};
 
 const showViewports = () => {
   console.log("\nAvailable viewports:");
@@ -124,19 +107,13 @@ const selectHandler = (isAllViewports, isMultiplePages) => {
   return handleSinglePage;
 };
 
-const buildOptions = () => ({
+const buildOptions = (values) => ({
+  ...buildCommonOptions(values, "screenshots"),
   viewport: values.viewport,
-  outputDir: join(process.cwd(), values["output-dir"]),
-  baseUrl: values["base-url"],
-  timeout: Number.parseInt(values.timeout, 10),
-  outputPath: values.output,
 });
 
-const doShowHelp = () => showHelp(USAGE);
-
-const handleEarlyExit = () => {
-  if (values.help) doShowHelp();
-  if (values["list-viewports"]) showViewports();
+const extraExitChecks = (v) => {
+  if (v["list-viewports"]) showViewports();
 };
 
 const getInput = ({ positionals, isMultiple, values }) =>
@@ -145,10 +122,11 @@ const getInput = ({ positionals, isMultiple, values }) =>
 const selectHandlerFromCtx = ({ isMultiple, values }) =>
   selectHandler(values["all-viewports"], isMultiple);
 
-createCliRunner({
-  selectHandler: selectHandlerFromCtx,
+runCli(
+  PARSE_OPTIONS,
+  USAGE,
+  selectHandlerFromCtx,
   getInput,
   buildOptions,
-  handleEarlyExit,
-  doShowHelp,
-})(values, positionals);
+  extraExitChecks,
+);

@@ -3,17 +3,10 @@ import { dirname } from "node:path";
 import site from "#data/site.json" with { type: "json" };
 import strings from "#data/strings.js";
 import { ensureDir } from "#eleventy/file-utils.js";
-import {
-  filter,
-  flatMap,
-  join,
-  map,
-  pipe,
-  sort,
-  uniqueBy,
-} from "#toolkit/fp/array.js";
+import { filter, flatMap, join, map, pipe, sort } from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { log, error as logError } from "#utils/console.js";
+import { uniqueDietaryKeys } from "#utils/dietary-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -52,7 +45,7 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
     items: itemsInCategory(category),
   }))(categories);
 
-  const uniqueDietaryKeys = pipe(
+  const allDietaryKeys = pipe(
     flatMap((category) =>
       items
         .filter((item) =>
@@ -60,14 +53,13 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
         )
         .flatMap((item) => item.data.dietaryKeys),
     ),
-    filter((key) => key.symbol && key.label),
-    uniqueBy((key) => key.symbol),
+    uniqueDietaryKeys,
   )(categories);
 
   const dietaryKeyString = pipe(
     map((k) => `(${k.symbol}) ${k.label}`),
     join(", "),
-  )(uniqueDietaryKeys);
+  )(allDietaryKeys);
 
   return {
     businessName: site.name,
@@ -75,33 +67,25 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
     subtitle: menu.data.subtitle || "",
     categories: pdfCategories,
     dietaryKeyString,
-    hasDietaryKeys: uniqueDietaryKeys.length > 0,
+    hasDietaryKeys: allDietaryKeys.length > 0,
   };
 }
 
 function createMenuPdfTemplate() {
+  const centeredText = (text, style, margin) => ({
+    text,
+    style,
+    alignment: "center",
+    margin,
+  });
+
   return {
     pageSize: "A4",
     pageMargins: [40, 40, 40, 40],
     content: [
-      {
-        text: "{{businessName}}",
-        style: "businessName",
-        alignment: "center",
-        margin: [0, 0, 0, 5],
-      },
-      {
-        text: "{{menuTitle}}",
-        style: "menuTitle",
-        alignment: "center",
-        margin: [0, 0, 0, 5],
-      },
-      {
-        text: "{{subtitle}}",
-        style: "subtitle",
-        alignment: "center",
-        margin: [0, 0, 0, 20],
-      },
+      centeredText("{{businessName}}", "businessName", [0, 0, 0, 5]),
+      centeredText("{{menuTitle}}", "menuTitle", [0, 0, 0, 5]),
+      centeredText("{{subtitle}}", "subtitle", [0, 0, 0, 20]),
       {
         "{{#each categories:category}}": [
           {

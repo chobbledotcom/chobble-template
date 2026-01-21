@@ -2,7 +2,10 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
-import { error as logError } from "#utils/console.js";
+import { log, error as logError } from "#utils/console.js";
+
+export { frozenObject } from "#toolkit/fp/object.js";
+export { log };
 
 export const BROWSER_ARGS = [
   "--no-sandbox",
@@ -44,6 +47,14 @@ export const createOperationContext = (
     outputPath: mergedOptions.outputPath || buildPath(mergedOptions, pagePath),
   };
 };
+
+/**
+ * Creates an error info factory for page path batch operations
+ */
+export const createPagePathErrorInfo = (pagePaths) => (i, reason) => ({
+  pagePath: pagePaths[i],
+  error: reason.message,
+});
 
 export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   const settled = await Promise.allSettled(items.map(operationFn));

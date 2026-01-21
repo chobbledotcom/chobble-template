@@ -2,18 +2,19 @@ import {
   buildOutputPath,
   buildUrl,
   createOperationContext,
+  createPagePathErrorInfo,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
+  frozenObject,
   getChromePath,
   getDefaultOutputDir,
   launchChromeHeadless,
+  log,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
   startServer,
 } from "#media/browser-utils.js";
-import { frozenObject } from "#toolkit/fp/object.js";
-import { log } from "#utils/console.js";
 
 const CATEGORIES = frozenObject({
   performance: "performance",
@@ -122,7 +123,7 @@ export const lighthouseMultiple = (pagePaths, options = {}) =>
   runBatchOperations(
     pagePaths,
     (pagePath) => lighthouse(pagePath, options),
-    (i, reason) => ({ pagePath: pagePaths[i], error: reason.message }),
+    createPagePathErrorInfo(pagePaths),
   );
 
 export const getCategories = () => ({ ...CATEGORIES });

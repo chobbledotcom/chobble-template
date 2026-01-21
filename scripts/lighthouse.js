@@ -1,13 +1,11 @@
 #!/usr/bin/env bun
 
-import { join } from "node:path";
-import { parseArgs } from "node:util";
 import {
   getCategories,
   lighthouse,
   lighthouseMultiple,
 } from "#media/lighthouse.js";
-import { createCliRunner, logErrors, showHelp } from "#scripts/cli-utils.js";
+import { buildCommonOptions, logErrors, runCli } from "#scripts/cli-utils.js";
 
 const USAGE = `
 Lighthouse Tool - Run Lighthouse audits on rendered pages
@@ -53,28 +51,13 @@ Examples:
   bun scripts/lighthouse.js -o my-report.html /
 `;
 
-const { values, positionals } = parseArgs({
-  args: process.argv.slice(2),
-  options: {
-    help: { type: "boolean", short: "h" },
-    category: { type: "string", short: "c", multiple: true },
-    output: { type: "string", short: "o" },
-    "output-dir": { type: "string", short: "d", default: "lighthouse-reports" },
-    "base-url": {
-      type: "string",
-      short: "u",
-      default: "http://localhost:8080",
-    },
-    timeout: { type: "string", short: "t", default: "10000" },
-    format: { type: "string", short: "f", default: "html" },
-    pages: { type: "boolean", short: "p" },
-    serve: { type: "string", short: "s" },
-    port: { type: "string", default: "8080" },
-    threshold: { type: "string", multiple: true },
-    "list-categories": { type: "boolean" },
-  },
-  allowPositionals: true,
-});
+const PARSE_OPTIONS = {
+  category: { type: "string", short: "c", multiple: true },
+  "output-dir": { type: "string", short: "d", default: "lighthouse-reports" },
+  format: { type: "string", short: "f", default: "html" },
+  threshold: { type: "string", multiple: true },
+  "list-categories": { type: "boolean" },
+};
 
 const showCategories = () => {
   console.log("\nAvailable categories:");
@@ -87,12 +70,16 @@ const showCategories = () => {
 const formatScore = (score) =>
   score === null ? "N/A" : `${Math.round(score * 100)}`;
 
+const logScores = (scores, indent = "") => {
+  for (const [cat, score] of Object.entries(scores)) {
+    console.log(`${indent}${cat}: ${formatScore(score)}`);
+  }
+};
+
 const logResults = (results) => {
   for (const result of results) {
     console.log(`\n  ${result.url}:`);
-    for (const [cat, score] of Object.entries(result.scores)) {
-      console.log(`    ${cat}: ${formatScore(score)}`);
-    }
+    logScores(result.scores, "    ");
     console.log(`    Report: ${result.path}`);
   }
 };
@@ -128,9 +115,7 @@ const handleMultiplePages = async (pagePaths, options) => {
 const handleSinglePage = async (pagePath, options) => {
   const result = await lighthouse(pagePath, options);
   console.log(`\nLighthouse audit complete for ${result.url}:`);
-  for (const [cat, score] of Object.entries(result.scores)) {
-    console.log(`  ${cat}: ${formatScore(score)}`);
-  }
+  logScores(result.scores, "  ");
   console.log(`\nReport saved: ${result.path}`);
 
   if (!result.thresholds.passed) {
@@ -160,21 +145,15 @@ const parseThresholds = (thresholdArgs) => {
   return thresholds;
 };
 
-const buildOptions = () => ({
+const buildOptions = (values) => ({
+  ...buildCommonOptions(values, "lighthouse-reports"),
   onlyCategories: values.category?.length > 0 ? values.category : null,
-  outputDir: join(process.cwd(), values["output-dir"]),
-  baseUrl: values["base-url"],
-  timeout: Number.parseInt(values.timeout, 10),
   format: values.format,
-  outputPath: values.output,
   thresholds: parseThresholds(values.threshold),
 });
 
-const doShowHelp = () => showHelp(USAGE);
-
-const handleEarlyExit = () => {
-  if (values.help) doShowHelp();
-  if (values["list-categories"]) showCategories();
+const extraExitChecks = (v) => {
+  if (v["list-categories"]) showCategories();
 };
 
 const getInput = ({ positionals, isMultiple }) =>
@@ -182,10 +161,11 @@ const getInput = ({ positionals, isMultiple }) =>
 
 const selectHandlerFromCtx = ({ isMultiple }) => selectHandler(isMultiple);
 
-createCliRunner({
-  selectHandler: selectHandlerFromCtx,
+runCli(
+  PARSE_OPTIONS,
+  USAGE,
+  selectHandlerFromCtx,
   getInput,
   buildOptions,
-  handleEarlyExit,
-  doShowHelp,
-})(values, positionals);
+  extraExitChecks,
+);

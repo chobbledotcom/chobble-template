@@ -1,5 +1,45 @@
 import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { parseArgs } from "node:util";
 import { startServer } from "#media/browser-utils.js";
+import { frozenObject } from "#toolkit/fp/object.js";
+
+/**
+ * Common CLI options shared between lighthouse and screenshot tools
+ */
+const COMMON_OPTIONS = frozenObject({
+  help: { type: "boolean", short: "h" },
+  output: { type: "string", short: "o" },
+  "base-url": {
+    type: "string",
+    short: "u",
+    default: "http://localhost:8080",
+  },
+  timeout: { type: "string", short: "t", default: "10000" },
+  pages: { type: "boolean", short: "p" },
+  serve: { type: "string", short: "s" },
+  port: { type: "string", default: "8080" },
+});
+
+/**
+ * Parse CLI arguments with common options merged with tool-specific options
+ */
+export const parseCliArgs = (toolOptions) =>
+  parseArgs({
+    args: process.argv.slice(2),
+    options: { ...COMMON_OPTIONS, ...toolOptions },
+    allowPositionals: true,
+  });
+
+/**
+ * Build common options object from parsed values
+ */
+export const buildCommonOptions = (values, outputDirDefault) => ({
+  outputDir: join(process.cwd(), values["output-dir"] || outputDirDefault),
+  baseUrl: values["base-url"],
+  timeout: Number.parseInt(values.timeout, 10),
+  outputPath: values.output,
+});
 
 export const showHelp = (usage) => {
   console.log(usage);
@@ -54,22 +94,42 @@ export const runWithServer = async (handler, input, options, server) => {
   }
 };
 
-export const createCliRunner =
-  ({ selectHandler, getInput, buildOptions, handleEarlyExit, doShowHelp }) =>
-  async (values, positionals) => {
-    handleEarlyExit();
-    validatePagePaths(positionals, doShowHelp);
+/**
+ * Run a CLI tool with common boilerplate handled
+ * Combines argument parsing and execution in one call
+ * @param {Object} parseOptions - Tool-specific CLI options to merge with common options
+ * @param {string} usage - Help text to display
+ * @param {function} selectHandler - Select handler based on context
+ * @param {function} getInput - Get input from context
+ * @param {function} buildOptions - Build options from values: (values) => options
+ * @param {function} [extraExitChecks] - Additional early exit checks (e.g., --list-*)
+ */
+export const runCli = async (
+  parseOptions,
+  usage,
+  selectHandler,
+  getInput,
+  buildOptions,
+  extraExitChecks,
+) => {
+  const { values, positionals } = parseCliArgs(parseOptions);
+  const doShowHelp = () => showHelp(usage);
 
-    const options = buildOptions();
-    const server = await maybeStartServer(
-      values.serve,
-      Number.parseInt(values.port, 10),
-      options,
-    );
-    const isMultiple = values.pages || positionals.length > 1;
-    const ctx = { isMultiple, values, positionals };
-    const handler = selectHandler(ctx);
-    const input = getInput(ctx);
+  if (values.help) doShowHelp();
+  if (extraExitChecks) extraExitChecks(values);
 
-    await runWithServer(handler, input, options, server);
-  };
+  validatePagePaths(positionals, doShowHelp);
+
+  const options = buildOptions(values);
+  const server = await maybeStartServer(
+    values.serve,
+    Number.parseInt(values.port, 10),
+    options,
+  );
+  const isMultiple = values.pages || positionals.length > 1;
+  const ctx = { isMultiple, values, positionals };
+  const handler = selectHandler(ctx);
+  const input = getInput(ctx);
+
+  await runWithServer(handler, input, options, server);
+};
