@@ -26,22 +26,6 @@ const expectEventCounts = (
 };
 
 /**
- * Assert event show visibility flags
- * @param {Object} result - Result object with show property
- * @param {Object} expected - Expected show state
- * @param {boolean} expected.upcoming - Should upcoming events be shown
- * @param {boolean} expected.regular - Should regular events be shown
- * @param {boolean} expected.past - Should past events be shown
- * @param {boolean} expected.undated - Should undated events be shown
- */
-const expectShowState = (result, { upcoming, regular, past, undated }) => {
-  expect(result.show.upcoming).toBe(upcoming);
-  expect(result.show.regular).toBe(regular);
-  expect(result.show.past).toBe(past);
-  expect(result.show.undated).toBe(undated);
-};
-
-/**
  * Create a date offset from today
  * @param {number} daysOffset - Days from today (positive=future, negative=past)
  * @returns {Date} Offset date
@@ -137,7 +121,6 @@ const createEvents = map(createEvent);
 
 export {
   expectEventCounts,
-  expectShowState,
   createOffsetDate,
   formatDateString,
   createEvent,
