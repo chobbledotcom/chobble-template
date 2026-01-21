@@ -4,7 +4,7 @@
  * Used by both products and properties to provide URL-based filtering.
  *
  * This is the main entry point that re-exports from focused modules:
- * - filter-core.js: Parsing, normalization, lookup building
+ * - filter-core.js: Parsing, normalization, lookup building, sorting
  * - filter-ui.js: UI data structure building
  * - filter-combinations.js: Combination generation and redirects
  *
@@ -15,42 +15,46 @@
  * - buildFilterUIData(): Generates data for filter UI templates
  *
  * URL format: /products/search/size/small/color/red/ (keys sorted alphabetically)
+ * Sort suffix: /products/search/size/small/price-asc/ (sort option at end)
  */
 
 // Re-export combination generation
 export {
+  expandWithSortVariants,
   generateFilterCombinations,
   generateFilterRedirects,
+  generateSortOnlyPages,
 } from "#filters/filter-combinations.js";
 // Re-export core utilities
 export {
   buildDisplayLookup,
   buildItemLookup,
+  filterWithSort,
   getAllFilterAttributes,
-  getItemsByFilters,
-  getItemsWithLookup,
+  getSortComparator,
+  matchWithSort,
+  SORT_OPTIONS,
+  toSortedPath,
 } from "#filters/filter-core.js";
 // Re-export UI building functions
-export {
-  addFilterUI,
-  buildFilterPageBase,
-  buildFilterUIData,
-} from "#filters/filter-ui.js";
+export { buildFilterPageBase, buildFilterUIData } from "#filters/filter-ui.js";
 
 import {
+  expandWithSortVariants,
   generateFilterCombinations,
   generateFilterRedirects,
+  generateSortOnlyPages,
 } from "#filters/filter-combinations.js";
 // Internal imports for createFilterConfig
 import {
   buildDisplayLookup,
+  filterWithSort,
   getAllFilterAttributes,
-  getItemsByFilters,
 } from "#filters/filter-core.js";
 import {
-  addFilterUI,
   buildFilterPageBase,
   buildFilterUIData,
+  enhanceWithFilterUI,
 } from "#filters/filter-ui.js";
 
 /** @typedef {import("#lib/types").FilterConfigOptions} FilterConfigOptions */
@@ -65,27 +69,30 @@ export const createFilterConfig = (options) => {
     options;
   const baseUrl = `/${permalinkDir}`;
 
-  /**
-   * @param {import("@11ty/eleventy").CollectionApi} collectionApi
-   */
+  /** @param {import("@11ty/eleventy").CollectionApi} collectionApi */
   const pagesCollection = (collectionApi) => {
     const items = collectionApi.getFilteredByTag(tag);
-    const combinations = generateFilterCombinations(items);
+    const baseCombinations = generateFilterCombinations(items);
+    if (baseCombinations.length === 0) return [];
+
     const displayLookup = buildDisplayLookup(items);
     const filterData = {
       attributes: getAllFilterAttributes(items),
       displayLookup,
     };
-
-    const pages = combinations.map((combo) => {
-      const matchedItems = getItemsByFilters(items, combo.filters);
+    const allCombinations = [
+      ...expandWithSortVariants(baseCombinations),
+      ...generateSortOnlyPages(items.length),
+    ];
+    const pages = allCombinations.map((combo) => {
+      const matchedItems = filterWithSort(items, combo.filters, combo.sortKey);
       return {
         ...buildFilterPageBase(combo, matchedItems, displayLookup),
+        sortKey: combo.sortKey,
         [itemsKey]: matchedItems,
       };
     });
-
-    return addFilterUI(pages, filterData, baseUrl);
+    return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);
   };
 
   /**
@@ -108,7 +115,7 @@ export const createFilterConfig = (options) => {
   };
 
   /**
-   * Build filterUI for listing page (no active filters)
+   * Build filterUI for listing page (no active filters, default sort)
    * @param {import("@11ty/eleventy").CollectionApi} collectionApi
    */
   const listingFilterUICollection = (collectionApi) => {
@@ -117,8 +124,14 @@ export const createFilterConfig = (options) => {
       attributes: getAllFilterAttributes(items),
       displayLookup: buildDisplayLookup(items),
     };
-    const pages = pagesCollection(collectionApi);
-    return buildFilterUIData(filterData, null, pages, baseUrl);
+    const baseCombinations = generateFilterCombinations(items);
+    return buildFilterUIData(
+      filterData,
+      null,
+      baseCombinations,
+      baseUrl,
+      "default",
+    );
   };
 
   const configure = (eleventyConfig) => {
@@ -129,8 +142,10 @@ export const createFilterConfig = (options) => {
       `${collections.pages}ListingFilterUI`,
       listingFilterUICollection,
     );
-    eleventyConfig.addFilter(uiDataFilterName, (filterData, filters, pages) =>
-      buildFilterUIData(filterData, filters, pages, baseUrl),
+    eleventyConfig.addFilter(
+      uiDataFilterName,
+      (filterData, filters, pages, sortKey = "default") =>
+        buildFilterUIData(filterData, filters, pages, baseUrl, sortKey),
     );
   };
 

@@ -6,6 +6,7 @@
  * - Parsing filter attributes from items
  * - Building lookup tables for O(1) filtering
  * - Converting filters to URL paths
+ * - Sorting filtered results
  */
 
 import { flatMap, join, map, pipe, sort } from "#toolkit/fp/array.js";
@@ -15,7 +16,7 @@ import {
 } from "#toolkit/fp/grouping.js";
 import { memoize, withWeakMapCache } from "#toolkit/fp/memoize.js";
 import { mapBoth, toObject } from "#toolkit/fp/object.js";
-import { compareStrings } from "#toolkit/fp/sorting.js";
+import { compareBy, compareStrings, descending } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -181,30 +182,89 @@ export const countMatches = (lookup, filters, totalItems) =>
     ? totalItems
     : findMatchingPositions(lookup, filters).length;
 
-/**
- * Get items matching the given filters using a pre-built lookup.
- *
- * @param {EleventyCollectionItem[]} items - Original items array
- * @param {FilterSet} filters - Filters to apply
- * @param {Object} lookup - Lookup table from buildItemLookup
- * @returns {EleventyCollectionItem[]} Matching items, sorted
- */
-export const getItemsWithLookup = (items, filters, lookup) =>
-  pipe(
-    map((pos) => items[pos]),
-    sort(sortItems),
-  )(findMatchingPositions(lookup, normalizeAttrs(filters)));
+// ============================================================================
+// Sort Options
+// ============================================================================
+
+/** @param {EleventyCollectionItem} item */
+const getName = (item) =>
+  (item.data.title || item.data.name || "").toLowerCase();
 
 /**
- * Get items matching the given filters
- * Uses normalized comparison (lowercase, no special chars/spaces)
+ * Available sort options with display label and comparator.
+ * Keys (except "default") are appended to filter URLs (e.g., /size/small/price-asc/)
+ */
+export const SORT_OPTIONS = [
+  { key: "default", label: "Default", compare: sortItems },
+  {
+    key: "price-asc",
+    label: "Price: Low to High",
+    compare: compareBy((item) => item.data.price ?? Number.MAX_VALUE),
+  },
+  {
+    key: "price-desc",
+    label: "Price: High to Low",
+    compare: descending(
+      compareBy((item) => item.data.price ?? Number.MIN_VALUE),
+    ),
+  },
+  { key: "name-asc", label: "Name: A-Z", compare: compareBy(getName) },
+  {
+    key: "name-desc",
+    label: "Name: Z-A",
+    compare: descending(compareBy(getName)),
+  },
+];
+
+/**
+ * Get the sort comparator for a given sort key
+ * @param {string | undefined} sortKey - Sort option key
+ * @returns {(a: EleventyCollectionItem, b: EleventyCollectionItem) => number} Comparator function
+ */
+export const getSortComparator = (sortKey) =>
+  SORT_OPTIONS.find((o) => o.key === sortKey)?.compare || sortItems;
+
+/**
+ * Convert filter object and optional sort to URL path segment.
+ * { size: "small", capacity: "3" }, "price-asc" => "capacity/3/size/small/price-asc"
+ * Keys are sorted alphabetically, sort suffix is appended at the end.
  *
- * Leverages the memoized buildItemLookup for O(1) lookups instead of
- * O(n) filtering on each call.
+ * @param {FilterSet | null | undefined} filters - Filter object
+ * @param {string | undefined} sortKey - Sort option key (if not "default")
+ * @returns {string} URL path segment
+ */
+export const toSortedPath = (filters, sortKey) => {
+  const suffix = sortKey && sortKey !== "default" ? sortKey : "";
+  return [filterToPath(filters), suffix].filter(Boolean).join("/");
+};
+
+/**
+ * Get items matching the given filters with specified sort order.
+ *
+ * @param {EleventyCollectionItem[]} items - Original items array
+ * @param {FilterSet} filters - Filters to apply (can be empty)
+ * @param {Object} lookup - Lookup table from buildItemLookup
+ * @param {string | undefined} sortKey - Sort option key
+ * @returns {EleventyCollectionItem[]} Matching items, sorted
+ */
+export const matchWithSort = (items, filters, lookup, sortKey) => {
+  // Handle empty filters (sort-only pages)
+  if (!filters || Object.keys(filters).length === 0) {
+    return sort(getSortComparator(sortKey))(items);
+  }
+  return pipe(
+    map((pos) => items[pos]),
+    sort(getSortComparator(sortKey)),
+  )(findMatchingPositions(lookup, normalizeAttrs(filters)));
+};
+
+/**
+ * Get items matching the given filters with specified sort order.
  *
  * @param {EleventyCollectionItem[]} items - Collection items
- * @param {FilterSet} filters - Non-empty filter object
- * @returns {EleventyCollectionItem[]} Filtered items
+ * @param {FilterSet} filters - Filter object (can be empty for sort-only)
+ * @param {string | undefined} sortKey - Sort option key
+ * @returns {EleventyCollectionItem[]} Filtered and sorted items
  */
-export const getItemsByFilters = (items, filters) =>
-  getItemsWithLookup(items, filters, buildItemLookup(items));
+export const filterWithSort = (items, filters, sortKey) =>
+  matchWithSort(items, filters, buildItemLookup(items), sortKey);

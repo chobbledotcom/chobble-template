@@ -94,7 +94,9 @@ describe("category-product-filters", () => {
       );
       expect(result.hasFilters).toBe(true);
       expect(result.clearAllUrl).toBe("/categories/widgets/#content");
-      expect(result.groups[0].options[0].url).toContain("/categories/widgets/");
+      // groups[0] is sort, groups[1] is size
+      expect(result.groups[0].name).toBe("sort");
+      expect(result.groups[1].options[0].url).toContain("/categories/widgets/");
     });
 
     test("Filters pages to only include current category", () => {
@@ -108,7 +110,9 @@ describe("category-product-filters", () => {
         null,
         mixedPages,
       );
-      expect(result.groups[0].options.length).toBe(1);
+      // groups[0] is sort (always 5 options), groups[1] is size
+      const sizeGroup = result.groups.find((g) => g.name === "size");
+      expect(sizeGroup.options.length).toBe(1);
     });
 
     test("Includes active filters with remove URLs", () => {

@@ -542,7 +542,11 @@ describe("item-filters", () => {
       expect(result.hasActiveFilters).toBe(false);
       expect(result.activeFilters).toEqual([]);
       expect(result.clearAllUrl).toBe("/test/#content");
-      expect(result.groups.length).toBe(2);
+      // 3 groups: sort + size + type
+      expect(result.groups.length).toBe(3);
+      // First group is sort
+      expect(result.groups[0].name).toBe("sort");
+      expect(result.groups[0].options.length).toBe(5);
     });
 
     test("includes active filters with remove URLs and marks active options", () => {
@@ -560,8 +564,8 @@ describe("item-filters", () => {
       expect(result.activeFilters[0].value).toBe("Small");
       expect(result.activeFilters[0].removeUrl).toBe("/test/#content");
 
-      // Active option marked in filter groups
-      const sizeGroup = result.groups[0];
+      // Active option marked in filter groups (groups[0] is sort, groups[1] is size)
+      const sizeGroup = result.groups.find((g) => g.name === "size");
       const smallOption = sizeGroup.options.find((o) => o.value === "Small");
       const largeOption = sizeGroup.options.find((o) => o.value === "Large");
       expect(smallOption.active).toBe(true);
@@ -583,8 +587,10 @@ describe("item-filters", () => {
       const validPages = pages(["type/cottage", "type/apartment"]);
       const result = getUIData(data, null, validPages);
 
-      expect(result.groups[0].options.length).toBe(2);
-      const optionValues = result.groups[0].options.map((o) => o.value);
+      // groups[0] is sort (always 5 options), groups[1] is type
+      const typeGroup = result.groups.find((g) => g.name === "type");
+      expect(typeGroup.options.length).toBe(2);
+      const optionValues = typeGroup.options.map((o) => o.value);
       expect(optionValues.includes("Cottage")).toBe(true);
       expect(optionValues.includes("Apartment")).toBe(true);
       expect(optionValues.includes("Villa")).toBe(false);
@@ -598,8 +604,10 @@ describe("item-filters", () => {
 
       const result = getUIData(data, null, validPages);
 
-      expect(result.groups.length).toBe(1);
-      expect(result.groups[0].name).toBe("type");
+      // groups[0] is sort (always present), groups[1] is type (size excluded)
+      expect(result.groups.length).toBe(2);
+      expect(result.groups[0].name).toBe("sort");
+      expect(result.groups[1].name).toBe("type");
     });
 
     test("remove URL for active filter keeps other filters", () => {
@@ -664,10 +672,12 @@ describe("item-filters", () => {
 
       const pagesResult = getPages(testItems);
 
-      // All items should be grouped under one path
-      // The first occurrence determines the slug
-      expect(pagesResult.length).toBe(1);
-      expect(pagesResult[0].count).toBe(3);
+      // All items grouped under one base path (type/cottage), with 5 sort variants each
+      // Plus 4 sort-only pages (price-asc, price-desc, name-asc, name-desc)
+      // = 5 (base + 4 sort variants) + 4 (sort-only) = 9
+      expect(pagesResult.length).toBe(9);
+      const basePage = pagesResult.find((p) => p.path === "type/cottage");
+      expect(basePage.count).toBe(3);
     });
   });
 
