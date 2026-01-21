@@ -40,7 +40,7 @@
       return false;
     }
 
-    const userAgent = navigator.userAgent;
+    const { userAgent } = navigator;
     const chromeMatch = userAgent.match(/Chrome\/(\d+)/);
 
     if (!chromeMatch) {

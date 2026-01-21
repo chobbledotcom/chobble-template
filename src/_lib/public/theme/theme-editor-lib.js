@@ -206,7 +206,7 @@ export const controlToVarEntry = (el) => {
  */
 export const inputToScopedEntry = (docStyle) => (input) => {
   const varName = input.dataset.var;
-  const value = input.value;
+  const { value } = input;
   const globalValue = docStyle.getPropertyValue(varName).trim();
   return shouldIncludeScopedVar(value, globalValue) ? [varName, value] : null;
 };
