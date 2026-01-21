@@ -11,11 +11,11 @@
 import { sortBy } from "#toolkit/fp/array.js";
 
 /**
- * Standard order extraction for Eleventy collection items.
- * @param {import("#lib/types").EleventyCollectionItem} item
+ * Standard order extraction for items with data.order.
+ * @param {{data?: {order?: number}}} item
  * @returns {number}
  */
-const getItemOrder = (item) => item.data?.order ?? 0;
+const getItemOrder = (item) => item?.data?.order ?? 0;
 
 /**
  * Generator that yields items sorted by order, lazily.
@@ -128,146 +128,4 @@ function* yieldFromChildren(children, getThumbnail, getOrder = getItemOrder) {
 const findFromChildren = (children, getThumbnail, getOrder = getItemOrder) =>
   first(yieldFromChildren(children, getThumbnail, getOrder));
 
-/**
- * Generator that yields the first thumbnail from a hierarchy.
- * Checks own thumbnail first, then recursively searches children in order.
- * Yields at most one value - the first thumbnail found.
- *
- * @template T
- * @param {T} item - Item to get thumbnail from
- * @param {(item: T) => string | null | undefined} getThumbnail - Extract thumbnail
- * @param {(item: T) => T[] | null | undefined} getChildren - Extract children
- * @param {(item: T) => number} [getOrder] - Extract sort order
- * @yields {string} First thumbnail found (at most one)
- */
-function* yieldThumbnailsRecursive(
-  item,
-  getThumbnail,
-  getChildren,
-  getOrder = getItemOrder,
-) {
-  const own = getThumbnail(item);
-  if (own != null) {
-    yield own;
-    return;
-  }
-
-  const children = getChildren(item);
-  if (!children?.length) return;
-
-  for (const child of yieldSorted(children, getOrder)) {
-    const childGen = yieldThumbnailsRecursive(
-      child,
-      getThumbnail,
-      getChildren,
-      getOrder,
-    );
-    const result = childGen.next();
-    if (!result.done) {
-      yield result.value;
-      return;
-    }
-  }
-}
-
-/**
- * Create a thumbnail resolver for a hierarchy with lazy child fallback.
- *
- * The resolver first checks the item's own thumbnail, then falls back
- * to sorted children. For recursive hierarchies, set recursive: true.
- *
- * @template T
- * @param {object} config
- * @param {(item: T) => string | null | undefined} config.getThumbnail - Extract thumbnail from item
- * @param {(item: T) => T[] | null | undefined} config.getChildren - Get children of item
- * @param {(item: T) => number} [config.getOrder] - Get sort order (default: data.order ?? 0)
- * @param {boolean} [config.recursive=false] - Whether to recurse into children's children
- * @returns {(item: T) => string | undefined} Resolver function
- *
- * @example
- * // Non-recursive: category -> products
- * const resolveFromProducts = createThumbnailResolver({
- *   getThumbnail: (cat) => productThumbnails[cat.fileSlug],
- *   getChildren: (cat) => childCategories.get(cat.fileSlug),
- * });
- *
- * @example
- * // Recursive: nested navigation
- * const resolveFromNav = createThumbnailResolver({
- *   getThumbnail: (nav) => nav.data.thumbnail,
- *   getChildren: (nav) => nav.children,
- *   recursive: true,
- * });
- */
-const createThumbnailResolver = ({
-  getThumbnail,
-  getChildren,
-  getOrder = getItemOrder,
-  recursive = false,
-}) => {
-  if (recursive) {
-    return (item) =>
-      first(
-        yieldThumbnailsRecursive(item, getThumbnail, getChildren, getOrder),
-      );
-  }
-
-  return (item) => {
-    const own = getThumbnail(item);
-    if (own != null) return own;
-
-    const children = getChildren(item);
-    return findFromChildren(children, getThumbnail, getOrder);
-  };
-};
-
-/**
- * Find thumbnail with lookup table fallback to children.
- *
- * This is the pattern used by categories: check a pre-built lookup table
- * for the item's key, and if not found, check sorted children's keys.
- *
- * @template T
- * @param {string} key - Key to look up (e.g., category slug)
- * @param {Record<string, string | undefined>} lookup - Lookup table: key -> thumbnail
- * @param {T[] | null | undefined} children - Child items to fall back to
- * @param {(child: T) => string} getChildKey - Extract key from child
- * @param {(child: T) => number} [getOrder] - Extract sort order
- * @returns {string | undefined} Thumbnail from lookup or undefined
- *
- * @example
- * const thumbnail = findWithLookupFallback(
- *   category.fileSlug,
- *   thumbnailsByCategory,
- *   childCategories.get(category.fileSlug),
- *   (child) => child.fileSlug,
- * );
- */
-const findWithLookupFallback = (
-  key,
-  lookup,
-  children,
-  getChildKey,
-  getOrder = getItemOrder,
-) => {
-  const direct = lookup[key];
-  if (direct != null) return direct;
-
-  return findFromChildren(
-    children,
-    (child) => lookup[getChildKey(child)],
-    getOrder,
-  );
-};
-
-export {
-  createThumbnailResolver,
-  findFirst,
-  findFromChildren,
-  findWithLookupFallback,
-  first,
-  yieldFromChildren,
-  yieldFromSources,
-  yieldSorted,
-  yieldThumbnailsRecursive,
-};
+export { findFirst, findFromChildren };

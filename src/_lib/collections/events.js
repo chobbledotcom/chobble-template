@@ -9,6 +9,7 @@ import { groupBy } from "#toolkit/fp/grouping.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import {
+  createArrayFieldIndexer,
   getEventsFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -76,20 +77,8 @@ export const categoriseEvents = memoize((events) => {
   return { upcoming, past, regular, undated };
 });
 
-/**
- * @typedef {{ eventSlug: string, thumbnail: string, order: number }} EventThumbnailEntry
- */
-
-/**
- * Build a map of event slugs to best thumbnail from products.
- * @param {ProductCollectionItem[]} products
- * @returns {Map<string, ProductCollectionItem[]>}
- */
-const buildProductsByEvent = (products) =>
-  groupBy(
-    products.filter((p) => p.data.events?.length && p.data.thumbnail),
-    (p) => p.data.events,
-  );
+/** Index products by event slug for O(1) lookups */
+const indexProductsByEvent = createArrayFieldIndexer("events");
 
 /**
  * Create the events collection with inherited thumbnails from products.
@@ -101,12 +90,12 @@ const createEventsCollection = (collectionApi) => {
   if (events.length === 0) return [];
 
   const products = getProductsFromApi(collectionApi);
-  const productsByEvent = buildProductsByEvent(products);
+  const productsByEvent = indexProductsByEvent(products);
 
   return events.map((event) => {
     if (!event.data.thumbnail) {
       const thumb = findFromChildren(
-        productsByEvent.get(event.fileSlug),
+        productsByEvent[event.fileSlug],
         (p) => p.data.thumbnail,
       );
       if (thumb) event.data.thumbnail = thumb;

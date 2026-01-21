@@ -3,10 +3,13 @@ import {
   createMockEleventyConfig,
   data,
   expectResultTitles,
+  taggedCollectionApi,
 } from "#test/test-utils.js";
 import {
   configureCollectionUtils,
+  getEventsFromApi,
   getFeatured,
+  getLocationsFromApi,
 } from "#utils/collection-utils.js";
 
 // ============================================
@@ -62,6 +65,47 @@ describe("collection-utils", () => {
 
       expect(typeof mockConfig.filters.getFeatured).toBe("function");
       expect(mockConfig.filters.getFeatured).toBe(getFeatured);
+    });
+  });
+
+  describe("getEventsFromApi", () => {
+    test("returns events from collection API", () => {
+      const events = [
+        { data: { title: "Event 1" } },
+        { data: { title: "Event 2" } },
+      ];
+      const api = taggedCollectionApi({ events });
+
+      const result = getEventsFromApi(api);
+
+      expect(result).toEqual(events);
+    });
+
+    test("returns empty array when no events", () => {
+      const api = taggedCollectionApi({ events: [] });
+
+      const result = getEventsFromApi(api);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getLocationsFromApi", () => {
+    test("returns locations from collection API", () => {
+      const locations = [{ data: { title: "Location 1" } }];
+      const api = taggedCollectionApi({ locations });
+
+      const result = getLocationsFromApi(api);
+
+      expect(result).toEqual(locations);
+    });
+
+    test("returns empty array when no locations", () => {
+      const api = taggedCollectionApi({ locations: [] });
+
+      const result = getLocationsFromApi(api);
+
+      expect(result).toEqual([]);
     });
   });
 });
