@@ -79,7 +79,7 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "ecommerce-backend/server.js:87", // SKU prices cache with expiry tracking
 
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:154", // createExtractor accumulates results in a Set
+  "test/test-utils.js:155", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -240,13 +240,13 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 // NOT for mocking the global document.
 const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
   // Infrastructure: DOM class definition
-  "test/test-utils.js:184",
+  "test/test-utils.js:186",
 
   // Parsing build output into queryable documents
   "test/test-site-factory.js:331",
 
   // Parsing generated HTML for assertions
-  "test/unit/code-quality/template-selectors.test.js:41",
+  "test/unit/code-quality/template-selectors.test.js:43",
 
   // This test file tests these patterns
   "test/unit/code-quality/dom-mocking.test.js",

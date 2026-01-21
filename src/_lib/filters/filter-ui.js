@@ -4,11 +4,16 @@
  * Functions for building filter UI data structures for templates:
  * - Active filter pills with remove URLs
  * - Filter groups with options
+ * - Sort group with options
  * - Filter descriptions for headings
  */
 
-import { filterToPath } from "#filters/filter-core.js";
-import { map, mapFilter } from "#toolkit/fp/array.js";
+import {
+  filterToPath,
+  SORT_OPTIONS,
+  toSortedPath,
+} from "#filters/filter-core.js";
+import { mapFilter } from "#toolkit/fp/array.js";
 import { mapEntries, omit, toObject } from "#toolkit/fp/object.js";
 
 /** @typedef {import("#lib/types").FilterSet} FilterSet */
@@ -50,6 +55,7 @@ export const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
  * @param {FilterSet | null | undefined} currentFilters - Current active filters
  * @param {{ path: string }[]} validPages - Array of valid page paths
  * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
+ * @param {string} [currentSortKey="default"] - Current sort key
  * @returns {FilterUIData} Complete UI data ready for simple template loops
  */
 export const buildFilterUIData = (
@@ -57,6 +63,7 @@ export const buildFilterUIData = (
   currentFilters,
   validPages,
   baseUrl,
+  currentSortKey = "default",
 ) => {
   const { attributes: allAttributes, displayLookup: display } = filterData;
 
@@ -64,14 +71,25 @@ export const buildFilterUIData = (
     return { hasFilters: false };
   }
 
-  // Use lookup object for O(1) path lookups instead of O(n) array includes
-  const validPathLookup = toObject(validPages, (p) => [p.path, true]);
   const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 
-  // Build active filter pills with remove URLs
+  // Use lookup object for O(1) path lookups instead of O(n) array includes
+  const validPathLookup = toObject(validPages, (p) => [p.path, true]);
+
+  const sortOptions = SORT_OPTIONS.map((sortOption) => {
+    const isActive = currentSortKey === sortOption.key;
+    const path = toSortedPath(filters, sortOption.key);
+    return {
+      value: sortOption.label,
+      url: path ? `${baseUrl}/search/${path}/#content` : `${baseUrl}/#content`,
+      active: isActive,
+    };
+  });
+  const sortGroup = { name: "sort", label: "Sort", options: sortOptions };
+
   const activeFilters = mapEntries((key, value) => {
-    const removePath = filterToPath(omit([key])(filters));
+    const removePath = toSortedPath(omit([key])(filters), currentSortKey);
     return {
       key: display[key],
       value: display[value],
@@ -82,14 +100,17 @@ export const buildFilterUIData = (
   })(filters);
 
   // Build filter groups with options
-  const groups = mapFilter(([attrName, attrValues]) => {
+  const attributeGroups = mapFilter(([attrName, attrValues]) => {
     const options = mapFilter((value) => {
       const isActive = filters[attrName] === value;
-      const path = filterToPath({ ...filters, [attrName]: value });
-      if (!isActive && !validPathLookup[path]) return null;
+      const newFilters = { ...filters, [attrName]: value };
+      const basePath = filterToPath(newFilters);
+      // Check if base path is valid (sort variants are always valid if base is)
+      if (!isActive && !validPathLookup[basePath]) return null;
+      const pathWithSort = toSortedPath(newFilters, currentSortKey);
       return {
         value: display[value],
-        url: `${baseUrl}/search/${path}/#content`,
+        url: `${baseUrl}/search/${pathWithSort}/#content`,
         active: isActive,
       };
     })(attrValues);
@@ -97,6 +118,9 @@ export const buildFilterUIData = (
     if (options.length === 0) return null;
     return { name: attrName, label: display[attrName], options };
   })(Object.entries(allAttributes));
+
+  // Sort group first, then attribute groups
+  const groups = [sortGroup, ...attributeGroups];
 
   return {
     hasFilters: groups.length > 0,
@@ -108,14 +132,26 @@ export const buildFilterUIData = (
 };
 
 /**
- * Add filterUI to each page object
+ * Add filterUI to each page object with sort support
  * @param {Array} pages - Page objects to enhance
  * @param {Object} filterData - { attributes, displayLookup }
  * @param {string} baseUrl - Base URL for filter links
+ * @param {{ path: string }[]} validBasePaths - Valid base paths (without sort) for validation
  * @returns {Array} New pages array with filterUI added
  */
-export const addFilterUI = (pages, filterData, baseUrl) =>
-  map((page) => ({
+export const enhanceWithFilterUI = (
+  pages,
+  filterData,
+  baseUrl,
+  validBasePaths,
+) =>
+  pages.map((page) => ({
     ...page,
-    filterUI: buildFilterUIData(filterData, page.filters, pages, baseUrl),
-  }))(pages);
+    filterUI: buildFilterUIData(
+      filterData,
+      page.filters,
+      validBasePaths,
+      baseUrl,
+      page.sortKey || "default",
+    ),
+  }));

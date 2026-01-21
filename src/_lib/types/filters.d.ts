@@ -24,6 +24,22 @@ export type FilterCombination = {
 };
 
 /**
+ * A filter combination with sort variant
+ */
+export type FilterCombinationWithSort = FilterCombination & {
+  sortKey: string;
+};
+
+/**
+ * A sort option configuration
+ */
+export type SortOption = {
+  key: string;
+  label: string;
+  compare: (a: unknown, b: unknown) => number;
+};
+
+/**
  * Extracted filter attribute data from collection items
  */
 export type FilterAttributeData = {
