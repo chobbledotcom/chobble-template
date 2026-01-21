@@ -102,10 +102,9 @@ export function attachQuantityHandlers(onUpdate) {
     "input[type='number'][data-name]",
   )) {
     input.addEventListener("change", () => {
-      const itemName = input.dataset.name;
       const quantity = parseInt(input.value, 10);
       if (!Number.isNaN(quantity)) {
-        onUpdate(itemName, quantity);
+        onUpdate(input.dataset.name, quantity);
       }
     });
   }

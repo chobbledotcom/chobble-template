@@ -34,7 +34,6 @@ async function checkout() {
   if (!main) return;
 
   const statusMessage = document.getElementById("status-message");
-  const checkoutApiUrl = main.dataset.checkoutApiUrl;
   const cart = getCart();
 
   if (cart.length === 0) {
@@ -43,13 +42,16 @@ async function checkout() {
     return;
   }
 
-  if (!checkoutApiUrl) {
+  if (!main.dataset.checkoutApiUrl) {
     showStatusError("Checkout backend is not configured");
     return;
   }
 
   statusMessage.textContent = "Redirecting to Stripe...";
-  const result = await createStripeSession(checkoutApiUrl, getCheckoutItems());
+  const result = await createStripeSession(
+    main.dataset.checkoutApiUrl,
+    getCheckoutItems(),
+  );
 
   if (result.error) {
     showStatusError(result.error);

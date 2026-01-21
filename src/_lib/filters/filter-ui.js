@@ -58,8 +58,7 @@ export const buildFilterUIData = (
   validPages,
   baseUrl,
 ) => {
-  const allAttributes = filterData.attributes;
-  const display = filterData.displayLookup;
+  const { attributes: allAttributes, displayLookup: display } = filterData;
 
   if (Object.keys(allAttributes).length === 0) {
     return { hasFilters: false };

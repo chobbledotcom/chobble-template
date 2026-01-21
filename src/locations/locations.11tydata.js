@@ -5,23 +5,22 @@ import {
 } from "#utils/navigation-utils.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
-const locationDir = strings.location_permalink_dir;
-
 export default {
   eleventyComputed: {
     navigationParent: () => strings.location_name,
     parentLocation: (data) => {
-      const regex = new RegExp(`/${locationDir}/([^/]+)/[^/]+\\.md$`);
+      const regex = new RegExp(
+        `/${strings.location_permalink_dir}/([^/]+)/[^/]+\\.md$`,
+      );
       const match = data.page.inputPath.match(regex);
       return match ? match[1] : null;
     },
     permalink: (data) => {
       if (data.permalink) return data.permalink;
-      const parent = data.parentLocation;
-      if (parent) {
-        return `/${locationDir}/${parent}/${data.page.fileSlug}/`;
+      if (data.parentLocation) {
+        return `/${strings.location_permalink_dir}/${data.parentLocation}/${data.page.fileSlug}/`;
       }
-      return `/${locationDir}/${data.page.fileSlug}/`;
+      return `/${strings.location_permalink_dir}/${data.page.fileSlug}/`;
     },
     eleventyNavigation: (data) =>
       buildNavigation(data, (d) => {

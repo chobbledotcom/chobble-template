@@ -34,7 +34,6 @@ export const generateFilterCombinations = memoize((items) => {
   if (keys.length === 0) return [];
 
   const lookup = buildItemLookup(items);
-  const itemCount = items.length;
 
   // Recursive helper to build all valid filter combinations
   // Uses closure to avoid passing state object through recursion
@@ -42,7 +41,11 @@ export const generateFilterCombinations = memoize((items) => {
     keys.slice(startKeyIndex).flatMap((key, offset) =>
       values[key].flatMap((value) => {
         const filters = { ...currentFilters, [key]: value };
-        const count = countMatches(lookup, normalizeAttrs(filters), itemCount);
+        const count = countMatches(
+          lookup,
+          normalizeAttrs(filters),
+          items.length,
+        );
         if (count === 0) return [];
         const combo = { filters, path: filterToPath(filters), count };
         return [combo, ...buildCombosFrom(filters, startKeyIndex + offset + 1)];

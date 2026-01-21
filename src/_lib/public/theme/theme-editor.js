@@ -183,11 +183,10 @@ const ThemeEditor = {
   },
 
   initScopedColorInput(input, scopeVars, docStyle) {
-    const varName = input.dataset.var;
-    if (scopeVars[varName]) {
-      input.value = scopeVars[varName];
+    if (scopeVars[input.dataset.var]) {
+      input.value = scopeVars[input.dataset.var];
     } else {
-      const globalValue = docStyle.getPropertyValue(varName).trim();
+      const globalValue = docStyle.getPropertyValue(input.dataset.var).trim();
       if (globalValue?.startsWith("#")) input.value = globalValue;
     }
     input.addEventListener("input", () => this.updateThemeFromControls());
@@ -371,9 +370,8 @@ const ThemeEditor = {
     for (const input of this.formQuery(
       `input[type="color"][data-var][data-scope="${scope}"]`,
     )) {
-      const varName = input.dataset.var;
-      const oldGlobal = oldGlobalVars[varName];
-      const newGlobal = newGlobalVars[varName];
+      const oldGlobal = oldGlobalVars[input.dataset.var];
+      const newGlobal = newGlobalVars[input.dataset.var];
       if (oldGlobal && newGlobal && input.value === oldGlobal) {
         input.value = newGlobal;
       }

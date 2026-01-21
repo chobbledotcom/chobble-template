@@ -70,11 +70,10 @@ const processImageElement = async (img, document, processAndWrapImage) => {
     img.removeAttribute(IGNORE_ATTRIBUTE);
     return;
   }
-  const parent = img.parentElement;
-  if (parent?.classList?.contains("image-wrapper")) return;
+  if (img.parentElement?.classList?.contains("image-wrapper")) return;
   const wrapped = await processAndWrapImage(extractImageOptions(img, document));
   if (typeof wrapped !== "string") {
-    parent.replaceChild(wrapped, img);
+    img.parentElement.replaceChild(wrapped, img);
   }
 };
 

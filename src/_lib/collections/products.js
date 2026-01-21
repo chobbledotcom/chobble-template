@@ -78,9 +78,7 @@ const getProductsByEvent = (products, eventSlug) =>
 const createApiSkusCollection = (collectionApi) => {
   const products = collectionApi.getFilteredByTag("products");
   const allSkuEntries = products.flatMap((product) => {
-    /** @type {import("#lib/types").Option[]|undefined} */
-    const options = product.data.options;
-    if (!options) return [];
+    if (!product.data.options) return [];
 
     const productTitle = product.data.title || "";
 
@@ -94,7 +92,7 @@ const createApiSkusCollection = (collectionApi) => {
           max_quantity: option.max_quantity ?? null,
         },
       ],
-    )(options);
+    )(product.data.options);
   });
 
   const duplicate = findDuplicate(allSkuEntries, ([sku]) => sku);

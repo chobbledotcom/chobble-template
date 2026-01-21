@@ -169,8 +169,7 @@ const setupDetailsBlurHandlers = (getDays = () => 1) => {
   const formContainer = getFormContainer();
   if (formContainer === null) return;
   const handleBlur = (event) => {
-    const target = event.target;
-    if (target.matches("input, select, textarea")) {
+    if (event.target.matches("input, select, textarea")) {
       updateQuotePrice(getDays());
     }
   };
@@ -180,8 +179,7 @@ const setupDetailsBlurHandlers = (getDays = () => 1) => {
 
   // Also handle change for radios/selects which may not blur naturally
   formContainer.addEventListener("change", (event) => {
-    const target = event.target;
-    if (target.matches('input[type="radio"], select')) {
+    if (event.target.matches('input[type="radio"], select')) {
       updateQuotePrice(getDays());
     }
   });

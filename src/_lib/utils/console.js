@@ -13,8 +13,11 @@ const isNodeJs =
 const isServeMode = () => {
   if (isNodeJs) return true;
   if (typeof location === "undefined") return false;
-  const host = location.hostname;
-  return host === "localhost" || host === "127.0.0.1" || host === "";
+  return (
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1" ||
+    location.hostname === ""
+  );
 };
 
 export const log = (...args) => {

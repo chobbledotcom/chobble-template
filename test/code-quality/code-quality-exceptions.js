@@ -91,7 +91,7 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/code-quality/array-push.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/let-usage.test.js",
-  "test/unit/code-quality/method-aliasing.test.js",
+  "test/unit/code-quality/aliasing.test.js",
   "test/unit/code-quality/naming-conventions.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
   "test/unit/code-quality/memoize-inside-function.test.js",

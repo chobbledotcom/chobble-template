@@ -40,8 +40,7 @@
       return false;
     }
 
-    const userAgent = navigator.userAgent;
-    const chromeMatch = userAgent.match(/Chrome\/(\d+)/);
+    const chromeMatch = navigator.userAgent.match(/Chrome\/(\d+)/);
 
     if (!chromeMatch) {
       return true;
