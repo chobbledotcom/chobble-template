@@ -105,8 +105,7 @@ const hasSkipAncestor = (element) => {
  * @returns {boolean}
  */
 const shouldProcessNode = (node, pattern) => {
-  const parent = node.parentElement;
-  if (!parent || hasSkipAncestor(parent)) {
+  if (!node.parentElement || hasSkipAncestor(node.parentElement)) {
     return false;
   }
   pattern.lastIndex = 0;

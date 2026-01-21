@@ -15,11 +15,10 @@ const getPdfRenderer = memoize(
 );
 
 function buildMenuPdfData(menu, menuCategories, menuItems) {
-  const menuSlug = menu.fileSlug;
   const items = menuItems || [];
 
   const categories = pipe(
-    filter((cat) => cat.data.menus?.includes(menuSlug)),
+    filter((cat) => cat.data.menus?.includes(menu.fileSlug)),
     sort(sortItems),
   )(menuCategories || []);
 
@@ -217,8 +216,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   }
 
   const filename = buildPdfFilename(site.name, menu.fileSlug);
-  const menuDir = strings.menu_permalink_dir;
-  const outputPath = `${outputDir}/${menuDir}/${menu.fileSlug}/${filename}`;
+  const outputPath = `${outputDir}/${strings.menu_permalink_dir}/${menu.fileSlug}/${filename}`;
   ensureDir(dirname(outputPath));
 
   return new Promise((resolve, reject) => {

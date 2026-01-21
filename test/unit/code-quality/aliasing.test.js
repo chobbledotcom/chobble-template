@@ -11,16 +11,22 @@ import { frozenSet } from "#toolkit/fp/set.js";
 /**
  * Detect variable aliasing patterns that add noise without value:
  *
- * 1. Local aliases:  const alias = localFn;
- * 2. Import aliases: const alias = importedFn;
+ * 1. Local aliases:    const alias = localFn;
+ * 2. Import aliases:   const alias = importedFn;
+ * 3. Property aliases: const alias = obj.prop;
  *
  * Instead:
  * - Use the original name directly
  * - Rename at import site: import { x as alias } from '...'
+ * - For properties, use directly: obj.prop
  */
 
 // Pattern: const identifier = identifier; (simple alias)
 const SIMPLE_ALIAS_PATTERN = /^\s*const\s+(\w+)\s*=\s*([a-z_]\w*)\s*;\s*$/i;
+
+// Pattern: const identifier = identifier.property; (property alias)
+const PROPERTY_ALIAS_PATTERN =
+  /^\s*const\s+(\w+)\s*=\s*([a-z_]\w*(?:\.[a-z_]\w*)+)\s*;\s*$/i;
 
 // Pattern to match local definitions (const/let/var/function)
 const DEF_PATTERN = /^\s*(?:const|let|var|function)\s+(\w+)(?:\s*=|\s*\()/;
@@ -69,6 +75,20 @@ const findAliases = (source) => {
   return scanLines(source, (line, lineNum) => {
     if (isCommentLine(line)) return null;
 
+    // Check for property alias first (more specific pattern)
+    const propMatch = line.match(PROPERTY_ALIAS_PATTERN);
+    if (propMatch) {
+      const [, newName, originalExpr] = propMatch;
+      return {
+        lineNumber: lineNum,
+        line: line.trim(),
+        newName,
+        originalName: originalExpr,
+        type: "property",
+      };
+    }
+
+    // Check for simple alias
     const match = line.match(SIMPLE_ALIAS_PATTERN);
     if (!match) return null;
 
@@ -126,12 +146,24 @@ const aliasedFn = originalFn;`;
     });
   });
 
-  describe("allowed patterns", () => {
-    test("ignores property access", () => {
-      const source = `const log = console.log;
-const options = product.data.options;`;
-      expect(findAliases(source).length).toBe(0);
+  describe("property aliases", () => {
+    test("detects property access aliases", () => {
+      const source = "const log = console.log;";
+      const results = findAliases(source);
+      expect(results.length).toBe(1);
+      expect(results[0].type).toBe("property");
+      expect(results[0].originalName).toBe("console.log");
     });
+
+    test("detects nested property access", () => {
+      const source = "const options = product.data.options;";
+      const results = findAliases(source);
+      expect(results.length).toBe(1);
+      expect(results[0].originalName).toBe("product.data.options");
+    });
+  });
+
+  describe("allowed patterns", () => {
     test("ignores function calls", () => {
       const source = `import { getData } from some-module;
 const result = getData();`;
@@ -176,6 +208,7 @@ const empty = null;`;
       plural: "aliases",
       fixHint:
         "use the original directly, or rename at import: import { x as y } from '...'",
+      limit: 50,
     });
   });
 });

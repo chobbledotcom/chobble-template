@@ -11,8 +11,9 @@ onReady(() => {
   const tabs = document.querySelectorAll("#tabs a[href^='#tab-']");
   if (tabs.length === 0) return;
 
-  const hash = window.location.hash;
-  const activeLink = [...tabs].find((t) => t.getAttribute("href") === hash);
+  const activeLink = [...tabs].find(
+    (t) => t.getAttribute("href") === window.location.hash,
+  );
   setActiveTab(tabs, activeLink || tabs[0]);
 
   for (const tab of tabs) {

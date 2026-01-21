@@ -113,9 +113,8 @@ export const getAllFilterAttributes = memoize((items) => {
  */
 export const buildDisplayLookup = memoize((items) =>
   buildFirstOccurrenceLookup(items, (item) => {
-    const attrs = item.data.filter_attributes;
-    if (!attrs) return [];
-    return attrs.flatMap((attr) => [
+    if (!item.data.filter_attributes) return [];
+    return item.data.filter_attributes.flatMap((attr) => [
       [slugify(attr.name), attr.name],
       [slugify(attr.value), attr.value],
     ]);

@@ -204,7 +204,6 @@ function initQuoteSteps() {
     progressContainer.dataset.completedSteps,
     10,
   );
-  const totalSteps = steps.length;
 
   renderStepProgress(progressContainer, stepsData, baseCompletedSteps);
 
@@ -220,14 +219,14 @@ function initQuoteSteps() {
       nextBtn,
       submitBtn,
       currentStep,
-      totalSteps,
+      steps.length,
     );
-    if (currentStep === totalSteps - 1) populateRecap(steps);
+    if (currentStep === steps.length - 1) populateRecap(steps);
   }
 
   function goToStep(newStep) {
     const currentStep = getCurrentStep();
-    if (newStep < 0 || newStep >= totalSteps) return;
+    if (newStep < 0 || newStep >= steps.length) return;
     if (newStep > currentStep && !validateStep(steps[currentStep])) return;
     setCurrentStep(newStep);
     updateUI();

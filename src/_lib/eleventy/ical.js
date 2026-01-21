@@ -22,12 +22,11 @@ const eventIcal = (event) => {
     return null;
   }
 
-  const siteName = site.name;
   const timezone = getConfig().timezone;
   const calendar = ical({
-    prodId: `//${siteName}//Event Calendar//EN`,
-    name: siteName,
-    timezone: timezone,
+    prodId: `//${site.name}//Event Calendar//EN`,
+    name: site.name,
+    timezone,
   });
 
   const eventDate = new Date(event.data.event_date);
