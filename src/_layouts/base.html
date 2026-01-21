@@ -6,10 +6,10 @@
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
-    {%- if config.show_breadcrumbs and page.url != "/" -%}
-      {%- include "breadcrumbs.html" -%}
-    {%- endif -%}
     <article class="content" id="content">
+      {%- if config.show_breadcrumbs and page.url != "/" -%}
+        {%- include "breadcrumbs.html" -%}
+      {%- endif -%}
       {{- content -}}
     </article>
     {%- if "src/snippets/right-content.md" | file_exists -%}

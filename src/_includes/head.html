@@ -3,19 +3,11 @@
 
   {%- assign css_bundle = layout | getCssBundle: config.design_system_layouts -%}
   {%- assign js_bundle = layout | getJsBundle: config.design_system_layouts -%}
-  {%- assign uses_design_system = layout | usesDesignSystem: config.design_system_layouts -%}
 
   <link
     rel="stylesheet"
     href="{{ css_bundle | cacheBust }}"
   >
-
-  {%- if blocks.size > 0 and uses_design_system == false -%}
-  <link
-    rel="stylesheet"
-    href="{{ '/css/design-system-bundle.css' | cacheBust }}"
-  >
-  {%- endif -%}
 
   {%- include "js-config-script.html" -%}
 
@@ -23,13 +15,6 @@
     type="module"
     src="{{ js_bundle | cacheBust }}"
   ></script>
-
-  {%- if blocks.size > 0 and uses_design_system == false -%}
-  <script
-    type="module"
-    src="{{ '/assets/js/design-system.js' | cacheBust }}"
-  ></script>
-  {%- endif -%}
 
   {%- if collections.news.size > 0 -%}
     <link
