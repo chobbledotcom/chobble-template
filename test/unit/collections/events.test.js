@@ -135,17 +135,6 @@ describe("events", () => {
     expectResultTitles(result.regular, ["Hybrid Event"]);
   });
 
-  test("Handles events without titles gracefully", () => {
-    const events = [
-      { data: { recurring_date: "Every Monday" } },
-      ...createEvents([{ title: "Named Event", recurring: "Every Tuesday" }]),
-    ];
-
-    const result = categoriseEvents(events);
-
-    expectResultTitles(result.regular, [undefined, "Named Event"]);
-  });
-
   test("Categorizes events without dates as undated", () => {
     const events = createEvents([
       { title: "No Date Event 1", undated: true },

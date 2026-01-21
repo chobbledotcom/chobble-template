@@ -34,14 +34,12 @@ const getAnchorSuffix = async () => {
 };
 
 /**
- * Create a link element for an item
+ * Create a link element for an item.
  * @param {string} anchor - Anchor suffix
- * @returns {(item: Object) => Promise<string>} Function that creates HTML anchor
  */
 const createItemLink = (anchor) => async (item) => {
   const url = `${item.url}${anchor}`;
-  const title = item.data?.title || item.fileSlug;
-  return createHtml("a", { href: url }, title);
+  return createHtml("a", { href: url }, item.data.title);
 };
 
 /**

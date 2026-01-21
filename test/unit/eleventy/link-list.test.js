@@ -87,20 +87,6 @@ describe("link-list", () => {
     );
   });
 
-  test("Uses fileSlug as title when data.title is missing", async () => {
-    const collection = [
-      {
-        fileSlug: "untitled",
-        url: "/products/untitled/",
-        data: {},
-      },
-    ];
-
-    const result = await linkList(["untitled"], collection);
-
-    expect(result).toBe('<a href="/products/untitled/">untitled</a>');
-  });
-
   test("Preserves order of slugs in output", async () => {
     const collection = createCollection([
       ["alpha", "Alpha", "/products/alpha/"],

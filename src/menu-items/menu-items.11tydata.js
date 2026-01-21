@@ -3,6 +3,7 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 
 export default {
   eleventyComputed: {
+    title: (data) => data.title || data.name,
     dietaryKeys: (data) => {
       const dietaryIndicators = data.dietaryIndicators || {};
 
