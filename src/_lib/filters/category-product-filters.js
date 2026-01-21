@@ -108,8 +108,7 @@ const filteredCategoryPages = (collectionApi) =>
       };
     });
 
-    addFilterUI(pages, filterData, baseUrl);
-    return pages;
+    return addFilterUI(pages, filterData, baseUrl);
   }).flat();
 
 /**
