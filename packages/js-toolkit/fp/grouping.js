@@ -18,6 +18,15 @@ const appendToMap = (map, [key, item]) =>
   map.set(key, [...(map.get(key) || []), item]);
 
 /**
+ * Collect [key, value] pairs into a Map, grouping values by key
+ * @template K
+ * @template V
+ * @param {[K, V][]} pairs - Array of [key, value] pairs
+ * @returns {Map<K, V[]>} Map from key to array of values
+ */
+const collectToMap = (pairs) => reduce(appendToMap, new Map())(pairs);
+
+/**
  * Build a reverse index from items to keys (many-to-many relationship)
  *
  * Each item can map to multiple keys via the getKeys function.
@@ -37,7 +46,7 @@ const appendToMap = (map, [key, item]) =>
 const buildReverseIndex = (items, getKeys) =>
   pipe(
     flatMap((item) => getKeys(item).map((key) => [key, item])),
-    reduce(appendToMap, new Map()),
+    collectToMap,
   )(items);
 
 /**
@@ -58,7 +67,7 @@ const buildReverseIndex = (items, getKeys) =>
  * // Map { "size" => ["small", "large"] }
  */
 const groupValuesBy = (pairs) => {
-  const grouped = pipe(reduce(appendToMap, new Map()))(pairs);
+  const grouped = collectToMap(pairs);
   return new Map([...grouped].map(([k, v]) => [k, [...new Set(v)]]));
 };
 
@@ -106,7 +115,7 @@ const groupBy = (items, getKey) =>
   pipe(
     filter((item) => getKey(item) != null),
     flatMap((item) => [[getKey(item), item]]),
-    reduce(appendToMap, new Map()),
+    collectToMap,
   )(items);
 
 export {

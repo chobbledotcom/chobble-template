@@ -26,7 +26,7 @@
 		"test:unit": "bun test test/unit",
 		"test:integration": "bun test test/integration",
 		"typecheck": "tsc --noEmit",
-		"cpd:fp": "jscpd packages/js-toolkit/fp --min-tokens 18",
+		"cpd:fp": "jscpd packages/js-toolkit/fp --min-tokens 12",
 		"cpd": "jscpd && jscpd src/_lib src/_data scripts packages --min-tokens 23 --ignore '**/index.js,**/page-layouts/**,**/customise-cms/**'",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
