@@ -72,13 +72,12 @@ const getFieldValue = (field) => {
   return field.value;
 };
 
-const getLabelFromFieldMap = (field) =>
-  getFieldLabels()[field.name || field.id];
+const fieldLabel = (field) => getFieldLabels()[field.name || field.id];
 
 const getFieldId = (field) => (isRadio(field) ? field.name : field.id);
 
 const fieldToDetail = (field) => ({
-  key: getLabelFromFieldMap(field),
+  key: fieldLabel(field),
   value: getFieldValue(field),
 });
 

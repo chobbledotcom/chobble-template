@@ -49,7 +49,7 @@ const extractLqipFromMetadata = (imageMetadata) => {
  * @param {Object} imageMetadata - Metadata returned by eleventy-img
  * @returns {Object} Filtered metadata without LQIP-sized images
  */
-const filterOutLqipFromMetadata = mapObject((format, images) => [
+const removeLqip = mapObject((format, images) => [
   format,
   images.filter((img) => img.width !== LQIP_WIDTH),
 ]);
@@ -58,6 +58,6 @@ export {
   getEleventyImg,
   shouldGenerateLqip,
   extractLqipFromMetadata,
-  filterOutLqipFromMetadata,
+  removeLqip,
   LQIP_WIDTH,
 };

@@ -50,6 +50,6 @@ const memoizedInlineAsset = memoize(inlineAsset);
  * Configure the inline_asset filter for Eleventy
  * @param {object} eleventyConfig - Eleventy configuration object
  */
-export function configureInlineAsset(eleventyConfig) {
+export const configureInlineAsset = (eleventyConfig) => {
   eleventyConfig.addFilter("inline_asset", memoizedInlineAsset);
-}
+};

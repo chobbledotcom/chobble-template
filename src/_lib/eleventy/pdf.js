@@ -236,7 +236,7 @@ async function generateMenuPdf(menu, menuCategories, menuItems, outputDir) {
   });
 }
 
-export function configurePdf(eleventyConfig) {
+export const configurePdf = (eleventyConfig) => {
   let state = null;
 
   eleventyConfig.addCollection("_pdfMenuData", (collectionApi) => {
@@ -258,6 +258,6 @@ export function configurePdf(eleventyConfig) {
       ),
     );
   });
-}
+};
 
 export { generateMenuPdf, buildMenuPdfData };

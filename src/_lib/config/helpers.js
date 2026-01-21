@@ -5,6 +5,7 @@ const DEFAULTS = frozenObject({
   horizontal_nav: true,
   homepage_news: true,
   homepage_products: true,
+  show_breadcrumbs: false,
   externalLinksTargetBlank: false,
   contact_form_target: null,
   formspark_id: null,

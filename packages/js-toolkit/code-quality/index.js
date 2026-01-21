@@ -7,7 +7,7 @@
 
 export {
   COMMON_STEPS,
-  createTestsWithCoverageStep,
+  coverageStep,
   extractErrorsFromOutput,
   printSummary,
   printTruncatedList,
@@ -26,13 +26,13 @@ export {
   createViolation,
   excludeFiles,
   expectNoStaleExceptions,
-  expectNoStaleFunctionAllowlist,
   extractExports,
   findPatterns,
   formatViolationReport,
   isCommentLine,
   isFunctionDefined,
   matchesAny,
+  noStaleAllowlist,
   readSource,
   scanFilesForViolations,
   scanLines,

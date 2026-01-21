@@ -53,16 +53,14 @@ function buildRadioRecapItem(id) {
   return value === "" ? "" : `<dt>${getRadioLabel(id)}</dt><dd>${value}</dd>`;
 }
 
-function buildRegularFieldRecapItem(id) {
+function fieldRecapItem(id) {
   const field = document.getElementById(id);
   const value = getFieldDisplayValue(field);
   return value === "" ? "" : `<dt>${getFieldLabel(id)}</dt><dd>${value}</dd>`;
 }
 
 function buildRecapItem(ref) {
-  return ref.isRadio
-    ? buildRadioRecapItem(ref.id)
-    : buildRegularFieldRecapItem(ref.id);
+  return ref.isRadio ? buildRadioRecapItem(ref.id) : fieldRecapItem(ref.id);
 }
 
 const toFieldRef = (field) => ({
@@ -70,7 +68,7 @@ const toFieldRef = (field) => ({
   id: field.type === "radio" ? field.name : field.id,
 });
 
-const dedupeFieldRefsById = uniqueBy((ref) => ref.id);
+const dedupeRefs = uniqueBy((ref) => ref.id);
 
 function getStepFieldRefs(stepEl) {
   const fields = [...stepEl.querySelectorAll("input, select, textarea")];
@@ -78,7 +76,7 @@ function getStepFieldRefs(stepEl) {
     map(toFieldRef),
     filter((ref) => ref.id),
   )(fields);
-  return dedupeFieldRefsById(refs);
+  return dedupeRefs(refs);
 }
 
 function populateRecap(steps) {
@@ -111,7 +109,7 @@ function clearFieldError(field) {
   setFieldError(field, false);
 }
 
-function setupErrorClearingOnField(field) {
+function clearOnInput(field) {
   const eventType = field.type === "radio" ? "change" : "input";
   field.addEventListener(eventType, () => clearFieldError(field), {
     once: true,
@@ -125,7 +123,7 @@ function validateRadioGroup(name, stepEl) {
   const isValid = !isRequired || checked !== null;
   if (!isValid && radios[0]) {
     setFieldError(radios[0], true);
-    setupErrorClearingOnField(radios[0]);
+    clearOnInput(radios[0]);
   }
   return isValid;
 }
@@ -137,7 +135,7 @@ function validateField(field, stepEl) {
   const isValid = field.checkValidity();
   if (isValid === false) {
     setFieldError(field, true);
-    setupErrorClearingOnField(field);
+    clearOnInput(field);
   }
   return isValid;
 }

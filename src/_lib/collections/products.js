@@ -5,16 +5,14 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#toolkit/fp/array.js";
-import { groupByWithCache } from "#toolkit/fp/memoize.js";
+import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** Index products by category for O(1) lookups, cached per products array */
-const indexByCategory = groupByWithCache(
-  (product) => product.data.categories ?? [],
-);
+const indexByCategory = createArrayFieldIndexer("categories");
 
 /** Index products by event for O(1) lookups, cached per products array */
-const indexByEvent = groupByWithCache((product) => product.data.events ?? []);
+const indexByEvent = createArrayFieldIndexer("events");
 
 /**
  * Compute gallery array from gallery or header_image (for eleventyComputed)
@@ -70,14 +68,6 @@ const getProductsByCategories = (products, categorySlugs) => {
 
 const getProductsByEvent = (products, eventSlug) =>
   (indexByEvent(products)[eventSlug] ?? []).sort(sortItems);
-
-/**
- * Get featured products from a products collection
- * @param {import("#lib/types").EleventyCollectionItem[]} products - Products array from Eleventy collection
- * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured products
- */
-const getFeaturedProducts = (products) =>
-  products.filter((p) => p.data.featured);
 
 /**
  * Creates a collection of all SKUs with their pricing data for the API
@@ -140,8 +130,6 @@ const configureProducts = (eleventyConfig) => {
   eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
   // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);
-  // @ts-expect-error - Filter returns array, not string (used for data transformation)
-  eleventyConfig.addFilter("getFeaturedProducts", getFeaturedProducts);
 };
 
 export { configureProducts, computeGallery, addGallery, getProductsByCategory };

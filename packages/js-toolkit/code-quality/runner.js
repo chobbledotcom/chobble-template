@@ -62,7 +62,7 @@ const COMMON_STEPS = frozenObject({
  * @param {boolean} verbose - Whether to include verbose flag
  * @returns {Object} Tests step configuration
  */
-const createTestsWithCoverageStep = (verbose) => ({
+const coverageStep = (verbose) => ({
   name: "tests",
   cmd: "bun",
   args: [
@@ -175,7 +175,7 @@ const isStackTrace = (trimmed) => /^at .+\(.+:\d+:\d+\)/.test(trimmed);
  * @param {string} trimmed - Trimmed line
  * @returns {boolean} True if coverage row with uncovered lines
  */
-const isCoverageRowWithUncovered = (trimmed) => {
+const hasUncovered = (trimmed) => {
   const match = trimmed.match(
     /^(.+?)\s*\|\s*(\d+\.?\d*)\s*\|\s*(\d+\.?\d*)\s*\|\s*(.*)$/,
   );
@@ -194,7 +194,7 @@ const extractErrorsFromOutput = (output) =>
     .filter((trimmed) => !shouldSkipLine(trimmed))
     .filter(
       (trimmed) =>
-        isCoverageRowWithUncovered(trimmed) ||
+        hasUncovered(trimmed) ||
         hasErrorIndicator(trimmed) ||
         hasToolPattern(trimmed) ||
         isCoverageViolationDetail(trimmed) ||
@@ -309,7 +309,7 @@ const printSummary = (steps, results, title = "SUMMARY") => {
 export {
   printTruncatedList,
   COMMON_STEPS,
-  createTestsWithCoverageStep,
+  coverageStep,
   runStep,
   extractErrorsFromOutput,
   runSteps,

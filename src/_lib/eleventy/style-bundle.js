@@ -27,7 +27,7 @@ const getJsBundle = (layout, designSystemLayouts) =>
  */
 const getBodyClasses = (
   layout,
-  designSystemLayoutsOrOptions = [],
+  layoutsOrOpts = [],
   forceDesignSystemArg = false,
   stickyMobileNavArg = false,
   horizontalNavArg = true,
@@ -49,9 +49,9 @@ const getBodyClasses = (
       Object.keys(value).some((k) => optionKeys.includes(k)));
 
   const parseConfig = () => {
-    if (isOptionsObject(designSystemLayoutsOrOptions)) {
+    if (isOptionsObject(layoutsOrOpts)) {
       const opts = /** @type {Record<string, unknown>} */ (
-        /** @type {unknown} */ (designSystemLayoutsOrOptions)
+        /** @type {unknown} */ (layoutsOrOpts)
       );
       return {
         designSystemLayouts:
@@ -63,8 +63,7 @@ const getBodyClasses = (
       };
     }
     return {
-      designSystemLayouts:
-        /** @type {string[]} */ (designSystemLayoutsOrOptions) || [],
+      designSystemLayouts: /** @type {string[]} */ (layoutsOrOpts) || [],
       forceDesignSystem: forceDesignSystemArg,
       stickyMobileNav: stickyMobileNavArg,
       horizontalNav: horizontalNavArg,
@@ -89,9 +88,9 @@ const getBodyClasses = (
   return classes.filter(Boolean).join(" ");
 };
 
-export function configureStyleBundle(eleventyConfig) {
+export const configureStyleBundle = (eleventyConfig) => {
   eleventyConfig.addFilter("usesDesignSystem", usesDesignSystem);
   eleventyConfig.addFilter("getCssBundle", getCssBundle);
   eleventyConfig.addFilter("getJsBundle", getJsBundle);
   eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
-}
+};

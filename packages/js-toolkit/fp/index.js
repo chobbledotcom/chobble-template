@@ -67,6 +67,6 @@ export { frozenSet, frozenSetFrom, setHas, setLacks } from "./set.js";
 export {
   compareBy,
   compareStrings,
-  createOrderThenStringComparator,
   descending,
+  orderThenString,
 } from "./sorting.js";

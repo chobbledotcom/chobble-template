@@ -3,7 +3,7 @@ import {
   analyzeFiles,
   assertNoViolations,
   createViolation,
-  expectNoStaleFunctionAllowlist,
+  noStaleAllowlist,
 } from "#test/code-scanner.js";
 import {
   extractFunctions,
@@ -124,7 +124,7 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "expectNoStaleExceptions",
   "isFunctionDefined",
   "validateFunctionAllowlist",
-  "expectNoStaleFunctionAllowlist",
+  "noStaleAllowlist",
   // code-scanner.js - export detection utility
   "extractExports",
   // code-scanner.js - export list parsing helper
@@ -157,7 +157,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "aliasKeep",
   // categories.test.js - collection setup helpers
   "getCategoriesCollection",
-  "getFeaturedFilter",
   // products.test.js - test setup helpers
   "setupProductsConfig",
   "categorizedProducts",
@@ -454,7 +453,7 @@ describe("test-hygiene", () => {
       "\n",
     );
 
-    expectNoStaleFunctionAllowlist(
+    noStaleAllowlist(
       ALLOWED_TEST_FUNCTIONS,
       allTestSource,
       "ALLOWED_TEST_FUNCTIONS",

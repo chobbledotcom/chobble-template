@@ -1,10 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import {
-  categoriseEvents,
-  configureEvents,
-  getFeaturedEvents,
-} from "#collections/events.js";
-import { data, expectResultTitles } from "#test/test-utils.js";
+import { categoriseEvents } from "#collections/events.js";
+import { expectResultTitles } from "#test/test-utils.js";
 import {
   createEvent,
   createEvents,
@@ -12,9 +8,6 @@ import {
   expectEventCounts,
   formatDateString,
 } from "#test/unit/collections/events-utils.js";
-
-/** Featured event factory for getFeaturedEvents tests */
-const featuredEvent = data({})("title", "featured");
 
 describe("events", () => {
   test("Handles empty events array", () => {
@@ -187,40 +180,5 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { upcoming: 1, past: 1, regular: 1, undated: 1 });
-  });
-
-  test("Filters events by featured flag", () => {
-    const events = featuredEvent(
-      ["Event 1", true],
-      ["Event 2", false],
-      ["Event 3", true],
-      ["Event 4", undefined],
-    );
-
-    const result = getFeaturedEvents(events);
-
-    expectResultTitles(result, ["Event 1", "Event 3"]);
-  });
-
-  test("Returns empty array when no events are featured", () => {
-    const events = featuredEvent(["Event 1", false], ["Event 2", undefined]);
-
-    const result = getFeaturedEvents(events);
-
-    expect(result.length).toBe(0);
-  });
-
-  test("Registers getFeaturedEvents as an Eleventy filter", () => {
-    const mockConfig = {
-      filters: {},
-      addFilter(name, fn) {
-        this.filters[name] = fn;
-      },
-    };
-
-    configureEvents(mockConfig);
-
-    expect("getFeaturedEvents" in mockConfig.filters).toBe(true);
-    expect(mockConfig.filters.getFeaturedEvents).toBe(getFeaturedEvents);
   });
 });
