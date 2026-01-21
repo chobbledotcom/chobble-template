@@ -259,7 +259,9 @@ const reviewsRedirects = (reviewsField, limitOverride) =>
  */
 const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getReviewsFor", getReviewsFor);
+  // @ts-expect-error - Filter returns number for data transformation, not string
   eleventyConfig.addFilter("getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);

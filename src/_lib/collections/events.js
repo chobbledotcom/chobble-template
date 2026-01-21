@@ -84,6 +84,7 @@ export const categoriseEvents = memoize((events) => {
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureEvents = (eleventyConfig) => {
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getFeaturedEvents", getFeaturedEvents);
 };
 

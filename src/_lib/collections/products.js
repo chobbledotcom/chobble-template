@@ -113,44 +113,44 @@ const getProductsByEvent = (products, eventSlug) =>
 const getFeaturedProducts = (products) =>
   products.filter((p) => p.data.featured);
 
+/** @typedef {[string, { name: string, unit_price: string | number, max_quantity: number | null }]} SkuEntry */
+
+/** Extract SKU entries from a product's options */
+const extractSkuEntries = (/** @type {ProductCollectionItem} */ product) => {
+  const options = /** @type {ProductOption[] | undefined} */ (
+    product.data.options
+  );
+  if (!options) return [];
+  const title = product.data.title ?? "";
+  return filterMap(
+    (/** @type {ProductOption} */ o) => Boolean(o.sku),
+    (/** @type {ProductOption} */ o) =>
+      /** @type {SkuEntry} */ ([
+        o.sku,
+        {
+          name: o.name ? `${title} - ${o.name}` : title,
+          unit_price: o.unit_price,
+          max_quantity: o.max_quantity ?? null,
+        },
+      ]),
+  )(options);
+};
+
 /**
  * Creates a collection of all SKUs with their pricing data for the API.
- * Returns an object mapping SKU -> { name, unit_price, max_quantity }.
- * Throws an error if duplicate SKUs are found.
- *
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {Record<string, { name: string, unit_price: string | number, max_quantity: number | null }>}
  */
 const createApiSkusCollection = (collectionApi) => {
-  /** @type {ProductCollectionItem[]} */
-  const products = collectionApi.getFilteredByTag("products");
-
-  const allSkuEntries = products.flatMap((product) => {
-    /** @type {ProductOption[] | undefined} */
-    const options = product.data.options;
-    if (!options) return [];
-
-    const productTitle = product.data.title ?? "";
-
-    return filterMap(
-      (/** @type {ProductOption} */ option) => option.sku,
-      (/** @type {ProductOption} */ option) => [
-        option.sku,
-        {
-          name: option.name ? `${productTitle} - ${option.name}` : productTitle,
-          unit_price: option.unit_price,
-          max_quantity: option.max_quantity ?? null,
-        },
-      ],
-    )(options);
-  });
-
+  const products = /** @type {ProductCollectionItem[]} */ (
+    collectionApi.getFilteredByTag("products")
+  );
+  /** @type {SkuEntry[]} */
+  const allSkuEntries = products.flatMap(extractSkuEntries);
   const duplicate = findDuplicate(allSkuEntries, ([sku]) => sku);
-  if (duplicate) {
-    const [sku, data] = duplicate;
-    throw new Error(`Duplicate SKU "${sku}" found in product "${data.name}"`);
-  }
-
+  if (duplicate)
+    throw new Error(
+      `Duplicate SKU "${duplicate[0]}" found in product "${duplicate[1].name}"`,
+    );
   return Object.fromEntries(allSkuEntries);
 };
 
@@ -176,6 +176,7 @@ const configureProducts = (eleventyConfig) => {
 
   // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByCategory", getProductsByCategory);
+  // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByCategories", getProductsByCategories);
   // @ts-expect-error - Filter returns array, not string (used for data transformation)
   eleventyConfig.addFilter("getProductsByEvent", getProductsByEvent);

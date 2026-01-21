@@ -60,8 +60,9 @@ const configureProperties = (eleventyConfig) => {
     "propertyReviewsRedirects",
     propertyReviewsRedirects,
   );
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
-  // @ts-expect-error - Filter returns array, not string (used for data transformation)
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getFeaturedProperties", getFeaturedProperties);
 };
 

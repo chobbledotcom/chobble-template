@@ -17,20 +17,24 @@ import { memoize } from "#toolkit/fp/memoize.js";
 /**
  * Build a map of menu slugs to their categories.
  * Memoized at module level so the cache persists across calls.
- * @type {(categories: MenuCategoryCollectionItem[]) => Map<string, MenuCategoryCollectionItem[]>}
  */
-const buildMenuCategoryMap = memoize((categories) =>
-  buildReverseIndex(categories, (category) => category.data.menus),
-);
+const buildMenuCategoryMap =
+  /** @type {(categories: MenuCategoryCollectionItem[]) => Map<string, MenuCategoryCollectionItem[]>} */ (
+    memoize((categories) =>
+      buildReverseIndex(categories, (category) => category.data.menus),
+    )
+  );
 
 /**
  * Build a map of category slugs to their menu items.
  * Memoized at module level so the cache persists across calls.
- * @type {(items: MenuItemCollectionItem[]) => Map<string, MenuItemCollectionItem[]>}
  */
-const buildCategoryItemMap = memoize((items) =>
-  buildReverseIndex(items, (item) => item.data.menu_categories),
-);
+const buildCategoryItemMap =
+  /** @type {(items: MenuItemCollectionItem[]) => Map<string, MenuItemCollectionItem[]>} */ (
+    memoize((items) =>
+      buildReverseIndex(items, (item) => item.data.menu_categories),
+    )
+  );
 
 /**
  * Get categories belonging to a specific menu.
@@ -63,7 +67,9 @@ const getItemsByCategory = (items, categorySlug) => {
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureMenus = (eleventyConfig) => {
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getItemsByCategory", getItemsByCategory);
 };
 

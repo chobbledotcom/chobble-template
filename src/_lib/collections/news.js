@@ -17,8 +17,9 @@ import { sortByDateDescending } from "#utils/sorting.js";
  * @returns {NewsCollectionItem[]}
  */
 const createNewsCollection = (collectionApi) => {
-  /** @type {NewsCollectionItem[]} */
-  const news = collectionApi.getFilteredByTag("news");
+  const news =
+    /** @type {NewsCollectionItem[]} */
+    (collectionApi.getFilteredByTag("news"));
   return news
     .filter((post) => post.data.no_index !== true)
     .sort(sortByDateDescending);
