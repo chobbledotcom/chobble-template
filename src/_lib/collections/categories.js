@@ -1,5 +1,4 @@
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
-import { getFeatured } from "#utils/collection-utils.js";
 
 /**
  * Build a map of category slugs to property values, preferring highest order
@@ -69,7 +68,6 @@ const configureCategories = (eleventyConfig) => {
       return category;
     });
   });
-  eleventyConfig.addFilter("getFeaturedCategories", getFeatured);
 };
 
 export { configureCategories };

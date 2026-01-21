@@ -23,9 +23,6 @@ const product = data({ categories: [] });
 /** Products with title and categories */
 const categoryProduct = product("title", "categories");
 
-/** Products with title and featured flag */
-const featuredProduct = product("title", "featured");
-
 /** Products with title and events list */
 const eventProduct = product("title", "events");
 
@@ -75,7 +72,6 @@ describe("products", () => {
         "function",
       );
       expect(typeof mockConfig.filters.getProductsByEvent).toBe("function");
-      expect(typeof mockConfig.filters.getFeaturedProducts).toBe("function");
     });
   });
 
@@ -289,34 +285,6 @@ describe("products", () => {
       const result = filters.getProductsByEvent(testProducts, "summer-sale");
 
       expectResultTitles(result, ["Product 1", "Product 3"]);
-    });
-  });
-
-  describe("getFeaturedProducts filter", () => {
-    test("filters products by featured flag", () => {
-      const { filters } = setupProductsConfig();
-      const testProducts = featuredProduct(
-        ["Product 1", true],
-        ["Product 2", false],
-        ["Product 3", true],
-        ["Product 4", undefined],
-      );
-
-      const result = filters.getFeaturedProducts(testProducts);
-
-      expectResultTitles(result, ["Product 1", "Product 3"]);
-    });
-
-    test("returns empty array when no products are featured", () => {
-      const { filters } = setupProductsConfig();
-      const testProducts = featuredProduct(
-        ["Product 1", false],
-        ["Product 2", undefined],
-      );
-
-      const result = filters.getFeaturedProducts(testProducts);
-
-      expect(result.length).toBe(0);
     });
   });
 

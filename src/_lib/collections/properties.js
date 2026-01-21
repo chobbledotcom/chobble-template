@@ -1,9 +1,6 @@
 import { addGallery } from "#collections/products.js";
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
-import {
-  createArrayFieldIndexer,
-  getFeatured,
-} from "#utils/collection-utils.js";
+import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** Index properties by location for O(1) lookups, cached per properties array */
@@ -30,7 +27,6 @@ const configureProperties = (eleventyConfig) => {
     propertyReviewsRedirects,
   );
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
-  eleventyConfig.addFilter("getFeaturedProperties", getFeatured);
 };
 
 export { configureProperties };
