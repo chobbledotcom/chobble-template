@@ -3,13 +3,13 @@ import {
   buildOutputPath,
   buildUrl,
   createOperationContext,
-  createPagePathErrorInfo,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   ensurePlaywrightBrowsers,
   frozenObject,
   getDefaultOutputDir,
   log,
+  pathErrorInfo,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
@@ -110,7 +110,7 @@ export const screenshotMultiple = (pagePaths, options = {}) =>
   runBatchOperations(
     pagePaths,
     (pagePath) => screenshot(pagePath, options),
-    createPagePathErrorInfo(pagePaths),
+    pathErrorInfo(pagePaths),
   );
 
 export const screenshotAllViewports = (pagePath, options = {}) => {

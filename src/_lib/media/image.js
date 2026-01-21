@@ -21,9 +21,9 @@ import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
 import {
   extractLqipFromMetadata,
-  filterOutLqipFromMetadata,
   getEleventyImg,
   LQIP_WIDTH,
+  removeLqip,
   shouldGenerateLqip,
 } from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
@@ -126,7 +126,7 @@ const computeWrappedImageHtml = memoize(
 
     // Filter out LQIP width from metadata so it doesn't appear in srcset
     const htmlMetadata = generateLqip
-      ? filterOutLqipFromMetadata(imageMetadata)
+      ? removeLqip(imageMetadata)
       : imageMetadata;
 
     const innerHTML = generateHTML(

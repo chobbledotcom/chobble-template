@@ -14,7 +14,7 @@
  */
 import { getProductsByCategory } from "#collections/products.js";
 import {
-  addFilterUIToPages,
+  addFilterUI,
   buildDisplayLookup,
   buildFilterPageBase,
   buildFilterUIData,
@@ -30,9 +30,7 @@ import { groupByWithCache } from "#toolkit/fp/memoize.js";
  * Index filtered pages by categorySlug for O(1) lookups.
  * Cached per pages array using WeakMap.
  */
-const indexPagesByCategorySlug = groupByWithCache((page) => [
-  page.categorySlug,
-]);
+const pagesByCategory = groupByWithCache((page) => [page.categorySlug]);
 
 /**
  * Build category-scoped filter UI data
@@ -42,7 +40,7 @@ const indexPagesByCategorySlug = groupByWithCache((page) => [
  * @param {Array} filteredPages - All filtered category product pages
  * @returns {Object} Filter UI data for templates
  */
-const buildCategoryFilterUIDataFn = (
+const categoryFilterData = (
   categoryFilterAttrs,
   categorySlug,
   currentFilters,
@@ -53,7 +51,7 @@ const buildCategoryFilterUIDataFn = (
     return { hasFilters: false };
   }
 
-  const pagesByCategorySlug = indexPagesByCategorySlug(filteredPages);
+  const pagesByCategorySlug = pagesByCategory(filteredPages);
   const categoryPages = pagesByCategorySlug[categorySlug] ?? [];
   const baseUrl = `/categories/${categorySlug}`;
 
@@ -83,7 +81,7 @@ const mapCategoriesWithProducts = (collectionApi, mapFn) => {
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {Array} All filter pages across all categories
  */
-const createFilteredCategoryProductPages = (collectionApi) =>
+const filteredCategoryPages = (collectionApi) =>
   mapCategoriesWithProducts(collectionApi, (categorySlug, categoryProducts) => {
     if (categoryProducts.length === 0) return [];
 
@@ -110,7 +108,7 @@ const createFilteredCategoryProductPages = (collectionApi) =>
       };
     });
 
-    addFilterUIToPages(pages, filterData, baseUrl);
+    addFilterUI(pages, filterData, baseUrl);
     return pages;
   }).flat();
 
@@ -155,10 +153,10 @@ const createCategoryFilterRedirects = (collectionApi) =>
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {Object} Map of categorySlug -> filterUI
  */
-const createCategoryListingFilterUI = (collectionApi) => {
-  const filteredPages = createFilteredCategoryProductPages(collectionApi);
+const categoryListingUI = (collectionApi) => {
+  const filteredPages = filteredCategoryPages(collectionApi);
   const filterAttrs = createCategoryFilterAttributes(collectionApi);
-  const pagesByCategorySlug = indexPagesByCategorySlug(filteredPages);
+  const pagesByCategorySlug = pagesByCategory(filteredPages);
 
   return Object.fromEntries(
     Object.entries(filterAttrs).map(([slug, attrs]) => {
@@ -170,9 +168,9 @@ const createCategoryListingFilterUI = (collectionApi) => {
 };
 
 export {
-  buildCategoryFilterUIDataFn,
-  createFilteredCategoryProductPages,
+  categoryFilterData,
+  filteredCategoryPages,
   createCategoryFilterAttributes,
   createCategoryFilterRedirects,
-  createCategoryListingFilterUI,
+  categoryListingUI,
 };

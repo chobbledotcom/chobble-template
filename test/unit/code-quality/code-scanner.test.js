@@ -3,10 +3,10 @@ import {
   createCodeChecker,
   createPatternMatcher,
   expectNoStaleExceptions,
-  expectNoStaleFunctionAllowlist,
   formatViolationReport,
   isCommentLine,
   isFunctionDefined,
+  noStaleAllowlist,
   scanFilesForViolations,
   validateExceptions,
   validateFunctionAllowlist,
@@ -384,18 +384,14 @@ describe("code-scanner", () => {
     });
   });
 
-  describe("expectNoStaleFunctionAllowlist", () => {
+  describe("noStaleAllowlist", () => {
     test("logs stale entries when functions are not defined", () => {
       const allowlist = frozenSet(["missingFunc"]);
       const source = "const other = () => {}";
 
       const logs = captureConsole(() => {
         expect(() =>
-          expectNoStaleFunctionAllowlist(
-            allowlist,
-            source,
-            "TEST_FUNCTION_ALLOWLIST",
-          ),
+          noStaleAllowlist(allowlist, source, "TEST_FUNCTION_ALLOWLIST"),
         ).toThrow();
       });
 
@@ -410,7 +406,7 @@ describe("code-scanner", () => {
       const source = "const myFunc = () => {}";
 
       expect(() =>
-        expectNoStaleFunctionAllowlist(allowlist, source, "TEST_ALLOWLIST"),
+        noStaleAllowlist(allowlist, source, "TEST_ALLOWLIST"),
       ).not.toThrow();
     });
   });

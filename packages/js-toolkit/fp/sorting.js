@@ -66,14 +66,9 @@ const descending = (comparator) => (a, b) => comparator(b, a);
  * @param {(item: T) => string} getString - Function to extract string value from item
  * @returns {(a: T, b: T) => number} Comparator function for use with Array.sort()
  */
-const createOrderThenStringComparator = (getNumeric, getString) => (a, b) => {
+const orderThenString = (getNumeric, getString) => (a, b) => {
   const diff = getNumeric(a) - getNumeric(b);
   return diff !== 0 ? diff : compareBy(getString)(a, b);
 };
 
-export {
-  compareBy,
-  compareStrings,
-  descending,
-  createOrderThenStringComparator,
-};
+export { compareBy, compareStrings, descending, orderThenString };

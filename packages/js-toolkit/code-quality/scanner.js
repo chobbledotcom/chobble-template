@@ -482,7 +482,7 @@ const validateFunctionAllowlist = (allowlist, combinedSource) =>
  * @param {string} combinedSource - Combined source code to search
  * @param {string} label - Name of the allowlist for logging
  */
-const expectNoStaleFunctionAllowlist = withStaleAssertion(
+const noStaleAllowlist = withStaleAssertion(
   validateFunctionAllowlist,
   (s) => s.entry,
 );
@@ -591,7 +591,7 @@ export {
   createViolation,
   excludeFiles,
   expectNoStaleExceptions,
-  expectNoStaleFunctionAllowlist,
+  noStaleAllowlist,
   extractExports,
   findPatterns,
   formatViolationReport,

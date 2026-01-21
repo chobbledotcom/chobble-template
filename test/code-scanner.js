@@ -485,7 +485,7 @@ const validateFunctionAllowlist = (allowlist, combinedSource) =>
  * @param {string} combinedSource - Combined source code to search
  * @param {string} label - Name of the allowlist for logging
  */
-const expectNoStaleFunctionAllowlist = withStaleAssertion(
+const noStaleAllowlist = withStaleAssertion(
   validateFunctionAllowlist,
   (s) => s.entry,
 );
@@ -636,7 +636,7 @@ export {
   // Function allowlist validation
   isFunctionDefined,
   validateFunctionAllowlist,
-  expectNoStaleFunctionAllowlist,
+  noStaleAllowlist,
   // Export detection
   extractExports,
 };

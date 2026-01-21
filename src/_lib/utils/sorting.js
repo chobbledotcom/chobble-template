@@ -10,12 +10,12 @@
 export {
   compareBy,
   compareStrings,
-  createOrderThenStringComparator,
   descending,
+  orderThenString,
 } from "#toolkit/fp/sorting.js";
 
 // Import for use in Eleventy-specific comparators below
-import { createOrderThenStringComparator } from "#toolkit/fp/sorting.js";
+import { orderThenString } from "#toolkit/fp/sorting.js";
 
 // Eleventy-specific comparators (not in toolkit)
 
@@ -38,7 +38,7 @@ import { createOrderThenStringComparator } from "#toolkit/fp/sorting.js";
  * All Eleventy collection items always have a data property.
  * @type {(a: CollectionItem, b: CollectionItem) => number}
  */
-const sortItems = createOrderThenStringComparator(
+const sortItems = orderThenString(
   (item) => item.data.order ?? 0,
   (item) => item.data.title || item.data.name || "",
 );
@@ -62,7 +62,7 @@ const sortByDateDescending = (a, b) =>
  * and fallback to item.data.title for the secondary sort.
  * @type {(a: CollectionItem, b: CollectionItem) => number}
  */
-const sortNavigationItems = createOrderThenStringComparator(
+const sortNavigationItems = orderThenString(
   (item) => item.data.eleventyNavigation.order ?? 999,
   (item) => item.data.eleventyNavigation.key || item.data.title || "",
 );

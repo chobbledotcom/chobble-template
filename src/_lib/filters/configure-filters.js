@@ -7,19 +7,19 @@
  */
 import strings from "#data/strings.js";
 import {
-  buildCategoryFilterUIDataFn,
+  categoryFilterData,
+  categoryListingUI,
   createCategoryFilterAttributes,
   createCategoryFilterRedirects,
-  createCategoryListingFilterUI,
-  createFilteredCategoryProductPages,
+  filteredCategoryPages,
 } from "#filters/category-product-filters.js";
 import { createFilterConfig } from "#filters/item-filters.js";
 
 const categoryCollections = {
-  filteredCategoryProductPages: createFilteredCategoryProductPages,
+  filteredCategoryProductPages: filteredCategoryPages,
   categoryFilterAttributes: createCategoryFilterAttributes,
   categoryFilterRedirects: createCategoryFilterRedirects,
-  categoryListingFilterUI: createCategoryListingFilterUI,
+  categoryListingFilterUI: categoryListingUI,
 };
 
 const itemFilterConfigs = [
@@ -56,10 +56,7 @@ export const configureFilters = (eleventyConfig) => {
   for (const [name, fn] of Object.entries(categoryCollections)) {
     eleventyConfig.addCollection(name, fn);
   }
-  eleventyConfig.addFilter(
-    "buildCategoryFilterUIData",
-    buildCategoryFilterUIDataFn,
-  );
+  eleventyConfig.addFilter("buildCategoryFilterUIData", categoryFilterData);
 
   // Product and property filters
   for (const config of itemFilterConfigs) {

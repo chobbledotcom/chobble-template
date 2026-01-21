@@ -97,11 +97,11 @@ const withWeakMapCache = (buildFn) => {
  * @param {(arr: T[]) => Iterable<[string, V]>} toEntries - Function that converts array to entries
  * @returns {(arr: T[]) => Record<string, V>} Cached transformer
  */
-const withCachedObjectFromEntries = (toEntries) =>
+const cachedEntries = (toEntries) =>
   withWeakMapCache((arr) => Object.fromEntries(toEntries(arr)));
 
 const indexBy = (getKey) =>
-  withCachedObjectFromEntries((arr) => arr.map((item) => [getKey(item), item]));
+  cachedEntries((arr) => arr.map((item) => [getKey(item), item]));
 
 /**
  * Create a grouper that builds and caches a reverse index for arrays.
@@ -132,6 +132,6 @@ const indexBy = (getKey) =>
  * groupByCategories(collections.products)["gadgets"]; // Uses cached index
  */
 const groupByWithCache = (getKeys) =>
-  withCachedObjectFromEntries((arr) => buildReverseIndex(arr, getKeys));
+  cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
 export { memoize, jsonKey, indexBy, groupByWithCache, withWeakMapCache };
