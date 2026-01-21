@@ -1,6 +1,7 @@
 {
   "has_products_filter": true,
   "has_properties_filter": null,
+  "show_breadcrumbs": null,
   "placeholder_images": null,
   "product_mode": null,
   "contact_form_target": null,

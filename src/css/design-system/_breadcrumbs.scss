@@ -1,0 +1,48 @@
+@use "../variables" as *;
+
+// =============================================================================
+// BREADCRUMBS
+// =============================================================================
+// Navigation breadcrumbs using design system tokens.
+
+.design-system {
+  .breadcrumbs {
+    padding: $space-sm $space-md;
+    font-size: $font-size-sm;
+
+    ol {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: $space-xs;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: $space-xs;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color $transition-fast;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .separator {
+      color: var(--text-muted);
+    }
+
+    span[aria-current] {
+      color: var(--text);
+      font-weight: 600;
+    }
+  }
+}
