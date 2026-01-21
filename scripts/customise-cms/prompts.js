@@ -260,6 +260,31 @@ const askNoIndexQuestion = async (rl, collections, defaultFeatures) => {
 };
 
 /**
+ * Ask conditional feature questions for parent/child categories
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{parent_categories: boolean}>} Parent categories selection
+ */
+const askParentCategoriesQuestion = async (
+  rl,
+  collections,
+  defaultFeatures,
+) => {
+  const hasProducts = collections.includes("products");
+
+  return {
+    parent_categories: hasProducts
+      ? await askYesNo(
+          rl,
+          "Do you want parent/child category hierarchy (e.g., Widgets > Premium Widgets)?",
+          defaultFeatures.parent_categories ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask feature questions
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -327,6 +352,11 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const parentCategoriesFeatures = await askParentCategoriesQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
 
   return {
     ...baseFeatures,
@@ -334,6 +364,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...purchaseFeatures,
     ...eventFeatures,
     ...noIndexFeatures,
+    ...parentCategoriesFeatures,
   };
 };
 

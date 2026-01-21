@@ -5,6 +5,7 @@
  */
 
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
+import { groupBy } from "#toolkit/fp/grouping.js";
 
 /** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
@@ -27,12 +28,10 @@ import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
  * @returns {CategoryPropertyMap}
  */
 const buildCategoryPropertyMap = (categories, products, propertyName) => {
-  /** @type {CategoryPropertyMap} */
   const initialMapping = Object.fromEntries(
     categories.map((c) => [c.fileSlug, [c.data[propertyName], -1]]),
   );
 
-  /** @type {(m: CategoryPropertyMap, e: PropertyMapEntry) => CategoryPropertyMap} */
   const mergeByHighestOrder = (mapping, { categorySlug, value, order }) => {
     const entry = mapping[categorySlug];
     return !entry || entry[1] < order
@@ -41,7 +40,7 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
   };
 
   return pipe(
-    flatMap((/** @type {ProductCollectionItem} */ product) => {
+    flatMap((product) => {
       const value = product.data[propertyName];
       if (!value) return [];
       return product.data.categories.map((slug) => ({
@@ -56,28 +55,43 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
 
 /**
  * Create the categories collection with inherited images from products.
- * NOTE: Mutates category.data directly because Eleventy template objects have
- * special getters/internal state that break with spread operators.
+ * For parent categories without thumbnails, inherit from child categories.
+ * NOTE: Mutates category.data directly because Eleventy template objects
+ * have special getters/internal state that break with spread operators.
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {CategoryCollectionItem[]}
  */
 const createCategoriesCollection = (collectionApi) => {
-  const categories =
-    /** @type {CategoryCollectionItem[]} */
-    (/** @type {unknown} */ (collectionApi.getFilteredByTag("categories")));
+  const categories = collectionApi.getFilteredByTag("categories");
   if (categories.length === 0) return [];
-  const products =
-    /** @type {ProductCollectionItem[]} */
-    (/** @type {unknown} */ (collectionApi.getFilteredByTag("products")));
+
+  const products = collectionApi.getFilteredByTag("products");
   const images = buildCategoryPropertyMap(categories, products, "header_image");
   const thumbnails = buildCategoryPropertyMap(
     categories,
     products,
     "thumbnail",
   );
+  const childrenByParent = groupBy(categories, (c) => c.data.parent);
+
+  // Nested helper: get thumbnail from products or from child categories
+  const resolveThumbnail = (slug) => {
+    const fromProducts = thumbnails[slug]?.[0];
+    if (fromProducts) return fromProducts;
+
+    const children = childrenByParent.get(slug);
+    if (!children) return undefined;
+
+    const sorted = [...children].sort(
+      (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
+    );
+    const found = sorted.find((c) => thumbnails[c.fileSlug]?.[0]);
+    return found ? thumbnails[found.fileSlug]?.[0] : undefined;
+  };
+
   return categories.map((category) => {
     category.data.header_image = images[category.fileSlug]?.[0];
-    const thumb = thumbnails[category.fileSlug]?.[0];
+    const thumb = resolveThumbnail(category.fileSlug);
     if (thumb) category.data.thumbnail = thumb;
     return category;
   });

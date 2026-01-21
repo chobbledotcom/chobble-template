@@ -402,6 +402,8 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "defaultTestFiles",
   // capture.test.js - test harness for push/slot shortcodes
   "setupCapture",
+  // breadcrumbs.test.js - filter setup helper
+  "setupFilter",
   // customise-cms.test.js - test setup helpers
   "setupSiteJson",
   "setupSiteJsonWithSrc",
