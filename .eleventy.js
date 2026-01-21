@@ -6,6 +6,7 @@ import { configureJsBundler } from "#build/js-bundler.js";
 import { configureScss } from "#build/scss.js";
 
 // Collections
+import { configureCollectionUtils } from "#utils/collection-utils.js";
 import { configureCategories } from "#collections/categories.js";
 import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
@@ -68,6 +69,7 @@ export default async function (eleventyConfig) {
 
   configureAreaList(eleventyConfig);
   configureCacheBuster(eleventyConfig);
+  configureCollectionUtils(eleventyConfig);
   configureCanonicalUrl(eleventyConfig);
   configureCapture(eleventyConfig);
   configureCategories(eleventyConfig);

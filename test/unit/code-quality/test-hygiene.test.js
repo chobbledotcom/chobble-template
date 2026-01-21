@@ -157,7 +157,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "aliasKeep",
   // categories.test.js - collection setup helpers
   "getCategoriesCollection",
-  "getFeaturedFilter",
   // products.test.js - test setup helpers
   "setupProductsConfig",
   "categorizedProducts",

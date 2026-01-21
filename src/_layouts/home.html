@@ -31,14 +31,14 @@ layout: base
   {%- endif -%}
 {%- endif -%}
 
-{%- assign categories = collections.categories | getFeaturedCategories -%}
+{%- assign categories = collections.categories | getFeatured -%}
 {%- if homepage.show_products and categories.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-categories-header", "<h3>Product Categories</h3>" -%}
   {%- include "items.html", items: categories -%}
 {%- endif -%}
 
-{%- assign products = collections.products | getFeaturedProducts -%}
+{%- assign products = collections.products | getFeatured -%}
 {%- if homepage.show_featured_products and products.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-products-header", "<h3>Featured Products</h3>" -%}
@@ -52,7 +52,7 @@ layout: base
   {% include "recurring-events-list.html" %}
 {%- endif -%}
 
-{%- assign featured_properties = collections.properties | getFeaturedProperties -%}
+{%- assign featured_properties = collections.properties | getFeatured -%}
 {%- if homepage.show_featured_properties and featured_properties.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-properties-header", "<h3>Featured Properties</h3>" -%}

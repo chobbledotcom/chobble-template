@@ -2,7 +2,6 @@ import { pipe, sort } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
-import { getFeatured } from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const byEventDate = compareBy((e) => new Date(e.data.event_date).getTime());
@@ -36,8 +35,8 @@ export const categoriseEvents = memoize((events) => {
   return { upcoming, past, regular, undated };
 });
 
-const configureEvents = (eleventyConfig) => {
-  eleventyConfig.addFilter("getFeaturedEvents", getFeatured);
+const configureEvents = (_eleventyConfig) => {
+  // No filters needed - getFeatured is registered in configureCollectionUtils
 };
 
-export { configureEvents, getFeatured as getFeaturedEvents };
+export { configureEvents };

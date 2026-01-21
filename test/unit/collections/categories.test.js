@@ -3,7 +3,6 @@ import { configureCategories } from "#collections/categories.js";
 import {
   createMockEleventyConfig,
   expectDataArray,
-  expectResultTitles,
   taggedCollectionApi,
 } from "#test/test-utils.js";
 
@@ -65,15 +64,6 @@ const getCategoriesCollection = (categoryData, productData) => {
   return mockConfig.collections.categories(mockApi);
 };
 
-/**
- * Helper to get the getFeaturedCategories filter
- */
-const getFeaturedFilter = () => {
-  const mockConfig = createMockEleventyConfig();
-  configureCategories(mockConfig);
-  return mockConfig.filters.getFeaturedCategories;
-};
-
 describe("categories", () => {
   describe("configureCategories", () => {
     test("registers collection and filter with Eleventy", () => {
@@ -82,7 +72,6 @@ describe("categories", () => {
       configureCategories(mockConfig);
 
       expect(typeof mockConfig.collections.categories).toBe("function");
-      expect(typeof mockConfig.filters.getFeaturedCategories).toBe("function");
     });
   });
 
@@ -212,45 +201,6 @@ describe("categories", () => {
         "cross-category.jpg",
         "high-priority-tool.jpg",
       ]);
-    });
-  });
-
-  describe("getFeaturedCategories filter", () => {
-    test("returns only categories with featured: true", () => {
-      const getFeaturedCategories = getFeaturedFilter();
-      const testCategories = categories([
-        ["featured", undefined, { title: "Featured Category", featured: true }],
-        ["regular", undefined, { title: "Regular Category", featured: false }],
-        ["another", undefined, { title: "Another Category" }],
-      ]);
-
-      const result = getFeaturedCategories(testCategories);
-
-      expectResultTitles(result, ["Featured Category"]);
-    });
-
-    test("returns empty array when no featured categories", () => {
-      const getFeaturedCategories = getFeaturedFilter();
-      const testCategories = categories([
-        ["a", undefined, { featured: false }],
-        ["b", undefined, {}],
-      ]);
-
-      const result = getFeaturedCategories(testCategories);
-
-      expect(result).toEqual([]);
-    });
-
-    test("returns all categories when all are featured", () => {
-      const getFeaturedCategories = getFeaturedFilter();
-      const testCategories = categories([
-        ["a", undefined, { title: "A", featured: true }],
-        ["b", undefined, { title: "B", featured: true }],
-      ]);
-
-      const result = getFeaturedCategories(testCategories);
-
-      expectResultTitles(result, ["A", "B"]);
     });
   });
 });
