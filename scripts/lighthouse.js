@@ -1,13 +1,17 @@
 #!/usr/bin/env bun
 
-import { join } from "node:path";
-import { parseArgs } from "node:util";
 import {
   getCategories,
   lighthouse,
   lighthouseMultiple,
 } from "#media/lighthouse.js";
-import { createCliRunner, logErrors, showHelp } from "#scripts/cli-utils.js";
+import {
+  buildCommonOptions,
+  createCliRunner,
+  logErrors,
+  parseCliArgs,
+  showHelp,
+} from "#scripts/cli-utils.js";
 
 const USAGE = `
 Lighthouse Tool - Run Lighthouse audits on rendered pages
@@ -53,27 +57,12 @@ Examples:
   bun scripts/lighthouse.js -o my-report.html /
 `;
 
-const { values, positionals } = parseArgs({
-  args: process.argv.slice(2),
-  options: {
-    help: { type: "boolean", short: "h" },
-    category: { type: "string", short: "c", multiple: true },
-    output: { type: "string", short: "o" },
-    "output-dir": { type: "string", short: "d", default: "lighthouse-reports" },
-    "base-url": {
-      type: "string",
-      short: "u",
-      default: "http://localhost:8080",
-    },
-    timeout: { type: "string", short: "t", default: "10000" },
-    format: { type: "string", short: "f", default: "html" },
-    pages: { type: "boolean", short: "p" },
-    serve: { type: "string", short: "s" },
-    port: { type: "string", default: "8080" },
-    threshold: { type: "string", multiple: true },
-    "list-categories": { type: "boolean" },
-  },
-  allowPositionals: true,
+const { values, positionals } = parseCliArgs({
+  category: { type: "string", short: "c", multiple: true },
+  "output-dir": { type: "string", short: "d", default: "lighthouse-reports" },
+  format: { type: "string", short: "f", default: "html" },
+  threshold: { type: "string", multiple: true },
+  "list-categories": { type: "boolean" },
 });
 
 const showCategories = () => {
@@ -161,12 +150,9 @@ const parseThresholds = (thresholdArgs) => {
 };
 
 const buildOptions = () => ({
+  ...buildCommonOptions(values, "lighthouse-reports"),
   onlyCategories: values.category?.length > 0 ? values.category : null,
-  outputDir: join(process.cwd(), values["output-dir"]),
-  baseUrl: values["base-url"],
-  timeout: Number.parseInt(values.timeout, 10),
   format: values.format,
-  outputPath: values.output,
   thresholds: parseThresholds(values.threshold),
 });
 

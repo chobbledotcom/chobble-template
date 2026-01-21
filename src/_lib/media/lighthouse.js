@@ -2,6 +2,7 @@ import {
   buildOutputPath,
   buildUrl,
   createOperationContext,
+  createPagePathErrorInfo,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   getChromePath,
@@ -121,7 +122,7 @@ export const lighthouseMultiple = (pagePaths, options = {}) =>
   runBatchOperations(
     pagePaths,
     (pagePath) => lighthouse(pagePath, options),
-    (i, reason) => ({ pagePath: pagePaths[i], error: reason.message }),
+    createPagePathErrorInfo(pagePaths),
   );
 
 export const getCategories = () => ({ ...CATEGORIES });

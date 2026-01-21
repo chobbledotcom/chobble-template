@@ -1,5 +1,44 @@
 import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { parseArgs } from "node:util";
 import { startServer } from "#media/browser-utils.js";
+
+/**
+ * Common CLI options shared between lighthouse and screenshot tools
+ */
+const COMMON_OPTIONS = {
+  help: { type: "boolean", short: "h" },
+  output: { type: "string", short: "o" },
+  "base-url": {
+    type: "string",
+    short: "u",
+    default: "http://localhost:8080",
+  },
+  timeout: { type: "string", short: "t", default: "10000" },
+  pages: { type: "boolean", short: "p" },
+  serve: { type: "string", short: "s" },
+  port: { type: "string", default: "8080" },
+};
+
+/**
+ * Parse CLI arguments with common options merged with tool-specific options
+ */
+export const parseCliArgs = (toolOptions) =>
+  parseArgs({
+    args: process.argv.slice(2),
+    options: { ...COMMON_OPTIONS, ...toolOptions },
+    allowPositionals: true,
+  });
+
+/**
+ * Build common options object from parsed values
+ */
+export const buildCommonOptions = (values, outputDirDefault) => ({
+  outputDir: join(process.cwd(), values["output-dir"] || outputDirDefault),
+  baseUrl: values["base-url"],
+  timeout: Number.parseInt(values.timeout, 10),
+  outputPath: values.output,
+});
 
 export const showHelp = (usage) => {
   console.log(usage);

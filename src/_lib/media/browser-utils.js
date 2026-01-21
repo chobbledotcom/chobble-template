@@ -45,6 +45,14 @@ export const createOperationContext = (
   };
 };
 
+/**
+ * Creates an error info factory for page path batch operations
+ */
+export const createPagePathErrorInfo = (pagePaths) => (i, reason) => ({
+  pagePath: pagePaths[i],
+  error: reason.message,
+});
+
 export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   const settled = await Promise.allSettled(items.map(operationFn));
   return {
