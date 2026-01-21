@@ -186,7 +186,11 @@ describe("breadcrumbsFilter", () => {
     test("ignores parentCategory when not found in categories", () => {
       const mockConfig = setupFilter();
       const categories = [
-        { fileSlug: "other", url: "/products/other/", data: { title: "Other" } },
+        {
+          fileSlug: "other",
+          url: "/products/other/",
+          data: { title: "Other" },
+        },
       ];
       const crumbs = callFilter(
         mockConfig,
