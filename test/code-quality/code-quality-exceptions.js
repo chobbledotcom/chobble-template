@@ -235,13 +235,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 //   - Module-level type annotations
 const ALLOWED_INLINE_TYPE_ANNOTATIONS = frozenSet([
   // Collections - Eleventy collectionApi returns unknown, needs casting
-  "src/_lib/collections/categories.js:30",
-  "src/_lib/collections/categories.js:35",
-  "src/_lib/collections/categories.js:44",
-  "src/_lib/collections/categories.js:66",
-  "src/_lib/collections/categories.js:67",
-  "src/_lib/collections/categories.js:70",
-  "src/_lib/collections/categories.js:71",
   "src/_lib/collections/news.js:21",
   "src/_lib/collections/products.js:64",
   "src/_lib/collections/products.js:111",
