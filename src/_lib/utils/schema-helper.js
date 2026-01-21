@@ -123,103 +123,132 @@ function buildBaseMeta(data) {
 }
 
 /**
+ * Build price valid until date (1 year from now)
+ * @returns {string} ISO date string
+ */
+const buildPriceValidUntil = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return toDateString(date);
+};
+
+/**
+ * Build offers object for a product
+ * @param {string | number} price - Product price
+ * @returns {Record<string, unknown>} Offers object
+ */
+const buildOffers = (price) => ({
+  price: price.toString().replace(/[£€$,]/g, ""),
+  priceCurrency: "GBP",
+  availability: "https://schema.org/InStock",
+  priceValidUntil: buildPriceValidUntil(),
+});
+
+/**
+ * Build a single review object
+ * @param {{ data: { name: string, rating?: number }, date?: Date }} review
+ * @returns {Record<string, unknown>} Review object
+ */
+const buildReview = (review) => ({
+  author: review.data.name,
+  rating: review.data.rating || 5,
+  ...(review.date && { date: toDateString(review.date) }),
+});
+
+/**
+ * Calculate average rating from reviews
+ * @param {Array<{ data: { rating?: number } }>} reviews
+ * @returns {number} Average rating
+ */
+const calculateAverageRating = (reviews) => {
+  const ratings = reviews.map((r) => r.data.rating || 5);
+  return ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+};
+
+/**
+ * Build rating object from reviews
+ * @param {Array<{ data: { rating?: number } }>} reviews
+ * @returns {Record<string, unknown>} Rating object
+ */
+const buildRating = (reviews) => ({
+  ratingValue: calculateAverageRating(reviews).toFixed(1),
+  reviewCount: reviews.length,
+  bestRating: 5,
+  worstRating: 1,
+});
+
+/**
+ * Build reviews and rating metadata from product data
+ * @param {BasePageData & ProductPageData} data - Product page data
+ * @returns {Record<string, unknown>} Reviews and rating metadata (or empty object)
+ */
+const buildReviewsMeta = (data) => {
+  if (!data.collections?.reviews || !data.reviewsField) return {};
+
+  const reviews = getReviewsFor(
+    data.collections.reviews,
+    data.page.fileSlug,
+    data.reviewsField,
+  );
+
+  if (reviews.length === 0) return {};
+
+  return {
+    reviews: reviews.map(buildReview),
+    rating: buildRating(reviews),
+  };
+};
+
+/**
  * Build schema.org metadata for a product page
  * @param {BasePageData & ProductPageData} data - Product page data
  * @returns {SchemaOrgMeta} Schema.org product metadata
  */
-function buildProductMeta(data) {
-  const meta = buildBaseMeta(data);
-  meta.name = data.title;
-  meta.brand = data.site.name;
+const buildProductMeta = (data) => ({
+  ...buildBaseMeta(data),
+  name: data.title,
+  brand: data.site.name,
+  ...(data.price && { offers: buildOffers(data.price) }),
+  ...buildReviewsMeta(data),
+});
 
-  if (data.price) {
-    const validUntil = new Date();
-    validUntil.setFullYear(validUntil.getFullYear() + 1);
-
-    meta.offers = {
-      price: data.price.toString().replace(/[£€$,]/g, ""),
-      priceCurrency: "GBP",
-      availability: "https://schema.org/InStock",
-      priceValidUntil: toDateString(validUntil),
-    };
-  }
-
-  if (data.collections?.reviews && data.reviewsField) {
-    const reviews = getReviewsFor(
-      data.collections.reviews,
-      data.page.fileSlug,
-      data.reviewsField,
-    );
-
-    if (reviews.length > 0) {
-      meta.reviews = reviews.map((review) => {
-        const reviewData = {
-          author: review.data.name,
-          rating: review.data.rating || 5,
-        };
-        if (review.date) {
-          reviewData.date = toDateString(review.date);
-        }
-        return reviewData;
-      });
-
-      const ratings = reviews.map((r) => r.data.rating || 5);
-      const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-
-      meta.rating = {
-        ratingValue: avg.toFixed(1),
-        reviewCount: reviews.length,
-        bestRating: 5,
-        worstRating: 1,
-      };
-    }
-  }
-
-  return meta;
-}
+/**
+ * Build publisher object for a post
+ * @param {SiteInfo} site - Site information
+ * @returns {Record<string, unknown>} Publisher object
+ */
+const buildPublisher = (site) => ({
+  name: site.name,
+  logo: {
+    src: buildImageUrl(site.logo || "/images/logo.png", site.url),
+    width: 512,
+    height: 512,
+  },
+});
 
 /**
  * Build schema.org metadata for a blog post
  * @param {BasePageData & PostPageData} data - Post page data
  * @returns {SchemaOrgMeta} Schema.org post metadata
  */
-function buildPostMeta(data) {
-  const meta = buildBaseMeta(data);
-
-  if (data.page.date) {
-    meta.datePublished = toDateString(data.page.date);
-  }
-
-  meta.author = {
-    name: data.author || data.site.name,
-  };
-
-  meta.publisher = {
-    name: data.site.name,
-    logo: {
-      src: buildImageUrl(data.site.logo || "/images/logo.png", data.site.url),
-      width: 512,
-      height: 512,
-    },
-  };
-
-  return meta;
-}
+const buildPostMeta = (data) => ({
+  ...buildBaseMeta(data),
+  ...(data.page.date && { datePublished: toDateString(data.page.date) }),
+  author: { name: data.author || data.site.name },
+  publisher: buildPublisher(data.site),
+});
 
 /**
  * Build schema.org metadata for an organization page
  * @param {BasePageData & OrganizationPageData} data - Organization page data
  * @returns {SchemaOrgMeta} Schema.org organization metadata
  */
-function buildOrganizationMeta(data) {
-  const meta = buildBaseMeta(data);
-
-  if (data.metaComputed?.organization) {
-    meta.organization = data.metaComputed.organization;
-  }
-
-  return meta;
-}
+const buildOrganizationMeta = (data) => ({
+  ...buildBaseMeta(data),
+  ...(data.metaComputed?.organization && {
+    organization: data.metaComputed.organization,
+  }),
+});
 
 export {
   buildBaseMeta,
