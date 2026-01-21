@@ -20,9 +20,6 @@ const property = data({});
 /** Location-based property: creates properties with title and locations */
 const locationProperty = property("title", "locations");
 
-/** Featured property: creates properties with title and featured flag */
-const featuredProperty = property("title", "featured");
-
 /** Ordered property: creates properties with title, locations, and order */
 const orderedProperty = property("title", "locations", "order");
 
@@ -38,7 +35,6 @@ const createPropertiesMock = () => {
     propertyReviewsRedirects: mockConfig.collections.propertyReviewsRedirects,
     // Filter functions (called directly)
     getPropertiesByLocation: mockConfig.filters.getPropertiesByLocation,
-    getFeaturedProperties: mockConfig.filters.getFeaturedProperties,
   };
 };
 
@@ -130,32 +126,6 @@ describe("properties", () => {
     expectResultTitles(result, ["Property A", "Property B", "Property C"]);
   });
 
-  test("Filters properties by featured flag", () => {
-    const { getFeaturedProperties } = createPropertiesMock();
-    const properties = featuredProperty(
-      ["Property 1", true],
-      ["Property 2", false],
-      ["Property 3", true],
-      ["Property 4", undefined],
-    );
-
-    const result = getFeaturedProperties(properties);
-
-    expectResultTitles(result, ["Property 1", "Property 3"]);
-  });
-
-  test("Returns empty array when no properties are featured", () => {
-    const { getFeaturedProperties } = createPropertiesMock();
-    const properties = featuredProperty(
-      ["Property 1", false],
-      ["Property 2", undefined],
-    );
-
-    const result = getFeaturedProperties(properties);
-
-    expect(result.length).toBe(0);
-  });
-
   test("Configures properties collection and filters", () => {
     const mockConfig = createMockEleventyConfig();
 
@@ -170,7 +140,6 @@ describe("properties", () => {
       "function",
     );
     expect(typeof mockConfig.filters.getPropertiesByLocation).toBe("function");
-    expect(typeof mockConfig.filters.getFeaturedProperties).toBe("function");
   });
 
   // Helper to create property review test fixtures

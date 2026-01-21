@@ -18,10 +18,18 @@ import { groupByWithCache } from "#toolkit/fp/memoize.js";
  * @returns {EleventyCollectionItem[]} Filtered array of featured items
  *
  * @example
- * eleventyConfig.addFilter("getFeaturedProducts", getFeatured);
+ * const featured = getFeatured(collections.products);
  */
 export const getFeatured = (items) =>
   items.filter((item) => item.data.featured);
+
+/**
+ * Configure shared collection utilities as Eleventy filters.
+ * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
+ */
+export const configureCollectionUtils = (eleventyConfig) => {
+  eleventyConfig.addFilter("getFeatured", getFeatured);
+};
 
 /**
  * Create an indexer that groups items by a field that contains an array of slugs.
