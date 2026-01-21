@@ -257,10 +257,9 @@ export const configurePdf = (eleventyConfig) => {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
     if (!state || !state.menus || state.menus.length === 0) return;
 
-    const { menus, menuCategories, menuItems } = state;
     await mapAsync((menu) =>
-      generateMenuPdf(menu, menuCategories, menuItems, dir.output),
-    )(menus);
+      generateMenuPdf(menu, state.menuCategories, state.menuItems, dir.output),
+    )(state.menus);
   });
 };
 

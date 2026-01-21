@@ -132,13 +132,13 @@ const scanFilesForViolations = (files, matcher, options = {}) =>
  * @param {number} [options.limit] - Max violations to show (default: 10)
  */
 const formatViolationReport = (violations, options = {}) => {
-  const { singular, plural, message, fixHint = "", limit = 10 } = options;
-
   if (violations.length === 0) return { count: 0, report: "" };
 
-  const formatCount = singular
-    ? pluralize(singular, plural)
-    : (n) => `${n} ${message || "violation(s)"}`;
+  const fixHint = options.fixHint ?? "";
+  const limit = options.limit ?? 10;
+  const formatCount = options.singular
+    ? pluralize(options.singular, options.plural)
+    : (n) => `${n} ${options.message || "violation(s)"}`;
 
   const header = `\n  Found ${formatCount(violations.length)}:`;
   const items = violations

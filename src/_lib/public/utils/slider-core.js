@@ -59,8 +59,6 @@ export const createScrollHandler =
  * @returns {Function|null} State updater function for recalculation, or null if not initialized
  */
 export const initSlider = (container, options = {}) => {
-  const { itemSelector = ":scope > *", defaultWidth = 240 } = options;
-
   const slider = container.querySelector(".slider");
   const prevBtn = container.querySelector(".slider-prev");
   const nextBtn = container.querySelector(".slider-next");
@@ -69,6 +67,8 @@ export const initSlider = (container, options = {}) => {
   if (slider.dataset.sliderInit) return null;
   slider.dataset.sliderInit = "true";
 
+  const itemSelector = options.itemSelector ?? ":scope > *";
+  const defaultWidth = options.defaultWidth ?? 240;
   const getAmount = () => getScrollAmount(slider, itemSelector, defaultWidth);
   const updateState = createStateUpdater(slider, prevBtn, nextBtn);
   const scroll = createScrollHandler(slider, getAmount);
