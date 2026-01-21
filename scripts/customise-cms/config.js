@@ -22,6 +22,7 @@ import { join } from "node:path";
  * @property {boolean} event_locations_and_dates - Enable locations and dates for events
  * @property {boolean} use_visual_editor - Use rich-text visual editor instead of markdown code editor
  * @property {boolean} no_index - Enable hiding pages/news from listings
+ * @property {boolean} parent_categories - Enable parent/child category hierarchy
  */
 
 /**
@@ -106,6 +107,7 @@ export const createDefaultConfig = () => ({
     event_locations_and_dates: true,
     use_visual_editor: false,
     no_index: true,
+    parent_categories: true,
   },
   hasSrcFolder: true,
   customHomePage: false,

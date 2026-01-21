@@ -149,6 +149,15 @@ content:
     fields:
       - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
+      - name: parent
+        label: Parent Category
+        type: reference
+        options:
+          collection: categories
+          multiple: false
+          search: title
+          value: "{path}"
+          label: "{title}"
       - { name: body, label: Body, type: rich-text }
       - { name: featured, type: boolean, label: Featured }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }

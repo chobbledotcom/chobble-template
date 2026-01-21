@@ -203,4 +203,66 @@ describe("categories", () => {
       ]);
     });
   });
+
+  describe("parent category thumbnail inheritance", () => {
+    test("parent category inherits thumbnail from child with lowest order", () => {
+      const testCategories = [
+        category("widgets", undefined, { title: "Widgets" }),
+        category("premium-widgets", undefined, {
+          title: "Premium Widgets",
+          parent: "widgets",
+          order: 1,
+        }),
+        category("budget-widgets", undefined, {
+          title: "Budget Widgets",
+          parent: "widgets",
+          order: 2,
+        }),
+      ];
+      const testProducts = products([
+        { cats: ["premium-widgets"], thumbnail: "premium-thumb.jpg" },
+        { cats: ["budget-widgets"], thumbnail: "budget-thumb.jpg" },
+      ]);
+
+      const result = getCategoriesCollection(testCategories, testProducts);
+
+      // Parent should get thumbnail from child with lowest order (premium)
+      expect(result[0].data.thumbnail).toBe("premium-thumb.jpg");
+    });
+
+    test("parent category uses own thumbnail when set", () => {
+      const testCategories = [
+        category("widgets", undefined, {
+          title: "Widgets",
+          thumbnail: "widgets-thumb.jpg",
+        }),
+        category("premium-widgets", undefined, {
+          title: "Premium Widgets",
+          parent: "widgets",
+        }),
+      ];
+      const testProducts = products([
+        { cats: ["premium-widgets"], thumbnail: "premium-thumb.jpg" },
+      ]);
+
+      const result = getCategoriesCollection(testCategories, testProducts);
+
+      // Parent keeps its own thumbnail
+      expect(result[0].data.thumbnail).toBe("widgets-thumb.jpg");
+    });
+
+    test("parent category gets no thumbnail when children have none", () => {
+      const testCategories = [
+        category("widgets", undefined, { title: "Widgets" }),
+        category("premium-widgets", undefined, {
+          title: "Premium Widgets",
+          parent: "widgets",
+        }),
+      ];
+
+      const result = getCategoriesCollection(testCategories, []);
+
+      expect(result[0].data.thumbnail).toBeUndefined();
+    });
+  });
 });
