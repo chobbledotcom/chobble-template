@@ -39,18 +39,7 @@ export const categoriseEvents = memoize((events) => {
   const regular = pipe(getGroup("regular"), sort(sortItems))(grouped);
   const undated = pipe(getGroup("undated"), sort(sortItems))(grouped);
 
-  return {
-    upcoming,
-    past,
-    regular,
-    undated,
-    show: {
-      upcoming: upcoming.length > 0,
-      regular: regular.length > 0,
-      past: past.length > 0,
-      undated: undated.length > 0,
-    },
-  };
+  return { upcoming, past, regular, undated };
 });
 
 const configureEvents = (eleventyConfig) => {

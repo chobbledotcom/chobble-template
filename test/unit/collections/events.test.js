@@ -10,7 +10,6 @@ import {
   createEvents,
   createOffsetDate,
   expectEventCounts,
-  expectShowState,
   formatDateString,
 } from "#test/unit/collections/events-utils.js";
 
@@ -25,12 +24,6 @@ describe("events", () => {
     expect(result.past).toEqual([]);
     expect(result.regular).toEqual([]);
     expect(result.undated).toEqual([]);
-    expect(result.show).toEqual({
-      upcoming: false,
-      regular: false,
-      past: false,
-      undated: false,
-    });
   });
 
   test("Categorizes future events as upcoming", () => {
@@ -39,12 +32,6 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { upcoming: 1 });
-    expect(result.show).toEqual({
-      upcoming: true,
-      regular: false,
-      past: false,
-      undated: false,
-    });
   });
 
   test("Categorizes past events correctly", () => {
@@ -53,12 +40,6 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { past: 1 });
-    expect(result.show).toEqual({
-      upcoming: false,
-      regular: false,
-      past: true,
-      undated: false,
-    });
   });
 
   test("Events today are categorized as upcoming", () => {
@@ -78,12 +59,6 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { regular: 2 });
-    expect(result.show).toEqual({
-      upcoming: false,
-      regular: true,
-      past: false,
-      undated: false,
-    });
   });
 
   test("Handles mix of upcoming, past, and recurring events", () => {
@@ -96,12 +71,6 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { upcoming: 1, past: 1, regular: 1 });
-    expect(result.show).toEqual({
-      upcoming: true,
-      regular: true,
-      past: true,
-      undated: false,
-    });
   });
 
   test("Sorts upcoming events by date (earliest first)", () => {
@@ -180,66 +149,6 @@ describe("events", () => {
     expectResultTitles(result.regular, [undefined, "Named Event"]);
   });
 
-  test("Show logic with no events shows nothing", () => {
-    const result = categoriseEvents([]);
-    expectShowState(result, {
-      upcoming: false,
-      regular: false,
-      past: false,
-      undated: false,
-    });
-  });
-
-  test("Show logic with only upcoming events", () => {
-    const events = [createEvent()];
-    const result = categoriseEvents(events);
-    expectShowState(result, {
-      upcoming: true,
-      regular: false,
-      past: false,
-      undated: false,
-    });
-  });
-
-  test("Show logic shows both upcoming and regular when both exist", () => {
-    const events = createEvents([
-      {},
-      { title: "Weekly Meeting", recurring: "Every Monday" },
-    ]);
-    const result = categoriseEvents(events);
-    expectShowState(result, {
-      upcoming: true,
-      regular: true,
-      past: false,
-      undated: false,
-    });
-  });
-
-  test("Show logic shows past and regular but not upcoming when no upcoming", () => {
-    const events = createEvents([
-      { daysOffset: -30 },
-      { title: "Weekly Meeting", recurring: "Every Monday" },
-    ]);
-    const result = categoriseEvents(events);
-    expectShowState(result, {
-      upcoming: false,
-      regular: true,
-      past: true,
-      undated: false,
-    });
-  });
-
-  test("Show logic shows only past when only past events exist", () => {
-    const events = [createEvent({ daysOffset: -30 })];
-    const result = categoriseEvents(events);
-    expectShowState(result, {
-      upcoming: false,
-      regular: false,
-      past: true,
-      undated: false,
-    });
-  });
-
   test("Categorizes events without dates as undated", () => {
     const events = createEvents([
       { title: "No Date Event 1", undated: true },
@@ -249,12 +158,6 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { undated: 2 });
-    expect(result.show).toEqual({
-      upcoming: false,
-      regular: false,
-      past: false,
-      undated: true,
-    });
   });
 
   test("Sorts undated events alphabetically by title", () => {
@@ -284,23 +187,6 @@ describe("events", () => {
     const result = categoriseEvents(events);
 
     expectEventCounts(result, { upcoming: 1, past: 1, regular: 1, undated: 1 });
-    expect(result.show).toEqual({
-      upcoming: true,
-      regular: true,
-      past: true,
-      undated: true,
-    });
-  });
-
-  test("Show logic shows only undated when only undated events exist", () => {
-    const events = [createEvent({ undated: true })];
-    const result = categoriseEvents(events);
-    expectShowState(result, {
-      upcoming: false,
-      regular: false,
-      past: false,
-      undated: true,
-    });
   });
 
   test("Filters events by featured flag", () => {

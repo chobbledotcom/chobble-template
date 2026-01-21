@@ -47,7 +47,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "createPropertyReviewFixture",
   // events-utils.js - event fixture factories and assertion helpers
   "expectEventCounts",
-  "expectShowState",
   "createOffsetDate",
   "formatDateString",
   "createEvent",
