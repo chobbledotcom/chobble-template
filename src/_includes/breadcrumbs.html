@@ -1,22 +1,19 @@
-{%- assign navKey = eleventyNavigation.key | default: navigationParent -%}
-{%- if navKey -%}
-  {%- assign breadcrumbItems = collections.navigationLinks | eleventyNavigationBreadcrumb: navKey, includeSelf: true -%}
-  {%- if breadcrumbItems.size > 0 -%}
+{%- assign crumbs = page | breadcrumbsFilter: title, navigationParent, parentLocation -%}
+{%- if crumbs.size > 0 -%}
 <div class="design-system">
   <nav aria-label="Breadcrumb" class="breadcrumbs">
     <ol>
-      <li><a href="/">Home</a></li>
-      {%- for item in breadcrumbItems -%}
-      <li><span class="separator" aria-hidden="true">/</span>
-        {%- if forloop.last -%}
-        <span aria-current="page">{{ item.title }}</span>
+      {%- for crumb in crumbs -%}
+      <li>
+        {%- unless forloop.first -%}<span class="separator" aria-hidden="true">/</span>{%- endunless -%}
+        {%- if crumb.url -%}
+        <a href="{{ crumb.url }}">{{ crumb.label }}</a>
         {%- else -%}
-        <a href="{{ item.url }}">{{ item.title }}</a>
+        <span aria-current="page">{{ crumb.label }}</span>
         {%- endif -%}
       </li>
       {%- endfor -%}
     </ol>
   </nav>
 </div>
-  {%- endif -%}
 {%- endif -%}
