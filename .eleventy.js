@@ -8,7 +8,6 @@ import { configureScss } from "#build/scss.js";
 // Collections
 import { configureCollectionUtils } from "#utils/collection-utils.js";
 import { configureCategories } from "#collections/categories.js";
-import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
 import { configureLandingPages } from "#collections/landing-pages.js";
 import { configureLocations } from "#collections/locations.js";
@@ -103,7 +102,6 @@ export default async function (eleventyConfig) {
   configureTags(eleventyConfig);
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
-  configureEvents(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
   return {

@@ -34,9 +34,3 @@ export const categoriseEvents = memoize((events) => {
 
   return { upcoming, past, regular, undated };
 });
-
-const configureEvents = (_eleventyConfig) => {
-  // No filters needed - getFeatured is registered in configureCollectionUtils
-};
-
-export { configureEvents };
