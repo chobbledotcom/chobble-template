@@ -111,3 +111,18 @@ export type { SchemaOrgMeta } from './schema.d.ts';
 // Utility Types
 // =============================================================================
 export type { MemoizeOptions } from './utils.d.ts';
+
+// =============================================================================
+// HTML Tokenizer Types
+// =============================================================================
+export type {
+  HtmlAttribute,
+  CharsToken,
+  CommentToken,
+  StartTagToken,
+  EndTagToken,
+  DoctypeToken,
+  HtmlToken,
+  HtmlTokenType,
+  TokenTransformFn,
+} from './html-tokenizer.d.ts';
