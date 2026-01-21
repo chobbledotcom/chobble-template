@@ -65,9 +65,7 @@ export const buildFilterUIData = (
   baseUrl,
   currentSortKey = "default",
 ) => {
-  const { attributes: allAttributes, displayLookup: display } = filterData;
-
-  if (Object.keys(allAttributes).length === 0) {
+  if (Object.keys(filterData.attributes).length === 0) {
     return { hasFilters: false };
   }
 
@@ -91,8 +89,8 @@ export const buildFilterUIData = (
   const activeFilters = mapEntries((key, value) => {
     const removePath = toSortedPath(omit([key])(filters), currentSortKey);
     return {
-      key: display[key],
-      value: display[value],
+      key: filterData.displayLookup[key],
+      value: filterData.displayLookup[value],
       removeUrl: removePath
         ? `${baseUrl}/search/${removePath}/#content`
         : `${baseUrl}/#content`,
@@ -109,15 +107,19 @@ export const buildFilterUIData = (
       if (!isActive && !validPathLookup[basePath]) return null;
       const pathWithSort = toSortedPath(newFilters, currentSortKey);
       return {
-        value: display[value],
+        value: filterData.displayLookup[value],
         url: `${baseUrl}/search/${pathWithSort}/#content`,
         active: isActive,
       };
     })(attrValues);
 
     if (options.length === 0) return null;
-    return { name: attrName, label: display[attrName], options };
-  })(Object.entries(allAttributes));
+    return {
+      name: attrName,
+      label: filterData.displayLookup[attrName],
+      options,
+    };
+  })(Object.entries(filterData.attributes));
 
   // Sort group first, then attribute groups
   const groups = [sortGroup, ...attributeGroups];
