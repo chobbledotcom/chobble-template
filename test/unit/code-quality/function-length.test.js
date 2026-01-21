@@ -6,7 +6,14 @@ import {
   rootDir,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
-import { filterMap, map, pipe, pluralize } from "#toolkit/fp/array.js";
+import {
+  filter,
+  filterMap,
+  flatMap,
+  map,
+  pipe,
+  pluralize,
+} from "#toolkit/fp/array.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
 // Configuration
@@ -56,36 +63,28 @@ const calculateOwnLines = (functions) =>
  * Analyze the codebase for overly long functions.
  * Returns violations using functional composition.
  */
-const analyzeFunctionLengths = () => {
-  const filesToCheck = SRC_JS_FILES().filter(
-    (f) => !f.startsWith("src/_lib/public/"),
-  );
+const analyzeFunctionLengths = () =>
+  pipe(
+    filter((f) => !f.startsWith("src/_lib/public/")),
+    flatMap((relativePath) => {
+      const fullPath = path.join(rootDir, relativePath);
+      const source = fs.readFileSync(fullPath, "utf-8");
+      const functions = calculateOwnLines(extractFunctions(source));
 
-  const allViolations = [];
-
-  for (const relativePath of filesToCheck) {
-    const fullPath = path.join(rootDir, relativePath);
-    const source = fs.readFileSync(fullPath, "utf-8");
-    const functions = calculateOwnLines(extractFunctions(source));
-
-    const fileViolations = pipe(
-      filterMap(
-        (func) =>
-          func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name),
-        (func) => ({
-          name: func.name,
-          lineCount: func.ownLines,
-          file: relativePath,
-          startLine: func.startLine,
-        }),
-      ),
-    )(functions);
-
-    allViolations.push(...fileViolations);
-  }
-
-  return allViolations;
-};
+      return pipe(
+        filterMap(
+          (func) =>
+            func.ownLines > MAX_LINES && !IGNORED_FUNCTIONS.has(func.name),
+          (func) => ({
+            name: func.name,
+            lineCount: func.ownLines,
+            file: relativePath,
+            startLine: func.startLine,
+          }),
+        ),
+      )(functions);
+    }),
+  )(SRC_JS_FILES());
 
 /**
  * Format violations for readable output.
@@ -95,26 +94,22 @@ const formatLengthViolations = (violations) => {
     return "No function length violations found.";
   }
 
-  // Sort by line count (descending)
-  violations.sort((a, b) => b.lineCount - a.lineCount);
+  // Sort by line count (descending) without mutating
+  const sorted = violations.toSorted((a, b) => b.lineCount - a.lineCount);
 
   const formatFunctions = pluralize("function");
   const lines = [
     `Found ${formatFunctions(violations.length)} exceeding ${MAX_LINES} lines:\n`,
-  ];
-
-  for (const v of violations) {
-    lines.push(`  ${v.name} (${v.lineCount} lines)`);
-    lines.push(`    └─ ${v.file}:${v.startLine}`);
-  }
-
-  lines.push("");
-  lines.push(`Preferred maximum: ${PREFERRED_LINES} lines`);
-  lines.push(`Hard limit: ${MAX_LINES} lines`);
-  lines.push("");
-  lines.push(
+    ...sorted.flatMap((v) => [
+      `  ${v.name} (${v.lineCount} lines)`,
+      `    └─ ${v.file}:${v.startLine}`,
+    ]),
+    "",
+    `Preferred maximum: ${PREFERRED_LINES} lines`,
+    `Hard limit: ${MAX_LINES} lines`,
+    "",
     "Consider refactoring long functions into smaller, focused units.",
-  );
+  ];
 
   return lines.join("\n");
 };

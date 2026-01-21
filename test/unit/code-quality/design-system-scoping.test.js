@@ -4,6 +4,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { fs, getFiles, path, rootDir } from "#test/test-utils.js";
+import { filter, flatMap, notMemberOf, pipe } from "#toolkit/fp/array.js";
 
 const { readFileSync } = fs;
 const { join, basename } = path;
@@ -172,27 +173,14 @@ describe("design-system-scoping", () => {
   });
 
   test("all design-system SCSS files are properly scoped", () => {
-    const violations = [];
-
-    for (const file of DESIGN_SYSTEM_SCSS_FILES) {
-      const filename = basename(file);
-
-      // Skip allowed files
-      if (ALLOWED_UNSCOPED_FILES.includes(filename)) {
-        continue;
-      }
-
-      const fullPath = join(rootDir, file);
-      const content = readFileSync(fullPath, "utf-8");
-
-      if (!hasDesignSystemWrapper(content)) {
-        const unscopedSelectors = findUnscopedSelectors(content);
-        violations.push({
-          file,
-          selectors: unscopedSelectors,
-        });
-      }
-    }
+    const violations = pipe(
+      filter((file) => notMemberOf(ALLOWED_UNSCOPED_FILES)(basename(file))),
+      flatMap((file) => {
+        const content = readFileSync(join(rootDir, file), "utf-8");
+        if (hasDesignSystemWrapper(content)) return [];
+        return [{ file, selectors: findUnscopedSelectors(content) }];
+      }),
+    )(DESIGN_SYSTEM_SCSS_FILES);
 
     // Report findings
     console.log("\n  📊 Design System Scoping Analysis:");

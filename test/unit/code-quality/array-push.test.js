@@ -5,6 +5,7 @@ import {
   createCodeChecker,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 // Pattern to detect .push() calls - array mutation
 const ARRAY_PUSH_PATTERN = /\.push\s*\(/;
@@ -52,7 +53,7 @@ arr. push(3);
   test("No .push() usage in source code", () => {
     // Liquid tag implementations require streaming token accumulation via .push()
     // This is the standard liquidjs API pattern for paired tags
-    const LIQUID_TAG_PUSH_ALLOWLIST = new Set([
+    const LIQUID_TAG_PUSH_ALLOWLIST = frozenSet([
       "src/_lib/eleventy/cached-block.js:49",
     ]);
 

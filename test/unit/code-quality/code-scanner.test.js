@@ -12,6 +12,7 @@ import {
   validateFunctionAllowlist,
 } from "#test/code-scanner.js";
 import { captureConsole, SRC_JS_FILES } from "#test/test-utils.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 
 describe("code-scanner", () => {
   describe("isCommentLine", () => {
@@ -227,7 +228,7 @@ describe("code-scanner", () => {
     };
 
     test("returns empty array when all exceptions are valid", () => {
-      const allowlist = new Set([
+      const allowlist = frozenSet([
         "test/code-scanner.js:5", // import statement
         "test/code-scanner.js:6", // import statement
       ]);
@@ -238,7 +239,7 @@ describe("code-scanner", () => {
     });
 
     test("skips file-only entries without line numbers", () => {
-      const allowlist = new Set([
+      const allowlist = frozenSet([
         "test/code-scanner.js", // file-only entry, should be skipped
         "test/code-scanner.js:5", // should be validated
       ]);
@@ -250,7 +251,7 @@ describe("code-scanner", () => {
 
     test("detects when line number exceeds file length", () => {
       testStaleException(
-        new Set(["test/code-scanner.js:999999"]),
+        frozenSet(["test/code-scanner.js:999999"]),
         /./,
         "test/code-scanner.js:999999",
         /Line 999999 doesn't exist/,
@@ -259,7 +260,7 @@ describe("code-scanner", () => {
 
     test("detects when line number is less than 1", () => {
       testStaleException(
-        new Set(["test/code-scanner.js:0"]),
+        frozenSet(["test/code-scanner.js:0"]),
         /./,
         "test/code-scanner.js:0",
         /Line 0 doesn't exist/,
@@ -267,7 +268,7 @@ describe("code-scanner", () => {
     });
 
     test("detects when line no longer matches pattern", () => {
-      const allowlist = new Set(["test/code-scanner.js:1"]); // Line 1 has a comment, not console.log
+      const allowlist = frozenSet(["test/code-scanner.js:1"]); // Line 1 has a comment, not console.log
       const patterns = /console\.log/;
 
       const stale = validateExceptions(allowlist, patterns);
@@ -277,7 +278,7 @@ describe("code-scanner", () => {
     });
 
     test("works with multiple patterns", () => {
-      const allowlist = new Set(["test/code-scanner.js:5"]);
+      const allowlist = frozenSet(["test/code-scanner.js:5"]);
       const patterns = [/console\.log/, /import/]; // Line 5 should match import
 
       const stale = validateExceptions(allowlist, patterns);
@@ -286,7 +287,7 @@ describe("code-scanner", () => {
 
     test("detects file-only entry with no matching lines", () => {
       // test/code-scanner.js exists but won't have this pattern
-      const allowlist = new Set(["test/code-scanner.js"]);
+      const allowlist = frozenSet(["test/code-scanner.js"]);
       const patterns = /this-pattern-definitely-wont-match-anything-12345/;
 
       const stale = validateExceptions(allowlist, patterns);
@@ -296,7 +297,7 @@ describe("code-scanner", () => {
     });
 
     test("detects multiple stale entries", () => {
-      const allowlist = new Set([
+      const allowlist = frozenSet([
         "test/code-scanner.js:999999", // line doesn't exist
         "test/code-scanner.js:1", // line doesn't match pattern
       ]);
@@ -309,7 +310,7 @@ describe("code-scanner", () => {
 
   describe("expectNoStaleExceptions", () => {
     test("logs stale entries when exceptions are invalid", () => {
-      const allowlist = new Set([
+      const allowlist = frozenSet([
         "test/code-scanner.js:1", // line doesn't match pattern
       ]);
       const patterns = /this-pattern-wont-match-anything/;
@@ -360,14 +361,14 @@ describe("code-scanner", () => {
 
   describe("validateFunctionAllowlist", () => {
     test("returns empty array when all functions are defined", () => {
-      const allowlist = new Set(["funcA", "funcB"]);
+      const allowlist = frozenSet(["funcA", "funcB"]);
       const source = "const funcA = () => {}\nconst funcB = () => {}";
       const stale = validateFunctionAllowlist(allowlist, source);
       expect(stale).toEqual([]);
     });
 
     test("returns stale entries for undefined functions", () => {
-      const allowlist = new Set(["funcA", "missingFunc"]);
+      const allowlist = frozenSet(["funcA", "missingFunc"]);
       const source = "const funcA = () => {}";
       const stale = validateFunctionAllowlist(allowlist, source);
       expect(stale.length).toBe(1);
@@ -376,7 +377,7 @@ describe("code-scanner", () => {
     });
 
     test("returns all stale entries when none are defined", () => {
-      const allowlist = new Set(["missing1", "missing2"]);
+      const allowlist = frozenSet(["missing1", "missing2"]);
       const source = "const other = () => {}";
       const stale = validateFunctionAllowlist(allowlist, source);
       expect(stale.length).toBe(2);
@@ -385,7 +386,7 @@ describe("code-scanner", () => {
 
   describe("expectNoStaleFunctionAllowlist", () => {
     test("logs stale entries when functions are not defined", () => {
-      const allowlist = new Set(["missingFunc"]);
+      const allowlist = frozenSet(["missingFunc"]);
       const source = "const other = () => {}";
 
       const logs = captureConsole(() => {
@@ -405,7 +406,7 @@ describe("code-scanner", () => {
     });
 
     test("passes when all functions are defined", () => {
-      const allowlist = new Set(["myFunc"]);
+      const allowlist = frozenSet(["myFunc"]);
       const source = "const myFunc = () => {}";
 
       expect(() =>
