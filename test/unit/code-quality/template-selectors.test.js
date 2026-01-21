@@ -4,11 +4,13 @@
 import { describe, expect, test } from "bun:test";
 import { IDS } from "#public/utils/selectors.js";
 import { DOM, fs, path, rootDir } from "#test/test-utils.js";
+import { mapObject } from "#toolkit/fp/object.js";
 
 // Build a lookup for Liquid variable expansion (IDS from selectors.js)
-const LIQUID_LOOKUP = Object.fromEntries(
-  Object.entries(IDS).map(([key, value]) => [`selectors.IDS.${key}`, value]),
-);
+const LIQUID_LOOKUP = mapObject((key, value) => [
+  `selectors.IDS.${key}`,
+  value,
+])(IDS);
 
 // Load and parse HTML template files
 const templatesDir = path.join(rootDir, "src/_includes/templates");

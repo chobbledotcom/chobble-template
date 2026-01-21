@@ -27,6 +27,7 @@ import {
   matchWithSort,
 } from "#filters/item-filters.js";
 import { groupByWithCache } from "#toolkit/fp/memoize.js";
+import { mapObject } from "#toolkit/fp/object.js";
 
 /**
  * Index filtered pages by categorySlug for O(1) lookups.
@@ -185,16 +186,14 @@ const categoryListingUI = (collectionApi) => {
   const filterAttrs = createCategoryFilterAttributes(collectionApi);
   const pagesByCategorySlug = pagesByCategory(filteredPages);
 
-  return Object.fromEntries(
-    Object.entries(filterAttrs).map(([slug, attrs]) => {
-      const categoryPages = pagesByCategorySlug[slug] ?? [];
-      const baseUrl = `/categories/${slug}`;
-      return [
-        slug,
-        buildFilterUIData(attrs, null, getBasePaths(categoryPages), baseUrl),
-      ];
-    }),
-  );
+  return mapObject((slug, attrs) => {
+    const categoryPages = pagesByCategorySlug[slug] ?? [];
+    const baseUrl = `/categories/${slug}`;
+    return [
+      slug,
+      buildFilterUIData(attrs, null, getBasePaths(categoryPages), baseUrl),
+    ];
+  })(filterAttrs);
 };
 
 export {
