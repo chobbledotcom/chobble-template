@@ -67,9 +67,8 @@ export const initSlider = (container, options = {}) => {
   if (slider.dataset.sliderInit) return null;
   slider.dataset.sliderInit = "true";
 
-  const itemSelector = options.itemSelector ?? ":scope > *";
-  const defaultWidth = options.defaultWidth ?? 240;
-  const getAmount = () => getScrollAmount(slider, itemSelector, defaultWidth);
+  const getAmount = () =>
+    getScrollAmount(slider, options.itemSelector, options.defaultWidth);
   const updateState = createStateUpdater(slider, prevBtn, nextBtn);
   const scroll = createScrollHandler(slider, getAmount);
 

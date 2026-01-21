@@ -287,8 +287,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/cart/cart.js:145",
   "src/_lib/public/cart/cart.js:146",
   "src/_lib/public/ui/autosizes.js:70",
-  "src/_lib/public/utils/slider-core.js:70",
-  "src/_lib/public/utils/slider-core.js:71",
 
   // src/_lib/transforms - HTML transforms
   "src/_lib/transforms/linkify.js:118",
