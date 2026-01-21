@@ -51,7 +51,7 @@ export const createOperationContext = (
 /**
  * Creates an error info factory for page path batch operations
  */
-export const createPagePathErrorInfo = (pagePaths) => (i, reason) => ({
+export const pathErrorInfo = (pagePaths) => (i, reason) => ({
   pagePath: pagePaths[i],
   error: reason.message,
 });

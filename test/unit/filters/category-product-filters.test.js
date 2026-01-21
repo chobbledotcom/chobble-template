@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
-  buildCategoryFilterUIDataFn,
+  categoryFilterData,
+  categoryListingUI,
   createCategoryFilterAttributes,
   createCategoryFilterRedirects,
-  createCategoryListingFilterUI,
-  createFilteredCategoryProductPages,
+  filteredCategoryPages,
 } from "#filters/category-product-filters.js";
 import { item as baseItem, expectResultTitles } from "#test/test-utils.js";
 
@@ -76,17 +76,17 @@ const widgetFilteredPages = (paths = ["size/small", "size/large"]) =>
 
 describe("category-product-filters", () => {
   // ============================================
-  // buildCategoryFilterUIDataFn tests
+  // categoryFilterData tests
   // ============================================
 
-  describe("buildCategoryFilterUIDataFn", () => {
+  describe("categoryFilterData", () => {
     test("Returns hasFilters false when category has no filter data", () => {
-      const result = buildCategoryFilterUIDataFn({}, "widgets", null, []);
+      const result = categoryFilterData({}, "widgets", null, []);
       expect(result.hasFilters).toBe(false);
     });
 
     test("Builds UI data with category-scoped URLs", () => {
-      const result = buildCategoryFilterUIDataFn(
+      const result = categoryFilterData(
         widgetFilterAttrs(),
         "widgets",
         null,
@@ -102,7 +102,7 @@ describe("category-product-filters", () => {
         ...widgetFilteredPages(["size/small"]),
         { categorySlug: "gadgets", path: "size/small" },
       ];
-      const result = buildCategoryFilterUIDataFn(
+      const result = categoryFilterData(
         widgetFilterAttrs(["small"]),
         "widgets",
         null,
@@ -112,7 +112,7 @@ describe("category-product-filters", () => {
     });
 
     test("Includes active filters with remove URLs", () => {
-      const result = buildCategoryFilterUIDataFn(
+      const result = categoryFilterData(
         widgetFilterAttrs(),
         "widgets",
         { size: "small" },
@@ -130,16 +130,14 @@ describe("category-product-filters", () => {
   // Collection creation tests
   // ============================================
 
-  describe("createFilteredCategoryProductPages", () => {
+  describe("filteredCategoryPages", () => {
     test("Returns empty array when no categories exist", () => {
-      const result = createFilteredCategoryProductPages(
-        mockCollectionApi([], []),
-      );
+      const result = filteredCategoryPages(mockCollectionApi([], []));
       expect(result).toEqual([]);
     });
 
     test("Returns empty array for category with no filterable products", () => {
-      const result = createFilteredCategoryProductPages(
+      const result = filteredCategoryPages(
         mockCollectionApi([categoryFixture("widgets")], [unfilteredProduct()]),
       );
       expect(result).toEqual([]);
@@ -156,7 +154,7 @@ describe("category-product-filters", () => {
           }),
         ],
       );
-      const result = createFilteredCategoryProductPages(api);
+      const result = filteredCategoryPages(api);
       expect(
         result.filter((p) => p.categorySlug === "widgets").length,
       ).toBeGreaterThan(0);
@@ -166,7 +164,7 @@ describe("category-product-filters", () => {
     });
 
     test("Filter pages include category context", () => {
-      const result = createFilteredCategoryProductPages(
+      const result = filteredCategoryPages(
         mockCollectionApi(
           [categoryFixture("widgets")],
           [widgetWithSize("small")],
@@ -192,14 +190,14 @@ describe("category-product-filters", () => {
           }),
         ],
       );
-      const paths = createFilteredCategoryProductPages(api).map((p) => p.path);
+      const paths = filteredCategoryPages(api).map((p) => p.path);
       expect(paths).toContain("size/small");
       expect(paths).toContain("type/classic");
       expect(paths).toContain("size/small/type/classic");
     });
 
     test("Filter pages include filter description with display values", () => {
-      const result = createFilteredCategoryProductPages(
+      const result = filteredCategoryPages(
         mockCollectionApi(
           [categoryFixture("widgets")],
           [
@@ -226,7 +224,7 @@ describe("category-product-filters", () => {
           }),
         ],
       );
-      const widgetPage = createFilteredCategoryProductPages(api).find(
+      const widgetPage = filteredCategoryPages(api).find(
         (p) => p.path === "size/small",
       );
       expectResultTitles(widgetPage.products, ["Widget A"]);
@@ -326,14 +324,14 @@ describe("category-product-filters", () => {
     });
   });
 
-  describe("createCategoryListingFilterUI", () => {
+  describe("categoryListingUI", () => {
     test("Returns empty object when no categories have filters", () => {
-      const result = createCategoryListingFilterUI(mockCollectionApi([], []));
+      const result = categoryListingUI(mockCollectionApi([], []));
       expect(result).toEqual({});
     });
 
     test("Returns filterUI keyed by category slug", () => {
-      const result = createCategoryListingFilterUI(
+      const result = categoryListingUI(
         mockCollectionApi(
           [categoryFixture("widgets")],
           [widgetWithSize("small")],
@@ -344,7 +342,7 @@ describe("category-product-filters", () => {
     });
 
     test("FilterUI has no active filters for listing pages", () => {
-      const result = createCategoryListingFilterUI(
+      const result = categoryListingUI(
         mockCollectionApi(
           [categoryFixture("widgets")],
           [widgetWithSize("small")],
@@ -354,7 +352,7 @@ describe("category-product-filters", () => {
     });
 
     test("FilterUI includes category-scoped URLs", () => {
-      const result = createCategoryListingFilterUI(
+      const result = categoryListingUI(
         mockCollectionApi(
           [categoryFixture("widgets")],
           [widgetWithSize("small")],

@@ -8,7 +8,7 @@
 
 import {
   COMMON_STEPS,
-  createTestsWithCoverageStep,
+  coverageStep,
   runSteps,
 } from "#test/test-runner-utils.js";
 
@@ -21,7 +21,7 @@ const steps = [
   COMMON_STEPS.typecheck,
   COMMON_STEPS.cpd,
   COMMON_STEPS.build,
-  createTestsWithCoverageStep(verbose),
+  coverageStep(verbose),
 ];
 
 // Run all steps (only when executed directly, not when imported)
