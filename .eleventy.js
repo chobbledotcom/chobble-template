@@ -20,6 +20,7 @@ import { configureReviews } from "#collections/reviews.js";
 import { configureSearch } from "#collections/search.js";
 import { configureTags } from "#collections/tags.js";
 import { configureAreaList } from "#eleventy/area-list.js";
+import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 // Eleventy plugins
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { configureCachedBlock } from "#eleventy/cached-block.js";
@@ -67,6 +68,7 @@ export default async function (eleventyConfig) {
   // configureLayoutAliases(eleventyConfig);
 
   configureAreaList(eleventyConfig);
+  configureBreadcrumbs(eleventyConfig);
   configureCacheBuster(eleventyConfig);
   configureCanonicalUrl(eleventyConfig);
   configureCapture(eleventyConfig);
