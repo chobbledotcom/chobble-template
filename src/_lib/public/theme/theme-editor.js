@@ -88,16 +88,15 @@ const ThemeEditor = {
    * @returns {string|number} The value for the control
    */
   getControlValue(varName, rootVars, options = {}) {
-    const { type, fallback } = options;
     const parseValue = (val) =>
-      type === "number" ? parseFloat(val) || 0 : val;
+      options.type === "number" ? parseFloat(val) || 0 : val;
     if (rootVars[varName]) return parseValue(rootVars[varName]);
     const computed = getComputedStyle(document.documentElement)
       .getPropertyValue(varName)
       .trim();
     return computed
       ? parseValue(computed)
-      : fallback || (type === "number" ? 0 : "");
+      : options.fallback || (options.type === "number" ? 0 : "");
   },
 
   init() {
