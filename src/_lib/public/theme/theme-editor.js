@@ -35,20 +35,21 @@ import {
 } from "#public/theme/theme-editor-lib.js";
 import { onReady } from "#public/utils/on-ready.js";
 import { compact, filter, flatMap, map, pipe } from "#toolkit/fp/array.js";
+import { frozenObject } from "#toolkit/fp/object.js";
 
-const ELEMENT_IDS = {
+const ELEMENT_IDS = frozenObject({
   form: "theme-editor-form",
   output: "theme-output",
   download: "download-theme",
-};
+});
 
-const SCOPE_DOM_SELECTORS = {
+const SCOPE_DOM_SELECTORS = frozenObject({
   header: "header",
   nav: "nav",
   article: "article",
   form: "form",
   button: "button, .button, input[type='submit']",
-};
+});
 
 const SCOPED_VARS_TO_CLEAR = [
   "--color-bg",

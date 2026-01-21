@@ -130,6 +130,45 @@ const fromPairs = (pairs) => Object.fromEntries(pairs);
 const omit = (keys) => (obj) =>
   Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
 
+/**
+ * Create a frozen (deeply immutable) object from key-value pairs
+ *
+ * Returns an object wrapped in a Proxy that throws TypeError on mutation
+ * attempts (property assignment, deletion, definition). All read operations
+ * work normally. Unlike Object.freeze, provides clear error messages.
+ *
+ * @template {Record<string, unknown>} T
+ * @param {T} obj - Object to freeze
+ * @returns {Readonly<T>} Frozen object
+ *
+ * @example
+ * const CONFIG = frozenObject({ maxRetries: 3, timeout: 5000 });
+ * CONFIG.maxRetries       // 3
+ * CONFIG.timeout = 1000   // throws TypeError
+ * delete CONFIG.maxRetries // throws TypeError
+ */
+const frozenObject = (obj) => {
+  return /** @type {Readonly<T>} */ (
+    new Proxy(obj, {
+      set(_, prop) {
+        throw new TypeError(
+          `Cannot set property '${String(prop)}' on a frozen object`,
+        );
+      },
+      deleteProperty(_, prop) {
+        throw new TypeError(
+          `Cannot delete property '${String(prop)}' from a frozen object`,
+        );
+      },
+      defineProperty(_, prop) {
+        throw new TypeError(
+          `Cannot define property '${String(prop)}' on a frozen object`,
+        );
+      },
+    })
+  );
+};
+
 export {
   filterObject,
   mapEntries,
@@ -140,4 +179,5 @@ export {
   toObject,
   fromPairs,
   omit,
+  frozenObject,
 };

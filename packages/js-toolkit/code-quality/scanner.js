@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { notMemberOf, pluralize } from "../fp/array.js";
-import { omit } from "../fp/object.js";
+import { frozenObject, omit } from "../fp/object.js";
 
 const STANDARD_HIT_FIELDS = ["lineNumber", "line"];
 const omitStandardFields = omit(STANDARD_HIT_FIELDS);
@@ -437,13 +437,13 @@ const createViolation = (reasonFn) => (context) => ({
   reason: reasonFn(context),
 });
 
-const FUNCTION_DEFINITION_PATTERNS = {
+const FUNCTION_DEFINITION_PATTERNS = frozenObject({
   const: (name) => new RegExp(`\\bconst\\s+${name}\\s*=`),
   let: (name) => new RegExp(`\\blet\\s+${name}\\s*=`),
   var: (name) => new RegExp(`\\bvar\\s+${name}\\s*=`),
   function: (name) => new RegExp(`\\bfunction\\s+${name}\\s*\\(`),
   destructuring: (name) => new RegExp(`:\\s*${name}\\s*[,})]`),
-};
+});
 
 /**
  * Check if a function name is defined in the given source code.
