@@ -52,6 +52,7 @@ export {
 // Object utilities
 export {
   fromPairs,
+  frozenObject,
   mapBoth,
   mapEntries,
   mapObject,

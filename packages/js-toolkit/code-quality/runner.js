@@ -2,6 +2,7 @@
  * Test runner utilities for precommit and CI workflows.
  */
 import { spawnSync } from "node:child_process";
+import { frozenObject } from "../fp/object.js";
 
 /**
  * @typedef {Object} TruncateOptions
@@ -46,7 +47,7 @@ const printTruncatedList =
  * These use bun as the command runner.
  * @type {Object.<string, Object>}
  */
-const COMMON_STEPS = {
+const COMMON_STEPS = frozenObject({
   install: { name: "install", cmd: "bun", args: ["install"] },
   lint: { name: "lint", cmd: "bun", args: ["run", "lint"] },
   lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
@@ -54,7 +55,7 @@ const COMMON_STEPS = {
   typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
   cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
   test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
-};
+});
 
 /**
  * Create a tests step with coverage and optional verbose flag

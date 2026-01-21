@@ -1,6 +1,6 @@
-import { pickTruthy } from "#toolkit/fp/object.js";
+import { frozenObject, pickTruthy } from "#toolkit/fp/object.js";
 
-const DEFAULTS = {
+const DEFAULTS = frozenObject({
   sticky_mobile_nav: true,
   horizontal_nav: true,
   homepage_news: true,
@@ -29,12 +29,12 @@ const DEFAULTS = {
   phoneNumberLength: 11,
   use_visual_editor: false,
   default_image_widths: [240, 480, 900, 1300],
-};
+});
 
-const DEFAULT_PRODUCT_DATA = {
+const DEFAULT_PRODUCT_DATA = frozenObject({
   item_list_aspect_ratio: null,
   max_images: null,
-};
+});
 
 /**
  * Extract non-null product settings from config
