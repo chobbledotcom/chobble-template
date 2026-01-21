@@ -250,6 +250,63 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
   "test/unit/code-quality/dom-mocking.test.js",
 ]);
 
+// ============================================
+// Nullish coalescing (??) exceptions
+// ============================================
+
+// Files outside src/_lib/collections/ that use the ?? operator.
+// Default values should be set early in the data chain (in collections).
+// These are grandfathered usages that should be refactored over time.
+const ALLOWED_NULLISH_COALESCING = frozenSet([
+  // src/_data - computed data, could be moved to collections
+  "src/_data/eleventyComputed.js:68",
+  "src/_data/eleventyComputed.js:74",
+
+  // src/_lib/build - build-time utilities
+  "src/_lib/build/scss.js:23", // Lazy module loading pattern
+  "src/_lib/build/theme-compiler.js:44",
+
+  // src/_lib/eleventy - Eleventy plugins
+  "src/_lib/eleventy/capture.js:32",
+  "src/_lib/eleventy/capture.js:39",
+  "src/_lib/eleventy/html-transform.js:61",
+  "src/_lib/eleventy/html-transform.js:89",
+  "src/_lib/eleventy/opening-times.js:20",
+  "src/_lib/eleventy/screenshots.js:16",
+
+  // src/_lib/filters - URL-based filtering
+  "src/_lib/filters/category-product-filters.js:63",
+  "src/_lib/filters/category-product-filters.js:190",
+  "src/_lib/filters/filter-core.js:146",
+  "src/_lib/filters/filter-core.js:147",
+  "src/_lib/filters/filter-core.js:202",
+  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/filters/spec-filters.js:34",
+  "src/_lib/filters/spec-filters.js:35",
+
+  // src/_lib/media - image processing
+  "src/_lib/media/image.js:211",
+
+  // src/_lib/public - frontend JavaScript (browser-side, no collections)
+  "src/_lib/public/cart/cart.js:145",
+  "src/_lib/public/cart/cart.js:146",
+  "src/_lib/public/ui/autosizes.js:70",
+  "src/_lib/public/utils/slider-core.js:70",
+  "src/_lib/public/utils/slider-core.js:71",
+
+  // src/_lib/transforms - HTML transforms
+  "src/_lib/transforms/linkify.js:118",
+  "src/_lib/transforms/linkify.js:248",
+  "src/_lib/transforms/linkify.js:264",
+  "src/_lib/transforms/linkify.js:305",
+
+  // src/_lib/utils - utility functions
+  "src/_lib/utils/collection-utils.js:65",
+  "src/_lib/utils/html-tokenizer.js:42",
+  "src/_lib/utils/sorting.js:42",
+  "src/_lib/utils/sorting.js:69",
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_PROCESS_CWD,
@@ -258,4 +315,5 @@ export {
   ALLOWED_SINGLE_USE_FUNCTIONS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
+  ALLOWED_NULLISH_COALESCING,
 };
