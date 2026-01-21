@@ -1,3 +1,9 @@
+/**
+ * Reviews collection and filters
+ *
+ * @module #collections/reviews
+ */
+
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import config from "#data/config.js";
@@ -6,6 +12,11 @@ import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#toolkit/fp/array.js";
 import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
+
+/** @typedef {import("#lib/types").ReviewCollectionItem} ReviewCollectionItem */
+/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+
+/** @typedef {"products" | "categories" | "properties"} ReviewIndexField */
 
 // Load SVG template once at module initialization
 const AVATAR_SVG_TEMPLATE = readFileSync(
@@ -22,7 +33,10 @@ const indexByCategories = createArrayFieldIndexer("categories");
 /** Index reviews by properties for O(1) lookups, cached per reviews array */
 const indexByProperties = createArrayFieldIndexer("properties");
 
-/** Map field names to their respective indexers */
+/**
+ * Map field names to their respective indexers.
+ * @type {Record<ReviewIndexField, (reviews: ReviewCollectionItem[]) => Record<string, ReviewCollectionItem[]>>}
+ */
 const fieldIndexers = {
   products: indexByProducts,
   categories: indexByCategories,
@@ -34,9 +48,10 @@ const fieldIndexers = {
  * Fetches all items tagged with "review", filters out hidden ones, and sorts by date.
  *
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {import("#lib/types").EleventyCollectionItem[]}
+ * @returns {ReviewCollectionItem[]}
  */
 const createReviewsCollection = (collectionApi) => {
+  /** @type {ReviewCollectionItem[]} */
   const reviews = collectionApi.getFilteredByTag("reviews");
   return reviews
     .filter((review) => review.data.hidden !== true)
@@ -44,29 +59,34 @@ const createReviewsCollection = (collectionApi) => {
 };
 
 /**
- * Generic function to filter reviews by a specific field (products, categories, properties).
+ * Check if a value is a valid rating number.
+ * @param {unknown} value
+ * @returns {value is number}
+ */
+const isValidRating = (value) =>
+  typeof value === "number" && !Number.isNaN(value);
+
+/**
+ * Get reviews for a specific item by field.
  * Uses cached indexes for O(1) lookups when available.
- * @param {Array} reviews - Array of review objects
+ *
+ * @param {ReviewCollectionItem[]} reviews - Array of review objects
  * @param {string} slug - The slug to filter by
- * @param {string} field - The field to check (e.g., 'products', 'categories', 'properties')
- * @returns {Array} Filtered and sorted reviews
+ * @param {ReviewIndexField} field - The field to check (products, categories, properties)
+ * @returns {ReviewCollectionItem[]} Filtered and sorted reviews
  */
 const getReviewsFor = (reviews, slug, field) => {
   const indexer = fieldIndexers[field];
-  if (indexer) {
-    return (indexer(reviews)[slug] ?? []).sort(sortByDateDescending);
-  }
-  // Fallback for unknown fields
-  return reviews
-    .filter((review) => review.data[field]?.includes(slug))
-    .sort(sortByDateDescending);
+  return (indexer(reviews)[slug] ?? []).sort(sortByDateDescending);
 };
 
 /**
- * Count reviews for a specific item
- * @param {Array} reviews - Array of review objects
+ * Count reviews for a specific item.
+ *
+ * @param {ReviewCollectionItem[]} reviews - Array of review objects
  * @param {string} slug - The slug to count reviews for
- * @param {string} field - The field to check
+ * @param {ReviewIndexField} field - The field to check
+ * @returns {number} Number of reviews
  */
 const countReviews = (reviews, slug, field) =>
   getReviewsFor(reviews, slug, field).length;
@@ -74,16 +94,17 @@ const countReviews = (reviews, slug, field) =>
 /**
  * Calculate average rating for reviews matching a specific item.
  * Uses cached indexes via getReviewsFor for O(1) lookups.
- * @param {Array} reviews - Array of review objects
+ *
+ * @param {ReviewCollectionItem[]} reviews - Array of review objects
  * @param {string} slug - The slug to calculate rating for
- * @param {string} field - The field to check
- * @returns {number|null} Ceiling of average rating, or null if no ratings
+ * @param {ReviewIndexField} field - The field to check
+ * @returns {number | null} Ceiling of average rating, or null if no ratings
  */
 const getRating = (reviews, slug, field) => {
   const matchingReviews = getReviewsFor(reviews, slug, field);
   const ratings = pipe(
-    map((r) => r.data.rating),
-    filter((r) => r !== null && r !== undefined && !Number.isNaN(r)),
+    map((/** @type {ReviewCollectionItem} */ r) => r.data.rating),
+    filter(isValidRating),
   )(matchingReviews);
 
   if (ratings.length === 0) return null;
@@ -92,15 +113,16 @@ const getRating = (reviews, slug, field) => {
 };
 
 /**
- * Convert numeric rating to star emojis
+ * Convert numeric rating to star emojis.
+ *
  * @param {number} rating - The numeric rating (1-5)
  * @returns {string} Star emojis repeated by the rating count
  */
 const ratingToStars = (rating) => "⭐️".repeat(rating);
 
 /**
- * Predefined list of slightly dark colors for avatar backgrounds
- * These ensure good contrast with white text
+ * Predefined list of slightly dark colors for avatar backgrounds.
+ * These ensure good contrast with white text.
  */
 const AVATAR_COLORS = [
   "#5C6BC0", // Indigo
@@ -117,7 +139,13 @@ const AVATAR_COLORS = [
   "#42A5F5", // Blue
 ];
 
-/** Extract initials: "John Smith" -> "JS", "JS" -> "JS", "John" -> "J" */
+/**
+ * Extract initials from a name.
+ * "John Smith" -> "JS", "JS" -> "JS", "John" -> "J", "" -> "?"
+ *
+ * @param {string} str - Name string
+ * @returns {string} Initials (1-2 characters)
+ */
 const extractInitials = (str) => {
   const trimmed = str.trim();
   if (trimmed.length === 0) return "?";
@@ -128,11 +156,14 @@ const extractInitials = (str) => {
 };
 
 /**
- * Generate an SVG data URI for a reviewer avatar
- * Uses the name to pick a consistent color and display initials
+ * Generate an SVG data URI for a reviewer avatar.
+ * Uses the name to pick a consistent color and display initials.
+ *
+ * @param {string} name - Reviewer name
+ * @returns {string} Data URI for SVG avatar
  */
 const reviewerAvatar = (name) => {
-  const str = name || "";
+  const str = name ?? "";
   const color = AVATAR_COLORS[hashString(str) % AVATAR_COLORS.length];
   const initials = extractInitials(str);
   const svg = AVATAR_SVG_TEMPLATE.replace("{{color}}", color).replace(
@@ -142,12 +173,32 @@ const reviewerAvatar = (name) => {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 
-/** Map item to redirect data */
+/**
+ * Redirect data for items without enough reviews.
+ * @typedef {{ item: EleventyCollectionItem, fileSlug: string }} RedirectData
+ */
+
+/**
+ * Map item to redirect data.
+ *
+ * @param {EleventyCollectionItem} item
+ * @returns {RedirectData}
+ */
 const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
 
-/** Factory helper for review-based collections */
+/**
+ * Factory helper for review-based collections.
+ *
+ * @template T
+ * @param {ReviewIndexField} reviewsField - Field to check for reviews
+ * @param {number | undefined} limitOverride - Optional limit override
+ * @param {(items: EleventyCollectionItem[]) => T[]} onNoLimit - Handler when limit is -1
+ * @param {(items: EleventyCollectionItem[], hasEnough: (item: EleventyCollectionItem) => boolean) => T[]} onLimit - Handler when limit applies
+ * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => T[]}
+ */
 const reviewsFactory =
   (reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
+    /** @type {EleventyCollectionItem[]} */
     const items = collectionApi.getFilteredByTag(reviewsField);
     const visibleReviews = createReviewsCollection(collectionApi);
     // config().reviews_truncate_limit is guaranteed by DEFAULTS (always number)
@@ -158,22 +209,24 @@ const reviewsFactory =
 
     if (limit === -1) return onNoLimit(items);
 
-    const hasEnoughReviews = (item) =>
+    const hasEnoughReviews = (/** @type {EleventyCollectionItem} */ item) =>
       countReviews(visibleReviews, item.fileSlug, reviewsField) > limit;
 
     return onLimit(items, hasEnoughReviews);
   };
 
 /**
- * Factory: items with enough reviews for a separate /reviews page
- * @param {string} reviewsField - The collection tag and field to check for reviews
- * @param {(item: any) => any} [processItem] - Optional function to transform items
+ * Factory: items with enough reviews for a separate /reviews page.
+ *
+ * @template T
+ * @param {ReviewIndexField} reviewsField - The collection tag and field to check for reviews
+ * @param {(item: EleventyCollectionItem) => T} [processItem] - Optional function to transform items
  * @param {number} [limitOverride] - Optional limit override for testing
- * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns filtered items
+ * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => T[]}
  */
 const withReviewsPage = (
   reviewsField,
-  processItem = (item) => item,
+  processItem = (item) => /** @type {T} */ (item),
   limitOverride,
 ) =>
   reviewsFactory(
@@ -184,10 +237,11 @@ const withReviewsPage = (
   );
 
 /**
- * Factory: redirect data for items without enough reviews for a separate page
- * @param {string} reviewsField - The collection tag and field to check for reviews
+ * Factory: redirect data for items without enough reviews for a separate page.
+ *
+ * @param {ReviewIndexField} reviewsField - The collection tag and field to check for reviews
  * @param {number} [limitOverride] - Optional limit override for testing
- * @returns {(collectionApi: any) => Array} Function that takes collectionApi and returns redirect data
+ * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => RedirectData[]}
  */
 const reviewsRedirects = (reviewsField, limitOverride) =>
   reviewsFactory(
@@ -199,11 +253,15 @@ const reviewsRedirects = (reviewsField, limitOverride) =>
   );
 
 /**
- * Configure reviews collection and filters for Eleventy
+ * Configure reviews collection and filters for Eleventy.
+ *
+ * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureReviews = (eleventyConfig) => {
   eleventyConfig.addCollection("reviews", createReviewsCollection);
+  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getReviewsFor", getReviewsFor);
+  // @ts-expect-error - Filter returns number for data transformation, not string
   eleventyConfig.addFilter("getRating", getRating);
   eleventyConfig.addFilter("ratingToStars", ratingToStars);
   eleventyConfig.addFilter("reviewerAvatar", reviewerAvatar);

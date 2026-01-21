@@ -194,15 +194,20 @@ describe("reviews", () => {
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
 
-  test("Generic function works with any field", () => {
+  test("Works with all supported fields", () => {
     const testReviews = reviewItems([
-      ["Review 1", "2024-01-01", { customField: ["item-a"] }],
-      ["Review 2", "2024-01-02", { customField: ["item-b"] }],
+      ["Review 1", "2024-01-01", { products: ["product-a"] }],
+      ["Review 2", "2024-01-02", { categories: ["category-a"] }],
+      ["Review 3", "2024-01-03", { properties: ["property-a"] }],
     ]);
 
-    const result = getReviewsFor(testReviews, "item-a", "customField");
-
-    expectResultTitles(result, ["Review 1"]);
+    expect(getReviewsFor(testReviews, "product-a", "products").length).toBe(1);
+    expect(getReviewsFor(testReviews, "category-a", "categories").length).toBe(
+      1,
+    );
+    expect(getReviewsFor(testReviews, "property-a", "properties").length).toBe(
+      1,
+    );
   });
 
   test("Calculates rating for any field type via filter", () => {

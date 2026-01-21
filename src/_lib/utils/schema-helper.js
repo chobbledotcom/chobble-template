@@ -164,7 +164,9 @@ const buildProductMeta = (data) => {
     const reviews = getReviewsFor(
       data.collections.reviews,
       data.page.fileSlug,
-      data.reviewsField,
+      /** @type {"products" | "categories" | "properties"} */ (
+        data.reviewsField
+      ),
     );
 
     if (reviews.length === 0) return {};

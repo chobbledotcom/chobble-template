@@ -21,19 +21,42 @@ export type {
 // Eleventy Types
 // =============================================================================
 export type {
+  // Page data
   EleventyPageData,
+  EleventyNavigation,
+  EleventyComputedData,
+  EleventyCollectionApi,
+
+  // Base types
   BaseItemData,
+
+  // Specific item data types
   ProductItemData,
+  CategoryItemData,
   EventItemData,
   ReviewItemData,
   PropertyItemData,
   LocationItemData,
   TeamItemData,
+  NewsItemData,
+  MenuItemData,
+  MenuCategoryItemData,
+
+  // Specific collection item types (preferred for type safety)
+  ProductCollectionItem,
+  CategoryCollectionItem,
+  EventCollectionItem,
+  ReviewCollectionItem,
+  PropertyCollectionItem,
+  LocationCollectionItem,
+  TeamCollectionItem,
+  NewsCollectionItem,
+  MenuItemCollectionItem,
+  MenuCategoryCollectionItem,
+
+  // Backward compatible types (deprecated)
   EleventyCollectionItemData,
   EleventyCollectionItem,
-  EleventyCollectionApi,
-  EleventyNavigation,
-  EleventyComputedData,
 } from './eleventy.d.ts';
 
 // =============================================================================

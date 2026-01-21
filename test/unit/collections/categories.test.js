@@ -66,7 +66,7 @@ const getCategoriesCollection = (categoryData, productData) => {
 
 describe("categories", () => {
   describe("configureCategories", () => {
-    test("registers collection and filter with Eleventy", () => {
+    test("registers collection with Eleventy", () => {
       const mockConfig = createMockEleventyConfig();
 
       configureCategories(mockConfig);
