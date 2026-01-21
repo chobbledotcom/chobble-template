@@ -10,10 +10,6 @@
 		"**/.test-sites/**",
 		"**/landing-pages/**",
 		"**/page-layouts/**",
-		"**/browser-utils.js",
-		"**/lighthouse.js",
-		"**/screenshot.js",
-		"**/cli-utils.js",
 		"**/packages/**/index.js"
 	],
 	"format": ["javascript", "json", "markup", "css", "scss"],
