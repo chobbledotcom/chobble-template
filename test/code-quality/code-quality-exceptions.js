@@ -94,7 +94,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/code-quality/aliasing.test.js",
   "test/unit/code-quality/naming-conventions.test.js",
   "test/unit/code-quality/single-use-functions.test.js",
-  "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/test-only-exports.test.js",
   "test/unit/code-quality/todo-fixme-comments.test.js",
   "test/unit/code-quality/unused-classes.test.js",
@@ -125,7 +124,6 @@ const ALLOWED_LET = frozenSet([
   "test/integration/build/pdf-integration.test.js",
   "test/integration/eleventy/feed.test.js",
   "test/unit/frontend/hire-calculator.test.js",
-  "test/unit/code-quality/memoize-inside-function.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
   "test/unit/code-quality/template-selectors.test.js",
@@ -227,6 +225,70 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 ]);
 
 // ============================================
+// Inline type annotation exceptions
+// ============================================
+
+// Files with inline /** @type {X} */ annotations inside function bodies.
+// These should be refactored to use:
+//   - Type definitions in a .d.ts or types file
+//   - @param/@returns in function JSDoc signatures
+//   - Module-level type annotations
+const ALLOWED_INLINE_TYPE_ANNOTATIONS = frozenSet([
+  // Collections - Eleventy collectionApi returns unknown, needs casting
+  "src/_lib/collections/categories.js:30",
+  "src/_lib/collections/categories.js:35",
+  "src/_lib/collections/categories.js:44",
+  "src/_lib/collections/categories.js:66",
+  "src/_lib/collections/categories.js:67",
+  "src/_lib/collections/categories.js:70",
+  "src/_lib/collections/categories.js:71",
+  "src/_lib/collections/news.js:21",
+  "src/_lib/collections/products.js:64",
+  "src/_lib/collections/products.js:111",
+  "src/_lib/collections/products.js:117",
+  "src/_lib/collections/products.js:118",
+  "src/_lib/collections/products.js:119",
+  "src/_lib/collections/products.js:135",
+  "src/_lib/collections/products.js:138",
+  "src/_lib/collections/properties.js:41",
+  "src/_lib/collections/properties.js:42",
+  "src/_lib/collections/reviews.js:54",
+  "src/_lib/collections/reviews.js:106",
+  "src/_lib/collections/reviews.js:201",
+  "src/_lib/collections/reviews.js:212",
+
+  // Eleventy plugins - casting for bundle/style data
+  "src/_lib/eleventy/style-bundle.js:53",
+  "src/_lib/eleventy/style-bundle.js:54",
+  "src/_lib/eleventy/style-bundle.js:58",
+  "src/_lib/eleventy/style-bundle.js:66",
+
+  // Media - external image handling
+  "src/_lib/media/image-external.js:23",
+
+  // Transforms - DOM manipulation and text processing
+  "src/_lib/transforms/external-links.js:27",
+  "src/_lib/transforms/images.js:95",
+  "src/_lib/transforms/linkify.js:80",
+  "src/_lib/transforms/linkify.js:124",
+  "src/_lib/transforms/linkify.js:128",
+
+  // Utilities - DOM building and schema helpers
+  "src/_lib/utils/dom-builder.js:110",
+  "src/_lib/utils/dom-builder.js:111",
+  "src/_lib/utils/dom-builder.js:115",
+  "src/_lib/utils/schema-helper.js:167",
+
+  // FP toolkit - type casts for generic utilities
+  "packages/js-toolkit/fp/object.js:178",
+  "packages/js-toolkit/fp/set.js:31",
+  "packages/js-toolkit/fp/set.js:47",
+  "packages/js-toolkit/fp/set.js:74",
+  "packages/js-toolkit/fp/sorting.js:45",
+  "packages/js-toolkit/fp/sorting.js:46",
+]);
+
+// ============================================
 // DOM class constructor exceptions
 // ============================================
 
@@ -254,6 +316,7 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
+  ALLOWED_INLINE_TYPE_ANNOTATIONS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
 };

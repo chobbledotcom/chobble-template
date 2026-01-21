@@ -25,6 +25,10 @@ const ALLOWED_DUPLICATE_NAMES = frozenSet([
   "createElement",
   "getJsConfigFilter",
   "transformHtml", // test helper with same name but different implementations
+  // Template fixture function names used in code-quality test cases
+  "outer",
+  "innerNested",
+  "useIt",
 ]);
 
 // Directories to exclude from analysis
