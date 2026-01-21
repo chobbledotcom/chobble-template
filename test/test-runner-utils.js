@@ -60,6 +60,7 @@ export const COMMON_STEPS = {
   lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
   knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
   typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
+  cpdFp: { name: "cpd:fp", cmd: "bun", args: ["run", "cpd:fp"] },
   cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
   test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
   build: {
