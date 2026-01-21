@@ -18,6 +18,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   assertNoViolations,
+  createBraceDepthScanner,
   isCommentLine,
   readSource,
 } from "#test/code-scanner.js";
@@ -26,103 +27,26 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
 // Pattern to match memoize() calls
 const MEMOIZE_PATTERN = /\bmemoize\s*\(/;
 
-/**
- * Remove string literals from a line to avoid false positives.
- * Handles double-quoted, single-quoted, and template strings.
- */
-const removeStrings = (line) => {
-  let result = "";
-  let i = 0;
-  while (i < line.length) {
-    const char = line[i];
-    // Check for string start
-    if (char === '"' || char === "'" || char === "`") {
-      const quote = char;
-      i++; // Skip opening quote
-      // Skip to closing quote, handling escapes
-      while (i < line.length && line[i] !== quote) {
-        if (line[i] === "\\" && i + 1 < line.length) i++; // Skip escape
-        i++;
-      }
-      i++; // Skip closing quote
-    } else {
-      result += char;
-      i++;
-    }
-  }
-  return result;
-};
+/** Scanner configured to find memoize() calls inside function bodies */
+const findMemoizeInsideFunction = createBraceDepthScanner({
+  pattern: MEMOIZE_PATTERN,
+  skipLine: isCommentLine,
+});
 
-/**
- * Track brace depth to detect if we're inside a function body.
- * Returns the brace depth change for a line (positive = more opens than closes).
- */
-const getBraceDepthChange = (line) => {
-  const withoutStrings = removeStrings(line);
-  const opens = (withoutStrings.match(/\{/g) || []).length;
-  const closes = (withoutStrings.match(/\}/g) || []).length;
-  return opens - closes;
-};
+/** Build violation entry from a match */
+const toMemoizeViolation = (file) => (v) => ({
+  file,
+  line: v.lineNumber,
+  code: v.line,
+  reason: `memoize() called at brace depth ${v.braceDepth} - cache won't persist between calls`,
+});
 
-/**
- * Find memoize calls that are inside function bodies (brace depth > 0).
- */
-const findMemoizeInsideFunction = (source) => {
-  const lines = source.split("\n");
-  const results = [];
-  let braceDepth = 0;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lineNum = i + 1;
-
-    // Skip comments
-    if (isCommentLine(line)) continue;
-
-    // Check for memoize before updating brace depth
-    // (so we catch the line at its current depth)
-    // Use string-stripped line to avoid false positives in string literals
-    const lineWithoutStrings = removeStrings(line);
-    if (braceDepth > 0 && MEMOIZE_PATTERN.test(lineWithoutStrings)) {
-      results.push({
-        lineNumber: lineNum,
-        line: line.trim(),
-        braceDepth,
-      });
-    }
-
-    // Update brace depth for next iteration
-    braceDepth += getBraceDepthChange(line);
-
-    // Clamp to 0 (handle edge cases)
-    if (braceDepth < 0) braceDepth = 0;
-  }
-
-  return results;
-};
-
-/**
- * Analyze source files for memoize-inside-function violations.
- */
-const analyzeMemoizeInsideFunction = () => {
-  const violations = [];
-
-  for (const file of SRC_JS_FILES()) {
-    const source = readSource(file);
-    const fileViolations = findMemoizeInsideFunction(source);
-
-    for (const v of fileViolations) {
-      violations.push({
-        file,
-        line: v.lineNumber,
-        code: v.line,
-        reason: `memoize() called at brace depth ${v.braceDepth} - cache won't persist between calls`,
-      });
-    }
-  }
-
-  return { violations };
-};
+/** Analyze source files for memoize-inside-function violations. */
+const analyzeMemoizeInsideFunction = () => ({
+  violations: SRC_JS_FILES().flatMap((file) =>
+    findMemoizeInsideFunction(readSource(file)).map(toMemoizeViolation(file)),
+  ),
+});
 
 describe("memoize-inside-function", () => {
   describe("findMemoizeInsideFunction", () => {
@@ -131,10 +55,10 @@ describe("memoize-inside-function", () => {
   const inner = memoize((y) => y * 2);
   return inner(x);
 };`;
-      const results = findMemoizeInsideFunction(source);
-      expect(results.length).toBe(1);
-      expect(results[0].lineNumber).toBe(2);
-      expect(results[0].braceDepth).toBe(1);
+      const [match] = findMemoizeInsideFunction(source);
+      expect(match).toBeDefined();
+      expect(match.lineNumber).toBe(2);
+      expect(match.braceDepth).toBe(1);
     });
 
     test("allows memoize at module level", () => {

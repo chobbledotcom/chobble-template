@@ -1,12 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import {
+  countChar,
+  createBraceDepthScanner,
   createCodeChecker,
   createPatternMatcher,
   expectNoStaleExceptions,
+  expectScanResult,
   formatViolationReport,
+  getBraceDepthChange,
   isCommentLine,
   isFunctionDefined,
   noStaleAllowlist,
+  removeStrings,
   scanFilesForViolations,
   validateExceptions,
   validateFunctionAllowlist,
@@ -31,6 +36,94 @@ describe("code-scanner", () => {
     test("returns false for non-comments", () => {
       expect(isCommentLine("const x = 1;")).toBe(false);
       expect(isCommentLine("")).toBe(false);
+    });
+  });
+
+  describe("removeStrings", () => {
+    test("removes double-quoted strings", () => {
+      expect(removeStrings('const x = "hello";')).toBe("const x = ;");
+    });
+
+    test("removes single-quoted strings", () => {
+      expect(removeStrings("const x = 'hello';")).toBe("const x = ;");
+    });
+
+    test("removes template strings", () => {
+      expect(removeStrings("const x = `hello`;")).toBe("const x = ;");
+    });
+
+    test("handles escaped quotes", () => {
+      expect(removeStrings('const x = "he\\"llo";')).toBe("const x = ;");
+    });
+
+    test("preserves braces outside strings", () => {
+      expect(removeStrings('const fn = () => { return "{}"; }')).toBe(
+        "const fn = () => { return ; }",
+      );
+    });
+  });
+
+  describe("countChar", () => {
+    test("counts occurrences of a character", () => {
+      expect(countChar("{")("{ { }")).toBe(2);
+      expect(countChar("}")("{ { }")).toBe(1);
+    });
+
+    test("returns 0 for no matches", () => {
+      expect(countChar("x")("abc")).toBe(0);
+    });
+  });
+
+  describe("getBraceDepthChange", () => {
+    test("returns positive for opening braces", () => {
+      expect(getBraceDepthChange("const fn = () => {")).toBe(1);
+    });
+
+    test("returns negative for closing braces", () => {
+      expect(getBraceDepthChange("};")).toBe(-1);
+    });
+
+    test("ignores braces in strings", () => {
+      expect(getBraceDepthChange('const x = "{}";')).toBe(0);
+    });
+  });
+
+  describe("createBraceDepthScanner", () => {
+    test("finds patterns at brace depth > 0", () => {
+      const scanner = createBraceDepthScanner({ pattern: /memoize\(/ });
+      const source = `const outer = () => {
+  const x = memoize(() => 1);
+};`;
+      const results = scanner(source);
+      expect(results.length).toBe(1);
+      expect(results[0].lineNumber).toBe(2);
+      expect(results[0].braceDepth).toBe(1);
+    });
+
+    test("ignores patterns at module level", () => {
+      const scanner = createBraceDepthScanner({ pattern: /memoize\(/ });
+      const results = scanner("const x = memoize(() => 1);");
+      expect(results.length).toBe(0);
+    });
+
+    test("calls extractData for matches", () => {
+      const scanner = createBraceDepthScanner({
+        pattern: /test/,
+        extractData: (line) => ({ custom: line.trim().length }),
+      });
+      const source = `const fn = () => {
+  test;
+};`;
+      const results = scanner(source);
+      expect(results.length).toBe(1);
+      expect(results[0].custom).toBe(5);
+    });
+  });
+
+  describe("expectScanResult", () => {
+    test("validates scan result properties", () => {
+      const result = { lineNumber: 5, braceDepth: 2, extra: "data" };
+      expectScanResult(result, { lineNumber: 5, braceDepth: 2 });
     });
   });
 

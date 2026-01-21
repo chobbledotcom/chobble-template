@@ -45,6 +45,119 @@ const COMMENT_LINE_PATTERNS = [
 const isCommentLine = (line) =>
   !!matchesAny(COMMENT_LINE_PATTERNS)(line.trim());
 
+// ============================================
+// Brace depth tracking utilities
+// ============================================
+
+const STRING_QUOTES = new Set(['"', "'", "`"]);
+
+/**
+ * Remove string literals from a line to avoid false positives when tracking braces.
+ * Handles double-quoted, single-quoted, and template strings.
+ * Uses recursive processing for immutability.
+ *
+ * @param {string} line - Source code line
+ * @returns {string} Line with string contents removed
+ */
+const removeStrings = (line) => {
+  const processChar = (chars, acc = "") => {
+    if (chars.length === 0) return acc;
+
+    const [char, ...rest] = chars;
+    if (!STRING_QUOTES.has(char)) return processChar(rest, acc + char);
+
+    // Found string start - skip to closing quote
+    const skipString = (remaining, quote) => {
+      if (remaining.length === 0) return [];
+      const [c, ...more] = remaining;
+      if (c === quote) return more;
+      if (c === "\\" && more.length > 0)
+        return skipString(more.slice(1), quote);
+      return skipString(more, quote);
+    };
+
+    return processChar(skipString(rest, char), acc);
+  };
+
+  return processChar([...line]);
+};
+
+/**
+ * Count occurrences of a character in a string.
+ *
+ * @param {string} char - Character to count
+ * @returns {(str: string) => number} Curried counter function
+ */
+const countChar = (char) => (str) => [...str].filter((c) => c === char).length;
+
+/**
+ * Track brace depth to detect if we're inside a function body.
+ * Returns the brace depth change for a line (positive = more opens than closes).
+ *
+ * @param {string} line - Source code line
+ * @returns {number} Net change in brace depth
+ */
+const getBraceDepthChange = (line) => {
+  const withoutStrings = removeStrings(line);
+  return countChar("{")(withoutStrings) - countChar("}")(withoutStrings);
+};
+
+/**
+ * Scan source code tracking brace depth, returning matches inside function bodies.
+ * This is a higher-order function that accepts a matcher predicate.
+ *
+ * @param {object} config - Scanner configuration
+ * @param {RegExp} config.pattern - Pattern to match in lines
+ * @param {(line: string) => boolean} [config.skipLine] - Predicate to skip lines
+ * @param {(line: string, lineNum: number, depth: number) => object | null} [config.extractData] - Extract additional data from matches
+ * @returns {(source: string) => Array} Scanner function
+ */
+const createBraceDepthScanner = (config) => {
+  const { pattern, skipLine = () => false, extractData = () => ({}) } = config;
+
+  return (source) => {
+    const processLines = (lines, state) => {
+      if (lines.length === 0) return state.results;
+
+      const [{ line, lineNum }, ...rest] = lines;
+      const depthChange = getBraceDepthChange(line);
+      const newDepth = Math.max(0, state.depth + depthChange);
+
+      // Skip if skipLine predicate returns true
+      if (skipLine(line)) {
+        return processLines(rest, { ...state, depth: newDepth });
+      }
+
+      // Check for pattern match at current depth (before updating)
+      const lineWithoutStrings = removeStrings(line);
+      const isMatch = state.depth > 0 && pattern.test(lineWithoutStrings);
+
+      const extraData = isMatch
+        ? extractData(line, lineNum, state.depth)
+        : null;
+      const newResults =
+        isMatch && extraData !== null
+          ? [
+              ...state.results,
+              {
+                lineNumber: lineNum,
+                line: line.trim(),
+                braceDepth: state.depth,
+                ...extraData,
+              },
+            ]
+          : state.results;
+
+      return processLines(rest, { results: newResults, depth: newDepth });
+    };
+
+    const numberedLines = source
+      .split("\n")
+      .map((line, i) => ({ line, lineNum: i + 1 }));
+    return processLines(numberedLines, { results: [], depth: 0 });
+  };
+};
+
 /**
  * Read a file's source code.
  */
@@ -602,10 +715,29 @@ const extractExports = (source) => {
   return exported;
 };
 
+/**
+ * Assert properties of a brace depth scan result.
+ * Useful for testing createBraceDepthScanner outputs.
+ *
+ * @param {object} result - Scan result to validate
+ * @param {object} expected - Expected values (lineNumber, braceDepth, etc.)
+ */
+const expectScanResult = (result, expected) => {
+  for (const [key, value] of Object.entries(expected)) {
+    expect(result[key]).toBe(value);
+  }
+};
+
 export {
   // Common patterns
   COMMENT_LINE_PATTERNS,
   isCommentLine,
+  // Brace depth tracking
+  removeStrings,
+  countChar,
+  getBraceDepthChange,
+  createBraceDepthScanner,
+  expectScanResult,
   // File reading
   readSource,
   toLines,
