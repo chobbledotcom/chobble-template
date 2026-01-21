@@ -72,28 +72,20 @@ function buildMenuPdfData(menu, menuCategories, menuItems) {
 }
 
 function createMenuPdfTemplate() {
+  const centeredText = (text, style, margin) => ({
+    text,
+    style,
+    alignment: "center",
+    margin,
+  });
+
   return {
     pageSize: "A4",
     pageMargins: [40, 40, 40, 40],
     content: [
-      {
-        text: "{{businessName}}",
-        style: "businessName",
-        alignment: "center",
-        margin: [0, 0, 0, 5],
-      },
-      {
-        text: "{{menuTitle}}",
-        style: "menuTitle",
-        alignment: "center",
-        margin: [0, 0, 0, 5],
-      },
-      {
-        text: "{{subtitle}}",
-        style: "subtitle",
-        alignment: "center",
-        margin: [0, 0, 0, 20],
-      },
+      centeredText("{{businessName}}", "businessName", [0, 0, 0, 5]),
+      centeredText("{{menuTitle}}", "menuTitle", [0, 0, 0, 5]),
+      centeredText("{{subtitle}}", "subtitle", [0, 0, 0, 20]),
       {
         "{{#each categories:category}}": [
           {

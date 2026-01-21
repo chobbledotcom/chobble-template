@@ -34,6 +34,15 @@ const mapObject = (fn) => (obj) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => fn(k, v)));
 
 /**
+ * Base filter over entries - takes a predicate on [key, value] tuples
+ * @template V
+ * @param {(entry: [string, V]) => boolean} predicate - Filter predicate on entry tuple
+ * @returns {(obj: Record<string, V>) => Record<string, V>} Function that filters object
+ */
+const filterEntries = (predicate) => (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(predicate));
+
+/**
  * Curried object filtering -> returns new object
  * @template V
  * @param {(key: string, value: V) => boolean} predicate - Filter predicate
@@ -41,8 +50,7 @@ const mapObject = (fn) => (obj) =>
  * @example
  * filterObject((k, v) => v > 0)({ a: 1, b: -1 }) // { a: 1 }
  */
-const filterObject = (predicate) => (obj) =>
-  Object.fromEntries(Object.entries(obj).filter(([k, v]) => predicate(k, v)));
+const filterObject = (predicate) => filterEntries(([k, v]) => predicate(k, v));
 
 // Common pre-built utilities
 
@@ -127,8 +135,7 @@ const fromPairs = (pairs) => Object.fromEntries(pairs);
  * @param {string[]} keys - Keys to omit
  * @returns {(obj: Record<string, any>) => Record<string, any>} Function that omits specified keys
  */
-const omit = (keys) => (obj) =>
-  Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
+const omit = (keys) => filterEntries(([k]) => !keys.includes(k));
 
 export {
   filterObject,
