@@ -21,3 +21,17 @@ export const withNavigationAnchor = (data, nav) => {
     url: `${data.page.url}#content`,
   };
 };
+
+/**
+ * Builds eleventyNavigation, respecting existing nav config if present.
+ * If data.eleventyNavigation exists, uses it (with anchor). Otherwise calls buildNav.
+ * @param {Object} data - Page data
+ * @param {function} buildNav - Function that takes data and returns navigation config
+ * @returns {Object|boolean|undefined} The navigation object
+ */
+export const buildNavigation = (data, buildNav) => {
+  if (data.eleventyNavigation) {
+    return withNavigationAnchor(data, data.eleventyNavigation);
+  }
+  return buildNav(data);
+};

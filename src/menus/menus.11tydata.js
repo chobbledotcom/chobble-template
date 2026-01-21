@@ -1,4 +1,5 @@
-import { filter, flatMap, pipe, sort, uniqueBy } from "#toolkit/fp/array.js";
+import { filter, flatMap, pipe, sort } from "#toolkit/fp/array.js";
+import { uniqueDietaryKeys } from "#utils/dietary-utils.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import { buildPdfFilename } from "#utils/slug-utils.js";
 import { sortItems } from "#utils/sorting.js";
@@ -25,8 +26,7 @@ export default {
       return pipe(
         flatMap((category) => menuItems.filter(itemInCategory(category))),
         flatMap((item) => item.data.dietaryKeys),
-        filter((key) => key.symbol && key.label),
-        uniqueBy((key) => key.symbol),
+        uniqueDietaryKeys,
       )(menuCategories);
     },
   },
