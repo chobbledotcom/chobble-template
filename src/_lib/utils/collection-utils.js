@@ -8,16 +8,16 @@
 
 import { groupByWithCache } from "#toolkit/fp/memoize.js";
 
+/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+
 /**
  * Get featured items from a collection.
  * Works with any collection where items have data.featured property.
  *
- * @template T
- * @param {T[]} items - Collection items with data.featured property
- * @returns {T[]} Filtered array of featured items
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @returns {EleventyCollectionItem[]} Filtered array of featured items
  *
  * @example
- * const getFeaturedProducts = getFeatured; // Use directly as filter
  * eleventyConfig.addFilter("getFeaturedProducts", getFeatured);
  */
 export const getFeatured = (items) =>
