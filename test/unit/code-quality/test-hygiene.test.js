@@ -45,6 +45,9 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // Fixture factories
   "createProduct",
   "createPropertyReviewFixture",
+  // Collection test helpers - get collection from configured mock
+  "getEventsCollection",
+  "getLocationsCollection",
   // events-utils.js - event fixture factories and assertion helpers
   "expectEventCounts",
   "createOffsetDate",

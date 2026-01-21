@@ -8,6 +8,7 @@ import {
   createMockEleventyConfig,
   data,
   expectResultTitles,
+  taggedCollectionApi,
 } from "#test/test-utils.js";
 
 // ============================================
@@ -76,5 +77,99 @@ describe("locations", () => {
     expect(typeof mockConfig.filters.getSiblingLocations).toBe("function");
     expect(mockConfig.filters.getRootLocations).toBe(getRootLocations);
     expect(mockConfig.filters.getSiblingLocations).toBe(getSiblingLocations);
+  });
+});
+
+// ============================================
+// Locations Collection Thumbnail Tests
+// ============================================
+
+/** Helper to create location items with fileSlug */
+const locationItem = (slug, data = {}) => ({
+  fileSlug: slug,
+  data: { title: `Location ${slug}`, ...data },
+});
+
+/** Get the locations collection from a configured mock */
+const getLocationsCollection = (locationData) => {
+  const mockConfig = createMockEleventyConfig();
+  configureLocations(mockConfig);
+  const mockApi = taggedCollectionApi({ locations: locationData });
+  return mockConfig.collections.locations(mockApi);
+};
+
+describe("locations collection", () => {
+  test("returns empty array when no locations exist", () => {
+    const result = getLocationsCollection([]);
+    expect(result).toEqual([]);
+  });
+
+  test("preserves location data", () => {
+    const locations = [locationItem("london", { title: "London" })];
+    const result = getLocationsCollection(locations);
+    expect(result[0].data.title).toBe("London");
+  });
+
+  test("location keeps own thumbnail when set", () => {
+    const locations = [locationItem("london", { thumbnail: "london.jpg" })];
+    const result = getLocationsCollection(locations);
+    expect(result[0].data.thumbnail).toBe("london.jpg");
+  });
+
+  test("parent inherits from child with lowest order", () => {
+    const locations = [
+      locationItem("uk"),
+      locationItem("manchester", {
+        parentLocation: "uk",
+        thumbnail: "manchester.jpg",
+        order: 2,
+      }),
+      locationItem("london", {
+        parentLocation: "uk",
+        thumbnail: "london.jpg",
+        order: 1,
+      }),
+    ];
+    const result = getLocationsCollection(locations);
+    // UK inherits from London (order 1) not Manchester (order 2)
+    expect(result[0].data.thumbnail).toBe("london.jpg");
+  });
+
+  test("inherits thumbnail recursively from grandchild", () => {
+    const locations = [
+      locationItem("uk"),
+      locationItem("london", { parentLocation: "uk", order: 1 }),
+      locationItem("central", {
+        parentLocation: "london",
+        thumbnail: "central.jpg",
+        order: 1,
+      }),
+    ];
+    const result = getLocationsCollection(locations);
+    // UK -> London -> Central, so UK should inherit from Central
+    expect(result[0].data.thumbnail).toBe("central.jpg");
+  });
+
+  test("skips children without thumbnails", () => {
+    const locations = [
+      locationItem("uk"),
+      locationItem("london", { parentLocation: "uk", order: 1 }),
+      locationItem("manchester", {
+        parentLocation: "uk",
+        thumbnail: "manchester.jpg",
+        order: 2,
+      }),
+    ];
+    const result = getLocationsCollection(locations);
+    expect(result[0].data.thumbnail).toBe("manchester.jpg");
+  });
+
+  test("no thumbnail when no children have thumbnails", () => {
+    const locations = [
+      locationItem("uk"),
+      locationItem("london", { parentLocation: "uk", order: 1 }),
+    ];
+    const result = getLocationsCollection(locations);
+    expect(result[0].data.thumbnail).toBeUndefined();
   });
 });

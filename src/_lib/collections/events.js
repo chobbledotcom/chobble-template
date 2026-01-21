@@ -8,9 +8,16 @@ import { pipe, sort } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
+import {
+  createArrayFieldIndexer,
+  getEventsFromApi,
+  getProductsFromApi,
+} from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
+import { findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").EventCollectionItem} EventCollectionItem */
+/** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
 
 /** @typedef {"upcoming" | "past" | "regular" | "undated"} EventCategory */
 
@@ -69,3 +76,40 @@ export const categoriseEvents = memoize((events) => {
 
   return { upcoming, past, regular, undated };
 });
+
+/** Index products by event slug for O(1) lookups */
+const indexProductsByEvent = createArrayFieldIndexer("events");
+
+/**
+ * Create the events collection with inherited thumbnails from products.
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {EventCollectionItem[]}
+ */
+const createEventsCollection = (collectionApi) => {
+  const events = getEventsFromApi(collectionApi);
+  if (events.length === 0) return [];
+
+  const products = getProductsFromApi(collectionApi);
+  const productsByEvent = indexProductsByEvent(products);
+
+  return events.map((event) => {
+    if (!event.data.thumbnail) {
+      const thumb = findFromChildren(
+        productsByEvent[event.fileSlug],
+        (p) => p.data.thumbnail,
+      );
+      if (thumb) event.data.thumbnail = thumb;
+    }
+    return event;
+  });
+};
+
+/**
+ * Configure events collection.
+ * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ */
+const configureEvents = (eleventyConfig) => {
+  eleventyConfig.addCollection("events", createEventsCollection);
+};
+
+export { configureEvents };
