@@ -126,27 +126,5 @@ describe("html-transform", () => {
       expect("htmlTransform" in mockConfig.transforms).toBe(true);
       expect(typeof mockConfig.transforms.htmlTransform).toBe("function");
     });
-
-    test("registers externalLinkAttrs filter", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureHtmlTransform(mockConfig, mockImageProcessor);
-
-      expect("externalLinkAttrs" in mockConfig.filters).toBe(true);
-      expect(typeof mockConfig.filters.externalLinkAttrs).toBe("function");
-    });
-
-    test("externalLinkAttrs filter returns string for any URL", async () => {
-      const mockConfig = createMockEleventyConfig();
-      configureHtmlTransform(mockConfig, mockImageProcessor);
-
-      const externalAttrs = await mockConfig.filters.externalLinkAttrs(
-        "https://example.com",
-      );
-      const internalAttrs =
-        await mockConfig.filters.externalLinkAttrs("/about");
-
-      expect(typeof externalAttrs).toBe("string");
-      expect(typeof internalAttrs).toBe("string");
-    });
   });
 });

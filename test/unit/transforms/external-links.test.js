@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
   addExternalLinkAttrs,
-  getExternalLinkAttrs,
   isExternalUrl,
 } from "#transforms/external-links.js";
 
@@ -28,30 +27,7 @@ describe("external-links transform", () => {
     });
 
     test("returns false for tel links", () => {
-      expect(isExternalUrl("tel:01onal234567890")).toBe(false);
-    });
-  });
-
-  describe("getExternalLinkAttrs", () => {
-    test("returns attributes for external URL when targetBlank true", () => {
-      const result = getExternalLinkAttrs("https://example.com", true);
-      expect(result).toBe(' target="_blank" rel="noopener noreferrer"');
-    });
-
-    test("returns empty string for external URL when targetBlank false", () => {
-      const result = getExternalLinkAttrs("https://example.com", false);
-      expect(result).toBe("");
-    });
-
-    test("returns empty string for internal URL", () => {
-      const result = getExternalLinkAttrs("/about", true);
-      expect(result).toBe("");
-    });
-
-    test("returns empty string for non-string input", () => {
-      expect(getExternalLinkAttrs(null, true)).toBe("");
-      expect(getExternalLinkAttrs(undefined, true)).toBe("");
-      expect(getExternalLinkAttrs(123, true)).toBe("");
+      expect(isExternalUrl("tel:01234567890")).toBe(false);
     });
   });
 

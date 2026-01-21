@@ -11,10 +11,7 @@
 import linkifyHtmlLib from "linkify-html";
 import configModule from "#data/config.js";
 import { memoize } from "#toolkit/fp/memoize.js";
-import {
-  addExternalLinkAttrs,
-  getExternalLinkAttrs,
-} from "#transforms/external-links.js";
+import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
 import {
   formatUrlDisplay,
@@ -26,42 +23,7 @@ import { loadDOM } from "#utils/lazy-dom.js";
 
 const getConfig = memoize(configModule);
 
-/**
- * Check if content needs phone linkification.
- * Tests for a sequence of digits (with optional spaces) that could form a phone number.
- * @param {string} content
- * @param {number} phoneLen
- * @returns {boolean}
- */
-const needsPhoneLinkification = (content, phoneLen) => {
-  if (phoneLen <= 0) return false;
-  // Same pattern as linkify.js: word boundary, digit, then (phoneLen-1) more digits with optional spaces
-  const phonePattern = new RegExp(`\\b\\d(?:\\s*\\d){${phoneLen - 1}}\\b`);
-  return phonePattern.test(content);
-};
-
-/** @param {string} content */
-const needsTableWrapping = (content) => content.includes("<table");
-
-/** @param {string} content */
-const needsImageProcessing = (content) => content.includes('src="/images/');
-
-/**
- * Check if DOM-based transforms are needed
- * @param {string} content
- * @param {number} phoneLen
- * @returns {boolean}
- */
-const needsDomTransforms = (content, phoneLen) =>
-  needsPhoneLinkification(content, phoneLen) ||
-  needsTableWrapping(content) ||
-  needsImageProcessing(content);
-
-/**
- * Build linkify-html options
- * @param {boolean} targetBlank
- * @returns {object}
- */
+/** @param {boolean} targetBlank */
 const buildLinkifyOptions = (targetBlank) => ({
   ignoreTags: [...SKIP_TAGS],
   target: targetBlank ? "_blank" : null,
@@ -69,42 +31,16 @@ const buildLinkifyOptions = (targetBlank) => ({
   format: { url: formatUrlDisplay },
 });
 
-/**
- * Apply string-based transforms (no DOM parsing)
- * @param {string} content
- * @param {object} config
- * @returns {string}
- */
-const applyStringTransforms = (content, config) => {
-  const targetBlank = config?.externalLinksTargetBlank ?? false;
-  const linkified = linkifyHtmlLib(content, buildLinkifyOptions(targetBlank));
-  return addExternalLinkAttrs(linkified, config);
-};
+/** @param {string} content @param {number} phoneLen */
+const hasPhonePattern = (content, phoneLen) =>
+  phoneLen > 0 &&
+  new RegExp(`\\b\\d(?:\\s*\\d){${phoneLen - 1}}\\b`).test(content);
 
-/**
- * Apply DOM-based transforms
- * @param {string} content
- * @param {object} config
- * @param {Function} processAndWrapImage
- * @returns {Promise<string>}
- */
-const applyDomTransforms = async (content, config, processAndWrapImage) => {
-  const dom = await loadDOM(content);
-  const { document } = dom.window;
-  linkifyPhones(document, config);
-  wrapTables(document, config);
-  await processImages(document, config, processAndWrapImage);
-  return dom.serialize();
-};
-
-/**
- * Check if transform should be skipped
- * @param {string} content
- * @param {string} outputPath
- * @returns {boolean}
- */
-const shouldSkipTransform = (content, outputPath) =>
-  typeof outputPath !== "string" || !outputPath.endsWith(".html") || !content;
+/** @param {string} c @param {number} phoneLen */
+const needsDom = (c, phoneLen) =>
+  hasPhonePattern(c, phoneLen) ||
+  c.includes("<table") ||
+  c.includes('src="/images/');
 
 /**
  * Create the unified HTML transform
@@ -113,15 +49,29 @@ const shouldSkipTransform = (content, outputPath) =>
  */
 const createHtmlTransform =
   (processAndWrapImage) => async (content, outputPath) => {
-    if (shouldSkipTransform(content, outputPath)) return content;
-
+    if (
+      typeof outputPath !== "string" ||
+      !outputPath.endsWith(".html") ||
+      !content
+    ) {
+      return content;
+    }
     const config = await getConfig();
+    const targetBlank = config?.externalLinksTargetBlank ?? false;
     const phoneLen = config?.phoneNumberLength ?? 11;
-    const result = applyStringTransforms(content, config);
 
-    return needsDomTransforms(result, phoneLen)
-      ? applyDomTransforms(result, config, processAndWrapImage)
-      : result;
+    // Phase 1: String-based transforms (no DOM)
+    const linkified = linkifyHtmlLib(content, buildLinkifyOptions(targetBlank));
+    const result = addExternalLinkAttrs(linkified, config);
+
+    // Phase 2: DOM-based transforms (only if needed)
+    if (!needsDom(result, phoneLen)) return result;
+    const dom = await loadDOM(result);
+    const { document } = dom.window;
+    linkifyPhones(document, config);
+    wrapTables(document, config);
+    await processImages(document, config, processAndWrapImage);
+    return dom.serialize();
   };
 
 /**
@@ -134,10 +84,12 @@ const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
     "htmlTransform",
     createHtmlTransform(processAndWrapImage),
   );
-  eleventyConfig.addFilter("externalLinkAttrs", async (url) => {
-    const config = await getConfig();
-    return getExternalLinkAttrs(url, config?.externalLinksTargetBlank ?? false);
-  });
 };
 
-export { configureHtmlTransform, createHtmlTransform };
+export {
+  buildLinkifyOptions,
+  configureHtmlTransform,
+  createHtmlTransform,
+  hasPhonePattern,
+  needsDom,
+};
