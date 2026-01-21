@@ -301,7 +301,7 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "createCodeChecker",
   // unused-images.test.js - test helper
   "runUnusedImagesTest",
-  // method-aliasing.test.js - analysis helpers
+  // aliasing.test.js - analysis helpers
   "findAliases",
   // short-circuit-order.test.js - analysis helpers
   "findSuboptimalOrder",
