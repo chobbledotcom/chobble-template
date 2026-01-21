@@ -75,7 +75,11 @@ export const captureScreenshots = async (
   server.stop();
 };
 
-export function configureScreenshots(eleventyConfig) {
+/**
+ * Eleventy wrapper for screenshot utilities.
+ * Wraps #media/screenshot.js for Eleventy integration.
+ */
+export const configureScreenshots = (eleventyConfig) => {
   const pageUrlsRef = { urls: [] };
 
   eleventyConfig.addCollection(
@@ -94,6 +98,6 @@ export function configureScreenshots(eleventyConfig) {
     log("Starting screenshot capture...");
     await captureScreenshots(pageUrlsRef.urls, screenshotConfig, dir.output);
   });
-}
+};
 
 export { screenshot, screenshotMultiple, screenshotAllViewports, startServer };

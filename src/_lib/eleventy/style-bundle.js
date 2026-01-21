@@ -88,9 +88,9 @@ const getBodyClasses = (
   return classes.filter(Boolean).join(" ");
 };
 
-export function configureStyleBundle(eleventyConfig) {
+export const configureStyleBundle = (eleventyConfig) => {
   eleventyConfig.addFilter("usesDesignSystem", usesDesignSystem);
   eleventyConfig.addFilter("getCssBundle", getCssBundle);
   eleventyConfig.addFilter("getJsBundle", getJsBundle);
   eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
-}
+};

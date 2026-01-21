@@ -53,7 +53,7 @@ export const reportUnusedImages = (unusedImages) => {
   log(`\nFound ${formatUnused(unusedImages.length)} in /src/images/`);
 };
 
-export function configureUnusedImages(eleventyConfig) {
+export const configureUnusedImages = (eleventyConfig) => {
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
     const imagesDir = path.join(dir.input, "images");
 
@@ -78,4 +78,4 @@ export function configureUnusedImages(eleventyConfig) {
 
     reportUnusedImages(imageFiles.filter(notMemberOf(usedImages)));
   });
-}
+};
