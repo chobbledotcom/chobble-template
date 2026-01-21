@@ -2,16 +2,13 @@ import { pipe, sort } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
+import { getFeatured } from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 const byEventDate = compareBy((e) => new Date(e.data.event_date).getTime());
 
-/**
- * Get featured events from an events collection
- * @param {import("#lib/types").EleventyCollectionItem[]} events - Events array from Eleventy collection
- * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured events
- */
-const getFeaturedEvents = (events) => events.filter((e) => e.data.featured);
+/** Get featured events - uses shared getFeatured utility */
+const getFeaturedEvents = getFeatured;
 
 /**
  * Curried Map lookup: getGroup(key)(map) => value or []

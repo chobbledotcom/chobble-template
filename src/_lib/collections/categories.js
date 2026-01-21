@@ -1,4 +1,5 @@
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
+import { getFeatured } from "#utils/collection-utils.js";
 
 /**
  * Build a map of category slugs to property values, preferring highest order
@@ -37,13 +38,8 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
   )(products);
 };
 
-/**
- * Get featured categories from a categories collection
- * @param {import("#lib/types").EleventyCollectionItem[]} categories - Categories array from Eleventy collection
- * @returns {import("#lib/types").EleventyCollectionItem[]} Filtered array of featured categories
- */
-const getFeaturedCategories = (categories) =>
-  categories.filter((c) => c.data.featured);
+/** Get featured categories - uses shared getFeatured utility */
+const getFeaturedCategories = getFeatured;
 
 /**
  * Configure categories collection and filters.

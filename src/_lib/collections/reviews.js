@@ -4,7 +4,7 @@ import config from "#data/config.js";
 import { SRC_DIR } from "#lib/paths.js";
 import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#toolkit/fp/array.js";
-import { groupByWithCache } from "#toolkit/fp/memoize.js";
+import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
 // Load SVG template once at module initialization
@@ -14,19 +14,13 @@ const AVATAR_SVG_TEMPLATE = readFileSync(
 );
 
 /** Index reviews by products for O(1) lookups, cached per reviews array */
-const indexByProducts = groupByWithCache(
-  (review) => review.data.products ?? [],
-);
+const indexByProducts = createArrayFieldIndexer("products");
 
 /** Index reviews by categories for O(1) lookups, cached per reviews array */
-const indexByCategories = groupByWithCache(
-  (review) => review.data.categories ?? [],
-);
+const indexByCategories = createArrayFieldIndexer("categories");
 
 /** Index reviews by properties for O(1) lookups, cached per reviews array */
-const indexByProperties = groupByWithCache(
-  (review) => review.data.properties ?? [],
-);
+const indexByProperties = createArrayFieldIndexer("properties");
 
 /** Map field names to their respective indexers */
 const fieldIndexers = {
