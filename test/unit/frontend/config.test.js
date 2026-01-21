@@ -15,6 +15,7 @@ describe("config", () => {
       "horizontal_nav",
       "homepage_news",
       "homepage_products",
+      "show_breadcrumbs",
       "externalLinksTargetBlank",
       "contact_form_target",
       "formspark_id",

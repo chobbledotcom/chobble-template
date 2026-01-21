@@ -1,0 +1,20 @@
+{%- assign navKey = eleventyNavigation.key | default: page.fileSlug -%}
+{%- assign breadcrumbItems = collections.navigationLinks | eleventyNavigationBreadcrumb: navKey, { includeSelf: true } -%}
+{%- if breadcrumbItems.size > 0 -%}
+<div class="design-system">
+  <nav aria-label="Breadcrumb" class="breadcrumbs">
+    <ol>
+      <li><a href="/">Home</a></li>
+      {%- for item in breadcrumbItems -%}
+      <li><span class="separator" aria-hidden="true">/</span>
+        {%- if forloop.last -%}
+        <span aria-current="page">{{ item.title }}</span>
+        {%- else -%}
+        <a href="{{ item.url }}">{{ item.title }}</a>
+        {%- endif -%}
+      </li>
+      {%- endfor -%}
+    </ol>
+  </nav>
+</div>
+{%- endif -%}

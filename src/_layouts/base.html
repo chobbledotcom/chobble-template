@@ -6,6 +6,9 @@
   {%- include "header.html" -%}
   <main>
     {%- include "navigation.html" -%}
+    {%- if config.show_breadcrumbs and page.url != "/" -%}
+      {%- include "breadcrumbs.html" -%}
+    {%- endif -%}
     <article class="content" id="content">
       {{- content -}}
     </article>
