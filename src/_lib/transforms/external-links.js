@@ -1,9 +1,10 @@
 /**
- * DOM transform for adding target="_blank" to external links.
+ * Transform for adding target="_blank" to external links.
  *
- * Finds all anchor elements with href starting with http:// or https://
- * and adds target="_blank" rel="noopener noreferrer" attributes.
+ * Uses simple-html-tokenizer for efficient string-based processing,
+ * avoiding DOM parsing overhead.
  */
+import { transformHtml } from "#utils/html-tokenizer.js";
 
 /**
  * Check if URL is external (http:// or https://)
@@ -14,31 +15,49 @@ const isExternalUrl = (url) =>
   url.startsWith("http://") || url.startsWith("https://");
 
 /**
- * Add target="_blank" and rel="noopener noreferrer" to external links
- * @param {*} document
- * @param {{ externalLinksTargetBlank?: boolean }} config
+ * Create new attributes array with an attribute added or updated (immutable).
+ * @param {Array<[string, string, boolean]>} attributes
+ * @param {string} name
+ * @param {string} value
+ * @returns {Array<[string, string, boolean]>}
  */
-const addExternalLinkAttrs = (document, config) => {
-  if (!config?.externalLinksTargetBlank) return;
-
-  for (const link of document.querySelectorAll("a[href]")) {
-    const href = link.getAttribute("href");
-    if (href && isExternalUrl(href)) {
-      link.setAttribute("target", "_blank");
-      link.setAttribute("rel", "noopener noreferrer");
-    }
-  }
+const withAttr = (attributes, name, value) => {
+  const lowerName = name.toLowerCase();
+  const idx = attributes.findIndex(([n]) => n.toLowerCase() === lowerName);
+  const newAttr = /** @type {[string, string, boolean]} */ ([
+    name,
+    value,
+    true,
+  ]);
+  return idx >= 0
+    ? attributes.map((attr, i) => (i === idx ? newAttr : attr))
+    : [...attributes, newAttr];
 };
 
 /**
- * Get external link attributes string for use in templates
- * @param {string} url
- * @param {boolean} targetBlank
+ * Add target="_blank" and rel="noopener noreferrer" to external links
+ * using tokenizer-based string processing (no DOM parsing)
+ * @param {string} html
+ * @param {{ externalLinksTargetBlank?: boolean }} config
  * @returns {string}
  */
-const getExternalLinkAttrs = (url, targetBlank) =>
-  targetBlank && typeof url === "string" && isExternalUrl(url)
-    ? ' target="_blank" rel="noopener noreferrer"'
-    : "";
+const addExternalLinkAttrs = (html, config) => {
+  if (!config?.externalLinksTargetBlank) return html;
 
-export { addExternalLinkAttrs, getExternalLinkAttrs, isExternalUrl };
+  return transformHtml(html, (token) => {
+    if (token.type !== "StartTag" || token.tagName !== "a") return token;
+    const hrefAttr = token.attributes.find(([n]) => n.toLowerCase() === "href");
+    const href = hrefAttr?.[1];
+    if (!href || !isExternalUrl(href)) return token;
+    return {
+      ...token,
+      attributes: withAttr(
+        withAttr(token.attributes, "target", "_blank"),
+        "rel",
+        "noopener noreferrer",
+      ),
+    };
+  });
+};
+
+export { addExternalLinkAttrs, isExternalUrl };

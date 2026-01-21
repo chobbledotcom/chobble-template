@@ -1,24 +1,21 @@
 /**
  * Unified HTML transform for Eleventy.
  *
- * Performs transforms in two phases for optimal performance:
- * 1. String-based phase: URL/email linkification (no DOM needed, uses linkifyjs)
- * 2. DOM-based phase: Phone linkification, external links, tables, images
+ * Performs transforms in phases for optimal performance:
+ * 1. String-based phase: URL/email linkification (linkifyjs), external link attrs (tokenizer)
+ * 2. DOM-based phase (only when needed): Phone linkification, tables, images
  *
- * This dramatically reduces happy-dom overhead by avoiding DOM parsing
- * for URL/email linkification entirely.
+ * DOM parsing is completely skipped when a page has no tables, phone numbers, or local images.
  */
 
 import linkifyHtmlLib from "linkify-html";
 import configModule from "#data/config.js";
 import { memoize } from "#toolkit/fp/memoize.js";
-import {
-  addExternalLinkAttrs,
-  getExternalLinkAttrs,
-} from "#transforms/external-links.js";
+import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
 import {
   formatUrlDisplay,
+  hasPhonePattern,
   linkifyPhones,
   SKIP_TAGS,
 } from "#transforms/linkify.js";
@@ -28,34 +25,73 @@ import { loadDOM } from "#utils/lazy-dom.js";
 const getConfig = memoize(configModule);
 
 /**
- * Create the unified HTML transform
- * @param {import("#lib/types").ProcessImageFn} processAndWrapImage - Image processing function
- * @returns {(content: string, outputPath: string) => Promise<string>}
+ * Check if content requires DOM parsing (has tables, images, or phone patterns)
+ * @param {string} content
+ * @param {number} phoneLen
+ * @returns {boolean}
  */
-const createHtmlTransform = (processAndWrapImage) => {
-  const buildLinkifyOptions = (targetBlank) => ({
+const needsDomParsing = (content, phoneLen) =>
+  hasPhonePattern(content, phoneLen) ||
+  content.includes("<table") ||
+  content.includes('src="/images/');
+
+/**
+ * Apply DOM-based transforms (phone links, table wrappers, image processing)
+ * @param {string} html
+ * @param {object} config
+ * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
+ * @returns {Promise<string>}
+ */
+const applyDomTransforms = async (html, config, processAndWrapImage) => {
+  const dom = await loadDOM(html);
+  const { document } = dom.window;
+  linkifyPhones(document, config);
+  wrapTables(document, config);
+  await processImages(document, config, processAndWrapImage);
+  return dom.serialize();
+};
+
+/**
+ * Apply string-based transforms (URL/email linkification, external link attrs)
+ * @param {string} content
+ * @param {object} config
+ * @returns {string}
+ */
+const applyStringTransforms = (content, config) => {
+  const targetBlank = config?.externalLinksTargetBlank ?? false;
+  const linkified = linkifyHtmlLib(content, {
     ignoreTags: [...SKIP_TAGS],
     target: targetBlank ? "_blank" : null,
     rel: targetBlank ? "noopener noreferrer" : null,
     format: { url: formatUrlDisplay },
   });
-  return async (content, outputPath) => {
-    if (typeof outputPath !== "string" || !outputPath.endsWith(".html")) {
-      return content;
-    }
-    if (!content) return content;
-    const config = await getConfig();
-    const targetBlank = config?.externalLinksTargetBlank ?? false;
-    const linkified = linkifyHtmlLib(content, buildLinkifyOptions(targetBlank));
-    const dom = await loadDOM(linkified);
-    const { document } = dom.window;
-    linkifyPhones(document, config);
-    addExternalLinkAttrs(document, config);
-    wrapTables(document, config);
-    await processImages(document, config, processAndWrapImage);
-    return dom.serialize();
-  };
+  return addExternalLinkAttrs(linkified, config);
 };
+
+/**
+ * Check if path is an HTML file
+ * @param {unknown} outputPath
+ * @returns {outputPath is string}
+ */
+const isHtmlPath = (outputPath) =>
+  typeof outputPath === "string" && outputPath.endsWith(".html");
+
+/**
+ * Create the unified HTML transform
+ * @param {import("#lib/types").ProcessImageFn} processAndWrapImage - Image processing function
+ * @returns {(content: string, outputPath: string) => Promise<string>}
+ */
+const createHtmlTransform =
+  (processAndWrapImage) => async (content, outputPath) => {
+    if (!isHtmlPath(outputPath) || !content) return content;
+
+    const config = await getConfig();
+    const phoneLen = config?.phoneNumberLength ?? 11;
+    const result = applyStringTransforms(content, config);
+
+    if (!needsDomParsing(result, phoneLen)) return result;
+    return applyDomTransforms(result, config, processAndWrapImage);
+  };
 
 /**
  * Configure the unified HTML transform for Eleventy
@@ -67,10 +103,6 @@ const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
     "htmlTransform",
     createHtmlTransform(processAndWrapImage),
   );
-  eleventyConfig.addFilter("externalLinkAttrs", async (url) => {
-    const config = await getConfig();
-    return getExternalLinkAttrs(url, config?.externalLinksTargetBlank ?? false);
-  });
 };
 
 export { configureHtmlTransform, createHtmlTransform };

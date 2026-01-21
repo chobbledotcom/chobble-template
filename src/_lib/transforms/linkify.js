@@ -268,6 +268,16 @@ const linkifyEmails = (document, _config) => {
 };
 
 /**
+ * Check if content contains a phone number pattern (consecutive digits with optional spaces)
+ * @param {string} content
+ * @param {number} phoneLen
+ * @returns {boolean}
+ */
+const hasPhonePattern = (content, phoneLen) =>
+  phoneLen > 0 &&
+  new RegExp(`\\b\\d(?:\\s*\\d){${phoneLen - 1}}\\b`).test(content);
+
+/**
  * Linkify phone numbers in document
  * @param {*} document
  * @param {{ phoneNumberLength?: number }} config
@@ -291,6 +301,7 @@ export {
   linkifyEmails,
   linkifyPhones,
   formatUrlDisplay,
+  hasPhonePattern,
   // Exported for testing
   parseTextByPattern,
   collectTextNodes,
