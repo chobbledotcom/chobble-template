@@ -1,18 +1,28 @@
 /**
- * @param {import("#lib/types").EleventyCollectionItem[]} locations
- * @returns {import("#lib/types").EleventyCollectionItem[]}
+ * Locations collection and filters
+ *
+ * @module #collections/locations
+ */
+
+/** @typedef {import("#lib/types").LocationCollectionItem} LocationCollectionItem */
+
+/**
+ * Get root locations (locations without a parent).
+ *
+ * @param {LocationCollectionItem[]} locations - All locations
+ * @returns {LocationCollectionItem[]} Locations without a parent
  */
 const getRootLocations = (locations) =>
   locations.filter((loc) => !loc.data.parentLocation);
 
 /**
- * Get sibling locations (same parent) excluding the current page
- * Replaces gnarly Liquid loop with unless/push pattern
+ * Get sibling locations (same parent) excluding the current page.
+ * Replaces gnarly Liquid loop with unless/push pattern.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} locations
- * @param {string} parentLocationSlug
- * @param {string} [currentUrl]
- * @returns {import("#lib/types").EleventyCollectionItem[]}
+ * @param {LocationCollectionItem[]} locations - All locations
+ * @param {string} parentLocationSlug - Parent location slug
+ * @param {string} [currentUrl] - Current page URL to exclude
+ * @returns {LocationCollectionItem[]} Sibling locations
  */
 const getSiblingLocations = (locations, parentLocationSlug, currentUrl) =>
   locations.filter(
@@ -20,6 +30,11 @@ const getSiblingLocations = (locations, parentLocationSlug, currentUrl) =>
       loc.data.parentLocation === parentLocationSlug && loc.url !== currentUrl,
   );
 
+/**
+ * Configure locations filters for Eleventy.
+ *
+ * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ */
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addFilter("getRootLocations", getRootLocations);
   eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);

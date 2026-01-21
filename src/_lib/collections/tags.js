@@ -1,27 +1,43 @@
+/**
+ * Tags collection and filters
+ *
+ * @module #collections/tags
+ */
+
 import { filter, flatMap, map, pipe, sort, unique } from "#toolkit/fp/array.js";
 import { compareStrings } from "#toolkit/fp/sorting.js";
 
+/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
+
 /**
- * Extract unique tags from a collection
+ * Extract unique tags from a collection.
  *
- * @param {import("#lib/types").EleventyCollectionItem[]} collection - Eleventy collection items
+ * Eleventy guarantees: Collection items always have a `data` property,
+ * and `data.tags` is always an array (empty if no tags).
+ * See: BaseItemData type definition in eleventy.d.ts
+ *
+ * @param {EleventyCollectionItem[]} collection - Eleventy collection items
  * @returns {string[]} Sorted array of unique tag strings
- *
- * Eleventy guarantees: Collection items always have a `data` property.
- * Therefore, no optional chaining needed on `page.data`.
- * See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
  */
 const extractTags = (collection) =>
   pipe(
-    filter((page) => page.url && !page.data.no_index),
-    flatMap((page) => page.data.tags || []),
-    filter((x) => x !== null && x !== undefined),
+    filter(
+      (/** @type {EleventyCollectionItem} */ page) =>
+        page.url && !page.data.no_index,
+    ),
+    flatMap((/** @type {EleventyCollectionItem} */ page) => page.data.tags),
+    filter((tag) => tag !== null && tag !== undefined),
     map((tag) => String(tag).trim()),
     filter((tag) => tag !== ""),
     unique,
     sort(compareStrings),
   )(collection);
 
+/**
+ * Configure tags filter for Eleventy.
+ *
+ * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ */
 const configureTags = (eleventyConfig) => {
   eleventyConfig.addFilter("tags", extractTags);
 };
