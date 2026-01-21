@@ -6,6 +6,7 @@
 
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
+import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").CategoryCollectionItem} CategoryCollectionItem */
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
@@ -54,6 +55,22 @@ const buildCategoryPropertyMap = (categories, products, propertyName) => {
 };
 
 /**
+ * Create a thumbnail resolver that checks lookup first, then child categories.
+ * @param {CategoryPropertyMap} thumbnails - Thumbnail lookup by category slug
+ * @param {Map<string, CategoryCollectionItem[]>} childrenByParent - Child categories by parent
+ * @returns {(slug: string) => string | undefined}
+ */
+const createThumbnailResolver = (thumbnails, childrenByParent) => (slug) =>
+  findFirst(
+    () => thumbnails[slug]?.[0],
+    () =>
+      findFromChildren(
+        childrenByParent.get(slug),
+        (child) => thumbnails[child.fileSlug]?.[0],
+      ),
+  );
+
+/**
  * Create the categories collection with inherited images from products.
  * For parent categories without thumbnails, inherit from child categories.
  * NOTE: Mutates category.data directly because Eleventy template objects
@@ -73,21 +90,10 @@ const createCategoriesCollection = (collectionApi) => {
     "thumbnail",
   );
   const childrenByParent = groupBy(categories, (c) => c.data.parent);
-
-  // Nested helper: get thumbnail from products or from child categories
-  const resolveThumbnail = (slug) => {
-    const fromProducts = thumbnails[slug]?.[0];
-    if (fromProducts) return fromProducts;
-
-    const children = childrenByParent.get(slug);
-    if (!children) return undefined;
-
-    const sorted = [...children].sort(
-      (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
-    );
-    const found = sorted.find((c) => thumbnails[c.fileSlug]?.[0]);
-    return found ? thumbnails[found.fileSlug]?.[0] : undefined;
-  };
+  const resolveThumbnail = createThumbnailResolver(
+    thumbnails,
+    childrenByParent,
+  );
 
   return categories.map((category) => {
     category.data.header_image = images[category.fileSlug]?.[0];
