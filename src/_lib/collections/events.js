@@ -8,9 +8,15 @@ import { pipe, sort } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
+import {
+  getEventsFromApi,
+  getProductsFromApi,
+} from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
+import { findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").EventCollectionItem} EventCollectionItem */
+/** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
 
 /** @typedef {"upcoming" | "past" | "regular" | "undated"} EventCategory */
 
@@ -69,3 +75,52 @@ export const categoriseEvents = memoize((events) => {
 
   return { upcoming, past, regular, undated };
 });
+
+/**
+ * @typedef {{ eventSlug: string, thumbnail: string, order: number }} EventThumbnailEntry
+ */
+
+/**
+ * Build a map of event slugs to best thumbnail from products.
+ * @param {ProductCollectionItem[]} products
+ * @returns {Map<string, ProductCollectionItem[]>}
+ */
+const buildProductsByEvent = (products) =>
+  groupBy(
+    products.filter((p) => p.data.events?.length && p.data.thumbnail),
+    (p) => p.data.events,
+  );
+
+/**
+ * Create the events collection with inherited thumbnails from products.
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {EventCollectionItem[]}
+ */
+const createEventsCollection = (collectionApi) => {
+  const events = getEventsFromApi(collectionApi);
+  if (events.length === 0) return [];
+
+  const products = getProductsFromApi(collectionApi);
+  const productsByEvent = buildProductsByEvent(products);
+
+  return events.map((event) => {
+    if (!event.data.thumbnail) {
+      const thumb = findFromChildren(
+        productsByEvent.get(event.fileSlug),
+        (p) => p.data.thumbnail,
+      );
+      if (thumb) event.data.thumbnail = thumb;
+    }
+    return event;
+  });
+};
+
+/**
+ * Configure events collection.
+ * @param {import('11ty.ts').EleventyConfig} eleventyConfig
+ */
+const configureEvents = (eleventyConfig) => {
+  eleventyConfig.addCollection("events", createEventsCollection);
+};
+
+export { configureEvents };

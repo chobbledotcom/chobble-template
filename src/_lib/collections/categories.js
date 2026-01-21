@@ -78,20 +78,23 @@ const buildCategoryPropertyMap = (categories, products, propertyName) =>
   )(products);
 
 /**
- * Create a thumbnail resolver that checks lookup first, then child categories.
+ * Create a recursive thumbnail resolver.
+ * Checks: 1) direct products, 2) subcategories (recursively checking their products).
  * @param {CategoryPropertyMap} thumbnails - Thumbnail lookup by category slug
  * @param {Map<string, CategoryCollectionItem[]>} childrenByParent - Child categories by parent
  * @returns {(slug: string) => string | undefined}
  */
-const createThumbnailResolver = (thumbnails, childrenByParent) => (slug) =>
-  findFirst(
-    () => thumbnails[slug]?.[0],
-    () =>
-      findFromChildren(
-        childrenByParent.get(slug),
-        (child) => thumbnails[child.fileSlug]?.[0],
-      ),
-  );
+const createThumbnailResolver = (thumbnails, childrenByParent) => {
+  const resolve = (slug) =>
+    findFirst(
+      () => thumbnails[slug]?.[0],
+      () =>
+        findFromChildren(childrenByParent.get(slug), (child) =>
+          resolve(child.fileSlug),
+        ),
+    );
+  return resolve;
+};
 
 /**
  * Create the categories collection with inherited images from products.
