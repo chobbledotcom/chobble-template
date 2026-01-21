@@ -194,6 +194,14 @@ const getCollectionFieldBuilders = (config, fields) => ({
     compact([
       COMMON_FIELDS.title,
       COMMON_FIELDS.thumbnail,
+      config.features.parent_categories &&
+        createReferenceField(
+          "parent",
+          "Parent Category",
+          "categories",
+          "title",
+          false,
+        ),
       fields.body,
       COMMON_FIELDS.featured,
       ...getHeaderFields(config),

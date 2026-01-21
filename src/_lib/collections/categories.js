@@ -5,6 +5,7 @@
  */
 
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
+import { groupBy } from "#toolkit/fp/grouping.js";
 import {
   getCategoriesFromApi,
   getProductsFromApi,
@@ -77,8 +78,9 @@ const buildCategoryPropertyMap = (categories, products, propertyName) =>
 
 /**
  * Create the categories collection with inherited images from products.
- * NOTE: Mutates category.data directly because Eleventy template objects have
- * special getters/internal state that break with spread operators.
+ * For parent categories without thumbnails, inherit from child categories.
+ * NOTE: Mutates category.data directly because Eleventy template objects
+ * have special getters/internal state that break with spread operators.
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {CategoryCollectionItem[]}
  */
@@ -92,9 +94,26 @@ const createCategoriesCollection = (collectionApi) => {
     products,
     "thumbnail",
   );
+  const childrenByParent = groupBy(categories, (c) => c.data.parent);
+
+  // Nested helper: get thumbnail from products or from child categories
+  const resolveThumbnail = (slug) => {
+    const fromProducts = thumbnails[slug]?.[0];
+    if (fromProducts) return fromProducts;
+
+    const children = childrenByParent.get(slug);
+    if (!children) return undefined;
+
+    const sorted = [...children].sort(
+      (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
+    );
+    const found = sorted.find((c) => thumbnails[c.fileSlug]?.[0]);
+    return found ? thumbnails[found.fileSlug]?.[0] : undefined;
+  };
+
   return categories.map((category) => {
     category.data.header_image = images[category.fileSlug]?.[0];
-    const thumb = thumbnails[category.fileSlug]?.[0];
+    const thumb = resolveThumbnail(category.fileSlug);
     if (thumb) category.data.thumbnail = thumb;
     return category;
   });
