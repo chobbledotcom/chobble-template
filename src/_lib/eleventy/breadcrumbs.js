@@ -1,5 +1,5 @@
 /**
- * Breadcrumbs module - pure JS implementation for building and rendering breadcrumbs
+ * Breadcrumbs module - pure JS implementation for building breadcrumb data
  *
  * Breadcrumb structure:
  * 1. Home (always first, always a link)
@@ -9,7 +9,6 @@
  */
 
 import strings from "#data/strings.js";
-import { createHtml } from "#utils/dom-builder.js";
 import { slugToTitle } from "#utils/slug-utils.js";
 
 /** Mapping from navigation parent names to their index URLs */
@@ -22,76 +21,37 @@ const PARENT_URL_MAP = {
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
 };
 
-/** Home crumb is always first */
-const HOME_CRUMB = { label: "Home", url: "/" };
-
-/** Render crumbs array to HTML */
-const renderCrumbs = async (crumbs) => {
-  const renderCrumb = async (crumb) => {
-    const separator = await createHtml(
-      "span",
-      { class: "separator", "aria-hidden": "true" },
-      "/",
-    );
-    const content = crumb.url
-      ? await createHtml("a", { href: crumb.url }, crumb.label)
-      : await createHtml("span", { "aria-current": "page" }, crumb.label);
-    return createHtml("li", {}, (crumb.url === "/" ? "" : separator) + content);
-  };
-
-  const items = await Promise.all(crumbs.map(renderCrumb));
-  const ol = await createHtml("ol", {}, items.join(""));
-  const nav = await createHtml(
-    "nav",
-    { "aria-label": "Breadcrumb", class: "breadcrumbs" },
-    ol,
-  );
-  return createHtml("div", { class: "design-system" }, nav);
-};
+/** Get URL for crumb - null if we're at that URL, otherwise the URL */
+const crumbUrl = (pageUrl, url) => (pageUrl === url ? null : url);
 
 /**
- * Build and render breadcrumbs - async filter for use in templates
- * Usage: {{ page | breadcrumbsHtmlFilter: title, navigationParent, parentLocation }}
+ * Build breadcrumbs data array
+ * Returns array of { label, url } objects (url is null for current page)
  */
-const breadcrumbsHtmlFilter = async (
-  page,
-  title,
-  navigationParent,
-  parentLocation,
-) => {
-  if (page.url === "/") return "";
+const breadcrumbsFilter = (page, title, navigationParent, parentLocation) => {
+  if (page.url === "/") return [];
 
   const indexUrl =
     PARENT_URL_MAP[navigationParent] ||
     `/${page.url.split("/").filter(Boolean)[0]}/`;
-  const indexCrumb = {
-    label: navigationParent,
-    url: page.url === indexUrl ? null : indexUrl,
+  const crumbs = [
+    { label: "Home", url: "/" },
+    { label: navigationParent, url: crumbUrl(page.url, indexUrl) },
+  ];
+
+  if (page.url === indexUrl) return crumbs;
+
+  if (!parentLocation) return [...crumbs, { label: title, url: null }];
+
+  const parentUrl = `/${strings.location_permalink_dir}/${parentLocation}/`;
+  const parentCrumb = {
+    label: slugToTitle(parentLocation),
+    url: crumbUrl(page.url, parentUrl),
   };
 
-  if (page.url === indexUrl) return renderCrumbs([HOME_CRUMB, indexCrumb]);
+  if (page.url === parentUrl) return [...crumbs, parentCrumb];
 
-  if (parentLocation) {
-    const parentUrl = `/${strings.location_permalink_dir}/${parentLocation}/`;
-    const parentCrumb = { label: slugToTitle(parentLocation), url: parentUrl };
-
-    if (page.url === parentUrl) {
-      return renderCrumbs([
-        HOME_CRUMB,
-        indexCrumb,
-        { ...parentCrumb, url: null },
-      ]);
-    }
-
-    return renderCrumbs([
-      HOME_CRUMB,
-      indexCrumb,
-      parentCrumb,
-      { label: title, url: null },
-    ]);
-  }
-
-  return renderCrumbs([HOME_CRUMB, indexCrumb, { label: title, url: null }]);
+  return [...crumbs, parentCrumb, { label: title, url: null }];
 };
 
 /**
@@ -99,7 +59,7 @@ const breadcrumbsHtmlFilter = async (
  * @param {import('@11ty/eleventy').UserConfig} eleventyConfig
  */
 const configureBreadcrumbs = (eleventyConfig) => {
-  eleventyConfig.addAsyncFilter("breadcrumbsHtmlFilter", breadcrumbsHtmlFilter);
+  eleventyConfig.addFilter("breadcrumbsFilter", breadcrumbsFilter);
 };
 
 export { configureBreadcrumbs };

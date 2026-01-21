@@ -3,150 +3,122 @@ import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("configureBreadcrumbs", () => {
-  test("registers breadcrumbsHtmlFilter async filter", () => {
+  test("registers breadcrumbsFilter", () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
 
-    expect(typeof mockConfig.asyncFilters.breadcrumbsHtmlFilter).toBe(
-      "function",
-    );
+    expect(typeof mockConfig.filters.breadcrumbsFilter).toBe("function");
   });
 });
 
-describe("breadcrumbsHtmlFilter filter", () => {
-  test("returns empty string for home page", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
-      { url: "/" },
-      "Home",
-      "Home",
-      null,
+describe("breadcrumbsFilter", () => {
+  const callFilter = (
+    mockConfig,
+    page,
+    title,
+    navigationParent,
+    parentLocation,
+  ) =>
+    mockConfig.filters.breadcrumbsFilter(
+      page,
+      title,
+      navigationParent,
+      parentLocation,
     );
 
-    expect(html).toBe("");
-  });
-
-  test("renders Home and collection span for index page", async () => {
+  test("returns empty array for home page", () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
+
+    const crumbs = callFilter(mockConfig, { url: "/" }, "Home", "Home", null);
+
+    expect(crumbs).toEqual([]);
+  });
+
+  test("returns Home and collection for index page", () => {
+    const mockConfig = createMockEleventyConfig();
+    configureBreadcrumbs(mockConfig);
+
+    const crumbs = callFilter(
+      mockConfig,
       { url: "/products/" },
       "Products",
       "Products",
       null,
     );
 
-    expect(html).toContain('<a href="/">Home</a>');
-    expect(html).toContain('<span aria-current="page">Products</span>');
-    expect(html).not.toContain('<a href="/products/">');
+    expect(crumbs).toEqual([
+      { label: "Home", url: "/" },
+      { label: "Products", url: null },
+    ]);
   });
 
-  test("renders Home, collection link, and item span for product page", async () => {
+  test("returns Home, collection link, and item for product page", () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
+
+    const crumbs = callFilter(
+      mockConfig,
       { url: "/products/test-product/" },
       "Test Product",
       "Products",
       null,
     );
 
-    expect(html).toContain('<a href="/">Home</a>');
-    expect(html).toContain('<a href="/products/">Products</a>');
-    expect(html).toContain('<span aria-current="page">Test Product</span>');
+    expect(crumbs).toEqual([
+      { label: "Home", url: "/" },
+      { label: "Products", url: "/products/" },
+      { label: "Test Product", url: null },
+    ]);
   });
 
-  test("renders breadcrumbs for events collection", async () => {
+  test("handles parentLocation for subpages and parent pages", () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
-      { url: "/events/summer-fest/" },
-      "Summer Fest",
-      "Events",
-      null,
-    );
 
-    expect(html).toContain('<a href="/events/">Events</a>');
-    expect(html).toContain('<span aria-current="page">Summer Fest</span>');
-  });
-
-  test("renders breadcrumbs for location subpage with parent", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
+    // Subpage under a location shows all 4 crumbs
+    const subpageCrumbs = callFilter(
+      mockConfig,
       { url: "/locations/london/widget-removal/" },
       "Widget Removal",
       "Locations",
       "london",
     );
+    expect(subpageCrumbs).toHaveLength(4);
+    expect(subpageCrumbs[2]).toEqual({
+      label: "London",
+      url: "/locations/london/",
+    });
+    expect(subpageCrumbs[3]).toEqual({ label: "Widget Removal", url: null });
 
-    expect(html).toContain('<a href="/">Home</a>');
-    expect(html).toContain('<a href="/locations/">Locations</a>');
-    expect(html).toContain('<a href="/locations/london/">London</a>');
-    expect(html).toContain('<span aria-current="page">Widget Removal</span>');
-  });
-
-  test("renders location page as current when at parent location", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
-      { url: "/locations/springfield/" },
-      "Springfield",
-      "Locations",
-      null,
-    );
-
-    expect(html).toContain('<a href="/locations/">Locations</a>');
-    expect(html).toContain('<span aria-current="page">Springfield</span>');
-  });
-
-  test("renders parent location as span when at that location with parentLocation set", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
+    // At the parent location itself shows 3 crumbs with parent as current
+    const parentCrumbs = callFilter(
+      mockConfig,
       { url: "/locations/london/" },
       "London",
       "Locations",
       "london",
     );
-
-    expect(html).toContain('<a href="/">Home</a>');
-    expect(html).toContain('<a href="/locations/">Locations</a>');
-    expect(html).toContain('<span aria-current="page">London</span>');
-    expect(html).not.toContain('<a href="/locations/london/">');
+    expect(parentCrumbs).toHaveLength(3);
+    expect(parentCrumbs[2]).toEqual({ label: "London", url: null });
   });
 
-  test("renders proper HTML structure with nav, ol, and li elements", async () => {
+  test("derives URL from page URL for unknown navigation parent", () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
-      { url: "/products/item/" },
-      "Item",
-      "Products",
-      null,
-    );
 
-    expect(html).toContain('<div class="design-system">');
-    expect(html).toContain('<nav aria-label="Breadcrumb"');
-    expect(html).toContain('class="breadcrumbs"');
-    expect(html).toContain("<ol>");
-    expect(html).toContain("<li>");
-    expect(html).toContain('class="separator"');
-    expect(html).toContain('aria-hidden="true"');
-  });
-
-  test("handles unknown navigation parent by deriving URL from page URL", async () => {
-    const mockConfig = createMockEleventyConfig();
-    configureBreadcrumbs(mockConfig);
-    const html = await mockConfig.asyncFilters.breadcrumbsHtmlFilter(
+    const crumbs = callFilter(
+      mockConfig,
       { url: "/custom/item/" },
       "Item",
       "Custom Section",
       null,
     );
 
-    expect(html).toContain('<a href="/custom/">Custom Section</a>');
-    expect(html).toContain('<span aria-current="page">Item</span>');
+    expect(crumbs).toEqual([
+      { label: "Home", url: "/" },
+      { label: "Custom Section", url: "/custom/" },
+      { label: "Item", url: null },
+    ]);
   });
 });
