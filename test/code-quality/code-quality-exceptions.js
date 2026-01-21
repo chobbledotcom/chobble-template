@@ -229,17 +229,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 ]);
 
 // ============================================
-// Inline type annotation exceptions
-// ============================================
-
-// Files with inline /** @type {X} */ annotations inside function bodies.
-// These should be refactored to use:
-//   - Type definitions in a .d.ts or types file
-//   - @param/@returns in function JSDoc signatures
-//   - Module-level type annotations
-const ALLOWED_INLINE_TYPE_ANNOTATIONS = frozenSet([]);
-
-// ============================================
 // DOM class constructor exceptions
 // ============================================
 
@@ -267,7 +256,6 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
-  ALLOWED_INLINE_TYPE_ANNOTATIONS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
 };

@@ -30,11 +30,9 @@
  *   };
  */
 import { describe, expect, test } from "bun:test";
-import { ALLOWED_INLINE_TYPE_ANNOTATIONS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
   createBraceDepthScanner,
-  expectNoStaleExceptions,
   expectScanResult,
   isCommentLine,
   readSource,
@@ -73,24 +71,13 @@ const toTypeAnnotationViolation = (file) => (v) => ({
   reason: `Inline @type {${v.typeName}} at depth ${v.braceDepth} - move to types file or use function signature`,
 });
 
-/** Check if an entry is in the allowlist */
-const isAllowed = (entry) =>
-  ALLOWED_INLINE_TYPE_ANNOTATIONS.has(`${entry.file}:${entry.line}`) ||
-  ALLOWED_INLINE_TYPE_ANNOTATIONS.has(entry.file);
-
 /** Analyze source files for inline type annotation violations. */
-const analyzeInlineTypeAnnotations = () => {
-  const allEntries = SRC_JS_FILES().flatMap((file) =>
+const analyzeInlineTypeAnnotations = () =>
+  SRC_JS_FILES().flatMap((file) =>
     findInlineTypeAnnotations(readSource(file)).map(
       toTypeAnnotationViolation(file),
     ),
   );
-
-  return {
-    violations: allEntries.filter((e) => !isAllowed(e)),
-    allowed: allEntries.filter(isAllowed),
-  };
-};
 
 describe("inline-type-annotations", () => {
   describe("findInlineTypeAnnotations", () => {
@@ -200,20 +187,12 @@ const second = () => {
   });
 
   test("No inline @type annotations inside functions in source files", () => {
-    const { violations } = analyzeInlineTypeAnnotations();
+    const violations = analyzeInlineTypeAnnotations();
 
     assertNoViolations(violations, {
       singular: "inline type annotation",
       fixHint:
         "Move type to a .d.ts file, use @param/@returns in function JSDoc, or annotate at module level",
     });
-  });
-
-  test("ALLOWED_INLINE_TYPE_ANNOTATIONS entries still exist", () => {
-    expectNoStaleExceptions(
-      ALLOWED_INLINE_TYPE_ANNOTATIONS,
-      INLINE_TYPE_PATTERN,
-      "ALLOWED_INLINE_TYPE_ANNOTATIONS",
-    );
   });
 });
