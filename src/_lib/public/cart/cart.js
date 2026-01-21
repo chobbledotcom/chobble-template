@@ -222,10 +222,7 @@ const getOptionIndex = (button) =>
       )
     : 0;
 
-const getButtonItemAndOption = (
-  button,
-  optionIndex = getOptionIndex(button),
-) => {
+const buttonOption = (button, optionIndex = getOptionIndex(button)) => {
   const itemData = JSON.parse(button.dataset.item);
   return { itemData, option: itemData.options[optionIndex] };
 };
@@ -243,10 +240,7 @@ const handleOptionChange = (e) => {
   const button = select.parentElement.querySelector(".product-option-button");
 
   if (button && selectedOption && selectedOption.value !== "") {
-    const { option } = getButtonItemAndOption(
-      button,
-      parseInt(selectedOption.value, 10),
-    );
+    const { option } = buttonOption(button, parseInt(selectedOption.value, 10));
     button.disabled = false;
     button.textContent = `Add to Cart - £${option.unit_price}`;
   }
@@ -275,7 +269,7 @@ const validateProductOption = (button) => {
 };
 
 const extractItemFromButton = (button) => {
-  const { itemData, option } = getButtonItemAndOption(button);
+  const { itemData, option } = buttonOption(button);
 
   return {
     name: buildFullItemName(itemData.name, option.name),

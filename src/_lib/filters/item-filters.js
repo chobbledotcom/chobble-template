@@ -317,7 +317,7 @@ const buildFilterDescription = (filters, displayLookup) =>
  * @param {Object} filterData - { attributes, displayLookup }
  * @param {string} baseUrl - Base URL for filter links
  */
-const addFilterUIToPages = (pages, filterData, baseUrl) => {
+const addFilterUI = (pages, filterData, baseUrl) => {
   for (const page of pages) {
     page.filterUI = buildFilterUIData(filterData, page.filters, pages, baseUrl);
   }
@@ -493,7 +493,7 @@ const createFilterConfig = (options) => {
       };
     });
 
-    addFilterUIToPages(pages, filterData, baseUrl);
+    addFilterUI(pages, filterData, baseUrl);
     return pages;
   };
 
@@ -549,7 +549,7 @@ const createFilterConfig = (options) => {
 export {
   createFilterConfig,
   // Used by category-product-filters.js for category-scoped filtering
-  addFilterUIToPages,
+  addFilterUI,
   buildDisplayLookup,
   buildFilterPageBase,
   buildFilterUIData,

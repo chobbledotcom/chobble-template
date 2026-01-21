@@ -6,11 +6,10 @@ import { frozenSet } from "#toolkit/fp/set.js";
 const MAX_WORDS = 4;
 const _PREFERRED_WORDS = 3;
 
-// External APIs we can't control (only those exceeding 4 words)
+// External APIs we can't control (from libraries)
 const IGNORED_IDENTIFIERS = frozenSet([
-  // Eleventy plugin APIs
-  "eleventyImageOnRequestDuringServePlugin", // 7 words
-  "getNewestCollectionItemDate", // 5 words
+  "eleventyImageOnRequestDuringServePlugin", // Eleventy
+  "getNewestCollectionItemDate", // Eleventy
 ]);
 
 /**
@@ -166,16 +165,14 @@ describe("naming-conventions", () => {
     expect(identifiers).toContain("regularName");
   });
 
-  test(`Check camelCase identifiers for verbosity (max ${MAX_WORDS} words)`, () => {
+  test(`No new long names (max ${MAX_WORDS} words)`, () => {
     const violations = analyzeNamingConventions();
     const violationCount = Object.keys(violations).length;
 
-    // Log violations for visibility
     if (violationCount > 0) {
       console.log(`\n${formatNamingViolations(violations)}\n`);
-      console.warn(
-        `⚠️  Warning: ${violationCount} identifier(s) exceed ${MAX_WORDS} words.`,
-      );
     }
+
+    expect(violationCount).toBe(0);
   });
 });

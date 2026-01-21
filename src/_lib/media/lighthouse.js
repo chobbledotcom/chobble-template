@@ -2,7 +2,6 @@ import {
   buildOutputPath,
   buildUrl,
   createOperationContext,
-  createPagePathErrorInfo,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
   frozenObject,
@@ -10,6 +9,7 @@ import {
   getDefaultOutputDir,
   launchChromeHeadless,
   log,
+  pathErrorInfo,
   prepareOutputDir,
   runBatchOperations,
   sanitizePagePath,
@@ -123,7 +123,7 @@ export const lighthouseMultiple = (pagePaths, options = {}) =>
   runBatchOperations(
     pagePaths,
     (pagePath) => lighthouse(pagePath, options),
-    createPagePathErrorInfo(pagePaths),
+    pathErrorInfo(pagePaths),
   );
 
 export const getCategories = () => ({ ...CATEGORIES });

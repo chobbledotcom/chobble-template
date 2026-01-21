@@ -75,7 +75,7 @@ export const COMMON_STEPS = {
  * @param {boolean} verbose - Whether to include verbose flag
  * @returns {Object} Tests step configuration
  */
-export const createTestsWithCoverageStep = (verbose) => ({
+export const coverageStep = (verbose) => ({
   name: "tests",
   cmd: "bun",
   args: [
