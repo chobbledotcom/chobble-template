@@ -27,15 +27,17 @@ import { loadDOM } from "#utils/lazy-dom.js";
 const getConfig = memoize(configModule);
 
 /**
- * Check if content needs phone linkification
+ * Check if content needs phone linkification.
+ * Tests for a sequence of digits (with optional spaces) that could form a phone number.
  * @param {string} content
  * @param {number} phoneLen
  * @returns {boolean}
  */
 const needsPhoneLinkification = (content, phoneLen) => {
   if (phoneLen <= 0) return false;
-  const digitCount = content.replace(/[^\d]/g, "").length;
-  return digitCount >= phoneLen;
+  // Same pattern as linkify.js: word boundary, digit, then (phoneLen-1) more digits with optional spaces
+  const phonePattern = new RegExp(`\\b\\d(?:\\s*\\d){${phoneLen - 1}}\\b`);
+  return phonePattern.test(content);
 };
 
 /** @param {string} content */
