@@ -11,6 +11,7 @@ import matter from "gray-matter";
 import { Window } from "happy-dom";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
 import { map } from "#toolkit/fp/array.js";
+import { omit } from "#toolkit/fp/object.js";
 
 // Test fixture helpers for creating Eleventy-style collection items
 // (These are test-only utilities, not general FP functions)
@@ -167,15 +168,6 @@ const createExtractor =
 
 // ============================================
 // Object Utilities (for test infrastructure)
-// ============================================
-
-/**
- * Create a curried function that omits specified keys from an object.
- * Moved here from production code since it's only used in tests.
- */
-const omit = (keys) => (obj) =>
-  Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k)));
-
 // ============================================
 // SCSS Compilation (for testing SCSS behavior)
 // ============================================
