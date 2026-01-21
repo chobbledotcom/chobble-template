@@ -31,14 +31,6 @@ const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
 /**
- * Get properties from collection API (typed wrapper).
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {PropertyCollectionItem[]}
- */
-const getProperties = (collectionApi) =>
-  collectionApi.getFilteredByTag("properties");
-
-/**
  * Configure properties collection and filters for Eleventy.
  *
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
@@ -46,7 +38,9 @@ const getProperties = (collectionApi) =>
 const configureProperties = (eleventyConfig) => {
   eleventyConfig.addCollection("properties", (collectionApi) =>
     // @ts-expect-error - addGallery works on any item with gallery data
-    getProperties(collectionApi).map(addGallery),
+    collectionApi
+      .getFilteredByTag("properties")
+      .map(addGallery),
   );
   eleventyConfig.addCollection(
     "propertiesWithReviewsPage",

@@ -44,13 +44,6 @@ const fieldIndexers = {
 };
 
 /**
- * Get reviews from collection API (typed wrapper).
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {ReviewCollectionItem[]}
- */
-const getReviews = (collectionApi) => collectionApi.getFilteredByTag("reviews");
-
-/**
  * Creates the main reviews collection.
  * Fetches all items tagged with "review", filters out hidden ones, and sorts by date.
  *
@@ -58,7 +51,8 @@ const getReviews = (collectionApi) => collectionApi.getFilteredByTag("reviews");
  * @returns {ReviewCollectionItem[]}
  */
 const createReviewsCollection = (collectionApi) =>
-  getReviews(collectionApi)
+  collectionApi
+    .getFilteredByTag("reviews")
     .filter((review) => review.data.hidden !== true)
     .sort(sortByDateDescending);
 
@@ -96,13 +90,6 @@ const countReviews = (reviews, slug, field) =>
   getReviewsFor(reviews, slug, field).length;
 
 /**
- * Extract rating value from a review.
- * @param {ReviewCollectionItem} review
- * @returns {unknown}
- */
-const extractRating = (review) => review.data.rating;
-
-/**
  * Calculate average rating for reviews matching a specific item.
  * Uses cached indexes via getReviewsFor for O(1) lookups.
  *
@@ -114,7 +101,7 @@ const extractRating = (review) => review.data.rating;
 const getRating = (reviews, slug, field) => {
   const matchingReviews = getReviewsFor(reviews, slug, field);
   const ratings = pipe(
-    map(extractRating),
+    map((r) => r.data.rating),
     filter(isValidRating),
   )(matchingReviews);
 
@@ -198,26 +185,6 @@ const reviewerAvatar = (name) => {
 const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
 
 /**
- * Get items from collection API by field name (typed wrapper).
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @param {ReviewIndexField} reviewsField
- * @returns {EleventyCollectionItem[]}
- */
-const getItemsByField = (collectionApi, reviewsField) =>
-  collectionApi.getFilteredByTag(reviewsField);
-
-/**
- * Create a predicate that checks if an item has enough reviews.
- * @param {ReviewCollectionItem[]} visibleReviews
- * @param {ReviewIndexField} reviewsField
- * @param {number} limit
- * @returns {(item: EleventyCollectionItem) => boolean}
- */
-const createHasEnoughReviews =
-  (visibleReviews, reviewsField, limit) => (item) =>
-    countReviews(visibleReviews, item.fileSlug, reviewsField) > limit;
-
-/**
  * Factory helper for review-based collections.
  *
  * @template T
@@ -229,7 +196,7 @@ const createHasEnoughReviews =
  */
 const reviewsFactory =
   (reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
-    const items = getItemsByField(collectionApi, reviewsField);
+    const items = collectionApi.getFilteredByTag(reviewsField);
     const visibleReviews = createReviewsCollection(collectionApi);
     // config().reviews_truncate_limit is guaranteed by DEFAULTS (always number)
     const limit =
@@ -239,10 +206,10 @@ const reviewsFactory =
 
     if (limit === -1) return onNoLimit(items);
 
-    return onLimit(
-      items,
-      createHasEnoughReviews(visibleReviews, reviewsField, limit),
-    );
+    const hasEnoughReviews = (item) =>
+      countReviews(visibleReviews, item.fileSlug, reviewsField) > limit;
+
+    return onLimit(items, hasEnoughReviews);
   };
 
 /**

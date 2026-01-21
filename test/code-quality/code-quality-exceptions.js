@@ -145,11 +145,9 @@ const ALLOWED_LET = frozenSet([
 const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "ecommerce-backend/server.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
-  "src/_lib/collections/categories.js", // Typed wrapper functions for collectionApi
+  "src/_lib/collections/categories.js", // Helpers for category property map building
   "src/_lib/collections/menus.js",
-  "src/_lib/collections/news.js", // Typed wrapper function for collectionApi
   "src/_lib/collections/products.js",
-  "src/_lib/collections/properties.js", // Typed wrapper function for collectionApi
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
   "src/_lib/media/image-external.js", // Typed wrapper function for createElement
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
