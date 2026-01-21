@@ -13,6 +13,7 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
  *   const { foo } = bar;
  *   const { foo, baz } = bar;
  *   const { foo: renamed } = bar;
+ *   const { foo = "default" } = bar;
  *
  * Instead, prefer direct property access:
  *   bar.foo
@@ -20,10 +21,6 @@ import { SRC_JS_FILES } from "#test/test-utils.js";
  *
  * This avoids creating unnecessary local variables and makes
  * the data source explicit at each usage site.
- *
- * Allowed patterns (not flagged):
- *   - Destructuring with defaults: const { foo = "default" } = bar;
- *     (These can't easily be replaced with direct property access)
  */
 
 // Pattern: const { ... } = identifier;
@@ -42,10 +39,6 @@ const findDestructuring = (source) =>
     if (!match) return null;
 
     const [, properties, sourceObj] = match;
-
-    // Skip destructuring with default values (contains "=") - these are legitimate
-    // e.g., { foo = "default", bar = 123 }
-    if (properties.includes("=")) return null;
 
     // Parse the destructured properties
     const propList = properties
@@ -140,21 +133,19 @@ describe("destructuring", () => {
       const source = "let { foo } = bar;";
       expect(findDestructuring(source).length).toBe(0);
     });
+  });
 
-    test("ignores destructuring with default values", () => {
+  describe("detected patterns", () => {
+    test("detects destructuring with default values", () => {
       const source = 'const { foo = "default" } = options;';
-      expect(findDestructuring(source).length).toBe(0);
+      const results = findDestructuring(source);
+      expect(results.length).toBe(1);
+      expect(results[0].sourceObject).toBe("options");
     });
 
-    test("ignores destructuring with multiple defaults", () => {
-      const source = 'const { foo = 1, bar = "test", baz = true } = options;';
-      expect(findDestructuring(source).length).toBe(0);
-    });
-
-    test("ignores mixed defaults and non-defaults", () => {
-      // If any property has a default, allow the whole destructuring
-      const source = 'const { foo, bar = "default" } = options;';
-      expect(findDestructuring(source).length).toBe(0);
+    test("detects destructuring with multiple defaults", () => {
+      const source = 'const { foo = 1, bar = "test" } = options;';
+      expect(findDestructuring(source).length).toBe(1);
     });
   });
 
