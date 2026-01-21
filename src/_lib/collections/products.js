@@ -12,7 +12,10 @@
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
 import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#toolkit/fp/array.js";
-import { createArrayFieldIndexer } from "#utils/collection-utils.js";
+import {
+  createArrayFieldIndexer,
+  getProductsFromApi,
+} from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** Index products by category for O(1) lookups, cached per products array */
@@ -60,11 +63,8 @@ const addGallery = (item) => {
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {ProductCollectionItem[]}
  */
-const createProductsCollection = (collectionApi) => {
-  /** @type {ProductCollectionItem[]} */
-  const products = collectionApi.getFilteredByTag("products");
-  return products.map(addGallery);
-};
+const createProductsCollection = (collectionApi) =>
+  getProductsFromApi(collectionApi).map(addGallery);
 
 /**
  * Get products belonging to a specific category.
@@ -106,36 +106,47 @@ const getProductsByEvent = (products, eventSlug) =>
 
 /** @typedef {[string, { name: string, unit_price: string | number, max_quantity: number | null }]} SkuEntry */
 
-/** Extract SKU entries from a product's options */
-const extractSkuEntries = (/** @type {ProductCollectionItem} */ product) => {
-  const options = /** @type {ProductOption[] | undefined} */ (
-    product.data.options
-  );
-  if (!options) return [];
-  const title = product.data.title ?? "";
+/**
+ * Check if an option has a SKU.
+ * @param {ProductOption} option
+ * @returns {boolean}
+ */
+const hasSku = (option) => Boolean(option.sku);
+
+/**
+ * Convert a product option to a SKU entry.
+ * @param {string} productTitle
+ * @returns {(option: ProductOption) => SkuEntry}
+ */
+const toSkuEntry = (productTitle) => (option) => [
+  option.sku,
+  {
+    name: option.name ? `${productTitle} - ${option.name}` : productTitle,
+    unit_price: option.unit_price,
+    max_quantity: option.max_quantity ?? null,
+  },
+];
+
+/**
+ * Extract SKU entries from a product's options.
+ * @param {ProductCollectionItem} product
+ * @returns {SkuEntry[]}
+ */
+const extractSkuEntries = (product) => {
+  if (!product.data.options) return [];
   return filterMap(
-    (/** @type {ProductOption} */ o) => Boolean(o.sku),
-    (/** @type {ProductOption} */ o) =>
-      /** @type {SkuEntry} */ ([
-        o.sku,
-        {
-          name: o.name ? `${title} - ${o.name}` : title,
-          unit_price: o.unit_price,
-          max_quantity: o.max_quantity ?? null,
-        },
-      ]),
-  )(options);
+    hasSku,
+    toSkuEntry(product.data.title ?? ""),
+  )(product.data.options);
 };
 
 /**
  * Creates a collection of all SKUs with their pricing data for the API.
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {Record<string, { name: string, unit_price: string | number, max_quantity: number | null }>}
  */
 const createApiSkusCollection = (collectionApi) => {
-  const products = /** @type {ProductCollectionItem[]} */ (
-    collectionApi.getFilteredByTag("products")
-  );
-  /** @type {SkuEntry[]} */
+  const products = getProductsFromApi(collectionApi);
   const allSkuEntries = products.flatMap(extractSkuEntries);
   const duplicate = findDuplicate(allSkuEntries, ([sku]) => sku);
   if (duplicate)

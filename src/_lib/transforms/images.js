@@ -91,11 +91,7 @@ const processImages = async (document, _config, processAndWrapImage) => {
 
   await Promise.all(
     Array.from(images).map((img) =>
-      processImageElement(
-        /** @type {*} */ (img),
-        document,
-        processAndWrapImage,
-      ),
+      processImageElement(img, document, processAndWrapImage),
     ),
   );
 

@@ -50,13 +50,11 @@ const fieldIndexers = {
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {ReviewCollectionItem[]}
  */
-const createReviewsCollection = (collectionApi) => {
-  /** @type {ReviewCollectionItem[]} */
-  const reviews = collectionApi.getFilteredByTag("reviews");
-  return reviews
+const createReviewsCollection = (collectionApi) =>
+  collectionApi
+    .getFilteredByTag("reviews")
     .filter((review) => review.data.hidden !== true)
     .sort(sortByDateDescending);
-};
 
 /**
  * Check if a value is a valid rating number.
@@ -103,7 +101,7 @@ const countReviews = (reviews, slug, field) =>
 const getRating = (reviews, slug, field) => {
   const matchingReviews = getReviewsFor(reviews, slug, field);
   const ratings = pipe(
-    map((/** @type {ReviewCollectionItem} */ r) => r.data.rating),
+    map((r) => r.data.rating),
     filter(isValidRating),
   )(matchingReviews);
 
@@ -198,7 +196,6 @@ const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
  */
 const reviewsFactory =
   (reviewsField, limitOverride, onNoLimit, onLimit) => (collectionApi) => {
-    /** @type {EleventyCollectionItem[]} */
     const items = collectionApi.getFilteredByTag(reviewsField);
     const visibleReviews = createReviewsCollection(collectionApi);
     // config().reviews_truncate_limit is guaranteed by DEFAULTS (always number)
@@ -209,7 +206,7 @@ const reviewsFactory =
 
     if (limit === -1) return onNoLimit(items);
 
-    const hasEnoughReviews = (/** @type {EleventyCollectionItem} */ item) =>
+    const hasEnoughReviews = (item) =>
       countReviews(visibleReviews, item.fileSlug, reviewsField) > limit;
 
     return onLimit(items, hasEnoughReviews);

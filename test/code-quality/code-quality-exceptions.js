@@ -145,15 +145,19 @@ const ALLOWED_LET = frozenSet([
 const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "ecommerce-backend/server.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
+  "src/_lib/collections/categories.js", // Helpers for category property map building
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
+  "src/_lib/media/image-external.js", // Typed wrapper function for createElement
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
+  "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
   "src/_lib/filters/item-filters.js",
+  "src/_lib/transforms/external-links.js", // Typed tuple helper for type safety
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
@@ -225,63 +229,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 ]);
 
 // ============================================
-// Inline type annotation exceptions
-// ============================================
-
-// Files with inline /** @type {X} */ annotations inside function bodies.
-// These should be refactored to use:
-//   - Type definitions in a .d.ts or types file
-//   - @param/@returns in function JSDoc signatures
-//   - Module-level type annotations
-const ALLOWED_INLINE_TYPE_ANNOTATIONS = frozenSet([
-  // Collections - Eleventy collectionApi returns unknown, needs casting
-  "src/_lib/collections/news.js:21",
-  "src/_lib/collections/products.js:64",
-  "src/_lib/collections/products.js:111",
-  "src/_lib/collections/products.js:117",
-  "src/_lib/collections/products.js:118",
-  "src/_lib/collections/products.js:119",
-  "src/_lib/collections/products.js:135",
-  "src/_lib/collections/products.js:138",
-  "src/_lib/collections/properties.js:41",
-  "src/_lib/collections/properties.js:42",
-  "src/_lib/collections/reviews.js:54",
-  "src/_lib/collections/reviews.js:106",
-  "src/_lib/collections/reviews.js:201",
-  "src/_lib/collections/reviews.js:212",
-
-  // Eleventy plugins - casting for bundle/style data
-  "src/_lib/eleventy/style-bundle.js:53",
-  "src/_lib/eleventy/style-bundle.js:54",
-  "src/_lib/eleventy/style-bundle.js:58",
-  "src/_lib/eleventy/style-bundle.js:66",
-
-  // Media - external image handling
-  "src/_lib/media/image-external.js:23",
-
-  // Transforms - DOM manipulation and text processing
-  "src/_lib/transforms/external-links.js:27",
-  "src/_lib/transforms/images.js:95",
-  "src/_lib/transforms/linkify.js:80",
-  "src/_lib/transforms/linkify.js:124",
-  "src/_lib/transforms/linkify.js:128",
-
-  // Utilities - DOM building and schema helpers
-  "src/_lib/utils/dom-builder.js:110",
-  "src/_lib/utils/dom-builder.js:111",
-  "src/_lib/utils/dom-builder.js:115",
-  "src/_lib/utils/schema-helper.js:167",
-
-  // FP toolkit - type casts for generic utilities
-  "packages/js-toolkit/fp/object.js:178",
-  "packages/js-toolkit/fp/set.js:31",
-  "packages/js-toolkit/fp/set.js:47",
-  "packages/js-toolkit/fp/set.js:74",
-  "packages/js-toolkit/fp/sorting.js:45",
-  "packages/js-toolkit/fp/sorting.js:46",
-]);
-
-// ============================================
 // DOM class constructor exceptions
 // ============================================
 
@@ -309,7 +256,6 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
-  ALLOWED_INLINE_TYPE_ANNOTATIONS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
 };
