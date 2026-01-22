@@ -189,4 +189,44 @@
       }
     }
   }
+
+  .sort-dropdown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+
+    @include breakpoints.up("sm") {
+      display: block;
+    }
+
+    span {
+      font-weight: bold;
+
+      @include breakpoints.up("sm") {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    select {
+      margin: 0;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      width: auto;
+
+      @include breakpoints.up("sm") {
+        width: 100%;
+      }
+    }
+  }
+
+  noscript {
+    p {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
 }

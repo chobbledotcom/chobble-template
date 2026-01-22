@@ -1,0 +1,16 @@
+{%- comment -%}
+Shared filter options list - used by item-filter.html
+Parameters:
+  - options: Array of { value, url, active } objects
+{%- endcomment -%}
+<ul>
+  {%- for option in options -%}
+  <li{% if option.active %} class="active"{% endif %}>
+    {%- if option.active -%}
+    <span>{{ option.value }}</span>
+    {%- else -%}
+    <a href="{{ option.url }}">{{ option.value }}</a>
+    {%- endif -%}
+  </li>
+  {%- endfor -%}
+</ul>

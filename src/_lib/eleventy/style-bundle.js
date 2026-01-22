@@ -94,6 +94,26 @@ const parsePositionalArgs = (
 });
 
 /**
+ * Build classes array from layout and config.
+ * @param {string | null} layout
+ * @param {BodyClassesConfig} config
+ * @returns {(string | null)[]}
+ */
+const buildBodyClasses = (layout, config) => {
+  const showDesignSystem =
+    config.forceDesignSystem ||
+    usesDesignSystem(layout, config.designSystemLayouts);
+
+  return [
+    layout ? layout.replace(".html", "") : null,
+    showDesignSystem ? "design-system" : null,
+    config.stickyMobileNav ? "sticky-mobile-nav" : null,
+    config.horizontalNav ? "horizontal-nav" : "left-nav",
+    config.hasRightContent ? "two-columns" : "one-column",
+  ];
+};
+
+/**
  * Generates body CSS classes based on layout and config.
  * This function unifies body class generation for all layouts.
  *
@@ -131,19 +151,7 @@ const getBodyClasses = (
         hasRightContentArg,
       );
 
-  const showDesignSystem =
-    config.forceDesignSystem ||
-    usesDesignSystem(layout, config.designSystemLayouts);
-
-  const classes = [
-    layout ? layout.replace(".html", "") : null,
-    showDesignSystem ? "design-system" : null,
-    config.stickyMobileNav ? "sticky-mobile-nav" : null,
-    config.horizontalNav ? "horizontal-nav" : "left-nav",
-    config.hasRightContent ? "two-columns" : "one-column",
-  ];
-
-  return classes.filter(Boolean).join(" ");
+  return buildBodyClasses(layout, config).filter(Boolean).join(" ");
 };
 
 export const configureStyleBundle = (eleventyConfig) => {

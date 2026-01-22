@@ -45,6 +45,7 @@ export type SiteConfig = {
   // Guaranteed by DEFAULTS (never null after config loading)
   sticky_mobile_nav: boolean;
   horizontal_nav: boolean;
+  collapse_mobile_menu: boolean;
   homepage_news: boolean;
   homepage_products: boolean;
   externalLinksTargetBlank: boolean;

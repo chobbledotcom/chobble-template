@@ -3,6 +3,7 @@ import { frozenObject, pickTruthy } from "#toolkit/fp/object.js";
 const DEFAULTS = frozenObject({
   sticky_mobile_nav: true,
   horizontal_nav: true,
+  collapse_mobile_menu: false,
   homepage_news: true,
   homepage_products: true,
   show_breadcrumbs: false,

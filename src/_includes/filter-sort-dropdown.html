@@ -1,0 +1,18 @@
+{%- comment -%}
+Sort dropdown with noscript fallback
+Parameters:
+  - group: Sort group with { label, options }
+{%- endcomment -%}
+<label class="sort-dropdown">
+  <span>{{ group.label }}</span>
+  <select class="sort-select">
+    {%- for option in group.options -%}
+    <option value="{{ option.url }}"{% if option.active %} selected{% endif %}>{{ option.value }}</option>
+    {%- endfor -%}
+  </select>
+</label>
+<noscript>
+  <p>JavaScript is required for the sort dropdown.</p>
+  {%- assign options = group.options -%}
+  {%- include "filter-options-list.html" -%}
+</noscript>

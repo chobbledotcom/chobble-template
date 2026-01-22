@@ -27,9 +27,9 @@ export default {
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {string} Meta title
+   * @returns {string|undefined} Meta title (explicit only, no fallback to avoid cycle with title)
    */
-  meta_title: (data) => data.meta_title || data.title,
+  meta_title: (data) => data.meta_title,
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
