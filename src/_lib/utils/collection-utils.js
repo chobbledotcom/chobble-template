@@ -29,6 +29,22 @@ export const getCategoriesFromApi = (collectionApi) =>
   collectionApi.getFilteredByTag("categories");
 
 /**
+ * Get events from collection API (typed wrapper).
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").EventCollectionItem[]}
+ */
+export const getEventsFromApi = (collectionApi) =>
+  collectionApi.getFilteredByTag("events");
+
+/**
+ * Get locations from collection API (typed wrapper).
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {import("#lib/types").LocationCollectionItem[]}
+ */
+export const getLocationsFromApi = (collectionApi) =>
+  collectionApi.getFilteredByTag("locations");
+
+/**
  * Get featured items from a collection.
  * Works with any collection where items have data.featured property.
  *

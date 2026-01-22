@@ -13,9 +13,24 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { exclude, filter, map, pipe, sortBy } from "#toolkit/fp/array.js";
+import {
+  exclude,
+  filter,
+  join,
+  map,
+  pipe,
+  sortBy,
+  split,
+} from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
-import { slugToTitle } from "#utils/slug-utils.js";
+
+/** Convert a theme slug to a display name */
+const themeDisplayName = (slug) =>
+  pipe(
+    split("-"),
+    map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
+    join(" "),
+  )(slug);
 
 const THEMES_DIR = path.resolve("src/css");
 const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
@@ -47,7 +62,8 @@ const generateThemeSwitcherContent = memoize(() => {
 
   const themeList = ["default", ...themes.map((t) => t.name)];
   const displayNames = themes.map(
-    (theme) => `  --theme-${theme.name}-name: "${slugToTitle(theme.name)}";`,
+    (theme) =>
+      `  --theme-${theme.name}-name: "${themeDisplayName(theme.name)}";`,
   );
 
   const metadata = `// Theme metadata for JavaScript access

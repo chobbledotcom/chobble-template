@@ -146,6 +146,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "ecommerce-backend/server.js",
   "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
   "src/_lib/collections/categories.js", // Helpers for category property map building
+  "src/_lib/collections/events.js", // Thumbnail resolution from products
+  "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
@@ -161,6 +163,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
+  "src/_lib/build/theme-compiler.js", // Theme display name helper
+  "src/locations/locations.11tydata.js", // Parent location title lookup helper
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -226,6 +230,27 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
+]);
+
+// ============================================
+// Data fallback exceptions
+// ============================================
+
+const ALLOWED_DATA_FALLBACKS = frozenSet([
+  "src/_lib/collections/categories.js:63",
+  "src/_lib/collections/events.js:34",
+  "src/_lib/collections/products.js:93",
+  "src/_lib/collections/search.js:26",
+  "src/_lib/eleventy/ical.js:42",
+  "src/_lib/eleventy/ical.js:43",
+  "src/_lib/eleventy/pdf.js:39",
+  "src/_lib/eleventy/pdf.js:74",
+  "src/_lib/filters/filter-core.js:191",
+  "src/_lib/filters/filter-core.js:202",
+  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/utils/schema-helper.js:147",
+  "src/_lib/utils/schema-helper.js:152",
+  "src/_lib/utils/sorting.js:41",
 ]);
 
 // ============================================
@@ -296,6 +321,7 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
+  ALLOWED_DATA_FALLBACKS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
   ALLOWED_NULLISH_COALESCING,

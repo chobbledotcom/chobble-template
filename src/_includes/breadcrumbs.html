@@ -1,4 +1,4 @@
-{%- assign crumbs = page | breadcrumbsFilter: title, navigationParent, parentLocation, parent, collections.categories -%}
+{%- assign crumbs = page | breadcrumbsFilter: title, navigationParent, parentLocation, parent, collections.categories, collections.locations -%}
 {%- if crumbs.size > 0 -%}
 <div class="design-system">
   <ol class="breadcrumbs" aria-label="Breadcrumb">

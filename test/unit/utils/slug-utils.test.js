@@ -3,7 +3,6 @@ import {
   buildPdfFilename,
   buildPermalink,
   normaliseSlug,
-  slugToTitle,
 } from "#utils/slug-utils.js";
 
 describe("normaliseSlug", () => {
@@ -88,19 +87,5 @@ describe("buildPdfFilename", () => {
   test("handles business name with apostrophes", () => {
     const result = buildPdfFilename("Joe's Diner", "breakfast");
     expect(result).toBe("joes-diner-breakfast.pdf");
-  });
-});
-
-describe("slugToTitle", () => {
-  test("converts hyphenated name to title case", () => {
-    expect(slugToTitle("90s-computer")).toBe("90s Computer");
-  });
-
-  test("capitalizes single word", () => {
-    expect(slugToTitle("ocean")).toBe("Ocean");
-  });
-
-  test("handles multiple hyphenated words", () => {
-    expect(slugToTitle("old-mac")).toBe("Old Mac");
   });
 });

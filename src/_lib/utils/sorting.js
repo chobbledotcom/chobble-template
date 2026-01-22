@@ -34,13 +34,12 @@ import { orderThenString } from "#toolkit/fp/sorting.js";
  */
 
 /**
- * Comparator for sorting collection items by order then by title/name.
- * All Eleventy collection items always have a data property.
+ * Comparator for sorting collection items by order then by title.
  * @type {(a: CollectionItem, b: CollectionItem) => number}
  */
 const sortItems = orderThenString(
   (item) => item.data.order ?? 0,
-  (item) => item.data.title || item.data.name || "",
+  (item) => item.data.title,
 );
 
 /**
@@ -61,13 +60,12 @@ const sortByDateDescending = (a, b) => {
 
 /**
  * Comparator for sorting navigation items by order then by key.
- * Assumes items have item.data.eleventyNavigation with order property,
- * and fallback to item.data.title for the secondary sort.
+ * Falls back to title when eleventyNavigation.key is not set.
  * @type {(a: CollectionItem, b: CollectionItem) => number}
  */
 const sortNavigationItems = orderThenString(
   (item) => item.data.eleventyNavigation.order ?? 999,
-  (item) => item.data.eleventyNavigation.key || item.data.title || "",
+  (item) => item.data.eleventyNavigation.key || item.data.title,
 );
 
 export { sortByDateDescending, sortItems, sortNavigationItems };

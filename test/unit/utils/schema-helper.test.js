@@ -44,25 +44,6 @@ describe("buildBaseMeta", () => {
     expect(result.url.includes("/test-page/")).toBe(true);
   });
 
-  test("uses meta_title when title is not provided", () => {
-    const data = createSchemaData({
-      title: undefined,
-      meta_title: "Meta Title",
-    });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.title).toBe("Meta Title");
-  });
-
-  test("falls back to Untitled when no title or meta_title", () => {
-    const data = createSchemaData({ title: undefined });
-
-    const result = buildBaseMeta(data);
-
-    expect(result.title).toBe("Untitled");
-  });
-
   test("uses subtitle as description when meta_description is not provided", () => {
     const data = createSchemaData({ subtitle: "A subtitle" });
 

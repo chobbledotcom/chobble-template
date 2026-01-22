@@ -60,7 +60,7 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -147,7 +147,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: thumbnail, type: image, label: Thumbnail }
       - name: parent
         label: Parent Category
@@ -186,7 +186,7 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: date, label: Date, type: date }
       - name: author
         label: Author
@@ -236,7 +236,7 @@ content:
       sort:
         - title
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -277,7 +277,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: snippet, type: string, label: Role }
       - { name: image, type: image, label: Profile Image }
@@ -340,7 +340,7 @@ content:
       sort:
         - title
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -390,7 +390,7 @@ content:
       sort:
         - title
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -451,7 +451,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: order, type: number, label: Order }
       - { name: icon, type: image, label: Icon }
@@ -472,7 +472,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - name: guide-category
         label: Guide Category
@@ -505,7 +505,7 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: title, type: string, label: Title }
+      - { name: title, type: string, label: Title, required: true }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
