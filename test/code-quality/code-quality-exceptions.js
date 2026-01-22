@@ -231,6 +231,27 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 ]);
 
 // ============================================
+// Data fallback exceptions
+// ============================================
+
+const ALLOWED_DATA_FALLBACKS = frozenSet([
+  "src/_lib/collections/categories.js:63",
+  "src/_lib/collections/events.js:34",
+  "src/_lib/collections/products.js:93",
+  "src/_lib/collections/search.js:26",
+  "src/_lib/eleventy/ical.js:42",
+  "src/_lib/eleventy/ical.js:43",
+  "src/_lib/eleventy/pdf.js:39",
+  "src/_lib/eleventy/pdf.js:74",
+  "src/_lib/filters/filter-core.js:191",
+  "src/_lib/filters/filter-core.js:202",
+  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/utils/schema-helper.js:147",
+  "src/_lib/utils/schema-helper.js:152",
+  "src/_lib/utils/sorting.js:41",
+]);
+
+// ============================================
 // DOM class constructor exceptions
 // ============================================
 
@@ -258,6 +279,7 @@ export {
   ALLOWED_MUTABLE_CONST,
   ALLOWED_LET,
   ALLOWED_SINGLE_USE_FUNCTIONS,
+  ALLOWED_DATA_FALLBACKS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
 };

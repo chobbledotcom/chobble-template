@@ -136,7 +136,7 @@ const extractSkuEntries = (product) => {
   if (!product.data.options) return [];
   return filterMap(
     hasSku,
-    toSkuEntry(product.data.title ?? ""),
+    toSkuEntry(product.data.title),
   )(product.data.options);
 };
 

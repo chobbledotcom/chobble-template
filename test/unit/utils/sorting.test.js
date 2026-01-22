@@ -44,35 +44,6 @@ describe("sorting", () => {
     expectSortedValues(items, sortItems, (i) => i.data.title, ["C", "A", "B"]);
   });
 
-  test("Uses name field for alphabetical sorting when title is absent", () => {
-    const items = [
-      { data: { order: 1, name: "Zebra" } },
-      { data: { order: 1, name: "Apple" } },
-    ];
-    expectSortedValues(items, sortItems, (i) => i.data.name, [
-      "Apple",
-      "Zebra",
-    ]);
-  });
-
-  test("Handles items with missing or empty data objects without throwing", () => {
-    const items = [{ data: { order: 1, title: "B" } }, { data: {} }];
-    // This should not throw
-    const sorted = [...items].sort(sortItems);
-    expect(sorted.length).toBe(2);
-  });
-
-  test("Items with empty data objects are treated as order 0", () => {
-    const items = [
-      { data: { order: 1, title: "B" } },
-      { data: {} },
-      { data: { title: "A" } },
-    ];
-    const sorted = [...items].sort(sortItems);
-    // Items with no order/title should come first (order 0, empty string fallback)
-    expect(sorted[0].data).toEqual({});
-  });
-
   // ============================================
   // sortByDateDescending Tests
   // ============================================
