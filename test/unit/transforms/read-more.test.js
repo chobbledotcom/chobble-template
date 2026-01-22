@@ -93,17 +93,17 @@ describe("read-more transform", () => {
   });
 
   describe("processReadMore", () => {
-    test("creates checkbox and label for read-more marker", async () => {
+    test("creates checkbox and label inside paragraph", async () => {
       const html =
         "<html><body><p>Intro text [Read more..] Hidden content</p></body></html>";
       const result = await transformHtml(html);
 
+      expect(result).toContain("<p>Intro text ");
       expect(result).toContain('<input type="checkbox"');
       expect(result).toContain('class="read-more-toggle"');
-      expect(result).toContain('id="read-more-1"');
       expect(result).toContain("<label");
-      expect(result).toContain('for="read-more-1"');
       expect(result).toContain('class="read-more-label"');
+      expect(result).toMatch(/<p>.*<input.*<label.*<\/p>/s);
     });
 
     test("adds accessibility attributes to toggle", async () => {
@@ -115,14 +115,14 @@ describe("read-more transform", () => {
       expect(result).toContain('tabindex="0"');
     });
 
-    test("creates inline wrapper for rest of line content", async () => {
+    test("puts rest of line in span inside paragraph", async () => {
       const html =
-        "<html><body><p>Intro [Read more..] Hidden</p></body></html>";
+        "<html><body><p>Intro [Read more..] Hidden text</p></body></html>";
       const result = await transformHtml(html);
 
-      expect(result).toContain("read-more-content");
-      expect(result).toContain("read-more-inline");
-      expect(result).toContain("<span");
+      expect(result).toMatch(
+        /<p>.*<span class="read-more-content">\s*Hidden text<\/span><\/p>/s,
+      );
     });
 
     test("preserves text before marker in paragraph", async () => {
@@ -130,17 +130,7 @@ describe("read-more transform", () => {
         "<html><body><p>This is intro text [Read more..] Hidden content</p></body></html>";
       const result = await transformHtml(html);
 
-      expect(result).toContain("<p>This is intro text </p>");
-    });
-
-    test("puts inline text after marker in span wrapper", async () => {
-      const html =
-        "<html><body><p>Intro [Read more..] This should be hidden</p></body></html>";
-      const result = await transformHtml(html);
-
-      expect(result).toMatch(
-        /<span class="read-more-content read-more-inline">\s*This should be hidden<\/span>/,
-      );
+      expect(result).toContain("<p>This is intro text ");
     });
 
     test("moves following paragraphs into block wrapper", async () => {
@@ -150,7 +140,7 @@ describe("read-more transform", () => {
 
       expect(result).toContain('<div class="read-more-content">');
       expect(result).toMatch(
-        /<div class="read-more-content">.*Following paragraph.*Another paragraph.*<\/div>/s,
+        /<\/p><div class="read-more-content">.*Following paragraph.*Another paragraph.*<\/div>/s,
       );
     });
 
@@ -159,13 +149,11 @@ describe("read-more transform", () => {
         "<html><body><p>Intro [Read more..] Rest of line.</p><p>Second paragraph.</p></body></html>";
       const result = await transformHtml(html);
 
-      expect(result).toContain(
-        '<span class="read-more-content read-more-inline">',
-      );
-      expect(result).toContain('<div class="read-more-content">');
-      expect(result).toMatch(/read-more-inline.*Rest of line/s);
       expect(result).toMatch(
-        /<div class="read-more-content">.*Second paragraph/s,
+        /<span class="read-more-content">\s*Rest of line\.<\/span><\/p>/,
+      );
+      expect(result).toMatch(
+        /<\/p><div class="read-more-content">.*Second paragraph/s,
       );
     });
 
@@ -215,7 +203,7 @@ describe("read-more transform", () => {
       const result = await transformHtml(html);
 
       expect(result).toContain('class="read-more-toggle"');
-      expect(result).toContain("read-more-content");
+      expect(result).toContain('class="read-more-content"');
     });
 
     test("marker text is removed from output", async () => {
@@ -228,23 +216,13 @@ describe("read-more transform", () => {
       expect(result).not.toContain("more..]");
     });
 
-    test("checkbox and label are placed outside paragraph", async () => {
+    test("no block wrapper when no following siblings", async () => {
       const html =
-        "<html><body><p>Intro [Read more..] Hidden</p></body></html>";
+        "<html><body><p>Intro [Read more..] Hidden only</p></body></html>";
       const result = await transformHtml(html);
 
-      expect(result).toMatch(/<\/p><input/);
-      expect(result).toMatch(/<label[^>]*>Read more/);
-    });
-
-    test("elements are siblings for CSS sibling selectors to work", async () => {
-      const html =
-        "<html><body><p>Intro [Read more..] Hidden</p><p>More</p></body></html>";
-      const result = await transformHtml(html);
-
-      expect(result).toMatch(
-        /<\/p><input[^>]*><label[^>]*>[^<]*<\/label><span[^>]*>[^<]*<\/span><div/,
-      );
+      expect(result).not.toContain('<div class="read-more-content">');
+      expect(result).toContain('<span class="read-more-content">');
     });
   });
 });

@@ -1,11 +1,11 @@
 /**
  * DOM transform for expanding "Read more.." sections.
  *
- * Scans content for [Read more..] markers and converts them into
- * CSS-only expandable sections using the checkbox hack pattern.
+ * Scans content for [Read more..] markers inside paragraphs and converts
+ * them into CSS-only expandable sections using the checkbox hack pattern.
  *
- * Works inline: text before marker stays visible, text after (including
- * rest of line AND following paragraphs) gets hidden until clicked.
+ * Works inline: text before marker stays visible, text after (rest of line
+ * AND following paragraphs) gets hidden until clicked.
  */
 
 const READ_MORE_PATTERN = /\[Read more\.{1,3}\]/i;
@@ -30,7 +30,6 @@ const splitAtMarker = (text) => {
   };
 };
 
-/** @param {Document} document */
 const createToggleElements = (document, id, labelText) => {
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
@@ -48,7 +47,6 @@ const createToggleElements = (document, id, labelText) => {
   return { checkbox, label };
 };
 
-/** @param {Document} document */
 const findMarkerNode = (document) => {
   const walker = document.createTreeWalker(document.body, 4, {
     acceptNode: (n) => (READ_MORE_PATTERN.test(n.textContent) ? 1 : 2),
@@ -62,53 +60,23 @@ const collectSiblings = (node) => {
   return walk(node.nextSibling, []);
 };
 
-/** @param {Document} document */
-const createContentWrapper = (document) => {
+const createInlineSpan = (document, text) => {
+  const span = document.createElement("span");
+  span.className = "read-more-content";
+  span.textContent = text;
+  return span;
+};
+
+const createBlockWrapper = (document) => {
   const wrapper = document.createElement("div");
   wrapper.className = "read-more-content";
   return wrapper;
-};
-
-/** @param {Document} document */
-const createInlineWrapper = (document) => {
-  const wrapper = document.createElement("span");
-  wrapper.className = "read-more-content read-more-inline";
-  return wrapper;
-};
-
-const insertAfterElement = (element, ...toInsert) => {
-  toInsert.reduce((prev, el) => {
-    prev.parentNode?.insertBefore(el, prev.nextSibling);
-    return el;
-  }, element);
-};
-
-const addInlineContent = (document, label, afterText) => {
-  if (!afterText.trim()) return false;
-  const inlineWrapper = createInlineWrapper(document);
-  inlineWrapper.textContent = afterText;
-  label.parentNode?.insertBefore(inlineWrapper, label.nextSibling);
-  return true;
-};
-
-const addBlockContent = (grandparent, label, siblings, hasInline) => {
-  if (siblings.length === 0) return;
-  const blockWrapper = grandparent.ownerDocument.createElement("div");
-  blockWrapper.className = "read-more-content";
-  const insertAfter = hasInline
-    ? label.nextSibling?.nextSibling
-    : label.nextSibling;
-  grandparent.insertBefore(blockWrapper, insertAfter);
-  for (const sib of siblings) {
-    blockWrapper.appendChild(sib);
-  }
 };
 
 const transformMarker = (document, textNode) => {
   const split = splitAtMarker(textNode.textContent);
   if (!split || !textNode.parentElement?.parentElement) return false;
 
-  const followingSiblings = collectSiblings(textNode.parentElement);
   const { checkbox, label } = createToggleElements(
     document,
     nextId(),
@@ -116,20 +84,31 @@ const transformMarker = (document, textNode) => {
   );
 
   textNode.textContent = split.before;
-  insertAfterElement(textNode.parentElement, checkbox, label);
+  textNode.parentNode?.insertBefore(checkbox, textNode.nextSibling);
+  textNode.parentNode?.insertBefore(label, checkbox.nextSibling);
 
-  const hasInline = addInlineContent(document, label, split.after);
-  addBlockContent(
-    textNode.parentElement.parentElement,
-    label,
-    followingSiblings,
-    hasInline,
-  );
+  if (split.after.trim()) {
+    textNode.parentNode?.insertBefore(
+      createInlineSpan(document, split.after),
+      label.nextSibling,
+    );
+  }
+
+  const followingSiblings = collectSiblings(textNode.parentElement);
+  if (followingSiblings.length > 0) {
+    const blockWrapper = createBlockWrapper(document);
+    textNode.parentElement.parentNode?.insertBefore(
+      blockWrapper,
+      textNode.parentElement.nextSibling,
+    );
+    for (const sib of followingSiblings) {
+      blockWrapper.appendChild(sib);
+    }
+  }
 
   return true;
 };
 
-/** @param {Document} document */
 const processReadMore = (document) => {
   resetIdCounter();
 
@@ -153,10 +132,7 @@ export {
   nextId,
   findMarkerNode,
   collectSiblings,
-  createContentWrapper,
-  createInlineWrapper,
-  insertAfterElement,
-  addInlineContent,
-  addBlockContent,
+  createInlineSpan,
+  createBlockWrapper,
   transformMarker,
 };
