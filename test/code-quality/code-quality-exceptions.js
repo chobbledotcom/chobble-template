@@ -335,21 +335,16 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/eleventy/pdf.js:31", // menuCategories || [] - menu may have no categories
   "src/_lib/eleventy/pdf.js:39", // description || "" - optional item description
   "src/_lib/eleventy/pdf.js:74", // subtitle || "" - optional menu subtitle
-  "src/_lib/eleventy/style-bundle.js:60", // designSystemLayouts || [] - optional config
-  "src/_lib/eleventy/style-bundle.js:83", // layouts || [] - optional param default
 
   // src/_lib/filters - cascading field access for display
-  "src/_lib/filters/filter-core.js:191", // title || name || "" - display fallback chain
-  "src/_lib/filters/filter-ui.js:72", // currentFilters || {} - URL param parsing boundary
+  "src/_lib/filters/filter-core.js:191", // title || name || "" - items have title OR name
+  "src/_lib/filters/filter-ui.js:69", // currentFilters || {} - callers pass null explicitly
 
-  // src/_lib/media - image processing with optional metadata
-  "src/_lib/media/image-placeholder.js:23", // alt || "" - alt text is optional for decorative images
-  "src/_lib/media/image-utils.js:65", // alt || "" - alt text is optional for decorative images
+  // src/_lib/media - image processing
   "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation
   "src/_lib/media/unused-images.js:35", // .match() || [] - regex returns null on no match
 
-  // src/_lib/utils - DOM and serialization utilities
-  "src/_lib/utils/dom-builder.js:99", // children || "" - empty element content is valid
+  // src/_lib/utils - serialization utilities
   "src/_lib/utils/product-cart-data.js:109", // max_quantity || null - explicit null in JSON
   "src/_lib/utils/product-cart-data.js:110", // sku || null - explicit null in JSON
   "src/_lib/utils/product-cart-data.js:111", // days || null - explicit null in JSON

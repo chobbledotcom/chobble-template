@@ -65,11 +65,13 @@ export const buildFilterUIData = (
   baseUrl,
   currentSortKey = "default",
 ) => {
+  // Normalize null/undefined to empty object at function entry
+  const filters = currentFilters || {};
+
   if (Object.keys(filterData.attributes).length === 0) {
     return { hasFilters: false };
   }
 
-  const filters = currentFilters || {};
   const hasActiveFilters = Object.keys(filters).length > 0;
 
   // Use lookup object for O(1) path lookups instead of O(n) array includes

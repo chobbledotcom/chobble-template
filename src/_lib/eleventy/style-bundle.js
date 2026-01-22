@@ -56,12 +56,18 @@ const isOptionsObject = (value) =>
  * @param {BodyClassesOptions} opts
  * @returns {BodyClassesConfig}
  */
-const parseOptionsObject = (opts) => ({
-  designSystemLayouts: opts.designSystemLayouts || [],
-  forceDesignSystem: Boolean(opts.forceDesignSystem),
-  stickyMobileNav: Boolean(opts.stickyMobileNav),
-  horizontalNav: opts.horizontalNav !== false,
-  hasRightContent: Boolean(opts.hasRightContent),
+const parseOptionsObject = ({
+  designSystemLayouts = [],
+  forceDesignSystem,
+  stickyMobileNav,
+  horizontalNav,
+  hasRightContent,
+}) => ({
+  designSystemLayouts,
+  forceDesignSystem: Boolean(forceDesignSystem),
+  stickyMobileNav: Boolean(stickyMobileNav),
+  horizontalNav: horizontalNav !== false,
+  hasRightContent: Boolean(hasRightContent),
 });
 
 /**
@@ -74,13 +80,13 @@ const parseOptionsObject = (opts) => ({
  * @returns {BodyClassesConfig}
  */
 const parsePositionalArgs = (
-  layouts,
+  layouts = [],
   forceDesignSystem,
   stickyMobileNav,
   horizontalNav,
   hasRightContent,
 ) => ({
-  designSystemLayouts: layouts || [],
+  designSystemLayouts: layouts,
   forceDesignSystem,
   stickyMobileNav,
   horizontalNav,
