@@ -19,13 +19,14 @@ import {
   linkifyPhones,
   SKIP_TAGS,
 } from "#transforms/linkify.js";
+import { hasReadMoreMarker, processReadMore } from "#transforms/read-more.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 const getConfig = memoize(configModule);
 
 /**
- * Check if content requires DOM parsing (has tables, images, or phone patterns)
+ * Check if content requires DOM parsing (has tables, images, phone patterns, or read-more markers)
  * @param {string} content
  * @param {number} phoneLen
  * @returns {boolean}
@@ -33,10 +34,11 @@ const getConfig = memoize(configModule);
 const needsDomParsing = (content, phoneLen) =>
   hasPhonePattern(content, phoneLen) ||
   content.includes("<table") ||
-  content.includes('src="/images/');
+  content.includes('src="/images/') ||
+  hasReadMoreMarker(content);
 
 /**
- * Apply DOM-based transforms (phone links, table wrappers, image processing)
+ * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
  * @param {string} html
  * @param {object} config
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
@@ -47,6 +49,7 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
   const { document } = dom.window;
   linkifyPhones(document, config);
   wrapTables(document, config);
+  processReadMore(document);
   await processImages(document, config, processAndWrapImage);
   return dom.serialize();
 };

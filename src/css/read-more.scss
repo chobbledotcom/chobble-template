@@ -1,0 +1,70 @@
+/**
+ * Read More - CSS-only expandable content sections
+ *
+ * Uses the checkbox hack pattern for pure CSS toggling:
+ * - Hidden checkbox controls the state
+ * - Label acts as the clickable trigger
+ * - Sibling selector shows/hides content
+ * - Label disappears when expanded (one-way toggle)
+ */
+
+// Hide the checkbox visually but keep it functional for accessibility
+.read-more-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+// Style the label as an interactive link/button
+.read-more-label {
+  display: inline-block;
+  color: var(--color-link);
+  cursor: pointer;
+  text-decoration: var(--link-decoration);
+  text-decoration-style: var(--link-decoration-style);
+  font-weight: bold;
+  margin: 0.5rem 0;
+
+  &:hover,
+  &:focus {
+    color: var(--color-link-hover);
+    text-decoration: var(--link-decoration-hover);
+  }
+
+  // Focus styles for keyboard navigation
+  &:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-small);
+  }
+}
+
+// Hidden content - starts hidden, no CLS on page load
+.read-more-content {
+  display: none;
+}
+
+// When checkbox is checked:
+// 1. Show the hidden content
+// 2. Hide the label so it can't be toggled back
+.read-more-toggle:checked {
+  // Show content when checked
+  & ~ .read-more-content {
+    display: block;
+  }
+
+  // Hide the label when content is expanded (one-way toggle)
+  & + .read-more-label {
+    display: none;
+  }
+}
+
+// Allow label to be activated with Enter key (accessibility)
+.read-more-label {
+  // JavaScript-free keyboard support via hidden checkbox
+  // The label's for attribute connects to the checkbox,
+  // so clicking or pressing Enter/Space activates the checkbox
+}
