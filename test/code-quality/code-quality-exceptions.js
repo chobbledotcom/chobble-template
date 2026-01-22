@@ -280,8 +280,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/filter-core.js:147",
   "src/_lib/filters/filter-core.js:202",
   "src/_lib/filters/filter-core.js:208",
-  "src/_lib/filters/spec-filters.js:34",
-  "src/_lib/filters/spec-filters.js:35",
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",

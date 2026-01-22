@@ -1,5 +1,12 @@
-import specsIcons from "#data/specs-icons.json" with { type: "json" };
+import specsIconsRaw from "#data/specs-icons.json" with { type: "json" };
 import { inlineAsset } from "#media/inline-asset.js";
+import { mapObject } from "#toolkit/fp/object.js";
+
+// Apply defaults at load time so we don't need ?? at point of use
+const specsIcons = mapObject((key, config) => [
+  key,
+  { highlight: false, list_items: false, ...config },
+])(specsIconsRaw);
 
 const specsIconsOrder = Object.keys(specsIcons);
 
@@ -27,12 +34,12 @@ const computeSpecs = (data) => {
   return data.specs.map((spec) => {
     // spec.name is guaranteed to be a non-empty string by PagesCMS schema
     const normalized = spec.name.toLowerCase().trim();
-    const config = normalized ? specsIcons[normalized] : undefined;
+    const config = specsIcons[normalized];
     return {
       ...spec,
       icon: config ? inlineAsset(`icons/${config.icon}`) : "",
-      highlight: config?.highlight ?? false,
-      list_items: config?.list_items ?? false,
+      highlight: config ? config.highlight : false,
+      list_items: config ? config.list_items : false,
     };
   });
 };
