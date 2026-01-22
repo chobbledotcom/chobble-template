@@ -170,6 +170,10 @@ nav {
 
 @include breakpoints.down("md") {
   // Collapsible mobile menu - hides submenus by default with toggle carets
+  body.mobile-collapse nav > ul {
+    padding-right: 3rem;
+  }
+
   body.mobile-collapse.sticky-mobile-nav {
     nav > ul li {
       // Only items with submenus get the toggle
@@ -179,10 +183,11 @@ nav {
         // Caret toggle button
         > .mobile-menu-toggle {
           position: absolute;
-          right: 0;
-          top: 0;
+          right: -2.5rem;
+          top: 1rem;
           width: 2.5rem;
-          height: 1.5rem;
+          height: 0;
+          margin: 0;
           background: transparent;
           border: none;
           cursor: pointer;
