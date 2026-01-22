@@ -30,8 +30,6 @@ const THIS_FILE = "test/unit/code-quality/or-fallbacks.test.js";
 const ALLOWED_DIRS = [
   "src/_lib/collections/", // Collection definitions - where defaults belong
   "src/_lib/public/", // Browser code - can't validate server data
-  "src/_lib/eleventy/", // Build-time generation
-  "src/_lib/media/", // Image processing utilities
   "src/_lib/build/", // Build utilities
   "src/_data/", // Computed data layer
   "packages/", // Shared utilities
@@ -43,15 +41,16 @@ const ALLOWED_FILE_PATTERNS = [
 ];
 
 // Patterns matching fallback defaults
-// Matches: || [], || {}, || "", || null
+// Matches: || [], || {}, || "", || null, || 0
 const OR_FALLBACK_PATTERNS = [
   /\|\|\s*\[\]/, // || []
   /\|\|\s*\{\}/, // || {}
   /\|\|\s*""/, // || ""
   /\|\|\s*null\b/, // || null (word boundary to avoid || nullable)
+  /\|\|\s*0\b/, // || 0 (word boundary to avoid || 0.5)
 ];
 
-const DETAILS_EXTRACTOR = /\|\|\s*(\[\]|\{\}|""|null\b)/;
+const DETAILS_EXTRACTOR = /\|\|\s*(\[\]|\{\}|""|null\b|0\b)/;
 
 const { find, analyze } = createCodeChecker({
   patterns: OR_FALLBACK_PATTERNS,
@@ -100,6 +99,13 @@ describe("or-fallbacks", () => {
       const results = find(source);
       expect(results.length).toBe(1);
       expect(results[0].fallback).toBe("null");
+    });
+
+    test("detects || 0 fallback", () => {
+      const source = "const count = getCount() || 0;";
+      const results = find(source);
+      expect(results.length).toBe(1);
+      expect(results[0].fallback).toBe("0");
     });
 
     test("ignores comments", () => {

@@ -317,19 +317,36 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 ]);
 
 // ============================================
-// OR fallback exceptions (|| [], || {}, || "", || null)
+// OR fallback exceptions (|| [], || {}, || "", || null, || 0)
 // ============================================
 
-// Files in src/_lib/filters/, src/_lib/utils/, src/_lib/config/ that use
-// || fallback patterns. Defaults should be set in collections/computed data,
-// not in downstream code. These are grandfathered usages.
+// Files that use || fallback patterns. Defaults should be set in collections
+// or computed data, not scattered throughout the codebase. These are
+// grandfathered usages that should be refactored over time.
 const ALLOWED_OR_FALLBACKS = frozenSet([
   // src/_lib/config - config boundary validation
   "src/_lib/config/helpers.js:43", // products || {} - defensive at config boundary
 
+  // src/_lib/eleventy - build-time generation with optional data
+  "src/_lib/eleventy/area-list.js:10", // eleventyNavigation?.key || "" - nav key display
+  "src/_lib/eleventy/ical.js:42", // subtitle || meta_description || "" - optional event description
+  "src/_lib/eleventy/ical.js:43", // event_location || "" - optional location field
+  "src/_lib/eleventy/pdf.js:26", // menuItems || [] - menu may have no items
+  "src/_lib/eleventy/pdf.js:31", // menuCategories || [] - menu may have no categories
+  "src/_lib/eleventy/pdf.js:39", // description || "" - optional item description
+  "src/_lib/eleventy/pdf.js:74", // subtitle || "" - optional menu subtitle
+  "src/_lib/eleventy/style-bundle.js:60", // designSystemLayouts || [] - optional config
+  "src/_lib/eleventy/style-bundle.js:83", // layouts || [] - optional param default
+
   // src/_lib/filters - cascading field access for display
   "src/_lib/filters/filter-core.js:191", // title || name || "" - display fallback chain
   "src/_lib/filters/filter-ui.js:72", // currentFilters || {} - URL param parsing boundary
+
+  // src/_lib/media - image processing with optional metadata
+  "src/_lib/media/image-placeholder.js:23", // alt || "" - alt text is optional for decorative images
+  "src/_lib/media/image-utils.js:65", // alt || "" - alt text is optional for decorative images
+  "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation
+  "src/_lib/media/unused-images.js:35", // .match() || [] - regex returns null on no match
 
   // src/_lib/utils - DOM and serialization utilities
   "src/_lib/utils/dom-builder.js:99", // children || "" - empty element content is valid
