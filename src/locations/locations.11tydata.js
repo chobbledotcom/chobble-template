@@ -4,12 +4,6 @@ import {
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
 
-/** Look up a location's title by its slug */
-const findLocationTitle = (locations, slug) => {
-  const location = locations?.find((loc) => loc.fileSlug === slug);
-  return location?.data?.title;
-};
-
 export default {
   eleventyComputed: {
     navigationParent: () => strings.location_name,
@@ -29,19 +23,20 @@ export default {
     },
     eleventyNavigation: (data) =>
       buildNavigation(data, (d) => {
+        // Use fileSlug as key for reliable parent-child matching
+        // (collections aren't available during data computation)
+        // Title is used for display, key is used for matching
         if (d.parentLocation) {
-          const parentTitle = findLocationTitle(
-            d.collections?.locations,
-            d.parentLocation,
-          );
           return withNavigationAnchor(d, {
-            key: d.title,
-            parent: parentTitle,
+            key: d.page.fileSlug,
+            title: d.title,
+            parent: d.parentLocation,
             order: d.link_order || 0,
           });
         }
         return withNavigationAnchor(d, {
-          key: d.title,
+          key: d.page.fileSlug,
+          title: d.title,
           parent: strings.location_name,
           order: d.link_order || 0,
         });
