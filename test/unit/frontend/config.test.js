@@ -13,6 +13,7 @@ describe("config", () => {
     const expectedKeys = [
       "sticky_mobile_nav",
       "horizontal_nav",
+      "collapse_mobile_menu",
       "homepage_news",
       "homepage_products",
       "show_breadcrumbs",
