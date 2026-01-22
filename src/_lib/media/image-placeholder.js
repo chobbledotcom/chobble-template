@@ -12,17 +12,17 @@ const PLACEHOLDER_PNG =
  * Returns a simple wrapper with a 1px transparent PNG.
  */
 const generatePlaceholderHtml = async ({
-  alt,
+  alt = "",
   classes,
-  sizes,
-  loading,
+  sizes = "auto",
+  loading = "lazy",
   aspectRatio,
 }) => {
   const imgHtml = await createHtml("img", {
     src: PLACEHOLDER_PNG,
-    alt: alt || "",
-    sizes: sizes || "auto",
-    loading: loading || "lazy",
+    alt,
+    sizes,
+    loading,
     decoding: "async",
   });
   const pictureHtml = await createHtml("picture", {}, imgHtml);
