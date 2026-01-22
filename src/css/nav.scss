@@ -168,8 +168,66 @@ nav {
   }
 }
 
+@include breakpoints.down("md") {
+  // Collapsible mobile menu - hides submenus by default with toggle carets
+  body.mobile-collapse.sticky-mobile-nav {
+    nav > ul li {
+      // Only items with submenus get the toggle
+      &:has(> ul) {
+        position: relative;
+
+        // Caret toggle button
+        > .mobile-menu-toggle {
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 2.5rem;
+          height: 1.5rem;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+
+          &::after {
+            content: "";
+            border: solid var(--color-link);
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 4px;
+            transform: rotate(45deg);
+            transition: transform 0.2s ease;
+          }
+        }
+
+        // Expanded state - rotate caret
+        &.expanded > .mobile-menu-toggle::after {
+          transform: rotate(-135deg);
+        }
+
+        // Hide submenus by default
+        > ul {
+          display: none;
+        }
+
+        // Show submenu when expanded or when it contains an active link
+        &.expanded > ul,
+        &:has(> ul a.active) > ul {
+          display: flex;
+        }
+      }
+    }
+  }
+}
+
 @include breakpoints.up("md") {
   .toggle-label {
+    display: none !important;
+  }
+  // Hide mobile menu toggle buttons on desktop
+  .mobile-menu-toggle {
     display: none !important;
   }
   body {
