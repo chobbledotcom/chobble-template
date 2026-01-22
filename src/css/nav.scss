@@ -170,12 +170,13 @@ nav {
 
 @include breakpoints.down("md") {
   // Collapsible mobile menu - hides submenus by default with toggle carets
-  body.mobile-collapse nav > ul {
-    padding-right: 3rem;
-  }
+  // Styles only apply when .mobile-menu-toggle buttons exist in nav
+  body.sticky-mobile-nav nav:has(.mobile-menu-toggle) {
+    > ul {
+      padding-right: 3rem;
+    }
 
-  body.mobile-collapse.sticky-mobile-nav {
-    nav > ul li {
+    > ul li {
       // Only items with submenus get the toggle
       &:has(> ul) {
         position: relative;
