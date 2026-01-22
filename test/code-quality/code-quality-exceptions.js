@@ -275,6 +275,47 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
   "test/unit/code-quality/dom-mocking.test.js",
 ]);
 
+// ============================================
+// Nullish coalescing (??) exceptions
+// ============================================
+
+// Files outside src/_lib/collections/ that use the ?? operator.
+// Default values should be set early in the data chain (in collections).
+// These are grandfathered usages that should be refactored over time.
+const ALLOWED_NULLISH_COALESCING = frozenSet([
+  // src/_data - computed data, could be moved to collections
+  "src/_data/eleventyComputed.js:68",
+  "src/_data/eleventyComputed.js:74",
+
+  // src/_lib/build - build-time utilities
+  "src/_lib/build/scss.js:23", // Lazy module loading pattern
+  "src/_lib/build/theme-compiler.js:59",
+
+  // src/_lib/eleventy - Eleventy plugins
+  "src/_lib/eleventy/capture.js:32",
+  "src/_lib/eleventy/capture.js:39",
+
+  // src/_lib/filters - URL-based filtering
+  "src/_lib/filters/category-product-filters.js:63",
+  "src/_lib/filters/category-product-filters.js:190",
+  "src/_lib/filters/filter-core.js:146",
+  "src/_lib/filters/filter-core.js:147",
+  "src/_lib/filters/filter-core.js:202",
+  "src/_lib/filters/filter-core.js:208",
+
+  // src/_lib/public - frontend JavaScript (browser-side, no collections)
+  "src/_lib/public/cart/cart.js:145",
+  "src/_lib/public/cart/cart.js:146",
+  "src/_lib/public/ui/autosizes.js:70",
+
+  // src/_lib/utils - utility functions
+  "src/_lib/utils/collection-utils.js:81",
+  "src/_lib/utils/html-tokenizer.js:42",
+  "src/_lib/utils/sorting.js:41",
+  "src/_lib/utils/sorting.js:67",
+  "src/_lib/utils/thumbnail-finder.js:18",
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_PROCESS_CWD,
@@ -284,4 +325,5 @@ export {
   ALLOWED_DATA_FALLBACKS,
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
+  ALLOWED_NULLISH_COALESCING,
 };

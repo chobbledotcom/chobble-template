@@ -208,7 +208,7 @@ const configureImages = async (eleventyConfig) => {
 
   eleventyConfig.addAsyncShortcode("image", imageShortcode);
   eleventyConfig.addCollection("images", () =>
-    (imageFiles ?? []).map((i) => i.split("/")[2]).reverse(),
+    imageFiles.map((i) => i.split("/")[2]).reverse(),
   );
   eleventyConfig.on("eleventy.after", () => {
     if (fs.existsSync(".image-cache/")) {
