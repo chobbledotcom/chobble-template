@@ -282,6 +282,15 @@ const extractItemFromButton = (button) => {
   };
 };
 
+const getQuantityFromInput = (button) => {
+  const container = button.closest(".list-item-cart-controls");
+  if (!container) return 1;
+  // If container exists, input is guaranteed (we control the HTML structure)
+  const input = container.querySelector(".quantity-input");
+  const value = parseInt(input.value, 10);
+  return Number.isNaN(value) || value < 1 ? 1 : value;
+};
+
 const handleAddToCart = (e) => {
   if (!e.target.classList.contains("add-to-cart")) return;
   e.preventDefault();
@@ -289,10 +298,11 @@ const handleAddToCart = (e) => {
   if (!validateProductOption(e.target)) return;
 
   const item = extractItemFromButton(e.target);
+  const quantity = getQuantityFromInput(e.target);
   addItem(
     item.name,
     item.unitPrice,
-    1,
+    quantity,
     item.maxQuantity,
     item.sku,
     item.specs,
@@ -317,6 +327,43 @@ const setupOverlayListeners = () => {
   if (stripeBtn) stripeBtn.addEventListener("click", checkoutWithStripe);
 };
 
+const getQuantityAction = (target) => {
+  if (target.classList.contains("quantity-decrease")) return "decrease";
+  if (target.classList.contains("quantity-increase")) return "increase";
+  if (target.classList.contains("quantity-max")) return "max";
+  return null;
+};
+
+const applyQuantityAction = (input, action, currentValue, max) => {
+  if (action === "decrease") {
+    input.value = Math.max(1, currentValue - 1);
+    return true;
+  }
+  if (action === "increase") {
+    input.value = max ? Math.min(max, currentValue + 1) : currentValue + 1;
+    return true;
+  }
+  if (action === "max" && max) {
+    input.value = max;
+    return true;
+  }
+  return false;
+};
+
+const handleQuantityBtnClick = (e) => {
+  const container = e.target.closest(".list-item-quantity");
+  if (!container) return false;
+
+  const action = getQuantityAction(e.target);
+  if (!action) return false;
+
+  // If container exists, input is guaranteed (we control the HTML structure)
+  const input = container.querySelector(".quantity-input");
+  const currentValue = parseInt(input.value, 10) || 1;
+  const max = parseInt(input.max, 10) || null;
+  return applyQuantityAction(input, action, currentValue, max);
+};
+
 const setupDocumentListeners = () => {
   if (document.documentElement.dataset.cartListenersAttached) return;
   document.documentElement.dataset.cartListenersAttached = "true";
@@ -324,6 +371,7 @@ const setupDocumentListeners = () => {
   document.addEventListener("change", handleOptionChange);
   document.addEventListener("click", (e) => {
     if (handleCartIconClick(e)) return;
+    if (handleQuantityBtnClick(e)) return;
     handleAddToCart(e);
   });
 };

@@ -206,6 +206,67 @@ dialog.cart-overlay {
   }
 }
 
+// List item quantity controls (inline on list pages)
+.list-item-cart-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+  margin-top: auto;
+
+  @include breakpoints.up("sm") {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.list-item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  button,
+  input {
+    height: 2.25rem;
+    margin: 0;
+  }
+
+  .quantity-decrease {
+    padding: 0.25rem 0.5rem;
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .quantity-input {
+    width: 3rem;
+    border-radius: 0;
+    text-align: center;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    -moz-appearance: textfield;
+  }
+
+  .quantity-increase {
+    padding: 0.25rem 0.5rem;
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-right: 0;
+  }
+
+  .quantity-max {
+    padding: 0.25rem 0.75rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
 .quote-cart-empty {
   text-align: center;
   padding: 2rem 1rem;
