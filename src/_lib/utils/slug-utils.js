@@ -6,8 +6,7 @@
  * just the filename minus extension for simpler URLs.
  */
 import slugify from "@sindresorhus/slugify";
-
-import { join, map, pipe, split } from "#toolkit/fp/array.js";
+import { pipe, split } from "#toolkit/fp/array.js";
 
 /**
  * @typedef {Object} PageData
@@ -49,22 +48,4 @@ const buildPermalink = (data, dir) => {
 const buildPdfFilename = (businessName, menuSlug) =>
   `${slugify(businessName)}-${menuSlug}.pdf`;
 
-/**
- * Convert a slug to a title-case string
- * @param {string} slug - Slug to convert
- * @returns {string} Title-case string
- */
-const slugToTitle = (slug) =>
-  pipe(
-    split("-"),
-    map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
-    join(" "),
-  )(slug);
-
-export {
-  slugify,
-  normaliseSlug,
-  buildPermalink,
-  buildPdfFilename,
-  slugToTitle,
-};
+export { slugify, normaliseSlug, buildPermalink, buildPdfFilename };

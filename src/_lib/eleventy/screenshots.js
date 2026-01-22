@@ -13,7 +13,7 @@ import { map, pipe } from "#toolkit/fp/array.js";
 import { log, error as logError } from "#utils/console.js";
 
 /** @returns {import("#lib/types").ScreenshotConfig} */
-const getScreenshotConfig = () => getConfig().screenshots ?? {};
+const getScreenshotConfig = () => getConfig().screenshots;
 
 const extractPagePaths = (collection) =>
   pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(

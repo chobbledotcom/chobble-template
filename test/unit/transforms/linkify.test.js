@@ -271,9 +271,11 @@ describe("linkify transforms", () => {
   });
 
   describe("linkifyPhones", () => {
-    test("converts phone numbers to tel links with default length 11", async () => {
+    test("converts phone numbers to tel links with length 11", async () => {
       const html = "<html><body><p>Call 01234 567 890</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {});
+      const result = await transformHtml(html, linkifyPhones, {
+        phoneNumberLength: 11,
+      });
 
       expect(result).toContain('href="tel:01234567890"');
       expect(result).toContain(">01234 567 890</a>");
