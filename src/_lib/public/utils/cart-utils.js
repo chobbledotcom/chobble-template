@@ -95,12 +95,10 @@ export function attachQuantityHandlers(onUpdate) {
     }
   };
 
-  forEachClick('[data-action="decrease"]', handleQtyClick(-1));
-  forEachClick('[data-action="increase"]', handleQtyClick(1));
+  forEachClick(".quantity-decrease[data-name]", handleQtyClick(-1));
+  forEachClick(".quantity-increase[data-name]", handleQtyClick(1));
 
-  for (const input of document.querySelectorAll(
-    "input[type='number'][data-name]",
-  )) {
+  for (const input of document.querySelectorAll(".quantity-input[data-name]")) {
     input.addEventListener("change", () => {
       const quantity = parseInt(input.value, 10);
       if (!Number.isNaN(quantity)) {

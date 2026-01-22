@@ -1,3 +1,6 @@
-<button data-action="decrease" data-name="">−</button>
-<input type="number" value="1" min="1" data-name="">
-<button data-action="increase" data-name="">+</button>
+<button type="button" class="quantity-decrease"{% if item_name %} data-name="{{ item_name }}"{% endif %}>-</button>
+<input type="number" class="quantity-input" value="1" min="1"{% if max_quantity %} max="{{ max_quantity }}"{% endif %}{% if item_name %} data-name="{{ item_name }}"{% endif %}>
+<button type="button" class="quantity-increase"{% if item_name %} data-name="{{ item_name }}"{% endif %}>+</button>
+{%- if show_max_button -%}
+<button type="button" class="quantity-max"{% if item_name %} data-name="{{ item_name }}"{% endif %}>Max</button>
+{%- endif -%}

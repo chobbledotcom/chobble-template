@@ -211,9 +211,9 @@ describe("template", () => {
     const env = createTemplateTestEnv(`
         <template id="quantity">
           <div class="controls">
-            <button data-name="" data-action="decrease">-</button>
-            <input type="number" data-name="" value="1" />
-            <button data-name="" data-action="increase">+</button>
+            <button class="quantity-decrease" data-name="">-</button>
+            <input type="number" class="quantity-input" data-name="" value="1" />
+            <button class="quantity-increase" data-name="">+</button>
           </div>
         </template>
       `);

@@ -379,9 +379,9 @@ describe("checkout", () => {
   test("attachQuantityHandlers attaches decrease button handlers", () => {
     withCheckoutMockStorage(() => {
       document.body.innerHTML = `
-        <button data-action="decrease" data-name="Widget">−</button>
-        <input type="number" data-name="Widget" value="3">
-        <button data-action="increase" data-name="Widget">+</button>
+        <button class="quantity-decrease" data-name="Widget">−</button>
+        <input type="number" class="quantity-input" data-name="Widget" value="3">
+        <button class="quantity-increase" data-name="Widget">+</button>
       `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
@@ -392,7 +392,7 @@ describe("checkout", () => {
       });
 
       // Simulate click on decrease button
-      const decreaseBtn = document.querySelector('[data-action="decrease"]');
+      const decreaseBtn = document.querySelector(".quantity-decrease");
       decreaseBtn.click();
 
       expect(updates).toHaveLength(1);
@@ -404,9 +404,9 @@ describe("checkout", () => {
   test("attachQuantityHandlers attaches increase button handlers", () => {
     withCheckoutMockStorage(() => {
       document.body.innerHTML = `
-        <button data-action="decrease" data-name="Widget">−</button>
-        <input type="number" data-name="Widget" value="3">
-        <button data-action="increase" data-name="Widget">+</button>
+        <button class="quantity-decrease" data-name="Widget">−</button>
+        <input type="number" class="quantity-input" data-name="Widget" value="3">
+        <button class="quantity-increase" data-name="Widget">+</button>
       `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
@@ -417,7 +417,7 @@ describe("checkout", () => {
       });
 
       // Simulate click on increase button
-      const increaseBtn = document.querySelector('[data-action="increase"]');
+      const increaseBtn = document.querySelector(".quantity-increase");
       increaseBtn.click();
 
       expect(updates).toHaveLength(1);
@@ -429,7 +429,7 @@ describe("checkout", () => {
   test("attachQuantityHandlers attaches input change handlers", () => {
     withCheckoutMockStorage(() => {
       document.body.innerHTML = `
-        <input type="number" data-name="Widget" value="3">
+        <input type="number" class="quantity-input" data-name="Widget" value="3">
       `;
       saveCart([{ item_name: "Widget", unit_price: 10, quantity: 3 }]);
 
@@ -440,7 +440,7 @@ describe("checkout", () => {
       });
 
       // Simulate input change
-      const input = document.querySelector("input[type='number']");
+      const input = document.querySelector(".quantity-input");
       input.value = "7";
       input.dispatchEvent(new Event("change"));
 
