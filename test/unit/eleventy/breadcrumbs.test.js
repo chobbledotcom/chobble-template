@@ -193,24 +193,6 @@ describe("breadcrumbsFilter", () => {
       expect(crumbs[2]).toEqual({ label: "Widgets", url: null });
     });
 
-    test("falls back to slug title when parent category has no title", () => {
-      const mockConfig = setupFilter();
-      const categories = [
-        { fileSlug: "cool-widgets", url: "/products/cool-widgets/", data: {} },
-      ];
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/products/premium-cool-widgets/" },
-        "Premium Cool Widgets",
-        "Products",
-        null,
-        "cool-widgets",
-        categories,
-      );
-
-      expect(crumbs[2].label).toBe("Cool Widgets");
-    });
-
     test("ignores parentCategory when not found in categories", () => {
       const mockConfig = setupFilter();
       const categories = [

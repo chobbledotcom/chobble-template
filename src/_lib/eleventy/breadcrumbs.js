@@ -32,8 +32,10 @@ const withParent = (baseCrumbs, parentCrumb, title, isAtParent) =>
 
 /** Build crumbs for category parent pages */
 const buildCategoryCrumbs = (page, baseCrumbs, title, category) => {
-  const label = category.data.title || slugToTitle(category.fileSlug);
-  const crumb = { label, url: crumbUrl(page.url, category.url) };
+  const crumb = {
+    label: category.data.title,
+    url: crumbUrl(page.url, category.url),
+  };
   return withParent(baseCrumbs, crumb, title, page.url === category.url);
 };
 
