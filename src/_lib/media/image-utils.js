@@ -56,13 +56,13 @@ export const parseWidths = (widths) => {
  */
 export const buildImgAttributes = ({
   src = null,
-  alt = null,
+  alt = "",
   sizes = null,
   loading = null,
   classes = null,
 } = {}) => ({
   ...(src && { src }),
-  alt: alt || "",
+  alt,
   sizes: sizes || DEFAULT_SIZE,
   loading: loading || "lazy",
   decoding: "async",

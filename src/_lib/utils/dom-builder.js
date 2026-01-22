@@ -88,15 +88,15 @@ const elementToHtml = (element) => {
  * Uses fast string concatenation (no DOM loading required).
  * @param {string} tagName - The tag name
  * @param {ElementAttributes} [attributes={}] - Key-value pairs of attributes
- * @param {string | null} [children=null] - Inner HTML content
+ * @param {string} [children=""] - Inner HTML content
  * @returns {Promise<string>} The HTML string
  */
-const createHtml = async (tagName, attributes = {}, children = null) => {
+const createHtml = async (tagName, attributes = {}, children = "") => {
   const attrs = formatAttributes(attributes);
   if (VOID_ELEMENTS.has(tagName)) {
     return `<${tagName}${attrs}>`;
   }
-  return `<${tagName}${attrs}>${children || ""}</${tagName}>`;
+  return `<${tagName}${attrs}>${children}</${tagName}>`;
 };
 
 /**

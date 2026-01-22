@@ -140,6 +140,39 @@ const expensiveComputation = memoize(
 - `pluralize(singular, plural?)` - Format counts with pluralization
 - `accumulate(fn)` - Safe array building in reduce
 
+### Error Handling: Fail Fast, Never Mask
+
+**Throw errors instead of returning fallback values.** When something unexpected happens, fail immediately with a clear error rather than disguising the problem with a default value.
+
+```javascript
+// BAD - masks the problem, makes debugging harder
+const getProduct = (id) => products.find(p => p.id === id) ?? { title: "Unknown" };
+const parseConfig = (json) => { try { return JSON.parse(json); } catch { return {}; } };
+
+// GOOD - fails immediately, stack trace points to the problem
+const getProduct = (id) => {
+  const product = products.find(p => p.id === id);
+  if (!product) throw new Error(`Product not found: ${id}`);
+  return product;
+};
+```
+
+**Why this matters:**
+- Silent fallbacks hide bugs until they cause bigger problems downstream
+- Stack traces from early errors point directly to the root cause
+- Fallback values often propagate through the system causing confusing behavior
+- "It works but shows wrong data" is harder to debug than "it crashed here"
+
+**Code quality tests enforce this:**
+- `nullish-coalescing.test.js` - Bans `??` outside collections (where defaults belong)
+- `data-fallbacks.test.js` - Bans `item.data.foo || fallback` patterns
+- `try-catch-usage.test.js` - Allowlist-only for try/catch blocks
+
+**Rare exceptions** (all require explicit allowlisting):
+- Browser localStorage (users can corrupt it)
+- External HTTP APIs (network failures happen)
+- User-provided input at system boundaries
+
 ---
 
 ## Linting Rules (Biome)
@@ -289,6 +322,7 @@ import { configureImages } from "#media/image.js";
 7. **Don't exceed complexity 10** - Break complex functions into smaller pieces
 8. **Don't hardcode magic values** - Import constants from production code
 9. **Don't create tautological tests** - Verify behavior, not assignments
+10. **Don't return fallbacks for errors** - Throw errors instead of masking problems with default values
 
 ---
 

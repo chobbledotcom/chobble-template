@@ -316,6 +316,42 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/utils/thumbnail-finder.js:18",
 ]);
 
+// ============================================
+// OR fallback exceptions (|| [], || {}, || "", || null, || 0)
+// ============================================
+
+// Files that use || fallback patterns. Defaults should be set in collections
+// or computed data, not scattered throughout the codebase. These are
+// grandfathered usages that should be refactored over time.
+const ALLOWED_OR_FALLBACKS = frozenSet([
+  // src/_lib/config - config boundary validation
+  "src/_lib/config/helpers.js:44", // products || {} - defensive at config boundary
+
+  // src/_lib/eleventy - build-time generation with optional data
+  "src/_lib/eleventy/area-list.js:10", // eleventyNavigation?.key || "" - nav key display
+  "src/_lib/eleventy/ical.js:42", // subtitle || meta_description || "" - optional event description
+  "src/_lib/eleventy/ical.js:43", // event_location || "" - optional location field
+  "src/_lib/eleventy/pdf.js:26", // menuItems || [] - menu may have no items
+  "src/_lib/eleventy/pdf.js:31", // menuCategories || [] - menu may have no categories
+  "src/_lib/eleventy/pdf.js:39", // description || "" - optional item description
+  "src/_lib/eleventy/pdf.js:74", // subtitle || "" - optional menu subtitle
+
+  // src/_lib/filters - cascading field access for display
+  "src/_lib/filters/filter-core.js:191", // title || name || "" - items have title OR name
+  "src/_lib/filters/filter-ui.js:69", // currentFilters || {} - callers pass null explicitly
+
+  // src/_lib/media - image processing
+  "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation
+  "src/_lib/media/unused-images.js:35", // .match() || [] - regex returns null on no match
+
+  // src/_lib/utils - serialization utilities
+  "src/_lib/utils/product-cart-data.js:109", // max_quantity || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:110", // sku || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:111", // days || null - explicit null in JSON
+  "src/_lib/utils/schema-helper.js:111", // image cascade || null - intentional "first available or null"
+  "src/_lib/utils/schema-helper.js:117", // metaComputed || {} - spread into schema object
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_PROCESS_CWD,
@@ -326,4 +362,5 @@ export {
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
   ALLOWED_NULLISH_COALESCING,
+  ALLOWED_OR_FALLBACKS,
 };
