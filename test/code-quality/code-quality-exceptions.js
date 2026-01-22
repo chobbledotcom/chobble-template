@@ -316,6 +316,30 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/utils/thumbnail-finder.js:18",
 ]);
 
+// ============================================
+// OR fallback exceptions (|| [], || {}, || "", || null)
+// ============================================
+
+// Files in src/_lib/filters/, src/_lib/utils/, src/_lib/config/ that use
+// || fallback patterns. Defaults should be set in collections/computed data,
+// not in downstream code. These are grandfathered usages.
+const ALLOWED_OR_FALLBACKS = frozenSet([
+  // src/_lib/config - config boundary validation
+  "src/_lib/config/helpers.js:43", // products || {} - defensive at config boundary
+
+  // src/_lib/filters - cascading field access for display
+  "src/_lib/filters/filter-core.js:191", // title || name || "" - display fallback chain
+  "src/_lib/filters/filter-ui.js:72", // currentFilters || {} - URL param parsing boundary
+
+  // src/_lib/utils - DOM and serialization utilities
+  "src/_lib/utils/dom-builder.js:99", // children || "" - empty element content is valid
+  "src/_lib/utils/product-cart-data.js:109", // max_quantity || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:110", // sku || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:111", // days || null - explicit null in JSON
+  "src/_lib/utils/schema-helper.js:111", // image cascade || null - intentional "first available or null"
+  "src/_lib/utils/schema-helper.js:117", // metaComputed || {} - spread into schema object
+]);
+
 export {
   ALLOWED_TRY_CATCHES,
   ALLOWED_PROCESS_CWD,
@@ -326,4 +350,5 @@ export {
   ALLOWED_DOM_CONSTRUCTOR,
   ALLOWED_TEST_ONLY_EXPORTS,
   ALLOWED_NULLISH_COALESCING,
+  ALLOWED_OR_FALLBACKS,
 };
