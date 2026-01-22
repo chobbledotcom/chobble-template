@@ -93,12 +93,14 @@ describe("navigation", () => {
     );
   });
 
-  test("Returns # when slug exists but tag does not match", () => {
+  test("Throws when slug exists but tag does not match", () => {
     const collection = [
       pageItem("hello-world", "/posts/hello-world/", ["post"]),
     ];
 
-    expect(findPageUrl(collection, "page", "hello-world")).toBe("#");
+    expect(() => findPageUrl(collection, "page", "hello-world")).toThrow(
+      'Page "hello-world" does not have tag "page"',
+    );
   });
 
   test("Handles items without tags", () => {

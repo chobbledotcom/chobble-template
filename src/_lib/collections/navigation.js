@@ -61,10 +61,10 @@ const toNavigation = async (pages, activeKey = "") => {
 /** Find URL for a page matching tag and slug. Uses O(1) slug lookup. */
 const findPageUrl = (collection, tag, slug) => {
   const item = getBySlug(collection, slug);
-  if (item.data.tags?.includes(tag)) {
-    return item.url;
+  if (!item.data.tags?.includes(tag)) {
+    throw new Error(`Page "${slug}" does not have tag "${tag}".`);
   }
-  return "#";
+  return item.url;
 };
 
 const configureNavigation = async (eleventyConfig) => {
