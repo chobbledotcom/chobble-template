@@ -289,7 +289,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
-  "src/_lib/build/theme-compiler.js:44",
+  "src/_lib/build/theme-compiler.js:59",
 
   // src/_lib/eleventy - Eleventy plugins
   "src/_lib/eleventy/capture.js:32",
@@ -309,10 +309,11 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:65",
+  "src/_lib/utils/collection-utils.js:81",
   "src/_lib/utils/html-tokenizer.js:42",
-  "src/_lib/utils/sorting.js:42",
-  "src/_lib/utils/sorting.js:69",
+  "src/_lib/utils/sorting.js:41",
+  "src/_lib/utils/sorting.js:67",
+  "src/_lib/utils/thumbnail-finder.js:18",
 ]);
 
 export {
