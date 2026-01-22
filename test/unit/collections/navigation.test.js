@@ -83,12 +83,14 @@ describe("navigation", () => {
     );
   });
 
-  test("Returns # when page not found", () => {
+  test("Throws when page not found", () => {
     const collection = [
       pageItem("hello-world", "/posts/hello-world/", ["post"]),
     ];
 
-    expect(findPageUrl(collection, "post", "nonexistent")).toBe("#");
+    expect(() => findPageUrl(collection, "post", "nonexistent")).toThrow(
+      'Slug "nonexistent" not found',
+    );
   });
 
   test("Handles items without tags", () => {
@@ -99,8 +101,10 @@ describe("navigation", () => {
     expectFindsTarget([pageItem("null-tags", "/null-tags/", null)]);
   });
 
-  test("Handles empty collection gracefully", () => {
-    expect(findPageUrl([], "post", "test")).toBe("#");
+  test("Throws for empty collection", () => {
+    expect(() => findPageUrl([], "post", "test")).toThrow(
+      'Slug "test" not found',
+    );
   });
 
   test("Matches on exact slug even if there are similar items", () => {
@@ -173,8 +177,10 @@ describe("navigation", () => {
     expect(items.length).toBe(2);
   });
 
-  test("Returns # for empty collection", () => {
-    expect(findPageUrl([], "post", "test")).toBe("#");
+  test("Throws for empty collection with pageUrl", () => {
+    expect(() => findPageUrl([], "post", "test")).toThrow(
+      'Slug "test" not found',
+    );
   });
 });
 

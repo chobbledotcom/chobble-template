@@ -9,7 +9,7 @@
  */
 
 import strings from "#data/strings.js";
-import { indexBy } from "#toolkit/fp/memoize.js";
+import { getBySlug } from "#eleventy/collection-lookup.js";
 
 /** Mapping from navigation parent names to their index URLs */
 const PARENT_URL_MAP = {
@@ -20,9 +20,6 @@ const PARENT_URL_MAP = {
   [strings.menus_name]: `/${strings.menu_permalink_dir}/`,
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
 };
-
-/** Index collections by fileSlug for O(1) lookups */
-const indexBySlug = indexBy((item) => item.fileSlug);
 
 /** Build crumbs with a parent item (category or location) */
 const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
@@ -39,9 +36,8 @@ const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
 /** Find parent from categories or locations by slug */
 const findParent = (parentCategory, categories, parentLocation, locations) => {
   if (parentCategory && categories)
-    return indexBySlug(categories)[parentCategory];
-  if (parentLocation && locations)
-    return indexBySlug(locations)[parentLocation];
+    return getBySlug(categories, parentCategory);
+  if (parentLocation && locations) return getBySlug(locations, parentLocation);
   return undefined;
 };
 

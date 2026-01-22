@@ -1,3 +1,4 @@
+import { getBySlug } from "#eleventy/collection-lookup.js";
 import { imageShortcode } from "#media/image.js";
 import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
 import { createHtml } from "#utils/dom-builder.js";
@@ -57,12 +58,13 @@ const toNavigation = async (pages, activeKey = "") => {
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));
 };
 
-/** Find URL for a page matching tag and slug */
+/** Find URL for a page matching tag and slug. Uses O(1) slug lookup. */
 const findPageUrl = (collection, tag, slug) => {
-  const result = collection.find(
-    (item) => item.fileSlug === slug && item.data.tags?.includes(tag),
-  );
-  return result?.url ?? "#";
+  const item = getBySlug(collection, slug);
+  if (item.data.tags?.includes(tag)) {
+    return item.url;
+  }
+  return "#";
 };
 
 const configureNavigation = async (eleventyConfig) => {
