@@ -10,6 +10,7 @@ import pageLayouts from "#data/pageLayouts.js";
 import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   COMMON_FIELDS,
+  createAddOnsField,
   createEleventyNavigationField,
   createObjectListField,
   createReferenceField,
@@ -269,6 +270,7 @@ const buildProductsFields = (config, fields) =>
     categoriesRef(enabled),
     enabled("events") && createReferenceField("events", "Events", "events"),
     PRODUCT_OPTIONS_FIELD,
+    createAddOnsField(config.features.use_visual_editor),
     config.features.external_purchases && {
       name: "purchase_url",
       label: "Purchase URL",
