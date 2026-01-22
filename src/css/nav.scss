@@ -226,6 +226,10 @@ nav {
   .toggle-label {
     display: none !important;
   }
+  // Hide mobile menu toggle buttons on desktop
+  .mobile-menu-toggle {
+    display: none !important;
+  }
   body {
     &.left-nav {
       nav {
