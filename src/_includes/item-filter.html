@@ -21,18 +21,25 @@ Parameters:
   <ul class="filter-groups">
     {%- for group in filterUI.groups -%}
     <li>
+      {%- if group.name == "sort" -%}
+      <label class="sort-dropdown">
+        <span>{{ group.label }}</span>
+        <select class="sort-select">
+          {%- for option in group.options -%}
+          <option value="{{ option.url }}"{% if option.active %} selected{% endif %}>{{ option.value }}</option>
+          {%- endfor -%}
+        </select>
+      </label>
+      <noscript>
+        <p>JavaScript is required for the sort dropdown.</p>
+        {%- assign options = group.options -%}
+        {%- include "filter-options-list.html" -%}
+      </noscript>
+      {%- else -%}
       <span>{{ group.label }}</span>
-      <ul>
-        {%- for option in group.options -%}
-        <li{% if option.active %} class="active"{% endif %}>
-          {%- if option.active -%}
-          <span>{{ option.value }}</span>
-          {%- else -%}
-          <a href="{{ option.url }}">{{ option.value }}</a>
-          {%- endif -%}
-        </li>
-        {%- endfor -%}
-      </ul>
+      {%- assign options = group.options -%}
+      {%- include "filter-options-list.html" -%}
+      {%- endif -%}
     </li>
     {%- endfor -%}
   </ul>

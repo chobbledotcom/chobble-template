@@ -16,6 +16,7 @@ import "#public/ui/slider.js";
 import "#public/ui/tabs.js";
 import "#public/ui/availability-calendar.js";
 import "#public/ui/shuffle-properties.js";
+import "#public/ui/sort-dropdown.js";
 
 // Theme
 import "#public/theme/theme-editor.js";
