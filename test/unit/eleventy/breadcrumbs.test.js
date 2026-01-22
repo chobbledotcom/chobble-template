@@ -26,6 +26,7 @@ describe("breadcrumbsFilter", () => {
     parentLocation,
     parentCategory = undefined,
     categories = undefined,
+    locations = undefined,
   ) =>
     mockConfig.filters.breadcrumbsFilter(
       page,
@@ -34,6 +35,7 @@ describe("breadcrumbsFilter", () => {
       parentLocation,
       parentCategory,
       categories,
+      locations,
     );
 
   test("returns empty array for home page", () => {
@@ -105,6 +107,13 @@ describe("breadcrumbsFilter", () => {
 
   test("handles parentLocation for subpages and parent pages", () => {
     const mockConfig = setupFilter();
+    const locations = [
+      {
+        fileSlug: "london",
+        url: "/locations/london/",
+        data: { title: "London" },
+      },
+    ];
 
     // Subpage under a location shows all 4 crumbs
     const subpageCrumbs = callFilter(
@@ -113,6 +122,9 @@ describe("breadcrumbsFilter", () => {
       "Widget Removal",
       "Locations",
       "london",
+      undefined,
+      undefined,
+      locations,
     );
     expect(subpageCrumbs).toHaveLength(4);
     expect(subpageCrumbs[2]).toEqual({
@@ -128,6 +140,9 @@ describe("breadcrumbsFilter", () => {
       "London",
       "Locations",
       "london",
+      undefined,
+      undefined,
+      locations,
     );
     expect(parentCrumbs).toHaveLength(3);
     expect(parentCrumbs[2]).toEqual({ label: "London", url: null });

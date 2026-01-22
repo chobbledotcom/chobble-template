@@ -9,7 +9,7 @@
  */
 
 import strings from "#data/strings.js";
-import { slugToTitle } from "#utils/slug-utils.js";
+import { indexBy } from "#toolkit/fp/memoize.js";
 
 /** Mapping from navigation parent names to their index URLs */
 const PARENT_URL_MAP = {
@@ -21,32 +21,28 @@ const PARENT_URL_MAP = {
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
 };
 
-/** Get URL for crumb - null if we're at that URL, otherwise the URL */
-const crumbUrl = (pageUrl, url) => (pageUrl === url ? null : url);
+/** Index collections by fileSlug for O(1) lookups */
+const indexBySlug = indexBy((item) => item.fileSlug);
 
-/** Create crumbs array with parent between index and current page */
-const withParent = (baseCrumbs, parentCrumb, title, isAtParent) =>
-  isAtParent
-    ? [...baseCrumbs, parentCrumb]
-    : [...baseCrumbs, parentCrumb, { label: title, url: null }];
-
-/** Build crumbs for category parent pages */
-const buildCategoryCrumbs = (page, baseCrumbs, title, category) => {
+/** Build crumbs with a parent item (category or location) */
+const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
+  const isAtParent = page.url === parent.url;
   const crumb = {
-    label: category.data.title,
-    url: crumbUrl(page.url, category.url),
+    label: parent.data.title,
+    url: isAtParent ? null : parent.url,
   };
-  return withParent(baseCrumbs, crumb, title, page.url === category.url);
+  return isAtParent
+    ? [...baseCrumbs, crumb]
+    : [...baseCrumbs, crumb, { label: title, url: null }];
 };
 
-/** Build crumbs for location parent pages */
-const buildLocationCrumbs = (page, baseCrumbs, title, parentLocation) => {
-  const parentUrl = `/${strings.location_permalink_dir}/${parentLocation}/`;
-  const crumb = {
-    label: slugToTitle(parentLocation),
-    url: crumbUrl(page.url, parentUrl),
-  };
-  return withParent(baseCrumbs, crumb, title, page.url === parentUrl);
+/** Find parent from categories or locations by slug */
+const findParent = (parentCategory, categories, parentLocation, locations) => {
+  if (parentCategory && categories)
+    return indexBySlug(categories)[parentCategory];
+  if (parentLocation && locations)
+    return indexBySlug(locations)[parentLocation];
+  return undefined;
 };
 
 /**
@@ -60,27 +56,29 @@ const breadcrumbsFilter = (
   parentLocation,
   parentCategory,
   categories,
+  locations,
 ) => {
   if (page.url === "/") return [];
 
   const indexUrl =
     PARENT_URL_MAP[navigationParent] ||
     `/${page.url.split("/").filter(Boolean)[0]}/`;
+  const isAtIndex = page.url === indexUrl;
   const baseCrumbs = [
     { label: "Home", url: "/" },
-    { label: navigationParent || title, url: crumbUrl(page.url, indexUrl) },
+    { label: navigationParent || title, url: isAtIndex ? null : indexUrl },
   ];
 
-  if (page.url === indexUrl) return baseCrumbs;
+  if (isAtIndex) return baseCrumbs;
 
-  const categoryParent =
-    parentCategory && categories?.find((c) => c.fileSlug === parentCategory);
+  const parent = findParent(
+    parentCategory,
+    categories,
+    parentLocation,
+    locations,
+  );
 
-  if (categoryParent)
-    return buildCategoryCrumbs(page, baseCrumbs, title, categoryParent);
-
-  if (parentLocation)
-    return buildLocationCrumbs(page, baseCrumbs, title, parentLocation);
+  if (parent) return buildParentCrumbs(page, baseCrumbs, title, parent);
 
   return [...baseCrumbs, { label: title, url: null }];
 };
@@ -93,4 +91,4 @@ const configureBreadcrumbs = (eleventyConfig) => {
   eleventyConfig.addFilter("breadcrumbsFilter", breadcrumbsFilter);
 };
 
-export { configureBreadcrumbs, buildCategoryCrumbs, buildLocationCrumbs };
+export { configureBreadcrumbs, buildParentCrumbs, findParent };
