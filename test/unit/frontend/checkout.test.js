@@ -66,6 +66,9 @@ const createCheckoutPage = async (options = {}) => {
     ],
     productSpecs = null,
     productMode = null,
+    // Computed values - must be provided explicitly as test fixtures
+    hasSingleCartOption = false,
+    showCartQuantitySelector = false,
   } = options;
 
   const config = {
@@ -74,7 +77,7 @@ const createCheckoutPage = async (options = {}) => {
     paypal_email: paypalEmail,
   };
 
-  // Compute cart_attributes like products.11tydata.js does
+  // Build cart_attributes fixture (JSON serialization for data attribute)
   const cart_attributes =
     productOptions && productOptions.length > 0
       ? JSON.stringify({
@@ -88,13 +91,6 @@ const createCheckoutPage = async (options = {}) => {
           specs: productSpecs,
         }).replace(/"/g, "&quot;")
       : null;
-
-  // Compute values like products.11tydata.js does
-  const isHireMode = productMode === "hire";
-  const has_single_cart_option =
-    isHireMode || (productOptions || []).length <= 1;
-  const show_cart_quantity_selector =
-    cartMode === "quote" && (productOptions[0]?.max_quantity || 0) > 1;
 
   // cart-icon.html is now smart and handles quote mode automatically
   const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
@@ -115,8 +111,8 @@ const createCheckoutPage = async (options = {}) => {
       options: productOptions,
       cart_attributes,
       product_mode: productMode,
-      has_single_cart_option,
-      show_cart_quantity_selector,
+      has_single_cart_option: hasSingleCartOption,
+      show_cart_quantity_selector: showCartQuantitySelector,
     },
   );
 
@@ -580,6 +576,7 @@ describe("checkout", () => {
           sku: "STD-001",
         },
       ],
+      hasSingleCartOption: true,
     });
 
     const doc = dom.window.document;
@@ -648,7 +645,7 @@ describe("checkout", () => {
     const options = [
       { name: "Standard", unit_price: 29.99, max_quantity: 5, sku: "TP1" },
     ];
-    // Compute cart_attributes like products.11tydata.js does
+    // Build cart_attributes fixture (JSON serialization for data attribute)
     const cart_attributes = JSON.stringify({
       name: "Test Product",
       options: options.map((opt) => ({
@@ -699,7 +696,7 @@ describe("checkout", () => {
       { name: "Small", unit_price: 19.99, sku: "VP-S" },
       { name: "Large", unit_price: 29.99, sku: "VP-L" },
     ];
-    // Compute cart_attributes like products.11tydata.js does
+    // Build cart_attributes fixture (JSON serialization for data attribute)
     const cart_attributes = JSON.stringify({
       name: "Variable Product",
       options: options.map((opt) => ({
