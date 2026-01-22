@@ -3,26 +3,12 @@
  */
 
 import configModule from "#data/config.js";
-import { compact, mapAsync } from "#toolkit/fp/array.js";
-import { indexBy, memoize } from "#toolkit/fp/memoize.js";
+import { getBySlug } from "#eleventy/collection-lookup.js";
+import { mapAsync } from "#toolkit/fp/array.js";
+import { memoize } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
 
 const getConfig = memoize(configModule);
-
-/**
- * Index collections by fileSlug for O(1) lookups.
- * Cached per collection reference during the build.
- */
-const indexBySlug = indexBy((item) => item.fileSlug);
-
-/**
- * Look up an item in a collection by its fileSlug.
- * Uses cached index for O(1) lookups across all pages.
- * @param {Array} collection - The collection to search
- * @param {string} slug - The fileSlug to find
- * @returns {Object|undefined} The matching item or undefined
- */
-const findBySlug = (collection, slug) => indexBySlug(collection)[slug];
 
 /**
  * Get the anchor suffix based on config
@@ -43,14 +29,15 @@ const createItemLink = (anchor) => async (item) => {
 };
 
 /**
- * Build links array from slugs and collection
+ * Build links array from slugs and collection.
+ * Throws if any slug is not found in the collection.
  * @param {string[]} slugs - Array of fileSlug values
  * @param {Array} collection - The collection to search
  * @param {string} anchor - Anchor suffix
  * @returns {Promise<string[]>} Array of HTML links
  */
 const buildLinks = async (slugs, collection, anchor) => {
-  const items = compact(slugs.map((slug) => findBySlug(collection, slug)));
+  const items = slugs.map((slug) => getBySlug(collection, slug));
   return mapAsync(createItemLink(anchor))(items);
 };
 

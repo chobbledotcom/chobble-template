@@ -208,7 +208,7 @@ describe("breadcrumbsFilter", () => {
       expect(crumbs[2]).toEqual({ label: "Widgets", url: null });
     });
 
-    test("ignores parentCategory when not found in categories", () => {
+    test("throws when parentCategory is not found in categories", () => {
       const mockConfig = setupFilter();
       const categories = [
         {
@@ -217,19 +217,18 @@ describe("breadcrumbsFilter", () => {
           data: { title: "Other" },
         },
       ];
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/products/premium-widgets/" },
-        "Premium Widgets",
-        "Products",
-        null,
-        "widgets",
-        categories,
-      );
 
-      // Should fall back to normal 3-crumb structure
-      expect(crumbs).toHaveLength(3);
-      expect(crumbs[2]).toEqual({ label: "Premium Widgets", url: null });
+      expect(() =>
+        callFilter(
+          mockConfig,
+          { url: "/products/premium-widgets/" },
+          "Premium Widgets",
+          "Products",
+          null,
+          "widgets",
+          categories,
+        ),
+      ).toThrow('Slug "widgets" not found');
     });
   });
 });

@@ -73,18 +73,15 @@ describe("link-list", () => {
     );
   });
 
-  test("Skips slugs not found in collection", async () => {
+  test("Throws for slugs not found in collection", async () => {
     const collection = createCollection([
       ["widget", "Widget Pro", "/products/widget/"],
       ["gadget", "Gadget Plus", "/products/gadget/"],
     ]);
 
-    const result = await linkList(["widget", "missing", "gadget"], collection);
-
-    expect(result).toBe(
-      '<a href="/products/widget/">Widget Pro</a>, ' +
-        '<a href="/products/gadget/">Gadget Plus</a>',
-    );
+    await expect(
+      linkList(["widget", "missing", "gadget"], collection),
+    ).rejects.toThrow('Slug "missing" not found');
   });
 
   test("Preserves order of slugs in output", async () => {
