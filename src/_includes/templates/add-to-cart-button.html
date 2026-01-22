@@ -1,0 +1,8 @@
+{%- if show_quantity -%}
+<div class="list-item-cart-controls">
+  {%- include "list-item-quantity-selector.html", max_quantity: max_quantity -%}
+  <button class="add-to-cart{% if extra_class %} {{ extra_class }}{% endif %}" data-item="{{ cart_attributes }}"{% if disabled %} disabled{% endif %}>{{ btn_text }}</button>
+</div>
+{%- else -%}
+<button class="add-to-cart{% if extra_class %} {{ extra_class }}{% endif %}" data-item="{{ cart_attributes }}"{% if disabled %} disabled{% endif %}>{{ btn_text }}</button>
+{%- endif -%}

@@ -1,34 +1,16 @@
-{%- assign mode = product_mode | default: config.product_mode -%}
 {%- if config.cart_mode and cart_attributes -%}
 <noscript><p>JavaScript is required to add items to your cart and complete purchases.</p></noscript>
-{%- assign first_max = options.first.max_quantity -%}
-{%- assign show_quantity = config.cart_mode == "quote" and first_max > 1 -%}
-{%- if mode == "hire" -%}
-  {%- if show_quantity -%}
-<div class="list-item-cart-controls">
-  {%- include "list-item-quantity-selector.html", max_quantity: first_max -%}
-  <button class="add-to-cart" data-item="{{ cart_attributes }}">
-    Add to Quote - from £{{ options.first.unit_price }}
-  </button>
-</div>
+{%- if has_single_cart_option -%}
+  {%- if product_mode == "hire" -%}
+    {%- assign btn_text_with_price = "Add to Quote - from £" | append: options.first.unit_price -%}
   {%- else -%}
-<button class="add-to-cart" data-item="{{ cart_attributes }}">
-  Add to Quote - from £{{ options.first.unit_price }}
-</button>
+    {%- assign btn_text_with_price = "Add to Cart - £" | append: options.first.unit_price -%}
   {%- endif -%}
-{%- elsif options.size == 1 -%}
-  {%- if show_quantity -%}
-<div class="list-item-cart-controls">
-  {%- include "list-item-quantity-selector.html", max_quantity: first_max -%}
-  <button class="add-to-cart" data-item="{{ cart_attributes }}">
-    Add to Cart - £{{ options.first.unit_price }}
-  </button>
-</div>
-  {%- else -%}
-<button class="add-to-cart" data-item="{{ cart_attributes }}">
-  Add to Cart - £{{ options.first.unit_price }}
-</button>
-  {%- endif -%}
+  {%- include "templates/add-to-cart-button.html",
+      cart_attributes: cart_attributes,
+      btn_text: btn_text_with_price,
+      show_quantity: show_cart_quantity_selector,
+      max_quantity: options.first.max_quantity -%}
 {%- else -%}
 <div>
   <select class="product-options-select">

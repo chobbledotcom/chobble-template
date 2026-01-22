@@ -65,6 +65,7 @@ const createCheckoutPage = async (options = {}) => {
       { name: "Large", unit_price: "10.00", max_quantity: 3, sku: "SKU-L" },
     ],
     productSpecs = null,
+    productMode = null,
   } = options;
 
   const config = {
@@ -88,6 +89,13 @@ const createCheckoutPage = async (options = {}) => {
         }).replace(/"/g, "&quot;")
       : null;
 
+  // Compute values like products.11tydata.js does
+  const isHireMode = productMode === "hire";
+  const has_single_cart_option =
+    isHireMode || (productOptions || []).length <= 1;
+  const show_cart_quantity_selector =
+    cartMode === "quote" && (productOptions[0]?.max_quantity || 0) > 1;
+
   // cart-icon.html is now smart and handles quote mode automatically
   const cartIcon = await renderTemplate("src/_includes/cart-icon.html", {
     config,
@@ -106,6 +114,9 @@ const createCheckoutPage = async (options = {}) => {
       title: productTitle,
       options: productOptions,
       cart_attributes,
+      product_mode: productMode,
+      has_single_cart_option,
+      show_cart_quantity_selector,
     },
   );
 
@@ -654,6 +665,9 @@ describe("checkout", () => {
         title: "Test Product",
         options,
         cart_attributes,
+        cart_btn_text: "Add to Cart",
+        has_single_cart_option: true,
+        show_cart_quantity_selector: false,
       },
       url: "/products/test-product/",
     };
@@ -702,6 +716,7 @@ describe("checkout", () => {
         title: "Variable Product",
         options,
         cart_attributes,
+        has_single_cart_option: false,
       },
       url: "/products/variable-product/",
     };
