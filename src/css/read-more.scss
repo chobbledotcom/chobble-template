@@ -1,0 +1,68 @@
+/**
+ * Read More - CSS-only expandable content sections
+ *
+ * Uses the checkbox hack pattern for pure CSS toggling:
+ * - Hidden checkbox inside the paragraph
+ * - Label acts as the clickable trigger (inline with text)
+ * - Sibling selectors show/hide content
+ * - Label disappears when expanded (one-way toggle)
+ *
+ * Structure:
+ * <p>Visible text <input><label>Read more…</label><span class="read-more-content">rest of line</span></p>
+ * <div class="read-more-content">following paragraphs</div>
+ */
+
+// Hide the checkbox visually but keep it functional
+.read-more-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+// Style the label as an interactive link (inline with text)
+.read-more-label {
+  color: var(--color-link);
+  cursor: pointer;
+  text-decoration: var(--link-decoration);
+  text-decoration-style: var(--link-decoration-style);
+  font-weight: bold;
+
+  &:hover,
+  &:focus {
+    color: var(--color-link-hover);
+    text-decoration: var(--link-decoration-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-small);
+  }
+}
+
+// Hidden content - starts hidden, no CLS on page load
+.read-more-content {
+  display: none;
+}
+
+// When checkbox is checked:
+// 1. Hide the label (one-way toggle)
+// 2. Show inline content (span inside paragraph)
+// 3. Show block content (div after paragraph, using :has())
+.read-more-toggle:checked {
+  & + .read-more-label {
+    display: none;
+  }
+
+  & ~ .read-more-content {
+    display: inline;
+  }
+}
+
+// Show block content when paragraph contains checked toggle
+p:has(.read-more-toggle:checked) + .read-more-content {
+  display: block;
+}

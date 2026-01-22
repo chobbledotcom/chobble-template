@@ -33,3 +33,17 @@ Experience the phenomenon that is the Chobble Global Summit, where Fulchester Ar
 - Chance to touch the original Chobble repository laptop
 
 **Tickets**: £299 (early bird), £599 (standard), £2,999 (VIP with backstage JAMstack tour). Camping available in Fulchester Arena car park. Bring your own keyboard.
+
+## Read More Demo
+
+Following is a read more link - and everything after it is hidden by default. [Read more..] Hey! Hopefully you didn't see this when the page loaded.
+
+Or this paragraph afterwards - this too should be hidden.
+
+And so should this list:
+
+- Foo
+- Bar
+- Baz
+
+The "Read more" system is flexible and works on any content block on the site.
