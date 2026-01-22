@@ -9,12 +9,14 @@ window.Botpoison = Botpoison;
 // UI features
 import "#public/ui/autosizes.js";
 import "#public/ui/gallery.js";
+import "#public/ui/mobile-menu-collapse.js";
 import "#public/ui/scroll-fade.js";
 import "#public/ui/search.js";
 import "#public/ui/slider.js";
 import "#public/ui/tabs.js";
 import "#public/ui/availability-calendar.js";
 import "#public/ui/shuffle-properties.js";
+import "#public/ui/sort-dropdown.js";
 
 // Theme
 import "#public/theme/theme-editor.js";
