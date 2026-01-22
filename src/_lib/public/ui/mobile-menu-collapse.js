@@ -3,9 +3,10 @@ import { onReady } from "#public/utils/on-ready.js";
 /**
  * Creates toggle buttons for nav items with submenus.
  * Allows users to expand/collapse submenu sections on mobile.
+ * Only activates when sticky-mobile-nav is enabled.
  */
 onReady(() => {
-  if (!document.body.classList.contains("mobile-collapse")) return;
+  if (!document.body.classList.contains("sticky-mobile-nav")) return;
 
   const navItems = document.querySelectorAll("nav > ul li:has(> ul)");
 

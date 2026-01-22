@@ -7,7 +7,6 @@
  * @property {boolean} [stickyMobileNav]
  * @property {boolean} [horizontalNav]
  * @property {boolean} [hasRightContent]
- * @property {boolean} [collapseMobileMenu]
  */
 
 /**
@@ -17,7 +16,6 @@
  * @property {boolean} stickyMobileNav
  * @property {boolean} horizontalNav
  * @property {boolean} hasRightContent
- * @property {boolean} collapseMobileMenu
  */
 
 const usesDesignSystem = (layout, designSystemLayouts) =>
@@ -39,7 +37,6 @@ const OPTION_KEYS = [
   "stickyMobileNav",
   "horizontalNav",
   "hasRightContent",
-  "collapseMobileMenu",
 ];
 
 /**
@@ -65,7 +62,6 @@ const parseOptionsObject = (opts) => ({
   stickyMobileNav: Boolean(opts.stickyMobileNav),
   horizontalNav: opts.horizontalNav !== false,
   hasRightContent: Boolean(opts.hasRightContent),
-  collapseMobileMenu: Boolean(opts.collapseMobileMenu),
 });
 
 /**
@@ -75,7 +71,6 @@ const parseOptionsObject = (opts) => ({
  * @param {boolean} stickyMobileNav
  * @param {boolean} horizontalNav
  * @param {boolean} hasRightContent
- * @param {boolean} collapseMobileMenu
  * @returns {BodyClassesConfig}
  */
 const parsePositionalArgs = (
@@ -84,14 +79,12 @@ const parsePositionalArgs = (
   stickyMobileNav,
   horizontalNav,
   hasRightContent,
-  collapseMobileMenu,
 ) => ({
   designSystemLayouts: layouts || [],
   forceDesignSystem,
   stickyMobileNav,
   horizontalNav,
   hasRightContent,
-  collapseMobileMenu,
 });
 
 /**
@@ -111,7 +104,6 @@ const buildBodyClasses = (layout, config) => {
     config.stickyMobileNav ? "sticky-mobile-nav" : null,
     config.horizontalNav ? "horizontal-nav" : "left-nav",
     config.hasRightContent ? "two-columns" : "one-column",
-    config.collapseMobileMenu ? "mobile-collapse" : null,
   ];
 };
 
@@ -125,7 +117,7 @@ const buildBodyClasses = (layout, config) => {
  *    getBodyClasses(layout, { designSystemLayouts, stickyMobileNav, ... })
  *
  * 2. Positional arguments (for Liquid filter):
- *    layout | getBodyClasses: designSystemLayouts, forceDesignSystem, stickyMobileNav, horizontalNav, hasRightContent, collapseMobileMenu
+ *    layout | getBodyClasses: designSystemLayouts, forceDesignSystem, stickyMobileNav, horizontalNav, hasRightContent
  *
  * @param {string | null} layout
  * @param {string[] | BodyClassesOptions} [layoutsOrOpts]
@@ -133,7 +125,6 @@ const buildBodyClasses = (layout, config) => {
  * @param {boolean} [stickyMobileNavArg]
  * @param {boolean} [horizontalNavArg]
  * @param {boolean} [hasRightContentArg]
- * @param {boolean} [collapseMobileMenuArg]
  * @returns {string}
  */
 const getBodyClasses = (
@@ -143,7 +134,6 @@ const getBodyClasses = (
   stickyMobileNavArg = false,
   horizontalNavArg = true,
   hasRightContentArg = false,
-  collapseMobileMenuArg = false,
 ) => {
   const config = isOptionsObject(layoutsOrOpts)
     ? parseOptionsObject(layoutsOrOpts)
@@ -153,7 +143,6 @@ const getBodyClasses = (
         stickyMobileNavArg,
         horizontalNavArg,
         hasRightContentArg,
-        collapseMobileMenuArg,
       );
 
   return buildBodyClasses(layout, config).filter(Boolean).join(" ");
