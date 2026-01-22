@@ -9,7 +9,6 @@
  */
 
 import strings from "#data/strings.js";
-import { slugToTitle } from "#utils/slug-utils.js";
 
 /** Mapping from navigation parent names to their index URLs */
 const PARENT_URL_MAP = {
@@ -41,6 +40,7 @@ const breadcrumbsFilter = (
   parentLocation,
   parentCategory,
   categories,
+  locations,
 ) => {
   if (page.url === "/") return [];
 
@@ -61,8 +61,10 @@ const breadcrumbsFilter = (
     categories.find((c) => c.fileSlug === parentCategory);
 
   if (categoryParent) {
-    const label = categoryParent.data.title || slugToTitle(parentCategory);
-    const crumb = { label, url: crumbUrl(page.url, categoryParent.url) };
+    const crumb = {
+      label: categoryParent.data.title,
+      url: crumbUrl(page.url, categoryParent.url),
+    };
     return withParent(
       baseCrumbs,
       crumb,
@@ -71,14 +73,23 @@ const breadcrumbsFilter = (
     );
   }
 
-  // Location parent
-  if (parentLocation) {
-    const parentUrl = `/${strings.location_permalink_dir}/${parentLocation}/`;
+  // Location parent lookup
+  const locationParent =
+    parentLocation &&
+    locations &&
+    locations.find((loc) => loc.fileSlug === parentLocation);
+
+  if (locationParent) {
     const crumb = {
-      label: slugToTitle(parentLocation),
-      url: crumbUrl(page.url, parentUrl),
+      label: locationParent.data.title,
+      url: crumbUrl(page.url, locationParent.url),
     };
-    return withParent(baseCrumbs, crumb, title, page.url === parentUrl);
+    return withParent(
+      baseCrumbs,
+      crumb,
+      title,
+      page.url === locationParent.url,
+    );
   }
 
   return [...baseCrumbs, { label: title, url: null }];

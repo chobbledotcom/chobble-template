@@ -26,6 +26,7 @@ describe("breadcrumbsFilter", () => {
     parentLocation,
     parentCategory = undefined,
     categories = undefined,
+    locations = undefined,
   ) =>
     mockConfig.filters.breadcrumbsFilter(
       page,
@@ -34,6 +35,7 @@ describe("breadcrumbsFilter", () => {
       parentLocation,
       parentCategory,
       categories,
+      locations,
     );
 
   test("returns empty array for home page", () => {
@@ -77,6 +79,11 @@ describe("breadcrumbsFilter", () => {
 
   test("handles parentLocation for subpages and parent pages", () => {
     const mockConfig = setupFilter();
+    const londonLocation = {
+      fileSlug: "london",
+      url: "/locations/london/",
+      data: { title: "London" },
+    };
 
     // Subpage under a location shows all 4 crumbs
     const subpageCrumbs = callFilter(
@@ -85,6 +92,9 @@ describe("breadcrumbsFilter", () => {
       "Widget Removal",
       "Locations",
       "london",
+      undefined,
+      undefined,
+      [londonLocation],
     );
     expect(subpageCrumbs).toHaveLength(4);
     expect(subpageCrumbs[2]).toEqual({
@@ -100,6 +110,9 @@ describe("breadcrumbsFilter", () => {
       "London",
       "Locations",
       "london",
+      undefined,
+      undefined,
+      [londonLocation],
     );
     expect(parentCrumbs).toHaveLength(3);
     expect(parentCrumbs[2]).toEqual({ label: "London", url: null });
@@ -163,24 +176,6 @@ describe("breadcrumbsFilter", () => {
 
       expect(crumbs).toHaveLength(3);
       expect(crumbs[2]).toEqual({ label: "Widgets", url: null });
-    });
-
-    test("falls back to slug title when parent category has no title", () => {
-      const mockConfig = setupFilter();
-      const categories = [
-        { fileSlug: "cool-widgets", url: "/products/cool-widgets/", data: {} },
-      ];
-      const crumbs = callFilter(
-        mockConfig,
-        { url: "/products/premium-cool-widgets/" },
-        "Premium Cool Widgets",
-        "Products",
-        null,
-        "cool-widgets",
-        categories,
-      );
-
-      expect(crumbs[2].label).toBe("Cool Widgets");
     });
 
     test("ignores parentCategory when not found in categories", () => {
