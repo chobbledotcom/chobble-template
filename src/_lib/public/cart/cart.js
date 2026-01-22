@@ -330,7 +330,6 @@ const setupOverlayListeners = () => {
 const getQuantityAction = (target) => {
   if (target.classList.contains("quantity-decrease")) return "decrease";
   if (target.classList.contains("quantity-increase")) return "increase";
-  if (target.classList.contains("quantity-max")) return "max";
   return null;
 };
 
@@ -341,10 +340,6 @@ const applyQuantityAction = (input, action, currentValue, max) => {
   }
   if (action === "increase") {
     input.value = max ? Math.min(max, currentValue + 1) : currentValue + 1;
-    return true;
-  }
-  if (action === "max" && max) {
-    input.value = max;
     return true;
   }
   return false;
