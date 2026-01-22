@@ -269,9 +269,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_lib/eleventy - Eleventy plugins
   "src/_lib/eleventy/capture.js:32",
   "src/_lib/eleventy/capture.js:39",
-  "src/_lib/eleventy/html-transform.js:61",
-  "src/_lib/eleventy/html-transform.js:89",
-  "src/_lib/eleventy/screenshots.js:16",
 
   // src/_lib/filters - URL-based filtering
   "src/_lib/filters/category-product-filters.js:63",
@@ -285,12 +282,6 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/cart/cart.js:145",
   "src/_lib/public/cart/cart.js:146",
   "src/_lib/public/ui/autosizes.js:70",
-
-  // src/_lib/transforms - HTML transforms
-  "src/_lib/transforms/linkify.js:118",
-  "src/_lib/transforms/linkify.js:248",
-  "src/_lib/transforms/linkify.js:264",
-  "src/_lib/transforms/linkify.js:305",
 
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:65",

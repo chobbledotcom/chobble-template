@@ -115,7 +115,7 @@ const shouldProcessNode = (node, pattern) => {
     return false;
   }
   pattern.lastIndex = 0;
-  return pattern.test(node.textContent ?? "");
+  return pattern.test(node.textContent);
 };
 
 /**
@@ -245,7 +245,7 @@ const createLinkFragment = (document, parts, targetBlank) => {
  */
 const processTextNodes = (document, pattern, parser, linkType, targetBlank) => {
   for (const textNode of collectTextNodes(document, pattern)) {
-    const parts = parser(textNode.textContent ?? "");
+    const parts = parser(textNode.textContent);
     if (parts.some((p) => p.type === linkType)) {
       textNode.parentNode?.replaceChild(
         createLinkFragment(document, parts, targetBlank),
@@ -258,18 +258,16 @@ const processTextNodes = (document, pattern, parser, linkType, targetBlank) => {
 /**
  * Linkify URLs in document
  * @param {*} document
- * @param {{ externalLinksTargetBlank?: boolean }} config
+ * @param {{ externalLinksTargetBlank: boolean }} config
  */
-const linkifyUrls = (document, config) => {
-  const targetBlank = config?.externalLinksTargetBlank ?? false;
+const linkifyUrls = (document, config) =>
   processTextNodes(
     document,
     URL_PATTERN,
     (text) => parseTextByPattern(text, URL_PATTERN, urlPart),
     "url",
-    targetBlank,
+    config.externalLinksTargetBlank,
   );
-};
 
 /**
  * Linkify email addresses in document
@@ -299,13 +297,15 @@ const hasPhonePattern = (content, phoneLen) =>
 /**
  * Linkify phone numbers in document
  * @param {*} document
- * @param {{ phoneNumberLength?: number }} config
+ * @param {{ phoneNumberLength: number }} config
  */
 const linkifyPhones = (document, config) => {
-  const phoneLen = config?.phoneNumberLength ?? 11;
-  if (phoneLen <= 0) return;
+  if (config.phoneNumberLength <= 0) return;
 
-  const phonePat = new RegExp(`\\b(\\d(?:\\s*\\d){${phoneLen - 1}})\\b`, "g");
+  const phonePat = new RegExp(
+    `\\b(\\d(?:\\s*\\d){${config.phoneNumberLength - 1}})\\b`,
+    "g",
+  );
   processTextNodes(
     document,
     phonePat,

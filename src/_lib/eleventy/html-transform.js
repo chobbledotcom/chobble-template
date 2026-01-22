@@ -57,16 +57,16 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
  * @param {object} config
  * @returns {string}
  */
-const applyStringTransforms = (content, config) => {
-  const targetBlank = config?.externalLinksTargetBlank ?? false;
-  const linkified = linkifyHtmlLib(content, {
-    ignoreTags: [...SKIP_TAGS],
-    target: targetBlank ? "_blank" : null,
-    rel: targetBlank ? "noopener noreferrer" : null,
-    format: { url: formatUrlDisplay },
-  });
-  return addExternalLinkAttrs(linkified, config);
-};
+const applyStringTransforms = (content, config) =>
+  addExternalLinkAttrs(
+    linkifyHtmlLib(content, {
+      ignoreTags: [...SKIP_TAGS],
+      target: config.externalLinksTargetBlank ? "_blank" : null,
+      rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+      format: { url: formatUrlDisplay },
+    }),
+    config,
+  );
 
 /**
  * Check if path is an HTML file
@@ -86,10 +86,9 @@ const createHtmlTransform =
     if (!isHtmlPath(outputPath) || !content) return content;
 
     const config = await getConfig();
-    const phoneLen = config?.phoneNumberLength ?? 11;
     const result = applyStringTransforms(content, config);
 
-    if (!needsDomParsing(result, phoneLen)) return result;
+    if (!needsDomParsing(result, config.phoneNumberLength)) return result;
     return applyDomTransforms(result, config, processAndWrapImage);
   };
 
