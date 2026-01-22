@@ -3,6 +3,9 @@
  *
  * Scans content for [Read more..] markers and converts them into
  * CSS-only expandable sections using the checkbox hack pattern.
+ *
+ * Works inline: text before marker stays visible, text after (including
+ * rest of line AND following paragraphs) gets hidden until clicked.
  */
 
 const READ_MORE_PATTERN = /\[Read more\.{1,3}\]/i;
@@ -59,54 +62,70 @@ const collectSiblings = (node) => {
   return walk(node.nextSibling, []);
 };
 
-/** @param {HTMLDivElement} wrapper */
+/** @param {Document} document */
 const createContentWrapper = (document) => {
   const wrapper = document.createElement("div");
   wrapper.className = "read-more-content";
   return wrapper;
 };
 
-const insertToggleMarkup = (
-  textNode,
-  document,
-  split,
-  checkbox,
-  label,
-  wrapper,
-) => {
-  if (split.before.trim()) {
-    textNode.parentNode?.insertBefore(
-      document.createTextNode(split.before),
-      textNode,
-    );
-  }
-  textNode.parentNode?.insertBefore(checkbox, textNode);
-  textNode.parentNode?.insertBefore(label, textNode);
-  textNode.parentNode?.insertBefore(wrapper, textNode);
+/** @param {Document} document */
+const createInlineWrapper = (document) => {
+  const wrapper = document.createElement("span");
+  wrapper.className = "read-more-content read-more-inline";
+  return wrapper;
+};
 
-  if (split.after.trim()) {
-    wrapper.appendChild(document.createTextNode(split.after));
+const insertAfterElement = (element, ...toInsert) => {
+  toInsert.reduce((prev, el) => {
+    prev.parentNode?.insertBefore(el, prev.nextSibling);
+    return el;
+  }, element);
+};
+
+const addInlineContent = (document, label, afterText) => {
+  if (!afterText.trim()) return false;
+  const inlineWrapper = createInlineWrapper(document);
+  inlineWrapper.textContent = afterText;
+  label.parentNode?.insertBefore(inlineWrapper, label.nextSibling);
+  return true;
+};
+
+const addBlockContent = (grandparent, label, siblings, hasInline) => {
+  if (siblings.length === 0) return;
+  const blockWrapper = grandparent.ownerDocument.createElement("div");
+  blockWrapper.className = "read-more-content";
+  const insertAfter = hasInline
+    ? label.nextSibling?.nextSibling
+    : label.nextSibling;
+  grandparent.insertBefore(blockWrapper, insertAfter);
+  for (const sib of siblings) {
+    blockWrapper.appendChild(sib);
   }
 };
 
 const transformMarker = (document, textNode) => {
   const split = splitAtMarker(textNode.textContent);
-  if (!split || !textNode.parentElement) return false;
+  if (!split || !textNode.parentElement?.parentElement) return false;
 
+  const followingSiblings = collectSiblings(textNode.parentElement);
   const { checkbox, label } = createToggleElements(
     document,
     nextId(),
     LABEL_TEXT,
   );
-  const wrapper = createContentWrapper(document);
 
-  insertToggleMarkup(textNode, document, split, checkbox, label, wrapper);
+  textNode.textContent = split.before;
+  insertAfterElement(textNode.parentElement, checkbox, label);
 
-  for (const sib of collectSiblings(textNode.parentElement)) {
-    wrapper.appendChild(sib);
-  }
+  const hasInline = addInlineContent(document, label, split.after);
+  addBlockContent(
+    textNode.parentElement.parentElement,
+    label,
+    followingSiblings,
+    hasInline,
+  );
 
-  textNode.remove();
   return true;
 };
 
@@ -135,6 +154,9 @@ export {
   findMarkerNode,
   collectSiblings,
   createContentWrapper,
-  insertToggleMarkup,
+  createInlineWrapper,
+  insertAfterElement,
+  addInlineContent,
+  addBlockContent,
   transformMarker,
 };
