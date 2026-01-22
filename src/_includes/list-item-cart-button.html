@@ -1,15 +1,29 @@
 {%- if config.cart_mode and item.data.cart_attributes -%}
   {%- assign mode = item.data.product_mode | default: config.product_mode -%}
+  {%- assign first_max = item.data.options.first.max_quantity -%}
+  {%- assign show_quantity = false -%}
+  {%- if config.cart_mode == "quote" and first_max > 1 -%}
+    {%- assign show_quantity = true -%}
+  {%- endif -%}
   {%- if mode == "hire" -%}
-    <button
-      class="add-to-cart"
-      data-item="{{ item.data.cart_attributes }}"
-    >Add To Quote</button>
-  {%- elsif item.data.options.size == 1 -%}
-    <button
-      class="add-to-cart"
-      data-item="{{ item.data.cart_attributes }}"
-    >Add to Cart</button>
+    {%- assign btn_text = "Add To Quote" -%}
+  {%- else -%}
+    {%- assign btn_text = "Add to Cart" -%}
+  {%- endif -%}
+  {%- if mode == "hire" or item.data.options.size == 1 -%}
+    {%- if show_quantity -%}
+    <div class="list-item-cart-controls">
+      <div class="list-item-quantity">
+        <button type="button" class="quantity-decrease">−</button>
+        <input type="number" class="quantity-input" value="1" min="1" max="{{ first_max }}">
+        <button type="button" class="quantity-increase">+</button>
+        <button type="button" class="quantity-max">Max</button>
+      </div>
+      <button class="add-to-cart" data-item="{{ item.data.cart_attributes }}">{{ btn_text }}</button>
+    </div>
+    {%- else -%}
+    <button class="add-to-cart" data-item="{{ item.data.cart_attributes }}">{{ btn_text }}</button>
+    {%- endif -%}
   {%- else -%}
     <a href="{{ item.url }}#content" class="button">Select Options</a>
   {%- endif -%}
