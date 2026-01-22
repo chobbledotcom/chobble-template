@@ -34,9 +34,7 @@ export type EleventyPageData = {
  * Fields guaranteed by Eleventy are non-optional.
  */
 export type BaseItemData = {
-  /** Item title from frontmatter */
-  title?: string;
-  /** Item name (alternative to title) */
+  title: string;
   name?: string;
   /** Subtitle for display */
   subtitle?: string;
@@ -336,7 +334,8 @@ export type EleventyNavigation = {
  * Page data available to eleventyComputed functions.
  * Combines Eleventy's page object with frontmatter data.
  */
-export type EleventyComputedData = EleventyCollectionItemData & {
+export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
+  title: string;
   page: EleventyPageData;
   site: import('./config.d.ts').SiteInfo;
   config?: import('./config.d.ts').SiteConfig;

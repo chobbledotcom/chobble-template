@@ -61,8 +61,10 @@ const breadcrumbsFilter = (
     categories.find((c) => c.fileSlug === parentCategory);
 
   if (categoryParent) {
-    const label = categoryParent.data.title || slugToTitle(parentCategory);
-    const crumb = { label, url: crumbUrl(page.url, categoryParent.url) };
+    const crumb = {
+      label: categoryParent.data.title,
+      url: crumbUrl(page.url, categoryParent.url),
+    };
     return withParent(
       baseCrumbs,
       crumb,

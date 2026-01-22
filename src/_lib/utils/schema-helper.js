@@ -27,8 +27,7 @@ import { canonicalUrl } from "#utils/canonical-url.js";
  * @property {string} [image] - Image path
  * @property {SiteInfo} site - Site information
  * @property {PageInfo} page - Page information
- * @property {string} [title] - Page title
- * @property {string} [meta_title] - Meta title
+ * @property {string} title - Page title (required - computed for pages, explicit for collections)
  * @property {string} [meta_description] - Meta description
  * @property {string} [subtitle] - Page subtitle
  * @property {FAQ[]} [faqs] - FAQ items
@@ -104,7 +103,7 @@ function buildImageUrl(imageInput, siteUrl) {
 }
 
 /**
- * Builds base schema.org metadata from page data
+ * Builds base schema.org metadata from page data.
  * @param {BasePageData} data - Page data object
  * @returns {SchemaOrgMeta} Schema.org metadata object
  */
@@ -117,7 +116,7 @@ function buildBaseMeta(data) {
   return {
     ...(data.metaComputed || {}),
     url: canonicalUrl(data.page.url),
-    title: data.title || data.meta_title || "Untitled",
+    title: data.title,
     description: data.meta_description || data.subtitle,
     ...(imageUrl && { image: { src: imageUrl } }),
     ...(data.faqs?.length > 0 && { faq: data.faqs }),
