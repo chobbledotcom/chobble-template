@@ -22,6 +22,7 @@ export default {
     categories: (data) => (data.categories || []).map(normaliseSlug),
     gallery: computeGallery,
     navigationParent: () => strings.product_name,
+    product_mode: (data) => getProductMode(data),
     options: (data) => computeOptions(data, getProductMode(data)),
     permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
     specs: computeSpecs,
@@ -42,6 +43,21 @@ export default {
         specs: computeSpecs(data),
         mode,
       });
+    },
+    cart_btn_text: (data) => {
+      const mode = getProductMode(data);
+      return mode === "hire" ? "Add To Quote" : "Add to Cart";
+    },
+    has_single_cart_option: (data) => {
+      const mode = getProductMode(data);
+      return mode === "hire" || (data.options || []).length <= 1;
+    },
+    show_cart_quantity_selector: (data) => {
+      const config = getConfig();
+      if (config.cart_mode !== "quote") return false;
+      const mode = getProductMode(data);
+      const options = computeOptions(data, mode);
+      return options[0]?.max_quantity > 1;
     },
   },
 };

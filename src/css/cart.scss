@@ -340,7 +340,7 @@ dialog.cart-overlay {
       height: 2.5rem;
     }
 
-    button[data-action="decrease"] {
+    .quantity-decrease {
       padding: 0.25rem 0.75rem;
       width: 2rem;
       border-right: 0;
@@ -348,7 +348,7 @@ dialog.cart-overlay {
       border-bottom-right-radius: 0;
     }
 
-    button[data-action="increase"] {
+    .quantity-increase {
       padding: 0.25rem 0.75rem;
       width: 2rem;
       border-left: 0;
