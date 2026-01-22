@@ -285,8 +285,8 @@ const extractItemFromButton = (button) => {
 const getQuantityFromInput = (button) => {
   const container = button.closest(".list-item-cart-controls");
   if (!container) return 1;
+  // If container exists, input is guaranteed (we control the HTML structure)
   const input = container.querySelector(".quantity-input");
-  if (!input) return 1;
   const value = parseInt(input.value, 10);
   return Number.isNaN(value) || value < 1 ? 1 : value;
 };
@@ -354,10 +354,11 @@ const handleQuantityBtnClick = (e) => {
   const container = e.target.closest(".list-item-quantity");
   if (!container) return false;
 
-  const input = container.querySelector(".quantity-input");
   const action = getQuantityAction(e.target);
-  if (!input || !action) return false;
+  if (!action) return false;
 
+  // If container exists, input is guaranteed (we control the HTML structure)
+  const input = container.querySelector(".quantity-input");
   const currentValue = parseInt(input.value, 10) || 1;
   const max = parseInt(input.max, 10) || null;
   return applyQuantityAction(input, action, currentValue, max);
