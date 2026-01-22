@@ -120,9 +120,9 @@ describe("eleventyComputed", () => {
       expect(eleventyComputed.meta_title(data)).toBe("SEO Title");
     });
 
-    test("Falls back to title when meta_title not set", () => {
+    test("Returns undefined when meta_title not set (fallback handled by template)", () => {
       const data = { title: "Page Title" };
-      expect(eleventyComputed.meta_title(data)).toBe("Page Title");
+      expect(eleventyComputed.meta_title(data)).toBeUndefined();
     });
   });
 
