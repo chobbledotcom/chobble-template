@@ -93,6 +93,14 @@ describe("navigation", () => {
     );
   });
 
+  test("Returns # when slug exists but tag does not match", () => {
+    const collection = [
+      pageItem("hello-world", "/posts/hello-world/", ["post"]),
+    ];
+
+    expect(findPageUrl(collection, "page", "hello-world")).toBe("#");
+  });
+
   test("Handles items without tags", () => {
     expectFindsTarget([{ data: {}, fileSlug: "no-tags", url: "/no-tags/" }]);
   });
