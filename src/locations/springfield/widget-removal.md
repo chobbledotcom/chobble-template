@@ -1,6 +1,5 @@
 ---
 title: Widget Removal in Springfield
-thumbnail: /images/placeholder-square-1.jpg
 subtitle: D'oh-free widget removal services
 meta_title: "Widget Removal in Springfield - Fast & Reliable"
 meta_description: "Professional widget removal services in Springfield. From Evergreen Terrace to Downtown, we remove widgets safely and efficiently."

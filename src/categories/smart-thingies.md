@@ -1,7 +1,6 @@
 ---
 title: Smart Thingies
 subtitle: Connected thingies with intelligent features
-header_image: src/images/placeholder-wide-4.jpg
 parent: thingies
 ---
 

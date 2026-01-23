@@ -32,7 +32,7 @@ export default function () {
       ...(logoUrl && { logo: { src: logoUrl, width: 512, height: 512 } }),
     },
     language: metaData.language || "en-GB",
-    image: { src: `${siteData.url}/images/placeholder.jpg` },
+    image: { src: logoUrl },
     organization: {
       name: siteData.name,
       url: siteData.url,

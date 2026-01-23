@@ -21,18 +21,9 @@ options:
     max_quantity: 15
     unit_price: 89.99
     sku: XD61SP
-header_image: src/images/placeholder-wide-2.jpg
 categories:
   - compact-doodahs
   - doodahs
-gallery:
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-4.jpg
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-7.jpg
-  - src/images/placeholder-square-1.jpg
-  - src/images/placeholder-square-2.jpg
 specs:
   - name: Dimensions
     value: 3.5cm x 2.5cm x 1cm

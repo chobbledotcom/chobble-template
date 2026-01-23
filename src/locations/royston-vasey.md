@@ -1,6 +1,5 @@
 ---
 title: Royston Vasey
-thumbnail: /images/placeholder-square-3.jpg
 subtitle: A local service for local people
 categories:
   - thingies

@@ -1,5 +1,4 @@
 ---
-header_image: src/images/placeholder.jpg
 header_text: Locations
 meta_description:
 meta_title: Locations

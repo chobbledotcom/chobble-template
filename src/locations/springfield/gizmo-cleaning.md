@@ -1,6 +1,5 @@
 ---
 title: Gizmo Cleaning in Springfield
-thumbnail: /images/placeholder-square-1.jpg
 subtitle: Mmm... clean gizmos
 meta_title: "Gizmo Cleaning in Springfield - Professional Results"
 meta_description: "Expert gizmo cleaning services in Springfield. We clean all types of gizmos for homes and businesses throughout the Springfield area."

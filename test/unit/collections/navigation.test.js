@@ -252,7 +252,7 @@ describe("toNavigation", () => {
   test("Skips thumbnails for root-level navigation items", async () => {
     const pages = [
       navEntry("Products", {
-        data: { thumbnail: "src/images/placeholder-square-1.jpg" },
+        data: { thumbnail: "images/placeholders/blue.svg" },
       }),
     ];
     const result = await toNavigation(pages, "");
@@ -265,7 +265,7 @@ describe("toNavigation", () => {
       navEntry("Products", {
         children: [
           navEntry("Category A", {
-            data: { thumbnail: "src/images/placeholder-square-1.jpg" },
+            data: { thumbnail: "images/placeholders/blue.svg" },
           }),
         ],
       }),

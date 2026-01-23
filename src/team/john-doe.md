@@ -1,8 +1,6 @@
 ---
 title: John Doe
 snippet: This is a team member page in the template
-image: placeholder-square-4.jpg
-header_image: src/images/placeholder-wide-2.jpg
 ---
 
 > "You can add a quote from the team member here."

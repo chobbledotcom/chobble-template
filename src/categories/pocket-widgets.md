@@ -1,7 +1,6 @@
 ---
 title: Pocket Widgets
 subtitle: Portable widgets with advanced functionality capabilities
-header_image: src/images/placeholder-wide-1.jpg
 parent: widgets
 ---
 

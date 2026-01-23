@@ -26,18 +26,9 @@ options:
     max_quantity: 2
     unit_price: 2299.99
     sku: EVL68A
-header_image: src/images/placeholder-wide-4.jpg
 categories:
   - /categories/premium-widgets.md
   - widgets
-gallery:
-  - src/images/placeholder-square-7.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-4.jpg
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-2.jpg
-  - src/images/placeholder-square-1.jpg
 specs:
   - name: Display
     value: 14" Holographic
@@ -63,11 +54,9 @@ features:
   - Surround sound resonators
 tabs:
   - title: Setup Guide
-    image: src/images/placeholder-square-1.jpg
     body: |
       Getting started with your UltraWidget Pro is easy. Simply connect the power adapter, press the holographic power button, and follow the on-screen setup wizard. The biometric scanner will guide you through fingerprint registration for secure access.
   - title: Warranty Info
-    image: src/images/placeholder-square-2.jpg
     body: |
       Your UltraWidget Pro comes with a 2-year comprehensive warranty covering all manufacturing defects. Extended warranty options are available for up to 5 years of coverage including accidental damage protection.
 ---
