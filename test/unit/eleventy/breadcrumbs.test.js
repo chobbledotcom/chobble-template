@@ -169,90 +169,106 @@ describe("breadcrumbsFilter", () => {
     ]);
   });
 
-  describe("parent category breadcrumbs", () => {
+  describe("category breadcrumbs for products", () => {
     const widgetCategory = {
       fileSlug: "widgets",
-      url: "/products/widgets/",
+      url: "/categories/widgets/",
       data: { title: "Widgets" },
     };
-    const categoriesCollection = [widgetCategory];
+    const premiumWidgets = {
+      fileSlug: "premium-widgets",
+      url: "/categories/premium-widgets/",
+      data: { title: "Premium Widgets", parent: "widgets" },
+    };
+    const categoriesCollection = [widgetCategory, premiumWidgets];
 
-    test("handles explicit parentCategory for child categories", () => {
+    test("shows category in breadcrumbs for product with category", () => {
       const mockConfig = setupFilter();
       const crumbs = callFilter(
         mockConfig,
-        { url: "/products/premium-widgets/" },
-        "Premium Widgets",
+        { url: "/products/my-product/" },
+        "My Product",
         "Products",
         null,
-        "widgets",
         undefined,
+        ["widgets"],
         categoriesCollection,
       );
 
       expect(crumbs).toHaveLength(4);
       expect(crumbs[2]).toEqual({
         label: "Widgets",
-        url: "/products/widgets/",
+        url: "/categories/widgets/",
       });
-      expect(crumbs[3].label).toBe("Premium Widgets");
+      expect(crumbs[3]).toEqual({ label: "My Product", url: null });
     });
 
-    test("uses first item from itemCategories when no explicit parent", () => {
+    test("shows parent and child category for product in nested category", () => {
       const mockConfig = setupFilter();
       const crumbs = callFilter(
         mockConfig,
-        { url: "/products/my-product/" },
-        "My Product",
+        { url: "/products/my-widget/" },
+        "My Widget",
         "Products",
         null,
         undefined,
-        ["widgets", "other"],
+        ["premium-widgets"],
         categoriesCollection,
       );
 
-      expect(crumbs).toHaveLength(4);
-      expect(crumbs.at(2).label).toBe("Widgets");
-      expect(crumbs.at(2).url).toBe("/products/widgets/");
-      expect(crumbs.at(3).label).toBe("My Product");
+      expect(crumbs).toHaveLength(5);
+      expect(crumbs[2]).toEqual({
+        label: "Widgets",
+        url: "/categories/widgets/",
+      });
+      expect(crumbs[3]).toEqual({
+        label: "Premium Widgets",
+        url: "/categories/premium-widgets/",
+      });
+      expect(crumbs[4]).toEqual({ label: "My Widget", url: null });
     });
+  });
 
-    test("explicit parentCategory takes precedence over itemCategories", () => {
+  describe("category page breadcrumbs", () => {
+    const widgetCategory = {
+      fileSlug: "widgets",
+      url: "/categories/widgets/",
+      data: { title: "Widgets" },
+    };
+
+    test("handles explicit parentCategory for child category pages", () => {
       const mockConfig = setupFilter();
-      const otherCategory = {
-        fileSlug: "gadgets",
-        url: "/products/gadgets/",
-        data: { title: "Gadgets" },
-      };
       const crumbs = callFilter(
         mockConfig,
-        { url: "/products/my-product/" },
-        "My Product",
+        { url: "/categories/premium-widgets/" },
+        "Premium Widgets",
         "Products",
         null,
-        "gadgets",
-        ["widgets"],
-        [widgetCategory, otherCategory],
+        "widgets",
+        undefined,
+        [widgetCategory],
       );
 
-      expect(crumbs).toHaveLength(4);
-      expect(crumbs[2]).toEqual({
-        label: "Gadgets",
-        url: "/products/gadgets/",
-      });
+      expect(crumbs.map((c) => c.label)).toEqual([
+        "Home",
+        "Products",
+        "Widgets",
+        "Premium Widgets",
+      ]);
+      expect(crumbs[2].url).toBe("/categories/widgets/");
     });
 
     test("shows parent category as current when at parent URL", () => {
       const mockConfig = setupFilter();
       const crumbs = callFilter(
         mockConfig,
-        { url: "/products/widgets/" },
+        { url: "/categories/widgets/" },
         "Widgets",
         "Products",
         null,
         "widgets",
         undefined,
-        categoriesCollection,
+        [widgetCategory],
       );
 
       expect(crumbs).toHaveLength(3);
@@ -264,7 +280,7 @@ describe("breadcrumbsFilter", () => {
       const categories = [
         {
           fileSlug: "other",
-          url: "/products/other/",
+          url: "/categories/other/",
           data: { title: "Other" },
         },
       ];
@@ -272,7 +288,7 @@ describe("breadcrumbsFilter", () => {
       expect(() =>
         callFilter(
           mockConfig,
-          { url: "/products/premium-widgets/" },
+          { url: "/categories/premium-widgets/" },
           "Premium Widgets",
           "Products",
           null,

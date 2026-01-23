@@ -5,7 +5,8 @@
  * 1. Home (always first, always a link)
  * 2. Collection index (link unless we're at it, then span)
  * 3. Parent category/location (if has parent)
- * 4. Item (span, current page)
+ * 4. Child category (if item has categories and that category has a parent)
+ * 5. Item (span, current page)
  */
 
 import strings from "#data/strings.js";
@@ -21,13 +22,21 @@ const PARENT_URL_MAP = {
   [strings.guide_name]: `/${strings.guide_permalink_dir}/`,
 };
 
+/** Create a crumb object for an item */
+const makeCrumb = (item, isCurrentPage) => ({
+  label: item.data.title,
+  url: isCurrentPage ? null : item.url,
+});
+
+/** Get index URL for a navigation parent, falling back to first path segment */
+const getIndexUrl = (navigationParent, pageUrl) =>
+  PARENT_URL_MAP[navigationParent] ||
+  `/${pageUrl.split("/").filter(Boolean)[0]}/`;
+
 /** Build crumbs with a parent item (category or location) */
 const buildParentCrumbs = (page, baseCrumbs, title, parent) => {
   const isAtParent = page.url === parent.url;
-  const crumb = {
-    label: parent.data.title,
-    url: isAtParent ? null : parent.url,
-  };
+  const crumb = makeCrumb(parent, isAtParent);
   return isAtParent
     ? [...baseCrumbs, crumb]
     : [...baseCrumbs, crumb, { label: title, url: null }];
@@ -39,6 +48,30 @@ const findParent = (parentCategory, categories, parentLocation, locations) => {
     return getBySlug(categories, parentCategory);
   if (parentLocation && locations) return getBySlug(locations, parentLocation);
   return undefined;
+};
+
+/**
+ * Build category ancestor chain recursively and return crumbs.
+ * Kept as separate function to manage cognitive complexity of main filter.
+ */
+const buildCategoryCrumbs = (
+  page,
+  baseCrumbs,
+  title,
+  categorySlug,
+  categories,
+) => {
+  const getCategoryChain = (cat) =>
+    cat.data.parent
+      ? [...getCategoryChain(getBySlug(categories, cat.data.parent)), cat]
+      : [cat];
+  const category = getBySlug(categories, categorySlug);
+  const isAtCategory = page.url === category.url;
+  const categoryCrumbs = getCategoryChain(category).map((cat) =>
+    makeCrumb(cat, isAtCategory && cat === category),
+  );
+  const itemCrumb = isAtCategory ? [] : [{ label: title, url: null }];
+  return [...baseCrumbs, ...categoryCrumbs, ...itemCrumb];
 };
 
 /**
@@ -65,9 +98,7 @@ const breadcrumbsFilter = (
 ) => {
   if (page.url === "/") return [];
 
-  const indexUrl =
-    PARENT_URL_MAP[navigationParent] ||
-    `/${page.url.split("/").filter(Boolean)[0]}/`;
+  const indexUrl = getIndexUrl(navigationParent, page.url);
   const isAtIndex = page.url === indexUrl;
   const baseCrumbs = [
     { label: "Home", url: "/" },
@@ -76,8 +107,20 @@ const breadcrumbsFilter = (
 
   if (isAtIndex) return baseCrumbs;
 
+  // If item has categories, build hierarchy with category ancestors
+  if (itemCategories?.[0] && categories) {
+    return buildCategoryCrumbs(
+      page,
+      baseCrumbs,
+      title,
+      itemCategories[0],
+      categories,
+    );
+  }
+
+  // Legacy: explicit parent category or location
   const parent = findParent(
-    parentCategory || itemCategories?.[0],
+    parentCategory,
     categories,
     parentLocation,
     locations,
@@ -96,4 +139,10 @@ const configureBreadcrumbs = (eleventyConfig) => {
   eleventyConfig.addFilter("breadcrumbsFilter", breadcrumbsFilter);
 };
 
-export { configureBreadcrumbs, buildParentCrumbs, findParent };
+export {
+  configureBreadcrumbs,
+  buildParentCrumbs,
+  buildCategoryCrumbs,
+  findParent,
+  getIndexUrl,
+};
