@@ -17,13 +17,22 @@ const getProductMode = (data) => {
   return data.product_mode || config.product_mode;
 };
 
+const getDefaultMaxQuantity = (data) => {
+  if (data.max_quantity != null) {
+    return data.max_quantity;
+  }
+  const config = getConfig();
+  return config.default_max_quantity;
+};
+
 export default {
   eleventyComputed: {
     categories: (data) => (data.categories || []).map(normaliseSlug),
     gallery: computeGallery,
     navigationParent: () => strings.product_name,
     product_mode: (data) => getProductMode(data),
-    options: (data) => computeOptions(data, getProductMode(data)),
+    options: (data) =>
+      computeOptions(data, getProductMode(data), getDefaultMaxQuantity(data)),
     permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
     specs: computeSpecs,
     highlighted_specs: (data) => {
@@ -36,10 +45,11 @@ export default {
     },
     cart_attributes: (data) => {
       const mode = getProductMode(data);
+      const defaultMaxQuantity = getDefaultMaxQuantity(data);
       return buildCartAttributes({
         title: data.title,
         subtitle: data.subtitle,
-        options: computeOptions(data, mode),
+        options: computeOptions(data, mode, defaultMaxQuantity),
         specs: computeSpecs(data),
         mode,
       });
@@ -56,7 +66,8 @@ export default {
       const config = getConfig();
       if (config.cart_mode !== "quote") return false;
       const mode = getProductMode(data);
-      const options = computeOptions(data, mode);
+      const defaultMaxQuantity = getDefaultMaxQuantity(data);
+      const options = computeOptions(data, mode, defaultMaxQuantity);
       return options[0]?.max_quantity > 1;
     },
   },
