@@ -50,6 +50,45 @@ describe("product-cart-data", () => {
       // Should not throw - validation only happens when building cart attributes
       expect(() => computeOptions(data, "hire")).not.toThrow();
     });
+
+    test("applies defaultMaxQuantity to options without max_quantity", () => {
+      const options = [
+        { name: "Small", unit_price: "£10" },
+        { name: "Large", unit_price: "£20" },
+      ];
+      const result = computeOptions({ options }, "buy", 5);
+      expect(result).toEqual([
+        { name: "Small", unit_price: "£10", max_quantity: 5 },
+        { name: "Large", unit_price: "£20", max_quantity: 5 },
+      ]);
+    });
+
+    test("preserves existing max_quantity when defaultMaxQuantity provided", () => {
+      const options = [
+        { name: "Limited", unit_price: "£10", max_quantity: 2 },
+        { name: "Unlimited", unit_price: "£20" },
+      ];
+      const result = computeOptions({ options }, "buy", 10);
+      expect(result).toEqual([
+        { name: "Limited", unit_price: "£10", max_quantity: 2 },
+        { name: "Unlimited", unit_price: "£20", max_quantity: 10 },
+      ]);
+    });
+
+    test("applies defaultMaxQuantity in hire mode", () => {
+      const data = {
+        title: "Widget",
+        options: [
+          { days: 1, unit_price: "£10" },
+          { days: 3, unit_price: "£30", max_quantity: 3 },
+        ],
+      };
+      const result = computeOptions(data, "hire", 5);
+      expect(result).toEqual([
+        { days: 1, unit_price: 10, max_quantity: 5 },
+        { days: 3, unit_price: 30, max_quantity: 3 },
+      ]);
+    });
   });
 
   describe("buildCartAttributes", () => {
