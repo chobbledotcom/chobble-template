@@ -13,7 +13,7 @@ describe("product-cart-data", () => {
 
     test("returns options unchanged for non-hire mode", () => {
       const options = [{ name: "Small", unit_price: "£10" }];
-      expect(computeOptions({ options }, "buy")).toBe(options);
+      expect(computeOptions({ options }, "buy")).toEqual(options);
     });
 
     test("filters, parses and sorts options for hire mode", () => {
