@@ -52,6 +52,19 @@ features:
   - Biometric scanner
   - Universal connectivity ports
   - Surround sound resonators
+add_ons:
+  intro: |
+    ## Enhance Your UltraWidget
+    Complete your setup with these premium accessories.
+  options:
+    - name: Extended 5-Year Warranty
+      price: 199.99
+    - name: Premium Carrying Case
+      price: 79.99
+    - name: Holographic Screen Protector
+      price: 29.99
+    - name: Wireless Charging Pad
+      price: 49.99
 tabs:
   - title: Setup Guide
     body: |

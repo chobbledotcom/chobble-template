@@ -239,6 +239,37 @@ export const FILTER_ATTRIBUTES_FIELD = createNameValueListField(
 );
 
 /**
+ * Create add-ons field with appropriate intro type based on config
+ * @param {boolean} useVisualEditor - Whether to use visual editor
+ * @returns {CmsField} Add-ons field configuration
+ */
+export const createAddOnsField = (useVisualEditor) => ({
+  name: "add_ons",
+  label: "Add-ons",
+  type: "object",
+  fields: [
+    useVisualEditor
+      ? { name: "intro", type: "rich-text", label: "Intro" }
+      : {
+          name: "intro",
+          type: "code",
+          label: "Intro",
+          options: { language: "markdown" },
+        },
+    {
+      name: "options",
+      label: "Add-on Options",
+      type: "object",
+      list: true,
+      fields: [
+        { name: "name", type: "string", label: "Name", required: true },
+        { name: "price", type: "number", label: "Price", required: true },
+      ],
+    },
+  ],
+});
+
+/**
  * Create tabs field with appropriate body type based on config
  * @param {boolean} useVisualEditor - Whether to use visual editor
  * @returns {CmsField} Tabs field configuration
