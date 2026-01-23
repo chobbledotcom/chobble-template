@@ -118,11 +118,10 @@ const getRating = (reviews, slug, field) => {
  * Convert numeric rating to star display.
  *
  * @param {number} rating - The numeric rating (1-5)
- * @param {boolean} [useSvg=false] - Whether to use SVG stars instead of emojis
- * @returns {string} Stars repeated by the rating count (emoji or SVG)
+ * @returns {string} Stars repeated by the rating count (emoji or SVG based on config)
  */
-const ratingToStars = (rating, useSvg = false) =>
-  useSvg ? STAR_SVG.repeat(rating) : "⭐️".repeat(rating);
+const ratingToStars = (rating) =>
+  config.rating_stars_uses_svg ? STAR_SVG.repeat(rating) : "⭐️".repeat(rating);
 
 /**
  * Predefined list of slightly dark colors for avatar backgrounds.
