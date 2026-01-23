@@ -14,6 +14,7 @@ import {
 import {
   COMMON_FIELDS,
   createBodyField,
+  createMarkdownField,
   createReferenceField,
   createTabsField,
   FAQS_FIELD,
@@ -950,11 +951,36 @@ describe("customise-cms visual editor fields", () => {
   });
 
   // ============================================
-  // COMMON_FIELDS.body_visual
+  // createMarkdownField
   // ============================================
-  test("COMMON_FIELDS.body_visual has rich-text type", () => {
-    expect(COMMON_FIELDS.body_visual.name).toBe("body");
-    expect(COMMON_FIELDS.body_visual.type).toBe("rich-text");
+  test("createMarkdownField returns code field when visual editor disabled", () => {
+    const field = createMarkdownField("intro", "Intro", false);
+    expect(field.name).toBe("intro");
+    expect(field.label).toBe("Intro");
+    expect(field.type).toBe("code");
+    expect(field.options).toEqual({ language: "markdown" });
+  });
+
+  test("createMarkdownField returns rich-text field when visual editor enabled", () => {
+    const field = createMarkdownField("intro", "Intro", true);
+    expect(field.name).toBe("intro");
+    expect(field.label).toBe("Intro");
+    expect(field.type).toBe("rich-text");
+    expect(field.options).toBeUndefined();
+  });
+
+  test("createMarkdownField passes through additional properties", () => {
+    const field = createMarkdownField("body", "Body", false, {
+      required: true,
+    });
+    expect(field.required).toBe(true);
+    expect(field.type).toBe("code");
+  });
+
+  test("createMarkdownField passes through additional properties with visual editor", () => {
+    const field = createMarkdownField("body", "Body", true, { required: true });
+    expect(field.required).toBe(true);
+    expect(field.type).toBe("rich-text");
   });
 });
 
