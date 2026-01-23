@@ -52,25 +52,41 @@ const validateHireOptions = (options, title) => {
 };
 
 /**
+ * Apply default max_quantity to an option if not set
+ * @param {ProductOption} opt - Option to process
+ * @param {number | null} defaultMaxQuantity - Default max quantity from config
+ * @returns {ProductOption} Option with max_quantity applied
+ */
+const applyDefaultMaxQuantity = (opt, defaultMaxQuantity) => {
+  if (opt.max_quantity != null || defaultMaxQuantity == null) {
+    return opt;
+  }
+  return { ...opt, max_quantity: defaultMaxQuantity };
+};
+
+/**
  * Compute processed options for a product
  * @param {ProductData} data - Product data
  * @param {string} mode - Product mode ("hire", "buy", etc.)
+ * @param {number | null} defaultMaxQuantity - Default max quantity from config
  * @returns {ProductOption[]} Processed options
  */
-export const computeOptions = (data, mode) => {
+export const computeOptions = (data, mode, defaultMaxQuantity = null) => {
   if (!data.options || data.options.length === 0) {
     return [];
   }
 
   if (mode !== "hire") {
-    return data.options;
+    return data.options.map((opt) =>
+      applyDefaultMaxQuantity(opt, defaultMaxQuantity),
+    );
   }
 
   return pipe(
     filterMap(
       (opt) => opt.days != null,
       (opt) => ({
-        ...opt,
+        ...applyDefaultMaxQuantity(opt, defaultMaxQuantity),
         unit_price: parsePriceStrict(
           opt.unit_price,
           `${data.title} days=${opt.days}`,
