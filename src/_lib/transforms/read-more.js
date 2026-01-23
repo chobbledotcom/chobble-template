@@ -56,7 +56,9 @@ const findMarkerNode = (document) => {
 
 /** @param {Node} node */
 const collectSiblings = (node) => {
-  const walk = (cur, acc) => (cur ? walk(cur.nextSibling, [...acc, cur]) : acc);
+  const isDiv = (n) => n.nodeType === 1 && n.tagName === "DIV";
+  const walk = (cur, acc) =>
+    cur && !isDiv(cur) ? walk(cur.nextSibling, [...acc, cur]) : acc;
   return walk(node.nextSibling, []);
 };
 
