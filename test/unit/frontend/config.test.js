@@ -41,6 +41,7 @@ describe("config", () => {
       "phoneNumberLength",
       "use_visual_editor",
       "default_image_widths",
+      "default_max_quantity",
     ];
     expect(Object.keys(DEFAULTS).sort()).toEqual(expectedKeys.sort());
   });

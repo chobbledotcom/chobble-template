@@ -325,7 +325,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 // grandfathered usages that should be refactored over time.
 const ALLOWED_OR_FALLBACKS = frozenSet([
   // src/_lib/config - config boundary validation
-  "src/_lib/config/helpers.js:44", // products || {} - defensive at config boundary
+  "src/_lib/config/helpers.js:45", // products || {} - defensive at config boundary
 
   // src/_lib/eleventy - build-time generation with optional data
   "src/_lib/eleventy/area-list.js:10", // eleventyNavigation?.key || "" - nav key display
@@ -345,9 +345,9 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/media/unused-images.js:35", // .match() || [] - regex returns null on no match
 
   // src/_lib/utils - serialization utilities
-  "src/_lib/utils/product-cart-data.js:109", // max_quantity || null - explicit null in JSON
-  "src/_lib/utils/product-cart-data.js:110", // sku || null - explicit null in JSON
-  "src/_lib/utils/product-cart-data.js:111", // days || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:125", // max_quantity || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:126", // sku || null - explicit null in JSON
+  "src/_lib/utils/product-cart-data.js:127", // days || null - explicit null in JSON
   "src/_lib/utils/schema-helper.js:111", // image cascade || null - intentional "first available or null"
   "src/_lib/utils/schema-helper.js:117", // metaComputed || {} - spread into schema object
 ]);
