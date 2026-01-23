@@ -121,7 +121,9 @@ const getRating = (reviews, slug, field) => {
  * @returns {string} Stars repeated by the rating count (emoji or SVG based on config)
  */
 const ratingToStars = (rating) =>
-  config.rating_stars_uses_svg ? STAR_SVG.repeat(rating) : "⭐️".repeat(rating);
+  config().rating_stars_uses_svg
+    ? STAR_SVG.repeat(rating)
+    : "⭐️".repeat(rating);
 
 /**
  * Predefined list of slightly dark colors for avatar backgrounds.
