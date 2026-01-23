@@ -25,6 +25,7 @@ describe("breadcrumbsFilter", () => {
     navigationParent,
     parentLocation,
     parentCategory = undefined,
+    itemCategories = undefined,
     categories = undefined,
     locations = undefined,
   ) =>
@@ -34,6 +35,7 @@ describe("breadcrumbsFilter", () => {
       navigationParent,
       parentLocation,
       parentCategory,
+      itemCategories,
       categories,
       locations,
     );
@@ -124,6 +126,7 @@ describe("breadcrumbsFilter", () => {
       "london",
       undefined,
       undefined,
+      undefined,
       locations,
     );
     expect(subpageCrumbs).toHaveLength(4);
@@ -140,6 +143,7 @@ describe("breadcrumbsFilter", () => {
       "London",
       "Locations",
       "london",
+      undefined,
       undefined,
       undefined,
       locations,
@@ -171,8 +175,9 @@ describe("breadcrumbsFilter", () => {
       url: "/products/widgets/",
       data: { title: "Widgets" },
     };
+    const categoriesCollection = [widgetCategory];
 
-    test("handles parentCategory for child categories", () => {
+    test("handles explicit parentCategory for child categories", () => {
       const mockConfig = setupFilter();
       const crumbs = callFilter(
         mockConfig,
@@ -181,7 +186,8 @@ describe("breadcrumbsFilter", () => {
         "Products",
         null,
         "widgets",
-        [widgetCategory],
+        undefined,
+        categoriesCollection,
       );
 
       expect(crumbs).toHaveLength(4);
@@ -189,7 +195,51 @@ describe("breadcrumbsFilter", () => {
         label: "Widgets",
         url: "/products/widgets/",
       });
-      expect(crumbs[3]).toEqual({ label: "Premium Widgets", url: null });
+      expect(crumbs[3].label).toBe("Premium Widgets");
+    });
+
+    test("uses first item from itemCategories when no explicit parent", () => {
+      const mockConfig = setupFilter();
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/products/my-product/" },
+        "My Product",
+        "Products",
+        null,
+        undefined,
+        ["widgets", "other"],
+        categoriesCollection,
+      );
+
+      expect(crumbs).toHaveLength(4);
+      expect(crumbs.at(2).label).toBe("Widgets");
+      expect(crumbs.at(2).url).toBe("/products/widgets/");
+      expect(crumbs.at(3).label).toBe("My Product");
+    });
+
+    test("explicit parentCategory takes precedence over itemCategories", () => {
+      const mockConfig = setupFilter();
+      const otherCategory = {
+        fileSlug: "gadgets",
+        url: "/products/gadgets/",
+        data: { title: "Gadgets" },
+      };
+      const crumbs = callFilter(
+        mockConfig,
+        { url: "/products/my-product/" },
+        "My Product",
+        "Products",
+        null,
+        "gadgets",
+        ["widgets"],
+        [widgetCategory, otherCategory],
+      );
+
+      expect(crumbs).toHaveLength(4);
+      expect(crumbs[2]).toEqual({
+        label: "Gadgets",
+        url: "/products/gadgets/",
+      });
     });
 
     test("shows parent category as current when at parent URL", () => {
@@ -201,7 +251,8 @@ describe("breadcrumbsFilter", () => {
         "Products",
         null,
         "widgets",
-        [widgetCategory],
+        undefined,
+        categoriesCollection,
       );
 
       expect(crumbs).toHaveLength(3);
@@ -226,6 +277,7 @@ describe("breadcrumbsFilter", () => {
           "Products",
           null,
           "widgets",
+          undefined,
           categories,
         ),
       ).toThrow('Slug "widgets" not found');

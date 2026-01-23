@@ -44,6 +44,14 @@ const findParent = (parentCategory, categories, parentLocation, locations) => {
 /**
  * Build breadcrumbs data array
  * Returns array of { label, url } objects (url is null for current page)
+ * @param {Object} page - Current page object with url property
+ * @param {string} title - Page title
+ * @param {string} navigationParent - Navigation parent name
+ * @param {string|undefined} parentLocation - Explicit parent location slug
+ * @param {string|undefined} parentCategory - Explicit parent category slug
+ * @param {string[]|undefined} itemCategories - Item's categories array (slugs)
+ * @param {Array} categories - Categories collection for lookup
+ * @param {Array} locations - Locations collection for lookup
  */
 const breadcrumbsFilter = (
   page,
@@ -51,6 +59,7 @@ const breadcrumbsFilter = (
   navigationParent,
   parentLocation,
   parentCategory,
+  itemCategories,
   categories,
   locations,
 ) => {
@@ -68,7 +77,7 @@ const breadcrumbsFilter = (
   if (isAtIndex) return baseCrumbs;
 
   const parent = findParent(
-    parentCategory,
+    parentCategory || itemCategories?.[0],
     categories,
     parentLocation,
     locations,
