@@ -43,11 +43,6 @@ export const COMMON_FIELDS = {
     type: "code",
     options: { language: "markdown" },
   },
-  body_visual: {
-    name: "body",
-    label: "Body",
-    type: "rich-text",
-  },
   header_text: { name: "header_text", type: "string", label: "Header Text" },
   meta_title: {
     name: "meta_title",
@@ -72,6 +67,30 @@ export const COMMON_FIELDS = {
   featured: { name: "featured", type: "boolean", label: "Featured" },
   no_index: { name: "no_index", type: "boolean", label: "Hide from listings" },
 };
+
+/**
+ * Create a markdown field that uses rich-text or code type based on visual editor setting
+ * @param {string} name - Field name
+ * @param {string} label - Display label
+ * @param {boolean} useVisualEditor - Whether to use visual editor
+ * @param {Object} [additionalProps={}] - Additional field properties (e.g., required)
+ * @returns {CmsField} Field configuration
+ */
+export const createMarkdownField = (
+  name,
+  label,
+  useVisualEditor,
+  additionalProps = {},
+) =>
+  useVisualEditor
+    ? { name, type: "rich-text", label, ...additionalProps }
+    : {
+        name,
+        type: "code",
+        label,
+        options: { language: "markdown" },
+        ...additionalProps,
+      };
 
 /**
  * FAQs field configuration
@@ -248,14 +267,7 @@ export const createAddOnsField = (useVisualEditor) => ({
   label: "Add-ons",
   type: "object",
   fields: [
-    useVisualEditor
-      ? { name: "intro", type: "rich-text", label: "Intro" }
-      : {
-          name: "intro",
-          type: "code",
-          label: "Intro",
-          options: { language: "markdown" },
-        },
+    createMarkdownField("intro", "Intro", useVisualEditor),
     {
       name: "options",
       label: "Add-on Options",
@@ -282,9 +294,7 @@ export const createTabsField = (useVisualEditor) => ({
   fields: [
     { name: "title", type: "string", label: "Title", required: true },
     { name: "image", type: "image", label: "Image" },
-    useVisualEditor
-      ? { name: "body", label: "Body", type: "rich-text", required: true }
-      : { ...COMMON_FIELDS.body, required: true },
+    createMarkdownField("body", "Body", useVisualEditor, { required: true }),
   ],
 });
 
@@ -300,7 +310,7 @@ export const TABS_FIELD = createTabsField(false);
  * @returns {CmsField} Body field configuration
  */
 export const getBodyField = (useVisualEditor) =>
-  useVisualEditor ? COMMON_FIELDS.body_visual : COMMON_FIELDS.body;
+  createMarkdownField("body", "Body", useVisualEditor);
 
 /**
  * Create a body field with custom label
