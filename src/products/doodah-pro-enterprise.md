@@ -14,18 +14,9 @@ options:
     max_quantity: 5
     unit_price: 899.99
     sku: 0GLVXN
-header_image: src/images/placeholder-wide-1.jpg
 categories:
   - professional-doodahs
   - doodahs
-gallery:
-  - src/images/placeholder-square-2.jpg
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-4.jpg
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-7.jpg
-  - src/images/placeholder-square-1.jpg
 specs:
   - name: Dimensions
     value: 45cm x 30cm x 15cm

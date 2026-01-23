@@ -18,20 +18,11 @@ options:
     max_quantity: 3
     unit_price: 299.99
     sku: 7KA6H1
-header_image: src/images/placeholder-wide-1.jpg
 categories:
   - premium-wotzits
   - wotzits
 events:
   - chobble-summit
-gallery:
-  - src/images/placeholder-square-7.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-4.jpg
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-2.jpg
-  - src/images/placeholder-square-1.jpg
 specs:
   - name: Material
     value: "98% Cloud Fiber, 2% Flex Membrane"

@@ -21,18 +21,9 @@ options:
     max_quantity: 10
     unit_price: 129.99
     sku: JIC8QT
-header_image: src/images/placeholder-wide-3.jpg
 categories:
   - compact-doodahs
   - doodahs
-gallery:
-  - src/images/placeholder-square-1.jpg
-  - src/images/placeholder-square-2.jpg
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-4.jpg
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-7.jpg
 specs:
   - name: Dimensions
     value: 5cm x 3cm x 1.5cm (folded)

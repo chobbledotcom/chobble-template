@@ -1,5 +1,4 @@
 ---
-header_image: src/images/placeholder.jpg
 header_text: Quote Request Sent
 meta_description: Your quote request has been submitted
 meta_title: Quote Request Sent

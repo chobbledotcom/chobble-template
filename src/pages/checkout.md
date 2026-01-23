@@ -1,5 +1,4 @@
 ---
-header_image: src/images/placeholder.jpg
 header_text: Request a Quote
 meta_description: Complete your quote request
 meta_title: Request a Quote

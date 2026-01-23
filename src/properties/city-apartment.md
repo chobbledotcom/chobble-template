@@ -1,7 +1,6 @@
 ---
 title: City Centre Apartment
 subtitle: Modern 1-bedroom apartment in the heart of town
-header_image: src/images/placeholder-wide-3.jpg
 locations:
   - fulchester
 unavailability_api_url: https://auto.chobble.com/webhooks/flows/a4a86b7d-173a-43e7-8fc4-51c9c4d84a10/sync

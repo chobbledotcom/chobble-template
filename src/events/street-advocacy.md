@@ -1,5 +1,4 @@
 ---
-header_image: src/images/placeholder-wide-2.jpg
 title: Street Advocacy Sessions
 subtitle: Bringing Chobble to the masses of Fulchester
 meta_description: Quarterly public demonstrations of the Chobble template in Fulchester city centre

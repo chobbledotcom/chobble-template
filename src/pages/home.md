@@ -1,5 +1,4 @@
 ---
-header_image: src/images/placeholder.jpg
 header_text: Example Website
 meta_description: Example site for the Chobble template - an Eleventy site, built on Nix and hosted on Neocities or Bunny.net
 meta_title: Chobble Template | Eleventy Starter | AGPLv3
