@@ -346,7 +346,7 @@ const applyQuantityAction = (input, action, currentValue, max) => {
 };
 
 const handleQuantityBtnClick = (e) => {
-  const container = e.target.closest(".list-item-quantity");
+  const container = e.target.closest(".item-quantity");
   if (!container) return false;
 
   const action = getQuantityAction(e.target);
