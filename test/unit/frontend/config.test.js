@@ -33,6 +33,7 @@ describe("config", () => {
       "enable_theme_switcher",
       "timezone",
       "reviews_truncate_limit",
+      "rating_stars_uses_svg",
       "list_item_fields",
       "navigation_content_anchor",
       "category_order",
