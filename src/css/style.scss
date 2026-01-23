@@ -1,7 +1,5 @@
 @use "sass:color";
 @use "breakpoints";
-@use "variables" as *;
-@use "mixins" as *;
 
 :root {
   --color-bg: #efefef;
@@ -1125,24 +1123,3 @@ main {
   }
 }
 
-// Product add-ons section
-.design-system .add-ons {
-  margin: $space-lg 0;
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: $space-sm 0 0;
-
-    li {
-      @include flex-between;
-      gap: $space-md;
-      padding: $space-sm 0;
-      border-bottom: $border-light;
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-}

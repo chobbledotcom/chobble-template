@@ -38,6 +38,15 @@ features:
   - Colorful blinking lights
   - Makes whooshing sounds
   - Self-cleaning surface
+add_ons:
+  intro: Make it extra special
+  options:
+    - name: Gift Wrapping
+      price: 4.99
+    - name: Spare Batteries (4-pack)
+      price: 8.99
+    - name: Protective Sleeve
+      price: 12.99
 categories:
   - src/categories/compact-doodahs.md
 ---

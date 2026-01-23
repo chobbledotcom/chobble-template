@@ -1,16 +1,14 @@
 {%- if add_ons.intro or add_ons.options.size > 0 -%}
 <div class="design-system">
-  <section class="add-ons">
-    {%- if add_ons.intro -%}
-      {{- add_ons.intro | renderContent: "md" -}}
-    {%- endif -%}
-    {%- if add_ons.options.size > 0 -%}
-      <ul>
-        {%- for option in add_ons.options -%}
-          <li><span class="name">{{ option.name }}</span> <span class="price">£{{ option.price }}</span></li>
-        {%- endfor -%}
-      </ul>
-    {%- endif -%}
-  </section>
+  {%- if add_ons.intro -%}
+    {{- add_ons.intro | renderContent: "md" -}}
+  {%- endif -%}
+  {%- if add_ons.options.size > 0 -%}
+    <ul>
+      {%- for option in add_ons.options -%}
+        <li>{{ option.name }} — £{{ option.price }}</li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
 </div>
 {%- endif -%}

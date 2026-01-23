@@ -25,6 +25,19 @@ options:
     unit_price: "£65"
     days: 4
     sku: IEI6S8
+add_ons:
+  intro: |
+    ### Extra Services
+    Treat your pup to something special during their stay.
+  options:
+    - name: Bath & Groom
+      price: 25
+    - name: Training Session (30 min)
+      price: 35
+    - name: Photo Updates Package
+      price: 10
+    - name: Premium Treats Bundle
+      price: 15
 categories:
   - compact-doodahs
 ---
