@@ -1,6 +1,5 @@
 ---
 title: Widget Removal in Royston Vasey
-thumbnail: /images/placeholder-square-3.jpg
 subtitle: Local widget removal for local people
 meta_title: "Widget Removal in Royston Vasey - A Local Service"
 meta_description: "Widget removal services in Royston Vasey. We're a local widget removal service for local people. Professional and reliable."

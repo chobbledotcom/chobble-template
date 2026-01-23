@@ -1,5 +1,4 @@
 ---
-header_image: src/images/placeholder-wide-3.jpg
 title: Lunar Networking Extravaganza
 subtitle: Small businesses meet Eleventy developers... on the Moon!
 meta_description: Monthly networking on the lunar surface for Chobble template enthusiasts

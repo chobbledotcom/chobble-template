@@ -1,6 +1,5 @@
 ---
 title: Widget Removal in Fulchester
-thumbnail: /images/placeholder-square-2.jpg
 subtitle: Expert widget removal services
 meta_title: "Widget Removal in Fulchester - Professional Service"
 meta_description: "Need widgets removed in Fulchester? Our expert team provides fast, reliable widget removal services throughout the Fulchester area."

@@ -21,18 +21,9 @@ options:
     max_quantity: 8
     unit_price: 799.99
     sku: JTYGPQ
-header_image: src/images/placeholder-wide-1.jpg
 categories:
   - smart-thingies
   - thingies
-gallery:
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-7.jpg
-  - src/images/placeholder-square-1.jpg
-  - src/images/placeholder-square-2.jpg
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-4.jpg
 specs:
   - name: Display
     value: 10.1" HD touchscreen
@@ -55,11 +46,9 @@ features:
 stripe_url: 'https://buy.stripe.com/example'
 tabs:
   - title: Installation
-    image: src/images/placeholder-square-3.jpg
     body: |
       Mount your SmarThingy Home Hub in a central location for optimal coverage. The device requires a standard power outlet and Wi-Fi connection. Use the companion app to complete the initial setup and begin pairing your smart devices.
   - title: Compatibility
-    image: src/images/placeholder-square-4.jpg
     body: |
       The Home Hub works with over 10,000 smart devices including lights, thermostats, locks, cameras, and more. Supports Wi-Fi, Zigbee, Z-Wave, and Matter protocols for maximum compatibility with your existing smart home ecosystem.
 ---

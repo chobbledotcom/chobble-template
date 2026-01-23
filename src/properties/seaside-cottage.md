@@ -1,7 +1,6 @@
 ---
 title: Seaside Cottage
 subtitle: Charming 2-bedroom retreat with ocean views
-header_image: src/images/placeholder-wide-1.jpg
 locations:
   - springfield
 featured: true

@@ -1,6 +1,5 @@
 ---
 title: Fulchester
-thumbnail: /images/placeholder-square-2.jpg
 subtitle: Home of Fulchester United
 categories:
   - widgets

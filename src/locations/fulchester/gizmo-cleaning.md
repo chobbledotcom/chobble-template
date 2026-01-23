@@ -1,6 +1,5 @@
 ---
 title: Gizmo Cleaning in Fulchester
-thumbnail: /images/placeholder-square-2.jpg
 subtitle: Professional gizmo cleaning services
 meta_title: "Gizmo Cleaning in Fulchester - Spotless Results Guaranteed"
 meta_description: "Professional gizmo cleaning services in Fulchester. We clean all types of gizmos to restore them to pristine condition. Call us today."

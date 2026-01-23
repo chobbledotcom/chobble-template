@@ -1,7 +1,6 @@
 ---
 title: Professional Doodahs
 subtitle: Enterprise-grade doodahs for demanding applications
-header_image: src/images/placeholder-wide-2.jpg
 parent: doodahs
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: Springfield
-thumbnail: /images/placeholder-square-1.jpg
 subtitle: Serving the nuclear-powered community
 categories:
   - open-source

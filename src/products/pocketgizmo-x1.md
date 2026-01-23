@@ -15,18 +15,9 @@ options:
     max_quantity: 4
     unit_price: 1299.99
     sku: T482OL
-header_image: src/images/placeholder-wide-3.jpg
 categories:
   - pocket-widgets
   - widgets
-gallery:
-  - src/images/placeholder-square-7.jpg
-  - src/images/placeholder-square-6.jpg
-  - src/images/placeholder-square-5.jpg
-  - src/images/placeholder-square-4.jpg
-  - src/images/placeholder-square-3.jpg
-  - src/images/placeholder-square-2.jpg
-  - src/images/placeholder-square-1.jpg
 specs:
   - name: Display
     value: 6.5" Dimensional Screen

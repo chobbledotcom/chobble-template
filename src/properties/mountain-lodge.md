@@ -1,7 +1,6 @@
 ---
 title: Mountain Lodge
 subtitle: Spacious 4-bedroom lodge with stunning mountain views
-header_image: src/images/placeholder-wide-2.jpg
 locations:
   - royston-vasey
 featured: true

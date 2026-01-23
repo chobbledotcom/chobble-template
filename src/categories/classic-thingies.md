@@ -1,7 +1,6 @@
 ---
 title: Classic Thingies
 subtitle: Timeless thingies with traditional craftsmanship
-header_image: src/images/placeholder-wide-5.jpg
 parent: thingies
 ---
 

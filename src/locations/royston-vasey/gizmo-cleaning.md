@@ -1,6 +1,5 @@
 ---
 title: Gizmo Cleaning in Royston Vasey
-thumbnail: /images/placeholder-square-3.jpg
 subtitle: Local gizmo cleaning for local people
 meta_title: "Gizmo Cleaning in Royston Vasey - Trusted Local Service"
 meta_description: "Gizmo cleaning services in Royston Vasey. A local gizmo cleaning service for local people. We keep your gizmos just the way they should be."
