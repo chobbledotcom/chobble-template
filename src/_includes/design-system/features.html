@@ -13,6 +13,10 @@ Parameters:
     - style: Optional inline styles (e.g., for custom colors)
   - reveal: If true, adds data-reveal animation (default: true)
   - heading_level: Heading level for titles, defaults to 3 (h3)
+  - grid_class: CSS class for grid container (default: "features")
+               Use "grid--4" for 4-column layout, "grid" for 3-column, etc.
+  - header_title: Optional section header title (renders section-header before grid)
+  - header_subtitle: Optional section header subtitle
 
 Usage:
   {% include "design-system/features.html", items: page.features %}
@@ -27,8 +31,16 @@ Usage:
 
 {%- assign reveal = reveal | default: true -%}
 {%- assign heading_level = heading_level | default: 3 -%}
+{%- assign grid_class = grid_class | default: "features" -%}
 
-<ul class="features" role="list">
+{%- if header_title -%}
+  {%- include "design-system/section-header.html",
+      title: header_title,
+      subtitle: header_subtitle
+  -%}
+{%- endif -%}
+
+<ul class="{{ grid_class }}" role="list">
   {%- for item in items -%}
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
