@@ -14,7 +14,11 @@ Or with objects:
   (where page.stats = [{value: "99%", label: "Uptime"}, ...])
 {%- endcomment -%}
 
-{%- assign reveal = reveal | default: true -%}
+{%- if reveal == false -%}
+  {%- comment -%} Explicitly disabled, keep false {%- endcomment -%}
+{%- elsif reveal == nil or reveal == "" or reveal == blank -%}
+  {%- assign reveal = true -%}
+{%- endif -%}
 
 <dl class="stats" role="list">
   {%- for item in items -%}

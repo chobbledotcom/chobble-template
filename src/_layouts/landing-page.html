@@ -1,0 +1,8 @@
+---
+layout: design-system-base.html
+---
+
+{%- if blocks -%}
+  {%- include "design-system/blocks.html", blocks: blocks, landing_page: true -%}
+{%- endif -%}
+{{ content }}

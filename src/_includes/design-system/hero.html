@@ -1,0 +1,46 @@
+{%- comment -%}
+Hero section with badge, title, lead text, and action buttons.
+
+Parameters:
+  - badge: Optional badge text above title
+  - title: Main heading (required)
+  - lead: Subtitle/description text
+  - buttons: Array of button objects with:
+    - text: Button label
+    - href: Link URL
+    - variant: "primary", "secondary", or "ghost" (default: "primary")
+    - size: "sm", "lg", or omit for default
+  - class: Additional CSS classes (e.g., "gradient")
+  - reveal: If set, adds data-reveal animation
+
+Usage:
+  {% include "design-system/hero.html",
+     badge: "New Release",
+     title: "Welcome to Our Site",
+     lead: "A short description here",
+     buttons: page.hero_buttons,
+     class: "gradient"
+  %}
+{%- endcomment -%}
+
+<header class="hero{% if class %} {{ class }}{% endif %}"{% if reveal %} data-reveal="{{ reveal }}"{% endif %}>
+  {%- if badge -%}
+    <span class="badge">{{ badge }}</span>
+  {%- endif -%}
+  <h1>{{ title }}</h1>
+  {%- if lead -%}
+    <p class="lead">{{ lead }}</p>
+  {%- endif -%}
+  {%- if buttons.size > 0 -%}
+    <div class="actions">
+      {%- for button in buttons -%}
+        {%- assign variant = button.variant | default: "primary" -%}
+        {%- assign btnClass = "btn btn--" | append: variant -%}
+        {%- if button.size -%}
+          {%- assign btnClass = btnClass | append: " btn--" | append: button.size -%}
+        {%- endif -%}
+        <a href="{{ button.href }}" class="{{ btnClass }}">{{ button.text }}</a>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</header>

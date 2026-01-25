@@ -42,7 +42,12 @@ const extractFromHtml = (type, content) => {
   const cleanLiquid = (c) =>
     c.replace(/\{\{-?[\s\S]*?-?\}\}/g, " ").replace(/\{%-?[\s\S]*?-?%\}/g, " ");
   const normalizeWhitespace = (str) => str.replace(/\s+/g, " ").trim();
-  const isValidClass = (cls) => cls && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls);
+  // Valid classes: start with letter/underscore/hyphen, contain alphanumeric/underscore/hyphen
+  // Skip BEM modifier prefixes (e.g., "btn--" from "btn--{{ variant }}" after Liquid removal)
+  const isValidClass = (cls) =>
+    cls &&
+    /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls) &&
+    !cls.endsWith("--");
   const isDynamicId = (val) => val.includes("{{") || val.includes("{%");
   const isNotEmpty = (val) => val.trim() !== "";
 
@@ -103,8 +108,29 @@ const findSelectorReferencesInScss = (content, name, prefix) => {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   // Match selector in SCSS (with word boundary or valid selector chars after)
   // Handles: .class, .class:hover, .class.other, .class[attr], .class>child, #id, etc.
-  const pattern = new RegExp(`${prefix}${escaped}(?=[\\s,:{\\[>+~.)#]|$)`, "m");
-  return pattern.test(content);
+  const directPattern = new RegExp(
+    `${prefix}${escaped}(?=[\\s,:{\\[>+~.)#]|$)`,
+    "m",
+  );
+  if (directPattern.test(content)) return true;
+
+  // For BEM-style modifiers (e.g., "split--reverse"), check for SCSS nesting
+  // Pattern: &--modifier within a .base { } block (can be deeply nested)
+  if (name.includes("--")) {
+    const [base, ...modifierParts] = name.split("--");
+    const modifier = modifierParts.join("--");
+    const baseEscaped = base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const modifierEscaped = modifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Check if we have .base somewhere before &--modifier (allowing any nesting depth)
+    const basePattern = new RegExp(`${prefix}${baseEscaped}\\s*\\{`, "m");
+    const modifierPattern = new RegExp(
+      `&--${modifierEscaped}(?=[\\s,:{\\[>+~.)#]|$)`,
+      "m",
+    );
+    if (basePattern.test(content) && modifierPattern.test(content)) return true;
+  }
+
+  return false;
 };
 
 // ============================================
