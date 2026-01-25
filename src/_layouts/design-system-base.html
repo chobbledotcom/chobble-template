@@ -17,9 +17,9 @@
 </head>
 <body class="{{ layout | getBodyClasses: config.design_system_layouts, true, config.sticky_mobile_nav, config.horizontal_nav, false }}{% if body_class %} {{ body_class }}{% endif %}">
   {%- if blocks -%}
-    {% if wrapper == "main" %}<main>{% else %}<div class="design-system">{% endif %}
+  <main>
     {%- include "design-system/blocks.html", blocks: blocks -%}
-    {% if wrapper == "main" %}</main>{% else %}</div>{% endif %}
+  </main>
   {%- endif -%}
   {{- content -}}
 </body>
