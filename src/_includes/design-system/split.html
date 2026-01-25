@@ -27,16 +27,8 @@ Usage:
 {%- endcomment -%}
 
 {%- assign title_level = title_level | default: 2 -%}
-{%- if reveal_content == nil or reveal_content == "" -%}
-  {%- if reverse -%}
-    {%- assign reveal_content = "right" -%}
-  {%- else -%}
-    {%- assign reveal_content = "left" -%}
-  {%- endif -%}
-{%- endif -%}
-{%- if reveal_figure == nil or reveal_figure == "" -%}
-  {%- assign reveal_figure = "scale" -%}
-{%- endif -%}
+{%- assign reveal_content = reveal_content | default: "left" -%}
+{%- assign reveal_figure = reveal_figure | default: "scale" -%}
 
 <div class="split{% if reverse %} split--reverse{% endif %}">
   <article data-reveal="{{ reveal_content }}">

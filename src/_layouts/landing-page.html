@@ -2,7 +2,43 @@
 layout: design-system-base.html
 ---
 
-{%- if blocks -%}
-  {%- include "design-system/blocks.html", blocks: blocks, landing_page: true -%}
+{%- assign _blocks = processedBlocks | default: blocks -%}
+{%- if _blocks.size > 0 -%}
+
+{%- assign _footer = nil -%}
+{%- for block in _blocks -%}
+  {%- if block.type == "footer" -%}{%- assign _footer = block -%}{%- endif -%}
+{%- endfor -%}
+
+<main>
+{%- for block in _blocks -%}
+  {%- if block.type == "footer" -%}{%- continue -%}{%- endif -%}
+
+  {%- if block.section_class != nil -%}
+<section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
+  {%- endif -%}
+
+  {%- if block.container -%}
+    {%- if block.container == true or block.container == "default" -%}
+<div class="container">
+    {%- else -%}
+<div class="container--{{ block.container }}">
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- include "design-system/render-block.html", block: block -%}
+
+  {%- if block.container -%}</div>{%- endif -%}
+  {%- if block.section_class != nil -%}</section>{%- endif -%}
+
+{%- endfor -%}
+</main>
+
+{%- if _footer -%}
+  {%- include "design-system/footer.html",
+      text: _footer.text, links: _footer.links, aria_label: _footer.aria_label
+  -%}
+{%- endif -%}
+
 {%- endif -%}
 {{ content }}

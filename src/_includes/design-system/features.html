@@ -29,15 +29,9 @@ Usage:
   ]
 {%- endcomment -%}
 
-{%- if reveal == nil or reveal == "" -%}
-  {%- assign reveal = true -%}
-{%- endif -%}
-{%- if heading_level == nil or heading_level == "" -%}
-  {%- assign heading_level = 3 -%}
-{%- endif -%}
-{%- if grid_class == nil or grid_class == "" -%}
-  {%- assign grid_class = "features" -%}
-{%- endif -%}
+{%- assign reveal = reveal | default: true -%}
+{%- assign heading_level = heading_level | default: 3 -%}
+{%- assign grid_class = grid_class | default: "features" -%}
 
 {%- if header_title -%}
   {%- include "design-system/section-header.html",
