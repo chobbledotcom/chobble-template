@@ -45,9 +45,7 @@ const extractFromHtml = (type, content) => {
   // Valid classes: start with letter/underscore/hyphen, contain alphanumeric/underscore/hyphen
   // Skip BEM modifier prefixes (e.g., "btn--" from "btn--{{ variant }}" after Liquid removal)
   const isValidClass = (cls) =>
-    cls &&
-    /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls) &&
-    !cls.endsWith("--");
+    cls && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(cls) && !cls.endsWith("--");
   const isDynamicId = (val) => val.includes("{{") || val.includes("{%");
   const isNotEmpty = (val) => val.trim() !== "";
 
