@@ -1,15 +1,4 @@
-{%- if blocks.size > 0 -%}
-
-{%- assign _footer = nil -%}
-{%- if wrapper == "main" -%}
-  {%- for block in blocks -%}
-    {%- if block.type == "footer" -%}{%- assign _footer = block -%}{%- endif -%}
-  {%- endfor -%}
-{%- endif -%}
-
-{% if wrapper == "main" %}<main>{% else %}<div class="design-system">{% endif %}
 {%- for block in blocks -%}
-  {%- if wrapper == "main" and block.type == "footer" -%}{%- continue -%}{%- endif -%}
   {%- if block.section_class != nil -%}
 <section{% if block.section_class != "" %} class="{{ block.section_class }}"{% endif %}>
   {%- endif -%}
@@ -18,10 +7,3 @@
   {%- if block.container -%}</div>{%- endif -%}
   {%- if block.section_class != nil -%}</section>{%- endif -%}
 {%- endfor -%}
-{% if wrapper == "main" %}</main>{% else %}</div>{% endif %}
-
-{%- if _footer -%}
-  {%- include "design-system/render-block.html", block: _footer -%}
-{%- endif -%}
-
-{%- endif -%}
