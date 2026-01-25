@@ -14,7 +14,7 @@ const BLOCK_DEFAULTS = {
 
 export default {
   eleventyComputed: {
-    processedBlocks: (data) => {
+    blocks: (data) => {
       if (!data.blocks) return data.blocks;
       return data.blocks.map((block) => {
         const merged = { ...BLOCK_DEFAULTS[block.type], ...block };
