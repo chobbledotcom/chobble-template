@@ -8,11 +8,10 @@
 import {
   COMMON_STEPS,
   extractErrorsFromOutput,
+  isMainModule,
   runSteps,
+  verbose,
 } from "#test/test-runner-utils.js";
-
-const verbose = process.argv.includes("--verbose");
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 
 // Precommit uses fix variants of lint/knip plus basic test (no coverage)
 const steps = [
@@ -31,7 +30,7 @@ const steps = [
 export { extractErrorsFromOutput };
 
 // Run all steps (only when executed directly, not when imported)
-if (isMainModule) {
+if (isMainModule(import.meta.url)) {
   console.log(
     verbose
       ? "Running precommit checks (verbose)...\n"

@@ -7,6 +7,17 @@ import { ROOT_DIR } from "#lib/paths.js";
 
 const rootDir = ROOT_DIR;
 
+/** Check if --verbose flag was passed on command line */
+export const verbose = process.argv.includes("--verbose");
+
+/**
+ * Check if the current module is the main entry point.
+ * @param {string} importMetaUrl - The import.meta.url of the calling module
+ * @returns {boolean}
+ */
+export const isMainModule = (importMetaUrl) =>
+  importMetaUrl === `file://${process.argv[1]}`;
+
 /**
  * @typedef {Object} TruncateOptions
  * @property {number} [maxItems=10] - Maximum items to show
