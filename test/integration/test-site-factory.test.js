@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   cleanupAllTestSites,
   createTestSite,
+  withSetupTestSite,
 } from "#test/test-site-factory.js";
 import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 
@@ -22,13 +23,7 @@ const factoryTestPage = (options = {}) => ({
 });
 
 /** Common test file configuration */
-const defaultTestFiles = [
-  {
-    path: "pages/test.md",
-    frontmatter: { title: "Test" },
-    content: "Test",
-  },
-];
+const defaultTestFiles = [factoryTestPage()];
 
 describe("test-site-factory", () => {
   // Clean up any leftover test sites after all tests
@@ -41,18 +36,11 @@ describe("test-site-factory", () => {
   // =========================================================================
   describe("createTestSite setup", () => {
     test("creates test site with custom config merged with existing config", async () => {
-      const site = await createTestSite({
+      const opts = {
+        files: defaultTestFiles,
         config: { custom_field: "test-value" },
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
-      });
-
-      try {
+      };
+      await withSetupTestSite(opts, (site) => {
         // Verify the config file includes both source config and custom config
         const configPath = path.join(site.srcDir, "_data/config.json");
         expect(fs.existsSync(configPath)).toBe(true);
@@ -61,24 +49,15 @@ describe("test-site-factory", () => {
         expect(config.custom_field).toBe("test-value");
         // Should also have fields from the source config.json
         expect(config).toBeTruthy();
-      } finally {
-        site.cleanup();
-      }
+      });
     });
 
     test("creates test site with custom strings", async () => {
-      const site = await createTestSite({
+      const opts = {
+        files: defaultTestFiles,
         strings: { greeting: "Hello Test" },
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
-      });
-
-      try {
+      };
+      await withSetupTestSite(opts, (site) => {
         // Verify strings.js was created with the custom strings
         const stringsPath = path.join(site.srcDir, "_data/strings.js");
         expect(fs.existsSync(stringsPath)).toBe(true);
@@ -86,42 +65,31 @@ describe("test-site-factory", () => {
         const stringsContent = fs.readFileSync(stringsPath, "utf-8");
         expect(stringsContent).toContain("greeting");
         expect(stringsContent).toContain("Hello Test");
-      } finally {
-        site.cleanup();
-      }
+      });
     });
 
     test("creates test site with custom dataFiles", async () => {
-      const site = await createTestSite({
-        dataFiles: [
-          { filename: "custom.json", data: { key: "value" } },
-          { filename: "another.json", data: { foo: "bar" } },
-        ],
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
-      });
+      const dataFiles = [
+        { filename: "custom.json", data: { key: "value" } },
+        { filename: "another.json", data: { foo: "bar" } },
+      ];
+      await withSetupTestSite(
+        { files: defaultTestFiles, dataFiles },
+        (site) => {
+          // Verify custom data files were created
+          const customPath = path.join(site.srcDir, "_data/custom.json");
+          const anotherPath = path.join(site.srcDir, "_data/another.json");
 
-      try {
-        // Verify custom data files were created
-        const customPath = path.join(site.srcDir, "_data/custom.json");
-        const anotherPath = path.join(site.srcDir, "_data/another.json");
+          expect(fs.existsSync(customPath)).toBe(true);
+          expect(fs.existsSync(anotherPath)).toBe(true);
 
-        expect(fs.existsSync(customPath)).toBe(true);
-        expect(fs.existsSync(anotherPath)).toBe(true);
+          const customData = JSON.parse(fs.readFileSync(customPath, "utf-8"));
+          expect(customData.key).toBe("value");
 
-        const customData = JSON.parse(fs.readFileSync(customPath, "utf-8"));
-        expect(customData.key).toBe("value");
-
-        const anotherData = JSON.parse(fs.readFileSync(anotherPath, "utf-8"));
-        expect(anotherData.foo).toBe("bar");
-      } finally {
-        site.cleanup();
-      }
+          const anotherData = JSON.parse(fs.readFileSync(anotherPath, "utf-8"));
+          expect(anotherData.foo).toBe("bar");
+        },
+      );
     });
 
     test("creates test site with images from src/images", async () => {
@@ -129,17 +97,19 @@ describe("test-site-factory", () => {
       const testImagePath = path.join(rootDir, "src/images/test-image.jpg");
       fs.writeFileSync(testImagePath, "fake image content");
 
-      const site = await createTestSite({
-        images: ["test-image.jpg"],
-        files: defaultTestFiles,
-      });
-
       try {
-        // Verify image was copied to site
-        const copiedImagePath = path.join(site.srcDir, "images/test-image.jpg");
-        expect(fs.existsSync(copiedImagePath)).toBe(true);
+        await withSetupTestSite(
+          { files: defaultTestFiles, images: ["test-image.jpg"] },
+          (site) => {
+            // Verify image was copied to site
+            const copiedImagePath = path.join(
+              site.srcDir,
+              "images/test-image.jpg",
+            );
+            expect(fs.existsSync(copiedImagePath)).toBe(true);
+          },
+        );
       } finally {
-        site.cleanup();
         fs.unlinkSync(testImagePath);
       }
     });
@@ -149,17 +119,19 @@ describe("test-site-factory", () => {
       const testImagePath = path.join(rootDir, "test-custom-image.jpg");
       fs.writeFileSync(testImagePath, "fake image content");
 
-      const site = await createTestSite({
-        images: [{ src: testImagePath, dest: "custom.jpg" }],
-        files: defaultTestFiles,
-      });
-
       try {
-        // Verify image was copied with custom dest name
-        const copiedImagePath = path.join(site.srcDir, "images/custom.jpg");
-        expect(fs.existsSync(copiedImagePath)).toBe(true);
+        await withSetupTestSite(
+          {
+            files: defaultTestFiles,
+            images: [{ src: testImagePath, dest: "custom.jpg" }],
+          },
+          (site) => {
+            // Verify image was copied with custom dest name
+            const copiedImagePath = path.join(site.srcDir, "images/custom.jpg");
+            expect(fs.existsSync(copiedImagePath)).toBe(true);
+          },
+        );
       } finally {
-        site.cleanup();
         fs.unlinkSync(testImagePath);
       }
     });
@@ -268,11 +240,7 @@ describe("test-site-factory", () => {
   // =========================================================================
   describe("build error handling", () => {
     test("build throws error with stderr when Eleventy build fails", async () => {
-      const site = await createTestSite({
-        files: [factoryTestPage()],
-      });
-
-      try {
+      await withSetupTestSite({ files: defaultTestFiles }, async (site) => {
         // Create an invalid .eleventy.js to force a build failure
         const invalidConfig = `
           export default function(eleventyConfig) {
@@ -290,9 +258,7 @@ describe("test-site-factory", () => {
         expect(error.message).toContain("Eleventy build failed");
         // Error should include stdout or stderr
         expect(error.stdout || error.stderr).toBeTruthy();
-      } finally {
-        site.cleanup();
-      }
+      });
     });
   });
 
@@ -301,24 +267,10 @@ describe("test-site-factory", () => {
   // =========================================================================
   describe("cleanupAllTestSites", () => {
     test("removes all test site directories", async () => {
-      // Create a couple of test sites
-      const site1 = await createTestSite({
-        files: [
-          {
-            path: "pages/test.md",
-            frontmatter: { title: "Test" },
-            content: "Test",
-          },
-        ],
-      });
+      // Create a couple of test sites with different pages
+      const site1 = await createTestSite({ files: defaultTestFiles });
       const site2 = await createTestSite({
-        files: [
-          {
-            path: "pages/test2.md",
-            frontmatter: { title: "Test 2" },
-            content: "Test 2",
-          },
-        ],
+        files: [factoryTestPage({ path: "pages/test2.md", title: "Test 2" })],
       });
 
       // Get the test sites directory

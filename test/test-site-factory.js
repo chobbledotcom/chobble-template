@@ -371,6 +371,19 @@ const withTestSite = async (options, fn) => {
   }
 };
 
+/**
+ * Create a test site for setup testing (no build), run checks, and clean up.
+ * Use this for testing site creation/setup without running Eleventy build.
+ */
+const withSetupTestSite = async (options, fn) => {
+  const site = await createTestSite(options);
+  try {
+    await fn(site);
+  } finally {
+    site.cleanup();
+  }
+};
+
 const cleanupAllTestSites = () => {
   const testSitesDir = path.join(__dirname, ".test-sites");
   if (fs.existsSync(testSitesDir)) {
@@ -378,4 +391,4 @@ const cleanupAllTestSites = () => {
   }
 };
 
-export { createTestSite, withTestSite, cleanupAllTestSites };
+export { createTestSite, withTestSite, withSetupTestSite, cleanupAllTestSites };
