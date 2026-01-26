@@ -1,11 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { Window } from "happy-dom";
 import {
   getTemplate,
   populateItemFields,
   populateQuantityControls,
 } from "#public/utils/template.js";
-import { bracket } from "#toolkit/test-utils/resource.js";
 
 // ============================================
 // Test Setup
@@ -41,122 +39,96 @@ const SIMPLE_QUANTITY_TEMPLATE_HTML = `
   </template>
 `;
 
-/**
- * Create an isolated test environment with automatic cleanup.
- * Uses the bracket pattern to ensure window.close() is always called.
- */
-const withTemplateEnv = bracket(
-  (bodyHtml) => {
-    const window = new Window();
-    const doc = window.document;
-    doc.body.innerHTML = bodyHtml;
-    return {
-      window,
-      document: doc,
-      getTemplate: (id) => getTemplate(id, doc),
-      populateItemFields,
-      populateQuantityControls,
-    };
-  },
-  (env) => env.window.close(),
-);
-
 // ============================================
 // getTemplate Tests
 // ============================================
 
 describe("template", () => {
-  test("Returns cloned content from template element by ID", () =>
-    withTemplateEnv(
-      `<template id="cart-item">
+  test("Returns cloned content from template element by ID", () => {
+    document.body.innerHTML = `
+      <template id="cart-item">
         <div class="item"><span>Item Content</span></div>
-      </template>`,
-      (env) => {
-        const clone = env.getTemplate("cart-item");
-        expect(clone.firstElementChild.className).toBe("item");
-        expect(clone.querySelector("span").textContent).toBe("Item Content");
-      },
-    ));
+      </template>
+    `;
+    const clone = getTemplate("cart-item");
+    expect(clone.firstElementChild.className).toBe("item");
+    expect(clone.querySelector("span").textContent).toBe("Item Content");
+  });
 
-  test("Each call returns an independent clone, not the same node", () =>
-    withTemplateEnv(
-      `<template id="reusable"><div class="box"></div></template>`,
-      (env) => {
-        const clone1 = env.getTemplate("reusable");
-        const clone2 = env.getTemplate("reusable");
-        clone1.firstElementChild.textContent = "Modified";
-        expect(clone2.firstElementChild.textContent).toBe("");
-      },
-    ));
+  test("Each call returns an independent clone, not the same node", () => {
+    document.body.innerHTML = `
+      <template id="reusable"><div class="box"></div></template>
+    `;
+    const clone1 = getTemplate("reusable");
+    const clone2 = getTemplate("reusable");
+    clone1.firstElementChild.textContent = "Modified";
+    expect(clone2.firstElementChild.textContent).toBe("");
+  });
 
-  test("Returns empty document fragment for empty template", () =>
-    withTemplateEnv(`<template id="empty"></template>`, (env) => {
-      const clone = env.getTemplate("empty");
-      expect(clone.childElementCount).toBe(0);
-    }));
+  test("Returns empty document fragment for empty template", () => {
+    document.body.innerHTML = `<template id="empty"></template>`;
+    const clone = getTemplate("empty");
+    expect(clone.childElementCount).toBe(0);
+  });
 
-  test("Cloned content preserves deeply nested HTML structure", () =>
-    withTemplateEnv(
-      `<template id="nested">
+  test("Cloned content preserves deeply nested HTML structure", () => {
+    document.body.innerHTML = `
+      <template id="nested">
         <div class="outer">
           <div class="inner">
             <span class="deepest">Deep Content</span>
           </div>
         </div>
-      </template>`,
-      (env) => {
-        const clone = env.getTemplate("nested");
-        const deepest = clone.querySelector(".deepest");
-        expect(deepest.textContent).toBe("Deep Content");
-      },
-    ));
+      </template>
+    `;
+    const clone = getTemplate("nested");
+    const deepest = clone.querySelector(".deepest");
+    expect(deepest.textContent).toBe("Deep Content");
+  });
 
   // ============================================
   // populateItemFields Tests
   // ============================================
 
   describe("populateItemFields", () => {
-    const testWithItemTemplate = (callback) =>
-      withTemplateEnv(ITEM_TEMPLATE_HTML, callback);
+    test("Sets data-name attribute on first element child", () => {
+      document.body.innerHTML = ITEM_TEMPLATE_HTML;
+      const template = getTemplate("item");
+      populateItemFields(template, "Widget", "$10.00");
+      expect(template.firstElementChild.dataset.name).toBe("Widget");
+    });
 
-    test("Sets data-name attribute on first element child", () =>
-      testWithItemTemplate((env) => {
-        const template = env.getTemplate("item");
-        env.populateItemFields(template, "Widget", "$10.00");
-        expect(template.firstElementChild.dataset.name).toBe("Widget");
-      }));
+    test("Sets text content of element with data-field='name'", () => {
+      document.body.innerHTML = ITEM_TEMPLATE_HTML;
+      const template = getTemplate("item");
+      populateItemFields(template, "Gadget Pro", "$25.99");
+      const nameField = template.querySelector('[data-field="name"]');
+      expect(nameField.textContent).toBe("Gadget Pro");
+    });
 
-    test("Sets text content of element with data-field='name'", () =>
-      testWithItemTemplate((env) => {
-        const template = env.getTemplate("item");
-        env.populateItemFields(template, "Gadget Pro", "$25.99");
-        const nameField = template.querySelector('[data-field="name"]');
-        expect(nameField.textContent).toBe("Gadget Pro");
-      }));
+    test("Sets text content of element with data-field='price'", () => {
+      document.body.innerHTML = ITEM_TEMPLATE_HTML;
+      const template = getTemplate("item");
+      populateItemFields(template, "Test Item", "$99.99");
+      const priceField = template.querySelector('[data-field="price"]');
+      expect(priceField.textContent).toBe("$99.99");
+    });
 
-    test("Sets text content of element with data-field='price'", () =>
-      testWithItemTemplate((env) => {
-        const template = env.getTemplate("item");
-        env.populateItemFields(template, "Test Item", "$99.99");
-        const priceField = template.querySelector('[data-field="price"]');
-        expect(priceField.textContent).toBe("$99.99");
-      }));
+    test("Handles empty string name without error", () => {
+      document.body.innerHTML = ITEM_TEMPLATE_HTML;
+      const template = getTemplate("item");
+      populateItemFields(template, "", "$0.00");
+      expect(template.firstElementChild.dataset.name).toBe("");
+    });
 
-    test("Handles empty string name without error", () =>
-      testWithItemTemplate((env) => {
-        const template = env.getTemplate("item");
-        env.populateItemFields(template, "", "$0.00");
-        expect(template.firstElementChild.dataset.name).toBe("");
-      }));
-
-    test("Handles special characters in item name", () =>
-      testWithItemTemplate((env) => {
-        const template = env.getTemplate("item");
-        const specialName = "Widget <script> & 'Quote'";
-        env.populateItemFields(template, specialName, "$10.00");
-        const nameField = template.querySelector('[data-field="name"]');
-        expect(nameField.textContent).toBe(specialName);
-      }));
+    test("Handles special characters in item name", () => {
+      document.body.innerHTML = ITEM_TEMPLATE_HTML;
+      const template = getTemplate("item");
+      const specialName = "Widget <script> & 'Quote'";
+      populateItemFields(template, specialName, "$10.00");
+      const nameField = template.querySelector('[data-field="name"]');
+      expect(nameField.textContent).toBe(specialName);
+    });
   });
 
   // ============================================
@@ -164,21 +136,17 @@ describe("template", () => {
   // ============================================
 
   describe("populateQuantityControls", () => {
-    test("Sets data-name attribute on all elements with [data-name]", () =>
-      withTemplateEnv(QUANTITY_TEMPLATE_HTML, (env) => {
-        const template = env.getTemplate("quantity");
-        const item = { item_name: "ProductA", quantity: 3 };
-        env.populateQuantityControls(template, item);
+    test("Sets data-name attribute on all elements with [data-name]", () => {
+      document.body.innerHTML = QUANTITY_TEMPLATE_HTML;
+      const template = getTemplate("quantity");
+      const item = { item_name: "ProductA", quantity: 3 };
+      populateQuantityControls(template, item);
 
-        const elementsWithDataName = template.querySelectorAll(
-          "[data-name='ProductA']",
-        );
-        expect(elementsWithDataName).toHaveLength(3);
-      }));
-
-    /** Helper for tests that only need the simple input template */
-    const testWithSimpleQuantity = (callback) =>
-      withTemplateEnv(SIMPLE_QUANTITY_TEMPLATE_HTML, callback);
+      const elementsWithDataName = template.querySelectorAll(
+        "[data-name='ProductA']",
+      );
+      expect(elementsWithDataName).toHaveLength(3);
+    });
 
     /** Get the input element from a quantity template */
     const getQuantityInput = (template) =>
@@ -213,13 +181,12 @@ describe("template", () => {
     ];
 
     for (const { name, item, check } of quantityTestCases) {
-      test(name, () =>
-        testWithSimpleQuantity((env) => {
-          const template = env.getTemplate("quantity");
-          env.populateQuantityControls(template, item);
-          check(getQuantityInput(template));
-        }),
-      );
+      test(name, () => {
+        document.body.innerHTML = SIMPLE_QUANTITY_TEMPLATE_HTML;
+        const template = getTemplate("quantity");
+        populateQuantityControls(template, item);
+        check(getQuantityInput(template));
+      });
     }
   });
 });

@@ -252,10 +252,7 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "active",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
-  // template.test.js - test environment setup helpers
-  "withTemplateEnv",
-  "testWithItemTemplate",
-  "testWithSimpleQuantity",
+  // template.test.js - helper to extract input from template
   "getQuantityInput",
   // autosizes.test.js - test environment setup helpers
   "createAutosizesTestEnv",
