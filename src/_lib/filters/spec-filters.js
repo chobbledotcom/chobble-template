@@ -28,8 +28,12 @@ const specsIconsOrder = Object.keys(specsIcons);
  *
  * @param {import("#lib/types/pages-cms-generated").PagesCMSSpec[]} specs - Raw specs array
  * @returns {ComputedSpec[]} - Specs array with icon and highlight properties added
+ *
+ * PagesCMS guarantees: If specs array exists, each item has required name and value fields.
+ * Therefore, no optional chaining needed on spec.name.
+ * See: .pages.yml schema, generated via scripts/generate-pages-cms-types.js
  */
-const transformSpecs = withWeakMapCache((specs) =>
+const computeSpecs = withWeakMapCache((specs) =>
   specs.map((spec) => {
     // spec.name is guaranteed to be a non-empty string by PagesCMS schema
     const normalized = spec.name.toLowerCase().trim();
@@ -42,18 +46,6 @@ const transformSpecs = withWeakMapCache((specs) =>
     };
   }),
 );
-
-/**
- * Transform specs array to include icon and highlight properties.
- *
- * @param {{ specs?: import("#lib/types/pages-cms-generated").PagesCMSSpec[] }} data - Eleventy data object
- * @returns {ComputedSpec[]} - Specs array with icon and highlight properties added
- *
- * PagesCMS guarantees: If specs array exists, each item has required name and value fields.
- * Therefore, no optional chaining needed on spec.name.
- * See: .pages.yml schema, generated via scripts/generate-pages-cms-types.js
- */
-const computeSpecs = (data) => (data.specs ? transformSpecs(data.specs) : []);
 
 /**
  * Filter specs to only show highlighted ones if any spec has highlight set
