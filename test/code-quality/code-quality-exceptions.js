@@ -250,7 +250,6 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/filters/filter-core.js:208",
   "src/_lib/utils/schema-helper.js:147",
   "src/_lib/utils/schema-helper.js:152",
-  "src/_lib/utils/sorting.js:41",
 ]);
 
 // ============================================
@@ -283,9 +282,12 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
 // Default values should be set early in the data chain (in collections).
 // These are grandfathered usages that should be refactored over time.
 const ALLOWED_NULLISH_COALESCING = frozenSet([
-  // src/_data - computed data, could be moved to collections
-  "src/_data/eleventyComputed.js:68",
-  "src/_data/eleventyComputed.js:74",
+  // src/_data - user-facing data boundary (frontmatter from markdown files)
+  // These are legitimate exceptions per CLAUDE.md: "User-provided input at system boundaries"
+  "src/_data/eleventyComputed.js:68", // order
+  "src/_data/eleventyComputed.js:74", // faqs
+  "src/_data/eleventyComputed.js:80", // tabs
+  "src/_data/eleventyComputed.js:94", // metaComputed defaults to {} for schema building
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
@@ -295,13 +297,15 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/eleventy/capture.js:32",
   "src/_lib/eleventy/capture.js:39",
 
-  // src/_lib/filters - URL-based filtering
+  // src/_lib/filters - URL-based filtering, normalize template inputs
   "src/_lib/filters/category-product-filters.js:63",
+  "src/_lib/filters/category-product-filters.js:68", // Normalize null/undefined filters from templates
   "src/_lib/filters/category-product-filters.js:190",
   "src/_lib/filters/filter-core.js:146",
   "src/_lib/filters/filter-core.js:147",
   "src/_lib/filters/filter-core.js:202",
   "src/_lib/filters/filter-core.js:208",
+  "src/_lib/filters/item-filters.js:148", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",
@@ -310,10 +314,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:81",
-  "src/_lib/utils/html-tokenizer.js:42",
-  "src/_lib/utils/sorting.js:41",
-  "src/_lib/utils/sorting.js:67",
-  "src/_lib/utils/thumbnail-finder.js:18",
+  "src/_lib/utils/sorting.js:67", // eleventyNavigation.order (separate from item order)
 ]);
 
 // ============================================
@@ -328,7 +329,6 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/config/helpers.js:46", // products || {} - defensive at config boundary
 
   // src/_lib/eleventy - build-time generation with optional data
-  "src/_lib/eleventy/area-list.js:10", // eleventyNavigation?.key || "" - nav key display
   "src/_lib/eleventy/ical.js:42", // subtitle || meta_description || "" - optional event description
   "src/_lib/eleventy/ical.js:43", // event_location || "" - optional location field
   "src/_lib/eleventy/pdf.js:26", // menuItems || [] - menu may have no items
@@ -338,7 +338,6 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
 
   // src/_lib/filters - cascading field access for display
   "src/_lib/filters/filter-core.js:191", // title || name || "" - items have title OR name
-  "src/_lib/filters/filter-ui.js:69", // currentFilters || {} - callers pass null explicitly
 
   // src/_lib/media - image processing
   "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation
@@ -349,7 +348,6 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/utils/product-cart-data.js:126", // sku || null - explicit null in JSON
   "src/_lib/utils/product-cart-data.js:127", // days || null - explicit null in JSON
   "src/_lib/utils/schema-helper.js:111", // image cascade || null - intentional "first available or null"
-  "src/_lib/utils/schema-helper.js:117", // metaComputed || {} - spread into schema object
 ]);
 
 export {

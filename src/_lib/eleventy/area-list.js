@@ -7,7 +7,7 @@
 
 import { filter, listSeparator, map, pipe, sortBy } from "#toolkit/fp/array.js";
 
-const navKey = (loc) => loc.data?.eleventyNavigation?.key || "";
+const navKey = (loc) => loc.data?.eleventyNavigation?.key;
 
 /**
  * Prepare area list data for template rendering.
@@ -23,7 +23,9 @@ const prepareAreaList = (locations, currentUrl) => {
     url && url.split("/").filter(Boolean).length === 2;
 
   const filtered = pipe(
-    filter((loc) => isTopLevel(loc.url) && loc.url !== currentUrl),
+    filter(
+      (loc) => isTopLevel(loc.url) && loc.url !== currentUrl && navKey(loc),
+    ),
     sortBy(navKey),
   )(locations);
 

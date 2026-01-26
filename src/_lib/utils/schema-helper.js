@@ -114,7 +114,7 @@ function buildBaseMeta(data) {
     : null;
 
   return {
-    ...(data.metaComputed || {}),
+    ...data.metaComputed,
     url: canonicalUrl(data.page.url),
     title: data.title,
     description: data.meta_description || data.subtitle,

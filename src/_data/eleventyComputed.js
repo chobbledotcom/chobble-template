@@ -63,6 +63,12 @@ export default {
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {number} Sort order (9999 if not defined, sorts last)
+   */
+  order: (data) => data.order ?? 9999,
+
+  /**
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").Faq[]} FAQs array (empty if not defined)
    */
   faqs: (data) => data.faqs ?? [],
@@ -80,6 +86,12 @@ export default {
    */
   eleventyNavigation: (data) =>
     withNavigationAnchor(data, data.eleventyNavigation),
+
+  /**
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Record<string, unknown>} Computed metadata (empty object if not defined)
+   */
+  metaComputed: (data) => data.metaComputed ?? {},
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data

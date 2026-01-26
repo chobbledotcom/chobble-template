@@ -52,7 +52,7 @@ export const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
 /**
  * Build pre-computed filter UI data for templates
  * @param {FilterAttributeData} filterData - Filter attribute data
- * @param {FilterSet | null | undefined} currentFilters - Current active filters
+ * @param {FilterSet} currentFilters - Current active filters (use {} for no filters)
  * @param {{ path: string }[]} validPages - Array of valid page paths
  * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
  * @param {string} [currentSortKey="default"] - Current sort key
@@ -65,8 +65,7 @@ export const buildFilterUIData = (
   baseUrl,
   currentSortKey = "default",
 ) => {
-  // Normalize null/undefined to empty object at function entry
-  const filters = currentFilters || {};
+  const filters = currentFilters;
 
   if (Object.keys(filterData.attributes).length === 0) {
     return { hasFilters: false };

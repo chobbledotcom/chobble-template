@@ -64,12 +64,16 @@ const formatDateString = (date) => date.toISOString().split("T")[0];
  * createEvent({ title: "Past Event", daysOffset: -30 })
  * createEvent({ title: "No Date Event", undated: true })
  */
+/** Default order for items without explicit order (matches eleventyComputed) */
+const DEFAULT_ORDER = 9999;
+
 const createEvent = ({
   title,
   date,
   daysOffset = 30,
   recurring,
   undated,
+  order = DEFAULT_ORDER,
   ...extraData
 } = {}) => {
   if (recurring !== undefined) {
@@ -77,6 +81,7 @@ const createEvent = ({
       data: {
         title: title ?? "Recurring Event",
         recurring_date: recurring,
+        order,
         ...extraData,
       },
     };
@@ -86,6 +91,7 @@ const createEvent = ({
     return {
       data: {
         title: title ?? "Undated Event",
+        order,
         ...extraData,
       },
     };
@@ -98,6 +104,7 @@ const createEvent = ({
       title: title ?? (daysOffset < 0 ? "Past Event" : "Future Event"),
       event_date:
         eventDate instanceof Date ? formatDateString(eventDate) : eventDate,
+      order,
       ...extraData,
     },
   };

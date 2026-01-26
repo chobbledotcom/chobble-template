@@ -234,11 +234,15 @@ const createMockEleventyConfig = () => ({
 // Test Fixture Factories
 // ============================================
 
+/** Default order for items without explicit order (matches eleventyComputed) */
+const DEFAULT_ORDER = 9999;
+
 /**
  * Create a collection item with nested data structure.
  */
 const item = (title, options = {}) => ({
   data: {
+    order: DEFAULT_ORDER,
     ...(title && { title }),
     ...options,
   },
@@ -256,7 +260,7 @@ const createProduct = ({
   slug = null,
   title = "Test Product",
   categories = [],
-  order = 0,
+  order = DEFAULT_ORDER,
   headerImage = null,
   ...extraData
 } = {}) => ({

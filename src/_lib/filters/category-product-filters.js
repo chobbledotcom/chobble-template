@@ -65,7 +65,7 @@ const categoryFilterData = (
 
   return buildFilterUIData(
     filterData,
-    currentFilters,
+    currentFilters ?? {},
     getBasePaths(categoryPages),
     baseUrl,
     currentSortKey,
@@ -191,7 +191,7 @@ const categoryListingUI = (collectionApi) => {
     const baseUrl = `/categories/${slug}`;
     return [
       slug,
-      buildFilterUIData(attrs, null, getBasePaths(categoryPages), baseUrl),
+      buildFilterUIData(attrs, {}, getBasePaths(categoryPages), baseUrl),
     ];
   })(filterAttrs);
 };
