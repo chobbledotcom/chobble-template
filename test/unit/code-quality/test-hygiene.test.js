@@ -46,7 +46,9 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "withTempFile",
   "withMockedConsole",
   "getIconFilter",
+  "getConfiguredFilters", // iconify.test.js - configured filter factory for icon tests
   "expectValidScriptTag",
+  "expectNavUnchanged", // navigation-utils.test.js - assertion helper for disabled config tests
   // Fixture factories
   "createProduct",
   "createPropertyReviewFixture",
