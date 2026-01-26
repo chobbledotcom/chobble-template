@@ -39,8 +39,8 @@ describe("sorting", () => {
     ]);
   });
 
-  test("Items without an order field are treated as having order 0", () => {
-    const items = orderedItem(["B", 1], ["A", undefined], ["C", -1]);
+  test("Items with order 0 sort before items with positive order", () => {
+    const items = orderedItem(["B", 1], ["A", 0], ["C", -1]);
     expectSortedValues(items, sortItems, (i) => i.data.title, ["C", "A", "B"]);
   });
 

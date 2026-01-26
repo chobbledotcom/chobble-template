@@ -63,6 +63,12 @@ export default {
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {number} Sort order (9999 if not defined, sorts last)
+   */
+  order: (data) => data.order ?? 9999,
+
+  /**
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").Faq[]} FAQs array (empty if not defined)
    */
   faqs: (data) => data.faqs ?? [],

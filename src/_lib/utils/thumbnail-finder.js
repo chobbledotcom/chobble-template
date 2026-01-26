@@ -13,9 +13,9 @@ import { sortBy } from "#toolkit/fp/array.js";
 /**
  * Standard order extraction for items with data.order.
  * @param {{data?: {order?: number}}} item
- * @returns {number}
+ * @returns {number | undefined}
  */
-const getItemOrder = (item) => item?.data?.order ?? 0;
+const getItemOrder = (item) => item?.data?.order;
 
 /**
  * Generator that yields items sorted by order, lazily.
