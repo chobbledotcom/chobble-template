@@ -29,5 +29,6 @@
   "navigation_content_anchor": null,
   "screenshots": null,
   "phoneNumberLength": null,
-"use_visual_editor": true
+  "use_visual_editor": true,
+  "default_max_quantity": null
 }

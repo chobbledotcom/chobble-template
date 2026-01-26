@@ -224,5 +224,28 @@ describe("read-more transform", () => {
       expect(result).not.toContain('<div class="read-more-content">');
       expect(result).toContain('<span class="read-more-content">');
     });
+
+    test("stops collecting siblings at div elements", async () => {
+      const html =
+        '<html><body><p>Intro [Read more..]</p><p>Hidden paragraph</p><div class="products-layout">Products here</div></body></html>';
+      const result = await transformHtml(html);
+
+      expect(result).toContain('<div class="read-more-content">');
+      expect(result).toMatch(
+        /<div class="read-more-content"><p>Hidden paragraph<\/p><\/div>/,
+      );
+      expect(result).toMatch(
+        /<\/div><div class="products-layout">Products here<\/div>/,
+      );
+    });
+
+    test("does not wrap following div in read-more-content", async () => {
+      const html =
+        '<html><body><p>Intro [Read more..]</p><div class="layout">Layout content</div></body></html>';
+      const result = await transformHtml(html);
+
+      expect(result).not.toContain('<div class="read-more-content">');
+      expect(result).toContain('<div class="layout">Layout content</div>');
+    });
   });
 });
