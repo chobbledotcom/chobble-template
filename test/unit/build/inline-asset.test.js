@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { configureInlineAsset, inlineAsset } from "#media/inline-asset.js";
+import {
+  configureInlineAsset,
+  memoizedInlineAsset as inlineAsset,
+} from "#media/inline-asset.js";
 import {
   createMockEleventyConfig,
   fs,

@@ -1,5 +1,6 @@
 import specsIconsRaw from "#data/specs-icons.json" with { type: "json" };
-import { inlineAsset } from "#media/inline-asset.js";
+import { memoizedInlineAsset } from "#media/inline-asset.js";
+import { withWeakMapCache } from "#toolkit/fp/memoize.js";
 import { mapObject } from "#toolkit/fp/object.js";
 
 // Apply defaults at load time so we don't need ?? at point of use
@@ -20,7 +21,30 @@ const specsIconsOrder = Object.keys(specsIcons);
  */
 
 /**
- * Transform specs array to include icon and highlight properties
+ * Transform specs array to include icon and highlight properties.
+ * Cached by specs array reference using WeakMap to avoid recomputing
+ * for the same product when called multiple times (e.g., for specs,
+ * highlighted_specs, list_item_specs, and cart_attributes).
+ *
+ * @param {import("#lib/types/pages-cms-generated").PagesCMSSpec[]} specs - Raw specs array
+ * @returns {ComputedSpec[]} - Specs array with icon and highlight properties added
+ */
+const transformSpecs = withWeakMapCache((specs) =>
+  specs.map((spec) => {
+    // spec.name is guaranteed to be a non-empty string by PagesCMS schema
+    const normalized = spec.name.toLowerCase().trim();
+    const config = specsIcons[normalized];
+    return {
+      ...spec,
+      icon: config ? memoizedInlineAsset(`icons/${config.icon}`) : "",
+      highlight: config ? config.highlight : false,
+      list_items: config ? config.list_items : false,
+    };
+  }),
+);
+
+/**
+ * Transform specs array to include icon and highlight properties.
  *
  * @param {{ specs?: import("#lib/types/pages-cms-generated").PagesCMSSpec[] }} data - Eleventy data object
  * @returns {ComputedSpec[]} - Specs array with icon and highlight properties added
@@ -29,20 +53,7 @@ const specsIconsOrder = Object.keys(specsIcons);
  * Therefore, no optional chaining needed on spec.name.
  * See: .pages.yml schema, generated via scripts/generate-pages-cms-types.js
  */
-const computeSpecs = (data) => {
-  if (!data.specs) return [];
-  return data.specs.map((spec) => {
-    // spec.name is guaranteed to be a non-empty string by PagesCMS schema
-    const normalized = spec.name.toLowerCase().trim();
-    const config = specsIcons[normalized];
-    return {
-      ...spec,
-      icon: config ? inlineAsset(`icons/${config.icon}`) : "",
-      highlight: config ? config.highlight : false,
-      list_items: config ? config.list_items : false,
-    };
-  });
-};
+const computeSpecs = (data) => (data.specs ? transformSpecs(data.specs) : []);
 
 /**
  * Filter specs to only show highlighted ones if any spec has highlight set
