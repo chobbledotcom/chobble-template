@@ -158,6 +158,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
+  "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/item-filters.js",
   "src/_lib/transforms/external-links.js", // Typed tuple helper for type safety
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
@@ -298,15 +299,14 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/eleventy/capture.js:39",
 
   // src/_lib/filters - URL-based filtering, normalize template inputs
-  "src/_lib/filters/category-product-filters.js:65",
-  "src/_lib/filters/category-product-filters.js:70", // Normalize null/undefined filters from templates
-  "src/_lib/filters/category-product-filters.js:193",
-  "src/_lib/filters/category-product-filters.js:199", // Total count for listing UI
+  "src/_lib/filters/category-product-filters.js:129", // Default empty array for categories without products
+  "src/_lib/filters/category-product-filters.js:183", // Default empty array for pages lookup
+  "src/_lib/filters/category-product-filters.js:188", // Normalize null/undefined filters from templates
   "src/_lib/filters/filter-core.js:146",
   "src/_lib/filters/filter-core.js:147",
   "src/_lib/filters/filter-core.js:202",
   "src/_lib/filters/filter-core.js:208",
-  "src/_lib/filters/item-filters.js:151", // Normalize null/undefined filters from templates
+  "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",
