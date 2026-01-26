@@ -192,6 +192,9 @@ class DOM {
   }
 }
 
+// HTML wrapper for creating complete documents in transform tests
+const wrapHtml = (body) => `<html><body>${body}</body></html>`;
+
 // ============================================
 // Curried Factory Functions for Mock Config
 // ============================================
@@ -341,6 +344,7 @@ export {
 export {
   // Core
   DOM,
+  wrapHtml,
   compileScss,
   everyEntry,
   expect,
