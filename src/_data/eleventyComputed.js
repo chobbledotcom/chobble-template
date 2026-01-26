@@ -89,6 +89,12 @@ export default {
 
   /**
    * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Record<string, unknown>} Computed metadata (empty object if not defined)
+   */
+  metaComputed: (data) => data.metaComputed ?? {},
+
+  /**
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {import("#lib/types").SchemaOrgMeta} Schema.org metadata
    */
   meta: (data) => {

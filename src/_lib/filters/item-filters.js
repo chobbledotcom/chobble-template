@@ -127,7 +127,7 @@ export const createFilterConfig = (options) => {
     const baseCombinations = generateFilterCombinations(items);
     return buildFilterUIData(
       filterData,
-      null,
+      {},
       baseCombinations,
       baseUrl,
       "default",
@@ -145,7 +145,7 @@ export const createFilterConfig = (options) => {
     eleventyConfig.addFilter(
       uiDataFilterName,
       (filterData, filters, pages, sortKey = "default") =>
-        buildFilterUIData(filterData, filters, pages, baseUrl, sortKey),
+        buildFilterUIData(filterData, filters ?? {}, pages, baseUrl, sortKey),
     );
   };
 
