@@ -56,6 +56,7 @@ export type SiteConfig = {
   enable_theme_switcher: boolean;
   timezone: string;
   reviews_truncate_limit: number;
+  rating_stars_uses_svg: boolean;
   list_item_fields: string[];
   navigation_content_anchor: boolean;
   design_system_layouts: string[];

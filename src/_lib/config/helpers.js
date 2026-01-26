@@ -23,6 +23,7 @@ const DEFAULTS = frozenObject({
   enable_theme_switcher: false,
   timezone: "Europe/London",
   reviews_truncate_limit: 10,
+  rating_stars_uses_svg: false,
   list_item_fields: ["link", "subtitle", "thumbnail"],
   navigation_content_anchor: false,
   category_order: null,
