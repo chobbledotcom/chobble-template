@@ -101,18 +101,35 @@ describe("category-product-filters", () => {
 
     test("Filters pages to only include current category", () => {
       const mixedPages = [
-        ...widgetFilteredPages(["size/small"]),
+        ...widgetFilteredPages(["size/small", "size/large"]),
         { categorySlug: "gadgets", path: "size/small" },
       ];
       const result = categoryFilterData(
-        widgetFilterAttrs(["small"]),
+        widgetFilterAttrs(["small", "large"]),
         "widgets",
         null,
         mixedPages,
+        "default",
+        10, // count > 1 to show filters
       );
-      // groups[0] is sort (always 5 options), groups[1] is size
+      // groups[0] is sort (when count > 1), groups[1] is size
       const sizeGroup = result.groups.find((g) => g.name === "size");
-      expect(sizeGroup.options.length).toBe(1);
+      // Only widget pages are included, not gadgets
+      expect(sizeGroup.options.length).toBe(2);
+    });
+
+    test("Hides filter groups with only 1 option", () => {
+      const result = categoryFilterData(
+        widgetFilterAttrs(["small"]), // Only 1 size option
+        "widgets",
+        null,
+        widgetFilteredPages(["size/small"]),
+        "default",
+        10,
+      );
+      // Single-option groups are hidden (no meaningful choice)
+      const sizeGroup = result.groups.find((g) => g.name === "size");
+      expect(sizeGroup).toBeUndefined();
     });
 
     test("Includes active filters with remove URLs", () => {
@@ -334,35 +351,32 @@ describe("category-product-filters", () => {
       expect(result).toEqual({});
     });
 
-    test("Returns filterUI keyed by category slug", () => {
+    test("Returns filterUI with correct structure for category", () => {
+      // Use 2 products with different sizes so filters are shown
       const result = categoryListingUI(
         mockCollectionApi(
           [categoryFixture("widgets")],
-          [widgetWithSize("small")],
+          [
+            widgetWithSize("small", "Widget A"),
+            widgetWithSize("large", "Widget B"),
+          ],
         ),
       );
       expect(result.widgets).toBeDefined();
       expect(result.widgets.hasFilters).toBe(true);
-    });
-
-    test("FilterUI has no active filters for listing pages", () => {
-      const result = categoryListingUI(
-        mockCollectionApi(
-          [categoryFixture("widgets")],
-          [widgetWithSize("small")],
-        ),
-      );
       expect(result.widgets.hasActiveFilters).toBe(false);
+      expect(result.widgets.clearAllUrl).toBe("/categories/widgets/#content");
     });
 
-    test("FilterUI includes category-scoped URLs", () => {
+    test("Hides filters when only 1 product in category", () => {
       const result = categoryListingUI(
         mockCollectionApi(
           [categoryFixture("widgets")],
           [widgetWithSize("small")],
         ),
       );
-      expect(result.widgets.clearAllUrl).toBe("/categories/widgets/#content");
+      // With only 1 product and 1 size option, filters are hidden
+      expect(result.widgets.hasFilters).toBe(false);
     });
   });
 });
