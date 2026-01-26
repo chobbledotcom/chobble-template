@@ -142,7 +142,7 @@ const groupByWithCache = (getKeys) =>
  *
  * Unlike withWeakMapCache (which requires arrays), this works with any object.
  *
- * @template T extends object
+ * @template {object} T
  * @template R
  * @param {(obj: T) => R} fn - Function to cache
  * @returns {(obj: T) => R} Cached version that runs fn once per object reference
@@ -160,7 +160,7 @@ const groupByWithCache = (getKeys) =>
  */
 const once = (fn) => {
   const cache = new WeakMap();
-  return (obj) => {
+  return (/** @type {object} */ obj) => {
     if (cache.has(obj)) return cache.get(obj);
     const result = fn(obj);
     cache.set(obj, result);
