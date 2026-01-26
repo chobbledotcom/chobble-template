@@ -56,6 +56,7 @@ export const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
  * @param {{ path: string }[]} validPages - Array of valid page paths
  * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
  * @param {string} [currentSortKey="default"] - Current sort key
+ * @param {number} [count=2] - Current item count (used to hide sort/filters when <= 1)
  * @returns {FilterUIData} Complete UI data ready for simple template loops
  */
 export const buildFilterUIData = (
@@ -64,6 +65,7 @@ export const buildFilterUIData = (
   validPages,
   baseUrl,
   currentSortKey = "default",
+  count = 2,
 ) => {
   const filters = currentFilters;
 
@@ -76,16 +78,24 @@ export const buildFilterUIData = (
   // Use lookup object for O(1) path lookups instead of O(n) array includes
   const validPathLookup = toObject(validPages, (p) => [p.path, true]);
 
-  const sortOptions = SORT_OPTIONS.map((sortOption) => {
-    const isActive = currentSortKey === sortOption.key;
-    const path = toSortedPath(filters, sortOption.key);
-    return {
-      value: sortOption.label,
-      url: path ? `${baseUrl}/search/${path}/#content` : `${baseUrl}/#content`,
-      active: isActive,
-    };
-  });
-  const sortGroup = { name: "sort", label: "Sort", options: sortOptions };
+  const sortGroup =
+    count > 1
+      ? {
+          name: "sort",
+          label: "Sort",
+          options: SORT_OPTIONS.map((sortOption) => {
+            const isActive = currentSortKey === sortOption.key;
+            const path = toSortedPath(filters, sortOption.key);
+            return {
+              value: sortOption.label,
+              url: path
+                ? `${baseUrl}/search/${path}/#content`
+                : `${baseUrl}/#content`,
+              active: isActive,
+            };
+          }),
+        }
+      : null;
 
   const activeFilters = mapEntries((key, value) => {
     const removePath = toSortedPath(omit([key])(filters), currentSortKey);
@@ -114,7 +124,8 @@ export const buildFilterUIData = (
       };
     })(attrValues);
 
-    if (options.length === 0) return null;
+    // Hide groups with 0 or 1 option (no meaningful choice to make)
+    if (options.length <= 1) return null;
     return {
       name: attrName,
       label: filterData.displayLookup[attrName],
@@ -122,11 +133,11 @@ export const buildFilterUIData = (
     };
   })(Object.entries(filterData.attributes));
 
-  // Sort group first, then attribute groups
-  const groups = [sortGroup, ...attributeGroups];
+  // Sort group first (if present), then attribute groups
+  const groups = sortGroup ? [sortGroup, ...attributeGroups] : attributeGroups;
 
   return {
-    hasFilters: groups.length > 0,
+    hasFilters: groups.length > 0 || hasActiveFilters,
     hasActiveFilters,
     activeFilters,
     clearAllUrl: `${baseUrl}/#content`,
@@ -156,5 +167,6 @@ export const enhanceWithFilterUI = (
       validBasePaths,
       baseUrl,
       page.sortKey || "default",
+      page.count,
     ),
   }));

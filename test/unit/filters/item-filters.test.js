@@ -604,7 +604,26 @@ describe("item-filters", () => {
 
       const result = getUIData(data, null, validPages);
 
-      // groups[0] is sort (always present), groups[1] is type (size excluded)
+      // sort is shown (count defaults to 2), but type is hidden (only 1 option)
+      // size is excluded (no valid options)
+      expect(result.groups.length).toBe(1);
+      expect(result.groups[0].name).toBe("sort");
+    });
+
+    test("shows filter groups with multiple valid options", () => {
+      const { getUIData } = setupConfig();
+      // Use typeOnlyData to create filter data with just type attribute
+      const data = filterData({
+        type: {
+          display: "Type",
+          values: { cottage: "Cottage", villa: "Villa" },
+        },
+      });
+      const validPages = pages(["type/cottage", "type/villa"]);
+
+      const result = getUIData(data, null, validPages);
+
+      // sort + type (type has 2 options)
       expect(result.groups.length).toBe(2);
       expect(result.groups[0].name).toBe("sort");
       expect(result.groups[1].name).toBe("type");
@@ -685,12 +704,28 @@ describe("item-filters", () => {
     const mock = mockConfig();
     testFilterConfig().configure(mock);
 
+    // Use 2 items with different sizes so filter groups have multiple options
     const listingUI = mock.getCollection("testFilterPagesListingFilterUI")(
-      collectionApi([filterItem("Widget", filterAttr("Size", "Large"))]),
+      collectionApi([
+        filterItem("Widget A", filterAttr("Size", "Large")),
+        filterItem("Widget B", filterAttr("Size", "Small")),
+      ]),
     );
 
     expect(listingUI.hasFilters).toBe(true);
     expect(listingUI.hasActiveFilters).toBe(false);
     expect(listingUI.groups.length).toBeGreaterThan(0);
+  });
+
+  test("Listing filterUI hides filters when only 1 item", () => {
+    const mock = mockConfig();
+    testFilterConfig().configure(mock);
+
+    const listingUI = mock.getCollection("testFilterPagesListingFilterUI")(
+      collectionApi([filterItem("Widget", filterAttr("Size", "Large"))]),
+    );
+
+    // With only 1 item and 1 filter option, filters are hidden
+    expect(listingUI.hasFilters).toBe(false);
   });
 });
