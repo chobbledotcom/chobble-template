@@ -148,6 +148,18 @@ describe("eleventyComputed", () => {
     });
   });
 
+  describe("order", () => {
+    test("Returns order when set", () => {
+      const data = { order: 5 };
+      expect(eleventyComputed.order(data)).toBe(5);
+    });
+
+    test("Returns 9999 when order not set (sorts last)", () => {
+      const data = {};
+      expect(eleventyComputed.order(data)).toBe(9999);
+    });
+  });
+
   describe("faqs", () => {
     test("Returns faqs array when set", () => {
       const faqs = [{ question: "Q1", answer: "A1" }];

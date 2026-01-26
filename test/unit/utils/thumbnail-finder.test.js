@@ -130,10 +130,10 @@ describe("thumbnail-finder", () => {
       expect(result).toBe("thumb-5"); // Lower priority comes first
     });
 
-    test("handles items without order (defaults to 0)", () => {
+    test("items with order 0 sort before items with higher order", () => {
       const children = [
         { data: { order: 5, thumbnail: "thumb-5" } },
-        { data: { thumbnail: "thumb-0" } }, // No order = 0
+        { data: { order: 0, thumbnail: "thumb-0" } },
         { data: { order: 2, thumbnail: "thumb-2" } },
       ];
 

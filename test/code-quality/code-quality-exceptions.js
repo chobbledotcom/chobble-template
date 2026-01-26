@@ -250,7 +250,6 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/filters/filter-core.js:208",
   "src/_lib/utils/schema-helper.js:147",
   "src/_lib/utils/schema-helper.js:152",
-  "src/_lib/utils/sorting.js:41",
 ]);
 
 // ============================================
@@ -283,9 +282,11 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
 // Default values should be set early in the data chain (in collections).
 // These are grandfathered usages that should be refactored over time.
 const ALLOWED_NULLISH_COALESCING = frozenSet([
-  // src/_data - computed data, could be moved to collections
-  "src/_data/eleventyComputed.js:68",
-  "src/_data/eleventyComputed.js:74",
+  // src/_data - user-facing data boundary (frontmatter from markdown files)
+  // These are legitimate exceptions per CLAUDE.md: "User-provided input at system boundaries"
+  "src/_data/eleventyComputed.js:68", // order
+  "src/_data/eleventyComputed.js:74", // faqs
+  "src/_data/eleventyComputed.js:80", // tabs
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
@@ -310,10 +311,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/utils - utility functions
   "src/_lib/utils/collection-utils.js:81",
-  "src/_lib/utils/html-tokenizer.js:42",
-  "src/_lib/utils/sorting.js:41",
-  "src/_lib/utils/sorting.js:67",
-  "src/_lib/utils/thumbnail-finder.js:18",
+  "src/_lib/utils/sorting.js:67", // eleventyNavigation.order (separate from item order)
 ]);
 
 // ============================================

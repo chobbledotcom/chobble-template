@@ -38,7 +38,7 @@ import { orderThenString } from "#toolkit/fp/sorting.js";
  * @type {(a: CollectionItem, b: CollectionItem) => number}
  */
 const sortItems = orderThenString(
-  (item) => item.data.order ?? 0,
+  (item) => item.data.order,
   (item) => item.data.title,
 );
 
