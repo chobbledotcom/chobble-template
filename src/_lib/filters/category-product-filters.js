@@ -46,6 +46,7 @@ const getBasePaths = (pages) =>
  * @param {Object|null} currentFilters - Currently active filters
  * @param {Array} filteredPages - All filtered category product pages
  * @param {string} [currentSortKey="default"] - Current sort key
+ * @param {number} [count=2] - Current item count (used to hide sort/filters when <= 1)
  * @returns {Object} Filter UI data for templates
  */
 const categoryFilterData = (
@@ -54,6 +55,7 @@ const categoryFilterData = (
   currentFilters,
   filteredPages,
   currentSortKey = "default",
+  count = 2,
 ) => {
   const filterData = categoryFilterAttrs[categorySlug];
   if (!filterData) {
@@ -69,6 +71,7 @@ const categoryFilterData = (
     getBasePaths(categoryPages),
     baseUrl,
     currentSortKey,
+    count,
   );
 };
 
@@ -189,9 +192,21 @@ const categoryListingUI = (collectionApi) => {
   return mapObject((slug, attrs) => {
     const categoryPages = pagesByCategorySlug[slug] ?? [];
     const baseUrl = `/categories/${slug}`;
+    // Get total count from a sort-only page (has empty filters)
+    const sortOnlyPage = categoryPages.find(
+      (p) => Object.keys(p.filters).length === 0,
+    );
+    const totalCount = sortOnlyPage?.count ?? 0;
     return [
       slug,
-      buildFilterUIData(attrs, {}, getBasePaths(categoryPages), baseUrl),
+      buildFilterUIData(
+        attrs,
+        {},
+        getBasePaths(categoryPages),
+        baseUrl,
+        "default",
+        totalCount,
+      ),
     ];
   })(filterAttrs);
 };

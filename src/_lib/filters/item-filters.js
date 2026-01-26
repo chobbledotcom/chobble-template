@@ -131,6 +131,7 @@ export const createFilterConfig = (options) => {
       baseCombinations,
       baseUrl,
       "default",
+      items.length,
     );
   };
 
@@ -144,8 +145,15 @@ export const createFilterConfig = (options) => {
     );
     eleventyConfig.addFilter(
       uiDataFilterName,
-      (filterData, filters, pages, sortKey = "default") =>
-        buildFilterUIData(filterData, filters ?? {}, pages, baseUrl, sortKey),
+      (filterData, filters, pages, sortKey = "default", count = 2) =>
+        buildFilterUIData(
+          filterData,
+          filters ?? {},
+          pages,
+          baseUrl,
+          sortKey,
+          count,
+        ),
     );
   };
 
