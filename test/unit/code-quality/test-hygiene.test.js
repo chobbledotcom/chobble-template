@@ -35,6 +35,11 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "createReviewsMock", // reviews.test.js - creates mock config with registered filters
   "createSearchMock", // search.test.js - creates mock config with registered filters
   "createStyleBundleMock", // style-bundle.test.js - creates mock config with registered filters
+  "createConfiguredMock", // file-utils.test.js - creates mock config with file utils registered
+  "withFileUtils", // file-utils.test.js - runs callback with configured file utils in mocked CWD
+  "testWithFile", // file-utils.test.js - runs sync test with temp file and configured file utils
+  "testWithEmptyDir", // file-utils.test.js - runs sync test with empty temp dir
+  "testSnippet", // file-utils.test.js - runs async snippet test with configured file utils
   "createTempDir",
   "createTempSnippetsDir",
   "withTempDir",
