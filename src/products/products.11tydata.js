@@ -34,13 +34,13 @@ export default {
     options: (data) =>
       computeOptions(data, getProductMode(data), getDefaultMaxQuantity(data)),
     permalink: (data) => buildPermalink(data, strings.product_permalink_dir),
-    specs: computeSpecs,
+    specs: (data) => computeSpecs(data.specs || []),
     highlighted_specs: (data) => {
-      const specs = computeSpecs(data);
+      const specs = computeSpecs(data.specs || []);
       return getHighlightedSpecs(specs);
     },
     list_item_specs: (data) => {
-      const specs = computeSpecs(data);
+      const specs = computeSpecs(data.specs || []);
       return getListItemSpecs(specs);
     },
     cart_attributes: (data) => {
@@ -50,7 +50,7 @@ export default {
         title: data.title,
         subtitle: data.subtitle,
         options: computeOptions(data, mode, defaultMaxQuantity),
-        specs: computeSpecs(data),
+        specs: computeSpecs(data.specs || []),
         mode,
       });
     },

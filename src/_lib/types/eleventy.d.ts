@@ -345,4 +345,6 @@ export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
   description?: string;
   snippet?: string;
   layout?: string;
+  /** Computed metadata for schema.org (empty object if not defined) */
+  metaComputed?: Record<string, unknown>;
 };

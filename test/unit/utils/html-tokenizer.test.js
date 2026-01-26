@@ -41,11 +41,14 @@ describe("html-tokenizer", () => {
       expect(result).toContain("disabled");
     });
 
-    test("handles unknown token types gracefully", () => {
-      // Unknown tokens are handled by tokensToHtml internally
-      // This test ensures transformHtml completes without error on valid input
-      const result = transformHtml("<div></div>", (token) => token);
-      expect(result).toBe("<div></div>");
+    test("throws error for unknown token types", () => {
+      // Transform returns a token with an unknown type
+      expect(() =>
+        transformHtml("<div></div>", (token) => ({
+          ...token,
+          type: "Unknown",
+        })),
+      ).toThrow("Unknown token type: Unknown");
     });
 
     test("allows modifying tokens", () => {

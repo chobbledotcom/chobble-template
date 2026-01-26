@@ -13,18 +13,8 @@ describe("spec-filters", () => {
   // ============================================
   // computeSpecs - Input Validation
   // ============================================
-  test("Returns empty array when data.specs is undefined", () => {
-    const result = computeSpecs({});
-    expect(result).toEqual([]);
-  });
-
-  test("Returns empty array when data.specs is null", () => {
-    const result = computeSpecs({ specs: null });
-    expect(result).toEqual([]);
-  });
-
   test("Returns empty array when specs is empty array", () => {
-    const result = computeSpecs({ specs: [] });
+    const result = computeSpecs([]);
     expect(result).toEqual([]);
   });
 
@@ -32,11 +22,9 @@ describe("spec-filters", () => {
   // computeSpecs - Transformation
   // ============================================
   test("Adds icon and highlight properties to each spec", () => {
-    const data = {
-      specs: [{ name: KNOWN_SPEC, value: "Yes" }],
-    };
+    const specs = [{ name: KNOWN_SPEC, value: "Yes" }];
 
-    const result = computeSpecs(data);
+    const result = computeSpecs(specs);
 
     expect(result.length).toBe(1);
     expect("icon" in result[0]).toBe(true);
@@ -44,17 +32,15 @@ describe("spec-filters", () => {
   });
 
   test("Preserves all original spec properties", () => {
-    const data = {
-      specs: [
-        {
-          name: "test spec",
-          value: "test value",
-          customProp: "custom",
-        },
-      ],
-    };
+    const specs = [
+      {
+        name: "test spec",
+        value: "test value",
+        customProp: "custom",
+      },
+    ];
 
-    const result = computeSpecs(data);
+    const result = computeSpecs(specs);
 
     expect(result[0].name).toBe("test spec");
     expect(result[0].value).toBe("test value");
@@ -62,35 +48,29 @@ describe("spec-filters", () => {
   });
 
   test("Returns empty icon and false highlight for specs without config", () => {
-    const data = {
-      specs: [{ name: "nonexistent-spec", value: "test" }],
-    };
+    const specs = [{ name: "nonexistent-spec", value: "test" }];
 
-    const result = computeSpecs(data);
+    const result = computeSpecs(specs);
 
     expect(result[0].icon).toBe("");
     expect(result[0].highlight).toBe(false);
   });
 
   test("Returns SVG content for specs with matching icon", () => {
-    const data = {
-      specs: [{ name: KNOWN_SPEC, value: "Yes" }],
-    };
+    const specs = [{ name: KNOWN_SPEC, value: "Yes" }];
 
-    const result = computeSpecs(data);
+    const result = computeSpecs(specs);
 
     expect(result[0].icon.startsWith("<svg")).toBe(true);
   });
 
   test("Finds icons regardless of spec name case", () => {
-    const data = {
-      specs: [
-        { name: KNOWN_SPEC, value: "lowercase" },
-        { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
-      ],
-    };
+    const specs = [
+      { name: KNOWN_SPEC, value: "lowercase" },
+      { name: KNOWN_SPEC.toUpperCase(), value: "uppercase" },
+    ];
 
-    const result = computeSpecs(data);
+    const result = computeSpecs(specs);
 
     expect(result[0].icon).toBe(result[1].icon);
   });
@@ -100,14 +80,12 @@ describe("spec-filters", () => {
   // ============================================
 
   test("Trims whitespace from spec name before lookup", () => {
-    const data = {
-      specs: [
-        { name: KNOWN_SPEC, value: "normal" },
-        { name: `  ${KNOWN_SPEC}  `, value: "padded" },
-      ],
-    };
+    const specs = [
+      { name: KNOWN_SPEC, value: "normal" },
+      { name: `  ${KNOWN_SPEC}  `, value: "padded" },
+    ];
 
-    const result = computeSpecs(data);
+    const result = computeSpecs(specs);
 
     expect(result[0].icon).toBe(result[1].icon);
   });

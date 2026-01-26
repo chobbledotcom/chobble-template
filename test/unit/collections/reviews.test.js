@@ -252,11 +252,17 @@ describe("reviews", () => {
     expect(getRating(testReviews, "product-a", ["products"])).toBe(null);
   });
 
-  test("Converts rating to star emojis via filter", () => {
+  test("Converts rating to stars via filter (SVG when config enabled)", () => {
     const { ratingToStars } = createReviewsMock();
-    expect(ratingToStars(1)).toBe("⭐️");
-    expect(ratingToStars(3)).toBe("⭐️⭐️⭐️");
-    expect(ratingToStars(5)).toBe("⭐️⭐️⭐️⭐️⭐️");
+    // Demo config has rating_stars_uses_svg: true, so expect SVG output
+    const star1 = ratingToStars(1);
+    const star3 = ratingToStars(3);
+    const star5 = ratingToStars(5);
+
+    // Each SVG star contains exactly one <svg> and one <path>
+    expect((star1.match(/<svg/g) ?? []).length).toBe(1);
+    expect((star3.match(/<svg/g) ?? []).length).toBe(3);
+    expect((star5.match(/<svg/g) ?? []).length).toBe(5);
   });
 
   test("Avatar displays initials from names via filter", () => {

@@ -35,11 +35,18 @@ const TOKEN_CONVERTERS = {
  * @param {string} html - Input HTML string
  * @param {TokenTransformFn} transformFn - Function to transform each token
  * @returns {string} Transformed HTML string
+ * @throws {Error} If an unknown token type is encountered
  */
 const transformHtml = (html, transformFn) =>
   tokenize(html)
     .map(transformFn)
-    .map((token) => TOKEN_CONVERTERS[token.type]?.(token) ?? "")
+    .map((token) => {
+      const converter = TOKEN_CONVERTERS[token.type];
+      if (!converter) {
+        throw new Error(`Unknown token type: ${token.type}`);
+      }
+      return converter(token);
+    })
     .join("");
 
 export { transformHtml };

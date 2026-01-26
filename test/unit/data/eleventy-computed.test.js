@@ -148,6 +148,18 @@ describe("eleventyComputed", () => {
     });
   });
 
+  describe("order", () => {
+    test("Returns order when set", () => {
+      const data = { order: 5 };
+      expect(eleventyComputed.order(data)).toBe(5);
+    });
+
+    test("Returns 9999 when order not set (sorts last)", () => {
+      const data = {};
+      expect(eleventyComputed.order(data)).toBe(9999);
+    });
+  });
+
   describe("faqs", () => {
     test("Returns faqs array when set", () => {
       const faqs = [{ question: "Q1", answer: "A1" }];
@@ -243,6 +255,19 @@ describe("eleventyComputed", () => {
       // Base meta has title and url
       expect(result.title).toBe("About Us");
       expect(result.url).toBeDefined();
+    });
+  });
+
+  describe("metaComputed", () => {
+    test("Returns metaComputed when set", () => {
+      const metaComputed = { customField: "value" };
+      const data = { metaComputed };
+      expect(eleventyComputed.metaComputed(data)).toBe(metaComputed);
+    });
+
+    test("Returns empty object when metaComputed not set", () => {
+      const data = {};
+      expect(eleventyComputed.metaComputed(data)).toEqual({});
     });
   });
 
