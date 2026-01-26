@@ -1,0 +1,39 @@
+{%- comment -%}
+Video cards grid - displays YouTube video embeds as cards with titles.
+
+Parameters:
+  - videos: Array of video objects with properties:
+    - id: YouTube video ID (required)
+    - title: Video title (required)
+  - reveal: If true, adds data-reveal animation (default: true)
+  - heading_level: Heading level for titles, defaults to 3 (h3)
+
+Usage:
+  {% include "design-system/video-cards.html", videos: page.videos %}
+
+  Where page.videos = [
+    { id: "dQw4w9WgXcQ", title: "Video Title" },
+    ...
+  ]
+{%- endcomment -%}
+
+{%- assign reveal = reveal | default: true -%}
+{%- assign heading_level = heading_level | default: 3 -%}
+
+<ul class="items video-cards" role="list">
+  {%- for video in videos -%}
+  <li{% if reveal %} data-reveal{% endif %}>
+    <div class="video-wrapper">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+        title="{{ video.title }}"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+    <h{{ heading_level }}>{{ video.title }}</h{{ heading_level }}>
+  </li>
+  {%- endfor -%}
+</ul>

@@ -54,6 +54,13 @@ content:
         label: Gallery
         options:
           multiple: true
+      - name: videos
+        label: Videos
+        type: object
+        list: true
+        fields:
+          - { name: id, type: string, label: YouTube Video ID, required: true }
+          - { name: title, type: string, label: Title, required: true }
   - name: products
     label: Products
     path: src/products

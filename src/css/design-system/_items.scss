@@ -143,6 +143,31 @@
           }
         }
       }
+
+      // Video wrapper for YouTube embeds
+      .video-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border-radius: $radius-lg $radius-lg 0 0;
+
+        iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
+      }
+    }
+
+    // Video cards variant - disable hover transform since videos are interactive
+    &.video-cards > li {
+      &:hover {
+        transform: none;
+      }
     }
   }
 }

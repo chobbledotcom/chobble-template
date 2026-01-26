@@ -30,6 +30,16 @@ export interface PagesCMSFaq {
 }
 
 /**
+ * @typedef {Object} PagesCMSVideo
+ * @property {string} id - YouTube Video ID
+ * @property {string} title - Title
+ */
+export interface PagesCMSVideo {
+  id: string;
+  title: string;
+}
+
+/**
  * @typedef {Object} PagesCMSOption
  * @property {string} name - Option Name
  * @property {number} ?max_quantity - Max Quantity
