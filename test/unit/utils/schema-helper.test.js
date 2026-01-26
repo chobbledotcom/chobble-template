@@ -24,7 +24,7 @@ const testProductMeta = (reviewSpecs) => {
   );
   const data = createProductSchemaData({
     reviews: mockReviews,
-    reviewsField: "products",
+    tags: ["products"],
   });
   return buildProductMeta(data);
 };
@@ -212,7 +212,7 @@ describe("buildProductMeta", () => {
     expect(result.offers).toBeUndefined();
   });
 
-  test("includes reviews and rating when reviewsField and collections.reviews are provided", () => {
+  test("includes reviews and rating when tags and collections.reviews are provided", () => {
     const result = testProductMeta([
       { name: "Reviewer 1", rating: 5 },
       { name: "Reviewer 2", rating: 4, date: "2024-02-20" },
@@ -245,7 +245,7 @@ describe("buildProductMeta", () => {
     ];
     const data = createProductSchemaData({
       reviews: mockReviews,
-      reviewsField: "products",
+      tags: ["products"],
     });
 
     const result = buildProductMeta(data);
@@ -264,7 +264,7 @@ describe("buildProductMeta", () => {
     ];
     const data = createProductSchemaData({
       reviews: mockReviews,
-      reviewsField: "products",
+      tags: ["products"],
     });
 
     const result = buildProductMeta(data);
@@ -278,7 +278,7 @@ describe("buildProductMeta", () => {
     ];
     const data = createProductSchemaData({
       reviews: mockReviews,
-      reviewsField: "products",
+      tags: ["products"],
     });
 
     const result = buildProductMeta(data);

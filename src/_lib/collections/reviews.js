@@ -10,6 +10,7 @@ import config from "#data/config.js";
 import { SRC_DIR } from "#lib/paths.js";
 import { hashString } from "#media/thumbnail-placeholder.js";
 import { filter, filterMap, map, pipe } from "#toolkit/fp/array.js";
+import { frozenSet } from "#toolkit/fp/set.js";
 import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { sortByDateDescending } from "#utils/sorting.js";
 
@@ -17,6 +18,31 @@ import { sortByDateDescending } from "#utils/sorting.js";
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 
 /** @typedef {"products" | "categories" | "properties"} ReviewIndexField */
+
+/**
+ * Tags that support reviews.
+ * @type {ReadonlySet<string>}
+ */
+const REVIEWABLE_TAGS = frozenSet(["products", "categories", "properties"]);
+
+/**
+ * Type guard to check if a tag supports reviews.
+ * @param {string} tag - Tag to check
+ * @returns {tag is ReviewIndexField} True if tag is a reviewable field
+ */
+const isReviewableTag = (tag) => REVIEWABLE_TAGS.has(tag);
+
+/**
+ * Derive the reviews field from an item's tags.
+ * Returns the first tag that supports reviews.
+ *
+ * @param {string[]} tags - Array of item tags
+ * @returns {ReviewIndexField | undefined} The review index field, or undefined if not reviewable
+ */
+const deriveReviewsField = (tags) => {
+  if (!Array.isArray(tags)) return undefined;
+  return tags.find(isReviewableTag);
+};
 
 // Load SVG template once at module initialization
 const AVATAR_SVG_TEMPLATE = readFileSync(
@@ -65,7 +91,7 @@ const isValidRating = (value) =>
   typeof value === "number" && !Number.isNaN(value);
 
 /**
- * Get reviews for a specific item by field.
+ * Get reviews for a specific item by field (internal).
  * Uses cached indexes for O(1) lookups when available.
  *
  * @param {ReviewCollectionItem[]} reviews - Array of review objects
@@ -73,13 +99,28 @@ const isValidRating = (value) =>
  * @param {ReviewIndexField} field - The field to check (products, categories, properties)
  * @returns {ReviewCollectionItem[]} Filtered and sorted reviews
  */
-const getReviewsFor = (reviews, slug, field) => {
+const getReviewsByField = (reviews, slug, field) => {
   const indexer = fieldIndexers[field];
   return (indexer(reviews)[slug] ?? []).sort(sortByDateDescending);
 };
 
 /**
- * Count reviews for a specific item.
+ * Get reviews for a specific item, deriving the field from tags.
+ * Used as a Liquid filter.
+ *
+ * @param {ReviewCollectionItem[]} reviews - Array of review objects
+ * @param {string} slug - The slug to filter by
+ * @param {string[]} tags - The item's tags (used to derive review field)
+ * @returns {ReviewCollectionItem[]} Filtered and sorted reviews
+ */
+const getReviewsFor = (reviews, slug, tags) => {
+  const field = deriveReviewsField(tags);
+  if (!field) return [];
+  return getReviewsByField(reviews, slug, field);
+};
+
+/**
+ * Count reviews for a specific item (internal, uses field directly).
  *
  * @param {ReviewCollectionItem[]} reviews - Array of review objects
  * @param {string} slug - The slug to count reviews for
@@ -87,19 +128,19 @@ const getReviewsFor = (reviews, slug, field) => {
  * @returns {number} Number of reviews
  */
 const countReviews = (reviews, slug, field) =>
-  getReviewsFor(reviews, slug, field).length;
+  getReviewsByField(reviews, slug, field).length;
 
 /**
  * Calculate average rating for reviews matching a specific item.
- * Uses cached indexes via getReviewsFor for O(1) lookups.
+ * Derives the review field from item tags.
  *
  * @param {ReviewCollectionItem[]} reviews - Array of review objects
  * @param {string} slug - The slug to calculate rating for
- * @param {ReviewIndexField} field - The field to check
+ * @param {string[]} tags - The item's tags (used to derive review field)
  * @returns {number | null} Ceiling of average rating, or null if no ratings
  */
-const getRating = (reviews, slug, field) => {
-  const matchingReviews = getReviewsFor(reviews, slug, field);
+const getRating = (reviews, slug, tags) => {
+  const matchingReviews = getReviewsFor(reviews, slug, tags);
   const ratings = pipe(
     map((r) => r.data.rating),
     filter(isValidRating),

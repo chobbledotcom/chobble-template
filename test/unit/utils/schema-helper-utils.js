@@ -113,7 +113,7 @@ const createSchemaData = (options = {}) => {
  * @param {string} [options.siteName="Test Store"] - Site name
  * @param {number} [options.price] - Product price
  * @param {Array} [options.reviews] - Reviews collection
- * @param {string} [options.reviewsField] - Field name for reviews
+ * @param {string[]} [options.tags] - Item tags (used to derive reviews field)
  * @returns {Object} Product schema data
  */
 const createProductSchemaData = ({
@@ -122,7 +122,7 @@ const createProductSchemaData = ({
   siteName = "Test Store",
   price = null,
   reviews = null,
-  reviewsField = null,
+  tags = null,
   ...extraData
 } = {}) => {
   const data = createSchemaData({
@@ -133,9 +133,9 @@ const createProductSchemaData = ({
     ...extraData,
   });
   if (price) data.price = price;
-  if (reviews && reviewsField) {
+  if (reviews && tags) {
     data.collections = { reviews };
-    data.reviewsField = reviewsField;
+    data.tags = tags;
   }
   return data;
 };

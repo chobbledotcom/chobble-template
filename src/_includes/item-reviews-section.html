@@ -1,17 +1,15 @@
-{%- if reviewsField -%}
-  {% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, reviewsField %}
-  {%- if reviews.size > 0 -%}
-    <h2 id="reviews">Reviews</h2>
-    {% assign limit = config.reviews_truncate_limit %}
-    {%- if limit != -1 and reviews.size > limit -%}
-      {% assign reviews = reviews | slice: 0, limit %}
-      {% include "reviews-list.html" %}
-      <p><a href="{{ page.url }}reviews/">See all reviews</a></p>
-    {%- else -%}
-      {% include "reviews-list.html" %}
-    {%- endif -%}
+{% assign reviews = collections.reviews | getReviewsFor: page.fileSlug, tags %}
+{%- if reviews.size > 0 -%}
+  <h2 id="reviews">Reviews</h2>
+  {% assign limit = config.reviews_truncate_limit %}
+  {%- if limit != -1 and reviews.size > limit -%}
+    {% assign reviews = reviews | slice: 0, limit %}
+    {% include "reviews-list.html" %}
+    <p><a href="{{ page.url }}reviews/">See all reviews</a></p>
+  {%- else -%}
+    {% include "reviews-list.html" %}
   {%- endif -%}
-  {%- if tags contains "product" -%}
-    {%- include "purchase-button.html" -%}
-  {%- endif -%}
+{%- endif -%}
+{%- if tags contains "product" -%}
+  {%- include "purchase-button.html" -%}
 {%- endif -%}

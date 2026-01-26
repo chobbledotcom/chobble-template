@@ -10,7 +10,7 @@ layout: base
   {% include "item-gallery.html" %}
 
   <div class="description">
-    {% assign reviews = collections.reviews | getReviewsFor: item.fileSlug, item.data.reviewsField %}
+    {% assign reviews = collections.reviews | getReviewsFor: item.fileSlug, item.data.tags %}
     {%- if reviews.size > 0 -%}
       <h2 id="reviews">Reviews</h2>
       {% include "reviews-list.html" %}
