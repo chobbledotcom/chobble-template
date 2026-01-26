@@ -74,10 +74,14 @@ export default {
   faqs: (data) => data.faqs ?? [],
 
   /**
+   * Ensures tabs array exists and each tab has a body string (defaults to empty).
    * @param {import("#lib/types").EleventyComputedData} data - Page data
-   * @returns {import("#lib/types").Tab[]} Tabs array (empty if not defined)
+   * @returns {import("#lib/types").Tab[]} Tabs array with guaranteed body strings
    */
-  tabs: (data) => data.tabs ?? [],
+  tabs: (data) =>
+    Array.isArray(data.tabs)
+      ? data.tabs.map((tab) => ({ ...tab, body: tab.body ?? "" }))
+      : [],
 
   /**
    * Adds #content anchor to navigation URLs if config flag is enabled

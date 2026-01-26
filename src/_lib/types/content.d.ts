@@ -8,7 +8,6 @@
 // Re-export PagesCMS types with shorter names
 export type { PagesCMSSpec as Spec } from './pages-cms-generated.d.ts';
 export type { PagesCMSFaq as Faq } from './pages-cms-generated.d.ts';
-export type { PagesCMSTab as Tab } from './pages-cms-generated.d.ts';
 export type { PagesCMSOption as Option } from './pages-cms-generated.d.ts';
 export type { PagesCMSFilterAttribute as FilterAttribute } from './pages-cms-generated.d.ts';
 export type { PagesCMSOpeningTime as OpeningTime } from './pages-cms-generated.d.ts';
@@ -17,6 +16,27 @@ export type { PagesCMSSocial as Social } from './pages-cms-generated.d.ts';
 export type { PagesCMSOrganization as Organization } from './pages-cms-generated.d.ts';
 export type { PagesCMSImage as Image } from './pages-cms-generated.d.ts';
 export type { PagesCMSBlock as Block } from './pages-cms-generated.d.ts';
+
+/**
+ * Tab type after eleventyComputed processing.
+ * Body is guaranteed to be a string (defaults to empty string if not set).
+ */
+export type Tab = {
+  title: string;
+  image?: string;
+  /** Body content - always a string after computed processing (never null/undefined) */
+  body: string;
+};
+
+/**
+ * Raw tab type from frontmatter (before eleventyComputed).
+ * Body may be undefined in raw frontmatter data.
+ */
+export type RawTab = {
+  title: string;
+  image?: string;
+  body?: string;
+};
 
 // Also export with PagesCMS prefix for explicit use
 export type { PagesCMSEleventyNavigation } from './pages-cms-generated.d.ts';
