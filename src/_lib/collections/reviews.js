@@ -18,9 +18,13 @@ import { sortByDateDescending } from "#utils/sorting.js";
 
 /** @typedef {"products" | "categories" | "properties"} ReviewIndexField */
 
-// Load SVG template once at module initialization
+// Load SVG templates once at module initialization
 const AVATAR_SVG_TEMPLATE = readFileSync(
   join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg"),
+  "utf8",
+);
+const STAR_SVG = readFileSync(
+  join(SRC_DIR, "assets", "icons", "rating-star.svg"),
   "utf8",
 );
 
@@ -111,12 +115,15 @@ const getRating = (reviews, slug, field) => {
 };
 
 /**
- * Convert numeric rating to star emojis.
+ * Convert numeric rating to star display.
  *
  * @param {number} rating - The numeric rating (1-5)
- * @returns {string} Star emojis repeated by the rating count
+ * @returns {string} Stars repeated by the rating count (emoji or SVG based on config)
  */
-const ratingToStars = (rating) => "⭐️".repeat(rating);
+const ratingToStars = (rating) =>
+  config().rating_stars_uses_svg
+    ? STAR_SVG.repeat(rating)
+    : "⭐️".repeat(rating);
 
 /**
  * Predefined list of slightly dark colors for avatar backgrounds.
