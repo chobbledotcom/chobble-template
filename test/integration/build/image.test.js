@@ -6,7 +6,7 @@ import {
   processAndWrapImage,
 } from "#media/image.js";
 import { withTestSite } from "#test/test-site-factory.js";
-import { createMockEleventyConfig } from "#test/test-utils.js";
+import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
 
 // ============================================
@@ -336,11 +336,6 @@ describe("image", () => {
       const transform = createHtmlTransform(processAndWrapImage);
       return transform(html, "/test/page.html");
     };
-
-    /**
-     * Wrap body content in HTML structure
-     */
-    const wrapHtml = (body) => `<html><body>${body}</body></html>`;
 
     /**
      * Create an img tag with given attributes

@@ -8,6 +8,7 @@ import {
   URL_PATTERN,
 } from "#transforms/linkify.js";
 import { loadDOM } from "#utils/lazy-dom.js";
+import { wrapHtml } from "#test/test-utils.js";
 
 // Helper to run transform and get HTML
 const transformHtml = async (html, transformFn, config = {}) => {
@@ -15,8 +16,6 @@ const transformHtml = async (html, transformFn, config = {}) => {
   transformFn(dom.window.document, config);
   return dom.serialize();
 };
-
-const wrapHtml = (content) => `<html><body>${content}</body></html>`;
 
 // Helper to verify single anchor tag in result
 const expectSingleAnchor = (result) =>
