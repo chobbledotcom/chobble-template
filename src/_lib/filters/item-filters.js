@@ -37,7 +37,12 @@ export {
   toSortedPath,
 } from "#filters/filter-core.js";
 // Re-export UI building functions
-export { buildFilterPageBase, buildFilterUIData } from "#filters/filter-ui.js";
+export {
+  buildFilterPageBase,
+  buildFilterUIData,
+  buildPathLookup,
+  buildUIWithLookup,
+} from "#filters/filter-ui.js";
 
 import {
   expandWithSortVariants,
