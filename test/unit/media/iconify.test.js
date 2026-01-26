@@ -12,11 +12,14 @@ const SAMPLE_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
 const ICONS_SUBDIR = "src/assets/icons/iconify";
 
-const getIconFilter = () => {
+const getConfiguredFilters = () => {
   const mockConfig = createMockEleventyConfig();
   configureIconify(mockConfig);
-  return mockConfig.asyncFilters.icon;
+  return mockConfig.asyncFilters;
 };
+
+const getIconFilter = () => getConfiguredFilters().icon;
+const getRenderIconFilter = () => getConfiguredFilters().renderIcon;
 
 describe("iconify", () => {
   describe("configureIconify", () => {
@@ -168,41 +171,30 @@ describe("iconify", () => {
 
   describe("renderIcon filter", () => {
     test("Registers renderIcon as an async filter", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureIconify(mockConfig);
-      expect(typeof mockConfig.asyncFilters.renderIcon).toBe("function");
+      expect(typeof getRenderIconFilter()).toBe("function");
     });
 
     test("Returns empty string for falsy values", async () => {
-      const mockConfig = createMockEleventyConfig();
-      configureIconify(mockConfig);
-      const { renderIcon } = mockConfig.asyncFilters;
+      const renderIcon = getRenderIconFilter();
       expect(await renderIcon(null)).toBe("");
       expect(await renderIcon(undefined)).toBe("");
       expect(await renderIcon("")).toBe("");
     });
 
     test("Returns img tag for paths starting with /", async () => {
-      const mockConfig = createMockEleventyConfig();
-      configureIconify(mockConfig);
-      const { renderIcon } = mockConfig.asyncFilters;
-      const result = await renderIcon("/images/icon.svg");
+      const result = await getRenderIconFilter()("/images/icon.svg");
       expect(result).toBe('<img src="/images/icon.svg" alt="">');
     });
 
     test("Passes through raw content unchanged", async () => {
-      const mockConfig = createMockEleventyConfig();
-      configureIconify(mockConfig);
-      const { renderIcon } = mockConfig.asyncFilters;
+      const renderIcon = getRenderIconFilter();
       expect(await renderIcon("&#128640;")).toBe("&#128640;");
       expect(await renderIcon("🚀")).toBe("🚀");
       expect(await renderIcon("plain text")).toBe("plain text");
     });
 
     test("Passes through URLs with colons and slashes", async () => {
-      const mockConfig = createMockEleventyConfig();
-      configureIconify(mockConfig);
-      const { renderIcon } = mockConfig.asyncFilters;
+      const renderIcon = getRenderIconFilter();
       expect(await renderIcon("https://example.com")).toBe(
         "https://example.com",
       );
@@ -214,10 +206,7 @@ describe("iconify", () => {
     test("Fetches SVG for Iconify IDs via renderIcon", () =>
       withSubDirAsync("render-iconify", "", async ({ tempDir }) =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
-          const mockConfig = createMockEleventyConfig();
-          configureIconify(mockConfig);
-          const { renderIcon } = mockConfig.asyncFilters;
-          const result = await renderIcon("test:icon");
+          const result = await getRenderIconFilter()("test:icon");
           expect(result).toBe(SAMPLE_SVG);
         }),
       ));

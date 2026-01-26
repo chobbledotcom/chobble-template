@@ -4,12 +4,17 @@ import {
   withNavigationAnchor,
 } from "#utils/navigation-utils.js";
 
-describe("withNavigationAnchor", () => {
-  const createData = (overrides = {}) => ({
+// Curried factory: (defaultUrl) => (overrides) => data
+const createDataWithUrl =
+  (defaultUrl) =>
+  (overrides = {}) => ({
     config: { navigation_content_anchor: true },
-    page: { url: "/products/" },
+    page: { url: defaultUrl },
     ...overrides,
   });
+
+describe("withNavigationAnchor", () => {
+  const createData = createDataWithUrl("/products/");
 
   describe("when config flag is enabled", () => {
     test("adds #content anchor to navigation url", () => {
@@ -69,30 +74,25 @@ describe("withNavigationAnchor", () => {
   });
 
   describe("when config flag is disabled", () => {
-    const disabledConfigs = [
-      ["flag is false", { navigation_content_anchor: false }],
-      ["flag is missing", {}],
-      ["config is undefined", undefined],
-    ];
-
-    for (const [scenario, configValue] of disabledConfigs) {
-      test(`returns nav unchanged when ${scenario}`, () => {
-        const data = createData({ config: configValue });
-        const nav = { key: "Products", order: 1 };
-
-        const result = withNavigationAnchor(data, nav);
-
-        expect(result).toEqual({ key: "Products", order: 1 });
-      });
-    }
-
-    test("returns exact same object reference when disabled", () => {
-      const data = createData({ config: { navigation_content_anchor: false } });
+    // Helper: test that nav is returned unchanged (both value and reference)
+    const expectNavUnchanged = (configValue) => {
+      const data = createData({ config: configValue });
       const nav = { key: "Products", order: 1 };
-
       const result = withNavigationAnchor(data, nav);
+      expect(result).toEqual({ key: "Products", order: 1 });
+      expect(result).toBe(nav); // Same object reference
+    };
 
-      expect(result).toBe(nav);
+    test("returns nav unchanged when flag is false", () => {
+      expectNavUnchanged({ navigation_content_anchor: false });
+    });
+
+    test("returns nav unchanged when flag is missing", () => {
+      expectNavUnchanged({});
+    });
+
+    test("returns nav unchanged when config is undefined", () => {
+      expectNavUnchanged(undefined);
     });
   });
 
@@ -122,11 +122,7 @@ describe("withNavigationAnchor", () => {
 });
 
 describe("buildNavigation", () => {
-  const createData = (overrides = {}) => ({
-    config: { navigation_content_anchor: true },
-    page: { url: "/test/" },
-    ...overrides,
-  });
+  const createData = createDataWithUrl("/test/");
 
   test("uses withNavigationAnchor when eleventyNavigation is present", () => {
     const data = createData({
