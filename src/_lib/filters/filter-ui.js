@@ -6,6 +6,10 @@
  * - Filter groups with options
  * - Sort group with options
  * - Filter descriptions for headings
+ *
+ * Performance note: buildPathLookup should be called once per category/item-type,
+ * then passed to buildUIWithLookup for each page. This avoids O(n²)
+ * work when enhancing many pages.
  */
 
 import {
@@ -19,6 +23,16 @@ import { mapEntries, omit, toObject } from "#toolkit/fp/object.js";
 /** @typedef {import("#lib/types").FilterSet} FilterSet */
 /** @typedef {import("#lib/types").FilterAttributeData} FilterAttributeData */
 /** @typedef {import("#lib/types").FilterUIData} FilterUIData */
+
+/**
+ * Build a lookup table from valid filter paths.
+ * Call once per category, then reuse for all pages in that category.
+ *
+ * @param {{ path: string }[]} validPages - Array of valid page objects with paths
+ * @returns {Record<string, true>} Lookup table for O(1) path validation
+ */
+export const buildPathLookup = (validPages) =>
+  toObject(validPages, (p) => [p.path, true]);
 
 /**
  * Build filter description parts from filters using display lookup
@@ -50,19 +64,21 @@ export const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
 });
 
 /**
- * Build pre-computed filter UI data for templates
+ * Build filter UI data using a pre-built path lookup.
+ * Use this when processing multiple pages to avoid rebuilding the lookup each time.
+ *
  * @param {FilterAttributeData} filterData - Filter attribute data
  * @param {FilterSet} currentFilters - Current active filters (use {} for no filters)
- * @param {{ path: string }[]} validPages - Array of valid page paths
+ * @param {Record<string, true>} pathLookup - Pre-built lookup from buildPathLookup
  * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
  * @param {string} [currentSortKey="default"] - Current sort key
  * @param {number} [count=2] - Current item count (used to hide sort/filters when <= 1)
  * @returns {FilterUIData} Complete UI data ready for simple template loops
  */
-export const buildFilterUIData = (
+export const buildUIWithLookup = (
   filterData,
   currentFilters,
-  validPages,
+  pathLookup,
   baseUrl,
   currentSortKey = "default",
   count = 2,
@@ -74,9 +90,6 @@ export const buildFilterUIData = (
   }
 
   const hasActiveFilters = Object.keys(filters).length > 0;
-
-  // Use lookup object for O(1) path lookups instead of O(n) array includes
-  const validPathLookup = toObject(validPages, (p) => [p.path, true]);
 
   const sortGroup =
     count > 1
@@ -115,7 +128,7 @@ export const buildFilterUIData = (
       const newFilters = { ...filters, [attrName]: value };
       const basePath = filterToPath(newFilters);
       // Check if base path is valid (sort variants are always valid if base is)
-      if (!isActive && !validPathLookup[basePath]) return null;
+      if (!isActive && !pathLookup[basePath]) return null;
       const pathWithSort = toSortedPath(newFilters, currentSortKey);
       return {
         value: filterData.displayLookup[value],
@@ -146,7 +159,39 @@ export const buildFilterUIData = (
 };
 
 /**
- * Add filterUI to each page object with sort support
+ * Build pre-computed filter UI data for templates.
+ * Convenience wrapper that builds the path lookup internally.
+ * For processing many pages, use buildPathLookup + buildUIWithLookup instead.
+ *
+ * @param {FilterAttributeData} filterData - Filter attribute data
+ * @param {FilterSet} currentFilters - Current active filters (use {} for no filters)
+ * @param {{ path: string }[]} validPages - Array of valid page paths
+ * @param {string} baseUrl - Base URL for the item type (e.g., "/products" or "/properties")
+ * @param {string} [currentSortKey="default"] - Current sort key
+ * @param {number} [count=2] - Current item count (used to hide sort/filters when <= 1)
+ * @returns {FilterUIData} Complete UI data ready for simple template loops
+ */
+export const buildFilterUIData = (
+  filterData,
+  currentFilters,
+  validPages,
+  baseUrl,
+  currentSortKey = "default",
+  count = 2,
+) =>
+  buildUIWithLookup(
+    filterData,
+    currentFilters,
+    buildPathLookup(validPages),
+    baseUrl,
+    currentSortKey,
+    count,
+  );
+
+/**
+ * Add filterUI to each page object with sort support.
+ * Builds the path lookup once and reuses it for all pages (avoids O(n²) work).
+ *
  * @param {Array} pages - Page objects to enhance
  * @param {Object} filterData - { attributes, displayLookup }
  * @param {string} baseUrl - Base URL for filter links
@@ -158,15 +203,19 @@ export const enhanceWithFilterUI = (
   filterData,
   baseUrl,
   validBasePaths,
-) =>
-  pages.map((page) => ({
+) => {
+  // Build lookup once, reuse for all pages
+  const pathLookup = buildPathLookup(validBasePaths);
+
+  return pages.map((page) => ({
     ...page,
-    filterUI: buildFilterUIData(
+    filterUI: buildUIWithLookup(
       filterData,
       page.filters,
-      validBasePaths,
+      pathLookup,
       baseUrl,
       page.sortKey || "default",
       page.count,
     ),
   }));
+};
