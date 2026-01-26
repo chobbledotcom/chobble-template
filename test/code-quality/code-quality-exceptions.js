@@ -248,8 +248,8 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/filters/filter-core.js:191",
   "src/_lib/filters/filter-core.js:202",
   "src/_lib/filters/filter-core.js:208",
-  "src/_lib/utils/schema-helper.js:147",
-  "src/_lib/utils/schema-helper.js:152",
+  "src/_lib/utils/schema-helper.js:145",
+  "src/_lib/utils/schema-helper.js:150",
 ]);
 
 // ============================================
@@ -347,7 +347,7 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/utils/product-cart-data.js:125", // max_quantity || null - explicit null in JSON
   "src/_lib/utils/product-cart-data.js:126", // sku || null - explicit null in JSON
   "src/_lib/utils/product-cart-data.js:127", // days || null - explicit null in JSON
-  "src/_lib/utils/schema-helper.js:111", // image cascade || null - intentional "first available or null"
+  "src/_lib/utils/schema-helper.js:109", // image cascade || null - intentional "first available or null"
 ]);
 
 export {

@@ -153,7 +153,7 @@ describe("reviews", () => {
       ["Review 4", "2024-01-04", {}],
     ]);
 
-    const result = getReviewsFor(testReviews, "product-a", "products");
+    const result = getReviewsFor(testReviews, "product-a", ["products"]);
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
@@ -165,7 +165,7 @@ describe("reviews", () => {
       ["Review 3", "2024-01-03", { products: [] }],
     ]);
 
-    const result = getReviewsFor(testReviews, "product-a", "products");
+    const result = getReviewsFor(testReviews, "product-a", ["products"]);
 
     expect(result.length).toBe(0);
   });
@@ -177,7 +177,7 @@ describe("reviews", () => {
       ["Review 3", "2024-01-03", { categories: ["category-a"] }],
     ]);
 
-    const result = getReviewsFor(testReviews, "category-a", "categories");
+    const result = getReviewsFor(testReviews, "category-a", ["categories"]);
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
@@ -189,7 +189,7 @@ describe("reviews", () => {
       ["Review 3", "2024-01-03", { properties: ["property-a", "property-b"] }],
     ]);
 
-    const result = getReviewsFor(testReviews, "property-a", "properties");
+    const result = getReviewsFor(testReviews, "property-a", ["properties"]);
 
     expectResultTitles(result, ["Review 3", "Review 1"]);
   });
@@ -201,13 +201,15 @@ describe("reviews", () => {
       ["Review 3", "2024-01-03", { properties: ["property-a"] }],
     ]);
 
-    expect(getReviewsFor(testReviews, "product-a", "products").length).toBe(1);
-    expect(getReviewsFor(testReviews, "category-a", "categories").length).toBe(
+    expect(getReviewsFor(testReviews, "product-a", ["products"]).length).toBe(
       1,
     );
-    expect(getReviewsFor(testReviews, "property-a", "properties").length).toBe(
-      1,
-    );
+    expect(
+      getReviewsFor(testReviews, "category-a", ["categories"]).length,
+    ).toBe(1);
+    expect(
+      getReviewsFor(testReviews, "property-a", ["properties"]).length,
+    ).toBe(1);
   });
 
   test("Calculates rating for any field type via filter", () => {
@@ -220,15 +222,15 @@ describe("reviews", () => {
       ]),
     ];
 
-    expect(getRating(testReviews, "product-a", "products")).toBe(4);
-    expect(getRating(testReviews, "category-a", "categories")).toBe(4);
+    expect(getRating(testReviews, "product-a", ["products"])).toBe(4);
+    expect(getRating(testReviews, "category-a", ["categories"])).toBe(4);
   });
 
   test("Returns ceiling of average rating via filter", () => {
     const { getRating } = createReviewsMock();
     const testReviews = createProductReviews("product-a", [5, 4]);
 
-    expect(getRating(testReviews, "product-a", "products")).toBe(5);
+    expect(getRating(testReviews, "product-a", ["products"])).toBe(5);
   });
 
   test("Returns null when no ratings exist via filter", () => {
@@ -238,7 +240,7 @@ describe("reviews", () => {
       ["R2", "2024-01-02", { products: ["product-a"], rating: null }],
     ]);
 
-    expect(getRating(testReviews, "product-a", "products")).toBe(null);
+    expect(getRating(testReviews, "product-a", ["products"])).toBe(null);
   });
 
   test("Returns null when no matching items via filter", () => {
@@ -247,7 +249,7 @@ describe("reviews", () => {
       ["R1", "2024-01-01", { products: ["product-b"], rating: 5 }],
     ]);
 
-    expect(getRating(testReviews, "product-a", "products")).toBe(null);
+    expect(getRating(testReviews, "product-a", ["products"])).toBe(null);
   });
 
   test("Converts rating to stars via filter (SVG when config enabled)", () => {
@@ -328,7 +330,7 @@ describe("reviews", () => {
     ]);
     const reviewsCopy = structuredClone(originalReviews);
 
-    getReviewsFor(reviewsCopy, "product-1", "products");
+    getReviewsFor(reviewsCopy, "product-1", ["products"]);
 
     expect(reviewsCopy).toEqual(originalReviews);
   });
