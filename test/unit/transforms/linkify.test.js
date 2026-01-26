@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { wrapHtml } from "#test/test-utils.js";
 import {
   linkifyEmails,
   linkifyPhones,
@@ -9,14 +10,61 @@ import {
 } from "#transforms/linkify.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
-describe("linkify transforms", () => {
-  // Helper to run transform and get HTML
-  const transformHtml = async (html, transformFn, config = {}) => {
-    const dom = await loadDOM(html);
-    transformFn(dom.window.document, config);
-    return dom.serialize();
-  };
+// Helper to run transform and get HTML
+const transformHtml = async (html, transformFn, config = {}) => {
+  const dom = await loadDOM(html);
+  transformFn(dom.window.document, config);
+  return dom.serialize();
+};
 
+// Helper to verify single anchor tag in result
+const expectSingleAnchor = (result) =>
+  expect(result.match(/<a /g)?.length).toBe(1);
+
+// Shared test case definitions for skip-tag behavior
+const skipTagTestCases = [
+  {
+    name: "URLs",
+    transform: linkifyUrls,
+    config: {},
+    anchorHtml: '<a href="https://example.com">Click</a>',
+    nestedHtml:
+      '<a href="https://example.com">Visit <span>https://example.com</span></a>',
+    scriptHtml: '<script>const url = "https://example.com";</script>',
+    notContain: "<a href",
+    surroundingHtml: "<p>Before https://example.com after</p>",
+  },
+  {
+    name: "emails",
+    transform: linkifyEmails,
+    config: {},
+    anchorHtml: '<a href="mailto:test@example.com">Contact</a>',
+    nestedHtml:
+      '<a href="mailto:test@example.com">Contact <span>test@example.com</span></a>',
+    scriptHtml: '<script>const email = "test@example.com";</script>',
+    notContain: 'href="mailto:',
+    surroundingHtml: "<p>Before test@example.com after</p>",
+  },
+  {
+    name: "phones",
+    transform: linkifyPhones,
+    config: { phoneNumberLength: 11 },
+    anchorHtml: '<a href="tel:01234567890">Call us</a>',
+    nestedHtml: '<a href="tel:+441234567890">Call <span>01234567890</span></a>',
+    scriptHtml: '<script>const phone = "01234567890";</script>',
+    notContain: '<a href="tel:',
+    surroundingHtml: "<p>Before 01234567890 after</p>",
+  },
+];
+
+// URL-only skip tags (style, code, pre are tested separately from shared tests)
+const urlOnlySkipTags = [
+  { tag: "style", html: "<style>/* https://example.com */</style>" },
+  { tag: "code", html: "<code>https://example.com</code>" },
+  { tag: "pre", html: "<pre>https://example.com</pre>" },
+];
+
+describe("linkify transforms", () => {
   describe("parseTextByPattern", () => {
     test("returns single text part when no matches", () => {
       const result = parseTextByPattern("hello world", URL_PATTERN, (v) => ({
@@ -74,18 +122,15 @@ describe("linkify transforms", () => {
 
   describe("SKIP_TAGS constant", () => {
     test("includes expected tags", () => {
-      expect(SKIP_TAGS.has("a")).toBe(true);
-      expect(SKIP_TAGS.has("script")).toBe(true);
-      expect(SKIP_TAGS.has("style")).toBe(true);
-      expect(SKIP_TAGS.has("code")).toBe(true);
-      expect(SKIP_TAGS.has("pre")).toBe(true);
+      for (const tag of ["a", "script", "style", "code", "pre"]) {
+        expect(SKIP_TAGS.has(tag)).toBe(true);
+      }
     });
   });
 
   describe("linkifyUrls", () => {
     test("converts plain URLs to anchor tags", async () => {
-      const html =
-        "<html><body><p>Visit https://example.com for more</p></body></html>";
+      const html = wrapHtml("<p>Visit https://example.com for more</p>");
       const result = await transformHtml(html, linkifyUrls, {
         externalLinksTargetBlank: true,
       });
@@ -95,7 +140,7 @@ describe("linkify transforms", () => {
     });
 
     test("adds target=_blank when config enabled", async () => {
-      const html = "<html><body><p>Visit https://example.com</p></body></html>";
+      const html = wrapHtml("<p>Visit https://example.com</p>");
       const result = await transformHtml(html, linkifyUrls, {
         externalLinksTargetBlank: true,
       });
@@ -105,7 +150,7 @@ describe("linkify transforms", () => {
     });
 
     test("does not add target=_blank when config disabled", async () => {
-      const html = "<html><body><p>Visit https://example.com</p></body></html>";
+      const html = wrapHtml("<p>Visit https://example.com</p>");
       const result = await transformHtml(html, linkifyUrls, {
         externalLinksTargetBlank: false,
       });
@@ -115,8 +160,7 @@ describe("linkify transforms", () => {
     });
 
     test("handles multiple URLs", async () => {
-      const html =
-        "<html><body><p>See https://foo.com and https://bar.com</p></body></html>";
+      const html = wrapHtml("<p>See https://foo.com and https://bar.com</p>");
       const result = await transformHtml(html, linkifyUrls, {});
 
       expect(result).toContain('href="https://foo.com"');
@@ -124,78 +168,28 @@ describe("linkify transforms", () => {
     });
 
     test("strips www. from display text", async () => {
-      const html =
-        "<html><body><p>Visit https://www.example.com/page</p></body></html>";
+      const html = wrapHtml("<p>Visit https://www.example.com/page</p>");
       const result = await transformHtml(html, linkifyUrls, {});
 
       expect(result).toContain(">example.com/page</a>");
     });
 
     test("strips trailing slash from display text", async () => {
-      const html =
-        "<html><body><p>Visit https://example.com/</p></body></html>";
+      const html = wrapHtml("<p>Visit https://example.com/</p>");
       const result = await transformHtml(html, linkifyUrls, {});
 
       expect(result).toContain(">example.com</a>");
     });
 
-    test("does not linkify URLs inside anchor tags", async () => {
-      const html =
-        '<html><body><a href="https://example.com">Click</a></body></html>';
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result.match(/<a /g)?.length).toBe(1);
-    });
-
-    test("does not linkify URLs nested inside anchor tags", async () => {
-      const html =
-        '<html><body><a href="https://example.com">Visit <span>https://example.com</span></a></body></html>';
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result.match(/<a /g)?.length).toBe(1);
-    });
-
-    test("does not linkify URLs inside script tags", async () => {
-      const html =
-        '<html><body><script>const url = "https://example.com";</script></body></html>';
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).not.toContain("<a href");
-    });
-
-    test("does not linkify URLs inside style tags", async () => {
-      const html =
-        "<html><body><style>/* https://example.com */</style></body></html>";
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).not.toContain("<a href");
-    });
-
-    test("does not linkify URLs inside code tags", async () => {
-      const html = "<html><body><code>https://example.com</code></body></html>";
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).not.toContain("<a href");
-    });
-
-    test("does not linkify URLs inside pre tags", async () => {
-      const html = "<html><body><pre>https://example.com</pre></body></html>";
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).not.toContain("<a href");
-    });
-
-    test("preserves surrounding text", async () => {
-      const html =
-        "<html><body><p>Before https://example.com after</p></body></html>";
-      const result = await transformHtml(html, linkifyUrls, {});
-
-      expect(result).toContain("Before ");
-      expect(result).toContain(" after");
-    });
+    for (const { tag, html } of urlOnlySkipTags) {
+      test(`does not linkify URLs inside ${tag} tags`, async () => {
+        const result = await transformHtml(wrapHtml(html), linkifyUrls, {});
+        expect(result).not.toContain("<a href");
+      });
+    }
 
     test("handles HTTP URLs", async () => {
-      const html = "<html><body><p>Visit http://example.com</p></body></html>";
+      const html = wrapHtml("<p>Visit http://example.com</p>");
       const result = await transformHtml(html, linkifyUrls, {});
 
       expect(result).toContain('href="http://example.com"');
@@ -204,7 +198,7 @@ describe("linkify transforms", () => {
 
   describe("linkifyEmails", () => {
     test("converts plain email addresses to mailto links", async () => {
-      const html = "<html><body><p>Contact hello@example.com</p></body></html>";
+      const html = wrapHtml("<p>Contact hello@example.com</p>");
       const result = await transformHtml(html, linkifyEmails, {});
 
       expect(result).toContain('href="mailto:hello@example.com"');
@@ -212,58 +206,22 @@ describe("linkify transforms", () => {
     });
 
     test("handles multiple email addresses", async () => {
-      const html =
-        "<html><body><p>Email support@foo.com or sales@bar.co.uk</p></body></html>";
+      const html = wrapHtml("<p>Email support@foo.com or sales@bar.co.uk</p>");
       const result = await transformHtml(html, linkifyEmails, {});
 
       expect(result).toContain('href="mailto:support@foo.com"');
       expect(result).toContain('href="mailto:sales@bar.co.uk"');
     });
 
-    test("does not linkify emails inside anchor tags", async () => {
-      const html =
-        '<html><body><a href="mailto:test@example.com">Contact</a></body></html>';
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result.match(/<a /g)?.length).toBe(1);
-    });
-
-    test("does not linkify emails nested inside anchor tags", async () => {
-      const html =
-        '<html><body><a href="mailto:test@example.com">Contact <span>test@example.com</span></a></body></html>';
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result.match(/<a /g)?.length).toBe(1);
-    });
-
-    test("does not linkify emails inside script tags", async () => {
-      const html =
-        '<html><body><script>const email = "test@example.com";</script></body></html>';
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result).not.toContain('href="mailto:');
-    });
-
-    test("preserves surrounding text", async () => {
-      const html =
-        "<html><body><p>Before test@example.com after</p></body></html>";
-      const result = await transformHtml(html, linkifyEmails, {});
-
-      expect(result).toContain("Before ");
-      expect(result).toContain(" after");
-    });
-
     test("handles emails with subdomains", async () => {
-      const html =
-        "<html><body><p>Email user@mail.example.co.uk</p></body></html>";
+      const html = wrapHtml("<p>Email user@mail.example.co.uk</p>");
       const result = await transformHtml(html, linkifyEmails, {});
 
       expect(result).toContain('href="mailto:user@mail.example.co.uk"');
     });
 
     test("handles emails with plus signs", async () => {
-      const html =
-        "<html><body><p>Email user+tag@example.com</p></body></html>";
+      const html = wrapHtml("<p>Email user+tag@example.com</p>");
       const result = await transformHtml(html, linkifyEmails, {});
 
       expect(result).toContain('href="mailto:user+tag@example.com"');
@@ -272,7 +230,7 @@ describe("linkify transforms", () => {
 
   describe("linkifyPhones", () => {
     test("converts phone numbers to tel links with length 11", async () => {
-      const html = "<html><body><p>Call 01234 567 890</p></body></html>";
+      const html = wrapHtml("<p>Call 01234 567 890</p>");
       const result = await transformHtml(html, linkifyPhones, {
         phoneNumberLength: 11,
       });
@@ -282,89 +240,103 @@ describe("linkify transforms", () => {
     });
 
     test("converts phone numbers with custom length", async () => {
-      const html = "<html><body><p>Call 0123456789</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 10,
-      });
-
+      const result = await transformHtml(
+        wrapHtml("<p>Call 0123456789</p>"),
+        linkifyPhones,
+        { phoneNumberLength: 10 },
+      );
       expect(result).toContain('href="tel:0123456789"');
     });
 
     test("converts phone numbers without spaces", async () => {
-      const html = "<html><body><p>Call 01234567890</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 11,
-      });
-
+      const result = await transformHtml(
+        wrapHtml("<p>Call 01234567890</p>"),
+        linkifyPhones,
+        { phoneNumberLength: 11 },
+      );
       expect(result).toContain('href="tel:01234567890"');
     });
 
     test("does not link shorter numbers", async () => {
-      const html = "<html><body><p>Call 0123456</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 11,
-      });
-
+      const result = await transformHtml(
+        wrapHtml("<p>Call 0123456</p>"),
+        linkifyPhones,
+        { phoneNumberLength: 11 },
+      );
       expect(result).not.toContain('href="tel:');
     });
 
     test("disables phone linking when phoneNumberLength is 0", async () => {
-      const html = "<html><body><p>Call 01234567890</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 0,
-      });
-
+      const result = await transformHtml(
+        wrapHtml("<p>Call 01234567890</p>"),
+        linkifyPhones,
+        { phoneNumberLength: 0 },
+      );
       expect(result).not.toContain('href="tel:');
     });
 
     test("disables phone linking when phoneNumberLength is negative", async () => {
-      const html = "<html><body><p>Call 01234567890</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: -1,
-      });
-
+      const result = await transformHtml(
+        wrapHtml("<p>Call 01234567890</p>"),
+        linkifyPhones,
+        { phoneNumberLength: -1 },
+      );
       expect(result).not.toContain('href="tel:');
     });
 
-    test("does not linkify phones inside anchor tags", async () => {
-      const html =
-        '<html><body><a href="tel:01234567890">Call us</a></body></html>';
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 11,
-      });
-
-      expect(result.match(/<a /g)?.length).toBe(1);
-    });
-
-    test("does not linkify phones nested inside anchor tags", async () => {
-      const html =
-        '<html><body><a href="tel:+441234567890">Call <span>01234567890</span></a></body></html>';
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 11,
-      });
-
-      expect(result.match(/<a /g)?.length).toBe(1);
+    test("does not allow nested anchor creation", async () => {
+      const result = await transformHtml(
+        wrapHtml(
+          '<a href="tel:+441234567890">Call <span>01234567890</span></a>',
+        ),
+        linkifyPhones,
+        { phoneNumberLength: 11 },
+      );
       expect(result).not.toContain("<a><a");
     });
+  });
 
-    test("does not linkify phones inside script tags", async () => {
-      const html =
-        '<html><body><script>const phone = "01234567890";</script></body></html>';
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 11,
+  // Data-driven tests for common skip-tag behavior
+  describe("skip-tag behavior (shared across transforms)", () => {
+    for (const tc of skipTagTestCases) {
+      describe(`${tc.name}`, () => {
+        test("does not linkify inside anchor tags", async () => {
+          const result = await transformHtml(
+            wrapHtml(tc.anchorHtml),
+            tc.transform,
+            tc.config,
+          );
+          expectSingleAnchor(result);
+        });
+
+        test("does not linkify nested inside anchor tags", async () => {
+          const result = await transformHtml(
+            wrapHtml(tc.nestedHtml),
+            tc.transform,
+            tc.config,
+          );
+          expectSingleAnchor(result);
+        });
+
+        test("does not linkify inside script tags", async () => {
+          const result = await transformHtml(
+            wrapHtml(tc.scriptHtml),
+            tc.transform,
+            tc.config,
+          );
+          expect(result).not.toContain(tc.notContain);
+        });
+
+        test("preserves surrounding text", async () => {
+          const result = await transformHtml(
+            wrapHtml(tc.surroundingHtml),
+            tc.transform,
+            tc.config,
+          );
+          expect(result).toContain("Before ");
+          expect(result).toContain(" after");
+        });
       });
-
-      expect(result).not.toContain('<a href="tel:');
-    });
-
-    test("preserves surrounding text", async () => {
-      const html = "<html><body><p>Before 01234567890 after</p></body></html>";
-      const result = await transformHtml(html, linkifyPhones, {
-        phoneNumberLength: 11,
-      });
-
-      expect(result).toContain("Before ");
-      expect(result).toContain(" after");
-    });
+    }
   });
 });
