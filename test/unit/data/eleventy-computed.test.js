@@ -246,6 +246,19 @@ describe("eleventyComputed", () => {
     });
   });
 
+  describe("metaComputed", () => {
+    test("Returns metaComputed when set", () => {
+      const metaComputed = { customField: "value" };
+      const data = { metaComputed };
+      expect(eleventyComputed.metaComputed(data)).toBe(metaComputed);
+    });
+
+    test("Returns empty object when metaComputed not set", () => {
+      const data = {};
+      expect(eleventyComputed.metaComputed(data)).toEqual({});
+    });
+  });
+
   describe("contactForm", () => {
     test("Returns contact form configuration", () => {
       const result = eleventyComputed.contactForm();

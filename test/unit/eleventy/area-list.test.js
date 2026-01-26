@@ -137,19 +137,19 @@ describe("area-list", () => {
     expect(result).toEqual([]);
   });
 
-  test("Handles locations with missing navigation data gracefully", () => {
+  test("Excludes locations without navigation keys", () => {
     const prepareAreaList = getAreaListFilter();
     const locations = [
-      { url: "/locations/alpha/" },
-      createLocation("Beta", "/locations/beta/"),
+      { url: "/locations/missing-nav/" }, // No nav key - should be excluded
+      createLocation("Downtown", "/locations/downtown/"),
+      createLocation("Uptown", "/locations/uptown/"),
     ];
 
     const result = prepareAreaList(locations, "/locations/other/");
 
+    // Only locations with nav keys are included
     expect(result).toHaveLength(2);
-    expect(result[0].name).toBe("");
-    expect(result[0].url).toBe("/locations/alpha/");
-    expect(result[1].name).toBe("Beta");
+    expect(result.map((r) => r.name)).toEqual(["Downtown", "Uptown"]);
   });
 
   test("Excludes root locations URL", () => {
