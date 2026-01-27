@@ -272,7 +272,6 @@ const buildProductsFields = (config, fields) =>
     categoriesRef(enabled),
     enabled("events") && createReferenceField("events", "Events", "events"),
     PRODUCT_OPTIONS_FIELD,
-    createAddOnsField(config.features.use_visual_editor),
     config.features.external_purchases && {
       name: "purchase_url",
       label: "Purchase URL",
@@ -449,6 +448,22 @@ const getCoreFields = (collectionName, config, fields) => {
 };
 
 /**
+ * Get collection-specific optional fields based on what the collection supports
+ * @param {CollectionDefinition} collection - Collection definition
+ * @param {CmsConfig} config - CMS configuration
+ * @param {FieldContext} fieldContext - Precomputed fields
+ * @returns {(false | CmsField)[]} Collection-specific optional fields
+ */
+const getCollectionSpecificFields = (collection, config, fieldContext) => [
+  config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
+  config.features.specs && collection.supportsSpecs && SPECS_FIELD,
+  config.features.add_ons &&
+    collection.supportsAddOns &&
+    createAddOnsField(config.features.use_visual_editor),
+  collection.supportsTabs && fieldContext.tabs,
+];
+
+/**
  * Add optional fields based on configuration
  * @param {CmsField[]} coreFields - Existing fields
  * @param {string} collectionName - Name of the collection
@@ -470,9 +485,7 @@ const addOptionalFields = (
     config.features.permalinks && COMMON_FIELDS.permalink,
     config.features.redirects && COMMON_FIELDS.redirect_from,
     config.features.faqs && FAQS_FIELD,
-    config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
-    config.features.specs && collection.supportsSpecs && SPECS_FIELD,
-    collection.supportsTabs && fieldContext.tabs,
+    ...getCollectionSpecificFields(collection, config, fieldContext),
   ]);
 };
 

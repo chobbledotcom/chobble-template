@@ -419,8 +419,10 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "setupSiteJson",
   "setupSiteJsonWithSrc",
   // customise-cms.test.js - YAML section extraction helpers
+  "getSection",
   "getEventsSection",
   "getViewSection",
+  "getProductsSection",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
