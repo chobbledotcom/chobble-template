@@ -1,7 +1,34 @@
 // Design System JavaScript
-// Scroll animations and slider functionality
+// Scroll animations, slider functionality, and video facades
 
 import { initSliders } from "#public/utils/slider-core.js";
+
+// Video facade - replace thumbnail with iframe on click
+const initVideoFacades = () => {
+  for (const button of document.querySelectorAll(".video-facade")) {
+    button.addEventListener("click", () => {
+      const videoId = button.dataset.videoId;
+      if (!videoId) return;
+
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+      iframe.title =
+        button.getAttribute("aria-label")?.replace("Play ", "") || "";
+      iframe.setAttribute("frameborder", "0");
+      iframe.setAttribute(
+        "allow",
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+      );
+      iframe.setAttribute("allowfullscreen", "");
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "video-wrapper";
+      wrapper.appendChild(iframe);
+
+      button.replaceWith(wrapper);
+    });
+  }
+};
 
 const init = () => {
   // Scroll reveal - animate elements as they enter viewport
@@ -50,6 +77,9 @@ const init = () => {
     itemSelector: ":scope > *",
     defaultWidth: 340,
   });
+
+  // Initialize video facades for click-to-play
+  initVideoFacades();
 };
 
 if (document.readyState === "loading") {
