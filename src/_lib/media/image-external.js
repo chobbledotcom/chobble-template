@@ -117,7 +117,7 @@ const computeExternalImageHtml = memoize(
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
  * @param {boolean} options.returnElement - Whether to return Element or HTML string
  * @param {Document | null} options.document - Optional document for element creation
- * @returns {Promise<string | HTMLElement>} HTML string or element
+ * @returns {Promise<string | Element>} HTML string or element
  */
 const processExternalImage = async ({
   src,

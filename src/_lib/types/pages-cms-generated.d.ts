@@ -54,13 +54,23 @@ export interface PagesCMSOption {
 }
 
 /**
+ * @typedef {Object} PagesCMSAddOnOption
+ * @property {string} name - Name
+ * @property {number} price - Price
+ */
+export interface PagesCMSAddOnOption {
+  name: string;
+  price: number;
+}
+
+/**
  * @typedef {Object} PagesCMSAddOn
  * @property {string} ?intro - Intro
- * @property {Record<string, unknown>} ?options - Add-on Options
+ * @property {PagesCMSAddOnOption[]} ?options - Add-on Options
  */
 export interface PagesCMSAddOn {
   intro?: string;
-  options?: Record<string, unknown>;
+  options?: PagesCMSAddOnOption[];
 }
 
 /**

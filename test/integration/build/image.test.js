@@ -152,37 +152,10 @@ describe("image", () => {
       }
     };
 
-    test("Returns simple img tag for external URLs without processing", async () => {
-      const result = await imageShortcode(
-        "https://example.com/image.jpg",
-        "External image",
-      );
-
-      expectIncludes(
-        result,
-        [
-          "<img",
-          'src="https://example.com/image.jpg"',
-          'alt="External image"',
-          'loading="lazy"',
-          'decoding="async"',
-        ],
-        ["image-wrapper", "background-image"],
-      );
-    });
-
-    test("External URLs support custom classes and loading attributes", async () => {
-      const result = await imageShortcode(
-        "https://example.com/image.jpg",
-        "Test",
-        null,
-        "my-custom-class",
-        null,
-        null,
-        "eager",
-      );
-
-      expectIncludes(result, ['class="my-custom-class"', 'loading="eager"']);
+    test("Throws when external URL cannot be fetched", async () => {
+      await expect(
+        imageShortcode("https://example.com/image.jpg", "External image"),
+      ).rejects.toThrow();
     });
   });
 
