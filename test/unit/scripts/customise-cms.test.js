@@ -29,6 +29,23 @@ import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 import { withMockedCwdAsync } from "#test/test-utils.js";
 
 /**
+ * Curried helper to extract a collection section from generated YAML.
+ * Returns the section from "name: {collectionName}" to the next top-level collection.
+ * @param {string} collectionName - Name of the collection to extract
+ * @returns {(yaml: string) => string} Function that extracts the section from YAML
+ */
+const getSection = (collectionName) => (yaml) => {
+  const marker = `name: ${collectionName}`;
+  const start = yaml.indexOf(marker);
+  if (start === -1) return "";
+  const remainder = yaml.substring(start + 1);
+  const nextCollectionMatch = remainder.match(/\n {2}- name: /);
+  return nextCollectionMatch
+    ? yaml.substring(start, start + 1 + nextCollectionMatch.index)
+    : yaml.substring(start);
+};
+
+/**
  * Default features object with all features disabled
  * @type {import('#scripts/customise-cms/config.js').CmsFeatures}
  */
@@ -770,16 +787,7 @@ describe("customise-cms config", () => {
 });
 
 describe("customise-cms events fields", () => {
-  /**
-   * Helper to extract the events section from generated YAML
-   * @param {string} yaml - Full YAML string
-   * @returns {string} Events section of the YAML
-   */
-  const getEventsSection = (yaml) =>
-    yaml.substring(
-      yaml.indexOf("name: events"),
-      yaml.indexOf("name: homepage"),
-    );
+  const getEventsSection = getSection("events");
 
   test("events include location and date fields when event_locations_and_dates is true", () => {
     const config = createTestConfig({
@@ -1137,21 +1145,7 @@ describe("customise-cms config with use_visual_editor", () => {
 });
 
 describe("customise-cms add_ons feature", () => {
-  /**
-   * Helper to extract the products section from generated YAML
-   * @param {string} yaml - Full YAML string
-   * @returns {string} Products section of the YAML
-   */
-  const getProductsSection = (yaml) => {
-    const start = yaml.indexOf("name: products");
-    // Find the next top-level collection (starts with "  - name:")
-    const remainder = yaml.substring(start + 1);
-    const nextCollectionMatch = remainder.match(/\n {2}- name: /);
-    const end = nextCollectionMatch
-      ? start + 1 + nextCollectionMatch.index
-      : yaml.length;
-    return yaml.substring(start, end);
-  };
+  const getProductsSection = getSection("products");
 
   test("createDefaultConfig includes add_ons set to true", () => {
     const config = createDefaultConfig();
@@ -1225,26 +1219,13 @@ describe("customise-cms add_ons feature", () => {
     const productsSection = getProductsSection(yaml);
     expect(productsSection).toContain("name: add_ons");
 
-    // Helper to extract a collection section properly
-    const getCollectionSection = (collectionName) => {
-      const marker = `\n  - name: ${collectionName}\n`;
-      const start = yaml.indexOf(marker);
-      if (start === -1) return "";
-      const remainder = yaml.substring(start + 1);
-      const nextCollectionMatch = remainder.match(/\n {2}- name: /);
-      const end = nextCollectionMatch
-        ? start + 1 + nextCollectionMatch.index
-        : yaml.length;
-      return yaml.substring(start, end);
-    };
-
     // News should NOT have add_ons (doesn't support it)
-    const newsSection = getCollectionSection("news");
+    const newsSection = getSection("news")(yaml);
     expect(newsSection).toContain("name: news");
     expect(newsSection).not.toContain("name: add_ons");
 
     // Pages should NOT have add_ons
-    const pagesSection = getCollectionSection("pages");
+    const pagesSection = getSection("pages")(yaml);
     expect(pagesSection).toContain("name: pages");
     expect(pagesSection).not.toContain("name: add_ons");
   });
