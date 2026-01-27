@@ -7,11 +7,10 @@ import { initSliders } from "#public/utils/slider-core.js";
 const initVideoFacades = () => {
   for (const button of document.querySelectorAll(".video-facade")) {
     button.addEventListener("click", () => {
-      const videoId = button.dataset.videoId;
-      if (!videoId) return;
+      if (!button.dataset.videoId) return;
 
       const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${button.dataset.videoId}?autoplay=1`;
       iframe.title =
         button.getAttribute("aria-label")?.replace("Play ", "") || "";
       iframe.setAttribute("frameborder", "0");
