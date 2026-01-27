@@ -47,6 +47,8 @@ const ALL_COLLECTIONS = map((c) => c.name)(COLLECTIONS);
  */
 const CLI_OPTIONS = {
   help: { type: "boolean", short: "h" },
+  // Regenerate from saved config
+  regenerate: { type: "boolean", short: "r" },
   // Collections
   collections: { type: "string", short: "c" },
   all: { type: "boolean", short: "a" },
@@ -82,6 +84,7 @@ When no options are provided, runs in interactive mode.
 
 OPTIONS:
   -h, --help              Show this help message
+  -r, --regenerate        Regenerate .pages.yml using saved config from site.json
   -a, --all               Enable all collections and all features
   -c, --collections LIST  Comma-separated list of collections to enable
   -e, --enable LIST       Comma-separated list of features to enable
@@ -110,6 +113,9 @@ FEATURES:
   ${ALL_FEATURES.join(", ")}
 
 EXAMPLES:
+  # Regenerate .pages.yml using saved config (after updating generator)
+  bun run customise-cms --regenerate
+
   # Enable products, categories, and news with FAQs and galleries
   bun run customise-cms --collections products,categories,news --enable faqs,galleries
 
@@ -186,6 +192,7 @@ export const parseCliArguments = () => {
  */
 export const hasCliFlags = (values) => {
   const nonInteractiveFlags = [
+    "regenerate",
     "collections",
     "all",
     "enable",

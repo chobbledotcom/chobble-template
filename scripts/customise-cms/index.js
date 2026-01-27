@@ -63,6 +63,42 @@ const runInteractive = async () => {
 };
 
 /**
+ * Run in regenerate mode using saved config
+ * @param {Object} values - Parsed CLI argument values
+ * @returns {Promise<void>}
+ */
+const runRegenerate = async (values) => {
+  const options = getCliOptions(values);
+  const config = await loadCmsConfig();
+
+  if (!config) {
+    throw new Error(
+      "No saved configuration found in site.json. Run without --regenerate first to create one.",
+    );
+  }
+
+  if (options.dryRun) {
+    console.log("Configuration (dry run):\n");
+    console.log(JSON.stringify(config, null, 2));
+    console.log("\nGenerated YAML preview:\n");
+    console.log(generateCompactYaml(config));
+    return;
+  }
+
+  await writePagesYaml(generateCompactYaml(config));
+
+  log(".pages.yml has been regenerated from saved config!", options.quiet);
+  log(`  Collections: ${config.collections.join(", ")}`, options.quiet);
+
+  const enabledFeatures = Object.entries(config.features)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+  if (enabledFeatures.length > 0) {
+    log(`  Features: ${enabledFeatures.join(", ")}`, options.quiet);
+  }
+};
+
+/**
  * Run in non-interactive mode using CLI flags
  * @param {Object} values - Parsed CLI argument values
  * @returns {Promise<void>}
@@ -124,7 +160,9 @@ const main = async () => {
   }
 
   // Determine mode based on flags
-  if (hasCliFlags(values)) {
+  if (values.regenerate) {
+    await runRegenerate(values);
+  } else if (hasCliFlags(values)) {
     await runNonInteractive(values);
   } else {
     await runInteractive();

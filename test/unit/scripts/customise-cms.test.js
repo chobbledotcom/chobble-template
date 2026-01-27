@@ -1300,6 +1300,10 @@ describe("customise-cms CLI", () => {
     expect(hasCliFlags({ quiet: true })).toBe(true);
   });
 
+  test("hasCliFlags returns true when regenerate is set", () => {
+    expect(hasCliFlags({ regenerate: true })).toBe(true);
+  });
+
   // ============================================
   // buildConfigFromCli
   // ============================================
