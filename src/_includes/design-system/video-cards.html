@@ -25,7 +25,7 @@ Usage:
 
 <ul class="items video-cards" role="list">
   {%- for video in videos -%}
-  {%- assign thumbnail_url = "https://img.youtube.com/vi/" | append: video.id | append: "/maxresdefault.jpg" -%}
+  {%- assign thumbnail_url = "https://img.youtube.com/vi/" | append: video.id | append: "/hqdefault.jpg" -%}
   <li{% if reveal %} data-reveal{% endif %}>
     <button
       type="button"
