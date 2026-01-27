@@ -15,10 +15,10 @@ import type {
   PagesCMSOption,
   PagesCMSSpec,
   PagesCMSFaq,
-  PagesCMSTab,
   PagesCMSFilterAttribute,
   PagesCMSOpeningTime,
 } from './pages-cms-generated.d.ts';
+import type { RawTab } from './content.d.ts';
 
 /**
  * Eleventy page data (url, fileSlug, date)
@@ -75,8 +75,8 @@ export type ProductItemData = BaseItemData & {
   specs?: PagesCMSSpec[];
   /** Frequently asked questions */
   faqs?: PagesCMSFaq[];
-  /** Additional content tabs */
-  tabs?: PagesCMSTab[];
+  /** Additional content tabs (body may be undefined before eleventyComputed) */
+  tabs?: RawTab[];
   /** Filter attributes for faceted search */
   filter_attributes?: PagesCMSFilterAttribute[];
   /** Category slugs this product belongs to */

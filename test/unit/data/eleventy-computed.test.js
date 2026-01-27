@@ -174,15 +174,50 @@ describe("eleventyComputed", () => {
   });
 
   describe("tabs", () => {
-    test("Returns tabs array when set", () => {
-      const tabs = [{ title: "Tab1", content: "Content1" }];
+    test("Returns tabs array when set with body", () => {
+      const tabs = [{ title: "Tab1", body: "Content1" }];
       const data = { tabs };
-      expect(eleventyComputed.tabs(data)).toBe(tabs);
+      const result = eleventyComputed.tabs(data);
+      expect(result).toEqual([{ title: "Tab1", body: "Content1" }]);
     });
 
     test("Returns empty array when tabs not set", () => {
       const data = {};
       expect(eleventyComputed.tabs(data)).toEqual([]);
+    });
+
+    test.each([
+      ["undefined", { title: "Tab1" }],
+      ["null", { title: "Tab1", body: null }],
+      ["empty string", { title: "Tab1", body: "" }],
+    ])("Normalizes body to empty string when %s", (_label, inputTab) => {
+      const result = eleventyComputed.tabs({ tabs: [inputTab] });
+      expect(result[0].body).toBe("");
+      expect(result[0].title).toBe("Tab1");
+    });
+
+    test("Handles multiple tabs with mixed body states", () => {
+      const tabs = [
+        { title: "Tab1", body: "Content" },
+        { title: "Tab2" },
+        { title: "Tab3", body: null },
+        { title: "Tab4", body: "" },
+      ];
+      const data = { tabs };
+      const result = eleventyComputed.tabs(data);
+      expect(result).toEqual([
+        { title: "Tab1", body: "Content" },
+        { title: "Tab2", body: "" },
+        { title: "Tab3", body: "" },
+        { title: "Tab4", body: "" },
+      ]);
+    });
+
+    test("Preserves other tab properties when defaulting body", () => {
+      const tabs = [{ title: "Tab1", image: "image.jpg" }];
+      const data = { tabs };
+      const result = eleventyComputed.tabs(data);
+      expect(result).toEqual([{ title: "Tab1", image: "image.jpg", body: "" }]);
     });
   });
 
