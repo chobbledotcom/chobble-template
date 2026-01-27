@@ -1,3 +1,5 @@
+{%- assign navCacheKey = page.navigationParent | default: page.url | prepend: "nav|" -%}
+{%- cachedBlock navCacheKey -%}
 <nav>
   {%- include "navigation-start.html" -%}
   {%- if config.sticky_mobile_nav -%}
@@ -25,3 +27,4 @@
   {%- endif -%}
   {%- include "navigation-end.html" -%}
 </nav>
+{%- endcachedBlock -%}
