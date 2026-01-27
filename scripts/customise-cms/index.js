@@ -15,6 +15,7 @@
 
 import {
   buildConfigFromCli,
+  generateHelp,
   getCliOptions,
   handleListOptions,
   hasCliFlags,
@@ -168,7 +169,7 @@ const main = async () => {
 
   // Handle --help
   if (values.help) {
-    showHelp();
+    showHelp(generateHelp());
   }
 
   // Handle --list-* options

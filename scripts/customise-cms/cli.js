@@ -5,7 +5,7 @@
  * suitable for automation and LLM agents.
  */
 
-import { parseArgs } from "node:util";
+import { parseCliArguments, showHelp } from "#scripts/customise-cms/cli-io.js";
 import {
   COLLECTIONS,
   getRequiredCollections,
@@ -13,6 +13,9 @@ import {
 } from "#scripts/customise-cms/collections.js";
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import { map, unique } from "#toolkit/fp/array.js";
+
+// Re-export I/O functions from cli-io.js
+export { parseCliArguments, showHelp };
 
 /**
  * All available feature names
@@ -41,35 +44,6 @@ const ALL_FEATURES = [
  * @type {string[]}
  */
 const ALL_COLLECTIONS = map((c) => c.name)(COLLECTIONS);
-
-/**
- * CLI options definition for parseArgs
- */
-const CLI_OPTIONS = {
-  help: { type: "boolean", short: "h" },
-  // Regenerate from saved config
-  regenerate: { type: "boolean", short: "r" },
-  // Collections
-  collections: { type: "string", short: "c" },
-  all: { type: "boolean", short: "a" },
-  // Features - enable specific ones
-  enable: { type: "string", short: "e" },
-  // Features - disable specific ones
-  disable: { type: "string", short: "d" },
-  // Template structure
-  "src-folder": { type: "boolean" },
-  "no-src-folder": { type: "boolean" },
-  "custom-home": { type: "boolean" },
-  "no-custom-home": { type: "boolean" },
-  // Output control
-  "save-config": { type: "boolean" },
-  "no-save-config": { type: "boolean" },
-  "dry-run": { type: "boolean" },
-  quiet: { type: "boolean", short: "q" },
-  // List available options
-  "list-collections": { type: "boolean" },
-  "list-features": { type: "boolean" },
-};
 
 /**
  * Generate usage help text
@@ -170,19 +144,6 @@ const validateFeatures = (features) => {
       );
     }
   }
-};
-
-/**
- * Parse CLI arguments
- * @returns {Object} Parsed arguments with values and positionals
- */
-export const parseCliArguments = () => {
-  return parseArgs({
-    args: process.argv.slice(2),
-    options: CLI_OPTIONS,
-    allowPositionals: false,
-    strict: true,
-  });
 };
 
 /**
@@ -374,14 +335,6 @@ export const getCliOptions = (values) => ({
   dryRun: values["dry-run"] === true,
   quiet: values.quiet === true,
 });
-
-/**
- * Display help and exit
- */
-export const showHelp = () => {
-  console.log(generateHelp());
-  process.exit(0);
-};
 
 /**
  * Export for testing
