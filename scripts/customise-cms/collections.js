@@ -9,6 +9,7 @@
  * - supportsFeatures: Whether collection can have features list
  * - supportsSpecs: Whether collection can have specifications
  * - supportsGallery: Whether collection can have image gallery
+ * - supportsAddOns: Whether collection can have add-ons
  * - dependencies: Other collections this one requires
  */
 
@@ -24,6 +25,7 @@ import { filter, unique } from "#toolkit/fp/array.js";
  * @property {boolean} supportsSpecs - Whether collection can have specifications
  * @property {boolean} supportsGallery - Whether collection can have image gallery
  * @property {boolean} supportsTabs - Whether collection can have tabbed content
+ * @property {boolean} supportsAddOns - Whether collection can have add-ons
  * @property {string[]} [dependencies] - Other collections this one requires
  * @property {boolean} [required] - Whether collection is required (cannot be disabled)
  * @property {boolean} [internal] - Whether collection is internal (not shown to users)
@@ -43,6 +45,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
     required: true,
   },
   {
@@ -54,6 +57,7 @@ export const COLLECTIONS = [
     supportsSpecs: true,
     supportsGallery: true,
     supportsTabs: true,
+    supportsAddOns: true,
     dependencies: ["categories"],
   },
   {
@@ -65,6 +69,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "news",
@@ -75,6 +80,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "events",
@@ -85,6 +91,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "team",
@@ -95,6 +102,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "reviews",
@@ -105,6 +113,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: false,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "locations",
@@ -115,6 +124,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "properties",
@@ -125,6 +135,7 @@ export const COLLECTIONS = [
     supportsSpecs: true,
     supportsGallery: true,
     supportsTabs: true,
+    supportsAddOns: false,
   },
   {
     name: "guide-categories",
@@ -135,6 +146,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: false,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "guide-pages",
@@ -145,6 +157,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
     dependencies: ["guide-categories"],
   },
   {
@@ -156,6 +169,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
   },
   {
     name: "menu-categories",
@@ -166,6 +180,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
     dependencies: ["menus"],
   },
   {
@@ -177,6 +192,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: true,
     supportsTabs: false,
+    supportsAddOns: false,
     dependencies: ["menu-categories"],
   },
   {
@@ -188,6 +204,7 @@ export const COLLECTIONS = [
     supportsSpecs: false,
     supportsGallery: false,
     supportsTabs: false,
+    supportsAddOns: false,
     internal: true,
   },
 ];

@@ -16,6 +16,7 @@ import { join } from "node:path";
  * @property {boolean} specs - Enable specifications on products/properties
  * @property {boolean} features - Enable feature lists on products/properties
  * @property {boolean} galleries - Enable image galleries on items
+ * @property {boolean} add_ons - Enable add-ons on products
  * @property {boolean} header_images - Enable header images and text on items
  * @property {boolean} external_navigation_urls - Enable external URLs in navigation
  * @property {boolean} external_purchases - Enable external purchase URLs for products
@@ -105,6 +106,7 @@ export const createDefaultConfig = () => ({
     specs: true,
     features: true,
     galleries: true,
+    add_ons: true,
     event_locations_and_dates: true,
     use_visual_editor: false,
     no_index: true,
