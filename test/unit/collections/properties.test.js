@@ -54,12 +54,12 @@ const createPropertyReviewFixture = (countA, countB) => {
 
 describe("properties", () => {
   test("Creates properties collection from API", () => {
-    const testItems = items([
+    const propertyItems = items([
       ["Property 1", { gallery: ["img1.jpg"] }],
       ["Property 2", {}],
       ["Property 3", { gallery: ["img3.jpg"] }],
     ]);
-    expectGalleries(properties(collectionApi(testItems)), [
+    expectGalleries(properties(collectionApi(propertyItems)), [
       ["img1.jpg"],
       undefined,
       ["img3.jpg"],

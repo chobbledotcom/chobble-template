@@ -177,7 +177,11 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "aliasBase",
   "aliasKeep",
   // categories.test.js - collection setup helpers
-  "getCategoriesCollection",
+  "getCollection", // categories.test.js - curried collection getter
+  "cat", // categories.test.js - category fixture builder
+  "cats", // categories.test.js - multiple categories builder
+  "prod", // categories.test.js - product fixture builder
+  "prods", // categories.test.js - multiple products builder
   // products.test.js - test setup helpers
   "setupProductsConfig",
   "categorizedProducts",
