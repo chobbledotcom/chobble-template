@@ -13,6 +13,7 @@ import {
 } from "#scripts/customise-cms/config.js";
 import {
   COMMON_FIELDS,
+  createAddOnsField,
   createBodyField,
   createMarkdownField,
   createReferenceField,
@@ -38,6 +39,7 @@ const DISABLED_FEATURES = {
   specs: false,
   features: false,
   galleries: false,
+  add_ons: false,
   header_images: false,
   event_locations_and_dates: false,
   use_visual_editor: false,
@@ -281,6 +283,49 @@ describe("customise-cms fields", () => {
     expect(FEATURES_FIELD.name).toBe("features");
     expect(FEATURES_FIELD.type).toBe("string");
     expect(FEATURES_FIELD.list).toBe(true);
+  });
+
+  // ============================================
+  // createAddOnsField
+  // ============================================
+  test("createAddOnsField has correct structure", () => {
+    const field = createAddOnsField(false);
+    expect(field.name).toBe("add_ons");
+    expect(field.label).toBe("Add-ons");
+    expect(field.type).toBe("object");
+    expect(field.fields.length).toBe(2);
+    expect(field.fields.some((f) => f.name === "intro")).toBe(true);
+    expect(field.fields.some((f) => f.name === "options")).toBe(true);
+  });
+
+  test("createAddOnsField intro uses code type when visual editor disabled", () => {
+    const field = createAddOnsField(false);
+    const introField = field.fields.find((f) => f.name === "intro");
+    expect(introField.type).toBe("code");
+    expect(introField.options).toEqual({ language: "markdown" });
+  });
+
+  test("createAddOnsField intro uses rich-text type when visual editor enabled", () => {
+    const field = createAddOnsField(true);
+    const introField = field.fields.find((f) => f.name === "intro");
+    expect(introField.type).toBe("rich-text");
+    expect(introField.options).toBeUndefined();
+  });
+
+  test("createAddOnsField options has correct nested structure", () => {
+    const field = createAddOnsField(false);
+    const optionsField = field.fields.find((f) => f.name === "options");
+    expect(optionsField.type).toBe("object");
+    expect(optionsField.list).toBe(true);
+    expect(optionsField.fields.some((f) => f.name === "name")).toBe(true);
+    expect(optionsField.fields.some((f) => f.name === "price")).toBe(true);
+
+    const nameField = optionsField.fields.find((f) => f.name === "name");
+    const priceField = optionsField.fields.find((f) => f.name === "price");
+    expect(nameField.type).toBe("string");
+    expect(nameField.required).toBe(true);
+    expect(priceField.type).toBe("number");
+    expect(priceField.required).toBe(true);
   });
 
   // ============================================
@@ -1088,5 +1133,119 @@ describe("customise-cms config with use_visual_editor", () => {
     });
 
     expect(config.features.use_visual_editor).toBe(true);
+  });
+});
+
+describe("customise-cms add_ons feature", () => {
+  /**
+   * Helper to extract the products section from generated YAML
+   * @param {string} yaml - Full YAML string
+   * @returns {string} Products section of the YAML
+   */
+  const getProductsSection = (yaml) => {
+    const start = yaml.indexOf("name: products");
+    // Find the next top-level collection (starts with "  - name:")
+    const remainder = yaml.substring(start + 1);
+    const nextCollectionMatch = remainder.match(/\n {2}- name: /);
+    const end = nextCollectionMatch
+      ? start + 1 + nextCollectionMatch.index
+      : yaml.length;
+    return yaml.substring(start, end);
+  };
+
+  test("createDefaultConfig includes add_ons set to true", () => {
+    const config = createDefaultConfig();
+
+    expect(config.features).toBeDefined();
+    expect(config.features.add_ons).toBe(true);
+  });
+
+  test("products include add_ons field when add_ons feature is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { add_ons: true },
+    });
+    const yaml = generatePagesYaml(config);
+    const productsSection = getProductsSection(yaml);
+
+    expect(productsSection).toContain("name: add_ons");
+    expect(productsSection).toContain("label: Add-ons");
+  });
+
+  test("products exclude add_ons field when add_ons feature is disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { add_ons: false },
+    });
+    const yaml = generatePagesYaml(config);
+    const productsSection = getProductsSection(yaml);
+
+    expect(productsSection).not.toContain("name: add_ons");
+  });
+
+  test("add_ons intro uses rich-text when visual editor is enabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { add_ons: true, use_visual_editor: true },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Find add_ons section in products
+    const addOnsStart = yaml.indexOf("name: add_ons");
+    const addOnsSection = yaml.substring(addOnsStart, addOnsStart + 500);
+
+    expect(addOnsSection).toContain("name: intro");
+    expect(addOnsSection).toContain("type: rich-text");
+  });
+
+  test("add_ons intro uses code when visual editor is disabled", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories"],
+      features: { add_ons: true, use_visual_editor: false },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Find add_ons section in products
+    const addOnsStart = yaml.indexOf("name: add_ons");
+    const addOnsSection = yaml.substring(addOnsStart, addOnsStart + 500);
+
+    expect(addOnsSection).toContain("name: intro");
+    expect(addOnsSection).toContain("type: code");
+    expect(addOnsSection).toContain("language: markdown");
+  });
+
+  test("add_ons only appears on collections that support it", () => {
+    const config = createTestConfig({
+      collections: ["pages", "products", "categories", "news"],
+      features: { add_ons: true },
+    });
+    const yaml = generatePagesYaml(config);
+
+    // Products should have add_ons
+    const productsSection = getProductsSection(yaml);
+    expect(productsSection).toContain("name: add_ons");
+
+    // Helper to extract a collection section properly
+    const getCollectionSection = (collectionName) => {
+      const marker = `\n  - name: ${collectionName}\n`;
+      const start = yaml.indexOf(marker);
+      if (start === -1) return "";
+      const remainder = yaml.substring(start + 1);
+      const nextCollectionMatch = remainder.match(/\n {2}- name: /);
+      const end = nextCollectionMatch
+        ? start + 1 + nextCollectionMatch.index
+        : yaml.length;
+      return yaml.substring(start, end);
+    };
+
+    // News should NOT have add_ons (doesn't support it)
+    const newsSection = getCollectionSection("news");
+    expect(newsSection).toContain("name: news");
+    expect(newsSection).not.toContain("name: add_ons");
+
+    // Pages should NOT have add_ons
+    const pagesSection = getCollectionSection("pages");
+    expect(pagesSection).toContain("name: pages");
+    expect(pagesSection).not.toContain("name: add_ons");
   });
 });
