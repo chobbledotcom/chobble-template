@@ -150,11 +150,13 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
+  "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/item-filters.js",
+  "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building

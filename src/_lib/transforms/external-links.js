@@ -21,10 +21,18 @@ const isExternalUrl = (url) =>
  * @param {string} value
  * @returns {Array<[string, string, boolean]>}
  */
+/**
+ * Create attribute tuple for tokenizer.
+ * @param {string} name
+ * @param {string} value
+ * @returns {[string, string, boolean]}
+ */
+const attrTuple = (name, value) => [name, value, true];
+
 const withAttr = (attributes, name, value) => {
   const lowerName = name.toLowerCase();
   const idx = attributes.findIndex(([n]) => n.toLowerCase() === lowerName);
-  const newAttr = [name, value, true];
+  const newAttr = attrTuple(name, value);
   return idx >= 0
     ? attributes.map((attr, i) => (i === idx ? newAttr : attr))
     : [...attributes, newAttr];
