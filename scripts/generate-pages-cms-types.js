@@ -25,8 +25,10 @@ const OUTPUT_FILE = path.join(
 
 /**
  * Map PagesCMS field types to TypeScript types
+ * @param {object} field - The field definition
+ * @param {string} [nestedTypeName] - For nested objects, the generated type name
  */
-const mapFieldType = (field) => {
+const mapFieldType = (field, nestedTypeName) => {
   if (!field.type) return "unknown";
 
   switch (field.type) {
@@ -39,7 +41,8 @@ const mapFieldType = (field) => {
     case "date":
       return "string"; // Dates come as ISO strings
     case "object":
-      return "Record<string, unknown>";
+      // If we have a nested type name, use it; otherwise fall back to Record
+      return nestedTypeName || "Record<string, unknown>";
     case "image":
       return "string";
     case "code":
@@ -69,27 +72,54 @@ const generateInterfaceName = (fieldName) => {
 };
 
 /**
- * Extract fields for a single object-type field
+ * Check if a field is a nested object type
  */
-const extractObjectFields = (field) => {
-  const properties = [];
+const isNestedObjectType = (field) => field.type === "object" && field.fields;
 
-  if (field.fields) {
-    for (const subField of field.fields) {
-      const isRequired = subField.required === true;
-      const tsType = mapFieldType(subField);
+/**
+ * Generate interface name for a nested type
+ */
+const generateNestedInterfaceName = (parentName, fieldName) => {
+  const capitalizedName =
+    fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+  const singular = capitalizedName.replace(/s$/, "");
+  return `${parentName}${singular}`;
+};
 
-      properties.push({
-        name: subField.name,
-        type: tsType,
-        required: isRequired,
-        optional: !isRequired,
-        label: subField.label || "",
-      });
-    }
+/**
+ * Get the TypeScript type for a subfield, processing nested objects if needed
+ */
+const getSubfieldType = (subField, parentInterfaceName, types, typeMapping) => {
+  if (!isNestedObjectType(subField)) {
+    return mapFieldType(subField);
   }
 
-  return properties;
+  const nestedName = generateNestedInterfaceName(
+    parentInterfaceName,
+    subField.name,
+  );
+  processNestedFieldType(subField, nestedName, types, typeMapping);
+  return subField.list ? `${nestedName}[]` : nestedName;
+};
+
+/**
+ * Extract fields for a single object-type field
+ */
+const extractObjectFields = (
+  field,
+  parentInterfaceName,
+  types,
+  typeMapping,
+) => {
+  if (!field.fields) return [];
+
+  return field.fields.map((subField) => ({
+    name: subField.name,
+    type: getSubfieldType(subField, parentInterfaceName, types, typeMapping),
+    required: subField.required === true,
+    optional: subField.required !== true,
+    label: subField.label || "",
+  }));
 };
 
 /**
@@ -118,26 +148,36 @@ const generateObjectTypeCode = (interfaceName, properties) => {
 };
 
 /**
+ * Register a type in the types array and mapping
+ */
+const registerType = (field, interfaceName, types, typeMapping, mappingKey) => {
+  const properties = extractObjectFields(
+    field,
+    interfaceName,
+    types,
+    typeMapping,
+  );
+  const typeCode = generateObjectTypeCode(interfaceName, properties);
+  types.push({ name: field.name, interfaceName, code: typeCode });
+  typeMapping[mappingKey] = interfaceName;
+};
+
+/**
+ * Process a nested object field type
+ */
+const processNestedFieldType = (field, interfaceName, types, typeMapping) => {
+  if (typeMapping[interfaceName]) return;
+  registerType(field, interfaceName, types, typeMapping, interfaceName);
+};
+
+/**
  * Process a single field and generate type if it's an object type
  */
 const processFieldType = (field, types, typeMapping) => {
-  const isObjectType = field.type === "object" && field.fields;
-  if (!isObjectType) return;
-
-  // Skip if already generated
+  if (!isNestedObjectType(field)) return;
   if (typeMapping[field.name]) return;
-
   const interfaceName = generateInterfaceName(field.name);
-  const properties = extractObjectFields(field);
-  const typeCode = generateObjectTypeCode(interfaceName, properties);
-
-  types.push({
-    name: field.name,
-    interfaceName,
-    code: typeCode,
-  });
-
-  typeMapping[field.name] = interfaceName;
+  registerType(field, interfaceName, types, typeMapping, field.name);
 };
 
 /**

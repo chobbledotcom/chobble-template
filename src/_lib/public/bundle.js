@@ -18,6 +18,9 @@ import "#public/ui/availability-calendar.js";
 import "#public/ui/shuffle-properties.js";
 import "#public/ui/sort-dropdown.js";
 
+// Design system (scoped to .design-system containers)
+import "#public/design-system.js";
+
 // Theme
 import "#public/theme/theme-editor.js";
 import "#public/theme/theme-switcher.js";
