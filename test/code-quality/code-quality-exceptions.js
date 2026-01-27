@@ -150,24 +150,20 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/locations.js", // Thumbnail resolution from child locations
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
-  "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
+  "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
-  "src/_lib/eleventy/recurring-events.js", // stripDatePrefix, getEventUrl kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
-  "src/guide-pages/guide-pages.11tydata.js", // buildGuidePermalink kept for clarity
   "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
   "src/_lib/filters/item-filters.js",
-  "src/_lib/transforms/external-links.js", // Typed tuple helper for type safety
+  "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
-  "src/_lib/build/theme-compiler.js", // Theme display name helper
-  "src/locations/locations.11tydata.js", // Parent location title lookup helper
-  "src/_lib/public/design-system.js", // initVideoFacades kept separate for clarity
+  "src/_lib/public/design-system.js", // initVideoFacades kept separate to manage complexity
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
@@ -294,7 +290,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
-  "src/_lib/build/theme-compiler.js:59",
+  "src/_lib/build/theme-compiler.js:51", // Theme variables extraction fallback
 
   // src/_lib/eleventy - Eleventy plugins
   "src/_lib/eleventy/capture.js:32",

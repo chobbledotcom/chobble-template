@@ -8,6 +8,7 @@ import { initSliders } from "#public/utils/slider-core.js";
 const SCOPE = ".design-system";
 
 // Video facade - replace thumbnail with iframe on click
+// Kept separate from init() to avoid exceeding complexity limit
 const initVideoFacades = () => {
   for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
     button.addEventListener("click", () => {
@@ -81,7 +82,6 @@ const init = () => {
     defaultWidth: 340,
   });
 
-  // Initialize video facades for click-to-play
   initVideoFacades();
 };
 

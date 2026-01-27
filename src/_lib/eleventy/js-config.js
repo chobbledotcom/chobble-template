@@ -5,14 +5,12 @@ import { toObject } from "#toolkit/fp/object.js";
 
 const JS_CONFIG_KEYS = ["cart_mode", "checkout_api_url", "product_mode"];
 
-const buildJsConfigJson = (config) => {
-  const jsConfig = toObject(
-    JS_CONFIG_KEYS.filter((key) => config[key] != null),
-    (key) => [key, config[key]],
-  );
-  return JSON.stringify(jsConfig);
-};
-
 export const configureJsConfig = (eleventyConfig) => {
-  eleventyConfig.addFilter("jsConfigJson", buildJsConfigJson);
+  eleventyConfig.addFilter("jsConfigJson", (config) => {
+    const jsConfig = toObject(
+      JS_CONFIG_KEYS.filter((key) => config[key] != null),
+      (key) => [key, config[key]],
+    );
+    return JSON.stringify(jsConfig);
+  });
 };

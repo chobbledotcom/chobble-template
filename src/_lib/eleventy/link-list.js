@@ -42,15 +42,6 @@ const buildLinks = async (slugs, collection, anchor) => {
 };
 
 /**
- * Check if input is valid for processing
- * @param {unknown} slugs - Slugs input
- * @param {unknown} collection - Collection input
- * @returns {boolean} True if inputs are valid
- */
-const isValidInput = (slugs, collection) =>
-  Array.isArray(slugs) && slugs.length > 0 && Array.isArray(collection);
-
-/**
  * Create a link list from an array of slugs
  * @param {string[]} slugs - Array of fileSlug values to look up
  * @param {Array} collection - The collection to search for items
@@ -61,7 +52,9 @@ const isValidInput = (slugs, collection) =>
  * {{ review.data.products | linkList: collections.products }}
  */
 const linkList = async (slugs, collection) => {
-  if (!isValidInput(slugs, collection)) {
+  const isValidInput =
+    Array.isArray(slugs) && slugs.length > 0 && Array.isArray(collection);
+  if (!isValidInput) {
     return "";
   }
   const anchor = await getAnchorSuffix();
