@@ -449,6 +449,7 @@ header {
   color: var(--color-text);
   text-align: var(--justify-important);
   width: var(--width-content);
+  padding: 2rem 1rem;
 
   margin-top: 1rem;
   max-width: 100%;
@@ -1007,7 +1008,6 @@ body {
 }
 
 main {
-  padding: 3rem 0 2rem; /* mobile only */
   width: var(--width-content);
   max-width: 100%;
 }
@@ -1115,4 +1115,3 @@ main {
     font-size: 1rem;
   }
 }
-
