@@ -56,13 +56,6 @@ header,
 main {
   margin: 0 auto;
   max-width: var(--width-content);
-  padding: 2rem 0.75rem;
-  @include breakpoints.up("sm") {
-    padding: 2.5rem 1rem;
-  }
-  @include breakpoints.up("md") {
-    padding: 3rem 1.5rem;
-  }
 }
 
 hr {
