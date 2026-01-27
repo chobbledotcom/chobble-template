@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
-  applyAttributes,
   createHtml,
   elementToHtml,
   getSharedDocument,
@@ -86,31 +85,6 @@ describe("dom-builder", () => {
     const html = await createHtml("span", {}, "");
 
     expect(html).toBe("<span></span>");
-  });
-
-  // ============================================
-  // applyAttributes Tests
-  // ============================================
-
-  test("Applies attributes to element", async () => {
-    const doc = await getSharedDocument();
-    const element = doc.createElement("div");
-
-    applyAttributes(element, { class: "test", id: "main" });
-
-    expect(element.getAttribute("class")).toBe("test");
-    expect(element.getAttribute("id")).toBe("main");
-  });
-
-  test("Filters null and undefined when applying attributes", async () => {
-    const doc = await getSharedDocument();
-    const element = doc.createElement("div");
-
-    applyAttributes(element, { class: "valid", id: null, "data-x": undefined });
-
-    expect(element.getAttribute("class")).toBe("valid");
-    expect(element.hasAttribute("id")).toBe(false);
-    expect(element.hasAttribute("data-x")).toBe(false);
   });
 
   // ============================================
