@@ -1571,8 +1571,8 @@ describe("customise-cms CLI", () => {
 
   test("formatCollection includes both flags when both present", () => {
     const result = formatCollection({
-      name: "test",
-      description: "Test collection",
+      name: "example",
+      description: "Example collection",
       required: true,
       internal: true,
     });
