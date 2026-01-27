@@ -386,4 +386,4 @@ export const showHelp = () => {
 /**
  * Export for testing
  */
-export { ALL_COLLECTIONS, ALL_FEATURES };
+export { ALL_COLLECTIONS, ALL_FEATURES, formatCollection, generateHelp };

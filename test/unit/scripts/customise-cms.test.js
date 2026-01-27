@@ -1491,4 +1491,111 @@ describe("customise-cms CLI", () => {
 
     expect(options.quiet).toBe(true);
   });
+
+  // ============================================
+  // generateHelp
+  // ============================================
+  const { generateHelp } = require("#scripts/customise-cms/cli.js");
+
+  test("generateHelp returns help text with usage info", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("Usage:");
+    expect(help).toContain("--help");
+    expect(help).toContain("--collections");
+    expect(help).toContain("--enable");
+    expect(help).toContain("--disable");
+  });
+
+  test("generateHelp includes all collections", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("pages");
+    expect(help).toContain("products");
+    expect(help).toContain("categories");
+  });
+
+  test("generateHelp includes all features", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("permalinks");
+    expect(help).toContain("faqs");
+    expect(help).toContain("galleries");
+  });
+
+  test("generateHelp includes examples", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("EXAMPLES:");
+    expect(help).toContain("--regenerate");
+  });
+
+  // ============================================
+  // formatCollection
+  // ============================================
+  const { formatCollection } = require("#scripts/customise-cms/cli.js");
+
+  test("formatCollection formats collection without flags", () => {
+    const result = formatCollection({
+      name: "products",
+      description: "Products for sale",
+    });
+
+    expect(result).toContain("products");
+    expect(result).toContain("Products for sale");
+    expect(result).not.toContain("required");
+    expect(result).not.toContain("internal");
+  });
+
+  test("formatCollection includes required flag when present", () => {
+    const result = formatCollection({
+      name: "pages",
+      description: "Static pages",
+      required: true,
+    });
+
+    expect(result).toContain("pages");
+    expect(result).toContain("(required)");
+  });
+
+  test("formatCollection includes internal flag when present", () => {
+    const result = formatCollection({
+      name: "snippets",
+      description: "Reusable content",
+      internal: true,
+    });
+
+    expect(result).toContain("snippets");
+    expect(result).toContain("(internal)");
+  });
+
+  test("formatCollection includes both flags when both present", () => {
+    const result = formatCollection({
+      name: "test",
+      description: "Test collection",
+      required: true,
+      internal: true,
+    });
+
+    expect(result).toContain("(required, internal)");
+  });
+
+  // ============================================
+  // handleListOptions
+  // ============================================
+  const { handleListOptions } = require("#scripts/customise-cms/cli.js");
+
+  test("handleListOptions returns false when no list flags provided", () => {
+    expect(handleListOptions({})).toBe(false);
+    expect(handleListOptions({ all: true })).toBe(false);
+    expect(handleListOptions({ collections: "pages" })).toBe(false);
+  });
+
+  test("handleListOptions returns true for --list-collections", () => {
+    expect(handleListOptions({ "list-collections": true })).toBe(true);
+  });
+
+  test("handleListOptions returns true for --list-features", () => {
+    expect(handleListOptions({ "list-features": true })).toBe(true);
+  });
 });
