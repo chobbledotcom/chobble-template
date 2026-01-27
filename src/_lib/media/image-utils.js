@@ -9,6 +9,12 @@ import { compact } from "#toolkit/fp/array.js";
 const DEFAULT_WIDTHS = [240, 480, 900, 1300];
 const DEFAULT_SIZE = "auto";
 
+/** Default output directory for processed images */
+export const IMAGE_OUTPUT_DIR = ".image-cache";
+
+/** Default URL path for processed images */
+export const IMAGE_URL_PATH = "/img/";
+
 /**
  * Normalize image path to resolve from project root.
  * Handles various input formats:

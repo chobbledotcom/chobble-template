@@ -151,6 +151,7 @@
         aspect-ratio: 16 / 9;
         overflow: hidden;
         border-radius: $radius-lg $radius-lg 0 0;
+        background: var(--surface-alt, #000);
 
         iframe {
           position: absolute;
@@ -159,6 +160,68 @@
           width: 100%;
           height: 100%;
           border: 0;
+        }
+
+        // Lazy-loaded thumbnail placeholder
+        .video-placeholder {
+          display: block;
+          position: relative;
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+          text-decoration: none;
+
+          .video-thumbnail-wrapper {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+
+          .video-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform $transition-fast, opacity $transition-fast;
+            opacity: 0.9;
+
+            svg {
+              display: block;
+            }
+
+            .video-play-bg {
+              transition: fill-opacity $transition-fast;
+            }
+          }
+
+          &:hover .video-play-button,
+          &:focus .video-play-button {
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 1;
+
+            .video-play-bg {
+              fill: #f00;
+              fill-opacity: 1;
+            }
+          }
+
+          &:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+          }
+        }
+
+        // When video is loaded/playing
+        &.is-playing .video-placeholder {
+          display: none;
         }
       }
     }

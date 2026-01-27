@@ -51,6 +51,7 @@ import { configureImages, processAndWrapImage } from "#media/image.js";
 import { configureInlineAsset } from "#media/inline-asset.js";
 import { configureThumbnailPlaceholder } from "#media/thumbnail-placeholder.js";
 import { configureUnusedImages } from "#media/unused-images.js";
+import { configureYoutubeThumbnail } from "#media/youtube-thumbnail.js";
 
 export default async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");
@@ -108,6 +109,7 @@ export default async function (eleventyConfig) {
   configureTags(eleventyConfig);
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
+  configureYoutubeThumbnail(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
   return {

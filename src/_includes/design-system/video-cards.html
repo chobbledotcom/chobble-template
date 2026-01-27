@@ -1,5 +1,9 @@
 {%- comment -%}
-Video cards grid - displays YouTube video embeds as cards with titles.
+Video cards grid - displays YouTube videos as lazy-loaded thumbnail cards.
+
+Uses thumbnail placeholders instead of iframes for zero-bandwidth initial load.
+The iframe is only loaded when the user clicks/taps (progressive enhancement).
+Without JavaScript, clicking opens YouTube in a new tab.
 
 Parameters:
   - videos: Array of video objects with properties:
@@ -23,15 +27,16 @@ Usage:
 <ul class="items video-cards" role="list">
   {%- for video in videos -%}
   <li{% if reveal %} data-reveal{% endif %}>
-    <div class="video-wrapper">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-        title="{{ video.title }}"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        loading="lazy"
-      ></iframe>
+    <div class="video-wrapper" data-video-id="{{ video.id }}">
+      <a href="https://www.youtube.com/watch?v={{ video.id }}" class="video-placeholder" target="_blank" rel="noopener" aria-label="Play {{ video.title }}">
+        {%- youtubeThumbnail video.id, video.title -%}
+        <span class="video-play-button" aria-hidden="true">
+          <svg viewBox="0 0 68 48" width="68" height="48">
+            <path class="video-play-bg" d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#212121" fill-opacity="0.8"/>
+            <path d="M45 24L27 14v20" fill="#fff"/>
+          </svg>
+        </span>
+      </a>
     </div>
     <h{{ heading_level }}>{{ video.title }}</h{{ heading_level }}>
   </li>

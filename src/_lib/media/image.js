@@ -31,6 +31,8 @@ import {
   buildImgAttributes,
   buildWrapperStyles,
   filenameFormat,
+  IMAGE_OUTPUT_DIR,
+  IMAGE_URL_PATH,
   isExternalUrl,
   normalizeImagePath,
   parseWidths,
@@ -45,8 +47,8 @@ const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 const JPEG_FALLBACK_WIDTH = 1300;
 
 const DEFAULT_OPTIONS = frozenObject({
-  outputDir: ".image-cache",
-  urlPath: "/img/",
+  outputDir: IMAGE_OUTPUT_DIR,
+  urlPath: IMAGE_URL_PATH,
   svgShortCircuit: true,
   filenameFormat,
 });

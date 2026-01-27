@@ -1,7 +1,8 @@
 // Design System JavaScript
-// Scroll animations and slider functionality
+// Scroll animations, slider functionality, and lazy video embeds
 
 import { initSliders } from "#public/utils/slider-core.js";
+import { initVideoEmbeds } from "#public/utils/video-embed.js";
 
 const init = () => {
   // Scroll reveal - animate elements as they enter viewport
@@ -50,6 +51,9 @@ const init = () => {
     itemSelector: ":scope > *",
     defaultWidth: 340,
   });
+
+  // Initialize lazy video embeds
+  initVideoEmbeds();
 };
 
 if (document.readyState === "loading") {
