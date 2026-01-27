@@ -31,10 +31,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "simulateProductionUsage", // cached-block.test.js - production-like render simulation
   "testCacheKeyCollision", // cached-block.test.js - helper for cache key collision tests
   "createLiquidWithCachedBlock", // cached-block.test.js - creates Liquid with tag registered
-  "createPropertiesMock", // properties.test.js - creates mock config with registered filters
-  "createReviewsMock", // reviews.test.js - creates mock config with registered filters
-  "createSearchMock", // search.test.js - creates mock config with registered filters
-  "createStyleBundleMock", // style-bundle.test.js - creates mock config with registered filters
   "createConfiguredMock", // file-utils.test.js - creates mock config with file utils registered
   "withFileUtils", // file-utils.test.js - runs callback with configured file utils in mocked CWD
   "testWithFile", // file-utils.test.js - runs sync test with temp file and configured file utils
@@ -46,8 +42,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "withTempFile",
   "withMockedConsole",
   "withSetupTestSite", // test-site-factory.js - runs test without build, with cleanup
-  "getIconFilter",
-  "createIconifyMock", // iconify.test.js - configured mock using withConfiguredMock
   "expectValidScriptTag",
   "expectNavUnchanged", // navigation-utils.test.js - assertion helper for disabled config tests
   // Fixture factories
