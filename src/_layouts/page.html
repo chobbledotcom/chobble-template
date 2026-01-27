@@ -3,7 +3,9 @@ layout: base
 ---
 
 {%- if blocks -%}
+<div class="design-system">
   {%- include "design-system/blocks.html", blocks: blocks -%}
+</div>
 {%- endif -%}
 {{ content }}
 {%- if videos.size > 0 -%}
