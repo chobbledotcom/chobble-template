@@ -29,7 +29,7 @@ import {
   buildUIWithLookup,
 } from "#filters/filter-ui.js";
 import { mapFilter } from "#toolkit/fp/array.js";
-import { groupByWithCache, once } from "#toolkit/fp/memoize.js";
+import { groupByWithCache, memoizeByRef } from "#toolkit/fp/memoize.js";
 import { createArrayFieldIndexer } from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
@@ -135,7 +135,7 @@ const buildCategoryData = (slug, products) => {
  * Compute all category filter data in a single pass.
  * Cached by collectionApi reference - only runs once per build.
  */
-const computeAllCategoryData = once(
+const computeAllCategoryData = memoizeByRef(
   /** @param {import("@11ty/eleventy").CollectionApi} collectionApi */
   (collectionApi) => {
     const categories = collectionApi.getFilteredByTag("categories");
