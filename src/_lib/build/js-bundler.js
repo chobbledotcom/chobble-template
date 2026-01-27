@@ -8,7 +8,7 @@ export const configureJsBundler = (eleventyConfig) => {
       outdir: "_site/assets/js",
       naming: "bundle.js",
       target: "browser",
-      sourcemap: "external",
+      sourcemap: "linked",
       minify: !isDevelopment,
     });
 
@@ -18,7 +18,7 @@ export const configureJsBundler = (eleventyConfig) => {
       outdir: "_site/assets/js",
       naming: "design-system.js",
       target: "browser",
-      sourcemap: "external",
+      sourcemap: "linked",
       minify: !isDevelopment,
     });
 
