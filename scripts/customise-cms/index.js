@@ -39,6 +39,43 @@ const log = (message, quiet) => {
 };
 
 /**
+ * Print dry-run preview of config and YAML
+ * @param {import('./config.js').CmsConfig} config - CMS configuration
+ */
+const printDryRun = (config) => {
+  console.log("Configuration (dry run):\n");
+  console.log(JSON.stringify(config, null, 2));
+  console.log("\nGenerated YAML preview:\n");
+  console.log(generateCompactYaml(config));
+};
+
+/**
+ * Get list of enabled feature names from config
+ * @param {import('./config.js').CmsConfig} config - CMS configuration
+ * @returns {string[]} List of enabled feature names
+ */
+const getEnabledFeatures = (config) =>
+  Object.entries(config.features)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+
+/**
+ * Log config summary (collections and features)
+ * @param {import('./config.js').CmsConfig} config - CMS configuration
+ * @param {string} message - Header message
+ * @param {boolean} quiet - Whether to suppress output
+ */
+const logConfigSummary = (config, message, quiet) => {
+  log(message, quiet);
+  log(`  Collections: ${config.collections.join(", ")}`, quiet);
+
+  const enabledFeatures = getEnabledFeatures(config);
+  if (enabledFeatures.length > 0) {
+    log(`  Features: ${enabledFeatures.join(", ")}`, quiet);
+  }
+};
+
+/**
  * Run in interactive mode with prompts
  * @returns {Promise<void>}
  */
@@ -78,24 +115,16 @@ const runRegenerate = async (values) => {
   }
 
   if (options.dryRun) {
-    console.log("Configuration (dry run):\n");
-    console.log(JSON.stringify(config, null, 2));
-    console.log("\nGenerated YAML preview:\n");
-    console.log(generateCompactYaml(config));
+    printDryRun(config);
     return;
   }
 
   await writePagesYaml(generateCompactYaml(config));
-
-  log(".pages.yml has been regenerated from saved config!", options.quiet);
-  log(`  Collections: ${config.collections.join(", ")}`, options.quiet);
-
-  const enabledFeatures = Object.entries(config.features)
-    .filter(([, v]) => v)
-    .map(([k]) => k);
-  if (enabledFeatures.length > 0) {
-    log(`  Features: ${enabledFeatures.join(", ")}`, options.quiet);
-  }
+  logConfigSummary(
+    config,
+    ".pages.yml has been regenerated from saved config!",
+    options.quiet,
+  );
 };
 
 /**
@@ -108,10 +137,7 @@ const runNonInteractive = async (values) => {
   const options = getCliOptions(values);
 
   if (options.dryRun) {
-    console.log("Configuration (dry run):\n");
-    console.log(JSON.stringify(config, null, 2));
-    console.log("\nGenerated YAML preview:\n");
-    console.log(generateCompactYaml(config));
+    printDryRun(config);
     return;
   }
 
@@ -121,16 +147,7 @@ const runNonInteractive = async (values) => {
   }
 
   await writePagesYaml(generateCompactYaml(config));
-
-  log("\n.pages.yml has been updated!", options.quiet);
-  log(`  Collections: ${config.collections.join(", ")}`, options.quiet);
-
-  const enabledFeatures = Object.entries(config.features)
-    .filter(([, v]) => v)
-    .map(([k]) => k);
-  if (enabledFeatures.length > 0) {
-    log(`  Features: ${enabledFeatures.join(", ")}`, options.quiet);
-  }
+  logConfigSummary(config, "\n.pages.yml has been updated!", options.quiet);
 };
 
 /**
