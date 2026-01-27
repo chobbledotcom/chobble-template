@@ -23,6 +23,7 @@ Usage:
 {%- assign reveal = reveal | default: true -%}
 {%- assign heading_level = heading_level | default: 3 -%}
 
+<div class="design-system">
 <ul class="items video-cards" role="list">
   {%- for video in videos -%}
   {%- assign thumbnail_url = "https://img.youtube.com/vi/" | append: video.id | append: "/hqdefault.jpg" -%}
@@ -45,3 +46,4 @@ Usage:
   </li>
   {%- endfor -%}
 </ul>
+</div>
