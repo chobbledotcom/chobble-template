@@ -40,8 +40,11 @@ export const isExternalUrl = (url) =>
  */
 export const parseWidths = (widths) => {
   const parsed =
-    typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
-  return [...parsed, "auto"];
+    typeof widths === "string"
+      ? widths.split(",").filter(Boolean)
+      : widths || DEFAULT_WIDTHS;
+  const result = parsed.length > 0 ? parsed : DEFAULT_WIDTHS;
+  return [...result, "auto"];
 };
 
 /**

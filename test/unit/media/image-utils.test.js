@@ -69,6 +69,11 @@ describe("image-utils", () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result).toEqual([240, 480, 900, 1300, "auto"]);
     });
+
+    test("returns default widths with auto appended for empty string", () => {
+      const result = parseWidths("");
+      expect(result).toEqual([240, 480, 900, 1300, "auto"]);
+    });
   });
 
   describe("prepareImageAttributes", () => {
