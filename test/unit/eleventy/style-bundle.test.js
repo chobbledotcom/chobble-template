@@ -10,7 +10,6 @@ const createStyleBundleMock = () => {
     mockConfig,
     usesDesignSystem: mockConfig.filters.usesDesignSystem,
     getCssBundle: mockConfig.filters.getCssBundle,
-    getJsBundle: mockConfig.filters.getJsBundle,
     getBodyClasses: mockConfig.filters.getBodyClasses,
   };
 };
@@ -57,20 +56,6 @@ describe("style-bundle", () => {
       const { getCssBundle } = createStyleBundleMock();
       const result = getCssBundle("base.html", ["landing-page.html"]);
       expect(result).toBe("/css/bundle.css");
-    });
-  });
-
-  describe("getJsBundle filter", () => {
-    test("returns design system bundle path for design system layout", () => {
-      const { getJsBundle } = createStyleBundleMock();
-      const result = getJsBundle("landing-page.html", ["landing-page.html"]);
-      expect(result).toBe("/assets/js/design-system.js");
-    });
-
-    test("returns main bundle path for non-design-system layout", () => {
-      const { getJsBundle } = createStyleBundleMock();
-      const result = getJsBundle("base.html", ["landing-page.html"]);
-      expect(result).toBe("/assets/js/bundle.js");
     });
   });
 
@@ -206,7 +191,6 @@ describe("style-bundle", () => {
 
       expect(typeof mockConfig.filters.usesDesignSystem).toBe("function");
       expect(typeof mockConfig.filters.getCssBundle).toBe("function");
-      expect(typeof mockConfig.filters.getJsBundle).toBe("function");
       expect(typeof mockConfig.filters.getBodyClasses).toBe("function");
     });
   });

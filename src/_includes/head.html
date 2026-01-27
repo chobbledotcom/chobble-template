@@ -2,7 +2,6 @@
   {%- include "head-meta.html" -%}
 
   {%- assign css_bundle = layout | getCssBundle: config.design_system_layouts -%}
-  {%- assign js_bundle = layout | getJsBundle: config.design_system_layouts -%}
 
   <link
     rel="stylesheet"
@@ -13,7 +12,7 @@
 
   <script
     type="module"
-    src="{{ js_bundle | cacheBust }}"
+    src="{{ '/assets/js/bundle.js' | cacheBust }}"
   ></script>
 
   {%- if collections.news.size > 0 -%}
