@@ -22,7 +22,7 @@ coverageThreshold = { lines = 1.0, functions = 1.0 }
 # - ensure-deps.js: defensive code that can't be meaningfully tested
 # - validated-config.js: module-load-time validation that can only fail if config files are misconfigured
 # - customise-cms/*: CLI scripts with hard-to-test file system operations
-# - pdf.js, image.js, image-crop.js: error handling for external library edge cases
+# - pdf.js, image.js, image-crop.js, image-external.js: error handling for external library edge cases
 # - console.js: console output utilities
 # - test-runner-utils.js, test-utils.js: test infrastructure
 # - recurring-events.js: date edge cases
@@ -43,6 +43,7 @@ coveragePathIgnorePatterns = [
   "src/_lib/eleventy/recurring-events.js",
   "src/_lib/media/image.js",
   "src/_lib/media/image-crop.js",
+  "src/_lib/media/image-external.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/utils/quote-price-utils.js",
   "src/_lib/utils/console.js",

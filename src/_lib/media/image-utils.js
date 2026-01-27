@@ -40,8 +40,11 @@ export const isExternalUrl = (url) =>
  */
 export const parseWidths = (widths) => {
   const parsed =
-    typeof widths === "string" ? widths.split(",") : widths || DEFAULT_WIDTHS;
-  return [...parsed, "auto"];
+    typeof widths === "string"
+      ? widths.split(",").filter(Boolean)
+      : widths || DEFAULT_WIDTHS;
+  const result = parsed.length > 0 ? parsed : DEFAULT_WIDTHS;
+  return [...result, "auto"];
 };
 
 /**
@@ -54,7 +57,7 @@ export const parseWidths = (widths) => {
  * @param {string | null} [options.classes] - CSS classes
  * @returns {Record<string, string>} Image attributes
  */
-export const buildImgAttributes = ({
+const buildImgAttributes = ({
   src = null,
   alt = "",
   sizes = null,
@@ -68,6 +71,14 @@ export const buildImgAttributes = ({
   decoding: "async",
   ...(classes && { class: classes }),
 });
+
+/**
+ * Build picture element attributes.
+ * @param {string | null} classes - CSS classes
+ * @returns {Record<string, string>} Picture attributes
+ */
+const buildPictureAttributes = (classes) =>
+  classes?.trim() ? { class: classes } : {};
 
 /**
  * Build wrapper styles for responsive images.
@@ -115,3 +126,30 @@ export const filenameFormat = (_id, src, width, format) => {
   const basename = getPathAwareBasename(src);
   return `${basename}-${width}.${format}`;
 };
+
+// JPEG fallback width - only generate one JPEG size since nearly all browsers support webp
+export const JPEG_FALLBACK_WIDTH = 1300;
+
+/**
+ * Default options for eleventy-img processing.
+ * Shared between local and external image processing.
+ */
+export const DEFAULT_IMAGE_OPTIONS = {
+  outputDir: ".image-cache",
+  urlPath: "/img/",
+  filenameFormat,
+};
+
+/**
+ * Prepare attributes for image and picture elements.
+ * @param {Object} options - Attribute options
+ * @param {string | null} options.alt - Alt text
+ * @param {string | null} options.sizes - Sizes attribute
+ * @param {string | null} options.loading - Loading attribute
+ * @param {string | null} options.classes - CSS classes
+ * @returns {{ imgAttributes: Record<string, string>, pictureAttributes: Record<string, string> }}
+ */
+export const prepareImageAttributes = ({ alt, sizes, loading, classes }) => ({
+  imgAttributes: buildImgAttributes({ alt, sizes, loading }),
+  pictureAttributes: buildPictureAttributes(classes),
+});

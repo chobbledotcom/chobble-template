@@ -28,21 +28,19 @@ import {
 } from "#media/image-lqip.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
-  buildImgAttributes,
   buildWrapperStyles,
   filenameFormat,
   isExternalUrl,
+  JPEG_FALLBACK_WIDTH,
   normalizeImagePath,
   parseWidths,
+  prepareImageAttributes,
 } from "#media/image-utils.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
 
 const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
-
-// JPEG fallback width - only generate one JPEG size since nearly all browsers support webp
-const JPEG_FALLBACK_WIDTH = 1300;
 
 const DEFAULT_OPTIONS = frozenObject({
   outputDir: ".image-cache",
@@ -89,8 +87,12 @@ const computeWrappedImageHtml = memoize(
     const metadata = await getMetadata(imagePath);
     const finalPath = await cropImage(aspectRatio, imagePath, metadata);
 
-    const imgAttributes = buildImgAttributes({ alt, sizes, loading });
-    const pictureAttributes = classes?.trim() ? { class: classes } : {};
+    const { imgAttributes, pictureAttributes } = prepareImageAttributes({
+      alt,
+      sizes,
+      loading,
+      classes,
+    });
     const { default: Image, generateHTML } = await getEleventyImg();
 
     // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
@@ -179,6 +181,9 @@ const processAndWrapImage = async ({
       alt,
       loading,
       classes,
+      sizes,
+      widths,
+      aspectRatio,
       returnElement,
       document,
     });
