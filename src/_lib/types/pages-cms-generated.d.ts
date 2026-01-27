@@ -20,6 +20,16 @@ export interface PagesCMSEleventyNavigation {
 }
 
 /**
+ * @typedef {Object} PagesCMSVideo
+ * @property {string} id - YouTube Video ID
+ * @property {string} title - Title
+ */
+export interface PagesCMSVideo {
+  id: string;
+  title: string;
+}
+
+/**
  * @typedef {Object} PagesCMSFaq
  * @property {string} question - Question
  * @property {string} answer - Answer
@@ -41,6 +51,16 @@ export interface PagesCMSOption {
   max_quantity?: number;
   unit_price: number;
   days?: number;
+}
+
+/**
+ * @typedef {Object} PagesCMSAddOn
+ * @property {string} ?intro - Intro
+ * @property {Record<string, unknown>} ?options - Add-on Options
+ */
+export interface PagesCMSAddOn {
+  intro?: string;
+  options?: Record<string, unknown>;
 }
 
 /**
@@ -76,17 +96,29 @@ export interface PagesCMSTab {
 }
 
 /**
+ * @typedef {Object} PagesCMSBlockItem
+ * @property {string} ?icon - Icon (HTML entity)
+ * @property {string} title - Title
+ * @property {string} description - Description
+ */
+export interface PagesCMSBlockItem {
+  icon?: string;
+  title: string;
+  description: string;
+}
+
+/**
  * @typedef {Object} PagesCMSBlock
  * @property {string} ?type - Block Type
  * @property {string} title - Title
  * @property {string} ?subtitle - Subtitle
- * @property {Record<string, unknown>} ?items - Features
+ * @property {PagesCMSBlockItem[]} ?items - Features
  */
 export interface PagesCMSBlock {
   type?: string;
   title: string;
   subtitle?: string;
-  items?: Record<string, unknown>;
+  items?: PagesCMSBlockItem[];
 }
 
 /**
@@ -122,21 +154,59 @@ export interface PagesCMSSocial {
 }
 
 /**
+ * @typedef {Object} PagesCMSOrganizationFounder
+ * @property {string} ?name - Name
+ */
+export interface PagesCMSOrganizationFounder {
+  name?: string;
+}
+
+/**
+ * @typedef {Object} PagesCMSOrganizationAddres
+ * @property {string} ?streetAddress - Street Address
+ * @property {string} ?addressLocality - City
+ * @property {string} ?addressRegion - Region/State
+ * @property {string} ?postalCode - Postal Code
+ * @property {string} ?addressCountry - Country Code
+ */
+export interface PagesCMSOrganizationAddres {
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry?: string;
+}
+
+/**
+ * @typedef {Object} PagesCMSOrganizationContactPoint
+ * @property {string} ?telephone - Telephone
+ * @property {string} ?contactType - Contact Type
+ * @property {string} ?areaServed - Area Served
+ * @property {string} ?availableLanguage - Available Languages
+ */
+export interface PagesCMSOrganizationContactPoint {
+  telephone?: string;
+  contactType?: string;
+  areaServed?: string;
+  availableLanguage?: string;
+}
+
+/**
  * @typedef {Object} PagesCMSOrganization
  * @property {string} ?description - Organization Description
  * @property {string} ?legalName - Legal Name
  * @property {string} ?foundingDate - Founding Date
- * @property {Record<string, unknown>} ?founders - Founders
- * @property {Record<string, unknown>} ?address - Address
- * @property {Record<string, unknown>} ?contactPoint - Contact Points
+ * @property {PagesCMSOrganizationFounder[]} ?founders - Founders
+ * @property {PagesCMSOrganizationAddres} ?address - Address
+ * @property {PagesCMSOrganizationContactPoint[]} ?contactPoint - Contact Points
  */
 export interface PagesCMSOrganization {
   description?: string;
   legalName?: string;
   foundingDate?: string;
-  founders?: Record<string, unknown>;
-  address?: Record<string, unknown>;
-  contactPoint?: Record<string, unknown>;
+  founders?: PagesCMSOrganizationFounder[];
+  address?: PagesCMSOrganizationAddres;
+  contactPoint?: PagesCMSOrganizationContactPoint[];
 }
 
 /**

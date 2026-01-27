@@ -26,11 +26,6 @@ const getCssBundle = (layout, designSystemLayouts) =>
     ? "/css/design-system-bundle.css"
     : "/css/bundle.css";
 
-const getJsBundle = (layout, designSystemLayouts) =>
-  usesDesignSystem(layout, designSystemLayouts)
-    ? "/assets/js/design-system.js"
-    : "/assets/js/bundle.js";
-
 const OPTION_KEYS = [
   "designSystemLayouts",
   "forceDesignSystem",
@@ -157,6 +152,5 @@ const getBodyClasses = (
 export const configureStyleBundle = (eleventyConfig) => {
   eleventyConfig.addFilter("usesDesignSystem", usesDesignSystem);
   eleventyConfig.addFilter("getCssBundle", getCssBundle);
-  eleventyConfig.addFilter("getJsBundle", getJsBundle);
   eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
 };

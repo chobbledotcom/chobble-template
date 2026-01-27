@@ -6,4 +6,7 @@ layout: base
   {%- include "design-system/blocks.html", blocks: blocks -%}
 {%- endif -%}
 {{ content }}
+{%- if videos.size > 0 -%}
+  {%- include "design-system/video-cards.html", videos: videos -%}
+{%- endif -%}
 {%- include "faq.html" -%}

@@ -26,7 +26,7 @@ content:
       - services.md
     fields:
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -40,6 +40,13 @@ content:
           - { name: order, type: number }
       - { name: layout, type: string }
       - { name: no_index, type: boolean, label: Hide from listings }
+      - name: videos
+        label: Videos
+        type: object
+        list: true
+        fields:
+          - { name: id, type: string, label: YouTube Video ID, required: true }
+          - { name: title, type: string, label: Title, required: true }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -60,7 +67,7 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -97,6 +104,18 @@ content:
             label: Unit Price (£)
             required: true
           - { name: days, type: number, label: Days (for hire products) }
+      - name: add_ons
+        label: Add-ons
+        type: object
+        fields:
+          - { name: intro, type: rich-text, label: Intro }
+          - name: options
+            label: Add-on Options
+            type: object
+            list: true
+            fields:
+              - { name: name, type: string, label: Name, required: true }
+              - { name: price, type: number, label: Price, required: true }
       - { name: features, type: string, label: Features, list: true }
       - name: filter_attributes
         label: Filter Attributes
@@ -105,7 +124,7 @@ content:
         fields:
           - { name: name, type: string, label: Name, required: true }
           - { name: value, type: string, label: Value, required: true }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -139,7 +158,7 @@ content:
         fields:
           - { name: title, type: string, label: Title, required: true }
           - { name: image, type: image, label: Image }
-          - { name: body, label: Body, type: rich-text, required: true }
+          - { name: body, type: rich-text, label: Body, required: true }
   - name: categories
     label: Categories
     path: src/categories
@@ -147,7 +166,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
       - name: parent
         label: Parent Category
@@ -158,7 +177,7 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: featured, type: boolean, label: Featured }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
@@ -186,7 +205,7 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: date, label: Date, type: date }
       - name: author
         label: Author
@@ -198,7 +217,7 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -236,7 +255,7 @@ content:
       sort:
         - title
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -250,7 +269,7 @@ content:
         type: string
         label: Map Embed URL
         required: false
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -277,11 +296,11 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: snippet, type: string, label: Role }
       - { name: image, type: image, label: Profile Image }
-      - { name: body, label: Biography, type: rich-text }
+      - { name: body, type: rich-text, label: Biography }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -306,7 +325,7 @@ content:
       - { name: url, type: string, label: URL }
       - { name: rating, type: number, label: Rating }
       - { name: thumbnail, type: image, label: Reviewer Photo }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - name: products
         label: Products
         type: reference
@@ -340,7 +359,7 @@ content:
       sort:
         - title
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -353,7 +372,7 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -390,7 +409,7 @@ content:
       sort:
         - title
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
@@ -409,7 +428,7 @@ content:
       - { name: sleeps, type: number, label: Sleeps }
       - { name: price_per_night, type: number, label: Price Per Night }
       - { name: features, type: string, label: Features, list: true }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -443,7 +462,7 @@ content:
         fields:
           - { name: title, type: string, label: Title, required: true }
           - { name: image, type: image, label: Image }
-          - { name: body, label: Body, type: rich-text, required: true }
+          - { name: body, type: rich-text, label: Body, required: true }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -451,11 +470,11 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: order, type: number, label: Order }
       - { name: icon, type: image, label: Icon }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -472,7 +491,7 @@ content:
     subfolders: false
     filename: "{primary}.md"
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - name: guide-category
         label: Guide Category
@@ -484,7 +503,7 @@ content:
           value: "{path}"
           label: "{title}"
       - { name: order, type: number, label: Order }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -505,11 +524,11 @@ content:
     type: collection
     subfolders: false
     fields:
-      - { name: title, type: string, label: Title, required: true }
+      - { name: title, type: string, label: Title }
       - { name: subtitle, type: string, label: Subtitle }
       - { name: thumbnail, type: image, label: Thumbnail }
       - { name: order, type: number, label: Order }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, type: string, label: Meta Title, maxlength: 55 }
       - name: meta_description
         type: string
@@ -547,7 +566,7 @@ content:
           search: title
           value: "{path}"
           label: "{title}"
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -583,7 +602,7 @@ content:
           value: "{path}"
           label: "{name}"
       - { name: description, type: string, label: Description }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - name: faqs
@@ -606,7 +625,7 @@ content:
     filename: "{primary}.md"
     fields:
       - { name: name, type: string, label: Name }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
   - name: page-about
     label: About Page
     type: file
@@ -639,7 +658,7 @@ content:
                 type: string
                 label: Description
                 required: true
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
   - name: page-services
     label: Services Page
     type: file
@@ -674,7 +693,7 @@ content:
                 required: true
           - { name: filename, type: string, label: Filename, required: true }
           - { name: code, type: string, label: Code, required: true }
-      - { name: body, label: Body, type: rich-text }
+      - { name: body, type: rich-text, label: Body }
   - name: homepage
     label: Homepage Settings
     type: file

@@ -14,7 +14,7 @@ import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
 } from "#toolkit/fp/grouping.js";
-import { memoize, withWeakMapCache } from "#toolkit/fp/memoize.js";
+import { memoize, memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapBoth, toObject } from "#toolkit/fp/object.js";
 import { compareBy, compareStrings, descending } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
@@ -44,7 +44,7 @@ export const normalize = memoize(
  * @param {FilterAttribute[]} filterAttributes - Raw filter attributes array
  * @returns {FilterSet} Parsed filter object
  */
-const parseFilterAttributesInner = withWeakMapCache((filterAttributes) =>
+const parseFilterAttributesInner = memoizeByRef((filterAttributes) =>
   toObject(filterAttributes, (attr) => [
     slugify(attr.name),
     slugify(attr.value),
@@ -137,7 +137,7 @@ export const normalizeAttrs = mapBoth(
  * @param {EleventyCollectionItem[]} items - Items to index
  * @returns {Object} Lookup table for fast filtering
  */
-export const buildItemLookup = withWeakMapCache((items) =>
+export const buildItemLookup = memoizeByRef((items) =>
   items.reduce((lookup, item, position) => {
     const attrs = normalizeAttrs(
       parseFilterAttributes(item.data.filter_attributes),

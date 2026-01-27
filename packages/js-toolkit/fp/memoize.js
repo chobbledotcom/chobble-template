@@ -42,7 +42,7 @@ const jsonKey = (args) => JSON.stringify(args[0]);
  * @param {(arr: T[]) => R} buildFn - Function that builds the result from an array
  * @returns {(arr: T[]) => R} Cached version of the build function
  */
-const withWeakMapCache = (buildFn) => {
+const memoizeByRef = (buildFn) => {
   const cache = new WeakMap();
   return (arr) => {
     const cached = cache.get(arr);
@@ -98,7 +98,7 @@ const withWeakMapCache = (buildFn) => {
  * @returns {(arr: T[]) => Record<string, V>} Cached transformer
  */
 const cachedEntries = (toEntries) =>
-  withWeakMapCache((arr) => Object.fromEntries(toEntries(arr)));
+  memoizeByRef((arr) => Object.fromEntries(toEntries(arr)));
 
 const indexBy = (getKey) =>
   cachedEntries((arr) => arr.map((item) => [getKey(item), item]));
@@ -134,37 +134,4 @@ const indexBy = (getKey) =>
 const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
-/**
- * Cache a function's result by its first argument's object reference.
- *
- * Perfect for expensive computations that take a single object argument
- * (like Eleventy's collectionApi) and should only run once per build.
- *
- * Unlike withWeakMapCache (which requires arrays), this works with any object.
- *
- * @template R
- * @param {(obj: object) => R} fn - Function to cache
- * @returns {(obj: object) => R} Cached version that runs fn once per object reference
- *
- * @example
- * // Expensive computation that should run once per collectionApi
- * const getAllFilterData = once((collectionApi) => {
- *   // ... expensive work ...
- *   return { pages, attributes, redirects };
- * });
- *
- * // First call computes, subsequent calls return cached result
- * getAllFilterData(collectionApi);  // computes
- * getAllFilterData(collectionApi);  // returns cached
- */
-const once = (fn) => {
-  const cache = new WeakMap();
-  return (obj) => {
-    if (cache.has(obj)) return cache.get(obj);
-    const result = fn(obj);
-    cache.set(obj, result);
-    return result;
-  };
-};
-
-export { memoize, jsonKey, indexBy, groupByWithCache, withWeakMapCache, once };
+export { memoize, jsonKey, indexBy, groupByWithCache, memoizeByRef };
