@@ -31,10 +31,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "simulateProductionUsage", // cached-block.test.js - production-like render simulation
   "testCacheKeyCollision", // cached-block.test.js - helper for cache key collision tests
   "createLiquidWithCachedBlock", // cached-block.test.js - creates Liquid with tag registered
-  "createPropertiesMock", // properties.test.js - creates mock config with registered filters
-  "createReviewsMock", // reviews.test.js - creates mock config with registered filters
-  "createSearchMock", // search.test.js - creates mock config with registered filters
-  "createStyleBundleMock", // style-bundle.test.js - creates mock config with registered filters
   "createConfiguredMock", // file-utils.test.js - creates mock config with file utils registered
   "withFileUtils", // file-utils.test.js - runs callback with configured file utils in mocked CWD
   "testWithFile", // file-utils.test.js - runs sync test with temp file and configured file utils
@@ -46,16 +42,11 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "withTempFile",
   "withMockedConsole",
   "withSetupTestSite", // test-site-factory.js - runs test without build, with cleanup
-  "getIconFilter",
-  "getConfiguredFilters", // iconify.test.js - configured filter factory for icon tests
   "expectValidScriptTag",
   "expectNavUnchanged", // navigation-utils.test.js - assertion helper for disabled config tests
   // Fixture factories
   "createProduct",
   "createPropertyReviewFixture",
-  // Collection test helpers - get collection from configured mock
-  "getEventsCollection",
-  "getLocationsCollection",
   // events-utils.js - event fixture factories and assertion helpers
   "expectEventCounts",
   "createOffsetDate",
@@ -183,7 +174,11 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "aliasBase",
   "aliasKeep",
   // categories.test.js - collection setup helpers
-  "getCategoriesCollection",
+  "getCollection", // categories.test.js - curried collection getter
+  "cat", // categories.test.js - category fixture builder
+  "cats", // categories.test.js - multiple categories builder
+  "prod", // categories.test.js - product fixture builder
+  "prods", // categories.test.js - multiple products builder
   // products.test.js - test setup helpers
   "setupProductsConfig",
   "categorizedProducts",
@@ -279,12 +274,13 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
-  // reviews.test.js - test fixtures helpers
-  "reviewItem",
-  "itemsFor",
-  "createProductReviews",
-  "createTruncatePair",
-  "createLimitTestData",
+  // reviews.test.js - fixture builders
+  "rev",
+  "revs",
+  "revsFor",
+  "prodRevs",
+  "truncatePair",
+  "limitData",
   // test-site-factory.test.js - test page fixtures
   "minimalPage",
   "factoryTestPage",

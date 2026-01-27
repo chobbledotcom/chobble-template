@@ -4,6 +4,7 @@ import {
   createMockEleventyConfig,
   fs,
   path,
+  withConfiguredMock,
   withMockFetch,
   withSubDirAsync,
 } from "#test/test-utils.js";
@@ -12,14 +13,9 @@ const SAMPLE_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
 const ICONS_SUBDIR = "src/assets/icons/iconify";
 
-const getConfiguredFilters = () => {
-  const mockConfig = createMockEleventyConfig();
-  configureIconify(mockConfig);
-  return mockConfig.asyncFilters;
-};
-
-const getIconFilter = () => getConfiguredFilters().icon;
-const getRenderIconFilter = () => getConfiguredFilters().renderIcon;
+// Extract async filters once
+const { icon, renderIcon } =
+  withConfiguredMock(configureIconify)().asyncFilters;
 
 describe("iconify", () => {
   describe("configureIconify", () => {
@@ -32,24 +28,20 @@ describe("iconify", () => {
 
   describe("icon filter validation", () => {
     test("Throws for non-string input", async () => {
-      const icon = getIconFilter();
       await expect(icon(123)).rejects.toThrow(/Invalid icon identifier/);
       await expect(icon(null)).rejects.toThrow(/Invalid icon identifier/);
       await expect(icon(undefined)).rejects.toThrow(/Invalid icon identifier/);
     });
 
     test("Throws for string without colon", async () => {
-      const icon = getIconFilter();
       await expect(icon("invalid")).rejects.toThrow(/Invalid icon identifier/);
     });
 
     test("Throws for empty prefix", async () => {
-      const icon = getIconFilter();
       await expect(icon(":name")).rejects.toThrow(/Invalid icon identifier/);
     });
 
     test("Throws for empty name", async () => {
-      const icon = getIconFilter();
       await expect(icon("prefix:")).rejects.toThrow(/Invalid icon identifier/);
     });
   });
@@ -61,7 +53,7 @@ describe("iconify", () => {
         `${ICONS_SUBDIR}/mdi`,
         async ({ tempDir, subDir }) => {
           fs.writeFileSync(path.join(subDir, "home.svg"), SAMPLE_SVG);
-          const result = await getIconFilter()("mdi:home", tempDir);
+          const result = await icon("mdi:home", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         },
       ));
@@ -72,10 +64,7 @@ describe("iconify", () => {
         `${ICONS_SUBDIR}/hugeicons`,
         async ({ tempDir, subDir }) => {
           fs.writeFileSync(path.join(subDir, "help-circle.svg"), SAMPLE_SVG);
-          const result = await getIconFilter()(
-            "hugeicons:help_circle",
-            tempDir,
-          );
+          const result = await icon("hugeicons:help_circle", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         },
       ));
@@ -86,7 +75,7 @@ describe("iconify", () => {
         `${ICONS_SUBDIR}/mdi`,
         async ({ tempDir, subDir }) => {
           fs.writeFileSync(path.join(subDir, "arrow-left.svg"), SAMPLE_SVG);
-          const result = await getIconFilter()("MDI:Arrow_Left", tempDir);
+          const result = await icon("MDI:Arrow_Left", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         },
       ));
@@ -97,10 +86,7 @@ describe("iconify", () => {
         `${ICONS_SUBDIR}/lucide`,
         async ({ tempDir, subDir }) => {
           fs.writeFileSync(path.join(subDir, "settings.svg"), SAMPLE_SVG);
-          const result = await getIconFilter()(
-            "  lucide : settings  ",
-            tempDir,
-          );
+          const result = await icon("  lucide : settings  ", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         },
       ));
@@ -111,7 +97,7 @@ describe("iconify", () => {
         `${ICONS_SUBDIR}/custom`,
         async ({ tempDir, subDir }) => {
           fs.writeFileSync(path.join(subDir, "icon-name.svg"), SAMPLE_SVG);
-          const result = await getIconFilter()("custom:icon name", tempDir);
+          const result = await icon("custom:icon name", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         },
       ));
@@ -121,7 +107,7 @@ describe("iconify", () => {
     test("Fetches icon from API when not cached", () =>
       withSubDirAsync("iconify-fetch", "", async ({ tempDir }) =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
-          const result = await getIconFilter()("test:icon", tempDir);
+          const result = await icon("test:icon", tempDir);
           expect(result).toBe(SAMPLE_SVG);
         }),
       ));
@@ -129,7 +115,7 @@ describe("iconify", () => {
     test("Saves fetched icon to disk", () =>
       withSubDirAsync("iconify-save", "", async ({ tempDir }) =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
-          await getIconFilter()("newprefix:newicon", tempDir);
+          await icon("newprefix:newicon", tempDir);
           const savedPath = path.join(
             tempDir,
             ICONS_SUBDIR,
@@ -144,7 +130,7 @@ describe("iconify", () => {
     test("Creates directory structure when saving", () =>
       withSubDirAsync("iconify-mkdir", "", async ({ tempDir }) =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
-          await getIconFilter()("brand:newicon", tempDir);
+          await icon("brand:newicon", tempDir);
           const expectedDir = path.join(tempDir, ICONS_SUBDIR, "brand");
           expect(fs.existsSync(expectedDir)).toBe(true);
         }),
@@ -153,48 +139,46 @@ describe("iconify", () => {
     test("Throws when API returns error status", () =>
       withSubDirAsync("iconify-error", "", async ({ tempDir }) =>
         withMockFetch("Not Found", { ok: false, status: 404 }, async () => {
-          await expect(
-            getIconFilter()("notfound:icon", tempDir),
-          ).rejects.toThrow(/Failed to fetch icon.*Status: 404/);
+          await expect(icon("notfound:icon", tempDir)).rejects.toThrow(
+            /Failed to fetch icon.*Status: 404/,
+          );
         }),
       ));
 
     test("Throws when API returns invalid SVG", () =>
       withSubDirAsync("iconify-invalid", "", async ({ tempDir }) =>
         withMockFetch("This is not an SVG", {}, async () => {
-          await expect(
-            getIconFilter()("invalid:response", tempDir),
-          ).rejects.toThrow(/Invalid response.*Expected SVG/);
+          await expect(icon("invalid:response", tempDir)).rejects.toThrow(
+            /Invalid response.*Expected SVG/,
+          );
         }),
       ));
   });
 
   describe("renderIcon filter", () => {
     test("Registers renderIcon as an async filter", () => {
-      expect(typeof getRenderIconFilter()).toBe("function");
+      expect(typeof renderIcon).toBe("function");
     });
 
     test("Returns empty string for falsy values", async () => {
-      const renderIcon = getRenderIconFilter();
       expect(await renderIcon(null)).toBe("");
       expect(await renderIcon(undefined)).toBe("");
       expect(await renderIcon("")).toBe("");
     });
 
     test("Returns img tag for paths starting with /", async () => {
-      const result = await getRenderIconFilter()("/images/icon.svg");
-      expect(result).toBe('<img src="/images/icon.svg" alt="">');
+      expect(await renderIcon("/images/icon.svg")).toBe(
+        '<img src="/images/icon.svg" alt="">',
+      );
     });
 
     test("Passes through raw content unchanged", async () => {
-      const renderIcon = getRenderIconFilter();
       expect(await renderIcon("&#128640;")).toBe("&#128640;");
       expect(await renderIcon("🚀")).toBe("🚀");
       expect(await renderIcon("plain text")).toBe("plain text");
     });
 
     test("Passes through URLs with colons and slashes", async () => {
-      const renderIcon = getRenderIconFilter();
       expect(await renderIcon("https://example.com")).toBe(
         "https://example.com",
       );
@@ -204,9 +188,9 @@ describe("iconify", () => {
     });
 
     test("Fetches SVG for Iconify IDs via renderIcon", () =>
-      withSubDirAsync("render-iconify", "", async ({ tempDir }) =>
+      withSubDirAsync("render-iconify", "", async () =>
         withMockFetch(SAMPLE_SVG, {}, async () => {
-          const result = await getRenderIconFilter()("test:icon");
+          const result = await renderIcon("test:icon");
           expect(result).toBe(SAMPLE_SVG);
         }),
       ));
