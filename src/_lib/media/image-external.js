@@ -58,24 +58,23 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
- * @param {string | null} options.alt - Alt text
+ * @param {string | null} options.alt - Alt text (used for filename slug)
  * @param {string | null} options.loading - Loading attribute
  * @param {string | null} options.classes - CSS classes
  * @param {string | null} options.sizes - Sizes attribute
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
- * @param {string | null} options.slug - Custom slug for filename (defaults to slugified alt text)
  * @returns {Promise<string>} Wrapped image HTML
  */
 const computeExternalImageHtml = memoize(
-  async ({ src, alt, loading, classes, sizes, widths, aspectRatio, slug }) => {
+  async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
     const requestedWidths = parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
     const eleventyImg = await getEleventyImg();
     const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
 
-    // Use provided slug or fall back to slugified alt text
-    const filenameSlug = slug || slugify(alt || "external-image");
+    // Use slugified alt text for filename
+    const filenameSlug = slugify(alt || "external-image");
     const imageOptions = {
       ...DEFAULT_IMAGE_OPTIONS,
       filenameFormat: externalFilenameFormat,
@@ -131,13 +130,12 @@ const computeExternalImageHtml = memoize(
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
- * @param {string | null} options.alt - Alt text
+ * @param {string | null} options.alt - Alt text (used for filename slug)
  * @param {string | null} options.loading - Loading attribute
  * @param {string | null} options.classes - CSS classes
  * @param {string | null} options.sizes - Sizes attribute
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
- * @param {string | null} options.slug - Custom slug for filename
  * @param {boolean} options.returnElement - Whether to return Element or HTML string
  * @param {Document | null} options.document - Optional document for element creation
  * @returns {Promise<string | Element>} HTML string or element
@@ -150,7 +148,6 @@ const processExternalImage = async ({
   sizes,
   widths,
   aspectRatio,
-  slug,
   returnElement,
   document,
 }) => {
@@ -162,7 +159,6 @@ const processExternalImage = async ({
     sizes,
     widths,
     aspectRatio,
-    slug,
   });
 
   return returnElement ? await parseHtml(html, document) : html;

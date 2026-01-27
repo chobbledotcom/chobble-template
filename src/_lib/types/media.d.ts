@@ -18,7 +18,6 @@ export type ImageProps = {
   aspectRatio?: string | null;
   loading?: string | null;
   noLqip?: boolean;
-  slug?: string | null;
   document?: Document | null;
 };
 

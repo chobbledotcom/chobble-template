@@ -173,7 +173,6 @@ const processAndWrapImage = async ({
   aspectRatio = null,
   loading = null,
   noLqip = false,
-  slug = null,
   document = null,
 }) => {
   if (isExternalUrl(imageName)) {
@@ -185,7 +184,6 @@ const processAndWrapImage = async ({
       sizes,
       widths,
       aspectRatio,
-      slug,
       returnElement,
       document,
     });
@@ -233,7 +231,6 @@ const configureImages = async (eleventyConfig) => {
  * @param {string | null} [aspectRatio]
  * @param {string | null} [loading]
  * @param {boolean} [noLqip]
- * @param {string | null} [slug] - Custom slug for external image filenames
  */
 const imageShortcode = async (
   imageName,
@@ -244,7 +241,6 @@ const imageShortcode = async (
   aspectRatio = null,
   loading = null,
   noLqip = false,
-  slug = null,
 ) =>
   processAndWrapImage({
     logName: `imageShortcode: ${imageName}`,
@@ -256,7 +252,6 @@ const imageShortcode = async (
     aspectRatio,
     loading,
     noLqip,
-    slug,
     returnElement: false,
   });
 
