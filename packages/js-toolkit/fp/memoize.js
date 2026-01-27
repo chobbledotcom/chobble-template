@@ -42,7 +42,7 @@ const jsonKey = (args) => JSON.stringify(args[0]);
  * @param {(arr: T[]) => R} buildFn - Function that builds the result from an array
  * @returns {(arr: T[]) => R} Cached version of the build function
  */
-const withWeakMapCache = (buildFn) => {
+const memoizeByRef = (buildFn) => {
   const cache = new WeakMap();
   return (arr) => {
     const cached = cache.get(arr);
@@ -98,7 +98,7 @@ const withWeakMapCache = (buildFn) => {
  * @returns {(arr: T[]) => Record<string, V>} Cached transformer
  */
 const cachedEntries = (toEntries) =>
-  withWeakMapCache((arr) => Object.fromEntries(toEntries(arr)));
+  memoizeByRef((arr) => Object.fromEntries(toEntries(arr)));
 
 const indexBy = (getKey) =>
   cachedEntries((arr) => arr.map((item) => [getKey(item), item]));
@@ -134,4 +134,4 @@ const indexBy = (getKey) =>
 const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
-export { memoize, jsonKey, indexBy, groupByWithCache, withWeakMapCache };
+export { memoize, jsonKey, indexBy, groupByWithCache, memoizeByRef };
