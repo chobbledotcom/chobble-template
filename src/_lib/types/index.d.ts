@@ -67,6 +67,7 @@ export type {
   Spec,
   Faq,
   Tab,
+  RawTab,
   Option,
   FilterAttribute,
   OpeningTime,

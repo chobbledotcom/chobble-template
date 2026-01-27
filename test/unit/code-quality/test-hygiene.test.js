@@ -45,6 +45,7 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "withTempDir",
   "withTempFile",
   "withMockedConsole",
+  "withSetupTestSite", // test-site-factory.js - runs test without build, with cleanup
   "getIconFilter",
   "getConfiguredFilters", // iconify.test.js - configured filter factory for icon tests
   "expectValidScriptTag",
@@ -252,8 +253,8 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "active",
   // autosizes.test.js - helper to inject PerformanceObserver mock
   "createPerformanceObserverScript",
-  // template.test.js - test environment setup helpers
-  "createTemplateTestEnv",
+  // template.test.js - helper to extract input from template
+  "getQuantityInput",
   // autosizes.test.js - test environment setup helpers
   "createAutosizesTestEnv",
   "runAutosizes",

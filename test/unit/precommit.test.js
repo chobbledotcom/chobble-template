@@ -4,6 +4,11 @@ import { extractErrorsFromOutput } from "#test/test-runner-utils.js";
 import { expectErrorsInclude, rootDir } from "#test/test-utils.js";
 
 const precommitPath = join(rootDir, "test", "precommit.js");
+const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
+
+/** Read the test-runner-utils.js file content */
+const readTestRunnerUtils = () =>
+  require("node:fs").readFileSync(testRunnerUtilsPath, "utf-8");
 
 /**
  * Assert that all expected strings appear in the errors array.
@@ -21,6 +26,10 @@ const expectErrorsToInclude = (errors, ...expectedStrings) => {
     expect(errors.some((e) => e.includes(str))).toBe(true);
   }
 };
+
+/** Assert that errors contain the ❌ indicator */
+const expectErrorsHaveIndicator = (errors) =>
+  expect(errors.some((e) => e.includes("❌"))).toBe(true);
 
 /**
  * Tests for the precommit script error output handling.
@@ -105,7 +114,7 @@ AssertionError: expected undefined to be defined
     const errors = extractErrorsFromOutput(testOutput);
 
     // Should capture failure indicators
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
+    expectErrorsHaveIndicator(errors);
     expect(errors.some((e) => e.includes("FAIL") || e.includes("failed"))).toBe(
       true,
     );
@@ -181,7 +190,7 @@ error: something went wrong
     expect(errors.some((e) => e.startsWith("node -e"))).toBe(false);
 
     // Should KEEP actual errors
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
+    expectErrorsHaveIndicator(errors);
     expect(errors.some((e) => e.startsWith("error:"))).toBe(true);
   });
 
@@ -232,28 +241,16 @@ Error: Cannot find module 'missing-dep'
   });
 
   test("precommit script limits errors to 10 by default", () => {
-    const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
-    const testRunnerUtilsCode = require("node:fs").readFileSync(
-      testRunnerUtilsPath,
-      "utf-8",
-    );
-
+    const code = readTestRunnerUtils();
     // Check that the shared utilities use printTruncatedList with errors label
-    expect(testRunnerUtilsCode).toContain("export const printTruncatedList");
-    expect(testRunnerUtilsCode).toContain(
-      'printTruncatedList({ moreLabel: "errors"',
-    );
+    expect(code).toContain("export const printTruncatedList");
+    expect(code).toContain('printTruncatedList({ moreLabel: "errors"');
   });
 
   test("precommit script shows verbose flag hint when errors are truncated", () => {
-    const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
-    const testRunnerUtilsCode = require("node:fs").readFileSync(
-      testRunnerUtilsPath,
-      "utf-8",
-    );
-
+    const code = readTestRunnerUtils();
     // Verify the printTruncatedList utility has the verbose hint as default
-    expect(testRunnerUtilsCode).toContain("use --verbose to see all");
+    expect(code).toContain("use --verbose to see all");
   });
 });
 
@@ -278,16 +275,12 @@ describe("precommit script integration", () => {
       precommitPath,
       "utf-8",
     );
-    const testRunnerUtilsPath = join(rootDir, "test", "test-runner-utils.js");
-    const testRunnerUtilsCode = require("node:fs").readFileSync(
-      testRunnerUtilsPath,
-      "utf-8",
-    );
-
     // Precommit should check for --verbose flag
     expect(precommitCode).toContain("--verbose");
     // Shared utilities should always capture output for error extraction
-    expect(testRunnerUtilsCode).toContain('stdio: ["inherit", "pipe", "pipe"]');
+    expect(readTestRunnerUtils()).toContain(
+      'stdio: ["inherit", "pipe", "pipe"]',
+    );
   });
 });
 
@@ -324,7 +317,7 @@ AssertionError: expected 'foo' to equal 'bar'
 
     const errors = extractErrorsFromOutput(assertOutput);
 
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
+    expectErrorsHaveIndicator(errors);
     // Note: "Error:" lines should also be captured
     // but AssertionError might not have "error:" prefix
   });
@@ -339,7 +332,7 @@ src/api/client.js: retryRequest, handleError
 
     const errors = extractErrorsFromOutput(coverageOutput);
 
-    expect(errors.some((e) => e.includes("❌"))).toBe(true);
+    expectErrorsHaveIndicator(errors);
     // File patterns should be captured
     expect(errors.some((e) => e.match(/^[\w./-]+\.\w+:\s*.+$/))).toBe(true);
   });
