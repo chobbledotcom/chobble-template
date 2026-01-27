@@ -151,7 +151,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/collections/menus.js",
   "src/_lib/collections/products.js",
   "src/_lib/collections/reviews.js", // extractInitials kept separate to avoid complexity
-  "src/_lib/media/image-external.js", // Typed wrapper function for createElement
+  "src/_lib/media/image-external.js", // External wrapper styles helper
+  "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/js-config.js", // buildJsConfigJson kept separate for clarity
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity

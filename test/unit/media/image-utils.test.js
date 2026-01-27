@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
-  buildImgAttributes,
   buildWrapperStyles,
   filenameFormat,
   getPathAwareBasename,
   isExternalUrl,
   normalizeImagePath,
   parseWidths,
+  prepareImageAttributes,
 } from "#media/image-utils.js";
 
 describe("image-utils", () => {
@@ -71,46 +71,42 @@ describe("image-utils", () => {
     });
   });
 
-  describe("buildImgAttributes", () => {
-    test("builds attributes with provided values", () => {
-      const attrs = buildImgAttributes({
+  describe("prepareImageAttributes", () => {
+    test("builds img and picture attributes with provided values", () => {
+      const { imgAttributes, pictureAttributes } = prepareImageAttributes({
         alt: "A photo",
         sizes: "100vw",
         loading: "eager",
+        classes: "featured",
       });
-      expect(attrs).toEqual({
-        alt: "A photo",
-        sizes: "100vw",
-        loading: "eager",
-        decoding: "async",
+      expect(imgAttributes.alt).toBe("A photo");
+      expect(imgAttributes.sizes).toBe("100vw");
+      expect(imgAttributes.loading).toBe("eager");
+      expect(imgAttributes.decoding).toBe("async");
+      expect(pictureAttributes.class).toBe("featured");
+    });
+
+    test("uses defaults for missing img values", () => {
+      const { imgAttributes } = prepareImageAttributes({});
+      expect(imgAttributes.alt).toBe("");
+      expect(imgAttributes.loading).toBe("lazy");
+      expect(imgAttributes.decoding).toBe("async");
+    });
+
+    test("returns empty picture attributes when classes is null", () => {
+      const { pictureAttributes } = prepareImageAttributes({
+        alt: "Photo",
+        classes: null,
       });
+      expect(pictureAttributes).toEqual({});
     });
 
-    test("uses defaults for missing values", () => {
-      const attrs = buildImgAttributes({});
-      expect(attrs.alt).toBe("");
-      expect(attrs.loading).toBe("lazy");
-      expect(attrs.decoding).toBe("async");
-    });
-
-    test("includes src when provided", () => {
-      const attrs = buildImgAttributes({
-        src: "https://example.com/image.jpg",
-        alt: "External image",
+    test("returns empty picture attributes when classes is empty string", () => {
+      const { pictureAttributes } = prepareImageAttributes({
+        alt: "Photo",
+        classes: "  ",
       });
-      expect(attrs.src).toBe("https://example.com/image.jpg");
-      expect(attrs.alt).toBe("External image");
-    });
-
-    test("includes class when provided", () => {
-      const attrs = buildImgAttributes({ alt: "Photo", classes: "featured" });
-      expect(attrs.class).toBe("featured");
-    });
-
-    test("omits src and class when not provided", () => {
-      const attrs = buildImgAttributes({ alt: "Photo" });
-      expect(attrs).not.toHaveProperty("src");
-      expect(attrs).not.toHaveProperty("class");
+      expect(pictureAttributes).toEqual({});
     });
   });
 

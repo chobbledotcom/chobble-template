@@ -63,18 +63,6 @@ const getSharedDocument = memoize(async () => {
 });
 
 /**
- * Apply attributes to an element
- * @param {HTMLElement} element - Element to modify
- * @param {ElementAttributes} attributes - Attributes to apply
- * @returns {void}
- */
-const applyAttributes = (element, attributes) => {
-  for (const [key, value] of Object.entries(filterDefinedAttrs(attributes))) {
-    element.setAttribute(key, value);
-  }
-};
-
-/**
  * Convert an element to its HTML string representation
  * @param {HTMLElement} element - The element to serialize
  * @returns {string} The outer HTML of the element
@@ -127,7 +115,6 @@ const parseHtml = async (html, document = null) => {
 };
 
 export {
-  applyAttributes,
   elementToHtml,
   createHtml,
   parseHtml,
