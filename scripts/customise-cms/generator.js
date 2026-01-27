@@ -22,6 +22,7 @@ import {
   getBodyField,
   PRODUCT_OPTIONS_FIELD,
   SPECS_FIELD,
+  VIDEOS_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import {
   compact,
@@ -189,6 +190,7 @@ const getCollectionFieldBuilders = (config, fields) => ({
       createEleventyNavigationField(config.features.external_navigation_urls),
       { name: "layout", type: "string" },
       config.features.no_index && COMMON_FIELDS.no_index,
+      config.features.videos && VIDEOS_FIELD,
     ]),
 
   categories: () =>

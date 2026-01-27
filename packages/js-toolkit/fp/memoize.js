@@ -140,7 +140,7 @@ const groupByWithCache = (getKeys) =>
  * Perfect for expensive computations that take a single object argument
  * (like Eleventy's collectionApi) and should only run once per build.
  *
- * Unlike withWeakMapCache (which requires arrays), this works with any object.
+ * Delegates to withWeakMapCache - works with any object, not just arrays.
  *
  * @template R
  * @param {(obj: object) => R} fn - Function to cache
@@ -157,14 +157,6 @@ const groupByWithCache = (getKeys) =>
  * getAllFilterData(collectionApi);  // computes
  * getAllFilterData(collectionApi);  // returns cached
  */
-const once = (fn) => {
-  const cache = new WeakMap();
-  return (obj) => {
-    if (cache.has(obj)) return cache.get(obj);
-    const result = fn(obj);
-    cache.set(obj, result);
-    return result;
-  };
-};
+const once = (fn) => withWeakMapCache(fn);
 
 export { memoize, jsonKey, indexBy, groupByWithCache, withWeakMapCache, once };

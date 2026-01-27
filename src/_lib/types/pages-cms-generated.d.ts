@@ -20,6 +20,16 @@ export interface PagesCMSEleventyNavigation {
 }
 
 /**
+ * @typedef {Object} PagesCMSVideo
+ * @property {string} id - YouTube Video ID
+ * @property {string} title - Title
+ */
+export interface PagesCMSVideo {
+  id: string;
+  title: string;
+}
+
+/**
  * @typedef {Object} PagesCMSFaq
  * @property {string} question - Question
  * @property {string} answer - Answer
@@ -41,6 +51,16 @@ export interface PagesCMSOption {
   max_quantity?: number;
   unit_price: number;
   days?: number;
+}
+
+/**
+ * @typedef {Object} PagesCMSAddOn
+ * @property {string} ?intro - Intro
+ * @property {Record<string, unknown>} ?options - Add-on Options
+ */
+export interface PagesCMSAddOn {
+  intro?: string;
+  options?: Record<string, unknown>;
 }
 
 /**
