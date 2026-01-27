@@ -2,15 +2,15 @@
  * Tests for js-toolkit memoize utilities
  */
 import { describe, expect, test } from "bun:test";
-import { once } from "#toolkit/fp/memoize.js";
+import { withWeakMapCache } from "#toolkit/fp/memoize.js";
 
 /** Create a counter for tracking function calls in tests */
 const createCounter = () => ({ count: 0 });
 
-describe("once", () => {
+describe("withWeakMapCache", () => {
   test("caches result by object reference", () => {
     const counter = createCounter();
-    const expensive = once((obj) => {
+    const expensive = withWeakMapCache((obj) => {
       counter.count++;
       return obj.value * 2;
     });
@@ -29,7 +29,7 @@ describe("once", () => {
 
   test("computes separately for different objects", () => {
     const counter = createCounter();
-    const expensive = once((obj) => {
+    const expensive = withWeakMapCache((obj) => {
       counter.count++;
       return obj.id;
     });
@@ -49,7 +49,7 @@ describe("once", () => {
 
   test("works with complex return values", () => {
     const counter = createCounter();
-    const buildData = once((api) => {
+    const buildData = withWeakMapCache((api) => {
       counter.count++;
       return {
         pages: api.items.map((i) => ({ id: i })),
