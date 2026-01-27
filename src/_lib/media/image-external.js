@@ -23,6 +23,19 @@ import {
 import { compact } from "#toolkit/fp/array.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
+import { slugify } from "#utils/slug-utils.js";
+
+/**
+ * Generate filename for external images using slug.
+ * @param {string} _id - Unique ID (unused)
+ * @param {string} _src - Source URL (unused, we use slug instead)
+ * @param {number} width - Image width
+ * @param {string} format - Image format (webp, jpeg)
+ * @param {Object} options - Options containing slug
+ * @returns {string} Filename
+ */
+const externalFilenameFormat = (_id, _src, width, format, options) =>
+  `${options.slug}-${width}.${format}`;
 
 /**
  * Build wrapper styles for external images.
@@ -51,23 +64,32 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
  * @param {string | null} options.sizes - Sizes attribute
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
+ * @param {string | null} options.slug - Custom slug for filename (defaults to slugified alt text)
  * @returns {Promise<string>} Wrapped image HTML
  */
 const computeExternalImageHtml = memoize(
-  async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
+  async ({ src, alt, loading, classes, sizes, widths, aspectRatio, slug }) => {
     const requestedWidths = parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
     const eleventyImg = await getEleventyImg();
     const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
 
+    // Use provided slug or fall back to slugified alt text
+    const filenameSlug = slug || slugify(alt || "external-image");
+    const imageOptions = {
+      ...DEFAULT_IMAGE_OPTIONS,
+      filenameFormat: externalFilenameFormat,
+      slug: filenameSlug,
+    };
+
     const [webpMetadata, jpegMetadata] = await Promise.all([
       eleventyImg.default(src, {
-        ...DEFAULT_IMAGE_OPTIONS,
+        ...imageOptions,
         formats: ["webp"],
         widths: webpWidths,
       }),
       eleventyImg.default(src, {
-        ...DEFAULT_IMAGE_OPTIONS,
+        ...imageOptions,
         formats: ["jpeg"],
         widths: [JPEG_FALLBACK_WIDTH],
       }),
@@ -115,6 +137,7 @@ const computeExternalImageHtml = memoize(
  * @param {string | null} options.sizes - Sizes attribute
  * @param {string | string[] | null} options.widths - Responsive widths
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
+ * @param {string | null} options.slug - Custom slug for filename
  * @param {boolean} options.returnElement - Whether to return Element or HTML string
  * @param {Document | null} options.document - Optional document for element creation
  * @returns {Promise<string | Element>} HTML string or element
@@ -127,6 +150,7 @@ const processExternalImage = async ({
   sizes,
   widths,
   aspectRatio,
+  slug,
   returnElement,
   document,
 }) => {
@@ -138,6 +162,7 @@ const processExternalImage = async ({
     sizes,
     widths,
     aspectRatio,
+    slug,
   });
 
   return returnElement ? await parseHtml(html, document) : html;
