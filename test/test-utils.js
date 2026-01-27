@@ -307,6 +307,57 @@ const taggedCollectionApi = (tagMap) => ({
 });
 
 // ============================================
+// Curried Config Mock Factories
+// ============================================
+
+/**
+ * Curried factory for creating configured mock helpers.
+ * Reduces boilerplate in test files that need to configure and extract
+ * registered filters/collections from Eleventy config.
+ *
+ * Usage:
+ *   const createSearchMock = withConfiguredMock(configureSearch);
+ *   const { mockConfig, filters, collections } = createSearchMock();
+ *
+ * @param {Function} configureFn - The configure* function to call
+ * @returns {Function} A factory that returns the configured mock and its registrations
+ */
+const withConfiguredMock = (configureFn) => () => {
+  const mockConfig = createMockEleventyConfig();
+  configureFn(mockConfig);
+  return {
+    mockConfig,
+    filters: mockConfig.filters || {},
+    asyncFilters: mockConfig.asyncFilters || {},
+    collections: mockConfig.collections || {},
+    shortcodes: mockConfig.shortcodes || {},
+    asyncShortcodes: mockConfig.asyncShortcodes || {},
+  };
+};
+
+/**
+ * Curried factory for getting a collection from a configured mock.
+ * Reduces boilerplate for the common pattern of:
+ * 1. Create mock config
+ * 2. Call configure function
+ * 3. Build tagged collection API
+ * 4. Call the registered collection
+ *
+ * Usage:
+ *   const getEventsCollection = getCollectionFrom("events")(configureEvents);
+ *   const result = getEventsCollection({ events: [...], products: [...] });
+ *
+ * @param {string} collectionName - Name of the collection to retrieve
+ * @returns {Function} Curried function: (configureFn) => (tagMap) => collection result
+ */
+const getCollectionFrom = (collectionName) => (configureFn) => (tagMap) => {
+  const mockConfig = createMockEleventyConfig();
+  configureFn(mockConfig);
+  const mockApi = taggedCollectionApi(tagMap);
+  return mockConfig.collections[collectionName](mockApi);
+};
+
+// ============================================
 // Exports
 // ============================================
 
@@ -384,4 +435,7 @@ export {
   // Collection API mocks
   collectionApi,
   taggedCollectionApi,
+  // Curried config mock factories
+  withConfiguredMock,
+  getCollectionFrom,
 };

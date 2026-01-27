@@ -1,10 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { categoriseEvents, configureEvents } from "#collections/events.js";
-import {
-  createMockEleventyConfig,
-  expectResultTitles,
-  taggedCollectionApi,
-} from "#test/test-utils.js";
+import { expectResultTitles, getCollectionFrom } from "#test/test-utils.js";
 import {
   createEvent,
   createEvents,
@@ -192,40 +188,32 @@ const productItem = (slug, events = [], thumbnail, order = 0) => ({
   data: { events, thumbnail, order },
 });
 
-/** Get the events collection from a configured mock */
-const getEventsCollection = (eventData, productData) => {
-  const mockConfig = createMockEleventyConfig();
-  configureEvents(mockConfig);
-  const mockApi = taggedCollectionApi({
-    events: eventData,
-    products: productData,
-  });
-  return mockConfig.collections.events(mockApi);
-};
+/** Curried helper to get the events collection from a configured mock */
+const getEventsCollection = getCollectionFrom("events")(configureEvents);
 
 describe("events collection", () => {
   test("returns empty array when no events exist", () => {
-    const result = getEventsCollection([], []);
+    const result = getEventsCollection({ events: [], products: [] });
     expect(result).toEqual([]);
   });
 
   test("preserves event data when no products match", () => {
     const events = [eventItem("summer-fest", { title: "Summer Festival" })];
-    const result = getEventsCollection(events, []);
+    const result = getEventsCollection({ events, products: [] });
     expect(result[0].data.title).toBe("Summer Festival");
   });
 
   test("inherits thumbnail from product in event", () => {
     const events = [eventItem("summer-fest")];
     const products = [productItem("product-1", ["summer-fest"], "thumb.jpg")];
-    const result = getEventsCollection(events, products);
+    const result = getEventsCollection({ events, products });
     expect(result[0].data.thumbnail).toBe("thumb.jpg");
   });
 
   test("event keeps own thumbnail when set", () => {
     const events = [eventItem("summer-fest", { thumbnail: "event-thumb.jpg" })];
     const products = [productItem("product-1", ["summer-fest"], "product.jpg")];
-    const result = getEventsCollection(events, products);
+    const result = getEventsCollection({ events, products });
     expect(result[0].data.thumbnail).toBe("event-thumb.jpg");
   });
 
@@ -235,7 +223,7 @@ describe("events collection", () => {
       productItem("product-1", ["summer-fest"], "high-order.jpg", 10),
       productItem("product-2", ["summer-fest"], "low-order.jpg", 1),
     ];
-    const result = getEventsCollection(events, products);
+    const result = getEventsCollection({ events, products });
     expect(result[0].data.thumbnail).toBe("low-order.jpg");
   });
 
@@ -245,7 +233,7 @@ describe("events collection", () => {
       productItem("product-1", ["summer-fest"], undefined, 1),
       productItem("product-2", ["summer-fest"], "has-thumb.jpg", 2),
     ];
-    const result = getEventsCollection(events, products);
+    const result = getEventsCollection({ events, products });
     expect(result[0].data.thumbnail).toBe("has-thumb.jpg");
   });
 
@@ -254,7 +242,7 @@ describe("events collection", () => {
     const products = [
       productItem("product-1", ["event-a", "event-b"], "shared.jpg"),
     ];
-    const result = getEventsCollection(events, products);
+    const result = getEventsCollection({ events, products });
     expect(result[0].data.thumbnail).toBe("shared.jpg");
     expect(result[1].data.thumbnail).toBe("shared.jpg");
   });

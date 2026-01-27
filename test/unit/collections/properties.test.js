@@ -8,6 +8,7 @@ import {
   expectGalleries,
   expectResultTitles,
   items,
+  withConfiguredMock,
 } from "#test/test-utils.js";
 
 // ============================================
@@ -23,48 +24,36 @@ const locationProperty = property("title", "locations");
 /** Ordered property: creates properties with title, locations, and order */
 const orderedProperty = property("title", "locations", "order");
 
-// Helper: create a configured mock and extract the registered functions
-const createPropertiesMock = () => {
-  const mockConfig = createMockEleventyConfig();
-  configureProperties(mockConfig);
-  return {
-    mockConfig,
-    // Collection functions (called with collectionApi)
-    propertiesCollection: mockConfig.collections.properties,
-    propertiesWithReviewsPage: mockConfig.collections.propertiesWithReviewsPage,
-    propertyReviewsRedirects: mockConfig.collections.propertyReviewsRedirects,
-    // Filter functions (called directly)
-    getPropertiesByLocation: mockConfig.filters.getPropertiesByLocation,
-  };
-};
+// Create configured mock using curried helper
+const createPropertiesMock = withConfiguredMock(configureProperties);
 
 // Read truncate limit from config for portable tests across inherited sites
 const TRUNCATE_LIMIT = configData.reviews_truncate_limit || 10;
 
 describe("properties", () => {
   test("Creates properties collection from API", () => {
-    const { propertiesCollection } = createPropertiesMock();
+    const { collections } = createPropertiesMock();
     const testItems = items([
       ["Property 1", { gallery: ["img1.jpg"] }],
       ["Property 2", {}],
       ["Property 3", { gallery: ["img3.jpg"] }],
     ]);
 
-    const result = propertiesCollection(collectionApi(testItems));
+    const result = collections.properties(collectionApi(testItems));
 
     expectGalleries(result, [["img1.jpg"], undefined, ["img3.jpg"]]);
   });
 
   test("Handles empty property collection", () => {
-    const { propertiesCollection } = createPropertiesMock();
+    const { collections } = createPropertiesMock();
 
-    const result = propertiesCollection(collectionApi([]));
+    const result = collections.properties(collectionApi([]));
 
     expect(result.length).toBe(0);
   });
 
   test("Filters properties by location slug", () => {
-    const { getPropertiesByLocation } = createPropertiesMock();
+    const { filters } = createPropertiesMock();
     const properties = locationProperty(
       ["Property 1", ["springfield", "shelbyville"]],
       ["Property 2", ["capital-city"]],
@@ -72,48 +61,50 @@ describe("properties", () => {
       ["Property 4", undefined],
     );
 
-    const result = getPropertiesByLocation(properties, "springfield");
+    const result = filters.getPropertiesByLocation(properties, "springfield");
 
     expectResultTitles(result, ["Property 1", "Property 3"]);
   });
 
   test("Handles properties without locations", () => {
-    const { getPropertiesByLocation } = createPropertiesMock();
+    const { filters } = createPropertiesMock();
     const properties = locationProperty(
       ["Property 1", undefined],
       ["Property 2", null],
       ["Property 3", []],
     );
 
-    const result = getPropertiesByLocation(properties, "springfield");
+    const result = filters.getPropertiesByLocation(properties, "springfield");
 
     expect(result.length).toBe(0);
   });
 
   test("Handles null/undefined inputs", () => {
-    const { getPropertiesByLocation } = createPropertiesMock();
+    const { filters } = createPropertiesMock();
     const properties = locationProperty(["Property 1", ["springfield"]]);
 
-    expect(getPropertiesByLocation(null, "springfield")).toEqual([]);
-    expect(getPropertiesByLocation(properties, null)).toEqual([]);
-    expect(getPropertiesByLocation(undefined, "springfield")).toEqual([]);
-    expect(getPropertiesByLocation(properties, undefined)).toEqual([]);
+    expect(filters.getPropertiesByLocation(null, "springfield")).toEqual([]);
+    expect(filters.getPropertiesByLocation(properties, null)).toEqual([]);
+    expect(filters.getPropertiesByLocation(undefined, "springfield")).toEqual(
+      [],
+    );
+    expect(filters.getPropertiesByLocation(properties, undefined)).toEqual([]);
   });
 
   test("Returns empty when no properties match location", () => {
-    const { getPropertiesByLocation } = createPropertiesMock();
+    const { filters } = createPropertiesMock();
     const properties = locationProperty(
       ["Property 1", ["springfield"]],
       ["Property 2", ["shelbyville"]],
     );
 
-    const result = getPropertiesByLocation(properties, "capital-city");
+    const result = filters.getPropertiesByLocation(properties, "capital-city");
 
     expect(result.length).toBe(0);
   });
 
   test("Sorts properties by order field", () => {
-    const { getPropertiesByLocation } = createPropertiesMock();
+    const { filters } = createPropertiesMock();
     // Use unique slug to avoid memoization cache collision with other tests
     const properties = orderedProperty(
       ["Property C", ["shelbyville"], 3],
@@ -121,7 +112,7 @@ describe("properties", () => {
       ["Property B", ["shelbyville"], 2],
     );
 
-    const result = getPropertiesByLocation(properties, "shelbyville");
+    const result = filters.getPropertiesByLocation(properties, "shelbyville");
 
     expectResultTitles(result, ["Property A", "Property B", "Property C"]);
   });
@@ -171,13 +162,13 @@ describe("properties", () => {
   };
 
   test("Returns only properties exceeding the truncate limit", () => {
-    const { propertiesWithReviewsPage } = createPropertiesMock();
+    const { collections } = createPropertiesMock();
     // property-a gets limit+1 reviews (above limit), property-b gets limit reviews (at limit)
     const mockCollectionApi = createPropertyReviewFixture(
       TRUNCATE_LIMIT + 1,
       TRUNCATE_LIMIT,
     );
-    const result = propertiesWithReviewsPage(mockCollectionApi);
+    const result = collections.propertiesWithReviewsPage(mockCollectionApi);
 
     // Only property-a (above limit) should be included, not property-b (at limit)
     expect(result.length).toBe(1);
@@ -185,13 +176,13 @@ describe("properties", () => {
   });
 
   test("Returns redirect data for properties not needing separate pages", () => {
-    const { propertyReviewsRedirects } = createPropertiesMock();
+    const { collections } = createPropertiesMock();
     // property-a gets limit reviews (at limit), property-b gets limit+1 reviews (above limit)
     const mockCollectionApi = createPropertyReviewFixture(
       TRUNCATE_LIMIT,
       TRUNCATE_LIMIT + 1,
     );
-    const result = propertyReviewsRedirects(mockCollectionApi);
+    const result = collections.propertyReviewsRedirects(mockCollectionApi);
 
     // Only property-a (at limit) should get redirect, not property-b (above limit)
     expect(result.length).toBe(1);
@@ -201,14 +192,14 @@ describe("properties", () => {
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
-    const { getPropertiesByLocation } = createPropertiesMock();
+    const { filters } = createPropertiesMock();
     const originalProperties = locationProperty([
       "Property 1",
       ["springfield"],
     ]);
     const propertiesCopy = structuredClone(originalProperties);
 
-    getPropertiesByLocation(propertiesCopy, "springfield");
+    filters.getPropertiesByLocation(propertiesCopy, "springfield");
 
     expect(propertiesCopy).toEqual(originalProperties);
   });

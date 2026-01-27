@@ -4,6 +4,7 @@ import {
   createMockEleventyConfig,
   fs,
   path,
+  withConfiguredMock,
   withMockFetch,
   withSubDirAsync,
 } from "#test/test-utils.js";
@@ -12,14 +13,11 @@ const SAMPLE_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg"><circle r="10"/></svg>';
 const ICONS_SUBDIR = "src/assets/icons/iconify";
 
-const getConfiguredFilters = () => {
-  const mockConfig = createMockEleventyConfig();
-  configureIconify(mockConfig);
-  return mockConfig.asyncFilters;
-};
+// Create configured mock using curried helper
+const createIconifyMock = withConfiguredMock(configureIconify);
 
-const getIconFilter = () => getConfiguredFilters().icon;
-const getRenderIconFilter = () => getConfiguredFilters().renderIcon;
+const getIconFilter = () => createIconifyMock().asyncFilters.icon;
+const getRenderIconFilter = () => createIconifyMock().asyncFilters.renderIcon;
 
 describe("iconify", () => {
   describe("configureIconify", () => {

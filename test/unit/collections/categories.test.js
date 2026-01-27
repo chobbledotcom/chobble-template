@@ -3,7 +3,7 @@ import { configureCategories } from "#collections/categories.js";
 import {
   createMockEleventyConfig,
   expectDataArray,
-  taggedCollectionApi,
+  getCollectionFrom,
 } from "#test/test-utils.js";
 
 import { map } from "#toolkit/fp/array.js";
@@ -50,19 +50,10 @@ const product = ({ order, cats = [], headerImage, ...extraData } = {}) => ({
 const products = map(product);
 
 /**
- * Helper to get the categories collection from a configured mock
+ * Curried helper to get the categories collection from a configured mock
  */
-const getCategoriesCollection = (categoryData, productData) => {
-  const mockConfig = createMockEleventyConfig();
-  configureCategories(mockConfig);
-
-  const mockApi = taggedCollectionApi({
-    categories: categoryData,
-    products: productData,
-  });
-
-  return mockConfig.collections.categories(mockApi);
-};
+const getCategoriesCollection =
+  getCollectionFrom("categories")(configureCategories);
 
 describe("categories", () => {
   describe("configureCategories", () => {
@@ -77,7 +68,7 @@ describe("categories", () => {
 
   describe("categories collection", () => {
     test("returns empty array when no categories exist", () => {
-      const result = getCategoriesCollection([], []);
+      const result = getCategoriesCollection({ categories: [], products: [] });
 
       expect(result).toEqual([]);
     });
@@ -88,7 +79,10 @@ describe("categories", () => {
         ["gadgets", "gadget-header.jpg", { title: "Gadgets" }],
       ]);
 
-      const result = getCategoriesCollection(testCategories, []);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: [],
+      });
 
       expectHeaderImages(result, ["widget-header.jpg", "gadget-header.jpg"]);
     });
@@ -103,7 +97,10 @@ describe("categories", () => {
         { order: 3, cats: ["widgets"], headerImage: "mid-priority.jpg" },
       ]);
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       expectHeaderImages(result, ["high-priority.jpg"]);
     });
@@ -114,7 +111,10 @@ describe("categories", () => {
       ];
       const testProducts = [product({ order: 10, cats: ["widgets"] })];
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       expectHeaderImages(result, ["widget-header.jpg"]);
     });
@@ -125,7 +125,10 @@ describe("categories", () => {
         product({ cats: ["widgets"], headerImage: "product-image.jpg" }),
       ];
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       expectHeaderImages(result, ["product-image.jpg"]);
     });
@@ -143,7 +146,10 @@ describe("categories", () => {
         }),
       ];
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       expectHeaderImages(result, ["shared-image.jpg", "shared-image.jpg"]);
     });
@@ -154,7 +160,10 @@ describe("categories", () => {
         product({ order: 10, headerImage: "orphan-image.jpg" }),
       ];
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       expectHeaderImages(result, ["widget-header.jpg"]);
     });
@@ -167,7 +176,10 @@ describe("categories", () => {
         { order: 5, cats: ["widgets"], headerImage: "product.jpg" },
       ]);
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       expect(result[0].data.title).toBe("Widgets");
       expect(result[0].data.featured).toBe(true);
@@ -191,7 +203,10 @@ describe("categories", () => {
         { cats: ["gadgets"], headerImage: "default-order-gadget.jpg" },
       ]);
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       // widgets: order 3 > order 1, so cross-category wins
       // gadgets: order 3 > order 0, so cross-category wins
@@ -224,7 +239,10 @@ describe("categories", () => {
         { cats: ["budget-widgets"], thumbnail: "budget-thumb.jpg" },
       ]);
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       // Parent should get thumbnail from child with lowest order (premium)
       expect(result[0].data.thumbnail).toBe("premium-thumb.jpg");
@@ -245,7 +263,10 @@ describe("categories", () => {
         { cats: ["premium-widgets"], thumbnail: "premium-thumb.jpg" },
       ]);
 
-      const result = getCategoriesCollection(testCategories, testProducts);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: testProducts,
+      });
 
       // Parent keeps its own thumbnail
       expect(result[0].data.thumbnail).toBe("widgets-thumb.jpg");
@@ -260,7 +281,10 @@ describe("categories", () => {
         }),
       ];
 
-      const result = getCategoriesCollection(testCategories, []);
+      const result = getCategoriesCollection({
+        categories: testCategories,
+        products: [],
+      });
 
       expect(result[0].data.thumbnail).toBeUndefined();
     });

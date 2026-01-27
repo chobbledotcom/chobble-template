@@ -8,7 +8,7 @@ import {
   createMockEleventyConfig,
   data,
   expectResultTitles,
-  taggedCollectionApi,
+  getCollectionFrom,
 } from "#test/test-utils.js";
 
 // ============================================
@@ -90,29 +90,25 @@ const locationItem = (slug, data = {}) => ({
   data: { title: `Location ${slug}`, ...data },
 });
 
-/** Get the locations collection from a configured mock */
-const getLocationsCollection = (locationData) => {
-  const mockConfig = createMockEleventyConfig();
-  configureLocations(mockConfig);
-  const mockApi = taggedCollectionApi({ locations: locationData });
-  return mockConfig.collections.locations(mockApi);
-};
+/** Curried helper to get the locations collection from a configured mock */
+const getLocationsCollection =
+  getCollectionFrom("locations")(configureLocations);
 
 describe("locations collection", () => {
   test("returns empty array when no locations exist", () => {
-    const result = getLocationsCollection([]);
+    const result = getLocationsCollection({ locations: [] });
     expect(result).toEqual([]);
   });
 
   test("preserves location data", () => {
     const locations = [locationItem("london", { title: "London" })];
-    const result = getLocationsCollection(locations);
+    const result = getLocationsCollection({ locations });
     expect(result[0].data.title).toBe("London");
   });
 
   test("location keeps own thumbnail when set", () => {
     const locations = [locationItem("london", { thumbnail: "london.jpg" })];
-    const result = getLocationsCollection(locations);
+    const result = getLocationsCollection({ locations });
     expect(result[0].data.thumbnail).toBe("london.jpg");
   });
 
@@ -130,7 +126,7 @@ describe("locations collection", () => {
         order: 1,
       }),
     ];
-    const result = getLocationsCollection(locations);
+    const result = getLocationsCollection({ locations });
     // UK inherits from London (order 1) not Manchester (order 2)
     expect(result[0].data.thumbnail).toBe("london.jpg");
   });
@@ -145,7 +141,7 @@ describe("locations collection", () => {
         order: 1,
       }),
     ];
-    const result = getLocationsCollection(locations);
+    const result = getLocationsCollection({ locations });
     // UK -> London -> Central, so UK should inherit from Central
     expect(result[0].data.thumbnail).toBe("central.jpg");
   });
@@ -160,7 +156,7 @@ describe("locations collection", () => {
         order: 2,
       }),
     ];
-    const result = getLocationsCollection(locations);
+    const result = getLocationsCollection({ locations });
     expect(result[0].data.thumbnail).toBe("manchester.jpg");
   });
 
@@ -169,7 +165,7 @@ describe("locations collection", () => {
       locationItem("uk"),
       locationItem("london", { parentLocation: "uk", order: 1 }),
     ];
-    const result = getLocationsCollection(locations);
+    const result = getLocationsCollection({ locations });
     expect(result[0].data.thumbnail).toBeUndefined();
   });
 });

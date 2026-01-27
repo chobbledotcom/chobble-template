@@ -47,7 +47,7 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "withMockedConsole",
   "withSetupTestSite", // test-site-factory.js - runs test without build, with cleanup
   "getIconFilter",
-  "getConfiguredFilters", // iconify.test.js - configured filter factory for icon tests
+  "createIconifyMock", // iconify.test.js - configured mock using withConfiguredMock
   "expectValidScriptTag",
   "expectNavUnchanged", // navigation-utils.test.js - assertion helper for disabled config tests
   // Fixture factories
