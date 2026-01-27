@@ -120,6 +120,21 @@ export const GALLERY_FIELD = {
 };
 
 /**
+ * Videos field configuration for YouTube embeds
+ * @type {CmsField}
+ */
+export const VIDEOS_FIELD = {
+  name: "videos",
+  label: "Videos",
+  type: "object",
+  list: true,
+  fields: [
+    { name: "id", type: "string", label: "YouTube Video ID", required: true },
+    { name: "title", type: "string", label: "Title", required: true },
+  ],
+};
+
+/**
  * Common nested fields for name/value pair objects
  * Used by specs, filter attributes, and similar list fields
  * @type {CmsField[]}

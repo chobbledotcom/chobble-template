@@ -285,6 +285,27 @@ const askParentCategoriesQuestion = async (
 };
 
 /**
+ * Ask conditional feature questions for YouTube video embeds on pages
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{videos: boolean}>} Videos selection
+ */
+const askVideosQuestion = async (rl, collections, defaultFeatures) => {
+  const hasPages = collections.includes("pages");
+
+  return {
+    videos: hasPages
+      ? await askYesNo(
+          rl,
+          "Do you want YouTube video embeds on pages?",
+          defaultFeatures.videos ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask feature questions
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -357,6 +378,11 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const videosFeatures = await askVideosQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
 
   return {
     ...baseFeatures,
@@ -365,6 +391,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...eventFeatures,
     ...noIndexFeatures,
     ...parentCategoriesFeatures,
+    ...videosFeatures,
   };
 };
 
