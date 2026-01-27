@@ -47,9 +47,6 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // Fixture factories
   "createProduct",
   "createPropertyReviewFixture",
-  // Collection test helpers - get collection from configured mock
-  "getEventsCollection",
-  "getLocationsCollection",
   // events-utils.js - event fixture factories and assertion helpers
   "expectEventCounts",
   "createOffsetDate",
@@ -277,12 +274,13 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   // pdf-integration.test.js - PDF output helpers
   "findPdfInMenuDir",
   "verifyPdfHeader",
-  // reviews.test.js - test fixtures helpers
-  "reviewItem",
-  "itemsFor",
-  "createProductReviews",
-  "createTruncatePair",
-  "createLimitTestData",
+  // reviews.test.js - fixture builders
+  "rev",
+  "revs",
+  "revsFor",
+  "prodRevs",
+  "truncatePair",
+  "limitData",
   // test-site-factory.test.js - test page fixtures
   "minimalPage",
   "factoryTestPage",

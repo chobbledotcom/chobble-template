@@ -13,8 +13,8 @@ import {
 
 /** Property factory: (defaults) => (fields...) => (rows...) => items */
 const property = data({});
-const locationProperty = property("title", "locations");
-const orderedProperty = property("title", "locations", "order");
+const withLoc = property("title", "locations");
+const withLocOrder = property("title", "locations", "order");
 
 // Extract filters/collections once - pure functions, safe to reuse
 const { filters, collections } = withConfiguredMock(configureProperties)();
@@ -71,7 +71,7 @@ describe("properties", () => {
   });
 
   test("Filters properties by location slug", () => {
-    const props = locationProperty(
+    const props = withLoc(
       ["Property 1", ["springfield", "shelbyville"]],
       ["Property 2", ["capital-city"]],
       ["Property 3", ["springfield"]],
@@ -84,7 +84,7 @@ describe("properties", () => {
   });
 
   test("Handles properties without locations", () => {
-    const props = locationProperty(
+    const props = withLoc(
       ["Property 1", undefined],
       ["Property 2", null],
       ["Property 3", []],
@@ -93,7 +93,7 @@ describe("properties", () => {
   });
 
   test("Handles null/undefined inputs", () => {
-    const props = locationProperty(["Property 1", ["springfield"]]);
+    const props = withLoc(["Property 1", ["springfield"]]);
     expect(getPropertiesByLocation(null, "springfield")).toEqual([]);
     expect(getPropertiesByLocation(props, null)).toEqual([]);
     expect(getPropertiesByLocation(undefined, "springfield")).toEqual([]);
@@ -101,7 +101,7 @@ describe("properties", () => {
   });
 
   test("Returns empty when no properties match location", () => {
-    const props = locationProperty(
+    const props = withLoc(
       ["Property 1", ["springfield"]],
       ["Property 2", ["shelbyville"]],
     );
@@ -109,7 +109,7 @@ describe("properties", () => {
   });
 
   test("Sorts properties by order field", () => {
-    const props = orderedProperty(
+    const props = withLocOrder(
       ["Property C", ["shelbyville"], 3],
       ["Property A", ["shelbyville"], 1],
       ["Property B", ["shelbyville"], 2],
@@ -159,7 +159,7 @@ describe("properties", () => {
   });
 
   test("Filter functions should be pure and not modify inputs", () => {
-    const original = locationProperty(["Property 1", ["springfield"]]);
+    const original = withLoc(["Property 1", ["springfield"]]);
     const copy = structuredClone(original);
 
     getPropertiesByLocation(copy, "springfield");
