@@ -214,6 +214,27 @@ const askExternalPurchasesQuestion = async (
 };
 
 /**
+ * Ask conditional feature questions for product add-ons
+ * @param {readline.Interface} rl - Readline interface
+ * @param {string[]} collections - Selected collection names
+ * @param {Partial<CmsFeatures>} defaultFeatures - Default feature values
+ * @returns {Promise<{add_ons: boolean}>} Add-ons selection
+ */
+const askAddOnsQuestion = async (rl, collections, defaultFeatures) => {
+  const hasProducts = collections.includes("products");
+
+  return {
+    add_ons: hasProducts
+      ? await askYesNo(
+          rl,
+          "Do you want add-ons on products (e.g., gift wrapping, extra services)?",
+          defaultFeatures.add_ons ?? false,
+        )
+      : false,
+  };
+};
+
+/**
  * Ask conditional feature questions for event locations and dates
  * @param {readline.Interface} rl - Readline interface
  * @param {string[]} collections - Selected collection names
@@ -363,6 +384,11 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     collections,
     defaultFeatures,
   );
+  const addOnsFeatures = await askAddOnsQuestion(
+    rl,
+    collections,
+    defaultFeatures,
+  );
   const eventFeatures = await askEventLocationsAndDatesQuestion(
     rl,
     collections,
@@ -388,6 +414,7 @@ const askFeatureQuestions = async (rl, collections, defaultFeatures) => {
     ...baseFeatures,
     ...conditionalFeatures,
     ...purchaseFeatures,
+    ...addOnsFeatures,
     ...eventFeatures,
     ...noIndexFeatures,
     ...parentCategoriesFeatures,
