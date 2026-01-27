@@ -20,7 +20,9 @@
 <body class="{{ layout | getBodyClasses: config.design_system_layouts, true, config.sticky_mobile_nav, config.horizontal_nav, false }}{% if body_class %} {{ body_class }}{% endif %}">
   {%- if blocks -%}
   <main>
-    {%- include "design-system/blocks.html", blocks: blocks -%}
+    <div class="design-system">
+      {%- include "design-system/blocks.html", blocks: blocks -%}
+    </div>
   </main>
   {%- endif -%}
   {{- content -}}
