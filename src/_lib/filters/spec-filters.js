@@ -1,6 +1,6 @@
 import specsIconsRaw from "#data/specs-icons.json" with { type: "json" };
 import { memoizedInlineAsset } from "#media/inline-asset.js";
-import { withWeakMapCache } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapObject } from "#toolkit/fp/object.js";
 
 // Apply defaults at load time so we don't need ?? at point of use
@@ -33,7 +33,7 @@ const specsIconsOrder = Object.keys(specsIcons);
  * Therefore, no optional chaining needed on spec.name.
  * See: .pages.yml schema, generated via scripts/generate-pages-cms-types.js
  */
-const computeSpecs = withWeakMapCache((specs) =>
+const computeSpecs = memoizeByRef((specs) =>
   specs.map((spec) => {
     // spec.name is guaranteed to be a non-empty string by PagesCMS schema
     const normalized = spec.name.toLowerCase().trim();
