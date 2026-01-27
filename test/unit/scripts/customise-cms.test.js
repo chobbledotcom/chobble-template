@@ -1230,3 +1230,372 @@ describe("customise-cms add_ons feature", () => {
     expect(pagesSection).not.toContain("name: add_ons");
   });
 });
+
+describe("customise-cms CLI", () => {
+  const {
+    ALL_COLLECTIONS,
+    ALL_FEATURES,
+    buildConfigFromCli,
+    getCliOptions,
+    hasCliFlags,
+  } = require("#scripts/customise-cms/cli.js");
+
+  // ============================================
+  // ALL_COLLECTIONS and ALL_FEATURES
+  // ============================================
+  test("ALL_COLLECTIONS contains expected collection names", () => {
+    expect(ALL_COLLECTIONS).toContain("pages");
+    expect(ALL_COLLECTIONS).toContain("products");
+    expect(ALL_COLLECTIONS).toContain("categories");
+    expect(ALL_COLLECTIONS).toContain("news");
+    expect(ALL_COLLECTIONS).toContain("events");
+    expect(ALL_COLLECTIONS.length).toBeGreaterThan(10);
+  });
+
+  test("ALL_FEATURES contains expected feature names", () => {
+    expect(ALL_FEATURES).toContain("permalinks");
+    expect(ALL_FEATURES).toContain("faqs");
+    expect(ALL_FEATURES).toContain("galleries");
+    expect(ALL_FEATURES).toContain("use_visual_editor");
+    expect(ALL_FEATURES.length).toBeGreaterThan(10);
+  });
+
+  // ============================================
+  // hasCliFlags
+  // ============================================
+  test("hasCliFlags returns false for empty values", () => {
+    expect(hasCliFlags({})).toBe(false);
+  });
+
+  test("hasCliFlags returns false for help-only values", () => {
+    expect(hasCliFlags({ help: true })).toBe(false);
+  });
+
+  test("hasCliFlags returns false for list options", () => {
+    expect(hasCliFlags({ "list-collections": true })).toBe(false);
+    expect(hasCliFlags({ "list-features": true })).toBe(false);
+  });
+
+  test("hasCliFlags returns true when collections is provided", () => {
+    expect(hasCliFlags({ collections: "pages,products" })).toBe(true);
+  });
+
+  test("hasCliFlags returns true when all flag is set", () => {
+    expect(hasCliFlags({ all: true })).toBe(true);
+  });
+
+  test("hasCliFlags returns true when enable is provided", () => {
+    expect(hasCliFlags({ enable: "faqs,galleries" })).toBe(true);
+  });
+
+  test("hasCliFlags returns true when disable is provided", () => {
+    expect(hasCliFlags({ disable: "use_visual_editor" })).toBe(true);
+  });
+
+  test("hasCliFlags returns true when dry-run is set", () => {
+    expect(hasCliFlags({ "dry-run": true })).toBe(true);
+  });
+
+  test("hasCliFlags returns true when quiet is set", () => {
+    expect(hasCliFlags({ quiet: true })).toBe(true);
+  });
+
+  test("hasCliFlags returns true when regenerate is set", () => {
+    expect(hasCliFlags({ regenerate: true })).toBe(true);
+  });
+
+  // ============================================
+  // buildConfigFromCli
+  // ============================================
+  test("buildConfigFromCli with --all enables all collections and features", () => {
+    const config = buildConfigFromCli({ all: true });
+
+    expect(config.collections).toContain("pages");
+    expect(config.collections).toContain("products");
+    expect(config.collections).toContain("news");
+    expect(config.features.permalinks).toBe(true);
+    expect(config.features.faqs).toBe(true);
+    expect(config.features.galleries).toBe(true);
+  });
+
+  test("buildConfigFromCli with --collections parses comma-separated list", () => {
+    const config = buildConfigFromCli({ collections: "products,news,events" });
+
+    expect(config.collections).toContain("products");
+    expect(config.collections).toContain("news");
+    expect(config.collections).toContain("events");
+    // Required collections should be included
+    expect(config.collections).toContain("pages");
+    // Dependencies should be resolved
+    expect(config.collections).toContain("categories");
+  });
+
+  test("buildConfigFromCli without --all starts with all features disabled", () => {
+    const config = buildConfigFromCli({ collections: "pages" });
+
+    expect(config.features.permalinks).toBe(false);
+    expect(config.features.faqs).toBe(false);
+    expect(config.features.galleries).toBe(false);
+    expect(config.features.use_visual_editor).toBe(false);
+  });
+
+  test("buildConfigFromCli with --enable enables specified features", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      enable: "faqs,galleries,permalinks",
+    });
+
+    expect(config.features.faqs).toBe(true);
+    expect(config.features.galleries).toBe(true);
+    expect(config.features.permalinks).toBe(true);
+    expect(config.features.use_visual_editor).toBe(false);
+  });
+
+  test("buildConfigFromCli with --disable disables specified features", () => {
+    const config = buildConfigFromCli({
+      all: true,
+      disable: "use_visual_editor,faqs",
+    });
+
+    expect(config.features.use_visual_editor).toBe(false);
+    expect(config.features.faqs).toBe(false);
+    expect(config.features.galleries).toBe(true);
+  });
+
+  test("buildConfigFromCli with --enable and --disable applies both", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      enable: "faqs,galleries,permalinks",
+      disable: "permalinks",
+    });
+
+    expect(config.features.faqs).toBe(true);
+    expect(config.features.galleries).toBe(true);
+    expect(config.features.permalinks).toBe(false);
+  });
+
+  test("buildConfigFromCli with --no-src-folder sets hasSrcFolder to false", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      "no-src-folder": true,
+    });
+
+    expect(config.hasSrcFolder).toBe(false);
+  });
+
+  test("buildConfigFromCli with --src-folder sets hasSrcFolder to true", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      "src-folder": true,
+    });
+
+    expect(config.hasSrcFolder).toBe(true);
+  });
+
+  test("buildConfigFromCli with --custom-home sets customHomePage to true", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      "custom-home": true,
+    });
+
+    expect(config.customHomePage).toBe(true);
+  });
+
+  test("buildConfigFromCli with --no-custom-home sets customHomePage to false", () => {
+    const config = buildConfigFromCli({
+      collections: "pages",
+      "no-custom-home": true,
+    });
+
+    expect(config.customHomePage).toBe(false);
+  });
+
+  test("buildConfigFromCli defaults hasSrcFolder to true", () => {
+    const config = buildConfigFromCli({ collections: "pages" });
+
+    expect(config.hasSrcFolder).toBe(true);
+  });
+
+  test("buildConfigFromCli defaults customHomePage to false", () => {
+    const config = buildConfigFromCli({ collections: "pages" });
+
+    expect(config.customHomePage).toBe(false);
+  });
+
+  test("buildConfigFromCli throws on unknown collection", () => {
+    expect(() => {
+      buildConfigFromCli({ collections: "pages,unknown-collection" });
+    }).toThrow(/Unknown collection.*unknown-collection/);
+  });
+
+  test("buildConfigFromCli throws on unknown feature in --enable", () => {
+    expect(() => {
+      buildConfigFromCli({ collections: "pages", enable: "unknown-feature" });
+    }).toThrow(/Unknown feature.*unknown-feature/);
+  });
+
+  test("buildConfigFromCli throws on unknown feature in --disable", () => {
+    expect(() => {
+      buildConfigFromCli({ collections: "pages", disable: "unknown-feature" });
+    }).toThrow(/Unknown feature.*unknown-feature/);
+  });
+
+  test("buildConfigFromCli handles whitespace in comma-separated values", () => {
+    const config = buildConfigFromCli({
+      collections: " products , news , events ",
+      enable: " faqs , galleries ",
+    });
+
+    expect(config.collections).toContain("products");
+    expect(config.collections).toContain("news");
+    expect(config.collections).toContain("events");
+    expect(config.features.faqs).toBe(true);
+    expect(config.features.galleries).toBe(true);
+  });
+
+  // ============================================
+  // getCliOptions
+  // ============================================
+  test("getCliOptions returns saveConfig true by default", () => {
+    const options = getCliOptions({});
+
+    expect(options.saveConfig).toBe(true);
+  });
+
+  test("getCliOptions returns saveConfig false with --no-save-config", () => {
+    const options = getCliOptions({ "no-save-config": true });
+
+    expect(options.saveConfig).toBe(false);
+  });
+
+  test("getCliOptions returns dryRun false by default", () => {
+    const options = getCliOptions({});
+
+    expect(options.dryRun).toBe(false);
+  });
+
+  test("getCliOptions returns dryRun true with --dry-run", () => {
+    const options = getCliOptions({ "dry-run": true });
+
+    expect(options.dryRun).toBe(true);
+  });
+
+  test("getCliOptions returns quiet false by default", () => {
+    const options = getCliOptions({});
+
+    expect(options.quiet).toBe(false);
+  });
+
+  test("getCliOptions returns quiet true with --quiet", () => {
+    const options = getCliOptions({ quiet: true });
+
+    expect(options.quiet).toBe(true);
+  });
+
+  // ============================================
+  // generateHelp
+  // ============================================
+  const { generateHelp } = require("#scripts/customise-cms/cli.js");
+
+  test("generateHelp returns help text with usage info", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("Usage:");
+    expect(help).toContain("--help");
+    expect(help).toContain("--collections");
+    expect(help).toContain("--enable");
+    expect(help).toContain("--disable");
+  });
+
+  test("generateHelp includes all collections", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("pages");
+    expect(help).toContain("products");
+    expect(help).toContain("categories");
+  });
+
+  test("generateHelp includes all features", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("permalinks");
+    expect(help).toContain("faqs");
+    expect(help).toContain("galleries");
+  });
+
+  test("generateHelp includes examples", () => {
+    const help = generateHelp();
+
+    expect(help).toContain("EXAMPLES:");
+    expect(help).toContain("--regenerate");
+  });
+
+  // ============================================
+  // formatCollection
+  // ============================================
+  const { formatCollection } = require("#scripts/customise-cms/cli.js");
+
+  test("formatCollection formats collection without flags", () => {
+    const result = formatCollection({
+      name: "products",
+      description: "Products for sale",
+    });
+
+    expect(result).toContain("products");
+    expect(result).toContain("Products for sale");
+    expect(result).not.toContain("required");
+    expect(result).not.toContain("internal");
+  });
+
+  test("formatCollection includes required flag when present", () => {
+    const result = formatCollection({
+      name: "pages",
+      description: "Static pages",
+      required: true,
+    });
+
+    expect(result).toContain("pages");
+    expect(result).toContain("(required)");
+  });
+
+  test("formatCollection includes internal flag when present", () => {
+    const result = formatCollection({
+      name: "snippets",
+      description: "Reusable content",
+      internal: true,
+    });
+
+    expect(result).toContain("snippets");
+    expect(result).toContain("(internal)");
+  });
+
+  test("formatCollection includes both flags when both present", () => {
+    const result = formatCollection({
+      name: "example",
+      description: "Example collection",
+      required: true,
+      internal: true,
+    });
+
+    expect(result).toContain("(required, internal)");
+  });
+
+  // ============================================
+  // handleListOptions
+  // ============================================
+  const { handleListOptions } = require("#scripts/customise-cms/cli.js");
+
+  test("handleListOptions returns false when no list flags provided", () => {
+    expect(handleListOptions({})).toBe(false);
+    expect(handleListOptions({ all: true })).toBe(false);
+    expect(handleListOptions({ collections: "pages" })).toBe(false);
+  });
+
+  test("handleListOptions returns true for --list-collections", () => {
+    expect(handleListOptions({ "list-collections": true })).toBe(true);
+  });
+
+  test("handleListOptions returns true for --list-features", () => {
+    expect(handleListOptions({ "list-features": true })).toBe(true);
+  });
+});
