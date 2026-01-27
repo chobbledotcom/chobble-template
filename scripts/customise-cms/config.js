@@ -23,6 +23,7 @@ import { join } from "node:path";
  * @property {boolean} use_visual_editor - Use rich-text visual editor instead of markdown code editor
  * @property {boolean} no_index - Enable hiding pages/news from listings
  * @property {boolean} parent_categories - Enable parent/child category hierarchy
+ * @property {boolean} videos - Enable YouTube video embeds on pages
  */
 
 /**
@@ -108,6 +109,7 @@ export const createDefaultConfig = () => ({
     use_visual_editor: false,
     no_index: true,
     parent_categories: true,
+    videos: true,
   },
   hasSrcFolder: true,
   customHomePage: false,

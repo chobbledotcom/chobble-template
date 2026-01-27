@@ -166,6 +166,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/build/theme-compiler.js", // Theme display name helper
   "src/locations/locations.11tydata.js", // Parent location title lookup helper
+  "src/_lib/public/design-system.js", // initVideoFacades kept separate for clarity
   "src/_lib/public/ui/availability-calendar.js",
   "src/_lib/public/utils/cart-utils.js",
   "src/_lib/public/cart/cart.js",
