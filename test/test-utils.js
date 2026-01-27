@@ -307,6 +307,31 @@ const taggedCollectionApi = (tagMap) => ({
 });
 
 // ============================================
+// Curried Config Mock Factories
+// ============================================
+
+/** Configure mock and return { mockConfig, filters, asyncFilters, collections, ... } */
+const withConfiguredMock = (configureFn) => () => {
+  const mockConfig = createMockEleventyConfig();
+  configureFn(mockConfig);
+  return {
+    mockConfig,
+    filters: mockConfig.filters || {},
+    asyncFilters: mockConfig.asyncFilters || {},
+    collections: mockConfig.collections || {},
+    shortcodes: mockConfig.shortcodes || {},
+    asyncShortcodes: mockConfig.asyncShortcodes || {},
+  };
+};
+
+/** Get a collection by name: getCollectionFrom("events")(configureEvents)(tagMap) */
+const getCollectionFrom = (collectionName) => (configureFn) => (tagMap) => {
+  const mockConfig = createMockEleventyConfig();
+  configureFn(mockConfig);
+  return mockConfig.collections[collectionName](taggedCollectionApi(tagMap));
+};
+
+// ============================================
 // Exports
 // ============================================
 
@@ -384,4 +409,7 @@ export {
   // Collection API mocks
   collectionApi,
   taggedCollectionApi,
+  // Curried config mock factories
+  withConfiguredMock,
+  getCollectionFrom,
 };
