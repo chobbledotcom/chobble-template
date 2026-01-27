@@ -10,27 +10,6 @@ import { sortItems } from "#utils/sorting.js";
 const getTemplate = createTemplateLoader("recurring-events-list.html");
 
 /**
- * Strip date prefix and extension from event filename
- * Converts "2024-03-15-my-event.md" to "my-event"
- *
- * @param {string} filename - The markdown filename
- * @returns {string} The slug without date prefix or extension
- */
-const stripDatePrefix = (filename) =>
-  filename.replace(".md", "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
-
-/**
- * Get the URL for an event, using custom permalink or default
- *
- * @param {Object} data - Event frontmatter data
- * @param {string} fileSlug - The slug derived from filename
- * @param {string} permalinkDir - The directory for event permalinks
- * @returns {string} The event URL
- */
-const getEventUrl = (data, fileSlug, permalinkDir) =>
-  data.permalink || `/${permalinkDir}/${fileSlug}/`;
-
-/**
  * Render recurring events as HTML list using Liquid template
  *
  * @param {Array<{url: string, data: {title: string, recurring_date: string, event_location?: string}}>} events
@@ -63,10 +42,14 @@ const getRecurringEventsHtml = memoize(async () => {
       const { data } = matter.default.read(filePath);
       if (!data.recurring_date) return [];
 
-      const fileSlug = stripDatePrefix(filename);
+      const fileSlug = filename
+        .replace(".md", "")
+        .replace(/^\d{4}-\d{2}-\d{2}-/, "");
+      const url =
+        data.permalink || `/${strings.event_permalink_dir}/${fileSlug}/`;
       return [
         {
-          url: getEventUrl(data, fileSlug, strings.event_permalink_dir),
+          url,
           data: {
             title: data.title,
             recurring_date: data.recurring_date,

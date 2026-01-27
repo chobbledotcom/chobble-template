@@ -25,25 +25,6 @@ import { sortByDateDescending } from "#utils/sorting.js";
  */
 const REVIEWABLE_TAGS = frozenSet(["products", "categories", "properties"]);
 
-/**
- * Type guard to check if a tag supports reviews.
- * @param {string} tag - Tag to check
- * @returns {tag is ReviewIndexField} True if tag is a reviewable field
- */
-const isReviewableTag = (tag) => REVIEWABLE_TAGS.has(tag);
-
-/**
- * Derive the reviews field from an item's tags.
- * Returns the first tag that supports reviews.
- *
- * @param {string[]} tags - Array of item tags
- * @returns {ReviewIndexField | undefined} The review index field, or undefined if not reviewable
- */
-const deriveReviewsField = (tags) => {
-  if (!Array.isArray(tags)) return undefined;
-  return tags.find(isReviewableTag);
-};
-
 // Load SVG templates once at module initialization
 const AVATAR_SVG_TEMPLATE = readFileSync(
   join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg"),
@@ -87,14 +68,6 @@ const createReviewsCollection = (collectionApi) =>
     .sort(sortByDateDescending);
 
 /**
- * Check if a value is a valid rating number.
- * @param {unknown} value
- * @returns {value is number}
- */
-const isValidRating = (value) =>
-  typeof value === "number" && !Number.isNaN(value);
-
-/**
  * Get reviews for a specific item by field (internal).
  * Uses cached indexes for O(1) lookups when available.
  *
@@ -118,21 +91,11 @@ const getReviewsByField = (reviews, slug, field) => {
  * @returns {ReviewCollectionItem[]} Filtered and sorted reviews
  */
 const getReviewsFor = (reviews, slug, tags) => {
-  const field = deriveReviewsField(tags);
+  if (!Array.isArray(tags)) return [];
+  const field = tags.find((tag) => REVIEWABLE_TAGS.has(tag));
   if (!field) return [];
   return getReviewsByField(reviews, slug, field);
 };
-
-/**
- * Count reviews for a specific item (internal, uses field directly).
- *
- * @param {ReviewCollectionItem[]} reviews - Array of review objects
- * @param {string} slug - The slug to count reviews for
- * @param {ReviewIndexField} field - The field to check
- * @returns {number} Number of reviews
- */
-const countReviews = (reviews, slug, field) =>
-  getReviewsByField(reviews, slug, field).length;
 
 /**
  * Calculate average rating for reviews matching a specific item.
@@ -147,7 +110,7 @@ const getRating = (reviews, slug, tags) => {
   const matchingReviews = getReviewsFor(reviews, slug, tags);
   const ratings = pipe(
     map((r) => r.data.rating),
-    filter(isValidRating),
+    filter((v) => typeof v === "number" && !Number.isNaN(v)),
   )(matchingReviews);
 
   if (ratings.length === 0) return null;
@@ -186,22 +149,6 @@ const AVATAR_COLORS = [
 ];
 
 /**
- * Extract initials from a name.
- * "John Smith" -> "JS", "JS" -> "JS", "John" -> "J", "" -> "?"
- *
- * @param {string} str - Name string
- * @returns {string} Initials (1-2 characters)
- */
-const extractInitials = (str) => {
-  const trimmed = str.trim();
-  if (trimmed.length === 0) return "?";
-  if (trimmed.length <= 2) return trimmed.toUpperCase();
-  const words = trimmed.split(/\s+/).filter(Boolean);
-  if (words.length === 1) return words[0].charAt(0).toUpperCase();
-  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-};
-
-/**
  * Generate an SVG data URI for a reviewer avatar.
  * Uses the name to pick a consistent color and display initials.
  *
@@ -211,7 +158,18 @@ const extractInitials = (str) => {
 const reviewerAvatar = (name) => {
   const str = name ?? "";
   const color = AVATAR_COLORS[hashString(str) % AVATAR_COLORS.length];
-  const initials = extractInitials(str);
+
+  // Extract initials: "John Smith" -> "JS", "JS" -> "JS", "John" -> "J", "" -> "?"
+  const trimmed = str.trim();
+  const initials = (() => {
+    if (trimmed.length === 0) return "?";
+    if (trimmed.length <= 2) return trimmed.toUpperCase();
+    const words = trimmed.split(/\s+/).filter(Boolean);
+    return words.length === 1
+      ? words[0].charAt(0).toUpperCase()
+      : (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+  })();
+
   const svg = AVATAR_SVG_TEMPLATE.replace("{{color}}", color).replace(
     "{{initials}}",
     initials,
@@ -223,14 +181,6 @@ const reviewerAvatar = (name) => {
  * Redirect data for items without enough reviews.
  * @typedef {{ item: EleventyCollectionItem, fileSlug: string }} RedirectData
  */
-
-/**
- * Map item to redirect data.
- *
- * @param {EleventyCollectionItem} item
- * @returns {RedirectData}
- */
-const toRedirectData = (item) => ({ item, fileSlug: item.fileSlug });
 
 /**
  * Factory helper for review-based collections.
@@ -255,7 +205,8 @@ const reviewsFactory =
     if (limit === -1) return onNoLimit(items);
 
     const hasEnoughReviews = (item) =>
-      countReviews(visibleReviews, item.fileSlug, reviewsField) > limit;
+      getReviewsByField(visibleReviews, item.fileSlug, reviewsField).length >
+      limit;
 
     return onLimit(items, hasEnoughReviews);
   };
@@ -292,9 +243,12 @@ const reviewsRedirects = (reviewsField, limitOverride) =>
   reviewsFactory(
     reviewsField,
     limitOverride,
-    (items) => pipe(map(toRedirectData))(items),
+    (items) => items.map((item) => ({ item, fileSlug: item.fileSlug })),
     (items, hasEnough) =>
-      filterMap((item) => !hasEnough(item), toRedirectData)(items),
+      filterMap(
+        (item) => !hasEnough(item),
+        (item) => ({ item, fileSlug: item.fileSlug }),
+      )(items),
   );
 
 /**

@@ -13,13 +13,6 @@ import {
 } from "#utils/dom-builder.js";
 
 /**
- * Create an img element from a document.
- * @param {Document} doc
- * @returns {HTMLImageElement}
- */
-const createImgElement = (doc) => doc.createElement("img");
-
-/**
  * Create an img element for external URLs
  * @param {Record<string, string>} attributes - Image attributes
  * @param {Document | null} document - Optional document to use
@@ -27,7 +20,7 @@ const createImgElement = (doc) => doc.createElement("img");
  */
 const createElement = async (attributes, document) => {
   const doc = document || (await getSharedDocument());
-  const img = createImgElement(doc);
+  const img = doc.createElement("img");
   applyAttributes(img, attributes);
   return img;
 };

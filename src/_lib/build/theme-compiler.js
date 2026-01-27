@@ -24,14 +24,6 @@ import {
 } from "#toolkit/fp/array.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 
-/** Convert a theme slug to a display name */
-const themeDisplayName = (slug) =>
-  pipe(
-    split("-"),
-    map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
-    join(" "),
-  )(slug);
-
 const THEMES_DIR = path.resolve("src/css");
 const EXCLUDED_FILES = ["theme-switcher.scss", "theme-switcher-compiled.scss"];
 
@@ -61,10 +53,14 @@ const generateThemeSwitcherContent = memoize(() => {
   });
 
   const themeList = ["default", ...themes.map((t) => t.name)];
-  const displayNames = themes.map(
-    (theme) =>
-      `  --theme-${theme.name}-name: "${themeDisplayName(theme.name)}";`,
-  );
+  const displayNames = themes.map((theme) => {
+    const displayName = pipe(
+      split("-"),
+      map((word) => word.charAt(0).toUpperCase() + word.slice(1)),
+      join(" "),
+    )(theme.name);
+    return `  --theme-${theme.name}-name: "${displayName}";`;
+  });
 
   const metadata = `// Theme metadata for JavaScript access
 :root {

@@ -55,12 +55,6 @@ const emailPart = (value) => ({ type: "email", value });
 const phonePart = (value) => ({ type: "phone", value });
 
 /**
- * Create initial accumulator for parseTextByPattern.
- * @returns {{ parts: TextPart[], lastIndex: number }}
- */
-const createParseAccumulator = () => ({ parts: [], lastIndex: 0 });
-
-/**
  * Parse text into parts based on a pattern
  * @param {string} text
  * @param {RegExp} pattern
@@ -83,7 +77,8 @@ const parseTextByPattern = (text, pattern, partFactory) => {
       ],
       lastIndex: match.index + match[0].length,
     }),
-    createParseAccumulator(),
+    /** @type {{ parts: TextPart[], lastIndex: number }} */
+    ({ parts: [], lastIndex: 0 }),
   );
 
   return lastIndex < text.length

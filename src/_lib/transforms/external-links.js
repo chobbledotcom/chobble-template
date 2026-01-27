@@ -15,14 +15,6 @@ const isExternalUrl = (url) =>
   url.startsWith("http://") || url.startsWith("https://");
 
 /**
- * Create an attribute tuple for the tokenizer.
- * @param {string} name
- * @param {string} value
- * @returns {[string, string, boolean]}
- */
-const attrTuple = (name, value) => [name, value, true];
-
-/**
  * Create new attributes array with an attribute added or updated (immutable).
  * @param {Array<[string, string, boolean]>} attributes
  * @param {string} name
@@ -32,7 +24,7 @@ const attrTuple = (name, value) => [name, value, true];
 const withAttr = (attributes, name, value) => {
   const lowerName = name.toLowerCase();
   const idx = attributes.findIndex(([n]) => n.toLowerCase() === lowerName);
-  const newAttr = attrTuple(name, value);
+  const newAttr = [name, value, true];
   return idx >= 0
     ? attributes.map((attr, i) => (i === idx ? newAttr : attr))
     : [...attributes, newAttr];
