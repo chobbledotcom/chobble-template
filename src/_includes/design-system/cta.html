@@ -1,32 +1,34 @@
 {%- comment -%}
 Call-to-action block with gradient background.
 
-Parameters:
-  - title: CTA heading (required)
-  - description: Supporting text
-  - button: Button object with:
+Parameters (via block object):
+  - block.title: CTA heading (required)
+  - block.description: Supporting text
+  - block.button: Button object with:
     - text: Button label
     - href: Link URL
     - variant: Button variant (default: "secondary")
     - size: Button size (default: "lg")
-  - reveal: If set, adds data-reveal animation
+  - block.reveal: If set, adds data-reveal animation
 
 Usage:
   {% include "design-system/cta.html",
-     title: "Ready to Get Started?",
-     description: "Join thousands of happy customers.",
-     button: { text: "Sign Up Now", href: "/signup" }
+     block: {
+       title: "Ready to Get Started?",
+       description: "Join thousands of happy customers.",
+       button: { text: "Sign Up Now", href: "/signup" }
+     }
   %}
 {%- endcomment -%}
 
-<aside class="cta"{% if reveal %} data-reveal="{{ reveal }}"{% endif %}>
-  <h2>{{ title }}</h2>
-  {%- if description -%}
-    <p>{{ description }}</p>
+<aside class="cta"{% if block.reveal %} data-reveal="{{ block.reveal }}"{% endif %}>
+  <h2>{{ block.title }}</h2>
+  {%- if block.description -%}
+    <p>{{ block.description }}</p>
   {%- endif -%}
-  {%- if button -%}
-    {%- assign variant = button.variant | default: "secondary" -%}
-    {%- assign size = button.size | default: "lg" -%}
-    <a href="{{ button.href }}" class="btn btn--{{ variant }} btn--{{ size }}">{{ button.text }}</a>
+  {%- if block.button -%}
+    {%- assign variant = block.button.variant | default: "secondary" -%}
+    {%- assign size = block.button.size | default: "lg" -%}
+    <a href="{{ block.button.href }}" class="btn btn--{{ variant }} btn--{{ size }}">{{ block.button.text }}</a>
   {%- endif -%}
 </aside>
