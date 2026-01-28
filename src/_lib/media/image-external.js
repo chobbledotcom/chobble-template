@@ -164,4 +164,7 @@ const processExternalImage = async ({
   return returnElement ? await parseHtml(html, document) : html;
 };
 
-export { processExternalImage };
+/** Clear the external image HTML cache */
+const clearExternalImageCache = () => computeExternalImageHtml.clear();
+
+export { clearExternalImageCache, processExternalImage };
