@@ -10,49 +10,43 @@ import path from "node:path";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { simplifyRatio } from "#utils/math-utils.js";
 
-const getSharp = memoize(async () => (await import("sharp")).default);
+// Node.js caches dynamic imports, no memoization needed
+const getSharp = async () => (await import("sharp")).default;
 
 const CROP_CACHE_DIR = ".image-cache";
 
 const getAspectRatio = (aspectRatio, metadata) =>
   aspectRatio || simplifyRatio(metadata.width, metadata.height);
 
-const cropImage = memoize(
-  async (aspectRatio, sourcePath, metadata) => {
-    if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
+// Disk caching via fs.existsSync - no in-memory memoization needed
+const cropImage = async (aspectRatio, sourcePath, metadata) => {
+  if (aspectRatio === null || aspectRatio === undefined) return sourcePath;
 
-    const cacheHash = crypto
-      .createHash("md5")
-      .update(`${sourcePath}:${aspectRatio}`)
-      .digest("hex")
-      .slice(0, 8);
-    const basename = path.basename(sourcePath, path.extname(sourcePath));
-    const cachedPath = path.join(
-      CROP_CACHE_DIR,
-      `${basename}-crop-${cacheHash}.jpeg`,
-    );
+  const cacheHash = crypto
+    .createHash("md5")
+    .update(`${sourcePath}:${aspectRatio}`)
+    .digest("hex")
+    .slice(0, 8);
+  const basename = path.basename(sourcePath, path.extname(sourcePath));
+  const cachedPath = path.join(
+    CROP_CACHE_DIR,
+    `${basename}-crop-${cacheHash}.jpeg`,
+  );
+  if (fs.existsSync(cachedPath)) return cachedPath;
 
-    if (fs.existsSync(cachedPath)) return cachedPath;
+  const [ratioWidth, ratioHeight] = aspectRatio
+    .split("/")
+    .map(Number.parseFloat);
+  const cropHeight = Math.round(metadata.width / (ratioWidth / ratioHeight));
+  fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
 
-    const [ratioWidth, ratioHeight] = aspectRatio
-      .split("/")
-      .map(Number.parseFloat);
-    const cropDimensions = {
-      width: metadata.width,
-      height: Math.round(metadata.width / (ratioWidth / ratioHeight)),
-    };
+  const sharp = await getSharp();
+  await sharp(sourcePath)
+    .resize(metadata.width, cropHeight, { fit: "cover" })
+    .toFile(cachedPath);
 
-    fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
-
-    const sharp = await getSharp();
-    await sharp(sourcePath)
-      .resize(cropDimensions.width, cropDimensions.height, { fit: "cover" })
-      .toFile(cachedPath);
-
-    return cachedPath;
-  },
-  { cacheKey: (args) => `${args[0]}:${args[1]}` },
-);
+  return cachedPath;
+};
 
 const getMetadata = memoize(async (imagePath) => {
   const sharp = await getSharp();
