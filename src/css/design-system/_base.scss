@@ -264,6 +264,15 @@
 }
 
 // =============================================================================
+// BODY RESET
+// =============================================================================
+// Reset body spacing when design-system is applied directly to the body element
+
+body.design-system {
+  @include reset-spacing;
+}
+
+// =============================================================================
 // ALTERNATING SECTION BACKGROUNDS
 // =============================================================================
 // Built-in way to alternate backgrounds when using multiple .design-system sections
