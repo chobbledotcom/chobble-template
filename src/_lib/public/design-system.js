@@ -24,6 +24,8 @@ const initVideoFacades = () => {
         "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
       );
       iframe.setAttribute("allowfullscreen", "");
+      iframe.setAttribute("loading", "lazy");
+      iframe.setAttribute("referrerpolicy", "no-referrer");
 
       const wrapper = document.createElement("div");
       wrapper.className = "video-wrapper";

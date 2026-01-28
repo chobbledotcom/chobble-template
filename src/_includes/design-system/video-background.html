@@ -18,15 +18,17 @@ Usage:
 
 {%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
+{%- assign _video_url = block.video_url | replace: "://www.youtube.com/", "://www.youtube-nocookie.com/" | replace: "://youtube.com/", "://www.youtube-nocookie.com/" -%}
 
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
   <iframe
-    src="{{ block.video_url }}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist={{ block.video_url | split: '/' | last | split: '?' | first }}"
+    src="{{ _video_url }}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist={{ _video_url | split: '/' | last | split: '?' | first }}"
     title="{{ _video_title }}"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen
     loading="lazy"
+    referrerpolicy="no-referrer"
   ></iframe>
   <figure{% if block.overlay_style %} style="{{ block.overlay_style }}"{% endif %}>
     <figcaption>
