@@ -1,25 +1,15 @@
 {%- if tabs.size > 0 -%}
   <section id="tabs">
-    <nav class="tab-nav">
+    <ul>
       {%- for tab in tabs -%}
-        <a href="#tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>
-          {{- tab.title -}}
-        </a>
+        <li><a href="#tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>{{- tab.title -}}</a></li>
       {%- endfor -%}
-    </nav>
-    <div class="tab-panels">
-      {%- for tab in tabs -%}
-        <article class="tab-panel{% if forloop.first %} active{% endif %}" id="tab-{{ forloop.index }}">
-          {%- if tab.image -%}
-            <div class="tab-image">
-              {% image tab.image, tab.title, "387,774", "", "", "1/1" %}
-            </div>
-          {%- endif -%}
-          <div class="tab-content">
-            {{- tab.body | renderContent: "md" -}}
-          </div>
-        </article>
-      {%- endfor -%}
-    </div>
+    </ul>
+    {%- for tab in tabs -%}
+      <div id="tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>
+        {%- if tab.image -%}{% image tab.image, tab.title, "387,774", "", "", "1/1" %}{%- endif -%}
+        <div>{{- tab.body | renderContent: "md" -}}</div>
+      </div>
+    {%- endfor -%}
   </section>
 {%- endif -%}

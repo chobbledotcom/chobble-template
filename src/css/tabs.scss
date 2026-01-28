@@ -1,11 +1,13 @@
 #tabs {
   margin: 2rem 0;
 
-  .tab-nav {
+  > ul {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
 
     a {
       padding: 0.5rem 1rem;
@@ -16,24 +18,22 @@
     }
   }
 
-  .tab-panels {
-    .tab-panel {
-      display: none;
-      flex-direction: row;
-      gap: 1rem;
-      align-items: flex-start;
+  > div {
+    display: none;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: flex-start;
 
-      &.active {
-        display: flex;
-      }
+    &.active {
+      display: flex;
     }
 
-    .tab-image {
+    > .image-wrapper {
       flex-shrink: 0;
       max-width: 387px;
     }
 
-    .tab-content {
+    > div {
       flex: 1;
       min-width: 0;
     }

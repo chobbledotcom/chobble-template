@@ -1,10 +1,10 @@
 import { onReady } from "#public/utils/on-ready.js";
 
 const setActiveTab = (container, targetId) => {
-  for (const link of container.querySelectorAll(".tab-nav a")) {
+  for (const link of container.querySelectorAll("ul a")) {
     link.classList.toggle("active", link.getAttribute("href") === targetId);
   }
-  for (const panel of container.querySelectorAll(".tab-panel")) {
+  for (const panel of container.querySelectorAll(":scope > div")) {
     panel.classList.toggle("active", `#${panel.id}` === targetId);
   }
 };
@@ -13,7 +13,7 @@ onReady(() => {
   const container = document.getElementById("tabs");
   if (!container) return;
 
-  const links = container.querySelectorAll(".tab-nav a");
+  const links = container.querySelectorAll("ul a");
   if (links.length === 0) return;
 
   const initialTarget =
