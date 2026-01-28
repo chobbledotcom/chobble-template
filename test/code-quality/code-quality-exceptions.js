@@ -244,9 +244,9 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/eleventy/ical.js:43",
   "src/_lib/eleventy/pdf.js:39",
   "src/_lib/eleventy/pdf.js:74",
-  "src/_lib/filters/filter-core.js:191",
-  "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/filters/filter-core.js:186",
+  "src/_lib/filters/filter-core.js:197",
+  "src/_lib/filters/filter-core.js:203",
   "src/_lib/utils/schema-helper.js:145",
   "src/_lib/utils/schema-helper.js:150",
 ]);
@@ -300,10 +300,10 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/category-product-filters.js:146", // Default empty array for categories without products
   "src/_lib/filters/category-product-filters.js:205", // Default empty array for pages lookup
   "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
-  "src/_lib/filters/filter-core.js:146",
-  "src/_lib/filters/filter-core.js:147",
-  "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/filters/filter-core.js:141",
+  "src/_lib/filters/filter-core.js:142",
+  "src/_lib/filters/filter-core.js:197",
+  "src/_lib/filters/filter-core.js:203",
   "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
@@ -336,7 +336,7 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/eleventy/pdf.js:74", // subtitle || "" - optional menu subtitle
 
   // src/_lib/filters - cascading field access for display
-  "src/_lib/filters/filter-core.js:191", // title || name || "" - items have title OR name
+  "src/_lib/filters/filter-core.js:186", // title || name || "" - items have title OR name
 
   // src/_lib/media - image processing
   "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation
