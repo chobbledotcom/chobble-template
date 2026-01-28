@@ -50,53 +50,42 @@ const BLOCK_SCHEMAS = {
 };
 
 /**
- * Validates a block against its schema.
- * Throws an error if the block contains unknown keys.
- *
- * @param {object} block - The block to validate
- * @param {string} context - Context for error messages (e.g., file path)
- * @throws {Error} If the block contains unknown keys
- */
-const validateBlock = (block, context = "") => {
-  const { type } = block;
-
-  if (!type) {
-    throw new Error(`Block is missing required "type" field${context}`);
-  }
-
-  const allowedKeys = BLOCK_SCHEMAS[type];
-
-  if (!allowedKeys) {
-    const validTypes = Object.keys(BLOCK_SCHEMAS).join(", ");
-    throw new Error(
-      `Unknown block type "${type}"${context}. Valid types: ${validTypes}`,
-    );
-  }
-
-  const blockKeys = Object.keys(block).filter((key) => key !== "type");
-  const unknownKeys = blockKeys.filter((key) => !allowedKeys.includes(key));
-
-  if (unknownKeys.length > 0) {
-    const unknownList = unknownKeys.map((k) => `"${k}"`).join(", ");
-    const allowedList = allowedKeys.map((k) => `"${k}"`).join(", ");
-    throw new Error(
-      `Block type "${type}" has unknown keys: ${unknownList}${context}. ` +
-        `Allowed keys: ${allowedList}`,
-    );
-  }
-};
-
-/**
- * Validates an array of blocks.
+ * Validates an array of blocks against their schemas.
+ * Throws an error if any block contains unknown keys or unknown type.
  *
  * @param {object[]} blocks - Array of blocks to validate
- * @param {string} context - Context for error messages
- * @throws {Error} If any block contains unknown keys
+ * @param {string} context - Context for error messages (e.g., file path)
+ * @throws {Error} If any block contains unknown keys or invalid type
  */
 const validateBlocks = (blocks, context = "") => {
   for (const [index, block] of blocks.entries()) {
-    validateBlock(block, ` (block ${index + 1}${context})`);
+    const blockContext = ` (block ${index + 1}${context})`;
+
+    if (!block.type) {
+      throw new Error(`Block is missing required "type" field${blockContext}`);
+    }
+
+    const allowedKeys = BLOCK_SCHEMAS[block.type];
+
+    if (!allowedKeys) {
+      const validTypes = Object.keys(BLOCK_SCHEMAS).join(", ");
+      throw new Error(
+        `Unknown block type "${block.type}"${blockContext}. Valid types: ${validTypes}`,
+      );
+    }
+
+    const blockKeys = Object.keys(block).filter((key) => key !== "type");
+    const unknownKeys = blockKeys.filter((key) => !allowedKeys.includes(key));
+
+    if (unknownKeys.length > 0) {
+      const unknownList = unknownKeys.map((k) => `"${k}"`).join(", ");
+      const allowedList = allowedKeys.map((k) => `"${k}"`).join(", ");
+      throw new Error(
+        `Block type "${block.type}" has unknown keys: ${unknownList}${blockContext}. ` +
+          `Allowed keys: ${allowedList}`,
+      );
+    }
   }
 };
 
-export { BLOCK_SCHEMAS, validateBlock, validateBlocks };
+export { BLOCK_SCHEMAS, validateBlocks };

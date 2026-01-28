@@ -21,12 +21,13 @@ import type {
 import type { RawTab } from './content.d.ts';
 
 /**
- * Eleventy page data (url, fileSlug, date)
+ * Eleventy page data (url, fileSlug, date, inputPath)
  */
 export type EleventyPageData = {
   url: string;
   fileSlug: string;
   date?: Date;
+  inputPath: string;
 };
 
 /**
