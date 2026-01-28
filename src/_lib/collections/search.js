@@ -1,6 +1,6 @@
 import { map, pipe, unique } from "#toolkit/fp/array.js";
 import { buildReverseIndex } from "#toolkit/fp/grouping.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 
 /**
  * Build a memoized reverse index: keyword -> [products]
@@ -12,7 +12,7 @@ import { memoize } from "#toolkit/fp/memoize.js";
  * Therefore, no optional chaining needed on `product.data`.
  * See: src/_lib/types/index.d.ts EleventyCollectionItem type definition
  */
-const buildProductKeywordMap = memoize((products) =>
+const buildProductKeywordMap = memoizeByRef((products) =>
   buildReverseIndex(products, (product) =>
     pipe(
       // Normalize category paths to keywords: /categories/foo-bar.md -> foo bar

@@ -6,7 +6,7 @@
 
 import { pipe, sort } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import {
   createArrayFieldIndexer,
@@ -50,7 +50,7 @@ const getGroup = (key) => (map) => map.get(key) ?? [];
  * @param {EventCollectionItem[]} events - Events to categorise
  * @returns {CategorisedEvents} Events grouped by category
  */
-export const categoriseEvents = memoize((events) => {
+export const categoriseEvents = memoizeByRef((events) => {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
