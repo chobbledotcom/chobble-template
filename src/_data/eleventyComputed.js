@@ -4,6 +4,7 @@ import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
+import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
@@ -53,6 +54,15 @@ export default {
    */
   description: (data) =>
     data.description || data.snippet || data.meta_description || "",
+
+  /**
+   * Override filter_attributes with mock values in FAST_INACCURATE_BUILDS mode.
+   * Only applies to items that have filter_attributes defined (products, properties).
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Array<{name: string, value: string}>|undefined} Filter attributes
+   */
+  filter_attributes: (data) =>
+    getFilterAttributes(data.filter_attributes, data.page.inputPath),
 
   contactForm: () => contactFormFn(),
   quoteFields: () => quoteFieldsFn(),
