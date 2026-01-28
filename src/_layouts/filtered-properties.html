@@ -4,6 +4,7 @@ no_index: true
 ---
 
 {%- assign currentFilters = filterPage.filters -%}
+{%- assign properties = filterPage.propertiesIndices | resolveIndices: collections.properties -%}
 {%- include "properties-filter.html" -%}
 
-{%- include "filtered-items-section.html", items: filterPage.properties -%}
+{%- include "filtered-items-section.html", items: properties -%}

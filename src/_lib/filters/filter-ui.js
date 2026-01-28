@@ -49,17 +49,16 @@ export const buildFilterDescription = (filters, displayLookup) =>
   }))(filters);
 
 /**
- * Build base page object from a filter combination
+ * Build base page object from a filter combination.
+ * Note: Does not include items/indices - caller adds those with appropriate key.
  * @param {Object} combo - { filters, path, count }
- * @param {Array} matchedItems - Items matching the filters
  * @param {Object} displayLookup - Display text lookup
  * @returns {Object} Base page properties
  */
-export const buildFilterPageBase = (combo, matchedItems, displayLookup) => ({
+export const buildFilterPageBase = (combo, displayLookup) => ({
   filters: combo.filters,
   path: combo.path,
   count: combo.count,
-  items: matchedItems,
   filterDescription: buildFilterDescription(combo.filters, displayLookup),
 });
 
