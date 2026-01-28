@@ -18,15 +18,11 @@ import fs from "node:fs";
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
 import {
-  clearMetadataCache,
   cropImage,
   getAspectRatio,
   getMetadata,
 } from "#media/image-crop.js";
-import {
-  clearExternalImageCache,
-  processExternalImage,
-} from "#media/image-external.js";
+import { processExternalImage } from "#media/image-external.js";
 import {
   extractLqipFromMetadata,
   getEleventyImg,
@@ -263,18 +259,7 @@ const imageShortcode = async (
     returnElement: false,
   });
 
-/**
- * Clear all image processing caches.
- * Call between builds in watch mode to prevent unbounded memory growth.
- */
-const clearImageCaches = () => {
-  computeWrappedImageHtml.clear();
-  clearMetadataCache();
-  clearExternalImageCache();
-};
-
 export {
-  clearImageCaches,
   configureImages,
   imageShortcode,
   processAndWrapImage,
