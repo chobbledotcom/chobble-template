@@ -17,11 +17,7 @@ import fs from "node:fs";
 
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
-import {
-  cropImage,
-  getAspectRatio,
-  getMetadata,
-} from "#media/image-crop.js";
+import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
 import {
   extractLqipFromMetadata,
