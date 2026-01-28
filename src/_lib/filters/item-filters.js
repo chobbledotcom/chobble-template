@@ -29,11 +29,9 @@ export {
 export {
   buildDisplayLookup,
   buildItemLookup,
-  filterWithSort,
   filterWithSortIndices,
   getAllFilterAttributes,
   getSortComparator,
-  matchWithSort,
   matchWithSortIndices,
   SORT_OPTIONS,
   toSortedPath,

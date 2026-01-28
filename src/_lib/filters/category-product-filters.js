@@ -43,6 +43,9 @@ const pagesByCategory = groupByWithCache((page) => [page.categorySlug]);
 const getBasePaths = (pages) =>
   pages.filter((p) => !p.sortKey || p.sortKey === "default");
 
+/** Get a unique key for a product */
+const getProductKey = (p) => p.url;
+
 /**
  * Build a single filter page with all its data.
  * Stores indices into the global products collection for memory efficiency.
@@ -57,7 +60,7 @@ const buildPage = (ctx, combo) => {
   );
   // Map to global indices (into collections.products) for template resolution
   const productsIndices = localIndices.map(
-    (i) => ctx.globalIndexLookup[ctx.products[i].url],
+    (i) => ctx.globalIndexLookup[getProductKey(ctx.products[i])],
   );
   return {
     categorySlug: ctx.slug,
@@ -159,10 +162,10 @@ const computeAllCategoryData = memoizeByRef(
     const products = collectionApi.getFilteredByTag("products");
     const grouped = productsByCategory(products);
 
-    // Build lookup: product URL -> index in global products array
+    // Build lookup: product identifier -> index in global products array
     // Used to store global indices instead of product objects
     const globalIndexLookup = Object.fromEntries(
-      products.map((p, i) => [p.url, i]),
+      products.map((p, i) => [getProductKey(p), i]),
     );
 
     const categoryData = mapFilter((category) =>

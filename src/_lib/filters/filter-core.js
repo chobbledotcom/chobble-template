@@ -9,7 +9,7 @@
  * - Sorting filtered results
  */
 
-import { flatMap, join, map, pipe, sort } from "#toolkit/fp/array.js";
+import { flatMap, join, pipe, sort } from "#toolkit/fp/array.js";
 import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
@@ -234,37 +234,6 @@ export const toSortedPath = (filters, sortKey) => {
 };
 
 /**
- * Get items matching the given filters with specified sort order.
- *
- * @param {EleventyCollectionItem[]} items - Original items array
- * @param {FilterSet} filters - Filters to apply (can be empty)
- * @param {Object} lookup - Lookup table from buildItemLookup
- * @param {string | undefined} sortKey - Sort option key
- * @returns {EleventyCollectionItem[]} Matching items, sorted
- */
-export const matchWithSort = (items, filters, lookup, sortKey) => {
-  // Handle empty filters (sort-only pages)
-  if (!filters || Object.keys(filters).length === 0) {
-    return sort(getSortComparator(sortKey))(items);
-  }
-  return pipe(
-    map((pos) => items[pos]),
-    sort(getSortComparator(sortKey)),
-  )(findMatchingPositions(lookup, normalizeAttrs(filters)));
-};
-
-/**
- * Get items matching the given filters with specified sort order.
- *
- * @param {EleventyCollectionItem[]} items - Collection items
- * @param {FilterSet} filters - Filter object (can be empty for sort-only)
- * @param {string | undefined} sortKey - Sort option key
- * @returns {EleventyCollectionItem[]} Filtered and sorted items
- */
-export const filterWithSort = (items, filters, sortKey) =>
-  matchWithSort(items, filters, buildItemLookup(items), sortKey);
-
-/**
  * Get indices of items matching the given filters with specified sort order.
  * Returns indices into the original items array instead of the items themselves.
  * Use this when you want to store compact references for later resolution.
@@ -277,13 +246,11 @@ export const filterWithSort = (items, filters, sortKey) =>
  */
 export const matchWithSortIndices = (items, filters, lookup, sortKey) => {
   const comparator = getSortComparator(sortKey);
-  // Handle empty filters (sort-only pages) - return all indices sorted
   if (!filters || Object.keys(filters).length === 0) {
     return items
       .map((_, i) => i)
       .sort((a, b) => comparator(items[a], items[b]));
   }
-  // Get matching positions and sort by item comparator
   return findMatchingPositions(lookup, normalizeAttrs(filters)).sort((a, b) =>
     comparator(items[a], items[b]),
   );
