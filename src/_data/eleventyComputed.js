@@ -3,6 +3,7 @@ import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
+import { validateBlocks } from "#utils/block-schema.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
@@ -124,13 +125,15 @@ export default {
   },
 
   /**
-   * Applies default values to blocks. Works for any content with blocks,
-   * not just landing pages.
+   * Validates and applies default values to blocks. Works for any content
+   * with blocks, not just landing pages.
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array|undefined} Blocks with defaults applied
+   * @throws {Error} If any block contains unknown keys
    */
   blocks: (data) => {
     if (!data.blocks) return data.blocks;
+    validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
     return data.blocks.map((block) => {
       const merged = { ...BLOCK_DEFAULTS[block.type], ...block };
       if (block.type === "split" && !block.reveal_content) {

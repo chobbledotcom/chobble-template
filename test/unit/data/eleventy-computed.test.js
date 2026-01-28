@@ -325,20 +325,38 @@ describe("eleventyComputed", () => {
   });
 
   describe("blocks", () => {
+    const page = { inputPath: "test.html" };
+
     test("Returns undefined when blocks not set", () => {
-      const data = {};
+      const data = { page };
       expect(eleventyComputed.blocks(data)).toBeUndefined();
     });
 
-    test("Returns blocks array unchanged when no defaults apply", () => {
-      const blocks = [{ type: "unknown-type", content: "test" }];
-      const data = { blocks };
+    test("Returns blocks array with defaults for markdown type", () => {
+      const blocks = [{ type: "markdown", content: "test" }];
+      const data = { blocks, page };
       const result = eleventyComputed.blocks(data);
-      expect(result).toEqual([{ type: "unknown-type", content: "test" }]);
+      expect(result).toEqual([{ type: "markdown", content: "test" }]);
+    });
+
+    test("Throws error for unknown block type", () => {
+      const blocks = [{ type: "unknown-type", content: "test" }];
+      const data = { blocks, page };
+      expect(() => eleventyComputed.blocks(data)).toThrow(
+        'Unknown block type "unknown-type"',
+      );
+    });
+
+    test("Throws error for unknown block keys", () => {
+      const blocks = [{ type: "video-background", video_url: "bad" }];
+      const data = { blocks, page };
+      expect(() => eleventyComputed.blocks(data)).toThrow(
+        'unknown keys: "video_url"',
+      );
     });
 
     test("Applies defaults for features block type", () => {
-      const data = { blocks: [{ type: "features", items: [] }] };
+      const data = { blocks: [{ type: "features", items: [] }], page };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "features",
@@ -350,13 +368,13 @@ describe("eleventyComputed", () => {
     });
 
     test("Applies defaults for stats block type", () => {
-      const data = { blocks: [{ type: "stats", items: [] }] };
+      const data = { blocks: [{ type: "stats", items: [] }], page };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({ type: "stats", items: [], reveal: true });
     });
 
     test("Applies defaults for split block type", () => {
-      const data = { blocks: [{ type: "split", title: "Test" }] };
+      const data = { blocks: [{ type: "split", title: "Test" }], page };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "split",
@@ -370,6 +388,7 @@ describe("eleventyComputed", () => {
     test("Sets reveal_content to right for reversed split block", () => {
       const data = {
         blocks: [{ type: "split", title: "Test", reverse: true }],
+        page,
       };
       const result = eleventyComputed.blocks(data);
       expect(result[0].reveal_content).toBe("right");
@@ -377,40 +396,48 @@ describe("eleventyComputed", () => {
 
     test("Preserves explicit reveal_content on split block", () => {
       const data = {
-        blocks: [{ type: "split", title: "Test", reveal_content: "custom" }],
+        blocks: [{ type: "split", title: "Test", reveal_content: "left" }],
+        page,
       };
       const result = eleventyComputed.blocks(data);
-      expect(result[0].reveal_content).toBe("custom");
+      expect(result[0].reveal_content).toBe("left");
     });
 
     test("Applies defaults for section-header block type", () => {
-      const data = { blocks: [{ type: "section-header", text: "Header" }] };
+      const data = {
+        blocks: [{ type: "section-header", title: "Header" }],
+        page,
+      };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "section-header",
-        text: "Header",
+        title: "Header",
         level: 2,
         align: "center",
       });
     });
 
     test("Applies defaults for image-cards block type", () => {
-      const data = { blocks: [{ type: "image-cards", cards: [] }] };
+      const data = { blocks: [{ type: "image-cards", items: [] }], page };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "image-cards",
-        cards: [],
+        items: [],
         reveal: true,
         heading_level: 3,
       });
     });
 
     test("Applies defaults for code-block type", () => {
-      const data = { blocks: [{ type: "code-block", code: "test" }] };
+      const data = {
+        blocks: [{ type: "code-block", code: "test", filename: "test.js" }],
+        page,
+      };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "code-block",
         code: "test",
+        filename: "test.js",
         reveal: true,
       });
     });
@@ -420,15 +447,16 @@ describe("eleventyComputed", () => {
         blocks: [
           {
             type: "video-background",
-            video_url: "https://youtube.com/embed/test",
+            video_id: "dQw4w9WgXcQ",
             content: "<h2>Test</h2>",
           },
         ],
+        page,
       };
       const result = eleventyComputed.blocks(data);
       expect(result[0]).toEqual({
         type: "video-background",
-        video_url: "https://youtube.com/embed/test",
+        video_id: "dQw4w9WgXcQ",
         content: "<h2>Test</h2>",
         aspect_ratio: "16/9",
       });
@@ -437,6 +465,7 @@ describe("eleventyComputed", () => {
     test("User values override defaults", () => {
       const data = {
         blocks: [{ type: "features", reveal: false, heading_level: 2 }],
+        page,
       };
       const result = eleventyComputed.blocks(data);
       expect(result[0].reveal).toBe(false);
@@ -448,8 +477,9 @@ describe("eleventyComputed", () => {
       const data = {
         blocks: [
           { type: "stats", items: [] },
-          { type: "code-block", code: "x" },
+          { type: "code-block", code: "x", filename: "x.js" },
         ],
+        page,
       };
       const result = eleventyComputed.blocks(data);
       expect(result[0].reveal).toBe(true);
