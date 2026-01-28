@@ -1,33 +1,32 @@
 {%- comment -%}
 Section header with title and optional subtitle.
 
-Parameters:
-  - title: The section title (required)
-  - subtitle: Optional description text
-  - level: Heading level, defaults to 2 (h2)
-  - align: Text alignment, defaults to "center"
-  - class: Additional CSS classes
+Parameters (via block object):
+  - block.title: The section title (required)
+  - block.subtitle: Optional description text
+  - block.level: Heading level, defaults to 2 (h2)
+  - block.align: Text alignment, defaults to "center"
+  - block.class: Additional CSS classes
 
 Usage:
   {% include "design-system/section-header.html",
-     title: "My Section",
-     subtitle: "Optional description here"
+     block: { title: "My Section", subtitle: "Optional description here" }
   %}
 {%- endcomment -%}
 
-{%- assign level = level | default: 2 -%}
-{%- assign align = align | default: "center" -%}
+{%- assign level = block.level | default: 2 -%}
+{%- assign align = block.align | default: "center" -%}
 {%- assign classes = "mb-xl" -%}
 {%- if align == "center" -%}
   {%- assign classes = classes | append: " text-center" -%}
 {%- endif -%}
-{%- if class -%}
-  {%- assign classes = classes | append: " " | append: class -%}
+{%- if block.class -%}
+  {%- assign classes = classes | append: " " | append: block.class -%}
 {%- endif -%}
 
-<hgroup class="section-header {{ classes }}">
-  <h{{ level }}>{{ title }}</h{{ level }}>
-  {%- if subtitle -%}
-    <p class="text-muted">{{ subtitle }}</p>
+<hgroup class="section-header stack--sm {{ classes }}">
+  <h{{ level }}>{{ block.title }}</h{{ level }}>
+  {%- if block.subtitle -%}
+    <p class="text-muted">{{ block.subtitle }}</p>
   {%- endif -%}
 </hgroup>

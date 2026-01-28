@@ -1,0 +1,29 @@
+{%- comment -%}
+Video background block - displays a full-width video background with overlaid text content.
+
+The video is embedded as an iframe (YouTube) and plays automatically without user interaction.
+A rich text content block is overlaid on top of the video.
+
+Parameters (via block object):
+  - block.video_id: YouTube video ID (required)
+  - block.video_title: Accessible title for the iframe (default: "Background video")
+  - block.content: HTML/markdown content to overlay on the video (required)
+  - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
+  - block.overlay_style: Additional inline styles for the overlay (optional)
+  - block.class: Additional classes for the container (optional)
+
+Usage:
+  {% include "design-system/video-background.html", block: block %}
+{%- endcomment -%}
+
+{%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
+{%- assign _video_title = block.video_title | default: "Background video" -%}
+
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
+  {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
+  <figure{% if block.overlay_style %} style="{{ block.overlay_style }}"{% endif %}>
+    <figcaption>
+      {{ block.content }}
+    </figcaption>
+  </figure>
+</div>

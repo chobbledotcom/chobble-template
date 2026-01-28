@@ -14,7 +14,7 @@ import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
 } from "#toolkit/fp/grouping.js";
-import { memoize, memoizeByRef } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapBoth, toObject } from "#toolkit/fp/object.js";
 import { compareBy, compareStrings, descending } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
@@ -26,15 +26,10 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
- * Memoized since the same attribute names/values are processed many times.
  * @param {string} str - String to normalize
  * @returns {string} Normalized string
  */
-export const normalize = memoize(
-  /** @param {string} str */
-  (str) => str.toLowerCase().replace(/[^a-z0-9]/g, ""),
-  { cacheKey: (args) => /** @type {string} */ (args[0]) },
-);
+export const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /**
  * Parse filter attributes from item data (inner implementation).
@@ -90,7 +85,7 @@ export const filterToPath = (filters) => {
  * @param {EleventyCollectionItem[]} items - Collection items
  * @returns {Record<string, string[]>} Attribute names to possible values
  */
-export const getAllFilterAttributes = memoize((items) => {
+export const getAllFilterAttributes = memoizeByRef((items) => {
   const valuesByKey = pipe(
     flatMap((item) =>
       Object.entries(parseFilterAttributes(item.data.filter_attributes)),
@@ -112,7 +107,7 @@ export const getAllFilterAttributes = memoize((items) => {
  * @param {EleventyCollectionItem[]} items - Collection items
  * @returns {Record<string, string>} Slug to display text lookup
  */
-export const buildDisplayLookup = memoize((items) =>
+export const buildDisplayLookup = memoizeByRef((items) =>
   buildFirstOccurrenceLookup(items, (item) => {
     if (!item.data.filter_attributes) return [];
     return item.data.filter_attributes.flatMap((attr) => [

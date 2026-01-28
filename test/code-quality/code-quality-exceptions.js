@@ -227,6 +227,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
 
   // Utility functions - tested for shared logic
+  "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
 ]);
@@ -244,9 +245,9 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/eleventy/ical.js:43",
   "src/_lib/eleventy/pdf.js:39",
   "src/_lib/eleventy/pdf.js:74",
-  "src/_lib/filters/filter-core.js:191",
-  "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/filters/filter-core.js:186",
+  "src/_lib/filters/filter-core.js:197",
+  "src/_lib/filters/filter-core.js:203",
   "src/_lib/utils/schema-helper.js:145",
   "src/_lib/utils/schema-helper.js:150",
 ]);
@@ -283,10 +284,10 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
 const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_data - user-facing data boundary (frontmatter from markdown files)
   // These are legitimate exceptions per CLAUDE.md: "User-provided input at system boundaries"
-  "src/_data/eleventyComputed.js:68", // order
-  "src/_data/eleventyComputed.js:74", // faqs
-  "src/_data/eleventyComputed.js:83", // tab.body defaults to empty string
-  "src/_data/eleventyComputed.js:98", // metaComputed defaults to {} for schema building
+  "src/_data/eleventyComputed.js:84", // order
+  "src/_data/eleventyComputed.js:90", // faqs
+  "src/_data/eleventyComputed.js:99", // tab.body defaults to empty string
+  "src/_data/eleventyComputed.js:114", // metaComputed defaults to {} for schema building
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
@@ -300,10 +301,10 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/category-product-filters.js:146", // Default empty array for categories without products
   "src/_lib/filters/category-product-filters.js:205", // Default empty array for pages lookup
   "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
-  "src/_lib/filters/filter-core.js:146",
-  "src/_lib/filters/filter-core.js:147",
-  "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/filter-core.js:208",
+  "src/_lib/filters/filter-core.js:141",
+  "src/_lib/filters/filter-core.js:142",
+  "src/_lib/filters/filter-core.js:197",
+  "src/_lib/filters/filter-core.js:203",
   "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
@@ -336,7 +337,7 @@ const ALLOWED_OR_FALLBACKS = frozenSet([
   "src/_lib/eleventy/pdf.js:74", // subtitle || "" - optional menu subtitle
 
   // src/_lib/filters - cascading field access for display
-  "src/_lib/filters/filter-core.js:191", // title || name || "" - items have title OR name
+  "src/_lib/filters/filter-core.js:186", // title || name || "" - items have title OR name
 
   // src/_lib/media - image processing
   "src/_lib/media/thumbnail-placeholder.js:23", // itemPath || "" - path used for color generation

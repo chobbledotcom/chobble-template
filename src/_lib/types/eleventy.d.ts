@@ -21,12 +21,13 @@ import type {
 import type { RawTab } from './content.d.ts';
 
 /**
- * Eleventy page data (url, fileSlug, date)
+ * Eleventy page data (url, fileSlug, date, inputPath)
  */
 export type EleventyPageData = {
   url: string;
   fileSlug: string;
   date?: Date;
+  inputPath: string;
 };
 
 /**
@@ -347,4 +348,8 @@ export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
   layout?: string;
   /** Computed metadata for schema.org (empty object if not defined) */
   metaComputed?: Record<string, unknown>;
+  /** Design system blocks for landing pages and other block-based content */
+  blocks?: Array<{ type: string; [key: string]: unknown }>;
+  /** Video embeds with computed thumbnail_url */
+  videos?: Array<{ id: string; title: string; thumbnail_url?: string | null }>;
 };

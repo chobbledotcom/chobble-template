@@ -1,30 +1,32 @@
 {%- comment -%}
 Landing page footer with branding and navigation links.
 
-Parameters:
-  - text: Main footer text (can include HTML like <strong>)
-  - links: Array of link objects with:
+Parameters (via block object):
+  - block.text: Main footer text (can include HTML like <strong>)
+  - block.links: Array of link objects with:
     - text: Link label
     - href: Link URL
-  - aria_label: Accessible label for nav (default: "Footer navigation")
+  - block.aria_label: Accessible label for nav (default: "Footer navigation")
 
 Usage:
   {% include "design-system/footer.html",
-     text: "<strong>My Site</strong> - Open source",
-     links: page.footer_links
+     block: {
+       text: "<strong>My Site</strong> - Open source",
+       links: page.footer_links
+     }
   %}
 {%- endcomment -%}
 
-{%- assign aria_label = aria_label | default: "Footer navigation" -%}
+{%- assign aria_label = block.aria_label | default: "Footer navigation" -%}
 
 <footer class="site-footer">
   <div class="container">
-    {%- if text -%}
-      <p>{{ text }}</p>
+    {%- if block.text -%}
+      <p>{{ block.text }}</p>
     {%- endif -%}
-    {%- if links.size > 0 -%}
+    {%- if block.links.size > 0 -%}
       <nav aria-label="{{ aria_label }}">
-        {%- for link in links -%}
+        {%- for link in block.links -%}
           <a href="{{ link.href }}">{{ link.text }}</a>
         {%- endfor -%}
       </nav>

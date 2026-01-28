@@ -1,59 +1,57 @@
 {%- comment -%}
 Split layout with text content and figure (image, code block, or custom HTML).
 
-Parameters:
-  - title: Section heading
-  - title_level: Heading level, defaults to 2
-  - subtitle: Optional subtitle text (with text-muted styling)
-  - content: Main content (can include HTML like <ul>, <p>)
-  - figure_type: "image", "code", or "html"
-  - figure_content: Depends on figure_type:
+Parameters (via block object):
+  - block.title: Section heading
+  - block.title_level: Heading level, defaults to 2
+  - block.subtitle: Optional subtitle text (with text-muted styling)
+  - block.content: Main content (can include HTML like <ul>, <p>)
+  - block.figure_type: "image", "code", or "html"
+  - block.figure_content: Depends on figure_type:
     - For "image": { src, alt }
     - For "code": { filename, code, language }
     - For "html": raw HTML string
-  - reverse: If true, reverses the layout (content on right)
-  - reveal_content: Animation for content side (e.g., "left", "right")
-  - reveal_figure: Animation for figure side (default: "scale")
-  - button: Optional button object { text, href, variant }
+  - block.reverse: If true, reverses the layout (content on right)
+  - block.reveal_content: Animation for content side (e.g., "left", "right")
+  - block.reveal_figure: Animation for figure side (default: "scale")
+  - block.button: Optional button object { text, href, variant }
 
 Usage:
   {% include "design-system/split.html",
-     title: "My Section",
-     content: "<p>Description here</p><ul><li>Item 1</li></ul>",
-     figure_type: "code",
-     figure_content: { filename: "example.js", code: "const x = 1;" },
-     reverse: true
+     block: {
+       title: "My Section",
+       content: "<p>Description here</p><ul><li>Item 1</li></ul>",
+       figure_type: "code",
+       figure_content: { filename: "example.js", code: "const x = 1;" },
+       reverse: true
+     }
   %}
 {%- endcomment -%}
 
-{%- assign title_level = title_level | default: 2 -%}
-{%- assign reveal_content = reveal_content | default: "left" -%}
-{%- assign reveal_figure = reveal_figure | default: "scale" -%}
+{%- assign title_level = block.title_level | default: 2 -%}
+{%- assign reveal_content = block.reveal_content | default: "left" -%}
+{%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
 
-<div class="split{% if reverse %} split--reverse{% endif %}">
-  <article data-reveal="{{ reveal_content }}">
-    <h{{ title_level }}>{{ title }}</h{{ title_level }}>
-    {%- if subtitle -%}
-      <p class="text-muted">{{ subtitle }}</p>
+<div class="split{% if block.reverse %} split--reverse{% endif %}">
+  <article class="stack" data-reveal="{{ reveal_content }}">
+    <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
+    {%- if block.subtitle -%}
+      <p class="text-muted">{{ block.subtitle }}</p>
     {%- endif -%}
-    {{ content }}
-    {%- if button -%}
-      {%- assign variant = button.variant | default: "secondary" -%}
-      <a href="{{ button.href }}" class="btn btn--{{ variant }}">{{ button.text }}</a>
+    {{ block.content }}
+    {%- if block.button -%}
+      {%- assign variant = block.button.variant | default: "secondary" -%}
+      <a href="{{ block.button.href }}" class="btn btn--{{ variant }}">{{ block.button.text }}</a>
     {%- endif -%}
   </article>
   <figure data-reveal="{{ reveal_figure }}">
-    {%- case figure_type -%}
+    {%- case block.figure_type -%}
       {%- when "image" -%}
-        <img src="{{ figure_content.src }}" alt="{{ figure_content.alt }}" loading="lazy">
+        <img src="{{ block.figure_content.src }}" alt="{{ block.figure_content.alt }}" loading="lazy">
       {%- when "code" -%}
-        {%- include "design-system/code-block.html",
-            filename: figure_content.filename,
-            code: figure_content.code,
-            language: figure_content.language
-        -%}
+        {%- include "design-system/code-block.html", block: block.figure_content -%}
       {%- when "html" -%}
-        {{ figure_content }}
+        {{ block.figure_content }}
     {%- endcase -%}
   </figure>
 </div>

@@ -17,7 +17,7 @@ import {
   toSortedPath,
 } from "#filters/filter-core.js";
 import { filterMap, flatMap, map, pipe } from "#toolkit/fp/array.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 /** @typedef {import("#lib/types").FilterSet} FilterSet */
@@ -30,7 +30,7 @@ import { memoize } from "#toolkit/fp/memoize.js";
  * @param {EleventyCollectionItem[]} items - Items to generate combinations for
  * @returns {FilterCombination[]} All valid filter combinations
  */
-export const generateFilterCombinations = memoize((items) => {
+export const generateFilterCombinations = memoizeByRef((items) => {
   const values = getAllFilterAttributes(items);
   const keys = Object.keys(values);
 
