@@ -7,6 +7,7 @@
 import { buildReverseIndex } from "./grouping.js";
 
 const DEFAULT_MAX_CACHE_SIZE = 2000;
+const DEFAULT_KEY_FN = (args) => args[0];
 
 /**
  * Memoize a function with optional custom cache key.
@@ -21,7 +22,7 @@ const DEFAULT_MAX_CACHE_SIZE = 2000;
  */
 const memoize = (fn, options = {}) => {
   const cache = new Map();
-  const keyFn = options.cacheKey || ((args) => args[0]);
+  const keyFn = options.cacheKey || DEFAULT_KEY_FN;
   const maxSize = options.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
 
   return (...args) => {
@@ -141,4 +142,35 @@ const indexBy = (getKey) =>
 const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
-export { memoize, indexBy, groupByWithCache, memoizeByRef };
+/**
+ * Deduplicate concurrent async calls by key.
+ *
+ * Only one operation runs per key at a time; concurrent calls wait for the
+ * same Promise. Unlike memoize, the Promise is removed once it settles,
+ * preventing memory leaks.
+ *
+ * @template T
+ * @param {(...args: unknown[]) => Promise<T>} fn - Async function to deduplicate
+ * @param {{ cacheKey?: (args: unknown[]) => string | number }} [options]
+ * @returns {(...args: unknown[]) => Promise<T>} Deduplicated async function
+ *
+ * @example
+ * const fetchUser = dedupeAsync(async (id) => api.getUser(id));
+ * // Concurrent calls for same id share one request
+ * const [user1, user2] = await Promise.all([fetchUser(1), fetchUser(1)]);
+ */
+const dedupeAsync = (fn, options = {}) => {
+  const inFlight = new Map();
+  const keyFn = options.cacheKey || DEFAULT_KEY_FN;
+  return (...args) => {
+    const key = keyFn(args);
+    const existing = inFlight.get(key);
+    if (existing) return existing;
+
+    const promise = fn(...args).finally(() => inFlight.delete(key));
+    inFlight.set(key, promise);
+    return promise;
+  };
+};
+
+export { memoize, indexBy, groupByWithCache, memoizeByRef, dedupeAsync };
