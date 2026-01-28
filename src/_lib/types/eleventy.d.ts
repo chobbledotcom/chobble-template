@@ -349,4 +349,6 @@ export type EleventyComputedData = Omit<EleventyCollectionItemData, 'title'> & {
   metaComputed?: Record<string, unknown>;
   /** Design system blocks for landing pages and other block-based content */
   blocks?: Array<{ type: string; [key: string]: unknown }>;
+  /** Video embeds with computed thumbnail_url */
+  videos?: Array<{ id: string; title: string; thumbnail_url?: string | null }>;
 };
