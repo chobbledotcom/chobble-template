@@ -7,6 +7,7 @@ import {
   filteredCategoryPages,
 } from "#filters/category-product-filters.js";
 import { item as baseItem, expectResultTitles } from "#test/test-utils.js";
+import { resolveIndices } from "#toolkit/fp/array.js";
 
 // ============================================
 // Functional Test Fixture Builders
@@ -22,11 +23,13 @@ const catFilterAttr = (name, value) => ({ name, value });
  * @param {string|null} title - Item title
  * @param {Object} options - { attrs: [...], categories: [...] }
  */
-const catProductItem = (title, { attrs = [], categories = [] } = {}) =>
-  baseItem(title, {
+const catProductItem = (title, { attrs = [], categories = [] } = {}) => ({
+  ...baseItem(title, {
     ...(attrs.length > 0 ? { filter_attributes: attrs } : {}),
     ...(categories.length > 0 ? { categories } : {}),
-  });
+  }),
+  url: `/products/${title?.toLowerCase().replace(/\s+/g, "-") ?? "unnamed"}/`,
+});
 
 /**
  * Create a category item with a fileSlug
@@ -235,20 +238,22 @@ describe("category-product-filters", () => {
     });
 
     test("Only includes products belonging to each category", () => {
-      const api = mockCollectionApi(
-        [categoryFixture("widgets")],
-        [
-          widgetWithSize("small"),
-          catProductItem("Gadget A", {
-            attrs: [catFilterAttr("Size", "small")],
-            categories: ["gadgets"],
-          }),
-        ],
-      );
+      const products = [
+        widgetWithSize("small"),
+        catProductItem("Gadget A", {
+          attrs: [catFilterAttr("Size", "small")],
+          categories: ["gadgets"],
+        }),
+      ];
+      const api = mockCollectionApi([categoryFixture("widgets")], products);
       const widgetPage = filteredCategoryPages(api).find(
         (p) => p.path === "size/small",
       );
-      expectResultTitles(widgetPage.products, ["Widget A"]);
+      const resolvedProducts = resolveIndices(
+        widgetPage.productsIndices,
+        products,
+      );
+      expectResultTitles(resolvedProducts, ["Widget A"]);
     });
   });
 
