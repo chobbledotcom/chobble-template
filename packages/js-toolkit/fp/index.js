@@ -43,6 +43,7 @@ export {
 } from "./grouping.js";
 // Memoization utilities
 export {
+  dedupeAsync,
   groupByWithCache,
   indexBy,
   memoize,
