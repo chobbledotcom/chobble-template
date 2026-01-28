@@ -24,7 +24,7 @@ Usage:
   {%- assign classes = classes | append: " " | append: block.class -%}
 {%- endif -%}
 
-<hgroup class="section-header {{ classes }}">
+<hgroup class="section-header stack--sm {{ classes }}">
   <h{{ level }}>{{ block.title }}</h{{ level }}>
   {%- if block.subtitle -%}
     <p class="text-muted">{{ block.subtitle }}</p>

@@ -33,7 +33,7 @@ Usage:
 {%- assign reveal_figure = block.reveal_figure | default: "scale" -%}
 
 <div class="split{% if block.reverse %} split--reverse{% endif %}">
-  <article data-reveal="{{ reveal_content }}">
+  <article class="stack" data-reveal="{{ reveal_content }}">
     <h{{ title_level }}>{{ block.title }}</h{{ title_level }}>
     {%- if block.subtitle -%}
       <p class="text-muted">{{ block.subtitle }}</p>
