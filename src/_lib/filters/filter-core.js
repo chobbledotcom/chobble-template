@@ -14,7 +14,7 @@ import {
   buildFirstOccurrenceLookup,
   groupValuesBy,
 } from "#toolkit/fp/grouping.js";
-import { memoize, memoizeByRef } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { mapBoth, toObject } from "#toolkit/fp/object.js";
 import { compareBy, compareStrings, descending } from "#toolkit/fp/sorting.js";
 import { slugify } from "#utils/slug-utils.js";
@@ -26,15 +26,10 @@ import { sortItems } from "#utils/sorting.js";
 
 /**
  * Normalize a string for comparison: lowercase, strip spaces and special chars
- * Memoized since the same attribute names/values are processed many times.
  * @param {string} str - String to normalize
  * @returns {string} Normalized string
  */
-export const normalize = memoize(
-  /** @param {string} str */
-  (str) => str.toLowerCase().replace(/[^a-z0-9]/g, ""),
-  { cacheKey: (args) => /** @type {string} */ (args[0]) },
-);
+export const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /**
  * Parse filter attributes from item data (inner implementation).

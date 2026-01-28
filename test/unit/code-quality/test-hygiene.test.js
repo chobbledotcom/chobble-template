@@ -419,6 +419,8 @@ const ALLOWED_TEST_FUNCTIONS = frozenSet([
   "getEventsSection",
   "getViewSection",
   "getProductsSection",
+  // eleventy-computed-fast-builds.test.js - assertion helper for mock attributes
+  "assertValidMockAttributes",
 ]);
 
 // Pattern to identify true function declarations (not methods or callbacks)
