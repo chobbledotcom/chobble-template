@@ -141,4 +141,12 @@ const indexBy = (getKey) =>
 const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
-export { memoize, indexBy, groupByWithCache, memoizeByRef };
+/**
+ * Generate a cache key from function arguments by JSON stringifying them.
+ * Useful for memoizing functions that take object arguments.
+ * @param {unknown[]} args - Function arguments
+ * @returns {string} JSON string key
+ */
+const jsonKey = (args) => JSON.stringify(args[0]);
+
+export { memoize, indexBy, groupByWithCache, memoizeByRef, jsonKey };
