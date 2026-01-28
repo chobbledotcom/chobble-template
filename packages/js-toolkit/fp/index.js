@@ -45,9 +45,8 @@ export {
 export {
   groupByWithCache,
   indexBy,
-  jsonKey,
   memoize,
-  withWeakMapCache,
+  memoizeByRef,
 } from "./memoize.js";
 // Object utilities
 export {

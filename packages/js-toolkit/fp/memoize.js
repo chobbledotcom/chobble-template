@@ -1,9 +1,6 @@
 /**
  * Memoization utilities for caching function results.
  *
- * Supports configurable cache key functions with helpers:
- * - jsonKey: for objects via JSON stringify
- *
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
  */
@@ -27,13 +24,6 @@ const memoize = (fn, options = {}) => {
     return result;
   };
 };
-
-/**
- * Cache key generator for object arguments via JSON stringify
- * @param {[unknown]} args - Arguments tuple with object as first element
- * @returns {string} Cache key (JSON string)
- */
-const jsonKey = (args) => JSON.stringify(args[0]);
 
 /**
  * Create a cached function using WeakMap for object identity caching.
@@ -134,4 +124,4 @@ const indexBy = (getKey) =>
 const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
-export { memoize, jsonKey, indexBy, groupByWithCache, memoizeByRef };
+export { memoize, indexBy, groupByWithCache, memoizeByRef };
