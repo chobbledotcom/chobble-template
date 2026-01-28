@@ -368,7 +368,9 @@ describe("eleventyComputed", () => {
     });
 
     test("Sets reveal_content to right for reversed split block", () => {
-      const data = { blocks: [{ type: "split", title: "Test", reverse: true }] };
+      const data = {
+        blocks: [{ type: "split", title: "Test", reverse: true }],
+      };
       const result = eleventyComputed.blocks(data);
       expect(result[0].reveal_content).toBe("right");
     });
