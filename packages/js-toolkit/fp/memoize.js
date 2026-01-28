@@ -143,6 +143,14 @@ const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
 /**
+ * Generate a cache key from function arguments by JSON stringifying them.
+ * Useful for memoizing functions that take object arguments.
+ * @param {unknown[]} args - Function arguments
+ * @returns {string} JSON string key
+ */
+const jsonKey = (args) => JSON.stringify(args[0]);
+
+/**
  * Deduplicate concurrent async calls by key.
  *
  * Only one operation runs per key at a time; concurrent calls wait for the
@@ -172,4 +180,11 @@ const dedupeAsync = (fn, { cacheKey = DEFAULT_KEY_FN } = {}) => {
       .get(cacheKey(args));
 };
 
-export { memoize, indexBy, groupByWithCache, memoizeByRef, dedupeAsync };
+export {
+  memoize,
+  indexBy,
+  groupByWithCache,
+  memoizeByRef,
+  jsonKey,
+  dedupeAsync,
+};

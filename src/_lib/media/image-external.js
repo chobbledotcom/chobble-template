@@ -21,7 +21,7 @@ import {
   prepareImageAttributes,
 } from "#media/image-utils.js";
 import { compact } from "#toolkit/fp/array.js";
-import { dedupeAsync } from "#toolkit/fp/memoize.js";
+import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
 
@@ -55,9 +55,12 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
 /**
  * Process an external image URL through eleventy-img.
  *
- * Uses dedupeAsync to prevent concurrent fetches for the same external URL.
- * eleventy-img disk-caches processed images, but concurrent calls during a
- * single build could still duplicate network requests.
+ * Memoized to avoid reprocessing the same URL with same options.
+ * While eleventy-img disk-caches downloaded images, memoization avoids:
+ * - Repeated disk I/O for LQIP base64 encoding
+ * - Repeated eleventy-img cache checks
+ * - Repeated HTML generation
+ * Cache is bounded by maxCacheSize (default 2000) to prevent unbounded memory growth.
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
@@ -69,7 +72,7 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
  * @returns {Promise<string>} Wrapped image HTML
  */
-const computeExternalImageHtml = dedupeAsync(
+const computeExternalImageHtml = memoize(
   async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
     const requestedWidths = parseWidths(widths);
     const webpWidths = [LQIP_WIDTH, ...requestedWidths];
@@ -123,7 +126,7 @@ const computeExternalImageHtml = dedupeAsync(
       innerHTML,
     );
   },
-  { cacheKey: ([opts]) => `${opts.src}:${opts.widths}:${opts.aspectRatio}` },
+  { cacheKey: jsonKey },
 );
 
 /**

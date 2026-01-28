@@ -37,6 +37,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
+import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
 
@@ -57,91 +58,107 @@ const DEFAULT_OPTIONS = frozenObject({
  * The 32px thumbnail for LQIP is included in the widths array, then extracted from
  * the resulting metadata and filtered out before generating HTML.
  *
- * Note: No memoization - eleventy-img disk-caches the expensive image processing.
- * In-memory caching of HTML strings causes unbounded memory growth on large sites.
+ * Memoized to avoid reprocessing the same image with same options.
+ * While eleventy-img disk-caches processed images, memoization avoids:
+ * - Repeated disk I/O for LQIP base64 encoding
+ * - Repeated eleventy-img cache checks
+ * - Repeated HTML generation
+ * Cache is bounded by maxCacheSize (default 2000) to prevent unbounded memory growth.
  *
  * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<string>} Wrapped image HTML
  */
-const computeWrappedImageHtml = async ({
-  imageName,
-  alt,
-  classes,
-  sizes,
-  widths,
-  aspectRatio,
-  loading,
-  noLqip = false,
-}) => {
-  if (PLACEHOLDER_MODE) {
-    return generatePlaceholderHtml({
+const computeWrappedImageHtml = memoize(
+  async ({
+    imageName,
+    alt,
+    classes,
+    sizes,
+    widths,
+    aspectRatio,
+    loading,
+    noLqip = false,
+  }) => {
+    if (PLACEHOLDER_MODE) {
+      return generatePlaceholderHtml({
+        alt,
+        classes,
+        sizes,
+        loading,
+        aspectRatio,
+      });
+    }
+
+    const imagePath = normalizeImagePath(imageName);
+    const metadata = await getMetadata(imagePath);
+    const finalPath = await cropImage(aspectRatio, imagePath, metadata);
+
+    const { imgAttributes, pictureAttributes } = prepareImageAttributes({
       alt,
-      classes,
       sizes,
       loading,
-      aspectRatio,
+      classes,
     });
-  }
+    const { default: Image, generateHTML } = await getEleventyImg();
 
-  const imagePath = normalizeImagePath(imageName);
-  const metadata = await getMetadata(imagePath);
-  const finalPath = await cropImage(aspectRatio, imagePath, metadata);
+    // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
+    const generateLqip = !noLqip && shouldGenerateLqip(finalPath, metadata);
 
-  const { imgAttributes, pictureAttributes } = prepareImageAttributes({
-    alt,
-    sizes,
-    loading,
-    classes,
-  });
-  const { default: Image, generateHTML } = await getEleventyImg();
+    // Include LQIP width in the webp widths for single-pass processing
+    const requestedWidths = parseWidths(widths);
+    const webpWidths = generateLqip
+      ? [LQIP_WIDTH, ...requestedWidths]
+      : requestedWidths;
 
-  // Check if LQIP should be generated (skip for SVGs, small files, or if noLqip is set)
-  const generateLqip = !noLqip && shouldGenerateLqip(finalPath, metadata);
+    const [webpMetadata, jpegMetadata] = await Promise.all([
+      Image(finalPath, {
+        ...DEFAULT_OPTIONS,
+        formats: ["webp"],
+        widths: webpWidths,
+        fixOrientation: true,
+      }),
+      Image(finalPath, {
+        ...DEFAULT_OPTIONS,
+        formats: ["jpeg"],
+        widths: [JPEG_FALLBACK_WIDTH],
+        fixOrientation: true,
+      }),
+    ]);
 
-  // Include LQIP width in the webp widths for single-pass processing
-  const requestedWidths = parseWidths(widths);
-  const webpWidths = generateLqip
-    ? [LQIP_WIDTH, ...requestedWidths]
-    : requestedWidths;
+    const imageMetadata = { ...webpMetadata, ...jpegMetadata };
 
-  const [webpMetadata, jpegMetadata] = await Promise.all([
-    Image(finalPath, {
-      ...DEFAULT_OPTIONS,
-      formats: ["webp"],
-      widths: webpWidths,
-      fixOrientation: true,
-    }),
-    Image(finalPath, {
-      ...DEFAULT_OPTIONS,
-      formats: ["jpeg"],
-      widths: [JPEG_FALLBACK_WIDTH],
-      fixOrientation: true,
-    }),
-  ]);
+    // Extract LQIP from the 32px webp before filtering it out
+    const bgImage = generateLqip
+      ? extractLqipFromMetadata(imageMetadata)
+      : null;
 
-  const imageMetadata = { ...webpMetadata, ...jpegMetadata };
+    // Filter out LQIP width from metadata so it doesn't appear in srcset
+    const htmlMetadata = generateLqip
+      ? removeLqip(imageMetadata)
+      : imageMetadata;
 
-  // Extract LQIP from the 32px webp before filtering it out
-  const bgImage = generateLqip ? extractLqipFromMetadata(imageMetadata) : null;
+    const innerHTML = generateHTML(
+      htmlMetadata,
+      imgAttributes,
+      pictureAttributes,
+    );
 
-  // Filter out LQIP width from metadata so it doesn't appear in srcset
-  const htmlMetadata = generateLqip ? removeLqip(imageMetadata) : imageMetadata;
-
-  const innerHTML = generateHTML(
-    htmlMetadata,
-    imgAttributes,
-    pictureAttributes,
-  );
-
-  return await createHtml(
-    "div",
-    {
-      class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-      style: buildWrapperStyles(bgImage, aspectRatio, metadata, getAspectRatio),
-    },
-    innerHTML,
-  );
-};
+    return await createHtml(
+      "div",
+      {
+        class: classes ? `image-wrapper ${classes}` : "image-wrapper",
+        style: buildWrapperStyles(
+          bgImage,
+          aspectRatio,
+          metadata,
+          getAspectRatio,
+        ),
+      },
+      innerHTML,
+    );
+  },
+  { cacheKey: jsonKey },
+);
 
 /**
  * Called from two paths with different imageName types:
