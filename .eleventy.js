@@ -41,6 +41,7 @@ import { configurePdf } from "#eleventy/pdf.js";
 import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
+import { configureVideo } from "#eleventy/video.js";
 
 // Filters
 import { configureFilters } from "#filters/configure-filters.js";
@@ -108,6 +109,7 @@ export default async function (eleventyConfig) {
   configureTags(eleventyConfig);
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
+  configureVideo(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
   return {

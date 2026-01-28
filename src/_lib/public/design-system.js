@@ -8,26 +8,16 @@ import { initSliders } from "#public/utils/slider-core.js";
 const SCOPE = ".design-system";
 
 // Video facade - replace thumbnail with iframe on click
-// Kept separate from init() to avoid exceeding complexity limit
+// Clones iframe from server-rendered <template> for consistent attributes
 const initVideoFacades = () => {
   for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
     button.addEventListener("click", () => {
-      if (!button.dataset.videoId) return;
-
-      const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube-nocookie.com/embed/${button.dataset.videoId}?autoplay=1`;
-      iframe.title =
-        button.getAttribute("aria-label")?.replace("Play ", "") || "";
-      iframe.setAttribute("frameborder", "0");
-      iframe.setAttribute(
-        "allow",
-        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
-      );
-      iframe.setAttribute("allowfullscreen", "");
+      const template = button.querySelector("template");
+      if (!template) return;
 
       const wrapper = document.createElement("div");
       wrapper.className = "video-wrapper";
-      wrapper.appendChild(iframe);
+      wrapper.appendChild(template.content.cloneNode(true));
 
       button.replaceWith(wrapper);
     });

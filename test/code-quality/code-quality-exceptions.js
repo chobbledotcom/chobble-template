@@ -283,10 +283,10 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
 const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_data - user-facing data boundary (frontmatter from markdown files)
   // These are legitimate exceptions per CLAUDE.md: "User-provided input at system boundaries"
-  "src/_data/eleventyComputed.js:82", // order
-  "src/_data/eleventyComputed.js:88", // faqs
-  "src/_data/eleventyComputed.js:97", // tab.body defaults to empty string
-  "src/_data/eleventyComputed.js:112", // metaComputed defaults to {} for schema building
+  "src/_data/eleventyComputed.js:83", // order
+  "src/_data/eleventyComputed.js:89", // faqs
+  "src/_data/eleventyComputed.js:98", // tab.body defaults to empty string
+  "src/_data/eleventyComputed.js:113", // metaComputed defaults to {} for schema building
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern
