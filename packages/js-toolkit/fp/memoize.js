@@ -149,28 +149,27 @@ const groupByWithCache = (getKeys) =>
  * same Promise. Unlike memoize, the Promise is removed once it settles,
  * preventing memory leaks.
  *
+ * @template {any[]} A
  * @template T
- * @param {(...args: unknown[]) => Promise<T>} fn - Async function to deduplicate
- * @param {{ cacheKey?: (args: unknown[]) => string | number }} [options]
- * @returns {(...args: unknown[]) => Promise<T>} Deduplicated async function
+ * @param {(...args: A) => Promise<T>} fn - Async function to deduplicate
+ * @param {{ cacheKey?: (args: A) => string | number }} [options]
+ * @returns {(...args: A) => Promise<T>} Deduplicated async function
  *
  * @example
  * const fetchUser = dedupeAsync(async (id) => api.getUser(id));
  * // Concurrent calls for same id share one request
  * const [user1, user2] = await Promise.all([fetchUser(1), fetchUser(1)]);
  */
-const dedupeAsync = (fn, options = {}) => {
-  const inFlight = new Map();
-  const keyFn = options.cacheKey || DEFAULT_KEY_FN;
-  return (...args) => {
-    const key = keyFn(args);
-    const existing = inFlight.get(key);
-    if (existing) return existing;
-
-    const promise = fn(...args).finally(() => inFlight.delete(key));
-    inFlight.set(key, promise);
-    return promise;
-  };
+const dedupeAsync = (fn, { cacheKey = DEFAULT_KEY_FN } = {}) => {
+  const pending = new Map();
+  return (...args) =>
+    pending.get(cacheKey(args)) ??
+    pending
+      .set(
+        cacheKey(args),
+        fn(...args).finally(() => pending.delete(cacheKey(args))),
+      )
+      .get(cacheKey(args));
 };
 
 export { memoize, indexBy, groupByWithCache, memoizeByRef, dedupeAsync };

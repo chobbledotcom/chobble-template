@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
 
 const ICONIFY_API_BASE = "https://api.iconify.design";
@@ -10,12 +10,14 @@ const ICONS_DIR = "src/assets/icons/iconify";
  * Get an icon SVG, reading from disk cache or fetching from Iconify API.
  * Icons are saved to src/assets/icons/iconify/{prefix}/{name}.svg
  *
+ * Uses dedupeAsync to prevent concurrent fetches for the same icon.
+ *
  * @param {string} iconId - Icon identifier in format "prefix:name"
  * @param {string} baseDir - Base directory (defaults to process.cwd())
  * @returns {Promise<string>} SVG content
  * @throws {Error} If icon ID is invalid or fetch fails
  */
-export const getIcon = memoize(
+export const getIcon = dedupeAsync(
   async (iconId, baseDir = process.cwd()) => {
     if (typeof iconId !== "string" || !iconId.includes(":")) {
       throw new Error(
