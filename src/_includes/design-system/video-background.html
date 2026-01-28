@@ -1,11 +1,11 @@
 {%- comment -%}
 Video background block - displays a full-width video background with overlaid text content.
 
-The video is embedded as an iframe (YouTube/Vimeo) and plays automatically without user interaction.
+The video is embedded as an iframe (YouTube) and plays automatically without user interaction.
 A rich text content block is overlaid on top of the video.
 
 Parameters (via block object):
-  - block.video_url: URL of the video to embed (YouTube or Vimeo embed URL) (required)
+  - block.video_id: YouTube video ID (required)
   - block.video_title: Accessible title for the iframe (default: "Background video")
   - block.content: HTML/markdown content to overlay on the video (required)
   - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
@@ -18,18 +18,9 @@ Usage:
 
 {%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
 {%- assign _video_title = block.video_title | default: "Background video" -%}
-{%- assign _video_url = block.video_url | replace: "://www.youtube.com/", "://www.youtube-nocookie.com/" | replace: "://youtube.com/", "://www.youtube-nocookie.com/" -%}
 
 <div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
-  <iframe
-    src="{{ _video_url }}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist={{ _video_url | split: '/' | last | split: '?' | first }}"
-    title="{{ _video_title }}"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="no-referrer"
-  ></iframe>
+  {%- include "design-system/video-iframe.html", video_id: block.video_id, title: _video_title, background: true -%}
   <figure{% if block.overlay_style %} style="{{ block.overlay_style }}"{% endif %}>
     <figcaption>
       {{ block.content }}

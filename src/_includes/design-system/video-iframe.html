@@ -1,0 +1,26 @@
+{%- comment -%}
+Shared YouTube iframe partial with privacy-protecting defaults.
+
+Parameters:
+  - video_id: YouTube video ID (required)
+  - title: Accessible title for the iframe (required)
+  - background: If true, adds mute/loop/controls params for background video (default: false)
+
+Both video-background and video-cards use this partial to ensure consistent
+iframe attributes and privacy settings (nocookie domain, no-referrer policy).
+{%- endcomment -%}
+
+{%- assign _params = "autoplay=1" -%}
+{%- if background -%}
+  {%- assign _params = _params | append: "&mute=1&loop=1&controls=0&playsinline=1&playlist=" | append: video_id -%}
+{%- endif -%}
+
+<iframe
+  src="https://www.youtube-nocookie.com/embed/{{ video_id }}?{{ _params }}"
+  title="{{ title }}"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+  loading="lazy"
+  referrerpolicy="no-referrer"
+></iframe>
