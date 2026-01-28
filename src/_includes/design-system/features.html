@@ -1,8 +1,8 @@
 {%- comment -%}
 Features grid with list semantics.
 
-Parameters:
-  - items: Array of feature objects with properties:
+Parameters (via block object):
+  - block.items: Array of feature objects with properties:
     - icon: Icon content. Supported formats:
         - Iconify ID: "prefix:name" (e.g., "mdi:home", "lucide:settings")
         - Image path: starts with "/" (e.g., "/images/icon.svg")
@@ -11,15 +11,15 @@ Parameters:
     - title: Feature title
     - description: Feature description
     - style: Optional inline styles (e.g., for custom colors)
-  - reveal: If true, adds data-reveal animation (default: true)
-  - heading_level: Heading level for titles, defaults to 3 (h3)
-  - grid_class: CSS class for grid container (default: "features")
+  - block.reveal: If true, adds data-reveal animation (default: true)
+  - block.heading_level: Heading level for titles, defaults to 3 (h3)
+  - block.grid_class: CSS class for grid container (default: "features")
                Use "grid--4" for 4-column layout, "grid" for 3-column, etc.
-  - header_title: Optional section header title (renders section-header before grid)
-  - header_subtitle: Optional section header subtitle
+  - block.header_title: Optional section header title (renders section-header before grid)
+  - block.header_subtitle: Optional section header subtitle
 
 Usage:
-  {% include "design-system/features.html", items: page.features %}
+  {% include "design-system/features.html", block: { items: page.features } %}
 
   Where page.features = [
     { icon: "mdi:rocket-launch", title: "Fast", description: "Static HTML" },
@@ -29,19 +29,21 @@ Usage:
   ]
 {%- endcomment -%}
 
-{%- assign reveal = reveal | default: true -%}
-{%- assign heading_level = heading_level | default: 3 -%}
-{%- assign grid_class = grid_class | default: "features" -%}
+{%- assign reveal = block.reveal | default: true -%}
+{%- assign heading_level = block.heading_level | default: 3 -%}
+{%- assign grid_class = block.grid_class | default: "features" -%}
 
-{%- if header_title -%}
-  {%- include "design-system/section-header.html",
-      title: header_title,
-      subtitle: header_subtitle
-  -%}
+{%- if block.header_title -%}
+  <hgroup class="section-header mb-xl text-center">
+    <h2>{{ block.header_title }}</h2>
+    {%- if block.header_subtitle -%}
+      <p class="text-muted">{{ block.header_subtitle }}</p>
+    {%- endif -%}
+  </hgroup>
 {%- endif -%}
 
 <ul class="{{ grid_class }}" role="list">
-  {%- for item in items -%}
+  {%- for item in block.items -%}
   <li>
     <article class="feature"{% if reveal %} data-reveal{% endif %}{% if item.style %} style="{{ item.style }}"{% endif %}>
       {%- if item.icon -%}
