@@ -1,39 +1,46 @@
 /**
  * Memoization utilities for caching function results.
  *
- * Supports configurable cache key functions with helpers:
- * - jsonKey: for objects via JSON stringify
- *
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
  */
 import { buildReverseIndex } from "./grouping.js";
 
+const DEFAULT_MAX_CACHE_SIZE = 2000;
+
 /**
- * Memoize a function with optional custom cache key
+ * Memoize a function with optional custom cache key.
+ *
+ * IMPORTANT: This uses a Map that grows indefinitely during a build.
+ * For caching by array/object reference (e.g., collection lookups),
+ * use memoizeByRef instead - it uses WeakMap for automatic cleanup.
+ *
  * @param {Function} fn - Function to memoize
- * @param {{ cacheKey?: (args: unknown[]) => string | number }} [options]
+ * @param {{ cacheKey?: (args: unknown[]) => string | number, maxCacheSize?: number }} [options]
  * @returns {Function} Memoized function
  */
 const memoize = (fn, options = {}) => {
   const cache = new Map();
   const keyFn = options.cacheKey || ((args) => args[0]);
+  const maxSize = options.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
 
   return (...args) => {
     const key = keyFn(args);
     if (cache.has(key)) return cache.get(key);
+
+    if (cache.size >= maxSize) {
+      throw new Error(
+        `Memoize cache exceeded ${maxSize} entries. This likely indicates a memory leak - ` +
+          "the function is being called with too many unique arguments. " +
+          "Consider using memoizeByRef for collection-based caching, or increase maxCacheSize if this is intentional.",
+      );
+    }
+
     const result = fn(...args);
     cache.set(key, result);
     return result;
   };
 };
-
-/**
- * Cache key generator for object arguments via JSON stringify
- * @param {[unknown]} args - Arguments tuple with object as first element
- * @returns {string} Cache key (JSON string)
- */
-const jsonKey = (args) => JSON.stringify(args[0]);
 
 /**
  * Create a cached function using WeakMap for object identity caching.
@@ -134,4 +141,4 @@ const indexBy = (getKey) =>
 const groupByWithCache = (getKeys) =>
   cachedEntries((arr) => buildReverseIndex(arr, getKeys));
 
-export { memoize, jsonKey, indexBy, groupByWithCache, memoizeByRef };
+export { memoize, indexBy, groupByWithCache, memoizeByRef };
