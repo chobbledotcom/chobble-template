@@ -10,7 +10,6 @@
  * FAST_INACCURATE_BUILDS=1 skips all linkification for faster builds.
  */
 
-import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import linkifyHtmlLib from "linkify-html";
 import configModule from "#data/config.js";
 import { memoize } from "#toolkit/fp/memoize.js";
