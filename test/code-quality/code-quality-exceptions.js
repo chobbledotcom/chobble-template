@@ -306,7 +306,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:197",
   "src/_lib/filters/filter-core.js:203",
-  "src/_lib/filters/item-filters.js:164", // Normalize null/undefined filters from templates
+  "src/_lib/filters/item-filters.js:162", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",
