@@ -9,7 +9,7 @@
  */
 
 import { buildReverseIndex } from "#toolkit/fp/grouping.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 
 /** @typedef {import("#lib/types").MenuCategoryCollectionItem} MenuCategoryCollectionItem */
 /** @typedef {import("#lib/types").MenuItemCollectionItem} MenuItemCollectionItem */
@@ -20,7 +20,7 @@ import { memoize } from "#toolkit/fp/memoize.js";
  */
 const buildMenuCategoryMap =
   /** @type {(categories: MenuCategoryCollectionItem[]) => Map<string, MenuCategoryCollectionItem[]>} */ (
-    memoize((categories) =>
+    memoizeByRef((categories) =>
       buildReverseIndex(categories, (category) => category.data.menus),
     )
   );
@@ -31,7 +31,7 @@ const buildMenuCategoryMap =
  */
 const buildCategoryItemMap =
   /** @type {(items: MenuItemCollectionItem[]) => Map<string, MenuItemCollectionItem[]>} */ (
-    memoize((items) =>
+    memoizeByRef((items) =>
       buildReverseIndex(items, (item) => item.data.menu_categories),
     )
   );

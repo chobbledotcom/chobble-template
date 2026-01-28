@@ -9,19 +9,36 @@
  */
 import { buildReverseIndex } from "./grouping.js";
 
+const DEFAULT_MAX_CACHE_SIZE = 2000;
+
 /**
- * Memoize a function with optional custom cache key
+ * Memoize a function with optional custom cache key.
+ *
+ * IMPORTANT: This uses a Map that grows indefinitely during a build.
+ * For caching by array/object reference (e.g., collection lookups),
+ * use memoizeByRef instead - it uses WeakMap for automatic cleanup.
+ *
  * @param {Function} fn - Function to memoize
- * @param {{ cacheKey?: (args: unknown[]) => string | number }} [options]
+ * @param {{ cacheKey?: (args: unknown[]) => string | number, maxCacheSize?: number }} [options]
  * @returns {Function} Memoized function
  */
 const memoize = (fn, options = {}) => {
   const cache = new Map();
   const keyFn = options.cacheKey || ((args) => args[0]);
+  const maxSize = options.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
 
   return (...args) => {
     const key = keyFn(args);
     if (cache.has(key)) return cache.get(key);
+
+    if (cache.size >= maxSize) {
+      throw new Error(
+        `Memoize cache exceeded ${maxSize} entries. This likely indicates a memory leak - ` +
+          "the function is being called with too many unique arguments. " +
+          "Consider using memoizeByRef for collection-based caching, or increase maxCacheSize if this is intentional.",
+      );
+    }
+
     const result = fn(...args);
     cache.set(key, result);
     return result;
