@@ -255,8 +255,4 @@ const imageShortcode = async (
     returnElement: false,
   });
 
-export {
-  configureImages,
-  imageShortcode,
-  processAndWrapImage,
-};
+export { configureImages, imageShortcode, processAndWrapImage };
