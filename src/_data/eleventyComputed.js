@@ -29,6 +29,7 @@ const BLOCK_DEFAULTS = {
   "section-header": { level: 2, align: "center" },
   "image-cards": { reveal: true, heading_level: 3 },
   "code-block": { reveal: true },
+  "video-background": { aspect_ratio: "16/9" },
 };
 
 export default {
