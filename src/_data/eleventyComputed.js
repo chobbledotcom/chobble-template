@@ -1,13 +1,10 @@
-import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import getConfig from "#data/config.js";
 import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
-import {
-  getPlaceholderForPath,
-  hashString,
-} from "#media/thumbnail-placeholder.js";
+import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
 import { validateBlocks } from "#utils/block-schema.js";
+import { getFilterAttributes } from "#utils/mock-filter-attributes.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
@@ -16,20 +13,6 @@ import {
   buildProductMeta,
 } from "#utils/schema-helper.js";
 import { getVideoThumbnailUrl } from "#utils/video.js";
-
-/**
- * Generate mock filter_attributes for fast builds.
- * Uses path-based hashing for consistent values across rebuilds.
- * @param {string} inputPath - The file path of the item
- * @returns {Array<{name: string, value: string}>}
- */
-const getMockFilterAttributes = (inputPath) => {
-  const hash = hashString(inputPath || "");
-  return [
-    { name: "Foo Attribute", value: hash % 2 === 0 ? "foo" : "bar" },
-    { name: "Bar Attribute", value: hash % 3 === 0 ? "foo" : "bar" },
-  ];
-};
 
 /**
  * @param {import("#lib/types").EleventyComputedData} data - Page data
@@ -78,13 +61,8 @@ export default {
    * @param {import("#lib/types").EleventyComputedData} data - Page data
    * @returns {Array<{name: string, value: string}>|undefined} Filter attributes
    */
-  filter_attributes: (data) => {
-    if (!data.filter_attributes) return data.filter_attributes;
-    if (FAST_INACCURATE_BUILDS) {
-      return getMockFilterAttributes(data.page.inputPath);
-    }
-    return data.filter_attributes;
-  },
+  filter_attributes: (data) =>
+    getFilterAttributes(data.filter_attributes, data.page.inputPath),
 
   contactForm: () => contactFormFn(),
   quoteFields: () => quoteFieldsFn(),

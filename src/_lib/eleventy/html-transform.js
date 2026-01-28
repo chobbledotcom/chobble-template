@@ -11,6 +11,7 @@
  */
 
 import linkifyHtmlLib from "linkify-html";
+import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import configModule from "#data/config.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { addExternalLinkAttrs } from "#transforms/external-links.js";
@@ -67,18 +68,15 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
  * @returns {string}
  */
 const applyStringTransforms = (content, config) => {
-  if (FAST_INACCURATE_BUILDS) {
-    return addExternalLinkAttrs(content, config);
-  }
-  return addExternalLinkAttrs(
-    linkifyHtmlLib(content, {
-      ignoreTags: [...SKIP_TAGS],
-      target: config.externalLinksTargetBlank ? "_blank" : null,
-      rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
-      format: { url: formatUrlDisplay },
-    }),
-    config,
-  );
+  const processed = FAST_INACCURATE_BUILDS
+    ? content
+    : linkifyHtmlLib(content, {
+        ignoreTags: [...SKIP_TAGS],
+        target: config.externalLinksTargetBlank ? "_blank" : null,
+        rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+        format: { url: formatUrlDisplay },
+      });
+  return addExternalLinkAttrs(processed, config);
 };
 
 /**
