@@ -30,7 +30,6 @@ Usage:
     <button
       type="button"
       class="video-facade"
-      data-video-id="{{ video.id }}"
       aria-label="Play {{ video.title }}"
     >
       {%- image thumbnail_url, video.title, "", "", "", "16/9" -%}
@@ -40,6 +39,7 @@ Usage:
           <path class="video-play-icon" d="M 45,24 27,14 27,34"/>
         </svg>
       </span>
+      <template>{%- include "design-system/video-iframe.html", video_id: video.id, title: video.title -%}</template>
     </button>
     <h{{ heading_level }}>{{ video.title }}</h{{ heading_level }}>
   </li>
