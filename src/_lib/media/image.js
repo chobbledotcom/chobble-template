@@ -17,6 +17,7 @@ import fs from "node:fs";
 
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
+import { PLACEHOLDER_MODE } from "#build/build-mode.js";
 import { cropImage, getAspectRatio, getMetadata } from "#media/image-crop.js";
 import { processExternalImage } from "#media/image-external.js";
 import {
@@ -39,8 +40,6 @@ import {
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
-
-const PLACEHOLDER_MODE = process.env.PLACEHOLDER_IMAGES === "1";
 
 const DEFAULT_OPTIONS = frozenObject({
   outputDir: ".image-cache",
