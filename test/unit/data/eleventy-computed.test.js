@@ -415,6 +415,25 @@ describe("eleventyComputed", () => {
       });
     });
 
+    test("Applies defaults for video-background block type", () => {
+      const data = {
+        blocks: [
+          {
+            type: "video-background",
+            video_url: "https://youtube.com/embed/test",
+            content: "<h2>Test</h2>",
+          },
+        ],
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "video-background",
+        video_url: "https://youtube.com/embed/test",
+        content: "<h2>Test</h2>",
+        aspect_ratio: "16/9",
+      });
+    });
+
     test("User values override defaults", () => {
       const data = {
         blocks: [{ type: "features", reveal: false, heading_level: 2 }],

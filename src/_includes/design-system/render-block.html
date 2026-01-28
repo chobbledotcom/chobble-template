@@ -68,4 +68,11 @@ Renders a single block by type. Used by both blocks.html and landing-page.html.
   {%- when "html" -%}
     {{ block.content }}
 
+  {%- when "video-background" -%}
+    {%- include "design-system/video-background.html",
+        video_url: block.video_url, video_title: block.video_title,
+        content: block.content, aspect_ratio: block.aspect_ratio,
+        overlay_style: block.overlay_style, class: block.class
+    -%}
+
 {%- endcase -%}
