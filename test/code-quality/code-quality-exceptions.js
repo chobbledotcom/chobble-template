@@ -299,14 +299,14 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/eleventy/capture.js:39",
 
   // src/_lib/filters - URL-based filtering, normalize template inputs
-  "src/_lib/filters/category-product-filters.js:174", // Default empty array for categories without products
-  "src/_lib/filters/category-product-filters.js:235", // Default empty array for pages lookup
-  "src/_lib/filters/category-product-filters.js:240", // Normalize null/undefined filters from templates
+  "src/_lib/filters/category-product-filters.js:146", // Default empty array for categories without products
+  "src/_lib/filters/category-product-filters.js:205", // Default empty array for pages lookup
+  "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
   "src/_lib/filters/filter-core.js:141",
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:197",
   "src/_lib/filters/filter-core.js:203",
-  "src/_lib/filters/item-filters.js:162", // Normalize null/undefined filters from templates
+  "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",
