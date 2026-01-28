@@ -2,23 +2,14 @@
   <section id="tabs">
     <ul>
       {%- for tab in tabs -%}
-        <li class="tab">
-          <a href="#tab-{{ forloop.index }}">
-            {{- tab.title -}}
-          </a>
-        </li>
-        <li
-          class="body"
-          id="tab-{{ forloop.index }}"
-        >
-          {%- if tab.image -%}
-            {% image tab.image, tab.title, "240,480,640", "", "", "1/1" %}
-          {%- endif -%}
-          <div class="tab-content">
-            {{- tab.body | renderContent: "md" -}}
-          </div>
-        </li>
+        <li><a href="#tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>{{- tab.title -}}</a></li>
       {%- endfor -%}
     </ul>
+    {%- for tab in tabs -%}
+      <div id="tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>
+        {%- if tab.image -%}{% image tab.image, tab.title, "387,774", "", "", "1/1" %}{%- endif -%}
+        <div>{{- tab.body | renderContent: "md" -}}</div>
+      </div>
+    {%- endfor -%}
   </section>
 {%- endif -%}
