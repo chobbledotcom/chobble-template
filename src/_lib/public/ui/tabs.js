@@ -1,27 +1,33 @@
 import { onReady } from "#public/utils/on-ready.js";
 
-const setActiveTab = (tabs, activeLink) => {
-  for (const link of tabs) {
-    link.closest(".tab").classList.remove("active");
+const setActiveTab = (container, targetId) => {
+  for (const link of container.querySelectorAll(".tab-nav a")) {
+    link.classList.toggle("active", link.getAttribute("href") === targetId);
   }
-  activeLink.closest(".tab").classList.add("active");
+  for (const panel of container.querySelectorAll(".tab-panel")) {
+    panel.classList.toggle("active", `#${panel.id}` === targetId);
+  }
 };
 
 onReady(() => {
-  const tabs = document.querySelectorAll("#tabs a[href^='#tab-']");
-  if (tabs.length === 0) return;
+  const container = document.getElementById("tabs");
+  if (!container) return;
 
-  const activeLink = [...tabs].find(
-    (t) => t.getAttribute("href") === window.location.hash,
-  );
-  setActiveTab(tabs, activeLink || tabs[0]);
+  const links = container.querySelectorAll(".tab-nav a");
+  if (links.length === 0) return;
 
-  for (const tab of tabs) {
-    tab.addEventListener("click", (event) => {
+  const initialTarget =
+    [...links].find((l) => l.getAttribute("href") === window.location.hash) ||
+    links[0];
+  setActiveTab(container, initialTarget.getAttribute("href"));
+
+  for (const link of links) {
+    link.addEventListener("click", (event) => {
       event.preventDefault();
-      setActiveTab(tabs, tab);
-      history.pushState({}, "", tab.href);
-      history.pushState({}, "", tab.href);
+      const targetId = link.getAttribute("href");
+      setActiveTab(container, targetId);
+      history.pushState({}, "", targetId);
+      history.pushState({}, "", targetId);
       history.back();
     });
   }

@@ -1,49 +1,41 @@
 #tabs {
   margin: 2rem 0;
-  & > ul {
-    display: grid;
-    padding: 0;
-    margin: 0;
-    grid-template-columns: repeat(auto-fit, minmax(0, auto));
-    list-style-type: none;
-    gap: 0.5rem;
-    height: auto;
-    padding-bottom: 17rem;
-    position: relative;
 
-    .tab {
-      grid-row: 1;
-      padding: 0;
-      a {
-        padding: 0.5rem 1rem;
-        &:hover {
-          background: var(--color-bg);
-        }
+  .tab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    a {
+      padding: 0.5rem 1rem;
+      &:hover,
+      &.active {
+        background: var(--color-bg);
       }
     }
-    .body {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      bottom: 0;
-      height: 17rem;
+  }
+
+  .tab-panels {
+    .tab-panel {
       display: none;
       flex-direction: row;
       gap: 1rem;
-      &:target {
+      align-items: flex-start;
+
+      &.active {
         display: flex;
       }
-      .image-wrapper {
-        flex-shrink: 0;
-        height: 100%;
-      }
-      .tab-content {
-        flex: 1;
-        overflow-y: auto;
-      }
     }
-    &:not(:has(.body:target)) .body:nth-of-type(2) {
-      display: flex;
+
+    .tab-image {
+      flex-shrink: 0;
+      max-width: 387px;
+    }
+
+    .tab-content {
+      flex: 1;
+      min-width: 0;
     }
   }
 }
