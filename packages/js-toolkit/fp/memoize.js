@@ -10,27 +10,22 @@
 import { buildReverseIndex } from "./grouping.js";
 
 /**
- * Memoize a function with optional custom cache key.
- * The returned function has a `.clear()` method to reset the cache.
+ * Memoize a function with optional custom cache key
  * @param {Function} fn - Function to memoize
  * @param {{ cacheKey?: (args: unknown[]) => string | number }} [options]
- * @returns {Function & { clear: () => void }} Memoized function with clear method
+ * @returns {Function} Memoized function
  */
 const memoize = (fn, options = {}) => {
   const cache = new Map();
   const keyFn = options.cacheKey || ((args) => args[0]);
 
-  const memoized = (...args) => {
+  return (...args) => {
     const key = keyFn(args);
     if (cache.has(key)) return cache.get(key);
     const result = fn(...args);
     cache.set(key, result);
     return result;
   };
-
-  memoized.clear = () => cache.clear();
-
-  return memoized;
 };
 
 /**
