@@ -32,22 +32,17 @@ const cropImage = async (aspectRatio, sourcePath, metadata) => {
     CROP_CACHE_DIR,
     `${basename}-crop-${cacheHash}.jpeg`,
   );
-
   if (fs.existsSync(cachedPath)) return cachedPath;
 
   const [ratioWidth, ratioHeight] = aspectRatio
     .split("/")
     .map(Number.parseFloat);
-  const cropDimensions = {
-    width: metadata.width,
-    height: Math.round(metadata.width / (ratioWidth / ratioHeight)),
-  };
-
+  const cropHeight = Math.round(metadata.width / (ratioWidth / ratioHeight));
   fs.mkdirSync(CROP_CACHE_DIR, { recursive: true });
 
   const sharp = await getSharp();
   await sharp(sourcePath)
-    .resize(cropDimensions.width, cropDimensions.height, { fit: "cover" })
+    .resize(metadata.width, cropHeight, { fit: "cover" })
     .toFile(cachedPath);
 
   return cachedPath;

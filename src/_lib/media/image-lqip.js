@@ -18,13 +18,6 @@ const LQIP_WIDTH = 32;
 const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
 /**
- * Get file size.
- * @param {string} imagePath - Path to the image file
- * @returns {number} File size in bytes
- */
-const getFileSize = (imagePath) => fs.statSync(imagePath).size;
-
-/**
  * Check if LQIP should be generated for an image.
  * @param {string} imagePath - Path to the image file
  * @param {Object} metadata - Image metadata from sharp
@@ -32,20 +25,7 @@ const getFileSize = (imagePath) => fs.statSync(imagePath).size;
  */
 const shouldGenerateLqip = (imagePath, metadata) =>
   metadata.format !== "svg" &&
-  getFileSize(imagePath) >= PLACEHOLDER_SIZE_THRESHOLD;
-
-/**
- * Read LQIP file and convert to base64 data URL.
- * Not memoized - each unique image is processed once, and the outer
- * computeWrappedImageHtml cache handles repeated option combinations.
- * @param {string} outputPath - Path to the LQIP webp file
- * @returns {string} CSS url() with base64 data
- */
-const readLqipAsBase64 = (outputPath) => {
-  const file = fs.readFileSync(outputPath);
-  const base64 = file.toString("base64");
-  return `url('data:image/webp;base64,${base64}')`;
-};
+  fs.statSync(imagePath).size >= PLACEHOLDER_SIZE_THRESHOLD;
 
 /**
  * Extract LQIP data URL from eleventy-img metadata.
@@ -59,7 +39,8 @@ const extractLqipFromMetadata = (imageMetadata) => {
   const lqipImage = imageMetadata.webp.find((img) => img.width === LQIP_WIDTH);
   if (!lqipImage) return null;
 
-  return readLqipAsBase64(lqipImage.outputPath);
+  const base64 = fs.readFileSync(lqipImage.outputPath).toString("base64");
+  return `url('data:image/webp;base64,${base64}')`;
 };
 
 /**
