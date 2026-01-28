@@ -323,4 +323,116 @@ describe("eleventyComputed", () => {
       expect(typeof result).toBe("object");
     });
   });
+
+  describe("blocks", () => {
+    test("Returns undefined when blocks not set", () => {
+      const data = {};
+      expect(eleventyComputed.blocks(data)).toBeUndefined();
+    });
+
+    test("Returns blocks array unchanged when no defaults apply", () => {
+      const blocks = [{ type: "unknown-type", content: "test" }];
+      const data = { blocks };
+      const result = eleventyComputed.blocks(data);
+      expect(result).toEqual([{ type: "unknown-type", content: "test" }]);
+    });
+
+    test("Applies defaults for features block type", () => {
+      const data = { blocks: [{ type: "features", items: [] }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "features",
+        items: [],
+        reveal: true,
+        heading_level: 3,
+        grid_class: "features",
+      });
+    });
+
+    test("Applies defaults for stats block type", () => {
+      const data = { blocks: [{ type: "stats", items: [] }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({ type: "stats", items: [], reveal: true });
+    });
+
+    test("Applies defaults for split block type", () => {
+      const data = { blocks: [{ type: "split", title: "Test" }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "split",
+        title: "Test",
+        title_level: 2,
+        reveal_figure: "scale",
+        reveal_content: "left",
+      });
+    });
+
+    test("Sets reveal_content to right for reversed split block", () => {
+      const data = { blocks: [{ type: "split", title: "Test", reverse: true }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal_content).toBe("right");
+    });
+
+    test("Preserves explicit reveal_content on split block", () => {
+      const data = {
+        blocks: [{ type: "split", title: "Test", reveal_content: "custom" }],
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal_content).toBe("custom");
+    });
+
+    test("Applies defaults for section-header block type", () => {
+      const data = { blocks: [{ type: "section-header", text: "Header" }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "section-header",
+        text: "Header",
+        level: 2,
+        align: "center",
+      });
+    });
+
+    test("Applies defaults for image-cards block type", () => {
+      const data = { blocks: [{ type: "image-cards", cards: [] }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "image-cards",
+        cards: [],
+        reveal: true,
+        heading_level: 3,
+      });
+    });
+
+    test("Applies defaults for code-block type", () => {
+      const data = { blocks: [{ type: "code-block", code: "test" }] };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "code-block",
+        code: "test",
+        reveal: true,
+      });
+    });
+
+    test("User values override defaults", () => {
+      const data = {
+        blocks: [{ type: "features", reveal: false, heading_level: 2 }],
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal).toBe(false);
+      expect(result[0].heading_level).toBe(2);
+      expect(result[0].grid_class).toBe("features"); // default still applied
+    });
+
+    test("Processes multiple blocks with different types", () => {
+      const data = {
+        blocks: [
+          { type: "stats", items: [] },
+          { type: "code-block", code: "x" },
+        ],
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal).toBe(true);
+      expect(result[1].reveal).toBe(true);
+    });
+  });
 });
