@@ -10,6 +10,7 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
  * @param {import("#lib/types").EleventyComputedData} data - Page data
@@ -137,5 +138,19 @@ export default {
       }
       return merged;
     });
+  },
+
+  /**
+   * Adds thumbnail_url to each video object. YouTube videos get a thumbnail URL,
+   * custom iframe URLs (starting with "http") get null.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Array|undefined} Videos with thumbnail_url added
+   */
+  videos: (data) => {
+    if (!data.videos) return data.videos;
+    return data.videos.map((video) => ({
+      ...video,
+      thumbnail_url: getVideoThumbnailUrl(video.id),
+    }));
   },
 };

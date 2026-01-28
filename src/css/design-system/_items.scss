@@ -212,6 +212,12 @@
             fill-opacity: 1;
           }
         }
+
+        // No thumbnail variant for custom video URLs
+        &.video-facade--no-thumbnail {
+          background: var(--surface-muted);
+          aspect-ratio: 16 / 9;
+        }
       }
     }
 

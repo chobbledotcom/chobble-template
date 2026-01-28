@@ -1,13 +1,17 @@
 {%- comment -%}
-Video cards grid - displays YouTube video thumbnails with click-to-play.
+Video cards grid - displays video thumbnails with click-to-play.
+
+Supports both YouTube video IDs and custom iframe URLs (starting with "http").
+YouTube videos show optimized thumbnails; custom URLs show a placeholder.
 
 Uses eleventy-img to fetch and optimize YouTube thumbnails for fast loading.
 Videos only load when clicked, saving bandwidth until user interaction.
 
 Parameters:
   - videos: Array of video objects with properties:
-    - id: YouTube video ID (required)
+    - id: YouTube video ID or custom iframe URL (required)
     - title: Video title (required)
+    - thumbnail_url: Computed property - YouTube thumbnail URL or null for custom URLs
   - reveal: If true, adds data-reveal animation (default: true)
   - heading_level: Heading level for titles, defaults to 3 (h3)
 
@@ -15,7 +19,8 @@ Usage:
   {% include "design-system/video-cards.html", videos: page.videos %}
 
   Where page.videos = [
-    { id: "dQw4w9WgXcQ", title: "Video Title" },
+    { id: "dQw4w9WgXcQ", title: "YouTube Video" },
+    { id: "https://player.vimeo.com/video/123456", title: "Vimeo Video" },
     ...
   ]
 {%- endcomment -%}
@@ -25,14 +30,15 @@ Usage:
 
 <ul class="items video-cards" role="list">
   {%- for video in videos -%}
-  {%- assign thumbnail_url = "https://img.youtube.com/vi/" | append: video.id | append: "/hqdefault.jpg" -%}
   <li{% if reveal %} data-reveal{% endif %}>
     <button
       type="button"
-      class="video-facade"
+      class="video-facade{% unless video.thumbnail_url %} video-facade--no-thumbnail{% endunless %}"
       aria-label="Play {{ video.title }}"
     >
-      {%- image thumbnail_url, video.title, "", "", "", "16/9" -%}
+      {%- if video.thumbnail_url -%}
+      {%- image video.thumbnail_url, video.title, "", "", "", "16/9" -%}
+      {%- endif -%}
       <span class="video-play-button" aria-hidden="true">
         <svg viewBox="0 0 68 48" width="68" height="48">
           <path class="video-play-bg" d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"/>

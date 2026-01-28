@@ -456,4 +456,52 @@ describe("eleventyComputed", () => {
       expect(result[1].reveal).toBe(true);
     });
   });
+
+  describe("videos", () => {
+    test("Returns undefined when videos not set", () => {
+      const data = {};
+      expect(eleventyComputed.videos(data)).toBeUndefined();
+    });
+
+    test("Adds thumbnail_url for YouTube video IDs", () => {
+      const data = {
+        videos: [
+          { id: "dQw4w9WgXcQ", title: "YouTube Video" },
+          { id: "abc123xyz", title: "Another Video" },
+        ],
+      };
+      const result = eleventyComputed.videos(data);
+      expect(result[0].thumbnail_url).toBe(
+        "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      );
+      expect(result[1].thumbnail_url).toBe(
+        "https://img.youtube.com/vi/abc123xyz/hqdefault.jpg",
+      );
+    });
+
+    test("Sets thumbnail_url to null for custom URLs", () => {
+      const data = {
+        videos: [
+          { id: "https://player.vimeo.com/video/123456", title: "Vimeo Video" },
+          { id: "http://example.com/embed", title: "Custom Embed" },
+        ],
+      };
+      const result = eleventyComputed.videos(data);
+      expect(result[0].thumbnail_url).toBe(null);
+      expect(result[1].thumbnail_url).toBe(null);
+    });
+
+    test("Preserves other video properties", () => {
+      const data = {
+        videos: [{ id: "dQw4w9WgXcQ", title: "Test", customField: "value" }],
+      };
+      const result = eleventyComputed.videos(data);
+      expect(result[0].id).toBe("dQw4w9WgXcQ");
+      expect(result[0].title).toBe("Test");
+      expect(result[0].customField).toBe("value");
+      expect(result[0].thumbnail_url).toBe(
+        "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      );
+    });
+  });
 });
