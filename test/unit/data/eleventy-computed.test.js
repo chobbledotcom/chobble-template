@@ -306,6 +306,25 @@ describe("eleventyComputed", () => {
     });
   });
 
+  describe("filter_attributes", () => {
+    test("Returns undefined when filter_attributes not set", () => {
+      const data = { page: { inputPath: "/products/test.md" } };
+      expect(eleventyComputed.filter_attributes(data)).toBeUndefined();
+    });
+
+    test("Returns filter_attributes unchanged in normal mode", () => {
+      const filterAttrs = [
+        { name: "Color", value: "Red" },
+        { name: "Size", value: "Large" },
+      ];
+      const data = {
+        filter_attributes: filterAttrs,
+        page: { inputPath: "/products/test.md" },
+      };
+      expect(eleventyComputed.filter_attributes(data)).toBe(filterAttrs);
+    });
+  });
+
   describe("contactForm", () => {
     test("Returns contact form configuration", () => {
       const result = eleventyComputed.contactForm();

@@ -6,9 +6,12 @@
  * 2. DOM-based phase (only when needed): Phone linkification, tables, images
  *
  * DOM parsing is completely skipped when a page has no tables, phone numbers, or local images.
+ *
+ * FAST_INACCURATE_BUILDS=1 skips all linkification for faster builds.
  */
 
 import linkifyHtmlLib from "linkify-html";
+import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import configModule from "#data/config.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { addExternalLinkAttrs } from "#transforms/external-links.js";
@@ -39,6 +42,7 @@ const needsDomParsing = (content, phoneLen) =>
 
 /**
  * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
+ * Skips phone linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} html
  * @param {object} config
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
@@ -47,7 +51,9 @@ const needsDomParsing = (content, phoneLen) =>
 const applyDomTransforms = async (html, config, processAndWrapImage) => {
   const dom = await loadDOM(html);
   const { document } = dom.window;
-  linkifyPhones(document, config);
+  if (!FAST_INACCURATE_BUILDS) {
+    linkifyPhones(document, config);
+  }
   wrapTables(document, config);
   processReadMore(document);
   await processImages(document, config, processAndWrapImage);
@@ -56,20 +62,22 @@ const applyDomTransforms = async (html, config, processAndWrapImage) => {
 
 /**
  * Apply string-based transforms (URL/email linkification, external link attrs)
+ * Skips linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} content
  * @param {object} config
  * @returns {string}
  */
-const applyStringTransforms = (content, config) =>
-  addExternalLinkAttrs(
-    linkifyHtmlLib(content, {
-      ignoreTags: [...SKIP_TAGS],
-      target: config.externalLinksTargetBlank ? "_blank" : null,
-      rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
-      format: { url: formatUrlDisplay },
-    }),
-    config,
-  );
+const applyStringTransforms = (content, config) => {
+  const processed = FAST_INACCURATE_BUILDS
+    ? content
+    : linkifyHtmlLib(content, {
+        ignoreTags: [...SKIP_TAGS],
+        target: config.externalLinksTargetBlank ? "_blank" : null,
+        rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+        format: { url: formatUrlDisplay },
+      });
+  return addExternalLinkAttrs(processed, config);
+};
 
 /**
  * Check if path is an HTML file
