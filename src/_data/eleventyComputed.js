@@ -3,6 +3,7 @@ import contactFormFn from "#data/contact-form.js";
 import quoteFieldsFn from "#data/quote-fields.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
+import { validateBlocks } from "#utils/block-schema.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
 import {
   buildBaseMeta,
@@ -10,6 +11,7 @@ import {
   buildPostMeta,
   buildProductMeta,
 } from "#utils/schema-helper.js";
+import { getVideoThumbnailUrl } from "#utils/video.js";
 
 /**
  * @param {import("#lib/types").EleventyComputedData} data - Page data
@@ -17,6 +19,20 @@ import {
  * @returns {boolean} Whether data has the given tag
  */
 const hasTag = (data, tag) => (data.tags || []).includes(tag);
+
+/**
+ * Default values for block types. Applied at build time so templates
+ * don't need to handle defaults.
+ */
+const BLOCK_DEFAULTS = {
+  features: { reveal: true, heading_level: 3, grid_class: "features" },
+  stats: { reveal: true },
+  split: { title_level: 2, reveal_figure: "scale" },
+  "section-header": { level: 2, align: "center" },
+  "image-cards": { reveal: true, heading_level: 3 },
+  "code-block": { reveal: true },
+  "video-background": { aspect_ratio: "16/9" },
+};
 
 export default {
   /**
@@ -106,5 +122,38 @@ export default {
     if (hasTag(data, "news")) return buildPostMeta(data);
     if (data.layout === "contact.html") return buildOrganizationMeta(data);
     return buildBaseMeta(data);
+  },
+
+  /**
+   * Validates and applies default values to blocks. Works for any content
+   * with blocks, not just landing pages.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Array|undefined} Blocks with defaults applied
+   * @throws {Error} If any block contains unknown keys
+   */
+  blocks: (data) => {
+    if (!data.blocks) return data.blocks;
+    validateBlocks(data.blocks, ` in ${data.page.inputPath}`);
+    return data.blocks.map((block) => {
+      const merged = { ...BLOCK_DEFAULTS[block.type], ...block };
+      if (block.type === "split" && !block.reveal_content) {
+        merged.reveal_content = block.reverse ? "right" : "left";
+      }
+      return merged;
+    });
+  },
+
+  /**
+   * Adds thumbnail_url to each video object. YouTube videos get a thumbnail URL,
+   * custom iframe URLs (starting with "http") get null.
+   * @param {import("#lib/types").EleventyComputedData} data - Page data
+   * @returns {Array|undefined} Videos with thumbnail_url added
+   */
+  videos: (data) => {
+    if (!data.videos) return data.videos;
+    return data.videos.map((video) => ({
+      ...video,
+      thumbnail_url: getVideoThumbnailUrl(video.id),
+    }));
   },
 };

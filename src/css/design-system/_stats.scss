@@ -11,8 +11,6 @@
   dl.stats {
     @include flex-wrap($space-xl);
     justify-content: center;
-    margin: 0;
-    padding: 0;
   }
 
   // Also support legacy div.stats
@@ -22,21 +20,16 @@
   }
 
   .stat {
+    @include flex-col($space-xs, center);
     text-align: center;
     min-width: 150px;
     padding: $space-xs $space-sm;
 
-    dd {
-      margin: 0;
-    }
-
     strong {
-      display: block;
       font-size: $font-size-4xl;
       font-weight: 700;
       color: var(--primary);
       line-height: 1;
-      margin-bottom: $space-xs;
 
       @include tablet-up {
         font-size: $font-size-5xl;

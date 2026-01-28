@@ -19,11 +19,15 @@
   // ===========================================================================
   // BASE RESET (scoped)
   // ===========================================================================
+  // Zero out all margins and paddings. Spacing is controlled exclusively
+  // through flexbox/grid gap at the container level.
 
   *,
   *::before,
   *::after {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
   scroll-behavior: smooth;
@@ -46,6 +50,8 @@
   // ===========================================================================
   // TYPOGRAPHY
   // ===========================================================================
+  // No margins on text elements - spacing comes from parent flex/grid gap.
+  // Use .stack or similar containers for vertical rhythm.
 
   h1,
   h2,
@@ -53,7 +59,6 @@
   h4,
   h5,
   h6 {
-    margin: 0 0 $space-md;
     font-family: var(--font-heading, var(--font-sans));
     font-weight: 700;
     line-height: $line-height-tight;
@@ -65,7 +70,6 @@
   }
   h2 {
     @include heading-lg;
-    margin-bottom: $space-lg;
   }
   h3 {
     @include heading-md;
@@ -75,11 +79,7 @@
   }
 
   p {
-    margin: 0 0 $space-md;
     line-height: $line-height-relaxed;
-    &:last-child {
-      margin-bottom: 0;
-    }
   }
 
   // Links - exclude buttons
@@ -101,7 +101,6 @@
   }
 
   pre {
-    margin: $space-lg 0;
     padding: $space-md;
     background: #{$color-dark-bg};
     color: #{$color-dark-text};
@@ -120,14 +119,11 @@
     display: block;
   }
 
-  ul,
-  ol {
-    margin: 0 0 $space-md;
+  // Prose lists: flex column with gap, padding-left for bullet indentation
+  ul:not([class]),
+  ol:not([class]) {
+    @include flex-col($space-xs);
     padding-left: $space-lg;
-  }
-
-  li {
-    margin-bottom: $space-xs;
   }
 
   // ===========================================================================
@@ -206,19 +202,8 @@
 
   > .section-header {
     @include card($space-xl, $radius-lg);
+    @include flex-col($space-sm);
     text-align: center;
-
-    h1, h2, h3, h4, h5, h6 {
-      margin-bottom: $space-sm;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    p {
-      margin-bottom: 0;
-    }
 
     // Gradient text style (opt-in via .gradient class)
     // Default is solid for better readability and contrast
@@ -233,34 +218,23 @@
   }
 
   // ===========================================================================
-  // BLOCK SPACING
+  // BLOCK LAYOUT
   // ===========================================================================
-  // Consistent vertical rhythm between block-level components (features, stats,
-  // code-block, etc.) when used as direct children of .design-system
+  // When .design-system is used as a content wrapper (not on body/section),
+  // it becomes a flex column with consistent gap between blocks.
 
-  > .section-header,
-  > .features,
-  > ul.features,
-  > .stats,
-  > dl.stats,
-  > .code-block,
-  > .split,
-  > .grid {
-    margin-bottom: $space-2xl;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
+  &:not(body):not(section) {
+    @include flex-col($space-2xl);
   }
+}
 
-  // Extra spacing before section headers that follow content blocks
-  > .features + .section-header,
-  > ul.features + .section-header,
-  > .stats + .section-header,
-  > dl.stats + .section-header,
-  > .code-block + .section-header {
-    margin-top: $space-xl;
-  }
+// =============================================================================
+// BODY RESET
+// =============================================================================
+// Reset body spacing when design-system is applied directly to the body element
+
+body.design-system {
+  @include reset-spacing;
 }
 
 // =============================================================================

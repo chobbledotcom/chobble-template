@@ -323,4 +323,215 @@ describe("eleventyComputed", () => {
       expect(typeof result).toBe("object");
     });
   });
+
+  describe("blocks", () => {
+    const page = { inputPath: "test.html" };
+
+    test("Returns undefined when blocks not set", () => {
+      const data = { page };
+      expect(eleventyComputed.blocks(data)).toBeUndefined();
+    });
+
+    test("Returns blocks array with defaults for markdown type", () => {
+      const blocks = [{ type: "markdown", content: "test" }];
+      const data = { blocks, page };
+      const result = eleventyComputed.blocks(data);
+      expect(result).toEqual([{ type: "markdown", content: "test" }]);
+    });
+
+    test("Throws error for unknown block type", () => {
+      const blocks = [{ type: "unknown-type", content: "test" }];
+      const data = { blocks, page };
+      expect(() => eleventyComputed.blocks(data)).toThrow(
+        'Unknown block type "unknown-type"',
+      );
+    });
+
+    test("Throws error for unknown block keys", () => {
+      const blocks = [{ type: "video-background", video_url: "bad" }];
+      const data = { blocks, page };
+      expect(() => eleventyComputed.blocks(data)).toThrow(
+        'unknown keys: "video_url"',
+      );
+    });
+
+    test("Applies defaults for features block type", () => {
+      const data = { blocks: [{ type: "features", items: [] }], page };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "features",
+        items: [],
+        reveal: true,
+        heading_level: 3,
+        grid_class: "features",
+      });
+    });
+
+    test("Applies defaults for stats block type", () => {
+      const data = { blocks: [{ type: "stats", items: [] }], page };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({ type: "stats", items: [], reveal: true });
+    });
+
+    test("Applies defaults for split block type", () => {
+      const data = { blocks: [{ type: "split", title: "Test" }], page };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "split",
+        title: "Test",
+        title_level: 2,
+        reveal_figure: "scale",
+        reveal_content: "left",
+      });
+    });
+
+    test("Sets reveal_content to right for reversed split block", () => {
+      const data = {
+        blocks: [{ type: "split", title: "Test", reverse: true }],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal_content).toBe("right");
+    });
+
+    test("Preserves explicit reveal_content on split block", () => {
+      const data = {
+        blocks: [{ type: "split", title: "Test", reveal_content: "left" }],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal_content).toBe("left");
+    });
+
+    test("Applies defaults for section-header block type", () => {
+      const data = {
+        blocks: [{ type: "section-header", title: "Header" }],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "section-header",
+        title: "Header",
+        level: 2,
+        align: "center",
+      });
+    });
+
+    test("Applies defaults for image-cards block type", () => {
+      const data = { blocks: [{ type: "image-cards", items: [] }], page };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "image-cards",
+        items: [],
+        reveal: true,
+        heading_level: 3,
+      });
+    });
+
+    test("Applies defaults for code-block type", () => {
+      const data = {
+        blocks: [{ type: "code-block", code: "test", filename: "test.js" }],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "code-block",
+        code: "test",
+        filename: "test.js",
+        reveal: true,
+      });
+    });
+
+    test("Applies defaults for video-background block type", () => {
+      const data = {
+        blocks: [
+          {
+            type: "video-background",
+            video_id: "dQw4w9WgXcQ",
+            content: "<h2>Test</h2>",
+          },
+        ],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0]).toEqual({
+        type: "video-background",
+        video_id: "dQw4w9WgXcQ",
+        content: "<h2>Test</h2>",
+        aspect_ratio: "16/9",
+      });
+    });
+
+    test("User values override defaults", () => {
+      const data = {
+        blocks: [{ type: "features", reveal: false, heading_level: 2 }],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal).toBe(false);
+      expect(result[0].heading_level).toBe(2);
+      expect(result[0].grid_class).toBe("features"); // default still applied
+    });
+
+    test("Processes multiple blocks with different types", () => {
+      const data = {
+        blocks: [
+          { type: "stats", items: [] },
+          { type: "code-block", code: "x", filename: "x.js" },
+        ],
+        page,
+      };
+      const result = eleventyComputed.blocks(data);
+      expect(result[0].reveal).toBe(true);
+      expect(result[1].reveal).toBe(true);
+    });
+  });
+
+  describe("videos", () => {
+    test("Returns undefined when videos not set", () => {
+      const data = {};
+      expect(eleventyComputed.videos(data)).toBeUndefined();
+    });
+
+    test("Adds thumbnail_url for YouTube video IDs", () => {
+      const data = {
+        videos: [
+          { id: "dQw4w9WgXcQ", title: "YouTube Video" },
+          { id: "abc123xyz", title: "Another Video" },
+        ],
+      };
+      const result = eleventyComputed.videos(data);
+      expect(result[0].thumbnail_url).toBe(
+        "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      );
+      expect(result[1].thumbnail_url).toBe(
+        "https://img.youtube.com/vi/abc123xyz/hqdefault.jpg",
+      );
+    });
+
+    test("Sets thumbnail_url to null for custom URLs", () => {
+      const data = {
+        videos: [
+          { id: "https://player.vimeo.com/video/123456", title: "Vimeo Video" },
+          { id: "http://example.com/embed", title: "Custom Embed" },
+        ],
+      };
+      const result = eleventyComputed.videos(data);
+      expect(result[0].thumbnail_url).toBe(null);
+      expect(result[1].thumbnail_url).toBe(null);
+    });
+
+    test("Preserves other video properties", () => {
+      const data = {
+        videos: [{ id: "dQw4w9WgXcQ", title: "Test", customField: "value" }],
+      };
+      const result = eleventyComputed.videos(data);
+      expect(result[0].id).toBe("dQw4w9WgXcQ");
+      expect(result[0].title).toBe("Test");
+      expect(result[0].customField).toBe("value");
+      expect(result[0].thumbnail_url).toBe(
+        "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      );
+    });
+  });
 });

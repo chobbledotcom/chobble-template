@@ -5,67 +5,39 @@ Renders a single block by type. Used by both blocks.html and landing-page.html.
 {%- case block.type -%}
 
   {%- when "section-header" -%}
-    {%- assign _level = block.level | default: 2 -%}
-    {%- assign _align = block.align | default: "center" -%}
-    {%- include "design-system/section-header.html",
-        title: block.title, subtitle: block.subtitle,
-        level: _level, align: _align, class: block.class
-    -%}
+    {%- include "design-system/section-header.html", block: block -%}
 
   {%- when "features" -%}
-    {%- assign _heading_level = block.heading_level | default: 3 -%}
-    {%- include "design-system/features.html",
-        items: block.items, reveal: block.reveal, heading_level: _heading_level,
-        grid_class: block.grid_class, header_title: block.header_title,
-        header_subtitle: block.header_subtitle
-    -%}
+    {%- include "design-system/features.html", block: block -%}
 
   {%- when "image-cards" -%}
-    {%- assign _heading_level = block.heading_level | default: 3 -%}
-    {%- include "design-system/image-cards.html",
-        items: block.items, reveal: block.reveal, heading_level: _heading_level,
-        image_aspect_ratio: block.image_aspect_ratio
-    -%}
+    {%- include "design-system/image-cards.html", block: block -%}
 
   {%- when "stats" -%}
-    {%- include "design-system/stats.html", items: block.items, reveal: block.reveal -%}
+    {%- include "design-system/stats.html", block: block -%}
 
   {%- when "code-block" -%}
-    {%- include "design-system/code-block.html",
-        filename: block.filename, code: block.code,
-        language: block.language, reveal: block.reveal
-    -%}
+    {%- include "design-system/code-block.html", block: block -%}
 
   {%- when "hero" -%}
-    {%- include "design-system/hero.html",
-        badge: block.badge, title: block.title, lead: block.lead,
-        buttons: block.buttons, class: block.class
-    -%}
+    {%- include "design-system/hero.html", block: block -%}
 
   {%- when "split" -%}
-    {%- assign _title_level = block.title_level | default: 2 -%}
-    {%- include "design-system/split.html",
-        title: block.title, title_level: _title_level, subtitle: block.subtitle,
-        content: block.content, figure_type: block.figure_type,
-        figure_content: block.figure_content, reverse: block.reverse,
-        reveal_content: block.reveal_content, reveal_figure: block.reveal_figure,
-        button: block.button
-    -%}
+    {%- include "design-system/split.html", block: block -%}
 
   {%- when "cta" -%}
-    {%- include "design-system/cta.html",
-        title: block.title, description: block.description, button: block.button
-    -%}
+    {%- include "design-system/cta.html", block: block -%}
 
   {%- when "footer" -%}
-    {%- include "design-system/footer.html",
-        text: block.text, links: block.links, aria_label: block.aria_label
-    -%}
+    {%- include "design-system/footer.html", block: block -%}
 
   {%- when "markdown" -%}
     {{ block.content | renderContent: "md" }}
 
   {%- when "html" -%}
     {{ block.content }}
+
+  {%- when "video-background" -%}
+    {%- include "design-system/video-background.html", block: block -%}
 
 {%- endcase -%}

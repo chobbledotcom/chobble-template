@@ -16,15 +16,10 @@
     --text: #fff;
     --text-muted: rgba(255, 255, 255, 0.8);
 
-    h2 {
-      margin-bottom: $space-sm;
-    }
-
     p {
       @include body-lg;
       opacity: 0.9;
       max-width: 600px;
-      margin-bottom: $space-lg;
     }
 
     .btn--secondary {

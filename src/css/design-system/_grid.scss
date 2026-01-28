@@ -29,4 +29,12 @@
       }
     }
   }
+
+  // Reset list styles when using grid classes on <ul> elements
+  ul.grid,
+  ul.grid--2,
+  ul.grid--4 {
+    list-style: none;
+    padding-left: 0;
+  }
 }

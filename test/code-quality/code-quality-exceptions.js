@@ -227,6 +227,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
 
   // Utility functions - tested for shared logic
+  "src/_lib/utils/block-schema.js:BLOCK_SCHEMAS", // Schema definitions exported for test verification
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
 ]);
@@ -283,10 +284,10 @@ const ALLOWED_DOM_CONSTRUCTOR = frozenSet([
 const ALLOWED_NULLISH_COALESCING = frozenSet([
   // src/_data - user-facing data boundary (frontmatter from markdown files)
   // These are legitimate exceptions per CLAUDE.md: "User-provided input at system boundaries"
-  "src/_data/eleventyComputed.js:68", // order
-  "src/_data/eleventyComputed.js:74", // faqs
-  "src/_data/eleventyComputed.js:83", // tab.body defaults to empty string
-  "src/_data/eleventyComputed.js:98", // metaComputed defaults to {} for schema building
+  "src/_data/eleventyComputed.js:84", // order
+  "src/_data/eleventyComputed.js:90", // faqs
+  "src/_data/eleventyComputed.js:99", // tab.body defaults to empty string
+  "src/_data/eleventyComputed.js:114", // metaComputed defaults to {} for schema building
 
   // src/_lib/build - build-time utilities
   "src/_lib/build/scss.js:23", // Lazy module loading pattern

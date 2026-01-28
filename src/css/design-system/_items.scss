@@ -11,8 +11,6 @@
     display: flex;
     flex-wrap: wrap;
     list-style: none;
-    margin: 0 0 $space-md;
-    padding: 0;
     gap: $space-lg;
 
     // Grid layout for non-slider
@@ -38,7 +36,7 @@
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: $space-sm;
+      padding-bottom: $space-sm; // Space for scrollbar
       scrollbar-width: thin;
       scrollbar-color: var(--text-muted) transparent;
 
@@ -60,10 +58,8 @@
     > li {
       @include card;
       @include card-hover;
-      display: flex;
-      flex-direction: column;
+      @include flex-col($space-xs);
       overflow: hidden;
-      padding: 0;
 
       .image-link {
         display: block;
@@ -89,7 +85,6 @@
 
       h3 {
         @include heading-sm;
-        margin: 0;
         padding: $space-md $space-md 0;
 
         a {
@@ -106,14 +101,12 @@
         @include body-base;
         font-weight: 600;
         color: var(--primary);
-        margin: $space-xs 0 0;
         padding: 0 $space-md $space-md;
       }
 
       p:not(.price) {
         @include body-sm;
         color: var(--text-muted);
-        margin: $space-xs 0 0;
         padding: 0 $space-md $space-md;
       }
 
@@ -122,7 +115,7 @@
         flex-wrap: wrap;
         gap: $space-sm;
         padding: 0 $space-md $space-md;
-        margin-top: auto;
+        margin-top: auto; // Push to bottom of flex container
         list-style: none;
 
         li {
@@ -218,6 +211,12 @@
             fill: #f00;
             fill-opacity: 1;
           }
+        }
+
+        // No thumbnail variant for custom video URLs
+        &.video-facade--no-thumbnail {
+          background: var(--surface-muted);
+          aspect-ratio: 16 / 9;
         }
       }
     }

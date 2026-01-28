@@ -15,15 +15,15 @@ describe("scss", () => {
     expect(result.includes("body")).toBe(true);
   });
 
-  test("Handles SCSS with import paths correctly", async () => {
+  test("Handles SCSS with @use paths correctly", async () => {
     const inputPath = "/project/src/css/main.scss";
-    const scssWithImports =
-      '@import "variables"; body { background: $bg-color; }';
-    const compiler = createScssCompiler(scssWithImports, inputPath);
+    const scssWithUse =
+      '@use "variables"; body { background: variables.$bg-color; }';
+    const compiler = createScssCompiler(scssWithUse, inputPath);
 
     expect(typeof compiler).toBe("function");
 
-    // Missing import should throw an error
+    // Missing module should throw an error
     await expect(compiler({})).rejects.toThrow(
       /Can't find stylesheet|file to import not found/i,
     );

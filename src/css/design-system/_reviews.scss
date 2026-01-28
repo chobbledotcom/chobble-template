@@ -9,8 +9,6 @@
   .reviews-grid {
     @include grid(1, $space-lg);
     list-style: none;
-    margin: 0;
-    padding: 0;
 
     @include tablet-up {
       @include grid(2, $space-lg);
