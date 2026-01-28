@@ -8,7 +8,8 @@ to privacy-respecting youtube-nocookie.com embed URLs.
 Parameters:
   - video_id: YouTube video ID or custom iframe URL (required)
   - title: Accessible title for the iframe (required)
-  - background: If true, adds mute/loop/controls params for background video (default: false)
+  - background: If true, adds mute/loop/controls params for background video and
+                disables lazy loading to ensure autoplay works (default: false)
 
 Both video-background and video-cards use this partial to ensure consistent
 iframe attributes and privacy settings.
@@ -20,6 +21,6 @@ iframe attributes and privacy settings.
   frameborder="0"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
-  loading="lazy"
+  {% unless background %}loading="lazy"{% endunless %}
   referrerpolicy="no-referrer"
 ></iframe>
