@@ -4,37 +4,33 @@ Video background block - displays a full-width video background with overlaid te
 The video is embedded as an iframe (YouTube/Vimeo) and plays automatically without user interaction.
 A rich text content block is overlaid on top of the video.
 
-Parameters:
-  - video_url: URL of the video to embed (YouTube or Vimeo embed URL) (required)
-  - video_title: Accessible title for the iframe (default: "Background video")
-  - content: HTML/markdown content to overlay on the video (required)
-  - aspect_ratio: Aspect ratio for the video container (default: "16/9")
-  - overlay_style: Additional inline styles for the overlay (optional)
-  - class: Additional classes for the container (optional)
+Parameters (via block object):
+  - block.video_url: URL of the video to embed (YouTube or Vimeo embed URL) (required)
+  - block.video_title: Accessible title for the iframe (default: "Background video")
+  - block.content: HTML/markdown content to overlay on the video (required)
+  - block.aspect_ratio: Aspect ratio for the video container (default: "16/9")
+  - block.overlay_style: Additional inline styles for the overlay (optional)
+  - block.class: Additional classes for the container (optional)
 
 Usage:
-  {% include "design-system/video-background.html",
-      video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      content: "<h2>Welcome</h2><p>Some overlay text</p>",
-      aspect_ratio: "16/9"
-  %}
+  {% include "design-system/video-background.html", block: block %}
 {%- endcomment -%}
 
-{%- assign _aspect_ratio = aspect_ratio | default: "16/9" -%}
-{%- assign _video_title = video_title | default: "Background video" -%}
+{%- assign _aspect_ratio = block.aspect_ratio | default: "16/9" -%}
+{%- assign _video_title = block.video_title | default: "Background video" -%}
 
-<div class="video-background{% if class %} {{ class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
+<div class="video-background{% if block.class %} {{ block.class }}{% endif %}" style="aspect-ratio: {{ _aspect_ratio }};">
   <iframe
-    src="{{ video_url }}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist={{ video_url | split: '/' | last | split: '?' | first }}"
+    src="{{ block.video_url }}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&playlist={{ block.video_url | split: '/' | last | split: '?' | first }}"
     title="{{ _video_title }}"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen
     loading="lazy"
   ></iframe>
-  <figure{% if overlay_style %} style="{{ overlay_style }}"{% endif %}>
+  <figure{% if block.overlay_style %} style="{{ block.overlay_style }}"{% endif %}>
     <figcaption>
-      {{ content }}
+      {{ block.content }}
     </figcaption>
   </figure>
 </div>
