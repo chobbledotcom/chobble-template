@@ -6,8 +6,13 @@
  */
 
 /**
- * Allowed keys per block type.
- * "type" is implicit and always allowed.
+ * Common wrapper keys allowed on all block types.
+ * These are used by blocks.html to wrap blocks in sections/containers.
+ */
+const COMMON_BLOCK_KEYS = ["section_class", "container"];
+
+/**
+ * Allowed keys per block type (excluding common keys and "type").
  */
 const BLOCK_SCHEMAS = {
   "section-header": ["title", "subtitle", "level", "align", "class"],
@@ -75,11 +80,14 @@ const validateBlocks = (blocks, context = "") => {
     }
 
     const blockKeys = Object.keys(block).filter((key) => key !== "type");
-    const unknownKeys = blockKeys.filter((key) => !allowedKeys.includes(key));
+    const allAllowedKeys = [...allowedKeys, ...COMMON_BLOCK_KEYS];
+    const unknownKeys = blockKeys.filter(
+      (key) => !allAllowedKeys.includes(key),
+    );
 
     if (unknownKeys.length > 0) {
       const unknownList = unknownKeys.map((k) => `"${k}"`).join(", ");
-      const allowedList = allowedKeys.map((k) => `"${k}"`).join(", ");
+      const allowedList = allAllowedKeys.map((k) => `"${k}"`).join(", ");
       throw new Error(
         `Block type "${block.type}" has unknown keys: ${unknownList}${blockContext}. ` +
           `Allowed keys: ${allowedList}`,
