@@ -90,7 +90,7 @@ export const filterToPath = (filters) => {
  * @param {EleventyCollectionItem[]} items - Collection items
  * @returns {Record<string, string[]>} Attribute names to possible values
  */
-export const getAllFilterAttributes = memoize((items) => {
+export const getAllFilterAttributes = memoizeByRef((items) => {
   const valuesByKey = pipe(
     flatMap((item) =>
       Object.entries(parseFilterAttributes(item.data.filter_attributes)),
@@ -112,7 +112,7 @@ export const getAllFilterAttributes = memoize((items) => {
  * @param {EleventyCollectionItem[]} items - Collection items
  * @returns {Record<string, string>} Slug to display text lookup
  */
-export const buildDisplayLookup = memoize((items) =>
+export const buildDisplayLookup = memoizeByRef((items) =>
   buildFirstOccurrenceLookup(items, (item) => {
     if (!item.data.filter_attributes) return [];
     return item.data.filter_attributes.flatMap((attr) => [
