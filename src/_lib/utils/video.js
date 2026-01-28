@@ -78,4 +78,4 @@ const getVideoThumbnailUrl = (videoId) => {
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 };
 
-export { isCustomVideoUrl, getVideoEmbedUrl, getVideoThumbnailUrl };
+export { getVideoEmbedUrl, getVideoThumbnailUrl };

@@ -2,33 +2,7 @@
  * Tests for video URL utilities
  */
 import { describe, expect, test } from "bun:test";
-import {
-  getVideoEmbedUrl,
-  getVideoThumbnailUrl,
-  isCustomVideoUrl,
-} from "#utils/video.js";
-
-describe("isCustomVideoUrl", () => {
-  test("returns false for YouTube video ID", () => {
-    expect(isCustomVideoUrl("dQw4w9WgXcQ")).toBe(false);
-  });
-
-  test("returns true for https URL", () => {
-    expect(isCustomVideoUrl("https://player.vimeo.com/video/123456")).toBe(
-      true,
-    );
-  });
-
-  test("returns true for http URL", () => {
-    expect(isCustomVideoUrl("http://example.com/embed/video")).toBe(true);
-  });
-
-  test("returns false for non-string input", () => {
-    expect(isCustomVideoUrl(null)).toBe(false);
-    expect(isCustomVideoUrl(undefined)).toBe(false);
-    expect(isCustomVideoUrl(12345)).toBe(false);
-  });
-});
+import { getVideoEmbedUrl, getVideoThumbnailUrl } from "#utils/video.js";
 
 describe("getVideoEmbedUrl", () => {
   describe("with YouTube video ID", () => {

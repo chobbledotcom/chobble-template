@@ -11,6 +11,7 @@ Parameters:
   - videos: Array of video objects with properties:
     - id: YouTube video ID or custom iframe URL (required)
     - title: Video title (required)
+    - thumbnail_url: Computed property - YouTube thumbnail URL or null for custom URLs
   - reveal: If true, adds data-reveal animation (default: true)
   - heading_level: Heading level for titles, defaults to 3 (h3)
 
@@ -29,15 +30,14 @@ Usage:
 
 <ul class="items video-cards" role="list">
   {%- for video in videos -%}
-  {%- assign thumbnail_url = video.id | video_thumbnail_url -%}
   <li{% if reveal %} data-reveal{% endif %}>
     <button
       type="button"
-      class="video-facade{% unless thumbnail_url %} video-facade--no-thumbnail{% endunless %}"
+      class="video-facade{% unless video.thumbnail_url %} video-facade--no-thumbnail{% endunless %}"
       aria-label="Play {{ video.title }}"
     >
-      {%- if thumbnail_url -%}
-      {%- image thumbnail_url, video.title, "", "", "", "16/9" -%}
+      {%- if video.thumbnail_url -%}
+      {%- image video.thumbnail_url, video.title, "", "", "", "16/9" -%}
       {%- endif -%}
       <span class="video-play-button" aria-hidden="true">
         <svg viewBox="0 0 68 48" width="68" height="48">
