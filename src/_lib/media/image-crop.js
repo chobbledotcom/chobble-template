@@ -65,7 +65,4 @@ const getMetadata = memoize(async (imagePath) => {
   return metadata;
 });
 
-/** Clear the metadata cache - call between builds in watch mode */
-const clearMetadataCache = () => getMetadata.clear();
-
-export { cropImage, getAspectRatio, getMetadata, clearMetadataCache };
+export { cropImage, getAspectRatio, getMetadata };
