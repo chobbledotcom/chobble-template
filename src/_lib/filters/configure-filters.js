@@ -14,6 +14,7 @@ import {
   filteredCategoryPages,
 } from "#filters/category-product-filters.js";
 import { createFilterConfig } from "#filters/item-filters.js";
+import { resolveIndices } from "#toolkit/fp/array.js";
 
 const categoryCollections = {
   filteredCategoryProductPages: filteredCategoryPages,
@@ -52,6 +53,10 @@ const itemFilterConfigs = [
  * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  */
 export const configureFilters = (eleventyConfig) => {
+  // Resolve indices to items - used by filter pages to convert stored indices
+  // back to item objects at render time (reduces memory by storing integers)
+  eleventyConfig.addFilter("resolveIndices", resolveIndices);
+
   // Category filter collections
   for (const [name, fn] of Object.entries(categoryCollections)) {
     eleventyConfig.addCollection(name, fn);

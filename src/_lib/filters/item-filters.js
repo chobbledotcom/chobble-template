@@ -30,9 +30,11 @@ export {
   buildDisplayLookup,
   buildItemLookup,
   filterWithSort,
+  filterWithSortIndices,
   getAllFilterAttributes,
   getSortComparator,
   matchWithSort,
+  matchWithSortIndices,
   SORT_OPTIONS,
   toSortedPath,
 } from "#filters/filter-core.js";
@@ -53,7 +55,7 @@ import {
 // Internal imports for createFilterConfig
 import {
   buildDisplayLookup,
-  filterWithSort,
+  filterWithSortIndices,
   getAllFilterAttributes,
 } from "#filters/filter-core.js";
 import {
@@ -89,12 +91,18 @@ export const createFilterConfig = (options) => {
       ...expandWithSortVariants(baseCombinations),
       ...generateSortOnlyPages(items.length),
     ];
+    // Store indices instead of full item objects to reduce memory usage.
+    // Templates resolve indices to items at render time via resolveIndices filter.
     const pages = allCombinations.map((combo) => {
-      const matchedItems = filterWithSort(items, combo.filters, combo.sortKey);
+      const matchedIndices = filterWithSortIndices(
+        items,
+        combo.filters,
+        combo.sortKey,
+      );
       return {
-        ...buildFilterPageBase(combo, matchedItems, displayLookup),
+        ...buildFilterPageBase(combo, displayLookup),
         sortKey: combo.sortKey,
-        [itemsKey]: matchedItems,
+        [`${itemsKey}Indices`]: matchedIndices,
       };
     });
     return enhanceWithFilterUI(pages, filterData, baseUrl, baseCombinations);

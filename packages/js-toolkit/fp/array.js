@@ -60,6 +60,26 @@ const filter = (predicate) => (arr) => arr.filter(predicate);
 const map = (fn) => (arr) => arr.map(fn);
 
 /**
+ * Resolve an array of indices to items from a source array.
+ * Useful for storing compact index references and resolving them later.
+ *
+ * @template T
+ * @param {number[]} indices - Array of indices into the items array
+ * @param {T[]} items - The source array to resolve from
+ * @returns {T[]} Items at the specified indices
+ *
+ * @example
+ * const items = ['a', 'b', 'c', 'd'];
+ * resolveIndices([2, 0, 3], items)  // ['c', 'a', 'd']
+ *
+ * @example
+ * // Use to store compact references
+ * const matchedIndices = [5, 12, 42];  // small integers
+ * const matchedItems = resolveIndices(matchedIndices, allItems);
+ */
+const resolveIndices = (indices, items) => indices.map((i) => items[i]);
+
+/**
  * Curried flatMap function
  * @template T, R
  * @param {(item: T, index: number, array: T[]) => R | R[]} fn - Transform function
@@ -425,6 +445,7 @@ export {
   pipe,
   pluralize,
   reduce,
+  resolveIndices,
   sort,
   sortBy,
   split,

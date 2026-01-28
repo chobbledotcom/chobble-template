@@ -263,3 +263,39 @@ export const matchWithSort = (items, filters, lookup, sortKey) => {
  */
 export const filterWithSort = (items, filters, sortKey) =>
   matchWithSort(items, filters, buildItemLookup(items), sortKey);
+
+/**
+ * Get indices of items matching the given filters with specified sort order.
+ * Returns indices into the original items array instead of the items themselves.
+ * Use this when you want to store compact references for later resolution.
+ *
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @param {FilterSet} filters - Filter object (can be empty for sort-only)
+ * @param {Object} lookup - Lookup table from buildItemLookup
+ * @param {string | undefined} sortKey - Sort option key
+ * @returns {number[]} Sorted indices of matching items
+ */
+export const matchWithSortIndices = (items, filters, lookup, sortKey) => {
+  const comparator = getSortComparator(sortKey);
+  // Handle empty filters (sort-only pages) - return all indices sorted
+  if (!filters || Object.keys(filters).length === 0) {
+    return items
+      .map((_, i) => i)
+      .sort((a, b) => comparator(items[a], items[b]));
+  }
+  // Get matching positions and sort by item comparator
+  return findMatchingPositions(lookup, normalizeAttrs(filters)).sort((a, b) =>
+    comparator(items[a], items[b]),
+  );
+};
+
+/**
+ * Get indices of items matching the given filters with specified sort order.
+ *
+ * @param {EleventyCollectionItem[]} items - Collection items
+ * @param {FilterSet} filters - Filter object (can be empty for sort-only)
+ * @param {string | undefined} sortKey - Sort option key
+ * @returns {number[]} Sorted indices of matching items
+ */
+export const filterWithSortIndices = (items, filters, sortKey) =>
+  matchWithSortIndices(items, filters, buildItemLookup(items), sortKey);

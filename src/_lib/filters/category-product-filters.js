@@ -20,7 +20,7 @@ import {
   buildDisplayLookup,
   buildItemLookup,
   getAllFilterAttributes,
-  matchWithSort,
+  matchWithSortIndices,
 } from "#filters/filter-core.js";
 import {
   buildFilterPageBase,
@@ -45,20 +45,26 @@ const getBasePaths = (pages) =>
 
 /**
  * Build a single filter page with all its data.
+ * Stores indices into the global products collection for memory efficiency.
  */
 const buildPage = (ctx, combo) => {
-  const matchedProducts = matchWithSort(
+  // Get indices into category products (sorted subset)
+  const localIndices = matchWithSortIndices(
     ctx.products,
     combo.filters,
     ctx.itemLookup,
     combo.sortKey,
   );
+  // Map to global indices (into collections.products) for template resolution
+  const productsIndices = localIndices.map(
+    (i) => ctx.globalIndexLookup[ctx.products[i].url],
+  );
   return {
     categorySlug: ctx.slug,
     categoryUrl: ctx.baseUrl,
     sortKey: combo.sortKey,
-    ...buildFilterPageBase(combo, matchedProducts, ctx.displayLookup),
-    products: matchedProducts,
+    ...buildFilterPageBase(combo, ctx.displayLookup),
+    productsIndices,
     filterUI: buildUIWithLookup(
       ctx.filterData,
       combo.filters,
@@ -82,7 +88,12 @@ const buildPages = (ctx, combinations) => {
 };
 
 /** Build context object for page generation */
-const buildContext = (slug, sortedProducts, combinations) => {
+const buildContext = (
+  slug,
+  sortedProducts,
+  combinations,
+  globalIndexLookup,
+) => {
   const displayLookup = buildDisplayLookup(sortedProducts);
   return {
     slug,
@@ -95,6 +106,7 @@ const buildContext = (slug, sortedProducts, combinations) => {
       displayLookup,
     },
     pathLookup: buildPathLookup(combinations),
+    globalIndexLookup,
   };
 };
 
@@ -113,14 +125,19 @@ const buildListingUI = (ctx, productCount) =>
  * Build all filter data for a single category.
  * Returns null if category has no products or no filter attributes.
  */
-const buildCategoryData = (slug, products) => {
+const buildCategoryData = (slug, products, globalIndexLookup) => {
   if (products.length === 0) return null;
 
   const sortedProducts = [...products].sort(sortItems);
   const combinations = generateFilterCombinations(sortedProducts);
   if (combinations.length === 0) return null;
 
-  const ctx = buildContext(slug, sortedProducts, combinations);
+  const ctx = buildContext(
+    slug,
+    sortedProducts,
+    combinations,
+    globalIndexLookup,
+  );
 
   return {
     slug,
@@ -142,8 +159,18 @@ const computeAllCategoryData = memoizeByRef(
     const products = collectionApi.getFilteredByTag("products");
     const grouped = productsByCategory(products);
 
+    // Build lookup: product URL -> index in global products array
+    // Used to store global indices instead of product objects
+    const globalIndexLookup = Object.fromEntries(
+      products.map((p, i) => [p.url, i]),
+    );
+
     const categoryData = mapFilter((category) =>
-      buildCategoryData(category.fileSlug, grouped[category.fileSlug] ?? []),
+      buildCategoryData(
+        category.fileSlug,
+        grouped[category.fileSlug] ?? [],
+        globalIndexLookup,
+      ),
     )(categories);
 
     return {

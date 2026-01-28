@@ -10,7 +10,7 @@ meta_title: Search Results
 header_text: Search Results
 ---
 
-{%- assign properties = filterPage.properties -%}
+{%- assign properties = filterPage.propertiesIndices | resolveIndices: collections.properties -%}
 {%- assign currentFilters = filterPage.filters -%}
 
 <h1>{{ strings.property_name }}</h1>

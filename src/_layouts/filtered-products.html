@@ -5,7 +5,8 @@ no_index: true
 
 {%- assign currentFilters = filterPage.filters -%}
 {%- assign filterUI = filterPage.filterUI -%}
+{%- assign products = filterPage.productsIndices | resolveIndices: collections.products -%}
 
 {%- include "products-layout-start.html", filterUI: filterUI -%}
-{%- include "filtered-items-section.html", items: filterPage.products -%}
+{%- include "filtered-items-section.html", items: products -%}
 {%- include "products-layout-end.html" -%}
