@@ -7,6 +7,7 @@
 
 .design-system {
   .slider-container {
+    @include flex-col($space-md);
     position: relative;
 
     // Hide nav when content fits (no overflow)
@@ -23,8 +24,7 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: $space-sm;
-    margin: 0;
+    padding-bottom: $space-sm; // Space for scrollbar
     list-style: none;
 
     // Hide scrollbar but keep functionality
@@ -67,7 +67,6 @@
 
   .slider-nav {
     @include flex-row($space-md, center, center);
-    margin-top: $space-md;
   }
 
   .slider-prev,

@@ -6,6 +6,45 @@
 // =============================================================================
 
 .design-system {
+  // ===========================================================================
+  // LAYOUT UTILITIES
+  // ===========================================================================
+  // Flex column containers with consistent gap-based spacing.
+  // Use these instead of margins for vertical rhythm.
+
+  .stack {
+    @include flex-col($space-md);
+  }
+
+  .stack--sm {
+    @include flex-col($space-sm);
+  }
+
+  .stack--lg {
+    @include flex-col($space-lg);
+  }
+
+  .stack--xl {
+    @include flex-col($space-xl);
+  }
+
+  // Horizontal flex row with gap
+  .row {
+    @include flex-row($space-md);
+  }
+
+  .row--sm {
+    @include flex-row($space-sm);
+  }
+
+  .row--lg {
+    @include flex-row($space-lg);
+  }
+
+  // ===========================================================================
+  // TEXT UTILITIES
+  // ===========================================================================
+
   .text-center {
     text-align: center;
   }
@@ -15,6 +54,12 @@
   .text-primary {
     color: var(--primary);
   }
+
+  // ===========================================================================
+  // SPACING UTILITIES
+  // ===========================================================================
+  // Use sparingly - prefer gap-based spacing via stack/row containers.
+  // These exist for edge cases where margin is genuinely needed.
 
   .mt-0 {
     margin-top: 0;
@@ -34,6 +79,10 @@
   .mb-xl {
     margin-bottom: $space-xl;
   }
+
+  // ===========================================================================
+  // ACCESSIBILITY
+  // ===========================================================================
 
   .sr-only {
     @include sr-only;
