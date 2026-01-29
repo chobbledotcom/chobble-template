@@ -64,13 +64,12 @@ const getItemsByCategory = (items, categorySlug) => {
 };
 
 /**
- * Create a pre-sorted menus collection (sorted by data.order).
- * Avoids repeated `| sort: "data.order"` in Liquid templates.
+ * Create the menus collection, pre-sorted by order then title.
  *
  * @param {import("@11ty/eleventy").CollectionApi} collectionApi
  * @returns {MenuCategoryCollectionItem[]}
  */
-const createMenusSortedCollection = (collectionApi) =>
+const createMenusCollection = (collectionApi) =>
   collectionApi.getFilteredByTag("menus").sort(sortItems);
 
 /**
@@ -78,7 +77,7 @@ const createMenusSortedCollection = (collectionApi) =>
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureMenus = (eleventyConfig) => {
-  eleventyConfig.addCollection("menusSorted", createMenusSortedCollection);
+  eleventyConfig.addCollection("menus", createMenusCollection);
   // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
   // @ts-expect-error - Filter returns array for data transformation, not string

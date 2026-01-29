@@ -4,7 +4,7 @@ layout: base
 
 {{ content }}
 
-{%- assign menus = collections.menusSorted -%}
+{%- assign menus = collections.menus -%}
 {%- if homepage.show_menus and menus.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-menus-header", "<h3>Our Menus</h3>" -%}
