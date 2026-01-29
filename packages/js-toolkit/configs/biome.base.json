@@ -44,9 +44,7 @@
         "noGlobalDirnameFilename": "error"
       },
       "performance": {
-        "noAccumulatingSpread": "error",
-        "noBarrelFile": "error",
-        "noReExportAll": "error"
+        "noAccumulatingSpread": "error"
       },
       "nursery": {
         "noUnnecessaryConditions": "error"
