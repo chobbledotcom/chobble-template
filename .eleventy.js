@@ -61,8 +61,6 @@ export default async function (eleventyConfig) {
   });
   eleventyConfig
     .addPassthroughCopy("src/assets")
-    .addPassthroughCopy("src/images")
-    .addPassthroughCopy("src/news/images")
     .addPassthroughCopy({ "src/assets/favicon/*": "/" });
 
   eleventyConfig.addPlugin(schemaPlugin);
