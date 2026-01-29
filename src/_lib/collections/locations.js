@@ -5,8 +5,10 @@
  */
 
 import { groupBy } from "#toolkit/fp/grouping.js";
-import { memoizeByRef } from "#toolkit/fp/memoize.js";
-import { getLocationsFromApi } from "#utils/collection-utils.js";
+import {
+  createFieldIndexer,
+  getLocationsFromApi,
+} from "#utils/collection-utils.js";
 import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").LocationCollectionItem} LocationCollectionItem */
@@ -74,23 +76,17 @@ const createLocationsCollection = (collectionApi) => {
   });
 };
 
-/** Memoized index of child locations by parent slug. */
-const indexByParent = memoizeByRef((locations) =>
-  groupBy(locations, (loc) => loc.data.parentLocation),
-);
+const indexByParent = createFieldIndexer("parentLocation");
 
 const getChildLocations = (locations, parentSlug) =>
-  indexByParent(locations).get(parentSlug) ?? [];
+  indexByParent(locations)[parentSlug] ?? [];
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addCollection("locations", createLocationsCollection);
-  eleventyConfig.addFilter("getRootLocations", getRootLocations);
+  eleventyConfig.addCollection("rootLocations", (api) =>
+    getRootLocations(createLocationsCollection(api)),
+  );
   eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);
   eleventyConfig.addFilter("getChildLocations", getChildLocations);
 };
 
-export {
-  getRootLocations,
-  getSiblingLocations,
-  getChildLocations,
-  configureLocations,
-};
+export { getSiblingLocations, getChildLocations, configureLocations };

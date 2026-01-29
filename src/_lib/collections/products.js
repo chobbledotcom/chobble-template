@@ -14,6 +14,7 @@ import config from "#data/config.js";
 import { filterMap, findDuplicate, memberOf } from "#toolkit/fp/array.js";
 import {
   createArrayFieldIndexer,
+  featuredCollection,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
@@ -166,6 +167,10 @@ const productReviewsRedirects = reviewsRedirects("products");
  */
 const configureProducts = (eleventyConfig) => {
   eleventyConfig.addCollection("products", createProductsCollection);
+  eleventyConfig.addCollection(
+    "featuredProducts",
+    featuredCollection(createProductsCollection),
+  );
   eleventyConfig.addCollection("apiSkus", createApiSkusCollection);
   eleventyConfig.addCollection(
     "productsWithReviewsPage",

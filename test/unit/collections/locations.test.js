@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import {
   configureLocations,
   getChildLocations,
-  getRootLocations,
   getSiblingLocations,
 } from "#collections/locations.js";
 import {
@@ -25,14 +24,16 @@ const childLocation = (title, parent, url) => ({
   url,
 });
 
+const getRootLocations = getCollectionFrom("rootLocations")(configureLocations);
+
 describe("locations", () => {
-  test("Filters locations without parent", () => {
+  test("rootLocations collection filters locations without parent", () => {
     const locations = [
       ...rootLocation(["London"], ["UK"]),
-      { data: { title: "Manchester", parentLocation: "uk" } },
+      { data: { title: "Manchester", parentLocation: "uk" }, fileSlug: "man" },
     ];
 
-    const result = getRootLocations(locations);
+    const result = getRootLocations({ locations });
 
     expectResultTitles(result, ["London", "UK"]);
   });
@@ -89,17 +90,16 @@ describe("locations", () => {
     expect(getChildLocations(locations, "birmingham")).toEqual([]);
   });
 
-  test("Configures location filters", () => {
+  test("Configures location filters and collections", () => {
     const mockConfig = createMockEleventyConfig();
 
     configureLocations(mockConfig);
 
-    expect(typeof mockConfig.filters.getRootLocations).toBe("function");
     expect(typeof mockConfig.filters.getSiblingLocations).toBe("function");
     expect(typeof mockConfig.filters.getChildLocations).toBe("function");
-    expect(mockConfig.filters.getRootLocations).toBe(getRootLocations);
     expect(mockConfig.filters.getSiblingLocations).toBe(getSiblingLocations);
     expect(mockConfig.filters.getChildLocations).toBe(getChildLocations);
+    expect(typeof mockConfig.collections.rootLocations).toBe("function");
   });
 });
 

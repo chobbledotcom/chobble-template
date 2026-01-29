@@ -6,8 +6,9 @@
 
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
-import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import {
+  createFieldIndexer,
+  featuredCollection,
   getCategoriesFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -129,15 +130,16 @@ const createCategoriesCollection = (collectionApi) => {
   });
 };
 
-/** Memoized index of subcategories by parent slug. */
-const indexByParent = memoizeByRef((categories) =>
-  groupBy(categories, (c) => c.data.parent),
-);
+const indexByParent = createFieldIndexer("parent");
 
 const getSubcategories = (categories, parentSlug) =>
-  indexByParent(categories).get(parentSlug) ?? [];
+  indexByParent(categories)[parentSlug] ?? [];
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
+  eleventyConfig.addCollection(
+    "featuredCategories",
+    featuredCollection(createCategoriesCollection),
+  );
   eleventyConfig.addFilter("getSubcategories", getSubcategories);
 };
 

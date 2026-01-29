@@ -44,26 +44,27 @@ export const getEventsFromApi = (collectionApi) =>
 export const getLocationsFromApi = (collectionApi) =>
   collectionApi.getFilteredByTag("locations");
 
-/**
- * Get featured items from a collection.
- * Works with any collection where items have data.featured property.
- *
- * @param {EleventyCollectionItem[]} items - Collection items
- * @returns {EleventyCollectionItem[]} Filtered array of featured items
- *
- * @example
- * const featured = getFeatured(collections.products);
- */
-export const getFeatured = (items) =>
-  items.filter((item) => item.data.featured);
+/** Derive a "featured" collection from a base collection creator. */
+export const featuredCollection = (createCollection) => (api) =>
+  createCollection(api).filter((item) => item.data.featured);
+
+/** @param {import("@11ty/eleventy").UserConfig} _eleventyConfig */
+export const configureCollectionUtils = (_eleventyConfig) => {
+  // Featured items are now pre-computed as collections (featuredCategories, etc.)
+};
 
 /**
- * Configure shared collection utilities as Eleventy filters.
- * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
+ * Create an indexer that groups items by a scalar data field (one-to-many).
+ * Like createArrayFieldIndexer but for fields holding a single value, not arrays.
+ *
+ * @param {string} field - The data field name (e.g., "parent", "parentLocation")
+ * @returns {(items: any[]) => Record<string, any[]>} Memoized indexer function
  */
-export const configureCollectionUtils = (eleventyConfig) => {
-  eleventyConfig.addFilter("getFeatured", getFeatured);
-};
+export const createFieldIndexer = (field) =>
+  groupByWithCache((item) => {
+    const key = item.data[field];
+    return key ? [key] : [];
+  });
 
 /**
  * Create an indexer that groups items by a field that contains an array of slugs.
