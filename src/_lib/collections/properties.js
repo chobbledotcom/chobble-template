@@ -6,7 +6,10 @@
 
 import { addGallery } from "#collections/products.js";
 import { reviewsRedirects, withReviewsPage } from "#collections/reviews.js";
-import { createArrayFieldIndexer } from "#utils/collection-utils.js";
+import {
+  createArrayFieldIndexer,
+  featuredCollection,
+} from "#utils/collection-utils.js";
 import { sortItems } from "#utils/sorting.js";
 
 /** @typedef {import("#lib/types").PropertyCollectionItem} PropertyCollectionItem */
@@ -30,17 +33,14 @@ const getPropertiesByLocation = (properties, locationSlug) => {
 const propertiesWithReviewsPage = withReviewsPage("properties", addGallery);
 const propertyReviewsRedirects = reviewsRedirects("properties");
 
-/**
- * Configure properties collection and filters for Eleventy.
- *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+const createPropertiesCollection = (collectionApi) =>
+  collectionApi.getFilteredByTag("properties").map(addGallery);
+
 const configureProperties = (eleventyConfig) => {
-  eleventyConfig.addCollection("properties", (collectionApi) =>
-    collectionApi
-      .getFilteredByTag("properties")
-      // @ts-expect-error - addGallery works on any item with gallery data
-      .map(addGallery),
+  eleventyConfig.addCollection("properties", createPropertiesCollection);
+  eleventyConfig.addCollection(
+    "featuredProperties",
+    featuredCollection(createPropertiesCollection),
   );
   eleventyConfig.addCollection(
     "propertiesWithReviewsPage",
@@ -50,7 +50,6 @@ const configureProperties = (eleventyConfig) => {
     "propertyReviewsRedirects",
     propertyReviewsRedirects,
   );
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getPropertiesByLocation", getPropertiesByLocation);
 };
 
