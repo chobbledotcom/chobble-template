@@ -1,3 +1,8 @@
+// Style guide:
+// - All new styles should use the design system via mixins and variables
+// - Use flex and gap for layout spacing, not margins
+// - Prefer design tokens (CSS custom properties) over hardcoded values
+
 @use "sass:color";
 @use "breakpoints";
 
