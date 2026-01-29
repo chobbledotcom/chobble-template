@@ -2,7 +2,12 @@
  * Tests for video URL utilities
  */
 import { describe, expect, test } from "bun:test";
-import { getVideoEmbedUrl, getVideoThumbnailUrl } from "#utils/video.js";
+import {
+  getVideoEmbedUrl,
+  getVideoThumbnailUrl,
+  isRickAstleyThumbnail,
+  RICK_ASTLEY_VIDEO_ID,
+} from "#utils/video.js";
 
 describe("getVideoEmbedUrl", () => {
   describe("with YouTube video ID", () => {
@@ -60,5 +65,31 @@ describe("getVideoThumbnailUrl", () => {
 
   test("returns null for custom http URL", () => {
     expect(getVideoThumbnailUrl("http://example.com/embed/video")).toBe(null);
+  });
+});
+
+describe("isRickAstleyThumbnail", () => {
+  test("returns true for Rick Astley YouTube thumbnail URL", () => {
+    const url = `https://img.youtube.com/vi/${RICK_ASTLEY_VIDEO_ID}/hqdefault.jpg`;
+    expect(isRickAstleyThumbnail(url)).toBe(true);
+  });
+
+  test("returns false for other YouTube thumbnail URLs", () => {
+    expect(
+      isRickAstleyThumbnail(
+        "https://img.youtube.com/vi/9bZkp7q19f0/hqdefault.jpg",
+      ),
+    ).toBe(false);
+  });
+
+  test("returns false for non-string input", () => {
+    expect(isRickAstleyThumbnail(null)).toBe(false);
+    expect(isRickAstleyThumbnail(undefined)).toBe(false);
+  });
+});
+
+describe("RICK_ASTLEY_VIDEO_ID", () => {
+  test("is the known Rick Astley video ID", () => {
+    expect(RICK_ASTLEY_VIDEO_ID).toBe("dQw4w9WgXcQ");
   });
 });
