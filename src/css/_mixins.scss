@@ -216,11 +216,11 @@
 
 @mixin button-primary {
   @include button-base;
-  background: var(--color-primary, #2563eb);
+  background: var(--color-link, #2563eb);
   color: #fff;
 
   &:hover:not(:disabled) {
-    background: var(--color-primary-dk, #1d4ed8);
+    background: var(--color-link-hover, #1d4ed8);
     transform: translateY(-1px);
   }
 
@@ -232,11 +232,11 @@
 @mixin button-secondary {
   @include button-base;
   background: transparent;
-  border-color: var(--color-primary, #2563eb);
-  color: var(--color-primary, #2563eb);
+  border-color: var(--color-link, #2563eb);
+  color: var(--color-link, #2563eb);
 
   &:hover:not(:disabled) {
-    background: var(--color-primary, #2563eb);
+    background: var(--color-link, #2563eb);
     color: #fff;
   }
 }
@@ -404,7 +404,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-primary, #2563eb);
+    outline: 2px solid var(--color-link, #2563eb);
     outline-offset: 2px;
   }
 }

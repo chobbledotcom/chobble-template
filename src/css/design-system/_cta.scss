@@ -10,7 +10,7 @@
     @include flex-col($space-lg, center, center);
     text-align: center;
     @include card($space-3xl, $radius-2xl);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    background: linear-gradient(135deg, var(--color-link) 0%, var(--color-secondary) 100%);
     border: none;
     color: #fff;
     --color-text: #fff;
@@ -27,7 +27,7 @@
       color: #fff;
       &:hover {
         background: #fff;
-        color: var(--color-primary);
+        color: var(--color-link);
       }
     }
   }

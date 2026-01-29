@@ -37,7 +37,7 @@
       strong {
         font-size: $font-size-4xl;
         font-weight: 700;
-        color: var(--color-primary);
+        color: var(--color-link);
         line-height: 1;
 
         @include tablet-up {

@@ -85,8 +85,8 @@
     transition: all $transition-fast;
 
     &:hover:not([disabled]) {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
+      background: var(--color-link);
+      border-color: var(--color-link);
       color: #fff;
     }
 
@@ -105,8 +105,8 @@
     color: #f9fafb;
 
     &:hover:not([disabled]) {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
+      background: var(--color-link);
+      border-color: var(--color-link);
     }
   }
 }

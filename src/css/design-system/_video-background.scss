@@ -86,12 +86,12 @@
       }
 
       .btn--primary {
-        background: var(--color-primary, $color-primary);
+        background: var(--color-link, $color-primary);
         color: #fff;
         border-color: transparent;
 
         &:hover {
-          background: var(--color-primary-dk, $color-primary-dark);
+          background: var(--color-link-hover, $color-primary-dark);
         }
       }
     }

@@ -92,7 +92,7 @@
           text-decoration: none;
 
           &:hover {
-            color: var(--color-primary);
+            color: var(--color-link);
           }
         }
       }
@@ -100,7 +100,7 @@
       .price {
         @include body-base;
         font-weight: 600;
-        color: var(--color-primary);
+        color: var(--color-link);
         padding: 0 $space-md $space-md;
       }
 

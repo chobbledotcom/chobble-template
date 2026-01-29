@@ -120,7 +120,7 @@
   // Primary color variants
   .split-full--primary-left {
     .split-full__left {
-      background: var(--color-primary);
+      background: var(--color-link);
       color: #fff;
       --color-text: #fff;
       --color-text-muted: rgba(255, 255, 255, 0.8);
@@ -129,7 +129,7 @@
 
   .split-full--primary-right {
     .split-full__right {
-      background: var(--color-primary);
+      background: var(--color-link);
       color: #fff;
       --color-text: #fff;
       --color-text-muted: rgba(255, 255, 255, 0.8);

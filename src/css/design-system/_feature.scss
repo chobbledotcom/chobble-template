@@ -34,8 +34,8 @@
       @include flex-center;
       width: 48px;
       height: 48px;
-      background: var(--color-primary-lt);
-      color: var(--color-primary);
+      background: var(--color-link-light);
+      color: var(--color-link);
       border-radius: $radius-md;
       font-size: $font-size-lg;
       grid-row: 1;
