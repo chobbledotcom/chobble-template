@@ -47,6 +47,53 @@ const seedRng = (seed) => {
 };
 
 // ---------------------------------------------------------------------------
+// Spec definitions: 10 random specs per product
+// ---------------------------------------------------------------------------
+const SPEC_NAMES = [
+  "Processor",
+  "Memory",
+  "Storage",
+  "Display",
+  "Battery Life",
+  "Weight",
+  "Connectivity",
+  "Waterproof Rating",
+  "Warranty",
+  "Operating System",
+];
+
+const SPEC_VALUES = {
+  Processor: [
+    "Dual-core 1.2GHz",
+    "Quad-core 2.4GHz",
+    "Octa-core 3.0GHz",
+    "M1 chip",
+    "Snapdragon 8",
+  ],
+  Memory: ["2GB DDR4", "4GB DDR4", "8GB DDR5", "16GB DDR5", "32GB DDR5"],
+  Storage: ["32GB eMMC", "64GB SSD", "128GB SSD", "256GB NVMe", "512GB NVMe"],
+  Display: ['2.4" LCD', '3.5" IPS', '4.3" OLED', '5.5" AMOLED', '6.7" Retina'],
+  "Battery Life": ["8 hours", "12 hours", "24 hours", "48 hours", "72 hours"],
+  Weight: ["85g", "120g", "195g", "280g", "350g"],
+  Connectivity: [
+    "Bluetooth 5.0",
+    "Wi-Fi 6",
+    "Wi-Fi 6 + 5G",
+    "USB-C only",
+    "NFC + BT 5.3",
+  ],
+  "Waterproof Rating": ["IPX4", "IPX7", "IP67", "IP68", "Not rated"],
+  Warranty: ["6 months", "1 year", "2 years", "3 years", "Lifetime"],
+  "Operating System": [
+    "ThingyOS 2.0",
+    "ThingyOS 3.0",
+    "WidgetLinux",
+    "GadgetOS",
+    "Proprietary",
+  ],
+};
+
+// ---------------------------------------------------------------------------
 // Generate product file specs
 // ---------------------------------------------------------------------------
 const generateProducts = (count = 100) => {
@@ -61,12 +108,18 @@ const generateProducts = (count = 100) => {
       value: pickRandom(FILTER_ATTRIBUTES[name], rng),
     }));
 
+    const specs = SPEC_NAMES.map((name) => ({
+      name,
+      value: pickRandom(SPEC_VALUES[name], rng),
+    }));
+
     files.push({
       path: `products/${slug}.md`,
       frontmatter: {
         title: `Test Product ${i + 1}`,
         subtitle: `Generated product #${i + 1} for profiling`,
         filter_attributes: filterAttrs,
+        specs,
         categories: [pickRandom(categories, rng)],
         options: [
           {
