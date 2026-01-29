@@ -7,7 +7,11 @@
     </ul>
     {%- for tab in tabs -%}
       <div id="tab-{{ forloop.index }}"{% if forloop.first %} class="active"{% endif %}>
-        {%- if tab.image -%}{% image tab.image, tab.title, "387,774", "", "", "1/1" %}{%- endif -%}
+        {%- if tab.image -%}
+          <div class="image">
+            {% image tab.image, tab.title, "387,774", "", "", "1/1" %}
+          </div>
+        {%- endif -%}
         <div>{{- tab.body | renderContent: "md" -}}</div>
       </div>
     {%- endfor -%}
