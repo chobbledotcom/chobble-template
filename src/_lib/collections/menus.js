@@ -63,19 +63,10 @@ const getItemsByCategory = (items, categorySlug) => {
   return buildCategoryItemMap(items).get(categorySlug) ?? [];
 };
 
-/**
- * Create the menus collection, pre-sorted by order then title.
- *
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {MenuCategoryCollectionItem[]}
- */
+/** Pre-sorted menus collection. */
 const createMenusCollection = (collectionApi) =>
   collectionApi.getFilteredByTag("menus").sort(sortItems);
 
-/**
- * Configure menu collections and filters for Eleventy.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
 const configureMenus = (eleventyConfig) => {
   eleventyConfig.addCollection("menus", createMenusCollection);
   // @ts-expect-error - Filter returns array for data transformation, not string

@@ -129,30 +129,13 @@ const createCategoriesCollection = (collectionApi) => {
   });
 };
 
-/**
- * Build an index of subcategories by parent slug.
- * Memoized per categories array reference.
- */
-const indexByParent = memoizeByRef(
-  /** @param {CategoryCollectionItem[]} categories */
-  (categories) => groupBy(categories, (c) => c.data.parent),
+/** Memoized index of subcategories by parent slug. */
+const indexByParent = memoizeByRef((categories) =>
+  groupBy(categories, (c) => c.data.parent),
 );
 
-/**
- * Get subcategories of a given parent category.
- * Uses indexed lookup instead of Liquid `| where: "data.parent", slug`.
- *
- * @param {CategoryCollectionItem[]} categories - All categories
- * @param {string} parentSlug - Parent category slug
- * @returns {CategoryCollectionItem[]} Subcategories of the parent
- */
 const getSubcategories = (categories, parentSlug) =>
   indexByParent(categories).get(parentSlug) ?? [];
-
-/**
- * Configure categories collection and filters.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
   // @ts-expect-error - Filter returns array for data transformation, not string

@@ -74,31 +74,13 @@ const createLocationsCollection = (collectionApi) => {
   });
 };
 
-/**
- * Build an index of child locations by parent slug.
- * Memoized per locations array reference.
- */
-const indexByParent = memoizeByRef(
-  /** @param {LocationCollectionItem[]} locations */
-  (locations) => groupBy(locations, (loc) => loc.data.parentLocation),
+/** Memoized index of child locations by parent slug. */
+const indexByParent = memoizeByRef((locations) =>
+  groupBy(locations, (loc) => loc.data.parentLocation),
 );
 
-/**
- * Get child locations (services) of a given parent location.
- * Uses indexed lookup instead of Liquid `| where: "data.parentLocation", slug`.
- *
- * @param {LocationCollectionItem[]} locations - All locations
- * @param {string} parentSlug - Parent location slug
- * @returns {LocationCollectionItem[]} Child locations
- */
 const getChildLocations = (locations, parentSlug) =>
   indexByParent(locations).get(parentSlug) ?? [];
-
-/**
- * Configure locations collection and filters for Eleventy.
- *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addCollection("locations", createLocationsCollection);
   // @ts-expect-error - Filter returns array for data transformation, not string

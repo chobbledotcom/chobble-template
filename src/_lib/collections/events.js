@@ -104,22 +104,12 @@ const createEventsCollection = (collectionApi) => {
   });
 };
 
-/**
- * Create a pre-filtered collection of recurring events, sorted by order then title.
- * Replaces `| where: "data.recurring_date" | sort: "data.title"` in Liquid.
- *
- * @param {import("@11ty/eleventy").CollectionApi} collectionApi
- * @returns {EventCollectionItem[]}
- */
+/** Pre-filtered recurring events (sorted by order then title). */
 const createRecurringEventsCollection = (collectionApi) => {
   const events = createEventsCollection(collectionApi);
   return categoriseEvents(events).regular;
 };
 
-/**
- * Configure events collection.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addCollection("events", createEventsCollection);
   eleventyConfig.addCollection(
