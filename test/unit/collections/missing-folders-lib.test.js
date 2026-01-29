@@ -98,7 +98,7 @@ describe("missing-folders-lib", () => {
     configureRecurringEvents(mockConfig);
 
     // Verify shortcode was registered
-    expect("recurring_events" in mockConfig.shortcodes).toBe(true);
+    expect("recurring_events" in mockConfig.asyncShortcodes).toBe(true);
   });
 
   test("Navigation module handles missing pages", async () => {
