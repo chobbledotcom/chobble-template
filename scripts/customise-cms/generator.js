@@ -306,6 +306,7 @@ const buildReviewsFields = (config, fields) =>
  */
 const buildEventsFields = (config, fields) =>
   buildItem(() => [
+    COMMON_FIELDS.featured,
     config.features.event_locations_and_dates && {
       name: "event_date",
       label: "Event Date",

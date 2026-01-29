@@ -265,6 +265,7 @@ content:
         label: Recurring Date (e.g. "Every Friday at 2 PM")
         required: false
       - { name: event_location, type: string, label: Event Location }
+      - { name: featured, type: boolean, label: Featured }
       - name: map_embed_src
         type: string
         label: Map Embed URL
