@@ -104,12 +104,18 @@ const createEventsCollection = (collectionApi) => {
   });
 };
 
-/**
- * Configure events collection.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+/** Pre-filtered recurring events (sorted by order then title). */
+const createRecurringEventsCollection = (collectionApi) => {
+  const events = createEventsCollection(collectionApi);
+  return categoriseEvents(events).regular;
+};
+
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addCollection("events", createEventsCollection);
+  eleventyConfig.addCollection(
+    "recurringEvents",
+    createRecurringEventsCollection,
+  );
 };
 
 export { configureEvents };

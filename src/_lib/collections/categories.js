@@ -6,6 +6,7 @@
 
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import {
   getCategoriesFromApi,
   getProductsFromApi,
@@ -128,12 +129,17 @@ const createCategoriesCollection = (collectionApi) => {
   });
 };
 
-/**
- * Configure categories collection and filters.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+/** Memoized index of subcategories by parent slug. */
+const indexByParent = memoizeByRef((categories) =>
+  groupBy(categories, (c) => c.data.parent),
+);
+
+const getSubcategories = (categories, parentSlug) =>
+  indexByParent(categories).get(parentSlug) ?? [];
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
+  // @ts-expect-error - Filter returns array for data transformation, not string
+  eleventyConfig.addFilter("getSubcategories", getSubcategories);
 };
 
-export { configureCategories, createCategoriesCollection };
+export { configureCategories, createCategoriesCollection, getSubcategories };

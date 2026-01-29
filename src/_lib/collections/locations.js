@@ -5,6 +5,7 @@
  */
 
 import { groupBy } from "#toolkit/fp/grouping.js";
+import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { getLocationsFromApi } from "#utils/collection-utils.js";
 import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
@@ -73,17 +74,26 @@ const createLocationsCollection = (collectionApi) => {
   });
 };
 
-/**
- * Configure locations collection and filters for Eleventy.
- *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+/** Memoized index of child locations by parent slug. */
+const indexByParent = memoizeByRef((locations) =>
+  groupBy(locations, (loc) => loc.data.parentLocation),
+);
+
+const getChildLocations = (locations, parentSlug) =>
+  indexByParent(locations).get(parentSlug) ?? [];
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addCollection("locations", createLocationsCollection);
   // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getRootLocations", getRootLocations);
   // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);
+  // @ts-expect-error - Filter returns array for data transformation, not string
+  eleventyConfig.addFilter("getChildLocations", getChildLocations);
 };
 
-export { getRootLocations, getSiblingLocations, configureLocations };
+export {
+  getRootLocations,
+  getSiblingLocations,
+  getChildLocations,
+  configureLocations,
+};

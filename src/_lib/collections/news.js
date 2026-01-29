@@ -22,13 +22,11 @@ const createNewsCollection = (collectionApi) =>
     .filter((post) => post.data.no_index !== true)
     .sort(sortByDateDescending);
 
-/**
- * Configure news collection for Eleventy.
- *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+const allNewsHaveImages = (news) =>
+  news.length > 0 && news.every((post) => post.data.header_image);
 const configureNews = (eleventyConfig) => {
   eleventyConfig.addCollection("news", createNewsCollection);
+  eleventyConfig.addFilter("allNewsHaveImages", allNewsHaveImages);
 };
 
-export { createNewsCollection, configureNews };
+export { createNewsCollection, allNewsHaveImages, configureNews };

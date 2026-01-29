@@ -6,7 +6,7 @@ layout: base
 {%- include "faq.html" -%}
 
 {%- assign locationSlug = page.fileSlug -%}
-{%- assign services = collections.locations | where: "data.parentLocation", locationSlug -%}
+{%- assign services = collections.locations | getChildLocations: locationSlug -%}
 
 {%- if services.size > 0 -%}
   <h2>Our Services in {{ title }}</h2>
