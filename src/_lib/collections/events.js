@@ -10,6 +10,7 @@ import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import {
   createArrayFieldIndexer,
+  featuredCollection,
   getEventsFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -112,6 +113,10 @@ const createRecurringEventsCollection = (collectionApi) => {
 
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addCollection("events", createEventsCollection);
+  eleventyConfig.addCollection(
+    "featuredEvents",
+    featuredCollection(createEventsCollection),
+  );
   eleventyConfig.addCollection(
     "recurringEvents",
     createRecurringEventsCollection,

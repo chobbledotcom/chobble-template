@@ -4,6 +4,7 @@ subtitle: 40,000 developers can't be wrong
 meta_description: Annual sold-out arena event celebrating the Chobble template at Fulchester Arena
 recurring_date: Annually - Last weekend of July
 event_location: Fulchester Arena (All Halls)
+featured: true
 ---
 
 Experience the phenomenon that is the Chobble Global Summit, where Fulchester Arena sells out faster than Glastonbury! Join 40,000 fervent Chobble template users from around the world as we celebrate the Eleventy starter that revolutionised small business websites.

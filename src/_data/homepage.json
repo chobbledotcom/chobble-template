@@ -3,6 +3,7 @@
 	"show_featured_products": true,
 	"show_menus": true,
 	"show_news": true,
+	"show_featured_events": true,
 	"show_recurring_events": true,
 	"show_reviews": true,
 	"reviews_limit": 3,

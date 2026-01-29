@@ -37,6 +37,12 @@ layout: base
   {%- include "items.html", items: collections.featuredProducts -%}
 {%- endif -%}
 
+{%- if homepage.show_featured_events and collections.featuredEvents.size > 0 -%}
+  <hr>
+  {%- render_snippet "homepage-featured-events-header", "<h3>Featured Events</h3>" -%}
+  {%- include "items.html", items: collections.featuredEvents -%}
+{%- endif -%}
+
 {%- if homepage.show_recurring_events and collections.recurringEvents.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-events-header", "<h3>Regular Events</h3>" -%}
