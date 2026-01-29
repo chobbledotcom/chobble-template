@@ -129,7 +129,7 @@ const computeWrappedImageHtml = memoize(
 
     // Extract LQIP from the 32px webp before filtering it out
     const bgImage = generateLqip
-      ? extractLqipFromMetadata(imageMetadata)
+      ? await extractLqipFromMetadata(imageMetadata)
       : null;
 
     // Filter out LQIP width from metadata so it doesn't appear in srcset

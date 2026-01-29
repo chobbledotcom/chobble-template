@@ -16,6 +16,10 @@ const isAllowedExtension = memberOf(ALLOWED_EXTENSIONS);
  * For SVG files, returns the raw SVG text.
  * For images (webp, jpeg, png, gif), returns base64 data URI.
  * Cache is keyed by (assetPath, baseDir) to handle different base directories.
+ *
+ * Note: Kept synchronous because it's used by spec-filters.js which is called
+ * synchronously in templates. The memoization ensures files are only read once.
+ *
  * @param {string} assetPath - Path relative to assets directory
  * @param {string} baseDir - Base directory (defaults to ROOT_DIR)
  * @returns {string} Inlined asset content

@@ -103,7 +103,7 @@ const computeExternalImageHtml = memoize(
     const imageMetadata = { ...webpMetadata, ...jpegMetadata };
 
     // Extract LQIP from the 32px webp before filtering it out
-    const bgImage = extractLqipFromMetadata(imageMetadata);
+    const bgImage = await extractLqipFromMetadata(imageMetadata);
 
     // Filter out LQIP width from metadata so it doesn't appear in srcset
     const htmlMetadata = removeLqip(imageMetadata);
