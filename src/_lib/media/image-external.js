@@ -139,8 +139,13 @@ const computeExternalImageHtml = memoize(
  * @param {string | null} aspectRatio - Aspect ratio like "16/9"
  * @returns {Promise<string>} Placeholder image HTML
  */
-const generateRickAstleyPlaceholder = (classes, aspectRatio) =>
-  createHtml(
+const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
+  const imgHtml = await createHtml("img", {
+    src: "/images/placeholders/pink.svg",
+    alt: "Video thumbnail",
+    loading: "lazy",
+  });
+  return createHtml(
     "div",
     {
       class: classes ? `image-wrapper ${classes}` : "image-wrapper",
@@ -148,8 +153,9 @@ const generateRickAstleyPlaceholder = (classes, aspectRatio) =>
         "; ",
       ),
     },
-    '<img src="/images/placeholders/pink.svg" alt="Video thumbnail" loading="lazy">',
+    imgHtml,
   );
+};
 
 /**
  * Process an external image URL into HTML or an Element.
