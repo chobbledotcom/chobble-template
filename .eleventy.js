@@ -60,10 +60,10 @@ export default async function (eleventyConfig) {
     cache: true,
   });
   eleventyConfig
-    .addPassthroughCopy("src/assets")
-    .addPassthroughCopy("src/images")
-    .addPassthroughCopy("src/news/images")
-    .addPassthroughCopy({ "src/assets/favicon/*": "/" });
+    .addPassthroughCopy("src/assets", { expand: true })
+    .addPassthroughCopy("src/images", { expand: true })
+    .addPassthroughCopy("src/news/images", { expand: true })
+    .addPassthroughCopy({ "src/assets/favicon/*": "/" }, { expand: true });
 
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
