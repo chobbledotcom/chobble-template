@@ -138,7 +138,6 @@ const getSubcategories = (categories, parentSlug) =>
   indexByParent(categories).get(parentSlug) ?? [];
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getSubcategories", getSubcategories);
 };
 

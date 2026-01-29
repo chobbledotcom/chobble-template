@@ -69,9 +69,7 @@ const createMenusCollection = (collectionApi) =>
 
 const configureMenus = (eleventyConfig) => {
   eleventyConfig.addCollection("menus", createMenusCollection);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getItemsByCategory", getItemsByCategory);
 };
 

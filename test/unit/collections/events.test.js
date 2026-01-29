@@ -247,3 +247,24 @@ describe("events collection", () => {
     expect(result[1].data.thumbnail).toBe("shared.jpg");
   });
 });
+
+describe("recurringEvents collection", () => {
+  const getRecurring = getCollectionFrom("recurringEvents")(configureEvents);
+
+  test("returns only recurring events", () => {
+    const events = [
+      createEvent({ title: "Weekly Class", recurring_date: "Every Monday" }),
+      createEvent({ title: "One-off Gig", event_date: createOffsetDate(5) }),
+    ];
+    const result = getRecurring({ events, products: [] });
+    expect(result).toHaveLength(1);
+    expectResultTitles(result, ["Weekly Class"]);
+  });
+
+  test("returns empty when no recurring events", () => {
+    const events = [
+      createEvent({ title: "One-off", event_date: createOffsetDate(5) }),
+    ];
+    expect(getRecurring({ events, products: [] })).toHaveLength(0);
+  });
+});

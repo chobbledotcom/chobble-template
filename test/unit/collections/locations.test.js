@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   configureLocations,
+  getChildLocations,
   getRootLocations,
   getSiblingLocations,
 } from "#collections/locations.js";
@@ -68,6 +69,26 @@ describe("locations", () => {
     expect(result.length).toBe(0);
   });
 
+  test("Gets child locations by parent slug", () => {
+    const locations = [
+      childLocation("Cleaning", "london", "/london/cleaning/"),
+      childLocation("Repairs", "london", "/london/repairs/"),
+      childLocation("Plumbing", "manchester", "/manchester/plumbing/"),
+    ];
+
+    const result = getChildLocations(locations, "london");
+
+    expectResultTitles(result, ["Cleaning", "Repairs"]);
+  });
+
+  test("Returns empty for parent with no children", () => {
+    const locations = [
+      childLocation("Cleaning", "london", "/london/cleaning/"),
+    ];
+
+    expect(getChildLocations(locations, "birmingham")).toEqual([]);
+  });
+
   test("Configures location filters", () => {
     const mockConfig = createMockEleventyConfig();
 
@@ -75,8 +96,10 @@ describe("locations", () => {
 
     expect(typeof mockConfig.filters.getRootLocations).toBe("function");
     expect(typeof mockConfig.filters.getSiblingLocations).toBe("function");
+    expect(typeof mockConfig.filters.getChildLocations).toBe("function");
     expect(mockConfig.filters.getRootLocations).toBe(getRootLocations);
     expect(mockConfig.filters.getSiblingLocations).toBe(getSiblingLocations);
+    expect(mockConfig.filters.getChildLocations).toBe(getChildLocations);
   });
 });
 

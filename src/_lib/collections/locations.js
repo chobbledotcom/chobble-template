@@ -83,11 +83,8 @@ const getChildLocations = (locations, parentSlug) =>
   indexByParent(locations).get(parentSlug) ?? [];
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addCollection("locations", createLocationsCollection);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getRootLocations", getRootLocations);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getChildLocations", getChildLocations);
 };
 
