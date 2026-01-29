@@ -29,7 +29,7 @@
 
     // Hide scrollbar but keep functionality
     scrollbar-width: thin;
-    scrollbar-color: var(--text-muted) transparent;
+    scrollbar-color: var(--color-text-muted) transparent;
 
     &::-webkit-scrollbar {
       height: 6px;
@@ -40,7 +40,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: var(--text-muted);
+      background: var(--color-text-muted);
       border-radius: $radius-full;
     }
 
@@ -76,17 +76,17 @@
     width: 44px;
     height: 44px;
     padding: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--bg-alt);
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-bg-alt);
     border-radius: $radius-full;
-    color: var(--text);
+    color: var(--color-text);
     font-size: $font-size-lg;
     cursor: pointer;
     transition: all $transition-fast;
 
     &:hover:not([disabled]) {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--color-link);
+      border-color: var(--color-link);
       color: #fff;
     }
 
@@ -100,13 +100,13 @@
   // Dark section variant
   .dark .slider-prev,
   .dark .slider-next {
-    background: var(--card-bg);
+    background: var(--color-card-bg);
     border-color: #4b5563;
     color: #f9fafb;
 
     &:hover:not([disabled]) {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--color-link);
+      border-color: var(--color-link);
     }
   }
 }

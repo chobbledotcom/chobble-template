@@ -23,7 +23,7 @@
 
     .lead {
       @include body-lg;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       max-width: 700px;
     }
   }
@@ -34,8 +34,8 @@
     align-items: center;
     gap: $space-xs;
     padding: $space-xs $space-sm;
-    background: var(--primary-light);
-    color: var(--primary);
+    background: var(--color-link-light);
+    color: var(--color-link);
     border-radius: $radius-full;
     font-weight: 600;
   }

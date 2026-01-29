@@ -51,7 +51,7 @@
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
-		"@11ty/eleventy-img": "github:jornmineur/eleventy-img#no-buffer-in-memcache",
+		"@11ty/eleventy-img": "github:jornmineur/eleventy-img#f33b5e25c602fafeca5d374339d1e0ace74bea0b",
 		"@11ty/eleventy-navigation": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^2.0.2",
 		"@botpoison/browser": "^0.1.30",

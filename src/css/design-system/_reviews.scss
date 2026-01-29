@@ -45,7 +45,7 @@
 
     .date {
       @include body-sm;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       margin-left: auto;
     }
 
@@ -58,10 +58,10 @@
       flex: 1;
       @include body-sm;
       font-style: italic;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
 
       a {
-        color: var(--primary);
+        color: var(--color-link);
         text-decoration: none;
 
         &:hover {
@@ -95,12 +95,12 @@
 
     .name {
       font-weight: 600;
-      color: var(--text);
+      color: var(--color-text);
     }
 
     .review-link {
       @include body-sm;
-      color: var(--primary);
+      color: var(--color-link);
       text-decoration: none;
 
       &:hover {

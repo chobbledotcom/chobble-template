@@ -34,8 +34,8 @@
       @include flex-center;
       width: 48px;
       height: 48px;
-      background: var(--primary-light);
-      color: var(--primary);
+      background: var(--color-link-light);
+      color: var(--color-link);
       border-radius: $radius-md;
       font-size: $font-size-lg;
       grid-row: 1;
@@ -52,7 +52,7 @@
 
     p {
       @include body-base;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       grid-row: 2;
       grid-column: 1 / -1;
     }

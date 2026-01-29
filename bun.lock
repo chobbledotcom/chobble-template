@@ -6,7 +6,7 @@
       "name": "chobble-template",
       "dependencies": {
         "@11ty/eleventy": "^3.0.0",
-        "@11ty/eleventy-img": "github:jornmineur/eleventy-img#no-buffer-in-memcache",
+        "@11ty/eleventy-img": "github:jornmineur/eleventy-img#f33b5e25c602fafeca5d374339d1e0ace74bea0b",
         "@11ty/eleventy-navigation": "^1.0.4",
         "@11ty/eleventy-plugin-rss": "^2.0.2",
         "@botpoison/browser": "^0.1.30",
@@ -55,7 +55,7 @@
 
     "@11ty/eleventy-fetch": ["@11ty/eleventy-fetch@5.1.1", "", { "dependencies": { "@11ty/eleventy-utils": "^2.0.7", "@rgrove/parse-xml": "^4.2.0", "debug": "^4.4.3", "flatted": "^3.3.3", "p-queue": "6.6.2" } }, "sha512-/xFJLCrqKlcnRKIfO9Qjd1QOs4IpvypljXET955+EgdRPFA+h8Or6bDnZBbcwr6KS7yeUuzp5k1DhXgbentSTA=="],
 
-    "@11ty/eleventy-img": ["@11ty/eleventy-img@github:jornmineur/eleventy-img#f4d0ce8", { "dependencies": { "@11ty/eleventy-fetch": "^5.1.0", "@11ty/eleventy-utils": "^2.0.7", "brotli-size": "^4.0.0", "debug": "^4.4.1", "entities": "^6.0.1", "image-size": "^1.2.1", "p-queue": "^8.1.0", "sharp": "^0.34.3" } }, "jornmineur-eleventy-img-f4d0ce8"],
+    "@11ty/eleventy-img": ["@11ty/eleventy-img@github:jornmineur/eleventy-img#f33b5e2", { "dependencies": { "@11ty/eleventy-fetch": "^5.1.0", "@11ty/eleventy-utils": "^2.0.7", "brotli-size": "^4.0.0", "debug": "^4.4.1", "entities": "^6.0.1", "image-size": "^1.2.1", "p-queue": "^8.1.0", "sharp": "^0.34.3" } }, "jornmineur-eleventy-img-f33b5e2"],
 
     "@11ty/eleventy-navigation": ["@11ty/eleventy-navigation@1.0.5", "", { "dependencies": { "dependency-graph": "^1.0.0" } }, "sha512-zb6xe29cM9viSdYtZywKIkJw2HIROyBINdBcFWC9uD0c/jYOTAex5nwy3HNEuh5t6/Ld/S9V4gEizfmeYuYpCQ=="],
 
