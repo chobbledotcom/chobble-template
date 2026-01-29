@@ -113,10 +113,18 @@
     }
   }
 
-  img {
+  img,
+  .image-wrapper {
     max-width: 100%;
     height: auto;
     display: block;
+  }
+
+  // Override the 695px max-width from legacy page styles when design-system
+  // blocks appear inside .content (e.g. page.html layout)
+  body.page .content & img,
+  body.page .content & .image-wrapper {
+    max-width: 100%;
   }
 
   // Prose lists: flex column with gap, padding-left for bullet indentation
