@@ -38,7 +38,7 @@
       -webkit-overflow-scrolling: touch;
       padding-bottom: $space-sm; // Space for scrollbar
       scrollbar-width: thin;
-      scrollbar-color: var(--text-muted) transparent;
+      scrollbar-color: var(--color-text-muted) transparent;
 
       @include reduced-motion {
         scroll-behavior: auto;
@@ -88,11 +88,11 @@
         padding: $space-md $space-md 0;
 
         a {
-          color: var(--text);
+          color: var(--color-text);
           text-decoration: none;
 
           &:hover {
-            color: var(--primary);
+            color: var(--color-link);
           }
         }
       }
@@ -100,13 +100,13 @@
       .price {
         @include body-base;
         font-weight: 600;
-        color: var(--primary);
+        color: var(--color-link);
         padding: 0 $space-md $space-md;
       }
 
       p:not(.price) {
         @include body-sm;
-        color: var(--text-muted);
+        color: var(--color-text-muted);
         padding: 0 $space-md $space-md;
       }
 
@@ -123,7 +123,7 @@
           align-items: center;
           gap: $space-xs;
           @include body-sm;
-          color: var(--text-muted);
+          color: var(--color-text-muted);
 
           svg {
             width: 1em;
@@ -215,7 +215,7 @@
 
         // No thumbnail variant for custom video URLs
         &.video-facade--no-thumbnail {
-          background: var(--surface-muted);
+          background: var(--color-bg-alt);
           aspect-ratio: 16 / 9;
         }
       }

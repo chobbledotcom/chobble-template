@@ -62,7 +62,7 @@
   }
 
   .split-full__left {
-    background: var(--bg-alt);
+    background: var(--color-bg-alt);
     justify-content: flex-end;
 
     > * {
@@ -76,7 +76,7 @@
   }
 
   .split-full__right {
-    background: var(--card-bg);
+    background: var(--color-card-bg);
     justify-content: flex-start;
 
     > * {
@@ -94,45 +94,45 @@
     .split-full__left {
       background: #1f2937;
       color: #f9fafb;
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
+      --color-text: #f9fafb;
+      --color-text-muted: #9ca3af;
     }
 
     .split-full__right {
-      background: var(--bg);
+      background: var(--color-bg);
     }
   }
 
   // Reverse - right dark, left light
   .split-full--dark-right {
     .split-full__left {
-      background: var(--bg);
+      background: var(--color-bg);
     }
 
     .split-full__right {
       background: #1f2937;
       color: #f9fafb;
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
+      --color-text: #f9fafb;
+      --color-text-muted: #9ca3af;
     }
   }
 
   // Primary color variants
   .split-full--primary-left {
     .split-full__left {
-      background: var(--primary);
+      background: var(--color-link);
       color: #fff;
-      --text: #fff;
-      --text-muted: rgba(255, 255, 255, 0.8);
+      --color-text: #fff;
+      --color-text-muted: rgba(255, 255, 255, 0.8);
     }
   }
 
   .split-full--primary-right {
     .split-full__right {
-      background: var(--primary);
+      background: var(--color-link);
       color: #fff;
-      --text: #fff;
-      --text-muted: rgba(255, 255, 255, 0.8);
+      --color-text: #fff;
+      --color-text-muted: rgba(255, 255, 255, 0.8);
     }
   }
 }
