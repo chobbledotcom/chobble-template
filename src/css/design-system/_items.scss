@@ -1,6 +1,7 @@
 @use "sass:math";
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // ITEMS LIST (for list-item.html)
@@ -16,14 +17,14 @@
     // Grid layout for non-slider
     &:not(.slider) {
       > li {
-        flex: 1 1 280px;
+        flex: 1 1 $width-card;
         max-width: 100%;
 
-        @include tablet-up {
+        @include breakpoint.up("md") {
           max-width: calc(50% - #{math.div($space-lg, 2)});
         }
 
-        @include desktop-up {
+        @include breakpoint.up("lg") {
           max-width: calc(33.333% - #{math.div($space-lg * 2, 3)});
         }
       }
@@ -47,10 +48,10 @@
       > li {
         flex-shrink: 0;
         scroll-snap-align: start;
-        width: 280px;
+        width: $width-card;
 
-        @include tablet-up {
-          width: 320px;
+        @include breakpoint.up("md") {
+          width: $width-card-lg;
         }
       }
     }

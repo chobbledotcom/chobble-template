@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // REVIEWS GRID
@@ -10,18 +11,20 @@
     @include grid(1, $space-lg);
     list-style: none;
 
-    @include tablet-up {
+    @include breakpoint.up("md") {
       @include grid(2, $space-lg);
     }
 
-    @include desktop-up {
+    @include breakpoint.up("lg") {
       @include grid(3, $space-lg);
     }
 
-    // On item pages, show 2 columns max
-    body.item & {
-      @include grid(2, $space-lg);
-      @include mobile-only {
+    // Compact variant: 2 columns max (use on item pages)
+    &--compact {
+      @include breakpoint.up("lg") {
+        @include grid(2, $space-lg);
+      }
+      @include breakpoint.down("md") {
         @include grid(1, $space-lg);
       }
     }
@@ -30,7 +33,7 @@
       @include card($space-md, $radius-lg);
       @include flex-col($space-sm);
 
-      @include mobile-only {
+      @include breakpoint.down("md") {
         text-align: center;
       }
     }
@@ -74,7 +77,7 @@
       @include flex-row($space-sm, flex-start);
       margin-block-start: auto;
 
-      @include mobile-only {
+      @include breakpoint.down("md") {
         flex-direction: column;
         align-items: center;
       }

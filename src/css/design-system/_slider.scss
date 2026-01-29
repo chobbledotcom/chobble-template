@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // SLIDER (Horizontal Scrolling Cards)
@@ -57,10 +58,10 @@
     > .feature,
     > article,
     > li {
-      width: 300px;
+      width: $width-card;
 
-      @include tablet-up {
-        width: 340px;
+      @include breakpoint.up("md") {
+        width: $width-card-lg;
       }
     }
   }
@@ -87,7 +88,7 @@
     &:hover:not([disabled]) {
       background: var(--color-link);
       border-color: var(--color-link);
-      color: #fff;
+      color: $color-white;
     }
 
     &[disabled] {
@@ -101,8 +102,8 @@
   .dark .slider-prev,
   .dark .slider-next {
     background: var(--color-card-bg);
-    border-color: #4b5563;
-    color: #f9fafb;
+    border-color: $color-dark-card-bg;
+    color: $color-dark-text;
 
     &:hover:not([disabled]) {
       background: var(--color-link);

@@ -8,13 +8,13 @@
 
 .design-system {
   ul.features {
-    @include grid-auto(300px, $space-md);
+    @include grid-auto($width-card, $space-md);
     list-style: none;
   }
 
   // Also support legacy div.features
   div.features {
-    @include grid-auto(300px, $space-md);
+    @include grid-auto($width-card, $space-md);
   }
 
   .feature {

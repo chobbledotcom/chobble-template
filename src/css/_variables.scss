@@ -31,6 +31,15 @@ $color-dark-bg: #1f2937 !default;
 $color-dark-text: #f9fafb !default;
 $color-dark-text-muted: #9ca3af !default;
 $color-dark-card-bg: #374151 !default;
+$color-dark-link: #d1d5db !default;
+
+// Constant colors
+$color-white: #ffffff !default;
+
+// Decorative dot colors (code block toolbar)
+$color-dot-red: #ef4444 !default;
+$color-dot-yellow: #f59e0b !default;
+$color-dot-green: #10b981 !default;
 
 // -----------------------------------------------------------------------------
 // FONTS
@@ -64,6 +73,10 @@ $width-narrow: 680px !default;
 $width-default: 900px !default;
 $width-wide: 1200px !default;
 $width-full: 100% !default;
+
+// Card widths
+$width-card: 280px !default;
+$width-card-lg: 320px !default;
 
 // -----------------------------------------------------------------------------
 // TYPOGRAPHY SCALE

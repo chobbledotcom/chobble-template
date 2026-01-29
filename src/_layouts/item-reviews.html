@@ -13,7 +13,7 @@ layout: base
     {% assign reviews = collections.reviews | getReviewsFor: item.fileSlug, item.data.tags %}
     {%- if reviews.size > 0 -%}
       <h2 id="reviews">Reviews</h2>
-      {% include "reviews-list.html" %}
+      {% include "reviews-list.html", compact: true %}
     {%- endif -%}
   </div>
 </div>

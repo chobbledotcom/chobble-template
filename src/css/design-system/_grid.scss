@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // GRID LAYOUTS
@@ -8,23 +9,23 @@
 .design-system {
   .grid {
     @include grid(1, $space-lg);
-    @include tablet-up {
+    @include breakpoint.up("md") {
       @include grid(2, $space-lg);
     }
-    @include desktop-up {
+    @include breakpoint.up("lg") {
       @include grid(3, $space-xl);
     }
 
     &--2 {
       @include grid(1, $space-lg);
-      @include tablet-up {
+      @include breakpoint.up("md") {
         @include grid(2, $space-xl);
       }
     }
 
     &--4 {
       @include grid(2, $space-md);
-      @include tablet-up {
+      @include breakpoint.up("md") {
         @include grid(4, $space-lg);
       }
     }
