@@ -115,7 +115,7 @@
         flex-wrap: wrap;
         gap: $space-sm;
         padding: 0 $space-md $space-md;
-        margin-top: auto; // Push to bottom of flex container
+        margin-block-start: auto; // Push to bottom of flex container
         list-style: none;
 
         li {

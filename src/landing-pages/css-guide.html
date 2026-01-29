@@ -152,7 +152,7 @@ $font-sans: "Inter", sans-serif;</code></pre>
         </article>
       </div>
 
-      <div class="grid mt-xl">
+      <div class="grid">
         <article class="feature" data-reveal>
           <h4>Available Overrides</h4>
           <pre><code>Colors:
@@ -263,10 +263,10 @@ Breakpoints:
   <!-- Components -->
   <section id="components">
     <div class="container">
-      <h2 class="text-center mb-xl">Components</h2>
+      <h2 class="text-center">Components</h2>
 
       <!-- Hero -->
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Hero</h3>
         <p>Full-width header with centered content. Use inside a <code>&lt;header&gt;</code> element.</p>
         <div class="code-block">
@@ -276,13 +276,13 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/hero.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Classes: <code>.hero</code>, <code>.badge</code>, <code>.lead</code>, <code>.actions</code></p>
+        <p class="text-muted">Classes: <code>.hero</code>, <code>.badge</code>, <code>.lead</code>, <code>.actions</code></p>
       </article>
 
       <!-- Buttons -->
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Buttons</h3>
-        <div class="actions mb-lg">
+        <div class="actions">
           <a href="#" class="btn btn--primary">Primary</a>
           <a href="#" class="btn btn--secondary">Secondary</a>
           <a href="#" class="btn btn--ghost">Ghost</a>
@@ -299,7 +299,7 @@ Breakpoints:
       </article>
 
       <!-- Feature Cards -->
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Feature Cards</h3>
         <p>Use <code>&lt;article class="feature"&gt;</code> inside a <code>.features</code> grid.</p>
         <div class="code-block">
@@ -309,11 +309,11 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/feature-cards.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">The <code>.features</code> container auto-fits cards at 300px minimum width.</p>
+        <p class="text-muted">The <code>.features</code> container auto-fits cards at 300px minimum width.</p>
       </article>
 
       <!-- Image Cards -->
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Image Cards</h3>
         <p>Similar to features but with images instead of emoji icons. Use <code>ul.items</code> for the grid.</p>
         <div class="code-block">
@@ -323,7 +323,7 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/image-cards.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Images have hover zoom effect. The grid is responsive (1→2→3 columns). Also available as a frontmatter block type.</p>
+        <p class="text-muted">Images have hover zoom effect. The grid is responsive (1→2→3 columns). Also available as a frontmatter block type.</p>
       </article>
     </div>
   </section>
@@ -331,7 +331,7 @@ Breakpoints:
   <!-- Feature Demo -->
   <section class="alt">
     <div class="container">
-      <h3 class="text-center mb-lg">Feature Cards Demo</h3>
+      <h3 class="text-center">Feature Cards Demo</h3>
       {%- comment -%} Features demo using accessible list template {%- endcomment -%}
       <ul class="features" role="list">
         <li>
@@ -357,7 +357,7 @@ Breakpoints:
         </li>
       </ul>
 
-      <h3 class="text-center mt-xl mb-lg">Grid with Real Products</h3>
+      <h3 class="text-center">Grid with Real Products</h3>
       {%- assign gridProducts = collections.products | slice: 0, 3 -%}
       {%- assign listItemFields = "thumbnail,link,price" | split: "," -%}
       {%- include "items.html", items: gridProducts -%}
@@ -369,7 +369,7 @@ Breakpoints:
     <div class="container">
       {%- include "design-system/section-header.html", title: "Grid Layouts" -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Grid Classes</h3>
         <div class="code-block">
             <div class="code-block-toolbar">
@@ -380,15 +380,15 @@ Breakpoints:
         </div>
       </article>
 
-      <h4 class="mb-lg">.grid (responsive 1→2→3)</h4>
-      <div class="grid mb-xl">
+      <h4 >.grid (responsive 1→2→3)</h4>
+      <div class="grid">
         <div class="feature">Column 1</div>
         <div class="feature">Column 2</div>
         <div class="feature">Column 3</div>
       </div>
 
-      <h4 class="mb-lg">.grid--4 (2→4 columns)</h4>
-      <div class="grid--4 mb-xl">
+      <h4 >.grid--4 (2→4 columns)</h4>
+      <div class="grid--4">
         <div class="feature text-center">1</div>
         <div class="feature text-center">2</div>
         <div class="feature text-center">3</div>
@@ -405,7 +405,7 @@ Breakpoints:
           subtitle: "Scrollable card rows with prev/next navigation."
       -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
             <div class="code-block-toolbar">
@@ -414,15 +414,15 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/slider.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Navigation buttons auto-hide when content doesn't overflow. Button states (disabled) update on scroll.</p>
+        <p class="text-muted">Navigation buttons auto-hide when content doesn't overflow. Button states (disabled) update on scroll.</p>
       </article>
 
-      <h3 class="mb-lg">Live Demo (with real products)</h3>
+      <h3 >Live Demo (with real products)</h3>
       {%- assign sliderProducts = collections.products | slice: 0, 8 -%}
       {%- assign listItemFields = "thumbnail,link,price" | split: "," -%}
       {%- include "items.html", items: sliderProducts, horizontal: true -%}
 
-      <article class="feature mt-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Key Features</h3>
         <ul>
           <li><strong>Auto-hide nav</strong> - Buttons only show when content overflows</li>
@@ -434,7 +434,7 @@ Breakpoints:
         </ul>
       </article>
 
-      <article class="feature mt-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>Custom Card Width</h3>
         <p>Override the default 300px/340px card width with inline styles:</p>
         <div class="code-block">
@@ -456,7 +456,7 @@ Breakpoints:
           subtitle: "Two-column layouts for text + image sections."
       -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <div class="code-block">
             <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -464,7 +464,7 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/split.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and border automatically.</p>
+        <p class="text-muted">Use <code>&lt;article&gt;</code> for text, <code>&lt;figure&gt;</code> for images/media. The figure gets rounded corners and border automatically.</p>
       </article>
 
       <!-- Demo -->
@@ -492,7 +492,7 @@ Breakpoints:
           subtitle: "Two-tone sections that span the full viewport width."
       -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <h3>HTML Structure</h3>
         <div class="code-block">
             <div class="code-block-toolbar">
@@ -501,7 +501,7 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/split-full.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Variants: <code>.split-full--dark-left</code>, <code>.split-full--dark-right</code>, <code>.split-full--primary-left</code>, <code>.split-full--primary-right</code></p>
+        <p class="text-muted">Variants: <code>.split-full--dark-left</code>, <code>.split-full--dark-right</code>, <code>.split-full--primary-left</code>, <code>.split-full--primary-right</code></p>
       </article>
     </div>
   </section>
@@ -544,7 +544,7 @@ Breakpoints:
     <div class="container">
       {%- include "design-system/section-header.html", title: "Stats Display" -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <div class="code-block">
             <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -568,7 +568,7 @@ Breakpoints:
           subtitle: "Terminal-style code display with colored window dots."
       -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <div class="code-block">
             <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -576,7 +576,7 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/code-block.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">The dots auto-color red/yellow/green. Use <code>&lt;span&gt;</code> with inline styles for syntax highlighting.</p>
+        <p class="text-muted">The dots auto-color red/yellow/green. Use <code>&lt;span&gt;</code> with inline styles for syntax highlighting.</p>
       </article>
     </div>
   </section>
@@ -586,7 +586,7 @@ Breakpoints:
     <div class="container">
       {%- include "design-system/section-header.html", title: "Call to Action" -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <div class="code-block">
             <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -594,7 +594,7 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/cta.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Use <code>&lt;aside&gt;</code> for semantic markup. The CTA has a gradient background and inverted colors.</p>
+        <p class="text-muted">Use <code>&lt;aside&gt;</code> for semantic markup. The CTA has a gradient background and inverted colors.</p>
       </article>
 
       <aside class="cta">
@@ -613,7 +613,7 @@ Breakpoints:
           subtitle: "Add <code>data-reveal</code> to animate elements on scroll."
       -%}
 
-      <article class="feature mb-xl" data-reveal>
+      <article class="feature" data-reveal>
         <div class="code-block">
             <div class="code-block-toolbar">
             <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -621,7 +621,7 @@ Breakpoints:
           </div>
           <pre><code>{% read_code "src/landing-pages/code-examples/animations.html" %}</code></pre>
         </div>
-        <p class="text-muted mt-lg">Animations respect <code>prefers-reduced-motion</code>. Elements get <code>.is-visible</code> class when in viewport.</p>
+        <p class="text-muted">Animations respect <code>prefers-reduced-motion</code>. Elements get <code>.is-visible</code> class when in viewport.</p>
       </article>
 
       <div class="grid">
@@ -655,13 +655,14 @@ Breakpoints:
         </article>
 
         <article class="feature" data-reveal>
-          <h4>Spacing</h4>
-          <pre><code>.mt-0    margin-top: 0
-.mb-0    margin-bottom: 0
-.mt-lg   margin-top: 32px
-.mb-lg   margin-bottom: 32px
-.mt-xl   margin-top: 48px
-.mb-xl   margin-bottom: 48px</code></pre>
+          <h4>Layout</h4>
+          <pre><code>.stack      flex column, gap: 24px
+.stack--sm  flex column, gap: 16px
+.stack--lg  flex column, gap: 32px
+.stack--xl  flex column, gap: 48px
+.row        flex row, gap: 24px
+.row--sm    flex row, gap: 16px
+.row--lg    flex row, gap: 32px</code></pre>
         </article>
 
         <article class="feature" data-reveal>

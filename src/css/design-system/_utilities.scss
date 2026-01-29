@@ -56,31 +56,6 @@
   }
 
   // ===========================================================================
-  // SPACING UTILITIES
-  // ===========================================================================
-  // Use sparingly - prefer gap-based spacing via stack/row containers.
-  // These exist for edge cases where margin is genuinely needed.
-
-  .mt-0 {
-    margin-top: 0;
-  }
-  .mb-0 {
-    margin-bottom: 0;
-  }
-  .mt-lg {
-    margin-top: $space-lg;
-  }
-  .mb-lg {
-    margin-bottom: $space-lg;
-  }
-  .mt-xl {
-    margin-top: $space-xl;
-  }
-  .mb-xl {
-    margin-bottom: $space-xl;
-  }
-
-  // ===========================================================================
   // ACCESSIBILITY
   // ===========================================================================
 

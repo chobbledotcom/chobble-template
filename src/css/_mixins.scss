@@ -65,18 +65,15 @@
 // CONTAINER & SPACING MIXINS
 // =============================================================================
 
-// Content container with consistent margins
+// Content container with inline centering and responsive padding
 @mixin container($max-width: $width-default) {
   width: 100%;
   max-width: $max-width;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: $space-md;
-  padding-right: $space-md;
+  margin-inline: auto;
+  padding-inline: $space-md;
 
   @media (min-width: $bp-md) {
-    padding-left: $space-lg;
-    padding-right: $space-lg;
+    padding-inline: $space-lg;
   }
 }
 

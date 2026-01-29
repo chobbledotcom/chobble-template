@@ -46,7 +46,7 @@
     .date {
       @include body-sm;
       color: var(--color-text-muted);
-      margin-left: auto;
+      margin-inline-start: auto;
     }
 
     .review {
@@ -72,7 +72,7 @@
 
     .author-info {
       @include flex-row($space-sm, flex-start);
-      margin-top: auto;
+      margin-block-start: auto;
 
       @include mobile-only {
         flex-direction: column;

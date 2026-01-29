@@ -41,7 +41,6 @@
     > figure {
       position: absolute;
       inset: 0;
-      margin: 0;
       @include flex-center;
       background: rgba(0, 0, 0, 0.5);
       color: #fff;
