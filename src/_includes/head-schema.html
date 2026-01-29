@@ -13,4 +13,6 @@
   {%- assign schemaType = "website" -%}
 {%- endif -%}
 
-{% jsonLdScript metaComputed, schemaType, tags %}
+{%- unless no_index -%}
+  {% jsonLdScript metaComputed, schemaType, tags %}
+{%- endunless -%}
