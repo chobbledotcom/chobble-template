@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Liquid } from "liquidjs";
 import { SRC_DIR } from "#lib/paths.js";
@@ -9,12 +8,13 @@ const liquid = new Liquid();
 const INCLUDES_DIR = join(SRC_DIR, "_includes");
 
 /**
- * Create a memoized template loader for a given include file
+ * Create a memoized template loader for a given include file.
+ * Uses Bun.file().text() for faster file reading.
  * @param {string} templateName - Name of the template file (without path)
  * @returns {Function} Memoized async function that returns template content
  */
 const createTemplateLoader = (templateName) =>
-  memoize(async () => readFile(join(INCLUDES_DIR, templateName), "utf-8"));
+  memoize(async () => Bun.file(join(INCLUDES_DIR, templateName)).text());
 
 /**
  * Create a template renderer function

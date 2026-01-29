@@ -8,7 +8,6 @@
  * - SVG images (vector, don't need placeholders)
  * - Small images under 5KB (overhead not worth it)
  */
-import fs from "node:fs";
 import { mapObject } from "#toolkit/fp/object.js";
 
 // Node.js caches dynamic imports, no memoization needed
@@ -19,27 +18,30 @@ const PLACEHOLDER_SIZE_THRESHOLD = 5 * 1024;
 
 /**
  * Check if LQIP should be generated for an image.
+ * Uses Bun.file().size for faster file size check.
  * @param {string} imagePath - Path to the image file
  * @param {Object} metadata - Image metadata from sharp
  * @returns {boolean} Whether to generate LQIP
  */
 const shouldGenerateLqip = (imagePath, metadata) =>
   metadata.format !== "svg" &&
-  fs.statSync(imagePath).size >= PLACEHOLDER_SIZE_THRESHOLD;
+  Bun.file(imagePath).size >= PLACEHOLDER_SIZE_THRESHOLD;
 
 /**
  * Extract LQIP data URL from eleventy-img metadata.
  * Finds the 32px webp image and converts it to a base64 data URL.
+ * Uses Bun.file().arrayBuffer() for faster binary file reading.
  * @param {Object} imageMetadata - Metadata returned by eleventy-img
- * @returns {string | null} CSS url() with base64 data, or null if not found
+ * @returns {Promise<string | null>} CSS url() with base64 data, or null if not found
  */
-const extractLqipFromMetadata = (imageMetadata) => {
+const extractLqipFromMetadata = async (imageMetadata) => {
   if (!imageMetadata.webp) return null;
 
   const lqipImage = imageMetadata.webp.find((img) => img.width === LQIP_WIDTH);
   if (!lqipImage) return null;
 
-  const base64 = fs.readFileSync(lqipImage.outputPath).toString("base64");
+  const buffer = await Bun.file(lqipImage.outputPath).arrayBuffer();
+  const base64 = Buffer.from(buffer).toString("base64");
   return `url('data:image/webp;base64,${base64}')`;
 };
 

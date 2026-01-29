@@ -4,7 +4,6 @@
  * @module #collections/reviews
  */
 
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import config from "#data/config.js";
 import { SRC_DIR } from "#lib/paths.js";
@@ -32,15 +31,11 @@ const REVIEWABLE_TAGS = frozenSet(["products", "categories", "properties"]);
  */
 const isReviewableTag = (tag) => REVIEWABLE_TAGS.has(tag);
 
-// Load SVG templates once at module initialization
-const AVATAR_SVG_TEMPLATE = readFileSync(
-  join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg"),
-  "utf8",
-);
-const STAR_SVG = readFileSync(
-  join(SRC_DIR, "assets", "icons", "rating-star.svg"),
-  "utf8",
-);
+// Load SVG templates once at module initialization using Bun.file().text()
+const [AVATAR_SVG_TEMPLATE, STAR_SVG] = await Promise.all([
+  Bun.file(join(SRC_DIR, "assets", "icons", "reviewer-avatar.svg")).text(),
+  Bun.file(join(SRC_DIR, "assets", "icons", "rating-star.svg")).text(),
+]);
 
 /** Index reviews by products for O(1) lookups, cached per reviews array */
 const indexByProducts = createArrayFieldIndexer("products");

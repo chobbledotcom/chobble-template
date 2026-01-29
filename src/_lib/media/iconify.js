@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
@@ -11,6 +11,7 @@ const ICONS_DIR = "src/assets/icons/iconify";
  * Icons are saved to src/assets/icons/iconify/{prefix}/{name}.svg
  *
  * Uses dedupeAsync to prevent concurrent fetches for the same icon.
+ * Uses Bun.file() for faster file operations.
  *
  * @param {string} iconId - Icon identifier in format "prefix:name"
  * @param {string} baseDir - Base directory (defaults to process.cwd())
@@ -42,9 +43,10 @@ export const getIcon = dedupeAsync(
       .replace(/[_\s]+/g, "-");
     const filePath = path.join(baseDir, ICONS_DIR, prefix, `${name}.svg`);
 
-    // Return cached icon if it exists on disk
-    if (fs.existsSync(filePath)) {
-      return fs.readFileSync(filePath, "utf-8");
+    // Return cached icon if it exists on disk (Bun.file().exists() is async)
+    const file = Bun.file(filePath);
+    if (await file.exists()) {
+      return file.text();
     }
 
     // Fetch from Iconify API
@@ -65,9 +67,9 @@ export const getIcon = dedupeAsync(
       );
     }
 
-    // Save to disk for future builds
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, svg, "utf-8");
+    // Save to disk for future builds (Bun.write is ~10x faster than fs.writeFileSync)
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    await Bun.write(filePath, svg);
 
     return svg;
   },
