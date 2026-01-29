@@ -1,5 +1,5 @@
 {%- comment -%}
-Stats display as an accessible description list.
+Stats display as a description list with dt (label) and dd (value).
 
 Parameters (via block object):
   - block.items: Array of stat objects with 'value' and 'label' properties
@@ -16,7 +16,7 @@ Or with objects:
 
 {%- assign reveal = block.reveal | default: true -%}
 
-<dl class="stats" role="list">
+<dl class="stats">
   {%- for item in block.items -%}
     {%- comment -%} Handle both "value|label" strings and {value, label} objects {%- endcomment -%}
     {%- if item.value -%}
@@ -28,11 +28,8 @@ Or with objects:
       {%- assign label = parts[1] -%}
     {%- endif -%}
     <div class="stat"{% if reveal %} data-reveal{% endif %}>
-      <dt class="sr-only">{{ label }}</dt>
-      <dd>
-        <strong>{{ value }}</strong>
-        <span>{{ label }}</span>
-      </dd>
+      <dt>{{ label }}</dt>
+      <dd><strong>{{ value }}</strong></dd>
     </div>
   {%- endfor -%}
 </dl>

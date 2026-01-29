@@ -247,3 +247,53 @@ describe("events collection", () => {
     expect(result[1].data.thumbnail).toBe("shared.jpg");
   });
 });
+
+describe("featuredEvents collection", () => {
+  const getFeatured = getCollectionFrom("featuredEvents")(configureEvents);
+
+  test("returns only featured events", () => {
+    const events = [
+      eventItem("featured-event", { title: "Featured", featured: true }),
+      eventItem("normal-event", { title: "Normal" }),
+    ];
+    const result = getFeatured({ events, products: [] });
+    expect(result).toHaveLength(1);
+    expect(result[0].data.title).toBe("Featured");
+  });
+
+  test("returns empty when no featured events", () => {
+    const events = [eventItem("normal-event", { title: "Normal" })];
+    expect(getFeatured({ events, products: [] })).toHaveLength(0);
+  });
+
+  test("inherits thumbnails from products", () => {
+    const events = [
+      eventItem("featured-event", { title: "Featured", featured: true }),
+    ];
+    const products = [productItem("p1", ["featured-event"], "thumb.jpg")];
+    const result = getFeatured({ events, products });
+    expect(result).toHaveLength(1);
+    expect(result[0].data.thumbnail).toBe("thumb.jpg");
+  });
+});
+
+describe("recurringEvents collection", () => {
+  const getRecurring = getCollectionFrom("recurringEvents")(configureEvents);
+
+  test("returns only recurring events", () => {
+    const events = [
+      createEvent({ title: "Weekly Class", recurring_date: "Every Monday" }),
+      createEvent({ title: "One-off Gig", event_date: createOffsetDate(5) }),
+    ];
+    const result = getRecurring({ events, products: [] });
+    expect(result).toHaveLength(1);
+    expectResultTitles(result, ["Weekly Class"]);
+  });
+
+  test("returns empty when no recurring events", () => {
+    const events = [
+      createEvent({ title: "One-off", event_date: createOffsetDate(5) }),
+    ];
+    expect(getRecurring({ events, products: [] })).toHaveLength(0);
+  });
+});

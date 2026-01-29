@@ -10,6 +10,7 @@ import { memoizeByRef } from "#toolkit/fp/memoize.js";
 import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import {
   createArrayFieldIndexer,
+  featuredCollection,
   getEventsFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -104,12 +105,22 @@ const createEventsCollection = (collectionApi) => {
   });
 };
 
-/**
- * Configure events collection.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+/** Pre-filtered recurring events (sorted by order then title). */
+const createRecurringEventsCollection = (collectionApi) => {
+  const events = createEventsCollection(collectionApi);
+  return categoriseEvents(events).regular;
+};
+
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addCollection("events", createEventsCollection);
+  eleventyConfig.addCollection(
+    "featuredEvents",
+    featuredCollection(createEventsCollection),
+  );
+  eleventyConfig.addCollection(
+    "recurringEvents",
+    createRecurringEventsCollection,
+  );
 };
 
 export { configureEvents };

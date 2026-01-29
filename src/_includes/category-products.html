@@ -3,7 +3,6 @@
 {% if products.size > 0 %}
   {%- assign filterUI = collections.categoryListingFilterUI[page.fileSlug] -%}
   {%- include "products-layout-start.html", filterUI: filterUI -%}
-  <h2>{{ strings.product_name }}</h2>
   {%- include "items.html", items: products -%}
   {%- include "products-layout-end.html" -%}
 {% endif %}

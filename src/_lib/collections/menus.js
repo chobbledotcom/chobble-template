@@ -10,6 +10,7 @@
 
 import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
+import { sortItems } from "#utils/sorting.js";
 
 /** @typedef {import("#lib/types").MenuCategoryCollectionItem} MenuCategoryCollectionItem */
 /** @typedef {import("#lib/types").MenuItemCollectionItem} MenuItemCollectionItem */
@@ -46,7 +47,7 @@ const buildCategoryItemMap =
  */
 const getCategoriesByMenu = (categories, menuSlug) => {
   if (!categories) return [];
-  return buildMenuCategoryMap(categories).get(menuSlug) ?? [];
+  return (buildMenuCategoryMap(categories).get(menuSlug) ?? []).sort(sortItems);
 };
 
 /**
@@ -62,14 +63,13 @@ const getItemsByCategory = (items, categorySlug) => {
   return buildCategoryItemMap(items).get(categorySlug) ?? [];
 };
 
-/**
- * Configure menu filters for Eleventy.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+/** Pre-sorted menus collection. */
+const createMenusCollection = (collectionApi) =>
+  collectionApi.getFilteredByTag("menus").sort(sortItems);
+
 const configureMenus = (eleventyConfig) => {
-  // @ts-expect-error - Filter returns array for data transformation, not string
+  eleventyConfig.addCollection("menus", createMenusCollection);
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
-  // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getItemsByCategory", getItemsByCategory);
 };
 

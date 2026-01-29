@@ -8,6 +8,7 @@ import {
   createMockEleventyConfig,
   data,
   expectResultTitles,
+  getCollectionFrom,
 } from "#test/test-utils.js";
 
 // ============================================
@@ -247,5 +248,19 @@ describe("menus", () => {
     expect(shareables).toHaveLength(1);
     expect(specials).toHaveLength(1);
     expect(appetizers[0]).toBe(shareables[0]);
+  });
+});
+
+describe("menus collection", () => {
+  const getCollection = getCollectionFrom("menus")(configureMenus);
+
+  test("returns menus sorted by order", () => {
+    const menus = [
+      { data: { title: "Dinner", order: 3 }, fileSlug: "dinner" },
+      { data: { title: "Brunch", order: 1 }, fileSlug: "brunch" },
+      { data: { title: "Lunch", order: 2 }, fileSlug: "lunch" },
+    ];
+    const result = getCollection({ menus });
+    expectResultTitles(result, ["Brunch", "Lunch", "Dinner"]);
   });
 });

@@ -4,7 +4,7 @@ layout: base
 
 {{ content }}
 
-{%- assign menus = collections.menus | sort: 'data.order' -%}
+{%- assign menus = collections.menus -%}
 {%- if homepage.show_menus and menus.size > 0 -%}
   <hr />
   {%- render_snippet "homepage-menus-header", "<h3>Our Menus</h3>" -%}
@@ -15,13 +15,7 @@ layout: base
   <hr />
   {%- render_snippet "homepage-news-header", "<h3>Latest Posts</h3>" -%}
 
-  {%- assign all_have_images = true -%}
-  {%- for post in collections.news -%}
-    {%- unless post.data.header_image -%}
-      {%- assign all_have_images = false -%}
-      {%- break -%}
-    {%- endunless -%}
-  {%- endfor -%}
+  {%- assign all_have_images = collections.news | allNewsHaveImages -%}
 
   {%- if all_have_images -%}
     {%- assign posts = collections.news | slice: 0, 2 -%}
@@ -31,32 +25,28 @@ layout: base
   {%- endif -%}
 {%- endif -%}
 
-{%- assign categories = collections.categories | getFeatured -%}
-{%- if homepage.show_products and categories.size > 0 -%}
+{%- if homepage.show_products and collections.featuredCategories.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-categories-header", "<h3>Product Categories</h3>" -%}
-  {%- include "items.html", items: categories -%}
+  {%- include "items.html", items: collections.featuredCategories -%}
 {%- endif -%}
 
-{%- assign products = collections.products | getFeatured -%}
-{%- if homepage.show_featured_products and products.size > 0 -%}
+{%- if homepage.show_featured_products and collections.featuredProducts.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-products-header", "<h3>Featured Products</h3>" -%}
-  {%- include "items.html", items: products -%}
+  {%- include "items.html", items: collections.featuredProducts -%}
 {%- endif -%}
 
-{%- assign recurring_events = collections.events | where: "data.recurring_date" -%}
-{%- if homepage.show_recurring_events and recurring_events.size > 0 -%}
+{%- if homepage.show_recurring_events and collections.recurringEvents.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-events-header", "<h3>Regular Events</h3>" -%}
   {% include "recurring-events-list.html" %}
 {%- endif -%}
 
-{%- assign featured_properties = collections.properties | getFeatured -%}
-{%- if homepage.show_featured_properties and featured_properties.size > 0 -%}
+{%- if homepage.show_featured_properties and collections.featuredProperties.size > 0 -%}
   <hr>
   {%- render_snippet "homepage-properties-header", "<h3>Featured Properties</h3>" -%}
-  {%- include "items.html", items: featured_properties -%}
+  {%- include "items.html", items: collections.featuredProperties -%}
 {%- endif -%}
 
 {%- assign latest_reviews = collections.reviews | slice: 0, homepage.reviews_limit -%}

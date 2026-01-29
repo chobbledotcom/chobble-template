@@ -85,7 +85,7 @@
   // Links - exclude buttons
   a:not(.btn) {
     color: var(--primary);
-    text-decoration: none;
+    text-decoration: underline;
     transition: color $transition-fast;
     &:hover {
       text-decoration: underline;

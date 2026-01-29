@@ -7,6 +7,13 @@
  */
 
 /**
+ * Placeholder video ID used for example/demo content.
+ * When thumbnail fetches fail for this video, we gracefully fall back to a
+ * placeholder SVG instead of crashing the build.
+ */
+const RICK_ASTLEY_VIDEO_ID = "dQw4w9WgXcQ";
+
+/**
  * Check if a video identifier is a custom URL (starts with "http")
  *
  * @param {string} videoId - YouTube video ID or custom URL
@@ -78,4 +85,17 @@ const getVideoThumbnailUrl = (videoId) => {
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 };
 
-export { getVideoEmbedUrl, getVideoThumbnailUrl };
+/**
+ * Check if a thumbnail URL is for the Rick Astley placeholder video.
+ * @param {string} url - Thumbnail URL
+ * @returns {boolean}
+ */
+const isRickAstleyThumbnail = (url) =>
+  typeof url === "string" && url.includes(RICK_ASTLEY_VIDEO_ID);
+
+export {
+  getVideoEmbedUrl,
+  getVideoThumbnailUrl,
+  isRickAstleyThumbnail,
+  RICK_ASTLEY_VIDEO_ID,
+};

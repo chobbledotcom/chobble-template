@@ -6,7 +6,7 @@ import {
   expectObjectProps,
   expectResultTitles,
 } from "#test/test-utils.js";
-import { map, pipe, reduce, resolveIndices } from "#toolkit/fp/array.js";
+import { map, pipe, reduce } from "#toolkit/fp/array.js";
 
 // ============================================
 // Functional Test Fixture Builders
@@ -309,7 +309,7 @@ describe("item-filters", () => {
       expect(pagesResult.length >= 2).toBe(true);
       expect(pagesResult[0].path !== undefined).toBe(true);
       expect(pagesResult[0].filters !== undefined).toBe(true);
-      expect(pagesResult[0].testItemsIndices !== undefined).toBe(true);
+      expect(pagesResult[0].testItems !== undefined).toBe(true);
       expect(pagesResult[0].filterDescription !== undefined).toBe(true);
     });
 
@@ -356,17 +356,15 @@ describe("item-filters", () => {
 
     test("includes only matching items in each filter combination", () => {
       const { getPages } = setupConfig();
-      const items = propertyItems();
-      const pagesResult = getPages(items);
+      const pagesResult = getPages(propertyItems());
       const petFriendlyPage = pagesResult.find(
         (p) => p.path === "pet-friendly/yes",
       );
-      const resolvedItems = resolveIndices(
-        petFriendlyPage.testItemsIndices,
-        items,
-      );
 
-      expectResultTitles(resolvedItems, ["Beach Cottage", "Pet Apartment"]);
+      expectResultTitles(petFriendlyPage.testItems, [
+        "Beach Cottage",
+        "Pet Apartment",
+      ]);
     });
 
     test("includes filter description with display values", () => {
@@ -405,7 +403,7 @@ describe("item-filters", () => {
 
     test("handles multiple filter criteria correctly", () => {
       const { getPages } = setupConfig();
-      const items = filterItems([
+      const testItems = filterItems([
         [
           "Match",
           filterAttr("Pet Friendly", "Yes"),
@@ -418,16 +416,12 @@ describe("item-filters", () => {
         ],
       ]);
 
-      const pagesResult = getPages(items);
+      const pagesResult = getPages(testItems);
       const combinedPage = pagesResult.find(
         (p) => p.path === "pet-friendly/yes/type/cottage",
       );
-      const resolvedItems = resolveIndices(
-        combinedPage.testItemsIndices,
-        items,
-      );
 
-      expectResultTitles(resolvedItems, ["Match"]);
+      expectResultTitles(combinedPage.testItems, ["Match"]);
     });
 
     test("returns correct count for each combination", () => {

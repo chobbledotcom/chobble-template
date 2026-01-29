@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { configureCategories } from "#collections/categories.js";
+import {
+  configureCategories,
+  getSubcategories,
+} from "#collections/categories.js";
 import {
   createMockEleventyConfig,
   expectDataArray,
@@ -201,6 +204,25 @@ describe("categories", () => {
       expect(
         getCollection({ categories, products: [] })[0].data.thumbnail,
       ).toBeUndefined();
+    });
+  });
+
+  describe("getSubcategories", () => {
+    test("returns subcategories matching parent slug", () => {
+      const categories = [
+        cat("widgets", undefined, { parent: "root" }),
+        cat("gadgets", undefined, { parent: "root" }),
+        cat("tools", undefined, { parent: "other" }),
+      ];
+      const result = getSubcategories(categories, "root");
+      expect(result).toHaveLength(2);
+      expect(result[0].fileSlug).toBe("widgets");
+      expect(result[1].fileSlug).toBe("gadgets");
+    });
+
+    test("returns empty array for unknown parent", () => {
+      const categories = [cat("widgets", undefined, { parent: "root" })];
+      expect(getSubcategories(categories, "nonexistent")).toEqual([]);
     });
   });
 });

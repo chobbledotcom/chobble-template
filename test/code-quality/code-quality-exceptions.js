@@ -54,6 +54,11 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
+
+  // src/_lib/media/image-external.js - Rick Astley placeholder video thumbnail fallback
+  // Needed: external HTTP fetch of YouTube thumbnail can fail on network-restricted environments;
+  // for the known placeholder video (Rick Astley), we fall back to a placeholder SVG
+  "src/_lib/media/image-external.js:191",
 ]);
 
 // ============================================
@@ -134,6 +139,9 @@ const ALLOWED_LET = frozenSet([
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
   "test/unit/transforms/images.test.js",
+
+  // src/_lib/media/image-external.js - let html for try/catch fallback pattern
+  "src/_lib/media/image-external.js",
 ]);
 
 // ============================================
@@ -234,6 +242,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // Mock helpers - tested directly for FAST_INACCURATE_BUILDS coverage
   "src/_lib/utils/mock-filter-attributes.js:generateMockFilterAttributes",
   "src/_lib/utils/mock-filter-attributes.js:getFilterAttributes",
+
+  // Video utilities - constant and helper exported for test verification
+  "src/_lib/utils/video.js:RICK_ASTLEY_VIDEO_ID",
 ]);
 
 // ============================================
@@ -241,9 +252,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 // ============================================
 
 const ALLOWED_DATA_FALLBACKS = frozenSet([
-  "src/_lib/collections/categories.js:63",
-  "src/_lib/collections/events.js:34",
-  "src/_lib/collections/products.js:93",
+  "src/_lib/collections/categories.js:65",
+  "src/_lib/collections/events.js:35",
+  "src/_lib/collections/products.js:94",
   "src/_lib/collections/search.js:26",
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/eleventy/ical.js:43",
@@ -299,14 +310,14 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/eleventy/capture.js:39",
 
   // src/_lib/filters - URL-based filtering, normalize template inputs
-  "src/_lib/filters/category-product-filters.js:174", // Default empty array for categories without products
-  "src/_lib/filters/category-product-filters.js:235", // Default empty array for pages lookup
-  "src/_lib/filters/category-product-filters.js:240", // Normalize null/undefined filters from templates
+  "src/_lib/filters/category-product-filters.js:146", // Default empty array for categories without products
+  "src/_lib/filters/category-product-filters.js:205", // Default empty array for pages lookup
+  "src/_lib/filters/category-product-filters.js:210", // Normalize null/undefined filters from templates
   "src/_lib/filters/filter-core.js:141",
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:197",
   "src/_lib/filters/filter-core.js:203",
-  "src/_lib/filters/item-filters.js:162", // Normalize null/undefined filters from templates
+  "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:145",
@@ -314,7 +325,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/public/ui/autosizes.js:70",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:81",
+  "src/_lib/utils/collection-utils.js:82",
   "src/_lib/utils/sorting.js:67", // eleventyNavigation.order (separate from item order)
 ]);
 

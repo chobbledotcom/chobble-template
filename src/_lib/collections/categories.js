@@ -7,6 +7,8 @@
 import { flatMap, pipe, reduce } from "#toolkit/fp/array.js";
 import { groupBy } from "#toolkit/fp/grouping.js";
 import {
+  createFieldIndexer,
+  featuredCollection,
   getCategoriesFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
@@ -128,12 +130,17 @@ const createCategoriesCollection = (collectionApi) => {
   });
 };
 
-/**
- * Configure categories collection and filters.
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+const indexByParent = createFieldIndexer("parent");
+
+const getSubcategories = (categories, parentSlug) =>
+  indexByParent(categories)[parentSlug] ?? [];
 const configureCategories = (eleventyConfig) => {
   eleventyConfig.addCollection("categories", createCategoriesCollection);
+  eleventyConfig.addCollection(
+    "featuredCategories",
+    featuredCollection(createCategoriesCollection),
+  );
+  eleventyConfig.addFilter("getSubcategories", getSubcategories);
 };
 
-export { configureCategories, createCategoriesCollection };
+export { configureCategories, createCategoriesCollection, getSubcategories };

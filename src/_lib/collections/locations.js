@@ -5,7 +5,10 @@
  */
 
 import { groupBy } from "#toolkit/fp/grouping.js";
-import { getLocationsFromApi } from "#utils/collection-utils.js";
+import {
+  createFieldIndexer,
+  getLocationsFromApi,
+} from "#utils/collection-utils.js";
 import { findFirst, findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").LocationCollectionItem} LocationCollectionItem */
@@ -73,17 +76,17 @@ const createLocationsCollection = (collectionApi) => {
   });
 };
 
-/**
- * Configure locations collection and filters for Eleventy.
- *
- * @param {import('11ty.ts').EleventyConfig} eleventyConfig
- */
+const indexByParent = createFieldIndexer("parentLocation");
+
+const getChildLocations = (locations, parentSlug) =>
+  indexByParent(locations)[parentSlug] ?? [];
 const configureLocations = (eleventyConfig) => {
   eleventyConfig.addCollection("locations", createLocationsCollection);
-  // @ts-expect-error - Filter returns array for data transformation, not string
-  eleventyConfig.addFilter("getRootLocations", getRootLocations);
-  // @ts-expect-error - Filter returns array for data transformation, not string
+  eleventyConfig.addCollection("rootLocations", (api) =>
+    getRootLocations(createLocationsCollection(api)),
+  );
   eleventyConfig.addFilter("getSiblingLocations", getSiblingLocations);
+  eleventyConfig.addFilter("getChildLocations", getChildLocations);
 };
 
-export { getRootLocations, getSiblingLocations, configureLocations };
+export { getSiblingLocations, getChildLocations, configureLocations };

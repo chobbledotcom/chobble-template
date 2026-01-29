@@ -21,8 +21,10 @@ import {
   prepareImageAttributes,
 } from "#media/image-utils.js";
 import { compact } from "#toolkit/fp/array.js";
+import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
+import { isRickAstleyThumbnail } from "#utils/video.js";
 
 /**
  * Generate filename for external images using slug.
@@ -54,8 +56,12 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
 /**
  * Process an external image URL through eleventy-img.
  *
- * Note: No memoization - eleventy-img disk-caches the downloaded/processed images.
- * In-memory caching of HTML strings causes unbounded memory growth on large sites.
+ * Memoized to avoid reprocessing the same URL with same options.
+ * While eleventy-img disk-caches downloaded images, memoization avoids:
+ * - Repeated disk I/O for LQIP base64 encoding
+ * - Repeated eleventy-img cache checks
+ * - Repeated HTML generation
+ * Cache is bounded by maxCacheSize (default 2000) to prevent unbounded memory growth.
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
@@ -67,72 +73,96 @@ const buildExternalWrapperStyles = (bgImage, aspectRatio, maxWidth) =>
  * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
  * @returns {Promise<string>} Wrapped image HTML
  */
-const computeExternalImageHtml = async ({
-  src,
-  alt,
-  loading,
-  classes,
-  sizes,
-  widths,
-  aspectRatio,
-}) => {
-  const requestedWidths = parseWidths(widths);
-  const webpWidths = [LQIP_WIDTH, ...requestedWidths];
-  const eleventyImg = await getEleventyImg();
-  const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
+const computeExternalImageHtml = memoize(
+  async ({ src, alt, loading, classes, sizes, widths, aspectRatio }) => {
+    const requestedWidths = parseWidths(widths);
+    const webpWidths = [LQIP_WIDTH, ...requestedWidths];
+    const eleventyImg = await getEleventyImg();
+    const attrs = prepareImageAttributes({ alt, sizes, loading, classes });
 
-  // Use slugified alt text for filename
-  const filenameSlug = slugify(alt || "external-image");
-  const imageOptions = {
-    ...DEFAULT_IMAGE_OPTIONS,
-    filenameFormat: externalFilenameFormat,
-    slug: filenameSlug,
-  };
+    // Use slugified alt text for filename
+    const filenameSlug = slugify(alt || "external-image");
+    const imageOptions = {
+      ...DEFAULT_IMAGE_OPTIONS,
+      filenameFormat: externalFilenameFormat,
+      slug: filenameSlug,
+    };
 
-  const [webpMetadata, jpegMetadata] = await Promise.all([
-    eleventyImg.default(src, {
-      ...imageOptions,
-      formats: ["webp"],
-      widths: webpWidths,
-    }),
-    eleventyImg.default(src, {
-      ...imageOptions,
-      formats: ["jpeg"],
-      widths: [JPEG_FALLBACK_WIDTH],
-    }),
-  ]);
+    const [webpMetadata, jpegMetadata] = await Promise.all([
+      eleventyImg.default(src, {
+        ...imageOptions,
+        formats: ["webp"],
+        widths: webpWidths,
+      }),
+      eleventyImg.default(src, {
+        ...imageOptions,
+        formats: ["jpeg"],
+        widths: [JPEG_FALLBACK_WIDTH],
+      }),
+    ]);
 
-  const imageMetadata = { ...webpMetadata, ...jpegMetadata };
+    const imageMetadata = { ...webpMetadata, ...jpegMetadata };
 
-  // Extract LQIP from the 32px webp before filtering it out
-  const bgImage = extractLqipFromMetadata(imageMetadata);
+    // Extract LQIP from the 32px webp before filtering it out
+    const bgImage = await extractLqipFromMetadata(imageMetadata);
 
-  // Filter out LQIP width from metadata so it doesn't appear in srcset
-  const htmlMetadata = removeLqip(imageMetadata);
+    // Filter out LQIP width from metadata so it doesn't appear in srcset
+    const htmlMetadata = removeLqip(imageMetadata);
 
-  const innerHTML = eleventyImg.generateHTML(
-    htmlMetadata,
-    attrs.imgAttributes,
-    attrs.pictureAttributes,
-  );
+    const innerHTML = eleventyImg.generateHTML(
+      htmlMetadata,
+      attrs.imgAttributes,
+      attrs.pictureAttributes,
+    );
 
-  // Get max width from processed metadata for wrapper styling
-  const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
+    // Get max width from processed metadata for wrapper styling
+    const maxWidth = htmlMetadata.webp?.[htmlMetadata.webp.length - 1]?.width;
 
-  return await createHtml(
+    return await createHtml(
+      "div",
+      {
+        class: classes ? `image-wrapper ${classes}` : "image-wrapper",
+        style: buildExternalWrapperStyles(bgImage, aspectRatio, maxWidth),
+      },
+      innerHTML,
+    );
+  },
+  { cacheKey: jsonKey },
+);
+
+/**
+ * Generate placeholder HTML for Rick Astley video thumbnails that fail to fetch.
+ * Returns a simple img tag pointing to a placeholder SVG, matching the wrapper
+ * structure of normally-processed external images.
+ *
+ * @param {string | null} classes - CSS classes
+ * @param {string | null} aspectRatio - Aspect ratio like "16/9"
+ * @returns {Promise<string>} Placeholder image HTML
+ */
+const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
+  const imgHtml = await createHtml("img", {
+    src: "/images/placeholders/pink.svg",
+    alt: "Video thumbnail",
+    loading: "lazy",
+  });
+  return createHtml(
     "div",
     {
       class: classes ? `image-wrapper ${classes}` : "image-wrapper",
-      style: buildExternalWrapperStyles(bgImage, aspectRatio, maxWidth),
+      style: compact([aspectRatio && `aspect-ratio: ${aspectRatio}`]).join(
+        "; ",
+      ),
     },
-    innerHTML,
+    imgHtml,
   );
 };
 
 /**
  * Process an external image URL into HTML or an Element.
  * Downloads and caches the image locally via eleventy-img.
- * Throws an error if the remote image cannot be fetched.
+ * Throws an error if the remote image cannot be fetched, unless the URL is
+ * a Rick Astley placeholder video thumbnail — in that case, returns a
+ * placeholder SVG to allow the build to continue.
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
@@ -157,15 +187,24 @@ const processExternalImage = async ({
   returnElement,
   document,
 }) => {
-  const html = await computeExternalImageHtml({
-    src,
-    alt,
-    loading,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-  });
+  let html;
+  try {
+    html = await computeExternalImageHtml({
+      src,
+      alt,
+      loading,
+      classes,
+      sizes,
+      widths,
+      aspectRatio,
+    });
+  } catch (error) {
+    if (isRickAstleyThumbnail(src)) {
+      html = await generateRickAstleyPlaceholder(classes, aspectRatio);
+    } else {
+      throw error;
+    }
+  }
 
   return returnElement ? await parseHtml(html, document) : html;
 };
