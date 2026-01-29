@@ -10,6 +10,7 @@
 
 import { buildReverseIndex } from "#toolkit/fp/grouping.js";
 import { memoizeByRef } from "#toolkit/fp/memoize.js";
+import { sortItems } from "#utils/sorting.js";
 
 /** @typedef {import("#lib/types").MenuCategoryCollectionItem} MenuCategoryCollectionItem */
 /** @typedef {import("#lib/types").MenuItemCollectionItem} MenuItemCollectionItem */
@@ -46,7 +47,7 @@ const buildCategoryItemMap =
  */
 const getCategoriesByMenu = (categories, menuSlug) => {
   if (!categories) return [];
-  return buildMenuCategoryMap(categories).get(menuSlug) ?? [];
+  return (buildMenuCategoryMap(categories).get(menuSlug) ?? []).sort(sortItems);
 };
 
 /**
@@ -63,10 +64,21 @@ const getItemsByCategory = (items, categorySlug) => {
 };
 
 /**
- * Configure menu filters for Eleventy.
+ * Create a pre-sorted menus collection (sorted by data.order).
+ * Avoids repeated `| sort: "data.order"` in Liquid templates.
+ *
+ * @param {import("@11ty/eleventy").CollectionApi} collectionApi
+ * @returns {MenuCategoryCollectionItem[]}
+ */
+const createMenusSortedCollection = (collectionApi) =>
+  collectionApi.getFilteredByTag("menus").sort(sortItems);
+
+/**
+ * Configure menu collections and filters for Eleventy.
  * @param {import('11ty.ts').EleventyConfig} eleventyConfig
  */
 const configureMenus = (eleventyConfig) => {
+  eleventyConfig.addCollection("menusSorted", createMenusSortedCollection);
   // @ts-expect-error - Filter returns array for data transformation, not string
   eleventyConfig.addFilter("getCategoriesByMenu", getCategoriesByMenu);
   // @ts-expect-error - Filter returns array for data transformation, not string

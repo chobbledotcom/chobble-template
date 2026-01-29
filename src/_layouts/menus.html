@@ -4,5 +4,4 @@ layout: base
 
 {{- content -}}
 
-{%- assign menus = collections.menus | sort: "data.order" -%}
-{%- include "items.html", items: menus -%}
+{%- include "items.html", items: collections.menusSorted -%}

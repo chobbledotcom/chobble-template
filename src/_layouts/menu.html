@@ -8,7 +8,7 @@ layout: base
 
 <hr>
 
-{%- assign menu_categories = collections.menu-categories | getCategoriesByMenu: page.fileSlug | sort: "data.order" -%}
+{%- assign menu_categories = collections.menu-categories | getCategoriesByMenu: page.fileSlug -%}
 {%- if menu_categories.size > 0 -%}
   {%- if allDietaryKeys.size > 0 -%}
     <p>
