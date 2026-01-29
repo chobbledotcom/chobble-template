@@ -27,7 +27,7 @@
 
     dt {
       @include body-base;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       order: 1;
     }
 
@@ -37,7 +37,7 @@
       strong {
         font-size: $font-size-4xl;
         font-weight: 700;
-        color: var(--primary);
+        color: var(--color-primary);
         line-height: 1;
 
         @include tablet-up {

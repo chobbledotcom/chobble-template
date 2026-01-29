@@ -24,7 +24,7 @@
     }
 
     a {
-      color: var(--primary);
+      color: var(--color-primary);
       text-decoration: none;
       transition: color $transition-fast;
 
@@ -34,11 +34,11 @@
     }
 
     .separator {
-      color: var(--text-muted);
+      color: var(--color-text-muted);
     }
 
     span[aria-current] {
-      color: var(--text);
+      color: var(--color-text);
       font-weight: 600;
     }
   }

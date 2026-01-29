@@ -12,7 +12,7 @@
   // CSS CUSTOM PROPERTIES (scoped)
   // ===========================================================================
   // Uses theme-adapter to bridge legacy theme variables with design system.
-  // Priority: design-system theme (--ds-*) → legacy theme (--color-*) → defaults
+  // Priority: legacy theme (--color-link, etc.) → SCSS defaults
 
   @include adapter.theme-adapter-properties;
 
@@ -43,8 +43,8 @@
   font-family: var(--font-sans);
   font-size: $font-size-base;
   line-height: $line-height-normal;
-  color: var(--text);
-  background: var(--bg);
+  color: var(--color-text);
+  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 
   // ===========================================================================
@@ -84,7 +84,7 @@
 
   // Links - exclude buttons
   a:not(.btn) {
-    color: var(--primary);
+    color: var(--color-primary);
     text-decoration: underline;
     transition: color $transition-fast;
     &:hover {
@@ -96,7 +96,7 @@
     font-family: var(--font-mono);
     font-size: 0.9em;
     padding: 0.2em 0.4em;
-    background: var(--bg-alt);
+    background: var(--color-bg-alt);
     border-radius: $radius-sm;
   }
 
@@ -180,17 +180,17 @@
       @include section($space-2xl);
     }
     &.alt {
-      background: var(--bg-alt);
+      background: var(--color-bg-alt);
     }
     &.dark {
       background: #{$color-dark-bg};
       color: #{$color-dark-text};
-      --text: #{$color-dark-text};
-      --text-muted: #{$color-dark-text-muted};
-      --card-bg: #{$color-dark-card-bg};
+      --color-text: #{$color-dark-text};
+      --color-text-muted: #{$color-dark-text-muted};
+      --color-card-bg: #{$color-dark-card-bg};
     }
     &.gradient {
-      background: linear-gradient(135deg, var(--primary-light) 0%, #faf5ff 100%);
+      background: linear-gradient(135deg, var(--color-primary-lt) 0%, #faf5ff 100%);
     }
   }
 
@@ -209,7 +209,7 @@
     // Default is solid for better readability and contrast
     &.gradient {
       h1, h2, h3, h4, h5, h6 {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -243,9 +243,9 @@ body.design-system {
 // Built-in way to alternate backgrounds when using multiple .design-system sections
 
 .design-system:nth-child(odd) {
-  background: var(--bg);
+  background: var(--color-bg);
 }
 
 .design-system:nth-child(even) {
-  background: var(--bg-alt);
+  background: var(--color-bg-alt);
 }
