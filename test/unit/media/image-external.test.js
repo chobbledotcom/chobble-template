@@ -18,8 +18,10 @@ describe("image-external", () => {
     });
 
     test("returns placeholder HTML for Rick Astley thumbnail fetch failure", async () => {
+      // Use a non-existent host that contains the Rick Astley video ID
+      // so isRickAstleyThumbnail returns true but the fetch always fails
       const result = await processExternalImage({
-        src: `https://img.youtube.com/vi/${RICK_ASTLEY_VIDEO_ID}/hqdefault.jpg`,
+        src: `https://nonexistent.invalid/${RICK_ASTLEY_VIDEO_ID}.jpg`,
         alt: "Video thumbnail",
         loading: "lazy",
         classes: null,
