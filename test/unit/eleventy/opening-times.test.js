@@ -59,6 +59,6 @@ describe("opening-times", () => {
     const mockConfig = createMockEleventyConfig();
     configureOpeningTimes(mockConfig);
 
-    expect(typeof mockConfig.shortcodes.opening_times).toBe("function");
+    expect(typeof mockConfig.asyncShortcodes.opening_times).toBe("function");
   });
 });

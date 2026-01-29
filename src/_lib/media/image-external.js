@@ -24,6 +24,7 @@ import { compact } from "#toolkit/fp/array.js";
 import { jsonKey, memoize } from "#toolkit/fp/memoize.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
+import { isRickAstleyThumbnail } from "#utils/video.js";
 
 /**
  * Generate filename for external images using slug.
@@ -130,9 +131,38 @@ const computeExternalImageHtml = memoize(
 );
 
 /**
+ * Generate placeholder HTML for Rick Astley video thumbnails that fail to fetch.
+ * Returns a simple img tag pointing to a placeholder SVG, matching the wrapper
+ * structure of normally-processed external images.
+ *
+ * @param {string | null} classes - CSS classes
+ * @param {string | null} aspectRatio - Aspect ratio like "16/9"
+ * @returns {Promise<string>} Placeholder image HTML
+ */
+const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
+  const imgHtml = await createHtml("img", {
+    src: "/images/placeholders/pink.svg",
+    alt: "Video thumbnail",
+    loading: "lazy",
+  });
+  return createHtml(
+    "div",
+    {
+      class: classes ? `image-wrapper ${classes}` : "image-wrapper",
+      style: compact([aspectRatio && `aspect-ratio: ${aspectRatio}`]).join(
+        "; ",
+      ),
+    },
+    imgHtml,
+  );
+};
+
+/**
  * Process an external image URL into HTML or an Element.
  * Downloads and caches the image locally via eleventy-img.
- * Throws an error if the remote image cannot be fetched.
+ * Throws an error if the remote image cannot be fetched, unless the URL is
+ * a Rick Astley placeholder video thumbnail — in that case, returns a
+ * placeholder SVG to allow the build to continue.
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
@@ -157,15 +187,24 @@ const processExternalImage = async ({
   returnElement,
   document,
 }) => {
-  const html = await computeExternalImageHtml({
-    src,
-    alt,
-    loading,
-    classes,
-    sizes,
-    widths,
-    aspectRatio,
-  });
+  let html;
+  try {
+    html = await computeExternalImageHtml({
+      src,
+      alt,
+      loading,
+      classes,
+      sizes,
+      widths,
+      aspectRatio,
+    });
+  } catch (error) {
+    if (isRickAstleyThumbnail(src)) {
+      html = await generateRickAstleyPlaceholder(classes, aspectRatio);
+    } else {
+      throw error;
+    }
+  }
 
   return returnElement ? await parseHtml(html, document) : html;
 };
