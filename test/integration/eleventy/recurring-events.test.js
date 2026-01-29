@@ -156,8 +156,8 @@ describe("recurring-events", () => {
     const mockConfig = createMockEleventyConfig();
     configureRecurringEvents(mockConfig);
 
-    expect("recurring_events" in mockConfig.shortcodes).toBe(true);
-    expect(typeof mockConfig.shortcodes.recurring_events).toBe("function");
+    expect("recurring_events" in mockConfig.asyncShortcodes).toBe(true);
+    expect(typeof mockConfig.asyncShortcodes.recurring_events).toBe("function");
   });
 
   // renderRecurringEvents - immutability

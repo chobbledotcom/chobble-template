@@ -69,7 +69,7 @@ const getRecurringEventsHtml = memoize(async () => {
  * @param {Object} eleventyConfig - Eleventy configuration object
  */
 const configureRecurringEvents = (eleventyConfig) => {
-  eleventyConfig.addShortcode("recurring_events", getRecurringEventsHtml);
+  eleventyConfig.addAsyncShortcode("recurring_events", getRecurringEventsHtml);
 };
 
 export {

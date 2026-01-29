@@ -21,7 +21,7 @@ const getOpeningTimesHtml = memoize(async () => {
 });
 
 const configureOpeningTimes = (eleventyConfig) => {
-  eleventyConfig.addShortcode("opening_times", getOpeningTimesHtml);
+  eleventyConfig.addAsyncShortcode("opening_times", getOpeningTimesHtml);
 };
 
 export { configureOpeningTimes, getOpeningTimesHtml, renderOpeningTimes };
