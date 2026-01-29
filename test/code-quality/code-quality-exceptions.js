@@ -54,6 +54,11 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // test/ensure-deps.js - Dependency checking utility
   // Needed: checks if dependencies are installed, needs try/catch for module resolution
   "test/ensure-deps.js:16",
+
+  // src/_lib/media/image-external.js - Rick Astley placeholder video thumbnail fallback
+  // Needed: external HTTP fetch of YouTube thumbnail can fail on network-restricted environments;
+  // for the known placeholder video (Rick Astley), we fall back to a placeholder SVG
+  "src/_lib/media/image-external.js:185",
 ]);
 
 // ============================================
@@ -134,6 +139,9 @@ const ALLOWED_LET = frozenSet([
   "test/code-scanner.js",
   "ecommerce-backend/server.test.js",
   "test/unit/transforms/images.test.js",
+
+  // src/_lib/media/image-external.js - let html for try/catch fallback pattern
+  "src/_lib/media/image-external.js",
 ]);
 
 // ============================================
@@ -234,6 +242,9 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // Mock helpers - tested directly for FAST_INACCURATE_BUILDS coverage
   "src/_lib/utils/mock-filter-attributes.js:generateMockFilterAttributes",
   "src/_lib/utils/mock-filter-attributes.js:getFilterAttributes",
+
+  // Video utilities - constant and helper exported for test verification
+  "src/_lib/utils/video.js:RICK_ASTLEY_VIDEO_ID",
 ]);
 
 // ============================================

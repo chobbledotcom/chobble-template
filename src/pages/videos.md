@@ -8,15 +8,15 @@ eleventyNavigation:
 videos:
   - id: dQw4w9WgXcQ
     title: Rick Astley - Never Gonna Give You Up
-  - id: 9bZkp7q19f0
+  - id: dQw4w9WgXcQ
     title: PSY - Gangnam Style
-  - id: JGwWNGJdvx8
+  - id: dQw4w9WgXcQ
     title: Ed Sheeran - Shape of You
-  - id: kJQP7kiw5Fk
+  - id: dQw4w9WgXcQ
     title: Luis Fonsi - Despacito
-  - id: RgKAFK5djSk
+  - id: dQw4w9WgXcQ
     title: Wiz Khalifa - See You Again
-  - id: OPf0YbXqDm0
+  - id: dQw4w9WgXcQ
     title: Mark Ronson - Uptown Funk
 ---
 
