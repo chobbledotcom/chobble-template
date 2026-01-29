@@ -5,7 +5,7 @@
 // STATS
 // =============================================================================
 // Semantic markup: <dl class="stats"> with <div class="stat"> containing
-// <dt class="sr-only"> and <dd> with <strong> (value) and <span> (label)
+// <dt> (label) and <dd> with <strong> (value), visually reordered via flex
 
 .design-system {
   dl.stats {
@@ -25,20 +25,25 @@
     min-width: 150px;
     padding: $space-xs $space-sm;
 
-    strong {
-      font-size: $font-size-4xl;
-      font-weight: 700;
-      color: var(--primary);
-      line-height: 1;
-
-      @include tablet-up {
-        font-size: $font-size-5xl;
-      }
-    }
-
-    span {
+    dt {
       @include body-base;
       color: var(--text-muted);
+      order: 1;
+    }
+
+    dd {
+      order: 0;
+
+      strong {
+        font-size: $font-size-4xl;
+        font-weight: 700;
+        color: var(--primary);
+        line-height: 1;
+
+        @include tablet-up {
+          font-size: $font-size-5xl;
+        }
+      }
     }
   }
 }
