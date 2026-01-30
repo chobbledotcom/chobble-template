@@ -12,21 +12,21 @@
     @include card($space-3xl, $radius-2xl);
     background: linear-gradient(135deg, var(--color-link) 0%, var(--color-secondary) 100%);
     border: none;
-    color: #fff;
-    --color-text: #fff;
+    color: $color-white;
+    --color-text: #{$color-white};
     --color-text-muted: rgba(255, 255, 255, 0.8);
 
     p {
       @include body-lg;
       opacity: 0.9;
-      max-width: 600px;
+      max-width: $width-narrow;
     }
 
     .btn--secondary {
-      border-color: #fff;
-      color: #fff;
+      border-color: $color-white;
+      color: $color-white;
       &:hover {
-        background: #fff;
+        background: $color-white;
         color: var(--color-link);
       }
     }

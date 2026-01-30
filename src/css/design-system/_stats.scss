@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // STATS
@@ -40,7 +41,7 @@
         color: var(--color-link);
         line-height: 1;
 
-        @include tablet-up {
+        @include breakpoint.up("md") {
           font-size: $font-size-5xl;
         }
       }

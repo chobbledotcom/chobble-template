@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // FOOTER
@@ -8,13 +9,13 @@
 .design-system {
   footer.site-footer {
     padding: $space-2xl 0;
-    background: #1f2937;
-    color: #9ca3af;
+    background: $color-dark-bg;
+    color: $color-dark-text-muted;
 
     a {
-      color: #d1d5db;
+      color: $color-dark-link;
       &:hover {
-        color: #fff;
+        color: $color-white;
       }
     }
 
@@ -22,7 +23,7 @@
       @include flex-col($space-lg, center);
       text-align: center;
 
-      @include tablet-up {
+      @include breakpoint.up("md") {
         @include flex-between;
         flex-direction: row;
         text-align: left;
@@ -34,7 +35,7 @@
       flex-wrap: wrap;
       justify-content: center;
 
-      @include tablet-up {
+      @include breakpoint.up("md") {
         justify-content: flex-start;
       }
     }

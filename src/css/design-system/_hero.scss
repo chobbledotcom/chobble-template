@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // HERO
@@ -9,22 +10,20 @@
   .hero {
     @include flex-col($space-lg, center, center);
     text-align: center;
-    min-height: 60vh;
     padding: $space-4xl $space-md;
 
-    @include tablet-up {
-      min-height: 70vh;
+    @include breakpoint.up("md") {
       padding: $space-4xl $space-lg;
     }
 
     h1 {
-      max-width: 900px;
+      max-width: $width-default;
     }
 
     .lead {
       @include body-lg;
       color: var(--color-text-muted);
-      max-width: 700px;
+      max-width: $width-narrow;
     }
   }
 

@@ -1,5 +1,6 @@
 @use "../variables" as *;
 @use "../mixins" as *;
+@use "../breakpoints" as breakpoint;
 
 // =============================================================================
 // DESIGN SYSTEM ROOT
@@ -45,7 +46,7 @@
 
   scroll-behavior: smooth;
 
-  @include reduced-motion {
+  @include breakpoint.reduced-motion {
     scroll-behavior: auto;
   }
 
@@ -167,7 +168,7 @@
     @include scroll-reveal-scale;
   }
 
-  @include reduced-motion {
+  @include breakpoint.reduced-motion {
     [data-reveal] {
       opacity: 1;
       transform: none;
@@ -206,6 +207,8 @@
     &.dark {
       background: #{$color-dark-bg};
       color: #{$color-dark-text};
+      --color-bg: #{$color-dark-bg};
+      --color-bg-alt: #{$color-dark-card-bg};
       --color-text: #{$color-dark-text};
       --color-text-muted: #{$color-dark-text-muted};
       --color-card-bg: #{$color-dark-card-bg};

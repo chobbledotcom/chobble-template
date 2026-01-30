@@ -1,4 +1,5 @@
 @use "variables" as *;
+@use "breakpoints" as breakpoint;
 
 // =============================================================================
 // RESET MIXINS
@@ -65,18 +66,15 @@
 // CONTAINER & SPACING MIXINS
 // =============================================================================
 
-// Content container with consistent margins
+// Content container with inline centering and responsive padding
 @mixin container($max-width: $width-default) {
   width: 100%;
   max-width: $max-width;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: $space-md;
-  padding-right: $space-md;
+  margin-inline: auto;
+  padding-inline: $space-md;
 
-  @media (min-width: $bp-md) {
-    padding-left: $space-lg;
-    padding-right: $space-lg;
+  @include breakpoint.up("md") {
+    padding-inline: $space-lg;
   }
 }
 
@@ -85,7 +83,7 @@
   padding-top: $padding-y;
   padding-bottom: $padding-y;
 
-  @media (max-width: $bp-md) {
+  @include breakpoint.down("md") {
     padding-top: calc($padding-y * 0.6);
     padding-bottom: calc($padding-y * 0.6);
   }
@@ -99,17 +97,28 @@
   padding: $padding;
   border-radius: $radius;
   border: $border-light;
-  background: var(--color-card-bg, #fff);
+  background: var(--color-card-bg, #{$color-card-bg});
 }
 
 @mixin card-hover {
   transition:
     transform $transition-normal,
-    border-color $transition-normal;
+    border-color $transition-normal,
+    outline-color $transition-normal;
 
   &:hover {
     transform: translateY(-2px);
     border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  // Focus styles for keyboard navigation
+  &:focus-visible {
+    outline: 2px solid var(--color-link, $color-primary);
+    outline-offset: 2px;
+  }
+
+  &:focus-within {
+    border-color: var(--color-link, $color-primary);
   }
 }
 
@@ -129,11 +138,11 @@
   font-weight: 700;
   letter-spacing: -0.02em;
 
-  @media (min-width: $bp-md) {
+  @include breakpoint.up("md") {
     font-size: $font-size-4xl;
   }
 
-  @media (min-width: $bp-lg) {
+  @include breakpoint.up("lg") {
     font-size: $font-size-5xl;
   }
 }
@@ -144,7 +153,7 @@
   font-weight: 700;
   letter-spacing: -0.01em;
 
-  @media (min-width: $bp-md) {
+  @include breakpoint.up("md") {
     font-size: $font-size-3xl;
   }
 }
@@ -154,7 +163,7 @@
   line-height: $line-height-snug;
   font-weight: 600;
 
-  @media (min-width: $bp-md) {
+  @include breakpoint.up("md") {
     font-size: $font-size-2xl;
   }
 }
@@ -169,7 +178,7 @@
   font-size: $font-size-md;
   line-height: $line-height-relaxed;
 
-  @media (min-width: $bp-md) {
+  @include breakpoint.up("md") {
     font-size: $font-size-lg;
   }
 }
@@ -216,11 +225,11 @@
 
 @mixin button-primary {
   @include button-base;
-  background: var(--color-link, #2563eb);
-  color: #fff;
+  background: var(--color-link, #{$color-primary});
+  color: $color-white;
 
   &:hover:not(:disabled) {
-    background: var(--color-link-hover, #1d4ed8);
+    background: var(--color-link-hover, #{$color-primary-dark});
     transform: translateY(-1px);
   }
 
@@ -232,22 +241,22 @@
 @mixin button-secondary {
   @include button-base;
   background: transparent;
-  border-color: var(--color-link, #2563eb);
-  color: var(--color-link, #2563eb);
+  border-color: var(--color-link, #{$color-primary});
+  color: var(--color-link, #{$color-primary});
 
   &:hover:not(:disabled) {
-    background: var(--color-link, #2563eb);
-    color: #fff;
+    background: var(--color-link, #{$color-primary});
+    color: $color-white;
   }
 }
 
 @mixin button-ghost {
   @include button-base;
   background: transparent;
-  color: var(--color-text, #1f2937);
+  color: var(--color-text, #{$color-text});
 
   &:hover:not(:disabled) {
-    background: var(--color-hover-bg, rgba(0, 0, 0, 0.05));
+    background: var(--color-hover-bg, #{$color-hover-bg});
   }
 }
 
@@ -327,41 +336,6 @@
 }
 
 // =============================================================================
-// MEDIA QUERY HELPERS
-// =============================================================================
-
-@mixin mobile-only {
-  @media (max-width: $bp-md) {
-    @content;
-  }
-}
-
-@mixin tablet-up {
-  @media (min-width: $bp-md + 1) {
-    @content;
-  }
-}
-
-@mixin desktop-up {
-  @media (min-width: $bp-lg + 1) {
-    @content;
-  }
-}
-
-@mixin large-desktop {
-  @media (min-width: $bp-xl + 1) {
-    @content;
-  }
-}
-
-// Reduced motion
-@mixin reduced-motion {
-  @media (prefers-reduced-motion: reduce) {
-    @content;
-  }
-}
-
-// =============================================================================
 // UTILITY MIXINS
 // =============================================================================
 
@@ -404,7 +378,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-link, #2563eb);
+    outline: 2px solid var(--color-link, #{$color-primary});
     outline-offset: 2px;
   }
 }

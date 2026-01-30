@@ -12,9 +12,9 @@
     .code-block-toolbar {
       @include flex-between;
       padding: $space-sm $space-md;
-      background: #374151;
+      background: $color-dark-card-bg;
       border-radius: $radius-md $radius-md 0 0;
-      color: #9ca3af;
+      color: $color-dark-text-muted;
       font-size: $font-size-sm;
     }
 
@@ -26,28 +26,27 @@
         height: 12px;
         border-radius: 50%;
         &:nth-child(1) {
-          background: #ef4444;
+          background: $color-dot-red;
         }
         &:nth-child(2) {
-          background: #f59e0b;
+          background: $color-dot-yellow;
         }
         &:nth-child(3) {
-          background: #10b981;
+          background: $color-dot-green;
         }
       }
     }
 
     pre {
-      margin: 0;
       padding: $space-md;
-      background: #1f2937;
+      background: $color-dark-bg;
       border-radius: 0 0 $radius-md $radius-md;
-      color: #e5e7eb;
+      color: $color-dark-text;
 
       code {
         font-size: $font-size-sm;
         line-height: $line-height-relaxed;
-        color: #e5e7eb;
+        color: $color-dark-text;
         background: none;
         white-space: pre-wrap;
         word-break: break-word;
