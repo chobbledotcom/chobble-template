@@ -126,10 +126,4 @@ const createEvent = ({
  */
 const createEvents = map(createEvent);
 
-export {
-  expectEventCounts,
-  createOffsetDate,
-  formatDateString,
-  createEvent,
-  createEvents,
-};
+export { createOffsetDate, formatDateString, createEvent, createEvents };

@@ -4,17 +4,49 @@
  * @module #collections/events
  */
 
-import { categoriseEvents } from "#collections/categorise-events.js";
+import { filter, pipe, sort } from "#toolkit/fp/array.js";
+import { compareBy, descending } from "#toolkit/fp/sorting.js";
 import {
   createArrayFieldIndexer,
   featuredCollection,
   getEventsFromApi,
   getProductsFromApi,
 } from "#utils/collection-utils.js";
+import { sortItems } from "#utils/sorting.js";
 import { findFromChildren } from "#utils/thumbnail-finder.js";
 
 /** @typedef {import("#lib/types").EventCollectionItem} EventCollectionItem */
 /** @typedef {import("#lib/types").ProductCollectionItem} ProductCollectionItem */
+
+/** Compare events by event_date. */
+const byEventDate = compareBy((e) =>
+  new Date(e.data.event_date ?? 0).getTime(),
+);
+
+/** Build-time "today" boundary — stable for the entire build. */
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+/** Classify a single event as upcoming, past, regular, or undated. */
+const classifyEvent = (event) => {
+  if (event.data.recurring_date) return "regular";
+  if (!event.data.event_date) return "undated";
+  const date = new Date(event.data.event_date);
+  date.setHours(0, 0, 0, 0);
+  return date >= today ? "upcoming" : "past";
+};
+
+/** Filter + sort helpers for each event category. */
+const byCategory = (category, sorting) =>
+  pipe(
+    filter((e) => classifyEvent(e) === category),
+    sort(sorting),
+  );
+
+const upcomingFrom = byCategory("upcoming", byEventDate);
+const pastFrom = byCategory("past", descending(byEventDate));
+const regularFrom = byCategory("regular", sortItems);
+const undatedFrom = byCategory("undated", sortItems);
 
 /** Index products by event slug for O(1) lookups */
 const indexProductsByEvent = createArrayFieldIndexer("events");
@@ -43,28 +75,26 @@ const createEventsCollection = (collectionApi) => {
   });
 };
 
-/** Pre-filtered recurring events (sorted by order then title). */
-const createRecurringEventsCollection = (collectionApi) => {
-  const events = createEventsCollection(collectionApi);
-  return categoriseEvents(events).regular;
-};
-
-const createCategorisedEventsCollection = (collectionApi) =>
-  categoriseEvents(createEventsCollection(collectionApi));
-
 const configureEvents = (eleventyConfig) => {
   eleventyConfig.addCollection("events", createEventsCollection);
-  eleventyConfig.addCollection(
-    "categorisedEvents",
-    createCategorisedEventsCollection,
+  eleventyConfig.addCollection("upcomingEvents", (api) =>
+    upcomingFrom(createEventsCollection(api)),
+  );
+  eleventyConfig.addCollection("pastEvents", (api) =>
+    pastFrom(createEventsCollection(api)),
+  );
+  eleventyConfig.addCollection("regularEvents", (api) =>
+    regularFrom(createEventsCollection(api)),
+  );
+  eleventyConfig.addCollection("undatedEvents", (api) =>
+    undatedFrom(createEventsCollection(api)),
   );
   eleventyConfig.addCollection(
     "featuredEvents",
     featuredCollection(createEventsCollection),
   );
-  eleventyConfig.addCollection(
-    "recurringEvents",
-    createRecurringEventsCollection,
+  eleventyConfig.addCollection("recurringEvents", (api) =>
+    regularFrom(createEventsCollection(api)),
   );
 };
 
