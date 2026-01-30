@@ -14,6 +14,9 @@ jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
+    env:
+      NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
+      BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,7 +46,7 @@ jobs:
           bun run build
 
       - name: Deploy to Neocities
-        if: github.ref == 'refs/heads/main' && secrets.NEOCITIES_API_KEY != ''
+        if: github.ref == 'refs/heads/main' && env.NEOCITIES_API_KEY != ''
         uses: bcomnes/deploy-to-neocities@v3
         with:
           api_key: ${{ secrets.NEOCITIES_API_KEY }}
@@ -53,7 +56,7 @@ jobs:
           dist_dir: _site
 
       - name: Deploy to Bunny CDN
-        if: github.ref == 'refs/heads/main' && secrets.BUNNY_ACCESS_KEY != ''
+        if: github.ref == 'refs/heads/main' && env.BUNNY_ACCESS_KEY != ''
         uses: R-J-dev/bunny-deploy@v2.0.6
         with:
           access-key: ${{ secrets.BUNNY_ACCESS_KEY }}
