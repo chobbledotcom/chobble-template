@@ -254,7 +254,6 @@ const ALLOWED_DATA_FALLBACKS = frozenSet([
   "src/_lib/collections/categories.js:65",
   "src/_lib/collections/events.js:23",
   "src/_lib/collections/products.js:94",
-  "src/_lib/collections/search.js:26",
   "src/_lib/eleventy/ical.js:42",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
@@ -312,7 +311,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/filters/filter-core.js:142",
   "src/_lib/filters/filter-core.js:196",
   "src/_lib/filters/filter-core.js:202",
-  "src/_lib/filters/item-filters.js:156", // Normalize null/undefined filters from templates
+  "src/_lib/filters/item-filters.js:143", // Normalize null/undefined filters from templates
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
   "src/_lib/public/cart/cart.js:104",
