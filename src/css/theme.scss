@@ -1,22 +1,18 @@
+// Default Theme - matches design-system defaults from _variables.scss
 :root {
-  --color-bg: #241f31;
-  --color-text: #9a9996;
-  --color-link: #f6f5f4;
-  --color-link-hover: #ffffff;
-  --border: 2px solid #58648c;
-  --box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.3);
-  --font-family-body: Optima, Candara, "Noto Sans", source-sans-pro, sans-serif;
-  --link-decoration: underline;
-  --link-decoration-hover: underline;
-  --link-decoration-style: dashed;
+  --color-bg: #fafafa;
+  --color-bg-alt: #f3f4f6;
+  --color-card-bg: #ffffff;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-link: #2563eb;
+  --color-link-hover: #1d4ed8;
+  --color-link-light: #dbeafe;
+  --color-secondary: #7c3aed;
+  --color-accent: #2f2744;
+  --color-hover-bg: rgba(0, 0, 0, 0.05);
 }
 
 body {
-  background: #241f31;
+  background: #fafafa;
 }
-
-header {
-  --color-text: #ffffff;
-}
-
-/* body_classes: header-centered-dark */
